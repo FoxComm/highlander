@@ -59,8 +59,9 @@ alter table returns rename customer_id to account_id;
 alter table returns rename message_to_customer to message_to_account;
 alter table export_orders rename customer_id to account_id;
 alter table export_store_credits  rename customer_id to account_id;
-alter table customers_search_view add column account_id int;
 alter table store_credits_search_view rename customer_id to account_id;
+alter table export_store_admins drop column department;
+);
 
 --drop old constraints to customer and store_admin tables
 alter table notes drop constraint notes_store_admin_id_fkey;
@@ -72,7 +73,20 @@ alter table save_for_later drop constraint save_for_later_customer_id_fkey;
 alter table coupon_customer_usages drop constraint coupon_customer_usages_customer_id_fkey;
 alter table customer_password_resets drop constraint customer_password_resets_customer_id_fkey;
 alter table credit_cards drop constraint credit_cards_customer_id_fkey;
+alter table assignments drop constraint assignments_store_admin_id_fkey;
+alter table notes drop constraint notes_deleted_by_fkey;
+alter table cart_lock_events drop constraint cart_lock_events_locked_by_fkey;
+alter table gift_card_manuals drop constraint gift_card_manuals_admin_id_fkey;
+alter table store_credit_manuals drop constraint store_credit_manuals_admin_id_fkey;
+alter table store_credit_customs drop constraint store_credit_customs_admin_id_fkey;
+alter table returns drop constraint returns_store_admin_id_fkey;
+alter table return_lock_events drop constraint return_lock_events_locked_by_fkey;
+alter table customer_dynamic_groups drop constraint customer_dynamic_groups_created_by_fkey;
+alter table notification_subscriptions drop constraint notification_subscriptions_admin_id_fkey;
+alter table shared_searches drop constraint shared_searches_store_admin_id_fkey;
+alter table shared_search_associations drop constraint shared_search_associations_store_admin_id_fkey;
 
+alter table reasons drop constraint reasons_store_admin_id_fkey;
 
 -------------------------------------------------------------
 --- below are migrations from old system without roles to new
@@ -288,12 +302,18 @@ begin
 
     update assignments set store_admin_id = account_id where store_admin_id = s.id;
     update notes set store_admin_id = account_id where store_admin_id = s.id;
-    update notes set reference_id = account_id where reference_id = s.id;
+    update notes set reference_id = account_id where reference_id = s.id and reference_type = 'storeAdmin';
     update reasons set store_admin_id = account_id where store_admin_id = s.id;
     update notification_subscriptions set admin_id = account_id where admin_id = s.id;
     update returns set store_admin_id = account_id where store_admin_id = s.id;
     update shared_searches set store_admin_id = account_id where store_admin_id = s.id;
     update shared_search_associations set store_admin_id = account_id where store_admin_id = s.id;
+    update gift_card_manuals set admin_id = account_id where admin_id = s.id;
+    update gift_card_adjustments set store_admin_id = account_id where store_admin_id = s.id;
+    update store_credit_manulas set admin_id = account_id where admin_id = s.id;
+    update store_credit_adjustments set store_admin_id = account_id where store_admin_id = s.id;
+    update store_credit_customs set admin_id = account_id where admin_id = s.id;
+    update store_admins_search_view set id = account_id where id = s.id;
 
     return account_id;
 end;
@@ -323,7 +343,7 @@ begin
 
     -- update all customer_id to account_id
 
-    update notes set reference_id = account_id where reference_id = s.id;
+    update notes set reference_id = account_id where reference_id = s.id and reference_type = 'customer';
     update save_for_later set account_id = account_id where account_id = c.id;
     update carts set account_id = account_id where account_id = c.id;
     update orders set account_id = account_id where account_id = c.id;
@@ -333,7 +353,7 @@ begin
     update gift_cards set account_id = account_id where account_id = c.id;
     update store_credits set account_id = account_id where account_id = c.id;
     update returns set account_id = account_id where account_id = c.id;
-    update customers_search_view set account_id = account_id where id = c.id;
+    update customers_search_view set id = account_id where id = c.id;
     update store_credits_search_view set account_id = account_id where account_id = c.id;
 
     return account_id;
@@ -407,7 +427,8 @@ create unique index save_for_later_customer_sku on save_for_later (account_id, s
 
 alter table export_customers add account_id integer;
 
-drop materialized view notes_customers_view cascade;
+drop materialized view notes_search_view;
+drop materialized view notes_customers_view;
 create materialized view notes_customers_view as
 select
     n.id,
@@ -429,6 +450,69 @@ from notes as n
 inner join customer_users as c on (n.reference_id = c.account_id AND n.reference_type = 'customer')
 inner join users as u on (u.account_id = n.reference_id)
 group by n.id, c.id, u.account_id, u.name, u.email, u.is_blacklisted, u.created_at;
+
+drop materialized view notes_admins_view;
+create materialized view notes_admins_view as
+select
+    n.id,
+    -- Store admin
+    case when count(u) = 0
+    then
+        null
+    else
+        to_json((u.email, u.name)::export_store_admins)
+    end as store_admin
+from notes as n
+inner join store_admin_users as sa on (n.store_admin_id = sa.account_id)
+inner join users as u on (sa.account_id = sa.account_id)
+group by n.id, sa.id, u.email, u.name
+order by id;
+
+create unique index notes_admins_view_idx on notes_admins_view (id);
+
+drop materialized view notes_orders_view;
+drop materialized view order_stats_view;
+create materialized view order_stats_view as
+select
+	o.id,
+    o.account_id,
+	o.reference_number,
+	o.state,
+	o.placed_at,
+	o.sub_total,
+	o.shipping_total,
+	o.adjustments_total,
+	o.taxes_total,
+	o.grand_total,
+    count(oli.id) as items_count
+from orders as o
+left join order_line_items as oli on o.reference_number = oli.cord_ref
+group by o.id;
+
+create materialized view notes_orders_view as
+select
+    n.id,
+    -- Order
+    case when count(osv) = 0
+    then
+        '[]'
+    else
+        json_agg((
+        	osv.account_id,
+        	osv.reference_number,
+        	osv.state,
+        	to_char(osv.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+        	osv.sub_total,
+        	osv.shipping_total,
+        	osv.adjustments_total,
+        	osv.taxes_total,
+        	osv.grand_total,
+        	osv.items_count
+        )::export_orders)
+    end as order
+from notes as n
+left join order_stats_view as osv on (n.reference_id = osv.id AND n.reference_type = 'order')
+group by n.id;
 
 create materialized view notes_search_view as
 select distinct on (n.id)
@@ -466,21 +550,20 @@ create unique index notes_customers_view_idx on notes_customers_view (id);
 
 create or replace function update_customers_view_from_customers_insert_fn() returns trigger as $$
     begin
-        insert into customers_search_view select distinct on (new.id)
+        insert into customers_search_view select
             -- customer
-            new.id as id,
-            new.account_id as account_id,
-            new.name as name,
-            new.email as email,
-            new.is_disabled as is_disabled,
+            new.account_id as id,
+            u.name as name,
+            u.email as email,
+            u.is_disabled as is_disabled,
             new.is_guest as is_guest,
-            new.is_blacklisted as is_blacklisted,
-            new.phone_number as phone_number,
-            new.location as location,
-            new.blacklisted_by as blacklisted_by,
-            new.blacklisted_reason as blacklisted_reason,
-            to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as joined_at
-            from customer_users as c;
+            u.is_blacklisted as is_blacklisted,
+            u.phone_number as phone_number,
+            u.blacklisted_by as blacklisted_by,
+            to_char(u.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as joined_at
+            from customer_users as c, users as u
+            where c.account_id = new.account_id and u.account_id = new.account_id;
+
       return null;
   end;
 $$ language plpgsql;
@@ -496,17 +579,17 @@ create trigger update_customers_view_from_customers_insert
 create or replace function update_customers_view_from_customers_update_fn() returns trigger as $$
 begin
     update customers_search_view set
-        name = new.name,
-        email = new.email,
-        is_disabled = new.is_disabled,
-        is_guest = new.is_guest,
-        is_blacklisted = new.is_blacklisted,
-        phone_number = new.phone_number,
-        location = new.location,
-        blacklisted_by = new.blacklisted_by,
-        blacklisted_reason = new.blacklisted_reason,        
+        name = u.name,
+        email = u.email,
+        is_disabled = u.is_disabled,
+        is_guest = u.is_guest,
+        is_blacklisted = u.is_blacklisted,
+        phone_number = u.phone_number,
+        blacklisted_by = u.blacklisted_by,
         joined_at = to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
-    where id = new.id;
+    from customers_search_view, users as u
+    where customers_search_view.id = new.account_id and u.account_id = new.account_id;
+
     return null;
     end;
 $$ language plpgsql;
@@ -540,7 +623,7 @@ begin
     shipping_addresses_count = subquery.count,
     shipping_addresses = subquery.addresses
     from (select
-            c.id,
+            c.account_id as id,
             count(a) as count,
             case when count(a) = 0
             then
@@ -575,7 +658,7 @@ begin
         order_count = subquery.order_count,
         orders = subquery.orders
         from (select
-                c.id,
+                c.account_id as id,
                 count(o.id) as order_count,
                 case when count(o) = 0
                   then
@@ -628,7 +711,7 @@ begin
     billing_addresses_count = subquery.count,
     billing_addresses = subquery.addresses
     from (select
-            c.id,
+            c.account_id as id,
             count(cc) as count,
             case when count(cc) = 0
             then
@@ -663,7 +746,7 @@ begin
     store_credit_count = subquery.count,
     store_credit_total = subquery.total
     from (select
-            c.id,
+            c.account_id as id,
             count(sc.id) as count,
             coalesce(sum(sc.available_balance), 0) as total
         from customer_users as c
@@ -788,50 +871,28 @@ inner join orders as o on (op.cord_ref = o.reference_number)
 where ccc.state = 'failedAuth'
 order by ccc.id;
 
-drop materialized view order_stats_view cascade;
-create materialized view order_stats_view as
-select
-	o.id,
-    o.account_id,
-	o.reference_number,
-	o.state,
-	o.placed_at,
-	o.sub_total,
-	o.shipping_total,
-	o.adjustments_total,
-	o.taxes_total,
-	o.grand_total,
-    count(oli.id) as items_count
-from orders as o
-left join order_line_items as oli on o.reference_number = oli.cord_ref
-group by o.id;
-
-create materialized view notes_orders_view as
-select
-    n.id,
-    -- Order
-    case when count(osv) = 0
-    then
-        '[]'
-    else
-        json_agg((
-        	osv.account_id,
-        	osv.reference_number,
-        	osv.state,
-        	to_char(osv.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-        	osv.sub_total,
-        	osv.shipping_total,
-        	osv.adjustments_total,
-        	osv.taxes_total,
-        	osv.grand_total,
-        	osv.items_count
-        )::export_orders)
-    end as order
-from notes as n
-left join order_stats_view as osv on (n.reference_id = osv.id AND n.reference_type = 'order')
-group by n.id;
 
 drop materialized view store_credit_transactions_view;
+drop materialized view store_credit_transactions_admins_view;
+
+create materialized view store_credit_transactions_admins_view as
+select
+    sca.id,
+    -- Store admins
+    case when count(sa) = 0
+    then
+        null
+    else
+        to_json((u.email, u.name)::export_store_admins)
+    end as store_admin 
+from store_credit_adjustments as sca
+inner join store_credits as sc on (sc.id = sca.store_credit_id)
+left join store_admin_users as sa on (sa.account_id = sca.store_admin_id)
+left join users as u on (sa.account_id = sa.account_id)
+group by sca.id, sc.id, sa.id, u.email, u.name;
+
+create unique index store_credit_transactions_admins_view_idx on store_credit_transactions_admins_view (id);
+
 create materialized view store_credit_transactions_view as
 select distinct on (sca.id)
     -- Store Credit Transaction
@@ -872,7 +933,8 @@ left join gift_card_from_store_credits as gcfsc on (gc.origin_id = gcfsc.id)
 left join store_credits as sc on (sc.id = gcfsc.store_credit_id)
 group by gc.id, sc.id;
 
-drop materialized view customer_save_for_later_view cascade;
+drop materialized view customer_items_view;
+drop materialized view customer_save_for_later_view;
 create materialized view customer_save_for_later_view as
 select
     s.id,
@@ -1004,7 +1066,7 @@ begin
 		    where is_guest = false and c.account_id = new.account_id
 		    group by c.id
 		    order by c.id) as subquery
-    where customers_search_view.id = subquery.account_id;
+    where customers_search_view.id = subquery.id;
     return null;
 end;
 $$ language plpgsql;
@@ -1035,7 +1097,7 @@ begin
                         '{revenue}', jsonb (c.revenue::varchar), true)
                         as customer
           from carts_search_view as cs
-          inner join customers_search_view as c on (c.id = (cs.customer->>'id')::bigint)
+          inner join customers_search_view as c on (c.id = (cs.customer->>'account_id')::bigint)
           where c.rank > 0
         ) as q
         where carts_search_view.id = q.id;
@@ -1050,7 +1112,7 @@ begin
                         '{revenue}', jsonb (c.revenue::varchar), true)
                       as customer
           from orders_search_view as o
-          inner join customers_search_view as c on (c.id = (o.customer->>'id')::bigint)
+          inner join customers_search_view as c on (c.id = (o.customer->>'account_id')::bigint)
           where c.rank > 0
         ) as q
         where orders_search_view.id = q.id;
@@ -1089,11 +1151,10 @@ create or replace function update_orders_view_from_orders_insert_fn() returns tr
                 'revenue', c.revenue
             )::jsonb as customer
             from customers_search_view as c
-            where (new.account_id = c.account_id);
+            where (new.account_id = c.id);
         return null;
     end;
 $$ language plpgsql;
-
 
 create or replace function update_carts_view_from_carts_insert_fn() returns trigger as $$
     begin
@@ -1122,7 +1183,7 @@ create or replace function update_carts_view_from_carts_insert_fn() returns trig
                 'revenue', c.revenue
             )::jsonb as customer
             from customers_search_view as c
-            where (new.account_id = c.account_id);
+            where (new.account_id = c.id);
         return null;
     end;
 $$ language plpgsql;
@@ -1150,6 +1211,286 @@ create trigger update_orders_view_from_customers
     for each row
     execute procedure update_orders_view_from_customers_fn();
 
+-- migrate store admin indices, triggers, materialized views, etc. 
+
+drop index shared_search_associations_admin_id_idx;
+create index shared_search_associations_admin_id_idx on shared_search_associations (store_admin_id);
+
+drop materialized view store_credit_admins_view;
+create materialized view store_credit_admins_view as
+select
+    sc.id,
+    -- Store admins
+    case when count(sa) = 0
+    then
+        null
+    else
+        to_json((u.email, u.name)::export_store_admins)
+    end as store_admin  
+from store_credits as sc
+left join store_credit_manuals as scm on (sc.origin_id = scm.id)
+left join store_credit_customs as scc on (sc.origin_id = scc.id)
+left join store_admin_users as sa on (sa.account_id = scm.admin_id OR sa.account_id = scc.admin_id)
+left join users as u on (sa.account_id = sa.account_id)
+group by sc.id, sa.id, u.email, u.name;
+
+create unique index store_credit_admins_view_idx on store_credit_admins_view (id);
+
+drop materialized view gift_card_admins_view;
+create materialized view gift_card_admins_view as
+select
+    gc.id,
+    -- Store admins
+    case when count(sa) = 0
+    then
+        null
+    else
+        to_json((u.email, u.name)::export_store_admins)
+    end as store_admin
+from gift_cards as gc
+left join gift_card_manuals as gcm on (gc.origin_id = gcm.id)
+left join store_admin_users as sa on (sa.account_id = gcm.admin_id)
+left join users as u on (sa.account_id = sa.account_id)
+group by gc.id, sa.id, u.email, u.name;
+
+create unique index gift_card_admins_view_idx on gift_card_admins_view (id);
+
+drop materialized view gift_card_transactions_view;
+drop materialized view gift_card_transactions_admins_view;
+create materialized view gift_card_transactions_admins_view as
+select
+    gca.id,
+    -- Store admins
+    case when count(sa) = 0
+    then
+        null
+    else
+        to_json((u.email, u.name)::export_store_admins)
+    end as store_admin
+from gift_card_adjustments as gca
+inner join gift_cards as gc on (gc.id = gca.gift_card_id)
+left join store_admin_users as sa on (sa.account_id = gca.store_admin_id)
+left join users as u on (sa.account_id = sa.account_id)
+group by gca.id, sa.id, u.email, u.name;
+
+create unique index gift_card_transactions_admins_view_idx on gift_card_transactions_admins_view (id);
+
+create materialized view gift_card_transactions_view as
+select distinct on (gca.id)
+    -- Gift Card Transaction
+    gca.id,
+    gca.debit,
+    gca.credit,
+    gca.available_balance,
+    gca.state,
+    to_char(gca.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
+    -- Gift Card
+    gc.code,
+    gc.origin_type,
+    gc.currency,
+    to_char(gc.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as gift_card_created_at,
+    -- Order Payment
+    gctpv.order_payment,
+    -- Store admins
+    gctav.store_admin
+from gift_card_adjustments as gca
+inner join gift_cards as gc on (gc.id = gca.gift_card_id)
+inner join gift_card_transactions_payments_view as gctpv on (gctpv.id = gca.id)
+inner join gift_card_transactions_admins_view as gctav on (gctav.id = gca.id)
+order by gca.id;
+
+create unique index gift_card_transactions_view_idx on gift_card_transactions_view (id);
+
+
+create or replace function update_store_credits_view_from_store_admins_fn() returns trigger as $$
+declare store_credit_ids integer[];
+begin
+  case tg_table_name
+    when 'store_credits' then
+      store_credit_ids := array_agg(new.id);
+    when 'store_credits_search_view' then
+      store_credit_ids := array_agg(new.id);
+    when 'store_credit_manuals' then
+      select array_agg(sc.id) into strict store_credit_ids
+      from store_credit_manuals as scm
+      inner join store_credits as sc on (sc.origin_id = scm.id)
+      where scm.id = new.id and sc.origin_type = 'csrAppeasement';
+    when 'store_credit_customs' then
+      select array_agg(sc.id) into strict store_credit_ids
+      from store_credit_customs as scs
+      inner join store_credits as sc on (sc.origin_id = scs.id)
+      where scs.id = new.id and sc.origin_type = 'custom';
+    when 'store_admin_users' then
+      select array_agg(sc.id) into strict store_credit_ids
+      from store_credits as sc
+      left join store_credit_manuals as scm on (sc.origin_id = scm.id)
+      left join store_credit_customs as scc on (sc.origin_id = scc.id)
+      left join store_admin_user as sa on (sa.account_id = scm.admin_id or sa.account_id = scc.admin_id)
+      left join uses as u on (u.account_id = sa.account_id)
+      where sa.id = new.id;
+  end case;
+
+  update store_credits_search_view set
+    store_admin = subquery.store_admin
+    from (select
+            sc.id,
+            case when count(sa) = 0 then '{}'
+            else to_json((u.email, u.name)::export_store_admins)::jsonb
+            end as store_admin
+        from store_credits as sc
+        left join store_credit_manuals as scm on (sc.origin_id = scm.id)
+        left join store_credit_customs as scc on (sc.origin_id = scc.id)
+        left join store_admin_users as sa on (sa.account_id = scm.admin_id or sa.account_id = scc.admin_id)
+        left join uses as u on (u.account_id = sa.account_id)
+        where sc.id = any(store_credit_ids)
+        group by sc.id, sa.id) as subquery
+    where store_credits_search_view.id = subquery.id;
+
+    return null;
+end;
+$$ language plpgsql;
+
+drop trigger update_store_credits_view_from_store_admins_store_credits_fn on store_credits;
+create trigger update_store_credits_view_from_store_admins_store_credits_fn
+    after update on store_credits
+    for each row
+    execute procedure update_store_credits_view_from_store_admins_fn();
+
+drop trigger update_store_credits_view_admins_from_self_tg on store_credits_search_view;
+create trigger update_store_credits_view_admins_from_self_tg
+  after insert on store_credits_search_view
+  for each row
+  execute procedure update_store_credits_view_from_store_admins_fn();
+
+drop trigger update_store_credits_view_from_store_admins_store_credit_manuals_fn on store_credit_manuals;
+create trigger update_store_credits_view_from_store_admins_store_credit_manuals_fn
+    after update on store_credit_manuals
+    for each row
+    execute procedure update_store_credits_view_from_store_admins_fn();
+
+drop trigger update_store_credits_view_from_store_admins_store_credit_customs_fn on store_credit_customs;
+create trigger update_store_credits_view_from_store_admins_store_credit_customs_fn
+    after update on store_credit_customs
+    for each row
+    execute procedure update_store_credits_view_from_store_admins_fn();
+
+
+drop trigger update_store_credits_view_from_store_admins_store_admins_fn on store_admins;
+create trigger update_store_credits_view_from_store_admins_store_admins_fn
+    after update on store_admin_users
+    for each row
+    execute procedure update_store_credits_view_from_store_admins_fn();
+
+create or replace function share_system_searches_with_new_admins_fn() returns trigger as $$
+begin
+    insert into shared_search_associations (shared_search_id, store_admin_id)
+    select id, new.account_id from shared_searches where is_system = true;
+
+    return null;
+end;
+$$ language plpgsql;
+
+drop trigger share_system_searches_with_new_admins_trigger on store_admins;
+create trigger share_system_searches_with_new_admins_trigger
+    after insert on store_admin_users
+    for each row
+    execute procedure share_system_searches_with_new_admins_fn();
+
+create or replace function update_orders_view_from_assignments_fn() returns trigger as $$
+declare cord_refs bigint[];
+begin
+  case tg_table_name
+    when 'orders' then
+      select array_agg(o.id) into strict cord_refs
+      from orders as o
+      where o.id = new.id;
+    when 'assignments' then
+      select array_agg(o.id) into strict cord_refs
+      from assignments as a
+      inner join orders as o on (o.id = a.reference_id)
+      where a.id = new.id and a.reference_type = 'order';
+    when 'store_admin_users' then
+      select array_agg(o.id) into strict cord_refs
+      from orders as o
+      inner join assignments as a on (o.id = a.reference_id and a.reference_type = 'order')
+      inner join store_admin_users as sa on (sa.account_id = a.store_admin_id)
+      where sa.id = new.id;
+  end case;
+
+  update orders_search_view set
+    assignment_count = subquery.count,
+    assignees = subquery.assignees
+    from (select
+            o.id,
+            count(a.id) as count,
+            case when count(sa) = 0
+            then
+                '[]'
+            else
+                json_agg((
+                    u.name,
+                    to_char(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'))::export_assignees)::jsonb
+            end as assignees
+        from orders as o
+        left join assignments as a on (o.id = a.reference_id and a.reference_type = 'order')
+        left join store_admin_users as sa on (sa.account_id = a.store_admin_id)
+        left join users as u on (u.account_id = sa.account_id)
+        where o.id = any(cord_refs)
+        group by o.id) as subquery
+  where orders_search_view.id = subquery.id;
+
+    return null;
+end;
+$$ language plpgsql;
+
+create or replace function update_store_admins_view_insert_fn() returns trigger as $$
+    begin
+        insert into store_admins_search_view select
+            u.account_id as id,
+            u.name as name,
+            u.email as email,
+            u.phone_number as phone_number,
+            new.state as state,
+            to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at
+            from store_admin_users as s, users as u
+            where s.account_id = new.account_id 
+              and u.account_id = new.account_id;
+
+      return null;
+  end;
+$$ language plpgsql;
+
+create or replace function update_store_admins_view_update_fn() returns trigger as $$
+begin
+    update store_admins_search_view set
+        name = new.name,
+        email = new.email,
+        phone_number = new.phone_number,
+        state = new.state,      
+        created_at = to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+    from users as u
+    where id = new.account_id and u.account_id = new.account_id;
+    return null;
+    end;
+$$ language plpgsql;
+
+drop trigger update_store_admins_view_insert on store_admins;
+create trigger update_store_admins_view_insert
+    after insert on store_admin_users
+    for each row
+    execute procedure update_store_admins_view_insert_fn();
+
+drop trigger update_store_admins_view_update on store_admins;
+create trigger update_store_admins_view_update
+    after update on store_admin_users
+    for each row
+    execute procedure update_store_admins_view_update_fn();
+
+drop trigger update_orders_view_from_assignments_store_admin_fn on store_admins;
+create trigger update_orders_view_from_assignments_store_admin_fn
+    after update or insert on store_admin_users
+    for each row
+    execute procedure update_orders_view_from_assignments_fn();
 
 --drop customers and store admins
 

@@ -17,7 +17,7 @@ object StoreAdminRoutes {
       pathPrefix("store-admins") {
         (post & pathEnd & entity(as[CreateStoreAdminPayload])) { payload ⇒
           mutateOrFailures {
-            StoreAdminManager.create(payload, admin)
+            StoreAdminManager.create(payload, Some(admin))
           }
         } ~
         pathPrefix(IntNumber) { saId ⇒

@@ -517,7 +517,8 @@ object LogActivity {
     Activities.log(MultipleCouponCodesGenerated(coupon, admin.map(buildUser(_))))
 
   /* Store Admin */
-  def storeAdminCreated(entity: User, admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+  def storeAdminCreated(entity: User, admin: Option[User])(implicit ec: EC,
+                                                           ac: AC): DbResultT[Activity] =
     Activities.log(StoreAdminCreated(entity, admin))
 
   def storeAdminUpdated(entity: User, admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =

@@ -5,7 +5,7 @@ import models.admin.StoreAdminUser
 
 object StoreAdminsTailored {
 
-  case class StoreAdminCreated(storeAdmin: User, admin: User)
+  case class StoreAdminCreated(storeAdmin: User, admin: Option[User])
       extends ActivityBase[StoreAdminCreated]
 
   case class StoreAdminUpdated(storeAdmin: User, admin: User)

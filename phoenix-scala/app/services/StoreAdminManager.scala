@@ -9,6 +9,7 @@ import responses.StoreAdminResponse
 import services.account._
 import utils.aliases._
 import utils.db._
+import failures.UserFailures._
 
 import cats.implicits._
 
@@ -20,12 +21,18 @@ object StoreAdminManager {
       storeAdminUser ← * <~ StoreAdminUsers.mustFindByAccountId(accountId)
     } yield StoreAdminResponse.build(admin, storeAdminUser)
 
-  def create(payload: CreateStoreAdminPayload,
-             author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreAdminResponse.Root] = {
-
-    val context = AccountCreateContext(payload.roles, payload.org, payload.scopeId)
+  def create(payload: CreateStoreAdminPayload, author: Option[User])(
+      implicit ec: EC,
+      db: DB,
+      ac: AC): DbResultT[StoreAdminResponse.Root] = {
 
     for {
+      organization ← * <~ Organizations
+                      .findByName(payload.org)
+                      .mustFindOr(OrganizationNotFoundByName(payload.org))
+
+      context = AccountCreateContext(payload.roles, payload.org, organization.scopeId)
+
       admin ← * <~ AccountManager.createUser(name = payload.name.some,
                                              email = payload.email.some,
                                              password = payload.password,
