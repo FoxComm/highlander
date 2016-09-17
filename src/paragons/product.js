@@ -185,12 +185,12 @@ function variantsWithMultipleOptions(variants): Array<Object> {
 export function availableVariants(variants): Array<Object> {
   const opts = variantsWithMultipleOptions(variants);
   // magic of Cartesian product http://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
-  const availableVariants = _.reduce(opts, function(a, b) {
-      return _.flatten(_.map(a, function(x) {
-          return _.map(b, function(y) {
-              return x.concat([y]);
-          });
-      }), true);
+  const availableVariants = _.reduce(opts, (acc, currentOptionList) => {
+    return _.flatten(_.map(acc, (accValue) => {
+      return _.map(currentOptionList, (option) => {
+        return accValue.concat([option]);
+      });
+    }), true);
   }, [ [] ]);
   return availableVariants;
 }
