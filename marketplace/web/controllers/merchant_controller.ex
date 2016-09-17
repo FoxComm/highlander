@@ -65,7 +65,7 @@ defmodule Marketplace.MerchantController do
           business_name: ma.name, 
           email_address: ma.email_address,
           description: ma.description,
-         state: "activated"
+          state: "activated"
         } 
         merchant_cs = Merchant.changeset(%Merchant{}, merchant)
     
