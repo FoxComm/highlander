@@ -12,7 +12,8 @@ const routes = (
     <IndexRedirect to="application" />
     <Route component={Main}>
       <IndexRoute component={ApplicationPage} />
-      <Route path="application" component={ApplicationPage}>
+      <Route path="application">
+        <IndexRoute component={ApplicationPage} />
         <Route path=":ref" component={ApplicationPage} />
         <Route path=":ref/account" component={AccountPage} />
       </Route>

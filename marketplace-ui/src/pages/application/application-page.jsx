@@ -36,10 +36,14 @@ class MerchantApplicationPage extends Component {
   props: Props;
 
   componentWillMount(): void {
-    const { fetch, params: { ref: refParam }, application: { reference_number: ref } } = this.props;
+    const { fetch, params: { ref: refParam }, application: { reference_number: ref, state } } = this.props;
 
     if (refParam && !ref) {
       fetch(refParam);
+    }
+
+    if (ref && state === 'approved') {
+      this.props.replace(`/application/${ref}/account`);
     }
   }
 

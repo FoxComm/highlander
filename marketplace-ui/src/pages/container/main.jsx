@@ -31,7 +31,7 @@ const steps = (currentStep, router) => [
   },
   {
     key: STEP_ACCOUNT,
-    active: router.isActive(`/${STEP_ACCOUNT}`),
+    active: router.isActive(`/${STEP_APPLICATION}/:ref/${STEP_ACCOUNT}`),
     title: 'Create Account',
     disabled: currentStep !== STEP_ACCOUNT,
   },
