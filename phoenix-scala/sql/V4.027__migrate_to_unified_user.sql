@@ -61,7 +61,8 @@ alter table export_orders rename customer_id to account_id;
 alter table export_store_credits  rename customer_id to account_id;
 alter table store_credits_search_view rename customer_id to account_id;
 alter table export_store_admins drop column department;
-);
+alter table customers_search_view drop column location;
+alter table customers_search_view drop column blacklisted_reason;
 
 --drop old constraints to customer and store_admin tables
 alter table notes drop constraint notes_store_admin_id_fkey;
@@ -559,7 +560,7 @@ create or replace function update_customers_view_from_customers_insert_fn() retu
             new.is_guest as is_guest,
             u.is_blacklisted as is_blacklisted,
             u.phone_number as phone_number,
-            u.blacklisted_by as blacklisted_by,
+            u.blacklisted_by,
             to_char(u.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as joined_at
             from customer_users as c, users as u
             where c.account_id = new.account_id and u.account_id = new.account_id;
@@ -794,7 +795,7 @@ begin
 
   select array_agg(c.id) into strict account_ids
     from orders
-    inner join customers as c on (orders.account_id = c.id)
+    inner join customer_users as c on (orders.account_id = c.account_id)
     where orders.reference_number = any(cord_refs);
 
 
@@ -815,6 +816,7 @@ begin
       from (
             select
                 c.id,
+                c.account_id,
                 coalesce(sum(CCc.amount),0) + coalesce(sum(SCa.debit), 0) + coalesce(sum(GCa.debit),0) - coalesce(sum(rp.amount),0) as revenue
             from customer_users as c
               inner join orders on(c.account_id = orders.account_id and orders.state in ('remorseHold', 'fulfillmentStarted', 'shipped'))
@@ -1055,7 +1057,7 @@ begin
         revenue = subquery.revenue 
         from (
 			select
-				c.id as account_id,
+				c.account_id as id,
 		    	coalesce(sum(ccc.amount), 0) + coalesce(sum(sca.debit), 0) + coalesce(sum(gca.debit), 0) as revenue
 		    from customer_users as c
 		    inner join orders on (c.account_id = orders.account_id and orders.state = 'shipped')
@@ -1142,7 +1144,6 @@ create or replace function update_orders_view_from_orders_insert_fn() returns tr
             -- customer
             json_build_object(
                 'id', c.id,
-                'account_id', c.account_id,
                 'name', c.name,
                 'email', c.email,
                 'is_blacklisted', c.is_blacklisted,
@@ -1174,7 +1175,6 @@ create or replace function update_carts_view_from_carts_insert_fn() returns trig
             -- customer
             json_build_object(
                 'id', c.id,
-                'account_id', c.account_id,
                 'name', c.name,
                 'email', c.email,
                 'is_blacklisted', c.is_blacklisted,
@@ -1326,7 +1326,7 @@ begin
       left join store_credit_manuals as scm on (sc.origin_id = scm.id)
       left join store_credit_customs as scc on (sc.origin_id = scc.id)
       left join store_admin_user as sa on (sa.account_id = scm.admin_id or sa.account_id = scc.admin_id)
-      left join uses as u on (u.account_id = sa.account_id)
+      left join users as u on (u.account_id = sa.account_id)
       where sa.id = new.id;
   end case;
 
@@ -1341,9 +1341,9 @@ begin
         left join store_credit_manuals as scm on (sc.origin_id = scm.id)
         left join store_credit_customs as scc on (sc.origin_id = scc.id)
         left join store_admin_users as sa on (sa.account_id = scm.admin_id or sa.account_id = scc.admin_id)
-        left join uses as u on (u.account_id = sa.account_id)
+        left join users as u on (u.account_id = sa.account_id)
         where sc.id = any(store_credit_ids)
-        group by sc.id, sa.id) as subquery
+        group by sc.id, sa.id, u.email, u.name) as subquery
     where store_credits_search_view.id = subquery.id;
 
     return null;

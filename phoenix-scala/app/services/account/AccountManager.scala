@@ -107,9 +107,13 @@ object AccountManager {
 
       account ← * <~ Accounts.create(Account())
 
-      _ ← * <~ password.map { p ⇒
-           AccountAccessMethods.create(AccountAccessMethod.build(account.id, "login", p))
-         }
+      _ ← * <~ (password match {
+               case Some(p) ⇒
+                 AccountAccessMethods.create(AccountAccessMethod.build(account.id, "login", p))
+               case None ⇒ {
+                 DbResultT.unit
+               }
+             })
 
       user ← * <~ Users.create(User(accountId = account.id, email = email, name = name))
 

@@ -19,6 +19,7 @@ import org.json4s.jackson.JsonMethods._
 import org.json4s.{Extraction, _}
 import utils.FoxConfig.{RichConfig, config}
 import utils.db._
+import scala.collection.JavaConverters._
 
 object Keys {
 
@@ -102,7 +103,7 @@ object Token {
       email
     }
 
-    claims.setClaim("claims", token.claims)
+    claims.setClaim("claims", token.claims.mapValues(_.asJava).asJava)
 
     claims.setExpirationTimeMinutesInTheFuture(tokenTTL.toFloat)
     claims.setIssuer("FC")
