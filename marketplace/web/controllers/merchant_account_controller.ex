@@ -12,6 +12,11 @@ defmodule Marketplace.MerchantAccountController do
   def create(conn, %{"merchant_id" => merchant_id, "account" => merchant_account_params}) do
     changeset = MerchantAccount.changeset(%MerchantAccount{merchant_id: String.to_integer(merchant_id)}, merchant_account_params)
 
+    phoenix_url = Application.get_env(:marketplace, Marketplace.MerchantAccount)[:phoenix_url]
+    phoenix_port = Application.get_env(:marketplace, Marketplace.MerchantAccount)[:phoenix_port]
+    full_phx_path = "#{phoenix_url}:#{phoenix_port}"
+
+    IO.inspect("full path: #{full_phx_path}")
     case Repo.insert(changeset) do 
       {:ok, merchant_account} -> 
         conn
