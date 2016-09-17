@@ -172,8 +172,18 @@ export function setSkuAttribute(product: Product,
   return assoc(product, 'skus', newSkus);
 }
 
+function variantsWithMultipleOptions(variants): Array<Object> {
+  const opts = _.reduce(variants, (acc, variant) => {
+    if (_.isEmpty(variant.values)) {
+      return acc;
+    }
+    return acc.concat([variant.values]);
+  }, []);
+  return opts;
+}
+
 export function availableVariants(variants): Array<Object> {
-  const opts = _.map(variants, variant => variant.values);
+  const opts = variantsWithMultipleOptions(variants);
   // magic of Cartesian product http://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
   const availableVariants = _.reduce(opts, function(a, b) {
       return _.flatten(_.map(a, function(x) {

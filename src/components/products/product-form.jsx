@@ -91,14 +91,15 @@ export default class ProductForm extends Component {
     }
     const newProduct = assoc(
         this.props.product,
-        ['skus'], skus
+        ['skus'], skus,
+        ['variants'], variants
       );
     return this.props.onUpdateProduct(newProduct);
   }
 
   @autobind
   updateVariants(newVariants: Array<any>): void {
-    this.setState({ variants: newVariants }, () => this.updateSkuVariantMapping(newVariants));
+    this.updateSkuVariantMapping(newVariants);
   }
 
   @autobind
@@ -160,7 +161,7 @@ export default class ProductForm extends Component {
           />
 
           <OptionList
-            variants={this.state.variants}
+            variants={this.props.product.variants}
             updateVariants={this.updateVariants}
           />
 
@@ -168,7 +169,7 @@ export default class ProductForm extends Component {
             fullProduct={this.props.product}
             updateField={this.props.onSetSkuProperty}
             updateFields={this.props.onSetSkuProperties}
-            variants={this.state.variants}
+            variants={this.props.product.variants}
           />
 
           <ObjectForm
