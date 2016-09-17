@@ -1,5 +1,5 @@
 
-#include "db/user.hpp"
+#include "db/user_verifier.hpp"
 #include "util/dbc.hpp"
 
 #include <boost/optional.hpp>
@@ -33,7 +33,7 @@ namespace isaac
             return db_ratchet;
         }
 
-        bool user::same_ratchet(
+        bool user_verifier::same_ratchet(
                 const char* table,
                 const std::size_t id,
                 const int ratchet)
@@ -44,18 +44,11 @@ namespace isaac
             return db_ratchet && ratchet == db_ratchet.value();
         }
 
-        bool user::valid_customer(std::size_t id, int ratchet)
+        bool user_verifier::valid_user(std::size_t id, int ratchet)
         {
             REQUIRE_GREATER_EQUAL(ratchet, 0);
 
-            return same_ratchet("customers", id, ratchet);
-        }
-
-        bool user::valid_admin(std::size_t id, int ratchet)
-        {
-            REQUIRE_GREATER_EQUAL(ratchet, 0);
-
-            return same_ratchet("store_admins", id, ratchet);
+            return same_ratchet("users", id, ratchet);
         }
     }
 }

@@ -11,15 +11,13 @@ namespace isaac
     {
         using connection_ptr = std::unique_ptr<pqxx::connection>;
         
-        //TODO: rename to user_verifier
-        class user
+        class user_verifier
         {
             public:
-                user(pqxx::connection& c) : _c{c} {}
+                user_verifier(pqxx::connection& c) : _c{c} {}
 
             public:
-                bool valid_customer(std::size_t id, int ratchet);
-                bool valid_admin(std::size_t id, int ratchet);
+                bool valid_user(std::size_t id, int ratchet);
 
             private:
                 bool same_ratchet(
@@ -30,7 +28,7 @@ namespace isaac
                 pqxx::connection& _c;
         };
 
-        using user_ptr = std::unique_ptr<user>;
+        using verifier_ptr = std::unique_ptr<user_verifier>;
     }
 }
 
