@@ -23,11 +23,20 @@ lazy val commonSettings = Seq(
 lazy val scalafmtAll     = taskKey[Unit]("scalafmt all the things")
 lazy val scalafmtTestAll = taskKey[Unit]("scalafmtTest all the things")
 
+val sharedItSettings = Defaults.testTasks ++ Defaults.itSettings ++ ScalaFmtPlugin.configScalafmtSettings
+
+lazy val itSettings = inConfig(IT)(sharedItSettings) ++ Seq(
+  testOptions in IT := (testOptions in Test).value :+ Tests.Argument("-l", "tags.External")
+)
+
+lazy val etSettings = inConfig(ET)(sharedItSettings) ++ Seq(
+  testOptions in ET := (testOptions in Test).value :+ Tests.Argument("-n", "tags.External")
+)
+
 lazy val phoenixScala = (project in file(".")).
   settings(commonSettings).
-  configs(IT).
-  settings(inConfig(IT)(Defaults.itSettings)).
-  settings(inConfig(IT)(ScalaFmtPlugin.configScalafmtSettings)).
+  configs(IT, ET).
+  settings(itSettings, etSettings).
   settings(
     name      := "phoenix-scala",
     version   := "1.0",
@@ -47,7 +56,7 @@ lazy val phoenixScala = (project in file(".")).
     libraryDependencies ++= Dependencies.slick,
     libraryDependencies ++= Dependencies.json4s,
     libraryDependencies ++= {
-      val test = "test,it"
+      val test = "test,it,et"
 
       val scalaTestV = "2.2.6"
       val slickPgV   = "0.14.2"
@@ -89,16 +98,18 @@ lazy val phoenixScala = (project in file(".")).
         "com.amazonaws"              %  "aws-java-sdk"           % "1.11.15",
         // Testing
         "org.conbere"                %  "markov_2.10"            % "0.2.0",
-        "org.scalatest"              %% "scalatest"              % scalaTestV % test,
-        "org.scalacheck"             %% "scalacheck"             % "1.13.1"   % test,
-        "org.mockito"                %  "mockito-core"           % "1.10.19"  % test)
+        "org.scalatest"              %% "scalatest"              % scalaTestV       % test,
+        "org.scalacheck"             %% "scalacheck"             % "1.13.1"         % test,
+        "org.mockito"                %  "mockito-core"           % "2.1.0-beta.125" % test)
     },
     scalaSource in Compile <<= baseDirectory(_ / "app"),
     scalaSource in Test    <<= baseDirectory(_ / "test" / "unit"),
     scalaSource in IT      <<= baseDirectory(_ / "test" / "integration"),
+    scalaSource in ET      <<= baseDirectory(_ / "test" / "integration"),
     resourceDirectory in Compile <<= baseDirectory(_ / "resources"),
     resourceDirectory in Test    <<= baseDirectory(_ / "test" / "resources"),
     resourceDirectory in IT      <<= resourceDirectory in Test,
+    resourceDirectory in ET      <<= resourceDirectory in Test,
     Revolver.settings,
     (mainClass in Compile) := Some("server.Main"),
     initialCommands in console :=
@@ -118,30 +129,38 @@ lazy val phoenixScala = (project in file(".")).
         |import utils.db._
         """.stripMargin,
     initialCommands in (Compile, consoleQuick) := "",
-    // add ms report for every test
-    testOptions in Test ++= Seq(Tests.Argument(TestFrameworks.ScalaTest, "-oD"), Tests.Argument("-l", "tags.External")),
+    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC", "-Dphoenix.env=test"),
     parallelExecution in Test := true,
     parallelExecution in IT   := false,
+    parallelExecution in ET   := false,
     fork in Test := false,
     fork in IT   := true, /** FIXME: We couldn’t run ITs in parallel if we fork */
+    fork in ET   := true,
     logBuffered in Test := false,
     logBuffered in IT   := false,
+    logBuffered in ET   := false,
     test in assembly := {},
     addCommandAlias("assembly", "gatling/assembly"),
     addCommandAlias("all", "; clean; gatling/clean; it:compile; gatling/compile; test; gatling/assembly"),
     scalafmtConfig := Some(file(".scalafmt")),
     reformatOnCompileWithItSettings, // scalafmt
-    scalafmtAll     <<= Def.task().dependsOn(scalafmt in Compile, scalafmt in Test, scalafmt in IT),
-    scalafmtTestAll <<= Def.task().dependsOn(scalafmtTest in Compile, scalafmtTest in Test, scalafmtTest in IT),
-    test <<= Def.task {
-      /** We need to do nothing here. Unit and ITs will run in parallel
-        * and this task will fail if any of those fail. */
-      ()
-    }.dependsOn(compile in Test, compile in IT, test in Test, test in IT)
-)
+    scalafmtAll     <<= Def.task().dependsOn(scalafmt in Compile,
+                                             scalafmt in Test,
+                                             scalafmt in IT,
+                                             scalafmt in ET),
+    scalafmtTestAll <<= Def.task().dependsOn(scalafmtTest in Compile,
+                                             scalafmtTest in Test,
+                                             scalafmtTest in IT,
+                                             scalafmtTest in ET),
+    test <<= Def.sequential(compile in Test, compile in IT, compile in ET,
+                            test    in Test, test    in IT, test    in ET)
+  )
 
 lazy val IT = config("it") extend Test
+
+// ET == external tests
+lazy val ET = config("et") extend IT
 
 lazy val seed = inputKey[Unit]("Resets and seeds the database")
 seed := { (runMain in Compile).partialInput(" utils.seeds.Seeds seed --seedAdmins --seedDemo 1").evaluated }

@@ -1,9 +1,9 @@
 
 build:
-	true
+	sbt gatling:compile
 
 clean:
-	true
+	sbt clean
 
 test:
 	true

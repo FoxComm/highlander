@@ -4,6 +4,10 @@
   shell: npm install gulp -g
   sudo: true
 
+- name: Install Lein for clojure
+  shell: 'bash -c "cd /usr/local/bin && wget https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein && chmod +x lein"'
+  sudo: true
+
 - name: Install Boot for Clojure
   shell: 'bash -c "cd /usr/local/bin && curl -fsSLo boot https://github.com/boot-clj/boot-bin/releases/download/latest/boot.sh && chmod 755 boot"'
   sudo: true
@@ -36,46 +40,68 @@
   tags: isaac
 
 - name: Get Proxygen
-  git: repo=https://github.com/facebook/proxygen.git dest={{proxygen_install_dir}} version={{proxygen_version}}
+  git: repo=https://github.com/facebook/proxygen.git dest={{proxygen_install_dir}} version={{proxygen_version}} force=yes
   tags: isaac
 
 - name: Get Folly
-  git: repo=https://github.com/facebook/folly.git dest={{folly_install_dir}} version={{folly_version}}
+  git: repo=https://github.com/facebook/folly.git dest={{folly_install_dir}} version={{folly_version}} force=yes
   tags: isaac
 
 - name: Get Wangle
-  git: repo=https://github.com/facebook/wangle.git dest={{wangle_install_dir}} version={{wangle_version}}
+  git: repo=https://github.com/facebook/wangle.git dest={{wangle_install_dir}} version={{wangle_version}} force=yes
   tags: isaac
- 
-- name: Don't checkout master
-  lineinfile: dest={{proxygen_install_dir}}/proxygen/deps.sh state=absent regexp="checkout master"
 
-- name: Make and Install Proxygen
+- name: Remove `git checkout master` from Proxygen Build Script
+  lineinfile: dest={{proxygen_install_dir}}/proxygen/deps.sh state=absent regexp="checkout master"
+  tags: isaac
+
+- name: Build Proxygen
   shell: ./deps.sh && ./reinstall.sh
   args:
     chdir: "{{proxygen_install_dir}}/proxygen"
   sudo: true
   tags: isaac
 
-- name:
+- name: Create GOPATH Directories
   file: path={{home}}/go state=directory
+  tags: golang
 
-- name:
+- name: Create GOPATH Directories
   file: path={{home}}/go/src state=directory
+  tags: golang
 
-- name:
+- name: Create GOPATH Directories
   file: path={{home}}/go/bin state=directory
+  tags: golang
 
 - name: Add Glide repository
   apt_repository: repo='ppa:masterminds/glide' update_cache=yes
   sudo: true
+  tags: golang
 
 - name: Install Glide
   apt: name={{ item }} state=latest force=yes
   sudo: true
   with_items:
     - glide
+  tags: golang
+
+- name: Remove Ansible 2.x
+  command: pip uninstall -y ansible
+  tags: ansible19
+  sudo: true
+
+- name: Install Ansible 1.9.x
+  command: pip install ansible==1.9.4
+  tags: ansible19
+  sudo: true
+
+- name: Install Package for Ansible Lint
+  apt: name=libffi-dev state=latest force=yes
+  sudo: true
+  tags: ansible-lint
 
 - name: Install ansible-lint
   pip: name=ansible-lint
   sudo: true
+  tags: ansible-lint

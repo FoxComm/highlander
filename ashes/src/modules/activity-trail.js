@@ -1,6 +1,5 @@
 
 import _ from 'lodash';
-import flatMap from '../lib/flatMap';
 import {createAction, createReducer} from 'redux-act';
 import { update, assoc } from 'sprout-data';
 import { updateItems } from './state-helpers';
@@ -27,7 +26,7 @@ export function processActivity(activity) {
 }
 
 export function processActivities(activities) {
-  return flatMap(activities, activity => {
+  return _.flatMap(activities, activity => {
     if (activity.kind == types.CART_LINE_ITEMS_UPDATED_QUANTITIES) {
       const { oldQuantities, newQuantities, ...restData } = activity.data;
 

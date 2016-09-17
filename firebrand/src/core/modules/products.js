@@ -14,7 +14,7 @@ export type Product = {
 }
 
 const MAX_RESULTS = 1000;
-const context = process.env.FIREBIRD_CONTEXT || 'default';
+const context = process.env.FIREBRAND_CONTEXT || 'default';
 
 function apiCall(tag: ?string): global.Promise {
   let payload = defaultSearch(context);

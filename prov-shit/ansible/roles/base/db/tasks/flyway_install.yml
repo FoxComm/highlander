@@ -1,5 +1,6 @@
 - name: Get Flyway
   get_url: url={{flyway_url}} dest={{home}}/flyway-{{flyway_vers}}.tar.gz
+  sudo: true
 
 - name: Unzip Flyway
   unarchive: src={{home}}/flyway-{{flyway_vers}}.tar.gz dest=/usr/local/share copy=no creates=/usr/local/share/flyway-{{flyway_vers}}

@@ -15,16 +15,13 @@ import utils.db._
 
 object AddressManager {
 
-  def findAllByCustomer(originator: Originator, customerId: Int)(
-      implicit ec: EC,
-      db: DB): DbResultT[Seq[AddressResponse]] = {
-    val query = originator match {
-      case AdminOriginator(_)    ⇒ Addresses.findAllActiveByCustomerIdWithRegions(customerId)
-      case CustomerOriginator(_) ⇒ Addresses.findAllByCustomerIdWithRegions(customerId)
-    }
-
-    for (records ← * <~ query.result) yield AddressResponse.buildMulti(records)
-  }
+  def findAllByCustomer(customerId: Int)(implicit ec: EC,
+                                         db: DB): DbResultT[Seq[AddressResponse]] =
+    Addresses
+      .findAllActiveByCustomerIdWithRegions(customerId)
+      .result
+      .map(AddressResponse.buildMulti)
+      .toXor
 
   def get(originator: Originator, addressId: Int, customerId: Int)(
       implicit ec: EC,
@@ -40,7 +37,7 @@ object AddressManager {
       ac: AC): DbResultT[AddressResponse] =
     for {
       customer ← * <~ Customers.mustFindById404(customerId)
-      address  ← * <~ Addresses.create(Address.fromPayload(payload).copy(customerId = customerId))
+      address  ← * <~ Addresses.create(Address.fromPayload(payload, customerId))
       response ← * <~ AddressResponse.fromAddress(address)
       _        ← * <~ LogActivity.addressCreated(originator, customer, response)
     } yield response
@@ -54,10 +51,7 @@ object AddressManager {
       oldAddress ← * <~ Addresses
                     .findActiveByIdAndCustomer(addressId, customerId)
                     .mustFindOneOr(addressNotFound(addressId))
-      address ← * <~ Address
-                 .fromPayload(payload)
-                 .copy(customerId = customerId, id = addressId)
-                 .validate
+      address     ← * <~ Address.fromPayload(payload, customerId).copy(id = addressId).validate
       _           ← * <~ Addresses.insertOrUpdate(address)
       response    ← * <~ AddressResponse.fromAddress(address)
       oldResponse ← * <~ AddressResponse.fromAddress(oldAddress)

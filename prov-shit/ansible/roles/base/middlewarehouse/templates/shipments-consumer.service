@@ -9,8 +9,8 @@ SyslogIdentifier=shipments-consumer
 TimeoutStartSec=5m
 RestartSec=5
 
-Environment=ZOOKEEPER={{zookeeper_server}}
-Environment=SCHEMA_REGISTRY=http://{{schema_server}}
+Environment=ZOOKEEPER_URL={{zookeeper_server}}
+Environment=SCHEMA_REPOSITORY_URL=http://{{schema_server}}
 Environment=MWH_URL=http://{{middlewarehouse_server}}
 Environment=TOPIC=activities
 Environment=PARTITION=1

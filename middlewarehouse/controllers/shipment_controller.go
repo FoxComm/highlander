@@ -22,16 +22,16 @@ func NewShipmentController(
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
-	router.GET(":referenceNumber", controller.getShipmentsByReferenceNumber())
+	router.GET(":referenceNumber", controller.getShipmentsByOrder())
 	router.POST("", controller.createShipment())
 	router.PATCH(":id", controller.updateShipment())
 	router.POST("from-order", controller.createShipmentFromOrder())
 }
 
-func (controller *shipmentController) getShipmentsByReferenceNumber() gin.HandlerFunc {
+func (controller *shipmentController) getShipmentsByOrder() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		referenceNumber := context.Params.ByName("referenceNumber")
-		shipments, err := controller.shipmentService.GetShipmentsByReferenceNumber(referenceNumber)
+		shipments, err := controller.shipmentService.GetShipmentsByOrder(referenceNumber)
 		if err != nil {
 			handleServiceError(context, err)
 			return

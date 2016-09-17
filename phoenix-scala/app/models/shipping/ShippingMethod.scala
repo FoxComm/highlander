@@ -13,6 +13,7 @@ case class ShippingMethod(id: Int = 0,
                           parentId: Option[Int] = None,
                           adminDisplayName: String,
                           storefrontDisplayName: String,
+                          code: String,
                           shippingCarrierId: Option[Int] = None,
                           price: Int,
                           isActive: Boolean = true,
@@ -31,6 +32,11 @@ object ShippingMethod {
   val expressShippingNameForAdmin   = "2-3 day express (FedEx)"
   val overnightShippingName         = "Overnight"
   val overnightShippingNameForAdmin = "Overnight (FedEx)"
+
+  val standardShippingCode     = "STANDARD"
+  val standardShippingFreeCode = "STANDARD-FREE"
+  val expressShippingCode      = "EXPRESS"
+  val overnightShippingCode    = "OVERNIGHT"
 }
 
 class ShippingMethods(tag: Tag) extends FoxTable[ShippingMethod](tag, "shipping_methods") {
@@ -38,6 +44,7 @@ class ShippingMethods(tag: Tag) extends FoxTable[ShippingMethod](tag, "shipping_
   def parentId              = column[Option[Int]]("parent_id")
   def adminDisplayName      = column[String]("admin_display_name")
   def storefrontDisplayName = column[String]("storefront_display_name")
+  def code                  = column[String]("code")
   def shippingCarrierId     = column[Option[Int]]("shipping_carrier_id")
   def price                 = column[Int]("price")
   def isActive              = column[Boolean]("is_active")
@@ -49,6 +56,7 @@ class ShippingMethods(tag: Tag) extends FoxTable[ShippingMethod](tag, "shipping_
      parentId,
      adminDisplayName,
      storefrontDisplayName,
+     code,
      shippingCarrierId,
      price,
      isActive,

@@ -158,6 +158,19 @@ class AddressesIntegrationTest
     }
   }
 
+  "GET /v1/my/addresses" - {
+    "retrieves a customer's addresses" in new CustomerAddress_Baked {
+      val response = GET(s"v1/my/addresses")
+
+      response.status must === (StatusCodes.OK)
+
+      val addresses = response.as[Seq[AddressResponse]]
+
+      addresses must have size 1
+      addresses.head.name must === (address.name)
+    }
+  }
+
   trait DeletedAddressFixture {
     val (customer, address) = (for {
       customer ← * <~ Customers.create(authedCustomer)

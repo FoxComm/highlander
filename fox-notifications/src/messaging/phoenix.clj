@@ -1,5 +1,6 @@
 (ns messaging.phoenix
   (:require [aleph.http :as http]
+            [clj-http.client :as client]
             [compojure.core :refer :all]
             [compojure.route :as route]
             [messaging.settings :as settings]
@@ -68,13 +69,13 @@
 
 (defn authenticate
   []
-  (-> (http/post (str @api-server "/api/v1/public/login")
-             {:body (json/write-str
-                      {:email @phoenix-email
-                       :password @phoenix-password
-                       :kind "admin"})
-              :headers {"Content-Type" "application/json"}})
-      deref
+  (-> (client/post (str @api-server "/api/v1/public/login")
+                   {:body (json/write-str
+                            {:email @phoenix-email
+                             :password @phoenix-password
+                             :kind "admin"})
+                    :headers {"Content-Type" "application/json"}
+                    :insecure? true})
       :headers
       (get "jwt")))
 
@@ -84,16 +85,16 @@
   []
   (if @api-server
     (try
-      (let [answer (-> (http/post
+      (let [resp (-> (client/post
                          (str @api-server "/api/v1/plugins/register")
                          {:body (json/write-str @plugin-info)
                           :headers {"JWT" (authenticate)
-                                    "Content-Type" "application/json"}})
-                       deref
+                                    "Content-Type" "application/json"} 
+                          :insecure? true})
                        :body
                        bs/to-string
                        json/read-str)]
-        (settings/update-settings (get answer "settings")))
-     (catch Exception e #(println "Can't register plugin at phoenix" e)))
+        (settings/update-settings (get resp "settings")))
+     (catch Exception e (println "Can't register plugin at phoenix" e)))
     (println "Phoenix address not set, can't register myself into phoenix :(")))
 

@@ -1,0 +1,16 @@
+{
+    "checks": [
+        {
+            "name": "Bottled Water Phoenix",
+            "script": "systemctl status bottledwater_phoenix",
+            "interval": "30s",
+            "status": "passing"
+        },
+        {
+            "name": "Bottled Water Middlewarehouse",
+            "script": "systemctl status bottledwater_middlewarehouse",
+            "interval": "30s",
+            "status": "passing"
+        }
+    ]
+}

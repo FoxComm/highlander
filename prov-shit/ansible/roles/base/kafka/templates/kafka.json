@@ -1,7 +1,7 @@
 {
     "service" : {
         "name": "kafka",
-        "tags": ["kafka"], 
+        "tags": ["kafka"],
         "port": 9092,
         "checks": [
             {

@@ -2,7 +2,6 @@ package mocks
 
 import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
 )
 

@@ -9,6 +9,7 @@ type ShippingMethod struct {
 	CarrierID uint
 	Carrier   Carrier
 	Name      string
+	Code      string
 }
 
 func (shippingMethod *ShippingMethod) Identifier() uint {
@@ -19,5 +20,6 @@ func NewShippingMethodFromPayload(payload *payloads.ShippingMethod) *ShippingMet
 	return &ShippingMethod{
 		CarrierID: payload.CarrierID,
 		Name:      payload.Name,
+		Code:      payload.Code,
 	}
 }

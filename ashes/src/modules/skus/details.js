@@ -2,14 +2,14 @@
  * @flow
  */
 
-import Api from '../../lib/api';
+import Api from 'lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { push } from 'react-router-redux';
 import _ from 'lodash';
 
-import { addIlluminatedAttribute } from '../../paragons/form-shadow-object';
-import { createEmptySku } from '../../paragons/sku';
+import { addIlluminatedAttribute } from 'paragons/form-shadow-object';
+import { createEmptySku } from 'paragons/sku';
 
 import { pushStockItemChanges } from '../inventory/warehouses';
 
@@ -119,7 +119,10 @@ const initialState: SkuState = {
 
 const reducer = createReducer({
   [newSku]: (state) => {
-    return assoc(state, 'sku', createEmptySku());
+    return assoc(state,
+      'sku', createEmptySku(),
+      'err', null
+    );
   },
   [skuRequestStart]: (state: SkuState) => {
     return assoc(state,

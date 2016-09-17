@@ -41,11 +41,16 @@ Return illuminated version of promotion.
 	+ context: `default` (required, string) - The context in which the promotion is viewable.
     + id: `1` (required, number) - Promotion Form ID.
 + Response 200 (application/json)
-    + Attributes (PromotionShadow)      
+    + Attributes (PromotionShadow)
 
 ### Update [PATCH]
 
 + Request (application/json)
     + Attributes (UpdatePromotionPayload)
++ Response 200 (application/json)
+    + Attributes (Promotion)
+
+### Archive [DELETE]
+
 + Response 200 (application/json)
     + Attributes (Promotion)

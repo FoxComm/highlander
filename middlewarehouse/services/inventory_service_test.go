@@ -11,6 +11,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 	"github.com/stretchr/testify/suite"
+	"fmt"
 )
 
 type InventoryServiceTestSuite struct {
@@ -24,7 +25,11 @@ func TestInventoryServiceSuite(t *testing.T) {
 }
 
 func (suite *InventoryServiceTestSuite) SetupSuite() {
-	suite.db, _ = config.DefaultConnection()
+	suite.db = config.TestConnection()
+
+	tasks.TruncateTables(suite.db, []string{
+		"stock_locations",
+	})
 
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
 	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
@@ -38,7 +43,7 @@ func (suite *InventoryServiceTestSuite) SetupSuite() {
 }
 
 func (suite *InventoryServiceTestSuite) SetupTest() {
-	tasks.TruncateTables([]string{
+	tasks.TruncateTables(suite.db, []string{
 		"stock_items",
 		"stock_item_units",
 		"stock_item_summaries",
@@ -46,6 +51,10 @@ func (suite *InventoryServiceTestSuite) SetupTest() {
 		"inventory_search_view",
 		"inventory_transactions_search_view",
 	})
+}
+
+func (suite *InventoryServiceTestSuite) TearDownSuite() {
+	suite.db.Close()
 }
 
 func (suite *InventoryServiceTestSuite) Test_CreateStockItem() {
@@ -67,7 +76,8 @@ func (suite *InventoryServiceTestSuite) Test_GetStockItemById() {
 }
 
 func (suite *InventoryServiceTestSuite) Test_CreateExistingStockItem() {
-	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, "SKU"))
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, "SKU"))
+	suite.Nil(err)
 
 	resp, err := suite.service.GetStockItemById(stockItem.ID)
 
@@ -90,10 +100,12 @@ func (suite *InventoryServiceTestSuite) Test_CreateExistingStockItem() {
 }
 
 func (suite *InventoryServiceTestSuite) Test_IncrementStockItemUnits() {
-	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, "TEST-INCREMENT"))
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, "TEST-INCREMENT"))
+	suite.Nil(err)
+
 	units := fixtures.GetStockItemUnits(stockItem, 1)
 
-	err := suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, units)
+	err = suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, units)
 
 	var resp []models.StockItemUnit
 	suite.db.Where("stock_item_id = ?", stockItem.ID).Find(&resp)
@@ -109,8 +121,7 @@ func (suite *InventoryServiceTestSuite) Test_IncrementStockItemUnits_MultipleIte
 
 	units := fixtures.GetStockItemUnits(stockItem, unitsCount)
 
-	err = suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, units)
-	suite.Nil(err)
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, units))
 
 	var resp []models.StockItemUnit
 	suite.db.Where("stock_item_id = ?", stockItem.ID).Find(&resp)
@@ -120,10 +131,12 @@ func (suite *InventoryServiceTestSuite) Test_IncrementStockItemUnits_MultipleIte
 
 func (suite *InventoryServiceTestSuite) Test_DecrementStockItemUnits() {
 	unitsCount := 10
-	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, "TEST-DECREMENT"))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, unitsCount))
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, "TEST-DECREMENT"))
+	suite.Nil(err)
 
-	err := suite.service.DecrementStockItemUnits(stockItem.ID, models.Sellable, 7)
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, unitsCount)))
+
+	err = suite.service.DecrementStockItemUnits(stockItem.ID, models.Sellable, 7)
 
 	var units []models.StockItemUnit
 	suite.db.Where("stock_item_id = ?", stockItem.ID).Find(&units)
@@ -134,13 +147,15 @@ func (suite *InventoryServiceTestSuite) Test_DecrementStockItemUnits() {
 
 func (suite *InventoryServiceTestSuite) Test_ReserveItems_SingleSKU() {
 	sku := "TEST-RESERVATION"
-	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1))
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku))
+	suite.Nil(err)
+
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1)))
 
 	refNum := "BR10001"
 	skus := map[string]int{sku: 1}
 
-	err := suite.service.HoldItems(refNum, skus)
+	err = suite.service.HoldItems(refNum, skus)
 
 	var units []models.StockItemUnit
 	suite.db.Where("ref_num = ?", refNum).Find(&units)
@@ -153,11 +168,18 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_MultipleSKUs() {
 	sku1 := "TEST-RESERVATION-A"
 	sku2 := "TEST-RESERVATION-B"
 
-	stockItem1, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku1))
-	suite.service.IncrementStockItemUnits(stockItem1.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem1, 5))
+	fmt.Println("STOCK_LOCATIONS:")
+	sl := []models.StockLocation{}
+	suite.db.Find(&sl)
+	fmt.Println(sl)
 
-	stockItem2, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku2))
-	suite.service.IncrementStockItemUnits(stockItem2.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem2, 5))
+	stockItem1, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku1))
+	suite.Nil(err)
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem1.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem1, 5)))
+
+	stockItem2, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku2))
+	suite.Nil(err)
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem2.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem2, 5)))
 
 	refNum := "BR10001"
 	skus := map[string]int{
@@ -165,18 +187,15 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_MultipleSKUs() {
 		sku2: 5,
 	}
 
-	err := suite.service.HoldItems(refNum, skus)
-	suite.Nil(err)
+	suite.Nil(suite.service.HoldItems(refNum, skus))
 
 	var units []models.StockItemUnit
-	err = suite.db.Where("ref_num = ?", refNum).Where("stock_item_id = ?", stockItem1.ID).Find(&units).Error
+	suite.Nil(suite.db.Where("ref_num = ?", refNum).Where("stock_item_id = ?", stockItem1.ID).Find(&units).Error)
 
-	suite.Nil(err)
 	suite.Equal(5, len(units))
 
-	err = suite.db.Where("ref_num = ?", refNum).Where("stock_item_id = ?", stockItem2.ID).Find(&units).Error
+	suite.Nil(suite.db.Where("ref_num = ?", refNum).Where("stock_item_id = ?", stockItem2.ID).Find(&units).Error)
 
-	suite.Nil(err)
 	suite.Equal(skus[sku1], len(units))
 }
 
@@ -197,9 +216,10 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_NoSKU() {
 }
 
 func (suite *InventoryServiceTestSuite) Test_ReleaseItems_NoReservedSKUs() {
-	suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, "SKU"))
+	_, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, "SKU"))
+	suite.Nil(err)
 
-	err := suite.service.ReleaseItems("BR10001")
+	err = suite.service.ReleaseItems("BR10001")
 	suite.NotNil(err, "Should not be able to unreserve items while there are no reservations")
 }
 
@@ -207,10 +227,11 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Single() {
 	sku := "TEST-UNRESERVATION-A"
 	skus := map[string]int{sku: 1}
 	refNum := "BR10001"
-	stockItem, _ := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku))
-	suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1))
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku))
+	suite.Nil(err)
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1)))
 
-	err := suite.service.HoldItems(refNum, skus)
+	err = suite.service.HoldItems(refNum, skus)
 
 	onHoldUnitsCount := 0
 	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", refNum, models.StatusOnHold).Count(&onHoldUnitsCount)

@@ -6,8 +6,7 @@ import cats.implicits._
 import failures._
 import models.NotificationSubscription._
 import models.activity._
-import models.customer.Customers
-import models.{NotificationSubscriptions, NotificationTrailMetadata, StoreAdmin, StoreAdmins}
+import models.{NotificationSubscriptions, NotificationTrailMetadata, StoreAdmin}
 import org.json4s.JsonAST.JString
 import org.json4s.jackson.Serialization.write
 import payloads.ActivityTrailPayloads.AppendActivity
@@ -21,7 +20,6 @@ import slick.driver.PostgresDriver.api._
 import util._
 import util.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Seeds.Factories
 
 class NotificationIntegrationTest
     extends IntegrationTestBase
@@ -79,8 +77,7 @@ class NotificationIntegrationTest
           .findNotificationByAdminId(adminId)
           .result
           .headOption
-          .run()
-          .futureValue
+          .gimme
           .value
           .data
           .value
