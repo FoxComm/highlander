@@ -10,12 +10,12 @@ defmodule Permissions.Account do
 
   def changeset(model, params \\ :empty) do 
     model 
-    |> cast(params, ~w(name), ~w(ratchet)) #Not sure if we should accept ratchet from the endpoint.
+    |> cast(params, ~w(), ~w(ratchet)) #Not sure if we should accept ratchet from the endpoint.
   end
 
   def update_changeset(model, params \\ :empty) do 
     model 
-    |> cast(params, ~w(name ratchet), ~w())
+    |> cast(params, ~w(ratchet), ~w())
   end
 
 end

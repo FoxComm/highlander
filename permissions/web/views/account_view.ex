@@ -12,7 +12,7 @@ defmodule Permissions.AccountView do
 
   def render("account.json", %{account: account}) do
     %{id: account.id,
-      name: account.name
+      ratchet: account.ratchet
     }
   end
 end
