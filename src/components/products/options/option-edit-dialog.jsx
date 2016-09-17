@@ -58,8 +58,7 @@ class OptionEditDialog extends Component {
         <FormField
           className="fc-object-form__field"
           label="Name"
-          key={`object-form-attribute-name`}
-        >
+          key={`object-form-attribute-name`} >
           <input
             type="text"
             value={this.state.option.name}
@@ -69,8 +68,7 @@ class OptionEditDialog extends Component {
         <FormField
           className="fc-object-form__field"
           label="Display Type"
-          key={`object-form-attribute-type`}
-        >
+          key={`object-form-attribute-type`} >
           <input
             type="text"
             value={this.state.option.type}

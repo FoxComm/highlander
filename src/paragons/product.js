@@ -35,7 +35,12 @@ export type Product = {
 };
 
 export type Option = {
-  name: ?string,
+  attributes: {
+    name: {
+      t: ?string,
+      v: ?string,
+    },
+  },
   type: ?string,
   values: Dictionary<OptionValue>,
 };

@@ -47,7 +47,7 @@ class OptionEntry extends Component {
   }
 
   get content() {
-    const optionName = _.get(this.props, 'option', '');
+    const optionName = _.get(this.props, 'option.attributes.name.v', '');
 
     const entries = _.map(this.values, (value, key) => {
       return (
@@ -151,8 +151,7 @@ class OptionEntry extends Component {
         title={this.props.option.name}
         actionBlock={this.titleBarActions}
         indentContent={false}
-        className="fc-option-entry"
-      >
+        className="fc-option-entry">
         {content}
         {this.state.editValue && valueDialog}
       </ContentBox>

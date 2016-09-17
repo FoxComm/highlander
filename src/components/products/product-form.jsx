@@ -104,6 +104,7 @@ export default class ProductForm extends Component {
           return value;
         });
         variant.values = values;
+        variant.attributes = { name: { 't': 'string', 'v': variant.name }};
         return variant;
       });
     }
