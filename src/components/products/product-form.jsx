@@ -13,9 +13,9 @@ import { flow, filter } from 'lodash/fp';
 import ContentBox from '../content-box/content-box';
 import ObjectForm from '../object-form/object-form';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
-import SkuList from './sku-list';
 import Tags from '../tags/tags';
 import OptionList from './options/option-list';
+import SkuContentBox from './skus/sku-content-box';
 
 // types
 import type { Attributes } from 'paragons/object';
@@ -75,14 +75,46 @@ export default class ProductForm extends Component {
   }
 
   get skusContentBox(): Element {
+    const variants = [
+      {
+        "name": "Color",
+        "values": [
+          {
+            "name": "Red",
+            "swatch": "FF0000"
+          },
+          {
+            "name": "Blue",
+            "swatch": "0000FF"
+          }
+        ]
+      },
+      {
+        "name": "Size",
+        "values": [
+          {
+            "name": "S",
+            "swatch": "S"
+          },
+          {
+            "name": "M",
+            "swatch": "M"
+          },
+          {
+            "name": "L",
+            "swatch": "L"
+          }
+        ]
+      }
+    ];
+
     return (
-      <ContentBox title="SKUs">
-        <SkuList
-          fullProduct={this.props.product}
-          updateField={this.props.onSetSkuProperty}
-          updateFields={this.props.onSetSkuProperties}
-        />
-      </ContentBox>
+      <SkuContentBox
+        fullProduct={this.props.product}
+        updateField={this.props.onSetSkuProperty}
+        updateFields={this.props.onSetSkuProperties}
+        variants={variants}
+      />
     );
   }
 

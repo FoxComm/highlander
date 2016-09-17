@@ -8,10 +8,12 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import styles from './editable-sku-row.css';
 
-import { FormField } from '../forms';
-import CurrencyInput from '../forms/currency-input';
-import MultiSelectRow from '../table/multi-select-row';
-import LoadingInputWrapper from '../forms/loading-input-wrapper';
+import { FormField } from 'components/forms';
+import CurrencyInput from 'components/forms/currency-input';
+import MultiSelectRow from 'components/table/multi-select-row';
+import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
+import { DeleteButton } from 'components/common/buttons';
+import Dropdown from 'components/dropdown/dropdown';
 
 import { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
@@ -30,6 +32,7 @@ type Props = {
   skuContext: string,
   updateField: (code: string, field: string, value: string) => void,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
+  onDeleteClick: (id: string|number) => void,
   isFetchingSkus: boolean|null,
   suggestSkus: (code: string, context?: SuggestOptions) => Promise,
   suggestedSkus: Array<SearchViewSku>,
@@ -142,8 +145,7 @@ class EditableSkuRow extends Component {
       <li
         styleName="sku-item"
         className="_new"
-        onMouseDown={ this.closeSkusMenu }
-      >
+        onMouseDown={ this.closeSkusMenu }>
         <div>New SKU</div>
         <strong>{this.state.sku.code}</strong>
       </li>
@@ -158,8 +160,7 @@ class EditableSkuRow extends Component {
         <li
           styleName="sku-item"
           onMouseDown={() => { this.handleSelectSku(sku); }}
-          key={`item-${sku.id}`}
-        >
+          key={`item-${sku.id}`}>
           <strong>{sku.skuCode}</strong>
         </li>
       );
@@ -209,6 +210,49 @@ class EditableSkuRow extends Component {
     return <div>{code}</div>;
   }
 
+  imageCell(sku: Sku): Element {
+    const imageObject = _.get(sku, ['albums', 0, 'images', 0]);
+
+    if (!_.isEmpty(imageObject)) {
+      return (
+        <div styleName="image-cell">
+          <img {...imageObject} styleName="cell-thumbnail" />
+        </div>
+      );
+    }
+
+    return (
+      <span styleName="no-image-text">No image.</span>
+    );
+  }
+
+  variantCell(field: any, sku: Sku): Element {
+    if (field.indexOf('variant') > 0) {
+      const idx = parseInt(field);
+      const variant = _.get(this.props.variants, idx, {});
+      const values = _.get(variant, 'values', []);
+      let valuesToSelect = [];
+      _.each(values, (value, idx) => valuesToSelect.push([idx, value.name]));
+      const selected = _.get(sku, ['variantValueIds', idx]);
+
+      return (
+        <Dropdown
+          name={field}
+          items={valuesToSelect}
+          placeholder={variant.name}
+          value={selected}
+          onChange={({target}) => console.log(field, target.value)}
+        />
+      );
+    }
+
+    return null;
+  }
+
+  actionsCell(sku: Sku): Element {
+    return <DeleteButton onClick={() => this.props.onDeleteClick(sku.id)}/>;
+  }
+
   @autobind
   setCellContents(sku: Sku, field: string): any {
     switch(field) {
@@ -219,8 +263,12 @@ class EditableSkuRow extends Component {
         return this.priceCell(sku, field);
       case 'upc':
         return this.upcCell(sku);
+      case 'image':
+        return this.imageCell(sku);
+      case 'actions':
+        return this.actionsCell(sku);
       default:
-        return null;
+        return this.variantCell(field, sku);
     }
   }
 
