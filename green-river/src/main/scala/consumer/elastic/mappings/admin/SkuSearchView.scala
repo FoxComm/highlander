@@ -18,6 +18,7 @@ final case class SkuSearchView()(implicit ec: EC) extends AvroTransformer {
       field("salePriceCurrency", StringType),
       field("retailPrice", IntegerType),
       field("retailPriceCurrency", StringType),
-      field("archivedAt", DateType).format(dateFormat)
+      field("archivedAt", DateType).format(dateFormat),
+      field("externalId", StringType).index("not_analyzed")
   )
 }
