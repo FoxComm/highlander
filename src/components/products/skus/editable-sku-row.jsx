@@ -231,9 +231,8 @@ class EditableSkuRow extends Component {
       const idx = parseInt(field);
       const variant = _.get(this.props.variants, idx, {});
       const values = _.get(variant, 'values', []);
-      let valuesToSelect = [];
-      _.each(values, (value, idx) => valuesToSelect.push([idx, value.name]));
-      const selected = _.get(sku, ['variantValueIds', idx]);
+      const valuesToSelect = _.map(values, (value) => [value.name, value.name]);
+      const selected = _.get(sku, ['varaintValues', idx]);
 
       return (
         <Dropdown

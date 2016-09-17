@@ -86,14 +86,7 @@ export default class ProductForm extends Component {
     } else {
       const availableVariants = ProductParagon.availableVariants(variants);
       skus = _.map(availableVariants, variantCombination => {
-        const sku = ProductParagon.createEmptySku();
-        console.log('variant', variantCombination);
-
-        // if (_.isEmpty(variant.skuCodes)) {
-        //   variant.skuCodes = [sku.feCode];
-        // } else {
-        //   variant.skuCodes.push(sku.feCode);
-        // }
+        const sku = ProductParagon.createEmptySkuForVariantValues(variantCombination);
         return sku;
       });
     }

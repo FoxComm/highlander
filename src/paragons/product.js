@@ -107,6 +107,32 @@ export function createEmptySku() {
   return emptySku;
 }
 
+export function createEmptySkuForVariantValues(values) {
+  const pseudoRandomCode = generateSkuCode();
+  const emptyPrice = {
+    t: 'price',
+    v: { currency: 'USD', value: 0 },
+  };
+  const valuesArray = _.map(values, value => value.name)
+  const emptySku = {
+    feCode: pseudoRandomCode,
+    attributes: {
+      code: {
+        t: 'string',
+        v: '',
+      },
+      title: {
+        t: 'string',
+        v: '',
+      },
+      retailPrice: emptyPrice,
+      salePrice: emptyPrice,
+    },
+    varaintValues: valuesArray,
+  };
+  return emptySku;
+}
+
 export function addEmptySku(product: Product): Product {
   const emptySku = createEmptySku();
 
