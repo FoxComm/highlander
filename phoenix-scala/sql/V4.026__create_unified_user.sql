@@ -49,7 +49,6 @@ create table permissions
     id serial primary key not null,
     scope_id integer not null,
     resource_id integer not null,
-    scope_id integer not null,
     actions text[],
     frn generic_string not null,   -- frn:<system>:<resource>:<scope_path>
     created_at generic_timestamp,
