@@ -117,7 +117,7 @@ defmodule Marketplace.MerchantController do
 
   defp update_merchant_application(ma_id, merchant) do
     ma = Repo.get(MerchantApplication, ma_id)
-    ma_cs = Merchant.changeset(ma, %{"state" => "approved", "merchant_id" => merchant.id})
+    ma_cs = MerchantApplication.changeset(ma, %{"state" => "approved", "merchant_id" => merchant.id})
 
     Repo.update(ma_cs)
   end
