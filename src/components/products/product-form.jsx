@@ -17,6 +17,8 @@ import Tags from '../tags/tags';
 import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
 
+import * as ProductParagon from 'paragons/product';
+
 // types
 import type { Attributes } from 'paragons/object';
 import type { Product } from 'paragons/product';
@@ -77,8 +79,26 @@ export default class ProductForm extends Component {
   }
 
   @autobind
+  updateSkuVariantMapping(variants: Array<any>): void {
+    let skus = [];
+    if (_.isEmpty(variants) || _.every(variants, variant => { return _.size(variant.values) <= 1 })) {
+      skus = [ProductParagon.createEmptySku()];
+    } else {
+      const availableVariants = ProductParagon.availableVariants(variants);
+      skus = _.map(availableVariants, variant => {
+        return ProductParagon.createEmptySku();
+      });
+    }
+    const newProduct = assoc(
+        this.props.product,
+        ['skus'], skus
+      );
+    return this.props.onUpdateProduct(newProduct);
+  }
+
+  @autobind
   updateVariants(newVariants: Array<any>): void {
-    this.setState({ variants: newVariants })
+    this.setState({ variants: newVariants }, () => this.updateSkuVariantMapping(newVariants));
   }
 
   @autobind

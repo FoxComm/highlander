@@ -83,14 +83,12 @@ export function createEmptyProduct(): Product {
   return configureProduct(addEmptySku(product));
 }
 
-export function addEmptySku(product: Product): Product {
+export function createEmptySku() {
   const pseudoRandomCode = generateSkuCode();
-
   const emptyPrice = {
     t: 'price',
     v: { currency: 'USD', value: 0 },
   };
-
   const emptySku = {
     feCode: pseudoRandomCode,
     attributes: {
@@ -106,6 +104,11 @@ export function addEmptySku(product: Product): Product {
       salePrice: emptyPrice,
     },
   };
+  return emptySku;
+}
+
+export function addEmptySku(product: Product): Product {
+  const emptySku = createEmptySku();
 
   const newSkus = [emptySku, ...product.skus];
   return assoc(product, 'skus', newSkus);
@@ -167,4 +170,17 @@ export function setSkuAttribute(product: Product,
   const newSkus = product.skus.map(sku => updateAttribute(sku));
 
   return assoc(product, 'skus', newSkus);
+}
+
+export function availableVariants(variants): Array<Object> {
+  const opts = _.map(variants, variant => variant.values);
+  // magic of Cartesian product http://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
+  const availableVariants = _.reduce(opts, function(a, b) {
+      return _.flatten(_.map(a, function(x) {
+          return _.map(b, function(y) {
+              return x.concat([y]);
+          });
+      }), true);
+  }, [ [] ]);
+  return availableVariants;
 }

@@ -58,19 +58,6 @@ export default class SkuList extends Component {
     return columns;
   }
 
-  get availableVariants(): Array<Object> {
-    const opts = _.map(this.props.variants, variant => variant.values);
-    // magic of Cartesian product http://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
-    const variants = _.reduce(opts, function(a, b) {
-        return _.flatten(_.map(a, function(x) {
-            return _.map(b, function(y) {
-                return x.concat([y]);
-            });
-        }), true);
-    }, [ [] ]);
-    return variants;
-  }
-
   get skus(): Array<Sku> {
     if (this.props.fullProduct) {
       return this.props.fullProduct.skus;
@@ -161,14 +148,14 @@ export default class SkuList extends Component {
           data={{ rows: skus }}
           renderRow={renderRow}
           emptyMessage="This product does not have any SKUs."
-          hasActionsColumn={false} />
+          hasActionsColumn={false}
+        />
         { this.deleteDialog }
       </div>
     );
   }
 
   render(): Element {
-    this.availableVariants;
     return _.isEmpty(this.skus)
       ? this.emptyContent
       : this.skuContent(this.skus);
