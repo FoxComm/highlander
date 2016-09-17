@@ -9,6 +9,8 @@ defmodule Marketplace.Merchant do
     field :description, :string
     field :site_url, :string
     field :state, :string, default: "new"
+    field :scope_id, :integer #Scopes live in Permissions/Solomon
+    field :organization_id, :integer #Organizations live in Permissions/Solomon
 
     timestamps
 
@@ -23,7 +25,7 @@ defmodule Marketplace.Merchant do
 
   @states ~w(new approved suspended cancelled)a
   @required_fields ~w(name description state)
-  @optional_fields ~w(business_name phone_number email_address site_url)
+  @optional_fields ~w(business_name phone_number email_address site_url scope_id organization_id)
 
   def changeset(model, params \\ :empty) do
     model 

@@ -61,15 +61,19 @@ defmodule Marketplace.MerchantController do
         |> put_status(:unprocessable_entity)
         |> render("already_approved.json", %{errors: "error"})
       state when state == "new" ->
+        scope_id = PermissionManager.create_scope
+        
         merchant = %{
           name: ma.name,
           business_name: ma.name, 
           email_address: ma.email_address,
           description: ma.description,
-          state: "activated"
+          state: "activated",
+          scope_id: scope_id
         } 
         merchant_cs = Merchant.changeset(%Merchant{}, merchant)
     
+        
         multi_txn = Multi.new
         |> Multi.insert(:merchant, merchant_cs)
         |> Multi.run(:merchant_business_profile, fn %{merchant: merchant} -> 
@@ -82,7 +86,6 @@ defmodule Marketplace.MerchantController do
 
         case Repo.transaction(multi_txn) do
           {:ok, %{merchant: inserted_merchant, merchant_business_profile: m_bp, merchant_social_profile: m_sp}} -> 
-            PermissionManager.create_scope
             conn 
             |> put_status(:created)
             |> put_resp_header("location", merchant_path(conn, :show, inserted_merchant))
