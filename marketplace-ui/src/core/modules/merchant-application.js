@@ -22,7 +22,17 @@ const ACTION_MERCHANT_APPLICATION_FETCH = 'merchantApplicationFetch';
 const ACTION_MERCHANT_APPLICATION_SUBMIT = 'merchantApplicationSubmit';
 
 const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_MERCHANT_APPLICATION_SUBMIT, data =>
-  api.post('/merchant_applications', { merchant_application: { ...data } })
+  new Promise((resolve, reject) =>
+    api.post('/merchant_applications', { merchant_application: { ...data } })
+      .then((application: Application) =>
+        Promise.all([
+          api.post(`/merchant_applications/${application.id}/business_profile`, { business_profile: { ...data } }),
+          api.post(`/merchant_applications/${application.id}/social_profile`, { social_profile: { ...data } }),
+        ])
+          .then(() => resolve(application))
+          .catch(() => reject())
+      )
+  )
 );
 
 const { perform: performFetch, ...actionsFetch } = createAsyncActions(ACTION_MERCHANT_APPLICATION_FETCH, reference =>

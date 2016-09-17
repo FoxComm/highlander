@@ -36,10 +36,10 @@ class MerchantApplicationPage extends Component {
   props: Props;
 
   componentWillMount(): void {
-    const { fetch, params: { ref } } = this.props;
+    const { fetch, params: { ref: refParam }, application: { reference_number: ref } } = this.props;
 
-    if (ref) {
-      fetch(ref);
+    if (refParam && !ref) {
+      fetch(refParam);
     }
   }
 

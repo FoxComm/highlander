@@ -36,8 +36,8 @@ const renderSelect = ({ input, values, placeholder, meta }) => {
       {!input.value && <label htmlFor={input.name}>{placeholder}</label>}
       <select {...input}>
         <option disabled />
-        {Object.keys(values).map(value =>
-          <option value={value} key={value}>{values[value]}</option>
+        {values.map(value =>
+          <option value={value} key={value}>{value}</option>
         )}
       </select>
       {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}

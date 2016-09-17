@@ -75,10 +75,8 @@ export default (...middlewares) => next => (reducer, initialState) => {
         currentState = { ...store.getState() };
 
         if (dirty && isEqual(previousState, currentState)) {
-          console.log('EQUAL STATES');
           return;
         }
-        console.log('DIFFERENT STATES');
         if (resolved) {
           return;
         }

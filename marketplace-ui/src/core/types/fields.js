@@ -4,6 +4,7 @@ export type FormField = {
   placeholder: string;
   values?: Array<string>;
   validation?: Array<string>;
+  normalize?: (value: string) => any;
 }
 
 export type FieldValue = string|number;

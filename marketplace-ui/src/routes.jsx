@@ -14,8 +14,8 @@ const routes = (
       <IndexRoute component={ApplicationPage} />
       <Route path="application" component={ApplicationPage}>
         <Route path=":ref" component={ApplicationPage} />
+        <Route path=":ref/account" component={AccountPage} />
       </Route>
-      <Route path="account" component={AccountPage} />
       <Route path="info" component={InfoPage} />
     </Route>
   </Route>

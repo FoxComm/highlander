@@ -42,30 +42,48 @@ export const fields: Array<FormField> = [
     validation: 'required email',
   },
   {
-    name: 'monthly_sales',
+    name: 'monthly_sales_volume',
     type: 'input',
     placeholder: 'Monthly Sales Volume',
   },
   {
-    name: 'twitter',
+    name: 'twitter_handle',
     type: 'text',
     placeholder: 'Twitter Handle',
+  },
+  {
+    name: 'instagram_handle',
+    type: 'text',
+    placeholder: 'Instagtam Handle',
+  },
+  {
+    name: 'google_plus_handle',
+    type: 'text',
+    placeholder: 'Google Plus Handle',
+  },
+  {
+    name: 'facebook_url',
+    type: 'text',
+    placeholder: 'Facebook URL',
+    validation: 'uri',
   },
   {
     name: 'site_url',
     type: 'text',
     placeholder: 'Site URL',
+    validation: 'uri',
   },
   {
-    name: 'audience',
+    name: 'target_audience',
     type: 'select',
     placeholder: 'Audience',
     values: LIST_AUDIENCE,
   },
   {
-    name: 'category',
+    name: 'categories',
     type: 'select',
     placeholder: 'Category',
     values: LIST_CATEGORIES,
+    normalize: (value) => [value],
   },
 ];

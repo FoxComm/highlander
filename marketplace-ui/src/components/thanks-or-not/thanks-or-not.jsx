@@ -23,8 +23,6 @@ class ThanksOrNot extends Component {
   render() {
     const { error, title, message } = this.props;
 
-    console.log(`ERROR: ${error}`);
-
     const clsIcon = cx(styles.icon, {
       [styles.thanks]: !error,
       [styles.error]: error,
