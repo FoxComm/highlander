@@ -43,7 +43,7 @@ class OptionEditDialog extends Component {
   }
 
   @autobind
-  saveOption() {
+  updateOption() {
     this.props.confirmAction(this.state.option, this.props.option.id);
   }
 
@@ -52,7 +52,6 @@ class OptionEditDialog extends Component {
       <div styleName="option-edit-dialog">
         <FormField
           className="fc-object-form__field"
-          labelClassName="fc-object-form__field-label"
           label="Name"
           key={`object-form-attribute-name`}
         >
@@ -64,7 +63,6 @@ class OptionEditDialog extends Component {
         </FormField>
         <FormField
           className="fc-object-form__field"
-          labelClassName="fc-object-form__field-label"
           label="Display Type"
           key={`object-form-attribute-type`}
         >
@@ -87,7 +85,7 @@ class OptionEditDialog extends Component {
         cancel="Cancel"
         confirm="Save option"
         cancelAction={this.props.cancelAction}
-        confirmAction={this.saveOption}
+        confirmAction={this.updateOption}
       />
     )
   }

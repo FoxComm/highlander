@@ -34,65 +34,50 @@ class OptionEntry extends Component {
     editValue: null,
   };
 
-  get content() {
-    const values = this.values;
-    if (_.isEmpty(values)) {
-      return (
-        <div className="fc-content-box__empty-text">
-          This option does not have values applied.
-        </div>
-      );
-    } else {
-      const optionName = _.get(this.props, 'option', '');
-      const entries = _.map(this.values, (value, key) => {
-
-        return (
-          <ValueEntry
-            key={`product-option-${optionName}-${key}`}
-            id={key}
-            value={value}
-            deleteValue={this.deleteValue}
-            editValue={this.editValue}
-          />
-        );
-      });
-
-      return (
-        <div className="fc-option-entry">
-          <table className="fc-table">
-            <tbody>
-              {entries}
-            </tbody>
-          </table>
-        </div>
-      );
-    }
+  get values(): { [key:string]: VariantValue } {
+    return _.get(this.props, 'option.values', []);
   }
 
-  get titleBar(): Element {
-    const name = _.get(this.props, 'option.name');
-    const type = _.get(this.props, 'option.type');
+  get content() {
+    const optionName = _.get(this.props, 'option', '');
+
+    const entries = _.map(this.values, (value, key) => {
+      return (
+        <ValueEntry
+          key={`product-option-${optionName}-${key}`}
+          id={key}
+          value={value}
+          deleteValue={this.deleteValue}
+          editValue={this.editValue}
+        />
+      );
+    });
 
     return (
-      <div className="fc-variant-entry__title-bar">
-        <div className="fc-variant-entry__name">{name}</div>
-        <div className="fc-variant-entry__type">{type}</div>
+      <table className="fc-table">
+        <tbody>
+        {entries}
+        </tbody>
+      </table>
+    );
+  }
+
+  get emptyContent() {
+    return (
+      <div className="fc-content-box__empty-text">
+        This option does not have values applied.
       </div>
     );
   }
 
   get titleBarActions():Element {
     return (
-      <div className="fc-variant-entry__title-bar-actions">
+      <div className="fc-option-entry__actions">
         <a onClick={() => this.editValue('new')} styleName="action-icon"><i className="icon-add"/></a>
         <a onClick={() => this.props.editOption(this.props.id)} styleName="action-icon"><i className="icon-edit"/></a>
         <a onClick={() => this.props.deleteOption(this.props.id)} styleName="action-icon"><i className="icon-trash"/></a>
       </div>
     );
-  }
-
-  get values(): { [key:string]: VariantValue } {
-    return _.get(this.props, 'option.values', []);
   }
 
   @autobind
@@ -143,6 +128,8 @@ class OptionEntry extends Component {
   }
 
   render(): Element {
+    const values = this.values;
+    const content = _.isEmpty(values) ? this.emptyContent : this.content;
     const valueDialog = (
       <ValueEditDialog
         value={this.state.editValue}
@@ -150,13 +137,15 @@ class OptionEntry extends Component {
         confirmAction={this.updateValue}
       />
     );
+
     return (
       <ContentBox
-        title={this.titleBar}
+        title={this.props.option.name}
         actionBlock={this.titleBarActions}
         indentContent={false}
+        className="fc-option-entry"
       >
-        {this.content}
+        {content}
         {this.state.editValue && valueDialog}
       </ContentBox>
     );

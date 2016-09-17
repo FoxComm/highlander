@@ -52,7 +52,6 @@ class ValueEditDialog extends Component {
       <div styleName="option-edit-dialog">
         <FormField
           className="fc-object-form__field"
-          labelClassName="fc-object-form__field-label"
           label="Name"
           key={`object-form-attribute-name`}
         >
@@ -64,7 +63,6 @@ class ValueEditDialog extends Component {
         </FormField>
         <FormField
           className="fc-object-form__field"
-          labelClassName="fc-object-form__field-label"
           label="Color Swatch"
           key={`object-form-attribute-swatch`}
         >

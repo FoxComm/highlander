@@ -1,28 +1,21 @@
-.fc-variant-entry {
+.fc-option-entry {
   .fc-table tbody tr.even, .fc-table tbody tr:nth-child(even) {
     background-color: #fff;
   }
 
-  &__title-bar {
-    display: flex;
+  .fc-table-td:last-child {
+    text-align: right;
   }
 
-  &__type {
-    .font-spec(16px, 400, 21px);
-    margin-left: 10px;
-    color: #9ba3a7;
+  .fc-controls {
+    padding-right: 15px;
   }
 
-  &__title-bar-actions {
+  .fc-title {
+    font-size: 14px;
+  }
+
+  &__actions {
     white-space: nowrap;
-    > a {
-      margin-left: 10px;
-    }
-  }
-
-  &__input {
-    .font-spec(13px, 400, 18px);
-    margin-right: 10px;
-    flex-grow: 1;
   }
 }
