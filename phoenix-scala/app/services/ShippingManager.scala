@@ -2,14 +2,13 @@ package services
 
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
+import models.account._
 import models.cord._
 import models.cord.lineitems.CartLineItems
-import models.customer.Customer
 import models.inventory.Sku
 import models.location.Region
 import models.rules.{Condition, QueryStatement}
 import models.shipping.{ShippingMethod, ShippingMethods}
-import models.traits.Originator
 import services.carts.getCartByOriginator
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
@@ -26,7 +25,7 @@ object ShippingManager {
                           shippingRegion: Option[Region] = None,
                           skus: Seq[Sku])
 
-  def getShippingMethodsForCart(originator: Originator)(
+  def getShippingMethodsForCart(originator: User)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[responses.ShippingMethodsResponse.Root]] =
     for {
@@ -40,7 +39,7 @@ object ShippingManager {
       }
     } yield response
 
-  def getShippingMethodsForCart(refNum: String, customer: Option[Customer] = None)(
+  def getShippingMethodsForCart(refNum: String, customer: Option[User] = None)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[responses.ShippingMethodsResponse.Root]] =
     for {
@@ -54,11 +53,13 @@ object ShippingManager {
       }
     } yield response
 
-  private def findByRefNumAndOptionalCustomer(refNum: String, customer: Option[Customer] = None)(
+  private def findByRefNumAndOptionalCustomer(refNum: String, customer: Option[User] = None)(
       implicit ec: EC,
       db: DB): DbResultT[Cart] = customer match {
     case Some(c) ⇒
-      Carts.findByRefNumAndCustomer(refNum, c).mustFindOneOr(NotFoundFailure404(Carts, refNum))
+      Carts
+        .findByRefNumAndAccountId(refNum, c.accountId)
+        .mustFindOneOr(NotFoundFailure404(Carts, refNum))
     case _ ⇒ Carts.mustFindByRefNum(refNum)
   }
 

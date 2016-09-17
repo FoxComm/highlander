@@ -18,7 +18,7 @@ export type TUser = {
 export type LoginPayload = {
   email: string,
   password: string,
-  kind: string,
+  org: string,
 };
 
 export type SignupPayload = {

@@ -5,16 +5,20 @@ create table scopes
 (
     id serial primary key,
     source generic_string,
-    parent_id integer references scopes(id) on update restrict on delete restrict
+    parent_id integer references scopes(id) on update restrict on delete restrict,
+    parent_path exts.ltree -- full parent path of this scope to simplify permission frn creation.
 );
 
 create table organizations
 (
     id serial primary key,
     name varchar(255) not null,
-    type generic_string,
+    kind generic_string,
     parent_id integer default null references organizations(id) on update restrict on delete restrict,
-    scope_id integer references scopes(id) on update restrict on delete restrict
+    scope_id integer references scopes(id) on update restrict on delete restrict,
+    created_at generic_timestamp,
+    updated_at generic_timestamp,
+    deleted_at timestamp without time zone null
 );
 
 create table scope_domains
@@ -43,10 +47,14 @@ create table resources (
 create table permissions
 (
     id serial primary key not null,
+    scope_id integer not null,
     resource_id integer not null,
     scope_id integer not null,
     actions text[],
-    frn generic_string not null,
+    frn generic_string not null,   -- frn:<system>:<resource>:<scope_path>
+    created_at generic_timestamp,
+    updated_at generic_timestamp,
+    deleted_at timestamp without time zone null,
     constraint permissions_resources_id_fk foreign key (resource_id) references resources (id),
     constraint permissions_scopes_id_fk foreign key (scope_id) references scopes (id)
 );
@@ -56,20 +64,24 @@ create table roles
 (
     id serial primary key,
     name varchar(255) not null,
-    scope_id integer references scopes(id) on update restrict on delete restrict
+    scope_id integer references scopes(id) on update restrict on delete restrict,
+    created_at generic_timestamp,
+    updated_at generic_timestamp,
+    deleted_at timestamp without time zone null
 );
 
 create table role_permissions
 (
     id serial primary key not null,
-    permission_id integer not null references permissions(id) on update restrict on delete restrict,
-    role_id integer not null references roles(id) on update restrict on delete restrict
+    role_id integer not null references roles(id) on update restrict on delete restrict,
+    permission_id integer not null references permissions(id) on update restrict on delete restrict
 );
+
+create unique index role_permissions_id_permission_id_role_id_uindex on role_permissions (id, permission_id, role_id);
 
 create table accounts
 (
     id serial primary key,
-    name generic_string,
     ratchet integer not null,
     created_at generic_timestamp,
     updated_at generic_timestamp,
@@ -95,7 +107,7 @@ create table account_access_methods
     algorithm int not null,  -- 0 is scrypt, the rest are reserved for future.
     created_at generic_timestamp,
     updated_at generic_timestamp,
-    disabled_at generic_timestamp default null
+    deleted_at generic_timestamp default null
 );
 
 --
@@ -114,6 +126,8 @@ create table users
     email email,
     is_disabled boolean default false,
     disabled_by integer null,
+    is_blacklisted boolean default false,
+    blacklisted_by integer null,
     name generic_string,
     phone_number phone_number,
     created_at generic_timestamp,

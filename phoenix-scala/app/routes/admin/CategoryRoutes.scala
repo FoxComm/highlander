@@ -3,7 +3,7 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.StoreAdmin
+import models.account.User
 import payloads.CategoryPayloads._
 import services.category.CategoryManager
 import utils.aliases._
@@ -12,7 +12,7 @@ import utils.http.Http._
 
 object CategoryRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
+  def routes(implicit ec: EC, db: DB, admin: User) = {
 
     activityContext(admin) { implicit ac ⇒
       pathPrefix("categories") {

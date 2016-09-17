@@ -6,6 +6,7 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models.Reason.reasonTypeRegex
 import payloads.CustomerPayloads.CreateCustomerPayload
 import services.PublicService._
+import services.account.AccountCreateContext
 import services.customers.CustomerManager
 import services.giftcards.GiftCardService
 import services.product.ProductManager
@@ -14,16 +15,16 @@ import utils.aliases._
 import utils.http.CustomDirectives._
 
 object Public {
-  def routes(implicit ec: EC, db: DB, es: ES) = {
+  def routes(customerCreateContext: AccountCreateContext)(implicit ec: EC, db: DB, es: ES) = {
     import Json4sSupport._
     import utils.http.Http._
 
     activityContext() { implicit ac ⇒
       pathPrefix("public") {
         pathPrefix("registrations") {
-          (post & path("new") & pathEnd & entity(as[CreateCustomerPayload])) { regRequest ⇒
+          (post & path("new") & pathEnd & entity(as[CreateCustomerPayload])) { payload ⇒
             mutateOrFailures {
-              CustomerManager.create(regRequest)
+              CustomerManager.create(payload = payload, context = customerCreateContext)
             }
           }
         } ~

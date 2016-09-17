@@ -2,6 +2,8 @@ package models
 
 import java.time.Instant
 
+import models.account._
+
 import cats.data.ValidatedNel
 import cats.implicits._
 import com.pellucid.sealerate
@@ -68,7 +70,7 @@ class Notes(tag: Tag) extends FoxTable[Note](tag, "notes") {
   def * =
     (id, storeAdminId, referenceId, referenceType, body, createdAt, deletedAt, deletedBy) <> ((Note.apply _).tupled, Note.unapply)
 
-  def author = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
+  def author = foreignKey(Users.tableName, storeAdminId, Users)(_.accountId)
 }
 
 object Notes extends FoxTableQuery[Note, Notes](new Notes(_)) with ReturningId[Note, Notes] {

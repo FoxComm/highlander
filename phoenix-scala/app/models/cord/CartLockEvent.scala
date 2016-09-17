@@ -2,7 +2,7 @@ package models.cord
 
 import java.time.Instant
 
-import models.StoreAdmins
+import models.account._
 import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
@@ -21,7 +21,7 @@ class CartLockEvents(tag: Tag) extends FoxTable[CartLockEvent](tag, "cart_lock_e
   def * =
     (id, cartRef, lockedAt, lockedBy) <> ((CartLockEvent.apply _).tupled, CartLockEvent.unapply)
 
-  def storeAdmin = foreignKey(StoreAdmins.tableName, lockedBy, StoreAdmins)(_.id)
+  def storeAdmin = foreignKey(Users.tableName, lockedBy, Users)(_.accountId)
 }
 
 object CartLockEvents

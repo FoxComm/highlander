@@ -1,7 +1,8 @@
 package services.returns
 
 import models.returns._
-import models.{StoreAdmin, StoreAdmins}
+import models.account._
+import models.admin.StoreAdminUsers
 import responses.{ReturnLockResponse, ReturnResponse}
 import utils.aliases._
 import utils.db._
@@ -12,18 +13,19 @@ object ReturnLockUpdater {
     for {
       rma   ← * <~ Returns.mustFindByRefNum(refNum)
       event ← * <~ ReturnLockEvents.latestLockByRma(rma.id).one
-      admin ← * <~ event
-               .map(e ⇒ StoreAdmins.findById(e.lockedBy).extract.one)
-               .getOrElse(lift(None))
-    } yield ReturnLockResponse.build(rma, event, admin)
+      admin ← * <~ event.map(e ⇒ Users.findOneByAccountId(e.lockedBy)).getOrElse(lift(None))
+      storeAdminUser ← * <~ admin
+                        .map(a ⇒ StoreAdminUsers.findOneByAccountId(a.accountId))
+                        .getOrElse(lift(None))
+    } yield ReturnLockResponse.build(rma, event, admin, storeAdminUser)
 
-  def lock(refNum: String, admin: StoreAdmin)(implicit ec: EC,
-                                              db: DB): DbResultT[ReturnResponse.Root] =
+  def lock(refNum: String, admin: User)(implicit ec: EC, db: DB): DbResultT[ReturnResponse.Root] =
     for {
-      rma  ← * <~ Returns.mustFindByRefNum(refNum)
-      _    ← * <~ rma.mustNotBeLocked
-      _    ← * <~ Returns.update(rma, rma.copy(isLocked = true))
-      _    ← * <~ ReturnLockEvents.create(ReturnLockEvent(returnId = rma.id, lockedBy = admin.id))
+      rma ← * <~ Returns.mustFindByRefNum(refNum)
+      _   ← * <~ rma.mustNotBeLocked
+      _   ← * <~ Returns.update(rma, rma.copy(isLocked = true))
+      _ ← * <~ ReturnLockEvents.create(
+             ReturnLockEvent(returnId = rma.id, lockedBy = admin.accountId))
       rma  ← * <~ Returns.refresh(rma)
       resp ← * <~ ReturnResponse.fromRma(rma)
     } yield resp

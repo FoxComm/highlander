@@ -7,10 +7,10 @@ import models.cord._
 trait OrderSeeds {
 
   def order: Order =
-    Order(customerId = 1, referenceNumber = "ABCD1234-11", state = ManualHold, contextId = 1)
+    Order(accountId = 1, referenceNumber = "ABCD1234-11", state = ManualHold, contextId = 1)
 
   def cart: Cart =
-    Cart(customerId = 1, referenceNumber = "ABCD1234-11")
+    Cart(accountId = 1, referenceNumber = "ABCD1234-11")
 
   def orderNotes: Seq[Note] = {
     def newNote(body: String) =

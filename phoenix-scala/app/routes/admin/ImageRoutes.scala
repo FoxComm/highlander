@@ -4,7 +4,7 @@ import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import facades.ImageFacade
-import models.StoreAdmin
+import models.account.User
 import payloads.ImagePayloads._
 import services.image.ImageManager
 import utils.aliases._
@@ -13,7 +13,7 @@ import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object ImageRoutes {
-  def routes(implicit ec: EC, db: DB, am: Mat, admin: StoreAdmin, apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, am: Mat, admin: User, apis: Apis) = {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("albums") {
         pathPrefix(Segment) { context ⇒

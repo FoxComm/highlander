@@ -6,7 +6,7 @@ import cats.data.Validated._
 import cats.data._
 import com.pellucid.sealerate
 import failures.Failure
-import models.StoreAdmin
+import models.account._
 import models.cord.Order
 import models.returns.Return._
 import models.traits.Lockable
@@ -25,9 +25,9 @@ case class Return(id: Int = 0,
                   returnType: ReturnType = Standard,
                   state: State = Pending,
                   isLocked: Boolean = false,
-                  customerId: Int,
+                  accountId: Int,
                   storeAdminId: Option[Int] = None,
-                  messageToCustomer: Option[String] = None,
+                  messageToAccount: Option[String] = None,
                   canceledReason: Option[Int] = None,
                   createdAt: Instant = Instant.now,
                   updatedAt: Instant = Instant.now,
@@ -77,16 +77,16 @@ object Return {
     ReturnType.slickColumn
   implicit val StateTypeColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 
-  val returnRefNumRegex          = """([a-zA-Z0-9-_.]*)""".r
-  val messageToCustomerMaxLength = 1000
+  val returnRefNumRegex         = """([a-zA-Z0-9-_.]*)""".r
+  val messageToAccountMaxLength = 1000
 
-  def build(order: Order, admin: StoreAdmin, rmaType: ReturnType = Return.Standard): Return = {
+  def build(order: Order, admin: User, rmaType: ReturnType = Return.Standard): Return = {
     Return(
         orderId = order.id,
         orderRef = order.refNum,
         returnType = rmaType,
-        customerId = order.customerId,
-        storeAdminId = Some(admin.id)
+        accountId = order.accountId,
+        storeAdminId = Some(admin.accountId)
     )
   }
 
@@ -100,20 +100,20 @@ object Return {
 }
 
 class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
-  def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def referenceNumber   = column[String]("reference_number")
-  def orderId           = column[Int]("order_id")
-  def orderRef          = column[String]("order_ref")
-  def returnType        = column[ReturnType]("return_type")
-  def state             = column[State]("state")
-  def isLocked          = column[Boolean]("is_locked")
-  def customerId        = column[Int]("customer_id")
-  def storeAdminId      = column[Option[Int]]("store_admin_id")
-  def messageToCustomer = column[Option[String]]("message_to_customer")
-  def canceledReason    = column[Option[Int]]("canceled_reason")
-  def createdAt         = column[Instant]("created_at")
-  def updatedAt         = column[Instant]("updated_at")
-  def deletedAt         = column[Option[Instant]]("deleted_at")
+  def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def referenceNumber  = column[String]("reference_number")
+  def orderId          = column[Int]("order_id")
+  def orderRef         = column[String]("order_ref")
+  def returnType       = column[ReturnType]("return_type")
+  def state            = column[State]("state")
+  def isLocked         = column[Boolean]("is_locked")
+  def accountId        = column[Int]("account_id")
+  def storeAdminId     = column[Option[Int]]("store_admin_id")
+  def messageToAccount = column[Option[String]]("message_to_account")
+  def canceledReason   = column[Option[Int]]("canceled_reason")
+  def createdAt        = column[Instant]("created_at")
+  def updatedAt        = column[Instant]("updated_at")
+  def deletedAt        = column[Option[Instant]]("deleted_at")
 
   def * =
     (id,
@@ -123,9 +123,9 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
      returnType,
      state,
      isLocked,
-     customerId,
+     accountId,
      storeAdminId,
-     messageToCustomer,
+     messageToAccount,
      canceledReason,
      createdAt,
      updatedAt,
@@ -139,7 +139,7 @@ object Returns
 
   def findByRefNum(refNum: String): QuerySeq = filter(_.referenceNumber === refNum)
 
-  def findByCustomerId(customerId: Int): QuerySeq = filter(_.customerId === customerId)
+  def findByAccountId(accountId: Int): QuerySeq = filter(_.accountId === accountId)
 
   def findByOrderRefNum(refNum: String): QuerySeq = filter(_.orderRef === refNum)
 

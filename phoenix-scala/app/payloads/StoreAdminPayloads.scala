@@ -3,7 +3,7 @@ package payloads
 import cats.data._
 import cats.implicits._
 import failures.Failure
-import models.StoreAdmin.State
+import models.admin.StoreAdminUser.State
 import utils.Validation
 import utils.Validation._
 
@@ -13,13 +13,13 @@ object StoreAdminPayloads {
                                      name: String,
                                      phoneNumber: Option[String] = None,
                                      password: Option[String] = None,
-                                     department: Option[String] = None)
+                                     roles: List[String],
+                                     org: String)
       extends Validation[CreateStoreAdminPayload] {
 
     def validate: ValidatedNel[Failure, CreateStoreAdminPayload] = {
       (notEmpty(name, "name") |@| notEmpty(email, "email") |@|
-            nullOrNotEmpty(phoneNumber, "phoneNumber") |@| nullOrNotEmpty(password, "password") |@|
-            nullOrNotEmpty(department, "department")).map {
+            nullOrNotEmpty(phoneNumber, "phoneNumber") |@| nullOrNotEmpty(password, "password")).map {
         case _ ⇒ this
       }
     }
@@ -27,14 +27,12 @@ object StoreAdminPayloads {
 
   case class UpdateStoreAdminPayload(email: String,
                                      name: String,
-                                     phoneNumber: Option[String] = None,
-                                     department: Option[String] = None)
+                                     phoneNumber: Option[String] = None)
       extends Validation[UpdateStoreAdminPayload] {
 
     def validate: ValidatedNel[Failure, UpdateStoreAdminPayload] = {
       (notEmpty(name, "name") |@| notEmpty(email, "email") |@|
-            nullOrNotEmpty(phoneNumber, "phoneNumber") |@| nullOrNotEmpty(department,
-                                                                          "department")).map {
+            nullOrNotEmpty(phoneNumber, "phoneNumber")).map {
         case _ ⇒ this
       }
     }

@@ -10,13 +10,16 @@ import cats.data.Xor
 import com.pellucid.sealerate
 import com.typesafe.config.Config
 import failures.{Failures, FailuresOps, NotFoundFailure404}
+import failures.UserFailures._
+
 import models.Reason._
 import models.activity.ActivityContext
 import models.cord.{OrderPayment, OrderShippingAddress}
 import models.objects.ObjectContexts
 import models.payment.creditcard.CreditCardCharge
 import models.product.SimpleContext
-import models.{Reason, Reasons, StoreAdmin, StoreAdmins}
+import models.{Reason, Reasons}
+import models.account._
 import org.postgresql.ds.PGSimpleDataSource
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.DatabaseDef
@@ -48,7 +51,9 @@ object Seeds {
       customersScaleMultiplier: Int = 1000,
       mode: Command = NoCommand,
       adminName: String = "",
-      adminEmail: String = ""
+      adminEmail: String = "",
+      adminOrg: String = "",
+      adminRoles: List[String] = List.empty
   )
 
   def main(args: Array[String]): Unit = {
@@ -107,6 +112,8 @@ object Seeds {
     val config: Config           = FoxConfig.loadWithEnv()
     implicit val db: DatabaseDef = Database.forConfig("db", config)
     implicit val ac: AC          = ActivityContext(userId = 1, userType = "admin", transactionId = "seeds")
+    val org                      = "merchant"
+    val roles                    = List("merchant_admin")
 
     cfg.mode match {
       case Seed ⇒
@@ -115,22 +122,24 @@ object Seeds {
           flyWayMigrate(config)
         }
 
-        if (cfg.seedBase) createBaseSeeds()
-        if (cfg.seedAdmins) createAdminsSeeds()
+        if (cfg.seedBase) createBaseSeeds
+        if (cfg.seedAdmins) createAdminsSeeds(org, roles)
         if (cfg.seedRandom > 0)
           createRandomSeeds(cfg.seedRandom, cfg.customersScaleMultiplier)
         if (cfg.seedStage) {
-          val adminId = mustGetFirstAdmin().id
+          val adminId = mustGetFirstAdmin.id
           createStageSeeds(adminId)
         }
         if (cfg.seedDemo > 0) {
-          val adminId = mustGetFirstAdmin().id
+          val adminId = mustGetFirstAdmin.id
           createStageSeeds(adminId)
-          createDemoSeeds()
           createRandomSeeds(cfg.seedDemo, cfg.customersScaleMultiplier)
         }
       case CreateAdmin ⇒
-        createAdminManually(name = cfg.adminName, email = cfg.adminEmail)
+        createAdminManually(name = cfg.adminName,
+                            email = cfg.adminEmail,
+                            org = cfg.adminOrg,
+                            roles = cfg.adminRoles)
       case _ ⇒
         System.err.println(usage)
     }
@@ -138,29 +147,37 @@ object Seeds {
     db.close()
   }
 
-  def createBaseSeeds()(implicit db: DB): Int = {
+  def createBaseSeeds(implicit db: DB): Int = {
     Console.err.println("Inserting Base Seeds")
-    val result: Failures Xor Int = Await.result(createBase().runTxn(), 4.minutes)
+    val result: Failures Xor Int = Await.result(createBase.runTxn(), 4.minutes)
     validateResults("base", result)
   }
 
-  def getFirstAdmin()(implicit db: DB): DbResultT[StoreAdmin] =
-    StoreAdmins.take(1).mustFindOneOr(NotFoundFailure404(StoreAdmin, "first"))
+  def getFirstAdmin(implicit db: DB): DbResultT[User] =
+    Users.take(1).mustFindOneOr(NotFoundFailure404(User, "first"))
 
-  def mustGetFirstAdmin()(implicit db: DB): StoreAdmin = {
-    val result = Await.result(getFirstAdmin().run(), 1.minute)
+  def mustGetFirstAdmin(implicit db: DB): User = {
+    val result = Await.result(getFirstAdmin.run(), 1.minute)
     validateResults("get first admin", result)
   }
 
-  def createAdminsSeeds()(implicit db: DB): Int = {
-    val result: Failures Xor Int = Await.result(Factories.createStoreAdmins.runTxn(), 4.minutes)
+  def createAdminsSeeds(org: String, roles: List[String])(implicit db: DB, ec: EC, ac: AC): Int = {
+    val r = for {
+      _      ← * <~ createSingleMerchantSystem
+      admins ← * <~ Factories.createStoreAdmins(org, roles)
+    } yield admins
+
+    val result: Failures Xor Int = Await.result(r.runTxn(), 4.minutes)
     validateResults("admins", result)
   }
 
-  def createAdminManually(name: String, email: String)(implicit db: DB): StoreAdmin = {
+  def createAdminManually(name: String, email: String, org: String, roles: List[String])(
+      implicit db: DB,
+      ec: EC,
+      ac: AC): User = {
     Console.err.println("Create Store Admin seeds")
-    val result: Failures Xor StoreAdmin =
-      Await.result(Factories.createStoreAdminManual(name, email).runTxn(), 1.minute)
+    val result: Failures Xor User =
+      Await.result(Factories.createStoreAdminManual(name, email, org, roles).runTxn(), 1.minute)
     validateResults("admin", result)
   }
 
@@ -168,11 +185,6 @@ object Seeds {
     Console.err.println("Inserting Stage seeds")
     val result: Failures Xor Unit = Await.result(createStage(adminId).runTxn(), 4.minutes)
     validateResults("stage", result)
-  }
-
-  def createDemoSeeds()(implicit db: DB) {
-    val result = Await.result(DemoSeeds.insertDemoSeeds.runTxn(), 4.minutes)
-    validateResults("demo", result)
   }
 
   def createRandomSeeds(scale: Int, customersScaleMultiplier: Int)(implicit db: DB, ac: AC) {
@@ -198,20 +210,26 @@ object Seeds {
 
   val today = Instant.now().atZone(ZoneId.of("UTC"))
 
-  def createBase()(implicit db: DB): DbResultT[Int] =
+  def createBase(implicit db: DB): DbResultT[Int] =
     for {
       context ← * <~ ObjectContexts.create(SimpleContext.create())
     } yield context.id
 
-  def createAdmins()(implicit db: DB): DbResultT[Int] =
-    Factories.createStoreAdmins
+  def createAdmins(org: String,
+                   roles: List[String])(implicit db: DB, ec: EC, ac: AC): DbResultT[Int] =
+    Factories.createStoreAdmins(org, roles)
+
+  val MERCHANT = "merchant"
 
   def createStage(adminId: Int)(implicit db: DB, ac: AC): DbResultT[Unit] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       ruContext ← * <~ ObjectContexts.create(
                      SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
-      customers   ← * <~ Factories.createCustomers
+      organization ← * <~ Organizations
+                      .findByName(MERCHANT)
+                      .mustFindOr(OrganizationNotFoundByName(MERCHANT))
+      customers   ← * <~ Factories.createCustomers(organization.scopeId)
       _           ← * <~ Factories.createAddresses(customers)
       _           ← * <~ Factories.createCreditCards(customers)
       products    ← * <~ Factories.createProducts
@@ -305,6 +323,9 @@ object Seeds {
                  storeAdminId = 0)
       )
   }
+
+  def createSingleMerchantSystem(implicit ec: EC) =
+    sql""" select bootstrap_single_merchant_system() """.as[Int]
 
   private def flyWayMigrate(config: Config): Unit = {
     val flyway = newFlyway(jdbcDataSourceFromConfig("db", config))

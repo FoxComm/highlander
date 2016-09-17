@@ -4,7 +4,7 @@ import cats.implicits._
 import failures.CartFailures.NoShipMethod
 import models.cord._
 import models.shipping.{Shipments, ShippingMethods}
-import models.traits.Originator
+import models.account.User
 import payloads.UpdateShippingMethod
 import responses.TheResponse
 import responses.cord.CartResponse
@@ -15,7 +15,7 @@ import utils.db._
 
 object CartShippingMethodUpdater {
 
-  def updateShippingMethod(originator: Originator,
+  def updateShippingMethod(originator: User,
                            payload: UpdateShippingMethod,
                            refNum: Option[String] = None)(
       implicit ec: EC,
@@ -50,7 +50,7 @@ object CartShippingMethodUpdater {
       _         ← * <~ LogActivity.orderShippingMethodUpdated(originator, response, oldShipMethod)
     } yield TheResponse.validated(response, validated)
 
-  def deleteShippingMethod(originator: Originator, refNum: Option[String] = None)(
+  def deleteShippingMethod(originator: User, refNum: Option[String] = None)(
       implicit ec: EC,
       es: ES,
       db: DB,

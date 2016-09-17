@@ -19,6 +19,8 @@ case class User(id: Int = 0,
                 phoneNumber: Option[String] = None,
                 isDisabled: Boolean = false,
                 disabledBy: Option[Int] = None,
+                isBlacklisted: Boolean = false,
+                blacklistedBy: Option[Int] = None,
                 createdAt: Instant = Instant.now,
                 updatedAt: Instant = Instant.now,
                 deletedAt: Option[Instant] = None)
@@ -31,6 +33,23 @@ case class User(id: Int = 0,
     case (Some(n), Some(e)) ⇒ Xor.Right(this)
     case _                  ⇒ Xor.Left(UserMustHaveCredentials.single)
   }
+
+  def mustNotBeBlacklisted: Failures Xor User = {
+    if (isBlacklisted) Xor.Left(UserIsBlacklisted(id).single)
+    else Xor.Right(this)
+  }
+
+  override def validate: ValidatedNel[Failure, User] = {
+    if (name.isEmpty) {
+      Validated.Valid(this)
+    } else {
+      (matches(name.getOrElse(""), User.namePattern, "name")).map { case _ ⇒ this }
+    }
+  }
+}
+
+object User {
+  val namePattern = "[^@]+"
 }
 
 class Users(tag: Tag) extends FoxTable[User](tag, "users") {
@@ -42,6 +61,7 @@ class Users(tag: Tag) extends FoxTable[User](tag, "users") {
   def isDisabled    = column[Boolean]("is_disabled")
   def disabledBy    = column[Option[Int]]("disabled_by")
   def isBlacklisted = column[Boolean]("is_blacklisted")
+  def blacklistedBy = column[Option[Int]]("blacklisted_by")
   def createdAt     = column[Instant]("created_at")
   def updatedAt     = column[Instant]("updated_at")
   def deletedAt     = column[Option[Instant]]("deleted_at")
@@ -54,10 +74,16 @@ class Users(tag: Tag) extends FoxTable[User](tag, "users") {
      phoneNumber,
      isDisabled,
      disabledBy,
+     isBlacklisted,
+     blacklistedBy,
      createdAt,
      updatedAt,
      deletedAt) <> ((User.apply _).tupled, User.unapply)
+
+  def account = foreignKey(Accounts.tableName, accountId, Accounts)(_.id)
 }
+
+case class SecurityData(account: Account, user: User, claims: Account.Claims, roles: List[String])
 
 object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[User, Users] {
 
@@ -67,9 +93,27 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
     filter(_.email === email)
   }
 
+  def activeUserByEmail(email: Option[String]): QuerySeq =
+    filter(c ⇒ c.email === email && !c.isBlacklisted && !c.isDisabled)
+
+  def findOneByAccountId(accountId: Int): DBIO[Option[User]] =
+    filter(_.accountId === accountId).result.headOption
+
+  def findByAccountId(accountId: Int): QuerySeq =
+    filter(_.accountId === accountId)
+
+  def mustFindByAccountId(accountId: Int)(implicit ec: EC): DbResultT[User] =
+    filter(_.accountId === accountId).mustFindOneOr(UserWithAccountNotFound(accountId))
+
   def createEmailMustBeUnique(email: String)(implicit ec: EC): DbResultT[Unit] =
     findByEmail(email).one.mustNotFindOr(UserEmailNotUnique)
 
-  def updateEmailMustBeUnique(email: String, userId: Int)(implicit ec: EC): DbResultT[Unit] =
-    findByEmail(email).filter(_.id === userId).one.mustNotFindOr(UserEmailNotUnique)
+  def updateEmailMustBeUnique(maybeEmail: Option[String], accountId: Int)(
+      implicit ec: EC): DbResultT[Unit] =
+    maybeEmail match {
+      case Some(email) ⇒
+        findByEmail(email).filter(_.accountId === accountId).one.mustNotFindOr(UserEmailNotUnique)
+      case None ⇒ DbResultT.unit
+    }
+
 }

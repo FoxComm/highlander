@@ -1,13 +1,12 @@
 package services
 
 import failures.ProductFailures.SkuNotFoundForContext
-import models.StoreAdmin
+import models.account.User
 import models.activity.Activity
 import models.cord._
 import models.cord.lineitems.OrderLineItems.scope._
 import models.cord.lineitems._
 import CartLineItems.scope._
-import models.customer.Customer
 import models.inventory.Skus
 import models.payment.giftcard._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
@@ -20,9 +19,7 @@ import utils.db._
 
 object LineItemUpdater {
 
-  def updateQuantitiesOnCart(admin: StoreAdmin,
-                             refNum: String,
-                             payload: Seq[UpdateLineItemsPayload])(
+  def updateQuantitiesOnCart(admin: User, refNum: String, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -39,18 +36,18 @@ object LineItemUpdater {
     } yield response
   }
 
-  def updateQuantitiesOnCustomersCart(customer: Customer, payload: Seq[UpdateLineItemsPayload])(
+  def updateQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
       es: ES,
       db: DB,
       ac: AC,
       ctx: OC): DbResultT[TheResponse[CartResponse]] = {
 
-    val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
+    val findOrCreate = Carts
+      .findByAccountId(customer.accountId)
 
-    val finder =
-      Carts.findByCustomer(customer).one.findOrCreate(Carts.create(Cart(customerId = customer.id)))
+      .one
+      .findOrCreateExtended(Carts.create(Cart(accountId = customer.accountId)))
 
     for {
       cart     ← * <~ finder

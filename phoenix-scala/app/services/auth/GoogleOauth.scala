@@ -1,58 +1,71 @@
 package services.auth
 
+import services.account._
 import cats.implicits._
 import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, UserInfo}
-import models.auth.{AdminToken, CustomerToken, Identity, Token}
-import models.customer.{Customer, Customers}
-import models.{StoreAdmin, StoreAdmins}
+import models.auth.{UserToken, Token}
+import models.account._
+import failures.UserFailures._
 import utils.FoxConfig._
 import utils.aliases._
 import utils.db._
 
-class GoogleOauthStoreAdmin(options: GoogleOauthOptions)
+class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB)
     extends Oauth(options)
-    with OauthService[StoreAdmin]
+    with OauthService[User]
     with GoogleProvider {
 
-  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResultT[StoreAdmin] =
-    StoreAdmins.create(StoreAdmin(email = userInfo.email, name = userInfo.name))
+  def getScopeId: Int = options.scopeId
 
-  def findByEmail(email: String)(implicit ec: EC, db: DB) = StoreAdmins.findByEmail(email)
+  def createByUserInfo(userInfo: UserInfo): DbResultT[User] = {
 
-  def createToken(admin: StoreAdmin): Token = AdminToken.fromAdmin(admin)
-}
+    for {
+      scope ← * <~ Scopes.mustFindById404(options.scopeId)
+      organization ← * <~ Organizations
+                      .findByNameInScope(options.orgName, scope.id)
+                      .mustFindOr(OrganizationNotFound(options.orgName, scope.path))
+      role ← * <~ Roles
+              .findByNameInScope(options.roleName, scope.id)
+              .mustFindOr(RoleNotFound(options.roleName, scope.path))
 
-class GoogleOauthCustomer(options: GoogleOauthOptions)
-    extends Oauth(options)
-    with OauthService[Customer]
-    with GoogleProvider {
+      account ← * <~ Accounts.create(Account())
+      user ← * <~ Users.create(
+                User(accountId = account.id,
+                     email = Some(userInfo.email),
+                     name = Some(userInfo.name)))
 
-  def createByUserInfo(userInfo: UserInfo)(implicit ec: EC): DbResultT[Customer] =
-    Customers.create(Customer(email = userInfo.email.some, name = userInfo.name.some))
+      _ ← * <~ AccountOrganizations.create(
+             AccountOrganization(accountId = account.id, organizationId = organization.id))
 
-  def findByEmail(email: String)(implicit ec: EC, db: DB) = Customers.findByEmail(email)
+      _ ← * <~ AccountRoles.create(AccountRole(accountId = account.id, roleId = role.id))
+    } yield user
+  }
 
-  def createToken(customer: Customer): Token = CustomerToken.fromCustomer(customer)
+  def findByEmail(email: String) = Users.findByEmail(email).one
+
+  def createToken(user: User, account: Account, scopeId: Int): DbResultT[Token] =
+    for {
+      claimResult ← * <~ AccountManager.getClaims(account.id, scopeId)
+      (scope, claims) = claimResult
+      token ← * <~ UserToken.fromUserAccount(user, account, scope, claims)
+    } yield token
+
+  def findAccount(user: User): DbResultT[Account] = Accounts.mustFindById404(user.accountId)
 }
 
 object GoogleOauth {
 
-  def oauthServiceFromConfig(identity: Identity.IdentityKind) = {
-    val configPrefix = identity.toString.toLowerCase
+  def oauthServiceFromConfig(configPrefix: String)(implicit ec: EC, db: DB) = {
 
     val opts = GoogleOauthOptions(
+        roleName = config.getString(s"user.$configPrefix.role"),
+        orgName = config.getString(s"user.$configPrefix.org"),
+        scopeId = config.getInt(s"user.$configPrefix.scope_id"),
         clientId = config.getString(s"oauth.$configPrefix.google.client_id"),
         clientSecret = config.getString(s"oauth.$configPrefix.google.client_secret"),
         redirectUri = config.getString(s"oauth.$configPrefix.google.redirect_uri"),
         hostedDomain = config.getOptString(s"oauth.$configPrefix.google.hosted_domain"))
 
-    identity match {
-      case Identity.Customer ⇒
-        new GoogleOauthCustomer(opts)
-      case Identity.Admin ⇒
-        new GoogleOauthStoreAdmin(opts)
-      case _ ⇒
-        throw new RuntimeException(s"Identity $configPrefix not supported for google oauth.")
-    }
+    new GoogleOauthUser(opts)
   }
 }

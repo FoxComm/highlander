@@ -3,7 +3,7 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.StoreAdmin
+import models.account.User
 import payloads.ImagePayloads.CreateAlbumPayload
 import payloads.SkuPayloads._
 import services.image.ImageManager
@@ -14,7 +14,7 @@ import utils.http.Http._
 
 object SkuRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
+  def routes(implicit ec: EC, db: DB, admin: User) = {
 
     activityContext(admin) { implicit ac ⇒
       pathPrefix("skus") {

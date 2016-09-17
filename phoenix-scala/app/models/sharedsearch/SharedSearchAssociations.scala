@@ -4,7 +4,7 @@ import java.time.Instant
 
 import models.cord.Carts
 import models.sharedsearch.SharedSearches.scope._
-import models.{StoreAdmin, StoreAdmins}
+import models.account._
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
@@ -17,8 +17,8 @@ case class SharedSearchAssociation(id: Int = 0,
     extends FoxModel[SharedSearchAssociation]
 
 object SharedSearchAssociation {
-  def build(search: SharedSearch, admin: StoreAdmin): SharedSearchAssociation = {
-    SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = admin.id)
+  def build(search: SharedSearch, admin: User): SharedSearchAssociation = {
+    SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = admin.accountId)
   }
 }
 
@@ -33,7 +33,7 @@ class SharedSearchAssociations(tag: Tag)
     (id, sharedSearchId, storeAdminId, createdAt) <> ((SharedSearchAssociation.apply _).tupled,
         SharedSearchAssociation.unapply)
   def sharedSearch = foreignKey(SharedSearches.tableName, sharedSearchId, Carts)(_.id)
-  def storeAdmin   = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
+  def storeAdmin   = foreignKey(Users.tableName, storeAdminId, Users)(_.accountId)
 }
 
 object SharedSearchAssociations
@@ -43,9 +43,9 @@ object SharedSearchAssociations
 
   val returningLens: Lens[SharedSearchAssociation, Int] = lens[SharedSearchAssociation].id
 
-  def byStoreAdmin(admin: StoreAdmin): QuerySeq = filter(_.storeAdminId === admin.id)
+  def byStoreAdmin(admin: User): QuerySeq = filter(_.storeAdminId === admin.accountId)
 
-  def associatedWith(admin: StoreAdmin, scope: SharedSearch.Scope): SharedSearches.QuerySeq =
+  def associatedWith(admin: User, scope: SharedSearch.Scope): SharedSearches.QuerySeq =
     for {
       associations ← byStoreAdmin(admin).map(_.sharedSearchId)
       searches     ← SharedSearches.notDeleted.filter(_.id === associations).filter(_.scope === scope)
@@ -53,10 +53,10 @@ object SharedSearchAssociations
 
   def bySharedSearch(search: SharedSearch): QuerySeq = filter(_.sharedSearchId === search.id)
 
-  def associatedAdmins(search: SharedSearch): StoreAdmins.QuerySeq = {
+  def associatedAdmins(search: SharedSearch): Users.QuerySeq = {
     for {
       associations ← bySharedSearch(search).map(_.storeAdminId)
-      admins       ← StoreAdmins.filter(_.id === associations)
+      admins       ← Users.filter(_.accountId === associations)
     } yield admins
   }
 }

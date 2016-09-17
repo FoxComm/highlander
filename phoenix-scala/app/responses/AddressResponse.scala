@@ -5,15 +5,15 @@ import java.time.Instant
 import cats.implicits._
 import failures.NotFoundFailure404
 import models.cord.{OrderShippingAddress, OrderShippingAddresses}
-import models.customer.Customer
 import models.location._
+import models.account._
 import models.payment.creditcard.CreditCard
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
 case class AddressResponse(id: Int,
-                           customer: Option[Customer] = None,
+                           customer: Option[User] = None,
                            region: Region,
                            name: String,
                            address1: String,

@@ -77,9 +77,9 @@ object CouponFailures {
     override def description = s"Coupon code '${couponCode}' cannot be used anymore"
   }
 
-  case class CouponCodeCannotBeUsedByCustomerAnymore(couponCode: String, customerId: Int)
+  case class CouponCodeCannotBeUsedByCustomerAnymore(couponCode: String, accountId: Int)
       extends Failure {
     override def description =
-      s"Coupon code '${couponCode}' cannot be used by this customer ${customerId} anymore"
+      s"Coupon code '${couponCode}' cannot be used by this customer ${accountId} anymore"
   }
 }

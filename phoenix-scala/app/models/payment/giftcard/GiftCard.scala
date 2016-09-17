@@ -8,7 +8,7 @@ import cats.implicits._
 import com.pellucid.sealerate
 import failures.GiftCardFailures._
 import failures.{EmptyCancellationReasonFailure, Failure, Failures, GeneralFailure}
-import models.StoreAdmin
+import models.account._
 import models.cord.OrderPayment
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard._
@@ -37,7 +37,7 @@ case class GiftCard(id: Int = 0,
                     canceledAmount: Option[Int] = None,
                     canceledReason: Option[Int] = None,
                     reloadable: Boolean = false,
-                    customerId: Option[Int] = None,
+                    accountId: Option[Int] = None,
                     createdAt: Instant = Instant.now())
     extends PaymentMethod
     with FoxModel[GiftCard]
@@ -209,7 +209,7 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
   def canceledAmount   = column[Option[Int]]("canceled_amount")
   def canceledReason   = column[Option[Int]]("canceled_reason")
   def reloadable       = column[Boolean]("reloadable")
-  def customerId       = column[Option[Int]]("customer_id")
+  def accountId        = column[Option[Int]]("account_id")
   def createdAt        = column[Instant]("created_at")
 
   def * =
@@ -226,7 +226,7 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
      canceledAmount,
      canceledReason,
      reloadable,
-     customerId,
+     accountId,
      createdAt) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
 }
 
@@ -256,11 +256,11 @@ object GiftCards
       implicit ec: EC): DbResultT[GiftCardAdjustment] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, state = Adj.Capture)
 
-  def cancelByCsr(giftCard: GiftCard, storeAdmin: StoreAdmin)(
+  def cancelByCsr(giftCard: GiftCard, storeAdmin: User)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] = {
     val adjustment = Adj(giftCardId = giftCard.id,
                          orderPaymentId = None,
-                         storeAdminId = storeAdmin.id.some,
+                         storeAdminId = storeAdmin.accountId.some,
                          debit = giftCard.availableBalance,
                          credit = 0,
                          availableBalance = 0,
@@ -268,11 +268,11 @@ object GiftCards
     Adjs.create(adjustment)
   }
 
-  def redeemToStoreCredit(giftCard: GiftCard, storeAdmin: StoreAdmin)(
+  def redeemToStoreCredit(giftCard: GiftCard, storeAdmin: User)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] = {
     val adjustment = Adj(giftCardId = giftCard.id,
                          orderPaymentId = None,
-                         storeAdminId = storeAdmin.id.some,
+                         storeAdminId = storeAdmin.accountId.some,
                          debit = giftCard.availableBalance,
                          credit = 0,
                          availableBalance = 0,
