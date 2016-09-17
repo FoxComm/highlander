@@ -117,7 +117,6 @@ Vagrant.configure("2") do |config|
     app.vm.network :private_network, ip: $nginx_ip
     expose_ports(app)
 
-    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
       ansible.verbose = "vvvv"
       ansible.playbook = "prov-shit/ansible/vagrant_appliance.yml"
