@@ -8,6 +8,7 @@ defmodule Marketplace.MerchantController do
   alias Marketplace.MerchantApplicationSocialProfile
   alias Marketplace.MerchantSocialProfile
   alias Marketplace.MerchantBusinessProfile
+  alias Marketplace.PermissionManager
 
   def index(conn, _params) do
     merchants = Repo.all(Merchant)
@@ -81,6 +82,7 @@ defmodule Marketplace.MerchantController do
 
         case Repo.transaction(multi_txn) do
           {:ok, %{merchant: inserted_merchant, merchant_business_profile: m_bp, merchant_social_profile: m_sp}} -> 
+            PermissionManager.create_scope
             conn 
             |> put_status(:created)
             |> put_resp_header("location", merchant_path(conn, :show, inserted_merchant))
