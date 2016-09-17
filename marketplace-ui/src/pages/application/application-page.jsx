@@ -1,13 +1,20 @@
 /* @flow */
 
+import get from 'lodash/get';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { replace } from 'react-router-redux';
 
 import Header from '../../components/header/header';
 import Form from '../../components/form/form';
-import ThankYou from '../../components/thank-you/thank-you';
+import ThanksOrNot from '../../components/thanks-or-not/thanks-or-not';
 
-import { getApplication, getApplicationInProgress, getApplicationFailed } from '../../core/modules';
+import {
+  getApplication,
+  getApplicationFetchFailed,
+  getApplicationInProgress,
+  getApplicationFailed
+} from '../../core/modules';
 import { fetch, submit } from '../../core/modules/merchant-application';
 import { fields } from '../../forms/application/application-fields';
 
@@ -16,11 +23,13 @@ import type { Application } from '../../core/modules/merchant-application';
 
 type Props = {
   params: Object;
+  replace: (path: string) => void;
   application: Application;
   fetch: (reference: string) => Promise;
   submit: (data: Object) => Promise;
   inProgress: boolean;
-  failed: boolean;
+  fetchFailed: boolean;
+  submitFailed: boolean;
 }
 
 class MerchantApplicationPage extends Component {
@@ -34,30 +43,58 @@ class MerchantApplicationPage extends Component {
     }
   }
 
-  get thank() {
-    if (!this.props.application.reference_number) {
+  componentWillReceiveProps(nextProps: Props) {
+    const oldRef = get(this.props, 'application.reference_number');
+    const newRef = get(nextProps, 'application.reference_number');
+
+    if (!oldRef && newRef) {
+      this.props.replace(`/application/${newRef}`);
+    }
+  }
+
+  get thank(): HTMLElement {
+    const { application: { reference_number: ref } } = this.props;
+
+    if (!ref) {
       return;
     }
 
+    const message = (
+      <span>
+        Your application has been submitted and will be evaluated soon.<br />
+        Your application id is: {ref}<br />
+        You will hear from us as soon as your account has been approved.
+      </span>
+    );
+
     return (
-      <ThankYou
-        message={
-          <span>
-            Your application has been submitted and will be evaluated soon.<br/>
-            Your application id is: {this.props.application.reference_number}<br/>
-            You will hear from us as soon as your account has been approved.
-          </span>
-        }
+      <ThanksOrNot
+        message={message}
       />
     );
   }
 
-  get form() {
-    if (this.props.application.id) {
+  get error(): HTMLElement {
+    const { fetchFailed, params: { ref } } = this.props;
+    if (!fetchFailed) {
       return;
     }
 
-    const { submit, inProgress, failed } = this.props;
+    return (
+      <ThanksOrNot
+        title="Sorry"
+        message={<span>No application with reference number<br />{ref}<br />found.</span>}
+        error
+      />
+    );
+  }
+
+  get form(): HTMLElement {
+    if (this.props.application.id || this.props.fetchFailed) {
+      return;
+    }
+
+    const { submit, inProgress, submitFailed } = this.props;
 
     return (
       <div>
@@ -70,7 +107,7 @@ class MerchantApplicationPage extends Component {
           fields={fields}
           onSubmit={submit}
           inProgress={inProgress}
-          failed={failed}
+          failed={submitFailed}
           submitText="Apply"
         />
       </div>
@@ -80,6 +117,7 @@ class MerchantApplicationPage extends Component {
   render(): HTMLElement {
     return (
       <div>
+        {this.error}
         {this.thank}
         {this.form}
       </div>
@@ -89,8 +127,9 @@ class MerchantApplicationPage extends Component {
 
 const mapState = state => ({
   application: getApplication(state),
+  fetchFailed: getApplicationFetchFailed(state),
   inProgress: getApplicationInProgress(state),
-  failed: getApplicationFailed(state),
+  submitFailed: getApplicationFailed(state),
 });
 
-export default connect(mapState, { fetch, submit })(MerchantApplicationPage);
+export default connect(mapState, { fetch, submit, replace })(MerchantApplicationPage);

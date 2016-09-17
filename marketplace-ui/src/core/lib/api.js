@@ -25,7 +25,10 @@ export class Api {
       .then(response => response.data)
       .catch(err => {
         const message = `${method.toUpperCase()} ${url} responded with ${err.response.statusText}`;
-        throw new Error(message);
+        const error = new Error(message);
+        error.response = err.response;
+
+        throw error;
       });
   }
 

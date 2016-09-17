@@ -49,7 +49,7 @@ export function reducer(state: State = initialState, action) {
         const error = {
           status: _.get(payload, 'response.status'),
           statusText: _.get(payload, 'response.statusText', ''),
-          messages: _.get(payload, 'responseJson.errors', []),
+          message: _.get(payload, 'message', 'Error'),
         };
 
         return assoc(state,

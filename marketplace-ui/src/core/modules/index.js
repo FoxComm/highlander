@@ -23,6 +23,9 @@ export default reducer;
 export const getApplication = state => application.getApplication(state.application);
 export const getAccountId = state => account.getAccountId(state.account);
 
+export const getApplicationFetchFailed = state =>
+  getActionFailed(state.asyncActions, application.getApplicationFetchActionNamespace());
+
 export const getApplicationInProgress = state =>
   getActionInProgress(state.asyncActions, application.getApplicationActionNamespace());
 

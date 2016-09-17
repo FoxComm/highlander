@@ -46,6 +46,7 @@ const reducer = createReducer({
 
 const getApplication = (state: State) => state;
 const getApplicationActionNamespace = () => ACTION_MERCHANT_APPLICATION_SUBMIT;
+const getApplicationFetchActionNamespace = () => ACTION_MERCHANT_APPLICATION_FETCH;
 
 export {
   reducer as default,
@@ -55,5 +56,6 @@ export {
   /* selectors */
   getApplication,
   getApplicationActionNamespace,
+  getApplicationFetchActionNamespace,
 };
 
