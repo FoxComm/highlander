@@ -22,7 +22,7 @@ defmodule Marketplace.MerchantController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", merchant_path(conn, :show, merchant))
-        |> render("merchant.json", merchant: merchant)
+        |> render("show.json", merchant: merchant)
       {:error, changeset} -> 
         conn
         |> put_status(:unprocessable_entity)
@@ -41,7 +41,7 @@ defmodule Marketplace.MerchantController do
     case Repo.update(changeset) do
       {:ok, merchant} -> 
         conn 
-        |> render("merchant.json", merchant: merchant)
+        |> render("show.json", merchant: merchant)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -84,7 +84,7 @@ defmodule Marketplace.MerchantController do
             conn 
             |> put_status(:created)
             |> put_resp_header("location", merchant_path(conn, :show, inserted_merchant))
-            |> render("merchant.json", merchant: inserted_merchant)
+            |> render("show.json", merchant: inserted_merchant)
           {:error, changeset} -> 
             conn
             |> put_status(:unprocessable_entity)
