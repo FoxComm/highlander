@@ -5,7 +5,7 @@ defmodule Permissions.Organization do
 
   schema "organizations" do 
     field :name, :string
-    field :type, :string
+    field :kind, :string
 
     belongs_to :parent, Organization
     
