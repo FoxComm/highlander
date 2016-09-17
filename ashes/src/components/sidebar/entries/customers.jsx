@@ -34,26 +34,26 @@ export default class CustomersEntry extends Component {
   }
 
   render(): Element {
-    if (isPermitted(requiredClaims, this.props.claims)) {
-      return (
-        <li>
-          <NavigationItem
-            to="customers"
-            icon="icon-customers"
-            title="Customers"
-            isIndex={true}
-            isExpandable={true}
-            routes={this.props.routes}
-            collapsed={this.props.collapsed}
-            status={this.props.status}
-            toggleMenuItem={this.props.toggleMenuItem}>
-            <IndexLink to="customers" className="fc-navigation-item__sublink">Customers</IndexLink>
-            {this.customerGroupsLink}
-          </NavigationItem>
-        </li>
-      );
-    } else {
+    if (!isPermitted(requiredClaims, this.props.claims)) {
       return <div></div>;
     }
+
+    return (
+      <li>
+        <NavigationItem
+          to="customers"
+          icon="icon-customers"
+          title="Customers"
+          isIndex={true}
+          isExpandable={true}
+          routes={this.props.routes}
+          collapsed={this.props.collapsed}
+          status={this.props.status}
+          toggleMenuItem={this.props.toggleMenuItem}>
+          <IndexLink to="customers" className="fc-navigation-item__sublink">Customers</IndexLink>
+          {this.customerGroupsLink}
+        </NavigationItem>
+      </li>
+    );
   }
 }

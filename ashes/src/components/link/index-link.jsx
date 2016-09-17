@@ -1,13 +1,35 @@
-import React, { PropTypes } from 'react';
+/* @flow */
+import React, { Component, Element } from 'react';
 import Link from './link';
 
-export default class IndexLink extends React.Component {
+import { isPermitted } from 'lib/claims';
+import type { Claims } from 'lib/claims';
 
-  static propTypes = {
-    children: PropTypes.node
+type Props = {
+  children: Element|Array<Element>,
+  actualClaims: Claims,
+  expectedClaims: Claims,
+};
+
+type DefaultProps = {
+  actualClaims: Claims,
+  expectedClaims: Claims,
+};
+
+export default class IndexLink extends Component {
+  props: Props;
+
+  static defaultProps: DefaultProps = {
+    actualClaims: {},
+    expectedClaims: {},
   };
 
-  render() {
-    return <Link {...this.props} onlyActiveOnIndex={true}>{this.props.children}</Link>;
+  render(): Element {
+    const { children, actualClaims, expectedClaims } = this.props;
+    if (isPermitted(expectedClaims, actualClaims)) {
+      return <Link {...this.props} onlyActiveOnIndex={true}>{children}</Link>;
+    }
+
+    return <div></div>;
   }
 }

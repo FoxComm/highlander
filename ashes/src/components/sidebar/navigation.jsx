@@ -2,15 +2,15 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
-import { getClaims } from 'lib/claims'; 
+import { getClaims } from 'lib/claims';
 
 import NavigationItem from './navigation-item';
 
-import CatalogEntry from './entities/catalog';
-import CustomersEntry from './entities/customers';
-import MarketingEntry from './entities/marketing';
-import OrdersEntry from './entities/orders';
-import SettingsEntry from './entities/settings';
+import CatalogEntry from './entries/catalog';
+import CustomersEntry from './entries/customers';
+import MarketingEntry from './entries/marketing';
+import OrdersEntry from './entries/orders';
+import SettingsEntry from './entries/settings';
 
 function getMenuItemState(props, to) {
   return _.get(props, ['menuItems', to]);
