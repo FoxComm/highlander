@@ -16,26 +16,22 @@ defmodule Marketplace.PermissionManager do
     |> Poison.encode!
     post_headers = [{'content-type', 'application/json'}]
     
-    case HTTPoison.post!("#{full_perm_path}/scopes", post_body, post_headers) do
-      %HTTPoison.Response{status_code: 201, body: body} ->
+    case HTTPoison.post("#{full_perm_path}/scopes", post_body, post_headers) do
+      {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
         case Poison.decode(body) do 
         {:ok, decoded_body} -> 
-          IO.inspect("created")
-          IO.inspect(decoded_body)
-          Map.fetch!(decoded_body, "id") 
-        {:error, decoded_body} -> 
-          nil
-        end 
-      %HTTPoison.Response{status_code: 404, body: body} -> 
-        case Poison.decode(body) do 
-        {:ok, decoded_body} -> 
-          IO.inspect("created")
-          IO.inspect(decoded_body)
-          decoded_body.id 
+          Map.fetch!(decoded_body, "id")
         {:error, decoded_body} -> 
           nil
         end
-      %HTTPoison.Error{reason: reason} -> 
+      {:ok, %HTTPoison.Response{status_code: 404, body: body}} -> 
+        case Poison.decode(body) do 
+        {:ok, decoded_body} -> 
+          Map.fetch!(decoded_body, "id")
+        {:error, decoded_body} -> 
+          nil
+        end        
+      {:error, %HTTPoison.Error{reason: reason}} -> 
         IO.inspect("ERROR FROM HTTP CLIENT!")
         IO.inspect(reason)
         nil

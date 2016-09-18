@@ -61,6 +61,7 @@ defmodule Marketplace.MerchantController do
         |> put_status(:unprocessable_entity)
         |> render("already_approved.json", %{errors: "error"})
       state when state == "new" ->
+        #AWTODO: Later, we'll want to detect the parent scope, if any, and create underneath it.
         scope_id = PermissionManager.create_scope
         
         merchant = %{
@@ -90,7 +91,7 @@ defmodule Marketplace.MerchantController do
             |> put_status(:created)
             |> put_resp_header("location", merchant_path(conn, :show, inserted_merchant))
             |> render("show.json", merchant: inserted_merchant)
-          {:error, changeset} -> 
+          {:error, target, changeset, errors} -> 
             conn
             |> put_status(:unprocessable_entity)
             |> render(Marketplace.ChangesetView, "errors.json", changeset: changeset)
