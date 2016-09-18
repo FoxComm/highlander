@@ -9,7 +9,7 @@ namespace isaac
         {
             //this is arbitrary limit
             //to prevent abuse.
-            const std::size_t MAX_JWT_SIZE = 1024;
+            const std::size_t MAX_JWT_SIZE = 1024*10;
         }
 
         void query_request_handler::onRequest(std::unique_ptr<proxygen::HTTPMessage> msg) noexcept

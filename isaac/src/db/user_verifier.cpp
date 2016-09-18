@@ -48,7 +48,7 @@ namespace isaac
         {
             REQUIRE_GREATER_EQUAL(ratchet, 0);
 
-            return same_ratchet("users", id, ratchet);
+            return same_ratchet("accounts", id, ratchet);
         }
     }
 }
