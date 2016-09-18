@@ -8,8 +8,15 @@ defmodule Marketplace.MerchantView do
   def render("merchant.json", %{merchant: merchant}) do
     %{id: merchant.id,
       name: merchant.name,
+      business_name: merchant.business_name,
+      phone_number: merchant.phone_number,
+      email_address: merchant.email_address,
       description: merchant.description,
-      state: merchant.state}
+      site_url: merchant.site_url,
+      state: merchant.state,
+      scope_id: merchant.scope_id,
+      organization_id: merchant.organization_id
+    }
   end
 
   def render("show.json", %{merchant: merchant}) do 
