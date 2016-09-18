@@ -35,7 +35,7 @@ export default class OrdersEntry extends Component {
     return (
       <li>
         <NavigationItem
-          to={to}
+          to="orders"
           icon="icon-orders"
           title="Orders"
           isIndex={true}
