@@ -2,7 +2,7 @@
 import React, { Component, Element } from 'react';
 import _ from 'lodash';
 
-import { isPermitted } from 'lib/claims';
+import { anyPermitted, isPermitted } from 'lib/claims';
 
 import NavigationItem from 'components/sidebar/navigation-item';
 import { IndexLink, Link } from 'components/link';
@@ -17,37 +17,19 @@ type Props = {
   toggleMenuItem: Function,
 };
 
-const cartClaim = { 'frn:oms:cart': ['r'] };
-const orderClaim = { 'frn:oms:order': ['r'] };
+const cartClaims = { 'frn:oms:cart': ['r'] };
+const orderClaims = { 'frn:oms:order': ['r'] };
 
 export default class OrdersEntry extends Component {
   props: Props;
 
-  get cartLink(): ?Element {
-    if (isPermitted(cartClaim, this.props.claims)) {
-      return <IndexLink to="carts" className="fc-navigation-item__sublink">Carts</IndexLink>;
-    }
-  }
-
-  get orderLink(): ?Element {
-    if (isPermitted(orderClaim, this.props.claims)) {
-      return <IndexLink to="orders" className="fc-navigation-item__sublink">Orders</IndexLink>;
-    }
-  }
-
   render(): Element {
-    const cartLink = this.cartLink;
-    const orderLink = this.orderLink;
+    const { claims, collapsed, routes, status, to, toggleMenuItem } = this.props;
+    const allClaims = { ...cartClaims, ...orderClaims };
 
-    const links = [];
-    if (cartLink) links.push(cartLink);
-    if (orderLink) links.push(orderLink);
-
-    if (links.length == 0) {
+    if (!anyPermitted(allClaims, claims)) {
       return <div></div>;
     }
-
-    const to = orderLink ? 'orders' : 'carts';
 
     return (
       <li>
@@ -57,11 +39,24 @@ export default class OrdersEntry extends Component {
           title="Orders"
           isIndex={true}
           isExpandable={true}
-          routes={this.props.routes}
-          collapsed={this.props.collapsed}
-          status={this.props.status}
-          toggleMenuItem={this.props.toggleMenuItem}>
-          {links}
+          routes={routes}
+          collapsed={collapsed}
+          status={status}
+          toggleMenuItem={toggleMenuItem}>
+          <IndexLink
+            to="carts"
+            className="fc-navigation-item__sublink"
+            actualClaims={claims}
+            expectedClaims={cartClaims}>
+            Carts
+          </IndexLink>
+          <IndexLink
+            to="orders"
+            className="fc-navigation-item__sublink"
+            actualClaims={claims}
+            expectedClaims={orderClaims}>
+            Orders
+          </IndexLink>
         </NavigationItem>
       </li>
     );

@@ -74,3 +74,20 @@ export function isPermitted(expectedClaims: Claims, actualClaims: Claims): boole
     return res && hasAction;
   }, true);
 }
+
+export function anyPermitted(expectedClaims: Claims, actualClaims: Claims): boolean {
+  const isRestricted = _.reduce(expectedClaims, (res, expActions, expFRN) => {
+    const actions = _.get(actualClaims, expFRN);
+    if (!actions) {
+      return true;
+    }
+
+    const hasAction = _.reduce(expActions, (actionRes, expAction) => {
+      return actionRes && _.includes(actions, expAction);
+    }, true);
+
+    return res && !hasAction;
+  }, true);
+
+  return !isRestricted;
+}

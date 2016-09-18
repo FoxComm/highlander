@@ -17,24 +17,15 @@ type Props = {
   toggleMenuItem: Function,
 };
 
-const requiredClaims = { 'frn:usr:customer': ['r'] };
+const customerClaims = { 'frn:usr:customer': ['r'] };
+const customerGroupClaims = { 'frn:usr:customer-groups': ['r'] };
 
 export default class CustomersEntry extends Component {
   props: Props;
 
-  get customerGroupsLink(): Element {
-    const claim = { 'frn:usr:customer-groups': ['r'] };
-    if (isPermitted(requiredClaims, claim)) {
-      return (
-        <IndexLink to="groups" className="fc-navigation-item__sublink">Customer Groups</IndexLink>
-      );
-    }
-
-    return <div></div>;
-  }
-
   render(): Element {
-    if (!isPermitted(requiredClaims, this.props.claims)) {
+    const { claims } = this.props;
+    if (!isPermitted(customerClaims, this.props.claims)) {
       return <div></div>;
     }
 
@@ -50,8 +41,18 @@ export default class CustomersEntry extends Component {
           collapsed={this.props.collapsed}
           status={this.props.status}
           toggleMenuItem={this.props.toggleMenuItem}>
-          <IndexLink to="customers" className="fc-navigation-item__sublink">Customers</IndexLink>
-          {this.customerGroupsLink}
+          <IndexLink
+            to="customers"
+            className="fc-navigation-item__sublink">
+            Customers
+          </IndexLink>
+          <IndexLink
+            to="groups"
+            className="fc-navigation-item__sublink"
+            actualClaims={claims}
+            expectedClaims={customerGroupClaims}>
+            Customer Groups
+          </IndexLink>
         </NavigationItem>
       </li>
     );
