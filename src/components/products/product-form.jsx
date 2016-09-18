@@ -108,13 +108,38 @@ export default class ProductForm extends Component {
         return variant;
       });
     }
-    console.log(updatedVariants);
     const newProduct = assoc(
       this.props.product,
       ['skus'], skus,
       ['variants'], updatedVariants
     );
     return this.props.onUpdateProduct(newProduct);
+  }
+
+  @autobind
+  updateSkuForVariant(code: string, updateArray: Array<Array<any>>): void {
+    const variants = _.get(this.props, 'product.variants');
+    if (_.isEmpty(variants)) {
+      this.props.onSetSkuProperties(code, updateArray);
+    } else {
+      const newProduct = _.reduce(updateArray, (p, [field, value]) => {
+        return ProductParagon.setSkuAttribute(p, code, field, value);
+      }, this.props.product);
+      const updatedVariants = _.map(variants, variant => {
+        const values = _.map(variant.values, value => {
+          const idx = value.skuCodes.indexOf(code);
+          if (idx >= 0) {
+            const newCode = _.find(updateArray, entry => { return entry[0] == 'code' });
+            value.skuCodes[idx] = newCode[1];
+          }
+          return value;
+        });
+        variant.values = values;
+        return variant;
+      });
+      newProduct.variants = updatedVariants;
+      return this.props.onUpdateProduct(newProduct);
+    }
   }
 
   @autobind
@@ -188,7 +213,7 @@ export default class ProductForm extends Component {
           <SkuContentBox
             fullProduct={this.props.product}
             updateField={this.props.onSetSkuProperty}
-            updateFields={this.props.onSetSkuProperties}
+            updateFields={this.updateSkuForVariant}
             variants={this.props.product.variants}
           />
 
