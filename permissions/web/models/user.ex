@@ -1,11 +1,11 @@
-defmodule Permissions.Account do
+defmodule Permissions.User do
   use Permissions.Web, :model
 
-  schema "accounts" do
+  schema "users" do
     field :ratchet, :integer
 
-    has_many :account_roles, Permissions.AccountRole
-    has_many :roles, through: [:account_roles, :role]
+    has_many :user_roles, Permissions.UserRole
+    has_many :roles, through: [:user_roles, :role]
   end
 
   def changeset(model, params \\ :empty) do 
