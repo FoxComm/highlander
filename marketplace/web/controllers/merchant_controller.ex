@@ -63,14 +63,15 @@ defmodule Marketplace.MerchantController do
       state when state == "new" ->
         #AWTODO: Later, we'll want to detect the parent scope, if any, and create underneath it.
         scope_id = PermissionManager.create_scope
-        
+        organization_id = PermissionManager.create_organization_from_merchant_application(ma)
         merchant = %{
           name: ma.name,
           business_name: ma.name, 
           email_address: ma.email_address,
           description: ma.description,
           state: "activated",
-          scope_id: scope_id
+          scope_id: scope_id,
+          organization_id: organization_id
         } 
         merchant_cs = Merchant.changeset(%Merchant{}, merchant)
     

@@ -11,14 +11,17 @@ defmodule Permissions.Organization do
     
     has_many :children, Organization, foreign_key: :parent_id
   end
+  
+  @required_params ~w(name kind)
+  @optional_params ~w(parent_id)
 
   def changeset(model, params \\ :empty) do
     model 
-    |> cast(params, ~w(name type), ~w(parent_id))
+    |> cast(params, @required_params, @optional_params)
   end
   
   def update_changeset(model, params \\ :empty) do
     model 
-    |> cast(params, ~w(name type), ~w(parent_id))
+    |> cast(params, @required_params, @optional_params)
   end
 end
