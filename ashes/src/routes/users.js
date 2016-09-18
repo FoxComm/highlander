@@ -3,23 +3,36 @@
 import React, { Component, Element } from 'react';
 import { Route, IndexRoute } from 'react-router';
 
+import FoxRouter from 'lib/fox-router';
+import { frn } from 'lib/frn';
+
+import ActivityTrailPage from 'components/activity-trail/activity-trail-page';
 import UsersListPage from 'components/users/user-list';
 import Users from 'components/users/users';
 import User from 'components/users/user';
 import UserForm from 'components/users/user-form';
 
-const userRoutes = () => {
-  return (
-    <Route name="user-base" path="users">
-      <Route name="users-list-page" component={UsersListPage}>
-        <IndexRoute name="users" component={Users} />
-      </Route>
-      <Route name="user" path=":userId" component={User}>
-        <IndexRoute name="user-form" component={UserForm} />
-        <Route name="user-activity-trail" path="activity-trail" component={UserForm} />
-      </Route>
-    </Route>
-  )
-};
+import type { JWT } from 'lib/claims';
 
-export default userRoutes;
+const getRoutes = (jwt: JWT) => {
+  const router = new FoxRouter(jwt);
+
+  const userRoutes =
+    router.read('user-base', { path: 'users', frn: frn.settings.user }, [
+      router.read('users-list-page', { component: UsersListPage }, [
+        router.read('users', { component: Users, isIndex: true }),
+      ]),
+      router.read('user', { path: ':userId', component: User }, [
+        router.read('user-form', { component: UserForm, isIndex: true }),
+        router.read('user-activity-trail', {
+          path: 'activity-trail',
+          component: ActivityTrailPage,
+          frn: frn.activity.user,
+        }),
+      ]),
+    ]);
+
+  return userRoutes;
+}
+
+export default getRoutes;

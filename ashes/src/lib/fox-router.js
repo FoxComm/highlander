@@ -34,7 +34,7 @@ export default class FoxRouter {
     const { isIndex, frn, ...rest } = params;
     const RouteComponent = isIndex ? IndexRoute : Route;
     return (
-      <RouteComponent name={name} {...rest}>
+      <RouteComponent key={`route-${name}`} name={name} {...rest}>
         {children}
       </RouteComponent>
     );

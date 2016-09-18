@@ -3,13 +3,29 @@ import _ from 'lodash';
 import type { Claims } from 'lib/claims';
 
 export const frn = {
+  activity: {
+    customer: 'frn:activity:customer',
+    inventory: 'frn:activity:inventory',
+    order: 'frn:activity:order',
+    product: 'frn:activity:product',
+    sku: 'frn:activity:sku',
+    user: 'frn:activity:user',
+  },
   mkt: {
     coupon: 'frn:mkt:coupon',
     giftCard: 'frn:mkt:giftCard',
     promotion: 'frn:mkt:promotion',
   },
   mdl: {
+    shipment: 'frn:mdl:shipment',
     summary: 'frn:mdl:summary',
+    transaction: 'frn:mdl:transaction',
+  },
+  note: {
+    customer: 'frn:note:customer',
+    product: 'frn:note:product',
+    sku: 'frn:order:sku',
+    order: 'frn:note:order',
   },
   oms: {
     cart: 'frn:oms:cart',
@@ -26,7 +42,9 @@ export const frn = {
   },
   user: {
     customer: 'frn:usr:customer',
+    customerCart: 'frn:usr:customer-cart',
     customerGroup: 'frn:usr:customer-group',
+    customerTransaction: 'frn:usr:customer-transaction',
   },
 }
 

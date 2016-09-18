@@ -18,16 +18,6 @@ import InventoryList from './components/inventory/list';
 import InventoryItemDetailsBase from './components/inventory/item-details-base';
 import InventoryItemDetails from './components/inventory/item-details';
 import InventoryItemTransactions from './components/inventory/item-transactions';
-import ProductsListPage from './components/products/list-page';
-import Products from './components/products/products';
-import ProductPage from './components/products/page';
-import ProductForm from './components/products/product-form';
-import ProductImages from './components/products/images';
-import Skus from './components/skus/skus';
-import SkusListPage from './components/skus/list-page';
-import SkuPage from './components/skus/page';
-import SkuDetails from './components/skus/details';
-import SkuImages from './components/skus/images';
 import PromotionsListPage from './components/promotions/list';
 import Promotions from './components/promotions/promotions';
 import PromotionPage from './components/promotions/promotion-page';
@@ -44,6 +34,7 @@ import Plugin from './components/plugins/plugin';
 import Login from './components/auth/login';
 import SetPassword from './components/auth/set-password';
 
+import catalogRoutes from './routes/catalog';
 import customerRoutes from './routes/customers';
 import orderRoutes from './routes/orders';
 import userRoutes from './routes/users';
@@ -62,9 +53,6 @@ if (process.env.NODE_ENV != 'production') {
 }
 
 const claims = getClaims();
-console.log('claims');
-console.log(claims);
-
 const routes = (
   <Route path="/">
     <IndexRedirect to="/orders/"/>
@@ -77,39 +65,7 @@ const routes = (
       <IndexRoute name="home" component={Home}/>
       {orderRoutes(claims)}
       {customerRoutes(claims)}
-      <Route name='products-base' path='products'>
-        <Route name='products-list-pages' component={ProductsListPage}>
-          <IndexRoute name='products' component={Products} />
-        </Route>
-        <Route name='product' path=':context/:productId' titleParam=":productId" component={ProductPage}>
-          <IndexRoute name='product-details' component={ProductForm} />
-          <Route name='new-product' component={ProductForm} />
-          <Route name='product-images' title='Images' path='images' component={ProductImages} />
-          <Route name='product-notes' title='Notes' path='notes' component={Notes} />
-          <Route name='product-activity-trail' title='Activity Trail'
-                 path='activity-trail' component={ActivityTrailPage} />
-        </Route>
-      </Route>
-      <Route name='skus-base' title='SKUs' path='skus'>
-        <Route name='skus-list-pages' component={SkusListPage}>
-          <IndexRoute name='skus' component={Skus} />
-        </Route>
-        <Route name='sku' path=':skuCode' component={SkuPage}>
-          <IndexRoute name='sku-details' component={SkuDetails} />
-          <Route name='sku-images' path='images' title='Images' component={SkuImages} />
-          <Route name='sku-inventory-details-base' path="inventory" component={InventoryItemDetailsBase}>
-            <IndexRoute name='sku-inventory-details' component={InventoryItemDetails} />
-            <Route
-              title='Transactions'
-              name='sku-inventory-transactions'
-              path='transactions'
-              component={InventoryItemTransactions}
-            />
-          </Route>
-          <Route name='sku-notes' path='notes' title='Notes' component={Notes} />
-          <Route name='sku-activity-trail' path='activity-trail' title='Activity Trail' component={ActivityTrailPage} />
-        </Route>
-      </Route>
+      {catalogRoutes(claims)}
       <Route name='gift-cards-base' path='gift-cards'>
         <Route name='gift-cards-list-page' component={GiftCardsListPage}>
           <IndexRoute name='gift-cards' component={GiftCards}/>
@@ -121,15 +77,6 @@ const routes = (
           <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />
           <Route name='gift-card-notes' path='notes' component={Notes} />
           <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrailPage} />
-        </Route>
-      </Route>
-      <Route name='inventory-base' path='inventory'>
-        <Route name='inventory-list-page' component={InventoryListPage}>
-          <IndexRoute name='inventory' component={InventoryList}/>
-          <Route name='inventory-activity-trail'
-                 path='activity-trail'
-                 dimension="inventory"
-                 component={ActivityTrailPage}/>
         </Route>
       </Route>
       <Route name='promotions-base' path='promotions'>
@@ -175,7 +122,7 @@ const routes = (
           <Route name='test-notifications' path='notifications' component={AllNotificationItems}/>
         </Route>
       }
-      {userRoutes()}
+      {userRoutes(claims)}
       <Route path="plugins" name="plugins-base">
         <IndexRoute name="plugins" component={PluginsList} />
         <Route name="plugin" path=":name" component={Plugin} />

@@ -1,7 +1,9 @@
 /* @flow */
 
 import React, { Component, Element } from 'react';
+
 import FoxRouter from 'lib/fox-router';
+import { frn } from 'lib/frn';
 
 import Customers from 'components/customers/customers';
 import CustomersListPage from 'components/customers/list-page';
@@ -24,27 +26,18 @@ import NewStoreCredit from 'components/customers/store-credits/new-store-credit'
 const getRoutes = (jwt: Object) => {
   const router = new FoxRouter(jwt);
 
-  const customerFRN = 'frn:usr:customer';
-  const activityFRN = 'frn:usr:customer-activity';
-  const groupFRN = 'frn:usr:customer-group';
-  const transactionFRN = 'frn:usr:customer-transaction';
-  const cartFRN = 'frn:oms:cart';
-  const itemFRN = 'frn:pim:sku';
-  const noteFRN = 'frn:usr:customer-note';
-
-
   const customerRoutes =
-    router.read('customers-base', { path: 'customers', frn: customerFRN }, [
+    router.read('customers-base', { path: 'customers', frn: frn.user.customer }, [
       router.read('customers-list-pages', { component: CustomersListPage }, [
         router.read('customers', { component: Customers, isIndex: true }),
         router.read('customers-activity-trail', {
           path: 'activity-trail',
           dimension: 'customer',
           component: ActivityTrailPage,
-          frn: activityFRN,
+          frn: frn.activity.customer,
          }),
       ]),
-      router.read('groups-base', { path: 'groups', frn: groupFRN }, [
+      router.read('groups-base', { path: 'groups', frn: frn.user.customerGroup }, [
         router.read('customer-groups', { component: CustomersListPage }, [
           router.read('groups', { component: Groups, isIndex: true }),
         ]),
@@ -65,13 +58,13 @@ const getRoutes = (jwt: Object) => {
           title: 'Transactions',
           path: 'transactions',
           component: CustomerTransactions,
-          frn: transactionFRN,
+          frn: frn.user.customerTransaction,
          }),
         router.read('customer-cart', {
           title: 'Cart',
           path: 'cart',
           component: CustomerCart,
-          frn: cartFRN,
+          frn: frn.user.customerCart,
          }),
         router.read('customer-items', { title: 'Items', path: 'items', component: CustomerItems }),
         router.read('customer-notes', { path: 'notes', component: Notes }),
