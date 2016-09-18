@@ -5,23 +5,9 @@ import AuthPages from './components/site/auth-pages';
 import Home from './components/home/home';
 import Notes from './components/notes/notes';
 import ActivityTrailPage from './components/activity-trail/activity-trail-page';
-import GiftCards from './components/gift-cards/gift-cards';
-import GiftCardsListPage from './components/gift-cards/list-page';
-import NewGiftCard from './components/gift-cards/gift-cards-new';
-import GiftCard from './components/gift-cards/gift-card';
-import GiftCardTransactions from './components/gift-cards/transactions';
 import StoreCredits from './components/customers/store-credits/store-credits';
 import StoreCreditsTransactions from './components/customers/store-credits/transactions';
 import NewStoreCredit from './components/customers/store-credits/new-store-credit';
-import InventoryListPage from './components/inventory/list-page';
-import InventoryList from './components/inventory/list';
-import InventoryItemDetailsBase from './components/inventory/item-details-base';
-import InventoryItemDetails from './components/inventory/item-details';
-import InventoryItemTransactions from './components/inventory/item-transactions';
-import PromotionsListPage from './components/promotions/list';
-import Promotions from './components/promotions/promotions';
-import PromotionPage from './components/promotions/promotion-page';
-import PromotionForm from './components/promotions/promotion-form';
 import CouponsListPage from './components/coupons/list';
 import Coupons from './components/coupons/coupons';
 import CouponPage from './components/coupons/page';
@@ -36,6 +22,7 @@ import SetPassword from './components/auth/set-password';
 
 import catalogRoutes from './routes/catalog';
 import customerRoutes from './routes/customers';
+import marketingRoutes from './routes/marketing';
 import orderRoutes from './routes/orders';
 import userRoutes from './routes/users';
 
@@ -66,49 +53,7 @@ const routes = (
       {orderRoutes(claims)}
       {customerRoutes(claims)}
       {catalogRoutes(claims)}
-      <Route name='gift-cards-base' path='gift-cards'>
-        <Route name='gift-cards-list-page' component={GiftCardsListPage}>
-          <IndexRoute name='gift-cards' component={GiftCards}/>
-          <Route name='gift-cards-activity-trail' path='activity-trail' dimension="gift-card"
-                 component={ActivityTrailPage}/>
-        </Route>
-        <Route name='gift-cards-new' path='new' component={NewGiftCard} />
-        <Route name='giftcard' path=':giftCard' component={GiftCard}>
-          <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />
-          <Route name='gift-card-notes' path='notes' component={Notes} />
-          <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrailPage} />
-        </Route>
-      </Route>
-      <Route name='promotions-base' path='promotions'>
-        <Route name='promotions-list-page' component={PromotionsListPage} >
-          <IndexRoute name='promotions' component={Promotions} />
-          <Route name='promotions-activity-trail' path='activity-trail' dimension="promotions"
-                 component={ActivityTrailPage}/>
-        </Route>
-        <Route name='promotion' path=':promotionId' component={PromotionPage}>
-          <IndexRoute name='promotion-details' component={PromotionForm} />
-          <Route name='promotion-notes' path='notes' component={Notes} />
-          <Route name='promotion-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
-        </Route>
-      </Route>
-      <Route name='coupons-base' path='coupons'>
-        <Route name='coupons-list-page' component={CouponsListPage} >
-          <IndexRoute name='coupons' component={Coupons} />
-          <Route name='coupons-activity-trail' path='activity-trail' dimension="coupons"
-                 component={ActivityTrailPage}/>
-        </Route>
-      </Route>
-      <Route name='coupons-base' path='coupons'>
-        <Route name='coupons-list-page' component={CouponsListPage} >
-          <IndexRoute name='coupons' component={Coupons} />
-        </Route>
-        <Route name='coupon' path=':couponId' component={CouponPage}>
-          <IndexRoute name='coupon-details' component={CouponForm} />
-          <Route name='coupon-codes' path='codes' component={CouponCodes} />
-          <Route name='coupon-notes' path='notes' component={Notes} />
-          <Route name='coupon-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
-        </Route>
-      </Route>
+      {marketingRoutes(claims)}
       {process.env.NODE_ENV != 'production' &&
         <Route name='style-guide' path='style-guide' component={StyleGuide}>
           <IndexRoute name='style-guide-grid' component={StyleGuideGrid}/>
