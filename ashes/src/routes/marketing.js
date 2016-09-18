@@ -30,7 +30,7 @@ const getRoutes = (jwt: Object) => {
   const router = new FoxRouter(jwt);
 
   const giftCardRoutes =
-    router.read('gift-cards-base', { path: 'gift-cards' }, [
+    router.read('gift-cards-base', { path: 'gift-cards', frn: frn.mkt.giftCard }, [
       router.read('gift-cards-list-page', { component: GiftCardsListPage }, [
         router.read('gift-cards', { component: GiftCards, isIndex: true }),
         router.read('gift-cards-activity-trail', {
@@ -44,50 +44,71 @@ const getRoutes = (jwt: Object) => {
         router.read('gift-card-transactions', {
           component: GiftCardTransactions,
           isIndex: true,
+          frn: frn.mkt.giftCardTransaction,
         }),
-        router.read('gift-card-notes', { path: 'notes', component: Notes }),
+        router.read('gift-card-notes', {
+          path: 'notes',
+          component: Notes,
+          frn: frn.note.giftCard,
+        }),
         router.read('gift-card-activity-trail', {
           path: 'activity-trail',
           component: ActivityTrailPage,
+          frn: frn.activity.giftCard,
         }),
       ]),
     ]);
 
   const promotionsRoutes =
-    router.read('promotions-base', { path: 'promotions' }, [
+    router.read('promotions-base', { path: 'promotions', frn: frn.mkt.promotion }, [
       router.read('promotions-list-page', { component: PromotionsListPage }, [
         router.read('promotions', { component: Promotions, isIndex: true }),
         router.read('promotions-activity-trail', {
           path: 'activity-trail',
           dimension: 'promotions',
           component: ActivityTrailPage,
+          frn: frn.mkt.promotion,
         }),
       ]),
-      router.read('promotion', { path: ':promotionId', component: PromotionPage}, [
+      router.read('promotion', { path: ':promotionId', component: PromotionPage }, [
         router.read('promotion-details', { component: PromotionForm, isIndex: true }),
-        router.read('promotion-notes', { path: 'notes', component: Notes }),
+        router.read('promotion-notes', {
+          path: 'notes',
+          component: Notes,
+          frn: frn.note.promotion,
+        }),
         router.read('promotion-activity-trail', {
           path: 'activity-trail',
           component: ActivityTrailPage,
+          frn: frn.activity.promotion,
         }),
       ]),
     ]);
 
   const couponRoutes =
-    router.read('coupons-base', { path: 'coupons' }, [
+    router.read('coupons-base', { path: 'coupons', frn: frn.mkt.coupon }, [
       router.read('coupons-list-page', { component: CouponsListPage }, [
         router.read('coupons', { component: Coupons, isIndex: true }),
         router.read('coupons-activity-trail', {
           path: 'activity-trail',
           dimension: 'coupons',
           component: ActivityTrailPage,
+          frn: frn.mkt.coupon,
         }),
       ]),
       router.read('coupon', { path: ':couponId', component: CouponPage }, [
         router.read('coupon-details', { component: CouponForm, isIndex: true }),
         router.read('coupon-codes', { path: 'codes', component: CouponCodes }),
-        router.read('coupon-notes', { path: 'notes', component: Notes }),
-        router.read('coupon-activity-trail', { path: 'activity-trail', component: ActivityTrailPage}),
+        router.read('coupon-notes', {
+          path: 'notes',
+          component: Notes,
+          frn: frn.note.coupon,
+        }),
+        router.read('coupon-activity-trail', {
+          path: 'activity-trail',
+          component: ActivityTrailPage,
+          frn: frn.activity.coupon,
+        }),
       ]),
     ])
 

@@ -8,9 +8,13 @@ import { frn } from 'lib/frn';
 
 import ActivityTrailPage from 'components/activity-trail/activity-trail-page';
 import UsersListPage from 'components/users/user-list';
+
 import Users from 'components/users/users';
 import User from 'components/users/user';
 import UserForm from 'components/users/user-form';
+
+import PluginsList from 'components/plugins/plugins-list';
+import Plugin from 'components/plugins/plugin';
 
 import type { JWT } from 'lib/claims';
 
@@ -32,7 +36,18 @@ const getRoutes = (jwt: JWT) => {
       ]),
     ]);
 
-  return userRoutes;
+  const pluginRoutes =
+    router.read('plugins-base', { path: 'plugins', frn: frn.settings.plugin }, [
+      router.read('plugins', { component: PluginsList, isIndex: true }),
+      router.read('name', { path: ':name', component: Plugin }),
+    ]);
+
+  return (
+    <div>
+      {userRoutes}
+      {pluginRoutes}
+    </div>
+  );
 }
 
 export default getRoutes;

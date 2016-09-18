@@ -4,16 +4,20 @@ import type { Claims } from 'lib/claims';
 
 export const frn = {
   activity: {
+    coupon: 'frn:activity:coupon',
     customer: 'frn:activity:customer',
+    giftCard: 'frn:activity:giftCard',
     inventory: 'frn:activity:inventory',
     order: 'frn:activity:order',
     product: 'frn:activity:product',
+    promotion: 'frn:activity:promotion',
     sku: 'frn:activity:sku',
     user: 'frn:activity:user',
   },
   mkt: {
     coupon: 'frn:mkt:coupon',
     giftCard: 'frn:mkt:giftCard',
+    GiftCardTransaction: 'frn:mkt:GiftCardTransaction',
     promotion: 'frn:mkt:promotion',
   },
   mdl: {
@@ -23,7 +27,9 @@ export const frn = {
   },
   note: {
     customer: 'frn:note:customer',
+    giftCard: 'frn:note:giftCard',
     product: 'frn:note:product',
+    promotion: 'frn:note:promotion',
     sku: 'frn:order:sku',
     order: 'frn:note:order',
   },
