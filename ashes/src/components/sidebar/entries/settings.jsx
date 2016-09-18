@@ -1,8 +1,8 @@
 /* @flow */
 import React, { Component, Element } from 'react';
-import _ from 'lodash';
 
 import { anyPermitted, isPermitted } from 'lib/claims';
+import { frn, readAction } from 'lib/frn';
 
 import NavigationItem from 'components/sidebar/navigation-item';
 import { IndexLink, Link } from 'components/link';
@@ -14,8 +14,8 @@ type Props = {
   toggleMenuItem: Function,
 };
 
-const userClaims = { 'frn:settings:usr': ['r'] };
-const pluginClaims = { 'frn:settings:usr': ['r'] };
+const userClaims = readAction(frn.settings.user);
+const pluginClaims = readAction(frn.settings.plugin);
 
 export default class SettingsEntry extends Component {
   props: Props;

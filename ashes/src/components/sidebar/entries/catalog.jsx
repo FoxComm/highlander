@@ -1,8 +1,8 @@
 /* @flow */
 import React, { Component, Element } from 'react';
-import _ from 'lodash';
 
 import { anyPermitted, isPermitted } from 'lib/claims';
+import { frn, readAction } from 'lib/frn';
 
 import NavigationItem from 'components/sidebar/navigation-item';
 import { IndexLink, Link } from 'components/link';
@@ -17,9 +17,9 @@ type Props = {
   toggleMenuItem: Function,
 };
 
-const productClaims = { 'frn:pim:product': ['r'] };
-const skuClaims = { 'frn:pim:sku': ['r'] };
-const inventoryClaims = { 'frn:mdl:summary': ['r'] };
+const productClaims = readAction(frn.pim.product);
+const skuClaims = readAction(frn.pim.sku);
+const inventoryClaims = readAction(frn.mdl.summary);
 
 export default class CatalogEntry extends Component {
   props: Props;

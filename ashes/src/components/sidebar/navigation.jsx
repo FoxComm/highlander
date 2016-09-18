@@ -38,7 +38,7 @@ const Navigation = (props: Props): Element => {
           claims={claims}
           routes={props.routes}
           collapsed={props.collapsed}
-          status={getMenuItemState(props, 'carts')}
+          status={getMenuItemState(props, 'orders')}
           toggleMenuItem={props.toggleMenuItem} />
         <CatalogEntry
           claims={claims}

@@ -1,8 +1,9 @@
 /* @flow */
 import React, { Component, Element } from 'react';
-import _ from 'lodash';
 
 import { anyPermitted, isPermitted } from 'lib/claims';
+import { frn, readAction } from 'lib/frn';
+
 
 import NavigationItem from 'components/sidebar/navigation-item';
 import { IndexLink, Link } from 'components/link';
@@ -17,8 +18,8 @@ type Props = {
   toggleMenuItem: Function,
 };
 
-const cartClaims = { 'frn:oms:cart': ['r'] };
-const orderClaims = { 'frn:oms:order': ['r'] };
+const cartClaims = readAction(frn.oms.cart);
+const orderClaims = readAction(frn.oms.order);
 
 export default class OrdersEntry extends Component {
   props: Props;

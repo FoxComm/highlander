@@ -1,8 +1,8 @@
 /* @flow */
 import React, { Component, Element } from 'react';
-import _ from 'lodash';
 
 import { isPermitted } from 'lib/claims';
+import { frn, readAction } from 'lib/frn';
 
 import NavigationItem from 'components/sidebar/navigation-item';
 import { IndexLink, Link } from 'components/link';
@@ -17,8 +17,8 @@ type Props = {
   toggleMenuItem: Function,
 };
 
-const customerClaims = { 'frn:usr:customer': ['r'] };
-const customerGroupClaims = { 'frn:usr:customer-groups': ['r'] };
+const customerClaims = readAction(frn.user.customer);
+const customerGroupClaims = readAction(frn.user.customerGroup);
 
 export default class CustomersEntry extends Component {
   props: Props;

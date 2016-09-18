@@ -1,8 +1,8 @@
 /* @flow */
 import React, { Component, Element } from 'react';
-import _ from 'lodash';
 
 import { anyPermitted, isPermitted } from 'lib/claims';
+import { frn, readAction } from 'lib/frn';
 
 import NavigationItem from 'components/sidebar/navigation-item';
 import { IndexLink, Link } from 'components/link';
@@ -14,9 +14,10 @@ type Props = {
   toggleMenuItem: Function,
 };
 
-const giftCardClaims = { 'frn:mkt:gift-card': ['r'] };
-const promotionClaims = { 'frn:mkt:promotion': ['r'] };
-const couponClaims = { 'frn:mkt:coupon': ['r'] };
+const giftCardClaims = readAction(frn.mkt.giftCard);
+const promotionClaims = readAction(frn.mkt.promotion);
+const couponClaims = readAction(frn.mkt.coupon);
+
 
 export default class MarketingEntry extends Component {
   props: Props;

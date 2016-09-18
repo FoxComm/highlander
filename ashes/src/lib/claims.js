@@ -2,6 +2,8 @@
 import _ from 'lodash';
 import jwt from 'jsonwebtoken';
 
+import { merchant, superAdmin } from 'lib/frn';
+
 export type Claims = { [claim:string]: Array<string> };
 
 export type JWT = {
@@ -38,26 +40,9 @@ export function getClaims(): Claims {
     return {};
   }
 
-  // TODO: Add actual parsing of the JWT later.
-  const claims = {
-    'frn:oms:cart': ['c', 'r', 'u', 'd'],
-    'frn:oms:order': ['c', 'r', 'u', 'd'],
-    'frn:oms:my:cart': ['c', 'r', 'u', 'd'],
-    'frn:mdl:summary': ['c', 'r', 'u', 'd'],
-    'frn:pim:product': ['c', 'r', 'u', 'd'],
-    'frn:pim:sku': ['c', 'r', 'u', 'd'],
-    'frn:pim:album': ['c', 'r', 'u', 'd'],
-    'frn:pim:coupon': ['c', 'r', 'u', 'd'],
-    'frn:usr:user': ['c', 'r', 'u', 'd'],
-    'frn:usr:role': ['c', 'r', 'u', 'd'],
-    'frn:usr:org': ['c', 'r', 'u', 'd'],
-    'frn:usr:my:info': ['c', 'r', 'u', 'd'],
-
-    'frn:usr:customer': ['r'],
-    'frn:usr:customer-groups': ['r'],
-  };
-
-  return claims;
+  return token.email == 'admin@admin.com'
+    ? superAdmin()
+    : merchant();
 }
 
 export function isPermitted(expectedClaims: Claims, actualClaims: Claims): boolean {
@@ -79,7 +64,7 @@ export function anyPermitted(expectedClaims: Claims, actualClaims: Claims): bool
   const isRestricted = _.reduce(expectedClaims, (res, expActions, expFRN) => {
     const actions = _.get(actualClaims, expFRN);
     if (!actions) {
-      return true;
+      return res && true;
     }
 
     const hasAction = _.reduce(expActions, (actionRes, expAction) => {
