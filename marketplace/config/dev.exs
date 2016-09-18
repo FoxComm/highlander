@@ -45,5 +45,5 @@ config :marketplace, Marketplace.Repo,
 config :marketplace, Marketplace.MerchantAccount, 
   phoenix_url: System.get_env("PHOENIX_URL"),
   phoenix_port: System.get_env("PHOENIX_PORT"),
-  permissions_url: System.get_env("PERMISSIONS_URL"),
-  permissions_port: System.get_env("PERMISSIONS_PORT")
+  solomon_url: System.get_env("SOLOMON_URL"),
+  solomon_port: System.get_env("SOLOMON_PORT")
