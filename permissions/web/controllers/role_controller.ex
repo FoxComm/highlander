@@ -17,7 +17,7 @@ defmodule Permissions.RoleController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", role_path(conn, :show, role))
-        |> render("role.json", role: role)
+        |> render("show.json", role: role)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -38,7 +38,7 @@ defmodule Permissions.RoleController do
     case Repo.update(changeset) do
       {:ok, role} -> 
         conn
-        |> render("role.json", role: role)
+        |> render("show.json", role: role)
       {:error, changeset} -> 
         conn
         |> put_status(:unprocessable_entity)

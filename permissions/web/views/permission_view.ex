@@ -6,8 +6,12 @@ defmodule Permissions.PermissionView do
     %{permissions: render_many(permissions, PermissionView, "permission.json")}
   end
 
-  def render("show.json", %{permission: permission}) do
+  def render("show_full.json", %{permission: permission}) do
     %{permission: render_one(permission, PermissionView, "full_permission.json")}
+  end
+
+  def render("show.json", %{permission: permission}) do
+    %{permission: render_one(permission, PermissionView, "permission.json")}
   end
 
   def render("permission.json", %{permission: permission}) do
