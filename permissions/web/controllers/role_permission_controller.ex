@@ -20,7 +20,7 @@ defmodule Permissions.RolePermissionController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", role_role_permission_path(conn, :show, role_id, role_permission))
-        |> render("show.json", role_permission: role_permission)
+        |> render("show.json", role_permission: role_permission, role_id: role_id)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)

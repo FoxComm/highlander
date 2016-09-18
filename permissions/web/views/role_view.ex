@@ -7,10 +7,14 @@ defmodule Permissions.RoleView do
     %{roles: render_many(roles, RoleView, "role_with_permissions.json")}
   end
 
-  def render("show.json", %{role: role}) do
+  def render("show_with_permissions.json", %{role: role}) do
     %{role: render_one(role, RoleView, "role_with_permissions.json")}
   end
 
+  def render("show.json", %{role: role}) do
+    %{role: render_one(role, RoleView, "role.json")}
+  end
+  
   def render("role_with_permissions.json", %{role: role}) do
     %{id: role.id,
       name: role.name,

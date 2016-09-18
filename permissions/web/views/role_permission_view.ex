@@ -8,10 +8,14 @@ defmodule Permissions.RolePermissionView do
     %{granted_permissions: render_many(role_permissions, RolePermissionView, "role_permission.json")}
   end
 
-  def render("show.json", %{role_permission: role_permission, role_id: role_id}) do
-    %{granted_permission: render_one(role_permission, PermissionView, "full_permission.json")}
+  def render("show_full.json", %{role_permission: role_permission, role_id: role_id}) do
+    %{granted_permission: render_one(role_permission.permission, PermissionView, "full_permission.json")}
   end
 
+  def render("show.json", %{role_permission: role_permission, role_id: role_id}) do
+    %{granted_permission: render_one(role_permission, RolePermissionView, "role_permission.json")}
+  end
+  
   def render("role_permission.json", %{role_permission: role_permission}) do
     %{grant_id: role_permission.id,
       permission_id: role_permission.permission_id

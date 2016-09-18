@@ -29,7 +29,7 @@ defmodule Permissions.RoleController do
     role = 
       Repo.get!(Role, id)
       |> Repo.preload(:permissions)
-    render(conn, "show.json", role: role)
+    render(conn, "show_with_permissions.json", role: role)
   end
 
   def update(conn, %{"id" => id, "role" => role_params}) do
