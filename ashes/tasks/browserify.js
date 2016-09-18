@@ -57,6 +57,7 @@ module.exports = function(gulp, opts, $) {
       DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN,
       API_URL: process.env.API_URL,
       STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
+      ROOT_PATH: process.env.ROOT_PATH,
     }));
 
     if (production) {
