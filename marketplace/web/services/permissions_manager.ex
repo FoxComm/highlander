@@ -15,17 +15,11 @@ defmodule Marketplace.PermissionManager do
       {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
         case Poison.decode(body) do 
         {:ok, decoded_body} -> 
-          Map.fetch!(decoded_body, "id")
+          Map.fetch!(decoded_body, "scope")
+          |> Map.fetch!("id")
         {:error, decoded_body} -> 
           nil
         end
-      {:ok, %HTTPoison.Response{status_code: 404, body: body}} -> 
-        case Poison.decode(body) do 
-        {:ok, decoded_body} -> 
-          Map.fetch!(decoded_body, "id")
-        {:error, decoded_body} -> 
-          nil
-        end        
       {:error, %HTTPoison.Error{reason: reason}} -> 
         IO.inspect("ERROR FROM HTTP CLIENT!")
         IO.inspect(reason)
@@ -44,7 +38,8 @@ defmodule Marketplace.PermissionManager do
       {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
         case Poison.decode(body) do 
         {:ok, decoded_body} -> 
-          Map.fetch!(decoded_body, "id")
+          Map.fetch!(decoded_body, "organization")
+          |> Map.fetch!("id")
         {:error, decoded_body} -> 
           nil
         end
