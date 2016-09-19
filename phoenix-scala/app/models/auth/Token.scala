@@ -137,6 +137,7 @@ object Token {
         .setJwsAlgorithmConstraints(algorithmConstraints)
         .setExpectedIssuer("FC")
         .setVerificationKey(publicKey)
+        .setExpectedAudience("user")
 
       Try {
         val consumer  = builder.build()
