@@ -1,10 +1,4 @@
-from common import Test, run_tests
-
-
-def caniuse():
-    run_tests("provisioning", [
-        check_ansible(),
-    ])
+from caniuse.common import Test
 
 
 def check_ansible():
