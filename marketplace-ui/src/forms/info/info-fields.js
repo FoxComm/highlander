@@ -4,64 +4,65 @@ import type { FormField } from '../../core/types/fields';
 
 export const fields: Array<FormField> = [
   {
-    name: 'account_number',
+    name: 'bank_account_number',
     type: 'input',
     placeholder: 'External Bank Account Data: Account number',
     validation: 'required',
   },
   {
-    name: 'routing_number',
+    name: 'bank_routing_number',
     type: 'input',
     placeholder: 'External Bank Account Data: Routing number',
     validation: 'required',
   },
   {
-    name: 'city',
+    name: 'legal_entity_name',
+    type: 'input',
+    placeholder: 'Legal Entity Business Name',
+    validation: 'required',
+  },
+  {
+    name: 'legal_entity_city',
     type: 'input',
     placeholder: 'Legal Entity Address: City',
   },
   {
-    name: 'state',
+    name: 'legal_entity_state',
     type: 'input',
     placeholder: 'Legal Entity Address: State',
   },
   {
-    name: 'zip',
+    name: 'legal_entity_postal',
     type: 'number',
     placeholder: 'Legal Entity Address: Postal Code',
   },
   {
-    name: 'business_name',
-    type: 'input',
-    placeholder: 'Legal Entity Business Name',
-  },
-  {
-    name: 'tax_id',
+    name: 'legal_entity_tax_id',
     type: 'input',
     placeholder: 'Legal Entity Tax ID',
   },
   {
-    name: 'dob_day',
+    name: 'business_founded_day',
     type: 'input',
     placeholder: 'DOB of Business Rep: Day',
   },
   {
-    name: 'dob_month',
+    name: 'business_founded_month',
     type: 'input',
     placeholder: 'DOB of Business Rep: Month',
   },
   {
-    name: 'dob_year',
+    name: 'business_founded_year',
     type: 'input',
     placeholder: 'DOB of Business Rep: Year',
   },
   {
-    name: 'ssn',
+    name: 'representative_ssn_trailing_four',
     type: 'input',
     placeholder: 'Business Rep: ssn Last 4',
   },
   {
-    name: 'entity_type',
+    name: 'legal_entity_type',
     type: 'input',
     placeholder: 'Business Entity Type',
   },

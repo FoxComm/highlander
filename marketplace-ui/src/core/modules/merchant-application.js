@@ -47,7 +47,7 @@ const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_S
   )
 );
 
-const { perform: performFetch, ...actionsFetch } = createAsyncActions(ACTION_FETCH, reference =>
+const { perform: performFetch, clearErrors, ...actionsFetch } = createAsyncActions(ACTION_FETCH, reference =>
   api.get(`/merchant_applications/by_ref/${reference}`)
 );
 
@@ -74,6 +74,7 @@ export {
   reducer as default,
   performSubmit as submit,
   performFetch as fetch,
+  clearErrors,
 
   /* selectors */
   getApplication,
