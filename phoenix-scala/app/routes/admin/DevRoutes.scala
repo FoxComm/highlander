@@ -1,5 +1,6 @@
 package routes.admin
 
+import scala.io.Source
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
@@ -20,7 +21,21 @@ object DevRoutes {
             TimeMachine.changePlacedAt(payload.referenceNumber, payload.placedAt)
           }
         }
+      } ~
+      pathPrefix("version") {
+        (get & pathEnd) {
+          complete(renderPlain(version))
+        }
       }
+    }
+  }
+
+  lazy val version: String = {
+    val source = Source.fromFile("version")
+    try {
+      source.getLines.toSeq.mkString("\n")
+    } catch {
+      case _: Throwable ⇒ "No version file found!"
     }
   }
 }

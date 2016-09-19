@@ -1,7 +1,6 @@
 import sbtassembly.AssemblyKeys
 
 lazy val commonSettings = Seq(
-  version          := "1.0",
   scalaVersion     := "2.11.8",
   updateOptions    := updateOptions.value.withCachedResolution(true),
   scalacOptions ++= List(
@@ -32,6 +31,8 @@ lazy val itSettings = inConfig(IT)(sharedItSettings) ++ Seq(
 lazy val etSettings = inConfig(ET)(sharedItSettings) ++ Seq(
   testOptions in ET := (testOptions in Test).value :+ Tests.Argument("-n", "tags.External")
 )
+
+lazy val writeVersion = taskKey[Seq[String]]("Write project version data to version file")
 
 lazy val phoenixScala = (project in file(".")).
   settings(commonSettings).
@@ -129,6 +130,14 @@ lazy val phoenixScala = (project in file(".")).
         |import utils.db._
         """.stripMargin,
     initialCommands in (Compile, consoleQuick) := "",
+    writeVersion <<= sh.toTask(
+      """
+        |echo -n "Build date: "      >  version &&
+        |date                        >> version &&
+        |echo                        >> version &&
+        |echo Git HEAD commit:       >> version &&
+        |git show HEAD --pretty=full >> version
+      """.stripMargin).triggeredBy(compile in Compile),
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC", "-Dphoenix.env=test"),
     parallelExecution in Test := true,

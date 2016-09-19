@@ -82,7 +82,7 @@ object Public {
         } ~
         pathPrefix("ping") {
           (get & pathEnd) {
-            good(render("pong"))
+            complete(renderPlain("pong"))
           }
         }
       }
