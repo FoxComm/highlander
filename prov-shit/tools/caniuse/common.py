@@ -29,9 +29,12 @@ def run_tests(project, tests):
         print yes_or_no(test.desc, result)
         if not result:
             all_passed = False
-            help = test[system]
-            if help:
-                print help
+            if system in test.help:
+                help = test.help[system]
+                if callable(help):
+                    print help(run)
+                else:
+                    print help
 
     # print result
     if all_passed:
@@ -44,13 +47,7 @@ class Test():
     def __init__(self, desc, tester, **kwargs):
         self.desc = desc
         self.tester = tester
-        self.helps = kwargs
-
-    def __getitem__(self, item):
-        if item in self.helps:
-            return self.helps[item]
-
-        return ""
+        self.help = kwargs
 
 
 def run(cmd):
