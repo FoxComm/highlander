@@ -10,7 +10,7 @@ defmodule Permissions.AccountAccessMethod do
   end
 
   @required_fields ~w(name hashed_password algorithm)
-  @optional_fields ~w()
+  @optional_fields ~w(account_id)
 
   def changeset(model, params \\ :empty) do 
     model 

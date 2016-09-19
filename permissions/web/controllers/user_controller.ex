@@ -4,6 +4,7 @@ defmodule Permissions.UserController do
   alias Permissions.Repo
   alias Permissions.User
   alias Permissions.Account
+  alias Permissions.AccountAccessMethod
 
   def index(conn, _params) do 
     users = Repo.all(User)
@@ -14,7 +15,7 @@ defmodule Permissions.UserController do
     #changeset = User.changeset(%User{}, user_params)
 
     case Repo.transaction(insert_and_relate(user_params)) do
-      {:ok, %{account: account, user: user}} -> 
+      {:ok, %{account: account, user: user, account_access_method: aam}} -> 
         conn
         |> put_status(:created)
         |> put_resp_header("location", user_path(conn, :show, user))
@@ -59,6 +60,16 @@ defmodule Permissions.UserController do
       user_cs = User.changeset(%User{}, params_with_account)
       Repo.insert(user_cs)
     end) 
+    |> Multi.run(:account_access_method, fn %{account: account, user: user} -> 
+      aam_cs = AccountAccessMethod.changeset(%AccountAccessMethod{}, %{
+        "name" => "login",
+        "hashed_password" => user_params
+        |> Map.fetch!("password"),
+        "algorithm" => 1,
+        "account_id" => account.id
+      })
+      Repo.insert(aam_cs)
+    end)
   end
   
   def create_account do
