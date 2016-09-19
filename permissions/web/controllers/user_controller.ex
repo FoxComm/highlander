@@ -1,5 +1,6 @@
 defmodule Permissions.UserController do
   use Permissions.Web, :controller
+  alias Ecto.Multi
   alias Permissions.Repo
   alias Permissions.User
   alias Permissions.Account
@@ -10,18 +11,18 @@ defmodule Permissions.UserController do
   end
 
   def create(conn, %{"user" => user_params}) do
-    changeset = User.changeset(%User{}, user_params)
+    #changeset = User.changeset(%User{}, user_params)
 
-    case Repo.insert(changeset) do
-      {:ok, user} -> 
+    case Repo.transaction(insert_and_relate(user_params)) do
+      {:ok, %{account: account, user: user}} -> 
         conn
         |> put_status(:created)
         |> put_resp_header("location", user_path(conn, :show, user))
         |> render("show.json", user: user)
-      {:error, changeset} ->
+      {:error, failed_operation, failed_value, changes_completedchangeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Permissions.ChangesetView, "errors.json", changeset: changeset)
+        |> render(Permissions.ChangesetView, "errors.json", changeset: failed_value)
     end
   end
 
@@ -50,14 +51,14 @@ defmodule Permissions.UserController do
       "ratchet" => 1
     })
 
-    
-
     Multi.new
     |> Multi.insert(:account, account_cs)
     |> Multi.run(:user, fn %{account: account} ->
       params_with_account = user_params
-      |> Maps.put(:account_id, account.id)
-      user_cs = User.changeset(%User{}, params_with_account) end) 
+      |> Map.put("account_id", account.id)
+      user_cs = User.changeset(%User{}, params_with_account)
+      Repo.insert(user_cs)
+    end) 
   end
   
   def create_account do

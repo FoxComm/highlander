@@ -14,7 +14,7 @@ defmodule Permissions.User do
   end
 
   @required_fields ~w(email name)
-  @optional_fields ~w(is_disabled disabled_by is_blacklisted blacklisted_by phone_number)
+  @optional_fields ~w(is_disabled disabled_by is_blacklisted blacklisted_by phone_number account_id)
 
   def changeset(model, params \\ :empty) do 
     model 
