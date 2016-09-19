@@ -29,17 +29,18 @@ export const fields: Array<FormField> = [
     name: 'description',
     type: 'textarea',
     placeholder: 'Description',
-  },
-  {
-    name: 'phone_number',
-    type: 'input',
-    placeholder: 'Phone Number',
+    validation: 'required',
   },
   {
     name: 'email_address',
     type: 'input',
     placeholder: 'Email Address',
     validation: 'required email',
+  },
+  {
+    name: 'phone_number',
+    type: 'input',
+    placeholder: 'Phone Number',
   },
   {
     name: 'monthly_sales_volume',
