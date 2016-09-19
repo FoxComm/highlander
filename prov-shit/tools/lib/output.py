@@ -3,16 +3,16 @@ def color(color, text):
 
 
 def red(text):
-    return color('\033[91m', text)
+    return color('\033[31m', text)
 
 
 def green(text):
-    return color('\033[92m', text)
+    return color('\033[32m', text)
 
 
 def yellow(text):
-    return color('\033[93m', text)
+    return color('\033[33m', text)
 
 
 def blue(text):
-    return color('\033[94m', text)
+    return color('\033[34m', text)
