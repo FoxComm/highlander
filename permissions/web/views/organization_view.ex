@@ -14,7 +14,8 @@ defmodule Permissions.OrganizationView do
     %{id: organization.id,
       name: organization.name,
       kind: organization.kind,
-      parent_id: organization.parent_id
+      parent_id: organization.parent_id,
+      scope_id: organization.scope_id
     }
   end
 end

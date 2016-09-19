@@ -2,18 +2,19 @@ defmodule Permissions.Organization do
   use Permissions.Web, :model
   alias Permissions.Organization
   alias Permissions.OrganizationType
+  alias Permissions.Scope
 
   schema "organizations" do 
     field :name, :string
     field :kind, :string
 
     belongs_to :parent, Organization
-    
+    belongs_to :scope, Scope
     has_many :children, Organization, foreign_key: :parent_id
   end
   
   @required_params ~w(name kind)
-  @optional_params ~w(parent_id)
+  @optional_params ~w(parent_id scope_id)
 
   def changeset(model, params \\ :empty) do
     model 
