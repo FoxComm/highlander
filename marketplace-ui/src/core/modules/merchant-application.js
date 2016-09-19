@@ -6,6 +6,13 @@ import createAsyncActions from './async-utils';
 
 import api from '../lib/api';
 
+export type Merchant = {
+  id: number;
+  state: string;
+  name: string;
+  description: string;
+}
+
 export type Application = {
   state: string;
   id?: number;
@@ -14,6 +21,7 @@ export type Application = {
   business_name?: string;
   email_address?: string;
   description?: string;
+  merchant?: Merchant;
 }
 
 type ApplicationResponse = {

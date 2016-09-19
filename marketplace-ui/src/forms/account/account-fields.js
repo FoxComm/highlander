@@ -46,5 +46,6 @@ export const fields: Array<FormField> = [
     name: 'password',
     type: 'password',
     placeholder: 'Password',
+    validation: 'required',
   },
 ];

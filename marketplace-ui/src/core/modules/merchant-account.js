@@ -6,36 +6,51 @@ import createAsyncActions from './async-utils';
 
 import api from '../lib/api';
 
-type Account = {
+export type Account = {
   id?: number;
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string;
+  business_name?: string;
+  description?: string;
+  email_address?: string;
+  password?: string;
 }
 
-type State = Account;
+export type Accounts = {
+  merchant_accounts: Array<Account>;
+}
 
+type State = Accounts;
+
+const ACTION_MERCHANT_ACCOUNT_FETCH = 'merchantAccountFetch';
 const ACTION_MERCHANT_ACCOUNT_SUBMIT = 'merchantAccountSubmit';
 
-const { perform, ...actions } = createAsyncActions(ACTION_MERCHANT_ACCOUNT_SUBMIT, (id, data) =>
+const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_MERCHANT_ACCOUNT_SUBMIT, (id: number, data: Object) =>
   api.post(`/merchants/${id}/accounts`, { account: { ...data } })
 );
 
-const initialState: State = {};
+const { perform: performFetch, ...actionsFetch } = createAsyncActions(ACTION_MERCHANT_ACCOUNT_FETCH, merchantId =>
+  api.get(`/merchants/${merchantId}/accounts`)
+);
+
+const initialState: State = [];
 
 const reducer = createReducer({
-  [actions.succeeded]: (state: State, account) => ({
-    ...state,
-    ...account,
-  }),
+  [actionsFetch.succeeded]: (state: State, accounts: Accounts) => accounts.merchant_accounts,
+  [actionsSubmit.succeeded]: (state: State, account) => ([...state, account]),
 }, initialState);
 
-const getAccountId = (state: State) => state.id;
+const getAccounts = (state: State) => state;
 const getAccountActionNamespace = () => ACTION_MERCHANT_ACCOUNT_SUBMIT;
 
 export {
   reducer as default,
-  perform as submit,
+  performFetch as fetch,
+  performSubmit as submit,
 
   /* selectors */
-  getAccountId,
+  getAccounts,
   getAccountActionNamespace,
 };
 
