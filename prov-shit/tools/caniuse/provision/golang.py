@@ -6,8 +6,8 @@ def check():
         out = run("apt-cache policy {package}", package="golang")
 
         return out.find("Installed: 2:1.6-") >= 0 \
-            or out.find("Installed: 2:1.7-") >= 0 \
-            or out.find("Installed: 2:1.8-") >= 0
+               or out.find("Installed: 2:1.7-") >= 0 \
+               or out.find("Installed: 2:1.8-") >= 0
 
     def nix_help(run):
         print (

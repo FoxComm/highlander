@@ -1,6 +1,7 @@
 import ansible
 import ansible_lint
 import build_essential
+import gcloud
 import golang
 import libssl_dev
 import pip
@@ -15,4 +16,5 @@ def caniuse():
         ansible.check(),
         ansible_lint.check(),
         golang.check(),
+        gcloud.check(),
     ])
