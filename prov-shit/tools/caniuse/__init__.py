@@ -1,9 +1,10 @@
 from importlib import import_module
 
 projects = [
+    'provision',
+    'gce',
     'ashes',
     'firebrand',
-    'provision',
 ]
 
 
