@@ -21,17 +21,17 @@ const STEP_INFO = 'info';
 const steps = (pathname) => [
   {
     key: STEP_APPLICATION,
-    active: /^\/application(\/(\w+\-?)*\/?)?$/.test(pathname),
+    active: /application\/?([\w\-]+\/?)?$/.test(pathname),
     title: 'Apply',
   },
   {
     key: STEP_ACCOUNT,
-    active: /^\/application\/(\w+\-?)+\/account\/?$/.test(pathname),
+    active: /application\/[\w\-]+\/account\/?/.test(pathname),
     title: 'Create Account',
   },
   {
     key: STEP_INFO,
-    active: /^\/application\/(\w+\-?)+\/info\/?$/.test(pathname),
+    active: /application\/[\w\-]+\/info\/?/.test(pathname),
     title: 'More Info',
   },
 ];
