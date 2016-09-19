@@ -1,6 +1,7 @@
 {
     "builders" : [
         {
+            "name": "google",
             "type": "googlecompute",
             "account_file": "{{user `account_file`}}",
             "project_id" : "{{user `project_id`}}",
@@ -14,6 +15,34 @@
             "tags": ["no-ip", "packer-base-mesos"],
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}"
+        },
+        {
+            "name": "amazon",
+            "type": "amazon-ebs",
+            "source_ami": "{{user `base_ami`}}",
+            "instance_type": "{{user `instance_type`}}",
+            "region": "{{user `region`}}",
+            "ami_name": "base-mesos-{{timestamp}}",
+            "ami_description": "Base Mesos image used for provisioning",
+            "associate_public_ip_address": true,
+            "ssh_username" : "{{user `ssh_username`}}",
+            "vpc_id": "{{user `vpc_id`}}",
+            "security_group_id": "{{user `security_group_id`}}",
+            "subnet_id": "{{user `subnet_id`}}",
+            "ami_block_device_mappings": [{
+                "device_name": "/dev/sda1",
+                "volume_size": 20,
+                "delete_on_termination": true
+            }],
+            "launch_block_device_mappings": [{
+                "device_name": "/dev/sda1",
+                "volume_size": 20,
+                "delete_on_termination": true
+            }],
+            "tags": {
+                "packer": "base-mesos",
+                "ip": "none"
+            }
         }
     ],
     "provisioners" : [

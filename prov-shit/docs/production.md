@@ -26,7 +26,7 @@ Navigation:
 1. Build core base image and save it's name:
 
 	```
-	$ packer build -var-file=packer/envs/vanilla.json packer/base/base.json
+	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/base/base.json
 	```
 
 2. Create terraform base project in `terraform/base/gce_vanilla` by copying & renaming `gce_vanilla` contents.
@@ -42,10 +42,14 @@ Navigation:
 5. Terraform VPN machine:
 
 	```
-	$ export TF_BASE=terraform/base
-	$ export TF_ENVS=terraform/envs
-	$ terraform plan -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
-	$ terraform apply -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
+	$ terraform plan \
+		-state terraform/base/gce_vanilla/terraform.tfstate \
+		-var-file terraform/base/gce_vanilla/terraform.tfvars \
+		terraform/base/gce_vanilla
+	$ terraform apply \
+		-state terraform/base/gce_vanilla/terraform.tfstate \ 
+		-var-file terraform/base/gce_vanilla/terraform.tfvars \
+		terraform/base/gce_vanilla
 	```
 
 6. Create `vanilla_vpn` inventory file and write a created machine VPN there under `vanilla-vpn` (host) section.
@@ -69,9 +73,9 @@ Do all the steps while connected to created VPN service.
 1. Build base images for backend, frontend and consul servers (can be ran in parallel):
 
 	```
-	$ packer build -var-file=packer/envs/vanilla.json packer/base/base_jvm.json
-	$ packer build -var-file=packer/envs/vanilla.json packer/base/base_node.json
-	$ packer build -var-file=packer/envs/vanilla.json packer/amigos/amigo_server.json
+	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/base/base_jvm.json
+	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/base/base_node.json
+	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/amigos/amigo_server.json
 	```
 
 2. Save base images names above and replace them in `packer/envs/vanilla.json`.
@@ -79,14 +83,14 @@ Do all the steps while connected to created VPN service.
 3. Build specific images (can be ran in parallel):
 
 	```
-	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/db.json
-	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/es.json
-	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/es_log.json
-	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/front.json
-	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/greenriver.json
-	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/kafka.json
-	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/phoenix.json
-	$ packer build -var-file=packer/envs/vanilla.json packer/vanilla/service_worker.json
+	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/db.json
+	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/es.json
+	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/es_log.json
+	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/front.json
+	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/greenriver.json
+	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/kafka.json
+	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/phoenix.json
+	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/service_worker.json
 	```
 
 4. Save base images names above and replace them in `terraform/envs/gce_vanilla/terraform.tfvars`.
@@ -94,10 +98,14 @@ Do all the steps while connected to created VPN service.
 5. Terraform service machines:
 
 	```
-	$ export TF_BASE=terraform/base
-	$ export TF_ENVS=terraform/envs
-	$ terraform plan -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
-	$ terraform apply -state $TF_BASE/gce_vanilla/terraform.tfstate -var-file $TF_BASE/gce_vanilla/terraform.tfvars $TF_BASE/gce_vanilla
+	$ terraform plan \
+		-state terraform/base/gce_vanilla/terraform.tfstate \
+		-var-file terraform/base/gce_vanilla/terraform.tfvars \
+		terraform/base/gce_vanilla
+	$ terraform apply \
+		-state terraform/base/gce_vanilla/terraform.tfstate \
+		-var-file terraform/base/gce_vanilla/terraform.tfvars \
+		terraform/base/gce_vanilla
 	```
 
 6. Add a new project ID in `projects.json` and
