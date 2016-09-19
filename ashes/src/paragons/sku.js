@@ -3,6 +3,7 @@
 import { assoc } from 'sprout-data';
 import _, { cloneDeep } from 'lodash';
 import { isSatisfied } from 'paragons/object';
+import { getJWT } from 'lib/claims';
 
 import type { Sku } from '../modules/skus/details';
 
@@ -40,10 +41,34 @@ export function isSkuValid(sku: Sku): boolean {
   return isSatisfied(sku, options);
 }
 
+// HACK
+function isMerchant(): boolean {
+  const jwt = getJWT();
+  if (jwt.email == 'admin@admin.com') {
+    return false;
+  }
+
+  return true;
+}
+
 export function createEmptySku(): Sku {
+  let merchantAttributes = {};
+
+  if (isMerchant()) {
+    merchantAttributes = {
+      externalId: {t: 'string', v: ''},
+      mpn: { t: 'string', v: '' },
+      gtin: { t: 'string', v: '' },
+      weight: { t: 'string', v: '' },
+      height: { t: 'string', v: '' },
+      width: { t: 'string', v: '' },
+      depth: { t: 'string', v: '' },
+    };
+  }
+
   return {
     id: null,
-    attributes: cloneDeep(skuEmptyAttributes),
+    attributes: { ...cloneDeep(skuEmptyAttributes), ...merchantAttributes },
     context: {
       name: 'default',
     }
