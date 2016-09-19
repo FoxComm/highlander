@@ -239,7 +239,7 @@ class EditableSkuRow extends Component {
       const values = _.get(variant, 'values', []);
       const valuesToSelect = _.map(values, (value) => [value.name, value.name]);
 
-      const selected = _.get(mapping, [sku.attributes.code.v, variant.attributes.name.v]);
+      const selected = _.get(mapping, [sku.attributes.code.v, _.get(variant, 'attributes.name.v')]);
 
       return (
         <Dropdown
@@ -247,7 +247,7 @@ class EditableSkuRow extends Component {
           items={valuesToSelect}
           placeholder={variant.name}
           value={selected}
-          onChange={({target}) => console.log(field, target.value)} />
+          onChange={(value) => console.log(field, value)} />
       );
     }
 

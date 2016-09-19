@@ -67,7 +67,7 @@ const _createProduct = createAsyncActions(
     // Wow, this is super-duper ugly.
     for (let i = 0; i < product.variants.length; i++) {
       let variant = product.variants[i];
-      for (let j = 0; j < product.variant.values.length; j++) {
+      for (let j = 0; j < variant.values.length; j++) {
         let value = variant.values[j];
         for (let k = 0; k < value.skuCodes.length; k++) {
           let code = value.skuCodes[k];
