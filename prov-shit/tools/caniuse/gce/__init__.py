@@ -1,3 +1,4 @@
+import env_google_ssh_key
 import env_google_ssh_username
 import vagrant_google_box
 import vagrant_plugin_google
@@ -10,4 +11,5 @@ def caniuse():
         vagrant_plugin_google.check(),
         vagrant_google_box.check(),
         env_google_ssh_username.check(),
+        env_google_ssh_key.check(),
     ])
