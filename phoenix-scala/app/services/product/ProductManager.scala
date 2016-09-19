@@ -12,6 +12,7 @@ import models.image.{AlbumImageLinks, Albums}
 import models.inventory._
 import models.objects._
 import models.product._
+import models.account._
 import payloads.ImagePayloads.UpdateAlbumPositionPayload
 import payloads.ProductPayloads._
 import payloads.SkuPayloads._
@@ -36,7 +37,7 @@ import services.LogActivity
 
 object ProductManager {
 
-  def createProduct(admin: StoreAdmin, payload: CreateProductPayload)(
+  def createProduct(admin: User, payload: CreateProductPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
@@ -94,7 +95,7 @@ object ProductManager {
           if (hasVariants) variantSkus else productSkus,
           variantResponses)
 
-  def updateProduct(admin: StoreAdmin, productId: Int, payload: UpdateProductPayload)(
+  def updateProduct(admin: User, productId: Int, payload: UpdateProductPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,

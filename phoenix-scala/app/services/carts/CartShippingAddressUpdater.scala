@@ -53,7 +53,7 @@ object CartShippingAddressUpdater {
       ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart        ← * <~ getCartByOriginator(originator, refNum)
-                      Address.fromPayload(payload).copy(accountId = cart.accountId))
+      newAddress  ← * <~ Addresses.create(Address.fromPayload(payload, cart.accountId))
       _           ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).delete
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, cart.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)

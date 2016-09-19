@@ -82,6 +82,16 @@ class CartIntegrationTest
       skus.map(_.quantity).toSet must === (Set(2))
     }
 
+    "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
+    with Sku_Raw with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+      val payload = Seq(UpdateLineItemsPayload(simpleSku.code, 1))
+
+      val response = POST(s"v1/orders/${cart.refNum}/line-items", payload)
+
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (SKUWithNoProductAdded(cart.refNum, simpleSku.code).description)
+    }
+
     "should respond with 404 if cart is not found" in {
       val response = POST(s"v1/orders/NOPE/line-items", payload)
       response.status must === (StatusCodes.NotFound)
@@ -102,6 +112,16 @@ class CartIntegrationTest
       skus must have size 1
       skus.map(_.sku).toSet must === (Set("SKU-YAX"))
       skus.map(_.quantity).toSet must === (Set(4))
+    }
+
+    "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
+    with Sku_Raw with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+      val payload = Seq(UpdateLineItemsPayload(simpleSku.code, 1))
+
+      val response = PATCH(s"v1/orders/${cart.refNum}/line-items", payload)
+
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (SKUWithNoProductAdded(cart.refNum, simpleSku.code).description)
     }
 
     "should successfully remove line items" in new OrderShippingMethodFixture
@@ -132,6 +152,19 @@ class CartIntegrationTest
       val response = POST(s"v1/orders/NOPE/line-items", addPayload)
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Cart, "NOPE").description)
+    }
+
+    "should add line items if productId and skuId are different" in new OrderShippingMethodFixture
+    with ProductAndSkus_Baked {
+      val addPayload = Seq(UpdateLineItemsPayload("TEST", 1))
+      val response   = POST(s"v1/orders/${cart.refNum}/line-items", addPayload)
+
+      response.status must === (StatusCodes.OK)
+      val root = response.ignoreFailuresAndGiveMe[CartResponse]
+      val skus = root.lineItems.skus
+      skus must have size 2
+      skus.map(_.sku) must contain theSameElementsAs (Seq("SKU-YAX", "TEST"))
+      skus.map(_.quantity) must contain theSameElementsAs (Seq(1, 2))
     }
   }
 

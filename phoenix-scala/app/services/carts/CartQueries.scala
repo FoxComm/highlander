@@ -25,7 +25,7 @@ object CartQueries extends CordQueries {
       response  ← * <~ CartResponse.fromCart(cart)
     } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
 
-  def findOneByAccount(
+  def findOneByUser(
       refNum: String,
       customer: User)(implicit ec: EC, db: DB, ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {

@@ -6,8 +6,8 @@ object CartFailures {
     override def description = s"order with referenceNumber=$refNum is not a cart"
   }
 
-  case class CustomerHasCart(id: Int) extends Failure {
-    override def description = s"customer with id=$id already has an active cart"
+  case class CustomerHasCart(accountId: Int) extends Failure {
+    override def description = s"customer with id=$accountId already has an active cart"
   }
 
   case class CustomerHasNoCart(accountId: Int) extends Failure {
@@ -32,5 +32,11 @@ object CartFailures {
 
   case class InsufficientFunds(refNum: String) extends Failure {
     override def description = s"order with referenceNumber=$refNum has insufficient funds"
+  }
+
+  case class SKUWithNoProductAdded(refNum: String, code: String) extends Failure {
+    override def description =
+      s"item could not be added to cart $refNum. SKU $code does not have an " +
+        s"associated product"
   }
 }

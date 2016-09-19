@@ -7,7 +7,9 @@ import models.cord.lineitems._
 import models.account._
 import models.inventory.Sku
 import models.location._
+import models.product._
 import models.payment.giftcard.GiftCard
+import models.product.{Mvp, SimpleProductData, SimpleSku}
 import models.traits.Originator
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads.GiftCardPayment
@@ -15,6 +17,7 @@ import payloads.{OrderPayloads, UpdateShippingMethod}
 import services.carts._
 import services.{LineItemUpdater, ShippingManager}
 import slick.driver.PostgresDriver.api._
+import utils.db._
 import util.fixtures.raw._
 import utils.seeds.Seeds.Factories
 
@@ -105,4 +108,21 @@ trait RawFixtures extends RawPaymentFixtures {
     val order: Order = Orders.createFromCart(cart).gimme
   }
 
+  // Product
+  trait Product_Raw {
+    val simpleProduct: Product = (for {
+      spd ← * <~ Mvp.insertProduct(ctx.id,
+                                   SimpleProductData(title = "Test Product",
+                                                     code = "TEST",
+                                                     description = "Test product description",
+                                                     image = "image.png",
+                                                     price = 5999,
+                                                     active = true))
+      pd ← * <~ Products.mustFindById404(spd.productId)
+    } yield pd).gimme
+  }
+
+  trait Sku_Raw {
+    val simpleSku: Sku = Mvp.insertSku(ctx.id, SimpleSku("BY-ITSELF", "A lonely item", 9999)).gimme
+  }
 }

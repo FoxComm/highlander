@@ -1,6 +1,7 @@
 {
     "builders" : [
         {
+            "name": "google",
             "type": "googlecompute",
             "account_file": "{{user `account_file`}}",
             "project_id" : "{{user `project_id`}}",
@@ -8,13 +9,41 @@
             "network": "{{user `network`}}",
             "zone": "us-central1-a",
             "image_name": "amigo-server-{{timestamp}}",
-            "image_description": "base image used for provisioning",
+            "image_description": "{{user `image_title`}} Amigo Server Image",
             "instance_name": "packer-amigo-server-{{uuid}}",
             "machine_type": "n1-standard-2",
             "tags": ["no-ip", "packer-amigo-server"],
             "use_internal_ip": true,
-            "ssh_username": "{{user `ssh_username`}}",
-            "disk_size": 20
+            "ssh_username" : "{{user `ssh_username`}}",
+            "disk_size" : 20
+        },
+        {
+            "name": "amazon",
+            "type": "amazon-ebs",
+            "source_ami": "{{user `base_mesos_ami`}}",
+            "instance_type": "{{user `instance_type`}}",
+            "region": "{{user `region`}}",
+            "ami_name": "amigo-server-{{timestamp}}",
+            "ami_description": "{{user `image_title`}} Amigo Server Image",
+            "associate_public_ip_address": true,
+            "ssh_username" : "{{user `ssh_username`}}",
+            "vpc_id": "{{user `vpc_id`}}",
+            "security_group_id": "{{user `security_group_id`}}",
+            "subnet_id": "{{user `subnet_id`}}",
+            "ami_block_device_mappings": [{
+                "device_name": "/dev/sda1",
+                "volume_size": 20,
+                "delete_on_termination": true
+            }],
+            "launch_block_device_mappings": [{
+                "device_name": "/dev/sda1",
+                "volume_size": 20,
+                "delete_on_termination": true
+            }],
+            "tags": {
+                "packer": "amigo-server",
+                "ip": "none"
+            }
         }
     ],
     "provisioners" : [

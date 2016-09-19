@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.data._
 import failures.ProductFailures._
 import failures.{Failures, GeneralFailure, NotFoundFailure400}
-import models.StoreAdmin
+import models.account._
 import models.inventory._
 import models.objects._
 import payloads.SkuPayloads._
@@ -23,7 +23,7 @@ object SkuManager {
   implicit val formats = JsonFormatters.DefaultFormats
 
   def createSku(
-      admin: StoreAdmin,
+      admin: User,
       payload: SkuPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC): DbResultT[SkuResponse.Root] =
     for {
       sku    ← * <~ createSkuInner(oc, payload)
@@ -41,7 +41,7 @@ object SkuManager {
     } yield SkuResponse.build(IlluminatedSku.illuminate(oc, FullObject(sku, form, shadow)), albums)
 
   def updateSku(
-      admin: StoreAdmin,
+      admin: User,
       code: String,
       payload: SkuPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC): DbResultT[SkuResponse.Root] =
     for {

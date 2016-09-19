@@ -41,7 +41,7 @@ object Customer {
             pathPrefix("cart") {
               (get & pathEnd) {
                 getOrFailures {
-                  CartQueries.findOrCreateCartByAccount(customer, ctx)
+                  CartQueries.findOrCreateCartByAccountId(customer.accountId, ctx)
                 }
               } ~
               (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
@@ -158,7 +158,7 @@ object Customer {
             pathPrefix("account") {
               (get & pathEnd) {
                 getOrFailures {
-                  CustomerManager.getById(customer.accountId)
+                  CustomerManager.getByAccountId(customer.accountId)
                 }
               } ~
               (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
@@ -170,14 +170,14 @@ object Customer {
             pathPrefix("orders" / cordRefNumRegex) { refNum ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  CartQueries.findOneByAccount(refNum, customer)
+                  CartQueries.findOneByUser(refNum, customer)
                 }
               }
             } ~
             pathPrefix("addresses") {
               (get & pathEnd) {
                 getOrFailures {
-                  AddressManager.findAllByCustomer(customer.id)
+                  AddressManager.findAllByAccountId(customer.accountId)
                 }
               } ~
               (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
@@ -234,7 +234,7 @@ object Customer {
               } ~
               (post & pathEnd & entity(as[CreateCreditCardFromTokenPayload])) { payload ⇒
                 mutateOrFailures {
-                  CreditCardManager.createCardThroughGateway(customer.accountId, payload)
+                  CreditCardManager.createCardFromToken(customer.accountId, payload)
                 }
               } ~
               (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) {

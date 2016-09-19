@@ -14,19 +14,12 @@ import utils.db._
 
 object AddressManager {
 
-  def findAllByCustomer(originator: User, accountId: Int)(
-      implicit ec: EC,
-                                         db: DB): DbResultT[Seq[AddressResponse]] =
+  def findAllByAccountId(accountId: Int)(implicit ec: EC,
+                                         db: DB): DbResultT[Seq[AddressResponse]] = {
     //MAXDO: Check claims here to see if they can see all customers
-    /**
-    val query = originator match {
-      case AdminOriginator(_)    ⇒ Addresses.findAllActiveByAccountIdWithRegions(accountId)
-      case CustomerOriginator(_) ⇒ Addresses.findAllByAccountIdWithRegions(accountId)
-    }
-      .findAllActiveByCustomerIdWithRegions(customerId)
-      */
     val query = Addresses.findAllActiveByAccountIdWithRegions(accountId)
     for (records ← * <~ query.result) yield AddressResponse.buildMulti(records)
+  }
 
   def get(originator: User, addressId: Int, accountId: Int)(implicit ec: EC,
                                                             db: DB): DbResultT[AddressResponse] =
@@ -40,7 +33,7 @@ object AddressManager {
              accountId: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[AddressResponse] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      address  ← * <~ Addresses.create(Address.fromPayload(payload).copy(accountId = accountId))
+      address  ← * <~ Addresses.create(Address.fromPayload(payload, accountId))
       response ← * <~ AddressResponse.fromAddress(address)
       _        ← * <~ LogActivity.addressCreated(originator, customer, response)
     } yield response
@@ -54,7 +47,7 @@ object AddressManager {
       oldAddress ← * <~ Addresses
                     .findActiveByIdAndAccount(addressId, accountId)
                     .mustFindOneOr(addressNotFound(addressId))
-                 .copy(accountId = accountId, id = addressId)
+      address     ← * <~ Address.fromPayload(payload, accountId).copy(id = addressId).validate
       _           ← * <~ Addresses.insertOrUpdate(address)
       response    ← * <~ AddressResponse.fromAddress(address)
       oldResponse ← * <~ AddressResponse.fromAddress(oldAddress)

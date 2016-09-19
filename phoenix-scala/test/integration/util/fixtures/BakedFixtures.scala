@@ -28,4 +28,6 @@ trait BakedFixtures extends TestSeeds with RawFixtures {
       with CartWithShipAddress_Raw
 
   trait Order_Baked extends EmptyCartWithShipAddress_Baked with Order_Raw
+
+  trait ProductAndSkus_Baked extends StoreAdmin_Seed with Sku_Raw with Product_Raw
 }

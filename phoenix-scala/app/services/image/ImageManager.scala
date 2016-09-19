@@ -189,8 +189,7 @@ object ImageManager {
   def createAlbumForSku(
       admin: User,
       code: String,
-      payload: CreateAlbumPayload,
-      contextName: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[AlbumRoot] =
+      payload: CreateAlbumPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC): DbResultT[AlbumRoot] =
     for {
       sku     ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, code)
       created ← * <~ createAlbumInner(payload, oc)

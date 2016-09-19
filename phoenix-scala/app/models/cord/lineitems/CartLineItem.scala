@@ -55,7 +55,7 @@ object CartLineItems
           skuForm       ← ObjectForms if skuForm.id === sku.formId
           skuShadow     ← sku.shadow
           link          ← ProductSkuLinks if link.rightId === sku.id
-          product       ← Products if product.id === link.rightId
+          product       ← Products if product.id === link.leftId
           productShadow ← ObjectShadows if productShadow.id === product.shadowId
         } yield (sku, skuForm, skuShadow, productShadow, skuLineItems)
 

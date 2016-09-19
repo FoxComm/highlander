@@ -39,7 +39,7 @@ object CustomerRoutes {
       pathPrefix("customers" / IntNumber) { accountId ⇒
         (get & pathEnd) {
           getOrFailures {
-            CustomerManager.getById(accountId)
+            CustomerManager.getByAccountId(accountId)
           }
         } ~
         (get & path("cart")) {
@@ -72,7 +72,7 @@ object CustomerRoutes {
         pathPrefix("addresses") {
           (get & pathEnd) {
             getOrFailures {
-              AddressManager.findAllByCustomer(admin, accountId)
+              AddressManager.findAllByAccountId(accountId)
             }
           } ~
           (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
@@ -123,7 +123,7 @@ object CustomerRoutes {
           } ~
           (post & pathEnd & entity(as[CreateCreditCardFromTokenPayload])) { payload ⇒
             mutateOrFailures {
-              CreditCardManager.createCardThroughGateway(accountId, payload, Some(admin))
+              CreditCardManager.createCardFromToken(accountId, payload, Some(admin))
             }
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) { (cardId, payload) ⇒
