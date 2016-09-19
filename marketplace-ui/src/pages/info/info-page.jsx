@@ -38,6 +38,8 @@ type Props = {
   failed: boolean;
 }
 
+const TIMEOUT_REDIRECT = 3000;
+
 class MerchantInfoPage extends Component {
   props: Props;
 
@@ -66,7 +68,10 @@ class MerchantInfoPage extends Component {
 
     this.props.submit(merchantId, data)
       .then(() => {
-
+        setTimeout(
+          () => window.location.replace(process.env.ASHES_URL),
+          TIMEOUT_REDIRECT
+        );
       });
   }
 
