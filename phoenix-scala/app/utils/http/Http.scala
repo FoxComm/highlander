@@ -1,7 +1,7 @@
 package utils.http
 
 import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, ResponseEntity, StatusCode}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, ResponseEntity, StatusCode, StatusCodes}
 
 import cats.implicits._
 import failures.{Failures, NotFoundFailure404}
@@ -24,6 +24,9 @@ object Http {
 
   def render[A <: AnyRef](resource: A, statusCode: StatusCode = OK) =
     HttpResponse(statusCode, entity = jsonEntity(resource))
+
+  def renderPlain(text: String): HttpResponse =
+    HttpResponse(StatusCodes.OK, entity = HttpEntity(ContentTypes.`text/plain(UTF-8)`, text))
 
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
     val failuresList = failures.unwrap
