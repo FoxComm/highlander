@@ -13,6 +13,7 @@ func GetShippingMethod(id uint, carrierID uint, carrier *models.Carrier) *models
 		CarrierID: carrierID,
 		Carrier:   *carrier,
 		Name:      "UPS 2 day ground",
+		Code:      "EXPRESS",
 	}
 }
 
@@ -20,13 +21,14 @@ func ToShippingMethodPayload(shippingMethod *models.ShippingMethod) *payloads.Sh
 	return &payloads.ShippingMethod{
 		CarrierID: shippingMethod.CarrierID,
 		Name:      shippingMethod.Name,
+		Code:      shippingMethod.Code,
 	}
 }
 
 func GetShippingMethodColumns() []string {
-	return []string{"id", "carrier_id", "name"}
+	return []string{"id", "carrier_id", "name", "code"}
 }
 
 func GetShippingMethodRow(shippingMethod *models.ShippingMethod) []driver.Value {
-	return []driver.Value{shippingMethod.ID, shippingMethod.CarrierID, shippingMethod.Name}
+	return []driver.Value{shippingMethod.ID, shippingMethod.CarrierID, shippingMethod.Name, shippingMethod.Code}
 }

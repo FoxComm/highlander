@@ -55,11 +55,9 @@ object ImageManager {
               }
     } yield result
 
-  def getAlbumsForSku(code: String, contextName: String)(implicit ec: EC,
-                                                         db: DB): DbResultT[Seq[AlbumRoot]] =
+  def getAlbumsForSku(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
     for {
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
-      albums  ← * <~ getAlbumsForSkuInner(code, context)
+      albums ← * <~ getAlbumsForSkuInner(code, oc)
     } yield albums
 
   def getAlbumsForSkuInner(code: String, context: ObjectContext)(
@@ -194,9 +192,8 @@ object ImageManager {
       payload: CreateAlbumPayload,
       contextName: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[AlbumRoot] =
     for {
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
-      sku     ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
-      created ← * <~ createAlbumInner(payload, context)
+      sku     ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, code)
+      created ← * <~ createAlbumInner(payload, oc)
       (fullAlbum, images) = created
       link ← * <~ SkuAlbumLinks.createLast(sku, fullAlbum.model)
     } yield AlbumResponse.build(fullAlbum, images)

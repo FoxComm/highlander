@@ -1,7 +1,9 @@
 package responses
 
-import models.location.Region
+import models.location.{Region, Regions}
 import models.payment.creditcard.CreditCard
+import utils.aliases._
+import utils.db._
 
 object CreditCardsResponse {
   case class Root(id: Int,
@@ -15,8 +17,13 @@ object CreditCardsResponse {
                   zipCheck: Option[String] = None,
                   inWallet: Boolean = true,
                   brand: String,
-                  address: responses.AddressResponse)
+                  address: AddressResponse)
       extends ResponseItem
+
+  def buildFromCreditCard(cc: CreditCard)(implicit ec: EC, db: DB): DbResultT[Root] =
+    for {
+      region ← * <~ Regions.mustFindById400(cc.regionId)
+    } yield build(cc, region)
 
   def build(cc: CreditCard, region: Region): Root =
     Root(id = cc.id,
@@ -30,7 +37,7 @@ object CreditCardsResponse {
          zipCheck = cc.zipCheck,
          inWallet = cc.inWallet,
          brand = cc.brand,
-         address = responses.AddressResponse.buildFromCreditCard(cc, region))
+         address = AddressResponse.buildFromCreditCard(cc, region))
 
   // Temporary simplified version w/o address
   case class RootSimple(id: Int,

@@ -6,14 +6,19 @@ defmodule Permissions.PermissionView do
     %{permissions: render_many(permissions, PermissionView, "permission.json")}
   end
 
-  def render("show.json", %{permission: permission}) do
+  def render("show_full.json", %{permission: permission}) do
     %{permission: render_one(permission, PermissionView, "full_permission.json")}
+  end
+
+  def render("show.json", %{permission: permission}) do
+    %{permission: render_one(permission, PermissionView, "permission.json")}
   end
 
   def render("permission.json", %{permission: permission}) do
     %{id: permission.id,
       resource_id: permission.resource_id,
-      action_id: permission.action_id,
+      actions: permission.actions,
+      frn: permission.frn,
       scope_id: permission.scope_id
     }
   end
@@ -22,11 +27,15 @@ defmodule Permissions.PermissionView do
     %{id: permission.id,
       resource_id: permission.resource_id,
       resource_name: permission.resource.name,
-      action_id: permission.action_id,
-      action_name: permission.action.name,
+      actions: permission.actions,
+      frn: permission.frn,
       scope_id: permission.scope_id,
       scope_source: permission.scope.source
     }
+  end
+
+  def render("deleted.json", _) do
+    %{deleted: "success"}
   end
 
 end

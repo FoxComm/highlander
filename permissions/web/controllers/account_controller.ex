@@ -16,7 +16,7 @@ defmodule Permissions.AccountController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", account_path(conn, :show, account))
-        |> render("account.json", account: account)
+        |> render("show.json", account: account)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)

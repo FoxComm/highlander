@@ -13,7 +13,7 @@ defmodule Permissions.OrganizationView do
   def render("organization.json", %{organization: organization}) do
     %{id: organization.id,
       name: organization.name,
-      type: organization.type,
+      kind: organization.kind,
       parent_id: organization.parent_id
     }
   end

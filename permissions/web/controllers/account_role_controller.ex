@@ -19,7 +19,7 @@ defmodule Permissions.AccountRoleController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", account_account_role_path(conn, :show, account_id, account_role))
-        |> render("account_role.json", account_role: account_role)
+        |> render("show.json", account_role: account_role)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -31,7 +31,7 @@ defmodule Permissions.AccountRoleController do
     account_role = 
       Repo.get!(AccountRole, id) 
       |> Repo.preload(:permission)
-    render(conn, "account_role.json", account_role: account_role)
+    render(conn, "show.json", account_role: account_role)
   end
   
   def delete(conn, %{"id" => id}) do

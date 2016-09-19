@@ -16,7 +16,7 @@ defmodule Permissions.SystemController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", system_path(conn, :show, system))
-        |> render("system.json", system: system)
+        |> render("show.json", system: system)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)

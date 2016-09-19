@@ -2,6 +2,7 @@ defmodule Permissions.PermissionController do
   use Permissions.Web, :controller
   alias Permissions.Repo
   alias Permissions.Permission
+  alias Permissions.PermissionClaimService
 
   def index(conn, _params) do 
     permissions = Repo.all(Permission)
@@ -9,26 +10,24 @@ defmodule Permissions.PermissionController do
   end
 
   def create(conn, %{"permission" => permission_params}) do
-    changeset = Permission.changeset(%Permission{}, permission_params)
-
-    case Repo.insert(changeset) do
-      {:ok, permission} -> 
+    case Repo.transaction(PermissionClaimService.insert_permission(permission_params)) do
+      {:ok, %{permission: permission}} -> 
         conn
         |> put_status(:created)
         |> put_resp_header("location", permission_path(conn, :show, permission))
-        |> render("permission.json", permission: permission)
-      {:error, changeset} ->
+        |> render("show.json", permission: permission)
+      {:error, failed_operation, failed_value, changes_completed} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Permissions.ChangesetView, "errors.json", changeset: changeset)
+        |> render(Permissions.ChangesetView, "errors.json", changeset: failed_value)
     end
   end
 
   def show(conn, %{"id" => id}) do
     permission = 
       Repo.get!(Permission, id)
-      |> Repo.preload([:resource, :action, :scope])
-    render(conn, "full_permission.json", permission: permission)
+      |> Repo.preload([:resource, :scope])
+    render(conn, "show_full.json", permission: permission)
   end
 
   def update(conn, %{"id" => id, "permission" => permission_params}) do
@@ -45,5 +44,13 @@ defmodule Permissions.PermissionController do
     end
   end 
 
+  def delete(conn, %{"id" => id}) do 
+    permission = Repo.get!(Permission, id)
+    Repo.delete!(permission)
+
+    conn
+    |> put_status(:ok)
+    |> render("deleted.json")
+  end
 end
 

@@ -1,0 +1,23 @@
+@import "media-queries.css";
+
+.main {
+  position: relative;
+  width: 750px;
+  padding: 20px 120px 50px;
+  margin: 50px auto;
+  background: #fff;
+  border-radius: 10px;
+  color: #434343;
+  min-height: 700px;
+  box-shadow: 0 0 50px rgba(0, 0, 0, .2);
+  overflow: hidden;
+
+  transition: width .4s, padding .4s;
+}
+
+@media (--small-viewport) {
+  .main {
+    width: 540px;
+    padding: 50px 40px;
+  }
+}

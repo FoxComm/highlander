@@ -35,7 +35,7 @@ create table systems (
     description generic_string not null
 );
 
-CREATE TABLE resources (
+create table resources (
     id serial primary key not null,
     name generic_string NOT NULL,
     system_id integer references systems(id) on update restrict on delete restrict,

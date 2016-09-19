@@ -22,7 +22,7 @@
             "playbook_file" : "ansible/packer_amigo_server.yml",
             "extra_arguments": [
               "--extra-vars",
-              "@packer/envs/{{user `variables_file`}}", 
+              "@packer/envs/{{user `variables_file`}}",
               "--extra-vars",
               "'{\"join_type\": \"join-wan\"}'",
               "--extra-vars",

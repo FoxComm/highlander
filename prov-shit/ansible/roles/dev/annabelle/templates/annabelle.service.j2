@@ -1,0 +1,11 @@
+[Service]
+WorkingDirectory={{annabelle_dir}}
+ExecStart=/bin/bash ./run_annabelle.sh
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=annabelle
+
+[Install]
+WantedBy=multi-user.target

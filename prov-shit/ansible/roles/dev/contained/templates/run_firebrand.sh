@@ -8,5 +8,5 @@ export FIREBIRD_LANGUAGE={{firebrand_default_language}}
 
 export NODE_ENV=development
 
-cd /vagrant/firebird
+cd /vagrant/firebrand
 npm run dev

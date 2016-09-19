@@ -1,0 +1,19 @@
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.title,
+.legend {
+  margin: 0;
+  line-height: 36px;
+}
+
+.title {
+  font-size: 28px;
+}
+
+.legend {
+  font-size: 18px;
+  font-weight: 300;
+}

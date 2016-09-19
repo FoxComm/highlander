@@ -103,6 +103,12 @@ object OrderRoutes {
                 LineItemUpdater.updateQuantitiesOnCart(admin, refNum, reqItems)
               }
           } ~
+          (patch & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
+            reqItems ⇒
+              mutateOrFailures {
+                LineItemUpdater.addQuantitiesOnCart(admin, refNum, reqItems)
+              }
+          } ~
           pathPrefix("payment-methods" / "credit-cards") {
             (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
               mutateOrFailures {

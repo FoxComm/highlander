@@ -2,7 +2,7 @@ package utils.http
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import akka.http.scaladsl.model.HttpResponse
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
@@ -55,8 +55,16 @@ object CustomDirectives {
     }
   }
 
-  def adminObjectContext(name: String)(implicit db: DB, ec: EC): Directive1[ObjectContext] =
-    onSuccess(getContextByName(name))
+  def adminObjectContext(contextName: String)(route: ObjectContext ⇒ Route)(implicit db: DB,
+                                                                            ec: EC): Route =
+    onComplete(tryGetContextByName(contextName)) {
+      case Success(Xor.Right(ctx)) ⇒
+        route(ctx)
+      case Success(Xor.Left(msg)) ⇒
+        complete(renderFailure(NotFoundFailure404(msg).single, StatusCodes.NotFound))
+      case Failure(ex) ⇒
+        complete(renderFailure(GeneralFailure(ex.getMessage()).single))
+    }
 
   private def getContextByName(name: String)(implicit db: DB, ec: EC) =
     db.run(ObjectContexts.filterByName(name).result.headOption).map {
@@ -64,12 +72,21 @@ object CustomDirectives {
       case None    ⇒ throw new Exception(s"Unable to find context $name.")
     }
 
+  private def tryGetContextByName(name: String)(implicit db: DB, ec: EC) =
+    db.run(ObjectContexts.filterByName(name).result.headOption).map {
+      case Some(c) ⇒ Xor.Right(c)
+      case None    ⇒ Xor.Left(s"Context with name $name cannot be found")
+    }
+
   //This is a really trivial version. We are not handling language weights,
   //and multiple options.
   private def getContextByLanguage(lang: String)(implicit db: DB, ec: EC) =
     db.run(ObjectContexts.filterByLanguage(lang).result.headOption).flatMap {
-      case Some(c) ⇒ Future { c }
-      case None    ⇒ getContextByName(DefaultContextName)
+      case Some(c) ⇒
+        Future {
+          c
+        }
+      case None ⇒ getContextByName(DefaultContextName)
     }
 
   def good[A <: AnyRef](a: Future[A])(implicit ec: EC): StandardRoute =

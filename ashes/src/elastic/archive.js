@@ -2,20 +2,31 @@ import _ from 'lodash';
 
 import type { SearchFilter } from 'elastic/common';
 
+function archivedFilter(operator) {
+  return {
+    term: 'archivedAt',
+    hidden: true,
+    operator,
+    value: {
+      type: 'exists'
+    }
+  };
+}
+
+
 export function filterArchived(filters: Array<SearchFilter>) {
-  if (!_.find(filters, {term: 'archivedAt'})) {
-    filters = [
-      {
-        term: 'archivedAt',
-        hidden: true,
-        operator: 'missing',
-        value: {
-          type: 'exists'
-        }
-      },
+  const archiveAtFilter = _.find(filters, {term: 'archivedAt'});
+  if (!archiveAtFilter) {
+    return [
+      archivedFilter('missing'),
       ...filters,
     ];
+  } else if (archiveAtFilter.operator == 'neq') {
+    return [
+      archivedFilter('exists'),
+      ...filters
+    ];
   }
-  
+
   return filters;
 }

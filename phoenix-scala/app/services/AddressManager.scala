@@ -16,17 +16,17 @@ object AddressManager {
 
   def findAllByCustomer(originator: User, accountId: Int)(
       implicit ec: EC,
-      db: DB): DbResultT[Seq[AddressResponse]] = {
+                                         db: DB): DbResultT[Seq[AddressResponse]] =
     //MAXDO: Check claims here to see if they can see all customers
     /**
     val query = originator match {
       case AdminOriginator(_)    ⇒ Addresses.findAllActiveByAccountIdWithRegions(accountId)
       case CustomerOriginator(_) ⇒ Addresses.findAllByAccountIdWithRegions(accountId)
     }
+      .findAllActiveByCustomerIdWithRegions(customerId)
       */
     val query = Addresses.findAllActiveByAccountIdWithRegions(accountId)
     for (records ← * <~ query.result) yield AddressResponse.buildMulti(records)
-  }
 
   def get(originator: User, addressId: Int, accountId: Int)(implicit ec: EC,
                                                             db: DB): DbResultT[AddressResponse] =
@@ -54,10 +54,7 @@ object AddressManager {
       oldAddress ← * <~ Addresses
                     .findActiveByIdAndAccount(addressId, accountId)
                     .mustFindOneOr(addressNotFound(addressId))
-      address ← * <~ Address
-                 .fromPayload(payload)
                  .copy(accountId = accountId, id = addressId)
-                 .validate
       _           ← * <~ Addresses.insertOrUpdate(address)
       response    ← * <~ AddressResponse.fromAddress(address)
       oldResponse ← * <~ AddressResponse.fromAddress(oldAddress)

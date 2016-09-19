@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import { pick, flow, reduce } from 'lodash/fp';
+import { pick, flow, reduce, entries } from 'lodash/fp';
 import formatCurrency, { stringToCurrency } from '../../lib/format-currency';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
@@ -99,7 +99,8 @@ export default class CurrencyInput extends React.Component {
 
     return flow(
       pick(keys),
-      reduce((r, v, k) => assoc(r, k, inputValue), {})
+      entries,
+      reduce((r, [k, v]) => assoc(r, k, inputValue), {})
     )(this.props);
   }
 

@@ -1,8 +1,12 @@
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 
 import util.IntegrationTestBase
+import utils.MockedApis
 
-class JsonRejectionHandlerIntegrationTest extends IntegrationTestBase with HttpSupport {
+class JsonRejectionHandlerIntegrationTest
+    extends IntegrationTestBase
+    with HttpSupport
+    with MockedApis {
 
   import Extensions._
 

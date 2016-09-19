@@ -50,6 +50,12 @@ object Customer {
                     LineItemUpdater.updateQuantitiesOnCustomersCart(customer, reqItems)
                   }
               } ~
+              (patch & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
+                reqItems ⇒
+                  mutateOrFailures {
+                    LineItemUpdater.addQuantitiesOnCustomersCart(customer, reqItems)
+                  }
+              } ~
               (post & path("coupon" / Segment) & pathEnd) { code ⇒
                 mutateOrFailures {
                   CartPromotionUpdater.attachCoupon(customer, None, code)
@@ -169,6 +175,11 @@ object Customer {
               }
             } ~
             pathPrefix("addresses") {
+              (get & pathEnd) {
+                getOrFailures {
+                  AddressManager.findAllByCustomer(customer.id)
+                }
+              } ~
               (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
                 mutateOrFailures {
                   AddressManager.create(customer, payload, customer.accountId)
@@ -221,7 +232,7 @@ object Customer {
                                                               payload.isDefault)
                   }
               } ~
-              (post & pathEnd & entity(as[CreateCreditCard])) { payload ⇒
+              (post & pathEnd & entity(as[CreateCreditCardFromTokenPayload])) { payload ⇒
                 mutateOrFailures {
                   CreditCardManager.createCardThroughGateway(customer.accountId, payload)
                 }

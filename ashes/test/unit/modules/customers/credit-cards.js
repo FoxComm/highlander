@@ -1,6 +1,6 @@
-import _ from 'lodash';
 import nock from 'nock';
-import thunk from 'redux-thunk';
+import sinon from 'sinon';
+import stripe from 'lib/stripe';
 
 const { default: reducer, ...actions } = importSource('modules/customers/credit-cards.js', [
   'fetchCreditCards',
@@ -33,7 +33,7 @@ describe('customers credit cards module', function() {
   context('helper functions', function() {
 
     const customerId = Math.floor(Math.random() * 10) + 1;
-    const cardId = Math.floor(Math.random() * 10) + 1 ;
+    const cardId = Math.floor(Math.random() * 10) + 1;
 
     it('creditCardsUrl should construct valid url', function() {
       const expected = `/customers/${customerId}/payment-methods/credit-cards`;
@@ -76,12 +76,14 @@ describe('customers credit cards module', function() {
       const payload = {
         holderName: 'Yax',
         number: '4242424242424242',
-        cvv: '123',
         expMonth: 11,
         expYear: 2017,
         isDefault: false,
         addressId: 1
       };
+
+      const stub = sinon.stub(stripe, 'addCreditCard');
+      stub.returns(Promise.resolve());
 
       beforeEach(function() {
         const uri = creditCardsUrl(customerId);
@@ -98,6 +100,11 @@ describe('customers credit cards module', function() {
             [customerId]: {
               newCreditCard: payload
             }
+          },
+          addresses: {
+            [customerId]: {
+              addresses: [{ id: payload.addressId }],
+            }
           }
         }
       };
@@ -110,7 +117,7 @@ describe('customers credit cards module', function() {
         ];
 
         yield expect(actions.createCreditCard(customerId),
-                     'to dispatch actions', expectedActions, initialState);
+          'to dispatch actions', expectedActions, initialState);
       });
 
     });
@@ -119,7 +126,6 @@ describe('customers credit cards module', function() {
       const payload = {
         holderName: 'Yax',
         number: '4242424242424242',
-        cvv: '123',
         expMonth: 11,
         expYear: 2017,
         isDefault: false,
@@ -155,7 +161,7 @@ describe('customers credit cards module', function() {
         ];
 
         yield expect(actions.saveCreditCard(customerId),
-                     'to dispatch actions', expectedActions, initialState);
+          'to dispatch actions', expectedActions, initialState);
       });
 
     });
@@ -189,7 +195,7 @@ describe('customers credit cards module', function() {
         ];
 
         yield expect(actions.confirmCreditCardDeletion(customerId, 10),
-                     'to dispatch actions', expectedActions, initialState);
+          'to dispatch actions', expectedActions, initialState);
       });
 
     });

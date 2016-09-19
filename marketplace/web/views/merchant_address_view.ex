@@ -2,7 +2,7 @@ defmodule Marketplace.MerchantAddressView do
   use Marketplace.Web, :view
 
   def render("index.json", %{merchant_addresses: merchant_addresses}) do
-    %{merchant_addresses: render_many(merchant_addresses, Marketplace.MerchantAddressView, "merchant.json")}
+    %{merchant_addresses: render_many(merchant_addresses, Marketplace.MerchantAddressView, "show.json")}
   end
 
   def render("merchant_address.json", %{merchant_address: merchant_address}) do

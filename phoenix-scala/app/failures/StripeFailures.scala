@@ -11,4 +11,9 @@ object StripeFailures {
   case class StripeFailure(exception: StripeException) extends Failure {
     override def description = exception.getMessage
   }
+
+  case class CardNotFoundForNewCustomer(stripeCustomerId: String) extends Failure {
+    override def description: String =
+      s"Stripe customer $stripeCustomerId expected to have a card, found none"
+  }
 }

@@ -28,7 +28,7 @@ func (suite *stockLocationRepositoryTestSuite) SetupSuite() {
 }
 
 func (suite *stockLocationRepositoryTestSuite) SetupTest() {
-	tasks.TruncateTables([]string{
+	tasks.TruncateTables(suite.db, []string{
 		"stock_locations",
 	})
 

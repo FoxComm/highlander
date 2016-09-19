@@ -11,6 +11,7 @@
   unarchive:
     src: '{{ashes_source_package}}'
     dest: '{{ashes_install_dir}}/'
+  sudo: true
 
 - name: Build Ashes
   shell: NODE_ENV={{ashes_env}} DEMO_USER={{demo_user}} DEMO_PASS={{demo_pass}} gulp build

@@ -9,7 +9,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.client.RequestBuilding.Get
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse, StatusCodes, Uri}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse, Uri}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -34,6 +34,7 @@ import services.Authenticator
 import services.Authenticator.AsyncAuthenticator
 import util._
 import utils.aliases._
+import utils.apis.Apis
 import utils.{FoxConfig, JsonFormatters}
 
 // TODO: Move away from root package when `Service' moverd
@@ -51,8 +52,7 @@ trait HttpSupport
     with ScalaFutures
     with MustMatchers
     with BeforeAndAfterAll
-    with TestObjectContext
-    with MockedApis {
+    with TestObjectContext {
   this: Suite with PatienceConfiguration with DbTestSupport ⇒
 
   import HttpSupport._
@@ -72,8 +72,8 @@ trait HttpSupport
 
   protected def additionalRoutes: immutable.Seq[Route] = immutable.Seq.empty
 
-  override protected def beforeAll: Unit = {
-    super.beforeAll
+  override protected def beforeAll(): Unit = {
+    super.beforeAll()
     if (!akkaConfigured) {
       system = ActorSystem("system", actorSystemConfig)
       materializer = ActorMaterializer()
@@ -111,6 +111,8 @@ trait HttpSupport
     Authenticator.BasicCustomer()
 
   implicit val env = FoxConfig.Test
+
+  def apisOverride: Apis
 
   private def makeService: Service =
     new Service(dbOverride = Some(db),

@@ -10,7 +10,7 @@ type ShipmentRepositoryMock struct {
 	mock.Mock
 }
 
-func (service *ShipmentRepositoryMock) GetShipmentsByReferenceNumber(referenceNumber string) ([]*models.Shipment, error) {
+func (service *ShipmentRepositoryMock) GetShipmentsByOrder(referenceNumber string) ([]*models.Shipment, error) {
 	args := service.Called(referenceNumber)
 
 	if model, ok := args.Get(0).([]*models.Shipment); ok {

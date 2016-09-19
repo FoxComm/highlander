@@ -41,3 +41,9 @@ config :marketplace, Marketplace.Repo,
   database: "marketplace_dev",
   hostname: "localhost",
   pool_size: 10
+
+config :marketplace, Marketplace.MerchantAccount, 
+  phoenix_url: System.get_env("PHOENIX_URL"),
+  phoenix_port: System.get_env("PHOENIX_PORT"),
+  solomon_url: System.get_env("SOLOMON_URL"),
+  solomon_port: System.get_env("SOLOMON_PORT")

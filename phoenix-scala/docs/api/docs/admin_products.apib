@@ -95,7 +95,7 @@ and merchandised with custom content and images.
                 }
               ],
               "variantValueIds": [2]
-            }      
+            }
           ],
           "variants": [
             {
@@ -164,7 +164,7 @@ and merchandised with custom content and images.
                 }
               },
               "variantValues": ["Blue"]
-            }      
+            }
           ],
           "variants": [
             {
@@ -267,7 +267,7 @@ and merchandised with custom content and images.
                 }
               ],
               "variantValueIds": [2]
-            }      
+            }
           ],
           "variants": [
             {
@@ -331,7 +331,7 @@ and merchandised with custom content and images.
                 }
               },
               "variantValues": ["Blue"]
-            }      
+            }
           ],
           "variants": [
             {
@@ -428,7 +428,7 @@ and merchandised with custom content and images.
                 }
               ],
               "variantValueIds": [2]
-            }      
+            }
           ],
           "variants": [
             {
@@ -446,6 +446,114 @@ and merchandised with custom content and images.
               ]
             }
           ]
+        }
+
+### Archive [DELETE]
+
++ Response 200 (application/json)
+
+        {
+          "id": 1,
+          "context": {
+            "name": "default",
+            "attributes": {
+              "lang": "en",
+              "modality": "desktop"
+            }
+          },
+          "attributes": {
+            "name": {
+              "t": "string",
+              "v": "Fox Socks"
+            },
+            "description": {
+              "t": "string",
+              "v": "The finest fox designed socks that money can buy."
+            }
+          },
+          "albums": [
+            {
+              "name": "Desktop",
+              "images": [
+                {
+                  "alt": "Red and blue sock",
+                  "src": "http://some.cdn.com/products/1/red-blue-sock.jpg"
+                }
+              ]
+            }
+          ],
+          "skus": [
+            {
+              "attributes": {
+                "code": {
+                  "t": "string",
+                  "v": "FOX-RED"
+                },
+                "salePrice": {
+                  "t": "price",
+                  "v": {
+                    "currency": "USD",
+                    "value": 1899
+                  }
+                }
+              },
+              "albums": [
+                {
+                  "name": "Desktop",
+                  "images": [
+                    {
+                      "alt": "Red sock",
+                      "src": "http:/some.cdn.com/products/1/red-sock.jpg"
+                    }
+                  ]
+                }
+              ],
+              "variantValueIds": [1]
+            }, {
+              "attributes": {
+                "code": {
+                  "t": "string",
+                  "v": "FOX-BLUE"
+                },
+                "salePrice": {
+                  "t": "price",
+                  "v": {
+                    "currency": "USD",
+                    "value": 1899
+                  }
+                }
+              },
+              "albums": [
+                {
+                  "name": "Desktop",
+                  "images": [
+                    {
+                      "alt": "Blue sock",
+                      "src": "http:/some.cdn.com/products/1/blue-sock.jpg"
+                    }
+                  ]
+                }
+              ],
+              "variantValueIds": [2]
+            }
+          ],
+          "variants": [
+            {
+              "name": "Color",
+              "values": [
+                {
+                  "id": 1,
+                  "name": "Red",
+                  "swatch": "FF0000"
+                }, {
+                  "id": 2,
+                  "name": "Blue",
+                  "swatch": "0000FF"
+                }
+              ]
+            }
+          ],
+          "archivedAt": "2020-01-01T12:00:00Z"
         }
 
 ## Product Album [/v1/products/{context}/{productId}/albums/{id}]

@@ -4,60 +4,56 @@ FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/
 DB=middlewarehouse_development
 DB_TEST=middlewarehouse_test
 DB_USER=middlewarehouse
-BUILDPATH=${GOPATH}/src/github.com/FoxComm/highlander/middlewarehouse
-SUBDIRS = api common controllers models repositories routes services
-TESTDIRS = $(SUBDIRS:%=test-%)
+BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
+BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
 
 prep:
-	mkdir -p ${GOPATH}/src/github.com/FoxComm/highlander
-	ln -s `pwd` $(BUILDPATH); true
+	rm -rf $(BUILD_ROOT_PATH)
+	mkdir -p $(BUILD_ROOT_PATH)
+	ln -s ${CURDIR} $(BUILD_PATH)
 
 glide: prep
-	cd $(BUILDPATH) && glide install
+	cd $(BUILD_PATH) && glide install
 
 build: glide
-	cd $(BUILDPATH) && go build -o middlewarehouse main.go
-	cd $(BUILDPATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
-	cd $(BUILDPATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
-
-build-linux:
-	GOOS=linux $(MAKE) build
+	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
+	cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
+	cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
+	cd $(BUILD_PATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
 
 clean:
 	rm -rf ./vendor
 
 migrate:
-	${FLYWAY} migrate
+	$(FLYWAY) migrate
 
 migrate-test:
-	${FLYWAY_TEST} migrate
+	$(FLYWAY_TEST) migrate
 
-reset: drop-db drop-user create-user create-db migrate migrate-test
+reset: drop-db drop-user create-user create-db migrate
+
+seed: reset
+	./seeder
 
 reset-test:
-	dropdb --if-exists ${DB_TEST} -U ${DB_USER}
-	createdb ${DB_TEST} -U ${DB_USER}
+	dropdb --if-exists $(DB_TEST) -U $(DB_USER)
+	createdb $(DB_TEST) -U $(DB_USER)
 	@make migrate-test
 
 drop-db:
-	dropdb --if-exists ${DB}
-	dropdb --if-exists ${DB_TEST}
+	dropdb --if-exists $(DB)
+	dropdb --if-exists $(DB_TEST)
 
 create-db:
-	createdb ${DB}
-	createdb ${DB_TEST}
+	createdb $(DB)
+	createdb $(DB_TEST)
 
 drop-user:
-	dropuser --if-exists ${DB_USER}
+	dropuser --if-exists $(DB_USER)
 
 create-user:
-	createuser -s ${DB_USER}
+	createuser -s $(DB_USER)
 
-test-consumers:
-	GOENV=test cd consumers/shipments && go test -v ./...
-	GOENV=test cd consumers/stock-items && go test -v ./...
-
-test: $(TESTDIRS)
-$(TESTDIRS): PACKAGE = $(@:test-%=%)
-$(TESTDIRS):
-	cd $(PACKAGE) && GOENV=test go test ./...
+test: reset-test
+  # -p 1 serves to run tests sequentially, as it is required for non-isolated database tests
+	cd $(BUILD_PATH) && GOENV=test go test -p 1 `glide nv`

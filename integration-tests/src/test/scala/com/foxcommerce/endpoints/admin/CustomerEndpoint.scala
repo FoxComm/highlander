@@ -12,7 +12,7 @@ object CustomerEndpoint {
     val requestBody = """{"name": "%s", "email": "${customerEmail}"}""".format(customer.name)
 
     http("Create Customer")
-      .post("/v1/customers")
+      .post("/api/v1/customers")
       .body(StringBody(requestBody))
       .check(status.is(200))
       .check(jsonPath("$.id").ofType[Long].saveAs("customerId"))
@@ -21,7 +21,7 @@ object CustomerEndpoint {
   }
 
   def update(customer: CustomerFixture): HttpRequestBuilder = http("Update Customer")
-    .patch("/v1/customers/${customerId}")
+    .patch("/api/v1/customers/${customerId}")
     .body(StringBody("""{"name": "%s"}""".format(customer.name)))
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].is("${customerId}"))
@@ -29,13 +29,13 @@ object CustomerEndpoint {
     .check(jsonPath("$.email").ofType[String].is("${customerEmail}"))
 
   def blacklist(customer: CustomerFixture): HttpRequestBuilder = http("Toggle Customer Blacklisted Flag")
-    .post("/v1/customers/${customerId}/blacklist")
+    .post("/api/v1/customers/${customerId}/blacklist")
     .body(StringBody("""{"blacklisted": %b}""".format(customer.isBlacklisted)))
     .check(status.is(200))
     .check(jsonPath("$.isBlacklisted").ofType[Boolean].is(customer.isBlacklisted))
 
   def disable(customer: CustomerFixture): HttpRequestBuilder = http("Toggle Customer Disabled Flag")
-    .post("/v1/customers/${customerId}/disable")
+    .post("/api/v1/customers/${customerId}/disable")
     .body(StringBody("""{"disabled": %b}""".format(customer.isBlacklisted)))
     .check(status.is(200))
     .check(jsonPath("$.disabled").ofType[Boolean].is(customer.isBlacklisted))
