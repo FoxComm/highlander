@@ -49,7 +49,8 @@ module.exports = function(app) {
     const authFreeUrls = /\/(login|signup)$/;
     if (!this.request.path.match(authFreeUrls)) {
       const token = getToken(this);
-      if (!token || !token.admin) {
+      // TODO: When we read tokens, validate that we have a claim to theadmin UI.
+      if (!token) {
         this.redirect(config.api.auth.loginUri);
       }
       this.state.token = token;
