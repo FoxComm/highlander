@@ -43,7 +43,3 @@ export const getInfoInProgress = state =>
 
 export const getInfoFailed = state =>
   getActionFailed(state.asyncActions, getInfoActionNamespace());
-
-export const getActiveStep = state => {
-
-}

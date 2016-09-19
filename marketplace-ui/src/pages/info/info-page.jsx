@@ -22,7 +22,8 @@ const MerchantInfoPage = ({ submit, inProgress, failed }: Props): HTMLElement =>
   <div>
     <Header
       title="We need additional business details."
-      legend="This additional information will help us ensure that we are able to add your business to our system and successfully send you payments."
+      legend={'This additional information will help us ensure that we are able to' +
+      'add your business to our system and successfully send you payments.'}
     />
     <Form
       form="info"

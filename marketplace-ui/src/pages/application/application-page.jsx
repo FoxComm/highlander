@@ -13,8 +13,9 @@ import {
   getApplication,
   getApplicationFetchFailed,
   getApplicationInProgress,
-  getApplicationFailed
+  getApplicationFailed,
 } from '../../core/modules';
+
 import { fetch, submit } from '../../core/modules/merchant-application';
 import { fields } from '../../forms/application/application-fields';
 
@@ -25,8 +26,8 @@ type Props = {
   params: Object;
   replace: (path: string) => void;
   application: Application;
-  fetch: (reference: string) => Promise;
-  submit: (data: Object) => Promise;
+  fetch: (reference: string) => Promise<*>;
+  submit: (data: Object) => Promise<*>;
   inProgress: boolean;
   fetchFailed: boolean;
   submitFailed: boolean;

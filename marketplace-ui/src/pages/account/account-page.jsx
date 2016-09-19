@@ -18,7 +18,7 @@ type Props = {
   failed: boolean;
 }
 
-const MerchantAccountPage = ({ application, submit, inProgress, failed }: Props): HTMLElement => (
+const MerchantAccountPage = ({ submit, inProgress, failed }: Props): HTMLElement => (
   <div>
     <Header
       title="Let’s get you started"
@@ -27,7 +27,7 @@ const MerchantAccountPage = ({ application, submit, inProgress, failed }: Props)
     <Form
       form="account"
       fields={fields}
-      onSubmit={submit.bind(null, 4)}
+      onSubmit={submit}
       inProgress={inProgress}
       failed={failed}
     />

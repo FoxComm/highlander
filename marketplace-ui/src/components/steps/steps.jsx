@@ -13,7 +13,6 @@ export type Step = {
   key: string;
   title: string;
   active: boolean;
-  disabled?: boolean;
 }
 
 type Props = {
@@ -23,7 +22,6 @@ type Props = {
 const renderStep = (step: Step) => {
   const cls = cx(styles.step, {
     [styles.active]: step.active,
-    [styles.disabled]: step.disabled,
   });
 
   return (

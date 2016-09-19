@@ -5,9 +5,11 @@ import React, { Component } from 'react';
 
 import styles from './thanks-or-not.css';
 
+import type { HTMLElement } from '../../core/types';
+
 type Props = {
-  title?: string;
-  message?: string;
+  title?: HTMLElement;
+  message: HTMLElement;
   error?: boolean;
 }
 
@@ -16,11 +18,10 @@ class ThanksOrNot extends Component {
 
   static defaultProps = {
     title: 'Thank You!',
-    message: 'We\'ll call you soon.',
     error: false,
   };
 
-  render() {
+  render(): HTMLElement {
     const { error, title, message } = this.props;
 
     const clsIcon = cx(styles.icon, {

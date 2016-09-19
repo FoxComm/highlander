@@ -16,6 +16,10 @@ export type Application = {
   description?: string;
 }
 
+type ApplicationResponse = {
+  merchant_application: ApplicationResponse;
+}
+
 type State = Application;
 
 const ACTION_MERCHANT_APPLICATION_FETCH = 'merchantApplicationFetch';
@@ -44,11 +48,11 @@ const initialState: State = {
 };
 
 const reducer = createReducer({
-  [actionsFetch.succeeded]: (state: State, application) => ({
+  [actionsFetch.succeeded]: (state: State, application: ApplicationResponse) => ({
     ...state,
     ...application.merchant_application,
   }),
-  [actionsSubmit.succeeded]: (state: State, application) => ({
+  [actionsSubmit.succeeded]: (state: State, application: Application) => ({
     ...state,
     ...application,
   }),
