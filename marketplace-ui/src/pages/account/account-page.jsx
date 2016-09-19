@@ -1,6 +1,7 @@
 /* @flow */
 
 import get from 'lodash/get';
+import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { replace } from 'react-router-redux';
@@ -8,8 +9,14 @@ import { replace } from 'react-router-redux';
 import Header from '../../components/header/header';
 import Form from '../../components/form/form';
 
-import { getApplication, getAccounts, getAccountInProgress, getAccountFailed } from '../../core/modules';
-import { fetch as fetchApplication } from '../../core/modules/merchant-application';
+import {
+  getApplication,
+  getApplicationFetchFailed,
+  getAccounts,
+  getAccountInProgress,
+  getAccountFailed,
+} from '../../core/modules';
+import { fetch as fetchApplication, clearErrors } from '../../core/modules/merchant-application';
 import { fetch, submit } from '../../core/modules/merchant-account';
 import { fields } from '../../forms/account/account-fields';
 
@@ -24,6 +31,8 @@ type Props = {
   accounts: Accounts;
   fetch: (merchantId: number) => Promise<*>;
   fetchApplication: (reference: string) => Promise<*>;
+  applicationFetchFailed: boolean;
+  clearErrors: () => void;
   submit: (data: Object) => Promise<*>;
   inProgress: boolean;
   submitFailed: boolean;
@@ -33,13 +42,15 @@ class MerchantAccountPage extends Component {
   props: Props;
 
   componentWillMount(): void {
-    const { fetchApplication, fetch, params: { ref: refParam }, application, accounts } = this.props;
+    const { fetchApplication, fetch, params: { ref: refParam }, application, accounts, applicationFetchFailed } = this.props;
 
     if (refParam && !application.reference_number) {
-      fetchApplication(refParam)
-        .then((application: Application) =>
-          fetch(get(application, 'merchant.id'))
-        );
+      fetchApplication(refParam);
+    }
+
+    if (applicationFetchFailed) {
+      this.props.clearErrors();
+      this.props.replace('/application');
     }
 
     if (application.reference_number) {
@@ -57,8 +68,21 @@ class MerchantAccountPage extends Component {
     }
   }
 
+  @autobind
+  submit(data) {
+    const merchantId = get(this.props.application, 'merchant.id');
+
+    if (!merchantId) {
+      console.error('No merchantId');
+
+      return;
+    }
+
+    this.props.submit(merchantId, data);
+  }
+
   render(): HTMLElement {
-    const { submit, inProgress, submitFailed, application } = this.props;
+    const { inProgress, submitFailed, application } = this.props;
 
     if (!application.id) {
       return <span>Loading</span>;
@@ -73,7 +97,7 @@ class MerchantAccountPage extends Component {
         <Form
           form="account"
           fields={fields}
-          onSubmit={submit.bind(null, get(application, 'merchant.id'))}
+          onSubmit={this.submit}
           inProgress={inProgress}
           failed={submitFailed}
         />
@@ -85,8 +109,9 @@ class MerchantAccountPage extends Component {
 const mapState = state => ({
   application: getApplication(state),
   accounts: getAccounts(state),
+  applicationFetchFailed: getApplicationFetchFailed(state),
   inProgress: getAccountInProgress(state),
   failed: getAccountFailed(state),
 });
 
-export default connect(mapState, { fetchApplication, fetch, submit, replace })(MerchantAccountPage);
+export default connect(mapState, { fetchApplication, clearErrors, fetch, submit, replace })(MerchantAccountPage);

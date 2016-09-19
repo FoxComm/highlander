@@ -15,7 +15,7 @@ type State = Profile;
 const ACTION_SUBMIT = 'merchantInfoSubmit';
 
 const { perform, ...actions } = createAsyncActions(ACTION_SUBMIT, (id, data) =>
-  api.post(`/merchants/${id}/business_profile`, { business_profile: { ...data } })
+  api.post(`/merchants/${id}/legal_profile`, { legal_profile: { ...data } })
 );
 
 const initialState: State = {};

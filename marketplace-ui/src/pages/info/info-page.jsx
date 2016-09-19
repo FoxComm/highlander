@@ -1,14 +1,24 @@
 /* @flow */
 
+import get from 'lodash/get';
+import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { replace } from 'react-router-redux';
 
 import Header from '../../components/header/header';
 import Form from '../../components/form/form';
 import ThanksOrNot from '../../components/thanks-or-not/thanks-or-not';
 import Loader from '../../components/loader/loader';
 
-import { getInfoInProgress, getInfoFailed, getInfoDone } from '../../core/modules';
+import {
+  getApplication,
+  getApplicationFetchFailed,
+  getInfoInProgress,
+  getInfoFailed,
+  getInfoDone,
+} from '../../core/modules';
+import { fetch as fetchApplication, clearErrors } from '../../core/modules/merchant-application';
 import { submit } from '../../core/modules/merchant-info';
 import { fields } from '../../forms/info/info-fields';
 
@@ -17,14 +27,53 @@ import styles from './info-page.css';
 import type { HTMLElement } from '../../core/types';
 
 type Props = {
+  params: Object;
+  application: Application;
+  fetchApplication: (reference: string) => Promise<*>;
+  clearErrors: () => void;
+  applicationFetchFailed: boolean;
   submit: Function;
   inProgress: boolean;
   done: boolean;
   failed: boolean;
 }
 
+const TIMEOUT_REDIRECT = 3000;
+
 class MerchantInfoPage extends Component {
   props: Props;
+
+  componentWillMount(): void {
+    const { fetchApplication, params: { ref: refParam }, application, applicationFetchFailed } = this.props;
+
+    if (refParam && !application.reference_number) {
+      fetchApplication(refParam);
+    }
+
+    if (applicationFetchFailed) {
+      this.props.clearErrors();
+      this.props.replace('/application');
+    }
+  }
+
+  @autobind
+  submit(data) {
+    const merchantId = get(this.props.application, 'merchant.id');
+
+    if (!merchantId) {
+      console.error('No merchantId');
+
+      return;
+    }
+
+    this.props.submit(merchantId, data)
+      .then(() => {
+        setTimeout(
+          () => window.location.replace(process.env.ASHES_URL),
+          TIMEOUT_REDIRECT
+        );
+      });
+  }
 
   get loader(): HTMLElement {
     if (!this.props.done) {
@@ -45,13 +94,13 @@ class MerchantInfoPage extends Component {
       return;
     }
 
-    const { submit, inProgress, failed } = this.props;
+    const { inProgress, failed } = this.props;
 
     return (
       <Form
         form="info"
         fields={fields}
-        onSubmit={submit}
+        onSubmit={this.submit}
         inProgress={inProgress}
         failed={failed}
       />
@@ -74,9 +123,11 @@ class MerchantInfoPage extends Component {
 }
 
 const mapState = state => ({
+  application: getApplication(state),
+  applicationFetchFailed: getApplicationFetchFailed(state),
   inProgress: getInfoInProgress(state),
   done: getInfoDone(state),
   failed: getInfoFailed(state),
 });
 
-export default connect(mapState, { submit })(MerchantInfoPage);
+export default connect(mapState, { fetchApplication, clearErrors, submit, replace })(MerchantInfoPage);
