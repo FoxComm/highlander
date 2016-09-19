@@ -3,6 +3,7 @@ defmodule Marketplace.MerchantAccountController do
   alias Marketplace.Repo
   alias Marketplace.MerchantAccount
   alias Marketplace.Merchant
+  alias Marketplace.PermissionManager
 
   def index(conn, %{"merchant_id" => merchant_id}) do
     merchant_accounts = Repo.all(merchant_accounts(merchant_id))
@@ -10,13 +11,9 @@ defmodule Marketplace.MerchantAccountController do
   end
 
   def create(conn, %{"merchant_id" => merchant_id, "account" => merchant_account_params}) do
-    changeset = MerchantAccount.changeset(%MerchantAccount{merchant_id: String.to_integer(merchant_id)}, merchant_account_params)
+    solomon_id = PermissionManager.create_user_from_merchant_account(merchant_account_params)
+    changeset = MerchantAccount.changeset(%MerchantAccount{merchant_id: String.to_integer(merchant_id), solomon_id: solomon_id}, merchant_account_params)
 
-    phoenix_url = Application.get_env(:marketplace, Marketplace.MerchantAccount)[:phoenix_url]
-    phoenix_port = Application.get_env(:marketplace, Marketplace.MerchantAccount)[:phoenix_port]
-    full_phx_path = "#{phoenix_url}:#{phoenix_port}"
-
-    IO.inspect("full path: #{full_phx_path}")
     case Repo.insert(changeset) do 
       {:ok, merchant_account} -> 
         conn

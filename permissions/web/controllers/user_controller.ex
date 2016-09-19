@@ -16,10 +16,12 @@ defmodule Permissions.UserController do
 
     case Repo.transaction(insert_and_relate(user_params)) do
       {:ok, %{account: account, user: user, account_access_method: aam}} -> 
+        user_with_account_id = user
+        |> Map.put(:account_id, account.id)
         conn
         |> put_status(:created)
         |> put_resp_header("location", user_path(conn, :show, user))
-        |> render("show.json", user: user)
+        |> render("show_with_account_id.json", user: user_with_account_id)
       {:error, failed_operation, failed_value, changes_completedchangeset} ->
         conn
         |> put_status(:unprocessable_entity)

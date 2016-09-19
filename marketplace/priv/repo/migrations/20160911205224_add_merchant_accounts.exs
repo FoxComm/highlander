@@ -10,6 +10,7 @@ defmodule Marketplace.Repo.Migrations.AddMerchantAccounts do
       add :description, :string
       add :email_address, :string
       add :password, :string
+      add :solomon_id, :integer #id in solomon
       add :merchant_id, references(:merchants)
 
       timestamps

@@ -28,18 +28,29 @@ defmodule Marketplace.PermissionManager do
   end
 
   # Will create an organization from solomon via HTTP and return an ID
-  def create_organization_from_merchant_application(ma) do
+  def create_user_from_merchant_account(ma) do
     HTTPoison.start
-    post_body = %{organization: %{name: ma.name, kind: "merchant"}}
+    first_name = Map.fetch!(ma, "first_name")
+    last_name = Map.fetch!(ma, "last_name")
+    email = Map.fetch!(ma, "email_address")
+    phone_number = Map.fetch!(ma, "phone_number")
+    password = Map.fetch!(ma, "password")
+    post_body = %{user: %{name: "#{first_name} #{last_name}", 
+        email: email,
+        is_disabled: false,
+        is_blacklisted: false,
+        phone_number: phone_number,
+        password: password
+      }}
     |> Poison.encode!
     post_headers = [{'content-type', 'application/json'}]
 
-    case HTTPoison.post("#{full_perm_path}/organizations", post_body, post_headers) do
+    case HTTPoison.post("#{full_perm_path}/users", post_body, post_headers) do
       {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
         case Poison.decode(body) do 
         {:ok, decoded_body} -> 
-          Map.fetch!(decoded_body, "organization")
-          |> Map.fetch!("id")
+          Map.fetch!(decoded_body, "user")
+          |> Map.fetch!("account_id")
         {:error, decoded_body} -> 
           nil
         end
@@ -51,9 +62,9 @@ defmodule Marketplace.PermissionManager do
   end
 
   # Will create a user in solomon via HTTP and return an ID
-  def create_user_from_merchant_application(ma) do
+  def create_organization_from_merchant_application(ma) do
     HTTPoison.start
-    post_body = %{user: %{name: ma.name, kind: "merchant"}}
+    post_body = %{organization: %{name: ma.name, kind: "merchant"}}
     |> Poison.encode!
     post_headers = [{'content-type', 'application/json'}]
 
