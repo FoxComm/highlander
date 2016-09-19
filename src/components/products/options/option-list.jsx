@@ -20,6 +20,7 @@ import type { Option } from 'paragons/product';
 
 type Props = {
   variants: Array<Option>,
+  updateVariants: Function,
 };
 
 type EditOption = {
@@ -55,16 +56,16 @@ class OptionList extends Component {
   }
 
   @autobind
-  startEditOption(id: string|number) {
+  startEditOption(id: string|number): void {
     let editOption = { id };
 
     if (id !== 'new') {
-      editOption.option = this.props.variants[id]
+      editOption.option = this.props.variants[id];
     } else {
       editOption.option = {
         name: '',
         type: '',
-      }
+      };
     }
 
     this.setState({
@@ -73,7 +74,7 @@ class OptionList extends Component {
   }
 
   @autobind
-  deleteOption(id: string|number) {
+  deleteOption(id: number): void {
     const { variants } = this.props;
 
     variants.splice(id, 1);
@@ -82,7 +83,7 @@ class OptionList extends Component {
   }
 
   @autobind
-  updateOption(option: Option, id: string|number) {
+  updateOption(option: Option, id: string|number): void {
     const { variants } = this.props;
 
     if (id === 'new') {
@@ -97,7 +98,7 @@ class OptionList extends Component {
   }
 
   @autobind
-  cancelEditOption() {
+  cancelEditOption(): void {
     this.setState({
       editOption: null,
     });
@@ -122,12 +123,10 @@ class OptionList extends Component {
   render(): Element {
     const variants = this.renderOptions(this.props.variants);
     const content = _.isEmpty(variants) ? this.emptyContent : variants;
-    const editOps = _.get(this.state, 'editOption'); // flow...
-    console.log(this.props);
 
-    const optionDialog = (
+    const optionDialog = this.state.editOption && (
       <OptionEditDialog
-        option={editOps}
+        option={this.state.editOption}
         cancelAction={this.cancelEditOption}
         confirmAction={this.updateOption}
       />
