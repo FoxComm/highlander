@@ -2,6 +2,7 @@ defmodule Permissions.UserController do
   use Permissions.Web, :controller
   alias Permissions.Repo
   alias Permissions.User
+  alias Permissions.Account
 
   def index(conn, _params) do 
     users = Repo.all(User)
@@ -44,5 +45,25 @@ defmodule Permissions.UserController do
     end
   end 
 
+  def insert_and_relate(user_params) do
+    account_cs = Account.changeset(%Account{}, %{
+      "ratchet" => 1
+    })
+
+    
+
+    Multi.new
+    |> Multi.insert(:account, account_cs)
+    |> Multi.run(:user, fn %{account: account} ->
+      params_with_account = user_params
+      |> Maps.put(:account_id, account.id)
+      user_cs = User.changeset(%User{}, params_with_account) end) 
+  end
+  
+  def create_account do
+    account_cs = Account.changeset(%Account{}, %{
+      "ratchet" => 1
+    })
+  end 
 end
 
