@@ -1,4 +1,6 @@
 import argparse
+import sys
+import traceback
 from importlib import import_module
 
 # define tools modules
@@ -24,5 +26,6 @@ args = parser.parse_args()
 # run matched tool
 try:
     tools[args.tool].handle(args)
-except Exception as e:
-    print e
+except:
+    traceback.print_exc()
+    sys.exit(1)
