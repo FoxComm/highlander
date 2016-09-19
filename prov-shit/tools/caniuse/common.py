@@ -1,4 +1,6 @@
 import platform
+import shlex
+from subprocess import Popen, PIPE
 
 from lib.output import *
 
@@ -25,16 +27,22 @@ def run_tests(project, tests):
 
     # run tests
     for test in tests:
-        result = test.tester(run)
-        print yes_or_no(test.desc, result)
-        if not result:
+        if not system in test.tests:
             all_passed = False
-            if system in test.help:
-                help = test.help[system]
-                if callable(help):
-                    print help(run)
-                else:
-                    print help
+            print yes_or_no(test.desc, False)
+            continue
+
+        tester, help = test.tests[system]
+        result = tester(run)
+        print yes_or_no(test.desc, result)
+        if result:
+            continue
+
+        all_passed = False
+        if callable(help):
+            help(run)
+        else:
+            print help
 
     # print result
     if all_passed:
@@ -44,14 +52,17 @@ def run_tests(project, tests):
 
 
 class Test():
-    def __init__(self, desc, tester, **kwargs):
+    def __init__(self, desc, **kwargs):
         self.desc = desc
-        self.tester = tester
-        self.help = kwargs
+        self.tests = kwargs
 
 
-def run(cmd):
-    print "running {cmd}".format(cmd=cmd)
+def run(cmdTemplate, **kwargs):
+    cmd = cmdTemplate.format(**kwargs)
+    args = shlex.split(cmd)
+    process = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+
+    return process.communicate()[0]
 
 
 def yes_or_no(description, value):
