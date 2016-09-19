@@ -3,6 +3,7 @@
  */
 
 // libs
+import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
 import { createEmptyProduct, configureProduct } from 'paragons/product';
@@ -57,6 +58,26 @@ export function fetchProduct(id: string, context: string = defaultContext): Acti
 const _createProduct = createAsyncActions(
   'createProduct',
   (product: Product, context: string = defaultContext) => {
+    const feCodes = _.reduce(product.skus, (res, sku) => {
+      const code = _.get(sku, 'attributes.code.v');
+      return { ...res, [sku.feCode]: code };
+    }, {});
+
+    // Wow, this is super-duper ugly.
+    for (let i = 0; i < product.variants.length; i++) {
+      let variant = product.variants[i];
+      for (let j = 0; j < product.variant.values.length; j++) {
+        let value = variant.values[j];
+        for (let k = 0; k < value.skuCodes.length; k++) {
+          let code = value.skuCodes[k];
+          let realCode = _.get(feCodes, code);
+          if (realCode) {
+            product.variants[i].values[j].skuCodes[k] = realCode;
+          }
+        }
+      }
+    }
+
     return Api.post(`/products/${context}`, product);
   }
 );

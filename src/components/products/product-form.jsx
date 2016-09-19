@@ -125,19 +125,23 @@ export default class ProductForm extends Component {
       const newProduct = _.reduce(updateArray, (p, [field, value]) => {
         return ProductParagon.setSkuAttribute(p, code, field, value);
       }, this.props.product);
-      const updatedVariants = _.map(variants, variant => {
-        const values = _.map(variant.values, value => {
-          const idx = value.skuCodes.indexOf(code);
-          if (idx >= 0) {
-            const newCode = _.find(updateArray, entry => { return entry[0] == 'code' });
-            value.skuCodes[idx] = newCode[1];
-          }
-          return value;
-        });
-        variant.values = values;
-        return variant;
-      });
-      newProduct.variants = updatedVariants;
+      // NOTE: Jeff - Commenting this out for now. We don't want to update the
+      // mapping between FECODE and Variant as we're editing on the frontend.
+      // Let's save that for when we submit to the API.
+
+      // const updatedVariants = _.map(variants, variant => {
+      //   const values = _.map(variant.values, value => {
+      //     const idx = value.skuCodes.indexOf(code);
+      //     if (idx >= 0) {
+      //       const newCode = _.find(updateArray, entry => { return entry[0] == 'code' });
+      //       value.skuCodes[idx] = newCode[1];
+      //     }
+      //     return value;
+      //   });
+      //   variant.values = values;
+      //   return variant;
+      // });
+      // newProduct.variants = updatedVariants;
       return this.props.onUpdateProduct(newProduct);
     }
   }

@@ -191,9 +191,9 @@ export function setSkuAttribute(product: Product,
   const val = type == 'price' ? parseInt(value) : value;
 
   const updateAttribute = sku => {
-    const code = _.get(sku, 'attributes.code.v');
+    const skuCode = _.get(sku, 'attributes.code.v');
 
-    return (code == code || sku.feCode == code)
+    return (skuCode == code || sku.feCode == code)
       ? assoc(sku, attrPath, val)
       : sku;
   };
