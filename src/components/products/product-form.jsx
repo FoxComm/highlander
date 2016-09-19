@@ -35,7 +35,7 @@ type Props = {
 
 type State = {
   isAddingProperty: bool,
-  varaints: Array<any>,
+  variants: Array<any>,
 };
 
 const omitKeys = {

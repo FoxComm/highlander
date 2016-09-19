@@ -230,28 +230,28 @@ class EditableSkuRow extends Component {
     );
   }
 
-  variantCell(field: any, sku: Sku): Element {
-    if (field.indexOf('variant') > 0) {
-      const mapping = this.props.skuVariantMap;
-
-      const idx = parseInt(field);
-      const variant = _.get(this.props.variants, idx, {});
-      const values = _.get(variant, 'values', []);
-      const valuesToSelect = _.map(values, (value) => [value.name, value.name]);
-
-      const selected = _.get(mapping, [sku.attributes.code.v, _.get(variant, 'attributes.name.v')]);
-
-      return (
-        <Dropdown
-          name={field}
-          items={valuesToSelect}
-          placeholder={variant.name}
-          value={selected}
-          onChange={(value) => console.log(field, value)} />
-      );
+  variantCell(field: any, sku: Sku): ?Element {
+    if (field.indexOf('variant') < 0) {
+      return null;
     }
 
-    return null;
+    const mapping = this.props.skuVariantMap;
+
+    const idx = parseInt(field);
+    const variant = _.get(this.props.variants, idx, {});
+    const values = _.get(variant, 'values', []);
+    const valuesToSelect = _.map(values, (value) => [value.name, value.name]);
+
+    const selected = _.get(mapping, [sku.attributes.code.v, _.get(variant, 'attributes.name.v')]);
+
+    return (
+      <Dropdown
+        name={field}
+        items={valuesToSelect}
+        placeholder={variant.name}
+        value={selected}
+        onChange={(value) => console.log(field, value)} />
+    );
   }
 
   actionsCell(sku: Sku): Element {

@@ -5,6 +5,7 @@
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
+import _ from 'lodash';
 
 // components
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
@@ -53,6 +54,7 @@ class OptionEditDialog extends Component {
   }
 
   renderDialogContent() {
+    const name = _.get(this.state, 'option.attributes.name.v');
     return (
       <div styleName="option-edit-dialog">
         <FormField
@@ -61,7 +63,7 @@ class OptionEditDialog extends Component {
           key={`object-form-attribute-name`} >
           <input
             type="text"
-            value={this.state.option.name}
+            value={name}
             onChange={({target}) => this.handleChange(target.value, 'name')}
           />
         </FormField>

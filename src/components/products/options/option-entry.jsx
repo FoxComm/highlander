@@ -28,11 +28,14 @@ type Props = {
   confirmAction: Function,
 };
 
+type Value = {
+  id: string|number,
+  value: OptionValue,
+};
+
+
 type State = {
-  editValue?: {
-    id: string|number,
-    value: OptionValue
-  }
+  editValue: ?Value,
 };
 
 class OptionEntry extends Component {
@@ -89,13 +92,13 @@ class OptionEntry extends Component {
   }
 
   @autobind
-  editValue(id: string|number, value: OptionValue) {
+  editValue(id: string|number, value: ?OptionValue) {
     let editValue = { id };
 
     if (value) {
-      editValue.value = value;
+      editValue['value'] = value;
     } else {
-      editValue.value = {
+      editValue['value'] = {
         name: '',
         swatch: '',
       }
@@ -137,6 +140,7 @@ class OptionEntry extends Component {
 
   render(): Element {
     const values = this.values;
+    const name = _.get(this.props, 'option.attributes.name.v');
     const content = _.isEmpty(values) ? this.emptyContent : this.content;
     const valueDialog = (
       <ValueEditDialog
@@ -148,7 +152,7 @@ class OptionEntry extends Component {
 
     return (
       <ContentBox
-        title={this.props.option.name}
+        title={name}
         actionBlock={this.titleBarActions}
         indentContent={false}
         className="fc-option-entry">

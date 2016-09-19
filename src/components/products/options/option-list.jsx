@@ -22,11 +22,13 @@ type Props = {
   variants: Array<Option>,
 };
 
+type EditOption = {
+  id: string|number,
+  option: Option,
+};
+
 type State = {
-  editOption?: {
-    id: string|number,
-    option: Option
-  },
+  editOption: ?EditOption,
 };
 
 class OptionList extends Component {
@@ -120,11 +122,12 @@ class OptionList extends Component {
   render(): Element {
     const variants = this.renderOptions(this.props.variants);
     const content = _.isEmpty(variants) ? this.emptyContent : variants;
+    const editOps = _.get(this.state, 'editOption'); // flow...
     console.log(this.props);
 
     const optionDialog = (
       <OptionEditDialog
-        option={this.state.editOption}
+        option={editOps}
         cancelAction={this.cancelEditOption}
         confirmAction={this.updateOption}
       />

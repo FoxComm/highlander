@@ -34,7 +34,7 @@ class SkuContentBox extends Component {
     addDialogIsShown: false,
   };
 
-  get actions(): Element {
+  get actions(): ?Element {
     if (_.isEmpty(this.props.variants)) {
       return null;
     }

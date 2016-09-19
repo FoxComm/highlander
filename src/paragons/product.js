@@ -42,13 +42,14 @@ export type Option = {
     },
   },
   type: ?string,
-  values: Dictionary<OptionValue>,
+  values: Array<OptionValue>,
 };
 
 export type OptionValue = {
   name: string,
   swatch: ?string,
   image: ?string,
+  skuCodes: Array<string>,
 };
 
 export const options = {
@@ -88,7 +89,7 @@ export function createEmptyProduct(): Product {
   return configureProduct(addEmptySku(product));
 }
 
-export function createEmptySku() {
+export function createEmptySku(): Object {
   const pseudoRandomCode = generateSkuCode();
   const emptyPrice = {
     t: 'price',
@@ -112,7 +113,7 @@ export function createEmptySku() {
   return emptySku;
 }
 
-export function createEmptySkuForVariantValues(values) {
+export function createEmptySkuForVariantValues(values: Array<any>): Object {
   const pseudoRandomCode = generateSkuCode();
   const emptyPrice = {
     t: 'price',
@@ -203,7 +204,7 @@ export function setSkuAttribute(product: Product,
   return assoc(product, 'skus', newSkus);
 }
 
-function variantsWithMultipleOptions(variants): Array<Object> {
+function variantsWithMultipleOptions(variants: Array<any>): Array<Object> {
   const opts = _.reduce(variants, (acc, variant) => {
     if (_.isEmpty(variant.values)) {
       return acc;
@@ -213,7 +214,7 @@ function variantsWithMultipleOptions(variants): Array<Object> {
   return opts;
 }
 
-export function availableVariants(variants): Array<Object> {
+export function availableVariants(variants: Array<any>): Array<Object> {
   const opts = variantsWithMultipleOptions(variants);
   // magic of Cartesian product http://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
   const availableVariants = _.reduce(opts, (acc, currentOptionList) => {
