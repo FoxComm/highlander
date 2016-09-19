@@ -8,7 +8,7 @@ import utils.seeds.generators.CreditCardGenerator
 
 trait CreditCardSeeds extends CreditCardGenerator {
 
-  val gatewayAccountId = randomCustomerGatewayId
+  val gatewayCustomerId = randomCustomerGatewayId
 
   def createCreditCards(customers: CustomerSeeds#CustomerIds): DbResultT[Unit] =
     for {
@@ -22,7 +22,7 @@ trait CreditCardSeeds extends CreditCardGenerator {
 
   def creditCard1 = {
     CreditCard(accountId = 0,
-               gatewayAccountId = gatewayAccountId,
+               gatewayCustomerId = gatewayCustomerId,
                gatewayCardId = "",
                holderName = "Yax",
                lastFour = "4242",
@@ -42,7 +42,7 @@ trait CreditCardSeeds extends CreditCardGenerator {
 
   def creditCard2 = {
     CreditCard(accountId = 0,
-               gatewayAccountId = gatewayAccountId,
+               gatewayCustomerId = gatewayCustomerId,
                gatewayCardId = "",
                holderName = "Yax",
                lastFour = "8752",
@@ -60,7 +60,7 @@ trait CreditCardSeeds extends CreditCardGenerator {
 
   def creditCard3 = {
     CreditCard(accountId = 0,
-               gatewayAccountId = gatewayAccountId,
+               gatewayCustomerId = gatewayCustomerId,
                gatewayCardId = "",
                holderName = "Adil",
                lastFour = "3436",
@@ -78,7 +78,7 @@ trait CreditCardSeeds extends CreditCardGenerator {
 
   def creditCard4 = {
     CreditCard(accountId = 0,
-               gatewayAccountId = gatewayAccountId,
+               gatewayCustomerId = gatewayCustomerId,
                gatewayCardId = "",
                holderName = "John",
                lastFour = "3436",
@@ -96,7 +96,7 @@ trait CreditCardSeeds extends CreditCardGenerator {
 
   def creditCard5 = {
     CreditCard(accountId = 0,
-               gatewayAccountId = gatewayAccountId,
+               gatewayCustomerId = gatewayCustomerId,
                gatewayCardId = "",
                holderName = "František",
                lastFour = "1258",

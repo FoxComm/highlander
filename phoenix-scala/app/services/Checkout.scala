@@ -11,7 +11,8 @@ import models.cord._
 import models.cord.lineitems.CartLineItems
 import models.cord.lineitems.CartLineItems.scope._
 import models.coupon._
-import models.account.{User, Users}
+import models.account._
+import models.customer._
 import models.objects._
 import models.payment.creditcard._
 import models.payment.giftcard._
@@ -219,8 +220,8 @@ case class Checkout(
       } yield (pmt, card)).one.toXor.flatMap {
         case Some((pmt, card)) ⇒
           for {
-            stripeCharge ← * <~ Stripe()
-                            .authorizeAmount(card.gatewayAccountId, authAmount, cart.currency)
+            stripeCharge ← * <~ apis.stripe
+                            .authorizeAmount(card.gatewayCustomerId, authAmount, cart.currency)
             ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
             _       ← * <~ LogActivity.creditCardAuth(cart, ourCharge)
             created ← * <~ CreditCardCharges.create(ourCharge)

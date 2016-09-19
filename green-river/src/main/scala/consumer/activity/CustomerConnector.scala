@@ -45,6 +45,12 @@ final case class CustomerConnector()(implicit ec: EC) extends ActivityConnector 
       case _                ⇒ Seq.empty
     }
 
+  private def byAccountId(activity: Activity): Seq[String] =
+    activity.data \ "customerId" match {
+      case JInt(customerId) ⇒ Seq(customerId.toString)
+      case _                ⇒ Seq.empty
+    }
+
   private def byCustomerId(activity: Activity): Seq[String] =
     activity.data \ "customerId" match {
       case JInt(customerId) ⇒ Seq(customerId.toString)

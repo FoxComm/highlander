@@ -48,7 +48,7 @@ object CustomerManager {
     } yield shipment
   }
 
-  def getById(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Root] = {
+  def getByAccountId(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Root] = {
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       customerUsers ← * <~ CustomerUsers

@@ -99,7 +99,7 @@ case class SimpleAlbumShadow(album: SimpleAlbum) {
 case class SimpleSku(code: String,
                      title: String,
                      price: Int,
-                     currency: Currency,
+                     currency: Currency = Currency.USD,
                      active: Boolean = false,
                      tags: Seq[String] = Seq.empty) {
 

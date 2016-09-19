@@ -3,7 +3,7 @@
 
 #include <string>
 #include <memory>
-#include "db/user.hpp"
+#include "db/user_verifier.hpp"
 #include <folly/AtomicHashMap.h>
 
 namespace isaac
@@ -21,20 +21,17 @@ namespace isaac
         class user_cache
         {
             public:
-                user_cache(std::size_t customer_size_est, std::size_t admin_size_est) : 
-                    _c{customer_size_est}, _a{admin_size_est} {}
+                user_cache(std::size_t user_size_est) : 
+                    _u{user_size_est} {}
 
             public:
-                bool valid_customer(std::size_t id, int ratchet, user& db);
-                bool valid_admin(std::size_t id, int ratchet, user& db);
+                bool valid_user(std::size_t id, int ratchet, user_verifier& verifier);
 
             public:
-                bool invalidate_customer(std::size_t id);
-                bool invalidate_admin(std::size_t id);
+                bool invalidate_user(std::size_t id);
 
             private:
-                user_hash_map _c;
-                user_hash_map _a;
+                user_hash_map _u;
         };
     }
 }

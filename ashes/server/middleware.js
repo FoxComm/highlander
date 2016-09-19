@@ -38,7 +38,7 @@ module.exports = function(app) {
       return null;
     }
     try {
-      return jwt.verify(token, publicKey, {issuer: 'FC', audience: 'admin', algorithms: ['RS256', 'RS384', 'RS512']});
+      return jwt.verify(token, publicKey, {issuer: 'FC', algorithms: ['RS256', 'RS384', 'RS512']});
     }
     catch(err) {
       console.error(`Can't decode token: ${err}`);

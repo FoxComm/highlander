@@ -111,12 +111,12 @@ Vagrant.configure("2") do |config|
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.define :appliance, primary: true do |app|
-    app.vm.box = "base_appliance_16.04"
-    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base_appliance_16.04.box"
+    app.vm.box = "base_appliance_16.04_20160914"
+    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base_appliance_16.04_20160914.box"
+
     app.vm.network :private_network, ip: $nginx_ip
     expose_ports(app)
 
-    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
       ansible.verbose = "vvvv"
       ansible.playbook = "prov-shit/ansible/vagrant_appliance.yml"

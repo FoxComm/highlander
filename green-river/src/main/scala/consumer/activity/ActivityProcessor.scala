@@ -73,10 +73,15 @@ class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityCon
         responses   ← process(connections)
       } yield responses
     }
+
     val responses = Future.sequence(result).map(_.flatten)
 
     //TODO check errors
-    responses.map(r ⇒ ())
+    responses.map { r ⇒
+      if (r.length == 0)
+        System.out.println(s"MISSING CONNECTOR: ${activity.activityType}")
+      ()
+    }
   }
 
   private def process(cs: Seq[Connection]): Future[Seq[HttpResponse]] = {

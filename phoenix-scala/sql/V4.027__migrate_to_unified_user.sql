@@ -52,7 +52,6 @@ alter table orders rename customer_id to account_id;
 alter table coupon_customer_usages rename customer_id to account_id;
 alter table addresses rename customer_id to account_id;
 alter table credit_cards rename customer_id to account_id;
-alter table credit_cards rename gateway_customer_id to gateway_account_id;
 alter table gift_cards rename customer_id to account_id;
 alter table store_credits rename customer_id to account_id;
 alter table returns rename customer_id to account_id;

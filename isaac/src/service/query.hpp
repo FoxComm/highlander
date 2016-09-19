@@ -26,7 +26,7 @@ namespace isaac
 
         class query_request_handler : public proxygen::RequestHandler {
             public:
-                explicit query_request_handler(context& c, db::user& db) : 
+                explicit query_request_handler(context& c, db::user_verifier& db) : 
                     RequestHandler{}, _c{c}, _db{db} {}
 
                 void onRequest(std::unique_ptr<proxygen::HTTPMessage> msg) noexcept override;
@@ -38,14 +38,14 @@ namespace isaac
 
             private:
                 //services
-                void validate_token(proxygen::HTTPMessage& msg, bool must_be_admin);
+                void validate_token(proxygen::HTTPMessage& msg);
                 void ping();
                 void is404();
 
                 //checks
                 bool check_signature(const util::jwt_parts& parts);
                 bool verify_header(const folly::dynamic&);
-                bool verify_user(const folly::dynamic&, bool must_be_admin);
+                bool verify_user(const folly::dynamic&);
 
                 //errors
                 void token_missing();
@@ -57,7 +57,7 @@ namespace isaac
 
             private:
                 context& _c;
-                db::user& _db;
+                db::user_verifier& _db;
                 std::unique_ptr<folly::IOBuf> _body;
                 std::unique_ptr<proxygen::HTTPMessage> _msg;
         };
@@ -73,17 +73,17 @@ namespace isaac
                         proxygen::RequestHandler* r, 
                         proxygen::HTTPMessage* m) noexcept override 
                 {
-                    REQUIRE(_user);
-                    return new query_request_handler{_c, *_user};
+                    REQUIRE(_verifier);
+                    return new query_request_handler{_c, *_verifier};
                 }
 
                 void onServerStart(folly::EventBase* evb) noexcept 
                 { 
                     _db = std::make_unique<pqxx::connection>(_c.db_connection);
-                    _user = std::make_unique<db::user>(*_db);
+                    _verifier = std::make_unique<db::user_verifier>(*_db);
 
                     ENSURE(_db);
-                    ENSURE(_user);
+                    ENSURE(_verifier);
                 } 
 
                 void onServerStop() noexcept {} 
@@ -91,7 +91,7 @@ namespace isaac
             private:
                 context& _c;
                 db::connection_ptr _db;
-                db::user_ptr _user;
+                db::verifier_ptr _verifier;
         };
     }
 }

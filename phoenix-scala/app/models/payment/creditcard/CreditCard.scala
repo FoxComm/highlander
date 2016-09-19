@@ -6,7 +6,7 @@ import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures._
-import models.account.Accounts
+import models.account._
 import models.location._
 import models.payment.PaymentMethod
 import models.traits.Addressable
@@ -21,7 +21,7 @@ import utils.db._
 case class CreditCard(id: Int = 0,
                       parentId: Option[Int] = None,
                       accountId: Int,
-                      gatewayAccountId: String,
+                      gatewayCustomerId: String,
                       gatewayCardId: String,
                       holderName: String,
                       lastFour: String,
@@ -81,12 +81,12 @@ case class CreditCard(id: Int = 0,
 }
 
 object CreditCard {
-  def buildFromToken(customerId: Int,
+  def buildFromToken(accountId: Int,
                      customerToken: String,
                      cardToken: String,
                      payload: CreateCreditCardFromTokenPayload,
                      address: Address): CreditCard =
-    CreditCard(customerId = customerId,
+    CreditCard(accountId = accountId,
                gatewayCustomerId = customerToken,
                gatewayCardId = cardToken,
                brand = payload.brand,
@@ -102,13 +102,13 @@ object CreditCard {
                city = address.city)
 
   @deprecated(message = "Use `buildFromToken` instead", "Until we are PCI compliant")
-  def build(accountId: Int,
-            sCust: StripeCustomer,
-            card: StripeCard,
-            p: CreateCreditCard,
-            a: Address): CreditCard = {
+  def buildFromSource(accountId: Int,
+                      sCust: StripeCustomer,
+                      card: StripeCard,
+                      p: CreateCreditCardFromSourcePayload,
+                      a: Address): CreditCard = {
     CreditCard(accountId = accountId,
-               gatewayAccountId = sCust.getId,
+               gatewayCustomerId = sCust.getId,
                gatewayCardId = card.getId,
                holderName = p.holderName,
                lastFour = p.lastFour,
@@ -129,21 +129,21 @@ object CreditCard {
 
 class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
 
-  def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def parentId         = column[Option[Int]]("parent_id")
-  def accountId        = column[Int]("account_id")
-  def gatewayAccountId = column[String]("gateway_account_id")
-  def gatewayCardId    = column[String]("gateway_card_id")
-  def holderName       = column[String]("holder_name")
-  def lastFour         = column[String]("last_four")
-  def expMonth         = column[Int]("exp_month")
-  def expYear          = column[Int]("exp_year")
-  def brand            = column[String]("brand")
-  def isDefault        = column[Boolean]("is_default")
-  def address1Check    = column[Option[String]]("address1_check")
-  def zipCheck         = column[Option[String]]("zip_check")
-  def inWallet         = column[Boolean]("in_wallet")
-  def deletedAt        = column[Option[Instant]]("deleted_at")
+  def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def parentId          = column[Option[Int]]("parent_id")
+  def accountId         = column[Int]("account_id")
+  def gatewayCustomerId = column[String]("gateway_customer_id")
+  def gatewayCardId     = column[String]("gateway_card_id")
+  def holderName        = column[String]("holder_name")
+  def lastFour          = column[String]("last_four")
+  def expMonth          = column[Int]("exp_month")
+  def expYear           = column[Int]("exp_year")
+  def brand             = column[String]("brand")
+  def isDefault         = column[Boolean]("is_default")
+  def address1Check     = column[Option[String]]("address1_check")
+  def zipCheck          = column[Option[String]]("zip_check")
+  def inWallet          = column[Boolean]("in_wallet")
+  def deletedAt         = column[Option[Instant]]("deleted_at")
 
   def regionId    = column[Int]("region_id")
   def addressName = column[String]("address_name")
@@ -156,7 +156,7 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
     (id,
      parentId,
      accountId,
-     gatewayAccountId,
+     gatewayCustomerId,
      gatewayCardId,
      holderName,
      lastFour,

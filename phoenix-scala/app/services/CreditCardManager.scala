@@ -34,23 +34,20 @@ object CreditCardManager {
   def buildResponses(records: Seq[(CreditCard, Region)]): Seq[Root] =
     records.map((buildResponse _).tupled)
 
-  def createCardThroughGateway(
+  def createCardFromToken(
       accountId: Int,
-      payload: CreateCreditCard,
+      payload: CreateCreditCardFromTokenPayload,
       admin: Option[User] = None)(implicit ec: EC, db: DB, apis: Apis, ac: AC): DbResultT[Root] = {
-                                                            db: DB,
-                                                            apis: Apis,
-                                                            ac: AC): DbResultT[Root] = {
     for {
       _        ← * <~ payload.validate
       _        ← * <~ Regions.mustFindById400(payload.billingAddress.regionId)
-      customer ← * <~ Customers.mustFindById404(customerId)
+      customer ← * <~ Users.mustFindByAccountId(accountId)
       customerToken ← * <~ CreditCards
-                       .filter(_.customerId === customerId)
+                       .filter(_.accountId === accountId)
                        .take(1)
                        .map(_.gatewayCustomerId)
                        .one
-      address = Address.fromPayload(payload.billingAddress, customer.id)
+      address = Address.fromPayload(payload.billingAddress, customer.accountId)
       _ ← * <~ (if (payload.addressIsNew) Addresses.create(address) else DbResultT.unit)
       stripes ← * <~ apis.stripe.createCardFromToken(email = customer.email,
                                                      token = payload.token,
@@ -58,7 +55,7 @@ object CreditCardManager {
                                                      address = address)
       (stripeCustomer, stripeCard) = stripes
       cc ← * <~ CreditCards.create(
-              CreditCard.buildFromToken(customerId = customerId,
+              CreditCard.buildFromToken(accountId = accountId,
                                         customerToken = stripeCustomer.getId,
                                         payload = payload,
                                         address = address,
@@ -69,12 +66,10 @@ object CreditCardManager {
   }
 
   @deprecated(message = "Use `createCardFromToken` instead", "Until we are PCI compliant")
-  def createCardFromSource(customerId: Int,
-                           payload: CreateCreditCardFromSourcePayload,
-                           admin: Option[StoreAdmin] = None)(implicit ec: EC,
-                                                             db: DB,
-                                                             apis: Apis,
-                                                             ac: AC): DbResultT[Root] = {
+  def createCardFromSource(
+      accountId: Int,
+      payload: CreateCreditCardFromSourcePayload,
+      admin: Option[User] = None)(implicit ec: EC, db: DB, apis: Apis, ac: AC): DbResultT[Root] = {
 
     def createCard(customer: User,
                    sCustomer: StripeCustomer,
@@ -83,7 +78,7 @@ object CreditCardManager {
       for {
         _ ← * <~ (if (address.isNew) Addresses.create(address.copy(accountId = accountId))
                   else DbResultT.unit)
-        cc = CreditCard.build(accountId, sCustomer, sCard, payload, address)
+        cc = CreditCard.buildFromSource(accountId, sCustomer, sCard, payload, address)
         newCard ← * <~ CreditCards.create(cc)
         region  ← * <~ Regions.findOneById(newCard.regionId).safeGet
         _       ← * <~ LogActivity.ccCreated(customer, cc, admin)
@@ -91,12 +86,12 @@ object CreditCardManager {
 
     def getExistingStripeIdAndAddress =
       for {
-        stripeId        ← * <~ CreditCards.filter(_.accountId === accountId).map(_.gatewayAccountId).one
+        stripeId        ← * <~ CreditCards.filter(_.accountId === accountId).map(_.gatewayCustomerId).one
         shippingAddress ← * <~ getOptionalShippingAddress(payload.addressId, payload.isShipping)
         address ← * <~ getAddressFromPayload(payload.addressId,
                                              payload.address,
                                              shippingAddress,
-                   .mustFindOr(CreditCardMustHaveAddress)
+                                             accountId).mustFindOr(CreditCardMustHaveAddress)
         _ ← * <~ validateOptionalAddressOwnership(Some(address), accountId)
       } yield (stripeId, address)
 
@@ -126,16 +121,14 @@ object CreditCardManager {
 
   def deleteCreditCard(
       accountId: Int,
-      id: Int,
+      ccId: Int,
       admin: Option[User] = None)(implicit ec: EC, db: DB, apis: Apis, ac: AC): DbResultT[Unit] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      cc       ← * <~ CreditCards.mustFindByIdAndAccountId(id, accountId)
-      region   ← * <~ Regions.findOneById(cc.regionId).safeGet
-      update ← * <~ CreditCards.update(cc,
-                                       cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
-      _ ← * <~ gateway.deleteCard(cc)
-      _ ← * <~ LogActivity.ccDeleted(customer, cc, admin)
+      cc       ← * <~ CreditCards.mustFindByIdAndAccountId(ccId, accountId)
+      _        ← * <~ CreditCards.update(cc, cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
+      _        ← * <~ apis.stripe.deleteCard(cc)
+      _        ← * <~ LogActivity.ccDeleted(customer, cc, admin)
     } yield ()
 
   def editCreditCard(accountId: Int, id: Int, payload: EditCreditCard, admin: Option[User] = None)(
@@ -143,13 +136,6 @@ object CreditCardManager {
       db: DB,
       apis: Apis,
       ac: AC): DbResultT[Root] = {
-    for {
-      customer ← * <~ Customers.mustFindById404(customerId)
-      cc       ← * <~ CreditCards.mustFindByIdAndCustomer(ccId, customerId)
-      _        ← * <~ CreditCards.update(cc, cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
-      _        ← * <~ apis.stripe.deleteCard(cc)
-      _        ← * <~ LogActivity.ccDeleted(customer, cc, admin)
-    } yield ()
 
     def update(customer: User, cc: CreditCard) = {
       val updated = cc.copy(
@@ -202,8 +188,8 @@ object CreditCardManager {
       address ← * <~ getAddressFromPayload(payload.addressId,
                                            payload.address,
                                            shippingAddress,
-                                           customerId)
-      _               ← * <~ validateOptionalAddressOwnership(address, accountId)
+                                           accountId)
+      _ ← * <~ validateOptionalAddressOwnership(address, accountId)
     } yield address.fold(creditCard)(creditCard.copyFromAddress)
 
     for {
@@ -242,7 +228,7 @@ object CreditCardManager {
   private def getAddressFromPayload(id: Option[Int],
                                     payload: Option[CreateAddressPayload],
                                     shippingAddress: Option[OrderShippingAddress],
-                                    customerId: Int): DBIO[Option[Address]] = {
+                                    accountId: Int): DBIO[Option[Address]] = {
 
     (shippingAddress, id, payload) match {
       case (Some(osa), _, _) ⇒
@@ -252,7 +238,7 @@ object CreditCardManager {
         Addresses.findById(addressId).extract.one
 
       case (None, _, Some(createAddress)) ⇒
-        DBIO.successful(Address.fromPayload(createAddress, customerId).some)
+        DBIO.successful(Address.fromPayload(createAddress, accountId).some)
 
       case _ ⇒
         DBIO.successful(None)

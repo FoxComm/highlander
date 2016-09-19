@@ -9,7 +9,7 @@ namespace isaac
         {
             //this is arbitrary limit
             //to prevent abuse.
-            const std::size_t MAX_JWT_SIZE = 1024;
+            const std::size_t MAX_JWT_SIZE = 1024*10;
         }
 
         void query_request_handler::onRequest(std::unique_ptr<proxygen::HTTPMessage> msg) noexcept
@@ -29,10 +29,8 @@ namespace isaac
             if(!_msg) return;
 
             //TODO: Add invalidation endpoints
-            if(_msg->getPath() == "/customer") 
-                validate_token(*_msg, false);
-            else if(_msg->getPath() == "/admin") 
-                validate_token(*_msg, true);
+            if(_msg->getPath() == "/check") 
+                validate_token(*_msg);
             else if(_msg->getPath() == "/ping") 
                 ping();
             else
@@ -91,20 +89,16 @@ namespace isaac
             return header["alg"].asString() == "RS256";
         }
 
-        bool query_request_handler::verify_user(const folly::dynamic& user, bool must_be_admin)
+        bool query_request_handler::verify_user(const folly::dynamic& user)
         {
             REQUIRE(_c.user_cache);
 
             auto id = user["id"].asInt();
-            auto is_admin = user["admin"].asBool();
             auto ratchet = user["ratchet"].asInt();
 
             if(id < 0 || ratchet < 0) return false;
-            if(is_admin != must_be_admin) return false;
 
-            return is_admin ? 
-                _c.user_cache->valid_admin(id, ratchet, _db) : 
-                _c.user_cache->valid_customer(id, ratchet, _db);
+            return _c.user_cache->valid_user(id, ratchet, _db);
         }
 
         struct token_data
@@ -139,7 +133,7 @@ namespace isaac
             return r;
         }
 
-        void query_request_handler::validate_token(proxygen::HTTPMessage& msg, bool must_be_admin) 
+        void query_request_handler::validate_token(proxygen::HTTPMessage& msg) 
         {
             auto token = get_token(msg, _c.token_header);
 
@@ -186,7 +180,7 @@ namespace isaac
                 return;
             }
 
-            if(!verify_user(payload, must_be_admin))
+            if(!verify_user(payload))
             {
                 invalid_user();
                 return;
