@@ -168,7 +168,7 @@ begin
         text2ltree(root_scope_id::text)) returning id into merch_scope_id;
 
     insert into organizations(name, kind, parent_id, scope_id) values 
-        ('fox', 'tenant', null, root_scope_id) returning id into fox_org_id;
+        ('tenant', 'tenant', null, root_scope_id) returning id into fox_org_id;
 
     insert into organizations(name, kind, parent_id, scope_id) values 
         ('merchant', 'merchant', fox_org_id, merch_scope_id) returning id into merch_id;

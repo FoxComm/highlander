@@ -24,6 +24,7 @@ trait StoreAdminSeeds {
                        state: StoreAdminUser.State,
                        author: Option[User])(implicit ec: EC, db: DB, ac: AC) = {
 
+    System.out.println(s"Creating Admin: ${user.name} ${user.email} $roles $org")
     val payload = CreateStoreAdminPayload(email = user.email.getOrElse(""),
                                           name = user.name.getOrElse(""),
                                           phoneNumber = user.phoneNumber,
@@ -37,14 +38,12 @@ trait StoreAdminSeeds {
     } yield user
   }
 
-  def createStoreAdmins(org: String, roles: List[String])(implicit ec: EC,
-                                                          db: DB,
-                                                          ac: AC): DbResultT[User#Id] = {
+  def createStoreAdmins(implicit ec: EC, db: DB, ac: AC): DbResultT[Int] = {
     val reader = CSVReader.open(new File("gatling-classes/data/store_admins.csv"))
     val admins = reader.all.drop(1).collect {
-      case name :: email :: password :: Nil ⇒ {
+      case name :: email :: password :: org :: role :: Nil ⇒ {
         val user = User(accountId = 0, name = name.some, email = email.some)
-        createStoreAdmin(user, password, org, roles, StoreAdminUser.Active, None)
+        createStoreAdmin(user, password, org, List(role), StoreAdminUser.Active, None)
       }
     }
     reader.close()
@@ -66,7 +65,4 @@ trait StoreAdminSeeds {
     val user = User(accountId = 0, name = username.some, email = email.some)
     createStoreAdmin(user, pw, org, roles, StoreAdminUser.Active, None)
   }
-
-  def storeAdmin =
-    User(accountId = 0, email = "admin@admin.com".some, name = "Frankly Admin".some)
 }
