@@ -1491,6 +1491,21 @@ create trigger update_orders_view_from_assignments_store_admin_fn
     for each row
     execute procedure update_orders_view_from_assignments_fn();
 
+create or replace function update_activity_connections_view_insert_fn() returns trigger as $$
+    begin
+        insert into activity_connections_view select distinct on (new.id)
+            new.id as id,
+            new.dimension_id as dimension_id,
+            new.trail_id as trail_id,
+            new.activity_id as activity_id,
+            new.data as data,
+            new.connected_by as connected_by,
+            to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at
+            from activity_connections as c;
+      return null;
+  end;
+$$ language plpgsql;
+
 --drop customers and store admins
 
 drop table customer_password_resets;
