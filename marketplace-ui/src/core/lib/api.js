@@ -52,6 +52,6 @@ export class Api {
 const isServer: boolean = typeof self === 'undefined';
 
 export default new Api({
-  baseUrl: isServer ? `${process.env.API_URL}` : '/api',
+  baseUrl: isServer ? `${process.env.API_URL}` : '/mkt',
   stripe_key: process.env.STRIPE_PUBLISHABLE_KEY,
 });
