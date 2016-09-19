@@ -51,9 +51,9 @@ defmodule Marketplace.PermissionManager do
   end
 
   # Will create a user in solomon via HTTP and return an ID
-  def create_organization_from_merchant_application(ma) do
+  def create_user_from_merchant_application(ma) do
     HTTPoison.start
-    post_body = %{: %{name: ma.name, kind: "merchant"}}
+    post_body = %{user: %{name: ma.name, kind: "merchant"}}
     |> Poison.encode!
     post_headers = [{'content-type', 'application/json'}]
 
