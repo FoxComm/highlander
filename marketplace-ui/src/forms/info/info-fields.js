@@ -33,7 +33,7 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'legal_entity_postal',
-    type: 'number',
+    type: 'input',
     placeholder: 'Legal Entity Address: Postal Code',
   },
   {
