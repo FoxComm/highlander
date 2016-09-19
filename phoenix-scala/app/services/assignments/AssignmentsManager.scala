@@ -6,10 +6,11 @@ import failures.NotFoundFailure404
 import failures.Util._
 import models.Assignment._
 import models._
+import models.account._
 import payloads.AssignmentPayloads._
 import responses.AssignmentResponse.{Root, build ⇒ buildAssignment}
 import responses.BatchMetadata._
-import responses.StoreAdminResponse.{build ⇒ buildAdmin}
+import responses.UserResponse.{build ⇒ buildUser}
 import responses._
 import services._
 import slick.driver.PostgresDriver.api._
@@ -48,23 +49,23 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       response = assignments.map((buildAssignment _).tupled)
     } yield response
 
-  def assign(key: K, payload: AssignmentPayload, originator: StoreAdmin)(
+  def assign(key: K, payload: AssignmentPayload, originator: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[TheResponse[Seq[Root]]] =
     for {
       // Validation + assign
       entity ← * <~ fetchEntity(key)
-      admins ← * <~ StoreAdmins.filter(_.id.inSetBind(payload.assignees)).result
+      admins ← * <~ Users.filter(_.accountId.inSetBind(payload.assignees)).result
       adminIds = admins.map(_.id)
       assignees ← * <~ Assignments.assigneesFor(assignmentType, entity, referenceType).result
       newAssigneeIds = adminIds.diff(assignees.map(_.id))
       _ ← * <~ Assignments.createAll(build(entity, newAssigneeIds))
-      assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.id)).map(buildAdmin)
+      assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.id)).map(buildUser)
       // Response builder
       assignments ← * <~ fetchAssignments(entity)
       response       = assignments.map((buildAssignment _).tupled)
-      notFoundAdmins = diffToFailures(payload.assignees, adminIds, StoreAdmin)
+      notFoundAdmins = diffToFailures(payload.assignees, adminIds, User)
       // Activity log + notifications subscription
       _ ← * <~ subscribe(this, assignedAdmins.map(_.id), Seq(key.toString))
       responseItem = buildResponse(entity)
@@ -72,13 +73,13 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
            .assigned(originator, responseItem, assignedAdmins, assignmentType, referenceType)
     } yield TheResponse.build(response, errors = notFoundAdmins)
 
-  def unassign(key: K, assigneeId: Int, originator: StoreAdmin)(implicit ec: EC,
-                                                                db: DB,
-                                                                ac: AC): DbResultT[Seq[Root]] =
+  def unassign(key: K, assigneeId: Int, originator: User)(implicit ec: EC,
+                                                          db: DB,
+                                                          ac: AC): DbResultT[Seq[Root]] =
     for {
       // Validation + unassign
       entity ← * <~ fetchEntity(key)
-      admin  ← * <~ StoreAdmins.mustFindById404(assigneeId)
+      admin  ← * <~ Users.mustFindByAccountId(assigneeId)
       querySeq = Assignments.byEntityAndAdmin(assignmentType, entity, referenceType, admin)
       assignment ← * <~ querySeq.mustFindOneOr(AssigneeNotFoundFailure(entity, key, assigneeId))
       _          ← * <~ querySeq.delete
@@ -92,13 +93,13 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       _ ← * <~ unsubscribe(this, adminIds = Seq(assigneeId), objectIds = Seq(key.toString))
     } yield response
 
-  def assignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])(
+  def assignBulk(originator: User, payload: BulkAssignmentPayload[K])(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[TheResponse[Seq[ResponseItem]]] =
     for {
       // Validation + assign
-      admin       ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
+      admin       ← * <~ Users.mustFindByAccountId(payload.storeAdminId)
       entities    ← * <~ fetchSequence(payload.entityIds)
       assignments ← * <~ Assignments.byAdmin(assignmentType, referenceType, admin).result
       newAssignedIds  = entities.map(_.id).diff(assignments.map(_.referenceId))
@@ -107,17 +108,17 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       _ ← * <~ Assignments.createAll(newEntries)
       // Response, log activity, notifications subscription
       (successData, theResponse) = buildTheResponse(entities, assignments, payload, Assigning)
-      _ ← * <~ subscribe(this, Seq(admin.id), successData)
+      _ ← * <~ subscribe(this, Seq(admin.accountId), successData)
       _ ← * <~ logBulkAssign(this, originator, admin, successData)
     } yield theResponse
 
-  def unassignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])(
+  def unassignBulk(originator: User, payload: BulkAssignmentPayload[K])(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[TheResponse[Seq[ResponseItem]]] =
     for {
       // Validation + unassign
-      admin    ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
+      admin    ← * <~ Users.mustFindByAccountId(payload.storeAdminId)
       entities ← * <~ fetchSequence(payload.entityIds)
       querySeq = Assignments.byEntitySeqAndAdmin(assignmentType, entities, referenceType, admin)
       assignments ← * <~ querySeq.result
@@ -125,7 +126,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       // Response, log activity, notifications subscription
       (successData, theResponse) = buildTheResponse(entities, assignments, payload, Unassigning)
       _ ← * <~ logBulkUnassign(this, originator, admin, successData)
-      _ ← * <~ unsubscribe(this, Seq(admin.id), successData)
+      _ ← * <~ unsubscribe(this, Seq(admin.accountId), successData)
     } yield theResponse
 
   private def buildTheResponse(entities: Seq[M],
@@ -223,7 +224,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
   private def fetchAssignments(entity: M)(implicit ec: EC, db: DB) =
     for {
       assignments ← Assignments.byEntity(assignmentType, entity, referenceType).result
-      admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.storeAdminId))).result
+      admins      ← Users.filter(_.accountId.inSetBind(assignments.map(_.storeAdminId))).result
     } yield assignments.zip(admins)
 
   private def searchKeys(entities: Seq[M]): Seq[String] = entities.map(_.primarySearchKey)

@@ -3,7 +3,7 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.StoreAdmin
+import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
@@ -16,7 +16,7 @@ import utils.http.Http._
 
 object AssignmentsRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
+  def routes(implicit ec: EC, db: DB, admin: User) = {
 
     activityContext(admin) { implicit ac ⇒
       pathPrefix("customers") {
@@ -53,38 +53,38 @@ object AssignmentsRoutes {
           }
         }
       } ~
-      pathPrefix("customers" / IntNumber) { customerId ⇒
+      pathPrefix("customers" / IntNumber) { accountId ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
             getOrFailures {
-              CustomerAssignmentsManager.list(customerId)
+              CustomerAssignmentsManager.list(accountId)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              CustomerAssignmentsManager.assign(customerId, payload, admin)
+              CustomerAssignmentsManager.assign(accountId, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              CustomerAssignmentsManager.unassign(customerId, assigneeId, admin)
+              CustomerAssignmentsManager.unassign(accountId, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
           (get & pathEnd) {
             getOrFailures {
-              CustomerWatchersManager.list(customerId)
+              CustomerWatchersManager.list(accountId)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              CustomerWatchersManager.assign(customerId, payload, admin)
+              CustomerWatchersManager.assign(accountId, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              CustomerWatchersManager.unassign(customerId, assigneeId, admin)
+              CustomerWatchersManager.unassign(accountId, assigneeId, admin)
             }
           }
         }

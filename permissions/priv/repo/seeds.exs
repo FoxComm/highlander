@@ -25,13 +25,12 @@ alias Permissions.Organization
 organizations = for org_name <- ~w(MasterMerchant Merchant1 Merchant2) do
   Repo.insert! %Organization{
     name: org_name,
-    type: "Merchant"
+    kind: "Merchant"
   }
 end
 
 accounts = for num <- 1..3 do 
   Repo.insert! %Account{
-    name: "User#{num}",
     ratchet: 3
   }
 end

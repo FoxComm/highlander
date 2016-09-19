@@ -10,10 +10,11 @@ import models.objects.{ObjectContext, ObjectContexts}
 import models.product.SimpleContext
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
-import slick.driver.PostgresDriver.api.Database
+import slick.driver.PostgresDriver.api._
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 import utils.aliases.EC
 import utils.db.flyway.newFlyway
+import utils.seeds.Seeds
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with ScalaFutures with GimmeSupport {
   this: Suite ⇒
@@ -77,6 +78,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with ScalaFutures 
         .execute(s"truncate ${tables.mkString(", ")} restart identity cascade;")
     }
 
+    Seeds.createSingleMerchantSystem.gimme
     val context = setupObjectContext()
 
     conn.close()

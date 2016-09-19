@@ -15,7 +15,7 @@ defmodule Permissions.PermissionController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", permission_path(conn, :show, permission))
-        |> render("permission.json", permission: permission)
+        |> render("show.json", permission: permission)
       {:error, failed_operation, failed_value, changes_completed} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -27,7 +27,7 @@ defmodule Permissions.PermissionController do
     permission = 
       Repo.get!(Permission, id)
       |> Repo.preload([:resource, :scope])
-    render(conn, "full_permission.json", permission: permission)
+    render(conn, "show_full.json", permission: permission)
   end
 
   def update(conn, %{"id" => id, "permission" => permission_params}) do
@@ -36,7 +36,7 @@ defmodule Permissions.PermissionController do
     case Repo.update(changeset) do
       {:ok, permission} -> 
         conn
-        |> render("permission.json", permission: permission)
+        |> render("show.json", permission: permission)
       {:error, changeset} -> 
         conn
         |> put_status(:unprocessable_entity)

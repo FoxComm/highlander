@@ -20,7 +20,7 @@ defmodule Permissions.RolePermissionController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", role_role_permission_path(conn, :show, role_id, role_permission))
-        |> render("role_permission.json", role_permission: role_permission)
+        |> render("show.json", role_permission: role_permission, role_id: role_id)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -32,7 +32,7 @@ defmodule Permissions.RolePermissionController do
     role_permission = 
       Repo.get!(RolePermission, id) 
       |> Repo.preload(:permission)
-    render(conn, "role_permission.json", role_permission: role_permission)
+    render(conn, "show.json", role_permission: role_permission)
   end
   
   def delete(conn, %{"id" => id}) do

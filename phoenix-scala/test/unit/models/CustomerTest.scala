@@ -1,6 +1,6 @@
 package models
 
-import models.customer.Customer
+import models.account.User
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import util.CustomMatchers._
 import util.TestBase
@@ -14,7 +14,7 @@ class CustomerTest extends TestBase {
           val customer = Factories.customer.copy(name = Some("hi@there"))
           val result   = customer.validate
           result mustBe 'invalid
-          invalidValue(result) must includeMatchesFailure("name", Customer.namePattern)
+          invalidValue(result) must includeMatchesFailure("name", User.namePattern)
         }
 
         "succeeds" in {
@@ -27,7 +27,7 @@ class CustomerTest extends TestBase {
           val c = Factories.customer
 
           val customers = Table(
-              ("customer", "errors"),
+              ("users", "errors"),
               (c.copy(email = None), "email must not be empty"),
               (c.copy(email = Some("")), "email must not be empty"),
               (c.copy(name = None), "name must not be empty"),

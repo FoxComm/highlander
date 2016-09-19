@@ -24,7 +24,7 @@ trait ReturnSeeds {
            orderRef = "",
            returnType = Return.Standard,
            state = Return.Pending,
-           customerId = 1)
+           accountId = 1)
 
   def returnLineItemSkus = Seq(
       ReturnLineItemSku(id = 0, returnId = 1, skuId = 1, skuShadowId = 1),

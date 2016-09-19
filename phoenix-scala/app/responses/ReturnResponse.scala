@@ -2,9 +2,11 @@ package responses
 
 import java.time.Instant
 
-import models.StoreAdmins
+import models.account.Users
 import models.cord.Orders
-import models.customer.Customers
+import models.customer.CustomerUsers
+import models.admin.StoreAdminUsers
+import models.account._
 import models.inventory.Sku
 import models.objects._
 import models.payment.PaymentMethod
@@ -13,7 +15,7 @@ import models.product.Mvp
 import models.returns._
 import models.shipping.Shipment
 import responses.CustomerResponse.{Root ⇒ Customer}
-import responses.StoreAdminResponse.{Root ⇒ StoreAdmin}
+import responses.StoreAdminResponse.{Root ⇒ User}
 import responses.cord.OrderResponse
 import services.returns.ReturnTotaler
 import slick.driver.PostgresDriver.api._
@@ -59,7 +61,7 @@ object ReturnResponse {
                   lineItems: LineItems,
                   payments: Seq[DisplayPayment],
                   customer: Option[Customer] = None,
-                  storeAdmin: Option[StoreAdmin] = None,
+                  storeAdmin: Option[User] = None,
                   messageToCustomer: Option[String] = None,
                   canceledReason: Option[Int] = None,
                   createdAt: Instant,
@@ -75,7 +77,7 @@ object ReturnResponse {
                           lineItems: LineItems,
                           payments: Seq[DisplayPayment],
                           customer: Option[Customer] = None,
-                          storeAdmin: Option[StoreAdmin] = None,
+                          storeAdmin: Option[User] = None,
                           messageToCustomer: Option[String] = None,
                           canceledReason: Option[Int] = None,
                           createdAt: Instant,
@@ -127,11 +129,26 @@ object ReturnResponse {
 
   def fromRma(rma: Return)(implicit ec: EC, db: DB): DbResultT[Root] = {
     fetchRmaDetails(rma).map {
-      case (_, customer, storeAdmin, payments, lineItemData, giftCards, shipments, subtotal) ⇒
+      case (_,
+            customer,
+            customerUser,
+            storeAdmin,
+            storeAdminUser,
+            payments,
+            lineItemData,
+            giftCards,
+            shipments,
+            subtotal) ⇒
         build(
             rma = rma,
-            customer = customer.map(CustomerResponse.build(_)),
-            storeAdmin = storeAdmin.map(StoreAdminResponse.build),
+            customer = for {
+              c  ← customer
+              cu ← customerUser
+            } yield CustomerResponse.build(c, cu),
+            storeAdmin = for {
+              a  ← storeAdmin
+              au ← storeAdminUser
+            } yield StoreAdminResponse.build(a, au),
             payments = payments.map(buildPayment),
             lineItems = buildLineItems(lineItemData, giftCards, shipments),
             totals = Some(buildTotals(subtotal, None, shipments))
@@ -141,12 +158,27 @@ object ReturnResponse {
 
   def fromRmaExpanded(rma: Return)(implicit ec: EC, db: DB): DbResultT[RootExpanded] = {
     fetchRmaDetails(rma = rma, withOrder = true).map {
-      case (order, customer, storeAdmin, payments, lineItemData, giftCards, shipments, subtotal) ⇒
+      case (order,
+            customer,
+            customerUser,
+            storeAdmin,
+            storeAdminUser,
+            payments,
+            lineItemData,
+            giftCards,
+            shipments,
+            subtotal) ⇒
         buildExpanded(
             rma = rma,
             order = order,
-            customer = customer.map(CustomerResponse.build(_)),
-            storeAdmin = storeAdmin.map(StoreAdminResponse.build),
+            customer = for {
+              c  ← customer
+              cu ← customerUser
+            } yield CustomerResponse.build(c, cu),
+            storeAdmin = for {
+              a  ← storeAdmin
+              au ← storeAdminUser
+            } yield StoreAdminResponse.build(a, au),
             payments = payments.map(buildPayment),
             lineItems = buildLineItems(lineItemData, giftCards, shipments),
             totals = Some(buildTotals(subtotal, None, shipments))
@@ -156,7 +188,7 @@ object ReturnResponse {
 
   def build(rma: Return,
             customer: Option[Customer] = None,
-            storeAdmin: Option[StoreAdmin] = None,
+            storeAdmin: Option[User] = None,
             lineItems: LineItems = LineItems(),
             payments: Seq[DisplayPayment] = Seq.empty,
             totals: Option[ReturnTotals] = None): Root =
@@ -169,7 +201,7 @@ object ReturnResponse {
          storeAdmin = storeAdmin,
          payments = payments,
          lineItems = lineItems,
-         messageToCustomer = rma.messageToCustomer,
+         messageToCustomer = rma.messageToAccount,
          canceledReason = rma.canceledReason,
          createdAt = rma.createdAt,
          updatedAt = rma.updatedAt,
@@ -179,7 +211,7 @@ object ReturnResponse {
                     order: Option[OrderResponse] = None,
                     customer: Option[Customer] = None,
                     lineItems: LineItems = LineItems(),
-                    storeAdmin: Option[StoreAdmin] = None,
+                    storeAdmin: Option[User] = None,
                     payments: Seq[DisplayPayment] = Seq.empty,
                     totals: Option[ReturnTotals] = None): RootExpanded =
     RootExpanded(
@@ -192,7 +224,7 @@ object ReturnResponse {
         storeAdmin = storeAdmin,
         payments = payments,
         lineItems = lineItems,
-        messageToCustomer = rma.messageToCustomer,
+        messageToCustomer = rma.messageToAccount,
         canceledReason = rma.canceledReason,
         createdAt = rma.createdAt,
         updatedAt = rma.updatedAt,
@@ -212,10 +244,14 @@ object ReturnResponse {
       // Order, if necessary
       fullOrder ← * <~ orderQ
       // Either customer or storeAdmin as creator
-      customer ← * <~ Customers.findById(rma.customerId).extract.one
+      customer     ← * <~ Users.findOneByAccountId(rma.accountId)
+      customerUser ← * <~ CustomerUsers.findOneByAccountId(rma.accountId)
       storeAdmin ← * <~ rma.storeAdminId
-                    .map(id ⇒ StoreAdmins.findById(id).extract.one)
+                    .map(id ⇒ Users.findOneByAccountId(id))
                     .getOrElse(lift(None))
+      storeAdminUser ← * <~ rma.storeAdminId
+                        .map(id ⇒ StoreAdminUsers.findOneByAccountId(id))
+                        .getOrElse(lift(None))
       // Payment methods
       payments ← * <~ ReturnPayments.filter(_.returnId === rma.id).result
       // Line items of each subtype
@@ -224,6 +260,16 @@ object ReturnResponse {
       shipments ← * <~ ReturnLineItemShippingCosts.findLineItemsByRma(rma).result
       // Subtotal
       subtotal ← * <~ ReturnTotaler.subTotal(rma)
-    } yield (fullOrder, customer, storeAdmin, payments, lineItems, giftCards, shipments, subtotal)
+    } yield
+      (fullOrder,
+       customer,
+       customerUser,
+       storeAdmin,
+       storeAdminUser,
+       payments,
+       lineItems,
+       giftCards,
+       shipments,
+       subtotal)
   }
 }

@@ -1,72 +1,51 @@
 package services.activity
 
-import responses.{AddressResponse, CreditCardsResponse, CustomerResponse, StoreAdminResponse}
+import responses.{AddressResponse, CreditCardsResponse, UserResponse, CustomerResponse}
 
 object CustomerTailored {
-  case class CustomerCreated(admin: StoreAdminResponse.Root, customer: CustomerResponse.Root)
+  case class CustomerCreated(admin: UserResponse.Root, customer: CustomerResponse.Root)
       extends ActivityBase[CustomerCreated]
 
   case class CustomerRegistered(customer: CustomerResponse.Root)
       extends ActivityBase[CustomerRegistered]
 
-  case class CustomerActivated(admin: StoreAdminResponse.Root, customer: CustomerResponse.Root)
+  case class CustomerActivated(admin: UserResponse.Root, customer: CustomerResponse.Root)
       extends ActivityBase[CustomerActivated]
 
-  case class CustomerBlacklisted(admin: StoreAdminResponse.Root, customer: CustomerResponse.Root)
+  case class CustomerBlacklisted(admin: UserResponse.Root, customer: UserResponse.Root)
       extends ActivityBase[CustomerBlacklisted]
 
-  case class CustomerRemovedFromBlacklist(admin: StoreAdminResponse.Root,
-                                          customer: CustomerResponse.Root)
+  case class CustomerRemovedFromBlacklist(admin: UserResponse.Root, customer: UserResponse.Root)
       extends ActivityBase[CustomerRemovedFromBlacklist]
 
-  case class CustomerEnabled(admin: StoreAdminResponse.Root, customer: CustomerResponse.Root)
+  case class CustomerEnabled(admin: UserResponse.Root, customer: UserResponse.Root)
       extends ActivityBase[CustomerEnabled]
 
-  case class CustomerDisabled(admin: StoreAdminResponse.Root, customer: CustomerResponse.Root)
+  case class CustomerDisabled(admin: UserResponse.Root, customer: UserResponse.Root)
       extends ActivityBase[CustomerDisabled]
 
-  case class CustomerRemindPassword(customer: CustomerResponse.Root, code: String)
+  case class CustomerRemindPassword(customer: UserResponse.Root, code: String)
       extends ActivityBase[CustomerRemindPassword]
 
-  case class CustomerPasswordReset(customer: CustomerResponse.Root)
-      extends ActivityBase[CustomerPasswordReset]
-
-  case class CustomerUpdated(oldInfo: CustomerResponse.Root,
-                             newInfo: CustomerResponse.Root,
-                             admin: Option[StoreAdminResponse.Root] = None)
+  case class CustomerUpdated(oldInfo: UserResponse.Root,
+                             newInfo: UserResponse.Root,
+                             admin: Option[UserResponse.Root] = None)
       extends ActivityBase[CustomerUpdated]
 
   /* Customer Addresses */
-  case class CustomerAddressCreated(customer: CustomerResponse.Root,
+  case class CustomerAddressCreated(customer: UserResponse.Root,
                                     address: AddressResponse,
-                                    admin: Option[StoreAdminResponse.Root])
+                                    admin: Option[UserResponse.Root])
       extends ActivityBase[CustomerAddressCreated]
 
-  case class CustomerAddressUpdated(customer: CustomerResponse.Root,
+  case class CustomerAddressUpdated(customer: UserResponse.Root,
                                     oldInfo: AddressResponse,
                                     newInfo: AddressResponse,
-                                    admin: Option[StoreAdminResponse.Root])
+                                    admin: Option[UserResponse.Root])
       extends ActivityBase[CustomerAddressUpdated]
 
-  case class CustomerAddressDeleted(customer: CustomerResponse.Root,
+  case class CustomerAddressDeleted(customer: UserResponse.Root,
                                     address: AddressResponse,
-                                    admin: Option[StoreAdminResponse.Root])
+                                    admin: Option[UserResponse.Root])
       extends ActivityBase[CustomerAddressDeleted]
-
-  /* Customer Credit Cards */
-  case class CreditCardAdded(customer: CustomerResponse.Root,
-                             creditCard: CreditCardsResponse.RootSimple,
-                             admin: Option[StoreAdminResponse.Root])
-      extends ActivityBase[CreditCardAdded]
-
-  case class CreditCardUpdated(customer: CustomerResponse.Root,
-                               oldInfo: CreditCardsResponse.RootSimple,
-                               newInfo: CreditCardsResponse.RootSimple,
-                               admin: Option[StoreAdminResponse.Root])
-      extends ActivityBase[CreditCardUpdated]
-
-  case class CreditCardRemoved(customer: CustomerResponse.Root,
-                               creditCard: CreditCardsResponse.RootSimple,
-                               admin: Option[StoreAdminResponse.Root])
-      extends ActivityBase[CreditCardRemoved]
 }

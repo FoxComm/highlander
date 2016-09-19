@@ -16,7 +16,7 @@ defmodule Permissions.ScopeController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", fc_scope_path(conn, :show, scope))
-        |> render("scope.json", scope: scope)
+        |> render("show.json", scope: scope)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)

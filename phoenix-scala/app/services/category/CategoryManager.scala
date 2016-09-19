@@ -2,7 +2,7 @@ package services.category
 
 import failures.CategoryFailures._
 import failures.ObjectFailures._
-import models.StoreAdmin
+import models.account._
 import models.category._
 import models.objects._
 import payloads.CategoryPayloads._
@@ -37,7 +37,7 @@ object CategoryManager {
     getCategoryFull(categoryId, contextName).map(c ⇒
           FullCategoryResponse.build(c.category, c.form, c.shadow))
 
-  def createCategory(admin: StoreAdmin, payload: CreateFullCategory, contextName: String)(
+  def createCategory(admin: User, payload: CreateFullCategory, contextName: String)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[FullCategoryResponse.Root] =
@@ -53,7 +53,7 @@ object CategoryManager {
     } yield response
 
   def updateCategory(
-      admin: StoreAdmin,
+      admin: User,
       categoryId: Int,
       payload: UpdateFullCategory,
       contextName: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[FullCategoryResponse.Root] =

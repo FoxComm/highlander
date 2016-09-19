@@ -2,7 +2,7 @@ package services.orders
 
 import cats.implicits._
 import models.cord._
-import models.customer.{Customer, Customers}
+import models.account.{User, Users}
 import models.payment.PaymentMethod
 import models.payment.creditcard._
 import models.payment.giftcard._
@@ -20,13 +20,13 @@ object OrderQueries extends CordQueries {
   def findAllByQuery(query: Orders.QuerySeq = Orders)(
       implicit ec: EC): DbResultT[TheResponse[Seq[AllOrders.Root]]] = {
 
-    def build(order: Order, customer: Customer) =
+    def build(order: Order, customer: User) =
       for {
         paymentState ← * <~ getPaymentState(order.refNum)
       } yield AllOrders.build(order, customer.some, paymentState.some)
 
     for {
-      ordersCustomers ← * <~ query.join(Customers).on(_.customerId === _.id).result
+      ordersCustomers ← * <~ query.join(Users).on(_.accountId === _.id).result
       response        ← * <~ ordersCustomers.map((build _).tupled)
     } yield TheResponse.build(response)
   }

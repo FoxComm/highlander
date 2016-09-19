@@ -16,7 +16,8 @@ import models.returns._
 import models.rules.{Condition, QueryStatement}
 import models.sharedsearch.SharedSearch
 import models.shipping.Shipment
-import models.{Assignment, Note, Reason, StoreAdmin}
+import models.{Assignment, Note, Reason}
+import models.admin.StoreAdminUser
 import org.json4s.jackson
 import responses.PublicResponses.CountryWithRegions
 
@@ -39,5 +40,5 @@ object JsonFormatters {
       CreditCardCharge.State.jsonFormat + CountryWithRegions.jsonFormat +
       QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
       PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +
-      IdentityKind.jsonFormat + StoreAdmin.State.jsonFormat + PluginSettings.SettingType.jsonFormat
+      IdentityKind.jsonFormat + StoreAdminUser.State.jsonFormat + PluginSettings.SettingType.jsonFormat
 }

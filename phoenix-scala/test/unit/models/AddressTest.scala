@@ -12,7 +12,7 @@ class AddressTest extends TestBase {
   "Address" - {
     ".validateNew" - {
       val valid = Address(id = 0,
-                          customerId = 1,
+                          accountId = 1,
                           regionId = 1,
                           name = "Yax Home",
                           address1 = "555 E Lake Union St.",

@@ -4,7 +4,7 @@ import cats.implicits._
 import models._
 import models.cord._
 import models.cord.lineitems._
-import models.customer._
+import models.account._
 import models.inventory.Sku
 import models.location._
 import models.payment.giftcard.GiftCard
@@ -32,12 +32,12 @@ trait RawFixtures extends RawPaymentFixtures {
   }
 
   trait CustomerAddress_Raw {
-    def customer: Customer
+    def customer: User
 
     def address: Address = _address
 
     private val _address: Address = Addresses
-      .create(Factories.address.copy(customerId = customer.id, isDefaultShipping = true))
+      .create(Factories.address.copy(accountId = customer.accountId, isDefaultShipping = true))
       .gimme
 
     lazy val region: Region = Regions.findOneById(address.regionId).safeGet.gimme
@@ -45,13 +45,13 @@ trait RawFixtures extends RawPaymentFixtures {
 
   // Cart
   trait EmptyCart_Raw {
-    def customer: Customer
+    def customer: User
     def storeAdmin: StoreAdmin
 
     def cart: Cart = _cart
 
     private val _cart: Cart = {
-      val payload  = OrderPayloads.CreateCart(customerId = customer.id.some)
+      val payload  = OrderPayloads.CreateCart(accountId = customer.accountId.some)
       val response = CartCreator.createCart(storeAdmin, payload).gimme
       Carts.mustFindByRefNum(response.referenceNumber).gimme
     }

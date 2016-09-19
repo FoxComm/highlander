@@ -16,13 +16,15 @@ import akka.stream.ActorMaterializer
 import com.stripe.Stripe
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
-import models.StoreAdmin
-import models.customer.Customer
+import models.account.User
 import org.json4s._
 import org.json4s.jackson._
+import services.account.AccountCreateContext
 import services.Authenticator
-import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}
+import services.Authenticator.requireAdminAuth
+import services.auth.GoogleOauth.oauthServiceFromConfig
 import services.actors._
+
 import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{Development, Staging}
 import utils.apis._
@@ -82,15 +84,22 @@ class Service(systemOverride: Option[ActorSystem] = None,
   implicit val apis: Apis           = apisOverride.getOrElse(defaultApis: Apis)
   implicit val es: ElasticsearchApi = esOverride.getOrElse(ElasticsearchApi.fromConfig(config))
 
-  val storeAdminAuth: AsyncAuthenticator[StoreAdmin]      = Authenticator.forAdminFromConfig
-  implicit val customerAuth: AsyncAuthenticator[Customer] = Authenticator.forCustomerFromConfig
+  val roleName = config.getString(s"user.customer.role")
+  val orgName  = config.getString(s"user.customer.org")
+  val scopeId  = config.getInt(s"user.customer.scope_id")
+
+  val customerCreateContext = AccountCreateContext(List(roleName), orgName, scopeId)
+  implicit val auth         = Authenticator.forUser(customerCreateContext)
+
+  val customerGoogleOauth = oauthServiceFromConfig("customer")
+  val adminGoogleOauth    = oauthServiceFromConfig("admin")
 
   val defaultRoutes = {
     pathPrefix("v1") {
-      routes.AuthRoutes.routes ~
-      routes.Public.routes ~
+      routes.AuthRoutes.routes(customerGoogleOauth, adminGoogleOauth) ~
+      routes.Public.routes(customerCreateContext) ~
       routes.Customer.routes ~
-      requireAdminAuth(storeAdminAuth) { implicit admin ⇒
+      requireAdminAuth(auth) { implicit admin ⇒
         routes.admin.AdminRoutes.routes ~
         routes.admin.NotificationRoutes.routes ~
         routes.admin.AssignmentsRoutes.routes ~
@@ -119,7 +128,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
 
   val devRoutes = {
     pathPrefix("v1") {
-      requireAdminAuth(storeAdminAuth) { implicit admin ⇒
+      requireAdminAuth(auth) { implicit admin ⇒
         routes.admin.DevRoutes.routes
       }
     }

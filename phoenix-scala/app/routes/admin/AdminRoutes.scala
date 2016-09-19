@@ -4,7 +4,7 @@ import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import failures.SharedSearchFailures.SharedSearchInvalidQueryFailure
-import models.StoreAdmin
+import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku
 import models.payment.giftcard.GiftCard
@@ -20,7 +20,7 @@ import utils.http.Http._
 
 object AdminRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
+  def routes(implicit ec: EC, db: DB, admin: User) = {
 
     activityContext(admin) { implicit ac ⇒
       StoreCreditRoutes.storeCreditRoutes ~
@@ -78,26 +78,26 @@ object AdminRoutes {
             }
           }
         } ~
-        pathPrefix("customer" / IntNumber) { customerId ⇒
+        pathPrefix("customer" / IntNumber) { accountId ⇒
           (get & pathEnd) {
             getOrFailures {
-              CustomerNoteManager.list(customerId)
+              CustomerNoteManager.list(accountId)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             mutateOrFailures {
-              CustomerNoteManager.create(customerId, admin, payload)
+              CustomerNoteManager.create(accountId, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               mutateOrFailures {
-                CustomerNoteManager.update(customerId, noteId, admin, payload)
+                CustomerNoteManager.update(accountId, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {
               deleteOrFailures {
-                CustomerNoteManager.delete(customerId, noteId, admin)
+                CustomerNoteManager.delete(accountId, noteId, admin)
               }
             }
           }
@@ -249,14 +249,14 @@ object AdminRoutes {
       } ~
       pathPrefix("save-for-later") {
         determineObjectContext(db, ec) { productContext ⇒
-          (get & path(IntNumber) & pathEnd) { customerId ⇒
+          (get & path(IntNumber) & pathEnd) { accountId ⇒
             getOrFailures {
-              SaveForLaterManager.findAll(customerId, productContext.id)
+              SaveForLaterManager.findAll(accountId, productContext.id)
             }
           } ~
-          (post & path(IntNumber / Segment) & pathEnd) { (customerId, skuCode) ⇒
+          (post & path(IntNumber / Segment) & pathEnd) { (accountId, skuCode) ⇒
             mutateOrFailures {
-              SaveForLaterManager.saveForLater(customerId, skuCode, productContext)
+              SaveForLaterManager.saveForLater(accountId, skuCode, productContext)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { id ⇒

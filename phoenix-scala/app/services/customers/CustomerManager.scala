@@ -5,89 +5,29 @@ import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
 import failures.NotFoundFailure404
-import failures.CustomerFailures._
-import models.StoreAdmin
+import models.account._
 import models.cord.{OrderShippingAddresses, Orders}
-import models.customer.Customers.scope._
-import models.customer.{Customer, Customers}
-import models.customer.{CustomerPasswordResets, CustomerPasswordReset}
+import models.customer.{CustomerUser, CustomerUsers}
+import models.customer.CustomerUsers.scope._
+import models.account.{User, Users}
 import models.location.Addresses
 import models.shipping.Shipments
 import payloads.CustomerPayloads._
 import responses.CustomerResponse._
 import services._
+import services.account._
+import services.account._
+import failures.CustomerFailures._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
 object CustomerManager {
 
-  def toggleDisabled(customerId: Int,
-                     disabled: Boolean,
-                     admin: StoreAdmin)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
-    for {
-      customer ← * <~ Customers.mustFindById404(customerId)
-      updated ← * <~ Customers.update(
-                   customer,
-                   customer.copy(isDisabled = disabled, disabledBy = Some(admin.id)))
-      _ ← * <~ LogActivity.customerDisabled(disabled, customer, admin)
-    } yield build(updated)
-
-  // TODO: add blacklistedReason later
-  def toggleBlacklisted(customerId: Int,
-                        blacklisted: Boolean,
-                        admin: StoreAdmin)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
-    for {
-      customer ← * <~ Customers.mustFindById404(customerId)
-      updated ← * <~ Customers.update(
-                   customer,
-                   customer.copy(isBlacklisted = blacklisted, blacklistedBy = Some(admin.id)))
-      _ ← * <~ LogActivity.customerBlacklisted(blacklisted, customer, admin)
-    } yield build(updated)
-
-  def resetPasswordSend(
-      email: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[ResetPasswordSendAnswer] =
-    for {
-      customer ← * <~ Customers
-                  .activeCustomerByEmail(Option(email))
-                  .mustFindOneOr(NotFoundFailure404(Customer, email))
-      resetPwInstance ← * <~ CustomerPasswordReset
-                         .optionFromCustomer(customer)
-                         .toXor(CustomerHasNoEmail(customer.id).single)
-      findOrCreate ← * <~ CustomerPasswordResets
-                      .findActiveByEmail(email)
-                      .one
-                      .findOrCreateExtended(CustomerPasswordResets.create(resetPwInstance))
-      (resetPw, foundOrCreated) = findOrCreate
-      updatedResetPw ← * <~ (foundOrCreated match {
-                            case Found ⇒
-                              CustomerPasswordResets.update(resetPw, resetPw.updateCode())
-                            case Created ⇒ DbResultT.good(resetPw)
-                          })
-      _ ← * <~ LogActivity.customerRemindPassword(customer, updatedResetPw.code)
-    } yield ResetPasswordSendAnswer(status = "ok")
-
-  def resetPassword(
-      code: String,
-      newPassword: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[ResetPasswordDoneAnswer] = {
-    for {
-      remind ← * <~ CustomerPasswordResets
-                .findActiveByCode(code)
-                .mustFindOr(ResetPasswordCodeInvalid(code))
-      customer ← * <~ Customers.mustFindById404(remind.customerId)
-      _ ← * <~ CustomerPasswordResets.update(remind,
-                                             remind.copy(state =
-                                                           CustomerPasswordReset.PasswordRestored,
-                                                         activatedAt = Instant.now.some))
-      updatedCustomer ← * <~ Customers.update(customer, customer.updatePassword(newPassword))
-      _               ← * <~ LogActivity.customerPasswordReset(updatedCustomer)
-    } yield ResetPasswordDoneAnswer(status = "ok")
-  }
-
-  private def resolvePhoneNumber(customerId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
-    def resolveFromShipments(customerId: Int) =
+  private def resolvePhoneNumber(accountId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
+    def resolveFromShipments(accountId: Int) =
       (for {
-        order    ← Orders if order.customerId === customerId
+        order    ← Orders if order.accountId === accountId
         shipment ← Shipments if shipment.cordRef === order.referenceNumber &&
           shipment.shippingAddressId.isDefined
         address ← OrderShippingAddresses if address.id === shipment.shippingAddressId &&
@@ -98,28 +38,30 @@ object CustomerManager {
 
     for {
       default ← * <~ Addresses
-                 .filter(address ⇒ address.customerId === customerId && address.isDefaultShipping)
+                 .filter(address ⇒ address.accountId === accountId && address.isDefaultShipping)
                  .map(_.phoneNumber)
                  .one
                  .map(_.flatten)
                  .toXor
-      shipment ← * <~ (if (default.isEmpty) resolveFromShipments(customerId)
+      shipment ← * <~ (if (default.isEmpty) resolveFromShipments(accountId)
                        else DbResultT.good(default))
     } yield shipment
   }
 
-  def getById(id: Int)(implicit ec: EC, db: DB): DbResultT[Root] = {
+  def getById(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Root] = {
     for {
-      customers ← * <~ Customers
-                   .filter(_.id === id)
-                   .withRegionsAndRank
-                   .mustFindOneOr(NotFoundFailure404(Customer, id))
-      (customer, shipRegion, billRegion, rank) = customers
-      maxOrdersDate ← * <~ Orders.filter(_.customerId === id).map(_.placedAt).max.result
-      phoneOverride ← * <~ (if (customer.phoneNumber.isEmpty) resolvePhoneNumber(id)
+      customer ← * <~ Users.mustFindByAccountId(accountId)
+      customerUsers ← * <~ CustomerUsers
+                       .filter(_.accountId === accountId)
+                       .withRegionsAndRank
+                       .mustFindOneOr(NotFoundFailure404(User, accountId))
+      (customerUser, shipRegion, billRegion, rank) = customerUsers
+      maxOrdersDate ← * <~ Orders.filter(_.accountId === accountId).map(_.placedAt).max.result
+      phoneOverride ← * <~ (if (customer.phoneNumber.isEmpty) resolvePhoneNumber(accountId)
                             else DbResultT.good(None))
     } yield
       build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
+            customerUser,
             shipRegion,
             billRegion,
             rank = rank,
@@ -127,51 +69,77 @@ object CustomerManager {
   }
 
   def create(payload: CreateCustomerPayload,
-             admin: Option[StoreAdmin] = None)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+             admin: Option[User] = None,
+             context: AccountCreateContext)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
-      customer ← * <~ Customer.buildFromPayload(payload).validate
-      _ ← * <~ (if (!payload.isGuest.getOrElse(false))
-                  Customers.createEmailMustBeUnique(customer.email)
-                else DbResultT.unit)
-      updated ← * <~ Customers.create(customer)
-      response = build(updated)
-      _ ← * <~ LogActivity.customerCreated(response, admin)
+
+      user ← * <~ AccountManager.createUser(name = payload.name,
+                                            email = payload.email.some,
+                                            password = payload.password,
+                                            context = context)
+
+      custUser ← * <~ CustomerUsers.create(
+                    CustomerUser(accountId = user.accountId,
+                                 userId = user.id,
+                                 isGuest = payload.isGuest.getOrElse(false)))
+      response = build(user, custUser)
+      _ ← * <~ LogActivity.userCreated(response, admin)
     } yield response
 
-  def update(customerId: Int, payload: UpdateCustomerPayload, admin: Option[StoreAdmin] = None)(
+  def createGuest(context: AccountCreateContext)(implicit ec: EC,
+                                                 db: DB): DbResultT[(User, CustomerUser)] =
+    for {
+
+      user ← * <~ AccountManager
+              .createUser(name = None, email = None, password = None, context = context)
+
+      custUser ← * <~ CustomerUsers.create(
+                    CustomerUser(accountId = user.accountId, userId = user.id, isGuest = true))
+      response = build(user, custUser)
+    } yield (user, custUser)
+
+  def update(accountId: Int, payload: UpdateCustomerPayload, admin: Option[User] = None)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] =
     for {
       _        ← * <~ payload.validate
-      customer ← * <~ Customers.mustFindById404(customerId)
-      _        ← * <~ Customers.updateEmailMustBeUnique(payload.email, customerId)
-      updated  ← * <~ Customers.update(customer, updatedCustomer(customer, payload))
+      customer ← * <~ Users.mustFindByAccountId(accountId)
+      _        ← * <~ Users.updateEmailMustBeUnique(payload.email, accountId)
+      updated  ← * <~ Users.update(customer, updatedUser(customer, payload))
+      custUser ← * <~ CustomerUsers.mustFindByAccountId(accountId)
+      _        ← * <~ CustomerUsers.update(custUser, updatedCustUser(custUser, payload))
       _        ← * <~ LogActivity.customerUpdated(customer, updated, admin)
-    } yield build(updated)
+    } yield build(updated, custUser)
 
-  def updatedCustomer(customer: Customer, payload: UpdateCustomerPayload): Customer = {
-    val updatedCustomer = (payload.name, payload.email) match {
-      case (Some(name), Some(email)) ⇒ customer.copy(isGuest = false)
-      case _                         ⇒ customer
-    }
-
-    updatedCustomer.copy(name = payload.name.fold(customer.name)(Some(_)),
-                         email = payload.email.orElse(customer.email),
-                         phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))
+  def updatedUser(customer: User, payload: UpdateCustomerPayload): User = {
+    customer.copy(name = payload.name.fold(customer.name)(Some(_)),
+                  email = payload.email.orElse(customer.email),
+                  phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))
   }
 
-  def activate(customerId: Int, payload: ActivateCustomerPayload, admin: StoreAdmin)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[Root] =
+  def updatedCustUser(custUser: CustomerUser, payload: UpdateCustomerPayload): CustomerUser = {
+    (payload.name, payload.email) match {
+      case (Some(name), Some(email)) ⇒ custUser.copy(isGuest = false)
+      case _                         ⇒ custUser.copy(isGuest = true)
+    }
+  }
+
+  def activate(accountId: Int,
+               payload: ActivateCustomerPayload,
+               admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
       _        ← * <~ payload.validate
-      customer ← * <~ Customers.mustFindById404(customerId)
-      _        ← * <~ Customers.updateEmailMustBeUnique(customer.email, customer.id)
-      updated ← * <~ Customers.update(customer,
-                                      customer.copy(name = payload.name.some, isGuest = false))
-      response = build(updated)
+      customer ← * <~ Users.mustFindByAccountId(accountId)
+      _ ← * <~ (customer.email match {
+               case None ⇒ DbResultT.failure(CustomerMustHaveCredentials)
+               case _    ⇒ DbResultT.unit
+             })
+      _        ← * <~ Users.updateEmailMustBeUnique(customer.email, customer.accountId)
+      updated  ← * <~ Users.update(customer, customer.copy(name = payload.name.some))
+      custUser ← * <~ CustomerUsers.mustFindByAccountId(accountId)
+      _        ← * <~ CustomerUsers.update(custUser, custUser.copy(isGuest = false))
+      response = build(updated, custUser)
       _ ← * <~ LogActivity.customerActivated(response, admin)
     } yield response
 }

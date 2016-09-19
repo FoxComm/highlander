@@ -4,6 +4,7 @@ import java.time.Instant
 
 import com.pellucid.sealerate
 import models.activity.Dimensions
+import models.account._
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -47,7 +48,7 @@ class NotificationSubscriptions(tag: Tag)
         NotificationSubscription.unapply)
 
   def dimension = foreignKey(Dimensions.tableName, dimensionId, Dimensions)(_.id)
-  def admin     = foreignKey(StoreAdmins.tableName, adminId, StoreAdmins)(_.id)
+  def admin     = foreignKey(Users.tableName, adminId, Users)(_.accountId)
 }
 
 object NotificationSubscriptions

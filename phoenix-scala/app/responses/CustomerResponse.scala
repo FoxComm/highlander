@@ -2,7 +2,9 @@ package responses
 
 import java.time.Instant
 
-import models.customer._
+import models.account._
+import models.customer.CustomerRank
+import models.customer.CustomerUser
 import models.location.Region
 
 object CustomerResponse {
@@ -10,8 +12,6 @@ object CustomerResponse {
                   email: Option[String] = None,
                   name: Option[String] = None,
                   phoneNumber: Option[String] = None,
-                  location: Option[String] = None,
-                  modality: Option[String] = None,
                   createdAt: Instant,
                   disabled: Boolean,
                   isGuest: Boolean,
@@ -24,20 +24,23 @@ object CustomerResponse {
                   lastOrderDays: Option[Long] = None)
       extends ResponseItem
 
-  def build(customer: Customer,
+  def build(customer: User,
+            customerUser: CustomerUser,
             shippingRegion: Option[Region] = None,
             billingRegion: Option[Region] = None,
             numOrders: Option[Int] = None,
             rank: Option[CustomerRank] = None,
-            lastOrderDays: Option[Long] = None): Root =
-    Root(id = customer.id,
+            lastOrderDays: Option[Long] = None): Root = {
+
+    require(customerUser.userId == customer.id)
+    require(customerUser.accountId == customer.accountId)
+
+    Root(id = customer.accountId,
          email = customer.email,
          name = customer.name,
          phoneNumber = customer.phoneNumber,
-         location = customer.location,
-         modality = customer.modality,
          createdAt = customer.createdAt,
-         isGuest = customer.isGuest,
+         isGuest = customerUser.isGuest,
          disabled = customer.isDisabled,
          isBlacklisted = customer.isBlacklisted,
          rank = rank.flatMap(_.rank),
@@ -46,9 +49,5 @@ object CustomerResponse {
          billingRegion = billingRegion,
          shippingRegion = shippingRegion,
          lastOrderDays = lastOrderDays)
-
-  case class ResetPasswordSendAnswer(status: String)
-
-  case class ResetPasswordDoneAnswer(status: String)
-
+  }
 }

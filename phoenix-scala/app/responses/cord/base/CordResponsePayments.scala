@@ -44,7 +44,7 @@ object CordResponseCreditCardPayment {
     } yield (creditCard, region)).result.map(_.map {
       case (creditCard, region) ⇒
         CordResponseCreditCardPayment(id = creditCard.id,
-                                      customerId = creditCard.customerId,
+                                      customerId = creditCard.accountId,
                                       holderName = creditCard.holderName,
                                       lastFour = creditCard.lastFour,
                                       expMonth = creditCard.expMonth,
