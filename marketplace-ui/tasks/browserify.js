@@ -31,7 +31,8 @@ module.exports = function (gulp, $, opts) {
     }, watchify.args)).transform(envify({
       _: 'purge',
       NODE_ENV: process.env.NODE_ENV || 'development',
-      API_URL: process.env.API_URL
+      API_URL: process.env.API_URL,
+      ASHES_URL: process.env.ASHES_URL || 'https://admin.stage.foxcommerce.com',
     }));
 
     bundler.plugin(require('css-modulesify'), Object.assign({

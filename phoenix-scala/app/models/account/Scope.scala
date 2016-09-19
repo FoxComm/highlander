@@ -11,14 +11,17 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
-case class Scope(id: Int = 0, source: String, parentPath: String) extends FoxModel[Scope] {
-  def path = s"$parentPath.$id"
+case class Scope(id: Int = 0, source: String, parentPath: Option[String]) extends FoxModel[Scope] {
+  def path = parentPath match {
+    case Some(pp) ⇒ s"$pp.$id"
+    case None     ⇒ s"$id"
+  }
 }
 
 class Scopes(tag: Tag) extends FoxTable[Scope](tag, "scopes") {
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def source     = column[String]("source")
-  def parentPath = column[String]("parent_path")
+  def parentPath = column[Option[String]]("parent_path")
 
   def * =
     (id, source, parentPath) <> ((Scope.apply _).tupled, Scope.unapply)

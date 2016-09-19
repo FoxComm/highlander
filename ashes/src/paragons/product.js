@@ -10,11 +10,13 @@ import { isSatisfied } from 'paragons/object';
 
 // helpers
 import { generateSkuCode, isSkuValid } from './sku';
+import { getJWT } from 'lib/claims';
 
 // types
 import type { Sku } from 'modules/skus/details';
 import type { Dictionary } from './types';
 import type { Attribute, Attributes } from './object';
+import type { JWT } from 'lib/claims';
 
 type Context = {
   name: string,
@@ -67,8 +69,18 @@ export function isProductValid(product: Product): boolean {
   return true;
 }
 
+// THIS IS A HAAAAACK.
+function isMerchant(): boolean {
+  const jwt = getJWT();
+  if (jwt.email == 'admin@admin.com') {
+    return false;
+  }
+
+  return true;
+}
+
 export function createEmptyProduct(): Product {
-  const product = {
+  let product = {
     id: null,
     productId: null,
     attributes: {
@@ -77,6 +89,28 @@ export function createEmptyProduct(): Product {
     skus: [],
     context: {name: 'default'},
   };
+
+  if (isMerchant()) {
+    const merchantAttributes = {
+      attributes: {
+        description: {t: 'richText', v: ''},
+        shortDescription: { t: 'string', v: '' },
+        externalUrl: {t: 'string', v: ''},
+        externalId: {t: 'string', v: ''},
+        type: { t: 'string', v: '' },
+        vendor: { t: 'string', v: '' },
+        manufacturer: { t: 'string', v: '' },
+        audience: { t: 'string', v: '' },
+        permalink: { t: 'string', v: '' },
+        handle: { t: 'string', v: '' },
+        manageInventory: { t: 'bool', v: true },
+        backordersAllowed: { t: 'bool', v: false },
+        featured: { t: 'bool', v: false },
+      },
+    };
+
+    product = {...product, ...merchantAttributes };
+  }
 
   return configureProduct(addEmptySku(product));
 }
@@ -89,7 +123,7 @@ export function addEmptySku(product: Product): Product {
     v: { currency: 'USD', value: 0 },
   };
 
-  const emptySku = {
+  let emptySku = {
     feCode: pseudoRandomCode,
     attributes: {
       code: {
@@ -104,6 +138,22 @@ export function addEmptySku(product: Product): Product {
       salePrice: emptyPrice,
     },
   };
+
+  if (isMerchant()) {
+    const merchantAttributes = {
+      attributes: {
+        externalId: {t: 'string', v: ''},
+        mpn: { t: 'string', v: '' },
+        gtin: { t: 'string', v: '' },
+        weight: { t: 'string', v: '' },
+        height: { t: 'string', v: '' },
+        width: { t: 'string', v: '' },
+        depth: { t: 'string', v: '' },
+      },
+    };
+
+    emptySku = { ...emptySku, ...merchantAttributes };
+  }
 
   const newSkus = [emptySku, ...product.skus];
   return assoc(product, 'skus', newSkus);

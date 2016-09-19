@@ -29,6 +29,7 @@ export default function *renderReact() {
 
     // const appHtml = ReactDOM.renderToString(rootElement);
     const appHtml = yield store.renderToString(ReactDOM, rootElement);
+
     this.body = renderPage({
       html: appHtml,
       state: JSON.stringify(store.getState()),

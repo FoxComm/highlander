@@ -19,5 +19,6 @@ defmodule Permissions.Router do
       resources "/granted_roles", AccountRoleController
       resources "/granted_permissions", AccountPermissionController
     end
+    resources "/users", UserController
   end
 end

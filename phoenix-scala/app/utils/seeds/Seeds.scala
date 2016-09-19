@@ -112,8 +112,6 @@ object Seeds {
     val config: Config           = FoxConfig.loadWithEnv()
     implicit val db: DatabaseDef = Database.forConfig("db", config)
     implicit val ac: AC          = ActivityContext(userId = 1, userType = "admin", transactionId = "seeds")
-    val org                      = "merchant"
-    val roles                    = List("merchant_admin")
 
     cfg.mode match {
       case Seed ⇒
@@ -123,7 +121,7 @@ object Seeds {
         }
 
         if (cfg.seedBase) createBaseSeeds
-        if (cfg.seedAdmins) createAdminsSeeds(org, roles)
+        if (cfg.seedAdmins) createAdminsSeeds
         if (cfg.seedRandom > 0)
           createRandomSeeds(cfg.seedRandom, cfg.customersScaleMultiplier)
         if (cfg.seedStage) {
@@ -161,13 +159,13 @@ object Seeds {
     validateResults("get first admin", result)
   }
 
-  def createAdminsSeeds(org: String, roles: List[String])(implicit db: DB, ec: EC, ac: AC): Int = {
+  def createAdminsSeeds(implicit db: DB, ec: EC, ac: AC): Int = {
     val r = for {
       _      ← * <~ createSingleMerchantSystem
-      admins ← * <~ Factories.createStoreAdmins(org, roles)
+      admins ← * <~ Factories.createStoreAdmins
     } yield admins
 
-    val result: Failures Xor Int = Await.result(r.runTxn(), 4.minutes)
+    val result: Failures Xor Int = Await.result(r.run(), 4.minutes)
     validateResults("admins", result)
   }
 
@@ -215,9 +213,8 @@ object Seeds {
       context ← * <~ ObjectContexts.create(SimpleContext.create())
     } yield context.id
 
-  def createAdmins(org: String,
-                   roles: List[String])(implicit db: DB, ec: EC, ac: AC): DbResultT[Int] =
-    Factories.createStoreAdmins(org, roles)
+  def createAdmins(implicit db: DB, ec: EC, ac: AC): DbResultT[Int] =
+    Factories.createStoreAdmins
 
   val MERCHANT = "merchant"
 

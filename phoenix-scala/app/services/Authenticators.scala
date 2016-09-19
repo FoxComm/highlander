@@ -226,9 +226,13 @@ object Authenticator {
                       .mustFindOr(LoginFailed)
       account ← * <~ Accounts.mustFindById404(user.accountId)
 
-      validatedUser ← * <~ validatePassword(user, accessMethod.hashedPassword, payload.password)
-      adminUsers    ← * <~ StoreAdminUsers.filter(_.accountId === user.accountId).one
-      _             ← * <~ adminUsers.map(aus ⇒ checkState(aus))
+      validatedUser ← * <~ validatePassword(user,
+                                            accessMethod.hashedPassword,
+                                            payload.password,
+                                            accessMethod.algorithm)
+      //TODO Add this back after demo
+      //adminUsers    ← * <~ StoreAdminUsers.filter(_.accountId === user.accountId).one
+      //_             ← * <~ adminUsers.map(aus ⇒ checkState(aus))
 
       claimResult ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
       (scope, claims) = claimResult
@@ -242,8 +246,16 @@ object Authenticator {
 
   private def validatePassword[User](user: User,
                                      hashedPassword: String,
-                                     password: String): Failures Xor User = {
-    if (checkPassword(password, hashedPassword))
+                                     password: String,
+                                     algorithm: Int): Failures Xor User = {
+
+    val passwordsMatch = algorithm match {
+
+      case 0 ⇒ checkPassword(password, hashedPassword)
+      case 1 ⇒ password == hashedPassword //TODO remove , only fo demo.
+    }
+
+    if (passwordsMatch)
       Xor.right(user)
     else
       Xor.left(LoginFailed.single)

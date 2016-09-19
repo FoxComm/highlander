@@ -88,6 +88,9 @@ object Token {
   def getJWTClaims(token: Token): JwtClaims = {
     val claims = new JwtClaims
 
+    //TODO probably put scope here in the future.
+    claims.setAudience("user")
+
     claims.setClaim("id", token.id)
     claims.setClaim("email", token.email)
     claims.setClaim("ratchet", token.ratchet)
@@ -134,6 +137,7 @@ object Token {
         .setJwsAlgorithmConstraints(algorithmConstraints)
         .setExpectedIssuer("FC")
         .setVerificationKey(publicKey)
+        .setExpectedAudience("user")
 
       Try {
         val consumer  = builder.build()

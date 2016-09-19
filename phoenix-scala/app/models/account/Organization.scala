@@ -14,7 +14,7 @@ import utils.db._
 case class Organization(id: Int = 0,
                         name: String,
                         kind: String,
-                        parentId: Int,
+                        parentId: Option[Int],
                         scopeId: Int,
                         createdAt: Instant = Instant.now,
                         updatedAt: Instant = Instant.now,
@@ -25,7 +25,7 @@ class Organizations(tag: Tag) extends FoxTable[Organization](tag, "organizations
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name      = column[String]("name")
   def kind      = column[String]("kind")
-  def parentId  = column[Int]("parent_id")
+  def parentId  = column[Option[Int]]("parent_id")
   def scopeId   = column[Int]("scope_id")
   def createdAt = column[Instant]("created_at")
   def updatedAt = column[Instant]("updated_at")

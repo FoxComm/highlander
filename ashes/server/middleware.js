@@ -38,7 +38,7 @@ module.exports = function(app) {
       return null;
     }
     try {
-      return jwt.verify(token, publicKey, {issuer: 'FC', algorithms: ['RS256', 'RS384', 'RS512']});
+      return jwt.verify(token, publicKey, {issuer: 'FC', audience: 'user', algorithms: ['RS256', 'RS384', 'RS512']});
     }
     catch(err) {
       console.error(`Can't decode token: ${err}`);
@@ -49,7 +49,8 @@ module.exports = function(app) {
     const authFreeUrls = /\/(login|signup)$/;
     if (!this.request.path.match(authFreeUrls)) {
       const token = getToken(this);
-      if (!token || !token.admin) {
+      // TODO: When we read tokens, validate that we have a claim to theadmin UI.
+      if (!token) {
         this.redirect(config.api.auth.loginUri);
       }
       this.state.token = token;
