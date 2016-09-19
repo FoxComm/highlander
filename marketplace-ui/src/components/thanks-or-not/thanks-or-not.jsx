@@ -11,6 +11,8 @@ type Props = {
   title?: HTMLElement;
   message: HTMLElement;
   error?: boolean;
+  className?: string;
+  children?: HTMLElement;
 }
 
 class ThanksOrNot extends Component {
@@ -22,16 +24,19 @@ class ThanksOrNot extends Component {
   };
 
   render(): HTMLElement {
-    const { error, title, message } = this.props;
+    const { error, title, message, className, children } = this.props;
 
+    const cls = cx(styles.thanksOrNot, className);
     const clsIcon = cx(styles.icon, {
       [styles.thanks]: !error,
       [styles.error]: error,
     });
 
+    const content = children || <div className={clsIcon} />;
+
     return (
-      <div className={styles.thanksOrNot}>
-        <div className={clsIcon} />
+      <div className={cls}>
+        {content}
         <div className={styles.title}>{title}</div>
         <div className={styles.message}>{message}</div>
       </div>

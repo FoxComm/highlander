@@ -79,6 +79,9 @@ type Selector = () => string;
 export const getActionState = (state: State) => (selector: Selector) => _.get(state, selector());
 export const getActionInProgress = (state: State, namespace) => _.get(state, `${namespace}.inProgress`, false);
 export const getActionFailed = (state: State, namespace) => !!_.get(state, `${namespace}.err`, null);
+export const getActionSucceeded = (state: State, namespace) => (
+  !!_.get(state, `${namespace}.finished`, null) && !_.get(state, `${namespace}.err`, null)
+);
 
 function createAsyncAction(namespace, type, payloadReducer) {
   const description = `${_.snakeCase(namespace).toUpperCase()}_${type.toUpperCase()}`;

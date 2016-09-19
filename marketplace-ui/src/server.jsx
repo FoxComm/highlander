@@ -8,7 +8,6 @@ import routes from './routes';
 import renderPage from '../build/main.html';
 
 export default function *renderReact() {
-  console.log('[renderReact] starting');
   const history = createMemoryHistory();
 
   const initialState = {};
@@ -28,10 +27,8 @@ export default function *renderReact() {
       </Provider>
     );
 
-    console.log('[renderReact] rendering');
     // const appHtml = ReactDOM.renderToString(rootElement);
     const appHtml = yield store.renderToString(ReactDOM, rootElement);
-    console.log('[renderReact] done');
 
     this.body = renderPage({
       html: appHtml,

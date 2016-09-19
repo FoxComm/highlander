@@ -30,10 +30,10 @@ type ApplicationResponse = {
 
 type State = Application;
 
-const ACTION_MERCHANT_APPLICATION_FETCH = 'merchantApplicationFetch';
-const ACTION_MERCHANT_APPLICATION_SUBMIT = 'merchantApplicationSubmit';
+const ACTION_FETCH = 'merchantApplicationFetch';
+const ACTION_SUBMIT = 'merchantApplicationSubmit';
 
-const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_MERCHANT_APPLICATION_SUBMIT, data =>
+const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, data =>
   new Promise((resolve, reject) =>
     api.post('/merchant_applications', { merchant_application: { ...data } })
       .then((application: Application) =>
@@ -47,7 +47,7 @@ const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_M
   )
 );
 
-const { perform: performFetch, ...actionsFetch } = createAsyncActions(ACTION_MERCHANT_APPLICATION_FETCH, reference =>
+const { perform: performFetch, ...actionsFetch } = createAsyncActions(ACTION_FETCH, reference =>
   api.get(`/merchant_applications/by_ref/${reference}`)
 );
 
@@ -67,8 +67,8 @@ const reducer = createReducer({
 }, initialState);
 
 const getApplication = (state: State) => state;
-const getApplicationActionNamespace = () => ACTION_MERCHANT_APPLICATION_SUBMIT;
-const getApplicationFetchActionNamespace = () => ACTION_MERCHANT_APPLICATION_FETCH;
+const getApplicationActionNamespace = () => ACTION_SUBMIT;
+const getApplicationFetchActionNamespace = () => ACTION_FETCH;
 
 export {
   reducer as default,

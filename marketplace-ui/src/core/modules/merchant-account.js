@@ -17,32 +17,34 @@ export type Account = {
   password?: string;
 }
 
-export type Accounts = {
-  merchant_accounts: Array<Account>;
+export type Accounts = Array<Account>;
+
+type AccountsResponse = {
+  merchant_accounts: Accounts
 }
 
 type State = Accounts;
 
-const ACTION_MERCHANT_ACCOUNT_FETCH = 'merchantAccountFetch';
-const ACTION_MERCHANT_ACCOUNT_SUBMIT = 'merchantAccountSubmit';
+const ACTION_FETCH = 'merchantAccountFetch';
+const ACTION_SUBMIT = 'merchantAccountSubmit';
 
-const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_MERCHANT_ACCOUNT_SUBMIT, (id: number, data: Object) =>
+const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, (id: number, data: Object) =>
   api.post(`/merchants/${id}/accounts`, { account: { ...data } })
 );
 
-const { perform: performFetch, ...actionsFetch } = createAsyncActions(ACTION_MERCHANT_ACCOUNT_FETCH, merchantId =>
+const { perform: performFetch, ...actionsFetch } = createAsyncActions(ACTION_FETCH, merchantId =>
   api.get(`/merchants/${merchantId}/accounts`)
 );
 
 const initialState: State = [];
 
 const reducer = createReducer({
-  [actionsFetch.succeeded]: (state: State, accounts: Accounts) => accounts.merchant_accounts,
+  [actionsFetch.succeeded]: (state: State, accounts: AccountsResponse) => accounts.merchant_accounts,
   [actionsSubmit.succeeded]: (state: State, account) => ([...state, account]),
 }, initialState);
 
 const getAccounts = (state: State) => state;
-const getAccountActionNamespace = () => ACTION_MERCHANT_ACCOUNT_SUBMIT;
+const getAccountActionNamespace = () => ACTION_SUBMIT;
 
 export {
   reducer as default,

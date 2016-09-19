@@ -72,11 +72,7 @@ class MerchantApplicationPage extends Component {
       </span>
     );
 
-    return (
-      <ThanksOrNot
-        message={message}
-      />
-    );
+    return <ThanksOrNot message={message} />;
   }
 
   get error(): HTMLElement {
@@ -85,13 +81,9 @@ class MerchantApplicationPage extends Component {
       return;
     }
 
-    return (
-      <ThanksOrNot
-        title="Sorry"
-        message={<span>No application with reference number<br />{ref}<br />found.</span>}
-        error
-      />
-    );
+    const message = <span>No application with reference number<br />{ref}<br />found.</span>;
+
+    return <ThanksOrNot title="Sorry" message={message} error />;
   }
 
   get form(): HTMLElement {

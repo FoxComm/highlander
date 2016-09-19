@@ -16,27 +16,6 @@ export const fields: Array<FormField> = [
     validation: 'required',
   },
   {
-    name: 'phone_number',
-    type: 'input',
-    placeholder: 'Phone Number',
-  },
-  {
-    name: 'business_name',
-    type: 'input',
-    placeholder: 'Business Name',
-    validation: 'required',
-  },
-  {
-    name: 'site_url',
-    type: 'text',
-    placeholder: 'Website',
-  },
-  {
-    name: 'description',
-    type: 'textarea',
-    placeholder: 'Description',
-  },
-  {
     name: 'email_address',
     type: 'input',
     placeholder: 'Email Address',

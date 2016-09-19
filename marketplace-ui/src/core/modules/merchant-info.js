@@ -12,9 +12,9 @@ type Profile = {
 
 type State = Profile;
 
-const ACTION_MERCHANT_INFO_SUBMIT = 'merchantInfoSubmit';
+const ACTION_SUBMIT = 'merchantInfoSubmit';
 
-const { perform, ...actions } = createAsyncActions(ACTION_MERCHANT_INFO_SUBMIT, (id, data) =>
+const { perform, ...actions } = createAsyncActions(ACTION_SUBMIT, (id, data) =>
   api.post(`/merchants/${id}/business_profile`, { business_profile: { ...data } })
 );
 
@@ -27,7 +27,7 @@ const reducer = createReducer({
   }),
 }, initialState);
 
-const getInfoActionNamespace = () => ACTION_MERCHANT_INFO_SUBMIT;
+const getInfoActionNamespace = () => ACTION_SUBMIT;
 
 export {
   reducer as default,

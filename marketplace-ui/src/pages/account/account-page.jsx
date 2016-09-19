@@ -36,13 +36,10 @@ class MerchantAccountPage extends Component {
     const { fetchApplication, fetch, params: { ref: refParam }, application, accounts } = this.props;
 
     if (refParam && !application.reference_number) {
-      console.log('fetching application');
       fetchApplication(refParam)
-        .then((application: Application) => {
-          console.log('fetching account');
-
-          return fetch(get(application, 'merchant.id'));
-        });
+        .then((application: Application) =>
+          fetch(get(application, 'merchant.id'))
+        );
     }
 
     if (application.reference_number) {
@@ -76,7 +73,7 @@ class MerchantAccountPage extends Component {
         <Form
           form="account"
           fields={fields}
-          onSubmit={submit.bind(null, application.merchant.id)}
+          onSubmit={submit.bind(null, get(application, 'merchant.id'))}
           inProgress={inProgress}
           failed={submitFailed}
         />
