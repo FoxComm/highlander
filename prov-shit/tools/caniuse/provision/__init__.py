@@ -1,6 +1,7 @@
 import ansible
 import ansible_lint
 import build_essential
+import golang
 import libssl_dev
 import pip
 from caniuse.common import run_tests
@@ -13,4 +14,5 @@ def caniuse():
         pip.check(),
         ansible.check(),
         ansible_lint.check(),
+        golang.check(),
     ])

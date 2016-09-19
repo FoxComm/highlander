@@ -17,6 +17,7 @@ def check():
                 "$ sudo apt-add-repository ppa:ansible/ansible-1.9\n"
                 "$ sudo apt-get update\n"
             )
+
         print (
             "Install ansible:\n"
             "$ sudo apt-get install ansible=1.9.x\n"
