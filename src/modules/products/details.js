@@ -6,7 +6,7 @@
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
-import { createEmptyProduct, configureProduct } from 'paragons/product';
+import { createEmptyProduct, configureProduct, mapSkusToVariants } from 'paragons/product';
 import createAsyncActions from '../async-utils';
 import { dissoc } from 'sprout-data';
 
@@ -15,6 +15,7 @@ import type { Product } from 'paragons/product';
 
 export type ProductDetailsState = {
   product: ?Product,
+  skuVariantMap: Object,
 };
 
 const defaultContext = 'default';
@@ -93,14 +94,14 @@ export const createProduct = _createProduct.perform;
 export const updateProduct = _updateProduct.perform;
 
 function updateProductInState(state: ProductDetailsState, response) {
-  return {
-    ...state,
-    product: configureProduct(response)
-  };
+  const product = configureProduct(response);
+  const skuVariantMap = mapSkusToVariants(product);
+  return { ...state, product, skuVariantMap };
 }
 
 const initialState: ProductDetailsState = {
   product: null,
+  skuVariantMap: {},
 };
 
 export function clearSubmitErrors() {

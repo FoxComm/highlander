@@ -225,3 +225,18 @@ export function availableVariants(variants): Array<Object> {
   }, [ [] ]);
   return availableVariants;
 }
+
+/**
+ * This is a convenience function that iterates through a product and creates a
+ * mapping from SKU => Variant => Value.
+ */
+export function mapSkusToVariants(product: Product): Object {
+  return _.reduce(product.variants, (res, variant) => {
+    const variantName = _.get(variant, 'attributes.name.v');
+    return _.reduce(variant.values, (res, value) => {
+      return _.reduce(value.skuCodes, (res, skuCode) => {
+        return assoc(res, [skuCode, variantName], value.name);
+      }, res);
+    }, res);
+  }, {});
+}

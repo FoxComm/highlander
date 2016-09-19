@@ -34,8 +34,10 @@ type Props = {
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
   onDeleteClick: (id: string|number) => void,
   isFetchingSkus: boolean|null,
+  skuVariantMap: Object,
   suggestSkus: (code: string, context?: SuggestOptions) => Promise,
   suggestedSkus: Array<SearchViewSku>,
+  variants: Array<any>,
 };
 
 type State = {
@@ -47,6 +49,7 @@ function mapStateToProps(state) {
   return {
     isFetchingSkus: _.get(state.asyncActions, 'skus-suggest.inProgress', null),
     suggestedSkus: _.get(state, 'skus.suggest.skus', []),
+    skuVariantMap: state.products.details.skuVariantMap,
   };
 }
 
@@ -229,11 +232,14 @@ class EditableSkuRow extends Component {
 
   variantCell(field: any, sku: Sku): Element {
     if (field.indexOf('variant') > 0) {
+      const mapping = this.props.skuVariantMap;
+
       const idx = parseInt(field);
       const variant = _.get(this.props.variants, idx, {});
       const values = _.get(variant, 'values', []);
       const valuesToSelect = _.map(values, (value) => [value.name, value.name]);
-      const selected = _.get(sku, ['varaintValues', idx]);
+
+      const selected = _.get(mapping, [sku.attributes.code.v, variant.attributes.name.v]);
 
       return (
         <Dropdown
@@ -241,8 +247,7 @@ class EditableSkuRow extends Component {
           items={valuesToSelect}
           placeholder={variant.name}
           value={selected}
-          onChange={({target}) => console.log(field, target.value)}
-        />
+          onChange={({target}) => console.log(field, target.value)} />
       );
     }
 
