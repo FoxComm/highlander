@@ -3,6 +3,7 @@ from importlib import import_module
 projects = [
     'ashes',
     'firebrand',
+    'provision',
 ]
 
 
