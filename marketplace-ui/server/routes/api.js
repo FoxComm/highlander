@@ -5,7 +5,7 @@ export default function makeApiProxy() {
 
   return proxy({
     host,
-    match: /^\/api\//,
-    map: (path) => path.replace(/^\/api/, ''),
+    match: /^\/mkt\//,
+    map: (path) => path.replace(/^\/mkt/, ''),
   });
 }

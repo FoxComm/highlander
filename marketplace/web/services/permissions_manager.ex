@@ -30,10 +30,10 @@ defmodule Marketplace.PermissionManager do
   # Will create an organization from solomon via HTTP and return an ID
   def create_user_from_merchant_account(ma) do
     HTTPoison.start
-    first_name = Map.fetch!(ma, "first_name")
-    last_name = Map.fetch!(ma, "last_name")
-    email = Map.fetch!(ma, "email_address")
-    phone_number = Map.fetch!(ma, "phone_number")
+    first_name = Map.get(ma, "first_name", "FirstName")
+    last_name = Map.get(ma, "last_name", "LastName")
+    email = Map.get(ma, "email_address", "donkey@donkey.com")
+    phone_number = Map.get(ma, "phone_number", "415-673-3553")
     password = Map.fetch!(ma, "password")
     post_body = %{user: %{name: "#{first_name} #{last_name}", 
         email: email,
