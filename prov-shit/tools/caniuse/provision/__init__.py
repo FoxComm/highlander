@@ -5,6 +5,7 @@ import gcloud
 import golang
 import libssl_dev
 import pip
+import vagrant
 from caniuse.common import run_tests
 
 
@@ -17,4 +18,5 @@ def caniuse():
         ansible_lint.check(),
         golang.check(),
         gcloud.check(),
+        vagrant.check(),
     ])
