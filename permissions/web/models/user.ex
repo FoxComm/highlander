@@ -10,7 +10,7 @@ defmodule Permissions.User do
     field :name, :string
     field :phone_number, :string
 
-    belong_to :account, Permission.Account
+    belongs_to :account, Permission.Account
   end
 
   @required_fields ~w(email name)

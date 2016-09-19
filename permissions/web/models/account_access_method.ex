@@ -6,7 +6,7 @@ defmodule Permissions.AccountAccessMethod do
     field :hashed_password, :string
     field :algorithm, :integer
 
-    belong_to :account, Permission.Account
+    belongs_to :account, Permission.Account
   end
 
   @required_fields ~w(name hashed_password algorithm)
