@@ -44,7 +44,7 @@ defmodule Permissions.UserView do
     }
   end
 
-  def render("user_with_access_method.json", %{user: user, account_access_methods: aams}) do
+  def render("user_with_access_method.json", %{user: user}) do
     %{id: user.id,
       email: user.email,
       is_disabled: user.is_disabled,
@@ -53,8 +53,10 @@ defmodule Permissions.UserView do
       blacklisted_by: user.blacklisted_by,
       name: user.name,
       phone_number: user.phone_number,
-      account_id: user.account_id, 
-      access_methods: render_many(aams, UserView, "account_access_method.json") 
+      account: %{
+        id: user.account.id,
+        ratchet: user.account.ratchet
+      }
     }
   end
 
