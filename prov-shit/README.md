@@ -91,3 +91,4 @@ Get the private IP address
     $ ifconfig eth0
     
 Edit your hosts file so that `foxcommerce.local` and `admin.foxcommerce.local` point to the new box using the private IP address you just retrieved.  
+
