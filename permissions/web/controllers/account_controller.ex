@@ -12,7 +12,7 @@ defmodule Permissions.AccountController do
     changeset = Account.changeset(%Account{}, account_params)
 
     case Repo.insert(changeset) do
-      {:ok, account} -> 
+      {:ok, account} ->
         conn
         |> put_status(:created)
         |> put_resp_header("location", account_path(conn, :show, account))
