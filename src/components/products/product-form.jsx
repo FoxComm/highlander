@@ -17,6 +17,8 @@ import Tags from '../tags/tags';
 import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
 
+import * as ProductParagon from 'paragons/product';
+
 // types
 import type { Attributes } from 'paragons/object';
 import type { Product } from 'paragons/product';
@@ -33,6 +35,7 @@ type Props = {
 
 type State = {
   isAddingProperty: bool,
+  variants: Array<any>,
 };
 
 const omitKeys = {
@@ -54,6 +57,7 @@ export default class ProductForm extends Component {
 
   state: State = {
     isAddingProperty: false,
+    variants: this.props.product.variants,
   };
 
   get generalAttrs(): Array<string> {
@@ -74,48 +78,77 @@ export default class ProductForm extends Component {
     ];
   }
 
-  get skusContentBox(): Element {
-    const variants = [
-      {
-        "name": "Color",
-        "values": [
-          {
-            "name": "Red",
-            "swatch": "FF0000"
-          },
-          {
-            "name": "Blue",
-            "swatch": "0000FF"
-          }
-        ]
-      },
-      {
-        "name": "Size",
-        "values": [
-          {
-            "name": "S",
-            "swatch": "S"
-          },
-          {
-            "name": "M",
-            "swatch": "M"
-          },
-          {
-            "name": "L",
-            "swatch": "L"
-          }
-        ]
-      }
-    ];
-
-    return (
-      <SkuContentBox
-        fullProduct={this.props.product}
-        updateField={this.props.onSetSkuProperty}
-        updateFields={this.props.onSetSkuProperties}
-        variants={variants}
-      />
+  @autobind
+  updateSkuVariantMapping(variants: Array<any>): void {
+    let updatedVariants = [];
+    let skus = [];
+    if (_.isEmpty(variants) || _.every(variants, variant => { return _.size(variant.values) <= 1 })) {
+      skus = [ProductParagon.createEmptySku()];
+      updatedVariants = variants;
+    } else {
+      const availableVariants = ProductParagon.availableVariants(variants);
+      skus = _.map(availableVariants, variantCombination => {
+        const sku = ProductParagon.createEmptySkuForVariantValues(variantCombination);
+        return sku;
+      });
+      updatedVariants = _.map(variants, variant => {
+        const values = _.map(variant.values, value => {
+          const result = _.reduce(skus, (acc, sku) => {
+            if (sku.varaintValues.indexOf(value.name) >= 0) {
+              const code = sku.code || sku.feCode;
+              return acc.concat([code]);
+            }
+            return acc;
+          }, []);
+          value.skuCodes = result;
+          return value;
+        });
+        variant.values = values;
+        variant.attributes = { name: { 't': 'string', 'v': variant.name }};
+        return variant;
+      });
+    }
+    const newProduct = assoc(
+      this.props.product,
+      ['skus'], skus,
+      ['variants'], updatedVariants
     );
+    return this.props.onUpdateProduct(newProduct);
+  }
+
+  @autobind
+  updateSkuForVariant(code: string, updateArray: Array<Array<any>>): void {
+    const variants = _.get(this.props, 'product.variants');
+    if (_.isEmpty(variants)) {
+      this.props.onSetSkuProperties(code, updateArray);
+    } else {
+      const newProduct = _.reduce(updateArray, (p, [field, value]) => {
+        return ProductParagon.setSkuAttribute(p, code, field, value);
+      }, this.props.product);
+      // NOTE: Jeff - Commenting this out for now. We don't want to update the
+      // mapping between FECODE and Variant as we're editing on the frontend.
+      // Let's save that for when we submit to the API.
+
+      // const updatedVariants = _.map(variants, variant => {
+      //   const values = _.map(variant.values, value => {
+      //     const idx = value.skuCodes.indexOf(code);
+      //     if (idx >= 0) {
+      //       const newCode = _.find(updateArray, entry => { return entry[0] == 'code' });
+      //       value.skuCodes[idx] = newCode[1];
+      //     }
+      //     return value;
+      //   });
+      //   variant.values = values;
+      //   return variant;
+      // });
+      // newProduct.variants = updatedVariants;
+      return this.props.onUpdateProduct(newProduct);
+    }
+  }
+
+  @autobind
+  updateVariants(newVariants: Array<any>): void {
+    this.updateSkuVariantMapping(newVariants);
   }
 
   @autobind
@@ -173,22 +206,33 @@ export default class ProductForm extends Component {
             fieldsToRender={this.generalAttrs}
             attributes={attributes}
             options={options}
-            title="General" />
+            title="General"
+          />
 
-          <OptionList variants={this.props.product.variants} />
+          <OptionList
+            variants={this.props.product.variants}
+            updateVariants={this.updateVariants}
+          />
 
-          {this.skusContentBox}
+          <SkuContentBox
+            fullProduct={this.props.product}
+            updateField={this.props.onSetSkuProperty}
+            updateFields={this.updateSkuForVariant}
+            variants={this.props.product.variants}
+          />
 
           <ObjectForm
             onChange={this.handleProductChange}
             fieldsToRender={defaultKeys.seo}
             attributes={attributes}
-            title="SEO" />
+            title="SEO"
+          />
         </div>
         <div className="fc-col-md-2-5">
           <Tags
             attributes={attributes}
-            onChange={this.handleProductChange} />
+            onChange={this.handleProductChange}
+          />
           {this.productState}
         </div>
       </div>

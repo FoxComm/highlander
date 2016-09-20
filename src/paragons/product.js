@@ -35,15 +35,21 @@ export type Product = {
 };
 
 export type Option = {
-  name: ?string,
+  attributes: {
+    name: {
+      t: ?string,
+      v: ?string,
+    },
+  },
   type: ?string,
-  values: Dictionary<OptionValue>,
+  values: Array<OptionValue>,
 };
 
 export type OptionValue = {
   name: string,
   swatch: ?string,
   image: ?string,
+  skuCodes: Array<string>,
 };
 
 export const options = {
@@ -83,14 +89,12 @@ export function createEmptyProduct(): Product {
   return configureProduct(addEmptySku(product));
 }
 
-export function addEmptySku(product: Product): Product {
+export function createEmptySku(): Object {
   const pseudoRandomCode = generateSkuCode();
-
   const emptyPrice = {
     t: 'price',
     v: { currency: 'USD', value: 0 },
   };
-
   const emptySku = {
     feCode: pseudoRandomCode,
     attributes: {
@@ -106,6 +110,37 @@ export function addEmptySku(product: Product): Product {
       salePrice: emptyPrice,
     },
   };
+  return emptySku;
+}
+
+export function createEmptySkuForVariantValues(values: Array<any>): Object {
+  const pseudoRandomCode = generateSkuCode();
+  const emptyPrice = {
+    t: 'price',
+    v: { currency: 'USD', value: 0 },
+  };
+  const valuesArray = _.map(values, value => value.name)
+  const emptySku = {
+    feCode: pseudoRandomCode,
+    attributes: {
+      code: {
+        t: 'string',
+        v: '',
+      },
+      title: {
+        t: 'string',
+        v: '',
+      },
+      retailPrice: emptyPrice,
+      salePrice: emptyPrice,
+    },
+    varaintValues: valuesArray,
+  };
+  return emptySku;
+}
+
+export function addEmptySku(product: Product): Product {
+  const emptySku = createEmptySku();
 
   const newSkus = [emptySku, ...product.skus];
   return assoc(product, 'skus', newSkus);
@@ -157,9 +192,9 @@ export function setSkuAttribute(product: Product,
   const val = type == 'price' ? parseInt(value) : value;
 
   const updateAttribute = sku => {
-    const code = _.get(sku, 'attributes.code.v');
+    const skuCode = _.get(sku, 'attributes.code.v');
 
-    return (code == code || sku.feCode == code)
+    return (skuCode == code || sku.feCode == code)
       ? assoc(sku, attrPath, val)
       : sku;
   };
@@ -167,4 +202,42 @@ export function setSkuAttribute(product: Product,
   const newSkus = product.skus.map(sku => updateAttribute(sku));
 
   return assoc(product, 'skus', newSkus);
+}
+
+function variantsWithMultipleOptions(variants: Array<any>): Array<Object> {
+  const opts = _.reduce(variants, (acc, variant) => {
+    if (_.isEmpty(variant.values)) {
+      return acc;
+    }
+    return acc.concat([variant.values]);
+  }, []);
+  return opts;
+}
+
+export function availableVariants(variants: Array<any>): Array<Object> {
+  const opts = variantsWithMultipleOptions(variants);
+  // magic of Cartesian product http://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
+  const availableVariants = _.reduce(opts, (acc, currentOptionList) => {
+    return _.flatten(_.map(acc, (accValue) => {
+      return _.map(currentOptionList, (option) => {
+        return accValue.concat([option]);
+      });
+    }), true);
+  }, [ [] ]);
+  return availableVariants;
+}
+
+/**
+ * This is a convenience function that iterates through a product and creates a
+ * mapping from SKU => Variant => Value.
+ */
+export function mapSkusToVariants(product: Product): Object {
+  return _.reduce(product.variants, (res, variant) => {
+    const variantName = _.get(variant, 'attributes.name.v');
+    return _.reduce(variant.values, (res, value) => {
+      return _.reduce(value.skuCodes, (res, skuCode) => {
+        return assoc(res, [skuCode, variantName], value.name);
+      }, res);
+    }, res);
+  }, {});
 }

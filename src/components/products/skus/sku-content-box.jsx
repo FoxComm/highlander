@@ -34,7 +34,7 @@ class SkuContentBox extends Component {
     addDialogIsShown: false,
   };
 
-  get actions(): Element {
+  get actions(): ?Element {
     if (_.isEmpty(this.props.variants)) {
       return null;
     }
@@ -82,8 +82,8 @@ class SkuContentBox extends Component {
       <ContentBox title="SKUs" actionBlock={ this.actions }>
         <SkuList
           fullProduct={this.props.fullProduct}
-          updateField={this.props.onSetSkuProperty}
-          updateFields={this.props.onSetSkuProperties}
+          updateField={this.props.updateField}
+          updateFields={this.props.updateFields}
           variants={this.props.variants}
         />
         { this.addSkuDialog }

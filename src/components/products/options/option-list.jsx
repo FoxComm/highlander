@@ -20,14 +20,16 @@ import type { Option } from 'paragons/product';
 
 type Props = {
   variants: Array<Option>,
+  updateVariants: Function,
+};
+
+type EditOption = {
+  id: string|number,
+  option: Option,
 };
 
 type State = {
-  editOption?: {
-    id: string|number,
-    option: Option
-  },
-  variants: Array<Option>,
+  editOption: ?EditOption,
 };
 
 class OptionList extends Component {
@@ -35,7 +37,6 @@ class OptionList extends Component {
 
   state: State = {
     editOption: null,
-    variants: this.props.variants,
   };
 
   get actions(): Element {
@@ -55,16 +56,16 @@ class OptionList extends Component {
   }
 
   @autobind
-  startEditOption(id: string|number) {
+  startEditOption(id: string|number): void {
     let editOption = { id };
 
     if (id !== 'new') {
-      editOption.option = this.state.variants[id]
+      editOption.option = this.props.variants[id];
     } else {
       editOption.option = {
         name: '',
         type: '',
-      }
+      };
     }
 
     this.setState({
@@ -73,19 +74,17 @@ class OptionList extends Component {
   }
 
   @autobind
-  deleteOption(id: string|number) {
-    const { variants } = this.state;
+  deleteOption(id: number): void {
+    const { variants } = this.props;
 
     variants.splice(id, 1);
 
-    this.setState({
-      variants
-    });
+    this.props.updateVariants(variants);
   }
 
   @autobind
-  updateOption(option: Option, id: string|number) {
-    const { variants } = this.state;
+  updateOption(option: Option, id: string|number): void {
+    const { variants } = this.props;
 
     if (id === 'new') {
       variants.push(option);
@@ -94,13 +93,12 @@ class OptionList extends Component {
     }
 
     this.setState({
-      variants,
       editOption: null,
-    });
+    }, () => this.props.updateVariants(variants));
   }
 
   @autobind
-  cancelEditOption() {
+  cancelEditOption(): void {
     this.setState({
       editOption: null,
     });
@@ -123,9 +121,10 @@ class OptionList extends Component {
   }
 
   render(): Element {
-    const variants = this.renderOptions(this.state.variants);
+    const variants = this.renderOptions(this.props.variants);
     const content = _.isEmpty(variants) ? this.emptyContent : variants;
-    const optionDialog = (
+
+    const optionDialog = this.state.editOption && (
       <OptionEditDialog
         option={this.state.editOption}
         cancelAction={this.cancelEditOption}

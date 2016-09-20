@@ -5,6 +5,7 @@
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
+import _ from 'lodash';
 
 // components
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
@@ -16,11 +17,13 @@ import styles from './option-list.css';
 // types
 import type { Option } from 'paragons/product';
 
+type OptionEntry = {
+  id: number|string,
+  option: Option,
+};
+
 type Props = {
-  option: {
-    id: number|string,
-    option: Option,
-  },
+  option: ?OptionEntry,
   confirmAction: Function,
   cancelAction: Function,
 };
@@ -33,44 +36,45 @@ class OptionEditDialog extends Component {
   props: Props;
 
   state: State = {
-    option: this.props.option.option,
+    option: _.get(this.props, 'option.option'),
   };
 
   get title(): string {
-    return this.props.option.id === 'new' ? 'New option' : 'Edit option';
+    return _.get(this.props, 'option.id') === 'new' ? 'New option' : 'Edit option';
   }
 
   @autobind
-  handleChange(value: string, field: string) {
+  handleChange(value: string, field: string): void {
     const option = assoc(this.state.option, field, value);
 
     this.setState({option});
   }
 
   @autobind
-  updateOption() {
-    this.props.confirmAction(this.state.option, this.props.option.id);
+  updateOption(): void {
+    if (this.props.option != null) {
+      this.props.confirmAction(this.state.option, this.props.option.id);
+    }
   }
 
-  renderDialogContent() {
+  renderDialogContent(): Element {
+    const name = _.get(this.state, 'option.attributes.name.v');
     return (
       <div styleName="option-edit-dialog">
         <FormField
           className="fc-object-form__field"
           label="Name"
-          key={`object-form-attribute-name`}
-        >
+          key={`object-form-attribute-name`} >
           <input
             type="text"
-            value={this.state.option.name}
+            value={name}
             onChange={({target}) => this.handleChange(target.value, 'name')}
           />
         </FormField>
         <FormField
           className="fc-object-form__field"
           label="Display Type"
-          key={`object-form-attribute-type`}
-        >
+          key={`object-form-attribute-type`} >
           <input
             type="text"
             value={this.state.option.type}

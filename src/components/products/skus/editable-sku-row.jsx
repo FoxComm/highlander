@@ -34,8 +34,10 @@ type Props = {
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
   onDeleteClick: (id: string|number) => void,
   isFetchingSkus: boolean|null,
+  skuVariantMap: Object,
   suggestSkus: (code: string, context?: SuggestOptions) => Promise,
   suggestedSkus: Array<SearchViewSku>,
+  variants: Array<any>,
 };
 
 type State = {
@@ -47,6 +49,7 @@ function mapStateToProps(state) {
   return {
     isFetchingSkus: _.get(state.asyncActions, 'skus-suggest.inProgress', null),
     suggestedSkus: _.get(state, 'skus.suggest.skus', []),
+    skuVariantMap: state.products.details.skuVariantMap,
   };
 }
 
@@ -69,11 +72,12 @@ class EditableSkuRow extends Component {
   };
 
   componentWillReceiveProps(nextProps: Props) {
-    if (this.props.isFetchingSkus && !nextProps.isFetchingSkus) {
-      this.setState({
-        isMenuVisible: true,
-      });
-    }
+    // NOTE: Jeff - This is really annoying, so I closed it
+    // if (this.props.isFetchingSkus && !nextProps.isFetchingSkus) {
+    //   this.setState({
+    //     isMenuVisible: true,
+    //   });
+    // }
   }
 
   updateSkuFromSuggest() {
@@ -226,27 +230,28 @@ class EditableSkuRow extends Component {
     );
   }
 
-  variantCell(field: any, sku: Sku): Element {
-    if (field.indexOf('variant') > 0) {
-      const idx = parseInt(field);
-      const variant = _.get(this.props.variants, idx, {});
-      const values = _.get(variant, 'values', []);
-      let valuesToSelect = [];
-      _.each(values, (value, idx) => valuesToSelect.push([idx, value.name]));
-      const selected = _.get(sku, ['variantValueIds', idx]);
-
-      return (
-        <Dropdown
-          name={field}
-          items={valuesToSelect}
-          placeholder={variant.name}
-          value={selected}
-          onChange={({target}) => console.log(field, target.value)}
-        />
-      );
+  variantCell(field: any, sku: Sku): ?Element {
+    if (field.indexOf('variant') < 0) {
+      return null;
     }
 
-    return null;
+    const mapping = this.props.skuVariantMap;
+
+    const idx = parseInt(field);
+    const variant = _.get(this.props.variants, idx, {});
+    const values = _.get(variant, 'values', []);
+    const valuesToSelect = _.map(values, (value) => [value.name, value.name]);
+
+    const selected = _.get(mapping, [sku.attributes.code.v, _.get(variant, 'attributes.name.v')]);
+
+    return (
+      <Dropdown
+        name={field}
+        items={valuesToSelect}
+        placeholder={variant.name}
+        value={selected}
+        onChange={(value) => console.log(field, value)} />
+    );
   }
 
   actionsCell(sku: Sku): Element {
@@ -287,13 +292,15 @@ class EditableSkuRow extends Component {
   }
 
   updateSku(values: {[key: string]: any}) {
+    console.log("UPDATING THE SKU!!");
     this.setState({
       sku: Object.assign({}, this.state.sku, values),
     }, () => {
       const toUpdate = _.map(values, (value: any, field: string) => {
+        this.props.updateField(this.code, field, value);
         return [field, value];
       });
-      this.props.updateFields(this.code, toUpdate);
+      // this.props.updateFields(this.code, toUpdate);
     });
   }
 

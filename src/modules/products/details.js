@@ -3,9 +3,10 @@
  */
 
 // libs
+import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
-import { createEmptyProduct, configureProduct } from 'paragons/product';
+import { createEmptyProduct, configureProduct, mapSkusToVariants } from 'paragons/product';
 import createAsyncActions from '../async-utils';
 import { dissoc } from 'sprout-data';
 
@@ -14,6 +15,7 @@ import type { Product } from 'paragons/product';
 
 export type ProductDetailsState = {
   product: ?Product,
+  skuVariantMap: Object,
 };
 
 const defaultContext = 'default';
@@ -57,6 +59,26 @@ export function fetchProduct(id: string, context: string = defaultContext): Acti
 const _createProduct = createAsyncActions(
   'createProduct',
   (product: Product, context: string = defaultContext) => {
+    const feCodes = _.reduce(product.skus, (res, sku) => {
+      const code = _.get(sku, 'attributes.code.v');
+      return { ...res, [sku.feCode]: code };
+    }, {});
+
+    // Wow, this is super-duper ugly.
+    for (let i = 0; i < product.variants.length; i++) {
+      let variant = product.variants[i];
+      for (let j = 0; j < variant.values.length; j++) {
+        let value = variant.values[j];
+        for (let k = 0; k < value.skuCodes.length; k++) {
+          let code = value.skuCodes[k];
+          let realCode = _.get(feCodes, code);
+          if (realCode) {
+            product.variants[i].values[j].skuCodes[k] = realCode;
+          }
+        }
+      }
+    }
+
     return Api.post(`/products/${context}`, product);
   }
 );
@@ -72,14 +94,14 @@ export const createProduct = _createProduct.perform;
 export const updateProduct = _updateProduct.perform;
 
 function updateProductInState(state: ProductDetailsState, response) {
-  return {
-    ...state,
-    product: configureProduct(response)
-  };
+  const product = configureProduct(response);
+  const skuVariantMap = mapSkusToVariants(product);
+  return { ...state, product, skuVariantMap };
 }
 
 const initialState: ProductDetailsState = {
   product: null,
+  skuVariantMap: {},
 };
 
 export function clearSubmitErrors() {

@@ -24,15 +24,17 @@ type Props = {
   option: ?Option,
   editOption: Function,
   deleteOption: Function,
-  editValues: Function,
   confirmAction: Function,
 };
 
+type Value = {
+  id: string|number,
+  value: OptionValue,
+};
+
+
 type State = {
-  editValue?: {
-    id: string|number,
-    value: OptionValue
-  }
+  editValue: ?Value,
 };
 
 class OptionEntry extends Component {
@@ -46,8 +48,8 @@ class OptionEntry extends Component {
     return _.get(this.props, 'option.values', []);
   }
 
-  get content() {
-    const optionName = _.get(this.props, 'option', '');
+  get content(): Element {
+    const optionName = _.get(this.props, 'option.attributes.name.v', '');
 
     const entries = _.map(this.values, (value, key) => {
       return (
@@ -70,7 +72,7 @@ class OptionEntry extends Component {
     );
   }
 
-  get emptyContent() {
+  get emptyContent(): Element {
     return (
       <div className="fc-content-box__empty-text">
         This option does not have values applied.
@@ -78,7 +80,7 @@ class OptionEntry extends Component {
     );
   }
 
-  get titleBarActions():Element {
+  get titleBarActions(): Element {
     return (
       <div className="fc-option-entry__actions">
         <a onClick={() => this.editValue('new')} styleName="action-icon"><i className="icon-add"/></a>
@@ -89,13 +91,13 @@ class OptionEntry extends Component {
   }
 
   @autobind
-  editValue(id: string|number, value: OptionValue) {
+  editValue(id: string|number, value: ?OptionValue): void {
     let editValue = { id };
 
     if (value) {
-      editValue.value = value;
+      editValue['value'] = value;
     } else {
-      editValue.value = {
+      editValue['value'] = {
         name: '',
         swatch: '',
       }
@@ -105,7 +107,7 @@ class OptionEntry extends Component {
   };
 
   @autobind
-  deleteValue(id: string|number) {
+  deleteValue(id: number): void {
     const values = this.values;
 
     values.splice(id, 1);
@@ -115,7 +117,7 @@ class OptionEntry extends Component {
   }
 
   @autobind
-  updateValue(value: OptionValue, id: string|number) {
+  updateValue(value: OptionValue, id: string|number): void {
     const values = this.values;
 
     if (id === 'new') {
@@ -131,14 +133,15 @@ class OptionEntry extends Component {
   }
 
   @autobind
-  cancelEdit() {
+  cancelEdit(): void {
     this.setState({ editValue: null })
   }
 
   render(): Element {
     const values = this.values;
+    const name = _.get(this.props, 'option.attributes.name.v');
     const content = _.isEmpty(values) ? this.emptyContent : this.content;
-    const valueDialog = (
+    const valueDialog = this.state.editValue && (
       <ValueEditDialog
         value={this.state.editValue}
         cancelAction={this.cancelEdit}
@@ -148,11 +151,10 @@ class OptionEntry extends Component {
 
     return (
       <ContentBox
-        title={this.props.option.name}
+        title={name}
         actionBlock={this.titleBarActions}
         indentContent={false}
-        className="fc-option-entry"
-      >
+        className="fc-option-entry">
         {content}
         {this.state.editValue && valueDialog}
       </ContentBox>

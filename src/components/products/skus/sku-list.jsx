@@ -36,7 +36,7 @@ export default class SkuList extends Component {
     skuId: null,
   };
 
-  get tableColumns(): Array<Object> {
+  tableColumns(): Array<Object> {
     const { variants } = this.props;
     const variantColumns = [];
     _.each(variants, (variant, idx) => {
@@ -52,23 +52,10 @@ export default class SkuList extends Component {
     ];
 
     if (!_.isEmpty(variants) && this.skus.length > 1) {
-      columns.push({ field: 'actions', test: '' })
+      columns.push({ field: 'actions', text: '' });
     }
 
     return columns;
-  }
-
-  get availableVariants(): Array<Object> {
-    const opts = _.map(this.props.variants, variant => variant.values);
-    // magic of Cartesian product http://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
-    const variants = _.reduce(opts, function(a, b) {
-        return _.flatten(_.map(a, function(x) {
-            return _.map(b, function(y) {
-                return x.concat([y]);
-            });
-        }), true);
-    }, [ [] ]);
-    return variants;
   }
 
   get skus(): Array<Sku> {
@@ -156,19 +143,19 @@ export default class SkuList extends Component {
     return (
       <div className="fc-sku-list">
         <MultiSelectTable
-          columns={this.tableColumns}
+          columns={this.tableColumns()}
           dataTable={false}
           data={{ rows: skus }}
           renderRow={renderRow}
           emptyMessage="This product does not have any SKUs."
-          hasActionsColumn={false} />
+          hasActionsColumn={false}
+        />
         { this.deleteDialog }
       </div>
     );
   }
 
   render(): Element {
-    this.availableVariants;
     return _.isEmpty(this.skus)
       ? this.emptyContent
       : this.skuContent(this.skus);

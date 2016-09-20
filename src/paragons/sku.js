@@ -8,7 +8,6 @@ import type { Sku } from '../modules/skus/details';
 
 export const options = {
   code: { label: 'SKU', required: true },
-  title: { required: true },
   upc: { label: 'UPC' },
 };
 
