@@ -53,6 +53,11 @@ object TaxesService {
                                               discount)
     } yield {}
 
+  def cancelTaxes(cord: Order)(implicit ec: EC, apis: Apis): DbResultT[Unit] =
+    for {
+      _ ← * <~ apis.avalaraApi.cancelTax(cord)
+    } yield {}
+
   def saveAddressValidationDetails(
       address: OrderShippingAddress
   )(implicit ec: EC, db: DB, apis: Apis): DbResultT[Unit] =
