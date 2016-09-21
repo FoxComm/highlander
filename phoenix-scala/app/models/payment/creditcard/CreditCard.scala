@@ -28,8 +28,6 @@ case class CreditCard(id: Int = 0,
                       expMonth: Int,
                       expYear: Int,
                       isDefault: Boolean = false,
-                      address1Check: Option[String] = None,
-                      zipCheck: Option[String] = None,
                       inWallet: Boolean = true,
                       deletedAt: Option[Instant] = None,
                       regionId: Int,
@@ -115,8 +113,6 @@ object CreditCard {
                expMonth = p.expMonth,
                expYear = p.expYear,
                isDefault = p.isDefault,
-               address1Check = card.getAddressLine1Check.some,
-               zipCheck = card.getAddressZipCheck.some,
                regionId = a.regionId,
                addressName = a.name,
                address1 = a.address1,
@@ -140,17 +136,14 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
   def expYear           = column[Int]("exp_year")
   def brand             = column[String]("brand")
   def isDefault         = column[Boolean]("is_default")
-  def address1Check     = column[Option[String]]("address1_check")
-  def zipCheck          = column[Option[String]]("zip_check")
   def inWallet          = column[Boolean]("in_wallet")
   def deletedAt         = column[Option[Instant]]("deleted_at")
-
-  def regionId    = column[Int]("region_id")
-  def addressName = column[String]("address_name")
-  def address1    = column[String]("address1")
-  def address2    = column[Option[String]]("address2")
-  def city        = column[String]("city")
-  def zip         = column[String]("zip")
+  def regionId          = column[Int]("region_id")
+  def addressName       = column[String]("address_name")
+  def address1          = column[String]("address1")
+  def address2          = column[Option[String]]("address2")
+  def city              = column[String]("city")
+  def zip               = column[String]("zip")
 
   def * =
     (id,
@@ -163,8 +156,6 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
      expMonth,
      expYear,
      isDefault,
-     address1Check,
-     zipCheck,
      inWallet,
      deletedAt,
      regionId,
