@@ -48,7 +48,7 @@ class StorefrontAccessSimulation extends Simulation {
     .exec(IntruderActivity.Address.update(address))
     .exec(IntruderActivity.Address.setAsDefault())
     .exec(IntruderActivity.Address.delete())
-    .exec(IntruderActivity.Cart.shippingAddressAdd())
+    //.exec(IntruderActivity.Cart.shippingAddressAdd())
     // Cleanup
     .exec(CustomerActivity.asCustomer())
     .exec(AddressEndpoint.removeDefault())
