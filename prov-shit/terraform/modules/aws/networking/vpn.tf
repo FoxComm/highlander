@@ -35,6 +35,14 @@ resource "aws_security_group" "vpn_tcp_udp_sg" {
     cidr_blocks = ["${var.ip_range}"]
   }
 
+  # Allow SSH connections
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.ip_range}"]
+  }  
+
   # Allow TCP for VPN
   ingress {
     from_port = 1194
