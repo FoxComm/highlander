@@ -5,6 +5,7 @@ TF_CMD ?= plan
 TF_BASE = terraform/base
 TF_ENVS = terraform/envs
 PRIVATE_KEY ?= ~/.ssh/id_rsa
+SSH_USER ?= ubuntu
 
 # Main commands
 all: build
@@ -59,7 +60,7 @@ bootstrap-target-openvpn-key:
 	ansible-playbook -v -i bin/envs/target ansible/bootstrap_openvpn_key.yml
 
 bootstrap-target-vpn:
-	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_vanilla_vpn.yml
+	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_vanilla_vpn.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 bootstrap-vanilla:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml
