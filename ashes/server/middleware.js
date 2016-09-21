@@ -81,8 +81,8 @@ module.exports = function(app) {
     };
 
     let layoutData = _.defaults({
-      stylesheet: `/admin.css`,
-      javascript: `/admin.js`,
+      stylesheet: `admin_assets/admin.css`,
+      javascript: `admin_assets/admin.js`,
       rootHTML: this.state.html,
       appStart: `App.start(${htmlescape(bootstrap)});`,
       // use GA_LOCAL=1 gulp dev command for enable tracking events in google analytics from localhost

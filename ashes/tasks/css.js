@@ -13,7 +13,7 @@ module.exports = function(gulp) {
     return gulp.src(src)
       .pipe(concat('admin.css'))
       .pipe(_if(process.env.NODE_ENV === 'production', cssnano()))
-      .pipe(gulp.dest('public'));
+      .pipe(gulp.dest('public/admin_assets'));
   });
 
   gulp.task('css.watch', function() {

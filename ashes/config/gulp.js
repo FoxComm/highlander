@@ -9,6 +9,7 @@ module.exports = function() {
     taskDir: path.resolve('tasks'),
     srcDir: path.resolve('src'),
     publicDir: path.resolve('public'),
+    assetsDir: path.resolve('public', 'admin_assets'),
     testDir: path.resolve('test'),
     testSrc: path.resolve('test', '**/*.js'),
     configSrc: path.resolve('config', '*.js'),
