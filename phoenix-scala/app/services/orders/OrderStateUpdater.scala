@@ -12,8 +12,10 @@ import models.payment.storecredit.StoreCreditAdjustments.scope._
 import responses.cord.{AllOrders, OrderResponse}
 import responses.{BatchMetadata, BatchMetadataSource, BatchResponse}
 import services.LogActivity.{orderBulkStateChanged, orderStateChanged}
+import services.taxes.TaxesService
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 object OrderStateUpdater {
@@ -21,14 +23,21 @@ object OrderStateUpdater {
   def updateState(admin: User, refNum: String, newState: Order.State)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[OrderResponse] =
+      ac: AC,
+      apis: Apis): DbResultT[OrderResponse] =
     for {
       order    ← * <~ Orders.mustFindByRefNum(refNum)
       _        ← * <~ order.transitionState(newState)
       _        ← * <~ updateQueries(admin, Seq(refNum), newState)
       updated  ← * <~ Orders.mustFindByRefNum(refNum)
       response ← * <~ OrderResponse.fromOrder(updated)
+<<<<<<< HEAD:phoenix-scala/app/services/orders/OrderStateUpdater.scala
       _        ← * <~ doOrMeh(order.state != newState, orderStateChanged(admin, response, order.state))
+=======
+      _        ← * <~ updateTaxes(Seq(refNum), newState)
+      _ ← * <~ (if (order.state == newState) DbResultT.unit
+                else orderStateChanged(admin, response, order.state))
+>>>>>>> cancel tax on order cancelation:app/services/orders/OrderStateUpdater.scala
     } yield response
 
   def updateStates(admin: User,
@@ -37,10 +46,12 @@ object OrderStateUpdater {
                    skipActivity: Boolean = false)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[BatchResponse[AllOrders.Root]] =
+      ac: AC,
+      apis: Apis): DbResultT[BatchResponse[AllOrders.Root]] =
     for {
       // Turn failures into errors
       batchMetadata ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity)
+      _             ← * <~ updateTaxes(refNumbers, newState)
       response ← * <~ OrderQueries.findAllByQuery(
                     Orders.filter(_.referenceNumber.inSetBind(refNumbers)))
     } yield response.copy(errors = batchMetadata.flatten, batch = Some(batchMetadata))
@@ -123,4 +134,18 @@ object OrderStateUpdater {
     val paymentIds = orderPayments.map(_.id)
     StoreCreditAdjustments.filter(_.orderPaymentId.inSetBind(paymentIds)).cancel()
   }
+
+  private def updateTaxes(refNums: Seq[String], newState: Order.State)(implicit ec: EC,
+                                                                       apis: Apis) =
+    newState match {
+      case Canceled ⇒
+        for {
+          orders ← * <~ Orders.filter(_.referenceNumber.inSetBind(refNums)).result
+          _ ← * <~ orders.map { order ⇒
+               TaxesService.cancelTaxes(order)
+             }
+        } yield {}
+      case _ ⇒
+        DbResultT.unit
+    }
 }
