@@ -37,7 +37,7 @@
   sudo: true
 
 - name: Get Web Driver
-  get_url: url=http://chromedriver.storage.googleapis.com/2.23/chromedriver_linux64.zip dest={{home}}/chromedriver
+  get_url: url=http://chromedriver.storage.googleapis.com/2.23/chromedriver_linux64.zip dest={{home}}
 
 - name: Unzip Web Driver
   unarchive: src={{home}}/chromedriver_linux64.zip dest={{home}}/chromedriver copy=no
