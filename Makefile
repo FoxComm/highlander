@@ -1,9 +1,9 @@
+$(info $(shell ./projects.sh))
 SUBDIRS = $(shell ./projects.sh)
 UPDATEDIRS = $(SUBDIRS:%=update-%)
 BUILDDIRS = $(SUBDIRS:%=build-%)
 TESTDIRS = $(SUBDIRS:%=test-%)
 CLEANDIRS = $(SUBDIRS:%=clean-%)
-
 clean: $(CLEANDIRS)
 $(CLEANDIRS): REPO = $(@:clean-%=%)
 $(CLEANDIRS):

@@ -1,21 +1,48 @@
 #!/bin/bash
 
-# Defines which projects should be rebuilt from descriptions in GitHub PR
-# Format: `PROJECTS=(project1 project2)`
-
+# fail on unexported vars
 set -ue
 
-BUILDKITE_BRANCH="${BUILDKITE_BRANCH:-"master"}"
-DEFAULT="ashes firebrand fox-notifications green-river integration-tests isaac middlewarehouse phoenix-scala prov-shit"
-BASE_URL="https://api.github.com/repos/FoxComm/highlander"
-FULL_URL="$BASE_URL/pulls?head=FoxComm:$BUILDKITE_BRANCH&access_token=$GITHUB_API_TOKEN"
+# define buildable projects array
+PROJECTS=(
+    'ashes'
+    'firebrand'
+    'fox-notifications'
+    'green-river'
+    'integration-tests'
+    'isaac'
+    'middlewarehouse'
+    'phoenix-scala'
+    'prov-shit'
+)
 
-# Call the API
-OUTPUT=$(curl -sf $FULL_URL | grep -o "PROJECTS=(.*)" | tr -d '(' | tr -d 'PROJECTS=' | tr -d ')')
+BASE_URL="https://api.github.com/repos"
 
-if [ -z "$OUTPUT" ]
-then
-    echo $DEFAULT
-else
-    echo $OUTPUT
-fi
+# get ORG/REPO string from url and split it
+FULL_REPO=$(git config --get remote.origin.url | cut -d ':' -f2 | cut -d '.' -f1)
+ORG=$(echo $FULL_REPO | cut -d '/' -f1)
+REPO=$(echo $FULL_REPO | cut -d '/' -f2)
+
+# get base branch through PR info
+FULL_URL="$BASE_URL/$FULL_REPO/pulls?head=$ORG:$BUILDKITE_BRANCH&access_token=$GITHUB_API_TOKEN"
+
+#BASE_BRANCH=$(curl -sf $FULL_URL | jq -r '.[0] | .base.ref')
+BASE_BRANCH=master
+
+# get changed base paths in HEAD realtively to base path
+ALL_CHANGED=$(git diff --name-only $BASE_BRANCH..HEAD | cut -d'/' -f1 | uniq)
+
+# make newlines the only separator 
+IFS=$'\n'
+ALL_CHANGED=($ALL_CHANGED)
+unset IFS
+
+# get changed projects
+CHANGED=()
+for CHANGE in ${ALL_CHANGED[@]}; do
+    if [[ ${PROJECTS[@]} =~ $CHANGE ]]; then
+        CHANGED+=($CHANGE)
+    fi
+done
+
+echo ${CHANGED[@]}
