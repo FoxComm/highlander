@@ -11,3 +11,5 @@ source ./vars
 ./pkitool --server {{OPENVPN_KEY_ORG}}
 
 ./build-dh
+
+touch /etc/openvpn/easy-rsa/keys/index.txt.attr
