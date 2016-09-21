@@ -57,7 +57,7 @@ bootstrap-target:
 	ansible-playbook -v -i bin/envs/target ansible/bootstrap_vanilla.yml
 
 bootstrap-target-openvpn-key:
-	ansible-playbook -v -i bin/envs/target ansible/bootstrap_openvpn_key.yml
+	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_openvpn_key.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 bootstrap-target-vpn:
 	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_vanilla_vpn.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
