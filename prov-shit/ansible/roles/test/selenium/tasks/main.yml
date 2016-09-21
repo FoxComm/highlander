@@ -17,13 +17,23 @@
     - xvfb
   sudo: true
 
+- name: Get Allure Test Report
+  get_url: url=https://github.com/allure-framework/allure-core/releases/latest dest={{home}}
+
+- name: Unzip Allure
+  unarchive: src="{{home}}/allure-commandline.tar.gz" dest="{{home}}/allure" copy=no
+
+- name: Allure Symbolic link
+  file: src="{{home}}/allure/bin/allure" dest="/usr/local/bin/allure" state=link
+  sudo: true
+
 - name: Get Web Driver
-  get_url: url=http://chromedriver.storage.googleapis.com/2.23/chromedriver_linux64.zip dest={{home}}
+  get_url: url=http://chromedriver.storage.googleapis.com/2.23/chromedriver_linux64.zip dest="{{home}}/chromedriver"
 
 - name: Unzip Web Driver
-  unarchive: src="{{home}}/chromedriver_linux64.zip" dest={{home}} copy=no
+  unarchive: src="{{home}}/chromedriver_linux64.zip" dest="{{home}}/chromedriver" copy=no
   sudo: true
 
 - name: Web Driver Symbolic link
-  file: src="{{home}}/chromedriver" dest="/usr/local/bin/chromedriver" state=link
+  file: src="{{home}}/chromedriver/chromedriver" dest="/usr/local/bin/chromedriver" state=link
   sudo: true
