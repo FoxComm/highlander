@@ -16,6 +16,7 @@ resource "aws_internet_gateway" "default" {
       Name = "terraform_igw"
   }
 }
+
 output "vpc_id" {
   value = "${aws_vpc.default.id}"
 }
@@ -65,6 +66,7 @@ resource "aws_subnet" "private" {
       Name = "terraform_private_subnet"
   }
 }
+
 output "private_subnet_id" {
   value = "${aws_subnet.private.id}"
 }

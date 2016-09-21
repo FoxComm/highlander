@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Packer Vanilla Kafka
+- name: Provision Packer Vanilla Phoenix
   hosts: all
   tags:
       - packer-vanilla-phoenix
@@ -21,7 +21,6 @@
     middlewarehouse_service_after: ""
     middlewarehouse_consumers_services_requires: ""
     middlewarehouse_consumers_services_after: ""
-
 
   roles:
     - { role: base/ssh_keys }
