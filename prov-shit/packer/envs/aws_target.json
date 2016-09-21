@@ -11,6 +11,7 @@
     "base_ami": "ami-ed21f68d",
     "base_jvm_ami": "ami-ae2ff8ce",
     "base_node_ami": "ami-5b2bfc3b",
-    "base_mesos_ami": "ami-d3e533b3",
-    "variables_file": "aws_target_ansible.json"
+    "base_mesos_ami": "ami-85a27ee5",
+    "variables_file": "aws_target_ansible.json",
+    "key_variables_file": "aws_target_keys.json"
 }

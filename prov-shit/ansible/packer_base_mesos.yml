@@ -7,7 +7,7 @@
     packing: true
   roles:
     - { role: base/docker }
-    - { role: base/mesos }
+     - { role: base/mesos }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

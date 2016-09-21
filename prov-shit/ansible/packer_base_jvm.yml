@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Base Jvm Image
+- name: Provision Base JVM Image
   hosts: all
   tags:
     - packer
