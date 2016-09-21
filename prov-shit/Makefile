@@ -94,19 +94,16 @@ run-gatling: deploy-gatling
 run-gatling-highlander: deploy-gatling-highlander
 	ansible-playbook -v -i bin/envs/staging ansible/run_gatling_highlander.yml
 
-tf-aws-target:
-	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_target/terraform.tfstate -var-file=$(TF_ENVS)/aws_target/target.tfvars $(TF_BASE)/aws_target
-
 tf-stage:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_dev/terraform.tfstate -var-file=$(TF_ENVS)/gce_dev/dev.tfvars $(TF_BASE)/gce_dev
 
 tf-vanilla:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_vanilla/terraform.tfstate -var-file=$(TF_ENVS)/gce_vanilla/vanilla.tfvars $(TF_BASE)/gce_vanilla
 
-tf-target:
-	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_target/terraform.tfstate -var-file=$(TF_ENVS)/gce_target/target.tfvars $(TF_BASE)/gce_target
-
 tf-topdrawer:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_topdrawer/terraform.tfstate -var-file=$(TF_ENVS)/gce_topdrawer/topdrawer.tfvars $(TF_BASE)/gce_topdrawer
+
+tf-target:
+	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_target/terraform.tfstate -var-file=$(TF_ENVS)/aws_target/target.tfvars $(TF_BASE)/aws_target
 
 .PHONY: all build lint test
