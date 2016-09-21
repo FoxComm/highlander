@@ -49,7 +49,7 @@ class OptionEntry extends Component {
   }
 
   get content(): Element {
-    const optionName = _.get(this.props, 'option.attributes.name.v', '');
+    const optionName = _.get(this.props, 'option.name', '');
 
     const entries = _.map(this.values, (value, key) => {
       return (
@@ -139,7 +139,7 @@ class OptionEntry extends Component {
 
   render(): Element {
     const values = this.values;
-    const name = _.get(this.props, 'option.attributes.name.v');
+    const name = _.get(this.props, 'option.name');
     const content = _.isEmpty(values) ? this.emptyContent : this.content;
     const valueDialog = this.state.editValue && (
       <ValueEditDialog

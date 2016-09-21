@@ -58,7 +58,9 @@ class OptionEditDialog extends Component {
   }
 
   renderDialogContent(): Element {
-    const name = _.get(this.state, 'option.attributes.name.v');
+    const name = _.get(this.state, 'option.name');
+    const type = _.get(this.state, 'option.type');
+
     return (
       <div styleName="option-edit-dialog">
         <FormField
@@ -77,7 +79,7 @@ class OptionEditDialog extends Component {
           key={`object-form-attribute-type`} >
           <input
             type="text"
-            value={this.state.option.type}
+            value={type}
             onChange={({target}) => this.handleChange(target.value, 'type')}
           />
         </FormField>
