@@ -5,6 +5,7 @@ import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.auth.CustomerToken
 import models.cord.Cord.cordRefNumRegex
+import models.customer.Customer
 import models.inventory.Sku.skuCodeRegex
 import models.payment.giftcard.GiftCard
 import models.traits.Originator
@@ -23,11 +24,11 @@ import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
-object Customer {
+object StorefrontRoutes {
   def routes(implicit ec: EC,
              es: ES,
              db: DB,
-             customerAuth: AsyncAuthenticator[models.customer.Customer],
+             customerAuth: AsyncAuthenticator[Customer],
              apis: Apis) = {
 
     pathPrefix("my") {
@@ -287,9 +288,6 @@ object Customer {
                   }
                 }
               }
-            } ~
-            complete {
-              notFoundResponse
             }
           }
         }

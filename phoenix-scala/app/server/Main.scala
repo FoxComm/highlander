@@ -16,6 +16,7 @@ import akka.stream.ActorMaterializer
 import com.stripe.Stripe
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
+import failures.NotFoundFailure404
 import models.StoreAdmin
 import models.customer.Customer
 import org.json4s._
@@ -27,6 +28,7 @@ import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{Development, Staging}
 import utils.apis._
 import utils.http.CustomHandlers
+import utils.http.Http.{notFoundResponse, renderFailure}
 import utils.http.HttpLogger.logFailedRequests
 import utils.{ElasticsearchApi, FoxConfig}
 
@@ -89,7 +91,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
     pathPrefix("v1") {
       routes.AuthRoutes.routes ~
       routes.Public.routes ~
-      routes.Customer.routes ~
+      routes.StorefrontRoutes.routes ~
       requireAdminAuth(storeAdminAuth) { implicit admin ⇒
         routes.admin.AdminRoutes.routes ~
         routes.admin.NotificationRoutes.routes ~
@@ -111,8 +113,12 @@ class Service(systemOverride: Option[ActorSystem] = None,
         routes.admin.GenericTreeRoutes.routes ~
         routes.admin.StoreAdminRoutes.routes ~
         routes.admin.PluginRoutes.routes ~
-        routes.service.PaymentRoutes.routes //Migrate this to auth with service tokens 
-      //once we have them
+        routes.service.PaymentRoutes.routes // Migrate this to auth with service tokens once we have them
+      } ~
+      complete {
+        renderFailure {
+          NotFoundFailure404("The requested resource could not be found.").single
+        }
       }
     }
   }
