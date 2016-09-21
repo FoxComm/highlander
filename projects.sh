@@ -28,7 +28,7 @@ FULL_URL="$BASE_URL/pulls?head=$ORG:$BUILDKITE_BRANCH&access_token=$GITHUB_API_T
 BASE_BRANCH=$(curl -sf $FULL_URL | jq -r '.[0] | .base.ref')
 
 # get changed base paths in HEAD realtively to base path
-ALL_CHANGED=$(git diff --name-only $base..HEAD | cut -d'/' -f1 | uniq)
+ALL_CHANGED=$(git diff --name-only $BASE_BRANCH..HEAD | cut -d'/' -f1 | uniq)
 
 # make newlines the only separator 
 IFS=$'\n'       
