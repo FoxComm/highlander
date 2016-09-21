@@ -1,8 +1,10 @@
 #!/bin/sh
 
+set -ue
+
 cd /etc/openvpn/easy-rsa/
 
-. ./vars
+source ./vars
 ./clean-all
 
 ./pkitool --initca
