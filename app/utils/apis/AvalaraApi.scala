@@ -334,10 +334,17 @@ object Avalara {
 
     case class CancelTax(
         ResultCode: SeverityLevel,
-        TransactionId: Option[String],
+        TransactionId: Option[BigInt],
         DocId: Option[String],
         Messages: Seq[Message]
-    ) extends AvalaraResponse
+    )
+
+    case class CancelTaxResult(
+        CancelTaxResult: CancelTax
+    ) extends AvalaraResponse {
+      override def Messages   = CancelTaxResult.Messages
+      override def ResultCode = CancelTaxResult.ResultCode
+    }
   }
 }
 
@@ -418,8 +425,8 @@ class Avalara(url: String, account: String, license: String, profile: String)(
   override def cancelTax(order: Order)(implicit ec: EC): Result[Unit] = {
     val payload = HttpEntity(write(PayloadBuilder.cancelOrder(order)))
 
-    val result: Future[Avalara.Responses.CancelTax] =
-      postData[Avalara.Responses.CancelTax]("/1.0/tax/cancel", payload)
+    val result: Future[Avalara.Responses.CancelTaxResult] =
+      postData[Avalara.Responses.CancelTaxResult]("/1.0/tax/cancel", payload)
 
     result.flatMap { res ⇒
       if (!res.hasError) {
