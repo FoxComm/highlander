@@ -90,6 +90,7 @@
   command: pip uninstall -y ansible
   tags: ansible19
   sudo: true
+  ignore_errors: yes
 
 - name: Install Ansible 1.9.x
   command: pip install ansible==1.9.4
