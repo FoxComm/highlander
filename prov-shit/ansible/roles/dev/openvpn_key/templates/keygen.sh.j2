@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -ue
+export KEY_CN=""
+
 cd {{easy_rsa_dir}}
 source ./vars
 ./build-key --batch {{username}}
