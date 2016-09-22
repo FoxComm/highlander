@@ -41,6 +41,7 @@
             "type": "ansible",
             "playbook_file" : "ansible/packer_service_phoenix.yml",
             "extra_arguments": [
+                "-vvvv",
                 "--extra-vars", "@packer/envs/{{user `variables_file`}}",
                 "--extra-vars", "@packer/envs/{{user `key_variables_file`}}"
             ]
