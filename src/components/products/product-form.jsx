@@ -86,14 +86,6 @@ export default class ProductForm extends Component {
       skus = [ProductParagon.createEmptySku()];
       updatedVariants = variants;
     } else {
-      const variantsWithValues = _.reduce(variants, (acc, variant) => {
-        if (_.size(variant.values) == 0) {
-          return acc;
-        }
-        acc.concat([variant]);
-      }, []);
-      console.log('vars with vals', variantsWithValues);
-
       const availableVariants = ProductParagon.availableVariants(variants);
 
       skus = _.map(availableVariants, variantCombination => {
@@ -101,22 +93,22 @@ export default class ProductForm extends Component {
         return sku;
       });
 
-      updatedVariants = _.map(variants, variant => {
-        const values = _.map(variant.values, value => {
-          const result = _.reduce(skus, (acc, sku) => {
-            if (sku.varaintValues.indexOf(value.name) >= 0) {
-              const code = sku.code || sku.feCode;
-              return acc.concat([code]);
-            }
-            return acc;
-          }, []);
-          value.skuCodes = result;
-          return value;
-        });
-        variant.values = values;
-        variant.attributes = { name: { 't': 'string', 'v': variant.name }};
-        return variant;
-      });
+      // updatedVariants = _.map(variants, variant => {
+      //   const values = _.map(variant.values, value => {
+      //     const result = _.reduce(skus, (acc, sku) => {
+      //       if (sku.varaintValues.indexOf(value.name) >= 0) {
+      //         const code = sku.code || sku.feCode;
+      //         return acc.concat([code]);
+      //       }
+      //       return acc;
+      //     }, []);
+      //     value.skuCodes = result;
+      //     return value;
+      //   });
+      //   variant.values = values;
+      //   variant.attributes = { name: { 't': 'string', 'v': variant.name }};
+      //   return variant;
+      // });
     }
 
     const newProduct = assoc(
