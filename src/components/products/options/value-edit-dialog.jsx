@@ -60,6 +60,7 @@ class ValueEditDialog extends Component {
           className="fc-object-form__field"
           label="Name"
           key={`object-form-attribute-name`}
+          required={true}
         >
           <input
             type="text"
