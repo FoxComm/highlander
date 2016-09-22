@@ -55,16 +55,6 @@ write "HEAD: $HEAD"
 # fetch origin
 git fetch origin
 
-# checkout BASE_BRANCH and pull it from origin
-#write "Update $BASE_BRANCH..."
-#write $(git checkout $BASE_BRANCH)
-#write $(git pull origin $BASE_BRANCH)
-
-# checkout back to HEAD
-#write "Checkout back to HEAD..."
-#write $(git checkout $HEAD)
-#exit
-
 # get common ancestor
 write "Get common ancestor between $BASE_BRANCH and HEAD"
 ANCESTOR=$(git merge-base $BASE_BRANCH HEAD)
