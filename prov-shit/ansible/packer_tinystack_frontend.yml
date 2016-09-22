@@ -17,7 +17,7 @@
     middlewarehouse_server: middlewarehouse.service.consul:9292
   post_tasks:
     - name: Sweet Dreams
-      raw: sleep 5
+      pause: seconds=5
 
   roles:
     - { role: base/ssh_keys }
