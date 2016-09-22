@@ -10,6 +10,9 @@
     es_heap_size: 4000m
     search_service_name: elasticsearch
     log_host: es-log.service.consul
+  post_tasks:
+    - name: Sweet Dreams
+      raw: sleep 5
 
   roles:
     - { role: base/rsyslog, sudo: yes }

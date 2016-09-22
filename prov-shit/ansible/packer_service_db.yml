@@ -10,6 +10,9 @@
     schema_server: schema-registry.service.consul:8081
     kafka_server: kafka.service.consul:9092
     log_host: es-log.service.consul
+  post_tasks:
+    - name: Sweet Dreams
+      raw: sleep 5
 
   roles:
     - { role: base/rsyslog, sudo: yes }
