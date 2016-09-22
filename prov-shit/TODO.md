@@ -1,6 +1,8 @@
-# Useful Ansible Modules
+TODO after Target AWS provisioning experience:
 
-* [consul-kv](http://docs.ansible.com/ansible/consul_kv_module.html) to replace [consulate](https://github.com/gmr/consulate).
-* [dnsimple](http://docs.ansible.com/ansible/dnsimple_module.html) for automatic domain mapping.
-* [slack](http://docs.ansible.com/ansible/slack_module.html) send notifications after provisioning.
-* [github-release](http://docs.ansible.com/ansible/github_release_module.html) to grab latest builds from Github.
+* Deal with `/etc/hosts` somehow
+* `hotfix_zk.yml`
+* `hotfix_mesos.yml`
+* `hotfix_stage_consul.yml`
+* Staging Zookeeper: "echo 1 > /var/lib/zookeeper/myid" && restart ZK
+* `hotfix_stage_db.yml`

@@ -1,22 +1,27 @@
 variable "key_name" {}
-variable "image" {}
-variable "datacenter" {}
+variable "stage_datacenter" {}
+
 variable "ssh_user" {} 
-variable "ssh_private_key" {}
+variable "ssh_private_key" {} 
 
 variable "subnet_id" {} 
 variable "security_groups" {
 	type = "list"
-} 
+}
 
-resource "aws_instance" "amigo_server_0" {
-	ami = "${var.image}"
+variable "stage_amigo_image" {}
+variable "stage_backend_image" {}
+variable "stage_frontend_image" {}
+
+variable "amigo_leader" {}
+
+resource "aws_instance" "stage_amigo" {
+	ami = "${var.stage_amigo_image}"
 	instance_type = "t2.medium"
 	key_name = "${var.key_name}"
 
 	tags = {
-		Name = "${var.datacenter}-amigo-server-0"
-		Datacenter = "${var.datacenter}"
+		Name = "stage-amigo-server"
 	}
 
 	subnet_id = "${var.subnet_id}"
@@ -26,12 +31,8 @@ resource "aws_instance" "amigo_server_0" {
 
 	root_block_device {
 		volume_type = "standard"
-		volume_size = "30"
+		volume_size = "20"
 	}
-
-    # service_account {
-    #     scopes = ["storage-rw"]
-    # }
 
     connection { 
         type = "ssh"
@@ -41,21 +42,18 @@ resource "aws_instance" "amigo_server_0" {
 
     provisioner "remote-exec" {
         inline = [
-          "/usr/local/bin/bootstrap.sh",
-          "/usr/local/bin/bootstrap_consul_aws.sh ${var.datacenter} ${aws_instance.amigo_server_0.private_ip}",
-          "sudo su -c 'echo 1 > /var/lib/zookeeper/myid'"
+          "/usr/local/bin/bootstrap_consul_aws.sh ${var.stage_datacenter} ${var.amigo_leader}",
         ]
     }
 }
 
-resource "aws_instance" "amigo_server_1" {
-	ami = "${var.image}"
-	instance_type = "t2.medium"
+resource "aws_instance" "stage_backend" {
+	ami = "${var.stage_backend_image}"
+	instance_type = "r3.xlarge"
 	key_name = "${var.key_name}"
 
 	tags = {
-		Name = "${var.datacenter}-amigo-server-1"
-		Datacenter = "${var.datacenter}"
+		Name = "stage-backend"
 	}
 
 	subnet_id = "${var.subnet_id}"
@@ -65,12 +63,8 @@ resource "aws_instance" "amigo_server_1" {
 
 	root_block_device {
 		volume_type = "standard"
-		volume_size = "30"
+		volume_size = "100"
 	}
-
-    # service_account {
-    #     scopes = ["storage-rw"]
-    # }
 
     connection { 
         type = "ssh"
@@ -80,21 +74,18 @@ resource "aws_instance" "amigo_server_1" {
 
     provisioner "remote-exec" {
         inline = [
-          "/usr/local/bin/bootstrap.sh",
-          "/usr/local/bin/bootstrap_consul_aws.sh ${var.datacenter} ${aws_instance.amigo_server_0.private_ip}",
-          "sudo su -c 'echo 2 > /var/lib/zookeeper/myid'"
+          "/usr/local/bin/bootstrap_consul_aws.sh ${var.stage_datacenter} ${aws_instance.stage_amigo.private_ip}",
         ]
     }
 }
 
-resource "aws_instance" "amigo_server_2" {
-	ami = "${var.image}"
-	instance_type = "t2.medium"
+resource "aws_instance" "stage_frontend" {
+	ami = "${var.stage_frontend_image}"
+	instance_type = "m4.xlarge"
 	key_name = "${var.key_name}"
 
 	tags = {
-		Name = "${var.datacenter}-amigo-server-2"
-		Datacenter = "${var.datacenter}"
+		Name = "stage-frontend"
 	}
 
 	subnet_id = "${var.subnet_id}"
@@ -107,10 +98,6 @@ resource "aws_instance" "amigo_server_2" {
 		volume_size = "30"
 	}
 
-    # service_account {
-    #     scopes = ["storage-rw"]
-    # }
-
     connection { 
         type = "ssh"
         user = "${var.ssh_user}"
@@ -119,9 +106,7 @@ resource "aws_instance" "amigo_server_2" {
 
     provisioner "remote-exec" {
         inline = [
-          "/usr/local/bin/bootstrap.sh",
-          "/usr/local/bin/bootstrap_consul_aws.sh ${var.datacenter} ${aws_instance.amigo_server_0.private_ip}",
-          "sudo su -c 'echo 3 > /var/lib/zookeeper/myid'"
+          "/usr/local/bin/bootstrap_consul_aws.sh ${var.stage_datacenter} ${aws_instance.stage_amigo.private_ip}",
         ]
     }
 }

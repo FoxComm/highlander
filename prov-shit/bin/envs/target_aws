@@ -6,3 +6,12 @@
 
 [target-amigo-server-2]
 10.0.2.145
+
+[stage-amigo-server]
+10.0.2.215
+
+[stage-backend]
+10.0.3.193
+
+[stage-frontend]
+10.0.5.183

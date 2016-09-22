@@ -116,4 +116,10 @@ hotfix-mesos:
 hotfix-zk:
 	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_zk.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
+hotfix-stage-consul:
+	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_stage_consul.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+
+hotfix-stage-db:
+	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_stage_db.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+
 .PHONY: all build lint test
