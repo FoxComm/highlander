@@ -80,11 +80,12 @@ export default class ProductForm extends Component {
 
   @autobind
   updateSkuVariantMapping(variants: Array<any>): void {
-    let updatedVariants = [];
+    console.log(variants);
+    // let updatedVariants = [];
     let skus = [];
     if (_.isEmpty(variants)) {
       skus = [ProductParagon.createEmptySku()];
-      updatedVariants = variants;
+      // updatedVariants = variants;
     } else {
       const availableVariants = ProductParagon.availableVariants(variants);
 
@@ -114,7 +115,7 @@ export default class ProductForm extends Component {
     const newProduct = assoc(
       this.props.product,
       ['skus'], skus,
-      ['variants'], updatedVariants
+      ['variants'], variants
     );
     return this.props.onUpdateProduct(newProduct);
   }

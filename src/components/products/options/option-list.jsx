@@ -90,6 +90,7 @@ class OptionList extends Component {
       variants[id] = option;
     }
 
+    console.log(variants);
     this.setState({
       editOption: null,
     }, () => this.props.updateVariants(variants));
