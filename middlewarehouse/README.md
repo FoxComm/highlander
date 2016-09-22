@@ -36,4 +36,3 @@ inside this service.
 - Modify counts
 - Try to reserve some set of SKUs
 - Try to unreserve some set of SKUs
-
