@@ -46,6 +46,9 @@ bootstrap-messaging-plugin:
 bootstrap-middlewarehouse:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_middlewarehouse.yml --private-key=$(PRIVATE_KEY)
 
+bootstrap-staging-openvpn-key:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_openvpn_key.yml
+
 bootstrap-staging:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml
 
