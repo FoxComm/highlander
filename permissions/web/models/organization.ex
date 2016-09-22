@@ -13,8 +13,8 @@ defmodule Permissions.Organization do
     has_many :children, Organization, foreign_key: :parent_id
   end
   
-  @required_params ~w(name kind)
-  @optional_params ~w(parent_id scope_id)
+  @required_fields ~w(name kind)a
+  @optional_fields ~w(parent_id scope_id)a
 
   def changeset(model, params \\ :empty) do
     model 
