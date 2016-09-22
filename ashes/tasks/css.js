@@ -1,5 +1,5 @@
 
-module.exports = function(gulp) {
+module.exports = function(gulp, opts) {
   const src = [
     'build/less_bundle.css',
     'build/css_bundle.css'
