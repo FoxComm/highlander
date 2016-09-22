@@ -11,11 +11,11 @@ import styles from './css/swatch-input.css';
 
 type Props = {
   onChange: (value: string) => void,
-  value: ?string,
+  value: string,
 };
 
 type State = {
-  value: ?string,
+  value: string,
 };
 
 class SwatchInput extends Component {
@@ -57,7 +57,7 @@ class SwatchInput extends Component {
           maxLength="6"
           className="fc-text-input"
           onChange={({ target }) => this.handleChange(target.value)}
-          value={hexCode} 
+          value={hexCode}
         />
         <span styleName="swatch" style={colorStyle} />
       </div>

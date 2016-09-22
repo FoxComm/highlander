@@ -35,12 +35,13 @@ export type Product = {
 };
 
 export type Option = {
-  attributes: {
+  attributes?: {
     name: {
       t: ?string,
       v: ?string,
     },
   },
+  name?: string,
   type: ?string,
   values: Array<OptionValue>,
 };

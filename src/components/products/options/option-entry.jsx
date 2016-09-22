@@ -91,19 +91,10 @@ class OptionEntry extends Component {
   }
 
   @autobind
-  editValue(id: string|number, value: ?OptionValue): void {
-    let editValue = { id };
+  editValue(id: string|number, value?: OptionValue = {name: '', swatch: '', image: '', skuCodes: []}): void {
+    const editValue = { id, value };
 
-    if (value) {
-      editValue['value'] = value;
-    } else {
-      editValue['value'] = {
-        name: '',
-        swatch: '',
-      }
-    }
-
-    this.setState({editValue})
+    this.setState({editValue});
   };
 
   @autobind
@@ -117,7 +108,7 @@ class OptionEntry extends Component {
   }
 
   @autobind
-  updateValue(value: OptionValue, id: string|number): void {
+  updateValue(value: OptionValue, id: any): void {
     const values = this.values;
 
     if (id === 'new') {
@@ -129,25 +120,30 @@ class OptionEntry extends Component {
     const option = assoc(this.props.option, 'values', values);
     this.props.confirmAction(option, this.props.id);
 
-    this.setState({ editValue: null })
+    this.setState({ editValue: null });
   }
 
   @autobind
   cancelEdit(): void {
-    this.setState({ editValue: null })
+    this.setState({ editValue: null });
+  }
+
+  get valueDialog() {
+    if (!this.state.editValue) return;
+
+    return(
+      <ValueEditDialog
+        value={this.state.editValue}
+        cancelAction={this.cancelEdit}
+        confirmAction={this.updateValue}
+      />
+    )
   }
 
   render(): Element {
     const values = this.values;
     const name = _.get(this.props, 'option.name');
     const content = _.isEmpty(values) ? this.emptyContent : this.content;
-    const valueDialog = this.state.editValue && (
-      <ValueEditDialog
-        value={this.state.editValue}
-        cancelAction={this.cancelEdit}
-        confirmAction={this.updateValue}
-      />
-    );
 
     return (
       <ContentBox
@@ -156,7 +152,7 @@ class OptionEntry extends Component {
         indentContent={false}
         className="fc-option-entry">
         {content}
-        {this.state.editValue && valueDialog}
+        {this.valueDialog}
       </ContentBox>
     );
   }

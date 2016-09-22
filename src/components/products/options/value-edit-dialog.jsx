@@ -2,6 +2,7 @@
  * @flow
  */
 
+import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
@@ -9,7 +10,6 @@ import { assoc } from 'sprout-data';
 // components
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import { FormField } from 'components/forms';
-import TextInput from 'components/forms/text-input';
 import SwatchInput from 'components/forms/swatch-input';
 
 // styles
@@ -19,7 +19,6 @@ import styles from './option-list.css';
 import type { Option, OptionValue } from 'paragons/product';
 
 type Props = {
-  option: Option,
   value: {
     id: string|number,
     value: OptionValue,
@@ -61,6 +60,9 @@ class ValueEditDialog extends Component {
   }
 
   renderDialogContent() {
+    const name = _.get(this.state, 'value.name', '');
+    const swatch = _.get(this.state, 'value.name', '');
+
     return (
       <div styleName="option-edit-dialog">
         <FormField
@@ -71,7 +73,7 @@ class ValueEditDialog extends Component {
         >
           <input
             type="text"
-            value={this.state.value.name}
+            value={name}
             onChange={({target}) => this.handleChange(target.value, 'name')}
           />
         </FormField>
@@ -81,7 +83,7 @@ class ValueEditDialog extends Component {
           key={`object-form-attribute-swatch`}
         >
           <SwatchInput
-            value={this.state.value.swatch}
+            value={swatch}
             onChange={this.handleSwatchChange}
           />
         </FormField>

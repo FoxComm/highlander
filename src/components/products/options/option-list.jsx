@@ -56,17 +56,15 @@ class OptionList extends Component {
   }
 
   @autobind
-  startEditOption(id: string|number): void {
-    let editOption = { id };
+  startEditOption(id: any): void {
 
-    if (id !== 'new') {
-      editOption.option = this.props.variants[id];
-    } else {
-      editOption.option = {
-        name: '',
-        type: '',
-      };
-    }
+    const option = (id !== 'new') ? this.props.variants[id] : {
+      name: '',
+      type: '',
+      values: [],
+    };
+
+    const editOption = { id, option };
 
     this.setState({
       editOption
@@ -83,7 +81,7 @@ class OptionList extends Component {
   }
 
   @autobind
-  updateOption(option: Option, id: string|number): void {
+  updateOption(id: number, option: Option): void {
     const { variants } = this.props;
 
     if (id === 'new') {
