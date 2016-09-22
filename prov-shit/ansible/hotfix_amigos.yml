@@ -1,0 +1,20 @@
+---
+
+- name: Target Hotfix Amigo Servers
+  hosts:
+    - target-amigo-server-0
+    - target-amigo-server-1
+    - target-amigo-server-2
+  vars:
+    user: '{{ansible_ssh_user}}'
+    zookeepers : "zk://10.0.1.18:2181,10.0.7.209:2181,10.0.2.145:2181"
+    zookeeper_1: "10.0.1.18"
+    zookeeper_2: "10.0.7.209"
+    zookeeper_3: "10.0.2.145"
+
+  roles:
+    - { role: hotfix/mesos_master }
+    - { role: hotfix/zookeeper }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
