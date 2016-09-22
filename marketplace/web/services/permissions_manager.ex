@@ -18,6 +18,8 @@ defmodule Marketplace.PermissionManager do
           Map.fetch!(decoded_body, "scope")
           |> Map.fetch!("id")
         {:error, decoded_body} -> 
+          # TODO: Probably a good idea to write this to a queue.  
+          # To retry when solomon is back up.
           nil
         end
       {:error, %HTTPoison.Error{reason: reason}} -> 
