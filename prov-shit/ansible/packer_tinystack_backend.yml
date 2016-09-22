@@ -10,7 +10,7 @@
     middlewarehouse_src: "{{ lookup('env', 'GOPATH') }}/src/github.com/FoxComm/highlander/middlewarehouse"
   post_tasks:
     - name: Sweet Dreams
-      raw: sleep 5
+      pause: seconds=5
 
   roles:
     - { role: base/ssh_keys }
