@@ -25,8 +25,7 @@ describe('ProductParagon', function () {
       );
     });
 
-    it('should return array of all vombinations when multiple varinats are defined', function () {
-
+    it('should return array of all combinations when multiple varinats are defined', function () {
       const variants = [
         {
           "values": [
@@ -52,6 +51,42 @@ describe('ProductParagon', function () {
           [greenValue, largeValue],
         ]
       );
+    });
+
+    it('should return array of all combinations when multiple varinats are defined with one option', function () {
+      const variants = [
+        {
+          "values": [
+            greenValue,
+          ],
+          "attributes": {"name":{"t":"string","v":"Color"}}
+        },
+        {
+          "values": [
+            smallValue, mediumValue, largeValue,
+          ],
+          "attributes": {"name":{"t":"string","v":"Size"}}
+        }
+      ];
+      expect(ProductParagon.availableVariants(variants)).to.be.eql(
+        [
+          [greenValue, smallValue],
+          [greenValue, mediumValue],
+          [greenValue, largeValue],
+        ]
+      );
+    });
+  });
+
+  describe('variantsWithMultipleOptions', function () {
+    it('should replace variants with empty value list from array', function () {
+      const variants = [
+        {
+          "values": [],
+          "attributes": {"name":{"t":"string","v":"Color"}}
+        }
+      ];
+      expect(ProductParagon.variantsWithMultipleOptions(variants)).to.be.eql([]);
     });
   });
 });

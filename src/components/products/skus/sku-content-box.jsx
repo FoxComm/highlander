@@ -10,6 +10,8 @@ import ContentBox from 'components/content-box/content-box';
 import SkuList from './sku-list';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 
+import { variantsWithMultipleOptions } from 'paragons/product';
+
 import styles from './sku-content-box.css';
 
 import type { Product } from 'paragons/product';
@@ -84,7 +86,7 @@ class SkuContentBox extends Component {
           fullProduct={this.props.fullProduct}
           updateField={this.props.updateField}
           updateFields={this.props.updateFields}
-          variants={this.props.variants}
+          variants={variantsWithMultipleOptions(this.props.variants)}
         />
         { this.addSkuDialog }
       </ContentBox>

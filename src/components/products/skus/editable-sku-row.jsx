@@ -14,6 +14,7 @@ import MultiSelectRow from 'components/table/multi-select-row';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import { DeleteButton } from 'components/common/buttons';
 import Dropdown from 'components/dropdown/dropdown';
+import TextInput from 'components/forms/text-input';
 
 import { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
@@ -239,18 +240,20 @@ class EditableSkuRow extends Component {
 
     const idx = parseInt(field);
     const variant = _.get(this.props.variants, idx, {});
-    const values = _.get(variant, 'values', []);
-    const valuesToSelect = _.map(values, (value) => [value.name, value.name]);
-
-    const selected = _.get(mapping, [sku.attributes.code.v, _.get(variant, 'attributes.name.v')]);
+    console.log('mapping', mapping);
+    const variantName = _.get(variant, 'attributes.name.v');
+    console.log('variant name', variantName);
+    const skuCode = _.get(sku, 'attributes.code.v', sku.feCode);
+    console.log('sku code', skuCode);
+    const selected = _.get(mapping, [skuCode, variantName]);
 
     return (
-      <Dropdown
-        name={field}
-        items={valuesToSelect}
-        placeholder={variant.name}
+      <input
+        className="fc-text-input"
+        type="text"
         value={selected}
-        onChange={(value) => console.log(field, value)} />
+        disabled={true}
+      />
     );
   }
 

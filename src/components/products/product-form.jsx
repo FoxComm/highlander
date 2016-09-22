@@ -82,15 +82,25 @@ export default class ProductForm extends Component {
   updateSkuVariantMapping(variants: Array<any>): void {
     let updatedVariants = [];
     let skus = [];
-    if (_.isEmpty(variants) || _.every(variants, variant => { return _.size(variant.values) <= 1; })) {
+    if (_.isEmpty(variants)) {
       skus = [ProductParagon.createEmptySku()];
       updatedVariants = variants;
     } else {
+      const variantsWithValues = _.reduce(variants, (acc, variant) => {
+        if (_.size(variant.values) == 0) {
+          return acc;
+        }
+        acc.concat([variant]);
+      }, []);
+      console.log('vars with vals', variantsWithValues);
+
       const availableVariants = ProductParagon.availableVariants(variants);
+
       skus = _.map(availableVariants, variantCombination => {
         const sku = ProductParagon.createEmptySkuForVariantValues(variantCombination);
         return sku;
       });
+
       updatedVariants = _.map(variants, variant => {
         const values = _.map(variant.values, value => {
           const result = _.reduce(skus, (acc, sku) => {
@@ -108,6 +118,7 @@ export default class ProductForm extends Component {
         return variant;
       });
     }
+
     const newProduct = assoc(
       this.props.product,
       ['skus'], skus,
