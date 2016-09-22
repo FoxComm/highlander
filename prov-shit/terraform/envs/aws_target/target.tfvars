@@ -19,4 +19,4 @@ service_workers       = "1"
 
 stage_amigo_image     = "ami-740cd014"
 stage_backend_image   = "ami-e508d485"
-stage_frontend_image  = "vanilla-stage-frontend-1473791299"
+stage_frontend_image  = "ami-ef0ad68f"
