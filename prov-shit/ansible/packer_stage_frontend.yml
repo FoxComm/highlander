@@ -21,6 +21,10 @@
     middlewarehouse_service_after: ""
     middlewarehouse_consumers_services_requires: ""
     middlewarehouse_consumers_services_after: ""
+    greenriver_service_requires: phoenix.service
+    greenriver_service_after: phoenix.service
+    ashes_server_name: "stage.foxcommerce.com"
+    storefront_server_name: "stage.foxcommerce.com"
 
   roles:
     - { role: base/ssh_keys }
