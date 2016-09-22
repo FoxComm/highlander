@@ -2,10 +2,10 @@
 
 - name: Upload Keys to Agent Machines
   hosts:
-    # - buildkite-agent-0
-    # - buildkite-agent-1
-    # - buildkite-agent-2
-    # - buildkite-agent-3
+    - buildkite-agent-0
+    - buildkite-agent-1
+    - buildkite-agent-2
+    - buildkite-agent-3
     - buildkite-agent-4
     - buildkite-agent-5
     - buildkite-agent-6
