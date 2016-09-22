@@ -21,6 +21,8 @@
     middlewarehouse_service_after: ""
     middlewarehouse_consumers_services_requires: ""
     middlewarehouse_consumers_services_after: ""
+    greenriver_service_requires: ""
+    greenriver_service_after: ""
   post_tasks:
     - name: Sweet Dreams
       pause: seconds=5
