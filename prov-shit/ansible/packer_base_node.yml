@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Base Node Image
+- name: Packing Base Node Image
   hosts: all
   tags:
     - packer

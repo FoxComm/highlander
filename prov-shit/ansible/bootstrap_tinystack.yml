@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Backend
+- name: Bootstrap Backend
   hosts: '{{hostname}}'
   tags:
     - backend
@@ -31,7 +31,7 @@
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
 
-- name: Provision Frontend
+- name: Bootstrap Frontend
   hosts: '{{hostname}}'
   tags:
     - frontend

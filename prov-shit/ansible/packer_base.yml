@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Base Image
+- name: Packing Base Image
   hosts: all
   tags:
     - packer
