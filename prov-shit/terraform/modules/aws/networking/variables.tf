@@ -1,4 +1,3 @@
-
 variable "ip_range" {
   default = "0.0.0.0/0" # Allow from any ip. We are remote.
 }
