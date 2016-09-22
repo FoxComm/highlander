@@ -8,8 +8,8 @@ defmodule Permissions.AccountRoleView do
     %{granted_roles: render_many(account_roles, AccountRoleView, "account_role.json")}
   end
 
-  def render("show.json", %{account_role: account_role, account_id: account_id}) do
-    %{granted_role: render_one(account_role, PermissionView, "account_role.json")}
+  def render("show.json", %{account_role: account_role}) do
+    %{granted_role: render_one(account_role, AccountRoleView, "account_role.json")}
   end
 
   # We add 'grant_' in front of id to help the API consumer know that this is explicitly
