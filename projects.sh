@@ -57,7 +57,7 @@ git fetch origin
 
 # get common ancestor
 write "Get common ancestor between $BASE_BRANCH and HEAD"
-ANCESTOR=$(git merge-base $BASE_BRANCH HEAD)
+ANCESTOR=$(git merge-base origin/$BASE_BRANCH HEAD)
 write "Common ancestor: $ANCESTOR"
 
 # get changed base paths in HEAD realtively to base path
@@ -71,13 +71,19 @@ ALL_CHANGED=($ALL_CHANGED)
 unset IFS
 
 # get changed projects
-CHANGED=("prov-shit")
-write "building prov-shit by default"
-for CHANGE in ${ALL_CHANGED[@]}; do
-    if [[ ${PROJECTS[@]} =~ $CHANGE ]]; then
-        CHANGED+=($CHANGE)
-    fi
-done
+CHANGED=()
+if [[ ${#ALL_CHANGED[@]} -gt 0 ]]; then
+    for CHANGE in ${ALL_CHANGED[@]}; do
+        if [[ ${PROJECTS[@]} =~ $CHANGE ]]; then
+            CHANGED+=($CHANGE)
+        fi
+    done
+fi
+
+if [[ ${#CHANGED[@]} == 0 ]]; then
+    write "No projects changed, building prov-shit by default"
+    CHANGED=("prov-shit")
+fi
 
 write "changed projects(${#CHANGED[@]}):"
 echo ${CHANGED[@]}
