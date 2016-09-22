@@ -1,13 +1,37 @@
 ---
 
-- name: Target Hotfix Mesos Masters
+- name: Target Hotfix Mesos Master 0
   hosts:
     - target-amigo-server-0
+  vars:
+    user: '{{ansible_ssh_user}}'
+    zookeepers : "zk://0.0.0.0:2181,10.0.7.209:2181,10.0.2.145:2181"
+
+  roles:
+    - { role: hotfix/mesos_master }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
+
+- name: Target Hotfix Mesos Master 1
+  hosts:
     - target-amigo-server-1
+  vars:
+    user: '{{ansible_ssh_user}}'
+    zookeepers : "zk://10.0.1.18:2181,0.0.0.0:2181,10.0.2.145:2181"
+
+  roles:
+    - { role: hotfix/mesos_master }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
+
+- name: Target Hotfix Mesos Master 2
+  hosts:
     - target-amigo-server-2
   vars:
     user: '{{ansible_ssh_user}}'
-    zookeepers : "zk://10.0.1.18:2181,10.0.7.209:2181,10.0.2.145:2181"
+    zookeepers : "zk://10.0.1.18:2181,10.0.7.209:2181,0.0.0.0:2181"
 
   roles:
     - { role: hotfix/mesos_master }
