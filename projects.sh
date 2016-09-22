@@ -52,14 +52,18 @@ write "resolved BASE_BRANCH: $BASE_BRANCH"
 HEAD=$(git rev-parse HEAD)
 write "HEAD: $HEAD"
 
+# fetch origin
+git fetch origin
+
 # checkout BASE_BRANCH and pull it from origin
-write "Update $BASE_BRANCH..."
-git checkout $BASE_BRANCH
-git pull origin $BASE_BRANCH
+#write "Update $BASE_BRANCH..."
+#write $(git checkout $BASE_BRANCH)
+#write $(git pull origin $BASE_BRANCH)
 
 # checkout back to HEAD
-write "Checkout back to HEAD..."
-git checkout $HEAD
+#write "Checkout back to HEAD..."
+#write $(git checkout $HEAD)
+#exit
 
 # get common ancestor
 write "Get common ancestor between $BASE_BRANCH and HEAD"
@@ -85,6 +89,5 @@ for CHANGE in ${ALL_CHANGED[@]}; do
     fi
 done
 
-write "changed projects(${#CHANGED[@]}):\n"${CHANGED[@]}"\n"
+write "changed projects(${#CHANGED[@]}):"
 echo ${CHANGED[@]}
-
