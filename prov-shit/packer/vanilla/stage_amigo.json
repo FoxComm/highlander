@@ -20,9 +20,12 @@
     ],
     "provisioners" : [
         {
-           "type": "ansible",
-           "playbook_file" : "ansible/packer_amigo_server.yml",
-           "extra_arguments": ["--extra-vars", "@packer/envs/{{user `stage_variables_file`}}"]
+            "type": "ansible",
+            "playbook_file" : "ansible/packer_amigo_server.yml",
+            "extra_arguments": [
+                "-vvvv",
+                "--extra-vars", "@packer/envs/{{user `stage_variables_file`}}"
+            ]
         }
     ]
 }

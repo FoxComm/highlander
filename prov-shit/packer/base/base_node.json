@@ -37,7 +37,8 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_base_node.yml"
+            "playbook_file" : "ansible/packer_base_node.yml",
+            "extra_arguments": ["-vvvv"]
         }
     ]
 }
