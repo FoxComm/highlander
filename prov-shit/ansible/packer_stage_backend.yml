@@ -22,6 +22,3 @@
     - { role: base/db }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
