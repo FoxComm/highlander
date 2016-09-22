@@ -5,6 +5,8 @@ import React, { Element, Component } from 'react';
 
 import styles from './auth-pages.css';
 
+const rootPath = process.env.ROOT_PATH;
+
 type Props = {
   children: Element,
 };
@@ -38,7 +40,7 @@ export default class AuthPages extends Component {
   render() {
     return (
       <div styleName="body">
-        <img styleName="logo" src="/admin/images/fc-logo-v.svg"/>
+        <img styleName="logo" src=`${rootPath}/images/fc-logo-v.svg` />
         {this.body}
         <div styleName="copyright">
           © 2016 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.
