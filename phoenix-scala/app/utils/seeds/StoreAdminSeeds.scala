@@ -65,4 +65,6 @@ trait StoreAdminSeeds {
     val user = User(accountId = 0, name = username.some, email = email.some)
     createStoreAdmin(user, pw, org, roles, StoreAdminUser.Active, None)
   }
+
+  def storeAdmin = User(accountId = 0, name = "admin".some, email = "admin@admin.com".some)
 }

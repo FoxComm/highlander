@@ -5,7 +5,7 @@ import failures.LockFailures._
 import failures._
 import models.cord._
 import models.cord.lineitems._
-import models.customer.{Customer, Customers}
+import models.account._
 import models.inventory.Skus
 import models.objects._
 import models.payment.giftcard._
@@ -13,7 +13,7 @@ import models.product.{Mvp, SimpleContext}
 import models.returns.Return.{Canceled, Processing}
 import models.returns._
 import models.shipping.{Shipments, ShippingMethods}
-import models.{Reasons, StoreAdmins}
+import models.Reasons
 import payloads.ReturnPayloads._
 import responses.{AllReturns, ReturnLockResponse, ReturnResponse}
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater}
@@ -56,7 +56,7 @@ class ReturnIntegrationTest
       "should return failure for non-existing customer" in new Fixture {
         val response = GET(s"v1/returns/customer/255")
         response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Customer, 255).description)
+        response.error must === (NotFoundFailure404(User, 255).description)
       }
     }
 
@@ -135,7 +135,7 @@ class ReturnIntegrationTest
 
         val root = response.as[ReturnResponse.Root]
         root.referenceNumber must === (s"${order.refNum}.2")
-        root.customer.head.id must === (order.customerId)
+        root.customer.head.id must === (order.accountId)
         root.storeAdmin.head.id must === (storeAdmin.id)
       }
 
@@ -177,7 +177,7 @@ class ReturnIntegrationTest
 
       "fails if message is too long" in new Fixture {
         val payload = ReturnMessageToCustomerPayload(
-            message = List.fill(Return.messageToCustomerMaxLength)("Yax").mkString)
+            message = List.fill(Return.messageToAccountMaxLength)("Yax").mkString)
         val response = POST(s"v1/returns/99/message", payload)
 
         response.status must === (StatusCodes.BadRequest)
@@ -451,8 +451,9 @@ class ReturnIntegrationTest
   }
 
   trait Fixture extends Order_Baked with Reason_Baked {
-    val rma =
-      Returns.create(Factories.rma.copy(orderRef = order.refNum, customerId = customer.id)).gimme
+    val rma = Returns
+      .create(Factories.rma.copy(orderRef = order.refNum, accountId = customer.accountId))
+      .gimme
   }
 
   trait LineItemFixture extends Fixture {

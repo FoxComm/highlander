@@ -13,7 +13,7 @@ import payloads.CustomerPayloads.UpdateCustomerPayload
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
-import services.Authenticator.{JwtAuthenticator, requireCustomerAuth}
+import services.Authenticator.{UserAuthenticator, requireCustomerAuth}
 import services._
 import services.account._
 import services.carts._
@@ -25,7 +25,7 @@ import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object Customer {
-  def routes(implicit ec: EC, es: ES, db: DB, auth: JwtAuthenticator, apis: Apis) = {
+  def routes(implicit ec: EC, es: ES, db: DB, auth: UserAuthenticator, apis: Apis) = {
 
     pathPrefix("my") {
       requireCustomerAuth(auth) { customer ⇒

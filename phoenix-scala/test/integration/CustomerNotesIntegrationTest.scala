@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import failures.NotFoundFailure404
 import models.Notes
-import models.customer.Customer
+import models.account._
 import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.CustomerNoteManager
@@ -24,7 +24,7 @@ class CustomerNotesIntegrationTest
   "POST /v1/notes/customer/:customerId" - {
     "can be created by an admin for a customer" in new Fixture {
       val response =
-        POST(s"v1/notes/customer/${customer.id}", CreateNote(body = "Hello, FoxCommerce!"))
+        POST(s"v1/notes/customer/${customer.accountId}", CreateNote(body = "Hello, FoxCommerce!"))
 
       response.status must === (StatusCodes.OK)
 
@@ -34,7 +34,7 @@ class CustomerNotesIntegrationTest
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = POST(s"v1/notes/customer/${customer.id}", CreateNote(body = ""))
+      val response = POST(s"v1/notes/customer/${customer.accountId}", CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === ("body must not be empty")
@@ -44,7 +44,7 @@ class CustomerNotesIntegrationTest
       val response = POST(s"v1/notes/customer/999999", CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 999999).description)
+      response.error must === (NotFoundFailure404(User, 999999).description)
     }
   }
 
@@ -52,11 +52,11 @@ class CustomerNotesIntegrationTest
 
     "can be listed" in new Fixture {
       val createNotes = List("abc", "123", "xyz").map { body ⇒
-        CustomerNoteManager.create(customer.id, storeAdmin, CreateNote(body = body))
+        CustomerNoteManager.create(customer.accountId, storeAdmin, CreateNote(body = body))
       }
       DbResultT.sequence(createNotes).gimme
 
-      val response = GET(s"v1/notes/customer/${customer.id}")
+      val response = GET(s"v1/notes/customer/${customer.accountId}")
       response.status must === (StatusCodes.OK)
 
       val notes = response.as[Seq[AdminNotes.Root]]
@@ -69,11 +69,11 @@ class CustomerNotesIntegrationTest
 
     "can update the body text" in new Fixture {
       val rootNote = CustomerNoteManager
-        .create(customer.id, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
+        .create(customer.accountId, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
         .gimme
 
-      val response =
-        PATCH(s"v1/notes/customer/${customer.id}/${rootNote.id}", UpdateNote(body = "donkey"))
+      val response = PATCH(s"v1/notes/customer/${customer.accountId}/${rootNote.id}",
+                           UpdateNote(body = "donkey"))
       response.status must === (StatusCodes.OK)
 
       val note = response.as[AdminNotes.Root]
@@ -85,10 +85,10 @@ class CustomerNotesIntegrationTest
 
     "can soft delete note" in new Fixture {
       val createResp =
-        POST(s"v1/notes/customer/${customer.id}", CreateNote(body = "Hello, FoxCommerce!"))
+        POST(s"v1/notes/customer/${customer.accountId}", CreateNote(body = "Hello, FoxCommerce!"))
       val note = createResp.as[AdminNotes.Root]
 
-      val response = DELETE(s"v1/notes/customer/${customer.id}/${note.id}")
+      val response = DELETE(s"v1/notes/customer/${customer.accountId}/${note.id}")
       response.status must === (StatusCodes.NoContent)
       response.bodyText mustBe empty
 
@@ -100,12 +100,12 @@ class CustomerNotesIntegrationTest
       }
 
       // Deleted note should not be returned
-      val allNotesResponse = GET(s"v1/notes/customer/${customer.id}")
+      val allNotesResponse = GET(s"v1/notes/customer/${customer.accountId}")
       allNotesResponse.status must === (StatusCodes.OK)
       val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
       allNotes.map(_.id) must not contain note.id
 
-      val getDeletedNoteResponse = GET(s"v1/notes/customer/${customer.id}/${note.id}")
+      val getDeletedNoteResponse = GET(s"v1/notes/customer/${customer.accountId}/${note.id}")
       getDeletedNoteResponse.status must === (StatusCodes.NotFound)
     }
   }

@@ -10,7 +10,7 @@ import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
 import models.Reasons
 import models.cord.Order.RemorseHold
 import models.cord._
-import models.customer.Customers
+import models.account._
 import models.inventory._
 import models.location.Addresses
 import models.payment.giftcard._
@@ -39,7 +39,7 @@ class CheckoutIntegrationTest
 
     "places order as admin" in new Fixture {
       // Create cart
-      val createCart = POST("v1/orders", CreateCart(Some(customer.id)))
+      val createCart = POST("v1/orders", CreateCart(Some(customer.accountId)))
       createCart.status must === (StatusCodes.OK)
       val refNum = createCart.as[CartResponse].referenceNumber
       // Add line items
@@ -81,12 +81,12 @@ class CheckoutIntegrationTest
 
     "fails if customer's credentials are empty" in new Fixture {
       // Create cart
-      val createCart = POST("v1/orders", CreateCart(Some(customer.id)))
+      val createCart = POST("v1/orders", CreateCart(Some(customer.accountId)))
       createCart.status must === (StatusCodes.OK)
       val refNum = createCart.as[CartResponse].referenceNumber
 
       // Update customer
-      Customers.update(customer, customer.copy(isGuest = true, email = None)).run().futureValue
+      Users.update(customer, customer.copy(email = None)).run().futureValue
 
       // Checkout!
       val checkout = POST(s"v1/orders/$refNum/checkout")
@@ -99,7 +99,7 @@ class CheckoutIntegrationTest
 
       //Create cart
       val refNum =
-        POST("v1/orders", CreateCart(Some(customer.id))).as[OrderResponse].referenceNumber
+        POST("v1/orders", CreateCart(Some(customer.accountId))).as[OrderResponse].referenceNumber
 
       POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2))).status must === (
           StatusCodes.OK)
@@ -135,7 +135,7 @@ class CheckoutIntegrationTest
     }
 
     "fails if customer is blacklisted" in new BlacklistedFixture {
-      val createCart = POST("v1/orders", CreateCart(Some(customer.id)))
+      val createCart = POST("v1/orders", CreateCart(Some(customer.accountId)))
       createCart.status must === (StatusCodes.OK)
       val refNum = createCart.as[CartResponse].referenceNumber
       // Add line items
@@ -160,7 +160,7 @@ class CheckoutIntegrationTest
       val checkout = POST(s"v1/orders/$refNum/checkout")
       checkout.status must === (StatusCodes.BadRequest)
 
-      checkout.error must === (CustomerIsBlacklisted(customer.id).description)
+      checkout.error must === (CustomerIsBlacklisted(customer.accountId).description)
     }
   }
 
@@ -180,16 +180,18 @@ class CheckoutIntegrationTest
                     .mustFindOneOr(ShippingMethodNotFoundByName(shipMethodName))
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
-      reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
+      reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
     } yield (shipMethod, product, sku, reason)).gimme
   }
 
   trait BlacklistedFixture extends StoreAdmin_Seed {
     val (customer, address, shipMethod, product, sku, reason) = (for {
-      customer ← * <~ Customers.create(
-                    Factories.customer.copy(isBlacklisted = true,
-                                            blacklistedBy = Some(storeAdmin.id)))
-      address ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
+      account ← * <~ Accounts.create(Account())
+      customer ← * <~ Users.create(
+                    Factories.customer.copy(accountId = account.id,
+                                            isBlacklisted = true,
+                                            blacklistedBy = Some(storeAdmin.accountId)))
+      address ← * <~ Addresses.create(Factories.usAddress1.copy(accountId = customer.accountId))
       _       ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethod ← * <~ ShippingMethods
                     .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
@@ -197,7 +199,7 @@ class CheckoutIntegrationTest
                         ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
-      reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
+      reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
     } yield (customer, address, shipMethod, product, sku, reason)).gimme
   }
 }

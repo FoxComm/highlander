@@ -5,7 +5,7 @@ import cats.implicits._
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures._
 import models.Reason
-import models.customer.Customer
+import models.account._
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard._
 import models.payment.storecredit
@@ -294,7 +294,7 @@ class GiftCardIntegrationTest
       "fails to convert when customer not found" in new Fixture {
         val response = POST(s"v1/gift-cards/${giftCard2.code}/convert/666")
         response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Customer, 666).description)
+        response.error must === (NotFoundFailure404(User, 666).description)
       }
 
       "fails to convert GC to SC if open transactions are present" in new Fixture {

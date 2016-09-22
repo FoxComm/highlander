@@ -1,9 +1,11 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import cats.implicits._
 import failures.AssignmentFailures._
 import failures.NotFoundFailure404
 import models._
+import models.account._
 import models.cord._
 import payloads.AssignmentPayloads._
 import responses._
@@ -47,9 +49,7 @@ class AssignmentsIntegrationTest
       theResponse.result.headOption.value.assignmentType mustBe Assignment.Assignee
 
       theResponse.errors.value.size mustBe 1
-      theResponse.errors.value.headOption.value mustBe NotFoundFailure404(
-          StoreAdmin,
-          nonExistentAdminId).description
+      theResponse.errors.value.headOption.value mustBe NotFoundFailure404(User, nonExistentAdminId).description
     }
 
     "returns error if order not found" in new Order_Baked {
@@ -79,7 +79,7 @@ class AssignmentsIntegrationTest
     "returns error if store admin not found" in new AssignmentFixture {
       val response = DELETE(s"v1/orders/${order.refNum}/assignees/666")
       response.status must === (StatusCodes.NotFound)
-      response.error mustBe NotFoundFailure404(StoreAdmin, 666).description
+      response.error mustBe NotFoundFailure404(User, 666).description
     }
 
     "returns error if assignment not found" in new AssignmentFixture {
@@ -145,18 +145,20 @@ class AssignmentsIntegrationTest
                                referenceId = order.id,
                                storeAdminId = storeAdmin.id,
                                assignmentType = Assignment.Assignee))
-      secondAdmin ← * <~ StoreAdmins.create(
-                       Factories.storeAdmin.copy(email = "a@b.c", name = "Admin2"))
+      account ← * <~ Accounts.create(Account())
+      secondAdmin ← * <~ Users.create(
+                       Factories.storeAdmin
+                         .copy(accountId = account.id, email = "a@b.c".some, name = "Admin2".some))
     } yield (assignee, secondAdmin)).gimme
   }
 
   trait BulkAssignmentFixture extends Customer_Seed with StoreAdmin_Seed {
     val (order1, order2) = (for {
       cart ← * <~ Carts.create(
-                Factories.cart.copy(customerId = customer.id, referenceNumber = "foo"))
+                Factories.cart.copy(accountId = customer.accountId, referenceNumber = "foo"))
       order1 ← * <~ Orders.createFromCart(cart)
       cart ← * <~ Carts.create(
-                Factories.cart.copy(customerId = customer.id, referenceNumber = "bar"))
+                Factories.cart.copy(accountId = customer.accountId, referenceNumber = "bar"))
       order2 ← * <~ Orders.createFromCart(cart)
       assignee ← * <~ Assignments.create(
                     Assignment(referenceType = Assignment.Order,

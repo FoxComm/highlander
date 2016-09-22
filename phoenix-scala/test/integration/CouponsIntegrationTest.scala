@@ -10,7 +10,7 @@ import failures.NotFoundFailure404
 import failures.ObjectFailures.{ObjectContextNotFound, ShadowAttributeInvalidTime}
 import models.cord.{Carts, Orders}
 import models.coupon.Coupon
-import models.customer.Customers
+import models.account._
 import models.promotion.{Promotion, Promotions}
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
@@ -270,16 +270,20 @@ class CouponsIntegrationTest
       _ ← * <~ CouponManager.generateCode(willBeActiveCoupon.form.id,
                                           willBeActiveCode,
                                           authedStoreAdmin)
-      firstCustomer ← * <~ Customers.create(
-                         Factories.customer.copy(email = Some("first@example.org"),
+      firstAccount ← * <~ Accounts.create(Account())
+      firstCustomer ← * <~ Users.create(
+                         Factories.customer.copy(accountId = firstAccount.id,
+                                                 email = Some("first@example.org"),
                                                  name = Some("first")))
-      otherCustomer ← * <~ Customers.create(
-                         Factories.customer.copy(email = Some("second@example.org"),
+      otherAccount ← * <~ Accounts.create(Account())
+      otherCustomer ← * <~ Users.create(
+                         Factories.customer.copy(accountId = otherAccount.id,
+                                                 email = Some("second@example.org"),
                                                  name = Some("second")))
-      cart ← * <~ Carts.create(Factories.cart.copy(customerId = firstCustomer.id))
+      cart ← * <~ Carts.create(Factories.cart.copy(accountId = firstCustomer.accountId))
       cartForOrder ← * <~ Carts.create(
                         Factories.cart.copy(referenceNumber = "ORDER-123456",
-                                            customerId = otherCustomer.id))
+                                            accountId = otherCustomer.accountId))
       order ← * <~ Orders.createFromCart(cartForOrder)
     } yield (fromCoupon, fromToCoupon, cart, order)).gimme
   }

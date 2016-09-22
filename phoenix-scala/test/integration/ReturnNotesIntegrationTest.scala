@@ -116,7 +116,8 @@ class ReturnNotesIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed with Order_Baked {
-    val rma =
-      Returns.create(Factories.rma.copy(orderRef = order.refNum, customerId = customer.id)).gimme
+    val rma = Returns
+      .create(Factories.rma.copy(orderRef = order.refNum, accountId = customer.accountId))
+      .gimme
   }
 }

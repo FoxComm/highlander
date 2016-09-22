@@ -3,7 +3,7 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import cats.implicits._
 import failures.NotFoundFailure400
-import models.customer.Customer
+import models.account._
 import payloads.OrderPayloads.CreateCart
 import responses.cord.CartResponse
 import services.carts.CartCreator
@@ -33,7 +33,7 @@ class CartCreatorIntegrationTest
         val response = POST(s"v1/orders", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure400(Customer, 99).description)
+        response.error must === (NotFoundFailure400(User, 99).description)
       }
 
       "returns current cart if customer already has one" in new Fixture {

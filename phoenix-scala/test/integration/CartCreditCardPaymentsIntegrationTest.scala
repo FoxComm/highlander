@@ -5,7 +5,7 @@ import failures.CartFailures.OrderAlreadyPlaced
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.{NotFoundFailure400, NotFoundFailure404}
 import models.cord.Cart
-import models.customer.Customers
+import models.account._
 import models.payment.creditcard._
 import payloads.PaymentPayloads.CreditCardPayment
 import services.CreditCardManager
@@ -59,7 +59,7 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
     }
 
     "fails if the creditCard is inActive" in new CreditCardFixture {
-      CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(storeAdmin)).gimme
+      CreditCardManager.deleteCreditCard(customer.accountId, creditCard.id, Some(storeAdmin)).gimme
       val response = POST(s"v1/orders/${cart.refNum}/payment-methods/credit-cards",
                           CreditCardPayment(creditCard.id))
 
@@ -118,10 +118,12 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
 
   trait CreditCardFixture extends Fixture {
     val (creditCard, creditCardOfOtherCustomer) = (for {
-      cc ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
-      otherCustomer ← * <~ Customers.create(
-                         Factories.customer.copy(email = Some("other.customer@email.com")))
-      otherCC ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = otherCustomer.id))
+      cc           ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
+      otherAccount ← * <~ Accounts.create(Account())
+      otherCustomer ← * <~ Users.create(
+                         Factories.customer.copy(accountId = otherAccount.id,
+                                                 email = Some("other.customer@email.com")))
+      otherCC ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = otherAccount.id))
     } yield (cc, otherCC)).gimme
   }
 

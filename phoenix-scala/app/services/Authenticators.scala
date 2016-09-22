@@ -83,7 +83,15 @@ object Authenticator {
   //parameterized for future Service accounts
   case class AuthData[M](model: M, account: Account, scope: String, claims: Account.Claims)
 
-  class JwtAuthenticator(guestCreateContext: AccountCreateContext)(implicit ec: EC, db: DB) {
+  trait UserAuthenticator {
+    def readCredentials(): Directive1[Option[String]]
+    def checkAuthUser(credentials: Option[String]): Future[AuthenticationResult[AuthData[User]]]
+    def checkAuthCustomer(
+        credentials: Option[String]): Future[AuthenticationResult[AuthData[User]]]
+  }
+
+  class JwtAuthenticator(guestCreateContext: AccountCreateContext)(implicit ec: EC, db: DB)
+      extends UserAuthenticator {
 
     def readCredentials(): Directive1[Option[String]] = {
       readCookieOrHeader(headerName = "JWT")
@@ -151,7 +159,7 @@ object Authenticator {
   //MAXDO
   //This will be replaced with claims specific require functions for admins inside
   //the services instead of at the route later
-  def requireAdminAuth(auth: JwtAuthenticator): AuthenticationDirective[User] = {
+  def requireAdminAuth(auth: UserAuthenticator): AuthenticationDirective[User] = {
     (for {
       optCreds ← auth.readCredentials()
       result   ← onSuccess(auth.checkAuthUser(optCreds))
@@ -167,7 +175,7 @@ object Authenticator {
   //MAXDO
   //same as above, should have check for claims. The services should
   //make sure the claim exists instead of route layer.
-  def requireCustomerAuth(auth: JwtAuthenticator): AuthenticationDirective[User] =
+  def requireCustomerAuth(auth: UserAuthenticator): AuthenticationDirective[User] =
     (for {
       optCreds ← auth.readCredentials()
       result   ← onSuccess(auth.checkAuthCustomer(optCreds))

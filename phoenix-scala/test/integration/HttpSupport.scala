@@ -22,8 +22,7 @@ import akka.util.ByteString
 import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
 import de.heikoseeberger.akkasse.ServerSentEvent
-import models.StoreAdmin
-import models.customer.Customer
+import models.account._
 import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
@@ -31,7 +30,10 @@ import org.scalatest.{BeforeAndAfterAll, MustMatchers, Suite, SuiteMixin}
 import responses.TheResponse
 import server.Service
 import services.Authenticator
-import services.Authenticator.AsyncAuthenticator
+import services.Authenticator.UserAuthenticator
+import services.Authenticator.JwtAuthenticator
+import services.account.AccountCreateContext
+
 import util._
 import utils.aliases._
 import utils.apis.Apis
@@ -104,11 +106,14 @@ trait HttpSupport
       |}
     """.stripMargin).withFallback(ConfigFactory.load())
 
-  def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] =
-    Authenticator.BasicStoreAdmin()
+  private def createContext =
+    AccountCreateContext(roles = List("tenant_admin"), org = "tenant", scopeId = 1)
 
-  def overrideCustomerAuth: AsyncAuthenticator[Customer] =
-    Authenticator.BasicCustomer()
+  def overrideStoreAdminAuth: UserAuthenticator =
+    new Authenticator.JwtAuthenticator(createContext)
+
+  def overrideCustomerAuth: UserAuthenticator =
+    new Authenticator.JwtAuthenticator(createContext)
 
   implicit val env = FoxConfig.Test
 
@@ -120,9 +125,9 @@ trait HttpSupport
                 apisOverride = Some(apisOverride),
                 addRoutes = additionalRoutes) {
 
-      override val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = overrideStoreAdminAuth
+      override val storeAdminAuth: UserAuthenticator = overrideStoreAdminAuth
 
-      override val customerAuth: AsyncAuthenticator[Customer] = overrideCustomerAuth
+      override val customerAuth: UserAuthenticator = overrideCustomerAuth
     }
 
   def POST(path: String, rawBody: String): HttpResponse = {

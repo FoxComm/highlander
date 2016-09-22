@@ -1,25 +1,23 @@
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.directives.SecurityDirectives.challengeFor
 
-import models.StoreAdmin
-import models.customer.{Customer, Customers}
-import services.Authenticator.AsyncAuthenticator
+import cats.implicits._
+import models.account._
+import models.customer._
+import services.Authenticator.UserAuthenticator
 import util._
 import utils.MockedApis
 import utils.seeds.Seeds.Factories
 
 class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSupport with MockedApis {
 
-  val authedStoreAdmin = StoreAdmin.build(id = 1,
-                                          email = "donkey@donkey.com",
-                                          password = Some("donkeyPass"),
-                                          name = "Mister Donkey",
-                                          state = StoreAdmin.Active)
+  val authedStoreAdmin =
+    User(id = 1, accountId = 1, email = "donkey@donkey.com".some, name = "Mister Donkey".some)
 
-  override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] =
+  override def overrideStoreAdminAuth: UserAuthenticator =
     AuthAs(authedStoreAdmin)
-  override def overrideCustomerAuth: AsyncAuthenticator[Customer] =
-    AuthFailWith[Customer](challengeFor("test"))
+  override def overrideCustomerAuth: UserAuthenticator =
+    AuthFailWith(challengeFor("test"))
 
   "Requests with StoreAdmin only session (w/o customer)" - {
     "GET /v1/404alkjflskfdjg" in {
@@ -33,15 +31,13 @@ class RoutesCustomerOnlyIntegrationTest
     with HttpSupport
     with MockedApis {
 
-  val authedCustomer = Customer.build(id = 1,
-                                      email = "donkey@donkey.com",
-                                      password = Some("donkeyPass"),
-                                      name = Some("Mister Donkey"))
+  val authedCustomer =
+    User(id = 1, accountId = 1, email = "donkey@donkey.com".some, name = "Mister Donkey".some)
 
-  override def overrideCustomerAuth: AsyncAuthenticator[Customer] =
+  override def overrideCustomerAuth: UserAuthenticator =
     AuthAs(authedCustomer)
-  override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] =
-    AuthFailWith[StoreAdmin](challengeFor("test"))
+  override def overrideStoreAdminAuth: UserAuthenticator =
+    AuthFailWith(challengeFor("test"))
 
   "Requests with Customer only session (w/o StoreAdmin)" - {
     "GET v1/my/404hello" in {
@@ -49,7 +45,9 @@ class RoutesCustomerOnlyIntegrationTest
     }
 
     "GET v1/my/cart" in {
-      Customers.create(Factories.customer).gimme
+      val account = Accounts.create(Account()).gimme
+      val user    = Users.create(Factories.customer.copy(accountId = account.id)).gimme
+      CustomerUsers.create(CustomerUser(userId = user.id, accountId = account.id)).gimme
       GET(s"v1/my/cart").status must === (StatusCodes.OK)
     }
   }

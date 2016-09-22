@@ -88,7 +88,7 @@ class AddressesIntegrationTest
 
       validateDeleteResponse(response)
 
-      Addresses.findAllByCustomerId(customer.accountId).length.gimme must === (0)
+      Addresses.findAllByAccountId(customer.accountId).length.gimme must === (0)
     }
   }
 
@@ -154,7 +154,7 @@ class AddressesIntegrationTest
     "fails deleting using wrong customer id" in new CustomerAddress_Baked {
       val response = DELETE(s"v1/customers/65536/addresses/${address.id}")
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 65536).description)
+      response.error must === (NotFoundFailure404(User, 65536).description)
     }
   }
 

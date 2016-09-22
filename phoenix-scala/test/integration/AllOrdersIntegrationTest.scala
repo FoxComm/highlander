@@ -4,7 +4,7 @@ import Extensions._
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.cord.Order._
 import models.cord._
-import models.customer.Customers
+import models.account._
 import payloads.OrderPayloads.BulkUpdateOrdersPayload
 import responses.BatchResponse
 import responses.cord._
@@ -54,8 +54,8 @@ class AllOrdersIntegrationTest
 
   trait StateUpdateFixture {
     (for {
-      cust ← * <~ Customers.create(Factories.customer)
-      c = Factories.cart.copy(customerId = cust.id)
+      acc ← * <~ Accounts.create(Account())
+      c = Factories.cart.copy(accountId = acc.id)
       cart  ← * <~ Carts.create(c.copy(referenceNumber = "foo"))
       order ← * <~ Orders.createFromCart(cart)
       _     ← * <~ Orders.update(order, order.copy(state = FraudHold))

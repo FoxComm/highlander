@@ -6,7 +6,8 @@ import cats.implicits._
 import failures._
 import models.NotificationSubscription._
 import models.activity._
-import models.{NotificationSubscriptions, NotificationTrailMetadata, StoreAdmin}
+import models.account._
+import models.{NotificationSubscriptions, NotificationTrailMetadata}
 import org.json4s.JsonAST.JString
 import org.json4s.jackson.Serialization.write
 import payloads.ActivityTrailPayloads.AppendActivity
@@ -167,7 +168,7 @@ class NotificationIntegrationTest
       "warns about absent admins" in new Fixture {
         val result = subscribeToNotifications(adminIds = Seq(1, 2))
         result.result.value must === (1)
-        result.warnings.value must === (List(NotFoundFailure404(StoreAdmin, 2).description))
+        result.warnings.value must === (List(NotFoundFailure404(User, 2).description))
       }
 
       "subscribes twice for different reasons" in new Fixture {
