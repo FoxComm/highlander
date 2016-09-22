@@ -18,11 +18,13 @@ defmodule Permissions.Organization do
 
   def changeset(model, params \\ :empty) do
     model 
-    |> cast(params, @required_params, @optional_params)
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
   end
   
   def update_changeset(model, params \\ :empty) do
     model 
-    |> cast(params, @required_params, @optional_params)
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
   end
 end

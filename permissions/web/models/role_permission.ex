@@ -6,8 +6,12 @@ defmodule Permissions.RolePermission do
     belongs_to :permission, Permissions.Permission
   end
 
+  @required_fields ~w(role_id permission_id)a
+  @optional_fields ~w()a
+
   def changeset(model, params \\ :empty) do
     model 
-    |> cast(params, ~w(role_id permission_id), ~w())
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
   end
 end
