@@ -1,0 +1,21 @@
+---
+
+- name: Install Private Key To Access Google Cloud Cluster
+  sudo: true
+  copyv: src=id_rsa dest={{ item }} mode="0600"
+  with_items:
+    - "/var/lib/buildkite-agent/.ssh/"
+    - "/home/buildkite-agent/.ssh/"
+    - "/home/{{user}}/.ssh/"
+    - "/home/root/.ssh/"
+
+- name: Install Public Key To Access Google Cloud Cluster
+  sudo: true
+  copyv: src=id_rsa.pub dest={{ item }} mode="u=rw,g=r,o=r"
+  with_items:
+    - "/var/lib/buildkite-agent/.ssh/"
+    - "/home/buildkite-agent/.ssh/"
+    - "/home/{{user}}/.ssh/"
+    - "/home/root/.ssh/"
+
+

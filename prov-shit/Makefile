@@ -31,6 +31,9 @@ bootstrap-build-agents:
 bootstrap-build-agent-keys:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_build_agent_keys.yml --private-key=$(PRIVATE_KEY)
 
+bootstrap-build-agent-gce:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_build_agent_keys.yml --private-key=$(PRIVATE_KEY)
+
 bootstrap-consul-alerts:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_consul_alerts.yml
 
