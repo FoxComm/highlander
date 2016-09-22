@@ -82,7 +82,7 @@ export default class ProductForm extends Component {
   updateSkuVariantMapping(variants: Array<any>): void {
     let updatedVariants = [];
     let skus = [];
-    if (_.isEmpty(variants) || _.every(variants, variant => { return _.size(variant.values) <= 1 })) {
+    if (_.isEmpty(variants) || _.every(variants, variant => { return _.size(variant.values) <= 1; })) {
       skus = [ProductParagon.createEmptySku()];
       updatedVariants = variants;
     } else {

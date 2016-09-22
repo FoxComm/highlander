@@ -292,7 +292,7 @@ class EditableSkuRow extends Component {
   }
 
   updateSku(values: {[key: string]: any}) {
-    console.log("UPDATING THE SKU!!");
+    console.log('UPDATING THE SKU!!');
     this.setState({
       sku: Object.assign({}, this.state.sku, values),
     }, () => {

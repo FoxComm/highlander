@@ -120,7 +120,7 @@ export function createEmptySkuForVariantValues(values: Array<any>): Object {
     t: 'price',
     v: { currency: 'USD', value: 0 },
   };
-  const valuesArray = _.map(values, value => value.name)
+  const valuesArray = _.map(values, value => value.name);
   const emptySku = {
     feCode: pseudoRandomCode,
     attributes: {

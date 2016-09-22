@@ -85,7 +85,11 @@ class OptionEntry extends Component {
       <div className="fc-option-entry__actions">
         <a onClick={() => this.editValue('new')} styleName="action-icon"><i className="icon-add"/></a>
         <a onClick={() => this.props.editOption(this.props.id)} styleName="action-icon"><i className="icon-edit"/></a>
-        <a onClick={() => this.props.deleteOption(this.props.id)} styleName="action-icon"><i className="icon-trash"/></a>
+        <a 
+          onClick={() => this.props.deleteOption(this.props.id)} 
+          styleName="action-icon">
+          <i className="icon-trash"/>
+        </a>
       </div>
     );
   }
@@ -137,7 +141,7 @@ class OptionEntry extends Component {
         cancelAction={this.cancelEdit}
         confirmAction={this.updateValue}
       />
-    )
+    );
   }
 
   render(): Element {

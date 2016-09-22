@@ -88,7 +88,7 @@ class ValueEditDialog extends Component {
           />
         </FormField>
       </div>
-    )
+    );
   }
 
   render(): Element {
@@ -102,7 +102,7 @@ class ValueEditDialog extends Component {
         cancelAction={this.props.cancelAction}
         confirmAction={this.save}
       />
-    )
+    );
   }
 }
 

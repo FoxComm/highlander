@@ -86,7 +86,7 @@ class OptionEditDialog extends Component {
           />
         </FormField>
       </div>
-    )
+    );
   }
 
   render(): Element {
@@ -100,7 +100,7 @@ class OptionEditDialog extends Component {
         cancelAction={this.props.cancelAction}
         confirmAction={this.updateOption}
       />
-    )
+    );
   }
 }
 
