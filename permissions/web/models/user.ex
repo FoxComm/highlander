@@ -13,17 +13,19 @@ defmodule Permissions.User do
     belongs_to :account, Permissions.Account
   end
 
-  @required_fields ~w(email name)
-  @optional_fields ~w(is_disabled disabled_by is_blacklisted blacklisted_by phone_number account_id)
+  @required_fields ~w(email name)a
+  @optional_fields ~w(is_disabled disabled_by is_blacklisted blacklisted_by phone_number account_id)a
 
   def changeset(model, params \\ :empty) do 
     model 
-    |> cast(params, @required_fields, @optional_fields) #Not sure if we should accept ratchet from the endpoint.
+    |> cast(params, @required_fields ++ @optional_fields) #Not sure if we should accept ratchet from the endpoint.
+    |> validate_required(@required_fields)
   end
 
   def update_changeset(model, params \\ :empty) do 
     model 
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
   end
 
 end

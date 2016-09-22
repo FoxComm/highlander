@@ -6,14 +6,19 @@ defmodule Permissions.System do
     field :description, :string
   end
 
+  @required_fields ~w(name)a
+  @optional_fields ~w(description)a
+
   def changeset(model, params \\ :empty) do
     model 
-    |> cast(params, ~w(name), ~w(description))
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
   end
 
   def update_changeset(model, params \\ :empty) do
     model 
-    |> cast(params, ~w(name), ~w(description))
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
   end
 
 end
