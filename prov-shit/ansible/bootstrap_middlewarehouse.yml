@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Middlewarehouse
+- name: Bootstrap Middlewarehouse
   hosts: '{{hostname}}'
   vars:
     updating_mwh: true

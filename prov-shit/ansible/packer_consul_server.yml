@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Consul Server Image
+- name: Packing Consul Server Image
   hosts: all
   tags:
     - packer

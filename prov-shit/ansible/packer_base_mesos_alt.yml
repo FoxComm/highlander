@@ -1,6 +1,6 @@
 ---
 
-- name: Provision All The Things
+- name: Packing Base Mesos Image (Alternative)
   hosts: all
   vars:
     user: ubuntu
