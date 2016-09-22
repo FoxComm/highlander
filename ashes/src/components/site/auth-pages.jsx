@@ -38,7 +38,7 @@ export default class AuthPages extends Component {
   render() {
     return (
       <div styleName="body">
-        <img styleName="logo" src="admin_assets/images/fc-logo-v.svg"/>
+        <img styleName="logo" src="/admin/images/fc-logo-v.svg"/>
         {this.body}
         <div styleName="copyright">
           © 2016 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.

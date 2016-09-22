@@ -9,8 +9,8 @@ module.exports = function() {
       'Use GA_TRACKING_ID env variable for that.');
   }
   return {
-    favicon: path.resolve('public/admin_assets/favicon.ico'),
-    publicDir: path.resolve('public/admin_assets'),
+    favicon: path.resolve('public/admin/favicon.ico'),
+    publicDir: path.resolve('public/admin'),
     pageConstants: {
       title: 'FoxCommerce',
       analytics: GA_TRACKING_ID,

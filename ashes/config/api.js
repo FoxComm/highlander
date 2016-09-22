@@ -2,13 +2,13 @@
 
 module.exports = function(env) {
   const version = 'v1';
-  const rootPath = process.env.ROOT_PATH || '/admin/';
+  const rootPath = process.env.ROOT_PATH;
 
   function auth() {
     return {
       header: 'JWT',
       cookieName: 'JWT',
-      loginUri: `${rootPath}login`,
+      loginUri: `${rootPath}/login`,
       publicKey: env.public_key,
     };
 

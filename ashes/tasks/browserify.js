@@ -97,7 +97,7 @@ module.exports = function(gulp, opts, $) {
       .pipe($.if(production, $.sourcemaps.init({loadMaps: true})))
       .pipe($.if(production, $.uglify()))
       .pipe($.if(production, $.sourcemaps.write('_', {addComment: false})))
-      .pipe(gulp.dest(opts.publicDir));
+      .pipe(gulp.dest('public/admin'));
 
     return stream;
   });

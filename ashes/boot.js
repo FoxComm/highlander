@@ -64,7 +64,7 @@ cluster.on('listening', function(worker, address) {
   let cmd = `git log -1 --format='%h' -- ${__dirname}`;
   exec(cmd, function(err, stdout) {
     let sha = stdout.toString().trim();
-    let basePath = process.env.ROOT_PATH || '/admin/';
+    let basePath = process.env.ROOT_PATH;
     let args = [
       `%s: %s (${clc.blackBright('%s')}) ${clc.blue('%s')} ${clc.green('api: %s')} ${clc.red('development url: http://localhost:%d%s')}`,
       timestamp(),

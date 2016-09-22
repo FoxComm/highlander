@@ -86,8 +86,8 @@ if (process.env.NODE_ENV != 'production') {
   var AllNotificationItems = require('components/activity-notifications/all').default;
 }
 
-const rootPath = process.env.ROOT_PATH || '/admin/';
-const indexRedirect = `${rootPath}orders`;
+const rootPath = process.env.ROOT_PATH;
+const indexRedirect = `${rootPath}/orders`;
 
 const routes = (
   <Route path={rootPath}>

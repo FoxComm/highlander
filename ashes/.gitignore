@@ -39,11 +39,11 @@ public/admin.*
 public/*.js
 public/*.css
 public/_
-public/admin_assets/themes
-public/admin_assets/admin.*
-public/admin_assets/*.js
-public/admin_assets/*.css
-public/admin_assets/_
+public/admin/themes
+public/admin/admin.*
+public/admin/*.js
+public/admin/*.css
+public/admin/_
 
 .vagrant
 !.vagrant/machines/default/google
