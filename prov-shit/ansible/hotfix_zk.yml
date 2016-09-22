@@ -1,0 +1,46 @@
+---
+
+- name: Target Hotfix Zookeeper Server 0
+  hosts:
+    - target-amigo-server-0
+  vars:
+    user: '{{ansible_ssh_user}}'
+    zookeeper_1: "0.0.0.0"
+    zookeeper_2: "10.0.7.209"
+    zookeeper_3: "10.0.2.145"
+
+  roles:
+    - { role: hotfix/zookeeper }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
+
+- name: Target Hotfix Zookeeper Server 1
+  hosts:
+    - target-amigo-server-1
+  vars:
+    user: '{{ansible_ssh_user}}'
+    zookeeper_1: "10.0.1.18"
+    zookeeper_2: "0.0.0.0"
+    zookeeper_3: "10.0.2.145"
+
+  roles:
+    - { role: hotfix/zookeeper }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
+
+- name: Target Hotfix Zookeeper Server 2
+  hosts:
+    - target-amigo-server-2
+  vars:
+    user: '{{ansible_ssh_user}}'
+    zookeeper_1: "10.0.1.18"
+    zookeeper_2: "10.0.7.209"
+    zookeeper_3: "0.0.0.0"
+
+  roles:
+    - { role: hotfix/zookeeper }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

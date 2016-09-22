@@ -110,7 +110,10 @@ tf-target:
 tf-target-dev:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_target_dev/terraform.tfstate -var-file=$(TF_ENVS)/aws_target_dev/target.tfvars $(TF_BASE)/aws_target_dev
 
-hotfix-amigos:
-	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_amigos.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+hotfix-mesos:
+	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_mesos.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+
+hotfix-zk:
+	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_zk.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 .PHONY: all build lint test
