@@ -21,6 +21,9 @@
     middlewarehouse_service_after: ""
     middlewarehouse_consumers_services_requires: ""
     middlewarehouse_consumers_services_after: ""
+  post_tasks:
+    - name: Sweet Dreams
+      raw: sleep 5
 
   roles:
     - { role: base/ssh_keys }

@@ -7,6 +7,9 @@
   vars:
     user: ubuntu
     packing: true
+  post_tasks:
+    - name: Sweet Dreams
+      raw: sleep 5    
 
   roles:
     - { role: base/consul_agent }

@@ -10,6 +10,9 @@
     search_host: elasticsearch.service.consul
     log_host: es-log.service.consul
     zookeeper_server: "zookeeper.service.consul:2181"
+  post_tasks:
+    - name: Sweet Dreams
+      raw: sleep 5
 
   roles:
     - { role: base/rsyslog, sudo: yes }

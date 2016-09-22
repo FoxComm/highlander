@@ -20,6 +20,9 @@
     middlewarehouse_service_requires: ""
     middlewarehouse_service_after: ""
     mesos_master: mesos_master.service.consul
+  post_tasks:
+    - name: Sweet Dreams
+      raw: sleep 5
 
   roles:
     - { role: base/ssh_keys }

@@ -13,6 +13,9 @@
       raw: sudo apt-get -y install python2.7 python-boto
     - name: Gather Facts
       setup:
+  post_tasks:
+    - name: Sweet Dreams
+      raw: sleep 5
 
   roles:
     - { role: base/common }

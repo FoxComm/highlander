@@ -8,6 +8,9 @@
     user: ubuntu
     join_type: join-wan
     consul_expect: 1
+  post_tasks:
+    - name: Sweet Dreams
+      raw: sleep 5    
 
   roles:
     - { role: base/common }
