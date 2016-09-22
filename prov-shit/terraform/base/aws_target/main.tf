@@ -5,7 +5,7 @@ variable "region" {}
 variable "public_subnet_cidr" {}
 variable "private_subnet_cidr" {}
 
-variable "base_image" {}
+variable "vpn_image" {}
 
 provider "aws" {
     access_key = "${var.aws_access_key}"
@@ -20,5 +20,5 @@ module "target_networking" {
     private_subnet_cidr = "${var.private_subnet_cidr}"
     name = "tgt"
     key_name = "${var.aws_key_name}"
-    base_image = "${var.base_image}"
+    vpn_image = "${var.vpn_image}"
 }

@@ -2,10 +2,10 @@
 # OpenVPN
 ###############################
 
-variable "base_image" {}
+variable "vpn_image" {}
 
 resource "aws_instance" "vpn" {
-  ami = "${var.base_image}"
+  ami = "${var.vpn_image}"
   instance_type = "t2.small"
   
   tags = {
