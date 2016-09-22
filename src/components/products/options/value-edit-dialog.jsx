@@ -9,6 +9,8 @@ import { assoc } from 'sprout-data';
 // components
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import { FormField } from 'components/forms';
+import TextInput from 'components/forms/text-input';
+import SwatchInput from 'components/forms/swatch-input';
 
 // styles
 import styles from './option-list.css';
@@ -49,6 +51,11 @@ class ValueEditDialog extends Component {
   }
 
   @autobind
+  handleSwatchChange(newValue: string) {
+    this.handleChange(newValue, 'swatch');
+  }
+
+  @autobind
   save() {
     this.props.confirmAction(this.state.value, this.props.value.id);
   }
@@ -73,10 +80,9 @@ class ValueEditDialog extends Component {
           label="Color Swatch"
           key={`object-form-attribute-swatch`}
         >
-          <input
-            type="text"
+          <SwatchInput
             value={this.state.value.swatch}
-            onChange={({target}) => this.handleChange(target.value, 'swatch')}
+            onChange={this.handleSwatchChange}
           />
         </FormField>
       </div>
