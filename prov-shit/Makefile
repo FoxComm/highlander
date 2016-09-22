@@ -110,4 +110,8 @@ tf-topdrawer:
 tf-target:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_target/terraform.tfstate -var-file=$(TF_ENVS)/aws_target/target.tfvars $(TF_BASE)/aws_target
 
+tf-target-dev:
+	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_target_dev/terraform.tfstate -var-file=$(TF_ENVS)/aws_target_dev/target.tfvars $(TF_BASE)/aws_target_dev
+
+
 .PHONY: all build lint test
