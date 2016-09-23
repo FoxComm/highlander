@@ -18,7 +18,7 @@ object VariantValueResponses {
       val name   = IlluminateAlgorithm.get("name", formAttrs, shadowAttrs).extract[String]
       val swatch = IlluminateAlgorithm.get("swatch", formAttrs, shadowAttrs).extractOpt[String]
 
-      Root(id = model.id, name = name, swatch = swatch, skuCodes)
+      Root(id = model.formId, name = name, swatch = swatch, skuCodes)
     }
   }
 }

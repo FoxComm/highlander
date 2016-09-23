@@ -28,6 +28,12 @@ bootstrap-annabelle:
 bootstrap-build-agents:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_build_agents.yml
 
+bootstrap-build-agent-keys:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_build_agent_keys.yml --private-key=$(PRIVATE_KEY)
+
+bootstrap-build-agent-gce:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_build_agent_gce.yml --private-key=$(PRIVATE_KEY)
+
 bootstrap-consul-alerts:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_consul_alerts.yml
 
@@ -39,6 +45,9 @@ bootstrap-messaging-plugin:
 
 bootstrap-middlewarehouse:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_middlewarehouse.yml --private-key=$(PRIVATE_KEY)
+
+bootstrap-staging-openvpn-key:
+	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_openvpn_key.yml
 
 bootstrap-staging:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml
@@ -94,19 +103,16 @@ run-gatling: deploy-gatling
 run-gatling-highlander: deploy-gatling-highlander
 	ansible-playbook -v -i bin/envs/staging ansible/run_gatling_highlander.yml
 
-tf-aws-target:
-	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_target/terraform.tfstate -var-file=$(TF_ENVS)/aws_target/target.tfvars $(TF_BASE)/aws_target
-
 tf-stage:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_dev/terraform.tfstate -var-file=$(TF_ENVS)/gce_dev/dev.tfvars $(TF_BASE)/gce_dev
 
 tf-vanilla:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_vanilla/terraform.tfstate -var-file=$(TF_ENVS)/gce_vanilla/vanilla.tfvars $(TF_BASE)/gce_vanilla
 
-tf-target:
-	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_target/terraform.tfstate -var-file=$(TF_ENVS)/gce_target/target.tfvars $(TF_BASE)/gce_target
-
 tf-topdrawer:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_topdrawer/terraform.tfstate -var-file=$(TF_ENVS)/gce_topdrawer/topdrawer.tfvars $(TF_BASE)/gce_topdrawer
+
+tf-target:
+	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_target/terraform.tfstate -var-file=$(TF_ENVS)/aws_target/target.tfvars $(TF_BASE)/aws_target
 
 .PHONY: all build lint test

@@ -70,7 +70,7 @@ Set the following environment variables.
     $ export GOOGLE_SSH_KEY=~/.ssh/google_compute_engine # Or the location of your key
     $ export GOOGLE_CLIENT_EMAIL=<Your FoxCommerce email>
 
-Download a JSON key for our GCE environment. You can follow 
+Download a JSON key for our GCE environment. You can follow
 [Google's instructions for generating a private key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key).
 
 Make sure to generate a JSON key. And save it with the name `foxcomm-staging.json` in the root directory of this project.
@@ -89,5 +89,5 @@ Get the private IP address
 
     $ vagrant ssh
     $ ifconfig eth0
-    
-Edit your hosts file so that `foxcommerce.local` and `admin.foxcommerce.local` point to the new box using the private IP address you just retrieved.  
+
+Edit your hosts file so that `local.foxcommerce.com` points to the new box using the private IP address you just retrieved.  

@@ -31,7 +31,6 @@
             "subnet_id": "{{user `subnet_id`}}",
             "tags": {
                 "packer": "db",
-                "ip": "none",
                 "project": "{{user `image_prefix`}}",
                 "type": "elasticsearch"
             }

@@ -41,8 +41,7 @@
                 "delete_on_termination": true
             }],
             "tags": {
-                "packer": "amigo-server",
-                "ip": "none"
+                "packer": "amigo-server"
             }
         }
     ],

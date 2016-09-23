@@ -40,7 +40,7 @@ module "buildagents" {
     queue = "core"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
-    servers = 4
+    servers = 8
 }
 
 ##############################################

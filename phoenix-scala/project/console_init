@@ -1,0 +1,16 @@
+import scala.concurrent.ExecutionContext.Implicits.global
+import slick.driver.PostgresDriver.api._
+import models._
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
+import models.activity.ActivityContext
+import utils.db._
+
+val config: com.typesafe.config.Config = utils.FoxConfig.loadWithEnv()
+
+implicit val ac = ActivityContext(userId = 1, userType = "admin", transactionId = utils.generateUuid)
+implicit val db = Database.forConfig("db", config)
+
+final implicit class ConsoleEnrichedFuture[A](val future: Future[A]) extends AnyVal {
+  def get(): A = Await.result(future, 1.minute)
+}

@@ -1,0 +1,5 @@
+echo -n "Build date: "      >  version &&
+date                        >> version &&
+echo                        >> version &&
+echo Git HEAD commit:       >> version &&
+git show HEAD --pretty=full >> version

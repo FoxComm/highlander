@@ -13,7 +13,7 @@
       private: no
     - name: "ashes_server_name"
       prompt: "Enter ashes server name"
-      default: "admin.foxcommerce.local"
+      default: "local.foxcommerce.com"
       private: no
     - name: "plugins_api_user_email"
       prompt: "Enter phoenix api user email"

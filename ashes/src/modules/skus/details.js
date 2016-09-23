@@ -47,6 +47,8 @@ const setError = createAction('SKU_SET_ERROR');
 
 export const newSku = createAction('SKU_NEW');
 
+const rootPath = process.env.ROOT_PATH;
+
 export function fetchSku(code: string, context: string = defaultContext): ActionDispatch {
   return dispatch => {
     dispatch(skuRequestStart());
@@ -69,7 +71,7 @@ export function createSku(sku: Sku, context: string = defaultContext): ActionDis
         (res: Sku) => {
           const newCode = _.get(res, ['attributes', 'code', 'v']);
           dispatch(skuUpdateSuccess(res));
-          dispatch(push(`/skus/${newCode}`));
+          dispatch(push(`${rootPath}/skus/${newCode}`));
         },
         (err: HttpError) => {
           dispatch(skuUpdateFailure());
@@ -90,7 +92,7 @@ export function updateSku(sku: Sku, context: string = defaultContext): ActionDis
           (res: Sku) => {
             const newCode = _.get(res, ['attributes', 'code', 'v']);
             dispatch(skuUpdateSuccess(res));
-            dispatch(push(`/skus/${newCode}`));
+            dispatch(push(`${rootPath}/skus/${newCode}`));
           },
           (err: HttpError) => {
             dispatch(skuUpdateFailure());

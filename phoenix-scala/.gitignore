@@ -22,7 +22,7 @@ project/plugins/project/
 .worksheet
 
 # Eclipse and eclim stuff
-.classpath  
+.classpath
 .project
 .settings
 workbench.xmi
@@ -45,3 +45,5 @@ phoenix-scala.iml
 # Gatling
 gatling-results/
 gatling-classes/
+
+version

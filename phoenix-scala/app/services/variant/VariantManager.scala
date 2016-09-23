@@ -195,14 +195,14 @@ object VariantManager {
       newSkus ← * <~ payload.skuCodes.map(SkuManager.mustFindSkuByContextAndCode(contextId, _))
       newSkuIds = newSkus.map(_.id).toSet
 
-      variantValueLinks ← * <~ VariantValueSkuLinks.filterLeft(valueId).result
+      variantValueLinks ← * <~ VariantValueSkuLinks.filterLeft(value.id).result
       linkedSkuIds = variantValueLinks.map(_.rightId).toSet
 
       toDelete = variantValueLinks.filter(link ⇒ !newSkuIds.contains(link.rightId))
       toCreate = newSkuIds.diff(linkedSkuIds)
 
       _ ← * <~ VariantValueSkuLinks.createAllReturningIds(
-             toCreate.map(id ⇒ VariantValueSkuLink(leftId = valueId, rightId = id)))
+             toCreate.map(id ⇒ VariantValueSkuLink(leftId = value.id, rightId = id)))
       _ ← * <~ toDelete.map(
              link ⇒
                VariantValueSkuLinks

@@ -1,4 +1,5 @@
 SUBDIRS = $(shell ./projects.sh)
+$(info $(SUBDIRS))
 UPDATEDIRS = $(SUBDIRS:%=update-%)
 BUILDDIRS = $(SUBDIRS:%=build-%)
 TESTDIRS = $(SUBDIRS:%=test-%)
@@ -10,13 +11,12 @@ $(CLEANDIRS):
 	$(MAKE) -C $(REPO) clean
 
 build: $(BUILDDIRS)
-	$(MAKE) -C api-js build
 $(BUILDDIRS): REPO = $(@:build-%=%)
 $(BUILDDIRS):
 	$(MAKE) -C $(REPO) build
 
 test: $(TESTDIRS)
-	$(MAKE) -C api-js test
+
 $(TESTDIRS): REPO = $(@:test-%=%)
 $(TESTDIRS):
 	$(MAKE) -C $(REPO) test

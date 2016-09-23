@@ -40,8 +40,7 @@
                 "delete_on_termination": true
             }],
             "tags": {
-                "packer": "base-mesos",
-                "ip": "none"
+                "packer": "base-mesos"
             }
         }
     ],
