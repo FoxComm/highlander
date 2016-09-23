@@ -1,5 +1,6 @@
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
+variable "aws_account_id" {}
 variable "ssh_user" {}
 variable "ssh_private_key" {}
 variable "aws_key_name" {}
@@ -55,6 +56,8 @@ module "target_staging" {
     stage_backend_image = "${var.stage_backend_image}"
 
     amigo_leader = "${module.target_amigos.leader}"
+
+    policy_file = "terraform/policy_stage.json"
 }
 
 module "target_vanilla" {
@@ -78,4 +81,6 @@ module "target_vanilla" {
     service_worker_image = "${var.service_worker_image}"
 
     amigo_leader = "${module.target_amigos.leader}"
+
+    policy_file = "terraform/policy_vanilla.json"    
 }

@@ -134,4 +134,7 @@ hotfix-mesos-worker:
 hotfix-db:
 	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_db.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
+hotfix-docker-registry:
+	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_docker_registry.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+
 .PHONY: all build lint test

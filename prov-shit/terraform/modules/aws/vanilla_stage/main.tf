@@ -15,6 +15,20 @@ variable "stage_frontend_image" {}
 
 variable "amigo_leader" {}
 
+variable "policy_file" {}
+
+resource "aws_s3_bucket" "s3_docker_stage" {
+    bucket = "s3-docker-stage"
+    acl = "private"
+
+    tags {
+        Name = "Stage Docker Registry"
+        Environment = "stage"
+    }
+
+  	policy = "${file(var.policy_file)}" 
+}
+
 resource "aws_instance" "stage_amigo" {
 	ami = "${var.stage_amigo_image}"
 	instance_type = "t2.medium"

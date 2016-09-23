@@ -10,6 +10,7 @@ TODO after Target AWS provisioning experience:
 	* `hotfix_stage_consul.yml`
 	* `hotfix_stage_db.yml`
 	* `hotfix_db.yml`
+	* `hotfix_docker_registry.yml`
 * Manual actions (should be fixed in main playbooks):
 	* Staging
 		* Zookeeper: `echo 1 > /var/lib/zookeeper/myid` && restart ZK

@@ -18,6 +18,20 @@ variable "service_worker_image" {}
 
 variable "amigo_leader" {}
 
+variable "policy_file" {}
+
+resource "aws_s3_bucket" "s3_docker_vanilla" {
+    bucket = "s3-docker-vanilla"
+    acl = "private"
+
+    tags {
+        Name = "Vanilla Docker Registry"
+        Environment = "vanilla"
+    }
+
+    policy = "${file(var.policy_file)}" 
+}
+
 resource "aws_instance" "kafka" {
   ami = "${var.kafka_image}"
   instance_type = "m4.large"
