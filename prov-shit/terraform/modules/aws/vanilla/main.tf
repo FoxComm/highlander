@@ -4,7 +4,7 @@ variable "ssh_user" {}
 variable "ssh_private_key" {}
 variable "subnet_id" {}
 variable "security_groups" {
-	type = "list"
+  type = "list"
 }
 
 variable "kafka_image" {}
@@ -19,24 +19,24 @@ variable "service_worker_image" {}
 variable "amigo_leader" {}
 
 resource "aws_instance" "kafka" {
-	ami = "${var.kafka_image}"
-	instance_type = "m4.large"
-	key_name = "${var.key_name}"
+  ami = "${var.kafka_image}"
+  instance_type = "m4.large"
+  key_name = "${var.key_name}"
 
-	tags = {
-		Name = "target-kafka"
+  tags = {
+    Name = "target-kafka"
     Datacenter = "${var.datacenter}"
-	}
+  }
 
-	subnet_id = "${var.subnet_id}"
-	vpc_security_group_ids = "${var.security_groups}"
-	availability_zone = "us-west-2a"
-	associate_public_ip_address = false
+  subnet_id = "${var.subnet_id}"
+  vpc_security_group_ids = "${var.security_groups}"
+  availability_zone = "us-west-2a"
+  associate_public_ip_address = false
 
-	root_block_device {
-		volume_type = "standard"
-		volume_size = "100"
-	}
+  root_block_device {
+    volume_type = "standard"
+    volume_size = "100"
+  }
 
   connection {
       type = "ssh"
@@ -52,24 +52,24 @@ resource "aws_instance" "kafka" {
 }
 
 resource "aws_instance" "db" {
-	ami = "${var.db_image}"
-	instance_type = "r3.xlarge"
-	key_name = "${var.key_name}"
+  ami = "${var.db_image}"
+  instance_type = "r3.xlarge"
+  key_name = "${var.key_name}"
 
-	tags = {
-		Name = "target-db"
+  tags = {
+    Name = "target-db"
     Datacenter = "${var.datacenter}"
-	}
+  }
 
-	subnet_id = "${var.subnet_id}"
-	vpc_security_group_ids = "${var.security_groups}"
-	availability_zone = "us-west-2a"
-	associate_public_ip_address = false
+  subnet_id = "${var.subnet_id}"
+  vpc_security_group_ids = "${var.security_groups}"
+  availability_zone = "us-west-2a"
+  associate_public_ip_address = false
 
-	root_block_device {
-		volume_type = "standard"
-		volume_size = "100"
-	}
+  root_block_device {
+    volume_type = "standard"
+    volume_size = "100"
+  }
 
   connection {
       type = "ssh"
@@ -85,24 +85,24 @@ resource "aws_instance" "db" {
 }
 
 resource "aws_instance" "es" {
-	ami = "${var.es_image}"
-	instance_type = "r3.large"
-	key_name = "${var.key_name}"
+  ami = "${var.es_image}"
+  instance_type = "r3.large"
+  key_name = "${var.key_name}"
 
-	tags = {
-		Name = "target-es"
+  tags = {
+    Name = "target-es"
     Datacenter = "${var.datacenter}"
-	}
+  }
 
-	subnet_id = "${var.subnet_id}"
-	vpc_security_group_ids = "${var.security_groups}"
-	availability_zone = "us-west-2a"
-	associate_public_ip_address = false
+  subnet_id = "${var.subnet_id}"
+  vpc_security_group_ids = "${var.security_groups}"
+  availability_zone = "us-west-2a"
+  associate_public_ip_address = false
 
-	root_block_device {
-		volume_type = "standard"
-		volume_size = "100"
-	}
+  root_block_device {
+    volume_type = "standard"
+    volume_size = "100"
+  }
 
   connection {
       type = "ssh"
@@ -118,24 +118,24 @@ resource "aws_instance" "es" {
 }
 
 resource "aws_instance" "es-log" {
-	ami = "${var.log_image}"
-	instance_type = "r3.large"
-	key_name = "${var.key_name}"
+  ami = "${var.log_image}"
+  instance_type = "r3.large"
+  key_name = "${var.key_name}"
 
-	tags = {
-		Name = "target-es-log"
+  tags = {
+    Name = "target-es-log"
     Datacenter = "${var.datacenter}"
-	}
+  }
 
-	subnet_id = "${var.subnet_id}"
-	vpc_security_group_ids = "${var.security_groups}"
-	availability_zone = "us-west-2a"
-	associate_public_ip_address = false
+  subnet_id = "${var.subnet_id}"
+  vpc_security_group_ids = "${var.security_groups}"
+  availability_zone = "us-west-2a"
+  associate_public_ip_address = false
 
-	root_block_device {
-		volume_type = "standard"
-		volume_size = "100"
-	}
+  root_block_device {
+    volume_type = "standard"
+    volume_size = "100"
+  }
 
   connection {
       type = "ssh"
@@ -151,24 +151,24 @@ resource "aws_instance" "es-log" {
 }
 
 resource "aws_instance" "phoenix" {
-	ami = "${var.phoenix_image}"
-	instance_type = "m4.xlarge"
-	key_name = "${var.key_name}"
+  ami = "${var.phoenix_image}"
+  instance_type = "m4.xlarge"
+  key_name = "${var.key_name}"
 
-	tags = {
-		Name = "target-phoenix"
+  tags = {
+    Name = "target-phoenix"
     Datacenter = "${var.datacenter}"
-	}
+  }
 
-	subnet_id = "${var.subnet_id}"
-	vpc_security_group_ids = "${var.security_groups}"
-	availability_zone = "us-west-2a"
-	associate_public_ip_address = false
+  subnet_id = "${var.subnet_id}"
+  vpc_security_group_ids = "${var.security_groups}"
+  availability_zone = "us-west-2a"
+  associate_public_ip_address = false
 
-	root_block_device {
-		volume_type = "standard"
-		volume_size = "10"
-	}
+  root_block_device {
+    volume_type = "standard"
+    volume_size = "10"
+  }
 
   connection {
       type = "ssh"
@@ -184,24 +184,24 @@ resource "aws_instance" "phoenix" {
 }
 
 resource "aws_instance" "greenriver" {
-	ami = "${var.greenriver_image}"
-	instance_type = "m4.large"
-	key_name = "${var.key_name}"
+  ami = "${var.greenriver_image}"
+  instance_type = "m4.large"
+  key_name = "${var.key_name}"
 
-	tags = {
-		Name = "target-greenriver"
+  tags = {
+    Name = "target-greenriver"
     Datacenter = "${var.datacenter}"
-	}
+  }
 
-	subnet_id = "${var.subnet_id}"
-	vpc_security_group_ids = "${var.security_groups}"
-	availability_zone = "us-west-2a"
-	associate_public_ip_address = false
+  subnet_id = "${var.subnet_id}"
+  vpc_security_group_ids = "${var.security_groups}"
+  availability_zone = "us-west-2a"
+  associate_public_ip_address = false
 
-	root_block_device {
-		volume_type = "standard"
-		volume_size = "10"
-	}
+  root_block_device {
+    volume_type = "standard"
+    volume_size = "10"
+  }
 
   connection {
       type = "ssh"
@@ -217,24 +217,24 @@ resource "aws_instance" "greenriver" {
 }
 
 resource "aws_instance" "service-worker-0" {
-	ami = "${var.service_worker_image}"
-	instance_type = "m4.xlarge"
-	key_name = "${var.key_name}"
+  ami = "${var.service_worker_image}"
+  instance_type = "m4.xlarge"
+  key_name = "${var.key_name}"
 
-	tags = {
-		Name = "target-service-worker-0"
+  tags = {
+    Name = "target-service-worker-0"
     Datacenter = "${var.datacenter}"
-	}
+  }
 
-	subnet_id = "${var.subnet_id}"
-	vpc_security_group_ids = "${var.security_groups}"
-	availability_zone = "us-west-2a"
-	associate_public_ip_address = false
+  subnet_id = "${var.subnet_id}"
+  vpc_security_group_ids = "${var.security_groups}"
+  availability_zone = "us-west-2a"
+  associate_public_ip_address = false
 
-	root_block_device {
-		volume_type = "standard"
-		volume_size = "20"
-	}
+  root_block_device {
+    volume_type = "standard"
+    volume_size = "20"
+  }
 
   connection {
       type = "ssh"
@@ -250,24 +250,24 @@ resource "aws_instance" "service-worker-0" {
 }
 
 /*resource "aws_instance" "front-worker-0" {
-	ami = "${var.front_image}"
-	instance_type = "m4.large"
-	key_name = "${var.key_name}"
+  ami = "${var.front_image}"
+  instance_type = "m4.large"
+  key_name = "${var.key_name}"
 
-	tags = {
-		Name = "target-front-worker-0"
+  tags = {
+    Name = "target-front-worker-0"
     Datacenter = "${var.datacenter}"
-	}
+  }
 
-	subnet_id = "${var.subnet_id}"
-	vpc_security_group_ids = "${var.security_groups}"
-	availability_zone = "us-west-2a"
-	associate_public_ip_address = false
+  subnet_id = "${var.subnet_id}"
+  vpc_security_group_ids = "${var.security_groups}"
+  availability_zone = "us-west-2a"
+  associate_public_ip_address = false
 
-	root_block_device {
-		volume_type = "standard"
-		volume_size = "20"
-	}
+  root_block_device {
+    volume_type = "standard"
+    volume_size = "20"
+  }
 
   connection {
       type = "ssh"
