@@ -1,4 +1,6 @@
-TODO after Target AWS provisioning experience:
+## TODO
+
+After Target AWS provisioning experience:
 
 * Export Max's new AWS resources (OpenVPN security groups) with https://github.com/dtan4/terraforming
 * Deal with `/etc/hosts` somehow
@@ -24,7 +26,7 @@ TODO after Target AWS provisioning experience:
 		* Zookeeper: `echo 1 > /var/lib/zookeeper/myid` && restart ZK
 		* `/middlewarehouse/sql/flyway.conf` -> replace `localhost` to `db.service.consul`
 		* `/usr/local/bin/run_mesos_master.sh` - QUORUM should be 1
-	* Vanilla		
+	* Vanilla
 		* Restart kafka & schema-registry after fixing `/etc/hosts`
 		* Bottledwaters run script has `db.service` which block it from DNS. set manually to localhost
 		* Rollback `/middlewarehouse/sql/flyway.conf` update
@@ -33,3 +35,13 @@ TODO after Target AWS provisioning experience:
 	* Forgot to use `base_mesos_ami` everywhere, run `make hotfix-mesos-worker`
 	* TF issue https://github.com/hashicorp/terraform/issues/1652#issuecomment-195164526
 	* Use `consul members` & `consul force-leave <node_id>` if you dropped previous cluster via terraform
+
+## Service Locations
+
+| Name            | Staging                                                        | Vanilla                                                 |
+|:----------------|:---------------------------------------------------------------|:--------------------------------------------------------|
+| Consul          | [Consul UI](http://10.0.2.215:8500/ui/#/target-stage/services) | [Consul UI](http://10.0.1.18:8500/ui/#/target/services) |
+| Mesos           | [Mesos UI](http://10.0.2.215:5050/#/)                          | [Mesos UI](http://10.0.7.209:5050/#/)                   |
+| Marathon        | [Marathon UI](http://10.0.2.215:8080/ui/#/apps)                | [Marathon UI](http://10.0.1.18:8080/ui/#/apps)          |
+| Docker Registry | [API Version Check](https://10.0.2.215:5000/v2/)               | [API Version Check](https://10.0.1.18:5000/v2/)         |
+| S3 Bucket       | `s3-docker-stage`                                              | `s3-docker-vanilla`                                     |
