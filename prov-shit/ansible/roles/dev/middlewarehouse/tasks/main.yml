@@ -15,16 +15,16 @@
   sudo: true
   when: updating_mwh
 
-- name: Synchronize Middlewarehouse SQL
-  synchronize: src="{{middlewarehouse_src}}/sql" dest="{{middlewarehouse_dir}}" delete=yes recursive=yes
-  sudo: true
-  when: updating_mwh
+#- name: Synchronize Middlewarehouse SQL
+  #synchronize: src="{{middlewarehouse_src}}/sql" dest="{{middlewarehouse_dir}}" delete=yes recursive=yes
+  #sudo: true
+  #when: updating_mwh
 
-- name: Migrate Middlewarehouse Database
-  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
-  args:
-    chdir: "{{middlewarehouse_dir}}"
-  when: updating_mwh
+#- name: Migrate Middlewarehouse Database
+  #shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  #args:
+    #chdir: "{{middlewarehouse_dir}}"
+  #when: updating_mwh
 
 - name: Restart Middlewarehouse
   service: name=middlewarehouse state=restarted enabled=yes
