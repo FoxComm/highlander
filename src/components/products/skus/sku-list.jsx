@@ -40,7 +40,8 @@ export default class SkuList extends Component {
     const { variants } = this.props;
     const variantColumns = [];
     _.each(variants, (variant, idx) => {
-      variantColumns.push({ field: `${idx}_variant`, text: variant.name });
+      const variantName = _.get(variant, 'attributes.name.v', variant.name);
+      variantColumns.push({ field: `${idx}_variant`, text: variantName });
     });
 
     let columns = [

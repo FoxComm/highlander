@@ -240,11 +240,8 @@ class EditableSkuRow extends Component {
 
     const idx = parseInt(field);
     const variant = _.get(this.props.variants, idx, {});
-    console.log('mapping', mapping);
     const variantName = _.get(variant, 'attributes.name.v');
-    console.log('variant name', variantName);
     const skuCode = _.get(sku, 'attributes.code.v', sku.feCode);
-    console.log('sku code', skuCode);
     const selected = _.get(mapping, [skuCode, variantName]);
 
     return (
