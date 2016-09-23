@@ -4,13 +4,13 @@ TODO after Target AWS provisioning experience:
 * Deal with `/etc/hosts` somehow
 	* `phoenix`, `elasticsearch` and `schema-registry` require this very much
 	* Maybe just turn off this? http://stackoverflow.com/a/33443018
-* Hotfix playbooks:
+* Hotfix playbooks (should be integrated into main playbooks and removed):
 	* `hotfix_zk.yml`
 	* `hotfix_mesos.yml`
 	* `hotfix_stage_consul.yml`
 	* `hotfix_stage_db.yml`
 	* `hotfix_db.yml`
-* Manual actions:
+* Manual actions (should be fixed in main playbooks):
 	* Staging
 		* Zookeeper: `echo 1 > /var/lib/zookeeper/myid` && restart ZK
 		* `/middlewarehouse/sql/flyway.conf` -> replace `localhost` to `db.service.consul`
