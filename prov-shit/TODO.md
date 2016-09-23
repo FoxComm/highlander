@@ -4,7 +4,7 @@ TODO after Target AWS provisioning experience:
 * Deal with `/etc/hosts` somehow
 	* `phoenix`, `elasticsearch` and `schema-registry` require this very much
 	* Maybe just turn off this? http://stackoverflow.com/a/33443018
-* Hotfix playbooks (should be integrated into main playbooks and removed):
+* Hotfix playbooks (to be merged into main playbooks and removed):
 	* Fix Zookeeper Elections - [hotfix_zk.yml](https://github.com/FoxComm/highlander/blob/feature/aws-target-cont/prov-shit/ansible/hotfix_zk.yml) or `PRIVATE_KEY=~/.ssh/tgt.pem make hotfix-zk`
 	* Fix Mesos Elections - [hotfix_mesos.yml](https://github.com/FoxComm/highlander/blob/feature/aws-target-cont/prov-shit/ansible/hotfix_mesos.yml) or `PRIVATE_KEY=~/.ssh/tgt.pem make hotfix-mesos`
 	* Fix Mesos Workers [hotfix_mesos_worker.yml](https://github.com/FoxComm/highlander/blob/feature/aws-target-cont/prov-shit/ansible/hotfix_mesos_worker.yml)	 or `PRIVATE_KEY=~/.ssh/tgt.pem make hotfix-mesos-worker`
