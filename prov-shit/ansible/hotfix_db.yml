@@ -1,17 +1,17 @@
 ---
 
-# - name: Hotfix Database
-#   hosts:
-#     - target-db
-#   vars:
-#     user: '{{ansible_ssh_user}}'
-#     upload_phoenix_jar: false
+- name: Hotfix Database
+  hosts:
+    - target-db
+  vars:
+    user: '{{ansible_ssh_user}}'
+    upload_phoenix_jar: false
 
-#   roles:
-#     - { role: dev/db }
+  roles:
+    - { role: dev/db }
 
-#   handlers:
-#      - include: roles/base/consul_agent/handlers/main.yml
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Hotfix Phoenix and MWH Migrations
   hosts:
@@ -23,8 +23,8 @@
     middlewarehouse_src: "{{gopath}}/src/github.com/FoxComm/highlander/middlewarehouse"
 
   roles:
-    #- { role: dev/phoenix }
-    #- { role: hotfix/flyway }
+    - { role: dev/phoenix }
+    - { role: hotfix/flyway }
     - { role: dev/middlewarehouse }    
 
   handlers:
