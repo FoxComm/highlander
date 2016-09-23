@@ -125,4 +125,7 @@ hotfix-stage-db:
 hotfix-mesos-worker:
 	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_mesos_worker.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
+hotfix-db:
+	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_db.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+
 .PHONY: all build lint test
