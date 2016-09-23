@@ -19,13 +19,13 @@
   vars:
     user: '{{ansible_ssh_user}}'
     updating_mwh: true
-    gopath: "/Users/pavel/golang"    
+    gopath: "/Users/pavel/golang"
     middlewarehouse_src: "{{gopath}}/src/github.com/FoxComm/highlander/middlewarehouse"
 
   roles:
     - { role: dev/phoenix }
     - { role: hotfix/flyway }
-    - { role: dev/middlewarehouse }    
+    - { role: dev/middlewarehouse }
 
   handlers:
-     - include: roles/base/consul_agent/handlers/main.yml   
+     - include: roles/base/consul_agent/handlers/main.yml

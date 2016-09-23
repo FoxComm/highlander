@@ -35,13 +35,3 @@ After Target AWS provisioning experience:
 	* Forgot to use `base_mesos_ami` everywhere, run `make hotfix-mesos-worker`
 	* TF issue https://github.com/hashicorp/terraform/issues/1652#issuecomment-195164526
 	* Use `consul members` & `consul force-leave <node_id>` if you dropped previous cluster via terraform
-
-## Service Locations
-
-| Name            | Staging                                                        | Vanilla                                                 |
-|:----------------|:---------------------------------------------------------------|:--------------------------------------------------------|
-| Consul          | [Consul UI](http://10.0.2.215:8500/ui/#/target-stage/services) | [Consul UI](http://10.0.1.18:8500/ui/#/target/services) |
-| Mesos           | [Mesos UI](http://10.0.2.215:5050/#/)                          | [Mesos UI](http://10.0.7.209:5050/#/)                   |
-| Marathon        | [Marathon UI](http://10.0.2.215:8080/ui/#/apps)                | [Marathon UI](http://10.0.1.18:8080/ui/#/apps)          |
-| Docker Registry | [API Version Check](https://10.0.2.215:5000/v2/)               | [API Version Check](https://10.0.1.18:5000/v2/)         |
-| S3 Bucket       | `s3-docker-stage`                                              | `s3-docker-vanilla`                                     |

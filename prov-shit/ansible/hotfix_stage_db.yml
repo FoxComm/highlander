@@ -2,7 +2,7 @@
 
 - name: Hotfix Database
   hosts:
-    - stage-backend    
+    - stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
     upload_phoenix_jar: false
@@ -15,11 +15,11 @@
 
 - name: Hotfix Phoenix and MWH Migrations
   hosts:
-    - stage-frontend    
+    - stage-frontend
   vars:
     user: '{{ansible_ssh_user}}'
     updating_mwh: true
-    gopath: "/Users/pavel/golang"    
+    gopath: "/Users/pavel/golang"
     middlewarehouse_src: "{{gopath}}/src/github.com/FoxComm/highlander/middlewarehouse"
 
   roles:

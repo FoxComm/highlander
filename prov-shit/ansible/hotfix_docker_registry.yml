@@ -40,7 +40,7 @@
       private: no
     - name: "aws_bucket_name"
       prompt: "Enter AWS bucket name"
-      private: no    
+      private: no
 
   roles:
     - { role: hotfix/docker_registry }
