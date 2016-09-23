@@ -11,12 +11,15 @@ TODO after Target AWS provisioning experience:
 	* `hotfix_stage_db.yml`
 	* `hotfix_db.yml`
 * Manual actions:
-	* `[staging]` Zookeeper: `echo 1 > /var/lib/zookeeper/myid` && restart ZK
-	* `/middlewarehouse/sql/flyway.conf` -> replace `localhost` to `db.service.consul` for staging
-		* rollback for vanilla
+	* Staging
+		* Zookeeper: `echo 1 > /var/lib/zookeeper/myid` && restart ZK
+		* `/middlewarehouse/sql/flyway.conf` -> replace `localhost` to `db.service.consul`
+	* Vanilla		
+		* Restart kafka & schema-registry after fixing `/etc/hosts`
+		* Bottledwaters run script has `db.service` which block it from DNS. set manually to localhost
+		* Rollback `/middlewarehouse/sql/flyway.conf` update
+* Miscellaneous:
 	* Build MWH with GOOS=linux!
 	* Forgot to use `base_mesos_ami` everywhere, run `make hotfix-mesos-worker`
 	* TF issue https://github.com/hashicorp/terraform/issues/1652#issuecomment-195164526
 	* Use `consul members` & `consul force-leave <node_id>` if you dropped previous cluster via terraform
-	* `[vanilla]`: restart kafka & schema-registry after fixing `/etc/hosts`
-	* `[vanilla]`: bottledwaters run script has `db.service` which block it from DNS. set manually to localhost
