@@ -16,3 +16,4 @@ TODO after Target AWS provisioning experience:
 * Use `consul members` & `consul force-leave <node_id>` if you dropped previous cluster via terraform
 * `hotfix_db.yml`
 * vanilla: restart kafka & schema-registry after fixing `/etc/hosts`
+* vanilla: bottledwaters run script has `db.service` which block it from DNS. set manually to localhost
