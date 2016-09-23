@@ -8,8 +8,10 @@
     user: ubuntu
     join_type: join-wan
     consul_expect: 1
+    packing: true
 
   roles:
     - { role: base/common }
     - { role: base/consul }
     - { role: base/consul_server }
+    - { role: base/zookeeper }

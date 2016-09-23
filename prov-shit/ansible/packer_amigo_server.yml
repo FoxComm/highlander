@@ -7,8 +7,9 @@
   vars:
     user: ubuntu
     packing: true
-    join_type: join
+    join_type: join-wan
     zookeeper_server: "localhost:2181"
+    consul_expect: 1
 
   roles:
     - { role: base/consul_server }
