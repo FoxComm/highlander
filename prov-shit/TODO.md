@@ -5,12 +5,13 @@ TODO after Target AWS provisioning experience:
 	* `phoenix`, `elasticsearch` and `schema-registry` require this very much
 	* Maybe just turn off this? http://stackoverflow.com/a/33443018
 * Hotfix playbooks (should be integrated into main playbooks and removed):
-	* `hotfix_zk.yml`
-	* `hotfix_mesos.yml`
-	* `hotfix_stage_consul.yml`
-	* `hotfix_stage_db.yml`
-	* `hotfix_db.yml`
-	* `hotfix_docker_registry.yml`
+	* Fix Zookeeper Elections - [hotfix_zk.yml](https://github.com/FoxComm/highlander/blob/feature/aws-target-cont/prov-shit/ansible/hotfix_zk.yml)
+	* Fix Mesos Elections - [hotfix_mesos.yml](https://github.com/FoxComm/highlander/blob/feature/aws-target-cont/prov-shit/ansible/hotfix_mesos.yml)
+	* Fix Mesos Workers [hotfix_mesos_worker.yml](https://github.com/FoxComm/highlander/blob/feature/aws-target-cont/prov-shit/ansible/hotfix_mesos_worker.yml)	
+	* Fix Consul Quorum in Stage [hotfix_stage_consul.yml](https://github.com/FoxComm/highlander/blob/feature/aws-target-cont/prov-shit/ansible/hotfix_stage_consul.yml)
+	* Bootstrap Stage Database - [hotfix_stage_db.yml](https://github.com/FoxComm/highlander/blob/feature/aws-target-cont/prov-shit/ansible/hotfix_stage_db.yml)
+	* Bootstrap Vanilla Database - [hotfix_db.yml](https://github.com/FoxComm/highlander/blob/feature/aws-target-cont/prov-shit/ansible/hotfix_db.yml)
+	* Configure Docker Registry for AWS - [hotfix_docker_registry.yml](https://github.com/FoxComm/highlander/blob/feature/aws-target-cont/prov-shit/ansible/hotfix_zk.yml)
 * Manual actions (should be fixed in main playbooks):
 	* Staging
 		* Zookeeper: `echo 1 > /var/lib/zookeeper/myid` && restart ZK
