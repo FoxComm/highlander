@@ -30,9 +30,7 @@
             "security_group_id": "{{user `security_group_id`}}",
             "subnet_id": "{{user `subnet_id`}}",
             "tags": {
-                "packer": "db",
-                "project": "{{user `image_prefix`}}",
-                "type": "kafka"
+                "Name": "vanilla-kafka-{{timestamp}}"
             }
         }
     ],

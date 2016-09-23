@@ -19,7 +19,7 @@
         {
             "name": "amazon",
             "type": "amazon-ebs",
-            "source_ami": "{{user `base_ami`}}",
+            "source_ami": "{{user `base_mesos_ami`}}",
             "instance_type": "{{user `instance_type`}}",
             "region": "{{user `region`}}",
             "ami_name": "base-node-{{timestamp}}",
@@ -30,7 +30,7 @@
             "security_group_id": "{{user `security_group_id`}}",
             "subnet_id": "{{user `subnet_id`}}",
             "tags": {
-                "packer": "base-node"
+                "name": "base-node-{{timestamp}}"
             }
         }        
     ],

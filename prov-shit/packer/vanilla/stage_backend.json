@@ -41,9 +41,7 @@
                 "delete_on_termination": true
             }],            
             "tags": {
-                "packer": "stage-backend",
-                "project": "{{user `image_prefix`}}",
-                "type": "stage-backend"
+                "Name": "vanilla-stage-backend-{{timestamp}}"
             }
         }        
     ],
