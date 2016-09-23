@@ -15,6 +15,7 @@ TODO after Target AWS provisioning experience:
 	* Staging
 		* Zookeeper: `echo 1 > /var/lib/zookeeper/myid` && restart ZK
 		* `/middlewarehouse/sql/flyway.conf` -> replace `localhost` to `db.service.consul`
+		* `/usr/local/bin/run_mesos_master.sh` - QUORUM should be 1
 	* Vanilla		
 		* Restart kafka & schema-registry after fixing `/etc/hosts`
 		* Bottledwaters run script has `db.service` which block it from DNS. set manually to localhost
