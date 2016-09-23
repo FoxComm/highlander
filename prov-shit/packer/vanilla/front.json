@@ -41,9 +41,7 @@
                 "delete_on_termination": true
             }],            
             "tags": {
-                "packer": "frontend",
-                "project": "{{user `image_prefix`}}",
-                "type": "frontend"
+                "Name": "vanilla-front-worker-{{timestamp}}",
             }
         }        
     ],

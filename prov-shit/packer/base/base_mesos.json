@@ -40,7 +40,7 @@
                 "delete_on_termination": true
             }],
             "tags": {
-                "packer": "base-mesos"
+                "name": "base-mesos-{{timestamp}}"
             }
         }
     ],

@@ -41,9 +41,7 @@
                 "delete_on_termination": true
             }],            
             "tags": {
-                "packer": "stage-amigo",
-                "project": "{{user `image_prefix`}}",
-                "type": "stage-amigo"
+                "Name": "vanilla-stage-amigo-{{timestamp}}"
             }
         }
     ],
