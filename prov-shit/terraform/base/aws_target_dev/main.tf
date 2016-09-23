@@ -28,29 +28,54 @@ provider "aws" {
 
 module "target_amigos" {
     source = "../../modules/aws/amigos"
+
     image = "${var.amigo_cluster_image}"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
     key_name = "${var.aws_key_name}"
 
-    datacenter = "target"  
+    datacenter = "target"
     subnet_id = "subnet-9094cdf4"
     security_groups = ["sg-e50cd29c", "sg-a021d3d9"]
 }
 
 module "target_staging" {
-    amigo_leader = "${module.target_amigos.leader}"
+    source = "../../modules/aws/vanilla_stage"
 
     ssh_user = "${var.ssh_user}"
-    ssh_private_key = "${var.ssh_private_key}"    
-    source = "../../modules/aws/vanilla_stage"
+    ssh_private_key = "${var.ssh_private_key}"
     key_name = "${var.aws_key_name}"
+
+    stage_datacenter = "target-stage"
+    subnet_id = "subnet-9094cdf4"
+    security_groups = ["sg-e50cd29c", "sg-a021d3d9"]
 
     stage_amigo_image = "${var.stage_amigo_image}"
     stage_frontend_image = "${var.stage_frontend_image}"
     stage_backend_image = "${var.stage_backend_image}"
 
-    stage_datacenter = "target-stage"  
+    amigo_leader = "${module.target_amigos.leader}"
+}
+
+module "target_vanilla" {
+    source = "../../modules/aws/vanilla"
+
+    ssh_user = "${var.ssh_user}"
+    ssh_private_key = "${var.ssh_private_key}"
+    key_name = "${var.aws_key_name}"
+
+    datacenter = "target"
     subnet_id = "subnet-9094cdf4"
-    security_groups = ["sg-e50cd29c", "sg-a021d3d9"]    
+    security_groups = ["sg-e50cd29c", "sg-a021d3d9"]
+
+    kafka_image = "${var.kafka_image}"
+    db_image = "${var.db_image}"
+    es_image = "${var.es_image}"
+    log_image = "${var.log_image}"
+    phoenix_image = "${var.phoenix_image}"
+    greenriver_image = "${var.greenriver_image}"
+    front_image = "${var.front_image}"
+    service_worker_image = "${var.service_worker_image}"
+
+    amigo_leader = "${module.target_amigos.leader}"
 }

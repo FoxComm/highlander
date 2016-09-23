@@ -1,10 +1,10 @@
 variable "key_name" {}
 variable "stage_datacenter" {}
 
-variable "ssh_user" {} 
-variable "ssh_private_key" {} 
+variable "ssh_user" {}
+variable "ssh_private_key" {}
 
-variable "subnet_id" {} 
+variable "subnet_id" {}
 variable "security_groups" {
 	type = "list"
 }
@@ -27,24 +27,24 @@ resource "aws_instance" "stage_amigo" {
 	subnet_id = "${var.subnet_id}"
 	vpc_security_group_ids = "${var.security_groups}"
 	availability_zone = "us-west-2a"
-	associate_public_ip_address = false	
+	associate_public_ip_address = false
 
 	root_block_device {
 		volume_type = "standard"
 		volume_size = "20"
 	}
 
-    connection { 
-        type = "ssh"
-        user = "${var.ssh_user}"
-        private_key = "${file(var.ssh_private_key)}"
-    }
+  connection {
+      type = "ssh"
+      user = "${var.ssh_user}"
+      private_key = "${file(var.ssh_private_key)}"
+  }
 
-    provisioner "remote-exec" {
-        inline = [
-          "/usr/local/bin/bootstrap_consul_aws.sh ${var.stage_datacenter} ${var.amigo_leader}",
-        ]
-    }
+  provisioner "remote-exec" {
+      inline = [
+        "/usr/local/bin/bootstrap_consul_aws.sh ${var.stage_datacenter} ${var.amigo_leader}",
+      ]
+  }
 }
 
 resource "aws_instance" "stage_backend" {
@@ -59,24 +59,24 @@ resource "aws_instance" "stage_backend" {
 	subnet_id = "${var.subnet_id}"
 	vpc_security_group_ids = "${var.security_groups}"
 	availability_zone = "us-west-2a"
-	associate_public_ip_address = false	
+	associate_public_ip_address = false
 
 	root_block_device {
 		volume_type = "standard"
 		volume_size = "100"
 	}
 
-    connection { 
-        type = "ssh"
-        user = "${var.ssh_user}"
-        private_key = "${file(var.ssh_private_key)}"
-    }
+  connection {
+      type = "ssh"
+      user = "${var.ssh_user}"
+      private_key = "${file(var.ssh_private_key)}"
+  }
 
-    provisioner "remote-exec" {
-        inline = [
-          "/usr/local/bin/bootstrap_consul_aws.sh ${var.stage_datacenter} ${aws_instance.stage_amigo.private_ip}",
-        ]
-    }
+  provisioner "remote-exec" {
+      inline = [
+        "/usr/local/bin/bootstrap_consul_aws.sh ${var.stage_datacenter} ${aws_instance.stage_amigo.private_ip}",
+      ]
+  }
 }
 
 resource "aws_instance" "stage_frontend" {
@@ -91,22 +91,22 @@ resource "aws_instance" "stage_frontend" {
 	subnet_id = "${var.subnet_id}"
 	vpc_security_group_ids = "${var.security_groups}"
 	availability_zone = "us-west-2a"
-	associate_public_ip_address = false	
+	associate_public_ip_address = false
 
 	root_block_device {
 		volume_type = "standard"
 		volume_size = "30"
 	}
 
-    connection { 
-        type = "ssh"
-        user = "${var.ssh_user}"
-        private_key = "${file(var.ssh_private_key)}"
-    }
+  connection {
+      type = "ssh"
+      user = "${var.ssh_user}"
+      private_key = "${file(var.ssh_private_key)}"
+  }
 
-    provisioner "remote-exec" {
-        inline = [
-          "/usr/local/bin/bootstrap_consul_aws.sh ${var.stage_datacenter} ${aws_instance.stage_amigo.private_ip}",
-        ]
-    }
+  provisioner "remote-exec" {
+      inline = [
+        "/usr/local/bin/bootstrap_consul_aws.sh ${var.stage_datacenter} ${aws_instance.stage_amigo.private_ip}",
+      ]
+  }
 }

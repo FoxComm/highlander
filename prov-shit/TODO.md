@@ -10,7 +10,5 @@ TODO after Target AWS provisioning experience:
 * `hotfix_stage_db.yml`
 * `/middlewarehouse/sql/flyway.conf` -> replace `localhost` to `db.service.consul`
 * Build MWH with GOOS=linux!
-
-Last issue:
-
-* `/usr/local/sbin/mesos-slave: No such file or directory`
+* Forgot to use `base_mesos_ami` everywhere, run `make hotfix-mesos-worker`
+* TF issue https://github.com/hashicorp/terraform/issues/1652#issuecomment-195164526
