@@ -86,9 +86,12 @@ if (process.env.NODE_ENV != 'production') {
   var AllNotificationItems = require('components/activity-notifications/all').default;
 }
 
+const rootPath = process.env.ROOT_PATH;
+const indexRedirect = `${rootPath}/orders`;
+
 const routes = (
-  <Route path="/">
-    <IndexRedirect to="/orders/"/>
+  <Route path={rootPath}>
+    <IndexRedirect to={indexRedirect}/>
 
     <Route component={AuthPages}>
       <Route name="login" path="login" component={Login}/>
