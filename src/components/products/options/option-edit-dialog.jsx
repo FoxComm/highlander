@@ -53,7 +53,7 @@ class OptionEditDialog extends Component {
   @autobind
   updateOption(): void {
     if (this.props.option != null) {
-      this.props.confirmAction(this.state.option, this.props.option.id);
+      this.props.confirmAction(this.props.option.id, this.state.option);
     }
   }
 

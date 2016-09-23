@@ -205,7 +205,25 @@ export function setSkuAttribute(product: Product,
   return assoc(product, 'skus', newSkus);
 }
 
-function variantsWithMultipleOptions(variants: Array<any>): Array<Object> {
+/**
+ * This function replaces variants without options from variant array
+ * Returns list of variants with one or more value
+ */
+export function variantsWithMultipleOptions(variants: Array<any>): Array<Object> {
+  const opts = _.reduce(variants, (acc, variant) => {
+    if (_.isEmpty(variant.values)) {
+      return acc;
+    }
+    return acc.concat([variant]);
+  }, []);
+  return opts;
+}
+
+/**
+ * This function replaces variants without options from variant array
+ * Be careful, it returns list of variant options, not variants theirselves
+ */
+export function variantValuesWithMultipleOptions(variants: Array<any>): Array<Object> {
   const opts = _.reduce(variants, (acc, variant) => {
     if (_.isEmpty(variant.values)) {
       return acc;
@@ -215,8 +233,11 @@ function variantsWithMultipleOptions(variants: Array<any>): Array<Object> {
   return opts;
 }
 
+/**
+ * This function generates all available combinations of variant values
+ */
 export function availableVariants(variants: Array<any>): Array<Object> {
-  const opts = variantsWithMultipleOptions(variants);
+  const opts = variantValuesWithMultipleOptions(variants);
   // magic of Cartesian product http://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
   const availableVariants = _.reduce(opts, (acc, currentOptionList) => {
     return _.flatten(_.map(acc, (accValue) => {

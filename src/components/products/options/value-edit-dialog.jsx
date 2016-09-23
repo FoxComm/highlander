@@ -61,7 +61,7 @@ class ValueEditDialog extends Component {
 
   renderDialogContent() {
     const name = _.get(this.state, 'value.name', '');
-    const swatch = _.get(this.state, 'value.name', '');
+    const swatch = _.get(this.state, 'value.swatch', '');
 
     return (
       <div styleName="option-edit-dialog">

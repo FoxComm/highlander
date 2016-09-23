@@ -14,7 +14,7 @@ import { processActivity } from '../../modules/activity-trail';
 
 // cannot be stateless as it returns null
 // related issue https://github.com/facebook/react/issues/4599
-export default class NotificationItem extends React.Component {
+class NotificationItem extends React.Component {
 
   get typeIcon() {
     const type = _.get(this.props, ['item', 'kind']);
