@@ -58,7 +58,6 @@ label {
   }
 }
 
-
 .error {
   position: absolute;
   display: block;
@@ -84,3 +83,87 @@ input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px white inset;
 }
 
+:global(.rw-multiselect) {
+  margin-bottom: 25px;
+
+  & :global(.rw-multiselect-taglist) {
+    display: inline;
+    margin: 0;
+    padding: 0 10px;
+    list-style: none;
+
+    & li {
+      display: inline-block;
+      margin: 1px;
+      padding: 3px 5px;
+      text-align: center;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+  }
+
+  & :global(.rw-input) {
+    margin-bottom: 0;
+  }
+
+  & :global(.rw-sr) {
+    display: none;
+  }
+
+  & :global(.rw-multiselect-wrapper) {
+    border-radius: 4px;
+    position: relative;
+    cursor: text;
+  }
+
+  & :global(.rw-popup-container) {
+    position: absolute;
+    top: 100%;
+    margin-top: 1px;
+    z-index: 1005;
+    left: -11px;
+    right: -11px;
+  }
+
+  & :global(.rw-popup) {
+    position: absolute;
+    box-shadow: 0 5px 6px rgba(0, 0, 0, .2);
+    border-radius: 0 0 3px 3px;
+    border: 1px solid #ccc;
+    background: #fff;
+    padding: 2px;
+    overflow: auto;
+    margin-bottom: 10px;
+    left: 10px;
+    right: 10px;
+
+    & ul {
+      height: 100%;
+      margin: 0;
+      padding: 5px 0;
+      overflow: auto;
+      list-style: none;
+      outline: 0;
+
+      & li {
+        padding: 3px 10px;
+        margin: 3px;
+        border-radius: 3px;
+        border: 1px solid #fff;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #f6f6f6;
+          border-color: #efefef;
+        }
+
+        &:global(.rw-state-focus) {
+          background-color: #fff;
+          border-color: #66afe9;
+
+          color: #333;
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import cx from 'classnames';
 import React from 'react';
+import MultiSelect from 'react-widgets/lib/Multiselect';
 import { Field } from 'redux-form';
 
 import styles from './fields.css';
@@ -34,12 +35,7 @@ const renderSelect = ({ input, values, placeholder, meta }) => {
   return (
     <div className={cx(styles.field, { [styles.fieldError]: hasError })}>
       {!input.value && <label htmlFor={input.name}>{placeholder}</label>}
-      <select {...input}>
-        <option disabled />
-        {values.map(value =>
-          <option value={value} key={value}>{value}</option>
-        )}
-      </select>
+      <MultiSelect data={values} />
       {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}
     </div>
   );
