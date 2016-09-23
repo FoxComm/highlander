@@ -5,6 +5,7 @@ TF_CMD ?= plan
 TF_BASE = terraform/base
 TF_ENVS = terraform/envs
 PRIVATE_KEY ?= ~/.ssh/id_rsa
+SSH_USER ?= ubuntu
 
 # Main commands
 all: build
@@ -62,10 +63,10 @@ bootstrap-target:
 	ansible-playbook -v -i bin/envs/target ansible/bootstrap_vanilla.yml
 
 bootstrap-target-openvpn-key:
-	ansible-playbook -v -i bin/envs/target ansible/bootstrap_openvpn_key.yml
+	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_openvpn_key.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 bootstrap-target-vpn:
-	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_vanilla_vpn.yml
+	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_vanilla_vpn.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 bootstrap-vanilla:
 	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml
@@ -81,9 +82,6 @@ bootstrap-vanilla-vpn:
 
 bootstrap-db:
 	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_db.yml
-
-bootstrap-zk:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_zookeeper.yml
 
 deploy-stage:
 	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
@@ -114,5 +112,29 @@ tf-topdrawer:
 
 tf-target:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_target/terraform.tfstate -var-file=$(TF_ENVS)/aws_target/target.tfvars $(TF_BASE)/aws_target
+
+tf-target-dev:
+	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_target_dev/terraform.tfstate -var-file=$(TF_ENVS)/aws_target_dev/target.tfvars $(TF_BASE)/aws_target_dev
+
+hotfix-mesos:
+	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_mesos.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+
+hotfix-zk:
+	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_zk.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+
+hotfix-stage-consul:
+	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_stage_consul.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+
+hotfix-stage-db:
+	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_stage_db.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+
+hotfix-mesos-worker:
+	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_mesos_worker.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+
+hotfix-db:
+	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_db.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+
+hotfix-docker-registry:
+	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_docker_registry.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 .PHONY: all build lint test

@@ -30,10 +30,18 @@
             "vpc_id": "{{user `vpc_id`}}",
             "security_group_id": "{{user `security_group_id`}}",
             "subnet_id": "{{user `subnet_id`}}",
+            "ami_block_device_mappings": [{
+                "device_name": "/dev/sda1",
+                "volume_size": 20,
+                "delete_on_termination": true
+            }],
+            "launch_block_device_mappings": [{
+                "device_name": "/dev/sda1",
+                "volume_size": 20,
+                "delete_on_termination": true
+            }],            
             "tags": {
-                "packer": "db",
-                "project": "{{user `image_prefix`}}",
-                "type": "frontend"
+                "Name": "vanilla-front-worker-{{timestamp}}",
             }
         }        
     ],
@@ -41,7 +49,10 @@
         {
             "type": "ansible",
             "playbook_file" : "ansible/packer_service_front.yml",
-            "extra_arguments": ["--extra-vars", "@packer/envs/{{user `variables_file`}}"]
+            "extra_arguments": [
+                "-vvvv", 
+                "--extra-vars", "@packer/envs/{{user `variables_file`}}"
+            ]
         }
     ]
 }

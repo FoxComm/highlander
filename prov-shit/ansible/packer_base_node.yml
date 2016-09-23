@@ -1,12 +1,15 @@
 ---
 
-- name: Provision Base Node Image
+- name: Packing Base Node Image
   hosts: all
   tags:
     - packer
   vars:
     user: ubuntu
     packing: true
+  post_tasks:
+    - name: Sweet Dreams
+      pause: seconds=5    
 
   roles:
     - { role: base/consul_agent }
