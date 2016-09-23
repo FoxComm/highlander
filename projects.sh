@@ -81,8 +81,10 @@ if [[ ${#ALL_CHANGED[@]} -gt 0 ]]; then
 fi
 
 if [[ ${#CHANGED[@]} == 0 ]]; then
-    write "No projects changed, building prov-shit by default"
-    CHANGED=("prov-shit")
+    write "No projects changed, building all by default"
+    for PROJECT in ${PROJECTS[@]}; do
+        CHANGED+=($PROJECT)
+    done
 fi
 
 write "changed projects(${#CHANGED[@]}):"
