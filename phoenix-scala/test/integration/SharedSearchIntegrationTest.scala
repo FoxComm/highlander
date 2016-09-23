@@ -1,6 +1,7 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import cats.implicits._
 import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
 import models.sharedsearch.SharedSearch._

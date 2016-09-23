@@ -21,6 +21,6 @@ class CreditCardIntegrationTest
   }
 
   trait Fixture extends CustomerAddress_Baked {
-    val cc = CreditCards.create(Factories.creditCard.copy(customerId = customer.id)).gimme
+    val cc = CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId)).gimme
   }
 }

@@ -4,13 +4,13 @@ import Extensions._
 import util._
 import failures.StoreCreditFailures.StoreCreditConvertFailure
 import failures._
-import models.customer.{Customer, Customers}
+import models.account._
 import models.cord.{Carts, OrderPayments}
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit._
 import models.payment.storecredit._
 import models.payment.{PaymentMethod, giftcard}
-import models.{Reason, Reasons, StoreAdmins}
+import models.{Reason, Reasons}
 import payloads.PaymentPayloads.CreateManualStoreCredit
 import payloads.StoreCreditPayloads._
 import responses.{GiftCardResponse, StoreCreditResponse}
@@ -40,7 +40,7 @@ class StoreCreditIntegrationTest
           // Check that proper link is created
           val manual = StoreCreditManuals.findOneById(sc.originId).gimme.value
           manual.reasonId must === (reason.id)
-          manual.adminId must === (storeAdmin.id)
+          manual.adminId must === (storeAdmin.accountId)
         }
       }
 
@@ -68,7 +68,7 @@ class StoreCreditIntegrationTest
         val response = POST(s"v1/customers/99/payment-methods/store-credit", payload)
 
         response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Customer, 99).description)
+        response.error must === (NotFoundFailure404(User, 99).description)
       }
 
       "fails if the reason is not found" in new Fixture {
@@ -98,7 +98,7 @@ class StoreCreditIntegrationTest
         val response = GET(s"v1/customers/99/payment-methods/store-credit/totals")
 
         response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Customer, 99).description)
+        response.error must === (NotFoundFailure404(User, 99).description)
       }
     }
 
@@ -231,7 +231,7 @@ class StoreCreditIntegrationTest
         val response =
           POST(s"v1/customers/666/payment-methods/store-credit/${scSecond.id}/convert")
         response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Customer, 666).description)
+        response.error must === (NotFoundFailure404(User, 666).description)
       }
 
       "fails to convert SC to GC if open transactions are present" in new Fixture {
@@ -257,12 +257,13 @@ class StoreCreditIntegrationTest
     val (storeCredit, adjustment, scSecond, payment, scSubType) = (for {
       scSubType ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
       scOrigin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
+                    StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       storeCredit ← * <~ StoreCredits.create(
                        Factories.storeCredit.copy(originId = scOrigin.id,
-                                                  customerId = customer.id))
+                                                  accountId = customer.accountId))
       scSecond ← * <~ StoreCredits.create(
-                    Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
+                    Factories.storeCredit.copy(originId = scOrigin.id,
+                                               accountId = customer.accountId))
       payment ← * <~ OrderPayments.create(
                    Factories.storeCreditPayment.copy(cordRef = cart.refNum,
                                                      paymentMethodId = storeCredit.id,

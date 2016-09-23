@@ -125,9 +125,9 @@ trait HttpSupport
                 apisOverride = Some(apisOverride),
                 addRoutes = additionalRoutes) {
 
-      override val storeAdminAuth: UserAuthenticator = overrideStoreAdminAuth
+      val storeAdminAuth: UserAuthenticator = overrideStoreAdminAuth
 
-      override val customerAuth: UserAuthenticator = overrideCustomerAuth
+      val customerAuth: UserAuthenticator = overrideCustomerAuth
     }
 
   def POST(path: String, rawBody: String): HttpResponse = {

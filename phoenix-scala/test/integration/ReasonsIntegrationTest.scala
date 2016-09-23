@@ -42,7 +42,7 @@ class ReasonsIntegrationTest
     val (reason, returnReason) = (for {
       reason ← * <~ Reasons.create(
                   Factories.reasons.head.copy(reasonType = Reason.GiftCardCreation,
-                                              storeAdminId = storeAdmin.id))
+                                              storeAdminId = storeAdmin.accountId))
       returnReason ← * <~ ReturnReasons.create(Factories.returnReasons.head)
     } yield (reason, returnReason)).gimme
   }

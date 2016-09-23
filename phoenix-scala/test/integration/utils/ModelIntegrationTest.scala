@@ -3,7 +3,7 @@ package utils
 import failures.{DatabaseFailure, GeneralFailure, StateTransitionNotAllowed}
 import models.cord.Order.Shipped
 import models.cord._
-import models.customer.{Customer, Customers}
+import models.account._
 import models.location.Addresses
 import util._
 import util.fixtures.BakedFixtures
@@ -22,18 +22,20 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
 
     "sanitizes model" in {
       val result = (for {
-        customer ← * <~ Customers.create(Factories.customer)
+        account  ← * <~ Accounts.create(Account())
+        customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
         address ← * <~ Addresses.create(
-                     Factories.address.copy(zip = "123-45", customerId = customer.id))
+                     Factories.address.copy(zip = "123-45", accountId = customer.accountId))
       } yield address).gimme
       result.zip must === ("12345")
     }
 
     "catches exceptions from DB" in {
       val result = (for {
-        customer ← * <~ Customers.create(Factories.customer)
-        original ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
-        copycat  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
+        account  ← * <~ Accounts.create(Account())
+        customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
+        original ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
+        copycat  ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
       } yield copycat).runTxn().futureValue
       result.leftVal must === (
           DatabaseFailure(
@@ -42,25 +44,27 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     }
 
     "fails if model already exists" in {
-      val orig = Customers.create(Factories.customer).gimme
-      Customers.create(orig.copy(name = Some("Derp"))).run().futureValue mustBe 'left
-      Customers.gimme must === (Seq(orig))
+      val account = Accounts.create(Account()).gimme
+      val orig    = Users.create(Factories.customer.copy(accountId = account.id)).gimme
+      Users.create(orig.copy(name = Some("Derp"))).run().futureValue mustBe 'left
+      Users.gimme must === (Seq(orig))
     }
   }
 
   "Model delete" - {
     "returns value for successful delete" in {
-      val customer = Customers.create(Factories.customer).gimme
+      val account  = Accounts.create(Account()).gimme
+      val customer = Users.create(Factories.customer.copy(accountId = account.id)).gimme
       val success  = "Success"
-      val failure  = (id: Customer#Id) ⇒ GeneralFailure("Should not happen")
-      val delete   = Customers.deleteById(customer.id, DbResultT.good(success), failure).gimme
+      val failure  = (id: User#Id) ⇒ GeneralFailure("Should not happen")
+      val delete   = Users.deleteById(customer.id, DbResultT.good(success), failure).gimme
       delete must === (success)
     }
 
     "returns failure for unsuccessful delete" in {
       val success = DbResultT.good("Should not happen")
-      val failure = (id: Customer#Id) ⇒ GeneralFailure("Boom")
-      val delete  = Customers.deleteById(13, success, failure).run().futureValue
+      val failure = (id: User#Id) ⇒ GeneralFailure("Boom")
+      val delete  = Users.deleteById(13, success, failure).run().futureValue
       leftValue(delete) must === (failure(13).single)
     }
   }
@@ -68,7 +72,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
   "Model update" - {
     "model decides if it can be updated successfully" in {
       val origin      = Factories.order
-      val destination = origin.copy(customerId = 123)
+      val destination = origin.copy(accountId = 123)
       origin.updateTo(destination).rightVal must === (destination)
     }
 
@@ -81,10 +85,11 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     }
 
     "must update model successfully" in {
-      val customer = Customers.create(Factories.customer).gimme
+      val account  = Accounts.create(Account()).gimme
+      val customer = Users.create(Factories.customer.copy(accountId = account.id)).gimme
       customer.isNew must === (false)
-      val updated = Customers.update(customer, customer.copy(name = Some("Derp"))).gimme
-      Customers.findOneById(customer.id).run().futureValue.value must === (updated)
+      val updated = Users.update(customer, customer.copy(name = Some("Derp"))).gimme
+      Users.findOneById(customer.id).run().futureValue.value must === (updated)
     }
 
     "must run FSM check if applicable" in new Order_Baked {
@@ -101,16 +106,18 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
 
   "Model save" - {
     "saves new model" in {
-      Customers.gimme mustBe empty
-      val customer = Customers.create(Factories.customer).gimme
-      Customers.gimme must === (Seq(customer))
+      Users.gimme mustBe empty
+      val account  = Accounts.create(Account()).gimme
+      val customer = Users.create(Factories.customer.copy(accountId = account.id)).gimme
+      Users.gimme must === (Seq(customer))
     }
 
     "updates old model" in {
-      val orig = Customers.create(Factories.customer).gimme
-      val copy = orig.copy(name = Some("Derp"))
-      Customers.update(orig, copy).run().futureValue mustBe 'right
-      Customers.gimme must === (Seq(copy))
+      val account = Accounts.create(Account()).gimme
+      val orig    = Users.create(Factories.customer.copy(accountId = account.id)).gimme
+      val copy    = orig.copy(name = Some("Derp"))
+      Users.update(orig, copy).run().futureValue mustBe 'right
+      Users.gimme must === (Seq(copy))
     }
   }
 }

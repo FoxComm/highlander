@@ -46,11 +46,11 @@ class StoreCreditIntegrationTest
 
   trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed {
     val (origin, storeCredit, payment) = (for {
-      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
+      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       origin ← * <~ StoreCreditManuals.create(
-                  StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
+                  StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       sc ← * <~ StoreCredits.create(
-              Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
+              Factories.storeCredit.copy(accountId = customer.accountId, originId = origin.id))
       sCredit ← * <~ StoreCredits.findOneById(sc.id)
       payment ← * <~ OrderPayments.create(
                    Factories.storeCreditPayment

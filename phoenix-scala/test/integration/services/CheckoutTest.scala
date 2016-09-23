@@ -148,7 +148,7 @@ class CheckoutTest
             // This is a silly guard to see real errors, not customer_has_only_one_cart constraint.
             _ ← * <~ Carts.deleteAll(DbResultT.unit, DbResultT.unit)
 
-            cart ← * <~ Carts.create(Cart(customerId = customer.id))
+            cart ← * <~ Carts.create(Cart(accountId = customer.accountId))
 
             _ ← * <~ LineItemUpdater.updateQuantitiesOnCart(storeAdmin,
                                                             cart.refNum,
@@ -195,7 +195,7 @@ class CheckoutTest
 
   trait PaymentFixture extends CustomerAddress_Baked with StoreAdmin_Seed {
     val (reason, shipMethod) = (for {
-      reason     ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
+      reason     ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
     } yield (reason, shipMethod)).gimme
 
@@ -213,7 +213,7 @@ class CheckoutTest
     def generateGiftCards(amount: Seq[Int]) =
       for {
         origin ← * <~ GiftCardManuals.create(
-                    GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
+                    GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
         ids ← * <~ GiftCards.createAllReturningIds(amount.map(gcAmount ⇒
                        Factories.giftCard.copy(originalBalance = gcAmount, originId = origin.id)))
       } yield ids
@@ -221,12 +221,12 @@ class CheckoutTest
     def generateStoreCredits(amount: Seq[Int]) =
       for {
         origin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
+                    StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
         ids ← * <~ StoreCredits.createAllReturningIds(
                  amount.map(scAmount ⇒
                        Factories.storeCredit.copy(originalBalance = scAmount,
                                                   originId = origin.id,
-                                                  customerId = customer.id)))
+                                                  accountId = customer.accountId)))
       } yield ids
   }
 

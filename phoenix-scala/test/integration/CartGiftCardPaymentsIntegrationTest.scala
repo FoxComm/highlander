@@ -174,9 +174,9 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
 
   trait GiftCardFixture extends StoreAdmin_Seed {
     val giftCard = (for {
-      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
+      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
+                  GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
     } yield giftCard).gimme

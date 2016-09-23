@@ -134,9 +134,9 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
 
   trait StoreCreditFixture extends Fixture {
     val storeCredits = (for {
-      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
+      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       _ ← * <~ StoreCreditManuals.createAll((1 to 5).map { _ ⇒
-           StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id)
+           StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id)
          })
       _ ← * <~ StoreCredits.createAll((1 to 5).map { i ⇒
            Factories.storeCredit.copy(state = StoreCredit.Active,

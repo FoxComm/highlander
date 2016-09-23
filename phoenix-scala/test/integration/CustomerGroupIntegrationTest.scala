@@ -90,6 +90,7 @@ class CustomerGroupIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed {
-    val group = CustomerDynamicGroups.create(Factories.group.copy(createdBy = storeAdmin.id)).gimme
+    val group =
+      CustomerDynamicGroups.create(Factories.group.copy(createdBy = storeAdmin.accountId)).gimme
   }
 }

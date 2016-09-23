@@ -10,7 +10,7 @@ import models.payment.creditcard.CreditCards
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.product._
-import models.{Reasons, StoreAdmins}
+import models.Reasons
 import services.carts.CartTotaler
 import util._
 import util.fixtures.BakedFixtures
@@ -56,9 +56,9 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
         val notEnoughFunds = skuPrice - 1
 
         (for {
-          reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
+          reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
           origin ← * <~ GiftCardManuals.create(
-                      GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
+                      GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
           giftCard ← * <~ GiftCards.create(
                         Factories.giftCard.copy(originId = origin.id,
                                                 state = GiftCard.Active,
@@ -176,7 +176,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
 
   trait CreditCartFixture extends Fixture {
     val cc = (for {
-      cc ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
+      cc ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
       _ ← * <~ OrderPayments.create(
              Factories.orderPayment.copy(cordRef = cart.refNum, paymentMethodId = cc.id))
     } yield cc).gimme
@@ -184,9 +184,9 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
 
   trait GiftCardFixture extends LineItemsFixture with StoreAdmin_Seed {
     val (giftCard, orderPayment) = (for {
-      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
+      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
+                  GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
       payment ← * <~ OrderPayments.create(
@@ -198,13 +198,13 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
 
   trait StoreCreditFixture extends LineItemsFixture with StoreAdmin_Seed {
     val (storeCredit, orderPayment) = (for {
-      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
+      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       origin ← * <~ StoreCreditManuals.create(
-                  StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
+                  StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       storeCredit ← * <~ StoreCredits.create(
                        Factories.storeCredit.copy(originId = origin.id,
                                                   state = StoreCredit.Active,
-                                                  customerId = customer.id))
+                                                  accountId = customer.accountId))
       payment ← * <~ OrderPayments.create(
                    OrderPayment
                      .build(storeCredit)

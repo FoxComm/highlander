@@ -9,6 +9,7 @@ import slick.driver.PostgresDriver.api._
 import util.fixtures.TestFixtureBase
 import utils.seeds.Seeds.Factories
 import utils.Passwords.hashPassword
+import failures.GeneralFailure
 
 /**
   * Seeds are simple values that can be created without any external dependencies.
@@ -16,11 +17,24 @@ import utils.Passwords.hashPassword
 trait TestSeeds extends TestFixtureBase {
 
   trait StoreAdmin_Seed {
-    def storeAdmin: User = _storeAdmin
+    def storeAdmin: User               = _storeAdmin
+    def storeAdminUser: StoreAdminUser = _storeAdminUser
+
     private val _storeAdmin = Users.result.headOption
       .findOrCreate(
-          Factories.createStoreAdmin(Factories.storeAdmin, "password", StoreAdminUser.Active))
+          Factories.createStoreAdmin(user = Factories.storeAdmin,
+                                     password = "password",
+                                     state = StoreAdminUser.Active,
+                                     org = "tenant",
+                                     roles = List("tenant_admin"),
+                                     author = None))
       .gimme
+
+    private val _storeAdminUser = StoreAdminUsers
+      .findOneByAccountId(_storeAdmin.accountId)
+      .mustFindOr(GeneralFailure("store admin user not created"))
+      .gimme
+
   }
 
   trait Customer_Seed {
@@ -34,12 +48,12 @@ trait TestSeeds extends TestFixtureBase {
       .create(
           AccountAccessMethod(accountId = _account.id,
                               name = "login",
-                              hashedPassword = hashPassword(password)))
+                              hashedPassword = hashPassword("password")))
       .gimme
 
     private val _customer = {
       Users.result.headOption
-        .findOrCreate(Customers.create(Factories.customer.copy(accountId = _account.id)))
+        .findOrCreate(Users.create(Factories.customer.copy(accountId = _account.id)))
         .gimme
     }
 

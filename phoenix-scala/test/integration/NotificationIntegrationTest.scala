@@ -308,13 +308,13 @@ class NotificationIntegrationTest
     val (adminId, activityId) = (for {
       _        ← * <~ createDimension
       activity ← * <~ createActivity
-    } yield (storeAdmin.id, activity.id)).gimme
+    } yield (storeAdmin.accountId, activity.id)).gimme
   }
 
   trait Fixture2 extends StoreAdmin_Seed {
     val adminId = (for {
       _ ← * <~ createDimension
       _ ← * <~ Activities.createAll(List.fill(2)(newActivity))
-    } yield storeAdmin.id).gimme
+    } yield storeAdmin.accountId).gimme
   }
 }

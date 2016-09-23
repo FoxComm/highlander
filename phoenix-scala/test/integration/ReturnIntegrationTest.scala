@@ -136,7 +136,7 @@ class ReturnIntegrationTest
         val root = response.as[ReturnResponse.Root]
         root.referenceNumber must === (s"${order.refNum}.2")
         root.customer.head.id must === (order.accountId)
-        root.storeAdmin.head.id must === (storeAdmin.id)
+        root.storeAdmin.head.id must === (storeAdmin.accountId)
       }
 
       "fails to create Return with invalid order refNum provided" in new Fixture {
@@ -194,7 +194,7 @@ class ReturnIntegrationTest
 
         val root = response.as[ReturnLockResponse.Root]
         root.isLocked must === (true)
-        root.lock.head.lockedBy.id must === (storeAdmin.id)
+        root.lock.head.lockedBy.id must === (storeAdmin.accountId)
       }
 
       "returns negative lock status on unlocked Return" in new Fixture {
@@ -463,9 +463,9 @@ class ReturnIntegrationTest
       sku          ← * <~ Skus.mustFindById404(product.skuId)
       _            ← * <~ addSkusToOrder(Seq(sku.id), order.refNum, OrderLineItem.Cart)
 
-      gcReason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
+      gcReason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       gcOrigin ← * <~ GiftCardManuals.create(
-                    GiftCardManual(adminId = storeAdmin.id, reasonId = gcReason.id))
+                    GiftCardManual(adminId = storeAdmin.accountId, reasonId = gcReason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = gcOrigin.id,
                                             originType = GiftCard.RmaProcess))

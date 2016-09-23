@@ -4,7 +4,8 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import failures.NotFoundFailure404
-import models.{StoreAdmin, _}
+import models.Notes
+import models.account._
 import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.StoreAdminNoteManager
@@ -22,8 +23,8 @@ class StoreAdminNotesIntegrationTest
 
   "POST /v1/notes/store-admins/:adminId" - {
     "can be created by an admin for a customer" in new Fixture {
-      val response =
-        POST(s"v1/notes/store-admins/${storeAdmin.id}", CreateNote(body = "Hello, FoxCommerce!"))
+      val response = POST(s"v1/notes/store-admins/${storeAdmin.accountId}",
+                          CreateNote(body = "Hello, FoxCommerce!"))
 
       response.status must === (StatusCodes.OK)
 
@@ -33,7 +34,7 @@ class StoreAdminNotesIntegrationTest
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = POST(s"v1/notes/store-admins/${storeAdmin.id}", CreateNote(body = ""))
+      val response = POST(s"v1/notes/store-admins/${storeAdmin.accountId}", CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === ("body must not be empty")
@@ -43,7 +44,7 @@ class StoreAdminNotesIntegrationTest
       val response = POST(s"v1/notes/store-admins/999999", CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(StoreAdmin, 999999).description)
+      response.error must === (NotFoundFailure404(User, 999999).description)
     }
   }
 
@@ -51,11 +52,11 @@ class StoreAdminNotesIntegrationTest
 
     "can be listed" in new Fixture {
       val createNotes = List("abc", "123", "xyz").map { body ⇒
-        StoreAdminNoteManager.create(storeAdmin.id, storeAdmin, CreateNote(body = body))
+        StoreAdminNoteManager.create(storeAdmin.accountId, storeAdmin, CreateNote(body = body))
       }
       DbResultT.sequence(createNotes).gimme
 
-      val response = GET(s"v1/notes/store-admins/${storeAdmin.id}")
+      val response = GET(s"v1/notes/store-admins/${storeAdmin.accountId}")
       response.status must === (StatusCodes.OK)
 
       val notes = response.as[Seq[AdminNotes.Root]]
@@ -68,10 +69,10 @@ class StoreAdminNotesIntegrationTest
 
     "can update the body text" in new Fixture {
       val rootNote = StoreAdminNoteManager
-        .create(storeAdmin.id, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
+        .create(storeAdmin.accountId, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
         .gimme
 
-      val response = PATCH(s"v1/notes/store-admins/${storeAdmin.id}/${rootNote.id}",
+      val response = PATCH(s"v1/notes/store-admins/${storeAdmin.accountId}/${rootNote.id}",
                            UpdateNote(body = "donkey"))
       response.status must === (StatusCodes.OK)
 
@@ -83,11 +84,11 @@ class StoreAdminNotesIntegrationTest
   "DELETE /v1/notes/store-admins/:adminId/:noteId" - {
 
     "can soft delete note" in new Fixture {
-      val createResp =
-        POST(s"v1/notes/store-admins/${storeAdmin.id}", CreateNote(body = "Hello, FoxCommerce!"))
+      val createResp = POST(s"v1/notes/store-admins/${storeAdmin.accountId}",
+                            CreateNote(body = "Hello, FoxCommerce!"))
       val note = createResp.as[AdminNotes.Root]
 
-      val response = DELETE(s"v1/notes/store-admins/${storeAdmin.id}/${note.id}")
+      val response = DELETE(s"v1/notes/store-admins/${storeAdmin.accountId}/${note.id}")
       response.status must === (StatusCodes.NoContent)
       response.bodyText mustBe empty
 
@@ -99,12 +100,12 @@ class StoreAdminNotesIntegrationTest
       }
 
       // Deleted note should not be returned
-      val allNotesResponse = GET(s"v1/notes/store-admins/${storeAdmin.id}")
+      val allNotesResponse = GET(s"v1/notes/store-admins/${storeAdmin.accountId}")
       allNotesResponse.status must === (StatusCodes.OK)
       val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
       allNotes.map(_.id) must not contain note.id
 
-      val getDeletedNoteResponse = GET(s"v1/notes/store-admins/${storeAdmin.id}/${note.id}")
+      val getDeletedNoteResponse = GET(s"v1/notes/store-admins/${storeAdmin.accountId}/${note.id}")
       getDeletedNoteResponse.status must === (StatusCodes.NotFound)
     }
   }

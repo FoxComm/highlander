@@ -14,26 +14,27 @@ import akka.http.scaladsl.server.directives.SecurityDirectives._
 
 import utils.seeds.Seeds.Factories
 
-class FakeAuth extends UserAuthenticator {
+abstract class FakeAuth extends UserAuthenticator {
   type C = String
   def readCredentials(): Directive1[Option[String]] = provide(Some("ok"))
-  def checkAuthUser(credentials: Option[String]): Future[AuthenticationResult[AuthData[User]]]
 }
 
 case class AuthAs(m: User) extends FakeAuth {
-  def checkAuthUser(creds: Option[String]): Future[AuthenticationResult[User]] = {
-    Future.successful(AuthenticationResult.success(m))
+  def checkAuthUser(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
+    Future.successful(
+        AuthenticationResult.success(AuthData[User](m, Account(id = m.accountId), "1", Map())))
   }
-  def checkAuthCustomer(creds: Option[String]): Future[AuthenticationResult[User]] = {
-    Future.successful(AuthenticationResult.success(m))
+  def checkAuthCustomer(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
+    Future.successful(
+        AuthenticationResult.success(AuthData[User](m, Account(id = m.accountId), "1", Map())))
   }
 }
 
 case class AuthFailWith(challenge: HttpChallenge) extends FakeAuth {
-  def checkAuthUser(creds: Option[String]): Future[AuthenticationResult[User]] = {
+  def checkAuthUser(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
     Future.successful(AuthenticationResult.failWithChallenge(challenge))
   }
-  def checkAuthCustomer(creds: Option[String]): Future[AuthenticationResult[User]] = {
+  def checkAuthCustomer(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
     Future.successful(AuthenticationResult.failWithChallenge(challenge))
   }
 }

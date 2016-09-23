@@ -30,7 +30,7 @@ trait RawFixtures extends RawPaymentFixtures {
   trait Reason_Raw {
     def storeAdmin: User
 
-    val reason: Reason = Reasons.create(Factories.reason(storeAdmin.id)).gimme
+    val reason: Reason = Reasons.create(Factories.reason(storeAdmin.accountId)).gimme
   }
 
   trait CustomerAddress_Raw {
@@ -53,7 +53,7 @@ trait RawFixtures extends RawPaymentFixtures {
     def cart: Cart = _cart
 
     private val _cart: Cart = {
-      val payload  = OrderPayloads.CreateCart(accountId = customer.accountId.some)
+      val payload  = OrderPayloads.CreateCart(customerId = customer.accountId.some)
       val response = CartCreator.createCart(storeAdmin, payload).gimme
       Carts.mustFindByRefNum(response.referenceNumber).gimme
     }

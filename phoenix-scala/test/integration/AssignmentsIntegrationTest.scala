@@ -24,13 +24,13 @@ class AssignmentsIntegrationTest
   "POST /v1/orders/:refNum/assignees" - {
 
     "can be assigned to order" in new Order_Baked {
-      val payload  = AssignmentPayload(assignees = Seq(storeAdmin.id))
+      val payload  = AssignmentPayload(assignees = Seq(storeAdmin.accountId))
       val response = POST(s"v1/orders/${order.refNum}/assignees", payload)
       response.status must === (StatusCodes.OK)
 
       val theResponse = response.as[TheResponse[Seq[AssignmentResponse.Root]]]
       theResponse.result.size mustBe 1
-      theResponse.result.headOption.value.assignee.id mustBe storeAdmin.id
+      theResponse.result.headOption.value.assignee.id mustBe storeAdmin.accountId
       theResponse.result.headOption.value.assignmentType mustBe Assignment.Assignee
 
       theResponse.errors mustBe None
@@ -38,14 +38,14 @@ class AssignmentsIntegrationTest
 
     "extends response with errors if one of store admins is not found" in new Order_Baked {
       val nonExistentAdminId = 2
-      val payload            = AssignmentPayload(assignees = Seq(storeAdmin.id, nonExistentAdminId))
+      val payload            = AssignmentPayload(assignees = Seq(storeAdmin.accountId, nonExistentAdminId))
       val response           = POST(s"v1/orders/${order.refNum}/assignees", payload)
       response.status must === (StatusCodes.OK)
 
       // TODO - AlreadyAssignedFailure here?
       val theResponse = response.as[TheResponse[Seq[AssignmentResponse.Root]]]
       theResponse.result.size mustBe 1
-      theResponse.result.headOption.value.assignee.id mustBe storeAdmin.id
+      theResponse.result.headOption.value.assignee.id mustBe storeAdmin.accountId
       theResponse.result.headOption.value.assignmentType mustBe Assignment.Assignee
 
       theResponse.errors.value.size mustBe 1
@@ -53,7 +53,7 @@ class AssignmentsIntegrationTest
     }
 
     "returns error if order not found" in new Order_Baked {
-      val payload  = AssignmentPayload(assignees = Seq(storeAdmin.id))
+      val payload  = AssignmentPayload(assignees = Seq(storeAdmin.accountId))
       val response = POST(s"v1/orders/NOPE/assignees", payload)
       response.status must === (StatusCodes.NotFound)
       response.error mustBe NotFoundFailure404(Order, "NOPE").description
@@ -63,7 +63,7 @@ class AssignmentsIntegrationTest
   "DELETE /v1/orders/:refNum/assignees" - {
 
     "can be unassigned from order" in new AssignmentFixture {
-      val response = DELETE(s"v1/orders/${order.refNum}/assignees/${storeAdmin.id}")
+      val response = DELETE(s"v1/orders/${order.refNum}/assignees/${storeAdmin.accountId}")
       response.status must === (StatusCodes.OK)
 
       val theResponse = response.as[Seq[AssignmentResponse.Root]]
@@ -71,7 +71,7 @@ class AssignmentsIntegrationTest
     }
 
     "returns error if order not found" in new AssignmentFixture {
-      val response = DELETE(s"v1/orders/NOPE/assignees/${storeAdmin.id}")
+      val response = DELETE(s"v1/orders/NOPE/assignees/${storeAdmin.accountId}")
       response.status must === (StatusCodes.NotFound)
       response.error mustBe NotFoundFailure404(Order, "NOPE").description
     }
@@ -93,7 +93,7 @@ class AssignmentsIntegrationTest
 
     "can be assigned to multiple orders with graceful error handling" in new BulkAssignmentFixture {
       val payload = BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
-                                          storeAdminId = storeAdmin.id)
+                                          storeAdminId = storeAdmin.accountId)
       val response = POST(s"v1/orders/assignees", payload)
       response.status must === (StatusCodes.OK)
 
@@ -102,7 +102,7 @@ class AssignmentsIntegrationTest
 
       val notFoundFailure = NotFoundFailure404(Order, "NOPE").description
       val alreadyAssignedFailure =
-        AlreadyAssignedFailure(Order, order1.refNum, storeAdmin.id).description
+        AlreadyAssignedFailure(Order, order1.refNum, storeAdmin.accountId).description
       val assertFailures =
         Map[String, String]("NOPE" → notFoundFailure, order1.refNum → alreadyAssignedFailure)
 
@@ -118,15 +118,16 @@ class AssignmentsIntegrationTest
 
     "can be unassigned from multiple orders with graceful error handling" in new BulkAssignmentFixture {
       val payload = BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
-                                          storeAdminId = storeAdmin.id)
+                                          storeAdminId = storeAdmin.accountId)
       val response = POST(s"v1/orders/assignees/delete", payload)
       response.status must === (StatusCodes.OK)
 
       val theResponse = response.as[TheResponse[Seq[AllOrders.Root]]]
       theResponse.result.size mustBe 2
 
-      val notFoundFailure    = NotFoundFailure404(Order, "NOPE").description
-      val notAssignedFailure = NotAssignedFailure(Order, order2.refNum, storeAdmin.id).description
+      val notFoundFailure = NotFoundFailure404(Order, "NOPE").description
+      val notAssignedFailure =
+        NotAssignedFailure(Order, order2.refNum, storeAdmin.accountId).description
       val assertFailures =
         Map[String, String]("NOPE" → notFoundFailure, order2.refNum → notAssignedFailure)
 
@@ -143,7 +144,7 @@ class AssignmentsIntegrationTest
       assignee ← * <~ Assignments.create(
                     Assignment(referenceType = Assignment.Order,
                                referenceId = order.id,
-                               storeAdminId = storeAdmin.id,
+                               storeAdminId = storeAdmin.accountId,
                                assignmentType = Assignment.Assignee))
       account ← * <~ Accounts.create(Account())
       secondAdmin ← * <~ Users.create(
@@ -163,12 +164,12 @@ class AssignmentsIntegrationTest
       assignee ← * <~ Assignments.create(
                     Assignment(referenceType = Assignment.Order,
                                referenceId = order1.id,
-                               storeAdminId = storeAdmin.id,
+                               storeAdminId = storeAdmin.accountId,
                                assignmentType = Assignment.Assignee))
     } yield (order1, order2)).gimme
 
     val orderRef1 = order1.referenceNumber
     val orderRef2 = order2.referenceNumber
-    val adminId   = storeAdmin.id
+    val adminId   = storeAdmin.accountId
   }
 }

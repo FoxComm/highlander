@@ -40,7 +40,7 @@ class GiftCardIntegrationTest
         // Check that proper link is created
         val manual = GiftCardManuals.findOneById(root.originId).gimme.value
         manual.reasonId must === (1)
-        manual.adminId must === (storeAdmin.id)
+        manual.adminId must === (storeAdmin.accountId)
       }
 
       "create two gift cards with unique codes" in new Reason_Baked {
