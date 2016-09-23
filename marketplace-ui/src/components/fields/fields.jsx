@@ -35,7 +35,7 @@ const renderSelect = ({ input, values, placeholder, meta }) => {
   return (
     <div className={cx(styles.field, { [styles.fieldError]: hasError })}>
       {!input.value && <label htmlFor={input.name}>{placeholder}</label>}
-      <MultiSelect data={values} />
+      <MultiSelect {...input} data={values} />
       {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}
     </div>
   );

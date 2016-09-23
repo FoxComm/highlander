@@ -100,10 +100,21 @@ input:-webkit-autofill {
       white-space: nowrap;
       cursor: pointer;
     }
+
+    & :global(.rw-tag-btn) {
+      position: relative;
+      top: 1px;
+      margin-left: 5px;
+    }
   }
 
   & :global(.rw-input) {
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+    padding: 0;
     margin-bottom: 0;
+    border: none;
   }
 
   & :global(.rw-sr) {
@@ -111,9 +122,14 @@ input:-webkit-autofill {
   }
 
   & :global(.rw-multiselect-wrapper) {
-    border-radius: 4px;
     position: relative;
+    border-bottom: 1px solid #ddd;
     cursor: text;
+
+    &:active,
+    &:focus {
+      border-color: #7bb2f1;
+    }
   }
 
   & :global(.rw-popup-container) {
@@ -151,6 +167,7 @@ input:-webkit-autofill {
         border-radius: 3px;
         border: 1px solid #fff;
         cursor: pointer;
+
 
         &:hover {
           background-color: #f6f6f6;
