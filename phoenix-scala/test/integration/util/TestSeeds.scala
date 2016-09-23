@@ -10,6 +10,7 @@ import util.fixtures.TestFixtureBase
 import utils.seeds.Seeds.Factories
 import utils.Passwords.hashPassword
 import failures.GeneralFailure
+import utils.db._
 
 /**
   * Seeds are simple values that can be created without any external dependencies.
@@ -30,10 +31,8 @@ trait TestSeeds extends TestFixtureBase {
                                      author = None))
       .gimme
 
-    private val _storeAdminUser = StoreAdminUsers
-      .findOneByAccountId(_storeAdmin.accountId)
-      .mustFindOr(GeneralFailure("store admin user not created"))
-      .gimme
+    private val _storeAdminUser =
+      StoreAdminUser(userId = _storeAdmin.id, accountId = _storeAdmin.accountId)
 
   }
 
@@ -46,22 +45,20 @@ trait TestSeeds extends TestFixtureBase {
     private val _account = Accounts.create(Account()).gimme
     private val _accessMethod = AccountAccessMethods
       .create(
-          AccountAccessMethod(accountId = _account.id,
+          AccountAccessMethod(accountId = account.id,
                               name = "login",
                               hashedPassword = hashPassword("password")))
       .gimme
 
     private val _customer = {
       Users.result.headOption
-        .findOrCreate(Users.create(Factories.customer.copy(accountId = _account.id)))
+        .findOrCreate(Users.create(Factories.customer.copy(accountId = account.id)))
         .gimme
     }
 
     private val _customerUser = CustomerUsers.result.headOption
-      .findOrCreate(
-          CustomerUsers.create(CustomerUser(userId = _customer.id,
-                                            accountId = _customer.accountId,
-                                            isGuest = false)))
+      .findOrCreate(CustomerUsers.create(
+              CustomerUser(userId = customer.id, accountId = customer.accountId, isGuest = false)))
       .gimme
   }
 

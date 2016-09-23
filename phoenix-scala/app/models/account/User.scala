@@ -40,10 +40,15 @@ case class User(id: Int = 0,
   }
 
   override def validate: ValidatedNel[Failure, User] = {
-    if (name.isEmpty) {
+    if (email.isEmpty && name.isEmpty) {
       Validated.Valid(this)
     } else {
-      (matches(name.getOrElse(""), User.namePattern, "name")).map { case _ ⇒ this }
+      (notEmpty(name, "name") |@| notEmpty(name.getOrElse(""), "name") |@| matches(
+              name.getOrElse(""),
+              User.namePattern,
+              "name") |@| notEmpty(email, "email") |@| notEmpty(email.getOrElse(""), "email")).map {
+        case _ ⇒ this
+      }
     }
   }
 }

@@ -47,7 +47,10 @@ trait CustomerSeeds {
       }
 
   def usCustomer1 =
-    User(accountId = 0, email = "yax@yax.com".some, phoneNumber = Some("123-444-4388"))
+    User(accountId = 0,
+         name = "Yax Man".some,
+         email = "yax@yax.com".some,
+         phoneNumber = Some("123-444-4388"))
 
   def usCustomer2 =
     User(accountId = 0,
