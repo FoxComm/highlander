@@ -29,7 +29,7 @@ TODO after Target AWS provisioning experience:
 		* Bottledwaters run script has `db.service` which block it from DNS. set manually to localhost
 		* Rollback `/middlewarehouse/sql/flyway.conf` update
 * Miscellaneous:
-	* Build MWH with GOOS=linux!
+	* Build MWH locally with `GOOS=linux make build`!
 	* Forgot to use `base_mesos_ami` everywhere, run `make hotfix-mesos-worker`
 	* TF issue https://github.com/hashicorp/terraform/issues/1652#issuecomment-195164526
 	* Use `consul members` & `consul force-leave <node_id>` if you dropped previous cluster via terraform
