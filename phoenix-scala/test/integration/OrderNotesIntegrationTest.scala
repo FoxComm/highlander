@@ -4,7 +4,7 @@ import models.cord._
 import payloads.NotePayloads._
 import responses.AdminNotes
 import responses.AdminNotes.Root
-import services.notes.OrderNoteManager
+import services.notes.CordNoteManager
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -36,14 +36,14 @@ class OrderNotesIntegrationTest
       notesApi
         .order("NOPE")
         .create(CreateNote(""))
-        .mustFailWith404(NotFoundFailure404(Order, "NOPE"))
+        .mustFailWith404(NotFoundFailure404(Cord, "NOPE"))
     }
   }
 
   "GET /v1/notes/order/:refNum" - {
     "can be listed" in new Order_Baked {
       val createNotes = List("abc", "123", "xyz").map { body ⇒
-        OrderNoteManager.create(order.refNum, storeAdmin, CreateNote(body))
+        CordNoteManager.create(order.refNum, storeAdmin, CreateNote(body))
       }
       DbResultT.sequence(createNotes).gimme
 
@@ -55,7 +55,7 @@ class OrderNotesIntegrationTest
 
   "PATCH /v1/notes/order/:refNum/:noteId" - {
     "can update the body text" in new Order_Baked {
-      val rootNote = OrderNoteManager.create(order.refNum, storeAdmin, CreateNote("foo")).gimme
+      val rootNote = CordNoteManager.create(order.refNum, storeAdmin, CreateNote("foo")).gimme
 
       notesApi
         .order(order.refNum)
@@ -68,7 +68,7 @@ class OrderNotesIntegrationTest
 
   "DELETE /v1/notes/order/:refNum/:noteId" - {
     "can soft delete note" in new Order_Baked {
-      val note = OrderNoteManager.create(order.refNum, storeAdmin, CreateNote("foo")).gimme
+      val note = CordNoteManager.create(order.refNum, storeAdmin, CreateNote("foo")).gimme
 
       notesApi.order(order.refNum).note(note.id).delete().mustBeEmpty()
 

@@ -1,22 +1,22 @@
 package services.notes
 
-import failures.NotFoundFailure404
 import models.Note
-import models.objects.{ObjectForm, ObjectForms}
-import models.product.Product
-import slick.driver.PostgresDriver.api._
-import utils.db._
+import models.objects.IlluminatedObject
+import services.objects.ObjectManager
+import services.product.ProductManager
 import utils.aliases._
+import utils.db._
 
-object ProductNoteManager extends NoteManager[Int, ObjectForm] {
+object ProductNoteManager extends NoteManager[Int, IlluminatedObject] {
 
   def noteType(): Note.ReferenceType = Note.Product
 
-  def getEntityId(e: ObjectForm): Int = e.id
+  def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[IlluminatedObject] = {
+    val getProduct = ProductManager
+      .mustFindProductByContextAndFormId404(contextId = defaultContextId, formId = id)
 
-  def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[ObjectForm] =
-    ObjectForms
-      .filter(_.id === id)
-      .filter(_.kind === ObjectForm.product)
-      .mustFindOneOr(NotFoundFailure404(Product, id))
+    for {
+      fullObject ← * <~ ObjectManager.getFullObject(getProduct)
+    } yield IlluminatedObject.illuminate(form = fullObject.form, shadow = fullObject.shadow)
+  }
 }

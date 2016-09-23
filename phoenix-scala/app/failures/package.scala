@@ -2,7 +2,7 @@ import cats.data._
 import cats.implicits._
 import models.Assignment
 import models.activity.Dimension
-import models.cord.{Cart, Order}
+import models.cord.{Cart, Cord, Order}
 import models.inventory.Sku
 import models.payment.giftcard.GiftCard
 import models.returns.Return
@@ -32,6 +32,7 @@ package object failures {
     def searchTerm[A](a: A): String = a match {
       case Cart | _: Cart                       ⇒ "referenceNumber"
       case Order | _: Order                     ⇒ "referenceNumber"
+      case Cord | _: Cord                       ⇒ "referenceNumber"
       case Return | _: Return                   ⇒ "referenceNumber"
       case Assignment.Order | Assignment.Return ⇒ "referenceNumber"
 

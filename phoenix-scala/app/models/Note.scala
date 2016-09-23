@@ -38,7 +38,7 @@ case class Note(id: Int = 0,
 
 object Note {
   sealed trait ReferenceType
-  case object Order      extends ReferenceType
+  case object Cord       extends ReferenceType
   case object GiftCard   extends ReferenceType
   case object Customer   extends ReferenceType
   case object Return     extends ReferenceType

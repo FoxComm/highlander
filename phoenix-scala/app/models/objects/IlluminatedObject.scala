@@ -2,6 +2,7 @@ package models.objects
 
 import utils.IlluminateAlgorithm
 import utils.aliases._
+import utils.db.Identity
 
 case class IlluminatedContext(name: String, attributes: Json)
 
@@ -9,7 +10,7 @@ case class IlluminatedContext(name: String, attributes: Json)
   * An IlluminatedObject is what you get when you combine the product shadow and
   * the product. 
   */
-case class IlluminatedObject(id: Int = 0, attributes: Json)
+case class IlluminatedObject(id: Int = 0, attributes: Json) extends Identity
 
 object IlluminatedObject {
 
