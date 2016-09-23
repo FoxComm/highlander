@@ -24,10 +24,10 @@ merchant_names = ~w(Merchant1 Merchant2 Merchant3)
 
 merchant_applications = for merchant_name <- merchant_names do
   Repo.insert! %MerchantApplication{
-    name: merchant_name,
     business_name: merchant_name,
     email_address: "donkey@donque.com",
-    description: "Great merchant",
+    phoen_number: "1234567890",
+    site_url: "http://site.com",
     state: "new"
   }
 end

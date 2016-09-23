@@ -3,7 +3,7 @@ defmodule Marketplace.Repo.Migrations.AddBusinessProfiles do
 
   def change do
     create table (:business_profiles) do 
-      add :monthly_sales_volume, :integer
+      add :monthly_sales_volume, :string
       add :target_audience, :string
       add :categories, {:array, :string}
 

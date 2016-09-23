@@ -24,9 +24,9 @@ defmodule Marketplace.Merchant do
     has_one :business_profile, through: [:merchant_business_profile, :business_profile]
   end
 
-  @states ~w(new approved suspended cancelled activated)s
-  @required_fields ~w(name description state)a
-  @optional_fields ~w(business_name phone_number email_address site_url scope_id organization_id)a
+  @states ~w(new approved suspended cancelled)a
+  @required_fields ~w(business_name phone_number email_address site_url state)
+  @optional_fields ~w(name description scope_id organization_id)
 
   def changeset(model, params \\ :empty) do
     model 

@@ -1,6 +1,7 @@
 /* @flow */
 
 import { createReducer } from 'redux-act';
+import { SubmissionError } from 'redux-form';
 
 import createAsyncActions from './async-utils';
 
@@ -44,6 +45,7 @@ const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_S
           .then(() => resolve(application))
           .catch(() => reject())
       )
+      .catch(err => reject(new SubmissionError(err.response.data.errors)))
   )
 );
 

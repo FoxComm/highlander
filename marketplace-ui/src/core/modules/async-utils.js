@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { createAction } from 'redux-act';
+import { SubmissionError } from 'redux-form';
 
 export type Error = {
   status: number;
@@ -111,7 +112,14 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
 
         return result;
       })
-      .catch(err => dispatch(failed(err)));
+      .catch(err => {
+        dispatch(failed(err));
+
+        // FIX THIS!!! Used for redux-form server-side validation handling
+        if (err instanceof SubmissionError) {
+          throw err;
+        }
+      });
   };
 
   const lazyPerform = (...args) => {
