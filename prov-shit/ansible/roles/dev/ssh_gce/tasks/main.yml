@@ -20,4 +20,4 @@
 
 - name: Copy SSH Agent boot file
   sudo: true
-  copy: src=boot_ssh_agent.sh dest=/etc/profile.d mode=700 owner="buildkite-agent"
+  copy: src=boot_ssh_agent.sh dest=/etc/profile.d mode=755 owner="buildkite-agent"
