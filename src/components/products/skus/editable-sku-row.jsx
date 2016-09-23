@@ -236,19 +236,15 @@ class EditableSkuRow extends Component {
       return null;
     }
 
-    let selected = "";
     const idx = parseInt(field);
-    if (_.isEmpty(this.props.skuVariantMap)) {
-      selected = _.get(sku, ['varaintValues', idx]);
-    } else {
-      const mapping = this.props.skuVariantMap;
+    const mapping = this.props.skuVariantMap;
 
-      const variant = _.get(this.props.variants, idx, {});
-      const variantName = _.get(variant, 'attributes.name.v', variant.name);
-      const skuAttributeCode = _.get(sku, 'attributes.code.v');
-      const skuCode = !_.isEmpty(skuAttributeCode) && skuAttributeCode != "" ? skuAttributeCode : sku.feCode;
-      selected = _.get(mapping, [skuCode, variantName]);
-    }
+    const variant = _.get(this.props.variants, idx, {});
+    const variantName = _.get(variant, 'attributes.name.v', variant.name);
+    const skuAttributeCode = _.get(sku, 'attributes.code.v');
+    const skuCode = !_.isEmpty(skuAttributeCode) && skuAttributeCode != "" ? skuAttributeCode : sku.feCode;
+
+    const selected = _.get(mapping, [skuCode, variantName]) || _.get(sku, ['varaintValues', idx]);
 
     return (
       <input
