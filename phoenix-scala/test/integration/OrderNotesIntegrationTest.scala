@@ -26,7 +26,7 @@ class OrderNotesIntegrationTest
       response.status must === (StatusCodes.OK)
       val note = response.as[AdminNotes.Root]
       note.body must === ("Hello, FoxCommerce!")
-      note.author must === (AdminNotes.buildAuthor(authedStoreAdmin))
+      note.author must === (AdminNotes.buildAuthor(authedUser))
     }
 
     "returns a validation error if failed to create" in new Order_Baked {

@@ -9,6 +9,8 @@ object CustomerNoteManager extends NoteManager[Int, User] {
 
   def noteType(): Note.ReferenceType = Note.Customer
 
+  def getEntityId(e: User): Int = e.accountId
+
   def fetchEntity(accountId: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[User] =
     Users.mustFindByAccountId(accountId)
 }

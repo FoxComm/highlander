@@ -20,12 +20,12 @@ class CartCreatorIntegrationTest
   "POST /v1/orders" - {
     "for an existing customer" - {
       "succeeds" in new Fixture {
-        val payload  = CreateCart(customerId = customer.id.some)
+        val payload  = CreateCart(customerId = customer.accountId.some)
         val response = POST(s"v1/orders", payload)
 
         response.status must === (StatusCodes.OK)
         val root = response.as[CartResponse]
-        root.customer.value.id must === (customer.id)
+        root.customer.value.id must === (customer.accountId)
       }
 
       "fails when the customer is not found" in new Fixture {
@@ -37,13 +37,13 @@ class CartCreatorIntegrationTest
       }
 
       "returns current cart if customer already has one" in new Fixture {
-        val payload = CreateCart(customerId = customer.id.some)
+        val payload = CreateCart(customerId = customer.accountId.some)
         CartCreator.createCart(storeAdmin, payload).gimme
         val response = POST(s"v1/orders", payload)
 
         response.status must === (StatusCodes.OK)
         val root = response.as[CartResponse]
-        root.customer.value.id must === (customer.id)
+        root.customer.value.id must === (customer.accountId)
       }
     }
 
@@ -56,7 +56,7 @@ class CartCreatorIntegrationTest
 
         response.status must === (StatusCodes.OK)
         guest.isGuest mustBe true
-        guest.id must !==(customer.id)
+        guest.id must !==(customer.accountId)
       }
     }
 

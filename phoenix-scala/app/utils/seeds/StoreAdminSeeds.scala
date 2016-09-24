@@ -33,8 +33,10 @@ trait StoreAdminSeeds {
                                           org = org)
 
     for {
-      response ← * <~ StoreAdminManager.create(payload = payload, author = author)
-      user     ← * <~ Users.mustFindByAccountId(response.id)
+      response  ← * <~ StoreAdminManager.create(payload = payload, author = author)
+      user      ← * <~ Users.mustFindByAccountId(response.id)
+      adminUser ← * <~ StoreAdminUsers.mustFindByAccountId(user.accountId)
+      _         ← * <~ StoreAdminUsers.update(adminUser, adminUser.copy(state = state))
     } yield user
   }
 

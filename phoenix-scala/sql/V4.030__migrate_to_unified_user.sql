@@ -1324,7 +1324,7 @@ begin
       from store_credits as sc
       left join store_credit_manuals as scm on (sc.origin_id = scm.id)
       left join store_credit_customs as scc on (sc.origin_id = scc.id)
-      left join store_admin_user as sa on (sa.account_id = scm.admin_id or sa.account_id = scc.admin_id)
+      left join store_admin_users as sa on (sa.account_id = scm.admin_id or sa.account_id = scc.admin_id)
       left join users as u on (u.account_id = sa.account_id)
       where sa.id = new.id;
   end case;
@@ -1462,13 +1462,13 @@ $$ language plpgsql;
 create or replace function update_store_admins_view_update_fn() returns trigger as $$
 begin
     update store_admins_search_view set
-        name = new.name,
-        email = new.email,
-        phone_number = new.phone_number,
+        name = u.name,
+        email = u.email,
+        phone_number = u.phone_number,
         state = new.state,      
         created_at = to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
     from users as u
-    where id = new.account_id and u.account_id = new.account_id;
+    where u.account_id = new.account_id;
     return null;
     end;
 $$ language plpgsql;

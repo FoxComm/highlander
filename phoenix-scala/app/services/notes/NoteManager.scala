@@ -18,12 +18,13 @@ trait NoteManager[K, T <: FoxModel[T]] {
   // Define this methods in inherit object
   def noteType(): Note.ReferenceType
   def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResultT[T]
+  def getEntityId(e: T): Int
 
   // Use this methods wherever you want
   def list(key: K)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Root]] =
     for {
       entity   ← * <~ fetchEntity(key)
-      response ← * <~ forModel(entityQuerySeq(entity.id))
+      response ← * <~ forModel(entityQuerySeq(getEntityId(entity)))
     } yield response
 
   def create(key: K, author: User, payload: CreateNote)(implicit ec: EC,
@@ -31,7 +32,7 @@ trait NoteManager[K, T <: FoxModel[T]] {
                                                         ac: AC): DbResultT[Root] =
     for {
       entity ← * <~ fetchEntity(key)
-      note   ← * <~ createInner(entity, entity.id, noteType(), author, payload)
+      note   ← * <~ createInner(entity, noteType(), author, payload)
     } yield AdminNotes.build(note, author)
 
   def update(key: K, noteId: Int, author: User, payload: UpdateNote)(implicit ec: EC,
@@ -53,14 +54,13 @@ trait NoteManager[K, T <: FoxModel[T]] {
     Notes.filter(_.referenceType === noteType()).filter(_.referenceId === entityId).notDeleted
 
   private def createInner(entity: T,
-                          refId: Int,
                           refType: Note.ReferenceType,
                           author: User,
                           payload: CreateNote)(implicit ec: EC, db: DB, ac: AC): DbResultT[Note] =
     for {
       note ← * <~ Notes.create(
-                Note(storeAdminId = author.id,
-                     referenceId = refId,
+                Note(storeAdminId = author.accountId,
+                     referenceId = getEntityId(entity),
                      referenceType = refType,
                      body = payload.body))
       _ ← * <~ LogActivity.noteCreated(author, entity, note)
@@ -72,7 +72,7 @@ trait NoteManager[K, T <: FoxModel[T]] {
       ac: AC): DbResultT[Root] =
     for {
       oldNote ← * <~ Notes
-                 .filterByIdAndAdminId(noteId, author.id)
+                 .filterByIdAndAdminId(noteId, author.accountId)
                  .mustFindOneOr(NotFoundFailure404(Note, noteId))
       newNote ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))
       _       ← * <~ LogActivity.noteUpdated(author, entity, oldNote, newNote)

@@ -12,12 +12,10 @@ import utils.seeds.Seeds.Factories
 class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSupport with MockedApis {
 
   val authedStoreAdmin =
-    User(id = 1, accountId = 1, email = "donkey@donkey.com".some, name = "Mister Donkey".some)
+    User(id = 1, accountId = 1, email = "admin@admin.com".some, name = "Mister Donkey".some)
 
-  override def overrideStoreAdminAuth: UserAuthenticator =
+  override def overrideUserAuth: UserAuthenticator =
     AuthAs(authedStoreAdmin)
-  override def overrideCustomerAuth: UserAuthenticator =
-    AuthFailWith(challengeFor("test"))
 
   "Requests with StoreAdmin only session (w/o customer)" - {
     "GET /v1/404alkjflskfdjg" in {
@@ -28,16 +26,15 @@ class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSuppor
 
 class RoutesCustomerOnlyIntegrationTest
     extends IntegrationTestBase
+    with TestActivityContext.AdminAC
     with HttpSupport
     with MockedApis {
 
   val authedCustomer =
     User(id = 1, accountId = 1, email = "donkey@donkey.com".some, name = "Mister Donkey".some)
 
-  override def overrideCustomerAuth: UserAuthenticator =
+  override def overrideUserAuth: UserAuthenticator =
     AuthAs(authedCustomer)
-  override def overrideStoreAdminAuth: UserAuthenticator =
-    AuthFailWith(challengeFor("test"))
 
   "Requests with Customer only session (w/o StoreAdmin)" - {
     "GET v1/my/404hello" in {
@@ -45,9 +42,12 @@ class RoutesCustomerOnlyIntegrationTest
     }
 
     "GET v1/my/cart" in {
-      val account = Accounts.create(Account()).gimme
-      val user    = Users.create(Factories.customer.copy(accountId = account.id)).gimme
-      CustomerUsers.create(CustomerUser(userId = user.id, accountId = account.id)).gimme
+      Factories
+        .createCustomer(user = authedCustomer,
+                        isGuest = false,
+                        scopeId = 2,
+                        password = "password".some)
+        .gimme
       GET(s"v1/my/cart").status must === (StatusCodes.OK)
     }
   }

@@ -98,7 +98,7 @@ object AccountManager {
                  context: AccountCreateContext)(implicit ec: EC, db: DB): DbResultT[User] = {
 
     for {
-      _ ← * <~ email.map(e ⇒ Users.createEmailMustBeUnique(e))
+      _ ← * <~ (email.map(e ⇒ Users.createEmailMustBeUnique(e)))
 
       scope ← * <~ Scopes.mustFindById404(context.scopeId)
       organization ← * <~ Organizations

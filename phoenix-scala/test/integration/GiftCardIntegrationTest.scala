@@ -270,11 +270,11 @@ class GiftCardIntegrationTest
 
     "POST /v1/gift-cards/:code/convert/:customerId" - {
       "successfully converts GC to SC" in new Fixture {
-        val response = POST(s"v1/gift-cards/${giftCard2.code}/convert/${customer.id}")
+        val response = POST(s"v1/gift-cards/${giftCard2.code}/convert/${customer.accountId}")
         response.status must === (StatusCodes.OK)
 
         val root = response.as[StoreCreditResponse.Root]
-        root.customerId must === (customer.id)
+        root.customerId must === (customer.accountId)
         root.originType must === (StoreCredit.GiftCardTransfer)
         root.state must === (storecredit.StoreCredit.Active)
         root.originalBalance must === (giftCard2.originalBalance)
@@ -286,7 +286,7 @@ class GiftCardIntegrationTest
       }
 
       "fails to convert when GC not found" in new Fixture {
-        val response = POST(s"v1/gift-cards/ABC-666/convert/${customer.id}")
+        val response = POST(s"v1/gift-cards/ABC-666/convert/${customer.accountId}")
         response.status must === (StatusCodes.NotFound)
         response.error must === (NotFoundFailure404(GiftCard, "ABC-666").description)
       }
@@ -298,7 +298,7 @@ class GiftCardIntegrationTest
       }
 
       "fails to convert GC to SC if open transactions are present" in new Fixture {
-        val response = POST(s"v1/gift-cards/${giftCard1.code}/convert/${customer.id}")
+        val response = POST(s"v1/gift-cards/${giftCard1.code}/convert/${customer.accountId}")
         response.status must === (StatusCodes.BadRequest)
         response.error must === (OpenTransactionsFailure.description)
       }
@@ -307,7 +307,7 @@ class GiftCardIntegrationTest
         GiftCards.findByCode(giftCard2.code).map(_.state).update(GiftCard.OnHold).gimme
         val updatedGc = GiftCards.findByCode(giftCard2.code).one.gimme
 
-        val response = POST(s"v1/gift-cards/${giftCard2.code}/convert/${customer.id}")
+        val response = POST(s"v1/gift-cards/${giftCard2.code}/convert/${customer.accountId}")
         response.status must === (StatusCodes.BadRequest)
         response.error must === (GiftCardConvertFailure(updatedGc.value).description)
       }

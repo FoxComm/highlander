@@ -282,6 +282,12 @@ class NotificationIntegrationTest
   val createDimension =
     Dimensions.create(Dimension(name = Dimension.order, description = Dimension.order))
 
+  val adminCreated =
+    Activity(activityType = "store_admin_created", data = JString("data"), context = ActivityContext(1, "x", "y"))
+
+  def adminCreatedActivity(id: Int) =
+    write(ActivityResponse.build(adminCreated.copy(id = id)))
+
   def activityJson(id: Int) =
     write(ActivityResponse.build(newActivity.copy(id = id)))
 

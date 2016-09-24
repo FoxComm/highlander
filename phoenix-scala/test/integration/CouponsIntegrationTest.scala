@@ -262,14 +262,10 @@ class CouponsIntegrationTest
       willBeActiveCoupon ← * <~ CouponManager.create(couponPayload(willBeActiveCouponForm),
                                                      ctx.name,
                                                      None)
-      _ ← * <~ CouponManager.generateCode(fromCoupon.form.id, fromCode, authedStoreAdmin)
-      _ ← * <~ CouponManager.generateCode(fromToCoupon.form.id, fromToCode, authedStoreAdmin)
-      _ ← * <~ CouponManager.generateCode(wasActiveBeforeCoupon.form.id,
-                                          wasActiveCode,
-                                          authedStoreAdmin)
-      _ ← * <~ CouponManager.generateCode(willBeActiveCoupon.form.id,
-                                          willBeActiveCode,
-                                          authedStoreAdmin)
+      _            ← * <~ CouponManager.generateCode(fromCoupon.form.id, fromCode, authedUser)
+      _            ← * <~ CouponManager.generateCode(fromToCoupon.form.id, fromToCode, authedUser)
+      _            ← * <~ CouponManager.generateCode(wasActiveBeforeCoupon.form.id, wasActiveCode, authedUser)
+      _            ← * <~ CouponManager.generateCode(willBeActiveCoupon.form.id, willBeActiveCode, authedUser)
       firstAccount ← * <~ Accounts.create(Account())
       firstCustomer ← * <~ Users.create(
                          Factories.customer.copy(accountId = firstAccount.id,

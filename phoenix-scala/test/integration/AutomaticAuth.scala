@@ -20,10 +20,12 @@ abstract class FakeAuth extends UserAuthenticator {
 }
 
 case class AuthAs(m: User) extends FakeAuth {
+
   def checkAuthUser(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
     Future.successful(
         AuthenticationResult.success(AuthData[User](m, Account(id = m.accountId), "1", Map())))
   }
+
   def checkAuthCustomer(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
     Future.successful(
         AuthenticationResult.success(AuthData[User](m, Account(id = m.accountId), "1", Map())))
@@ -31,9 +33,11 @@ case class AuthAs(m: User) extends FakeAuth {
 }
 
 case class AuthFailWith(challenge: HttpChallenge) extends FakeAuth {
+
   def checkAuthUser(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
     Future.successful(AuthenticationResult.failWithChallenge(challenge))
   }
+
   def checkAuthCustomer(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
     Future.successful(AuthenticationResult.failWithChallenge(challenge))
   }
@@ -42,13 +46,8 @@ case class AuthFailWith(challenge: HttpChallenge) extends FakeAuth {
 trait AutomaticAuth extends SuiteMixin with ScalaFutures with HttpSupport {
   this: Suite with PatienceConfiguration with DbTestSupport ⇒
 
-  val authedStoreAdmin = Factories.storeAdmin.copy(accountId = 1)
+  val authedUser = Factories.storeAdmin.copy(id = 1, accountId = 1)
 
-  val authedCustomer = Factories.customer.copy(accountId = 1)
-
-  override def overrideStoreAdminAuth: UserAuthenticator =
-    AuthAs(authedStoreAdmin)
-
-  override def overrideCustomerAuth: UserAuthenticator =
-    AuthAs(authedCustomer)
+  override def overrideUserAuth: UserAuthenticator =
+    AuthAs(authedUser)
 }

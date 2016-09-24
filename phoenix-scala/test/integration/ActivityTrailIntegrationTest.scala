@@ -49,7 +49,7 @@ class ActivityTrailIntegrationTest
                                           email = "crazy.lary@crazy.com".some,
                                           phoneNumber = "666 666 6666".some)
 
-      val response = PATCH(s"v1/customers/${customer.id}", payload)
+      val response = PATCH(s"v1/customers/${customer.accountId}", payload)
       response.status must === (StatusCodes.OK)
 
       // Check the activity log to see if it was created
@@ -59,7 +59,7 @@ class ActivityTrailIntegrationTest
       activity.activityType must === (typeName)
 
       val customerInfoChanged = activity.data.extract[CustomerUpdated]
-      customerInfoChanged.newInfo.id must === (customer.id)
+      customerInfoChanged.newInfo.id must === (customer.accountId)
       customerInfoChanged.newInfo.name.value must === (payload.name.head)
       customerInfoChanged.newInfo.email.value must === (payload.email.head)
       customerInfoChanged.newInfo.phoneNumber.value must === (payload.phoneNumber.head)
@@ -75,7 +75,7 @@ class ActivityTrailIntegrationTest
                                           email = "updated.name@name.com".some,
                                           phoneNumber = "666 666 6666".some)
 
-      val response = PATCH(s"v1/customers/${customer.id}", payload)
+      val response = PATCH(s"v1/customers/${customer.accountId}", payload)
       response.status must === (StatusCodes.OK)
 
       // Check the activity log to see if it was created
@@ -86,7 +86,7 @@ class ActivityTrailIntegrationTest
       val customerInfoChanged = activity.data.extract[CustomerUpdated]
 
       // Append the activity to the trail
-      val appendedConnection = appendActivity(customerActivity, customer.id, activity.id)
+      val appendedConnection = appendActivity(customerActivity, customer.accountId, activity.id)
 
       appendedConnection.activityId must === (activity.id)
 

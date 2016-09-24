@@ -45,7 +45,7 @@ class ReturnIntegrationTest
 
     "GET /v1/returns/customer/:id" - {
       "should return list of Returns of existing customer" in new Fixture {
-        val response = GET(s"v1/returns/customer/${customer.id}")
+        val response = GET(s"v1/returns/customer/${customer.accountId}")
         response.status must === (StatusCodes.OK)
 
         val root = response.ignoreFailuresAndGiveMe[Seq[AllReturns.Root]]

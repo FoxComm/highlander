@@ -57,7 +57,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val customer = Users.create(Factories.customer.copy(accountId = account.id)).gimme
       val success  = "Success"
       val failure  = (id: User#Id) ⇒ GeneralFailure("Should not happen")
-      val delete   = Users.deleteById(customer.id, DbResultT.good(success), failure).gimme
+      val delete   = Users.deleteById(customer.accountId, DbResultT.good(success), failure).gimme
       delete must === (success)
     }
 
@@ -89,7 +89,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val customer = Users.create(Factories.customer.copy(accountId = account.id)).gimme
       customer.isNew must === (false)
       val updated = Users.update(customer, customer.copy(name = Some("Derp"))).gimme
-      Users.findOneById(customer.id).run().futureValue.value must === (updated)
+      Users.findOneById(customer.accountId).run().futureValue.value must === (updated)
     }
 
     "must run FSM check if applicable" in new Order_Baked {

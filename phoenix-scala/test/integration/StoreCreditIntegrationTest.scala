@@ -30,8 +30,9 @@ class StoreCreditIntegrationTest
     "POST /v1/customers/:id/payment-methods/store-credit" - {
       "when successful" - {
         "responds with the new storeCredit" in new Fixture {
-          val payload  = CreateManualStoreCredit(amount = 25, reasonId = reason.id)
-          val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
+          val payload = CreateManualStoreCredit(amount = 25, reasonId = reason.id)
+          val response =
+            POST(s"v1/customers/${customer.accountId}/payment-methods/store-credit", payload)
           response.status must === (StatusCodes.OK)
 
           val sc = response.as[responses.StoreCreditResponse.Root]
@@ -47,7 +48,8 @@ class StoreCreditIntegrationTest
       "succeeds with valid subTypeId" in new Fixture {
         val payload =
           CreateManualStoreCredit(amount = 25, reasonId = reason.id, subTypeId = Some(1))
-        val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
+        val response =
+          POST(s"v1/customers/${customer.accountId}/payment-methods/store-credit", payload)
         response.status must === (StatusCodes.OK)
 
         val sc = response.as[responses.StoreCreditResponse.Root]
@@ -57,7 +59,8 @@ class StoreCreditIntegrationTest
       "fails if subtypeId is not found" in new Fixture {
         val payload =
           CreateManualStoreCredit(amount = 25, reasonId = reason.id, subTypeId = Some(255))
-        val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
+        val response =
+          POST(s"v1/customers/${customer.accountId}/payment-methods/store-credit", payload)
 
         response.status must === (StatusCodes.BadRequest)
         response.error must === (NotFoundFailure404(StoreCreditSubtype, 255).description)
@@ -72,8 +75,9 @@ class StoreCreditIntegrationTest
       }
 
       "fails if the reason is not found" in new Fixture {
-        val payload  = CreateManualStoreCredit(amount = 25, reasonId = 255)
-        val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
+        val payload = CreateManualStoreCredit(amount = 25, reasonId = 255)
+        val response =
+          POST(s"v1/customers/${customer.accountId}/payment-methods/store-credit", payload)
 
         response.status must === (StatusCodes.BadRequest)
         response.error must === (NotFoundFailure404(Reason, 255).description)
@@ -82,7 +86,8 @@ class StoreCreditIntegrationTest
 
     "GET /v1/customers/:id/payment-methods/store-credit/total" - {
       "returns total available and current store credit for customer" in new Fixture {
-        val response = GET(s"v1/customers/${customer.id}/payment-methods/store-credit/totals")
+        val response =
+          GET(s"v1/customers/${customer.accountId}/payment-methods/store-credit/totals")
         response.status must === (StatusCodes.OK)
 
         val totals = response.as[StoreCreditResponse.Totals]
@@ -205,8 +210,8 @@ class StoreCreditIntegrationTest
 
     "POST /v1/customers/:customerId/payment-methods/store-credit/:id/convert" - {
       "successfully converts SC to GC" in new Fixture {
-        val response =
-          POST(s"v1/customers/${customer.id}/payment-methods/store-credit/${scSecond.id}/convert")
+        val response = POST(
+            s"v1/customers/${customer.accountId}/payment-methods/store-credit/${scSecond.id}/convert")
         response.status must === (StatusCodes.OK)
 
         val root = response.as[GiftCardResponse.Root]
@@ -222,7 +227,7 @@ class StoreCreditIntegrationTest
 
       "fails to convert when SC not found" in new Fixture {
         val response =
-          POST(s"v1/customers/${customer.id}/payment-methods/store-credit/555/convert")
+          POST(s"v1/customers/${customer.accountId}/payment-methods/store-credit/555/convert")
         response.status must === (StatusCodes.NotFound)
         response.error must === (NotFoundFailure404(StoreCredit, 555).description)
       }
@@ -236,7 +241,7 @@ class StoreCreditIntegrationTest
 
       "fails to convert SC to GC if open transactions are present" in new Fixture {
         val response = POST(
-            s"v1/customers/${customer.id}/payment-methods/store-credit/${storeCredit.id}/convert")
+            s"v1/customers/${customer.accountId}/payment-methods/store-credit/${storeCredit.id}/convert")
         response.status must === (StatusCodes.BadRequest)
         response.error must === (OpenTransactionsFailure.description)
       }
@@ -245,8 +250,8 @@ class StoreCreditIntegrationTest
         StoreCredits.findActiveById(scSecond.id).map(_.state).update(StoreCredit.OnHold).gimme
         val updatedSc = StoreCredits.findActiveById(scSecond.id).one.gimme.value
 
-        val response =
-          POST(s"v1/customers/${customer.id}/payment-methods/store-credit/${scSecond.id}/convert")
+        val response = POST(
+            s"v1/customers/${customer.accountId}/payment-methods/store-credit/${scSecond.id}/convert")
         response.status must === (StatusCodes.BadRequest)
         response.error must === (StoreCreditConvertFailure(updatedSc).description)
       }

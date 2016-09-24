@@ -54,7 +54,7 @@ object CustomerManager {
       customerUsers ← * <~ CustomerUsers
                        .filter(_.accountId === accountId)
                        .withRegionsAndRank
-                       .mustFindOneOr(NotFoundFailure404(User, accountId))
+                       .mustFindOneOr(NotFoundFailure404(CustomerUser, accountId))
       (customerUser, shipRegion, billRegion, rank) = customerUsers
       maxOrdersDate ← * <~ Orders.filter(_.accountId === accountId).map(_.placedAt).max.result
       phoneOverride ← * <~ (if (customer.phoneNumber.isEmpty) resolvePhoneNumber(accountId)

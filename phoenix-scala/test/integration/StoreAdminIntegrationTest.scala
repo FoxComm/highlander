@@ -2,7 +2,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import cats.implicits._
-import failures.StoreAdminFailures.AlreadyExistsWithEmail
+import failures.UserFailures.AlreadyExistsWithEmail
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.account._
 import models.admin.StoreAdminUser
@@ -23,7 +23,7 @@ class StoreAdminIntegrationTest
                                             email = "donkey.admin@donkeys.com",
                                             password = Some("123456"),
                                             phoneNumber = Some("1231231234"),
-                                            roles = List(),
+                                            roles = List("tenant_admin"),
                                             org = "tenant")
       val response = POST("v1/store-admins", payload)
 
@@ -36,15 +36,14 @@ class StoreAdminIntegrationTest
     }
 
     "don't create with duplicated email" in new Fixture {
-      val payload = CreateStoreAdminPayload(name = authedStoreAdmin.name.getOrElse(""),
-                                            email = authedStoreAdmin.email.getOrElse(""),
-                                            roles = List(),
+      val payload = CreateStoreAdminPayload(name = authedUser.name.getOrElse(""),
+                                            email = authedUser.email.getOrElse(""),
+                                            roles = List("tenant_admin"),
                                             org = "tenant")
       val response = POST("v1/store-admins", payload)
 
       response.status must === (StatusCodes.BadRequest)
-      response.error must === (
-          AlreadyExistsWithEmail(authedStoreAdmin.email.getOrElse("")).description)
+      response.error must === (AlreadyExistsWithEmail(authedUser.email.getOrElse("")).description)
     }
   }
 

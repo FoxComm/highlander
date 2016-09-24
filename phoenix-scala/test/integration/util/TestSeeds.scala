@@ -1,5 +1,7 @@
 package util
 
+import cats.implicits._
+
 import models._
 import models.account._
 import models.customer._
@@ -21,18 +23,15 @@ trait TestSeeds extends TestFixtureBase {
     def storeAdmin: User               = _storeAdmin
     def storeAdminUser: StoreAdminUser = _storeAdminUser
 
-    private val _storeAdmin = Users.result.headOption
-      .findOrCreate(
-          Factories.createStoreAdmin(user = Factories.storeAdmin,
-                                     password = "password",
-                                     state = StoreAdminUser.Active,
-                                     org = "tenant",
-                                     roles = List("tenant_admin"),
-                                     author = None))
-      .gimme
-
-    private val _storeAdminUser =
-      StoreAdminUser(userId = _storeAdmin.id, accountId = _storeAdmin.accountId)
+    private val (_storeAdmin, _storeAdminUser) = (for {
+      ad ← * <~ Factories.createStoreAdmin(user = Factories.storeAdmin,
+                                           password = "password",
+                                           state = StoreAdminUser.Active,
+                                           org = "tenant",
+                                           roles = List("tenant_admin"),
+                                           author = None)
+      adu ← * <~ StoreAdminUsers.mustFindByAccountId(ad.accountId)
+    } yield (ad, adu)).gimme
 
   }
 
@@ -42,24 +41,18 @@ trait TestSeeds extends TestFixtureBase {
     def customerUser: CustomerUser        = _customerUser
     def accessMethod: AccountAccessMethod = _accessMethod
 
-    private val _account = Accounts.create(Account()).gimme
-    private val _accessMethod = AccountAccessMethods
-      .create(
-          AccountAccessMethod(accountId = account.id,
-                              name = "login",
-                              hashedPassword = hashPassword("password")))
-      .gimme
+    private val (_account, _customer, _customerUser, _accessMethod) = (for {
+      c ← * <~ Factories.createCustomer(user = Factories.customer,
+                                        isGuest = false,
+                                        scopeId = 2,
+                                        password = "password".some)
+      a  ← * <~ Accounts.mustFindById404(c.accountId)
+      cu ← * <~ CustomerUsers.mustFindByAccountId(c.accountId)
+      am ← * <~ AccountAccessMethods
+            .findOneByAccountIdAndName(c.accountId, "login")
+            .mustFindOr(GeneralFailure("access method not found"))
+    } yield (a, c, cu, am)).gimme
 
-    private val _customer = {
-      Users.result.headOption
-        .findOrCreate(Users.create(Factories.customer.copy(accountId = account.id)))
-        .gimme
-    }
-
-    private val _customerUser = CustomerUsers.result.headOption
-      .findOrCreate(CustomerUsers.create(
-              CustomerUser(userId = customer.id, accountId = customer.accountId, isGuest = false)))
-      .gimme
   }
 
   trait GiftCardSubtype_Seed {

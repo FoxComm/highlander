@@ -9,6 +9,8 @@ object ReturnNoteManager extends NoteManager[String, Return] {
 
   def noteType(): Note.ReferenceType = Note.Return
 
+  def getEntityId(e: Return): Int = e.id
+
   def fetchEntity(refNum: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[Return] =
     Returns.mustFindByRefNum(refNum)
 }

@@ -107,12 +107,9 @@ trait HttpSupport
     """.stripMargin).withFallback(ConfigFactory.load())
 
   private def createContext =
-    AccountCreateContext(roles = List("tenant_admin"), org = "tenant", scopeId = 1)
+    AccountCreateContext(roles = List("customer"), org = "merchant", scopeId = 2)
 
-  def overrideStoreAdminAuth: UserAuthenticator =
-    new Authenticator.JwtAuthenticator(createContext)
-
-  def overrideCustomerAuth: UserAuthenticator =
+  def overrideUserAuth: UserAuthenticator =
     new Authenticator.JwtAuthenticator(createContext)
 
   implicit val env = FoxConfig.Test
@@ -125,9 +122,7 @@ trait HttpSupport
                 apisOverride = Some(apisOverride),
                 addRoutes = additionalRoutes) {
 
-      val storeAdminAuth: UserAuthenticator = overrideStoreAdminAuth
-
-      val customerAuth: UserAuthenticator = overrideCustomerAuth
+      override val userAuth: UserAuthenticator = overrideUserAuth
     }
 
   def POST(path: String, rawBody: String): HttpResponse = {
