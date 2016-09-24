@@ -6,7 +6,7 @@
     - packer
   vars:
     user: ubuntu
-    join_type: join-wan
+    join_type: join
     consul_expect: 1
     packing: true
 

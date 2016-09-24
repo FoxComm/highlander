@@ -22,8 +22,8 @@ provider "google"
 # Setup Consul Cluster
 ##############################################
 module "consul_cluster" {
-    source = "../../modules/gce/consul"
-    datacenter = "dev"
+    source = "../../modules/gce/amigos"
+    datacenter = "foxcomm-staging"
     network = "default"
     servers = 3
     image = "${var.consul_cluster_image}"
