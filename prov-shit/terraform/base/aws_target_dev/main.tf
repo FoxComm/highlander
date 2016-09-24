@@ -57,7 +57,7 @@ module "target_staging" {
 
     amigo_leader = "${module.target_amigos.leader}"
 
-    policy_file = "terraform/policy_stage.json"
+    policy_file = "terraform/policy/stage.json"
 }
 
 module "target_vanilla" {
@@ -82,5 +82,5 @@ module "target_vanilla" {
 
     amigo_leader = "${module.target_amigos.leader}"
 
-    policy_file = "terraform/policy_vanilla.json"    
+    policy_file = "terraform/policy/vanilla.json"
 }
