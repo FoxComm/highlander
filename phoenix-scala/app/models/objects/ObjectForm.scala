@@ -25,7 +25,7 @@ object ObjectForm {
   def fromPayload(kind: String, attributes: Map[String, Json]): ObjectForm = {
     val attributesJson = attributes.foldLeft(JNothing: JValue) {
       case (acc, (key, value)) ⇒
-        val attributeJson: JValue = key → (value \ "v")
+        val attributeJson: JValue = key → value
         acc.merge(attributeJson)
     }
 
