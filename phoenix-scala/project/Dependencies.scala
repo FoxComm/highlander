@@ -85,16 +85,17 @@ object Dependencies {
   )
 
   val misc = Seq(
-    "com.wix"               %% "accord-core"     % "0.5", // Validation
-    "com.github.scopt"      %% "scopt"           % "3.5.0", // CLI args
-    ("org.joda"             % "joda-money"       % "0.11").exclude("org.joda", "joda-time"),
-    "com.chuusai"           %% "shapeless"       % "2.3.1",
-    "com.pellucid"          %% "sealerate"       % "0.0.3",
-    "it.justwrote"          %% "scala-faker"     % "0.3",
-    "org.conbere"           % "markov_2.10"      % "0.2.0",
-    "io.backchat.inflector" %% "scala-inflector" % "1.3.5",
-    "com.github.tototoshi"  %% "scala-csv"       % "1.3.3",
-    ("org.spire-math"       %% "cats"            % "0.3.0").excludeAll(noScalaCheck)
+    "com.wix"               %% "accord-core"            % "0.5", // Validation
+    "com.github.fge"        % "json-schema-validator"   % "2.2.6",
+    "com.github.scopt"      %% "scopt"                  % "3.5.0", // CLI args
+    ("org.joda"             % "joda-money"              % "0.11").exclude("org.joda", "joda-time"),
+    "com.chuusai"           %% "shapeless"              % "2.3.1",
+    "com.pellucid"          %% "sealerate"              % "0.0.3",
+    "it.justwrote"          %% "scala-faker"            % "0.3",
+    "org.conbere"           % "markov_2.10"             % "0.2.0",
+    "io.backchat.inflector" %% "scala-inflector"        % "1.3.5",
+    "com.github.tototoshi"  %% "scala-csv"              % "1.3.3",
+    ("org.spire-math"       %% "cats"                   % "0.3.0").excludeAll(noScalaCheck)
   )
 
   private lazy val noScalaCheck = ExclusionRule(organization = "org.scalacheck")
