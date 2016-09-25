@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Coupon",
+  "type": "object",
+  "properties": {
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "storefrontName": {
+          "type": "string",
+          "widget": "richText",
+          "minLength": 1
+        },
+        "details": {
+          "type": "string",
+          "widget": "richText"
+        },
+        "description": {
+          "type": "string",
+          "widget": "text"
+        },
+        "usageRules": {
+          "type": "object",
+          "properties": {
+            "isExclusive": "boolean",
+            "isUnlimitedPerCode": "boolean",
+            "usesPerCode": "integer",
+            "usesPerCustomer": "integer",
+            "isUnlimitedPerCustomer": "boolean"
+          }
+        }
+      },
+      "required": ["name", "storefrontName"]
+    }
+  }
+}

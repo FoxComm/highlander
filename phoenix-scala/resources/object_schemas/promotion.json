@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Promotion",
+  "type": "object",
+  "properties": {
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "storefrontName": {
+          "type": "string",
+          "widget": "richText",
+          "minLenghth": 1
+        },
+        "details": {
+          "type": "string",
+          "widget": "richText"
+        },
+        "description": {
+          "type": "string",
+          "widget": "text"
+        }
+      },
+      "required": ["name", "storefrontName"]
+    },
+    "discounts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/discount"
+      }
+    }
+  }
+}
