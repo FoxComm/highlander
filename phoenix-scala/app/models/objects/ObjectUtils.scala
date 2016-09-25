@@ -72,7 +72,7 @@ object ObjectUtils {
               case JString(s) ⇒ s
               case _          ⇒ key
             }
-            (key, "ref" → keyMap.getOrElse(ref, ref))
+            (key, JObject("ref" → JString(keyMap.getOrElse(ref, ref))))
         }
       case _ ⇒ JNothing
     }
