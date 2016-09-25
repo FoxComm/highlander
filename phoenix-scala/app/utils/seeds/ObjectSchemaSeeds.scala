@@ -12,9 +12,12 @@ trait ObjectSchemaSeeds {
 
   def createObjectSchemas: DbResultT[ObjectSchema] =
     for {
-      price   ← * <~ ObjectSchemas.create(priceSchema)
-      sku     ← * <~ ObjectSchemas.create(skuSchema)
-      product ← * <~ ObjectSchemas.create(productSchema)
+      price     ← * <~ ObjectSchemas.create(getSchema("price"))
+      sku       ← * <~ ObjectSchemas.create(getSchema("sku", List("price")))
+      coupon    ← * <~ ObjectSchemas.create(getSchema("coupon"))
+      discount  ← * <~ ObjectSchemas.create(getSchema("discount"))
+      promotion ← * <~ ObjectSchemas.create(getSchema("promotion", List("discount")))
+      product   ← * <~ ObjectSchemas.create(getSchema("product", List("sku")))
     } yield product
 
   private def loadJson(fileName: String): JValue = {
@@ -22,21 +25,10 @@ trait ObjectSchemaSeeds {
     parse(scala.io.Source.fromInputStream(stream).mkString)
   }
 
-  def productSchema: ObjectSchema = ObjectSchema(
-      name = "product",
-      dependencies = List("sku"),
-      schema = loadJson("/object_schemas/product.json")
-  )
+  def getSchema(name: String, dependencies: List[String] = List.empty[String]): ObjectSchema = {
+    ObjectSchema(name = name,
+                 dependencies = dependencies,
+                 schema = loadJson(s"/object_schemas/$name.json"))
+  }
 
-  def skuSchema: ObjectSchema = ObjectSchema(
-      name = "sku",
-      dependencies = List("price"),
-      schema = loadJson("/object_schemas/sku.json")
-  )
-
-  def priceSchema: ObjectSchema = ObjectSchema(
-      name = "price",
-      dependencies = List.empty[String],
-      schema = loadJson("/object_schemas/price.json")
-  )
 }
