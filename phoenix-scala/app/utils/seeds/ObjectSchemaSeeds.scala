@@ -13,11 +13,11 @@ trait ObjectSchemaSeeds {
   def createObjectSchemas: DbResultT[ObjectSchema] =
     for {
       price     ← * <~ ObjectSchemas.create(getSchema("price"))
-      sku       ← * <~ ObjectSchemas.create(getSchema("sku", List("price")))
+      sku       ← * <~ ObjectSchemas.create(getSchema("sku"))
       coupon    ← * <~ ObjectSchemas.create(getSchema("coupon"))
       discount  ← * <~ ObjectSchemas.create(getSchema("discount"))
-      promotion ← * <~ ObjectSchemas.create(getSchema("promotion", List("discount")))
-      product   ← * <~ ObjectSchemas.create(getSchema("product", List("sku")))
+      promotion ← * <~ ObjectSchemas.create(getSchema("promotion"))
+      product   ← * <~ ObjectSchemas.create(getSchema("product"))
     } yield product
 
   private def loadJson(fileName: String): JValue = {
@@ -25,10 +25,23 @@ trait ObjectSchemaSeeds {
     parse(scala.io.Source.fromInputStream(stream).mkString)
   }
 
-  def getSchema(name: String, dependencies: List[String] = List.empty[String]): ObjectSchema = {
-    ObjectSchema(name = name,
-                 dependencies = dependencies,
-                 schema = loadJson(s"/object_schemas/$name.json"))
+  def getSchema(name: String): ObjectSchema = {
+    val schema       = loadJson(s"/object_schemas/$name.json")
+    val dependencies = getDependencies(schema).toList
+    ObjectSchema(name = name, dependencies = dependencies, schema = schema)
+  }
+
+  private def getDependencies(schema: JValue): Set[String] = {
+    implicit val formats = utils.JsonFormatters.phoenixFormats
+
+    val depValue = (s: String) ⇒ s.drop("#/definitions/".length)
+    schema.foldField(Set.empty[String]) {
+      case (acc, (key, value)) ⇒
+        key match {
+          case "$ref" ⇒ acc ++ Set(depValue(value.extract[String]))
+          case _      ⇒ acc
+        }
+    }
   }
 
 }
