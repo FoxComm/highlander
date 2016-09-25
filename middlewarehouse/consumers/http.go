@@ -7,6 +7,10 @@ import (
 	"net/http"
 )
 
+func Get(url string, headers map[string]string) (*http.Response, error) {
+	return request("GET", url, headers, nil)
+}
+
 func Post(url string, headers map[string]string, payload interface{}) (*http.Response, error) {
 	return request("POST", url, headers, payload)
 }
@@ -16,16 +20,23 @@ func Patch(url string, headers map[string]string, payload interface{}) (*http.Re
 }
 
 func request(method string, url string, headers map[string]string, payload interface{}) (*http.Response, error) {
-	if method != "POST" && method != "PATCH" {
-		return nil, fmt.Errorf("Invalid method %s. Only POST and PATCH are currently supported", method)
+	if method != "POST" && method != "PATCH" && method != "GET" {
+		return nil, fmt.Errorf("Invalid method %s. Only GET, POST and PATCH are currently supported", method)
 	}
 
-	payloadBytes, err := json.Marshal(&payload)
-	if err != nil {
-		return nil, fmt.Errorf("Unable to marshal payload: %s", err.Error())
+	var req *http.Request
+	var err error
+	if method == "GET" {
+		req, err = http.NewRequest(method, url, nil)
+	} else {
+		payloadBytes, err := json.Marshal(&payload)
+		if err != nil {
+			return nil, fmt.Errorf("Unable to marshal payload: %s", err.Error())
+		}
+
+		req, err = http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
 	}
 
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		return nil, fmt.Errorf("Unable to create %s request: %s", method, err.Error())
 	}
