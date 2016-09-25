@@ -6,15 +6,23 @@ import com.github.tminglei.slickpg.LTree
 import models.coupon._
 import models.objects._
 import models.product.SimpleContext
-import payloads.CouponPayloads._
 import utils.aliases._
 import utils.db._
+
+object CouponSeeds {
+  // TODO: migrate to new payloads. // narma  22.09.16
+  case class CreateCouponForm(attributes: Json)
+  case class CreateCouponShadow(attributes: Json)
+  case class CreateCoupon(form: CreateCouponForm, shadow: CreateCouponShadow, promotion: Int)
+}
 
 trait CouponSeeds {
 
   val codePrefix = "BASE"
   val codeLength = 15
   val codesQty   = 10
+
+  import CouponSeeds._
 
   def createCoupons(promotions: Seq[BasePromotion])(
       implicit db: DB,
@@ -28,7 +36,7 @@ trait CouponSeeds {
                }
     } yield results
 
-  def insertCoupon(promo: BasePromotion, payload: CreateCoupon, context: ObjectContext)(
+  private def insertCoupon(promo: BasePromotion, payload: CreateCoupon, context: ObjectContext)(
       implicit db: DB,
       ac: AC,
       au: AU): DbResultT[(BaseCoupon, Seq[CouponCode])] =
@@ -50,9 +58,9 @@ trait CouponSeeds {
         CouponCode(couponFormId = ins.form.id, code = c)
       }
       couponCodes ← * <~ CouponCodes.createAllReturningModels(unsaved)
-    } yield (BaseCoupon(form.id, shadow.id, promo.promotionId), couponCodes)
+    } yield (BaseCoupon(ins.form.id, ins.shadow.id, promo.promotionId), couponCodes)
 
-  def createCoupon(promotion: BasePromotion): CreateCoupon = {
+  private def createCoupon(promotion: BasePromotion): CreateCoupon = {
     val promotionForm   = BaseCouponForm(promotion.title)
     val promotionShadow = BaseCouponShadow(promotionForm)
 

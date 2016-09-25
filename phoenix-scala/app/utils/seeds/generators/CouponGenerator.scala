@@ -5,6 +5,7 @@ import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.objects._
+import models.objects.ObjectUtils._
 import models.product.SimpleContext
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -71,10 +72,14 @@ trait CouponGenerator {
       coupons ← * <~ sourceData.map(source ⇒ {
                  val couponForm   = SimpleCouponForm(source.percentOff, source.totalAmount)
                  val couponShadow = SimpleCouponShadow(couponForm)
-                 val payload = CreateCoupon(form = CreateCouponForm(attributes = couponForm.form),
-                                            shadow =
-                                              CreateCouponShadow(attributes = couponShadow.shadow),
-                                            source.promotionId)
+                 def couponFS: FormAndShadow = {
+                   (ObjectForm(kind = models.coupon.Coupon.kind, attributes = couponForm.form),
+                    ObjectShadow(attributes = couponShadow.shadow))
+                 }
+
+                 val payload =
+                   CreateCoupon(attributes = couponFS.toPayload, promotion = source.promotionId)
+
                  CouponManager.create(payload, context.name, None).map { newCoupon ⇒
                    source.copy(formId = newCoupon.form.id, shadowId = newCoupon.shadow.id)
                  }

@@ -15,20 +15,6 @@ object PromotionRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("promotions") {
-        pathPrefix("forms" / IntNumber) { id ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              PromotionManager.getForm(id)
-            }
-          }
-        } ~
-        pathPrefix("shadows" / Segment / IntNumber) { (context, id) ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              PromotionManager.getShadow(id, context)
-            }
-          }
-        } ~
         pathPrefix(Segment) { (context) ⇒
           (post & pathEnd & entity(as[CreatePromotion])) { payload ⇒
             mutateOrFailures {
@@ -36,14 +22,9 @@ object PromotionRoutes {
             }
           } ~
           pathPrefix(IntNumber) { id ⇒
-            (get & path("baked")) {
-              getOrFailures {
-                PromotionManager.getIlluminated(id, context)
-              }
-            } ~
             (get & pathEnd) {
               getOrFailures {
-                PromotionManager.get(id, context)
+                PromotionManager.getIlluminated(id, context)
               }
             } ~
             (patch & pathEnd & entity(as[UpdatePromotion])) { payload ⇒

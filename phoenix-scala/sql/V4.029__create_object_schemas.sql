@@ -6,17 +6,17 @@ create table object_schemas(
     created_at generic_timestamp
 );
 
-alter table object_shadows add column schema_id integer
-    references object_schemas(id) on update restrict on delete restrict;
-create index object_shadows_object_schema_idx on object_shadows (schema_id);
-
 
 create table object_full_schemas(
-    id integer,
-    name generic_string unique,
+    id integer primary key,
+    name generic_string not null unique,
     "schema" jsonb,
     created_at generic_timestamp
 );
+
+alter table object_shadows add column schema_id integer
+    references object_full_schemas(id) on update restrict on delete restrict;
+create index object_shadows_object_schema_idx on object_shadows (schema_id);
 
 
 create or replace function get_definitions_for_object_schema(text) returns jsonb as $$

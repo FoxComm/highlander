@@ -5,12 +5,31 @@ import com.github.tminglei.slickpg.LTree
 
 import models.objects._
 import models.product.SimpleContext
+import models.promotion.Promotion.ApplyType
 import models.promotion.{Promotion, Promotions}
-import payloads.PromotionPayloads._
 import utils.aliases._
 import utils.db._
 
+object PromotionSeeds {
+  // TODO: migrate to new payloads. // narma  22.09.16
+  import utils.seeds.DiscountSeeds._
+
+  case class UpdatePromoDiscountForm(id: Int, attributes: Json)
+  case class UpdatePromoDiscountShadow(id: Int, attributes: Json)
+  case class CreatePromotionForm(attributes: Json, discounts: Seq[CreateDiscountForm])
+  case class CreatePromotionShadow(attributes: Json, discounts: Seq[CreateDiscountShadow])
+  case class UpdatePromoDiscount(id: Int, attributes: Map[String, Json])
+
+  case class CreatePromotion(applyType: ApplyType,
+                             form: CreatePromotionForm,
+                             shadow: CreatePromotionShadow)
+
+  case class UpdatePromotionForm(attributes: Json, discounts: Seq[UpdatePromoDiscountForm])
+  case class UpdatePromotionShadow(attributes: Json, discounts: Seq[UpdatePromoDiscountShadow])
+}
+
 trait PromotionSeeds {
+  import PromotionSeeds._
 
   def createCouponPromotions(discounts: Seq[BaseDiscount])(implicit db: DB,
                                                            ac: AC,

@@ -2,9 +2,11 @@ package utils
 
 import failures.ObjectFailures._
 import failures._
+import models.objects._
 import org.json4s.JsonAST.{JNothing, JObject, JString}
 import org.json4s.JsonDSL._
 import utils.aliases._
+import utils.db._
 
 // json schema
 import com.fasterxml.jackson.databind.JsonNode
@@ -19,7 +21,8 @@ object IlluminateAlgorithm {
     case _            ⇒ JNothing
   }
 
-  def validateObject(illuminated: Json, jsonSchema: Json): Seq[Failure] = {
+  def validateObjectBySchema(illuminated: Json, jsonSchema: Json)(
+      implicit ec: EC): DbResultT[Json] = {
     val schema: JsonNode   = asJsonNode(jsonSchema)
     val instance: JsonNode = asJsonNode(illuminated)
 
@@ -28,9 +31,15 @@ object IlluminateAlgorithm {
     val processingReport = validator.validate(schema, instance)
 
     if (processingReport.isSuccess)
-      Seq.empty[Failure]
+      DbResultT.good(illuminated)
     else
-      Seq(ObjectValidationFailure(processingReport.toString))
+      DbResultT.failure[Json](ObjectValidationFailure(processingReport.toString))
+  }
+
+  def illuminateAttributes(schema: Json, formJson: Json, shadowJson: Json)(
+      implicit ec: EC): DbResultT[Json] = {
+     val attributes = projectAttributes(formJson, shadowJson)
+     validateObjectBySchema(attributes, schema)
   }
 
   def projectAttributes(formJson: Json, shadowJson: Json): Json =

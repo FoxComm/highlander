@@ -13,7 +13,21 @@ import payloads.DiscountPayloads._
 import utils.aliases._
 import utils.db._
 
+// TODO: migrate to new payloads. // narma  22.09.16
+object DiscountSeeds {
+  case class CreateDiscountForm(attributes: Json)
+  case class CreateDiscountShadow(attributes: Json)
+  case class CreateDiscount(form: CreateDiscountForm, shadow: CreateDiscountShadow)
+
+  case class UpdateDiscountForm(attributes: Json)
+
+  case class UpdateDiscountShadow(attributes: Json)
+
+  case class UpdateDiscount(form: UpdateDiscountForm, shadow: UpdateDiscountShadow)
+}
+
 trait DiscountSeeds {
+  import DiscountSeeds._
 
   def createDiscounts(search: SharedSearch)(implicit db: DB,
                                             au: AU): DbResultT[Seq[BaseDiscount]] =

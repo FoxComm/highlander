@@ -105,17 +105,17 @@ object ProductManager {
       oc: OC,
       au: AU): DbResultT[ProductResponse.Root] = {
 
-    val newFormAttrs   = ObjectForm.fromPayload(Product.kind, payload.attributes).attributes
-    val newShadowAttrs = ObjectShadow.fromPayload(payload.attributes).attributes
-    val payloadSkus    = payload.skus.getOrElse(Seq.empty)
+    val formAndShadow = FormAndShadow.fromPayload(Product.kind, payload.attributes)
+
+    val payloadSkus = payload.skus.getOrElse(Seq.empty)
 
     for {
       oldProduct ← * <~ mustFindFullProductById(productId)
 
-      mergedAttrs = oldProduct.shadow.attributes.merge(newShadowAttrs)
+      mergedAttrs = oldProduct.shadow.attributes.merge(formAndShadow.shadow.attributes)
       updated ← * <~ ObjectUtils.update(oldProduct.form.id,
                                         oldProduct.shadow.id,
-                                        newFormAttrs,
+                                        formAndShadow.form.attributes,
                                         mergedAttrs,
                                         force = true)
       commit      ← * <~ ObjectUtils.commit(updated)
