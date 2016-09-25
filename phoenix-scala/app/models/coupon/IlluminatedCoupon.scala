@@ -13,7 +13,7 @@ import utils.{IlluminateAlgorithm, JsonFormatters}
 
 /**
   * An IlluminatedCoupon is what you get when you combine the coupon shadow and
-  * the form. 
+  * the form.
   */
 case class IlluminatedCoupon(id: Int,
                              context: IlluminatedContext,
@@ -23,8 +23,8 @@ case class IlluminatedCoupon(id: Int,
   implicit val formats = JsonFormatters.phoenixFormats
 
   def mustBeActive: Failures Xor IlluminatedCoupon = {
-    val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]
-    val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
+    val activeFrom = (attributes \ "activeFrom").extractOpt[Instant]
+    val activeTo   = (attributes \ "activeTo").extractOpt[Instant]
     val now        = Instant.now
 
     (activeFrom, activeTo) match {
@@ -39,8 +39,8 @@ case class IlluminatedCoupon(id: Int,
   }
 
   def mustBeApplicable(code: CouponCode, accountId: Int)(implicit ec: EC,
-                                                         db: DB): DbResultT[IlluminatedCoupon] = {
-    val usageRules = (attributes \ "usageRules" \ "v").extractOpt[CouponUsageRules]
+                                                          db: DB): DbResultT[IlluminatedCoupon] = {
+    val usageRules = (attributes \ "usageRules").extractOpt[CouponUsageRules]
 
     val validation = usageRules match {
       case Some(rules) if !rules.isUnlimitedPerCode && !rules.isUnlimitedPerCustomer ⇒

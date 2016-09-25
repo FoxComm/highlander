@@ -23,8 +23,8 @@ case class IlluminatedPromotion(id: Int,
   implicit val formats = JsonFormatters.phoenixFormats
 
   def mustBeActive: Failures Xor IlluminatedPromotion = {
-    val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]
-    val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
+    val activeFrom = (attributes \ "activeFrom").extractOpt[Instant]
+    val activeTo   = (attributes \ "activeTo").extractOpt[Instant]
     val now        = Instant.now
 
     (applyType, activeFrom, activeTo) match {

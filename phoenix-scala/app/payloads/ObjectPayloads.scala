@@ -15,7 +15,7 @@ object ObjectPayloads {
       extends FormShadowFieldBuilder {
     override def formJson: JField = attributeName → attributeValue
     override def shadowJson: JField =
-      attributeName → (("type" → attributeType) ~ ("ref" → attributeName))
+      attributeName → ("ref" → attributeName)
   }
 
   case class StringField(name: String, value: String)

@@ -38,8 +38,8 @@ object IlluminateAlgorithm {
 
   def illuminateAttributes(schema: Json, formJson: Json, shadowJson: Json)(
       implicit ec: EC): DbResultT[Json] = {
-     val attributes = projectAttributes(formJson, shadowJson)
-     validateObjectBySchema(attributes, schema)
+    val attributes = projectAttributes(formJson, shadowJson)
+    validateObjectBySchema(attributes, schema)
   }
 
   def projectAttributes(formJson: Json, shadowJson: Json): Json =
