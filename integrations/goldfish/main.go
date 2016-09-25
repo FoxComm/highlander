@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/FoxComm/middlewarehouse/consumers"
+	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,8 +23,8 @@ func createError(msg string) map[string][]string {
 func main() {
 	r := gin.Default()
 	r.POST("/products/external-id/:context/:id", func(c *gin.Context) {
-		// context := c.Param("context")
-		// externalID := c.Param("id")
+		context := c.Param("context")
+		externalID := c.Param("id")
 
 		headers := map[string]string{
 			"Content-Type": "application/json",
@@ -46,8 +46,35 @@ func main() {
 		// }
 
 		// query := fmt.Sprintf(searchQuery, externalID)
+		// query := make(map[string]interface{})
+
+		query := map[string]interface{}{
+			"query": map[string]interface{}{
+				"bool": map[string]interface{}{
+					"filter": []map[string]interface{}{
+						map[string]interface{}{
+							"missing": map[string]string{
+								"field": "archivedAt",
+							},
+						},
+						map[string]interface{}{
+							"term": map[string]string{
+								"externalId": externalID,
+							},
+						},
+						map[string]interface{}{
+							"term": map[string]string{
+								"context": context,
+							},
+						},
+					},
+				},
+			},
+		}
+
+		// const searchQuery = `{"query":{"bool":{"filter":[{"missing":{"field":"archivedAt"}},{"term":{"externalId":"%s"}}]}}}`
 		url := "https://admin-tgt-0916.foxcommerce.com/api/search/admin/products_search_view/_search?size=50"
-		resp, err := consumers.Get(url, headers)
+		resp, err := consumers.Post(url, headers, &query)
 		if err != nil {
 			c.JSON(500, createError("Unexpected error querying for products"))
 			return
