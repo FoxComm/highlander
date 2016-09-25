@@ -6,6 +6,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
 import models.objects._
+import models.objects.ObjectUtils._
 import models.product.SimpleContext
 import models.promotion._
 import org.json4s._
@@ -79,15 +80,22 @@ trait PromotionGenerator {
                     val promotionShadow = SimplePromotionShadow(promotionForm)
                     val discountForm    = SimpleDiscountForm(source.percentOff, source.totalAmount)
                     val discountShadow  = SimpleDiscountShadow(discountForm)
-                    val payload = CreatePromotion(
-                        applyType = source.applyType,
-                        form = CreatePromotionForm(
-                            attributes = promotionForm.form,
-                            discounts = Seq(CreateDiscountForm(attributes = discountForm.form))),
-                        shadow = CreatePromotionShadow(
-                            attributes = promotionShadow.shadow,
-                            discounts =
-                              Seq(CreateDiscountShadow(attributes = discountShadow.shadow))))
+
+                    def discountFS: FormAndShadow = {
+                      (ObjectForm(kind = Promotion.kind, attributes = discountForm.form),
+                       ObjectShadow(attributes = discountShadow.shadow))
+                    }
+                    val promotionFS: FormAndShadow = {
+                      (ObjectForm(kind = Promotion.kind, attributes = promotionForm.form),
+                       ObjectShadow(attributes = promotionShadow.shadow))
+                    }
+
+                    val payload =
+                      CreatePromotion(applyType = source.applyType,
+                                      attributes = promotionFS.toPayload,
+                                      discounts =
+                                        Seq(CreateDiscount(attributes = discountFS.toPayload)))
+
                     PromotionManager.create(payload, context.name).map { newPromo ⇒
                       source.copy(promotionId = newPromo.form.id)
                     }

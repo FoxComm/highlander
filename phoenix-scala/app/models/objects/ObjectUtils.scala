@@ -68,12 +68,11 @@ object ObjectUtils {
       case JObject(o) ⇒
         o.obj.map {
           case (key, value) ⇒
-            val t = value \ "type"
             val ref = value \ "ref" match {
               case JString(s) ⇒ s
               case _          ⇒ key
             }
-            (key, ("type" → t) ~ ("ref" → keyMap.getOrElse(ref, ref)))
+            (key, "ref" → keyMap.getOrElse(ref, ref))
         }
       case _ ⇒ JNothing
     }
@@ -91,32 +90,11 @@ object ObjectUtils {
     FormShadowAttributes(form, shadow)
   }
 
-  def bakedAttrToFormShadow(attr: String, value: Json): ((String, Json), (String, Json)) = {
-    val t = value \ "t"
-    val v = value \ "v"
-    t match {
-      case JString(kind) ⇒
-        val k = key(v)
-        ((k, v), (attr, ("type" → kind) ~ ("ref" → k)))
-      case _ ⇒ ((attr, JNothing), (attr, JNothing))
-    }
-  }
-
-  def bakedToFormShadow(baked: Json): (Json, Json) =
-    baked match {
-      case JObject(b) ⇒
-        val formShadowPairs = b.obj.map {
-          case (attr, obj) ⇒ bakedAttrToFormShadow(attr, obj)
-        }
-
-        val form   = JObject(formShadowPairs.map(_._1).toList)
-        val shadow = JObject(formShadowPairs.map(_._2).toList)
-        (form, shadow)
-      case _ ⇒ (JNothing, JNothing)
-    }
-
   case class InsertResult(form: ObjectForm, shadow: ObjectShadow, commit: ObjectCommit)
       extends FormAndShadow
+
+  def insert(formAndShadow: FormAndShadow)(implicit ec: EC): DbResultT[InsertResult] =
+    insert(formProto = formAndShadow.form, shadowProto = formAndShadow.shadow)
 
   def insert(formProto: ObjectForm, shadowProto: ObjectShadow)(
       implicit ec: EC): DbResultT[InsertResult] = {
@@ -180,7 +158,7 @@ object ObjectUtils {
              shadowId: Int,
              formAttributes: Json,
              shadowAttributes: Json,
-             force: Boolean = false)(implicit db: DB, ec: EC): DbResultT[UpdateResult] = {
+             force: Boolean = false)(implicit db: DB, ec: EC): DbResultT[UpdateResult] =
     for {
       oldForm   ← * <~ ObjectForms.mustFindById404(formId)
       oldShadow ← * <~ ObjectShadows.mustFindById404(shadowId)
@@ -189,7 +167,6 @@ object ObjectUtils {
                                         shadowAttributes,
                                         force)
     } yield result
-  }
 
   def commit(u: UpdateResult)(implicit ec: EC): DbResultT[Option[ObjectCommit]] =
     commit(u.form, u.shadow, u.updated)
