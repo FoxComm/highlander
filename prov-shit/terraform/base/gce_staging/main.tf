@@ -87,4 +87,5 @@ module "foxcomm-staging" {
     ssh_private_key = "${var.ssh_private_key}"
     consul_leader = "${module.consul_cluster.leader}"
     consul_server_image = "${var.consul_server_image}"
+    amigo_count = 3
 }
