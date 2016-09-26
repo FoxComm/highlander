@@ -6,6 +6,7 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
+import makeLocalStore from 'lib/make-local-store';
 import styles from './editable-sku-row.css';
 
 import { FormField } from 'components/forms';
@@ -16,7 +17,7 @@ import { DeleteButton } from 'components/common/buttons';
 import Dropdown from 'components/dropdown/dropdown';
 import TextInput from 'components/forms/text-input';
 
-import { suggestSkus } from 'modules/skus/suggest';
+import reducer, { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
 import type { Sku } from 'modules/skus/details';
 import type { Sku as SearchViewSku } from 'modules/skus/list';
@@ -46,11 +47,16 @@ type State = {
   isMenuVisible: boolean,
 };
 
-function mapStateToProps(state) {
+function mapGlobalStateToProps(state) {
   return {
-    isFetchingSkus: _.get(state.asyncActions, 'skus-suggest.inProgress', null),
-    suggestedSkus: _.get(state, 'skus.suggest.skus', []),
     skuVariantMap: state.products.details.skuVariantMap,
+  };
+}
+
+function mapLocalStateToProps(state) {
+  return {
+    isFetchingSkus: _.get(state, 'skus-suggest.inProgress', null),
+    suggestedSkus: _.get(state, 'skus', []),
   };
 }
 
@@ -74,11 +80,11 @@ class EditableSkuRow extends Component {
 
   componentWillReceiveProps(nextProps: Props) {
     // NOTE: Jeff - This is really annoying, so I closed it
-    // if (this.props.isFetchingSkus && !nextProps.isFetchingSkus) {
-    //   this.setState({
-    //     isMenuVisible: true,
-    //   });
-    // }
+    if (this.props.isFetchingSkus && !nextProps.isFetchingSkus) {
+      this.setState({
+        isMenuVisible: true,
+      });
+    }
   }
 
   updateSkuFromSuggest() {
@@ -335,4 +341,8 @@ class EditableSkuRow extends Component {
   }
 }
 
-export default connect(mapStateToProps, { suggestSkus })(EditableSkuRow);
+export default _.flow(
+  connect(mapLocalStateToProps, { suggestSkus }),
+  makeLocalStore(reducer),
+  connect(mapGlobalStateToProps)
+)(EditableSkuRow);
