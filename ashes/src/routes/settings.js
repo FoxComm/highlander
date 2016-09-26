@@ -16,6 +16,9 @@ import UserForm from 'components/users/user-form';
 import PluginsList from 'components/plugins/plugins-list';
 import Plugin from 'components/plugins/plugin';
 
+import MerchantApplicationDetails from 'components/merchant-applications/details';
+import MerchantApplicationsList from 'components/merchant-applications/list';
+
 import type { JWT } from 'lib/claims';
 
 const getRoutes = (jwt: JWT) => {
@@ -42,10 +45,17 @@ const getRoutes = (jwt: JWT) => {
       router.read('plugin', { path: ':name', component: Plugin }),
     ]);
 
+  const applicationsRoutes =
+    router.read('applications-base', { path: 'applications' }, [
+      router.read('applications', { component: MerchantApplicationsList, isIndex: true }),
+      router.read('application-details', { path: ':applicationId', component: MerchantApplicationDetails }),
+    ]);
+
   return (
     <div>
       {userRoutes}
       {pluginRoutes}
+      {applicationsRoutes}
     </div>
   );
 };
