@@ -322,8 +322,11 @@ class GiftCardIntegrationTest
   trait Fixture extends GiftCardSubtype_Seed with Reason_Baked {
     val giftCard1 = new GiftCard_Baked {}.giftCard
     val giftCard2 = new GiftCard_Baked {}.giftCard
-    object setup extends Customer_Seed with EmptyCart_Raw with CartWithGiftCardPayment_Raw {
-      override def storeAdmin      = Factories.storeAdmin.copy(id = 1, accountId = 1)
+    object setup
+        extends StoreAdmin_Seed
+        with Customer_Seed
+        with EmptyCart_Raw
+        with CartWithGiftCardPayment_Raw {
       override def giftCard        = giftCard1
       override def gcPaymentAmount = 25
     }

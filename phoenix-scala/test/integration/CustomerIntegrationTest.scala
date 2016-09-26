@@ -134,9 +134,7 @@ class CustomerIntegrationTest
           customer ← * <~ Users.create(
                         Factories.customer.copy(accountId = account.id, phoneNumber = None))
           customerUser ← * <~ CustomerUsers.create(
-                            CustomerUser(accountId = account.id,
-                                         userId = customer.id,
-                                         isGuest = false))
+                            CustomerUser(accountId = account.id, userId = customer.id))
           address ← * <~ Addresses.create(
                        Factories.address.copy(accountId = customer.accountId,
                                               isDefaultShipping = true,

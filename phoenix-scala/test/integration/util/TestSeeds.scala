@@ -24,12 +24,21 @@ trait TestSeeds extends TestFixtureBase {
     def storeAdminUser: StoreAdminUser = _storeAdminUser
 
     private val (_storeAdmin, _storeAdminUser) = (for {
-      ad ← * <~ Factories.createStoreAdmin(user = Factories.storeAdmin,
-                                           password = "password",
-                                           state = StoreAdminUser.Active,
-                                           org = "tenant",
-                                           roles = List("tenant_admin"),
-                                           author = None)
+      maybeAdmin ← * <~ Users
+                    .findByEmail(Factories.storeAdmin.email.getOrElse(""))
+                    .result
+                    .headOption
+
+      ad ← * <~ (maybeAdmin match {
+                case Some(admin) ⇒ DbResultT.pure(admin)
+                case None ⇒
+                  Factories.createStoreAdmin(user = Factories.storeAdmin,
+                                             password = "password",
+                                             state = StoreAdminUser.Active,
+                                             org = "tenant",
+                                             roles = List("tenant_admin"),
+                                             author = None)
+              })
       adu ← * <~ StoreAdminUsers.mustFindByAccountId(ad.accountId)
     } yield (ad, adu)).gimme
 

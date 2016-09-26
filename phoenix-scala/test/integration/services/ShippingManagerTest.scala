@@ -6,6 +6,7 @@ import models.cord.{Carts, OrderShippingAddresses}
 import models.account._
 import models.location.Addresses
 import models.objects._
+import models.customer._
 import models.product.{Mvp, SimpleContext}
 import models.rules.QueryStatement
 import models.shipping.ShippingMethods
@@ -269,6 +270,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
                           Factories.shippingMethods.head.copy(conditions = Some(conditions)))
       account  ← * <~ Accounts.create(Account())
       customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
+      _        ← * <~ CustomerUsers.create(CustomerUser(userId = customer.id, accountId = account.id))
       cheapCart ← * <~ Carts.create(
                      Factories.cart.copy(accountId = customer.accountId,
                                          referenceNumber = "CS1234-AA"))
@@ -287,6 +289,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
       account2 ← * <~ Accounts.create(Account())
       customer2 ← * <~ Users.create(
                      Factories.customer.copy(accountId = account2.id, email = "foo@bar.baz".some))
+      _ ← * <~ CustomerUsers.create(CustomerUser(userId = customer2.id, accountId = account2.id))
       expensiveCart ← * <~ Carts.create(
                          Factories.cart.copy(accountId = customer2.accountId,
                                              referenceNumber = "CS1234-AB"))

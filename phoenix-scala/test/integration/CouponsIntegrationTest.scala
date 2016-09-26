@@ -11,6 +11,7 @@ import failures.ObjectFailures.{ObjectContextNotFound, ShadowAttributeInvalidTim
 import models.cord.{Carts, Orders}
 import models.coupon.Coupon
 import models.account._
+import models.customer._
 import models.promotion.{Promotion, Promotions}
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
@@ -271,11 +272,15 @@ class CouponsIntegrationTest
                          Factories.customer.copy(accountId = firstAccount.id,
                                                  email = Some("first@example.org"),
                                                  name = Some("first")))
+      _ ← * <~ CustomerUsers.create(
+             CustomerUser(userId = firstCustomer.id, accountId = firstAccount.id))
       otherAccount ← * <~ Accounts.create(Account())
       otherCustomer ← * <~ Users.create(
                          Factories.customer.copy(accountId = otherAccount.id,
                                                  email = Some("second@example.org"),
                                                  name = Some("second")))
+      _ ← * <~ CustomerUsers.create(
+             CustomerUser(userId = otherCustomer.id, accountId = otherAccount.id))
       cart ← * <~ Carts.create(Factories.cart.copy(accountId = firstCustomer.accountId))
       cartForOrder ← * <~ Carts.create(
                         Factories.cart.copy(referenceNumber = "ORDER-123456",

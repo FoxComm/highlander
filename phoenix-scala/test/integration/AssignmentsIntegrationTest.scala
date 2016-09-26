@@ -6,6 +6,7 @@ import failures.AssignmentFailures._
 import failures.NotFoundFailure404
 import models._
 import models.account._
+import models.admin._
 import models.cord._
 import payloads.AssignmentPayloads._
 import responses._
@@ -150,6 +151,8 @@ class AssignmentsIntegrationTest
       secondAdmin ← * <~ Users.create(
                        Factories.storeAdmin
                          .copy(accountId = account.id, email = "a@b.c".some, name = "Admin2".some))
+      custUser ← * <~ StoreAdminUsers.create(
+                    StoreAdminUser(userId = secondAdmin.id, accountId = account.id))
     } yield (assignee, secondAdmin)).gimme
   }
 

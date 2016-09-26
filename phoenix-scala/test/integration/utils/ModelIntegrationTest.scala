@@ -4,6 +4,7 @@ import failures.{DatabaseFailure, GeneralFailure, StateTransitionNotAllowed}
 import models.cord.Order.Shipped
 import models.cord._
 import models.account._
+import models.customer._
 import models.location.Addresses
 import util._
 import util.fixtures.BakedFixtures
@@ -24,6 +25,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val result = (for {
         account  ← * <~ Accounts.create(Account())
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
+        _        ← * <~ CustomerUsers.create(CustomerUser(userId = customer.id, accountId = account.id))
         address ← * <~ Addresses.create(
                      Factories.address.copy(zip = "123-45", accountId = customer.accountId))
       } yield address).gimme
@@ -34,6 +36,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val result = (for {
         account  ← * <~ Accounts.create(Account())
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
+        _        ← * <~ CustomerUsers.create(CustomerUser(userId = customer.id, accountId = account.id))
         original ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
         copycat  ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
       } yield copycat).runTxn().futureValue

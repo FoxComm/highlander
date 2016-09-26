@@ -6,6 +6,7 @@ import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.{NotFoundFailure400, NotFoundFailure404}
 import models.cord.Cart
 import models.account._
+import models.customer._
 import models.payment.creditcard._
 import payloads.PaymentPayloads.CreditCardPayment
 import services.CreditCardManager
@@ -123,6 +124,8 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
       otherCustomer ← * <~ Users.create(
                          Factories.customer.copy(accountId = otherAccount.id,
                                                  email = Some("other.customer@email.com")))
+      _ ← * <~ CustomerUsers.create(
+             CustomerUser(userId = otherCustomer.id, accountId = otherAccount.id))
       otherCC ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = otherAccount.id))
     } yield (cc, otherCC)).gimme
   }
