@@ -2,18 +2,24 @@
  * @flow
  */
 
+// libs
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
+// components
 import ContentBox from 'components/content-box/content-box';
 import SkuList from './sku-list';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import { Checkbox } from 'components/checkbox/checkbox';
 
+// helpers
 import { variantsWithMultipleOptions } from 'paragons/product';
 
+// styles
 import styles from './sku-content-box.css';
 
+// types
 import type { Product } from 'paragons/product';
 import type { Sku } from 'modules/skus/details';
 
@@ -48,11 +54,38 @@ class SkuContentBox extends Component {
     );
   }
 
+  get skus(): Array<Sku> {
+    if (this.props.fullProduct) {
+      return this.props.fullProduct.skus;
+    }
+
+    return [];
+  }
+
   get addSkuDialog(): Element {
+    const list = _.map(this.skus, (sku, key) => {
+      let checked;
+
+      return (
+        <li>
+          <Checkbox
+            id={`sku-option-${key}`}
+            onChange={this.toggleAddedSku}
+            checked={checked}
+          >
+            {sku.attributes.code.v}
+          </Checkbox>
+        </li>
+      )
+    });
+
     const body = (
       <div styleName="add-dialog">
         <div styleName="dialog-subtitle">Available options:</div>
         <div styleName="dialog-items">
+          <ul>
+            {list}
+          </ul>
         </div>
       </div>
     );
@@ -67,6 +100,11 @@ class SkuContentBox extends Component {
         confirmAction={() => this.closeAction()}
       />
     );
+  }
+
+  @autobind
+  toggleAddedSku() {
+
   }
 
   @autobind
@@ -86,6 +124,7 @@ class SkuContentBox extends Component {
           fullProduct={this.props.fullProduct}
           updateField={this.props.updateField}
           updateFields={this.props.updateFields}
+          skus={this.skus}
           variants={variantsWithMultipleOptions(this.props.variants)}
         />
         { this.addSkuDialog }

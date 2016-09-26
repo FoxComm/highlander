@@ -19,6 +19,7 @@ type UpdateFn = (code: string, field: string, value: any) => void;
 
 type Props = {
   fullProduct: ?Product,
+  skus: Array<Any>,
   updateField: UpdateFn,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
   variants: Array<any>,
@@ -52,19 +53,11 @@ export default class SkuList extends Component {
       { field: 'salePrice', text: 'Sale Price' },
     ];
 
-    if (!_.isEmpty(variants) && this.skus.length > 1) {
+    if (!_.isEmpty(variants) && this.props.skus.length > 1) {
       columns.push({ field: 'actions', text: '' });
     }
 
     return columns;
-  }
-
-  get skus(): Array<Sku> {
-    if (this.props.fullProduct) {
-      return this.props.fullProduct.skus;
-    }
-
-    return [];
   }
 
   get emptyContent(): Element {
@@ -157,8 +150,8 @@ export default class SkuList extends Component {
   }
 
   render(): Element {
-    return _.isEmpty(this.skus)
+    return _.isEmpty(this.props.skus)
       ? this.emptyContent
-      : this.skuContent(this.skus);
+      : this.skuContent(this.props.skus);
   }
 }
