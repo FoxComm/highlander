@@ -26,6 +26,7 @@ import promotions from './promotions';
 import coupons from './coupons';
 import users from './users';
 import plugins from './plugins';
+import applications from './merchant-applications';
 
 const rootReducer = combineReducers({
   routing: routerReducer,
@@ -54,6 +55,7 @@ const rootReducer = combineReducers({
   coupons,
   users,
   plugins,
+  applications,
 });
 
 export default rootReducer;
