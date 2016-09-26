@@ -2,9 +2,6 @@
 
 Highlander is the brand-spanking-new FoxCommerce mono-repo.
 
-_This project is currently in pre-release form, so the upstream repositories
-(a.k.a. the old ones) should be used for any current feature work._
-
 ## Development Environment
 
 The simplest way to get started is to use Vagrant to build out a virtual 
