@@ -29,7 +29,8 @@ func request(method string, url string, headers map[string]string, payload inter
 	if method == "GET" {
 		req, err = http.NewRequest(method, url, nil)
 	} else {
-		payloadBytes, err := json.Marshal(&payload)
+		payloadBytes := []byte{}
+		payloadBytes, err = json.Marshal(&payload)
 		if err != nil {
 			return nil, fmt.Errorf("Unable to marshal payload: %s", err.Error())
 		}
