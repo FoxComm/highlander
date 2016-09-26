@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/FoxComm/highlander/integrations/goldfish/service"
+	"github.com/FoxComm/highlander/integrations/product-search/service"
 	"github.com/gin-gonic/gin"
 )
 

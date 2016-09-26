@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/FoxComm/highlander/integrations/goldfish/elastic"
+	"github.com/FoxComm/highlander/integrations/product-search/elastic"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 )
 
