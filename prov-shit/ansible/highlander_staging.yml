@@ -1,7 +1,7 @@
 ---
 
 - name: Provision Stage
-  hosts: highlander-stage-backend
+  hosts: foxcomm-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
     updating_mwh: true
@@ -17,7 +17,7 @@
      - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Ashes Stage
-  hosts: highlander-stage-frontend
+  hosts: foxcomm-stage-frontend
   vars:
     user: '{{ansible_ssh_user}}'
     middlewarehouse_server: middlewarehouse.service.consul:9292

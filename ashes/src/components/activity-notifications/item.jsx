@@ -84,4 +84,3 @@ NotificationItem.propTypes = {
   })
 };
 
-export default NotificationItem;
