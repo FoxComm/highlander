@@ -25,6 +25,8 @@
     greenriver_service_after: phoenix.service
     ashes_server_name: "stage.foxcommerce.com"
     storefront_server_name: "stage.foxcommerce.com"
+    kafka_server: kafka.service.consul:9092
+    schema_server: schema-registry.service.consul:8081
 
   roles:
     - { role: base/ssh_keys }

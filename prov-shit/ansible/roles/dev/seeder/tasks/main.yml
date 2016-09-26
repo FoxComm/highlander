@@ -1,5 +1,11 @@
 ---
 
+- name: Seed Phoenix Database
+  shell: java -cp {{phoenix_jar}} {{seeds_cmd}}
+  sudo: true
+  args:
+    chdir: "{{phoenix_dir}}"
+    
 - name: Gatling Seed Db
   shell: java -cp {{phoenix_jar}} {{gatling_oneshot_seeds_cmd}}
   sudo: true

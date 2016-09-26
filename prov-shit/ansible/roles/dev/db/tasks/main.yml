@@ -110,12 +110,6 @@
   args:
     chdir: "{{middlewarehouse_dir}}"
 
-- name: Seed Phoenix Database
-  shell: java -cp {{phoenix_jar}} {{seeds_cmd}}
-  sudo: true
-  args:
-    chdir: "{{phoenix_dir}}"
-
 - name: Setup Cron to Refresh Customers Ranking View
   cron: name="refresh customer ranking" minute="*/5" job="{{usr_local}}/bin/refresh_customer_ranks.sh > /dev/null"
   sudo: true

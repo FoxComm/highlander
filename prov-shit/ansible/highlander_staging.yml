@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Stage
+- name: Provision Data Storage
   hosts: foxcomm-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
@@ -27,11 +27,11 @@
   roles:
     - { role: base/ssh_keys }
     - { role: dev/phoenix }
-    - { role: dev/greenriver }
     - { role: dev/messaging }
     - { role: dev/middlewarehouse }
     - { role: dev/isaac }
     - { role: dev/seeder }
+    - { role: dev/greenriver }
     - { role: dev/ashes }
     - { role: dev/firebrand }
     - { role: dev/balancer, sudo: yes }
