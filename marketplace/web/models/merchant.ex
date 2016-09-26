@@ -23,18 +23,22 @@ defmodule Marketplace.Merchant do
     has_one :business_profile, through: [:merchant_business_profile, :business_profile]
   end
 
-  @states ~w(new approved suspended cancelled)a
-  @required_fields ~w(name description state)
-  @optional_fields ~w(business_name phone_number email_address site_url scope_id organization_id)
+  @states ~w(new approved suspended cancelled)s
+  @required_fields ~w(name description state)a
+  @optional_fields ~w(business_name phone_number email_address site_url scope_id organization_id)a
 
   def changeset(model, params \\ :empty) do
     model 
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
+    |> validate_inclusion(:state, @states)
   end
 
   def update_changeset(model, params \\ :empty) do
     model 
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
+    |> validate_inclusion(:state, @states)
   end
 
 end

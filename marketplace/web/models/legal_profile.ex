@@ -19,18 +19,20 @@ defmodule Marketplace.LegalProfile do
     timestamps
   end
 
-  @required_params ~w(bank_account_number bank_routing_number legal_entity_name)
-  @optional_params ~w(legal_entity_city legal_entity_state legal_entity_postal legal_entity_tax_id 
+  @required_fields ~w(bank_account_number bank_routing_number legal_entity_name)a
+  @optional_fields ~w(legal_entity_city legal_entity_state legal_entity_postal legal_entity_tax_id 
   business_founded_day business_founded_month business_founded_year representative_ssn_trailing_four 
-  legal_entity_type)
+  legal_entity_type)a
 
   def changeset(model, params \\ :empty) do
     model
-    |> cast(params, @required_params, @optional_params)
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
   end
 
   def update_changeset(model, params \\ :empty) do
     model
-    |> cast(params, @required_params, @optional_params)
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
   end
 end

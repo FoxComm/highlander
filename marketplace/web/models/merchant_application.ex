@@ -20,18 +20,22 @@ defmodule Marketplace.MerchantApplication do
     belongs_to :merchant, Marketplace.Merchant
   end
 
-  @states ~w(new approved rejected abandoned)a
-  @required_fields ~w(name business_name email_address)
-  @optional_fields ~w(description state merchant_id)
+  @states ~w(new approved rejected abandoned)s
+  @required_fields ~w(name business_name email_address)a
+  @optional_fields ~w(description state merchant_id)a
 
   def changeset(model, params \\ :empty) do
     model 
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
+    |> validate_inclusion(:state, @states)
   end
 
   def update_changeset(model, params \\ :empty) do
     model 
-    |> cast(params,  @required_fields, @optional_fields)
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
+    |> validate_inclusion(:state, @states)
   end
 
 end

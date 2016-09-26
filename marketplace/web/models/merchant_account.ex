@@ -17,16 +17,18 @@ defmodule Marketplace.MerchantAccount do
 
   end
 
-  @required_fields ~w(first_name last_name email_address password)
-  @optional_fields ~w(phone_number business_name description)
+  @required_fields ~w(first_name last_name email_address password)a
+  @optional_fields ~w(phone_number business_name description)a
 
   def changeset(model, params \\ :empty) do
     model 
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
   end
 
   def update_changeset(model, params \\ :empty) do
     model 
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
   end
 end
