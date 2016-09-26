@@ -12,6 +12,8 @@ function getDisplayName(WrappedComponent) {
 // creates local store for given component
 export default function makeLocalStore(reducer, initialState = {}) {
   return WrappedComponent => {
+    // async reducer is often needed
+    // so we include him by default
     const finalReducer = reduceReducers(reducer, asyncReducer);
     class LocalStore extends Component {
       constructor(...args) {
