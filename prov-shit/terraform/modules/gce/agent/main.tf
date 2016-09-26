@@ -1,7 +1,4 @@
-variable "image" {
-  default = "buildkite-agent-1474653331"
-}
-
+variable "image" {}
 variable "queue" {}
 variable "prefix" {}
 variable "ssh_user" {}
@@ -9,25 +6,25 @@ variable "ssh_private_key" {}
 variable "servers" {}
 
 resource "google_compute_instance" "agent" {
-  name = "${var.prefix}-${count.index}"
-  machine_type = "n1-highcpu-8"
-  tags = ["no-ip", "${var.prefix}", "${var.prefix}-${count.index}"]
-  zone = "us-central1-a"
-  count = "${var.servers}"
+    name = "${var.prefix}-${count.index}"
+    machine_type = "n1-highcpu-8"
+    tags = ["no-ip", "${var.prefix}", "${var.prefix}-${count.index}"]
+    zone = "us-central1-a"
+    count = "${var.servers}"
 
-  disk {
-    image = "${var.image}"
-    type = "pd-ssd"
-    size = "30"
-  }
+    disk {
+        image = "${var.image}"
+        type = "pd-ssd"
+        size = "30"
+    }
 
-  network_interface {
-    network = "default"
-  }
+    network_interface {
+        network = "default"
+    }
 
-  connection {
-    type = "ssh"
-    user = "${var.ssh_user}"
-    private_key = "${file(var.ssh_private_key)}"
-  }
+    connection {
+        type = "ssh"
+        user = "${var.ssh_user}"
+        private_key = "${file(var.ssh_private_key)}"
+    }
 }
