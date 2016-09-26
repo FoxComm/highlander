@@ -76,7 +76,7 @@ class SkuContentBox extends Component {
             {sku.attributes.code.v}
           </Checkbox>
         </li>
-      )
+      );
     });
 
     const body = (
