@@ -16,6 +16,7 @@ import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import util.fixtures.BakedFixtures
 import utils.Money._
+import utils.seeds.Seeds.Factories
 import utils.db._
 
 class GiftCardIntegrationTest
@@ -321,11 +322,8 @@ class GiftCardIntegrationTest
   trait Fixture extends GiftCardSubtype_Seed with Reason_Baked {
     val giftCard1 = new GiftCard_Baked {}.giftCard
     val giftCard2 = new GiftCard_Baked {}.giftCard
-    object setup
-        extends StoreAdmin_Seed
-        with Customer_Seed
-        with EmptyCart_Raw
-        with CartWithGiftCardPayment_Raw {
+    object setup extends Customer_Seed with EmptyCart_Raw with CartWithGiftCardPayment_Raw {
+      override def storeAdmin      = Factories.storeAdmin.copy(id = 1, accountId = 1)
       override def giftCard        = giftCard1
       override def gcPaymentAmount = 25
     }

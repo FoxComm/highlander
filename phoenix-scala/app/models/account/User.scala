@@ -113,11 +113,10 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
   def createEmailMustBeUnique(email: String)(implicit ec: EC): DbResultT[Unit] =
     findByEmail(email).one.mustNotFindOr(UserEmailNotUnique)
 
-  def updateEmailMustBeUnique(maybeEmail: Option[String], accountId: Int)(
-      implicit ec: EC): DbResultT[Unit] =
+  def updateEmailMustBeUnique(maybeEmail: Option[String])(implicit ec: EC): DbResultT[Unit] =
     maybeEmail match {
       case Some(email) ⇒
-        findByEmail(email).filter(_.accountId === accountId).one.mustNotFindOr(UserEmailNotUnique)
+        findByEmail(email).one.mustNotFindOr(UserEmailNotUnique)
       case None ⇒ DbResultT.unit
     }
 

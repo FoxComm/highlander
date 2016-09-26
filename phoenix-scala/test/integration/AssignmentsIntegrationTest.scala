@@ -44,7 +44,7 @@ class AssignmentsIntegrationTest
 
       // TODO - AlreadyAssignedFailure here?
       val theResponse = response.as[TheResponse[Seq[AssignmentResponse.Root]]]
-      theResponse.result.size mustBe 1
+      theResponse.result.size mustBe 2
       theResponse.result.headOption.value.assignee.id mustBe storeAdmin.accountId
       theResponse.result.headOption.value.assignmentType mustBe Assignment.Assignee
 

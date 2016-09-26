@@ -6,6 +6,7 @@ import models.admin.{StoreAdminUsers, StoreAdminUser}
 import payloads.StoreAdminPayloads._
 import responses.StoreAdminResponse
 import services.account._
+import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 import failures.UserFailures._
@@ -65,6 +66,9 @@ object StoreAdminManager {
            .deleteById(adminUser.id, DbResultT.unit, i ⇒ NotFoundFailure404(StoreAdminUser, i))
       admin  ← * <~ Users.mustFindByAccountId(accountId)
       result ← * <~ Users.deleteById(admin.id, DbResultT.unit, i ⇒ NotFoundFailure404(User, i))
+      _      ← * <~ AccountAccessMethods.findByAccountId(accountId).delete
+      _      ← * <~ AccountRoles.findByAccountId(accountId).delete
+      _      ← * <~ AccountOrganizations.findByAccountId(accountId).delete
       _      ← * <~ Accounts.deleteById(accountId, DbResultT.unit, i ⇒ NotFoundFailure404(Account, i))
       _      ← * <~ LogActivity.storeAdminDeleted(admin, author)
     } yield result

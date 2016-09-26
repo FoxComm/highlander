@@ -98,12 +98,21 @@ object AccountManager {
                  context: AccountCreateContext)(implicit ec: EC, db: DB): DbResultT[User] = {
 
     for {
-      _ ← * <~ (email.map(e ⇒ Users.createEmailMustBeUnique(e)))
-
       scope ← * <~ Scopes.mustFindById404(context.scopeId)
       organization ← * <~ Organizations
                       .findByNameInScope(context.org, scope.id)
                       .mustFindOr(OrganizationNotFound(context.org, scope.path))
+
+      _ ← * <~ (email match {
+               case Some(e) ⇒
+                 for {
+                   usrs ← * <~ Users.result
+                   _    ← * <~ usrs.map(u ⇒ System.out.println(s"USER ${u.email}"))
+                   _    ← * <~ Users.createEmailMustBeUnique(e)
+                 } yield {}
+               case None ⇒ DbResultT.unit
+
+             })
 
       account ← * <~ Accounts.create(Account())
 

@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import cats.implicits._
-import failures.CustomerFailures._
+import failures.UserFailures._
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
 import models.Reasons
@@ -90,7 +90,7 @@ class CheckoutIntegrationTest
 
       // Checkout!
       val checkout = POST(s"v1/orders/$refNum/checkout")
-      checkout.error must === (CustomerMustHaveCredentials.description)
+      checkout.error must === (UserMustHaveCredentials.description)
     }
 
     "fails if AFS is zero" in new Fixture {
@@ -160,7 +160,7 @@ class CheckoutIntegrationTest
       val checkout = POST(s"v1/orders/$refNum/checkout")
       checkout.status must === (StatusCodes.BadRequest)
 
-      checkout.error must === (CustomerIsBlacklisted(customer.accountId).description)
+      checkout.error must === (UserIsBlacklisted(customer.accountId).description)
     }
   }
 
@@ -171,7 +171,7 @@ class CheckoutIntegrationTest
       with GiftCard_Raw
       with CartWithGiftCardPayment_Raw
 
-  trait Fixture extends CustomerAddress_Baked with StoreAdmin_Seed {
+  trait Fixture extends StoreAdmin_Seed with CustomerAddress_Baked {
     val (shipMethod, product, sku, reason) = (for {
       _ ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethodName = ShippingMethod.expressShippingNameForAdmin

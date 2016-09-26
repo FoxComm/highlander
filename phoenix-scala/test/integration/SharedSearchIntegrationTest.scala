@@ -327,7 +327,8 @@ class SharedSearchIntegrationTest
   }
 
   trait Fixture {
-    val storeAdmin = Users.create(authedUser).gimme
+    val storeAdminAccount = Accounts.create(Account()).gimme
+    val storeAdmin        = Users.create(authedUser.copy(accountId = storeAdminAccount.id)).gimme
     val storeAdminUser = StoreAdminUsers
       .create(
           StoreAdminUser(userId = storeAdmin.id,

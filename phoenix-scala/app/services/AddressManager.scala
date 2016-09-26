@@ -16,7 +16,6 @@ object AddressManager {
 
   def findAllByAccountId(accountId: Int)(implicit ec: EC,
                                          db: DB): DbResultT[Seq[AddressResponse]] = {
-    //MAXDO: Check claims here to see if they can see all customers
     val query = Addresses.findAllActiveByAccountIdWithRegions(accountId)
     for (records ← * <~ query.result) yield AddressResponse.buildMulti(records)
   }
@@ -90,9 +89,12 @@ object AddressManager {
         Addresses.findShippingDefaultByAccountId(accountId).map(_.isDefaultShipping).update(false))
 
   private def findByOriginator(originator: User, addressId: Int, accountId: Int)(implicit ec: EC) =
-    Addresses
-      .findActiveByIdAndAccount(addressId, accountId)
-      .mustFindOneOr(addressNotFound(addressId))
+    if (originator.accountId == accountId)
+      Addresses
+        .findActiveByIdAndAccount(addressId, accountId)
+        .mustFindOneOr(addressNotFound(addressId))
+    else
+      Addresses.findByIdAndAccount(addressId, accountId).mustFindOneOr(addressNotFound(addressId))
   //MAXDO: Look at originator claims to see if they can get all addresses
   /*
         originator match {

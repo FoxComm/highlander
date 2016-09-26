@@ -87,8 +87,8 @@ object CustomerUsers
         for {
           ((c, shipRegion, billRegion), rank) ← withRegions
                                                  .joinLeft(CustomersRanks)
-                                                 //MAXDO Verify this is correct
-                                                 .on(_._1.id === _.id)
+                                                 //MAXDO Verify thid is correct
+                                                 .on(_._1.accountId === _.id)
         } yield (c, shipRegion, billRegion, rank)
       }
     }

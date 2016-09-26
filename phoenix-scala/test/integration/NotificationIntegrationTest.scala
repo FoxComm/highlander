@@ -41,6 +41,7 @@ class NotificationIntegrationTest
       }
 
       probe(requests.interleave(notifications, segmentSize = 1))
+        .request(2) //skip admin creation
         .requestNext("notification 1: 200 OK")
         .requestNext(activityJson(1))
         .requestNext("notification 2: 200 OK")
@@ -58,6 +59,7 @@ class NotificationIntegrationTest
       }
 
       probe(notifications.interleave(requests, segmentSize = 1))
+        .request(2) //skip admin creation
         .requestNext(activityJson(1))
         .requestNext("notification 2: 200 OK")
         .requestNext(activityJson(2))
@@ -282,8 +284,9 @@ class NotificationIntegrationTest
   val createDimension =
     Dimensions.create(Dimension(name = Dimension.order, description = Dimension.order))
 
-  val adminCreated =
-    Activity(activityType = "store_admin_created", data = JString("data"), context = ActivityContext(1, "x", "y"))
+  val adminCreated = Activity(activityType = "store_admin_created",
+                              data = JString("data"),
+                              context = ActivityContext(1, "x", "y"))
 
   def adminCreatedActivity(id: Int) =
     write(ActivityResponse.build(adminCreated.copy(id = id)))

@@ -54,8 +54,11 @@ class CustomerIntegrationTest
 
       Users.create(stub).gimme
 
+      val account2 = Accounts.create(Account()).gimme
+      val stub2    = Factories.customer.copy(accountId = account2.id, isDisabled = false)
+
       val failure = GeneralFailure("record was not unique")
-      val xor     = swapDatabaseFailure(Users.create(stub).run())((NotUnique, failure)).futureValue
+      val xor     = swapDatabaseFailure(Users.create(stub2).run())((NotUnique, failure)).futureValue
 
       xor.leftVal must === (failure.single)
     }
@@ -169,6 +172,8 @@ class CustomerIntegrationTest
           account ← * <~ Accounts.create(Account())
           customer ← * <~ Users.create(
                         Factories.customer.copy(accountId = account.id, phoneNumber = None))
+          custUser ← * <~ CustomerUsers.create(
+                        CustomerUser(userId = customer.id, accountId = account.id))
           address ← * <~ Addresses.create(defaultAddress.copy(accountId = customer.accountId))
           region  ← * <~ Regions.findOneById(address.regionId)
           cart1 ← * <~ Carts.create(
@@ -238,7 +243,7 @@ class CustomerIntegrationTest
 
         val response = GET(s"v1/customers/${customer.accountId}")
         response.status must === (StatusCodes.OK)
-        response.as[CustomerResponse.Root].rank must === (Some(2))
+        response.as[CustomerResponse.Root].rank must === (Some(1))
         val rank  = CustomersRanks.findById(customer.accountId).extract.result.head.gimme
         val rank2 = CustomersRanks.findById(customer2.accountId).extract.result.head.gimme
         rank.revenue must === (charge1.amount)
@@ -688,6 +693,8 @@ class CustomerIntegrationTest
                      Factories.customer.copy(accountId = account.id,
                                              email = "second@example.org".some,
                                              name = "second".some))
+      custUser2 ← * <~ CustomerUsers.create(
+                     CustomerUser(userId = customer2.id, accountId = account.id))
       cart2  ← * <~ Carts.create(Cart(accountId = customer2.accountId, referenceNumber = "ABC-456"))
       order  ← * <~ Orders.createFromCart(cart)
       order2 ← * <~ Orders.createFromCart(cart2)

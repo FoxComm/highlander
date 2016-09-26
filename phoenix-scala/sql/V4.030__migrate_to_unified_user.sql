@@ -582,13 +582,14 @@ begin
         name = u.name,
         email = u.email,
         is_disabled = u.is_disabled,
-        is_guest = u.is_guest,
+        is_guest = cu.is_guest,
         is_blacklisted = u.is_blacklisted,
         phone_number = u.phone_number,
         blacklisted_by = u.blacklisted_by,
         joined_at = to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
-    from customers_search_view, users as u
-    where customers_search_view.id = new.account_id and u.account_id = new.account_id;
+    from users as u, customer_users as cu
+    where customers_search_view.id = new.account_id and u.account_id = new.account_id 
+    and cu.account_id = new.account_id;
 
     return null;
     end;
@@ -804,7 +805,6 @@ begin
        -- jsonb_set(customer, '{revenue}', jsonb (subquery.revenue::varchar), true)
        json_build_object(
                'id', customer ->> 'id',
-               'account_id', customer ->> 'account_id',
                'name', customer ->> 'name',
                'email', customer ->> 'email',
                'is_blacklisted', customer ->> 'is_blacklisted',
@@ -829,7 +829,7 @@ begin
               group by (c.id)
               order by revenue desc)
             as subquery
-    where orders_search_view.customer ->> 'account_id' = subquery.account_id::varchar;
+    where orders_search_view.customer ->> 'id' = subquery.account_id::varchar;
 
     return null;
 end;
@@ -1098,7 +1098,7 @@ begin
                         '{revenue}', jsonb (c.revenue::varchar), true)
                         as customer
           from carts_search_view as cs
-          inner join customers_search_view as c on (c.id = (cs.customer->>'account_id')::bigint)
+          inner join customers_search_view as c on (c.id = (cs.customer->>'id')::bigint)
           where c.rank > 0
         ) as q
         where carts_search_view.id = q.id;
@@ -1113,7 +1113,7 @@ begin
                         '{revenue}', jsonb (c.revenue::varchar), true)
                       as customer
           from orders_search_view as o
-          inner join customers_search_view as c on (c.id = (o.customer->>'account_id')::bigint)
+          inner join customers_search_view as c on (c.id = (o.customer->>'id')::bigint)
           where c.rank > 0
         ) as q
         where orders_search_view.id = q.id;
@@ -1123,7 +1123,7 @@ end;
 $$ language plpgsql;
 
 drop index orders_search_view_customer_idx;
-create index orders_search_view_account_idx on orders_search_view((customer->>'account_id'));
+create index orders_search_view_account_idx on orders_search_view((customer->>'id'));
 
 create or replace function update_orders_view_from_orders_insert_fn() returns trigger as $$
     begin
@@ -1191,15 +1191,16 @@ create or replace function update_orders_view_from_customers_fn() returns trigge
 begin
     update orders_search_view set
         customer = json_build_object(
-            'id', new.id,
-            'account_id', new.account_id,
-            'name', new.name,
-            'email', new.email,
-            'is_blacklisted', new.is_blacklisted,
-            'joined_at', to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+            'id', new.account_id,
+            'name', u.name,
+            'email', u.email,
+            'is_blacklisted', u.is_blacklisted,
+            'joined_at', to_char(u.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
             'rank', customer ->> 'rank',
             'revenue', customer ->> 'revenue'
-        )::jsonb where customer ->> 'account_id' = new.account_id::varchar;
+        )::jsonb 
+        from users as u where u.account_id = new.account_id and
+        customer ->> 'id' = new.account_id::varchar;
     return null;
 end;
 $$ language plpgsql;

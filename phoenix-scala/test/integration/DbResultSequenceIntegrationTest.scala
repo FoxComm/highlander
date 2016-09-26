@@ -22,7 +22,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 
     "must rollback transaction on errors" in {
       val sux: Seq[DbResultT[Account]] = Seq(1, 2, 3).map { i ⇒
-        Accounts.create(Account())
+        Accounts.create(Account(id = 1))
       }
       val cool: DbResultT[Seq[Account]] = DbResultT.sequence(sux)
 
@@ -34,7 +34,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 
     "must collect all errors" in {
       val sux: Seq[DbResultT[Account]] = Seq(1, 2, 3).map { i ⇒
-        Accounts.create(Account(ratchet = 1))
+        Accounts.create(Account(id = 1))
       }
       val cool: DbResultT[Seq[Account]] = DbResultT.sequence(sux)
 

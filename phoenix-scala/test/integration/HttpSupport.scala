@@ -35,6 +35,7 @@ import services.Authenticator.JwtAuthenticator
 import services.account.AccountCreateContext
 
 import util._
+import utils.seeds.Seeds.Factories
 import utils.aliases._
 import utils.apis.Apis
 import utils.{FoxConfig, JsonFormatters}
@@ -106,11 +107,11 @@ trait HttpSupport
       |}
     """.stripMargin).withFallback(ConfigFactory.load())
 
-  private def createContext =
-    AccountCreateContext(roles = List("customer"), org = "merchant", scopeId = 2)
+  val adminUser    = Factories.storeAdmin.copy(id = 1, accountId = 1)
+  val customerUser = Factories.customer.copy(id = 2, accountId = 2)
 
   def overrideUserAuth: UserAuthenticator =
-    new Authenticator.JwtAuthenticator(createContext)
+    AuthAs(adminUser, customerUser)
 
   implicit val env = FoxConfig.Test
 

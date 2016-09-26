@@ -81,7 +81,11 @@ object Authenticator {
   type EmailFinder[M] = String ⇒ DBIO[Option[M]]
 
   //parameterized for future Service accounts
-  case class AuthData[M](model: M, account: Account, scope: String, claims: Account.Claims)
+  case class AuthData[M](model: M,
+                         account: Account,
+                         scope: String,
+                         claims: Account.Claims,
+                         isGuest: Boolean = false)
 
   trait UserAuthenticator {
     def readCredentials(): Directive1[Option[String]]
@@ -133,7 +137,7 @@ object Authenticator {
         account     ← * <~ Accounts.mustFindById404(user.accountId)
         claimResult ← * <~ AccountManager.getClaims(user.accountId, guestCreateContext.scopeId)
         (scope, claims) = claimResult
-      } yield AuthData[User](user, account, scope, claims)).run().map {
+      } yield AuthData[User](user, account, scope, claims, true)).run().map {
         case Xor.Right(data) ⇒ AuthenticationResult.success(data)
         case Xor.Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
       }
@@ -181,18 +185,24 @@ object Authenticator {
       result   ← onSuccess(auth.checkAuthCustomer(optCreds))
     } yield (result, optCreds)).tflatMap {
       case (Right(authData), _) ⇒
-        AuthPayload(
-            token = UserToken.fromUserAccount(authData.model,
-                                              authData.account,
-                                              authData.scope,
-                                              authData.claims)) match {
-          case Xor.Right(authPayload) ⇒
-            val header = respondWithHeader(RawHeader("JWT", authPayload.jwt))
-            val cookie = setCookie(JwtCookie(authPayload))
-            header & cookie & provide(authData.model)
-          case Xor.Left(failures) ⇒
-            val challenge = FailureChallenge("customer", failures)
-            AuthRejections.credentialsRejected[User](challenge)
+        if (!authData.isGuest) provide(authData.model)
+        else {
+          Console.out.println(s"AUTH ${authData}")
+          AuthPayload(
+              token = UserToken.fromUserAccount(authData.model,
+                                                authData.account,
+                                                authData.scope,
+                                                authData.claims)) match {
+            case Xor.Right(authPayload) ⇒
+              Console.out.println(s"PAYLOAD ${authData}")
+              val header = respondWithHeader(RawHeader("JWT", authPayload.jwt))
+              val cookie = setCookie(JwtCookie(authPayload))
+              header & cookie & provide(authData.model)
+            case Xor.Left(failures) ⇒
+              Console.out.println(s"FAILURE ${failures}")
+              val challenge = FailureChallenge("customer", failures)
+              AuthRejections.credentialsRejected[User](challenge)
+          }
         }
       case (Left(challenge), Some(creds)) ⇒
         AuthRejections.credentialsRejected[User](challenge)

@@ -6,6 +6,7 @@ import Extensions._
 import failures.NotFoundFailure404
 import models.cord.OrderShippingAddresses
 import models.account._
+import models.customer._
 import models.location.{Address, Addresses}
 import payloads.AddressPayloads.CreateAddressPayload
 import responses.AddressResponse
@@ -173,7 +174,11 @@ class AddressesIntegrationTest
 
   trait DeletedAddressFixture {
     val (account, address) = (for {
-      account ← * <~ Accounts.create(Account())
+      accountPre1 ← * <~ Accounts.create(Account())
+      accountPre2 ← * <~ Accounts.create(Account())
+      account     ← * <~ Accounts.create(Account())
+      user        ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
+      custUser    ← * <~ CustomerUsers.create(CustomerUser(userId = user.id, accountId = account.id))
       address ← * <~ Addresses.create(
                    Factories.address.copy(accountId = account.id,
                                           isDefaultShipping = false,

@@ -2,7 +2,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import cats.implicits._
-import failures.UserFailures.AlreadyExistsWithEmail
+import failures.UserFailures.UserEmailNotUnique
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.account._
 import models.admin.StoreAdminUser
@@ -43,7 +43,7 @@ class StoreAdminIntegrationTest
       val response = POST("v1/store-admins", payload)
 
       response.status must === (StatusCodes.BadRequest)
-      response.error must === (AlreadyExistsWithEmail(authedUser.email.getOrElse("")).description)
+      response.error must === (UserEmailNotUnique.description)
     }
   }
 
@@ -138,7 +138,7 @@ class StoreAdminIntegrationTest
   }
 
   "DELETE /v1/store-admins/:id" - {
-    "display store admin when id points to valid admin" in new Fixture {
+    "delete store admin when id points to valid admin" in new Fixture {
       val response = DELETE(s"v1/store-admins/${storeAdmin.accountId}")
       response.status must === (StatusCodes.NoContent)
     }

@@ -105,7 +105,7 @@ object CustomerManager {
     for {
       _        ← * <~ payload.validate
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      _        ← * <~ Users.updateEmailMustBeUnique(payload.email, accountId)
+      _        ← * <~ Users.updateEmailMustBeUnique(payload.email)
       updated  ← * <~ Users.update(customer, updatedUser(customer, payload))
       custUser ← * <~ CustomerUsers.mustFindByAccountId(accountId)
       _        ← * <~ CustomerUsers.update(custUser, updatedCustUser(custUser, payload))
@@ -121,7 +121,7 @@ object CustomerManager {
   def updatedCustUser(custUser: CustomerUser, payload: UpdateCustomerPayload): CustomerUser = {
     (payload.name, payload.email) match {
       case (Some(name), Some(email)) ⇒ custUser.copy(isGuest = false)
-      case _                         ⇒ custUser.copy(isGuest = true)
+      case _                         ⇒ custUser
     }
   }
 
@@ -135,7 +135,7 @@ object CustomerManager {
                case None ⇒ DbResultT.failure(CustomerMustHaveCredentials)
                case _    ⇒ DbResultT.unit
              })
-      _        ← * <~ Users.updateEmailMustBeUnique(customer.email, customer.accountId)
+      _        ← * <~ Users.updateEmailMustBeUnique(customer.email)
       updated  ← * <~ Users.update(customer, customer.copy(name = payload.name.some))
       custUser ← * <~ CustomerUsers.mustFindByAccountId(accountId)
       _        ← * <~ CustomerUsers.update(custUser, custUser.copy(isGuest = false))

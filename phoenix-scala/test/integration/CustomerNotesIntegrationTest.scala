@@ -69,7 +69,9 @@ class CustomerNotesIntegrationTest
 
     "can update the body text" in new Fixture {
       val rootNote = CustomerNoteManager
-        .create(customer.accountId, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
+        .create(customer.accountId,
+                storeAdmin.copy(accountId = 1),
+                CreateNote(body = "Hello, FoxCommerce!"))
         .gimme
 
       val response = PATCH(s"v1/notes/customer/${customer.accountId}/${rootNote.id}",

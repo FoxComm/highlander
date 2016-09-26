@@ -9,6 +9,7 @@ import responses.cord.CartResponse
 import services.carts.CartCreator
 import util._
 import util.fixtures.BakedFixtures
+import failures.NotFoundFailure404
 
 class CartCreatorIntegrationTest
     extends IntegrationTestBase
@@ -33,7 +34,7 @@ class CartCreatorIntegrationTest
         val response = POST(s"v1/orders", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure400(User, 99).description)
+        response.error must === (NotFoundFailure404(User, 99).description)
       }
 
       "returns current cart if customer already has one" in new Fixture {

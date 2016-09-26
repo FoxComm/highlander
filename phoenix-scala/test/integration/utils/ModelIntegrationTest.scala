@@ -40,7 +40,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       result.leftVal must === (
           DatabaseFailure(
               "ERROR: duplicate key value violates unique constraint \"address_shipping_default_idx\"\n" +
-                "  Detail: Key (customer_id, is_default_shipping)=(1, t) already exists.").single)
+                "  Detail: Key (account_id, is_default_shipping)=(1, t) already exists.").single)
     }
 
     "fails if model already exists" in {

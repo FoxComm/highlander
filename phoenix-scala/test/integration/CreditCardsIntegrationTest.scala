@@ -233,7 +233,7 @@ class CreditCardsIntegrationTest
   }
 
   "POST /v1/my/payment-methods/credit-cards (customer auth)" - {
-    "creates a new credit card" in new Customer_Seed {
+    "creates a new credit card" in new StoreAdmin_Seed with Customer_Seed {
       // No Stripe customer yet
       val response1 = POST("v1/my/payment-methods/credit-cards", thePayload)
       response1.status must === (StatusCodes.OK)
@@ -294,7 +294,7 @@ class CreditCardsIntegrationTest
       ccCustomerIds must contain allOf (customer1.accountId, customer2.accountId)
     }
 
-    "does not create a new address if it isn't new" in new Customer_Seed {
+    "does not create a new address if it isn't new" in new StoreAdmin_Seed with Customer_Seed {
       val response = POST("v1/my/payment-methods/credit-cards", thePayload)
       response.status must === (StatusCodes.OK)
       Addresses.result.headOption.gimme must not be defined
