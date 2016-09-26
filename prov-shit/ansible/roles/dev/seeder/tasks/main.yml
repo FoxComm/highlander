@@ -1,13 +1,13 @@
 ---
 
 - name: Seed Phoenix Database
-  shell: java -cp {{phoenix_jar}} {{seeds_cmd}}
+  shell: java -Dphoenix.env={{phoenix_env}} -Ddb.host={{db_host}} -Ddb.url="jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}}" -Ddb.name={{db_name}} -cp {{phoenix_jar}} {{seeds_cmd}}
   sudo: true
   args:
     chdir: "{{phoenix_dir}}"
     
 - name: Gatling Seed Db
-  shell: java -cp {{phoenix_jar}} {{gatling_oneshot_seeds_cmd}}
+  shell: java -Dphoenix.env={{phoenix_env}} -Ddb.host={{db_host}} -Ddb.url="jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}}" -Ddb.name={{db_name}} -cp {{phoenix_jar}} {{gatling_oneshot_seeds_cmd}}
   sudo: true
   args:
     chdir: "{{phoenix_dir}}"
