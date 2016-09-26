@@ -1,0 +1,40 @@
+---
+
+- name: Hotfix Target Mesos Workers
+  hosts:
+    - stage-frontend
+    - stage-backend
+    - target-es
+    - target-es-log
+    - target-db
+    - target-kafka
+    - target-phoenix
+    - target-greenriver
+    - target-service-worker-0
+  vars:
+    user: '{{ansible_ssh_user}}'
+    zookeepers: "zk://10.0.1.18:2181,10.0.7.209:2181,10.0.2.145:2181"
+    docker_registry: "https://docker.target.foxcommerce.com"
+
+  roles:
+    - { role: base/docker }
+    - { role: base/mesos_base }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
+
+- name: Hotfix Target Mesos Workers
+  hosts:
+    - stage-frontend
+    - stage-backend
+    - target-service-worker-0
+  vars:
+    user: '{{ansible_ssh_user}}'
+    zookeepers: "zk://10.0.1.18:2181,10.0.7.209:2181,10.0.2.145:2181"
+    docker_registry: "https://docker.target.foxcommerce.com"
+
+  roles:
+    - { role: hotfix/mesos_worker }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

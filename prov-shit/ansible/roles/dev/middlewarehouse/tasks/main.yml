@@ -1,19 +1,19 @@
 ---
 
-- name: Copy Binary
-  copy: src={{middlewarehouse_bin_src}} dest={{middlewarehouse_bin}} mode="u+x,g+x,o+x"
-  sudo: true
-  when: updating_mwh
+# - name: Copy Binary
+#   copy: src={{middlewarehouse_bin_src}} dest={{middlewarehouse_bin}} mode="u+x,g+x,o+x"
+#   sudo: true
+#   when: updating_mwh
 
-- name: Copy Stock Items Consumer Binary
-  copy: src={{stock_items_consumer_bin_src}} dest={{stock_items_consumer_bin}} mode="u+x,g+x,o+x"
-  sudo: true
-  when: updating_mwh
+# - name: Copy Stock Items Consumer Binary
+#   copy: src={{stock_items_consumer_bin_src}} dest={{stock_items_consumer_bin}} mode="u+x,g+x,o+x"
+#   sudo: true
+#   when: updating_mwh
 
-- name: Copy Shipments Consumer Binary
-  copy: src={{shipments_consumer_bin_src}} dest={{shipments_consumer_bin}} mode="u+x,g+x,o+x"
-  sudo: true
-  when: updating_mwh
+# - name: Copy Shipments Consumer Binary
+#   copy: src={{shipments_consumer_bin_src}} dest={{shipments_consumer_bin}} mode="u+x,g+x,o+x"
+#   sudo: true
+#   when: updating_mwh
 
 #- name: Synchronize Middlewarehouse SQL
   #synchronize: src="{{middlewarehouse_src}}/sql" dest="{{middlewarehouse_dir}}" delete=yes recursive=yes

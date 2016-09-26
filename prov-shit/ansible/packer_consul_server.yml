@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Consul Server Image
+- name: Packing Consul Server Image
   hosts: all
   tags:
     - packer
@@ -9,6 +9,9 @@
     join_type: join
     consul_expect: 1
     packing: true
+  post_tasks:
+    - name: Sweet Dreams
+      pause: seconds=5    
 
   roles:
     - { role: base/common }

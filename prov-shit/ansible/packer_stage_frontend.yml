@@ -27,6 +27,9 @@
     storefront_server_name: "stage.foxcommerce.com"
     kafka_server: kafka.service.consul:9092
     schema_server: schema-registry.service.consul:8081
+  post_tasks:
+    - name: Sweet Dreams
+      pause: seconds=5
 
   roles:
     - { role: base/ssh_keys }

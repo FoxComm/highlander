@@ -3,14 +3,16 @@
     "image_prefix": "tgt",
     "image_title": "TGT",
     "region": "us-west-2",
-    "instance_type": "t2.small",
+    "instance_type": "m4.large",
     "source_ami": "ami-9ece19fe",
     "vpc_id": "vpc-ec476d88",
     "subnet_id": "subnet-9794cdf3",
     "security_group_id": "sg-60051106",
-    "base_ami": "ami-ed21f68d",
-    "base_jvm_ami": "ami-ae2ff8ce",
-    "base_node_ami": "ami-5b2bfc3b",
-    "base_mesos_ami": "ami-d3e533b3",
-    "variables_file": "aws_target_ansible.json"
+    "base_ami": "ami-500ed230",
+    "base_mesos_ami": "ami-3011cd50",    
+    "base_jvm_ami": "ami-a60fd3c6",
+    "base_node_ami": "ami-fa08d49a",
+    "variables_file": "aws_target_ansible.json",
+    "key_variables_file": "aws_target_keys.json",
+    "stage_variables_file": "aws_target_stage_keys.json"
 }

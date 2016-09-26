@@ -40,14 +40,15 @@
                 "delete_on_termination": true
             }],
             "tags": {
-                "packer": "base-mesos"
+                "name": "base-mesos-{{timestamp}}"
             }
         }
     ],
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_base_mesos.yml"
+            "playbook_file" : "ansible/packer_base_mesos.yml",
+            "extra_arguments": ["-vvvv"]
         }
     ]
 }

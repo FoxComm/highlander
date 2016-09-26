@@ -1,0 +1,12 @@
+version: 0.1
+storage:
+  s3:
+    accesskey: {{aws_access_key}}
+    secretkey: {{aws_secret_key}}
+    region: us-west-2
+    bucket: {{aws_bucket_name}}   
+http:
+    addr: 0.0.0.0:5000
+    tls:
+        certificate: /certs/domain.crt
+        key: /certs/domain.key

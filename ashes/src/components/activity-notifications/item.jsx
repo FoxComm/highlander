@@ -83,4 +83,3 @@ NotificationItem.propTypes = {
     })
   })
 };
-
