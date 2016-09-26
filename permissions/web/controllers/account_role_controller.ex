@@ -30,7 +30,7 @@ defmodule Permissions.AccountRoleController do
   def show(conn, %{"id" => id}) do
     account_role = 
       Repo.get!(AccountRole, id) 
-      |> Repo.preload(:permission)
+      |> Repo.preload(:role)
     render(conn, "show.json", account_role: account_role)
   end
   
