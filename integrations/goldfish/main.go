@@ -1,181 +1,60 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
+	"errors"
+	"log"
+	"net/http"
+	"os"
 
-	"github.com/FoxComm/highlander/middlewarehouse/consumers"
+	"github.com/FoxComm/highlander/integrations/goldfish/service"
 	"github.com/gin-gonic/gin"
 )
 
-type ProductQuery struct {
-	Query string `json:"query"`
-}
-
-func createError(msg string) map[string][]string {
-	return map[string][]string{
-		"errors": []string{msg},
+func getJWT(req *http.Request) (string, *service.ServiceError) {
+	if tokens, _ := req.Header["Jwt"]; len(tokens) == 1 {
+		return tokens[0], nil
 	}
-}
 
-func createQueryFilter(context, field, value string) map[string]interface{} {
-	return map[string]interface{}{
-		"query": map[string]interface{}{
-			"bool": map[string]interface{}{
-				"filter": []map[string]interface{}{
-					map[string]interface{}{
-						"missing": map[string]string{
-							"field": "archivedAt",
-						},
-					},
-					map[string]interface{}{
-						"term": map[string]string{
-							field: value,
-						},
-					},
-					map[string]interface{}{
-						"term": map[string]string{
-							"context": context,
-						},
-					},
-				},
-			},
-		},
-	}
-}
-
-type ElasticProduct struct {
-	Result []map[string]interface{} `json:"result"`
-}
-
-type ElasticResult struct {
-	Pagination ElasticPagination `json:"pagination"`
-}
-
-type ElasticPagination struct {
-	Total int
+	return "", &service.ServiceError{400, errors.New("JWT not found in request header")}
 }
 
 func main() {
+	apiURL := os.Getenv("API_URL")
+	if apiURL == "" {
+		log.Fatalf("API_URL must be set")
+	}
+
 	r := gin.Default()
-	r.POST("/products/external-id/:context/:id", func(c *gin.Context) {
+	r.POST("/products/by-field/:context", func(c *gin.Context) {
 		context := c.Param("context")
-		externalID := c.Param("id")
 
-		headers := map[string]string{
-			"Content-Type": "application/json",
-		}
-
-		if values, _ := c.Request.Header["Jwt"]; len(values) == 1 {
-			headers["JWT"] = values[0]
-		} else {
-			c.JSON(400, createError("JWT not found in request header"))
+		payload := new(UpdatePayload)
+		if err := c.BindJSON(payload); err != nil {
+			se := service.ServiceError{400, err}
+			se.Response(c)
 			return
 		}
 
-		query := createQueryFilter(context, "externalId", externalID)
-		url := "https://tgt.foxcommerce.com/api/search/admin/products_search_view/_search?size=50"
-
-		resp, err := consumers.Post(url, headers, &query)
+		jwt, err := getJWT(c.Request)
 		if err != nil {
-			c.JSON(500, createError("Unexpected error querying for products"))
+			err.Response(c)
 			return
 		}
 
-		defer resp.Body.Close()
-
-		if resp.StatusCode < 200 || resp.StatusCode > 299 {
-			var payload map[string]interface{}
-
-			if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
-				msg := fmt.Sprintf("Error reading the product with %s", err.Error())
-				c.JSON(500, createError(msg))
-				return
-			}
-			c.JSON(resp.StatusCode, payload)
+		client := service.NewClient(apiURL, jwt)
+		productID, svcErr := client.FindProductID(context, payload.Field, payload.Value)
+		if svcErr != nil {
+			svcErr.Response(c)
 			return
 		}
 
-		result, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			msg := fmt.Sprintf("Error reading the product with %s", err.Error())
-			c.JSON(500, createError(msg))
+		statusCode, respBody, svcErr := client.UpdateProduct(context, productID, payload.Product)
+		if svcErr != nil {
+			svcErr.Response(c)
 			return
 		}
 
-		esResult := new(ElasticResult)
-		if err := json.Unmarshal(result, esResult); err != nil {
-			msg := fmt.Sprintf("Error decoding the product with %s", err.Error())
-			c.JSON(500, createError(msg))
-			return
-		}
-
-		if esResult.Pagination.Total == 0 {
-			c.JSON(404, createError("Product not found"))
-			return
-		}
-
-		if esResult.Pagination.Total > 1 {
-			msg := fmt.Sprintf(
-				"Error selecting product - expected 1 found %d",
-				esResult.Pagination.Total,
-			)
-			c.JSON(400, createError(msg))
-			return
-		}
-
-		esProducts := new(ElasticProduct)
-		if err := json.Unmarshal(result, esProducts); err != nil {
-			msg := fmt.Sprintf("Error decoding the product with %s", err.Error())
-			c.JSON(500, createError(msg))
-			return
-		}
-
-		productID, ok := esProducts.Result[0]["productId"]
-		if !ok {
-			c.JSON(500, createError("Unable to get productId from product"))
-			return
-		}
-
-		payload := make(map[string]interface{})
-		if err := c.BindJSON(&payload); err != nil {
-			msg := fmt.Sprintf(
-				"Unable to parse payload with error %s",
-				err.Error(),
-			)
-			c.JSON(400, createError(msg))
-			return
-		}
-
-		patchURL := fmt.Sprintf("https://tgt.foxcommerce.com/api/v1/products/%s/%v", context, productID)
-		fmt.Printf("The URL is: %s", patchURL)
-		patchResp, err := consumers.Patch(patchURL, headers, payload)
-		if err != nil {
-			msg := fmt.Sprintf(
-				"Unable to update the product with error: %s",
-				err.Error(),
-			)
-			c.JSON(500, createError(msg))
-			return
-		}
-
-		defer patchResp.Body.Close()
-		patchResult, err := ioutil.ReadAll(patchResp.Body)
-		if err != nil {
-			msg := fmt.Sprintf("Error reading the product update with %s", err.Error())
-			c.JSON(500, createError(msg))
-			return
-		}
-
-		patchJSON := make(map[string]interface{})
-		if err := json.Unmarshal(patchResult, &patchJSON); err != nil {
-			msg := fmt.Sprintf("Error weading the product response with %s", err.Error())
-			c.JSON(500, createError(msg))
-			return
-		}
-
-		c.JSON(patchResp.StatusCode, patchJSON)
+		c.JSON(statusCode, respBody)
 	})
 
 	r.Run(":5492")
