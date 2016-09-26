@@ -2,7 +2,6 @@
 
 After Target AWS provisioning experience:
 
-* Export Max's new AWS resources (OpenVPN security groups) with https://github.com/dtan4/terraforming
 * Deal with `/etc/hosts` somehow
 	* `phoenix`, `elasticsearch` and `schema-registry` require this very much
 	* Maybe just turn off this? http://stackoverflow.com/a/33443018
@@ -31,7 +30,4 @@ After Target AWS provisioning experience:
 		* Bottledwaters run script has `db.service` which block it from DNS. set manually to localhost
 		* Rollback `/middlewarehouse/sql/flyway.conf` update
 * Miscellaneous:
-	* Build MWH locally with `GOOS=linux make build`!
 	* Forgot to use `base_mesos_ami` everywhere, run `make hotfix-mesos-worker`
-	* TF issue https://github.com/hashicorp/terraform/issues/1652#issuecomment-195164526
-	* Use `consul members` & `consul force-leave <node_id>` if you dropped previous cluster via terraform
