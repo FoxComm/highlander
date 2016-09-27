@@ -40,9 +40,6 @@
     - libgif-dev
     - build-essential
     - g++
-    - libgoogle-glog0v5
-    - libbotan-1.10-1
-    - libpqxx-4.0
 
 - name: Create /etc/profile.d Directory
   file: path=/etc/profile.d state=directory

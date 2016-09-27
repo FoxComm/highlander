@@ -31,16 +31,20 @@ run-production: setup stop
 	export NODE_ENV=production; nohup ./node_modules/.bin/gulp server 2>&1 &
 
 pre-build: setup
-	test -f .env && export eval `cat .env` || true && ./node_modules/.bin/gulp build
+	test -f .env && export eval `cat .env` || true && ON_SERVER=true ./node_modules/.bin/gulp build
 
-build-production:
-	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
+pre-build-production: setup
+	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true ./node_modules/.bin/gulp build
 
 build: pre-build
 	touch ashes.tar.bz2
 	tar --exclude 'ashes.tar.bz2' --exclude '.git' --exclude '.gitignore' --exclude '.gitattributes' -jcf ashes.tar.bz2 ./
 
-docker: build-production
+build-production: pre-build-production
+	touch ashes.tar.bz2
+	tar --exclude 'ashes.tar.bz2' --exclude '.git' --exclude '.gitignore' --exclude '.gitattributes' -jcf ashes.tar.bz2 ./
+
+docker: pre-build-production
 	docker build -t ashes .
 
 package-production: build-production

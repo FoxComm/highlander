@@ -6,13 +6,15 @@
 
 - name: Delete Phoenix Gatling Resources
   file: path="{{phoenix_dir}}/gatling-classes" state=absent
+  sudo: true
 
 - name: Synchronize Phoenix Gatling Resources
   synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes
-  become: false
+  sudo: true
 
 - name: Create Directory for Gatling Results
   file: path="{{phoenix_dir}}/gatling-results" state=directory owner="{{user}}" mode="0777"
+  sudo: true
 
 - name: Copy JAR
   copy: src={{phoenix_jar_src}} dest={{phoenix_jar}} mode="u+x,g+x,o+x"

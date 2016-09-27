@@ -1,5 +1,5 @@
 db_host: localhost
-phoenix_server: 127.0.0.1:9090
+phoenix_server: phoenix.service.consul:9090
 ashes_server: ashes.service.consul
 api_server: balancer.service.consul
 search_host: elasticsearch.service.consul
