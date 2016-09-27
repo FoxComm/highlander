@@ -10,5 +10,5 @@ es_heap_size: 2g
 seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedStage
 
 demo_domain: stage.foxcommerce.com
-ashes_server_name: admin.stage.foxcommerce.com
+ashes_server_name: stage.foxcommerce.com
 retailer_name: FoxCommerce

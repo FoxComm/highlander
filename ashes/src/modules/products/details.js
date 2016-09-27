@@ -12,7 +12,8 @@ import { createEmptyProduct, configureProduct } from 'paragons/product';
 // types
 import type { Product } from 'paragons/product';
 
-const rootPath = process.env.ROOT_PATH;
+const onServer = process.env.ON_SERVER;
+const rootPath = onServer ? '/admin' : '/';
 
 export type Error = {
   status: ?number,

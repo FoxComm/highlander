@@ -101,8 +101,11 @@ run-gatling: deploy-gatling
 run-gatling-highlander: deploy-gatling-highlander
 	ansible-playbook -v -i bin/envs/staging ansible/run_gatling_highlander.yml
 
-tf-stage:
+tf-dev:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_dev/terraform.tfstate -var-file=$(TF_ENVS)/gce_dev/dev.tfvars $(TF_BASE)/gce_dev
+
+tf-stage:
+	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_staging/terraform.tfstate -var-file=$(TF_ENVS)/gce_staging/staging.tfvars $(TF_BASE)/gce_staging
 
 tf-vanilla:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_vanilla/terraform.tfstate -var-file=$(TF_ENVS)/gce_vanilla/vanilla.tfvars $(TF_BASE)/gce_vanilla

@@ -20,7 +20,7 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_tinystack_frontend.yml",
+            "playbook_file" : "ansible/packer_stage_frontend.yml",
             "extra_arguments": ["--extra-vars", "@packer/envs/{{user `variables_file`}}"]
         }
     ]

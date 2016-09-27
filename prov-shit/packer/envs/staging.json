@@ -8,8 +8,8 @@
   "zone": "us-central1-a",
   "base_ubuntu_image": "ubuntu-1604-xenial-v20160610",
   "base_image": "base-1470781269",
-  "base_node_image": "base-node-1469015061",
-  "base_jvm_image": "base-jvm-1469015057",
+  "base_node_image": "base-node-1470785359",
+  "base_jvm_image": "base-jvm-1470785305",
   "ssh_username": "ubuntu",
   "base_mesos": "base-mesos-1470781743"
 }
