@@ -21,7 +21,7 @@ const _getApplication = createAsyncActions(
 
 const _updateApplication = createAsyncActions(
   'updateApplication',
-  (id: number) => Api.patch(`/mkt/merchant_applications/${id}`)
+  (id: number, data: MerchantApplication) => Api.put(`/mkt/merchant_applications/${id}`, data)
 );
 
 export const fetchApplication = _getApplication.perform;
