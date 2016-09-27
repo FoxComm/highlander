@@ -63,7 +63,7 @@ case class MwhResponse(statusCode: Int, content: String)
 
 object AsMwhResponse extends (client.Response ⇒ MwhResponse) {
 
-  override def apply(r: Res): MwhResponse =
+  override def apply(r: client.Response): MwhResponse =
     MwhResponse(r.getStatusCode, r.getResponseBody)
 
 }

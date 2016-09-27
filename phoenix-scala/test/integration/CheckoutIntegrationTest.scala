@@ -72,8 +72,8 @@ class CheckoutIntegrationTest
       Carts.findOneByRefNum(refNum).gimme must not be defined
 
       // Properly creates an order
-      orderResponse.result.get.orderState must === (Order.RemorseHold)
-      orderResponse.result.get.remorsePeriodEnd.value.isAfter(Instant.now) mustBe true
+      orderResponse.result.value.orderState must === (Order.RemorseHold)
+      orderResponse.result.value.remorsePeriodEnd.value.isAfter(Instant.now) mustBe true
 
       // Authorizes payments
       GiftCardAdjustments.map(_.state).gimme must contain only GiftCardAdjustment.Auth

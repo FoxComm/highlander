@@ -48,7 +48,7 @@ class CheckoutTest
       when(mockValidator.validate(isCheckout = false, fatalWarnings = true))
         .thenReturn(DbResultT.failure[CartValidatorResponse](failure))
 
-      val result = Checkout(cart, mockValidator).checkout.futureValue.rightVal
+      val result = Checkout(cart, mockValidator).checkout.gimme
       result.errors.get.head must === (failure.description)
     }
 
@@ -61,7 +61,7 @@ class CheckoutTest
       when(mockValidator.validate(isCheckout = true, fatalWarnings = true))
         .thenReturn(liftedFailure)
 
-      val result = Checkout(cart, mockValidator).checkout.futureValue.rightVal
+      val result = Checkout(cart, mockValidator).checkout.gimme
       result.errors.get.head must === (failure.description)
     }
 
