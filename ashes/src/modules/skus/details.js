@@ -47,7 +47,8 @@ const setError = createAction('SKU_SET_ERROR');
 
 export const newSku = createAction('SKU_NEW');
 
-const rootPath = process.env.ROOT_PATH;
+const onServer = process.env.ON_SERVER;
+const rootPath = onServer ? '/admin' : '/';
 
 export function fetchSku(code: string, context: string = defaultContext): ActionDispatch {
   return dispatch => {
