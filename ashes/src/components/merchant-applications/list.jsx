@@ -13,6 +13,9 @@ import MultiSelectTable from 'components/table/multi-select-table';
 // actions
 import * as applicationActions from 'modules/merchant-applications/list';
 
+// styles
+import styles from './list.css';
+
 // types
 import type { MerchantApplication } from 'paragons/merchant-applications';
 
@@ -46,7 +49,7 @@ class MerchantApplicationsList extends Component {
   props: Props;
 
   componentDidMount() {
-    this.props.fetchApplications(); 
+    this.props.fetchApplications();
   }
 
   get renderRow() {
@@ -68,12 +71,16 @@ class MerchantApplicationsList extends Component {
 
     return (
       <ListPageContainer title="Merchant Applications">
-        <MultiSelectTable
-          columns={tableColumns}
-          data={{ rows: list.applications }}
-          isLoading={isFetching}
-          emptyMessage="No applications found."
-          renderRow={this.renderRow} />
+        <div styleName="body">
+          <div styleName="content">
+            <MultiSelectTable
+              columns={tableColumns}
+              data={{ rows: list.applications }}
+              isLoading={isFetching}
+              emptyMessage="No applications found."
+              renderRow={this.renderRow} />
+          </div>
+        </div>
       </ListPageContainer>
     );
   }
