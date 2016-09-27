@@ -23,7 +23,6 @@ import services.account.AccountCreateContext
 import services.Authenticator
 import services.Authenticator.UserAuthenticator
 import services.Authenticator.requireAdminAuth
-import services.auth.GoogleOauth.oauthServiceFromConfig
 import services.actors._
 
 import slick.driver.PostgresDriver.api._
@@ -91,12 +90,9 @@ class Service(systemOverride: Option[ActorSystem] = None,
   val customerCreateContext                = AccountCreateContext(List(roleName), orgName, scopeId)
   implicit val userAuth: UserAuthenticator = Authenticator.forUser(customerCreateContext)
 
-  val customerGoogleOauth = oauthServiceFromConfig("customer")
-  val adminGoogleOauth    = oauthServiceFromConfig("admin")
-
   val defaultRoutes = {
     pathPrefix("v1") {
-      routes.AuthRoutes.routes(customerGoogleOauth, adminGoogleOauth) ~
+      routes.AuthRoutes.routes ~
       routes.Public.routes(customerCreateContext) ~
       routes.Customer.routes ~
       requireAdminAuth(userAuth) { implicit admin ⇒
