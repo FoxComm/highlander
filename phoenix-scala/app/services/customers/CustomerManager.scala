@@ -84,7 +84,7 @@ object CustomerManager {
                                  userId = user.id,
                                  isGuest = payload.isGuest.getOrElse(false)))
       response = build(user, custUser)
-      _ ← * <~ LogActivity.userCreated(response, admin)
+      _ ← * <~ LogActivity.customerCreated(response, admin)
     } yield response
 
   def createGuest(context: AccountCreateContext)(implicit ec: EC,

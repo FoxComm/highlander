@@ -11,7 +11,7 @@ import models.account._
 import models.admin._
 import org.json4s.jackson.JsonMethods._
 import payloads.SharedSearchPayloads._
-import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
+import responses.UserResponse.{Root ⇒ UserRoot, build ⇒ buildUser}
 import util._
 import util.fixtures.BakedFixtures
 import utils.db._
@@ -275,8 +275,8 @@ class SharedSearchIntegrationTest
       val response = GET(s"v1/shared-search/${search.code}/associates")
       response.status must === (StatusCodes.OK)
 
-      val root = response.as[Seq[AdminRoot]]
-      root must === (Seq(buildAdmin(storeAdmin, storeAdminUser)))
+      val root = response.as[Seq[UserRoot]]
+      root must === (Seq(buildUser(storeAdmin)))
     }
 
     "returns multiple associates by code" in new AssociateSecondaryFixture {
@@ -285,9 +285,8 @@ class SharedSearchIntegrationTest
       val response = GET(s"v1/shared-search/${search.code}/associates")
       response.status must === (StatusCodes.OK)
 
-      val root = response.as[Seq[AdminRoot]]
-      root must contain allOf (buildAdmin(storeAdmin, storeAdminUser), buildAdmin(secondAdmin,
-                                                                                  secondAdminUser))
+      val root = response.as[Seq[UserRoot]]
+      root must contain allOf (buildUser(storeAdmin), buildUser(secondAdmin))
     }
 
     "404 if not found" in {

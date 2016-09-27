@@ -33,7 +33,7 @@ class CartCreatorIntegrationTest
         val payload  = CreateCart(customerId = 99.some)
         val response = POST(s"v1/orders", payload)
 
-        response.status must === (StatusCodes.BadRequest)
+        response.status must === (StatusCodes.NotFound)
         response.error must === (NotFoundFailure404(User, 99).description)
       }
 
