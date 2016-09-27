@@ -61,6 +61,5 @@ export const fields: Array<FormField> = [
     placeholder: 'Category',
     validation: 'required',
     values: LIST_CATEGORIES,
-    normalize: value => (value ? [value] : undefined),
   },
 ];

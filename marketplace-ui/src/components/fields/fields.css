@@ -6,7 +6,6 @@ select {
   font-weight: 300;
   font-size: 16px;
   padding: 0 15px;
-  margin-bottom: 25px;
 
   border: none;
   border-radius: 0;
@@ -50,6 +49,7 @@ label {
 
 .field {
   position: relative;
+  margin-bottom: 25px;
 }
 
 .fieldError {
@@ -61,7 +61,6 @@ label {
 .error {
   position: absolute;
   display: block;
-  bottom: 8px;
   font-size: 12px;
   margin-left: 15px;
   color: transparent;
@@ -84,7 +83,11 @@ input:-webkit-autofill {
 }
 
 :global(.rw-multiselect) {
-  margin-bottom: 25px;
+  &:global(.rw-open) {
+    & :global(.rw-multiselect-wrapper) {
+      border-color: #7bb2f1;
+    }
+  }
 
   & :global(.rw-multiselect-taglist) {
     display: inline;
@@ -115,6 +118,10 @@ input:-webkit-autofill {
     padding: 0;
     margin-bottom: 0;
     border: none;
+
+    &:first-child {
+      padding-left: 15px;
+    }
   }
 
   & :global(.rw-sr) {
@@ -154,6 +161,10 @@ input:-webkit-autofill {
     right: 10px;
 
     & ul {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+
       height: 100%;
       margin: 0;
       padding: 5px 0;
@@ -162,12 +173,12 @@ input:-webkit-autofill {
       outline: 0;
 
       & li {
+        display: inline-block;
         padding: 3px 10px;
         margin: 3px;
         border-radius: 3px;
         border: 1px solid #fff;
         cursor: pointer;
-
 
         &:hover {
           background-color: #f6f6f6;

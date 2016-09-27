@@ -3,7 +3,7 @@ defmodule Marketplace.BusinessProfile do
 
   schema "business_profiles" do
     field :monthly_sales_volume, :string
-    field :target_audience, :string
+    field :target_audience, {:array, :string}
     field :categories, {:array, :string}
 
     timestamps

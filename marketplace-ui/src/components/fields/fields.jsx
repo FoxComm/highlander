@@ -1,3 +1,5 @@
+import isEmpty from 'lodash/isEmpty';
+import noop from 'lodash/noop';
 import cx from 'classnames';
 import React from 'react';
 import MultiSelect from 'react-widgets/lib/Multiselect';
@@ -31,11 +33,12 @@ const renderTextarea = ({ input, placeholder, meta }) => {
 
 const renderSelect = ({ input, values, placeholder, meta }) => {
   const hasError = meta.touched && meta.error;
+  const value = !isEmpty(input.value) ? input.value : null;
 
   return (
     <div className={cx(styles.field, { [styles.fieldError]: hasError })}>
-      {!input.value && <label htmlFor={input.name}>{placeholder}</label>}
-      <MultiSelect {...input} data={values} />
+      {!value && <label htmlFor={input.name}>{placeholder}</label>}
+      <MultiSelect {...input} value={value} onBlur={noop} data={values} />
       {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}
     </div>
   );
