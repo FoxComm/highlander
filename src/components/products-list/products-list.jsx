@@ -10,9 +10,6 @@ import { connect } from 'react-redux';
 import styles from './products-list.css';
 
 import ListItem from '../products-item/list-item';
-import BannerWithImage from '../banner/bannerWithImage';
-import ScrollToTop from '../scroll-to-top/scroll-to-top';
-import ViewIndicator from '../view-indicator/view-indicator';
 
 type Category = {
   name: string;
@@ -25,41 +22,12 @@ type ProductsListParams = {
   categories: ?Array<Category>;
   category: ?string;
   categoryType: ?string;
-  hasBanners: boolean;
-}
-
-type State = {
-  viewedItems: number;
 }
 
 const mapStateToProps = state => ({categories: state.categories.list});
 
 class ProductsList extends React.Component {
   props: ProductsListParams;
-
-  static defaultProps = {
-    hasBanners: true,
-  };
-
-  state: State = {
-    viewedItems: 0,
-  };
-
-  countViewedItems = () => {
-    let viewedItems = 0;
-
-    for (const item in this.refs) {
-      if (this.refs.hasOwnProperty(item)) {
-        const product = this.refs[item];
-        const productRect = findDOMNode(product).getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-
-        if (productRect.bottom < windowHeight) viewedItems++;
-      }
-    }
-
-    this.setState({viewedItems});
-  };
 
   renderHeader() {
     const props = this.props;
@@ -91,37 +59,11 @@ class ProductsList extends React.Component {
   }
 
   getItemList() {
-    const items = _.map(this.props.list, (item) => {
+    return _.map(this.props.list, (item) => {
       return (
         <ListItem {...item} key={`product-${item.id}`} ref={`product-${item.id}`}/>
       );
     });
-
-    if (!this.props.hasBanners) return items;
-
-    const bannersData = [
-      {
-        styleName: 'banner-sunglasses',
-        header: 'Summer 2016',
-        description: 'Bring on the sun',
-        links: [{to: '/collections/summer2016', text: 'Shop Sunglasses'}],
-      },
-      {
-        styleName: 'banner-eyeglasses',
-        header: 'Summer 2016',
-        description: 'Better to see you with, my dear',
-        links: [{to: '/collections/summer2016', text: 'Shop Eyeglasses'}],
-      },
-    ];
-
-    const banners = bannersData.map((banner, i) => {
-      return <BannerWithImage { ...banner } key={`banner-${i}`}/>;
-    });
-
-    if (items.length > 6) items.splice(6, 0, banners[0]);
-    if (items.length > 13) items.splice(13, 0, banners[1]);
-
-    return items;
   }
 
   render() : HTMLElement {
@@ -130,20 +72,12 @@ class ProductsList extends React.Component {
       ? this.getItemList()
       : <div styleName="not-found">No products found.</div>;
 
-    const totalItems = this.props.list ? this.props.list.length : 0;
-
     return (
       <section styleName="catalog">
         {this.renderHeader()}
         <div styleName="list">
           {items}
         </div>
-        <ScrollToTop />
-        <ViewIndicator
-          totalItems={totalItems}
-          viewedItems={this.state.viewedItems}
-          countViewedItems={this.countViewedItems}
-        />
       </section>
     );
   }

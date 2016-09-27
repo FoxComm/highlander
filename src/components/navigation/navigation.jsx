@@ -3,7 +3,6 @@
 import React, { PropTypes } from 'react';
 import type { HTMLElement } from 'types';
 import _ from 'lodash';
-import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
@@ -47,11 +46,7 @@ class Navigation extends React.Component {
       browserHistory.push('/');
     } else {
       const dashedName = category.name.replace(/\s/g, '-');
-      if (type) {
-        browserHistory.push({pathname: `/${dashedName}`, query: {type}});
-      } else {
-        browserHistory.push(`/${dashedName}`);
-      }
+      browserHistory.push(`/${dashedName}`);
     }
   }
 
@@ -63,13 +58,9 @@ class Navigation extends React.Component {
       const key = `category-${dashedName}`;
       return (
         <li styleName="item" key={key}>
-          <a styleName="item-link">
-          {t(item.name.toUpperCase())}
+          <a styleName="item-link" onClick={() => this.onClick(item)}>
+            {t(item.name.toUpperCase())}
           </a>
-          <ul>
-            <li><a onClick={() => this.onClick(item, 'men')}>MEN'S</a></li>
-            <li><a onClick={() => this.onClick(item, 'women')}>WOMEN'S</a></li>
-          </ul>
         </li>
       );
     });
@@ -82,8 +73,6 @@ class Navigation extends React.Component {
           </li>
         )}
         {categoryItems}
-        <li styleName="item" ><Link to="/locations" styleName="item-link">Locations</Link></li>
-        <li styleName="item" ><Link to="/our-story" styleName="item-link">Our story</Link></li>
       </ul>
     );
   }

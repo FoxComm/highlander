@@ -5,8 +5,10 @@ import createAsyncActions from './async-utils';
 
 function apiCall(): Promise {
   const result = [
-    {id: 2, name: 'eyeglasses', description: 'Better to see you with, my dear.'},
-    {id: 3, name: 'sunglasses', description: 'Bring on the sun.'},
+    {id: 1, name: 'APPETIZERS', description: 'Dinner in 30 minutes'},
+    {id: 2, name: 'ENTRÉES', description: 'Dinner in 30 minutes'},
+    {id: 3, name: 'BEST SELLERS', description: 'Dinner in 30 minutes'},
+    {id: 4, name: 'GIFTS', description: 'Dinner in 30 minutes'},
   ];
   return Promise.resolve(result);
 }
