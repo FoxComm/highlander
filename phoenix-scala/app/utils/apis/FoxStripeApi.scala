@@ -3,7 +3,7 @@ package utils.apis
 import com.stripe.model.DeletedCard
 import models.location.Address
 import models.payment.creditcard.CreditCard
-import payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
+import payloads.PaymentPayloads._
 import services._
 import utils.Money._
 import utils.aliases.stripe._
@@ -14,13 +14,13 @@ import utils.aliases.stripe._
 trait FoxStripeApi {
 
   def createCardFromToken(email: Option[String],
-                          token: String,
+                          payload: CreateCreditCardFromTokenPayload,
                           stripeCustomerId: Option[String],
                           address: Address): Result[(StripeCustomer, StripeCard)]
 
   @deprecated(message = "Use `createCardFromToken` instead", "Until we are PCI compliant")
   def createCardFromSource(email: Option[String],
-                           card: CreateCreditCardFromSourcePayload,
+                           payload: CreateCreditCardFromSourcePayload,
                            stripeCustomerId: Option[String],
                            address: Address): Result[(StripeCustomer, StripeCard)]
 

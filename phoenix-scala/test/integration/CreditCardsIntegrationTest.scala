@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import cats.implicits._
-import failures.{GeneralFailure, NotFoundFailure400, NotFoundFailure404}
+import failures._
 import models.customer.{Customer, Customers}
 import models.location.{Addresses, Region}
 import models.payment.creditcard.{CreditCard, CreditCards}
@@ -13,13 +13,14 @@ import org.mockito.{ArgumentMatchers ⇒ m, _}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mock.MockitoSugar
 import payloads.AddressPayloads.CreateAddressPayload
-import payloads.PaymentPayloads.CreateCreditCardFromTokenPayload
+import payloads.PaymentPayloads._
 import responses.CreditCardsResponse
 import services.Result
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import util._
 import util.fixtures.BakedFixtures
-import utils.TestStripeSupport
+import utils._
 import utils.aliases.stripe.StripeCustomer
 import utils.seeds.Seeds.Factories
 
@@ -38,13 +39,7 @@ class CreditCardsIntegrationTest
   val theAddress = Factories.address.copy(id = 1, customerId = 1, isDefaultShipping = false)
   val expYear    = ZonedDateTime.now.getYear + 3
 
-  val theAddressPayload = CreateAddressPayload(name = theAddress.name,
-                                               address1 = theAddress.address1,
-                                               address2 = theAddress.address2,
-                                               zip = theAddress.zip,
-                                               city = theAddress.city,
-                                               regionId = theAddress.regionId,
-                                               phoneNumber = theAddress.phoneNumber)
+  val theAddressPayload = CreateCcAddressPayload(theAddress.toPayload)
 
   val tokenStripeId = s"tok_${TestStripeSupport.randomStripeishId}"
 
@@ -54,24 +49,27 @@ class CreditCardsIntegrationTest
                                                     expYear = expYear,
                                                     brand = "Mona Visa",
                                                     holderName = "Leo",
-                                                    addressIsNew = false,
                                                     billingAddress = theAddressPayload)
 
-  val crookedAddressPayload = CreateAddressPayload(name = "",
-                                                   address1 = "",
-                                                   address2 = "".some,
-                                                   zip = "",
-                                                   regionId = -1,
-                                                   city = "",
-                                                   phoneNumber = "".some)
+  val crookedAddressPayload = CreateCcAddressPayload(
+      CreateAddressPayload(name = "",
+                           address1 = "",
+                           address2 = "".some,
+                           zip = "",
+                           regionId = -1,
+                           city = "",
+                           phoneNumber = "".some))
   val crookedPayload = CreateCreditCardFromTokenPayload(token = "",
                                                         lastFour = "",
                                                         expMonth = 666,
                                                         expYear = 777,
                                                         brand = "",
                                                         holderName = "",
-                                                        addressIsNew = false,
                                                         billingAddress = crookedAddressPayload)
+
+  val billingAddressLens = lens[CreateCreditCardFromTokenPayload].billingAddress
+  val regionIdLens       = billingAddressLens.address.regionId
+  val isNewLens          = billingAddressLens.isNew
 
   "POST /v1/customers/:id/payment-methods/credit-cards (admin auth)" - {
     "creates a new credit card" in new Customer_Seed {
@@ -141,7 +139,7 @@ class CreditCardsIntegrationTest
     }
 
     "creates address if it's new" in new Customer_Seed {
-      val payload  = thePayload.copy(addressIsNew = true)
+      val payload  = isNewLens.set(thePayload)(true)
       val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
       response.status must === (StatusCodes.OK)
       Addresses.result.headOption.gimme.value must === (theAddress)
@@ -162,8 +160,8 @@ class CreditCardsIntegrationTest
     }
 
     "errors 400 if wrong region id" in new Customer_Seed {
-      val wrongRegionIdPayload =
-        thePayload.copy(billingAddress = theAddressPayload.copy(regionId = -1))
+      val wrongRegionIdPayload = regionIdLens.set(thePayload)(-1)
+
       val response =
         POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", wrongRegionIdPayload)
       response.status must === (StatusCodes.BadRequest)
@@ -174,7 +172,8 @@ class CreditCardsIntegrationTest
       val response = POST("v1/customers/666/payment-methods/credit-cards", crookedPayload)
       response.status must === (StatusCodes.BadRequest)
 
-      val validationErrors = crookedPayload.validate.toXor.leftVal.toList.map(_.description)
+      val validationErrors: List[String] =
+        crookedPayload.validate.toXor.leftVal.toList.map(_.description)
       response.errors must contain theSameElementsAs validationErrors
     }
   }
@@ -290,7 +289,7 @@ class CreditCardsIntegrationTest
     }
 
     "creates address if it's new" in new Customer_Seed {
-      val payload  = thePayload.copy(addressIsNew = true)
+      val payload  = isNewLens.set(thePayload)(true)
       val response = POST("v1/my/payment-methods/credit-cards", payload)
       response.status must === (StatusCodes.OK)
       Addresses.result.headOption.gimme.value must === (theAddress)
@@ -306,8 +305,7 @@ class CreditCardsIntegrationTest
     }
 
     "errors 400 if wrong region id" in new Customer_Seed {
-      val wrongRegionIdPayload =
-        thePayload.copy(billingAddress = theAddressPayload.copy(regionId = -1))
+      val wrongRegionIdPayload = regionIdLens.set(thePayload)(-1)
 
       val response = POST("v1/my/payment-methods/credit-cards", wrongRegionIdPayload)
       response.status must === (StatusCodes.BadRequest)

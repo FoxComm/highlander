@@ -9,18 +9,17 @@ import com.stripe.exception.CardException
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.CustomerFailures._
 import failures.StripeFailures.StripeFailure
-import failures.{GeneralFailure, NotFoundFailure404}
+import failures.{GeneralFailure, NotFoundFailure400, NotFoundFailure404}
 import models.cord.OrderPayments.scope._
 import models.cord._
 import models.customer._
-import models.location.{Addresses, Regions}
+import models.location.{Address, Addresses, Regions}
 import models.payment.creditcard._
 import models.shipping.Shipment.Shipped
 import models.shipping.{Shipment, Shipments}
 import models.traits.Originator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import payloads.AddressPayloads.CreateAddressPayload
 import payloads.CustomerPayloads._
 import payloads.PaymentPayloads._
 import responses.CreditCardsResponse.{Root ⇒ CardResponse}
@@ -32,7 +31,7 @@ import services.{CreditCardManager, Result}
 import slick.driver.PostgresDriver.api._
 import util._
 import util.fixtures.BakedFixtures
-import utils.MockedApis
+import utils._
 import utils.aliases.stripe.StripeCard
 import utils.db._
 import utils.jdbc._
@@ -66,7 +65,7 @@ class CustomerIntegrationTest
   "POST /v1/customers" - {
     "successfully creates customer from payload" in {
       val response = POST(s"v1/customers",
-                          CreateCustomerPayload(email = "test@example.com", name = Some("test")))
+                          CreateCustomerPayload(email = "test@example.com", name = "test".some))
 
       response.status must === (StatusCodes.OK)
 
@@ -77,7 +76,7 @@ class CustomerIntegrationTest
 
     "fails if email is already in use" in new Customer_Seed {
       val response = POST(s"v1/customers",
-                          CreateCustomerPayload(email = customer.email.value, name = Some("test")))
+                          CreateCustomerPayload(email = customer.email.value, name = "test".some))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (CustomerEmailNotUnique.description)
@@ -203,7 +202,7 @@ class CustomerIntegrationTest
 
     "fetches customer info with lastOrderDays value" in new Order_Baked {
       val expectedCustomer =
-        CustomerResponse.build(customer, shippingRegion = region.some, lastOrderDays = Some(0))
+        CustomerResponse.build(customer, shippingRegion = region.some, lastOrderDays = 0l.some)
 
       val response = GET(s"v1/customers/${customer.id}")
       response.status must === (StatusCodes.OK)
@@ -215,7 +214,7 @@ class CustomerIntegrationTest
 
       secondResponse.status must === (StatusCodes.OK)
       secondResponse.as[CustomerResponse.Root] must === (
-          expectedCustomer.copy(lastOrderDays = Some(1l)))
+          expectedCustomer.copy(lastOrderDays = 1l.some))
     }
 
     "ranking" - {
@@ -227,12 +226,12 @@ class CustomerIntegrationTest
 
         val response = GET(s"v1/customers/${customer.id}")
         response.status must === (StatusCodes.OK)
-        response.as[CustomerResponse.Root].rank must === (Some(2))
+        response.as[CustomerResponse.Root].rank must === (2.some)
         val rank  = CustomersRanks.findById(customer.id).extract.result.head.gimme
         val rank2 = CustomersRanks.findById(customer2.id).extract.result.head.gimme
         rank.revenue must === (charge1.amount)
         rank2.revenue must === (charge2.amount)
-        rank2.rank must === (Some(1))
+        rank2.rank must === (1.some)
       }
     }
   }
@@ -283,7 +282,7 @@ class CustomerIntegrationTest
     "fails if email is already in use" in new Fixture {
       val newUserResponse =
         POST(s"v1/customers",
-             CreateCustomerPayload(email = "test@example.com", name = Some("test")))
+             CreateCustomerPayload(email = "test@example.com", name = "test".some))
 
       newUserResponse.status must === (StatusCodes.OK)
       val root = newUserResponse.as[CustomerResponse.Root]
@@ -300,7 +299,7 @@ class CustomerIntegrationTest
     "fails if email is already in use by non-guest user" in new Fixture {
       val newUserResponse =
         POST(s"v1/customers",
-             CreateCustomerPayload(email = customer.email.value, isGuest = Some(true)))
+             CreateCustomerPayload(email = customer.email.value, isGuest = true.some))
 
       newUserResponse.status must === (StatusCodes.OK)
       val root = newUserResponse.as[CustomerResponse.Root]
@@ -315,7 +314,7 @@ class CustomerIntegrationTest
     "sucessfully activate non-guest user" in new Fixture {
       val newUserResponse =
         POST(s"v1/customers",
-             CreateCustomerPayload(email = "guest@example.com", isGuest = Some(true)))
+             CreateCustomerPayload(email = "guest@example.com", isGuest = true.some))
 
       newUserResponse.status must === (StatusCodes.OK)
       val root = newUserResponse.as[CustomerResponse.Root]
@@ -325,7 +324,7 @@ class CustomerIntegrationTest
       response.status must === (StatusCodes.OK)
 
       val created = Customers.findOneById(root.id).gimme.value
-      CustomerResponse.build(created) must === (root.copy(name = Some("test"), isGuest = false))
+      CustomerResponse.build(created) must === (root.copy(name = "test".some, isGuest = false))
       created.isGuest must === (false)
     }
   }
@@ -471,7 +470,7 @@ class CustomerIntegrationTest
   "PATCH /v1/customers/:customerId/payment-methods/credit-cards/:creditCardId" - {
     "when successful" - {
       "removes the original card from wallet" in new CreditCardFixture {
-        val payload = EditCreditCard(holderName = Some("Bob"))
+        val payload = EditCreditCardPayload(holderName = "Bob".some)
         val response =
           PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
                 payload)
@@ -485,7 +484,7 @@ class CustomerIntegrationTest
       }
 
       "creates a new version of the edited card in the wallet" in new CreditCardFixture {
-        val payload = EditCreditCard(holderName = Some("Bob"))
+        val payload = EditCreditCardPayload(holderName = "Bob".some)
         val response =
           PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
                 payload)
@@ -498,10 +497,10 @@ class CustomerIntegrationTest
 
       "updates the customer's cart to use the new version" in new CreditCardFixture {
         CartPaymentUpdater
-          .addCreditCard(Originator(storeAdmin), creditCard.id, Some(cart.refNum))
+          .addCreditCard(Originator(storeAdmin), creditCard.id, cart.refNum.some)
           .gimme
 
-        val payload = EditCreditCard(holderName = Some("Bob"))
+        val payload = EditCreditCardPayload(holderName = "Bob".some)
         val response =
           PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
                 payload)
@@ -514,45 +513,68 @@ class CustomerIntegrationTest
         pmt.paymentMethodId must === (newVersion.id)
       }
 
-      "copies an existing address book entry to the creditCard" in new CreditCardFixture {
-        val payload = EditCreditCard(holderName = Some("Bob"), addressId = address.id.some)
+      "creates address and updates credit card if no address id provided" in new CreditCardFixture {
+        val addressPayload = UpdateCcAddressPayload(
+            address.toPayload.copy(regionId = address.regionId + 1, zip = "54321"),
+            id = None)
+        val payload = EditCreditCardPayload(address = addressPayload.some)
         val response =
           PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
                 payload)
-        val (newVersion :: Nil) =
-          CreditCards.filter(_.parentId === creditCard.id).result.gimme.toList
-        val numAddresses = Addresses.length.result.gimme
-
         response.status must === (StatusCodes.OK)
-        numAddresses must === (1)
-        (newVersion.zip, newVersion.regionId) must === ((address.zip, address.regionId))
-      }
 
-      "creates a new address book entry if a full address was given" in new CreditCardFixture {
-        val payload = EditCreditCard(holderName = Some("Bob"),
-                                     address =
-                                       CreateAddressPayload(name = "Home Office",
-                                                            regionId = address.regionId + 1,
-                                                            address1 = "3000 Coolio Dr",
-                                                            city = "Seattle",
-                                                            zip = "54321").some)
-        val response =
-          PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
-                payload)
-        val (newVersion :: Nil) =
-          CreditCards.filter(_.parentId === creditCard.id).result.gimme.toList
+        val newVersion = CreditCards.filter(_.parentId === creditCard.id).one.gimme.value
         val addresses  = Addresses.gimme
         val newAddress = addresses.last
 
-        response.status must === (StatusCodes.OK)
         addresses must have size 2
         (newVersion.zip, newVersion.regionId) must === (("54321", address.regionId + 1))
         (newVersion.zip, newVersion.regionId) must === ((newAddress.zip, newAddress.regionId))
       }
+
+      "updates address and credit card if address id provided" in new CreditCardFixture {
+        val addressPayload = UpdateCcAddressPayload(
+            address.toPayload.copy(regionId = address.regionId + 1, zip = "54321"),
+            id = address.id.some)
+        val payload = EditCreditCardPayload(address = addressPayload.some)
+        val response =
+          PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
+                payload)
+        response.status must === (StatusCodes.OK)
+
+        val newVersion = CreditCards.filter(_.parentId === creditCard.id).one.gimme.value
+        val addresses  = Addresses.gimme
+        val updAddress = addresses.last
+
+        addresses must have size 1
+        (newVersion.zip, newVersion.regionId) must === (("54321", address.regionId + 1))
+        (newVersion.zip, newVersion.regionId) must === ((updAddress.zip, updAddress.regionId))
+      }
+
+      "rejects empty payload" in new CreditCardFixture {
+        val response =
+          PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
+                EditCreditCardPayload(None, None, None, None))
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === ("At least one of new values must not be empty")
+      }
+
+      "errors if no address to update found" in new Customer_Seed {
+        val creditCard =
+          CreditCards.create(Factories.creditCard.copy(customerId = customer.id)).gimme
+
+        val addressPayload = UpdateCcAddressPayload(Factories.address.toPayload, id = 666.some)
+        val payload        = EditCreditCardPayload(address = addressPayload.some)
+        val response =
+          PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
+                payload)
+        response.status must === (StatusCodes.BadRequest)
+        response.error must === (NotFoundFailure400(Address, 666).description)
+      }
     }
 
     "fails if the card cannot be found" in new CreditCardFixture {
-      val payload  = EditCreditCard
+      val payload  = EditCreditCardPayload(holderName = "Bob".some)
       val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/99", payload)
 
       response.status must === (StatusCodes.NotFound)
@@ -560,24 +582,24 @@ class CustomerIntegrationTest
     }
 
     "fails if the card is not inWallet" in new CreditCardFixture {
-      CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(storeAdmin)).gimme
+      CreditCardManager.deleteCreditCard(customer.id, creditCard.id, storeAdmin.some).gimme
 
       val response =
         PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
-              EditCreditCard)
+              EditCreditCardPayload(holderName = "Bob".some))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (CannotUseInactiveCreditCard(creditCard).description)
     }
 
     "fails if the payload is invalid" in new CreditCardFixture {
-      val payload = EditCreditCard(holderName = "".some)
+      val payload = EditCreditCardPayload(holderName = "".some)
       val response =
         PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
               payload)
 
       response.status must === (StatusCodes.BadRequest)
-      response.error must === ("holderName must not be empty")
+      response.error must === ("holder name must not be empty")
     }
 
     "fails if stripe returns an error" in new CreditCardFixture {
@@ -593,7 +615,7 @@ class CustomerIntegrationTest
       when(stripeWrapperMock.updateCard(any(), any()))
         .thenReturn(Result.failure[StripeCard](StripeFailure(exception)))
 
-      val payload = EditCreditCard(expYear = Some(2000))
+      val payload = EditCreditCardPayload(expYear = 2000.some)
       val response =
         PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
               payload)

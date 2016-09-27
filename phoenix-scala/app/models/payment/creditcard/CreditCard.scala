@@ -6,11 +6,11 @@ import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures._
-import models.customer.Customers
+import models.customer.{Customer, Customers}
 import models.location._
 import models.payment.PaymentMethod
 import models.traits.Addressable
-import payloads.PaymentPayloads.{CreateCreditCardFromSourcePayload, CreateCreditCardFromTokenPayload}
+import payloads.PaymentPayloads._
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils._
@@ -79,14 +79,14 @@ case class CreditCard(id: Int = 0,
 }
 
 object CreditCard {
-  def buildFromToken(customerId: Int,
-                     customerToken: String,
-                     cardToken: String,
+  def buildFromToken(customer: Customer,
+                     stripeCustomer: StripeCustomer,
+                     stripeCard: StripeCard,
                      payload: CreateCreditCardFromTokenPayload,
                      address: Address): CreditCard =
-    CreditCard(customerId = customerId,
-               gatewayCustomerId = customerToken,
-               gatewayCardId = cardToken,
+    CreditCard(customerId = customer.id,
+               gatewayCustomerId = stripeCustomer.getId,
+               gatewayCardId = stripeCard.getId,
                brand = payload.brand,
                lastFour = payload.lastFour,
                expMonth = payload.expMonth,
@@ -100,26 +100,26 @@ object CreditCard {
                city = address.city)
 
   @deprecated(message = "Use `buildFromToken` instead", "Until we are PCI compliant")
-  def buildFromSource(customerId: Int,
-                      sCust: StripeCustomer,
-                      card: StripeCard,
-                      p: CreateCreditCardFromSourcePayload,
-                      a: Address): CreditCard = {
-    CreditCard(customerId = customerId,
-               gatewayCustomerId = sCust.getId,
-               gatewayCardId = card.getId,
-               holderName = p.holderName,
-               lastFour = p.lastFour,
-               expMonth = p.expMonth,
-               expYear = p.expYear,
-               isDefault = p.isDefault,
-               regionId = a.regionId,
-               addressName = a.name,
-               address1 = a.address1,
-               address2 = a.address2,
-               city = a.city,
-               zip = a.zip,
-               brand = card.getBrand)
+  def buildFromSource(customer: Customer,
+                      stripeCustomer: StripeCustomer,
+                      stripeCard: StripeCard,
+                      payload: CreateCreditCardFromSourcePayload,
+                      address: Address): CreditCard = {
+    CreditCard(customerId = customer.id,
+               gatewayCustomerId = stripeCustomer.getId,
+               gatewayCardId = stripeCard.getId,
+               holderName = payload.holderName,
+               lastFour = payload.lastFour,
+               expMonth = payload.expMonth,
+               expYear = payload.expYear,
+               isDefault = payload.isDefault,
+               regionId = address.regionId,
+               addressName = address.name,
+               address1 = address.address1,
+               address2 = address.address2,
+               city = address.city,
+               zip = address.zip,
+               brand = stripeCard.getBrand)
   }
 }
 
