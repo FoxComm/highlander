@@ -1,8 +1,8 @@
 package services.promotion
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
+import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import failures.PromotionFailures._
@@ -10,10 +10,7 @@ import models.coupon.Coupons
 import models.discount._
 import models.objects.ObjectUtils._
 import models.objects._
-import models.promotion.Promotion.ApplyType
 import models.promotion._
-import org.json4s.JsonAST._
-import org.json4s.JsonDSL._
 import payloads.DiscountPayloads._
 import payloads.PromotionPayloads._
 import responses.PromotionResponses._
@@ -25,14 +22,6 @@ import utils.db._
 
 object PromotionManager {
 
-  private def validatePromotion(applyType: ApplyType, promotion: FormAndShadow): FormAndShadow = {
-    (applyType, promotion.getAttribute("activeFrom")) match {
-      case (Promotion.Coupon, JNothing) ⇒
-        promotion.setAttribute("activeFrom", "date", Instant.now.toString)
-      case _ ⇒ promotion
-    }
-  }
-
   def create(
       payload: CreatePromotion,
       contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[PromotionResponse.Root] = {
@@ -43,8 +32,8 @@ object PromotionManager {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
-      (form, shadow) = validatePromotion(payload.applyType, formAndShadow).tupled
-      ins ← * <~ ObjectUtils.insert(form, shadow)
+      (form, shadow) = IlluminatedPromotion.validatePromotion(payload.applyType, formAndShadow).tupled
+      ins ← * <~ ObjectUtils.insert((form, shadow), payload.schema)
       promotion ← * <~ Promotions.create(
                      Promotion(scope = LTree(au.token.scope),
                                contextId = context.id,
@@ -103,7 +92,7 @@ object PromotionManager {
       promotion ← * <~ Promotions
                    .filterByContextAndFormId(context.id, id)
                    .mustFindOneOr(PromotionNotFoundForContext(id, contextName))
-      validated = validatePromotion(payload.applyType, (formAndShadow.form, formAndShadow.shadow))
+      validated = IlluminatedPromotion.validatePromotion(payload.applyType, (formAndShadow.form, formAndShadow.shadow))
 
       updated ← * <~ ObjectUtils.update(promotion.formId,
                                         promotion.shadowId,

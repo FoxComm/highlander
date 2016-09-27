@@ -108,8 +108,8 @@ class PromotionsIntegrationTest
   trait AutoApplyPromotionSeed extends StoreAdmin_Seed with Promotion_Seed {
     def au: AU = storeAdminAuthData
 
-    override def _createPromotionFromPayload(payload: CreatePromotion) =
-      super._createPromotionFromPayload(payload.copy(applyType = Auto))
+    override def createPromotionFromPayload(payload: CreatePromotion) =
+      super.createPromotionFromPayload(payload.copy(applyType = Auto))
   }
 
 }

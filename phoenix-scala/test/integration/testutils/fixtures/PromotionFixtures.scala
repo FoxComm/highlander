@@ -2,8 +2,6 @@ package testutils.fixtures
 
 import failures.NotFoundFailure404
 import models.account.User
-import models.coupon.Coupons
-import models.objects.ObjectUtils
 import models.promotion.{Promotion, Promotions}
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
@@ -50,23 +48,16 @@ trait PromotionFixtures extends TestFixtureBase {
                                        discounts =
                                          Seq(CreateDiscount(attributes = discountAttributes)))
 
-    val couponAttributes = Map[String, Json]("name" → tv("donkey coupon"))
-
-    def couponPayload(promoId: Int): CreateCoupon =
-      CreateCoupon(attributes = couponAttributes, promoId)
-
-    val (promoRoot: PromotionResponse.Root, promotion: Promotion) = _createPromotionFromPayload(
+    val (promoRoot: PromotionResponse.Root, promotion: Promotion) = createPromotionFromPayload(
         promoPayload)
 
-    def _createPromotionFromPayload(promoPayload: CreatePromotion) = {
+    def createPromotionFromPayload(promoPayload: CreatePromotion) = {
       (for {
         promoRoot ← * <~ PromotionManager.create(promoPayload, ctx.name)
         promotion ← * <~ Promotions
                      .filter(_.contextId === ctx.id)
                      .filter(_.formId === promoRoot.id)
                      .mustFindOneOr(NotFoundFailure404(Promotion, "test"))
-
-        coupon ← * <~ CouponManager.create(couponPayload(promoRoot.id), ctx.name, None)
       } yield (promoRoot, promotion)).gimme
     }
 
@@ -76,19 +67,11 @@ trait PromotionFixtures extends TestFixtureBase {
     implicit def au: AuthData[User]
 
     def promotion: Promotion
-    val coupon = _coupon
-    lazy val fullCoupon = ObjectUtils
-      .getFullObject(
-          Coupons
-            .filterByContextAndFormId(ctx.id, coupon.id)
-            .mustFindOneOr(NotFoundFailure404(s"cannot find coupon with form id = ${coupon.id}")))
-      .gimme
+    val coupon = CouponManager.create(couponPayload(promotion.formId), ctx.name, None).gimme
 
-    def _couponPayload(promoId: Int): CreateCoupon = {
-      CreateCoupon(attributes = Map("name" → JString("donkey coupon")), promoId)
+    def couponPayload(promoId: Int): CreateCoupon = {
+      CreateCoupon(attributes = Map[String, Json]("name" → tv("donkey coupon")), promoId)
     }
-
-    def _coupon = CouponManager.create(_couponPayload(promotion.formId), ctx.name, None).gimme
   }
 
 }
