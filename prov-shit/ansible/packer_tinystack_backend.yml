@@ -8,6 +8,9 @@
     user: ubuntu
     packing: true
     middlewarehouse_src: "{{ lookup('env', 'GOPATH') }}/src/github.com/FoxComm/highlander/middlewarehouse"
+  post_tasks:
+    - name: Sweet Dreams
+      pause: seconds=5
 
   roles:
     - { role: base/ssh_keys }
@@ -23,6 +26,3 @@
     - { role: base/isaac }
     - { role: base/greenriver }
     - { role: base/middlewarehouse }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml

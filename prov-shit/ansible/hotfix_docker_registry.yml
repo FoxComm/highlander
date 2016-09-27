@@ -1,0 +1,49 @@
+---
+
+- name: Hotfix Docker Registry Stage
+  hosts:
+    - stage-amigo-server
+  vars:
+    user: '{{ansible_ssh_user}}'
+    cert_path: "target-stage"
+  vars_prompt:
+    - name: "aws_access_key"
+      prompt: "Enter AWS access key"
+      private: no
+    - name: "aws_secret_key"
+      prompt: "Enter AWS secret key"
+      private: no
+    - name: "aws_bucket_name"
+      prompt: "Enter AWS bucket name"
+      private: no
+
+  roles:
+    - { role: hotfix/docker_registry }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
+
+- name: Hotfix Docker Registry Vanilla
+  hosts:
+    - target-amigo-server-0
+    - target-amigo-server-1
+    - target-amigo-server-2
+  vars:
+    user: '{{ansible_ssh_user}}'
+    cert_path: "target"
+  vars_prompt:
+    - name: "aws_access_key"
+      prompt: "Enter AWS access key"
+      private: no
+    - name: "aws_secret_key"
+      prompt: "Enter AWS secret key"
+      private: no
+    - name: "aws_bucket_name"
+      prompt: "Enter AWS bucket name"
+      private: no
+
+  roles:
+    - { role: hotfix/docker_registry }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

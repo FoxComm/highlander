@@ -10,6 +10,7 @@ variable "tiny_backend_image" {}
 variable "tiny_frontend_image" {}
 variable "consul_server_image" {}
 variable "gatling_image" {}
+variable "builder_image" {}
 
 provider "google"
 {
@@ -38,67 +39,10 @@ module "buildagents" {
     source = "../../modules/gce/agent"
     prefix = "buildkite-agent"
     queue = "core"
+    image = "${var.builder_image}"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
     servers = 8
-}
-
-##############################################
-# Setup Gatling Machines
-##############################################
-module "gatling" {
-    source = "../../modules/gce/tinystack"
-    datacenter = "gatling"
-    backend_image = "${var.tiny_backend_image}"
-    frontend_image = "${var.tiny_frontend_image}"
-    ssh_user = "${var.ssh_user}"
-    ssh_private_key = "${var.ssh_private_key}"
-    consul_leader = "${module.consul_cluster.leader}"
-    consul_server_image = "${var.consul_server_image}"
-}
-
-resource "google_compute_instance" "gatling-gun" {
-    name = "gatling-gun"
-    machine_type = "n1-standard-2"
-    tags = ["no-ip", "gatling-gun"]
-    zone = "us-central1-a"
-
-    disk {
-        image = "${var.gatling_image}"
-        type = "pd-ssd"
-        size = "30"
-    }
-
-    network_interface {
-        network = "default"
-    }
-
-    connection {
-        type = "ssh"
-        user = "${var.ssh_user}"
-        private_key = "${file(var.ssh_private_key)}"
-    }
-
-    provisioner "remote-exec" {
-        inline = [
-          "/usr/local/bin/bootstrap.sh",
-          "/usr/local/bin/bootstrap_consul.sh gatling ${module.gatling.consul_address}"
-        ]
-    }
-}
-
-##############################################
-# Setup Staging
-##############################################
-module "staging" {
-    source = "../../modules/gce/tinystack"
-    datacenter = "stage"
-    backend_image = "${var.tiny_backend_image}"
-    frontend_image = "${var.tiny_frontend_image}"
-    ssh_user = "${var.ssh_user}"
-    ssh_private_key = "${var.ssh_private_key}"
-    consul_leader = "${module.consul_cluster.leader}"
-    consul_server_image = "${var.consul_server_image}"
 }
 
 ##############################################

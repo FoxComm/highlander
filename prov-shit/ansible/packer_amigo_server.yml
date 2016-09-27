@@ -1,6 +1,6 @@
 ---
 
-- name: The Three Amigos
+- name: Packing Three Amigos
   hosts: all
   tags:
     - packer

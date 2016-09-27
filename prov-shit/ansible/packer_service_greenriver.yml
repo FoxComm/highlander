@@ -17,6 +17,9 @@
     phoenix_server: "phoenix.service.consul:9090"
     greenriver_service_requires: ""
     greenriver_service_after: ""
+  post_tasks:
+    - name: Sweet Dreams
+      pause: seconds=5
 
   roles:
     - { role: base/ssh_keys }

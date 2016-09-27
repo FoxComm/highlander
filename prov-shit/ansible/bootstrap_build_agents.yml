@@ -20,7 +20,7 @@
     - { role: base/ssh_keys }
     - { role: base/scala }
     - { role: base/node }
+    - { role: base/builder }
     - { role: test/db }
     - { role: test/selenium }
-    - { role: base/builder }
     - { role: dev/ssh_gce }
