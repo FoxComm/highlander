@@ -64,14 +64,15 @@ class MerchantApplicationsList extends Component {
   }
 
   render(): Element {
-    console.log('Applications:');
-    console.log(this.props.list.applications);
+    const { list, isFetching } = this.props;
 
     return (
       <ListPageContainer title="Merchant Applications">
         <MultiSelectTable
           columns={tableColumns}
-          data={{ rows: this.props.list.applications }}
+          data={{ rows: list.applications }}
+          isLoading={isFetching}
+          emptyMessage="No applications found."
           renderRow={this.renderRow} />
       </ListPageContainer>
     );
