@@ -142,13 +142,14 @@ class TaxonomyIntegrationTest
 
       val List(left, right) = taxonTerms.take(2)
       val termToMoveId      = left.children.head.id
-      val newParent         = right.id
+      val newParentId         = right.id
 
       val resp = PATCH(s"v1/taxonomy/${ctx.name}/term/$termToMoveId",
-                       UpdateTermPayload(None, Some(newParent), None))
+                       UpdateTermPayload(None, Some(newParentId), None))
       resp.status must === (StatusCodes.OK)
 
       val taxonTermsAfter             = queryGetTaxon(taxon.formId).terms
+
       val List(leftAfter, rightAfter) = taxonTermsAfter.take(2)
       leftAfter.children.size must === (left.children.size - 1)
       rightAfter.children.size must === (right.children.size + 1)

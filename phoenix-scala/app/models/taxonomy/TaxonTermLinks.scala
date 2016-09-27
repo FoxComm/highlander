@@ -33,7 +33,7 @@ case class TaxonTermLink(id: Int = 0,
     if (path.value == List("")) LTree(List(index.toString))
     else LTree(path.value ::: List(index.toString))
 
-  def parentIndex: Option[Int] = path.value.lastOption.filter(!_.isEmpty) map (_.toInt)
+  def parentIndex: Option[Int] = path.value.lastOption.filter(!_.isEmpty).map(_.toInt)
 }
 
 class TaxonTermLinks(tag: Tag) extends ObjectHeadLinks[TaxonTermLink](tag, "taxon_term_links") {
