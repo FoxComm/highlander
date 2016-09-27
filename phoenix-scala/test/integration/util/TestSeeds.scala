@@ -36,7 +36,7 @@ trait TestSeeds extends TestFixtureBase {
                                              password = "password",
                                              state = StoreAdminUser.Active,
                                              org = "tenant",
-                                             roles = List("tenant_admin"),
+                                             roles = List("admin"),
                                              author = None)
               })
       adu ← * <~ StoreAdminUsers.mustFindByAccountId(ad.accountId)

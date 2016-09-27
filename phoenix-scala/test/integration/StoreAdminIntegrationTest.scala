@@ -23,7 +23,7 @@ class StoreAdminIntegrationTest
                                             email = "donkey.admin@donkeys.com",
                                             password = Some("123456"),
                                             phoneNumber = Some("1231231234"),
-                                            roles = List("tenant_admin"),
+                                            roles = List("admin"),
                                             org = "tenant")
       val response = POST("v1/store-admins", payload)
 
@@ -38,7 +38,7 @@ class StoreAdminIntegrationTest
     "don't create with duplicated email" in new Fixture {
       val payload = CreateStoreAdminPayload(name = authedUser.name.getOrElse(""),
                                             email = authedUser.email.getOrElse(""),
-                                            roles = List("tenant_admin"),
+                                            roles = List("admin"),
                                             org = "tenant")
       val response = POST("v1/store-admins", payload)
 
