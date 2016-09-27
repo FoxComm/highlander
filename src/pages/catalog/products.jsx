@@ -13,15 +13,16 @@ import styles from './products.css';
 import * as actions from 'modules/products';
 
 type Params = {
-  categoryName: ?string;
-}
+  categoryName: ?string,
+};
 
-type ProductListParams = {
-  params: Params;
-  list: Array<Product>;
-  isLoading: boolean;
-  fetch: Function;
-}
+type Props = {
+  params: Params,
+  list: Array<Product>,
+  isLoading: boolean,
+  fetch: Function,
+  location: any,
+};
 
 const mapStateToProps = state => {
   const async = state.asyncActions.products;
@@ -33,13 +34,14 @@ const mapStateToProps = state => {
 };
 
 class Products extends Component {
+  props: Props;
 
   componentWillMount() {
     const { categoryName } = this.props.params;
     this.props.fetch(categoryName);
   }
 
-  componentWillReceiveProps(nextProps: ProductListParams) {
+  componentWillReceiveProps(nextProps: Props) {
     const { categoryName } = this.props.params;
     const nextName = nextProps.params.categoryName;
     if (categoryName !== nextName) {

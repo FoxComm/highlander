@@ -9,9 +9,9 @@ import { Link } from 'react-router';
 import Icon from 'ui/icon';
 
 type OverlayProps = {
-  children: HTMLElement;
-  path: string|Object;
-}
+  children: HTMLElement,
+  path: string|Object,
+};
 
 const Overlay = (props:OverlayProps) => {
   return (

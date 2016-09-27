@@ -4,11 +4,11 @@
 import React from 'react';
 import type { Address } from 'types/address';
 
-type ViewAddressProps = Address & {
-  className?: string;
+type Props = Address & {
+  className?: string,
 };
 
-const ViewAddress = (props: ViewAddressProps) => {
+const ViewAddress = (props: Props) => {
   return (
     <ul className={props.className}>
       <li><strong>{props.name}</strong></li>

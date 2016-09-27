@@ -23,15 +23,15 @@ import { EditStages } from 'modules/checkout';
 import type { CheckoutState, EditStage } from 'modules/checkout';
 import { fetch as fetchCart, hideCart } from 'modules/cart';
 
-type CheckoutProps = CheckoutState & {
-  setEditStage: (stage: EditStage) => Object;
-  saveShippingAddress: () => PromiseType;
-  saveShippingMethod: () => PromiseType;
-  fetchCart: () => PromiseType;
-  addCreditCard: () => PromiseType;
-  checkout: () => PromiseType;
-  hideCart: () => PromiseType;
-}
+type Props = CheckoutState & {
+  setEditStage: (stage: EditStage) => Object,
+  saveShippingAddress: () => PromiseType,
+  saveShippingMethod: () => PromiseType,
+  fetchCart: () => PromiseType,
+  addCreditCard: () => PromiseType,
+  checkout: () => PromiseType,
+  hideCart: () => PromiseType,
+};
 
 function isDeliveryDirty(state) {
   return !!state.cart.shippingMethod;
@@ -50,7 +50,7 @@ function mapStateToProps(state) {
 }
 
 class Checkout extends Component {
-  props: CheckoutProps;
+  props: Props;
 
   state = {
     isPerformingCheckout: false,

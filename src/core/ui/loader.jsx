@@ -5,7 +5,7 @@ import styles from './css/loader.css';
 
 type Props = {
   size: 'm' | 'l' | 'xl' | 'xxl'
-}
+};
 
 const Loader = (props: Props): HTMLElement => {
   return (

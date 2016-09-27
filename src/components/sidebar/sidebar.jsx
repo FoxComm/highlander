@@ -19,10 +19,10 @@ import * as actions from 'modules/sidebar';
 import { resetTerm } from 'modules/search';
 
 type SidebarProps = Localized & {
-  isVisible: boolean;
-  toggleSidebar: Function;
-  resetTerm: Function;
-  path: string;
+  isVisible: boolean,
+  toggleSidebar: Function,
+  resetTerm: Function,
+  path: string,
 };
 
 const Sidebar = (props: SidebarProps): HTMLElement => {

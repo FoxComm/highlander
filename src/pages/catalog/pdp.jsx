@@ -34,40 +34,40 @@ import styles from './pdp.css';
 
 
 type Params = {
-  productId: string;
+  productId: string,
 };
 
 type Actions = {
-  fetchProducts: Function;
-  fetch: (id: number) => any;
-  getNextId: Function;
-  getPreviousId: Function;
-  resetProduct: Function;
-  addLineItem: Function;
-  toggleCart: Function;
+  fetchProducts: Function,
+  fetch: (id: number) => any,
+  getNextId: Function,
+  getPreviousId: Function,
+  resetProduct: Function,
+  addLineItem: Function,
+  toggleCart: Function,
 };
 
 type Props = Localized & {
-  actions: Actions;
-  params: Params;
-  product: ?ProductResponse;
-  auth: any;
-  isLoading: boolean;
-  isCartLoading: boolean;
-  notFound: boolean;
+  actions: Actions,
+  params: Params,
+  product: ?ProductResponse,
+  auth: any,
+  isLoading: boolean,
+  isCartLoading: boolean,
+  notFound: boolean,
 };
 
 type State = {
-  quantity: number;
-  error?: any;
+  quantity: number,
+  error?: any,
 };
 
 type Product = {
-  title: string;
-  description: string;
-  images: Array<string>;
-  currency: string;
-  price: number;
+  title: string,
+  description: string,
+  images: Array<string>,
+  currency: string,
+  price: number,
 };
 
 const mapStateToProps = state => {

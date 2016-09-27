@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { autobind, debounce } from 'core-decorators';
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import * as validators from './validators';
 import styles from './formfield.css';
@@ -12,19 +12,19 @@ import type { Localized } from 'lib/i18n';
 import type { HTMLElement} from 'types';
 
 type FormFieldProps = Localized & {
-  validator: ?string|?(value: any) => string;
-  children: HTMLElement;
-  required: ?any;
-  maxLength: ?number;
-  target: ?string;
-  name: ?string;
-  error: ?string|boolean;
-  getTargetValue: ?(node: any) => any;
-  className: ?string;
-  label: ?string;
+  validator: ?string|?(value: any) => string,
+  children: HTMLElement,
+  required: ?any,
+  maxLength: ?number,
+  target: ?string,
+  name: ?string,
+  error: ?string|boolean,
+  getTargetValue: ?(node: any) => any,
+  className: ?string,
+  label: ?string,
 };
 
-class FormField extends React.Component {
+class FormField extends Component {
   props: FormFieldProps;
   beforeValue: any;
 

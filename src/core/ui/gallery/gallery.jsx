@@ -11,14 +11,14 @@ import styles from './gallery.css';
 
 
 type State = {
-  selected: number;
-}
+  selected: number,
+};
 
 type Props = {
-  images: Array<string>;
-}
+  images: Array<string>,
+};
 
-export default class Gallery extends Component {
+class Gallery extends Component {
   props: Props;
 
   state: State = {
@@ -72,3 +72,5 @@ export default class Gallery extends Component {
     );
   }
 }
+
+export default Gallery;

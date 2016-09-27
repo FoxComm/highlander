@@ -8,8 +8,8 @@ import styles from './cvc-help.css';
 import Icon from 'ui/icon';
 
 type State = {
-  popupVisible: boolean;
-}
+  popupVisible: boolean,
+};
 
 export default class CvcHelp extends Component {
 

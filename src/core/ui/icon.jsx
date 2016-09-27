@@ -17,11 +17,11 @@ function wrapSpinner(svg: HTMLElement, className: string) {
 type IconSize = 'm' | 'l' | 'xl' | 'xxl';
 
 type IconProps = {
-  size: ?IconSize;
+  size: ?IconSize,
   name: string,
   className: ?string,
   onClick: ?Function,
-}
+};
 
 const Icon = (props: IconProps) => {
   const name = `#${props.name}-icon`;

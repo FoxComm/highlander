@@ -17,17 +17,17 @@ import Icon from 'ui/icon';
 import { setTerm, toggleActive } from 'modules/search';
 
 type SearchProps = Localized & {
-  isActive: boolean;
+  isActive: boolean,
   term: string,
   result: Array<Product>,
   toggleActive: Function,
   onSearch: Function,
   setTerm: Function,
-}
+};
 
 type SearchState = {
-  term: string;
-}
+  term: string,
+};
 
 class Search extends Component {
   props: SearchProps;

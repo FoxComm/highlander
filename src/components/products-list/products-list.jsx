@@ -1,15 +1,15 @@
 /* @flow */
 
 import _ from 'lodash';
-import React from 'react';
-import { findDOMNode } from 'react-dom';
-import type { HTMLElement } from 'types';
-import type { Product } from 'modules/products';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import styles from './products-list.css';
 
 import ListItem from '../products-item/list-item';
+
+import type { HTMLElement } from 'types';
+import type { Product } from 'modules/products';
 
 type Category = {
   name: string;
@@ -17,7 +17,7 @@ type Category = {
   description: string;
 };
 
-type ProductsListParams = {
+type Props = {
   list: ?Array<Product>;
   categories: ?Array<Category>;
   category: ?string;
@@ -26,8 +26,8 @@ type ProductsListParams = {
 
 const mapStateToProps = state => ({categories: state.categories.list});
 
-class ProductsList extends React.Component {
-  props: ProductsListParams;
+class ProductsList extends Component {
+  props: Props;
 
   renderHeader() {
     const props = this.props;

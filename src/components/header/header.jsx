@@ -15,17 +15,17 @@ import UserTools from '../usertools/usertools';
 import Navigation from '../navigation/navigation';
 
 type Props = {
-  toggleSidebar: Function;
-  toggleSearch: Function;
-  isSearchActive: boolean;
-  resetTerm: Function;
-  path: string;
-  query: ?Object;
-}
+  toggleSidebar: Function,
+  toggleSearch: Function,
+  isSearchActive: boolean,
+  resetTerm: Function,
+  path: string,
+  query: ?Object,
+};
 
 type State = {
-  isScrolled: boolean;
-}
+  isScrolled: boolean,
+};
 
 class Header extends React.Component {
   props: Props;

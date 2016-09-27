@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React, { Component } from 'react';
 import type { HTMLElement } from 'types';
 import _ from 'lodash';
 import { connect } from 'react-redux';
@@ -14,33 +14,47 @@ import * as actions from 'modules/categories';
 import styles from './navigation.css';
 
 type Category = {
-  name: string;
-  id: number;
-  description: string;
+  name: string,
+  id: number,
+  description: string,
+};
+
+type Props = {
+  list: Array<any>,
+  fetch: Function,
+  onClick: Function,
+  hasAllLink: boolean,
+  t: any,
 };
 
 const getState = state => ({...state.categories});
 
-class Navigation extends React.Component {
-
-  static propTypes = {
-    list: PropTypes.array,
-    fetch: PropTypes.func.isRequired,
-    onClick: PropTypes.func,
-    all: PropTypes.bool,
-  };
+class Navigation extends Component {
+  props: Props;
 
   static defaultProps = {
     onClick: _.noop,
-    all: false,
+    hasAllLink: false,
   };
 
   componentWillMount() {
     this.props.fetch();
   }
 
+  get allLink() {
+    const { t } = this.props;
+
+    if (this.props.hasAllLink) {
+      return (
+        <li styleName="item" key="category-all">
+          <a onClick={() => this.onClick()} styleName="item-link">{t('ALL')}</a>
+        </li>
+      );
+    }
+  }
+
   @autobind
-  onClick(category : ?Category, type : ?string) {
+  onClick(category : ?Category) {
     this.props.onClick(category);
     if (category == undefined) {
       browserHistory.push('/');
@@ -67,11 +81,7 @@ class Navigation extends React.Component {
 
     return (
       <ul styleName="list">
-        {this.props.all && (
-          <li styleName="item" key="category-all">
-            <a onClick={() => this.onClick()} styleName="item-link">{t('ALL')}</a>
-          </li>
-        )}
+        {this.allLink}
         {categoryItems}
       </ul>
     );

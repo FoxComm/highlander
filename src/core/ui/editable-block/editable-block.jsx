@@ -10,13 +10,13 @@ import type { Localized } from 'lib/i18n';
 import type { HTMLElement } from 'types';
 
 type EditableProps = Localized & {
-  isEditing: boolean;
-  collapsed?: boolean;
-  editAllowed?: boolean;
-  className?: string;
-  content: HTMLElement;
-  editAction?: () => any;
-  title: string;
+  isEditing: boolean,
+  collapsed?: boolean,
+  editAllowed?: boolean,
+  className?: string,
+  content: HTMLElement,
+  editAction?: () => any,
+  title: string,
 };
 
 const EditableBlock = (props: EditableProps) => {

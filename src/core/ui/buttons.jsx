@@ -7,11 +7,11 @@ import type { HTMLElement } from 'types';
 import Icon from 'ui/icon';
 
 type ButtonProps = {
-  children: HTMLElement|string;
-  icon?: string;
-  isLoading?: boolean;
-  className?: string;
-}
+  children: HTMLElement|string,
+  icon?: string,
+  isLoading?: boolean,
+  className?: string,
+};
 
 const Button = (props: ButtonProps) => {
   const { isLoading, className, disabled, ...rest } = props;

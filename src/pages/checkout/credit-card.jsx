@@ -6,18 +6,18 @@ import Checkbox from 'ui/checkbox';
 import styles from './checkout.css';
 
 type CreditCardType = {
-  id: number;
-  brand: string;
-  lastFour: string;
-  expMonth: number;
-  expYear: number;
+  id: number,
+  brand: string,
+  lastFour: string,
+  expMonth: number,
+  expYear: number,
 };
 
 type Props = {
-  creditCard: CreditCardType;
-  selected: boolean;
-  onSelect: (cc: CreditCardType) => void;
-}
+  creditCard: CreditCardType,
+  selected: boolean,
+  onSelect: (cc: CreditCardType) => void,
+};
 
 const CreditCard = (props: Props) => {
   const { creditCard, selected, onSelect } = props;

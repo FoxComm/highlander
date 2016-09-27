@@ -5,9 +5,9 @@ import styles from './css/term-value-line.css';
 import type { HTMLElement } from 'types';
 
 type PropsType = {
-  children: Array<HTMLElement|string>;
-  className?: string;
-}
+  children: Array<HTMLElement|string>,
+  className?: string,
+};
 
 const TermValueLine = (props: PropsType) => {
   return (

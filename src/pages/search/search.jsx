@@ -15,8 +15,8 @@ import ProductsList from '../../components/products-list/products-list';
 import { setTerm, fetch } from 'modules/search';
 
 type SearchParams = {
-  term: string;
-}
+  term: string,
+};
 
 type SearchResult = {
   total: number,
@@ -25,16 +25,16 @@ type SearchResult = {
   result: Array<Product>|Object,
 };
 
-type SearchProps = Localized & {
-  term: string;
-  results: SearchResult;
-  params: SearchParams;
-  setTerm: Function;
-  fetch: Function;
-}
+type Props = Localized & {
+  term: string,
+  results: SearchResult,
+  params: SearchParams,
+  setTerm: Function,
+  fetch: Function,
+};
 
 class Search extends Component {
-  props: SearchProps;
+  props: Props;
 
   componentWillMount() {
     if (this.props.term != this.props.params.term) {
@@ -44,7 +44,7 @@ class Search extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps: SearchProps) {
+  componentWillReceiveProps(nextProps: Props) {
     if (this.props.term !== nextProps.term) {
       this.props.fetch(nextProps.term);
     }

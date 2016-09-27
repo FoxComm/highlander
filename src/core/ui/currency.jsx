@@ -5,12 +5,12 @@ import formatCurrency from 'lib/format-currency';
 import type { HTMLElement } from 'types';
 
 type CurrencyProps = {
-  value: any;
-  fractionBase: number;
-  currency: string;
-  bigNumber: bool;
-  className?: string;
-}
+  value: any,
+  fractionBase: number,
+  currency: string,
+  bigNumber: bool,
+  className?: string,
+};
 
 const Currency = (props: CurrencyProps): HTMLElement => {
   const {value, className, ...rest} = props;
