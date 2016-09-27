@@ -5,7 +5,6 @@ variable "ssh_user" {}
 variable "ssh_private_key" {}
 variable "consul_leader" {}
 variable "consul_server_image" {}
-variable "amigo_count" {}
 
 resource "google_compute_instance" "tiny-consul" {
     name = "${var.datacenter}-consul-server"
@@ -37,8 +36,6 @@ resource "google_compute_instance" "tiny-consul" {
         inline = [
           "/usr/local/bin/bootstrap.sh",
           "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${var.consul_leader}",
-          "sudo su -c 'echo server.${var.amigo_count + 1}=${google_compute_instance.tiny-consul.network_interface.0.address}:2888:3888 >> /etc/kafka/zookeeper.properties'",
-          "sudo su -c 'echo ${var.amigo_count + 1} > /var/lib/zookeeper/myid'"
         ]
     }
 
