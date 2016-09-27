@@ -64,7 +64,6 @@ object TaxonTermLinks
   private def shiftPositions(taxonId: Int, path: LTree, position: Int): DBIO[Int] = {
     val pathString = path.toString()
     sqlu"UPDATE taxon_term_links SET position = position + 1 WHERE taxon_id = $taxonId AND path=text2ltree($pathString) AND position >= $position and archived_at is null"
-
   }
 
   private def shrinkPositions(taxonId: Int, path: LTree, position: Int): DBIO[Int] = {

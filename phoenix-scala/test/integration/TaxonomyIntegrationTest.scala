@@ -55,7 +55,10 @@ class TaxonomyIntegrationTest
     "updates taxon" in new Taxon_Seed {
       val newAttributes               = taxonAttributes + ("testValue" → (("t" → "string") ~ ("v" → "test")))
       val payload: UpdateTaxonPayload = UpdateTaxonPayload(newAttributes)
-      val resp                        = PATCH(s"v1/taxonomy/${ctx.name}/${taxon.formId}")
+      val resp                        = PATCH(s"v1/taxonomy/${ctx.name}/${taxon.formId}", payload)
+      resp.status must === (StatusCodes.OK)
+      val taxonResp = resp.as[TaxonResponse.Root]
+      taxonResp.attributes must === (JObject(payload.attributes.toList: _*))
     }
   }
 
@@ -142,13 +145,13 @@ class TaxonomyIntegrationTest
 
       val List(left, right) = taxonTerms.take(2)
       val termToMoveId      = left.children.head.id
-      val newParentId         = right.id
+      val newParentId       = right.id
 
       val resp = PATCH(s"v1/taxonomy/${ctx.name}/term/$termToMoveId",
                        UpdateTermPayload(None, Some(newParentId), None))
       resp.status must === (StatusCodes.OK)
 
-      val taxonTermsAfter             = queryGetTaxon(taxon.formId).terms
+      val taxonTermsAfter = queryGetTaxon(taxon.formId).terms
 
       val List(leftAfter, rightAfter) = taxonTermsAfter.take(2)
       leftAfter.children.size must === (left.children.size - 1)

@@ -17,7 +17,7 @@ object TaxonomyRoutes {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("taxonomy") {
         pathPrefix(Segment) { contextName ⇒
-          adminObjectContext(contextName)(db, ec) { implicit context ⇒
+          adminObjectContext(contextName) { implicit context ⇒
             //POST v1/taxonomy/{contextName}
             (post & pathEnd & entity(as[CreateTaxonPayload])) { payload ⇒
               mutateOrFailures(TaxonomyManager.createTaxon(payload))

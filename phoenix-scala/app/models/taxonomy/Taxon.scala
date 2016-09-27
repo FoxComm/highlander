@@ -34,7 +34,7 @@ class Taxons(tag: Tag) extends ObjectHeads[Taxon](tag, "taxons") {
   def hierarchical = column[Boolean]("hierarchical")
 
   def * =
-    (id, hierarchical, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Taxon.apply _).tupled, Taxon.unapply)
+    (id, hierarchical, contextId, formId, shadowId, commitId, updatedAt, createdAt, archivedAt) <> ((Taxon.apply _).tupled, Taxon.unapply)
 }
 
 object Taxons
