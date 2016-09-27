@@ -9,6 +9,7 @@ import _ from 'lodash';
 import { ListPageContainer, makeTotalCounter } from 'components/list-page';
 import MerchantApplicationRow from './row';
 import MultiSelectTable from 'components/table/multi-select-table';
+import SubNav from './sub-nav';
 
 // actions
 import * as applicationActions from 'modules/merchant-applications/list';
@@ -68,9 +69,15 @@ class MerchantApplicationsList extends Component {
 
   render(): Element {
     const { list, isFetching } = this.props;
+    const count = list.applications.length;
+
+    const props = isFetching || count == 0
+      ? { title: 'Merchant Applications' }
+      : { title: 'Merchant Applications', subtitle: count };
 
     return (
-      <ListPageContainer title="Merchant Applications">
+      <ListPageContainer {...props}>
+        <SubNav />
         <div styleName="body">
           <div styleName="content">
             <MultiSelectTable
