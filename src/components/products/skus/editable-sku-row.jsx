@@ -79,7 +79,6 @@ class EditableSkuRow extends Component {
   };
 
   componentWillReceiveProps(nextProps: Props) {
-    // NOTE: Jeff - This is really annoying, so I closed it
     if (this.props.isFetchingSkus && !nextProps.isFetchingSkus) {
       this.setState({
         isMenuVisible: true,
@@ -300,15 +299,13 @@ class EditableSkuRow extends Component {
   }
 
   updateSku(values: {[key: string]: any}) {
-    console.log('UPDATING THE SKU!!');
     this.setState({
       sku: Object.assign({}, this.state.sku, values),
     }, () => {
       const toUpdate = _.map(values, (value: any, field: string) => {
-        this.props.updateField(this.code, field, value);
         return [field, value];
       });
-      // this.props.updateFields(this.code, toUpdate);
+      this.props.updateFields(this.code, toUpdate);
     });
   }
 
@@ -341,8 +338,8 @@ class EditableSkuRow extends Component {
   }
 }
 
-export default _.flow(
-  connect(mapLocalStateToProps, { suggestSkus }),
+export default _.flowRight(
+  connect(mapGlobalStateToProps),
   makeLocalStore(reducer),
-  connect(mapGlobalStateToProps)
+  connect(mapLocalStateToProps, { suggestSkus })
 )(EditableSkuRow);
