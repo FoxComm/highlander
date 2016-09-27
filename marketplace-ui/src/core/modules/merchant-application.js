@@ -16,12 +16,11 @@ export type Merchant = {
 
 export type Application = {
   state: string;
-  id?: number;
-  reference_number?: string;
-  name?: string;
-  business_name?: string;
-  email_address?: string;
-  description?: string;
+  id: number;
+  reference_number: string;
+  business_name: string;
+  email_address: string;
+  description: string;
   merchant?: Merchant;
 }
 
@@ -29,7 +28,7 @@ type ApplicationResponse = {
   merchant_application: ApplicationResponse;
 }
 
-type State = Application;
+type State = {} | Application;
 
 const ACTION_FETCH = 'merchantApplicationFetch';
 const ACTION_SUBMIT = 'merchantApplicationSubmit';
@@ -54,7 +53,6 @@ const { perform: performFetch, clearErrors, ...actionsFetch } = createAsyncActio
 );
 
 const initialState: State = {
-  state: 'editing',
 };
 
 const reducer = createReducer({
