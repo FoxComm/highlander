@@ -34,9 +34,9 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     val post = Http(req.POST)
 
     Http(req.POST > AsMwhResponse).either.flatMap {
-      case Right(MwhResponse(status, _)) if status/200 == 2 ⇒ Result.unit
-      case Right(MwhResponse(_, message)) ⇒ Result.failure(MiddlewarehouseError(message))
-      case Left(error) ⇒ Result.failure(MiddlewarehouseFailures.UnableToHoldLineItems)
+      case Right(MwhResponse(status, _)) if status / 200 == 2 ⇒ Result.unit
+      case Right(MwhResponse(_, message))                     ⇒ Result.failure(MiddlewarehouseError(message))
+      case Left(error)                                        ⇒ Result.failure(MiddlewarehouseFailures.UnableToHoldLineItems)
     }
   }
 
@@ -53,9 +53,9 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
   }
 }
 
-case class MwhResponse(statusCode:Int, content:String)
+case class MwhResponse(statusCode: Int, content: String)
 
-object AsMwhResponse extends (client.Response => MwhResponse) {
+object AsMwhResponse extends (client.Response ⇒ MwhResponse) {
 
   override def apply(r: Res): MwhResponse =
     MwhResponse(r.getStatusCode, r.getResponseBody)

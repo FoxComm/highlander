@@ -2,7 +2,7 @@ package failures
 
 object MiddlewarehouseFailures {
 
-  case class MiddlewarehouseError(message:String) extends Failure {
+  case class MiddlewarehouseError(message: String) extends Failure {
     override def description = message
   }
 
