@@ -107,9 +107,7 @@ object AccountManager {
       _ ← * <~ (if (checkEmail) (email match {
                   case Some(e) ⇒
                     for {
-                      usrs ← * <~ Users.result
-                      _    ← * <~ usrs.map(u ⇒ System.out.println(s"USER ${u.email}"))
-                      _    ← * <~ Users.createEmailMustBeUnique(e)
+                      _ ← * <~ Users.createEmailMustBeUnique(e)
                     } yield {}
                   case None ⇒ DbResultT.unit
 

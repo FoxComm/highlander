@@ -24,7 +24,6 @@ trait StoreAdminSeeds {
                        state: StoreAdminUser.State,
                        author: Option[User])(implicit ec: EC, db: DB, ac: AC) = {
 
-    System.out.println(s"Creating Admin: ${user.name} ${user.email} $roles $org")
     val payload = CreateStoreAdminPayload(email = user.email.getOrElse(""),
                                           name = user.name.getOrElse(""),
                                           phoneNumber = user.phoneNumber,

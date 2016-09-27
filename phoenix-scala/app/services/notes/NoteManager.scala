@@ -53,13 +53,10 @@ trait NoteManager[K, T <: FoxModel[T]] {
   private def entityQuerySeq(entityId: Int)(implicit ec: EC, db: DB, ac: AC): Notes.QuerySeq =
     Notes.filter(_.referenceType === noteType()).filter(_.referenceId === entityId).notDeleted
 
-  private def createInner(
-      entity: T,
-      refType: Note.ReferenceType,
-      author: User,
-      payload: CreateNote)(implicit ec: EC, db: DB, ac: AC): DbResultT[Note] = {
-
-    System.out.println(s"CREATING NOTE BY ${author.accountId}")
+  private def createInner(entity: T,
+                          refType: Note.ReferenceType,
+                          author: User,
+                          payload: CreateNote)(implicit ec: EC, db: DB, ac: AC): DbResultT[Note] =
     for {
       note ← * <~ Notes.create(
                 Note(storeAdminId = author.accountId,
@@ -68,13 +65,11 @@ trait NoteManager[K, T <: FoxModel[T]] {
                      body = payload.body))
       _ ← * <~ LogActivity.noteCreated(author, entity, note)
     } yield note
-  }
 
   private def updateInner(entity: T, noteId: Int, author: User, payload: UpdateNote)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[Root] = {
-    System.out.println(s"UPDATING NOTE BY ${author.accountId}")
+      ac: AC): DbResultT[Root] =
     for {
       oldNote ← * <~ Notes
                  .filterByIdAndAdminId(noteId, author.accountId)
@@ -82,7 +77,6 @@ trait NoteManager[K, T <: FoxModel[T]] {
       newNote ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))
       _       ← * <~ LogActivity.noteUpdated(author, entity, oldNote, newNote)
     } yield AdminNotes.build(newNote, author)
-  }
 
   private def deleteInner(entity: T, noteId: Int, admin: User)(implicit ec: EC,
                                                                db: DB,
