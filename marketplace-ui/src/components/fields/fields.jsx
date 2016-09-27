@@ -3,6 +3,7 @@ import noop from 'lodash/noop';
 import cx from 'classnames';
 import React from 'react';
 import MultiSelect from 'react-widgets/lib/Multiselect';
+import MaskInput from 'react-input-mask';
 import { Field } from 'redux-form';
 
 import styles from './fields.css';
@@ -14,7 +15,7 @@ const renderInput = ({ input, type, placeholder, meta }) => {
 
   return (
     <div className={cx(styles.field, { [styles.fieldError]: hasError })}>
-      <input {...input} placeholder={placeholder} type={type} />
+      <input {...input} placeholder={placeholder} />
       {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}
     </div>
   );
@@ -44,6 +45,17 @@ const renderSelect = ({ input, values, placeholder, meta }) => {
   );
 };
 
+const renderPhone = ({ input, placeholder, meta }) => {
+  const hasError = meta.touched && meta.error;
+
+  return (
+    <div className={cx(styles.field, { [styles.fieldError]: hasError })}>
+      <MaskInput {...input} mask="+1 (999) 999-9999" placeholder={placeholder} />
+      {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}
+    </div>
+  );
+};
+
 export default (field: FormField) => {
   let renderField = renderInput;
 
@@ -53,6 +65,9 @@ export default (field: FormField) => {
       break;
     case 'textarea':
       renderField = renderTextarea;
+      break;
+    case 'phone':
+      renderField = renderPhone;
       break;
     case 'text':
     case 'number':

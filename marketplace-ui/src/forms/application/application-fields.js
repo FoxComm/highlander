@@ -27,9 +27,10 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'phone_number',
-    type: 'input',
+    type: 'phone',
     placeholder: 'Phone Number',
-    validation: 'required',
+    validation: 'required phone',
+    normalize: value => value.replace(/[\s\-()]/g, ''),
   },
   {
     name: 'monthly_sales_volume',

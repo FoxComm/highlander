@@ -74,6 +74,7 @@
     "react": "^15.2.0",
     "react-addons-css-transition-group": "^15.3.1",
     "react-dom": "^15.2.0",
+    "react-input-mask": "^0.7.5",
     "react-redux": "^4.4.0",
     "react-router": "^2.7.0",
     "react-router-redux": "^4.0.5",
