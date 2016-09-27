@@ -2,8 +2,9 @@ defmodule Marketplace.Validation do
   import Ecto
   import Ecto.Changeset
 
+  # example: 999-999-9999
   def validate_phone_number(changeset, field) do
-    validate_format(changeset, field, ~r/^(\+?1-?)?\(?\d{3}\)?[-.]?\d{3}[-.]?\d{4}$/)
+    validate_format(changeset, field, ~r/^\d{3}-\d{3}-\d{4}$/)
   end
   
   def validate_uri(changeset, field) do
