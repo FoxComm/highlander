@@ -43,15 +43,6 @@ then run
 npm run dev
 ```
 
-
-## Base infrastructure
-
-For achieve right isomorphism [redux-wait](https://www.npmjs.com/package/redux-wait) is used.
-It utilizes multiple rendering calls for get all async dependencies for project.
-Read about code organization limitations in redux-wait's README.
-
 For **static type checking** [flowtype](http://flowtype.org/) is used. You can run check manually by `npm run flow` command.
 
-
 ## TODO
-1. Update `eslint-config-airbnb`
