@@ -2,10 +2,12 @@
 
 // libs
 import React, { Component, Element } from 'react';
+import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
 // components
+import { Dropdown } from 'components/dropdown';
 import { PageTitle } from 'components/section-title';
 import { PrimaryButton } from 'components/common/buttons';
 import ContentBox from 'components/content-box/content-box';
@@ -18,6 +20,13 @@ import * as applicationActions from 'modules/merchant-applications/details';
 
 // types
 import type { MerchantApplication } from 'paragons/merchant-application';
+
+const SELECT_STATE = [
+  ['new', 'New', true],
+  ['approved', 'Approved'],
+  ['rejected', 'Rejected'],
+  ['abandonded', 'Abandoned'],
+];
 
 type Props = {
   params: {
@@ -32,6 +41,10 @@ type Props = {
   updateApplication: Function,
 };
 
+type State = {
+  newState: string,
+};
+
 const mapStateToProps = (state) => {
   return {
     details: state.applications.details,
@@ -42,9 +55,41 @@ const mapStateToProps = (state) => {
 
 class MerchantApplicationDetails extends Component {
   props: Props;
+  state: State;
+
+  constructor(props: Props, ...args: Object) {
+    super(props, ...args);
+
+    const { application } = props.details;
+    if (application) {
+      this.state = { newState: application.state };
+    }
+  }
 
   componentDidMount() {
     this.props.fetchApplication(this.props.params.applicationId);
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    const { application } = nextProps.details;
+    if (application) {
+      this.setState({ newState: application.state });
+    }
+  }
+
+  get isDirty(): Element {
+    const { application } = this.props.details;
+    if (!application) {
+      return false;
+    }
+
+    return this.state.newState != application.state;
+  }
+  
+
+  get isStateEditable(): Element {
+    const state = _.get(this.props, 'details.application.state', '');
+    return state == 'new'; 
   }
 
   get renderPageTitle(): Element {
@@ -52,11 +97,47 @@ class MerchantApplicationDetails extends Component {
       const title = this.props.details.application.business_name;
       return (
         <PageTitle title={title}>
-          <PrimaryButton type="button" onClick={_.noop}>
+          <PrimaryButton
+            type="button"
+            disabled={!this.isDirty}
+            onClick={this.handleSubmit}>
             Save
           </PrimaryButton>
         </PageTitle>
       );
+    }
+  }
+
+  get renderState(): Element {
+    return (
+      <div className="fc-col-md-1-3">
+        <ContentBox title="State">
+          <Dropdown
+            value={this.state.newState}
+            onChange={this.handleStateChange}
+            disabled={!this.isStateEditable}
+            items={SELECT_STATE}
+            changeable={false} />
+        </ContentBox>
+      </div>
+    );
+  }
+
+  @autobind
+  handleStateChange(newState) {
+    this.setState({ newState });
+  }
+
+  @autobind
+  handleSubmit() {
+    const { application } = this.props.details;
+    if (application) {
+      const newApplication = {
+        ...application,
+        state: this.state.newState,
+      };
+
+      this.props.updateApplication(application.id, newApplication);
     }
   }
 
@@ -97,15 +178,16 @@ class MerchantApplicationDetails extends Component {
                       <input name="email_address" type="text" defaultValue={application.email_address} disabled={true} />
                     </FormField>
                   </li>
+                  <li>
+                    <FormField label="Description">
+                      <input name="descriptionn" type="text" defaultValue={application.description} disabled={true} />
+                    </FormField>
+                  </li>
                 </ul>
               </FoxyForm>
             </ContentBox>
           </div>
-          <div className="fc-col-md-1-3">
-            <ContentBox title="State">
-              Hi!
-            </ContentBox>
-          </div>
+          {this.renderState}
         </div> 
       </div>
     );
