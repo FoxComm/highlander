@@ -13,6 +13,7 @@ import models.cord._
 import models.customer._
 import models.location._
 import models.payment.creditcard.{CreditCard, CreditCards}
+import models.traits.CreditCardValidations
 import payloads.PaymentPayloads._
 import responses.CreditCardsResponse
 import slick.driver.PostgresDriver.api._
@@ -103,6 +104,10 @@ object CreditCardManager {
       }
 
       for {
+        _ ← * <~ CreditCardValidations.validExpDateUpdate(oldExpMonth = cc.expMonth,
+                                                          oldExpYear = cc.expYear,
+                                                          newExpMonth = payload.expMonth,
+                                                          newExpYear = payload.expYear)
         _  ← * <~ failIf(!cc.inWallet, CannotUseInactiveCreditCard(cc))
         _  ← * <~ DBIO.from(apis.stripe.editCard(newVersion))
         _  ← * <~ CreditCards.update(cc, cc.copy(inWallet = false))

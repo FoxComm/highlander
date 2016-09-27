@@ -615,7 +615,8 @@ class CustomerIntegrationTest
       when(stripeWrapperMock.updateCard(any(), any()))
         .thenReturn(Result.failure[StripeCard](StripeFailure(exception)))
 
-      val payload = EditCreditCardPayload(expYear = 2000.some)
+      // Cannot pass wrong year here, validation will get that
+      val payload = EditCreditCardPayload(holderName = "Me".some)
       val response =
         PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
               payload)

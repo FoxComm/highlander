@@ -63,37 +63,10 @@ object Validation {
     }
   }
 
-  def withinNumberOfYears(expYear: Int,
-                          expMonth: Int,
-                          numYears: Int,
-                          message: String): ValidatedNel[Failure, Unit] = {
-    val today = LocalDateTime.now()
-
-    val validDate = Validated.catchOnly[java.time.DateTimeException] {
-      LocalDateTime.of(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
-    }
-
-    validDate match {
-      case Valid(expDate) ⇒
-        if (expDate.isBefore(today.plusYears(numYears.toLong)))
-          valid(Unit)
-        else
-          invalidNel(GeneralFailure(message))
-
-      case Invalid(e) ⇒
-        invalidNel(GeneralFailure(e.getMessage))
-
-      case _ ⇒
-        invalidNel(GeneralFailure(message))
-    }
-  }
-
   // valid credit cards for us cannot have more than 20 years expiration from this year
   def withinTwentyYears(year: Int, message: String): ValidatedNel[Failure, Unit] = {
     val today = LocalDateTime.now()
-    val expDate =
-      LocalDateTime.of(year, today.getMonthValue, 1, 0, 0).plusMonths(1).minusSeconds(1)
-    val msg = message ++ s" year should be between ${today.getYear} and ${expDate.getYear}"
+    val msg   = message ++ s" year should be between ${today.getYear} and ${today.getYear + 20}"
 
     withinNumberOfYears(year, today.getMonthValue, 20, msg)
   }
@@ -127,6 +100,31 @@ object Validation {
 
   def greaterThanOrEqual(value: Int, limit: Int, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new GreaterThanOrEqual[Int](limit, prefix).apply(value))
+
+  private def withinNumberOfYears(expYear: Int,
+                                  expMonth: Int,
+                                  numYears: Int,
+                                  message: String): ValidatedNel[Failure, Unit] = {
+    val today = LocalDateTime.now()
+
+    val validDate = Validated.catchOnly[java.time.DateTimeException] {
+      LocalDateTime.of(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
+    }
+
+    validDate match {
+      case Valid(expDate) ⇒
+        if (expDate.isBefore(today.plusYears(numYears.toLong)))
+          valid(Unit)
+        else
+          invalidNel(GeneralFailure(message))
+
+      case Invalid(e) ⇒
+        invalidNel(GeneralFailure(e.getMessage))
+
+      case _ ⇒
+        invalidNel(GeneralFailure(message))
+    }
+  }
 
   private def toValidatedNel(constraint: String, r: accord.Result): ValidatedNel[Failure, Unit] =
     r match {

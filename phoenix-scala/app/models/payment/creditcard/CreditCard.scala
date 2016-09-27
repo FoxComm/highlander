@@ -9,7 +9,7 @@ import failures._
 import models.customer.{Customer, Customers}
 import models.location._
 import models.payment.PaymentMethod
-import models.traits.Addressable
+import models.traits.{Addressable, CreditCardBase}
 import payloads.PaymentPayloads._
 import shapeless._
 import slick.driver.PostgresDriver.api._
@@ -40,27 +40,12 @@ case class CreditCard(id: Int = 0,
     extends PaymentMethod
     with FoxModel[CreditCard]
     with Addressable[CreditCard]
-    with Validation[CreditCard] {
-
-  import Validation._
+    with CreditCardBase[CreditCard] {
 
   // must be implemented for Addressable
   def name: String                      = addressName
   def phoneNumber: Option[String]       = None
   def zipLens: Lens[CreditCard, String] = lens[CreditCard].zip
-
-  override def validate: ValidatedNel[Failure, CreditCard] = {
-    (matches(lastFour, "[0-9]{4}", "lastFour") |@| notExpired(
-            expYear,
-            expMonth,
-            "credit card is expired") |@| withinNumberOfYears(
-            expYear,
-            expMonth,
-            20,
-            "credit card expiration is too far in the future") |@| super.validate).map {
-      case _ ⇒ this
-    }
-  }
 
   def mustBeInWallet: Failures Xor CreditCard =
     if (inWallet) Xor.right(this) else Xor.left(CannotUseInactiveCreditCard(this).single)
@@ -76,6 +61,9 @@ case class CreditCard(id: Int = 0,
               address2 = a.address2,
               city = a.city,
               zip = a.zip)
+
+  override def validate: ValidatedNel[Failure, CreditCard] =
+    (super[Addressable].validate |@| super[CreditCardBase].validate).map { case _ ⇒ this }
 }
 
 object CreditCard {

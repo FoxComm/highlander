@@ -32,8 +32,10 @@ class CreditCardTest extends TestBase {
       }
 
       "disallows cards with dates past the singularity (> 20 years from today)" in {
-        val result = card.copy(expYear = card.expYear + 21).validate
-        invalidValue(result) must includeFailure("credit card expiration is too far in the future")
+        val result      = card.copy(expYear = card.expYear + 21).validate
+        val currentYear = today.getYear
+        val message     = s"expiration year should be between $currentYear and ${currentYear + 20}"
+        invalidValue(result) must includeFailure(message)
       }
 
       "passes for valid cards" in {
