@@ -1,8 +1,6 @@
-# Firebird
+# The Perfect Gourmet
 
-[![Build status](https://badge.buildkite.com/1238dff6913c220ef0612d9a9f4b0c5198a8dd270d260f8ff2.svg)](https://buildkite.com/foxcommerce/firebird)
-
-Demo storefront implementation of a FoxCommerce-powered store. Isomorphic React app powered by FoxComm's backend API.
+The Perfect Gourmet store. Isomorphic React app powered by FoxComm's backend API.
 
 ## Local Development
 
@@ -37,7 +35,7 @@ In order to checkout to work you should set Stripe key by exporting `STRIPE_PUBL
   `STRIPE_PUBLISHABLE_KEY=pk_test_r6t0niqmG9OOZhhaSkacUUU1 npm run dev`
 
 
-1. Develop it at http://localhost:4040/
+1. Develop it at http://localhost:4044/
 
 
 You can set the backend API URL as a shell variable `API_URL`.
