@@ -132,12 +132,13 @@ class MerchantApplicationDetails extends Component {
   handleSubmit() {
     const { application } = this.props.details;
     if (application) {
-      const newApplication = {
+      // :( The Elixir app has camel cased JSON.
+      const merchant_application = {
         ...application,
         state: this.state.newState,
       };
 
-      this.props.updateApplication(application.id, newApplication);
+      this.props.updateApplication(application.id, { merchant_application });
     }
   }
 
