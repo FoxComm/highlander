@@ -38,14 +38,13 @@ class AssignmentsIntegrationTest
     }
 
     "extends response with errors if one of store admins is not found" in new Order_Baked {
-      val nonExistentAdminId = 2
+      val nonExistentAdminId = 100
       val payload            = AssignmentPayload(assignees = Seq(storeAdmin.accountId, nonExistentAdminId))
       val response           = POST(s"v1/orders/${order.refNum}/assignees", payload)
       response.status must === (StatusCodes.OK)
 
-      // TODO - AlreadyAssignedFailure here?
       val theResponse = response.as[TheResponse[Seq[AssignmentResponse.Root]]]
-      theResponse.result.size mustBe 2
+      theResponse.result.size mustBe 1
       theResponse.result.headOption.value.assignee.id mustBe storeAdmin.accountId
       theResponse.result.headOption.value.assignmentType mustBe Assignment.Assignee
 

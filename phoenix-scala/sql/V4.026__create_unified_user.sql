@@ -134,6 +134,5 @@ create table users
     deleted_at timestamp without time zone null
 );
 
-create unique index users_active_non_guest_email on users (email, is_disabled) where
-    is_disabled = false
-
+create index users_email_idx on users (email);
+create unique index users_account_idx on users (account_id);

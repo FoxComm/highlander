@@ -40,17 +40,29 @@ case class User(id: Int = 0,
   }
 
   override def validate: ValidatedNel[Failure, User] = {
-    if (email.isEmpty && name.isEmpty) {
-      Validated.Valid(this)
-    } else {
+    (nameValid |@| emailValid).map {
+      case _ ⇒
+        this
+    }
+  }
+
+  private def nameValid =
+    if (name.isEmpty) Validated.Valid(this)
+    else
       (notEmpty(name, "name") |@| notEmpty(name.getOrElse(""), "name") |@| matches(
               name.getOrElse(""),
               User.namePattern,
-              "name") |@| notEmpty(email, "email") |@| notEmpty(email.getOrElse(""), "email")).map {
-        case _ ⇒ this
+              "name")).map {
+        case _ ⇒
+          this
       }
-    }
-  }
+  private def emailValid =
+    if (email.isEmpty) Validated.Valid(this)
+    else
+      (notEmpty(email, "email") |@| notEmpty(email.getOrElse(""), "email")).map {
+        case _ ⇒
+          this
+      }
 }
 
 object User {
@@ -101,6 +113,10 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
   def activeUserByEmail(email: Option[String]): QuerySeq =
     filter(c ⇒ c.email === email && !c.isBlacklisted && !c.isDisabled)
 
+  def otherUserByEmail(email: String, accountId: Int): QuerySeq = {
+    filter(c ⇒ c.email === email && c.accountId =!= accountId && !c.isBlacklisted && !c.isDisabled)
+  }
+
   def findOneByAccountId(accountId: Int): DBIO[Option[User]] =
     filter(_.accountId === accountId).result.headOption
 
@@ -113,10 +129,11 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
   def createEmailMustBeUnique(email: String)(implicit ec: EC): DbResultT[Unit] =
     findByEmail(email).one.mustNotFindOr(UserEmailNotUnique)
 
-  def updateEmailMustBeUnique(maybeEmail: Option[String])(implicit ec: EC): DbResultT[Unit] =
+  def updateEmailMustBeUnique(maybeEmail: Option[String], accountId: Int)(
+      implicit ec: EC): DbResultT[Unit] =
     maybeEmail match {
       case Some(email) ⇒
-        findByEmail(email).one.mustNotFindOr(UserEmailNotUnique)
+        otherUserByEmail(email, accountId).one.mustNotFindOr(UserEmailNotUnique)
       case None ⇒ DbResultT.unit
     }
 

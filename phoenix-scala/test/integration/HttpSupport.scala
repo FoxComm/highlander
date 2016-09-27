@@ -222,7 +222,7 @@ trait HttpSupport
 
     def sseProbe(path: String, skipHeartbeat: Boolean = true): Probe[String] =
       probe(
-          if (skipHeartbeat) skipHeartbeats(sseSource(path))
+          if (skipHeartbeat) skipHeartbeatsAndAdminCreated(sseSource(path))
           else sseSource(path))
 
     def sseSource(path: String): Source[String, Any] = {
@@ -237,8 +237,8 @@ trait HttpSupport
         .map(_.data)
     }
 
-    def skipHeartbeats(sse: Source[String, Any]): Source[String, Any] =
-      sse.via(Flow[String].filter(_.nonEmpty))
+    def skipHeartbeatsAndAdminCreated(sse: Source[String, Any]): Source[String, Any] =
+      sse.via(Flow[String].filter(n ⇒ n.nonEmpty && !n.contains("store_admin_created")))
 
     def probe(source: Source[String, Any]) =
       source.runWith(TestSink.probe[String])

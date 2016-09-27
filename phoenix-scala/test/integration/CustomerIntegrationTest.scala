@@ -47,23 +47,6 @@ class CustomerIntegrationTest
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
-  "Customer" - {
-    "accounts are unique based on email, and active" in {
-      val account = Accounts.create(Account()).gimme
-      val stub    = Factories.customer.copy(accountId = account.id, isDisabled = false)
-
-      Users.create(stub).gimme
-
-      val account2 = Accounts.create(Account()).gimme
-      val stub2    = Factories.customer.copy(accountId = account2.id, isDisabled = false)
-
-      val failure = GeneralFailure("record was not unique")
-      val xor     = swapDatabaseFailure(Users.create(stub2).run())((NotUnique, failure)).futureValue
-
-      xor.leftVal must === (failure.single)
-    }
-  }
-
   "POST /v1/customers" - {
     "successfully creates customer from payload" in {
       val response = POST(s"v1/customers",
@@ -241,7 +224,7 @@ class CustomerIntegrationTest
 
         val response = GET(s"v1/customers/${customer.accountId}")
         response.status must === (StatusCodes.OK)
-        response.as[CustomerResponse.Root].rank must === (Some(1))
+        response.as[CustomerResponse.Root].rank must === (Some(2))
         val rank  = CustomersRanks.findById(customer.accountId).extract.result.head.gimme
         val rank2 = CustomersRanks.findById(customer2.accountId).extract.result.head.gimme
         rank.revenue must === (charge1.amount)
@@ -324,6 +307,7 @@ class CustomerIntegrationTest
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (CustomerEmailNotUnique.description)
+
     }
 
     "sucessfully activate non-guest user" in new Fixture {
@@ -336,6 +320,7 @@ class CustomerIntegrationTest
 
       val payload  = ActivateCustomerPayload(name = "test")
       val response = POST(s"v1/customers/${root.id}/activate", payload)
+
       response.status must === (StatusCodes.OK)
 
       val created         = Users.findOneByAccountId(root.id).gimme.value

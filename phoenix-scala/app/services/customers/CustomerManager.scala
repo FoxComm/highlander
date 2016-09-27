@@ -76,7 +76,8 @@ object CustomerManager {
       user ← * <~ AccountManager.createUser(name = payload.name,
                                             email = payload.email.some,
                                             password = payload.password,
-                                            context = context)
+                                            context = context,
+                                            checkEmail = !payload.isGuest.getOrElse(false))
 
       custUser ← * <~ CustomerUsers.create(
                     CustomerUser(accountId = user.accountId,
@@ -90,8 +91,11 @@ object CustomerManager {
                                                  db: DB): DbResultT[(User, CustomerUser)] =
     for {
 
-      user ← * <~ AccountManager
-              .createUser(name = None, email = None, password = None, context = context)
+      user ← * <~ AccountManager.createUser(name = None,
+                                            email = None,
+                                            password = None,
+                                            context = context,
+                                            checkEmail = false)
 
       custUser ← * <~ CustomerUsers.create(
                     CustomerUser(accountId = user.accountId, userId = user.id, isGuest = true))
@@ -105,7 +109,7 @@ object CustomerManager {
     for {
       _        ← * <~ payload.validate
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      _        ← * <~ Users.updateEmailMustBeUnique(payload.email)
+      _        ← * <~ Users.updateEmailMustBeUnique(payload.email, accountId)
       updated  ← * <~ Users.update(customer, updatedUser(customer, payload))
       custUser ← * <~ CustomerUsers.mustFindByAccountId(accountId)
       _        ← * <~ CustomerUsers.update(custUser, updatedCustUser(custUser, payload))
@@ -135,11 +139,30 @@ object CustomerManager {
                case None ⇒ DbResultT.failure(CustomerMustHaveCredentials)
                case _    ⇒ DbResultT.unit
              })
-      _        ← * <~ Users.updateEmailMustBeUnique(customer.email)
+      _        ← * <~ Users.updateEmailMustBeUnique(customer.email, accountId)
       updated  ← * <~ Users.update(customer, customer.copy(name = payload.name.some))
       custUser ← * <~ CustomerUsers.mustFindByAccountId(accountId)
       _        ← * <~ CustomerUsers.update(custUser, custUser.copy(isGuest = false))
       response = build(updated, custUser)
       _ ← * <~ LogActivity.customerActivated(response, admin)
     } yield response
+
+  def toggleDisabled(accountId: Int, disabled: Boolean, actor: User)(implicit ec: EC,
+                                                                     db: DB,
+                                                                     ac: AC): DbResultT[Root] =
+    for {
+      r        ← * <~ AccountManager.toggleDisabled(accountId, disabled, actor)
+      customer ← * <~ Users.mustFindByAccountId(accountId)
+      custUser ← * <~ CustomerUsers.mustFindByAccountId(accountId)
+    } yield build(customer, custUser)
+
+  def toggleBlacklisted(accountId: Int,
+                        blacklisted: Boolean,
+                        actor: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+    for {
+      r        ← * <~ AccountManager.toggleBlacklisted(accountId, blacklisted, actor)
+      customer ← * <~ Users.mustFindByAccountId(accountId)
+      custUser ← * <~ CustomerUsers.mustFindByAccountId(accountId)
+    } yield build(customer, custUser)
+
 }

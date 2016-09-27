@@ -36,7 +36,7 @@ class CreditCardsIntegrationTest
     initStripeApiMock(stripeWrapperMock)
   }
 
-  val theAddress = Factories.address.copy(id = 1, accountId = 1, isDefaultShipping = false)
+  val theAddress = Factories.address.copy(id = 1, accountId = 2, isDefaultShipping = false)
   val expYear    = ZonedDateTime.now.getYear + 3
 
   val theAddressPayload = CreateAddressPayload(name = theAddress.name,
@@ -146,7 +146,7 @@ class CreditCardsIntegrationTest
       Addresses.result.headOption.gimme must not be defined
     }
 
-    "creates address if it's new" in new Customer_Seed {
+    "creates address if it's new" in new StoreAdmin_Seed with Customer_Seed {
       val payload = thePayload.copy(addressIsNew = true)
       val response =
         POST(s"v1/customers/${customer.accountId}/payment-methods/credit-cards", payload)
@@ -300,14 +300,14 @@ class CreditCardsIntegrationTest
       Addresses.result.headOption.gimme must not be defined
     }
 
-    "creates address if it's new" in new Customer_Seed {
+    "creates address if it's new" in new StoreAdmin_Seed with Customer_Seed {
       val payload  = thePayload.copy(addressIsNew = true)
       val response = POST("v1/my/payment-methods/credit-cards", payload)
       response.status must === (StatusCodes.OK)
       Addresses.result.headOption.gimme.value must === (theAddress)
     }
 
-    "errors 400 if wrong credit card token" in new Customer_Seed {
+    "errors 400 if wrong credit card token" in new StoreAdmin_Seed with Customer_Seed {
       when(stripeWrapperMock.createCustomer(m.any()))
         .thenReturn(Result.failure[StripeCustomer](GeneralFailure("BAD-TOKEN")))
 

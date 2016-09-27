@@ -95,7 +95,8 @@ object AccountManager {
   def createUser(name: Option[String],
                  email: Option[String],
                  password: Option[String],
-                 context: AccountCreateContext)(implicit ec: EC, db: DB): DbResultT[User] = {
+                 context: AccountCreateContext,
+                 checkEmail: Boolean = true)(implicit ec: EC, db: DB): DbResultT[User] = {
 
     for {
       scope ← * <~ Scopes.mustFindById404(context.scopeId)
@@ -103,16 +104,17 @@ object AccountManager {
                       .findByNameInScope(context.org, scope.id)
                       .mustFindOr(OrganizationNotFound(context.org, scope.path))
 
-      _ ← * <~ (email match {
-               case Some(e) ⇒
-                 for {
-                   usrs ← * <~ Users.result
-                   _    ← * <~ usrs.map(u ⇒ System.out.println(s"USER ${u.email}"))
-                   _    ← * <~ Users.createEmailMustBeUnique(e)
-                 } yield {}
-               case None ⇒ DbResultT.unit
+      _ ← * <~ (if (checkEmail) (email match {
+                  case Some(e) ⇒
+                    for {
+                      usrs ← * <~ Users.result
+                      _    ← * <~ usrs.map(u ⇒ System.out.println(s"USER ${u.email}"))
+                      _    ← * <~ Users.createEmailMustBeUnique(e)
+                    } yield {}
+                  case None ⇒ DbResultT.unit
 
-             })
+                })
+                else DbResultT.unit)
 
       account ← * <~ Accounts.create(Account())
 
