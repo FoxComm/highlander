@@ -3,8 +3,8 @@ package utils.apis
 import com.ning.http.client
 import com.typesafe.scalalogging.LazyLogging
 import dispatch._
-import failures.MiddlewarehouseFailures
 import failures.MiddlewarehouseFailures.MiddlewarehouseError
+import failures.{Failures, MiddlewarehouseFailures}
 import org.json4s.Extraction
 import org.json4s.jackson.JsonMethods._
 import services.Result
@@ -25,17 +25,23 @@ trait MiddlewarehouseApi {
 
 class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
 
+  def parseMwhErrors(message: String): Failures = {
+    val errorString = (parse(message) \ "errors").extractOpt[List[String]]
+    errorString
+      .flatMap(errors ⇒ Failures(errors.map(MiddlewarehouseError): _*))
+      .getOrElse(MiddlewarehouseError(message).single)
+  }
+
   override def hold(reservation: OrderInventoryHold)(implicit ec: EC): Result[Unit] = {
 
     val reqUrl = dispatch.url(s"$url/v1/private/reservations/hold")
     val body   = compact(Extraction.decompose(reservation))
     val req    = reqUrl.setContentType("application/json", "UTF-8") << body
     logger.info(s"middlewarehouse hold: $body")
-    val post = Http(req.POST)
 
     Http(req.POST > AsMwhResponse).either.flatMap {
-      case Right(MwhResponse(status, _)) if status / 200 == 2 ⇒ Result.unit
-      case Right(MwhResponse(_, message))                     ⇒ Result.failure(MiddlewarehouseError(message))
+      case Right(MwhResponse(status, _)) if status / 100 == 2 ⇒ Result.unit
+      case Right(MwhResponse(_, message))                     ⇒ Result.failures(parseMwhErrors(message))
       case Left(error)                                        ⇒ Result.failure(MiddlewarehouseFailures.UnableToHoldLineItems)
     }
   }
