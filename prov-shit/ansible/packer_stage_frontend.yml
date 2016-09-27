@@ -21,6 +21,11 @@
     middlewarehouse_service_after: ""
     middlewarehouse_consumers_services_requires: ""
     middlewarehouse_consumers_services_after: ""
+    greenriver_service_requires: ""
+    greenriver_service_after: ""
+  post_tasks:
+    - name: Sweet Dreams
+      pause: seconds=5
 
   roles:
     - { role: base/ssh_keys }
@@ -32,6 +37,3 @@
     - { role: base/middlewarehouse }
     - { role: base/balancer, sudo: yes }
     - { role: prod/balancer, sudo: yes }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml

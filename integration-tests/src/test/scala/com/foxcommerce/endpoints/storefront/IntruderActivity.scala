@@ -48,29 +48,4 @@ object IntruderActivity {
       .patch("/api/v1/my/cart/shipping-address/${customerAddressId}")
       .check(status.is(404))
   }
-
-  object CreditCard {
-
-    def get(): HttpRequestBuilder = http("Attempt to Get Another Customer's Credit Card")
-      .get("/api/v1/my/payment-methods/credit-cards/${creditCardId}")
-      .check(status.is(404))
-
-    def create(): HttpRequestBuilder = http("Attempt to Create Credit Card with Another Customer's Address")
-      .post("/api/v1/my/payment-methods/credit-cards")
-      .body(ELFileBody("request-bodies/credit_card.json"))
-      .check(status.is(404))
-
-    def update(address: AddressFixture): HttpRequestBuilder = http("Attempt to Update Another Customer's Credit Card")
-      .patch("/api/v1/my/payment-methods/credit-cards/${creditCardId}")
-      .body(StringBody(Utils.addressPayloadBody(address)))
-      .check(status.is(404))
-
-    def setAsDefault(): HttpRequestBuilder = http("Attempt to Set Another Customer's Credit Card As Default")
-      .post("/api/v1/my/payment-methods/credit-cards/${creditCardId}/default")
-      .check(status.is(404))
-
-    def delete(): HttpRequestBuilder = http("Attempt to Delete Another Customer's Credit Card")
-      .delete("/api/v1/my/payment-methods/credit-cards/${creditCardId}")
-      .check(status.is(404))
-  }
 }

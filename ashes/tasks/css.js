@@ -1,5 +1,5 @@
 
-module.exports = function(gulp) {
+module.exports = function(gulp, opts) {
   const src = [
     'build/less_bundle.css',
     'build/css_bundle.css'
@@ -13,7 +13,7 @@ module.exports = function(gulp) {
     return gulp.src(src)
       .pipe(concat('admin.css'))
       .pipe(_if(process.env.NODE_ENV === 'production', cssnano()))
-      .pipe(gulp.dest('public'));
+      .pipe(gulp.dest(opts.assetsDir));
   });
 
   gulp.task('css.watch', function() {

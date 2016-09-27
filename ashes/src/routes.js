@@ -18,9 +18,12 @@ import { getClaims } from 'lib/claims';
 
 const claims = getClaims();
 
+const rootPath = process.env.ROOT_PATH;
+const indexRedirect = `${rootPath}/orders`;
+
 const routes = (
-  <Route path="/">
-    <IndexRedirect to="/orders/"/>
+  <Route path={rootPath}>
+    <IndexRedirect to={indexRedirect}/>
     {authRoutes(claims)}
     <Route component={Site}>
       <IndexRoute name="home" component={Home}/>

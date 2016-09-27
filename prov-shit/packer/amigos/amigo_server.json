@@ -41,8 +41,7 @@
                 "delete_on_termination": true
             }],
             "tags": {
-                "packer": "amigo-server",
-                "ip": "none"
+                "packer": "amigo-server"
             }
         }
     ],
@@ -50,7 +49,10 @@
         {
            "type": "ansible",
            "playbook_file" : "ansible/packer_amigo_server.yml",
-           "extra_arguments": ["--extra-vars", "@packer/envs/{{user `variables_file`}}"]
+           "extra_arguments": [
+                "-vvvv", 
+                "--extra-vars", "@packer/envs/{{user `variables_file`}}"
+            ]
         }
     ]
 }

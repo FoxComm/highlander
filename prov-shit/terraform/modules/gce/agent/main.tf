@@ -1,14 +1,11 @@
-variable "image" { 
-    default = "ubuntu-1604-xenial-v20160610"
-}
-
+variable "image" {}
 variable "queue" {}
-variable "prefix" {} 
-variable "ssh_user" {} 
-variable "ssh_private_key" {} 
-variable "servers" {} 
+variable "prefix" {}
+variable "ssh_user" {}
+variable "ssh_private_key" {}
+variable "servers" {}
 
-resource "google_compute_instance" "agent" { 
+resource "google_compute_instance" "agent" {
     name = "${var.prefix}-${count.index}"
     machine_type = "n1-highcpu-8"
     tags = ["no-ip", "${var.prefix}", "${var.prefix}-${count.index}"]
@@ -19,27 +16,15 @@ resource "google_compute_instance" "agent" {
         image = "${var.image}"
         type = "pd-ssd"
         size = "30"
-    }   
+    }
 
     network_interface {
         network = "default"
     }
 
-    connection { 
+    connection {
         type = "ssh"
         user = "${var.ssh_user}"
         private_key = "${file(var.ssh_private_key)}"
     }
-
-    provisioner "file" {
-        source = "terraform/scripts/agent_core.sh"
-        destination = "/tmp/provision.sh"
-    }
-
-    provisioner "remote-exec" {
-        inline = [
-          "chmod +x /tmp/provision.sh",
-          "/tmp/provision.sh ${var.queue}"
-        ]
-    }  
 }

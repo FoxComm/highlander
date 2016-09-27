@@ -1,11 +1,10 @@
-
 variable "ip_range" {
   default = "0.0.0.0/0" # Allow from any ip. We are remote.
 }
 
 variable "availability_zones" {
   # No spaces allowed between az names!
-  default = "us-west-2a,us-west-2b,us-west-2c"
+  default = ["us-west-2a", "us-west-2b", "us-west-2c"]
 }
 
 variable "vpc_cidr" {

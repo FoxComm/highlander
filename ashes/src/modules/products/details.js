@@ -12,6 +12,8 @@ import { createEmptyProduct, configureProduct } from 'paragons/product';
 // types
 import type { Product } from 'paragons/product';
 
+const rootPath = process.env.ROOT_PATH;
+
 export type Error = {
   status: ?number,
   statusText: ?string,
@@ -74,7 +76,7 @@ export function createProduct(product: Product, context: string = defaultContext
       .then(
         (product: Product) => {
           dispatch(productUpdateSuccess(product));
-          dispatch(push(`/products/${context}/${product.id}`));
+          dispatch(push(`${rootPath}/products/${context}/${product.id}`));
         },
         (err: Object) => {
           dispatch(productUpdateFailure());

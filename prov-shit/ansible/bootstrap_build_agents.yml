@@ -6,6 +6,10 @@
     - buildkite-agent-1
     - buildkite-agent-2
     - buildkite-agent-3
+    - buildkite-agent-4
+    - buildkite-agent-5
+    - buildkite-agent-6
+    - buildkite-agent-7
   tags:
     - buildkite-agent
   vars:
@@ -16,6 +20,7 @@
     - { role: base/ssh_keys }
     - { role: base/scala }
     - { role: base/node }
+    - { role: base/builder }
     - { role: test/db }
     - { role: test/selenium }
-    - { role: base/builder }
+    - { role: dev/ssh_gce }

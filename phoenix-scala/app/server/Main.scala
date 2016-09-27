@@ -42,7 +42,6 @@ object Main extends App with LazyLogging {
 
   try {
     service.performSelfCheck()
-    service.setupStripe()
     service.bind()
     service.setupRemorseTimers()
 

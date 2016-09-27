@@ -30,15 +30,15 @@
             "security_group_id": "{{user `security_group_id`}}",
             "subnet_id": "{{user `subnet_id`}}",
             "tags": {
-                "packer": "base",
-                "ip": "none"
+                "Name": "base-{{timestamp}}"
             }
         }
     ],
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_base.yml"
+            "playbook_file" : "ansible/packer_base.yml",
+            "extra_arguments": ["-vvvv"]
         }
     ]
 }

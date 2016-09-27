@@ -30,10 +30,7 @@
             "security_group_id": "{{user `security_group_id`}}",
             "subnet_id": "{{user `subnet_id`}}",
             "tags": {
-                "packer": "db",
-                "ip": "none",
-                "project": "{{user `image_prefix`}}",
-                "type": "elasticsearch-log"
+                "Name": "es-log-{{timestamp}}"
             }
         }
     ],
@@ -41,7 +38,10 @@
         {
             "type": "ansible",
             "playbook_file" : "ansible/packer_service_es_log.yml",
-            "extra_arguments": ["--extra-vars", "@packer/envs/{{user `variables_file`}}"]
+            "extra_arguments": [
+                "-vvvv", 
+                "--extra-vars", "@packer/envs/{{user `variables_file`}}"
+            ]
         }
     ]
 }

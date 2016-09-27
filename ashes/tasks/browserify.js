@@ -57,6 +57,7 @@ module.exports = function(gulp, opts, $) {
       DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN,
       API_URL: process.env.API_URL,
       STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
+      ROOT_PATH: process.env.ROOT_PATH,
     }));
 
     if (production) {
@@ -96,7 +97,7 @@ module.exports = function(gulp, opts, $) {
       .pipe($.if(production, $.sourcemaps.init({loadMaps: true})))
       .pipe($.if(production, $.uglify()))
       .pipe($.if(production, $.sourcemaps.write('_', {addComment: false})))
-      .pipe(gulp.dest(opts.publicDir));
+      .pipe(gulp.dest(opts.assetsDir));
 
     return stream;
   });

@@ -20,12 +20,12 @@
     middlewarehouse_service_requires: ""
     middlewarehouse_service_after: ""
     mesos_master: mesos_master.service.consul
+  post_tasks:
+    - name: Sweet Dreams
+      pause: seconds=5
 
   roles:
     - { role: base/ssh_keys }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/consul_agent }
     - { role: base/mesos_worker }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml

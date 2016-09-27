@@ -2,9 +2,6 @@
 
 Highlander is the brand-spanking-new FoxCommerce mono-repo.
 
-_This project is currently in pre-release form, so the upstream repositories
-(a.k.a. the old ones) should be used for any current feature work._
-
 ## Development Environment
 
 The simplest way to get started is to use Vagrant to build out a virtual 
@@ -64,7 +61,6 @@ Provision a VM
 Set your hosts file so that you can access the site by adding the following to `/etc/hosts`
 
     192.168.10.111 local.foxcommerce.com
-    192.168.10.111 admin.local.foxcommerce.com
 
 Connect to the site through your browser.
 
@@ -103,7 +99,7 @@ Get the private IP address
     $ vagrant ssh
     $ ifconfig eth0
     
-Edit your hosts file so that `local.foxcommerce.com` and `admin.local.foxcommerce.com` point to the new box using the private IP address you just retrieved.  
+Edit your hosts file so that `local.foxcommerce.com` points to the new box using the private IP address you just retrieved.  
 
 ## The Projects
 

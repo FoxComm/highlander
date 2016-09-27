@@ -9,17 +9,11 @@
 - name: Enable Service Upstreams
   file: src=/etc/nginx/sites-available/services dest=/etc/nginx/sites-enabled/services owner=root group=root state=link
 
-- name: Install Ashes hosts
-  template: src=ashes.j2 dest=/etc/nginx/sites-available/ashes
+- name: Install Web UI Hosts
+  template: src=web-ui.j2 dest=/etc/nginx/sites-available/web-ui
 
-- name: Enable Ashes hosts
-  file: src=/etc/nginx/sites-available/ashes dest=/etc/nginx/sites-enabled/ashes owner=root group=root state=link
-
-- name: Install Storefront hosts
-  template: src=storefront.j2 dest=/etc/nginx/sites-available/storefront
-
-- name: Enable Storefront hosts
-  file: src=/etc/nginx/sites-available/storefront dest=/etc/nginx/sites-enabled/storefront owner=root group=root state=link
+- name: Enable Web UI Hosts
+  file: src=/etc/nginx/sites-available/web-ui dest=/etc/nginx/sites-enabled/web-ui owner=root group=root state=link
 
 - name: Restart Nginx
   service: name=nginx state=restarted
