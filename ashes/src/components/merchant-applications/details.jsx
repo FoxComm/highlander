@@ -38,7 +38,7 @@ type Props = {
   isFetching: boolean,
   fetchError: ?Object,
   fetchApplication: Function,
-  updateApplication: Function,
+  approveApplication: Function,
 };
 
 type State = {
@@ -138,7 +138,7 @@ class MerchantApplicationDetails extends Component {
         state: this.state.newState,
       };
 
-      this.props.updateApplication(application.id, { merchant_application });
+      this.props.approveApplication(application.id);
     }
   }
 

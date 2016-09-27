@@ -19,13 +19,13 @@ const _getApplication = createAsyncActions(
   (id: number) => Api.get(`/mkt/merchant_applications/${id}`)
 );
 
-const _updateApplication = createAsyncActions(
-  'updateApplication',
-  (id: number, data: MerchantApplication) => Api.put(`/mkt/merchant_applications/${id}`, data)
+const _approveApplication = createAsyncActions(
+  'approveApplication',
+  (id: number) => Api.post(`/mkt/merchants/activate_application/${id}`)
 );
 
 export const fetchApplication = _getApplication.perform;
-export const updateApplication = _updateApplication.perform;
+export const approveApplication = _approveApplication.perform;
 
 function applicationSucceeded(state: State, payload: Object): State {
   const application = payload.merchant_application || payload;
@@ -34,7 +34,7 @@ function applicationSucceeded(state: State, payload: Object): State {
 
 const reducer = createReducer({
   [_getApplication.succeeded]: applicationSucceeded,
-  [_updateApplication.succeeded]: applicationSucceeded,
+  [_approveApplication.succeeded]: applicationSucceeded,
 }, initialState);
 
 export default reducer;
