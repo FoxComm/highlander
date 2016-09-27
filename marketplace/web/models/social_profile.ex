@@ -1,5 +1,6 @@
 defmodule Marketplace.SocialProfile do 
   use Marketplace.Web, :model
+  import Marketplace.Validation
 
   schema "social_profiles" do
     field :twitter_handle, :string
@@ -17,11 +18,13 @@ defmodule Marketplace.SocialProfile do
     model
     |> cast(params, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
+    |> validate_uri(:facebook_url)
   end
 
   def update_changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
+    |> validate_uri(:facebook_url)
   end
 end

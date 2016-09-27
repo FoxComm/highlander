@@ -1,5 +1,6 @@
 defmodule Marketplace.MerchantAddress do
   use Marketplace.Web, :model
+  import Marketplace.Validation
 
   schema "merchant_addresses" do 
     field :name, :string
@@ -23,5 +24,7 @@ defmodule Marketplace.MerchantAddress do
     model 
     |> cast(params, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
+    |> validate_phone_number(:phone_number)
+    |> validate_postal(:zip)
   end
 end

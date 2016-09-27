@@ -1,5 +1,6 @@
 defmodule Marketplace.MerchantAccount do
   use Marketplace.Web, :model
+  import Marketplace.Validation
 
   schema "merchant_accounts" do
     field :first_name, :string
@@ -24,11 +25,15 @@ defmodule Marketplace.MerchantAccount do
     model 
     |> cast(params, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
+    |> validate_phone_number(:phone_number)
+    |> validate_email(:email_address)
   end
 
   def update_changeset(model, params \\ :empty) do
     model 
     |> cast(params, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
+    |> validate_phone_number(:phone_number)
+    |> validate_email(:email_address)
   end
 end
