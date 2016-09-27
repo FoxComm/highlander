@@ -13,16 +13,10 @@ import utils.Validation
 import utils.db._
 import com.github.tminglei.slickpg.LTree
 
-trait TermPosition {
-  def taxonomyId: Int
-  def position: Int
-  def path: LTree
-}
-
 case class TaxonTermLink(id: Int = 0,
                          index: Int,
-                         taxonomyId: Int,
-                         taxonomyTermId: Int,
+                         taxonId: Int,
+                         taxonTermId: Int,
                          position: Int,
                          path: LTree,
                          updatedAt: Instant = Instant.now,
@@ -30,13 +24,16 @@ case class TaxonTermLink(id: Int = 0,
                          archivedAt: Option[Instant] = None)
     extends FoxModel[TaxonTermLink]
     with Validation[TaxonTermLink]
-    with TermPosition
     with ObjectHeadLink[TaxonTermLink] {
-  override def leftId: Id = taxonomyId
+  override def leftId: Id = taxonId
 
-  override def rightId: Id = taxonomyTermId
+  override def rightId: Id = taxonTermId
 
-  def childPath: LTree = LTree(path.value ::: List(index.toString))
+  def childPath: LTree =
+    if (path.value == List("")) LTree(List(index.toString))
+    else LTree(path.value ::: List(index.toString))
+
+  def parentIndex: Option[Int] = path.value.lastOption.filter(!_.isEmpty) map (_.toInt)
 }
 
 class TaxonTermLinks(tag: Tag) extends ObjectHeadLinks[TaxonTermLink](tag, "taxon_term_links") {
@@ -64,22 +61,27 @@ object TaxonTermLinks
 
   val returningLens: Lens[TaxonTermLink, Int] = lens[TaxonTermLink].id
 
-  private def shiftPositions(taxonId: Int, path: LTree, position: Int): DBIO[Int] =
-    sqlu"update taxonomy_term_links set position = position + 1 where taxonomy_id = $taxonId and path ~ ${path.toString} and position >= $position"
+  private def shiftPositions(taxonId: Int, path: LTree, position: Int): DBIO[Int] = {
+    val pathString = path.toString()
+    sqlu"UPDATE taxon_term_links SET position = position + 1 WHERE taxon_id = $taxonId AND path=text2ltree($pathString) AND position >= $position and archived_at is null"
 
-  private def shrinkPositions(taxonId: Int, path: LTree, position: Int): DBIO[Int] =
-    sqlu"update taxonomy_term_links set position = position - 1 where taxonomy_id = $taxonId and path ~ ${path.toString} and position >= $position"
+  }
+
+  private def shrinkPositions(taxonId: Int, path: LTree, position: Int): DBIO[Int] = {
+    val pathString = path.toString()
+    sqlu"update taxon_term_links set position = position - 1 where taxon_id = $taxonId and path=text2ltree($pathString) and position >= $position and archived_at is null"
+  }
 
   def moveTermAfter(link: TaxonTermLink, after: TaxonTermLink)(
       implicit ec: EC): DbResultT[TaxonTermLink] = {
     require(link.id != after.id)
     require(link.position < 0)
     require(after.position >= 0)
-    require(link.path == after.path)
+    require(link.parentIndex == after.parentIndex)
 
     val newPosition: Int = after.position + 1
     for {
-      _       ← * <~ shiftPositions(link.taxonomyId, link.path, newPosition)
+      _       ← * <~ shiftPositions(link.taxonId, link.path, newPosition)
       newLink ← * <~ TaxonTermLinks.update(link, link.copy(position = newPosition))
       _ = assert(newLink.id == link.id && newLink.position == after.position + 1)
     } yield newLink
@@ -87,38 +89,54 @@ object TaxonTermLinks
 
   def archivate(link: TaxonTermLink)(implicit ec: EC): DbResultT[Unit] =
     for {
-      _ ← * <~ TaxonTermLinks.update(link.copy(archivedAt = Some(Instant.now)))
-      _ ← * <~ shrinkPositions(link.taxonomyId, link.path, link.position)
+      _ ← * <~ TaxonTermLinks.update(link, link.copy(archivedAt = Some(Instant.now)))
+      _ ← * <~ shrinkPositions(link.taxonId, link.path, link.position)
     } yield {}
 
   def updatePath(taxonId: Int, oldPrefix: LTree, newPrefix: LTree): DBIO[Int] = {
     val patternLength = oldPrefix.value.length
-    sqlu"""UPDATE taxonomy_term_links AS t
+    sqlu"""UPDATE taxon_term_links AS t
              SET path = (text2ltree(${newPrefix.toString}) || subpath(t.path, $patternLength))
-             WHERE t.taxonomy_id=$taxonId AND t.path <@= text2ltree(${oldPrefix.toString})"""
+             WHERE t.taxon_id=$taxonId
+             AND (t.path <@ text2ltree(${oldPrefix.toString})
+             and not t.path = text2ltree(${oldPrefix.toString}))
+             and t.archived_at is null""".andThen {
+      sqlu"""UPDATE taxon_term_links AS t
+             SET path = text2ltree(${newPrefix.toString})
+             WHERE t.taxon_id=$taxonId
+             AND t.path = text2ltree(${oldPrefix.toString})
+             and t.archived_at is null"""
+    }
   }
 
+  def nonArchived: QuerySeq = filter(_.archivedAt.isEmpty)
+
   def getNextPosition(taxonId: Int, path: LTree): Rep[Int] =
-    filter(link ⇒ link.taxonId === taxonId && (link.path ~ path.toString()))
+    nonArchived
+      .filter(link ⇒ link.taxonId === taxonId && (link.path ~ path.toString()))
       .map(_.position)
       .max
       .map(_ + 1)
       .getOrElse(0)
 
   def mustFindByTaxonAndTermFormId(taxon: Taxon, termFormId: ObjectForm#Id)(implicit oc: OC,
-    ec: EC) =
+                                                                            ec: EC) =
     filterByTaxonAndTermFormId(taxon.id, termFormId)
       .mustFindOneOr(NoTermInTaxonomy(taxon.formId, termFormId))
 
   def nextIndex(taxonId: Taxon#Id)(implicit ec: EC): Rep[Int] =
-    filter(_.taxonId === taxonId).map(_.index).max.map(_ + 1).getOrElse(0)
+    nonArchived.filter(_.taxonId === taxonId).map(_.index).max.map(_ + 1).getOrElse(0)
 
   def filterByTermFormId(termFormId: ObjectForm#Id)(implicit oc: OC): QuerySeq =
-    join(Terms).on { case (link, term) ⇒ link.taxonTermId === term.id }.filter {
-      case (_, term) ⇒
-        term.formId ===
-          termFormId && term.contextId === oc.id
-    }.map { case (link, _) ⇒ link }
+    nonArchived
+      .join(Terms)
+      .on { case (link, term) ⇒ link.taxonTermId === term.id }
+      .filter {
+        case (_, term) ⇒
+          term.formId ===
+            termFormId && term.contextId === oc.id
+      }
+      .map { case (link, _) ⇒ link }
 
   def filterByTaxonAndTermFormId(taxonId: Int, termFormId: ObjectForm#Id)(
       implicit oc: OC): QuerySeq =
@@ -126,4 +144,10 @@ object TaxonTermLinks
 
   def build(left: Taxon, right: Term): TaxonTermLink =
     TaxonTermLink(0, 0, left.id, right.id, 0, LTree(""))
+
+  override protected def filterLeftId(leftId: Int): TaxonTermLinks.QuerySeq =
+    super.filterLeftId(leftId).filter(_.archivedAt.isEmpty)
+
+  override protected def filterRightId(rightId: Int): TaxonTermLinks.QuerySeq =
+    super.filterRightId(rightId).filter(_.archivedAt.isEmpty)
 }

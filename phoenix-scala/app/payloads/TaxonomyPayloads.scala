@@ -7,8 +7,7 @@ object TaxonomyPayloads {
 
   case class UpdateTaxonPayload(attributes: Map[String, Json])
 
-  case class CreateTermPayload(taxonId: Int,
-                               attributes: Map[String, Json],
+  case class CreateTermPayload(attributes: Map[String, Json],
                                parent: Option[Int],
                                sibling: Option[Int])
 

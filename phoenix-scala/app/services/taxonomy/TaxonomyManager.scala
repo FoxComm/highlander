@@ -3,6 +3,7 @@ package services.taxonomy
 import java.time.Instant
 
 import cats.data.ValidatedNel
+import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.Failure
 import failures.TaxonomyFailures._
@@ -19,9 +20,9 @@ import utils.db._
 object TaxonomyManager {
 
   case class MoveSpec(term: TaxonTermLink,
-    parent: Option[TaxonTermLink],
-    sibling: Option[TaxonTermLink])
-    extends Validation[MoveSpec] {
+                      parent: Option[TaxonTermLink],
+                      sibling: Option[TaxonTermLink])
+      extends Validation[MoveSpec] {
 
     def moveRequired: Boolean =
       term.path != newPath || (sibling.isDefined && sibling.get.position + 1 != term.position)
@@ -29,16 +30,13 @@ object TaxonomyManager {
     override def validate: ValidatedNel[Failure, MoveSpec] = {
 
       (Validation.validExpr(sibling.isEmpty || sibling.isDefined && parent.isEmpty,
-        "'parent' should be empty if 'sibling' is defined")
-        |@|
-        Validation.validExpr(term.taxonomyId == parent
-          .orElse(sibling)
-          .map(_.taxonomyId)
-          .getOrElse(term.taxonomyId),
-          "term should be in the same taxon as parent (sibling)")).map {
+                            "'parent' should be empty if 'sibling' is defined")
+            |@|
+              Validation.validExpr(
+                  term.taxonId == parent.orElse(sibling).map(_.taxonId).getOrElse(term.taxonId),
+                  "term should be in the same taxon as parent (sibling)")).map {
         case _ ⇒ this
       }
-
     }
 
     def newPath: LTree =
@@ -104,13 +102,14 @@ object TaxonomyManager {
   def getTerm(termFormId: Int)(implicit ec: EC, oc: OC, db: DB): DbResultT[TermResponse.Root] =
     ObjectUtils.getFullObject(Terms.mustFindByFormId404(termFormId)).map(TermResponse.build)
 
-  def createTerm(payload: CreateTermPayload)(implicit ec: EC,
-                                             oc: OC): DbResultT[TermResponse.Root] = {
+  def createTerm(taxonFormId: Int, payload: CreateTermPayload)(
+      implicit ec: EC,
+      oc: OC): DbResultT[TermResponse.Root] = {
     val form   = ObjectForm.fromPayload(Term.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
-      taxon ← * <~ Taxons.mustFindByFormId404(payload.taxonId)
+      taxon ← * <~ Taxons.mustFindByFormId404(taxonFormId)
 
       ins  ← * <~ ObjectUtils.insert(form, shadow)
       term ← * <~ Terms.create(Term(id = 0, oc.id, ins.form.id, ins.shadow.id, ins.commit.id))
@@ -131,9 +130,9 @@ object TaxonomyManager {
                                parentLink,
                                siblingLink).validate
       moveSpec2 = moveSpec.copy(term = moveSpec.term.copy(path = moveSpec.newPath))
-      link ← * <~ TaxonTermLinks.create(moveSpec.term)
-      _ ← * <~ (if (moveSpec.sibling.isDefined)
-                  TaxonTermLinks.moveTermAfter(link, moveSpec.sibling.get)
+      link ← * <~ TaxonTermLinks.create(moveSpec2.term)
+      _ ← * <~ (if (moveSpec2.sibling.isDefined)
+                  TaxonTermLinks.moveTermAfter(link, moveSpec2.sibling.get)
                 else
                   DbResultT.good(link))
     } yield TermResponse.build(FullObject(term, ins.form, ins.shadow))
@@ -164,19 +163,25 @@ object TaxonomyManager {
                           else DbResultT.none)
       link     ← * <~ TaxonTermLinks.mustFindByTaxonAndTermFormId(taxon.model, term.formId)
       moveSpec ← * <~ MoveSpec(link, parentTerm, siblingTerm).validate
-      _ ← * <~ (if (moveSpec.moveRequired) moveTerm(taxon.model, moveSpec) else DbResultT.good(Unit))
+      _ ← * <~ (if (moveSpec.moveRequired) moveTerm(taxon.model, moveSpec)
+                else DbResultT.good(Unit))
     } yield term
 
-  private def moveTerm(taxon: Taxon, moveSpec: MoveSpec)(implicit ec: EC, oc: OC, db: DB) = for {
-    _ ← * <~ TaxonTermLinks.archivate(moveSpec.term)
-    newPath ← * <~ moveSpec.newPath
-    newLink ← * <~ TaxonTermLinks.create(moveSpec.term.copy(id = 0, position = -1, path = newPath))
-    _ ← * <~ TaxonTermLinks.updatePath(taxon.id, moveSpec.term.path, newPath)
-    _ ← * <~ (if (moveSpec.sibling.isDefined)
-      TaxonTermLinks.moveTermAfter(newLink, moveSpec.sibling.get)
-    else
-      DbResultT.good(newLink))
-  } yield {}
+  private def moveTerm(taxon: Taxon, moveSpec: MoveSpec)(implicit ec: EC, oc: OC, db: DB) =
+    for {
+      _       ← * <~ TaxonTermLinks.archivate(moveSpec.term)
+      newPath ← * <~ moveSpec.newPath
+      newLink ← * <~ TaxonTermLinks.create(
+                   moveSpec.term.copy(id = 0, position = -1, path = newPath))
+      _ ← * <~ TaxonTermLinks.updatePath(taxon.id,
+                                         moveSpec.term.childPath,
+                                         newPath.copy(value = newPath.value :::
+                                                 List(moveSpec.term.index.toString)))
+      _ ← * <~ (if (moveSpec.sibling.isDefined)
+                  TaxonTermLinks.moveTermAfter(newLink, moveSpec.sibling.get)
+                else
+                  DbResultT.good(newLink))
+    } yield {}
 
   def updateTerm(termId: Int, payload: UpdateTermPayload)(implicit ec: EC,
                                                           oc: OC,

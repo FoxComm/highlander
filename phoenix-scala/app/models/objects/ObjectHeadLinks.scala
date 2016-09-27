@@ -33,11 +33,13 @@ object ObjectHeadLinks {
                                                            rightQuery: FoxTableQuery[R, _])
       extends FoxTableQuery[M, T](construct) {
 
-    def filterLeft(left: L): QuerySeq                 = filterLeftId(left.id)
+    def filterLeft(left: L): QuerySeq = filterLeftId(left.id)
+
     protected def filterLeftId(leftId: Int): QuerySeq = filter(_.leftId === leftId)
 
-    def filterRight(right: R): QuerySeq               = filterRightId(right.id)
-    private def filterRightId(rightId: Int): QuerySeq = filter(_.rightId === rightId)
+    def filterRight(right: R): QuerySeq = filterRightId(right.id)
+
+    protected def filterRightId(rightId: Int): QuerySeq = filter(_.rightId === rightId)
 
     def queryLeftByRight(right: R)(implicit ec: EC, db: DB): DbResultT[Seq[FullObject[L]]] =
       queryLeftByRightIdWithLink(right.id).map(_.map(_._1))
