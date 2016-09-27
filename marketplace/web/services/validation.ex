@@ -16,7 +16,7 @@ defmodule Marketplace.Validation do
 
   # examples: Ca, CA, ca
   def validate_US_state(changeset, field) do
-    validate_format(changeset, field, ~r/^[a-zA-Z]{2}&/)
+    validate_format(changeset, field, ~r/^[a-zA-Z]{2}$/)
   end
 
   # example: 123456789
