@@ -21,7 +21,7 @@ import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.CreateCart
 import payloads.PaymentPayloads.GiftCardPayment
 import payloads.UpdateShippingMethod
-import responses.{TheResponse, GiftCardResponse}
+import responses.GiftCardResponse
 import responses.cord._
 import slick.driver.PostgresDriver.api._
 import util._
@@ -64,7 +64,7 @@ class CheckoutIntegrationTest
       val checkout = POST(s"v1/orders/$refNum/checkout")
       checkout.status must === (StatusCodes.OK)
 
-      val orderResponse = checkout.as[TheResponse[Option[OrderResponse]]]
+      val orderResponse = checkout.as[OrderResponse]
 
       // Checkout:
       // Triggers cart → order transition
@@ -72,8 +72,8 @@ class CheckoutIntegrationTest
       Carts.findOneByRefNum(refNum).gimme must not be defined
 
       // Properly creates an order
-      orderResponse.result.value.orderState must === (Order.RemorseHold)
-      orderResponse.result.value.remorsePeriodEnd.value.isAfter(Instant.now) mustBe true
+      orderResponse.orderState must === (Order.RemorseHold)
+      orderResponse.remorsePeriodEnd.value.isAfter(Instant.now) mustBe true
 
       // Authorizes payments
       GiftCardAdjustments.map(_.state).gimme must contain only GiftCardAdjustment.Auth
@@ -158,11 +158,9 @@ class CheckoutIntegrationTest
 
       // Checkout!
       val checkout = POST(s"v1/orders/$refNum/checkout")
-      checkout.status must === (StatusCodes.OK)
+      checkout.status must === (StatusCodes.BadRequest)
 
-      val orderResponse = checkout.as[TheResponse[Option[OrderResponse]]]
-
-      orderResponse.errors.get.head must === (CustomerIsBlacklisted(customer.id).description)
+      checkout.error must === (CustomerIsBlacklisted(customer.id).description)
     }
   }
 

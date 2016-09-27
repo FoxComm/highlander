@@ -48,8 +48,8 @@ class CheckoutTest
       when(mockValidator.validate(isCheckout = false, fatalWarnings = true))
         .thenReturn(DbResultT.failure[CartValidatorResponse](failure))
 
-      val result = Checkout(cart, mockValidator).checkout.gimme
-      result.errors.get.head must === (failure.description)
+      val result = Checkout(cart, mockValidator).checkout.futureValue.leftVal
+      result must === (failure.single)
     }
 
     "fails if the cart validator has warnings" in new EmptyCustomerCart_Baked {
@@ -61,8 +61,8 @@ class CheckoutTest
       when(mockValidator.validate(isCheckout = true, fatalWarnings = true))
         .thenReturn(liftedFailure)
 
-      val result = Checkout(cart, mockValidator).checkout.gimme
-      result.errors.get.head must === (failure.description)
+      val result = Checkout(cart, mockValidator).checkout.futureValue.leftVal
+      result must === (failure.single)
     }
 
     "authorizes payments" - {

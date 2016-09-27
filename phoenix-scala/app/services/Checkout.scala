@@ -17,7 +17,6 @@ import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.promotion._
-import responses.TheResponse
 import responses.cord.OrderResponse
 import services.coupon.CouponUsageService
 import slick.driver.PostgresDriver.api._
@@ -66,7 +65,7 @@ object Checkout {
                                db: DB,
                                apis: Apis,
                                ac: AC,
-                               ctx: OC): DbResultT[TheResponse[Option[OrderResponse]]] =
+                               ctx: OC): DbResultT[OrderResponse] =
     for {
       cart  ← * <~ Carts.mustFindByRefNum(refNum)
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
@@ -76,7 +75,7 @@ object Checkout {
                                       db: DB,
                                       apis: Apis,
                                       ac: AC,
-                                      ctx: OC): DbResultT[TheResponse[Option[OrderResponse]]] =
+                                      ctx: OC): DbResultT[OrderResponse] =
     for {
       result ← * <~ Carts
                 .findByCustomer(customer)
@@ -98,7 +97,7 @@ case class Checkout(
 
   var externalCalls = new ExternalCalls()
 
-  def checkout: Result[TheResponse[Option[OrderResponse]]] = {
+  def checkout: Result[OrderResponse] = {
     val actions = for {
       customer  ← * <~ Customers.mustFindById404(cart.customerId)
       _         ← * <~ customer.mustHaveCredentials
@@ -116,11 +115,11 @@ case class Checkout(
     } yield fullOrder
 
     actions.runTxn().map {
-      case failures @ Xor.Left(failList) ⇒
+      case failures @ Xor.Left(_) ⇒
         if (externalCalls.middleWarehouseSuccess) cancelHoldInMiddleWarehouse
-        Xor.Right(TheResponse(None, errors = Option(failList.toList.map(_.description))))
+        failures
       case result @ Xor.Right(_) ⇒
-        result.map(order ⇒ TheResponse(Some(order)))
+        result
     }
   }
 
