@@ -80,6 +80,9 @@ export default class ProductForm extends Component {
 
   @autobind
   updateSkuVariantMapping(variants: Array<any>): void {
+    // here we have new variants, but
+    // we don't have skuCodes in variant.values
+    // also we need add new skus in order user be able to edit them
     let updatedVariants = [];
     let skus = [];
     if (_.isEmpty(variants)) {
@@ -89,24 +92,20 @@ export default class ProductForm extends Component {
       const availableVariants = ProductParagon.availableVariants(variants);
 
       skus = _.map(availableVariants, variantCombination => {
-        const sku = ProductParagon.createEmptySkuForVariantValues(variantCombination);
-        return sku;
+        return ProductParagon.createEmptySkuForVariantValues(variantCombination);
       });
 
       updatedVariants = _.map(variants, variant => {
-        const values = _.map(variant.values, value => {
-          const result = _.reduce(skus, (acc, sku) => {
+        variant.values = _.map(variant.values, value => {
+          value.skuCodes = _.reduce(skus, (acc, sku) => {
             if (sku.varaintValues.indexOf(value.name) >= 0) {
               const code = sku.code || sku.feCode;
               return acc.concat([code]);
             }
             return acc;
           }, []);
-          value.skuCodes = result;
           return value;
         });
-        variant.values = values;
-        variant.attributes = { name: { 't': 'string', 'v': variant.name }};
         return variant;
       });
     }

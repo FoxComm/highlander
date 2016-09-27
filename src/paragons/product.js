@@ -7,6 +7,7 @@ import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { skuEmptyAttributes } from './sku';
 import { isSatisfied } from 'paragons/object';
+import { cartesianProductOf } from 'lib/utils';
 
 // helpers
 import { generateSkuCode, isSkuValid } from './sku';
@@ -40,9 +41,11 @@ export type Option = {
       t: ?string,
       v: ?string,
     },
+    type?: {
+      t: string,
+      v: string,
+    },
   },
-  name?: string,
-  type: ?string,
   values: Array<OptionValue>,
 };
 
@@ -110,32 +113,6 @@ export function createEmptySku(): Object {
       retailPrice: emptyPrice,
       salePrice: emptyPrice,
     },
-  };
-  return emptySku;
-}
-
-export function createEmptySkuForVariantValues(values: Array<any>): Object {
-  const pseudoRandomCode = generateSkuCode();
-  const emptyPrice = {
-    t: 'price',
-    v: { currency: 'USD', value: 0 },
-  };
-  const valuesArray = _.map(values, value => value.name);
-  const emptySku = {
-    feCode: pseudoRandomCode,
-    attributes: {
-      code: {
-        t: 'string',
-        v: '',
-      },
-      title: {
-        t: 'string',
-        v: '',
-      },
-      retailPrice: emptyPrice,
-      salePrice: emptyPrice,
-    },
-    varaintValues: valuesArray,
   };
   return emptySku;
 }
@@ -210,13 +187,12 @@ export function setSkuAttribute(product: Product,
  * Returns list of variants with one or more value
  */
 export function variantsWithMultipleOptions(variants: Array<any>): Array<Object> {
-  const opts = _.reduce(variants, (acc, variant) => {
+  return _.reduce(variants, (acc, variant) => {
     if (_.isEmpty(variant.values)) {
       return acc;
     }
     return acc.concat([variant]);
   }, []);
-  return opts;
 }
 
 /**
@@ -224,13 +200,12 @@ export function variantsWithMultipleOptions(variants: Array<any>): Array<Object>
  * Be careful, it returns list of variant options, not variants theirselves
  */
 export function variantValuesWithMultipleOptions(variants: Array<any>): Array<Object> {
-  const opts = _.reduce(variants, (acc, variant) => {
+  return _.reduce(variants, (acc, variant) => {
     if (_.isEmpty(variant.values)) {
       return acc;
     }
     return acc.concat([variant.values]);
   }, []);
-  return opts;
 }
 
 /**
@@ -238,23 +213,15 @@ export function variantValuesWithMultipleOptions(variants: Array<any>): Array<Ob
  */
 export function availableVariants(variants: Array<any>): Array<Object> {
   const opts = variantValuesWithMultipleOptions(variants);
-  // magic of Cartesian product http://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
-  const availableVariants = _.reduce(opts, (acc, currentOptionList) => {
-    return _.flatten(_.map(acc, (accValue) => {
-      return _.map(currentOptionList, (option) => {
-        return accValue.concat([option]);
-      });
-    }), true);
-  }, [ [] ]);
-  return availableVariants;
+  return cartesianProductOf(...opts);
 }
 
 /**
  * This is a convenience function that iterates through a product and creates a
  * mapping from SKU => Variant => Value.
  */
-export function mapSkusToVariants(product: Product): Object {
-  return _.reduce(product.variants, (res, variant) => {
+export function mapSkusToVariants(variants: Array<Option>): Object {
+  return _.reduce(variants, (res, variant) => {
     const variantName = _.get(variant, 'attributes.name.v');
     return _.reduce(variant.values, (res, value) => {
       return _.reduce(value.skuCodes, (res, skuCode) => {

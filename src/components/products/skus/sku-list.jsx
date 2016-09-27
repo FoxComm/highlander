@@ -12,14 +12,14 @@ import EditableSkuRow from './editable-sku-row';
 import MultiSelectTable from 'components/table/multi-select-table';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 
-import type { Product } from 'paragons/product';
+import type { Product, mapSkusToVariants } from 'paragons/product';
 import type { Sku } from 'modules/skus/details';
 
 type UpdateFn = (code: string, field: string, value: any) => void;
 
 type Props = {
   fullProduct: ?Product,
-  skus: Array<Any>,
+  skus: Array<any>,
   updateField: UpdateFn,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
   variants: Array<any>,
@@ -37,12 +37,21 @@ export default class SkuList extends Component {
     skuId: null,
   };
 
+  variantsSkusIndex: Object = mapSkusToVariants(this.props.variants);
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (!this.variantsSkusIndex || this.props.variants != nextProps.variants) {
+      this.variantsSkusIndex = mapSkusToVariants(this.props.variants);
+    }
+  }
+
   tableColumns(): Array<Object> {
     const { variants } = this.props;
-    const variantColumns = [];
-    _.each(variants, (variant, idx) => {
-      const variantName = _.get(variant, 'attributes.name.v', variant.name);
-      variantColumns.push({ field: `${idx}_variant`, text: variantName });
+    const variantColumns = _.map(variants, (variant, idx) => {
+      return {
+        field: `${idx}_variant`,
+        text: _.get(variant, 'attributes.name.v'),
+      };
     });
 
     let columns = [
@@ -126,6 +135,7 @@ export default class SkuList extends Component {
           sku={row}
           params={params}
           variants={this.props.variants}
+          variantsSkusIndex={this.variantsSkusIndex}
           updateField={this.props.updateField}
           updateFields={this.props.updateFields}
           onDeleteClick={this.showDeleteConfirmation}

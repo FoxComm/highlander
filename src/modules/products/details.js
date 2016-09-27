@@ -6,7 +6,7 @@
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
-import { createEmptyProduct, configureProduct, mapSkusToVariants } from 'paragons/product';
+import { createEmptyProduct, configureProduct } from 'paragons/product';
 import createAsyncActions from '../async-utils';
 import { dissoc } from 'sprout-data';
 
@@ -115,8 +115,7 @@ export const updateProduct = _updateProduct.perform;
 
 function updateProductInState(state: ProductDetailsState, response) {
   const product = configureProduct(response);
-  const skuVariantMap = mapSkusToVariants(product);
-  return { ...state, product, skuVariantMap };
+  return { ...state, product };
 }
 
 const initialState: ProductDetailsState = {

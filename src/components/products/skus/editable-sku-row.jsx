@@ -36,7 +36,7 @@ type Props = {
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
   onDeleteClick: (id: string|number) => void,
   isFetchingSkus: boolean|null,
-  skuVariantMap: Object,
+  variantsSkusIndex: Object,
   suggestSkus: (code: string, context?: SuggestOptions) => Promise,
   suggestedSkus: Array<SearchViewSku>,
   variants: Array<any>,
@@ -46,12 +46,6 @@ type State = {
   sku: { [key:string]: string },
   isMenuVisible: boolean,
 };
-
-function mapGlobalStateToProps(state) {
-  return {
-    skuVariantMap: state.products.details.skuVariantMap,
-  };
-}
 
 function mapLocalStateToProps(state) {
   return {
@@ -242,20 +236,20 @@ class EditableSkuRow extends Component {
     }
 
     const idx = parseInt(field);
-    const mapping = this.props.skuVariantMap;
+    const mapping = this.props.variantsSkusIndex;
 
     const variant = _.get(this.props.variants, idx, {});
-    const variantName = _.get(variant, 'attributes.name.v', variant.name);
+    const variantName = _.get(variant, 'attributes.name.v');
     const skuAttributeCode = _.get(sku, 'attributes.code.v');
-    const skuCode = !_.isEmpty(skuAttributeCode) && skuAttributeCode != "" ? skuAttributeCode : sku.feCode;
+    const skuCode = !_.isEmpty(skuAttributeCode) ? skuAttributeCode : sku.feCode;
 
-    const selected = _.get(mapping, [skuCode, variantName]) || _.get(sku, ['varaintValues', idx]);
+    const variantValue = _.get(mapping, [skuCode, variantName]);
 
     return (
       <input
         className="fc-text-input"
         type="text"
-        value={selected}
+        value={variantValue}
         disabled={true}
       />
     );
@@ -339,7 +333,6 @@ class EditableSkuRow extends Component {
 }
 
 export default _.flowRight(
-  connect(mapGlobalStateToProps),
   makeLocalStore(reducer),
   connect(mapLocalStateToProps, { suggestSkus })
 )(EditableSkuRow);

@@ -57,10 +57,17 @@ class OptionList extends Component {
 
   @autobind
   startEditOption(id: any): void {
-
     const option = (id !== 'new') ? this.props.variants[id] : {
-      name: '',
-      type: '',
+      attributes: {
+        name: {
+          t: 'string',
+          v: ''
+        },
+        type: {
+          t: 'string',
+          v: '',
+        }
+      },
       values: [],
     };
 
@@ -103,13 +110,13 @@ class OptionList extends Component {
   }
 
   renderOptions(variants: Array<Option>): Array<Element> {
-    return _.map(variants, (value, key) => {
+    return _.map(variants, (option, key) => {
       const reactKey = `product-variant-${key}`;
       return (
         <OptionEntry
           key={reactKey}
           id={key}
-          option={value}
+          option={option}
           editOption={this.startEditOption}
           deleteOption={this.deleteOption}
           confirmAction={this.updateOption}

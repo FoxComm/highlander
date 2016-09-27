@@ -15,3 +15,13 @@ import _ from 'lodash';
 export function isDefined(value: any): boolean {
   return value !== void 0 && (!_.isString(value) || value);
 }
+
+export function cartesianProductOf() {
+  return _.reduce(arguments, (a, b) => {
+    return _.flatten(_.map(a, x => {
+      return _.map(b, y => {
+        return x.concat([y]);
+      });
+    }), true);
+  }, [ [] ]);
+}

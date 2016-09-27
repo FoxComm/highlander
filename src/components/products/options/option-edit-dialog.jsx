@@ -45,7 +45,9 @@ class OptionEditDialog extends Component {
 
   @autobind
   handleChange(value: string, field: string): void {
-    const option = assoc(this.state.option, field, value);
+    const option = assoc(this.state.option,
+      ['attributes', field, 'v'], value
+    );
 
     this.setState({option});
   }
@@ -58,8 +60,8 @@ class OptionEditDialog extends Component {
   }
 
   renderDialogContent(): Element {
-    const name = _.get(this.state, 'option.name');
-    const type = _.get(this.state, 'option.type');
+    const name = _.get(this.state, 'option.attributes.name.v');
+    const type = _.get(this.state, 'option.attributes.type.v');
 
     return (
       <div styleName="option-edit-dialog">

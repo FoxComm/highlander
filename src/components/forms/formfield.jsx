@@ -6,7 +6,7 @@ import React, { Component, Element, PropTypes } from 'react';
 import { findDOMNode } from 'react-dom';
 import * as validators from 'lib/validators';
 import classNames from 'classnames';
-import { isDefined } from 'lib/lang';
+import { isDefined } from 'lib/utils';
 
 type FormFieldProps = {
   validator?: string|(value: any) => string;

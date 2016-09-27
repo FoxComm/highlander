@@ -49,7 +49,7 @@ class OptionEntry extends Component {
   }
 
   get content(): Element {
-    const optionName = _.get(this.props, 'option.name', '');
+    const optionName = _.get(this.props, 'option.attributes.name.v', '');
 
     const entries = _.map(this.values, (value, key) => {
       return (
@@ -85,8 +85,8 @@ class OptionEntry extends Component {
       <div className="fc-option-entry__actions">
         <a onClick={() => this.editValue('new')} styleName="action-icon"><i className="icon-add"/></a>
         <a onClick={() => this.props.editOption(this.props.id)} styleName="action-icon"><i className="icon-edit"/></a>
-        <a 
-          onClick={() => this.props.deleteOption(this.props.id)} 
+        <a
+          onClick={() => this.props.deleteOption(this.props.id)}
           styleName="action-icon">
           <i className="icon-trash"/>
         </a>
@@ -146,7 +146,7 @@ class OptionEntry extends Component {
 
   render(): Element {
     const values = this.values;
-    const name = _.get(this.props, 'option.name');
+    const name = _.get(this.props, 'option.attributes.name.v');
     const content = _.isEmpty(values) ? this.emptyContent : this.content;
 
     return (
