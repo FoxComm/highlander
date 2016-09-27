@@ -2,7 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 
 const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
 const urlRegex = /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/i;
-const phoneRegex = /^\+1\d{10}$/;
+const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
 
 const required = value => !isEmpty(value);
 

@@ -25,8 +25,8 @@ defmodule Marketplace.Merchant do
   end
 
   @states ~w(new approved suspended cancelled)a
-  @required_fields ~w(business_name phone_number email_address site_url state)
-  @optional_fields ~w(name description scope_id organization_id)
+  @required_fields ~w(business_name phone_number email_address site_url state)a
+  @optional_fields ~w(name description scope_id organization_id)a
 
   def changeset(model, params \\ :empty) do
     model 

@@ -2,10 +2,11 @@ input,
 textarea,
 select {
   width: 100%;
+  padding: 0 15px;
   line-height: 36px;
   font-weight: 300;
   font-size: 16px;
-  padding: 0 15px;
+  color: #000;
 
   border: none;
   border-radius: 0;
@@ -97,10 +98,9 @@ input:-webkit-autofill {
 
     & li {
       display: inline-block;
-      margin: 1px;
       padding: 3px 5px;
-      text-align: center;
-      white-space: nowrap;
+      font-weight: 300;
+      color: #000;
       cursor: pointer;
     }
 
@@ -161,11 +161,7 @@ input:-webkit-autofill {
     right: 10px;
 
     & ul {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-
-      height: 100%;
+      max-height: 250px;
       margin: 0;
       padding: 5px 0;
       overflow: auto;
@@ -173,9 +169,8 @@ input:-webkit-autofill {
       outline: 0;
 
       & li {
-        display: inline-block;
-        padding: 3px 10px;
-        margin: 3px;
+        padding: 1px 10px;
+        margin: 2px;
         border-radius: 3px;
         border: 1px solid #fff;
         cursor: pointer;
