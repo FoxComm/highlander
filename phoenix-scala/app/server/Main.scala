@@ -21,8 +21,8 @@ import org.json4s._
 import org.json4s.jackson._
 import services.account.AccountCreateContext
 import services.Authenticator
+import services.Authenticator.UserAuthenticator
 import services.Authenticator.requireAdminAuth
-import services.auth.GoogleOauth.oauthServiceFromConfig
 import services.actors._
 
 import slick.driver.PostgresDriver.api._
@@ -87,18 +87,15 @@ class Service(systemOverride: Option[ActorSystem] = None,
   val orgName  = config.getString(s"user.customer.org")
   val scopeId  = config.getInt(s"user.customer.scope_id")
 
-  val customerCreateContext = AccountCreateContext(List(roleName), orgName, scopeId)
-  implicit val auth         = Authenticator.forUser(customerCreateContext)
-
-  val customerGoogleOauth = oauthServiceFromConfig("customer")
-  val adminGoogleOauth    = oauthServiceFromConfig("admin")
+  val customerCreateContext                = AccountCreateContext(List(roleName), orgName, scopeId)
+  implicit val userAuth: UserAuthenticator = Authenticator.forUser(customerCreateContext)
 
   val defaultRoutes = {
     pathPrefix("v1") {
-      routes.AuthRoutes.routes(customerGoogleOauth, adminGoogleOauth) ~
+      routes.AuthRoutes.routes ~
       routes.Public.routes(customerCreateContext) ~
       routes.Customer.routes ~
-      requireAdminAuth(auth) { implicit admin ⇒
+      requireAdminAuth(userAuth) { implicit admin ⇒
         routes.admin.AdminRoutes.routes ~
         routes.admin.NotificationRoutes.routes ~
         routes.admin.AssignmentsRoutes.routes ~
@@ -127,7 +124,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
 
   val devRoutes = {
     pathPrefix("v1") {
-      requireAdminAuth(auth) { implicit admin ⇒
+      requireAdminAuth(userAuth) { implicit admin ⇒
         routes.admin.DevRoutes.routes
       }
     }

@@ -187,7 +187,7 @@ begin
     select id from resources where name='my:cart' into my_cart_id;
     select id from resources where name='my:info' into my_info_id;
 
-    insert into roles(name, scope_id) values('tenant_admin', root_scope_id) returning id into fox_admin_id; 
+    insert into roles(name, scope_id) values('admin', root_scope_id) returning id into fox_admin_id; 
 
     perform add_perm(fox_admin_id, root_scope_id, cart_id, ARRAY['c', 'r', 'u', 'd']);
     perform add_perm(fox_admin_id, root_scope_id, order_id, ARRAY['c', 'r', 'u', 'd']);
@@ -198,7 +198,7 @@ begin
     perform add_perm(fox_admin_id, root_scope_id, user_id, ARRAY['c', 'r', 'u', 'd']);
     perform add_perm(fox_admin_id, root_scope_id, org_id, ARRAY['c', 'r', 'u', 'd']);
 
-    insert into roles(name, scope_id) values ('merchant_admin', merch_scope_id) returning id into merch_admin_id;
+    insert into roles(name, scope_id) values ('admin', merch_scope_id) returning id into merch_admin_id;
 
     perform add_perm(merch_admin_id, merch_scope_id, cart_id, ARRAY['c', 'r', 'u', 'd']);
     perform add_perm(merch_admin_id, merch_scope_id, order_id, ARRAY['c', 'r', 'u', 'd']);
@@ -298,7 +298,7 @@ begin
         values( user_id, account_id, s.state, s.created_at, s.updated_at, s.deleted_at);
 
     perform assign_org(account_id, 'merchant');
-    perform assign_role(account_id, 'merchant_admin');
+    perform assign_role(account_id, 'admin');
 
     update assignments set store_admin_id = account_id where store_admin_id = s.id;
     update notes set store_admin_id = account_id where store_admin_id = s.id;
@@ -582,13 +582,14 @@ begin
         name = u.name,
         email = u.email,
         is_disabled = u.is_disabled,
-        is_guest = u.is_guest,
+        is_guest = cu.is_guest,
         is_blacklisted = u.is_blacklisted,
         phone_number = u.phone_number,
         blacklisted_by = u.blacklisted_by,
         joined_at = to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
-    from customers_search_view, users as u
-    where customers_search_view.id = new.account_id and u.account_id = new.account_id;
+    from users as u, customer_users as cu
+    where customers_search_view.id = new.account_id and u.account_id = new.account_id 
+    and cu.account_id = new.account_id;
 
     return null;
     end;
@@ -804,7 +805,6 @@ begin
        -- jsonb_set(customer, '{revenue}', jsonb (subquery.revenue::varchar), true)
        json_build_object(
                'id', customer ->> 'id',
-               'account_id', customer ->> 'account_id',
                'name', customer ->> 'name',
                'email', customer ->> 'email',
                'is_blacklisted', customer ->> 'is_blacklisted',
@@ -829,7 +829,7 @@ begin
               group by (c.id)
               order by revenue desc)
             as subquery
-    where orders_search_view.customer ->> 'account_id' = subquery.account_id::varchar;
+    where orders_search_view.customer ->> 'id' = subquery.account_id::varchar;
 
     return null;
 end;
@@ -1098,7 +1098,7 @@ begin
                         '{revenue}', jsonb (c.revenue::varchar), true)
                         as customer
           from carts_search_view as cs
-          inner join customers_search_view as c on (c.id = (cs.customer->>'account_id')::bigint)
+          inner join customers_search_view as c on (c.id = (cs.customer->>'id')::bigint)
           where c.rank > 0
         ) as q
         where carts_search_view.id = q.id;
@@ -1113,7 +1113,7 @@ begin
                         '{revenue}', jsonb (c.revenue::varchar), true)
                       as customer
           from orders_search_view as o
-          inner join customers_search_view as c on (c.id = (o.customer->>'account_id')::bigint)
+          inner join customers_search_view as c on (c.id = (o.customer->>'id')::bigint)
           where c.rank > 0
         ) as q
         where orders_search_view.id = q.id;
@@ -1123,7 +1123,7 @@ end;
 $$ language plpgsql;
 
 drop index orders_search_view_customer_idx;
-create index orders_search_view_account_idx on orders_search_view((customer->>'account_id'));
+create index orders_search_view_account_idx on orders_search_view((customer->>'id'));
 
 create or replace function update_orders_view_from_orders_insert_fn() returns trigger as $$
     begin
@@ -1191,15 +1191,16 @@ create or replace function update_orders_view_from_customers_fn() returns trigge
 begin
     update orders_search_view set
         customer = json_build_object(
-            'id', new.id,
-            'account_id', new.account_id,
-            'name', new.name,
-            'email', new.email,
-            'is_blacklisted', new.is_blacklisted,
-            'joined_at', to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+            'id', new.account_id,
+            'name', u.name,
+            'email', u.email,
+            'is_blacklisted', u.is_blacklisted,
+            'joined_at', to_char(u.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
             'rank', customer ->> 'rank',
             'revenue', customer ->> 'revenue'
-        )::jsonb where customer ->> 'account_id' = new.account_id::varchar;
+        )::jsonb 
+        from users as u where u.account_id = new.account_id and
+        customer ->> 'id' = new.account_id::varchar;
     return null;
 end;
 $$ language plpgsql;
@@ -1324,7 +1325,7 @@ begin
       from store_credits as sc
       left join store_credit_manuals as scm on (sc.origin_id = scm.id)
       left join store_credit_customs as scc on (sc.origin_id = scc.id)
-      left join store_admin_user as sa on (sa.account_id = scm.admin_id or sa.account_id = scc.admin_id)
+      left join store_admin_users as sa on (sa.account_id = scm.admin_id or sa.account_id = scc.admin_id)
       left join users as u on (u.account_id = sa.account_id)
       where sa.id = new.id;
   end case;
@@ -1462,13 +1463,13 @@ $$ language plpgsql;
 create or replace function update_store_admins_view_update_fn() returns trigger as $$
 begin
     update store_admins_search_view set
-        name = new.name,
-        email = new.email,
-        phone_number = new.phone_number,
+        name = u.name,
+        email = u.email,
+        phone_number = u.phone_number,
         state = new.state,      
         created_at = to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
     from users as u
-    where id = new.account_id and u.account_id = new.account_id;
+    where u.account_id = new.account_id;
     return null;
     end;
 $$ language plpgsql;

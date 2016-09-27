@@ -128,7 +128,7 @@ class ShippingMethodsIntegrationTest
     val (address, orderShippingAddress) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       address ← * <~ Addresses.create(
-                   Factories.address.copy(customerId = customer.id, regionId = californiaId))
+                   Factories.address.copy(accountId = customer.accountId, regionId = californiaId))
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
                                                                 cordRef = cart.refNum)
       product ← * <~ Mvp.insertProduct(productContext.id,

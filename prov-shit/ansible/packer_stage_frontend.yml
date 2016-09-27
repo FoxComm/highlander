@@ -21,8 +21,12 @@
     middlewarehouse_service_after: ""
     middlewarehouse_consumers_services_requires: ""
     middlewarehouse_consumers_services_after: ""
-    greenriver_service_requires: ""
-    greenriver_service_after: ""
+    greenriver_service_requires: phoenix.service
+    greenriver_service_after: phoenix.service
+    ashes_server_name: "stage.foxcommerce.com"
+    storefront_server_name: "stage.foxcommerce.com"
+    kafka_server: kafka.service.consul:9092
+    schema_server: schema-registry.service.consul:8081
   post_tasks:
     - name: Sweet Dreams
       pause: seconds=5
@@ -35,5 +39,9 @@
     - { role: base/isaac }
     - { role: base/greenriver }
     - { role: base/middlewarehouse }
+    - { role: base/ashes }
+    - { role: base/firebrand }
     - { role: base/balancer, sudo: yes }
-    - { role: prod/balancer, sudo: yes }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

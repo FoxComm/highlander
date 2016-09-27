@@ -110,7 +110,7 @@ const getRoutes = (jwt: Object) => {
           frn: frn.activity.coupon,
         }),
       ]),
-    ])
+    ]);
 
   return (
     <div>
@@ -118,7 +118,7 @@ const getRoutes = (jwt: Object) => {
       {promotionsRoutes}
       {couponRoutes}
     </div>
-  )
-}
+  );
+};
 
 export default getRoutes;

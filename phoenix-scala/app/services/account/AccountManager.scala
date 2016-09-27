@@ -95,15 +95,24 @@ object AccountManager {
   def createUser(name: Option[String],
                  email: Option[String],
                  password: Option[String],
-                 context: AccountCreateContext)(implicit ec: EC, db: DB): DbResultT[User] = {
+                 context: AccountCreateContext,
+                 checkEmail: Boolean = true)(implicit ec: EC, db: DB): DbResultT[User] = {
 
     for {
-      _ ← * <~ email.map(e ⇒ Users.createEmailMustBeUnique(e))
-
       scope ← * <~ Scopes.mustFindById404(context.scopeId)
       organization ← * <~ Organizations
                       .findByNameInScope(context.org, scope.id)
                       .mustFindOr(OrganizationNotFound(context.org, scope.path))
+
+      _ ← * <~ (if (checkEmail) (email match {
+                  case Some(e) ⇒
+                    for {
+                      _ ← * <~ Users.createEmailMustBeUnique(e)
+                    } yield {}
+                  case None ⇒ DbResultT.unit
+
+                })
+                else DbResultT.unit)
 
       account ← * <~ Accounts.create(Account())
 

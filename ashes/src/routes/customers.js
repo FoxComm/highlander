@@ -71,7 +71,8 @@ const getRoutes = (jwt: Object) => {
         router.read('customer-activity-trail', { path: 'activity-trail', component: ActivityTrailPage }),
         router.read('customer-storecredits-base', { path: 'storecredit' }, [
           router.read('customer-storecredits', { component: StoreCredits, isIndex: true }),
-          router.read('customer-storecredit-transactions', { path: 'transactions', component: StoreCreditsTransactions }),
+          router.read('customer-storecredit-transactions', { path: 'transactions', 
+              component: StoreCreditsTransactions }),
         ]),
       ]),
       router.read('customer-storecredits-new', { path: ':customerId/storecredits/new', component: NewStoreCredit }),

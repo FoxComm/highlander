@@ -18,7 +18,7 @@ import { getClaims } from 'lib/claims';
 
 const claims = getClaims();
 
-const rootPath = process.env.ROOT_PATH;
+const rootPath = process.env.ON_SERVER ? '/admin' : '/';
 const indexRedirect = `${rootPath}/orders`;
 
 const routes = (

@@ -52,7 +52,7 @@ export const frn = {
     customerGroup: 'frn:usr:customer-group',
     customerTransaction: 'frn:usr:customer-transaction',
   },
-}
+};
 
 export function readAction(frn: string): Claims {
   return { [frn]: ['r'] };

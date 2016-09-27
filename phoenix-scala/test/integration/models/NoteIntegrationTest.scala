@@ -41,6 +41,6 @@ class NoteIntegrationTest extends IntegrationTestBase with BakedFixtures with Te
   }
 
   trait Fixture extends StoreAdmin_Seed {
-    val note = Factories.orderNotes.head.copy(storeAdminId = storeAdmin.id)
+    val note = Factories.orderNotes.head.copy(storeAdminId = storeAdmin.accountId)
   }
 }

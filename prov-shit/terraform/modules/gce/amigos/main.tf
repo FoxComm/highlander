@@ -39,7 +39,7 @@ resource "google_compute_instance" "amigo_server" {
     provisioner "remote-exec" {
         inline = [
           "/usr/local/bin/bootstrap.sh",
-          "/usr/local/bin/boostrap_consul.sh ${var.datacenter} ${google_compute_instance.amigo_server.0.network_interface.0.address}",
+          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.amigo_server.0.network_interface.0.address}",
           "sudo su -c 'echo ${count.index + 1} > /var/lib/zookeeper/myid'"
         ]
     }

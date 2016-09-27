@@ -1,5 +1,7 @@
 package failures
 
+import models.account._
+
 object UserFailures {
 
   case object UserMustHaveCredentials extends Failure {
@@ -11,8 +13,8 @@ object UserFailures {
     override def description = "The email address you entered is already in use"
   }
 
-  case class UserWithAccountNotFound(accountId: Int) extends Failure {
-    override def description = s"User with account id $accountId not found"
+  object UserWithAccountNotFound {
+    def apply(accountId: Int) = NotFoundFailure404(User, accountId)
   }
 
   case class UserIsBlacklisted(accountId: Int) extends Failure {
@@ -27,18 +29,24 @@ object UserFailures {
     override def description = s"Reset password code $code is not valid"
   }
 
-  case class AccessMethodNotFound(name: String) extends Failure {
-    override def description = s"Access method '$name' not found"
+  object AccessMethodNotFound {
+    def apply(name: String) = NotFoundFailure404(AccountAccessMethod, name)
   }
 
-  case class OrganizationNotFoundByName(name: String) extends Failure {
-    override def description = s"Organization '$name' not found"
-  }
-  case class OrganizationNotFound(name: String, scope: String) extends Failure {
-    override def description = s"Organization '$name' not found in scope $scope"
+  object OrganizationNotFoundByName {
+    def apply(name: String) = NotFoundFailure404(Organization, name)
   }
 
-  case class RoleNotFound(name: String, scope: String) extends Failure {
-    override def description = s"Role '$name' not found in scope $scope"
+  object OrganizationNotFound {
+    def apply(name: String, scope: String) = NotFoundFailure404(Organization, s"$name+$scope")
+  }
+
+  object RoleNotFound {
+    def apply(name: String, scope: String) = NotFoundFailure404(Role, s"$name+$scope")
+  }
+
+  case class AlreadyExistsWithEmail(email: String) extends Failure {
+    override def description =
+      s"user with email $email already exists"
   }
 }

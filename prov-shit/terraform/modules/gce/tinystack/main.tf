@@ -35,7 +35,7 @@ resource "google_compute_instance" "tiny-consul" {
     provisioner "remote-exec" {
         inline = [
           "/usr/local/bin/bootstrap.sh",
-          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${var.consul_leader}"
+          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${var.consul_leader}",
         ]
     }
 

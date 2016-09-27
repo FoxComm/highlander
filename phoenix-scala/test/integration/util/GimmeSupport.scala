@@ -21,30 +21,53 @@ trait GimmeSupport extends ScalaFutures with CatsHelpers with AppendedClues {
     // allows us to do Table.someQuery.gimme vs Table.someQuery.result.run().futureValue
     def gimme(implicit ec: EC, db: DB, line: SL, file: SF): C[U] =
       db.run(query.result).futureValue withClue clue
+
+    def gimmeTxn(implicit ec: EC, db: DB, line: SL, file: SF): C[U] =
+      db.run(query.result.transactionally).futureValue withClue clue
   }
 
   implicit class GimmeRep[R](val rep: Rep[R]) {
+
     def gimme(implicit ec: EC, db: DB, line: SL, file: SF): R =
       db.run(rep.result).futureValue withClue clue
+
+    def gimmeTxn(implicit ec: EC, db: DB, line: SL, file: SF): R =
+      db.run(rep.result.transactionally).futureValue withClue clue
   }
 
   implicit class GimmeDBIO[R](val dbio: DBIO[R]) {
+
     def gimme(implicit ec: EC, db: DB, line: SL, file: SF): R =
       db.run(dbio).futureValue withClue clue
+
+    def gimmeTxn(implicit ec: EC, db: DB, line: SL, file: SF): R =
+      db.run(dbio.transactionally).futureValue withClue clue
   }
 
   implicit class GimmeDbResult[R](val dbResult: DBIO[Failures Xor R]) {
+
     def gimme(implicit tt: TypeTag[R], ec: EC, db: DB, line: SL, file: SF): R =
       db.run(dbResult).futureValue.rightVal withClue clue
+
+    def gimmeTxn(implicit tt: TypeTag[R], ec: EC, db: DB, line: SL, file: SF): R =
+      db.run(dbResult.transactionally).futureValue.rightVal withClue clue
   }
 
   implicit class GimmeXorT[R](val xorT: XorT[DBIO, Failures, R]) {
+
     def gimme(implicit tt: TypeTag[R], ec: EC, db: DB, line: SL, file: SF): R =
       db.run(xorT.value).futureValue.rightVal withClue clue
+
+    def gimmeTxn(implicit tt: TypeTag[R], ec: EC, db: DB, line: SL, file: SF): R =
+      db.run(xorT.value.transactionally).futureValue.rightVal withClue clue
   }
 
   implicit class GimmeResult[R](val res: Result[R]) {
+
     def gimme(implicit tt: TypeTag[R], ec: EC, db: DB, line: SL, file: SF): R =
+      res.futureValue.rightVal withClue clue
+
+    def gimmeTxn(implicit tt: TypeTag[R], ec: EC, db: DB, line: SL, file: SF): R =
       res.futureValue.rightVal withClue clue
   }
 }

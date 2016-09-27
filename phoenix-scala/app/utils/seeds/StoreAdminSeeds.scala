@@ -24,7 +24,6 @@ trait StoreAdminSeeds {
                        state: StoreAdminUser.State,
                        author: Option[User])(implicit ec: EC, db: DB, ac: AC) = {
 
-    System.out.println(s"Creating Admin: ${user.name} ${user.email} $roles $org")
     val payload = CreateStoreAdminPayload(email = user.email.getOrElse(""),
                                           name = user.name.getOrElse(""),
                                           phoneNumber = user.phoneNumber,
@@ -33,8 +32,10 @@ trait StoreAdminSeeds {
                                           org = org)
 
     for {
-      response ← * <~ StoreAdminManager.create(payload = payload, author = author)
-      user     ← * <~ Users.mustFindByAccountId(response.id)
+      response  ← * <~ StoreAdminManager.create(payload = payload, author = author)
+      user      ← * <~ Users.mustFindByAccountId(response.id)
+      adminUser ← * <~ StoreAdminUsers.mustFindByAccountId(user.accountId)
+      _         ← * <~ StoreAdminUsers.update(adminUser, adminUser.copy(state = state))
     } yield user
   }
 
@@ -65,4 +66,6 @@ trait StoreAdminSeeds {
     val user = User(accountId = 0, name = username.some, email = email.some)
     createStoreAdmin(user, pw, org, roles, StoreAdminUser.Active, None)
   }
+
+  def storeAdmin = User(accountId = 0, name = "admin".some, email = "admin@admin.com".some)
 }

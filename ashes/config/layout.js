@@ -10,7 +10,7 @@ module.exports = function() {
   }
   return {
     favicon: path.resolve('public/admin/favicon.ico'),
-    publicDir: path.resolve('public/admin'),
+    publicDir: path.resolve('public'),
     pageConstants: {
       title: 'FoxCommerce',
       analytics: GA_TRACKING_ID,

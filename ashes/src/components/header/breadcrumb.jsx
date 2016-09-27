@@ -10,6 +10,9 @@ import { autobind } from 'core-decorators';
 // components
 import { Link, IndexLink } from '../link/index';
 
+const onServer = process.env.ON_SERVER;
+const rootPath = onServer ? '/admin' : '/';
+
 export default class Breadcrumb extends React.Component {
 
   static propTypes = {
@@ -51,7 +54,7 @@ export default class Breadcrumb extends React.Component {
     return _.compact(this.props.routes.map((route) => {
       if (_.isEmpty(route.path)) {
         return null;
-      } else if (route.path === process.env.ROOT_PATH && _.isEmpty(route.name)) {
+      } else if (route.path === rootPath && _.isEmpty(route.name)) {
         return (
           <li className="fc-breadcrumbs__item" key="home-breadcrumbs-link">
             <Link to="home" params={this.props.params} className="fc-breadcrumbs__link">Home</Link>

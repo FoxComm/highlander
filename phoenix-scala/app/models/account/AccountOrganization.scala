@@ -28,4 +28,7 @@ object AccountOrganizations
     with ReturningId[AccountOrganization, AccountOrganizations] {
 
   val returningLens: Lens[AccountOrganization, Int] = lens[AccountOrganization].id
+
+  def findByAccountId(accountId: Int): QuerySeq =
+    filter(_.accountId === accountId)
 }

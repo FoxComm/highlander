@@ -64,7 +64,7 @@ class CartValidatorIntegrationTest
       checkResponse(DELETE(s"v1/orders/$refNum/shipping-address"),
                     expectedWarnings :+ NoShipAddress(refNum))
 
-      val address = Addresses.create(Factories.address.copy(customerId = customer.id)).gimme
+      val address = Addresses.create(Factories.address.copy(accountId = customer.accountId)).gimme
       checkResponse(PATCH(s"v1/orders/$refNum/shipping-address/${address.id}"), expectedWarnings)
     }
 
@@ -155,7 +155,7 @@ class CartValidatorIntegrationTest
       with EmptyCustomerCart_Baked
       with StoreAdmin_Seed {
     val (refNum, couponCode) = (for {
-      search     ← * <~ Factories.createSharedSearches(storeAdmin.id)
+      search     ← * <~ Factories.createSharedSearches(storeAdmin.accountId)
       discounts  ← * <~ Factories.createDiscounts(search)
       promotions ← * <~ Factories.createCouponPromotions(discounts)
       coupons    ← * <~ Factories.createCoupons(promotions)
@@ -174,7 +174,7 @@ class CartValidatorIntegrationTest
   trait ShippingMethodFixture extends EmptyCustomerCart_Baked {
     val (shipMethod) = (for {
       address ← * <~ Addresses.create(
-                   Factories.address.copy(customerId = customer.id, regionId = 4129))
+                   Factories.address.copy(accountId = customer.accountId, regionId = 4129))
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
                                                                 cordRef = cart.refNum)
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
@@ -193,7 +193,7 @@ class CartValidatorIntegrationTest
       with Reason_Baked {
     val giftCard = (for {
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
+                  GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
     } yield giftCard).gimme
@@ -206,10 +206,11 @@ class CartValidatorIntegrationTest
       with Reason_Baked {
     (for {
       manual ← * <~ StoreCreditManuals.create(
-                  StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
+                  StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       _ ← * <~ StoreCredits.create(
-             Factories.storeCredit
-               .copy(state = StoreCredit.Active, customerId = customer.id, originId = manual.id))
+             Factories.storeCredit.copy(state = StoreCredit.Active,
+                                        accountId = customer.accountId,
+                                        originId = manual.id))
     } yield {}).gimme
     val refNum = cart.refNum
   }
@@ -218,25 +219,27 @@ class CartValidatorIntegrationTest
       extends ExpectedWarningsForPayment
       with EmptyCustomerCart_Baked
       with CustomerAddress_Raw {
-    val creditCard = CreditCards.create(Factories.creditCard.copy(customerId = customer.id)).gimme
-    val refNum     = cart.refNum
+    val creditCard =
+      CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId)).gimme
+    val refNum = cart.refNum
   }
 
   trait LineItemAndFundsFixture extends Reason_Baked with Customer_Seed {
     val (refNum, sku, creditCard, giftCard) = (for {
-      address    ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
-      cc         ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
+      address    ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
+      cc         ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
       productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))
+      cart       ← * <~ Carts.create(Factories.cart.copy(accountId = customer.accountId))
       product    ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
       sku        ← * <~ Skus.mustFindById404(product.skuId)
       manual ← * <~ StoreCreditManuals.create(
-                  StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
+                  StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       _ ← * <~ StoreCredits.create(
-             Factories.storeCredit
-               .copy(state = StoreCredit.Active, customerId = customer.id, originId = manual.id))
+             Factories.storeCredit.copy(state = StoreCredit.Active,
+                                        accountId = customer.accountId,
+                                        originId = manual.id))
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
+                  GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
     } yield (cart.refNum, sku, cc, giftCard)).gimme

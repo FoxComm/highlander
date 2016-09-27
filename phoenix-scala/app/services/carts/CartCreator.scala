@@ -31,11 +31,12 @@ object CartCreator {
 
     def createCartAndGuest(email: String): DbResultT[CartResponse] =
       for {
-        account  ← * <~ Accounts.create(Account())
-        guest    ← * <~ Users.create(User(accountId = account.id, email = email.some))
-        custUser ← * <~ CustomerUsers.mustFindByAccountId(account.id)
-        cart     ← * <~ Carts.create(Cart(accountId = account.id))
-        _        ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest, custUser))
+        account ← * <~ Accounts.create(Account())
+        guest   ← * <~ Users.create(User(accountId = account.id, email = email.some))
+        custUser ← * <~ CustomerUsers.create(
+                      CustomerUser(userId = guest.id, accountId = account.id, isGuest = true))
+        cart ← * <~ Carts.create(Cart(accountId = account.id))
+        _    ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest, custUser))
       } yield root(cart, guest, custUser)
 
     for {

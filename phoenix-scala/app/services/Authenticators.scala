@@ -81,9 +81,21 @@ object Authenticator {
   type EmailFinder[M] = String ⇒ DBIO[Option[M]]
 
   //parameterized for future Service accounts
-  case class AuthData[M](model: M, account: Account, scope: String, claims: Account.Claims)
+  case class AuthData[M](model: M,
+                         account: Account,
+                         scope: String,
+                         claims: Account.Claims,
+                         isGuest: Boolean = false)
 
-  class JwtAuthenticator(guestCreateContext: AccountCreateContext)(implicit ec: EC, db: DB) {
+  trait UserAuthenticator {
+    def readCredentials(): Directive1[Option[String]]
+    def checkAuthUser(credentials: Option[String]): Future[AuthenticationResult[AuthData[User]]]
+    def checkAuthCustomer(
+        credentials: Option[String]): Future[AuthenticationResult[AuthData[User]]]
+  }
+
+  class JwtAuthenticator(guestCreateContext: AccountCreateContext)(implicit ec: EC, db: DB)
+      extends UserAuthenticator {
 
     def readCredentials(): Directive1[Option[String]] = {
       readCookieOrHeader(headerName = "JWT")
@@ -125,7 +137,7 @@ object Authenticator {
         account     ← * <~ Accounts.mustFindById404(user.accountId)
         claimResult ← * <~ AccountManager.getClaims(user.accountId, guestCreateContext.scopeId)
         (scope, claims) = claimResult
-      } yield AuthData[User](user, account, scope, claims)).run().map {
+      } yield AuthData[User](user, account, scope, claims, true)).run().map {
         case Xor.Right(data) ⇒ AuthenticationResult.success(data)
         case Xor.Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
       }
@@ -151,7 +163,7 @@ object Authenticator {
   //MAXDO
   //This will be replaced with claims specific require functions for admins inside
   //the services instead of at the route later
-  def requireAdminAuth(auth: JwtAuthenticator): AuthenticationDirective[User] = {
+  def requireAdminAuth(auth: UserAuthenticator): AuthenticationDirective[User] = {
     (for {
       optCreds ← auth.readCredentials()
       result   ← onSuccess(auth.checkAuthUser(optCreds))
@@ -167,24 +179,30 @@ object Authenticator {
   //MAXDO
   //same as above, should have check for claims. The services should
   //make sure the claim exists instead of route layer.
-  def requireCustomerAuth(auth: JwtAuthenticator): AuthenticationDirective[User] =
+  def requireCustomerAuth(auth: UserAuthenticator): AuthenticationDirective[User] =
     (for {
       optCreds ← auth.readCredentials()
       result   ← onSuccess(auth.checkAuthCustomer(optCreds))
     } yield (result, optCreds)).tflatMap {
       case (Right(authData), _) ⇒
-        AuthPayload(
-            token = UserToken.fromUserAccount(authData.model,
-                                              authData.account,
-                                              authData.scope,
-                                              authData.claims)) match {
-          case Xor.Right(authPayload) ⇒
-            val header = respondWithHeader(RawHeader("JWT", authPayload.jwt))
-            val cookie = setCookie(JwtCookie(authPayload))
-            header & cookie & provide(authData.model)
-          case Xor.Left(failures) ⇒
-            val challenge = FailureChallenge("customer", failures)
-            AuthRejections.credentialsRejected[User](challenge)
+        if (!authData.isGuest) provide(authData.model)
+        else {
+          Console.out.println(s"AUTH ${authData}")
+          AuthPayload(
+              token = UserToken.fromUserAccount(authData.model,
+                                                authData.account,
+                                                authData.scope,
+                                                authData.claims)) match {
+            case Xor.Right(authPayload) ⇒
+              Console.out.println(s"PAYLOAD ${authData}")
+              val header = respondWithHeader(RawHeader("JWT", authPayload.jwt))
+              val cookie = setCookie(JwtCookie(authPayload))
+              header & cookie & provide(authData.model)
+            case Xor.Left(failures) ⇒
+              Console.out.println(s"FAILURE ${failures}")
+              val challenge = FailureChallenge("customer", failures)
+              AuthRejections.credentialsRejected[User](challenge)
+          }
         }
       case (Left(challenge), Some(creds)) ⇒
         AuthRejections.credentialsRejected[User](challenge)

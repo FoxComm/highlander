@@ -22,8 +22,7 @@ import akka.util.ByteString
 import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
 import de.heikoseeberger.akkasse.ServerSentEvent
-import models.StoreAdmin
-import models.customer.Customer
+import models.account._
 import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
@@ -31,8 +30,12 @@ import org.scalatest.{BeforeAndAfterAll, MustMatchers, Suite, SuiteMixin}
 import responses.TheResponse
 import server.Service
 import services.Authenticator
-import services.Authenticator.AsyncAuthenticator
+import services.Authenticator.UserAuthenticator
+import services.Authenticator.JwtAuthenticator
+import services.account.AccountCreateContext
+
 import util._
+import utils.seeds.Seeds.Factories
 import utils.aliases._
 import utils.apis.Apis
 import utils.{FoxConfig, JsonFormatters}
@@ -104,11 +107,11 @@ trait HttpSupport
       |}
     """.stripMargin).withFallback(ConfigFactory.load())
 
-  def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] =
-    Authenticator.BasicStoreAdmin()
+  val adminUser    = Factories.storeAdmin.copy(id = 1, accountId = 1)
+  val customerUser = Factories.customer.copy(id = 2, accountId = 2)
 
-  def overrideCustomerAuth: AsyncAuthenticator[Customer] =
-    Authenticator.BasicCustomer()
+  def overrideUserAuth: UserAuthenticator =
+    AuthAs(adminUser, customerUser)
 
   implicit val env = FoxConfig.Test
 
@@ -120,9 +123,7 @@ trait HttpSupport
                 apisOverride = Some(apisOverride),
                 addRoutes = additionalRoutes) {
 
-      override val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = overrideStoreAdminAuth
-
-      override val customerAuth: AsyncAuthenticator[Customer] = overrideCustomerAuth
+      override val userAuth: UserAuthenticator = overrideUserAuth
     }
 
   def POST(path: String, rawBody: String): HttpResponse = {
@@ -221,7 +222,7 @@ trait HttpSupport
 
     def sseProbe(path: String, skipHeartbeat: Boolean = true): Probe[String] =
       probe(
-          if (skipHeartbeat) skipHeartbeats(sseSource(path))
+          if (skipHeartbeat) skipHeartbeatsAndAdminCreated(sseSource(path))
           else sseSource(path))
 
     def sseSource(path: String): Source[String, Any] = {
@@ -236,8 +237,8 @@ trait HttpSupport
         .map(_.data)
     }
 
-    def skipHeartbeats(sse: Source[String, Any]): Source[String, Any] =
-      sse.via(Flow[String].filter(_.nonEmpty))
+    def skipHeartbeatsAndAdminCreated(sse: Source[String, Any]): Source[String, Any] =
+      sse.via(Flow[String].filter(n ⇒ n.nonEmpty && !n.contains("store_admin_created")))
 
     def probe(source: Source[String, Any]) =
       source.runWith(TestSink.probe[String])

@@ -57,6 +57,9 @@ object AccountAccessMethods
 
   val returningLens: Lens[AccountAccessMethod, Int] = lens[AccountAccessMethod].id
 
+  def findByAccountId(accountId: Int): QuerySeq =
+    filter(_.accountId === accountId)
+
   def findOneByAccountIdAndName(accountId: Int, name: String): DBIO[Option[AccountAccessMethod]] =
     filter(_.accountId === accountId).filter(_.name === name).one
 

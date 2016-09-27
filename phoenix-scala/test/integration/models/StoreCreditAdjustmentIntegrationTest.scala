@@ -20,9 +20,9 @@ class StoreCreditAdjustmentIntegrationTest
     "debit must be greater than zero" in new Fixture {
       val (sc, payment) = (for {
         origin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
+                    StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
         sc ← * <~ StoreCredits.create(
-                Factories.storeCredit.copy(originId = origin.id, customerId = customer.id))
+                Factories.storeCredit.copy(originId = origin.id, accountId = customer.accountId))
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment
                        .copy(cordRef = cart.refNum, paymentMethodId = sc.id, amount = Some(25)))
       } yield (sc, payment)).gimme
@@ -42,9 +42,11 @@ class StoreCreditAdjustmentIntegrationTest
     "updates the StoreCredit's currentBalance and availableBalance before insert" in new Fixture {
       val sc = (for {
         origin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
-        sc ← * <~ StoreCredits.create(Factories.storeCredit
-                  .copy(originalBalance = 500, originId = origin.id, customerId = customer.id))
+                    StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+        sc ← * <~ StoreCredits.create(
+                Factories.storeCredit.copy(originalBalance = 500,
+                                           originId = origin.id,
+                                           accountId = customer.accountId))
         pay ← * <~ OrderPayments.create(Factories.giftCardPayment
                    .copy(cordRef = cart.refNum, paymentMethodId = sc.id, amount = Some(500)))
         _ ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 50)
@@ -67,9 +69,11 @@ class StoreCreditAdjustmentIntegrationTest
     "a Postgres trigger updates the adjustment's availableBalance before insert" in new Fixture {
       val (adj, sc) = (for {
         origin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
-        sc ← * <~ StoreCredits.create(Factories.storeCredit
-                  .copy(originalBalance = 500, originId = origin.id, customerId = customer.id))
+                    StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+        sc ← * <~ StoreCredits.create(
+                Factories.storeCredit.copy(originalBalance = 500,
+                                           originId = origin.id,
+                                           accountId = customer.accountId))
         pay ← * <~ OrderPayments.create(Factories.giftCardPayment
                    .copy(cordRef = cart.refNum, paymentMethodId = sc.id, amount = Some(500)))
         adj ← * <~ StoreCredits.capture(storeCredit = sc,
@@ -87,9 +91,11 @@ class StoreCreditAdjustmentIntegrationTest
     "cancels an adjustment and removes its effect on current/available balances" in new Fixture {
       val (sc, payment) = (for {
         origin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
-        sc ← * <~ StoreCredits.create(Factories.storeCredit
-                  .copy(originalBalance = 500, originId = origin.id, customerId = customer.id))
+                    StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+        sc ← * <~ StoreCredits.create(
+                Factories.storeCredit.copy(originalBalance = 500,
+                                           originId = origin.id,
+                                           accountId = customer.accountId))
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment
                        .copy(cordRef = cart.refNum, paymentMethodId = sc.id, amount = Some(500)))
       } yield (sc, payment)).gimme
@@ -116,6 +122,6 @@ class StoreCreditAdjustmentIntegrationTest
   }
 
   trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed {
-    val reason = Reasons.create(Factories.reason(storeAdmin.id)).gimme
+    val reason = Reasons.create(Factories.reason(storeAdmin.accountId)).gimme
   }
 }
