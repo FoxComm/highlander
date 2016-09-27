@@ -85,11 +85,11 @@ class MerchantApplicationDetails extends Component {
 
     return this.state.newState != application.state;
   }
-  
+
 
   get isStateEditable(): Element {
     const state = _.get(this.props, 'details.application.state', '');
-    return state == 'new'; 
+    return state == 'new';
   }
 
   get renderPageTitle(): Element {
@@ -145,7 +145,7 @@ class MerchantApplicationDetails extends Component {
   render(): Element {
     const { application } = this.props.details;
     const { isFetching, fetchError } = this.props;
-  
+
     if (isFetching || (!application && !fetchError)) {
       return <WaitAnimation />;
     }
@@ -189,7 +189,7 @@ class MerchantApplicationDetails extends Component {
             </ContentBox>
           </div>
           {this.renderState}
-        </div> 
+        </div>
       </div>
     );
   }
