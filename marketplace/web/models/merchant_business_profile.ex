@@ -6,11 +6,12 @@ defmodule Marketplace.MerchantBusinessProfile do
     belongs_to :business_profile, Marketplace.BusinessProfile
   end
 
-  @required_params ~w(merchant_id business_profile_id)
-  @optional_params ~w()
+  @required_fields ~w(merchant_id business_profile_id)a
+  @optional_fields ~w()a
 
   def changeset(model, params \\ :empty) do
     model
-    |> cast(params, @required_params, @optional_params)
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
   end
 end
