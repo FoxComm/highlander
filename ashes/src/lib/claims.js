@@ -20,12 +20,12 @@ export type JWT = {
 
 export function getJWT(): ?JWT {
   // Make sure that this only runs in the browser.
-  if (typeof(Storage) === "undefined") {
+  if (typeof(Storage) === 'undefined') {
     return null;
   }
 
   // Get the JWT.
-  const token = localStorage.getItem("jwt");
+  const token = localStorage.getItem('jwt');
   if (!token) {
     return null;
   }

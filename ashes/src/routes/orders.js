@@ -40,13 +40,15 @@ const getRoutes = (jwt: Object) => {
       router.create('new-order', { path: 'new', component: NewOrder }),
       router.read('orders-list-pages', { component: OrdersListPage }, [
         router.read('orders', { component: Orders, isIndex: true }),
-        router.read('orders-activity-trail', { path: 'activity-trail', component: ActivityTrailPage, frn: frn.activity.order }),
+        router.read('orders-activity-trail', { path: 'activity-trail',
+            component: ActivityTrailPage, frn: frn.activity.order }),
       ]),
       router.read('order', { path: ':order', component: Order }, [
         router.read('order-details', { component: OrderDetails, isIndex: true }),
         router.read('order-shipments', { path: 'shipments', component: Shipments, frn: frn.mdl.shipment }),
         router.read('order-notes', { path: 'notes', component: Notes, frn: frn.note.order }),
-        router.read('order-activity-trail', { path: 'activity-trail', components: ActivityTrailPage, frn: frn.activity.order }),
+        router.read('order-activity-trail', { path: 'activity-trail',
+            components: ActivityTrailPage, frn: frn.activity.order }),
       ]),
     ]);
 
@@ -56,7 +58,7 @@ const getRoutes = (jwt: Object) => {
       {orderRoutes}
     </div>
   );
-}
+};
 
 const orderRoutes = (claims: Claims) => {
   return getRoutes(claims);

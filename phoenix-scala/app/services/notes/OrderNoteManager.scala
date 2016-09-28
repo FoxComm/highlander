@@ -9,6 +9,8 @@ object OrderNoteManager extends NoteManager[String, Order] {
 
   def noteType(): Note.ReferenceType = Note.Order
 
+  def getEntityId(e: Order): Int = e.id
+
   def fetchEntity(refNum: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[Order] =
     Orders.mustFindByRefNum(refNum)
 }

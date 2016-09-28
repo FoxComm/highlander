@@ -346,7 +346,7 @@ class CartIntegrationTest
       "succeeds when the address exists" in new EmptyCartWithShipAddress_Baked {
         val newAddress = Addresses
           .create(
-              Factories.address.copy(customerId = customer.id,
+              Factories.address.copy(accountId = customer.accountId,
                                      isDefaultShipping = false,
                                      name = "New Shipping",
                                      address1 = "29918 Kenloch Dr",
@@ -569,7 +569,7 @@ class CartIntegrationTest
 
   trait PaymentStateFixture extends Fixture {
     val (cc, op, ccc) = (for {
-      cc ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
+      cc ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
       op ← * <~ OrderPayments.create(
               Factories.orderPayment.copy(cordRef = cart.refNum, paymentMethodId = cc.id))
       ccc ← * <~ CreditCardCharges.create(

@@ -61,12 +61,12 @@ object CustomerRoutes {
         } ~
         (post & path("disable") & pathEnd & entity(as[ToggleUserDisabled])) { payload ⇒
           mutateOrFailures {
-            AccountManager.toggleDisabled(accountId, payload.disabled, admin)
+            CustomerManager.toggleDisabled(accountId, payload.disabled, admin)
           }
         } ~
         (post & path("blacklist") & pathEnd & entity(as[ToggleUserBlacklisted])) { payload ⇒
           mutateOrFailures {
-            AccountManager.toggleBlacklisted(accountId, payload.blacklisted, admin)
+            CustomerManager.toggleBlacklisted(accountId, payload.blacklisted, admin)
           }
         } ~
         pathPrefix("addresses") {

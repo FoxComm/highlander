@@ -10,6 +10,8 @@ object SkuNoteManager extends NoteManager[String, ObjectForm] {
 
   def noteType(): Note.ReferenceType = Note.Sku
 
+  def getEntityId(e: ObjectForm): Int = e.id
+
   def fetchEntity(code: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[ObjectForm] =
     for {
       sku  ← * <~ Skus.mustFindByCode(code)

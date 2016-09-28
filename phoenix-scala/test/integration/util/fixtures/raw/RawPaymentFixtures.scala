@@ -1,6 +1,7 @@
 package util.fixtures.raw
 
 import models._
+import models.account._
 import models.payment.giftcard._
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import services.giftcards.GiftCardService
@@ -10,7 +11,7 @@ trait RawPaymentFixtures extends TestFixtureBase {
 
   trait GiftCard_Raw {
     def giftCardBalance: Int
-    def storeAdmin: StoreAdmin
+    def storeAdmin: User
     def reason: Reason
 
     private val payload = GiftCardCreateByCsr(balance = giftCardBalance, reasonId = reason.id)

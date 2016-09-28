@@ -13,7 +13,7 @@ import utils.db._
 
 case class Scope(id: Int = 0, source: String, parentPath: Option[String]) extends FoxModel[Scope] {
   def path = parentPath match {
-    case Some(pp) ⇒ s"$pp.$id"
+    case Some(pp) ⇒ if (pp.isEmpty) s"$id" else s"$pp.$id"
     case None     ⇒ s"$id"
   }
 }

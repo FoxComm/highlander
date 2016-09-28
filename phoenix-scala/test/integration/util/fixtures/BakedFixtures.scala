@@ -17,9 +17,9 @@ trait BakedFixtures extends TestSeeds with RawFixtures {
 
   trait Reason_Baked extends StoreAdmin_Seed with Reason_Raw
 
-  trait EmptyCustomerCart_Baked extends Customer_Seed with StoreAdmin_Seed with EmptyCart_Raw
+  trait EmptyCustomerCart_Baked extends StoreAdmin_Seed with Customer_Seed with EmptyCart_Raw
 
-  trait CustomerAddress_Baked extends Customer_Seed with CustomerAddress_Raw
+  trait CustomerAddress_Baked extends StoreAdmin_Seed with Customer_Seed with CustomerAddress_Raw
 
   trait EmptyCartWithShipAddress_Baked
       extends StoreAdmin_Seed

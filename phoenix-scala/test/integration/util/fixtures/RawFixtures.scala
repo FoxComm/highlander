@@ -10,7 +10,6 @@ import models.location._
 import models.product._
 import models.payment.giftcard.GiftCard
 import models.product.{Mvp, SimpleProductData, SimpleSku}
-import models.traits.Originator
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads.GiftCardPayment
 import payloads.{OrderPayloads, UpdateShippingMethod}
@@ -29,9 +28,9 @@ trait RawFixtures extends RawPaymentFixtures {
 
   // Simple models
   trait Reason_Raw {
-    def storeAdmin: StoreAdmin
+    def storeAdmin: User
 
-    val reason: Reason = Reasons.create(Factories.reason(storeAdmin.id)).gimme
+    val reason: Reason = Reasons.create(Factories.reason(storeAdmin.accountId)).gimme
   }
 
   trait CustomerAddress_Raw {
@@ -49,12 +48,12 @@ trait RawFixtures extends RawPaymentFixtures {
   // Cart
   trait EmptyCart_Raw {
     def customer: User
-    def storeAdmin: StoreAdmin
+    def storeAdmin: User
 
     def cart: Cart = _cart
 
     private val _cart: Cart = {
-      val payload  = OrderPayloads.CreateCart(accountId = customer.accountId.some)
+      val payload  = OrderPayloads.CreateCart(customerId = customer.accountId.some)
       val response = CartCreator.createCart(storeAdmin, payload).gimme
       Carts.mustFindByRefNum(response.referenceNumber).gimme
     }
@@ -63,11 +62,11 @@ trait RawFixtures extends RawPaymentFixtures {
   trait CartWithShipAddress_Raw {
     def address: Address
     def cart: Cart
-    def storeAdmin: StoreAdmin
+    def storeAdmin: User
 
     val shippingAddress: OrderShippingAddress = {
       CartShippingAddressUpdater
-        .createShippingAddressFromAddressId(Originator(storeAdmin), address.id, cart.refNum.some)
+        .createShippingAddressFromAddressId(storeAdmin, address.id, cart.refNum.some)
         .gimme
       OrderShippingAddresses.findByOrderRef(cart.refNum).gimme.head
     }
@@ -80,13 +79,13 @@ trait RawFixtures extends RawPaymentFixtures {
   }
 
   trait CartWithGiftCardPayment_Raw extends CartWithPayments_Raw {
-    def storeAdmin: StoreAdmin
+    def storeAdmin: User
     def giftCard: GiftCard
     def gcPaymentAmount: Int
 
     private val payload = GiftCardPayment(code = giftCard.code, amount = gcPaymentAmount.some)
 
-    CartPaymentUpdater.addGiftCard(Originator(storeAdmin), payload, cart.refNum.some).gimme
+    CartPaymentUpdater.addGiftCard(storeAdmin, payload, cart.refNum.some).gimme
 
     override def orderPayments =
       super.orderPayments ++ OrderPayments

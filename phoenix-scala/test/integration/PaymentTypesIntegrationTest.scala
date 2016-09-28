@@ -43,9 +43,9 @@ class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport w
 
   trait GiftCardFixture extends StoreAdmin_Seed with GiftCardSubtype_Seed {
     val (giftCard) = (for {
-      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
+      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = storeAdmin.id, reasonId = reason.id))
+                  GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
     } yield giftCard).gimme
@@ -53,13 +53,13 @@ class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport w
 
   trait StoreCreditFixture extends Customer_Seed with StoreAdmin_Seed {
     val (storeCredit, scSubType) = (for {
-      scReason  ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
+      scReason  ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       scSubType ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
       scOrigin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = storeAdmin.id, reasonId = scReason.id))
+                    StoreCreditManual(adminId = storeAdmin.accountId, reasonId = scReason.id))
       storeCredit ← * <~ StoreCredits.create(
                        Factories.storeCredit.copy(originId = scOrigin.id,
-                                                  customerId = customer.id))
+                                                  accountId = customer.accountId))
     } yield (storeCredit, scSubType)).gimme
   }
 }

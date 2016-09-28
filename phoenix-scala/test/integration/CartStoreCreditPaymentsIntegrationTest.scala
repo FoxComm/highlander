@@ -92,7 +92,7 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
       val response = POST(s"v1/orders/${cart.refNum}/payment-methods/store-credit", payload)
 
       response.status must === (StatusCodes.BadRequest)
-      val error = CustomerHasInsufficientStoreCredit(customer.id, 0, 50).description
+      val error = CustomerHasInsufficientStoreCredit(customer.accountId, 0, 50).description
       response.error must === (error)
       storeCreditPayments(cart) mustBe 'empty
     }
@@ -102,8 +102,9 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
       val response = POST(s"v1/orders/${cart.refNum}/payment-methods/store-credit", payload)
 
       response.status must === (StatusCodes.BadRequest)
-      val has   = storeCredits.map(_.availableBalance).sum
-      val error = CustomerHasInsufficientStoreCredit(customer.id, has, payload.amount).description
+      val has = storeCredits.map(_.availableBalance).sum
+      val error =
+        CustomerHasInsufficientStoreCredit(customer.accountId, has, payload.amount).description
       response.error must === (error)
       storeCreditPayments(cart) mustBe 'empty
     }
@@ -133,16 +134,16 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
 
   trait StoreCreditFixture extends Fixture {
     val storeCredits = (for {
-      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
+      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       _ ← * <~ StoreCreditManuals.createAll((1 to 5).map { _ ⇒
-           StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id)
+           StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id)
          })
       _ ← * <~ StoreCredits.createAll((1 to 5).map { i ⇒
            Factories.storeCredit.copy(state = StoreCredit.Active,
-                                      customerId = customer.id,
+                                      accountId = customer.accountId,
                                       originId = i)
          })
-      storeCredits ← * <~ StoreCredits.findAllByCustomerId(customer.id).result
+      storeCredits ← * <~ StoreCredits.findAllByAccountId(customer.accountId).result
     } yield storeCredits).gimme
   }
 

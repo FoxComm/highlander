@@ -6,7 +6,8 @@ import cats.implicits._
 import failures._
 import models.NotificationSubscription._
 import models.activity._
-import models.{NotificationSubscriptions, NotificationTrailMetadata, StoreAdmin}
+import models.account._
+import models.{NotificationSubscriptions, NotificationTrailMetadata}
 import org.json4s.JsonAST.JString
 import org.json4s.jackson.Serialization.write
 import payloads.ActivityTrailPayloads.AppendActivity
@@ -33,23 +34,23 @@ class NotificationIntegrationTest
 
     "streams new notifications" in new Fixture2 {
       subscribeToNotifications()
-      val notifications = skipHeartbeats(sseSource(s"v1/notifications"))
-      val requests = Source(1 to 2).map { activityId ⇒
+      val notifications = skipHeartbeatsAndAdminCreated(sseSource(s"v1/notifications"))
+      val requests = Source(2 to 3).map { activityId ⇒
         val response = POST("v1/notifications", newNotification.copy(activityId = activityId))
         s"notification $activityId: ${response.status}"
       }
 
       probe(requests.interleave(notifications, segmentSize = 1))
-        .requestNext("notification 1: 200 OK")
-        .requestNext(activityJson(1))
         .requestNext("notification 2: 200 OK")
         .requestNext(activityJson(2))
+        .requestNext("notification 3: 200 OK")
+        .requestNext(activityJson(3))
     }
 
     "loads old unread notifications before streaming new" in new Fixture2 {
       subscribeToNotifications()
       POST("v1/notifications", newNotification).status must === (StatusCodes.OK)
-      val notifications = skipHeartbeats(sseSource(s"v1/notifications"))
+      val notifications = skipHeartbeatsAndAdminCreated(sseSource(s"v1/notifications"))
 
       val requests = Source.single(2).map { activityId ⇒
         val response = POST("v1/notifications", newNotification.copy(activityId = activityId))
@@ -57,13 +58,12 @@ class NotificationIntegrationTest
       }
 
       probe(notifications.interleave(requests, segmentSize = 1))
-        .requestNext(activityJson(1))
-        .requestNext("notification 2: 200 OK")
         .requestNext(activityJson(2))
+        .requestNext("notification 2: 200 OK")
     }
 
     "streams error and closes stream if admin not found" in {
-      val message = s"Error! Store admin with id=1 not found"
+      val message = s"Error! User with account id=1 not found"
 
       sseProbe("v1/notifications").request(2).expectNext(message).expectComplete()
     }
@@ -167,7 +167,7 @@ class NotificationIntegrationTest
       "warns about absent admins" in new Fixture {
         val result = subscribeToNotifications(adminIds = Seq(1, 2))
         result.result.value must === (1)
-        result.warnings.value must === (List(NotFoundFailure404(StoreAdmin, 2).description))
+        result.warnings.value must === (List(NotFoundFailure404(User, 2).description))
       }
 
       "subscribes twice for different reasons" in new Fixture {
@@ -224,16 +224,16 @@ class NotificationIntegrationTest
 
       // Let's go
       createActivityAndConnections("X")
-      Activities.gimme must have size 1
+      Activities.gimme must have size 3 //includes customer and admin creation activity
 
       // No notification connection/trail should be created yet, only customer ones
-      connections must === (Seq((customerDimension, 1)))
+      connections must === (Seq((customerDimension, 3)))
 
       subscribeToNotifications(dimension = customerDimension)
       createActivityAndConnections("Y")
       // Both connections must be created this time
-      connections must contain allOf ((customerDimension, 1), (customerDimension, 2), (Dimension.notification,
-                                                                                       2))
+      connections must contain allOf ((customerDimension, 3), (customerDimension, 4), (Dimension.notification,
+                                                                                       4))
       // Trail must be created
       val newTrail = Trails.findNotificationByAdminId(1).result.headOption.run().futureValue.value
       newTrail.tailConnectionId.value must === (3)
@@ -244,11 +244,10 @@ class NotificationIntegrationTest
                   reason = Watching,
                   dimension = customerDimension)
       createActivityAndConnections("Z")
-      Activities.gimme must have size 3
+      Activities.gimme must have size 5
       // No new notification connections must appear
-      connections must contain allOf ((customerDimension, 1), (customerDimension, 2), (customerDimension,
-                                                                                       3),
-          (Dimension.notification, 2))
+      connections must contain allOf ((customerDimension, 3), (customerDimension, 4),
+          (Dimension.notification, 4), (customerDimension, 5), (Dimension.notification, 5))
     }
 
     def connections =
@@ -307,13 +306,13 @@ class NotificationIntegrationTest
     val (adminId, activityId) = (for {
       _        ← * <~ createDimension
       activity ← * <~ createActivity
-    } yield (storeAdmin.id, activity.id)).gimme
+    } yield (storeAdmin.accountId, activity.id)).gimme
   }
 
   trait Fixture2 extends StoreAdmin_Seed {
     val adminId = (for {
       _ ← * <~ createDimension
       _ ← * <~ Activities.createAll(List.fill(2)(newActivity))
-    } yield storeAdmin.id).gimme
+    } yield storeAdmin.accountId).gimme
   }
 }

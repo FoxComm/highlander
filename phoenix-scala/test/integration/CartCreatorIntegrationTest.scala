@@ -3,12 +3,13 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import cats.implicits._
 import failures.NotFoundFailure400
-import models.customer.Customer
+import models.account._
 import payloads.OrderPayloads.CreateCart
 import responses.cord.CartResponse
 import services.carts.CartCreator
 import util._
 import util.fixtures.BakedFixtures
+import failures.NotFoundFailure404
 
 class CartCreatorIntegrationTest
     extends IntegrationTestBase
@@ -20,30 +21,30 @@ class CartCreatorIntegrationTest
   "POST /v1/orders" - {
     "for an existing customer" - {
       "succeeds" in new Fixture {
-        val payload  = CreateCart(customerId = customer.id.some)
+        val payload  = CreateCart(customerId = customer.accountId.some)
         val response = POST(s"v1/orders", payload)
 
         response.status must === (StatusCodes.OK)
         val root = response.as[CartResponse]
-        root.customer.value.id must === (customer.id)
+        root.customer.value.id must === (customer.accountId)
       }
 
       "fails when the customer is not found" in new Fixture {
         val payload  = CreateCart(customerId = 99.some)
         val response = POST(s"v1/orders", payload)
 
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure400(Customer, 99).description)
+        response.status must === (StatusCodes.NotFound)
+        response.error must === (NotFoundFailure404(User, 99).description)
       }
 
       "returns current cart if customer already has one" in new Fixture {
-        val payload = CreateCart(customerId = customer.id.some)
+        val payload = CreateCart(customerId = customer.accountId.some)
         CartCreator.createCart(storeAdmin, payload).gimme
         val response = POST(s"v1/orders", payload)
 
         response.status must === (StatusCodes.OK)
         val root = response.as[CartResponse]
-        root.customer.value.id must === (customer.id)
+        root.customer.value.id must === (customer.accountId)
       }
     }
 
@@ -56,7 +57,7 @@ class CartCreatorIntegrationTest
 
         response.status must === (StatusCodes.OK)
         guest.isGuest mustBe true
-        guest.id must !==(customer.id)
+        guest.id must !==(customer.accountId)
       }
     }
 

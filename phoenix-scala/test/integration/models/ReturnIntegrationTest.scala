@@ -32,6 +32,6 @@ class ReturnIntegrationTest extends IntegrationTestBase with TestObjectContext w
   }
 
   trait Fixture extends Order_Baked with StoreAdmin_Seed {
-    Cart(referenceNumber = "ABC-123", customerId = customer.id)
+    Cart(referenceNumber = "ABC-123", accountId = customer.accountId)
   }
 }

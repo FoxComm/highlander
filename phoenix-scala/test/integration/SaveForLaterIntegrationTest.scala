@@ -3,7 +3,7 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import failures.ProductFailures.SkuNotFoundForContext
 import failures.{AlreadySavedForLater, NotFoundFailure404}
-import models.customer.Customer
+import models.account._
 import models.objects._
 import models.product.{Mvp, SimpleContext}
 import models.{SaveForLater, SaveForLaters}
@@ -26,7 +26,9 @@ class SaveForLaterIntegrationTest
       emptyResponse.status must === (StatusCodes.OK)
       emptyResponse.as[SavedForLater].result mustBe empty
 
-      SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = product.skuId)).gimme
+      SaveForLaters
+        .create(SaveForLater(accountId = customer.accountId, skuId = product.skuId))
+        .gimme
       val notEmptyResponse = GET(s"v1/save-for-later/${customer.id}")
       notEmptyResponse.status must === (StatusCodes.OK)
       notEmptyResponse.as[SavedForLater].result must === (roots)
@@ -35,7 +37,7 @@ class SaveForLaterIntegrationTest
     "404 if customer is not found" in {
       val response = GET(s"v1/save-for-later/666")
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 666).description)
+      response.error must === (NotFoundFailure404(User, 666).description)
     }
   }
 
@@ -66,7 +68,7 @@ class SaveForLaterIntegrationTest
     "404 if customer is not found" in new Fixture {
       val response = POST(s"v1/save-for-later/666/${product.skuId}")
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 666).description)
+      response.error must === (NotFoundFailure404(User, 666).description)
     }
 
     "404 if sku is not found" in new Fixture {

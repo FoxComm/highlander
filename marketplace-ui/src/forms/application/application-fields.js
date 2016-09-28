@@ -14,38 +14,31 @@ const LIST_CATEGORIES = [
 
 export const fields: Array<FormField> = [
   {
-    name: 'name',
-    type: 'input',
-    placeholder: 'Name',
-    validation: 'required',
-  },
-  {
     name: 'business_name',
     type: 'input',
     placeholder: 'Business Name',
     validation: 'required',
   },
   {
-    name: 'description',
-    type: 'textarea',
-    placeholder: 'Description',
-    validation: 'required',
-  },
-  {
     name: 'email_address',
-    type: 'input',
+    type: 'text',
     placeholder: 'Email Address',
     validation: 'required email',
   },
   {
     name: 'phone_number',
-    type: 'input',
+    type: 'text',
     placeholder: 'Phone Number',
+    validation: 'required phone',
+    mask: '+1 (999) 999-9999',
+    maskChar: '_',
+    normalize: value => value.replace(/^\+1\s?/, '').replace(/[()]/g, '').replace(/\s/g, '-'),
   },
   {
     name: 'monthly_sales_volume',
-    type: 'input',
+    type: 'text',
     placeholder: 'Monthly Sales Volume',
+    validation: 'required',
   },
   {
     name: 'twitter_handle',
@@ -53,38 +46,23 @@ export const fields: Array<FormField> = [
     placeholder: 'Twitter Handle',
   },
   {
-    name: 'instagram_handle',
-    type: 'text',
-    placeholder: 'Instagtam Handle',
-  },
-  {
-    name: 'google_plus_handle',
-    type: 'text',
-    placeholder: 'Google Plus Handle',
-  },
-  {
-    name: 'facebook_url',
-    type: 'text',
-    placeholder: 'Facebook URL',
-    validation: 'uri',
-  },
-  {
     name: 'site_url',
     type: 'text',
     placeholder: 'Site URL',
-    validation: 'uri',
+    validation: 'required uri',
   },
   {
     name: 'target_audience',
     type: 'select',
     placeholder: 'Audience',
+    validation: 'required',
     values: LIST_AUDIENCE,
   },
   {
     name: 'categories',
     type: 'select',
     placeholder: 'Category',
+    validation: 'required',
     values: LIST_CATEGORIES,
-    normalize: (value) => [value],
   },
 ];

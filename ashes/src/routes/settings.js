@@ -48,6 +48,6 @@ const getRoutes = (jwt: JWT) => {
       {pluginRoutes}
     </div>
   );
-}
+};
 
 export default getRoutes;

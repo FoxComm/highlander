@@ -51,9 +51,9 @@ object Keys {
     }
 
   private[auth] lazy val authPrivateKey: Failures Xor PrivateKey =
-    loadPrivateKey.toOption.toXor(GeneralFailure("Server error: can't load key").single)
+    loadPrivateKey.toOption.toXor(GeneralFailure("Server error: can't private load key").single)
   private[auth] lazy val authPublicKey: Failures Xor PublicKey =
-    loadPublicKey.toOption.toXor(GeneralFailure("Server error: can't load key").single)
+    loadPublicKey.toOption.toXor(GeneralFailure("Server error: can't public load key").single)
 }
 
 sealed trait Token extends Product {

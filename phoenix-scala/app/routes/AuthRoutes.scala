@@ -4,21 +4,24 @@ import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.auth.Identity
+
 import payloads.LoginPayload
 import payloads.UserPayloads._
 import services.Authenticator
+import services.account.AccountManager
+import services.auth.GoogleOauth.oauthServiceFromConfig
 import services.auth.GoogleOauthUser
 import services.auth.OauthDirectives._
-import utils.http.CustomDirectives._
-import services.account.AccountManager
-import utils.http.Http._
 import utils.aliases._
+import utils.http.CustomDirectives._
+import utils.http.Http._
 
 object AuthRoutes {
 
-  def routes(customerGoogleOauth: GoogleOauthUser,
-             adminGoogleOauth: GoogleOauthUser)(implicit ec: EC, db: DB) = {
+  def routes(implicit ec: EC, db: DB) = {
+
+    lazy val customerGoogleOauth = oauthServiceFromConfig("customer")
+    lazy val adminGoogleOauth    = oauthServiceFromConfig("admin")
 
     pathPrefix("public") {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒

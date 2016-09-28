@@ -126,7 +126,7 @@ const getRoutes = (jwt: Object) => {
       {skuRoutes}
       {inventoryRoutes}
     </div>
-  )
-}
+  );
+};
 
 export default getRoutes;

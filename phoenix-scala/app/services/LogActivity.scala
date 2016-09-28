@@ -115,8 +115,8 @@ object LogActivity {
   }
 
   /* Customer */
-  def userCreated(user: CustomerResponse, admin: Option[User])(implicit ec: EC,
-                                                               ac: AC): DbResultT[Activity] =
+  def customerCreated(user: CustomerResponse, admin: Option[User])(implicit ec: EC,
+                                                                   ac: AC): DbResultT[Activity] =
     admin match {
       case Some(a) ⇒
         Activities.log(CustomerCreated(buildUser(a), user))
@@ -127,7 +127,7 @@ object LogActivity {
   def customerUpdated(user: User, updated: User, admin: Option[User])(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
-    Activities.log(UserUpdated(buildUser(user), buildUser(updated), admin.map(buildUser)))
+    Activities.log(CustomerUpdated(buildUser(user), buildUser(updated), admin.map(buildUser)))
 
   def customerActivated(user: CustomerResponse, admin: User)(implicit ec: EC,
                                                              ac: AC): DbResultT[Activity] =

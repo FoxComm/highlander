@@ -136,6 +136,7 @@ class ProductsCatalogViewIntegrationTest
 
       _ ← * <~ ProductAlbumLinks.create(
              ProductAlbumLink(leftId = product.id, rightId = fullAlbum.model.id))
-    } yield (fullAlbum.model, albumImages, product, sku)).gimme
+
+    } yield (fullAlbum.model, albumImages, product, sku)).gimmeTxn
   }
 }

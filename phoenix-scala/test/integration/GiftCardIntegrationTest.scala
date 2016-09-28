@@ -5,7 +5,7 @@ import cats.implicits._
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures._
 import models.Reason
-import models.customer.Customer
+import models.account._
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard._
 import models.payment.storecredit
@@ -16,6 +16,7 @@ import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import util.fixtures.BakedFixtures
 import utils.Money._
+import utils.seeds.Seeds.Factories
 import utils.db._
 
 class GiftCardIntegrationTest
@@ -40,7 +41,7 @@ class GiftCardIntegrationTest
         // Check that proper link is created
         val manual = GiftCardManuals.findOneById(root.originId).gimme.value
         manual.reasonId must === (1)
-        manual.adminId must === (storeAdmin.id)
+        manual.adminId must === (storeAdmin.accountId)
       }
 
       "create two gift cards with unique codes" in new Reason_Baked {
@@ -270,11 +271,11 @@ class GiftCardIntegrationTest
 
     "POST /v1/gift-cards/:code/convert/:customerId" - {
       "successfully converts GC to SC" in new Fixture {
-        val response = POST(s"v1/gift-cards/${giftCard2.code}/convert/${customer.id}")
+        val response = POST(s"v1/gift-cards/${giftCard2.code}/convert/${customer.accountId}")
         response.status must === (StatusCodes.OK)
 
         val root = response.as[StoreCreditResponse.Root]
-        root.customerId must === (customer.id)
+        root.customerId must === (customer.accountId)
         root.originType must === (StoreCredit.GiftCardTransfer)
         root.state must === (storecredit.StoreCredit.Active)
         root.originalBalance must === (giftCard2.originalBalance)
@@ -286,7 +287,7 @@ class GiftCardIntegrationTest
       }
 
       "fails to convert when GC not found" in new Fixture {
-        val response = POST(s"v1/gift-cards/ABC-666/convert/${customer.id}")
+        val response = POST(s"v1/gift-cards/ABC-666/convert/${customer.accountId}")
         response.status must === (StatusCodes.NotFound)
         response.error must === (NotFoundFailure404(GiftCard, "ABC-666").description)
       }
@@ -294,11 +295,11 @@ class GiftCardIntegrationTest
       "fails to convert when customer not found" in new Fixture {
         val response = POST(s"v1/gift-cards/${giftCard2.code}/convert/666")
         response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Customer, 666).description)
+        response.error must === (NotFoundFailure404(User, 666).description)
       }
 
       "fails to convert GC to SC if open transactions are present" in new Fixture {
-        val response = POST(s"v1/gift-cards/${giftCard1.code}/convert/${customer.id}")
+        val response = POST(s"v1/gift-cards/${giftCard1.code}/convert/${customer.accountId}")
         response.status must === (StatusCodes.BadRequest)
         response.error must === (OpenTransactionsFailure.description)
       }
@@ -307,7 +308,7 @@ class GiftCardIntegrationTest
         GiftCards.findByCode(giftCard2.code).map(_.state).update(GiftCard.OnHold).gimme
         val updatedGc = GiftCards.findByCode(giftCard2.code).one.gimme
 
-        val response = POST(s"v1/gift-cards/${giftCard2.code}/convert/${customer.id}")
+        val response = POST(s"v1/gift-cards/${giftCard2.code}/convert/${customer.accountId}")
         response.status must === (StatusCodes.BadRequest)
         response.error must === (GiftCardConvertFailure(updatedGc.value).description)
       }

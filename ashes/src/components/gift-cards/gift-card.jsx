@@ -112,7 +112,7 @@ export default class GiftCard extends React.Component {
     const dropdownValue = nextState ? nextState : state;
 
     if (!transitions.length) {
-      return <State value={state} model={"giftCard"} />;
+      return <State value={state} model="giftCard" />;
     }
 
     return (

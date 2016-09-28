@@ -42,10 +42,10 @@ class MerchantAccountPage extends Component {
   props: Props;
 
   componentWillMount(): void {
-    const { fetchApplication, fetch, params: { ref: refParam }, application, accounts, applicationFetchFailed } = this.props;
+    const { fetchApplication, fetch, params, application, accounts, applicationFetchFailed } = this.props;
 
-    if (refParam && !application.reference_number) {
-      fetchApplication(refParam);
+    if (params.ref && !application.reference_number) {
+      fetchApplication(params.ref);
     }
 
     if (applicationFetchFailed) {
@@ -58,7 +58,7 @@ class MerchantAccountPage extends Component {
     }
 
     if (accounts.length) {
-      this.props.replace(`/application/${refParam}/info`);
+      this.props.replace(`/application/${params.ref}/info`);
     }
   }
 
@@ -78,7 +78,7 @@ class MerchantAccountPage extends Component {
       return;
     }
 
-    this.props.submit(merchantId, data);
+    return this.props.submit(merchantId, data);
   }
 
   render(): HTMLElement {

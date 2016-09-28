@@ -66,8 +66,10 @@ defmodule Marketplace.MerchantController do
         organization_id = PermissionManager.create_organization_from_merchant_application(ma)
         merchant = %{
           name: ma.name,
-          business_name: ma.name, 
+          business_name: ma.business_name,
           email_address: ma.email_address,
+          site_url: ma.site_url,
+          phone_number: ma.phone_number,
           description: ma.description,
           state: "activated",
           scope_id: scope_id,

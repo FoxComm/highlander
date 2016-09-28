@@ -16,12 +16,13 @@ trait CustomerSeeds {
 
   type CustomerIds = (Account#Id, Account#Id, Account#Id, Account#Id)
 
-  def createCustomer(user: User, isGuest: Boolean, scopeId: Int)(implicit db: DB,
-                                                                 ac: AC): DbResultT[User] = {
+  def createCustomer(user: User, isGuest: Boolean, scopeId: Int, password: Option[String] = None)(
+      implicit db: DB,
+      ac: AC): DbResultT[User] = {
 
     val payload = CreateCustomerPayload(email = user.email.getOrElse(""),
                                         name = user.name,
-                                        password = None,
+                                        password = password,
                                         isGuest = Some(isGuest))
 
     val createContext =
@@ -46,7 +47,10 @@ trait CustomerSeeds {
       }
 
   def usCustomer1 =
-    User(accountId = 0, email = "yax@yax.com".some, phoneNumber = Some("123-444-4388"))
+    User(accountId = 0,
+         name = "Yax Man".some,
+         email = "yax@yax.com".some,
+         phoneNumber = Some("123-444-4388"))
 
   def usCustomer2 =
     User(accountId = 0,
