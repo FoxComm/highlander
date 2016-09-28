@@ -37,6 +37,7 @@ export const frn = {
   oms: {
     cart: 'frn:oms:cart',
     order: 'frn:oms:order',
+    fraud: 'frn:oms:fraud',
   },
   pim: {
     album: 'frn:pim:album',
