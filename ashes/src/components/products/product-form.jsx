@@ -12,6 +12,7 @@ import { flow, filter } from 'lodash/fp';
 // components
 import ObjectForm from '../object-form/object-form';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
+import ProductPromotion from './promotion';
 import Tags from '../tags/tags';
 import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
@@ -184,6 +185,7 @@ export default class ProductForm extends Component {
             onChange={this.handleProductChange}
           />
           {this.productState}
+          <ProductPromotion />
         </div>
       </div>
     );
