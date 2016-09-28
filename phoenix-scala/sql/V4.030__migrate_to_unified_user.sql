@@ -466,7 +466,7 @@ from notes as n
 inner join store_admin_users as sa on (n.store_admin_id = sa.account_id)
 inner join users as u on (sa.account_id = sa.account_id)
 group by n.id, sa.id, u.email, u.name
-order by id;
+order by n.id;
 
 create unique index notes_admins_view_idx on notes_admins_view (id);
 

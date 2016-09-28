@@ -26,6 +26,18 @@ const AuthorIcon = props => {
           <i className="icon-customer"></i>
         </div>
       );
+    case 'user':
+      return (
+        <div className="fc-activity__customer-icon">
+          <i className="icon-customer"></i>
+        </div>
+      );
+    case 'account':
+      return (
+        <div className="fc-activity__customer-icon">
+          <i className="icon-customer"></i>
+        </div>
+      );
     default:
       return <div className="fc-activity__system-icon"></div>;
   }

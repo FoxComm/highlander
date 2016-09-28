@@ -9,9 +9,9 @@ import orderShippingAddressActivities from './order-shipping-address';
 import orderShippingMethodsActivities from './order-shipping-methods';
 import orderPaymentMethodsActivities from './order-payment-methods';
 import orderLineItemsActivities from './order-line-items';
-import customersActivities from './customers';
-import customerAddressesActivities from './customer-addresses';
-import customerCreditCardsActivities from './customer-credit-cards';
+import usersActivities from './users';
+import userAddressesActivities from './user-addresses';
+import userCreditCardsActivities from './user-credit-cards';
 import giftCardsActivities from './gift-cards';
 import storeCreditsActivities from './store-credits';
 import assignmentsActivities from './assignments';
@@ -25,9 +25,9 @@ export const representatives = {
   ...orderShippingMethodsActivities,
   ...orderPaymentMethodsActivities,
   ...orderLineItemsActivities,
-  ...customersActivities,
-  ...customerAddressesActivities,
-  ...customerCreditCardsActivities,
+  ...usersActivities,
+  ...userAddressesActivities,
+  ...userCreditCardsActivities,
   ...giftCardsActivities,
   ...storeCreditsActivities,
   ...assignmentsActivities,

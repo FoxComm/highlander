@@ -4,10 +4,10 @@ import React from 'react';
 
 import CustomerLink from './../base/customer-link';
 
-export default function makeCustomerDesc(message) {
+export default function makeUserDesc(message) {
   return {
     title: data => {
-      const customerLink = <CustomerLink customer={data.customer} />;
+      const customerLink = <CustomerLink customer={data.user} />;
 
       if (_.isString(message)) {
         return (

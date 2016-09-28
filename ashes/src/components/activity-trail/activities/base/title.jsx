@@ -7,10 +7,10 @@ const ActivityTitle = props => {
   const { addEventTarget, activity } = props;
   let recipient = null;
   if (addEventTarget) {
-    const customer = activity.data.customer || _.get(activity.data, 'order.customer');
+    const customer = activity.data.user || _.get(activity.data, 'order.customer');
 
     if (customer) {
-      recipient = eventTarget(activity.context, customer);
+      recipient = eventTarget(activity, customer);
     }
   }
   return (
