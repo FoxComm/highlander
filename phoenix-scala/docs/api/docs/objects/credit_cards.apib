@@ -12,11 +12,11 @@
 + brand: `Visa` (required, string) - Brand name.
 + address (required, Address) - Billing address.
 
-### CreditCardCreateAddressPayload
+### CreateCcAddressPayload
 + isNew: false (optional, boolean) - Is address new.
 + address (required, CreateAddressPayload) - Billing address data.
 
-### CreditCardUpdateAddressPayload
+### UpdateCcAddressPayload
 + id: 1 (optional, number) - Address id to update credit card with. Absent indicates new address.
 + address (required, CreateAddressPayload) - Billing address data.
 
@@ -33,7 +33,7 @@
 + holderName: `John Smith` (optional, string) - Cardholder name.
 + expMonth: 4 (optional, number) - Expiration month.
 + expYear: 2020 (optional, number) - Expiration year.
-+ billingAddress (optional, CreditCardUpdateAddressPayload) - Billing address.
++ billingAddress (optional, UpdateCcAddressPayload) - Billing address.
 
 ### CreditCardToggleDefaultPayload
 + isDefault: false (required, boolean) - Defines whether credit card is default.
