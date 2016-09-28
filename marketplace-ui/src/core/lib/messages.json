@@ -1,0 +1,12 @@
+{
+  "validate": {
+    "required": "Field is required",
+    "format": {
+      "email": "Wrong email address. Example: email@mail.com",
+      "phone": "Wrong phone number. Example: +1 (999) 999-9999",
+      "uri": "Wrong URL. Example: http://site.com or site.com",
+      "routing_number": "Wrong routing number. It should be 9-digits value. Example: 123456789",
+      "SSN_last_four": "Wrong value. It should be 4-digits value. Example: 1234"
+    }
+  }
+}
