@@ -18,8 +18,11 @@ import WaitAnimation from 'components/common/wait-animation';
 // redux
 import * as applicationActions from 'modules/merchant-applications/details';
 
+// styles
+import styles from './details.css';
+
 // types
-import type { MerchantApplication } from 'paragons/merchant-application';
+import type { MerchantApplication, BusinessProfile, SocialProfile } from 'paragons/merchant-application';
 
 const SELECT_STATE = [
   ['new', 'New', true],
@@ -34,10 +37,14 @@ type Props = {
   },
   details: {
     application: ?MerchantApplication,
+    businessProfile: ?BusinessProfile,
+    socialProfile: ?SocialProfile,
   },
   isFetching: boolean,
   fetchError: ?Object,
   fetchApplication: Function,
+  fetchBusinessProfile: Function,
+  fetchSocialProfile: Function,
   approveApplication: Function,
 };
 
@@ -46,9 +53,10 @@ type State = {
 };
 
 const mapStateToProps = (state) => {
+
   return {
     details: state.applications.details,
-    isFetching: _.get(state.asyncActions, 'getApplication.inProgress', null),
+    isFetching: false,
     fetchError: _.get(state.asyncActions, 'getApplication.err', null),
   };
 };
@@ -68,6 +76,7 @@ class MerchantApplicationDetails extends Component {
 
   componentDidMount() {
     this.props.fetchApplication(this.props.params.applicationId);
+    this.props.fetchBusinessProfile(this.props.params.applicationId);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -143,11 +152,15 @@ class MerchantApplicationDetails extends Component {
   }
 
   render(): Element {
-    const { application } = this.props.details;
+    const { application, businessProfile } = this.props.details;
     const { isFetching, fetchError } = this.props;
 
-    if (isFetching || (!application && !fetchError)) {
-      return <WaitAnimation />;
+    if (!application) {
+      return (
+        <div styleName="waiting">
+          <WaitAnimation />
+        </div>
+      );
     }
 
 
@@ -157,35 +170,22 @@ class MerchantApplicationDetails extends Component {
         <div className="fc-grid">
           <div className="fc-col-md-2-3">
             <ContentBox title="Application">
-              <FoxyForm onSubmit={_.noop}>
-                <ul className="fc-address-form-fields">
-                  <li>
-                    <FormField label="Business Name">
-                      <input name="business_name" type="text" defaultValue={application.business_name} disabled={true} />
-                    </FormField>
+              <div>
+                <ul>
+                  <li styleName="entry">
+                    <div styleName="header">Business Name</div>
+                    <div>{application.business_name}</div>
                   </li>
-                  <li>
-                    <FormField label="Reference Number">
-                      <input name="reference_number" type="text" defaultValue={application.reference_number} disabled={true} />
-                    </FormField>
+                  <li styleName="entry">
+                    <div styleName="header">Reference Number</div>
+                    <div>{application.reference_number}</div>
                   </li>
-                  <li>
-                    <FormField label="Name">
-                      <input name="name" type="text" defaultValue={application.name} disabled={true} />
-                    </FormField>
-                  </li>
-                  <li>
-                    <FormField label="Email Address">
-                      <input name="email_address" type="text" defaultValue={application.email_address} disabled={true} />
-                    </FormField>
-                  </li>
-                  <li>
-                    <FormField label="Description">
-                      <input name="descriptionn" type="text" defaultValue={application.description} disabled={true} />
-                    </FormField>
+                  <li styleName="entry">
+                    <div styleName="header">Email Address</div>
+                    <div>{application.email_address}</div>
                   </li>
                 </ul>
-              </FoxyForm>
+              </div>
             </ContentBox>
           </div>
           {this.renderState}
