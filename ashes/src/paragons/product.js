@@ -190,9 +190,6 @@ export function configureProduct(product: Product): Product {
   const defaultAttrs = {
     title: 'string',
     description: 'richText',
-    url: 'string',
-    metaTitle: 'string',
-    metaDescription: 'string',
   };
 
   return _.reduce(defaultAttrs, (res, val, key) => {
