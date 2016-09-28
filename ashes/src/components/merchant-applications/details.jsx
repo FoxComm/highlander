@@ -77,6 +77,7 @@ class MerchantApplicationDetails extends Component {
   componentDidMount() {
     this.props.fetchApplication(this.props.params.applicationId);
     this.props.fetchBusinessProfile(this.props.params.applicationId);
+    this.props.fetchSocialProfile(this.props.params.applicationId);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -152,10 +153,10 @@ class MerchantApplicationDetails extends Component {
   }
 
   render(): Element {
-    const { application, businessProfile } = this.props.details;
+    const { application, businessProfile, socialProfile } = this.props.details;
     const { isFetching, fetchError } = this.props;
 
-    if (!application) {
+    if (!application || !businessProfile || !socialProfile) {
       return (
         <div styleName="waiting">
           <WaitAnimation />
@@ -183,6 +184,22 @@ class MerchantApplicationDetails extends Component {
                   <li styleName="entry">
                     <div styleName="header">Email Address</div>
                     <div>{application.email_address}</div>
+                  </li>
+                  <li styleName="entry">
+                    <div styleName="header">Monthly Sales Volume</div>
+                    <div>{businessProfile.monthly_sales_volume}</div>
+                  </li>
+                  <li styleName="entry">
+                    <div styleName="header">Categories</div>
+                    <div>{businessProfile.categories.join(', ')}</div>
+                  </li>
+                  <li styleName="entry">
+                    <div styleName="header">Target Audience</div>
+                    <div>{businessProfile.target_audience.join(', ')}</div>
+                  </li>
+                  <li styleName="entry">
+                    <div styleName="header">Twitter Handle</div>
+                    <div>{socialProfile.twitter_handle}</div>
                   </li>
                 </ul>
               </div>
