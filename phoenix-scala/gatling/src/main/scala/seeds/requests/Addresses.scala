@@ -18,26 +18,21 @@ object Addresses {
   private val addressFeeder = dbFeeder(
       s"""select id as "customerRegionId", name as "customerCity" from regions where country_id=$USA_COUNTRY_CODE""")
 
+  def addressPayloadFromSession(session: Session): CreateAddressPayload =
+    CreateAddressPayload(name = session("customerName").as[String],
+                         regionId = session("customerRegionId").as[Int],
+                         address1 = session("customerAddress").as[String],
+                         city = session("customerCity").as[String],
+                         zip = nDigits(5),
+                         isDefault = true,
+                         phoneNumber = Some(nDigits(10)),
+                         address2 = session("customerAddress2").asOption[String])
+
   private val addCustomerAddress = http("Add new address for customer")
     .post("/v1/customers/${customerId}/addresses")
     .requireAdminAuth
     .body(StringBody { session ⇒
-      for {
-        name     ← session("customerName").validate[String]
-        regionId ← session("customerRegionId").validate[String]
-        address  ← session("customerAddress").validate[String]
-        city     ← session("customerCity").validate[String]
-      } yield
-        json {
-          CreateAddressPayload(name = name,
-                               regionId = regionId.toInt,
-                               address1 = address,
-                               city = city,
-                               zip = nDigits(5),
-                               isDefault = true,
-                               phoneNumber = Some(nDigits(10)),
-                               address2 = session("customerAddress2").asOption[String])
-        }
+      json(addressPayloadFromSession(session))
     })
     .check(jsonPath("$.id").ofType[Int].saveAs("addressId"))
 
@@ -61,5 +56,8 @@ object Addresses {
     .feed(addressFeeder.random)
     .step(randomSwitch(50.0 → randomAddressLine2))
     .step(addCustomerAddress)
+    .exec { session ⇒
+      session.set("customerAddressPayload", addressPayloadFromSession(session))
+    }
     .step(setDefaultShipping)
 }

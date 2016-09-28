@@ -37,7 +37,9 @@ object DevRoutes {
               .map(_.map { token ⇒
                 CreditCardTokenResponse(token = token.getId,
                                         brand = token.getCard.getBrand,
-                                        lastFour = token.getCard.getLast4)
+                                        lastFour = token.getCard.getLast4,
+                                        expMonth = token.getCard.getExpMonth,
+                                        expYear = token.getCard.getExpYear)
               })
           }
         }
@@ -68,4 +70,8 @@ case class CreditCardDetailsPayload(customerId: Int,
                                     cvv: Int,
                                     address: CreateAddressPayload)
 
-case class CreditCardTokenResponse(token: String, brand: String, lastFour: String)
+case class CreditCardTokenResponse(token: String,
+                                   brand: String,
+                                   lastFour: String,
+                                   expMonth: Int,
+                                   expYear: Int)
