@@ -70,12 +70,19 @@ IFS=$'\n'
 ALL_CHANGED=($ALL_CHANGED)
 unset IFS
 
+# if this flag will be set, some files not in projects changed
+# this may be either one of projects, not mentioned above, or
+# common Makefile, README.md, etc
+GENERIC_CHANGE=false
+
 # get changed projects
 CHANGED=()
 if [[ ${#ALL_CHANGED[@]} -gt 0 ]]; then
     for CHANGE in ${ALL_CHANGED[@]}; do
         if [[ ${PROJECTS[@]} =~ $CHANGE ]]; then
             CHANGED+=($CHANGE)
+        else
+            GENERIC_CHANGE=true
         fi
     done
 fi
@@ -85,6 +92,12 @@ if [[ ${#CHANGED[@]} == 0 ]]; then
     for PROJECT in ${PROJECTS[@]}; do
         CHANGED+=($PROJECT)
     done
+else
+    write "Add labels to PR for each changed project"
+fi
+
+if $GENERIC_CHANGE; then
+    write "Add generic label for PR"
 fi
 
 write "changed projects(${#CHANGED[@]}):"
