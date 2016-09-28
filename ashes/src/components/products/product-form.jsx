@@ -44,7 +44,6 @@ const omitKeys = {
 const defaultKeys = {
   general: ['title', 'description'],
   misc: ['images'],
-  seo: ['url', 'metaTitle', 'metaDescription'],
 };
 
 /**
@@ -63,7 +62,6 @@ export default class ProductForm extends Component {
     const toOmit = [
       ...defaultKeys.general,
       ...defaultKeys.misc,
-      ...defaultKeys.seo,
       ..._.flatten(_.valuesIn(omitKeys)),
     ];
     const attributes = _.get(this.props, 'product.attributes', {});
