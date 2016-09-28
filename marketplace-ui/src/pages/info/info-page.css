@@ -17,4 +17,28 @@
   & :global(.business_founded_day) {
     margin-left: 0;
   }
+
+  & :global(.business_founded_day),
+  & :global(.business_founded_month),
+  & :global(.business_founded_year),
+  & :global(.legal_entity_state) {
+    & :global(.rw-tag-btn) {
+      display: none;
+    }
+
+    & :global(.rw-input),
+    & :global(.rw-multiselect-wrapper) {
+      cursor: pointer;
+    }
+
+    & :global(.rw-input):not(:first-child) {
+      display: none;
+    }
+  }
+
+  & :global(.rw-multiselect) {
+    & :global(.rw-list) {
+      max-height: 310px;
+    }
+  }
 }

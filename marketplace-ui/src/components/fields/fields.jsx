@@ -1,4 +1,4 @@
-import { castArray, noop } from 'lodash';
+import { get, castArray, noop } from 'lodash';
 import { flow } from 'lodash/fp';
 import cx from 'classnames';
 import React from 'react';
@@ -7,40 +7,43 @@ import MaskInput from 'react-input-mask';
 import { Field } from 'redux-form';
 
 import { applyIfSet, popValue } from '../../utils/fp';
+import messages from '../../core/lib/messages.json';
 
 import styles from './fields.css';
 
-import type { FormField } from '../../core/types/fields';
+import type { FormField as TFormField } from '../../core/types/fields';
 
-const renderInput = ({ input, type, mask, maskChar = ' ', placeholder, meta }) => {
-  const hasError = meta.touched && meta.error;
+const FormField = ({ input: { name }, meta: { error, touched }, children }) => {
+  const hasError = touched && error;
 
   return (
-    <div className={cx(styles.field, input.name, { [styles.fieldError]: hasError })}>
-      <MaskInput {...input} mask={mask} maskChar={maskChar} type={type} placeholder={placeholder} />
-      {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}
+    <div className={cx(styles.field, name, { [styles.fieldError]: hasError })}>
+      {children}
+      <span className={cx(styles.error, { [styles.errorActive]: hasError })}>
+        {get(messages, error, 'Wrong value')}
+      </span>
     </div>
   );
 };
 
-const renderTextarea = ({ input, placeholder, meta }) => {
-  const hasError = meta.touched && meta.error;
+const renderInput = ({ input, type, mask, maskChar = ' ', placeholder, meta }) => (
+  <FormField input={input} meta={meta}>
+    <MaskInput {...input} mask={mask} maskChar={maskChar} type={type} placeholder={placeholder} />
+  </FormField>
+);
 
-  return (
-    <div className={cx(styles.field, input.name, { [styles.fieldError]: hasError })}>
-      <textarea {...input} placeholder={placeholder} rows="1" />
-      {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}
-    </div>
-  );
-};
+const renderTextarea = ({ input, placeholder, meta }) => (
+  <FormField input={input} meta={meta}>
+    <textarea {...input} placeholder={placeholder} rows="1" />
+  </FormField>
+);
 
 const renderSelect = ({ input, values, placeholder, meta, multi = true }) => {
-  const hasError = meta.touched && meta.error;
   const value = applyIfSet(castArray)(input.value);
   const onChange = flow(popValue(multi), input.onChange);
 
   return (
-    <div className={cx(styles.field, input.name, { [styles.fieldError]: hasError })}>
+    <FormField input={input} meta={meta}>
       <MultiSelect
         {...input}
         value={value}
@@ -49,12 +52,11 @@ const renderSelect = ({ input, values, placeholder, meta, multi = true }) => {
         data={values}
         placeholder={placeholder}
       />
-      {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}
-    </div>
+    </FormField>
   );
 };
 
-export default (field: FormField) => {
+export default (field: TFormField) => {
   let renderField = renderInput;
 
   switch (field.type) {

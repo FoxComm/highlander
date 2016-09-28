@@ -1,10 +1,7 @@
 /* @flow */
 
-import get from 'lodash/get';
 import invoke from 'lodash/invoke';
 import validators from './validators';
-
-import messages from './messages.json';
 
 import type { FormField, FormData, FieldValue, ValidationRule, ErrorsList } from '../../core/types/fields';
 
@@ -25,7 +22,7 @@ export default (fields: Array<FormField>) => (values: FormData): ErrorsList => {
     const violatedRule = validateField(values[field.name], field.validation);
 
     if (violatedRule) {
-      errors[field.name] = get(messages, `validate.${violatedRule}`);
+      errors[field.name] = `validate.${violatedRule}`;
     }
   });
 
