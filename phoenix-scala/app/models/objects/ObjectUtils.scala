@@ -103,11 +103,12 @@ object ObjectUtils {
     val n = ObjectUtils.newFormAndShadow(formProto.attributes, shadowProto.attributes)
 
     for {
-      //Make sure form is correct and shadow links are correct
       schema ← * <~ ObjectSchemasManager.getSchemaByOptNameOrKind(schema, formProto.kind)
       form   ← * <~ ObjectForms.create(formProto.copy(attributes = n.form))
       shadow ← * <~ ObjectShadows.create(
                   shadowProto.copy(formId = form.id, attributes = n.shadow, schemaId = schema.id))
+      //Make sure form is correct and shadow links are correct
+      _      ← * <~ IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)
       commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
     } yield InsertResult(form, shadow, commit)
   }
@@ -188,7 +189,7 @@ object ObjectUtils {
       old: FormAndShadow,
       newFormAttributes: Json,
       newShadowAttributes: Json,
-      force: Boolean = false)(implicit ec: EC): DbResultT[UpdateResult] = {
+      force: Boolean = false)(implicit ec: EC, db: DB): DbResultT[UpdateResult] = {
     if (old.shadow.attributes != newShadowAttributes || force)
       for {
         form ← * <~ ObjectForms.update(
@@ -198,7 +199,9 @@ object ObjectUtils {
                     ObjectShadow(formId = form.id,
                                  attributes = newShadowAttributes,
                                  schemaId = old.shadow.schemaId))
-        _ ← * <~ validateShadow(form, shadow)
+        schema ← * <~ ObjectFullSchemas.mustFindById404(old.shadow.schemaId)
+        _      ← * <~ IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)
+        _      ← * <~ validateShadow(form, shadow)
       } yield UpdateResult(form, shadow, updated = true)
     else DbResultT.pure(UpdateResult(old.form, old.shadow, updated = false))
   }

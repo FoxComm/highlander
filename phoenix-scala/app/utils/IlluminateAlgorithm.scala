@@ -21,25 +21,22 @@ object IlluminateAlgorithm {
     case _            ⇒ JNothing
   }
 
-  def validateObjectBySchema(illuminated: Json, jsonSchema: Json)(
+  def validateObjectBySchema(schema: ObjectFullSchema, form: ObjectForm, shadow: ObjectShadow)(
       implicit ec: EC): DbResultT[Json] = {
-    val schema: JsonNode   = asJsonNode(jsonSchema)
-    val instance: JsonNode = asJsonNode(illuminated)
+    val illuminated = projectAttributes(form.attributes, shadow.attributes)
+
+    val jsonSchema: JsonNode = asJsonNode(schema.schema)
+    val instance: JsonNode   = asJsonNode(illuminated)
 
     val validator = JsonSchemaFactory.byDefault().getValidator
 
-    val processingReport = validator.validate(schema, instance)
+    val processingReport = validator.validate(jsonSchema, instance)
 
     if (processingReport.isSuccess)
       DbResultT.good(illuminated)
     else
-      DbResultT.failure[Json](ObjectValidationFailure(processingReport.toString))
-  }
-
-  def illuminateAttributes(schema: Json, formJson: Json, shadowJson: Json)(
-      implicit ec: EC): DbResultT[Json] = {
-    val attributes = projectAttributes(formJson, shadowJson)
-    validateObjectBySchema(attributes, schema)
+      DbResultT.failure[Json](
+          ObjectValidationFailure(form.kind, shadow.id, processingReport.toString))
   }
 
   def projectAttributes(formJson: Json, shadowJson: Json): Json =
