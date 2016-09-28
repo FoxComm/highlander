@@ -1,5 +1,6 @@
 /* @flow */
 import get from 'lodash/get';
+import invert from 'lodash/invert';
 
 import type { FormField } from '../../core/types/fields';
 
@@ -68,25 +69,26 @@ const LIST_STATES = {
 export const fields: Array<FormField> = [
   {
     name: 'bank_account_number',
-    type: 'input',
+    type: 'text',
     placeholder: 'External Bank Account Data: Account number',
     validation: 'required',
   },
   {
     name: 'bank_routing_number',
-    type: 'input',
+    type: 'text',
     placeholder: 'External Bank Account Data: Routing number',
+    mask: '999999999',
     validation: 'required',
   },
   {
     name: 'legal_entity_name',
-    type: 'input',
+    type: 'text',
     placeholder: 'Legal Entity Business Name',
     validation: 'required',
   },
   {
     name: 'legal_entity_city',
-    type: 'input',
+    type: 'text',
     placeholder: 'Legal Entity Address: City',
   },
   {
@@ -94,41 +96,51 @@ export const fields: Array<FormField> = [
     type: 'select',
     placeholder: 'Legal Entity Address: State',
     values: Object.keys(LIST_STATES),
-    normalize: value => get(LIST_STATES, value, ''),
+    format: value => (value ? [get(invert(LIST_STATES), value)] : null),
+    normalize: value => {
+      const iso = Array.isArray(value) ? value.pop() : value;
+
+      return get(LIST_STATES, iso, null);
+    },
   },
   {
     name: 'legal_entity_postal',
-    type: 'input',
+    type: 'text',
+    mask: '99999',
     placeholder: 'Legal Entity Address: Postal Code',
   },
   {
     name: 'legal_entity_tax_id',
-    type: 'input',
+    type: 'text',
     placeholder: 'Legal Entity Tax ID',
   },
   {
     name: 'business_founded_day',
-    type: 'input',
+    type: 'text',
+    mask: '99',
     placeholder: 'DOB of Business Rep: Day',
   },
   {
     name: 'business_founded_month',
-    type: 'input',
+    type: 'text',
+    mask: '99',
     placeholder: 'DOB of Business Rep: Month',
   },
   {
     name: 'business_founded_year',
-    type: 'input',
+    type: 'text',
+    mask: '99',
     placeholder: 'DOB of Business Rep: Year',
   },
   {
     name: 'representative_ssn_trailing_four',
-    type: 'input',
+    type: 'text',
+    mask: '9999',
     placeholder: 'Business Rep: ssn Last 4',
   },
   {
     name: 'legal_entity_type',
-    type: 'input',
+    type: 'text',
     placeholder: 'Business Entity Type',
   },
 ];

@@ -1,6 +1,7 @@
 /* @flow */
 
 import { createReducer } from 'redux-act';
+import { SubmissionError } from 'redux-form';
 
 import createAsyncActions from './async-utils';
 
@@ -29,7 +30,11 @@ const ACTION_FETCH = 'merchantAccountFetch';
 const ACTION_SUBMIT = 'merchantAccountSubmit';
 
 const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, (id: number, data: Object) =>
-  api.post(`/merchants/${id}/accounts`, { account: { ...data } })
+  new Promise((resolve, reject) =>
+    api.post(`/merchants/${id}/accounts`, { account: { ...data } })
+      .then((account: Account) => resolve(account))
+      .catch(err => reject(new SubmissionError(err.response.data.errors)))
+  )
 );
 
 const { perform: performFetch, ...actionsFetch } = createAsyncActions(ACTION_FETCH, merchantId =>

@@ -21,7 +21,7 @@ defmodule Marketplace.MerchantApplication do
     belongs_to :merchant, Marketplace.Merchant
   end
 
-  @states ~w(new approved rejected abandoned)a
+  @states ~w(new approved rejected abandoned)s
   @required_fields ~w(business_name email_address phone_number site_url)a
   @optional_fields ~w(name description state merchant_id)a
 

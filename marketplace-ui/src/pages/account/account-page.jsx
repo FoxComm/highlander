@@ -78,7 +78,7 @@ class MerchantAccountPage extends Component {
       return;
     }
 
-    this.props.submit(merchantId, data);
+    return this.props.submit(merchantId, data);
   }
 
   render(): HTMLElement {

@@ -10,12 +10,13 @@ import styles from './fields.css';
 
 import type { FormField } from '../../core/types/fields';
 
-const renderInput = ({ input, type, placeholder, meta }) => {
+const renderInput = ({ input, type, mask, maskChar, placeholder, meta }) => {
   const hasError = meta.touched && meta.error;
+  const maskCharValue = maskChar || ' ';
 
   return (
     <div className={cx(styles.field, { [styles.fieldError]: hasError })}>
-      <input {...input} placeholder={placeholder} />
+      <MaskInput {...input} mask={mask} maskChar={maskCharValue} type={type} placeholder={placeholder} />
       {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}
     </div>
   );
@@ -45,17 +46,6 @@ const renderSelect = ({ input, values, placeholder, meta }) => {
   );
 };
 
-const renderPhone = ({ input, placeholder, meta }) => {
-  const hasError = meta.touched && meta.error;
-
-  return (
-    <div className={cx(styles.field, { [styles.fieldError]: hasError })}>
-      <MaskInput {...input} mask="+1 (999) 999-9999" placeholder={placeholder} />
-      {<span className={cx(styles.error, { [styles.errorActive]: hasError })}>{meta.error}</span>}
-    </div>
-  );
-};
-
 export default (field: FormField) => {
   let renderField = renderInput;
 
@@ -65,9 +55,6 @@ export default (field: FormField) => {
       break;
     case 'textarea':
       renderField = renderTextarea;
-      break;
-    case 'phone':
-      renderField = renderPhone;
       break;
     case 'text':
     case 'number':

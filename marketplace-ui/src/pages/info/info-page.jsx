@@ -58,23 +58,24 @@ class MerchantInfoPage extends Component {
     }
   }
 
+  componentWillReceiveProps(nextProps: Props): void {
+    if (nextProps.done) {
+      setTimeout(
+        () => window.location.replace(process.env.ASHES_URL),
+        TIMEOUT_REDIRECT
+      );
+    }
+  }
+
   @autobind
   submit(data) {
     const merchantId = get(this.props.application, 'merchant.id');
 
     if (!merchantId) {
-      console.error('No merchantId');
-
       return;
     }
 
-    this.props.submit(merchantId, data)
-      .then(() => {
-        setTimeout(
-          () => window.location.replace(process.env.ASHES_URL),
-          TIMEOUT_REDIRECT
-        );
-      });
+    return this.props.submit(merchantId, data);
   }
 
   get loader(): HTMLElement {
