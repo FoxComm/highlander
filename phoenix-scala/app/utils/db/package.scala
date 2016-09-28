@@ -76,7 +76,7 @@ package object db {
     def run()(implicit db: DB): Future[R] =
       db.run(dbio)
 
-    def toXor(implicit ec: EC): DbResultT[R] =
+    def dbresult(implicit ec: EC): DbResultT[R] =
       DbResultT.fromDbio(dbio)
   }
 
@@ -87,7 +87,7 @@ package object db {
   implicit class EnrichedDBIOpt[R](val dbio: DBIO[Option[R]]) extends AnyVal {
 
     def findOrCreate(r: DbResultT[R])(implicit ec: EC): DbResultT[R] = {
-      dbio.toXor.flatMap {
+      dbio.dbresult.flatMap {
         case Some(model) ⇒ DbResultT.good(model)
         case None        ⇒ r
       }
@@ -95,19 +95,20 @@ package object db {
 
     // Last item in tuple determines if cart was created or not
     def findOrCreateExtended(r: DbResultT[R])(implicit ec: EC): DbResultT[(R, FoundOrCreated)] = {
-      dbio.toXor.flatMap {
+      dbio.dbresult.flatMap {
         case Some(model) ⇒ DbResultT.good((model, Found))
         case _           ⇒ r.map(result ⇒ (result, Created))
       }
     }
 
-    def mustFindOr(notFoundFailure: Failure)(implicit ec: EC): DbResultT[R] = dbio.toXor.flatMap {
-      case Some(model) ⇒ DbResultT.good(model)
-      case None        ⇒ DbResultT.failure(notFoundFailure)
-    }
+    def mustFindOr(notFoundFailure: Failure)(implicit ec: EC): DbResultT[R] =
+      dbio.dbresult.flatMap {
+        case Some(model) ⇒ DbResultT.good(model)
+        case None        ⇒ DbResultT.failure(notFoundFailure)
+      }
 
     def mustNotFindOr(shouldNotBeHere: Failure)(implicit ec: EC): DbResultT[Unit] =
-      dbio.toXor.flatMap {
+      dbio.dbresult.flatMap {
         case None    ⇒ DbResultT.unit
         case Some(_) ⇒ DbResultT.failure(shouldNotBeHere)
       }

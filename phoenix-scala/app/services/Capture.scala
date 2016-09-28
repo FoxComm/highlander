@@ -150,7 +150,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       (for {
         pmt    ← OrderPayments.findAllCreditCardsForOrder(payload.order)
         charge ← CreditCardCharges.filter(_.orderPaymentId === pmt.id)
-      } yield charge).one.toXor.flatMap {
+      } yield charge).one.dbresult.flatMap {
         case Some(charge) ⇒ captureFromStripe(total, charge, order)
         case None ⇒
           DbResultT.failure(CaptureFailures.CreditCardNotFound(order.refNum))

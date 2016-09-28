@@ -20,5 +20,5 @@ object SkuAssignmentsManager extends AssignmentsManager[String, Sku] {
     Skus.mustFindByCode(code)
 
   def fetchSequence(codes: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Sku]] =
-    Skus.filter(_.code.inSetBind(codes)).result.toXor
+    Skus.filter(_.code.inSetBind(codes)).result.dbresult
 }

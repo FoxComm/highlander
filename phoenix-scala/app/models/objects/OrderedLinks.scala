@@ -28,7 +28,7 @@ abstract class OrderedObjectHeadLinkQueries[M <: OrderedObjectHeadLink[M],
   override def filterLeftId(leftId: Int): QuerySeq = super.filterLeftId(leftId).sortBy(_.position)
 
   def getNextPositionFor(left: L)(implicit ec: EC): DbResultT[Int] =
-    filterLeft(left).map(_.position).max.map(_ + 1).getOrElse(0).result.toXor
+    filterLeft(left).map(_.position).max.map(_ + 1).getOrElse(0).result.dbresult
 
   def createLast(left: L, right: R)(implicit ec: EC): DbResultT[M] =
     for {

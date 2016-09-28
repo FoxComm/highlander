@@ -93,7 +93,7 @@ object CustomerManager {
           address.phoneNumber.isDefined
       } yield (address.phoneNumber, shipment.updatedAt)).sortBy {
         case (_, updatedAt)   ⇒ updatedAt.desc.nullsLast
-      }.map { case (phone, _) ⇒ phone }.one.map(_.flatten).toXor
+      }.map { case (phone, _) ⇒ phone }.one.map(_.flatten).dbresult
 
     for {
       default ← * <~ Addresses
@@ -101,7 +101,7 @@ object CustomerManager {
                  .map(_.phoneNumber)
                  .one
                  .map(_.flatten)
-                 .toXor
+                 .dbresult
       shipment ← * <~ doOrGood(default.isEmpty, resolveFromShipments(customerId), default)
     } yield shipment
   }

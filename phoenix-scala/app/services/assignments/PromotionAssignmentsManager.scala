@@ -24,5 +24,5 @@ object PromotionAssignmentsManager extends AssignmentsManager[Int, ObjectForm] {
       .mustFindOneOr(NotFoundFailure404(Promotion, id))
 
   def fetchSequence(ids: Seq[Int])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[ObjectForm]] =
-    ObjectForms.filter(_.kind === ObjectForm.promotion).filter(_.id.inSetBind(ids)).result.toXor
+    ObjectForms.filter(_.kind === ObjectForm.promotion).filter(_.id.inSetBind(ids)).result.dbresult
 }

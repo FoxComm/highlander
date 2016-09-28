@@ -32,7 +32,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC) extends CartValidation {
       state ← sufficientPayments(state, isCheckout)
     } yield state
     if (fatalWarnings) {
-      validationResult.toXor.flatMap { validatorResponse ⇒
+      validationResult.dbresult.flatMap { validatorResponse ⇒
         validatorResponse.warnings match {
           case Some(warnings) ⇒
             DbResultT.failures(warnings)

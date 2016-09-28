@@ -20,5 +20,5 @@ object CustomerAssignmentsManager extends AssignmentsManager[Int, Customer] {
     Customers.mustFindById404(id)
 
   def fetchSequence(ids: Seq[Int])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Customer]] =
-    Customers.filter(_.id.inSetBind(ids)).result.toXor
+    Customers.filter(_.id.inSetBind(ids)).result.dbresult
 }

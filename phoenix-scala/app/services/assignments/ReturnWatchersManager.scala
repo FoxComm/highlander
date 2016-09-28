@@ -21,5 +21,5 @@ object ReturnWatchersManager extends AssignmentsManager[String, Return] {
 
   def fetchSequence(
       refNums: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Return]] =
-    Returns.filter(_.referenceNumber.inSetBind(refNums)).result.toXor
+    Returns.filter(_.referenceNumber.inSetBind(refNums)).result.dbresult
 }

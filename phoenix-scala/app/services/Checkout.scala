@@ -215,7 +215,7 @@ case class Checkout(
       (for {
         pmt  ← OrderPayments.findAllCreditCardsForOrder(cart.refNum)
         card ← pmt.creditCard
-      } yield (pmt, card)).one.toXor.flatMap {
+      } yield (pmt, card)).one.dbresult.flatMap {
         case Some((pmt, card)) ⇒
           for {
             stripeCharge ← * <~ apis.stripe
