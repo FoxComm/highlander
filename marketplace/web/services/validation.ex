@@ -40,11 +40,11 @@ defmodule Marketplace.Validation do
   end
 
   def validate_day_number(changeset, field) do
-    validate_format_code(changeset, field, ~r/^\d{1,2}$/, "day")
+    validate_format_code(changeset, field, ~r/^(([0-2]?\d)|(3[01]))$/, "day")
   end
 
   def validate_month_number(changeset, field) do
-    validate_format_code(changeset, field, ~r/^\d{1,2}$/, "month")
+    validate_format_code(changeset, field, ~r/^((0?[1-9])|(1[0-2]))$/, "month")
   end
 
   def validate_year_number(changeset, field) do
