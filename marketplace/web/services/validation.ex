@@ -3,15 +3,7 @@ defmodule Marketplace.Validation do
   import Ecto.Changeset
 
   def validate_format_code(changeset, field, regex, code) do
-    case fetch_field(changeset, field) do
-      {:changes, term} ->
-        if !Regex.match?(regex, term) do
-          add_error(changeset, field, "validate.format." <> code)
-          else changeset
-        end
-      {:data, term} -> changeset
-      {:error} -> changeset
-    end
+    validate_format(changeset, field, regex, message: "validate.format." <> code)
   end
   
   # example: 999-999-9999
