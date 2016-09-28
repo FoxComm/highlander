@@ -16,6 +16,7 @@ type Props = {
 
 const userClaims = readAction(frn.settings.user);
 const pluginClaims = readAction(frn.settings.plugin);
+const applicationClaims = readAction(frn.settings.application);
 
 export default class SettingsEntry extends Component {
   props: Props;
@@ -53,6 +54,13 @@ export default class SettingsEntry extends Component {
             actualClaims={claims}
             expectedClaims={pluginClaims}>
             Plugins
+          </Link>
+          <Link
+            to="applications"
+            className="fc-navigation-item__sublink"
+            actualClaims={claims}
+            expectedClaims={applicationClaims}>
+            Applications
           </Link>
         </NavigationItem>
       </li>
