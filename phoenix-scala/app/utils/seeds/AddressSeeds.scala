@@ -25,7 +25,7 @@ trait AddressSeeds {
   def usAddress1 =
     Address(customerId = 0,
             regionId = 4177,
-            name = "Home",
+            name = "Curt Cobain",
             address1 = "555 E Lake Union St.",
             address2 = None,
             city = "Seattle",
@@ -38,7 +38,7 @@ trait AddressSeeds {
   def usAddress2 =
     Address(customerId = 0,
             regionId = 4165,
-            name = "Other",
+            name = "Freddie Mercury",
             address1 = "4749 Grove Avenue",
             address2 = None,
             city = "Camp Hill",
@@ -48,9 +48,9 @@ trait AddressSeeds {
   def usAddress3 =
     Address(customerId = 0,
             regionId = 4154,
-            name = "Temp",
+            name = "Mark Sandman",
             address1 = "3104 Canterbury Court",
-            address2 = "★ ★ ★".some,
+            address2 = "Morphine".some,
             city = "Cornelius",
             zip = "28031",
             phoneNumber = "2025550113".some)
@@ -58,7 +58,7 @@ trait AddressSeeds {
   def usAddress4 =
     Address(customerId = 0,
             regionId = 4162,
-            name = "The address",
+            name = "Jim Morrison",
             address1 = "3345 Orchard Lane",
             address2 = None,
             city = "Avon Lake",
@@ -69,7 +69,7 @@ trait AddressSeeds {
   def canadaAddress1 =
     Address(customerId = 0,
             regionId = 545,
-            name = "Address 1",
+            name = "Ozzy Osbourne",
             address1 = "4177 Crystal Downs",
             address2 = None,
             city = "Goodnews Bay",
@@ -80,7 +80,7 @@ trait AddressSeeds {
   def canadaAddress2 =
     Address(customerId = 0,
             regionId = 547,
-            name = "Address 2",
+            name = "Stevie Wonder",
             address1 = "8321 Harvest Woods",
             address2 = None,
             city = "Ptarmigan",
@@ -90,7 +90,7 @@ trait AddressSeeds {
   def rowAddress1 =
     Address(customerId = 0,
             regionId = 789,
-            name = "Dům",
+            name = "Amy Winehouse",
             address1 = "Příční 151",
             address2 = None,
             city = "Bystricka",

@@ -145,7 +145,7 @@ trait DemoScenario2 extends DemoSeedHelpers {
   def address2 =
     Address(customerId = 0,
             regionId = 4177,
-            name = "Home",
+            name = "John Zorn",
             address1 = "555 E Lake Union St.",
             address2 = None,
             city = "Seattle",
@@ -196,7 +196,7 @@ trait DemoScenario3 extends DemoSeedHelpers {
   def address3 =
     Address(customerId = 0,
             regionId = 4177,
-            name = "Home",
+            name = "Regina Spektor",
             address1 = "555 E Lake Union St.",
             address2 = None,
             city = "Seattle",
