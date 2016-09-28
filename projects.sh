@@ -96,5 +96,9 @@ else
     write "Add labels to PR for each changed project"
 fi
 
+if $GENERIC_CHANGE; then
+    write "Add generic label for PR"
+fi
+
 write "changed projects(${#CHANGED[@]}):"
 echo ${CHANGED[@]}
