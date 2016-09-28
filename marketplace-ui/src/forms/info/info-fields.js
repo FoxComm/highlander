@@ -94,7 +94,7 @@ export const fields: Array<FormField> = [
     name: 'bank_routing_number',
     type: 'text',
     placeholder: 'External Bank Account Data: Routing number',
-    validation: 'required',
+    validation: 'required format.routing_number',
   },
   {
     name: 'legal_entity_name',
@@ -140,7 +140,7 @@ export const fields: Array<FormField> = [
     multi: false,
     placeholder: 'DOB: Month',
     values: LIST_MONTHS,
-    normalize: flow(indexOf(_, LIST_MONTHS), add(1)),
+    normalize: flow(indexOf(_, LIST_MONTHS), add(1), toString),
     format: flow(subtract(_, 1), get(_, LIST_MONTHS)),
   },
   {
@@ -154,7 +154,8 @@ export const fields: Array<FormField> = [
   {
     name: 'representative_ssn_trailing_four',
     type: 'text',
-    placeholder: 'Business Rep: ssn Last 4',
+    placeholder: 'Business Rep: SSN Last 4',
+    validation: 'format.SSN_last_four',
   },
   {
     name: 'legal_entity_type',

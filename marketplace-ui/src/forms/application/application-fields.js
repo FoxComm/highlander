@@ -23,16 +23,23 @@ export const fields: Array<FormField> = [
     name: 'email_address',
     type: 'text',
     placeholder: 'Email Address',
-    validation: 'required email',
+    validation: 'required format.email',
   },
   {
     name: 'phone_number',
     type: 'text',
     placeholder: 'Phone Number',
-    validation: 'required phone',
+    validation: 'required format.phone',
     mask: '+1 (999) 999-9999',
     maskChar: '_',
-    normalize: value => value.replace(/^\+1\s?/, '').replace(/[()]/g, '').replace(/\s/g, '-'),
+    normalize: value => {
+      // console.info(value);
+      const v = value.replace(/^\+1\s?/, '').replace(/[()]/g, '').replace(/\s/g, '-');
+      // console.info(v);
+
+      return v;
+    },
+    // format: value => `+1 ${value}`,
   },
   {
     name: 'monthly_sales_volume',
@@ -49,7 +56,7 @@ export const fields: Array<FormField> = [
     name: 'site_url',
     type: 'text',
     placeholder: 'Site URL',
-    validation: 'required uri',
+    validation: 'required format.uri',
   },
   {
     name: 'target_audience',
