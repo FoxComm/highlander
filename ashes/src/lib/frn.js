@@ -45,6 +45,7 @@ export const frn = {
   settings: {
     user: 'frn:settings:usr',
     plugin: 'frn:settings:plugin',
+    application: 'frn:settings:application',
   },
   user: {
     customer: 'frn:usr:customer',
