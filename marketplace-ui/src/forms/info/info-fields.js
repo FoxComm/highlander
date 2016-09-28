@@ -1,8 +1,25 @@
 /* @flow */
-import get from 'lodash/get';
-import invert from 'lodash/invert';
+
+import { range, invert, rangeRight } from 'lodash';
+import {
+  get,
+  add,
+  flow,
+  getOr,
+  indexOf,
+  subtract,
+  toString,
+  placeholder as _,
+} from 'lodash/fp';
 
 import type { FormField } from '../../core/types/fields';
+
+const LIST_DAYS = range(1, 32);
+const LIST_YEARS = rangeRight(1950, new Date().getFullYear() + 1);
+const LIST_MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
 
 const LIST_STATES = {
   Alabama: 'AL',
@@ -77,7 +94,6 @@ export const fields: Array<FormField> = [
     name: 'bank_routing_number',
     type: 'text',
     placeholder: 'External Bank Account Data: Routing number',
-    mask: '999999999',
     validation: 'required',
   },
   {
@@ -94,19 +110,15 @@ export const fields: Array<FormField> = [
   {
     name: 'legal_entity_state',
     type: 'select',
+    multi: false,
     placeholder: 'Legal Entity Address: State',
     values: Object.keys(LIST_STATES),
-    format: value => (value ? [get(invert(LIST_STATES), value)] : null),
-    normalize: value => {
-      const iso = Array.isArray(value) ? value.pop() : value;
-
-      return get(LIST_STATES, iso, null);
-    },
+    format: get(_, invert(LIST_STATES)),
+    normalize: getOr(null, _, LIST_STATES),
   },
   {
     name: 'legal_entity_postal',
     type: 'text',
-    mask: '99999',
     placeholder: 'Legal Entity Address: Postal Code',
   },
   {
@@ -116,26 +128,32 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'business_founded_day',
-    type: 'text',
-    mask: '99',
-    placeholder: 'DOB of Business Rep: Day',
+    type: 'select',
+    multi: false,
+    placeholder: 'DOB: Day',
+    values: LIST_DAYS,
+    parse: toString,
   },
   {
     name: 'business_founded_month',
-    type: 'text',
-    mask: '99',
-    placeholder: 'DOB of Business Rep: Month',
+    type: 'select',
+    multi: false,
+    placeholder: 'DOB: Month',
+    values: LIST_MONTHS,
+    normalize: flow(indexOf(_, LIST_MONTHS), add(1)),
+    format: flow(subtract(_, 1), get(_, LIST_MONTHS)),
   },
   {
     name: 'business_founded_year',
-    type: 'text',
-    mask: '99',
-    placeholder: 'DOB of Business Rep: Year',
+    type: 'select',
+    multi: false,
+    placeholder: 'DOB: Year',
+    values: LIST_YEARS,
+    parse: toString,
   },
   {
     name: 'representative_ssn_trailing_four',
     type: 'text',
-    mask: '9999',
     placeholder: 'Business Rep: ssn Last 4',
   },
   {

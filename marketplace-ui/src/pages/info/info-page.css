@@ -2,4 +2,19 @@
   & .thanksOrNot {
     margin-top: 50px;
   }
+
+  & :global(.business_founded_day),
+  & :global(.business_founded_month),
+  & :global(.business_founded_year) {
+    display: inline-block;
+    width: 30%;
+    margin-left: 5%;
+
+    & :global(.rw-input):first-child {
+      min-width: 110px;
+    }
+  }
+  & :global(.business_founded_day) {
+    margin-left: 0;
+  }
 }
