@@ -8,8 +8,8 @@ import utils.aliases.Json
 
 object TaxonomyResponses {
 
-  type TermList   = Seq[TermResponse.Root]
-  type LinkedTerm = (FullObject[Term], TaxonTermLink)
+  type TermList   = Seq[TaxonResponse.Root]
+  type LinkedTerm = (FullObject[Taxon], TaxonomyTaxonLink)
 
   implicit class LTreeExtension(ltree: LTree) {
     def level = ltree.value match {
@@ -22,22 +22,22 @@ object TaxonomyResponses {
     }
   }
 
-  object TaxonResponse {
+  object TaxonomyResponse {
 
-    def build(taxon: FullObject[Taxon], terms: Seq[LinkedTerm]): Root = {
+    def build(taxon: FullObject[Taxonomy], terms: Seq[LinkedTerm]): Root = {
       Root(taxon.model.formId,
            taxon.model.hierarchical,
            IlluminateAlgorithm.projectAttributes(taxon.form.attributes, taxon.shadow.attributes),
-           TermResponse.buildTree(terms))
+           TaxonResponse.buildTree(terms))
     }
 
     case class Root(id: Int, hierarchical: Boolean, attributes: Json, terms: TermList)
   }
 
-  object TermResponse {
+  object TaxonResponse {
     case class Root(id: Int, attributes: Json, children: TermList)
 
-    def build(term: FullObject[Term]): Root = {
+    def build(term: FullObject[Taxon]): Root = {
       Root(term.model.formId,
            IlluminateAlgorithm.projectAttributes(term.form.attributes, term.shadow.attributes),
            Seq())

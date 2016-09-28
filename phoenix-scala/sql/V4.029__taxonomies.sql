@@ -1,7 +1,4 @@
---drop table taxons;
---drop table taxon_terms;
---drop table taxon_term_links;
-create table taxons(
+create table taxonomies(
   id serial primary key,
   hierarchical boolean not null,
   context_id integer not null references object_contexts(id) on update restrict on delete restrict,
@@ -13,7 +10,7 @@ create table taxons(
   archived_at generic_timestamp
 );
 
-create table taxon_terms (
+create table taxons (
   id serial primary key,
   context_id integer not null references object_contexts(id) on update restrict on delete restrict,
   shadow_id integer not null references object_shadows(id) on update restrict on delete restrict,
@@ -24,11 +21,11 @@ create table taxon_terms (
   archived_at generic_timestamp
 );
 
-create table taxon_term_links (
+create table taxonomy_taxon_links (
   id serial PRIMARY KEY,
   index integer not null,
+  taxonomy_id integer not null references taxonomies(id),
   taxon_id integer not null references taxons(id),
-  taxon_term_id integer not null references taxon_terms(id),
   position integer not null,
   path ltree  not null,
   updated_at generic_timestamp,
@@ -36,23 +33,23 @@ create table taxon_term_links (
   archived_at generic_timestamp
 );
 
-create index taxon_term_link_taxon_idx on taxon_term_links (taxon_id);
-create index taxon_term_link_term_idx on taxon_term_links (taxon_term_id);
+create index taxonomy_taxon_link_taxonomy_idx on taxonomy_taxon_links (taxonomy_id);
+create index taxonomy_taxon_link_term_idx on taxonomy_taxon_links (taxon_id);
 
-create table product_taxon_links (
+create table product_taxonomy_links (
   id serial primary key,
   left_id  integer not null references products(id) on update restrict on delete restrict,
-  right_id integer not null references taxon_terms(id) on update restrict on delete restrict,
+  right_id integer not null references taxons(id) on update restrict on delete restrict,
   created_at generic_timestamp,
   updated_at generic_timestamp,
   archived_at generic_timestamp
 );
 
-create index product_taxon_link_left_idx on product_taxon_links (left_id);
-create index product_taxon_link_right_idx on product_taxon_links (right_id);
+create index product_taxonomy_link_left_idx on product_taxonomy_links (left_id);
+create index product_taxonomy_link_right_idx on product_taxonomy_links (right_id);
 
 
-create table taxon_search_view (
+create table taxonomy_search_view (
   id int not null,
   name generic_string not null,
   type generic_string not null,

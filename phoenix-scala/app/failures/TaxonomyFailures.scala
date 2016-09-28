@@ -10,7 +10,7 @@ object TaxonomyFailures {
   }
 
   case object NoTermInTaxonomy {
-    def apply(taxon: Taxon, term: Term): Failure = apply(taxon.formId, term.formId)
+    def apply(taxon: Taxonomy, term: Taxon): Failure = apply(taxon.formId, term.formId)
 
     def apply(taxonFormId: ObjectForm#Id, termFormId: ObjectForm#Id): Failure = new Failure {
       override def description: String =
@@ -18,7 +18,7 @@ object TaxonomyFailures {
     }
   }
 
-  case class InvalidTermTaxons(term: Term, taxonsCount: Int) extends Failure {
+  case class InvalidTaxonomiesForTaxon(term: Taxon, taxonsCount: Int) extends Failure {
     override def description: String =
       if (taxonsCount == 0) s"Term with id = ${term.id} is not linked to any taxon"
       else s"Term with id = ${term.id} is linked to multiple taxons"

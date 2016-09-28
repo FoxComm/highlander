@@ -10,69 +10,69 @@ import utils.db._
 
 trait TaxonomySeeds extends TestFixtureBase {
 
-  trait FlatTerms_Baked extends Taxon_Seed with FlatTerms_Raw
-  trait HierarchyTerms_Baked extends Taxon_Seed with HierarchicalTerms_Raw {
-    override def taxonHierarchical = true
+  trait FlatTaxons_Baked extends Taxonomy_Seed with FlatTaxons_Raw
+  trait HierarchyTaxons_Baked extends Taxonomy_Seed with HierarchicalTaxons_Raw {
+    override def taxonomyHierarchical = true
   }
 
-  trait Taxon_Seed {
-    val taxonAttributes: Map[String, Json] = Map("name" → (("t" → "string") ~ ("v" → "taxon")),
-                                                 "test" → (("t" → "string") ~ ("v" → "taxon")))
-    def taxonHierarchical = false
+  trait Taxonomy_Seed {
+    val taxonomyAttributes: Map[String, Json] = Map("name" → (("t" → "string") ~ ("v" → "taxon")),
+                                                    "test" → (("t" → "string") ~ ("v" → "taxon")))
+    def taxonomyHierarchical = false
 
-    private def _taxon: Taxon = {
-      val form   = ObjectForm.fromPayload(Taxon.kind, taxonAttributes)
-      val shadow = ObjectShadow.fromPayload(taxonAttributes)
+    private def _taxonomy: Taxonomy = {
+      val form   = ObjectForm.fromPayload(Taxonomy.kind, taxonomyAttributes)
+      val shadow = ObjectShadow.fromPayload(taxonomyAttributes)
 
       (for {
         ins ← * <~ ObjectUtils.insert(form, shadow)
-        taxon ← * <~ Taxons.create(
-                   Taxon(id = 0,
-                         hierarchical = taxonHierarchical,
-                         ctx.id,
-                         ins.form.id,
-                         ins.shadow.id,
-                         ins.commit.id))
-      } yield taxon).gimme
+        taxonomy ← * <~ Taxonomies.create(
+                      Taxonomy(id = 0,
+                               hierarchical = taxonomyHierarchical,
+                               ctx.id,
+                               ins.form.id,
+                               ins.shadow.id,
+                               ins.commit.id))
+      } yield taxonomy).gimme
     }
 
-    val taxon: Taxon = _taxon
+    val taxonomy: Taxonomy = _taxonomy
   }
 
-  trait TermSeedBase {
-    val termAttributesBase = Map("name" → (("t" → "string") ~ ("v" → "term")))
+  trait TaxonSeedBase {
+    val taxonAttributesBase = Map("name" → (("t" → "string") ~ ("v" → "term")))
 
-    def createTerm(attributes: Map[String, Json]) = {
-      val form   = ObjectForm.fromPayload(Term.kind, attributes)
+    def createTaxon(attributes: Map[String, Json]) = {
+      val form   = ObjectForm.fromPayload(Taxon.kind, attributes)
       val shadow = ObjectShadow.fromPayload(attributes)
 
       (for {
         ins  ← * <~ ObjectUtils.insert(form, shadow)
-        term ← * <~ Terms.create(Term(0, ctx.id, ins.shadow.id, ins.form.id, ins.commit.id))
+        term ← * <~ Taxons.create(Taxon(0, ctx.id, ins.shadow.id, ins.form.id, ins.commit.id))
       } yield term).gimme
     }
 
-    def createLink(taxon: Taxon, term: Term, path: String, index: Int, position: Int) =
-      TaxonTermLinks
-        .create(TaxonTermLink(0, index, taxon.id, term.id, position, LTree(path)))
+    def createLink(taxonomy: Taxonomy, taxon: Taxon, path: String, index: Int, position: Int) =
+      TaxonomyTaxonLinks
+        .create(TaxonomyTaxonLink(0, index, taxonomy.id, taxon.id, position, LTree(path)))
         .gimme
   }
 
-  trait FlatTerms_Raw extends TermSeedBase {
-    def taxon: Taxon
+  trait FlatTaxons_Raw extends TaxonSeedBase {
+    def taxonomy: Taxonomy
 
-    val terms: Seq[Term] = createTerms(
+    val taxons: Seq[Taxon] = createTaxons(
         (1 to 2).map(i ⇒
-              termAttributesBase + ("testIdx" → (("t" → "number") ~ ("v" →
+              taxonAttributesBase + ("testIdx" → (("t" → "number") ~ ("v" →
                             i.toString)))))
 
-    val links: Seq[TaxonTermLink] = {
-      require(!taxon.hierarchical)
-      Seq(createLink(taxon, terms.head, "", 1, 0), createLink(taxon, terms(1), "", 2, 1))
+    val links: Seq[TaxonomyTaxonLink] = {
+      require(!taxonomy.hierarchical)
+      Seq(createLink(taxonomy, taxons.head, "", 1, 0), createLink(taxonomy, taxons(1), "", 2, 1))
     }
 
-    def createTerms(attributes: Seq[Map[String, Json]]): Seq[Term] =
-      attributes.map(i ⇒ createTerm(i))
+    def createTaxons(attributes: Seq[Map[String, Json]]): Seq[Taxon] =
+      attributes.map(i ⇒ createTaxon(i))
   }
 
   /*creates tree
@@ -80,22 +80,22 @@ trait TaxonomySeeds extends TestFixtureBase {
       /\  /\
      3 4 5 6
    */
-  trait HierarchicalTerms_Raw extends TermSeedBase {
-    def taxon: Taxon
+  trait HierarchicalTaxons_Raw extends TaxonSeedBase {
+    def taxonomy: Taxonomy
 
-    val terms: Seq[Term] = createTerms(
+    val taxons: Seq[Taxon] = createTaxons(
         (1 to 6).map(i ⇒
-              termAttributesBase + ("testIdx" → (("t" → "number") ~ ("v" →
+              taxonAttributesBase + ("testIdx" → (("t" → "number") ~ ("v" →
                             i.toString)))))
 
-    val links: Seq[TaxonTermLink] = {
-      require(taxon.hierarchical)
-      Seq(createLink(taxon, terms.head, "", 1, 0), createLink(taxon, terms(1), "", 2, 1)) ++
-      Seq(createLink(taxon, terms(2), "1", 3, 0), createLink(taxon, terms(3), "1", 4, 1)) ++
-      Seq(createLink(taxon, terms(4), "2", 5, 0), createLink(taxon, terms(5), "2", 6, 1))
+    val links: Seq[TaxonomyTaxonLink] = {
+      require(taxonomy.hierarchical)
+      Seq(createLink(taxonomy, taxons.head, "", 1, 0), createLink(taxonomy, taxons(1), "", 2, 1)) ++
+      Seq(createLink(taxonomy, taxons(2), "1", 3, 0), createLink(taxonomy, taxons(3), "1", 4, 1)) ++
+      Seq(createLink(taxonomy, taxons(4), "2", 5, 0), createLink(taxonomy, taxons(5), "2", 6, 1))
     }
 
-    def createTerms(attributes: Seq[Map[String, Json]]): Seq[Term] =
-      attributes.map(i ⇒ createTerm(i))
+    def createTaxons(attributes: Seq[Map[String, Json]]): Seq[Taxon] =
+      attributes.map(i ⇒ createTaxon(i))
   }
 }

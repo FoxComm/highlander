@@ -19,57 +19,56 @@ object TaxonomyRoutes {
         pathPrefix(Segment) { contextName ⇒
           adminObjectContext(contextName) { implicit context ⇒
             //POST v1/taxonomy/{contextName}
-            (post & pathEnd & entity(as[CreateTaxonPayload])) { payload ⇒
-              mutateOrFailures(TaxonomyManager.createTaxon(payload))
+            (post & pathEnd & entity(as[CreateTaxonomyPayload])) { payload ⇒
+              mutateOrFailures(TaxonomyManager.createTaxonomy(payload))
             } ~
             // v1/taxonomy/{contextName}/{taxonomyFormId}
-            pathPrefix(IntNumber) { taxonFormId ⇒
+            pathPrefix(IntNumber) { taxonomyFormId ⇒
               //GET v1/taxonomy/{contextName}/{taxonomyFormId}
               (get & pathEnd) {
                 getOrFailures {
-                  TaxonomyManager.getTaxon(taxonFormId)
+                  TaxonomyManager.getTaxonomy(taxonomyFormId)
                 }
               } ~
               //PATCH v1/taxonomy/{contextName}/{taxonomyFormId}
-              (patch & pathEnd & entity(as[UpdateTaxonPayload])) { (payload) ⇒
+              (patch & pathEnd & entity(as[UpdateTaxonomyPayload])) { (payload) ⇒
                 mutateOrFailures {
-                  TaxonomyManager.updateTaxon(taxonFormId, payload)
+                  TaxonomyManager.updateTaxonomy(taxonomyFormId, payload)
                 }
               } ~
               //DELETE v1/taxonomy/{contextName}/{taxonomyFormId}
               (delete & pathEnd) {
                 deleteOrFailures {
-                  TaxonomyManager.archiveByContextAndId(taxonFormId)
+                  TaxonomyManager.archiveByContextAndId(taxonomyFormId)
                 }
               }
             } ~
             //POST v1/taxonomy/{contextName}/{taxonomyFormId}
-            (post & pathPrefix(IntNumber) & pathEnd & entity(as[CreateTermPayload])) {
+            (post & pathPrefix(IntNumber) & pathEnd & entity(as[CreateTaxonPayload])) {
               (taxonFormId, payload) ⇒
                 mutateOrFailures {
-                  TaxonomyManager.createTerm(taxonFormId, payload)
+                  TaxonomyManager.createTaxon(taxonFormId, payload)
                 }
             } ~
-            pathPrefix("term") {
+            pathPrefix("taxon") {
               //GET v1/taxonomy/{contextName}/term/{termFormId}
-              pathPrefix(IntNumber) { termFormId ⇒
+              pathPrefix(IntNumber) { taxonFormId ⇒
                 (get & pathEnd) {
                   getOrFailures {
-                    TaxonomyManager.getTerm(termFormId)
+                    TaxonomyManager.getTaxon(taxonFormId)
                   }
-                }
-              } ~
-              //PATCH v1/taxonomy/{contextName}/term/{termFormId}
-              (patch & pathPrefix(IntNumber) & pathEnd & entity(as[UpdateTermPayload])) {
-                (termId, payload) ⇒
+                } ~
+                //PATCH v1/taxonomy/{contextName}/term/{termFormId}
+                (patch & pathEnd & entity(as[UpdateTaxonPayload])) { payload ⇒
                   mutateOrFailures {
-                    TaxonomyManager.updateTerm(termId, payload)
+                    TaxonomyManager.updateTaxon(taxonFormId, payload)
                   }
-              } ~
-              //DELETE v1/taxonomy/{contextName}/term/{termFormId}
-              (delete & pathPrefix(IntNumber) & pathEnd) { termId ⇒
-                deleteOrFailures {
-                  TaxonomyManager.archiveTermByContextAndId(termId)
+                } ~
+                //DELETE v1/taxonomy/{contextName}/term/{termFormId}
+                (delete & pathEnd) {
+                  deleteOrFailures {
+                    TaxonomyManager.archiveTaxonByContextAndId(taxonFormId)
+                  }
                 }
               }
             }

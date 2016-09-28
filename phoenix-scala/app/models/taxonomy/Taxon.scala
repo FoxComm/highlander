@@ -1,4 +1,5 @@
 package models.taxonomy
+
 import java.time.Instant
 
 import models.objects._
@@ -13,10 +14,9 @@ object Taxon {
 }
 
 case class Taxon(id: Int = 0,
-                 hierarchical: Boolean,
                  contextId: Int,
-                 formId: Int,
                  shadowId: Int,
+                 formId: Int,
                  commitId: Int,
                  updatedAt: Instant = Instant.now,
                  createdAt: Instant = Instant.now,
@@ -31,10 +31,8 @@ case class Taxon(id: Int = 0,
 
 class Taxons(tag: Tag) extends ObjectHeads[Taxon](tag, "taxons") {
 
-  def hierarchical = column[Boolean]("hierarchical")
-
   def * =
-    (id, hierarchical, contextId, formId, shadowId, commitId, updatedAt, createdAt, archivedAt) <> ((Taxon.apply _).tupled, Taxon.unapply)
+    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Taxon.apply _).tupled, Taxon.unapply)
 }
 
 object Taxons

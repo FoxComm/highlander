@@ -1,7 +1,7 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import models.taxonomy.Terms
+import models.taxonomy.{Taxons, Taxons$}
 import org.json4s.JsonDSL._
 import org.json4s._
 import payloads.TaxonomyPayloads._
@@ -16,151 +16,151 @@ class TaxonomyIntegrationTest
     with BakedFixtures
     with TaxonomySeeds {
 
-  def findTermById(terms: TermList, id: Int): Option[TermResponse.Root] =
+  def findTermById(terms: TermList, id: Int): Option[TaxonResponse.Root] =
     terms
       .find(_.id == id)
       .orElse(
           terms.map(t ⇒ findTermById(t.children, id)).find(_.isDefined).flatten
       )
 
-  def queryGetTaxon(formId: Int): TaxonResponse.Root = {
+  def queryGetTaxon(formId: Int): TaxonomyResponse.Root = {
     val response = GET(s"v1/taxonomy/${ctx.name}/$formId")
     response.status must === (StatusCodes.OK)
-    response.as[TaxonResponse.Root]
+    response.as[TaxonomyResponse.Root]
   }
 
   "GET v1/taxonomy/{contextName}/{taxonomyFormId}" - {
 
-    "gets taxon" in new Taxon_Seed {
-      val response = queryGetTaxon(taxon.formId)
-      response.id must === (taxon.formId)
+    "gets taxonomy" in new Taxonomy_Seed {
+      val response = queryGetTaxon(taxonomy.formId)
+      response.id must === (taxonomy.formId)
       response.terms mustBe empty
-      response.attributes must === (JObject(taxonAttributes.toList: _*))
+      response.attributes must === (JObject(taxonomyAttributes.toList: _*))
     }
   }
 
   "POST v1/taxonomy/{contextName}" - {
-    "creates taxon" in {
-      val payload: CreateTaxonPayload =
-        CreateTaxonPayload(Map("name" → (("t" → "string") ~ ("v" → "name"))), hierarchical = false)
+    "creates taxonomy" in {
+      val payload: CreateTaxonomyPayload =
+        CreateTaxonomyPayload(Map("name" → (("t" → "string") ~ ("v" → "name"))),
+                              hierarchical = false)
       val resp = POST(s"v1/taxonomy/${ctx.name}", payload)
       resp.status must === (StatusCodes.OK)
-      val taxonResp = resp.as[TaxonResponse.Root]
+      val taxonResp = resp.as[TaxonomyResponse.Root]
       queryGetTaxon(taxonResp.id) must === (taxonResp)
       taxonResp.attributes must === (JObject(payload.attributes.toList: _*))
       taxonResp.terms mustBe empty
     }
   }
   "PATCH v1/taxonomy/{contextName}/{taxonomyFormId}" - {
-    "updates taxon" in new Taxon_Seed {
-      val newAttributes               = taxonAttributes + ("testValue" → (("t" → "string") ~ ("v" → "test")))
-      val payload: UpdateTaxonPayload = UpdateTaxonPayload(newAttributes)
-      val resp                        = PATCH(s"v1/taxonomy/${ctx.name}/${taxon.formId}", payload)
+    "updates taxonomy" in new Taxonomy_Seed {
+      val newAttributes                  = taxonomyAttributes + ("testValue" → (("t" → "string") ~ ("v" → "test")))
+      val payload: UpdateTaxonomyPayload = UpdateTaxonomyPayload(newAttributes)
+      val resp                           = PATCH(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}", payload)
       resp.status must === (StatusCodes.OK)
-      val taxonResp = resp.as[TaxonResponse.Root]
-      taxonResp.attributes must === (JObject(payload.attributes.toList: _*))
+      val taxonomyResp = resp.as[TaxonomyResponse.Root]
+      taxonomyResp.attributes must === (JObject(payload.attributes.toList: _*))
     }
   }
 
   //TODO: "DELETE v1/taxonomy/{contextName}/{taxonomyFormId}" - {}
 
-  "GET v1/taxonomy/{contextName}/term/{termFormId}" - {}
+  "GET v1/taxonomy/{contextName}/taxon/{termFormId}" - {}
 
   "POST v1/taxonomy/{contextName}/{taxonomyFormId}" - {
-    "creates term" in new Taxon_Seed {
+    "creates term" in new Taxonomy_Seed {
       val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
-      val resp = POST(s"v1/taxonomy/${ctx.name}/${taxon.formId}",
-                      CreateTermPayload(attributes = attributes, parent = None, sibling = None))
+      val resp = POST(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}",
+                      CreateTaxonPayload(attributes = attributes, parent = None, sibling = None))
 
       resp.status must === (StatusCodes.OK)
-      val createdTerm = resp.as[TermResponse.Root]
-      createdTerm.attributes must === (JObject(attributes.toList: _*))
+      val createdTaxon = resp.as[TaxonResponse.Root]
+      createdTaxon.attributes must === (JObject(attributes.toList: _*))
 
-      val taxonTerms = queryGetTaxon(taxon.formId).terms
-      taxonTerms.size must === (1)
-      taxonTerms.head.id must === (createdTerm.id)
-      taxonTerms.head.attributes must === (createdTerm.attributes)
+      val taxons = queryGetTaxon(taxonomy.formId).terms
+      taxons.size must === (1)
+      taxons.head.id must === (createdTaxon.id)
+      taxons.head.attributes must === (createdTaxon.attributes)
     }
 
-    "creates term at position" in new FlatTerms_Baked {
+    "creates taxon at position" in new FlatTaxons_Baked {
       val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
-      val resp = POST(s"v1/taxonomy/${ctx.name}/${taxon.formId}",
-                      CreateTermPayload(attributes = attributes,
-                                        parent = None,
-                                        sibling = Some(terms.head.formId)))
+      val resp = POST(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}",
+                      CreateTaxonPayload(attributes = attributes,
+                                         parent = None,
+                                         sibling = Some(taxons.head.formId)))
 
       resp.status must === (StatusCodes.OK)
-      val createdTerm = resp.as[TermResponse.Root]
+      val createdTaxon = resp.as[TaxonResponse.Root]
 
-      val taxonTerms = queryGetTaxon(taxon.formId).terms
-      taxonTerms.map(_.id) must contain theSameElementsInOrderAs Seq(terms.head.formId,
-                                                                     createdTerm.id,
-                                                                     terms(1).formId)
+      val newTaxons = queryGetTaxon(taxonomy.formId).terms
+      newTaxons.map(_.id) must contain theSameElementsInOrderAs Seq(taxons.head.formId,
+                                                                    createdTaxon.id,
+                                                                    taxons(1).formId)
     }
 
-    "creates child term" in new HierarchyTerms_Baked {
+    "creates child taxon" in new HierarchyTaxons_Baked {
       val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
 
       val sibling  = links.filter(_.parentIndex.isDefined).head
       val parent   = links.filter(_.index == sibling.parentIndex.get).head
       val children = links.filter(link ⇒ link.parentIndex.contains(parent.index))
 
-      val siblingFormId = Terms.mustFindById404(sibling.taxonTermId).gimme.formId
-      val parentFormId  = Terms.mustFindById404(parent.taxonTermId).gimme.formId
+      val siblingFormId = Taxons.mustFindById404(sibling.taxonId).gimme.formId
+      val parentFormId  = Taxons.mustFindById404(parent.taxonId).gimme.formId
 
       val resp =
-        POST(s"v1/taxonomy/${ctx.name}/${taxon.formId}",
-             CreateTermPayload(attributes = attributes, parent = Some(parentFormId), None))
+        POST(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}",
+             CreateTaxonPayload(attributes = attributes, parent = Some(parentFormId), None))
 
       resp.status must === (StatusCodes.OK)
-      val createdTerm = resp.as[TermResponse.Root]
+      val createdTerm = resp.as[TaxonResponse.Root]
 
-      val taxonTerms     = queryGetTaxon(taxon.formId).terms
-      val responseParent = findTermById(taxonTerms, parentFormId).get
+      val newTaxons      = queryGetTaxon(taxonomy.formId).terms
+      val responseParent = findTermById(newTaxons, parentFormId).get
       responseParent.children.size must === (children.size + 1)
       responseParent.children.map(_.id) must contain(createdTerm.id)
     }
 
-    "fails if both parent and sibling are specified" in new HierarchyTerms_Baked {
+    "fails if both parent and sibling are specified" in new HierarchyTaxons_Baked {
       val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
 
       val sibling = links.filter(_.parentIndex.isDefined).head
       val parent  = links.filter(_.index == sibling.parentIndex.get).head
 
-      val siblingFormId = Terms.mustFindById404(sibling.taxonTermId).gimme.formId
-      val parentFormId  = Terms.mustFindById404(parent.taxonTermId).gimme.formId
+      val siblingFormId = Taxons.mustFindById404(sibling.taxonId).gimme.formId
+      val parentFormId  = Taxons.mustFindById404(parent.taxonId).gimme.formId
 
-      val resp = POST(s"v1/taxonomy/${ctx.name}/${taxon.formId}",
-                      CreateTermPayload(attributes = attributes,
-                                        parent = Some(parentFormId),
-                                        Some(siblingFormId)))
+      val resp = POST(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}",
+                      CreateTaxonPayload(attributes = attributes,
+                                         parent = Some(parentFormId),
+                                         Some(siblingFormId)))
 
       resp.status must === (StatusCodes.BadRequest)
     }
   }
 
-  "PATCH v1/taxonomy/{contextName}/term/{termFormId}" - {
-    "moves terms between subtrees" in new HierarchyTerms_Baked {
-      val taxonTerms = queryGetTaxon(taxon.formId).terms
+  "PATCH v1/taxonomy/{contextName}/taxon/{termFormId}" - {
+    "moves taxons between subtrees" in new HierarchyTaxons_Baked {
+      val taxonsBefore = queryGetTaxon(taxonomy.formId).terms
 
-      val List(left, right) = taxonTerms.take(2)
-      val termToMoveId      = left.children.head.id
+      val List(left, right) = taxonsBefore.take(2)
+      val taxonToMoveId     = left.children.head.id
       val newParentId       = right.id
 
-      val resp = PATCH(s"v1/taxonomy/${ctx.name}/term/$termToMoveId",
-                       UpdateTermPayload(None, Some(newParentId), None))
+      val resp = PATCH(s"v1/taxonomy/${ctx.name}/taxon/$taxonToMoveId",
+                       UpdateTaxonPayload(None, Some(newParentId), None))
       resp.status must === (StatusCodes.OK)
 
-      val taxonTermsAfter = queryGetTaxon(taxon.formId).terms
+      val taxonsAfter = queryGetTaxon(taxonomy.formId).terms
 
-      val List(leftAfter, rightAfter) = taxonTermsAfter.take(2)
+      val List(leftAfter, rightAfter) = taxonsAfter.take(2)
       leftAfter.children.size must === (left.children.size - 1)
       rightAfter.children.size must === (right.children.size + 1)
-      rightAfter.children.map(_.id) must contain(termToMoveId)
+      rightAfter.children.map(_.id) must contain(taxonToMoveId)
     }
   }
   /*
-  "PATCH v1/taxonomy/{contextName}/term/{termFormId}" - {}
   "DELETE v1/taxonomy/{contextName}/term/{termFormId}" - {}
  */
 }
