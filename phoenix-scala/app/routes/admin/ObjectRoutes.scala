@@ -13,7 +13,19 @@ object ObjectRoutes {
   def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("object" / "schemas") {
-        path(Segment) { schemaName ⇒
+        (get & pathEnd) {
+          getOrFailures {
+            ObjectSchemasManager.getAllSchemas()
+          }
+        } ~
+        pathPrefix("byKind") {
+          (get & path(Segment)) { kind ⇒
+            getOrFailures {
+              ObjectSchemasManager.getSchemasForKind(kind)
+            }
+          }
+        } ~
+        (get & pathPrefix("byName") & path(Segment)) { schemaName ⇒
           getOrFailures {
             ObjectSchemasManager.getSchema(schemaName)
           }

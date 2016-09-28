@@ -45,7 +45,7 @@ trait DiscountSeeds {
     for {
       form   ← * <~ ObjectForm(kind = Discount.kind, attributes = payload.form.attributes)
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
-      ins    ← * <~ ObjectUtils.insert(form, shadow)
+      ins    ← * <~ ObjectUtils.insert(form, shadow, schema = None)
       discount ← * <~ Discounts.create(
                     Discount(scope = LTree(au.token.scope),
                              contextId = context.id,

@@ -90,7 +90,7 @@ object SkuManager {
 
     for {
       code ← * <~ mustGetSkuCode(payload)
-      ins  ← * <~ ObjectUtils.insert(form, shadow)
+      ins  ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       sku ← * <~ Skus.create(
                Sku(scope = LTree(au.token.scope),
                    contextId = context.id,

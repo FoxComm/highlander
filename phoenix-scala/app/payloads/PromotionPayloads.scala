@@ -10,7 +10,8 @@ object PromotionPayloads {
 
   case class CreatePromotion(applyType: ApplyType,
                              attributes: Map[String, Json],
-                             discounts: Seq[CreateDiscount])
+                             discounts: Seq[CreateDiscount],
+                             schema: Option[String] = None)
 
   case class UpdatePromotion(applyType: ApplyType,
                              attributes: Map[String, Json],

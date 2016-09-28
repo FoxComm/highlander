@@ -1,20 +1,26 @@
 create table object_schemas(
     id serial primary key,
+    kind generic_string not null,
     name generic_string not null unique,
     dependencies text[] not null default '{}'::text[],
     "schema" jsonb,
     created_at generic_timestamp
 );
 
+create index object_schemas_kind_idx on object_schemas (kind);
 
 create table object_full_schemas(
     id integer primary key,
+    kind generic_string not null,
     name generic_string not null unique,
     "schema" jsonb,
     created_at generic_timestamp
 );
 
-alter table object_shadows add column schema_id integer
+create index object_full_schemas_kind_idx on object_full_schemas (kind);
+
+
+alter table object_shadows add column schema_id integer not null
     references object_full_schemas(id) on update restrict on delete restrict;
 create index object_shadows_object_schema_idx on object_shadows (schema_id);
 
@@ -55,8 +61,8 @@ begin
          end if;
       end loop;
   --
-  insert into object_full_schemas(id, "name", "schema", created_at)
-    values(new.id, new.name, new.schema || get_definitions_for_object_schema(new.name), new.created_at)
+  insert into object_full_schemas(id, kind, "name", "schema", created_at)
+    values(new.id, new.kind, new.name, new.schema || get_definitions_for_object_schema(new.name), new.created_at)
   on conflict ("name") do update
     set "schema" = new.schema || get_definitions_for_object_schema(new.name);
 

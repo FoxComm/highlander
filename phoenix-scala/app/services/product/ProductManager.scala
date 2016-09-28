@@ -51,7 +51,7 @@ object ProductManager {
 
     for {
       _   ← * <~ validateCreate(payload)
-      ins ← * <~ ObjectUtils.insert(form, shadow)
+      ins ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       product ← * <~ Products.create(
                    Product(scope = LTree(au.token.scope),
                            contextId = oc.id,

@@ -49,7 +49,7 @@ trait PromotionSeeds {
     for {
       form   ← * <~ ObjectForm(kind = Promotion.kind, attributes = payload.form.attributes)
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
-      ins    ← * <~ ObjectUtils.insert(form, shadow)
+      ins    ← * <~ ObjectUtils.insert(form, shadow, None)
       promotion ← * <~ Promotions.create(
                      Promotion(scope = LTree(au.token.scope),
                                contextId = context.id,

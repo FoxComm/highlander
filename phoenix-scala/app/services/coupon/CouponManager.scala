@@ -36,7 +36,7 @@ object CouponManager {
       _ ← * <~ Promotions
            .filterByContextAndFormId(context.id, payload.promotion)
            .mustFindOneOr(PromotionNotFoundForContext(payload.promotion, context.name))
-      ins ← * <~ ObjectUtils.insert(formAndShadow.form, formAndShadow.shadow)
+      ins ← * <~ ObjectUtils.insert(formAndShadow.form, formAndShadow.shadow, payload.schema)
       coupon ← * <~ Coupons.create(
                   Coupon(scope = LTree(au.token.scope),
                          contextId = context.id,

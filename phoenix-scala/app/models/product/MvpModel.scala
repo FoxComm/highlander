@@ -221,6 +221,13 @@ case class SimpleCompleteVariantData(variant: SimpleVariantData,
                                      variantValues: Seq[SimpleVariantValueData])
 
 object Mvp {
+
+  private def mustFindSchemaByName(name: String): DbResultT[ObjectFullSchema] = {
+    ObjectFullSchemas
+      .findOneByName(name)
+      .mustFindOr(failures.NotFoundFailure404(ObjectFullSchema, "name", name))
+  }
+
   def insertProductNewContext(oldContextId: Int, contextId: Int, p: SimpleProductData)(
       implicit db: DB,
       au: AU): DbResultT[SimpleProductData] =
@@ -305,7 +312,10 @@ object Mvp {
     for {
       productForm   ← * <~ ObjectForms.create(simpleProduct.create)
       simpleShadow  ← * <~ SimpleProductShadow(simpleProduct)
-      productShadow ← * <~ ObjectShadows.create(simpleShadow.create.copy(formId = productForm.id))
+      productSchema ← * <~ mustFindSchemaByName("product")
+      productShadow ← * <~ ObjectShadows.create(
+                         simpleShadow.create.copy(formId = productForm.id,
+                                                  schemaId = productSchema.id))
 
       productCommit ← * <~ ObjectCommits.create(
                          ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
@@ -328,10 +338,12 @@ object Mvp {
 
   def insertSku(scope: LTree, contextId: Int, s: SimpleSku): DbResultT[Sku] =
     for {
-      form    ← * <~ ObjectForms.create(s.create)
-      sShadow ← * <~ SimpleSkuShadow(s)
-      shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
-      commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
+      form      ← * <~ ObjectForms.create(s.create)
+      sShadow   ← * <~ SimpleSkuShadow(s)
+      skuSchema ← * <~ mustFindSchemaByName("sku")
+      shadow ← * <~ ObjectShadows.create(
+                  sShadow.create.copy(formId = form.id, schemaId = skuSchema.id))
+      commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       sku ← * <~ Skus.create(
                Sku(scope = scope,
                    contextId = contextId,
@@ -351,10 +363,12 @@ object Mvp {
                     v: SimpleVariant,
                     product: Product): DbResultT[SimpleVariantData] =
     for {
-      form    ← * <~ ObjectForms.create(v.create)
-      sShadow ← * <~ SimpleVariantShadow(v)
-      shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
-      commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
+      form          ← * <~ ObjectForms.create(v.create)
+      sShadow       ← * <~ SimpleVariantShadow(v)
+      variantSchema ← * <~ mustFindSchemaByName("empty")
+      shadow ← * <~ ObjectShadows.create(
+                  sShadow.create.copy(formId = form.id, schemaId = variantSchema.id))
+      commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       variant ← * <~ Variants.create(
                    Variant(scope = scope,
                            contextId = contextId,
@@ -376,10 +390,12 @@ object Mvp {
                          variantShadowId: Int,
                          variantId: Variant#Id): DbResultT[SimpleVariantValueData] =
     for {
-      form    ← * <~ ObjectForms.create(v.create)
-      sShadow ← * <~ SimpleVariantValueShadow(v)
-      shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
-      commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
+      form          ← * <~ ObjectForms.create(v.create)
+      sShadow       ← * <~ SimpleVariantValueShadow(v)
+      variantSchema ← * <~ mustFindSchemaByName("empty")
+      shadow ← * <~ ObjectShadows.create(
+                  sShadow.create.copy(formId = form.id, schemaId = variantSchema.id))
+      commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       value ← * <~ VariantValues.create(
                  VariantValue(scope = scope,
                               contextId = contextId,
@@ -426,7 +442,10 @@ object Mvp {
     for {
 
       simpleShadow  ← * <~ SimpleProductShadow(simpleProduct)
-      productShadow ← * <~ ObjectShadows.create(simpleShadow.create.copy(formId = productForm.id))
+      productSchema ← * <~ mustFindSchemaByName("product")
+      productShadow ← * <~ ObjectShadows.create(
+                         simpleShadow.create.copy(formId = productForm.id,
+                                                  schemaId = productSchema.id))
 
       productCommit ← * <~ ObjectCommits.create(
                          ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
@@ -439,7 +458,9 @@ object Mvp {
                            commitId = productCommit.id))
 
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
-      skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.copy(formId = skuForm.id))
+      skuSchema       ← * <~ mustFindSchemaByName("sku")
+      skuShadow ← * <~ ObjectShadows.create(
+                     simpleSkuShadow.create.copy(formId = skuForm.id, schemaId = skuSchema.id))
 
       skuCommit ← * <~ ObjectCommits.create(
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
@@ -465,8 +486,10 @@ object Mvp {
                              productShadow: ObjectShadow,
                              product: Product)(implicit db: DB, au: AU): DbResultT[Album] = {
     for {
+      albumSchema ← * <~ mustFindSchemaByName("album")
       albumShadow ← * <~ ObjectShadows.create(
-                       SimpleAlbumShadow(simpleAlbum).create.copy(formId = albumForm.id))
+                       SimpleAlbumShadow(simpleAlbum).create
+                         .copy(formId = albumForm.id, schemaId = albumSchema.id))
       albumCommit ← * <~ ObjectCommits.create(
                        ObjectCommit(formId = albumForm.id, shadowId = albumShadow.id))
 
