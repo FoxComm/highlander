@@ -49,6 +49,7 @@ export const frn = {
   },
   user: {
     customer: 'frn:usr:customer',
+    customerDetails: 'frn:usr:customer-details',
     customerCart: 'frn:usr:customer-cart',
     customerGroup: 'frn:usr:customer-group',
     customerTransaction: 'frn:usr:customer-transaction',
