@@ -71,7 +71,6 @@ export function superAdmin(): Claims {
 export function merchant(): Claims {
   return {
     ...readAction(frn.pim.product),
-    ...readAction(frn.pim.sku),
     ...readAction(frn.pim.album),
     ...readAction(frn.mdl.summary),
     ...readAction(frn.oms.order),
