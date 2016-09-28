@@ -48,20 +48,20 @@ function applicationSucceeded(state: State, payload: Object): State {
 }
 
 function businessProfileSucceeded(state: State, payload: Object): State {
-  const application = payload.business_profile || payload;
-  return { ...state, application };
+  const businessProfile = payload.business_profile || payload;
+  return { ...state, businessProfile };
 }
 
 function socialProfileSucceeded(state: State, payload: Object): State {
-  const application = payload.social_profile || payload;
-  return { ...state, application };
+  const socialProfile = payload.social_profile || payload;
+  return { ...state, socialProfile };
 }
 
 const reducer = createReducer({
   [_getApplication.succeeded]: applicationSucceeded,
   [_approveApplication.succeeded]: applicationSucceeded,
-  [_getBusinessProfile.succeeded]: (state) => businessProfileSucceeded,
-  [_getSocialProfile.succeeded]: (state) => socialProfileSucceeded,
+  [_getBusinessProfile.succeeded]: businessProfileSucceeded,
+  [_getSocialProfile.succeeded]: socialProfileSucceeded,
 }, initialState);
 
 export default reducer;
