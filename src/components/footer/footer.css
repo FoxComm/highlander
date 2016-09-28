@@ -95,7 +95,7 @@
   }
 }
 
-@media (--large-viewport-up) {
+@media (--large) {
   .wrap {
     display: flex;
   }

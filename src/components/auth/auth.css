@@ -93,7 +93,7 @@
   color: var(--blackish);
 }
 
-@media (--small-viewport) {
+@media (--small-only) {
   .auth-block {
     lost-column: 1/1;
     margin-top: 10px;
@@ -130,14 +130,14 @@
   }
 }
 
-@media (--medium-viewport) {
+@media (--medium-only) {
   .auth-block {
     lost-column: 5/11;
     lost-offset: -3/11;
   }
 }
 
-@media (--medium-viewport-up) {
+@media (--medium) {
   .link,
   .restore-link {
     text-decoration: none;

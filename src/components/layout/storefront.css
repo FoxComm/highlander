@@ -24,7 +24,7 @@
   display: none;
 }
 
-@media (--small-viewport) {
+@media (--small-only) {
   .categories {
     display: none;
   }

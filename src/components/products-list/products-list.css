@@ -27,7 +27,7 @@
   white-space: nowrap;
 }
 
-@media (--x-large-viewport-up) {
+@media (--x-large) {
   .header-wrap {
     lost-offset: -1/11;
   }
@@ -97,7 +97,7 @@
   width: 100%;
 }
 
-@media (--small-viewport) {
+@media (--small-only) {
   .list {
     justify-content: space-between;
   }

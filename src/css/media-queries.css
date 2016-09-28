@@ -1,13 +1,13 @@
+/* Small screens */
+@custom-media --small-only only screen and (max-width: 47.9375em); /* max-width 767px, mobile-only styles, use when QAing mobile issues */
 
-@custom-media --x-large-viewport (min-device-width: 1441px), (min-width: 1441px) and (max-resolution: 1dppx);
-@custom-media --x-large-viewport-up (width >= 1441px) and (max-resolution: 1dppx),
-                                    (device-width >= 1441px) and (width >= 1441px) and (min-resolution: 2dppx);
-@custom-media --large-viewport (device-width >= 1280px) and (device-width <= 1440px),
-                                (width >= 1280px) and (width <= 1440px)  and (max-resolution: 1dppx);
-@custom-media --large-viewport-up (width >= 1280px) and (max-resolution: 1dppx),
-                                   (device-width >= 1280px) and (width >= 1280px) and (min-resolution: 2dppx);
-@custom-media --medium-viewport (device-width > 767px) and (device-width <= 1279px),
-                                (width > 767px) and (width <= 1279px)  and (max-resolution: 1dppx);
-@custom-media --medium-viewport-up (width > 767px) and (max-resolution: 1dppx),
-                                   (device-width > 767px) and (width > 767px) and (min-resolution: 2dppx);
-@custom-media --small-viewport (max-device-width: 767px), (max-width: 767px)  and (max-resolution: 1dppx);
+/* Medium screens */
+@custom-media --medium only screen and (min-width: 48em); /* min-width 768px, medium screens */
+@custom-media --medium-only only screen and (min-width: 48em) and (max-width: 79.9375em); /* min-width 768px and max-width 1279px, use when QAing tablet-only issues */
+
+/* Large screens */
+@custom-media --large only screen and (min-width: 80em); /* min-width 1280px, large screens */
+@custom-media --large-only only screen and (min-width: 80em) and (max-width: 90em); /* min-width 1280px and max-width 1440px, use when QAing large screen-only issues */
+
+/* XLarge screens */
+@custom-media --x-large only screen and (min-width: 90.063em); /* min-width 1441px, xlarge screens */

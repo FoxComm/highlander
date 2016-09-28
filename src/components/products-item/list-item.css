@@ -45,13 +45,13 @@
   font-weight: 300;
 }
 
-@media (--medium-viewport) {
+@media (--medium-only) {
   .list-item {
     margin-bottom: 20px;
   }
 }
 
-@media (--small-viewport) {
+@media (--small-only) {
   .list-item {
     width: 48%;
     margin-bottom: 20px;

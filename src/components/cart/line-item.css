@@ -60,7 +60,7 @@
   }
 }
 
-@media (--medium-viewport-up) {
+@media (--medium) {
   .container {
     display: flex;
     flex-direction: row;

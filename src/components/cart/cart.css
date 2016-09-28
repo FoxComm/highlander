@@ -142,7 +142,7 @@
   margin-right: 20px;
 }
 
-@media (--medium-viewport) {
+@media (--medium-only) {
   .cart-box {
     lost-column: 7/11;
   }

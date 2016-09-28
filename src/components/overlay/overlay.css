@@ -43,7 +43,7 @@
   height: 17px;
 }
 
-@media (--medium-viewport-up) {
+@media (--medium) {
   .close-button {
     right: 2%;
   }
@@ -55,7 +55,7 @@
   }
 }
 
-@media (--small-viewport) {
+@media (--small-only) {
   .close-icon {
     stroke-width: 3px;
   }

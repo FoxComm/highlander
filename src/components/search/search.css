@@ -91,7 +91,7 @@
   fill: var(--whitish);
 }
 
-@media (--small-viewport) {
+@media (--small-only) {
   .search-input,
   .search-expanded .search-input {
     font-size: 16px;

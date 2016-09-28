@@ -213,7 +213,7 @@
   text-transform: uppercase;
 }
 
-@media (--medium-viewport) {
+@media (--medium-only) {
   .checkout {
     margin-top: 10px;
   }
