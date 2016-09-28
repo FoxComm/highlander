@@ -4,13 +4,12 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
-import failures.NotFoundFailure404
 import failures.CustomerFailures._
+import failures.NotFoundFailure404
 import models.StoreAdmin
 import models.cord.{OrderShippingAddresses, Orders}
 import models.customer.Customers.scope._
-import models.customer.{Customer, Customers}
-import models.customer.{CustomerPasswordResets, CustomerPasswordReset}
+import models.customer._
 import models.location.Addresses
 import models.shipping.Shipments
 import payloads.CustomerPayloads._
@@ -103,8 +102,7 @@ object CustomerManager {
                  .one
                  .map(_.flatten)
                  .toXor
-      shipment ← * <~ (if (default.isEmpty) resolveFromShipments(customerId)
-                       else DbResultT.good(default))
+      shipment ← * <~ doOrGood(default.isEmpty, resolveFromShipments(customerId), default)
     } yield shipment
   }
 
@@ -116,8 +114,7 @@ object CustomerManager {
                    .mustFindOneOr(NotFoundFailure404(Customer, id))
       (customer, shipRegion, billRegion, rank) = customers
       maxOrdersDate ← * <~ Orders.filter(_.customerId === id).map(_.placedAt).max.result
-      phoneOverride ← * <~ (if (customer.phoneNumber.isEmpty) resolvePhoneNumber(id)
-                            else DbResultT.good(None))
+      phoneOverride ← * <~ doOrGood(customer.phoneNumber.isEmpty, resolvePhoneNumber(id), None)
     } yield
       build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
             shipRegion,
@@ -130,9 +127,8 @@ object CustomerManager {
              admin: Option[StoreAdmin] = None)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
       customer ← * <~ Customer.buildFromPayload(payload).validate
-      _ ← * <~ (if (!payload.isGuest.getOrElse(false))
-                  Customers.createEmailMustBeUnique(customer.email)
-                else DbResultT.unit)
+      _ ← * <~ doOrMeh(!payload.isGuest.getOrElse(false),
+                       Customers.createEmailMustBeUnique(customer.email))
       updated ← * <~ Customers.create(customer)
       response = build(updated)
       _ ← * <~ LogActivity.customerCreated(response, admin)

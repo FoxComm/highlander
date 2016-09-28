@@ -28,8 +28,7 @@ object OrderStateUpdater {
       _        ← * <~ updateQueries(admin, Seq(refNum), newState)
       updated  ← * <~ Orders.mustFindByRefNum(refNum)
       response ← * <~ OrderResponse.fromOrder(updated)
-      _ ← * <~ (if (order.state == newState) DbResultT.unit
-                else orderStateChanged(admin, response, order.state))
+      _        ← * <~ doOrMeh(order.state != newState, orderStateChanged(admin, response, order.state))
     } yield response
 
   def updateStates(admin: StoreAdmin,
