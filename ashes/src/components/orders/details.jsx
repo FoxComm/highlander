@@ -14,6 +14,10 @@ import DiscountsPanel from 'components/discounts-panel/discounts-panel';
 import OrderCoupons from './order-coupons';
 import Watchers from '../watchers/watchers';
 
+// helpers
+import { getClaims, isPermitted } from 'lib/claims';
+import { frn, readAction } from 'lib/frn';
+
 import type { Order } from 'paragons/order';
 
 type Props = {
@@ -22,8 +26,20 @@ type Props = {
   },
 };
 
+const transactionClaims = readAction(frn.user.customerTransaction);
+const adminClaims = readAction(frn.settings.user);
+
 const OrderDetails = (props: Props): Element => {
   const { order } = props.details;
+  const actualClaims = getClaims();
+
+  const payments = isPermitted(transactionClaims, actualClaims)
+    ? <Payments {...props} />
+    : null;
+
+  const watchers = isPermitted(adminClaims, actualClaims)
+    ? <Watchers entity={{entityId: order.referenceNumber, entityType: 'orders'}} />
+    : null;
 
   return (
     <div className="fc-order-details">
@@ -34,12 +50,12 @@ const OrderDetails = (props: Props): Element => {
           <OrderShippingAddress isCart={false} order={order} />
           <OrderShippingMethod isCart={false} order={order} />
           <OrderCoupons isCart={false} order={order} />
-          <Payments {...props} />
+          {payments}
         </div>
         <div className="fc-order-details-aside">
           <TotalsSummary entity={order} title={order.title} />
           <CustomerCard customer={order.customer} />
-          <Watchers entity={{entityId: order.referenceNumber, entityType: 'orders'}} />
+          {watchers}
         </div>
       </div>
     </div>
