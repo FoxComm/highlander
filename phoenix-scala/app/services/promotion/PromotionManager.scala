@@ -30,7 +30,7 @@ object PromotionManager {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
-      ins ← * <~ ObjectUtils.insert(formAndShadow)
+      ins ← * <~ ObjectUtils.insert(formAndShadow, payload.schema)
       promotion ← * <~ Promotions.create(
                      Promotion(scope = LTree(au.token.scope),
                                contextId = context.id,

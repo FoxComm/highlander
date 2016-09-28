@@ -29,6 +29,9 @@ object NotFoundFailure404 {
     NotFoundFailure404(s"${friendlyClassName(a)} with ${searchTerm(a)}=$searchKey not found")
   }
 
+  def apply[A](a: A, searchTerm: String, searchKey: Any): NotFoundFailure404 =
+    NotFoundFailure404(s"${friendlyClassName(a)} with $searchTerm=$searchKey not found")
+
   def apply(className: String, searchTerm: String, searchKey: Any): NotFoundFailure404 = {
     NotFoundFailure404(s"$className with $searchTerm=$searchKey not found")
   }

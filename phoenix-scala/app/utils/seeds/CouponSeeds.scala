@@ -44,7 +44,7 @@ trait CouponSeeds {
       // Create coupon
       form   ← * <~ ObjectForm(kind = Coupon.kind, attributes = payload.form.attributes)
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
-      ins    ← * <~ ObjectUtils.insert(form, shadow)
+      ins    ← * <~ ObjectUtils.insert(form, shadow, None)
       coupon ← * <~ Coupons.create(
                   Coupon(scope = LTree(au.token.scope),
                          contextId = context.id,

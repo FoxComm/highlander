@@ -9,6 +9,7 @@ import org.json4s.JsonAST.{JField, JNothing, JObject, JString}
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 import utils.IlluminateAlgorithm
+import services.objects.ObjectSchemasManager
 import utils.aliases._
 import utils.db._
 
@@ -93,17 +94,20 @@ object ObjectUtils {
   case class InsertResult(form: ObjectForm, shadow: ObjectShadow, commit: ObjectCommit)
       extends FormAndShadow
 
-  def insert(formAndShadow: FormAndShadow)(implicit ec: EC): DbResultT[InsertResult] =
-    insert(formProto = formAndShadow.form, shadowProto = formAndShadow.shadow)
+  def insert(formAndShadow: FormAndShadow, schema: Option[String])(
+      implicit ec: EC): DbResultT[InsertResult] =
+    insert(formProto = formAndShadow.form, shadowProto = formAndShadow.shadow, schema = schema)
 
-  def insert(formProto: ObjectForm, shadowProto: ObjectShadow)(
+  def insert(formProto: ObjectForm, shadowProto: ObjectShadow, schema: Option[String])(
       implicit ec: EC): DbResultT[InsertResult] = {
     val n = ObjectUtils.newFormAndShadow(formProto.attributes, shadowProto.attributes)
 
     for {
       //Make sure form is correct and shadow links are correct
+      schema ← * <~ ObjectSchemasManager.getSchemaByOptNameOrKind(schema, formProto.kind)
       form   ← * <~ ObjectForms.create(formProto.copy(attributes = n.form))
-      shadow ← * <~ ObjectShadows.create(shadowProto.copy(formId = form.id, attributes = n.shadow))
+      shadow ← * <~ ObjectShadows.create(
+                  shadowProto.copy(formId = form.id, attributes = n.shadow, schemaId = schema.id))
       commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
     } yield InsertResult(form, shadow, commit)
   }
@@ -112,7 +116,7 @@ object ObjectUtils {
       proto: FormAndShadow,
       updateHead: (InsertResult) ⇒ DbResultT[H])(implicit ec: EC): DbResultT[FullObject[H]] =
     for {
-      insert ← * <~ insert(proto.form, proto.shadow)
+      insert ← * <~ insert(proto.form, proto.shadow, None)
       head   ← * <~ updateHead(insert)
     } yield FullObject[H](head, insert.form, insert.shadow)
 
@@ -191,7 +195,9 @@ object ObjectUtils {
                   old.form,
                   old.form.copy(attributes = newFormAttributes, updatedAt = Instant.now))
         shadow ← * <~ ObjectShadows.create(
-                    ObjectShadow(formId = form.id, attributes = newShadowAttributes))
+                    ObjectShadow(formId = form.id,
+                                 attributes = newShadowAttributes,
+                                 schemaId = old.shadow.schemaId))
         _ ← * <~ validateShadow(form, shadow)
       } yield UpdateResult(form, shadow, updated = true)
     else DbResultT.pure(UpdateResult(old.form, old.shadow, updated = false))

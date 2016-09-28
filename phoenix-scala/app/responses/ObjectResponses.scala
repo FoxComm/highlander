@@ -41,4 +41,12 @@ object ObjectResponses {
     def build(s: IlluminatedObject): Root =
       Root(id = s.id, attributes = s.attributes)
   }
+
+  object ObjectSchemaResponse {
+    case class Root(name: String, kind: String, schema: Json)
+
+    def build(s: ObjectFullSchema): Root =
+      Root(name = s.name, kind = s.kind, schema = s.schema)
+
+  }
 }

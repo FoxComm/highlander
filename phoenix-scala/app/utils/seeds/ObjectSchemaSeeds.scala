@@ -12,6 +12,9 @@ trait ObjectSchemaSeeds {
 
   def createObjectSchemas: DbResultT[ObjectSchema] =
     for {
+      empty     ← * <~ ObjectSchemas.create(getSchema("empty"))
+      _         ← * <~ ObjectSchemas.create(getSchema("album"))
+      _         ← * <~ ObjectSchemas.create(getSchema("image"))
       price     ← * <~ ObjectSchemas.create(getSchema("price"))
       sku       ← * <~ ObjectSchemas.create(getSchema("sku"))
       coupon    ← * <~ ObjectSchemas.create(getSchema("coupon"))
@@ -28,7 +31,7 @@ trait ObjectSchemaSeeds {
   def getSchema(name: String): ObjectSchema = {
     val schema       = loadJson(s"/object_schemas/$name.json")
     val dependencies = getDependencies(schema).toList
-    ObjectSchema(name = name, dependencies = dependencies, schema = schema)
+    ObjectSchema(kind = name, name = name, dependencies = dependencies, schema = schema)
   }
 
   private def getDependencies(schema: JValue): Set[String] = {
