@@ -1,0 +1,18 @@
+.body {
+  background: #f7f7f7;
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #d9d9d9;
+}
+
+.header {
+  font-weight: 600;
+  line-height: 24px;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.select-control {
+  width: 100%;
+  max-width: 100%;
+}
