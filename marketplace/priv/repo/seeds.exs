@@ -26,7 +26,7 @@ merchant_applications = for merchant_name <- merchant_names do
   Repo.insert! %MerchantApplication{
     business_name: merchant_name,
     email_address: "donkey@donque.com",
-    phoen_number: "1234567890",
+    phone_number: "1234567890",
     site_url: "http://site.com",
     state: "new"
   }
