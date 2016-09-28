@@ -12,7 +12,8 @@ defmodule Marketplace.MerchantApplicationView do
       business_name: merchant_application.business_name,
       email_address: merchant_application.email_address,
       description: merchant_application.description,
-      state: merchant_application.state}
+      state: merchant_application.state,
+      site_url: merchant_application.site_url}
   end
 
   def render("ma_with_merchant.json", %{merchant_application: merchant_application}) do
@@ -25,6 +26,7 @@ defmodule Marketplace.MerchantApplicationView do
         email_address: merchant_application.email_address,
         description: merchant_application.description,
         state: merchant_application.state, 
+        site_url: merchant_application.site_url,
         merchant: %{
           id: merchant_application.merchant.id,
           name: merchant_application.merchant.name,
