@@ -5,27 +5,25 @@
   height: 100%;
   display: flex;
   align-items: center;
-  padding-left: var(--grid-margin);
-  padding-right: var(--grid-margin);
 }
 
-@media (--x-large) {
+@media (--small-only) {
   .wrap {
-    lost-column: 9/11;
-    lost-offset: -1/11;
+    padding-left: var(--grid-margin);
+    padding-right: var(--grid-margin);
   }
 }
 
-@media (--large-only) {
+@media (--medium-only) {
   .inner-wrap {
-    lost-column: 9/11;
-    lost-offset: -1/11;
+    lost-column: 10/12;
+    lost-offset: -1/12;
   }
 }
 
-@media (--x-large) {
+@media (--large) {
   .inner-wrap {
-    lost-column: 7/11;
-    lost-offset: -2/11;
+    lost-column: 8/12;
+    lost-offset: -2/12;
   }
 }
