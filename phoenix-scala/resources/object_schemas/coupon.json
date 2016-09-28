@@ -32,6 +32,14 @@
             "usesPerCustomer": "integer",
             "isUnlimitedPerCustomer": "boolean"
           }
+        },
+        "activeFrom": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "activeTo": {
+          "type": ["string", "null"],
+          "format": "date-time"
         }
       },
       "required": ["name", "storefrontName"]
