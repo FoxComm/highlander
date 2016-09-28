@@ -35,6 +35,20 @@ package object db {
 
   def liftFuture[A](future: Future[A]): DBIO[A] = DBIO.from(future)
 
+  def doOrMeh(condition: Boolean, action: DbResultT[_])(implicit ec: EC): DbResultT[Unit] =
+    if (condition) action.ignoreResult else DbResultT.unit
+
+  def doOrGood[A](condition: Boolean, action: DbResultT[A], good: A)(
+      implicit ec: EC): DbResultT[A] =
+    if (condition) action else DbResultT.good(good)
+
+  def doOrFail[A](condition: Boolean, action: DbResultT[A], failure: Failure)(
+      implicit ec: EC): DbResultT[A] =
+    if (condition) action else DbResultT.failure[A](failure)
+
+  def failIf(condition: Boolean, failure: Failure)(implicit ec: EC): DbResultT[Unit] =
+    if (condition) DbResultT.failure[Unit](failure) else DbResultT.unit
+
   implicit class EnrichedSQLActionBuilder(val action: SQLActionBuilder) extends AnyVal {
     def stripMargin: SQLActionBuilder =
       action.copy(action.queryParts.map(_.asInstanceOf[String].stripMargin))

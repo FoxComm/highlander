@@ -2,8 +2,8 @@ package services.tree
 
 import cats.data._
 import com.github.tminglei.slickpg.LTree
-import failures.DatabaseFailure
-import failures.TreeFailures._
+import failures.{DatabaseFailure, Failures}
+import failures.TreeFailures.{TreeNotFound, _}
 import models.objects._
 import models.tree._
 import payloads.GenericTreePayloads._
@@ -33,9 +33,8 @@ object TreeManager {
       ltreePath = path.map(LTree.apply)
       deleted ← * <~ GenericTreeNodes.findNodes(tree.id, ltreePath).delete
       //subtree should exist
-      _ ← * <~ (if (ltreePath.isDefined && deleted == 0)
-                  DbResultT.failure(TreeNotFound(treeName, contextName, path.get))
-                else DbResultT.unit)
+      _ ← * <~ failIf(ltreePath.isDefined && deleted == 0,
+                      TreeNotFound(treeName, contextName, path.getOrElse("<empty>")))
       usedIndexes ← * <~ GenericTreeNodes.getUsedIndexes(tree.id).result
       (dbTree, _) = payloadToDbTree(tree.id,
                                     newTree,
@@ -68,7 +67,7 @@ object TreeManager {
 
   def editNode(treeName: String, contextName: String, path: String, newValues: NodeValuesPayload)(
       implicit ec: EC,
-      db: DB) =
+      db: DB): DbResultT[Root] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       tree    ← * <~ getByNameAndContext(treeName, context)
@@ -80,7 +79,8 @@ object TreeManager {
       result ← * <~ getFullTree(treeName, context)
     } yield result
 
-  def getByNameAndContext(name: String, context: ObjectContext)(implicit ec: EC) =
+  def getByNameAndContext(name: String, context: ObjectContext)(
+      implicit ec: EC): DbResultT[GenericTree] =
     GenericTrees
       .filterByNameAndContext(name, context.id)
       .mustFindOneOr(TreeNotFound(name, context.name))
@@ -92,23 +92,24 @@ object TreeManager {
       nodes         ← * <~ GenericTreeNodes.findNodes(tree.id).result
       maybeResponse ← * <~ TreeResponse.build(tree, nodes)
       response      ← * <~ Xor.fromOption(maybeResponse, TreeNotFound(treeName, context.name).single)
-      fullTreeResponse = build(
-          response,
-          /*TODO: replace this with values returned by objectService when object service be implemented*/ List(
-              ))
+      // TODO: replace this with values returned by objectService when object service be implemented
+      fullTreeResponse = build(response, List())
     } yield fullTreeResponse
 
   private def getOrCreateDbTree(
       treeName: String,
       context: ObjectContext,
-      createIfNotFound: Boolean = false)(implicit ec: EC, db: DB): DbResultT[GenericTree] =
+      createIfNotFound: Boolean = false)(implicit ec: EC, db: DB): DbResultT[GenericTree] = {
+
+    val ifEmptyAction: DbResultT[GenericTree] =
+      if (createIfNotFound) GenericTrees.create(GenericTree(0, treeName, context.id))
+      else DbResultT.failure[GenericTree](TreeNotFound(treeName, context.name))
+
     for {
-      maybeTree ← * <~ GenericTrees.filterByNameAndContext(treeName, context.id).result
-      ifEmptyAction = if (createIfNotFound)
-        GenericTrees.create(GenericTree(0, treeName, context.id))
-      else DbResultT.failure(TreeNotFound(treeName, context.name))
-      tree ← * <~ (if (maybeTree.isEmpty) ifEmptyAction else DbResultT.good(maybeTree.head))
+      maybeTree ← * <~ GenericTrees.filterByNameAndContext(treeName, context.id).one
+      tree      ← * <~ maybeTree.fold(ifEmptyAction)(tree ⇒ DbResultT.good(tree))
     } yield tree
+  }
 
   private def moveNode(treeId: Int, parentIndex: Int, childNode: GenericTreeNode)(
       implicit ec: EC,
