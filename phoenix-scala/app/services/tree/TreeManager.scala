@@ -3,7 +3,7 @@ package services.tree
 import cats.data._
 import com.github.tminglei.slickpg.LTree
 import failures.DatabaseFailure
-import failures.TreeFailures._
+import failures.TreeFailures.{TreeNotFound, _}
 import models.objects._
 import models.tree._
 import payloads.GenericTreePayloads._
@@ -33,9 +33,8 @@ object TreeManager {
       ltreePath = path.map(LTree.apply)
       deleted ← * <~ GenericTreeNodes.findNodes(tree.id, ltreePath).delete
       //subtree should exist
-      _ ← * <~ (if (ltreePath.isDefined && deleted == 0)
-                  DbResultT.failure(TreeNotFound(treeName, contextName, path.get))
-                else DbResultT.unit)
+      _ ← * <~ failIf(ltreePath.isDefined && deleted == 0,
+                      TreeNotFound(treeName, contextName, path.get))
       usedIndexes ← * <~ GenericTreeNodes.getUsedIndexes(tree.id).result
       (dbTree, _) = payloadToDbTree(tree.id,
                                     newTree,
@@ -101,14 +100,15 @@ object TreeManager {
   private def getOrCreateDbTree(
       treeName: String,
       context: ObjectContext,
-      createIfNotFound: Boolean = false)(implicit ec: EC, db: DB): DbResultT[GenericTree] =
+      createIfNotFound: Boolean = false)(implicit ec: EC, db: DB): DbResultT[GenericTree] = {
+    val ifEmptyAction: DbResultT[GenericTree] =
+      if (createIfNotFound) GenericTrees.create(GenericTree(0, treeName, context.id))
+      else DbResultT.failure(TreeNotFound(treeName, context.name))
     for {
       maybeTree ← * <~ GenericTrees.filterByNameAndContext(treeName, context.id).result
-      ifEmptyAction = if (createIfNotFound)
-        GenericTrees.create(GenericTree(0, treeName, context.id))
-      else DbResultT.failure(TreeNotFound(treeName, context.name))
-      tree ← * <~ (if (maybeTree.isEmpty) ifEmptyAction else DbResultT.good(maybeTree.head))
+      tree      ← * <~ doOrGood(maybeTree.isEmpty, ifEmptyAction, maybeTree.head)
     } yield tree
+  }
 
   private def moveNode(treeId: Int, parentIndex: Int, childNode: GenericTreeNode)(
       implicit ec: EC,
