@@ -24,7 +24,7 @@ defmodule Marketplace.MerchantAccount do
   def changeset(model, params \\ :empty) do
     model 
     |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
+    |> validate_required_code(@required_fields)
     |> validate_phone_number(:phone_number)
     |> validate_email(:email_address)
   end
@@ -32,7 +32,7 @@ defmodule Marketplace.MerchantAccount do
   def update_changeset(model, params \\ :empty) do
     model 
     |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
+    |> validate_required_code(@required_fields)
     |> validate_phone_number(:phone_number)
     |> validate_email(:email_address)
   end

@@ -28,26 +28,26 @@ defmodule Marketplace.LegalProfile do
   def changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
+    |> validate_required_code(@required_fields)
     |> validate_routing_number(:bank_routing_number)
     |> validate_postal(:legal_entity_postal)
     |> validate_ssn_trailing_four(:representative_ssn_trailing_four)
-    |> validate_date_number(:business_founded_day)
-    |> validate_date_number(:business_founded_month)
-    |> validate_date_number(:business_founded_year)
+    |> validate_day_number(:business_founded_day)
+    |> validate_month_number(:business_founded_month)
+    |> validate_year_number(:business_founded_year)
     |> validate_US_state(:legal_entity_state)
   end
 
   def update_changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
+    |> validate_required_code(@required_fields)
     |> validate_routing_number(:bank_routing_number)
     |> validate_postal(:legal_entity_postal)
     |> validate_ssn_trailing_four(:representative_ssn_trailing_four)
-    |> validate_date_number(:business_founded_day)
-    |> validate_date_number(:business_founded_month)
-    |> validate_date_number(:business_founded_year)
+    |> validate_day_number(:business_founded_day)
+    |> validate_month_number(:business_founded_month)
+    |> validate_year_number(:business_founded_year)
     |> validate_US_state(:legal_entity_state)
   end
 end

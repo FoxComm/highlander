@@ -17,14 +17,14 @@ defmodule Marketplace.SocialProfile do
   def changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
+    |> validate_required_code(@required_fields)
     |> validate_uri(:facebook_url)
   end
 
   def update_changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
+    |> validate_required_code(@required_fields)
     |> validate_uri(:facebook_url)
   end
 end
