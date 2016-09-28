@@ -1,5 +1,6 @@
 defmodule Marketplace.BusinessProfile do 
   use Marketplace.Web, :model
+  import Marketplace.Validation
 
   schema "business_profiles" do
     field :monthly_sales_volume, :integer
@@ -15,13 +16,13 @@ defmodule Marketplace.BusinessProfile do
   def changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
+    |> validate_required_code(@required_fields)
   end
 
   def update_changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
+    |> validate_required_code(@required_fields)
 
   end
 

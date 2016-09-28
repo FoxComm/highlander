@@ -39,10 +39,6 @@ defmodule Marketplace.Validation do
     validate_format_code(changeset, field, ~r/^\d{5}(-\d{4})?$/, "postal")
   end
 
-  def validate_date_number(changeset, field) do
-    validate_format_code(changeset, field, ~r/^\d{1,2}$/, "day")
-  end
-
   def validate_day_number(changeset, field) do
     validate_format_code(changeset, field, ~r/^\d{1,2}$/, "day")
   end
@@ -55,4 +51,11 @@ defmodule Marketplace.Validation do
     validate_format_code(changeset, field, ~r/^\d{4}$/, "year")
   end
 
+  def validate_required_code(changeset, fields) do
+    validate_required(changeset, fields, message: "validate.required")
+  end
+
+  def validate_inclusion_code(changeset, field, list) do
+    validate_inclusion(changeset, field, list, message: "validate.inclusion")
+  end
 end

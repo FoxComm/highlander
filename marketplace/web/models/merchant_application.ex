@@ -28,21 +28,21 @@ defmodule Marketplace.MerchantApplication do
   def changeset(model, params \\ :empty) do
     model 
     |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
+    |> validate_required_code(@required_fields)
     |> validate_phone_number(:phone_number)
     |> validate_uri(:site_url)
     |> validate_email(:email_address)
-    |> validate_inclusion(:state, @states)
+    |> validate_inclusion_code(:state, @states)
   end
 
   def update_changeset(model, params \\ :empty) do
     model 
     |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
+    |> validate_required_code(@required_fields)
     |> validate_phone_number(:phone_number)
     |> validate_uri(:site_url)
     |> validate_email(:email_address)
-    |> validate_inclusion(:state, @states)
+    |> validate_inclusion_code(:state, @states)
   end
 
 end

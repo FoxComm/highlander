@@ -23,7 +23,7 @@ defmodule Marketplace.MerchantAddress do
   def changeset(model, params \\ :empty) do
     model 
     |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
+    |> validate_required_code(@required_fields)
     |> validate_phone_number(:phone_number)
     |> validate_postal(:zip)
     |> validate_US_state(:state)
