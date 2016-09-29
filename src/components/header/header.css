@@ -51,6 +51,7 @@
   .hamburger {
     & :global(.icon) {
       cursor: pointer;
+      stroke: var(--blackish);
     }
   }
 }

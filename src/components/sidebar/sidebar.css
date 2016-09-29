@@ -1,3 +1,4 @@
+@import "media-queries.css";
 @import "colors.css";
 
 .overlay {
@@ -13,15 +14,26 @@
 }
 
 .container {
+  position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
-  width: 280px;
-  position: fixed;
-  background: var(--blackish);
+  background: #3E3436;;
   color: var(--whitish);
   transform: translateX(-100%);
   transition: transform .2s;
+}
+
+@media (--small-only) {
+  .container {
+    lost-column: 10/12;
+  }
+}
+
+@media (--medium-only) {
+  .container {
+    lost-column: 7/12;
+  }
 }
 
 .sidebar-shown .overlay {
@@ -36,21 +48,16 @@
 .controls {
   margin: 20px 10px;
   color: var(--whitish);
+  font-size: 15px;
+  font-weight: 300;
 }
 
-.close-button {
-  color: var(--whitish);
-  text-decoration: none;
-  margin-left: 10px;
-  stroke: var(--whitish);
+.controls-search {
+  margin-top: 30px;
+  margin-bottom: 20px;
 
-  & :global(.icon) {
-    stroke-width: 3;
-    cursor: pointer;
-
-    &:hover {
-      opacity: .7;
-    }
+  & :global(.icon__cnt) {
+    fill: var(--lightest-blackish);
   }
 }
 
@@ -60,19 +67,22 @@
 }
 
 .controls-session {
-  margin-top: 32px;
-}
-
-.controls-search {
-  margin-top: 16px;
-
-  & :global(.icon__cnt) {
-    fill: var(--lightest-blackish);
-  }
+  line-height: 40px;
 }
 
 .session-link {
   color: var(--whitish);
   text-decoration: none;
-  cursor: pointer;
+}
+
+.close-button {
+  color: var(--whitish);
+  text-decoration: none;
+  margin-left: 10px;
+  stroke: var(--whitish);
+
+  & :global(.icon) {
+    stroke-width: 1;
+    cursor: pointer;
+  }
 }
