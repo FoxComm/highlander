@@ -86,7 +86,7 @@ object Dependencies {
 
   val misc = Seq(
     "com.wix"               %% "accord-core"            % "0.5", // Validation
-    "com.github.fge"        % "json-schema-validator"   % "2.2.6",
+    "com.networknt"         % "json-schema-validator"   % "0.1.1",
     "com.github.scopt"      %% "scopt"                  % "3.5.0", // CLI args
     ("org.joda"             % "joda-money"              % "0.11").exclude("org.joda", "joda-time"),
     "com.chuusai"           %% "shapeless"              % "2.3.1",
