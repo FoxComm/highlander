@@ -3,8 +3,8 @@
 import { get, snakeCase } from 'lodash';
 import { assoc } from 'sprout-data';
 import { createAction } from 'redux-act';
-import { createSelector } from 'reselect'
 import { SubmissionError } from 'redux-form';
+import isServer from '../../utils/isServer';
 
 export type Error = {
   status: number;
@@ -22,8 +22,6 @@ export type AsyncModuleState = {
 export type State = {
   [x: string]: AsyncModuleState;
 }
-
-const isServer = typeof self == 'undefined';
 
 const initialState: State = {};
 

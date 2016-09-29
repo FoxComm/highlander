@@ -29,17 +29,27 @@ export default reducer;
 
 export const getApplication = state => application.getApplication(state.application);
 export const getAccounts = state => account.getAccounts(state.accounts);
+export const getInfo = state => info.getInfo(state.info);
 
-export const getApplicationFetched = state => fetchedSelector(state.asyncActions, application.ACTION_FETCH);
-export const getApplicationFetchFailed = state => failedSelector(state.asyncActions, application.ACTION_FETCH);
-export const getApplicationSubmitInProgress = state => inProgressSelector(state.asyncActions, application.ACTION_SUBMIT);
-export const getApplicationSubmitFailed = state => failedSelector(state.asyncActions, application.ACTION_SUBMIT);
+const asyncSelector = namespace => selector => state => selector(state.asyncActions, namespace);
 
-export const getAccountsFetched = state => fetchedSelector(state.asyncActions, account.ACTION_FETCH);
-export const getAccountSubmitInProgress = state => inProgressSelector(state.asyncActions, account.ACTION_SUBMIT);
-export const getAccountSubmitFailed = state => failedSelector(state.asyncActions, account.ACTION_SUBMIT);
-export const getAccountSubmitSucceeded = state => succeededSelector(state.asyncActions, account.ACTION_SUBMIT);
+const applicationFetchSelector = asyncSelector(application.ACTION_FETCH);
+const applicationSubmitSelector = asyncSelector(application.ACTION_FETCH);
+const accountFetchSelector = asyncSelector(account.ACTION_FETCH);
+const accountSubmitSelector = asyncSelector(account.ACTION_FETCH);
+const infoFetchSelector = asyncSelector(info.ACTION_SUBMIT);
+const infoSubmitSelector = asyncSelector(info.ACTION_SUBMIT);
 
-export const getInfoSubmitInProgress = state => inProgressSelector(state.asyncActions, info.ACTION_SUBMIT);
-export const getInfoSubmitFailed = state => failedSelector(state.asyncActions, info.ACTION_SUBMIT);
-export const getInfoSubmitSucceeded = state => succeededSelector(state.asyncActions, info.ACTION_SUBMIT);
+export const getApplicationFetched = applicationFetchSelector(fetchedSelector);
+export const getApplicationFetchFailed = applicationFetchSelector(failedSelector);
+export const getApplicationSubmitInProgress = applicationSubmitSelector(inProgressSelector);
+export const getApplicationSubmitFailed = applicationSubmitSelector(failedSelector);
+
+export const getAccountsFetched = accountFetchSelector(fetchedSelector);
+export const getAccountSubmitInProgress = accountSubmitSelector(inProgressSelector);
+export const getAccountSubmitFailed = accountSubmitSelector(failedSelector);
+
+export const getInfoFetched = infoFetchSelector(fetchedSelector);
+export const getInfoSubmitInProgress = infoSubmitSelector(inProgressSelector);
+export const getInfoSubmitFailed = infoSubmitSelector(failedSelector);
+export const getInfoSubmitSucceeded = infoSubmitSelector(succeededSelector);

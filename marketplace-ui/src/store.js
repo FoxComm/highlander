@@ -4,11 +4,11 @@ import { routerMiddleware } from 'react-router-redux';
 import thunk from 'redux-thunk';
 import createLogger from 'redux-logger';
 
+import isServer from './utils/isServer';
 import serverApplyMiddleware from './middlewares/wait';
 import redirect from './middlewares/redirect';
 import rootReducer from './core/modules/index';
 
-const isServer = typeof self == 'undefined';
 
 function initLogger(): ?Function {
   return isServer ? null : createLogger({

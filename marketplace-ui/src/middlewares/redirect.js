@@ -1,7 +1,5 @@
 import { LOCATION_CHANGE } from 'react-router-redux';
-import { AC } from 'history';
-
-const isServer = typeof self == 'undefined';
+import isServer from '../utils/isServer';
 
 export default app => store => next => action => {
   if (!isServer) {
