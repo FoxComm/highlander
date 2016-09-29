@@ -36,7 +36,7 @@ package object db {
   def liftFuture[A](future: Future[A]): DBIO[A] = DBIO.from(future)
 
   def doOrMeh(condition: Boolean, action: DbResultT[_])(implicit ec: EC): DbResultT[Unit] =
-    if (condition) action.ignoreResult else DbResultT.unit
+    if (condition) action.meh else DbResultT.unit
 
   def doOrGood[A](condition: Boolean, action: DbResultT[A], good: A)(
       implicit ec: EC): DbResultT[A] =
@@ -135,7 +135,7 @@ package object db {
     def run()(implicit db: DB): Result[A] =
       dbResultT.value.run()
 
-    def ignoreResult(implicit ec: EC): DbResultT[Unit] = for (_ ← * <~ dbResultT) yield {}
+    def meh(implicit ec: EC): DbResultT[Unit] = for (_ ← * <~ dbResultT) yield {}
   }
 
   final implicit class EnrichedOption[A](val option: Option[A]) extends AnyVal {

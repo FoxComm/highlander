@@ -175,7 +175,7 @@ object LineItemUpdater {
 
     val itemsToInsert: List[CartLineItem] =
       List.fill(delta)(CartLineItem(cordRef = cordRef, skuId = skuId))
-    CartLineItems.createAll(itemsToInsert).ignoreResult
+    CartLineItems.createAll(itemsToInsert).meh
   }
 
   private def decreaseLineItems(skuId: Int, delta: Int, cordRef: String)(
