@@ -21,7 +21,7 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'email_address',
-    type: 'text',
+    type: 'email',
     placeholder: 'Email Address',
     validation: 'required format.email',
   },
@@ -54,7 +54,7 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'site_url',
-    type: 'text',
+    type: 'url',
     placeholder: 'Site URL',
     validation: 'required format.uri',
   },

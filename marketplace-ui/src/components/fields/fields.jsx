@@ -50,7 +50,7 @@ const renderTextarea = ({ input, placeholder, meta }) => (
 /**
  * Native select field
  */
-const renderOptions = value => <option value={value} key={value}>{value}</option>;
+const renderOptions = value => <option key={value}>{value}</option>;
 
 const renderSelect = ({ input, values, placeholder, meta }) => (
   <FormField input={input} meta={meta}>
@@ -90,8 +90,6 @@ export default (field: TFormField) => {
     case 'textarea':
       renderField = renderTextarea;
       break;
-    case 'text':
-    case 'number':
     default:
       renderField = renderInput;
   }

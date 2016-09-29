@@ -13,6 +13,10 @@
   background: #f9f9f9;
 
   transition: margin .4s;
+
+  @media (--small-viewport) {
+    margin: 0 0 20px;
+  }
 }
 
 .step {
@@ -29,11 +33,14 @@
 
   &.active {
     color: #363636;
-  }
-}
 
-@media (--small-viewport) {
-  .step {
-    margin: 0 -40px;
+    @media (--small-viewport) {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  @media (--small-viewport) {
+    display: none;
   }
 }

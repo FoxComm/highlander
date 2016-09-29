@@ -42,7 +42,7 @@ class Form extends Component {
 
 
     return (
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         {fields.map((item: FormField) => renderField(item))}
 
         <Button active={inProgress} disabled={inProgress}>{submitText}</Button>
