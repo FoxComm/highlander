@@ -68,7 +68,7 @@ class Header extends React.Component {
             <Icon name="fc-hamburger" styleName="head-icon"/>
           </div>
           <div styleName="search">
-            <Search onSearch={this.props.toggleSearch}/>
+            <Search onSearch={this.props.toggleSearch} isScrolled={this.state.isScrolled}/>
           </div>
           <Link to="/" styleName="logo-link">
             <Icon styleName="logo" name="fc-logo"/>
