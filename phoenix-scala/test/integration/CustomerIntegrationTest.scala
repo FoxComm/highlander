@@ -6,7 +6,6 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import cats.implicits._
 import com.stripe.exception.CardException
-import com.stripe.model.ExternalAccount
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.CustomerFailures._
 import failures.StripeFailures.StripeFailure
@@ -34,6 +33,7 @@ import slick.driver.PostgresDriver.api._
 import util._
 import util.fixtures.BakedFixtures
 import utils.MockedApis
+import utils.aliases.stripe.StripeCard
 import utils.db._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories
@@ -590,8 +590,8 @@ class CustomerIntegrationTest
                                         null,
                                         null)
 
-      when(stripeWrapperMock.updateExternalAccount(any(), any()))
-        .thenReturn(Result.failure[ExternalAccount](StripeFailure(exception)))
+      when(stripeWrapperMock.updateCard(any(), any()))
+        .thenReturn(Result.failure[StripeCard](StripeFailure(exception)))
 
       val payload = EditCreditCard(expYear = Some(2000))
       val response =

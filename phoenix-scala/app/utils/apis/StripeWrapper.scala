@@ -8,7 +8,8 @@ import scala.concurrent.{ExecutionContext, Future, blocking}
 import cats.data.Xor
 import cats.implicits._
 import com.stripe.exception.{CardException, StripeException}
-import com.stripe.model.{DeletedExternalAccount, ExternalAccount, Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
+import com.stripe.model.{DeletedCard, ExternalAccount, Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
+import com.typesafe.scalalogging.LazyLogging
 import failures.StripeFailures.{CardNotFoundForNewCustomer, StripeFailure}
 import failures.{Failures, GeneralFailure}
 import services.{Result, ResultT}
@@ -19,39 +20,54 @@ import utils.apis.StripeMappings.cardExceptionMap
   * All calls should be executed in blocking pool.
   * If you add new methods, be sure to provide default mock in `MockedApis` trait for testing!
   */
-class StripeWrapper extends StripeApiWrapper {
+class StripeWrapper extends StripeApiWrapper with LazyLogging {
 
   private val blockingIOPool: ExecutionContext =
     ExecutionContext.fromExecutor(Executors.newCachedThreadPool)
 
-  def findCustomer(id: String): Result[StripeCustomer] =
+  def findCustomer(id: String): Result[StripeCustomer] = {
+    logger.info(s"Find customer, id: $id")
     inBlockingPool(StripeCustomer.retrieve(id))
+  }
 
-  def findCardByCustomerId(gatewayCustomerId: String, gatewayCardId: String): Result[StripeCard] =
+  def findCardByCustomerId(gatewayCustomerId: String, gatewayCardId: String): Result[StripeCard] = {
+    logger.info(
+        s"Find card for customer, customer id: $gatewayCustomerId, card id: $gatewayCardId")
     inBlockingPool(StripeCustomer.retrieve(gatewayCustomerId).getSources.retrieve(gatewayCardId))
       .flatMap(accountToCard)(blockingIOPool)
+  }
 
   def findCardForCustomer(stripeCustomer: StripeCustomer,
-                          gatewayCardId: String): Result[StripeCard] =
+                          gatewayCardId: String): Result[StripeCard] = {
+    logger.info(s"Find card for customer, customer: $stripeCustomer, card id: $gatewayCardId")
     inBlockingPool(stripeCustomer.getSources.retrieve(gatewayCardId))
       .flatMap(accountToCard)(blockingIOPool)
+  }
 
   def getCustomersOnlyCard(stripeCustomer: StripeCustomer): Result[StripeCard] = {
+    // No external request ⇒ no logging
     val maybeCard  = stripeCustomer.getSources.getData.headOption
     val cardXorNot = maybeCard.toRightXor(CardNotFoundForNewCustomer(stripeCustomer.getId).single)
     accountToCard(cardXorNot)
   }
 
-  def createCustomer(options: Map[String, AnyRef]): Result[StripeCustomer] =
+  def createCustomer(options: Map[String, AnyRef]): Result[StripeCustomer] = {
+    logger.info(s"Create customer, options: $options")
     inBlockingPool(StripeCustomer.create(mapAsJavaMap(options)))
+  }
 
-  def createCharge(options: Map[String, AnyRef]): Result[StripeCharge] =
+  def createCharge(options: Map[String, AnyRef]): Result[StripeCharge] = {
+    logger.info(s"Create charge (auth), options: $options")
     inBlockingPool(StripeCharge.create(mapAsJavaMap(options)))
+  }
 
-  def getCharge(chargeId: String): Result[StripeCharge] =
+  def getCharge(chargeId: String): Result[StripeCharge] = {
+    logger.info(s"Get charge, id: $chargeId")
     inBlockingPool(StripeCharge.retrieve(chargeId))
+  }
 
   def captureCharge(chargeId: String, options: Map[String, AnyRef]): Result[StripeCharge] = {
+    logger.info(s"Capture charge, id: $chargeId, options: $options")
     // for ResultT
     implicit val ec: ExecutionContext = blockingIOPool
 
@@ -61,18 +77,20 @@ class StripeWrapper extends StripeApiWrapper {
     } yield capture).value
   }
 
-  def createCard(customer: StripeCustomer, options: Map[String, AnyRef]): Result[StripeCard] =
+  def createCard(customer: StripeCustomer, options: Map[String, AnyRef]): Result[StripeCard] = {
+    logger.info(s"Create card, customer: $customer, options: $options")
     inBlockingPool(customer.createCard(mapAsJavaMap(options)))
+  }
 
-  def getExtAccount(customer: StripeCustomer, id: String): Result[ExternalAccount] =
-    inBlockingPool(customer.getSources.retrieve(id))
-
-  def updateExternalAccount(card: ExternalAccount,
-                            options: Map[String, AnyRef]): Result[ExternalAccount] =
+  def updateCard(card: StripeCard, options: Map[String, AnyRef]): Result[StripeCard] = {
+    logger.info(s"Update card, card: $card, options: $options")
     inBlockingPool(card.update(options))
+  }
 
-  def deleteExternalAccount(card: ExternalAccount): Result[DeletedExternalAccount] =
+  def deleteCard(card: StripeCard): Result[DeletedCard] = {
+    logger.info(s"Delete card, card: $card")
     inBlockingPool(card.delete())
+  }
 
   // TODO: This needs a life-cycle hook so we can shut it down.
 
