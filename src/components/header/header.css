@@ -5,7 +5,7 @@
   position: fixed;
   z-index: 1;
   width: 100%;
-  height: 136px;
+  height: 86px;
   font-weight: 400;
   font-size: 15px;
   background: var(--whitish);
@@ -13,25 +13,9 @@
   box-shadow: 0 1px #e9e9e9;
 }
 
-.header {
-  composes: header-base;
-
-  & .navigation {
-    position: absolute;
-    top: 136px;
-    width: 100%;
-    left: 0;
-    background: #fff;
-    height: 86px;
-    display: flex;
-    justify-content: center;
-    box-shadow: 0 0 0 1px #e9e9e9;
-  }
-}
-
+.header,
 .header-scrolled {
   composes: header-base;
-  height: 86px;
 }
 
 .wrap {
@@ -93,6 +77,20 @@
   }
 
   .header {
+    height: 136px;
+
+    & .navigation {
+      position: absolute;
+      top: 136px;
+      width: 100%;
+      left: 0;
+      background: #fff;
+      height: 86px;
+      display: flex;
+      justify-content: center;
+      box-shadow: 0 0 0 1px #e9e9e9;
+    }
+
     & :global(.icon).logo {
       width: 220px;
       height: 102px;
