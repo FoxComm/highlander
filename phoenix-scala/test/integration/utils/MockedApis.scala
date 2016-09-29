@@ -4,7 +4,7 @@ import java.io.File
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
+import com.stripe.model.DeletedCard
 import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
@@ -50,8 +50,8 @@ trait MockedApis extends MockitoSugar {
     when(mocked.findCardByCustomerId(any(), any())).thenReturn(Result.good(stripeCard))
     when(mocked.createCard(any(), any())).thenReturn(Result.good(stripeCard))
 
-    when(mocked.updateExternalAccount(any(), any())).thenReturn(Result.good(new ExternalAccount))
-    when(mocked.deleteExternalAccount(any())).thenReturn(Result.good(new DeletedExternalAccount))
+    when(mocked.updateCard(any(), any())).thenReturn(Result.good(stripeCard))
+    when(mocked.deleteCard(any())).thenReturn(Result.good(new DeletedCard()))
 
     when(mocked.captureCharge(any(), any())).thenReturn(Result.good(new StripeCharge))
     when(mocked.createCharge(any())).thenReturn(Result.good(new StripeCharge))
@@ -59,8 +59,8 @@ trait MockedApis extends MockitoSugar {
     mocked
   }
 
-  def cardStripeIdMatches(expectedCardId: String) = new ArgumentMatcher[ExternalAccount]() {
-    override def matches(other: ExternalAccount): Boolean = {
+  def cardStripeIdMatches(expectedCardId: String) = new ArgumentMatcher[StripeCard]() {
+    override def matches(other: StripeCard): Boolean = {
       val theyMatch = other.getId == expectedCardId
       if (!theyMatch)
         System.err.println(s"Expected Stripe card id: $expectedCardId, got ${other.getId}")
