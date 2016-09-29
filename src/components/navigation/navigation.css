@@ -1,12 +1,14 @@
 @import "media-queries.css";
 @import "colors.css";
 
+.item-link {
+  line-height: 40px;
+  text-decoration: none;
+}
 
 @media (--small-only), (--medium-only) {
   .item-link {
-    line-height: 40px;
     color: var(--whitish);
-    text-decoration: none;
   }
 }
 
@@ -14,30 +16,25 @@
   .list {
     display: flex;
     justify-content: center;
-    align-self: stretch;
+    align-self: center;
   }
 
   .item {
-    display: flex;
-    align-items: center;
-    position: relative;
-    margin: 0 30px 0 0;
-    font-size: 15px;
-    line-height: 18px;
+    margin: 0 50px 0 0;
+
+    &:last-child {
+      margin-right: 0;
+    }
   }
 
   .item-link {
-    color: var(--blackish);
-    text-decoration: none;
-    opacity: .7;
-    cursor: pointer;
+    display: inline-block;
     white-space: nowrap;
     text-transform: uppercase;
-    display: inline-block;
-    line-height: 30px;
+    color: var(--blackish);
 
     &:hover {
-      opacity: 1;
+      opacity: .7;
     }
   }
 }

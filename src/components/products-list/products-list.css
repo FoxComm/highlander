@@ -12,10 +12,6 @@
   flex-wrap: wrap;
   justify-content: space-between;
   composes: inner-wrap from 'ui/css/layout.css';
-
-  &:first-child {
-    margin-top: 120px;
-  }
 }
 
 .not-found {

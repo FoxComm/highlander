@@ -7,15 +7,18 @@
 }
 
 .login {
-  margin-right: 20px;
+  margin-right: 15px;
+  padding-right: 15px;
+  border-right: 1px solid #ECECEC;
 }
 
 .login-link {
+  display: inline-block;
+  line-height: 30px;
   text-decoration: none;
-  opacity: .7;
 
   &:hover {
-    opacity: 1;
+    opacity: .7;
   }
 }
 
