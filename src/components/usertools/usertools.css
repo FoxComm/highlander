@@ -99,7 +99,7 @@
   }
 }
 
-@media (--small-only) {
+@media (--small-only), (--medium-only) {
   .login-link,
   .menu {
     display: none;

@@ -7,7 +7,7 @@
   align-items: center;
 }
 
-@media (--small-only) {
+@media (--small-only), (--medium-only) {
   .wrap {
     padding-left: var(--grid-margin);
     padding-right: var(--grid-margin);

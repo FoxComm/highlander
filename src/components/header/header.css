@@ -20,14 +20,11 @@
 .wrap {
   composes: wrap from "ui/css/layout.css";
   display: flex;
+  justify-content: space-between;
 }
 
-.hamburger {
+.navigation {
   display: none;
-}
-
-.search {
-  flex: 1;
 }
 
 .search {
@@ -37,25 +34,14 @@
 }
 
 .tools {
-  flex: 1;
   display: flex;
   justify-content: flex-end;
 }
 
-.logo-link {
-  margin-right: 30px;
-  text-align: center;
-}
-
-:global(.icon).logo {
-  width: 57px;
-  height: 57px;
-}
-
-@media (--small-only) {
+@media (--small-only), (--medium-only) {
   :global(.icon).logo {
-    width: 40px;
-    height: 40px;
+    width: 120px;
+    height: 56px;
   }
 
   .search {
@@ -63,10 +49,27 @@
   }
 
   .hamburger {
-    display: block;
-
     & :global(.icon) {
       cursor: pointer;
     }
+  }
+}
+
+@media (--large) {
+  .navigation {
+    display: block;
+  }
+
+  .hamburger {
+    display: none;
+  }
+
+  :global(.icon).logo {
+    width: 57px;
+    height: 57px;
+  }
+
+  .search {
+    flex: 1;
   }
 }
