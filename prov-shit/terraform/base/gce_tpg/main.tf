@@ -40,60 +40,60 @@ resource "google_compute_network" "tpg" {
   ipv4_range = "10.0.0.0/16"
 }
 
-//resource "google_compute_firewall" "tpg_web" {
-//  name    = "${var.network}-web"
-//  network = "${var.network}"
-//
-//  allow {
-//    protocol = "icmp"
-//  }
-//
-//  allow {
-//    protocol = "tcp"
-//    ports    = ["80", "443"]
-//  }
-//
-//  source_ranges = ["0.0.0.0/0"]
-//  target_tags = ["http-server", "https-server"]
-//}
-//
-//resource "google_compute_firewall" "tpg_ssh" {
-//  name    = "${var.network}-ssh"
-//  network = "${var.network}"
-//
-//  allow {
-//    protocol = "icmp"
-//  }
-//
-//  allow {
-//    protocol = "tcp"
-//    ports    = ["22"]
-//  }
-//
-//  source_ranges = ["0.0.0.0/0"]
-//  target_tags = ["ssh"]
-//}
-//
-//resource "google_compute_firewall" "tpg_internal" {
-//  name    = "${var.network}-internal"
-//  network = "${var.network}"
-//
-//  allow {
-//    protocol = "icmp"
-//  }
-//
-//  allow {
-//    protocol = "tcp"
-//    ports    = ["1-65535"]
-//  }
-//
-//  allow {
-//    protocol = "udp"
-//    ports    = ["1-65535"]
-//  }
-//
-//  source_ranges = ["10.0.0.0/16"]
-//}
+resource "google_compute_firewall" "tpg_web" {
+  name    = "${var.network}-web"
+  network = "${var.network}"
+
+  allow {
+    protocol = "icmp"
+  }
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80", "443"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags = ["http-server", "https-server"]
+}
+
+resource "google_compute_firewall" "tpg_ssh" {
+  name    = "${var.network}-ssh"
+  network = "${var.network}"
+
+  allow {
+    protocol = "icmp"
+  }
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags = ["ssh"]
+}
+
+resource "google_compute_firewall" "tpg_internal" {
+  name    = "${var.network}-internal"
+  network = "${var.network}"
+
+  allow {
+    protocol = "icmp"
+  }
+
+  allow {
+    protocol = "tcp"
+    ports    = ["1-65535"]
+  }
+
+  allow {
+    protocol = "udp"
+    ports    = ["1-65535"]
+  }
+
+  source_ranges = ["10.0.0.0/16"]
+}
 
 ##############################################
 # Vpn
