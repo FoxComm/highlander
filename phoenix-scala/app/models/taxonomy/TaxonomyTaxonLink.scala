@@ -60,6 +60,9 @@ object TaxonomyTaxonLinks
         Taxons)
     with ReturningId[TaxonomyTaxonLink, TaxonomyTaxonLinks] {
 
+  def hasChildren(link: TaxonomyTaxonLink) =
+    active().filter(l ⇒ l.path @> link.path && !(l.path === link.path)).exists
+
   val returningLens: Lens[TaxonomyTaxonLink, Int] = lens[TaxonomyTaxonLink].id
 
   private def shiftPositions(taxonomyId: Int, path: LTree, position: Int): DBIO[Int] = {
@@ -96,7 +99,8 @@ object TaxonomyTaxonLinks
 
   def archivate(link: TaxonomyTaxonLink)(implicit ec: EC): DbResultT[Unit] =
     for {
-      _ ← * <~ TaxonomyTaxonLinks.update(link, link.copy(archivedAt = Some(Instant.now)))
+      _ ← * <~ (if (link.archivedAt.isDefined) DbResultT.good(link)
+                else TaxonomyTaxonLinks.update(link, link.copy(archivedAt = Some(Instant.now))))
       _ ← * <~ shrinkPositions(link.taxonomyId, link.path, link.position)
     } yield {}
 
@@ -115,35 +119,26 @@ object TaxonomyTaxonLinks
              and t.archived_at is null"""
     }
   }
-
-  def nonArchived: QuerySeq = filter(_.archivedAt.isEmpty)
+  import scope._
 
   def getNextPosition(taxonomyId: Int, path: LTree): Rep[Int] =
-    nonArchived
-      .filter(link ⇒ link.taxonomyId === taxonomyId && (link.path ~ path.toString()))
+    filter(link ⇒ link.taxonomyId === taxonomyId && (link.path ~ path.toString())).nonArchived
       .map(_.position)
       .max
       .map(_ + 1)
       .getOrElse(0)
 
-  def mustFindByTaxonomyAndTaxonFormId(taxonomy: Taxonomy,
-                                       taxonFormId: ObjectForm#Id)(implicit oc: OC, ec: EC) =
-    filterByTaxonomyAndTaxonFormId(taxonomy.id, taxonFormId)
-      .mustFindOneOr(NoTermInTaxonomy(taxonomy.formId, taxonFormId))
+  def active(active: Boolean = true): QuerySeq = filter(_.archivedAt.isEmpty === active)
 
   def nextIndex(taxonomyId: Taxonomy#Id)(implicit ec: EC): Rep[Int] =
-    nonArchived.filter(_.taxonomyId === taxonomyId).map(_.index).max.map(_ + 1).getOrElse(0)
+    filter(_.taxonomyId === taxonomyId).nonArchived.map(_.index).max.map(_ + 1).getOrElse(0)
 
   def filterByTaxonFormId(taxonFormId: ObjectForm#Id)(implicit oc: OC): QuerySeq =
-    nonArchived
-      .join(Taxons)
-      .on { case (link, term) ⇒ link.taxonId === term.id }
-      .filter {
-        case (_, term) ⇒
-          term.formId ===
-            taxonFormId && term.contextId === oc.id
-      }
-      .map { case (link, _) ⇒ link }
+    join(Taxons).on { case (link, term) ⇒ link.taxonId === term.id }.filter {
+      case (_, term) ⇒
+        term.formId ===
+          taxonFormId && term.contextId === oc.id
+    }.map { case (link, _) ⇒ link }
 
   def filterByTaxonomyAndTaxonFormId(taxonomyId: Taxonomy#Id, taxonFormId: ObjectForm#Id)(
       implicit oc: OC): QuerySeq =
@@ -157,4 +152,15 @@ object TaxonomyTaxonLinks
 
   override protected def filterRightId(rightId: Int): TaxonomyTaxonLinks.QuerySeq =
     super.filterRightId(rightId).filter(_.archivedAt.isEmpty)
+
+  object scope {
+    implicit class ExtractLinks(q: QuerySeq) {
+      def nonArchived = q.filter(_.archivedAt.isEmpty)
+
+      def mustFindByTaxonomyAndTaxonFormId(taxonomy: Taxonomy,
+                                           taxonFormId: ObjectForm#Id)(implicit oc: OC, ec: EC) =
+        filterByTaxonomyAndTaxonFormId(taxonomy.id, taxonFormId)
+          .mustFindOneOr(NoTermInTaxonomy(taxonomy.formId, taxonFormId))
+    }
+  }
 }

@@ -61,10 +61,9 @@ trait TaxonomySeeds extends TestFixtureBase {
   trait FlatTaxons_Raw extends TaxonSeedBase {
     def taxonomy: Taxonomy
 
-    val taxons: Seq[Taxon] = createTaxons(
-        (1 to 2).map(i ⇒
-              taxonAttributesBase + ("testIdx" → (("t" → "number") ~ ("v" →
-                            i.toString)))))
+    val taxonAttributes =
+      (1 to 2).map(i ⇒ taxonAttributesBase + ("testIdx" → (("t" → "number") ~ ("v" → i.toString))))
+    val taxons: Seq[Taxon] = createTaxons(taxonAttributes)
 
     val links: Seq[TaxonomyTaxonLink] = {
       require(!taxonomy.hierarchical)

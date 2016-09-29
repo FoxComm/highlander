@@ -14,11 +14,11 @@ trait IntegrationTestBase
     with GimmeSupport {
 
   override implicit def patienceConfig: PatienceConfig = PatienceConfig(
-      timeout = Span(600, Seconds),
+      timeout = Span(6, Seconds),
       interval = Span(1, Millisecond)
   )
 
-  implicit val timeout: Timeout = Timeout(600, TimeUnit.SECONDS)
+  implicit val timeout: Timeout = Timeout(6, TimeUnit.SECONDS)
 
   implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
 }

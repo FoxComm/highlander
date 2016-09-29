@@ -23,4 +23,16 @@ object TaxonomyFailures {
       if (taxonsCount == 0) s"Term with id = ${term.id} is not linked to any taxon"
       else s"Term with id = ${term.id} is linked to multiple taxons"
   }
+
+  case class TaxonIsArchived(taxonId: ObjectForm#Id) extends Failure {
+    override def description: String = s"Cannot update deleted taxon: $taxonId"
+  }
+
+  case class TaxonomyIsArchived(taxonomyId: ObjectForm#Id) extends Failure {
+    override def description: String = s"Cannot update deleted taxonomy: $taxonomyId"
+  }
+
+  case class CannotArchiveParentTaxon(taxonId: ObjectForm#Id) extends Failure {
+    override def description: String = s"Cannot archive taxon $taxonId as soon as it has child"
+  }
 }
