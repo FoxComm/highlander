@@ -64,14 +64,6 @@ package object db {
       query.one.mustNotFindOr(notFoundFailure)
   }
 
-  implicit class EnrichedSqlStreamingAction[R, T, E <: Effect](
-      val action: SqlStreamingAction[R, T, E])
-      extends AnyVal {
-
-    def one(implicit db: DB): Future[Option[T]] =
-      db.run(action.headOption)
-  }
-
   implicit class RunOnDbIO[R](val dbio: DBIO[R]) extends AnyVal {
     def run()(implicit db: DB): Future[R] =
       db.run(dbio)
