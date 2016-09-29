@@ -9,12 +9,14 @@ import utils.aliases._
 import utils.db._
 
 // json schema
+import scala.collection.JavaConverters._
+import com.networknt.schema.JsonSchemaFactory
 import com.fasterxml.jackson.databind.JsonNode
-import com.github.fge.jsonschema.main.JsonSchemaFactory
 import org.json4s.jackson.JsonMethods.asJsonNode
 
 object IlluminateAlgorithm {
-  implicit val formats = JsonFormatters.phoenixFormats
+  implicit val formats  = JsonFormatters.phoenixFormats
+  val jsonSchemaFactory = new JsonSchemaFactory
 
   def get(attr: String, form: Json, shadow: Json): Json = shadow \ attr \ "ref" match {
     case JString(key) ⇒ form \ key
@@ -23,20 +25,17 @@ object IlluminateAlgorithm {
 
   def validateObjectBySchema(schema: ObjectFullSchema, form: ObjectForm, shadow: ObjectShadow)(
       implicit ec: EC): DbResultT[Json] = {
-    val illuminated = projectAttributes(form.attributes, shadow.attributes)
-
+    val illuminated          = projectAttributes(form.attributes, shadow.attributes)
     val jsonSchema: JsonNode = asJsonNode(schema.schema)
-    val instance: JsonNode   = asJsonNode(illuminated)
 
-    val validator = JsonSchemaFactory.byDefault().getValidator
+    val validator = jsonSchemaFactory.getSchema(jsonSchema)
 
-    val processingReport = validator.validate(jsonSchema, instance)
-
-    if (processingReport.isSuccess)
+    val errorMessages = validator.validate(asJsonNode(illuminated)).asScala
+    if (errorMessages.isEmpty)
       DbResultT.good(illuminated)
     else
       DbResultT.failure[Json](
-          ObjectValidationFailure(form.kind, shadow.id, processingReport.toString))
+          ObjectValidationFailure(form.kind, shadow.id, errorMessages.mkString("\n")))
   }
 
   def projectAttributes(formJson: Json, shadowJson: Json): Json =
