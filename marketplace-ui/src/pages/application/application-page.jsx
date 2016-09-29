@@ -12,8 +12,8 @@ import ThanksOrNot from '../../components/thanks-or-not/thanks-or-not';
 import {
   getApplication,
   getApplicationFetchFailed,
-  getApplicationInProgress,
-  getApplicationFailed,
+  getApplicationSubmitInProgress,
+  getApplicationSubmitFailed,
 } from '../../core/modules';
 
 import { fetch, submit } from '../../core/modules/merchant-application';
@@ -28,7 +28,7 @@ type Props = {
   application: Application;
   fetch: (reference: string) => Promise<*>;
   submit: (data: Object) => Promise<*>;
-  inProgress: boolean;
+  submitInProgress: boolean;
   fetchFailed: boolean;
   submitFailed: boolean;
 }
@@ -51,9 +51,14 @@ class MerchantApplicationPage extends Component {
   componentWillReceiveProps(nextProps: Props) {
     const oldRef = get(this.props, 'application.reference_number');
     const newRef = get(nextProps, 'application.reference_number');
+    const state = get(nextProps, 'application.state');
 
     if (!oldRef && newRef) {
       this.props.replace(`/application/${newRef}`);
+    }
+
+    if (newRef && state === 'approved') {
+      this.props.replace(`/application/${newRef}/account`);
     }
   }
 
@@ -91,7 +96,7 @@ class MerchantApplicationPage extends Component {
       return;
     }
 
-    const { submit, inProgress, submitFailed } = this.props;
+    const { submit, submitInProgress, submitFailed } = this.props;
 
     return (
       <div>
@@ -103,7 +108,7 @@ class MerchantApplicationPage extends Component {
           form="application"
           fields={fields}
           onSubmit={submit}
-          inProgress={inProgress}
+          inProgress={submitInProgress}
           failed={submitFailed}
           submitText="Apply"
         />
@@ -125,8 +130,8 @@ class MerchantApplicationPage extends Component {
 const mapState = state => ({
   application: getApplication(state),
   fetchFailed: getApplicationFetchFailed(state),
-  inProgress: getApplicationInProgress(state),
-  submitFailed: getApplicationFailed(state),
+  submitInProgress: getApplicationSubmitInProgress(state),
+  submitFailed: getApplicationSubmitFailed(state),
 });
 
 export default connect(mapState, { fetch, submit, replace })(MerchantApplicationPage);

@@ -11,13 +11,15 @@ import Form from '../../components/form/form';
 
 import {
   getApplication,
+  getApplicationFetched,
   getApplicationFetchFailed,
   getAccounts,
-  getAccountInProgress,
-  getAccountFailed,
+  getAccountSubmitInProgress,
+  getAccountSubmitFailed,
 } from '../../core/modules';
+
 import { fetch as fetchApplication, clearErrors } from '../../core/modules/merchant-application';
-import { fetch, submit } from '../../core/modules/merchant-account';
+import { fetch as fetchAccount, submit } from '../../core/modules/merchant-account';
 import { fields } from '../../forms/account/account-fields';
 
 import type { HTMLElement } from '../../core/types';
@@ -29,8 +31,9 @@ type Props = {
   replace: (path: string) => void;
   application: Application;
   accounts: Accounts;
-  fetch: (merchantId: number) => Promise<*>;
+  fetchAccount: (merchantId: number) => Promise<*>;
   fetchApplication: (reference: string) => Promise<*>;
+  applicationFetched: boolean;
   applicationFetchFailed: boolean;
   clearErrors: () => void;
   submit: (data: Object) => Promise<*>;
@@ -42,10 +45,18 @@ class MerchantAccountPage extends Component {
   props: Props;
 
   componentWillMount(): void {
-    const { fetchApplication, fetch, params, application, accounts, applicationFetchFailed } = this.props;
+    const {
+      fetchApplication,
+      fetchAccount,
+      params: { ref },
+      application,
+      accounts,
+      applicationFetched,
+      applicationFetchFailed,
+    } = this.props;
 
-    if (params.ref && !application.reference_number) {
-      fetchApplication(params.ref);
+    if (!applicationFetched) {
+      fetchApplication(ref);
     }
 
     if (applicationFetchFailed) {
@@ -53,12 +64,12 @@ class MerchantAccountPage extends Component {
       this.props.replace('/application');
     }
 
-    if (application.reference_number) {
-      fetch(get(application, 'merchant.id'));
+    if (applicationFetched) {
+      fetchAccount(get(application, 'merchant.id'));
     }
 
     if (accounts.length) {
-      this.props.replace(`/application/${params.ref}/info`);
+      this.props.replace(`/application/${ref}/info`);
     }
   }
 
@@ -109,9 +120,10 @@ class MerchantAccountPage extends Component {
 const mapState = state => ({
   application: getApplication(state),
   accounts: getAccounts(state),
+  applicationFetched: getApplicationFetched(state),
   applicationFetchFailed: getApplicationFetchFailed(state),
-  inProgress: getAccountInProgress(state),
-  failed: getAccountFailed(state),
+  inProgress: getAccountSubmitInProgress(state),
+  failed: getAccountSubmitFailed(state),
 });
 
-export default connect(mapState, { fetchApplication, clearErrors, fetch, submit, replace })(MerchantAccountPage);
+export default connect(mapState, { fetchApplication, clearErrors, fetchAccount, submit, replace })(MerchantAccountPage);

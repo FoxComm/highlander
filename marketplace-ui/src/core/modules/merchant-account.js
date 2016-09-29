@@ -26,8 +26,8 @@ type AccountsResponse = {
 
 type State = Accounts;
 
-const ACTION_FETCH = 'merchantAccountFetch';
-const ACTION_SUBMIT = 'merchantAccountSubmit';
+export const ACTION_FETCH = 'merchantAccountFetch';
+export const ACTION_SUBMIT = 'merchantAccountSubmit';
 
 const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, (id: number, data: Object) =>
   new Promise((resolve, reject) =>
@@ -49,7 +49,6 @@ const reducer = createReducer({
 }, initialState);
 
 const getAccounts = (state: State) => state;
-const getAccountActionNamespace = () => ACTION_SUBMIT;
 
 export {
   reducer as default,
@@ -58,6 +57,5 @@ export {
 
   /* selectors */
   getAccounts,
-  getAccountActionNamespace,
 };
 

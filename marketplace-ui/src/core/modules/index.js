@@ -2,10 +2,17 @@ import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 import { reducer as formReducer } from 'redux-form';
 
-import { reducer as asyncReducer, getActionInProgress, getActionFailed, getActionSucceeded } from './async-utils';
+import {
+  reducer as asyncReducer,
+  inProgressSelector,
+  failedSelector,
+  succeededSelector,
+  fetchedSelector,
+} from './async-utils';
+
 import * as application from './merchant-application';
 import * as account from './merchant-account';
-import infoReducer, { getInfoActionNamespace } from './merchant-info';
+import * as info from './merchant-info';
 
 const reducer = combineReducers({
   routing: routerReducer,
@@ -13,7 +20,7 @@ const reducer = combineReducers({
   form: formReducer,
   application: application.default,
   accounts: account.default,
-  info: infoReducer,
+  info: info.default,
 });
 
 export default reducer;
@@ -23,25 +30,16 @@ export default reducer;
 export const getApplication = state => application.getApplication(state.application);
 export const getAccounts = state => account.getAccounts(state.accounts);
 
-export const getApplicationFetchFailed = state =>
-  getActionFailed(state.asyncActions, application.getApplicationFetchActionNamespace());
+export const getApplicationFetched = state => fetchedSelector(state.asyncActions, application.ACTION_FETCH);
+export const getApplicationFetchFailed = state => failedSelector(state.asyncActions, application.ACTION_FETCH);
+export const getApplicationSubmitInProgress = state => inProgressSelector(state.asyncActions, application.ACTION_SUBMIT);
+export const getApplicationSubmitFailed = state => failedSelector(state.asyncActions, application.ACTION_SUBMIT);
 
-export const getApplicationInProgress = state =>
-  getActionInProgress(state.asyncActions, application.getApplicationActionNamespace());
+export const getAccountsFetched = state => fetchedSelector(state.asyncActions, account.ACTION_FETCH);
+export const getAccountSubmitInProgress = state => inProgressSelector(state.asyncActions, account.ACTION_SUBMIT);
+export const getAccountSubmitFailed = state => failedSelector(state.asyncActions, account.ACTION_SUBMIT);
+export const getAccountSubmitSucceeded = state => succeededSelector(state.asyncActions, account.ACTION_SUBMIT);
 
-export const getApplicationFailed = state =>
-  getActionFailed(state.asyncActions, application.getApplicationActionNamespace());
-
-export const getAccountInProgress = state =>
-  getActionInProgress(state.asyncActions, account.getAccountActionNamespace());
-
-export const getAccountFailed = state =>
-  getActionFailed(state.asyncActions, account.getAccountActionNamespace());
-
-export const getInfoInProgress = state =>
-  getActionInProgress(state.asyncActions, getInfoActionNamespace());
-
-export const getInfoFailed = state =>
-  getActionFailed(state.asyncActions, getInfoActionNamespace());
-export const getInfoDone = state =>
-  getActionSucceeded(state.asyncActions, getInfoActionNamespace());
+export const getInfoSubmitInProgress = state => inProgressSelector(state.asyncActions, info.ACTION_SUBMIT);
+export const getInfoSubmitFailed = state => failedSelector(state.asyncActions, info.ACTION_SUBMIT);
+export const getInfoSubmitSucceeded = state => succeededSelector(state.asyncActions, info.ACTION_SUBMIT);

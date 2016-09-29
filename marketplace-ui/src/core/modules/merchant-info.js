@@ -13,7 +13,7 @@ type Profile = {
 
 type State = Profile;
 
-const ACTION_SUBMIT = 'merchantInfoSubmit';
+export const ACTION_SUBMIT = 'merchantInfoSubmit';
 
 const { perform, ...actions } = createAsyncActions(ACTION_SUBMIT, (id, data) =>
   new Promise((resolve, reject) =>
@@ -36,13 +36,8 @@ const reducer = createReducer({
   }),
 }, initialState);
 
-const getInfoActionNamespace = () => ACTION_SUBMIT;
-
 export {
   reducer as default,
   perform as submit,
-
-  /* selectors */
-  getInfoActionNamespace,
 };
 

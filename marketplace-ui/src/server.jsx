@@ -2,17 +2,19 @@ import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { match, createMemoryHistory, RouterContext } from 'react-router';
 import { Provider } from 'react-redux';
+import { syncHistoryWithStore } from 'react-router-redux';
 
 import makeStore from './store';
 import routes from './routes';
 import renderPage from '../build/main.html';
 
 export default function *renderReact() {
-  const history = createMemoryHistory();
+  const memoryHistory = createMemoryHistory();
 
   const initialState = {};
 
-  const store = makeStore(history, initialState);
+  const store = makeStore(memoryHistory, initialState, this);
+  const history = syncHistoryWithStore(memoryHistory, store);
 
   const [redirectLocation, renderProps] = yield match.bind(null, { routes, location: this.url, history });
 

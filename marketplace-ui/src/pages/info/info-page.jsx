@@ -13,27 +13,36 @@ import Loader from '../../components/loader/loader';
 
 import {
   getApplication,
+  getApplicationFetched,
   getApplicationFetchFailed,
-  getInfoInProgress,
-  getInfoFailed,
-  getInfoDone,
+  getAccounts,
+  getAccountsFetched,
+  getInfoSubmitInProgress,
+  getInfoSubmitFailed,
+  getInfoSubmitSucceeded,
 } from '../../core/modules';
 import { fetch as fetchApplication, clearErrors } from '../../core/modules/merchant-application';
 import { submit } from '../../core/modules/merchant-info';
+import { fetch as fetchAccount } from '../../core/modules/merchant-account';
 import { fields } from '../../forms/info/info-fields';
 
 import styles from './info-page.css';
 
 import type { HTMLElement } from '../../core/types';
 import type { Application } from '../../core/modules/merchant-application';
+import type { Accounts } from '../../core/modules/merchant-account';
 
 type Props = {
   params: Object;
   application: Application;
+  accounts: Accounts;
   fetchApplication: (reference: string) => Promise<*>;
+  fetchAccount: (merchantId: number) => Promise<*>;
   clearErrors: () => void;
   replace: (path: string) => void;
+  applicationFetched: boolean;
   applicationFetchFailed: boolean;
+  accountsFetched: boolean;
   submit: Function;
   inProgress: boolean;
   done: boolean;
@@ -46,15 +55,32 @@ class MerchantInfoPage extends Component {
   props: Props;
 
   componentWillMount(): void {
-    const { fetchApplication, params: { ref: refParam }, application, applicationFetchFailed } = this.props;
+    const {
+      fetchApplication,
+      fetchAccount,
+      params: { ref },
+      application,
+      applicationFetched,
+      applicationFetchFailed,
+      accounts,
+      accountsFetched,
+    } = this.props;
 
-    if (refParam && !application.reference_number) {
-      fetchApplication(refParam);
+    if (!applicationFetched) {
+      fetchApplication(ref);
     }
 
     if (applicationFetchFailed) {
       this.props.clearErrors();
       this.props.replace('/application');
+    }
+
+    if (applicationFetched) {
+      fetchAccount(get(application, 'merchant.id'));
+    }
+
+    if (accountsFetched && !accounts.length) {
+      this.props.replace(`/application/${ref}/account`);
     }
   }
 
@@ -127,10 +153,13 @@ class MerchantInfoPage extends Component {
 
 const mapState = state => ({
   application: getApplication(state),
+  applicationFetched: getApplicationFetched(state),
   applicationFetchFailed: getApplicationFetchFailed(state),
-  inProgress: getInfoInProgress(state),
-  done: getInfoDone(state),
-  failed: getInfoFailed(state),
+  accounts: getAccounts(state),
+  accountsFetched: getAccountsFetched(state),
+  inProgress: getInfoSubmitInProgress(state),
+  done: getInfoSubmitSucceeded(state),
+  failed: getInfoSubmitFailed(state),
 });
 
-export default connect(mapState, { fetchApplication, clearErrors, submit, replace })(MerchantInfoPage);
+export default connect(mapState, { fetchApplication, fetchAccount, clearErrors, submit, replace })(MerchantInfoPage);

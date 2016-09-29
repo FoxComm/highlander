@@ -1,8 +1,9 @@
 /* @flow weak */
 
-import _ from 'lodash';
+import { get, snakeCase } from 'lodash';
 import { assoc } from 'sprout-data';
 import { createAction } from 'redux-act';
+import { createSelector } from 'reselect'
 import { SubmissionError } from 'redux-form';
 
 export type Error = {
@@ -27,7 +28,7 @@ const isServer = typeof self == 'undefined';
 const initialState: State = {};
 
 export function reducer(state: State = initialState, action) {
-  const kind = _.get(action, 'meta.kind');
+  const kind = get(action, 'meta.kind');
   const payload = action.payload;
 
   if (kind == 'async') {
@@ -48,9 +49,9 @@ export function reducer(state: State = initialState, action) {
         );
       case 'failed': {
         const error = {
-          status: _.get(payload, 'response.status'),
-          statusText: _.get(payload, 'response.statusText', ''),
-          message: _.get(payload, 'message', 'Error'),
+          status: get(payload, 'response.status'),
+          statusText: get(payload, 'response.statusText', ''),
+          message: get(payload, 'message', 'Error'),
         };
 
         return assoc(state,
@@ -75,17 +76,21 @@ export function reducer(state: State = initialState, action) {
   return state;
 }
 
+/** Selectors */
 type Selector = () => string;
 
-export const getActionState = (state: State) => (selector: Selector) => _.get(state, selector());
-export const getActionInProgress = (state: State, namespace) => _.get(state, `${namespace}.inProgress`, false);
-export const getActionFailed = (state: State, namespace) => !!_.get(state, `${namespace}.err`, null);
-export const getActionSucceeded = (state: State, namespace) => (
-  !!_.get(state, `${namespace}.finished`, null) && !_.get(state, `${namespace}.err`, null)
-);
+const asyncStateSelector = (requestState: string) => (state: State, namespace: string): AsyncModuleState =>
+  get(state, `${namespace}.${requestState}`, false);
+
+export const inProgressSelector = asyncStateSelector('inProgress');
+export const finishedSelector = asyncStateSelector('finished');
+export const failedSelector = asyncStateSelector('err');
+
+export const fetchedSelector = (...args) => !inProgressSelector(...args) && finishedSelector(...args);
+export const succeededSelector = (...args) => finishedSelector(...args) && !failedSelector(...args);
 
 function createAsyncAction(namespace, type, payloadReducer) {
-  const description = `${_.snakeCase(namespace).toUpperCase()}_${type.toUpperCase()}`;
+  const description = `${snakeCase(namespace).toUpperCase()}_${type.toUpperCase()}`;
 
   return createAction(description, payloadReducer, () => ({
     kind: 'async',
@@ -126,7 +131,7 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
     let promise;
 
     return (dispatch, getState) => {
-      const asyncState = _.get(getState(), ['asyncActions', namespace]);
+      const asyncState = get(getState(), ['asyncActions', namespace]);
       if (asyncState && isServer && (asyncState.inProgress || asyncState.finished)) {
         return promise;
       }

@@ -30,8 +30,8 @@ type ApplicationResponse = {
 
 type State = {} | Application;
 
-const ACTION_FETCH = 'merchantApplicationFetch';
-const ACTION_SUBMIT = 'merchantApplicationSubmit';
+export const ACTION_FETCH = 'merchantApplicationFetch';
+export const ACTION_SUBMIT = 'merchantApplicationSubmit';
 
 const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, data =>
   new Promise((resolve, reject) =>
@@ -67,8 +67,6 @@ const reducer = createReducer({
 }, initialState);
 
 const getApplication = (state: State) => state;
-const getApplicationActionNamespace = () => ACTION_SUBMIT;
-const getApplicationFetchActionNamespace = () => ACTION_FETCH;
 
 export {
   reducer as default,
@@ -78,7 +76,5 @@ export {
 
   /* selectors */
   getApplication,
-  getApplicationActionNamespace,
-  getApplicationFetchActionNamespace,
 };
 

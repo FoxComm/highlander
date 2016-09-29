@@ -5,6 +5,7 @@ import thunk from 'redux-thunk';
 import createLogger from 'redux-logger';
 
 import serverApplyMiddleware from './middlewares/wait';
+import redirect from './middlewares/redirect';
 import rootReducer from './core/modules/index';
 
 const isServer = typeof self == 'undefined';
@@ -18,12 +19,12 @@ function initLogger(): ?Function {
   });
 }
 
-export default function makeStore(history, initialState = void 0) {
+export default function makeStore(history, initialState = void 0, app) {
   const applyMiddleware = isServer ? serverApplyMiddleware : clientApplyMiddleware;
 
   return createStore(
     rootReducer,
     initialState,
-    applyMiddleware(...compact([routerMiddleware(history), thunk, initLogger()]))
+    applyMiddleware(...compact([routerMiddleware(history), thunk, redirect(app), initLogger()]))
   );
 }
