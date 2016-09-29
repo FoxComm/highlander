@@ -60,14 +60,14 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'target_audience',
-    type: 'select',
+    type: 'tags',
     placeholder: 'Audience',
     validation: 'required',
     values: LIST_AUDIENCE,
   },
   {
     name: 'categories',
-    type: 'select',
+    type: 'tags',
     placeholder: 'Category',
     validation: 'required',
     values: LIST_CATEGORIES,
