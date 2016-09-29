@@ -9,7 +9,7 @@
   margin-left: -4%;
 }
 
-@media (--small-viewport) {
+@media (--small-only) {
   .block {
     width: 100%;
     margin-left: 0;

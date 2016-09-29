@@ -40,7 +40,7 @@ input {
 }
 
 
-@media (--small-viewport) {
+@media (--small-only) {
   .label {
     --line-height: 17px;
   }
