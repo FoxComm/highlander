@@ -68,7 +68,7 @@ class Header extends React.Component {
             <Icon name="fc-hamburger" styleName="head-icon"/>
           </div>
           <Link to="/" styleName="logo-link">
-            <Icon styleName="logo" name="fc-some_brand_logo"/>
+            <Icon styleName="logo" name="fc-logo"/>
           </Link>
           <Navigation onClick={this.changeCategoryCallback}/>
           <div styleName="search">

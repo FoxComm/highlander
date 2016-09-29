@@ -51,7 +51,7 @@ class Auth extends Component {
     return (
       <div styleName="auth-block">
         <Link to="/">
-          <Icon styleName="logo" name="fc-some_brand_logo" />
+          <Icon styleName="logo" name="fc-logo" />
         </Link>
         {this.renderContent()}
       </div>

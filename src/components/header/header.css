@@ -52,10 +52,6 @@
   height: 57px;
 }
 
-:global(.icon--fc-some_brand_logo) {
-  stroke: none;
-}
-
 @media (--small-only) {
   :global(.icon).logo {
     width: 40px;

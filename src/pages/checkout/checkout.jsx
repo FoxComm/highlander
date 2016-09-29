@@ -139,7 +139,7 @@ class Checkout extends Component {
       <div styleName="checkout">
         <div styleName="logo-link">
           <Link to="/">
-            <Icon styleName="logo" name="fc-some_brand_logo"/>
+            <Icon styleName="logo" name="fc-logo"/>
           </Link>
         </div>
         <div styleName="checkout-content">
