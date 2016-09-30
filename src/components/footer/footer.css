@@ -43,15 +43,32 @@
 }
 
 .email {
+  display: flex;
   margin-bottom: 40px;
 
   & input {
     width: 100%;
     padding-left: 12px;
     border: none;
-    font-family: Roboto, Lato, 'Open Sans', sans-serif;
-    font-size: 13px;
-    background-color: rgba(255, 255, 255, .4);
+    font-size: 15px;
+    font-weight: 400;
+    background-color: rgba(255, 255, 255, .13);
+    color: #fff;
+
+    &:focus {
+      background: rgba(255, 255, 255, .5);
+      color: #3E3436;
+    }
+  }
+
+  & .button {
+    padding: 0 1.6em;
+    text-transform: uppercase;
+    font-size: 15px;
+    font-weight: 700;
+    color: #3E3436;
+    background: #fff;
+    border: none;
   }
 }
 
@@ -220,6 +237,18 @@
   .subtitle {
     font-size: 16px;
     letter-spacing: 1.81px;
+  }
+
+  .email {
+    & input {
+      padding-left: 20px;
+    }
+
+    & .button {
+      &:hover {
+        opacity: .7;
+      }
+    }
   }
 
   .social-links {

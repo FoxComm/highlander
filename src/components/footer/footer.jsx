@@ -6,7 +6,8 @@ import type { HTMLElement } from 'types';
 import styles from './footer.css';
 
 import Icon from 'ui/icon';
-import { TextInputWithLabel } from 'ui/inputs';
+import Button from 'ui/buttons';
+import { TextInput } from 'ui/inputs';
 
 const Footer = () : HTMLElement => {
   return (
@@ -17,9 +18,10 @@ const Footer = () : HTMLElement => {
       </header>
 
       <div styleName="wrap">
-          <div styleName="email">
-          <TextInputWithLabel placeholder="Email" label={<button>Join</button>}/>
-        </div>
+        <form styleName="email">
+          <TextInput placeholder="Email" />
+          <Button styleName="button" type="button">Join</Button>
+        </form>
 
         <ul styleName="links">
           <li><a href="#">ABOUT US</a></li>
