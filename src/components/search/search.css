@@ -53,13 +53,13 @@
   transition: color 300ms;
 }
 
-.head-icon :global(.icon__cnt) {
+.head-icon {
   stroke: none;
 }
 
 .search {
   & .head-icon {
-    color: var(--blackish);
+    color: var(--icon);
   }
 
   & .close-icon {
@@ -133,18 +133,18 @@
     &:global(._scrolled) {
       top: 86px;
 
-      & :global(.icon--fc-close) {
+      & .close-icon {
         top: -55px;
       }
     }
 
-    & :global(.icon--fc-close) {
+    & .close-icon {
       left: 0;
       lost-offset: -1/12;
       top: -80px;
       stroke-width: 2;
       cursor: pointer;
-      color: var(--blackish);
+      color: var(--icon);
     }
   }
 }
