@@ -7,7 +7,7 @@ import type { HTMLElement } from '../types';
 function wrapSpinner(svg: HTMLElement, className: string) {
   if (className.indexOf('spinner') > -1) {
     return (
-      <div className="icon__spinner">{svg}</div>
+      <span className="icon__spinner">{svg}</span>
     );
   }
 
@@ -40,9 +40,9 @@ const Icon = (props: IconProps) => {
   );
 
   return (
-    <div className={className} onClick={props.onClick}>
+    <span className={className} onClick={props.onClick}>
       {wrapSpinner(svgNode, className)}
-    </div>
+    </span>
   );
 };
 
