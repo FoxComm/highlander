@@ -18,6 +18,10 @@
       prompt: "Enter Slack hook URL"
       default: "https://hooks.slack.com/services/XXX/YYY/ZZZ"
       private: no
+    - name: "cluster_name"
+      prompt: "Enter cluster name"
+      default: "Vanilla"
+      private: no
   environment:
     GOPATH: "/home/{{user}}/go"
 
