@@ -14,7 +14,6 @@ import { generateSkuCode, isSkuValid } from './sku';
 
 // types
 import type { Sku } from 'modules/skus/details';
-import type { Dictionary } from './types';
 import type { Attribute, Attributes } from './object';
 
 type Context = {
@@ -199,12 +198,12 @@ export function variantsWithMultipleOptions(variants: Array<any>): Array<Object>
  * This function replaces variants without options from variant array
  * Be careful, it returns list of variant options, not variants theirselves
  */
-export function variantValuesWithMultipleOptions(variants: Array<any>): Array<Object> {
+export function variantValuesWithMultipleOptions(variants: Array<Option>): Array<Object> {
   return _.reduce(variants, (acc, variant) => {
     if (_.isEmpty(variant.values)) {
       return acc;
     }
-    return acc.concat([variant.values]);
+    return [...acc, variant.values];
   }, []);
 }
 
@@ -219,6 +218,7 @@ export function availableVariants(variants: Array<any>): Array<Object> {
 /**
  * This is a convenience function that iterates through a product and creates a
  * mapping from SKU => Variant => Value.
+ * For example SKU-BRO => Size => L.
  */
 export function mapSkusToVariants(variants: Array<Option>): Object {
   return _.reduce(variants, (res, variant) => {
@@ -230,3 +230,54 @@ export function mapSkusToVariants(variants: Array<Option>): Object {
     }, res);
   }, {});
 }
+
+/**
+ * Updates products after variants has updated
+ * if allowDublicate is false also remove skus with same variants
+ */
+export function updateProductsForVariants(product: Product, variants: Array<Option>, allowDublicate: boolean): Product {
+  // what we should do:
+  // 1. Add empty skus for new variants (create new skus and write codes to skuCodes at variants
+  // 2. Remove skus if there are no more variants for them
+
+  const existsValues = availableVariants(product.variants);
+  const newValues = availableVariants(variants);
+
+  const valueIdentity = values => _.map(values, x => x.name).join('\u008b');
+
+  const addedValues = _.differenceBy(newValues, existsValues, valueIdentity);
+  const deletedValues = _.differenceBy(existsValues, newValues, valueIdentity);
+
+  // add new skus for added variants
+  const newSkus = _.map(addedValues, (optionValues: Array<OptionValue>) => {
+    const emptySku = createEmptySku();
+    // connect sku to variants
+    // we can't use skuCodes because there is no real code/id for skus
+    // so we create temporary connection between these entities
+    emptySku.variantValues = optionValues;
+    return emptySku;
+  });
+
+  const indexedDeletedValues = _.keyBy(deletedValues, valueIdentity);
+  let indexForExistsSkus;
+  if (!allowDublicate) {
+    indexForExistsSkus = mapSkusToVariants(product.variants);
+  }
+
+  // delete temporary skus
+  const filteredSkus = _.filter(product.skus, sku => {
+    let variantValues = sku.variantValues;
+    const skuCode = sku.attributes.code.v; // should be real code
+    if (!allowDublicate && skuCode) {
+      variantValues = _.map(indexForExistsSkus[skuCode], name => {
+        return {name};
+      });
+    }
+    return !variantValues || !(valueIdentity(variantValues) in indexedDeletedValues);
+  });
+
+  return assoc(product,
+    'skus', [...newSkus, ...filteredSkus]
+  );
+}
+

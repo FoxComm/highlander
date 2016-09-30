@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { flow, filter } from 'lodash/fp';
 
 // components
-import ContentBox from '../content-box/content-box';
 import ObjectForm from '../object-form/object-form';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import Tags from '../tags/tags';
@@ -81,8 +80,8 @@ export default class ProductForm extends Component {
   @autobind
   updateSkuVariantMapping(variants: Array<any>): void {
     // here we have new variants, but
-    // we don't have skuCodes in variant.values
-    // also we need add new skus in order user be able to edit them
+    // we don't have empty skus in order user be able to edit them
+    // also we need skuCodes for them in variant.values
     let updatedVariants = [];
     let skus = [];
     if (_.isEmpty(variants)) {
@@ -116,36 +115,6 @@ export default class ProductForm extends Component {
       ['variants'], updatedVariants
     );
     return this.props.onUpdateProduct(newProduct);
-  }
-
-  @autobind
-  updateSkuForVariant(code: string, updateArray: Array<Array<any>>): void {
-    const variants = _.get(this.props, 'product.variants');
-    if (_.isEmpty(variants)) {
-      this.props.onSetSkuProperties(code, updateArray);
-    } else {
-      const newProduct = _.reduce(updateArray, (p, [field, value]) => {
-        return ProductParagon.setSkuAttribute(p, code, field, value);
-      }, this.props.product);
-      // NOTE: Jeff - Commenting this out for now. We don't want to update the
-      // mapping between FECODE and Variant as we're editing on the frontend.
-      // Let's save that for when we submit to the API.
-
-      // const updatedVariants = _.map(variants, variant => {
-      //   const values = _.map(variant.values, value => {
-      //     const idx = value.skuCodes.indexOf(code);
-      //     if (idx >= 0) {
-      //       const newCode = _.find(updateArray, entry => { return entry[0] == 'code' });
-      //       value.skuCodes[idx] = newCode[1];
-      //     }
-      //     return value;
-      //   });
-      //   variant.values = values;
-      //   return variant;
-      // });
-      // newProduct.variants = updatedVariants;
-      return this.props.onUpdateProduct(newProduct);
-    }
   }
 
   @autobind
@@ -219,7 +188,7 @@ export default class ProductForm extends Component {
           <SkuContentBox
             fullProduct={this.props.product}
             updateField={this.props.onSetSkuProperty}
-            updateFields={this.updateSkuForVariant}
+            updateFields={this.props.onSetSkuProperties}
             variants={this.props.product.variants}
           />
 
