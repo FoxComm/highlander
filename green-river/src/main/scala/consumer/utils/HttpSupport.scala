@@ -32,7 +32,7 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
 
   val authUri = fullUri("public/login")
 
-  val authBodyTemplate = """{"email": "%s", "password": "%s", "org": "merchant"}"""
+  val authBodyTemplate = """{"email": "%s", "password": "%s", "org": "tenant"}"""
 
   val jwtHeaderName = "JWT"
 

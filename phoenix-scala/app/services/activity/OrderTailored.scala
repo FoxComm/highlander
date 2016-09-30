@@ -29,7 +29,7 @@ object OrderTailored {
   case class OrderCheckoutCompleted(order: OrderResponse)
       extends ActivityBase[OrderCheckoutCompleted]
 
-  case class OrderCaptured(customerId: Int,
+  case class OrderCaptured(accountId: Int,
                            orderNum: String,
                            captured: Int,
                            external: Int,
@@ -40,7 +40,7 @@ object OrderTailored {
                            currency: Currency)
       extends ActivityBase[OrderCaptured]
 
-  case class CreditCardAuthCompleted(customerId: Int,
+  case class CreditCardAuthCompleted(accountId: Int,
                                      cordRef: String,
                                      orderNum: String,
                                      amount: Int,
@@ -48,7 +48,7 @@ object OrderTailored {
                                      cardId: Int)
       extends ActivityBase[CreditCardAuthCompleted]
 
-  case class CreditCardChargeCompleted(customerId: Int,
+  case class CreditCardChargeCompleted(accountId: Int,
                                        cordRef: String,
                                        orderNum: String,
                                        amount: Int,

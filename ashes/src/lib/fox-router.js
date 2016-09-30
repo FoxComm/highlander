@@ -8,6 +8,7 @@ type FoxRoute = Route|IndexRoute;
 type JWT = { claims: Claims };
 type RouteParams = {
   component?: Element,
+  dimension?: string,
   isIndex?: bool,
   path?: string,
   frn?: string,

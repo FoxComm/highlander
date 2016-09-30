@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from '../../../link';
-import CustomerInfo from './customer-info';
+import UserInfo from './user-info';
 
 export const title = data => {
   return (
@@ -17,7 +17,7 @@ export const title = data => {
 
 export const details = data => {
   return {
-    newOne: <CustomerInfo {...data.newInfo} />,
-    previous: <CustomerInfo {...data.oldInfo} />,
+    newOne: <UserInfo {...data.newInfo} />,
+    previous: <UserInfo {...data.oldInfo} />,
   };
 };

@@ -19,13 +19,13 @@ object GiftCardTailored {
                                             storeCredit: StoreCreditResponse.Root)
       extends ActivityBase[GiftCardConvertedToStoreCredit]
 
-  case class GiftCardAuthorizedFunds(customer: UserResponse.Root,
+  case class GiftCardAuthorizedFunds(user: UserResponse.Root,
                                      cart: Cart,
                                      giftCardCodes: Seq[String],
                                      amount: Int)
       extends ActivityBase[GiftCardAuthorizedFunds]
 
-  case class GiftCardCapturedFunds(customer: UserResponse.Root,
+  case class GiftCardCapturedFunds(user: UserResponse.Root,
                                    order: Order,
                                    giftCardCodes: Seq[String],
                                    amount: Int)

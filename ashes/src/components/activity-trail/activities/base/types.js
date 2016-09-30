@@ -10,22 +10,28 @@ const types = {
   BULK_ASSIGNED: 'bulk_assigned',
   BULK_UNASSIGNED: 'bulk_unassigned',
 
-  /* Customers */
+  /* Users */
 
+  USER_CREATED: 'user_created',
+  USER_REGISTERED: 'user_registered',
+  USER_ACTIVATED: 'user_activated',
+  USER_BLACKLISTED: 'user_blacklisted',
+  USER_REMOVED_FROM_BLACKLIST: 'user_removed_from_blacklist',
+  USER_ENABLED: 'user_enabled',
+  USER_DISABLED: 'user_disabled',
+  USER_UPDATED: 'user_updated',
+
+ /* Customers */
   CUSTOMER_CREATED: 'customer_created',
   CUSTOMER_REGISTERED: 'customer_registered',
   CUSTOMER_ACTIVATED: 'customer_activated',
-  CUSTOMER_BLACKLISTED: 'customer_blacklisted',
-  CUSTOMER_REMOVED_FROM_BLACKLIST: 'customer_removed_from_blacklist',
-  CUSTOMER_ENABLED: 'customer_enabled',
-  CUSTOMER_DISABLED: 'customer_disabled',
   CUSTOMER_UPDATED: 'customer_updated',
 
   /* Customer Addresses */
 
-  CUSTOMER_ADDRESS_CREATED: 'customer_address_created',
-  CUSTOMER_ADDRESS_UPDATED: 'customer_address_updated',
-  CUSTOMER_ADDRESS_DELETED: 'customer_address_deleted',
+  USER_ADDRESS_CREATED: 'user_address_created',
+  USER_ADDRESS_UPDATED: 'user_address_updated',
+  USER_ADDRESS_DELETED: 'user_address_deleted',
 
   /* Customer Credit Cards */
 

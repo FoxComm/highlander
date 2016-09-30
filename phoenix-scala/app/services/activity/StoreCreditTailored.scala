@@ -7,7 +7,7 @@ import responses.{GiftCardResponse, UserResponse, StoreCreditResponse}
 
 object StoreCreditTailored {
   case class StoreCreditCreated(admin: UserResponse.Root,
-                                customer: UserResponse.Root,
+                                user: UserResponse.Root,
                                 storeCredit: StoreCreditResponse.Root)
       extends ActivityBase[StoreCreditCreated]
 
@@ -21,13 +21,13 @@ object StoreCreditTailored {
                                             storeCredit: StoreCreditResponse.Root)
       extends ActivityBase[StoreCreditConvertedToGiftCard]
 
-  case class StoreCreditAuthorizedFunds(customer: UserResponse.Root,
+  case class StoreCreditAuthorizedFunds(user: UserResponse.Root,
                                         cart: Cart,
                                         storeCreditIds: Seq[Int],
                                         amount: Int)
       extends ActivityBase[StoreCreditAuthorizedFunds]
 
-  case class StoreCreditCapturedFunds(customer: UserResponse.Root,
+  case class StoreCreditCapturedFunds(user: UserResponse.Root,
                                       order: Order,
                                       storeCreditIds: Seq[Int],
                                       amount: Int)

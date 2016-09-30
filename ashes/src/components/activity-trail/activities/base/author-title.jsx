@@ -12,20 +12,22 @@ const AuthorTitle = props => {
   const userType = _.get(activity, ['context', 'userType'], 'system');
 
   switch (userType) {
-    case 'admin':
+    case 'user':
       const adminName = _.get(activity, ['data', 'admin', 'name']);
       if (!_.isEmpty(adminName)) {
         return <span>{adminName}</span>;
+      } else if (activity.data.user) {
+        return <CustomerLink customer={activity.data.user} />;
       } else {
         // @TODO: should be `Unrecognised Admin`, but backend is not ready to pass proper userType for system actions
         // so now correct option here is `FoxCommerce`
         return <span>FoxCommerce</span>;
       }
-    case 'customer':
-      if (activity.data.customer) {
-        return <CustomerLink customer={activity.data.customer} />;
+    case 'guest':
+      if (activity.data.user) {
+        return <CustomerLink customer={activity.data.user} />;
       }
-      return <span>The customer</span>;
+      return <span>The Guest</span>;
     default:
       return <span>FoxCommerce</span>;
   }

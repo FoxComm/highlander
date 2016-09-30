@@ -1,7 +1,7 @@
 
 import React, { PropTypes } from 'react';
 
-const CustomerInfo = props => {
+const UserInfo = props => {
   let email = null;
   if (props.email) {
     email = [
@@ -27,10 +27,10 @@ const CustomerInfo = props => {
   );
 };
 
-CustomerInfo.propTypes = {
+UserInfo.propTypes = {
   name: PropTypes.string.isRequired,
   email: PropTypes.string,
   phoneNumber: PropTypes.string,
 };
 
-export default CustomerInfo;
+export default UserInfo;

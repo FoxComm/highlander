@@ -13,8 +13,6 @@ object Workers {
       implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC): Future[Unit] = Future {
     // Init
     val activityConnectors = Seq(AccountConnector(),
-                                 AdminConnector(),
-                                 CustomerConnector(),
                                  OrderConnector(),
                                  GiftCardConnector(),
                                  SharedSearchConnector(),

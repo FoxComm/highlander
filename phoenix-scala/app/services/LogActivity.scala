@@ -251,10 +251,10 @@ object LogActivity {
     Activities.log(GiftCardCapturedFunds(buildUser(user), order, gcCodes, amount))
 
   /* Store Credits */
-  def scCreated(admin: User, customer: User, sc: StoreCredit)(implicit ec: EC,
-                                                              ac: AC): DbResultT[Activity] =
+  def scCreated(admin: User, user: User, sc: StoreCredit)(implicit ec: EC,
+                                                          ac: AC): DbResultT[Activity] =
     Activities.log(
-        StoreCreditCreated(buildUser(admin), buildUser(customer), StoreCreditResponse.build(sc)))
+        StoreCreditCreated(buildUser(admin), buildUser(user), StoreCreditResponse.build(sc)))
 
   def scUpdated(admin: User, sc: StoreCredit, payload: StoreCreditUpdateStateByCsr)(
       implicit ec: EC,
@@ -269,15 +269,15 @@ object LogActivity {
                                        GiftCardResponse.build(gc),
                                        StoreCreditResponse.build(sc)))
 
-  def scFundsAuthorized(customer: User, cart: Cart, scIds: Seq[Int], amount: Int)(
+  def scFundsAuthorized(user: User, cart: Cart, scIds: Seq[Int], amount: Int)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
-    Activities.log(StoreCreditAuthorizedFunds(buildUser(customer), cart, scIds, amount))
+    Activities.log(StoreCreditAuthorizedFunds(buildUser(user), cart, scIds, amount))
 
-  def scFundsCaptured(customer: User, order: Order, scIds: Seq[Int], amount: Int)(
+  def scFundsCaptured(user: User, order: Order, scIds: Seq[Int], amount: Int)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
-    Activities.log(StoreCreditCapturedFunds(buildUser(customer), order, scIds, amount))
+    Activities.log(StoreCreditCapturedFunds(buildUser(user), order, scIds, amount))
 
   /* Carts */
   def cartCreated(admin: Option[User], cart: CartResponse)(implicit ec: EC,
@@ -339,7 +339,7 @@ object LogActivity {
                                                         ac: AC): DbResultT[Activity] =
     Activities.log(
         OrderCaptured(orderNum = order.referenceNumber,
-                      customerId = order.accountId,
+                      accountId = order.accountId,
                       captured = cap.captured,
                       external = cap.external,
                       internal = cap.internal,
@@ -352,7 +352,7 @@ object LogActivity {
                                                            ac: AC): DbResultT[Activity] =
     Activities.log(
         CreditCardAuthCompleted(
-            customerId = cart.accountId,
+            accountId = cart.accountId,
             cordRef = cart.refNum,
             orderNum = cart.refNum,
             cardId = charge.creditCardId,
@@ -364,7 +364,7 @@ object LogActivity {
                                                                ac: AC): DbResultT[Activity] =
     Activities.log(
         CreditCardChargeCompleted(
-            customerId = order.accountId,
+            accountId = order.accountId,
             cordRef = order.refNum,
             orderNum = order.refNum,
             cardId = charge.creditCardId,

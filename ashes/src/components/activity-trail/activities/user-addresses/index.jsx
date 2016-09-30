@@ -12,7 +12,7 @@ function omitAddressName(address) {
 }
 
 const representatives = {
-  [types.CUSTOMER_ADDRESS_CREATED]: {
+  [types.USER_ADDRESS_CREATED]: {
     title: (data, activity) => {
       return (
         <Title activity={activity}>
@@ -27,7 +27,7 @@ const representatives = {
       };
     },
   },
-  [types.CUSTOMER_ADDRESS_UPDATED]: {
+  [types.USER_ADDRESS_UPDATED]: {
     title: (data, activity) => {
       return (
         <Title activity={activity}>
@@ -42,7 +42,7 @@ const representatives = {
       };
     },
   },
-  [types.CUSTOMER_ADDRESS_DELETED]: {
+  [types.USER_ADDRESS_DELETED]: {
     title: (data, activity) => {
       return (
         <Title activity={activity}>
