@@ -103,17 +103,17 @@ Edit your hosts file so that `local.foxcommerce.com` points to the new box using
 
 ## The Projects
 
-| Name                                   | Type                                                                                                                                                                  |
-|:---------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [phoenix-scala](phoenix-scala)         | Our main API that handles the business logic for the customer, merchandising, and order management systems. Written in Scala.                                         |
-| [green-river](green-river)             | An event-sourcing system based on Kafka and [bottledwater](https://github.com/confluentinc/bottledwater-pg).                                                          |
-| [middlewarehouse](middlewarehouse)     | A lightweight and fast shipping and inventory management service written in Go.                                                                                       |
-| [isaac](isaac)                         | Our C++ authentication service.                                                                                                                                       |
-| [ashes](ashes)                         | The Admin UI, written in React.js.                                                                                                                                    |
-| [api-js](api-js)                       | A JavaScript library for interacting with the FoxCommerce API.                                                                                                        |
-| [firebrand](firebrand)                 | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                                                                              |
-| [integration-tests](integration-tests) | Our tests for hitting the system as a black box at the API level. They test both functionality and that every piece in the system is talking correctly to each other. |
-| [prov-shit](prov-shit)                 | All of our DevOps tools for deploying the application to both development and production.                                                                             |
+| Name                                   | Type                                                                                                         |
+|:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
+| [phoenix-scala](phoenix-scala)         | Our main API that handles the business logic for the customer, merchandising, and order management systems.  |
+| [green-river](green-river)             | An event-sourcing system based on Kafka and [bottledwater](https://github.com/confluentinc/bottledwater-pg). |
+| [middlewarehouse](middlewarehouse)     | A lightweight and fast shipping and inventory management service written in Go.                              |
+| [isaac](isaac)                         | Our C++ authentication service.                                                                              |
+| [ashes](ashes)                         | The Admin UI, written in React.js.                                                                           |
+| [api-js](api-js)                       | A JavaScript library for interacting with the FoxCommerce API.                                               |
+| [firebrand](firebrand)                 | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
+| [integration-tests](integration-tests) | Our tests for hitting the system as a black box at the API level.                                            |
+| [prov-shit](prov-shit)                 | All of our DevOps tools for deploying the application to both development and production.                    |
 
 ## Usage
 
