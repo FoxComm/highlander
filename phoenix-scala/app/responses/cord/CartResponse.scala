@@ -32,7 +32,7 @@ case class CartResponse(referenceNumber: String,
 object CartResponse {
 
   def buildRefreshed(cart: Cart)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CartResponse] =
-    Carts.refresh(cart).toXor.flatMap(fromCart)
+    Carts.refresh(cart).dbresult.flatMap(fromCart)
 
   def fromCart(cart: Cart)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CartResponse] =
     for {

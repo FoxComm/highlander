@@ -195,7 +195,7 @@ object CreditCards
     filter(_.customerId === customerId).filter(_.id === id)
 
   def mustFindByIdAndCustomer(id: Int, customerId: Int)(implicit ec: EC): DbResultT[CreditCard] = {
-    filter(cc ⇒ cc.id === id && cc.customerId === customerId).one.toXor.flatMap {
+    filter(cc ⇒ cc.id === id && cc.customerId === customerId).one.dbresult.flatMap {
       case Some(cc) ⇒ DbResultT.good(cc)
       case None     ⇒ DbResultT.failure(NotFoundFailure404(CreditCard, id))
     }

@@ -21,7 +21,7 @@ object AddressManager {
       .findAllActiveByCustomerIdWithRegions(customerId)
       .result
       .map(AddressResponse.buildMulti)
-      .toXor
+      .dbresult
 
   def get(originator: Originator, addressId: Int, customerId: Int)(
       implicit ec: EC,

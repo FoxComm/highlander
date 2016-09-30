@@ -35,6 +35,20 @@ package object db {
 
   def liftFuture[A](future: Future[A]): DBIO[A] = DBIO.from(future)
 
+  def doOrMeh(condition: Boolean, action: DbResultT[_])(implicit ec: EC): DbResultT[Unit] =
+    if (condition) action.meh else DbResultT.unit
+
+  def doOrGood[A](condition: Boolean, action: DbResultT[A], good: A)(
+      implicit ec: EC): DbResultT[A] =
+    if (condition) action else DbResultT.good(good)
+
+  def doOrFail[A](condition: Boolean, action: DbResultT[A], failure: Failure)(
+      implicit ec: EC): DbResultT[A] =
+    if (condition) action else DbResultT.failure[A](failure)
+
+  def failIf(condition: Boolean, failure: Failure)(implicit ec: EC): DbResultT[Unit] =
+    if (condition) DbResultT.failure[Unit](failure) else DbResultT.unit
+
   implicit class EnrichedSQLActionBuilder(val action: SQLActionBuilder) extends AnyVal {
     def stripMargin: SQLActionBuilder =
       action.copy(action.queryParts.map(_.asInstanceOf[String].stripMargin))
@@ -50,19 +64,11 @@ package object db {
       query.one.mustNotFindOr(notFoundFailure)
   }
 
-  implicit class EnrichedSqlStreamingAction[R, T, E <: Effect](
-      val action: SqlStreamingAction[R, T, E])
-      extends AnyVal {
-
-    def one(implicit db: DB): Future[Option[T]] =
-      db.run(action.headOption)
-  }
-
   implicit class RunOnDbIO[R](val dbio: DBIO[R]) extends AnyVal {
     def run()(implicit db: DB): Future[R] =
       db.run(dbio)
 
-    def toXor(implicit ec: EC): DbResultT[R] =
+    def dbresult(implicit ec: EC): DbResultT[R] =
       DbResultT.fromDbio(dbio)
   }
 
@@ -73,7 +79,7 @@ package object db {
   implicit class EnrichedDBIOpt[R](val dbio: DBIO[Option[R]]) extends AnyVal {
 
     def findOrCreate(r: DbResultT[R])(implicit ec: EC): DbResultT[R] = {
-      dbio.toXor.flatMap {
+      dbio.dbresult.flatMap {
         case Some(model) ⇒ DbResultT.good(model)
         case None        ⇒ r
       }
@@ -81,19 +87,20 @@ package object db {
 
     // Last item in tuple determines if cart was created or not
     def findOrCreateExtended(r: DbResultT[R])(implicit ec: EC): DbResultT[(R, FoundOrCreated)] = {
-      dbio.toXor.flatMap {
+      dbio.dbresult.flatMap {
         case Some(model) ⇒ DbResultT.good((model, Found))
         case _           ⇒ r.map(result ⇒ (result, Created))
       }
     }
 
-    def mustFindOr(notFoundFailure: Failure)(implicit ec: EC): DbResultT[R] = dbio.toXor.flatMap {
-      case Some(model) ⇒ DbResultT.good(model)
-      case None        ⇒ DbResultT.failure(notFoundFailure)
-    }
+    def mustFindOr(notFoundFailure: Failure)(implicit ec: EC): DbResultT[R] =
+      dbio.dbresult.flatMap {
+        case Some(model) ⇒ DbResultT.good(model)
+        case None        ⇒ DbResultT.failure(notFoundFailure)
+      }
 
     def mustNotFindOr(shouldNotBeHere: Failure)(implicit ec: EC): DbResultT[Unit] =
-      dbio.toXor.flatMap {
+      dbio.dbresult.flatMap {
         case None    ⇒ DbResultT.unit
         case Some(_) ⇒ DbResultT.failure(shouldNotBeHere)
       }
@@ -128,7 +135,7 @@ package object db {
     def run()(implicit db: DB): Result[A] =
       dbResultT.value.run()
 
-    def ignoreResult(implicit ec: EC): DbResultT[Unit] = for (_ ← * <~ dbResultT) yield {}
+    def meh(implicit ec: EC): DbResultT[Unit] = for (_ ← * <~ dbResultT) yield {}
   }
 
   final implicit class EnrichedOption[A](val option: Option[A]) extends AnyVal {

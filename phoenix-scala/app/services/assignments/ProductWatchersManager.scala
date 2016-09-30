@@ -20,5 +20,5 @@ object ProductWatchersManager extends AssignmentsManager[Int, Product] {
     Products.mustFindById404(id)
 
   def fetchSequence(ids: Seq[Int])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Product]] =
-    Products.filter(_.id.inSetBind(ids)).result.toXor
+    Products.filter(_.id.inSetBind(ids)).result.dbresult
 }

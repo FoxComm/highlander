@@ -28,8 +28,7 @@ object OrderStateUpdater {
       _        ← * <~ updateQueries(admin, Seq(refNum), newState)
       updated  ← * <~ Orders.mustFindByRefNum(refNum)
       response ← * <~ OrderResponse.fromOrder(updated)
-      _ ← * <~ (if (order.state == newState) DbResultT.unit
-                else orderStateChanged(admin, response, order.state))
+      _        ← * <~ doOrMeh(order.state != newState, orderStateChanged(admin, response, order.state))
     } yield response
 
   def updateStates(admin: StoreAdmin,
@@ -53,23 +52,24 @@ object OrderStateUpdater {
       skipActivity: Boolean = false)(implicit ec: EC, ac: AC): DbResultT[BatchMetadata] = {
 
     val query = Orders.filter(_.referenceNumber.inSet(refNumbers)).result
-    appendForUpdate(query).toXor.flatMap { orders ⇒
+    appendForUpdate(query).dbresult.flatMap { orders ⇒
       val (validTransitions, invalidTransitions) =
         orders.filterNot(_.state == newState).partition(_.transitionAllowed(newState))
 
       val possibleRefNums = validTransitions.map(_.referenceNumber)
       val skipActivityMod = skipActivity || possibleRefNums.isEmpty
 
-      updateQueriesWrapper(admin, possibleRefNums, newState, skipActivityMod).toXor.flatMap { _ ⇒
-        // Failure handling
-        val invalid = invalidTransitions.map(o ⇒
-              (o.refNum, StateTransitionNotAllowed(o.state, newState, o.refNum).description))
-        val notFound = refNumbers
-          .filterNot(refNum ⇒ orders.map(_.referenceNumber).contains(refNum))
-          .map(refNum ⇒ (refNum, NotFoundFailure400(Order, refNum).description))
+      updateQueriesWrapper(admin, possibleRefNums, newState, skipActivityMod).dbresult.flatMap {
+        _ ⇒
+          // Failure handling
+          val invalid = invalidTransitions.map(o ⇒
+                (o.refNum, StateTransitionNotAllowed(o.state, newState, o.refNum).description))
+          val notFound = refNumbers
+            .filterNot(refNum ⇒ orders.map(_.referenceNumber).contains(refNum))
+            .map(refNum ⇒ (refNum, NotFoundFailure400(Order, refNum).description))
 
-        val batchFailures = (invalid ++ notFound).toMap
-        DbResultT.good(BatchMetadata(BatchMetadataSource(Order, possibleRefNums, batchFailures)))
+          val batchFailures = (invalid ++ notFound).toMap
+          DbResultT.good(BatchMetadata(BatchMetadataSource(Order, possibleRefNums, batchFailures)))
       }
     }
   }

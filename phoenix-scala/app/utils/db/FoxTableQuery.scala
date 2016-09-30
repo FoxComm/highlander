@@ -79,7 +79,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
 
   def deleteById[A](id: M#Id, onSuccess: ⇒ DbResultT[A], onFailure: M#Id ⇒ Failure)(
       implicit ec: EC): DbResultT[A] = {
-    val deleteResult = findById(id).delete.toXor.flatMap {
+    val deleteResult = findById(id).delete.dbresult.flatMap {
       case 0 ⇒ DbResultT.failure[A](onFailure(id))
       case _ ⇒ onSuccess
     }

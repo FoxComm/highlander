@@ -20,5 +20,5 @@ object OrderWatchersManager extends AssignmentsManager[String, Order] {
     Orders.mustFindByRefNum(refNum)
 
   def fetchSequence(refNums: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Order]] =
-    Orders.filter(_.referenceNumber.inSetBind(refNums)).result.toXor
+    Orders.filter(_.referenceNumber.inSetBind(refNums)).result.dbresult
 }
