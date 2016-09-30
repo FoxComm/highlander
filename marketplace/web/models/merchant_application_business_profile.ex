@@ -14,6 +14,7 @@ defmodule Marketplace.MerchantApplicationBusinessProfile do
     model
     |> cast(params, @required_fields ++ @optional_fields)
     |> validate_required_code(@required_fields)
+    |> unique_constraint_code(:merchant_application_id)
   end
 
 end
