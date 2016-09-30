@@ -76,6 +76,11 @@
     vertical-align: middle;
   }
 
+  .search {
+    width: 115px;
+    height: 48px;
+  }
+
   .header {
     height: 136px;
 
@@ -94,7 +99,6 @@
     & :global(.icon).logo {
       width: 220px;
       height: 102px;
-      margin-right: -100px
     }
   }
 
