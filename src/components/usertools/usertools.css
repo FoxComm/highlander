@@ -103,7 +103,7 @@
 }
 
 @media (--small-only), (--medium-only) {
-  .login-link,
+  .login,
   .menu {
     display: none;
   }
