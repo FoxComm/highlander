@@ -35,4 +35,12 @@ object TaxonomyFailures {
   case class CannotArchiveParentTaxon(taxonId: ObjectForm#Id) extends Failure {
     override def description: String = s"Cannot archive taxon $taxonId as soon as it has child"
   }
+
+  case object ParentOrSiblingIsInvalid extends Failure {
+    override def description: String = "'parent' should be empty if 'sibling' is defined"
+  }
+
+  case object CannotMoveParentTaxonUnderChild extends Failure {
+    override def description: String = "cannot move parent taxon under itself or one of its child"
+  }
 }

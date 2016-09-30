@@ -2,16 +2,16 @@ package models.taxonomy
 
 import java.time.Instant
 
-import _root_.utils.aliases.{EC, OC}
+import com.github.tminglei.slickpg.LTree
 import failures.TaxonomyFailures.NoTermInTaxonomy
 import models.objects.ObjectForm
 import models.objects.ObjectHeadLinks._
 import shapeless._
-import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
 import utils.Validation
+import utils.aliases.{EC, OC}
+import utils.db.ExPostgresDriver.api._
 import utils.db._
-import com.github.tminglei.slickpg.LTree
 
 case class TaxonomyTaxonLink(id: Int = 0,
                              index: Int,
@@ -67,10 +67,10 @@ object TaxonomyTaxonLinks
 
   private def shiftPositions(taxonomyId: Int, path: LTree, position: Int): DBIO[Int] = {
     val pathString = path.toString()
-    sqlu"""UPDATE taxonomy_taxon_links SET position = position + 1
-           WHERE taxonomy_id = $taxonomyId
-           AND path=text2ltree($pathString)
-           AND position >= $position
+    sqlu"""update taxonomy_taxon_links set position = position + 1
+           where taxonomy_id = $taxonomyId
+           and path=text2ltree($pathString)
+           and position >= $position
            and archived_at is null"""
   }
 
@@ -97,7 +97,7 @@ object TaxonomyTaxonLinks
     } yield newLink
   }
 
-  def archivate(link: TaxonomyTaxonLink)(implicit ec: EC): DbResultT[Unit] =
+  def archive(link: TaxonomyTaxonLink)(implicit ec: EC): DbResultT[Unit] =
     for {
       _ ← * <~ (if (link.archivedAt.isDefined) DbResultT.good(link)
                 else TaxonomyTaxonLinks.update(link, link.copy(archivedAt = Some(Instant.now))))
@@ -106,16 +106,16 @@ object TaxonomyTaxonLinks
 
   def updatePath(taxonomyId: Int, oldPrefix: LTree, newPrefix: LTree): DBIO[Int] = {
     val patternLength = oldPrefix.value.length
-    sqlu"""UPDATE taxonomy_taxon_links AS t
-             SET path = (text2ltree(${newPrefix.toString}) || subpath(t.path, $patternLength))
-             WHERE t.taxonomy_id=$taxonomyId
-             AND (t.path <@ text2ltree(${oldPrefix.toString})
+    sqlu"""update taxonomy_taxon_links as t
+             set path = (text2ltree(${newPrefix.toString}) || subpath(t.path, $patternLength))
+             where t.taxonomy_id=$taxonomyId
+             and (t.path <@ text2ltree(${oldPrefix.toString})
              and not t.path = text2ltree(${oldPrefix.toString}))
              and t.archived_at is null""".andThen {
-      sqlu"""UPDATE taxonomy_taxon_links AS t
-             SET path = text2ltree(${newPrefix.toString})
-             WHERE t.taxon_id=$taxonomyId
-             AND t.path = text2ltree(${oldPrefix.toString})
+      sqlu"""update taxonomy_taxon_links as t
+             set path = text2ltree(${newPrefix.toString})
+             where t.taxon_id=$taxonomyId
+             and t.path = text2ltree(${oldPrefix.toString})
              and t.archived_at is null"""
     }
   }

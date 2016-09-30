@@ -62,7 +62,7 @@ object ObjectHeadLinks {
         rightId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[(FullObject[L], M)]] =
       for {
         links         ← * <~ filterRightId(rightId).result
-        linkedObjects ← * <~ links.map(link ⇒ queryLeftLinkedObject(link))
+        linkedObjects ← * <~ links.map(queryLeftLinkedObject)
       } yield linkedObjects.zip(links)
 
     def queryLinkedObject(link: M)(implicit ec: EC, db: DB): DbResultT[FullObject[R]] =

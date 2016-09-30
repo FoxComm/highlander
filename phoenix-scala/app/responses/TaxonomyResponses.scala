@@ -8,7 +8,7 @@ import utils.aliases.Json
 
 object TaxonomyResponses {
 
-  type TermList   = Seq[TaxonResponse.Root]
+  type TermList   = Seq[TaxonResponse]
   type LinkedTerm = (FullObject[Taxon], TaxonomyTaxonLink)
 
   implicit class LTreeExtension(ltree: LTree) {
@@ -22,25 +22,27 @@ object TaxonomyResponses {
     }
   }
 
+  case class TaxonomyResponse(id: Int, hierarchical: Boolean, attributes: Json, terms: TermList)
+
   object TaxonomyResponse {
-
-    def build(taxon: FullObject[Taxonomy], terms: Seq[LinkedTerm]): Root = {
-      Root(taxon.model.formId,
-           taxon.model.hierarchical,
-           IlluminateAlgorithm.projectAttributes(taxon.form.attributes, taxon.shadow.attributes),
-           TaxonResponse.buildTree(terms))
+    def build(taxon: FullObject[Taxonomy], terms: Seq[LinkedTerm]): TaxonomyResponse = {
+      TaxonomyResponse(
+          taxon.model.formId,
+          taxon.model.hierarchical,
+          IlluminateAlgorithm.projectAttributes(taxon.form.attributes, taxon.shadow.attributes),
+          TaxonResponse.buildTree(terms))
     }
-
-    case class Root(id: Int, hierarchical: Boolean, attributes: Json, terms: TermList)
   }
 
-  object TaxonResponse {
-    case class Root(id: Int, attributes: Json, children: TermList)
+  case class TaxonResponse(id: Int, attributes: Json, children: TermList)
 
-    def build(term: FullObject[Taxon]): Root = {
-      Root(term.model.formId,
-           IlluminateAlgorithm.projectAttributes(term.form.attributes, term.shadow.attributes),
-           Seq())
+  object TaxonResponse {
+
+    def build(term: FullObject[Taxon]): TaxonResponse = {
+      TaxonResponse(
+          term.model.formId,
+          IlluminateAlgorithm.projectAttributes(term.form.attributes, term.shadow.attributes),
+          Seq())
     }
 
     def buildTree(nodes: Seq[LinkedTerm]): TermList =
@@ -51,11 +53,12 @@ object TaxonomyResponses {
       val headsByPosition = heads.sortBy { case (_, link)     ⇒ link.position }
       headsByPosition.map {
         case (term, link) ⇒
-          Root(term.model.formId,
-               IlluminateAlgorithm.projectAttributes(term.form.attributes, term.shadow.attributes),
-               buildTree(level + 1, tail.filter {
-                 case (_, lnk) ⇒ lnk.parentIndex.contains(link.index)
-               }))
+          TaxonResponse(
+              term.model.formId,
+              IlluminateAlgorithm.projectAttributes(term.form.attributes, term.shadow.attributes),
+              buildTree(level + 1, tail.filter {
+                case (_, lnk) ⇒ lnk.parentIndex.contains(link.index)
+              }))
       }
     }
   }

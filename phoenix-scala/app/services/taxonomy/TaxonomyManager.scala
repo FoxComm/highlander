@@ -14,7 +14,7 @@ import payloads.TaxonomyPayloads._
 import responses.TaxonomyResponses._
 import services.objects.ObjectManager
 import utils.Validation
-import utils.aliases.{DB, EC, Json, OC}
+import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -25,14 +25,12 @@ object TaxonomyManager {
                       sibling: Option[TaxonomyTaxonLink])
       extends Validation[MoveSpec] {
 
-    def moveRequired: Boolean =
+    def fillLinkWithNewPath: MoveSpec = copy(taxon = taxon.copy(path = newPath))
+
+    def isMoveRequired: Boolean =
       taxon.path != newPath || (sibling.isDefined && sibling.get.position + 1 != taxon.position)
 
     override def validate: ValidatedNel[Failure, MoveSpec] = {
-
-      def validateSiblingOrParentDefined: ValidatedNel[Failure, Unit] =
-        Validation.validExpr(sibling.isEmpty || sibling.isDefined && parent.isEmpty,
-                             "'parent' should be empty if 'sibling' is defined")
 
       def validateSameTaxonomy: ValidatedNel[Failure, Unit] =
         Validation.validExpr(taxon.taxonomyId == parent
@@ -43,11 +41,11 @@ object TaxonomyManager {
 
       def validateParentToChildMove: ValidatedNel[Failure, Unit] = {
         Validation.validExpr(
-            !moveRequired || taxon.id == 0 || !newPath.value.startsWith(taxon.childPath.value),
-            "cannot move parent taxon under itself or one of its child")
+            !isMoveRequired || taxon.id == 0 || !newPath.value.startsWith(taxon.childPath.value),
+            CannotMoveParentTaxonUnderChild.description)
       }
 
-      (validateSiblingOrParentDefined |@| validateSameTaxonomy |@| validateParentToChildMove).map {
+      (validateSameTaxonomy |@| validateParentToChildMove).map {
         case _ ⇒ this
       }
     }
@@ -58,42 +56,38 @@ object TaxonomyManager {
 
   def getTaxonomy(taxonomyFormId: ObjectForm#Id)(implicit ec: EC,
                                                  oc: OC,
-                                                 db: DB): DbResultT[TaxonomyResponse.Root] =
+                                                 db: DB): DbResultT[TaxonomyResponse] =
     for {
       taxonomy ← * <~ ObjectUtils.getFullObject(Taxonomies.mustFindByFormId404(taxonomyFormId))
       taxons   ← * <~ TaxonomyTaxonLinks.queryRightByLeftWithLinks(taxonomy.model)
     } yield TaxonomyResponse.build(taxonomy, taxons)
 
   def createTaxonomy(payload: CreateTaxonomyPayload)(implicit ec: EC,
-                                                     oc: OC): DbResultT[TaxonomyResponse.Root] = {
+                                                     oc: OC): DbResultT[TaxonomyResponse] = {
     val form   = ObjectForm.fromPayload(Taxonomy.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
       ins ← * <~ ObjectUtils.insert(form, shadow)
       taxonomy ← * <~ Taxonomies.create(
-                    Taxonomy(id = 0,
-                             hierarchical = payload.hierarchical,
-                             oc.id,
-                             ins.form.id,
-                             ins.shadow.id,
-                             ins.commit.id))
+                    Taxonomy(hierarchical = payload.hierarchical,
+                             contextId = oc.id,
+                             formId = ins.form.id,
+                             shadowId = ins.shadow.id,
+                             commitId = ins.commit.id))
     } yield TaxonomyResponse.build(FullObject(taxonomy, ins.form, ins.shadow), Seq())
   }
 
   def updateTaxonomy(taxonomyFormId: ObjectForm#Id, payload: UpdateTaxonomyPayload)(
       implicit ec: EC,
       oc: OC,
-      db: DB): DbResultT[TaxonomyResponse.Root] = {
+      db: DB): DbResultT[TaxonomyResponse] = {
     val form   = ObjectForm.fromPayload(Taxonomy.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
       taxonomy ← * <~ ObjectUtils.getFullObject(Taxonomies.mustFindByFormId404(taxonomyFormId))
-      _ ← * <~ (if (taxonomy.model.archivedAt.isDefined)
-                  DbResultT.failure(TaxonomyIsArchived(taxonomyFormId))
-                else
-                  DbResultT.unit)
+      _        ← * <~ failIf(taxonomy.model.archivedAt.isDefined, TaxonomyIsArchived(taxonomyFormId))
       newTaxonomy ← * <~ ObjectUtils.commitUpdate(
                        taxonomy,
                        form.attributes,
@@ -118,44 +112,50 @@ object TaxonomyManager {
     } yield {}
 
   def getTaxon(
-      taxonFormId: ObjectForm#Id)(implicit ec: EC, oc: OC, db: DB): DbResultT[TaxonResponse.Root] =
+      taxonFormId: ObjectForm#Id)(implicit ec: EC, oc: OC, db: DB): DbResultT[TaxonResponse] =
     ObjectUtils.getFullObject(Taxons.mustFindByFormId404(taxonFormId)).map(TaxonResponse.build)
 
   def createTaxon(taxonFormId: ObjectForm#Id, payload: CreateTaxonPayload)(
       implicit ec: EC,
-      oc: OC): DbResultT[TaxonResponse.Root] = {
+      oc: OC): DbResultT[TaxonResponse] = {
     val form   = ObjectForm.fromPayload(Taxon.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
+      _        ← * <~ payload.validate
       taxonomy ← * <~ Taxonomies.mustFindByFormId404(taxonFormId)
 
-      ins   ← * <~ ObjectUtils.insert(form, shadow)
-      taxon ← * <~ Taxons.create(Taxon(id = 0, oc.id, ins.form.id, ins.shadow.id, ins.commit.id))
+      ins ← * <~ ObjectUtils.insert(form, shadow)
+      taxon ← * <~ Taxons.create(
+                 Taxon(contextId = oc.id,
+                       shadowId = ins.form.id,
+                       formId = ins.shadow.id,
+                       commitId = ins.commit.id))
 
-      parentLink ← * <~ (if (payload.parent.isDefined)
-                           TaxonomyTaxonLinks
-                             .active()
-                             .mustFindByTaxonomyAndTaxonFormId(taxonomy, payload.parent.get)
-                             .map(link ⇒ Some(link))
-                         else DbResultT.none)
-      siblingLink ← * <~ (if (payload.sibling.isDefined)
-                            TaxonomyTaxonLinks
-                              .active()
-                              .mustFindByTaxonomyAndTaxonFormId(taxonomy, payload.sibling.get)
-                              .map(link ⇒ Some(link))
-                          else DbResultT.none)
+      parentLink ← * <~ payload.parent.fold(DbResultT.none[TaxonomyTaxonLink])(
+                      parentId ⇒
+                        TaxonomyTaxonLinks
+                          .active()
+                          .mustFindByTaxonomyAndTaxonFormId(taxonomy, parentId)
+                          .map(Some(_)))
+      siblingLink ← * <~ payload.sibling.fold(DbResultT.none[TaxonomyTaxonLink])(
+                       siblingId ⇒
+                         TaxonomyTaxonLinks
+                           .active()
+                           .mustFindByTaxonomyAndTaxonFormId(taxonomy, siblingId)
+                           .map(Some(_)))
 
       index ← * <~ TaxonomyTaxonLinks.nextIndex(taxonomy.id).result
-      moveSpec ← * <~ MoveSpec(TaxonomyTaxonLink(0, index, taxonomy.id, taxon.id, -1, LTree("")),
+      moveSpec ← * <~ MoveSpec(TaxonomyTaxonLink(index = index,
+                                                 taxonomyId = taxonomy.id,
+                                                 taxonId = taxon.id,
+                                                 position = -1,
+                                                 path = LTree("")),
                                parentLink,
-                               siblingLink).validate
-      moveSpec2 = moveSpec.copy(taxon = moveSpec.taxon.copy(path = moveSpec.newPath))
-      link ← * <~ TaxonomyTaxonLinks.create(moveSpec2.taxon)
-      _ ← * <~ (if (moveSpec2.sibling.isDefined)
-                  TaxonomyTaxonLinks.moveTaxonAfter(link, moveSpec2.sibling.get)
-                else
-                  DbResultT.good(link))
+                               siblingLink).validate.map(_.fillLinkWithNewPath)
+      link ← * <~ TaxonomyTaxonLinks.create(moveSpec.taxon)
+      _ ← * <~ moveSpec.sibling.fold(DbResultT.good(link))(sibling ⇒
+               TaxonomyTaxonLinks.moveTaxonAfter(link, sibling))
     } yield TaxonResponse.build(FullObject(taxon, ins.form, ins.shadow))
   }
 
@@ -163,8 +163,11 @@ object TaxonomyManager {
                                                    db: DB): DbResultT[FullObject[Taxonomy]] =
     for {
       taxonomies ← * <~ TaxonomyTaxonLinks.queryLeftByRight(taxon)
-      taxonomy ← * <~ (if (taxonomies.length == 1) DbResultT.good(taxonomies.head)
-                       else DbResultT.failure(InvalidTaxonomiesForTaxon(taxon, taxonomies.length)))
+      taxonomy ← * <~ (taxonomies.toList match {
+                      case t :: Nil ⇒ DbResultT.good(t)
+                      case _ ⇒
+                        DbResultT.failure(InvalidTaxonomiesForTaxon(taxon, taxonomies.length))
+                    })
     } yield taxonomy
 
   private def updateTaxonomyHierarchy(taxon: Taxon, parent: Option[Int], sibling: Option[Int])(
@@ -173,58 +176,53 @@ object TaxonomyManager {
       oc: OC) =
     for {
       taxonomy ← * <~ mustFindSingleTaxonomyForTaxon(taxon)
-      parentTaxon ← * <~ (if (parent.isDefined)
-                            TaxonomyTaxonLinks
-                              .active()
-                              .mustFindByTaxonomyAndTaxonFormId(taxonomy.model, parent.get)
-                              .map(link ⇒ Some(link))
-                          else DbResultT.none)
-      siblingTerm ← * <~ (if (sibling.isDefined)
-                            TaxonomyTaxonLinks
-                              .active()
-                              .mustFindByTaxonomyAndTaxonFormId(taxonomy.model, sibling.get)
-                              .map(link ⇒ Some(link))
-                          else DbResultT.none)
+      parentTaxon ← * <~ parent.fold(DbResultT.none[TaxonomyTaxonLink])(
+                       parent ⇒
+                         TaxonomyTaxonLinks
+                           .active()
+                           .mustFindByTaxonomyAndTaxonFormId(taxonomy.model, parent)
+                           .map(Some(_)))
+      siblingTaxon ← * <~ sibling.fold(DbResultT.none[TaxonomyTaxonLink])(
+                        sibling ⇒
+                          TaxonomyTaxonLinks
+                            .active()
+                            .mustFindByTaxonomyAndTaxonFormId(taxonomy.model, sibling)
+                            .map(Some(_)))
       link ← * <~ TaxonomyTaxonLinks
               .active()
               .mustFindByTaxonomyAndTaxonFormId(taxonomy.model, taxon.formId)
-      moveSpec ← * <~ MoveSpec(link, parentTaxon, siblingTerm).validate
-      _ ← * <~ (if (moveSpec.moveRequired) moveTaxon(taxonomy.model, moveSpec)
-                else DbResultT.good(Unit))
+      moveSpec ← * <~ MoveSpec(link, parentTaxon, siblingTaxon).validate
+      _        ← * <~ doOrMeh(moveSpec.isMoveRequired, moveTaxon(taxonomy.model, moveSpec))
     } yield taxonomy
 
-  def updateTaxon(taxonId: Int, payload: UpdateTaxonPayload)(
-      implicit ec: EC,
-      oc: OC,
-      db: DB): DbResultT[TaxonResponse.Root] = {
+  def updateTaxon(taxonId: Int, payload: UpdateTaxonPayload)(implicit ec: EC,
+                                                             oc: OC,
+                                                             db: DB): DbResultT[TaxonResponse] = {
     for {
+      _     ← * <~ payload.validate
       taxon ← * <~ Taxons.mustFindByFormId404(taxonId)
-      _ ← * <~ (if (taxon.archivedAt.isDefined) DbResultT.failure(TaxonIsArchived(taxonId))
-                else DbResultT.unit)
+      _     ← * <~ failIf(taxon.archivedAt.isDefined, TaxonIsArchived(taxonId))
       newTaxon ← * <~ (payload.attributes match {
                       case Some(attributes) ⇒ updateTaxonAttributes(taxon, attributes)
                       case _                ⇒ DbResultT.good(taxon)
                     })
-
-      _ ← * <~ updateTaxonomyHierarchy(taxon, payload.parent, payload.sibling)
-      r ← * <~ ObjectManager.getFullObject(DbResultT.good(newTaxon))
-    } yield TaxonResponse.build(r)
+      _        ← * <~ updateTaxonomyHierarchy(taxon, payload.parent, payload.sibling)
+      response ← * <~ ObjectManager.getFullObject(DbResultT.good(newTaxon))
+    } yield TaxonResponse.build(response)
   }
 
   private def moveTaxon(taxon: Taxonomy, moveSpec: MoveSpec)(implicit ec: EC, oc: OC, db: DB) =
     for {
-      _       ← * <~ TaxonomyTaxonLinks.archivate(moveSpec.taxon)
-      newPath ← * <~ moveSpec.newPath
+      _ ← * <~ TaxonomyTaxonLinks.archive(moveSpec.taxon)
+      newPath = moveSpec.newPath
       newLink ← * <~ TaxonomyTaxonLinks.create(
                    moveSpec.taxon.copy(id = 0, position = -1, path = newPath))
-      _ ← * <~ TaxonomyTaxonLinks.updatePath(taxon.id,
-                                             moveSpec.taxon.childPath,
-                                             newPath.copy(value = newPath.value :::
-                                                     List(moveSpec.taxon.index.toString)))
-      _ ← * <~ (if (moveSpec.sibling.isDefined)
-                  TaxonomyTaxonLinks.moveTaxonAfter(newLink, moveSpec.sibling.get)
-                else
-                  DbResultT.good(newLink))
+      _ ← * <~ TaxonomyTaxonLinks.updatePath(
+             taxon.id,
+             moveSpec.taxon.childPath,
+             newPath.copy(value = newPath.value ::: List(moveSpec.taxon.index.toString)))
+      _ ← * <~ moveSpec.sibling.fold(DbResultT.unit)(sibling ⇒
+               TaxonomyTaxonLinks.moveTaxonAfter(newLink, sibling).meh)
     } yield {}
 
   private def updateTaxonAttributes(taxon: Taxon, newAttributes: Map[String, Json])(
@@ -250,10 +248,9 @@ object TaxonomyManager {
       taxon    ← * <~ Taxons.mustFindByFormId404(taxonFormId)
       _        ← * <~ Taxons.update(taxon, taxon.copy(archivedAt = Some(Instant.now)))
       links    ← * <~ TaxonomyTaxonLinks.filterByTaxonFormId(taxonFormId).result
-      children ← * <~ links.map(link ⇒ TaxonomyTaxonLinks.hasChildren(link).result.toXor)
-      _ ← * <~ (if (children.exists(identity))
-                  DbResultT.failure(TaxonomyFailures.CannotArchiveParentTaxon(taxonFormId))
-                else DbResultT.unit)
-      _ ← * <~ links.map(TaxonomyTaxonLinks.archivate)
+      children ← * <~ links.map(link ⇒ TaxonomyTaxonLinks.hasChildren(link).result.dbresult)
+      _ ← * <~ failIf(children.exists(identity),
+                      TaxonomyFailures.CannotArchiveParentTaxon(taxonFormId))
+      _ ← * <~ links.map(TaxonomyTaxonLinks.archive)
     } yield {}
 }

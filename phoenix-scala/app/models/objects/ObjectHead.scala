@@ -2,7 +2,7 @@ package models.objects
 
 import java.time.Instant
 
-import failures.NotFoundFailure404
+import failures.ObjectFailures.ObjectHeadCannotBeFoundByFormId
 import slick.lifted.Tag
 import utils.aliases.{EC, OC}
 import utils.db.ExPostgresDriver.api._
@@ -51,8 +51,7 @@ abstract class ObjectHeadsQueries[M <: ObjectHead[M], T <: ObjectHeads[M]](const
 
   def mustFindByFormId404(formId: ObjectForm#Id)(implicit oc: OC, ec: EC): DbResultT[M] =
     findOneByFormId(formId).mustFindOneOr(
-        NotFoundFailure404(
-            s"${baseTableRow.tableName} with formId = $formId in context ${oc.name} not found"))
+        ObjectHeadCannotBeFoundByFormId(baseTableRow.tableName, formId, oc.name))
 
   def findOneByFormId(formId: Int)(implicit oc: OC): QuerySeq =
     filter(_.contextId === oc.id).filter(_.formId === formId)
@@ -65,9 +64,7 @@ abstract class ObjectHeadsQueries[M <: ObjectHead[M], T <: ObjectHeads[M]](const
 
   def updateHead(fullObject: FullObject[M], commitId: Int)(
       implicit ec: EC): DbResultT[FullObject[M]] =
-    for {
-      updated ← * <~ update(
-                   fullObject.model,
-                   fullObject.model.withNewShadowAndCommit(fullObject.shadow.id, commitId))
-    } yield fullObject.copy(model = updated)
+    update(fullObject.model,
+           fullObject.model.withNewShadowAndCommit(fullObject.shadow.id, commitId)).map(updated ⇒
+          fullObject.copy(model = updated))
 }
