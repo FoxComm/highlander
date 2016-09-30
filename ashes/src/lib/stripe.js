@@ -66,7 +66,7 @@ function creditCardForStripePayload(creditCard, billingAddress) {
   };
 }
 
-function creditCardFromStripePayload(stripeResponse, billingAddress, addressIsNew) {
+function creditCardFromStripePayload(stripeResponse, address, isNew) {
   return {
     token: stripeResponse.id,
     holderName: stripeResponse.card.name,
@@ -74,8 +74,10 @@ function creditCardFromStripePayload(stripeResponse, billingAddress, addressIsNe
     expMonth: stripeResponse.card.exp_month,
     expYear: stripeResponse.card.exp_year,
     brand: stripeResponse.card.brand,
-    addressIsNew: addressIsNew,
-    billingAddress,
+    billingAddress: {
+      address,
+      isNew,
+    },
   };
 }
 
