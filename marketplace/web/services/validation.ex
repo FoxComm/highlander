@@ -59,7 +59,8 @@ defmodule Marketplace.Validation do
     validate_inclusion(changeset, field, list, message: "validate.inclusion")
   end
 
-  def unique_constraint_code(changeset, field) do
-    unique_constraint(changeset, field, message: "validate.unique")
+  def unique_constraint_code(changeset, field, opts \\ []) do
+    name = opts[:name]
+    unique_constraint(changeset, field, message: "validate.unique", name: name)
   end
 end

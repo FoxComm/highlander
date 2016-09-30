@@ -14,6 +14,6 @@ defmodule Marketplace.MerchantApplicationSocialProfile do
     model
     |> cast(params, @required_fields ++ @optional_fields)
     |> validate_required_code(@required_fields)
-    |> unique_constraint_code(:merchant_application_id)
+    |> unique_constraint_code(:merchant_application_id, name: :merch_app_social_index)
   end
 end
