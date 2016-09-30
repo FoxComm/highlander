@@ -103,7 +103,7 @@ Edit your hosts file so that `local.foxcommerce.com` points to the new box using
 
 ## The Projects
 
-| Name                                   | Type                                                                                                         |
+| Project                                | Description                                                                                                  |
 |:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
 | [phoenix-scala](phoenix-scala)         | Our main API that handles the business logic for the customer, merchandising, and order management systems.  |
 | [green-river](green-river)             | An event-sourcing system based on Kafka and [bottledwater](https://github.com/confluentinc/bottledwater-pg). |
