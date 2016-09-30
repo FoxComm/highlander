@@ -79,4 +79,3 @@ Billing address ID.
 
 @miniclass CreditCardsResponse (CreditCards)
 @aka creditcardsresponse
-@inherits ResultMetadata
