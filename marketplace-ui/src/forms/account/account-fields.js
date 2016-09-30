@@ -19,7 +19,7 @@ export const fields: Array<FormField> = [
     name: 'email_address',
     type: 'text',
     placeholder: 'Email Address',
-    validation: 'required email',
+    validation: 'required format.email',
   },
   {
     name: 'password',

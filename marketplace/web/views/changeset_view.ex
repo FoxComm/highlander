@@ -2,7 +2,8 @@ defmodule Marketplace.ChangesetView do
   use Marketplace.Web, :view
 
   def translate_errors(changeset) do 
-    Ecto.Changeset.traverse_errors(changeset, &translate_error/1)
+    Enum.map(changeset.errors, fn {key, {err, x}} -> %{key => err} end)
+    |> Enum.reduce(fn(m, acc) -> Map.merge(m, acc) end)
   end
   
   def render("errors.json", %{changeset: changeset}) do 

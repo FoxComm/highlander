@@ -12,10 +12,21 @@ final case class AccountConnector()(implicit ec: EC) extends ActivityConnector {
 
   def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
     val accountIds =
-      byContextUserType(activity) ++: byContextAccountType(activity) ++: byAccountData(activity) ++:
-      byAccountUpdatedActivity(activity) ++: byAssignmentBulkData(activity) ++:
-      byAssignmentSingleData(activity) ++: byNoteData(activity) ++: byAccountId(activity) ++:
-      byUserData(activity) ++: byUserId(activity)
+      byContextType(activity) ++:
+      byNoteData(activity) ++:
+      byData(activity, "account") ++:
+      byData(activity, "user") ++:
+      byData(activity, "admin") ++:
+      byData(activity, "customer") ++:
+      byData(activity, "assignee") ++:
+      byId(activity, "accountId") ++:
+      byId(activity, "userId") ++:
+      byId(activity, "customerId") ++:
+      byId(activity, "adminId") ++:
+      byUpdatedActivity(activity) ++:
+      byAssignmentSingleData(activity) ++:
+      byAssignmentBulkData(activity) ++:
+      byAssigneesData(activity)
 
     accountIds.distinct.map(createConnection(_, activity.id))
   }
@@ -27,53 +38,41 @@ final case class AccountConnector()(implicit ec: EC) extends ActivityConnector {
                activityId = activityId)
   }
 
-  private def byContextAccountType(activity: Activity): Seq[String] =
+  private def byContextType(activity: Activity): Seq[String] =
     activity.context.userType match {
-      case "account" ⇒ Seq(activity.context.userId.toString)
-      case _         ⇒ Seq.empty
-    }
-
-  private def byContextUserType(activity: Activity): Seq[String] =
-    activity.context.userType match {
-      case "user" ⇒ Seq(activity.context.userId.toString)
-      case _      ⇒ Seq.empty
+      case "account"  ⇒ Seq(activity.context.userId.toString)
+      case "user"     ⇒ Seq(activity.context.userId.toString)
+      case "customer" ⇒ Seq(activity.context.userId.toString)
+      case "admin"    ⇒ Seq(activity.context.userId.toString)
+      case _          ⇒ Seq.empty
     }
 
   private def byNoteData(activity: Activity): Seq[String] = {
     (activity.data \ "note" \ "referenceType", activity.data \ "entity" \ "id") match {
-      case (JString("user"), JInt(id)) ⇒ Seq(id.toString)
-      case _                           ⇒ Seq.empty
+      case (JString("account"), JInt(id))  ⇒ Seq(id.toString)
+      case (JString("user"), JInt(id))     ⇒ Seq(id.toString)
+      case (JString("customer"), JInt(id)) ⇒ Seq(id.toString)
+      case _                               ⇒ Seq.empty
     }
   }
 
-  private def byAccountData(activity: Activity): Seq[String] =
-    activity.data \ "account" \ "id" match {
+  private def byData(activity: Activity, fieldName: String): Seq[String] =
+    activity.data \ fieldName \ "id" match {
+      case JInt(value) ⇒ Seq(value.toString)
+      case _           ⇒ Seq.empty
+    }
+
+  private def byId(activity: Activity, fieldName: String): Seq[String] =
+    activity.data \ fieldName match {
       case JInt(accountId) ⇒ Seq(accountId.toString)
       case _               ⇒ Seq.empty
     }
 
-  private def byUserData(activity: Activity): Seq[String] =
-    activity.data \ "user" \ "id" match {
-      case JInt(accountId) ⇒ Seq(accountId.toString)
-      case _               ⇒ Seq.empty
-    }
-
-  private def byUserId(activity: Activity): Seq[String] =
-    activity.data \ "userId" match {
-      case JInt(accountId) ⇒ Seq(accountId.toString)
-      case _               ⇒ Seq.empty
-    }
-
-  private def byAccountId(activity: Activity): Seq[String] =
-    activity.data \ "accountId" match {
-      case JInt(accountId) ⇒ Seq(accountId.toString)
-      case _               ⇒ Seq.empty
-    }
-
-  private def byAccountUpdatedActivity(activity: Activity): Seq[String] = {
+  private def byUpdatedActivity(activity: Activity): Seq[String] = {
     (activity.activityType, activity.data \ "oldInfo" \ "id") match {
-      case ("user_updated", JInt(accountId)) ⇒ Seq(accountId.toString)
-      case _                                 ⇒ Seq.empty
+      case ("user_updated", JInt(accountId))      ⇒ Seq(accountId.toString)
+      case ("customer_updated", JInt(customerId)) ⇒ Seq(customerId.toString)
+      case _                                      ⇒ Seq.empty
     }
   }
 
@@ -87,9 +86,12 @@ final case class AccountConnector()(implicit ec: EC) extends ActivityConnector {
 
   private def byAssignmentBulkData(activity: Activity): Seq[String] = {
     (activity.activityType, activity.data \ "referenceType") match {
-      case ("bulk_assigned", JString("user"))   ⇒ extractStringSeq(activity.data, "entityIds")
-      case ("bulk_unassigned", JString("user")) ⇒ extractStringSeq(activity.data, "entityIds")
+      case ("bulk_assigned", JString(entity))   ⇒ extractStringSeq(activity.data, "entityIds")
+      case ("bulk_unassigned", JString(entity)) ⇒ extractStringSeq(activity.data, "entityIds")
       case _                                    ⇒ Seq.empty
     }
   }
+
+  private def byAssigneesData(activity: Activity): Seq[String] =
+    extractStringSeq(activity.data, "assignees")
 }

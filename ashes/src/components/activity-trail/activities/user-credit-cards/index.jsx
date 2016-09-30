@@ -1,7 +1,6 @@
 import React from 'react';
 import types from '../base/types';
 
-import CustomerLink from '../base/customer-link';
 import PaymentMethod from '../../../payment/payment-method';
 import Title from '../base/title';
 

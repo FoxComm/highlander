@@ -1,5 +1,6 @@
 defmodule Marketplace.MerchantBusinessProfile do 
   use Marketplace.Web, :model
+  import Marketplace.Validation
 
   schema "merchant_business_profiles" do
     belongs_to :merchant, Marketplace.Merchant
@@ -12,6 +13,6 @@ defmodule Marketplace.MerchantBusinessProfile do
   def changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
+    |> validate_required_code(@required_fields)
   end
 end
