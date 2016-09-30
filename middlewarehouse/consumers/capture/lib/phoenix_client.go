@@ -104,7 +104,7 @@ func (c *phoenixClient) Authenticate() error {
 	payload := LoginPayload{
 		Email:    c.email,
 		Password: c.password,
-		Kind:     "admin",
+		Org:     "tenant",
 	}
 
 	url := fmt.Sprintf("%s/v1/public/login", c.baseURL)
