@@ -31,7 +31,7 @@ Available values:
 @field id: Number = 1
 Unique identifier.
 
-@field createdAt: String = `2015-09-10T14:55:50Z`
+@field createdAt: String = `2020-01-01T12:00:00Z`
 Creation date.
 
 @field code: String = `ABC-123`

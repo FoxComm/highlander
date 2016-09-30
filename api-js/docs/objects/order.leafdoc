@@ -48,23 +48,6 @@ Available values:
 <li>`Shipped`</li>
 </ul>
 
-@miniclass ShippingState (Cart)
-@aka shippingstate
-
-@field shippingState: String = Cart
-Shipping state.
-Available values:
-<ul class="collapsible collapsed">
-<li>`Cart`</li>
-<li>`Ordered`</li>
-<li>`FraudHold`</li>
-<li>`RemorseHold`</li>
-<li>`ManualHold`</li>
-<li>`Canceled`</li>
-<li>`FulfillmentStarted`</li>
-<li>`Shipped`</li>
-</ul>
-
 @miniclass FullOrder (Cart)
 @aka fullorder
 @inherits OrderState
@@ -98,7 +81,7 @@ Shipping method.
 @field shippingAddress?: OrderShippingAddress
 Shipping address.
 
-@field remorsePeriodEnd?: String = `2015-09-10T14:55:50Z`
+@field remorsePeriodEnd?: String = `2020-01-01T12:00:00Z`
 Remorse period end.
 
 @field paymentMethods?: Array<DisplayPayment>
