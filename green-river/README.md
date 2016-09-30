@@ -2,7 +2,8 @@
 
 [![Build status](https://badge.buildkite.com/6460bcd8efc0c0aac5bbe8cc9317f9cce92c69bc0a8675c1c6.svg)](https://buildkite.com/foxcommerce/green-river)
 
-Green river currently represents consumers that capture [Phoenix](https://github.com/FoxComm/phoenix-scala) data changes and save them to ElasticSearch.
+An event-sourcing system based on Kafka that utilizes bottledwater to capture all of the changes that occur in Postgres and pipe them into Kafka.
+It's built in Scala and powers logging and searching capabilities in the system.
 
 ## Running
 
