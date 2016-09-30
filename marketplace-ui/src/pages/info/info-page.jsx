@@ -21,7 +21,6 @@ import {
   getInfoFetched,
   getInfoSubmitInProgress,
   getInfoSubmitFailed,
-  getInfoSubmitSucceeded,
 } from '../../core/modules';
 import { fetch as fetchApplication, clearErrors } from '../../core/modules/merchant-application';
 import { fetch as fetchAccount } from '../../core/modules/merchant-account';
@@ -51,7 +50,6 @@ type Props = {
   infoFetched: boolean;
   submit: Function;
   inProgress: boolean;
-  done: boolean;
   failed: boolean;
 }
 
@@ -102,7 +100,7 @@ class MerchantInfoPage extends Component {
   }
 
   componentWillReceiveProps(nextProps: Props): void {
-    if (nextProps.done) {
+    if (nextProps.info.id) {
       this.handleInfoSucceeded();
     }
   }
@@ -185,7 +183,6 @@ const mapState = state => ({
   info: getInfo(state),
   infoFetched: getInfoFetched(state),
   inProgress: getInfoSubmitInProgress(state),
-  done: getInfoSubmitSucceeded(state),
   failed: getInfoSubmitFailed(state),
 });
 

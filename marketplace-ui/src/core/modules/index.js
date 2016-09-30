@@ -34,10 +34,10 @@ export const getInfo = state => info.getInfo(state.info);
 const asyncSelector = namespace => selector => state => selector(state.asyncActions, namespace);
 
 const applicationFetchSelector = asyncSelector(application.ACTION_FETCH);
-const applicationSubmitSelector = asyncSelector(application.ACTION_FETCH);
+const applicationSubmitSelector = asyncSelector(application.ACTION_SUBMIT);
 const accountFetchSelector = asyncSelector(account.ACTION_FETCH);
-const accountSubmitSelector = asyncSelector(account.ACTION_FETCH);
-const infoFetchSelector = asyncSelector(info.ACTION_SUBMIT);
+const accountSubmitSelector = asyncSelector(account.ACTION_SUBMIT);
+const infoFetchSelector = asyncSelector(info.ACTION_FETCH);
 const infoSubmitSelector = asyncSelector(info.ACTION_SUBMIT);
 
 export const getApplicationFetched = applicationFetchSelector(fetchedSelector);

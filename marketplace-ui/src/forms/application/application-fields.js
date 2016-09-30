@@ -33,9 +33,9 @@ export const fields: Array<FormField> = [
     mask: '+1 (999) 999-9999',
     maskChar: '_',
     normalize: value => {
-      // console.info(value);
-      const v = value.replace(/^\+1\s?/, '').replace(/[()]/g, '').replace(/\s/g, '-');
-      // console.info(v);
+      console.info(value);
+      const v = value.replace(/[()]/g, '').replace(/\s/g, '-');
+      console.info(v);
 
       return v;
     },

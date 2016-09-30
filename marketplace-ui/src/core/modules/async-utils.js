@@ -75,8 +75,6 @@ export function reducer(state: State = initialState, action) {
 }
 
 /** Selectors */
-type Selector = () => string;
-
 const asyncStateSelector = (requestState: string) => (state: State, namespace: string): AsyncModuleState =>
   get(state, `${namespace}.${requestState}`, false);
 

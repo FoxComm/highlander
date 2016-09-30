@@ -11,7 +11,7 @@ import styles from './fields.css';
 
 import type { FormField as TFormField } from '../../core/types/fields';
 
-const setValue = (value, def = null) => !isEmpty(value) ? value : def;
+const setValue = (value, def = null) => (!isEmpty(value) ? value : def);
 
 /**
  * Form field wrapper

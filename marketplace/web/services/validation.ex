@@ -6,9 +6,9 @@ defmodule Marketplace.Validation do
     validate_format(changeset, field, regex, message: "validate.format." <> code)
   end
   
-  # example: 999-999-9999
+  # example: +1-999-999-9999
   def validate_phone_number(changeset, field) do
-    validate_format_code(changeset, field, ~r/^\d{3}-\d{3}-\d{4}$/, "phone")
+    validate_format_code(changeset, field, ~r/^\+\d{1,2}-\d{3}-\d{3}-\d{4}$/, "phone")
   end
   
   def validate_uri(changeset, field) do
