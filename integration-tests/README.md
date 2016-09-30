@@ -33,7 +33,7 @@ Configuration options:
 
 Example:
 
-    $ sbt -Denv=localhost -Dusers=5 -Dpause=1 test
+    $ sbt -Denv=localhost -Dusers=5 -Dpause=1 gatling:test
 
 ## Links
 
