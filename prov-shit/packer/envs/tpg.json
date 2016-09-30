@@ -8,10 +8,10 @@
     "project_id": "foxcommerce-production-shared",
     "network": "tpg",
     "zone": "us-central1-a",
-    "base_ubuntu_image": "ubuntu-1604-xenial-v20160610",
-    "base_image": "base-1470341233",
-    "base_mesos": "base-mesos-1470341657",
-    "base_node_image": "base-node-1470344727",
-    "base_jvm_image": "base-jvm-1470345692",
+    "base_ubuntu_image": "ubuntu-1604-xenial-v20160921",
+    "base_image": "base-1475246976",
+    "base_mesos": "base-mesos-1475256042",
+    "base_node_image": "base-node-1475256439",
+    "base_jvm_image": "base-jvm-1475256455",
     "ssh_username": "ubuntu"
 }
