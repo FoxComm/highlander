@@ -47,15 +47,3 @@ create table product_taxonomy_links (
 
 create index product_taxonomy_link_left_idx on product_taxonomy_links (left_id);
 create index product_taxonomy_link_right_idx on product_taxonomy_links (right_id);
-
-
-create table taxonomy_search_view (
-  id int not null,
-  name generic_string not null,
-  type generic_string not null,
-  values_count int not null,
-  created_at generic_timestamp,
-  updated_at generic_timestamp,
-  active_from generic_timestamp,
-  active_to generic_timestamp
-)
