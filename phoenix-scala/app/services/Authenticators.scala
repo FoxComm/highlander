@@ -169,7 +169,7 @@ object Authenticator {
       optCreds ← auth.readCredentials()
       result   ← onSuccess(auth.checkAuthUser(optCreds))
     } yield (result, optCreds)).tflatMap {
-      case (Right(authData), _) ⇒ { 
+      case (Right(authData), _) ⇒ {
         if (authData.token.hasRole(ADMIN_ROLE)) provide(authData.model)
         else
           AuthRejections.credentialsRejected[User](

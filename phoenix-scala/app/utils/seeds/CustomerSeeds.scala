@@ -36,8 +36,12 @@ trait CustomerSeeds {
 
   def createCustomers(scopeId: Int)(implicit db: DB, ac: AC): DbResultT[CustomerIds] =
     for {
-      users ← * <~ customers.map(c ⇒
-                   createCustomer(user = c, isGuest = c.accountId == 100, scopeId = scopeId))
+      users ← * <~ customers.map(
+                 c ⇒
+                   createCustomer(user = c,
+                                  isGuest = c.accountId == 100,
+                                  scopeId = scopeId,
+                                  password = "password".some))
       accountIds = users.map(_.accountId)
       _ ← * <~ Notes.createAll(customerNotes.map(_.copy(referenceId = accountIds.head)))
     } yield
