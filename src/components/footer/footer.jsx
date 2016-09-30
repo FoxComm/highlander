@@ -10,14 +10,14 @@ import { TextInputWithLabel } from 'ui/inputs';
 
 const Footer = () : HTMLElement => {
   return (
-    <div styleName="footer">
-      <section styleName="wrap">
-        <header styleName="heading">
-          <h2 styleName="title">JOIN OUR NEWSLETTER</h2>
-          <h3 styleName="subtitle">GET ACCESS TO SPECIAL PROMOTIONS AND OUR NEWEST CREATIONS</h3>
-        </header>
+    <section styleName="footer">
+      <header styleName="heading">
+        <h2 styleName="title">JOIN OUR NEWSLETTER</h2>
+        <h3 styleName="subtitle">GET ACCESS TO SPECIAL PROMOTIONS AND OUR NEWEST CREATIONS</h3>
+      </header>
 
-        <div styleName="email">
+      <div styleName="wrap">
+          <div styleName="email">
           <TextInputWithLabel placeholder="Email" label={<button>Join</button>}/>
         </div>
 
@@ -35,7 +35,7 @@ const Footer = () : HTMLElement => {
           <Icon name="fc-twitter" styleName="social-icon"/>
           <Icon name="fc-pinterest" styleName="social-icon"/>
         </div>
-      </section>
+      </div>
 
       <div styleName="copyright">
         <p>&copy; COPYRIGHT 2016. THE PERFECT GOURMET</p>
@@ -45,7 +45,7 @@ const Footer = () : HTMLElement => {
         </ul>
         <p>POWERED BY FOXCOMMERCE.</p>
       </div>
-    </div>
+    </section>
   );
 };
 
