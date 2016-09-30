@@ -29,12 +29,6 @@
   transition: all 300ms;
 }
 
-.search {
-  & :global(.icon__cnt) {
-    fill: var(--blackish);
-  }
-}
-
 .tools {
   display: flex;
   justify-content: flex-end;
