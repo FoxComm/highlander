@@ -15,7 +15,7 @@ import consumer.failures._
 import scalacache._
 import memoization._
 
-final case class PhoenixConnectionInfo(uri: String, user: String, pass: String)
+final case class PhoenixConnectionInfo(uri: String, user: String, pass: String, org: String)
 
 object HttpSupport {
   type HttpResult = XorT[Future, Failures, HttpResponse]
@@ -32,7 +32,7 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
 
   val authUri = fullUri("public/login")
 
-  val authBodyTemplate = """{"email": "%s", "password": "%s", "org": "tenant"}"""
+  val authBodyTemplate = """{"email": "%s", "password": "%s", "org": "%s"}"""
 
   val jwtHeaderName = "JWT"
 
@@ -65,12 +65,13 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
   }
 
   private def authenticate(): HttpResult = {
-    val request = HttpRequest(method = HttpMethods.POST,
-                              uri = authUri,
-                              entity = HttpEntity.Strict(
-                                  ContentTypes.`application/json`,
-                                  ByteString(authBodyTemplate.format(conn.user, conn.pass))
-                              ))
+    val request = HttpRequest(
+        method = HttpMethods.POST,
+        uri = authUri,
+        entity = HttpEntity.Strict(
+            ContentTypes.`application/json`,
+            ByteString(authBodyTemplate.format(conn.user, conn.pass, conn.org))
+        ))
 
     HttpResult.right(Http().singleRequest(request, settings = cp))
   }

@@ -13,7 +13,7 @@ import akka.http.scaladsl.server.directives.{AuthenticationDirective, Authentica
 
 import cats.data.Xor
 import failures.AuthFailures._
-import failures.Failures
+import failures._
 import models.auth.{Identity, _}
 import services.account._
 import services.customers.CustomerManager
@@ -81,11 +81,7 @@ object Authenticator {
   type EmailFinder[M] = String ⇒ DBIO[Option[M]]
 
   //parameterized for future Service accounts
-  case class AuthData[M](model: M,
-                         account: Account,
-                         scope: String,
-                         claims: Account.Claims,
-                         isGuest: Boolean = false)
+  case class AuthData[M](token: Token, model: M, account: Account, isGuest: Boolean = false)
 
   trait UserAuthenticator {
     def readCredentials(): Directive1[Option[String]]
@@ -124,7 +120,7 @@ object Authenticator {
                    .findByIdAndRatchet(token.id, token.ratchet)
                    .mustFindOr(AuthFailed("account not found"))
         user ← * <~ Users.mustFindByAccountId(token.id)
-      } yield AuthData[User](user, account, token.scope, token.claims)).run().map {
+      } yield AuthData[User](token, user, account)).run().map {
         case Xor.Right(data) ⇒ AuthenticationResult.success(data)
         case Xor.Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
       }
@@ -134,13 +130,15 @@ object Authenticator {
       (for {
         guest ← * <~ CustomerManager.createGuest(guestCreateContext)
         (user, custUser) = guest
-        account     ← * <~ Accounts.mustFindById404(user.accountId)
-        claimResult ← * <~ AccountManager.getClaims(user.accountId, guestCreateContext.scopeId)
-        (scope, claims) = claimResult
-      } yield AuthData[User](user, account, scope, claims, true)).run().map {
-        case Xor.Right(data) ⇒ AuthenticationResult.success(data)
-        case Xor.Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
-      }
+        account ← * <~ Accounts.mustFindById404(user.accountId)
+        claims  ← * <~ AccountManager.getClaims(user.accountId, guestCreateContext.scopeId)
+      } yield
+        AuthData[User](UserToken.fromUserAccount(user, account, claims), user, account, true))
+        .run()
+        .map {
+          case Xor.Right(data) ⇒ AuthenticationResult.success(data)
+          case Xor.Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
+        }
     }
   }
 
@@ -160,15 +158,23 @@ object Authenticator {
     readCookie().flatMap(_.fold(readHeader(headerName))(v ⇒ provide(Some(v))))
   }
 
-  //MAXDO
+  //TODO
   //This will be replaced with claims specific require functions for admins inside
-  //the services instead of at the route later
+  //the services instead of at the route. We are simply checking for a role called
+  //"admin" within the token. This is to bring back feature parity with the old code.
+  val ADMIN_ROLE = "admin"
+
   def requireAdminAuth(auth: UserAuthenticator): AuthenticationDirective[User] = {
     (for {
       optCreds ← auth.readCredentials()
       result   ← onSuccess(auth.checkAuthUser(optCreds))
     } yield (result, optCreds)).tflatMap {
-      case (Right(authData), _) ⇒ provide(authData.model)
+      case (Right(authData), _) ⇒ { 
+        if (authData.token.hasRole(ADMIN_ROLE)) provide(authData.model)
+        else
+          AuthRejections.credentialsRejected[User](
+              FailureChallenge("admin", AuthFailed("Does not have admin role").single))
+      }
       case (Left(challenge), Some(creds)) ⇒
         AuthRejections.credentialsRejected[User](challenge)
       case (Left(challenge), _) ⇒
@@ -176,7 +182,7 @@ object Authenticator {
     }
   }
 
-  //MAXDO
+  //TODO
   //same as above, should have check for claims. The services should
   //make sure the claim exists instead of route layer.
   def requireCustomerAuth(auth: UserAuthenticator): AuthenticationDirective[User] =
@@ -189,10 +195,12 @@ object Authenticator {
         else {
           Console.out.println(s"AUTH ${authData}")
           AuthPayload(
-              token = UserToken.fromUserAccount(authData.model,
-                                                authData.account,
-                                                authData.scope,
-                                                authData.claims)) match {
+              token = UserToken.fromUserAccount(
+                  authData.model,
+                  authData.account,
+                  Account.ClaimSet(scope = authData.token.scope,
+                                   roles = authData.token.roles,
+                                   claims = authData.token.claims))) match {
             case Xor.Right(authPayload) ⇒
               Console.out.println(s"PAYLOAD ${authData}")
               val header = respondWithHeader(RawHeader("JWT", authPayload.jwt))
@@ -252,9 +260,8 @@ object Authenticator {
       //adminUsers    ← * <~ StoreAdminUsers.filter(_.accountId === user.accountId).one
       //_             ← * <~ adminUsers.map(aus ⇒ checkState(aus))
 
-      claimResult ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
-      (scope, claims) = claimResult
-      checkedToken ← * <~ UserToken.fromUserAccount(validatedUser, account, scope, claims)
+      claimSet     ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
+      checkedToken ← * <~ UserToken.fromUserAccount(validatedUser, account, claimSet)
     } yield checkedToken).run()
 
     tokenResult.map(_.flatMap { token ⇒

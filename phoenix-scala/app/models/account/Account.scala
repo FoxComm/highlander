@@ -20,6 +20,8 @@ case class Account(id: Int = 0,
 
 object Account {
   type Claims = Map[String, List[String]]
+  case class ClaimSet(scope: String, roles: Seq[String], claims: Account.Claims)
+
 }
 
 class Accounts(tag: Tag) extends FoxTable[Account](tag, "accounts") {

@@ -15,12 +15,13 @@ final case class MainConfig(activityTopic: String,
                             phoenixPass: String,
                             phoenixUri: String,
                             phoenixUser: String,
+                            phoenixOrg: String,
                             maxConnections: Int,
                             startFromBeginning: Boolean,
                             doSetup: Boolean) {
 
   def connectionInfo(): PhoenixConnectionInfo =
-    PhoenixConnectionInfo(phoenixUri, phoenixUser, phoenixPass)
+    PhoenixConnectionInfo(phoenixUri, phoenixUser, phoenixPass, phoenixOrg)
 }
 
 object MainConfig {
@@ -52,6 +53,7 @@ object MainConfig {
         phoenixPass = conf.getString(s"$env.activity.phoenix.pass"),
         phoenixUri = conf.getString(s"$env.activity.phoenix.url"),
         phoenixUser = conf.getString(s"$env.activity.phoenix.user"),
+        phoenixOrg = conf.getString(s"$env.activity.phoenix.org"),
         maxConnections = conf.getInt(s"$env.max.connections"),
         startFromBeginning = conf.getBoolean(s"$env.consume.restart"),
         doSetup = conf.getBoolean(s"$env.elastic.setup")

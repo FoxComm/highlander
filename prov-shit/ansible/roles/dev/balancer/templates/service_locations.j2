@@ -18,7 +18,7 @@ error_page 504 @504;
 # 4xx errors.
 location = /internal-auth {
     internal;
-    proxy_pass http://isaac/check;
+    proxy_pass http://isaac/check_role?role=admin;
     proxy_pass_request_body off;
     proxy_set_header Content-Length "";
 }

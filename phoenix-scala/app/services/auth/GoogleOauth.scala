@@ -45,9 +45,8 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB)
 
   def createToken(user: User, account: Account, scopeId: Int): DbResultT[Token] =
     for {
-      claimResult ← * <~ AccountManager.getClaims(account.id, scopeId)
-      (scope, claims) = claimResult
-      token ← * <~ UserToken.fromUserAccount(user, account, scope, claims)
+      claims ← * <~ AccountManager.getClaims(account.id, scopeId)
+      token  ← * <~ UserToken.fromUserAccount(user, account, claims)
     } yield token
 
   def findAccount(user: User): DbResultT[Account] = Accounts.mustFindById404(user.accountId)
