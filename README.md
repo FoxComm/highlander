@@ -125,7 +125,3 @@ branch. All commit history in each repository will be cloned into this repo.
 ```
 $ make update
 ```
-
-## Development Environment
-
-_TODO: Add the instructions_
