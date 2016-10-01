@@ -1,0 +1,63 @@
+---
+
+- name: Easy Development Tinystack
+  hosts: localhost
+  vars:
+    user: '{{ansible_ssh_user}}'
+    project_id: foxcomm-staging
+    zone: us-central1-a
+    base_image_consul: tinystack-consul-server-1474682047
+    base_image_frontend: tinystack-frontend-1474867432
+    base_image_backend: tinystack-backend-1474673242
+  vars_prompt:
+    - name: "username"
+      prompt: "Enter your username"
+      default: "pavel"
+      private: no
+    - name: "credentials_file"
+      prompt: "Enter path to your credentials file"
+      default: "/Users/pavel/FoxComm/highlander/prov-shit/foxcomm-staging.json"
+      private: no
+    - name: "service_account_email"
+      prompt: "Enter your service account email"
+      default: "ejik-252@foxcomm-staging.iam.gserviceaccount.com"
+      private: no
+
+  tasks:
+    # - name: Terminate previous Tinystack Consul
+    #   local_action: gce service_account_email={{service_account_email}}
+    #                 credentials_file={{credentials_file}}
+    #                 instance_names={{username}}-tinystack-consul
+    #                 state=absent
+
+    - name: Launch Tinystack Consul
+      local_action: gce instance_names={{username}}-tinystack-consul
+                    service_account_email={{service_account_email}}
+                    credentials_file={{credentials_file}}
+                    machine_type=n1-standard-1
+                    image={{base_image_consul}}
+                    zone={{zone}}
+                    project_id={{project_id}}
+                    tags=no-ip
+      register: gce
+
+    - name: Waiting for SSH to come up
+      local_action: wait_for host={{item.public_ip}} port=22 delay=10
+                    timeout=60 state=started
+      with_items: "{{gce.instance_data}}"
+
+- name: Configure Instances
+  hosts: launched
+  become: True
+  vars:
+    amigo_leader: 10.240.0.10
+    datacenter: "{{username}}-dc"
+  vars_prompt:
+    - name: "username"
+      prompt: "Enter your username"
+      default: "pavel"
+      private: no
+  tasks:
+    - name: Bootstrap Consul
+      command: /usr/local/bin/bootstrap_consul.sh {{datacenter}} {{amigo_leader}}
+
