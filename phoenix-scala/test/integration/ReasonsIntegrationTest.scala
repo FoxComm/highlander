@@ -21,10 +21,7 @@ class ReasonsIntegrationTest
     "GET /v1/public/reasons/:type" - {
       "should return list of reasons by type" in new Fixture {
         val reasonType = Reason.GiftCardCreation.toString.lowerCaseFirstLetter
-        val response   = publicApi.getReason(reasonType)
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[Seq[Reason]]
+        val root       = publicApi.getReason(reasonType).as[Seq[Reason]]
         root.size must === (1)
         root.headOption.value.id must === (reason.id)
       }

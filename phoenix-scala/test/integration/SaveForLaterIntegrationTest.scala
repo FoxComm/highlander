@@ -22,14 +22,10 @@ class SaveForLaterIntegrationTest
 
   "GET v1/save-for-later/:customerId" - {
     "shows all save for later items for customer" in new Fixture {
-      val emptyResponse = saveForLaterApi(customer.id).get()
-      emptyResponse.status must === (StatusCodes.OK)
-      emptyResponse.as[SavedForLater].result mustBe empty
+      saveForLaterApi(customer.id).get().as[SavedForLater].result mustBe empty
 
       SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = product.skuId)).gimme
-      val notEmptyResponse = saveForLaterApi(customer.id).get()
-      notEmptyResponse.status must === (StatusCodes.OK)
-      notEmptyResponse.as[SavedForLater].result must === (roots)
+      saveForLaterApi(customer.id).get().as[SavedForLater].result must === (roots)
     }
 
     "404 if customer is not found" in {
@@ -41,19 +37,13 @@ class SaveForLaterIntegrationTest
 
   "POST v1/save-for-later/:customerId/:sku" - {
     "adds sku to customer's save for later list" in new Fixture {
-      val response = saveForLaterApi(customer.id).create(product.code)
-      response.status must === (StatusCodes.OK)
-      response.as[SavedForLater].result must === (roots)
+      saveForLaterApi(customer.id).create(product.code).as[SavedForLater].result must === (roots)
 
-      val get = saveForLaterApi(customer.id).get()
-      get.status must === (StatusCodes.OK)
-      get.as[SavedForLater].result must === (roots)
+      saveForLaterApi(customer.id).get().as[SavedForLater].result must === (roots)
     }
 
     "does not create duplicate records" in new Fixture {
-      val create = saveForLaterApi(customer.id).create(product.code)
-      create.status must === (StatusCodes.OK)
-      val result = create.as[SavedForLater].result
+      val result = saveForLaterApi(customer.id).create(product.code).as[SavedForLater].result
       result must === (roots)
 
       val duplicate = saveForLaterApi(customer.id).create(product.code)

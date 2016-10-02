@@ -24,7 +24,6 @@ class AssignmentsIntegrationTest
     "can be assigned to order" in new Order_Baked {
       val payload  = AssignmentPayload(assignees = Seq(storeAdmin.id))
       val response = ordersApi(order.refNum).assign(payload)
-      response.status must === (StatusCodes.OK)
 
       val theResponse = response.as[TheResponse[Seq[AssignmentResponse.Root]]]
       theResponse.result.size mustBe 1
@@ -37,19 +36,17 @@ class AssignmentsIntegrationTest
     "extends response with errors if one of store admins is not found" in new Order_Baked {
       val nonExistentAdminId = 2
       val payload            = AssignmentPayload(assignees = Seq(storeAdmin.id, nonExistentAdminId))
-      val response           = ordersApi(order.refNum).assign(payload)
-      response.status must === (StatusCodes.OK)
 
       // TODO - AlreadyAssignedFailure here?
-      val theResponse = response.as[TheResponse[Seq[AssignmentResponse.Root]]]
+      val theResponse =
+        ordersApi(order.refNum).assign(payload).as[TheResponse[Seq[AssignmentResponse.Root]]]
       theResponse.result.size mustBe 1
       theResponse.result.headOption.value.assignee.id mustBe storeAdmin.id
       theResponse.result.headOption.value.assignmentType mustBe Assignment.Assignee
 
       theResponse.errors.value.size mustBe 1
-      theResponse.errors.value.headOption.value mustBe NotFoundFailure404(
-          StoreAdmin,
-          nonExistentAdminId).description
+      theResponse.errors.value.headOption.value must === (
+          NotFoundFailure404(StoreAdmin, nonExistentAdminId).description)
     }
 
     "returns error if order not found" in new Order_Baked {
@@ -64,7 +61,6 @@ class AssignmentsIntegrationTest
 
     "can be unassigned from order" in new AssignmentFixture {
       val response = ordersApi(order.refNum).unassign(storeAdmin.id)
-      response.status must === (StatusCodes.OK)
 
       val theResponse = response.as[Seq[AssignmentResponse.Root]]
       theResponse mustBe 'empty
@@ -94,10 +90,8 @@ class AssignmentsIntegrationTest
     "can be assigned to multiple orders with graceful error handling" in new BulkAssignmentFixture {
       val payload = BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
                                           storeAdminId = storeAdmin.id)
-      val response = ordersApi.assign(payload)
-      response.status must === (StatusCodes.OK)
 
-      val theResponse = response.as[TheResponse[Seq[AllOrders.Root]]]
+      val theResponse = ordersApi.assign(payload).as[TheResponse[Seq[AllOrders.Root]]]
       theResponse.result.size mustBe 2
 
       val notFoundFailure = NotFoundFailure404(Order, "NOPE").description
@@ -119,10 +113,7 @@ class AssignmentsIntegrationTest
     "can be unassigned from multiple orders with graceful error handling" in new BulkAssignmentFixture {
       val payload = BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
                                           storeAdminId = storeAdmin.id)
-      val response = ordersApi.unassign(payload)
-      response.status must === (StatusCodes.OK)
-
-      val theResponse = response.as[TheResponse[Seq[AllOrders.Root]]]
+      val theResponse = ordersApi.unassign(payload).as[TheResponse[Seq[AllOrders.Root]]]
       theResponse.result.size mustBe 2
 
       val notFoundFailure    = NotFoundFailure404(Order, "NOPE").description

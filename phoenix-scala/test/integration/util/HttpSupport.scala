@@ -11,7 +11,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.client.RequestBuilding.Get
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse, Uri}
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -29,7 +29,7 @@ import models.customer.Customer
 import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
-import org.scalatest.{BeforeAndAfterAll, MustMatchers, Suite, SuiteMixin}
+import org.scalatest._
 import responses.TheResponse
 import server.Service
 import services.Authenticator
@@ -65,8 +65,6 @@ trait HttpSupport
 
   private val ValidResponseContentTypes =
     Set(ContentTypes.`application/json`, ContentTypes.NoContentType)
-
-  import Extensions._
 
   protected implicit lazy val mat: ActorMaterializer   = materializer
   protected implicit lazy val actorSystem: ActorSystem = system
@@ -178,7 +176,7 @@ trait HttpSupport
     dispatchRequest(request)
   }
 
-  def pathToAbsoluteUrl(path: String) = {
+  def pathToAbsoluteUrl(path: String): Uri = {
     val host = serverBinding.localAddress.getHostString
     val port = serverBinding.localAddress.getPort
 
@@ -202,9 +200,6 @@ trait HttpSupport
 
     port
   }
-
-  def parseErrors(response: HttpResponse)(implicit ec: EC): List[String] =
-    response.errors
 
   protected def dispatchRequest(req: HttpRequest): HttpResponse = {
     val response = Http().singleRequest(req, settings = connectionPoolSettings).futureValue
@@ -240,33 +235,58 @@ trait HttpSupport
     def skipHeartbeats(sse: Source[String, Any]): Source[String, Any] =
       sse.via(Flow[String].filter(_.nonEmpty))
 
-    def probe(source: Source[String, Any]) =
+    def probe(source: Source[String, Any]): Probe[String] =
       source.runWith(TestSink.probe[String])
   }
 }
 
-object Extensions {
-  implicit class RichHttpResponse(val res: HttpResponse) extends AnyVal {
+object Extensions extends MustMatchers with OptionValues with AppendedClues {
+  implicit class RichHttpResponse(response: HttpResponse)(implicit ec: EC, mat: Mat, fm: Formats) {
     import org.json4s.jackson.JsonMethods._
 
-    def bodyText(implicit ec: EC, mat: Mat): String =
-      result(res.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
+    lazy val bodyText: String =
+      result(response.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
 
-    def as[A <: AnyRef](implicit fm: Formats, mf: Manifest[A], mat: Mat): A =
-      parse(bodyText).extract[A]
+    def as[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): A = {
+      response.mustBeOk()
+      parse(bodyText).extractOpt[A].value.withClue(s"Failed to parse body!")
+    } withClue originalSourceClue
 
-    def ignoreFailuresAndGiveMe[A <: AnyRef](implicit fm: Formats, mf: Manifest[A], mat: Mat): A =
-      parse(bodyText).extract[TheResponse[A]].result
+    def ignoreFailuresAndGiveMe[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): A =
+      withResultTypeOf[A].result
 
-    def withResultTypeOf[A <: AnyRef](implicit fm: Formats,
-                                      mf: Manifest[A],
-                                      mat: Mat): TheResponse[A] =
-      parse(bodyText).extract[TheResponse[A]]
+    def withResultTypeOf[A <: AnyRef](implicit mf: Manifest[A],
+                                      line: SL,
+                                      file: SF): TheResponse[A] =
+      as[TheResponse[A]]
 
-    def errors(implicit fm: Formats, mat: Mat): List[String] =
-      (parse(bodyText) \ "errors").extractOrElse[List[String]](List.empty[String])
+    def errors(implicit line: SL, file: SF): List[String] = {
+      withClue("Unexpected response status!") { response.status must !==(StatusCodes.OK) }
+      extractErrors
+    } withClue originalSourceClue
 
-    def error(implicit fm: Formats, mat: Mat): String =
-      errors.headOption.getOrElse("never gonna give you up. never gonna let you down.")
+    def error(implicit line: SL, file: SF): String =
+      errors.headOption.value.withClue("Expected at least one error, got none!")
+
+    def mustBeOk(): Unit =
+      mustHaveStatus(StatusCodes.OK).withClue(s"Errors: $extractErrors!")
+
+    def mustHaveStatus(expected: StatusCode*): Unit =
+      withClue("Unexpected response status!") {
+        expected must contain(response.status)
+      }
+
+    private def extractErrors: List[String] = {
+      val errors = (parse(bodyText) \ "errors")
+        .extractOpt[List[String]]
+        .value
+        .withClue(s"Expected errors, found $bodyText!")
+
+      // Apparently I was too ambitious with this one... -- Anna
+      // Fucking FIXME, what kind of API is this?!
+      // (errors must not be empty).withClue("Expected errors, found empty list!")
+
+      errors
+    }
   }
 }

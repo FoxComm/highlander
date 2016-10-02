@@ -97,10 +97,10 @@ class ReturnNotesIntegrationTest
         response.bodyText mustBe empty
 
         val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-        updatedNote.deletedBy.value === 1
+        updatedNote.deletedBy.value must === (1)
 
         withClue(updatedNote.deletedAt.value → Instant.now) {
-          updatedNote.deletedAt.value.isBeforeNow === true
+          updatedNote.deletedAt.value.isBeforeNow mustBe true
         }
 
         // Deleted note should not be returned

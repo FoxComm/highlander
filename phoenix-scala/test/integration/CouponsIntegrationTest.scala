@@ -40,11 +40,9 @@ class CouponsIntegrationTest
 
   "POST /v1/coupons/:context" - {
     "create coupon" in new Fixture {
-      val payload =
-        CreateCoupon(form = couponForm, shadow = couponShadow, promotion = promotion.id)
-      val response = couponsApi.create(payload)
-
-      response.status must === (StatusCodes.OK)
+      couponsApi
+        .create(CreateCoupon(form = couponForm, shadow = couponShadow, promotion = promotion.id))
+        .mustBeOk()
     }
 
     "create coupon with invalid date should fail" in new Fixture {
@@ -67,13 +65,9 @@ class CouponsIntegrationTest
 
   "DELETE /v1/coupons/:context/:id" - {
     "archive existing coupon" in new Fixture {
-      val response = couponsApi.delete(coupon.form.id)
-
-      response.status must === (StatusCodes.OK)
-
-      val couponResponse = response.as[CouponResponse.Root]
+      val couponResponse = couponsApi.delete(coupon.form.id).as[CouponResponse.Root]
       withClue(couponResponse.archivedAt.value → Instant.now) {
-        couponResponse.archivedAt.value.isBeforeNow === true
+        couponResponse.archivedAt.value.isBeforeNow mustBe true
       }
     }
 
@@ -96,25 +90,22 @@ class CouponsIntegrationTest
   "POST /v1/orders/:refNum/coupon/:code" - {
     "attaches coupon successfully" - {
       "when activeFrom is before now" in new OrderCouponFixture {
-        val response = cartsApi(cart.refNum).coupon.add(fromCode)
-        response.status must === (StatusCodes.OK)
-        val theCartResponse = response.as[TheResponse[CartResponse]].result
+        val response =
+          cartsApi(cart.refNum).coupon.add(fromCode).ignoreFailuresAndGiveMe[CartResponse]
 
-        theCartResponse.referenceNumber must === (cart.refNum)
-        theCartResponse.coupon must be('defined)
-        theCartResponse.coupon.value.code must === (fromCode)
-        theCartResponse.promotion must be('defined)
+        response.referenceNumber must === (cart.refNum)
+        response.coupon must be('defined)
+        response.coupon.value.code must === (fromCode)
+        response.promotion must be('defined)
       }
 
       "when activeFrom is before now and activeTo later than now" in new OrderCouponFixture {
-        val response = cartsApi(cart.refNum).coupon.add(fromToCode)
+        val response =
+          cartsApi(cart.refNum).coupon.add(fromToCode).ignoreFailuresAndGiveMe[CartResponse]
 
-        response.status must === (StatusCodes.OK)
-        val theCartResponse = response.as[TheResponse[CartResponse]].result
-
-        theCartResponse.referenceNumber must === (cart.refNum)
-        theCartResponse.coupon.value.code must === (fromToCode)
-        theCartResponse.promotion mustBe 'defined
+        response.referenceNumber must === (cart.refNum)
+        response.coupon.value.code must === (fromToCode)
+        response.promotion mustBe 'defined
       }
     }
 

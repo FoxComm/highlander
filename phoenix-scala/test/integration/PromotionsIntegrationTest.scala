@@ -33,19 +33,16 @@ class PromotionsIntegrationTest
 
   "DELETE /v1/promotions/:context/:id" - {
     "archive existing promotion with attached coupons" in new Fixture {
-      val response = promotionsApi(promotion.formId).delete()
+      val promotionResponse = promotionsApi(promotion.formId).delete().as[PromotionResponse.Root]
 
-      response.status must === (StatusCodes.OK)
-
-      val promotionResponse = response.as[PromotionResponse.Root]
       withClue(promotionResponse.archivedAt.value → Instant.now) {
-        promotionResponse.archivedAt.value.isBeforeNow === true
+        promotionResponse.archivedAt.value.isBeforeNow mustBe true
       }
 
       val couponResponse = couponsApi(coupon.form.id).get()
       val couponRoot     = couponResponse.as[CouponResponse.Root]
       withClue(couponRoot.archivedAt.value → Instant.now) {
-        couponRoot.archivedAt.value.isBeforeNow === true
+        couponRoot.archivedAt.value.isBeforeNow mustBe true
       }
     }
 

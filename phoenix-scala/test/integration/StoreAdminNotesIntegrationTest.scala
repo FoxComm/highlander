@@ -7,6 +7,7 @@ import failures.NotFoundFailure404
 import models.{StoreAdmin, _}
 import payloads.NotePayloads._
 import responses.AdminNotes
+import responses.AdminNotes.Root
 import services.notes.StoreAdminNoteManager
 import util._
 import util.fixtures.BakedFixtures
@@ -22,11 +23,8 @@ class StoreAdminNotesIntegrationTest
 
   "POST /v1/notes/store-admins/:adminId" - {
     "can be created by an admin for a customer" in new Fixture {
-      val response = notesApi.storeAdmin(storeAdmin.id).create(CreateNote("Hello, FoxCommerce!"))
-      response.status must === (StatusCodes.OK)
-
-      val note = response.as[AdminNotes.Root]
-      note.body must === ("Hello, FoxCommerce!")
+      val note = notesApi.storeAdmin(storeAdmin.id).create(CreateNote("foo")).as[Root]
+      note.body must === ("foo")
       note.author must === (AdminNotes.buildAuthor(storeAdmin))
     }
 
@@ -53,10 +51,7 @@ class StoreAdminNotesIntegrationTest
       }
       DbResultT.sequence(createNotes).gimme
 
-      val response = notesApi.storeAdmin(storeAdmin.id).get()
-      response.status must === (StatusCodes.OK)
-
-      val notes = response.as[Seq[AdminNotes.Root]]
+      val notes = notesApi.storeAdmin(storeAdmin.id).get().as[Seq[Root]]
       notes must have size 3
       notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
     }
@@ -65,40 +60,35 @@ class StoreAdminNotesIntegrationTest
   "PATCH /v1/notes/store-admins/:adminId/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val rootNote = StoreAdminNoteManager
-        .create(storeAdmin.id, storeAdmin, CreateNote("Hello, FoxCommerce!"))
-        .gimme
+      val rootNote =
+        StoreAdminNoteManager.create(storeAdmin.id, storeAdmin, CreateNote("foo")).gimme
 
-      val response =
-        notesApi.storeAdmin(storeAdmin.id).note(rootNote.id).update(UpdateNote("donkey"))
-      response.status must === (StatusCodes.OK)
-
-      val note = response.as[AdminNotes.Root]
-      note.body must === ("donkey")
+      notesApi
+        .storeAdmin(storeAdmin.id)
+        .note(rootNote.id)
+        .update(UpdateNote("donkey"))
+        .as[Root]
+        .body must === ("donkey")
     }
   }
 
   "DELETE /v1/notes/store-admins/:adminId/:noteId" - {
 
     "can soft delete note" in new Fixture {
-      val createResp = notesApi.storeAdmin(storeAdmin.id).create(CreateNote("Hello, FoxCommerce!"))
-      val note       = createResp.as[AdminNotes.Root]
+      val note = notesApi.storeAdmin(storeAdmin.id).create(CreateNote("foo")).as[Root]
 
       val response = notesApi.storeAdmin(storeAdmin.id).note(note.id).delete()
       response.status must === (StatusCodes.NoContent)
       response.bodyText mustBe empty
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-      updatedNote.deletedBy.value === 1
+      updatedNote.deletedBy.value must === (1)
 
       withClue(updatedNote.deletedAt.value → Instant.now) {
-        updatedNote.deletedAt.value.isBeforeNow === true
+        updatedNote.deletedAt.value.isBeforeNow mustBe true
       }
 
-      // Deleted note should not be returned
-      val allNotesResponse = notesApi.storeAdmin(storeAdmin.id).get()
-      allNotesResponse.status must === (StatusCodes.OK)
-      val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
+      val allNotes = notesApi.storeAdmin(storeAdmin.id).get().as[Seq[Root]]
       allNotes.map(_.id) must not contain note.id
 
       val getDeletedNoteResponse = notesApi.storeAdmin(storeAdmin.id).note(note.id).get()

@@ -37,14 +37,10 @@ class ImageIntegrationTest
   "Album Tests" - {
     "GET v1/albums/:context/:id" - {
       "Searching for a valid album returns the album" in new Fixture {
-        val response = albumsApi(album.formId).get()
-        response.status must === (StatusCodes.OK)
+        val albumResponse = albumsApi(album.formId).get().as[AlbumRoot]
 
-        val albumResponse = response.as[AlbumRoot]
         albumResponse.images.length must === (1)
-
-        val image :: Nil = albumResponse.images
-        val src          = image.get("src")
+        albumResponse.images.head.get("src") must not be empty
       }
 
       "404 if wrong context name" in new Fixture {
@@ -61,85 +57,69 @@ class ImageIntegrationTest
       }
 
       "Retrieves a correct version of an album after an update" in new Fixture {
-        val payload  = UpdateAlbumPayload(name = "Name 2.0".some)
-        val response = albumsApi(album.formId).update(payload)
-        response.status must === (StatusCodes.OK)
-        response.as[AlbumRoot].name must === ("Name 2.0")
+        albumsApi(album.formId)
+          .update(UpdateAlbumPayload(name = "Name 2.0".some))
+          .as[AlbumRoot]
+          .name must === ("Name 2.0")
 
-        val response2 = albumsApi(album.formId).get()
-        response2.status must === (StatusCodes.OK)
-        response2.as[AlbumRoot].name must === ("Name 2.0")
+        albumsApi(album.formId).get().as[AlbumRoot].name must === ("Name 2.0")
       }
 
       "Retrieves multiple images in correct order" in new Fixture {
-        val imagePaylodSrc = Seq("1", "2")
-        val imagePayload   = imagePaylodSrc.map(u ⇒ ImagePayload(src = u))
-        val payload        = UpdateAlbumPayload(name = "Name 2.0".some, images = imagePayload.some)
-        val response       = albumsApi(album.formId).update(payload)
-        response.status must === (StatusCodes.OK)
+        val imageSources = Seq("1", "2")
 
-        val response2 = albumsApi(album.formId).get()
-        response2.status must === (StatusCodes.OK)
-        response2.as[AlbumRoot].images.map(_.src) must === (imagePaylodSrc)
+        albumsApi(album.formId)
+          .update(UpdateAlbumPayload(name = "Name 2.0".some,
+                                     images = imageSources.map(u ⇒ ImagePayload(src = u)).some))
+          .mustBeOk()
+
+        albumsApi(album.formId).get().as[AlbumRoot].images.map(_.src) must === (imageSources)
       }
     }
 
     "POST v1/albums/:context" - {
       "Creates an album with" - {
         "no images" in new Fixture {
-          val payload  = CreateAlbumPayload(name = "Empty album", position = Some(1))
-          val response = albumsApi.create(payload)
-          response.status must === (StatusCodes.OK)
-
-          val albumResponse = response.as[AlbumRoot]
-          albumResponse.images.length must === (0)
+          albumsApi
+            .create(CreateAlbumPayload(name = "Empty album", position = Some(1)))
+            .as[AlbumRoot]
+            .images mustBe empty
         }
 
         "one image" in new Fixture {
-          val payload = CreateAlbumPayload(name = "Non-empty album",
-                                           images = Seq(ImagePayload(src = "url")).some)
-          val response = albumsApi.create(payload)
-          response.status must === (StatusCodes.OK)
-
-          val albumResponse = response.as[AlbumRoot]
-          albumResponse.images.length must === (1)
+          albumsApi
+            .create(CreateAlbumPayload(name = "Non-empty album",
+                                       images = Seq(ImagePayload(src = "url")).some))
+            .as[AlbumRoot]
+            .images
+            .length must === (1)
         }
 
         "multiple images" in new Fixture {
-          val payload =
-            CreateAlbumPayload(name = "Non-empty album",
-                               images =
-                                 Seq(ImagePayload(src = "url"), ImagePayload(src = "url2")).some)
+          val sources = Seq("url", "url2")
+          val payload = CreateAlbumPayload(name = "Non-empty album",
+                                           images = sources.map(s ⇒ ImagePayload(src = s)).some)
 
-          val response = albumsApi.create(payload)
-          response.status must === (StatusCodes.OK)
-          val albumResponse = response.as[AlbumRoot]
-          albumResponse.images.map(_.src) must === (payload.images.get.map(_.src))
+          val ordered = albumsApi.create(payload).as[AlbumRoot]
+          ordered.images.map(_.src) must === (sources)
 
-          val response2 = albumsApi.create(payload.copy(images = payload.images.map(_.reverse)))
-          response2.status must === (StatusCodes.OK)
-          val albumResponse2 = response2.as[AlbumRoot]
-          albumResponse2.images.map(_.src) must === (payload.images.get.map(_.src).reverse)
-
+          val reversed =
+            albumsApi.create(payload.copy(images = payload.images.map(_.reverse))).as[AlbumRoot]
+          reversed.images.map(_.src) must === (sources.reverse)
         }
       }
 
       "Fails if id  for image is specified" in new Fixture {
-        val payload =
-          CreateAlbumPayload(name = "Non-empty album",
-                             images = Seq(ImagePayload(id = Some(1), src = "url")).some)
-        val response = albumsApi.create(payload)
+        val response = albumsApi.create(
+            CreateAlbumPayload(name = "Non-empty album",
+                               images = Seq(ImagePayload(id = Some(1), src = "url")).some))
         response.status must === (StatusCodes.BadRequest)
       }
     }
 
     "DELETE v1/albums/:context/:id" - {
       "Archives album successfully" in new Fixture {
-        val response = albumsApi(album.formId).delete()
-
-        response.status must === (StatusCodes.OK)
-
-        val result = response.as[AlbumRoot]
+        val result = albumsApi(album.formId).delete().as[AlbumRoot]
         withClue(result.archivedAt.value → Instant.now) {
           result.archivedAt.value.isBeforeNow must === (true)
         }
@@ -163,48 +143,36 @@ class ImageIntegrationTest
 
     "PATCH v1/albums/:context/:id" - {
       "Update the album to have another image" in new Fixture {
-        val moreImages = Seq(testPayload, ImagePayload(src = "http://test.it/test.png"))
-        val payload    = UpdateAlbumPayload(images = moreImages.some)
+        val payload = UpdateAlbumPayload(images = Seq(testPayload, ImagePayload(src = "foo")).some)
 
-        val response = albumsApi(album.formId).update(payload)
-        response.status must === (StatusCodes.OK)
+        val albumResponse = albumsApi(album.formId).update(payload).as[AlbumRoot]
 
-        val albumResponse = response.as[AlbumRoot]
         albumResponse.images.length must === (2)
         albumResponse.images.map(_.id).toSet.size must === (2)
       }
 
       "Saves image order" in new Fixture {
-        private val newImageSrc: String = "http://test.it/test.png"
-        val moreImages                  = Seq(testPayload, ImagePayload(src = newImageSrc))
-        val payload                     = UpdateAlbumPayload(images = moreImages.some)
+        val newImageSrc = "http://test.it/test.png"
+        val moreImages  = Seq(testPayload, ImagePayload(src = newImageSrc))
+        val payload     = UpdateAlbumPayload(images = moreImages.some)
 
-        val response = albumsApi(album.formId).update(payload)
-        response.status must === (StatusCodes.OK)
-        val albumResponse = response.as[AlbumRoot]
+        val ordered = albumsApi(album.formId).update(payload).as[AlbumRoot]
+        ordered.images.map(_.src) must === (Seq(testPayload.src, newImageSrc))
 
-        albumResponse.images(0).src must === (testPayload.src)
-        albumResponse.images(1).src must === (newImageSrc)
-
-        val response2 =
-          albumsApi(album.formId).update(payload.copy(images = payload.images.map(_.reverse)))
-        response2.status must === (StatusCodes.OK)
-        val albumResponse2 = response2.as[AlbumRoot]
-        albumResponse2.images(0).src must === (newImageSrc)
-        albumResponse2.images(1).src must === (testPayload.src)
+        val reversed = albumsApi(album.formId)
+          .update(payload.copy(images = payload.images.map(_.reverse)))
+          .as[AlbumRoot]
+        reversed.images.map(_.src) must === (Seq(newImageSrc, testPayload.src))
       }
 
       "Update the album fails on image id duplications" in new Fixture {
-        val moreImages =
-          Seq(testPayload, ImagePayload(src = "http://test.it/test.png")).map(_.copy(id = Some(1)))
-        val payload = UpdateAlbumPayload(images = moreImages.some)
-
-        val response = albumsApi(album.formId).update(payload)
+        val moreImages = Seq(testPayload, ImagePayload(src = "foo")).map(_.copy(id = Some(1)))
+        val response   = albumsApi(album.formId).update(UpdateAlbumPayload(images = moreImages.some))
         response.status must === (StatusCodes.BadRequest)
       }
 
       "Request the album after updating" in new Fixture {
-        def checkAlbum(album: AlbumRoot) = {
+        def checkAlbum(album: AlbumRoot): Unit = {
           album.name must === ("Name 2.0")
           album.images must have size 1
           val image = album.images.head
@@ -213,15 +181,9 @@ class ImageIntegrationTest
           image.title.value must === ("lorem.png")
         }
 
-        val payload = UpdateAlbumPayload(name = "Name 2.0".some, images = Some(Seq(testPayload)))
-
-        val response1 = albumsApi(album.formId).update(payload)
-        response1.status must === (StatusCodes.OK)
-        checkAlbum(response1.as[AlbumRoot])
-
-        val response2 = albumsApi(album.formId).get()
-        response2.status must === (StatusCodes.OK)
-        checkAlbum(response2.as[AlbumRoot])
+        val payload = UpdateAlbumPayload(name = "Name 2.0".some, images = Seq(testPayload).some)
+        checkAlbum(albumsApi(album.formId).update(payload).as[AlbumRoot])
+        checkAlbum(albumsApi(album.formId).get().as[AlbumRoot])
       }
     }
 
@@ -229,103 +191,76 @@ class ImageIntegrationTest
       "Creates a new album on an existing product" in new ProductFixture {
         val payload =
           CreateAlbumPayload(name = testAlbumName, images = Seq(ImagePayload(src = "url")).some)
-        val response = productsApi(prodForm.id).albums.create(payload)
-        response.status must === (StatusCodes.OK)
-        val albumResponse = response.as[AlbumRoot]
-
-        albumResponse.images.length must === (1)
+        val albumResponse = productsApi(prodForm.id).albums.create(payload).as[AlbumRoot]
 
         albumResponse.name must === (testAlbumName)
+        albumResponse.images.length must === (1)
         albumResponse.images.head.src must === ("url")
       }
 
       "Puts new album at the end" in new ProductFixture {
-        val payload =
-          CreateAlbumPayload(name = testAlbumName, images = Seq(ImagePayload(src = "url")).some)
-        val response = productsApi(prodForm.id).albums.create(payload.copy(name = "1"))
-        response.status must === (StatusCodes.OK)
-        val response2 = productsApi(prodForm.id).albums.create(payload.copy(name = "2"))
-        response2.status must === (StatusCodes.OK)
+        val payload = CreateAlbumPayload(name = "0", images = Seq(ImagePayload(src = "url")).some)
+        productsApi(prodForm.id).albums.create(payload.copy(name = "1")).mustBeOk()
+        productsApi(prodForm.id).albums.create(payload.copy(name = "2")).mustBeOk()
 
-        val getAlbumsResponse = productsApi(prodForm.id).albums.get()
-        getAlbumsResponse.status must === (StatusCodes.OK)
-        val albums = getAlbumsResponse.as[Seq[AlbumRoot]]
-
+        val albums = productsApi(prodForm.id).albums.get().as[Seq[AlbumRoot]]
         albums.map(_.name) must === (Seq(testAlbumName, "1", "2"))
       }
     }
 
     "POST products/:context/:productId/albums/position" - {
       "updates album position" in new ProductFixture {
-        val payload = CreateAlbumPayload(name = "1", images = Seq(ImagePayload(src = "url")).some)
+        val _albumsApi = productsApi(prodForm.id).albums
 
-        (1 to 2).map { name ⇒
-          productsApi(prodForm.id).albums.create(payload.copy(name = name.toString)).status
-        } must contain only StatusCodes.OK
+        val imagePayload = Seq(ImagePayload(src = "url")).some
+        Seq("1", "2").foreach { name ⇒
+          val payload = CreateAlbumPayload(name = name, images = imagePayload)
+          _albumsApi.create(payload).mustBeOk()
+        }
 
         val originalOrder = Seq(testAlbumName, "1", "2")
-        val expectedOrder = Seq("2", "1", testAlbumName)
+        val expectedOrder = originalOrder.reverse
 
-        val albums = productsApi(prodForm.id).albums.get().as[Seq[AlbumRoot]]
+        val productAlbums = _albumsApi.get().as[Seq[AlbumRoot]]
+        productAlbums.map(_.name) must === (originalOrder)
+        val albumId = productAlbums.last.id
 
-        albums.map(_.name) must === (originalOrder)
+        val positionPayload = UpdateAlbumPositionPayload(albumId, 0)
+        val repositioned    = _albumsApi.updatePosition(positionPayload).as[Seq[AlbumRoot]]
+        repositioned.map(_.name) must === (expectedOrder)
 
-        val postPositionResponse = productsApi(prodForm.id).albums
-          .updatePosition(UpdateAlbumPositionPayload(albums.last.id, 0))
-
-        postPositionResponse.status must === (StatusCodes.OK)
-        postPositionResponse.as[Seq[AlbumRoot]].map(_.name) must === (expectedOrder)
-
-        val getAlbumsResponse2 = productsApi(prodForm.id).albums.get()
-        getAlbumsResponse2.status must === (StatusCodes.OK)
-        val albums2 = getAlbumsResponse2.as[Seq[AlbumRoot]]
-
-        albums2.map(_.name) must === (expectedOrder)
+        val updated = _albumsApi.get().as[Seq[AlbumRoot]]
+        updated.map(_.name) must === (expectedOrder)
       }
     }
 
     "GET v1/products/:context/:id/albums" - {
       "Retrieves all the albums associated with a product" in new ProductFixture {
-        val response = productsApi(prodForm.id).albums.get()
-        response.status must === (StatusCodes.OK)
+        val response = productsApi(prodForm.id).albums.get().as[Seq[AlbumRoot]].headOption.value
 
-        val albumResponse = response.as[Seq[AlbumRoot]].headOption.value
-        albumResponse.images.length must === (1)
-
-        albumResponse.name must === (testAlbumName)
-        albumResponse.images.head.src must === ("http://lorem.png")
+        response.name must === (testAlbumName)
+        response.images.length must === (1)
+        response.images.head.src must === ("http://lorem.png")
       }
 
       "Retrieves a correct version of an album after an update" in new ProductFixture {
-        val payload  = UpdateAlbumPayload(name = "Name 2.0".some)
-        val response = albumsApi(album.formId).update(payload)
-        response.status must === (StatusCodes.OK)
+        albumsApi(album.formId).update(UpdateAlbumPayload(name = "Name 2.0".some)).mustBeOk()
 
-        val response2 = productsApi(prodForm.id).albums.get()
-        response2.status must === (StatusCodes.OK)
-
-        val albumResponse = response2.as[Seq[AlbumRoot]].headOption.value
-        albumResponse.name must === ("Name 2.0")
+        val response = productsApi(prodForm.id).albums.get().as[Seq[AlbumRoot]]
+        response.headOption.value.name must === ("Name 2.0")
       }
 
       "Archived albums are not present in list" in new ProductFixture {
-        val response = albumsApi(album.formId).delete()
-        response.status must === (StatusCodes.OK)
+        albumsApi(album.formId).delete().mustBeOk()
 
-        val response2 = productsApi(prodForm.id).albums.get()
-        response2.status must === (StatusCodes.OK)
-
-        val albumResponse = response2.as[Seq[AlbumRoot]]
+        val albumResponse = productsApi(prodForm.id).albums.get().as[Seq[AlbumRoot]]
         albumResponse.length must === (0)
       }
     }
 
     "GET v1/products/:context/:id" - {
       "Retrieves all the albums associated with a product" in new ProductFixture {
-        val response = productsApi(prodForm.id).get()
-        response.status must === (StatusCodes.OK)
-
-        val productResponse = response.as[ProductResponse.Root]
+        val productResponse = productsApi(prodForm.id).get().as[ProductResponse.Root]
         productResponse.albums.length must === (1)
 
         val headAlbum = productResponse.albums.head
@@ -336,33 +271,22 @@ class ImageIntegrationTest
       }
 
       "Retrieves the albums associated with product's SKUs" in new ProductFixture {
-        val response = productsApi(prodForm.id).get()
-        response.status must === (StatusCodes.OK)
+        val productResponse = productsApi(prodForm.id).get().as[ProductResponse.Root]
 
-        val productResponse = response.as[ProductResponse.Root]
-        val headSku         = productResponse.skus.head
-        headSku.albums.length must === (1)
+        productResponse.skus.headOption.value.albums.length must === (1)
       }
 
       "Archived albums are not present in list" in new ProductFixture {
-        val response = albumsApi(album.formId).delete()
-        response.status must === (StatusCodes.OK)
+        albumsApi(album.formId).delete().mustBeOk()
 
-        val response2 = productsApi(prodForm.id).get()
-        response2.status must === (StatusCodes.OK)
-
-        val productResponse = response2.as[ProductResponse.Root]
-        val headSku         = productResponse.skus.head
-        headSku.albums.length must === (0)
+        val productResponse = productsApi(prodForm.id).get().as[ProductResponse.Root]
+        productResponse.skus.headOption.value.albums.length must === (0)
       }
     }
 
     "GET v1/skus/:context/:code" - {
       "Retrieves all the albums associated with a SKU" in new ProductFixture {
-        val response = skusApi(sku.code).get()
-        response.status must === (StatusCodes.OK)
-
-        val skuResponse = response.as[SkuResponse.Root]
+        val skuResponse = skusApi(sku.code).get().as[SkuResponse.Root]
         skuResponse.albums.length must === (1)
 
         val headAlbum = skuResponse.albums.head
@@ -373,13 +297,9 @@ class ImageIntegrationTest
       }
 
       "Archived albums are not present in list" in new ProductFixture {
-        val response = albumsApi(album.formId).delete()
-        response.status must === (StatusCodes.OK)
+        albumsApi(album.formId).delete().mustBeOk()
 
-        val response2 = skusApi(sku.code).get()
-        response2.status must === (StatusCodes.OK)
-
-        val skuResponse = response2.as[SkuResponse.Root]
+        val skuResponse = skusApi(sku.code).get().as[SkuResponse.Root]
         skuResponse.albums.length must === (0)
       }
     }
@@ -388,23 +308,17 @@ class ImageIntegrationTest
       "Creates a new album on an existing SKU" in new ProductFixture {
         val payload =
           CreateAlbumPayload(name = "Sku Album", images = Seq(ImagePayload(src = "url")).some)
-        val response = skusApi(sku.code).albums.create(payload)
-        response.status must === (StatusCodes.OK)
-
-        val albumResponse = response.as[AlbumRoot]
-        albumResponse.images.length must === (1)
+        val albumResponse = skusApi(sku.code).albums.create(payload).as[AlbumRoot]
 
         albumResponse.name must === ("Sku Album")
+        albumResponse.images.length must === (1)
         albumResponse.images.head.src must === ("url")
       }
     }
 
     "GET v1/skus/:context/:id/albums" - {
       "Retrieves all the albums associated with a SKU" in new ProductFixture {
-        val response = skusApi(sku.code).albums.get()
-        response.status must === (StatusCodes.OK)
-
-        val albumResponse = response.as[Seq[AlbumRoot]].headOption.value
+        val albumResponse = skusApi(sku.code).albums.get().as[Seq[AlbumRoot]].headOption.value
         albumResponse.images.length must === (1)
 
         albumResponse.name must === ("Sample Album")
@@ -412,24 +326,17 @@ class ImageIntegrationTest
       }
 
       "Retrieves a correct version of an album after an update" in new ProductFixture {
-        val payload  = UpdateAlbumPayload(name = "Name 2.0".some)
-        val response = albumsApi(album.formId).update(payload)
-        response.status must === (StatusCodes.OK)
+        val response = albumsApi(album.formId).update(UpdateAlbumPayload(name = "Name 2.0".some))
         response.as[AlbumRoot].name must === ("Name 2.0")
 
         val response2 = skusApi(sku.code).albums.get()
-        response2.status must === (StatusCodes.OK)
         response2.as[Seq[AlbumRoot]].headOption.value.name must === ("Name 2.0")
       }
 
       "Archived albums are not present in list" in new ProductFixture {
-        val response = albumsApi(album.formId).delete()
-        response.status must === (StatusCodes.OK)
+        albumsApi(album.formId).delete().mustBeOk()
 
-        val response2 = skusApi(sku.code).albums.get()
-        response2.status must === (StatusCodes.OK)
-
-        val albumResponse = response2.as[Seq[AlbumRoot]]
+        val albumResponse = skusApi(sku.code).albums.get().as[Seq[AlbumRoot]]
         albumResponse.length must === (0)
       }
     }
@@ -453,9 +360,7 @@ class ImageIntegrationTest
         val uri      = pathToAbsoluteUrl(s"v1/albums/${ctx.name}/${album.id}/images")
         val request  = HttpRequest(method = HttpMethods.POST, uri = uri, entity = entity)
 
-        val response = dispatchRequest(request)
-        response.status must === (StatusCodes.OK)
-        val responseAlbum = response.as[AlbumRoot]
+        val responseAlbum = dispatchRequest(request).as[AlbumRoot]
 
         responseAlbum.images.size must === (updatedAlbumImages.size + 1)
 

@@ -6,6 +6,7 @@ import models._
 import models.cord._
 import payloads.NotePayloads._
 import responses.AdminNotes
+import responses.AdminNotes.Root
 import services.notes.OrderNoteManager
 import util._
 import util.fixtures.BakedFixtures
@@ -21,10 +22,8 @@ class OrderNotesIntegrationTest
 
   "POST /v1/notes/order/:refNum" - {
     "can be created by an admin for an order" in new Order_Baked {
-      val response = notesApi.order(order.refNum).create(CreateNote("Hello, FoxCommerce!"))
-      response.status must === (StatusCodes.OK)
-      val note = response.as[AdminNotes.Root]
-      note.body must === ("Hello, FoxCommerce!")
+      val note = notesApi.order(order.refNum).create(CreateNote("foo")).as[Root]
+      note.body must === ("foo")
       note.author must === (AdminNotes.buildAuthor(authedStoreAdmin))
     }
 
@@ -48,9 +47,7 @@ class OrderNotesIntegrationTest
       }
       DbResultT.sequence(createNotes).gimme
 
-      val response = notesApi.order(order.refNum).get()
-      response.status must === (StatusCodes.OK)
-      val notes = response.as[Seq[AdminNotes.Root]]
+      val notes = notesApi.order(order.refNum).get().as[Seq[Root]]
       notes must have size 3
       notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
     }
@@ -58,33 +55,30 @@ class OrderNotesIntegrationTest
 
   "PATCH /v1/notes/order/:refNum/:noteId" - {
     "can update the body text" in new Order_Baked {
-      val rootNote =
-        OrderNoteManager.create(order.refNum, storeAdmin, CreateNote("Hello, FoxCommerce!")).gimme
+      val rootNote = OrderNoteManager.create(order.refNum, storeAdmin, CreateNote("foo")).gimme
 
-      val response = notesApi.order(order.refNum).note(rootNote.id).update(UpdateNote("donkey"))
-      response.status must === (StatusCodes.OK)
-      val note = response.as[AdminNotes.Root]
-      note.body must === ("donkey")
+      notesApi
+        .order(order.refNum)
+        .note(rootNote.id)
+        .update(UpdateNote("donkey"))
+        .as[Root]
+        .body must === ("donkey")
     }
   }
 
   "DELETE /v1/notes/order/:refNum/:noteId" - {
     "can soft delete note" in new Order_Baked {
-      val note =
-        OrderNoteManager.create(order.refNum, storeAdmin, CreateNote("Hello, FoxCommerce!")).gimme
+      val note = OrderNoteManager.create(order.refNum, storeAdmin, CreateNote("foo")).gimme
 
       val response = notesApi.order(order.refNum).note(note.id).delete()
       response.status must === (StatusCodes.NoContent)
       response.bodyText mustBe empty
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-      updatedNote.deletedBy.value === 1
-      updatedNote.deletedAt.value.isBeforeNow === true
+      updatedNote.deletedBy.value must === (1)
+      updatedNote.deletedAt.value.isBeforeNow mustBe true
 
-      // Deleted note should not be returned
-      val allNotesResponse = notesApi.order(order.refNum).get()
-      allNotesResponse.status must === (StatusCodes.OK)
-      val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
+      val allNotes = notesApi.order(order.refNum).get().as[Seq[Root]]
       allNotes.map(_.id) must not contain note.id
 
       val getDeletedNoteResponse = notesApi.order(order.refNum).note(note.id).get()

@@ -17,22 +17,17 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
   "POST /v1/orders/:ref/payment-methods/credit-cards" - {
     "succeeds" in new CreditCardFixture {
       val response =
-        cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id))
+        cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
       val payments = creditCardPayments(cart)
 
-      response.status must === (StatusCodes.OK)
       payments must have size 1
       payments.head.amount must === (None)
     }
 
     "successfully replaces an existing card" in new CreditCardFixture {
-      val first = cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id))
-      first.status must === (StatusCodes.OK)
-
+      cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
       val newCreditCard = CreditCards.create(creditCard.copy(id = 0, isDefault = false)).gimme
-      val second =
-        cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(newCreditCard.id))
-      second.status must === (StatusCodes.OK)
+      cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(newCreditCard.id)).mustBeOk()
 
       val payments = creditCardPayments(cart)
       payments must have size 1
@@ -86,12 +81,9 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
 
   "DELETE /v1/orders/:ref/payment-methods/credit-cards" - {
     "successfully deletes an existing card" in new CreditCardFixture {
-      val create = cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id))
-      create.status must === (StatusCodes.OK)
+      cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
+      cartsApi(cart.refNum).payments.creditCard.delete().mustBeOk()
 
-      val response = cartsApi(cart.refNum).payments.creditCard.delete()
-
-      response.status must === (StatusCodes.OK)
       creditCardPayments(cart) mustBe 'empty
     }
 

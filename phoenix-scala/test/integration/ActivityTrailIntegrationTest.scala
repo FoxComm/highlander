@@ -50,8 +50,7 @@ class ActivityTrailIntegrationTest
                                           email = "crazy.lary@crazy.com".some,
                                           phoneNumber = "666 666 6666".some)
 
-      val response = customersApi(customer.id).update(payload)
-      response.status must === (StatusCodes.OK)
+      val response = customersApi(customer.id).update(payload).mustBeOk()
 
       // Check the activity log to see if it was created
       val activity = Activities.filterByType(typeName).gimme.headOption.value
@@ -76,8 +75,7 @@ class ActivityTrailIntegrationTest
                                           email = "updated.name@name.com".some,
                                           phoneNumber = "666 666 6666".some)
 
-      val response = customersApi(customer.id).update(payload)
-      response.status must === (StatusCodes.OK)
+      customersApi(customer.id).update(payload).mustBeOk()
 
       // Check the activity log to see if it was created
       val activity = Activities.filterByType(typeName).gimme.headOption.value
@@ -174,13 +172,10 @@ class ActivityTrailIntegrationTest
   def getConnection(id: Int): Connection =
     Connections.findById(id).extract.result.head.gimme
 
-  def appendActivity(dimension: String, objectId: Int, activityId: Int): Root = {
-    val appendPayload  = AppendActivity(activityId)
-    val appendResponse = activityTrailsApi.appendActivity(dimension, objectId, appendPayload)
-
-    appendResponse.status must === (StatusCodes.OK)
-    appendResponse.as[ActivityConnectionResponse.Root]
-  }
+  def appendActivity(dimension: String, objectId: Int, activityId: Int): Root =
+    activityTrailsApi
+      .appendActivity(dimension, objectId, AppendActivity(activityId))
+      .as[ActivityConnectionResponse.Root]
 
   trait Fixture extends Customer_Seed with StoreAdmin_Seed
 }

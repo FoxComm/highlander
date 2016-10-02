@@ -11,7 +11,8 @@ import models.payment.giftcard._
 import models.payment.storecredit
 import models.payment.storecredit.StoreCredit
 import payloads.GiftCardPayloads._
-import responses._
+import responses.GiftCardResponse.Root
+import responses.{GiftCardAdjustmentsResponse, _}
 import slick.driver.PostgresDriver.api._
 import util.{IntegrationTestBase, PhoenixAdminApi}
 import util.fixtures.BakedFixtures
@@ -28,11 +29,9 @@ class GiftCardIntegrationTest
 
     "POST /v1/gift-cards" - {
       "successfully creates gift card from payload" in new Reason_Baked {
-        val payload  = GiftCardCreateByCsr(balance = 555, reasonId = reason.id)
-        val response = giftCardsApi.create(payload)
-        response.status must === (StatusCodes.OK)
+        val payload = GiftCardCreateByCsr(balance = 555, reasonId = reason.id)
+        val root    = giftCardsApi.create(payload).as[Root]
 
-        val root = response.as[GiftCardResponse.Root]
         root.originType must === (GiftCard.CsrAppeasement)
         root.currency must === (Currency.USD)
         root.availableBalance must === (555)
@@ -46,14 +45,8 @@ class GiftCardIntegrationTest
       "create two gift cards with unique codes" in new Reason_Baked {
         val payload = GiftCardCreateByCsr(balance = 555, reasonId = reason.id)
 
-        val responseFirst = giftCardsApi.create(payload)
-        responseFirst.status must === (StatusCodes.OK)
-
-        val responseSecond = giftCardsApi.create(payload)
-        responseSecond.status must === (StatusCodes.OK)
-
-        val rootFirst  = responseFirst.as[GiftCardResponse.Root]
-        val rootSecond = responseSecond.as[GiftCardResponse.Root]
+        val rootFirst  = giftCardsApi.create(payload).as[Root]
+        val rootSecond = giftCardsApi.create(payload).as[Root]
         rootFirst.code must !==(rootSecond.code)
       }
 
@@ -61,10 +54,7 @@ class GiftCardIntegrationTest
         val payload = GiftCardCreateByCsr(balance = 25,
                                           reasonId = reason.id,
                                           subTypeId = giftCardSubtype.id.some)
-        val response = giftCardsApi.create(payload)
-
-        response.status must === (StatusCodes.OK)
-        val sc = response.as[GiftCardResponse.Root]
+        val sc = giftCardsApi.create(payload).as[Root]
         sc.subTypeId.value must === (1)
       }
 
@@ -92,11 +82,9 @@ class GiftCardIntegrationTest
 
     "POST /v1/gift-cards (bulk)" - {
       "successfully creates multiple gift cards from payload" in new Reason_Baked {
-        val response = giftCardsApi.createBulk(
-            GiftCardBulkCreateByCsr(quantity = 5, balance = 256, reasonId = reason.id))
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[Seq[GiftCardBulkResponse.ItemResult]]
+        val root = giftCardsApi
+          .createBulk(GiftCardBulkCreateByCsr(quantity = 5, balance = 256, reasonId = reason.id))
+          .as[Seq[GiftCardBulkResponse.ItemResult]]
         root.length must === (5)
       }
 
@@ -133,11 +121,7 @@ class GiftCardIntegrationTest
 
     "GET /v1/gift-cards/:code" - {
       "finds a gift card by code" in new GiftCard_Baked {
-        val response     = giftCardsApi(giftCard.code).get()
-        val giftCardResp = response.as[GiftCardResponse.Root]
-
-        response.status must === (StatusCodes.OK)
-        giftCardResp.code must === (giftCard.code)
+        giftCardsApi(giftCard.code).get().as[Root].code must === (giftCard.code)
       }
 
       "returns not found when GC doesn't exist" in {
@@ -149,12 +133,8 @@ class GiftCardIntegrationTest
 
     "PATCH /v1/gift-cards/:code" - {
       "successfully changes state from Active to OnHold and vice-versa" in new GiftCard_Baked {
-        val response = giftCardsApi(giftCard.code).update(GiftCardUpdateStateByCsr(state = OnHold))
-        response.status must === (StatusCodes.OK)
-
-        val responseBack =
-          giftCardsApi(giftCard.code).update(GiftCardUpdateStateByCsr(state = Active))
-        responseBack.status must === (StatusCodes.OK)
+        giftCardsApi(giftCard.code).update(GiftCardUpdateStateByCsr(state = OnHold)).mustBeOk()
+        giftCardsApi(giftCard.code).update(GiftCardUpdateStateByCsr(state = Active)).mustBeOk()
       }
 
       "returns error if no cancellation reason provided" in new GiftCard_Baked {
@@ -175,11 +155,9 @@ class GiftCardIntegrationTest
         // Cancel pending adjustment (should be done before cancellation)
         GiftCardAdjustments.cancel(adjustment1.id).gimme
 
-        val response = giftCardsApi(giftCard1.code)
+        val root = giftCardsApi(giftCard1.code)
           .update(GiftCardUpdateStateByCsr(state = Canceled, reasonId = reason.id.some))
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[GiftCardResponse.Root]
+          .as[Root]
         root.canceledAmount must === (Some(giftCard1.originalBalance))
 
         // Ensure that cancel adjustment is automatically created
@@ -194,11 +172,9 @@ class GiftCardIntegrationTest
         // Update balance
         GiftCards.update(giftCard1, giftCard1.copy(availableBalance = 0)).gimme
 
-        val response = giftCardsApi(giftCard1.code)
+        val root = giftCardsApi(giftCard1.code)
           .update(GiftCardUpdateStateByCsr(state = Canceled, reasonId = reason.id.some))
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[GiftCardResponse.Root]
+          .as[Root]
         root.canceledAmount.value must === (0)
 
         // Ensure that cancel adjustment is automatically created
@@ -220,10 +196,9 @@ class GiftCardIntegrationTest
 
     "GET /v1/gift-cards/:code/transactions" - {
       "returns the list of adjustments" in new Fixture {
-        val response    = giftCardsApi(giftCard1.code).transactions()
-        val adjustments = response.as[Seq[GiftCardAdjustmentsResponse.Root]]
+        val adjustments =
+          giftCardsApi(giftCard1.code).transactions().as[Seq[GiftCardAdjustmentsResponse.Root]]
 
-        response.status must === (StatusCodes.OK)
         adjustments.size mustBe 1
 
         val firstAdjustment = adjustments.head
@@ -240,8 +215,7 @@ class GiftCardIntegrationTest
             state = GiftCard.OnHold
         )
 
-        val response = giftCardsApi.updateBulk(payload)
-        response.status must === (StatusCodes.OK)
+        giftCardsApi.updateBulk(payload).mustBeOk()
 
         val firstUpdated = GiftCards.findOneById(giftCard1.id).gimme
         firstUpdated.value.state must === (GiftCard.OnHold)
@@ -264,10 +238,9 @@ class GiftCardIntegrationTest
 
     "POST /v1/gift-cards/:code/convert/:customerId" - {
       "successfully converts GC to SC" in new Fixture {
-        val response = giftCardsApi(giftCard2.code).convertToStoreCredit(customer.id)
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[StoreCreditResponse.Root]
+        val root = giftCardsApi(giftCard2.code)
+          .convertToStoreCredit(customer.id)
+          .as[StoreCreditResponse.Root]
         root.customerId must === (customer.id)
         root.originType must === (StoreCredit.GiftCardTransfer)
         root.state must === (storecredit.StoreCredit.Active)

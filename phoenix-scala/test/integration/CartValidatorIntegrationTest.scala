@@ -3,6 +3,7 @@ import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import util.Extensions._
 import cats.implicits._
 import failures.CartFailures._
+import failures.Failure
 import models.cord._
 import models.inventory.Skus
 import models.location.Addresses
@@ -21,6 +22,7 @@ import responses.TheResponse
 import responses.cord.CartResponse
 import util._
 import util.fixtures.BakedFixtures
+import utils.aliases._
 import utils.db._
 import utils.seeds.CouponSeeds
 import utils.seeds.Seeds.Factories
@@ -35,34 +37,30 @@ class CartValidatorIntegrationTest
   "Cart validator must be applied to" - {
 
     "/v1/orders/:refNum/payment-methods/gift-cards" in new GiftCardFixture {
-      val payload = GiftCardPayment(giftCard.code)
-      val api     = cartsApi(refNum).payments.giftCard
-      checkResponse(api.add(payload), expectedWarnings)
+      val api = cartsApi(refNum).payments.giftCard
+      checkResponse(api.add(GiftCardPayment(giftCard.code)), expectedWarnings)
       checkResponse(api.delete(giftCard.code), expectedWarnings)
     }
 
     "/v1/orders/:refNum/payment-methods/store-credit" in new StoreCreditFixture {
-      val payload = StoreCreditPayment(500)
-      val api     = cartsApi(refNum).payments.storeCredit
-      checkResponse(api.add(payload), expectedWarnings)
+      val api = cartsApi(refNum).payments.storeCredit
+      checkResponse(api.add(StoreCreditPayment(500)), expectedWarnings)
       checkResponse(api.delete(), expectedWarnings)
     }
 
     "/v1/orders/:refNum/payment-methods/credit-cards" in new CreditCardFixture {
-      val payload = CreditCardPayment(creditCard.id)
-      val api     = cartsApi(refNum).payments.creditCard
-      checkResponse(api.add(payload), expectedWarnings)
+      val api = cartsApi(refNum).payments.creditCard
+      checkResponse(api.add(CreditCardPayment(creditCard.id)), expectedWarnings)
       checkResponse(api.delete(), expectedWarnings)
     }
 
     "/v1/orders/:refNum/shipping-address" in new ShippingAddressFixture {
       val api = cartsApi(refNum).shippingAddress
 
-      val createPayload = CreateAddressPayload("a", 1, "b", None, "c", "11111")
-      checkResponse(api.create(createPayload), expectedWarnings)
+      checkResponse(api.create(CreateAddressPayload("a", 1, "b", None, "c", "11111")),
+                    expectedWarnings)
 
-      val updatePayload = UpdateAddressPayload(name = "z".some)
-      checkResponse(api.update(updatePayload), expectedWarnings)
+      checkResponse(api.update(UpdateAddressPayload(name = "z".some)), expectedWarnings)
 
       checkResponse(api.delete(), expectedWarnings :+ NoShipAddress(refNum))
 
@@ -71,9 +69,9 @@ class CartValidatorIntegrationTest
     }
 
     "/v1/orders/:refNum/shipping-method" in new ShippingMethodFixture {
-      val payload = UpdateShippingMethod(shipMethod.id)
-      val api     = cartsApi(refNum).shippingMethod
-      checkResponse(api.update(payload), Seq(EmptyCart(refNum), InsufficientFunds(refNum)))
+      val api = cartsApi(refNum).shippingMethod
+      checkResponse(api.update(UpdateShippingMethod(shipMethod.id)),
+                    Seq(EmptyCart(refNum), InsufficientFunds(refNum)))
       checkResponse(api.delete(), Seq(EmptyCart(refNum), NoShipMethod(refNum)))
     }
 
@@ -90,63 +88,35 @@ class CartValidatorIntegrationTest
     "must validate funds with line items:" - {
       "must return warning when credit card is removed" in new LineItemAndFundsFixture {
         val api = cartsApi(refNum)
-
-        val lineItemPayload = Seq(UpdateLineItemsPayload(sku.code, 1))
-        val response1       = api.lineItems.add(lineItemPayload)
-        response1.status must === (StatusCodes.OK)
-
-        val ccPayload = CreditCardPayment(creditCard.id)
-        val response2 = api.payments.creditCard.add(ccPayload)
-        response2.status must === (StatusCodes.OK)
+        api.lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 1))).mustBeOk()
+        api.payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
 
         checkResponse(api.payments.creditCard.delete(),
                       Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))
       }
 
       "must return warning when store credits are removed" in new LineItemAndFundsFixture {
-        val lineItemPayload = Seq(UpdateLineItemsPayload(sku.code, 1))
-        val response1       = cartsApi(refNum).lineItems.add(lineItemPayload)
-        response1.status must === (StatusCodes.OK)
-
-        val scPayload = StoreCreditPayment(500)
-        val response2 = cartsApi(refNum).payments.storeCredit.add(scPayload)
-        response2.status must === (StatusCodes.OK)
+        cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 1))).mustBeOk()
+        cartsApi(refNum).payments.storeCredit.add(StoreCreditPayment(500)).mustBeOk()
 
         checkResponse(cartsApi(refNum).payments.storeCredit.delete(),
                       Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))
       }
 
       "must return warning when gift card is removed" in new LineItemAndFundsFixture {
-        val lineItemPayload = Seq(UpdateLineItemsPayload(sku.code, 1))
-        val response1       = cartsApi(refNum).lineItems.add(lineItemPayload)
-        response1.status must === (StatusCodes.OK)
-
-        val gcPayload = GiftCardPayment(giftCard.code)
-        val response2 = cartsApi(refNum).payments.giftCard.add(gcPayload)
-        response2.status must === (StatusCodes.OK)
+        cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 1))).mustBeOk()
+        cartsApi(refNum).payments.giftCard.add(GiftCardPayment(giftCard.code)).mustBeOk()
 
         checkResponse(cartsApi(refNum).payments.giftCard.delete(giftCard.code),
                       Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))
       }
     }
 
-    def checkResponse(response: HttpResponse, expectedWarnings: Seq[failures.Failure])(
-        implicit line: sourcecode.Line,
-        file: sourcecode.File) = {
-      lazy val errorsStr: String = response.errors match {
-        case Nil  ⇒ "No errors in response."
-        case errs ⇒ s"""Errors: ${errs.mkString(", ")}"""
-      }
-
-      {
-        response.status must === (StatusCodes.OK)
-        val warnings = response.as[TheResponse[CartResponse]].warnings
-        warnings.value must not be empty
-        warnings.value must contain theSameElementsAs expectedWarnings.map(_.description)
-      } withClue s"""
-      | $errorsStr
-      | (Original source: ${file.value.split("/").last}:${line.value})
-      """.stripMargin
+    def checkResponse(response: HttpResponse, expectedWarnings: Seq[Failure])(implicit line: SL,
+                                                                              file: SF): Unit = {
+      val warnings = response.withResultTypeOf[CartResponse].warnings
+      warnings.value must not be empty
+      warnings.value must contain theSameElementsAs expectedWarnings.map(_.description)
     }
   }
 

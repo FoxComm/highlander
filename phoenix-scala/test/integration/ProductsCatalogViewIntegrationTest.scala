@@ -14,6 +14,7 @@ import util._
 import utils.MockedApis
 import utils.Money.Currency
 import utils.db._
+import Extensions._
 
 object ProductsCatalogViewIntegrationTest {
 
@@ -77,9 +78,8 @@ class ProductsCatalogViewIntegrationTest
 
   "album-related views should be updated on" - {
     "album created" in new Fixture {
-      val payload  = CreateAlbumPayload(name = "test", images = Seq(ImagePayload(src = "url")).some)
-      val response = productsApi(product.formId).albums.create(payload)
-      response.status must === (StatusCodes.OK)
+      val payload = CreateAlbumPayload(name = "test", images = Seq(ImagePayload(src = "url")).some)
+      productsApi(product.formId).albums.create(payload).mustBeOk()
 
       val albums = ProductAlbumsFromDatabase(product).getAndCompareAllViews
 
@@ -92,8 +92,7 @@ class ProductsCatalogViewIntegrationTest
       val moreImages = Seq(imagePayload, ImagePayload(src = "http://test.it/test.png"))
       val payload    = UpdateAlbumPayload(images = moreImages.some)
 
-      val response = albumsApi(album.formId).update(payload)
-      response.status must === (StatusCodes.OK)
+      albumsApi(album.formId).update(payload).mustBeOk()
 
       val albums = ProductAlbumsFromDatabase(product).getAndCompareAllViews
       albums.size must === (1)
@@ -104,8 +103,7 @@ class ProductsCatalogViewIntegrationTest
     }
 
     "album archived" in new Fixture {
-      val response = albumsApi(album.formId).delete()
-      response.status must === (StatusCodes.OK)
+      albumsApi(album.formId).delete().mustBeOk()
 
       val albums = ProductAlbumsFromDatabase(product).getAndCompareAllViews
       albums.size must === (0)

@@ -48,7 +48,7 @@ class NotificationIntegrationTest
 
     "loads old unread notifications before streaming new" in new Fixture2 {
       subscribeToNotifications()
-      notificationsApi.create(newNotification).status must === (StatusCodes.OK)
+      notificationsApi.create(newNotification).mustBeOk()
       val notifications = skipHeartbeats(sseSource(s"v1/notifications"))
 
       val requests = Source.single(2).map { activityId ⇒
@@ -88,18 +88,15 @@ class NotificationIntegrationTest
           .lastSeenActivityId
 
       subscribeToNotifications()
-      notificationsApi.create(newNotification).status must === (StatusCodes.OK)
+      notificationsApi.create(newNotification).mustBeOk()
 
       lastSeenId(adminId) must === (0)
-      val response = notificationsApi.updateLastSeen(1)
-      response.status must === (StatusCodes.OK)
-      val data = response.as[LastSeenActivityResponse]
+      val data = notificationsApi.updateLastSeen(1).as[LastSeenActivityResponse]
       data.trailId must === (1)
       data.lastSeenActivityId must === (1)
       lastSeenId(adminId) must === (1)
 
-      notificationsApi.create(newNotification.copy(activityId = 2)).status must === (
-          StatusCodes.OK)
+      notificationsApi.create(newNotification.copy(activityId = 2)).mustBeOk()
 
       sseProbe(s"v1/notifications").requestNext(activityJson(2))
     }
@@ -120,14 +117,11 @@ class NotificationIntegrationTest
   "POST v1/notifications" - {
 
     "creates notification" in new Fixture {
-      val response1 = notificationsApi.create(newNotification)
-      response1.status must === (StatusCodes.OK)
-      response1.as[Seq[Root]] mustBe empty
+      notificationsApi.create(newNotification).as[Seq[Root]] mustBe empty
 
       subscribeToNotifications()
-      val response2 = notificationsApi.create(newNotification)
-      response2.status must === (StatusCodes.OK)
-      val data = response2.as[Seq[Root]]
+
+      val data = notificationsApi.create(newNotification).as[Seq[Root]]
       data must have size 1
       val connection = data.head
       connection.activityId must === (1)
@@ -151,7 +145,7 @@ class NotificationIntegrationTest
   "Inner methods" - {
     "Subscribe" - {
       "successfully subscribes" in new Fixture {
-        notificationsApi.create(newNotification).status must === (StatusCodes.OK)
+        notificationsApi.create(newNotification).mustBeOk()
         Connections.gimme mustBe empty
         subscribeToNotifications().result.value must === (1)
         val sub = NotificationSubscriptions.one.gimme.value
@@ -159,7 +153,7 @@ class NotificationIntegrationTest
         sub.dimensionId must === (1)
         sub.objectId must === ("1")
         sub.reason must === (Watching)
-        notificationsApi.create(newNotification).status must === (StatusCodes.OK)
+        notificationsApi.create(newNotification).mustBeOk()
         val connections = Connections.gimme
         connections must have size 1
         val connection = connections.headOption.value
@@ -195,10 +189,10 @@ class NotificationIntegrationTest
     "Unsubscribe" - {
       "successfully unsubscribes" in new Fixture {
         subscribeToNotifications()
-        notificationsApi.create(newNotification).status must === (StatusCodes.OK)
+        notificationsApi.create(newNotification).mustBeOk()
         Connections.gimme must have size 1
         unsubscribeFromNotifications()
-        notificationsApi.create(newNotification).status must === (StatusCodes.OK)
+        notificationsApi.create(newNotification).mustBeOk()
         Connections.gimme must have size 1
       }
 
@@ -262,18 +256,17 @@ class NotificationIntegrationTest
 
     def createActivityAndConnections(newName: String) = {
       // Trigger activity creation
-      customersApi(1).update(UpdateCustomerPayload(name = newName.some)).status must === (
-          StatusCodes.OK)
+      customersApi(1).update(UpdateCustomerPayload(name = newName.some)).mustBeOk()
       // Emulate Green river calls
       val aId = Activities.sortBy(_.id.desc).gimme.headOption.value.id
       activityTrailsApi
         .appendActivity(customerDimension, 1, AppendActivity(activityId = aId, data = None))
-        .status must === (StatusCodes.OK)
+        .mustBeOk()
       val payload = CreateNotification(sourceDimension = customerDimension,
                                        sourceObjectId = "1",
                                        activityId = aId,
                                        data = None)
-      notificationsApi.create(payload).status must === (StatusCodes.OK)
+      notificationsApi.create(payload).mustBeOk()
     }
   }
 

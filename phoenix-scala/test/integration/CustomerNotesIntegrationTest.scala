@@ -23,12 +23,8 @@ class CustomerNotesIntegrationTest
 
   "POST /v1/notes/customer/:customerId" - {
     "can be created by an admin for a customer" in new Fixture {
-      val response = notesApi.customer(customer.id).create(CreateNote("Hello, FoxCommerce!"))
-
-      response.status must === (StatusCodes.OK)
-
-      val note = response.as[AdminNotes.Root]
-      note.body must === ("Hello, FoxCommerce!")
+      val note = notesApi.customer(customer.id).create(CreateNote("foo")).as[AdminNotes.Root]
+      note.body must === ("foo")
       note.author must === (AdminNotes.buildAuthor(storeAdmin))
     }
 
@@ -55,10 +51,7 @@ class CustomerNotesIntegrationTest
       }
       DbResultT.sequence(createNotes).gimme
 
-      val response = notesApi.customer(customer.id).get()
-      response.status must === (StatusCodes.OK)
-
-      val notes = response.as[Seq[AdminNotes.Root]]
+      val notes = notesApi.customer(customer.id).get().as[Seq[AdminNotes.Root]]
       notes must have size 3
       notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
     }
@@ -67,22 +60,21 @@ class CustomerNotesIntegrationTest
   "PATCH /v1/notes/customer/:customerId/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val rootNote = CustomerNoteManager
-        .create(customer.id, storeAdmin, CreateNote("Hello, FoxCommerce!"))
-        .gimme
+      val rootNote = CustomerNoteManager.create(customer.id, storeAdmin, CreateNote("foo")).gimme
 
-      val response = notesApi.customer(customer.id).note(rootNote.id).update(UpdateNote("donkey"))
-      response.status must === (StatusCodes.OK)
-
-      val note = response.as[AdminNotes.Root]
-      note.body must === ("donkey")
+      notesApi
+        .customer(customer.id)
+        .note(rootNote.id)
+        .update(UpdateNote("donkey"))
+        .as[AdminNotes.Root]
+        .body must === ("donkey")
     }
   }
 
   "DELETE /v1/notes/customer/:customerId/:noteId" - {
 
     "can soft delete note" in new Fixture {
-      val createResp = notesApi.customer(customer.id).create(CreateNote("Hello, FoxCommerce!"))
+      val createResp = notesApi.customer(customer.id).create(CreateNote("foo"))
       val note       = createResp.as[AdminNotes.Root]
 
       val response = notesApi.customer(customer.id).note(note.id).delete()
@@ -90,16 +82,13 @@ class CustomerNotesIntegrationTest
       response.bodyText mustBe empty
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-      updatedNote.deletedBy.value === 1
+      updatedNote.deletedBy.value must === (1)
 
       withClue(updatedNote.deletedAt.value → Instant.now) {
-        updatedNote.deletedAt.value.isBeforeNow === true
+        updatedNote.deletedAt.value.isBeforeNow mustBe true
       }
 
-      // Deleted note should not be returned
-      val allNotesResponse = notesApi.customer(customer.id).get()
-      allNotesResponse.status must === (StatusCodes.OK)
-      val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
+      val allNotes = notesApi.customer(customer.id).get().as[Seq[AdminNotes.Root]]
       allNotes.map(_.id) must not contain note.id
 
       val getDeletedNoteResponse = notesApi.customer(customer.id).note(note.id).get()

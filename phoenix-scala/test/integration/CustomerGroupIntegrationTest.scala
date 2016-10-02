@@ -7,6 +7,7 @@ import org.json4s.JObject
 import org.scalatest.mock.MockitoSugar
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse
+import responses.DynamicGroupResponse.Root
 import util._
 import util.fixtures.BakedFixtures
 import utils.db._
@@ -21,11 +22,9 @@ class CustomerGroupIntegrationTest
 
   "GET /v1/groups" - {
     "lists customers groups" in new Fixture {
-      val response  = customerGroupsApi.get()
       val groupRoot = DynamicGroupResponse.build(group)
 
-      response.status must === (StatusCodes.OK)
-      response.as[Seq[DynamicGroupResponse.Root]] must === (Seq(groupRoot))
+      customerGroupsApi.get().as[Seq[Root]] must === (Seq(groupRoot))
     }
   }
 
@@ -35,23 +34,15 @@ class CustomerGroupIntegrationTest
                                                 clientState = JObject(),
                                                 elasticRequest = JObject(),
                                                 customersCount = Some(1))
-      val response = customerGroupsApi.create(payload)
-
-      response.status must === (StatusCodes.OK)
-
-      val root    = response.as[DynamicGroupResponse.Root]
-      val created = CustomerDynamicGroups.findOneById(root.id).run().futureValue.value
+      val root    = customerGroupsApi.create(payload).as[Root]
+      val created = CustomerDynamicGroups.mustFindById400(root.id).gimme
       created.id must === (root.id)
     }
   }
 
   "GET /v1/groups/:groupId" - {
     "fetches group info" in new Fixture {
-      val response = customerGroupsApi(group.id).get()
-      val root     = DynamicGroupResponse.build(group)
-
-      response.status must === (StatusCodes.OK)
-      response.as[DynamicGroupResponse.Root] must === (root)
+      customerGroupsApi(group.id).get().as[Root] must === (DynamicGroupResponse.build(group))
     }
 
     "404 if group not found" in new Fixture {
@@ -70,10 +61,7 @@ class CustomerGroupIntegrationTest
                                                 elasticRequest = JObject())
       (payload.name, payload.customersCount) must !==((group.name, group.customersCount))
 
-      val response = customerGroupsApi(group.id).update(payload)
-      response.status must === (StatusCodes.OK)
-
-      val updated = response.as[DynamicGroupResponse.Root]
+      val updated = customerGroupsApi(group.id).update(payload).as[Root]
       (updated.name, updated.customersCount) must === ((payload.name, payload.customersCount))
     }
 

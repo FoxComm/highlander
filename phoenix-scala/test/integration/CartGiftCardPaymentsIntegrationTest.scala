@@ -18,10 +18,8 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
 
   "POST /v1/orders/:ref/payment-methods/gift-cards" - {
     "succeeds" in new CartWithGcFixture {
-      val payload  = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
-      val response = cartsApi(cart.refNum).payments.giftCard.add(payload)
-
-      response.status must === (StatusCodes.OK)
+      val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
+      cartsApi(cart.refNum).payments.giftCard.add(payload).mustBeOk()
 
       val payments = giftCardPayments(cart)
       payments must have size 1
@@ -29,13 +27,12 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
     }
 
     "fails when adding same gift card twice" in new CartWithGcFixture {
-      val payload  = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
-      val response = cartsApi(cart.refNum).payments.giftCard.add(payload)
-      response.status must === (StatusCodes.OK)
+      val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
+      cartsApi(cart.refNum).payments.giftCard.add(payload).mustBeOk()
 
-      val secondResponse = cartsApi(cart.refNum).payments.giftCard.add(payload)
-      secondResponse.status must === (StatusCodes.BadRequest)
-      secondResponse.error must === (
+      val failed = cartsApi(cart.refNum).payments.giftCard.add(payload)
+      failed.status must === (StatusCodes.BadRequest)
+      failed.error must === (
           GiftCardPaymentAlreadyAdded(cart.referenceNumber, giftCard.code).description)
     }
 
@@ -100,11 +97,8 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
   "PATCH /v1/orders/:ref/payment-methods/gift-cards" - {
     "successfully updates giftCard payment" in new CartWithGcFixture {
       val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
-      val create  = cartsApi(cart.refNum).payments.giftCard.add(payload)
-      create.status must === (StatusCodes.OK)
-
-      val update = cartsApi(cart.refNum).payments.giftCard.update(payload.copy(amount = Some(10)))
-      update.status must === (StatusCodes.OK)
+      cartsApi(cart.refNum).payments.giftCard.add(payload).mustBeOk()
+      cartsApi(cart.refNum).payments.giftCard.update(payload.copy(amount = Some(10))).mustBeOk()
     }
 
     "fails if the cart is not found" in new CartWithGcFixture {
@@ -129,11 +123,8 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
   "DELETE /v1/orders/:ref/payment-methods/gift-cards/:code" - {
     "successfully deletes a giftCard" in new CartWithGcFixture {
       val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
-      val create  = cartsApi(cart.refNum).payments.giftCard.add(payload)
-      create.status must === (StatusCodes.OK)
-
-      val response = cartsApi(cart.refNum).payments.giftCard.delete(giftCard.code)
-      response.status must === (StatusCodes.OK)
+      cartsApi(cart.refNum).payments.giftCard.add(payload).mustBeOk()
+      cartsApi(cart.refNum).payments.giftCard.delete(giftCard.code).mustBeOk()
 
       creditCardPayments(cart) mustBe 'empty
     }

@@ -15,6 +15,7 @@ import org.json4s._
 import payloads.ProductPayloads._
 import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
+import responses.ProductResponses.ProductResponse.Root
 import responses.ProductResponses._
 import util.{IntegrationTestBase, PhoenixAdminApi}
 import util.fixtures.BakedFixtures
@@ -43,9 +44,7 @@ class ProductIntegrationTest
 
   "POST v1/products/:context" - {
     def doQuery(productPayload: CreateProductPayload) = {
-      val response = productsApi.create(productPayload)
-      response.status must === (StatusCodes.OK)
-      response.as[ProductResponse.Root]
+      productsApi.create(productPayload).as[Root]
     }
 
     "Creates a product with" - {
@@ -78,14 +77,8 @@ class ProductIntegrationTest
         val redSkuPayload = makeSkuPayload("SKU-RED-SMALL", skuAttrMap)
         val payload       = productPayload.copy(skus = Seq(redSkuPayload))
 
-        val response = productsApi.create(payload)
-        response.status must === (StatusCodes.OK)
-
-        val productResponse = response.as[ProductResponse.Root]
-        val getResponse     = productsApi(productResponse.id).get()
-        getResponse.status must === (StatusCodes.OK)
-
-        val getProductResponse = getResponse.as[ProductResponse.Root]
+        val productResponse    = productsApi.create(payload).as[Root]
+        val getProductResponse = productsApi(productResponse.id).get().as[Root]
         getProductResponse.skus.length must === (1)
 
         val getFirstSku :: Nil = getProductResponse.skus
@@ -206,10 +199,7 @@ class ProductIntegrationTest
       val productResponse = doQuery(productPayload)
       val productId       = productResponse.id
 
-      val getResponse = productsApi(productId).get()
-      getResponse.status must === (StatusCodes.OK)
-
-      val getProductResponse = getResponse.as[ProductResponse.Root]
+      val getProductResponse = productsApi(productId).get().as[Root]
       getProductResponse.skus.length must === (1)
       getProductResponse.skus.head.attributes.code must === ("SKU-NEW-TEST")
     }
@@ -217,9 +207,7 @@ class ProductIntegrationTest
 
   "PATCH v1/products/:context/:id" - {
     def doQuery(formId: Int, productPayload: UpdateProductPayload) = {
-      val response = productsApi(formId).update(productPayload)
-      response.status must === (StatusCodes.OK)
-      response.as[ProductResponse.Root]
+      productsApi(formId).update(productPayload).as[Root]
     }
 
     "Updates the SKUs on a product successfully" in new Fixture {
@@ -364,22 +352,15 @@ class ProductIntegrationTest
 
   "DELETE v1/products/:context/:id" - {
     "Archives product successfully" in new Fixture {
-      val response = productsApi(product.formId).archive()
-
-      response.status must === (StatusCodes.OK)
-
-      val result = response.as[ProductResponse.Root]
+      val result = productsApi(product.formId).archive().as[Root]
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow must === (true)
       }
     }
 
     "Archived product must be inactive" in new Fixture {
-      val response = productsApi(product.formId).archive()
+      val attributes = productsApi(product.formId).archive().as[Root].attributes
 
-      response.status must === (StatusCodes.OK)
-
-      val attributes = response.as[ProductResponse.Root].attributes
       val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
       val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]
 
@@ -388,30 +369,15 @@ class ProductIntegrationTest
     }
 
     "SKUs must be unlinked" in new VariantFixture {
-      val response = productsApi(product.formId).archive()
-
-      response.status must === (StatusCodes.OK)
-
-      val result = response.as[ProductResponse.Root]
-      result.skus mustBe empty
+      productsApi(product.formId).archive().as[Root].skus mustBe empty
     }
 
     "Variants must be unlinked" in new VariantFixture {
-      val response = productsApi(product.formId).archive()
-
-      response.status must === (StatusCodes.OK)
-
-      val result = response.as[ProductResponse.Root]
-      result.variants mustBe empty
+      productsApi(product.formId).archive().as[Root].variants mustBe empty
     }
 
     "Albums must be unlinked" in new VariantFixture {
-      val response = productsApi(product.formId).archive()
-
-      response.status must === (StatusCodes.OK)
-
-      val result = response.as[ProductResponse.Root]
-      result.albums mustBe empty
+      productsApi(product.formId).archive().as[Root].albums mustBe empty
     }
 
     "Responds with NOT FOUND when wrong product is requested" in new VariantFixture {

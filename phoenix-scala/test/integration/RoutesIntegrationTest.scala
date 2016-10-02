@@ -4,6 +4,7 @@ import akka.http.scaladsl.server.directives.SecurityDirectives.challengeFor
 import models.StoreAdmin
 import models.customer.{Customer, Customers}
 import services.Authenticator.AsyncAuthenticator
+import util.Extensions._
 import util._
 import utils.MockedApis
 import utils.seeds.Seeds.Factories
@@ -50,7 +51,7 @@ class RoutesCustomerOnlyIntegrationTest
 
     "GET v1/my/cart" in {
       Customers.create(Factories.customer).gimme
-      GET(s"v1/my/cart").status must === (StatusCodes.OK)
+      GET(s"v1/my/cart").mustBeOk()
     }
   }
 }

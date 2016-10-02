@@ -23,10 +23,10 @@ class OrderIntegrationTest
   "PATCH /v1/orders/:refNum" - {
 
     "successfully" in new Fixture {
-      val response = ordersApi(order.refNum).update(UpdateOrderPayload(FraudHold))
-      response.status must === (StatusCodes.OK)
-      val responseOrder = response.as[OrderResponse]
-      responseOrder.orderState must === (FraudHold)
+      ordersApi(order.refNum)
+        .update(UpdateOrderPayload(FraudHold))
+        .as[OrderResponse]
+        .orderState must === (FraudHold)
     }
 
     "fails if transition to destination status is not allowed" in new Fixture {
@@ -57,9 +57,7 @@ class OrderIntegrationTest
 
   "POST /v1/orders/:refNum/increase-remorse-period" - {
     "successfully" in new Fixture {
-      val response = ordersApi(order.refNum).increaseRemorsePeriod()
-      response.status must === (StatusCodes.OK)
-      val result = response.as[OrderResponse]
+      val result = ordersApi(order.refNum).increaseRemorsePeriod().as[OrderResponse]
       result.remorsePeriodEnd.value must === (order.remorsePeriodEnd.value.plusMinutes(15))
     }
 

@@ -29,7 +29,6 @@ class AddressesIntegrationTest
   "GET /v1/customers/:customerId/addresses" - {
     "lists addresses" in new CustomerAddress_Baked {
       val response = customersApi(customer.id).addresses.get()
-      response.status must === (StatusCodes.OK)
 
       val addresses = response.as[Seq[AddressResponse]]
       addresses must have size 1
@@ -44,10 +43,7 @@ class AddressesIntegrationTest
                                          address1 = "3000 Coolio Dr",
                                          city = "Seattle",
                                          zip = "55555")
-      val response = customersApi(customer.id).addresses.create(payload)
-      response.status must === (StatusCodes.OK)
-
-      val newAddress = response.as[AddressResponse]
+      val newAddress = customersApi(customer.id).addresses.create(payload).as[AddressResponse]
       newAddress.name must === (payload.name)
       newAddress.isDefault must === (Some(false))
     }
@@ -55,16 +51,13 @@ class AddressesIntegrationTest
 
   "POST /v1/customers/:customerId/addresses/:addressId/default" - {
     "sets the isDefaultShippingAddress flag on an address" in new NoDefaultAddressFixture {
-      val response = customersApi(customer.id).address(address.id).setDefault()
-      response.status must === (StatusCodes.OK)
+      customersApi(customer.id).address(address.id).setDefault().mustBeOk()
       Addresses.findOneById(address.id).gimme.value.isDefaultShipping mustBe true
     }
 
     "sets a new shipping address if there's already a default shipping address" in new CustomerAddress_Baked {
       val another  = Addresses.create(address.copy(id = 0, isDefaultShipping = false)).gimme
-      val response = customersApi(customer.id).address(another.id).setDefault()
-
-      response.status must === (StatusCodes.OK)
+      val response = customersApi(customer.id).address(another.id).setDefault().mustBeOk()
 
       Addresses.findOneById(another.id).gimme.value.isDefaultShipping mustBe true
       Addresses.findOneById(address.id).gimme.value.isDefaultShipping mustBe false
@@ -98,10 +91,7 @@ class AddressesIntegrationTest
                                          zip = "55555")
       (payload.name, payload.address1) must !==((address.name, address.address1))
 
-      val response = customersApi(customer.id).address(address.id).edit(payload)
-
-      val updated = response.as[AddressResponse]
-      response.status must === (StatusCodes.OK)
+      val updated = customersApi(customer.id).address(address.id).edit(payload).as[AddressResponse]
 
       (updated.name, updated.address1) must === ((payload.name, payload.address1))
     }
@@ -118,8 +108,7 @@ class AddressesIntegrationTest
                                          zip = "666",
                                          isDefault = true)
 
-      val response = customersApi(customer.id).addresses.create(payload)
-      response.status must === (StatusCodes.OK)
+      val response   = customersApi(customer.id).addresses.create(payload)
       val newAddress = response.as[AddressResponse]
 
       //now delete
@@ -132,8 +121,7 @@ class AddressesIntegrationTest
     }
 
     "deleted address should be visible to StoreAdmin" in new DeletedAddressFixture {
-      val response = customersApi(customer.id).address(address.id).get()
-      response.status must === (StatusCodes.OK)
+      customersApi(customer.id).address(address.id).get().mustBeOk()
     }
 
     "deleted address should be invisible to Customer" in new DeletedAddressFixture {
@@ -158,8 +146,6 @@ class AddressesIntegrationTest
   "GET /v1/my/addresses" - {
     "retrieves a customer's addresses" in new CustomerAddress_Baked {
       val response = GET(s"v1/my/addresses")
-
-      response.status must === (StatusCodes.OK)
 
       val addresses = response.as[Seq[AddressResponse]]
 

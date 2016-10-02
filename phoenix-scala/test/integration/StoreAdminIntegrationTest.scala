@@ -6,6 +6,7 @@ import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.StoreAdmin
 import payloads.StoreAdminPayloads._
 import responses.StoreAdminResponse
+import responses.StoreAdminResponse.Root
 import util.{IntegrationTestBase, PhoenixAdminApi}
 import util.fixtures.BakedFixtures
 
@@ -22,11 +23,8 @@ class StoreAdminIntegrationTest
                                             password = Some("123456"),
                                             department = Some("donkey team"),
                                             phoneNumber = Some("1231231234"))
-      val response = storeAdminsApi.create(payload)
+      val admin = storeAdminsApi.create(payload).as[Root]
 
-      response.status must === (StatusCodes.OK)
-
-      val admin = response.as[StoreAdminResponse.Root]
       admin.name.value must === (payload.name)
       admin.email.value must === (payload.email)
       admin.department must === (payload.department)
@@ -45,11 +43,8 @@ class StoreAdminIntegrationTest
 
   "GET /v1/store-admins/:id" - {
     "display store admin when id points to valid admin" in new Fixture {
-      val response = storeAdminsApi(storeAdmin.id).get()
+      val admin = storeAdminsApi(storeAdmin.id).get().as[Root]
 
-      response.status must === (StatusCodes.OK)
-
-      val admin = response.as[StoreAdminResponse.Root]
       admin.id must === (storeAdmin.id)
       admin.name.value must === (storeAdmin.name)
       admin.email.value must === (storeAdmin.email)
@@ -77,11 +72,7 @@ class StoreAdminIntegrationTest
                                             department = newDepartment,
                                             phoneNumber = newPhone)
 
-      val response = storeAdminsApi(storeAdmin.id).update(payload)
-
-      response.status must === (StatusCodes.OK)
-
-      val updated = response.as[StoreAdminResponse.Root]
+      val updated = storeAdminsApi(storeAdmin.id).update(payload).as[Root]
 
       updated.id must === (storeAdmin.id)
       updated.state must === (storeAdmin.state)
@@ -106,12 +97,9 @@ class StoreAdminIntegrationTest
   "PATCH /v1/store-admins/:id/state" - {
     "change state successfully" in new Fixture {
       val payload  = StateChangeStoreAdminPayload(state = StoreAdmin.Inactive)
-      val response = storeAdminsApi(storeAdmin.id).updateState(payload)
+      val response = storeAdminsApi(storeAdmin.id).updateState(payload).as[Root]
 
-      response.status must === (StatusCodes.OK)
-
-      val updated = response.as[StoreAdminResponse.Root]
-      updated.state must === (StoreAdmin.Inactive)
+      response.state must === (StoreAdmin.Inactive)
     }
 
     "respond with 400 when cannot apply new state" in new Fixture {

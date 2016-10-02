@@ -28,31 +28,25 @@ class SkuIntegrationTest
   "POST v1/skus/:context" - {
     "Creates a SKU successfully" in new Fixture {
       val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-      val priceJson  = ("t" → "price") ~ ("v" → priceValue)
+      val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
       val attrMap    = Map("price" → priceJson)
-      val payload    = makeSkuPayload("SKU-NEW-TEST", attrMap)
 
-      val response = skusApi.create(payload)
-      response.status must === (StatusCodes.OK)
+      skusApi.create(makeSkuPayload("SKU-NEW-TEST", attrMap)).mustBeOk()
     }
 
     "Tries to create a SKU with no code" in new Fixture {
       val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-      val priceJson  = ("t" → "price") ~ ("v" → priceValue)
+      val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
       val attrMap    = Map("price" → priceJson)
-      val payload    = SkuPayload(attrMap)
 
-      val response = skusApi.create(payload)
+      val response = skusApi.create(SkuPayload(attrMap))
       response.status must === (StatusCodes.BadRequest)
     }
   }
 
   "GET v1/skus/:context/:code" - {
     "Get a created SKU successfully" in new Fixture {
-      val response = skusApi(sku.code).get()
-      response.status must === (StatusCodes.OK)
-
-      val skuResponse = response.as[SkuResponse.Root]
+      val skuResponse = skusApi(sku.code).get().as[SkuResponse.Root]
       val code        = skuResponse.attributes \ "code" \ "v"
       code.extract[String] must === (sku.code)
 
@@ -68,59 +62,36 @@ class SkuIntegrationTest
 
   "PATCH v1/skus/:context/:code" - {
     "Adds a new attribute to the SKU" in new Fixture {
-      val updatePayload =
-        SkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))))
+      val payload     = SkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))))
+      val skuResponse = skusApi(sku.code).update(payload).as[SkuResponse.Root]
 
-      val response = skusApi(sku.code).update(updatePayload)
-      response.status must === (StatusCodes.OK)
-
-      val skuResponse = response.as[SkuResponse.Root]
-      val code        = skuResponse.attributes \ "code" \ "v"
-      code.extract[String] must === (sku.code)
-
-      val name = skuResponse.attributes \ "name" \ "v"
-      name.extract[String] must === ("Test")
-      val salePrice = skuResponse.attributes \ "salePrice" \ "v" \ "value"
-      salePrice.extract[Int] must === (9999)
+      (skuResponse.attributes \ "code" \ "v").extract[String] must === (sku.code)
+      (skuResponse.attributes \ "name" \ "v").extract[String] must === ("Test")
+      (skuResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)
     }
 
     "Updates the SKU's code" in new Fixture {
-      val updatePayload =
-        SkuPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))))
+      val payload = SkuPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))))
+      skusApi(sku.code).update(payload).mustBeOk()
 
-      val response = skusApi(sku.code).update(updatePayload)
-      response.status must === (StatusCodes.OK)
+      val skuResponse = skusApi("upcode").get().as[SkuResponse.Root]
+      (skuResponse.attributes \ "code" \ "v").extract[String] must === ("UPCODE")
 
-      val response2 = skusApi("upcode").get()
-      response2.status must === (StatusCodes.OK)
-
-      val skuResponse = response2.as[SkuResponse.Root]
-      val code        = skuResponse.attributes \ "code" \ "v"
-      code.extract[String] must === ("UPCODE")
-
-      val salePrice = skuResponse.attributes \ "salePrice" \ "v" \ "value"
-      salePrice.extract[Int] must === (9999)
+      (skuResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)
     }
   }
 
   "DELETE v1/products/:context/:id" - {
     "Archives SKU successfully" in new Fixture {
-      val response = skusApi(sku.code).archive()
+      val result = skusApi(sku.code).archive().as[SkuResponse.Root]
 
-      response.status must === (StatusCodes.OK)
-
-      val result = response.as[SkuResponse.Root]
       withClue(result.archivedAt.value → Instant.now) {
-        result.archivedAt.value.isBeforeNow === true
+        result.archivedAt.value.isBeforeNow mustBe true
       }
     }
 
     "SKU Albums must be unlinked" in new Fixture {
-      val response = skusApi(sku.code).archive()
-
-      response.status must === (StatusCodes.OK)
-      val result = response.as[SkuResponse.Root]
-      result.albums mustBe empty
+      skusApi(sku.code).archive().as[SkuResponse.Root].albums mustBe empty
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong code" in new Fixture {
@@ -132,7 +103,8 @@ class SkuIntegrationTest
 
     "Responds with NOT FOUND when SKU is requested with wrong context" in new Fixture {
       implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
-      val response               = skusApi(sku.code)(donkeyContext).archive()
+
+      val response = skusApi(sku.code)(donkeyContext).archive()
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (ObjectContextNotFound("donkeyContext").description)

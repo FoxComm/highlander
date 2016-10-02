@@ -8,6 +8,7 @@ import models._
 import models.payment.giftcard._
 import payloads.NotePayloads._
 import responses.AdminNotes
+import responses.AdminNotes.Root
 import services.notes.GiftCardNoteManager
 import util._
 import util.fixtures.BakedFixtures
@@ -24,13 +25,8 @@ class GiftCardNotesIntegrationTest
 
   "POST /v1/notes/gift-card/:code" - {
     "can be created by an admin for a gift card" in new Fixture {
-      val response =
-        notesApi.giftCard(giftCard.code).create(CreateNote(body = "Hello, FoxCommerce!"))
-
-      response.status must === (StatusCodes.OK)
-
-      val note = response.as[AdminNotes.Root]
-      note.body must === ("Hello, FoxCommerce!")
+      val note = notesApi.giftCard(giftCard.code).create(CreateNote(body = "foo")).as[Root]
+      note.body must === ("foo")
       note.author must === (AdminNotes.buildAuthor(storeAdmin))
     }
 
@@ -57,10 +53,7 @@ class GiftCardNotesIntegrationTest
       }
       DbResultT.sequence(createNotes).gimme
 
-      val response = notesApi.giftCard(giftCard.code).get()
-      response.status must === (StatusCodes.OK)
-
-      val notes = response.as[Seq[AdminNotes.Root]]
+      val notes = notesApi.giftCard(giftCard.code).get().as[Seq[Root]]
       notes must have size 3
       notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
     }
@@ -69,15 +62,14 @@ class GiftCardNotesIntegrationTest
   "PATCH /v1/notes/gift-card/:code/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val rootNote = GiftCardNoteManager
-        .create(giftCard.code, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
-        .gimme
+      val rootNote =
+        GiftCardNoteManager.create(giftCard.code, storeAdmin, CreateNote(body = "foo")).gimme
 
-      val response =
-        notesApi.giftCard(giftCard.code).note(rootNote.id).update(UpdateNote(body = "donkey"))
-      response.status must === (StatusCodes.OK)
-
-      val note = response.as[AdminNotes.Root]
+      val note = notesApi
+        .giftCard(giftCard.code)
+        .note(rootNote.id)
+        .update(UpdateNote(body = "donkey"))
+        .as[Root]
       note.body must === ("donkey")
     }
   }
@@ -85,25 +77,21 @@ class GiftCardNotesIntegrationTest
   "DELETE /v1/notes/gift-card/:code/:noteId" - {
 
     "can soft delete note" in new Fixture {
-      val createResp =
-        notesApi.giftCard(giftCard.code).create(CreateNote(body = "Hello, FoxCommerce!"))
-      val note = createResp.as[AdminNotes.Root]
+      val createResp = notesApi.giftCard(giftCard.code).create(CreateNote(body = "foo"))
+      val note       = createResp.as[Root]
 
       val response = notesApi.giftCard(giftCard.code).note(note.id).delete()
       response.status must === (StatusCodes.NoContent)
       response.bodyText mustBe empty
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-      updatedNote.deletedBy.value === 1
+      updatedNote.deletedBy.value must === (1)
 
       withClue(updatedNote.deletedAt.value → Instant.now) {
-        updatedNote.deletedAt.value.isBeforeNow === true
+        updatedNote.deletedAt.value.isBeforeNow must === (true)
       }
 
-      // Deleted note should not be returned
-      val allNotesResponse = notesApi.giftCard(giftCard.code).get()
-      allNotesResponse.status must === (StatusCodes.OK)
-      val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
+      val allNotes = notesApi.giftCard(giftCard.code).get().as[Seq[Root]]
       allNotes.map(_.id) must not contain note.id
 
       val getDeletedNoteResponse = notesApi.giftCard(giftCard.code).note(note.id).get()

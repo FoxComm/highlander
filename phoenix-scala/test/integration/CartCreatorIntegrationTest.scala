@@ -20,10 +20,7 @@ class CartCreatorIntegrationTest
   "POST /v1/orders" - {
     "for an existing customer" - {
       "succeeds" in new Fixture {
-        val response = cartsApi.create(CreateCart(customerId = customer.id.some))
-
-        response.status must === (StatusCodes.OK)
-        val root = response.as[CartResponse]
+        val root = cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse]
         root.customer.value.id must === (customer.id)
       }
 
@@ -36,21 +33,16 @@ class CartCreatorIntegrationTest
 
       "returns current cart if customer already has one" in new Fixture {
         CartCreator.createCart(storeAdmin, CreateCart(customerId = customer.id.some)).gimme
-        val response = cartsApi.create(CreateCart(customerId = customer.id.some))
-
-        response.status must === (StatusCodes.OK)
-        val root = response.as[CartResponse]
+        val root = cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse]
         root.customer.value.id must === (customer.id)
       }
     }
 
     "for a new guest" - {
       "successfully creates cart and new guest customer account" in new Fixture {
-        val response = cartsApi.create(CreateCart(email = "yax@yax.com".some))
-        val root     = response.as[CartResponse]
-        val guest    = root.customer.value
+        val guest =
+          cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse].customer.value
 
-        response.status must === (StatusCodes.OK)
         guest.isGuest mustBe true
         guest.id must !==(customer.id)
       }

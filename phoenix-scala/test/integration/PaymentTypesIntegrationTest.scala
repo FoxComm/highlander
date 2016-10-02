@@ -18,10 +18,8 @@ class PaymentTypesIntegrationTest
   "GiftCard Types" - {
     "GET /v1/public/gift-cards/types" - {
       "should return all GC types and related sub-types" in new GiftCardFixture {
-        val response = publicApi.giftCardTypes()
-        response.status must === (StatusCodes.OK)
+        val root = publicApi.giftCardTypes().as[Seq[GiftCardSubTypesResponse.Root]]
 
-        val root = response.as[Seq[GiftCardSubTypesResponse.Root]]
         root.size must === (GiftCard.OriginType.types.size)
         root.map(_.originType) must === (GiftCard.OriginType.types.toSeq)
         root.filter(_.originType == giftCardSubtype.originType).head.subTypes must === (
@@ -33,10 +31,8 @@ class PaymentTypesIntegrationTest
   "StoreCredits" - {
     "GET /v1/public/store-credits/types" - {
       "should return all SC types and related subtypes" in new StoreCreditFixture {
-        val response = publicApi.storeCreditTypes()
-        response.status must === (StatusCodes.OK)
+        val root = publicApi.storeCreditTypes().as[Seq[StoreCreditSubTypesResponse.Root]]
 
-        val root = response.as[Seq[StoreCreditSubTypesResponse.Root]]
         root.size must === (StoreCredit.OriginType.publicTypes.size)
         root.map(_.originType) must === (StoreCredit.OriginType.publicTypes.toSeq)
         root.filter(_.originType == scSubType.originType).head.subTypes must === (Seq(scSubType))

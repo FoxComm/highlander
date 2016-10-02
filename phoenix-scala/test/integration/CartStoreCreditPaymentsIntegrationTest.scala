@@ -31,16 +31,12 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
           .update(ZonedDateTime.now().minusMonths(1).toInstant)
           .gimme
 
-        val payload  = StoreCreditPayment(amount = 7500)
-        val response = cartsApi(cart.refNum).payments.storeCredit.add(payload)
+        cartsApi(cart.refNum).payments.storeCredit
+          .add(StoreCreditPayment(amount = 7500))
+          .mustBeOk()
 
-        response.status must === (StatusCodes.OK)
-        val payments = storeCreditPayments(cart)
-        payments must have size 2
-
-        val expected =
-          payments.sortBy(_.paymentMethodId).map(p ⇒ (p.paymentMethodId, p.amount)).toList
-        expected must === (List((3, Some(5000)), (4, Some(2500))))
+        val expected = storeCreditPayments(cart).map(p ⇒ (p.paymentMethodId, p.amount))
+        expected must contain theSameElementsAs Seq((3, Some(5000)), (4, Some(2500)))
       }
 
       "only uses active store credit" in new StoreCreditFixture {
@@ -48,28 +44,26 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
         StoreCredits.filter(_.id === 1).map(_.state).update(StoreCredit.Canceled).run().futureValue
         StoreCredits.filter(_.id === 2).map(_.availableBalance).update(0).run().futureValue
 
-        val payload  = StoreCreditPayment(amount = 7500)
-        val response = cartsApi(cart.refNum).payments.storeCredit.add(payload)
+        cartsApi(cart.refNum).payments.storeCredit
+          .add(StoreCreditPayment(amount = 7500))
+          .mustBeOk()
 
-        response.status must === (StatusCodes.OK)
         val payments = storeCreditPayments(cart)
         payments.map(_.paymentMethodId) must contain noneOf (1, 2)
         payments must have size 2
       }
 
       "adding store credit should remove previous cart payments" in new StoreCreditFixture {
-        val payload         = StoreCreditPayment(amount = 7500)
-        val createdResponse = cartsApi(cart.refNum).payments.storeCredit.add(payload)
+        val payload = StoreCreditPayment(amount = 7500)
+        cartsApi(cart.refNum).payments.storeCredit.add(payload).mustBeOk()
         val createdPayments = storeCreditPayments(cart)
 
-        createdResponse.status must === (StatusCodes.OK)
         createdPayments must have size 2
 
         val createdPaymentIds = createdPayments.map(_.id).toList
-        val editedResponse    = cartsApi(cart.refNum).payments.storeCredit.add(payload)
-        val editedPayments    = storeCreditPayments(cart)
+        cartsApi(cart.refNum).payments.storeCredit.add(payload).mustBeOk()
+        val editedPayments = storeCreditPayments(cart)
 
-        editedResponse.status must === (StatusCodes.OK)
         editedPayments must have size 2
         editedPayments.map(_.id) mustNot contain theSameElementsAs createdPaymentIds
       }
@@ -116,14 +110,9 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
 
   "DELETE /v1/orders/:ref/payment-methods/store-credit" - {
     "successfully deletes all store credit payments" in new StoreCreditFixture {
-      val payload = StoreCreditPayment(amount = 75)
-      val create  = cartsApi(cart.refNum).payments.storeCredit.add(payload)
+      cartsApi(cart.refNum).payments.storeCredit.add(StoreCreditPayment(amount = 75)).mustBeOk()
+      cartsApi(cart.refNum).payments.storeCredit.delete().mustBeOk()
 
-      create.status must === (StatusCodes.OK)
-
-      val response = cartsApi(cart.refNum).payments.storeCredit.delete()
-
-      response.status must === (StatusCodes.OK)
       storeCreditPayments(cart) mustBe 'empty
     }
   }

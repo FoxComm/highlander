@@ -21,30 +21,24 @@ class AllOrdersIntegrationTest
 
   "PATCH /v1/orders" - {
     "bulk update states" in new StateUpdateFixture {
-      val payload  = BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
-      val response = ordersApi.update(payload)
+      val payload = BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
 
-      response.status must === (StatusCodes.OK)
+      val all = ordersApi.update(payload).as[BatchResponse[AllOrders.Root]]
 
-      val all       = response.as[BatchResponse[AllOrders.Root]]
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
-
       allOrders must contain allOf (
           ("foo", FulfillmentStarted),
           ("bar", FulfillmentStarted)
       )
-
       all.errors.value must contain only NotFoundFailure404(Order, "nonExistent").description
     }
 
     "refuses invalid status transition" in new Order_Baked {
+      val all = ordersApi
+        .update(BulkUpdateOrdersPayload(Seq(order.refNum), Shipped))
+        .as[BatchResponse[AllOrders.Root]]
 
-      val response = ordersApi.update(BulkUpdateOrdersPayload(Seq(order.refNum), Shipped))
-
-      response.status must === (StatusCodes.OK)
-      val all       = response.as[BatchResponse[AllOrders.Root]]
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
-
       allOrders must === (Seq((order.refNum, order.state)))
 
       all.errors.value.head must === (

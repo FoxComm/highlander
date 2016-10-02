@@ -36,89 +36,52 @@ class SharedSearchIntegrationTest
     }
 
     "returns only customers searches with the orders scope" in new SharedSearchFixture {
-      val response = sharedSearchApi.scope("customersScope")
-      response.status must === (StatusCodes.OK)
-
-      val searchResponse = response.as[Seq[SharedSearch]]
-      searchResponse must === (Seq(customersSearch))
+      sharedSearchApi.scope("customersScope").as[Seq[SharedSearch]] must === (Seq(customersSearch))
     }
 
     "returns only orders searches with the orders scope" in new SharedSearchFixture {
-      val response = sharedSearchApi.scope("ordersScope")
-      response.status must === (StatusCodes.OK)
-
-      val searchResponse = response.as[Seq[SharedSearch]]
-      searchResponse must === (Seq(ordersSearch))
+      sharedSearchApi.scope("ordersScope").as[Seq[SharedSearch]] must === (Seq(ordersSearch))
     }
 
     "returns only storeAdmins searches with the storeAdmins scope" in new SharedSearchFixture {
-      val response = sharedSearchApi.scope("storeAdminsScope")
-      response.status must === (StatusCodes.OK)
-
-      val searchResponse = response.as[Seq[SharedSearch]]
-      searchResponse must === (Seq(storeAdminsSearch))
+      sharedSearchApi.scope("storeAdminsScope").as[Seq[SharedSearch]] must === (
+          Seq(storeAdminsSearch))
     }
 
     "returns only giftCards searches with the giftCards scope" in new SharedSearchFixture {
-      val response = sharedSearchApi.scope("giftCardsScope")
-      response.status must === (StatusCodes.OK)
-
-      val searchResponse = response.as[Seq[SharedSearch]]
-      searchResponse must === (Seq(giftCardsSearch))
+      sharedSearchApi.scope("giftCardsScope").as[Seq[SharedSearch]] must === (Seq(giftCardsSearch))
     }
 
     "returns only products searches with the products scope" in new SharedSearchFixture {
-      val response = sharedSearchApi.scope("productsScope")
-      response.status must === (StatusCodes.OK)
-
-      val searchResponse = response.as[Seq[SharedSearch]]
-      searchResponse must === (Seq(productsSearch))
+      sharedSearchApi.scope("productsScope").as[Seq[SharedSearch]] must === (Seq(productsSearch))
     }
 
     "returns only inventory searches with the inventory scope" in new SharedSearchFixture {
-      val response = sharedSearchApi.scope("inventoryScope")
-      response.status must === (StatusCodes.OK)
-
-      val searchResponse = response.as[Seq[SharedSearch]]
-      searchResponse must === (Seq(inventorySearch))
+      sharedSearchApi.scope("inventoryScope").as[Seq[SharedSearch]] must === (Seq(inventorySearch))
     }
 
     "returns only promotion searches with the promotions scope" in new SharedSearchFixture {
-      val response = sharedSearchApi.scope("promotionsScope")
-      response.status must === (StatusCodes.OK)
-
-      val searchResponse = response.as[Seq[SharedSearch]]
-      searchResponse must === (Seq(promotionsSearch))
+      sharedSearchApi.scope("promotionsScope").as[Seq[SharedSearch]] must === (
+          Seq(promotionsSearch))
     }
 
     "returns only coupon searches with the coupons scope" in new SharedSearchFixture {
-      val response = sharedSearchApi.scope("couponsScope")
-      response.status must === (StatusCodes.OK)
-
-      val searchResponse = response.as[Seq[SharedSearch]]
-      searchResponse must === (Seq(couponsSearch))
+      sharedSearchApi.scope("couponsScope").as[Seq[SharedSearch]] must === (Seq(couponsSearch))
     }
 
     "returns associated scopes created by different admins" in new SharedSearchAssociationFixture {
       SharedSearchAssociations.create(buildAssociation(search, storeAdmin)).gimme
 
-      val response = sharedSearchApi.scope("customersScope")
-      response.status must === (StatusCodes.OK)
-
-      val expectedResponse = Seq(search)
-      val searchResponse   = response.as[Seq[SharedSearch]]
-      searchResponse must === (expectedResponse)
+      sharedSearchApi.scope("customersScope").as[Seq[SharedSearch]] must === (Seq(search))
     }
   }
 
   "GET v1/shared-search/:code" - {
     "returns shared search by code" in new Fixture {
-      val payload  = SharedSearchPayload("test", dummyJVal, dummyJVal, CustomersScope)
-      val code     = sharedSearchApi.create(payload).as[SharedSearch].code
-      val response = sharedSearchApi(code).get()
-      response.status must === (StatusCodes.OK)
+      val payload = SharedSearchPayload("test", dummyJVal, dummyJVal, CustomersScope)
+      val code    = sharedSearchApi.create(payload).as[SharedSearch].code
 
-      val root = response.as[SharedSearch]
+      val root = sharedSearchApi(code).get().as[SharedSearch]
       root.title must === ("test")
       root.scope must === (CustomersScope)
     }
@@ -140,11 +103,9 @@ class SharedSearchIntegrationTest
           | }
         """.stripMargin
 
-      val payload  = SharedSearchPayload("test", parse(query), dummyJVal, CustomersScope)
-      val response = sharedSearchApi.create(payload)
-      response.status must === (StatusCodes.OK)
+      val payload = SharedSearchPayload("test", parse(query), dummyJVal, CustomersScope)
+      val root    = sharedSearchApi.create(payload).as[SharedSearch]
 
-      val root = response.as[SharedSearch]
       root.title must === ("test")
       root.scope must === (CustomersScope)
       root.code.isEmpty must === (false)
@@ -172,10 +133,8 @@ class SharedSearchIntegrationTest
       val code    = sharedSearchApi.create(payload).as[SharedSearch].code
 
       val updPayload = SharedSearchPayload("new_title", dummyJVal, dummyJVal, CustomersScope)
-      val response   = sharedSearchApi(code).update(updPayload)
-      response.status must === (StatusCodes.OK)
+      val root       = sharedSearchApi(code).update(updPayload).as[SharedSearch]
 
-      val root = response.as[SharedSearch]
       root.title must === ("new_title")
       root.scope must === (CustomersScope)
     }
@@ -214,10 +173,7 @@ class SharedSearchIntegrationTest
       val getResponse = sharedSearchApi(code).get()
       getResponse.status must === (StatusCodes.NotFound)
 
-      val searchResponse = sharedSearchApi.scope("customersScope")
-      searchResponse.status must === (StatusCodes.OK)
-
-      searchResponse.as[Seq[SharedSearch]] must === (Seq.empty[SharedSearch])
+      sharedSearchApi.scope("customersScope").as[Seq[SharedSearch]] mustBe empty
 
       SharedSearches.findOneByCode(code).gimme.isDefined must === (true)
     }
@@ -232,12 +188,10 @@ class SharedSearchIntegrationTest
   "POST /v1/shared-search/:code/associate" - {
 
     "can be associated with shared search" in new AssociateBaseFixture {
-      val response =
-        sharedSearchApi(search.code).associate(SharedSearchAssociationPayload(Seq(storeAdmin.id)))
-      response.status must === (StatusCodes.OK)
-
-      val searchWithWarnings = response.withResultTypeOf[SharedSearch]
-      searchWithWarnings.warnings mustBe empty
+      sharedSearchApi(search.code)
+        .associate(SharedSearchAssociationPayload(Seq(storeAdmin.id)))
+        .withResultTypeOf[SharedSearch]
+        .warnings mustBe empty
 
       SharedSearchAssociations.bySharedSearch(search).gimme.size mustBe 1
     }
@@ -250,18 +204,17 @@ class SharedSearchIntegrationTest
     }
 
     "warning if store admin is not found" in new AssociateBaseFixture {
-      val response =
-        sharedSearchApi(search.code).associate(SharedSearchAssociationPayload(Seq(1, 999)))
-      response.status must === (StatusCodes.OK)
-
-      val searchWithWarnings = response.withResultTypeOf[SharedSearch]
-      searchWithWarnings.errors.value must === (
-          List(NotFoundFailure404(StoreAdmin, 999).description))
+      sharedSearchApi(search.code)
+        .associate(SharedSearchAssociationPayload(Seq(1, 999)))
+        .withResultTypeOf[SharedSearch]
+        .errors
+        .value must === (List(NotFoundFailure404(StoreAdmin, 999).description))
     }
 
     "do not create duplicate records" in new AssociateBaseFixture {
-      sharedSearchApi(search.code).associate(SharedSearchAssociationPayload(Seq(storeAdmin.id)))
-      sharedSearchApi(search.code).associate(SharedSearchAssociationPayload(Seq(storeAdmin.id)))
+      val payload = SharedSearchAssociationPayload(Seq(storeAdmin.id))
+      sharedSearchApi(search.code).associate(payload).mustBeOk()
+      sharedSearchApi(search.code).associate(payload).mustBeOk()
 
       SharedSearchAssociations.bySharedSearch(search).gimme.size mustBe 1
     }
@@ -269,20 +222,14 @@ class SharedSearchIntegrationTest
 
   "GET v1/shared-search/:code/associates" - {
     "returns associates by code" in new AssociateSecondaryFixture {
-      val response = sharedSearchApi(search.code).associates()
-      response.status must === (StatusCodes.OK)
-
-      val root = response.as[Seq[AdminRoot]]
+      val root = sharedSearchApi(search.code).associates().as[Seq[AdminRoot]]
       root must === (Seq(storeAdmin).map(buildAdmin))
     }
 
     "returns multiple associates by code" in new AssociateSecondaryFixture {
       SharedSearchAssociations.create(buildAssociation(search, secondAdmin)).gimme
 
-      val response = sharedSearchApi(search.code).associates()
-      response.status must === (StatusCodes.OK)
-
-      val root = response.as[Seq[AdminRoot]]
+      val root = sharedSearchApi(search.code).associates().as[Seq[AdminRoot]]
       root must contain allOf (buildAdmin(storeAdmin), buildAdmin(secondAdmin))
     }
 
@@ -296,8 +243,7 @@ class SharedSearchIntegrationTest
   "DELETE /v1/shared-search/:code/associate/:storeAdminId" - {
 
     "can be removed from associates" in new AssociateSecondaryFixture {
-      val response = sharedSearchApi(search.code).unassociate(storeAdmin.id)
-      response.status must === (StatusCodes.OK)
+      sharedSearchApi(search.code).unassociate(storeAdmin.id).mustBeOk()
 
       SharedSearchAssociations.bySharedSearch(search).gimme mustBe empty
     }

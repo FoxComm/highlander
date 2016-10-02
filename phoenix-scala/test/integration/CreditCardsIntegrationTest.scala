@@ -15,6 +15,7 @@ import org.scalatest.mock.MockitoSugar
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.PaymentPayloads.CreateCreditCardFromTokenPayload
 import responses.CreditCardsResponse
+import responses.CreditCardsResponse.Root
 import services.Result
 import slick.driver.PostgresDriver.api._
 import util._
@@ -75,9 +76,7 @@ class CreditCardsIntegrationTest
 
   "POST /v1/customers/:id/payment-methods/credit-cards (admin auth)" - {
     "creates a new credit card" in new Customer_Seed {
-      // No Stripe customer yet
-      val response1 = customersApi(customer.id).payments.creditCards.create(thePayload)
-      response1.status must === (StatusCodes.OK)
+      customersApi(customer.id).payments.creditCards.create(thePayload).mustBeOk()
       Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer))
 
       val creditCards = CreditCards.result.gimme
@@ -104,8 +103,7 @@ class CreditCardsIntegrationTest
       // With existing Stripe customer
       Mockito.clearInvocations(stripeWrapperMock)
 
-      val response2 = customersApi(customer.id).payments.creditCards.create(thePayload)
-      response2.status must === (StatusCodes.OK)
+      customersApi(customer.id).payments.creditCards.create(thePayload).mustBeOk()
 
       Mockito.verify(stripeWrapperMock).findCustomer(stripeCustomer.getId)
       Mockito.verify(stripeWrapperMock).createCard(m.eq(stripeCustomer), m.any())
@@ -117,15 +115,15 @@ class CreditCardsIntegrationTest
       val customer2 =
         Customers.create(Factories.customer.copy(email = "another@gmail.com".some)).gimme
 
-      val response1 =
-        customersApi(customer1.id).payments.creditCards.create(thePayload.copy(token = "tok_1"))
-      response1.status must === (StatusCodes.OK)
+      customersApi(customer1.id).payments.creditCards
+        .create(thePayload.copy(token = "tok_1"))
+        .mustBeOk()
 
       val stripeCustomer2 = newStripeCustomer
       when(stripeWrapperMock.createCustomer(m.any())).thenReturn(Result.good(stripeCustomer2))
-      val response2 =
-        customersApi(customer2.id).payments.creditCards.create(thePayload.copy(token = "tok_2"))
-      response2.status must === (StatusCodes.OK)
+      customersApi(customer2.id).payments.creditCards
+        .create(thePayload.copy(token = "tok_2"))
+        .mustBeOk()
 
       Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer1, "tok_1"))
       Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer2, "tok_2"))
@@ -135,15 +133,14 @@ class CreditCardsIntegrationTest
     }
 
     "does not create a new address if it isn't new" in new Customer_Seed {
-      val response = customersApi(customer.id).payments.creditCards.create(thePayload)
-      response.status must === (StatusCodes.OK)
+      customersApi(customer.id).payments.creditCards.create(thePayload).mustBeOk()
       Addresses.result.headOption.gimme must not be defined
     }
 
     "creates address if it's new" in new Customer_Seed {
-      val response =
-        customersApi(customer.id).payments.creditCards.create(thePayload.copy(addressIsNew = true))
-      response.status must === (StatusCodes.OK)
+      customersApi(customer.id).payments.creditCards
+        .create(thePayload.copy(addressIsNew = true))
+        .mustBeOk()
       Addresses.result.headOption.gimme.value must === (theAddress)
     }
 
@@ -180,31 +177,23 @@ class CreditCardsIntegrationTest
 
   "DELETE /v1/customers/:custId/payment-methods/credit-cards/:cardId (admin auth)" - {
     "deletes specified card" in new Customer_Seed {
-      val createResp1 = customersApi(customer.id).payments.creditCards.create(thePayload)
-      createResp1.status must === (StatusCodes.OK)
-      val ccResp1 = createResp1.as[CreditCardsResponse.Root]
+      val ccResp1 = customersApi(customer.id).payments.creditCards.create(thePayload).as[Root]
 
       val stripeCard2 = newStripeCard
       when(stripeWrapperMock.createCard(m.any(), m.any())).thenReturn(Result.good(stripeCard2))
       when(stripeWrapperMock.findCardByCustomerId(stripeCustomer.getId, stripeCard2.getId))
         .thenReturn(Result.good(stripeCard2))
 
-      val createResp2 = customersApi(customer.id).payments.creditCards.create(thePayload)
-      createResp2.status must === (StatusCodes.OK)
-      val ccResp2 = createResp2.as[CreditCardsResponse.Root]
+      val ccResp2 = customersApi(customer.id).payments.creditCards.create(thePayload).as[Root]
 
-      val getResp1 = customersApi(customer.id).payments.creditCards.get()
-      getResp1.status must === (StatusCodes.OK)
-      val allCcResps = Seq(ccResp1, ccResp2)
-      getResp1.as[Seq[CreditCardsResponse.Root]] must contain theSameElementsAs allCcResps
+      val allCcs = customersApi(customer.id).payments.creditCards.get().as[Seq[Root]]
+      allCcs must contain theSameElementsAs Seq(ccResp1, ccResp2)
 
       val deleteResp = customersApi(customer.id).payments.creditCard(ccResp2.id).delete()
       deleteResp.status must === (StatusCodes.NoContent)
       verify(stripeWrapperMock).deleteCard(m.argThat(cardStripeIdMatches(stripeCard2.getId)))
 
-      val getResp2 = customersApi(customer.id).payments.creditCards.get()
-      getResp2.status must === (StatusCodes.OK)
-      getResp2.as[Seq[CreditCardsResponse.Root]] must === (Seq(ccResp1))
+      customersApi(customer.id).payments.creditCards.get().as[Seq[Root]] must === (Seq(ccResp1))
     }
 
     "errors 404 if customer not found" in {
@@ -223,8 +212,7 @@ class CreditCardsIntegrationTest
   "POST /v1/my/payment-methods/credit-cards (customer auth)" - {
     "creates a new credit card" in new Customer_Seed {
       // No Stripe customer yet
-      val response1 = POST("v1/my/payment-methods/credit-cards", thePayload)
-      response1.status must === (StatusCodes.OK)
+      POST("v1/my/payment-methods/credit-cards", thePayload).mustBeOk()
       Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer))
 
       CreditCards.result.gimme must have size 1
@@ -250,8 +238,7 @@ class CreditCardsIntegrationTest
       // With existing Stripe customer
       Mockito.clearInvocations(stripeWrapperMock)
 
-      val response2 = POST("v1/my/payment-methods/credit-cards", thePayload)
-      response2.status must === (StatusCodes.OK)
+      POST("v1/my/payment-methods/credit-cards", thePayload).mustBeOk()
 
       Mockito.verify(stripeWrapperMock).findCustomer(stripeCustomer.getId)
       Mockito.verify(stripeWrapperMock).createCard(m.eq(stripeCustomer), m.any())
@@ -266,12 +253,10 @@ class CreditCardsIntegrationTest
       val customer2 =
         Customers.create(Factories.customer.copy(email = "another@gmail.com".some)).gimme
 
-      val response1 = POST("v1/my/payment-methods/credit-cards", thePayload)
-      response1.status must === (StatusCodes.OK)
+      POST("v1/my/payment-methods/credit-cards", thePayload).mustBeOk()
 
       // TODO: auth as another customer here
-      val response2 = POST("v1/my/payment-methods/credit-cards", thePayload)
-      response2.status must === (StatusCodes.OK)
+      POST("v1/my/payment-methods/credit-cards", thePayload).mustBeOk()
 
       Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer1))
       Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer2))
@@ -281,15 +266,12 @@ class CreditCardsIntegrationTest
     }
 
     "does not create a new address if it isn't new" in new Customer_Seed {
-      val response = POST("v1/my/payment-methods/credit-cards", thePayload)
-      response.status must === (StatusCodes.OK)
+      POST("v1/my/payment-methods/credit-cards", thePayload).mustBeOk()
       Addresses.result.headOption.gimme must not be defined
     }
 
     "creates address if it's new" in new Customer_Seed {
-      val payload  = thePayload.copy(addressIsNew = true)
-      val response = POST("v1/my/payment-methods/credit-cards", payload)
-      response.status must === (StatusCodes.OK)
+      POST("v1/my/payment-methods/credit-cards", thePayload.copy(addressIsNew = true)).mustBeOk()
       Addresses.result.headOption.gimme.value must === (theAddress)
     }
 

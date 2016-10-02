@@ -7,6 +7,7 @@ import models.tree._
 import org.json4s.JsonDSL._
 import org.scalatest.Matchers._
 import payloads.GenericTreePayloads._
+import responses.GenericTreeResponses.FullTreeResponse.Root
 import responses.GenericTreeResponses.{FullTreeResponse, TreeResponse}
 import slick.driver.PostgresDriver.api._
 import util._
@@ -23,10 +24,7 @@ class GenericTreeIntegrationTest
   "GenericTreeIntegrationTest" - {
     "GET /v1/tree/default/test" - {
       "should return full tree" in new TestTree {
-        val response = genericTreesApi(tree.name).get()
-        response.status must === (StatusCodes.OK)
-
-        val responseTree = response.as[FullTreeResponse.Root].tree.nodes
+        val responseTree = genericTreesApi(tree.name).get().as[Root].tree.nodes
 
         responseTree.children must have size 2
         nodeByPath(responseTree, Seq(1, 3)).get.children must have size 3
@@ -41,11 +39,7 @@ class GenericTreeIntegrationTest
                                    List(NodePayload("test", testObjects(1).id, Nil),
                                         NodePayload("test", testObjects(2).id, Nil)))
 
-        val response = genericTreesApi("test").create(testTree)
-
-        response.status must === (StatusCodes.OK)
-        val treeResponse = response.as[FullTreeResponse.Root].tree
-
+        val treeResponse = genericTreesApi("test").create(testTree).as[Root].tree
         treeResponse.nodes.children must have size 2
       }
 
@@ -55,11 +49,7 @@ class GenericTreeIntegrationTest
                                    List(NodePayload("test", testObjects(1).id, Nil),
                                         NodePayload("test", testObjects(2).id, Nil)))
 
-        val response = genericTreesApi("test").create(testTree)
-
-        response.status must === (StatusCodes.OK)
-        val treeResponse = response.as[FullTreeResponse.Root].tree
-
+        val treeResponse = genericTreesApi("test").create(testTree).as[Root].tree
         treeResponse.nodes.children must have size 2
       }
 
@@ -69,10 +59,7 @@ class GenericTreeIntegrationTest
                                    List(NodePayload("test", testObjects(1).id, Nil),
                                         NodePayload("test", testObjects(2).id, Nil)))
 
-        val response = genericTreesApi(tree.name).createInPath("1.3.4", testTree)
-
-        response.status must === (StatusCodes.OK)
-        val treeResponse = response.as[FullTreeResponse.Root].tree
+        val treeResponse = genericTreesApi(tree.name).createInPath("1.3.4", testTree).as[Root].tree
 
         treeResponse.nodes.objectId mustEqual testObjects.head.id
         treeResponse.nodes.children must have size 2
@@ -96,10 +83,8 @@ class GenericTreeIntegrationTest
 
     "PATCH /v1/tree/default/tree" - {
       "should move nodes" in new TestTree {
-        val response = genericTreesApi(tree.name).moveNode(MoveNodePayload(Some(2), 4))
-
-        response.status must === (StatusCodes.OK)
-        val treeResponse = response.as[FullTreeResponse.Root].tree
+        val treeResponse =
+          genericTreesApi(tree.name).moveNode(MoveNodePayload(Some(2), 4)).as[Root].tree
 
         treeResponse must not be null
         treeResponse.nodes.objectId mustEqual testObjects.head.id
@@ -118,11 +103,10 @@ class GenericTreeIntegrationTest
 
     "PATCH v1/tree/default/test/:path" - {
       "should update node content" in new TestTree {
-        val response = genericTreesApi(tree.name)
+        val treeResponse = genericTreesApi(tree.name)
           .moveNodeInPath("1.2", NodeValuesPayload("test", testObjects.head.id))
-
-        response.status must === (StatusCodes.OK)
-        val treeResponse = response.as[FullTreeResponse.Root].tree
+          .as[Root]
+          .tree
 
         treeResponse.nodes.kind must === ("test")
         nodeByPath(treeResponse.nodes, Seq(1, 2)).get.objectId must === (testObjects.head.id)
