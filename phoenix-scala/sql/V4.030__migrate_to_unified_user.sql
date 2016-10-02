@@ -872,6 +872,8 @@ inner join orders as o on (op.cord_ref = o.reference_number)
 where ccc.state = 'failedAuth'
 order by ccc.id;
 
+create unique index failed_authorizations_search_view_idx on failed_authorizations_search_view (id);
+
 
 drop materialized view store_credit_transactions_view;
 drop materialized view store_credit_transactions_admins_view;

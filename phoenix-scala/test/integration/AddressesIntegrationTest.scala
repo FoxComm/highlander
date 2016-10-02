@@ -142,6 +142,7 @@ class AddressesIntegrationTest
 
     "deleted address should be invisible to Customer" in new DeletedAddressFixture {
       val response = GET(s"v1/my/addresses/${address.id}")
+
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Address, address.id).description)
     }

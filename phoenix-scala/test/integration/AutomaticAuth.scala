@@ -36,7 +36,7 @@ case class AuthAs(admin: User, customer: User) extends FakeAuth {
   //TODO Provide correct claim map
   def checkAuthCustomer(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
     val account = Account(id = customer.accountId)
-    val token = UserToken.fromUserAccount(admin,
+    val token = UserToken.fromUserAccount(customer,
                                           account,
                                           Account.ClaimSet(scope = "2",
                                                            roles = List("customer"),
