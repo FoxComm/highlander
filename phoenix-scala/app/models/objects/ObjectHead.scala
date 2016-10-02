@@ -2,6 +2,7 @@ package models.objects
 
 import java.time.Instant
 
+import com.github.tminglei.slickpg.LTree
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import slick.lifted.Tag
@@ -26,6 +27,7 @@ abstract class ObjectHeads[M <: ObjectHead[M]](tag: Tag, table: String)
     extends FoxTable[M](tag, table) {
 
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def scope      = column[LTree]("scope")
   def contextId  = column[Int]("context_id")
   def shadowId   = column[Int]("shadow_id")
   def formId     = column[Int]("form_id")

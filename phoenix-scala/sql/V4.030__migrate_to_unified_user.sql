@@ -216,12 +216,10 @@ begin
 end;
 $$ LANGUAGE plpgsql;
 
-create or replace function add_perm(rold_id integer, scope_id integer, resource_id integer, actions text[]) returns void as $$
-declare 
-    permission_id integer;
+create or replace function get_scope_path(scope_id integer) returns generic_string as $$
+declare
     parent_path exts.ltree;
     scope_path generic_string;
-    frn_str generic_string;
 begin
     select scopes.parent_path from scopes where id = scope_id into parent_path;
     if parent_path = null then
@@ -229,6 +227,17 @@ begin
     else
         scope_path:= ltree2text(parent_path || scope_id::text);
     end if;
+    return scope_path;
+end
+$$ LANGUAGE plpgsql;
+
+create or replace function add_perm(rold_id integer, scope_id integer, resource_id integer, actions text[]) returns void as $$
+declare 
+    permission_id integer;
+    scope_path generic_string;
+    frn_str generic_string;
+begin
+    scope_path:= get_scope_path(scope_id);
 
     select 'frn' || ':' || systems.name || ':' || resources.name || ':' || scope_path
         from resources 

@@ -1,6 +1,7 @@
 package models.category
 
 import java.time.Instant
+import com.github.tminglei.slickpg.LTree
 
 import models.objects.{ObjectHead, ObjectHeads}
 import models.objects.ObjectUtils.InsertResult
@@ -21,6 +22,7 @@ object Category {
 }
 
 case class Category(id: Int = 0,
+                    scope: LTree,
                     contextId: Int,
                     shadowId: Int,
                     formId: Int,
@@ -38,7 +40,7 @@ case class Category(id: Int = 0,
 
 class Categories(tag: Tag) extends ObjectHeads[Category](tag, "categories") {
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <>
+    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <>
       ((Category.apply _).tupled, Category.unapply)
 }
 

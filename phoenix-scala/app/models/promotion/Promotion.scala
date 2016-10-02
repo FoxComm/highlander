@@ -1,6 +1,7 @@
 package models.promotion
 
 import java.time.Instant
+import com.github.tminglei.slickpg.LTree
 
 import com.pellucid.sealerate
 import models.objects._
@@ -32,6 +33,7 @@ object Promotion {
   * ObjectLinks are used to connect a promotion to several discounts.
   */
 case class Promotion(id: Int = 0,
+                     scope: LTree,
                      contextId: Int,
                      shadowId: Int,
                      formId: Int,

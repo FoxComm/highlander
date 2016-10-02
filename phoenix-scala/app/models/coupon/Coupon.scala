@@ -1,6 +1,7 @@
 package models.coupon
 
 import java.time.Instant
+import com.github.tminglei.slickpg.LTree
 
 import models.objects._
 import shapeless._
@@ -17,6 +18,7 @@ object Coupon {
   * A Coupon is a way to share a Promotion that isn't publicicly available.
   */
 case class Coupon(id: Int = 0,
+                  scope: LTree,
                   promotionId: Int,
                   contextId: Int,
                   shadowId: Int,
@@ -38,7 +40,7 @@ class Coupons(tag: Tag) extends ObjectHeads[Coupon](tag, "coupons") {
   def promotionId = column[Int]("promotion_id")
 
   def * =
-    (id, promotionId, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Coupon.apply _).tupled, Coupon.unapply)
+    (id, scope, promotionId, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Coupon.apply _).tupled, Coupon.unapply)
 }
 
 object Coupons

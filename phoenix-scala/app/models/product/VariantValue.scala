@@ -1,6 +1,7 @@
 package models.product
 
 import java.time.Instant
+import com.github.tminglei.slickpg.LTree
 
 import models.objects._
 import shapeless._
@@ -14,6 +15,7 @@ object VariantValue {
 }
 
 case class VariantValue(id: Int = 0,
+                        scope: LTree,
                         contextId: Int,
                         shadowId: Int,
                         formId: Int,
@@ -31,7 +33,7 @@ case class VariantValue(id: Int = 0,
 
 class VariantValues(tag: Tag) extends ObjectHeads[VariantValue](tag, "variant_values") {
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((VariantValue.apply _).tupled,
+    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((VariantValue.apply _).tupled,
         VariantValue.unapply)
 }
 

@@ -1,6 +1,7 @@
 package models.product
 
 import java.time.Instant
+import com.github.tminglei.slickpg.LTree
 
 import models.objects._
 import shapeless._
@@ -21,6 +22,7 @@ object Product {
   * and shadow system where it has attributes controlled by the customer.
   */
 case class Product(id: Int = 0,
+                   scope: LTree,
                    contextId: Int,
                    shadowId: Int,
                    formId: Int,
@@ -39,7 +41,7 @@ case class Product(id: Int = 0,
 class Products(tag: Tag) extends ObjectHeads[Product](tag, "products") {
 
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Product.apply _).tupled, Product.unapply)
+    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Product.apply _).tupled, Product.unapply)
 }
 
 object Products

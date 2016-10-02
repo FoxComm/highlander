@@ -1,6 +1,7 @@
 package models.image
 
 import java.time.Instant
+import com.github.tminglei.slickpg.LTree
 
 import models.objects._
 import shapeless._
@@ -14,6 +15,7 @@ object Image {
 }
 
 case class Image(id: Int = 0,
+                 scope: LTree,
                  contextId: Int,
                  shadowId: Int,
                  formId: Int,
@@ -31,7 +33,7 @@ case class Image(id: Int = 0,
 
 class Images(tag: Tag) extends ObjectHeads[Image](tag, "images") {
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Image.apply _).tupled, Image.unapply)
+    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Image.apply _).tupled, Image.unapply)
 }
 
 object Images extends FoxTableQuery[Image, Images](new Images(_)) with ReturningId[Image, Images] {

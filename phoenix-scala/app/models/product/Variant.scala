@@ -1,6 +1,7 @@
 package models.product
 
 import java.time.Instant
+import com.github.tminglei.slickpg.LTree
 
 import models.objects._
 import shapeless._
@@ -19,6 +20,7 @@ object Variant {
   * individual attributes that can be used to select a SKU.
   */
 case class Variant(id: Int = 0,
+                   scope: LTree,
                    contextId: Int,
                    shadowId: Int,
                    formId: Int,
@@ -36,7 +38,7 @@ case class Variant(id: Int = 0,
 
 class Variants(tag: Tag) extends ObjectHeads[Variant](tag, "variants") {
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Variant.apply _).tupled, Variant.unapply)
+    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Variant.apply _).tupled, Variant.unapply)
 }
 
 object Variants
