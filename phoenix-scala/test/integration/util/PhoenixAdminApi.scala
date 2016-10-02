@@ -1,3 +1,5 @@
+package util
+
 import akka.http.scaladsl.model.HttpResponse
 
 import org.scalatest.Suite
@@ -23,7 +25,6 @@ import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads.{StoreCreditBulkUpdateStateByCsr, StoreCreditUpdateStateByCsr}
 import payloads.VariantPayloads._
 import payloads._
-import util._
 import utils.aliases.OC
 
 /*
@@ -576,10 +577,8 @@ trait PhoenixAdminApi extends HttpSupport {
   object categoriesApi {
     def categoriesPrefix()(implicit ctx: OC) = s"$rootPrefix/categories/${ctx.name}"
 
-    def create(payload: CreateFullCategory)(implicit ctx: OC): HttpResponse = {
-      println(categoriesPrefix)
+    def create(payload: CreateFullCategory)(implicit ctx: OC): HttpResponse =
       POST(categoriesPrefix, payload)
-    }
   }
 
   case class categoriesApi(formId: Int)(implicit ctx: OC) {

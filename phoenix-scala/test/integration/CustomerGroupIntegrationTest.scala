@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import failures.NotFoundFailure404
 import models.customer.{CustomerDynamicGroup, CustomerDynamicGroups}
 import org.json4s.JObject

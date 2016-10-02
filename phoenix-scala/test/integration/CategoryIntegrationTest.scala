@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import org.json4s.JsonAST.{JObject, JString}
 import org.json4s.JsonDSL._
 import payloads.CategoryPayloads._

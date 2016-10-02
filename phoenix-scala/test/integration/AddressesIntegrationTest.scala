@@ -2,7 +2,7 @@ import java.time.Instant
 
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
-import Extensions._
+import util.Extensions._
 import failures.NotFoundFailure404
 import models.cord.OrderShippingAddresses
 import models.customer.{Customer, Customers}

@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import cats.implicits._
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.GiftCardFailures._

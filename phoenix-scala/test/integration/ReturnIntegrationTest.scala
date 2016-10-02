@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import failures.LockFailures._
 import failures._
 import models.cord._

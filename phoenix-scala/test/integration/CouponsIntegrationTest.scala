@@ -3,7 +3,7 @@ import java.time.temporal.ChronoUnit
 
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.CouponFailures.CouponIsNotActive
 import failures.NotFoundFailure404

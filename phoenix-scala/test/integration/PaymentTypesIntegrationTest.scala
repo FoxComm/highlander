@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import models.Reasons
 import models.payment.giftcard._
 import models.payment.storecredit._

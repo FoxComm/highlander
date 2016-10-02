@@ -3,7 +3,7 @@ import java.time.temporal.ChronoUnit
 
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import cats.implicits._
 import com.stripe.exception.CardException
 import failures.CreditCardFailures.CannotUseInactiveCreditCard

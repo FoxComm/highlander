@@ -1,7 +1,7 @@
 import scala.language.implicitConversions
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import cats.implicits._
 import models.activity._
 import org.json4s.{DefaultFormats, Extraction}

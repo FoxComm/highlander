@@ -1,3 +1,5 @@
+package util
+
 import java.net.ServerSocket
 
 import scala.collection.immutable
@@ -32,7 +34,6 @@ import responses.TheResponse
 import server.Service
 import services.Authenticator
 import services.Authenticator.AsyncAuthenticator
-import util._
 import utils.aliases._
 import utils.apis.Apis
 import utils.{FoxConfig, JsonFormatters}

@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import models.cord.OrderShippingAddresses
 import models.cord.lineitems._
 import models.location.Addresses

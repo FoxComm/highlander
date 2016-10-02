@@ -2,7 +2,7 @@ import java.time.ZonedDateTime
 
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import cats.implicits._
 import failures.{GeneralFailure, NotFoundFailure400, NotFoundFailure404}
 import models.customer.{Customer, Customers}

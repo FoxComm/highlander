@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import failures.ProductFailures.SkuNotFoundForContext
 import failures.{AlreadySavedForLater, NotFoundFailure404}
 import models.customer.Customer

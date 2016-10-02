@@ -2,7 +2,7 @@ import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import cats.implicits._
 import failures.CustomerFailures._
 import failures.NotFoundFailure404

@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import com.github.tminglei.slickpg.LTree
 import models.objects._
 import models.tree._

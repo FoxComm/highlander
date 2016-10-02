@@ -2,7 +2,7 @@ import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import com.sksamuel.elastic4s.mappings.attributes
 import failures.NotFoundFailure404
 import failures.ObjectFailures._

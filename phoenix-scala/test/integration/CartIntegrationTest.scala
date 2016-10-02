@@ -1,7 +1,7 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import cats.implicits._
-import Extensions._
+import util.Extensions._
 import failures.CartFailures._
 import failures.LockFailures._
 import failures.NotFoundFailure404

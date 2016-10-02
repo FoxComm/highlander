@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import util._
 import failures.StoreCreditFailures.StoreCreditConvertFailure
 import failures._

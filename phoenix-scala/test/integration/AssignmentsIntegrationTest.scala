@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import util.Extensions._
 import failures.AssignmentFailures._
 import failures.NotFoundFailure404
 import models._

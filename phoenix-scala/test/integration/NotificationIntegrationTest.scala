@@ -1,7 +1,7 @@
 import akka.http.scaladsl.model.StatusCodes
 import akka.stream.scaladsl.Source
 
-import Extensions._
+import util.Extensions._
 import cats.implicits._
 import failures._
 import models.NotificationSubscription._

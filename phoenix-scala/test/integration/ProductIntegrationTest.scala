@@ -3,7 +3,7 @@ import java.time.Instant
 import akka.http.scaladsl.model.StatusCodes
 
 import cats.implicits._
-import Extensions._
+import util.Extensions._
 import failures.ArchiveFailures._
 import failures.NotFoundFailure404
 import failures.ProductFailures._
@@ -16,7 +16,7 @@ import payloads.ProductPayloads._
 import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 import responses.ProductResponses._
-import util.IntegrationTestBase
+import util.{IntegrationTestBase, PhoenixAdminApi}
 import util.fixtures.BakedFixtures
 import utils.JsonFormatters
 import utils.Money.Currency

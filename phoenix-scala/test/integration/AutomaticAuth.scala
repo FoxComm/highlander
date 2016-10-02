@@ -4,7 +4,7 @@ import models.StoreAdmin
 import models.customer.Customer
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.{Suite, SuiteMixin}
-import util.DbTestSupport
+import util.{DbTestSupport, HttpSupport}
 import services.Authenticator.AsyncAuthenticator
 import scala.concurrent.Future
 import akka.http.scaladsl.model.headers.HttpChallenge

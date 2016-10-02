@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 
-import util.IntegrationTestBase
+import util.{HttpSupport, IntegrationTestBase}
 import utils.MockedApis
 
 class JsonRejectionHandlerIntegrationTest
@@ -8,7 +8,7 @@ class JsonRejectionHandlerIntegrationTest
     with HttpSupport
     with MockedApis {
 
-  import Extensions._
+  import util.Extensions._
 
   "JsonRejectionHandler should" - {
     "return a valid JSON rejection on 401 Unauthorized" in {

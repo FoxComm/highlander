@@ -1,9 +1,10 @@
+package util
+
 import akka.http.scaladsl.model.HttpResponse
 
 import org.scalatest.Suite
 import org.scalatest.concurrent.PatienceConfiguration
 import payloads.CustomerPayloads._
-import util.DbTestSupport
 
 trait PhoenixPublicApi extends HttpSupport {
   this: Suite with PatienceConfiguration with DbTestSupport ⇒
