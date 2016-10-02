@@ -90,8 +90,7 @@ class CouponsIntegrationTest
   "POST /v1/orders/:refNum/coupon/:code" - {
     "attaches coupon successfully" - {
       "when activeFrom is before now" in new OrderCouponFixture {
-        val response =
-          cartsApi(cart.refNum).coupon.add(fromCode).ignoreFailuresAndGiveMe[CartResponse]
+        val response = cartsApi(cart.refNum).coupon.add(fromCode).asTheResult[CartResponse]
 
         response.referenceNumber must === (cart.refNum)
         response.coupon must be('defined)
@@ -100,8 +99,7 @@ class CouponsIntegrationTest
       }
 
       "when activeFrom is before now and activeTo later than now" in new OrderCouponFixture {
-        val response =
-          cartsApi(cart.refNum).coupon.add(fromToCode).ignoreFailuresAndGiveMe[CartResponse]
+        val response = cartsApi(cart.refNum).coupon.add(fromToCode).asTheResult[CartResponse]
 
         response.referenceNumber must === (cart.refNum)
         response.coupon.value.code must === (fromToCode)

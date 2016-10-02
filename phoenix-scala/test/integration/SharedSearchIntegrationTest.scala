@@ -190,7 +190,7 @@ class SharedSearchIntegrationTest
     "can be associated with shared search" in new AssociateBaseFixture {
       sharedSearchApi(search.code)
         .associate(SharedSearchAssociationPayload(Seq(storeAdmin.id)))
-        .withResultTypeOf[SharedSearch]
+        .asThe[SharedSearch]
         .warnings mustBe empty
 
       SharedSearchAssociations.bySharedSearch(search).gimme.size mustBe 1
@@ -206,7 +206,7 @@ class SharedSearchIntegrationTest
     "warning if store admin is not found" in new AssociateBaseFixture {
       sharedSearchApi(search.code)
         .associate(SharedSearchAssociationPayload(Seq(1, 999)))
-        .withResultTypeOf[SharedSearch]
+        .asThe[SharedSearch]
         .errors
         .value must === (List(NotFoundFailure404(StoreAdmin, 999).description))
     }

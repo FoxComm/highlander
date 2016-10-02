@@ -114,7 +114,7 @@ class CartValidatorIntegrationTest
 
     def checkResponse(response: HttpResponse, expectedWarnings: Seq[Failure])(implicit line: SL,
                                                                               file: SF): Unit = {
-      val warnings = response.withResultTypeOf[CartResponse].warnings
+      val warnings = response.asThe[CartResponse].warnings
       warnings.value must not be empty
       warnings.value must contain theSameElementsAs expectedWarnings.map(_.description)
     }

@@ -37,7 +37,7 @@ class ReturnIntegrationTest
         val response = GET(s"v1/returns")
         response.status must === (StatusCodes.OK)
 
-        val root = response.ignoreFailuresAndGiveMe[Seq[AllReturns.Root]]
+        val root = response.asTheResult[Seq[AllReturns.Root]]
         root.size must === (1)
         root.head.referenceNumber must === (rma.refNum)
       }
@@ -48,7 +48,7 @@ class ReturnIntegrationTest
         val response = GET(s"v1/returns/customer/${customer.id}")
         response.status must === (StatusCodes.OK)
 
-        val root = response.ignoreFailuresAndGiveMe[Seq[AllReturns.Root]]
+        val root = response.asTheResult[Seq[AllReturns.Root]]
         root.size must === (1)
         root.head.referenceNumber must === (rma.refNum)
       }
@@ -65,7 +65,7 @@ class ReturnIntegrationTest
         val response = GET(s"v1/returns/order/${order.refNum}")
         response.status must === (StatusCodes.OK)
 
-        val root = response.ignoreFailuresAndGiveMe[Seq[AllReturns.Root]]
+        val root = response.asTheResult[Seq[AllReturns.Root]]
         root.size must === (1)
         root.head.referenceNumber must === (rma.refNum)
       }

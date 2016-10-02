@@ -97,7 +97,7 @@ class CheckoutIntegrationTest
 
       val grandTotal = _cartApi.shippingMethod
         .update(UpdateShippingMethod(shipMethod.id))
-        .ignoreFailuresAndGiveMe[CartResponse]
+        .asTheResult[CartResponse]
         .totals
         .total
 

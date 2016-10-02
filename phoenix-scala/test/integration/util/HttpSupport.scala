@@ -252,12 +252,10 @@ object Extensions extends MustMatchers with OptionValues with AppendedClues {
       parse(bodyText).extractOpt[A].value.withClue(s"Failed to parse body!")
     } withClue originalSourceClue
 
-    def ignoreFailuresAndGiveMe[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): A =
-      withResultTypeOf[A].result
+    def asTheResult[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): A =
+      asThe[A].result
 
-    def withResultTypeOf[A <: AnyRef](implicit mf: Manifest[A],
-                                      line: SL,
-                                      file: SF): TheResponse[A] =
+    def asThe[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): TheResponse[A] =
       as[TheResponse[A]]
 
     def errors(implicit line: SL, file: SF): List[String] = {
