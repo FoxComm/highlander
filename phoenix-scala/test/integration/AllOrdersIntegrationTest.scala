@@ -15,14 +15,14 @@ import utils.seeds.Seeds.Factories
 
 class AllOrdersIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with BakedFixtures {
 
   "PATCH /v1/orders" - {
     "bulk update states" in new StateUpdateFixture {
       val payload  = BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
-      val response = PATCH("v1/orders", payload)
+      val response = ordersApi.update(payload)
 
       response.status must === (StatusCodes.OK)
 
@@ -39,7 +39,7 @@ class AllOrdersIntegrationTest
 
     "refuses invalid status transition" in new Order_Baked {
 
-      val response = PATCH("v1/orders", BulkUpdateOrdersPayload(Seq(order.refNum), Shipped))
+      val response = ordersApi.update(BulkUpdateOrdersPayload(Seq(order.refNum), Shipped))
 
       response.status must === (StatusCodes.OK)
       val all       = response.as[BatchResponse[AllOrders.Root]]

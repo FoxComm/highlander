@@ -19,13 +19,13 @@ import utils.db._
 
 class VariantIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with MockedApis {
 
   "POST v1/variants/:context" - {
     "Creates a variant successfully" in new Fixture {
-      val response = POST(s"v1/variants/${ctx.name}", createVariantPayload)
+      val response = variantsApi.create(createVariantPayload)
       response.status must === (StatusCodes.OK)
 
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
@@ -37,7 +37,7 @@ class VariantIntegrationTest
 
     "Creates a variant with a value successfully" in new Fixture {
       val payload  = createVariantPayload.copy(values = Some(Seq(createVariantValuePayload)))
-      val response = POST(s"v1/variants/${ctx.name}", payload)
+      val response = variantsApi.create(payload)
       response.status must === (StatusCodes.OK)
 
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
@@ -52,7 +52,7 @@ class VariantIntegrationTest
     }
 
     "Fails when trying to create variant with archived sku as value" in new ArchivedSkusFixture {
-      val response = POST(s"v1/variants/${ctx.name}", archivedSkuVariantPayload)
+      val response = variantsApi.create(archivedSkuVariantPayload)
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (LinkArchivedSkuFailure(Variant, 10, archivedSkuCode).description)
@@ -61,7 +61,7 @@ class VariantIntegrationTest
 
   "GET v1/variants/:context/:id" - {
     "Gets a created variant successfully" in new VariantFixture {
-      val response = GET(s"v1/variants/${ctx.name}/${variant.variant.variantFormId}")
+      val response = variantsApi(variant.variant.variantFormId).get()
       response.status must === (StatusCodes.OK)
 
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
@@ -78,7 +78,7 @@ class VariantIntegrationTest
     }
 
     "Throws a 404 if given an invalid id" in new Fixture {
-      val response = GET(s"v1/variants/${ctx.name}/123")
+      val response = variantsApi(123).get()
       response.status must === (StatusCodes.NotFound)
     }
   }
@@ -88,7 +88,7 @@ class VariantIntegrationTest
       val payload = VariantPayload(attributes =
                                      Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))),
                                    values = None)
-      val response = PATCH(s"v1/variants/${ctx.name}/${variant.variant.variantFormId}", payload)
+      val response = variantsApi(variant.variant.variantFormId).update(payload)
 
       response.status must === (StatusCodes.OK)
 
@@ -106,7 +106,7 @@ class VariantIntegrationTest
       var payload = VariantPayload(attributes =
                                      Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))),
                                    values = Some(Seq(archivedSkuVariantValuePayload)))
-      val response = PATCH(s"v1/variants/${ctx.name}/${variant.variant.variantFormId}", payload)
+      val response = variantsApi(variant.variant.variantFormId).update(payload)
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (LinkArchivedSkuFailure(Variant,
@@ -117,12 +117,11 @@ class VariantIntegrationTest
 
   "POST v1/variants/:context/:id/values" - {
     "Creates a variant value successfully" in new Fixture {
-      val response = POST(s"v1/variants/${ctx.name}", createVariantPayload)
+      val response = variantsApi.create(createVariantPayload)
       response.status must === (StatusCodes.OK)
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
 
-      val response2 =
-        POST(s"v1/variants/${ctx.name}/${variantResponse.id}/values", createVariantValuePayload)
+      val response2 = variantsApi(variantResponse.id).createValues(createVariantValuePayload)
       response2.status must === (StatusCodes.OK)
       val valueResponse = response2.as[IlluminatedVariantValueResponse.Root]
 
@@ -131,12 +130,11 @@ class VariantIntegrationTest
     }
 
     "Fails when attaching archived SKU to variant as variant value" in new ArchivedSkusFixture {
-      val response = POST(s"v1/variants/${ctx.name}", createVariantPayload)
+      val response = variantsApi.create(createVariantPayload)
       response.status must === (StatusCodes.OK)
       val variantResponse = response.as[IlluminatedVariantResponse.Root]
 
-      val response2 = POST(s"v1/variants/${ctx.name}/${variantResponse.id}/values",
-                           archivedSkuVariantValuePayload)
+      val response2 = variantsApi(variantResponse.id).createValues(archivedSkuVariantValuePayload)
 
       response2.status must === (StatusCodes.BadRequest)
       response2.error must === (
@@ -149,8 +147,8 @@ class VariantIntegrationTest
                                                 Map("name" → (("t" → "string") ~ ("v" → "Color"))),
                                               values = None)
 
-    val testSkus = Seq(new SimpleSku("SKU-TST", "SKU test", 1000, Currency.USD, true),
-                       new SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, true))
+    val testSkus = Seq(SimpleSku("SKU-TST", "SKU test", 1000, Currency.USD, true),
+                       SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, true))
 
     val skus = Mvp.insertSkus(ctx.id, testSkus).gimme
 

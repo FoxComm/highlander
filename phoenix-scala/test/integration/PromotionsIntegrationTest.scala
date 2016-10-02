@@ -3,9 +3,12 @@ import java.time.Instant
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import com.sksamuel.elastic4s.mappings.attributes
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
+import models.objects.ObjectContext
 import models.promotion._
+import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 import payloads.CouponPayloads._
@@ -23,14 +26,14 @@ import utils.time.RichInstant
 
 class PromotionsIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
   "DELETE /v1/promotions/:context/:id" - {
     "archive existing promotion with attached coupons" in new Fixture {
-      val response = DELETE(s"v1/promotions/${ctx.name}/${promotion.formId}")
+      val response = promotionsApi(promotion.formId).delete()
 
       response.status must === (StatusCodes.OK)
 
@@ -39,7 +42,7 @@ class PromotionsIntegrationTest
         promotionResponse.archivedAt.value.isBeforeNow === true
       }
 
-      val couponResponse = GET(s"v1/coupons/${ctx.name}/${coupon.form.id}")
+      val couponResponse = couponsApi(coupon.form.id).get()
       val couponRoot     = couponResponse.as[CouponResponse.Root]
       withClue(couponRoot.archivedAt.value → Instant.now) {
         couponRoot.archivedAt.value.isBeforeNow === true
@@ -47,18 +50,18 @@ class PromotionsIntegrationTest
     }
 
     "404 for not existing coupon" in new Fixture {
-      val response = DELETE(s"v1/promotions/${ctx.name}/666")
+      val response = promotionsApi(666).delete()
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Promotion, 666).description)
     }
 
     "404 when context not found" in new Fixture {
-      val contextName = "donkeyContext"
-      val response    = DELETE(s"v1/promotions/$contextName/${promotion.formId}")
+      implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
+      val response               = promotionsApi(promotion.formId)(donkeyContext).delete()
 
       response.status must === (StatusCodes.NotFound)
-      response.error must === (ObjectContextNotFound(contextName).description)
+      response.error must === (ObjectContextNotFound("donkeyContext").description)
     }
   }
 

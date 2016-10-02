@@ -12,7 +12,7 @@ import utils.seeds.Seeds.Factories
 
 class ReasonsIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixPublicApi
     with AutomaticAuth
     with BakedFixtures {
 
@@ -21,7 +21,7 @@ class ReasonsIntegrationTest
     "GET /v1/public/reasons/:type" - {
       "should return list of reasons by type" in new Fixture {
         val reasonType = Reason.GiftCardCreation.toString.lowerCaseFirstLetter
-        val response   = GET(s"v1/public/reasons/$reasonType")
+        val response   = publicApi.getReason(reasonType)
         response.status must === (StatusCodes.OK)
 
         val root = response.as[Seq[Reason]]
@@ -30,10 +30,9 @@ class ReasonsIntegrationTest
       }
 
       "should return error if invalid type provided" in new Fixture {
-        val reasonType = "lolwut"
-        val response   = GET(s"v1/public/reasons/$reasonType")
+        val response = publicApi.getReason("lolwut")
         response.status must === (StatusCodes.BadRequest)
-        response.error must === (InvalidReasonTypeFailure(reasonType).description)
+        response.error must === (InvalidReasonTypeFailure("lolwut").description)
       }
     }
   }

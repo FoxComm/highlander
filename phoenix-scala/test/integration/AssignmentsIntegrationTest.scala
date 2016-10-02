@@ -15,7 +15,7 @@ import utils.seeds.Seeds.Factories
 
 class AssignmentsIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with BakedFixtures {
 
@@ -23,7 +23,7 @@ class AssignmentsIntegrationTest
 
     "can be assigned to order" in new Order_Baked {
       val payload  = AssignmentPayload(assignees = Seq(storeAdmin.id))
-      val response = POST(s"v1/orders/${order.refNum}/assignees", payload)
+      val response = ordersApi(order.refNum).assign(payload)
       response.status must === (StatusCodes.OK)
 
       val theResponse = response.as[TheResponse[Seq[AssignmentResponse.Root]]]
@@ -37,7 +37,7 @@ class AssignmentsIntegrationTest
     "extends response with errors if one of store admins is not found" in new Order_Baked {
       val nonExistentAdminId = 2
       val payload            = AssignmentPayload(assignees = Seq(storeAdmin.id, nonExistentAdminId))
-      val response           = POST(s"v1/orders/${order.refNum}/assignees", payload)
+      val response           = ordersApi(order.refNum).assign(payload)
       response.status must === (StatusCodes.OK)
 
       // TODO - AlreadyAssignedFailure here?
@@ -54,7 +54,7 @@ class AssignmentsIntegrationTest
 
     "returns error if order not found" in new Order_Baked {
       val payload  = AssignmentPayload(assignees = Seq(storeAdmin.id))
-      val response = POST(s"v1/orders/NOPE/assignees", payload)
+      val response = ordersApi("NOPE").assign(payload)
       response.status must === (StatusCodes.NotFound)
       response.error mustBe NotFoundFailure404(Order, "NOPE").description
     }
@@ -63,7 +63,7 @@ class AssignmentsIntegrationTest
   "DELETE /v1/orders/:refNum/assignees" - {
 
     "can be unassigned from order" in new AssignmentFixture {
-      val response = DELETE(s"v1/orders/${order.refNum}/assignees/${storeAdmin.id}")
+      val response = ordersApi(order.refNum).unassign(storeAdmin.id)
       response.status must === (StatusCodes.OK)
 
       val theResponse = response.as[Seq[AssignmentResponse.Root]]
@@ -71,19 +71,19 @@ class AssignmentsIntegrationTest
     }
 
     "returns error if order not found" in new AssignmentFixture {
-      val response = DELETE(s"v1/orders/NOPE/assignees/${storeAdmin.id}")
+      val response = ordersApi("NOPE").unassign(storeAdmin.id)
       response.status must === (StatusCodes.NotFound)
       response.error mustBe NotFoundFailure404(Order, "NOPE").description
     }
 
     "returns error if store admin not found" in new AssignmentFixture {
-      val response = DELETE(s"v1/orders/${order.refNum}/assignees/666")
+      val response = ordersApi(order.refNum).unassign(666)
       response.status must === (StatusCodes.NotFound)
       response.error mustBe NotFoundFailure404(StoreAdmin, 666).description
     }
 
     "returns error if assignment not found" in new AssignmentFixture {
-      val response = DELETE(s"v1/orders/${order.refNum}/assignees/${secondAdmin.id}")
+      val response = ordersApi(order.refNum).unassign(secondAdmin.id)
       response.status must === (StatusCodes.BadRequest)
       response.error mustBe AssigneeNotFoundFailure(Order, order.refNum, secondAdmin.id).description
     }
@@ -94,7 +94,7 @@ class AssignmentsIntegrationTest
     "can be assigned to multiple orders with graceful error handling" in new BulkAssignmentFixture {
       val payload = BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
                                           storeAdminId = storeAdmin.id)
-      val response = POST(s"v1/orders/assignees", payload)
+      val response = ordersApi.assign(payload)
       response.status must === (StatusCodes.OK)
 
       val theResponse = response.as[TheResponse[Seq[AllOrders.Root]]]
@@ -119,7 +119,7 @@ class AssignmentsIntegrationTest
     "can be unassigned from multiple orders with graceful error handling" in new BulkAssignmentFixture {
       val payload = BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
                                           storeAdminId = storeAdmin.id)
-      val response = POST(s"v1/orders/assignees/delete", payload)
+      val response = ordersApi.unassign(payload)
       response.status must === (StatusCodes.OK)
 
       val theResponse = response.as[TheResponse[Seq[AllOrders.Root]]]

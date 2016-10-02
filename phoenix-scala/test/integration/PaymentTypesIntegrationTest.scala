@@ -10,12 +10,15 @@ import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport with BakedFixtures {
+class PaymentTypesIntegrationTest
+    extends IntegrationTestBase
+    with PhoenixPublicApi
+    with BakedFixtures {
 
   "GiftCard Types" - {
     "GET /v1/public/gift-cards/types" - {
       "should return all GC types and related sub-types" in new GiftCardFixture {
-        val response = GET(s"v1/public/gift-cards/types")
+        val response = publicApi.giftCardTypes()
         response.status must === (StatusCodes.OK)
 
         val root = response.as[Seq[GiftCardSubTypesResponse.Root]]
@@ -30,7 +33,7 @@ class PaymentTypesIntegrationTest extends IntegrationTestBase with HttpSupport w
   "StoreCredits" - {
     "GET /v1/public/store-credits/types" - {
       "should return all SC types and related subtypes" in new StoreCreditFixture {
-        val response = GET(s"v1/public/store-credits/types")
+        val response = publicApi.storeCreditTypes()
         response.status must === (StatusCodes.OK)
 
         val root = response.as[Seq[StoreCreditSubTypesResponse.Root]]

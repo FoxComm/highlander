@@ -17,7 +17,7 @@ import utils.time.RichInstant
 
 class GiftCardNotesIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with BakedFixtures
     with TestActivityContext.AdminAC {
@@ -25,7 +25,7 @@ class GiftCardNotesIntegrationTest
   "POST /v1/notes/gift-card/:code" - {
     "can be created by an admin for a gift card" in new Fixture {
       val response =
-        POST(s"v1/notes/gift-card/${giftCard.code}", CreateNote(body = "Hello, FoxCommerce!"))
+        notesApi.giftCard(giftCard.code).create(CreateNote(body = "Hello, FoxCommerce!"))
 
       response.status must === (StatusCodes.OK)
 
@@ -35,17 +35,17 @@ class GiftCardNotesIntegrationTest
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = POST(s"v1/notes/gift-card/${giftCard.code}", CreateNote(body = ""))
+      val response = notesApi.giftCard(giftCard.code).create(CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === ("body must not be empty")
     }
 
     "returns a 404 if the gift card is not found" in new Fixture {
-      val response = POST(s"v1/notes/gift-card/999999", CreateNote(body = ""))
+      val response = notesApi.giftCard("NOPE").create(CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(GiftCard, 999999).description)
+      response.error must === (NotFoundFailure404(GiftCard, "NOPE").description)
     }
   }
 
@@ -57,7 +57,7 @@ class GiftCardNotesIntegrationTest
       }
       DbResultT.sequence(createNotes).gimme
 
-      val response = GET(s"v1/notes/gift-card/${giftCard.code}")
+      val response = notesApi.giftCard(giftCard.code).get()
       response.status must === (StatusCodes.OK)
 
       val notes = response.as[Seq[AdminNotes.Root]]
@@ -74,7 +74,7 @@ class GiftCardNotesIntegrationTest
         .gimme
 
       val response =
-        PATCH(s"v1/notes/gift-card/${giftCard.code}/${rootNote.id}", UpdateNote(body = "donkey"))
+        notesApi.giftCard(giftCard.code).note(rootNote.id).update(UpdateNote(body = "donkey"))
       response.status must === (StatusCodes.OK)
 
       val note = response.as[AdminNotes.Root]
@@ -86,10 +86,10 @@ class GiftCardNotesIntegrationTest
 
     "can soft delete note" in new Fixture {
       val createResp =
-        POST(s"v1/notes/gift-card/${giftCard.code}", CreateNote(body = "Hello, FoxCommerce!"))
+        notesApi.giftCard(giftCard.code).create(CreateNote(body = "Hello, FoxCommerce!"))
       val note = createResp.as[AdminNotes.Root]
 
-      val response = DELETE(s"v1/notes/gift-card/${giftCard.code}/${note.id}")
+      val response = notesApi.giftCard(giftCard.code).note(note.id).delete()
       response.status must === (StatusCodes.NoContent)
       response.bodyText mustBe empty
 
@@ -101,12 +101,12 @@ class GiftCardNotesIntegrationTest
       }
 
       // Deleted note should not be returned
-      val allNotesResponse = GET(s"v1/notes/gift-card/${giftCard.code}")
+      val allNotesResponse = notesApi.giftCard(giftCard.code).get()
       allNotesResponse.status must === (StatusCodes.OK)
       val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
       allNotes.map(_.id) must not contain note.id
 
-      val getDeletedNoteResponse = GET(s"v1/notes/gift-card/${giftCard.code}/${note.id}")
+      val getDeletedNoteResponse = notesApi.giftCard(giftCard.code).note(note.id).get()
       getDeletedNoteResponse.status must === (StatusCodes.NotFound)
     }
   }

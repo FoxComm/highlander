@@ -12,7 +12,7 @@ import util.fixtures.BakedFixtures
 
 class CartCreatorIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
@@ -20,8 +20,7 @@ class CartCreatorIntegrationTest
   "POST /v1/orders" - {
     "for an existing customer" - {
       "succeeds" in new Fixture {
-        val payload  = CreateCart(customerId = customer.id.some)
-        val response = POST(s"v1/orders", payload)
+        val response = cartsApi.create(CreateCart(customerId = customer.id.some))
 
         response.status must === (StatusCodes.OK)
         val root = response.as[CartResponse]
@@ -29,17 +28,15 @@ class CartCreatorIntegrationTest
       }
 
       "fails when the customer is not found" in new Fixture {
-        val payload  = CreateCart(customerId = 99.some)
-        val response = POST(s"v1/orders", payload)
+        val response = cartsApi.create(CreateCart(customerId = 99.some))
 
         response.status must === (StatusCodes.BadRequest)
         response.error must === (NotFoundFailure400(Customer, 99).description)
       }
 
       "returns current cart if customer already has one" in new Fixture {
-        val payload = CreateCart(customerId = customer.id.some)
-        CartCreator.createCart(storeAdmin, payload).gimme
-        val response = POST(s"v1/orders", payload)
+        CartCreator.createCart(storeAdmin, CreateCart(customerId = customer.id.some)).gimme
+        val response = cartsApi.create(CreateCart(customerId = customer.id.some))
 
         response.status must === (StatusCodes.OK)
         val root = response.as[CartResponse]
@@ -49,8 +46,7 @@ class CartCreatorIntegrationTest
 
     "for a new guest" - {
       "successfully creates cart and new guest customer account" in new Fixture {
-        val payload  = CreateCart(email = "yax@yax.com".some)
-        val response = POST(s"v1/orders", payload)
+        val response = cartsApi.create(CreateCart(email = "yax@yax.com".some))
         val root     = response.as[CartResponse]
         val guest    = root.customer.value
 
@@ -61,8 +57,7 @@ class CartCreatorIntegrationTest
     }
 
     "fails if neither a new guest or existing customer are provided" in {
-      val payload  = CreateCart()
-      val response = POST(s"v1/orders", payload)
+      val response = cartsApi.create(CreateCart())
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === ("customerId or email must be given")

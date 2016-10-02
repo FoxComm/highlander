@@ -7,7 +7,7 @@ import util.fixtures.BakedFixtures
 
 trait CartPaymentsIntegrationTestBase
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {

@@ -28,7 +28,7 @@ object ProductsCatalogViewIntegrationTest {
 
 class ProductsCatalogViewIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with MockedApis {
 
@@ -78,7 +78,7 @@ class ProductsCatalogViewIntegrationTest
   "album-related views should be updated on" - {
     "album created" in new Fixture {
       val payload  = CreateAlbumPayload(name = "test", images = Seq(ImagePayload(src = "url")).some)
-      val response = POST(s"v1/products/${ctx.name}/${product.formId}/albums", payload)
+      val response = productsApi(product.formId).albums.create(payload)
       response.status must === (StatusCodes.OK)
 
       val albums = ProductAlbumsFromDatabase(product).getAndCompareAllViews
@@ -92,7 +92,7 @@ class ProductsCatalogViewIntegrationTest
       val moreImages = Seq(imagePayload, ImagePayload(src = "http://test.it/test.png"))
       val payload    = UpdateAlbumPayload(images = moreImages.some)
 
-      val response = PATCH(s"v1/albums/${ctx.name}/${album.formId}", payload)
+      val response = albumsApi(album.formId).update(payload)
       response.status must === (StatusCodes.OK)
 
       val albums = ProductAlbumsFromDatabase(product).getAndCompareAllViews
@@ -104,7 +104,7 @@ class ProductsCatalogViewIntegrationTest
     }
 
     "album archived" in new Fixture {
-      val response = DELETE(s"v1/albums/${ctx.name}/${album.formId}")
+      val response = albumsApi(album.formId).delete()
       response.status must === (StatusCodes.OK)
 
       val albums = ProductAlbumsFromDatabase(product).getAndCompareAllViews

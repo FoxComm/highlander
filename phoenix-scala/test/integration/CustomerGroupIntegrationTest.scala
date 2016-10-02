@@ -14,14 +14,14 @@ import utils.seeds.Seeds.Factories
 
 class CustomerGroupIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with MockitoSugar
     with BakedFixtures {
 
   "GET /v1/groups" - {
     "lists customers groups" in new Fixture {
-      val response  = GET("v1/groups")
+      val response  = customerGroupsApi.get()
       val groupRoot = DynamicGroupResponse.build(group)
 
       response.status must === (StatusCodes.OK)
@@ -35,7 +35,7 @@ class CustomerGroupIntegrationTest
                                                 clientState = JObject(),
                                                 elasticRequest = JObject(),
                                                 customersCount = Some(1))
-      val response = POST(s"v1/groups", payload)
+      val response = customerGroupsApi.create(payload)
 
       response.status must === (StatusCodes.OK)
 
@@ -47,7 +47,7 @@ class CustomerGroupIntegrationTest
 
   "GET /v1/groups/:groupId" - {
     "fetches group info" in new Fixture {
-      val response = GET(s"v1/groups/${group.id}")
+      val response = customerGroupsApi(group.id).get()
       val root     = DynamicGroupResponse.build(group)
 
       response.status must === (StatusCodes.OK)
@@ -55,7 +55,7 @@ class CustomerGroupIntegrationTest
     }
 
     "404 if group not found" in new Fixture {
-      val response = GET("v1/groups/999")
+      val response = customerGroupsApi(999).get()
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
@@ -70,7 +70,7 @@ class CustomerGroupIntegrationTest
                                                 elasticRequest = JObject())
       (payload.name, payload.customersCount) must !==((group.name, group.customersCount))
 
-      val response = PATCH(s"v1/groups/${group.id}", payload)
+      val response = customerGroupsApi(group.id).update(payload)
       response.status must === (StatusCodes.OK)
 
       val updated = response.as[DynamicGroupResponse.Root]
@@ -82,7 +82,7 @@ class CustomerGroupIntegrationTest
                                                 customersCount = Some(777),
                                                 clientState = JObject(),
                                                 elasticRequest = JObject())
-      val response = PATCH("v1/groups/999", payload)
+      val response = customerGroupsApi(999).update(payload)
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)

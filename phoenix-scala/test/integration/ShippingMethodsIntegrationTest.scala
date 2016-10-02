@@ -18,7 +18,7 @@ import utils.seeds.Seeds.Factories
 
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with BakedFixtures {
 
@@ -41,7 +41,7 @@ class ShippingMethodsIntegrationTest
           .create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
           .gimme
 
-        val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
+        val response = shippingMethodsApi.forCart(cart.refNum)
         response.status must === (StatusCodes.OK)
 
         val methodResponse = response.as[Seq[responses.ShippingMethodsResponse.Root]].head
@@ -68,7 +68,7 @@ class ShippingMethodsIntegrationTest
           .create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
           .gimme
 
-        val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
+        val response = shippingMethodsApi.forCart(cart.refNum)
         response.status must === (StatusCodes.OK)
 
         val methodResponse = response.as[Seq[responses.ShippingMethodsResponse.Root]]
@@ -79,7 +79,7 @@ class ShippingMethodsIntegrationTest
     "Evaluates shipping rule: shipping to CA, OR, or WA" - {
 
       "Shipping method is returned when the order is shipped to CA" in new WestCoastShippingMethodsFixture {
-        val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
+        val response = shippingMethodsApi.forCart(cart.refNum)
         response.status must === (StatusCodes.OK)
 
         val methodResponse = response.as[Seq[responses.ShippingMethodsResponse.Root]].head
@@ -92,7 +92,7 @@ class ShippingMethodsIntegrationTest
     "Evaluates shipping rule: order total is between $10 and $100, and is shipped to CA, OR, or WA" - {
 
       "Is true when the order total is $27 and shipped to CA" in new ShippingMethodsStateAndPriceCondition {
-        val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
+        val response = shippingMethodsApi.forCart(cart.refNum)
         response.status must === (StatusCodes.OK)
 
         val methodResponse = response.as[Seq[responses.ShippingMethodsResponse.Root]].head
@@ -105,7 +105,7 @@ class ShippingMethodsIntegrationTest
     "Evaluates shipping rule: ships to CA but has a restriction for hazardous items" - {
 
       "Shipping method is returned when the order has no hazardous SKUs" in new ShipToCaliforniaButNotHazardous {
-        val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
+        val response = shippingMethodsApi.forCart(cart.refNum)
         response.status must === (StatusCodes.OK)
 
         val methodResponse = response.as[Seq[responses.ShippingMethodsResponse.Root]].head

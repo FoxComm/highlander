@@ -14,15 +14,14 @@ import utils.time._
 
 class OrderNotesIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
   "POST /v1/notes/order/:refNum" - {
     "can be created by an admin for an order" in new Order_Baked {
-      val response =
-        POST(s"v1/notes/order/${order.refNum}", CreateNote(body = "Hello, FoxCommerce!"))
+      val response = notesApi.order(order.refNum).create(CreateNote("Hello, FoxCommerce!"))
       response.status must === (StatusCodes.OK)
       val note = response.as[AdminNotes.Root]
       note.body must === ("Hello, FoxCommerce!")
@@ -30,13 +29,13 @@ class OrderNotesIntegrationTest
     }
 
     "returns a validation error if failed to create" in new Order_Baked {
-      val response = POST(s"v1/notes/order/${order.refNum}", CreateNote(body = ""))
+      val response = notesApi.order(order.refNum).create(CreateNote(""))
       response.status must === (StatusCodes.BadRequest)
       response.error must === ("body must not be empty")
     }
 
     "returns a 404 if the order is not found" in new Order_Baked {
-      val response = POST(s"v1/notes/order/ABACADSF113", CreateNote(body = ""))
+      val response = notesApi.order("ABACADSF113").create(CreateNote(""))
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Order, "ABACADSF113").description)
     }
@@ -45,11 +44,11 @@ class OrderNotesIntegrationTest
   "GET /v1/notes/order/:refNum" - {
     "can be listed" in new Order_Baked {
       val createNotes = List("abc", "123", "xyz").map { body ⇒
-        OrderNoteManager.create(order.refNum, storeAdmin, CreateNote(body = body))
+        OrderNoteManager.create(order.refNum, storeAdmin, CreateNote(body))
       }
       DbResultT.sequence(createNotes).gimme
 
-      val response = GET(s"v1/notes/order/${order.refNum}")
+      val response = notesApi.order(order.refNum).get()
       response.status must === (StatusCodes.OK)
       val notes = response.as[Seq[AdminNotes.Root]]
       notes must have size 3
@@ -59,12 +58,10 @@ class OrderNotesIntegrationTest
 
   "PATCH /v1/notes/order/:refNum/:noteId" - {
     "can update the body text" in new Order_Baked {
-      val rootNote = OrderNoteManager
-        .create(order.refNum, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
-        .gimme
+      val rootNote =
+        OrderNoteManager.create(order.refNum, storeAdmin, CreateNote("Hello, FoxCommerce!")).gimme
 
-      val response =
-        PATCH(s"v1/notes/order/${order.refNum}/${rootNote.id}", UpdateNote(body = "donkey"))
+      val response = notesApi.order(order.refNum).note(rootNote.id).update(UpdateNote("donkey"))
       response.status must === (StatusCodes.OK)
       val note = response.as[AdminNotes.Root]
       note.body must === ("donkey")
@@ -73,11 +70,10 @@ class OrderNotesIntegrationTest
 
   "DELETE /v1/notes/order/:refNum/:noteId" - {
     "can soft delete note" in new Order_Baked {
-      val note = OrderNoteManager
-        .create(order.refNum, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
-        .gimme
+      val note =
+        OrderNoteManager.create(order.refNum, storeAdmin, CreateNote("Hello, FoxCommerce!")).gimme
 
-      val response = DELETE(s"v1/notes/order/${order.refNum}/${note.id}")
+      val response = notesApi.order(order.refNum).note(note.id).delete()
       response.status must === (StatusCodes.NoContent)
       response.bodyText mustBe empty
 
@@ -86,12 +82,12 @@ class OrderNotesIntegrationTest
       updatedNote.deletedAt.value.isBeforeNow === true
 
       // Deleted note should not be returned
-      val allNotesResponse = GET(s"v1/notes/order/${order.refNum}")
+      val allNotesResponse = notesApi.order(order.refNum).get()
       allNotesResponse.status must === (StatusCodes.OK)
       val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
       allNotes.map(_.id) must not contain note.id
 
-      val getDeletedNoteResponse = GET(s"v1/notes/order/${order.refNum}/${note.id}")
+      val getDeletedNoteResponse = notesApi.order(order.refNum).note(note.id).get()
       getDeletedNoteResponse.status must === (StatusCodes.NotFound)
     }
   }

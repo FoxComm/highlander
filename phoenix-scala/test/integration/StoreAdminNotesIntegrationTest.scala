@@ -15,16 +15,14 @@ import utils.time.RichInstant
 
 class StoreAdminNotesIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
   "POST /v1/notes/store-admins/:adminId" - {
     "can be created by an admin for a customer" in new Fixture {
-      val response =
-        POST(s"v1/notes/store-admins/${storeAdmin.id}", CreateNote(body = "Hello, FoxCommerce!"))
-
+      val response = notesApi.storeAdmin(storeAdmin.id).create(CreateNote("Hello, FoxCommerce!"))
       response.status must === (StatusCodes.OK)
 
       val note = response.as[AdminNotes.Root]
@@ -33,14 +31,14 @@ class StoreAdminNotesIntegrationTest
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = POST(s"v1/notes/store-admins/${storeAdmin.id}", CreateNote(body = ""))
+      val response = notesApi.storeAdmin(storeAdmin.id).create(CreateNote(""))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === ("body must not be empty")
     }
 
-    "returns a 404 if the customer is not found" in new Fixture {
-      val response = POST(s"v1/notes/store-admins/999999", CreateNote(body = ""))
+    "returns a 404 if the store admin is not found" in new Fixture {
+      val response = notesApi.storeAdmin(999999).create(CreateNote(""))
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(StoreAdmin, 999999).description)
@@ -51,11 +49,11 @@ class StoreAdminNotesIntegrationTest
 
     "can be listed" in new Fixture {
       val createNotes = List("abc", "123", "xyz").map { body ⇒
-        StoreAdminNoteManager.create(storeAdmin.id, storeAdmin, CreateNote(body = body))
+        StoreAdminNoteManager.create(storeAdmin.id, storeAdmin, CreateNote(body))
       }
       DbResultT.sequence(createNotes).gimme
 
-      val response = GET(s"v1/notes/store-admins/${storeAdmin.id}")
+      val response = notesApi.storeAdmin(storeAdmin.id).get()
       response.status must === (StatusCodes.OK)
 
       val notes = response.as[Seq[AdminNotes.Root]]
@@ -68,11 +66,11 @@ class StoreAdminNotesIntegrationTest
 
     "can update the body text" in new Fixture {
       val rootNote = StoreAdminNoteManager
-        .create(storeAdmin.id, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
+        .create(storeAdmin.id, storeAdmin, CreateNote("Hello, FoxCommerce!"))
         .gimme
 
-      val response = PATCH(s"v1/notes/store-admins/${storeAdmin.id}/${rootNote.id}",
-                           UpdateNote(body = "donkey"))
+      val response =
+        notesApi.storeAdmin(storeAdmin.id).note(rootNote.id).update(UpdateNote("donkey"))
       response.status must === (StatusCodes.OK)
 
       val note = response.as[AdminNotes.Root]
@@ -83,11 +81,10 @@ class StoreAdminNotesIntegrationTest
   "DELETE /v1/notes/store-admins/:adminId/:noteId" - {
 
     "can soft delete note" in new Fixture {
-      val createResp =
-        POST(s"v1/notes/store-admins/${storeAdmin.id}", CreateNote(body = "Hello, FoxCommerce!"))
-      val note = createResp.as[AdminNotes.Root]
+      val createResp = notesApi.storeAdmin(storeAdmin.id).create(CreateNote("Hello, FoxCommerce!"))
+      val note       = createResp.as[AdminNotes.Root]
 
-      val response = DELETE(s"v1/notes/store-admins/${storeAdmin.id}/${note.id}")
+      val response = notesApi.storeAdmin(storeAdmin.id).note(note.id).delete()
       response.status must === (StatusCodes.NoContent)
       response.bodyText mustBe empty
 
@@ -99,12 +96,12 @@ class StoreAdminNotesIntegrationTest
       }
 
       // Deleted note should not be returned
-      val allNotesResponse = GET(s"v1/notes/store-admins/${storeAdmin.id}")
+      val allNotesResponse = notesApi.storeAdmin(storeAdmin.id).get()
       allNotesResponse.status must === (StatusCodes.OK)
       val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
       allNotes.map(_.id) must not contain note.id
 
-      val getDeletedNoteResponse = GET(s"v1/notes/store-admins/${storeAdmin.id}/${note.id}")
+      val getDeletedNoteResponse = notesApi.storeAdmin(storeAdmin.id).note(note.id).get()
       getDeletedNoteResponse.status must === (StatusCodes.NotFound)
     }
   }

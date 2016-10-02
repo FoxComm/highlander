@@ -27,8 +27,8 @@ import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import responses.CustomerResponse
 import responses.CustomerResponse.Root
 import responses.cord.CartResponse
+import services.Result
 import services.carts.CartPaymentUpdater
-import services.{CreditCardManager, Result}
 import slick.driver.PostgresDriver.api._
 import util._
 import util.fixtures.BakedFixtures
@@ -40,7 +40,8 @@ import utils.seeds.Seeds.Factories
 
 class CustomerIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
+    with PhoenixPublicApi
     with AutomaticAuth
     with MockedApis
     with TestActivityContext.AdminAC
@@ -65,8 +66,8 @@ class CustomerIntegrationTest
 
   "POST /v1/customers" - {
     "successfully creates customer from payload" in {
-      val response = POST(s"v1/customers",
-                          CreateCustomerPayload(email = "test@example.com", name = Some("test")))
+      val response =
+        customersApi.create(CreateCustomerPayload(email = "test@example.com", name = "test".some))
 
       response.status must === (StatusCodes.OK)
 
@@ -76,8 +77,8 @@ class CustomerIntegrationTest
     }
 
     "fails if email is already in use" in new Customer_Seed {
-      val response = POST(s"v1/customers",
-                          CreateCustomerPayload(email = customer.email.value, name = Some("test")))
+      val response = customersApi.create(
+          CreateCustomerPayload(email = customer.email.value, name = "test".some))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (CustomerEmailNotUnique.description)
@@ -86,16 +87,15 @@ class CustomerIntegrationTest
 
   "GET /v1/customers/:customerId" - {
     "fetches customer info" in new Fixture {
-      val response     = GET(s"v1/customers/${customer.id}")
-      val customerRoot = CustomerResponse.build(customer, shippingRegion = region.some)
-
+      val response = customersApi(customer.id).get()
       response.status must === (StatusCodes.OK)
+      val customerRoot = CustomerResponse.build(customer, shippingRegion = region.some)
       response.as[CustomerResponse.Root] must === (customerRoot)
     }
 
     "fetches customer info without default address" in new Fixture {
       Addresses.filter(_.id === address.id).map(_.isDefaultShipping).update(false).gimme
-      val response     = GET(s"v1/customers/${customer.id}")
+      val response     = customersApi(customer.id).get()
       val customerRoot = CustomerResponse.build(customer)
 
       response.status must === (StatusCodes.OK)
@@ -103,22 +103,21 @@ class CustomerIntegrationTest
     }
 
     "customer info shows valid billingRegion" in new CreditCardFixture {
-      val billRegion = Regions.findOneById(creditCard.regionId).gimme
+      val response = customersApi(customer.id).get()
+      response.status must === (StatusCodes.OK)
 
-      val response = GET(s"v1/customers/${customer.id}")
+      val billRegion = Regions.findOneById(creditCard.regionId).gimme
       val customerRoot =
         CustomerResponse.build(customer, shippingRegion = region.some, billingRegion = billRegion)
-
-      response.status must === (StatusCodes.OK)
       response.as[CustomerResponse.Root] must === (customerRoot)
     }
 
     "customer info shows valid billingRegion without default CreditCard" in new CreditCardFixture {
       CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).gimme
-      val response     = GET(s"v1/customers/${customer.id}")
-      val customerRoot = CustomerResponse.build(customer, shippingRegion = region.some)
-
+      val response = customersApi(customer.id).get()
       response.status must === (StatusCodes.OK)
+
+      val customerRoot = CustomerResponse.build(customer, shippingRegion = region.some)
       response.as[CustomerResponse.Root] must === (customerRoot)
     }
 
@@ -135,12 +134,12 @@ class CustomerIntegrationTest
           region ← * <~ Regions.findOneById(address.regionId)
         } yield (customer, region)).gimme
 
-        val response = GET(s"v1/customers/${customer.id}")
+        val response = customersApi(customer.id).get()
+        response.status must === (StatusCodes.OK)
+
         val customerRoot =
           CustomerResponse.build(customer.copy(phoneNumber = defaultPhoneNumber.some),
                                  shippingRegion = region)
-
-        response.status must === (StatusCodes.OK)
         response.as[CustomerResponse.Root] must === (customerRoot)
       }
 
@@ -150,13 +149,12 @@ class CustomerIntegrationTest
 
         val defaultAddress = Factories.address.copy(isDefaultShipping = true, phoneNumber = None)
 
-        def shippingAddresses(orders: Seq[(Order, String)]) =
-          orders.map {
-            case (order, phone) ⇒
-              OrderShippingAddress
-                .buildFromAddress(defaultAddress)
-                .copy(cordRef = order.refNum, phoneNumber = phone.some)
-          }
+        def shippingAddresses(orders: Seq[(Order, String)]) = orders.map {
+          case (order, phone) ⇒
+            OrderShippingAddress
+              .buildFromAddress(defaultAddress)
+              .copy(cordRef = order.refNum, phoneNumber = phone.some)
+        }
 
         val (customer, region, shipments) = (for {
           customer ← * <~ Customers.create(Factories.customer.copy(phoneNumber = None))
@@ -186,7 +184,7 @@ class CustomerIntegrationTest
           Shipments.update(s, s.copy(updatedAt = s.updatedAt.map(time ⇒ newTime(time)))).gimme
 
         def runTest(expectedPhone: String) = {
-          val response = GET(s"v1/customers/${customer.id}")
+          val response = customersApi(customer.id).get()
           response.status must === (StatusCodes.OK)
           val customerResponse = response.as[Root]
           customerResponse.shippingRegion must === (region)
@@ -203,19 +201,19 @@ class CustomerIntegrationTest
 
     "fetches customer info with lastOrderDays value" in new Order_Baked {
       val expectedCustomer =
-        CustomerResponse.build(customer, shippingRegion = region.some, lastOrderDays = Some(0))
+        CustomerResponse.build(customer, shippingRegion = region.some, lastOrderDays = 0l.some)
 
-      val response = GET(s"v1/customers/${customer.id}")
+      val response = customersApi(customer.id).get()
       response.status must === (StatusCodes.OK)
       response.as[CustomerResponse.Root] must === (expectedCustomer)
 
       Orders.update(order, order.copy(placedAt = Instant.now.minus(1, ChronoUnit.DAYS))).gimme
 
-      val secondResponse = GET(s"v1/customers/${customer.id}")
+      val secondResponse = customersApi(customer.id).get()
 
       secondResponse.status must === (StatusCodes.OK)
       secondResponse.as[CustomerResponse.Root] must === (
-          expectedCustomer.copy(lastOrderDays = Some(1l)))
+          expectedCustomer.copy(lastOrderDays = 1l.some))
     }
 
     "ranking" - {
@@ -225,21 +223,21 @@ class CustomerIntegrationTest
         sqlu"UPDATE orders SET state = 'shipped' WHERE reference_number = ${order.refNum}".gimme
         sql"SELECT public.update_customers_ranking()".as[Boolean].gimme
 
-        val response = GET(s"v1/customers/${customer.id}")
+        val response = customersApi(customer.id).get()
         response.status must === (StatusCodes.OK)
-        response.as[CustomerResponse.Root].rank must === (Some(2))
+        response.as[CustomerResponse.Root].rank must === (2.some)
         val rank  = CustomersRanks.findById(customer.id).extract.result.head.gimme
         val rank2 = CustomersRanks.findById(customer2.id).extract.result.head.gimme
         rank.revenue must === (charge1.amount)
         rank2.revenue must === (charge2.amount)
-        rank2.rank must === (Some(1))
+        rank2.rank must === (1.some)
       }
     }
   }
 
   "GET /v1/customers/:customerId/cart" - {
     "returns customer cart" in new EmptyCustomerCart_Baked {
-      val response = GET(s"v1/customers/${customer.id}/cart")
+      val response = customersApi(customer.id).cart()
       response.status must === (StatusCodes.OK)
 
       val root = response.as[CartResponse]
@@ -249,7 +247,7 @@ class CustomerIntegrationTest
     }
 
     "creates cart if no present" in new Fixture {
-      val response = GET(s"v1/customers/${customer.id}/cart")
+      val response = customersApi(customer.id).cart()
       response.status must === (StatusCodes.OK)
 
       val root = response.as[CartResponse]
@@ -258,7 +256,7 @@ class CustomerIntegrationTest
     }
 
     "returns 404 if customer not found" in new EmptyCustomerCart_Baked {
-      val response = GET(s"v1/customers/999/cart")
+      val response = customersApi(999).cart()
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Customer, 999).description)
     }
@@ -272,7 +270,7 @@ class CustomerIntegrationTest
       (payload.name, payload.email, payload.phoneNumber) must !==(
           (customer.name, customer.email, customer.phoneNumber))
 
-      val response = PATCH(s"v1/customers/${customer.id}", payload)
+      val response = customersApi(customer.id).update(payload)
       response.status must === (StatusCodes.OK)
 
       val updated = response.as[CustomerResponse.Root]
@@ -281,15 +279,14 @@ class CustomerIntegrationTest
     }
 
     "fails if email is already in use" in new Fixture {
-      val newUserResponse =
-        POST(s"v1/customers",
-             CreateCustomerPayload(email = "test@example.com", name = Some("test")))
+      val createResp =
+        customersApi.create(CreateCustomerPayload(email = "test@example.com", name = "test".some))
 
-      newUserResponse.status must === (StatusCodes.OK)
-      val root = newUserResponse.as[CustomerResponse.Root]
+      createResp.status must === (StatusCodes.OK)
+      val newCustomer = createResp.as[CustomerResponse.Root]
 
-      val payload  = UpdateCustomerPayload(email = customer.email)
-      val response = PATCH(s"v1/customers/${root.id}", payload)
+      val response =
+        customersApi(newCustomer.id).update(UpdateCustomerPayload(email = customer.email))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (CustomerEmailNotUnique.description)
@@ -298,34 +295,32 @@ class CustomerIntegrationTest
 
   "POST /v1/customers/:customerId/activate" - {
     "fails if email is already in use by non-guest user" in new Fixture {
-      val newUserResponse =
-        POST(s"v1/customers",
-             CreateCustomerPayload(email = customer.email.value, isGuest = Some(true)))
+      val createResp = customersApi.create(
+          CreateCustomerPayload(email = customer.email.value, isGuest = true.some))
 
-      newUserResponse.status must === (StatusCodes.OK)
-      val root = newUserResponse.as[CustomerResponse.Root]
+      createResp.status must === (StatusCodes.OK)
+      val newCustomer = createResp.as[CustomerResponse.Root]
 
-      val payload  = ActivateCustomerPayload(name = "test")
-      val response = POST(s"v1/customers/${root.id}/activate", payload)
+      val activateResp =
+        customersApi(newCustomer.id).activate(ActivateCustomerPayload(name = "test"))
 
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (CustomerEmailNotUnique.description)
+      activateResp.status must === (StatusCodes.BadRequest)
+      activateResp.error must === (CustomerEmailNotUnique.description)
     }
 
-    "sucessfully activate non-guest user" in new Fixture {
-      val newUserResponse =
-        POST(s"v1/customers",
-             CreateCustomerPayload(email = "guest@example.com", isGuest = Some(true)))
+    "successfully activates non-guest user" in new Fixture {
+      val createResp = customersApi.create(
+          CreateCustomerPayload(email = "guest@example.com", isGuest = true.some))
 
-      newUserResponse.status must === (StatusCodes.OK)
-      val root = newUserResponse.as[CustomerResponse.Root]
+      createResp.status must === (StatusCodes.OK)
+      val newCustomer = createResp.as[CustomerResponse.Root]
 
-      val payload  = ActivateCustomerPayload(name = "test")
-      val response = POST(s"v1/customers/${root.id}/activate", payload)
+      val response = customersApi(newCustomer.id).activate(ActivateCustomerPayload(name = "test"))
       response.status must === (StatusCodes.OK)
 
-      val created = Customers.findOneById(root.id).gimme.value
-      CustomerResponse.build(created) must === (root.copy(name = Some("test"), isGuest = false))
+      val created = Customers.findOneById(newCustomer.id).gimme.value
+      CustomerResponse.build(created) must === (
+          newCustomer.copy(name = "test".some, isGuest = false))
       created.isGuest must === (false)
     }
   }
@@ -334,17 +329,17 @@ class CustomerIntegrationTest
     "toggles the isDisabled flag on a customer account" in new Fixture {
       customer.isDisabled must === (false)
 
-      val disableResp = POST(s"v1/customers/${customer.id}/disable", ToggleCustomerDisabled(true))
+      val disableResp = customersApi(customer.id).disable(ToggleCustomerDisabled(true))
       disableResp.status must === (StatusCodes.OK)
       disableResp.as[CustomerResponse.Root].disabled must === (true)
 
-      val enableResp = POST(s"v1/customers/${customer.id}/disable", ToggleCustomerDisabled(false))
+      val enableResp = customersApi(customer.id).disable(ToggleCustomerDisabled(false))
       enableResp.status must === (StatusCodes.OK)
       enableResp.as[CustomerResponse.Root].disabled must === (false)
     }
 
     "fails if customer not found" in new Fixture {
-      val response = POST(s"v1/customers/999/disable", ToggleCustomerDisabled(true))
+      val response = customersApi(999).disable(ToggleCustomerDisabled(true))
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Customer, 999).description)
@@ -354,7 +349,7 @@ class CustomerIntegrationTest
       val updated = Customers.update(customer, customer.copy(isDisabled = true)).gimme
       updated.isDisabled must === (true)
 
-      val response = POST(s"v1/customers/${customer.id}/disable", ToggleCustomerDisabled(true))
+      val response = customersApi(customer.id).disable(ToggleCustomerDisabled(true))
       response.status must === (StatusCodes.OK)
       response.as[CustomerResponse.Root].disabled must === (true)
     }
@@ -364,32 +359,30 @@ class CustomerIntegrationTest
     "toggles the isBlacklisted flag on a customer account" in new Fixture {
       customer.isBlacklisted must === (false)
 
-      val responseAdd =
-        POST(s"v1/customers/${customer.id}/blacklist", ToggleCustomerBlacklisted(true))
+      val responseAdd = customersApi(customer.id).blacklist(ToggleCustomerBlacklisted(true))
       responseAdd.status must === (StatusCodes.OK)
       responseAdd.as[CustomerResponse.Root].isBlacklisted must === (true)
 
-      val responseRemove =
-        POST(s"v1/customers/${customer.id}/blacklist", ToggleCustomerBlacklisted(false))
+      val responseRemove = customersApi(customer.id).blacklist(ToggleCustomerBlacklisted(false))
       responseRemove.status must === (StatusCodes.OK)
       responseRemove.as[CustomerResponse.Root].isBlacklisted must === (false)
     }
 
     "fails if customer not found" in new Fixture {
-      val response = POST(s"v1/customers/999/blacklist", ToggleCustomerBlacklisted(true))
+      val response = customersApi(999).blacklist(ToggleCustomerBlacklisted(true))
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Customer, 999).description)
     }
 
     "blacklist already blacklisted account is ok (overwrite behaviour)" in new Fixture {
-      val updated = Customers.update(customer, customer.copy(isBlacklisted = true)).gimme
-      updated.isBlacklisted must === (true)
+      val bl1 = customersApi(customer.id).blacklist(ToggleCustomerBlacklisted(true))
+      bl1.status must === (StatusCodes.OK)
+      bl1.as[CustomerResponse.Root].isBlacklisted must === (true)
 
-      val response =
-        POST(s"v1/customers/${customer.id}/blacklist", ToggleCustomerBlacklisted(true))
-      response.status must === (StatusCodes.OK)
-      response.as[CustomerResponse.Root].isBlacklisted must === (true)
+      val bl2 = customersApi(customer.id).blacklist(ToggleCustomerBlacklisted(true))
+      bl2.status must === (StatusCodes.OK)
+      bl2.as[CustomerResponse.Root].isBlacklisted must === (true)
     }
   }
 
@@ -397,7 +390,7 @@ class CustomerIntegrationTest
     "shows customer's credit cards only in their wallet" in new CreditCardFixture {
       val deleted = CreditCards.create(creditCard.copy(id = 0, inWallet = false)).gimme
 
-      val response = GET(s"v1/customers/${customer.id}/payment-methods/credit-cards")
+      val response = customersApi(customer.id).payments.creditCards.get()
       val cc       = response.as[Seq[CardResponse]]
       val ccRegion = Regions.findOneById(creditCard.regionId).gimme.value
 
@@ -414,8 +407,7 @@ class CustomerIntegrationTest
 
       val payload = ToggleDefaultCreditCard(isDefault = true)
       val response =
-        POST(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}/default",
-             payload)
+        customersApi(customer.id).payments.creditCard(creditCard.id).toggleDefault(payload)
 
       response.status must === (StatusCodes.OK)
       val ccResp = response.as[CardResponse]
@@ -433,8 +425,7 @@ class CustomerIntegrationTest
 
       val payload = ToggleDefaultCreditCard(isDefault = true)
       val response =
-        POST(s"v1/customers/${customer.id}/payment-methods/credit-cards/${nonDefault.id}/default",
-             payload)
+        customersApi(customer.id).payments.creditCard(nonDefault.id).toggleDefault(payload)
 
       val (prevDefault, currDefault) =
         (CreditCards.refresh(default).gimme, CreditCards.refresh(nonDefault).gimme)
@@ -447,9 +438,8 @@ class CustomerIntegrationTest
     }
 
     "fails when the credit card doesn't exist" in new Fixture {
-      val payload = ToggleDefaultCreditCard(isDefault = true)
-      val response =
-        POST(s"v1/customers/${customer.id}/payment-methods/credit-cards/99/default", payload)
+      val payload  = ToggleDefaultCreditCard(isDefault = true)
+      val response = customersApi(customer.id).payments.creditCard(99).toggleDefault(payload)
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(CreditCard, 99).description)
@@ -458,9 +448,8 @@ class CustomerIntegrationTest
 
   "DELETE /v1/customers/:customerId/payment-methods/credit-cards/:creditCardId" - {
     "deletes successfully if the card exists" in new CreditCardFixture {
-      val response =
-        DELETE(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}")
-      val deleted = CreditCards.findOneById(creditCard.id).gimme.value
+      val response = customersApi(customer.id).payments.creditCard(creditCard.id).delete()
+      val deleted  = CreditCards.findOneById(creditCard.id).gimme.value
 
       response.status must === (StatusCodes.NoContent)
       deleted.inWallet must === (false)
@@ -471,27 +460,24 @@ class CustomerIntegrationTest
   "PATCH /v1/customers/:customerId/payment-methods/credit-cards/:creditCardId" - {
     "when successful" - {
       "removes the original card from wallet" in new CreditCardFixture {
-        val payload = EditCreditCard(holderName = Some("Bob"))
-        val response =
-          PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
-                payload)
-        val inactive = CreditCards.findOneById(creditCard.id).gimme.value
-
+        val payload  = EditCreditCard(holderName = "Bob".some)
+        val response = customersApi(customer.id).payments.creditCard(creditCard.id).edit(payload)
         response.status must === (StatusCodes.OK)
 
-        val root = response.as[CardResponse]
+        val root     = response.as[CardResponse]
+        val inactive = CreditCards.findOneById(creditCard.id).gimme.value
+
         root.id must !==(creditCard.id)
         root.inWallet mustBe true
       }
 
       "creates a new version of the edited card in the wallet" in new CreditCardFixture {
-        val payload = EditCreditCard(holderName = Some("Bob"))
-        val response =
-          PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
-                payload)
+        val payload  = EditCreditCard(holderName = "Bob".some)
+        val response = customersApi(customer.id).payments.creditCard(creditCard.id).edit(payload)
+        response.status must === (StatusCodes.OK)
+
         val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).gimme.toList
 
-        response.status must === (StatusCodes.OK)
         newVersion.inWallet mustBe true
         newVersion.isDefault must === (creditCard.isDefault)
       }
@@ -501,50 +487,47 @@ class CustomerIntegrationTest
           .addCreditCard(Originator(storeAdmin), creditCard.id, Some(cart.refNum))
           .gimme
 
-        val payload = EditCreditCard(holderName = Some("Bob"))
-        val response =
-          PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
-                payload)
+        val payload  = EditCreditCard(holderName = "Bob".some)
+        val response = customersApi(customer.id).payments.creditCard(creditCard.id).edit(payload)
+        response.status must === (StatusCodes.OK)
+
         val (pmt :: Nil)        = OrderPayments.filter(_.cordRef === cart.refNum).creditCards.gimme.toList
         val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).gimme.toList
 
-        response.status must === (StatusCodes.OK)
         pmt.amount mustBe 'empty
         pmt.isCreditCard mustBe true
         pmt.paymentMethodId must === (newVersion.id)
       }
 
       "copies an existing address book entry to the creditCard" in new CreditCardFixture {
-        val payload = EditCreditCard(holderName = Some("Bob"), addressId = address.id.some)
-        val response =
-          PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
-                payload)
+        val payload  = EditCreditCard(holderName = "Bob".some, addressId = address.id.some)
+        val response = customersApi(customer.id).payments.creditCard(creditCard.id).edit(payload)
+        response.status must === (StatusCodes.OK)
+
         val (newVersion :: Nil) =
           CreditCards.filter(_.parentId === creditCard.id).result.gimme.toList
         val numAddresses = Addresses.length.result.gimme
 
-        response.status must === (StatusCodes.OK)
         numAddresses must === (1)
         (newVersion.zip, newVersion.regionId) must === ((address.zip, address.regionId))
       }
 
       "creates a new address book entry if a full address was given" in new CreditCardFixture {
-        val payload = EditCreditCard(holderName = Some("Bob"),
+        val payload = EditCreditCard(holderName = "Bob".some,
                                      address =
                                        CreateAddressPayload(name = "Home Office",
                                                             regionId = address.regionId + 1,
                                                             address1 = "3000 Coolio Dr",
                                                             city = "Seattle",
                                                             zip = "54321").some)
-        val response =
-          PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
-                payload)
+        val response = customersApi(customer.id).payments.creditCard(creditCard.id).edit(payload)
+        response.status must === (StatusCodes.OK)
+
         val (newVersion :: Nil) =
           CreditCards.filter(_.parentId === creditCard.id).result.gimme.toList
         val addresses  = Addresses.gimme
         val newAddress = addresses.last
 
-        response.status must === (StatusCodes.OK)
         addresses must have size 2
         (newVersion.zip, newVersion.regionId) must === (("54321", address.regionId + 1))
         (newVersion.zip, newVersion.regionId) must === ((newAddress.zip, newAddress.regionId))
@@ -552,29 +535,27 @@ class CustomerIntegrationTest
     }
 
     "fails if the card cannot be found" in new CreditCardFixture {
-      val payload  = EditCreditCard
-      val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/99", payload)
+      val response = customersApi(customer.id).payments.creditCard(99).edit(EditCreditCard())
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(CreditCard, 99).description)
     }
 
     "fails if the card is not inWallet" in new CreditCardFixture {
-      CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(storeAdmin)).gimme
+      val deleteResp = customersApi(customer.id).payments.creditCard(creditCard.id).delete()
+      deleteResp.status must === (StatusCodes.NoContent)
 
       val response =
-        PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
-              EditCreditCard)
+        customersApi(customer.id).payments.creditCard(creditCard.id).edit(EditCreditCard())
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (CannotUseInactiveCreditCard(creditCard).description)
     }
 
     "fails if the payload is invalid" in new CreditCardFixture {
-      val payload = EditCreditCard(holderName = "".some)
-      val response =
-        PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
-              payload)
+      val response = customersApi(customer.id).payments
+        .creditCard(creditCard.id)
+        .edit(EditCreditCard(holderName = "".some))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === ("holderName must not be empty")
@@ -593,10 +574,9 @@ class CustomerIntegrationTest
       when(stripeWrapperMock.updateCard(any(), any()))
         .thenReturn(Result.failure[StripeCard](StripeFailure(exception)))
 
-      val payload = EditCreditCard(expYear = Some(2000))
-      val response =
-        PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
-              payload)
+      val response = customersApi(customer.id).payments
+        .creditCard(creditCard.id)
+        .edit(EditCreditCard(expYear = 2000.some))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === ("Your card's expiration year is invalid")
@@ -605,8 +585,9 @@ class CustomerIntegrationTest
 
   "POST /v1/public/send-password-reset" - {
     "Successfully creates password reset instance" in new Fixture {
-      val email    = customer.email.value
-      val response = POST(s"v1/public/send-password-reset", ResetPasswordSend(email))
+      val email = customer.email.value
+
+      val response = publicApi.sendPasswordReset(ResetPasswordSend(email))
       response.status must === (StatusCodes.OK)
 
       val resetPw = CustomerPasswordResets.filter(_.email === email).one.gimme.value
@@ -620,7 +601,7 @@ class CustomerIntegrationTest
         .create(CustomerPasswordReset.optionFromCustomer(customer).value)
         .gimme
 
-      val response = POST(s"v1/public/send-password-reset", ResetPasswordSend(email))
+      val response = publicApi.sendPasswordReset(ResetPasswordSend(email))
       response.status must === (StatusCodes.OK)
       val resetPw = CustomerPasswordResets.findActiveByEmail(email).one.gimme.value
       oldResetPw.code must !==(resetPw.code)
@@ -634,7 +615,7 @@ class CustomerIntegrationTest
         .gimme
 
       val response =
-        POST(s"v1/public/reset-password", ResetPassword(code = resetPw.code, newPassword = "456"))
+        publicApi.resetPassword(ResetPassword(code = resetPw.code, newPassword = "456"))
       response.status must === (StatusCodes.OK)
       val updatedCustomer = Customers.mustFindById404(customer.id).gimme
       updatedCustomer.hashedPassword must !==(customer.hashedPassword)
@@ -650,11 +631,11 @@ class CustomerIntegrationTest
         .gimme
 
       val response =
-        POST(s"v1/public/reset-password", ResetPassword(code = resetPw.code, newPassword = "456"))
+        publicApi.resetPassword(ResetPassword(code = resetPw.code, newPassword = "456"))
       response.status must === (StatusCodes.OK)
 
       val response2 =
-        POST(s"v1/public/reset-password", ResetPassword(code = resetPw.code, newPassword = "456"))
+        publicApi.resetPassword(ResetPassword(code = resetPw.code, newPassword = "456"))
       response2.status must === (StatusCodes.BadRequest)
       response2.error must === (ResetPasswordCodeInvalid(resetPw.code).description)
     }

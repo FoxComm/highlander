@@ -32,7 +32,7 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
           .gimme
 
         val payload  = StoreCreditPayment(amount = 7500)
-        val response = POST(s"v1/orders/${cart.refNum}/payment-methods/store-credit", payload)
+        val response = cartsApi(cart.refNum).payments.storeCredit.add(payload)
 
         response.status must === (StatusCodes.OK)
         val payments = storeCreditPayments(cart)
@@ -49,7 +49,7 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
         StoreCredits.filter(_.id === 2).map(_.availableBalance).update(0).run().futureValue
 
         val payload  = StoreCreditPayment(amount = 7500)
-        val response = POST(s"v1/orders/${cart.refNum}/payment-methods/store-credit", payload)
+        val response = cartsApi(cart.refNum).payments.storeCredit.add(payload)
 
         response.status must === (StatusCodes.OK)
         val payments = storeCreditPayments(cart)
@@ -58,18 +58,16 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
       }
 
       "adding store credit should remove previous cart payments" in new StoreCreditFixture {
-        val payload = StoreCreditPayment(amount = 7500)
-        val createdResponse =
-          POST(s"v1/orders/${cart.refNum}/payment-methods/store-credit", payload)
+        val payload         = StoreCreditPayment(amount = 7500)
+        val createdResponse = cartsApi(cart.refNum).payments.storeCredit.add(payload)
         val createdPayments = storeCreditPayments(cart)
 
         createdResponse.status must === (StatusCodes.OK)
         createdPayments must have size 2
 
         val createdPaymentIds = createdPayments.map(_.id).toList
-        val editedResponse =
-          POST(s"v1/orders/${cart.refNum}/payment-methods/store-credit", payload)
-        val editedPayments = storeCreditPayments(cart)
+        val editedResponse    = cartsApi(cart.refNum).payments.storeCredit.add(payload)
+        val editedPayments    = storeCreditPayments(cart)
 
         editedResponse.status must === (StatusCodes.OK)
         editedPayments must have size 2
@@ -78,18 +76,17 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
     }
 
     "fails if the cart is not found" in new Fixture {
-      val notFound = cart.copy(referenceNumber = "ABC123")
       val payload  = StoreCreditPayment(amount = 50)
-      val response = POST(s"v1/orders/${notFound.refNum}/payment-methods/store-credit", payload)
+      val response = cartsApi("NOPE").payments.storeCredit.add(payload)
 
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Cart, notFound.refNum).description)
+      response.error must === (NotFoundFailure404(Cart, "NOPE").description)
       storeCreditPayments(cart) mustBe 'empty
     }
 
     "fails if the customer has no active store credit" in new Fixture {
       val payload  = StoreCreditPayment(amount = 50)
-      val response = POST(s"v1/orders/${cart.refNum}/payment-methods/store-credit", payload)
+      val response = cartsApi(cart.refNum).payments.storeCredit.add(payload)
 
       response.status must === (StatusCodes.BadRequest)
       val error = CustomerHasInsufficientStoreCredit(customer.id, 0, 50).description
@@ -99,7 +96,7 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
 
     "fails if the customer has insufficient available store credit" in new StoreCreditFixture {
       val payload  = StoreCreditPayment(amount = 25100)
-      val response = POST(s"v1/orders/${cart.refNum}/payment-methods/store-credit", payload)
+      val response = cartsApi(cart.refNum).payments.storeCredit.add(payload)
 
       response.status must === (StatusCodes.BadRequest)
       val has   = storeCredits.map(_.availableBalance).sum
@@ -110,7 +107,7 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
 
     "fails if the order has already been placed" in new StoreCreditFixture with Order_Baked {
       val payload  = StoreCreditPayment(amount = 50)
-      val response = POST(s"v1/orders/${cart.refNum}/payment-methods/store-credit", payload)
+      val response = cartsApi(cart.refNum).payments.storeCredit.add(payload)
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (OrderAlreadyPlaced(cart.refNum).description)
@@ -120,11 +117,11 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
   "DELETE /v1/orders/:ref/payment-methods/store-credit" - {
     "successfully deletes all store credit payments" in new StoreCreditFixture {
       val payload = StoreCreditPayment(amount = 75)
-      val create  = POST(s"v1/orders/${cart.refNum}/payment-methods/store-credit", payload)
+      val create  = cartsApi(cart.refNum).payments.storeCredit.add(payload)
 
       create.status must === (StatusCodes.OK)
 
-      val response = DELETE(s"v1/orders/${cart.referenceNumber}/payment-methods/store-credit")
+      val response = cartsApi(cart.refNum).payments.storeCredit.delete()
 
       response.status must === (StatusCodes.OK)
       storeCreditPayments(cart) mustBe 'empty

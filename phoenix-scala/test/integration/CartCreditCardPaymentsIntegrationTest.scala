@@ -16,8 +16,8 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
 
   "POST /v1/orders/:ref/payment-methods/credit-cards" - {
     "succeeds" in new CreditCardFixture {
-      val response = POST(s"v1/orders/${cart.refNum}/payment-methods/credit-cards",
-                          CreditCardPayment(creditCard.id))
+      val response =
+        cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id))
       val payments = creditCardPayments(cart)
 
       response.status must === (StatusCodes.OK)
@@ -26,13 +26,12 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
     }
 
     "successfully replaces an existing card" in new CreditCardFixture {
-      val first = POST(s"v1/orders/${cart.refNum}/payment-methods/credit-cards",
-                       CreditCardPayment(creditCard.id))
+      val first = cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id))
       first.status must === (StatusCodes.OK)
 
       val newCreditCard = CreditCards.create(creditCard.copy(id = 0, isDefault = false)).gimme
-      val second = POST(s"v1/orders/${cart.refNum}/payment-methods/credit-cards",
-                        CreditCardPayment(newCreditCard.id))
+      val second =
+        cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(newCreditCard.id))
       second.status must === (StatusCodes.OK)
 
       val payments = creditCardPayments(cart)
@@ -41,17 +40,15 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
     }
 
     "fails if the cart is not found" in new CreditCardFixture {
-      val payload  = CreditCardPayment(creditCard.id)
-      val response = POST(s"v1/orders/99/payment-methods/credit-cards", payload)
+      val response = cartsApi("NOPE").payments.creditCard.add(CreditCardPayment(creditCard.id))
 
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Cart, 99).description)
+      response.error must === (NotFoundFailure404(Cart, "NOPE").description)
       creditCardPayments(cart) mustBe 'empty
     }
 
     "fails if the creditCard is not found" in new CreditCardFixture {
-      val payload  = CreditCardPayment(99)
-      val response = POST(s"v1/orders/${cart.refNum}/payment-methods/credit-cards", payload)
+      val response = cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(99))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (NotFoundFailure404(CreditCard, 99).description)
@@ -60,8 +57,8 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
 
     "fails if the creditCard is inActive" in new CreditCardFixture {
       CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(storeAdmin)).gimme
-      val response = POST(s"v1/orders/${cart.refNum}/payment-methods/credit-cards",
-                          CreditCardPayment(creditCard.id))
+      val response =
+        cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (CannotUseInactiveCreditCard(creditCard).description)
@@ -69,8 +66,8 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
     }
 
     "fails if the order has already been placed" in new CreditCardFixture with Order_Baked {
-      val response = POST(s"v1/orders/${cart.refNum}/payment-methods/credit-cards",
-                          CreditCardPayment(creditCard.id))
+      val response =
+        cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (OrderAlreadyPlaced(cart.refNum).description)
@@ -78,8 +75,8 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
     }
 
     "fails if customer does not own credit card" in new CreditCardFixture {
-      val response = POST(s"v1/orders/${cart.refNum}/payment-methods/credit-cards",
-                          CreditCardPayment(creditCardOfOtherCustomer.id))
+      val response = cartsApi(cart.refNum).payments.creditCard
+        .add(CreditCardPayment(creditCardOfOtherCustomer.id))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (
@@ -89,27 +86,25 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
 
   "DELETE /v1/orders/:ref/payment-methods/credit-cards" - {
     "successfully deletes an existing card" in new CreditCardFixture {
-      val create = POST(s"v1/orders/${cart.refNum}/payment-methods/credit-cards",
-                        CreditCardPayment(creditCard.id))
+      val create = cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id))
       create.status must === (StatusCodes.OK)
 
-      val response = DELETE(s"v1/orders/${cart.refNum}/payment-methods/credit-cards")
+      val response = cartsApi(cart.refNum).payments.creditCard.delete()
 
       response.status must === (StatusCodes.OK)
       creditCardPayments(cart) mustBe 'empty
     }
 
     "fails if the cart is not found" in new CreditCardFixture {
-      val payload  = CreditCardPayment(creditCard.id)
-      val response = POST(s"v1/orders/99/payment-methods/credit-cards", payload)
+      val response = cartsApi("NOPE").payments.creditCard.add(CreditCardPayment(creditCard.id))
 
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Cart, 99).description)
+      response.error must === (NotFoundFailure404(Cart, "NOPE").description)
       creditCardPayments(cart) mustBe 'empty
     }
 
     "fails if there is no creditCard payment" in new CreditCardFixture {
-      val response = DELETE(s"v1/orders/${cart.refNum}/payment-methods/credit-cards")
+      val response = cartsApi(cart.refNum).payments.creditCard.delete()
 
       response.status must === (StatusCodes.BadRequest)
       creditCardPayments(cart) mustBe 'empty

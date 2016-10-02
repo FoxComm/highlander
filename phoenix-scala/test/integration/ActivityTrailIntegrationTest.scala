@@ -11,6 +11,7 @@ import org.scalatest.mock.MockitoSugar
 import payloads.ActivityTrailPayloads.AppendActivity
 import payloads.CustomerPayloads.UpdateCustomerPayload
 import responses.ActivityConnectionResponse
+import responses.ActivityConnectionResponse.Root
 import services.activity.CustomerTailored.CustomerUpdated
 import slick.driver.PostgresDriver.api._
 import util._
@@ -32,7 +33,7 @@ object DumbActivity {
 
 class ActivityTrailIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with MockitoSugar
     with TestActivityContext.AdminAC
@@ -49,7 +50,7 @@ class ActivityTrailIntegrationTest
                                           email = "crazy.lary@crazy.com".some,
                                           phoneNumber = "666 666 6666".some)
 
-      val response = PATCH(s"v1/customers/${customer.id}", payload)
+      val response = customersApi(customer.id).update(payload)
       response.status must === (StatusCodes.OK)
 
       // Check the activity log to see if it was created
@@ -75,7 +76,7 @@ class ActivityTrailIntegrationTest
                                           email = "updated.name@name.com".some,
                                           phoneNumber = "666 666 6666".some)
 
-      val response = PATCH(s"v1/customers/${customer.id}", payload)
+      val response = customersApi(customer.id).update(payload)
       response.status must === (StatusCodes.OK)
 
       // Check the activity log to see if it was created
@@ -170,12 +171,12 @@ class ActivityTrailIntegrationTest
     qr.passed must === (true)
   }
 
-  def getConnection(id: Int) =
+  def getConnection(id: Int): Connection =
     Connections.findById(id).extract.result.head.gimme
 
-  def appendActivity(dimension: String, objectId: Int, activityId: Int) = {
+  def appendActivity(dimension: String, objectId: Int, activityId: Int): Root = {
     val appendPayload  = AppendActivity(activityId)
-    val appendResponse = POST(s"v1/trails/$dimension/$objectId", appendPayload)
+    val appendResponse = activityTrailsApi.appendActivity(dimension, objectId, appendPayload)
 
     appendResponse.status must === (StatusCodes.OK)
     appendResponse.as[ActivityConnectionResponse.Root]

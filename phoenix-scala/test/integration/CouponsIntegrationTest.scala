@@ -11,7 +11,9 @@ import failures.ObjectFailures.{ObjectContextNotFound, ShadowAttributeInvalidTim
 import models.cord.{Carts, Orders}
 import models.coupon.Coupon
 import models.customer.Customers
+import models.objects.ObjectContext
 import models.promotion.{Promotion, Promotions}
+import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 import payloads.CouponPayloads._
@@ -31,7 +33,7 @@ import utils.time.RichInstant
 
 class CouponsIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
@@ -40,10 +42,11 @@ class CouponsIntegrationTest
     "create coupon" in new Fixture {
       val payload =
         CreateCoupon(form = couponForm, shadow = couponShadow, promotion = promotion.id)
-      val response = POST(s"v1/coupons/${ctx.name}", payload)
+      val response = couponsApi.create(payload)
 
       response.status must === (StatusCodes.OK)
     }
+
     "create coupon with invalid date should fail" in new Fixture {
       val invalidCouponForm = CreateCouponForm(
           attributes = ("name" → "donkey coupon") ~ ("activeFrom" → "2016-07-19T08:28:21.405+00:00")
@@ -52,9 +55,8 @@ class CouponsIntegrationTest
           attributes = ("name" → (("type" → "string") ~ ("ref" → "name")))
               ~ ("activeFrom"  → (("type" → "string") ~ ("ref" → "activeFrom")))
       )
-      val response =
-        POST(s"v1/coupons/${ctx.name}",
-             CreateCoupon(form = invalidCouponForm, shadow = shadow, promotion = promotion.id))
+      val response = couponsApi.create(
+          CreateCoupon(form = invalidCouponForm, shadow = shadow, promotion = promotion.id))
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (ShadowAttributeInvalidTime(
@@ -65,7 +67,7 @@ class CouponsIntegrationTest
 
   "DELETE /v1/coupons/:context/:id" - {
     "archive existing coupon" in new Fixture {
-      val response = DELETE(s"v1/coupons/${ctx.name}/${coupon.form.id}")
+      val response = couponsApi.delete(coupon.form.id)
 
       response.status must === (StatusCodes.OK)
 
@@ -76,26 +78,25 @@ class CouponsIntegrationTest
     }
 
     "404 for not existing coupon" in new Fixture {
-      val response = DELETE(s"v1/coupons/${ctx.name}/666")
+      val response = couponsApi.delete(666)
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Coupon, 666).description)
     }
 
     "404 when context not found" in new Fixture {
-      val contextName = "donkeyContext"
-      val response    = DELETE(s"v1/coupons/$contextName/${coupon.form.id}")
+      implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
+      val response               = couponsApi.delete(coupon.form.id)(donkeyContext)
 
       response.status must === (StatusCodes.NotFound)
-      response.error must === (ObjectContextNotFound(contextName).description)
+      response.error must === (ObjectContextNotFound("donkeyContext").description)
     }
   }
 
   "POST /v1/orders/:refNum/coupon/:code" - {
     "attaches coupon successfully" - {
       "when activeFrom is before now" in new OrderCouponFixture {
-        val response = POST(s"v1/orders/${cart.refNum}/coupon/$fromCode")
-
+        val response = cartsApi(cart.refNum).coupon.add(fromCode)
         response.status must === (StatusCodes.OK)
         val theCartResponse = response.as[TheResponse[CartResponse]].result
 
@@ -106,7 +107,7 @@ class CouponsIntegrationTest
       }
 
       "when activeFrom is before now and activeTo later than now" in new OrderCouponFixture {
-        val response = POST(s"v1/orders/${cart.refNum}/coupon/$fromToCode")
+        val response = cartsApi(cart.refNum).coupon.add(fromToCode)
 
         response.status must === (StatusCodes.OK)
         val theCartResponse = response.as[TheResponse[CartResponse]].result
@@ -119,20 +120,21 @@ class CouponsIntegrationTest
 
     "fails to attach coupon" - {
       "when activeFrom is after now" in new OrderCouponFixture {
-        val response = POST(s"v1/orders/${cart.refNum}/coupon/$willBeActiveCode")
+        val response = cartsApi(cart.refNum).coupon.add(willBeActiveCode)
 
         response.status must === (StatusCodes.BadRequest)
         response.error must === (CouponIsNotActive.description)
       }
 
       "when activeTo is before now" in new OrderCouponFixture {
-        val response = POST(s"v1/orders/${cart.refNum}/coupon/$wasActiveCode")
+        val response = cartsApi(cart.refNum).coupon.add(wasActiveCode)
 
         response.status must === (StatusCodes.BadRequest)
         response.error must === (CouponIsNotActive.description)
       }
 
       "when attaching to order" in new OrderCouponFixture {
+        // TODO @anna: This can be removed once /orders vs /carts pathes are split
         val response = POST(s"v1/orders/${order.refNum}/coupon/$fromToCode")
 
         response.status must === (StatusCodes.BadRequest)

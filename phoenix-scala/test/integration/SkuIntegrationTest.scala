@@ -8,6 +8,7 @@ import failures.ProductFailures.SkuNotFoundForContext
 import models.inventory._
 import models.objects._
 import models.product._
+import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
 import payloads.SkuPayloads.SkuPayload
 import responses.SkuResponses.SkuResponse
@@ -20,7 +21,7 @@ import utils.time.RichInstant
 
 class SkuIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with BakedFixtures {
 
@@ -31,7 +32,7 @@ class SkuIntegrationTest
       val attrMap    = Map("price" → priceJson)
       val payload    = makeSkuPayload("SKU-NEW-TEST", attrMap)
 
-      val response = POST(s"v1/skus/${ctx.name}", payload)
+      val response = skusApi.create(payload)
       response.status must === (StatusCodes.OK)
     }
 
@@ -41,14 +42,14 @@ class SkuIntegrationTest
       val attrMap    = Map("price" → priceJson)
       val payload    = SkuPayload(attrMap)
 
-      val response = POST(s"v1/skus/${ctx.name}", payload)
+      val response = skusApi.create(payload)
       response.status must === (StatusCodes.BadRequest)
     }
   }
 
   "GET v1/skus/:context/:code" - {
     "Get a created SKU successfully" in new Fixture {
-      val response = GET(s"v1/skus/${ctx.name}/${sku.code}")
+      val response = skusApi(sku.code).get()
       response.status must === (StatusCodes.OK)
 
       val skuResponse = response.as[SkuResponse.Root]
@@ -60,7 +61,7 @@ class SkuIntegrationTest
     }
 
     "Throws a 404 if given an invalid code" in new Fixture {
-      val response = GET(s"v1/skus/${ctx.name}/INVALID-CODE")
+      val response = skusApi("INVALID-CODE").get()
       response.status must === (StatusCodes.NotFound)
     }
   }
@@ -70,7 +71,7 @@ class SkuIntegrationTest
       val updatePayload =
         SkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))))
 
-      val response = PATCH(s"v1/skus/${ctx.name}/${sku.code}", updatePayload)
+      val response = skusApi(sku.code).update(updatePayload)
       response.status must === (StatusCodes.OK)
 
       val skuResponse = response.as[SkuResponse.Root]
@@ -87,10 +88,10 @@ class SkuIntegrationTest
       val updatePayload =
         SkuPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))))
 
-      val response = PATCH(s"v1/skus/${ctx.name}/${sku.code}", updatePayload)
+      val response = skusApi(sku.code).update(updatePayload)
       response.status must === (StatusCodes.OK)
 
-      val response2 = GET(s"v1/skus/${ctx.name}/upcode")
+      val response2 = skusApi("upcode").get()
       response2.status must === (StatusCodes.OK)
 
       val skuResponse = response2.as[SkuResponse.Root]
@@ -104,7 +105,7 @@ class SkuIntegrationTest
 
   "DELETE v1/products/:context/:id" - {
     "Archives SKU successfully" in new Fixture {
-      val response = DELETE(s"v1/skus/${ctx.name}/${sku.code}")
+      val response = skusApi(sku.code).archive()
 
       response.status must === (StatusCodes.OK)
 
@@ -115,7 +116,7 @@ class SkuIntegrationTest
     }
 
     "SKU Albums must be unlinked" in new Fixture {
-      val response = DELETE(s"v1/skus/${ctx.name}/${sku.code}")
+      val response = skusApi(sku.code).archive()
 
       response.status must === (StatusCodes.OK)
       val result = response.as[SkuResponse.Root]
@@ -123,14 +124,15 @@ class SkuIntegrationTest
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong code" in new Fixture {
-      val response = DELETE(s"v1/skus/${ctx.name}/666")
+      val response = skusApi("666").archive()
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (SkuNotFoundForContext("666", ctx.id).description)
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong context" in new Fixture {
-      val response = DELETE(s"v1/skus/donkeyContext/${sku.code}")
+      implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
+      val response               = skusApi(sku.code)(donkeyContext).archive()
 
       response.status must === (StatusCodes.NotFound)
       response.error must === (ObjectContextNotFound("donkeyContext").description)
