@@ -1,16 +1,18 @@
 defmodule Marketplace.MerchantSocialProfile do 
   use Marketplace.Web, :model
+  import Marketplace.Validation
 
   schema "merchant_social_profiles" do
     belongs_to :merchant, Marketplace.Merchant
     belongs_to :social_profile, Marketplace.SocialProfile
   end
 
-  @required_params ~w(merchant_id social_profile_id)
-  @optional_params ~w()
+  @required_fields ~w(merchant_id social_profile_id)a
+  @optional_fields ~w()a
 
   def changeset(model, params \\ :empty) do
     model 
-    |> cast(params, @required_params, @optional_params)
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required_code(@required_fields)
   end
 end

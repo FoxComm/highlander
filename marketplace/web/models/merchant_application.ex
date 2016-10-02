@@ -1,5 +1,6 @@
 defmodule Marketplace.MerchantApplication do
   use Marketplace.Web, :model
+  import Marketplace.Validation
 
   schema "merchant_applications" do
     field :reference_number, Ecto.UUID, autogenerate: true
@@ -20,18 +21,28 @@ defmodule Marketplace.MerchantApplication do
     belongs_to :merchant, Marketplace.Merchant
   end
 
-  @states ~w(new approved rejected abandoned)a
-  @required_fields ~w(name business_name email_address)
-  @optional_fields ~w(description state merchant_id)
+  @states ~w(new approved rejected abandoned)s
+  @required_fields ~w(business_name email_address phone_number site_url)a
+  @optional_fields ~w(name description state merchant_id)a
 
   def changeset(model, params \\ :empty) do
     model 
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required_code(@required_fields)
+    |> validate_phone_number(:phone_number)
+    |> validate_uri(:site_url)
+    |> validate_email(:email_address)
+    |> validate_inclusion_code(:state, @states)
   end
 
   def update_changeset(model, params \\ :empty) do
     model 
-    |> cast(params,  @required_fields, @optional_fields)
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required_code(@required_fields)
+    |> validate_phone_number(:phone_number)
+    |> validate_uri(:site_url)
+    |> validate_email(:email_address)
+    |> validate_inclusion_code(:state, @states)
   end
 
 end

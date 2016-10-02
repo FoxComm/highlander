@@ -1,6 +1,7 @@
 /* @flow */
 
 import { createReducer } from 'redux-act';
+import { SubmissionError } from 'redux-form';
 
 import createAsyncActions from './async-utils';
 
@@ -15,7 +16,11 @@ type State = Profile;
 const ACTION_SUBMIT = 'merchantInfoSubmit';
 
 const { perform, ...actions } = createAsyncActions(ACTION_SUBMIT, (id, data) =>
-  api.post(`/merchants/${id}/legal_profile`, { legal_profile: { ...data } })
+  new Promise((resolve, reject) =>
+    api.post(`/merchants/${id}/legal_profile`, { legal_profile: { ...data } })
+      .then((profile: Profile) => resolve(profile))
+      .catch(err => reject(new SubmissionError(err.response.data.errors)))
+  )
 );
 
 const initialState: State = {};
