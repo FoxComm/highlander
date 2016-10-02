@@ -6,15 +6,16 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import payloads.ActivityTrailPayloads.AppendActivity
 import services.activity.{ActivityManager, TrailManager}
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object Activity {
 
-  def routes(implicit ec: EC, db: DB, admin: User) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
-    activityContext(admin) { implicit ac ⇒
+    activityContext(auth.model) { implicit ac ⇒
       pathPrefix("activities") {
         pathPrefix(IntNumber) { activityId ⇒
           (get & pathEnd) {

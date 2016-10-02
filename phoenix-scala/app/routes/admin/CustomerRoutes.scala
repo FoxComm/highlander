@@ -13,6 +13,7 @@ import services.account._
 import services.customers._
 import services.account._
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditService}
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
@@ -21,9 +22,9 @@ import utils.FoxConfig._
 
 object CustomerRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: User, apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis) = {
 
-    activityContext(admin) { implicit ac ⇒
+    activityContext(auth.model) { implicit ac ⇒
       pathPrefix("customers") {
         (post & pathEnd & entity(as[CreateCustomerPayload])) { payload ⇒
           mutateOrFailures {
@@ -32,7 +33,7 @@ object CustomerRoutes {
             val scopeId  = config.getInt(s"user.customer.scope_id")
 
             val context = AccountCreateContext(List(roleName), orgName, scopeId)
-            CustomerManager.create(payload, Some(admin), context)
+            CustomerManager.create(payload, Some(auth.model), context)
           }
         }
       } ~
@@ -45,28 +46,28 @@ object CustomerRoutes {
         (get & path("cart")) {
           determineObjectContext(db, ec) { implicit ctx ⇒
             getOrFailures {
-              CartQueries.findOrCreateCartByAccountId(accountId, ctx, Some(admin))
+              CartQueries.findOrCreateCartByAccountId(accountId, ctx, Some(auth.model))
             }
           }
         } ~
         (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.update(accountId, payload, Some(admin))
+            CustomerManager.update(accountId, payload, Some(auth.model))
           }
         } ~
         (post & path("activate") & pathEnd & entity(as[ActivateCustomerPayload])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.activate(accountId, payload, admin)
+            CustomerManager.activate(accountId, payload, auth.model)
           }
         } ~
         (post & path("disable") & pathEnd & entity(as[ToggleUserDisabled])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.toggleDisabled(accountId, payload.disabled, admin)
+            CustomerManager.toggleDisabled(accountId, payload.disabled, auth.model)
           }
         } ~
         (post & path("blacklist") & pathEnd & entity(as[ToggleUserBlacklisted])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.toggleBlacklisted(accountId, payload.blacklisted, admin)
+            CustomerManager.toggleBlacklisted(accountId, payload.blacklisted, auth.model)
           }
         } ~
         pathPrefix("addresses") {
@@ -77,7 +78,7 @@ object CustomerRoutes {
           } ~
           (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
             mutateOrFailures {
-              AddressManager.create(admin, payload, accountId)
+              AddressManager.create(auth.model, payload, accountId)
             }
           } ~
           (post & path(IntNumber / "default") & pathEnd) { addressId ⇒
@@ -87,12 +88,12 @@ object CustomerRoutes {
           } ~
           (get & path(IntNumber) & pathEnd) { addressId ⇒
             getOrFailures {
-              AddressManager.get(admin, addressId, accountId)
+              AddressManager.get(auth.model, addressId, accountId)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { addressId ⇒
             deleteOrFailures {
-              AddressManager.remove(admin, addressId, accountId)
+              AddressManager.remove(auth.model, addressId, accountId)
             }
           } ~
           (delete & path("default") & pathEnd) {
@@ -102,9 +103,9 @@ object CustomerRoutes {
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[CreateAddressPayload])) {
             (addressId, payload) ⇒
-              activityContext(admin) { implicit ac ⇒
+              activityContext(auth.model) { implicit ac ⇒
                 mutateOrFailures {
-                  AddressManager.edit(admin, addressId, accountId, payload)
+                  AddressManager.edit(auth.model, addressId, accountId, payload)
                 }
               }
           }
@@ -123,17 +124,17 @@ object CustomerRoutes {
           } ~
           (post & pathEnd & entity(as[CreateCreditCardFromTokenPayload])) { payload ⇒
             mutateOrFailures {
-              CreditCardManager.createCardFromToken(accountId, payload, Some(admin))
+              CreditCardManager.createCardFromToken(accountId, payload, Some(auth.model))
             }
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) { (cardId, payload) ⇒
             mutateOrFailures {
-              CreditCardManager.editCreditCard(accountId, cardId, payload, Some(admin))
+              CreditCardManager.editCreditCard(accountId, cardId, payload, Some(auth.model))
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { cardId ⇒
             deleteOrFailures {
-              CreditCardManager.deleteCreditCard(accountId, cardId, Some(admin))
+              CreditCardManager.deleteCreditCard(accountId, cardId, Some(auth.model))
             }
           }
         } ~
@@ -145,18 +146,18 @@ object CustomerRoutes {
           } ~
           (post & pathEnd & entity(as[CreateManualStoreCredit])) { payload ⇒
             mutateOrFailures {
-              StoreCreditService.createManual(admin, accountId, payload)
+              StoreCreditService.createManual(auth.model, accountId, payload)
             }
           } ~
           (post & path("custom") & pathEnd & entity(as[CreateExtensionStoreCredit])) { payload ⇒
             mutateOrFailures {
               // TODO: prohibit access from non-extensions? by user probably?
-              StoreCreditService.createFromExtension(admin, accountId, payload)
+              StoreCreditService.createFromExtension(auth.model, accountId, payload)
             }
           } ~
           (post & path(IntNumber / "convert") & pathEnd) { storeCreditId ⇒
             mutateOrFailures {
-              CustomerCreditConverter.toGiftCard(storeCreditId, accountId, admin)
+              CustomerCreditConverter.toGiftCard(storeCreditId, accountId, auth.model)
             }
           }
         }

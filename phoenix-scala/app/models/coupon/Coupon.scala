@@ -1,7 +1,6 @@
 package models.coupon
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
 import models.objects._
 import shapeless._
@@ -9,6 +8,8 @@ import slick.lifted.Tag
 import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
+
+import com.github.tminglei.slickpg._
 
 object Coupon {
   val kind = "coupon"
@@ -40,7 +41,16 @@ class Coupons(tag: Tag) extends ObjectHeads[Coupon](tag, "coupons") {
   def promotionId = column[Int]("promotion_id")
 
   def * =
-    (id, scope, promotionId, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Coupon.apply _).tupled, Coupon.unapply)
+    (id,
+     scope,
+     promotionId,
+     contextId,
+     shadowId,
+     formId,
+     commitId,
+     updatedAt,
+     createdAt,
+     archivedAt) <> ((Coupon.apply _).tupled, Coupon.unapply)
 }
 
 object Coupons

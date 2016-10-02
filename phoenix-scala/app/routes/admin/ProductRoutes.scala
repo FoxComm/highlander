@@ -10,21 +10,22 @@ import payloads.ProductPayloads._
 import services.image.ImageManager
 import services.objects.ObjectManager
 import services.product.ProductManager
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object ProductRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: User) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
-    activityContext(admin) { implicit ac ⇒
+    activityContext(auth.model) { implicit ac ⇒
       pathPrefix("products") {
         pathPrefix(Segment) { contextName ⇒
           adminObjectContext(contextName) { implicit context ⇒
             (post & pathEnd & entity(as[CreateProductPayload])) { payload ⇒
               mutateOrFailures {
-                ProductManager.createProduct(admin, payload)
+                ProductManager.createProduct(auth.model, payload)
               }
             } ~
             pathPrefix(IntNumber) { productId ⇒
@@ -35,7 +36,7 @@ object ProductRoutes {
               } ~
               (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
                 mutateOrFailures {
-                  ProductManager.updateProduct(admin, productId, payload)
+                  ProductManager.updateProduct(auth.model, productId, payload)
                 }
               } ~
               (delete & pathEnd) {
@@ -52,7 +53,7 @@ object ProductRoutes {
               } ~
               (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒
                 mutateOrFailures {
-                  ImageManager.createAlbumForProduct(admin, productId, payload, contextName)
+                  ImageManager.createAlbumForProduct(auth.model, productId, payload, contextName)
                 }
               } ~
               pathPrefix("position") {

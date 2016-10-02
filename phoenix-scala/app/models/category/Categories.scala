@@ -1,7 +1,6 @@
 package models.category
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
 import models.objects.{ObjectHead, ObjectHeads}
 import models.objects.ObjectUtils.InsertResult
@@ -11,9 +10,12 @@ import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
+import com.github.tminglei.slickpg._
+
 object Category {
-  def build(contextId: Int, insertResult: InsertResult): Category =
-    Category(contextId = contextId,
+  def build(scope: LTree, contextId: Int, insertResult: InsertResult): Category =
+    Category(scope = scope,
+             contextId = contextId,
              formId = insertResult.form.id,
              shadowId = insertResult.shadow.id,
              commitId = insertResult.commit.id)

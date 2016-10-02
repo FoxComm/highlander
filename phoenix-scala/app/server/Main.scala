@@ -95,7 +95,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
       routes.AuthRoutes.routes ~
       routes.Public.routes(customerCreateContext) ~
       routes.Customer.routes ~
-      requireAdminAuth(userAuth) { implicit admin ⇒
+      requireAdminAuth(userAuth) { implicit auth ⇒
         routes.admin.AdminRoutes.routes ~
         routes.admin.NotificationRoutes.routes ~
         routes.admin.AssignmentsRoutes.routes ~
@@ -124,7 +124,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
 
   val devRoutes = {
     pathPrefix("v1") {
-      requireAdminAuth(userAuth) { implicit admin ⇒
+      requireAdminAuth(userAuth) { implicit auth ⇒
         routes.admin.DevRoutes.routes
       }
     }

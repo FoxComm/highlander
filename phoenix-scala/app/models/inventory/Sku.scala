@@ -1,7 +1,6 @@
 package models.inventory
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
 import failures.{Failure, Failures, GeneralFailure}
 import cats.data.Xor
@@ -12,6 +11,8 @@ import utils.JsonFormatters
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
+
+import com.github.tminglei.slickpg._
 
 object Sku {
   val kind         = "sku"

@@ -2,12 +2,14 @@ package models.objects
 
 import java.time.Instant
 
-import com.github.tminglei.slickpg.LTree
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import slick.lifted.Tag
 
+import com.github.tminglei.slickpg._
+
 trait ObjectHead[M <: ObjectHead[M]] extends FoxModel[M] { self: M ⇒
+  def scope: LTree
   def contextId: Int
   def shadowId: Int
   def formId: Int

@@ -14,15 +14,16 @@ import payloads.NotePayloads._
 import payloads.SharedSearchPayloads._
 import services.notes._
 import services.{SaveForLaterManager, SharedSearchService, ShippingManager}
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object AdminRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: User) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
-    activityContext(admin) { implicit ac ⇒
+    activityContext(auth.model) { implicit ac ⇒
       StoreCreditRoutes.storeCreditRoutes ~
       pathPrefix("shipping-methods" / cordRefNumRegex) { refNum ⇒
         (get & pathEnd) {
@@ -40,17 +41,17 @@ object AdminRoutes {
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             mutateOrFailures {
-              OrderNoteManager.create(refNum, admin, payload)
+              OrderNoteManager.create(refNum, auth.model, payload)
             }
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[UpdateNote])) { (noteId, payload) ⇒
             mutateOrFailures {
-              OrderNoteManager.update(refNum, noteId, admin, payload)
+              OrderNoteManager.update(refNum, noteId, auth.model, payload)
             }
           } ~
           (delete & path(IntNumber)) { noteId ⇒
             deleteOrFailures {
-              OrderNoteManager.delete(refNum, noteId, admin)
+              OrderNoteManager.delete(refNum, noteId, auth.model)
             }
           }
         } ~
@@ -62,18 +63,18 @@ object AdminRoutes {
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             mutateOrFailures {
-              GiftCardNoteManager.create(code, admin, payload)
+              GiftCardNoteManager.create(code, auth.model, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               mutateOrFailures {
-                GiftCardNoteManager.update(code, noteId, admin, payload)
+                GiftCardNoteManager.update(code, noteId, auth.model, payload)
               }
             } ~
             (delete & pathEnd) {
               deleteOrFailures {
-                GiftCardNoteManager.delete(code, noteId, admin)
+                GiftCardNoteManager.delete(code, noteId, auth.model)
               }
             }
           }
@@ -86,18 +87,18 @@ object AdminRoutes {
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             mutateOrFailures {
-              CustomerNoteManager.create(accountId, admin, payload)
+              CustomerNoteManager.create(accountId, auth.model, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               mutateOrFailures {
-                CustomerNoteManager.update(accountId, noteId, admin, payload)
+                CustomerNoteManager.update(accountId, noteId, auth.model, payload)
               }
             } ~
             (delete & pathEnd) {
               deleteOrFailures {
-                CustomerNoteManager.delete(accountId, noteId, admin)
+                CustomerNoteManager.delete(accountId, noteId, auth.model)
               }
             }
           }
@@ -110,18 +111,18 @@ object AdminRoutes {
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             mutateOrFailures {
-              ReturnNoteManager.create(refNum, admin, payload)
+              ReturnNoteManager.create(refNum, auth.model, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               mutateOrFailures {
-                ReturnNoteManager.update(refNum, noteId, admin, payload)
+                ReturnNoteManager.update(refNum, noteId, auth.model, payload)
               }
             } ~
             (delete & pathEnd) {
               deleteOrFailures {
-                ReturnNoteManager.delete(refNum, noteId, admin)
+                ReturnNoteManager.delete(refNum, noteId, auth.model)
               }
             }
           }
@@ -134,18 +135,18 @@ object AdminRoutes {
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             mutateOrFailures {
-              SkuNoteManager.create(code, admin, payload)
+              SkuNoteManager.create(code, auth.model, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               mutateOrFailures {
-                SkuNoteManager.update(code, noteId, admin, payload)
+                SkuNoteManager.update(code, noteId, auth.model, payload)
               }
             } ~
             (delete & pathEnd) {
               deleteOrFailures {
-                SkuNoteManager.delete(code, noteId, admin)
+                SkuNoteManager.delete(code, noteId, auth.model)
               }
             }
           }
@@ -158,18 +159,18 @@ object AdminRoutes {
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             mutateOrFailures {
-              ProductNoteManager.create(productId, admin, payload)
+              ProductNoteManager.create(productId, auth.model, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               mutateOrFailures {
-                ProductNoteManager.update(productId, noteId, admin, payload)
+                ProductNoteManager.update(productId, noteId, auth.model, payload)
               }
             } ~
             (delete & pathEnd) {
               deleteOrFailures {
-                ProductNoteManager.delete(productId, noteId, admin)
+                ProductNoteManager.delete(productId, noteId, auth.model)
               }
             }
           }
@@ -182,18 +183,18 @@ object AdminRoutes {
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             mutateOrFailures {
-              PromotionNoteManager.create(promoId, admin, payload)
+              PromotionNoteManager.create(promoId, auth.model, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               mutateOrFailures {
-                PromotionNoteManager.update(promoId, noteId, admin, payload)
+                PromotionNoteManager.update(promoId, noteId, auth.model, payload)
               }
             } ~
             (delete & pathEnd) {
               deleteOrFailures {
-                PromotionNoteManager.delete(promoId, noteId, admin)
+                PromotionNoteManager.delete(promoId, noteId, auth.model)
               }
             }
           }
@@ -206,18 +207,18 @@ object AdminRoutes {
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             mutateOrFailures {
-              CouponNoteManager.create(couponId, admin, payload)
+              CouponNoteManager.create(couponId, auth.model, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               mutateOrFailures {
-                CouponNoteManager.update(couponId, noteId, admin, payload)
+                CouponNoteManager.update(couponId, noteId, auth.model, payload)
               }
             } ~
             (delete & pathEnd) {
               deleteOrFailures {
-                CouponNoteManager.delete(couponId, noteId, admin)
+                CouponNoteManager.delete(couponId, noteId, auth.model)
               }
             }
           }
@@ -230,18 +231,18 @@ object AdminRoutes {
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             mutateOrFailures {
-              StoreAdminNoteManager.create(adminId, admin, payload)
+              StoreAdminNoteManager.create(adminId, auth.model, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               mutateOrFailures {
-                StoreAdminNoteManager.update(adminId, noteId, admin, payload)
+                StoreAdminNoteManager.update(adminId, noteId, auth.model, payload)
               }
             } ~
             (delete & pathEnd) {
               deleteOrFailures {
-                StoreAdminNoteManager.delete(adminId, noteId, admin)
+                StoreAdminNoteManager.delete(adminId, noteId, auth.model)
               }
             }
           }
@@ -269,13 +270,13 @@ object AdminRoutes {
       pathPrefix("shared-search") {
         (get & pathEnd & parameters('scope.as[String].?)) { scope ⇒
           getOrFailures {
-            SharedSearchService.getAll(admin, scope)
+            SharedSearchService.getAll(auth.model, scope)
           }
         } ~
         (post & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) {
           payload ⇒
             mutateOrFailures {
-              SharedSearchService.create(admin, payload)
+              SharedSearchService.create(auth.model, payload)
             }
         }
       } ~
@@ -288,12 +289,12 @@ object AdminRoutes {
         (patch & pathEnd & entityOr(as[SharedSearchPayload], SharedSearchInvalidQueryFailure)) {
           payload ⇒
             mutateOrFailures {
-              SharedSearchService.update(admin, code, payload)
+              SharedSearchService.update(auth.model, code, payload)
             }
         } ~
         (delete & pathEnd) {
           deleteOrFailures {
-            SharedSearchService.delete(admin, code)
+            SharedSearchService.delete(auth.model, code)
           }
         } ~
         pathPrefix("associates") {
@@ -306,12 +307,12 @@ object AdminRoutes {
         pathPrefix("associate") {
           (post & pathEnd & entity(as[SharedSearchAssociationPayload])) { payload ⇒
             mutateOrFailures {
-              SharedSearchService.associate(admin, code, payload.associates)
+              SharedSearchService.associate(auth.model, code, payload.associates)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { associateId ⇒
             mutateOrFailures {
-              SharedSearchService.unassociate(admin, code, associateId)
+              SharedSearchService.unassociate(auth.model, code, associateId)
             }
           }
         }

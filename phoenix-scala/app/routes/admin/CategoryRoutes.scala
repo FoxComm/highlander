@@ -6,15 +6,16 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import payloads.CategoryPayloads._
 import services.category.CategoryManager
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object CategoryRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: User) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
-    activityContext(admin) { implicit ac ⇒
+    activityContext(auth.model) { implicit ac ⇒
       pathPrefix("categories") {
         pathPrefix(Segment / IntNumber) { (context, categoryId) ⇒
           (get & pathEnd) {
@@ -24,14 +25,14 @@ object CategoryRoutes {
           } ~
           (patch & pathEnd & entity(as[UpdateFullCategory])) { payload ⇒
             mutateOrFailures {
-              CategoryManager.updateCategory(admin, categoryId, payload, context)
+              CategoryManager.updateCategory(auth.model, categoryId, payload, context)
             }
           }
         } ~
         pathPrefix(Segment) { (context) ⇒
           (post & pathEnd & entity(as[CreateFullCategory])) { payload ⇒
             mutateOrFailures {
-              CategoryManager.createCategory(admin, payload, context)
+              CategoryManager.createCategory(auth.model, payload, context)
             }
           }
         } ~

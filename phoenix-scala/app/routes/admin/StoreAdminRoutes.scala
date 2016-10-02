@@ -6,18 +6,19 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import payloads.StoreAdminPayloads._
 import services.StoreAdminManager
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object StoreAdminRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: User) = {
-    activityContext(admin) { implicit ac ⇒
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
+    activityContext(auth.model) { implicit ac ⇒
       pathPrefix("store-admins") {
         (post & pathEnd & entity(as[CreateStoreAdminPayload])) { payload ⇒
           mutateOrFailures {
-            StoreAdminManager.create(payload, Some(admin))
+            StoreAdminManager.create(payload, Some(auth.model))
           }
         } ~
         pathPrefix(IntNumber) { saId ⇒
@@ -28,18 +29,18 @@ object StoreAdminRoutes {
           } ~
           (patch & pathEnd & entity(as[UpdateStoreAdminPayload])) { payload ⇒
             mutateOrFailures {
-              StoreAdminManager.update(saId, payload, admin)
+              StoreAdminManager.update(saId, payload, auth.model)
             }
           } ~
           (delete & pathEnd) {
             deleteOrFailures {
-              StoreAdminManager.delete(saId, admin)
+              StoreAdminManager.delete(saId, auth.model)
             }
           } ~
           pathPrefix("state") {
             (patch & pathEnd & entity(as[StateChangeStoreAdminPayload])) { payload ⇒
               mutateOrFailures {
-                StoreAdminManager.changeState(saId, payload, admin)
+                StoreAdminManager.changeState(saId, payload, auth.model)
               }
             }
           }

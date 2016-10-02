@@ -1,13 +1,14 @@
 package models.discount
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
 import models.objects._
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
 import utils.db._
+
+import com.github.tminglei.slickpg._
 
 object Discount {
   val kind = "discount"

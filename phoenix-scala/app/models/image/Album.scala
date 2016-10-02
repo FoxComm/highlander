@@ -1,17 +1,18 @@
 package models.image
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
 import cats.data.Xor
 import failures.ArchiveFailures._
 import failures._
 import models.objects._
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
 import utils.db._
 import utils.{JsonFormatters, Validation}
+
+import com.github.tminglei.slickpg._
 
 object Album {
   val kind = "album"
