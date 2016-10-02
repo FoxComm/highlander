@@ -56,67 +56,112 @@ function skuCode(sku): string {
   return realCode || sku.feCode;
 }
 
-export function autoAssignVariants(skus: Array<Sku>, variants) {
-  const sortedSkus = [].slice.call(skus);
+function maxIndexBy(collection, iteratee, skipIndexes = []) {
+  let maxValue = -Infinity;
+  let maxIndex = -1;
+  skipIndexes = [].slice.call(skipIndexes).sort();
+  for (let i = 0; i < collection.length; i++) {
+    if (_.sortedIndexOf(skipIndexes, i) !== -1) continue;
+    const val = iteratee(collection[i]);
+    if (val > maxValue) {
+      maxValue = val;
+      maxIndex = i;
+    }
+  }
+  return maxIndex;
+}
 
+function findClosestTuples(smallCartesian, bigCartesian, identity) {
+  return _.reduce(smallCartesian, (acc, tuple) => {
+    const smallValues = tuple.map(identity);
+    const foundIndex = maxIndexBy(bigCartesian, t => _.intersection(smallValues, t.map(identity)).length, acc);
+    return [...acc, foundIndex];
+  }, []);
+}
+
+export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
   const indexedVariants = indexVariants(variants);
-  const skuVariantsCount = sku => indexedVariants.q({av: [['sku', skuCode(sku)]]}).length;
   const newVariants = _.cloneDeep(variants);
   const availableValues = availableVariantsValues(newVariants);
-
-  invariant(availableValues.length === skus.length, 'invalid skus length');
-
-  sortedSkus.sort((sku1, sku2) => {
-    const variantsCount1 = skuVariantsCount(sku1);
-    const variantsCount2 = skuVariantsCount(sku2);
-    return variantsCount1 > variantsCount2 ? -1 : 1;
-  });
-
-  _.each(sortedSkus, sku => {
-    // find most closest variant tuple
-    const skuVariants = indexedVariants.q({av: [['sku', skuCode(sku)]]}).map(indexedVariants.get).map(x => x.variant);
-    const closestVariantTuple = _.findIndex(availableValues, variantTuple => {
-      return _.intersection(skuVariants, variantTuple.map(v => v.name)).length === skuVariants.length;
-    });
-    const selectedTupleIndex = closestVariantTuple == -1 ? 0 : closestVariantTuple;
-    const selectedTuple = availableValues.splice(selectedTupleIndex, 1)[0];
-
-    // make sure all values from selected tuple has this sku
-    _.each(selectedTuple, variant => {
-      variant.skuCodes = _.uniq([...variant.skuCodes, skuCode(sku)]);
+  const existsValues = _.map(existsSkus, sku => {
+    return indexedVariants.q({av: [['sku', skuCode(sku)]]}).map(indexedVariants.get).map(x => {
+      return {
+        name: x.variant,
+      };
     });
   });
 
-  return newVariants;
+  let closestTuples;
+  let newSkus = [];
+
+  const unbindAll = () => {
+    // unbind all skus
+    _.each(newVariants, variant => {
+      _.each(variant.values, value => {
+        value.skuCodes = [];
+      });
+    });
+  };
+
+  const bindTuple = (tuple, sku) => {
+    _.each(tuple, variantValue => {
+      variantValue.skuCodes = _.uniq([...variantValue.skuCodes, skuCode(sku)]);
+    });
+  };
+
+  if (availableValues.length >= existsValues.length) {
+    closestTuples = findClosestTuples(existsValues, availableValues, x => x.name);
+    console.log('closest', closestTuples);
+    unbindAll();
+
+    let lastUsedSkuIndex = null;
+
+    for (let i = 0; i < closestTuples.length; i++) {
+      const selectedTupleIndex = closestTuples[i];
+      newSkus.push(existsSkus[i]);
+      lastUsedSkuIndex = i;
+
+      bindTuple(availableValues[selectedTupleIndex], existsSkus[i]);
+    }
+    closestTuples.sort();
+
+    for (let i = 0; i < availableValues.length; i++) {
+      if (_.sortedIndexOf(closestTuples, i) !== -1) continue;
+
+      const sku = lastUsedSkuIndex != null && lastUsedSkuIndex < existsSkus.length
+        ? existsSkus[++lastUsedSkuIndex] : createEmptySku();
+      newSkus.push(sku);
+      bindTuple(availableValues[i], sku);
+    }
+  } else {
+    closestTuples = findClosestTuples(availableValues, existsValues, x => x.name);
+    unbindAll();
+    let boundTupleIndex;
+    let nextBoundTuple = 0;
+    for (let i = 0; i < availableValues.length; i++) {
+      boundTupleIndex = i in closestTuples ? closestTuples[i] : nextBoundTuple++;
+      const selectedTuple = availableValues[i];
+      const boundSku = existsSkus[boundTupleIndex];
+      newSkus.push(boundSku);
+      bindTuple(selectedTuple, boundSku);
+    }
+  }
+
+  return {
+    skus: newSkus,
+    variants: newVariants,
+  };
 }
 
 /**
  * Updates product after variants has updated
  * if allowDuplicate is false also remove skus with same variants
  */
-export function updateVariants(
-  product: Product,
-  variants: Array<Option>,
-  allowDuplicate: boolean = false): Product
-{
-  // what we should do:
-  // 1. Add empty skus for new variants if there are not enough
-  // 2. Remove skus if there are no more variants for them
+export function updateVariants(product: Product, newVariants: Array<Option>): Product {
+  const {skus, variants} = autoAssignVariants(product.skus, newVariants);
 
-  const existsValues = availableVariantsValues(product.variants);
-  const newValues = availableVariantsValues(variants);
-
-  const valueIdentity = values => _.map(values, x => x.name).join('\u008b');
-
-  const addedValues = _.differenceBy(newValues, existsValues, valueIdentity);
-  const deletedValues = _.differenceBy(existsValues, newValues, valueIdentity);
-
-  let notEnoughSkus = newValues.length - product.skus.length;
-  const newSkus = [];
-  while (notEnoughSkus-- > 0) {
-    const emptySku = createEmptySku();
-    newSkus.push(emptySku);
-  }
-
-
+  return assoc(product,
+    'skus', skus,
+    'variants', variants
+  );
 }
