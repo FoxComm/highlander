@@ -2,6 +2,9 @@
 
 :root {
   --grid-margin: 1.7%;
+  --cart-footer-height: 70px;
+  --cart-header-height: 60px;
+  --cart-gap: 20px;
 }
 
 @media (--small-only) {
@@ -13,6 +16,14 @@
 @media (--medium-only) {
   :root {
     --grid-margin: 24px;
+  }
+}
+
+@media (--medium) {
+  :root {
+    --cart-footer-height: 100px;
+    --cart-header-height: 80px;
+    --cart-gap: 25px;
   }
 }
 

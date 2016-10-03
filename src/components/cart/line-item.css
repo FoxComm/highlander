@@ -1,12 +1,14 @@
 @import "colors.css";
 @import "media-queries.css";
+@import "variables.css";
 
 .box {
   position: relative;
-  margin: 0 20px;
+  margin-left: var(--cart-gap);
+  margin-right: var(--cart-gap);
   padding: 15px 0 55px;
   display: flex;
-  border-bottom: 1px solid #e7e7e7;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .container {
@@ -14,7 +16,7 @@
 }
 
 .details {
-  margin-right: 20px;
+  margin-right: var(--cart-gap);
 }
 
 .image {
@@ -72,7 +74,6 @@
 
 @media (--medium) {
   .box {
-    margin: 0 25px;
     padding: 20px 0;
   }
 
@@ -85,7 +86,6 @@
   .details {
     display: flex;
     flex-direction: row;
-    margin-right: 25px;
     margin-bottom: 6px;
     min-height: 42px;
   }
@@ -98,7 +98,7 @@
 
   .product-name {
     width: 100%;
-    padding-right: 25px;
+    padding-right: var(--cart-gap);
     font-size: 16px;
     letter-spacing: .94px;
   }

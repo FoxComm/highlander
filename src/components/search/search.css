@@ -109,7 +109,7 @@
     left: 0;
     height: 86px;
     width: 100%;
-    background: #3E3436;
+    background: var(--additional-color);
 
     & .search-input {
       lost-column: 10/12;
