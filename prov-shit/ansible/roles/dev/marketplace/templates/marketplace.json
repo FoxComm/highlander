@@ -1,0 +1,36 @@
+{
+  "id": "/marketplace",
+  "cpus": 1,
+  "mem": 512,
+  "disk": 0,
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "{{docker_registry}}/marketplace",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "env": {
+    "DB_USER": "postgres",
+    "DB_PASSWORD": "",
+    "DB_NAME": "marketplace_development",
+    "DB_HOST": "localhost",
+    "PHOENIX_URL": "http://127.0.0.1",
+    "PHOENIX_PORT": "9090",
+    "SOLOMON_URL": "http://127.0.0.1",
+    "SOLOMON_PORT": "4002"
+  },
+  "portDefinitions": [
+    {
+      "port": 4003,
+      "protocol": "tcp",
+      "name": "4003",
+      "labels": {}
+    }
+  ]
+}
