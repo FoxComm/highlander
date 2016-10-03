@@ -143,5 +143,16 @@ describe.only('Variants', function () {
       expect(result.variants[0].values[1].skuCodes).to.have.members([skus[1].feCode]);
       expect(result.variants[1].values[0].skuCodes).to.have.members([skus[0].feCode, skus[1].feCode]);
     });
+
+  });
+
+  context('#assignNewVariants', () => {
+    it('keep one sku if there is no variants', () => {
+      const skus = makeSkus(2);
+      const product = {skus};
+
+      const newProduct = Variants.updateVariants(product, []);
+      expect(newProduct.skus).to.have.length(1);
+    });
   });
 });

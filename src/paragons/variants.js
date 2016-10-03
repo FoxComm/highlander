@@ -155,7 +155,7 @@ export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
  * Updates product after variants has updated
  * if allowDuplicate is false also remove skus with same variants
  */
-export function updateVariants(product: Product, newVariants: Array<Option>): Product {
+export function assignNewVariants(product: Product, newVariants: Array<Option>): Product {
   const {skus, variants} = autoAssignVariants(product.skus, newVariants);
 
   return assoc(product,

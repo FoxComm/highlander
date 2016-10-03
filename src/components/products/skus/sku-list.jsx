@@ -12,7 +12,8 @@ import EditableSkuRow from './editable-sku-row';
 import MultiSelectTable from 'components/table/multi-select-table';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 
-import type { Product, mapSkusToVariants } from 'paragons/product';
+import type { Product } from 'paragons/product';
+import { mapSkusToVariants } from 'paragons/product';
 import type { Sku } from 'modules/skus/details';
 
 type UpdateFn = (code: string, field: string, value: any) => void;
@@ -35,13 +36,13 @@ export default class SkuList extends Component {
   state: State = {
     isDeleteConfirmationVisible: false,
     skuId: null,
+    variantsSkusIndex: mapSkusToVariants(this.props.variants),
   };
 
-  variantsSkusIndex: Object = mapSkusToVariants(this.props.variants);
-
   componentWillReceiveProps(nextProps: Props) {
-    if (!this.variantsSkusIndex || this.props.variants != nextProps.variants) {
-      this.variantsSkusIndex = mapSkusToVariants(this.props.variants);
+    if (this.props.variants != nextProps.variants) {
+      const variantsSkusIndex = mapSkusToVariants(nextProps.variants);
+      this.setState({variantsSkusIndex});
     }
   }
 
@@ -135,7 +136,7 @@ export default class SkuList extends Component {
           sku={row}
           params={params}
           variants={this.props.variants}
-          variantsSkusIndex={this.variantsSkusIndex}
+          variantsSkusIndex={this.state.variantsSkusIndex}
           updateField={this.props.updateField}
           updateFields={this.props.updateFields}
           onDeleteClick={this.showDeleteConfirmation}

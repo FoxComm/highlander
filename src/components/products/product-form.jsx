@@ -17,6 +17,7 @@ import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
 
 import * as ProductParagon from 'paragons/product';
+import { assignNewVariants } from 'paragons/variants';
 
 // types
 import type { Attributes } from 'paragons/object';
@@ -78,48 +79,12 @@ export default class ProductForm extends Component {
   }
 
   @autobind
-  updateSkuVariantMapping(variants: Array<any>): void {
+  updateVariants(newVariants: Array<any>): void {
     // here we have new variants, but
     // we don't have empty skus in order user be able to edit them
     // also we need skuCodes for them in variant.values
-    let updatedVariants = [];
-    let skus = [];
-    if (_.isEmpty(variants)) {
-      skus = [ProductParagon.createEmptySku()];
-      updatedVariants = variants;
-    } else {
-      const availableVariants = ProductParagon.availableVariants(variants);
-
-      skus = _.map(availableVariants, variantCombination => {
-        return ProductParagon.createEmptySkuForVariantValues(variantCombination);
-      });
-
-      updatedVariants = _.map(variants, variant => {
-        variant.values = _.map(variant.values, value => {
-          value.skuCodes = _.reduce(skus, (acc, sku) => {
-            if (sku.varaintValues.indexOf(value.name) >= 0) {
-              const code = sku.code || sku.feCode;
-              return acc.concat([code]);
-            }
-            return acc;
-          }, []);
-          return value;
-        });
-        return variant;
-      });
-    }
-
-    const newProduct = assoc(
-      this.props.product,
-      ['skus'], skus,
-      ['variants'], updatedVariants
-    );
+    const newProduct = assignNewVariants(this.props.product, newVariants);
     return this.props.onUpdateProduct(newProduct);
-  }
-
-  @autobind
-  updateVariants(newVariants: Array<any>): void {
-    this.updateSkuVariantMapping(newVariants);
   }
 
   @autobind
