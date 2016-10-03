@@ -1,17 +1,18 @@
-import akka.http.scaladsl.server.directives.AuthenticationResult
-
-import models.account._
-import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
-import org.scalatest.{Suite, SuiteMixin}
-import util.DbTestSupport
-import services.Authenticator.{UserAuthenticator, AuthData}
-import services.account.AccountCreateContext
 import scala.concurrent.Future
+
 import akka.http.scaladsl.model.headers.HttpChallenge
 import akka.http.scaladsl.server.Directive1
+import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.provide
 import akka.http.scaladsl.server.directives.SecurityDirectives._
+import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
+import org.scalatest.{Suite, SuiteMixin}
 
+import models.account._
+import models.auth.UserToken
+import services.Authenticator.{UserAuthenticator, AuthData}
+import services.account.AccountCreateContext
+import util.DbTestSupport
 import utils.seeds.Seeds.Factories
 
 abstract class FakeAuth extends UserAuthenticator {
@@ -21,16 +22,26 @@ abstract class FakeAuth extends UserAuthenticator {
 
 case class AuthAs(admin: User, customer: User) extends FakeAuth {
 
+  //TODO Provide correct claim map
   def checkAuthUser(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
-    Future.successful(
-        AuthenticationResult.success(
-            AuthData[User](admin, Account(id = admin.accountId), "1", Map())))
+    val account = Account(id = admin.accountId)
+    val token = UserToken.fromUserAccount(
+        admin,
+        account,
+        Account
+          .ClaimSet(scope = "1", roles = List("admin"), claims = Map("frn:filleme" → List("r"))))
+    Future.successful(AuthenticationResult.success(AuthData[User](token, admin, account)))
   }
 
+  //TODO Provide correct claim map
   def checkAuthCustomer(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
-    Future.successful(
-        AuthenticationResult.success(
-            AuthData[User](customer, Account(id = customer.accountId), "2", Map())))
+    val account = Account(id = customer.accountId)
+    val token = UserToken.fromUserAccount(customer,
+                                          account,
+                                          Account.ClaimSet(scope = "2",
+                                                           roles = List("customer"),
+                                                           claims = Map("frn:fillme" → List("r"))))
+    Future.successful(AuthenticationResult.success(AuthData[User](token, customer, account)))
   }
 }
 

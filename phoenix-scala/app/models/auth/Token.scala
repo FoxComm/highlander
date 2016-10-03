@@ -61,9 +61,14 @@ sealed trait Token extends Product {
   val name: Option[String]
   val email: Option[String]
   val scope: String
+  val roles: Seq[String]
   val claims: Account.Claims
   val ratchet: Int
   def encode: Failures Xor String = Token.encode(this)
+
+  def hasRole(test: String): Boolean = {
+    roles.contains(test)
+  }
 
   def hasClaim(test: String, actions: List[String]): Boolean = {
     var matches = false;
@@ -95,6 +100,7 @@ object Token {
     claims.setClaim("email", token.email)
     claims.setClaim("ratchet", token.ratchet)
     claims.setClaim("scope", token.scope)
+    claims.setStringListClaim("roles", token.roles)
 
     token.name.map { name ⇒
       claims.setClaim("name", name)
@@ -158,24 +164,26 @@ object Token {
 case class UserToken(id: Int,
                      name: Option[String],
                      email: Option[String],
+                     roles: Seq[String],
                      scope: String,
                      ratchet: Int,
                      claims: Account.Claims)
-    extends Token
+    extends Token {
+
+  require(!scope.isEmpty)
+  //can't have claims without roles. Either no claims and no roles or claims and roles.
+  require((roles.isEmpty && claims.isEmpty) || !(roles.isEmpty || claims.isEmpty))
+}
 
 object UserToken {
-  def fromUserAccount(user: User,
-                      account: Account,
-                      scope: String,
-                      claims: Account.Claims): UserToken = {
-
-    require(!scope.isEmpty)
+  def fromUserAccount(user: User, account: Account, claimSet: Account.ClaimSet): UserToken = {
     require(user.accountId == account.id)
     UserToken(id = user.accountId,
               name = user.name,
               email = user.email,
-              scope = scope,
+              scope = claimSet.scope,
+              roles = claimSet.roles,
               ratchet = account.ratchet,
-              claims = claims)
+              claims = claimSet.claims)
   }
 }

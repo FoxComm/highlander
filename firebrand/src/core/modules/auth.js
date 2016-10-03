@@ -18,7 +18,7 @@ export type SignUpPayload = {
 type LoginPayload = {
   email: string,
   password: string,
-  kind: string,
+  org: string,
 };
 
 export const setUser = createAction('USER_SET');
@@ -31,8 +31,8 @@ export const signUp = createAsyncActions('auth-signup', function signUp(payload:
 }).perform;
 
 export const authenticate = createAsyncActions('auth-login', function authenticate(payload: LoginPayload): Promise {
-  const {email, password, kind} = payload;
-  return api.auth.login(email, password, kind)
+  const {email, password, org} = payload;
+  return api.auth.login(email, password, org)
     .then(({jwt, user}) => {
       this.dispatch(setJwt(jwt));
       this.dispatch(setUser(user));

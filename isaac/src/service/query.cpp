@@ -29,8 +29,14 @@ namespace isaac
             if(!_msg) return;
 
             //TODO: Add invalidation endpoints
+
+
+            //Check endpoint just verifies if the user in the JWT is valid and 
+            //that the JWT is signed
             if(_msg->getPath() == "/check") 
-                validate_token(*_msg);
+                check_token(*_msg);
+            if(_msg->getPath() == "/check_role") 
+                check_role(*_msg);
             else if(_msg->getPath() == "/ping") 
                 ping();
             else
@@ -101,11 +107,12 @@ namespace isaac
             return _c.user_cache->valid_user(id, ratchet, _db);
         }
 
-        struct token_data
+        bool query_request_handler::user_has_role(const folly::dynamic& user, const std::string& role)
         {
-            const char* data = nullptr;
-            std::size_t size = 0;
-        };
+            const auto roles = user["roles"];
+            const auto pos = roles.find(role);
+            return pos != roles.items().end();
+        }
 
         token_data get_token(proxygen::HTTPMessage& msg, const std::string& key)
         {
@@ -133,10 +140,36 @@ namespace isaac
             return r;
         }
 
-        void query_request_handler::validate_token(proxygen::HTTPMessage& msg) 
+        void query_request_handler::check_token(proxygen::HTTPMessage& msg) 
         {
-            auto token = get_token(msg, _c.token_header);
+            const auto token = get_token(msg, _c.token_header);
 
+            if(msg.hasQueryParam("role"))
+            {
+                const auto role = msg.getQueryParam("role");
+                validate_token(token, 
+                        [&](const folly::dynamic& user) -> bool 
+                        { 
+                            return user_has_role(user, role) && verify_user(user); 
+                        });
+            }
+            else
+            {
+                proxygen::ResponseBuilder{downstream_}
+                .status(400, "role parameter missing")
+                    .sendWithEOM();
+            }
+        }
+
+        void query_request_handler::check_role(proxygen::HTTPMessage& msg) 
+        {
+            const auto token = get_token(msg, _c.token_header);
+
+            validate_token(token, [&](const folly::dynamic& user) -> bool { return verify_user(user); });
+        }
+
+        void query_request_handler::validate_token(const token_data& token, verify_user_func is_valid_user)
+        {
             if(token.size == 0 || token.size >= MAX_JWT_SIZE) 
             {
                 token_missing();
@@ -180,7 +213,7 @@ namespace isaac
                 return;
             }
 
-            if(!verify_user(payload))
+            if(!is_valid_user(payload))
             {
                 invalid_user();
                 return;
@@ -189,6 +222,7 @@ namespace isaac
             proxygen::ResponseBuilder{downstream_}
                 .status(200, "OK")
                 .sendWithEOM();
+
         }
 
         void query_request_handler::token_missing()

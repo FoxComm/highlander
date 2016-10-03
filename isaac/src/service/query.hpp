@@ -24,6 +24,14 @@ namespace isaac
             util::sig_verifier_ptr verifier;
         };
 
+        struct token_data
+        {
+            const char* data = nullptr;
+            std::size_t size = 0;
+        };
+
+        using verify_user_func = std::function<bool(const folly::dynamic&)>;
+
         class query_request_handler : public proxygen::RequestHandler {
             public:
                 explicit query_request_handler(context& c, db::user_verifier& db) : 
@@ -38,7 +46,9 @@ namespace isaac
 
             private:
                 //services
-                void validate_token(proxygen::HTTPMessage& msg);
+                void check_token(proxygen::HTTPMessage& msg);
+                void check_role(proxygen::HTTPMessage& msg);
+                void validate_token(const token_data&, verify_user_func);
                 void ping();
                 void is404();
 
@@ -46,6 +56,7 @@ namespace isaac
                 bool check_signature(const util::jwt_parts& parts);
                 bool verify_header(const folly::dynamic&);
                 bool verify_user(const folly::dynamic&);
+                bool user_has_role(const folly::dynamic&, const std::string&);
 
                 //errors
                 void token_missing();
@@ -56,6 +67,7 @@ namespace isaac
                 void signature_not_verified();
 
             private:
+
                 context& _c;
                 db::user_verifier& _db;
                 std::unique_ptr<folly::IOBuf> _body;

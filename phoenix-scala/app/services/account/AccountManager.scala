@@ -146,13 +146,14 @@ object AccountManager {
   }
 
   def getClaims(accountId: Int, scopeId: Int)(implicit ec: EC,
-                                              db: DB): DbResultT[(String, Account.Claims)] =
+                                              db: DB): DbResultT[Account.ClaimSet] =
     for {
       scope        ← * <~ Scopes.mustFindById404(scopeId)
       accountRoles ← * <~ AccountRoles.findByAccountId(accountId).result
       roleIds = accountRoles.map(_.roleId)
       roles ← * <~ Roles.filterByScopeId(roleIds, scopeId).result
       scopedRoleIds = roles.map(_.id)
+      roleNames     = roles.map(_.name)
       rolePermissions ← * <~ RolePermissions.findByRoles(scopedRoleIds).result
       permissionIds = rolePermissions.map(_.permissionId)
       permissions ← * <~ Permissions.filter(_.id.inSet(permissionIds)).result
@@ -160,5 +161,5 @@ object AccountManager {
                 .groupBy(_.frn)
                 .mapValues(_.map(_.actions))
                 .mapValues(_.flatten.toList)
-    } yield (scope.path, claims)
+    } yield Account.ClaimSet(scope = scope.path, roles = roleNames, claims = claims)
 }
