@@ -10,6 +10,7 @@ import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.CustomerNoteManager
 import util._
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 import utils.db._
 import utils.time.RichInstant

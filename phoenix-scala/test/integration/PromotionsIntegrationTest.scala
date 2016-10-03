@@ -19,6 +19,7 @@ import responses.PromotionResponses.PromotionResponse
 import services.coupon.CouponManager
 import services.promotion.PromotionManager
 import util._
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 import utils.db.ExPostgresDriver.api._
 import utils.db._

@@ -1,4 +1,4 @@
-package util
+package util.apis
 
 import akka.http.scaladsl.model.HttpResponse
 
@@ -25,6 +25,7 @@ import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads.{StoreCreditBulkUpdateStateByCsr, StoreCreditUpdateStateByCsr}
 import payloads.VariantPayloads._
 import payloads._
+import util.{DbTestSupport, HttpSupport}
 import utils.aliases.OC
 
 /*

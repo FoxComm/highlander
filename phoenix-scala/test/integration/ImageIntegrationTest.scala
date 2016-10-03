@@ -22,7 +22,8 @@ import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.ProductResponses._
 import responses.SkuResponses._
 import services.image.ImageManager
-import util.{IntegrationTestBase, PhoenixAdminApi}
+import util.IntegrationTestBase
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 import utils.Money.Currency
 import utils._

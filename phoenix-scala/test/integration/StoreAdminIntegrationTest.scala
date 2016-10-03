@@ -7,7 +7,8 @@ import models.StoreAdmin
 import payloads.StoreAdminPayloads._
 import responses.StoreAdminResponse
 import responses.StoreAdminResponse.Root
-import util.{IntegrationTestBase, PhoenixAdminApi}
+import util.IntegrationTestBase
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 
 class StoreAdminIntegrationTest

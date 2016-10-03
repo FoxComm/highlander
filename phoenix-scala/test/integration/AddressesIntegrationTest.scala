@@ -10,6 +10,7 @@ import models.location.{Address, Addresses}
 import payloads.AddressPayloads.CreateAddressPayload
 import responses.AddressResponse
 import util._
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories

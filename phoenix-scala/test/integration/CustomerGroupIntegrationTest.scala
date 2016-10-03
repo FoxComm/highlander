@@ -9,6 +9,7 @@ import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse
 import responses.DynamicGroupResponse.Root
 import util._
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories

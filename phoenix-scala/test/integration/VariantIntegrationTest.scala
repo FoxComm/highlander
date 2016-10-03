@@ -14,6 +14,7 @@ import responses.VariantValueResponses.IlluminatedVariantValueResponse.{Root ⇒
 import services.product.ProductManager
 import util.Extensions._
 import util._
+import util.apis.PhoenixAdminApi
 import utils.MockedApis
 import utils.Money.Currency
 import utils.db._

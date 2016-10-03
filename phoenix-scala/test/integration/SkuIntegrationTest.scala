@@ -13,7 +13,8 @@ import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
 import payloads.SkuPayloads.SkuPayload
 import responses.SkuResponses.SkuResponse
-import util.{IntegrationTestBase, PhoenixAdminApi}
+import util.IntegrationTestBase
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 import utils.Money.Currency
 import utils.aliases._

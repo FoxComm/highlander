@@ -5,6 +5,7 @@ import failures.InvalidReasonTypeFailure
 import models.returns.ReturnReasons
 import models.{Reason, Reasons}
 import util._
+import util.apis.PhoenixPublicApi
 import util.fixtures.BakedFixtures
 import utils.Strings._
 import utils.db._

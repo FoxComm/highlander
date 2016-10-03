@@ -3,6 +3,7 @@ import models.cord._
 import models.payment.PaymentMethod
 import slick.driver.PostgresDriver.api._
 import util._
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 
 trait CartPaymentsIntegrationTestBase

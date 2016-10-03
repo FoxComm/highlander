@@ -31,6 +31,7 @@ import services.Result
 import services.carts.CartPaymentUpdater
 import slick.driver.PostgresDriver.api._
 import util._
+import util.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import util.fixtures.BakedFixtures
 import utils.MockedApis
 import utils.aliases.stripe.StripeCard

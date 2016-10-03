@@ -7,6 +7,7 @@ import payloads.CategoryPayloads._
 import responses.CategoryResponses._
 import services.category.CategoryManager
 import util._
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 import utils.aliases._
 

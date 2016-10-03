@@ -11,6 +11,7 @@ import responses.AdminNotes
 import responses.AdminNotes.Root
 import services.notes.GiftCardNoteManager
 import util._
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories

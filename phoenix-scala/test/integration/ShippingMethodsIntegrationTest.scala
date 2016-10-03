@@ -13,6 +13,7 @@ import org.json4s.jackson.JsonMethods._
 import responses.ShippingMethodsResponse.Root
 import services.carts.CartTotaler
 import util._
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories

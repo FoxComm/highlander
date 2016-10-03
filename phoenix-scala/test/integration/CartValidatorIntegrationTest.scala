@@ -21,6 +21,7 @@ import payloads.UpdateShippingMethod
 import responses.TheResponse
 import responses.cord.CartResponse
 import util._
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 import utils.aliases._
 import utils.db._

@@ -19,6 +19,7 @@ import responses.CreditCardsResponse.Root
 import services.Result
 import slick.driver.PostgresDriver.api._
 import util._
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 import utils.TestStripeSupport
 import utils.aliases.stripe.StripeCustomer

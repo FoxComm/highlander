@@ -17,7 +17,8 @@ import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 import responses.ProductResponses.ProductResponse.Root
 import responses.ProductResponses._
-import util.{IntegrationTestBase, PhoenixAdminApi}
+import util.IntegrationTestBase
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 import utils.JsonFormatters
 import utils.Money.Currency

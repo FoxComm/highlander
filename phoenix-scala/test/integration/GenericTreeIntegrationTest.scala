@@ -13,6 +13,7 @@ import responses.GenericTreeResponses.FullTreeResponse.Root
 import responses.GenericTreeResponses.{FullTreeResponse, TreeResponse}
 import slick.driver.PostgresDriver.api._
 import util._
+import util.apis.PhoenixAdminApi
 import utils.MockedApis
 import utils.aliases._
 import utils.db._

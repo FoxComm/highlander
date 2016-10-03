@@ -15,6 +15,7 @@ import utils.MockedApis
 import utils.Money.Currency
 import utils.db._
 import Extensions._
+import util.apis.PhoenixAdminApi
 
 object ProductsCatalogViewIntegrationTest {
 

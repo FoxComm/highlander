@@ -15,6 +15,7 @@ import responses.ActivityConnectionResponse.Root
 import services.activity.CustomerTailored.CustomerUpdated
 import slick.driver.PostgresDriver.api._
 import util._
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 import utils.db._
 

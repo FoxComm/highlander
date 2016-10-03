@@ -14,7 +14,8 @@ import payloads.GiftCardPayloads._
 import responses.GiftCardResponse.Root
 import responses.{GiftCardAdjustmentsResponse, _}
 import slick.driver.PostgresDriver.api._
-import util.{IntegrationTestBase, PhoenixAdminApi}
+import util.IntegrationTestBase
+import util.apis.PhoenixAdminApi
 import util.fixtures.BakedFixtures
 import utils.Money._
 import utils.db._
