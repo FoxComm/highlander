@@ -1,41 +1,56 @@
 package utils
 
+import cats.data._
+import com.typesafe.scalalogging.LazyLogging
+import failures.Failure
 import failures.ObjectFailures._
-import failures._
 import models.objects._
-import org.json4s.JsonAST.{JNothing, JObject, JString}
+import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
 import utils.aliases._
 import utils.db._
 
 // json schema
 import scala.collection.JavaConverters._
-import com.networknt.schema.JsonSchemaFactory
+
 import com.fasterxml.jackson.databind.JsonNode
+import com.networknt.schema.JsonSchemaFactory
 import org.json4s.jackson.JsonMethods.asJsonNode
 
-object IlluminateAlgorithm {
-  implicit val formats  = JsonFormatters.phoenixFormats
-  val jsonSchemaFactory = new JsonSchemaFactory
+object IlluminateAlgorithm extends LazyLogging {
+  implicit val formats = JsonFormatters.phoenixFormats
 
   def get(attr: String, form: Json, shadow: Json): Json = shadow \ attr \ "ref" match {
     case JString(key) ⇒ form \ key
     case _            ⇒ JNothing
   }
 
+  private def getInternalAttributes(schema: ObjectFullSchema): Option[JObject] = {
+    schema.schema \ "properties" \ "attributes" match {
+      case JObject(s) ⇒ Some(s)
+      case _          ⇒ None
+    }
+  }
+
   def validateObjectBySchema(schema: ObjectFullSchema, form: ObjectForm, shadow: ObjectShadow)(
       implicit ec: EC): DbResultT[Json] = {
-    val illuminated          = projectAttributes(form.attributes, shadow.attributes)
-    val jsonSchema: JsonNode = asJsonNode(schema.schema)
-
-    val validator = jsonSchemaFactory.getSchema(jsonSchema)
-
-    val errorMessages = validator.validate(asJsonNode(illuminated)).asScala
-    if (errorMessages.isEmpty)
+    val illuminated = projectAttributes(form.attributes, shadow.attributes)
+    getInternalAttributes(schema).fold {
+      logger.warn(s"Can't find attributes in schema ${schema.name}")
       DbResultT.good(illuminated)
-    else
-      DbResultT.failure[Json](
-          ObjectValidationFailure(form.kind, shadow.id, errorMessages.mkString("\n")))
+    } { jsonSchema ⇒
+      val jsonSchemaFactory = new JsonSchemaFactory
+      val validator         = jsonSchemaFactory.getSchema(asJsonNode(jsonSchema))
+
+      val errorMessages = validator.validate(asJsonNode(illuminated)).asScala.toList
+
+      errorMessages.map { err ⇒
+        ObjectValidationFailure(form.kind, shadow.id, err.getMessage)
+      } match {
+        case head :: tail ⇒ DbResultT.failures[Json](NonEmptyList(head, tail))
+        case Nil          ⇒ DbResultT.good(illuminated)
+      }
+    }
   }
 
   def projectAttributes(formJson: Json, shadowJson: Json): Json =
