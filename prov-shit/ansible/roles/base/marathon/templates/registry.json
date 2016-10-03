@@ -1,0 +1,36 @@
+{
+  "id": "/registry",
+  "cpus": 1,
+  "mem": 128,
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "registry:2",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    },
+    "volumes": [
+      {
+        "containerPath": "/certs",
+        "hostPath": "/certs",
+        "mode": "RO"
+      }
+    ]
+  },
+  "env": {
+    "REGISTRY_HTTP_TLS_CERTIFICATE": "/certs/domain.crt",
+    "REGISTRY_HTTP_TLS_KEY": "/certs/domain.key"
+  },
+  "portDefinitions": [
+    {
+      "port": 5000,
+      "protocol": "tcp",
+      "name": "5000",
+      "labels": {}
+    }
+  ]
+}

@@ -4,5 +4,6 @@
   sudo: true
   template: src=firebrand.json dest={{marathon_service_config_dir}}/firebrand.json mode="u=rw,g=rw,o=r"
 
-- name: Update Ashes in Marathon
-  shell: 'curl -X PUT -d @{{marathon_service_config_dir}}/firebrand.json -H "Content-Type: application/json"'
+- name: Update Firebrand in Marathon
+  shell: 'curl -X PUT -d@{{marathon_service_config_dir}}/firebrand.json -H "Content-Type: application/json" http://127.0.0.1:8080/v2/apps/firebrand'
+  sudo: true
