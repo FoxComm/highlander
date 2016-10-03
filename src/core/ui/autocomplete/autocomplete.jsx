@@ -279,6 +279,12 @@ class Autocomplete extends Component {
     return items;
   }
 
+  itemValueMatches(value) {
+    return (value.toString().toLowerCase().indexOf(
+      this.state.value.toString().toLowerCase()
+    ) === 0)
+  }
+
   maybeAutoCompleteText () {
     if (this.state.value === '') return;
 
@@ -289,10 +295,8 @@ class Autocomplete extends Component {
     const matchedItem = highlightedIndex !== null ?
       items[highlightedIndex] : items[0];
     const itemValue = this.props.getItemValue(matchedItem);
-    const itemValueDoesMatch = (itemValue.toLowerCase().indexOf(
-      this.state.value.toLowerCase()
-    ) === 0);
-    if (itemValueDoesMatch) {
+
+    if (this.itemValueMatches(itemValue)) {
       if (highlightedIndex === null) {
         this.setState({ highlightedIndex: 0 });
       }

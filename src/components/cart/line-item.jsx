@@ -4,6 +4,7 @@
 // libs
 import _ from 'lodash';
 import React, { Component } from 'react';
+import { autobind } from 'core-decorators';
 
 // styles
 import styles from './line-item.css';
@@ -16,7 +17,7 @@ import Icon from 'ui/icon';
 import Currency from 'ui/currency';
 import Autocomplete from 'ui/autocomplete';
 
-const quantity = _.range(1, 1 + 10, 1).map(x => x.toString());
+const Quantity_Items = _.range(1, 1 + 10, 1).map(x => x.toString());
 
 type Props = {
   sku: string,
@@ -26,10 +27,16 @@ type Props = {
   totalPrice: number,
   quantity: number,
   deleteLineItem: Function,
+  updateLineItemQuantity: Function,
 };
 
 class LineItem extends Component {
   props: Props;
+
+  @autobind
+  changeQuantity(quantity) {
+    this.props.updateLineItemQuantity(this.props.sku, quantity);
+  }
 
   render() {
     const { t } = this.props;
@@ -52,7 +59,7 @@ class LineItem extends Component {
                   type: 'number',
                 }}
                 getItemValue={item => item}
-                items={quantity}
+                items={Quantity_Items}
                 onSelect={this.changeQuantity}
                 selectedItem={this.props.quantity}
                 sortItems={false}
@@ -71,6 +78,6 @@ class LineItem extends Component {
       </div>
     );
   }
-};
+}
 
 export default localized(LineItem);

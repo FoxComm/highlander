@@ -22,7 +22,12 @@ import * as actions from 'modules/cart';
 
 const mapStateToProps = state => ({ ...state.cart, ...state.auth });
 
+type Props = {
+
+};
+
 class Cart extends Component {
+  props: Props;
 
   state = {};
 
@@ -42,9 +47,24 @@ class Cart extends Component {
     });
   }
 
+  @autobind
+  updateLineItemQuantity(id, quantity) {
+    this.props.updateLineItemQuantity(id, quantity).catch(ex => {
+      this.setState({
+        errors: parseError(ex),
+      });
+    });
+  }
+
   get lineItems() {
     return _.map(this.props.skus, sku => {
-      return <LineItem {...sku} deleteLineItem={this.deleteLineItem} key={sku.sku} />;
+      return (
+        <LineItem
+          {...sku}
+          deleteLineItem={this.deleteLineItem}
+          updateLineItemQuantity={this.updateLineItemQuantity}
+          key={sku.sku} />
+      );
     });
   }
 
