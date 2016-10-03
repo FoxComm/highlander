@@ -18,7 +18,7 @@
 
   roles:
     - { role: base/docker }
-    - { role: base/mesos_base }
+    - { role: base/mesos }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

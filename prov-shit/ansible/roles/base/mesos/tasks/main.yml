@@ -1,55 +1,17 @@
 ---
 
-- name: Install Mesos Build Dependencies
-  apt: name={{ item }} state=latest force=yes
-  sudo: true
-  with_items:
-    - zlib1g-dev
-    - autoconf
-    - libtool
-    - python-dev
-    - libcurl4-nss-dev
-    - libsasl2-dev
-    - libsasl2-modules
-    - maven
-    - libapr1-dev
-    - libsvn-dev
-
-- name: Setup Mesos Data Dir
-  file: path=/var/lib/mesos state=directory
+- name: Copy Mesos Setup Script
+  copy: src=mesos-setup.sh dest={{home}}/mesos-setup.sh mode="u+x,g+x,o+x"
   sudo: true
 
-- name: Get Mesos
-  git: repo=https://git-wip-us.apache.org/repos/asf/mesos.git dest={{mesos_dir}} version={{mesos_version}}
-
-- name: Make Mesos Build Dir
-  file: path={{mesos_build_dir}} state=directory
-
-- name: Boostrap Mesos
-  shell: ./bootstrap
-  args:
-    chdir: "{{mesos_dir}}"
-    creates: "/usr/local/sbin/mesos-master"
-
-- name: Configure Mesos
-  shell: ../configure
-  args:
-    chdir: "{{mesos_build_dir}}"
-    creates: "/usr/local/sbin/mesos-master"
-
-- name: Build Mesos
-  shell: make
-  args:
-    chdir: "{{mesos_build_dir}}"
-    creates: "/usr/local/sbin/mesos-master"
-
-- name: Install Mesos
-  shell: make install
+- name: Run Mesos Setup Script
+  shell: "{{home}}/mesos-setup.sh"
   sudo: true
-  args:
-    chdir: "{{mesos_build_dir}}"
-    creates: "/usr/local/sbin/mesos-master"
 
-- name: Cleanup Mesos
-  file: path="{{mesos_dir}}" state=absent
+- name: Update Package Cache
+  apt: update_cache=yes
+  sudo: true
+
+- name: Install Mesos Package
+  apt: name=mesos state=latest force=yes
   sudo: true
