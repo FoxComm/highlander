@@ -10,6 +10,7 @@ import responses.CategoryResponses._
 import responses.ObjectResponses.ObjectContextResponse
 import services.LogActivity
 import slick.driver.PostgresDriver.api._
+import com.github.tminglei.slickpg.LTree
 import utils.aliases._
 import utils.db._
 
@@ -40,13 +41,15 @@ object CategoryManager {
   def createCategory(admin: User, payload: CreateFullCategory, contextName: String)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[FullCategoryResponse.Root] =
+      ac: AC,
+      au: AU): DbResultT[FullCategoryResponse.Root] =
     for {
-      context  ← * <~ contextByName(contextName)
-      form     ← * <~ ObjectForm(kind = Category.kind, attributes = payload.form.attributes)
-      shadow   ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
-      insert   ← * <~ ObjectUtils.insert(form, shadow)
-      category ← * <~ Categories.create(Category.build(context.id, insert))
+      context ← * <~ contextByName(contextName)
+      form    ← * <~ ObjectForm(kind = Category.kind, attributes = payload.form.attributes)
+      shadow  ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
+      insert  ← * <~ ObjectUtils.insert(form, shadow)
+      category ← * <~ Categories.create(
+                    Category.build(LTree.apply(au.token.scope), context.id, insert))
       response = FullCategoryResponse.build(category, insert.form, insert.shadow)
       _ ← * <~ LogActivity
            .fullCategoryCreated(Some(admin), response, ObjectContextResponse.build(context))

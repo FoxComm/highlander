@@ -1,6 +1,7 @@
 package services.promotion
 
 import java.time.Instant
+import com.github.tminglei.slickpg.LTree
 
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
@@ -59,8 +60,9 @@ object PromotionManager {
       discountShadows = discounts.map(_.shadow)
     } yield PromotionResponse.build(promotion, form, shadow, discountForms, discountShadows)
 
-  def create(payload: CreatePromotion,
-             contextName: String)(implicit ec: EC, db: DB): DbResultT[PromotionResponse.Root] =
+  def create(
+      payload: CreatePromotion,
+      contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[PromotionResponse.Root] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -69,7 +71,8 @@ object PromotionManager {
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow)
       promotion ← * <~ Promotions.create(
-                     Promotion(contextId = context.id,
+                     Promotion(scope = LTree(au.token.scope),
+                               contextId = context.id,
                                applyType = payload.applyType,
                                formId = ins.form.id,
                                shadowId = ins.shadow.id,
@@ -83,7 +86,7 @@ object PromotionManager {
   private def createDiscounts(
       context: ObjectContext,
       payload: CreatePromotion,
-      promotionShadow: ObjectShadow)(implicit ec: EC): DbResultT[DiscountsCreateResult] =
+      promotionShadow: ObjectShadow)(implicit ec: EC, au: AU): DbResultT[DiscountsCreateResult] =
     for {
       discounts ← * <~ payload.form.discounts.zip(payload.shadow.discounts)
       newDiscounts ← * <~ discounts.map {
@@ -100,7 +103,7 @@ object PromotionManager {
       context: ObjectContext,
       formPayload: CreateDiscountForm,
       shadowPayload: CreateDiscountShadow,
-      promotionShadow: ObjectShadow)(implicit ec: EC): DbResultT[DiscountCreateResult] =
+      promotionShadow: ObjectShadow)(implicit ec: EC, au: AU): DbResultT[DiscountCreateResult] =
     for {
       promotion ← * <~ Promotions
                    .filterByContextAndShadowId(context.id, promotionShadow.id)

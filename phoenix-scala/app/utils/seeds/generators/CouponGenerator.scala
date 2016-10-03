@@ -64,7 +64,8 @@ trait CouponGenerator {
   }
 
   def generateCoupons(sourceData: Seq[SimpleCoupon])(implicit db: DB,
-                                                     ac: AC): DbResultT[Seq[SimpleCoupon]] =
+                                                     ac: AC,
+                                                     au: AU): DbResultT[Seq[SimpleCoupon]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       coupons ← * <~ sourceData.map(source ⇒ {

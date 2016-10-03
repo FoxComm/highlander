@@ -1,6 +1,7 @@
 package services.image
 
 import java.time.Instant
+import com.github.tminglei.slickpg.LTree
 
 import failures.ImageFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
@@ -77,17 +78,17 @@ object ImageManager {
               }
     } yield result
 
-  def createAlbum(album: CreateAlbumPayload, contextName: String)(implicit ec: EC,
-                                                                  db: DB): DbResultT[AlbumRoot] =
+  def createAlbum(album: CreateAlbumPayload,
+                  contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[AlbumRoot] =
     for {
       context        ← * <~ ObjectManager.mustFindByName404(contextName)
       createdObjects ← * <~ createAlbumInner(album, context)
       (album, images) = createdObjects
     } yield AlbumResponse.build(album, images)
 
-  def createAlbumInner(createPayload: CreateAlbumPayload, context: ObjectContext)(
-      implicit ec: EC,
-      db: DB): DbResultT[FullAlbumWithImages] =
+  def createAlbumInner(
+      createPayload: CreateAlbumPayload,
+      context: ObjectContext)(implicit ec: EC, db: DB, au: AU): DbResultT[FullAlbumWithImages] =
     for {
       payload ← * <~ createPayload.validate
 
@@ -104,7 +105,7 @@ object ImageManager {
   def createOrUpdateImagesForAlbum(
       album: Album,
       imagesPayload: Seq[ImagePayload],
-      context: ObjectContext)(implicit ec: EC, db: DB): DbResultT[Seq[FullObject[Image]]] =
+      context: ObjectContext)(implicit ec: EC, db: DB, au: AU): DbResultT[Seq[FullObject[Image]]] =
     for {
       updatedImages ← * <~ imagesPayload.zipWithIndex.map {
                        case (payload, index) ⇒
@@ -126,7 +127,7 @@ object ImageManager {
       album: Album,
       payload: ImagePayload,
       position: Int,
-      context: ObjectContext)(implicit ec: EC, db: DB): DbResultT[FullObject[Image]] =
+      context: ObjectContext)(implicit ec: EC, db: DB, au: AU): DbResultT[FullObject[Image]] =
     payload.id match {
       case None ⇒
         for {
@@ -160,7 +161,8 @@ object ImageManager {
 
   def createImagesForAlbum(album: Album, imagesPayload: Seq[ImagePayload], context: ObjectContext)(
       implicit ec: EC,
-      db: DB): DbResultT[Seq[FullObject[Image]]] =
+      db: DB,
+      au: AU): DbResultT[Seq[FullObject[Image]]] =
     for {
       images ← * <~ imagesPayload.map(
                   img ⇒
@@ -177,7 +179,7 @@ object ImageManager {
       admin: User,
       productId: Int,
       payload: CreateAlbumPayload,
-      contextName: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[AlbumRoot] =
+      contextName: String)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[AlbumRoot] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       product ← * <~ ProductManager.mustFindProductByContextAndFormId404(context.id, productId)
@@ -186,10 +188,12 @@ object ImageManager {
       link ← * <~ ProductAlbumLinks.createLast(product, fullAlbum.model)
     } yield AlbumResponse.build(fullAlbum, images)
 
-  def createAlbumForSku(
-      admin: User,
-      code: String,
-      payload: CreateAlbumPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC): DbResultT[AlbumRoot] =
+  def createAlbumForSku(admin: User, code: String, payload: CreateAlbumPayload)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      oc: OC,
+      au: AU): DbResultT[AlbumRoot] =
     for {
       sku     ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, code)
       created ← * <~ createAlbumInner(payload, oc)
@@ -199,7 +203,8 @@ object ImageManager {
 
   def updateAlbum(id: ObjectForm#Id, payload: UpdateAlbumPayload, contextName: String)(
       implicit ec: EC,
-      db: DB): DbResultT[AlbumRoot] =
+      db: DB,
+      au: AU): DbResultT[AlbumRoot] =
     for {
       context  ← * <~ ObjectManager.mustFindByName404(contextName)
       response ← * <~ updateAlbumInner(id, payload, contextName)
@@ -207,7 +212,8 @@ object ImageManager {
 
   def updateAlbumInner(id: ObjectForm#Id, updatePayload: UpdateAlbumPayload, contextName: String)(
       implicit ec: EC,
-      db: DB): DbResultT[AlbumRoot] =
+      db: DB,
+      au: AU): DbResultT[AlbumRoot] =
     for {
       payload ← * <~ updatePayload.validate
       context ← * <~ ObjectManager.mustFindByName404(contextName)
@@ -278,11 +284,12 @@ object ImageManager {
                     ObjectManager.getFullObject(Images.mustFindById404(imgId)))
     } yield images
 
-  private def createAlbumHeadFromInsert(oc: ObjectContext, insert: InsertResult)(
-      implicit ec: EC,
-      db: DB): DbResultT[Album] =
+  private def createAlbumHeadFromInsert(
+      oc: ObjectContext,
+      insert: InsertResult)(implicit ec: EC, db: DB, au: AU): DbResultT[Album] =
     Albums.create(
-        Album(contextId = oc.id,
+        Album(scope = LTree(au.token.scope),
+              contextId = oc.id,
               shadowId = insert.shadow.id,
               formId = insert.form.id,
               commitId = insert.commit.id))
@@ -296,11 +303,12 @@ object ImageManager {
                     fullObject.model.copy(shadowId = fullObject.shadow.id, commitId = commitId))
     } yield fullObject.copy(model = newModel)
 
-  private def createImageHeadFromInsert(oc: ObjectContext, ins: InsertResult)(
-      implicit ec: EC,
-      db: DB): DbResultT[Image] = {
+  private def createImageHeadFromInsert(
+      oc: ObjectContext,
+      ins: InsertResult)(implicit ec: EC, db: DB, au: AU): DbResultT[Image] = {
     Images.create(
-        Image(contextId = oc.id,
+        Image(scope = LTree(au.token.scope),
+              contextId = oc.id,
               shadowId = ins.shadow.id,
               formId = ins.form.id,
               commitId = ins.commit.id))

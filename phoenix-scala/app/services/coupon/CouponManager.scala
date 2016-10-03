@@ -14,6 +14,7 @@ import payloads.CouponPayloads._
 import responses.CouponResponses.{CouponResponse, IlluminatedCouponResponse ⇒ Illuminated, _}
 import services.LogActivity
 import slick.driver.PostgresDriver.api._
+import com.github.tminglei.slickpg.LTree
 import utils.aliases._
 import utils.db._
 
@@ -53,7 +54,8 @@ object CouponManager {
   def create(payload: CreateCoupon, contextName: String, admin: Option[User])(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[CouponResponse.Root] =
+      ac: AC,
+      au: AU): DbResultT[CouponResponse.Root] =
     for {
 
       context ← * <~ ObjectContexts
@@ -66,7 +68,8 @@ object CouponManager {
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow)
       coupon ← * <~ Coupons.create(
-                  Coupon(contextId = context.id,
+                  Coupon(scope = LTree(au.token.scope),
+                         contextId = context.id,
                          formId = ins.form.id,
                          shadowId = ins.shadow.id,
                          commitId = ins.commit.id,

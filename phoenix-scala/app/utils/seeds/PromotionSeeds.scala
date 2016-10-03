@@ -1,6 +1,7 @@
 package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import com.github.tminglei.slickpg.LTree
 
 import models.objects._
 import models.product.SimpleContext
@@ -12,7 +13,8 @@ import utils.db._
 trait PromotionSeeds {
 
   def createCouponPromotions(discounts: Seq[BaseDiscount])(implicit db: DB,
-                                                           ac: AC): DbResultT[Seq[BasePromotion]] =
+                                                           ac: AC,
+                                                           au: AU): DbResultT[Seq[BasePromotion]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       results ← * <~ discounts.map { discount ⇒
@@ -23,13 +25,15 @@ trait PromotionSeeds {
 
   def insertPromotion(payload: CreatePromotion, discount: BaseDiscount, context: ObjectContext)(
       implicit db: DB,
-      ac: AC): DbResultT[BasePromotion] =
+      ac: AC,
+      au: AU): DbResultT[BasePromotion] =
     for {
       form   ← * <~ ObjectForm(kind = Promotion.kind, attributes = payload.form.attributes)
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow)
       promotion ← * <~ Promotions.create(
-                     Promotion(contextId = context.id,
+                     Promotion(scope = LTree(au.token.scope),
+                               contextId = context.id,
                                applyType = payload.applyType,
                                formId = ins.form.id,
                                shadowId = ins.shadow.id,

@@ -12,6 +12,7 @@ import com.typesafe.config.Config
 import failures.{Failures, FailuresOps, NotFoundFailure404}
 import failures.UserFailures._
 
+import models.auth.UserToken
 import models.Reason._
 import models.activity.ActivityContext
 import models.cord.{OrderPayment, OrderShippingAddress}
@@ -20,6 +21,9 @@ import models.payment.creditcard.CreditCardCharge
 import models.product.SimpleContext
 import models.{Reason, Reasons}
 import models.account._
+import models.auth.Token
+import services.Authenticator.AuthData
+import services.account.AccountManager
 import org.postgresql.ds.PGSimpleDataSource
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.DatabaseDef
@@ -185,6 +189,22 @@ object Seeds {
     validateResults("stage", result)
   }
 
+  val MERCHANT       = "merchant"
+  val MERCHANT_EMAIL = "hackerman@yahoo.com"
+
+  def getMerchant(implicit db: DB,
+                  ac: AC): DbResultT[(Organization, User, Account, Account.ClaimSet)] =
+    for {
+      organization ← * <~ Organizations
+                      .findByName(MERCHANT)
+                      .mustFindOr(OrganizationNotFoundByName(MERCHANT))
+      merchant ← * <~ Users
+                  .findByEmail(MERCHANT_EMAIL)
+                  .mustFindOneOr(NotFoundFailure404(User, MERCHANT_EMAIL))
+      account ← * <~ Accounts.mustFindById404(merchant.accountId)
+      claims  ← * <~ AccountManager.getClaims(merchant.accountId, organization.scopeId)
+    } yield (organization, merchant, account, claims)
+
   def createRandomSeeds(scale: Int, customersScaleMultiplier: Int)(implicit db: DB, ac: AC) {
     Console.err.println("Inserting random seeds")
 
@@ -199,9 +219,22 @@ object Seeds {
     // https://github.com/slick/slick/issues/1186
     (1 to batchs).foreach { b ⇒
       Console.err.println(s"Generating random batch $b of $batchSize customers")
-      val result = Await.result(
-          SeedsGenerator.insertRandomizedSeeds(batchSize, appeasementsPerBatch).runTxn(),
-          (120 * scale).second)
+      val r = for {
+        r ← * <~ getMerchant
+        (organization, merchant, account, claims) = r
+        _ ← * <~ ({
+             implicit val au =
+               AuthData[User](token = UserToken.fromUserAccount(merchant, account, claims),
+                              model = merchant,
+                              account = account)
+
+             for {
+               _ ← * <~ SeedsGenerator.insertRandomizedSeeds(batchSize, appeasementsPerBatch)
+             } yield {}
+           })
+      } yield {}
+
+      val result = Await.result(r.runTxn(), (120 * scale).second)
       validateResults(s"random batch $b", result)
     }
   }
@@ -216,30 +249,36 @@ object Seeds {
   def createAdmins(implicit db: DB, ec: EC, ac: AC): DbResultT[Int] =
     Factories.createStoreAdmins
 
-  val MERCHANT = "merchant"
-
   def createStage(adminId: Int)(implicit db: DB, ac: AC): DbResultT[Unit] =
     for {
-      context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      ruContext ← * <~ ObjectContexts.create(
-                     SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
-      organization ← * <~ Organizations
-                      .findByName(MERCHANT)
-                      .mustFindOr(OrganizationNotFoundByName(MERCHANT))
-      customers   ← * <~ Factories.createCustomers(organization.scopeId)
-      _           ← * <~ Factories.createAddresses(customers)
-      _           ← * <~ Factories.createCreditCards(customers)
-      products    ← * <~ Factories.createProducts
-      ruProducts  ← * <~ Factories.createRuProducts(products)
-      shipMethods ← * <~ Factories.createShipmentRules
-      _           ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = adminId)))
-      _           ← * <~ Factories.createGiftCards
-      _           ← * <~ Factories.createStoreCredits(adminId, customers._1, customers._3)
-      // Promotions
-      search     ← * <~ Factories.createSharedSearches(adminId)
-      discounts  ← * <~ Factories.createDiscounts(search)
-      promotions ← * <~ Factories.createCouponPromotions(discounts)
-      coupons    ← * <~ Factories.createCoupons(promotions)
+      r ← * <~ getMerchant
+      (organization, merchant, account, claims) = r
+      _ ← * <~ ({
+           implicit val au = AuthData[User](token =
+                                              UserToken.fromUserAccount(merchant, account, claims),
+                                            model = merchant,
+                                            account = account)
+
+           for {
+             context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+             ruContext ← * <~ ObjectContexts.create(
+                            SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
+             customers   ← * <~ Factories.createCustomers(organization.scopeId)
+             _           ← * <~ Factories.createAddresses(customers)
+             _           ← * <~ Factories.createCreditCards(customers)
+             products    ← * <~ Factories.createProducts
+             ruProducts  ← * <~ Factories.createRuProducts(products)
+             shipMethods ← * <~ Factories.createShipmentRules
+             _           ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = adminId)))
+             _           ← * <~ Factories.createGiftCards
+             _           ← * <~ Factories.createStoreCredits(adminId, customers._1, customers._3)
+             // Promotions
+             search     ← * <~ Factories.createSharedSearches(adminId)
+             discounts  ← * <~ Factories.createDiscounts(search)
+             promotions ← * <~ Factories.createCouponPromotions(discounts)
+             coupons    ← * <~ Factories.createCoupons(promotions)
+           } yield {}
+         })
     } yield {}
 
   object Factories

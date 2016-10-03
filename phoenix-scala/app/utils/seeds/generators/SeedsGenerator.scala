@@ -170,7 +170,7 @@ object SeedsGenerator
   def pickOne[T](vals: Seq[T]): T = vals(Random.nextInt(vals.length))
 
   def insertRandomizedSeeds(customersCount: Int,
-                            appeasementCount: Int)(implicit ec: EC, db: DB, ac: AC) = {
+                            appeasementCount: Int)(implicit ec: EC, db: DB, ac: AC, au: AU) = {
     Faker.locale("en")
 
     for {

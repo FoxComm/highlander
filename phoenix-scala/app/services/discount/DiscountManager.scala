@@ -1,5 +1,7 @@
 package services.discount
 
+import com.github.tminglei.slickpg.LTree
+
 import cats.implicits._
 import failures.DiscountFailures._
 import failures.NotFoundFailure404
@@ -48,8 +50,9 @@ object DiscountManager {
       shadow ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
     } yield DiscountResponse.build(form, shadow)
 
-  def create(payload: CreateDiscount,
-             contextName: String)(implicit ec: EC, db: DB): DbResultT[DiscountResponse.Root] =
+  def create(
+      payload: CreateDiscount,
+      contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[DiscountResponse.Root] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -64,13 +67,15 @@ object DiscountManager {
       extends FormAndShadow
 
   def createInternal(payload: CreateDiscount, context: ObjectContext)(
-      implicit ec: EC): DbResultT[CreateInternalResult] =
+      implicit ec: EC,
+      au: AU): DbResultT[CreateInternalResult] =
     for {
       form   ← * <~ ObjectForm(kind = Discount.kind, attributes = payload.form.attributes)
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow)
       discount ← * <~ Discounts.create(
-                    Discount(contextId = context.id,
+                    Discount(scope = LTree(au.token.scope),
+                             contextId = context.id,
                              formId = ins.form.id,
                              shadowId = ins.shadow.id,
                              commitId = ins.commit.id))
