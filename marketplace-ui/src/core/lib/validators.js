@@ -3,7 +3,7 @@ import negate from 'lodash/negate';
 
 const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
 const uriRegex = /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/i;
-const phoneRegex = /^\+\d{1,2}-\d{3}-\d{3}-\d{4}$/;
+const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
 const routingRegex = /^\d{9}$/;
 const zipRegex = /^\d{5}(-\d{4})?$/;
 const ssnRegex = /^\d{4}$/;
