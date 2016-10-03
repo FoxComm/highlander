@@ -152,3 +152,6 @@ cert_path: stage
 
 #mesos
 mesos_quorum: 2
+
+# Marathon
+marathon_service_config_dir: /marathon_services

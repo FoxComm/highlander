@@ -39,7 +39,6 @@
     - { role: base/isaac }
     - { role: base/greenriver }
     - { role: base/middlewarehouse }
-    - { role: base/ashes }
     - { role: base/firebrand }
     - { role: base/balancer, sudo: yes }
 
