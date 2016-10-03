@@ -32,14 +32,7 @@ export const fields: Array<FormField> = [
     validation: 'required format.phone',
     mask: '+1 (999) 999-9999',
     maskChar: '_',
-    normalize: value => {
-      console.info(value);
-      const v = value.replace(/[()]/g, '').replace(/\s/g, '-');
-      console.info(v);
-
-      return v;
-    },
-    // format: value => `+1 ${value}`,
+    normalize: value => value.replace(/[()]/g, '').replace(/\s/g, '-'),
   },
   {
     name: 'monthly_sales_volume',

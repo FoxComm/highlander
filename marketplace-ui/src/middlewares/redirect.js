@@ -8,7 +8,6 @@ export default app => store => next => action => {
   }
 
   if (action.type === LOCATION_CHANGE && action.payload.pathname && action.payload.action === 'REPLACE') {
-    console.info('redirecting', action.payload.pathname);
     app.redirect(action.payload.pathname);
   }
 
