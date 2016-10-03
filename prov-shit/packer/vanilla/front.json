@@ -39,18 +39,18 @@
                 "device_name": "/dev/sda1",
                 "volume_size": 20,
                 "delete_on_termination": true
-            }],            
+            }],
             "tags": {
-                "Name": "vanilla-front-worker-{{timestamp}}",
+                "Name": "vanilla-front-worker-{{timestamp}}"
             }
-        }        
+        }
     ],
     "provisioners" : [
         {
             "type": "ansible",
             "playbook_file" : "ansible/packer_service_front.yml",
             "extra_arguments": [
-                "-vvvv", 
+                "-vvvv",
                 "--extra-vars", "@packer/envs/{{user `variables_file`}}"
             ]
         }
