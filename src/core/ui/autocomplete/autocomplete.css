@@ -29,6 +29,7 @@
 
 .input {
   composes: text-input from "ui/css/input.css";
+  width: 100%;
 }
 
 .item {

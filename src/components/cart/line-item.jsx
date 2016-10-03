@@ -37,10 +37,12 @@ class LineItem extends Component {
     this.props.updateLineItemQuantity(this.props.sku, quantity);
   }
 
+  @autobind
+  deleteItem() {
+    this.props.deleteLineItem(this.props.sku);
+  }
+
   render() {
-    const click = () => {
-      this.props.deleteLineItem(this.props.sku);
-    };
     return (
       <div styleName="box">
         <div styleName="image">
@@ -51,26 +53,26 @@ class LineItem extends Component {
             <div styleName="product-name">
               {this.props.name}
             </div>
-            <div styleName="quantity">
-              <Autocomplete
-                inputProps={{
-                  type: 'number',
-                }}
-                getItemValue={item => item}
-                items={QUANTITY_ITEMS}
-                onSelect={this.changeQuantity}
-                selectedItem={this.props.quantity}
-                sortItems={false}
-              />
+            <div styleName="price">
+              <Currency value={this.props.totalPrice}/>
             </div>
           </div>
-          <div styleName="price">
-            <Currency value={this.props.totalPrice}/>
+          <div styleName="quantity">
+            <Autocomplete
+              inputProps={{
+                type: 'number',
+              }}
+              getItemValue={item => item}
+              items={QUANTITY_ITEMS}
+              onSelect={this.changeQuantity}
+              selectedItem={this.props.quantity}
+              sortItems={false}
+            />
           </div>
         </div>
         <div styleName="controls">
-          <a styleName="close-button" onClick={click}>
-            <Icon name="fc-close" styleName="replace-icon" />
+          <a styleName="delete-button" onClick={this.deleteItem}>
+            <Icon name="fc-close" styleName="delete-icon" />
           </a>
         </div>
       </div>
