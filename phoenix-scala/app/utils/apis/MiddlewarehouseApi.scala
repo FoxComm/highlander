@@ -1,17 +1,15 @@
 package utils.apis
 
+import com.ning.http.client
 import com.typesafe.scalalogging.LazyLogging
-import org.json4s.jackson.Serialization.write
+import dispatch._
+import failures.MiddlewarehouseFailures.MiddlewarehouseError
+import failures.{Failures, MiddlewarehouseFailures}
+import org.json4s.Extraction
+import org.json4s.jackson.JsonMethods._
 import services.Result
 import utils.JsonFormatters
-import utils._
 import utils.aliases._
-import utils.FoxConfig.{RichConfig, config}
-import org.json4s.jackson.JsonMethods._
-import org.json4s.Extraction
-import failures.MiddlewarehouseFailures
-
-import dispatch._
 
 case class SkuInventoryHold(sku: String, qty: Int)
 case class OrderInventoryHold(refNum: String, items: Seq[SkuInventoryHold])
@@ -27,15 +25,24 @@ trait MiddlewarehouseApi {
 
 class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
 
+  def parseMwhErrors(message: String): Failures = {
+    val errorString = (parse(message) \ "errors").extractOpt[List[String]]
+    errorString
+      .flatMap(errors ⇒ Failures(errors.map(MiddlewarehouseError): _*))
+      .getOrElse(MiddlewarehouseError(message).single)
+  }
+
   override def hold(reservation: OrderInventoryHold)(implicit ec: EC): Result[Unit] = {
 
     val reqUrl = dispatch.url(s"$url/v1/private/reservations/hold")
     val body   = compact(Extraction.decompose(reservation))
     val req    = reqUrl.setContentType("application/json", "UTF-8") << body
     logger.info(s"middlewarehouse hold: $body")
-    Http(req.POST OK as.String).either.flatMap {
-      case Right(_)    ⇒ Result.unit
-      case Left(error) ⇒ Result.failure(MiddlewarehouseFailures.UnableToHoldLineItems)
+
+    Http(req.POST > AsMwhResponse).either.flatMap {
+      case Right(MwhResponse(status, _)) if status / 100 == 2 ⇒ Result.unit
+      case Right(MwhResponse(_, message))                     ⇒ Result.failures(parseMwhErrors(message))
+      case Left(error)                                        ⇒ Result.failure(MiddlewarehouseFailures.UnableToHoldLineItems)
     }
   }
 
@@ -50,4 +57,13 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
       case Left(error) ⇒ Result.failure(MiddlewarehouseFailures.UnableToCancelHoldLineItems)
     }
   }
+}
+
+case class MwhResponse(statusCode: Int, content: String)
+
+object AsMwhResponse extends (client.Response ⇒ MwhResponse) {
+
+  override def apply(r: client.Response): MwhResponse =
+    MwhResponse(r.getStatusCode, r.getResponseBody)
+
 }
