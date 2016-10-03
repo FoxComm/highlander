@@ -1,3 +1,4 @@
+/* @flow */
 
 import _ from 'lodash';
 import React, { Component } from 'react';
@@ -16,7 +17,7 @@ function matchStateToTerm(item, value) {
 }
 
 type AutocompletePropTypes = {
-  allowCustomValues: boolean;
+  allowCustomValues?: boolean;
   items: Array<any>,
   selectedItem: any;
   onChange?: Function;
@@ -35,6 +36,8 @@ const defaultProps = {
   inputProps: {},
   onChange() {},
   onSelect(item, value) {},
+  allowCustomValues: false,
+  className: '',
   compareValues(value1, value2) {
     return value1 == value2;
   },
@@ -55,7 +58,7 @@ const defaultProps = {
 
     return (
       <div
-        className={styles[isHighlighted ? 'item-highlighted' : 'item']}
+        styleName={isHighlighted ? 'item-highlighted' : 'item'}
         key={key}
       >{value}</div>
     );
@@ -389,7 +392,7 @@ class Autocomplete extends Component {
     const restProps = _.omit(rest, Object.keys(defaultProps));
 
     return (
-      <div ref="container" styleName="autocomplete" {...restProps}>
+      <div ref="container" styleName="autocomplete" >
         <TextInputWithLabel
           label={this.state.isOpen ? '▲' : '▼'}
           type="text"
