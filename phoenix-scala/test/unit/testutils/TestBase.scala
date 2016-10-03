@@ -23,7 +23,7 @@ trait TestBase
   }
 
   implicit class XorTestOps[G, B](val xor: B Xor G) {
-    def get: G = xor.fold(l ⇒ fail(s".get on a Xor.Left: ${l}"), r ⇒ r)
+    def get: G = xor.fold(l ⇒ fail(s".get on a Xor.Left: $l"), r ⇒ r)
   }
 
   implicit class FailuresTestOps(val failures: Failures) {

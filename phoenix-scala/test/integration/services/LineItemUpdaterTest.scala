@@ -44,11 +44,10 @@ class LineItemUpdaterTest
         case Some(s) ⇒
           s.quantity must be(3)
         case None ⇒
-          assert(false, "Should have found sku 1")
+          fail("Should have found sku 1")
       }
 
-      val allRecords = CartLineItems.gimme
-      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (allRecords.size)
+      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (CartLineItems.size.gimme)
     }
 
     "Updates line items when the Sku already is in cart" in new Fixture {
@@ -75,7 +74,7 @@ class LineItemUpdaterTest
         case Some(s) ⇒
           s.quantity must be(3)
         case None ⇒
-          assert(false, "Should have found sku 1")
+          fail("Should have found sku 1")
       }
 
       root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (CartLineItems.gimme.size)

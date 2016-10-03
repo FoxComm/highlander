@@ -21,7 +21,7 @@ class RemorseTimerTest(_system: ActorSystem)
 
   def this() = this(ActorSystem("RemorseTimerTest"))
 
-  override def afterAll() = TestKit.shutdownActorSystem(system)
+  override def afterAll(): Unit = TestKit.shutdownActorSystem(system)
 
   val timer = TestActorRef(new RemorseTimer())
 

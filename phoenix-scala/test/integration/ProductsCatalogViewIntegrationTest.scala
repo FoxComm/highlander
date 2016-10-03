@@ -50,8 +50,6 @@ class ProductsCatalogViewIntegrationTest
           sql"select albums from product_album_links_view where product_id = ${product.id}")
 
     def usingAlbumSearchView: List[ViewAlbum] = {
-      val albumIds = ProductAlbumLinks.filterLeft(product).map(_.rightId).result.gimme
-
       val columnValues =
         sql"select name, images from album_search_view where album_id in (select right_id from product_album_links where left_id = ${product.id})"
           .as[(String, Option[String])]
@@ -63,7 +61,7 @@ class ProductsCatalogViewIntegrationTest
       }.toList
     }
 
-    def getAndCompareAllViews = {
+    def getAndCompareAllViews: List[ViewAlbum] = {
       val productCatalogVersion    = usingProductCatalogView
       val productAlbumLinksVersion = usingProductAlbumLinksView
       val albumSearchViewVersion   = usingAlbumSearchView

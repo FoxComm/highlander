@@ -119,8 +119,8 @@ class ShippingMethodsIntegrationTest
                                                                 cordRef = cart.refNum)
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
-      li ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
-      _  ← * <~ CartTotaler.saveTotals(cart)
+      _ ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+      _ ← * <~ CartTotaler.saveTotals(cart)
     } yield (address, shipAddress)).gimme
   }
 

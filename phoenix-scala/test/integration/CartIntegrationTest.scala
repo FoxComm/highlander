@@ -16,7 +16,9 @@ import org.json4s.jackson.JsonMethods._
 import payloads.AddressPayloads.UpdateAddressPayload
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.UpdateShippingMethod
+import responses.TheResponse
 import responses.cord.CartResponse
+import responses.cord.base.CordResponseLineItem
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import testutils._
@@ -51,7 +53,7 @@ class CartIntegrationTest
       val imgUrl = "testImgUrl";
       (for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
-        li      ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+        _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
       } yield {}).gimme
 
       val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
@@ -117,12 +119,11 @@ class CartIntegrationTest
 
     "removing too many of an item should remove all of that item" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -3))
-
-      val root = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse]
-
-      val skus = root.lineItems.skus
-      skus must have size 0
+      cartsApi(cart.refNum).lineItems
+        .update(Seq(UpdateLineItemsPayload("SKU-YAX", -3)))
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus mustBe empty
     }
 
     "should respond with 404 if cart is not found" in {
@@ -131,9 +132,12 @@ class CartIntegrationTest
 
     "should add line items if productId and skuId are different" in new OrderShippingMethodFixture
     with ProductAndSkus_Baked {
-      val addPayload = Seq(UpdateLineItemsPayload("TEST", 1))
-      val root       = cartsApi(cart.refNum).lineItems.add(addPayload).asTheResult[CartResponse]
-      val skus       = root.lineItems.skus
+      val skus: Seq[CordResponseLineItem] = cartsApi(cart.refNum).lineItems
+        .add(Seq(UpdateLineItemsPayload("TEST", 1)))
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+
       skus must have size 2
       skus.map(_.sku) must contain theSameElementsAs Seq("SKU-YAX", "TEST")
       skus.map(_.quantity) must contain theSameElementsAs Seq(1, 2)
@@ -144,13 +148,11 @@ class CartIntegrationTest
     "successfully locks a cart" in new Fixture {
       cartsApi(cart.refNum).lock().mustBeOk()
 
-      val lockedCart = Carts.findByRefNum(cart.refNum).gimme.head
-      lockedCart.isLocked must === (true)
+      Carts.findByRefNum(cart.refNum).gimme.head.isLocked must === (true)
 
-      val locks = CartLockEvents.findByCartRef(cart.refNum).gimme
-      locks.length must === (1)
-      val lock = locks.head
-      lock.lockedBy must === (1)
+      val locks: Seq[CartLockEvent] = CartLockEvents.findByCartRef(cart.refNum).gimme
+      locks must have size 1
+      locks.head.lockedBy must === (1)
     }
 
     "refuses to lock an already locked cart" in new Fixture {
@@ -162,11 +164,11 @@ class CartIntegrationTest
     "avoids race condition" in new Fixture {
       pending // FIXME when DbResultT gets `select for update` https://github.com/FoxComm/phoenix-scala/issues/587
 
-      def request = cartsApi(cart.refNum).lock()
+      Seq(0, 1).par
+        .map(_ ⇒ cartsApi(cart.refNum).lock())
+        .map(_.status) must contain allOf (StatusCodes.OK, StatusCodes.BadRequest)
 
-      val responses = Seq(0, 1).par.map(_ ⇒ request)
-      responses.map(_.status) must contain allOf (StatusCodes.OK, StatusCodes.BadRequest)
-      CartLockEvents.gimme.length mustBe 1
+      CartLockEvents.size.gimme must === (1)
     }
   }
 
@@ -271,9 +273,7 @@ class CartIntegrationTest
 
       "succeeds if the address exists in their book" in new EmptyCustomerCart_Baked
       with CustomerAddress_Raw {
-        val cartResponse = cartsApi(cart.refNum).shippingAddress
-          .updateFromAddress(address.id)
-          .asTheResult[CartResponse]
+        cartsApi(cart.refNum).shippingAddress.updateFromAddress(address.id).mustBeOk()
 
         val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
         shippingAddressUpd.cordRef must === (cart.refNum)
@@ -283,7 +283,7 @@ class CartIntegrationTest
         val newAddress =
           Addresses.create(address.copy(name = "Little Mary", isDefaultShipping = false)).gimme
 
-        val fst :: snd :: Nil = List(address.id, newAddress.id).map { id ⇒
+        List(address.id, newAddress.id).foreach { id ⇒
           cartsApi(cart.refNum).shippingAddress.updateFromAddress(id).mustBeOk()
         }
 
@@ -328,8 +328,8 @@ class CartIntegrationTest
           .updateFromAddress(101)
           .mustFailWith404(NotFoundFailure404(Address, 101))
 
-        val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
-        shippingAddressUpd.cordRef must === (cart.refNum)
+        OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value.cordRef must === (
+            cart.refNum)
       }
     }
   }
@@ -341,15 +341,14 @@ class CartIntegrationTest
         .update(UpdateAddressPayload(name = "New name".some, city = "Queen Anne".some))
         .mustBeOk()
 
-      val (shippingAddressUpd :: Nil) =
-        OrderShippingAddresses.findByOrderRef(cart.refNum).gimme.toList
-
-      shippingAddressUpd.name must === ("New name")
-      shippingAddressUpd.city must === ("Queen Anne")
-      shippingAddressUpd.address1 must === (address.address1)
-      shippingAddressUpd.address2 must === (address.address2)
-      shippingAddressUpd.regionId must === (address.regionId)
-      shippingAddressUpd.zip must === (address.zip)
+      val updatedAddress: OrderShippingAddress =
+        OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
+      updatedAddress.name must === ("New name")
+      updatedAddress.city must === ("Queen Anne")
+      updatedAddress.address1 must === (address.address1)
+      updatedAddress.address2 must === (address.address2)
+      updatedAddress.regionId must === (address.regionId)
+      updatedAddress.zip must === (address.zip)
     }
 
     "does not update the address book" in new EmptyCartWithShipAddress_Baked {
@@ -357,19 +356,18 @@ class CartIntegrationTest
         .update(UpdateAddressPayload(name = "Another name".some, city = "Fremont".some))
         .mustBeOk()
 
-      val addressBook = Addresses.findOneById(address.id).gimme.value
-
+      val addressBook: Address = Addresses.findOneById(address.id).gimme.value
       addressBook.name must === (address.name)
       addressBook.city must === (address.city)
     }
 
     "full cart returns updated shipping address" in new EmptyCartWithShipAddress_Baked {
-      val updateResponse = cartsApi(cart.refNum).shippingAddress
+      val updateResponse: CartResponse = cartsApi(cart.refNum).shippingAddress
         .update(UpdateAddressPayload(name = "Even newer name".some, city = "Queen Max".some))
         .asTheResult[CartResponse]
       checkCart(updateResponse)
 
-      val getResponse = cartsApi(cart.refNum).get().asTheResult[CartResponse]
+      val getResponse: CartResponse = cartsApi(cart.refNum).get().asTheResult[CartResponse]
       checkCart(getResponse)
 
       private def checkCart(fullCart: CartResponse): Unit = {
@@ -387,17 +385,14 @@ class CartIntegrationTest
 
   "DELETE /v1/orders/:refNum/shipping-address" - {
     "succeeds if an address exists" in new EmptyCartWithShipAddress_Baked {
-      val noShipAddressFailure = NoShipAddress(cart.refNum).description
-
-      //get cart and make sure it has a shipping address
-      val cartWithAddress = cartsApi(cart.refNum).get().asThe[CartResponse].result
-      cartWithAddress.shippingAddress mustBe defined
+      cartsApi(cart.refNum).get().asThe[CartResponse].result.shippingAddress mustBe defined
 
       //delete the shipping address
+      val noAddressCart: TheResponse[CartResponse] =
+        cartsApi(cart.refNum).shippingAddress.delete().asThe[CartResponse]
       //shipping address must not be defined
-      val cartWithoutAddress = cartsApi(cart.refNum).shippingAddress.delete().asThe[CartResponse]
-      cartWithoutAddress.result.shippingAddress must not be defined
-      cartWithoutAddress.warnings.value must contain(noShipAddressFailure)
+      noAddressCart.result.shippingAddress must not be defined
+      noAddressCart.warnings.value must contain(NoShipAddress(cart.refNum).description)
 
       //fails if the cart does not have shipping address
       cartsApi(cart.refNum).shippingAddress.delete().mustFailWith400(NoShipAddress(cart.refNum))
@@ -420,14 +415,17 @@ class CartIntegrationTest
 
   "PATCH /v1/orders/:refNum/shipping-method" - {
     "succeeds if the cart meets the shipping restrictions" in new ShippingMethodFixture {
-      val fullCart = cartsApi(cart.refNum).shippingMethod
+      cartsApi(cart.refNum).shippingMethod
         .update(UpdateShippingMethod(lowShippingMethod.id))
         .asTheResult[CartResponse]
-      fullCart.shippingMethod.value.name must === (lowShippingMethod.adminDisplayName)
+        .shippingMethod
+        .value
+        .name must === (lowShippingMethod.adminDisplayName)
 
-      val orderShippingMethod = OrderShippingMethods.findByOrderRef(cart.refNum).gimme.head
-      orderShippingMethod.cordRef must === (cart.refNum)
-      orderShippingMethod.shippingMethodId must === (lowShippingMethod.id)
+      val shipMethod: OrderShippingMethod =
+        OrderShippingMethods.findByOrderRef(cart.refNum).gimme.head
+      shipMethod.cordRef must === (cart.refNum)
+      shipMethod.shippingMethodId must === (lowShippingMethod.id)
     }
 
     "fails if the cart does not meet the shipping restrictions" in new ShippingMethodFixture {
@@ -452,7 +450,7 @@ class CartIntegrationTest
   trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed
 
   trait ShippingMethodFixture extends EmptyCartWithShipAddress_Baked {
-    val lowConditions = parse(
+    val lowConditions: QueryStatement = parse(
         """
               | {
               |   "comparison": "and",
@@ -462,7 +460,7 @@ class CartIntegrationTest
               | }
             """.stripMargin).extract[QueryStatement]
 
-    val highConditions = parse(
+    val highConditions: QueryStatement = parse(
         """
               | {
               |   "comparison": "and",
@@ -472,9 +470,9 @@ class CartIntegrationTest
               | }
             """.stripMargin).extract[QueryStatement]
 
-    val lowSm = Factories.shippingMethods.head
+    val lowSm: ShippingMethod = Factories.shippingMethods.head
       .copy(adminDisplayName = "Low", conditions = lowConditions.some, code = "HIGH")
-    val highSm = Factories.shippingMethods.head
+    val highSm: ShippingMethod = Factories.shippingMethods.head
       .copy(adminDisplayName = "High", conditions = highConditions.some, code = "LOW")
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {

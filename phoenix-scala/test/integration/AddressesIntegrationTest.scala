@@ -21,9 +21,8 @@ class AddressesIntegrationTest
 
   "GET /v1/customers/:customerId/addresses" - {
     "lists addresses" in new CustomerAddress_Baked {
-      val response = customersApi(customer.id).addresses.get()
+      val addresses = customersApi(customer.id).addresses.get().as[Seq[AddressResponse]]
 
-      val addresses = response.as[Seq[AddressResponse]]
       addresses must have size 1
       addresses.head.name must === (address.name)
     }
@@ -49,8 +48,8 @@ class AddressesIntegrationTest
     }
 
     "sets a new shipping address if there's already a default shipping address" in new CustomerAddress_Baked {
-      val another  = Addresses.create(address.copy(id = 0, isDefaultShipping = false)).gimme
-      val response = customersApi(customer.id).address(another.id).setDefault().mustBeOk()
+      val another = Addresses.create(address.copy(id = 0, isDefaultShipping = false)).gimme
+      customersApi(customer.id).address(another.id).setDefault().mustBeOk()
 
       Addresses.findOneById(another.id).gimme.value.isDefaultShipping mustBe true
       Addresses.findOneById(address.id).gimme.value.isDefaultShipping mustBe false

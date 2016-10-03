@@ -25,10 +25,10 @@ class JavaTimeMapperTest extends IntegrationTestBase with DbTestSupport {
 
       val (_, timestampAfterRoundtrip) = db
         .run((for {
-          schema ← ddl
-          insert ← query += ((1, originalInstant))
-          read   ← query.filter(_.id === 1L).result.head
-          _      ← query.schema.drop
+          _    ← ddl
+          _    ← query += ((1, originalInstant))
+          read ← query.filter(_.id === 1L).result.head
+          _    ← query.schema.drop
         } yield read).transactionally)
         .futureValue
 
@@ -38,10 +38,10 @@ class JavaTimeMapperTest extends IntegrationTestBase with DbTestSupport {
     "reads instants correctly" in {
       val (_, timestampAfterRoundtrip) = db
         .run((for {
-          schema ← ddl
-          insert ← sqlu"""insert into java_time_test (id, deleted_at) values (1, '2015-07-01 15:17:38.0Z' at time zone 'utc')"""
-          read   ← query.filter(_.id === 1L).result.head
-          _      ← query.schema.drop
+          _    ← ddl
+          _    ← sqlu"""insert into java_time_test (id, deleted_at) values (1, '2015-07-01 15:17:38.0Z' at time zone 'utc')"""
+          read ← query.filter(_.id === 1L).result.head
+          _    ← query.schema.drop
         } yield read).withPinnedSession)
         .futureValue
 

@@ -48,7 +48,7 @@ class ActivityTrailIntegrationTest
                                           email = "crazy.lary@crazy.com".some,
                                           phoneNumber = "666 666 6666".some)
 
-      val response = customersApi(customer.id).update(payload).mustBeOk()
+      customersApi(customer.id).update(payload).mustBeOk()
 
       // Check the activity log to see if it was created
       val activity = Activities.filterByType(typeName).gimme.headOption.value

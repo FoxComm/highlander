@@ -610,7 +610,7 @@ class CustomerIntegrationTest
       order  ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))
       order  ← * <~ Orders.update(order, order.copy(state = Order.Shipped))
       order2 ← * <~ Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))
-      order2 ← * <~ Orders.update(order2, order2.copy(state = Order.Shipped))
+      _      ← * <~ Orders.update(order2, order2.copy(state = Order.Shipped))
 
     } yield (order, orderPayment, customer2, creditCardCharge1, creditCardCharge2)).gimme
   }

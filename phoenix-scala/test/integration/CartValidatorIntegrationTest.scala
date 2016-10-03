@@ -146,8 +146,7 @@ class CartValidatorIntegrationTest
     val (shipMethod) = (for {
       address ← * <~ Addresses.create(
                    Factories.address.copy(customerId = customer.id, regionId = 4129))
-      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
-                                                                cordRef = cart.refNum)
+      _          ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
     } yield shipMethod).gimme
     val refNum = cart.refNum
@@ -195,7 +194,7 @@ class CartValidatorIntegrationTest
 
   trait LineItemAndFundsFixture extends Reason_Baked with Customer_Seed {
     val (refNum, sku, creditCard, giftCard) = (for {
-      address    ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
+      _          ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       cc         ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       cart       ← * <~ Carts.create(Factories.cart.copy(customerId = customer.id))

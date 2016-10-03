@@ -32,7 +32,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     "catches exceptions from DB" in {
       val result = (for {
         customer ← * <~ Customers.create(Factories.customer)
-        original ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
+        _        ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
         copycat  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       } yield copycat).runTxn().futureValue
       result.leftVal must === (
@@ -52,14 +52,14 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     "returns value for successful delete" in {
       val customer = Customers.create(Factories.customer).gimme
       val success  = "Success"
-      val failure  = (id: Customer#Id) ⇒ GeneralFailure("Should not happen")
+      val failure  = (_: Customer#Id) ⇒ GeneralFailure("Should not happen")
       val delete   = Customers.deleteById(customer.id, DbResultT.good(success), failure).gimme
       delete must === (success)
     }
 
     "returns failure for unsuccessful delete" in {
       val success = DbResultT.good("Should not happen")
-      val failure = (id: Customer#Id) ⇒ GeneralFailure("Boom")
+      val failure = (_: Customer#Id) ⇒ GeneralFailure("Boom")
       val delete  = Customers.deleteById(13, success, failure).run().futureValue
       leftValue(delete) must === (failure(13).single)
     }

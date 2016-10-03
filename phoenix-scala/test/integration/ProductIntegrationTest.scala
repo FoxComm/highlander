@@ -444,28 +444,27 @@ class ProductIntegrationTest
                            Mvp.insertVariantWithValues(ctx.id, product, scv)
                          }
 
-      variants ← * <~ variantsAndValues.map(_.variant)
       variantValues ← * <~ variantsAndValues.foldLeft(Seq.empty[SimpleVariantValueData]) {
                        (acc, item) ⇒
                          acc ++ item.variantValues
                      }
 
       // Map the SKUs to the Variant Values
-      skuMap ← * <~ skuValueMapping.map {
-                case (code, colorName, sizeName) ⇒
-                  val selectedSku = skus.filter(_.code == code).head
-                  val colorValue  = variantValues.filter(_.name == colorName).head
-                  val sizeValue   = variantValues.filter(_.name == sizeName).head
+      _ ← * <~ skuValueMapping.map {
+           case (code, colorName, sizeName) ⇒
+             val selectedSku = skus.filter(_.code == code).head
+             val colorValue  = variantValues.filter(_.name == colorName).head
+             val sizeValue   = variantValues.filter(_.name == sizeName).head
 
-                  for {
-                    colorLink ← * <~ VariantValueSkuLinks.create(
-                                   VariantValueSkuLink(leftId = colorValue.valueId,
-                                                       rightId = selectedSku.id))
-                    sizeLink ← * <~ VariantValueSkuLinks.create(
-                                  VariantValueSkuLink(leftId = sizeValue.valueId,
-                                                      rightId = selectedSku.id))
-                  } yield (colorLink, sizeLink)
-              }
+             for {
+               colorLink ← * <~ VariantValueSkuLinks.create(
+                              VariantValueSkuLink(leftId = colorValue.valueId,
+                                                  rightId = selectedSku.id))
+               sizeLink ← * <~ VariantValueSkuLinks.create(
+                             VariantValueSkuLink(leftId = sizeValue.valueId,
+                                                 rightId = selectedSku.id))
+             } yield (colorLink, sizeLink)
+         }
     } yield (product, skus, variantsAndValues)).gimme
   }
 

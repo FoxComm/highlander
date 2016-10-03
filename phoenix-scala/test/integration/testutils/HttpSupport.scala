@@ -57,10 +57,7 @@ trait HttpSupport
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  private val ActorSystemNameChars =
-    ('a' to 'z').toSet | ('A' to 'Z').toSet | ('0' to '9').toSet | Set('-', '_')
-
-  private val ValidResponseContentTypes =
+  private val validResponseContentTypes =
     Set(ContentTypes.`application/json`, ContentTypes.NoContentType)
 
   protected implicit lazy val mat: ActorMaterializer   = materializer
@@ -200,7 +197,7 @@ trait HttpSupport
 
   protected def dispatchRequest(req: HttpRequest): HttpResponse = {
     val response = Http().singleRequest(req, settings = connectionPoolSettings).futureValue
-    ValidResponseContentTypes must contain(response.entity.contentType)
+    validResponseContentTypes must contain(response.entity.contentType)
     response
   }
 
