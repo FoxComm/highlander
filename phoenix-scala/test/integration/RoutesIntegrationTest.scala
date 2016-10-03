@@ -4,7 +4,6 @@ import akka.http.scaladsl.server.directives.SecurityDirectives.challengeFor
 import models.StoreAdmin
 import models.customer.{Customer, Customers}
 import services.Authenticator.AsyncAuthenticator
-import testutils.Extensions._
 import testutils._
 import utils.MockedApis
 import utils.seeds.Seeds.Factories

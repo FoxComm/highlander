@@ -9,7 +9,6 @@ import payloads.VariantPayloads._
 import responses.VariantResponses.IlluminatedVariantResponse.{Root ⇒ VariantRoot}
 import responses.VariantValueResponses.IlluminatedVariantValueResponse.{Root ⇒ ValueRoot}
 import services.product.ProductManager
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import utils.MockedApis

@@ -7,7 +7,6 @@ import models.{StoreAdmin, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
 import payloads.SharedSearchPayloads._
 import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

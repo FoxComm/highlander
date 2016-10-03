@@ -15,7 +15,6 @@ import models.shipping.{Shipments, ShippingMethods}
 import payloads.ReturnPayloads._
 import responses.{AllReturns, ReturnLockResponse, ReturnResponse}
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater}
-import testutils.Extensions._
 import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.db._

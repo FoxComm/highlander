@@ -5,7 +5,6 @@ import models.customer.Customers
 import payloads.OrderPayloads.BulkUpdateOrdersPayload
 import responses.BatchResponse
 import responses.cord._
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

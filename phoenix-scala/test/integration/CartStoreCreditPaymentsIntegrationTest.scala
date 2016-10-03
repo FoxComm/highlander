@@ -8,7 +8,7 @@ import models.cord.Cart
 import models.payment.storecredit._
 import payloads.PaymentPayloads.StoreCreditPayment
 import slick.driver.PostgresDriver.api._
-import testutils.Extensions._
+import testutils._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

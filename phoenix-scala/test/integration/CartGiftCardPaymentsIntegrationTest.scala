@@ -8,7 +8,7 @@ import models.cord._
 import models.payment.giftcard._
 import payloads.PaymentPayloads.GiftCardPayment
 import slick.driver.PostgresDriver.api._
-import testutils.Extensions._
+import testutils._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

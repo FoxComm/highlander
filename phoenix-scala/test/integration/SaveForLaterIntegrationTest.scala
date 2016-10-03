@@ -6,7 +6,6 @@ import models.product.{Mvp, SimpleContext}
 import models.{SaveForLater, SaveForLaters}
 import responses.SaveForLaterResponse
 import services.SaveForLaterManager.SavedForLater
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

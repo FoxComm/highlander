@@ -4,7 +4,6 @@ import java.net.ServerSocket
 
 import scala.collection.immutable
 import scala.concurrent.Await
-import scala.concurrent.Await.result
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
@@ -24,18 +23,15 @@ import akka.util.ByteString
 import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
 import de.heikoseeberger.akkasse.ServerSentEvent
-import failures.Failure
 import models.StoreAdmin
 import models.customer.Customer
 import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
-import responses.TheResponse
 import server.Service
 import services.Authenticator
 import services.Authenticator.AsyncAuthenticator
-import utils.aliases._
 import utils.apis.Apis
 import utils.{FoxConfig, JsonFormatters}
 
@@ -238,84 +234,5 @@ trait HttpSupport
 
     def probe(source: Source[String, Any]): Probe[String] =
       source.runWith(TestSink.probe[String])
-  }
-}
-
-object Extensions extends MustMatchers with OptionValues with AppendedClues {
-  implicit class RichHttpResponse(response: HttpResponse)(implicit ec: EC, mat: Mat, fm: Formats) {
-    import org.json4s.jackson.JsonMethods._
-
-    lazy val bodyText: String =
-      result(response.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
-
-    def as[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): A = {
-      response.mustBeOk()
-      parse(bodyText).extractOpt[A].value.withClue(s"Failed to parse body!")
-    } withClue originalSourceClue
-
-    def asTheResult[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): A =
-      asThe[A].result
-
-    def asThe[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): TheResponse[A] =
-      as[TheResponse[A]]
-
-    def errors(implicit line: SL, file: SF): List[String] = {
-      withClue("Unexpected response status!") { response.status must !==(StatusCodes.OK) }
-      extractErrors
-    } withClue originalSourceClue
-
-    def error(implicit line: SL, file: SF): String =
-      errors.headOption.value.withClue("Expected at least one error, got none!")
-
-    def mustHaveStatus(expected: StatusCode*): Unit =
-      withClue("Unexpected response status!") {
-        expected.toList match {
-          case only :: Nil ⇒ response.status must === (only)
-          case _           ⇒ expected must contain(response.status)
-        }
-      }
-
-    def mustBeOk()(implicit line: SL, file: SF): Unit =
-      mustHaveStatus(StatusCodes.OK).withClue(s"Errors: $extractErrors!")
-
-    def mustBeEmpty()(implicit line: SL, file: SF): Unit = {
-      mustHaveStatus(StatusCodes.NoContent)
-      (bodyText mustBe empty).withClue(s"Expected empty body, got $bodyText!")
-    }
-
-    def mustFailWith404(expected: Failure*)(implicit line: SL, file: SF): Unit = {
-      mustFailWith(StatusCodes.NotFound, expected.map(_.description): _*)
-    }
-
-    def mustFailWith400(expected: Failure*)(implicit line: SL, file: SF): Unit = {
-      mustFailWith(StatusCodes.BadRequest, expected.map(_.description): _*)
-    }
-
-    def mustFailWithMessage(expected: String*)(implicit line: SL, file: SF): Unit = {
-      mustFailWith(StatusCodes.BadRequest, expected: _*)
-    }
-
-    private def mustFailWith(statusCode: StatusCode, expected: String*)(implicit line: SL,
-                                                                        file: SF): Unit = {
-      mustHaveStatus(statusCode)
-
-      expected.toList match {
-        case only :: Nil ⇒ response.error must === (only)
-        case _           ⇒ response.errors must contain theSameElementsAs expected
-      }
-    } withClue originalSourceClue
-
-    private def extractErrors: List[String] = {
-      val errors = (parse(bodyText) \ "errors")
-        .extractOpt[List[String]]
-        .value
-        .withClue(s"Expected errors, found $bodyText!")
-
-      // Apparently I was too ambitious with this one... -- Anna
-      // Fucking FIXME, what kind of API is this?!
-      // (errors must not be empty).withClue("Expected errors, found empty list!")
-
-      errors
-    }
   }
 }

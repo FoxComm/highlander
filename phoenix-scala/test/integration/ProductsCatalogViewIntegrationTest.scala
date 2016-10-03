@@ -8,7 +8,6 @@ import payloads.ImagePayloads._
 import services.image.ImageManager
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.SQLActionBuilder
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import utils.MockedApis

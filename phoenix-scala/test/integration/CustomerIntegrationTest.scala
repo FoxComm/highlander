@@ -27,7 +27,6 @@ import responses.{CreditCardsResponse, CustomerResponse}
 import services.Result
 import services.carts.CartPaymentUpdater
 import slick.driver.PostgresDriver.api._
-import testutils.Extensions._
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures

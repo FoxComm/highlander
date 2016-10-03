@@ -19,7 +19,6 @@ import payloads.UpdateShippingMethod
 import responses.cord.CartResponse
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

@@ -7,7 +7,7 @@ import models.customer.Customers
 import models.payment.creditcard._
 import payloads.PaymentPayloads.CreditCardPayment
 import services.CreditCardManager
-import testutils.Extensions._
+import testutils._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -15,8 +15,7 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
 
   "POST /v1/orders/:ref/payment-methods/credit-cards" - {
     "succeeds" in new CreditCardFixture {
-      val response =
-        cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
+      cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
       val payments = creditCardPayments(cart)
 
       payments must have size 1

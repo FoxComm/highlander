@@ -9,10 +9,9 @@ import models.payment.storecredit
 import models.payment.storecredit.StoreCredit
 import payloads.GiftCardPayloads._
 import responses.GiftCardResponse.Root
-import responses.{GiftCardAdjustmentsResponse, _}
+import responses._
 import slick.driver.PostgresDriver.api._
-import testutils.Extensions._
-import testutils.IntegrationTestBase
+import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.Money._

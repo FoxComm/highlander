@@ -2,7 +2,6 @@ import models.Reasons
 import models.payment.giftcard._
 import models.payment.storecredit._
 import responses.{GiftCardSubTypesResponse, StoreCreditSubTypesResponse}
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixPublicApi
 import testutils.fixtures.BakedFixtures

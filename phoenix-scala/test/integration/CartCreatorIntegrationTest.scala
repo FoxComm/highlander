@@ -4,7 +4,6 @@ import models.customer.Customer
 import payloads.OrderPayloads.CreateCart
 import responses.cord.CartResponse
 import services.carts.CartCreator
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

@@ -14,7 +14,6 @@ import payloads.PaymentPayloads.CreateCreditCardFromTokenPayload
 import responses.CreditCardsResponse.Root
 import services.Result
 import slick.driver.PostgresDriver.api._
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

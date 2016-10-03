@@ -7,7 +7,6 @@ import payloads.NotePayloads._
 import responses.AdminNotes
 import responses.AdminNotes.Root
 import services.notes.GiftCardNoteManager
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

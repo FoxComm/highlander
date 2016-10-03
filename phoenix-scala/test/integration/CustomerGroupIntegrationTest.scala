@@ -5,7 +5,6 @@ import org.scalatest.mock.MockitoSugar
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse
 import responses.DynamicGroupResponse.Root
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

@@ -7,7 +7,7 @@ import models.customer._
 import models.inventory.Sku
 import models.location._
 import models.payment.giftcard.GiftCard
-import models.product.{Mvp, SimpleProductData, SimpleSku, _}
+import models.product._
 import models.traits.Originator
 import payloads.OrderPayloads
 import payloads.PaymentPayloads.GiftCardPayment

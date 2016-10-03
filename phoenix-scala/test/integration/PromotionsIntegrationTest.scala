@@ -14,7 +14,6 @@ import responses.CouponResponses.CouponResponse
 import responses.PromotionResponses.PromotionResponse
 import services.coupon.CouponManager
 import services.promotion.PromotionManager
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

@@ -8,7 +8,6 @@ import models.returns._
 import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.ReturnNoteManager
-import testutils.Extensions._
 import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.db._

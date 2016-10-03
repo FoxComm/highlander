@@ -9,7 +9,6 @@ import models.shipping.ShippingMethods
 import org.json4s.jackson.JsonMethods._
 import responses.ShippingMethodsResponse.Root
 import services.carts.CartTotaler
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

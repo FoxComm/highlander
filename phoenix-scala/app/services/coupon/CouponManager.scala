@@ -11,7 +11,7 @@ import models.coupon._
 import models.objects._
 import models.promotion._
 import payloads.CouponPayloads._
-import responses.CouponResponses.{CouponResponse, IlluminatedCouponResponse ⇒ Illuminated, _}
+import responses.CouponResponses.{IlluminatedCouponResponse ⇒ Illuminated, _}
 import services.LogActivity
 import slick.driver.PostgresDriver.api._
 import utils.aliases._

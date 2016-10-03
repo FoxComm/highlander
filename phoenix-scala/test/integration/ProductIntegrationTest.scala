@@ -13,8 +13,7 @@ import payloads.ProductPayloads._
 import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 import responses.ProductResponses.ProductResponse.Root
-import testutils.Extensions._
-import testutils.IntegrationTestBase
+import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.JsonFormatters

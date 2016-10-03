@@ -23,7 +23,6 @@ import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
 import responses.cord._
 import slick.driver.PostgresDriver.api._
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

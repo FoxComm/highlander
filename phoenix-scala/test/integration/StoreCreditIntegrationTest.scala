@@ -12,8 +12,7 @@ import payloads.StoreCreditPayloads._
 import responses.StoreCreditResponse.Root
 import responses.{GiftCardResponse, StoreCreditResponse}
 import slick.driver.PostgresDriver.api._
-import testutils.Extensions._
-import testutils.{IntegrationTestBase, _}
+import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._

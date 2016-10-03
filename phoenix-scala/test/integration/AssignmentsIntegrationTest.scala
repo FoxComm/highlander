@@ -5,7 +5,6 @@ import models.cord._
 import payloads.AssignmentPayloads._
 import responses._
 import responses.cord.AllOrders
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

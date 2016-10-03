@@ -12,8 +12,6 @@ class JsonExceptionHandlerIntegrationTest
     with AutomaticAuth
     with MockedApis {
 
-  import Extensions._
-
   val illegalRequestExceptionText = "A test IllegalRequestException"
   val exceptionText               = "A test exception"
 

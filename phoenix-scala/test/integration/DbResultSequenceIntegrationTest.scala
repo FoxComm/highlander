@@ -1,7 +1,7 @@
 import cats.implicits._
 import failures.DatabaseFailure
 import models.customer.{Customer, Customers}
-import testutils.IntegrationTestBase
+import testutils._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

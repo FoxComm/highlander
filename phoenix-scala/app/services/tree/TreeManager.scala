@@ -2,8 +2,8 @@ package services.tree
 
 import cats.data._
 import com.github.tminglei.slickpg.LTree
-import failures.{DatabaseFailure, Failures}
-import failures.TreeFailures.{TreeNotFound, _}
+import failures.DatabaseFailure
+import failures.TreeFailures._
 import models.objects._
 import models.tree._
 import payloads.GenericTreePayloads._

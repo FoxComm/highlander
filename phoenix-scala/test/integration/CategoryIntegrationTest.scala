@@ -3,7 +3,6 @@ import org.json4s.JsonDSL._
 import payloads.CategoryPayloads._
 import responses.CategoryResponses._
 import services.category.CategoryManager
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

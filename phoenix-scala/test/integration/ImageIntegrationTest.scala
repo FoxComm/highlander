@@ -20,8 +20,7 @@ import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.ProductResponses._
 import responses.SkuResponses._
 import services.image.ImageManager
-import testutils.Extensions._
-import testutils.IntegrationTestBase
+import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.Money.Currency

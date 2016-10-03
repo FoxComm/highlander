@@ -6,7 +6,7 @@ import models.payment.creditcard.CreditCards
 import models.returns._
 import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
-import testutils.{IntegrationTestBase, _}
+import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -16,8 +16,6 @@ class ReturnPaymentsIntegrationTest
     with HttpSupport
     with AutomaticAuth
     with BakedFixtures {
-
-  import Extensions._
 
   "gift cards" - {
     pending

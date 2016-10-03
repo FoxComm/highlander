@@ -4,7 +4,6 @@ import models.cord._
 import models.shipping.ShippingMethods
 import payloads.OrderPayloads.UpdateOrderPayload
 import responses.cord.OrderResponse
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

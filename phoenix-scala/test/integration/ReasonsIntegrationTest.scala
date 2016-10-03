@@ -1,7 +1,6 @@
 import failures.InvalidReasonTypeFailure
 import models.returns.ReturnReasons
 import models.{Reason, Reasons}
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixPublicApi
 import testutils.fixtures.BakedFixtures

@@ -6,7 +6,6 @@ import models.customer.{Customer, Customers}
 import models.location.{Address, Addresses}
 import payloads.AddressPayloads.CreateAddressPayload
 import responses.AddressResponse
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

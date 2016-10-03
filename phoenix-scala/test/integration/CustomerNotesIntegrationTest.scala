@@ -6,7 +6,6 @@ import models.customer.Customer
 import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.CustomerNoteManager
-import testutils.Extensions._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

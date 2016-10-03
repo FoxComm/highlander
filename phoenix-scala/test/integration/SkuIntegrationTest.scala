@@ -11,8 +11,7 @@ import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
 import payloads.SkuPayloads.SkuPayload
 import responses.SkuResponses.SkuResponse
-import testutils.Extensions._
-import testutils.IntegrationTestBase
+import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.Money.Currency

@@ -3,8 +3,7 @@ import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.StoreAdmin
 import payloads.StoreAdminPayloads._
 import responses.StoreAdminResponse.Root
-import testutils.Extensions._
-import testutils.IntegrationTestBase
+import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 
