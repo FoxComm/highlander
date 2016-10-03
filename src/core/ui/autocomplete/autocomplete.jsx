@@ -1,4 +1,4 @@
-/* @flow */
+/* @flow weak */
 
 import _ from 'lodash';
 import React, { Component } from 'react';
@@ -16,79 +16,77 @@ function matchStateToTerm(item, value) {
   );
 }
 
-type AutocompletePropTypes = {
-  allowCustomValues?: boolean;
+type Props = {
+  allowCustomValues?: boolean,
   items: Array<any>,
-  selectedItem: any;
-  onChange?: Function;
-  onSelect?: Function;
-  shouldItemRender?: Function;
-  renderItem?: Function;
-  className?: string;
-  inputProps: Object;
-  compareValues?: (value1: string, value2: string) => boolean;
-}
+  inputProps: Object,
+  selectedItem: any,
+  onChange: Function,
+  onSelect: Function,
+  shouldItemRender: Function,
+  renderMenu: Function,
+  renderItem: Function,
+  className?: string,
+  compareValues: Function,
+  getItemValue: Function,
+  sortItems: boolean,
+};
 
 /* eslint-disable no-unused-vars */
 
-const defaultProps = {
-  items: [],
-  inputProps: {},
-  onChange() {},
-  onSelect(item, value) {},
-  allowCustomValues: false,
-  className: '',
-  compareValues(value1, value2) {
-    return value1 == value2;
-  },
-  renderMenu(items, value) {
-    return items;
-  },
-  sortItems(a, b) {
-    return this.getItemValue(a).toLowerCase() > this.getItemValue(b).toLowerCase() ? 1 : -1;
-  },
-  shouldItemRender: matchStateToTerm,
-  getItemValue: item => item.value,
-  getItemKey(item) {
-    return this.getItemValue(item);
-  },
-  renderItem(item, isHighlighted) {
-    const value = this.getItemValue(item);
-    const key = this.getItemKey(item);
-
-    return (
-      <div
-        styleName={isHighlighted ? 'item-highlighted' : 'item'}
-        key={key}
-      >{value}</div>
-    );
-  },
+type State = {
+  value: string|number,
+  isOpen: boolean,
+  menuDirection: string,
+  highlightedIndex?: any,
+  changingStarted?: boolean,
 };
 
 /* eslint-enable no-unused-vars */
 
 class Autocomplete extends Component {
 
-  props: AutocompletePropTypes;
+  props: Props;
 
-  static defaultProps = defaultProps;
+  state: State = {
+    value: this.props.selectedItem ? this.props.getItemValue(this.props.selectedItem) : '',
+    isOpen: false,
+    menuDirection: 'down',
+    highlightedIndex: null,
+  };
 
-  constructor(props, ...args) {
-    super(props, ...args);
+  static defaultProps = {
+    allowCustomValues: false,
+    className: '',
+    sortItems: true,
+    onChange() {},
+    compareValues(value1, value2) {
+      return value1 == value2;
+    },
+    renderMenu(items) {
+      return items;
+    },
+    shouldItemRender: matchStateToTerm,
+    getItemValue: item => item.value,
+    getItemKey(item) {
+      return this.getItemValue(item);
+    },
+    renderItem(item, isHighlighted) {
+      const value = this.getItemValue(item);
+      const key = this.getItemKey(item);
 
-    this.state = {
-      value: props.selectedItem ? props.getItemValue(props.selectedItem) : '',
-      isOpen: false,
-      menuDirection: 'down',
-      highlightedIndex: null,
-    };
-  }
+      return (
+        <div
+          styleName={isHighlighted ? 'item-highlighted' : 'item'}
+          key={key}
+        >{value}</div>
+      );
+    },
+  };
 
-  componentWillMount() {
-    this._ignoreBlur = false;
-    this._performAutoCompleteOnUpdate = false;
-    this._performAutoCompleteOnKeyUp = false;
-  }
+  _ignoreBlur = false;
+  _performAutoCompleteOnUpdate = false;
+  _performAutoCompleteOnKeyUp = false;
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.selectedItem != this.props.selectedItem) {
@@ -122,6 +120,11 @@ class Autocomplete extends Component {
     }, () => {
       this.maybeSelectItem();
     });
+  }
+
+  @autobind
+  sortItems(a, b) {
+    return this.props.getItemValue(a).toLowerCase() > this.props.getItemValue(b).toLowerCase() ? 1 : -1;
   }
 
   maybeSelectItem() {
@@ -272,7 +275,7 @@ class Autocomplete extends Component {
 
     if (this.props.sortItems) {
       items.sort((a, b) => (
-        this.props.sortItems(a, b, this.state.value)
+        this.sortItems(a, b, this.state.value)
       ));
     }
 
@@ -282,7 +285,7 @@ class Autocomplete extends Component {
   itemValueMatches(value) {
     return (value.toString().toLowerCase().indexOf(
       this.state.value.toString().toLowerCase()
-    ) === 0)
+    ) === 0);
   }
 
   maybeAutoCompleteText () {
@@ -393,7 +396,6 @@ class Autocomplete extends Component {
 
   render () {
     const { inputProps, ...rest } = this.props;
-    const restProps = _.omit(rest, Object.keys(defaultProps));
 
     return (
       <div ref="container" styleName="autocomplete" >

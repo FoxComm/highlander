@@ -1,5 +1,4 @@
-
-/* @flow weak */
+/* @flow */
 
 // libs
 import _ from 'lodash';
@@ -17,7 +16,7 @@ import Icon from 'ui/icon';
 import Currency from 'ui/currency';
 import Autocomplete from 'ui/autocomplete';
 
-const Quantity_Items = _.range(1, 1 + 10, 1).map(x => x.toString());
+const QUANTITY_ITEMS = _.range(1, 1 + 10, 1).map(x => x.toString());
 
 type Props = {
   sku: string,
@@ -39,7 +38,6 @@ class LineItem extends Component {
   }
 
   render() {
-    const { t } = this.props;
     const click = () => {
       this.props.deleteLineItem(this.props.sku);
     };
@@ -59,7 +57,7 @@ class LineItem extends Component {
                   type: 'number',
                 }}
                 getItemValue={item => item}
-                items={Quantity_Items}
+                items={QUANTITY_ITEMS}
                 onSelect={this.changeQuantity}
                 selectedItem={this.props.quantity}
                 sortItems={false}

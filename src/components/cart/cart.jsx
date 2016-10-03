@@ -1,16 +1,17 @@
+/* @flow weak */
 
-/* @flow */
-
+// libs
 import _ from 'lodash';
 import React, { Component } from 'react';
-import styles from './cart.css';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { browserHistory } from 'react-router';
 import { autobind } from 'core-decorators';
 
+// localization
 import localized from 'lib/i18n';
 
+// components
 import Currency from 'ui/currency';
 import LineItem from './line-item';
 import Button from 'ui/buttons';
@@ -18,18 +19,36 @@ import Icon from 'ui/icon';
 import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 import { parseError } from 'api-js';
 
+// styles
+import styles from './cart.css';
+
+// actions
 import * as actions from 'modules/cart';
 
 const mapStateToProps = state => ({ ...state.cart, ...state.auth });
 
 type Props = {
+  fetch: Function,
+  deleteLineItem: Function,
+  updateLineItemQuantity: Function,
+  toggleCart: Function,
+  skus: Array<any>,
+  totals: Object,
+  user: Object,
+  isVisible: boolean,
+  t: any,
+};
 
+type State = {
+  errors?: Array<any>,
 };
 
 class Cart extends Component {
   props: Props;
 
-  state = {};
+  state: State = {
+
+  };
 
   componentDidMount() {
     /** prevent loading if no user logged in */
@@ -63,14 +82,18 @@ class Cart extends Component {
           {...sku}
           deleteLineItem={this.deleteLineItem}
           updateLineItemQuantity={this.updateLineItemQuantity}
-          key={sku.sku} />
+          key={sku.sku}
+        />
       );
     });
   }
 
   @autobind
   closeError(error, index) {
-    const errors = [...this.state.errors];
+    const { errors } = this.state;
+
+    if (!errors) return;
+
     errors.splice(index, 1);
 
     this.setState({
@@ -79,7 +102,7 @@ class Cart extends Component {
   }
 
   get errorsLine() {
-    if (!_.isEmpty(this.state.errors)) {
+    if (this.state.errors) {
       return <ErrorAlerts errors={this.state.errors} closeAction={this.closeError} />;
     }
   }
