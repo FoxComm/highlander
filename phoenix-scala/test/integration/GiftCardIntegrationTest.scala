@@ -1,6 +1,3 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
 import cats.implicits._
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures._
@@ -14,9 +11,10 @@ import payloads.GiftCardPayloads._
 import responses.GiftCardResponse.Root
 import responses.{GiftCardAdjustmentsResponse, _}
 import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils.IntegrationTestBase
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.Money._
 import utils.db._
 

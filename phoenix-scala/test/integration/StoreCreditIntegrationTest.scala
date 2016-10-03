@@ -1,24 +1,21 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
-import util._
 import failures.StoreCreditFailures.StoreCreditConvertFailure
 import failures._
-import models.customer.{Customer, Customers}
-import models.cord.{Carts, OrderPayments}
+import models.Reason
+import models.cord.OrderPayments
+import models.customer.Customer
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit._
 import models.payment.storecredit._
 import models.payment.{PaymentMethod, giftcard}
-import models.{Reason, Reasons, StoreAdmins}
 import payloads.PaymentPayloads.CreateManualStoreCredit
 import payloads.StoreCreditPayloads._
 import responses.StoreCreditResponse.Root
 import responses.{GiftCardResponse, StoreCreditResponse}
 import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils.{IntegrationTestBase, _}
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 

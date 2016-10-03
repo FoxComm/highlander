@@ -1,7 +1,4 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
-import failures.{GeneralFailure, NotFoundFailure404}
+import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
 import models.sharedsearch.SharedSearch._
 import models.sharedsearch.SharedSearchAssociation.{build ⇒ buildAssociation}
@@ -10,9 +7,10 @@ import models.{StoreAdmin, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
 import payloads.SharedSearchPayloads._
 import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
-import util._
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 

@@ -1,16 +1,14 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
 import cats.implicits._
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.GiftCardFailures._
-import failures.{NotFoundFailure400, NotFoundFailure404}
 import failures.OrderFailures.OrderPaymentNotFoundFailure
+import failures.{NotFoundFailure400, NotFoundFailure404}
 import models.Reasons
 import models.cord._
 import models.payment.giftcard._
 import payloads.PaymentPayloads.GiftCardPayment
 import slick.driver.PostgresDriver.api._
+import testutils.Extensions._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

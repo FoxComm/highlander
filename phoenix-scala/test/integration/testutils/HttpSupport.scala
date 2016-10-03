@@ -1,4 +1,4 @@
-package util
+package testutils
 
 import java.net.ServerSocket
 
@@ -29,8 +29,8 @@ import models.StoreAdmin
 import models.customer.Customer
 import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
-import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest._
+import org.scalatest.concurrent.ScalaFutures
 import responses.TheResponse
 import server.Service
 import services.Authenticator
@@ -55,7 +55,7 @@ trait HttpSupport
     with MustMatchers
     with BeforeAndAfterAll
     with TestObjectContext {
-  this: Suite with PatienceConfiguration with DbTestSupport ⇒
+  self: FoxSuite ⇒
 
   import HttpSupport._
 

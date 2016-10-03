@@ -1,4 +1,4 @@
-package util
+package testutils
 
 import scala.language.implicitConversions
 import scala.reflect.runtime.universe.TypeTag

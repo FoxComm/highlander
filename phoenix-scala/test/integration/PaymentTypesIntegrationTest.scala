@@ -1,13 +1,11 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
 import models.Reasons
 import models.payment.giftcard._
 import models.payment.storecredit._
 import responses.{GiftCardSubTypesResponse, StoreCreditSubTypesResponse}
-import util._
-import util.apis.PhoenixPublicApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixPublicApi
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 

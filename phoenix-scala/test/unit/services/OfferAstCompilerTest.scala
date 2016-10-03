@@ -1,10 +1,10 @@
 package services
 
-import models.discount.offers._
 import failures.DiscountCompilerFailures._
-import services.discount.compilers.OfferAstCompiler
+import models.discount.offers._
 import org.json4s.jackson.JsonMethods._
-import util.TestBase
+import services.discount.compilers.OfferAstCompiler
+import testutils.TestBase
 
 class OfferAstCompilerTest extends TestBase {
 

@@ -1,6 +1,5 @@
-import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
+import akka.http.scaladsl.model.HttpResponse
 
-import util.Extensions._
 import cats.implicits._
 import failures.CartFailures._
 import failures.Failure
@@ -18,11 +17,11 @@ import payloads.AddressPayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
-import responses.TheResponse
 import responses.cord.CartResponse
-import util._
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.aliases._
 import utils.db._
 import utils.seeds.CouponSeeds

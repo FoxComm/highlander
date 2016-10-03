@@ -1,4 +1,4 @@
-package util
+package testutils
 
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.SimpleContext

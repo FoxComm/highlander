@@ -1,9 +1,6 @@
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.CouponFailures.CouponIsNotActive
 import failures.NotFoundFailure404
@@ -20,13 +17,13 @@ import payloads.CouponPayloads._
 import payloads.DiscountPayloads._
 import payloads.PromotionPayloads._
 import responses.CouponResponses.CouponResponse
-import responses.TheResponse
 import responses.cord.CartResponse
 import services.coupon.CouponManager
 import services.promotion.PromotionManager
-import util._
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.seeds.Seeds.Factories

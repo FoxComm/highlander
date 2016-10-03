@@ -1,7 +1,5 @@
-import akka.http.scaladsl.model.StatusCodes
 import akka.stream.scaladsl.Source
 
-import util.Extensions._
 import cats.implicits._
 import failures._
 import models.NotificationSubscription._
@@ -17,9 +15,10 @@ import responses.{ActivityResponse, LastSeenActivityResponse}
 import services.NotificationManager
 import services.NotificationManager.unsubscribe
 import slick.driver.PostgresDriver.api._
-import util._
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db._
 
 class NotificationIntegrationTest

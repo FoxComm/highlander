@@ -1,4 +1,4 @@
-package util
+package testutils
 
 import faker.Lorem.letterify
 import models.activity.ActivityContext

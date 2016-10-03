@@ -1,12 +1,10 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
 import failures.InvalidReasonTypeFailure
 import models.returns.ReturnReasons
 import models.{Reason, Reasons}
-import util._
-import util.apis.PhoenixPublicApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixPublicApi
+import testutils.fixtures.BakedFixtures
 import utils.Strings._
 import utils.db._
 import utils.seeds.Seeds.Factories

@@ -1,14 +1,12 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
 import org.json4s.JsonAST.{JObject, JString}
 import org.json4s.JsonDSL._
 import payloads.CategoryPayloads._
 import responses.CategoryResponses._
 import services.category.CategoryManager
-import util._
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.aliases._
 
 class CategoryIntegrationTest

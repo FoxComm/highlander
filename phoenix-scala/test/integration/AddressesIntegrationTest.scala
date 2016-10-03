@@ -1,17 +1,15 @@
 import java.time.Instant
 
-import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
-
-import util.Extensions._
 import failures.NotFoundFailure404
 import models.cord.OrderShippingAddresses
 import models.customer.{Customer, Customers}
 import models.location.{Address, Addresses}
 import payloads.AddressPayloads.CreateAddressPayload
 import responses.AddressResponse
-import util._
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 

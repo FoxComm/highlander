@@ -1,9 +1,7 @@
-package util.apis
+package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
 
-import org.scalatest.Suite
-import org.scalatest.concurrent.PatienceConfiguration
 import payloads.ActivityTrailPayloads._
 import payloads.AddressPayloads._
 import payloads.AssignmentPayloads._
@@ -25,15 +23,14 @@ import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads.{StoreCreditBulkUpdateStateByCsr, StoreCreditUpdateStateByCsr}
 import payloads.VariantPayloads._
 import payloads._
-import util.{DbTestSupport, HttpSupport}
+import testutils.{FoxSuite, HttpSupport}
 import utils.aliases.OC
 
 /*
  * prefix → string literal prefix, e.g. "/customers"
  * path   → "compiled" path, e.g. "/customers/1"
  */
-trait PhoenixAdminApi extends HttpSupport {
-  this: Suite with PatienceConfiguration with DbTestSupport ⇒
+trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
   val rootPrefix = "v1"
 

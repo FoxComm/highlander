@@ -1,4 +1,4 @@
-package util
+package testutils
 
 import java.sql.Connection
 import java.util.Locale

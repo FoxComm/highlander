@@ -1,9 +1,6 @@
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
 import cats.implicits._
 import com.stripe.exception.CardException
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
@@ -24,15 +21,16 @@ import payloads.AddressPayloads.CreateAddressPayload
 import payloads.CustomerPayloads._
 import payloads.PaymentPayloads._
 import responses.CreditCardsResponse.{Root ⇒ CardResponse}
-import responses.{CreditCardsResponse, CustomerResponse}
 import responses.CustomerResponse.Root
 import responses.cord.CartResponse
+import responses.{CreditCardsResponse, CustomerResponse}
 import services.Result
 import services.carts.CartPaymentUpdater
 import slick.driver.PostgresDriver.api._
-import util._
-import util.apis.{PhoenixAdminApi, PhoenixPublicApi}
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
+import testutils.fixtures.BakedFixtures
 import utils.MockedApis
 import utils.aliases.stripe.StripeCard
 import utils.db._

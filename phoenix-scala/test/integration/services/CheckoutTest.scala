@@ -17,8 +17,8 @@ import org.scalacheck.{Gen, Prop, Test ⇒ QTest}
 import org.scalatest.mock.MockitoSugar
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import slick.driver.PostgresDriver.api._
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.MockedApis
 import utils.db._
 import utils.seeds.Seeds.Factories

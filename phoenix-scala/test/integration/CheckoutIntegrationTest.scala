@@ -1,13 +1,11 @@
 import java.time.Instant
 
-import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
+import akka.http.scaladsl.model.HttpResponse
 
-import util.Extensions._
 import cats.implicits._
 import failures.CustomerFailures._
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
-import models.{Reason, Reasons}
 import models.cord.Order.RemorseHold
 import models.cord._
 import models.customer.{Customer, Customers}
@@ -16,6 +14,7 @@ import models.location.{Address, Addresses}
 import models.payment.giftcard._
 import models.product.Mvp
 import models.shipping._
+import models.{Reason, Reasons}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.CreateCart
@@ -24,9 +23,10 @@ import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
 import responses.cord._
 import slick.driver.PostgresDriver.api._
-import util._
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 

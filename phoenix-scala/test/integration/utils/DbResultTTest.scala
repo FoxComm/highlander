@@ -2,7 +2,7 @@ package utils
 
 import cats.data.Xor
 import failures.GeneralFailure
-import util._
+import testutils._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

@@ -1,6 +1,3 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
 import models.cord.OrderShippingAddresses
 import models.cord.lineitems._
 import models.location.Addresses
@@ -12,9 +9,10 @@ import models.shipping.ShippingMethods
 import org.json4s.jackson.JsonMethods._
 import responses.ShippingMethodsResponse.Root
 import services.carts.CartTotaler
-import util._
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 

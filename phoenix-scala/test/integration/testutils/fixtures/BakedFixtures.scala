@@ -1,6 +1,6 @@
-package util.fixtures
+package testutils.fixtures
 
-import util.TestSeeds
+import testutils.TestSeeds
 
 /**
   * Cake-inspired class names galore.

@@ -1,15 +1,13 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
 import cats.implicits._
 import failures.NotFoundFailure400
 import models.customer.Customer
 import payloads.OrderPayloads.CreateCart
 import responses.cord.CartResponse
 import services.carts.CartCreator
-import util._
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 
 class CartCreatorIntegrationTest
     extends IntegrationTestBase

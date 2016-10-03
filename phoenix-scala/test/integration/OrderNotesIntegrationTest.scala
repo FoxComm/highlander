@@ -1,6 +1,3 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
 import failures.NotFoundFailure404
 import models._
 import models.cord._
@@ -8,9 +5,10 @@ import payloads.NotePayloads._
 import responses.AdminNotes
 import responses.AdminNotes.Root
 import services.notes.OrderNoteManager
-import util._
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.time._
 

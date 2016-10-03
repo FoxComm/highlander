@@ -1,9 +1,5 @@
 import java.time.Instant
 
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
-import com.sksamuel.elastic4s.mappings.attributes
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import models.objects.ObjectContext
@@ -18,9 +14,10 @@ import responses.CouponResponses.CouponResponse
 import responses.PromotionResponses.PromotionResponse
 import services.coupon.CouponManager
 import services.promotion.PromotionManager
-import util._
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.time.RichInstant

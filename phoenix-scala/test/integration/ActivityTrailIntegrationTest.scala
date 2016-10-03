@@ -1,7 +1,5 @@
 import scala.language.implicitConversions
-import akka.http.scaladsl.model.StatusCodes
 
-import util.Extensions._
 import cats.implicits._
 import models.activity._
 import org.json4s.{DefaultFormats, Extraction}
@@ -14,10 +12,10 @@ import responses.ActivityConnectionResponse
 import responses.ActivityConnectionResponse.Root
 import services.activity.CustomerTailored.CustomerUpdated
 import slick.driver.PostgresDriver.api._
-import util._
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
-import utils.db._
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 
 case class DumbActivity(randomWord: String, randomNumber: Int)
 

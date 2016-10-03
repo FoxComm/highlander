@@ -1,15 +1,13 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.OrderFailures.OrderPaymentNotFoundFailure
-import failures.{GeneralFailure, NotFoundFailure400, NotFoundFailure404}
+import failures.{NotFoundFailure400, NotFoundFailure404}
 import models.cord.Cart
 import models.customer.Customers
 import models.payment.creditcard._
 import payloads.PaymentPayloads.CreditCardPayment
 import services.CreditCardManager
+import testutils.Extensions._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

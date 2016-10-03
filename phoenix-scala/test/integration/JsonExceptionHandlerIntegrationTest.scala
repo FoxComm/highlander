@@ -3,7 +3,7 @@ import akka.http.scaladsl.model.StatusCodes.ClientError
 import akka.http.scaladsl.model.{ContentTypes, ErrorInfo, IllegalRequestException, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 
-import util._
+import testutils._
 import utils.MockedApis
 
 class JsonExceptionHandlerIntegrationTest

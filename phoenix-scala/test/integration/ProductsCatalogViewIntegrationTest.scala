@@ -1,5 +1,3 @@
-import akka.http.scaladsl.model._
-
 import cats.implicits._
 import models.image._
 import models.objects._
@@ -10,12 +8,12 @@ import payloads.ImagePayloads._
 import services.image.ImageManager
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.SQLActionBuilder
-import util._
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
 import utils.MockedApis
 import utils.Money.Currency
 import utils.db._
-import Extensions._
-import util.apis.PhoenixAdminApi
 
 object ProductsCatalogViewIntegrationTest {
 

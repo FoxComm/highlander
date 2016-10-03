@@ -1,14 +1,11 @@
-package util.apis
+package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
 
-import org.scalatest.Suite
-import org.scalatest.concurrent.PatienceConfiguration
 import payloads.CustomerPayloads._
-import util.{DbTestSupport, HttpSupport}
+import testutils.{FoxSuite, HttpSupport}
 
-trait PhoenixPublicApi extends HttpSupport {
-  this: Suite with PatienceConfiguration with DbTestSupport ⇒
+trait PhoenixPublicApi extends HttpSupport { self: FoxSuite ⇒
 
   object publicApi {
     val rootPrefix: String = "v1/public"

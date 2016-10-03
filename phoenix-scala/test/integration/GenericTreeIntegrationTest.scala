@@ -1,8 +1,4 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
 import com.github.tminglei.slickpg.LTree
-import failures.GeneralFailure
 import failures.TreeFailures._
 import models.objects._
 import models.tree._
@@ -10,10 +6,11 @@ import org.json4s.JsonDSL._
 import org.scalatest.Matchers._
 import payloads.GenericTreePayloads._
 import responses.GenericTreeResponses.FullTreeResponse.Root
-import responses.GenericTreeResponses.{FullTreeResponse, TreeResponse}
+import responses.GenericTreeResponses.TreeResponse
 import slick.driver.PostgresDriver.api._
-import util._
-import util.apis.PhoenixAdminApi
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
 import utils.MockedApis
 import utils.aliases._
 import utils.db._

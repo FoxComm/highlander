@@ -2,8 +2,6 @@ import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
 
-import failures.GeneralFailure
-import util.Extensions._
 import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures.SkuNotFoundForContext
 import models.inventory._
@@ -13,9 +11,10 @@ import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
 import payloads.SkuPayloads.SkuPayload
 import responses.SkuResponses.SkuResponse
-import util.IntegrationTestBase
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils.IntegrationTestBase
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.Money.Currency
 import utils.aliases._
 import utils.db._

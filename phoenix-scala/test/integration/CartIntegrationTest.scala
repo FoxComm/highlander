@@ -1,12 +1,10 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import cats.implicits._
-import cats.syntax.order
-import util.Extensions._
 import failures.CartFailures._
 import failures.LockFailures._
 import failures.ShippingMethodFailures._
-import failures.{GeneralFailure, NotFoundFailure400, NotFoundFailure404}
+import failures.{NotFoundFailure400, NotFoundFailure404}
 import models.cord._
 import models.cord.lineitems._
 import models.location.{Address, Addresses, Regions}
@@ -21,9 +19,10 @@ import payloads.UpdateShippingMethod
 import responses.cord.CartResponse
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
-import util._
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 

@@ -9,7 +9,7 @@ import models.payment.giftcard.GiftCard
 import org.json4s.Formats
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.write
-import util.TestBase
+import testutils.TestBase
 import utils.JsonFormatters._
 import utils.Money.Currency
 

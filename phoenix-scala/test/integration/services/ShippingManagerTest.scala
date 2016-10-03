@@ -11,8 +11,8 @@ import models.rules.QueryStatement
 import models.shipping.ShippingMethods
 import services.ShippingManager.getShippingMethodsForCart
 import services.carts.CartTotaler
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils._
 import utils.db.ExPostgresDriver.api._
 import utils.db.ExPostgresDriver.jsonMethods._

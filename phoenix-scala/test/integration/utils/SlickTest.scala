@@ -3,7 +3,7 @@ package utils
 import cats.implicits._
 import models.customer.Customers
 import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
+import testutils.IntegrationTestBase
 import utils.db.UpdateReturning._
 import utils.db._
 import utils.seeds.Seeds.Factories

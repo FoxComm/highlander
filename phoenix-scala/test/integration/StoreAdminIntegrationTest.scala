@@ -1,15 +1,12 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
 import failures.StoreAdminFailures.AlreadyExistsWithEmail
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.StoreAdmin
 import payloads.StoreAdminPayloads._
-import responses.StoreAdminResponse
 import responses.StoreAdminResponse.Root
-import util.IntegrationTestBase
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils.IntegrationTestBase
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 
 class StoreAdminIntegrationTest
     extends IntegrationTestBase

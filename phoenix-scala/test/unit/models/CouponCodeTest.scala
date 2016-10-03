@@ -3,7 +3,7 @@ package models
 import scala.util.Random
 
 import models.coupon._
-import util.TestBase
+import testutils.TestBase
 
 class CouponCodeTest extends TestBase {
 

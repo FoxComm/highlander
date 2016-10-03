@@ -1,10 +1,10 @@
-package util
+package testutils
 
+import cats.data.Xor
+import failures.Failures
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{FreeSpecLike, MustMatchers, OptionValues, Tag}
-import cats.data.Xor
-import failures.Failures
 import utils.FoxConfig
 
 trait TestBase

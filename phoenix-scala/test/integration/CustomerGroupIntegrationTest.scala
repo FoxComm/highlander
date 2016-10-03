@@ -1,6 +1,3 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
 import failures.NotFoundFailure404
 import models.customer.{CustomerDynamicGroup, CustomerDynamicGroups}
 import org.json4s.JObject
@@ -8,10 +5,10 @@ import org.scalatest.mock.MockitoSugar
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse
 import responses.DynamicGroupResponse.Root
-import util._
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
-import utils.db._
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.seeds.Seeds.Factories
 
 class CustomerGroupIntegrationTest

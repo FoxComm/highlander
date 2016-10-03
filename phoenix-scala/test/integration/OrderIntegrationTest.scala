@@ -1,15 +1,13 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import util.Extensions._
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.cord.Order._
 import models.cord._
 import models.shipping.ShippingMethods
 import payloads.OrderPayloads.UpdateOrderPayload
 import responses.cord.OrderResponse
-import util._
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time._

@@ -5,10 +5,8 @@ import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
 import akka.stream.scaladsl.Source
 
-import util.Extensions._
 import cats.implicits._
 import failures.ArchiveFailures.AddImagesToArchivedAlbumFailure
-import failures.GeneralFailure
 import failures.ImageFailures._
 import failures.ObjectFailures._
 import models.image._
@@ -22,9 +20,10 @@ import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.ProductResponses._
 import responses.SkuResponses._
 import services.image.ImageManager
-import util.IntegrationTestBase
-import util.apis.PhoenixAdminApi
-import util.fixtures.BakedFixtures
+import testutils.Extensions._
+import testutils.IntegrationTestBase
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.Money.Currency
 import utils._
 import utils.db._

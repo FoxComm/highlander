@@ -1,9 +1,6 @@
 import java.time.Instant
 
-import akka.http.scaladsl.model.StatusCodes
-
 import failures.ArchiveFailures.LinkArchivedSkuFailure
-import failures.NotFoundFailure404
 import failures.ProductFailures.VariantNotFoundForContext
 import models.inventory.Skus
 import models.product._
@@ -12,9 +9,9 @@ import payloads.VariantPayloads._
 import responses.VariantResponses.IlluminatedVariantResponse.{Root ⇒ VariantRoot}
 import responses.VariantValueResponses.IlluminatedVariantValueResponse.{Root ⇒ ValueRoot}
 import services.product.ProductManager
-import util.Extensions._
-import util._
-import util.apis.PhoenixAdminApi
+import testutils.Extensions._
+import testutils._
+import testutils.apis.PhoenixAdminApi
 import utils.MockedApis
 import utils.Money.Currency
 import utils.db._
