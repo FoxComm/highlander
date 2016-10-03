@@ -29,6 +29,7 @@ class CreditCardsIntegrationTest
     with AutomaticAuth
     with MockitoSugar
     with BakedFixtures
+    with PhoenixAdminApi
     with BeforeAndAfterEach {
 
   override def beforeEach(): Unit = {
@@ -195,7 +196,7 @@ class CreditCardsIntegrationTest
       createResp2.status must === (StatusCodes.OK)
       val ccResp2 = createResp2.as[CreditCardsResponse.Root]
 
-      val getResp1 = GET(s"v1/customers/${customer.id}/payment-methods/credit-cards")
+      val getResp1 = customerAPI.payment.creditCard.getAll(customer.id)
       getResp1.status must === (StatusCodes.OK)
       val allCcResps = Seq(ccResp1, ccResp2)
       getResp1.as[Seq[CreditCardsResponse.Root]] must contain theSameElementsAs allCcResps
@@ -205,7 +206,7 @@ class CreditCardsIntegrationTest
       deleteResp.status must === (StatusCodes.NoContent)
       verify(stripeWrapperMock).deleteCard(m.argThat(cardStripeIdMatches(stripeCard2.getId)))
 
-      val getResp2 = GET(s"v1/customers/${customer.id}/payment-methods/credit-cards")
+      val getResp2 = customerAPI.payment.creditCard.getAll(customer.id)
       getResp2.status must === (StatusCodes.OK)
       getResp2.as[Seq[CreditCardsResponse.Root]] must === (Seq(ccResp1))
     }

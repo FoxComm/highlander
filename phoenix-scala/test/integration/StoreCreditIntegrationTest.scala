@@ -24,6 +24,7 @@ class StoreCreditIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
+    with PhoenixAdminApi
     with BakedFixtures {
 
   "StoreCredits" - {
@@ -82,7 +83,7 @@ class StoreCreditIntegrationTest
 
     "GET /v1/customers/:id/payment-methods/store-credit/total" - {
       "returns total available and current store credit for customer" in new Fixture {
-        val response = GET(s"v1/customers/${customer.id}/payment-methods/store-credit/totals")
+        val response = customerAPI.payment.storeCredit.getTotals(customer.id)
         response.status must === (StatusCodes.OK)
 
         val totals = response.as[StoreCreditResponse.Totals]
@@ -95,7 +96,7 @@ class StoreCreditIntegrationTest
       }
 
       "returns 404 when customer doesn't exist" in new Fixture {
-        val response = GET(s"v1/customers/99/payment-methods/store-credit/totals")
+        val response = customerAPI.payment.storeCredit.getTotals(99)
 
         response.status must === (StatusCodes.NotFound)
         response.error must === (NotFoundFailure404(Customer, 99).description)

@@ -18,6 +18,7 @@ class AddressesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
+    with PhoenixAdminApi
     with BakedFixtures {
 
   def validateDeleteResponse(response: HttpResponse) {
@@ -27,7 +28,7 @@ class AddressesIntegrationTest
 
   "GET /v1/customers/:customerId/addresses" - {
     "lists addresses" in new CustomerAddress_Baked {
-      val response = GET(s"v1/customers/${customer.id}/addresses")
+      val response = customerAPI.getAddresses(customer.id)
 
       response.status must === (StatusCodes.OK)
 
@@ -135,7 +136,7 @@ class AddressesIntegrationTest
     }
 
     "deleted address should be visible to StoreAdmin" in new DeletedAddressFixture {
-      val response = GET(s"v1/customers/${customer.id}/addresses/${address.id}")
+      val response = customerAPI.getAddress(customer.id, address.id)
       response.status must === (StatusCodes.OK)
     }
 
