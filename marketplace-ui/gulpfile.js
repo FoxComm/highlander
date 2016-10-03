@@ -19,22 +19,18 @@ for (const task of fs.readdirSync('./tasks')) {
   }
 }
 
-gulp.task('clean', function () {
+gulp.task('clean', function() {
   return del('public');
 });
 
-gulp.task('build', function (cb) {
-  runSequence('clean', ['templates', 'browserify', 'css', 'images', 'favicon'], cb);
+gulp.task('build', function(cb) {
+  runSequence('clean', ['templates', 'browserify', 'images', 'favicon'], 'css', cb);
 });
 
-gulp.task('dev', function (cb) {
+gulp.task('dev', function(cb) {
   opts.devMode = true;
 
-  const tasks = _.compact([
-    'build',
-    'server',
-    'watch',
-  ]);
+  const tasks = ['build', 'server', 'watch'];
 
   runSequence.apply(this, tasks.concat(cb));
 });
