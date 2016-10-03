@@ -1,28 +1,19 @@
-
 @import "colors.css";
 @import "media-queries.css";
 
-.cart-hidden {
-  display: none;
-}
-
-.cart-shown {
+.overlay {
   position: fixed;
   z-index: 1;
   top: 0;
   left: 0;
   bottom: 0;
   right: 0;
-  display: flex;
-}
-
-.overlay {
   flex: 1;
   height: 100%;
   background: var(--light-grayish);
   opacity: 0;
   transition: opacity .1s;
-  transform: translateX(-100%);
+  transform: translateX(100%);
 }
 
 .cart-shown .overlay {
@@ -31,6 +22,10 @@
 }
 
 .cart-box {
+  position: fixed;
+  z-index: 10;
+  top: 0;
+  right: 0;
   height: 100%;
   background: var(--whitish);
   lost-column: 4/11;
