@@ -41,6 +41,8 @@
     - build-essential
     - g++
 
+- include: "{{playbook_dir}}/tasks/dpkg_lock_cleanup.yml"
+
 - name: Create /etc/profile.d Directory
   file: path=/etc/profile.d state=directory
   sudo: true
@@ -56,6 +58,8 @@
     - oracle-java8-installer
     - oracle-java8-set-default
     - ca-certificates-java
+
+- include: "{{playbook_dir}}/tasks/dpkg_lock_cleanup.yml"
 
 - name: Setup Unprivileged
   command: /usr/sbin/usermod -a -G systemd-journal {{user}}

@@ -15,3 +15,5 @@
 - name: Install Mesos Package
   apt: name=mesos state=latest force=yes
   sudo: true
+
+- include: "{{playbook_dir}}/tasks/dpkg_lock_cleanup.yml"

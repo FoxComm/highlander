@@ -1,0 +1,5 @@
+---
+
+- name: Ensure no dpkg lock left
+  file: path=/var/lib/dpkg/lock state=absent
+  sudo: true
