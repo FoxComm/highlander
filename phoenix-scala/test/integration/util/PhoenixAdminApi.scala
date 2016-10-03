@@ -624,9 +624,6 @@ trait PhoenixAdminApi extends HttpSupport {
       case class note(id: Int) {
         val notePath = s"$path/$id"
 
-        def get(): HttpResponse =
-          GET(notePath)
-
         def update(payload: UpdateNote): HttpResponse =
           PATCH(notePath, payload)
 

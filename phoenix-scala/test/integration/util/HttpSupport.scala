@@ -24,6 +24,7 @@ import akka.util.ByteString
 import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
 import de.heikoseeberger.akkasse.ServerSentEvent
+import failures.Failure
 import models.StoreAdmin
 import models.customer.Customer
 import org.json4s.Formats
@@ -207,7 +208,7 @@ trait HttpSupport
     response
   }
 
-  lazy final val connectionPoolSettings = ConnectionPoolSettings
+  lazy final val connectionPoolSettings: ConnectionPoolSettings = ConnectionPoolSettings
     .default(implicitly[ActorSystem])
     .withMaxConnections(32)
     .withMaxOpenRequests(32)
@@ -266,13 +267,38 @@ object Extensions extends MustMatchers with OptionValues with AppendedClues {
     def error(implicit line: SL, file: SF): String =
       errors.headOption.value.withClue("Expected at least one error, got none!")
 
-    def mustBeOk(): Unit =
-      mustHaveStatus(StatusCodes.OK).withClue(s"Errors: $extractErrors!")
-
     def mustHaveStatus(expected: StatusCode*): Unit =
       withClue("Unexpected response status!") {
-        expected must contain(response.status)
+        expected.toList match {
+          case only :: Nil ⇒ response.status must === (only)
+          case _           ⇒ expected must contain(response.status)
+        }
       }
+
+    def mustBeOk()(implicit line: SL, file: SF): Unit =
+      mustHaveStatus(StatusCodes.OK).withClue(s"Errors: $extractErrors!")
+
+    def mustFailWith404(expected: Failure*)(implicit line: SL, file: SF): Unit = {
+      mustFailWith(StatusCodes.NotFound, expected.map(_.description): _*)
+    }
+
+    def mustFailWith400(expected: Failure*)(implicit line: SL, file: SF): Unit = {
+      mustFailWith(StatusCodes.BadRequest, expected.map(_.description): _*)
+    }
+
+    def mustFailWithMessage(expected: String*)(implicit line: SL, file: SF): Unit = {
+      mustFailWith(StatusCodes.BadRequest, expected: _*)
+    }
+
+    private def mustFailWith(statusCode: StatusCode, expected: String*)(implicit line: SL,
+                                                                        file: SF): Unit = {
+      mustHaveStatus(statusCode)
+
+      expected.toList match {
+        case only :: Nil ⇒ response.error must === (only)
+        case _           ⇒ response.errors must contain theSameElementsAs expected
+      }
+    } withClue originalSourceClue
 
     private def extractErrors: List[String] = {
       val errors = (parse(bodyText) \ "errors")

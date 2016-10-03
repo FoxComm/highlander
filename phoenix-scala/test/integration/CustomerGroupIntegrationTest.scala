@@ -46,10 +46,7 @@ class CustomerGroupIntegrationTest
     }
 
     "404 if group not found" in new Fixture {
-      val response = customerGroupsApi(999).get()
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
+      customerGroupsApi(999).get().mustFailWith404(NotFoundFailure404(CustomerDynamicGroup, 999))
     }
   }
 
@@ -70,10 +67,9 @@ class CustomerGroupIntegrationTest
                                                 customersCount = Some(777),
                                                 clientState = JObject(),
                                                 elasticRequest = JObject())
-      val response = customerGroupsApi(999).update(payload)
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
+      customerGroupsApi(999)
+        .update(payload)
+        .mustFailWith404(NotFoundFailure404(CustomerDynamicGroup, 999))
     }
   }
 

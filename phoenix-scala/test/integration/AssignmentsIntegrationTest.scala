@@ -34,26 +34,23 @@ class AssignmentsIntegrationTest
     }
 
     "extends response with errors if one of store admins is not found" in new Order_Baked {
-      val nonExistentAdminId = 2
-      val payload            = AssignmentPayload(assignees = Seq(storeAdmin.id, nonExistentAdminId))
-
       // TODO - AlreadyAssignedFailure here?
-      val theResponse =
-        ordersApi(order.refNum).assign(payload).as[TheResponse[Seq[AssignmentResponse.Root]]]
+      val theResponse = ordersApi(order.refNum)
+        .assign(AssignmentPayload(assignees = Seq(storeAdmin.id, 666)))
+        .asThe[Seq[AssignmentResponse.Root]]
       theResponse.result.size mustBe 1
       theResponse.result.headOption.value.assignee.id mustBe storeAdmin.id
       theResponse.result.headOption.value.assignmentType mustBe Assignment.Assignee
 
       theResponse.errors.value.size mustBe 1
       theResponse.errors.value.headOption.value must === (
-          NotFoundFailure404(StoreAdmin, nonExistentAdminId).description)
+          NotFoundFailure404(StoreAdmin, 666).description)
     }
 
     "returns error if order not found" in new Order_Baked {
-      val payload  = AssignmentPayload(assignees = Seq(storeAdmin.id))
-      val response = ordersApi("NOPE").assign(payload)
-      response.status must === (StatusCodes.NotFound)
-      response.error mustBe NotFoundFailure404(Order, "NOPE").description
+      ordersApi("NOPE")
+        .assign(AssignmentPayload(assignees = Seq(storeAdmin.id)))
+        .mustFailWith404(NotFoundFailure404(Order, "NOPE"))
     }
   }
 
@@ -67,21 +64,17 @@ class AssignmentsIntegrationTest
     }
 
     "returns error if order not found" in new AssignmentFixture {
-      val response = ordersApi("NOPE").unassign(storeAdmin.id)
-      response.status must === (StatusCodes.NotFound)
-      response.error mustBe NotFoundFailure404(Order, "NOPE").description
+      ordersApi("NOPE").unassign(storeAdmin.id).mustFailWith404(NotFoundFailure404(Order, "NOPE"))
     }
 
     "returns error if store admin not found" in new AssignmentFixture {
-      val response = ordersApi(order.refNum).unassign(666)
-      response.status must === (StatusCodes.NotFound)
-      response.error mustBe NotFoundFailure404(StoreAdmin, 666).description
+      ordersApi(order.refNum).unassign(666).mustFailWith404(NotFoundFailure404(StoreAdmin, 666))
     }
 
     "returns error if assignment not found" in new AssignmentFixture {
-      val response = ordersApi(order.refNum).unassign(secondAdmin.id)
-      response.status must === (StatusCodes.BadRequest)
-      response.error mustBe AssigneeNotFoundFailure(Order, order.refNum, secondAdmin.id).description
+      ordersApi(order.refNum)
+        .unassign(secondAdmin.id)
+        .mustFailWith400(AssigneeNotFoundFailure(Order, order.refNum, secondAdmin.id))
     }
   }
 

@@ -75,11 +75,9 @@ class CustomerIntegrationTest
     }
 
     "fails if email is already in use" in new Customer_Seed {
-      val response = customersApi.create(
-          CreateCustomerPayload(email = customer.email.value, name = "test".some))
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (CustomerEmailNotUnique.description)
+      customersApi
+        .create(CreateCustomerPayload(email = customer.email.value, name = "test".some))
+        .mustFailWith400(CustomerEmailNotUnique)
     }
   }
 
@@ -228,9 +226,7 @@ class CustomerIntegrationTest
     }
 
     "returns 404 if customer not found" in new EmptyCustomerCart_Baked {
-      val response = customersApi(999).cart()
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 999).description)
+      customersApi(999).cart().mustFailWith404(NotFoundFailure404(Customer, 999))
     }
   }
 
@@ -252,11 +248,9 @@ class CustomerIntegrationTest
         .create(CreateCustomerPayload(email = "test@example.com", name = "test".some))
         .as[Root]
 
-      val response =
-        customersApi(newCustomer.id).update(UpdateCustomerPayload(email = customer.email))
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (CustomerEmailNotUnique.description)
+      customersApi(newCustomer.id)
+        .update(UpdateCustomerPayload(email = customer.email))
+        .mustFailWith400(CustomerEmailNotUnique)
     }
   }
 
@@ -266,11 +260,9 @@ class CustomerIntegrationTest
         .create(CreateCustomerPayload(email = customer.email.value, isGuest = true.some))
         .as[Root]
 
-      val activateResp =
-        customersApi(newCustomer.id).activate(ActivateCustomerPayload(name = "test"))
-
-      activateResp.status must === (StatusCodes.BadRequest)
-      activateResp.error must === (CustomerEmailNotUnique.description)
+      customersApi(newCustomer.id)
+        .activate(ActivateCustomerPayload(name = "test"))
+        .mustFailWith400(CustomerEmailNotUnique)
     }
 
     "successfully activates non-guest user" in new Fixture {
@@ -299,18 +291,17 @@ class CustomerIntegrationTest
     }
 
     "fails if customer not found" in new Fixture {
-      val response = customersApi(999).disable(ToggleCustomerDisabled(true))
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 999).description)
+      customersApi(999)
+        .disable(ToggleCustomerDisabled(true))
+        .mustFailWith404(NotFoundFailure404(Customer, 999))
     }
 
     "disable already disabled account is ok (overwrite behaviour)" in new Fixture {
       val updated = Customers.update(customer, customer.copy(isDisabled = true)).gimme
       updated.isDisabled must === (true)
 
-      customersApi(customer.id).disable(ToggleCustomerDisabled(true)).as[Root].disabled must === (
-          true)
+      val disabled = customersApi(customer.id).disable(ToggleCustomerDisabled(true)).as[Root]
+      disabled.disabled must === (true)
     }
   }
 
@@ -330,10 +321,9 @@ class CustomerIntegrationTest
     }
 
     "fails if customer not found" in new Fixture {
-      val response = customersApi(999).blacklist(ToggleCustomerBlacklisted(true))
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 999).description)
+      customersApi(999)
+        .blacklist(ToggleCustomerBlacklisted(true))
+        .mustFailWith404(NotFoundFailure404(Customer, 999))
     }
 
     "blacklist already blacklisted account is ok (overwrite behaviour)" in new Fixture {
@@ -397,11 +387,10 @@ class CustomerIntegrationTest
     }
 
     "fails when the credit card doesn't exist" in new Fixture {
-      val payload  = ToggleDefaultCreditCard(isDefault = true)
-      val response = customersApi(customer.id).payments.creditCard(99).toggleDefault(payload)
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(CreditCard, 99).description)
+      customersApi(customer.id).payments
+        .creditCard(99)
+        .toggleDefault(ToggleDefaultCreditCard(isDefault = true))
+        .mustFailWith404(NotFoundFailure404(CreditCard, 99))
     }
   }
 
@@ -487,34 +476,33 @@ class CustomerIntegrationTest
     }
 
     "fails if the card cannot be found" in new CreditCardFixture {
-      val response = customersApi(customer.id).payments.creditCard(99).edit(EditCreditCard())
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(CreditCard, 99).description)
+      customersApi(customer.id).payments
+        .creditCard(99)
+        .edit(EditCreditCard())
+        .mustFailWith404(NotFoundFailure404(CreditCard, 99))
     }
 
     "fails if the card is not inWallet" in new CreditCardFixture {
       val deleteResp = customersApi(customer.id).payments.creditCard(creditCard.id).delete()
       deleteResp.status must === (StatusCodes.NoContent)
 
-      val response =
-        customersApi(customer.id).payments.creditCard(creditCard.id).edit(EditCreditCard())
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (CannotUseInactiveCreditCard(creditCard).description)
+      customersApi(customer.id).payments
+        .creditCard(creditCard.id)
+        .edit(EditCreditCard())
+        .mustFailWith400(CannotUseInactiveCreditCard(creditCard))
     }
 
     "fails if the payload is invalid" in new CreditCardFixture {
-      val response = customersApi(customer.id).payments
+      customersApi(customer.id).payments
         .creditCard(creditCard.id)
         .edit(EditCreditCard(holderName = "".some))
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === ("holderName must not be empty")
+        .mustFailWithMessage("holderName must not be empty")
     }
 
     "fails if stripe returns an error" in new CreditCardFixture {
-      val exception = new CardException("Your card's expiration year is invalid",
+      val message = "Intentionally unrelated message"
+
+      val exception = new CardException(message,
                                         "X_REQUEST_ID: 1",
                                         "invalid_expiry_year",
                                         "exp_year",
@@ -526,12 +514,10 @@ class CustomerIntegrationTest
       when(stripeWrapperMock.updateCard(any(), any()))
         .thenReturn(Result.failure[StripeCard](StripeFailure(exception)))
 
-      val response = customersApi(customer.id).payments
+      customersApi(customer.id).payments
         .creditCard(creditCard.id)
         .edit(EditCreditCard(expYear = 2000.some))
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === ("Your card's expiration year is invalid")
+        .mustFailWithMessage(message)
     }
   }
 
@@ -581,10 +567,9 @@ class CustomerIntegrationTest
 
       publicApi.resetPassword(ResetPassword(code = resetPw.code, newPassword = "456")).mustBeOk()
 
-      val response2 =
-        publicApi.resetPassword(ResetPassword(code = resetPw.code, newPassword = "456"))
-      response2.status must === (StatusCodes.BadRequest)
-      response2.error must === (ResetPasswordCodeInvalid(resetPw.code).description)
+      publicApi
+        .resetPassword(ResetPassword(code = resetPw.code, newPassword = "456"))
+        .mustFailWith400(ResetPasswordCodeInvalid(resetPw.code))
     }
   }
 

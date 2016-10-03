@@ -2,6 +2,7 @@ import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
 
+import failures.GeneralFailure
 import util.Extensions._
 import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures.SkuNotFoundForContext
@@ -39,8 +40,7 @@ class SkuIntegrationTest
       val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
       val attrMap    = Map("price" → priceJson)
 
-      val response = skusApi.create(SkuPayload(attrMap))
-      response.status must === (StatusCodes.BadRequest)
+      skusApi.create(SkuPayload(attrMap)).mustFailWithMessage("SKU code not found in payload")
     }
   }
 
@@ -95,19 +95,15 @@ class SkuIntegrationTest
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong code" in new Fixture {
-      val response = skusApi("666").archive()
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (SkuNotFoundForContext("666", ctx.id).description)
+      skusApi("666").archive().mustFailWith404(SkuNotFoundForContext("666", ctx.id))
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong context" in new Fixture {
       implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
 
-      val response = skusApi(sku.code)(donkeyContext).archive()
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (ObjectContextNotFound("donkeyContext").description)
+      skusApi(sku.code)(donkeyContext)
+        .archive()
+        .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }
   }
 

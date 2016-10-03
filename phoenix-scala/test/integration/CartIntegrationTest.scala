@@ -1,10 +1,12 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import cats.implicits._
+import cats.syntax.order
 import util.Extensions._
 import failures.CartFailures._
 import failures.LockFailures._
-import failures.NotFoundFailure404
+import failures.ShippingMethodFailures._
+import failures.{GeneralFailure, NotFoundFailure400, NotFoundFailure404}
 import models.cord._
 import models.cord.lineitems._
 import models.location.{Address, Addresses, Regions}
@@ -73,18 +75,13 @@ class CartIntegrationTest
 
     "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
     with Sku_Raw with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val payload = Seq(UpdateLineItemsPayload(simpleSku.code, 1))
-
-      val response = cartsApi(cart.refNum).lineItems.add(payload)
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (SKUWithNoProductAdded(cart.refNum, simpleSku.code).description)
+      cartsApi(cart.refNum).lineItems
+        .add(Seq(UpdateLineItemsPayload(simpleSku.code, 1)))
+        .mustFailWith400(SKUWithNoProductAdded(cart.refNum, simpleSku.code))
     }
 
     "should respond with 404 if cart is not found" in {
-      val response = cartsApi("NOPE").lineItems.add(payload)
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Cart, "NOPE").description)
+      cartsApi("NOPE").lineItems.add(payload).mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
     }
   }
 
@@ -102,19 +99,18 @@ class CartIntegrationTest
 
     "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
     with Sku_Raw with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val payload = Seq(UpdateLineItemsPayload(simpleSku.code, 1))
-
-      val response = cartsApi(cart.refNum).lineItems.update(payload)
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (SKUWithNoProductAdded(cart.refNum, simpleSku.code).description)
+      cartsApi(cart.refNum).lineItems
+        .update(Seq(UpdateLineItemsPayload(simpleSku.code, 1)))
+        .mustFailWith400(SKUWithNoProductAdded(cart.refNum, simpleSku.code))
     }
 
     "should successfully remove line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
       val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1))
-      val root            = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse]
-      val skus            = root.lineItems.skus
+
+      val root = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse]
+
+      val skus = root.lineItems.skus
       skus must have size 1
       skus.map(_.sku).toSet must === (Set("SKU-YAX"))
       skus.map(_.quantity).toSet must === (Set(1))
@@ -123,15 +119,15 @@ class CartIntegrationTest
     "removing too many of an item should remove all of that item" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
       val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -3))
-      val root            = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse]
-      val skus            = root.lineItems.skus
+
+      val root = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse]
+
+      val skus = root.lineItems.skus
       skus must have size 0
     }
 
     "should respond with 404 if cart is not found" in {
-      val response = cartsApi("NOPE").lineItems.add(addPayload)
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Cart, "NOPE").description)
+      cartsApi("NOPE").lineItems.add(addPayload).mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
     }
 
     "should add line items if productId and skuId are different" in new OrderShippingMethodFixture
@@ -161,9 +157,7 @@ class CartIntegrationTest
     "refuses to lock an already locked cart" in new Fixture {
       Carts.update(cart, cart.copy(isLocked = true)).gimme
 
-      val response = cartsApi(cart.refNum).lock()
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (LockedFailure(Cart, cart.refNum).description)
+      cartsApi(cart.refNum).lock().mustFailWith400(LockedFailure(Cart, cart.refNum))
     }
 
     "avoids race condition" in new Fixture {
@@ -182,15 +176,11 @@ class CartIntegrationTest
       cartsApi(cart.refNum).lock().mustBeOk()
       cartsApi(cart.refNum).unlock().mustBeOk()
 
-      val unlockedCart = Carts.findByRefNum(cart.refNum).gimme.head
-      unlockedCart.isLocked must === (false)
+      Carts.findByRefNum(cart.refNum).gimme.head.isLocked must === (false)
     }
 
     "refuses to unlock an already unlocked cart" in new Fixture {
-      val response = cartsApi(cart.refNum).unlock()
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (NotLockedFailure(Cart, cart.refNum).description)
+      cartsApi(cart.refNum).unlock().mustFailWith400(NotLockedFailure(Cart, cart.refNum))
     }
   }
 
@@ -303,10 +293,9 @@ class CartIntegrationTest
       }
 
       "errors if the address does not exist" in new EmptyCartWithShipAddress_Baked {
-        val response = cartsApi(cart.refNum).shippingAddress.updateFromAddress(99)
-
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Address, 99).description)
+        cartsApi(cart.refNum).shippingAddress
+          .updateFromAddress(99)
+          .mustFailWith404(NotFoundFailure404(Address, 99))
       }
     }
 
@@ -330,16 +319,16 @@ class CartIntegrationTest
       }
 
       "errors if the address does not exist" in new EmptyCartWithShipAddress_Baked {
-        val response = cartsApi(cart.refNum).shippingAddress.updateFromAddress(99)
-
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Address, 99).description)
+        cartsApi(cart.refNum).shippingAddress
+          .updateFromAddress(99)
+          .mustFailWith404(NotFoundFailure404(Address, 99))
       }
 
       "does not change the current shipping address if the edit fails" in new EmptyCartWithShipAddress_Baked {
-        val response = cartsApi(cart.refNum).shippingAddress.updateFromAddress(101)
+        cartsApi(cart.refNum).shippingAddress
+          .updateFromAddress(101)
+          .mustFailWith404(NotFoundFailure404(Address, 101))
 
-        response.status must === (StatusCodes.NotFound)
         val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
         shippingAddressUpd.cordRef must === (cart.refNum)
       }
@@ -412,22 +401,19 @@ class CartIntegrationTest
       cartWithoutAddress.warnings.value must contain(noShipAddressFailure)
 
       //fails if the cart does not have shipping address
-      val deleteFailedResponse = cartsApi(cart.refNum).shippingAddress.delete()
-      deleteFailedResponse.status must === (StatusCodes.BadRequest)
+      cartsApi(cart.refNum).shippingAddress.delete().mustFailWith400(NoShipAddress(cart.refNum))
     }
 
     "fails if the cart is not found" in new EmptyCartWithShipAddress_Baked {
-      val response = cartsApi("NOPE").shippingAddress.delete()
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Cart, "NOPE").description)
+      cartsApi("NOPE").shippingAddress.delete().mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
 
       OrderShippingAddresses.length.result.gimme must === (1)
     }
 
     "fails if the order has already been placed" in new Order_Baked {
-      val response = cartsApi(order.refNum).shippingAddress.delete()
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (OrderAlreadyPlaced(cart.refNum).description)
+      cartsApi(order.refNum).shippingAddress
+        .delete()
+        .mustFailWith400(OrderAlreadyPlaced(cart.refNum))
 
       OrderShippingAddresses.length.result.gimme must === (1)
     }
@@ -436,7 +422,7 @@ class CartIntegrationTest
   "PATCH /v1/orders/:refNum/shipping-method" - {
     "succeeds if the cart meets the shipping restrictions" in new ShippingMethodFixture {
       val fullCart = cartsApi(cart.refNum).shippingMethod
-        .update(UpdateShippingMethod(shippingMethodId = lowShippingMethod.id))
+        .update(UpdateShippingMethod(lowShippingMethod.id))
         .asTheResult[CartResponse]
       fullCart.shippingMethod.value.name must === (lowShippingMethod.adminDisplayName)
 
@@ -446,24 +432,21 @@ class CartIntegrationTest
     }
 
     "fails if the cart does not meet the shipping restrictions" in new ShippingMethodFixture {
-      val response = cartsApi(cart.refNum).shippingMethod
-        .update(UpdateShippingMethod(shippingMethodId = highShippingMethod.id))
-
-      response.status must === (StatusCodes.BadRequest)
+      cartsApi(cart.refNum).shippingMethod
+        .update(UpdateShippingMethod(highShippingMethod.id))
+        .mustFailWith400(ShippingMethodNotApplicableToCart(highShippingMethod.id, cart.refNum))
     }
 
     "fails if the shipping method isn't found" in new ShippingMethodFixture {
-      val response =
-        cartsApi(cart.refNum).shippingMethod.update(UpdateShippingMethod(shippingMethodId = 999))
-
-      response.status must === (StatusCodes.BadRequest)
+      cartsApi(cart.refNum).shippingMethod
+        .update(UpdateShippingMethod(999))
+        .mustFailWith400(NotFoundFailure400(ShippingMethod, 999))
     }
 
     "fails if the shipping method isn't active" in new ShippingMethodFixture {
-      val response = cartsApi(cart.refNum).shippingMethod
-        .update(UpdateShippingMethod(shippingMethodId = inactiveShippingMethod.id))
-
-      response.status must === (StatusCodes.BadRequest)
+      cartsApi(cart.refNum).shippingMethod
+        .update(UpdateShippingMethod(inactiveShippingMethod.id))
+        .mustFailWith400(ShippingMethodIsNotActive(inactiveShippingMethod.id))
     }
   }
 

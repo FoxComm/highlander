@@ -53,13 +53,10 @@ class CouponsIntegrationTest
           attributes = ("name" → (("type" → "string") ~ ("ref" → "name")))
               ~ ("activeFrom"  → (("type" → "string") ~ ("ref" → "activeFrom")))
       )
-      val response = couponsApi.create(
-          CreateCoupon(form = invalidCouponForm, shadow = shadow, promotion = promotion.id))
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (ShadowAttributeInvalidTime(
-              "activeFrom",
-              "JString(2016-07-19T08:28:21.405+00:00)").description)
+      couponsApi
+        .create(CreateCoupon(form = invalidCouponForm, shadow = shadow, promotion = promotion.id))
+        .mustFailWith400(
+            ShadowAttributeInvalidTime("activeFrom", "JString(2016-07-19T08:28:21.405+00:00)"))
     }
   }
 
@@ -72,18 +69,14 @@ class CouponsIntegrationTest
     }
 
     "404 for not existing coupon" in new Fixture {
-      val response = couponsApi.delete(666)
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Coupon, 666).description)
+      couponsApi.delete(666).mustFailWith404(NotFoundFailure404(Coupon, 666))
     }
 
     "404 when context not found" in new Fixture {
       implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
-      val response               = couponsApi.delete(coupon.form.id)(donkeyContext)
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (ObjectContextNotFound("donkeyContext").description)
+      couponsApi
+        .delete(coupon.form.id)(donkeyContext)
+        .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }
   }
 
@@ -93,9 +86,8 @@ class CouponsIntegrationTest
         val response = cartsApi(cart.refNum).coupon.add(fromCode).asTheResult[CartResponse]
 
         response.referenceNumber must === (cart.refNum)
-        response.coupon must be('defined)
         response.coupon.value.code must === (fromCode)
-        response.promotion must be('defined)
+        response.promotion mustBe defined
       }
 
       "when activeFrom is before now and activeTo later than now" in new OrderCouponFixture {
@@ -109,25 +101,17 @@ class CouponsIntegrationTest
 
     "fails to attach coupon" - {
       "when activeFrom is after now" in new OrderCouponFixture {
-        val response = cartsApi(cart.refNum).coupon.add(willBeActiveCode)
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (CouponIsNotActive.description)
+        cartsApi(cart.refNum).coupon.add(willBeActiveCode).mustFailWith400(CouponIsNotActive)
       }
 
       "when activeTo is before now" in new OrderCouponFixture {
-        val response = cartsApi(cart.refNum).coupon.add(wasActiveCode)
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (CouponIsNotActive.description)
+        cartsApi(cart.refNum).coupon.add(wasActiveCode).mustFailWith400(CouponIsNotActive)
       }
 
       "when attaching to order" in new OrderCouponFixture {
         // TODO @anna: This can be removed once /orders vs /carts pathes are split
-        val response = POST(s"v1/orders/${order.refNum}/coupon/$fromToCode")
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (OrderAlreadyPlaced(order.refNum).description)
+        POST(s"v1/orders/${order.refNum}/coupon/$fromToCode")
+          .mustFailWith400(OrderAlreadyPlaced(order.refNum))
       }
     }
   }

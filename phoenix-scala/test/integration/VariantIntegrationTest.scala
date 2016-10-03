@@ -3,6 +3,8 @@ import java.time.Instant
 import akka.http.scaladsl.model.StatusCodes
 
 import failures.ArchiveFailures.LinkArchivedSkuFailure
+import failures.NotFoundFailure404
+import failures.ProductFailures.VariantNotFoundForContext
 import models.inventory.Skus
 import models.product._
 import org.json4s.JsonDSL._
@@ -43,10 +45,9 @@ class VariantIntegrationTest
     }
 
     "Fails when trying to create variant with archived sku as value" in new ArchivedSkusFixture {
-      val response = variantsApi.create(archivedSkuVariantPayload)
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (LinkArchivedSkuFailure(Variant, 10, archivedSkuCode).description)
+      variantsApi
+        .create(archivedSkuVariantPayload)
+        .mustFailWith400(LinkArchivedSkuFailure(Variant, 10, archivedSkuCode))
     }
   }
 
@@ -64,8 +65,7 @@ class VariantIntegrationTest
     }
 
     "Throws a 404 if given an invalid id" in new Fixture {
-      val response = variantsApi(123).get()
-      response.status must === (StatusCodes.NotFound)
+      variantsApi(123).get().mustFailWith404(VariantNotFoundForContext(123, ctx.id))
     }
   }
 
@@ -74,25 +74,23 @@ class VariantIntegrationTest
       val payload = VariantPayload(values = None,
                                    attributes =
                                      Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
-      val variantResponse =
-        variantsApi(variant.variant.variantFormId).update(payload).as[VariantRoot]
-      variantResponse.values.length must === (2)
+      val response = variantsApi(variant.variant.variantFormId).update(payload).as[VariantRoot]
+      response.values.length must === (2)
 
-      (variantResponse.attributes \ "name" \ "v").extract[String] must === ("New Size")
+      (response.attributes \ "name" \ "v").extract[String] must === ("New Size")
 
-      variantResponse.values.map(_.name).toSet must === (Set("Small", "Large"))
+      response.values.map(_.name).toSet must === (Set("Small", "Large"))
     }
 
     "Fails when trying to attach archived SKU to the variant" in new ArchivedSkusFixture {
       var payload = VariantPayload(values = Some(Seq(archivedSkuVariantValuePayload)),
                                    attributes =
                                      Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
-      val response = variantsApi(variant.variant.variantFormId).update(payload)
 
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (LinkArchivedSkuFailure(Variant,
-                                                      variant.variant.variantFormId,
-                                                      archivedSkuCode).description)
+      variantsApi(variant.variant.variantFormId)
+        .update(payload)
+        .mustFailWith400(
+            LinkArchivedSkuFailure(Variant, variant.variant.variantFormId, archivedSkuCode))
     }
   }
 
@@ -110,11 +108,9 @@ class VariantIntegrationTest
     "Fails when attaching archived SKU to variant as variant value" in new ArchivedSkusFixture {
       val variantResponse = variantsApi.create(createVariantPayload).as[VariantRoot]
 
-      val response2 = variantsApi(variantResponse.id).createValues(archivedSkuVariantValuePayload)
-
-      response2.status must === (StatusCodes.BadRequest)
-      response2.error must === (
-          LinkArchivedSkuFailure(Variant, variantResponse.id, archivedSkuCode).description)
+      variantsApi(variantResponse.id)
+        .createValues(archivedSkuVariantValuePayload)
+        .mustFailWith400(LinkArchivedSkuFailure(Variant, variantResponse.id, archivedSkuCode))
     }
   }
 
@@ -123,8 +119,8 @@ class VariantIntegrationTest
                                                 Map("name" → (("t" → "string") ~ ("v" → "Color"))),
                                               values = None)
 
-    val testSkus = Seq(SimpleSku("SKU-TST", "SKU test", 1000, Currency.USD, true),
-                       SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, true))
+    val testSkus = Seq(SimpleSku("SKU-TST", "SKU test", 1000, Currency.USD, active = true),
+                       SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, active = true))
 
     val skus = Mvp.insertSkus(ctx.id, testSkus).gimme
 

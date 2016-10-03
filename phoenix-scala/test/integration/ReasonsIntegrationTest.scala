@@ -21,15 +21,14 @@ class ReasonsIntegrationTest
     "GET /v1/public/reasons/:type" - {
       "should return list of reasons by type" in new Fixture {
         val reasonType = Reason.GiftCardCreation.toString.lowerCaseFirstLetter
-        val root       = publicApi.getReason(reasonType).as[Seq[Reason]]
+
+        val root = publicApi.getReason(reasonType).as[Seq[Reason]]
         root.size must === (1)
         root.headOption.value.id must === (reason.id)
       }
 
       "should return error if invalid type provided" in new Fixture {
-        val response = publicApi.getReason("lolwut")
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (InvalidReasonTypeFailure("lolwut").description)
+        publicApi.getReason("lolwut").mustFailWith400(InvalidReasonTypeFailure("lolwut"))
       }
     }
   }

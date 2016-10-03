@@ -2,6 +2,8 @@ import akka.http.scaladsl.model.StatusCodes
 
 import util.Extensions._
 import com.github.tminglei.slickpg.LTree
+import failures.GeneralFailure
+import failures.TreeFailures._
 import models.objects._
 import models.tree._
 import org.json4s.JsonDSL._
@@ -76,8 +78,9 @@ class GenericTreeIntegrationTest
                                    List(NodePayload("test", testObjects(1).id, Nil),
                                         NodePayload("test", testObjects(2).id, Nil)))
 
-        genericTreesApi(tree.name).createInPath("1.5.10", testTree).status must === (
-            StatusCodes.NotFound)
+        genericTreesApi(tree.name)
+          .createInPath("1.5.10", testTree)
+          .mustFailWith404(TreeNotFound(tree.name, ctx.name, "1.5.10"))
       }
     }
 
@@ -96,8 +99,9 @@ class GenericTreeIntegrationTest
       }
 
       "fails to make node to be child of its child" in new TestTree {
-        genericTreesApi(tree.name).moveNode(MoveNodePayload(Some(4), 3)).status must === (
-            StatusCodes.BadRequest)
+        genericTreesApi(tree.name)
+          .moveNode(MoveNodePayload(Some(4), 3))
+          .mustFailWith400(ParentChildSwapFailure(4, 3))
       }
     }
 

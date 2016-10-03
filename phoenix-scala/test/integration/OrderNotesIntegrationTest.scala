@@ -28,15 +28,17 @@ class OrderNotesIntegrationTest
     }
 
     "returns a validation error if failed to create" in new Order_Baked {
-      val response = notesApi.order(order.refNum).create(CreateNote(""))
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === ("body must not be empty")
+      notesApi
+        .order(order.refNum)
+        .create(CreateNote(""))
+        .mustFailWithMessage("body must not be empty")
     }
 
     "returns a 404 if the order is not found" in new Order_Baked {
-      val response = notesApi.order("ABACADSF113").create(CreateNote(""))
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Order, "ABACADSF113").description)
+      notesApi
+        .order("NOPE")
+        .create(CreateNote(""))
+        .mustFailWith404(NotFoundFailure404(Order, "NOPE"))
     }
   }
 
@@ -72,7 +74,6 @@ class OrderNotesIntegrationTest
 
       val response = notesApi.order(order.refNum).note(note.id).delete()
       response.status must === (StatusCodes.NoContent)
-      response.bodyText mustBe empty
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
       updatedNote.deletedBy.value must === (1)
@@ -80,9 +81,6 @@ class OrderNotesIntegrationTest
 
       val allNotes = notesApi.order(order.refNum).get().as[Seq[Root]]
       allNotes.map(_.id) must not contain note.id
-
-      val getDeletedNoteResponse = notesApi.order(order.refNum).note(note.id).get()
-      getDeletedNoteResponse.status must === (StatusCodes.NotFound)
     }
   }
 }

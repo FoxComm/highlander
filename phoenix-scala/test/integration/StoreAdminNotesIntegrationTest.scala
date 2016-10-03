@@ -29,17 +29,17 @@ class StoreAdminNotesIntegrationTest
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = notesApi.storeAdmin(storeAdmin.id).create(CreateNote(""))
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === ("body must not be empty")
+      notesApi
+        .storeAdmin(storeAdmin.id)
+        .create(CreateNote(""))
+        .mustFailWithMessage("body must not be empty")
     }
 
     "returns a 404 if the store admin is not found" in new Fixture {
-      val response = notesApi.storeAdmin(999999).create(CreateNote(""))
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(StoreAdmin, 999999).description)
+      notesApi
+        .storeAdmin(999999)
+        .create(CreateNote(""))
+        .mustFailWith404(NotFoundFailure404(StoreAdmin, 999999))
     }
   }
 
@@ -79,7 +79,6 @@ class StoreAdminNotesIntegrationTest
 
       val response = notesApi.storeAdmin(storeAdmin.id).note(note.id).delete()
       response.status must === (StatusCodes.NoContent)
-      response.bodyText mustBe empty
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
       updatedNote.deletedBy.value must === (1)
@@ -90,9 +89,6 @@ class StoreAdminNotesIntegrationTest
 
       val allNotes = notesApi.storeAdmin(storeAdmin.id).get().as[Seq[Root]]
       allNotes.map(_.id) must not contain note.id
-
-      val getDeletedNoteResponse = notesApi.storeAdmin(storeAdmin.id).note(note.id).get()
-      getDeletedNoteResponse.status must === (StatusCodes.NotFound)
     }
   }
 

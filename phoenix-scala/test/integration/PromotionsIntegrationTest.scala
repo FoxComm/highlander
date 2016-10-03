@@ -39,26 +39,21 @@ class PromotionsIntegrationTest
         promotionResponse.archivedAt.value.isBeforeNow mustBe true
       }
 
-      val couponResponse = couponsApi(coupon.form.id).get()
-      val couponRoot     = couponResponse.as[CouponResponse.Root]
+      val couponRoot = couponsApi(coupon.form.id).get().as[CouponResponse.Root]
       withClue(couponRoot.archivedAt.value → Instant.now) {
         couponRoot.archivedAt.value.isBeforeNow mustBe true
       }
     }
 
     "404 for not existing coupon" in new Fixture {
-      val response = promotionsApi(666).delete()
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Promotion, 666).description)
+      promotionsApi(666).delete().mustFailWith404(NotFoundFailure404(Promotion, 666))
     }
 
     "404 when context not found" in new Fixture {
       implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
-      val response               = promotionsApi(promotion.formId)(donkeyContext).delete()
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (ObjectContextNotFound("donkeyContext").description)
+      promotionsApi(promotion.formId)(donkeyContext)
+        .delete()
+        .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }
   }
 

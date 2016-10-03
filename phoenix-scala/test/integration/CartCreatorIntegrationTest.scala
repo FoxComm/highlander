@@ -25,10 +25,9 @@ class CartCreatorIntegrationTest
       }
 
       "fails when the customer is not found" in new Fixture {
-        val response = cartsApi.create(CreateCart(customerId = 99.some))
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure400(Customer, 99).description)
+        cartsApi
+          .create(CreateCart(customerId = 99.some))
+          .mustFailWith400(NotFoundFailure400(Customer, 99))
       }
 
       "returns current cart if customer already has one" in new Fixture {
@@ -49,10 +48,7 @@ class CartCreatorIntegrationTest
     }
 
     "fails if neither a new guest or existing customer are provided" in {
-      val response = cartsApi.create(CreateCart())
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === ("customerId or email must be given")
+      cartsApi.create(CreateCart()).mustFailWithMessage("customerId or email must be given")
     }
   }
 

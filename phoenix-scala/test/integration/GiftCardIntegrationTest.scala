@@ -59,24 +59,20 @@ class GiftCardIntegrationTest
       }
 
       "fails if subtypeId is not found" in new Reason_Baked {
-        val payload  = GiftCardCreateByCsr(balance = 25, reasonId = reason.id, subTypeId = 255.some)
-        val response = giftCardsApi.create(payload)
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure404(GiftCardSubtype, 255).description)
+        val payload = GiftCardCreateByCsr(balance = 25, reasonId = reason.id, subTypeId = 255.some)
+        giftCardsApi.create(payload).mustFailWith400(NotFoundFailure404(GiftCardSubtype, 255))
       }
 
       "fails to create gift card with negative balance" in new Reason_Baked {
-        val response =
-          giftCardsApi.create(GiftCardCreateByCsr(balance = -555, reasonId = reason.id))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("Balance got -555, expected more than 0")
+        giftCardsApi
+          .create(GiftCardCreateByCsr(balance = -555, reasonId = reason.id))
+          .mustFailWithMessage("Balance got -555, expected more than 0")
       }
 
       "fails to create gift card with invalid reason" in new Reason_Baked {
-        val response = giftCardsApi.create(GiftCardCreateByCsr(balance = 555, reasonId = 999))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure404(Reason, 999).description)
+        giftCardsApi
+          .create(GiftCardCreateByCsr(balance = 555, reasonId = 999))
+          .mustFailWith400(NotFoundFailure404(Reason, 999))
       }
     }
 
@@ -89,33 +85,27 @@ class GiftCardIntegrationTest
       }
 
       "fails to create multiple gift cards with zero balance" in new Reason_Baked {
-        val response = giftCardsApi.createBulk(
-            GiftCardBulkCreateByCsr(quantity = 5, balance = 0, reasonId = reason.id))
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("Balance got 0, expected more than 0")
+        giftCardsApi
+          .createBulk(GiftCardBulkCreateByCsr(quantity = 5, balance = 0, reasonId = reason.id))
+          .mustFailWithMessage("Balance got 0, expected more than 0")
       }
 
       "fails to create multiple gift cards with negative balance" in new Reason_Baked {
-        val response = giftCardsApi.createBulk(
-            GiftCardBulkCreateByCsr(quantity = 5, balance = -555, reasonId = reason.id))
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("Balance got -555, expected more than 0")
+        giftCardsApi
+          .createBulk(GiftCardBulkCreateByCsr(quantity = 5, balance = -555, reasonId = reason.id))
+          .mustFailWithMessage("Balance got -555, expected more than 0")
       }
 
       "fails to create multiple gift cards with negative quantity" in new Reason_Baked {
-        val response = giftCardsApi.createBulk(
-            GiftCardBulkCreateByCsr(quantity = -5, balance = 256, reasonId = reason.id))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("Quantity got -5, expected more than 0")
+        giftCardsApi
+          .createBulk(GiftCardBulkCreateByCsr(quantity = -5, balance = 256, reasonId = reason.id))
+          .mustFailWithMessage("Quantity got -5, expected more than 0")
       }
 
       "fails to create multiple gift cards with count more than limit" in new Reason_Baked {
-        val response = giftCardsApi.createBulk(
-            GiftCardBulkCreateByCsr(quantity = 25, balance = 256, reasonId = reason.id))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("Quantity got 25, expected 20 or less")
+        giftCardsApi
+          .createBulk(GiftCardBulkCreateByCsr(quantity = 25, balance = 256, reasonId = reason.id))
+          .mustFailWithMessage("Quantity got 25, expected 20 or less")
       }
     }
 
@@ -125,9 +115,7 @@ class GiftCardIntegrationTest
       }
 
       "returns not found when GC doesn't exist" in {
-        val notFoundResponse = giftCardsApi("ABC-666").get()
-        notFoundResponse.status must === (StatusCodes.NotFound)
-        notFoundResponse.error must === (NotFoundFailure404(GiftCard, "ABC-666").description)
+        giftCardsApi("ABC-666").get().mustFailWith404(NotFoundFailure404(GiftCard, "ABC-666"))
       }
     }
 
@@ -138,17 +126,15 @@ class GiftCardIntegrationTest
       }
 
       "returns error if no cancellation reason provided" in new GiftCard_Baked {
-        val response =
-          giftCardsApi(giftCard.code).update(GiftCardUpdateStateByCsr(state = Canceled))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (EmptyCancellationReasonFailure.description)
+        giftCardsApi(giftCard.code)
+          .update(GiftCardUpdateStateByCsr(state = Canceled))
+          .mustFailWith400(EmptyCancellationReasonFailure)
       }
 
       "returns error on cancellation if gift card has auths" in new Fixture {
-        val response = giftCardsApi(giftCard1.code)
+        giftCardsApi(giftCard1.code)
           .update(GiftCardUpdateStateByCsr(state = Canceled, reasonId = reason.id.some))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (OpenTransactionsFailure.description)
+          .mustFailWith400(OpenTransactionsFailure)
       }
 
       "successfully cancels gift card with provided reason, cancel adjustment is created" in new Fixture {
@@ -184,13 +170,11 @@ class GiftCardIntegrationTest
       }
 
       "fails to cancel gift card if invalid reason provided" in new Fixture {
-        // Cancel pending adjustment
         GiftCardAdjustments.cancel(adjustment1.id).gimme
 
-        val response = giftCardsApi(giftCard1.code)
+        giftCardsApi(giftCard1.code)
           .update(GiftCardUpdateStateByCsr(state = Canceled, reasonId = 999.some))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure400(Reason, 999).description)
+          .mustFailWith400(NotFoundFailure400(Reason, 999))
       }
     }
 
@@ -230,9 +214,7 @@ class GiftCardIntegrationTest
             state = GiftCard.Canceled
         )
 
-        val response = giftCardsApi.updateBulk(payload)
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (EmptyCancellationReasonFailure.description)
+        giftCardsApi.updateBulk(payload).mustFailWith400(EmptyCancellationReasonFailure)
       }
     }
 
@@ -241,6 +223,7 @@ class GiftCardIntegrationTest
         val root = giftCardsApi(giftCard2.code)
           .convertToStoreCredit(customer.id)
           .as[StoreCreditResponse.Root]
+
         root.customerId must === (customer.id)
         root.originType must === (StoreCredit.GiftCardTransfer)
         root.state must === (storecredit.StoreCredit.Active)
@@ -253,30 +236,30 @@ class GiftCardIntegrationTest
       }
 
       "fails to convert when GC not found" in new Fixture {
-        val response = giftCardsApi("ABC-666").convertToStoreCredit(customer.id)
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(GiftCard, "ABC-666").description)
+        giftCardsApi("ABC-666")
+          .convertToStoreCredit(customer.id)
+          .mustFailWith404(NotFoundFailure404(GiftCard, "ABC-666"))
       }
 
       "fails to convert when customer not found" in new Fixture {
-        val response = giftCardsApi(giftCard2.code).convertToStoreCredit(666)
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Customer, 666).description)
+        giftCardsApi(giftCard2.code)
+          .convertToStoreCredit(666)
+          .mustFailWith404(NotFoundFailure404(Customer, 666))
       }
 
       "fails to convert GC to SC if open transactions are present" in new Fixture {
-        val response = giftCardsApi(giftCard1.code).convertToStoreCredit(customer.id)
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (OpenTransactionsFailure.description)
+        giftCardsApi(giftCard1.code)
+          .convertToStoreCredit(customer.id)
+          .mustFailWith400(OpenTransactionsFailure)
       }
 
       "fails to convert inactive GC to SC" in new Fixture {
         GiftCards.findByCode(giftCard2.code).map(_.state).update(GiftCard.OnHold).gimme
         val updatedGc = GiftCards.findByCode(giftCard2.code).one.gimme
 
-        val response = giftCardsApi(giftCard2.code).convertToStoreCredit(customer.id)
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (GiftCardConvertFailure(updatedGc.value).description)
+        giftCardsApi(giftCard2.code)
+          .convertToStoreCredit(customer.id)
+          .mustFailWith400(GiftCardConvertFailure(updatedGc.value))
       }
     }
   }

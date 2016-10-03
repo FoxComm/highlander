@@ -3,7 +3,8 @@ import akka.http.scaladsl.model.StatusCodes
 import util.Extensions._
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
-import failures.{NotFoundFailure400, NotFoundFailure404}
+import failures.OrderFailures.OrderPaymentNotFoundFailure
+import failures.{GeneralFailure, NotFoundFailure400, NotFoundFailure404}
 import models.cord.Cart
 import models.customer.Customers
 import models.payment.creditcard._
@@ -35,47 +36,43 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
     }
 
     "fails if the cart is not found" in new CreditCardFixture {
-      val response = cartsApi("NOPE").payments.creditCard.add(CreditCardPayment(creditCard.id))
+      cartsApi("NOPE").payments.creditCard
+        .add(CreditCardPayment(creditCard.id))
+        .mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
 
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Cart, "NOPE").description)
       creditCardPayments(cart) mustBe 'empty
     }
 
     "fails if the creditCard is not found" in new CreditCardFixture {
-      val response = cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(99))
+      cartsApi(cart.refNum).payments.creditCard
+        .add(CreditCardPayment(99))
+        .mustFailWith400(NotFoundFailure400(CreditCard, 99))
 
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (NotFoundFailure404(CreditCard, 99).description)
       creditCardPayments(cart) mustBe 'empty
     }
 
     "fails if the creditCard is inActive" in new CreditCardFixture {
       CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(storeAdmin)).gimme
-      val response =
-        cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id))
 
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (CannotUseInactiveCreditCard(creditCard).description)
+      cartsApi(cart.refNum).payments.creditCard
+        .add(CreditCardPayment(creditCard.id))
+        .mustFailWith400(CannotUseInactiveCreditCard(creditCard))
+
       creditCardPayments(cart) mustBe 'empty
     }
 
     "fails if the order has already been placed" in new CreditCardFixture with Order_Baked {
-      val response =
-        cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id))
+      cartsApi(cart.refNum).payments.creditCard
+        .add(CreditCardPayment(creditCard.id))
+        .mustFailWith400(OrderAlreadyPlaced(cart.refNum))
 
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (OrderAlreadyPlaced(cart.refNum).description)
       creditCardPayments(cart) mustBe 'empty
     }
 
     "fails if customer does not own credit card" in new CreditCardFixture {
-      val response = cartsApi(cart.refNum).payments.creditCard
+      cartsApi(cart.refNum).payments.creditCard
         .add(CreditCardPayment(creditCardOfOtherCustomer.id))
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (
-          NotFoundFailure400(CreditCard, creditCardOfOtherCustomer.id).description)
+        .mustFailWith400(NotFoundFailure400(CreditCard, creditCardOfOtherCustomer.id))
     }
   }
 
@@ -88,17 +85,18 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
     }
 
     "fails if the cart is not found" in new CreditCardFixture {
-      val response = cartsApi("NOPE").payments.creditCard.add(CreditCardPayment(creditCard.id))
+      cartsApi("NOPE").payments.creditCard
+        .add(CreditCardPayment(creditCard.id))
+        .mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
 
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Cart, "NOPE").description)
       creditCardPayments(cart) mustBe 'empty
     }
 
     "fails if there is no creditCard payment" in new CreditCardFixture {
-      val response = cartsApi(cart.refNum).payments.creditCard.delete()
+      cartsApi(cart.refNum).payments.creditCard
+        .delete()
+        .mustFailWith400(OrderPaymentNotFoundFailure(CreditCard))
 
-      response.status must === (StatusCodes.BadRequest)
       creditCardPayments(cart) mustBe 'empty
     }
   }

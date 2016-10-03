@@ -31,17 +31,17 @@ class GiftCardNotesIntegrationTest
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = notesApi.giftCard(giftCard.code).create(CreateNote(body = ""))
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === ("body must not be empty")
+      notesApi
+        .giftCard(giftCard.code)
+        .create(CreateNote(body = ""))
+        .mustFailWithMessage("body must not be empty")
     }
 
     "returns a 404 if the gift card is not found" in new Fixture {
-      val response = notesApi.giftCard("NOPE").create(CreateNote(body = ""))
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(GiftCard, "NOPE").description)
+      notesApi
+        .giftCard("NOPE")
+        .create(CreateNote(body = ""))
+        .mustFailWith404(NotFoundFailure404(GiftCard, "NOPE"))
     }
   }
 
@@ -93,9 +93,6 @@ class GiftCardNotesIntegrationTest
 
       val allNotes = notesApi.giftCard(giftCard.code).get().as[Seq[Root]]
       allNotes.map(_.id) must not contain note.id
-
-      val getDeletedNoteResponse = notesApi.giftCard(giftCard.code).note(note.id).get()
-      getDeletedNoteResponse.status must === (StatusCodes.NotFound)
     }
   }
 

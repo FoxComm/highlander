@@ -102,15 +102,11 @@ class NotificationIntegrationTest
     }
 
     "404 if activity not found" in new StoreAdmin_Seed {
-      val response = notificationsApi.updateLastSeen(666)
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Activity, 666).description)
+      notificationsApi.updateLastSeen(666).mustFailWith404(NotFoundFailure404(Activity, 666))
     }
 
     "400 if notification trail not found" in new Fixture {
-      val response = notificationsApi.updateLastSeen(activityId)
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (NotificationTrailNotFound400(1).description)
+      notificationsApi.updateLastSeen(activityId).mustFailWith400(NotificationTrailNotFound400(1))
     }
   }
 
@@ -129,16 +125,14 @@ class NotificationIntegrationTest
     }
 
     "400 if source dimension not found" in {
-      val response = notificationsApi.create(newNotification)
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (NotFoundFailure400(Dimension, Dimension.order).description)
+      notificationsApi
+        .create(newNotification)
+        .mustFailWith400(NotFoundFailure400(Dimension, Dimension.order))
     }
 
     "400 if source activity not found" in {
       createDimension.gimme
-      val response = notificationsApi.create(newNotification)
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (NotFoundFailure400(Activity, 1).description)
+      notificationsApi.create(newNotification).mustFailWith400(NotFoundFailure400(Activity, 1))
     }
   }
 

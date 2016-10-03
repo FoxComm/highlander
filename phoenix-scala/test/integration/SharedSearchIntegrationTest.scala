@@ -1,7 +1,7 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import util.Extensions._
-import failures.NotFoundFailure404
+import failures.{GeneralFailure, NotFoundFailure404}
 import failures.SharedSearchFailures._
 import models.sharedsearch.SharedSearch._
 import models.sharedsearch.SharedSearchAssociation.{build ⇒ buildAssociation}
@@ -25,54 +25,51 @@ class SharedSearchIntegrationTest
 
   "GET v1/shared-search" - {
     "return an error when not scoped" in new SharedSearchFixture {
-      val response = GET(s"v1/shared-search")
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (SharedSearchScopeNotFound.description)
+      GET(s"v1/shared-search").mustFailWith400(SharedSearchScopeNotFound)
     }
 
     "returns an error when given an invalid scope" in new SharedSearchFixture {
-      val response = sharedSearchApi.scope("arstScope")
-      response.status must === (StatusCodes.NotFound)
+      sharedSearchApi
+        .scope("arstScope")
+        .mustFailWith404(NotFoundFailure404(SharedSearch, "arstScope"))
     }
 
     "returns only customers searches with the orders scope" in new SharedSearchFixture {
-      sharedSearchApi.scope("customersScope").as[Seq[SharedSearch]] must === (Seq(customersSearch))
+      getByScope("customersScope") must === (Seq(customersSearch))
     }
 
     "returns only orders searches with the orders scope" in new SharedSearchFixture {
-      sharedSearchApi.scope("ordersScope").as[Seq[SharedSearch]] must === (Seq(ordersSearch))
+      getByScope("ordersScope") must === (Seq(ordersSearch))
     }
 
     "returns only storeAdmins searches with the storeAdmins scope" in new SharedSearchFixture {
-      sharedSearchApi.scope("storeAdminsScope").as[Seq[SharedSearch]] must === (
-          Seq(storeAdminsSearch))
+      getByScope("storeAdminsScope") must === (Seq(storeAdminsSearch))
     }
 
     "returns only giftCards searches with the giftCards scope" in new SharedSearchFixture {
-      sharedSearchApi.scope("giftCardsScope").as[Seq[SharedSearch]] must === (Seq(giftCardsSearch))
+      getByScope("giftCardsScope") must === (Seq(giftCardsSearch))
     }
 
     "returns only products searches with the products scope" in new SharedSearchFixture {
-      sharedSearchApi.scope("productsScope").as[Seq[SharedSearch]] must === (Seq(productsSearch))
+      getByScope("productsScope") must === (Seq(productsSearch))
     }
 
     "returns only inventory searches with the inventory scope" in new SharedSearchFixture {
-      sharedSearchApi.scope("inventoryScope").as[Seq[SharedSearch]] must === (Seq(inventorySearch))
+      getByScope("inventoryScope") must === (Seq(inventorySearch))
     }
 
     "returns only promotion searches with the promotions scope" in new SharedSearchFixture {
-      sharedSearchApi.scope("promotionsScope").as[Seq[SharedSearch]] must === (
-          Seq(promotionsSearch))
+      getByScope("promotionsScope") must === (Seq(promotionsSearch))
     }
 
     "returns only coupon searches with the coupons scope" in new SharedSearchFixture {
-      sharedSearchApi.scope("couponsScope").as[Seq[SharedSearch]] must === (Seq(couponsSearch))
+      getByScope("couponsScope") must === (Seq(couponsSearch))
     }
 
     "returns associated scopes created by different admins" in new SharedSearchAssociationFixture {
       SharedSearchAssociations.create(buildAssociation(search, storeAdmin)).gimme
 
-      sharedSearchApi.scope("customersScope").as[Seq[SharedSearch]] must === (Seq(search))
+      getByScope("customersScope") must === (Seq(search))
     }
   }
 
@@ -87,9 +84,7 @@ class SharedSearchIntegrationTest
     }
 
     "404 if not found" in {
-      val response = sharedSearchApi("nope").get()
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(SharedSearch, "nope").description)
+      sharedSearchApi("nope").get().mustFailWith404(NotFoundFailure404(SharedSearch, "nope"))
     }
   }
 
@@ -114,16 +109,16 @@ class SharedSearchIntegrationTest
     }
 
     "400 if query has invalid JSON payload" in new Fixture {
-      val query    = """
+      val query = """
           | {
           |   "title": "Test",
           |   "query": xxx,
           |   "scope": "customersScope"
           | }
         """.stripMargin
-      val response = sharedSearchApi.createFromQuery(query)
-      response.status must === (StatusCodes.BadRequest)
-      response.error must include(SharedSearchInvalidQueryFailure.description)
+
+      private val message = "The request content was malformed:\n" + SharedSearchInvalidQueryFailure.description
+      sharedSearchApi.createFromQuery(query).mustFailWithMessage(message)
     }
   }
 
@@ -140,48 +135,43 @@ class SharedSearchIntegrationTest
     }
 
     "404 if not found" in {
-      val payload  = SharedSearchPayload("test", dummyJVal, dummyJVal, CustomersScope)
-      val response = sharedSearchApi("nope").update(payload)
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(SharedSearch, "nope").description)
+      sharedSearchApi("nope")
+        .update(SharedSearchPayload("test", dummyJVal, dummyJVal, CustomersScope))
+        .mustFailWith404(NotFoundFailure404(SharedSearch, "nope"))
     }
 
     "400 if query has invalid JSON payload" in new Fixture {
       val payload = SharedSearchPayload("test", dummyJVal, dummyJVal, CustomersScope)
       val code    = sharedSearchApi.create(payload).as[SharedSearch].code
 
-      val query    = """
+      val query = """
           | {
           |   "title": "Test",
           |   "query": xxx,
           |   "scope": "customersScope"
           | }
         """.stripMargin
-      val response = sharedSearchApi(code).updateFromQuery(query)
-      response.status must === (StatusCodes.BadRequest)
-      response.error must include(SharedSearchInvalidQueryFailure.description)
+
+      private val message = "The request content was malformed:\n" + SharedSearchInvalidQueryFailure.description
+      sharedSearchApi(code).updateFromQuery(query).mustFailWithMessage(message)
     }
   }
 
   "DELETE v1/shared-search/:code" - {
     "softly deletes shared search, shouldn't be shown in next request" in new Fixture {
-      val payload  = SharedSearchPayload("test", dummyJVal, dummyJVal, CustomersScope)
-      val code     = sharedSearchApi.create(payload).as[SharedSearch].code
-      val response = sharedSearchApi(code).delete()
-      response.status must === (StatusCodes.NoContent)
+      val payload = SharedSearchPayload("test", dummyJVal, dummyJVal, CustomersScope)
+      val code    = sharedSearchApi.create(payload).as[SharedSearch].code
+      sharedSearchApi(code).delete().status must === (StatusCodes.NoContent)
 
-      val getResponse = sharedSearchApi(code).get()
-      getResponse.status must === (StatusCodes.NotFound)
+      sharedSearchApi(code).get().mustFailWith404(NotFoundFailure404(SharedSearch, code))
 
-      sharedSearchApi.scope("customersScope").as[Seq[SharedSearch]] mustBe empty
+      getByScope("customersScope") mustBe empty
 
       SharedSearches.findOneByCode(code).gimme.isDefined must === (true)
     }
 
     "404 if not found" in {
-      val response = sharedSearchApi("nope").delete()
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(SharedSearch, "nope").description)
+      sharedSearchApi("nope").delete().mustFailWith404(NotFoundFailure404(SharedSearch, "nope"))
     }
   }
 
@@ -197,10 +187,9 @@ class SharedSearchIntegrationTest
     }
 
     "404 if shared search is not found" in new AssociateBaseFixture {
-      val response =
-        sharedSearchApi("nope").associate(SharedSearchAssociationPayload(Seq(storeAdmin.id)))
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(SharedSearch, "nope").description)
+      sharedSearchApi("nope")
+        .associate(SharedSearchAssociationPayload(Seq(storeAdmin.id)))
+        .mustFailWith404(NotFoundFailure404(SharedSearch, "nope"))
     }
 
     "warning if store admin is not found" in new AssociateBaseFixture {
@@ -208,7 +197,7 @@ class SharedSearchIntegrationTest
         .associate(SharedSearchAssociationPayload(Seq(1, 999)))
         .asThe[SharedSearch]
         .errors
-        .value must === (List(NotFoundFailure404(StoreAdmin, 999).description))
+        .value must === (Seq(NotFoundFailure404(StoreAdmin, 999).description))
     }
 
     "do not create duplicate records" in new AssociateBaseFixture {
@@ -234,9 +223,9 @@ class SharedSearchIntegrationTest
     }
 
     "404 if not found" in {
-      val response = sharedSearchApi("nope").associates()
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(SharedSearch, "nope").description)
+      sharedSearchApi("nope")
+        .associates()
+        .mustFailWith404(NotFoundFailure404(SharedSearch, "nope"))
     }
   }
 
@@ -249,22 +238,21 @@ class SharedSearchIntegrationTest
     }
 
     "400 if association is not found" in new AssociateSecondaryFixture {
-      val response = sharedSearchApi(search.code).unassociate(secondAdmin.id)
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (
-          SharedSearchAssociationNotFound(search.code, secondAdmin.id).description)
+      sharedSearchApi(search.code)
+        .unassociate(secondAdmin.id)
+        .mustFailWith400(SharedSearchAssociationNotFound(search.code, secondAdmin.id))
     }
 
     "404 if sharedSearch is not found" in new AssociateSecondaryFixture {
-      val response = sharedSearchApi("nope").unassociate(storeAdmin.id)
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(SharedSearch, "nope").description)
+      sharedSearchApi("nope")
+        .unassociate(storeAdmin.id)
+        .mustFailWith404(NotFoundFailure404(SharedSearch, "nope"))
     }
 
     "404 if storeAdmin is not found" in new AssociateSecondaryFixture {
-      val response = sharedSearchApi(search.code).unassociate(555)
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(StoreAdmin, 555).description)
+      sharedSearchApi(search.code)
+        .unassociate(555)
+        .mustFailWith404(NotFoundFailure404(StoreAdmin, 555))
     }
   }
 
@@ -380,4 +368,8 @@ class SharedSearchIntegrationTest
   trait AssociateSecondaryFixture extends AssociateBaseFixture with SecondAdminFixture {
     val associate = SharedSearchAssociations.create(buildAssociation(search, storeAdmin)).gimme
   }
+
+  private def getByScope(scope: String): Seq[SharedSearch] =
+    sharedSearchApi.scope(scope).as[Seq[SharedSearch]]
+
 }

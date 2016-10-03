@@ -24,7 +24,7 @@ class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSuppor
 
   "Requests with StoreAdmin only session (w/o customer)" - {
     "GET /v1/404alkjflskfdjg" in {
-      GET("v1/404alkjflskfdjg").status must === (StatusCodes.NotFound)
+      GET("v1/404alkjflskfdjg").mustHaveStatus(StatusCodes.NotFound)
     }
   }
 }
@@ -46,7 +46,7 @@ class RoutesCustomerOnlyIntegrationTest
 
   "Requests with Customer only session (w/o StoreAdmin)" - {
     "GET v1/my/404hello" in {
-      GET(s"v1/my/404hello").status must === (StatusCodes.NotFound)
+      GET(s"v1/my/404hello").mustHaveStatus(StatusCodes.NotFound)
     }
 
     "GET v1/my/cart" in {

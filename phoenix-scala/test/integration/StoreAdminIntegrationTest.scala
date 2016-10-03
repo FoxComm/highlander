@@ -34,10 +34,10 @@ class StoreAdminIntegrationTest
     "don't create with duplicated email" in new Fixture {
       val payload =
         CreateStoreAdminPayload(name = authedStoreAdmin.name, email = authedStoreAdmin.email)
-      val response = storeAdminsApi.create(payload)
 
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (AlreadyExistsWithEmail(authedStoreAdmin.email).description)
+      storeAdminsApi
+        .create(payload)
+        .mustFailWith400(AlreadyExistsWithEmail(authedStoreAdmin.email))
     }
   }
 
@@ -54,10 +54,7 @@ class StoreAdminIntegrationTest
     }
 
     "respond with 404 when id does not point to valid admin" in new Fixture {
-      val response = storeAdminsApi(666).get()
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(StoreAdmin, 666).description)
+      storeAdminsApi(666).get().mustFailWith404(NotFoundFailure404(StoreAdmin, 666))
     }
   }
 
@@ -86,10 +83,7 @@ class StoreAdminIntegrationTest
       val payload = UpdateStoreAdminPayload(email = "superdonkey@email.com",
                                             name = "SuperDonkey",
                                             department = Some("Overpowered Donkey Squad"))
-      val response = storeAdminsApi(666).update(payload)
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(StoreAdmin, 666).description)
+      storeAdminsApi(666).update(payload).mustFailWith404(NotFoundFailure404(StoreAdmin, 666))
     }
 
   }
@@ -103,23 +97,18 @@ class StoreAdminIntegrationTest
     }
 
     "respond with 400 when cannot apply new state" in new Fixture {
-      val payload  = StateChangeStoreAdminPayload(state = StoreAdmin.Invited)
-      val response = storeAdminsApi(storeAdmin.id).updateState(payload)
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (
-          StateTransitionNotAllowed(StoreAdmin,
-                                    storeAdmin.state.toString,
-                                    StoreAdmin.Invited.toString,
-                                    storeAdmin.id).description)
+      val payload = StateChangeStoreAdminPayload(state = StoreAdmin.Invited)
+      val failure = StateTransitionNotAllowed(StoreAdmin,
+                                              storeAdmin.state.toString,
+                                              StoreAdmin.Invited.toString,
+                                              storeAdmin.id)
+      storeAdminsApi(storeAdmin.id).updateState(payload).mustFailWith400(failure)
     }
 
     "respond with 404 when id does not point to valid admin" in new Fixture {
-      val payload  = StateChangeStoreAdminPayload(state = StoreAdmin.Inactive)
-      val response = storeAdminsApi(666).updateState(payload)
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(StoreAdmin, 666).description)
+      storeAdminsApi(666)
+        .updateState(StateChangeStoreAdminPayload(state = StoreAdmin.Inactive))
+        .mustFailWith404(NotFoundFailure404(StoreAdmin, 666))
     }
 
   }
@@ -131,10 +120,7 @@ class StoreAdminIntegrationTest
     }
 
     "respond with 404 when id does not point to valid admin" in new Fixture {
-      val response = storeAdminsApi(666).delete()
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(StoreAdmin, 666).description)
+      storeAdminsApi(666).delete().mustFailWith404(NotFoundFailure404(StoreAdmin, 666))
     }
   }
 

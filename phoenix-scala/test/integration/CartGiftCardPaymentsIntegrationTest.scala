@@ -4,7 +4,7 @@ import util.Extensions._
 import cats.implicits._
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.GiftCardFailures._
-import failures.NotFoundFailure404
+import failures.{NotFoundFailure400, NotFoundFailure404}
 import failures.OrderFailures.OrderPaymentNotFoundFailure
 import models.Reasons
 import models.cord._
@@ -28,69 +28,65 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
 
     "fails when adding same gift card twice" in new CartWithGcFixture {
       val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
+
       cartsApi(cart.refNum).payments.giftCard.add(payload).mustBeOk()
 
-      val failed = cartsApi(cart.refNum).payments.giftCard.add(payload)
-      failed.status must === (StatusCodes.BadRequest)
-      failed.error must === (
-          GiftCardPaymentAlreadyAdded(cart.referenceNumber, giftCard.code).description)
+      cartsApi(cart.refNum).payments.giftCard
+        .add(payload)
+        .mustFailWith400(GiftCardPaymentAlreadyAdded(cart.referenceNumber, giftCard.code))
     }
 
     "fails if the cart is not found" in new CartWithGcFixture {
-      val payload  = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
-      val response = cartsApi("NOPE").payments.giftCard.add(payload)
+      cartsApi("NOPE").payments.giftCard
+        .add(GiftCardPayment(code = "foo", amount = 1.some))
+        .mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
 
-      response.status must === (StatusCodes.NotFound)
       giftCardPayments(cart) mustBe 'empty
     }
 
     "fails if the giftCard is not found" in new CartWithGcFixture {
-      val payload =
-        GiftCardPayment(code = giftCard.code ++ "xyz", amount = giftCard.availableBalance.some)
-      val response = cartsApi(cart.refNum).payments.giftCard.add(payload)
+      cartsApi(cart.refNum).payments.giftCard
+        .add(GiftCardPayment(code = "NOPE", amount = 1.some))
+        .mustFailWith400(NotFoundFailure404(GiftCard, "NOPE"))
 
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (NotFoundFailure404(GiftCard, payload.code).description)
       giftCardPayments(cart) mustBe 'empty
     }
 
     "fails if the giftCard does not have sufficient available balance" in new CartWithGcFixture {
       val requestedAmount = giftCard.availableBalance + 1
-      val payload         = GiftCardPayment(code = giftCard.code, amount = requestedAmount.some)
-      val response        = cartsApi(cart.refNum).payments.giftCard.add(payload)
 
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (GiftCardNotEnoughBalance(giftCard, requestedAmount).description)
+      cartsApi(cart.refNum).payments.giftCard
+        .add(GiftCardPayment(code = giftCard.code, amount = requestedAmount.some))
+        .mustFailWith400(GiftCardNotEnoughBalance(giftCard, requestedAmount))
+
       giftCardPayments(cart) mustBe 'empty
     }
 
     "fails if the order has already been placed" in new GiftCardFixture with Order_Baked {
-      val payload  = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
-      val response = cartsApi(cart.refNum).payments.giftCard.add(payload)
+      val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
+      cartsApi(cart.refNum).payments.giftCard
+        .add(payload)
+        .mustFailWith400(OrderAlreadyPlaced(cart.refNum))
 
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (OrderAlreadyPlaced(cart.refNum).description)
       giftCardPayments(cart) must have size 0
     }
 
     "fails if the giftCard is inactive" in new CartWithGcFixture {
       GiftCards.findByCode(giftCard.code).map(_.state).update(GiftCard.Canceled).gimme
-      val payload =
-        GiftCardPayment(code = giftCard.code, amount = (giftCard.availableBalance + 1).some)
-      val response = cartsApi(cart.refNum).payments.giftCard.add(payload)
+      val payload = GiftCardPayment(code = giftCard.code, amount = 1.some)
+      cartsApi(cart.refNum).payments.giftCard
+        .add(payload)
+        .mustFailWith400(GiftCardIsInactive(giftCard))
 
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (GiftCardIsInactive(giftCard).description)
       giftCardPayments(cart) mustBe 'empty
     }
 
     "fails to add GC with cart status as payment method" in new CartWithGcFixture {
       GiftCards.findByCode(giftCard.code).map(_.state).update(GiftCard.Cart).gimme
-      val payload  = GiftCardPayment(code = giftCard.code, amount = Some(15))
-      val response = cartsApi(cart.refNum).payments.giftCard.add(payload)
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (GiftCardMustNotBeCart(giftCard.code).description)
+      val payload = GiftCardPayment(code = giftCard.code, amount = Some(15))
+      cartsApi(cart.refNum).payments.giftCard
+        .add(payload)
+        .mustFailWith400(GiftCardMustNotBeCart(giftCard.code))
     }
   }
 
@@ -102,20 +98,20 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
     }
 
     "fails if the cart is not found" in new CartWithGcFixture {
-      val payload  = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
-      val response = cartsApi("NOPE").payments.giftCard.update(payload)
+      val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
+      cartsApi("NOPE").payments.giftCard
+        .update(payload)
+        .mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
 
-      response.status must === (StatusCodes.NotFound)
       giftCardPayments(cart) mustBe 'empty
     }
 
     "fails if the giftCard is not found" in new CartWithGcFixture {
-      val payload =
-        GiftCardPayment(code = giftCard.code ++ "xyz", amount = giftCard.availableBalance.some)
-      val response = cartsApi(cart.refNum).payments.giftCard.update(payload)
+      val payload = GiftCardPayment(code = "NOPE", amount = 1.some)
+      cartsApi(cart.refNum).payments.giftCard
+        .update(payload)
+        .mustFailWith400(NotFoundFailure400(GiftCard, "NOPE"))
 
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (NotFoundFailure404(GiftCard, payload.code).description)
       giftCardPayments(cart) mustBe 'empty
     }
   }
@@ -130,26 +126,26 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
     }
 
     "fails if the cart is not found" in new CartWithGcFixture {
-      val response = cartsApi("NOPE").payments.giftCard.delete(giftCard.code)
+      cartsApi("NOPE").payments.giftCard
+        .delete(giftCard.code)
+        .mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
 
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Cart, "NOPE").description)
       creditCardPayments(cart) mustBe 'empty
     }
 
     "fails if the giftCard is not found" in new CartWithGcFixture {
-      val response = cartsApi(cart.refNum).payments.giftCard.delete("abc-123")
+      cartsApi(cart.refNum).payments.giftCard
+        .delete("abc-123")
+        .mustFailWith404(NotFoundFailure404(GiftCard, "abc-123"))
 
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(GiftCard, "abc-123").description)
       creditCardPayments(cart) mustBe 'empty
     }
 
     "fails if the giftCard orderPayment is not found" in new CartWithGcFixture {
-      val response = cartsApi(cart.refNum).payments.giftCard.delete(giftCard.code)
+      cartsApi(cart.refNum).payments.giftCard
+        .delete(giftCard.code)
+        .mustFailWith400(OrderPaymentNotFoundFailure(GiftCard))
 
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (OrderPaymentNotFoundFailure(GiftCard).description)
       creditCardPayments(cart) mustBe 'empty
     }
   }

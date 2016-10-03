@@ -8,6 +8,7 @@ import akka.stream.scaladsl.Source
 import util.Extensions._
 import cats.implicits._
 import failures.ArchiveFailures.AddImagesToArchivedAlbumFailure
+import failures.GeneralFailure
 import failures.ImageFailures._
 import failures.ObjectFailures._
 import models.image._
@@ -45,15 +46,11 @@ class ImageIntegrationTest
 
       "404 if wrong context name" in new Fixture {
         implicit val nopeCtx = ObjectContext(name = "NOPE", attributes = JNothing)
-        val response         = albumsApi(album.formId)(nopeCtx).get()
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (ObjectContextNotFound("NOPE").description)
+        albumsApi(album.formId)(nopeCtx).get().mustFailWith404(ObjectContextNotFound("NOPE"))
       }
 
       "404 if wrong album form id" in new Fixture {
-        val response = albumsApi(666).get()
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (AlbumNotFoundForContext(666, ctx.id).description)
+        albumsApi(666).get().mustFailWith404(AlbumNotFoundForContext(666, ctx.id))
       }
 
       "Retrieves a correct version of an album after an update" in new Fixture {
@@ -110,10 +107,10 @@ class ImageIntegrationTest
       }
 
       "Fails if id  for image is specified" in new Fixture {
-        val response = albumsApi.create(
-            CreateAlbumPayload(name = "Non-empty album",
-                               images = Seq(ImagePayload(id = Some(1), src = "url")).some))
-        response.status must === (StatusCodes.BadRequest)
+        private val payload =
+          CreateAlbumPayload(name = "Non-empty album",
+                             images = Seq(ImagePayload(id = Some(1), src = "url")).some)
+        albumsApi.create(payload).mustFailWithMessage("Image id should be empty")
       }
     }
 
@@ -126,18 +123,14 @@ class ImageIntegrationTest
       }
 
       "Responds with NOT FOUND when wrong album is requested" in new Fixture {
-        val response = albumsApi(666).delete()
-
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (AlbumNotFoundForContext(666, ctx.id).description)
+        albumsApi(666).delete().mustFailWith404(AlbumNotFoundForContext(666, ctx.id))
       }
 
       "Responds with NOT FOUND when wrong context is requested" in new Fixture {
         implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
-        val response               = albumsApi(album.formId)(donkeyContext).delete()
-
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (ObjectContextNotFound("donkeyContext").description)
+        albumsApi(album.formId)(donkeyContext)
+          .delete()
+          .mustFailWith404(ObjectContextNotFound("donkeyContext"))
       }
     }
 
@@ -167,8 +160,9 @@ class ImageIntegrationTest
 
       "Update the album fails on image id duplications" in new Fixture {
         val moreImages = Seq(testPayload, ImagePayload(src = "foo")).map(_.copy(id = Some(1)))
-        val response   = albumsApi(album.formId).update(UpdateAlbumPayload(images = moreImages.some))
-        response.status must === (StatusCodes.BadRequest)
+        albumsApi(album.formId)
+          .update(UpdateAlbumPayload(images = moreImages.some))
+          .mustFailWithMessage("Image ID is duplicated 1")
       }
 
       "Request the album after updating" in new Fixture {
@@ -344,24 +338,11 @@ class ImageIntegrationTest
     "POST /v1/albums/:context/images" - {
 
       "uploads image" in new Fixture {
-        val image = Paths.get("test/resources/foxy.jpg")
-        image.toFile.exists mustBe true
-
         val updatedAlbumImages = ImageManager
           .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), ctx)
           .gimme
 
-        val bodyPart =
-          Multipart.FormData.BodyPart.fromPath(name = "upload-file",
-                                               contentType = MediaTypes.`application/octet-stream`,
-                                               file = image)
-        val formData = Multipart.FormData(Source.single(bodyPart))
-        val entity   = Marshal(formData).to[RequestEntity].futureValue
-        val uri      = pathToAbsoluteUrl(s"v1/albums/${ctx.name}/${album.id}/images")
-        val request  = HttpRequest(method = HttpMethods.POST, uri = uri, entity = entity)
-
-        val responseAlbum = dispatchRequest(request).as[AlbumRoot]
-
+        val responseAlbum = uploadImage(album).as[AlbumRoot]
         responseAlbum.images.size must === (updatedAlbumImages.size + 1)
 
         val uploadedImage = responseAlbum.images.last
@@ -372,12 +353,13 @@ class ImageIntegrationTest
       }
 
       "fail when uploading to archived album" in new ArchivedAlbumFixture {
+        uploadImage(archivedAlbum).mustFailWith400(
+            AddImagesToArchivedAlbumFailure(archivedAlbum.id))
+      }
+
+      def uploadImage(album: Album): HttpResponse = {
         val image = Paths.get("test/resources/foxy.jpg")
         image.toFile.exists mustBe true
-
-        val updatedAlbumImages = ImageManager
-          .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), ctx)
-          .gimme
 
         val bodyPart =
           Multipart.FormData.BodyPart.fromPath(name = "upload-file",
@@ -385,12 +367,9 @@ class ImageIntegrationTest
                                                file = image)
         val formData = Multipart.FormData(Source.single(bodyPart))
         val entity   = Marshal(formData).to[RequestEntity].futureValue
-        val uri      = pathToAbsoluteUrl(s"v1/albums/${ctx.name}/${archivedAlbum.id}/images")
+        val uri      = pathToAbsoluteUrl(s"v1/albums/${ctx.name}/${album.id}/images")
         val request  = HttpRequest(method = HttpMethods.POST, uri = uri, entity = entity)
-
-        val response = dispatchRequest(request)
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (AddImagesToArchivedAlbumFailure(archivedAlbum.id).description)
+        dispatchRequest(request)
       }
     }
   }

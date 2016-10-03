@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import util.Extensions._
 import failures.ArchiveFailures._
-import failures.NotFoundFailure404
+import failures.{GeneralFailure, NotFoundFailure404}
 import failures.ProductFailures._
 import models.inventory.Skus
 import models.objects._
@@ -144,9 +144,7 @@ class ProductIntegrationTest
     "Throws an error if" - {
       "no SKU is added" in new Fixture {
         val payload = productPayload.copy(skus = Seq.empty)
-
-        val response = productsApi.create(payload)
-        response.status must === (StatusCodes.BadRequest)
+        productsApi.create(payload).mustFailWithMessage("SKUs must not be empty")
       }
 
       "no SKU exists for variants" in new Fixture {
@@ -158,8 +156,7 @@ class ProductIntegrationTest
           Seq(VariantPayload(attributes = Map("t" → "t"), values = Some(values)))
         val payload = productPayload.copy(skus = Seq.empty, variants = Some(variantPayload))
 
-        val response = productsApi.create(payload)
-        response.status must === (StatusCodes.BadRequest)
+        productsApi.create(payload).mustFailWithMessage("SKUs must not be empty")
       }
 
       "there is more than one SKU and no variants" in new Fixture {
@@ -167,41 +164,37 @@ class ProductIntegrationTest
         val sku2    = makeSkuPayload("SKU-TEST-NUM2", attrMap)
         val payload = productPayload.copy(skus = Seq(sku1, sku2), variants = Some(Seq.empty))
 
-        val response = productsApi.create(payload)
-        response.status must === (StatusCodes.BadRequest)
+        productsApi.create(payload).mustFailWithMessage("number of SKUs got 2, expected 1 or less")
       }
 
       "trying to create a product and SKU with no code" in new Fixture {
-        val newSkuPayload     = SkuPayload(skuAttrMap)
-        val newProductPayload = productPayload.copy(skus = Seq(newSkuPayload))
+        val newProductPayload = productPayload.copy(skus = Seq(SkuPayload(skuAttrMap)))
 
-        val response = productsApi.create(newProductPayload)
-        response.status must === (StatusCodes.BadRequest)
+        productsApi.create(newProductPayload).mustFailWithMessage("SKU code not found in payload")
       }
 
       "trying to create a product and SKU with empty code" in new Fixture {
-        val newSkuPayload     = makeSkuPayload("", skuAttrMap)
-        val newProductPayload = productPayload.copy(skus = Seq(newSkuPayload))
+        val newProductPayload = productPayload.copy(skus = Seq(makeSkuPayload("", skuAttrMap)))
 
-        val response = productsApi.create(newProductPayload)
-        response.status must === (StatusCodes.BadRequest)
+        productsApi
+          .create(newProductPayload)
+          .mustFailWithMessage(
+              """ERROR: value for domain sku_code violates check constraint "sku_code_check"""")
       }
 
       "trying to create a product with archived SKU" in new ArchivedSkuFixture {
-        val response = productsApi.create(archivedSkuProductPayload)
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (LinkArchivedSkuFailure(Product, 2, archivedSkuCode).description)
+        productsApi
+          .create(archivedSkuProductPayload)
+          .mustFailWith400(LinkArchivedSkuFailure(Product, 2, archivedSkuCode))
       }
     }
 
     "Creates a product then requests is successfully" in new Fixture {
-      val productResponse = doQuery(productPayload)
-      val productId       = productResponse.id
+      val productId = doQuery(productPayload).id
 
-      val getProductResponse = productsApi(productId).get().as[Root]
-      getProductResponse.skus.length must === (1)
-      getProductResponse.skus.head.attributes.code must === ("SKU-NEW-TEST")
+      val response = productsApi(productId).get().as[Root]
+      response.skus.length must === (1)
+      response.skus.head.attributes.code must === ("SKU-NEW-TEST")
     }
   }
 
@@ -333,19 +326,17 @@ class ProductIntegrationTest
             variants = None
         )
 
-        val response = productsApi(product.formId).update(upPayload)
-        response.status must === (StatusCodes.BadRequest)
+        productsApi(product.formId)
+          .update(upPayload)
+          .mustFailWithMessage("number of SKUs got 5, expected 4 or less")
       }
 
       "trying to update a product with archived SKU" in new ArchivedSkuFixture {
-        val response = productsApi(product.formId).update(
-            UpdateProductPayload(attributes = archivedSkuProductPayload.attributes,
-                                 skus = archivedSkuProductPayload.skus.some,
-                                 variants = archivedSkuProductPayload.variants))
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (
-            LinkArchivedSkuFailure(Product, product.id, archivedSkuCode).description)
+        productsApi(product.formId)
+          .update(UpdateProductPayload(attributes = archivedSkuProductPayload.attributes,
+                                       skus = archivedSkuProductPayload.skus.some,
+                                       variants = archivedSkuProductPayload.variants))
+          .mustFailWith400(LinkArchivedSkuFailure(Product, product.id, archivedSkuCode))
       }
     }
   }
@@ -381,19 +372,15 @@ class ProductIntegrationTest
     }
 
     "Responds with NOT FOUND when wrong product is requested" in new VariantFixture {
-      val response = productsApi(666).archive()
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (ProductFormNotFoundForContext(666, ctx.id).description)
+      productsApi(666).archive().mustFailWith404(ProductFormNotFoundForContext(666, ctx.id))
     }
 
     "Responds with NOT FOUND when wrong context is requested" in new VariantFixture {
       pending
       implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
-      val response               = productsApi(product.formId)(donkeyContext).archive()
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(ObjectContext, "donkeyContext").description)
+      productsApi(product.formId)(donkeyContext)
+        .archive()
+        .mustFailWith404(NotFoundFailure404(ObjectContext, "donkeyContext"))
     }
   }
 

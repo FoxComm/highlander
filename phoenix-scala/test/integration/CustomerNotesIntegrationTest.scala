@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 import util.Extensions._
 import failures.NotFoundFailure404
-import models.Notes
+import models.{Note, Notes}
 import models.customer.Customer
 import payloads.NotePayloads._
 import responses.AdminNotes
@@ -29,17 +29,17 @@ class CustomerNotesIntegrationTest
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = notesApi.customer(customer.id).create(CreateNote(""))
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === ("body must not be empty")
+      notesApi
+        .customer(customer.id)
+        .create(CreateNote(""))
+        .mustFailWithMessage("body must not be empty")
     }
 
     "returns a 404 if the customer is not found" in new Fixture {
-      val response = notesApi.customer(999999).create(CreateNote(""))
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 999999).description)
+      notesApi
+        .customer(999999)
+        .create(CreateNote(""))
+        .mustFailWith404(NotFoundFailure404(Customer, 999999))
     }
   }
 
@@ -79,7 +79,6 @@ class CustomerNotesIntegrationTest
 
       val response = notesApi.customer(customer.id).note(note.id).delete()
       response.status must === (StatusCodes.NoContent)
-      response.bodyText mustBe empty
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
       updatedNote.deletedBy.value must === (1)
@@ -90,9 +89,6 @@ class CustomerNotesIntegrationTest
 
       val allNotes = notesApi.customer(customer.id).get().as[Seq[AdminNotes.Root]]
       allNotes.map(_.id) must not contain note.id
-
-      val getDeletedNoteResponse = notesApi.customer(customer.id).note(note.id).get()
-      getDeletedNoteResponse.status must === (StatusCodes.NotFound)
     }
   }
 

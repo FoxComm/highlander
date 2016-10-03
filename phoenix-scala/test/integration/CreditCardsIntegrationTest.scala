@@ -145,33 +145,34 @@ class CreditCardsIntegrationTest
     }
 
     "errors 404 if wrong customer id" in {
-      val response = customersApi(666).payments.creditCards.create(thePayload)
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 666).description)
+      customersApi(666).payments.creditCards
+        .create(thePayload)
+        .mustFailWith404(NotFoundFailure404(Customer, 666))
     }
 
     "errors 400 if wrong credit card token" in new Customer_Seed {
       when(stripeWrapperMock.createCustomer(m.any()))
         .thenReturn(Result.failure[StripeCustomer](GeneralFailure("BAD-TOKEN")))
-      val response = customersApi(customer.id).payments.creditCards.create(thePayload)
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === ("BAD-TOKEN")
+      customersApi(customer.id).payments.creditCards
+        .create(thePayload)
+        .mustFailWithMessage("BAD-TOKEN")
     }
 
     "errors 400 if wrong region id" in new Customer_Seed {
       val wrongRegionIdPayload =
         thePayload.copy(billingAddress = theAddressPayload.copy(regionId = -1))
-      val response = customersApi(customer.id).payments.creditCards.create(wrongRegionIdPayload)
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (NotFoundFailure400(Region, -1).description)
+
+      customersApi(customer.id).payments.creditCards
+        .create(wrongRegionIdPayload)
+        .mustFailWith400(NotFoundFailure400(Region, -1))
     }
 
     "validates payload" in {
-      val response = customersApi(666).payments.creditCards.create(crookedPayload)
-      response.status must === (StatusCodes.BadRequest)
-
       val validationErrors = crookedPayload.validate.toXor.leftVal.toList.map(_.description)
-      response.errors must contain theSameElementsAs validationErrors
+
+      customersApi(666).payments.creditCards
+        .create(crookedPayload)
+        .mustFailWithMessage(validationErrors: _*)
     }
   }
 
@@ -197,15 +198,17 @@ class CreditCardsIntegrationTest
     }
 
     "errors 404 if customer not found" in {
-      val response = customersApi(666).payments.creditCard(777).delete()
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 666).description)
+      customersApi(666).payments
+        .creditCard(777)
+        .delete()
+        .mustFailWith404(NotFoundFailure404(Customer, 666))
     }
 
     "errors 404 if card not found" in new Customer_Seed {
-      val response = customersApi(customer.id).payments.creditCard(666).delete()
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(CreditCard, 666).description)
+      customersApi(customer.id).payments
+        .creditCard(666)
+        .delete()
+        .mustFailWith404(NotFoundFailure404(CreditCard, 666))
     }
   }
 
@@ -279,26 +282,20 @@ class CreditCardsIntegrationTest
       when(stripeWrapperMock.createCustomer(m.any()))
         .thenReturn(Result.failure[StripeCustomer](GeneralFailure("BAD-TOKEN")))
 
-      val response = POST("v1/my/payment-methods/credit-cards", thePayload)
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === ("BAD-TOKEN")
+      POST("v1/my/payment-methods/credit-cards", thePayload).mustFailWithMessage("BAD-TOKEN")
     }
 
     "errors 400 if wrong region id" in new Customer_Seed {
-      val wrongRegionIdPayload =
-        thePayload.copy(billingAddress = theAddressPayload.copy(regionId = -1))
-
-      val response = POST("v1/my/payment-methods/credit-cards", wrongRegionIdPayload)
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (NotFoundFailure400(Region, -1).description)
+      val payload = thePayload.copy(billingAddress = theAddressPayload.copy(regionId = -1))
+      POST("v1/my/payment-methods/credit-cards", payload).mustFailWith400(
+          NotFoundFailure400(Region, -1))
     }
 
     "validates payload" in {
-      val response = POST("v1/my/payment-methods/credit-cards", crookedPayload)
-      response.status must === (StatusCodes.BadRequest)
-
       val validationErrors = crookedPayload.validate.toXor.leftVal.toList.map(_.description)
-      response.errors must contain theSameElementsAs validationErrors
+
+      POST("v1/my/payment-methods/credit-cards", crookedPayload).mustFailWithMessage(
+          validationErrors: _*)
     }
   }
 

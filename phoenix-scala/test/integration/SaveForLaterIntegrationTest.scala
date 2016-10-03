@@ -29,9 +29,7 @@ class SaveForLaterIntegrationTest
     }
 
     "404 if customer is not found" in {
-      val response = saveForLaterApi(666).get()
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 666).description)
+      saveForLaterApi(666).get().mustFailWith404(NotFoundFailure404(Customer, 666))
     }
   }
 
@@ -46,39 +44,34 @@ class SaveForLaterIntegrationTest
       val result = saveForLaterApi(customer.id).create(product.code).as[SavedForLater].result
       result must === (roots)
 
-      val duplicate = saveForLaterApi(customer.id).create(product.code)
-      duplicate.status must === (StatusCodes.BadRequest)
-      duplicate.error must === (AlreadySavedForLater(customer.id, product.skuId).description)
+      saveForLaterApi(customer.id)
+        .create(product.code)
+        .mustFailWith400(AlreadySavedForLater(customer.id, product.skuId))
 
       SaveForLaters.gimme must have size 1
     }
 
     "404 if customer is not found" in new Fixture {
-      val response = saveForLaterApi(666).create(product.code)
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 666).description)
+      saveForLaterApi(666).create(product.code).mustFailWith404(NotFoundFailure404(Customer, 666))
     }
 
     "404 if sku is not found" in new Fixture {
-      val response = saveForLaterApi(customer.id).create("NOPE")
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (SkuNotFoundForContext("NOPE", SimpleContext.id).description)
+      saveForLaterApi(customer.id)
+        .create("NOPE")
+        .mustFailWith404(SkuNotFoundForContext("NOPE", SimpleContext.id))
     }
   }
 
   "DELETE v1/save-for-later/:id" - {
     "deletes save for later" in new Fixture {
-      val sflId =
+      val saveForLaterId =
         saveForLaterApi(customer.id).create(product.code).as[SavedForLater].result.head.id
 
-      val response = saveForLaterApi.delete(sflId)
-      response.status must === (StatusCodes.NoContent)
+      saveForLaterApi.delete(saveForLaterId).status must === (StatusCodes.NoContent)
     }
 
     "404 if save for later is not found" in {
-      val response = saveForLaterApi.delete(666)
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(SaveForLater, 666).description)
+      saveForLaterApi.delete(666).mustFailWith404(NotFoundFailure404(SaveForLater, 666))
     }
   }
 

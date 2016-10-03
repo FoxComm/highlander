@@ -30,10 +30,9 @@ class OrderIntegrationTest
     }
 
     "fails if transition to destination status is not allowed" in new Fixture {
-      val response = ordersApi(order.refNum).update(UpdateOrderPayload(Shipped))
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (
-          StateTransitionNotAllowed(order.state, Shipped, order.refNum).description)
+      ordersApi(order.refNum)
+        .update(UpdateOrderPayload(Shipped))
+        .mustFailWith400(StateTransitionNotAllowed(order.state, Shipped, order.refNum))
     }
 
     "fails if transition from current status is not allowed" in new EmptyCustomerCart_Baked {
@@ -42,16 +41,15 @@ class OrderIntegrationTest
         order ← * <~ Orders.update(order, order.copy(state = Canceled))
       } yield order).gimme
 
-      val response = ordersApi(order.refNum).update(UpdateOrderPayload(ManualHold))
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (
-          StateTransitionNotAllowed(Canceled, ManualHold, order.refNum).description)
+      ordersApi(order.refNum)
+        .update(UpdateOrderPayload(ManualHold))
+        .mustFailWith400(StateTransitionNotAllowed(Canceled, ManualHold, order.refNum))
     }
 
     "fails if the order is not found" in {
-      val response = ordersApi("NOPE").update(UpdateOrderPayload(ManualHold))
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Order, "NOPE").description)
+      ordersApi("NOPE")
+        .update(UpdateOrderPayload(ManualHold))
+        .mustFailWith404(NotFoundFailure404(Order, "NOPE"))
     }
   }
 
@@ -63,9 +61,9 @@ class OrderIntegrationTest
 
     "only when in RemorseHold status" in new Fixture {
       Orders.update(order, order.copy(state = FraudHold)).gimme
-      val response = ordersApi(order.refNum).increaseRemorsePeriod()
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === ("Order is not in RemorseHold state")
+      ordersApi(order.refNum)
+        .increaseRemorsePeriod()
+        .mustFailWithMessage("Order is not in RemorseHold state")
 
       val newOrder = Orders.mustFindByRefNum(order.refNum).gimme
       newOrder.state must === (FraudHold)

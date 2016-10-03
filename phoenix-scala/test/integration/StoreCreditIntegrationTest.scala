@@ -51,27 +51,22 @@ class StoreCreditIntegrationTest
       }
 
       "fails if subtypeId is not found" in new Fixture {
-        val response = customersApi(customer.id).payments.storeCredit.create(
-            CreateManualStoreCredit(amount = 25, reasonId = reason.id, subTypeId = Some(255)))
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure404(StoreCreditSubtype, 255).description)
+        customersApi(customer.id).payments.storeCredit
+          .create(
+              CreateManualStoreCredit(amount = 25, reasonId = reason.id, subTypeId = Some(255)))
+          .mustFailWith400(NotFoundFailure404(StoreCreditSubtype, 255))
       }
 
       "fails if the customer is not found" in {
-        val payload  = CreateManualStoreCredit(amount = 25, reasonId = 1)
-        val response = customersApi(99).payments.storeCredit.create(payload)
-
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Customer, 99).description)
+        customersApi(99).payments.storeCredit
+          .create(CreateManualStoreCredit(amount = 25, reasonId = 1))
+          .mustFailWith404(NotFoundFailure404(Customer, 99))
       }
 
       "fails if the reason is not found" in new Fixture {
-        val payload  = CreateManualStoreCredit(amount = 25, reasonId = 255)
-        val response = customersApi(customer.id).payments.storeCredit.create(payload)
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure404(Reason, 255).description)
+        customersApi(customer.id).payments.storeCredit
+          .create(CreateManualStoreCredit(amount = 25, reasonId = 255))
+          .mustFailWith400(NotFoundFailure404(Reason, 255))
       }
     }
 
@@ -88,10 +83,9 @@ class StoreCreditIntegrationTest
       }
 
       "returns 404 when customer doesn't exist" in new Fixture {
-        val response = customersApi(99).payments.storeCredit.totals()
-
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Customer, 99).description)
+        customersApi(99).payments.storeCredit
+          .totals()
+          .mustFailWith404(NotFoundFailure404(Customer, 99))
       }
     }
 
@@ -106,17 +100,15 @@ class StoreCreditIntegrationTest
       }
 
       "returns error if no cancellation reason provided" in new Fixture {
-        val response =
-          storeCreditsApi(storeCredit.id).update(StoreCreditUpdateStateByCsr(state = Canceled))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (EmptyCancellationReasonFailure.description)
+        storeCreditsApi(storeCredit.id)
+          .update(StoreCreditUpdateStateByCsr(state = Canceled))
+          .mustFailWith400(EmptyCancellationReasonFailure)
       }
 
       "returns error on cancellation if store credit has auths" in new Fixture {
-        val response = storeCreditsApi(storeCredit.id)
+        storeCreditsApi(storeCredit.id)
           .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(1)))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (OpenTransactionsFailure.description)
+          .mustFailWith400(OpenTransactionsFailure)
       }
 
       "successfully cancels store credit with provided reason, cancel adjustment is created" in new Fixture {
@@ -152,13 +144,11 @@ class StoreCreditIntegrationTest
       }
 
       "fails to cancel store credit if invalid reason provided" in new Fixture {
-        // Cancel pending adjustment
         StoreCreditAdjustments.cancel(adjustment.id).gimme
 
         val response = storeCreditsApi(storeCredit.id)
           .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(999)))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure400(Reason, 999).description)
+          .mustFailWith400(NotFoundFailure400(Reason, 999))
       }
     }
 
@@ -184,9 +174,7 @@ class StoreCreditIntegrationTest
             state = StoreCredit.Canceled
         )
 
-        val response = storeCreditsApi.update(payload)
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (EmptyCancellationReasonFailure.description)
+        storeCreditsApi.update(payload).mustFailWith400(EmptyCancellationReasonFailure)
       }
     }
 
@@ -208,30 +196,34 @@ class StoreCreditIntegrationTest
       }
 
       "fails to convert when SC not found" in new Fixture {
-        val response = customersApi(customer.id).payments.storeCredit(555).convert()
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(StoreCredit, 555).description)
+        customersApi(customer.id).payments
+          .storeCredit(555)
+          .convert()
+          .mustFailWith404(NotFoundFailure404(StoreCredit, 555))
       }
 
       "fails to convert when customer not found" in new Fixture {
-        val response = customersApi(666).payments.storeCredit(scSecond.id).convert()
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Customer, 666).description)
+        customersApi(666).payments
+          .storeCredit(scSecond.id)
+          .convert()
+          .mustFailWith404(NotFoundFailure404(Customer, 666))
       }
 
       "fails to convert SC to GC if open transactions are present" in new Fixture {
-        val response = customersApi(customer.id).payments.storeCredit(storeCredit.id).convert()
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (OpenTransactionsFailure.description)
+        customersApi(customer.id).payments
+          .storeCredit(storeCredit.id)
+          .convert()
+          .mustFailWith400(OpenTransactionsFailure)
       }
 
       "fails to convert inactive SC to GC" in new Fixture {
         StoreCredits.findActiveById(scSecond.id).map(_.state).update(StoreCredit.OnHold).gimme
         val updatedSc = StoreCredits.findActiveById(scSecond.id).one.gimme.value
 
-        val response = customersApi(customer.id).payments.storeCredit(scSecond.id).convert()
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (StoreCreditConvertFailure(updatedSc).description)
+        customersApi(customer.id).payments
+          .storeCredit(scSecond.id)
+          .convert()
+          .mustFailWith400(StoreCreditConvertFailure(updatedSc))
       }
     }
   }

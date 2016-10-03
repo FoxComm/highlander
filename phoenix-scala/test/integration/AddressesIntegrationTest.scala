@@ -125,29 +125,28 @@ class AddressesIntegrationTest
     }
 
     "deleted address should be invisible to Customer" in new DeletedAddressFixture {
-      val response = GET(s"v1/my/addresses/${address.id}")
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Address, address.id).description)
+      GET(s"v1/my/addresses/${address.id}")
+        .mustFailWith404(NotFoundFailure404(Address, address.id))
     }
 
     "fails deleting using wrong address id" in new CustomerAddress_Baked {
-      val response = customersApi(customer.id).address(65536).delete()
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Address, 65536).description)
+      customersApi(customer.id)
+        .address(65536)
+        .delete()
+        .mustFailWith404(NotFoundFailure404(Address, 65536))
     }
 
     "fails deleting using wrong customer id" in new CustomerAddress_Baked {
-      val response = customersApi(65536).address(address.id).delete()
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 65536).description)
+      customersApi(65536)
+        .address(address.id)
+        .delete()
+        .mustFailWith404(NotFoundFailure404(Customer, 65536))
     }
   }
 
   "GET /v1/my/addresses" - {
     "retrieves a customer's addresses" in new CustomerAddress_Baked {
-      val response = GET(s"v1/my/addresses")
-
-      val addresses = response.as[Seq[AddressResponse]]
+      val addresses = GET(s"v1/my/addresses").as[Seq[AddressResponse]]
 
       addresses must have size 1
       addresses.head.name must === (address.name)

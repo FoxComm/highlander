@@ -72,15 +72,12 @@ class CheckoutIntegrationTest
     }
 
     "errors 404 if no cart found by reference number" in {
-      val response = cartsApi("NOPE").checkout()
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Cart, "NOPE").description)
+      cartsApi("NOPE").checkout().mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
     }
 
     "fails if customer is blacklisted" in new BlacklistedFixture {
-      val checkout = doCheckout(customer, sku, address, shipMethod, reason)
-      checkout.status must === (StatusCodes.BadRequest)
-      checkout.error must === (CustomerIsBlacklisted(customer.id).description)
+      doCheckout(customer, sku, address, shipMethod, reason).mustFailWith400(
+          CustomerIsBlacklisted(customer.id))
     }
 
     def doCheckout(customer: Customer,

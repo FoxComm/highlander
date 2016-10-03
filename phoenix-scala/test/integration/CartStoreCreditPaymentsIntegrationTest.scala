@@ -70,41 +70,36 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
     }
 
     "fails if the cart is not found" in new Fixture {
-      val payload  = StoreCreditPayment(amount = 50)
-      val response = cartsApi("NOPE").payments.storeCredit.add(payload)
+      cartsApi("NOPE").payments.storeCredit
+        .add(StoreCreditPayment(amount = 50))
+        .mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
 
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Cart, "NOPE").description)
       storeCreditPayments(cart) mustBe 'empty
     }
 
     "fails if the customer has no active store credit" in new Fixture {
-      val payload  = StoreCreditPayment(amount = 50)
-      val response = cartsApi(cart.refNum).payments.storeCredit.add(payload)
+      cartsApi(cart.refNum).payments.storeCredit
+        .add(StoreCreditPayment(amount = 50))
+        .mustFailWith400(CustomerHasInsufficientStoreCredit(customer.id, 0, 50))
 
-      response.status must === (StatusCodes.BadRequest)
-      val error = CustomerHasInsufficientStoreCredit(customer.id, 0, 50).description
-      response.error must === (error)
       storeCreditPayments(cart) mustBe 'empty
     }
 
     "fails if the customer has insufficient available store credit" in new StoreCreditFixture {
-      val payload  = StoreCreditPayment(amount = 25100)
-      val response = cartsApi(cart.refNum).payments.storeCredit.add(payload)
+      val failure = CustomerHasInsufficientStoreCredit(customer.id,
+                                                       storeCredits.map(_.availableBalance).sum,
+                                                       StoreCreditPayment(amount = 25100).amount)
+      cartsApi(cart.refNum).payments.storeCredit
+        .add(StoreCreditPayment(amount = 25100))
+        .mustFailWith400(failure)
 
-      response.status must === (StatusCodes.BadRequest)
-      val has   = storeCredits.map(_.availableBalance).sum
-      val error = CustomerHasInsufficientStoreCredit(customer.id, has, payload.amount).description
-      response.error must === (error)
       storeCreditPayments(cart) mustBe 'empty
     }
 
     "fails if the order has already been placed" in new StoreCreditFixture with Order_Baked {
-      val payload  = StoreCreditPayment(amount = 50)
-      val response = cartsApi(cart.refNum).payments.storeCredit.add(payload)
-
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (OrderAlreadyPlaced(cart.refNum).description)
+      cartsApi(cart.refNum).payments.storeCredit
+        .add(StoreCreditPayment(amount = 50))
+        .mustFailWith400(OrderAlreadyPlaced(cart.refNum))
     }
   }
 
