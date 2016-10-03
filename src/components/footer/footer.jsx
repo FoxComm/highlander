@@ -32,10 +32,18 @@ const Footer = () : HTMLElement => {
         </ul>
 
         <div styleName="social-links">
-          <Icon name="fc-instagram" styleName="social-icon"/>
-          <Icon name="fc-facebook" styleName="social-icon"/>
-          <Icon name="fc-twitter" styleName="social-icon"/>
-          <Icon name="fc-pinterest" styleName="social-icon"/>
+          <a href="https://www.instagram.com/theperfectgourmet/" target="_blank">
+            <Icon name="fc-instagram" styleName="social-icon"/>
+          </a>
+          <a href="https://www.facebook.com/PerfectGourmet/" target="_blank">
+            <Icon name="fc-facebook" styleName="social-icon"/>
+          </a>
+          <a href="https://twitter.com/perfectgourmet1">
+            <Icon name="fc-twitter" styleName="social-icon" target="_blank"/>
+          </a>
+          <a href="https://www.pinterest.com/perfectgourmet/" target="_blank">
+            <Icon name="fc-pinterest" styleName="social-icon"/>
+          </a>
         </div>
       </div>
 
@@ -45,7 +53,7 @@ const Footer = () : HTMLElement => {
           <li><a href="">Terms</a></li>
           <li><a href="">Privacy</a></li>
         </ul>
-        <p>POWERED BY FOXCOMMERCE.</p>
+        <p><a href="http://foxcommerce.com/" target="_blank">POWERED BY FOXCOMMERCE</a>.</p>
       </div>
     </section>
   );
