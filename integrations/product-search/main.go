@@ -11,11 +11,20 @@ import (
 )
 
 func getJWT(req *http.Request) (string, *service.ServiceError) {
+	if req == nil {
+		return "", &service.ServiceError{500, errors.New("HTTP request is malformed")}
+	}
+
 	if tokens, _ := req.Header["Jwt"]; len(tokens) == 1 {
 		return tokens[0], nil
 	}
 
-	return "", &service.ServiceError{400, errors.New("JWT not found in request header")}
+	cookie, err := req.Cookie("Jwt")
+	if err != nil {
+		return "", &service.ServiceError{400, errors.New("Unable to read JWT")}
+	}
+
+	return cookie.Value, nil
 }
 
 func main() {
@@ -48,7 +57,15 @@ func main() {
 			return
 		}
 
-		statusCode, respBody, svcErr := client.UpdateProduct(context, productID, payload.Product)
+		var statusCode int
+		var respBody map[string]interface{}
+
+		if productID == 0 {
+			statusCode, respBody, svcErr = client.CreateProduct(context, payload.Product)
+		} else {
+			statusCode, respBody, svcErr = client.UpdateProduct(context, productID, payload.Product)
+		}
+
 		if svcErr != nil {
 			svcErr.Response(c)
 			return

@@ -60,8 +60,7 @@ func (c *Client) FindProductID(context, field, value string) (int, *ServiceError
 	}
 
 	if esResult.Pagination.Total == 0 {
-		se := &ServiceError{404, errors.New("Product not found")}
-		return 0, se
+		return 0, nil
 	}
 
 	if esResult.Pagination.Total > 1 {
@@ -81,6 +80,31 @@ func (c *Client) FindProductID(context, field, value string) (int, *ServiceError
 
 	productID := esProducts.Result[0].ProductID
 	return productID, nil
+}
+
+func (c *Client) CreateProduct(context string, payload map[string]interface{}) (int, map[string]interface{}, *ServiceError) {
+	url := fmt.Sprintf("%s/%s/%s", c.apiURL, productUpdateBase, context)
+	headers := map[string]string{"JWT": c.jwt}
+
+	resp, err := consumers.Post(url, headers, payload)
+	if err != nil {
+		return 0, nil, &ServiceError{500, err}
+	}
+
+	defer resp.Body.Close()
+	result, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Error reading the product create with %s", err.Error())
+		return 0, nil, &unexpectedError
+	}
+
+	resJSON := make(map[string]interface{})
+	if err := json.Unmarshal(result, &resJSON); err != nil {
+		log.Printf("Error reading the product create response with %s", err.Error())
+		return 0, nil, &unexpectedError
+	}
+
+	return resp.StatusCode, resJSON, nil
 }
 
 func (c *Client) UpdateProduct(context string, productID int, payload map[string]interface{}) (int, map[string]interface{}, *ServiceError) {
