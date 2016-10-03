@@ -1,7 +1,7 @@
 {
   "id": "/marketplace",
   "cpus": 1,
-  "mem": 512,
+  "mem": 128,
   "disk": 0,
   "instances": 1,
   "container": {
@@ -16,10 +16,10 @@
     }
   },
   "env": {
-    "DB_USER": "postgres",
+    "DB_USER": "marketplace",
     "DB_PASSWORD": "",
-    "DB_NAME": "marketplace_development",
-    "DB_HOST": "localhost",
+    "DB_NAME": "{{marketplace_db_name}}",
+    "DB_HOST": "192.168.10.111",
     "PHOENIX_URL": "http://127.0.0.1",
     "PHOENIX_PORT": "9090",
     "SOLOMON_URL": "http://127.0.0.1",

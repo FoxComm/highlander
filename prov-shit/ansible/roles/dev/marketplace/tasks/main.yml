@@ -4,5 +4,6 @@
   sudo: true
   template: src=marketplace.json dest={{marathon_service_config_dir}}/marketplace.json mode="u=rw,g=rw,o=r"
 
-- name: Update Ashes in Marathon
-  shell: 'curl -X PUT -d @{{marathon_service_config_dir}}/marketplace.json -H "Content-Type: application/json"'
+- name: Update Marketplace in Marathon
+  shell: 'curl -X PUT -d@{{marathon_service_config_dir}}/marketplace.json -H "Content-Type: application/json" http://127.0.0.1:8080/v2/apps/marketplace'
+  sudo: true

@@ -1,7 +1,7 @@
 {
   "id": "/firebrand",
   "cpus": 1,
-  "mem": 1024,
+  "mem": 512,
   "disk": 0,
   "instances": 1,
   "container": {

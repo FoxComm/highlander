@@ -1,14 +1,13 @@
 {
-  "id": "/solomon",
+  "id": "/marketplace-ui",
   "cpus": 1,
-  "mem": 128,
-  "disk": 0,
+  "mem": 512,
   "instances": 1,
   "container": {
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}/solomon",
+      "image": "{{docker_registry}}/marketplace-ui",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -16,16 +15,14 @@
     }
   },
   "env": {
-    "DB_USER": "phoenix",
-    "DB_PASSWORD": "",
-    "DB_NAME": "{{phoenix_db_name}}",
-    "DB_HOST": "192.168.10.111"
+    "API_URL": "127.0.0.1/api/mkt",
+    "ASHES_URL": "https://{{ashes_server_name}}/admin"
   },
   "portDefinitions": [
     {
-      "port": 4002,
+      "port": 4042,
       "protocol": "tcp",
-      "name": "4002",
+      "name": "4042",
       "labels": {}
     }
   ]

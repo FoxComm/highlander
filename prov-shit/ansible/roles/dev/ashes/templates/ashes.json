@@ -1,8 +1,7 @@
 {
   "id": "/ashes",
   "cpus": 1,
-  "mem": 1024,
-  "disk": 0,
+  "mem": 512,
   "instances": 1,
   "container": {
     "type": "DOCKER",
@@ -29,11 +28,12 @@
     "PORT": "4000",
     "PHOENIX_PUBLIC_KEY": "/certs/public_key.pem",
     "GA_TRACKING_ID": "{{ashes_ga_tracking_id}}",
-    "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}"
+    "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}",
+    "ON_SERVER": "true"
   },
   "healthChecks": [
     {
-      "path": "/admin",
+      "path": "/admin/login",
       "protocol": "HTTP",
       "gracePeriodSeconds": 300,
       "intervalSeconds": 60,
