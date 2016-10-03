@@ -23,7 +23,7 @@ const FormField = ({ input: { name }, meta: { error, touched }, children }) => {
     <div className={cx(styles.field, name, { [styles.fieldError]: hasError })}>
       {children}
       <span className={cx(styles.error, { [styles.errorActive]: hasError })}>
-        {get(messages, error, 'Wrong value')}
+        {hasError ? get(messages, error, 'Wrong value') : ''}
       </span>
     </div>
   );
