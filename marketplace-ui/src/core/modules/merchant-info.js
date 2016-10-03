@@ -18,7 +18,11 @@ const ACTION_SUBMIT = 'merchantInfoSubmit';
 const { perform, ...actions } = createAsyncActions(ACTION_SUBMIT, (id, data) =>
   new Promise((resolve, reject) =>
     api.post(`/merchants/${id}/legal_profile`, { legal_profile: { ...data } })
-      .then((profile: Profile) => resolve(profile))
+      .then((profile: Info) =>
+        api.post(`/merchants/${id}/addresses`, { merchant_address: { ...data } })
+          .then(() => resolve(profile))
+          .catch(err => reject(new SubmissionError(err.response.data.errors)))
+      )
       .catch(err => reject(new SubmissionError(err.response.data.errors)))
   )
 );
