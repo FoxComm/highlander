@@ -190,8 +190,7 @@ class CreditCardsIntegrationTest
       val allCcs = customersApi(customer.id).payments.creditCards.get().as[Seq[Root]]
       allCcs must contain theSameElementsAs Seq(ccResp1, ccResp2)
 
-      val deleteResp = customersApi(customer.id).payments.creditCard(ccResp2.id).delete()
-      deleteResp.status must === (StatusCodes.NoContent)
+      customersApi(customer.id).payments.creditCard(ccResp2.id).delete().mustBeEmpty()
       verify(stripeWrapperMock).deleteCard(m.argThat(cardStripeIdMatches(stripeCard2.getId)))
 
       customersApi(customer.id).payments.creditCards.get().as[Seq[Root]] must === (Seq(ccResp1))

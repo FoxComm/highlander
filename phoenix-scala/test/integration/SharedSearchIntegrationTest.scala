@@ -161,7 +161,7 @@ class SharedSearchIntegrationTest
     "softly deletes shared search, shouldn't be shown in next request" in new Fixture {
       val payload = SharedSearchPayload("test", dummyJVal, dummyJVal, CustomersScope)
       val code    = sharedSearchApi.create(payload).as[SharedSearch].code
-      sharedSearchApi(code).delete().status must === (StatusCodes.NoContent)
+      sharedSearchApi(code).delete().mustBeEmpty()
 
       sharedSearchApi(code).get().mustFailWith404(NotFoundFailure404(SharedSearch, code))
 

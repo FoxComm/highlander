@@ -77,12 +77,9 @@ class GiftCardNotesIntegrationTest
   "DELETE /v1/notes/gift-card/:code/:noteId" - {
 
     "can soft delete note" in new Fixture {
-      val createResp = notesApi.giftCard(giftCard.code).create(CreateNote(body = "foo"))
-      val note       = createResp.as[Root]
+      val note = notesApi.giftCard(giftCard.code).create(CreateNote(body = "foo")).as[Root]
 
-      val response = notesApi.giftCard(giftCard.code).note(note.id).delete()
-      response.status must === (StatusCodes.NoContent)
-      response.bodyText mustBe empty
+      notesApi.giftCard(giftCard.code).note(note.id).delete().mustBeEmpty()
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
       updatedNote.deletedBy.value must === (1)

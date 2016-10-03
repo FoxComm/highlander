@@ -115,8 +115,7 @@ class StoreAdminIntegrationTest
 
   "DELETE /v1/store-admins/:id" - {
     "display store admin when id points to valid admin" in new Fixture {
-      val response = storeAdminsApi(storeAdmin.id).delete()
-      response.status must === (StatusCodes.NoContent)
+      storeAdminsApi(storeAdmin.id).delete().mustBeEmpty()
     }
 
     "respond with 404 when id does not point to valid admin" in new Fixture {

@@ -278,6 +278,11 @@ object Extensions extends MustMatchers with OptionValues with AppendedClues {
     def mustBeOk()(implicit line: SL, file: SF): Unit =
       mustHaveStatus(StatusCodes.OK).withClue(s"Errors: $extractErrors!")
 
+    def mustBeEmpty()(implicit line: SL, file: SF): Unit = {
+      mustHaveStatus(StatusCodes.NoContent)
+      (bodyText mustBe empty).withClue(s"Expected empty body, got $bodyText!")
+    }
+
     def mustFailWith404(expected: Failure*)(implicit line: SL, file: SF): Unit = {
       mustFailWith(StatusCodes.NotFound, expected.map(_.description): _*)
     }

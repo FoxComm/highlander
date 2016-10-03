@@ -77,8 +77,7 @@ class StoreAdminNotesIntegrationTest
     "can soft delete note" in new Fixture {
       val note = notesApi.storeAdmin(storeAdmin.id).create(CreateNote("foo")).as[Root]
 
-      val response = notesApi.storeAdmin(storeAdmin.id).note(note.id).delete()
-      response.status must === (StatusCodes.NoContent)
+      notesApi.storeAdmin(storeAdmin.id).note(note.id).delete().mustBeEmpty()
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
       updatedNote.deletedBy.value must === (1)

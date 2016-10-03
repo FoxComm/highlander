@@ -396,10 +396,9 @@ class CustomerIntegrationTest
 
   "DELETE /v1/customers/:customerId/payment-methods/credit-cards/:creditCardId" - {
     "deletes successfully if the card exists" in new CreditCardFixture {
-      val response = customersApi(customer.id).payments.creditCard(creditCard.id).delete()
-      val deleted  = CreditCards.findOneById(creditCard.id).gimme.value
+      customersApi(customer.id).payments.creditCard(creditCard.id).delete().mustBeEmpty()
 
-      response.status must === (StatusCodes.NoContent)
+      val deleted = CreditCards.findOneById(creditCard.id).gimme.value
       deleted.inWallet must === (false)
       deleted.deletedAt mustBe 'defined
     }
@@ -483,8 +482,7 @@ class CustomerIntegrationTest
     }
 
     "fails if the card is not inWallet" in new CreditCardFixture {
-      val deleteResp = customersApi(customer.id).payments.creditCard(creditCard.id).delete()
-      deleteResp.status must === (StatusCodes.NoContent)
+      customersApi(customer.id).payments.creditCard(creditCard.id).delete().mustBeEmpty()
 
       customersApi(customer.id).payments
         .creditCard(creditCard.id)

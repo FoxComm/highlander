@@ -72,8 +72,7 @@ class OrderNotesIntegrationTest
     "can soft delete note" in new Order_Baked {
       val note = OrderNoteManager.create(order.refNum, storeAdmin, CreateNote("foo")).gimme
 
-      val response = notesApi.order(order.refNum).note(note.id).delete()
-      response.status must === (StatusCodes.NoContent)
+      notesApi.order(order.refNum).note(note.id).delete().mustBeEmpty()
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
       updatedNote.deletedBy.value must === (1)

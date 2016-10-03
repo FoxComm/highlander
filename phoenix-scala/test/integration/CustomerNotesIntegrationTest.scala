@@ -74,11 +74,9 @@ class CustomerNotesIntegrationTest
   "DELETE /v1/notes/customer/:customerId/:noteId" - {
 
     "can soft delete note" in new Fixture {
-      val createResp = notesApi.customer(customer.id).create(CreateNote("foo"))
-      val note       = createResp.as[AdminNotes.Root]
+      val note = notesApi.customer(customer.id).create(CreateNote("foo")).as[AdminNotes.Root]
 
-      val response = notesApi.customer(customer.id).note(note.id).delete()
-      response.status must === (StatusCodes.NoContent)
+      notesApi.customer(customer.id).note(note.id).delete().mustBeEmpty()
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
       updatedNote.deletedBy.value must === (1)

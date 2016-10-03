@@ -67,7 +67,7 @@ class SaveForLaterIntegrationTest
       val saveForLaterId =
         saveForLaterApi(customer.id).create(product.code).as[SavedForLater].result.head.id
 
-      saveForLaterApi.delete(saveForLaterId).status must === (StatusCodes.NoContent)
+      saveForLaterApi.delete(saveForLaterId).mustBeEmpty()
     }
 
     "404 if save for later is not found" in {
