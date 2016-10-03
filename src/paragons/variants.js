@@ -6,7 +6,6 @@ import { createEmptySku } from './product';
 import type { Product } from './product';
 import { assoc } from 'sprout-data';
 import type { Sku } from 'modules/skus/details';
-import invariant from 'invariant';
 
 const dbCache = new Map();
 
@@ -111,7 +110,6 @@ export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
 
   if (availableValues.length >= existsValues.length) {
     closestTuples = findClosestTuples(existsValues, availableValues, x => x.name);
-    console.log('closest', closestTuples);
     unbindAll();
 
     let lastUsedSkuIndex = null;
@@ -128,7 +126,7 @@ export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
     for (let i = 0; i < availableValues.length; i++) {
       if (_.sortedIndexOf(closestTuples, i) !== -1) continue;
 
-      const sku = lastUsedSkuIndex != null && lastUsedSkuIndex < existsSkus.length
+      const sku = lastUsedSkuIndex != null && lastUsedSkuIndex < existsSkus.length - 1
         ? existsSkus[++lastUsedSkuIndex] : createEmptySku();
       newSkus.push(sku);
       bindTuple(availableValues[i], sku);

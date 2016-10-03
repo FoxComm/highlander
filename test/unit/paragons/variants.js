@@ -104,6 +104,12 @@ describe.only('Variants', function () {
       ];
 
       const newVariants = Variants.autoAssignVariants(skus, variants).variants;
+      expect(newVariants).to.have.length(3);
+      expect(newVariants[0].values[0].skuCodes).to.have.length(2);
+      expect(newVariants[0].values[1].skuCodes).to.have.length(2);
+      expect(newVariants[1].values[0].skuCodes).to.have.length(4);
+      expect(newVariants[2].values[0].skuCodes).to.have.length(2);
+      expect(newVariants[2].values[0].skuCodes).to.have.members([skus[0].feCode, skus[1].feCode]);
     });
 
     it('decrease1', () => {
@@ -131,8 +137,11 @@ describe.only('Variants', function () {
       ];
 
       const result = Variants.autoAssignVariants(skus, variants);
-      console.log(JSON.stringify(result.variants, null, 2));
-      console.log(result.skus);
+      //console.log(JSON.stringify(result.variants, null, 2));
+      expect(result.variants).to.have.length(2);
+      expect(result.variants[0].values[0].skuCodes).to.have.members([skus[0].feCode]);
+      expect(result.variants[0].values[1].skuCodes).to.have.members([skus[1].feCode]);
+      expect(result.variants[1].values[0].skuCodes).to.have.members([skus[0].feCode, skus[1].feCode]);
     });
   });
 });
