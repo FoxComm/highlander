@@ -23,19 +23,19 @@ Marketplace UI implementation of a FoxCommerce-powered store. Isomorphic React a
 
 1. Run `npm i` to install dependencies.
 
-1. Select your API backend. There are convenience tasks to run the common backend development methods, hitting backend API at either local or remote stage:
+1. Select your backend. There are convenience tasks to run the common backend development methods, hitting backend at either local or remote stage:
 
-  `npm run dev` — backend API at `http://localhost:4000`
+  `npm run dev` — backend at `http://localhost:4000`
 
 1. Develop it at http://localhost:4042/
 
-
-You can set the backend API URL as a shell variable `API_URL`.
+You can set the marketplace backend API and Ashes URLs as a shell variables `API_URL` and `ASHES_URL`.
 
 For example, to hit staging:
 
 ```
-export API_URL=http://10.240.0.8
+export API_URL=http://10.240.0.44
+export ASHES_URL=https://stage.foxcommerce.com/admin
 ```
 then run
 
