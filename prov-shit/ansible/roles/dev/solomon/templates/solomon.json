@@ -1,0 +1,32 @@
+{
+  "id": "/solomon",
+  "cpus": 1,
+  "mem": 512,
+  "disk": 0,
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "{{docker_registry}}/solomon",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "env": {
+    "DB_USER": "postgres",
+    "DB_PASSWORD": "",
+    "DB_NAME": "phoenix_development",
+    "DB_HOST": "localhost"
+  },
+  "portDefinitions": [
+    {
+      "port": 4002,
+      "protocol": "tcp",
+      "name": "4002",
+      "labels": {}
+    }
+  ]
+}

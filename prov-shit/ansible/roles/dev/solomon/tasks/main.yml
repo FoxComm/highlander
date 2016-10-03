@@ -1,0 +1,8 @@
+---
+
+- name: Copy Marathon config for Solomon
+  sudo: true
+  template: src=solomon.json dest={{marathon_service_config_dir}}/solomon.json mode="u=rw,g=rw,o=r"
+
+- name: Update Ashes in Marathon
+  shell: 'curl -X PUT -d @{{marathon_service_config_dir}}/solomon.json -H "Content-Type: application/json"'
