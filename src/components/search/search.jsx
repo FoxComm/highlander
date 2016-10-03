@@ -23,6 +23,7 @@ type SearchProps = Localized & {
   toggleActive: Function,
   onSearch: Function,
   setTerm: Function,
+  isScrolled: boolean
 };
 
 type SearchState = {
@@ -33,6 +34,10 @@ class Search extends Component {
   props: SearchProps;
   state: SearchState = {
     term: '',
+  };
+
+  static defaultProps = {
+    isScrolled: false,
   };
 
   componentWillReceiveProps(nextProps) {
@@ -85,15 +90,16 @@ class Search extends Component {
   }
 
   render(): HTMLElement {
+    const searchStyle = this.props.isActive ? 'search-expanded' : 'search';
+
     const cls = classNames({
-      search: !this.props.isActive,
-      'search-expanded': this.props.isActive,
+      _scrolled: this.props.isScrolled,
     });
 
     const { t } = this.props;
 
     return (
-      <div styleName={cls}>
+      <div styleName={searchStyle} className={cls}>
         <input value={this.state.term}
           onChange={this.onChange}
           onKeyDown={this.onKeyDown}

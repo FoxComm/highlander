@@ -15,13 +15,13 @@ table {
 }
 
 body {
-  font-family: Lato, 'Open Sans', sans-serif;
+  font-family: Roboto, 'Open Sans', sans-serif;
   margin: 0;
   padding: 0;
 }
 
 input, textarea, keygen, select, button {
-  font-family: Lato, 'Open Sans', sans-serif;
+  font-family: Roboto, 'Open Sans', sans-serif;
 }
 
 hr {
@@ -48,4 +48,8 @@ button {
   border: 0;
   padding: 0;
   background: none;
+}
+
+a {
+  cursor: pointer;
 }

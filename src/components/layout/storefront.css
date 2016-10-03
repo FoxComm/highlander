@@ -10,6 +10,7 @@
 
 .content-container {
   flex: 1;
+  margin-top: 222px;
 }
 
 .categories {
@@ -24,12 +25,9 @@
   display: none;
 }
 
-@media (--small-only) {
-  .categories {
-    display: none;
-  }
-
+@media (--small-only), (--medium-only) {
   .mobile-sidebar {
     display: block;
+    z-index: 10;
   }
 }
