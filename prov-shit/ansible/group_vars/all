@@ -33,6 +33,10 @@ phoenix_db_name: phoenix_development
 phoenix_test_db_name: phoenix_test
 phoenix_tracing: "false"
 
+#Do not use this in production
+#This is a ttl of 1 year
+phoenix_token_ttl: 525600
+
 # Middlewarehouse
 middlewarehouse_env: staging
 middlewarehouse_dir: /middlewarehouse
