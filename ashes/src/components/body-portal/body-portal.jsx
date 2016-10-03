@@ -1,5 +1,5 @@
 // libs
-import React, { Component, Element } from 'react';
+import React, { Component, Children, Element } from 'react';
 import ReactDOM from 'react-dom';
 
 type Props = {
@@ -18,7 +18,6 @@ export default class BodyPortal extends Component {
   };
 
   _target: HTMLElement; // HTMLElement, a div that is appended to the body
-  _component: Element; // ReactElement, which is mounted on the target
 
   updateStyle(): void {
     const { left, top } = this.props;
@@ -35,21 +34,28 @@ export default class BodyPortal extends Component {
   }
 
   port() {
-    const { className, children } = this.props;
+    const { className } = this.props;
 
     const container = document.createElement('div');
     container.className = className;
 
     this._target = document.body.appendChild(container);
-    this._component = ReactDOM.render(React.Children.only(children), this._target);
 
-    this.updateStyle();
+    this.renderContent();
   }
 
   componentDidUpdate(): void {
+    this.renderContent();
+  }
+
+  renderContent() {
+    if (!this.props.children) {
+      return;
+    }
+
     this.updateStyle();
 
-    this._component = ReactDOM.render(React.Children.only(this.props.children), this._target);
+    ReactDOM.render(Children.only(this.props.children), this._target);
   }
 
   componentWillUnmount(): void {
