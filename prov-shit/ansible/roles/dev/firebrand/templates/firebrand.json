@@ -1,5 +1,5 @@
 {
-  "id": "/ashes",
+  "id": "/firebrand",
   "cpus": 1,
   "mem": 1024,
   "disk": 0,
@@ -8,7 +8,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}/ashes",
+      "image": "{{docker_registry}}/firebrand",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -19,27 +19,26 @@
     "NODE_TLS_REJECT_UNAUTHORIZED": "0",
     "API_URL": "{{api_server}}",
     "NODE_ENV": "production",
-    "PORT": "4000",
-    "PHOENIX_PUBLIC_KEY": "/ashes/public_key.pem",
-    "GA_TRACKING_ID": "{{ashes_ga_tracking_id}}"
+    "PORT": "4041",
+    "PHOENIX_PUBLIC_KEY": "/ashes/public_key.pem"
   },
   "healthChecks": [
     {
-      "path": "/admin",
+      "path": "/",
       "protocol": "HTTP",
       "gracePeriodSeconds": 300,
       "intervalSeconds": 60,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false,
-      "port": 4000
+      "port": 4041
     }
   ],
   "portDefinitions": [
     {
-      "port": 4000,
+      "port": 4041,
       "protocol": "tcp",
-      "name": "4000",
+      "name": "4041",
       "labels": {}
     }
   ]

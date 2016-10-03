@@ -155,3 +155,6 @@ mesos_quorum: 2
 
 # Marathon
 marathon_service_config_dir: /marathon_services
+
+# Docker
+docker_registry: http://localhost:5000
