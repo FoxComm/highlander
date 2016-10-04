@@ -1,6 +1,7 @@
 import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
+import com.github.tminglei.slickpg.LTree
 
 import Extensions._
 import failures.ArchiveFailures._
@@ -428,6 +429,9 @@ class ProductIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed {
+
+    implicit val au = storeAdminAuthData
+
     def makeSkuPayload(code: String, name: String) = {
       val attrMap =
         Map("name" → (("t" → "string") ~ ("v" → name)), "code" → (("t" → "string") ~ ("v" → code)))
@@ -477,17 +481,18 @@ class ProductIntegrationTest
                                                              (skuRedLargeCode, "red", "large"),
                                                              (skuGreenSmallCode, "green", "small"),
                                                              (skuGreenLargeCode, "green", "large"))
+    val scope = LTree(au.token.scope)
 
     val (product, skus, variants) = (for {
       // Create the SKUs.
-      skus ← * <~ Mvp.insertSkus(ctx.id, simpleSkus)
+      skus ← * <~ Mvp.insertSkus(scope, ctx.id, simpleSkus)
 
       // Create the product.
-      product ← * <~ Mvp.insertProductWithExistingSkus(ctx.id, simpleProd, skus)
+      product ← * <~ Mvp.insertProductWithExistingSkus(scope, ctx.id, simpleProd, skus)
 
       // Create the Variants and their Values.
       variantsAndValues ← * <~ variantsWithValues.map { scv ⇒
-                           Mvp.insertVariantWithValues(ctx.id, product, scv)
+                           Mvp.insertVariantWithValues(scope, ctx.id, product, scv)
                          }
 
       variants ← * <~ variantsAndValues.map(_.variant)

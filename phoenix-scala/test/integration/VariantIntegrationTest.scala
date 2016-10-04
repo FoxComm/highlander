@@ -1,6 +1,7 @@
 import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
+import com.github.tminglei.slickpg.LTree
 
 import Extensions._
 import failures.ArchiveFailures.LinkArchivedSkuFailure
@@ -13,6 +14,7 @@ import responses.VariantValueResponses.IlluminatedVariantValueResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse.Root
 import services.product.ProductManager
 import util._
+import util.fixtures.BakedFixtures
 import utils.MockedApis
 import utils.Money.Currency
 import utils.db._
@@ -21,7 +23,8 @@ class VariantIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with MockedApis {
+    with MockedApis
+    with BakedFixtures {
 
   "POST v1/variants/:context" - {
     "Creates a variant successfully" in new Fixture {
@@ -144,7 +147,12 @@ class VariantIntegrationTest
     }
   }
 
-  trait Fixture {
+  trait Fixture extends StoreAdmin_Seed {
+
+    implicit val au = storeAdminAuthData
+
+    val scope = LTree(au.token.scope)
+
     val createVariantPayload = VariantPayload(attributes =
                                                 Map("name" → (("t" → "string") ~ ("v" → "Color"))),
                                               values = None)
@@ -152,7 +160,7 @@ class VariantIntegrationTest
     val testSkus = Seq(new SimpleSku("SKU-TST", "SKU test", 1000, Currency.USD, true),
                        new SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, true))
 
-    val skus = Mvp.insertSkus(ctx.id, testSkus).gimme
+    val skus = Mvp.insertSkus(scope, ctx.id, testSkus).gimme
 
     val createVariantValuePayload = VariantValuePayload(name = Some("Red"),
                                                         swatch = Some("ff0000"),
@@ -174,7 +182,7 @@ class VariantIntegrationTest
     val (product, variant) = (for {
       productData ← * <~ Mvp.insertProduct(ctx.id, simpleProd)
       product     ← * <~ ProductManager.mustFindProductByContextAndId404(ctx.id, productData.productId)
-      variant     ← * <~ Mvp.insertVariantWithValues(ctx.id, product, simpleSizeVariant)
+      variant     ← * <~ Mvp.insertVariantWithValues(scope, ctx.id, product, simpleSizeVariant)
     } yield (product, variant)).gimme
   }
 

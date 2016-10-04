@@ -225,6 +225,7 @@ class CartValidatorIntegrationTest
   }
 
   trait LineItemAndFundsFixture extends Reason_Baked with Customer_Seed {
+
     val (refNum, sku, creditCard, giftCard) = (for {
       address    ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
       cc         ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))

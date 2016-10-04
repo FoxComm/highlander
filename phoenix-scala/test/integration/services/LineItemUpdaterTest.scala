@@ -8,6 +8,7 @@ import util._
 import util.fixtures.BakedFixtures
 import utils.MockedApis
 import utils.db._
+import utils.aliases._
 import utils.seeds.Seeds.Factories
 
 class LineItemUpdaterTest
@@ -17,7 +18,8 @@ class LineItemUpdaterTest
     with MockedApis
     with BakedFixtures {
 
-  def createProducts(num: Int): DbResultT[(ObjectContext, Seq[SimpleProductData])] =
+  def createProducts(num: Int)(
+      implicit au: AU): DbResultT[(ObjectContext, Seq[SimpleProductData])] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       products ← * <~ Mvp.insertProducts((1 to num).map { i ⇒

@@ -1,5 +1,7 @@
 package services
 
+import com.github.tminglei.slickpg.LTree
+
 import cats.implicits._
 import models.cord.lineitems._
 import models.cord.{Carts, OrderShippingAddresses}
@@ -146,7 +148,10 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
     }
   }
 
-  trait Fixture extends Customer_Seed {
+  trait Fixture extends StoreAdmin_Seed with Customer_Seed {
+
+    implicit val au = storeAdminAuthData
+
     val cart = (for {
       cart ← * <~ Carts.create(Factories.cart.copy(accountId = customer.accountId))
       product ← * <~ Mvp.insertProduct(ctx.id,
@@ -253,7 +258,12 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
     val shippingMethod = action.gimme
   }
 
-  trait PriceConditionFixture {
+  trait PriceConditionFixture extends StoreAdmin_Seed {
+
+    implicit val au = storeAdminAuthData
+
+    val scope = LTree(au.token.scope)
+
     val conditions = parse(
         """
         | {

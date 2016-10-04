@@ -6,12 +6,16 @@ import models._
 import models.account._
 import models.customer._
 import models.admin._
+import models.auth._
+import services.Authenticator.AuthData
+import services.account.AccountManager
 import models.payment.giftcard._
 import slick.driver.PostgresDriver.api._
 import util.fixtures.TestFixtureBase
 import utils.seeds.Seeds.Factories
 import utils.Passwords.hashPassword
 import failures.GeneralFailure
+import failures.UserFailures._
 import utils.db._
 
 /**
@@ -19,11 +23,21 @@ import utils.db._
   */
 trait TestSeeds extends TestFixtureBase {
 
-  trait StoreAdmin_Seed {
-    def storeAdmin: User               = _storeAdmin
-    def storeAdminUser: StoreAdminUser = _storeAdminUser
+  val TENANT = "tenant"
 
-    private val (_storeAdmin, _storeAdminUser) = (for {
+  trait StoreAdmin_Seed {
+    def storeAdminAccount: Account         = _storeAdminAccount
+    def storeAdmin: User                   = _storeAdmin
+    def storeAdminUser: StoreAdminUser     = _storeAdminUser
+    def storeAdminClaims: Account.ClaimSet = _storeAdminClaims
+
+    def storeAdminAuthData: AuthData[User] =
+      AuthData[User](token =
+                       UserToken.fromUserAccount(storeAdmin, storeAdminAccount, storeAdminClaims),
+                     model = storeAdmin,
+                     account = storeAdminAccount)
+
+    private val (_storeAdminAccount, _storeAdmin, _storeAdminUser, _storeAdminClaims) = (for {
       maybeAdmin ← * <~ Users
                     .findByEmail(Factories.storeAdmin.email.getOrElse(""))
                     .result
@@ -40,7 +54,12 @@ trait TestSeeds extends TestFixtureBase {
                                              author = None)
               })
       adu ← * <~ StoreAdminUsers.mustFindByAccountId(ad.accountId)
-    } yield (ad, adu)).gimme
+      ac  ← * <~ Accounts.mustFindById404(ad.accountId)
+      organization ← * <~ Organizations
+                      .findByName(TENANT)
+                      .mustFindOr(OrganizationNotFoundByName(TENANT))
+      claims ← * <~ AccountManager.getClaims(ac.id, organization.scopeId)
+    } yield (ac, ad, adu, claims)).gimme
 
   }
 

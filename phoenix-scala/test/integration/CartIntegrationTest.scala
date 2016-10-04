@@ -126,6 +126,7 @@ class CartIntegrationTest
 
     "should successfully remove line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+
       val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1))
       val response        = PATCH(s"v1/orders/${cart.refNum}/line-items", subtractPayload)
 
@@ -517,6 +518,7 @@ class CartIntegrationTest
   trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed
 
   trait ShippingMethodFixture extends EmptyCartWithShipAddress_Baked {
+
     val lowConditions = parse(
         """
               | {
@@ -568,6 +570,7 @@ class CartIntegrationTest
   }
 
   trait PaymentStateFixture extends Fixture {
+
     val (cc, op, ccc) = (for {
       cc ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
       op ← * <~ OrderPayments.create(

@@ -173,6 +173,9 @@ class CheckoutIntegrationTest
       with CartWithGiftCardPayment_Raw
 
   trait Fixture extends StoreAdmin_Seed with CustomerAddress_Baked {
+
+    implicit val au = storeAdminAuthData
+
     val (shipMethod, product, sku, reason) = (for {
       _ ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethodName = ShippingMethod.expressShippingNameForAdmin
@@ -186,6 +189,9 @@ class CheckoutIntegrationTest
   }
 
   trait BlacklistedFixture extends StoreAdmin_Seed {
+
+    implicit val au = storeAdminAuthData
+
     val (customer, address, shipMethod, product, sku, reason) = (for {
       account ← * <~ Accounts.create(Account())
       customer ← * <~ Users.create(
