@@ -42,20 +42,4 @@ defmodule Solomon.OrganizationController do
         |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
     end
   end
-
-  def create_admin_role(conn, %{"organization" => org_params}) do
-    scope_id = Map.fetch!(org_params, "scope_id")
-    role_cs = Role.changeset(%Role{}, %{name: "admin", scope_id: scope_id})
-    case OrganizationService.create_role_with_permissions(role_cs, @admin_resources) do
-      {:ok, role} ->
-        conn
-        |> put_status(:created)
-        |> put_resp_header("location", role_path(conn, :show, role))
-        |> render("show.json", role: role)
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(Permissions.ChangesetView, "errors.json", changeset: changeset)
-    end
-  end
 end
