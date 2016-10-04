@@ -1,6 +1,7 @@
 import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
+import com.github.tminglei.slickpg.LTree
 
 import Extensions._
 import failures.ObjectFailures.ObjectContextNotFound
@@ -143,6 +144,8 @@ class SkuIntegrationTest
       SkuPayload(attrMap + ("code" → codeJson))
     }
 
+    implicit val au = storeAdminAuthData
+
     val (sku, skuForm, skuShadow) = (for {
       simpleSku       ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
       skuForm         ← * <~ ObjectForms.create(simpleSku.create)
@@ -151,7 +154,8 @@ class SkuIntegrationTest
       skuCommit ← * <~ ObjectCommits.create(
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
       sku ← * <~ Skus.create(
-               Sku(contextId = ctx.id,
+               Sku(scope = LTree(au.token.scope),
+                   contextId = ctx.id,
                    code = simpleSku.code,
                    formId = skuForm.id,
                    shadowId = skuShadow.id,

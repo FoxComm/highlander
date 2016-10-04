@@ -1,5 +1,7 @@
 package util.fixtures
 
+import com.github.tminglei.slickpg.LTree
+
 import cats.implicits._
 import models._
 import models.cord._
@@ -17,6 +19,7 @@ import services.carts._
 import services.{LineItemUpdater, ShippingManager}
 import slick.driver.PostgresDriver.api._
 import utils.db._
+import util.TestSeeds
 import util.fixtures.raw._
 import utils.seeds.Seeds.Factories
 
@@ -24,7 +27,7 @@ import utils.seeds.Seeds.Factories
   * Raw fixtures are cake-pattern definitions.
   * Each trait declares "dependencies" that must be satisfied before fixture can be created.
   */
-trait RawFixtures extends RawPaymentFixtures {
+trait RawFixtures extends RawPaymentFixtures with TestSeeds {
 
   // Simple models
   trait Reason_Raw {
@@ -108,20 +111,31 @@ trait RawFixtures extends RawPaymentFixtures {
   }
 
   // Product
-  trait Product_Raw {
-    val simpleProduct: Product = (for {
-      spd ← * <~ Mvp.insertProduct(ctx.id,
-                                   SimpleProductData(title = "Test Product",
-                                                     code = "TEST",
-                                                     description = "Test product description",
-                                                     image = "image.png",
-                                                     price = 5999,
-                                                     active = true))
-      pd ← * <~ Products.mustFindById404(spd.productId)
-    } yield pd).gimme
+  trait Product_Raw extends StoreAdmin_Seed {
+
+    val simpleProduct: Product = ({
+
+      implicit val au = storeAdminAuthData
+
+      for {
+        spd ← * <~ Mvp.insertProduct(ctx.id,
+                                     SimpleProductData(title = "Test Product",
+                                                       code = "TEST",
+                                                       description = "Test product description",
+                                                       image = "image.png",
+                                                       price = 5999,
+                                                       active = true))
+        pd ← * <~ Products.mustFindById404(spd.productId)
+      } yield pd
+    }).gimme
   }
 
-  trait Sku_Raw {
-    val simpleSku: Sku = Mvp.insertSku(ctx.id, SimpleSku("BY-ITSELF", "A lonely item", 9999)).gimme
+  trait Sku_Raw extends StoreAdmin_Seed {
+
+    val simpleSku: Sku = Mvp
+      .insertSku(LTree(storeAdminAuthData.token.scope),
+                 ctx.id,
+                 SimpleSku("BY-ITSELF", "A lonely item", 9999))
+      .gimme
   }
 }

@@ -6,15 +6,16 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import payloads.CouponPayloads._
 import services.coupon.CouponManager
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object CouponRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: User) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
-    activityContext(admin) { implicit ac ⇒
+    activityContext(auth.model) { implicit ac ⇒
       pathPrefix("coupons") {
 
         pathPrefix("codes") {
@@ -22,14 +23,14 @@ object CouponRoutes {
             pathPrefix(IntNumber / Segment) { (id, code) ⇒
               (post & pathEnd) {
                 mutateOrFailures {
-                  CouponManager.generateCode(id, code, admin)
+                  CouponManager.generateCode(id, code, auth.model)
                 }
               }
             } ~
             pathPrefix(IntNumber) { id ⇒
               (post & pathEnd & entity(as[GenerateCouponCodes])) { payload ⇒
                 mutateOrFailures {
-                  CouponManager.generateCodes(id, payload, admin)
+                  CouponManager.generateCodes(id, payload, auth.model)
                 }
               }
             }
@@ -59,7 +60,7 @@ object CouponRoutes {
         pathPrefix(Segment) { (context) ⇒
           (post & pathEnd & entity(as[CreateCoupon])) { payload ⇒
             mutateOrFailures {
-              CouponManager.create(payload, context, Some(admin))
+              CouponManager.create(payload, context, Some(auth.model))
             }
           } ~
           pathPrefix(IntNumber) { id ⇒
@@ -75,7 +76,7 @@ object CouponRoutes {
             } ~
             (patch & pathEnd & entity(as[UpdateCoupon])) { payload ⇒
               mutateOrFailures {
-                CouponManager.update(id, payload, context, admin)
+                CouponManager.update(id, payload, context, auth.model)
               }
             } ~
             (delete & pathEnd) {

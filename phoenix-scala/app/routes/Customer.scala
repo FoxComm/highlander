@@ -28,8 +28,8 @@ object Customer {
   def routes(implicit ec: EC, es: ES, db: DB, auth: UserAuthenticator, apis: Apis) = {
 
     pathPrefix("my") {
-      requireCustomerAuth(auth) { customer ⇒
-        activityContext(customer) { implicit ac ⇒
+      requireCustomerAuth(auth) { auth ⇒
+        activityContext(auth.model) { implicit ac ⇒
           determineObjectContext(db, ec) { implicit ctx ⇒
             pathPrefix("products" / IntNumber / "baked") { productId ⇒
               (get & pathEnd) {
@@ -41,116 +41,118 @@ object Customer {
             pathPrefix("cart") {
               (get & pathEnd) {
                 getOrFailures {
-                  CartQueries.findOrCreateCartByAccountId(customer.accountId, ctx)
+                  CartQueries.findOrCreateCartByAccountId(auth.account.id, ctx)
                 }
               } ~
               (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
                 reqItems ⇒
                   mutateOrFailures {
-                    LineItemUpdater.updateQuantitiesOnCustomersCart(customer, reqItems)
+                    LineItemUpdater.updateQuantitiesOnCustomersCart(auth.model, reqItems)
                   }
               } ~
               (patch & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
                 reqItems ⇒
                   mutateOrFailures {
-                    LineItemUpdater.addQuantitiesOnCustomersCart(customer, reqItems)
+                    LineItemUpdater.addQuantitiesOnCustomersCart(auth.model, reqItems)
                   }
               } ~
               (post & path("coupon" / Segment) & pathEnd) { code ⇒
                 mutateOrFailures {
-                  CartPromotionUpdater.attachCoupon(customer, None, code)
+                  CartPromotionUpdater.attachCoupon(auth.model, None, code)
                 }
               } ~
               (delete & path("coupon") & pathEnd) {
                 mutateOrFailures {
-                  CartPromotionUpdater.detachCoupon(customer)
+                  CartPromotionUpdater.detachCoupon(auth.model)
                 }
               } ~
               (post & path("checkout") & pathEnd) {
                 mutateOrFailures {
-                  Checkout.forCustomer(customer)
+                  Checkout.forCustomer(auth.model)
                 }
               } ~
               pathPrefix("payment-methods" / "credit-cards") {
                 (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
                   mutateOrFailures {
-                    CartPaymentUpdater.addCreditCard(customer, payload.creditCardId)
+                    CartPaymentUpdater.addCreditCard(auth.model, payload.creditCardId)
                   }
                 } ~
                 (delete & pathEnd) {
                   mutateOrFailures {
-                    CartPaymentUpdater.deleteCreditCard(customer)
+                    CartPaymentUpdater.deleteCreditCard(auth.model)
                   }
                 }
               } ~
               pathPrefix("payment-methods" / "gift-cards") {
                 (post & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
                   mutateOrFailures {
-                    CartPaymentUpdater.addGiftCard(customer, payload)
+                    CartPaymentUpdater.addGiftCard(auth.model, payload)
                   }
                 } ~
                 (patch & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
                   mutateOrFailures {
-                    CartPaymentUpdater.editGiftCard(customer, payload)
+                    CartPaymentUpdater.editGiftCard(auth.model, payload)
                   }
                 } ~
                 (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
                   mutateOrFailures {
-                    CartPaymentUpdater.deleteGiftCard(customer, code)
+                    CartPaymentUpdater.deleteGiftCard(auth.model, code)
                   }
                 }
               } ~
               pathPrefix("payment-methods" / "store-credit") {
                 (post & pathEnd & entity(as[StoreCreditPayment])) { payload ⇒
                   mutateOrFailures {
-                    CartPaymentUpdater.addStoreCredit(customer, payload)
+                    CartPaymentUpdater.addStoreCredit(auth.model, payload)
                   }
                 } ~
                 (delete & pathEnd) {
                   mutateOrFailures {
-                    CartPaymentUpdater.deleteStoreCredit(customer)
+                    CartPaymentUpdater.deleteStoreCredit(auth.model)
                   }
                 }
               } ~
               pathPrefix("shipping-address") {
                 (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
                   mutateOrFailures {
-                    CartShippingAddressUpdater.createShippingAddressFromPayload(customer, payload)
+                    CartShippingAddressUpdater.createShippingAddressFromPayload(auth.model,
+                                                                                payload)
                   }
                 } ~
                 (patch & path(IntNumber) & pathEnd) { addressId ⇒
                   mutateOrFailures {
-                    CartShippingAddressUpdater.createShippingAddressFromAddressId(customer,
+                    CartShippingAddressUpdater.createShippingAddressFromAddressId(auth.model,
                                                                                   addressId)
                   }
                 } ~
                 (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
                   mutateOrFailures {
-                    CartShippingAddressUpdater.updateShippingAddressFromPayload(customer, payload)
+                    CartShippingAddressUpdater.updateShippingAddressFromPayload(auth.model,
+                                                                                payload)
                   }
                 } ~
                 (delete & pathEnd) {
                   deleteOrFailures {
-                    CartShippingAddressUpdater.removeShippingAddress(customer)
+                    CartShippingAddressUpdater.removeShippingAddress(auth.model)
                   }
                 }
               } ~
               pathPrefix("shipping-methods") {
                 (get & pathEnd) {
                   getOrFailures {
-                    ShippingManager.getShippingMethodsForCart(customer)
+                    ShippingManager.getShippingMethodsForCart(auth.model)
                   }
                 }
               } ~
               pathPrefix("shipping-method") {
                 (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
                   mutateOrFailures {
-                    CartShippingMethodUpdater.updateShippingMethod(customer, payload)
+                    CartShippingMethodUpdater.updateShippingMethod(auth.model, payload)
                   }
                 } ~
                 (delete & pathEnd) {
                   mutateOrFailures {
-                    CartShippingMethodUpdater.deleteShippingMethod(customer)
+                    CartShippingMethodUpdater.deleteShippingMethod(auth.model)
                   }
                 }
               }
@@ -158,106 +160,106 @@ object Customer {
             pathPrefix("account") {
               (get & pathEnd) {
                 getOrFailures {
-                  CustomerManager.getByAccountId(customer.accountId)
+                  CustomerManager.getByAccountId(auth.account.id)
                 }
               } ~
               (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
                 mutateOrFailures {
-                  CustomerManager.update(customer.accountId, payload)
+                  CustomerManager.update(auth.account.id, payload)
                 }
               }
             } ~
             pathPrefix("orders" / cordRefNumRegex) { refNum ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  CartQueries.findOneByUser(refNum, customer)
+                  CartQueries.findOneByUser(refNum, auth.model)
                 }
               }
             } ~
             pathPrefix("addresses") {
               (get & pathEnd) {
                 getOrFailures {
-                  AddressManager.findAllByAccountId(customer.accountId)
+                  AddressManager.findAllByAccountId(auth.account.id)
                 }
               } ~
               (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
                 mutateOrFailures {
-                  AddressManager.create(customer, payload, customer.accountId)
+                  AddressManager.create(auth.model, payload, auth.account.id)
                 }
               } ~
               (delete & path("default") & pathEnd) {
                 deleteOrFailures {
-                  AddressManager.removeDefaultShippingAddress(customer.accountId)
+                  AddressManager.removeDefaultShippingAddress(auth.account.id)
                 }
               }
             } ~
             pathPrefix("addresses" / IntNumber) { addressId ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  AddressManager.get(customer, addressId, customer.accountId)
+                  AddressManager.get(auth.model, addressId, auth.account.id)
                 }
               } ~
               (post & path("default") & pathEnd) {
                 mutateOrFailures {
-                  AddressManager.setDefaultShippingAddress(addressId, customer.accountId)
+                  AddressManager.setDefaultShippingAddress(addressId, auth.account.id)
                 }
               } ~
               (patch & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
                 mutateOrFailures {
-                  AddressManager.edit(customer, addressId, customer.accountId, payload)
+                  AddressManager.edit(auth.model, addressId, auth.account.id, payload)
                 }
               } ~
               (delete & pathEnd) {
                 deleteOrFailures {
-                  AddressManager.remove(customer, addressId, customer.accountId)
+                  AddressManager.remove(auth.model, addressId, auth.account.id)
                 }
               }
             } ~
             pathPrefix("payment-methods" / "credit-cards") {
               (get & pathEnd) {
                 complete {
-                  CreditCardManager.creditCardsInWalletFor(customer.accountId)
+                  CreditCardManager.creditCardsInWalletFor(auth.account.id)
                 }
               } ~
               (get & path(IntNumber) & pathEnd) { creditCardId ⇒
                 getOrFailures {
-                  CreditCardManager.getByIdAndCustomer(creditCardId, customer)
+                  CreditCardManager.getByIdAndCustomer(creditCardId, auth.model)
                 }
               } ~
               (post & path(IntNumber / "default") & pathEnd & entity(as[ToggleDefaultCreditCard])) {
                 (cardId, payload) ⇒
                   mutateOrFailures {
-                    CreditCardManager.toggleCreditCardDefault(customer.accountId,
+                    CreditCardManager.toggleCreditCardDefault(auth.account.id,
                                                               cardId,
                                                               payload.isDefault)
                   }
               } ~
               (post & pathEnd & entity(as[CreateCreditCardFromTokenPayload])) { payload ⇒
                 mutateOrFailures {
-                  CreditCardManager.createCardFromToken(customer.accountId, payload)
+                  CreditCardManager.createCardFromToken(auth.account.id, payload)
                 }
               } ~
               (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) {
                 (cardId, payload) ⇒
                   mutateOrFailures {
-                    CreditCardManager.editCreditCard(customer.accountId, cardId, payload)
+                    CreditCardManager.editCreditCard(auth.account.id, cardId, payload)
                   }
               } ~
               (delete & path(IntNumber) & pathEnd) { cardId ⇒
                 deleteOrFailures {
-                  CreditCardManager.deleteCreditCard(customer.accountId, cardId)
+                  CreditCardManager.deleteCreditCard(auth.account.id, cardId)
                 }
               }
             } ~
             pathPrefix("payment-methods" / "store-credits") {
               (get & path(IntNumber) & pathEnd) { storeCreditId ⇒
                 getOrFailures {
-                  StoreCreditService.getByIdAndCustomer(storeCreditId, customer)
+                  StoreCreditService.getByIdAndCustomer(storeCreditId, auth.model)
                 }
               } ~
               (get & path("totals") & pathEnd) {
                 getOrFailures {
-                  StoreCreditService.totalsForCustomer(customer.accountId)
+                  StoreCreditService.totalsForCustomer(auth.account.id)
                 }
               }
             } ~
@@ -265,12 +267,12 @@ object Customer {
               determineObjectContext(db, ec) { context ⇒
                 (get & pathEnd) {
                   getOrFailures {
-                    SaveForLaterManager.findAll(customer.accountId, context.id)
+                    SaveForLaterManager.findAll(auth.account.id, context.id)
                   }
                 } ~
                 (post & path(skuCodeRegex) & pathEnd) { code ⇒
                   mutateOrFailures {
-                    SaveForLaterManager.saveForLater(customer.accountId, code, context)
+                    SaveForLaterManager.saveForLater(auth.account.id, code, context)
                   }
                 } ~
                 (delete & path(IntNumber) & pathEnd) { id ⇒

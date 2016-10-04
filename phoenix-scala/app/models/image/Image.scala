@@ -4,16 +4,19 @@ import java.time.Instant
 
 import models.objects._
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
 import utils.db._
 import utils.{Validation, JsonFormatters}
+
+import com.github.tminglei.slickpg._
 
 object Image {
   val kind = "image"
 }
 
 case class Image(id: Int = 0,
+                 scope: LTree,
                  contextId: Int,
                  shadowId: Int,
                  formId: Int,
@@ -31,7 +34,7 @@ case class Image(id: Int = 0,
 
 class Images(tag: Tag) extends ObjectHeads[Image](tag, "images") {
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Image.apply _).tupled, Image.unapply)
+    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Image.apply _).tupled, Image.unapply)
 }
 
 object Images extends FoxTableQuery[Image, Images](new Images(_)) with ReturningId[Image, Images] {

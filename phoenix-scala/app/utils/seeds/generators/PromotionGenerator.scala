@@ -70,8 +70,8 @@ trait PromotionGenerator {
     SimplePromotion(applyType = applyType, percentOff = percent, totalAmount = totalAmount)
   }
 
-  def generatePromotions(sourceData: Seq[SimplePromotion])(
-      implicit db: DB): DbResultT[Seq[SimplePromotion]] =
+  def generatePromotions(
+      sourceData: Seq[SimplePromotion])(implicit db: DB, au: AU): DbResultT[Seq[SimplePromotion]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       promotions ← * <~ sourceData.map(source ⇒ {

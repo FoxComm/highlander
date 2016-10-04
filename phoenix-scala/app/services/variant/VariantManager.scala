@@ -1,5 +1,7 @@
 package services.variant
 
+import com.github.tminglei.slickpg.LTree
+
 import failures.ArchiveFailures._
 import failures.NotFoundFailure404
 import failures.ProductFailures._
@@ -20,7 +22,8 @@ object VariantManager {
 
   def createVariant(contextName: String, payload: VariantPayload)(
       implicit ec: EC,
-      db: DB): DbResultT[IlluminatedVariantResponse.Root] =
+      db: DB,
+      au: AU): DbResultT[IlluminatedVariantResponse.Root] =
     for {
       context     ← * <~ ObjectManager.mustFindByName404(contextName)
       fullVariant ← * <~ createVariantInner(context, payload)
@@ -59,7 +62,8 @@ object VariantManager {
 
   def updateVariant(contextName: String, variantId: Int, payload: VariantPayload)(
       implicit ec: EC,
-      db: DB): DbResultT[IlluminatedVariantResponse.Root] =
+      db: DB,
+      au: AU): DbResultT[IlluminatedVariantResponse.Root] =
     for {
       context     ← * <~ ObjectManager.mustFindByName404(contextName)
       fullVariant ← * <~ updateVariantInner(context, variantId, payload)
@@ -72,9 +76,9 @@ object VariantManager {
           variantValueSkus = variantValueSkuCodes
       )
 
-  def createVariantInner(context: ObjectContext, payload: VariantPayload)(
-      implicit ec: EC,
-      db: DB): DbResultT[FullVariant] = {
+  def createVariantInner(
+      context: ObjectContext,
+      payload: VariantPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[FullVariant] = {
 
     val form          = ObjectForm.fromPayload(Variant.kind, payload.attributes)
     val shadow        = ObjectShadow.fromPayload(payload.attributes)
@@ -83,7 +87,8 @@ object VariantManager {
     for {
       ins ← * <~ ObjectUtils.insert(form, shadow)
       variant ← * <~ Variants.create(
-                   Variant(contextId = context.id,
+                   Variant(scope = LTree(au.token.scope),
+                           contextId = context.id,
                            formId = ins.form.id,
                            shadowId = ins.shadow.id,
                            commitId = ins.commit.id))
@@ -93,7 +98,8 @@ object VariantManager {
 
   def updateVariantInner(context: ObjectContext, variantId: Int, payload: VariantPayload)(
       implicit ec: EC,
-      db: DB): DbResultT[FullVariant] = {
+      db: DB,
+      au: AU): DbResultT[FullVariant] = {
 
     val newFormAttrs   = ObjectForm.fromPayload(Variant.kind, payload.attributes).attributes
     val newShadowAttrs = ObjectShadow.fromPayload(payload.attributes).attributes
@@ -118,9 +124,9 @@ object VariantManager {
     } yield (FullObject(updatedHead, updated.form, updated.shadow), values)
   }
 
-  def updateOrCreateVariant(context: ObjectContext, payload: VariantPayload)(
-      implicit ec: EC,
-      db: DB): DbResultT[FullVariant] = {
+  def updateOrCreateVariant(
+      context: ObjectContext,
+      payload: VariantPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[FullVariant] = {
 
     payload.id match {
       case Some(id) ⇒ updateVariantInner(context, id, payload)
@@ -140,7 +146,8 @@ object VariantManager {
 
   def createVariantValue(contextName: String, variantId: Int, payload: VariantValuePayload)(
       implicit ec: EC,
-      db: DB): DbResultT[IlluminatedVariantValueResponse.Root] =
+      db: DB,
+      au: AU): DbResultT[IlluminatedVariantValueResponse.Root] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       variant ← * <~ Variants
@@ -153,7 +160,8 @@ object VariantManager {
                                       variant: Variant,
                                       payload: VariantValuePayload)(
       implicit ec: EC,
-      db: DB): DbResultT[FullObject[VariantValue]] = {
+      db: DB,
+      au: AU): DbResultT[FullObject[VariantValue]] = {
 
     val (form, shadow) = payload.formAndShadow.tupled
 
@@ -163,7 +171,8 @@ object VariantManager {
                DbResultT.fromXor(sku.mustNotBeArchived(Variant, variant.formId)))
       ins ← * <~ ObjectUtils.insert(form, shadow)
       variantValue ← * <~ VariantValues.create(
-                        VariantValue(contextId = context.id,
+                        VariantValue(scope = LTree(au.token.scope),
+                                     contextId = context.id,
                                      formId = ins.form.id,
                                      shadowId = ins.shadow.id,
                                      commitId = ins.commit.id))
@@ -210,9 +219,10 @@ object VariantManager {
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 
-  private def updateOrCreateVariantValue(variant: Variant,
-                                         context: ObjectContext,
-                                         payload: VariantValuePayload)(implicit ec: EC, db: DB) = {
+  private def updateOrCreateVariantValue(
+      variant: Variant,
+      context: ObjectContext,
+      payload: VariantValuePayload)(implicit ec: EC, db: DB, au: AU) = {
 
     payload.id match {
       case Some(id) ⇒ updateVariantValueInner(id, context.id, payload)

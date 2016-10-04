@@ -52,6 +52,9 @@ class CartIntegrationTest
     }
 
     "returns correct image path" in new Fixture {
+
+      implicit val au = storeAdminAuthData
+
       val imgUrl = "testImgUrl";
       (for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
@@ -126,6 +129,7 @@ class CartIntegrationTest
 
     "should successfully remove line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+
       val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1))
       val response        = PATCH(s"v1/orders/${cart.refNum}/line-items", subtractPayload)
 
@@ -517,6 +521,7 @@ class CartIntegrationTest
   trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed
 
   trait ShippingMethodFixture extends EmptyCartWithShipAddress_Baked {
+
     val lowConditions = parse(
         """
               | {
@@ -542,18 +547,23 @@ class CartIntegrationTest
     val highSm = Factories.shippingMethods.head
       .copy(adminDisplayName = "High", conditions = Some(highConditions), code = "LOW")
 
-    val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
-      product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
-      _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
-      _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+    val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = ({
 
-      lowShippingMethod ← * <~ ShippingMethods.create(lowSm)
-      inactiveShippingMethod ← * <~ ShippingMethods.create(
-                                  lowShippingMethod.copy(isActive = false, code = "INACTIVE"))
-      highShippingMethod ← * <~ ShippingMethods.create(highSm)
+      implicit val au = storeAdminAuthData
 
-      _ ← * <~ CartTotaler.saveTotals(cart)
-    } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)).gimme
+      for {
+        product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
+        _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+        _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+
+        lowShippingMethod ← * <~ ShippingMethods.create(lowSm)
+        inactiveShippingMethod ← * <~ ShippingMethods.create(
+                                    lowShippingMethod.copy(isActive = false, code = "INACTIVE"))
+        highShippingMethod ← * <~ ShippingMethods.create(highSm)
+
+        _ ← * <~ CartTotaler.saveTotals(cart)
+      } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)
+    }).gimme
   }
 
   trait OrderShippingMethodFixture extends ShippingMethodFixture {
@@ -568,6 +578,7 @@ class CartIntegrationTest
   }
 
   trait PaymentStateFixture extends Fixture {
+
     val (cc, op, ccc) = (for {
       cc ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
       op ← * <~ OrderPayments.create(

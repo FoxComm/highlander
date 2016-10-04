@@ -30,10 +30,12 @@ object ImageFacade {
 
   implicit def formats = JsonFormatters.phoenixFormats
 
-  def uploadImage(
-      albumId: Int,
-      contextName: String,
-      request: HttpRequest)(implicit ec: EC, db: DB, am: Mat, apis: Apis): Result[AlbumRoot] =
+  def uploadImage(albumId: Int, contextName: String, request: HttpRequest)(
+      implicit ec: EC,
+      db: DB,
+      au: AU,
+      am: Mat,
+      apis: Apis): Result[AlbumRoot] =
     Unmarshal(request.entity).to[Multipart.FormData].flatMap { formData ⇒
       val error: Result[AlbumRoot] = Result.failure(ImageNotFoundInPayload)
       ObjectManager.mustFindByName404(contextName).run().flatMap {
@@ -60,7 +62,8 @@ object ImageFacade {
 
   private def addImage(context: ObjectContext, albumId: Int, url: String, filename: String)(
       implicit ec: EC,
-      db: DB) = {
+      db: DB,
+      au: AU) = {
     (for {
       album          ← * <~ mustFindFullAlbumByFormIdAndContext404(albumId, context)
       _              ← * <~ album.model.mustNotBeArchived

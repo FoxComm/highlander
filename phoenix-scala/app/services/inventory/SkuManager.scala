@@ -1,6 +1,7 @@
 package services.inventory
 
 import java.time.Instant
+import com.github.tminglei.slickpg.LTree
 
 import cats.data._
 import failures.ProductFailures._
@@ -22,9 +23,11 @@ import utils.db._
 object SkuManager {
   implicit val formats = JsonFormatters.DefaultFormats
 
-  def createSku(
-      admin: User,
-      payload: SkuPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC): DbResultT[SkuResponse.Root] =
+  def createSku(admin: User, payload: SkuPayload)(implicit ec: EC,
+                                                  db: DB,
+                                                  ac: AC,
+                                                  oc: OC,
+                                                  au: AU): DbResultT[SkuResponse.Root] =
     for {
       sku    ← * <~ createSkuInner(oc, payload)
       albums ← * <~ ImageManager.getAlbumsForSkuInner(sku.model.code, oc)
@@ -78,8 +81,9 @@ object SkuManager {
               FullObject(model = archivedSku, form = fullSku.form, shadow = fullSku.shadow)),
           albums)
 
-  def createSkuInner(context: ObjectContext,
-                     payload: SkuPayload)(implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] = {
+  def createSkuInner(
+      context: ObjectContext,
+      payload: SkuPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[FullObject[Sku]] = {
 
     val form   = ObjectForm.fromPayload(Sku.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
@@ -88,7 +92,8 @@ object SkuManager {
       code ← * <~ mustGetSkuCode(payload)
       ins  ← * <~ ObjectUtils.insert(form, shadow)
       sku ← * <~ Skus.create(
-               Sku(contextId = context.id,
+               Sku(scope = LTree(au.token.scope),
+                   contextId = context.id,
                    code = code,
                    formId = ins.form.id,
                    shadowId = ins.shadow.id,
@@ -115,7 +120,7 @@ object SkuManager {
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 
-  def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC, db: DB, oc: OC) =
+  def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC, db: DB, oc: OC, au: AU) =
     for {
       code ← * <~ mustGetSkuCode(skuPayload)
       sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.toXor.flatMap {

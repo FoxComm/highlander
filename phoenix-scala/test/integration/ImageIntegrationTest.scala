@@ -4,6 +4,7 @@ import java.time.Instant
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
 import akka.stream.scaladsl.Source
+import com.github.tminglei.slickpg.LTree
 
 import Extensions._
 import cats.implicits._
@@ -493,6 +494,9 @@ class ImageIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed {
+
+    implicit val au = storeAdminAuthData
+
     def createShadowAttr(key: String, attrType: String) =
       key → (("type" → attrType) ~ ("ref" → key))
 
@@ -510,7 +514,8 @@ class ImageIntegrationTest
     val (album, albumImages) = (for {
       ins ← * <~ ObjectUtils.insert(form, shadow)
       album ← * <~ Albums.create(
-                 Album(contextId = ctx.id,
+                 Album(scope = LTree(au.token.scope),
+                       contextId = ctx.id,
                        shadowId = ins.shadow.id,
                        formId = ins.form.id,
                        commitId = ins.commit.id))
@@ -527,7 +532,8 @@ class ImageIntegrationTest
       skuCommit ← * <~ ObjectCommits.create(
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
       sku ← * <~ Skus.create(
-               Sku(contextId = ctx.id,
+               Sku(scope = LTree(au.token.scope),
+                   contextId = ctx.id,
                    formId = skuForm.id,
                    shadowId = skuShadow.id,
                    commitId = skuCommit.id,
@@ -542,7 +548,8 @@ class ImageIntegrationTest
       prodCommit ← * <~ ObjectCommits.create(
                       ObjectCommit(formId = prodForm.id, shadowId = prodShadow.id))
       product ← * <~ Products.create(
-                   Product(contextId = ctx.id,
+                   Product(scope = LTree(au.token.scope),
+                           contextId = ctx.id,
                            formId = prodForm.id,
                            shadowId = prodShadow.id,
                            commitId = prodCommit.id))

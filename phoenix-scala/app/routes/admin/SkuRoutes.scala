@@ -8,21 +8,22 @@ import payloads.ImagePayloads.CreateAlbumPayload
 import payloads.SkuPayloads._
 import services.image.ImageManager
 import services.inventory.SkuManager
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object SkuRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: User) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
-    activityContext(admin) { implicit ac ⇒
+    activityContext(auth.model) { implicit ac ⇒
       pathPrefix("skus") {
         pathPrefix(Segment) { contextName ⇒
           adminObjectContext(contextName) { implicit context ⇒
             (post & pathEnd & entity(as[SkuPayload])) { payload ⇒
               mutateOrFailures {
-                SkuManager.createSku(admin, payload)
+                SkuManager.createSku(auth.model, payload)
               }
             } ~
             pathPrefix(Segment) { code ⇒
@@ -33,7 +34,7 @@ object SkuRoutes {
               } ~
               (patch & pathEnd & entity(as[SkuPayload])) { payload ⇒
                 mutateOrFailures {
-                  SkuManager.updateSku(admin, code, payload)
+                  SkuManager.updateSku(auth.model, code, payload)
                 }
               } ~
               (delete & pathEnd) {
@@ -49,7 +50,7 @@ object SkuRoutes {
                 } ~
                 (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒
                   mutateOrFailures {
-                    ImageManager.createAlbumForSku(admin, code, payload)
+                    ImageManager.createAlbumForSku(auth.model, code, payload)
                   }
                 }
               }

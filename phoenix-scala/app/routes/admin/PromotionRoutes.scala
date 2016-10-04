@@ -6,13 +6,14 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import payloads.PromotionPayloads._
 import services.promotion.PromotionManager
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object PromotionRoutes {
-  def routes(implicit ec: EC, db: DB, admin: User) = {
-    activityContext(admin) { implicit ac ⇒
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
+    activityContext(auth.model) { implicit ac ⇒
       pathPrefix("promotions") {
         pathPrefix("forms" / IntNumber) { id ⇒
           (get & pathEnd) {

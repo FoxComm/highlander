@@ -164,34 +164,34 @@ object Authenticator {
   //"admin" within the token. This is to bring back feature parity with the old code.
   val ADMIN_ROLE = "admin"
 
-  def requireAdminAuth(auth: UserAuthenticator): AuthenticationDirective[User] = {
+  def requireAdminAuth(auth: UserAuthenticator): AuthenticationDirective[AuthData[User]] = {
     (for {
       optCreds ← auth.readCredentials()
       result   ← onSuccess(auth.checkAuthUser(optCreds))
     } yield (result, optCreds)).tflatMap {
       case (Right(authData), _) ⇒ {
-        if (authData.token.hasRole(ADMIN_ROLE)) provide(authData.model)
+        if (authData.token.hasRole(ADMIN_ROLE)) provide(authData)
         else
-          AuthRejections.credentialsRejected[User](
+          AuthRejections.credentialsRejected[AuthData[User]](
               FailureChallenge("admin", AuthFailed("Does not have admin role").single))
       }
       case (Left(challenge), Some(creds)) ⇒
-        AuthRejections.credentialsRejected[User](challenge)
+        AuthRejections.credentialsRejected[AuthData[User]](challenge)
       case (Left(challenge), _) ⇒
-        AuthRejections.credentialsMissing[User](challenge)
+        AuthRejections.credentialsMissing[AuthData[User]](challenge)
     }
   }
 
   //TODO
   //same as above, should have check for claims. The services should
   //make sure the claim exists instead of route layer.
-  def requireCustomerAuth(auth: UserAuthenticator): AuthenticationDirective[User] =
+  def requireCustomerAuth(auth: UserAuthenticator): AuthenticationDirective[AuthData[User]] =
     (for {
       optCreds ← auth.readCredentials()
       result   ← onSuccess(auth.checkAuthCustomer(optCreds))
     } yield (result, optCreds)).tflatMap {
       case (Right(authData), _) ⇒
-        if (!authData.isGuest) provide(authData.model)
+        if (!authData.isGuest) provide(authData)
         else {
           Console.out.println(s"AUTH ${authData}")
           AuthPayload(
@@ -202,20 +202,18 @@ object Authenticator {
                                    roles = authData.token.roles,
                                    claims = authData.token.claims))) match {
             case Xor.Right(authPayload) ⇒
-              Console.out.println(s"PAYLOAD ${authData}")
               val header = respondWithHeader(RawHeader("JWT", authPayload.jwt))
               val cookie = setCookie(JwtCookie(authPayload))
-              header & cookie & provide(authData.model)
+              header & cookie & provide(authData)
             case Xor.Left(failures) ⇒
-              Console.out.println(s"FAILURE ${failures}")
               val challenge = FailureChallenge("customer", failures)
-              AuthRejections.credentialsRejected[User](challenge)
+              AuthRejections.credentialsRejected[AuthData[User]](challenge)
           }
         }
       case (Left(challenge), Some(creds)) ⇒
-        AuthRejections.credentialsRejected[User](challenge)
+        AuthRejections.credentialsRejected[AuthData[User]](challenge)
       case (Left(challenge), _) ⇒
-        AuthRejections.credentialsMissing[User](challenge)
+        AuthRejections.credentialsMissing[AuthData[User]](challenge)
     }
 
   def authTokenBaseResponse(token: Token,

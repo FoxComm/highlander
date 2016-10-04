@@ -140,9 +140,12 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
     }
   }
 
-  trait Fixture extends EmptyCustomerCart_Baked
+  trait Fixture extends EmptyCustomerCart_Baked {
+    implicit val au = storeAdminAuthData
+  }
 
   trait LineItemsFixture extends Fixture {
+
     val (product, productForm, productShadow, sku, skuForm, skuShadow, items) = (for {
       productData   ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       product       ← * <~ Products.mustFindById404(productData.productId)

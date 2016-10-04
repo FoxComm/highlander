@@ -6,16 +6,17 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import payloads.StoreCreditPayloads._
 import services.StoreCreditService
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object StoreCreditRoutes {
-  private[admin] def storeCreditRoutes(implicit ec: EC, db: DB, ac: AC, admin: User) = {
+  private[admin] def storeCreditRoutes(implicit ec: EC, db: DB, ac: AC, auth: AuthData[User]) = {
     pathPrefix("store-credits") {
       (patch & pathEnd & entity(as[StoreCreditBulkUpdateStateByCsr])) { payload ⇒
         mutateOrFailures {
-          StoreCreditService.bulkUpdateStateByCsr(payload, admin)
+          StoreCreditService.bulkUpdateStateByCsr(payload, auth.model)
         }
       }
     } ~
@@ -27,7 +28,7 @@ object StoreCreditRoutes {
       } ~
       (patch & pathEnd & entity(as[StoreCreditUpdateStateByCsr])) { payload ⇒
         mutateOrFailures {
-          StoreCreditService.updateStateByCsr(storeCreditId, payload, admin)
+          StoreCreditService.updateStateByCsr(storeCreditId, payload, auth.model)
         }
       }
     }

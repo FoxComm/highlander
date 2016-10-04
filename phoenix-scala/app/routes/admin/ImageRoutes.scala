@@ -7,14 +7,15 @@ import facades.ImageFacade
 import models.account.User
 import payloads.ImagePayloads._
 import services.image.ImageManager
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object ImageRoutes {
-  def routes(implicit ec: EC, db: DB, am: Mat, admin: User, apis: Apis) = {
-    activityContext(admin) { implicit ac ⇒
+  def routes(implicit ec: EC, db: DB, am: Mat, auth: AuthData[User], apis: Apis) = {
+    activityContext(auth.model) { implicit ac ⇒
       pathPrefix("albums") {
         pathPrefix(Segment) { context ⇒
           (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒

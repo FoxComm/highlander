@@ -1,5 +1,7 @@
 import akka.http.scaladsl.model._
 
+import com.github.tminglei.slickpg.LTree
+
 import cats.implicits._
 import models.image._
 import models.objects._
@@ -10,6 +12,7 @@ import payloads.ImagePayloads._
 import services.image.ImageManager
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.SQLActionBuilder
+import util.fixtures.BakedFixtures
 import util._
 import utils.MockedApis
 import utils.Money.Currency
@@ -30,7 +33,8 @@ class ProductsCatalogViewIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
-    with MockedApis {
+    with MockedApis
+    with BakedFixtures {
 
   import ProductsCatalogViewIntegrationTest._
 
@@ -112,22 +116,28 @@ class ProductsCatalogViewIntegrationTest
     }
   }
 
-  trait Fixture {
+  trait Fixture extends StoreAdmin_Seed {
+    implicit val au         = storeAdminAuthData
     val imagePayload        = ImagePayload(None, "http://lorem.png", "lorem.png".some, "Lorem Ipsum".some)
     val defaultAlbumPayload = CreateAlbumPayload("Sample Album", Some(Seq(imagePayload)))
+    val scope               = LTree(au.token.scope)
 
     val (album, albumImages, product, sku) = (for {
       fullAlbum ← * <~ ObjectUtils.insertFullObject(defaultAlbumPayload.formAndShadow,
                                                     ins ⇒
                                                       Albums.create(
-                                                          Album(contextId = ctx.id,
+                                                          Album(scope = LTree(au.token.scope),
+                                                                contextId = ctx.id,
                                                                 shadowId = ins.shadow.id,
                                                                 formId = ins.form.id,
                                                                 commitId = ins.commit.id)))
       albumImages ← * <~ ImageManager.createImagesForAlbum(fullAlbum.model, Seq(imagePayload), ctx)
-      sku         ← * <~ Mvp.insertSku(ctx.id, SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD))
+      sku ← * <~ Mvp.insertSku(scope,
+                               ctx.id,
+                               SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD))
 
-      product ← * <~ Mvp.insertProductWithExistingSkus(ctx.id,
+      product ← * <~ Mvp.insertProductWithExistingSkus(scope,
+                                                       ctx.id,
                                                        SimpleProduct(title = "Test Product",
                                                                      active = true,
                                                                      description =

@@ -1,6 +1,8 @@
 package utils.seeds.generators
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import com.github.tminglei.slickpg.LTree
+
 import scala.io.Source
 import scala.util.Random
 
@@ -92,7 +94,7 @@ trait ProductGenerator {
                       image = ProductGenerator.randomImage)
   }
 
-  def generateProducts(data: Seq[SimpleProductData])(implicit db: DB) =
+  def generateProducts(data: Seq[SimpleProductData])(implicit db: DB, au: AU) =
     for {
       context  ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       products ← * <~ Mvp.insertProducts(data, context.id)

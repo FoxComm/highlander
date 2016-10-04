@@ -7,16 +7,19 @@ import failures.ArchiveFailures._
 import failures._
 import models.objects._
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
 import utils.db._
 import utils.{JsonFormatters, Validation}
+
+import com.github.tminglei.slickpg._
 
 object Album {
   val kind = "album"
 }
 
 case class Album(id: Int = 0,
+                 scope: LTree,
                  contextId: Int,
                  shadowId: Int,
                  formId: Int,
@@ -39,7 +42,7 @@ case class Album(id: Int = 0,
 
 class Albums(tag: Tag) extends ObjectHeads[Album](tag, "albums") {
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Album.apply _).tupled, Album.unapply)
+    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Album.apply _).tupled, Album.unapply)
 }
 
 object Albums extends FoxTableQuery[Album, Albums](new Albums(_)) with ReturningId[Album, Albums] {

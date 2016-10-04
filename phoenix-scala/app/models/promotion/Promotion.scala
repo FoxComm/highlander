@@ -11,6 +11,8 @@ import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.{ADT, Validation}
 
+import com.github.tminglei.slickpg._
+
 object Promotion {
   val kind = "promotion"
 
@@ -32,6 +34,7 @@ object Promotion {
   * ObjectLinks are used to connect a promotion to several discounts.
   */
 case class Promotion(id: Int = 0,
+                     scope: LTree,
                      contextId: Int,
                      shadowId: Int,
                      formId: Int,
@@ -53,7 +56,16 @@ class Promotions(tag: Tag) extends ObjectHeads[Promotion](tag, "promotions") {
   def requireCoupon = column[Promotion.ApplyType]("apply_type")
 
   def * =
-    (id, contextId, shadowId, formId, commitId, requireCoupon, updatedAt, createdAt, archivedAt) <> ((Promotion.apply _).tupled, Promotion.unapply)
+    (id,
+     scope,
+     contextId,
+     shadowId,
+     formId,
+     commitId,
+     requireCoupon,
+     updatedAt,
+     createdAt,
+     archivedAt) <> ((Promotion.apply _).tupled, Promotion.unapply)
 }
 
 object Promotions

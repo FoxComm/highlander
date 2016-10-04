@@ -8,6 +8,7 @@ import util._
 import util.fixtures.BakedFixtures
 import utils.MockedApis
 import utils.db._
+import utils.aliases._
 import utils.seeds.Seeds.Factories
 
 class LineItemUpdaterTest
@@ -17,7 +18,8 @@ class LineItemUpdaterTest
     with MockedApis
     with BakedFixtures {
 
-  def createProducts(num: Int): DbResultT[(ObjectContext, Seq[SimpleProductData])] =
+  def createProducts(num: Int)(
+      implicit au: AU): DbResultT[(ObjectContext, Seq[SimpleProductData])] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       products ← * <~ Mvp.insertProducts((1 to num).map { i ⇒
@@ -28,6 +30,7 @@ class LineItemUpdaterTest
   "LineItemUpdater" - {
 
     "Adds line items when the sku doesn't exist in cart" in new Fixture {
+      implicit val au         = storeAdminAuthData
       val (context, products) = createProducts(2).gimme
 
       val payload = Seq[Payload](
@@ -52,6 +55,9 @@ class LineItemUpdaterTest
     }
 
     "Updates line items when the Sku already is in cart" in new Fixture {
+
+      implicit val au = storeAdminAuthData
+
       val (context, products) = createProducts(3).gimme
       val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId ⇒
         CartLineItem(cordRef = cart.refNum, skuId = skuId)
