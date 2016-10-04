@@ -28,7 +28,7 @@ gulp.task('dev', function(cb) {
 
   let tasks = _.compact([
     'build',
-    process.env.ASHES_NO_TEST_FOR_DEV ? null : 'test',
+    // process.env.ASHES_NO_TEST_FOR_DEV ? null : 'test',
     'server',
     'watch',
     process.env.ASHES_NOTIFY_ABOUT_TASKS ? 'notifier' : null

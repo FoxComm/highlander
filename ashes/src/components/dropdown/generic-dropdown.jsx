@@ -2,7 +2,6 @@
 
 import _ from 'lodash';
 import React, { PropTypes, Element, Component, Children } from 'react';
-import Transition from 'react-addons-css-transition-group';
 import createFragment from 'react-addons-create-fragment';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
@@ -37,7 +36,7 @@ export type Props = {
   renderAppend?: Function,
   onChange?: Function,
   dropdownProps?: Object,
-  wrapMenu?: Function
+  detached?: boolean,
 };
 
 type State = {
@@ -63,7 +62,7 @@ export default class GenericDropdown extends Component {
     inputFirst: true,
     dropdownProps: {},
     value: '',
-    wrapMenu: _.identity,
+    detached: false,
   };
 
   state: State = {
@@ -83,17 +82,21 @@ export default class GenericDropdown extends Component {
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.state.open && !prevState.open) {
+      this.setMenuPosition();
       this.setMenuOrientation();
-      this.setMenuWidth();
     }
   }
 
-  setMenuWidth() {
-    const b = this._container.getBoundingClientRect();
+  setMenuPosition() {
+    if (!this.props.detached) {
+      return;
+    }
+
+    const parentDim = this._container.getBoundingClientRect();
 
     this._menu.style.minWidth = `${this._container.offsetWidth}px`;
-    this._menu.style.top = `${b.top + b.height + window.scrollY}px`;
-    this._menu.style.left = `${b.left}px`;
+    this._menu.style.top = `${parentDim.top + parentDim.height + window.scrollY}px`;
+    this._menu.style.left = `${parentDim.left}px`;
   }
 
   setMenuOrientation() {
@@ -267,14 +270,20 @@ export default class GenericDropdown extends Component {
   }
 
   get menu(): Element[] {
+    if (!this.state.open) {
+      return;
+    }
+
     return (
-      <div className={this.listClassName} ref={m => this._menu = m}>
-        {this.prependList}
-        <ul className={this.optionsContainerClass}>
-          {this.renderItems()}
-        </ul>
-        {this.appendList}
-      </div>
+      <BodyPortal active={this.props.detached}>
+        <div className={this.listClassName} ref={m => this._menu = m}>
+          {this.prependList}
+          <ul className={this.optionsContainerClass}>
+            {this.renderItems()}
+          </ul>
+          {this.appendList}
+        </div>
+      </BodyPortal>
     );
   };
 
@@ -287,7 +296,7 @@ export default class GenericDropdown extends Component {
         <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
           {this.controls}
         </div>
-        {wrapMenu(this.menu)}
+        {this.menu}
       </div>
     );
   }

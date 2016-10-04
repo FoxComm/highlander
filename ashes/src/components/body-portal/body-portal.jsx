@@ -3,6 +3,7 @@ import React, { Component, Children, Element } from 'react';
 import ReactDOM from 'react-dom';
 
 type Props = {
+  active?: boolean;
   left: ?number;
   top: ?number;
   className: ?string;
@@ -12,6 +13,7 @@ export default class BodyPortal extends Component {
   props: Props;
 
   static defaultProps: Props = {
+    active: true,
     left: 0,
     top: 0,
     className: '',
@@ -30,7 +32,28 @@ export default class BodyPortal extends Component {
   }
 
   componentDidMount(): void {
+    if (!this.props.active) {
+      return;
+    }
+
     this.port();
+  }
+
+  componentDidUpdate(): void {
+    if (!this.props.active) {
+      return;
+    }
+
+    this.renderContent();
+  }
+
+  componentWillUnmount(): void {
+    if (!this.props.active) {
+      return;
+    }
+
+    ReactDOM.unmountComponentAtNode(this._target);
+    document.body.removeChild(this._target);
   }
 
   port() {
@@ -44,10 +67,6 @@ export default class BodyPortal extends Component {
     this.renderContent();
   }
 
-  componentDidUpdate(): void {
-    this.renderContent();
-  }
-
   renderContent() {
     if (!this.props.children) {
       return;
@@ -58,12 +77,7 @@ export default class BodyPortal extends Component {
     ReactDOM.render(Children.only(this.props.children), this._target);
   }
 
-  componentWillUnmount(): void {
-    ReactDOM.unmountComponentAtNode(this._target);
-    document.body.removeChild(this._target);
-  }
-
   render(): Element {
-    return null;
+    return this.props.active ? null : this.props.children;
   }
 }
