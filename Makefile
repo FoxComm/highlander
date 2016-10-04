@@ -5,6 +5,13 @@ BUILDDIRS = $(SUBDIRS:%=build-%)
 TESTDIRS = $(SUBDIRS:%=test-%)
 CLEANDIRS = $(SUBDIRS:%=clean-%)
 
+SUBDIRS_ALL = $(shell ./projects.sh -all)
+$(info $(SUBDIRS_ALL))
+UPDATEDIRS_ALL = $(SUBDIRS_ALL:%=update-%)
+BUILDDIRS_ALL = $(SUBDIRS_ALL:%=build-%)
+TESTDIRS_ALL = $(SUBDIRS_ALL:%=test-%)
+CLEANDIRS_ALL = $(SUBDIRS_ALL:%=clean-%)
+
 clean: $(CLEANDIRS)
 $(CLEANDIRS): REPO = $(@:clean-%=%)
 $(CLEANDIRS):
@@ -15,10 +22,21 @@ $(BUILDDIRS): REPO = $(@:build-%=%)
 $(BUILDDIRS):
 	$(MAKE) -C $(REPO) build
 
+build-all: $(BUILDDIRS-ALL)
+$(BUILDDIRS-ALL): REPO = $(@:build-%=%)
+$(BUILDDIRS-ALL):
+	$(MAKE) -C $(REPO) build
+
 test: $(TESTDIRS)
 
 $(TESTDIRS): REPO = $(@:test-%=%)
 $(TESTDIRS):
+	$(MAKE) -C $(REPO) test
+
+test-all: $(TESTDIRS-ALL)
+
+$(TESTDIRS-ALL): REPO = $(@:test-%=%)
+$(TESTDIRS-ALL):
 	$(MAKE) -C $(REPO) test
 
 update: $(UPDATEDIRS)
