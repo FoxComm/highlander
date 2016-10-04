@@ -47,8 +47,8 @@ defmodule Solomon.ScopeController do
     end
   end
 
-  def create_admin_role(conn, %{"id" => scope_id}) do
-    role_cs = Role.changeset(%Role{}, %{name: "admin", scope_id: scope_id})
+  def create_admin_role(conn, %{"id" => id}) do
+    role_cs = Role.changeset(%Role{}, %{name: "admin", scope_id: id})
     case ScopeService.create_role_with_permissions(role_cs, @admin_resources) do
       {:ok, role} ->
         conn
