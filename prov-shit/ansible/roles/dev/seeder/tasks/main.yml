@@ -14,7 +14,7 @@
 
 - name: Synchronize Phoenix Gatling Resources
   synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes
-  become: false
+  sudo: true
 
 - name: Create Directory for Gatling results
   file: path="{{phoenix_dir}}/gatling-results" state=directory owner="{{user}}" mode="0777"
