@@ -3,18 +3,19 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.StoreAdmin
+import models.account.User
 import payloads.GenericTreePayloads._
 import services.tree.TreeManager
+import services.Authenticator.AuthData
 import utils.aliases.{DB, EC}
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object GenericTreeRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
-    activityContext(admin) { implicit ac ⇒
+    activityContext(auth.model) { implicit ac ⇒
       pathPrefix("tree" / Segment / Segment) { (context, name) ⇒
         (get & pathEnd) {
           getOrFailures {

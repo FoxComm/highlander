@@ -1,6 +1,6 @@
 package services
 
-import models.StoreAdmin
+import models.account.User
 import responses.TheResponse
 import utils.aliases._
 import utils.db._
@@ -37,8 +37,8 @@ package object assignments {
 
   // Activity logger helpers
   def logBulkAssign[K, M <: FoxModel[M]](manager: AssignmentsManager[K, M],
-                                         originator: StoreAdmin,
-                                         admin: StoreAdmin,
+                                         originator: User,
+                                         admin: User,
                                          keys: Seq[String])(implicit ec: EC, ac: AC) = {
 
     if (keys.nonEmpty)
@@ -49,8 +49,8 @@ package object assignments {
   }
 
   def logBulkUnassign[K, M <: FoxModel[M]](manager: AssignmentsManager[K, M],
-                                           originator: StoreAdmin,
-                                           admin: StoreAdmin,
+                                           originator: User,
+                                           admin: User,
                                            keys: Seq[String])(implicit ec: EC, ac: AC) = {
 
     if (keys.nonEmpty)

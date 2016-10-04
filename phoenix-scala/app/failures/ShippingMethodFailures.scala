@@ -10,14 +10,11 @@ object ShippingMethodFailures {
     override def description = s"Shipping method with name: '$name' cannot be found"
   }
 
-  case class ShippingMethodIsNotActive(shippingMethodId: Int) extends Failure {
-    override def description =
-      s"Shipping method $shippingMethodId can't be added because it's not active"
+  case class ShippingMethodIsNotActive(id: Int) extends Failure {
+    override def description = s"Shipping method $id can't be added because it's not active"
   }
 
-  case class ShippingMethodNotApplicableToCart(shippingMethodId: Int, referenceNumber: String)
-      extends Failure {
-    override def description =
-      s"Shipping method $shippingMethodId is not applicable to cart $referenceNumber"
+  case class ShippingMethodNotApplicableToCart(id: Int, refNum: String) extends Failure {
+    override def description = s"Shipping method $id is not applicable to cart $refNum"
   }
 }

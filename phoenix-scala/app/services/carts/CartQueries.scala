@@ -1,9 +1,8 @@
 package services.carts
 
 import failures.NotFoundFailure404
-import models.StoreAdmin
+import models.account._
 import models.cord._
-import models.customer.{Customer, Customers}
 import models.objects.ObjectContext
 import models.payment.creditcard.CreditCardCharge.{Auth ⇒ ccAuth}
 import models.payment.creditcard._
@@ -26,48 +25,44 @@ object CartQueries extends CordQueries {
       response  ← * <~ CartResponse.fromCart(cart)
     } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
 
-  def findOneByCustomer(
+  def findOneByUser(
       refNum: String,
-      customer: Customer)(implicit ec: EC, db: DB, ctx: OC): DbResultT[TheResponse[CartResponse]] =
+      customer: User)(implicit ec: EC, db: DB, ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart ← * <~ Carts
-              .findByRefNumAndCustomer(refNum, customer)
+              .findByRefNumAndAccountId(refNum, customer.accountId)
               .mustFindOneOr(NotFoundFailure404(Carts, refNum))
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ CartResponse.fromCart(cart)
     } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
 
-  def findOrCreateCartByCustomer(customer: Customer,
-                                 context: ObjectContext,
-                                 admin: Option[StoreAdmin] = None)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): DbResultT[CartResponse] =
-    findOrCreateCartByCustomerInner(customer, admin)
+  def findOrCreateCartByAccount(customer: User,
+                                context: ObjectContext,
+                                admin: Option[User] = None)(implicit ec: EC,
+                                                            db: DB,
+                                                            ac: AC,
+                                                            ctx: OC): DbResultT[CartResponse] =
+    findOrCreateCartByAccountInner(customer, admin)
 
-  def findOrCreateCartByCustomerId(customerId: Int,
-                                   context: ObjectContext,
-                                   admin: Option[StoreAdmin] = None)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): DbResultT[CartResponse] =
+  def findOrCreateCartByAccountId(accountId: Int,
+                                  context: ObjectContext,
+                                  admin: Option[User] = None)(implicit ec: EC,
+                                                              db: DB,
+                                                              ac: AC,
+                                                              ctx: OC): DbResultT[CartResponse] =
     for {
-      customer  ← * <~ Customers.mustFindById404(customerId)
-      fullOrder ← * <~ findOrCreateCartByCustomerInner(customer, admin)
+      customer  ← * <~ Users.mustFindByAccountId(accountId)
+      fullOrder ← * <~ findOrCreateCartByAccountInner(customer, admin)
     } yield fullOrder
 
-  def findOrCreateCartByCustomerInner(customer: Customer, admin: Option[StoreAdmin])(
-      implicit db: DB,
-      ec: EC,
-      ac: AC,
-      ctx: OC): DbResultT[CartResponse] =
+  def findOrCreateCartByAccountInner(
+      customer: User,
+      admin: Option[User])(implicit db: DB, ec: EC, ac: AC, ctx: OC): DbResultT[CartResponse] =
     for {
       result ← * <~ Carts
-                .findByCustomer(customer)
+                .findByAccountId(customer.accountId)
                 .one
-                .findOrCreateExtended(Carts.create(Cart(customerId = customer.id)))
+                .findOrCreateExtended(Carts.create(Cart(accountId = customer.accountId)))
       (cart, foundOrCreated) = result
       fullOrder ← * <~ CartResponse.fromCart(cart)
       _         ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)
@@ -75,7 +70,7 @@ object CartQueries extends CordQueries {
 
   private def logCartCreation(foundOrCreated: FoundOrCreated,
                               cart: CartResponse,
-                              admin: Option[StoreAdmin])(implicit ec: EC, ac: AC) =
+                              admin: Option[User])(implicit ec: EC, ac: AC) =
     foundOrCreated match {
       case Created ⇒ LogActivity.cartCreated(admin, cart)
       case Found   ⇒ DbResultT.unit

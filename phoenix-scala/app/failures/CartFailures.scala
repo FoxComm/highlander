@@ -6,12 +6,12 @@ object CartFailures {
     override def description = s"order with referenceNumber=$refNum is not a cart"
   }
 
-  case class CustomerHasCart(id: Int) extends Failure {
-    override def description = s"customer with id=$id already has an active cart"
+  case class CustomerHasCart(accountId: Int) extends Failure {
+    override def description = s"customer with id=$accountId already has an active cart"
   }
 
-  case class CustomerHasNoCart(customerId: Int) extends Failure {
-    override def description = s"customer with id=$customerId has no active order"
+  case class CustomerHasNoCart(accountId: Int) extends Failure {
+    override def description = s"customer with id=$accountId has no active order"
   }
 
   case class EmptyCart(refNum: String) extends Failure {

@@ -1,8 +1,8 @@
 package models
 
-import util.CustomMatchers._
-import util._
-import util.fixtures.BakedFixtures
+import testutils.CustomMatchers._
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.seeds.Seeds.Factories
 
 class NoteIntegrationTest extends IntegrationTestBase with BakedFixtures with TestObjectContext {
@@ -41,6 +41,6 @@ class NoteIntegrationTest extends IntegrationTestBase with BakedFixtures with Te
   }
 
   trait Fixture extends StoreAdmin_Seed {
-    val note = Factories.orderNotes.head.copy(storeAdminId = storeAdmin.id)
+    val note = Factories.orderNotes.head.copy(storeAdminId = storeAdmin.accountId)
   }
 }

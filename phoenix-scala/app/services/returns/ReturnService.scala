@@ -2,10 +2,13 @@ package services.returns
 
 import failures.InvalidCancellationReasonFailure
 import models.cord.Orders
-import models.customer.Customers
 import models.returns.Return.Canceled
 import models.returns._
-import models.{Reason, Reasons, StoreAdmin}
+import models.{Reason, Reasons}
+import models.account._
+import models.customer.CustomersData
+import models.admin.AdminsData
+
 import payloads.ReturnPayloads._
 import responses.ReturnResponse._
 import responses.{CustomerResponse, ReturnResponse, StoreAdminResponse}
@@ -21,7 +24,7 @@ object ReturnService {
       _   ← * <~ payload.validate
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)
       newMessage = if (payload.message.length > 0) Some(payload.message) else None
-      update   ← * <~ Returns.update(rma, rma.copy(messageToCustomer = newMessage))
+      update   ← * <~ Returns.update(rma, rma.copy(messageToAccount = newMessage))
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
@@ -51,15 +54,17 @@ object ReturnService {
     }
   }
 
-  def createByAdmin(admin: StoreAdmin, payload: ReturnCreatePayload)(implicit ec: EC,
-                                                                     db: DB): DbResultT[Root] =
+  def createByAdmin(admin: User, payload: ReturnCreatePayload)(implicit ec: EC,
+                                                               db: DB): DbResultT[Root] =
     for {
-      order    ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
-      rma      ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
-      customer ← * <~ Customers.findOneById(order.customerId)
-      adminResponse    = Some(StoreAdminResponse.build(admin))
-      customerResponse = customer.map(CustomerResponse.build(_))
-    } yield build(rma, customerResponse, adminResponse)
+      order     ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
+      rma       ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
+      customer  ← * <~ Users.mustFindByAccountId(order.accountId)
+      custData  ← * <~ CustomersData.mustFindByAccountId(order.accountId)
+      adminData ← * <~ AdminsData.mustFindByAccountId(admin.accountId)
+      adminResponse    = Some(StoreAdminResponse.build(admin, adminData))
+      customerResponse = CustomerResponse.build(customer, custData)
+    } yield build(rma, Some(customerResponse), adminResponse)
 
   def getByRefNum(refNum: String)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {

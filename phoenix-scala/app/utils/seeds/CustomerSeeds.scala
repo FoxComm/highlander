@@ -3,61 +3,80 @@ package utils.seeds
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.implicits._
-import models.customer.{Customer, Customers}
+import models.account._
+import models.customer._
+import services.account._
+import services.customers._
 import models.{Note, Notes}
+import payloads.CustomerPayloads.CreateCustomerPayload
 import utils.db._
+import utils.aliases._
 
 trait CustomerSeeds {
 
-  type Customers = (Customer#Id, Customer#Id, Customer#Id, Customer#Id)
+  type CustomerIds = (Account#Id, Account#Id, Account#Id, Account#Id)
 
-  def createCustomers: DbResultT[Customers] =
+  def createCustomer(user: User, isGuest: Boolean, scopeId: Int, password: Option[String] = None)(
+      implicit db: DB,
+      ac: AC): DbResultT[User] = {
+
+    val payload = CreateCustomerPayload(email = user.email.getOrElse(""),
+                                        name = user.name,
+                                        password = password,
+                                        isGuest = Some(isGuest))
+
+    val createContext =
+      AccountCreateContext(roles = List("customer"), org = "merchant", scopeId = scopeId)
+
     for {
-      customers ← * <~ Customers.createAllReturningIds(customers)
-      _         ← * <~ Notes.createAll(customerNotes.map(_.copy(referenceId = customers.head)))
+      response ← * <~ CustomerManager.create(payload = payload, context = createContext)
+      user     ← * <~ Users.mustFindByAccountId(response.id)
+    } yield user
+  }
+
+  def createCustomers(scopeId: Int)(implicit db: DB, ac: AC): DbResultT[CustomerIds] =
+    for {
+      users ← * <~ customers.map(
+                 c ⇒
+                   createCustomer(user = c,
+                                  isGuest = c.accountId == 100,
+                                  scopeId = scopeId,
+                                  password = "password".some))
+      accountIds = users.map(_.accountId)
+      _ ← * <~ Notes.createAll(customerNotes.map(_.copy(referenceId = accountIds.head)))
     } yield
-      customers.toList match {
+      accountIds.toList match {
         case c1 :: c2 :: c3 :: c4 :: Nil ⇒ (c1, c2, c3, c4)
         case _                           ⇒ ???
       }
 
   def usCustomer1 =
-    Customer.build(email = "yax@yax.com",
-                   password = "password".some,
-                   name = Some("Yax Fuentes"),
-                   phoneNumber = Some("123-444-4388"),
-                   location = Some("DonkeyVille, TN"),
-                   modality = Some("Desktop"))
+    User(accountId = 0,
+         name = "Yax Man".some,
+         email = "yax@yax.com".some,
+         phoneNumber = Some("123-444-4388"))
 
   def usCustomer2 =
-    Customer.build(email = "adil@adil.com",
-                   password = "password".some,
-                   name = Some("Adil Wali"),
-                   phoneNumber = Some("123-444-0909"),
-                   location = Some("DonkeyHill, WA"),
-                   modality = Some("Desktop"),
-                   isDisabled = true) // FIXME: `disabledBy` is not required for `isDisabled`=true
+    User(accountId = 0,
+         email = "adil@adil.com".some,
+         phoneNumber = "123-444-0909".some,
+         isDisabled = true) // FIXME: `disabledBy` is not required for `isDisabled`=true
 
   def canadaCustomer =
-    Customer.build(email = "iamvery@sorry.com",
-                   password = "password".some,
-                   name = Some("John Nicholson"),
-                   phoneNumber = Some("858-867-5309"),
-                   location = Some("Donkeyburg, Canada"),
-                   modality = Some("Tablet"),
-                   isGuest = true)
+    User(accountId = 100, //hack to make one guest
+         email = "iamvery@sorry.com".some,
+         name = "John Nicholson".some,
+         phoneNumber = Some("858-867-5309"))
 
   def rowCustomer =
-    Customer.build(email = "fran@absinthelovers.cz",
-                   password = "password".some,
-                   name = Some("František Materna"),
-                   phoneNumber = Some("883-444-4321"),
-                   location = Some("Ďónkov, Czech Republic"),
-                   modality = Some("Phone"))
+    User(accountId = 0,
+         email = "fran@absinthelovers.cz".some,
+         name = "František Materna".some,
+         phoneNumber = Some("883-444-4321"))
 
-  def customers: Seq[Customer] = Seq(usCustomer1, usCustomer2, canadaCustomer, rowCustomer)
+  def customers: Seq[User] = Seq(usCustomer1, usCustomer2, canadaCustomer, rowCustomer)
 
-  def customer: Customer = usCustomer1
+  def customer: User = usCustomer1
 
   def customerNotes: Seq[Note] = {
     def newNote(body: String) =

@@ -4,20 +4,19 @@ import java.io.FileInputStream
 import java.security.spec.{PKCS8EncodedKeySpec, X509EncodedKeySpec}
 import java.security.{KeyFactory, PrivateKey, PublicKey}
 
+import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}
 
-import cats.implicits._
 import cats.data.Xor
 import failures.AuthFailures._
 import failures.{Failures, GeneralFailure}
-import models.StoreAdmin
-import models.customer.Customer
+import models.account.{Account, User}
+import org.jose4j.jwa.AlgorithmConstraints
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
-import org.jose4j.jwa.AlgorithmConstraints
-import org.jose4j.jwt.consumer.{InvalidJwtException, JwtConsumerBuilder}
+import org.jose4j.jwt.consumer.JwtConsumerBuilder
+import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import org.json4s.{Extraction, _}
 import utils.FoxConfig.{RichConfig, config}
 import utils.db._
 
@@ -51,19 +50,33 @@ object Keys {
     }
 
   private[auth] lazy val authPrivateKey: Failures Xor PrivateKey =
-    loadPrivateKey.toOption.toXor(GeneralFailure("Server error: can't load key").single)
+    loadPrivateKey.toOption.toXor(GeneralFailure("Server error: can't private load key").single)
   private[auth] lazy val authPublicKey: Failures Xor PublicKey =
-    loadPublicKey.toOption.toXor(GeneralFailure("Server error: can't load key").single)
+    loadPublicKey.toOption.toXor(GeneralFailure("Server error: can't public load key").single)
 }
 
 sealed trait Token extends Product {
   val id: Int
-  val admin: Boolean
   val name: Option[String]
   val email: Option[String]
-  val scopes: Seq[String]
+  val scope: String
+  val roles: Seq[String]
+  val claims: Account.Claims
   val ratchet: Int
   def encode: Failures Xor String = Token.encode(this)
+
+  def hasRole(test: String): Boolean = {
+    roles.contains(test)
+  }
+
+  def hasClaim(test: String, actions: List[String]): Boolean = {
+    var matches = false;
+    claims.foreach {
+      case (k, v) ⇒
+        matches = matches || (test.startsWith(k) && actions.equals(actions.intersect(v)))
+    }
+    matches
+  }
 }
 
 object Token {
@@ -79,10 +92,14 @@ object Token {
   def getJWTClaims(token: Token): JwtClaims = {
     val claims = new JwtClaims
 
+    //TODO probably put scope here in the future.
+    claims.setAudience("user")
+
     claims.setClaim("id", token.id)
     claims.setClaim("email", token.email)
     claims.setClaim("ratchet", token.ratchet)
-    claims.setStringListClaim("scopes", token.scopes)
+    claims.setClaim("scope", token.scope)
+    claims.setStringListClaim("roles", token.roles)
 
     token.name.map { name ⇒
       claims.setClaim("name", name)
@@ -94,18 +111,10 @@ object Token {
       email
     }
 
+    claims.setClaim("claims", token.claims.mapValues(_.asJava).asJava)
+
     claims.setExpirationTimeMinutesInTheFuture(tokenTTL.toFloat)
     claims.setIssuer("FC")
-    token match {
-      case _: AdminToken ⇒ {
-        claims.setAudience("admin")
-        claims.setClaim("admin", true)
-      }
-      case _: CustomerToken ⇒ {
-        claims.setAudience("customer")
-        claims.setClaim("admin", false)
-      }
-    }
 
     claims
   }
@@ -133,25 +142,14 @@ object Token {
         .setJwsAlgorithmConstraints(algorithmConstraints)
         .setExpectedIssuer("FC")
         .setVerificationKey(publicKey)
+        .setExpectedAudience("user")
 
       Try {
-        kind match {
-          case Identity.Customer ⇒ builder.setExpectedAudience("customer")
-          case Identity.Admin    ⇒ builder.setExpectedAudience("admin")
-          case _                 ⇒ throw new RuntimeException("unknown kind of identity")
-        }
-
         val consumer  = builder.build()
         val jwtClaims = consumer.processToClaims(rawToken)
         val jValue    = parse(jwtClaims.toJson)
-        jValue \ "admin" match {
-          case JBool(isAdmin) ⇒
-            if (isAdmin)
-              Extraction.extract[AdminToken](jValue)
-            else
-              Extraction.extract[CustomerToken](jValue)
-          case _ ⇒ throw new InvalidJwtException(s"missing claim: admin")
-        }
+        Extraction.extract[UserToken](jValue)
+
       } match {
         case Success(token) ⇒ Xor.right(token)
         case Failure(e) ⇒
@@ -162,39 +160,29 @@ object Token {
   }
 }
 
-case class AdminToken(id: Int,
-                      admin: Boolean = true,
-                      name: Option[String],
-                      email: Option[String],
-                      scopes: Seq[String],
-                      department: Option[String] = None,
-                      ratchet: Int)
-    extends Token
+case class UserToken(id: Int,
+                     name: Option[String],
+                     email: Option[String],
+                     roles: Seq[String],
+                     scope: String,
+                     ratchet: Int,
+                     claims: Account.Claims)
+    extends Token {
 
-object AdminToken {
-  def fromAdmin(admin: StoreAdmin): AdminToken = {
-    AdminToken(id = admin.id,
-               name = admin.name.some,
-               email = admin.email.some,
-               scopes = Array("admin"),
-               department = admin.department,
-               ratchet = admin.ratchet)
-  }
+  require(!scope.isEmpty)
+  //can't have claims without roles. Either no claims and no roles or claims and roles.
+  require((roles.isEmpty && claims.isEmpty) || !(roles.isEmpty || claims.isEmpty))
 }
 
-case class CustomerToken(id: Int,
-                         admin: Boolean = false,
-                         name: Option[String],
-                         email: Option[String],
-                         scopes: Seq[String],
-                         ratchet: Int)
-    extends Token
-
-object CustomerToken {
-  def fromCustomer(customer: Customer): CustomerToken =
-    CustomerToken(id = customer.id,
-                  name = customer.name,
-                  email = customer.email,
-                  scopes = Array[String](),
-                  ratchet = customer.ratchet)
+object UserToken {
+  def fromUserAccount(user: User, account: Account, claimSet: Account.ClaimSet): UserToken = {
+    require(user.accountId == account.id)
+    UserToken(id = user.accountId,
+              name = user.name,
+              email = user.email,
+              scope = claimSet.scope,
+              roles = claimSet.roles,
+              ratchet = account.ratchet,
+              claims = claimSet.claims)
+  }
 }

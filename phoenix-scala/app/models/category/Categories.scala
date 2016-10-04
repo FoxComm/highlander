@@ -10,9 +10,12 @@ import utils.Validation
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
+import com.github.tminglei.slickpg._
+
 object Category {
-  def build(contextId: Int, insertResult: InsertResult): Category =
-    Category(contextId = contextId,
+  def build(scope: LTree, contextId: Int, insertResult: InsertResult): Category =
+    Category(scope = scope,
+             contextId = contextId,
              formId = insertResult.form.id,
              shadowId = insertResult.shadow.id,
              commitId = insertResult.commit.id)
@@ -21,6 +24,7 @@ object Category {
 }
 
 case class Category(id: Int = 0,
+                    scope: LTree,
                     contextId: Int,
                     shadowId: Int,
                     formId: Int,
@@ -38,7 +42,7 @@ case class Category(id: Int = 0,
 
 class Categories(tag: Tag) extends ObjectHeads[Category](tag, "categories") {
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <>
+    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <>
       ((Category.apply _).tupled, Category.unapply)
 }
 

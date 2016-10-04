@@ -4,10 +4,12 @@ import java.time.Instant
 
 import models.objects._
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
 import utils.db._
 import utils.{JsonFormatters, Validation}
+
+import com.github.tminglei.slickpg._
 
 object Product {
   val kind = "product"
@@ -21,6 +23,7 @@ object Product {
   * and shadow system where it has attributes controlled by the customer.
   */
 case class Product(id: Int = 0,
+                   scope: LTree,
                    contextId: Int,
                    shadowId: Int,
                    formId: Int,
@@ -39,7 +42,7 @@ case class Product(id: Int = 0,
 class Products(tag: Tag) extends ObjectHeads[Product](tag, "products") {
 
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Product.apply _).tupled, Product.unapply)
+    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Product.apply _).tupled, Product.unapply)
 }
 
 object Products

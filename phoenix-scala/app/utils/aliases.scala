@@ -11,6 +11,7 @@ object aliases {
   type Mat          = akka.stream.Materializer
   type Json         = org.json4s.JsonAST.JValue
   type ActivityType = String
+  type AU           = services.Authenticator.AuthData[models.account.User]
 
   object stripe {
     import com.stripe.model._

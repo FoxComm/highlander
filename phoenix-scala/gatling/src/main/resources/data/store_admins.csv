@@ -1,5 +1,5 @@
-adminName,adminEmail,adminPassword
-Frankly Admin,admin@admin.com,password
-Such Root,hackerman@yahoo.com,password1
-Admin Hero,admin_hero@xakep.ru,password2
-API,api@foxcommerce.com,api$pass7!
+adminName,adminEmail,adminPassword, orgName
+Frankly Admin,admin@admin.com,password,tenant,admin
+Such Root,hackerman@yahoo.com,password1,merchant,admin
+Admin Hero,admin_hero@xakep.ru,password2,merchant,admin
+API,api@foxcommerce.com,api$pass7!,tenant,admin

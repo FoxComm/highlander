@@ -18,6 +18,7 @@ import org.json4s.jackson.JsonMethods._
 import payloads.ImagePayloads._
 import services.image.ImageManager
 import services.inventory.SkuManager
+import com.github.tminglei.slickpg.LTree
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 import utils.aliases._
@@ -221,7 +222,8 @@ case class SimpleCompleteVariantData(variant: SimpleVariantData,
 
 object Mvp {
   def insertProductNewContext(oldContextId: Int, contextId: Int, p: SimpleProductData)(
-      implicit db: DB): DbResultT[SimpleProductData] =
+      implicit db: DB,
+      au: AU): DbResultT[SimpleProductData] =
     for {
       simpleProduct ← * <~ SimpleProduct(p.title, p.description, p.active, p.tags)
       //find product form other context, get old form and merge with new
@@ -265,8 +267,8 @@ object Mvp {
                                         p)
     } yield r
 
-  def insertProduct(contextId: Int, p: SimpleProductData)(
-      implicit db: DB): DbResultT[SimpleProductData] =
+  def insertProduct(contextId: Int, p: SimpleProductData)(implicit db: DB,
+                                                          au: AU): DbResultT[SimpleProductData] =
     for {
       simpleProduct ← * <~ SimpleProduct(p.title, p.description, p.active, p.tags)
       productForm   ← * <~ ObjectForms.create(simpleProduct.create)
@@ -284,7 +286,8 @@ object Mvp {
                                         p)
     } yield r
 
-  def insertProductWithExistingSkus(contextId: Int,
+  def insertProductWithExistingSkus(scope: LTree,
+                                    contextId: Int,
                                     productData: SimpleProductData,
                                     skus: Seq[Sku]): DbResultT[Product] =
     for {
@@ -292,10 +295,11 @@ object Mvp {
                                          productData.description,
                                          productData.active,
                                          productData.tags)
-      result ← * <~ insertProductWithExistingSkus(contextId, simpleProduct, skus)
+      result ← * <~ insertProductWithExistingSkus(scope, contextId, simpleProduct, skus)
     } yield result
 
-  def insertProductWithExistingSkus(contextId: Int,
+  def insertProductWithExistingSkus(scope: LTree,
+                                    contextId: Int,
                                     simpleProduct: SimpleProduct,
                                     skus: Seq[Sku]): DbResultT[Product] =
     for {
@@ -307,7 +311,8 @@ object Mvp {
                          ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
 
       product ← * <~ Products.create(
-                   Product(contextId = contextId,
+                   Product(scope = scope,
+                           contextId = contextId,
                            formId = productForm.id,
                            shadowId = productShadow.id,
                            commitId = productCommit.id))
@@ -321,26 +326,28 @@ object Mvp {
       _ ← * <~ ProductSkuLinks.create(ProductSkuLink(leftId = product.id, rightId = sku.id))
     } yield {}
 
-  def insertSku(contextId: Int, s: SimpleSku): DbResultT[Sku] =
+  def insertSku(scope: LTree, contextId: Int, s: SimpleSku): DbResultT[Sku] =
     for {
       form    ← * <~ ObjectForms.create(s.create)
       sShadow ← * <~ SimpleSkuShadow(s)
       shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       sku ← * <~ Skus.create(
-               Sku(contextId = contextId,
+               Sku(scope = scope,
+                   contextId = contextId,
                    code = s.code,
                    formId = form.id,
                    shadowId = shadow.id,
                    commitId = commit.id))
     } yield sku
 
-  def insertSkus(contextId: Int, ss: Seq[SimpleSku]): DbResultT[Seq[Sku]] =
+  def insertSkus(scope: LTree, contextId: Int, ss: Seq[SimpleSku]): DbResultT[Seq[Sku]] =
     for {
-      skus ← * <~ ss.map(s ⇒ insertSku(contextId, s))
+      skus ← * <~ ss.map(s ⇒ insertSku(scope, contextId, s))
     } yield skus
 
-  def insertVariant(contextId: Int,
+  def insertVariant(scope: LTree,
+                    contextId: Int,
                     v: SimpleVariant,
                     product: Product): DbResultT[SimpleVariantData] =
     for {
@@ -349,7 +356,8 @@ object Mvp {
       shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       variant ← * <~ Variants.create(
-                   Variant(contextId = contextId,
+                   Variant(scope = scope,
+                           contextId = contextId,
                            formId = form.id,
                            shadowId = shadow.id,
                            commitId = commit.id))
@@ -362,7 +370,8 @@ object Mvp {
                         shadowId = shadow.id,
                         name = v.name)
 
-  def insertVariantValue(contextId: Int,
+  def insertVariantValue(scope: LTree,
+                         contextId: Int,
                          v: SimpleVariantValue,
                          variantShadowId: Int,
                          variantId: Variant#Id): DbResultT[SimpleVariantValueData] =
@@ -372,7 +381,8 @@ object Mvp {
       shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       value ← * <~ VariantValues.create(
-                 VariantValue(contextId = contextId,
+                 VariantValue(scope = scope,
+                              contextId = contextId,
                               formId = form.id,
                               shadowId = shadow.id,
                               commitId = commit.id))
@@ -389,14 +399,16 @@ object Mvp {
                              swatch = v.swatch)
 
   def insertVariantWithValues(
+      scope: LTree,
       contextId: Int,
       product: Product,
       simpleCompleteVariant: SimpleCompleteVariant): DbResultT[SimpleCompleteVariantData] =
     for {
-      variant ← * <~ insertVariant(contextId, simpleCompleteVariant.variant, product)
+      variant ← * <~ insertVariant(scope, contextId, simpleCompleteVariant.variant, product)
       values ← * <~ simpleCompleteVariant.variantValues.map(
                   variantValue ⇒
-                    insertVariantValue(contextId,
+                    insertVariantValue(scope,
+                                       contextId,
                                        variantValue,
                                        variant.shadowId,
                                        variant.variantId))
@@ -410,7 +422,7 @@ object Mvp {
       simpleProduct: SimpleProduct,
       simpleSku: SimpleSku,
       simpleAlbum: SimpleAlbum,
-      p: SimpleProductData)(implicit db: DB): DbResultT[SimpleProductData] =
+      p: SimpleProductData)(implicit db: DB, au: AU): DbResultT[SimpleProductData] =
     for {
 
       simpleShadow  ← * <~ SimpleProductShadow(simpleProduct)
@@ -420,7 +432,8 @@ object Mvp {
                          ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
 
       product ← * <~ Products.create(
-                   Product(contextId = contextId,
+                   Product(scope = LTree(au.token.scope),
+                           contextId = contextId,
                            formId = productForm.id,
                            shadowId = productShadow.id,
                            commitId = productCommit.id))
@@ -432,7 +445,8 @@ object Mvp {
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
 
       sku ← * <~ Skus.create(
-               Sku(contextId = contextId,
+               Sku(scope = LTree(au.token.scope),
+                   contextId = contextId,
                    code = p.code,
                    formId = skuForm.id,
                    shadowId = skuShadow.id,
@@ -449,7 +463,7 @@ object Mvp {
                              simpleAlbum: SimpleAlbum,
                              albumForm: ObjectForm,
                              productShadow: ObjectShadow,
-                             product: Product)(implicit db: DB): DbResultT[Album] = {
+                             product: Product)(implicit db: DB, au: AU): DbResultT[Album] = {
     for {
       albumShadow ← * <~ ObjectShadows.create(
                        SimpleAlbumShadow(simpleAlbum).create.copy(formId = albumForm.id))
@@ -457,7 +471,8 @@ object Mvp {
                        ObjectCommit(formId = albumForm.id, shadowId = albumShadow.id))
 
       album ← * <~ Albums.create(
-                 Album(contextId = context.id,
+                 Album(scope = LTree(au.token.scope),
+                       contextId = context.id,
                        formId = albumForm.id,
                        shadowId = albumShadow.id,
                        commitId = albumCommit.id))
@@ -486,14 +501,15 @@ object Mvp {
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
     } yield SimpleProductTuple(product, sku, productForm, skuForm, productShadow, skuShadow)
 
-  def insertProducts(ps: Seq[SimpleProductData], contextId: Int)(
-      implicit db: DB): DbResultT[Seq[SimpleProductData]] =
+  def insertProducts(ps: Seq[SimpleProductData],
+                     contextId: Int)(implicit db: DB, au: AU): DbResultT[Seq[SimpleProductData]] =
     for {
       results ← * <~ ps.map(p ⇒ insertProduct(contextId, p))
     } yield results
 
   def insertProductsNewContext(oldContextId: Int, contextId: Int, ps: Seq[SimpleProductData])(
-      implicit db: DB): DbResultT[Seq[SimpleProductData]] =
+      implicit db: DB,
+      au: AU): DbResultT[Seq[SimpleProductData]] =
     for {
       results ← * <~ ps.map(p ⇒ insertProductNewContext(oldContextId, contextId, p))
     } yield results

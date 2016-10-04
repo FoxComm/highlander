@@ -2,7 +2,7 @@ package models.cord
 
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.{Failure, NotFoundFailure404}
-import models.customer.Customer
+import models.account.Account
 import models.traits.Lockable
 import shapeless._
 import slick.driver.PostgresDriver.api._
@@ -12,7 +12,7 @@ import utils.db._
 
 case class Cart(id: Int = 0,
                 referenceNumber: String = "",
-                customerId: Int,
+                accountId: Int,
                 currency: Currency = Currency.USD,
                 subTotal: Int = 0,
                 shippingTotal: Int = 0,
@@ -30,7 +30,7 @@ case class Cart(id: Int = 0,
 class Carts(tag: Tag) extends FoxTable[Cart](tag, "carts") {
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber  = column[String]("reference_number")
-  def customerId       = column[Int]("customer_id")
+  def accountId        = column[Int]("account_id")
   def currency         = column[Currency]("currency")
   def subTotal         = column[Int]("sub_total")
   def shippingTotal    = column[Int]("shipping_total")
@@ -42,7 +42,7 @@ class Carts(tag: Tag) extends FoxTable[Cart](tag, "carts") {
   def * =
     (id,
      referenceNumber,
-     customerId,
+     accountId,
      currency,
      subTotal,
      shippingTotal,
@@ -57,11 +57,11 @@ object Carts
     with ReturningIdAndString[Cart, Carts]
     with SearchByRefNum[Cart, Carts] {
 
-  def findByCustomer(cust: Customer): QuerySeq =
-    findByCustomerId(cust.id)
+  def findByAccount(cust: Account): QuerySeq =
+    findByAccountId(cust.id)
 
-  def findByCustomerId(customerId: Int): QuerySeq =
-    filter(_.customerId === customerId)
+  def findByAccountId(accountId: Int): QuerySeq =
+    filter(_.accountId === accountId)
 
   def findByRefNum(refNum: String): QuerySeq =
     filter(_.referenceNumber === refNum)
@@ -69,8 +69,8 @@ object Carts
   def findOneByRefNum(refNum: String): DBIO[Option[Cart]] =
     filter(_.referenceNumber === refNum).one
 
-  def findByRefNumAndCustomer(refNum: String, customer: Customer): QuerySeq =
-    filter(_.referenceNumber === refNum).filter(_.customerId === customer.id)
+  def findByRefNumAndAccountId(refNum: String, accountId: Int): QuerySeq =
+    filter(_.referenceNumber === refNum).filter(_.accountId === accountId)
 
   override def mustFindByRefNum(refNum: String, notFoundFailure: String ⇒ Failure = notFound404K)(
       implicit ec: EC,

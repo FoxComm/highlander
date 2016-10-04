@@ -23,6 +23,8 @@ export default class NotificationItem extends React.Component {
         return <i className="icon icon-orders"></i>;
       } else if (type.indexOf('cart') >= 0) {
         return <i className="icon icon-orders"></i>;
+      } else if (type.indexOf('user') >= 0) {
+        return <i className="icon icon-customers"></i>;
       } else if (type.indexOf('customer') >= 0) {
         return <i className="icon icon-customers"></i>;
       } else if (type.indexOf('gift_card') >= 0) {

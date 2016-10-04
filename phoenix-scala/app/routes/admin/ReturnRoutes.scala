@@ -3,24 +3,25 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.StoreAdmin
+import models.account.User
 import models.returns.Return
 import payloads.ReturnPayloads._
 import services.returns._
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object ReturnRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
-    activityContext(admin) { implicit ac ⇒
+    activityContext(auth.model) { implicit ac ⇒
       determineObjectContext(db, ec) { productContext ⇒
         pathPrefix("returns") {
           (post & pathEnd & entity(as[ReturnCreatePayload])) { payload ⇒
             mutateOrFailures {
-              ReturnService.createByAdmin(admin, payload)
+              ReturnService.createByAdmin(auth.model, payload)
             }
           }
         } ~
@@ -53,7 +54,7 @@ object ReturnRoutes {
           } ~
           (post & path("lock") & pathEnd) {
             mutateOrFailures {
-              ReturnLockUpdater.lock(refNum, admin)
+              ReturnLockUpdater.lock(refNum, auth.model)
             }
           } ~
           (post & path("unlock") & pathEnd) {

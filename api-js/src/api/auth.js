@@ -33,15 +33,15 @@ export default class Auth {
     return this.api.post(endpoints.signup, {email, name, password});
   }
 
-  // @method login(email: String, password: String, kind: String): Promise<LoginResponse>
+  // @method login(email: String, password: String, org: String): Promise<LoginResponse>
   // Authenticate user by username and password.
-  // `kind` can be 'customer' or 'admin'
-  login(email, password, kind) {
+  // `org` is the name of the organization you want to log in under
+  login(email, password, org) {
     let jwt = null;
 
     return this.api.post(
       endpoints.login,
-      {email, password, kind},
+      {email, password, org},
       {
         credentials: 'same-origin',
         handleResponse: false

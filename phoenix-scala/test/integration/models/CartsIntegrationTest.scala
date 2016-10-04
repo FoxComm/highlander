@@ -1,10 +1,9 @@
 package models
 
 import models.cord.{Cart, Carts}
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Seeds.Factories
 
 class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
@@ -17,12 +16,13 @@ class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     }
 
     "doesn't overwrite a non-empty referenceNumber after insert" in new Customer_Seed {
-      val cart = Carts.create(Cart(customerId = customer.id, referenceNumber = "R123456")).gimme
+      val cart =
+        Carts.create(Cart(accountId = customer.accountId, referenceNumber = "R123456")).gimme
       cart.referenceNumber must === ("R123456")
     }
 
     "can only have one cart per customer" in new Customer_Seed {
-      val cart = Carts.create(Cart(customerId = customer.id)).gimme
+      val cart = Carts.create(Cart(accountId = customer.accountId)).gimme
 
       val failure = Carts
         .create(cart.copy(id = 0, referenceNumber = cart.refNum + "ZZZ"))
@@ -34,7 +34,7 @@ class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     }
 
     "has a unique index on referenceNumber" in new Customer_Seed {
-      val cart = Carts.create(Cart(customerId = customer.id)).gimme
+      val cart = Carts.create(Cart(accountId = customer.accountId)).gimme
 
       val failure = Carts.create(cart.copy(id = 0).copy(subTotal = 123)).run().futureValue.leftVal
       failure.getMessage must include(

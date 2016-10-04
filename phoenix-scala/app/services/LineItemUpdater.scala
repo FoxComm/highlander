@@ -1,7 +1,6 @@
 package services
 
 import failures.ProductFailures.SkuNotFoundForContext
-import models.StoreAdmin
 import models.activity.Activity
 import models.cord._
 import models.cord.lineitems.OrderLineItems.scope._
@@ -9,7 +8,7 @@ import models.cord.lineitems._
 import CartLineItems.scope._
 import failures.CartFailures.SKUWithNoProductAdded
 import failures.GeneralFailure
-import models.customer.Customer
+import models.account._
 import models.inventory.Skus
 import models.objects.ProductSkuLinks
 import models.payment.giftcard._
@@ -23,9 +22,7 @@ import utils.db._
 
 object LineItemUpdater {
 
-  def updateQuantitiesOnCart(admin: StoreAdmin,
-                             refNum: String,
-                             payload: Seq[UpdateLineItemsPayload])(
+  def updateQuantitiesOnCart(admin: User, refNum: String, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -42,7 +39,7 @@ object LineItemUpdater {
     } yield response
   }
 
-  def updateQuantitiesOnCustomersCart(customer: Customer, payload: Seq[UpdateLineItemsPayload])(
+  def updateQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -52,8 +49,10 @@ object LineItemUpdater {
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
 
-    val finder =
-      Carts.findByCustomer(customer).one.findOrCreate(Carts.create(Cart(customerId = customer.id)))
+    val finder = Carts
+      .findByAccountId(customer.accountId)
+      .one
+      .findOrCreate(Carts.create(Cart(accountId = customer.accountId)))
 
     for {
       cart     ← * <~ finder
@@ -62,7 +61,7 @@ object LineItemUpdater {
     } yield response
   }
 
-  def addQuantitiesOnCart(admin: StoreAdmin, refNum: String, payload: Seq[UpdateLineItemsPayload])(
+  def addQuantitiesOnCart(admin: User, refNum: String, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -79,7 +78,7 @@ object LineItemUpdater {
     } yield response
   }
 
-  def addQuantitiesOnCustomersCart(customer: Customer, payload: Seq[UpdateLineItemsPayload])(
+  def addQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -89,8 +88,10 @@ object LineItemUpdater {
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
 
-    val finder =
-      Carts.findByCustomer(customer).one.findOrCreate(Carts.create(Cart(customerId = customer.id)))
+    val finder = Carts
+      .findByAccountId(customer.accountId)
+      .one
+      .findOrCreate(Carts.create(Cart(accountId = customer.accountId)))
 
     for {
       cart     ← * <~ finder

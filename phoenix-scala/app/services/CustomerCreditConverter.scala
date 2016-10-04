@@ -3,18 +3,18 @@ package services
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures.OpenTransactionsFailure
 import failures.StoreCreditFailures.StoreCreditConvertFailure
-import models.StoreAdmin
-import models.customer.Customers
+import models.account._
+import models.admin.AdminsData
 import models.payment.giftcard._
 import models.payment.storecredit._
-import responses.{GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
+import responses.{GiftCardResponse, UserResponse, StoreCreditResponse}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
 object CustomerCreditConverter {
 
-  def toStoreCredit(giftCardCode: String, customerId: Int, admin: StoreAdmin)(
+  def toStoreCredit(giftCardCode: String, accountId: Int, admin: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[StoreCreditResponse.Root] =
@@ -22,7 +22,7 @@ object CustomerCreditConverter {
 
       giftCard ← * <~ GiftCards.mustFindByCode(giftCardCode)
       _        ← * <~ failIf(!giftCard.isActive, GiftCardConvertFailure(giftCard))
-      _        ← * <~ Customers.mustFindById404(customerId)
+      _        ← * <~ Users.mustFindByAccountId(accountId)
       _ ← * <~ GiftCardAdjustments
            .lastAuthByGiftCardId(giftCard.id)
            .one
@@ -37,22 +37,21 @@ object CustomerCreditConverter {
       // Finally, convert to Store Credit
       conversion ← * <~ StoreCreditFromGiftCards.create(
                       StoreCreditFromGiftCard(giftCardId = giftCard.id))
-      sc = StoreCredit.buildFromGcTransfer(customerId, giftCard).copy(originId = conversion.id)
+      sc = StoreCredit.buildFromGcTransfer(accountId, giftCard).copy(originId = conversion.id)
       storeCredit ← * <~ StoreCredits.create(sc)
 
       // Activity
       _ ← * <~ LogActivity.gcConvertedToSc(admin, giftCard, storeCredit)
     } yield StoreCreditResponse.build(storeCredit)
 
-  def toGiftCard(storeCreditId: Int, customerId: Int, admin: StoreAdmin)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[GiftCardResponse.Root] =
+  def toGiftCard(storeCreditId: Int,
+                 accountId: Int,
+                 admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[GiftCardResponse.Root] =
     for {
 
       credit ← * <~ StoreCredits.mustFindById404(storeCreditId)
       _      ← * <~ failIf(!credit.isActive, StoreCreditConvertFailure(credit))
-      _      ← * <~ Customers.mustFindById404(customerId)
+      _      ← * <~ Users.mustFindByAccountId(accountId)
       _ ← * <~ StoreCreditAdjustments
            .lastAuthByStoreCreditId(credit.id)
            .one
@@ -75,5 +74,5 @@ object CustomerCreditConverter {
 
       // Activity
       _ ← * <~ LogActivity.scConvertedToGc(admin, giftCard, credit)
-    } yield GiftCardResponse.build(giftCard, None, Some(StoreAdminResponse.build(admin)))
+    } yield GiftCardResponse.build(giftCard, None, Some(UserResponse.build(admin)))
 }

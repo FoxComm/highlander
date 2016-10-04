@@ -5,6 +5,7 @@ import java.time.Instant
 import com.pellucid.sealerate
 import models.Assignment.{AssignmentType, ReferenceType}
 import shapeless._
+import models.account._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -60,7 +61,7 @@ class Assignments(tag: Tag) extends FoxTable[Assignment](tag, "assignments") {
   def * =
     (id, assignmentType, storeAdminId, referenceId, referenceType, createdAt) <> ((Assignment.apply _).tupled, Assignment.unapply)
 
-  def storeAdmin = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
+  def storeAdmin = foreignKey(Users.tableName, storeAdminId, Users)(_.accountId)
 }
 
 object Assignments
@@ -74,8 +75,8 @@ object Assignments
 
   def byAdmin[T <: FoxModel[T]](assignType: AssignmentType,
                                 refType: ReferenceType,
-                                admin: StoreAdmin): QuerySeq =
-    byType(assignType, refType).filter(_.storeAdminId === admin.id)
+                                admin: User): QuerySeq =
+    byType(assignType, refType).filter(_.storeAdminId === admin.accountId)
 
   def byEntity[T <: FoxModel[T]](assignType: AssignmentType,
                                  model: T,
@@ -85,22 +86,22 @@ object Assignments
   def byEntityAndAdmin[T <: FoxModel[T]](assignType: AssignmentType,
                                          model: T,
                                          refType: ReferenceType,
-                                         admin: StoreAdmin): QuerySeq =
-    byEntity(assignType, model, refType).filter(_.storeAdminId === admin.id)
+                                         admin: User): QuerySeq =
+    byEntity(assignType, model, refType).filter(_.storeAdminId === admin.accountId)
 
   def byEntitySeqAndAdmin[T <: FoxModel[T]](assignType: AssignmentType,
                                             models: Seq[T],
                                             refType: ReferenceType,
-                                            admin: StoreAdmin): QuerySeq =
+                                            admin: User): QuerySeq =
     byType(assignType, refType)
       .filter(_.referenceId.inSetBind(models.map(_.id)))
-      .filter(_.storeAdminId === admin.id)
+      .filter(_.storeAdminId === admin.accountId)
 
   def assigneesFor[T <: FoxModel[T]](assignType: AssignmentType,
                                      entity: T,
-                                     refType: ReferenceType): StoreAdmins.QuerySeq =
+                                     refType: ReferenceType): Users.QuerySeq =
     for {
       assignees ← byEntity(assignType, entity, refType).map(_.storeAdminId)
-      admins    ← StoreAdmins.filter(_.id === assignees)
+      admins    ← Users.filter(_.accountId === assignees)
     } yield admins
 }

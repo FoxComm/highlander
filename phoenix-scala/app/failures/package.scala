@@ -6,6 +6,7 @@ import models.cord.{Cart, Order}
 import models.inventory.Sku
 import models.payment.giftcard.GiftCard
 import models.returns.Return
+import models.sharedsearch.SharedSearch
 
 package object failures {
 
@@ -37,6 +38,7 @@ package object failures {
       case GiftCard | _: GiftCard               ⇒ "code"
       case Sku | _: Sku                         ⇒ "code"
       case Assignment.GiftCard | Assignment.Sku ⇒ "code"
+      case SharedSearch | _: SharedSearch       ⇒ "code"
 
       case Dimension | _: Dimension ⇒ "name"
       case _                        ⇒ "id"

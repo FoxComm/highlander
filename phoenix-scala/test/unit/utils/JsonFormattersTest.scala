@@ -2,14 +2,14 @@ package utils
 
 import java.time.{Instant, ZonedDateTime}
 
-import models.StoreAdmin
+import models.admin.AdminData
 import models.cord.Order
 import models.payment.creditcard.CreditCardCharge
 import models.payment.giftcard.GiftCard
 import org.json4s.Formats
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.write
-import util.TestBase
+import testutils.TestBase
 import utils.JsonFormatters._
 import utils.Money.Currency
 
@@ -20,7 +20,7 @@ class JsonFormattersTest extends TestBase {
   case class Test(order: Order.State,
                   gc: GiftCard.State,
                   cc: CreditCardCharge.State,
-                  sas: StoreAdmin.State)
+                  sas: AdminData.State)
   case class Product(price: Int, currency: Currency)
 
   "Adt serialization" - {
@@ -30,11 +30,11 @@ class JsonFormattersTest extends TestBase {
               Test(order = Order.ManualHold,
                    cc = CreditCardCharge.Auth,
                    gc = GiftCard.OnHold,
-                   sas = StoreAdmin.Invited)))
+                   sas = AdminData.Invited)))
       (ast \ "order").extract[Order.State] mustBe Order.ManualHold
       (ast \ "gc").extract[GiftCard.State] mustBe GiftCard.OnHold
       (ast \ "cc").extract[CreditCardCharge.State] mustBe CreditCardCharge.Auth
-      (ast \ "sas").extract[StoreAdmin.State] mustBe StoreAdmin.Invited
+      (ast \ "sas").extract[AdminData.State] mustBe AdminData.Invited
     }
   }
 

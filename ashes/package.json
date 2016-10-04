@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/FoxComm/Ashes.git"
+    "url": "git+https://github.com/FoxComm/highlander.git"
   },
   "keywords": [
     "FoxCommerce",
@@ -31,10 +31,10 @@
   "author": "FoxCommerce Engineering",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/FoxComm/Ashes/issues"
+    "url": "https://github.com/FoxComm/highlander/issues"
   },
-  "contributors": "https://github.com/FoxComm/Ashes/graphs/contributors",
-  "homepage": "https://github.com/FoxComm/Ashes#readme",
+  "contributors": "https://github.com/FoxComm/highlander/graphs/contributors",
+  "homepage": "https://github.com/FoxComm/highlander#readme",
   "dependencies": {
     "babel-polyfill": "^6.5.0",
     "browserHistory": "file:src/opt/browserHistory",
@@ -72,6 +72,7 @@
     "react": "^15.0.2",
     "react-addons-create-fragment": "^15.0.2",
     "react-addons-css-transition-group": "^15.0.2",
+    "react-cookie": "^0.4.8",
     "react-dnd": "^2.1.4",
     "react-dnd-html5-backend": "^2.1.2",
     "react-dom": "^15.0.2",

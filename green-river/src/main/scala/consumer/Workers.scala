@@ -12,8 +12,7 @@ object Workers {
   def activityWorker(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)(
       implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC): Future[Unit] = Future {
     // Init
-    val activityConnectors = Seq(AdminConnector(),
-                                 CustomerConnector(),
+    val activityConnectors = Seq(AccountConnector(),
                                  OrderConnector(),
                                  GiftCardConnector(),
                                  SharedSearchConnector(),

@@ -6,11 +6,11 @@ import cats.data.Xor
 import failures.DiscountFailures.SearchFailure
 import failures._
 import models.cord.lineitems.OrderLineItemAdjustment._
-import models.cord.lineitems._
+import models.cord.lineitems.{OrderLineItemAdjustment ⇒ Adjustment}
+import models.discount._
 import models.discount.offers.Offer.OfferResult
-import models.discount.{DiscountBase, DiscountInput, ProductSearch}
 import services.Result
-import utils.ElasticsearchApi.{apply ⇒ _, _}
+import utils.ElasticsearchApi.Buckets
 import utils.aliases._
 
 trait Offer extends DiscountBase {
@@ -24,17 +24,16 @@ trait Offer extends DiscountBase {
   // Returns single line item adjustment for now
   def build(input: DiscountInput,
             subtract: Int,
-            lineItemRefNum: Option[String] = None): OrderLineItemAdjustment =
-    OrderLineItemAdjustment(cordRef = input.cart.refNum,
-                            promotionShadowId = input.promotion.id,
-                            adjustmentType = adjustmentType,
-                            subtract = subtract,
-                            lineItemRefNum = lineItemRefNum)
+            lineItemRefNum: Option[String] = None): Adjustment =
+    Adjustment(cordRef = input.cart.refNum,
+               promotionShadowId = input.promotion.id,
+               adjustmentType = adjustmentType,
+               subtract = subtract,
+               lineItemRefNum = lineItemRefNum)
 
-  def buildXor(
-      input: DiscountInput,
-      subtract: Int,
-      lineItemRefNum: Option[String] = None): Xor[Failures, Seq[OrderLineItemAdjustment]] =
+  def buildXor(input: DiscountInput,
+               subtract: Int,
+               lineItemRefNum: Option[String] = None): Xor[Failures, Seq[Adjustment]] =
     Xor.Right(Seq(build(input, subtract, lineItemRefNum)))
 
   def buildResult(input: DiscountInput,
@@ -42,13 +41,13 @@ trait Offer extends DiscountBase {
                   lineItemRefNum: Option[String] = None): OfferResult =
     Result.good(Seq(build(input, subtract, lineItemRefNum)))
 
-  def pureResult(): Result[Seq[OrderLineItemAdjustment]]     = Result.good(Seq.empty)
-  def pureXor(): Xor[Failures, Seq[OrderLineItemAdjustment]] = Xor.Left(SearchFailure.single)
+  def pureResult(): Result[Seq[Adjustment]]     = Result.good(Seq.empty)
+  def pureXor(): Xor[Failures, Seq[Adjustment]] = Xor.Left(SearchFailure.single)
 }
 
 object Offer {
 
-  type OfferResult = Result[Seq[OrderLineItemAdjustment]]
+  type OfferResult = Result[Seq[Adjustment]]
 }
 
 /**
@@ -86,8 +85,7 @@ trait SetOffer {
 
 trait ItemsOffer {
 
-  def matchXor(input: DiscountInput)(
-      xor: Failures Xor Buckets): Failures Xor Seq[OrderLineItemAdjustment]
+  def matchXor(input: DiscountInput)(xor: Failures Xor Buckets): Failures Xor Seq[Adjustment]
 
   def adjustInner(input: DiscountInput)(
       search: Seq[ProductSearch])(implicit db: DB, ec: EC, es: ES): OfferResult = {

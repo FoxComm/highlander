@@ -8,6 +8,9 @@ import org.json4s._
 import utils.aliases._
 
 case class GoogleOauthOptions(
+    roleName: String,
+    scopeId: Int, //must retrieve from db for now.
+    orgName: String,
     clientId: String,
     clientSecret: String,
     redirectUri: String,

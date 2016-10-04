@@ -2,11 +2,11 @@ package utils
 
 import akka.http.scaladsl.model.StatusCodes
 
-import models.cord.Cart
-import util.TestBase
-import http.Http._
 import failures.CreditCardFailures.CustomerHasDefaultCreditCard
 import failures.{Failures, GeneralFailure, NotFoundFailure404}
+import models.cord.Cart
+import testutils.TestBase
+import utils.http.Http._
 
 class HttpTest extends TestBase {
 

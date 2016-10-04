@@ -6,7 +6,10 @@ import utils.db.ExPostgresDriver.api._
 import utils.db._
 import slick.lifted.Tag
 
+import com.github.tminglei.slickpg._
+
 trait ObjectHead[M <: ObjectHead[M]] extends FoxModel[M] { self: M ⇒
+  def scope: LTree
   def contextId: Int
   def shadowId: Int
   def formId: Int
@@ -26,6 +29,7 @@ abstract class ObjectHeads[M <: ObjectHead[M]](tag: Tag, table: String)
     extends FoxTable[M](tag, table) {
 
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def scope      = column[LTree]("scope")
   def contextId  = column[Int]("context_id")
   def shadowId   = column[Int]("shadow_id")
   def formId     = column[Int]("form_id")

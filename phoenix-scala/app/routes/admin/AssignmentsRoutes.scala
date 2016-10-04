@@ -3,35 +3,36 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.StoreAdmin
+import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
 import models.returns.Return.returnRefNumRegex
 import payloads.AssignmentPayloads._
 import services.assignments._
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object AssignmentsRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
-    activityContext(admin) { implicit ac ⇒
+    activityContext(auth.model) { implicit ac ⇒
       pathPrefix("customers") {
         pathPrefix("assignees") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                CustomerAssignmentsManager.assignBulk(admin, payload)
+                CustomerAssignmentsManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                CustomerAssignmentsManager.unassignBulk(admin, payload)
+                CustomerAssignmentsManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -40,51 +41,51 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                CustomerWatchersManager.assignBulk(admin, payload)
+                CustomerWatchersManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                CustomerWatchersManager.unassignBulk(admin, payload)
+                CustomerWatchersManager.unassignBulk(auth.model, payload)
               }
             }
           }
         }
       } ~
-      pathPrefix("customers" / IntNumber) { customerId ⇒
+      pathPrefix("customers" / IntNumber) { accountId ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
             getOrFailures {
-              CustomerAssignmentsManager.list(customerId)
+              CustomerAssignmentsManager.list(accountId)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              CustomerAssignmentsManager.assign(customerId, payload, admin)
+              CustomerAssignmentsManager.assign(accountId, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              CustomerAssignmentsManager.unassign(customerId, assigneeId, admin)
+              CustomerAssignmentsManager.unassign(accountId, assigneeId, auth.model)
             }
           }
         } ~
         pathPrefix("watchers") {
           (get & pathEnd) {
             getOrFailures {
-              CustomerWatchersManager.list(customerId)
+              CustomerWatchersManager.list(accountId)
             }
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              CustomerWatchersManager.assign(customerId, payload, admin)
+              CustomerWatchersManager.assign(accountId, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              CustomerWatchersManager.unassign(customerId, assigneeId, admin)
+              CustomerWatchersManager.unassign(accountId, assigneeId, auth.model)
             }
           }
         }
@@ -94,14 +95,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                GiftCardAssignmentsManager.assignBulk(admin, payload)
+                GiftCardAssignmentsManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                GiftCardAssignmentsManager.unassignBulk(admin, payload)
+                GiftCardAssignmentsManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -110,14 +111,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                GiftCardWatchersManager.assignBulk(admin, payload)
+                GiftCardWatchersManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                GiftCardWatchersManager.unassignBulk(admin, payload)
+                GiftCardWatchersManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -132,12 +133,12 @@ object AssignmentsRoutes {
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              GiftCardAssignmentsManager.assign(code, payload, admin)
+              GiftCardAssignmentsManager.assign(code, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              GiftCardAssignmentsManager.unassign(code, assigneeId, admin)
+              GiftCardAssignmentsManager.unassign(code, assigneeId, auth.model)
             }
           }
         } ~
@@ -149,12 +150,12 @@ object AssignmentsRoutes {
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              GiftCardWatchersManager.assign(code, payload, admin)
+              GiftCardWatchersManager.assign(code, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              GiftCardWatchersManager.unassign(code, assigneeId, admin)
+              GiftCardWatchersManager.unassign(code, assigneeId, auth.model)
             }
           }
         }
@@ -164,14 +165,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                OrderAssignmentsManager.assignBulk(admin, payload)
+                OrderAssignmentsManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                OrderAssignmentsManager.unassignBulk(admin, payload)
+                OrderAssignmentsManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -180,14 +181,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                OrderWatchersManager.assignBulk(admin, payload)
+                OrderWatchersManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                OrderWatchersManager.unassignBulk(admin, payload)
+                OrderWatchersManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -202,12 +203,12 @@ object AssignmentsRoutes {
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              OrderAssignmentsManager.assign(refNum, payload, admin)
+              OrderAssignmentsManager.assign(refNum, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              OrderAssignmentsManager.unassign(refNum, assigneeId, admin)
+              OrderAssignmentsManager.unassign(refNum, assigneeId, auth.model)
             }
           }
         } ~
@@ -219,12 +220,12 @@ object AssignmentsRoutes {
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              OrderWatchersManager.assign(refNum, payload, admin)
+              OrderWatchersManager.assign(refNum, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              OrderWatchersManager.unassign(refNum, assigneeId, admin)
+              OrderWatchersManager.unassign(refNum, assigneeId, auth.model)
             }
           }
         }
@@ -234,14 +235,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                ReturnAssignmentsManager.assignBulk(admin, payload)
+                ReturnAssignmentsManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                ReturnAssignmentsManager.unassignBulk(admin, payload)
+                ReturnAssignmentsManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -250,14 +251,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                ReturnWatchersManager.assignBulk(admin, payload)
+                ReturnWatchersManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                ReturnWatchersManager.unassignBulk(admin, payload)
+                ReturnWatchersManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -272,12 +273,12 @@ object AssignmentsRoutes {
           } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              ReturnAssignmentsManager.assign(refNum, payload, admin)
+              ReturnAssignmentsManager.assign(refNum, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              ReturnAssignmentsManager.unassign(refNum, assigneeId, admin)
+              ReturnAssignmentsManager.unassign(refNum, assigneeId, auth.model)
             }
           }
         } ~
@@ -289,12 +290,12 @@ object AssignmentsRoutes {
           } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              ReturnWatchersManager.assign(refNum, payload, admin)
+              ReturnWatchersManager.assign(refNum, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              ReturnWatchersManager.unassign(refNum, assigneeId, admin)
+              ReturnWatchersManager.unassign(refNum, assigneeId, auth.model)
             }
           }
         }
@@ -304,14 +305,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                ProductAssignmentsManager.assignBulk(admin, payload)
+                ProductAssignmentsManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                ProductAssignmentsManager.unassignBulk(admin, payload)
+                ProductAssignmentsManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -320,14 +321,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                ProductWatchersManager.assignBulk(admin, payload)
+                ProductWatchersManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                ProductWatchersManager.unassignBulk(admin, payload)
+                ProductWatchersManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -342,12 +343,12 @@ object AssignmentsRoutes {
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              ProductAssignmentsManager.assign(productId, payload, admin)
+              ProductAssignmentsManager.assign(productId, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              ProductAssignmentsManager.unassign(productId, assigneeId, admin)
+              ProductAssignmentsManager.unassign(productId, assigneeId, auth.model)
             }
           }
         } ~
@@ -359,12 +360,12 @@ object AssignmentsRoutes {
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              ProductWatchersManager.assign(productId, payload, admin)
+              ProductWatchersManager.assign(productId, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              ProductWatchersManager.unassign(productId, assigneeId, admin)
+              ProductWatchersManager.unassign(productId, assigneeId, auth.model)
             }
           }
         }
@@ -374,14 +375,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                SkuAssignmentsManager.assignBulk(admin, payload)
+                SkuAssignmentsManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                SkuAssignmentsManager.unassignBulk(admin, payload)
+                SkuAssignmentsManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -390,14 +391,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                SkuWatchersManager.assignBulk(admin, payload)
+                SkuWatchersManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                SkuWatchersManager.unassignBulk(admin, payload)
+                SkuWatchersManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -412,12 +413,12 @@ object AssignmentsRoutes {
           } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              SkuAssignmentsManager.assign(refNum, payload, admin)
+              SkuAssignmentsManager.assign(refNum, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              SkuAssignmentsManager.unassign(refNum, assigneeId, admin)
+              SkuAssignmentsManager.unassign(refNum, assigneeId, auth.model)
             }
           }
         } ~
@@ -429,12 +430,12 @@ object AssignmentsRoutes {
           } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              SkuWatchersManager.assign(refNum, payload, admin)
+              SkuWatchersManager.assign(refNum, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              SkuWatchersManager.unassign(refNum, assigneeId, admin)
+              SkuWatchersManager.unassign(refNum, assigneeId, auth.model)
             }
           }
         }
@@ -444,14 +445,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                PromotionAssignmentsManager.assignBulk(admin, payload)
+                PromotionAssignmentsManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                PromotionAssignmentsManager.unassignBulk(admin, payload)
+                PromotionAssignmentsManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -460,14 +461,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                PromotionWatchersManager.assignBulk(admin, payload)
+                PromotionWatchersManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                PromotionWatchersManager.unassignBulk(admin, payload)
+                PromotionWatchersManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -482,12 +483,12 @@ object AssignmentsRoutes {
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              PromotionAssignmentsManager.assign(promotionId, payload, admin)
+              PromotionAssignmentsManager.assign(promotionId, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              PromotionAssignmentsManager.unassign(promotionId, assigneeId, admin)
+              PromotionAssignmentsManager.unassign(promotionId, assigneeId, auth.model)
             }
           }
         } ~
@@ -499,12 +500,12 @@ object AssignmentsRoutes {
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              PromotionWatchersManager.assign(promotionId, payload, admin)
+              PromotionWatchersManager.assign(promotionId, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              PromotionWatchersManager.unassign(promotionId, assigneeId, admin)
+              PromotionWatchersManager.unassign(promotionId, assigneeId, auth.model)
             }
           }
         }
@@ -514,14 +515,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                CouponAssignmentsManager.assignBulk(admin, payload)
+                CouponAssignmentsManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                CouponAssignmentsManager.unassignBulk(admin, payload)
+                CouponAssignmentsManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -530,14 +531,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                CouponWatchersManager.assignBulk(admin, payload)
+                CouponWatchersManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               mutateOrFailures {
-                CouponWatchersManager.unassignBulk(admin, payload)
+                CouponWatchersManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -552,12 +553,12 @@ object AssignmentsRoutes {
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              CouponAssignmentsManager.assign(couponId, payload, admin)
+              CouponAssignmentsManager.assign(couponId, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              CouponAssignmentsManager.unassign(couponId, assigneeId, admin)
+              CouponAssignmentsManager.unassign(couponId, assigneeId, auth.model)
             }
           }
         } ~
@@ -569,12 +570,12 @@ object AssignmentsRoutes {
           } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              CouponWatchersManager.assign(couponId, payload, admin)
+              CouponWatchersManager.assign(couponId, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              CouponWatchersManager.unassign(couponId, assigneeId, admin)
+              CouponWatchersManager.unassign(couponId, assigneeId, auth.model)
             }
           }
         }

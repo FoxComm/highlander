@@ -1,10 +1,10 @@
 package utils
 
 import cats.data.Xor
-import shapeless._
-import org.scalatest.prop.TableDrivenPropertyChecks._
 import failures.Failures
-import util.TestBase
+import org.scalatest.prop.TableDrivenPropertyChecks._
+import shapeless._
+import testutils.TestBase
 import utils.db._
 
 class FSMTest extends TestBase {

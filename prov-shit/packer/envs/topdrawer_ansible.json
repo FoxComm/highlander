@@ -10,6 +10,7 @@
     "phoenix_server": "phoenix.service.consul:9090",
     "phoenix_service_requires": "",
     "phoenix_service_after": "",
+    "phoenix_token_ttl": 10080,
     "greenriver_service_requires": "",
     "greenriver_service_after": "",
     "middlewarehouse_service_requires": "",

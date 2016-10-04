@@ -10,18 +10,18 @@ trait CreditCardSeeds extends CreditCardGenerator {
 
   val gatewayCustomerId = randomCustomerGatewayId
 
-  def createCreditCards(customers: CustomerSeeds#Customers): DbResultT[Unit] =
+  def createCreditCards(customers: CustomerSeeds#CustomerIds): DbResultT[Unit] =
     for {
       _ ← * <~ CreditCards.createAll(
-             Seq(creditCard1.copy(customerId = customers._1),
-                 creditCard2.copy(customerId = customers._1),
-                 creditCard3.copy(customerId = customers._2),
-                 creditCard4.copy(customerId = customers._3),
-                 creditCard5.copy(customerId = customers._4)))
+             Seq(creditCard1.copy(accountId = customers._1),
+                 creditCard2.copy(accountId = customers._1),
+                 creditCard3.copy(accountId = customers._2),
+                 creditCard4.copy(accountId = customers._3),
+                 creditCard5.copy(accountId = customers._4)))
     } yield {}
 
   def creditCard1 = {
-    CreditCard(customerId = 0,
+    CreditCard(accountId = 0,
                gatewayCustomerId = gatewayCustomerId,
                gatewayCardId = "",
                holderName = "Yax",
@@ -41,7 +41,7 @@ trait CreditCardSeeds extends CreditCardGenerator {
   def creditCard = creditCard1
 
   def creditCard2 = {
-    CreditCard(customerId = 0,
+    CreditCard(accountId = 0,
                gatewayCustomerId = gatewayCustomerId,
                gatewayCardId = "",
                holderName = "Yax",
@@ -59,7 +59,7 @@ trait CreditCardSeeds extends CreditCardGenerator {
   }
 
   def creditCard3 = {
-    CreditCard(customerId = 0,
+    CreditCard(accountId = 0,
                gatewayCustomerId = gatewayCustomerId,
                gatewayCardId = "",
                holderName = "Adil",
@@ -77,7 +77,7 @@ trait CreditCardSeeds extends CreditCardGenerator {
   }
 
   def creditCard4 = {
-    CreditCard(customerId = 0,
+    CreditCard(accountId = 0,
                gatewayCustomerId = gatewayCustomerId,
                gatewayCardId = "",
                holderName = "John",
@@ -95,7 +95,7 @@ trait CreditCardSeeds extends CreditCardGenerator {
   }
 
   def creditCard5 = {
-    CreditCard(customerId = 0,
+    CreditCard(accountId = 0,
                gatewayCustomerId = gatewayCustomerId,
                gatewayCardId = "",
                holderName = "František",

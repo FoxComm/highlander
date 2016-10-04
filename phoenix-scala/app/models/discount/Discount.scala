@@ -4,9 +4,11 @@ import java.time.Instant
 
 import models.objects._
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
 import utils.db._
+
+import com.github.tminglei.slickpg._
 
 object Discount {
   val kind = "discount"
@@ -27,6 +29,7 @@ object Discount {
   * used by the discount engine to modify an order by creating line item adjustments.
   */
 case class Discount(id: Int = 0,
+                    scope: LTree,
                     contextId: Int,
                     shadowId: Int,
                     formId: Int,
@@ -44,7 +47,7 @@ case class Discount(id: Int = 0,
 class Discounts(tag: Tag) extends ObjectHeads[Discount](tag, "discounts") {
 
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Discount.apply _).tupled,
+    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Discount.apply _).tupled,
         Discount.unapply)
 }
 

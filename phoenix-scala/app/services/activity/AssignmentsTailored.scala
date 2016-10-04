@@ -1,33 +1,33 @@
 package services.activity
 
 import models.Assignment._
-import responses.StoreAdminResponse.{Root ⇒ AdminRoot}
+import responses.UserResponse.{Root ⇒ UserRoot}
 
 object AssignmentsTailored {
 
-  case class Assigned[T](admin: AdminRoot,
+  case class Assigned[T](admin: UserRoot,
                          entity: T,
-                         assignees: Seq[AdminRoot],
+                         assignees: Seq[UserRoot],
                          assignmentType: AssignmentType,
                          referenceType: ReferenceType)
       extends ActivityBase[Assigned[T]]
 
-  case class Unassigned[T](admin: AdminRoot,
+  case class Unassigned[T](admin: UserRoot,
                            entity: T,
-                           assignee: AdminRoot,
+                           assignee: UserRoot,
                            assignmentType: AssignmentType,
                            referenceType: ReferenceType)
       extends ActivityBase[Unassigned[T]]
 
-  case class BulkAssigned(admin: AdminRoot,
-                          assignee: AdminRoot,
+  case class BulkAssigned(admin: UserRoot,
+                          assignee: UserRoot,
                           entityIds: Seq[String],
                           assignmentType: AssignmentType,
                           referenceType: ReferenceType)
       extends ActivityBase[BulkAssigned]
 
-  case class BulkUnassigned(admin: AdminRoot,
-                            assignee: AdminRoot,
+  case class BulkUnassigned(admin: UserRoot,
+                            assignee: UserRoot,
                             entityIds: Seq[String],
                             assignmentType: AssignmentType,
                             referenceType: ReferenceType)

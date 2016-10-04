@@ -38,15 +38,16 @@ export default class ActivityTrailPage extends React.Component {
 
   get trailParams() {
     const { route, entity } = this.props;
+    const dimension = route.dimension ? route.dimension : entity.entityType;
 
-    if (route.dimension) {
+    if (entity) {
       return {
-        dimension: route.dimension
+        dimension: dimension,
+        objectId: entity.entityId
       };
     } else {
       return {
-        dimension: entity.entityType,
-        objectId: entity.entityId,
+        dimension: route.dimension
       };
     }
   }

@@ -11,11 +11,11 @@ function addContext(activity, i) {
   if (activity.context) {
     userType = activity.context.userType;
   } else {
-    userType = 'admin';
+    userType = 'user';
     activity.context = {userType};
   }
 
-  if (userType == 'admin' && !activity.data.admin) {
+  if (userType == 'user' && !activity.data.admin) {
     activity.data.admin = {
       name: 'Jon Doe'
     };
@@ -24,7 +24,7 @@ function addContext(activity, i) {
   return activity;
 }
 
-const customer = {
+const user = {
   id: 1,
   name: 'Thomas Angelo',
   email: 'angelo@salieri.it',
@@ -91,7 +91,7 @@ const shippingMethod = {
 const order = {
   referenceNumber: 'BR10001',
   orderState: 'cart',
-  customer,
+  user,
   shippingAddress: {
     'id': 3,
     'region': {
@@ -117,13 +117,91 @@ let shiftDays = 1;
 let id = 1;
 
 let activities = [
-  // customers
+  // users
+  {
+    kind: types.USER_UPDATED,
+    id: id++,
+    createdAt,
+    data: {
+      userId: 1,
+      oldInfo: {
+        name: 'William Shockley',
+        email: 'William@Shockley.com',
+        phoneNumber: '+11111111111'
+      },
+      newInfo: {
+        name: 'Shockley William',
+        email: 'William@Shockley.com',
+        phoneNumber: '+11111111111'
+      }
+    }
+  },
+  {
+    kind: types.USER_CREATED,
+    id: id++,
+    createdAt,
+    data: {
+      user
+    }
+  },
+  {
+    kind: types.USER_REGISTERED,
+    id: id++,
+    createdAt,
+    data: {
+      user
+    }
+  },
+  {
+    kind: types.USER_ACTIVATED,
+    id: id++,
+    createdAt,
+    data: {
+      user
+    }
+  },
+  {
+    kind: types.USER_BLACKLISTED,
+    id: id++,
+    createdAt,
+    data: {
+      user
+    }
+  },
+  {
+    kind: types.USER_REMOVED_FROM_BLACKLIST,
+    id: id++,
+    createdAt,
+    data: {
+      user
+    }
+  },
+  {
+    kind: types.USER_ENABLED,
+    id: id++,
+    createdAt,
+    data: {
+      user
+    }
+  },
+  {
+    kind: types.USER_DISABLED,
+    id: id++,
+    createdAt,
+    data: {
+      user
+    }
+  },
+];
+
+activities = [...activities,
+  // users
   {
     kind: types.CUSTOMER_UPDATED,
     id: id++,
     createdAt,
     data: {
-      customerId: 1,
+      userId: 1,
       oldInfo: {
         name: 'William Shockley',
         email: 'William@Shockley.com',
@@ -141,7 +219,7 @@ let activities = [
     id: id++,
     createdAt,
     data: {
-      customer
+      user
     }
   },
   {
@@ -149,7 +227,7 @@ let activities = [
     id: id++,
     createdAt,
     data: {
-      customer
+      user
     }
   },
   {
@@ -157,43 +235,10 @@ let activities = [
     id: id++,
     createdAt,
     data: {
-      customer
+      user
     }
-  },
-  {
-    kind: types.CUSTOMER_BLACKLISTED,
-    id: id++,
-    createdAt,
-    data: {
-      customer
-    }
-  },
-  {
-    kind: types.CUSTOMER_REMOVED_FROM_BLACKLIST,
-    id: id++,
-    createdAt,
-    data: {
-      customer
-    }
-  },
-  {
-    kind: types.CUSTOMER_ENABLED,
-    id: id++,
-    createdAt,
-    data: {
-      customer
-    }
-  },
-  {
-    kind: types.CUSTOMER_DISABLED,
-    id: id++,
-    createdAt,
-    data: {
-      customer
-    }
-  },
+  }
 ];
-
 createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
@@ -201,36 +246,36 @@ activities = [...activities,
   // customer addresses
 
   {
-    kind: types.CUSTOMER_ADDRESS_CREATED,
+    kind: types.USER_ADDRESS_CREATED,
     id: id++,
     createdAt,
     data: {
-      customer,
+      user,
       admin,
       address
     },
     context: {
-      userType: 'admin'
+      userType: 'user'
     }
   },
   {
-    kind: types.CUSTOMER_ADDRESS_CREATED,
+    kind: types.USER_ADDRESS_CREATED,
     id: id++,
     createdAt,
     data: {
-      customer,
+      user,
       address
     },
     context: {
-      userType: 'customer'
+      userType: 'user'
     }
   },
   {
-    kind: types.CUSTOMER_ADDRESS_UPDATED,
+    kind: types.USER_ADDRESS_UPDATED,
     id: id++,
     createdAt,
     data: {
-      customer,
+      user,
       oldInfo: address,
       newInfo: {
         ...address,
@@ -239,17 +284,15 @@ activities = [...activities,
     },
   },
   {
-    kind: types.CUSTOMER_ADDRESS_DELETED,
+    kind: types.USER_ADDRESS_DELETED,
     id: id++,
     createdAt,
     data: {
-      customer,
+      user,
       address,
     },
   },
 ];
-
-createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
 
@@ -389,7 +432,7 @@ activities = [...activities,
     id: id++,
     createdAt,
     data: {
-      customer,
+      user,
       creditCard
     }
   },
@@ -398,7 +441,7 @@ activities = [...activities,
     id: id++,
     createdAt,
     data: {
-      customer,
+      user,
       creditCard
     }
   },
@@ -407,7 +450,7 @@ activities = [...activities,
     id: id++,
     createdAt,
     data: {
-      customer,
+      user,
       oldInfo: creditCard,
       newInfo: {
         ...creditCard,
@@ -541,7 +584,7 @@ activities = [...activities,
     data: {
       orderRefNum: 'BR10001',
       amount: 21400,
-      customer,
+      user,
       giftCardCodes: [
         '1111333344442222',
         '3333333311115555',
@@ -549,7 +592,7 @@ activities = [...activities,
       ]
     },
     context: {
-      userType: 'customer',
+      userType: 'user',
     }
   },
   {
@@ -559,13 +602,13 @@ activities = [...activities,
     data: {
       orderRefNum: 'BR10001',
       amount: 124,
-      customer,
+      user,
       giftCardCodes: [
         '1111333344442222',
       ]
     },
     context: {
-      userType: 'customer',
+      userType: 'user',
     }
   },
 ];
@@ -578,7 +621,7 @@ activities = [...activities,
     id: id++,
     createdAt,
     data: {
-      customer,
+      user,
       storeCredit,
     }
   },
@@ -587,7 +630,7 @@ activities = [...activities,
     id: id++,
     createdAt,
     data: {
-      customer,
+      user,
       storeCredit,
     }
   },
@@ -596,7 +639,7 @@ activities = [...activities,
     id: id++,
     createdAt,
     data: {
-      customer,
+      user,
       storeCredit,
       giftCard,
     }
@@ -608,10 +651,10 @@ activities = [...activities,
     data: {
       orderRefNum: 'BR10001',
       amount: 21400,
-      customer,
+      user,
     },
     context: {
-      userType: 'customer',
+      userType: 'user',
     }
   },
   {
@@ -621,10 +664,10 @@ activities = [...activities,
     data: {
       orderRefNum: 'BR10001',
       amount: 11400,
-      customer,
+      user,
     },
     context: {
-      userType: 'customer',
+      userType: 'user',
     }
   },
 ];
@@ -651,7 +694,7 @@ activities = [...activities,
       order,
       assignees: [
         admin,
-        customer,
+        user,
       ]
     }
   },
@@ -661,7 +704,7 @@ activities = [...activities,
     createdAt,
     data: {
       order,
-      assignee: customer,
+      assignee: user,
     }
   },
   {
@@ -669,7 +712,7 @@ activities = [...activities,
     id: id++,
     createdAt,
     data: {
-      assignee: customer,
+      assignee: user,
       orderRefNums: [
         'BR10001',
         'BR10002',
@@ -682,7 +725,7 @@ activities = [...activities,
     id: id++,
     createdAt,
     data: {
-      assignee: customer,
+      assignee: user,
       orderRefNums: [
         'BR10001',
         'BR10002',
@@ -716,7 +759,7 @@ activities = [...activities,
     createdAt,
     data: {
       order,
-      customer,
+      user,
       oldQuantities: {
         'Nike Air Max 2015': 1,
       },
@@ -725,7 +768,7 @@ activities = [...activities,
       }
     },
     context: {
-      userType: 'customer',
+      userType: 'user',
     }
   },
   {

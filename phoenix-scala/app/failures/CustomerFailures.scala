@@ -11,20 +11,20 @@ object CustomerFailures {
     override def description = "The email address you entered is already in use"
   }
 
-  case class CustomerHasNoDefaultAddress(customerId: Int) extends Failure {
-    override def description = s"No default address found for customer with id =$customerId"
+  case class CustomerHasNoDefaultAddress(accountId: Int) extends Failure {
+    override def description = s"No default address found for customer with id =$accountId"
   }
 
   case object CustomerHasDefaultShippingAddress extends Failure {
     override def description = "customer already has default shipping address"
   }
 
-  case class CustomerIsBlacklisted(customerId: Int) extends Failure {
-    override def description = s"Customer with id = $customerId is blacklisted"
+  case class CustomerIsBlacklisted(accountId: Int) extends Failure {
+    override def description = s"Customer with id = $accountId is blacklisted"
   }
 
-  case class CustomerHasNoEmail(customerId: Int) extends Failure {
-    override def description = s"Customer $customerId has no email"
+  case class CustomerHasNoEmail(accountId: Int) extends Failure {
+    override def description = s"Customer $accountId has no email"
   }
 
   case class ResetPasswordCodeInvalid(code: String) extends Failure {

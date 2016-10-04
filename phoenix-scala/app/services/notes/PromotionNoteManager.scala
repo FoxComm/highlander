@@ -12,6 +12,8 @@ object PromotionNoteManager extends NoteManager[Int, ObjectForm] {
 
   def noteType(): Note.ReferenceType = Note.Promotion
 
+  def getEntityId(e: ObjectForm): Int = e.id
+
   def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[ObjectForm] =
     ObjectForms
       .filter(_.id === id)

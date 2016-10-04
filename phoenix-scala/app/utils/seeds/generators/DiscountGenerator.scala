@@ -67,7 +67,8 @@ trait DiscountGenerator {
   }
 
   def generateDiscounts(sourceData: Seq[SimpleDiscount])(
-      implicit db: DB): DbResultT[Seq[DiscountResponse.Root]] =
+      implicit db: DB,
+      au: AU): DbResultT[Seq[DiscountResponse.Root]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       discounts ← * <~ sourceData.map(source ⇒ {

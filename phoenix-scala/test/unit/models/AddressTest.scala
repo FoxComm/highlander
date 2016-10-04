@@ -1,18 +1,18 @@
 package models
 
 import cats.data.NonEmptyList
+import failures.{Failure, GeneralFailure}
 import models.location.{Address, Region}
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import failures.{Failure, GeneralFailure}
-import util.CustomMatchers._
-import util.TestBase
+import testutils.CustomMatchers._
+import testutils.TestBase
 
 class AddressTest extends TestBase {
 
   "Address" - {
     ".validateNew" - {
       val valid = Address(id = 0,
-                          customerId = 1,
+                          accountId = 1,
                           regionId = 1,
                           name = "Yax Fuentes",
                           address1 = "555 E Lake Union St.",

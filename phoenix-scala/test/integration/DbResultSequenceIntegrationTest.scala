@@ -1,52 +1,51 @@
-import cats.implicits._
 import failures.DatabaseFailure
-import models.customer.{Customer, Customers}
-import util.IntegrationTestBase
+import models.account._
+import testutils._
 import utils.db._
-import utils.seeds.Seeds.Factories
 
 class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 
   "DbResultT#sequence" - {
     "must convert Seq[DbResultT[A]] into DbResultT[Seq[A]]" in {
-      val sux: Seq[DbResultT[Customer]] = Seq(1, 2, 3).map { i ⇒
-        Customers.create(Factories.customer.copy(email = s"$i".some))
+      val sux: Seq[DbResultT[Account]] = Seq(1, 2, 3).map { i ⇒
+        Accounts.create(Account(ratchet = i))
       }
-      val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
+      val cool: DbResultT[Seq[Account]] = DbResultT.sequence(sux)
       cool.gimme
 
-      val allCustomers = Customers.gimme
-      allCustomers must have size 3
-      allCustomers.flatMap(_.email) must contain allOf ("1", "2", "3")
+      val allAccounts = Accounts.gimme
+      allAccounts must have size 3
+      allAccounts.map(_.ratchet) must contain allOf (1, 2, 3)
     }
 
     "must rollback transaction on errors" in {
-      val sux: Seq[DbResultT[Customer]] = Seq(1, 2, 3).map { i ⇒
-        Customers.create(Factories.customer.copy(email = "nope".some))
+      val sux: Seq[DbResultT[User]] = (1 to 3).map { i ⇒
+        Users.create(User(accountId = 100))
       }
-      val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
+      val cool: DbResultT[Seq[User]] = DbResultT.sequence(sux)
 
-      val result = cool.runTxn().futureValue.leftVal
+      cool.runTxn().futureValue mustBe 'left
 
-      val allCustomers = Customers.gimme
-      allCustomers mustBe empty
+      val allAccounts = Users.gimme
+      allAccounts mustBe empty
     }
 
     "must collect all errors" in {
-      val sux: Seq[DbResultT[Customer]] = Seq(1, 2, 3).map { i ⇒
-        Customers.create(Factories.customer.copy(email = "boom".some))
+      Accounts.create(Account()).gimme
+      val sux: Seq[DbResultT[User]] = (1 to 3).map { i ⇒
+        Users.create(User(accountId = 1))
       }
-      val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
+      val cool: DbResultT[Seq[User]] = DbResultT.sequence(sux)
 
       val failures = cool.run().futureValue.leftVal
       val expectedFailure = DatabaseFailure(
-          "ERROR: duplicate key value violates unique constraint \"customers_active_non_guest_email\"\n" +
-            "  Detail: Key (email, is_disabled, is_guest)=(boom, f, f) already exists.")
+          "ERROR: duplicate key value violates unique constraint \"users_account_idx\"\n" +
+            "  Detail: Key (account_id)=(1) already exists.")
       failures must === (expectedFailure.single)
 
-      val allCustomers = Customers.gimme
-      allCustomers must have size 1
-      allCustomers.head.email.value must === ("boom")
+      val allAccounts = Users.gimme
+      allAccounts must have size 1
+      allAccounts.head.accountId must === (1)
     }
   }
 }

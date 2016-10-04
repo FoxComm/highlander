@@ -1,10 +1,10 @@
 package models
 
 import cats.data.NonEmptyList
+import failures.GeneralFailure
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
-import failures.GeneralFailure
-import util.TestBase
+import testutils.TestBase
 import utils.seeds.Seeds.Factories
 
 class ReasonTest extends TestBase {

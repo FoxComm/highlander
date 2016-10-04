@@ -2,8 +2,8 @@ package models
 
 import models.cord.OrderPayments
 import models.payment.storecredit._
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -46,11 +46,11 @@ class StoreCreditIntegrationTest
 
   trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed {
     val (origin, storeCredit, payment) = (for {
-      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.id))
+      reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       origin ← * <~ StoreCreditManuals.create(
-                  StoreCreditManual(adminId = storeAdmin.id, reasonId = reason.id))
+                  StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       sc ← * <~ StoreCredits.create(
-              Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
+              Factories.storeCredit.copy(accountId = customer.accountId, originId = origin.id))
       sCredit ← * <~ StoreCredits.findOneById(sc.id)
       payment ← * <~ OrderPayments.create(
                    Factories.storeCreditPayment

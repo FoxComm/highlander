@@ -31,11 +31,6 @@ object CustomerPayloads {
       notEmpty(name, "name").map { case _ ⇒ this }
   }
 
-  case class ToggleCustomerDisabled(disabled: Boolean)
-
-  // TODO: add blacklistedReason later
-  case class ToggleCustomerBlacklisted(blacklisted: Boolean)
-
   case class CustomerSearchForNewOrder(term: String)
       extends Validation[CustomerSearchForNewOrder] {
 
@@ -43,17 +38,4 @@ object CustomerPayloads {
       greaterThan(term.length, 1, "term size").map { case _ ⇒ this }
   }
 
-  // Reset password payloads
-  case class ResetPasswordSend(email: String) extends Validation[ResetPasswordSend] {
-    def validate: ValidatedNel[Failure, ResetPasswordSend] = {
-      notEmpty(email, "email").map { _ ⇒
-        this
-      }
-    }
-  }
-
-  case class ResetPassword(code: String, newPassword: String) extends Validation[ResetPassword] {
-    def validate: ValidatedNel[Failure, ResetPassword] =
-      (notEmpty(code, "code") |@| notEmpty(newPassword, "password")).map { case _ ⇒ this }
-  }
 }

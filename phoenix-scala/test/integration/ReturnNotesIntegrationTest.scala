@@ -2,15 +2,14 @@ import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
 import failures.NotFoundFailure404
 import models._
 import models.returns._
 import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.ReturnNoteManager
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time.RichInstant
@@ -97,10 +96,10 @@ class ReturnNotesIntegrationTest
         response.bodyText mustBe empty
 
         val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-        updatedNote.deletedBy.value === 1
+        updatedNote.deletedBy.value must === (1)
 
         withClue(updatedNote.deletedAt.value → Instant.now) {
-          updatedNote.deletedAt.value.isBeforeNow === true
+          updatedNote.deletedAt.value.isBeforeNow mustBe true
         }
 
         // Deleted note should not be returned
@@ -116,7 +115,8 @@ class ReturnNotesIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed with Order_Baked {
-    val rma =
-      Returns.create(Factories.rma.copy(orderRef = order.refNum, customerId = customer.id)).gimme
+    val rma = Returns
+      .create(Factories.rma.copy(orderRef = order.refNum, accountId = customer.accountId))
+      .gimme
   }
 }

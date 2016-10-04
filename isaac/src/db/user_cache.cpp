@@ -7,17 +7,17 @@ namespace isaac
     namespace db
     {
         template<class db_query_func>
-        bool valid_user(
+        bool check_valid_user(
             std::size_t id, 
             int ratchet, 
             user_hash_map& u, 
-            db_query_func db_valid_user)
+            db_query_func valid_user)
         {
             auto i = u.find(id);
             if(i == u.end())
             {
                 //check db, if not valid, return and don't cache
-                if(!db_valid_user(id, ratchet)) return false;
+                if(!valid_user(id, ratchet)) return false;
 
                 //otherwise user is valid so we cache here.
                 i =  u.insert(id, user_entry{ratchet}).first;
@@ -26,32 +26,18 @@ namespace isaac
             return i->second.ratchet == ratchet;
         }
 
-        bool user_cache::valid_customer(std::size_t id, int ratchet, user& db)
+        bool user_cache::valid_user(std::size_t id, int ratchet, user_verifier& verifier)
         {
-            return valid_user(id, ratchet, _c, 
+            return check_valid_user(id, ratchet, _u, 
                     [&](std::size_t id, int ratchet) 
                     { 
-                        return db.valid_customer(id, ratchet);
+                        return verifier.valid_user(id, ratchet);
                     });
         }
 
-        bool user_cache::valid_admin(std::size_t id, int ratchet, user& db)
+        bool user_cache::invalidate_user(std::size_t id)
         {
-            return valid_user(id, ratchet, _a, 
-                    [&](std::size_t id, int ratchet) 
-                    { 
-                        return db.valid_admin(id, ratchet);
-                    });
-        }
-
-        bool user_cache::invalidate_customer(std::size_t id)
-        {
-            _c.erase(id);
-        }
-
-        bool user_cache::invalidate_admin(std::size_t id)
-        {
-            _a.erase(id);
+            _u.erase(id);
         }
     }
 }
