@@ -6,6 +6,8 @@
     - nodejs
     - npm
 
+- include: "{{playbook_dir}}/tasks/dpkg_lock_cleanup.yml"
+
 - name: Upgrade NPM
   shell: npm update -g npm
   sudo: true
