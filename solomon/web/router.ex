@@ -9,6 +9,7 @@ defmodule Solomon.Router do
     pipe_through :api
 
     resources "/organizations", OrganizationController
+    post "/organizations/:organization_id/admin_role", OrganizationRoleController, :create_admin_role
     resources "/roles", RoleController do
       resources "/granted_permissions", RolePermissionController
     end
@@ -20,5 +21,6 @@ defmodule Solomon.Router do
       resources "/granted_permissions", AccountPermissionController
     end
     resources "/users", UserController
+    
   end
 end
