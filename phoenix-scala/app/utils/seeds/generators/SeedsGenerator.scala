@@ -188,8 +188,8 @@ object SeedsGenerator
                        customer.copy(accountId = accountId)
                    })
       customers ← * <~ Users.filter(_.id.inSet(customerIds)).result
-      _ ← * <~ CustomerUsers.createAll(customers.map { c ⇒
-           CustomerUser(accountId = c.accountId, userId = c.id)
+      _ ← * <~ CustomersData.createAll(customers.map { c ⇒
+           CustomerData(accountId = c.accountId, userId = c.id)
          })
       _ ← * <~ Addresses.createAll(generateAddresses(customers))
       _ ← * <~ CreditCards.createAll(generateCreditCards(customers))

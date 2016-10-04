@@ -10,8 +10,8 @@ import failures.NotFoundFailure404
 import models.account._
 import models.account.{User, Users}
 import models.cord.{OrderShippingAddresses, Orders}
-import models.customer.{CustomerUser, CustomerUsers}
-import models.customer.CustomerUsers.scope._
+import models.customer.{CustomerData, CustomersData}
+import models.customer.CustomersData.scope._
 import models.customer._
 
 import models.location.Addresses
@@ -54,18 +54,18 @@ object CustomerManager {
   def getByAccountId(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Root] = {
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      customerUsers ← * <~ CustomerUsers
+      customerDatas ← * <~ CustomersData
                        .filter(_.accountId === accountId)
                        .withRegionsAndRank
-                       .mustFindOneOr(NotFoundFailure404(CustomerUser, accountId))
-      (customerUser, shipRegion, billRegion, rank) = customerUsers
+                       .mustFindOneOr(NotFoundFailure404(CustomerData, accountId))
+      (customerData, shipRegion, billRegion, rank) = customerDatas
       maxOrdersDate ← * <~ Orders.filter(_.accountId === accountId).map(_.placedAt).max.result
       phoneOverride ← * <~ doOrGood(customer.phoneNumber.isEmpty,
                                     resolvePhoneNumber(accountId),
                                     None)
     } yield
       build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
-            customerUser,
+            customerData,
             shipRegion,
             billRegion,
             rank = rank,
@@ -82,16 +82,16 @@ object CustomerManager {
                                             context = context,
                                             checkEmail = !payload.isGuest.getOrElse(false))
 
-      custUser ← * <~ CustomerUsers.create(
-                    CustomerUser(accountId = user.accountId,
+      custData ← * <~ CustomersData.create(
+                    CustomerData(accountId = user.accountId,
                                  userId = user.id,
                                  isGuest = payload.isGuest.getOrElse(false)))
-      response = build(user, custUser)
+      response = build(user, custData)
       _ ← * <~ LogActivity.customerCreated(response, admin)
     } yield response
 
   def createGuest(context: AccountCreateContext)(implicit ec: EC,
-                                                 db: DB): DbResultT[(User, CustomerUser)] =
+                                                 db: DB): DbResultT[(User, CustomerData)] =
     for {
 
       user ← * <~ AccountManager.createUser(name = None,
@@ -100,10 +100,10 @@ object CustomerManager {
                                             context = context,
                                             checkEmail = false)
 
-      custUser ← * <~ CustomerUsers.create(
-                    CustomerUser(accountId = user.accountId, userId = user.id, isGuest = true))
-      response = build(user, custUser)
-    } yield (user, custUser)
+      custData ← * <~ CustomersData.create(
+                    CustomerData(accountId = user.accountId, userId = user.id, isGuest = true))
+      response = build(user, custData)
+    } yield (user, custData)
 
   def update(accountId: Int, payload: UpdateCustomerPayload, admin: Option[User] = None)(
       implicit ec: EC,
@@ -114,10 +114,10 @@ object CustomerManager {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       _        ← * <~ Users.updateEmailMustBeUnique(payload.email, accountId)
       updated  ← * <~ Users.update(customer, updatedUser(customer, payload))
-      custUser ← * <~ CustomerUsers.mustFindByAccountId(accountId)
-      _        ← * <~ CustomerUsers.update(custUser, updatedCustUser(custUser, payload))
+      custData ← * <~ CustomersData.mustFindByAccountId(accountId)
+      _        ← * <~ CustomersData.update(custData, updatedCustUser(custData, payload))
       _        ← * <~ LogActivity.customerUpdated(customer, updated, admin)
-    } yield build(updated, custUser)
+    } yield build(updated, custData)
 
   def updatedUser(customer: User, payload: UpdateCustomerPayload): User = {
     customer.copy(name = payload.name.fold(customer.name)(Some(_)),
@@ -125,10 +125,10 @@ object CustomerManager {
                   phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))
   }
 
-  def updatedCustUser(custUser: CustomerUser, payload: UpdateCustomerPayload): CustomerUser = {
+  def updatedCustUser(custData: CustomerData, payload: UpdateCustomerPayload): CustomerData = {
     (payload.name, payload.email) match {
-      case (Some(name), Some(email)) ⇒ custUser.copy(isGuest = false)
-      case _                         ⇒ custUser
+      case (Some(name), Some(email)) ⇒ custData.copy(isGuest = false)
+      case _                         ⇒ custData
     }
   }
 
@@ -144,9 +144,9 @@ object CustomerManager {
              })
       _        ← * <~ Users.updateEmailMustBeUnique(customer.email, accountId)
       updated  ← * <~ Users.update(customer, customer.copy(name = payload.name.some))
-      custUser ← * <~ CustomerUsers.mustFindByAccountId(accountId)
-      _        ← * <~ CustomerUsers.update(custUser, custUser.copy(isGuest = false))
-      response = build(updated, custUser)
+      custData ← * <~ CustomersData.mustFindByAccountId(accountId)
+      _        ← * <~ CustomersData.update(custData, custData.copy(isGuest = false))
+      response = build(updated, custData)
       _ ← * <~ LogActivity.customerActivated(response, admin)
     } yield response
 
@@ -156,8 +156,8 @@ object CustomerManager {
     for {
       r        ← * <~ AccountManager.toggleDisabled(accountId, disabled, actor)
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      custUser ← * <~ CustomerUsers.mustFindByAccountId(accountId)
-    } yield build(customer, custUser)
+      custData ← * <~ CustomersData.mustFindByAccountId(accountId)
+    } yield build(customer, custData)
 
   def toggleBlacklisted(accountId: Int,
                         blacklisted: Boolean,
@@ -165,7 +165,7 @@ object CustomerManager {
     for {
       r        ← * <~ AccountManager.toggleBlacklisted(accountId, blacklisted, actor)
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      custUser ← * <~ CustomerUsers.mustFindByAccountId(accountId)
-    } yield build(customer, custUser)
+      custData ← * <~ CustomersData.mustFindByAccountId(accountId)
+    } yield build(customer, custData)
 
 }

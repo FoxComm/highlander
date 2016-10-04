@@ -2,25 +2,25 @@ package responses
 
 import cats.implicits._
 import models.account.User
-import models.admin.StoreAdminUser
+import models.admin.AdminData
 
 object StoreAdminResponse {
   case class Root(id: Int = 0,
                   email: Option[String] = None,
                   name: Option[String] = None,
                   phoneNumber: Option[String] = None,
-                  state: StoreAdminUser.State)
+                  state: AdminData.State)
       extends ResponseItem
 
-  def build(admin: User, storeAdminUser: StoreAdminUser): Root = {
+  def build(admin: User, adminData: AdminData): Root = {
 
-    require(admin.accountId == storeAdminUser.accountId)
-    require(admin.id == storeAdminUser.userId)
+    require(admin.accountId == adminData.accountId)
+    require(admin.id == adminData.userId)
 
     Root(id = admin.accountId,
          email = admin.email,
          name = admin.name,
          phoneNumber = admin.phoneNumber,
-         state = storeAdminUser.state)
+         state = adminData.state)
   }
 }

@@ -129,7 +129,7 @@ object Authenticator {
                                     db: DB): Future[AuthenticationResult[AuthData[User]]] = {
       (for {
         guest ← * <~ CustomerManager.createGuest(guestCreateContext)
-        (user, custUser) = guest
+        (user, custData) = guest
         account ← * <~ Accounts.mustFindById404(user.accountId)
         claims  ← * <~ AccountManager.getClaims(user.accountId, guestCreateContext.scopeId)
       } yield
@@ -255,7 +255,7 @@ object Authenticator {
                                             payload.password,
                                             accessMethod.algorithm)
       //TODO Add this back after demo
-      //adminUsers    ← * <~ StoreAdminUsers.filter(_.accountId === user.accountId).one
+      //adminUsers    ← * <~ AdminsData.filter(_.accountId === user.accountId).one
       //_             ← * <~ adminUsers.map(aus ⇒ checkState(aus))
 
       claimSet     ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
@@ -284,8 +284,8 @@ object Authenticator {
       Xor.left(LoginFailed.single)
   }
 
-  private def checkState(storeAdminUser: StoreAdminUser): Failures Xor StoreAdminUser = {
-    if (storeAdminUser.canLogin) Xor.right(storeAdminUser)
+  private def checkState(adminData: AdminData): Failures Xor AdminData = {
+    if (adminData.canLogin) Xor.right(adminData)
     else Xor.left(AuthFailed(reason = "Store admin is Inactive or Archived").single)
   }
 }

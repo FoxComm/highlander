@@ -2,7 +2,7 @@ package utils
 
 import java.time.{Instant, ZonedDateTime}
 
-import models.admin.StoreAdminUser
+import models.admin.AdminData
 import models.cord.Order
 import models.payment.creditcard.CreditCardCharge
 import models.payment.giftcard.GiftCard
@@ -20,7 +20,7 @@ class JsonFormattersTest extends TestBase {
   case class Test(order: Order.State,
                   gc: GiftCard.State,
                   cc: CreditCardCharge.State,
-                  sas: StoreAdminUser.State)
+                  sas: AdminData.State)
   case class Product(price: Int, currency: Currency)
 
   "Adt serialization" - {
@@ -30,11 +30,11 @@ class JsonFormattersTest extends TestBase {
               Test(order = Order.ManualHold,
                    cc = CreditCardCharge.Auth,
                    gc = GiftCard.OnHold,
-                   sas = StoreAdminUser.Invited)))
+                   sas = AdminData.Invited)))
       (ast \ "order").extract[Order.State] mustBe Order.ManualHold
       (ast \ "gc").extract[GiftCard.State] mustBe GiftCard.OnHold
       (ast \ "cc").extract[CreditCardCharge.State] mustBe CreditCardCharge.Auth
-      (ast \ "sas").extract[StoreAdminUser.State] mustBe StoreAdminUser.Invited
+      (ast \ "sas").extract[AdminData.State] mustBe AdminData.Invited
     }
   }
 

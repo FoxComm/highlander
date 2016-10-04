@@ -5,7 +5,7 @@ import cats.implicits._
 import failures.UserFailures.UserEmailNotUnique
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.account._
-import models.admin.StoreAdminUser
+import models.admin.AdminData
 import payloads.StoreAdminPayloads._
 import responses.StoreAdminResponse
 import util.IntegrationTestBase
@@ -32,7 +32,7 @@ class StoreAdminIntegrationTest
       val admin = response.as[StoreAdminResponse.Root]
       admin.name.value must === (payload.name)
       admin.email.value must === (payload.email)
-      admin.state must === (StoreAdminUser.Invited)
+      admin.state must === (AdminData.Invited)
     }
 
     "don't create with duplicated email" in new Fixture {
@@ -105,30 +105,30 @@ class StoreAdminIntegrationTest
 
   "PATCH /v1/store-admins/:id/state" - {
     "change state successfully" in new Fixture {
-      val payload  = StateChangeStoreAdminPayload(state = StoreAdminUser.Inactive)
+      val payload  = StateChangeStoreAdminPayload(state = AdminData.Inactive)
       val response = PATCH(s"v1/store-admins/${storeAdmin.accountId}/state", payload)
 
       response.status must === (StatusCodes.OK)
 
       val updated = response.as[StoreAdminResponse.Root]
-      updated.state must === (StoreAdminUser.Inactive)
+      updated.state must === (AdminData.Inactive)
     }
 
     "respond with 400 when cannot apply new state" in new Fixture {
-      val payload  = StateChangeStoreAdminPayload(state = StoreAdminUser.Invited)
+      val payload  = StateChangeStoreAdminPayload(state = AdminData.Invited)
       val response = PATCH(s"v1/store-admins/${storeAdmin.accountId}/state", payload)
 
       response.status must === (StatusCodes.BadRequest)
       response.error must === (
-          StateTransitionNotAllowed(StoreAdminUser,
+          StateTransitionNotAllowed(AdminData,
                                     storeAdminUser.state.toString,
-                                    StoreAdminUser.Invited.toString,
+                                    AdminData.Invited.toString,
                                     storeAdmin.accountId).description)
     }
 
     "respond with 404 when id does not point to valid admin" in new Fixture {
       val id       = 666
-      val payload  = StateChangeStoreAdminPayload(state = StoreAdminUser.Inactive)
+      val payload  = StateChangeStoreAdminPayload(state = AdminData.Inactive)
       val response = PATCH(s"v1/store-admins/$id/state", payload)
 
       response.status must === (StatusCodes.NotFound)

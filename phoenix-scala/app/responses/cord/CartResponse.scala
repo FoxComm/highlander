@@ -4,7 +4,7 @@ import cats.implicits._
 import models.account.User
 import models.cord._
 import models.cord.lineitems.CartLineItems
-import models.customer.{CustomerUsers, CustomerUser}
+import models.customer.{CustomersData, CustomerData}
 import models.account._
 import models.payment.creditcard._
 import responses.PromotionResponses.IlluminatedPromotionResponse
@@ -42,7 +42,7 @@ object CartResponse {
       lineItems      ← * <~ CordResponseLineItems.fetchCart(cart.refNum, lineItemAdj)
       promo          ← * <~ CordResponsePromotions.fetch(cart.refNum)
       customer       ← * <~ Users.findOneByAccountId(cart.accountId)
-      customerUser   ← * <~ CustomerUsers.findOneByAccountId(cart.accountId)
+      customerData   ← * <~ CustomersData.findOneByAccountId(cart.accountId)
       shippingMethod ← * <~ CordResponseShipping.shippingMethod(cart.refNum)
       shippingAddress ← * <~ CordResponseShipping
                          .shippingAddress(cart.refNum)
@@ -60,7 +60,7 @@ object CartResponse {
           totals = CordResponseTotals.build(cart),
           customer = for {
             c  ← customer
-            cu ← customerUser
+            cu ← customerData
           } yield CustomerResponse.build(c, cu),
           shippingMethod = shippingMethod,
           shippingAddress = shippingAddress,
@@ -71,13 +71,13 @@ object CartResponse {
 
   def buildEmpty(cart: Cart,
                  customer: Option[User],
-                 customerUser: Option[CustomerUser]): CartResponse = {
+                 customerData: Option[CustomerData]): CartResponse = {
     CartResponse(
         referenceNumber = cart.refNum,
         lineItems = CordResponseLineItems(),
         customer = for {
           c  ← customer
-          cu ← customerUser
+          cu ← customerData
         } yield CustomerResponse.build(c, cu),
         totals = CordResponseTotals.empty,
         paymentState = CreditCardCharge.Cart

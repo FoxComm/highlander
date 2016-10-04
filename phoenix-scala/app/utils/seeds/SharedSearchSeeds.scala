@@ -16,7 +16,7 @@ trait SharedSearchSeeds {
       search        ← * <~ SharedSearches.create(sharedSearch(adminId))
       productSearch ← * <~ SharedSearches.create(archivedProductsSearch(adminId))
       skusSearch    ← * <~ SharedSearches.create(archivedSkusSearch(adminId))
-      storeAdmins   ← * <~ StoreAdminUsers.sortBy(_.accountId).result
+      storeAdmins   ← * <~ AdminsData.sortBy(_.accountId).result
       _ ← * <~ storeAdmins.map { admin ⇒
            SharedSearchAssociations.create(
                new SharedSearchAssociation(sharedSearchId = productSearch.id,

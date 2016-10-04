@@ -2,7 +2,7 @@
 --TODO remove store_admins table
 --TODO remove customer_password_resets table
 
-create table customer_users
+create table customer_data
 (
     id serial primary key,
     user_id integer not null references users(id) on update restrict on delete restrict,
@@ -16,7 +16,7 @@ create table customer_users
 );
 
 
-create table store_admin_users
+create table admin_data
 (
     id serial primary key,
     user_id integer not null references users(id) on update restrict on delete restrict,
@@ -303,7 +303,7 @@ begin
     insert into users(account_id, email, name, phone_number, created_at, updated_at, deleted_at)
         values (account_id, s.email, s.name, s.phone_number, s.created_at, s.updated_at, s.deleted_at)
         returning id into user_id;
-    insert into store_admin_users(user_id, account_id, state, created_at, updated_at, deleted_at)
+    insert into admin_data(user_id, account_id, state, created_at, updated_at, deleted_at)
         values( user_id, account_id, s.state, s.created_at, s.updated_at, s.deleted_at);
 
     perform assign_org(account_id, 'merchant');
@@ -344,7 +344,7 @@ begin
         values (account_id, c.email, c.name, c.phone_number, c.is_disabled, c.is_blacklisted, c.blacklisted_by, c.created_at, c.updated_at, c.deleted_at)
         returning id into user_id;
 
-    insert into customer_users(user_id, account_id, is_guest, created_at, updated_at, deleted_at)
+    insert into customer_data(user_id, account_id, is_guest, created_at, updated_at, deleted_at)
         values( user_id, account_id, c.is_guest, c.created_at, c.updated_at, c.deleted_at);
 
     perform assign_org(account_id, 'merchant');
@@ -456,7 +456,7 @@ select
         )::export_customers)
     end as customer
 from notes as n
-inner join customer_users as c on (n.reference_id = c.account_id AND n.reference_type = 'customer')
+inner join customer_data as c on (n.reference_id = c.account_id AND n.reference_type = 'customer')
 inner join users as u on (u.account_id = n.reference_id)
 group by n.id, c.id, u.account_id, u.name, u.email, u.is_blacklisted, u.created_at;
 
@@ -472,7 +472,7 @@ select
         to_json((u.email, u.name)::export_store_admins)
     end as store_admin
 from notes as n
-inner join store_admin_users as sa on (n.store_admin_id = sa.account_id)
+inner join admin_data as sa on (n.store_admin_id = sa.account_id)
 inner join users as u on (sa.account_id = sa.account_id)
 group by n.id, sa.id, u.email, u.name
 order by n.id;
@@ -570,7 +570,7 @@ create or replace function update_customers_view_from_customers_insert_fn() retu
             u.phone_number as phone_number,
             u.blacklisted_by,
             to_char(u.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as joined_at
-            from customer_users as c, users as u
+            from customer_data as c, users as u
             where c.account_id = new.account_id and u.account_id = new.account_id;
 
       return null;
@@ -580,7 +580,7 @@ $$ language plpgsql;
 drop trigger if exists update_customers_view_from_customers_insert on customers;
 
 create trigger update_customers_view_from_customers_insert
-    after insert on customer_users
+    after insert on customer_data
     for each row
     execute procedure update_customers_view_from_customers_insert_fn();
 
@@ -596,7 +596,7 @@ begin
         phone_number = u.phone_number,
         blacklisted_by = u.blacklisted_by,
         joined_at = to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
-    from users as u, customer_users as cu
+    from users as u, customer_data as cu
     where customers_search_view.id = new.account_id and u.account_id = new.account_id 
     and cu.account_id = new.account_id;
 
@@ -606,7 +606,7 @@ $$ language plpgsql;
 
 drop trigger if exists update_customers_view_from_customers_update on customers;
 create trigger update_customers_view_from_customers_update
-    after update on customer_users
+    after update on customer_data
     for each row
     execute procedure update_customers_view_from_customers_update_fn();
 
@@ -650,7 +650,7 @@ begin
                   c1.currency
                 )::export_addresses)::jsonb
             end as addresses
-        from customer_users as c
+        from customer_data as c
         left join addresses as a on (a.account_id = c.account_id)
         left join regions as r1 on (a.region_id = r1.id)
         left join countries as c1 on (r1.country_id = c1.id)
@@ -687,7 +687,7 @@ begin
                     0 -- FIXME
                   )::export_orders)::jsonb
                 end as orders
-              from customer_users as c
+              from customer_data as c
               left join orders as o on (c.account_id = o.account_id)
               left join order_line_items as oli on (oli.cord_ref = o.reference_number)
               where c.id = new.account_id
@@ -738,7 +738,7 @@ begin
                   c2.currency
                 )::export_addresses)::jsonb
             end as addresses
-        from customer_users as c 
+        from customer_data as c 
         left join credit_cards as cc on (cc.account_id = c.account_id)
         left join regions as r2 on (cc.region_id = r2.id)
         left join countries as c2 on (r2.country_id = c2.id)
@@ -759,7 +759,7 @@ begin
             c.account_id as id,
             count(sc.id) as count,
             coalesce(sum(sc.available_balance), 0) as total
-        from customer_users as c
+        from customer_data as c
         left join store_credits as sc on c.account_id = sc.account_id
         group by c.id) as subquery
     where customers_search_view.id = subquery.id;
@@ -804,7 +804,7 @@ begin
 
   select array_agg(c.id) into strict account_ids
     from orders
-    inner join customer_users as c on (orders.account_id = c.account_id)
+    inner join customer_data as c on (orders.account_id = c.account_id)
     where orders.reference_number = any(cord_refs);
 
 
@@ -826,7 +826,7 @@ begin
                 c.id,
                 c.account_id,
                 coalesce(sum(CCc.amount),0) + coalesce(sum(SCa.debit), 0) + coalesce(sum(GCa.debit),0) - coalesce(sum(rp.amount),0) as revenue
-            from customer_users as c
+            from customer_data as c
               inner join orders on(c.account_id = orders.account_id and orders.state in ('remorseHold', 'fulfillmentStarted', 'shipped'))
               inner join order_payments as op on(op.cord_ref = orders.reference_number)
               left join credit_card_charges as CCc on(CCc.order_payment_id = op.id and CCc.state in ('auth', 'fullCapture'))
@@ -899,7 +899,7 @@ select
     end as store_admin 
 from store_credit_adjustments as sca
 inner join store_credits as sc on (sc.id = sca.store_credit_id)
-left join store_admin_users as sa on (sa.account_id = sca.store_admin_id)
+left join admin_data as sa on (sa.account_id = sca.store_admin_id)
 left join users as u on (sa.account_id = sa.account_id)
 group by sca.id, sc.id, sa.id, u.email, u.name;
 
@@ -961,7 +961,7 @@ select
     -- Save for later
     to_char(later.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as saved_for_later_at
 from save_for_later as later
-inner join customer_users as c on later.account_id = c.account_id
+inner join customer_data as c on later.account_id = c.account_id
 inner join users as u on u.account_id = c.account_id
 inner join skus as s on later.sku_id = s.id
 inner join object_forms as f on f.id = s.form_id
@@ -1033,7 +1033,7 @@ select
     f.attributes->(sh.attributes->'salePrice'->>'ref')->>'value' as sku_price
 from order_line_items as oli
 inner join orders as o on o.reference_number = oli.cord_ref and o.state = 'shipped'
-inner join customer_users as c on o.account_id = c.account_id
+inner join customer_data as c on o.account_id = c.account_id
 inner join users as u on u.account_id = o.account_id
 inner join skus as s on oli.sku_id = s.id
 inner join object_forms as f on f.id = s.form_id
@@ -1069,7 +1069,7 @@ begin
 			select
 				c.account_id as id,
 		    	coalesce(sum(ccc.amount), 0) + coalesce(sum(sca.debit), 0) + coalesce(sum(gca.debit), 0) as revenue
-		    from customer_users as c
+		    from customer_data as c
 		    inner join orders on (c.account_id = orders.account_id and orders.state = 'shipped')
 		    inner join order_payments as op on (op.cord_ref = orders.reference_number)
 		    left join credit_card_charges as ccc on (ccc.order_payment_id = op.id and ccc.state = 'fullCapture')
@@ -1218,7 +1218,7 @@ $$ language plpgsql;
 
 drop trigger if exists update_orders_view_from_customers on customers;
 create trigger update_orders_view_from_customers
-    after update on customer_users
+    after update on customer_data
     for each row
     execute procedure update_orders_view_from_customers_fn();
 
@@ -1241,7 +1241,7 @@ select
 from store_credits as sc
 left join store_credit_manuals as scm on (sc.origin_id = scm.id)
 left join store_credit_customs as scc on (sc.origin_id = scc.id)
-left join store_admin_users as sa on (sa.account_id = scm.admin_id OR sa.account_id = scc.admin_id)
+left join admin_data as sa on (sa.account_id = scm.admin_id OR sa.account_id = scc.admin_id)
 left join users as u on (sa.account_id = sa.account_id)
 group by sc.id, sa.id, u.email, u.name;
 
@@ -1260,7 +1260,7 @@ select
     end as store_admin
 from gift_cards as gc
 left join gift_card_manuals as gcm on (gc.origin_id = gcm.id)
-left join store_admin_users as sa on (sa.account_id = gcm.admin_id)
+left join admin_data as sa on (sa.account_id = gcm.admin_id)
 left join users as u on (sa.account_id = sa.account_id)
 group by gc.id, sa.id, u.email, u.name;
 
@@ -1280,7 +1280,7 @@ select
     end as store_admin
 from gift_card_adjustments as gca
 inner join gift_cards as gc on (gc.id = gca.gift_card_id)
-left join store_admin_users as sa on (sa.account_id = gca.store_admin_id)
+left join admin_data as sa on (sa.account_id = gca.store_admin_id)
 left join users as u on (sa.account_id = sa.account_id)
 group by gca.id, sa.id, u.email, u.name;
 
@@ -1331,12 +1331,12 @@ begin
       from store_credit_customs as scs
       inner join store_credits as sc on (sc.origin_id = scs.id)
       where scs.id = new.id and sc.origin_type = 'custom';
-    when 'store_admin_users' then
+    when 'admin_data' then
       select array_agg(sc.id) into strict store_credit_ids
       from store_credits as sc
       left join store_credit_manuals as scm on (sc.origin_id = scm.id)
       left join store_credit_customs as scc on (sc.origin_id = scc.id)
-      left join store_admin_users as sa on (sa.account_id = scm.admin_id or sa.account_id = scc.admin_id)
+      left join admin_data as sa on (sa.account_id = scm.admin_id or sa.account_id = scc.admin_id)
       left join users as u on (u.account_id = sa.account_id)
       where sa.id = new.id;
   end case;
@@ -1351,7 +1351,7 @@ begin
         from store_credits as sc
         left join store_credit_manuals as scm on (sc.origin_id = scm.id)
         left join store_credit_customs as scc on (sc.origin_id = scc.id)
-        left join store_admin_users as sa on (sa.account_id = scm.admin_id or sa.account_id = scc.admin_id)
+        left join admin_data as sa on (sa.account_id = scm.admin_id or sa.account_id = scc.admin_id)
         left join users as u on (u.account_id = sa.account_id)
         where sc.id = any(store_credit_ids)
         group by sc.id, sa.id, u.email, u.name) as subquery
@@ -1388,7 +1388,7 @@ create trigger update_store_credits_view_from_store_admins_store_credit_customs_
 
 drop trigger update_store_credits_view_from_store_admins_store_admins_fn on store_admins;
 create trigger update_store_credits_view_from_store_admins_store_admins_fn
-    after update on store_admin_users
+    after update on admin_data
     for each row
     execute procedure update_store_credits_view_from_store_admins_fn();
 
@@ -1403,7 +1403,7 @@ $$ language plpgsql;
 
 drop trigger share_system_searches_with_new_admins_trigger on store_admins;
 create trigger share_system_searches_with_new_admins_trigger
-    after insert on store_admin_users
+    after insert on admin_data
     for each row
     execute procedure share_system_searches_with_new_admins_fn();
 
@@ -1420,11 +1420,11 @@ begin
       from assignments as a
       inner join orders as o on (o.id = a.reference_id)
       where a.id = new.id and a.reference_type = 'order';
-    when 'store_admin_users' then
+    when 'admin_data' then
       select array_agg(o.id) into strict cord_refs
       from orders as o
       inner join assignments as a on (o.id = a.reference_id and a.reference_type = 'order')
-      inner join store_admin_users as sa on (sa.account_id = a.store_admin_id)
+      inner join admin_data as sa on (sa.account_id = a.store_admin_id)
       where sa.id = new.id;
   end case;
 
@@ -1444,7 +1444,7 @@ begin
             end as assignees
         from orders as o
         left join assignments as a on (o.id = a.reference_id and a.reference_type = 'order')
-        left join store_admin_users as sa on (sa.account_id = a.store_admin_id)
+        left join admin_data as sa on (sa.account_id = a.store_admin_id)
         left join users as u on (u.account_id = sa.account_id)
         where o.id = any(cord_refs)
         group by o.id) as subquery
@@ -1463,7 +1463,7 @@ create or replace function update_store_admins_view_insert_fn() returns trigger 
             u.phone_number as phone_number,
             new.state as state,
             to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at
-            from store_admin_users as s, users as u
+            from admin_data as s, users as u
             where s.account_id = new.account_id 
               and u.account_id = new.account_id;
 
@@ -1487,19 +1487,19 @@ $$ language plpgsql;
 
 drop trigger update_store_admins_view_insert on store_admins;
 create trigger update_store_admins_view_insert
-    after insert on store_admin_users
+    after insert on admin_data
     for each row
     execute procedure update_store_admins_view_insert_fn();
 
 drop trigger update_store_admins_view_update on store_admins;
 create trigger update_store_admins_view_update
-    after update on store_admin_users
+    after update on admin_data
     for each row
     execute procedure update_store_admins_view_update_fn();
 
 drop trigger update_orders_view_from_assignments_store_admin_fn on store_admins;
 create trigger update_orders_view_from_assignments_store_admin_fn
-    after update or insert on store_admin_users
+    after update or insert on admin_data
     for each row
     execute procedure update_orders_view_from_assignments_fn();
 

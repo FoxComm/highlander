@@ -16,22 +16,22 @@ import utils.aliases._
 import utils.db._
 import utils.{ADT, FSM, Validation}
 
-import models.admin.StoreAdminUser._
+import models.admin.AdminData._
 
-case class StoreAdminUser(id: Int = 0,
-                          userId: Int,
-                          accountId: Int,
-                          state: State = Inactive,
-                          createdAt: Instant = Instant.now,
-                          udpatedAt: Instant = Instant.now,
-                          deletedAt: Option[Instant] = None)
-    extends FoxModel[StoreAdminUser]
-    with Validation[StoreAdminUser]
-    with FSM[StoreAdminUser.State, StoreAdminUser] {
+case class AdminData(id: Int = 0,
+                     userId: Int,
+                     accountId: Int,
+                     state: State = Inactive,
+                     createdAt: Instant = Instant.now,
+                     udpatedAt: Instant = Instant.now,
+                     deletedAt: Option[Instant] = None)
+    extends FoxModel[AdminData]
+    with Validation[AdminData]
+    with FSM[AdminData.State, AdminData] {
 
   import Validation._
 
-  def stateLens = lens[StoreAdminUser].state
+  def stateLens = lens[AdminData].state
 
   val fsm: Map[State, Set[State]] = Map(
       Invited  → Set(Active, Inactive, Archived),
@@ -44,7 +44,7 @@ case class StoreAdminUser(id: Int = 0,
   def canLogin: Boolean = canLoginWithStates.toSeq.contains(state)
 }
 
-object StoreAdminUser {
+object AdminData {
 
   sealed trait State
 
@@ -60,31 +60,31 @@ object StoreAdminUser {
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 }
 
-class StoreAdminUsers(tag: Tag) extends FoxTable[StoreAdminUser](tag, "store_admin_users") {
+class AdminsData(tag: Tag) extends FoxTable[AdminData](tag, "admin_data") {
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def userId    = column[Int]("user_id")
   def accountId = column[Int]("account_id")
-  def state     = column[StoreAdminUser.State]("state")
+  def state     = column[AdminData.State]("state")
   def createdAt = column[Instant]("created_at")
   def updatedAt = column[Instant]("updated_at")
   def deletedAt = column[Option[Instant]]("deleted_at")
 
   def * =
-    (id, userId, accountId, state, createdAt, updatedAt, deletedAt) <> ((StoreAdminUser.apply _).tupled, StoreAdminUser.unapply)
+    (id, userId, accountId, state, createdAt, updatedAt, deletedAt) <> ((AdminData.apply _).tupled, AdminData.unapply)
 }
 
-object StoreAdminUsers
-    extends FoxTableQuery[StoreAdminUser, StoreAdminUsers](new StoreAdminUsers(_))
-    with ReturningId[StoreAdminUser, StoreAdminUsers] {
+object AdminsData
+    extends FoxTableQuery[AdminData, AdminsData](new AdminsData(_))
+    with ReturningId[AdminData, AdminsData] {
 
-  val returningLens: Lens[StoreAdminUser, Int] = lens[StoreAdminUser].id
+  val returningLens: Lens[AdminData, Int] = lens[AdminData].id
 
-  def findOneByAccountId(accountId: Int): DBIO[Option[StoreAdminUser]] =
+  def findOneByAccountId(accountId: Int): DBIO[Option[AdminData]] =
     filter(_.accountId === accountId).result.headOption
 
   def findByAccountId(accountId: Int): QuerySeq =
     filter(_.accountId === accountId)
 
-  def mustFindByAccountId(accountId: Int)(implicit ec: EC): DbResultT[StoreAdminUser] =
+  def mustFindByAccountId(accountId: Int)(implicit ec: EC): DbResultT[AdminData] =
     filter(_.accountId === accountId).mustFindOneOr(UserWithAccountNotFound(accountId))
 }

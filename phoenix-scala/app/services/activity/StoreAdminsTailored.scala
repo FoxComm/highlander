@@ -1,7 +1,7 @@
 package services.activity
 
 import models.account.User
-import models.admin.StoreAdminUser
+import models.admin.AdminData
 
 object StoreAdminsTailored {
 
@@ -15,8 +15,8 @@ object StoreAdminsTailored {
       extends ActivityBase[StoreAdminDeleted]
 
   case class StoreAdminStateChanged(storeAdmin: User,
-                                    oldState: StoreAdminUser.State,
-                                    newState: StoreAdminUser.State,
+                                    oldState: AdminData.State,
+                                    newState: AdminData.State,
                                     admin: User)
       extends ActivityBase[StoreAdminStateChanged]
 }

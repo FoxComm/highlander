@@ -2,7 +2,7 @@ package services
 
 import failures.NotFoundFailure404
 import models.account._
-import models.admin.{StoreAdminUsers, StoreAdminUser}
+import models.admin.{AdminsData, AdminData}
 import payloads.StoreAdminPayloads._
 import responses.StoreAdminResponse
 import services.account._
@@ -17,9 +17,9 @@ object StoreAdminManager {
 
   def getById(accountId: Int)(implicit ec: EC, db: DB): DbResultT[StoreAdminResponse.Root] =
     for {
-      admin          ← * <~ Users.mustFindByAccountId(accountId)
-      storeAdminUser ← * <~ StoreAdminUsers.mustFindByAccountId(accountId)
-    } yield StoreAdminResponse.build(admin, storeAdminUser)
+      admin     ← * <~ Users.mustFindByAccountId(accountId)
+      adminData ← * <~ AdminsData.mustFindByAccountId(accountId)
+    } yield StoreAdminResponse.build(admin, adminData)
 
   def create(payload: CreateStoreAdminPayload, author: Option[User])(
       implicit ec: EC,
@@ -37,10 +37,10 @@ object StoreAdminManager {
                                              email = payload.email.some,
                                              password = payload.password,
                                              context = context)
-      adminUser ← * <~ StoreAdminUsers.create(
-                     StoreAdminUser(accountId = admin.accountId,
-                                    userId = admin.id,
-                                    state = StoreAdminUser.Invited))
+      adminUser ← * <~ AdminsData.create(
+                     AdminData(accountId = admin.accountId,
+                               userId = admin.id,
+                               state = AdminData.Invited))
 
       _ ← * <~ LogActivity.storeAdminCreated(admin, author)
     } yield StoreAdminResponse.build(admin, adminUser)
@@ -55,15 +55,15 @@ object StoreAdminManager {
                                 admin.copy(name = Some(payload.name),
                                            phoneNumber = payload.phoneNumber,
                                            email = Some(payload.email)))
-      storeAdminUser ← * <~ StoreAdminUsers.mustFindByAccountId(accountId)
-      _              ← * <~ LogActivity.storeAdminUpdated(saved, author)
-    } yield StoreAdminResponse.build(saved, storeAdminUser)
+      adminData ← * <~ AdminsData.mustFindByAccountId(accountId)
+      _         ← * <~ LogActivity.storeAdminUpdated(saved, author)
+    } yield StoreAdminResponse.build(saved, adminData)
 
   def delete(accountId: Int, author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
     for {
-      adminUser ← * <~ StoreAdminUsers.mustFindByAccountId(accountId)
-      _ ← * <~ StoreAdminUsers
-           .deleteById(adminUser.id, DbResultT.unit, i ⇒ NotFoundFailure404(StoreAdminUser, i))
+      adminUser ← * <~ AdminsData.mustFindByAccountId(accountId)
+      _ ← * <~ AdminsData
+           .deleteById(adminUser.id, DbResultT.unit, i ⇒ NotFoundFailure404(AdminData, i))
       admin  ← * <~ Users.mustFindByAccountId(accountId)
       result ← * <~ Users.deleteById(admin.id, DbResultT.unit, i ⇒ NotFoundFailure404(User, i))
       _      ← * <~ AccountAccessMethods.findByAccountId(accountId).delete
@@ -79,9 +79,9 @@ object StoreAdminManager {
       ac: AC): DbResultT[StoreAdminResponse.Root] =
     for {
       admin     ← * <~ Users.mustFindByAccountId(id)
-      adminUser ← * <~ StoreAdminUsers.mustFindByAccountId(id)
+      adminUser ← * <~ AdminsData.mustFindByAccountId(id)
       _         ← * <~ adminUser.transitionState(payload.state)
-      result    ← * <~ StoreAdminUsers.update(adminUser, adminUser.copy(state = payload.state))
+      result    ← * <~ AdminsData.update(adminUser, adminUser.copy(state = payload.state))
       _         ← * <~ LogActivity.storeAdminStateChanged(admin, adminUser.state, result.state, author)
     } yield StoreAdminResponse.build(admin, result)
 }

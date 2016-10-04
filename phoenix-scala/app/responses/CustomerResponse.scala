@@ -4,7 +4,7 @@ import java.time.Instant
 
 import models.account._
 import models.customer.CustomerRank
-import models.customer.CustomerUser
+import models.customer.CustomerData
 import models.location.Region
 
 object CustomerResponse {
@@ -25,22 +25,22 @@ object CustomerResponse {
       extends ResponseItem
 
   def build(customer: User,
-            customerUser: CustomerUser,
+            customerData: CustomerData,
             shippingRegion: Option[Region] = None,
             billingRegion: Option[Region] = None,
             numOrders: Option[Int] = None,
             rank: Option[CustomerRank] = None,
             lastOrderDays: Option[Long] = None): Root = {
 
-    require(customerUser.userId == customer.id)
-    require(customerUser.accountId == customer.accountId)
+    require(customerData.userId == customer.id)
+    require(customerData.accountId == customer.accountId)
 
     Root(id = customer.accountId,
          email = customer.email,
          name = customer.name,
          phoneNumber = customer.phoneNumber,
          createdAt = customer.createdAt,
-         isGuest = customerUser.isGuest,
+         isGuest = customerData.isGuest,
          disabled = customer.isDisabled,
          isBlacklisted = customer.isBlacklisted,
          rank = rank.flatMap(_.rank),
