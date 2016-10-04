@@ -1,11 +1,10 @@
 import java.time.Instant
 
-import akka.http.scaladsl.model.StatusCodes
-
-import Extensions._
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
+import models.objects.ObjectContext
 import models.promotion._
+import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 import payloads.CouponPayloads._
@@ -15,50 +14,43 @@ import responses.CouponResponses.CouponResponse
 import responses.PromotionResponses.PromotionResponse
 import services.coupon.CouponManager
 import services.promotion.PromotionManager
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.time.RichInstant
 
 class PromotionsIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
   "DELETE /v1/promotions/:context/:id" - {
     "archive existing promotion with attached coupons" in new Fixture {
-      val response = DELETE(s"v1/promotions/${ctx.name}/${promotion.formId}")
+      val promotionResponse = promotionsApi(promotion.formId).delete().as[PromotionResponse.Root]
 
-      response.status must === (StatusCodes.OK)
-
-      val promotionResponse = response.as[PromotionResponse.Root]
       withClue(promotionResponse.archivedAt.value → Instant.now) {
-        promotionResponse.archivedAt.value.isBeforeNow === true
+        promotionResponse.archivedAt.value.isBeforeNow mustBe true
       }
 
-      val couponResponse = GET(s"v1/coupons/${ctx.name}/${coupon.form.id}")
-      val couponRoot     = couponResponse.as[CouponResponse.Root]
+      val couponRoot = couponsApi(coupon.form.id).get().as[CouponResponse.Root]
       withClue(couponRoot.archivedAt.value → Instant.now) {
-        couponRoot.archivedAt.value.isBeforeNow === true
+        couponRoot.archivedAt.value.isBeforeNow mustBe true
       }
     }
 
     "404 for not existing coupon" in new Fixture {
-      val response = DELETE(s"v1/promotions/${ctx.name}/666")
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Promotion, 666).description)
+      promotionsApi(666).delete().mustFailWith404(NotFoundFailure404(Promotion, 666))
     }
 
     "404 when context not found" in new Fixture {
-      val contextName = "donkeyContext"
-      val response    = DELETE(s"v1/promotions/$contextName/${promotion.formId}")
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (ObjectContextNotFound(contextName).description)
+      implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
+      promotionsApi(promotion.formId)(donkeyContext)
+        .delete()
+        .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }
   }
 

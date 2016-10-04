@@ -2,6 +2,7 @@ package services.coupon
 
 import java.time.Instant
 
+import com.github.tminglei.slickpg.LTree
 import failures.CouponFailures._
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
@@ -11,10 +12,9 @@ import models.coupon._
 import models.objects._
 import models.promotion._
 import payloads.CouponPayloads._
-import responses.CouponResponses.{CouponResponse, IlluminatedCouponResponse ⇒ Illuminated, _}
+import responses.CouponResponses.{IlluminatedCouponResponse ⇒ Illuminated, _}
 import services.LogActivity
 import slick.driver.PostgresDriver.api._
-import com.github.tminglei.slickpg.LTree
 import utils.aliases._
 import utils.db._
 

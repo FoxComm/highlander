@@ -1,13 +1,13 @@
 package utils
 
 import failures.{DatabaseFailure, GeneralFailure, StateTransitionNotAllowed}
+import models.account._
 import models.cord.Order.Shipped
 import models.cord._
-import models.account._
 import models.customer._
 import models.location.Addresses
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -37,7 +37,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
         account  ← * <~ Accounts.create(Account())
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
         _        ← * <~ CustomersData.create(CustomerData(userId = customer.id, accountId = account.id))
-        original ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
+        _        ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
         copycat  ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
       } yield copycat).runTxn().futureValue
       result.leftVal must === (
@@ -59,14 +59,14 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val account  = Accounts.create(Account()).gimme
       val customer = Users.create(Factories.customer.copy(accountId = account.id)).gimme
       val success  = "Success"
-      val failure  = (id: User#Id) ⇒ GeneralFailure("Should not happen")
+      val failure  = (_: User#Id) ⇒ GeneralFailure("Should not happen")
       val delete   = Users.deleteById(customer.accountId, DbResultT.good(success), failure).gimme
       delete must === (success)
     }
 
     "returns failure for unsuccessful delete" in {
       val success = DbResultT.good("Should not happen")
-      val failure = (id: User#Id) ⇒ GeneralFailure("Boom")
+      val failure = (_: User#Id) ⇒ GeneralFailure("Boom")
       val delete  = Users.deleteById(13, success, failure).run().futureValue
       leftValue(delete) must === (failure(13).single)
     }

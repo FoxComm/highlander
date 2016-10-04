@@ -2,8 +2,8 @@ package models
 
 import models.account.User
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import util.CustomMatchers._
-import util.TestBase
+import testutils.CustomMatchers._
+import testutils.TestBase
 import utils.seeds.Seeds.Factories
 
 class CustomerTest extends TestBase {

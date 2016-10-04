@@ -2,7 +2,7 @@ package utils
 
 import failures.{DatabaseFailure, GeneralFailure}
 import services.Result
-import util.TestBase
+import testutils.TestBase
 import utils.jdbc._
 
 class JdbcTest extends TestBase {

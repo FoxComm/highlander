@@ -1,10 +1,10 @@
-package util
+package testutils
 
+import cats.data.Xor
+import failures.Failures
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{FreeSpecLike, MustMatchers, OptionValues, Tag}
-import cats.data.Xor
-import failures.Failures
 import utils.FoxConfig
 
 trait TestBase
@@ -23,7 +23,7 @@ trait TestBase
   }
 
   implicit class XorTestOps[G, B](val xor: B Xor G) {
-    def get: G = xor.fold(l ⇒ fail(s".get on a Xor.Left: ${l}"), r ⇒ r)
+    def get: G = xor.fold(l ⇒ fail(s".get on a Xor.Left: $l"), r ⇒ r)
   }
 
   implicit class FailuresTestOps(val failures: Failures) {

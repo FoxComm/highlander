@@ -1,7 +1,7 @@
 package services
 
 import scala.concurrent.Future
-import akka.http.scaladsl.model.headers.{HttpChallenge, HttpCookie, HttpCredentials, RawHeader}
+import akka.http.scaladsl.model.headers.{HttpChallenge, HttpCookie, RawHeader}
 import akka.http.scaladsl.model.{ContentTypes, DateTime, HttpEntity, HttpResponse, StatusCodes, Uri}
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import akka.http.scaladsl.server.Directives._
@@ -14,13 +14,13 @@ import akka.http.scaladsl.server.directives.{AuthenticationDirective, Authentica
 import cats.data.Xor
 import failures.AuthFailures._
 import failures._
-import models.auth.{Identity, _}
-import services.account._
-import services.customers.CustomerManager
 import models.account._
 import models.admin._
+import models.auth._
 import org.jose4j.jwt.JwtClaims
 import payloads.LoginPayload
+import services.account._
+import services.customers.CustomerManager
 import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{RichConfig, config}
 import utils.Passwords.checkPassword

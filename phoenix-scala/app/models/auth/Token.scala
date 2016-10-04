@@ -4,22 +4,21 @@ import java.io.FileInputStream
 import java.security.spec.{PKCS8EncodedKeySpec, X509EncodedKeySpec}
 import java.security.{KeyFactory, PrivateKey, PublicKey}
 
+import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}
 
-import cats.implicits._
 import cats.data.Xor
 import failures.AuthFailures._
 import failures.{Failures, GeneralFailure}
 import models.account.{Account, User}
+import org.jose4j.jwa.AlgorithmConstraints
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
-import org.jose4j.jwa.AlgorithmConstraints
-import org.jose4j.jwt.consumer.{InvalidJwtException, JwtConsumerBuilder}
+import org.jose4j.jwt.consumer.JwtConsumerBuilder
+import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import org.json4s.{Extraction, _}
 import utils.FoxConfig.{RichConfig, config}
 import utils.db._
-import scala.collection.JavaConverters._
 
 object Keys {
 

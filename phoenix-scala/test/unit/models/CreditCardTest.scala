@@ -3,11 +3,11 @@ package models
 import java.time.ZonedDateTime
 
 import cats.data._
+import failures.{Failure, GeneralFailure}
 import models.location.Address
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import failures.{Failure, GeneralFailure}
-import util.CustomMatchers._
-import util.TestBase
+import testutils.CustomMatchers._
+import testutils.TestBase
 import utils.seeds.Seeds.Factories
 
 class CreditCardTest extends TestBase {

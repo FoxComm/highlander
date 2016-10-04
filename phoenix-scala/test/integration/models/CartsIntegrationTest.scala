@@ -1,10 +1,9 @@
 package models
 
 import models.cord.{Cart, Carts}
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Seeds.Factories
 
 class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 

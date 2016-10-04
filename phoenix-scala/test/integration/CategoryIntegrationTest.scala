@@ -1,29 +1,25 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import Extensions._
 import org.json4s.JsonAST.{JObject, JString}
 import org.json4s.JsonDSL._
 import payloads.CategoryPayloads._
 import responses.CategoryResponses._
 import services.category.CategoryManager
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.aliases._
 
 class CategoryIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with TestActivityContext.AdminAC
+    with TestObjectContext
     with BakedFixtures {
 
   "Categories" - {
     "GET v1/categories/:context/:formId" - {
       "returns a full category" in new Fixture {
-        val response = GET(s"v1/categories/${ctx.name}/${category.form.id}")
-        response.status must === (StatusCodes.OK)
-
-        val content = response.as[FullCategoryResponse.Root]
+        val content = categoriesApi(category.form.id).get().as[FullCategoryResponse.Root]
 
         content.form.id must === (category.form.id)
         content.shadow.id must === (category.shadow.id)
@@ -36,13 +32,10 @@ class CategoryIntegrationTest
         val newValue          = JString("val2")
         val updatedAttributes = newAttribute → newValue
 
-        val response = PATCH(s"v1/categories/${ctx.name}/${category.form.id}",
-                             UpdateFullCategory(UpdateCategoryForm(updatedAttributes),
-                                                UpdateCategoryShadow(updatedAttributes)))
-
-        response.status must === (StatusCodes.OK)
-
-        val content = response.as[FullCategoryResponse.Root]
+        val content = categoriesApi(category.form.id)
+          .update(UpdateFullCategory(UpdateCategoryForm(updatedAttributes),
+                                     UpdateCategoryShadow(updatedAttributes)))
+          .as[FullCategoryResponse.Root]
 
         val expectedFormValues: List[JString] =
           newValue :: testAttributes.map { case (_, value) ⇒ value }
@@ -61,13 +54,10 @@ class CategoryIntegrationTest
         val newValue          = JString("val2")
         val updatedAttributes = newAttribute → newValue
 
-        val response = POST(s"v1/categories/default",
-                            CreateFullCategory(CreateCategoryForm(updatedAttributes),
-                                               CreateCategoryShadow(updatedAttributes)))
-
-        response.status must === (StatusCodes.OK)
-
-        val content = response.as[FullCategoryResponse.Root]
+        val content = categoriesApi
+          .create(CreateFullCategory(CreateCategoryForm(updatedAttributes),
+                                     CreateCategoryShadow(updatedAttributes)))
+          .as[FullCategoryResponse.Root]
 
         val formValues: List[Json] = content.form.attributes.asInstanceOf[JObject].children
         val shadowKeys: Iterable[String] =
@@ -80,10 +70,7 @@ class CategoryIntegrationTest
 
     "GET v1/categories/:formId/form" - {
       "return form" in new Fixture {
-        val response = GET(s"v1/categories/${category.form.id}/form")
-        response.status must === (StatusCodes.OK)
-
-        val content = response.as[CategoryFormResponse.Root]
+        val content = categoriesApi(category.form.id).form().as[CategoryFormResponse.Root]
 
         val expectedFormValues: List[JString] = testAttributes.map {
           case (_, value) ⇒ value
@@ -97,10 +84,7 @@ class CategoryIntegrationTest
 
     "GET v1/categories/:context/:formId/baked" - {
       "returns illuminated object" in new Fixture {
-        val response = GET(s"v1/categories/${ctx.name}/${category.form.id}/baked")
-        response.status must === (StatusCodes.OK)
-
-        val content = response.as[IlluminatedCategoryResponse.Root]
+        val content = categoriesApi(category.form.id).baked().as[IlluminatedCategoryResponse.Root]
 
         val expected: JObject = testAttributes.map {
           case (key, value) ⇒ key → JObject(List("v" → value))
@@ -111,11 +95,13 @@ class CategoryIntegrationTest
 
     "GET v1/categories/:context/:formId/shadow" - {
       "returns shadow" in new Fixture {
-        val response = GET(s"v1/categories/${ctx.name}/${category.form.id}/shadow")
-        response.status must === (StatusCodes.OK)
-
-        val keys =
-          response.as[CategoryShadowResponse.Root].attributes.asInstanceOf[JObject].values.keys
+        val keys = categoriesApi(category.form.id)
+          .shadow()
+          .as[CategoryShadowResponse.Root]
+          .attributes
+          .asInstanceOf[JObject]
+          .values
+          .keys
 
         keys must contain only (testAttributes.map { case (key, _) ⇒ key }: _*)
       }

@@ -1,51 +1,43 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import Extensions._
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
+import models.account._
 import models.cord.Order._
 import models.cord._
-import models.account._
 import models.customer._
 import payloads.OrderPayloads.BulkUpdateOrdersPayload
 import responses.BatchResponse
 import responses.cord._
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
 class AllOrdersIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with BakedFixtures {
 
   "PATCH /v1/orders" - {
     "bulk update states" in new StateUpdateFixture {
-      val payload  = BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
-      val response = PATCH("v1/orders", payload)
+      val payload = BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
 
-      response.status must === (StatusCodes.OK)
+      val all = ordersApi.update(payload).as[BatchResponse[AllOrders.Root]]
 
-      val all       = response.as[BatchResponse[AllOrders.Root]]
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
-
       allOrders must contain allOf (
           ("foo", FulfillmentStarted),
           ("bar", FulfillmentStarted)
       )
-
       all.errors.value must contain only NotFoundFailure404(Order, "nonExistent").description
     }
 
     "refuses invalid status transition" in new Order_Baked {
+      val all = ordersApi
+        .update(BulkUpdateOrdersPayload(Seq(order.refNum), Shipped))
+        .as[BatchResponse[AllOrders.Root]]
 
-      val response = PATCH("v1/orders", BulkUpdateOrdersPayload(Seq(order.refNum), Shipped))
-
-      response.status must === (StatusCodes.OK)
-      val all       = response.as[BatchResponse[AllOrders.Root]]
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
-
       allOrders must === (Seq((order.refNum, order.state)))
 
       all.errors.value.head must === (

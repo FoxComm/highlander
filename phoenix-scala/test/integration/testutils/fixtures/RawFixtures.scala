@@ -1,26 +1,20 @@
-package util.fixtures
-
-import com.github.tminglei.slickpg.LTree
+package testutils.fixtures
 
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import models._
-import models.cord._
-import models.cord.lineitems._
 import models.account._
+import models.cord._
 import models.inventory.Sku
 import models.location._
-import models.product._
 import models.payment.giftcard.GiftCard
-import models.product.{Mvp, SimpleProductData, SimpleSku}
-import payloads.LineItemPayloads.UpdateLineItemsPayload
+import models.product._
+import payloads.OrderPayloads
 import payloads.PaymentPayloads.GiftCardPayment
-import payloads.{OrderPayloads, UpdateShippingMethod}
 import services.carts._
-import services.{LineItemUpdater, ShippingManager}
-import slick.driver.PostgresDriver.api._
+import testutils._
+import testutils.fixtures.raw._
 import utils.db._
-import util.TestSeeds
-import util.fixtures.raw._
 import utils.seeds.Seeds.Factories
 
 /**

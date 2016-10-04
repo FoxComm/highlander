@@ -1,8 +1,5 @@
-import akka.http.scaladsl.model._
-
-import com.github.tminglei.slickpg.LTree
-
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import models.image._
 import models.objects._
 import models.product._
@@ -12,8 +9,9 @@ import payloads.ImagePayloads._
 import services.image.ImageManager
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.SQLActionBuilder
-import util.fixtures.BakedFixtures
-import util._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.MockedApis
 import utils.Money.Currency
 import utils.db._
@@ -31,7 +29,7 @@ object ProductsCatalogViewIntegrationTest {
 
 class ProductsCatalogViewIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with MockedApis
     with BakedFixtures {
@@ -55,8 +53,6 @@ class ProductsCatalogViewIntegrationTest
           sql"select albums from product_album_links_view where product_id = ${product.id}")
 
     def usingAlbumSearchView: List[ViewAlbum] = {
-      val albumIds = ProductAlbumLinks.filterLeft(product).map(_.rightId).result.gimme
-
       val columnValues =
         sql"select name, images from album_search_view where album_id in (select right_id from product_album_links where left_id = ${product.id})"
           .as[(String, Option[String])]
@@ -68,7 +64,7 @@ class ProductsCatalogViewIntegrationTest
       }.toList
     }
 
-    def getAndCompareAllViews = {
+    def getAndCompareAllViews: List[ViewAlbum] = {
       val productCatalogVersion    = usingProductCatalogView
       val productAlbumLinksVersion = usingProductAlbumLinksView
       val albumSearchViewVersion   = usingAlbumSearchView
@@ -81,9 +77,8 @@ class ProductsCatalogViewIntegrationTest
 
   "album-related views should be updated on" - {
     "album created" in new Fixture {
-      val payload  = CreateAlbumPayload(name = "test", images = Seq(ImagePayload(src = "url")).some)
-      val response = POST(s"v1/products/${ctx.name}/${product.formId}/albums", payload)
-      response.status must === (StatusCodes.OK)
+      val payload = CreateAlbumPayload(name = "test", images = Seq(ImagePayload(src = "url")).some)
+      productsApi(product.formId).albums.create(payload).mustBeOk()
 
       val albums = ProductAlbumsFromDatabase(product).getAndCompareAllViews
 
@@ -96,8 +91,7 @@ class ProductsCatalogViewIntegrationTest
       val moreImages = Seq(imagePayload, ImagePayload(src = "http://test.it/test.png"))
       val payload    = UpdateAlbumPayload(images = moreImages.some)
 
-      val response = PATCH(s"v1/albums/${ctx.name}/${album.formId}", payload)
-      response.status must === (StatusCodes.OK)
+      albumsApi(album.formId).update(payload).mustBeOk()
 
       val albums = ProductAlbumsFromDatabase(product).getAndCompareAllViews
       albums.size must === (1)
@@ -108,8 +102,7 @@ class ProductsCatalogViewIntegrationTest
     }
 
     "album archived" in new Fixture {
-      val response = DELETE(s"v1/albums/${ctx.name}/${album.formId}")
-      response.status must === (StatusCodes.OK)
+      albumsApi(album.formId).delete().mustBeOk()
 
       val albums = ProductAlbumsFromDatabase(product).getAndCompareAllViews
       albums.size must === (0)

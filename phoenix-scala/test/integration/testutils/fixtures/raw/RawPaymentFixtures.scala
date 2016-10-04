@@ -1,11 +1,11 @@
-package util.fixtures.raw
+package testutils.fixtures.raw
 
 import models._
 import models.account._
 import models.payment.giftcard._
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import services.giftcards.GiftCardService
-import util.fixtures.TestFixtureBase
+import testutils.fixtures.TestFixtureBase
 
 trait RawPaymentFixtures extends TestFixtureBase {
 

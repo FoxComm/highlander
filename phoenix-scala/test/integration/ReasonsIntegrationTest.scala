@@ -1,18 +1,16 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import Extensions._
 import failures.InvalidReasonTypeFailure
 import models.returns.ReturnReasons
 import models.{Reason, Reasons}
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.apis.PhoenixPublicApi
+import testutils.fixtures.BakedFixtures
 import utils.Strings._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
 class ReasonsIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixPublicApi
     with AutomaticAuth
     with BakedFixtures {
 
@@ -21,19 +19,14 @@ class ReasonsIntegrationTest
     "GET /v1/public/reasons/:type" - {
       "should return list of reasons by type" in new Fixture {
         val reasonType = Reason.GiftCardCreation.toString.lowerCaseFirstLetter
-        val response   = GET(s"v1/public/reasons/$reasonType")
-        response.status must === (StatusCodes.OK)
 
-        val root = response.as[Seq[Reason]]
+        val root = publicApi.getReason(reasonType).as[Seq[Reason]]
         root.size must === (1)
         root.headOption.value.id must === (reason.id)
       }
 
       "should return error if invalid type provided" in new Fixture {
-        val reasonType = "lolwut"
-        val response   = GET(s"v1/public/reasons/$reasonType")
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (InvalidReasonTypeFailure(reasonType).description)
+        publicApi.getReason("lolwut").mustFailWith400(InvalidReasonTypeFailure("lolwut"))
       }
     }
   }

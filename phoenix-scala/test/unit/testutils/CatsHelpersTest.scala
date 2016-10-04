@@ -1,4 +1,4 @@
-package util
+package testutils
 
 import cats.data.Validated
 import cats.data.Validated.Valid

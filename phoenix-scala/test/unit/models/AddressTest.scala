@@ -1,11 +1,11 @@
 package models
 
 import cats.data.NonEmptyList
+import failures.{Failure, GeneralFailure}
 import models.location.{Address, Region}
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import failures.{Failure, GeneralFailure}
-import util.CustomMatchers._
-import util.TestBase
+import testutils.CustomMatchers._
+import testutils.TestBase
 
 class AddressTest extends TestBase {
 

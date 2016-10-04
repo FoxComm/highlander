@@ -1,4 +1,4 @@
-package util
+package testutils
 
 import java.sql.Connection
 import java.util.Locale
@@ -56,7 +56,6 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with ScalaFutures 
   override abstract protected def withFixture(test: NoArgTest): Outcome = {
     implicit val conn = jdbcDataSourceFromSlickDB(db).getConnection
 
-    val config    = conn.getMetaData
     val allTables = conn.getMetaData.getTables(conn.getCatalog, "public", "%", Array("TABLE"))
 
     @tailrec
@@ -79,7 +78,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with ScalaFutures 
     }
 
     Seeds.createSingleMerchantSystem.gimme
-    val context = setupObjectContext()
+    setupObjectContext()
 
     conn.close()
 

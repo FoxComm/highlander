@@ -1,22 +1,19 @@
-package util
+package testutils
 
 import cats.implicits._
-
-import models._
-import models.account._
-import models.customer._
-import models.admin._
-import models.auth._
-import services.Authenticator.AuthData
-import services.account.AccountManager
-import models.payment.giftcard._
-import slick.driver.PostgresDriver.api._
-import util.fixtures.TestFixtureBase
-import utils.seeds.Seeds.Factories
-import utils.Passwords.hashPassword
 import failures.GeneralFailure
 import failures.UserFailures._
+import models.account._
+import models.admin._
+import models.auth._
+import models.customer._
+import models.payment.giftcard._
+import services.Authenticator.AuthData
+import services.account.AccountManager
+import slick.driver.PostgresDriver.api._
+import testutils.fixtures.TestFixtureBase
 import utils.db._
+import utils.seeds.Seeds.Factories
 
 /**
   * Seeds are simple values that can be created without any external dependencies.

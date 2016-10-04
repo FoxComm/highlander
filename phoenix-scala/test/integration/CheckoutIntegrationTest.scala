@@ -1,22 +1,21 @@
 import java.time.Instant
 
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.HttpResponse
 
-import Extensions._
 import cats.implicits._
-import failures.UserFailures._
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
-import models.Reasons
+import failures.UserFailures._
+import models.account._
 import models.cord.Order.RemorseHold
 import models.cord._
-import models.account._
 import models.customer._
 import models.inventory._
-import models.location.Addresses
+import models.location.{Address, Addresses}
 import models.payment.giftcard._
 import models.product.Mvp
 import models.shipping._
+import models.{Reason, Reasons}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.CreateCart
@@ -25,52 +24,27 @@ import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
 import responses.cord._
 import slick.driver.PostgresDriver.api._
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
 class CheckoutIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with BakedFixtures {
 
   "POST v1/orders/:refNum/checkout" - {
 
     "places order as admin" in new Fixture {
-      // Create cart
-      val createCart = POST("v1/orders", CreateCart(Some(customer.accountId)))
-      createCart.status must === (StatusCodes.OK)
-      val refNum = createCart.as[CartResponse].referenceNumber
-      // Add line items
-      POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2))).status must === (
-          StatusCodes.OK)
-      // Set address
-      PATCH(s"v1/orders/$refNum/shipping-address/${address.id}").status must === (StatusCodes.OK)
-      // Set shipping method
-      val setShipMethod =
-        PATCH(s"v1/orders/$refNum/shipping-method", UpdateShippingMethod(shipMethod.id))
-      setShipMethod.status must === (StatusCodes.OK)
-      val grandTotal = setShipMethod.ignoreFailuresAndGiveMe[CartResponse].totals.total
-      // Pay
-      val createGiftCard = POST("v1/gift-cards", GiftCardCreateByCsr(grandTotal, reason.id))
-      createGiftCard.status must === (StatusCodes.OK)
-      val gcCode    = createGiftCard.as[GiftCardResponse.Root].code
-      val gcPayload = GiftCardPayment(gcCode, grandTotal.some)
-      POST(s"v1/orders/$refNum/payment-methods/gift-cards", gcPayload).status must === (
-          StatusCodes.OK)
-
-      // Checkout!
-      val checkout = POST(s"v1/orders/$refNum/checkout")
-      checkout.status must === (StatusCodes.OK)
-
-      val orderResponse = checkout.as[OrderResponse]
+      val orderResponse = doCheckout(customer, sku, address, shipMethod, reason).as[OrderResponse]
 
       // Checkout:
       // Triggers cart → order transition
-      Orders.findOneByRefNum(refNum).gimme mustBe defined
-      Carts.findOneByRefNum(refNum).gimme must not be defined
+      Orders.findOneByRefNum(orderResponse.referenceNumber).gimme mustBe defined
+      Carts.findOneByRefNum(orderResponse.referenceNumber).gimme must not be defined
 
       // Properly creates an order
       orderResponse.orderState must === (Order.RemorseHold)
@@ -81,16 +55,12 @@ class CheckoutIntegrationTest
     }
 
     "fails if customer's credentials are empty" in new Fixture {
-      // Create cart
-      val createCart = POST("v1/orders", CreateCart(Some(customer.accountId)))
-      createCart.status must === (StatusCodes.OK)
-      val refNum = createCart.as[CartResponse].referenceNumber
+      val refNum =
+        cartsApi.create(CreateCart(Some(customer.accountId))).as[CartResponse].referenceNumber
 
-      // Update customer
       Users.update(customer, customer.copy(email = None)).run().futureValue
 
-      // Checkout!
-      val checkout = POST(s"v1/orders/$refNum/checkout")
+      val checkout = cartsApi(refNum).checkout()
       checkout.error must === (UserMustHaveCredentials.description)
     }
 
@@ -98,70 +68,47 @@ class CheckoutIntegrationTest
       // FIXME #middlewarehouse
       pending
 
-      //Create cart
-      val refNum =
-        POST("v1/orders", CreateCart(Some(customer.accountId))).as[OrderResponse].referenceNumber
-
-      POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2))).status must === (
-          StatusCodes.OK)
-
-      // Set address
-      PATCH(s"v1/orders/$refNum/shipping-address/${address.id}").status must === (StatusCodes.OK)
-      // Set shipping method
-      val setShipMethod =
-        PATCH(s"v1/orders/$refNum/shipping-method", UpdateShippingMethod(shipMethod.id))
-      setShipMethod.status must === (StatusCodes.OK)
-      val grandTotal = setShipMethod.ignoreFailuresAndGiveMe[OrderResponse].totals.total
-
-      // Pay
-      val createGiftCard = POST("v1/gift-cards", GiftCardCreateByCsr(grandTotal, reason.id))
-      createGiftCard.status must === (StatusCodes.OK)
-      val gcCode    = createGiftCard.as[GiftCardResponse.Root].code
-      val gcPayload = GiftCardPayment(gcCode, grandTotal.some)
-      POST(s"v1/orders/$refNum/payment-methods/gift-cards", gcPayload).status must === (
-          StatusCodes.OK)
-
-      // Checkout!
-      val checkout = POST(s"v1/orders/$refNum/checkout")
-      checkout.status must === (StatusCodes.OK)
-
-      val order = Orders.findOneByRefNum(refNum).gimme.value
-      order.state must === (RemorseHold)
+      doCheckout(customer, sku, address, shipMethod, reason)
+        .as[OrderResponse]
+        .orderState must === (RemorseHold)
     }
 
     "errors 404 if no cart found by reference number" in {
-      val response = POST("v1/orders/NOPE/checkout")
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Cart, "NOPE").description)
+      cartsApi("NOPE").checkout().mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
     }
 
     "fails if customer is blacklisted" in new BlacklistedFixture {
-      val createCart = POST("v1/orders", CreateCart(Some(customer.accountId)))
-      createCart.status must === (StatusCodes.OK)
-      val refNum = createCart.as[CartResponse].referenceNumber
-      // Add line items
-      POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2))).status must === (
-          StatusCodes.OK)
-      // Set address
-      PATCH(s"v1/orders/$refNum/shipping-address/${address.id}").status must === (StatusCodes.OK)
-      // Set shipping method
-      val setShipMethod =
-        PATCH(s"v1/orders/$refNum/shipping-method", UpdateShippingMethod(shipMethod.id))
-      setShipMethod.status must === (StatusCodes.OK)
-      val grandTotal = setShipMethod.ignoreFailuresAndGiveMe[CartResponse].totals.total
-      // Pay
-      val createGiftCard = POST("v1/gift-cards", GiftCardCreateByCsr(grandTotal, reason.id))
-      createGiftCard.status must === (StatusCodes.OK)
-      val gcCode    = createGiftCard.as[GiftCardResponse.Root].code
-      val gcPayload = GiftCardPayment(gcCode, grandTotal.some)
-      POST(s"v1/orders/$refNum/payment-methods/gift-cards", gcPayload).status must === (
-          StatusCodes.OK)
+      doCheckout(customer, sku, address, shipMethod, reason).mustFailWith400(
+          UserIsBlacklisted(customer.accountId))
+    }
 
-      // Checkout!
-      val checkout = POST(s"v1/orders/$refNum/checkout")
-      checkout.status must === (StatusCodes.BadRequest)
+    def doCheckout(customer: User,
+                   sku: Sku,
+                   address: Address,
+                   shipMethod: ShippingMethod,
+                   reason: Reason): HttpResponse = {
+      val refNum =
+        cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
+      val _cartApi = cartsApi(refNum)
 
-      checkout.error must === (UserIsBlacklisted(customer.accountId).description)
+      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 2))).mustBeOk()
+
+      _cartApi.shippingAddress.updateFromAddress(address.id).mustBeOk()
+
+      val grandTotal = _cartApi.shippingMethod
+        .update(UpdateShippingMethod(shipMethod.id))
+        .asTheResult[CartResponse]
+        .totals
+        .total
+
+      val gcCode = giftCardsApi
+        .create(GiftCardCreateByCsr(grandTotal, reason.id))
+        .as[GiftCardResponse.Root]
+        .code
+
+      _cartApi.payments.giftCard.add(GiftCardPayment(gcCode, grandTotal.some)).mustBeOk()
+
+      _cartApi.checkout()
     }
   }
 
@@ -199,7 +146,7 @@ class CheckoutIntegrationTest
                                             isBlacklisted = true,
                                             blacklistedBy = Some(storeAdmin.accountId)))
       custData ← * <~ CustomersData.create(
-                    CustomerData(userId = customer.id, accountId = account.id))
+                    CustomerData(userId = customer.accountId, accountId = account.id))
       address ← * <~ Addresses.create(Factories.usAddress1.copy(accountId = customer.accountId))
       _       ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethod ← * <~ ShippingMethods

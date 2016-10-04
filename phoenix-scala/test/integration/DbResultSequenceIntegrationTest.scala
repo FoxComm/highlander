@@ -1,9 +1,7 @@
-import cats.implicits._
 import failures.DatabaseFailure
 import models.account._
-import util.IntegrationTestBase
+import testutils._
 import utils.db._
-import utils.seeds.Seeds.Factories
 
 class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 
@@ -21,12 +19,12 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
     }
 
     "must rollback transaction on errors" in {
-      val sux: Seq[DbResultT[User]] = Seq(1, 2, 3).map { i ⇒
+      val sux: Seq[DbResultT[User]] = (1 to 3).map { i ⇒
         Users.create(User(accountId = 100))
       }
       val cool: DbResultT[Seq[User]] = DbResultT.sequence(sux)
 
-      val result = cool.runTxn().futureValue.leftVal
+      cool.runTxn().futureValue mustBe 'left
 
       val allAccounts = Users.gimme
       allAccounts mustBe empty
@@ -34,7 +32,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 
     "must collect all errors" in {
       Accounts.create(Account()).gimme
-      val sux: Seq[DbResultT[User]] = Seq(1, 2, 3).map { i ⇒
+      val sux: Seq[DbResultT[User]] = (1 to 3).map { i ⇒
         Users.create(User(accountId = 1))
       }
       val cool: DbResultT[Seq[User]] = DbResultT.sequence(sux)

@@ -1,12 +1,10 @@
 package services
 
-import models.cord._
 import models.location.Addresses
 import payloads.AddressPayloads._
 import services.carts.CartShippingAddressUpdater._
-import util._
-import util.fixtures.BakedFixtures
-import utils.db._
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.seeds.Seeds.Factories
 
 class CartShippingAddressUpdaterTest

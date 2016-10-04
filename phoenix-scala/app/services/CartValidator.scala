@@ -24,9 +24,8 @@ case class CartValidator(cart: Cart)(implicit ec: EC) extends CartValidation {
 
   def validate(isCheckout: Boolean = false,
                fatalWarnings: Boolean = false): DbResultT[CartValidatorResponse] = {
-    val response = CartValidatorResponse()
     val validationResult = for {
-      state ← hasItems(response)
+      state ← hasItems(CartValidatorResponse())
       state ← hasShipAddress(state)
       state ← validShipMethod(state)
       state ← sufficientPayments(state, isCheckout)

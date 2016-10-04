@@ -1,18 +1,17 @@
-import scala.concurrent.Future
+package testutils
 
+import scala.concurrent.Future
 import akka.http.scaladsl.model.headers.HttpChallenge
 import akka.http.scaladsl.server.Directive1
 import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.provide
 import akka.http.scaladsl.server.directives.SecurityDirectives._
-import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
-import org.scalatest.{Suite, SuiteMixin}
 
 import models.account._
 import models.auth.UserToken
-import services.Authenticator.{UserAuthenticator, AuthData}
-import services.account.AccountCreateContext
-import util.DbTestSupport
+import org.scalatest.SuiteMixin
+import org.scalatest.concurrent.ScalaFutures
+import services.Authenticator.{AuthData, UserAuthenticator}
 import utils.seeds.Seeds.Factories
 
 abstract class FakeAuth extends UserAuthenticator {
@@ -56,8 +55,7 @@ case class AuthFailWith(challenge: HttpChallenge) extends FakeAuth {
   }
 }
 
-trait AutomaticAuth extends SuiteMixin with ScalaFutures with HttpSupport {
-  this: Suite with PatienceConfiguration with DbTestSupport ⇒
+trait AutomaticAuth extends SuiteMixin with ScalaFutures with HttpSupport { self: FoxSuite ⇒
 
   val authedUser     = Factories.storeAdmin.copy(id = 1, accountId = 1)
   val authedCustomer = Factories.customer.copy(id = 2, accountId = 2)

@@ -1,6 +1,3 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import Extensions._
 import models.cord.OrderShippingAddresses
 import models.cord.lineitems._
 import models.location.Addresses
@@ -10,15 +7,17 @@ import models.rules.QueryStatement
 import models.shipping
 import models.shipping.ShippingMethods
 import org.json4s.jackson.JsonMethods._
+import responses.ShippingMethodsResponse.Root
 import services.carts.CartTotaler
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with BakedFixtures {
 
@@ -41,10 +40,7 @@ class ShippingMethodsIntegrationTest
           .create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
           .gimme
 
-        val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
-        response.status must === (StatusCodes.OK)
-
-        val methodResponse = response.as[Seq[responses.ShippingMethodsResponse.Root]].head
+        val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Seq[Root]].headOption.value
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
         methodResponse.price must === (shippingMethod.price)
@@ -68,21 +64,15 @@ class ShippingMethodsIntegrationTest
           .create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
           .gimme
 
-        val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
-        response.status must === (StatusCodes.OK)
-
-        val methodResponse = response.as[Seq[responses.ShippingMethodsResponse.Root]]
-        methodResponse mustBe 'empty
+        shippingMethodsApi.forCart(cart.refNum).as[Seq[Root]] mustBe 'empty
       }
     }
 
     "Evaluates shipping rule: shipping to CA, OR, or WA" - {
 
       "Shipping method is returned when the order is shipped to CA" in new WestCoastShippingMethodsFixture {
-        val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
-        response.status must === (StatusCodes.OK)
+        val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Seq[Root]].headOption.value
 
-        val methodResponse = response.as[Seq[responses.ShippingMethodsResponse.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
         methodResponse.price must === (shippingMethod.price)
@@ -92,10 +82,8 @@ class ShippingMethodsIntegrationTest
     "Evaluates shipping rule: order total is between $10 and $100, and is shipped to CA, OR, or WA" - {
 
       "Is true when the order total is $27 and shipped to CA" in new ShippingMethodsStateAndPriceCondition {
-        val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
-        response.status must === (StatusCodes.OK)
+        val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Seq[Root]].headOption.value
 
-        val methodResponse = response.as[Seq[responses.ShippingMethodsResponse.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
         methodResponse.price must === (shippingMethod.price)
@@ -105,10 +93,8 @@ class ShippingMethodsIntegrationTest
     "Evaluates shipping rule: ships to CA but has a restriction for hazardous items" - {
 
       "Shipping method is returned when the order has no hazardous SKUs" in new ShipToCaliforniaButNotHazardous {
-        val response = GET(s"v1/shipping-methods/${cart.referenceNumber}")
-        response.status must === (StatusCodes.OK)
+        val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Seq[Root]].headOption.value
 
-        val methodResponse = response.as[Seq[responses.ShippingMethodsResponse.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
         methodResponse.price must === (shippingMethod.price)
@@ -135,8 +121,8 @@ class ShippingMethodsIntegrationTest
                                                                 cordRef = cart.refNum)
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
-      li ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
-      _  ← * <~ CartTotaler.saveTotals(cart)
+      _ ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+      _ ← * <~ CartTotaler.saveTotals(cart)
     } yield (address, shipAddress)).gimme
   }
 

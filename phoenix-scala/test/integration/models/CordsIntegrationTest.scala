@@ -2,9 +2,8 @@ package models
 
 import models.cord._
 import slick.driver.PostgresDriver.api._
-import util._
-import util.fixtures.BakedFixtures
-import utils.seeds.Seeds.Factories
+import testutils._
+import testutils.fixtures.BakedFixtures
 
 class CordsIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 

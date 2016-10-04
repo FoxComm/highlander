@@ -1,21 +1,20 @@
 package services
 
-import com.github.tminglei.slickpg.LTree
-
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
+import models.account._
 import models.cord.lineitems._
 import models.cord.{Carts, OrderShippingAddresses}
-import models.account._
+import models.customer._
 import models.location.Addresses
 import models.objects._
-import models.customer._
 import models.product.{Mvp, SimpleContext}
 import models.rules.QueryStatement
 import models.shipping.ShippingMethods
 import services.ShippingManager.getShippingMethodsForCart
 import services.carts.CartTotaler
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils._
 import utils.db.ExPostgresDriver.api._
 import utils.db.ExPostgresDriver.jsonMethods._
@@ -156,7 +155,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
       cart ← * <~ Carts.create(Factories.cart.copy(accountId = customer.accountId))
       product ← * <~ Mvp.insertProduct(ctx.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
-      li ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+      _ ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
 
       cart ← * <~ CartTotaler.saveTotals(cart)
     } yield cart).gimme
@@ -288,8 +287,8 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
                                             Factories.products.head.copy(title = "Cheap Donkey",
                                                                          price = 10,
                                                                          code = "SKU-CHP"))
-      li ← * <~ CartLineItems.create(
-              CartLineItem(cordRef = cheapCart.refNum, skuId = cheapProduct.skuId))
+      _ ← * <~ CartLineItems.create(
+             CartLineItem(cordRef = cheapCart.refNum, skuId = cheapProduct.skuId))
 
       cheapAddress ← * <~ Addresses.create(
                         Factories.address.copy(accountId = customer.accountId,
@@ -308,8 +307,8 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
                                                                                "Expensive Donkey",
                                                                              price = 100,
                                                                              code = "SKU-EXP"))
-      li ← * <~ CartLineItems.create(
-              CartLineItem(cordRef = expensiveCart.refNum, skuId = expensiveProduct.skuId))
+      _ ← * <~ CartLineItems.create(
+             CartLineItem(cordRef = expensiveCart.refNum, skuId = expensiveProduct.skuId))
       expensiveAddress ← * <~ Addresses.create(
                             Factories.address.copy(accountId = customer.accountId,
                                                    isDefaultShipping = false))

@@ -2,8 +2,8 @@ package models
 
 import models.cord.OrderPayments
 import models.payment.storecredit._
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 

@@ -1,8 +1,8 @@
 package models
 
 import models.payment.giftcard.GiftCard
-import util.CustomMatchers._
-import util.TestBase
+import testutils.CustomMatchers._
+import testutils.TestBase
 import utils.seeds.Seeds.Factories
 
 class GiftCardTest extends TestBase {
