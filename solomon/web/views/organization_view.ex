@@ -10,6 +10,10 @@ defmodule Solomon.OrganizationView do
     %{organization: render_one(organization, OrganizationView, "organization.json")}
   end
 
+  def render("show.json", %{role: role}) do
+    RoleView.render("show.json", %{role: role})
+  end
+
   def render("organization.json", %{organization: organization}) do
     %{id: organization.id,
       name: organization.name,
