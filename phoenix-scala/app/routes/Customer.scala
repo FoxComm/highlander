@@ -245,7 +245,7 @@ object Customer {
                   CreditCardManager.createCardFromToken(customer.id, payload)
                 }
               } ~
-              (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) {
+              (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCardPayload])) {
                 (cardId, payload) ⇒
                   mutateOrFailures {
                     CreditCardManager.editCreditCard(customer.id, cardId, payload)

@@ -3,13 +3,30 @@ package payloads
 import cats.data.ValidatedNel
 import cats.implicits._
 import failures.Failure
+import models.traits.CreditCardBase
+import models.traits.CreditCardValidations._
 import org.json4s.JsonAST.JObject
 import payloads.AddressPayloads.CreateAddressPayload
 import utils.Money.Currency
+import utils.Validation._
 import utils._
 import utils.aliases._
 
 object PaymentPayloads {
+
+  case class CreateCcAddressPayload(address: CreateAddressPayload, isNew: Boolean = false)
+  case class UpdateCcAddressPayload(address: CreateAddressPayload, id: Option[Int])
+
+  trait CreateCreditCardPayloadsBase[A] extends CreditCardBase[A] { self: A ⇒
+    def billingAddress: CreateCcAddressPayload
+
+    def customValidations: ValidatedNel[Failure, Unit]
+
+    override def validate: ValidatedNel[Failure, A] =
+      (super.validate |@| customValidations |@| billingAddress.address.validate).map {
+        case _ ⇒ this
+      }
+  }
 
   case class CreateCreditCardFromTokenPayload(token: String,
                                               lastFour: String,
@@ -17,24 +34,16 @@ object PaymentPayloads {
                                               expMonth: Int,
                                               brand: String,
                                               holderName: String,
-                                              billingAddress: CreateAddressPayload,
-                                              addressIsNew: Boolean) {
-    def validate: ValidatedNel[Failure, CreateCreditCardFromTokenPayload] = {
-      import Validation._
+                                              billingAddress: CreateCcAddressPayload)
+      extends CreateCreditCardPayloadsBase[CreateCreditCardFromTokenPayload] {
 
-      val tokenNotEmpty      = notEmpty(token, "token")
-      val validYear          = withinTwentyYears(expYear, "expiration")
-      val validMonth         = isMonth(expMonth, "expiration")
-      val expDateInFuture    = notExpired(expYear, expMonth, "credit card is expired")
-      val notEmptyBrand      = notEmpty(brand, "brand")
-      val notEmptyHolderName = notEmpty(holderName, "holder name")
-      val fieldsValid = tokenNotEmpty |@| validYear |@| validMonth |@| expDateInFuture |@| notEmptyBrand |@|
-          notEmptyHolderName
-      (fieldsValid |@| billingAddress.validate).map { case _ ⇒ this }
+    def customValidations: ValidatedNel[Failure, Unit] = {
+      (validCardToken(token) |@| validCardBrand(brand)).map { case _ ⇒ {} }
     }
 
   }
 
+  // !!! Make sure sensitive data is not logged when enabling this back !!!
   @deprecated(message = "Use `CreateCreditCardFromTokenPayload` instead",
               "Until we are PCI compliant")
   case class CreateCreditCardFromSourcePayload(holderName: String,
@@ -42,26 +51,12 @@ object PaymentPayloads {
                                                cvv: String,
                                                expYear: Int,
                                                expMonth: Int,
-                                               address: Option[CreateAddressPayload] = None,
-                                               addressId: Option[Int] = None,
-                                               isDefault: Boolean = false,
-                                               isShipping: Boolean = false) {
+                                               billingAddress: CreateCcAddressPayload,
+                                               isDefault: Boolean = false)
+      extends CreateCreditCardPayloadsBase[CreateCreditCardFromSourcePayload] {
 
-    def validate: ValidatedNel[Failure, CreateCreditCardFromSourcePayload] = {
-      import Validation._
-
-      def someAddress: ValidatedNel[Failure, _] =
-        validExpr(address.isDefined || addressId.isDefined, "address or addressId")
-
-      (notEmpty(holderName, "holderName") |@| matches(cardNumber, "[0-9]+", "number") |@| matches(
-              cvv,
-              "[0-9]{3,4}",
-              "cvv") |@| withinTwentyYears(expYear, "expiration") |@| isMonth(expMonth,
-                                                                              "expiration") |@| notExpired(
-              expYear,
-              expMonth,
-              "credit card is expired") |@| someAddress).map { case _ ⇒ this }
-    }
+    val customValidations: ValidatedNel[Failure, Unit] =
+      (validCardNumber(cardNumber) |@| validCvv(cvv)).map { case _ ⇒ {} }
 
     def lastFour: String = this.cardNumber.takeRight(4)
   }
@@ -73,23 +68,27 @@ object PaymentPayloads {
 
   case class ToggleDefaultCreditCard(isDefault: Boolean)
 
-  case class EditCreditCard(holderName: Option[String] = None,
-                            expYear: Option[Int] = None,
-                            expMonth: Option[Int] = None,
-                            addressId: Option[Int] = None,
-                            address: Option[CreateAddressPayload] = None,
-                            isShipping: Boolean = false) {
+  case class EditCreditCardPayload(holderName: Option[String] = None,
+                                   expYear: Option[Int] = None,
+                                   expMonth: Option[Int] = None,
+                                   address: Option[UpdateCcAddressPayload] = None) {
 
-    def validate: ValidatedNel[Failure, EditCreditCard] = {
-      import Validation._
+    def validate: ValidatedNel[Failure, EditCreditCardPayload] = {
 
       val expired: ValidatedNel[Failure, Unit] = (expYear |@| expMonth).tupled.fold(ok) {
-        case (y, m) ⇒ notExpired(y, m, "credit card is expired")
+        case (year, month) ⇒ validExpDate(year, month)
       }
 
-      (holderName.fold(ok)(notEmpty(_, "holderName")) |@| expYear
-            .fold(ok)(withinTwentyYears(_, "expiration")) |@| expMonth.fold(ok)(
-              isMonth(_, "expiration")) |@| expired).map {
+      val holderNamePresent = holderName.fold(ok)(validHolderName)
+      val expYearValid      = expYear.fold(ok)(validExpMonth)
+      val expMonthOk        = expMonth.fold(ok)(validExpYear)
+
+      val atLeastOneNewValueDefined = {
+        val allOpts = Seq(holderName, expYear, expMonth, address)
+        notEmpty(allOpts.find(_.isDefined).flatten, "At least one of new values")
+      }
+
+      (atLeastOneNewValueDefined |@| holderNamePresent |@| expYearValid |@| expMonthOk |@| expired).map {
         case _ ⇒ this
       }
     }

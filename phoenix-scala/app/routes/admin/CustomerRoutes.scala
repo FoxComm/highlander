@@ -118,10 +118,11 @@ object CustomerRoutes {
               CreditCardManager.createCardFromToken(customerId, payload, Some(admin))
             }
           } ~
-          (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) { (cardId, payload) ⇒
-            mutateOrFailures {
-              CreditCardManager.editCreditCard(customerId, cardId, payload, Some(admin))
-            }
+          (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCardPayload])) {
+            (cardId, payload) ⇒
+              mutateOrFailures {
+                CreditCardManager.editCreditCard(customerId, cardId, payload, Some(admin))
+              }
           } ~
           (delete & path(IntNumber) & pathEnd) { cardId ⇒
             deleteOrFailures {

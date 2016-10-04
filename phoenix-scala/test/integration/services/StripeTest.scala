@@ -5,6 +5,8 @@ import java.time.{Instant, ZoneId}
 import cats.implicits._
 import com.stripe.Stripe
 import failures.CreditCardFailures.CardDeclined
+import payloads.AddressPayloads.CreateAddressPayload
+import payloads.PaymentPayloads._
 import util._
 import utils.Money.Currency.USD
 import utils.TestStripeSupport._
@@ -29,6 +31,21 @@ class StripeTest extends RealStripeApis {
   val okExpYear  = today.getYear + 1
   val okExpMonth = today.getMonthValue
   val theAddress = Factories.address
+  val theAddressPayload = CreateCcAddressPayload(
+      CreateAddressPayload(name = theAddress.name,
+                           address1 = theAddress.address1,
+                           address2 = theAddress.address2,
+                           zip = theAddress.zip,
+                           city = theAddress.city,
+                           regionId = theAddress.regionId,
+                           phoneNumber = theAddress.phoneNumber))
+  val thePayload = CreateCreditCardFromTokenPayload(token = "tok",
+                                                    brand = "Mona Visa",
+                                                    lastFour = "1234",
+                                                    expYear = 2222,
+                                                    expMonth = 4,
+                                                    holderName = "Nobody",
+                                                    billingAddress = theAddressPayload)
 
   "Stripe" - {
     "authorizeAmount" - {
@@ -58,7 +75,7 @@ class StripeTest extends RealStripeApis {
 
         val result = stripe
           .createCardFromToken(email = "yax@yax.com".some,
-                               token = token.getId,
+                               payload = thePayload.copy(token = token.getId),
                                address = theAddress,
                                stripeCustomerId = realStripeCustomerId.some)
           .futureValue
@@ -69,7 +86,7 @@ class StripeTest extends RealStripeApis {
       "fails if token does not exist" taggedAs External in {
         val result = stripe
           .createCardFromToken(email = "yax@yax.com".some,
-                               token = "BAD-TOKEN",
+                               payload = thePayload.copy(token = "BAD-TOKEN"),
                                stripeCustomerId = none,
                                address = theAddress)
           .futureValue
@@ -88,7 +105,7 @@ class StripeTest extends RealStripeApis {
 
         val (cust, card) = stripe
           .createCardFromToken(email = customerEmail.some,
-                               token = token.getId,
+                               payload = thePayload.copy(token = token.getId),
                                stripeCustomerId = none,
                                address = theAddress)
           .gimme
@@ -117,7 +134,7 @@ class StripeTest extends RealStripeApis {
 
         val (cust, card) = stripe
           .createCardFromToken(email = "yax@yax.com".some,
-                               token = token.getId,
+                               payload = thePayload.copy(token = token.getId),
                                stripeCustomerId = realStripeCustomerId.some,
                                address = theAddress)
           .gimme

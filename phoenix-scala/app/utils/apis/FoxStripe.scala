@@ -7,7 +7,7 @@ import com.stripe.model.DeletedCard
 import failures.CustomerFailures.CustomerMustHaveCredentials
 import models.location.Address
 import models.payment.creditcard.CreditCard
-import payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
+import payloads.PaymentPayloads._
 import services.{Result, ResultT}
 import utils.Money._
 import utils.aliases._
@@ -20,26 +20,26 @@ import utils.aliases.stripe._
 class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
 
   def createCardFromToken(email: Option[String],
-                          token: String,
+                          payload: CreateCreditCardFromTokenPayload,
                           stripeCustomerId: Option[String],
                           address: Address): Result[(StripeCustomer, StripeCard)] = email match {
     case Some(e) ⇒
-      createCardAndMaybeCustomer(e, Map("source" → token), stripeCustomerId, address)
+      createCardAndMaybeCustomer(e, Map("source" → payload.token), stripeCustomerId, address)
     case _ ⇒
       Result.failure(CustomerMustHaveCredentials)
   }
 
   @deprecated(message = "Use `createCardFromToken` instead", "Until we are PCI compliant")
   def createCardFromSource(email: Option[String],
-                           card: CreateCreditCardFromSourcePayload,
+                           payload: CreateCreditCardFromSourcePayload,
                            stripeCustomerId: Option[String],
                            address: Address): Result[(StripeCustomer, StripeCard)] = {
     lazy val details = Map[String, Object]("object" → "card",
-                                           "number"        → card.cardNumber,
-                                           "exp_month"     → card.expMonth.toString,
-                                           "exp_year"      → card.expYear.toString,
-                                           "cvc"           → card.cvv,
-                                           "name"          → card.holderName,
+                                           "number"        → payload.cardNumber,
+                                           "exp_month"     → payload.expMonth.toString,
+                                           "exp_year"      → payload.expYear.toString,
+                                           "cvc"           → payload.cvv,
+                                           "name"          → payload.holderName,
                                            "address_line1" → address.address1,
                                            "address_line2" → address.address2.orNull,
                                            "address_city"  → address.city,

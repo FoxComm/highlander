@@ -120,28 +120,34 @@ export function confirmCreditCardDeletion(id) {
   };
 }
 
-export function saveCreditCard(id) {
+export function saveCreditCard(customerId) {
   return (dispatch, getState) => {
-    dispatch(requestCustomerCreditCards(id));
+    dispatch(requestCustomerCreditCards(customerId));
 
     const cards = _.get(getState(), 'customers.creditCards', {});
-    const creditCardId = _.get(cards, [id, 'editingId']);
-    const form = _.get(cards, [id, 'editingCreditCard']);
-    const cardsArray = _.get(cards, [id, 'cards']);
+    const creditCardId = _.get(cards, [customerId, 'editingId']);
+    const cardData = _.get(cards, [customerId, 'editingCreditCard']);
+    const cardsArray = _.get(cards, [customerId, 'cards']);
     const currentDefault = _.find(cardsArray, card => card.isDefault);
-    const isDefault = form.isDefault;
+    const isDefault = cardData.isDefault;
+    const billingAddress = getBillingAddress(getState, customerId, cardData.addressId);
 
-    const handleSuccess = () => {
-      dispatch(closeEditCustomerCreditCard(id));
-      fetchForCustomer(id, dispatch);
+    cardData.billingAddress = {
+      address: billingAddress,
+      id: billingAddress.id,
     };
 
-    Api.patch(creditCardUrl(id, creditCardId), form)
+    const handleSuccess = () => {
+      dispatch(closeEditCustomerCreditCard(customerId));
+      fetchForCustomer(customerId, dispatch);
+    };
+
+    Api.patch(creditCardUrl(customerId, creditCardId), cardData)
       .then(card => {
         if (isDefault && currentDefault && currentDefault.id !== creditCardId) {
-          resetDefaultCreditCard(id, card.id, currentDefault.id, dispatch).then(handleSuccess);
+          resetDefaultCreditCard(customerId, card.id, currentDefault.id, dispatch).then(handleSuccess);
         } else if (isDefault && _.isEmpty(currentDefault)) {
-          setDefaultCreditCard(id, card.id, dispatch).then(handleSuccess);
+          setDefaultCreditCard(customerId, card.id, dispatch).then(handleSuccess);
         } else {
           handleSuccess();
         }

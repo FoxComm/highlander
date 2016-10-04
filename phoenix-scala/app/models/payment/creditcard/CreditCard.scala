@@ -6,11 +6,11 @@ import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures._
-import models.customer.Customers
+import models.customer.{Customer, Customers}
 import models.location._
 import models.payment.PaymentMethod
-import models.traits.Addressable
-import payloads.PaymentPayloads.{CreateCreditCardFromSourcePayload, CreateCreditCardFromTokenPayload}
+import models.traits.{Addressable, CreditCardBase}
+import payloads.PaymentPayloads._
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils._
@@ -28,8 +28,6 @@ case class CreditCard(id: Int = 0,
                       expMonth: Int,
                       expYear: Int,
                       isDefault: Boolean = false,
-                      address1Check: Option[String] = None,
-                      zipCheck: Option[String] = None,
                       inWallet: Boolean = true,
                       deletedAt: Option[Instant] = None,
                       regionId: Int,
@@ -42,27 +40,12 @@ case class CreditCard(id: Int = 0,
     extends PaymentMethod
     with FoxModel[CreditCard]
     with Addressable[CreditCard]
-    with Validation[CreditCard] {
-
-  import Validation._
+    with CreditCardBase[CreditCard] {
 
   // must be implemented for Addressable
   def name: String                      = addressName
   def phoneNumber: Option[String]       = None
   def zipLens: Lens[CreditCard, String] = lens[CreditCard].zip
-
-  override def validate: ValidatedNel[Failure, CreditCard] = {
-    (matches(lastFour, "[0-9]{4}", "lastFour") |@| notExpired(
-            expYear,
-            expMonth,
-            "credit card is expired") |@| withinNumberOfYears(
-            expYear,
-            expMonth,
-            20,
-            "credit card expiration is too far in the future") |@| super.validate).map {
-      case _ ⇒ this
-    }
-  }
 
   def mustBeInWallet: Failures Xor CreditCard =
     if (inWallet) Xor.right(this) else Xor.left(CannotUseInactiveCreditCard(this).single)
@@ -78,17 +61,20 @@ case class CreditCard(id: Int = 0,
               address2 = a.address2,
               city = a.city,
               zip = a.zip)
+
+  override def validate: ValidatedNel[Failure, CreditCard] =
+    (super[Addressable].validate |@| super[CreditCardBase].validate).map { case _ ⇒ this }
 }
 
 object CreditCard {
-  def buildFromToken(customerId: Int,
-                     customerToken: String,
-                     cardToken: String,
+  def buildFromToken(customer: Customer,
+                     stripeCustomer: StripeCustomer,
+                     stripeCard: StripeCard,
                      payload: CreateCreditCardFromTokenPayload,
                      address: Address): CreditCard =
-    CreditCard(customerId = customerId,
-               gatewayCustomerId = customerToken,
-               gatewayCardId = cardToken,
+    CreditCard(customerId = customer.id,
+               gatewayCustomerId = stripeCustomer.getId,
+               gatewayCardId = stripeCard.getId,
                brand = payload.brand,
                lastFour = payload.lastFour,
                expMonth = payload.expMonth,
@@ -102,28 +88,26 @@ object CreditCard {
                city = address.city)
 
   @deprecated(message = "Use `buildFromToken` instead", "Until we are PCI compliant")
-  def buildFromSource(customerId: Int,
-                      sCust: StripeCustomer,
-                      card: StripeCard,
-                      p: CreateCreditCardFromSourcePayload,
-                      a: Address): CreditCard = {
-    CreditCard(customerId = customerId,
-               gatewayCustomerId = sCust.getId,
-               gatewayCardId = card.getId,
-               holderName = p.holderName,
-               lastFour = p.lastFour,
-               expMonth = p.expMonth,
-               expYear = p.expYear,
-               isDefault = p.isDefault,
-               address1Check = card.getAddressLine1Check.some,
-               zipCheck = card.getAddressZipCheck.some,
-               regionId = a.regionId,
-               addressName = a.name,
-               address1 = a.address1,
-               address2 = a.address2,
-               city = a.city,
-               zip = a.zip,
-               brand = card.getBrand)
+  def buildFromSource(customer: Customer,
+                      stripeCustomer: StripeCustomer,
+                      stripeCard: StripeCard,
+                      payload: CreateCreditCardFromSourcePayload,
+                      address: Address): CreditCard = {
+    CreditCard(customerId = customer.id,
+               gatewayCustomerId = stripeCustomer.getId,
+               gatewayCardId = stripeCard.getId,
+               holderName = payload.holderName,
+               lastFour = payload.lastFour,
+               expMonth = payload.expMonth,
+               expYear = payload.expYear,
+               isDefault = payload.isDefault,
+               regionId = address.regionId,
+               addressName = address.name,
+               address1 = address.address1,
+               address2 = address.address2,
+               city = address.city,
+               zip = address.zip,
+               brand = stripeCard.getBrand)
   }
 }
 
@@ -140,17 +124,14 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
   def expYear           = column[Int]("exp_year")
   def brand             = column[String]("brand")
   def isDefault         = column[Boolean]("is_default")
-  def address1Check     = column[Option[String]]("address1_check")
-  def zipCheck          = column[Option[String]]("zip_check")
   def inWallet          = column[Boolean]("in_wallet")
   def deletedAt         = column[Option[Instant]]("deleted_at")
-
-  def regionId    = column[Int]("region_id")
-  def addressName = column[String]("address_name")
-  def address1    = column[String]("address1")
-  def address2    = column[Option[String]]("address2")
-  def city        = column[String]("city")
-  def zip         = column[String]("zip")
+  def regionId          = column[Int]("region_id")
+  def addressName       = column[String]("address_name")
+  def address1          = column[String]("address1")
+  def address2          = column[Option[String]]("address2")
+  def city              = column[String]("city")
+  def zip               = column[String]("zip")
 
   def * =
     (id,
@@ -163,8 +144,6 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
      expMonth,
      expYear,
      isDefault,
-     address1Check,
-     zipCheck,
      inWallet,
      deletedAt,
      regionId,

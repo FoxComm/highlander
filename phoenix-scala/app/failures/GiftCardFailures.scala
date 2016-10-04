@@ -34,8 +34,4 @@ object GiftCardFailures {
   case class GiftCardIsInactive(gc: GiftCard) extends Failure {
     override def description = s"giftCard with id=${gc.id} is inactive"
   }
-
-  case object CreditCardMustHaveAddress extends Failure {
-    override def description = "cannot create creditCard without an address"
-  }
 }
