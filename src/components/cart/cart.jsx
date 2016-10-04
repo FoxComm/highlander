@@ -144,7 +144,7 @@ class Cart extends Component {
             <div styleName="line-items">
               {this.lineItems}
             </div>
-            <div styleName="cart-coupon">
+            <div styleName="coupon">
               <CouponCode />
             </div>
             <div styleName="cart-subtotal">

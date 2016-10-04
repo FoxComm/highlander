@@ -1,7 +1,6 @@
 
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
-import styles from '../../pages/checkout/checkout.css';
 import { saveCouponCode } from 'modules/checkout';
 import { connect } from 'react-redux';
 
@@ -10,6 +9,9 @@ import localized from 'lib/i18n';
 import { TextInput } from 'ui/inputs';
 import Button from 'ui/buttons';
 import { FormField } from 'ui/forms';
+
+// styles
+import styles from './coupon-code.css';
 
 class CouponCode extends Component {
 
@@ -43,16 +45,16 @@ class CouponCode extends Component {
     const { t } = this.props;
 
     return (
-      <div styleName="coupon-content">
-        <FormField styleName="coupon-code-field" error={this.state.error}>
+      <div styleName="coupon">
+        <FormField styleName="code-field" error={this.state.error}>
           <TextInput
-            styleName="coupon-code"
+            styleName="code"
             placeholder={t('CODE')}
             value={this.state.code}
             onChange={this.changeCode}
           />
         </FormField>
-        <Button styleName="coupon-submit" onClick={this.onSave}>
+        <Button styleName="submit" onClick={this.onSave}>
           {t('apply')}
         </Button>
       </div>

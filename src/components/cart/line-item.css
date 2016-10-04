@@ -4,8 +4,6 @@
 
 .box {
   position: relative;
-  margin-left: var(--cart-gap);
-  margin-right: var(--cart-gap);
   padding: 15px 0 55px;
   display: flex;
   border-bottom: 1px solid var(--border-color);

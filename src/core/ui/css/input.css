@@ -5,12 +5,12 @@
   height: 30px;
   font-size: 12px;
   padding: 0 10px;
-  border: 1px solid var(--blackish);
+  border: 1px solid var(--whitish);
   color: #212121;
+  box-shadow: none;
 
   &:focus {
-    background: #F4F4F4;
-    border-color: #F4F4F4;
+    border-color: #212121;
   }
 }
 
@@ -32,10 +32,6 @@
   font-size: 10px;
 }
 
-input {
-  box-shadow: none;
-}
-
 @media (--medium) {
   .text-input {
     padding: 0 20px;
@@ -46,7 +42,11 @@ input {
     transition: all 300ms;
 
     &:hover {
-      border-color: #C6BFBF;
+      border-color: rgba(62,52,54,0.27);
+    }
+
+    &:focus:hover {
+      border-color: #212121;
     }
   }
 
