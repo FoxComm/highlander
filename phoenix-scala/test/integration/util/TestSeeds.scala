@@ -28,7 +28,7 @@ trait TestSeeds extends TestFixtureBase {
   trait StoreAdmin_Seed {
     def storeAdminAccount: Account         = _storeAdminAccount
     def storeAdmin: User                   = _storeAdmin
-    def storeAdminUser: StoreAdminUser     = _storeAdminUser
+    def storeAdminUser: AdminData          = _storeAdminUser
     def storeAdminClaims: Account.ClaimSet = _storeAdminClaims
 
     def storeAdminAuthData: AuthData[User] =
@@ -48,12 +48,12 @@ trait TestSeeds extends TestFixtureBase {
                 case None ⇒
                   Factories.createStoreAdmin(user = Factories.storeAdmin,
                                              password = "password",
-                                             state = StoreAdminUser.Active,
+                                             state = AdminData.Active,
                                              org = "tenant",
                                              roles = List("admin"),
                                              author = None)
               })
-      adu ← * <~ StoreAdminUsers.mustFindByAccountId(ad.accountId)
+      adu ← * <~ AdminsData.mustFindByAccountId(ad.accountId)
       ac  ← * <~ Accounts.mustFindById404(ad.accountId)
       organization ← * <~ Organizations
                       .findByName(TENANT)
@@ -66,16 +66,16 @@ trait TestSeeds extends TestFixtureBase {
   trait Customer_Seed {
     def account: Account                  = _account
     def customer: User                    = _customer
-    def customerUser: CustomerUser        = _customerUser
+    def customerData: CustomerData        = _customerData
     def accessMethod: AccountAccessMethod = _accessMethod
 
-    private val (_account, _customer, _customerUser, _accessMethod) = (for {
+    private val (_account, _customer, _customerData, _accessMethod) = (for {
       c ← * <~ Factories.createCustomer(user = Factories.customer,
                                         isGuest = false,
                                         scopeId = 2,
                                         password = "password".some)
       a  ← * <~ Accounts.mustFindById404(c.accountId)
-      cu ← * <~ CustomerUsers.mustFindByAccountId(c.accountId)
+      cu ← * <~ CustomersData.mustFindByAccountId(c.accountId)
       am ← * <~ AccountAccessMethods
             .findOneByAccountIdAndName(c.accountId, "login")
             .mustFindOr(GeneralFailure("access method not found"))

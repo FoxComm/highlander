@@ -72,7 +72,7 @@ class CustomerIntegrationTest
     "fetches customer info" in new Fixture {
       val response = GET(s"v1/customers/${customer.accountId}")
       val customerRoot =
-        CustomerResponse.build(customer, customerUser, shippingRegion = region.some)
+        CustomerResponse.build(customer, customerData, shippingRegion = region.some)
 
       response.status must === (StatusCodes.OK)
       response.as[CustomerResponse.Root] must === (customerRoot)
@@ -81,7 +81,7 @@ class CustomerIntegrationTest
     "fetches customer info without default address" in new Fixture {
       Addresses.filter(_.id === address.id).map(_.isDefaultShipping).update(false).gimme
       val response     = GET(s"v1/customers/${customer.accountId}")
-      val customerRoot = CustomerResponse.build(customer, customerUser)
+      val customerRoot = CustomerResponse.build(customer, customerData)
 
       response.status must === (StatusCodes.OK)
       response.as[CustomerResponse.Root] must === (customerRoot)
@@ -92,7 +92,7 @@ class CustomerIntegrationTest
 
       val response = GET(s"v1/customers/${customer.accountId}")
       val customerRoot = CustomerResponse
-        .build(customer, customerUser, shippingRegion = region.some, billingRegion = billRegion)
+        .build(customer, customerData, shippingRegion = region.some, billingRegion = billRegion)
 
       response.status must === (StatusCodes.OK)
       response.as[CustomerResponse.Root] must === (customerRoot)
@@ -102,7 +102,7 @@ class CustomerIntegrationTest
       CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).gimme
       val response = GET(s"v1/customers/${customer.accountId}")
       val customerRoot =
-        CustomerResponse.build(customer, customerUser, shippingRegion = region.some)
+        CustomerResponse.build(customer, customerData, shippingRegion = region.some)
 
       response.status must === (StatusCodes.OK)
       response.as[CustomerResponse.Root] must === (customerRoot)
@@ -112,23 +112,23 @@ class CustomerIntegrationTest
       "default shipping address" in {
         val defaultPhoneNumber: String = "1111111111"
 
-        val (customer, customerUser, region) = (for {
+        val (customer, customerData, region) = (for {
           account ← * <~ Accounts.create(Account())
           customer ← * <~ Users.create(
                         Factories.customer.copy(accountId = account.id, phoneNumber = None))
-          customerUser ← * <~ CustomerUsers.create(
-                            CustomerUser(accountId = account.id, userId = customer.id))
+          customerData ← * <~ CustomersData.create(
+                            CustomerData(accountId = account.id, userId = customer.id))
           address ← * <~ Addresses.create(
                        Factories.address.copy(accountId = customer.accountId,
                                               isDefaultShipping = true,
                                               phoneNumber = defaultPhoneNumber.some))
           region ← * <~ Regions.findOneById(address.regionId)
-        } yield (customer, customerUser, region)).gimme
+        } yield (customer, customerData, region)).gimme
 
         val response = GET(s"v1/customers/${customer.accountId}")
         val customerRoot =
           CustomerResponse.build(customer.copy(phoneNumber = defaultPhoneNumber.some),
-                                 customerUser,
+                                 customerData,
                                  shippingRegion = region)
 
         response.status must === (StatusCodes.OK)
@@ -153,8 +153,8 @@ class CustomerIntegrationTest
           account ← * <~ Accounts.create(Account())
           customer ← * <~ Users.create(
                         Factories.customer.copy(accountId = account.id, phoneNumber = None))
-          custUser ← * <~ CustomerUsers.create(
-                        CustomerUser(userId = customer.id, accountId = account.id))
+          custData ← * <~ CustomersData.create(
+                        CustomerData(userId = customer.id, accountId = account.id))
           address ← * <~ Addresses.create(defaultAddress.copy(accountId = customer.accountId))
           region  ← * <~ Regions.findOneById(address.regionId)
           cart1 ← * <~ Carts.create(
@@ -200,7 +200,7 @@ class CustomerIntegrationTest
 
     "fetches customer info with lastOrderDays value" in new Order_Baked {
       val expectedCustomer = CustomerResponse
-        .build(customer, customerUser, shippingRegion = region.some, lastOrderDays = Some(0))
+        .build(customer, customerData, shippingRegion = region.some, lastOrderDays = Some(0))
 
       val response = GET(s"v1/customers/${customer.accountId}")
       response.status must === (StatusCodes.OK)
@@ -324,7 +324,7 @@ class CustomerIntegrationTest
       response.status must === (StatusCodes.OK)
 
       val created         = Users.findOneByAccountId(root.id).gimme.value
-      val createdCustUser = CustomerUsers.findOneByAccountId(root.id).gimme.value
+      val createdCustUser = CustomersData.findOneByAccountId(root.id).gimme.value
 
       CustomerResponse.build(created, createdCustUser) must === (
           root.copy(name = Some("test"), isGuest = false))
@@ -676,8 +676,8 @@ class CustomerIntegrationTest
                      Factories.customer.copy(accountId = account.id,
                                              email = "second@example.org".some,
                                              name = "second".some))
-      custUser2 ← * <~ CustomerUsers.create(
-                     CustomerUser(userId = customer2.id, accountId = account.id))
+      custData2 ← * <~ CustomersData.create(
+                     CustomerData(userId = customer2.id, accountId = account.id))
       cart2  ← * <~ Carts.create(Cart(accountId = customer2.accountId, referenceNumber = "ABC-456"))
       order  ← * <~ Orders.createFromCart(cart)
       order2 ← * <~ Orders.createFromCart(cart2)

@@ -275,15 +275,15 @@ class CouponsIntegrationTest
                          Factories.customer.copy(accountId = firstAccount.id,
                                                  email = Some("first@example.org"),
                                                  name = Some("first")))
-      _ ← * <~ CustomerUsers.create(
-             CustomerUser(userId = firstCustomer.id, accountId = firstAccount.id))
+      _ ← * <~ CustomersData.create(
+             CustomerData(userId = firstCustomer.id, accountId = firstAccount.id))
       otherAccount ← * <~ Accounts.create(Account())
       otherCustomer ← * <~ Users.create(
                          Factories.customer.copy(accountId = otherAccount.id,
                                                  email = Some("second@example.org"),
                                                  name = Some("second")))
-      _ ← * <~ CustomerUsers.create(
-             CustomerUser(userId = otherCustomer.id, accountId = otherAccount.id))
+      _ ← * <~ CustomersData.create(
+             CustomerData(userId = otherCustomer.id, accountId = otherAccount.id))
       cart ← * <~ Carts.create(Factories.cart.copy(accountId = firstCustomer.accountId))
       cartForOrder ← * <~ Carts.create(
                         Factories.cart.copy(referenceNumber = "ORDER-123456",

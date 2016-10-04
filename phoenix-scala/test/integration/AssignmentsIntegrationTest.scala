@@ -150,8 +150,7 @@ class AssignmentsIntegrationTest
       secondAdmin ← * <~ Users.create(
                        Factories.storeAdmin
                          .copy(accountId = account.id, email = "a@b.c".some, name = "Admin2".some))
-      custUser ← * <~ StoreAdminUsers.create(
-                    StoreAdminUser(userId = secondAdmin.id, accountId = account.id))
+      custData ← * <~ AdminsData.create(AdminData(userId = secondAdmin.id, accountId = account.id))
     } yield (assignee, secondAdmin)).gimme
   }
 

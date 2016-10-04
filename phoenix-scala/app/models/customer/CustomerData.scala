@@ -16,16 +16,16 @@ import utils.Validation
 import utils.aliases._
 import utils.db._
 
-case class CustomerUser(id: Int = 0,
+case class CustomerData(id: Int = 0,
                         userId: Int,
                         accountId: Int,
                         isGuest: Boolean = false,
                         createdAt: Instant = Instant.now,
                         udpatedAt: Instant = Instant.now,
                         deletedAt: Option[Instant] = None)
-    extends FoxModel[CustomerUser]
+    extends FoxModel[CustomerData]
 
-class CustomerUsers(tag: Tag) extends FoxTable[CustomerUser](tag, "customer_users") {
+class CustomersData(tag: Tag) extends FoxTable[CustomerData](tag, "customer_data") {
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def userId    = column[Int]("user_id")
   def accountId = column[Int]("account_id")
@@ -35,14 +35,14 @@ class CustomerUsers(tag: Tag) extends FoxTable[CustomerUser](tag, "customer_user
   def deletedAt = column[Option[Instant]]("deleted_at")
 
   def * =
-    (id, userId, accountId, isGuest, createdAt, updatedAt, deletedAt) <> ((CustomerUser.apply _).tupled, CustomerUser.unapply)
+    (id, userId, accountId, isGuest, createdAt, updatedAt, deletedAt) <> ((CustomerData.apply _).tupled, CustomerData.unapply)
 }
 
-object CustomerUsers
-    extends FoxTableQuery[CustomerUser, CustomerUsers](new CustomerUsers(_))
-    with ReturningId[CustomerUser, CustomerUsers] {
+object CustomersData
+    extends FoxTableQuery[CustomerData, CustomersData](new CustomersData(_))
+    with ReturningId[CustomerData, CustomersData] {
 
-  val returningLens: Lens[CustomerUser, Int] = lens[CustomerUser].id
+  val returningLens: Lens[CustomerData, Int] = lens[CustomerData].id
 
   object scope {
     implicit class CustomersQuerySeqConversions(query: QuerySeq) {
@@ -53,11 +53,11 @@ object CustomerUsers
        * - billingRegion comes from default creditCard of customer
        * - rank is calculated as percentile from net revenue
        */
-      def withRegionsAndRank: Query[(CustomerUsers,
+      def withRegionsAndRank: Query[(CustomersData,
                                      Rep[Option[Regions]],
                                      Rep[Option[Regions]],
                                      Rep[Option[CustomersRanks]]),
-                                    (CustomerUser,
+                                    (CustomerData,
                                      Option[Region],
                                      Option[Region],
                                      Option[CustomerRank]),
@@ -94,17 +94,17 @@ object CustomerUsers
     }
   }
 
-  def findGuests(email: String): DBIO[Option[CustomerUser]] = {
+  def findGuests(email: String): DBIO[Option[CustomerData]] = {
     filter(_.isGuest === true).one
   }
 
-  def findOneByAccountId(accountId: Int): DBIO[Option[CustomerUser]] =
+  def findOneByAccountId(accountId: Int): DBIO[Option[CustomerData]] =
     filter(_.accountId === accountId).result.headOption
 
   def findByAccountId(accountId: Int): QuerySeq =
     filter(_.accountId === accountId)
 
-  def mustFindByAccountId(accountId: Int)(implicit ec: EC): DbResultT[CustomerUser] =
+  def mustFindByAccountId(accountId: Int)(implicit ec: EC): DbResultT[CustomerData] =
     filter(_.accountId === accountId).mustFindOneOr(UserWithAccountNotFound(accountId))
 
 }

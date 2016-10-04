@@ -25,7 +25,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val result = (for {
         account  ← * <~ Accounts.create(Account())
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
-        _        ← * <~ CustomerUsers.create(CustomerUser(userId = customer.id, accountId = account.id))
+        _        ← * <~ CustomersData.create(CustomerData(userId = customer.id, accountId = account.id))
         address ← * <~ Addresses.create(
                      Factories.address.copy(zip = "123-45", accountId = customer.accountId))
       } yield address).gimme
@@ -36,7 +36,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val result = (for {
         account  ← * <~ Accounts.create(Account())
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
-        _        ← * <~ CustomerUsers.create(CustomerUser(userId = customer.id, accountId = account.id))
+        _        ← * <~ CustomersData.create(CustomerData(userId = customer.id, accountId = account.id))
         original ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
         copycat  ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
       } yield copycat).runTxn().futureValue

@@ -4,8 +4,8 @@ import java.time.Instant
 
 import models.account.Users
 import models.cord.Orders
-import models.customer.CustomerUsers
-import models.admin.StoreAdminUsers
+import models.customer.CustomersData
+import models.admin.AdminsData
 import models.account._
 import models.inventory.Sku
 import models.objects._
@@ -131,9 +131,9 @@ object ReturnResponse {
     fetchRmaDetails(rma).map {
       case (_,
             customer,
-            customerUser,
+            customerData,
             storeAdmin,
-            storeAdminUser,
+            adminData,
             payments,
             lineItemData,
             giftCards,
@@ -143,11 +143,11 @@ object ReturnResponse {
             rma = rma,
             customer = for {
               c  ← customer
-              cu ← customerUser
+              cu ← customerData
             } yield CustomerResponse.build(c, cu),
             storeAdmin = for {
               a  ← storeAdmin
-              au ← storeAdminUser
+              au ← adminData
             } yield StoreAdminResponse.build(a, au),
             payments = payments.map(buildPayment),
             lineItems = buildLineItems(lineItemData, giftCards, shipments),
@@ -160,9 +160,9 @@ object ReturnResponse {
     fetchRmaDetails(rma = rma, withOrder = true).map {
       case (order,
             customer,
-            customerUser,
+            customerData,
             storeAdmin,
-            storeAdminUser,
+            adminData,
             payments,
             lineItemData,
             giftCards,
@@ -173,11 +173,11 @@ object ReturnResponse {
             order = order,
             customer = for {
               c  ← customer
-              cu ← customerUser
+              cu ← customerData
             } yield CustomerResponse.build(c, cu),
             storeAdmin = for {
               a  ← storeAdmin
-              au ← storeAdminUser
+              au ← adminData
             } yield StoreAdminResponse.build(a, au),
             payments = payments.map(buildPayment),
             lineItems = buildLineItems(lineItemData, giftCards, shipments),
@@ -245,13 +245,13 @@ object ReturnResponse {
       fullOrder ← * <~ orderQ
       // Either customer or storeAdmin as creator
       customer     ← * <~ Users.findOneByAccountId(rma.accountId)
-      customerUser ← * <~ CustomerUsers.findOneByAccountId(rma.accountId)
+      customerData ← * <~ CustomersData.findOneByAccountId(rma.accountId)
       storeAdmin ← * <~ rma.storeAdminId
                     .map(id ⇒ Users.findOneByAccountId(id))
                     .getOrElse(lift(None))
-      storeAdminUser ← * <~ rma.storeAdminId
-                        .map(id ⇒ StoreAdminUsers.findOneByAccountId(id))
-                        .getOrElse(lift(None))
+      adminData ← * <~ rma.storeAdminId
+                   .map(id ⇒ AdminsData.findOneByAccountId(id))
+                   .getOrElse(lift(None))
       // Payment methods
       payments ← * <~ ReturnPayments.filter(_.returnId === rma.id).result
       // Line items of each subtype
@@ -263,9 +263,9 @@ object ReturnResponse {
     } yield
       (fullOrder,
        customer,
-       customerUser,
+       customerData,
        storeAdmin,
-       storeAdminUser,
+       adminData,
        payments,
        lineItems,
        giftCards,

@@ -198,8 +198,8 @@ class CheckoutIntegrationTest
                     Factories.customer.copy(accountId = account.id,
                                             isBlacklisted = true,
                                             blacklistedBy = Some(storeAdmin.accountId)))
-      custUser ← * <~ CustomerUsers.create(
-                    CustomerUser(userId = customer.id, accountId = account.id))
+      custData ← * <~ CustomersData.create(
+                    CustomerData(userId = customer.id, accountId = account.id))
       address ← * <~ Addresses.create(Factories.usAddress1.copy(accountId = customer.accountId))
       _       ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethod ← * <~ ShippingMethods

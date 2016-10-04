@@ -328,11 +328,11 @@ class SharedSearchIntegrationTest
   trait Fixture {
     val storeAdminAccount = Accounts.create(Account()).gimme
     val storeAdmin        = Users.create(authedUser.copy(accountId = storeAdminAccount.id)).gimme
-    val storeAdminUser = StoreAdminUsers
+    val storeAdminUser = AdminsData
       .create(
-          StoreAdminUser(userId = storeAdmin.id,
-                         accountId = storeAdmin.accountId,
-                         state = StoreAdminUser.Active))
+          AdminData(userId = storeAdmin.id,
+                    accountId = storeAdmin.accountId,
+                    state = AdminData.Active))
       .gimme
   }
 
@@ -421,11 +421,11 @@ class SharedSearchIntegrationTest
                                     name = "Junior".some,
                                     email = "another@domain.com".some))
       .gimme
-    val secondAdminUser = StoreAdminUsers
+    val secondAdminUser = AdminsData
       .create(
-          StoreAdminUser(userId = secondAdmin.id,
-                         accountId = secondAdmin.accountId,
-                         state = StoreAdminUser.Active))
+          AdminData(userId = secondAdmin.id,
+                    accountId = secondAdmin.accountId,
+                    state = AdminData.Active))
       .gimme
   }
 

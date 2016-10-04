@@ -179,7 +179,7 @@ class AddressesIntegrationTest
       accountPre2 ← * <~ Accounts.create(Account())
       account     ← * <~ Accounts.create(Account())
       user        ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
-      custUser    ← * <~ CustomerUsers.create(CustomerUser(userId = user.id, accountId = account.id))
+      custData    ← * <~ CustomersData.create(CustomerData(userId = user.id, accountId = account.id))
       address ← * <~ Addresses.create(
                    Factories.address.copy(accountId = account.id,
                                           isDefaultShipping = false,

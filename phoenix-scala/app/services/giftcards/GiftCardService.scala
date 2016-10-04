@@ -46,9 +46,9 @@ object GiftCardService {
       case (GiftCard.CustomerPurchase, Some(accountId)) ⇒
         for {
           customer ← * <~ Users.mustFindByAccountId(accountId)
-          custUser ← * <~ CustomerUsers.mustFindByAccountId(accountId)
+          custData ← * <~ CustomersData.mustFindByAccountId(accountId)
         } yield
-          GiftCardResponse.build(giftCard, Some(CustomerResponse.build(customer, custUser)), None)
+          GiftCardResponse.build(giftCard, Some(CustomerResponse.build(customer, custData)), None)
       case _ ⇒ DbResultT.good(GiftCardResponse.build(giftCard, None, None))
     }
 

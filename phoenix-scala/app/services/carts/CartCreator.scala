@@ -33,11 +33,11 @@ object CartCreator {
       for {
         account ← * <~ Accounts.create(Account())
         guest   ← * <~ Users.create(User(accountId = account.id, email = email.some))
-        custUser ← * <~ CustomerUsers.create(
-                      CustomerUser(userId = guest.id, accountId = account.id, isGuest = true))
+        custData ← * <~ CustomersData.create(
+                      CustomerData(userId = guest.id, accountId = account.id, isGuest = true))
         cart ← * <~ Carts.create(Cart(accountId = account.id))
-        _    ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest, custUser))
-      } yield root(cart, guest, custUser)
+        _    ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest, custData))
+      } yield root(cart, guest, custData)
 
     for {
       _    ← * <~ payload.validate.toXor
@@ -45,6 +45,6 @@ object CartCreator {
     } yield root
   }
 
-  private def root(cart: Cart, customer: User, custUser: CustomerUser): CartResponse =
-    CartResponse.buildEmpty(cart = cart, customer = customer.some, custUser.some)
+  private def root(cart: Cart, customer: User, custData: CustomerData): CartResponse =
+    CartResponse.buildEmpty(cart = cart, customer = customer.some, custData.some)
 }

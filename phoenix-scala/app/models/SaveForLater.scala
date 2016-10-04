@@ -2,7 +2,7 @@ package models
 
 import java.time.Instant
 
-import models.customer.CustomerUsers
+import models.customer.CustomersData
 import models.account._
 import shapeless._
 import slick.driver.PostgresDriver.api._

@@ -5,8 +5,8 @@ import java.time.Instant
 import scala.concurrent.Future
 
 import models.account.User
-import models.admin.StoreAdminUser
-import models.customer.CustomerUser
+import models.admin.AdminData
+import models.customer.CustomerData
 import models.returns.Return
 
 object AllReturns {
@@ -29,9 +29,9 @@ object AllReturns {
 
   def build(rma: Return,
             customer: Option[User] = None,
-            customerUser: Option[CustomerUser] = None,
+            customerData: Option[CustomerData] = None,
             admin: Option[User] = None,
-            storeAdminUser: Option[StoreAdminUser] = None): Root =
+            adminData: Option[AdminData] = None): Root =
     Root(
         id = rma.id,
         referenceNumber = rma.referenceNumber,
@@ -40,11 +40,11 @@ object AllReturns {
         state = rma.state,
         customer = for {
           c  ← customer
-          cu ← customerUser
+          cu ← customerData
         } yield CustomerResponse.build(c, cu),
         storeAdmin = for {
           a  ← admin
-          au ← storeAdminUser
+          au ← adminData
         } yield StoreAdminResponse.build(a, au),
         createdAt = rma.createdAt,
         updatedAt = rma.updatedAt,

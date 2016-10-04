@@ -4,7 +4,7 @@ import failures.GiftCardFailures.GiftCardConvertFailure
 import failures.OpenTransactionsFailure
 import failures.StoreCreditFailures.StoreCreditConvertFailure
 import models.account._
-import models.admin.StoreAdminUsers
+import models.admin.AdminsData
 import models.payment.giftcard._
 import models.payment.storecredit._
 import responses.{GiftCardResponse, UserResponse, StoreCreditResponse}

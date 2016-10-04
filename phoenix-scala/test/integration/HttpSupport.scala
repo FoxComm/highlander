@@ -108,10 +108,10 @@ trait HttpSupport
     """.stripMargin).withFallback(ConfigFactory.load())
 
   val adminUser    = Factories.storeAdmin.copy(id = 1, accountId = 1)
-  val customerUser = Factories.customer.copy(id = 2, accountId = 2)
+  val customerData = Factories.customer.copy(id = 2, accountId = 2)
 
   def overrideUserAuth: UserAuthenticator =
-    AuthAs(adminUser, customerUser)
+    AuthAs(adminUser, customerData)
 
   implicit val env = FoxConfig.Test
 

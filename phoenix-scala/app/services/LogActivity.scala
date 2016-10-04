@@ -3,7 +3,7 @@ package services
 import java.time.Instant
 
 import models.Assignment._
-import models.admin.StoreAdminUser
+import models.admin.AdminData
 import models.activity.{Activities, Activity}
 import models.cord.{Cart, Order}
 import models.coupon.{Coupon, CouponCode}
@@ -528,8 +528,8 @@ object LogActivity {
     Activities.log(StoreAdminDeleted(entity, admin))
 
   def storeAdminStateChanged(entity: User,
-                             oldState: StoreAdminUser.State,
-                             newState: StoreAdminUser.State,
+                             oldState: AdminData.State,
+                             newState: AdminData.State,
                              admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(StoreAdminStateChanged(entity, oldState, newState, admin))
 

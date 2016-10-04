@@ -6,8 +6,8 @@ import models.returns.Return.Canceled
 import models.returns._
 import models.{Reason, Reasons}
 import models.account._
-import models.customer.CustomerUsers
-import models.admin.StoreAdminUsers
+import models.customer.CustomersData
+import models.admin.AdminsData
 
 import payloads.ReturnPayloads._
 import responses.ReturnResponse._
@@ -57,13 +57,13 @@ object ReturnService {
   def createByAdmin(admin: User, payload: ReturnCreatePayload)(implicit ec: EC,
                                                                db: DB): DbResultT[Root] =
     for {
-      order          ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
-      rma            ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
-      customer       ← * <~ Users.mustFindByAccountId(order.accountId)
-      custUser       ← * <~ CustomerUsers.mustFindByAccountId(order.accountId)
-      storeAdminUser ← * <~ StoreAdminUsers.mustFindByAccountId(admin.accountId)
-      adminResponse    = Some(StoreAdminResponse.build(admin, storeAdminUser))
-      customerResponse = CustomerResponse.build(customer, custUser)
+      order     ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
+      rma       ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
+      customer  ← * <~ Users.mustFindByAccountId(order.accountId)
+      custData  ← * <~ CustomersData.mustFindByAccountId(order.accountId)
+      adminData ← * <~ AdminsData.mustFindByAccountId(admin.accountId)
+      adminResponse    = Some(StoreAdminResponse.build(admin, adminData))
+      customerResponse = CustomerResponse.build(customer, custData)
     } yield build(rma, Some(customerResponse), adminResponse)
 
   def getByRefNum(refNum: String)(implicit ec: EC, db: DB): DbResultT[Root] =
