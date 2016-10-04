@@ -9,7 +9,7 @@ Navigation:
 
 ## GCE Project
 
-1. Create a GCE project.
+1. Create a GCE project or use existing one (e.g. `foxcommerce-production-shared`).
 2. Generate your SSH keys and add them to a project (see [Adding and Removing SSH Keys](https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys)).
 3. Download `account.json` service account key file, used by packer & terraform.
 4. Create `terraform.tfvars` file containing your keys:

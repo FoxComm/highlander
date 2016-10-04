@@ -21,5 +21,5 @@ object GiftCardAssignmentsManager extends AssignmentsManager[String, GiftCard] {
 
   def fetchSequence(
       codes: Seq[String])(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[GiftCard]] =
-    GiftCards.filter(_.code.inSetBind(codes)).result.toXor
+    GiftCards.filter(_.code.inSetBind(codes)).result.dbresult
 }

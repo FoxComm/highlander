@@ -324,7 +324,7 @@ class CartIntegrationTest
 
       "removes an existing shipping address before copying new address" in new EmptyCartWithShipAddress_Baked {
         val newAddress =
-          Addresses.create(address.copy(name = "New", isDefaultShipping = false)).gimme
+          Addresses.create(address.copy(name = "Little Mary", isDefaultShipping = false)).gimme
 
         val fst :: snd :: Nil = List(address.id, newAddress.id).map { id ⇒
           PATCH(s"v1/orders/${cart.refNum}/shipping-address/$id")
@@ -334,7 +334,7 @@ class CartIntegrationTest
         snd.status must === (StatusCodes.OK)
 
         val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
-        shippingAddressUpd.name must === ("New")
+        shippingAddressUpd.name must === ("Little Mary")
       }
 
       "errors if the address does not exist" in new EmptyCartWithShipAddress_Baked {
@@ -352,7 +352,7 @@ class CartIntegrationTest
           .create(
               Factories.address.copy(accountId = customer.accountId,
                                      isDefaultShipping = false,
-                                     name = "New Shipping",
+                                     name = "Paul P",
                                      address1 = "29918 Kenloch Dr",
                                      city = "Farmington Hills",
                                      regionId = 4177))

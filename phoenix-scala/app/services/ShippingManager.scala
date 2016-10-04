@@ -65,7 +65,7 @@ object ShippingManager {
 
   def evaluateShippingMethodForCart(shippingMethod: ShippingMethod, cart: Cart)(
       implicit ec: EC): DbResultT[Unit] = {
-    getShippingData(cart).toXor.flatMap { shippingData ⇒
+    getShippingData(cart).dbresult.flatMap { shippingData ⇒
       val failure = ShippingMethodNotApplicableToCart(shippingMethod.id, cart.refNum)
       if (QueryStatement.evaluate(shippingMethod.conditions, shippingData, evaluateCondition)) {
         val hasRestrictions =

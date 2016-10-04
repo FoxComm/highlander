@@ -1,6 +1,6 @@
 package utils.apis
 
-import com.stripe.model.{DeletedExternalAccount, ExternalAccount, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
+import com.stripe.model.{DeletedCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
 import services._
 import utils.aliases.stripe._
 
@@ -23,10 +23,7 @@ trait StripeApiWrapper {
 
   def createCard(customer: StripeCustomer, options: Map[String, AnyRef]): Result[StripeCard]
 
-  def getExtAccount(customer: StripeCustomer, id: String): Result[ExternalAccount]
+  def updateCard(card: StripeCard, options: Map[String, AnyRef]): Result[StripeCard]
 
-  def updateExternalAccount(card: ExternalAccount,
-                            options: Map[String, AnyRef]): Result[ExternalAccount]
-
-  def deleteExternalAccount(card: ExternalAccount): Result[DeletedExternalAccount]
+  def deleteCard(card: StripeCard): Result[DeletedCard]
 }

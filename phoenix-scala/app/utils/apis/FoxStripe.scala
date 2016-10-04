@@ -3,7 +3,7 @@ package utils.apis
 import scala.collection.JavaConversions._
 
 import cats.implicits._
-import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
+import com.stripe.model.DeletedCard
 import failures.CustomerFailures.CustomerMustHaveCredentials
 import models.location.Address
 import models.payment.creditcard.CreditCard
@@ -33,7 +33,7 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
   def createCardFromSource(email: Option[String],
                            card: CreateCreditCardFromSourcePayload,
                            stripeCustomerId: Option[String],
-                           address: Address) = {
+                           address: Address): Result[(StripeCustomer, StripeCard)] = {
     lazy val details = Map[String, Object]("object" → "card",
                                            "number"        → card.cardNumber,
                                            "exp_month"     → card.expMonth.toString,
@@ -93,9 +93,9 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
   def captureCharge(chargeId: String, amount: Int): Result[StripeCharge] =
     stripe.captureCharge(chargeId, Map[String, Object]("amount" → amount.toString))
 
-  def editCard(cc: CreditCard): Result[ExternalAccount] = {
+  def editCard(cc: CreditCard): Result[StripeCard] = {
 
-    def update(stripeCard: StripeCard): Result[ExternalAccount] = {
+    def update(stripeCard: StripeCard): Result[StripeCard] = {
 
       val params = Map[String, Object](
           "address_line1" → cc.address1,
@@ -108,7 +108,7 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
           "exp_month"    → cc.expMonth.toString
       )
 
-      stripe.updateExternalAccount(stripeCard, params)
+      stripe.updateCard(stripeCard, params)
     }
 
     (for {
@@ -120,10 +120,10 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
   private def getCard(gatewayCustomerId: String, gatewayCardId: String): Result[StripeCard] =
     stripe.findCardByCustomerId(gatewayCustomerId, gatewayCardId)
 
-  def deleteCard(cc: CreditCard): Result[DeletedExternalAccount] = {
+  def deleteCard(cc: CreditCard): Result[DeletedCard] = {
     (for {
       stripeCard ← ResultT(getCard(cc.gatewayCustomerId, cc.gatewayCardId))
-      updated    ← ResultT(stripe.deleteExternalAccount(stripeCard))
+      updated    ← ResultT(stripe.deleteCard(stripeCard))
     } yield updated).value
   }
 

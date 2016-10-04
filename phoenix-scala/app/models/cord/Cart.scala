@@ -77,8 +77,7 @@ object Carts
       db: DB): DbResultT[Cart] =
     for {
       cord ← * <~ Cords.mustFindByRefNum(refNum, _ ⇒ NotFoundFailure404(Cart, refNum))
-      cart ← * <~ (if (cord.isCart) super.mustFindByRefNum(refNum)
-                   else DbResultT.failure(OrderAlreadyPlaced(refNum)))
+      cart ← * <~ doOrFail(cord.isCart, super.mustFindByRefNum(refNum), OrderAlreadyPlaced(refNum))
     } yield cart
 
   private val rootLens = lens[Cart]

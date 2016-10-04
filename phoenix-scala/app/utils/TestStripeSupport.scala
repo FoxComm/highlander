@@ -7,21 +7,20 @@ import scala.collection.JavaConversions._
 import com.stripe.model.Token
 import faker.Lorem
 import models.location.Address
-import org.scalatest.OptionValues
 import services.Result
 import utils.apis.StripeWrapper
 import utils.seeds.Seeds.Factories
 
-object TestStripeSupport extends OptionValues {
+object TestStripeSupport {
 
   // "fox" suffix is to indicate its ours
-  def randomStripeishId = Lorem.bothify("?#?#?#?####?#?#???_fox")
+  def randomStripeishId: String = Lorem.bothify("?#?#?#?####?#?#???_fox")
 
   // Reuse existing customer id. If this one doesn't work anymore, head to Stripe dashboard and search for customer with
   // active credit card.
   val realStripeCustomerId = "cus_94Z7DcUVKfmdKx"
 
-  def createTokenForCard(cardNumber: String) =
+  def createTokenForCard(cardNumber: String): Result[Token] =
     createToken(cardNumber = cardNumber,
                 expYear = ZonedDateTime.now.getYear + 3,
                 expMonth = 5,
@@ -69,14 +68,14 @@ object TestStripeSupport extends OptionValues {
   )
 
   def successfulCard: String =
-    this.successfulCards.get("Visa").value
+    this.successfulCards("Visa")
 
   def declinedCard: String =
-    this.failureCards.get("card_declined").value
+    this.failureCards("card_declined")
 
   def incorrectNumberCard: String =
-    this.failureCards.get("incorrect_number").value
+    this.failureCards("incorrect_number")
 
   def incorrectCvc: String =
-    this.failureCards.get("incorrect_cvc_code").value
+    this.failureCards("incorrect_cvc_code")
 }

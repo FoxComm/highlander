@@ -82,7 +82,7 @@ object GiftCardService {
                                             reasonId = payload.reasonId,
                                             currency = payload.currency)
       response ← * <~ (1 to payload.quantity).value.map { num ⇒
-                  createByAdmin(admin, gcCreatePayload).value.map(buildItemResult(_)).toXor
+                  createByAdmin(admin, gcCreatePayload).value.map(buildItemResult(_)).dbresult
                 }
     } yield response
 
@@ -95,7 +95,7 @@ object GiftCardService {
                   val itemPayload = GiftCardUpdateStateByCsr(payload.state, payload.reasonId)
                   updateStateByCsr(code, itemPayload, admin).value
                     .map(buildItemResult(_, Some(code)))
-                    .toXor
+                    .dbresult
                 }
     } yield response
 

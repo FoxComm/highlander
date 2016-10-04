@@ -197,11 +197,9 @@ case class Checkout(
       scIds   = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
       gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
 
-      _ ← * <~ (if (scTotal > 0) LogActivity.scFundsAuthorized(customer, cart, scIds, scTotal)
-                else DbResultT.unit)
-
-      _ ← * <~ (if (gcTotal > 0) LogActivity.gcFundsAuthorized(customer, cart, gcCodes, gcTotal)
-                else DbResultT.unit)
+      _ ← * <~ doOrMeh(scTotal > 0, LogActivity.scFundsAuthorized(customer, cart, scIds, scTotal))
+      _ ← * <~ doOrMeh(gcTotal > 0,
+                       LogActivity.gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
 
       // Authorize funds on credit card
       ccs ← * <~ authCreditCard(cart.grandTotal, gcTotal + scTotal)
@@ -217,7 +215,7 @@ case class Checkout(
       (for {
         pmt  ← OrderPayments.findAllCreditCardsForOrder(cart.refNum)
         card ← pmt.creditCard
-      } yield (pmt, card)).one.toXor.flatMap {
+      } yield (pmt, card)).one.dbresult.flatMap {
         case Some((pmt, card)) ⇒
           for {
             stripeCharge ← * <~ apis.stripe

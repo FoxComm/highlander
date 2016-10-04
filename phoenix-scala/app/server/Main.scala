@@ -122,7 +122,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
     }
   }
 
-  val devRoutes = {
+  lazy val devRoutes = {
     pathPrefix("v1") {
       requireAdminAuth(userAuth) { implicit auth ⇒
         routes.admin.DevRoutes.routes

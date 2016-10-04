@@ -289,7 +289,7 @@ object ProductManager {
     skuPayloads.map { payload ⇒
       for {
         code ← * <~ SkuManager.mustGetSkuCode(payload)
-        sku  ← * <~ Skus.filterByContextAndCode(oc.id, code).one.toXor
+        sku  ← * <~ Skus.filterByContextAndCode(oc.id, code).one.dbresult
         up ← * <~ sku.map { foundSku ⇒
               if (foundSku.archivedAt.isEmpty) {
                 for {

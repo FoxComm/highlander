@@ -47,7 +47,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
         val canada = Addresses
           .create(
               Factories.address.copy(accountId = customer.accountId,
-                                     name = "Canada, Eh",
+                                     name = "Mr Moose",
                                      regionId = ontarioId,
                                      isDefaultShipping = false))
           .gimme

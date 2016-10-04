@@ -29,18 +29,6 @@ Contact phone number.
 @field isDefault?: Boolean = false
 Default or not in address book.
 
-@miniclass Region (Addresses)
-@aka region
-
-@field id: Number = 1
-Unique identifier.
-
-@field countryId: Number = 2794
-Country unique identifier.
-
-@field name: String = `Washington`
-Region name.
-
 @miniclass CreateAddressPayload (Addresses)
 @aka createaddresspayload
 
@@ -94,10 +82,3 @@ Default or not in address book.
 
 @field phoneNumber?: String = `555-555-555`
 Contact phone number.
-
-@miniclass AddressesResponse (Addresses)
-@aka addressesresponse
-@inherits ResultMetadata
-
-@field result: Array<Address>
-The resulting list of Addresses.

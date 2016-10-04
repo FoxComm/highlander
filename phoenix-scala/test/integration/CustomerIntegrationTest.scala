@@ -6,7 +6,6 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import cats.implicits._
 import com.stripe.exception.CardException
-import com.stripe.model.ExternalAccount
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.CustomerFailures._
 import failures.StripeFailures.StripeFailure
@@ -35,6 +34,7 @@ import slick.driver.PostgresDriver.api._
 import util._
 import util.fixtures.BakedFixtures
 import utils.MockedApis
+import utils.aliases.stripe.StripeCard
 import utils.db._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories
@@ -68,7 +68,7 @@ class CustomerIntegrationTest
     }
   }
 
-  "GET /v1/customers/:customerId" - {
+  "GET /v1/customers/:accountId" - {
     "fetches customer info" in new Fixture {
       val response = GET(s"v1/customers/${customer.accountId}")
       val customerRoot =
@@ -234,7 +234,7 @@ class CustomerIntegrationTest
     }
   }
 
-  "GET /v1/customers/:customerId/cart" - {
+  "GET /v1/customers/:accountId/cart" - {
     "returns customer cart" in new EmptyCustomerCart_Baked {
       val response = GET(s"v1/customers/${customer.accountId}/cart")
       response.status must === (StatusCodes.OK)
@@ -261,7 +261,7 @@ class CustomerIntegrationTest
     }
   }
 
-  "PATCH /v1/customers/:customerId" - {
+  "PATCH /v1/customers/:accountId" - {
     "successfully updates customer attributes" in new Fixture {
       val payload = UpdateCustomerPayload(name = "John Doe".some,
                                           email = "newemail@example.org".some,
@@ -293,7 +293,7 @@ class CustomerIntegrationTest
     }
   }
 
-  "POST /v1/customers/:customerId/activate" - {
+  "POST /v1/customers/:accountId/activate" - {
     "fails if email is already in use by non-guest user" in new Fixture {
       val newUserResponse =
         POST(s"v1/customers",
@@ -332,7 +332,7 @@ class CustomerIntegrationTest
     }
   }
 
-  "POST /v1/customers/:customerId/disable" - {
+  "POST /v1/customers/:accountId/disable" - {
     "toggles the isDisabled flag on a customer account" in new Fixture {
       customer.isDisabled must === (false)
 
@@ -364,7 +364,7 @@ class CustomerIntegrationTest
     }
   }
 
-  "POST /v1/customers/:customerId/blacklist" - {
+  "POST /v1/customers/:accountId/blacklist" - {
     "toggles the isBlacklisted flag on a customer account" in new Fixture {
       customer.isBlacklisted must === (false)
 
@@ -397,7 +397,7 @@ class CustomerIntegrationTest
     }
   }
 
-  "GET /v1/customers/:customerId/payment-methods/credit-cards" - {
+  "GET /v1/customers/:accountId/payment-methods/credit-cards" - {
     "shows customer's credit cards only in their wallet" in new CreditCardFixture {
       val deleted = CreditCards.create(creditCard.copy(id = 0, inWallet = false)).gimme
 
@@ -412,7 +412,7 @@ class CustomerIntegrationTest
     }
   }
 
-  "POST /v1/customers/:customerId/payment-methods/credit-cards/:creditCardId/default" - {
+  "POST /v1/customers/:accountId/payment-methods/credit-cards/:creditCardId/default" - {
     "sets the isDefault flag on a credit card" in new CreditCardFixture {
       CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).gimme
 
@@ -461,7 +461,7 @@ class CustomerIntegrationTest
     }
   }
 
-  "DELETE /v1/customers/:customerId/payment-methods/credit-cards/:creditCardId" - {
+  "DELETE /v1/customers/:accountId/payment-methods/credit-cards/:creditCardId" - {
     "deletes successfully if the card exists" in new CreditCardFixture {
       val response =
         DELETE(s"v1/customers/${customer.accountId}/payment-methods/credit-cards/${creditCard.id}")
@@ -473,7 +473,7 @@ class CustomerIntegrationTest
     }
   }
 
-  "PATCH /v1/customers/:customerId/payment-methods/credit-cards/:creditCardId" - {
+  "PATCH /v1/customers/:accountId/payment-methods/credit-cards/:creditCardId" - {
     "when successful" - {
       "removes the original card from wallet" in new CreditCardFixture {
         val payload = EditCreditCard(holderName = Some("Bob"))
@@ -594,8 +594,8 @@ class CustomerIntegrationTest
                                         null,
                                         null)
 
-      when(stripeWrapperMock.updateExternalAccount(any(), any()))
-        .thenReturn(Result.failure[ExternalAccount](StripeFailure(exception)))
+      when(stripeWrapperMock.updateCard(any(), any()))
+        .thenReturn(Result.failure[StripeCard](StripeFailure(exception)))
 
       val payload = EditCreditCard(expYear = Some(2000))
       val response =

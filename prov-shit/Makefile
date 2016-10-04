@@ -104,6 +104,9 @@ run-gatling-highlander: deploy-gatling-highlander
 tf-dev:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_dev/terraform.tfstate -var-file=$(TF_ENVS)/gce_dev/dev.tfvars $(TF_BASE)/gce_dev
 
+tf-gatling:
+	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_gatling/terraform.tfstate -var-file=$(TF_ENVS)/gce_gatling/gatling.tfvars $(TF_BASE)/gce_gatling
+
 tf-stage:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/gce_staging/terraform.tfstate -var-file=$(TF_ENVS)/gce_staging/staging.tfvars $(TF_BASE)/gce_staging
 

@@ -4,7 +4,6 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import cats.implicits._
-import com.stripe.model.ExternalAccount
 import failures.{GeneralFailure, NotFoundFailure400, NotFoundFailure404}
 import models.account._
 import models.location.{Addresses, Region}
@@ -211,8 +210,7 @@ class CreditCardsIntegrationTest
       val deleteResp =
         DELETE(s"v1/customers/${customer.accountId}/payment-methods/credit-cards/${ccResp2.id}")
       deleteResp.status must === (StatusCodes.NoContent)
-      verify(stripeWrapperMock).deleteExternalAccount(
-          m.argThat(cardStripeIdMatches(stripeCard2.getId)))
+      verify(stripeWrapperMock).deleteCard(m.argThat(cardStripeIdMatches(stripeCard2.getId)))
 
       val getResp2 = GET(s"v1/customers/${customer.accountId}/payment-methods/credit-cards")
       getResp2.status must === (StatusCodes.OK)

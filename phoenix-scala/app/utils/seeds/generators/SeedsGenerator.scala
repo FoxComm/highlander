@@ -4,7 +4,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
 import cats.implicits._
-import faker.Faker
+import faker.{Faker, Lorem}
 import models.cord._
 import models.coupon._
 import models.customer._
@@ -41,7 +41,7 @@ object RankingSeedsGenerator {
   def generateAddress: Address =
     Address(accountId = 0,
             regionId = 4177,
-            name = randomString(10),
+            name = faker.Name.name,
             address1 = randomString(30),
             address2 = None,
             city = "Seattle",

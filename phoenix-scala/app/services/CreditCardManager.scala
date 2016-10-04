@@ -48,7 +48,7 @@ object CreditCardManager {
                        .map(_.gatewayCustomerId)
                        .one
       address = Address.fromPayload(payload.billingAddress, customer.accountId)
-      _ ← * <~ (if (payload.addressIsNew) Addresses.create(address) else DbResultT.unit)
+      _ ← * <~ doOrMeh(payload.addressIsNew, Addresses.create(address))
       stripes ← * <~ apis.stripe.createCardFromToken(email = customer.email,
                                                      token = payload.token,
                                                      stripeCustomerId = customerToken,
@@ -76,8 +76,7 @@ object CreditCardManager {
                    sCard: StripeCard,
                    address: Address) =
       for {
-        _ ← * <~ (if (address.isNew) Addresses.create(address.copy(accountId = accountId))
-                  else DbResultT.unit)
+        _ ← * <~ doOrMeh(address.isNew, Addresses.create(address.copy(accountId = accountId)))
         cc = CreditCard.buildFromSource(accountId, sCustomer, sCard, payload, address)
         newCard ← * <~ CreditCards.create(cc)
         region  ← * <~ Regions.findOneById(newCard.regionId).safeGet
@@ -145,9 +144,8 @@ object CreditCardManager {
           expMonth = payload.expMonth.getOrElse(cc.expMonth)
       )
       for {
-        _ ← * <~ DBIO.from(apis.stripe.editCard(updated))
-        _ ← * <~ (if (!cc.inWallet) DbResultT.failure(CannotUseInactiveCreditCard(cc))
-                  else DbResultT.unit)
+        _  ← * <~ DBIO.from(apis.stripe.editCard(updated))
+        _  ← * <~ failIf(!cc.inWallet, CannotUseInactiveCreditCard(cc))
         _  ← * <~ CreditCards.update(cc, cc.copy(inWallet = false))
         cc ← * <~ CreditCards.create(updated)
         _  ← * <~ LogActivity.ccUpdated(customer, updated, cc, admin)

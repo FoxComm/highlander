@@ -123,7 +123,7 @@ object SkuManager {
   def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC, db: DB, oc: OC, au: AU) =
     for {
       code ← * <~ mustGetSkuCode(skuPayload)
-      sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.toXor.flatMap {
+      sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.dbresult.flatMap {
              case Some(sku) ⇒ SkuManager.updateSkuInner(sku, skuPayload)
              case None      ⇒ SkuManager.createSkuInner(oc, skuPayload)
            }

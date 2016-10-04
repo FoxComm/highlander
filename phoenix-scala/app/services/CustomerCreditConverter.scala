@@ -21,9 +21,8 @@ object CustomerCreditConverter {
     for {
 
       giftCard ← * <~ GiftCards.mustFindByCode(giftCardCode)
-      _ ← * <~ (if (!giftCard.isActive) DbResultT.failure(GiftCardConvertFailure(giftCard))
-                else DbResultT.unit)
-      _ ← * <~ Users.mustFindByAccountId(accountId)
+      _        ← * <~ failIf(!giftCard.isActive, GiftCardConvertFailure(giftCard))
+      _        ← * <~ Users.mustFindByAccountId(accountId)
       _ ← * <~ GiftCardAdjustments
            .lastAuthByGiftCardId(giftCard.id)
            .one
@@ -51,9 +50,8 @@ object CustomerCreditConverter {
     for {
 
       credit ← * <~ StoreCredits.mustFindById404(storeCreditId)
-      _ ← * <~ (if (!credit.isActive) DbResultT.failure(StoreCreditConvertFailure(credit))
-                else DbResultT.unit)
-      _ ← * <~ Users.mustFindByAccountId(accountId)
+      _      ← * <~ failIf(!credit.isActive, StoreCreditConvertFailure(credit))
+      _      ← * <~ Users.mustFindByAccountId(accountId)
       _ ← * <~ StoreCreditAdjustments
            .lastAuthByStoreCreditId(credit.id)
            .one

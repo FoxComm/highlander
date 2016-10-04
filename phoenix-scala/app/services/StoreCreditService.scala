@@ -22,7 +22,7 @@ object StoreCreditService {
   def getOriginTypes(implicit ec: EC, db: DB): DbResultT[Seq[StoreCreditSubTypesResponse.Root]] =
     StoreCreditSubtypes.result.map { subTypes ⇒
       StoreCreditSubTypesResponse.build(StoreCredit.OriginType.publicTypes.toSeq, subTypes)
-    }.toXor
+    }.dbresult
 
   // Check subtype only if id is present in payload; discard actual model
   private def checkSubTypeExists(subTypeId: Option[Int], originType: StoreCredit.OriginType)(
@@ -32,7 +32,7 @@ object StoreCreditService {
         .byOriginType(originType)
         .filter(_.id === subtypeId)
         .one
-        .toXor
+        .dbresult
         .flatMap(_.fold {
           DbResultT.failure[Unit](NotFoundFailure400(StoreCreditSubtype, subtypeId))
         } { _ ⇒
@@ -118,7 +118,9 @@ object StoreCreditService {
       _ ← * <~ payload.validate.toXor
       response ← * <~ payload.ids.map { id ⇒
                   val itemPayload = StoreCreditUpdateStateByCsr(payload.state, payload.reasonId)
-                  updateStateByCsr(id, itemPayload, admin).value.map(buildItemResult(id, _)).toXor
+                  updateStateByCsr(id, itemPayload, admin).value
+                    .map(buildItemResult(id, _))
+                    .dbresult
                 }
     } yield response
 

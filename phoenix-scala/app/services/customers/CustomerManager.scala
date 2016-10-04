@@ -4,12 +4,16 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
+
+import failures.CustomerFailures._
 import failures.NotFoundFailure404
 import models.account._
+import models.account.{User, Users}
 import models.cord.{OrderShippingAddresses, Orders}
 import models.customer.{CustomerUser, CustomerUsers}
 import models.customer.CustomerUsers.scope._
-import models.account.{User, Users}
+import models.customer._
+
 import models.location.Addresses
 import models.shipping.Shipments
 import payloads.CustomerPayloads._
@@ -34,7 +38,7 @@ object CustomerManager {
           address.phoneNumber.isDefined
       } yield (address.phoneNumber, shipment.updatedAt)).sortBy {
         case (_, updatedAt)   ⇒ updatedAt.desc.nullsLast
-      }.map { case (phone, _) ⇒ phone }.one.map(_.flatten).toXor
+      }.map { case (phone, _) ⇒ phone }.one.map(_.flatten).dbresult
 
     for {
       default ← * <~ Addresses
@@ -42,9 +46,8 @@ object CustomerManager {
                  .map(_.phoneNumber)
                  .one
                  .map(_.flatten)
-                 .toXor
-      shipment ← * <~ (if (default.isEmpty) resolveFromShipments(accountId)
-                       else DbResultT.good(default))
+                 .dbresult
+      shipment ← * <~ doOrGood(default.isEmpty, resolveFromShipments(accountId), default)
     } yield shipment
   }
 
@@ -57,8 +60,9 @@ object CustomerManager {
                        .mustFindOneOr(NotFoundFailure404(CustomerUser, accountId))
       (customerUser, shipRegion, billRegion, rank) = customerUsers
       maxOrdersDate ← * <~ Orders.filter(_.accountId === accountId).map(_.placedAt).max.result
-      phoneOverride ← * <~ (if (customer.phoneNumber.isEmpty) resolvePhoneNumber(accountId)
-                            else DbResultT.good(None))
+      phoneOverride ← * <~ doOrGood(customer.phoneNumber.isEmpty,
+                                    resolvePhoneNumber(accountId),
+                                    None)
     } yield
       build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
             customerUser,
@@ -72,7 +76,6 @@ object CustomerManager {
              admin: Option[User] = None,
              context: AccountCreateContext)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
-
       user ← * <~ AccountManager.createUser(name = payload.name,
                                             email = payload.email.some,
                                             password = payload.password,

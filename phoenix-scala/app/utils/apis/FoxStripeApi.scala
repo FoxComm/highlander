@@ -1,6 +1,6 @@
 package utils.apis
 
-import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
+import com.stripe.model.DeletedCard
 import models.location.Address
 import models.payment.creditcard.CreditCard
 import payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
@@ -28,8 +28,8 @@ trait FoxStripeApi {
 
   def captureCharge(chargeId: String, amount: Int): Result[StripeCharge]
 
-  def editCard(cc: CreditCard): Result[ExternalAccount]
+  def editCard(cc: CreditCard): Result[StripeCard]
 
-  def deleteCard(cc: CreditCard): Result[DeletedExternalAccount]
+  def deleteCard(cc: CreditCard): Result[DeletedCard]
 
 }

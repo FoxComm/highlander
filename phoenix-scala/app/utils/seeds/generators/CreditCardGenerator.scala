@@ -52,7 +52,7 @@ trait CreditCardGenerator extends AddressGenerator {
                expYear = today.getYear + 2,
                isDefault = true,
                regionId = 4129,
-               addressName = address.name,
+               addressName = customer.name.getOrElse(Name.name),
                address1 = address.address1,
                address2 = address.address2,
                city = address.city,
