@@ -6,5 +6,5 @@ ashes_server: 127.0.0.1:4000
 api_server: balancer.service.consul
 storefront_server: 127.0.0.1:4041
 demo_domain: gatling.foxcommerce.com
-ashes_server_name: "admin.{{demo_domain}}"
+ashes_server_name: "{{demo_domain}}"
 storefront_server_name: "{{demo_domain}}"
