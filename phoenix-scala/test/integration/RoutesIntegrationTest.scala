@@ -6,7 +6,6 @@ import models.customer.{Customer, Customers}
 import services.Authenticator.AsyncAuthenticator
 import util._
 import utils.MockedApis
-import utils.seeds.Seeds.Factories
 
 class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSupport with MockedApis {
 
@@ -28,7 +27,7 @@ class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSuppor
   }
 }
 
-class RoutesCustomerOnlyIntegrationTest
+class RoutesStorefrontOnlyIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with MockedApis {
@@ -49,7 +48,7 @@ class RoutesCustomerOnlyIntegrationTest
     }
 
     "GET v1/my/cart" in {
-      Customers.create(Factories.customer).gimme
+      Customers.create(authedCustomer).gimme
       GET(s"v1/my/cart").status must === (StatusCodes.OK)
     }
   }
