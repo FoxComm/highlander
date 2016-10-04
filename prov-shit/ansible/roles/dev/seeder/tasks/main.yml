@@ -18,6 +18,7 @@
 
 - name: Create Directory for Gatling results
   file: path="{{phoenix_dir}}/gatling-results" state=directory owner="{{user}}" mode="0777"
+  sudo: true
 
 - name: Seed Phoenix Database
   shell: java -Dphoenix.env={{phoenix_env}} -Ddb.host={{db_host}} -Ddb.url="jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}}" -Ddb.name={{db_name}} -cp {{phoenix_jar}} {{seeds_cmd}}
