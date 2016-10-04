@@ -13,7 +13,7 @@ defmodule Solomon.Router do
       resources "/granted_permissions", RolePermissionController
     end
     resources "/scopes", ScopeController, as: :fc_scope
-    post "/scopes/:scope_id/admin_role", ScopeController, :create_admin_role
+    post "/scopes/:id/admin_role", ScopeController, :create_admin_role
     resources "/systems", SystemController
     resources "/permissions", PermissionController
     resources "/accounts", AccountController do 
