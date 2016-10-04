@@ -6,18 +6,18 @@ import java.security.{KeyFactory, PrivateKey, PublicKey}
 
 import scala.util.{Failure, Success, Try}
 
-import cats.implicits._
 import cats.data.Xor
+import cats.implicits._
 import failures.AuthFailures._
 import failures.{Failures, GeneralFailure}
 import models.StoreAdmin
 import models.customer.Customer
+import org.jose4j.jwa.AlgorithmConstraints
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
-import org.jose4j.jwa.AlgorithmConstraints
 import org.jose4j.jwt.consumer.{InvalidJwtException, JwtConsumerBuilder}
+import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import org.json4s.{Extraction, _}
 import utils.FoxConfig.{RichConfig, config}
 import utils.db._
 

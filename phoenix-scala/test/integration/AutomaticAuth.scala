@@ -1,17 +1,16 @@
-import akka.http.scaladsl.server.directives.AuthenticationResult
-
-import models.StoreAdmin
-import models.customer.Customer
-import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
-import org.scalatest.{Suite, SuiteMixin}
-import util.DbTestSupport
-import services.Authenticator.AsyncAuthenticator
 import scala.concurrent.Future
 import akka.http.scaladsl.model.headers.HttpChallenge
 import akka.http.scaladsl.server.Directive1
+import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.provide
 import akka.http.scaladsl.server.directives.SecurityDirectives._
 
+import models.StoreAdmin
+import models.customer.Customer
+import org.scalatest.SuiteMixin
+import org.scalatest.concurrent.ScalaFutures
+import services.Authenticator.AsyncAuthenticator
+import testutils.{FoxSuite, HttpSupport}
 import utils.seeds.Seeds.Factories
 
 trait FakeAuth[M] extends AsyncAuthenticator[M] {
@@ -31,8 +30,7 @@ case class AuthFailWith[M](challenge: HttpChallenge) extends FakeAuth[M] {
   }
 }
 
-trait AutomaticAuth extends SuiteMixin with ScalaFutures with HttpSupport {
-  this: Suite with PatienceConfiguration with DbTestSupport ⇒
+trait AutomaticAuth extends SuiteMixin with ScalaFutures with HttpSupport { self: FoxSuite ⇒
 
   val authedStoreAdmin = Factories.storeAdmin.copy(id = 1)
 

@@ -1,24 +1,19 @@
-package util.fixtures
+package testutils.fixtures
 
 import cats.implicits._
 import models._
 import models.cord._
-import models.cord.lineitems._
 import models.customer._
 import models.inventory.Sku
 import models.location._
-import models.product._
 import models.payment.giftcard.GiftCard
-import models.product.{Mvp, SimpleProductData, SimpleSku}
+import models.product._
 import models.traits.Originator
-import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.OrderPayloads
 import payloads.PaymentPayloads.GiftCardPayment
-import payloads.{OrderPayloads, UpdateShippingMethod}
 import services.carts._
-import services.{LineItemUpdater, ShippingManager}
-import slick.driver.PostgresDriver.api._
+import testutils.fixtures.raw._
 import utils.db._
-import util.fixtures.raw._
 import utils.seeds.Seeds.Factories
 
 /**

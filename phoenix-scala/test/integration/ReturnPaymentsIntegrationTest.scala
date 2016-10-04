@@ -1,17 +1,13 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import util._
 import failures.NotFoundFailure404
-import models.StoreAdmins
-import models.customer.Customers
-import models.location.Addresses
-import models.cord.{OrderPayments, Orders}
+import models.cord.OrderPayments
 import models.payment.creditcard.CreditCards
 import models.returns._
 import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
-import util.IntegrationTestBase
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -20,8 +16,6 @@ class ReturnPaymentsIntegrationTest
     with HttpSupport
     with AutomaticAuth
     with BakedFixtures {
-
-  import Extensions._
 
   "gift cards" - {
     pending

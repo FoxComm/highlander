@@ -1,4 +1,4 @@
-package util
+package testutils
 
 import scala.reflect.runtime.universe._
 

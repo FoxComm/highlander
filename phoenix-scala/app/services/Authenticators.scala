@@ -14,7 +14,7 @@ import akka.http.scaladsl.server.directives.{AuthenticationDirective, Authentica
 import cats.data.Xor
 import failures.AuthFailures._
 import failures.Failures
-import models.auth.{Identity, _}
+import models.auth._
 import models.customer.{Customer, Customers}
 import models.{StoreAdmin, StoreAdmins}
 import org.jose4j.jwt.JwtClaims

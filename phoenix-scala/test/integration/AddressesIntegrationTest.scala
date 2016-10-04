@@ -1,16 +1,14 @@
 import java.time.Instant
 
-import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
-
-import Extensions._
 import failures.NotFoundFailure404
 import models.cord.OrderShippingAddresses
 import models.customer.{Customer, Customers}
 import models.location.{Address, Addresses}
 import payloads.AddressPayloads.CreateAddressPayload
 import responses.AddressResponse
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -18,20 +16,12 @@ class AddressesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
+    with PhoenixAdminApi
     with BakedFixtures {
-
-  def validateDeleteResponse(response: HttpResponse) {
-    response.status must === (StatusCodes.NoContent)
-    response.bodyText mustBe 'empty
-  }
 
   "GET /v1/customers/:customerId/addresses" - {
     "lists addresses" in new CustomerAddress_Baked {
-      val response = GET(s"v1/customers/${customer.id}/addresses")
-
-      response.status must === (StatusCodes.OK)
-
-      val addresses = response.as[Seq[AddressResponse]]
+      val addresses = customersApi(customer.id).addresses.get().as[Seq[AddressResponse]]
 
       addresses must have size 1
       addresses.head.name must === (address.name)
@@ -45,12 +35,7 @@ class AddressesIntegrationTest
                                          address1 = "3000 Coolio Dr",
                                          city = "Seattle",
                                          zip = "55555")
-      val response = POST(s"v1/customers/${customer.id}/addresses", payload)
-
-      response.status must === (StatusCodes.OK)
-
-      val newAddress = response.as[AddressResponse]
-
+      val newAddress = customersApi(customer.id).addresses.create(payload).as[AddressResponse]
       newAddress.name must === (payload.name)
       newAddress.isDefault must === (Some(false))
     }
@@ -58,16 +43,13 @@ class AddressesIntegrationTest
 
   "POST /v1/customers/:customerId/addresses/:addressId/default" - {
     "sets the isDefaultShippingAddress flag on an address" in new NoDefaultAddressFixture {
-      val response = POST(s"v1/customers/${customer.id}/addresses/${address.id}/default")
-      response.status must === (StatusCodes.OK)
+      customersApi(customer.id).address(address.id).setDefault().mustBeOk()
       Addresses.findOneById(address.id).gimme.value.isDefaultShipping mustBe true
     }
 
     "sets a new shipping address if there's already a default shipping address" in new CustomerAddress_Baked {
-      val another  = Addresses.create(address.copy(id = 0, isDefaultShipping = false)).gimme
-      val response = POST(s"v1/customers/${customer.id}/addresses/${another.id}/default")
-
-      response.status must === (StatusCodes.OK)
+      val another = Addresses.create(address.copy(id = 0, isDefaultShipping = false)).gimme
+      customersApi(customer.id).address(another.id).setDefault().mustBeOk()
 
       Addresses.findOneById(another.id).gimme.value.isDefaultShipping mustBe true
       Addresses.findOneById(address.id).gimme.value.isDefaultShipping mustBe false
@@ -76,17 +58,13 @@ class AddressesIntegrationTest
 
   "DELETE /v1/customers/:customerId/addresses/default" - {
     "removes an existing default from a shipping address" in new CustomerAddress_Baked {
-      val response = DELETE(s"v1/customers/${customer.id}/addresses/default")
-
-      validateDeleteResponse(response)
+      customersApi(customer.id).addresses.unsetDefault().mustBeEmpty()
 
       Addresses.findOneById(address.id).gimme.value.isDefaultShipping mustBe false
     }
 
     "attempts to removes default shipping address when none is set" in new Customer_Seed {
-      val response = DELETE(s"v1/customers/${customer.id}/addresses/default")
-
-      validateDeleteResponse(response)
+      customersApi(customer.id).addresses.unsetDefault().mustBeEmpty()
 
       Addresses.findAllByCustomerId(customer.id).length.gimme must === (0)
     }
@@ -101,10 +79,7 @@ class AddressesIntegrationTest
                                          zip = "55555")
       (payload.name, payload.address1) must !==((address.name, address.address1))
 
-      val response = PATCH(s"v1/customers/${customer.id}/addresses/${address.id}", payload)
-
-      val updated = response.as[AddressResponse]
-      response.status must === (StatusCodes.OK)
+      val updated = customersApi(customer.id).address(address.id).edit(payload).as[AddressResponse]
 
       (updated.name, updated.address1) must === ((payload.name, payload.address1))
     }
@@ -121,13 +96,9 @@ class AddressesIntegrationTest
                                          zip = "666",
                                          isDefault = true)
 
-      val response = POST(s"v1/customers/${customer.id}/addresses", payload)
-      response.status must === (StatusCodes.OK)
-      val newAddress = response.as[AddressResponse]
+      val newAddress = customersApi(customer.id).addresses.create(payload).as[AddressResponse]
 
-      //now delete
-      val deleteResponse = DELETE(s"v1/customers/${customer.id}/addresses/${newAddress.id}")
-      validateDeleteResponse(deleteResponse)
+      customersApi(customer.id).address(newAddress.id).delete().mustBeEmpty()
 
       val deletedAddress = Addresses.findOneById(newAddress.id).gimme.value
       deletedAddress.isDefaultShipping mustBe false
@@ -135,36 +106,32 @@ class AddressesIntegrationTest
     }
 
     "deleted address should be visible to StoreAdmin" in new DeletedAddressFixture {
-      val response = GET(s"v1/customers/${customer.id}/addresses/${address.id}")
-      response.status must === (StatusCodes.OK)
+      customersApi(customer.id).address(address.id).get().mustBeOk()
     }
 
     "deleted address should be invisible to Customer" in new DeletedAddressFixture {
-      val response = GET(s"v1/my/addresses/${address.id}")
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Address, address.id).description)
+      GET(s"v1/my/addresses/${address.id}")
+        .mustFailWith404(NotFoundFailure404(Address, address.id))
     }
 
     "fails deleting using wrong address id" in new CustomerAddress_Baked {
-      val response = DELETE(s"v1/customers/${customer.id}/addresses/65536")
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Address, 65536).description)
+      customersApi(customer.id)
+        .address(65536)
+        .delete()
+        .mustFailWith404(NotFoundFailure404(Address, 65536))
     }
 
     "fails deleting using wrong customer id" in new CustomerAddress_Baked {
-      val response = DELETE(s"v1/customers/65536/addresses/${address.id}")
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Customer, 65536).description)
+      customersApi(65536)
+        .address(address.id)
+        .delete()
+        .mustFailWith404(NotFoundFailure404(Customer, 65536))
     }
   }
 
   "GET /v1/my/addresses" - {
     "retrieves a customer's addresses" in new CustomerAddress_Baked {
-      val response = GET(s"v1/my/addresses")
-
-      response.status must === (StatusCodes.OK)
-
-      val addresses = response.as[Seq[AddressResponse]]
+      val addresses = GET(s"v1/my/addresses").as[Seq[AddressResponse]]
 
       addresses must have size 1
       addresses.head.name must === (address.name)

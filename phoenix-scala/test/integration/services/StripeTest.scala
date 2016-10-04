@@ -5,7 +5,7 @@ import java.time.{Instant, ZoneId}
 import cats.implicits._
 import com.stripe.Stripe
 import failures.CreditCardFailures.CardDeclined
-import util._
+import testutils._
 import utils.Money.Currency.USD
 import utils.TestStripeSupport._
 import utils.apis._

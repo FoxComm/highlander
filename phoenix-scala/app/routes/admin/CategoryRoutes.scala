@@ -16,25 +16,6 @@ object CategoryRoutes {
 
     activityContext(admin) { implicit ac ⇒
       pathPrefix("categories") {
-        pathPrefix(Segment / IntNumber) { (context, categoryId) ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              CategoryManager.getCategory(categoryId, context)
-            }
-          } ~
-          (patch & pathEnd & entity(as[UpdateFullCategory])) { payload ⇒
-            mutateOrFailures {
-              CategoryManager.updateCategory(admin, categoryId, payload, context)
-            }
-          }
-        } ~
-        pathPrefix(Segment) { (context) ⇒
-          (post & pathEnd & entity(as[CreateFullCategory])) { payload ⇒
-            mutateOrFailures {
-              CategoryManager.createCategory(admin, payload, context)
-            }
-          }
-        } ~
         pathPrefix(IntNumber / "form") { categoryId ⇒
           (get & pathEnd) {
             getOrFailures {
@@ -42,17 +23,36 @@ object CategoryRoutes {
             }
           }
         } ~
-        pathPrefix(Segment / IntNumber / "baked") { (context, categoryId) ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              CategoryManager.getIlluminatedCategory(categoryId, context)
+        pathPrefix(Segment) { context ⇒
+          (post & pathEnd & entity(as[CreateFullCategory])) { payload ⇒
+            mutateOrFailures {
+              CategoryManager.createCategory(admin, payload, context)
             }
-          }
-        } ~
-        pathPrefix(Segment / IntNumber / "shadow") { (context, categoryId) ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              CategoryManager.getShadow(categoryId, context)
+          } ~
+          pathPrefix(IntNumber) { categoryId ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                CategoryManager.getCategory(categoryId, context)
+              }
+            } ~
+            (patch & pathEnd & entity(as[UpdateFullCategory])) { payload ⇒
+              mutateOrFailures {
+                CategoryManager.updateCategory(admin, categoryId, payload, context)
+              }
+            } ~
+            pathPrefix("baked") {
+              (get & pathEnd) {
+                getOrFailures {
+                  CategoryManager.getIlluminatedCategory(categoryId, context)
+                }
+              }
+            } ~
+            pathPrefix("shadow") {
+              (get & pathEnd) {
+                getOrFailures {
+                  CategoryManager.getShadow(categoryId, context)
+                }
+              }
             }
           }
         }

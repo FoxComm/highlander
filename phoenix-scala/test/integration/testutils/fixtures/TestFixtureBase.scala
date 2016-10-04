@@ -1,6 +1,6 @@
-package util.fixtures
+package testutils.fixtures
 
-import util._
+import testutils._
 import utils.MockedApis
 import utils.aliases._
 

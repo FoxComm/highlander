@@ -3,7 +3,7 @@ package utils
 import cats.implicits._
 import models.customer.Customers
 import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
+import testutils._
 import utils.db.UpdateReturning._
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -11,7 +11,7 @@ import utils.seeds.Seeds.Factories
 class SlickTest extends IntegrationTestBase {
 
   "supports update with returning query for a single column" in {
-    val customer = Customers.create(Factories.customer.copy(name = "Jane".some)).gimme
+    Customers.create(Factories.customer.copy(name = "Jane".some)).gimme
     val update = Customers
       .filter(_.id === 1)
       .map(_.name)

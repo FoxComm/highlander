@@ -1,15 +1,16 @@
+package testutils
+
 import java.net.ServerSocket
 
 import scala.collection.immutable
 import scala.concurrent.Await
-import scala.concurrent.Await.result
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.client.RequestBuilding.Get
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse, Uri}
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -26,14 +27,11 @@ import models.StoreAdmin
 import models.customer.Customer
 import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
-import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
-import org.scalatest.{BeforeAndAfterAll, MustMatchers, Suite, SuiteMixin}
-import responses.TheResponse
+import org.scalatest._
+import org.scalatest.concurrent.ScalaFutures
 import server.Service
 import services.Authenticator
 import services.Authenticator.AsyncAuthenticator
-import util._
-import utils.aliases._
 import utils.apis.Apis
 import utils.{FoxConfig, JsonFormatters}
 
@@ -53,19 +51,14 @@ trait HttpSupport
     with MustMatchers
     with BeforeAndAfterAll
     with TestObjectContext {
-  this: Suite with PatienceConfiguration with DbTestSupport ⇒
+  self: FoxSuite ⇒
 
   import HttpSupport._
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  private val ActorSystemNameChars =
-    ('a' to 'z').toSet | ('A' to 'Z').toSet | ('0' to '9').toSet | Set('-', '_')
-
-  private val ValidResponseContentTypes =
+  private val validResponseContentTypes =
     Set(ContentTypes.`application/json`, ContentTypes.NoContentType)
-
-  import Extensions._
 
   protected implicit lazy val mat: ActorMaterializer   = materializer
   protected implicit lazy val actorSystem: ActorSystem = system
@@ -177,7 +170,7 @@ trait HttpSupport
     dispatchRequest(request)
   }
 
-  def pathToAbsoluteUrl(path: String) = {
+  def pathToAbsoluteUrl(path: String): Uri = {
     val host = serverBinding.localAddress.getHostString
     val port = serverBinding.localAddress.getPort
 
@@ -202,16 +195,13 @@ trait HttpSupport
     port
   }
 
-  def parseErrors(response: HttpResponse)(implicit ec: EC): List[String] =
-    response.errors
-
   protected def dispatchRequest(req: HttpRequest): HttpResponse = {
     val response = Http().singleRequest(req, settings = connectionPoolSettings).futureValue
-    ValidResponseContentTypes must contain(response.entity.contentType)
+    validResponseContentTypes must contain(response.entity.contentType)
     response
   }
 
-  lazy final val connectionPoolSettings = ConnectionPoolSettings
+  lazy final val connectionPoolSettings: ConnectionPoolSettings = ConnectionPoolSettings
     .default(implicitly[ActorSystem])
     .withMaxConnections(32)
     .withMaxOpenRequests(32)
@@ -239,33 +229,7 @@ trait HttpSupport
     def skipHeartbeats(sse: Source[String, Any]): Source[String, Any] =
       sse.via(Flow[String].filter(_.nonEmpty))
 
-    def probe(source: Source[String, Any]) =
+    def probe(source: Source[String, Any]): Probe[String] =
       source.runWith(TestSink.probe[String])
-  }
-}
-
-object Extensions {
-  implicit class RichHttpResponse(val res: HttpResponse) extends AnyVal {
-    import org.json4s.jackson.JsonMethods._
-
-    def bodyText(implicit ec: EC, mat: Mat): String =
-      result(res.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
-
-    def as[A <: AnyRef](implicit fm: Formats, mf: Manifest[A], mat: Mat): A =
-      parse(bodyText).extract[A]
-
-    def ignoreFailuresAndGiveMe[A <: AnyRef](implicit fm: Formats, mf: Manifest[A], mat: Mat): A =
-      parse(bodyText).extract[TheResponse[A]].result
-
-    def withResultTypeOf[A <: AnyRef](implicit fm: Formats,
-                                      mf: Manifest[A],
-                                      mat: Mat): TheResponse[A] =
-      parse(bodyText).extract[TheResponse[A]]
-
-    def errors(implicit fm: Formats, mat: Mat): List[String] =
-      (parse(bodyText) \ "errors").extractOrElse[List[String]](List.empty[String])
-
-    def error(implicit fm: Formats, mat: Mat): String =
-      errors.headOption.getOrElse("never gonna give you up. never gonna let you down.")
   }
 }

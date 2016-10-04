@@ -1,7 +1,5 @@
 import scala.language.implicitConversions
-import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
 import cats.implicits._
 import models.activity._
 import org.json4s.{DefaultFormats, Extraction}
@@ -11,11 +9,12 @@ import org.scalatest.mock.MockitoSugar
 import payloads.ActivityTrailPayloads.AppendActivity
 import payloads.CustomerPayloads.UpdateCustomerPayload
 import responses.ActivityConnectionResponse
+import responses.ActivityConnectionResponse.Root
 import services.activity.CustomerTailored.CustomerUpdated
 import slick.driver.PostgresDriver.api._
-import util._
-import util.fixtures.BakedFixtures
-import utils.db._
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 
 case class DumbActivity(randomWord: String, randomNumber: Int)
 
@@ -32,7 +31,7 @@ object DumbActivity {
 
 class ActivityTrailIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with MockitoSugar
     with TestActivityContext.AdminAC
@@ -49,8 +48,7 @@ class ActivityTrailIntegrationTest
                                           email = "crazy.lary@crazy.com".some,
                                           phoneNumber = "666 666 6666".some)
 
-      val response = PATCH(s"v1/customers/${customer.id}", payload)
-      response.status must === (StatusCodes.OK)
+      customersApi(customer.id).update(payload).mustBeOk()
 
       // Check the activity log to see if it was created
       val activity = Activities.filterByType(typeName).gimme.headOption.value
@@ -75,8 +73,7 @@ class ActivityTrailIntegrationTest
                                           email = "updated.name@name.com".some,
                                           phoneNumber = "666 666 6666".some)
 
-      val response = PATCH(s"v1/customers/${customer.id}", payload)
-      response.status must === (StatusCodes.OK)
+      customersApi(customer.id).update(payload).mustBeOk()
 
       // Check the activity log to see if it was created
       val activity = Activities.filterByType(typeName).gimme.headOption.value
@@ -170,16 +167,13 @@ class ActivityTrailIntegrationTest
     qr.passed must === (true)
   }
 
-  def getConnection(id: Int) =
+  def getConnection(id: Int): Connection =
     Connections.findById(id).extract.result.head.gimme
 
-  def appendActivity(dimension: String, objectId: Int, activityId: Int) = {
-    val appendPayload  = AppendActivity(activityId)
-    val appendResponse = POST(s"v1/trails/$dimension/$objectId", appendPayload)
-
-    appendResponse.status must === (StatusCodes.OK)
-    appendResponse.as[ActivityConnectionResponse.Root]
-  }
+  def appendActivity(dimension: String, objectId: Int, activityId: Int): Root =
+    activityTrailsApi
+      .appendActivity(dimension, objectId, AppendActivity(activityId))
+      .as[ActivityConnectionResponse.Root]
 
   trait Fixture extends Customer_Seed with StoreAdmin_Seed
 }

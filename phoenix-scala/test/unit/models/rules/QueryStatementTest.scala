@@ -2,7 +2,7 @@ package models.rules
 
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import util.TestBase
+import testutils.TestBase
 import utils.JsonFormatters._
 
 class QueryStatementTest extends TestBase {

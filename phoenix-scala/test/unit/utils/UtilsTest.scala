@@ -1,10 +1,10 @@
 package utils
 
-import util.TestBase
-import utils.Strings._
 import models.activity.Trail
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.NotePayloads.CreateNote
+import testutils.TestBase
+import utils.Strings._
 
 class UtilsTest extends TestBase {
 

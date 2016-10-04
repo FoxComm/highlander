@@ -2,6 +2,7 @@ package services
 
 import cats.implicits._
 import failures.CartFailures._
+import models.Reasons
 import models.cord._
 import models.cord.lineitems._
 import models.inventory.Skus
@@ -10,10 +11,9 @@ import models.payment.creditcard.CreditCards
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.product._
-import models.{Reasons, StoreAdmins}
 import services.carts.CartTotaler
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 

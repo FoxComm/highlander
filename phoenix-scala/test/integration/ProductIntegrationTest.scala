@@ -1,8 +1,6 @@
 import java.time.Instant
 
-import akka.http.scaladsl.model.StatusCodes
-
-import Extensions._
+import cats.implicits._
 import failures.ArchiveFailures._
 import failures.NotFoundFailure404
 import failures.ProductFailures._
@@ -14,9 +12,10 @@ import org.json4s._
 import payloads.ProductPayloads._
 import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
-import responses.ProductResponses._
-import util.IntegrationTestBase
-import util.fixtures.BakedFixtures
+import responses.ProductResponses.ProductResponse.Root
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.JsonFormatters
 import utils.Money.Currency
 import utils.aliases._
@@ -26,7 +25,7 @@ import utils.time.RichInstant
 object ProductTestExtensions {
 
   implicit class RichAttributes(val attributes: Json) extends AnyVal {
-    def code = {
+    def code: String = {
       implicit val formats = JsonFormatters.phoenixFormats
       (attributes \ "code" \ "v").extract[String]
     }
@@ -35,16 +34,14 @@ object ProductTestExtensions {
 
 class ProductIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with BakedFixtures {
   import ProductTestExtensions._
 
   "POST v1/products/:context" - {
-    def doQuery(productPayload: CreateProductPayload)(implicit context: OC) = {
-      val response = POST(s"v1/products/${context.name}", productPayload)
-      response.status must === (StatusCodes.OK)
-      response.as[ProductResponse.Root]
+    def doQuery(productPayload: CreateProductPayload) = {
+      productsApi.create(productPayload).as[Root]
     }
 
     "Creates a product with" - {
@@ -77,14 +74,8 @@ class ProductIntegrationTest
         val redSkuPayload = makeSkuPayload("SKU-RED-SMALL", skuAttrMap)
         val payload       = productPayload.copy(skus = Seq(redSkuPayload))
 
-        val response = POST(s"v1/products/${ctx.name}", payload)
-        response.status must === (StatusCodes.OK)
-
-        val productResponse = response.as[ProductResponse.Root]
-        val getResponse     = GET(s"v1/products/${ctx.name}/${productResponse.id}")
-        getResponse.status must === (StatusCodes.OK)
-
-        val getProductResponse = getResponse.as[ProductResponse.Root]
+        val productResponse    = productsApi.create(payload).as[Root]
+        val getProductResponse = productsApi(productResponse.id).get().as[Root]
         getProductResponse.skus.length must === (1)
 
         val getFirstSku :: Nil = getProductResponse.skus
@@ -150,9 +141,7 @@ class ProductIntegrationTest
     "Throws an error if" - {
       "no SKU is added" in new Fixture {
         val payload = productPayload.copy(skus = Seq.empty)
-
-        val response = POST(s"v1/products/${ctx.name}", payload)
-        response.status must === (StatusCodes.BadRequest)
+        productsApi.create(payload).mustFailWithMessage("SKUs must not be empty")
       }
 
       "no SKU exists for variants" in new Fixture {
@@ -164,8 +153,7 @@ class ProductIntegrationTest
           Seq(VariantPayload(attributes = Map("t" → "t"), values = Some(values)))
         val payload = productPayload.copy(skus = Seq.empty, variants = Some(variantPayload))
 
-        val response = POST(s"v1/products/${ctx.name}", payload)
-        response.status must === (StatusCodes.BadRequest)
+        productsApi.create(payload).mustFailWithMessage("SKUs must not be empty")
       }
 
       "there is more than one SKU and no variants" in new Fixture {
@@ -173,52 +161,43 @@ class ProductIntegrationTest
         val sku2    = makeSkuPayload("SKU-TEST-NUM2", attrMap)
         val payload = productPayload.copy(skus = Seq(sku1, sku2), variants = Some(Seq.empty))
 
-        val response = POST(s"v1/products/${ctx.name}", payload)
-        response.status must === (StatusCodes.BadRequest)
+        productsApi.create(payload).mustFailWithMessage("number of SKUs got 2, expected 1 or less")
       }
 
       "trying to create a product and SKU with no code" in new Fixture {
-        val newSkuPayload     = SkuPayload(skuAttrMap)
-        val newProductPayload = productPayload.copy(skus = Seq(newSkuPayload))
+        val newProductPayload = productPayload.copy(skus = Seq(SkuPayload(skuAttrMap)))
 
-        val response = POST(s"v1/products/${ctx.name}", newProductPayload)
-        response.status must === (StatusCodes.BadRequest)
+        productsApi.create(newProductPayload).mustFailWithMessage("SKU code not found in payload")
       }
 
       "trying to create a product and SKU with empty code" in new Fixture {
-        val newSkuPayload     = makeSkuPayload("", skuAttrMap)
-        val newProductPayload = productPayload.copy(skus = Seq(newSkuPayload))
+        val newProductPayload = productPayload.copy(skus = Seq(makeSkuPayload("", skuAttrMap)))
 
-        val response = POST(s"v1/products/${ctx.name}", newProductPayload)
-        response.status must === (StatusCodes.BadRequest)
+        productsApi
+          .create(newProductPayload)
+          .mustFailWithMessage(
+              """ERROR: value for domain sku_code violates check constraint "sku_code_check"""")
       }
 
       "trying to create a product with archived SKU" in new ArchivedSkuFixture {
-        val response = POST(s"v1/products/${ctx.name}", archivedSkuProductPayload)
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (LinkArchivedSkuFailure(Product, 2, archivedSkuCode).description)
+        productsApi
+          .create(archivedSkuProductPayload)
+          .mustFailWith400(LinkArchivedSkuFailure(Product, 2, archivedSkuCode))
       }
     }
 
     "Creates a product then requests is successfully" in new Fixture {
-      val productResponse = doQuery(productPayload)
-      val productId       = productResponse.id
+      val productId = doQuery(productPayload).id
 
-      val getResponse = GET(s"v1/products/${ctx.name}/$productId")
-      getResponse.status must === (StatusCodes.OK)
-
-      val getProductResponse = getResponse.as[ProductResponse.Root]
-      getProductResponse.skus.length must === (1)
-      getProductResponse.skus.head.attributes.code must === ("SKU-NEW-TEST")
+      val response = productsApi(productId).get().as[Root]
+      response.skus.length must === (1)
+      response.skus.head.attributes.code must === ("SKU-NEW-TEST")
     }
   }
 
   "PATCH v1/products/:context/:id" - {
-    def doQuery(formId: Int, productPayload: UpdateProductPayload)(implicit context: OC) = {
-      val response = PATCH(s"v1/products/${context.name}/$formId", productPayload)
-      response.status must === (StatusCodes.OK)
-      response.as[ProductResponse.Root]
+    def doQuery(formId: Int, productPayload: UpdateProductPayload) = {
+      productsApi(formId).update(productPayload).as[Root]
     }
 
     "Updates the SKUs on a product successfully" in new Fixture {
@@ -344,39 +323,32 @@ class ProductIntegrationTest
             variants = None
         )
 
-        val response = PATCH(s"v1/products/${ctx.name}/${product.formId}", upPayload)
-        response.status must === (StatusCodes.BadRequest)
+        productsApi(product.formId)
+          .update(upPayload)
+          .mustFailWithMessage("number of SKUs got 5, expected 4 or less")
       }
 
       "trying to update a product with archived SKU" in new ArchivedSkuFixture {
-        val response =
-          PATCH(s"v1/products/${ctx.name}/${product.formId}", archivedSkuProductPayload)
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (
-            LinkArchivedSkuFailure(Product, product.id, archivedSkuCode).description)
+        productsApi(product.formId)
+          .update(UpdateProductPayload(attributes = archivedSkuProductPayload.attributes,
+                                       skus = archivedSkuProductPayload.skus.some,
+                                       variants = archivedSkuProductPayload.variants))
+          .mustFailWith400(LinkArchivedSkuFailure(Product, product.id, archivedSkuCode))
       }
     }
   }
 
   "DELETE v1/products/:context/:id" - {
     "Archives product successfully" in new Fixture {
-      val response = DELETE(s"v1/products/${ctx.name}/${product.formId}")
-
-      response.status must === (StatusCodes.OK)
-
-      val result = response.as[ProductResponse.Root]
+      val result = productsApi(product.formId).archive().as[Root]
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow must === (true)
       }
     }
 
     "Archived product must be inactive" in new Fixture {
-      val response = DELETE(s"v1/products/${ctx.name}/${product.formId}")
+      val attributes = productsApi(product.formId).archive().as[Root].attributes
 
-      response.status must === (StatusCodes.OK)
-
-      val attributes = response.as[ProductResponse.Root].attributes
       val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
       val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]
 
@@ -385,45 +357,27 @@ class ProductIntegrationTest
     }
 
     "SKUs must be unlinked" in new VariantFixture {
-      val response = DELETE(s"v1/products/${ctx.name}/${product.formId}")
-
-      response.status must === (StatusCodes.OK)
-
-      val result = response.as[ProductResponse.Root]
-      result.skus mustBe empty
+      productsApi(product.formId).archive().as[Root].skus mustBe empty
     }
 
     "Variants must be unlinked" in new VariantFixture {
-      val response = DELETE(s"v1/products/${ctx.name}/${product.formId}")
-
-      response.status must === (StatusCodes.OK)
-
-      val result = response.as[ProductResponse.Root]
-      result.variants mustBe empty
+      productsApi(product.formId).archive().as[Root].variants mustBe empty
     }
 
     "Albums must be unlinked" in new VariantFixture {
-      val response = DELETE(s"v1/products/${ctx.name}/${product.formId}")
-
-      response.status must === (StatusCodes.OK)
-
-      val result = response.as[ProductResponse.Root]
-      result.albums mustBe empty
+      productsApi(product.formId).archive().as[Root].albums mustBe empty
     }
 
     "Responds with NOT FOUND when wrong product is requested" in new VariantFixture {
-      val response = DELETE(s"v1/products/${ctx.name}/666")
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (ProductFormNotFoundForContext(666, ctx.id).description)
+      productsApi(666).archive().mustFailWith404(ProductFormNotFoundForContext(666, ctx.id))
     }
 
     "Responds with NOT FOUND when wrong context is requested" in new VariantFixture {
       pending
-      val response = DELETE(s"v1/products/donkeyContext/${product.formId}")
-
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(ObjectContext, "donkeyContext").description)
+      implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
+      productsApi(product.formId)(donkeyContext)
+        .archive()
+        .mustFailWith404(NotFoundFailure404(ObjectContext, "donkeyContext"))
     }
   }
 
@@ -490,28 +444,27 @@ class ProductIntegrationTest
                            Mvp.insertVariantWithValues(ctx.id, product, scv)
                          }
 
-      variants ← * <~ variantsAndValues.map(_.variant)
       variantValues ← * <~ variantsAndValues.foldLeft(Seq.empty[SimpleVariantValueData]) {
                        (acc, item) ⇒
                          acc ++ item.variantValues
                      }
 
       // Map the SKUs to the Variant Values
-      skuMap ← * <~ skuValueMapping.map {
-                case (code, colorName, sizeName) ⇒
-                  val selectedSku = skus.filter(_.code == code).head
-                  val colorValue  = variantValues.filter(_.name == colorName).head
-                  val sizeValue   = variantValues.filter(_.name == sizeName).head
+      _ ← * <~ skuValueMapping.map {
+           case (code, colorName, sizeName) ⇒
+             val selectedSku = skus.filter(_.code == code).head
+             val colorValue  = variantValues.filter(_.name == colorName).head
+             val sizeValue   = variantValues.filter(_.name == sizeName).head
 
-                  for {
-                    colorLink ← * <~ VariantValueSkuLinks.create(
-                                   VariantValueSkuLink(leftId = colorValue.valueId,
-                                                       rightId = selectedSku.id))
-                    sizeLink ← * <~ VariantValueSkuLinks.create(
-                                  VariantValueSkuLink(leftId = sizeValue.valueId,
-                                                      rightId = selectedSku.id))
-                  } yield (colorLink, sizeLink)
-              }
+             for {
+               colorLink ← * <~ VariantValueSkuLinks.create(
+                              VariantValueSkuLink(leftId = colorValue.valueId,
+                                                  rightId = selectedSku.id))
+               sizeLink ← * <~ VariantValueSkuLinks.create(
+                             VariantValueSkuLink(leftId = sizeValue.valueId,
+                                                 rightId = selectedSku.id))
+             } yield (colorLink, sizeLink)
+         }
     } yield (product, skus, variantsAndValues)).gimme
   }
 

@@ -1,7 +1,7 @@
 import cats.implicits._
 import failures.DatabaseFailure
 import models.customer.{Customer, Customers}
-import util.IntegrationTestBase
+import testutils._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -21,19 +21,18 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
     }
 
     "must rollback transaction on errors" in {
-      val sux: Seq[DbResultT[Customer]] = Seq(1, 2, 3).map { i ⇒
+      val sux: Seq[DbResultT[Customer]] = (1 to 3).map { _ ⇒
         Customers.create(Factories.customer.copy(email = "nope".some))
       }
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
 
-      val result = cool.runTxn().futureValue.leftVal
+      cool.runTxn().futureValue mustBe 'left
 
-      val allCustomers = Customers.gimme
-      allCustomers mustBe empty
+      Customers.gimme mustBe empty
     }
 
     "must collect all errors" in {
-      val sux: Seq[DbResultT[Customer]] = Seq(1, 2, 3).map { i ⇒
+      val sux: Seq[DbResultT[Customer]] = (1 to 3).map { _ ⇒
         Customers.create(Factories.customer.copy(email = "boom".some))
       }
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)

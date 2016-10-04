@@ -1,21 +1,19 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import Extensions._
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.cord.Order._
 import models.cord._
 import models.shipping.ShippingMethods
 import payloads.OrderPayloads.UpdateOrderPayload
 import responses.cord.OrderResponse
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time._
 
 class OrderIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with TestObjectContext
     with BakedFixtures {
@@ -23,17 +21,16 @@ class OrderIntegrationTest
   "PATCH /v1/orders/:refNum" - {
 
     "successfully" in new Fixture {
-      val response = PATCH(s"v1/orders/${order.refNum}", UpdateOrderPayload(FraudHold))
-      response.status must === (StatusCodes.OK)
-      val responseOrder = response.as[OrderResponse]
-      responseOrder.orderState must === (FraudHold)
+      ordersApi(order.refNum)
+        .update(UpdateOrderPayload(FraudHold))
+        .as[OrderResponse]
+        .orderState must === (FraudHold)
     }
 
     "fails if transition to destination status is not allowed" in new Fixture {
-      val response = PATCH(s"v1/orders/${order.refNum}", UpdateOrderPayload(Shipped))
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (
-          StateTransitionNotAllowed(order.state, Shipped, order.refNum).description)
+      ordersApi(order.refNum)
+        .update(UpdateOrderPayload(Shipped))
+        .mustFailWith400(StateTransitionNotAllowed(order.state, Shipped, order.refNum))
     }
 
     "fails if transition from current status is not allowed" in new EmptyCustomerCart_Baked {
@@ -42,32 +39,29 @@ class OrderIntegrationTest
         order ← * <~ Orders.update(order, order.copy(state = Canceled))
       } yield order).gimme
 
-      val response = PATCH(s"v1/orders/${order.refNum}", UpdateOrderPayload(ManualHold))
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === (
-          StateTransitionNotAllowed(Canceled, ManualHold, order.refNum).description)
+      ordersApi(order.refNum)
+        .update(UpdateOrderPayload(ManualHold))
+        .mustFailWith400(StateTransitionNotAllowed(Canceled, ManualHold, order.refNum))
     }
 
     "fails if the order is not found" in {
-      val response = PATCH(s"v1/orders/NOPE", UpdateOrderPayload(ManualHold))
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Order, "NOPE").description)
+      ordersApi("NOPE")
+        .update(UpdateOrderPayload(ManualHold))
+        .mustFailWith404(NotFoundFailure404(Order, "NOPE"))
     }
   }
 
   "POST /v1/orders/:refNum/increase-remorse-period" - {
     "successfully" in new Fixture {
-      val response = POST(s"v1/orders/${order.refNum}/increase-remorse-period")
-      response.status must === (StatusCodes.OK)
-      val result = response.as[OrderResponse]
+      val result = ordersApi(order.refNum).increaseRemorsePeriod().as[OrderResponse]
       result.remorsePeriodEnd.value must === (order.remorsePeriodEnd.value.plusMinutes(15))
     }
 
     "only when in RemorseHold status" in new Fixture {
       Orders.update(order, order.copy(state = FraudHold)).gimme
-      val response = POST(s"v1/orders/${order.refNum}/increase-remorse-period")
-      response.status must === (StatusCodes.BadRequest)
-      response.error must === ("Order is not in RemorseHold state")
+      ordersApi(order.refNum)
+        .increaseRemorsePeriod()
+        .mustFailWithMessage("Order is not in RemorseHold state")
 
       val newOrder = Orders.mustFindByRefNum(order.refNum).gimme
       newOrder.state must === (FraudHold)

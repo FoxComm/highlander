@@ -1,10 +1,10 @@
-package util
+package testutils
 
 import models._
 import models.customer._
 import models.payment.giftcard._
 import slick.driver.PostgresDriver.api._
-import util.fixtures.TestFixtureBase
+import testutils.fixtures.TestFixtureBase
 import utils.seeds.Seeds.Factories
 
 /**

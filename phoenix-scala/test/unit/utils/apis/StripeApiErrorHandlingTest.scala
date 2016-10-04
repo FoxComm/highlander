@@ -6,7 +6,7 @@ import scala.util.control.NoStackTrace
 
 import com.stripe.exception.StripeException
 import failures.StripeFailures.StripeFailure
-import util.TestBase
+import testutils.TestBase
 
 class StripeApiErrorHandlingTest extends TestBase {
 

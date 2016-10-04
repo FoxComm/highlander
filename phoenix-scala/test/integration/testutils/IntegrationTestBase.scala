@@ -1,4 +1,4 @@
-package util
+package testutils
 
 import java.util.concurrent.TimeUnit
 

@@ -3,13 +3,11 @@ package services
 import models.cord.lineitems._
 import models.cord.{OrderShippingMethod, OrderShippingMethods}
 import models.objects._
-import models.payment.giftcard.{GiftCard, GiftCardOrder, GiftCardOrders, GiftCards}
 import models.product.{Mvp, SimpleContext}
 import models.shipping.ShippingMethods
 import services.carts.CartTotaler
-import util._
-import util.fixtures.BakedFixtures
-import utils.Money.Currency
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
