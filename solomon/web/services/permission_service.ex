@@ -26,6 +26,7 @@ defmodule Solomon.PermissionClaimService do
     claim_frn = Repo.all(
       from resource in Resource,
       join: system in System,
+      where: resource.id == ^resource_id,
       where: resource.system_id == system.id,
       select: %{
         resource_name: resource.name,
