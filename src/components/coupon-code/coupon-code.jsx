@@ -1,19 +1,17 @@
 
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
-import styles from './checkout.css';
+import styles from '../../pages/checkout/checkout.css';
 import { saveCouponCode } from 'modules/checkout';
 import { connect } from 'react-redux';
 
 import localized from 'lib/i18n';
 
-import EditableBlock from 'ui/editable-block';
 import { TextInput } from 'ui/inputs';
 import Button from 'ui/buttons';
 import { FormField } from 'ui/forms';
 
-@localized
-class EditCouponCode extends Component {
+class CouponCode extends Component {
 
   state = {
     code: '',
@@ -61,19 +59,5 @@ class EditCouponCode extends Component {
     );
   }
 }
-
-const CouponCode = props => {
-  const { t } = props;
-
-  return (
-    <EditableBlock
-      styleName="checkout-block"
-      title={t('PROMO CODE')}
-      isEditing
-      collapsed={false}
-      content={<EditCouponCode saveCouponCode={props.saveCouponCode} />}
-    />
-  );
-};
 
 export default connect(null, { saveCouponCode })(localized(CouponCode));

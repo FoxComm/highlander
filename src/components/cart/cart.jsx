@@ -18,6 +18,7 @@ import Button from 'ui/buttons';
 import Icon from 'ui/icon';
 import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 import { parseError } from 'api-js';
+import CouponCode from '../coupon-code/coupon-code';
 
 // styles
 import styles from './cart.css';
@@ -132,29 +133,29 @@ class Cart extends Component {
 
     return (
       <div styleName={cartClass}>
-        <div styleName="overlay" onClick={props.toggleCart}>
-        </div>
+        <div styleName="overlay" onClick={props.toggleCart}></div>
         <div styleName="cart-box">
           <div styleName="cart-header" onClick={props.toggleCart}>
             <Icon name="fc-chevron-left" styleName="back-icon"/>
-            <div styleName="header-text">
-              {t('KEEP SHOPPING')}
-            </div>
+            <div styleName="header-text">{t('KEEP SHOPPING')}</div>
           </div>
+
           <div styleName="cart-content">
             <div styleName="line-items">
               {this.lineItems}
             </div>
+            <div styleName="cart-coupon">
+              <CouponCode />
+            </div>
             <div styleName="cart-subtotal">
-              <div styleName="subtotal-title">
-                {t('SUBTOTAL')}
-              </div>
+              <div styleName="subtotal-title">{t('SUBTOTAL')}</div>
               <div styleName="subtotal-price">
                 <Currency value={props.totals.subTotal} />
               </div>
             </div>
             {this.errorsLine}
           </div>
+
           <div styleName="cart-footer">
             <Button onClick={this.onCheckout} disabled={checkoutDisabled} styleName="checkout-button">
               {t('CHECKOUT')}
