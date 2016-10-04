@@ -1,4 +1,4 @@
-defmodule Permissions.OrganizationService do
+defmodule Permissions.ScopeService do
   alias Ecto.Changeset
   alias Permissions.Repo
   alias Permissions.Resource
