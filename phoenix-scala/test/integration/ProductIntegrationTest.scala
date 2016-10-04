@@ -430,8 +430,6 @@ class ProductIntegrationTest
 
   trait Fixture extends StoreAdmin_Seed {
 
-    implicit val au = storeAdminAuthData
-
     def makeSkuPayload(code: String, name: String) = {
       val attrMap =
         Map("name" → (("t" → "string") ~ ("v" → name)), "code" → (("t" → "string") ~ ("v" → code)))
@@ -481,43 +479,48 @@ class ProductIntegrationTest
                                                              (skuRedLargeCode, "red", "large"),
                                                              (skuGreenSmallCode, "green", "small"),
                                                              (skuGreenLargeCode, "green", "large"))
-    val scope = LTree(au.token.scope)
 
-    val (product, skus, variants) = (for {
-      // Create the SKUs.
-      skus ← * <~ Mvp.insertSkus(scope, ctx.id, simpleSkus)
+    val (product, skus, variants) = ({
 
-      // Create the product.
-      product ← * <~ Mvp.insertProductWithExistingSkus(scope, ctx.id, simpleProd, skus)
+      implicit val au = storeAdminAuthData
+      val scope       = LTree(au.token.scope)
 
-      // Create the Variants and their Values.
-      variantsAndValues ← * <~ variantsWithValues.map { scv ⇒
-                           Mvp.insertVariantWithValues(scope, ctx.id, product, scv)
-                         }
+      for {
+        // Create the SKUs.
+        skus ← * <~ Mvp.insertSkus(scope, ctx.id, simpleSkus)
 
-      variants ← * <~ variantsAndValues.map(_.variant)
-      variantValues ← * <~ variantsAndValues.foldLeft(Seq.empty[SimpleVariantValueData]) {
-                       (acc, item) ⇒
-                         acc ++ item.variantValues
-                     }
+        // Create the product.
+        product ← * <~ Mvp.insertProductWithExistingSkus(scope, ctx.id, simpleProd, skus)
 
-      // Map the SKUs to the Variant Values
-      skuMap ← * <~ skuValueMapping.map {
-                case (code, colorName, sizeName) ⇒
-                  val selectedSku = skus.filter(_.code == code).head
-                  val colorValue  = variantValues.filter(_.name == colorName).head
-                  val sizeValue   = variantValues.filter(_.name == sizeName).head
+        // Create the Variants and their Values.
+        variantsAndValues ← * <~ variantsWithValues.map { scv ⇒
+                             Mvp.insertVariantWithValues(scope, ctx.id, product, scv)
+                           }
 
-                  for {
-                    colorLink ← * <~ VariantValueSkuLinks.create(
-                                   VariantValueSkuLink(leftId = colorValue.valueId,
-                                                       rightId = selectedSku.id))
-                    sizeLink ← * <~ VariantValueSkuLinks.create(
-                                  VariantValueSkuLink(leftId = sizeValue.valueId,
-                                                      rightId = selectedSku.id))
-                  } yield (colorLink, sizeLink)
-              }
-    } yield (product, skus, variantsAndValues)).gimme
+        variants ← * <~ variantsAndValues.map(_.variant)
+        variantValues ← * <~ variantsAndValues.foldLeft(Seq.empty[SimpleVariantValueData]) {
+                         (acc, item) ⇒
+                           acc ++ item.variantValues
+                       }
+
+        // Map the SKUs to the Variant Values
+        skuMap ← * <~ skuValueMapping.map {
+                  case (code, colorName, sizeName) ⇒
+                    val selectedSku = skus.filter(_.code == code).head
+                    val colorValue  = variantValues.filter(_.name == colorName).head
+                    val sizeValue   = variantValues.filter(_.name == sizeName).head
+
+                    for {
+                      colorLink ← * <~ VariantValueSkuLinks.create(
+                                     VariantValueSkuLink(leftId = colorValue.valueId,
+                                                         rightId = selectedSku.id))
+                      sizeLink ← * <~ VariantValueSkuLinks.create(
+                                    VariantValueSkuLink(leftId = sizeValue.valueId,
+                                                        rightId = selectedSku.id))
+                    } yield (colorLink, sizeLink)
+                }
+      } yield (product, skus, variantsAndValues)
+    }).gimme
   }
 
   trait VariantFixture extends Fixture {

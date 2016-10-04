@@ -15,13 +15,9 @@ import util.TestSeeds
   */
 trait BakedFixtures extends TestSeeds with RawFixtures {
 
-  trait Reason_Baked extends StoreAdmin_Seed with Reason_Raw {
-    implicit val au = storeAdminAuthData
-  }
+  trait Reason_Baked extends StoreAdmin_Seed with Reason_Raw
 
-  trait EmptyCustomerCart_Baked extends StoreAdmin_Seed with Customer_Seed with EmptyCart_Raw {
-    implicit val au = storeAdminAuthData
-  }
+  trait EmptyCustomerCart_Baked extends StoreAdmin_Seed with Customer_Seed with EmptyCart_Raw
 
   trait CustomerAddress_Baked extends StoreAdmin_Seed with Customer_Seed with CustomerAddress_Raw
 
@@ -29,13 +25,10 @@ trait BakedFixtures extends TestSeeds with RawFixtures {
       extends StoreAdmin_Seed
       with EmptyCustomerCart_Baked
       with CustomerAddress_Baked
-      with CartWithShipAddress_Raw {
-
-    implicit val au = storeAdminAuthData
-
-  }
+      with CartWithShipAddress_Raw
 
   trait Order_Baked extends EmptyCartWithShipAddress_Baked with Order_Raw
 
   trait ProductAndSkus_Baked extends StoreAdmin_Seed with Sku_Raw with Product_Raw
+
 }

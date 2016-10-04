@@ -113,26 +113,29 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   // Product
   trait Product_Raw extends StoreAdmin_Seed {
 
-    implicit val au = storeAdminAuthData
+    val simpleProduct: Product = ({
 
-    val simpleProduct: Product = (for {
-      spd ← * <~ Mvp.insertProduct(ctx.id,
-                                   SimpleProductData(title = "Test Product",
-                                                     code = "TEST",
-                                                     description = "Test product description",
-                                                     image = "image.png",
-                                                     price = 5999,
-                                                     active = true))
-      pd ← * <~ Products.mustFindById404(spd.productId)
-    } yield pd).gimme
+      implicit val au = storeAdminAuthData
+
+      for {
+        spd ← * <~ Mvp.insertProduct(ctx.id,
+                                     SimpleProductData(title = "Test Product",
+                                                       code = "TEST",
+                                                       description = "Test product description",
+                                                       image = "image.png",
+                                                       price = 5999,
+                                                       active = true))
+        pd ← * <~ Products.mustFindById404(spd.productId)
+      } yield pd
+    }).gimme
   }
 
   trait Sku_Raw extends StoreAdmin_Seed {
 
-    implicit val au = storeAdminAuthData
-    val scope       = LTree(au.token.scope)
-
-    val simpleSku: Sku =
-      Mvp.insertSku(scope, ctx.id, SimpleSku("BY-ITSELF", "A lonely item", 9999)).gimme
+    val simpleSku: Sku = Mvp
+      .insertSku(LTree(storeAdminAuthData.token.scope),
+                 ctx.id,
+                 SimpleSku("BY-ITSELF", "A lonely item", 9999))
+      .gimme
   }
 }
