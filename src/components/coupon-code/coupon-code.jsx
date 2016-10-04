@@ -1,11 +1,15 @@
+/* @flow */
 
+// libs
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { saveCouponCode } from 'modules/checkout';
 import { connect } from 'react-redux';
 
+// localization
 import localized from 'lib/i18n';
 
+// components
 import { TextInput } from 'ui/inputs';
 import Button from 'ui/buttons';
 import { FormField } from 'ui/forms';
@@ -13,9 +17,20 @@ import { FormField } from 'ui/forms';
 // styles
 import styles from './coupon-code.css';
 
-class CouponCode extends Component {
+type Props = {
+  saveCouponCode: Function,
+  t: any,
+};
 
-  state = {
+type State = {
+  code: string,
+  error: any,
+};
+
+class CouponCode extends Component {
+  props: Props;
+
+  state: State = {
     code: '',
     error: false,
   };
@@ -29,7 +44,7 @@ class CouponCode extends Component {
   }
 
   @autobind
-  onSave() {
+  save() {
     const { t } = this.props;
 
     const code = this.state.code.replace(/\s+/g, '');
@@ -54,7 +69,7 @@ class CouponCode extends Component {
             onChange={this.changeCode}
           />
         </FormField>
-        <Button styleName="submit" onClick={this.onSave}>
+        <Button styleName="submit" onClick={this.save}>
           {t('apply')}
         </Button>
       </div>
