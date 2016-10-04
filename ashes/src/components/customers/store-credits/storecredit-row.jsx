@@ -8,7 +8,7 @@ import MultiSelectRow from '../../table/multi-select-row';
 import Initials from '../../user-initials/initials';
 import OriginType from '../../common/origin-type';
 import State from '../../common/state';
-import Dropdown from '../../dropdown/dropdown-detached';
+import Dropdown from '../../dropdown/dropdown';
 
 const activeStateTransitions = [
   ['onHold', 'On Hold'],
