@@ -141,9 +141,7 @@ object OrderStateUpdater {
       case Canceled ⇒
         for {
           orders ← * <~ Orders.filter(_.referenceNumber.inSetBind(refNums)).result
-          _ ← * <~ orders.map { order ⇒
-               TaxesService.cancelTaxes(order)
-             }
+          _      ← * <~ orders.map(TaxesService.cancelTaxes)
         } yield {}
       case _ ⇒
         DbResultT.unit

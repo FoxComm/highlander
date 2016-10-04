@@ -16,8 +16,9 @@ object TaxesService {
   def getTaxRate(cart: Cart)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Int] =
     for {
       maybeAddress ← * <~ OrderShippingAddresses.findByOrderRefWithRegions(cart.refNum).one
-      result ← * <~ maybeAddress.map { addressTuple ⇒
-                fetchTax(cart, addressTuple._1, addressTuple._2)
+      result ← * <~ maybeAddress.map {
+                case (address, region) ⇒
+                  fetchTax(cart, address, region)
               }.getOrElse(DbResultT.good(0))
     } yield result
 
@@ -28,12 +29,12 @@ object TaxesService {
       li       ← * <~ CartLineItems.byCordRef(cart.refNum).lineItems.result
       country  ← * <~ Countries.mustFindById400(region.countryId)
       discount ← * <~ CartTotaler.adjustmentsTotal(cart)
-      result ← * <~ apis.avalaraApi.getTaxForCart(cart,
-                                                  li,
-                                                  Address.fromOrderShippingAddress(address),
-                                                  region,
-                                                  country,
-                                                  discount)
+      result ← * <~ apis.avalara.getTaxForCart(cart,
+                                               li,
+                                               Address.fromOrderShippingAddress(address),
+                                               region,
+                                               country,
+                                               discount)
     } yield result
 
   def finalizeTaxes(cart: Cart)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Unit] =
@@ -42,20 +43,21 @@ object TaxesService {
       addressTuple ← * <~ OrderShippingAddresses
                       .findByOrderRefWithRegions(cart.refNum)
                       .mustFindOneOr(NotFoundFailure400(OrderShippingAddress, cart.refNum))
-      region   ← * <~ Regions.mustFindById404(addressTuple._1.regionId)
+      (address, _) = addressTuple
+      region   ← * <~ Regions.mustFindById404(address.regionId)
       country  ← * <~ Countries.mustFindById404(region.countryId)
       discount ← * <~ CartTotaler.adjustmentsTotal(cart)
-      _ ← * <~ apis.avalaraApi.getTaxForOrder(cart,
-                                              lineItems,
-                                              Address.fromOrderShippingAddress(addressTuple._1),
-                                              addressTuple._2,
-                                              country,
-                                              discount)
+      _ ← * <~ apis.avalara.getTaxForOrder(cart,
+                                           lineItems,
+                                           Address.fromOrderShippingAddress(address),
+                                           region,
+                                           country,
+                                           discount)
     } yield {}
 
   def cancelTaxes(cord: Order)(implicit ec: EC, apis: Apis): DbResultT[Unit] =
     for {
-      _ ← * <~ apis.avalaraApi.cancelTax(cord)
+      _ ← * <~ apis.avalara.cancelTax(cord)
     } yield {}
 
   def saveAddressValidationDetails(
@@ -69,7 +71,7 @@ object TaxesService {
     for {
       region  ← * <~ Regions.mustFindById400(address.regionId)
       country ← * <~ Countries.mustFindById400(region.countryId)
-      _       ← * <~ apis.avalaraApi.validateAddress(address, region, country)
+      _       ← * <~ apis.avalara.validateAddress(address, region, country)
     } yield {}
 
 }

@@ -69,7 +69,7 @@ object CartPromotionUpdater {
       db: DB,
       ac: AC,
       ctx: OC,
-      apis: utils.apis.Apis): DbResultT[TheResponse[CartResponse]] =
+      apis: Apis): DbResultT[TheResponse[CartResponse]] =
     for {
       // Fetch base data
       cart ← * <~ getCartByOriginator(originator, refNum)
@@ -110,7 +110,7 @@ object CartPromotionUpdater {
       db: DB,
       ac: AC,
       ctx: OC,
-      apis: utils.apis.Apis): DbResultT[TheResponse[CartResponse]] =
+      apis: Apis): DbResultT[TheResponse[CartResponse]] =
     for {
       // Read
       cart            ← * <~ getCartByOriginator(originator, refNum)
