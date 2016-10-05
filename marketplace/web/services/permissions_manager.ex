@@ -29,6 +29,32 @@ defmodule Marketplace.PermissionManager do
     end
   end
 
+  # Will create a role named "admin" and return an ID
+  def create_admin_role_from_scope(scope) do
+    HTTPoison.start
+    post_body = %{}
+    |> Poison.encode!
+    post_headers = [{'content-type', 'application/json'}]
+    id = Map.fetch!(scope, "id")
+
+    case HTTPoison.post("#{full_perm_path}/scopes/#{id}/admin_role", post_body, post_headers) do
+      {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
+        case Poison.decode(body) do 
+        {:ok, decoded_body} -> 
+          Map.fetch!(decoded_body, "role")
+          |> Map.fetch!("id")
+        {:error, decoded_body} -> 
+          # TODO: Probably a good idea to write this to a queue.  
+          # To retry when solomon is back up.
+          nil
+        end
+      {:error, %HTTPoison.Error{reason: reason}} -> 
+        IO.inspect("ERROR FROM HTTP CLIENT!")
+        IO.inspect(reason)
+        nil
+    end
+  end
+
   # Will create an organization from solomon via HTTP and return an ID
   def create_user_from_merchant_account(ma) do
     HTTPoison.start
