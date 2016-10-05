@@ -69,7 +69,6 @@ defmodule Marketplace.MerchantController do
         merchant_account_params = %{
           "first_name" => ma.business_name,
           "last_name" => "admin",
-          "phone_number" => ma.phone_number,
           "email_address" => ma.email_address,
           "password" => "password" # probably not
         }

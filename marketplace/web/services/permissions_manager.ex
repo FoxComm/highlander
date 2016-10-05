@@ -66,7 +66,7 @@ defmodule Marketplace.PermissionManager do
     post_headers = [{'content-type', 'application/json'}]
 
     case HTTPoison.post("#{full_perm_path}/accounts/#{account_id}/granted_roles", post_body, post_headers) do
-      {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         case Poison.decode(body) do 
         {:ok, decoded_body} -> 
           Map.fetch!(decoded_body, "granted_role")
