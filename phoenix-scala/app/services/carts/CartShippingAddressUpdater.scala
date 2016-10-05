@@ -10,6 +10,7 @@ import payloads.AddressPayloads._
 import responses.AddressResponse.buildOneShipping
 import responses.TheResponse
 import responses.cord.CartResponse
+import services.taxes.TaxesService
 import services.{CartValidator, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -40,11 +41,10 @@ object CartShippingAddressUpdater {
       _           ← * <~ address.mustBelongToAccount(cart.accountId)
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, cart.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
-      country     ← * <~ Countries.mustFindById404(region.countryId)
-      _ ← * <~ apis.avalaraApi
-           .validateAddress(Address.fromOrderShippingAddress(shipAddress), region, country)
-      validated ← * <~ CartValidator(cart).validate()
-      response  ← * <~ CartResponse.buildRefreshed(cart)
+      _           ← * <~ TaxesService.saveAddressValidationDetails(shipAddress)
+      _           ← * <~ TaxesService.fetchTax(cart, shipAddress, region)
+      validated   ← * <~ CartValidator(cart).validate()
+      response    ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(response, validated)
@@ -63,11 +63,9 @@ object CartShippingAddressUpdater {
       _           ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).delete
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, cart.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
-      country     ← * <~ Countries.mustFindById404(region.countryId)
-      _ ← * <~ apis.avalaraApi
-           .validateAddress(Address.fromOrderShippingAddress(shipAddress), region, country)
-      validated ← * <~ CartValidator(cart).validate()
-      response  ← * <~ CartResponse.buildRefreshed(cart)
+      _           ← * <~ TaxesService.saveAddressValidationDetails(shipAddress)
+      validated   ← * <~ CartValidator(cart).validate()
+      response    ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(response, validated)
@@ -86,11 +84,9 @@ object CartShippingAddressUpdater {
       patch = OrderShippingAddress.fromPatchPayload(shipAddress, payload)
       updatedAddress ← * <~ OrderShippingAddresses.update(shipAddress, patch)
       region         ← * <~ Regions.mustFindById404(shipAddress.regionId)
-      country        ← * <~ Countries.mustFindById404(region.countryId)
-      _ ← * <~ apis.avalaraApi
-           .validateAddress(Address.fromOrderShippingAddress(updatedAddress), region, country)
-      validated ← * <~ CartValidator(cart).validate()
-      response  ← * <~ CartResponse.buildRefreshed(cart)
+      _              ← * <~ TaxesService.saveAddressValidationDetails(updatedAddress)
+      validated      ← * <~ CartValidator(cart).validate()
+      response       ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity.orderShippingAddressUpdated(originator,
                                                        response,
                                                        buildOneShipping(shipAddress, region))

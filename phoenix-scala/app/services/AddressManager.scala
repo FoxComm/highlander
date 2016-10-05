@@ -10,10 +10,11 @@ import models.location._
 import models.traits._
 import payloads.AddressPayloads._
 import responses.AddressResponse
+import services.taxes.TaxesService
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis.Apis
-import utils.db._
+import utils.db.{*, _}
 
 object AddressManager {
 
@@ -38,9 +39,7 @@ object AddressManager {
     for {
       customer ← * <~ Customers.mustFindById404(customerId)
       address  ← * <~ Addresses.create(Address.fromPayload(payload, customerId))
-      region   ← * <~ Regions.mustFindById400(address.regionId)
-      country  ← * <~ Countries.mustFindById400(region.countryId)
-      _        ← * <~ apis.avalaraApi.validateAddress(address, region, country)
+      _        ← * <~ TaxesService.saveAddressValidationDetails(address)
       response ← * <~ AddressResponse.fromAddress(address)
       _        ← * <~ LogActivity.addressCreated(originator, customer, response)
     } yield response
@@ -56,13 +55,9 @@ object AddressManager {
                     .findActiveByIdAndAccount(addressId, accountId)
                     .mustFindOneOr(addressNotFound(addressId))
       address     ← * <~ Address.fromPayload(payload, accountId).copy(id = addressId).validate
-      address ← * <~ Address
-                 .fromPayload(payload)
-                 .copy(customerId = customerId, id = addressId)
-                 .validate
       region      ← * <~ Regions.mustFindById400(address.regionId)
       country     ← * <~ Countries.mustFindById400(region.countryId)
-      _           ← * <~ apis.avalaraApi.validateAddress(address, region, country)
+      _           ← * <~ TaxesService.saveAddressValidationDetails(address)
       _           ← * <~ Addresses.insertOrUpdate(address)
       response    ← * <~ AddressResponse.fromAddress(address)
       oldResponse ← * <~ AddressResponse.fromAddress(oldAddress)
