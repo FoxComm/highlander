@@ -33,7 +33,7 @@
     - { role: dev/greenriver }
     - { role: dev/ashes }
     - { role: dev/firebrand }
-    - { role: dev/seeder }
     - { role: dev/balancer, sudo: yes }
+    - { role: dev/seeder }
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
