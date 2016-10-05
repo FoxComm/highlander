@@ -1,0 +1,29 @@
+{
+  "id": "/marketplace-ui",
+  "cpus": 1,
+  "mem": 512,
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "{{docker_registry}}/marketplace-ui",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "env": {
+    "API_URL": "127.0.0.1/api/mkt",
+    "ASHES_URL": "https://{{ashes_server_name}}/admin"
+  },
+  "portDefinitions": [
+    {
+      "port": 4042,
+      "protocol": "tcp",
+      "name": "4042",
+      "labels": {}
+    }
+  ]
+}

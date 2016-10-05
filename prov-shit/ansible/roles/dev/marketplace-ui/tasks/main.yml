@@ -1,0 +1,9 @@
+---
+
+- name: Copy Marathon config for Marketplace UI
+  sudo: true
+  template: src=marketplace-ui.json dest={{marathon_service_config_dir}}/marketplace-ui.json mode="u=rw,g=rw,o=r"
+
+- name: Update Marketplace UI in Marathon
+  shell: 'curl -X PUT -d@{{marathon_service_config_dir}}/marketplace-ui.json -H "Content-Type: application/json" http://127.0.0.1:8080/v2/apps/marketplace-ui'
+  sudo: true

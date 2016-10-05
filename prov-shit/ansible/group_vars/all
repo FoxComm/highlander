@@ -61,6 +61,9 @@ shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
 capture_consumer_src: "{{middlewarehouse_src}}/consumers/capture"
 capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
 
+# Marketplace
+marketplace_db_name: marketplace_development
+
 # Ashes
 ashes_env: production
 
@@ -156,3 +159,9 @@ cert_path: stage
 
 #mesos
 mesos_quorum: 2
+
+# Marathon
+marathon_service_config_dir: /marathon_services
+
+# Docker
+docker_registry: localhost:5000

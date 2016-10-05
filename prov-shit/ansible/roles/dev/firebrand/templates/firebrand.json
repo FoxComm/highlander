@@ -1,0 +1,53 @@
+{
+  "id": "/firebrand",
+  "cpus": 1,
+  "mem": 512,
+  "disk": 0,
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "{{docker_registry}}/firebrand",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    },
+    "volumes": [
+      {
+        "containerPath": "/certs",
+        "hostPath": "{{public_keys_dest_dir}}",
+        "mode": "RO"
+      }
+    ]
+  },
+  "env": {
+    "NODE_TLS_REJECT_UNAUTHORIZED": "0",
+    "API_URL": "{{api_server}}",
+    "NODE_ENV": "production",
+    "PORT": "4041",
+    "PHOENIX_PUBLIC_KEY": "/certs/public_key.pem",
+    "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}"
+  },
+  "healthChecks": [
+    {
+      "path": "/",
+      "protocol": "HTTP",
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false,
+      "port": 4041
+    }
+  ],
+  "portDefinitions": [
+    {
+      "port": 4041,
+      "protocol": "tcp",
+      "name": "4041",
+      "labels": {}
+    }
+  ]
+}

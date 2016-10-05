@@ -1,0 +1,13 @@
+---
+
+- name: Create Marathon Config Directory
+  file: path={{marathon_service_config_dir}} state=directory
+  sudo: true
+
+- name: Copy Marathon config for the registry
+  sudo: true
+  template: src=registry.json dest={{marathon_service_config_dir}}/registry.json mode="u=rw,g=rw,o=r"
+
+- name: Update Docker Registry in Marathon
+  shell: 'curl -X PUT -d@{{marathon_service_config_dir}}/registry.json -H "Content-Type: application/json" http://127.0.0.1:8080/v2/apps/registry'
+  sudo: true
