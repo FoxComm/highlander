@@ -15,6 +15,7 @@ import { Checkbox } from 'components/checkbox/checkbox';
 
 // helpers
 import { variantsWithMultipleOptions } from 'paragons/product';
+import { avialableVariantsValues } from 'paragons/variants';
 
 // styles
 import styles from './sku-content-box.css';
@@ -64,17 +65,20 @@ class SkuContentBox extends Component {
   }
 
   get addSkuDialog(): Element {
-    const list = _.map(this.skus, (sku, key) => {
+    const avialableVariants = avialableVariantsValues(this.props.fullProduct);
+    const list = _.map(avialableVariants, (values, i) => {
       let checked;
+
+      const content = values.map(value => value.name).join(', ');
 
       return (
         <li>
           <Checkbox
-            id={`sku-option-${key}`}
+            id={`sku-option-${i}`}
             onChange={this.toggleAddedSku}
             checked={checked}
           >
-            {sku.attributes.code.v}
+            {content}
           </Checkbox>
         </li>
       );

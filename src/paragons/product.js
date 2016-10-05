@@ -195,27 +195,6 @@ export function variantsWithMultipleOptions(variants: Array<any>): Array<Object>
 }
 
 /**
- * This function replaces variants without options from variant array
- * Be careful, it returns list of variant options, not variants theirselves
- */
-export function variantValuesWithMultipleOptions(variants: Array<Option>): Array<Object> {
-  return _.reduce(variants, (acc, variant) => {
-    if (_.isEmpty(variant.values)) {
-      return acc;
-    }
-    return [...acc, variant.values];
-  }, []);
-}
-
-/**
- * This function generates all available combinations of variant values
- */
-export function availableVariants(variants: Array<any>): Array<Object> {
-  const opts = variantValuesWithMultipleOptions(variants);
-  return cartesianProductOf(...opts);
-}
-
-/**
  * This is a convenience function that iterates through a product and creates a
  * mapping from SKU => Variant => Value.
  * For example SKU-BRO => Size => L.

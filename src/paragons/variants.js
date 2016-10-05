@@ -25,11 +25,10 @@ export function variantValuesWithMultipleOptions(variants: Array<Option>): Array
 /**
  * This function generates all available combinations of variant values
  */
-export function availableVariantsValues(variants: Array<any>): Array<Object> {
+export function allVariantsValues(variants: Array<any>): Array<Object> {
   const opts = variantValuesWithMultipleOptions(variants);
   return cartesianProductOf(...opts);
 }
-
 
 function indexVariants(variants): Object {
   if (!dbCache.has(variants)) {
@@ -39,7 +38,7 @@ function indexVariants(variants): Object {
         _.each(value.skuCodes, code => {
           db.add({
             sku: code,
-            variant: value.name,
+            variant: value,
           });
         });
       });
@@ -100,17 +99,29 @@ export function deleteVariantCombination(product, code) {
   );
 }
 
+export function avialableVariantsValues(product) {
+  const indexedVariants = indexVariants(product.variants);
+  const allVariants = allVariantsValues(product.variants);
+  const existsVariants = _.map(product.skus, sku => {
+    return indexedVariants.q({av: [['sku', skuCode(sku)]]}).map(indexedVariants.get).map(x => x.variant);
+  });
+
+  const identity = value => value.name;
+
+  return _.filter(allVariants, t => {
+    return
+      !_.some(existsVariants, values => _.intersection(values.map(identity), t.map(identity)).length === t.length);
+  });
+}
+
+
 export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
   const indexedVariants = indexVariants(variants);
   const newVariants = _.cloneDeep(variants);
-  const availableValues = availableVariantsValues(newVariants);
+  const availableValues = allVariantsValues(newVariants);
   // here we assume that there is defined sku (even with feCode only) for each variant
   const existsValues = _.map(existsSkus, sku => {
-    return indexedVariants.q({av: [['sku', skuCode(sku)]]}).map(indexedVariants.get).map(x => {
-      return {
-        name: x.variant,
-      };
-    });
+    return indexedVariants.q({av: [['sku', skuCode(sku)]]}).map(indexedVariants.get).map(x => x.variant);
   });
 
   let closestTuples;
