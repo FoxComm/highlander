@@ -9,9 +9,9 @@
     "network": "tpg",
     "zone": "us-central1-a",
     "base_ubuntu_image": "ubuntu-1604-xenial-v20160921",
-    "base_image": "base-1475506449",
-    "base_mesos": "base-mesos-1475506936",
-    "base_node_image": "base-node-1475507402",
-    "base_jvm_image": "base-jvm-1475507396",
+    "base_image": "base-1475575149",
+    "base_mesos": "base-mesos-1475665242",
+    "base_node_image": "base-node-1475577253",
+    "base_jvm_image": "base-jvm-1475576876",
     "ssh_username": "ubuntu"
 }
