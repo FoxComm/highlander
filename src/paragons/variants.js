@@ -55,6 +55,10 @@ function skuCode(sku): string {
   return realCode || sku.feCode;
 }
 
+function isSkuTemporary(sku): boolean {
+  return !_.get(sku.attributes, 'code.v');
+}
+
 function maxIndexBy(collection, iteratee, skipIndexes = []) {
   let maxValue = -Infinity;
   let maxIndex = -1;
@@ -70,6 +74,9 @@ function maxIndexBy(collection, iteratee, skipIndexes = []) {
   return maxIndex;
 }
 
+// returns tuple indexes of bigCartestian which are most closest to smallCartesian tuples
+// offsets in result are corresponding to offsets in smallCartesian
+// result array has same length as smallCartesian
 function findClosestTuples(smallCartesian, bigCartesian, identity) {
   return _.reduce(smallCartesian, (acc, tuple) => {
     const smallValues = tuple.map(identity);
@@ -82,6 +89,7 @@ export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
   const indexedVariants = indexVariants(variants);
   const newVariants = _.cloneDeep(variants);
   const availableValues = availableVariantsValues(newVariants);
+  // here we assume that there is defined sku (even with feCode onnly) for each variant
   const existsValues = _.map(existsSkus, sku => {
     return indexedVariants.q({av: [['sku', skuCode(sku)]]}).map(indexedVariants.get).map(x => {
       return {
@@ -109,6 +117,7 @@ export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
   };
 
   if (availableValues.length >= existsValues.length) {
+    // increase case
     closestTuples = findClosestTuples(existsValues, availableValues, x => x.name);
     unbindAll();
 
@@ -132,14 +141,33 @@ export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
       bindTuple(availableValues[i], sku);
     }
   } else {
+    // reduce case
     closestTuples = findClosestTuples(availableValues, existsValues, x => x.name);
     unbindAll();
-    let boundTupleIndex;
-    let nextBoundTuple = 0;
+
+    // make index for used skus
+    const reducedSkus = _.reduce(availableValues, (map, t, i) => {
+      const sku = existsSkus[closestTuples[i]];
+      map[skuCode(sku)] = sku;
+      return map;
+    }, {});
+    // gather unbound real skus
+    const realUnboundSkus = _.reduce(existsSkus, (acc, sku) => {
+      const code = _.get(sku, 'attributes.code.v');
+      if (code && !(code in reducedSkus)) {
+        acc = [...acc, sku];
+      }
+      return acc;
+    }, []);
+
+    // do rest job
     for (let i = 0; i < availableValues.length; i++) {
-      boundTupleIndex = i in closestTuples ? closestTuples[i] : nextBoundTuple++;
       const selectedTuple = availableValues[i];
-      const boundSku = existsSkus[boundTupleIndex];
+      let boundSku = existsSkus[closestTuples[i]];
+      if (isSkuTemporary(boundSku) && realUnboundSkus.length) {
+        boundSku = realUnboundSkus.shift();
+      }
+
       newSkus.push(boundSku);
       bindTuple(selectedTuple, boundSku);
     }
