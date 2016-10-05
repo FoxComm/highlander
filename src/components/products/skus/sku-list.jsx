@@ -24,6 +24,7 @@ type Props = {
   updateField: UpdateFn,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
   variants: Array<any>,
+  onDeleteSku: (skuCode: string) => void,
 };
 
 type State = {
@@ -102,6 +103,9 @@ export default class SkuList extends Component {
   @autobind
   deleteSku(): void {
     //ToDo: call something to delete SKU from product and variant
+    const { skuId } = this.state;
+
+    this.props.onDeleteSku(skuId);
     this.closeDeleteConfirmation();
   }
 

@@ -59,54 +59,50 @@ export function fetchProduct(id: string, context: string = defaultContext): Acti
 const _createProduct = createAsyncActions(
   'createProduct',
   (product: Product, context: string = defaultContext) => {
-    const feCodes = _.reduce(product.skus, (res, sku) => {
-      const code = _.get(sku, 'attributes.code.v');
-      return { ...res, [sku.feCode]: code };
-    }, {});
-
-    // Wow, this is super-duper ugly.
-    for (let i = 0; i < product.variants.length; i++) {
-      let variant = product.variants[i];
-      for (let j = 0; j < variant.values.length; j++) {
-        let value = variant.values[j];
-        for (let k = 0; k < value.skuCodes.length; k++) {
-          let code = value.skuCodes[k];
-          let realCode = _.get(feCodes, code);
-          if (realCode) {
-            product.variants[i].values[j].skuCodes[k] = realCode;
-          }
-        }
-      }
-    }
-
-    return Api.post(`/products/${context}`, product);
+    return Api.post(`/products/${context}`, cleanProductPayload(product));
   }
 );
+
+function cleanProductPayload(product) {
+  // get rid of temp. skus
+  const feCodes = {};
+  product.skus = _.reduce(product.skus, (acc, sku) => {
+    const code = _.get(sku, 'attributes.code.v');
+    if (sku.feCode) {
+      feCodes[sku.feCode] = code || '';
+    }
+    if (code) {
+      return [...acc, dissoc(sku, 'feCode')];
+    }
+    return acc;
+  }, []);
+
+  product.variants = _.cloneDeep(product.variants);
+
+  // Wow, this is super-duper ugly.
+  for (let i = 0; i < product.variants.length; i++) {
+    const variant = product.variants[i];
+    for (let j = 0; j < variant.values.length; j++) {
+      const value = variant.values[j];
+      value.skuCodes = _.reduce(value.skuCodes, (acc, code) => {
+        if (code) {
+          const value = _.get(feCodes, code, code);
+          if (value) {
+            return [...acc, value];
+          }
+        }
+        return acc;
+      }, []);
+    }
+  }
+
+  return product;
+}
 
 const _updateProduct = createAsyncActions(
   'updateProduct',
   (product: Product, context: string = defaultContext) => {
-    const feCodes = _.reduce(product.skus, (res, sku) => {
-      const code = _.get(sku, 'attributes.code.v');
-      return { ...res, [sku.feCode]: code };
-    }, {});
-
-    // Wow, this is super-duper ugly.
-    for (let i = 0; i < product.variants.length; i++) {
-      let variant = product.variants[i];
-      for (let j = 0; j < variant.values.length; j++) {
-        let value = variant.values[j];
-        for (let k = 0; k < value.skuCodes.length; k++) {
-          let code = value.skuCodes[k];
-          let realCode = _.get(feCodes, code);
-          if (realCode) {
-            product.variants[i].values[j].skuCodes[k] = realCode;
-          }
-        }
-      }
-    }
-
-    return Api.patch(`/products/${context}/${product.id}`, product);
+    return Api.patch(`/products/${context}/${product.id}`, cleanProductPayload(product));
   }
 );
 

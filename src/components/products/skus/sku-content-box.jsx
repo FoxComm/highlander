@@ -28,6 +28,7 @@ type UpdateFn = (code: string, field: string, value: any) => void;
 type Props = {
   fullProduct: ?Product,
   updateField: UpdateFn,
+  onDeleteSku: (skuCode: string) => void,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
   variants: Array<any>,
 };
@@ -124,6 +125,7 @@ class SkuContentBox extends Component {
           fullProduct={this.props.fullProduct}
           updateField={this.props.updateField}
           updateFields={this.props.updateFields}
+          onDeleteSku={this.props.onDeleteSku}
           skus={this.skus}
           variants={variantsWithMultipleOptions(this.props.variants)}
         />

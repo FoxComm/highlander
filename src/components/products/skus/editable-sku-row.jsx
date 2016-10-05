@@ -256,7 +256,8 @@ class EditableSkuRow extends Component {
   }
 
   actionsCell(sku: Sku): Element {
-    return <DeleteButton onClick={() => this.props.onDeleteClick(sku.id)}/>;
+    const skuCode = _.get(sku.attributes, 'code.v') || sku.feCode;
+    return <DeleteButton onClick={() => this.props.onDeleteClick(skuCode)}/>;
   }
 
   @autobind

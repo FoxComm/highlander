@@ -85,11 +85,26 @@ function findClosestTuples(smallCartesian, bigCartesian, identity) {
   }, []);
 }
 
+export function deleteVariantCombination(product, code) {
+  const newSkus = _.filter(product.skus, sku => skuCode(sku) != code);
+  const newVariants = _.cloneDeep(product.variants);
+  _.each(newVariants, variant => {
+    _.each(variant.values, variantValue => {
+      variantValue.skuCodes = _.filter(variantValue.skuCodes, boundSku => boundSku != code);
+    });
+  });
+
+  return assoc(product,
+    'skus', newSkus,
+    'variants', newVariants
+  );
+}
+
 export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
   const indexedVariants = indexVariants(variants);
   const newVariants = _.cloneDeep(variants);
   const availableValues = availableVariantsValues(newVariants);
-  // here we assume that there is defined sku (even with feCode onnly) for each variant
+  // here we assume that there is defined sku (even with feCode only) for each variant
   const existsValues = _.map(existsSkus, sku => {
     return indexedVariants.q({av: [['sku', skuCode(sku)]]}).map(indexedVariants.get).map(x => {
       return {
