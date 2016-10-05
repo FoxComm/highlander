@@ -1,4 +1,4 @@
-adminName,adminEmail,adminPassword, orgName
+adminName,adminEmail,adminPassword, adminOrg, adminRole
 Frankly Admin,admin@admin.com,password,tenant,admin
 Such Root,hackerman@yahoo.com,password1,merchant,admin
 Admin Hero,admin_hero@xakep.ru,password2,merchant,admin
