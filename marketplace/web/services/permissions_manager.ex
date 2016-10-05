@@ -55,7 +55,7 @@ defmodule Marketplace.PermissionManager do
     end
   end
 
-  # Will create an organization from solomon via HTTP and return an ID
+  # Will create a user from solomon via HTTP and return the associated account_id
   def create_user_from_merchant_account(ma) do
     HTTPoison.start
     first_name = Map.get(ma, "first_name", "FirstName")
