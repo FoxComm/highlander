@@ -7,7 +7,7 @@ variable "aws_key_name" {}
 variable "region" {}
 
 variable "base_image" {}
-variable "amigo_cluster_image" {}
+variable "amigo_server_image" {}
 variable "kafka_image" {}
 variable "db_image" {}
 variable "es_image" {}
@@ -30,7 +30,7 @@ provider "aws" {
 module "target_amigos" {
     source = "../../modules/aws/amigos"
 
-    image = "${var.amigo_cluster_image}"
+    image = "${var.amigo_server_image}"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
     key_name = "${var.aws_key_name}"

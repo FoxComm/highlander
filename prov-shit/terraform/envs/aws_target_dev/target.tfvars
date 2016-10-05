@@ -2,7 +2,7 @@ region                = "us-west-2"
 aws_key_name          = "tgt"
 
 base_image            = "ami-500ed230"
-amigo_cluster_image   = "ami-300ed250"
+amigo_server_image    = "ami-300ed250"
 kafka_image           = "ami-330ed253"
 db_image              = "ami-380ad658"
 es_image              = "ami-5d08d43d"

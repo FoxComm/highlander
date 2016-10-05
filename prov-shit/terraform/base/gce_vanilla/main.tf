@@ -8,7 +8,7 @@ variable "network" {}
 variable "bucket_location" {}
 variable "zone" {}
 variable "vpn_image" {}
-variable "amigo_cluster_image" {}
+variable "amigo_server_image" {}
 variable "kafka_image" {}
 variable "db_image" {}
 variable "es_image" {}
@@ -113,7 +113,7 @@ module "vanilla_amigo_cluster" {
     network = "${var.network}"
     datacenter = "${var.network}"
     servers = 3
-    image = "${var.amigo_cluster_image}"
+    image = "${var.amigo_server_image}"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }
