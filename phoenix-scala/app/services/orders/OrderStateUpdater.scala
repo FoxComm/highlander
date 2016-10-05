@@ -31,13 +31,8 @@ object OrderStateUpdater {
       _        ← * <~ updateQueries(admin, Seq(refNum), newState)
       updated  ← * <~ Orders.mustFindByRefNum(refNum)
       response ← * <~ OrderResponse.fromOrder(updated)
-<<<<<<< HEAD:phoenix-scala/app/services/orders/OrderStateUpdater.scala
       _        ← * <~ doOrMeh(order.state != newState, orderStateChanged(admin, response, order.state))
-=======
       _        ← * <~ updateTaxes(Seq(refNum), newState)
-      _ ← * <~ (if (order.state == newState) DbResultT.unit
-                else orderStateChanged(admin, response, order.state))
->>>>>>> cancel tax on order cancelation:app/services/orders/OrderStateUpdater.scala
     } yield response
 
   def updateStates(admin: User,

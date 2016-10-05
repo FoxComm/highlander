@@ -30,9 +30,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
 import failures.NotFoundFailure400
-import utils.apis.Apis
 
 trait OrderGenerator extends ShipmentSeeds {
+
+  val defaultTax = 0
 
   def orderGenerators()(implicit db: DB) =
     List[(Int, ObjectContext, Seq[Int], GiftCard) ⇒ DbResultT[Order]](manualHoldOrder,
@@ -56,10 +57,8 @@ trait OrderGenerator extends ShipmentSeeds {
     }.distinct
   }
 
-  def generateOrders(customerId: Int,
-                     context: ObjectContext,
-                     skuIds: Seq[Int],
-                     giftCard: GiftCard)(implicit db: DB): DbResultT[Unit] = {
+  def generateOrders(accountId: Int, context: ObjectContext, skuIds: Seq[Int], giftCard: GiftCard)(
+      implicit db: DB): DbResultT[Unit] = {
     val cartFunctions  = cartGenerators
     val orderFunctions = orderGenerators
     val cartIdx        = Random.nextInt(cartFunctions.length)
@@ -75,7 +74,6 @@ trait OrderGenerator extends ShipmentSeeds {
   }
 
   private val yesterday: Instant = time.yesterday.toInstant
-  private val staticTaxRate: Int = 5
 
   def manualHoldOrder(accountId: Int,
                       context: ObjectContext,
@@ -189,7 +187,7 @@ trait OrderGenerator extends ShipmentSeeds {
       addr ← * <~ getDefaultAddress(accountId)
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
-      _ ← * <~ CartTotaler.saveTotals(cart, staticTaxRate)
+      _ ← * <~ CartTotaler.saveTotals(cart, defaultTax)
     } yield cart
   }
 
@@ -206,7 +204,7 @@ trait OrderGenerator extends ShipmentSeeds {
       addr ← * <~ getDefaultAddress(accountId)
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
-      _ ← * <~ CartTotaler.saveTotals(cart, staticTaxRate)
+      _ ← * <~ CartTotaler.saveTotals(cart, defaultTax)
     } yield cart
 
   def shippedOrderUsingCreditCard(accountId: Int,

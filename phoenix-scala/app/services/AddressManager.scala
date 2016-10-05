@@ -31,13 +31,12 @@ object AddressManager {
       response ← * <~ AddressResponse.fromAddress(address)
     } yield response
 
-  def create(originator: Originator, payload: CreateAddressPayload, customerId: Int)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      apis: Apis): DbResultT[AddressResponse] =
+  def create(
+      originator: User,
+      payload: CreateAddressPayload,
+      customerId: Int)(implicit ec: EC, db: DB, ac: AC, apis: Apis): DbResultT[AddressResponse] =
     for {
-      customer ← * <~ Customers.mustFindById404(customerId)
+      customer ← * <~ Users.mustFindById404(customerId)
       address  ← * <~ Addresses.create(Address.fromPayload(payload, customerId))
       response ← * <~ AddressResponse.fromAddress(address)
       _        ← * <~ LogActivity.addressCreated(originator, customer, response)

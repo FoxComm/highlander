@@ -5,6 +5,7 @@ import models.activity.Activity
 import models.cord._
 import models.cord.lineitems.OrderLineItems.scope._
 import models.cord.lineitems._
+import models.location._
 import CartLineItems.scope._
 import failures.CartFailures.SKUWithNoProductAdded
 import failures.GeneralFailure
@@ -16,7 +17,9 @@ import payloads.LineItemPayloads.UpdateLineItemsPayload
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.carts.{CartPromotionUpdater, CartTotaler}
+import services.taxes.TaxesService
 import slick.driver.PostgresDriver.api._
+import utils.apis.Apis
 import utils.aliases._
 import utils.db._
 
@@ -27,7 +30,8 @@ object LineItemUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] = {
+      ctx: OC,
+      apis: Apis): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
@@ -44,7 +48,8 @@ object LineItemUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] = {
+      ctx: OC,
+      apis: Apis): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
@@ -66,7 +71,8 @@ object LineItemUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] = {
+      ctx: OC,
+      apis: Apis): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
@@ -83,7 +89,8 @@ object LineItemUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] = {
+      ctx: OC,
+      apis: Apis): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
@@ -105,10 +112,13 @@ object LineItemUpdater {
       implicit ec: EC,
       es: ES,
       db: DB,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] =
+      ctx: OC,
+      apis: Apis): DbResultT[TheResponse[CartResponse]] =
     for {
       _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
-      cart  ← * <~ CartTotaler.saveTotals(cart)
+      li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
+      tax   ← * <~ TaxesService.getTaxRate(cart)
+      cart  ← * <~ CartTotaler.saveTotals(cart, tax)
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
       li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
