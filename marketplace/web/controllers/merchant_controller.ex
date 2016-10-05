@@ -67,10 +67,11 @@ defmodule Marketplace.MerchantController do
         organization_id = PermissionManager.create_organization_from_merchant_application(ma, scope_id)
 
         merchant_account_params = %{
-          first_name: ma.business_name,
-          last_name: "admin",
-          email_address: ma.email_address,
-          password: "password" # probably not
+          "first_name" => ma.business_name,
+          "last_name" => "admin",
+          "phone_number" => ma.phone_number,
+          "email_address" => ma.email_address,
+          "password" => "password" # probably not
         }
 
         solomon_id = PermissionManager.create_user_from_merchant_account(merchant_account_params)
