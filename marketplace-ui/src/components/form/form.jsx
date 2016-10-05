@@ -45,7 +45,7 @@ class Form extends Component {
       <form onSubmit={handleSubmit} noValidate>
         {fields.map((item: FormField) => renderField(item))}
 
-        <Button active={inProgress} disabled={inProgress}>{submitText}</Button>
+        <Button type="submit" active={inProgress} disabled={inProgress}>{submitText}</Button>
         {<span className={cx(styles.error, { [styles.errorActive]: failed })}>Error submitting form.</span>}
       </form>
     );

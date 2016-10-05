@@ -26,12 +26,12 @@ const steps = (pathname) => [
   },
   {
     key: STEP_ACCOUNT,
-    active: /application\/[\w\-]+\/account\/?/.test(pathname),
+    active: /\/account\/?/.test(pathname),
     title: 'Create Account',
   },
   {
     key: STEP_INFO,
-    active: /application\/[\w\-]+\/info\/?/.test(pathname),
+    active: /\/[info|actions]\/?/.test(pathname),
     title: 'More Info',
   },
 ];

@@ -110,21 +110,12 @@ class MerchantInfoPage extends Component {
       return;
     }
 
+    const { params: { ref }, replace } = this.props;
+
     setTimeout(
-      () => window.location.replace(process.env.ASHES_URL),
+      () => replace(`/application/${ref}/actions`),
       TIMEOUT_REDIRECT
     );
-  }
-
-  @autobind
-  submit(data) {
-    const merchantId = get(this.props.application, 'merchant.id');
-
-    if (!merchantId) {
-      return;
-    }
-
-    return this.props.submit(merchantId, data);
   }
 
   get loader(): HTMLElement {
