@@ -22,7 +22,7 @@ variable "front_workers" {}
 
 variable "stage_backend_image" {}
 variable "stage_frontend_image" {}
-variable "stage_amigo_image" {}
+variable "stage_amigo_server_image" {}
 
 provider "google"
 {

@@ -12,7 +12,7 @@ variable "sg_https" {
   type = "list"
 }
 
-variable "stage_amigo_image" {}
+variable "stage_amigo_server_image" {}
 variable "stage_backend_image" {}
 variable "stage_frontend_image" {}
 
@@ -33,7 +33,7 @@ resource "aws_s3_bucket" "s3_docker_stage" {
 }
 
 resource "aws_instance" "stage_amigo" {
-	ami = "${var.stage_amigo_image}"
+	ami = "${var.stage_amigo_server_image}"
 	instance_type = "t2.medium"
 	key_name = "${var.key_name}"
 

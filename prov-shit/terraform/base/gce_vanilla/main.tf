@@ -22,7 +22,7 @@ variable "front_workers" {}
 
 variable "stage_backend_image" {}
 variable "stage_frontend_image" {}
-variable "stage_amigo_image" {}
+variable "stage_amigo_server_image" {}
 
 provider "google"
 {
@@ -142,7 +142,7 @@ module "vanilla_stack" {
 
     stage_backend_image = "${var.stage_backend_image}"
     stage_frontend_image = "${var.stage_frontend_image}"
-    stage_amigo_image = "${var.stage_amigo_image}"
+    stage_amigo_server_image = "${var.stage_amigo_server_image}"
 
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"

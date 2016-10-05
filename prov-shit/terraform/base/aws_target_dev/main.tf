@@ -17,7 +17,7 @@ variable "greenriver_image" {}
 variable "front_image" {}
 variable "service_worker_image" {}
 
-variable "stage_amigo_image" {}
+variable "stage_amigo_server_image" {}
 variable "stage_backend_image" {}
 variable "stage_frontend_image" {}
 
@@ -52,7 +52,7 @@ module "target_staging" {
     security_groups = ["sg-e50cd29c", "sg-a021d3d9"]
     sg_https = ["sg-e50cd29c", "sg-a021d3d9", "sg-449b8922"]
 
-    stage_amigo_image = "${var.stage_amigo_image}"
+    stage_amigo_server_image = "${var.stage_amigo_server_image}"
     stage_frontend_image = "${var.stage_frontend_image}"
     stage_backend_image = "${var.stage_backend_image}"
 
