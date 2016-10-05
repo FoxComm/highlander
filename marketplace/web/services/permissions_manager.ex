@@ -30,14 +30,13 @@ defmodule Marketplace.PermissionManager do
   end
 
   # Will create a role named "admin" and return an ID
-  def create_admin_role_from_scope(scope) do
+  def create_admin_role_from_scope_id(scope_id) do
     HTTPoison.start
     post_body = %{}
     |> Poison.encode!
     post_headers = [{'content-type', 'application/json'}]
-    id = Map.fetch!(scope, "id")
 
-    case HTTPoison.post("#{full_perm_path}/scopes/#{id}/admin_role", post_body, post_headers) do
+    case HTTPoison.post("#{full_perm_path}/scopes/#{scope_id}/admin_role", post_body, post_headers) do
       {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
         case Poison.decode(body) do 
         {:ok, decoded_body} -> 
