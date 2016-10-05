@@ -112,7 +112,7 @@ class ShippingMethodsIntegrationTest
     val michiganId   = 4148
     val oregonId     = 4164
     val washingtonId = 4177
-    val taxValue     = 5
+    val taxValue     = 0
 
     val (address, orderShippingAddress) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
