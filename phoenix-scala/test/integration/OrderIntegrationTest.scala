@@ -75,6 +75,7 @@ class OrderIntegrationTest
     }
   }
 
+
   trait Fixture extends EmptyCartWithShipAddress_Baked {
     val order = (for {
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
