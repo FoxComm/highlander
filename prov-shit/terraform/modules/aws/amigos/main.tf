@@ -1,13 +1,13 @@
 variable "key_name" {}
 variable "image" {}
 variable "datacenter" {}
-variable "ssh_user" {} 
+variable "ssh_user" {}
 variable "ssh_private_key" {}
 
-variable "subnet_id" {} 
+variable "subnet_id" {}
 variable "security_groups" {
 	type = "list"
-} 
+}
 
 resource "aws_instance" "amigo_server_0" {
 	ami = "${var.image}"
@@ -22,18 +22,14 @@ resource "aws_instance" "amigo_server_0" {
 	subnet_id = "${var.subnet_id}"
 	vpc_security_group_ids = "${var.security_groups}"
 	availability_zone = "us-west-2a"
-	associate_public_ip_address = false	
+	associate_public_ip_address = false
 
 	root_block_device {
 		volume_type = "standard"
 		volume_size = "30"
 	}
 
-    # service_account {
-    #     scopes = ["storage-rw"]
-    # }
-
-    connection { 
+    connection {
         type = "ssh"
         user = "${var.ssh_user}"
         private_key = "${file(var.ssh_private_key)}"
@@ -61,18 +57,14 @@ resource "aws_instance" "amigo_server_1" {
 	subnet_id = "${var.subnet_id}"
 	vpc_security_group_ids = "${var.security_groups}"
 	availability_zone = "us-west-2a"
-	associate_public_ip_address = false	
+	associate_public_ip_address = false
 
 	root_block_device {
 		volume_type = "standard"
 		volume_size = "30"
 	}
 
-    # service_account {
-    #     scopes = ["storage-rw"]
-    # }
-
-    connection { 
+    connection {
         type = "ssh"
         user = "${var.ssh_user}"
         private_key = "${file(var.ssh_private_key)}"
@@ -100,18 +92,14 @@ resource "aws_instance" "amigo_server_2" {
 	subnet_id = "${var.subnet_id}"
 	vpc_security_group_ids = "${var.security_groups}"
 	availability_zone = "us-west-2a"
-	associate_public_ip_address = false	
+	associate_public_ip_address = false
 
 	root_block_device {
 		volume_type = "standard"
 		volume_size = "30"
 	}
 
-    # service_account {
-    #     scopes = ["storage-rw"]
-    # }
-
-    connection { 
+    connection {
         type = "ssh"
         user = "${var.ssh_user}"
         private_key = "${file(var.ssh_private_key)}"

@@ -26,7 +26,7 @@ resource "aws_s3_bucket" "s3_docker_stage" {
         Environment = "stage"
     }
 
-  	policy = "${file(var.policy_file)}" 
+  	policy = "${file(var.policy_file)}"
 }
 
 resource "aws_instance" "stage_amigo" {
@@ -57,6 +57,7 @@ resource "aws_instance" "stage_amigo" {
   provisioner "remote-exec" {
       inline = [
         "/usr/local/bin/bootstrap_consul_aws.sh ${var.stage_datacenter} ${var.amigo_leader}",
+        "sudo su -c 'echo 1 > /var/lib/zookeeper/myid'"
       ]
   }
 }
