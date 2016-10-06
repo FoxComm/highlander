@@ -40,7 +40,10 @@ defmodule Marketplace.Router do
       patch "/legal_profile", MerchantLegalProfileController, :update, as: :legal_profile
       resources "/addresses", MerchantAddressController
       resources "/accounts", MerchantAccountController, as: :account
-      resources "/products_feed", MerchantProductsFeed, as: :products_feed
+      post "/products_feed", MerchantProductsFeedController, :create, as: :products_feed
+      get "/products_feed", MerchantProductsFeedController, :index, as: :products_feed
+      get "/products_feed/:id", MerchantProductsFeedController, :show, as: :products_feed
+      patch "/products_feed/:id", MerchantProductsFeedController, :update, as: :products_feed
     end
 
     get "/", PageController, :index

@@ -2,11 +2,11 @@ defmodule Marketplace.ProductsFeedView do
   use Marketplace.Web, :view
 
   def render("index.json", %{products_feeds: products_feeds}) do
-    %{data: render_many(products_feeds, Marketplace.ProductsFeedView, "products_feed.json")}
+    %{product_feeds: render_many(products_feeds, Marketplace.ProductsFeedView, "products_feed.json")}
   end
 
   def render("show.json", %{products_feed: products_feed}) do
-    %{data: render_one(products_feed, Marketplace.ProductsFeedView, "products_feed.json")}
+    %{product_feed: render_one(products_feed, Marketplace.ProductsFeedView, "products_feed.json")}
   end
 
   def render("products_feed.json", %{products_feed: products_feed}) do

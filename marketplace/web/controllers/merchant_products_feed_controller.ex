@@ -3,11 +3,12 @@ defmodule Marketplace.MerchantProductsFeedController do
 
   alias Ecto.Multi
   alias Marketplace.ProductsFeed
+  alias Marketplace.ProductsFeedView
   alias Marketplace.MerchantProductsFeed
 
   def index(conn, _params) do
-    merchant_products_feeds = Repo.all(MerchantProductsFeed)
-    render(conn, "index.json", merchant_products_feeds: merchant_products_feeds)
+    products_feeds = Repo.all(ProductsFeed)
+    render(conn, ProductsFeedView, "index.json", products_feeds: products_feeds)
   end
 
   def create(conn, %{"products_feed" => products_feed_params, "merchant_id" => merchant_id}) do
@@ -15,7 +16,7 @@ defmodule Marketplace.MerchantProductsFeedController do
       {:ok, %{products_feed: products_feed, merchant_products_feed: m_pf}} ->
         conn
         |> put_status(:created)
-        |> put_resp_header("location", merchant_products_feed_path(conn, :show, merchant_id))
+        |> put_resp_header("location", merchant_products_feed_path(conn, :index, merchant_id))
         |> render(ProductsFeedView, "products_feed.json", products_feed: products_feed)
       {:error, failed_operation, failed_value, changes_completed} ->
         conn
@@ -24,19 +25,16 @@ defmodule Marketplace.MerchantProductsFeedController do
     end
   end
 
-  def show(conn, %{"merchant_id" => m_id}) do
-    m_pf = Repo.get_by!(MerchantProductsFeed, merchant_id: m_id)
-    |> Repo.preload(:products_feed)
+  def show(conn, %{"id" => id}) do
+    products_feed = Repo.get_by!(ProductsFeed, id: id)
 
     conn
-    |> render(ProductsFeedView, "show.json", products_feed: m_pf.products_feed)
+    |> render(ProductsFeedView, "show.json", products_feed: products_feed)
   end
 
-  def update(conn, %{"merchant_id" => m_id, "products_feed" => products_feed_params}) do
-    m_pf = Repo.get_by!(MerchantProductsFeed, merchant_id: m_id)
-    |> Repo.preload(:products_feed)
-
-    changeset = ProductsFeed.update_changeset(m_pf.products_feed, products_feed_params)
+  def update(conn, %{"id" => id, "products_feed" => products_feed_params}) do
+    products_feed = Repo.get_by!(ProductsFeed, id: id)
+    changeset = ProductsFeed.update_changeset(products_feed, products_feed_params)
     case Repo.update(changeset) do
       {:ok, products_feed} ->
         conn
