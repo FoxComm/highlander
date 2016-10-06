@@ -29,7 +29,7 @@ resource "aws_s3_bucket" "s3_docker_vanilla" {
         Environment = "vanilla"
     }
 
-    policy = "${file(var.policy_file)}" 
+    policy = "${file(var.policy_file)}"
 }
 
 resource "aws_instance" "kafka" {
@@ -60,7 +60,7 @@ resource "aws_instance" "kafka" {
 
   provisioner "remote-exec" {
       inline = [
-        "/usr/local/bin/bootstrap_consul_aws.sh ${var.datacenter} ${var.amigo_leader}",
+        "/usr/local/bin/bootstrap_consul_aws.sh ${var.datacenter} ${var.amigo_leader}"
       ]
   }
 }
