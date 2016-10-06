@@ -1,12 +1,12 @@
 {
     "service" : {
         "name": "docker_registry",
-        "tags": ["docker_registry", "docker"], 
+        "tags": ["docker_registry"],
         "port": 5000,
         "checks": [
             {
                 "name": "HTTPS on port 5000",
-                "https": "https://localhost:5000/v2/",
+                "script": "curl -XGET https://localhost:5000/v2/ --insecure",
                 "interval": "30s",
                 "status": "passing"
             }

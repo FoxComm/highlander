@@ -35,3 +35,4 @@
 - name: Copy Consul Service File
   template: src=docker_registry.json dest="/etc/consul.d/docker_registry.json"
   sudo: true
+  notify: reload consul

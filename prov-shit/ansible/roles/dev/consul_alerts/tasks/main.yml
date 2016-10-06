@@ -36,3 +36,8 @@
 - name: Restart Consul Alerts
   service: name=consul_alerts state=restarted enabled=yes
   sudo: true
+
+- name: Copy Consul Service File
+  template: src=consul_alerts.json dest="/etc/consul.d/consul_alerts.json"
+  sudo: true
+  notify: reload consul
