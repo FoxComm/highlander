@@ -1,4 +1,4 @@
-defmodule Marketplace.Repo.Migrations.CreateMerchantProductsFeed do
+defmodule Marketplace.Repo.Migrations.CreateMerchantProductsFeeds do
   use Ecto.Migration
 
   def change do
