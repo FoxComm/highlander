@@ -50,7 +50,7 @@ class OptionList extends Component {
   get emptyContent(): Element {
     return (
       <div className="fc-content-box__empty-text">
-        This product does not have variants.
+        This product does not have options.
       </div>
     );
   }

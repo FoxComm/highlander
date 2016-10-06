@@ -6,6 +6,7 @@
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
+import { assoc, dissoc } from 'sprout-data';
 
 // components
 import ContentBox from 'components/content-box/content-box';
@@ -15,7 +16,7 @@ import { Checkbox } from 'components/checkbox/checkbox';
 
 // helpers
 import { variantsWithMultipleOptions } from 'paragons/product';
-import { avialableVariantsValues } from 'paragons/variants';
+import { availableVariantsValues } from 'paragons/variants';
 
 // styles
 import styles from './sku-content-box.css';
@@ -30,22 +31,29 @@ type Props = {
   fullProduct: ?Product,
   updateField: UpdateFn,
   onDeleteSku: (skuCode: string) => void,
+  onAddNewVariants: (options: Array<any>) => void,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
   variants: Array<any>,
 };
 
 type State = {
   addDialogIsShown: boolean,
+  selectedOptions: {[key: string]: Array<Object>},
 };
 
 class SkuContentBox extends Component {
   props: Props;
   state: State = {
     addDialogIsShown: false,
+    selectedOptions: {},
   };
 
   get actions(): ?Element {
     if (_.isEmpty(this.props.variants)) {
+      return null;
+    }
+    const availableVariants = availableVariantsValues(this.props.fullProduct);
+    if (_.isEmpty(availableVariants)) {
       return null;
     }
 
@@ -65,17 +73,18 @@ class SkuContentBox extends Component {
   }
 
   get addSkuDialog(): Element {
-    const avialableVariants = avialableVariantsValues(this.props.fullProduct);
-    const list = _.map(avialableVariants, (values, i) => {
-      let checked;
+    const availableVariants = availableVariantsValues(this.props.fullProduct);
+    const { selectedOptions } = this.state;
 
+    const list = _.map(availableVariants, (values, i) => {
+      const checked = !!selectedOptions[this.getValuesKey(values)];
       const content = values.map(value => value.name).join(', ');
 
       return (
         <li>
           <Checkbox
             id={`sku-option-${i}`}
-            onChange={this.toggleAddedSku}
+            onChange={() => this.toggleAddedOption(values)}
             checked={checked}
           >
             {content}
@@ -87,11 +96,9 @@ class SkuContentBox extends Component {
     const body = (
       <div styleName="add-dialog">
         <div styleName="dialog-subtitle">Available options:</div>
-        <div styleName="dialog-items">
-          <ul>
-            {list}
-          </ul>
-        </div>
+        <ul styleName="dialog-items">
+          {list}
+        </ul>
       </div>
     );
     return (
@@ -102,14 +109,37 @@ class SkuContentBox extends Component {
         cancel="Cancel"
         confirm="Add"
         cancelAction={() => this.closeAction()}
-        confirmAction={() => this.closeAction()}
+        confirmAction={() => this.addNewSkus()}
       />
     );
   }
 
   @autobind
-  toggleAddedSku() {
+  addNewSkus() {
+    const newVariants = _.values(this.state.selectedOptions);
+    this.setState({
+      selectedOptions: {}
+    }, () => {
+      this.props.onAddNewVariants(newVariants);
+      this.closeAction();
+    });
+  }
 
+  getValuesKey(values) {
+    return values.map(x => x.name).join('\x08');
+  }
+
+  @autobind
+  toggleAddedOption(values) {
+    let { selectedOptions } = this.state;
+    const key = this.getValuesKey(values);
+    selectedOptions = key in selectedOptions
+      ? dissoc(selectedOptions, key)
+      : assoc(selectedOptions, key, values);
+
+    this.setState({
+      selectedOptions,
+    });
   }
 
   @autobind

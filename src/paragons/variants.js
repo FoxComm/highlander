@@ -6,6 +6,7 @@ import { createEmptySku } from './product';
 import type { Product } from './product';
 import { assoc } from 'sprout-data';
 import type { Sku } from 'modules/skus/details';
+import invariant from 'invariant';
 
 const dbCache = new Map();
 
@@ -99,7 +100,32 @@ export function deleteVariantCombination(product, code) {
   );
 }
 
-export function avialableVariantsValues(product) {
+export function addSkusForVariants(product, variantTuples) {
+  const newVariants = _.cloneDeep(product.variants);
+  const indexedVariants = _.reduce(newVariants, (acc, variant) => {
+    return _.reduce(variant.values, (acc, value) => {
+      acc[value.name] = value;
+      return acc;
+    }, acc);
+  }, {});
+
+  const newSkus = _.map(variantTuples, tuple => {
+    const sku = createEmptySku();
+    _.each(tuple, variantValue => {
+      const value = indexedVariants[variantValue.name];
+
+      bindSkuToVariantsTuple([value], sku);
+    });
+    return sku;
+  });
+
+  return assoc(product,
+    'skus', [...product.skus, ...newSkus],
+    'variants', newVariants
+  );
+}
+
+export function availableVariantsValues(product) {
   const indexedVariants = indexVariants(product.variants);
   const allVariants = allVariantsValues(product.variants);
   const existsVariants = _.map(product.skus, sku => {
@@ -109,11 +135,17 @@ export function avialableVariantsValues(product) {
   const identity = value => value.name;
 
   return _.filter(allVariants, t => {
-    return
-      !_.some(existsVariants, values => _.intersection(values.map(identity), t.map(identity)).length === t.length);
+     return !_.some(existsVariants,
+       values => _.intersection(values.map(identity), t.map(identity)).length === t.length
+     );
   });
 }
 
+function bindSkuToVariantsTuple(tuple, sku) {
+  _.each(tuple, variantValue => {
+    variantValue.skuCodes = _.uniq([...variantValue.skuCodes, skuCode(sku)]);
+  });
+}
 
 export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
   const indexedVariants = indexVariants(variants);
@@ -136,12 +168,6 @@ export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
     });
   };
 
-  const bindTuple = (tuple, sku) => {
-    _.each(tuple, variantValue => {
-      variantValue.skuCodes = _.uniq([...variantValue.skuCodes, skuCode(sku)]);
-    });
-  };
-
   if (availableValues.length >= existsValues.length) {
     // increase case
     closestTuples = findClosestTuples(existsValues, availableValues, x => x.name);
@@ -154,7 +180,7 @@ export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
       newSkus.push(existsSkus[i]);
       lastUsedSkuIndex = i;
 
-      bindTuple(availableValues[selectedTupleIndex], existsSkus[i]);
+      bindSkuToVariantsTuple(availableValues[selectedTupleIndex], existsSkus[i]);
     }
     closestTuples.sort();
 
@@ -164,7 +190,7 @@ export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
       const sku = lastUsedSkuIndex != null && lastUsedSkuIndex < existsSkus.length - 1
         ? existsSkus[++lastUsedSkuIndex] : createEmptySku();
       newSkus.push(sku);
-      bindTuple(availableValues[i], sku);
+      bindSkuToVariantsTuple(availableValues[i], sku);
     }
   } else {
     // reduce case
@@ -195,7 +221,7 @@ export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
       }
 
       newSkus.push(boundSku);
-      bindTuple(selectedTuple, boundSku);
+      bindSkuToVariantsTuple(selectedTuple, boundSku);
     }
   }
 

@@ -17,7 +17,7 @@ import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
 
 import * as ProductParagon from 'paragons/product';
-import { assignNewVariants, deleteVariantCombination } from 'paragons/variants';
+import { assignNewVariants, deleteVariantCombination, addSkusForVariants } from 'paragons/variants';
 
 // types
 import type { Attributes } from 'paragons/object';
@@ -132,7 +132,16 @@ export default class ProductForm extends Component {
 
   @autobind
   handleDeleteSku(skuCode: string) {
-    this.props.onUpdateProduct(deleteVariantCombination(this.props.product, skuCode));
+    this.props.onUpdateProduct(
+      deleteVariantCombination(this.props.product, skuCode)
+    );
+  }
+
+  @autobind
+  handleAddVariants(variantValues: Array<any>) {
+    this.props.onUpdateProduct(
+      addSkusForVariants(this.props.product, variantValues)
+    );
   }
 
   render(): Element {
@@ -160,6 +169,7 @@ export default class ProductForm extends Component {
             updateField={this.props.onSetSkuProperty}
             updateFields={this.props.onSetSkuProperties}
             onDeleteSku={this.handleDeleteSku}
+            onAddNewVariants={this.handleAddVariants}
             variants={this.props.product.variants}
           />
 
