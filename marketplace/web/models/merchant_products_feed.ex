@@ -1,5 +1,5 @@
 defmodule Marketplace.MerchantProductsFeed do
-  use MarketPlace.Web, :model
+  use Marketplace.Web, :model
   import Marketplace.Validation
 
   schema "merchant_products_feed" do
