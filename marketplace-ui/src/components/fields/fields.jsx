@@ -16,11 +16,11 @@ const setValue = (value, def = null) => (!isEmpty(value) ? value : def);
 /**
  * Form field wrapper
  */
-const FormField = ({ input: { name }, meta: { error, touched }, children }) => {
+const FormField = ({ className, meta: { error, touched }, children }) => {
   const hasError = touched && error;
 
   return (
-    <div className={cx(styles.field, name, { [styles.fieldError]: hasError })}>
+    <div className={cx(styles.field, className, { [styles.fieldError]: hasError })}>
       {children}
       <span className={cx(styles.error, { [styles.errorActive]: hasError })}>
         {hasError ? get(messages, error, 'Wrong value') : ''}
@@ -33,7 +33,7 @@ const FormField = ({ input: { name }, meta: { error, touched }, children }) => {
  * Text input field
  */
 const renderInput = ({ input, type, mask, maskChar = ' ', placeholder, meta }) => (
-  <FormField input={input} meta={meta}>
+  <FormField input={input} className={input.name} meta={meta}>
     <MaskInput {...input} mask={mask} maskChar={maskChar} type={type} placeholder={placeholder} />
   </FormField>
 );
@@ -42,9 +42,29 @@ const renderInput = ({ input, type, mask, maskChar = ' ', placeholder, meta }) =
  * Textarea field
  */
 const renderTextarea = ({ input, placeholder, meta }) => (
-  <FormField input={input} meta={meta}>
+  <FormField input={input} className={input.name} meta={meta}>
     <textarea {...input} placeholder={placeholder} rows="1" />
   </FormField>
+);
+
+/**
+ * Radio field
+ */
+const renderRadio = ({ input, meta }) => (
+  <FormField input={input} meta={meta}>
+    <label htmlFor={input.value}><input {...input} type="radio" id={input.value} />{input.value}</label>
+  </FormField>
+);
+
+const renderRadios = (field: TFormField) => (
+  <div className={cx(styles.radioGroup, field.name)} key={field.name}>
+    <span className={styles.placeholder}>{field.placeholder}</span>
+    <div>
+      {field.values.map(value => (
+        <Field {...field} value={value} component={renderRadio} key={`${field.name}-${value}`} />
+      ))}
+    </div>
+  </div>
 );
 
 /**
@@ -52,11 +72,11 @@ const renderTextarea = ({ input, placeholder, meta }) => (
  */
 const renderOptions = value => <option key={value}>{value}</option>;
 
-const renderSelect = ({ input, values, placeholder, meta }) => (
-  <FormField input={input} meta={meta}>
-    {!input.value && <label htmlFor={input.name}>{placeholder}</label>}
+const renderSelect = ({ input, type, values, placeholder, meta }) => (
+  <FormField input={input} className={input.name} type={type} meta={meta}>
+    {!input.value && <span className={styles.placeholderInline}>{placeholder}</span>}
     <select {...input} value={setValue(input.value, '')}>
-      <option disabled />
+      {!input.value && <option disabled />}
       {values.map(renderOptions)}
     </select>
   </FormField>
@@ -66,7 +86,7 @@ const renderSelect = ({ input, values, placeholder, meta }) => (
  * Multi-select "tags" field
  */
 const renderTags = ({ input, values, placeholder, meta }) => (
-  <FormField input={input} meta={meta}>
+  <FormField input={input} className={input.name} meta={meta}>
     <MultiSelect
       {...input}
       value={setValue(input.value)}
@@ -78,6 +98,12 @@ const renderTags = ({ input, values, placeholder, meta }) => (
 );
 
 export default (field: TFormField) => {
+  // TODO: better implementation of radio rendering.
+  // The problem is that it requires one Field component for each radio, not a radio group
+  if (field.type === 'radio') {
+    return renderRadios(field);
+  }
+
   let renderField = renderInput;
 
   switch (field.type) {

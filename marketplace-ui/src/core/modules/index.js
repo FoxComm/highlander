@@ -13,6 +13,7 @@ import {
 import * as application from './merchant-application';
 import * as account from './merchant-account';
 import * as info from './merchant-info';
+import * as feed from './products-feed';
 
 const reducer = combineReducers({
   routing: routerReducer,
@@ -21,6 +22,7 @@ const reducer = combineReducers({
   application: application.default,
   accounts: account.default,
   info: info.default,
+  feed: feed.default,
 });
 
 export default reducer;
@@ -39,6 +41,7 @@ const accountFetchSelector = asyncSelector(account.ACTION_FETCH);
 const accountSubmitSelector = asyncSelector(account.ACTION_SUBMIT);
 const infoFetchSelector = asyncSelector(info.ACTION_FETCH);
 const infoSubmitSelector = asyncSelector(info.ACTION_SUBMIT);
+const feedSubmitSelector = asyncSelector(info.ACTION_SUBMIT);
 
 export const getApplicationFetched = applicationFetchSelector(fetchedSelector);
 export const getApplicationFetchFailed = applicationFetchSelector(failedSelector);
@@ -53,3 +56,7 @@ export const getInfoFetched = infoFetchSelector(fetchedSelector);
 export const getInfoSubmitInProgress = infoSubmitSelector(inProgressSelector);
 export const getInfoSubmitFailed = infoSubmitSelector(failedSelector);
 export const getInfoSubmitSucceeded = infoSubmitSelector(succeededSelector);
+
+export const getFeedSubmitInProgress = feedSubmitSelector(inProgressSelector);
+export const getFeedSubmitFailed = feedSubmitSelector(failedSelector);
+export const getFeedSubmitSucceeded = feedSubmitSelector(succeededSelector);

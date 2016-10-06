@@ -88,7 +88,6 @@ class ActionsPage extends Component {
           title="What works for you?"
           legend={'We have a variety of tools to help you add products swiftly and scale.'}
         />
-        {this.loader}
         {this.actions}
       </div>
     );

@@ -2,6 +2,7 @@ export type FormField = {
   name: string;
   type: string;
   placeholder: string;
+  value?: string;
   values?: Array<string>;
   validation?: Array<string>;
   normalize?: (value: string) => any;

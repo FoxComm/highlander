@@ -118,6 +118,17 @@ class MerchantInfoPage extends Component {
     );
   }
 
+  @autobind
+  submit(data) {
+    const merchantId = get(this.props.application, 'merchant.id');
+
+    if (!merchantId) {
+      return;
+    }
+
+    return this.props.submit(merchantId, data);
+  }
+
   get loader(): HTMLElement {
     if (!this.props.info.id) {
       return;

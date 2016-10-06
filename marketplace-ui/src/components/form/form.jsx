@@ -40,6 +40,7 @@ class Form extends Component {
   render(): HTMLElement {
     const { fields, submitText, inProgress, failed, handleSubmit } = this.props;
 
+    console.log('rendering form');
 
     return (
       <form onSubmit={handleSubmit} noValidate>

@@ -1,0 +1,14 @@
+.feed {
+  & :global(.feed_schedule),
+  & :global(.feed_days) {
+    display: inline-block;
+  }
+
+  & :global(.feed_schedule) {
+    width: 60%;
+  }
+
+  & :global(.feed_days) {
+    width: 40%;
+  }
+}
