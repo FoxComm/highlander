@@ -1,0 +1,14 @@
+{
+    "service": {
+        "name": "bottledwater_phoenix",
+        "tags": ["bottledwater_phoenix"],
+        "checks": [
+            {
+                "name": "Bottledwater Phoenix",
+                "script": "systemctl status bottledwater_phoenix",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

@@ -120,6 +120,10 @@
   template: src=db.json dest="/etc/consul.d/db.json"
   sudo: true
 
-- name: Copy Bottled Water Consul Health Checks
-  template: src=bottledwater_checks.json dest="/etc/consul.d/bottledwater_checks.json"
+- name: Copy Bottledwater Phoenix Consul Health Checks
+  template: src=bottledwater_phoenix.json dest="/etc/consul.d/bottledwater_phoenix.json"
+  sudo: true
+
+- name: Copy Bottledwater Middlewarehouse Consul Health Checks
+  template: src=bottledwater_middlewarehouse.json dest="/etc/consul.d/bottledwater_middlewarehouse.json"
   sudo: true

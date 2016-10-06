@@ -1,0 +1,14 @@
+{
+    "service": {
+        "name": "bottledwater_mwh",
+        "tags": ["bottledwater_mwh"],
+        "checks": [
+            {
+                "name": "Bottledwater Middlewarehouse",
+                "script": "systemctl status bottledwater_middlewarehouse",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

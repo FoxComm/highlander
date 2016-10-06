@@ -1,7 +1,7 @@
 {
-    "service" : {
+    "service": {
         "name": "db",
-        "tags": ["db"], 
+        "tags": ["db"],
         "port": 5432,
         "checks": [
             {
@@ -10,6 +10,6 @@
                 "interval": "30s",
                 "status": "passing"
             }
-        ]        
+        ]
     }
 }
