@@ -27,3 +27,15 @@
 :global(.icon--fc-cvc-amex) {
   stroke: none;
 }
+
+:global(.icon--fc-logo) {
+  width: 120px;
+  height: 56px;
+}
+
+@media (--large) {
+  :global(.icon--fc-logo) {
+    width: 220px;
+    height: 102px;
+  }
+}

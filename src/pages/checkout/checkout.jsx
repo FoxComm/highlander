@@ -137,12 +137,12 @@ class Checkout extends Component {
     const props = this.props;
 
     return (
-      <div styleName="checkout">
-        <div styleName="logo-link">
-          <Link to="/">
+      <section styleName="checkout">
+        <header styleName="header">
+          <Link to="/" styleName="logo-link">
             <Icon styleName="logo" name="fc-logo"/>
           </Link>
-        </div>
+        </header>
         <div styleName="checkout-content">
           <div styleName="left-forms">
             <Shipping
@@ -184,7 +184,7 @@ class Checkout extends Component {
             <GiftCard />
           </div>
         </div>
-      </div>
+      </section>
     );
   }
 }

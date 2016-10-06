@@ -35,11 +35,6 @@
 }
 
 @media (--small-only), (--medium-only) {
-  :global(.icon).logo {
-    width: 120px;
-    height: 56px;
-  }
-
   .search {
     display: none;
   }
@@ -89,15 +84,10 @@
       justify-content: center;
       box-shadow: 0 0 0 1px var(--border-color);
     }
-
-    & :global(.icon).logo {
-      width: 220px;
-      height: 102px;
-    }
   }
 
   .header-scrolled {
-    & :global(.icon).logo {
+    & :global(.icon--fc-logo) {
       width: 130px;
       height: 62px;
     }
