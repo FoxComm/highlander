@@ -1,6 +1,6 @@
 ---
 
-- name: Packing Three Amigos
+- name: Packing Stage Amigo
   hosts: all
   tags:
     - packer
@@ -8,7 +8,7 @@
     user: ubuntu
     packing: true
     join_type: join
-    mesos_quorum: 2
+    mesos_quorum: 1
     zookeeper_server: "localhost:2181"
 
   roles:

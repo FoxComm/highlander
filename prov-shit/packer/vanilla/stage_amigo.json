@@ -39,7 +39,7 @@
                 "device_name": "/dev/sda1",
                 "volume_size": 20,
                 "delete_on_termination": true
-            }],            
+            }],
             "tags": {
                 "Name": "vanilla-stage-amigo-{{timestamp}}"
             }
@@ -48,7 +48,7 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_amigo_server.yml",
+            "playbook_file" : "ansible/packer_stage_amigo.yml",
             "extra_arguments": [
                 "-vvvv",
                 "--extra-vars", "@packer/envs/{{user `stage_variables_file`}}"
