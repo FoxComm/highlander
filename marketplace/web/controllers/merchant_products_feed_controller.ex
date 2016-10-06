@@ -6,8 +6,12 @@ defmodule Marketplace.MerchantProductsFeedController do
   alias Marketplace.ProductsFeedView
   alias Marketplace.MerchantProductsFeed
 
-  def index(conn, _params) do
-    products_feeds = Repo.all(ProductsFeed)
+  def index(conn, %{"merchant_id" => merchant_id}) do
+    products_feeds = Repo.all(from pf in ProductsFeed,
+                              join: mpf in MerchantProductsFeed,
+                              where: pf.id == mpf.products_feed_id
+                              and mpf.merchant_id == ^merchant_id,
+                              select: pf)
     render(conn, ProductsFeedView, "index.json", products_feeds: products_feeds)
   end
 
