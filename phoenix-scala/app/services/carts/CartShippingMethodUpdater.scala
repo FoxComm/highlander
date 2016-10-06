@@ -68,11 +68,11 @@ object CartShippingMethodUpdater {
                     .mustFindOneOr(NoShipMethod(cart.refNum))
       _ ← * <~ OrderShippingMethods.findByOrderRef(cart.refNum).delete
       // update changed totals
-      _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
-      tax   ← * <~ TaxesService.getTaxRate(cart)
-      cart  ← * <~ CartTotaler.saveTotals(cart, tax)
-      valid ← * <~ CartValidator(cart).validate()
-      resp  ← * <~ CartResponse.buildRefreshed(cart)
-      _     ← * <~ LogActivity.orderShippingMethodDeleted(originator, resp, shipMethod)
+      _           ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
+      tax         ← * <~ TaxesService.getTaxRate(cart)
+      updatedCart ← * <~ CartTotaler.saveTotals(cart, tax)
+      valid       ← * <~ CartValidator(updatedCart).validate()
+      resp        ← * <~ CartResponse.buildRefreshed(updatedCart)
+      _           ← * <~ LogActivity.orderShippingMethodDeleted(originator, resp, shipMethod)
     } yield TheResponse.validated(resp, valid)
 }

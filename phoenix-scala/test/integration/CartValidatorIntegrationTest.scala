@@ -57,21 +57,27 @@ class CartValidatorIntegrationTest
       val api = cartsApi(refNum).shippingAddress
 
       checkResponse(api.create(CreateAddressPayload("a", 1, "b", None, "c", "11111")),
-                    expectedWarnings)
+                    expectedWarnings :+ InsufficientFunds(refNum))
 
-      checkResponse(api.update(UpdateAddressPayload(name = "z".some)), expectedWarnings)
+      checkResponse(api.update(UpdateAddressPayload(name = "z".some)),
+                    expectedWarnings :+ InsufficientFunds(refNum))
 
-      checkResponse(api.delete(), expectedWarnings :+ NoShipAddress(refNum))
+      checkResponse(api.delete(),
+                    expectedWarnings :+ NoShipAddress(refNum) :+ InsufficientFunds(refNum))
 
       val address = Addresses.create(Factories.address.copy(accountId = customer.accountId)).gimme
-      checkResponse(api.updateFromAddress(address.id), expectedWarnings)
+      checkResponse(api.updateFromAddress(address.id),
+                    expectedWarnings :+ InsufficientFunds(refNum))
     }
 
     "/v1/orders/:refNum/shipping-method" in new ShippingMethodFixture {
       val api = cartsApi(refNum).shippingMethod
+      println("first")
       checkResponse(api.update(UpdateShippingMethod(shipMethod.id)),
                     Seq(EmptyCart(refNum), InsufficientFunds(refNum)))
+      println("2nd")
       checkResponse(api.delete(), Seq(EmptyCart(refNum), NoShipMethod(refNum)))
+      println("3rd")
     }
 
     "/v1/orders/:refNum/line-items" in new LineItemFixture {
@@ -113,7 +119,9 @@ class CartValidatorIntegrationTest
 
     def checkResponse(response: HttpResponse, expectedWarnings: Seq[Failure])(implicit line: SL,
                                                                               file: SF): Unit = {
+      println(response.asThe[CartResponse])
       val warnings = response.asThe[CartResponse].warnings
+      println(warnings)
       warnings.value must not be empty
       warnings.value must contain theSameElementsAs expectedWarnings.map(_.description)
     }

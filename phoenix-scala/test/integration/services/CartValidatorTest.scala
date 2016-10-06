@@ -85,7 +85,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
       }
 
       "if the grandTotal == 0" in new LineItemsFixture0 {
-        CartTotaler.saveTotals(cart, 0).gimme
+        CartTotaler.saveTotals(cart, taxValue).gimme
 
         val result = CartValidator(refresh(cart)).validate().gimme
 
@@ -142,7 +142,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
 
   trait Fixture extends EmptyCustomerCart_Baked {
     implicit val au = storeAdminAuthData
-    val taxValue    = 5
+    val taxValue    = 0
   }
 
   trait LineItemsFixture extends Fixture {

@@ -98,10 +98,10 @@ object CartPromotionUpdater {
       // Write event to application logs
       _ ← * <~ LogActivity.orderCouponAttached(cart, couponCode)
       // Response
-      tax       ← * <~ TaxesService.getTaxRate(cart)
-      cart      ← * <~ CartTotaler.saveTotals(cart, tax)
-      validated ← * <~ CartValidator(cart).validate()
-      response  ← * <~ CartResponse.buildRefreshed(cart)
+      tax         ← * <~ TaxesService.getTaxRate(cart)
+      updatedCart ← * <~ CartTotaler.saveTotals(cart, tax)
+      validated   ← * <~ CartValidator(updatedCart).validate()
+      response    ← * <~ CartResponse.buildRefreshed(updatedCart)
     } yield TheResponse.validated(response, validated)
 
   def detachCoupon(originator: User, refNum: Option[String] = None)(
@@ -123,11 +123,11 @@ object CartPromotionUpdater {
       _ ← * <~ OrderLineItemAdjustments
            .filterByOrderRefAndShadows(cart.refNum, deleteShadowIds)
            .delete
-      tax       ← * <~ TaxesService.getTaxRate(cart)
-      _         ← * <~ CartTotaler.saveTotals(cart, tax)
-      _         ← * <~ LogActivity.orderCouponDetached(cart)
-      validated ← * <~ CartValidator(cart).validate()
-      response  ← * <~ CartResponse.buildRefreshed(cart)
+      tax         ← * <~ TaxesService.getTaxRate(cart)
+      updatedCart ← * <~ CartTotaler.saveTotals(cart, tax)
+      _           ← * <~ LogActivity.orderCouponDetached(updatedCart)
+      validated   ← * <~ CartValidator(updatedCart).validate()
+      response    ← * <~ CartResponse.buildRefreshed(updatedCart)
     } yield TheResponse.validated(response, validated)
 
   /**

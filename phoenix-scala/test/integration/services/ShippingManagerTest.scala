@@ -151,7 +151,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
 
     implicit val au = storeAdminAuthData
 
-    val defaultTax = 5
+    val defaultTax = 0
 
     val cart = (for {
       cart ← * <~ Carts.create(Factories.cart.copy(accountId = customer.accountId))
@@ -263,7 +263,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
 
     implicit val au = storeAdminAuthData
 
-    val defaultTax = 5
+    val defaultTax = 10
 
     val scope = LTree(au.token.scope)
 

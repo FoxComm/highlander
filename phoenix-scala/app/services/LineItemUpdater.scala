@@ -115,14 +115,14 @@ object LineItemUpdater {
       ctx: OC,
       apis: Apis): DbResultT[TheResponse[CartResponse]] =
     for {
-      _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
-      li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      tax   ← * <~ TaxesService.getTaxRate(cart)
-      cart  ← * <~ CartTotaler.saveTotals(cart, tax)
-      valid ← * <~ CartValidator(cart).validate()
-      res   ← * <~ CartResponse.buildRefreshed(cart)
-      li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      _     ← * <~ logAct(res, li)
+      _           ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
+      li          ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
+      tax         ← * <~ TaxesService.getTaxRate(cart)
+      updatedCart ← * <~ CartTotaler.saveTotals(cart, tax)
+      valid       ← * <~ CartValidator(updatedCart).validate()
+      res         ← * <~ CartResponse.buildRefreshed(updatedCart)
+      li          ← * <~ CartLineItems.byCordRef(updatedCart.refNum).countSkus
+      _           ← * <~ logAct(res, li)
     } yield TheResponse.validated(res, valid)
 
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =
