@@ -22,6 +22,8 @@ defmodule Marketplace.Merchant do
     has_one :merchant_business_profile, Marketplace.MerchantBusinessProfile
     has_one :social_profile, through: [:merchant_social_profile, :social_profile]
     has_one :business_profile, through: [:merchant_business_profile, :business_profile]
+    has_one :merchant_products_feed, Marketplace.MerchantProductsFeed
+    has_one :products_feed, through: [:merchant_products_feed, :products_feed]
   end
 
   @states ~w(new approved suspended cancelled activated)s
