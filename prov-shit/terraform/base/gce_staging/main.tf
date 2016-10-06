@@ -90,3 +90,17 @@ module "target-staging" {
     consul_leader = "${var.consul_leader}"
     consul_server_image = "${var.consul_server_image}"
 }
+
+##############################################
+# Target Setup Staging
+##############################################
+module "target-staging" {
+    source = "../../modules/gce/tinystack"
+    datacenter = "target-stage"
+    backend_image = "${var.tiny_backend_image}"
+    frontend_image = "${var.tiny_frontend_image}"
+    ssh_user = "${var.ssh_user}"
+    ssh_private_key = "${var.ssh_private_key}"
+    consul_leader = "${var.consul_leader}"
+    consul_server_image = "${var.consul_server_image}"
+}
