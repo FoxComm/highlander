@@ -119,7 +119,7 @@ Vagrant.configure("2") do |config|
 
     app.vm.provision "ansible" do |ansible|
       ansible.verbose = "vvvv"
-      ansible.playbook = "prov-shit/ansible/vagrant_appliance.yml"
+      ansible.playbook = "tabernacle/ansible/vagrant_appliance.yml"
       ansible.extra_vars = {
         user: user
       }
@@ -140,7 +140,7 @@ Vagrant.configure("2") do |config|
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
       ansible.verbose = "vvvv"
-      ansible.playbook = "prov-shit/ansible/vagrant_appliance_base.yml"
+      ansible.playbook = "tabernacle/ansible/vagrant_appliance_base.yml"
       ansible.extra_vars = {
         user: user
       }
@@ -155,7 +155,7 @@ Vagrant.configure("2") do |config|
     app.vm.provision "ansible" do |ansible|
       ansible.verbose = "vvvv"
       ansible.skip_tags = "buildkite"
-      ansible.playbook = "prov-shit/ansible/vagrant_builder.yml"
+      ansible.playbook = "tabernacle/ansible/vagrant_builder.yml"
       ansible.extra_vars = {
         user: user
       }

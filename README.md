@@ -2,6 +2,20 @@
 
 Highlander is the brand-spanking-new FoxCommerce mono-repo.
 
+## The Projects
+
+| Project                                | Description                                                                                                  |
+|:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
+| [tabernacle](tabernacle)               | All of our tools for deploying the application to both development and production.                           |
+| [phoenix](core/phoenix)                | Our main API that handles the business logic for the customer, merchandising, and order management systems.  |
+| [green-river](core/green-river)        | An event-sourcing system based on Kafka and [bottledwater](https://github.com/confluentinc/bottledwater-pg). |
+| [middlewarehouse](core/middlewarehouse)| A lightweight and fast shipping and inventory management service written in Go.                              |
+| [isaac](core/isaac)                    | Our C++ JWT verification service.                                                                            |
+| [ashes](core/ashes)                    | The Admin UI, written in React.js.                                                                           |
+| [api-js](core/api-js)                  | A JavaScript library for interacting with the FoxCommerce API.                                               |
+| [firebrand](projects/demo/firebrand)   | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
+| [system-tests](system-tests)           | Our tests for hitting the system as a black box at the API level.                                            |
+
 ## Development Environment
 
 The simplest way to get started is to use Vagrant to build out a virtual
@@ -20,13 +34,17 @@ The easiest way to get the entire application built is to use the Vagrant Build
 environment. This will launch a VM that contains all the dependencies needed to
 build all services.
 
-**Step 1: Build the VM**
+**Step 1: First of all you need to create `.vault_pass` file with vault password**
+
+Get this password from a co-worker as it isn't stored anywhere.
+
+**Step 2: Build the VM**
 
 ```
 $ vagrant up build
 ```
 
-**Step 2: Build the Services**
+**Step 3: Build the Services**
 
 SSH into the build VM
 
@@ -101,27 +119,3 @@ Get the private IP address
 
 Edit your hosts file so that `local.foxcommerce.com` points to the new box using the private IP address you just retrieved.
 
-## The Projects
-
-| Project                                | Description                                                                                                  |
-|:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
-| [phoenix-scala](phoenix-scala)         | Our main API that handles the business logic for the customer, merchandising, and order management systems.  |
-| [green-river](green-river)             | An event-sourcing system based on Kafka and [bottledwater](https://github.com/confluentinc/bottledwater-pg). |
-| [middlewarehouse](middlewarehouse)     | A lightweight and fast shipping and inventory management service written in Go.                              |
-| [isaac](isaac)                         | Our C++ authentication service.                                                                              |
-| [ashes](ashes)                         | The Admin UI, written in React.js.                                                                           |
-| [api-js](api-js)                       | A JavaScript library for interacting with the FoxCommerce API.                                               |
-| [firebrand](firebrand)                 | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
-| [integration-tests](integration-tests) | Our tests for hitting the system as a black box at the API level.                                            |
-| [prov-shit](prov-shit)                 | All of our DevOps tools for deploying the application to both development and production.                    |
-
-## Usage
-
-### Updating from Upstream
-
-Updating from upstream will pull in all commits on each project's `master`
-branch. All commit history in each repository will be cloned into this repo.
-
-```
-$ make update
-```
