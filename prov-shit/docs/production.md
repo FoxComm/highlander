@@ -5,16 +5,15 @@ Navigation:
 * [VPN machine](#vpn-machine)
 * [Service machines](#service-machines)
 
-
 ## Generic operations
 
 These are expected to be run once, not for each production setup
 
 1. Open foxcommerce-production-shared proejct in GCE
-2. Add ssh key if not yet on https://console.cloud.google.com/compute/metadata/sshKeys (see [Adding and Removing SSH Keys](https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys)).
-3. Add service account at https://console.cloud.google.com/iam-admin/serviceaccounts/project
-4. Download created service account `account.json` key as `prov-shit/account.json`
-4. Ask project owner to provide IAM rights
+2. Add SSH key if not yet on [SSH Keys](https://console.cloud.google.com/compute/metadata/sshKeys) page.
+3. Add service account at [Serice accounts](https://console.cloud.google.com/iam-admin/serviceaccounts/project) page.
+4. Download created service account file to `highlander/prov-shit/account.json`
+4. Ask project owner to provide IAM rights.
 5. Create `prov-shit/terraform.tfvars` file containing your keys:
 
 	```
@@ -70,7 +69,7 @@ These are expected to be run once, not for each production setup
         terraform/base/gce_<project>
    ```
 
-6. Uncomment remaining resources: web, ssh, internal. As far as networking is up, they are going to be applied successfully. Run terraforming.
+6. Uncomment remaining resources: web, ssh, internal. As far as networking is up, they are going to be applied successfully. Run terraforming again.
 
 7. Create `bin/envs/<project>_vpn` inventory file and write IP of created machine VPN under `<project>-vpn` (host) section:
     
