@@ -64,10 +64,6 @@ function skuCode(sku): string {
   return realCode || sku.feCode;
 }
 
-function isSkuTemporary(sku): boolean {
-  return !_.get(sku.attributes, 'code.v');
-}
-
 function maxIndexBy(collection, iteratee, skipIndexes = []) {
   let maxValue = -Infinity;
   let maxIndex = -1;
@@ -208,28 +204,10 @@ export function autoAssignVariants(product, variants) {
     closestTuples = findClosestTuples(availableValues, existsValues, x => x.name);
     unbindAll();
 
-    // make index for used skus
-    const reducedSkus = _.reduce(availableValues, (map, t, i) => {
-      const sku = existsSkus[closestTuples[i]];
-      map[skuCode(sku)] = sku;
-      return map;
-    }, {});
-    // gather unbound real skus
-    const realUnboundSkus = _.reduce(existsSkus, (acc, sku) => {
-      const code = _.get(sku, 'attributes.code.v');
-      if (code && !(code in reducedSkus)) {
-        acc = [...acc, sku];
-      }
-      return acc;
-    }, []);
-
     // do rest job
     for (let i = 0; i < availableValues.length; i++) {
       const selectedTuple = availableValues[i];
-      let boundSku = existsSkus[closestTuples[i]];
-      if (isSkuTemporary(boundSku) && realUnboundSkus.length) {
-        boundSku = realUnboundSkus.shift();
-      }
+      const boundSku = existsSkus[closestTuples[i]];
 
       newSkus.push(boundSku);
       bindSkuToVariantsTuple(selectedTuple, boundSku);
