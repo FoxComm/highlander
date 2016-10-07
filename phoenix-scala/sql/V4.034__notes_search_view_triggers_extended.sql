@@ -3,19 +3,18 @@
 -- authors
 create or replace function update_notes_search_view_on_admins_fn() returns trigger as $$
 begin
-  update notes_search_view set author = to_json((new.email, new.name, new.department)::export_store_admins)
-  where notes_search_view.id IN (select notes.id from notes where notes.store_admin_id = new.id);
+  update notes_search_view set author = to_json((new.email, new.name)::export_store_admins)
+  where notes_search_view.id IN (select notes.id from notes where notes.store_admin_id = new.account_id);
 
   return null;
 end;
 $$ language plpgsql;
 
-create trigger update_notes_search_view_on_admins
-    after update on store_admins
+create trigger update_notes_search_view_on_users
+    after update on users
     for each row
     when (old.name is distinct from new.name or
-          old.email is distinct from new.email or
-          old.department is distinct from new.department)
+          old.email is distinct from new.email)
     execute procedure update_notes_search_view_on_admins_fn();
 
 -- orders
@@ -79,20 +78,22 @@ create trigger update_notes_search_view_on_carts
 create or replace function update_notes_search_view_on_customer_fn() returns trigger as $$
 begin
 
-  update notes_search_view set customer = to_json((
-              new.id,
+  update notes_search_view set customer = q.customer from (select to_json((
+              c.id,
+              new.account_id,
               new.name,
               new.email,
               new.is_blacklisted,
               to_json_timestamp(new.created_at)
-          )::export_customers)
-    where notes_search_view.reference_id = new.id and notes_search_view.reference_type = 'customer';
+          )::export_customers) as customer
+    from customer_data as c where c.user_id = new.id) as q
+    where notes_search_view.reference_id = new.account_id and notes_search_view.reference_type = 'customer';
   return null;
 end;
 $$ language plpgsql;
 
 create trigger update_notes_search_view_on_customer
-    after update on customers
+    after update on users
     for each row
     execute procedure update_notes_search_view_on_customer_fn();
 

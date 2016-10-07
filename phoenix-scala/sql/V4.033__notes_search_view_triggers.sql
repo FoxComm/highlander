@@ -27,6 +27,16 @@ alter domain note_reference_type
                                                         'promotion', 'coupon', 'storeAdmin'));
 
 
+drop table export_customers;
+
+create table export_customers (
+    id                  integer,
+    account_id          integer,
+    name                text,
+    email               text,
+    is_blacklisted      boolean,
+    joined_at           text
+);
 
 
 create table notes_search_view
@@ -65,9 +75,9 @@ begin
       new.priority as priority,
       to_json_timestamp(n.created_at) as created_at,
       to_json_timestamp(n.deleted_at) as deleted_at,
-      to_json((admins.email, admins.name, admins.department)::export_store_admins) as author
+      to_json((users.email, users.name)::export_store_admins) as author
     from notes as n
-      inner join store_admins as admins on (n.store_admin_id = admins.id)
+      inner join users on (n.store_admin_id = users.account_id)
     where n.id = new.id;
 
     case new.reference_type
@@ -110,13 +120,15 @@ begin
           select
             to_json((
                   c.id,
-                  c.name,
-                  c.email,
-                  c.is_blacklisted,
-                  to_json_timestamp(c.created_at)
+                  u.account_id,
+                  u.name,
+                  u.email,
+                  u.is_blacklisted,
+                  to_json_timestamp(u.created_at)
               )::export_customers) into strict new_note.customer
-            from customers as c
-            where c.id = new.reference_id;
+            from users as u
+            inner join customer_data as c on (u.id = c.user_id)
+            where u.account_id = new.reference_id;
       when 'giftCard' then
           select
             to_json((gc.code, gc.origin_type, gc.currency, to_json_timestamp(gc.created_at))::export_gift_cards)
@@ -169,10 +181,10 @@ begin
             where c.form_id = new.reference_id;
       when 'storeAdmin' then
           select
-                  to_json((admins.email, admins.name, admins.department)::export_store_admins)
+                  to_json((users.email, users.name)::export_store_admins)
               into strict new_note.store_admin
-              from store_admins as admins
-              where admins.id = new.reference_id;
+              from users
+              where users.account_id = new.reference_id;
     end case;
 
     insert into notes_search_view select new_note.*;
