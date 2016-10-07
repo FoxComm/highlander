@@ -14,7 +14,7 @@ trait OrderSeeds {
 
   def orderNotes: Seq[Note] = {
     def newNote(body: String) =
-      Note(referenceId = 1, referenceType = Note.Cord, storeAdminId = 1, body = body)
+      Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, body = body)
     Seq(
         newNote("This customer is a donkey."),
         newNote("No, seriously."),

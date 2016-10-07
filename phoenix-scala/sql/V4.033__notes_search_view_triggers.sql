@@ -23,7 +23,7 @@ alter domain note_reference_type
 
 alter domain note_reference_type
         add constraint note_reference_type_check
-            check (value in ('cord', 'giftCard', 'customer', 'return', 'product', 'sku',
+            check (value in ('order', 'giftCard', 'customer', 'return', 'product', 'sku',
                                                         'promotion', 'coupon', 'storeAdmin'));
 
 
@@ -51,7 +51,7 @@ create table notes_search_view
     deleted_at json_timestamp,
     author jsonb not null,
     -- OneOf optional entity
-    cord jsonb,
+    "order" jsonb,
     customer jsonb,
     gift_card jsonb,
     sku_item jsonb,
@@ -81,7 +81,7 @@ begin
     where n.id = new.id;
 
     case new.reference_type
-       when 'cord' then
+       when 'order' then
         select
           case cords.is_cart
             when false then
@@ -110,7 +110,7 @@ begin
                         carts.grand_total,
                         carts.line_item_count
                       )::export_orders)
-            end into strict new_note.cord
+            end into strict new_note.order
               from cords
                 left join orders_search_view as o on (o.reference_number = cords.reference_number and cords.is_cart = false)
                 left join carts_search_view as carts on (carts.reference_number = cords.reference_number and cords.is_cart = true)

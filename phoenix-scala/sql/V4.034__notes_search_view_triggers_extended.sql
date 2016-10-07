@@ -21,7 +21,7 @@ create trigger update_notes_search_view_on_users
 create or replace function update_notes_search_view_on_orders_fn() returns trigger as $$
 begin
 
-  update notes_search_view set "cord" = q.order from (select
+  update notes_search_view set "order" = q.order from (select
     json_agg((
              new.customer->>'id',
              new.reference_number,
@@ -34,7 +34,7 @@ begin
              new.grand_total,
              new.line_item_count
            )::export_orders) as "order") as q
-      where notes_search_view.reference_id = new.id and notes_search_view.reference_type = 'cord';
+      where notes_search_view.reference_id = new.id and notes_search_view.reference_type = 'order';
 
   return null;
 end;
@@ -43,7 +43,7 @@ $$ language plpgsql;
 create or replace function update_notes_search_view_on_carts_fn() returns trigger as $$
  begin
 
- update notes_search_view set "cord" = q.cord from (select
+ update notes_search_view set "order" = q.order from (select
        json_agg((
            new.customer->>'id',
            new.reference_number,
@@ -55,8 +55,8 @@ create or replace function update_notes_search_view_on_carts_fn() returns trigge
            new.taxes_total,
            new.grand_total,
            new.line_item_count
-         )::export_orders) as cord) as q
-       where notes_search_view.reference_id = new.id and notes_search_view.reference_type = 'cord';
+         )::export_orders) as "order") as q
+       where notes_search_view.reference_id = new.id and notes_search_view.reference_type = 'order';
 
  return null;
 end;

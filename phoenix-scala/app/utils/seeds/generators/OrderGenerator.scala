@@ -286,7 +286,7 @@ trait OrderGenerator extends ShipmentSeeds {
 
   def orderNotes: Seq[Note] = {
     def newNote(body: String) =
-      Note(referenceId = 1, referenceType = Note.Cord, storeAdminId = 1, body = body)
+      Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, body = body)
     (1 to Random.nextInt(4)) map { i ⇒
       newNote(Lorem.sentence(Random.nextInt(5)))
     }
