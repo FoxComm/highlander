@@ -246,12 +246,7 @@ class EditableSkuRow extends Component {
     const variantValue = _.get(mapping, [skuCode, variantName]);
 
     return (
-      <input
-        className="fc-text-input"
-        type="text"
-        value={variantValue}
-        disabled={true}
-      />
+      <div styleName="variant-value">{variantValue}</div>
     );
   }
 

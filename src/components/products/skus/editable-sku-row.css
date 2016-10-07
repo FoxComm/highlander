@@ -56,3 +56,10 @@
 .cell-thumbnail {
   height: 100%;
 }
+
+.variant-value {
+  background-color: #d9d9d9;
+  border: 1px solid #ced2d5;
+  padding: 10px;
+  white-space: nowrap;
+}
