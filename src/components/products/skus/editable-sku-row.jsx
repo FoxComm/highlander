@@ -14,8 +14,6 @@ import CurrencyInput from 'components/forms/currency-input';
 import MultiSelectRow from 'components/table/multi-select-row';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import { DeleteButton } from 'components/common/buttons';
-import Dropdown from 'components/dropdown/dropdown';
-import TextInput from 'components/forms/text-input';
 
 import reducer, { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
@@ -34,7 +32,7 @@ type Props = {
   skuContext: string,
   updateField: (code: string, field: string, value: string) => void,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
-  onDeleteClick: (id: string|number) => void,
+  onDeleteClick: (id: string) => void,
   isFetchingSkus: boolean|null,
   variantsSkusIndex: Object,
   suggestSkus: (code: string, context?: SuggestOptions) => Promise,

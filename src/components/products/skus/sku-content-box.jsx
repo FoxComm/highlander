@@ -15,14 +15,13 @@ import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import { Checkbox } from 'components/checkbox/checkbox';
 
 // helpers
-import { variantsWithMultipleOptions } from 'paragons/product';
-import { availableVariantsValues } from 'paragons/variants';
+import { availableVariantsValues, variantsWithMultipleOptions } from 'paragons/variants';
 
 // styles
 import styles from './sku-content-box.css';
 
 // types
-import type { Product } from 'paragons/product';
+import type { Product, OptionValue } from 'paragons/product';
 import type { Sku } from 'modules/skus/details';
 
 type UpdateFn = (code: string, field: string, value: any) => void;
@@ -31,14 +30,14 @@ type Props = {
   fullProduct: ?Product,
   updateField: UpdateFn,
   onDeleteSku: (skuCode: string) => void,
-  onAddNewVariants: (options: Array<any>) => void,
+  onAddNewVariants: (options: Array<Array<OptionValue>>) => void,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
   variants: Array<any>,
 };
 
 type State = {
   addDialogIsShown: boolean,
-  selectedOptions: {[key: string]: Array<Object>},
+  selectedOptions: {[key: string]: Array<OptionValue>},
 };
 
 class SkuContentBox extends Component {
@@ -76,7 +75,7 @@ class SkuContentBox extends Component {
     const availableVariants = availableVariantsValues(this.props.fullProduct);
     const { selectedOptions } = this.state;
 
-    const list = _.map(availableVariants, (values, i) => {
+    const list = _.map(availableVariants, (values: Array<OptionValue>, i) => {
       const checked = !!selectedOptions[this.getValuesKey(values)];
       const content = values.map(value => value.name).join(', ');
 
@@ -125,12 +124,12 @@ class SkuContentBox extends Component {
     });
   }
 
-  getValuesKey(values) {
+  getValuesKey(values: Array<OptionValue>): string {
     return values.map(x => x.name).join('\x08');
   }
 
   @autobind
-  toggleAddedOption(values) {
+  toggleAddedOption(values: Array<OptionValue>) {
     let { selectedOptions } = this.state;
     const key = this.getValuesKey(values);
     selectedOptions = key in selectedOptions

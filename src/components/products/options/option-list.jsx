@@ -9,7 +9,6 @@ import { assoc, dissoc } from 'sprout-data';
 
 // components
 import ContentBox from 'components/content-box/content-box';
-import { FormField } from 'components/forms';
 import OptionEntry from './option-entry';
 import OptionEditDialog from './option-edit-dialog';
 
@@ -90,7 +89,7 @@ class OptionList extends Component {
   }
 
   @autobind
-  updateOption(id: number, option: Option): void {
+  updateOption(id: string|number, option: Option): void {
     const { variants } = this.props;
 
     const newVariants = id == 'new' ? [...variants, option] : assoc(variants, id, option);

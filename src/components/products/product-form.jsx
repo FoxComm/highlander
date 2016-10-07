@@ -16,12 +16,11 @@ import Tags from '../tags/tags';
 import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
 
-import * as ProductParagon from 'paragons/product';
 import { autoAssignVariants, deleteVariantCombination, addSkusForVariants } from 'paragons/variants';
 
 // types
 import type { Attributes } from 'paragons/object';
-import type { Product } from 'paragons/product';
+import type { Product, Option, OptionValue } from 'paragons/product';
 
 // paragon
 import { options } from 'paragons/product';
@@ -79,12 +78,12 @@ export default class ProductForm extends Component {
   }
 
   @autobind
-  updateVariants(newVariants: Array<any>): void {
+  updateVariants(newVariants: Array<Option>): void {
     // here we have new variants, but
     // we don't have empty skus in order user be able to edit them
     // also we need skuCodes for them in variant.values
     const newProduct = autoAssignVariants(this.props.product, newVariants);
-    return this.props.onUpdateProduct(newProduct);
+    this.props.onUpdateProduct(newProduct);
   }
 
   @autobind
@@ -138,7 +137,7 @@ export default class ProductForm extends Component {
   }
 
   @autobind
-  handleAddVariants(variantValues: Array<any>) {
+  handleAddVariants(variantValues: Array<Array<OptionValue>>) {
     this.props.onUpdateProduct(
       addSkusForVariants(this.props.product, variantValues)
     );

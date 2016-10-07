@@ -7,7 +7,6 @@ import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { skuEmptyAttributes } from './sku';
 import { isSatisfied } from 'paragons/object';
-import { cartesianProductOf } from 'lib/utils';
 
 // helpers
 import { generateSkuCode, isSkuValid } from './sku';
@@ -179,33 +178,4 @@ export function setSkuAttribute(product: Product,
   const newSkus = product.skus.map(sku => updateAttribute(sku));
 
   return assoc(product, 'skus', newSkus);
-}
-
-/**
- * This function replaces variants without options from variant array
- * Returns list of variants with one or more value
- */
-export function variantsWithMultipleOptions(variants: Array<any>): Array<Object> {
-  return _.reduce(variants, (acc, variant) => {
-    if (_.isEmpty(variant.values)) {
-      return acc;
-    }
-    return acc.concat([variant]);
-  }, []);
-}
-
-/**
- * This is a convenience function that iterates through a product and creates a
- * mapping from SKU => Variant => Value.
- * For example SKU-BRO => Size => L.
- */
-export function mapSkusToVariants(variants: Array<Option>): Object {
-  return _.reduce(variants, (res, variant) => {
-    const variantName = _.get(variant, 'attributes.name.v');
-    return _.reduce(variant.values, (res, value) => {
-      return _.reduce(value.skuCodes, (res, skuCode) => {
-        return assoc(res, [skuCode, variantName], value.name);
-      }, res);
-    }, res);
-  }, {});
 }

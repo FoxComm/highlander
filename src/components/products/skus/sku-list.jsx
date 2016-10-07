@@ -13,7 +13,7 @@ import MultiSelectTable from 'components/table/multi-select-table';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 
 import type { Product } from 'paragons/product';
-import { mapSkusToVariants } from 'paragons/product';
+import { mapSkusToVariants } from 'paragons/variants';
 import type { Sku } from 'modules/skus/details';
 
 type UpdateFn = (code: string, field: string, value: any) => void;
@@ -29,7 +29,8 @@ type Props = {
 
 type State = {
   isDeleteConfirmationVisible: boolean,
-  skuId: ?string|?number,
+  skuId: ?string,
+  variantsSkusIndex: Object,
 };
 
 export default class SkuList extends Component {
@@ -96,7 +97,7 @@ export default class SkuList extends Component {
   }
 
   @autobind
-  showDeleteConfirmation(skuId: string|number): void {
+  showDeleteConfirmation(skuId: string): void {
     this.setState({ isDeleteConfirmationVisible: true, skuId });
   }
 
@@ -104,8 +105,10 @@ export default class SkuList extends Component {
   deleteSku(): void {
     //ToDo: call something to delete SKU from product and variant
     const { skuId } = this.state;
+    if (skuId) {
+      this.props.onDeleteSku(skuId);
+    }
 
-    this.props.onDeleteSku(skuId);
     this.closeDeleteConfirmation();
   }
 
