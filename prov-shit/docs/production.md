@@ -63,6 +63,7 @@ These are expected to be run once, not for each production setup
         -state=terraform/envs/gce_<project>/terraform.tfstate \
         -var-file=terraform/envs/gce_<project>/tpg.tfvars \
         terraform/base/gce_<project>
+
     $ terraform apply \
         -state=terraform/envs/gce_<project>/terraform.tfstate \
         -var-file=terraform/envs/gce_<project>/<project>.tfvars \
