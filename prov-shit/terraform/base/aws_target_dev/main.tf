@@ -50,6 +50,7 @@ module "target_staging" {
     stage_datacenter = "target-stage"
     subnet_id = "subnet-9094cdf4"
     security_groups = ["sg-e50cd29c", "sg-a021d3d9"]
+    sg_https = ["sg-e50cd29c", "sg-a021d3d9", "sg-449b8922"]
 
     stage_amigo_image = "${var.stage_amigo_image}"
     stage_frontend_image = "${var.stage_frontend_image}"
@@ -70,6 +71,7 @@ module "target_vanilla" {
     datacenter = "target"
     subnet_id = "subnet-9094cdf4"
     security_groups = ["sg-e50cd29c", "sg-a021d3d9"]
+    sg_https = ["sg-e50cd29c", "sg-a021d3d9", "sg-449b8922"]
 
     kafka_image = "${var.kafka_image}"
     db_image = "${var.db_image}"

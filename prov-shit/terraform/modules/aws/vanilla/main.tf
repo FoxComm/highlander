@@ -6,6 +6,9 @@ variable "subnet_id" {}
 variable "security_groups" {
   type = "list"
 }
+variable "sg_https" {
+  type = "list"
+}
 
 variable "kafka_image" {}
 variable "db_image" {}
@@ -274,7 +277,7 @@ resource "aws_instance" "front-worker-0" {
   }
 
   subnet_id = "${var.subnet_id}"
-  vpc_security_group_ids = "${var.security_groups}"
+  vpc_security_group_ids = "${var.sg_https}"
   availability_zone = "us-west-2a"
   associate_public_ip_address = false
 
