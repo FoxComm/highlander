@@ -96,3 +96,4 @@ const OrderSummary = props => {
 };
 
 export default connect(getState, {})(localized(OrderSummary));
+

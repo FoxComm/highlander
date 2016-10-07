@@ -1,6 +1,7 @@
 
 @import "media-queries.css";
 @import "colors.css";
+@import "variables.css";
 
 .checkout {
   width: 100%;
@@ -64,11 +65,14 @@
   }
 }
 
-.checkout-content {
-  display: flex;
-  margin-top: 86px;
+@media (--small-only), (--medium-only) {
+  .summary {
+    position: fixed;
+    margin-top: 146px;
+    width: 100%;
+    z-index: 2;
+  }
 }
-
 
 @media (--large) {
   .logo {
@@ -77,6 +81,10 @@
 
   .nav-list {
     height: 86px;
+  }
+
+  .summary {
+    margin-top: 122px;
   }
 }
 

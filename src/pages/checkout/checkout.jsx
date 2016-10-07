@@ -12,7 +12,7 @@ import Icon from 'ui/icon';
 import Shipping from './shipping';
 import Delivery from './delivery';
 import Billing from './billing';
-import OrderSummary from './order-summary';
+import OrderSummary from './summary/order-summary';
 import GiftCard from './gift-card';
 import CouponCode from '../../components/coupon-code/coupon-code';
 import EditableBlock from 'ui/editable-block';
@@ -152,8 +152,13 @@ class Checkout extends Component {
             </ol>
           </nav>
         </header>
-        <div styleName="checkout-content">
-          <div styleName="left-forms">
+
+        <div styleName="content">
+          <div styleName="summary">
+            <OrderSummary />
+          </div>
+
+          <div styleName="forms">
             <Shipping
               isEditing={props.editStage == EditStages.SHIPPING}
               collapsed={props.editStage < EditStages.SHIPPING}
@@ -180,9 +185,6 @@ class Checkout extends Component {
               continueAction={this.placeOrder}
               error={this.errorsFor(EditStages.BILLING)}
             />
-          </div>
-          <div styleName="right-forms">
-            <OrderSummary />
             <EditableBlock
               styleName="checkout-block"
               title="PROMO CODE"
