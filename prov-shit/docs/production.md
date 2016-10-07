@@ -48,11 +48,13 @@ These are expected to be run once, not for each production setup
     - creating rest machines
 
 4. Install dependent terraform modules:
+    
     ```
     $ terraform get terraform/base/gce_<project>
     ```
 
-5. terraform VPN machine:
+5. Terraform VPN machine:
+    
     ```
     $ terraform plan \
     -state=terraform/envs/gce_<project>/terraform.tfstate \
@@ -62,26 +64,29 @@ These are expected to be run once, not for each production setup
     -state=terraform/envs/gce_<project>/terraform.tfstate \
     -var-file=terraform/envs/gce_<project>/<project>.tfvars \
     terraform/base/gce_<project>
+   ```
 
 6. Uncomment remaining resources: web, ssh, internal. As far as networking is up, they are going to be applied successfully. Run terraforming.
    **FIXME** Problem here is likely about need to manage dependcies between network resource and resources, dependening on it
 
 7. Create `bin/envs/<project>_vpn` inventory file and write IP of created machine VPN under `<project>-vpn` (host) section:
+    
     ```
     [<project>-vpn]
     xxx.xxx.xxx.xxx
     ```
 
 8. Bootstrap VPN there:
+    
     ```
     $ ansible-playbook -v -i bin/envs/<project>_vpn ansible/boo tstrap_vanilla_vpn.yml
     ```
 
 9. Generate OpenVPN credentials (repeat for desired number of credentials):
+    
     ```
     $ ansible-playbook -v -i bin/envs/<project>_vpn ansible/bootstrap_openvpn_key.yml
     ```
-
 
 ## Service machines
 
