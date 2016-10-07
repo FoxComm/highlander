@@ -99,10 +99,11 @@ defmodule Marketplace.MerchantController do
           copy_social_profile_from_merchant_application(application_id, merchant) end)
         |> Multi.run(:merchant_application, fn %{merchant: merchant} ->
           update_merchant_application(application_id, merchant) end)
-        |> Multi.insert(:merchant_account, merchant_account_cs)
 
         case Repo.transaction(multi_txn) do
-          {:ok, %{merchant: inserted_merchant, merchant_business_profile: m_bp, merchant_social_profile: m_sp, merchant_account: _}} -> 
+          {:ok, %{merchant: inserted_merchant, merchant_business_profile: m_bp, merchant_social_profile: m_sp}} -> 
+            MerchantAccount.changeset(merchant_account_cs, %{"merchant_id" => inserted_merchant.id})
+            |> Repo.insert
             conn 
             |> put_status(:created)
             |> put_resp_header("location", merchant_path(conn, :show, inserted_merchant))
