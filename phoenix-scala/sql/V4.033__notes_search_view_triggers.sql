@@ -63,8 +63,8 @@ begin
       new.reference_type as reference_type,
       new.body as body,
       new.priority as priority,
-      to_char(n.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
-      to_char(n.deleted_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as deleted_at,
+      to_json_timestamp(n.created_at) as created_at,
+      to_json_timestamp(n.deleted_at) as deleted_at,
       to_json((admins.email, admins.name, admins.department)::export_store_admins) as author
     from notes as n
       inner join store_admins as admins on (n.store_admin_id = admins.id)
@@ -113,13 +113,13 @@ begin
                   c.name,
                   c.email,
                   c.is_blacklisted,
-                  to_char(c.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+                  to_json_timestamp(c.created_at)
               )::export_customers) into strict new_note.customer
             from customers as c
             where c.id = new.reference_id;
       when 'giftCard' then
           select
-            to_json((gc.code, gc.origin_type, gc.currency, to_char(gc.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'))::export_gift_cards)
+            to_json((gc.code, gc.origin_type, gc.currency, to_json_timestamp(gc.created_at))::export_gift_cards)
               into strict new_note.gift_card
             from gift_cards as gc
             where gc.id = new.reference_id;
@@ -128,7 +128,7 @@ begin
             to_json((
                 f.id,
                 s.code,
-                to_char(s.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+                to_json_timestamp(s.created_at)
             )::export_skus_raw)
               into strict new_note.sku_item
             from skus as s
@@ -138,7 +138,7 @@ begin
           select distinct on(p.form_id)
                 to_json((
                 f.id,
-                to_char(p.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+                to_json_timestamp(p.created_at)
             )::export_products_raw)
             into strict new_note.product
             from products as p
@@ -150,7 +150,7 @@ begin
                 to_json((
                     f.id,
                     p.apply_type,
-                    to_char(p.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+                    to_json_timestamp(p.created_at)
                 )::export_promotions_raw)
             into strict new_note.promotion
             from promotions as p
@@ -161,7 +161,7 @@ begin
                 to_json((
                   f.id,
                   c.promotion_id,
-                  to_char(c.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+                  to_json_timestamp(c.created_at)
               )::export_coupons_raw)
             into strict new_note.coupon
             from coupons as c
@@ -187,8 +187,8 @@ begin
   update notes_search_view set
       body = new.body,
       priority = new.priority,
-      created_at = to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-      deleted_at = to_char(new.deleted_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+      created_at = to_json_timestamp(new.created_at),
+      deleted_at = to_json_timestamp(new.deleted_at)
     where notes_search_view.id = new.id;
   return null;
 end;

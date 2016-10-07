@@ -84,7 +84,7 @@ begin
               new.name,
               new.email,
               new.is_blacklisted,
-              to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+              to_json_timestamp(new.created_at)
           )::export_customers)
     where notes_search_view.reference_id = new.id and notes_search_view.reference_type = 'customer';
   return null;
@@ -104,7 +104,7 @@ begin
   update notes_search_view set
     gift_card = to_json((new.code, new.origin_type,
                          new.currency,
-                         to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'))::export_gift_cards)
+                         to_json_timestamp(new.created_at))::export_gift_cards)
     where notes_search_view.reference_id = new.id and notes_search_view.reference_type = 'giftCard';
 
   return null;
@@ -125,7 +125,7 @@ begin
             to_json((
                 f.id,
                 s.code,
-                to_char(s.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+                to_json_timestamp(s.created_at)
             )::export_skus_raw)
               as sku
             from skus as s
@@ -149,7 +149,7 @@ begin
       (select
             to_json((
             f.id,
-            to_char(p.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+            to_json_timestamp(p.created_at)
         )::export_products_raw)
         as product
         from products as p
@@ -175,7 +175,7 @@ begin
                 to_json((
                     f.id,
                     p.apply_type,
-                    to_char(p.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+                    to_json_timestamp(p.created_at)
                 )::export_promotions_raw)
             as promotion
             from promotions as p
@@ -201,7 +201,7 @@ begin
                 to_json((
                   f.id,
                   c.promotion_id,
-                  to_char(c.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+                  to_json_timestamp(c.created_at)
               )::export_coupons_raw)
             as coupon
             from coupons as c
