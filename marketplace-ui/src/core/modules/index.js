@@ -41,7 +41,8 @@ const accountFetchSelector = asyncSelector(account.ACTION_FETCH);
 const accountSubmitSelector = asyncSelector(account.ACTION_SUBMIT);
 const infoFetchSelector = asyncSelector(info.ACTION_FETCH);
 const infoSubmitSelector = asyncSelector(info.ACTION_SUBMIT);
-const feedSubmitSelector = asyncSelector(info.ACTION_SUBMIT);
+const feedSubmitSelector = asyncSelector(feed.ACTION_SUBMIT);
+const feedUploadSelector = asyncSelector(feed.ACTION_UPLOAD);
 
 export const getApplicationFetched = applicationFetchSelector(fetchedSelector);
 export const getApplicationFetchFailed = applicationFetchSelector(failedSelector);
@@ -59,4 +60,5 @@ export const getInfoSubmitSucceeded = infoSubmitSelector(succeededSelector);
 
 export const getFeedSubmitInProgress = feedSubmitSelector(inProgressSelector);
 export const getFeedSubmitFailed = feedSubmitSelector(failedSelector);
-export const getFeedSubmitSucceeded = feedSubmitSelector(succeededSelector);
+export const getFeedUploadInProgress = feedUploadSelector(inProgressSelector);
+export const getFeedUploadFailed = feedUploadSelector(failedSelector);

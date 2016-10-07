@@ -16,7 +16,7 @@ const setValue = (value, def = null) => (!isEmpty(value) ? value : def);
 /**
  * Form field wrapper
  */
-const FormField = ({ className, meta: { error, touched }, children }) => {
+export const FormField = ({ className, meta: { error, touched }, children }) => {
   const hasError = touched && error;
 
   return (
@@ -97,6 +97,28 @@ const renderTags = ({ input, values, placeholder, meta }) => (
   </FormField>
 );
 
+const renderFile = ({ input, type, file, placeholder, meta }) => {
+  const fileName = get(file, '[0].name');
+
+  return (
+    <FormField input={input} className={input.name} meta={meta}>
+      <span className={styles.placeholder}>{placeholder}</span>
+      <div className={styles.file}>
+        <span>Select File</span>
+        <input {...input} onBlur={noop} type={type} />
+      </div>
+      {fileName && <span className={styles.fileName}>Selected file: {fileName}</span>}
+    </FormField>
+  );
+};
+
+const typeRendererMap = {
+  select: renderSelect,
+  tags: renderTags,
+  textarea: renderTextarea,
+  file: renderFile,
+};
+
 export default (field: TFormField) => {
   // TODO: better implementation of radio rendering.
   // The problem is that it requires one Field component for each radio, not a radio group
@@ -104,21 +126,7 @@ export default (field: TFormField) => {
     return renderRadios(field);
   }
 
-  let renderField = renderInput;
-
-  switch (field.type) {
-    case 'select':
-      renderField = renderSelect;
-      break;
-    case 'tags':
-      renderField = renderTags;
-      break;
-    case 'textarea':
-      renderField = renderTextarea;
-      break;
-    default:
-      renderField = renderInput;
-  }
+  const renderField = get(typeRendererMap, field.type, renderInput);
 
   return (
     <Field

@@ -1,14 +1,30 @@
 .feed {
-  & :global(.feed_schedule),
-  & :global(.feed_days) {
-    display: inline-block;
+  & .forms {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
-  & :global(.feed_schedule) {
-    width: 60%;
-  }
+  & .form {
+    padding: 20px 10px;
+    height: 100%;
+    margin: 20px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    flex: 1;
 
-  & :global(.feed_days) {
-    width: 40%;
+    &:first-child {
+      margin-left: 0;
+    }
+
+    &:last-child {
+      margin-right: 0;
+    }
   }
+}
+
+.or {
+  text-transform: uppercase;
+  font-size: 28px;
+  text-align: center;
 }

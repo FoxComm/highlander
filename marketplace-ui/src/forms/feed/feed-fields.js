@@ -16,7 +16,7 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'feed_url',
-    type: 'text',
+    type: 'url',
     placeholder: 'Feed URL',
     validation: 'required format.uri',
   },

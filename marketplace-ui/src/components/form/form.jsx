@@ -3,7 +3,7 @@
 import cx from 'classnames';
 import autosize from 'autosize';
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import { findDOMNode } from 'react-dom';
 import { reduxForm } from 'redux-form';
 
 import styles from './form.css';
@@ -20,6 +20,8 @@ type Props = {
   handleSubmit: Function; // passed by reduxForm
   inProgress: boolean;
   failed: boolean;
+  className?: string;
+  renderFields?: Function;
 }
 
 class Form extends Component {
@@ -30,21 +32,29 @@ class Form extends Component {
   };
 
   componentDidMount(): void {
-    autosize(ReactDOM.findDOMNode(this).querySelectorAll('textarea'));
+    autosize(findDOMNode(this).querySelectorAll('textarea'));
   }
 
   componentWillUnmount(): void {
-    autosize.destroy(ReactDOM.findDOMNode(this).querySelectorAll('textarea'));
+    autosize.destroy(findDOMNode(this).querySelectorAll('textarea'));
+  }
+
+  get fields(): HTMLElement {
+    const { fields, renderFields } = this.props;
+
+    if (renderFields) {
+      return renderFields(fields);
+    }
+
+    return fields.map((item: FormField) => renderField(item));
   }
 
   render(): HTMLElement {
-    const { fields, submitText, inProgress, failed, handleSubmit } = this.props;
-
-    console.log('rendering form');
+    const { submitText, inProgress, failed, handleSubmit, className } = this.props;
 
     return (
-      <form onSubmit={handleSubmit} noValidate>
-        {fields.map((item: FormField) => renderField(item))}
+      <form className={cx(styles.form, className)} onSubmit={handleSubmit} noValidate>
+        {this.fields}
 
         <Button type="submit" active={inProgress} disabled={inProgress}>{submitText}</Button>
         {<span className={cx(styles.error, { [styles.errorActive]: failed })}>Error submitting form.</span>}
