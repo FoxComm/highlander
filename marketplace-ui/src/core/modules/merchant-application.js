@@ -67,6 +67,7 @@ const reducer = createReducer({
 }, initialState);
 
 const getApplication = (state: State) => state;
+const getApplicationApproved = (state: State) => state.state === 'approved';
 
 export {
   reducer as default,
@@ -76,5 +77,6 @@ export {
 
   /* selectors */
   getApplication,
+  getApplicationApproved,
 };
 

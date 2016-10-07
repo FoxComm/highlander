@@ -30,6 +30,7 @@ export default reducer;
 /** selectors */
 
 export const getApplication = state => application.getApplication(state.application);
+export const getApplicationApproved = state => application.getApplicationApproved(state.application);
 export const getAccounts = state => account.getAccounts(state.accounts);
 export const getInfo = state => info.getInfo(state.info);
 

@@ -2,56 +2,22 @@
 
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { replace } from 'react-router-redux';
+import { push } from 'react-router-redux';
 
 import Header from '../../components/header/header';
 import Card from '../../components/card/card';
 
-import {
-  getApplication,
-  getApplicationFetched,
-  getApplicationFetchFailed,
-} from '../../core/modules';
-import { fetch as fetchApplication, clearErrors } from '../../core/modules/merchant-application';
-
 import styles from './actions-page.css';
 
 import type { HTMLElement } from '../../core/types';
-import type { Application } from '../../core/modules/merchant-application';
 
 type Props = {
   params: Object;
-  application: Application;
-  applicationFetched: boolean;
-  applicationFetchFailed: boolean;
-  fetchApplication: (reference: string) => Promise<*>;
-  clearErrors: () => void;
-  replace: (path: string) => void;
+  push: (path: string) => void;
 }
-
 
 class ActionsPage extends Component {
   props: Props;
-
-  componentWillMount(): void {
-    const {
-      fetchApplication,
-      params: { ref },
-      applicationFetched,
-      applicationFetchFailed,
-      clearErrors,
-      replace,
-    } = this.props;
-
-    if (!applicationFetched) {
-      fetchApplication(ref);
-    }
-
-    if (applicationFetchFailed) {
-      clearErrors();
-      replace('/application');
-    }
-  }
 
   get actions() {
     return (
@@ -68,7 +34,7 @@ class ActionsPage extends Component {
           description={`Use existing product data to populate products in Goldfish.
           Manage Inventory & Orders withing from your dashboard.`}
           button="Select"
-          onSelect={() => this.props.replace(`/application/${this.props.params.ref}/actions`)}
+          onSelect={() => this.props.push(`/application/${this.props.params.ref}/feed`)}
         />
         <Card
           title="Integrate Platform"
@@ -94,10 +60,4 @@ class ActionsPage extends Component {
   }
 }
 
-const mapState = state => ({
-  application: getApplication(state),
-  applicationFetched: getApplicationFetched(state),
-  applicationFetchFailed: getApplicationFetchFailed(state),
-});
-
-export default connect(mapState, { fetchApplication, clearErrors, replace })(ActionsPage);
+export default connect(() => ({}), { push })(ActionsPage);
