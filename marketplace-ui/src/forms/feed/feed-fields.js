@@ -1,6 +1,6 @@
 /* @flow */
 
-import toString from 'lodash/toString';
+import isEmpty from 'lodash/isEmpty';
 
 import type { FormField } from '../../core/types/fields';
 
@@ -34,7 +34,7 @@ export const fields: Array<FormField> = [
     placeholder: 'Schedule',
     value: LIST_DAYS[0],
     values: LIST_DAYS,
-    parse: toString,
+    showPredicate: values => !isEmpty(values) && values.feed_schedule === LIST_SCHEDULE[2],
   },
 ];
 

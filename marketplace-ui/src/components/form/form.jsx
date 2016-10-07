@@ -1,5 +1,6 @@
 /* @flow */
 
+import get from 'lodash/get';
 import cx from 'classnames';
 import autosize from 'autosize';
 import React, { Component } from 'react';
@@ -16,6 +17,7 @@ import type { HTMLElement, FormField } from '../../core/types';
 
 type Props = {
   fields: Array<FormField>;
+  formValues?: Array<string>;
   submitText?: string;
   handleSubmit: Function; // passed by reduxForm
   inProgress: boolean;
@@ -40,13 +42,13 @@ class Form extends Component {
   }
 
   get fields(): HTMLElement {
-    const { fields, renderFields } = this.props;
+    const { fields, formValues, renderFields } = this.props;
 
     if (renderFields) {
       return renderFields(fields);
     }
 
-    return fields.map((item: FormField) => renderField(item));
+    return fields.map((item: FormField) => renderField(item, formValues));
   }
 
   render(): HTMLElement {

@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { replace } from 'react-router-redux';
 
 import Header from '../../components/header/header';
-import Form from '../../components/form/form';
+import FeedForm from '../../forms/feed/feed-form';
 import UploadForm from '../../forms/feed/upload-form';
 
 import {
@@ -100,7 +100,7 @@ class FeedPage extends Component {
     const { feedSubmitInProgress, feedSubmitFailed } = this.props;
 
     return (
-      <Form
+      <FeedForm
         className={styles.form}
         form="feed"
         fields={feedFields}

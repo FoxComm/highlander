@@ -1,9 +1,9 @@
-import { get, isEmpty, noop } from 'lodash';
+import { get, isEmpty, invoke, noop } from 'lodash';
 import cx from 'classnames';
 import React from 'react';
 import MultiSelect from 'react-widgets/lib/Multiselect';
 import MaskInput from 'react-input-mask';
-import { Field } from 'redux-form';
+import { Field, Fields } from 'redux-form';
 
 import messages from '../../core/lib/messages.json';
 
@@ -72,8 +72,8 @@ const renderRadios = (field: TFormField) => (
  */
 const renderOptions = value => <option key={value}>{value}</option>;
 
-const renderSelect = ({ input, type, values, placeholder, meta }) => (
-  <FormField input={input} className={input.name} type={type} meta={meta}>
+const renderSelect = ({ input, values, placeholder, meta }) => (
+  <FormField input={input} className={input.name} meta={meta}>
     {!input.value && <span className={styles.placeholderInline}>{placeholder}</span>}
     <select {...input} value={setValue(input.value, '')}>
       {!input.value && <option disabled />}
@@ -97,7 +97,7 @@ const renderTags = ({ input, values, placeholder, meta }) => (
   </FormField>
 );
 
-const renderFile = ({ input, type, file, placeholder, meta }) => {
+const renderFile = ({ input, file, placeholder, meta }) => {
   const fileName = get(file, '[0].name');
 
   return (
@@ -105,7 +105,7 @@ const renderFile = ({ input, type, file, placeholder, meta }) => {
       <span className={styles.placeholder}>{placeholder}</span>
       <div className={styles.file}>
         <span>Select File</span>
-        <input {...input} onBlur={noop} type={type} />
+        <input {...input} onBlur={noop} type="file" />
       </div>
       {fileName && <span className={styles.fileName}>Selected file: {fileName}</span>}
     </FormField>
@@ -119,7 +119,11 @@ const typeRendererMap = {
   file: renderFile,
 };
 
-export default (field: TFormField) => {
+export default (field: TFormField, values: string) => {
+  if (!isEmpty(values) && field.showPredicate && !invoke(field, 'showPredicate', values)) {
+    return;
+  }
+
   // TODO: better implementation of radio rendering.
   // The problem is that it requires one Field component for each radio, not a radio group
   if (field.type === 'radio') {
