@@ -7,7 +7,7 @@ variable "aws_key_name" {}
 variable "region" {}
 
 variable "base_image" {}
-variable "amigo_cluster_image" {}
+variable "amigo_server_image" {}
 variable "kafka_image" {}
 variable "db_image" {}
 variable "es_image" {}
@@ -17,7 +17,7 @@ variable "greenriver_image" {}
 variable "front_image" {}
 variable "service_worker_image" {}
 
-variable "stage_amigo_image" {}
+variable "stage_amigo_server_image" {}
 variable "stage_backend_image" {}
 variable "stage_frontend_image" {}
 
@@ -30,7 +30,7 @@ provider "aws" {
 module "target_amigos" {
     source = "../../modules/aws/amigos"
 
-    image = "${var.amigo_cluster_image}"
+    image = "${var.amigo_server_image}"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
     key_name = "${var.aws_key_name}"
@@ -52,7 +52,7 @@ module "target_staging" {
     security_groups = ["sg-e50cd29c", "sg-a021d3d9"]
     sg_https = ["sg-e50cd29c", "sg-a021d3d9", "sg-449b8922"]
 
-    stage_amigo_image = "${var.stage_amigo_image}"
+    stage_amigo_server_image = "${var.stage_amigo_server_image}"
     stage_frontend_image = "${var.stage_frontend_image}"
     stage_backend_image = "${var.stage_backend_image}"
 

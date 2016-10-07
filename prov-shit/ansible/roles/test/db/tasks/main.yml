@@ -13,6 +13,8 @@
     - postgresql-client-9.5
     - postgresql-contrib-9.5
 
+- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
+
 - name: Copy Postgres Configuration
   copy: src={{item}} dest="/etc/postgresql/9.5/main/{{item}}" mode="644"
   sudo: true
@@ -34,6 +36,8 @@
   with_items:
     - libpq-dev
     - python-psycopg2
+
+- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
 
 - name: Create Phoenix Test DB
   postgresql_db: name={{phoenix_test_db_name}}

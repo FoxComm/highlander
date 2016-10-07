@@ -30,3 +30,6 @@
     - { role: base/rsyslog, sudo: yes }
     - { role: base/phoenix }
     - { role: base/middlewarehouse }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

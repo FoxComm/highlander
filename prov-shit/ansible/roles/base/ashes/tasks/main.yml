@@ -4,6 +4,8 @@
   shell: npm install gulp -g
   sudo: true
 
+- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
+
 - name: Remove Ashes Dir
   file: path={{ashes_install_dir}} state=absent
 

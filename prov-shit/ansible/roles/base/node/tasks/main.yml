@@ -3,8 +3,10 @@
   apt: name={{ item }} state=latest force=yes
   sudo: true
   with_items:
-    - nodejs-legacy
+    - nodejs
     - npm
+
+- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
 
 - name: Upgrade NPM
   shell: npm update -g npm

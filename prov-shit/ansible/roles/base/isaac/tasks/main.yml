@@ -14,6 +14,8 @@
     - libbotan-1.10-1
     - libpqxx-4.0
 
+- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
+
 - name: Copy Isaac
   copy: src={{isaac_src}} dest=/usr/local/bin/isaac mode="u+x,g+x,o+x"
   sudo: true

@@ -3,8 +3,12 @@
 - name: Install Passlib
   apt: name=python-passlib state=latest force=yes
 
+- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
+
 - name: Install htpasswd
   apt: name=apache2-utils state=latest force=yes
+
+- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
 
 - name: Setup Demo Password
   htpasswd: path=/etc/nginx/passwdfile name={{demo_user}} password={{demo_pass}} owner=root group=www-data mode=0640

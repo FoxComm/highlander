@@ -24,6 +24,8 @@
     - postgresql-client-9.5
     - postgresql-contrib-9.5
 
+- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
+
 - name: Get Avro
   get_url: url={{avro_url}} dest="{{home}}/{{avro_name}}.tar.gz"
   sudo: true
@@ -87,6 +89,8 @@
   with_items:
     - libpq-dev
     - python-psycopg2
+
+- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
 
 - name: Copy Bottledwater For Phoenix Run File
   template: src=run_bottledwater_phoenix.sh dest="/usr/local/bin/run_bottledwater_phoenix.sh" mode="u+x,g+x,o+x"

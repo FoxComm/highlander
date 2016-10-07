@@ -1,136 +1,177 @@
 # Production Environment From Scratch
 
-Still work-in-progress.
-
 Navigation:
-* [GCE Project](#gce-project)
+* [Generic operations](#generic-operations)
 * [VPN machine](#vpn-machine)
 * [Service machines](#service-machines)
 
-## GCE Project
 
-1. Create a GCE project or use existing one (e.g. `foxcommerce-production-shared`).
-2. Generate your SSH keys and add them to a project (see [Adding and Removing SSH Keys](https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys)).
-3. Download `account.json` service account key file, used by packer & terraform.
-4. Create `terraform.tfvars` file containing your keys:
+## Generic operations
+
+These are expected to be run once, not for each production setup
+
+1. Open foxcommerce-production-shared proejct in GCE
+2. Add ssh key if not yet on https://console.cloud.google.com/compute/metadata/sshKeys (see [Adding and Removing SSH Keys](https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys)).
+3. Add service account at https://console.cloud.google.com/iam-admin/serviceaccounts/project
+4. Download created service account `account.json` key as `prov-shit/account.json`
+4. Ask project owner to provide IAM rights
+5. Create `prov-shit/terraform.tfvars` file containing your keys:
 
 	```
-	ssh_user = "pavel"
-	ssh_private_key = "/Users/pavel/.ssh/id_rsa"
+	ssh_user = "<username>"
+	ssh_private_key = "$HOME/.ssh/id_rsa"
 	```
+
 
 ## VPN machine
 
-**FIXME**: Before doing all this, temporary comment-out all modules inside `terraform/base/gce_vanilla/main.tf`, except `vanilla_vpn` module. Undo changes when you'll get to [Service machines](#service-machines) section.
+1. Create terraform base project in `terraform/base/gce_<project>/main.tf` by copying & renaming `terraform/base/gce_vanilla/main.tf` contents.
+  all vanilla mentions are to be renamed into <project>. Like:
+    before:
+    ```
+    resource "google_compute_network" "vanilla" {
+    ...
+    ```
+    after:
+    ```
+    resource "google_compute_network" "<project>" {
+    ...
+    ```
+    It's terraform's internal care about that, but we are reducing error's likelyhood so.
 
-1. Build core base image and save it's name:
+2. Create terraform environment vars in `terraform/envs/gce_<project>/<project>.tfvars` by copying & renaming `terraform/envs/gce_vanilla/vanilla.tfvars`
 
-	```
-	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/base/base.json
-	```
-
-2. Create terraform base project in `terraform/base/gce_vanilla` by copying & renaming `gce_vanilla` contents.
-
-3. Create new terraform environment containing variables file, similar too `terraform/envs/terraform.tfvars`. Set proper values for `gce_project`, `account_file` and `vpn_image`.
+3. Comment all in `terraform/base/gce_<project>/main.tf`, but network resource and vpn module
+    **FIXME**: This is needed because no way for now to deal with setup dependencies in single run:
+    - creating VPN
+    - gaining access to VPN
+    - creating rest machines
 
 4. Install dependent terraform modules:
+    ```
+    $ terraform get terraform/base/gce_<project>
+    ```
 
-	```
-	$ terraform get terraform/base/gce_vanilla
-	```
+5. terraform VPN machine:
+    ```
+    $ terraform plan \
+    -state=terraform/envs/gce_<project>/terraform.tfstate \
+    -var-file=terraform/envs/gce_<project>/tpg.tfvars \
+    terraform/base/gce_<project>
+    $ terraform apply \
+    -state=terraform/envs/gce_<project>/terraform.tfstate \
+    -var-file=terraform/envs/gce_<project>/<project>.tfvars \
+    terraform/base/gce_<project>
 
-5. Terraform VPN machine:
+6. Uncomment remaining resources: web, ssh, internal. As far as networking is up, they are going to be applied successfully. Run terraforming.
+   **FIXME** Problem here is likely about need to manage dependcies between network resource and resources, dependening on it
 
-	```
-	$ terraform plan \
-		-state terraform/base/gce_vanilla/terraform.tfstate \
-		-var-file terraform/base/gce_vanilla/terraform.tfvars \
-		terraform/base/gce_vanilla
-	$ terraform apply \
-		-state terraform/base/gce_vanilla/terraform.tfstate \ 
-		-var-file terraform/base/gce_vanilla/terraform.tfvars \
-		terraform/base/gce_vanilla
-	```
+7. Create `bin/envs/<project>_vpn` inventory file and write IP of created machine VPN under `<project>-vpn` (host) section:
+    ```
+    [<project>-vpn]
+    xxx.xxx.xxx.xxx
+    ```
 
-6. Create `vanilla_vpn` inventory file and write a created machine VPN there under `vanilla-vpn` (host) section.
+8. Bootstrap VPN there:
+    ```
+    $ ansible-playbook -v -i bin/envs/<project>_vpn ansible/boo tstrap_vanilla_vpn.yml
+    ```
 
-7. Bootstrap OpenVPN service:
+9. Generate OpenVPN credentials (repeat for desired number of credentials):
+    ```
+    $ ansible-playbook -v -i bin/envs/<project>_vpn ansible/bootstrap_openvpn_key.yml
+    ```
 
-	```
-	$ ansible-playbook -v -i vanilla_vpn ansible/bootstrap_vanilla_vpn.yml
-	```
-
-8. Generate OpenVPN credentials (any number you want):
-
-	```
-	$ ansible-playbook -v -i vanilla_vpn ansible/bootstrap_openvpn_key.yml
-	```
 
 ## Service machines
 
 Do all the steps while connected to created VPN service.
 
-1. Build base images for backend, frontend and consul servers (can be ran in parallel):
+1. Copy `packer/envs/vanilla.json` to `packer/envs/<project>.json`, updating `vanilla` mentions to `<project>` ones
 
-	```
-	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/base/base_jvm.json
-	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/base/base_node.json
-	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/amigos/amigo_server.json
-	```
+2. Build base image:
+    ```
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/base/base.json
+    ```
 
-2. Save base images names above and replace them in `packer/envs/vanilla.json`.
+3. Update `base_image` variable in `packer/envs/<project>.jso`n with name of created image
 
-3. Build specific images (can be ran in parallel):
+4. Build base mesos image:
+    ```
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/base/base_mesos.json
+    ```
 
-	```
-	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/db.json
-	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/es.json
-	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/es_log.json
-	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/front.json
-	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/greenriver.json
-	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/kafka.json
-	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/phoenix.json
-	$ packer build -only=google -var-file=packer/envs/vanilla.json packer/vanilla/service_worker.json
-	```
+5. Update `base_mesos` variable in `packer/envs/<project>.json` with name of created image
 
-4. Save base images names above and replace them in `terraform/envs/gce_vanilla/terraform.tfvars`.
+6. Build core base images for jvm and node:
+    ```
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/base/base_jvm.json
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/base/base_node.json
+    ```
 
-5. Terraform service machines:
+7. Update `base_jvm` and `base_node` variables in `packer/envs/<project>.json` with names of created images
 
-	```
-	$ terraform plan \
-		-state terraform/base/gce_vanilla/terraform.tfstate \
-		-var-file terraform/base/gce_vanilla/terraform.tfvars \
-		terraform/base/gce_vanilla
-	$ terraform apply \
-		-state terraform/base/gce_vanilla/terraform.tfstate \
-		-var-file terraform/base/gce_vanilla/terraform.tfvars \
-		terraform/base/gce_vanilla
-	```
+8. Build application-specific base images:
 
-6. Add a new project ID in `projects.json` and
+    **Stage**
+    ```
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/amigos/stage_amigo_server.json
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/vanilla/stage_backend.json
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/vanilla/stage_frontend.json
+    ```
 
-	```
-	$ make build
-	```
+    **Production**
+    ```
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/amigos/amigo_server.json
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/vanilla/db.json
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/vanilla/es.json
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/vanilla/es_log.json
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/vanilla/front.json
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/vanilla/greenriver.json
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/vanilla/kafka.json
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/vanilla/phoenix.json
+    $ packer build -only=google -var-file=packer/envs/<project>.json packer/vanilla/service_worker.json
+    ```
 
-7. Create `vanilla` executable in root directory used by the bootstrapper:
+9. Update image names in `terraform/envs/gce_tpg/<project>.tfvars`
 
-	```
-	#!/bin/bash
+10. Terraform environment machines
+    ```
+    $ terraform plan \
+    -state=terraform/envs/gce_<project>/terraform.tfstate \
+    -var-file=terraform/envs/gce_<project>/tpg.tfvars \
+    terraform/base/gce_<project>
+    $ terraform apply \
+    -state=terraform/envs/gce_<project>/terraform.tfstate \
+    -var-file=terraform/envs/gce_<project>/<project>.tfvars \
+    terraform/base/gce_<project>
+    ```
 
-	bin/inventory --env vanilla "$@"
-	```
+11. Add new project ID in `projects.json`
+12. Build inventory:
+    ```
+    $ make build
+    ```
 
-8. Bootstrap the initial data:
+13. Add `bin/envs/<project>` executable:
+    ```
+    #!/bin/bash
 
-	```
-	$ ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml
-	```
+    bin/inventory --env <project> "$@"
+    ```
 
-9. Bootstrap consul alerts and database backups, if necessary (continue with prompts manually):
+14. Bootstrap the initial data:
+    ```
+    $ ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml
+    ```
 
-	```
-	$ ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_consul_alerts.yml
-	$ ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_db_backup.yml
-	```
+15. Bootstrap consul alerts, if necessary (continue with prompts manually):
+
+    ```
+    $ ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_consul_alerts.yml
+    ```
+16. Bootstrap database backups, if necessary (continue with prompts manually):
+
+    ```
+    $ ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_db_backup.yml
+    ```

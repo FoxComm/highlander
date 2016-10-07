@@ -16,7 +16,7 @@ variable "front_workers" {}
 variable "ssh_user" {}
 variable "ssh_private_key" {}
 variable "amigo_leader" {}
-variable "stage_amigo_image" {}
+variable "stage_amigo_server_image" {}
 variable "network" {}
 variable "zone" {}
 
@@ -300,7 +300,7 @@ resource "google_compute_instance" "stage-amigo" {
     }
 
     disk {
-        image = "${var.stage_amigo_image}"
+        image = "${var.stage_amigo_server_image}"
         type = "pd-ssd"
         size = "20"
     }

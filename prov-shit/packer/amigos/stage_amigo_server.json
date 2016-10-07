@@ -5,25 +5,26 @@
             "type": "googlecompute",
             "account_file": "{{user `account_file`}}",
             "project_id" : "{{user `project_id`}}",
-            "source_image": "{{user `base_image`}}",
+            "source_image": "{{user `base_mesos`}}",
             "network": "{{user `network`}}",
             "zone": "us-central1-a",
-            "image_name": "base-mesos-{{timestamp}}",
-            "image_description": "Base Mesos image used for provisioning",
-            "instance_name": "packer-base-mesos-{{uuid}}",
+            "image_name": "{{user `image_prefix`}}-stage-amigo-server-{{timestamp}}",
+            "image_description": "{{user `image_title`}} Stage Amigo Server Image",
+            "instance_name": "packer-stage-amigo-server-{{uuid}}",
             "machine_type": "n1-standard-2",
-            "tags": ["no-ip", "packer-base-mesos"],
+            "tags": ["no-ip", "packer-stage-amigo-server"],
             "use_internal_ip": true,
-            "ssh_username" : "{{user `ssh_username`}}"
+            "ssh_username" : "{{user `ssh_username`}}",
+            "disk_size" : 20
         },
         {
             "name": "amazon",
             "type": "amazon-ebs",
-            "source_ami": "{{user `base_ami`}}",
+            "source_ami": "{{user `base_mesos_ami`}}",
             "instance_type": "{{user `instance_type`}}",
             "region": "{{user `region`}}",
-            "ami_name": "base-mesos-{{timestamp}}",
-            "ami_description": "Base Mesos image used for provisioning",
+            "ami_name": "{{user `image_prefix`}}-stage-amigo-server-{{timestamp}}",
+            "ami_description": "{{user `image_title`}} Stage Amigo Server Image",
             "associate_public_ip_address": true,
             "ssh_username" : "{{user `ssh_username`}}",
             "vpc_id": "{{user `vpc_id`}}",
@@ -40,15 +41,18 @@
                 "delete_on_termination": true
             }],
             "tags": {
-                "Name": "base-mesos-{{timestamp}}"
+                "packer": "stage-amigo-server"
             }
         }
     ],
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_base_mesos_alt.yml",
-            "extra_arguments": ["-vvvv"]
+            "playbook_file" : "ansible/packer_stage_amigo.yml",
+            "extra_arguments": [
+                "-vvvv",
+                "--extra-vars", "@packer/envs/{{user `stage_variables_file`}}"
+            ]
         }
     ]
 }
