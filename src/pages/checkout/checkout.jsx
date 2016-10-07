@@ -139,9 +139,18 @@ class Checkout extends Component {
     return (
       <section styleName="checkout">
         <header styleName="header">
-          <Link to="/" styleName="logo-link">
-            <Icon styleName="logo" name="fc-logo"/>
-          </Link>
+          <div styleName="logo">
+            <Link to="/">
+              <Icon styleName="logo" name="fc-logo"/>
+            </Link>
+          </div>
+          <nav styleName="navigation">
+            <ol styleName="nav-list">
+              <li styleName="nav-item"><a href="">Shipping</a></li>
+              <li styleName="nav-item"><a href="">Delivery</a></li>
+              <li styleName="nav-item"><a href="">Billing</a></li>
+            </ol>
+          </nav>
         </header>
         <div styleName="checkout-content">
           <div styleName="left-forms">

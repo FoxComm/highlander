@@ -7,11 +7,61 @@
 }
 
 .header {
-  composes: header-base from "../../components/header/header.css";
+  position: fixed;
+  z-index: 1;
+  width: 100%;
+}
 
+.logo {
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 86px;
+  background: var(--whitish);
+  color: #212121;
+  box-shadow: 0 1px var(--border-color);
+  transition: height .3s;
+}
+
+.navigation {
+  background: var(--additional-color);
+  color: var(--whitish);
+}
+
+.nav-list {
+  display: flex;
+  height: 60px;
+  align-items: stretch;
+  justify-content: center;
+  counter-reset: item;
+}
+
+.nav-item {
+  lost-column: 2/12;
+  list-style: none;
+  text-align: center;
+  margin-right: 0 !important;
+  border-bottom: 2px solid transparent;
+
+  &.current {
+    border-color: #D2D2D2;
+  }
+
+  & a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--whitish);
+    text-decoration: none;
+
+    &:before {
+      content: counter(item) "";
+      counter-increment: item;
+      margin: 0 .3em;
+      font-weight: 300;
+    }
+  }
 }
 
 .checkout-content {
@@ -21,8 +71,12 @@
 
 
 @media (--large) {
-  .header {
+  .logo {
     height: 136px;
+  }
+
+  .nav-list {
+    height: 86px;
   }
 }
 
