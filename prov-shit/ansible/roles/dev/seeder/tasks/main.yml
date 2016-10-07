@@ -35,11 +35,14 @@
 - name: Copy Service
   template: src=seeder.service dest="{{dest_services}}/seeder.service"
   sudo: true
+  when: with_seeder
 
 - name: Reload Systemd for Seeder
   sudo: yes
   command: systemctl daemon-reload
+  when: with_seeder
 
 - name: Restart Seeder
   service: name=seeder state=restarted enabled=yes
   sudo: true
+  when: with_seeder

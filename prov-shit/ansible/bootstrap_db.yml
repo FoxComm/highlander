@@ -4,23 +4,14 @@
   hosts: '{{hostname}}'
   vars:
     user: '{{ansible_ssh_user}}'
-    updating_mwh: true
-    upload_phoenix_jar: false
-    middlewarehouse_src: "{{gopath}}/src/github.com/FoxComm/highlander/middlewarehouse"
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a backend to provision"
       default: "stage-backend"
       private: no
-    - name: "gopath"
-      prompt: "Enter your GOPATH value"
-      default: "/Users/ejik/golang"
-      private: no
 
   roles:
     - { role: dev/db }
-    - { role: dev/phoenix }
-    - { role: dev/middlewarehouse }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

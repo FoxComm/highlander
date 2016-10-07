@@ -152,4 +152,7 @@ target-consul-alerts:
 target-mesos-consul:
 	ansible-playbook -v -i bin/envs/target_aws ansible/bootstrap_mesos_consul.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
+target-db-seed:
+	ansible-playbook -v -i bin/envs/target_aws ansible/bootstrap_vanilla_seed.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+
 .PHONY: all build lint test
