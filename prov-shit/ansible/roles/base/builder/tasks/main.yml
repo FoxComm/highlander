@@ -45,7 +45,7 @@
     - libpqxx-dev
   tags: isaac
 
-- include: "{{playbook_dir}}/tasks/dpkg_lock_cleanup.yml"
+- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
 
 - name: Get Proxygen
   git: repo=https://github.com/facebook/proxygen.git dest={{proxygen_install_dir}} version={{proxygen_version}} force=yes
@@ -94,7 +94,7 @@
     - glide
   tags: golang
 
-- include: "{{playbook_dir}}/tasks/dpkg_lock_cleanup.yml"
+- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
 
 - name: Remove Ansible 2.x
   command: pip uninstall -y ansible
@@ -112,7 +112,7 @@
   sudo: true
   tags: ansible-lint
 
-- include: "{{playbook_dir}}/tasks/dpkg_lock_cleanup.yml"
+- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
 
 - name: Install ansible-lint
   pip: name=ansible-lint

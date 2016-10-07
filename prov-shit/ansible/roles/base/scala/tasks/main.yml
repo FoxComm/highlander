@@ -17,4 +17,4 @@
   with_items:
     - sbt
 
-- include: "{{playbook_dir}}/tasks/dpkg_lock_cleanup.yml"
+- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"

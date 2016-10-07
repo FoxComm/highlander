@@ -17,7 +17,7 @@
     - xvfb
   sudo: true
 
-- include: "{{playbook_dir}}/tasks/dpkg_lock_cleanup.yml"
+- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
 
 - name: Create Dirs for allure and chromedriver
   file: path={{home}}/{{item}} state=directory

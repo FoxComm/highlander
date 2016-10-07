@@ -6,7 +6,7 @@
     - rsyslog
     - rsyslog-elasticsearch
 
-- include: "{{playbook_dir}}/tasks/dpkg_lock_cleanup.yml"
+- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
 
 - name: Install base rsyslog config
   template: >
