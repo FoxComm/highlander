@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /vagrant/phoenix-scala
+cd /vagrant/core/phoenix
 
 sbt ~re-start
 

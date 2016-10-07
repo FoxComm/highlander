@@ -10,36 +10,6 @@
 
 Phoenix can be run in development by running either running the application natively on your computer or through Vagrant. Instructions for both are below:
 
-### Using Vagrant
-
-1. Provision a new guest instance in Vagrant
-
-    ```bash
-    vagrant up
-    ```
-
-2. SSH into the guest and navigate to the working directory
-
-    ```bash
-    vagrant ssh
-    cd /vagrant
-    ```
-
-3. Run SBT and verify that the application compiles
-
-    ```bash
-    sbt compile
-    ```
-
-4. If you plan on running the local development server, execute the seeds and starte the server
-
-    ```bash
-    sbt seed
-    sbt '~re-start'
-    ```
-
-    The server will now be accessible on port 9090 on the host.
-
 ### Running Locally
 
 #### Dependencies on OSX
@@ -101,4 +71,4 @@ To upload images to S3, you should set the following environment variables:
 - `S3_BUCKET`
 - `S3_REGION`
 
-These settings are in `prov-shit` in the location: `ansible/roles/dev/phoenix/vars/aws.yml`. You'll need to use `ansible-vault` to decrypt and get the settings.
+These settings are in `tabernacle` in the location: `ansible/roles/dev/phoenix/vars/aws.yml`. You'll need to use `ansible-vault` to decrypt and get the settings.
