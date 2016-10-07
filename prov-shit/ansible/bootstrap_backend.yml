@@ -12,6 +12,10 @@
       prompt: "Enter a hostname with a backend services to provision"
       default: "stage-frontend"
       private: no
+    - name: "gopath"
+      prompt: "Enter your GOPATH value"
+      default: "/Users/ejik/golang"
+      private: no
 
   roles:
     - { role: dev/phoenix }
