@@ -143,6 +143,9 @@ hotfix-db:
 hotfix-docker-registry:
 	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_docker_registry.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
+hotfix-balancer:
+	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_balancer.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+
 target-consul-alerts:
 	ansible-playbook -v -i bin/envs/target_aws ansible/bootstrap_consul_alerts.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 

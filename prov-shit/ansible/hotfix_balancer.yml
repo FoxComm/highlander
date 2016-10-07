@@ -1,0 +1,11 @@
+---
+
+- name: Hotfix Balancer
+  hosts:
+    - stage-frontend
+  vars:
+    user: '{{ansible_ssh_user}}'
+    cert_path: target
+
+  roles:
+    - { role: hotfix/balancer }
