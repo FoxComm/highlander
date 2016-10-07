@@ -1,0 +1,489 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{listings}
+%for dotex
+\usepackage[pdftex]{graphicx}
+\usepackage[pdf]{graphviz}
+\usepackage[boxed]{algorithm2e} %end for dote
+\usepackage{color}
+
+\title{The FoxCommerce System Architecture}
+\begin{document}
+\maketitle
+\section{Overview}
+
+This article describes various aspects of the FoxCommerce Architecture.
+We will go over three parts of the system.
+
+\begin{enumerate}
+    \item Overall Design
+    \item Scalability
+    \item Data Model
+\end{enumerate}
+
+\section{Overall Design}
+\subsection{Perceptive}
+
+The single best word to describe the FoxCommerce architecture is \emph{Perceptive}. 
+Using the Event Sourcing Pattern, the system responds immediately to changes. 
+Tasks such as indexing, messaging, alerting, and integrating with 3rd party systems
+happen in real time.
+
+The Event Sourcing Pattern allows access to detailed information about the system
+enabling insights that would not have been possible otherwise.
+
+\subsection{Event Sourcing}
+Most Databases record every change event to a log. The database then applies the change 
+events one after another to the data. You can think of the data in the database as a snapshot
+of the change events. Event sourcing is the idea of storing
+events in a append only data store.
+
+The FoxCommerce system takes the database log and saves it in a distributed messaging system. 
+Event Consumers process these change events to do various tasks like indexing, messaging, 
+analysis, and alerting, just-in-time as events are received. 
+This allows us to avoid batch processing and enables a responsive system.
+We call this event sourcing architecture the ``Green River"
+
+\digraph[scale=0.80]{EventSourcing}{
+    splines="ortho";
+    rankdir=TD;
+    node [shape=box,style=filled,fillcolor="lightblue"];
+
+    subgraph zero{
+        rank=same;
+        App [shape=rectangle,label="API Server"];
+    };
+    subgraph first{
+        rank=same;
+        DB [shape=box3d];
+        Log [shape=signature];
+    };
+    subgraph second {
+        rank=same;
+        Kafka [label="Event Store",shape=note];
+        Workers [shape=oval];
+    };
+    subgraph third {
+        rank=same;
+        Messaging [shape=tab];
+        Analysis [shape=rectangle];
+        Alerts [shape=rectangle];
+        Search [label="Search Cluster",shape=box3d];
+    };
+    App -> DB;
+    DB -> Log [label="Stores"];
+    Log -> Kafka;
+    Kafka -> Workers
+    Workers -> Search
+    Workers -> Messaging
+    Workers -> Analysis
+    Workers -> Alerts
+}
+
+\subsection{Everything Searchable}
+
+Because of the event sourcing architecture, we index all data in a search cluster.
+This enables all data in the system to be searchable using a flexible query language.
+The search cluster can be used to get data instead of the DB which allows improved
+performance and functionality like full text search.
+
+\subsection{Extensible}
+
+There are three ways the system is extensible. 
+\begin{enumerate}
+    \item API First
+    \item API.js
+    \item Event Consumers
+\end{enumerate}
+
+\subsubsection{API First}
+
+The system is designed API first. This means that all our components are programmed 
+against an HTTP API that is available to everyone. This allows customers to build custom 
+applications and other components against the system. The API is divided into public and 
+private versions which the customer has full access to.
+
+\digraph[scale=0.80]{Api}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="lightblue"];
+
+    subgraph clusterClient{
+        label="Clients";
+        rank=same;
+        client [label="Custom Client",shape=rectangle];
+        store [label="Web Storefront",shape=rectangle];
+        admin [label="Fox Admin",shape=rectangle];
+        mobile [label="Mobile App",shape=rectangle];
+    };
+    api [shape=rectangle, label="API Servers"];
+    client -> api
+    store -> api
+    admin -> api
+    mobile -> api
+}
+
+\subsubsection{API.js}
+
+Ease of use is an incredibly important design criteria. That is why we built 
+an easy to use JavaScript library to query the API. This library provides functions
+to get and put data into the system. The customer can then build their own components
+easily on top. The library is designed to use the simplest and most
+straightforward JavaScript.
+
+\subsubsection{Event Consumers}
+
+Because of the Event Sourcing architecture, customers can also build custom
+event consumers that respond immediately to changes in the database. This can 
+greatly simply integration and synchronization with 3rd party systems. For example
+synchronizing orders with an ERP and 3PL. 
+
+\digraph[scale=0.80]{EventListen}{
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="lightblue"];
+
+    store [shape=note, label="Event Store"];
+    subgraph clusterWorkers{
+        label="Event Consumers";
+        rank=same;
+        idx [label="Fox Search Indexing"]
+        msg [label="Fox Messaging"]
+        erp [label="ERP Sync"]
+        tpl [label="WMS Sync"]
+    };
+    store -> idx
+    store -> msg
+    store -> erp
+    store -> tpl
+}
+
+
+\subsection{Activity Trail}
+
+In addition to monitoring changes in the database. The API Servers generate
+high level events called Activities. These Activities are linked to Activity Trails that
+belong to various objects in the system. You can monitor high level changes to all parts
+of the system including customers, orders, admins and products. You can see the same activity in 
+different timelines. For example, if a customer changes the shipping address on their order,
+you will see the activity on the order's and customer's trails.
+
+\digraph[scale=0.80]{Insights}{
+    rankdir=TD;
+    node [shape=box,style=filled,fillcolor="lightblue"];
+
+    subgraph clusterApp{
+        label="Activites Generated";
+        app [shape=note, label="App"];
+        act1 [shape=note, label="activity 1"];
+        act2 [shape=note, label="activity 2"];
+        act3 [shape=note, label="activity 3"];
+    };
+
+    subgraph clusterCustomer{
+        label="Customer Trail";
+        rank=same;
+        cact1 [shape=note, label="activity 1"];
+        cact2 [shape=note, label="activity 2"];
+    };
+
+    subgraph clusterOrder{
+        label="Order Trail";
+        rank=same;
+        oact2 [shape=note, label="activity 2"];
+        oact3 [shape=note, label="activity 3"];
+    };
+
+    subgraph clusterAdmin{
+        label="Admin Trail";
+        rank=same;
+        aact2 [shape=note, label="activity 2"];
+    };
+
+    app -> act3
+    act3 -> act2
+    act2 -> act1
+    act1 -> cact1
+    cact1 -> cact2
+    act1 -> oact2
+    oact2 -> oact3
+    act1 -> aact2
+}
+
+\section{Scalability}
+
+Running a production system can be a significant cost. It is important that the
+system is designed to be the right size at the right time. The architecture needs
+to be designed so that the system can scale up and down without problems. 
+
+We designed the system to be scalable in several ways.
+
+\begin{enumerate}
+    \item Stateless
+    \item Data Partitioning
+    \item Disjoint Parallelism
+\end{enumerate}
+
+\subsection{Stateless}
+
+A very important property of scalable systems is statelessness. 
+The backend software is written in Scala and we don't allow mutable state to 
+be stored within the program. All software serving requests to clients is stateless 
+which allows nodes to be added or removed without affecting behaviour of the system. 
+
+This allows us to easily add a load balancer and then auto scale the machines based
+on utilization. We use few machines during slow times and scale up resources
+as demand increases. This means an overall cheaper system because there is less waste.
+
+\digraph[scale=0.80]{Stateless}{
+    rankdir=TD;
+    node [shape=box,style=filled,fillcolor="lightblue"];
+
+    client [shape=note, label="Client"];
+    balancer [shape=note, label="balancer"];
+    subgraph clusterWorkers{
+        label="Stateless Nodes";
+        rank=same;
+        n1 [label="Node"]
+        n2 [label="Node"]
+        n3 [label="Node"]
+        n4 [label="Node"]
+    };
+
+    client -> balancer
+    balancer -> n1
+    balancer -> n2
+    balancer -> n3
+    balancer -> n4
+}
+
+\subsection{Data Partitioning}
+
+The data in the system is always growing and therefore it is important to partition
+the data. The FoxCommerce system has several stores of data and each of these 
+is designed to be partitioned.
+
+\begin{enumerate}
+    \item DB Sharding.
+    \item Event Store Partitioning.
+    \item Search Cluster Index Partitioning.
+\end{enumerate}
+
+Each of these is partitioned so that as the data grows linearly, the query 
+times stay consistent.
+
+\subsection{Read/Write Partitioning}
+
+Another important form of partitioning is separating where data is written to and
+where it is read from. Because data is indexed as soon as it changes, much of the frontend UI code 
+reads from the search cluster instead of the DB. This means that the DB has less
+work to do which improves overall system performance.
+
+\subsection{Disjoint Parallelism}
+
+Just as the API servers nodes can be added or removed, the backend processing
+components need be added and removed without affecting system performance. 
+
+The Event Store is partitioned so that you can have many event consumers working
+in parallel without affecting each other. For example, the indexing and messaging
+can process the same event stream at the same time.
+
+\digraph[scale=0.80]{Disjoint}{
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="lightblue"];
+
+    store [shape=note, label="Event Store"];
+    subgraph clusterWorkers{
+        label="Parallel Event Consumers";
+        rank=same;
+        idx [label="Search Indexing"]
+        msg [label="Messaging"]
+        elp [label="..."]
+    };
+    store -> idx
+    store -> msg
+    store -> elp
+}
+
+\section{Data Model}
+
+An important technique in creating a good system architecture and data model
+is understanding the symmetry in the system and where the symmetry breaks. Where
+symmetry breaks is where there is something interesting happening. During the Big Bang,
+there was equal parts matter and dark matter. The symmetry of the universe somehow
+broke and all the dark matter went somewhere. Broken symmetry is why we are here today. 
+
+The FoxCommerce data model has a broken symmetry and is divided into two parts.
+
+\begin{enumerate}
+    \item Transactions
+    \item PIM/Merchandising 
+\end{enumerate}
+
+\subsection{Transactions}
+
+Transactions are core to the business and it is important that the data is 
+correct and the code is safe. Several techniques are used to maintain correctness
+and safety.
+
+\begin{enumerate}
+    \item Strong Type System
+    \item Finite State Machines
+    \item Referential Integrity
+\end{enumerate}
+
+The backend is written in Scala. For the transactional part of the system, 
+the strength of Scala's type system is utilized to validate correctness.
+It is important that the transactional part of the system is consistent and that
+the data is always in a correct state. Strongly typed data structures
+are used to represent Orders and the possible states they can have. 
+
+Orders are modeled as a Finite State Machine where the valid state transitions
+are checked at compile time. We use referential integrity in our database
+model to make sure everything is structured correctly and that all relations
+are maintained. Pointing to non-existent data is not possible.
+
+\digraph[scale=0.80]{OrderFSM} {
+    splines="ortho";
+    node [shape=rectangle,style=filled,fillcolor="lightblue"];
+    subgraph clusterFSM {
+        order [label="Order"];
+        label="Finite State Machine"
+        cart [label="Cart"];
+        fraud [label="Fraud Hold"];
+        remorse [label="Remorse Hold"];
+        manual [label="Manual Hold"];
+        full [label="Fullfillment Started"];
+        shipped [label="Shipped"];
+        canceled [label="Canceled"];
+    };
+    order -> cart
+    cart -> fraud
+    cart -> remorse
+    cart -> canceled
+    fraud -> manual
+    fraud -> remorse
+    fraud -> canceled
+    remorse -> fraud
+    remorse -> manual
+    remorse -> full
+    remorse -> canceled
+    manual -> fraud
+    manual -> remorse
+    manual -> full
+    manual -> canceled
+    full -> shipped
+    full -> canceled
+}
+
+\subsection{PIM/Merchandising}
+
+While the transactions data model is built using principles of correctness and 
+safety, the product and merchandising model is designed to be maximally flexible.
+
+The PIM/Merchandising data model has three important components
+
+\begin{enumerate}
+    \item Extensible Object Model
+    \item Versioning
+    \item Taxonomy
+\end{enumerate}
+
+\subsubsection{Extensible Object Model}
+
+The foundation of the product and merchandising model is a flexible object store
+where objects can have custom properties and dynamic associations. These objects
+are viewed from something we call a ``Context". The Context is the lens you
+view the object with.
+
+For example, a product might be viewable in a USA and Russia context. When you
+change the USA context, you see the product's USA specific properties, like an English
+description. When you switch to the Russian context, you would see the Russian description,
+and any other additional properties specific to Russia. The same object lives
+in both contexts. We call this model the Form/Shadow model.
+
+\digraph[scale=0.80]{Shadow} {
+    splines="ortho";
+    node [shape=record,style=filled,fillcolor="lightblue"];
+    Context [label="Context"];
+    Form [label="Product Form"];
+    Shadow1 [label="USA Shadow"];
+    Shadow2 [label="Russia Shadow"];
+    Shadow3 [label="Mobile Shadow ..."];
+
+    Context -> Form [label="Illuminates"];
+    Form -> Shadow1 [label="Projects"];
+    Form -> Shadow2 [label="Projects"];
+    Form -> Shadow3 [label="Projects"];
+}
+
+This model allows you to sanely manage merchandising various parts of the
+system to different groups of people.
+
+\subsubsection{Versioning}
+
+In addition, each change to any object in the merchandising system is versioned.
+
+The versioning model is built on the Form/Shadow and Context model. 
+
+\digraph[scale=0.8]{ProductVersion} {
+    node [shape=rectangle,style=filled,fillcolor="lightblue"];
+    Context [label="Context"];
+    {
+        rank=same;
+        Head1[label="..."];
+        Head2 [label="..."];
+        Head3 [label="Head"];
+    }
+    {
+        rank=same;
+        Commit1 [label="Commit 1"]
+        Commit2 [label="Commit 2"]
+        Commit3 [label="Commit 3"]
+    }
+    {
+        rank=same;
+        Shadow1 [label="Shadow 1"];
+        Shadow2 [label="Shadow 2"];
+        Shadow3 [label="Shadow 3"];
+    }
+    Form [label="Product Form"];
+
+    Context -> Head1 [label="Has"];
+    Context -> Head2 [label="Has"];
+    Context -> Head3 [label="Has"];
+
+    Head3 -> Commit3 [label="Points to"];
+    Commit1 -> Commit2[dir="back"];
+    Commit2 -> Commit3[dir="back"];
+    Commit1 -> Shadow1;
+    Commit2 -> Shadow2;
+    Commit3 -> Shadow3;
+    Shadow1 -> Form 
+    Shadow2 -> Form 
+    Shadow3 -> Form [label="Snapshot of"]
+}
+
+It allows the same object to have different versions in both time and context.
+This can enable very interesting workflows. For example, if every Admin
+had their own Context, they can make changes to a product and have the changes
+reviewed before they go live.
+
+It can allow whole changes to a site while creating a holiday campaign.
+You can have the campaign go live and then switch back to the older version in
+the previous context.
+
+\subsubsection{Taxonomy}
+
+There is also a flexible model for organizing the objects. An object can be assigned
+various to taxonomies like categories and tags. These can be used to organize objects
+into groups and trees.
+
+Since all data is indexed, groups can be defined as queries on the taxonomies and
+properties of objects. This allows you to have dynamic groups which change over time.
+
+For example, you can have a group ``top 10 popular sun glasses", and have it
+defined as a search query based on sales and taxonomy.
+
+\end{document}
