@@ -20,5 +20,4 @@ object CouponNoteManager extends NoteManager[Int, IlluminatedObject] {
       shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
     } yield IlluminatedObject.illuminate(form = form, shadow = shadow)
 
-
 }
