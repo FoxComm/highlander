@@ -53,7 +53,7 @@ object Customer {
               (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
                 reqItems ⇒
                   mutateOrFailures {
-                    LineItemUpdater.updateQuantitiesOnCustomersCart(customer, reqItems)
+                    LineItemUpdater.updateLineItemsOnCustomersCart(customer, reqItems)
                   }
               } ~
               (patch & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
