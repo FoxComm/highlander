@@ -70,6 +70,7 @@ defmodule Marketplace.MerchantController do
           "first_name" => ma.business_name,
           "last_name" => "admin",
           "email_address" => ma.email_address,
+          "phone_number" => ma.phone_number,
           "password" => "password" # probably not
         }
 
