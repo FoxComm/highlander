@@ -25,27 +25,29 @@ These are expected to be run once, not for each production setup
 
 ## VPN machine
 
-1. Create terraform base project in `terraform/base/gce_<project>/main.tf` by copying & renaming `terraform/base/gce_vanilla/main.tf` contents.
-  all vanilla mentions are to be renamed into <project>. Like:
+1. Create terraform base project in `terraform/base/gce_<project>/main.tf` by copying & renaming `terraform/base/gce_vanilla/main.tf` contents. All vanilla mentions are to be renamed into <project>. Like:
     before:
+    
     ```
     resource "google_compute_network" "vanilla" {
     ...
     ```
+    
     after:
+    
     ```
     resource "google_compute_network" "<project>" {
     ...
     ```
+    
     It's terraform's internal care about that, but we are reducing error's likelyhood so.
 
 2. Create terraform environment vars in `terraform/envs/gce_<project>/<project>.tfvars` by copying & renaming `terraform/envs/gce_vanilla/vanilla.tfvars`
 
-3. Comment all in `terraform/base/gce_<project>/main.tf`, but network resource and vpn module
-    **FIXME**: This is needed because no way for now to deal with setup dependencies in single run:
-    - creating VPN
-    - gaining access to VPN
-    - creating rest machines
+3. Comment all in `terraform/base/gce_<project>/main.tf`, but network resource and vpn module. This is needed because no way for now to deal with setup dependencies in single run:
+    * Creating VPN
+    * Gaining access to VPN
+    * Creating rest of the machines
 
 4. Install dependent terraform modules:
     
