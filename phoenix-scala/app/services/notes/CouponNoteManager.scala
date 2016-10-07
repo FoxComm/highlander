@@ -1,6 +1,6 @@
 package services.notes
 
-import failures.CouponFailures.CouponNotFoundForContext
+import failures.CouponFailures._
 import models.Note
 import models.coupon.Coupons
 import models.objects.{IlluminatedObject, ObjectForms, ObjectShadows}
@@ -15,7 +15,7 @@ object CouponNoteManager extends NoteManager[Int, IlluminatedObject] {
     for {
       coupon ← * <~ Coupons
                 .filterByContextAndFormId(defaultContextId, id)
-                .mustFindOneOr(CouponNotFoundForContext(id, "<default context>"))
+                .mustFindOneOr(CouponNotFoundForDefaultContext(id))
       form   ← * <~ ObjectForms.mustFindById404(coupon.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
     } yield IlluminatedObject.illuminate(form = form, shadow = shadow)

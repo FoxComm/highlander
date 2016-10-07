@@ -41,7 +41,7 @@ create table notes_search_view
     deleted_at json_timestamp,
     author jsonb not null,
     -- OneOf optional entity
-    "cord" jsonb,
+    cord jsonb,
     customer jsonb,
     gift_card jsonb,
     sku_item jsonb,

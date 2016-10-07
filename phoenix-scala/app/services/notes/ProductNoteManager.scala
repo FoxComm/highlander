@@ -15,8 +15,8 @@ object ProductNoteManager extends NoteManager[Int, IlluminatedObject] {
     val getProduct = ProductManager
       .mustFindProductByContextAndFormId404(contextId = defaultContextId, formId = id)
 
-    for {
-      fullObject ← * <~ ObjectManager.getFullObject(getProduct)
-    } yield IlluminatedObject.illuminate(form = fullObject.form, shadow = fullObject.shadow)
+    ObjectManager.getFullObject(getProduct).map { fullObject ⇒
+      IlluminatedObject.illuminate(form = fullObject.form, shadow = fullObject.shadow)
+    }
   }
 }

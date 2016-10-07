@@ -15,7 +15,7 @@ import utils.aliases._
 import utils.db._
 import utils.FoxConfig._
 
-trait NoteManager[K, T <: Identity] {
+trait NoteManager[K, T <: Identity[T]] {
 
   // TODO: FIXME
   // Notes are context indepedent, but for Activities for now we can store only one entity

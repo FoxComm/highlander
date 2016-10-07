@@ -22,5 +22,4 @@ object CouponConnector extends ActivityConnector {
       case (JString(`dimension`), JInt(id)) ⇒ Seq(id.toString)
       case _                                ⇒ Seq.empty
     }
-
 }

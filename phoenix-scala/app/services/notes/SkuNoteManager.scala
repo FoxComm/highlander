@@ -1,7 +1,7 @@
 package services.notes
 
 import models.Note
-import models.objects.{IlluminatedObject, ObjectForms, ObjectShadows}
+import models.objects._
 import services.inventory.SkuManager
 import utils.aliases._
 import utils.db._
