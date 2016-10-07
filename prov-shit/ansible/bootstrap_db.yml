@@ -12,23 +12,3 @@
 
   roles:
     - { role: dev/db }
-
-- name: Bootstrap services
-  hosts: '{{hostname}}'
-  vars:
-    user: '{{ansible_ssh_user}}'
-    updating_mwh: true
-    upload_phoenix_jar: false
-    middlewarehouse_src: "{{gopath}}/src/github.com/FoxComm/highlander/middlewarehouse"
-  vars_prompt:
-    - name: "hostname"
-      prompt: "Enter a hostname with a frontend to provision"
-      default: "stage-frontend"
-      private: no
-
-  roles:
-    - { role: dev/phoenix }
-    - { role: dev/middlewarehouse }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
