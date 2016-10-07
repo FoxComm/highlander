@@ -1,3 +1,5 @@
+@import "media-queries.css";
+
 .card {
   display: flex;
   flex-direction: column;
@@ -5,6 +7,11 @@
   padding: 15px;
   border: 1px solid #ddd;
   border-radius: 3px;
+
+  @media (--small-viewport) {
+    width: auto;
+    margin-bottom: 20px;
+  }
 }
 
 .title {

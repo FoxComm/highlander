@@ -1,8 +1,14 @@
+@import "media-queries.css";
+
 .feed {
   & .forms {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    @media (--small-viewport) {
+      flex-direction: column;
+    }
   }
 
   & .form {
@@ -13,12 +19,20 @@
     border-radius: 3px;
     flex: 1;
 
+    @media (--small-viewport) {
+      width: 100%;
+    }
+
     &:first-child {
       margin-left: 0;
     }
 
     &:last-child {
       margin-right: 0;
+    }
+
+    @media (--small-viewport) {
+      margin: 0;
     }
   }
 }
@@ -27,4 +41,8 @@
   text-transform: uppercase;
   font-size: 18px;
   text-align: center;
+
+  @media (--small-viewport) {
+    margin: 20px 0;
+  }
 }
