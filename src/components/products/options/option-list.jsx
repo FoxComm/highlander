@@ -5,6 +5,7 @@
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
+import { assoc, dissoc } from 'sprout-data';
 
 // components
 import ContentBox from 'components/content-box/content-box';
@@ -82,24 +83,21 @@ class OptionList extends Component {
   deleteOption(id: number): void {
     const { variants } = this.props;
 
-    variants.splice(id, 1);
+    const newVariants = variants.slice();
+    newVariants.splice(id, 1);
 
-    this.props.updateVariants(variants);
+    this.props.updateVariants(newVariants);
   }
 
   @autobind
   updateOption(id: number, option: Option): void {
     const { variants } = this.props;
 
-    if (id === 'new') {
-      variants.push(option);
-    } else {
-      variants[id] = option;
-    }
+    const newVariants = id == 'new' ? [...variants, option] : assoc(variants, id, option);
 
     this.setState({
       editOption: null,
-    }, () => this.props.updateVariants(variants));
+    }, () => this.props.updateVariants(newVariants));
   }
 
   @autobind

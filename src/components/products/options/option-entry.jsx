@@ -24,7 +24,7 @@ type Props = {
   option: ?Option,
   editOption: Function,
   deleteOption: Function,
-  confirmAction: Function,
+  confirmAction: (id: string|number, option: Option) => void,
 };
 
 type Value = {
@@ -105,24 +105,20 @@ class OptionEntry extends Component {
   deleteValue(id: number): void {
     const values = this.values;
 
-    values.splice(id, 1);
+    const newValues = values.slice();
+    newValues.splice(id, 1);
 
-    const option = assoc(this.props.option, 'values', values);
-    this.props.confirmAction(option, this.props.id);
+    const option = assoc(this.props.option, 'values', newValues);
+    this.props.confirmAction(this.props.id, option);
   }
 
   @autobind
   updateValue(value: OptionValue, id: any): void {
     const values = this.values;
+    const newValues = id == 'new' ? [...values, value] : assoc(values, id, value);
 
-    if (id === 'new') {
-      values.push(value);
-    } else {
-      values[id] = value;
-    }
-
-    const option = assoc(this.props.option, 'values', values);
-    this.props.confirmAction(option, this.props.id);
+    const option = assoc(this.props.option, 'values', newValues);
+    this.props.confirmAction(this.props.id, option);
 
     this.setState({ editValue: null });
   }

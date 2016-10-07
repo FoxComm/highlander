@@ -17,7 +17,7 @@ import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
 
 import * as ProductParagon from 'paragons/product';
-import { assignNewVariants, deleteVariantCombination, addSkusForVariants } from 'paragons/variants';
+import { autoAssignVariants, deleteVariantCombination, addSkusForVariants } from 'paragons/variants';
 
 // types
 import type { Attributes } from 'paragons/object';
@@ -83,7 +83,7 @@ export default class ProductForm extends Component {
     // here we have new variants, but
     // we don't have empty skus in order user be able to edit them
     // also we need skuCodes for them in variant.values
-    const newProduct = assignNewVariants(this.props.product, newVariants);
+    const newProduct = autoAssignVariants(this.props.product, newVariants);
     return this.props.onUpdateProduct(newProduct);
   }
 

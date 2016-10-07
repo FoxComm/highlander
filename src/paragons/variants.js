@@ -31,7 +31,7 @@ export function allVariantsValues(variants: Array<any>): Array<Object> {
   return cartesianProductOf(...opts);
 }
 
-function indexVariants(variants): Object {
+function indexBySku(variants): Object {
   if (!dbCache.has(variants)) {
     const db = Wharf();
     _.each(variants, variant => {
@@ -48,6 +48,15 @@ function indexVariants(variants): Object {
     dbCache.set(variants, db);
   }
   return dbCache.get(variants);
+}
+
+function indexByName(variants): Object {
+  return _.reduce(variants, (acc, variant) => {
+    return _.reduce(variant.values, (acc, value) => {
+      acc[value.name] = value;
+      return acc;
+    }, acc);
+  }, {});
 }
 
 function skuCode(sku): string {
@@ -102,12 +111,7 @@ export function deleteVariantCombination(product, code) {
 
 export function addSkusForVariants(product, variantTuples) {
   const newVariants = _.cloneDeep(product.variants);
-  const indexedVariants = _.reduce(newVariants, (acc, variant) => {
-    return _.reduce(variant.values, (acc, value) => {
-      acc[value.name] = value;
-      return acc;
-    }, acc);
-  }, {});
+  const indexedVariants = indexByName(newVariants);
 
   const newSkus = _.map(variantTuples, tuple => {
     const sku = createEmptySku();
@@ -126,7 +130,7 @@ export function addSkusForVariants(product, variantTuples) {
 }
 
 export function availableVariantsValues(product) {
-  const indexedVariants = indexVariants(product.variants);
+  const indexedVariants = indexBySku(product.variants);
   const allVariants = allVariantsValues(product.variants);
   const existsVariants = _.map(product.skus, sku => {
     return indexedVariants.q({av: [['sku', skuCode(sku)]]}).map(indexedVariants.get).map(x => x.variant);
@@ -147,8 +151,9 @@ function bindSkuToVariantsTuple(tuple, sku) {
   });
 }
 
-export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
-  const indexedVariants = indexVariants(variants);
+export function autoAssignVariants(product, variants) {
+  const existsSkus: Array<Sku> = product.skus;
+  const indexedVariants = indexBySku(variants);
   const newVariants = _.cloneDeep(variants);
   const availableValues = allVariantsValues(newVariants);
   // here we assume that there is defined sku (even with feCode only) for each variant
@@ -183,9 +188,15 @@ export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
       bindSkuToVariantsTuple(availableValues[selectedTupleIndex], existsSkus[i]);
     }
     closestTuples.sort();
+    const oldVariantsByName = indexByName(product.variants);
 
     for (let i = 0; i < availableValues.length; i++) {
       if (_.sortedIndexOf(closestTuples, i) !== -1) continue;
+
+      const thereIsNewVariants = _.some(availableValues[i], value => {
+        return !(value.name in oldVariantsByName);
+      });
+      if (!thereIsNewVariants) continue;
 
       const sku = lastUsedSkuIndex != null && lastUsedSkuIndex < existsSkus.length - 1
         ? existsSkus[++lastUsedSkuIndex] : createEmptySku();
@@ -225,21 +236,8 @@ export function autoAssignVariants(existsSkus: Array<Sku>, variants) {
     }
   }
 
-  return {
-    skus: newSkus,
-    variants: newVariants,
-  };
-}
-
-/**
- * Updates product after variants has updated
- * if allowDuplicate is false also remove skus with same variants
- */
-export function assignNewVariants(product: Product, newVariants: Array<Option>): Product {
-  const {skus, variants} = autoAssignVariants(product.skus, newVariants);
-
   return assoc(product,
-    'skus', skus,
-    'variants', variants
+    'skus', newSkus,
+    'variants', newVariants
   );
 }
