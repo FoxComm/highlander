@@ -31,7 +31,7 @@ final case class AppendNotification(
     sourceDimension: String, sourceObjectId: String, activityId: Int, data: JValue)
 
 trait ActivityConnector {
-  def process(offset: Long, activity: Activity): Future[Seq[Connection]]
+  def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]]
 }
 
 final case class FailedToConnectActivity(

@@ -4,13 +4,14 @@ import consumer.aliases.EC
 import org.json4s.JsonAST.{JInt, JNothing, JString}
 import scala.concurrent.Future
 
-final case class SkuConnector()(implicit ec: EC) extends ActivityConnector {
+object SkuConnector extends ActivityConnector {
   val dimension = "sku"
 
-  def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
-    val skuIds = bySkuData(activity) ++: byNoteData(activity)
-    skuIds.distinct.map(createConnection(_, activity.id))
-  }
+  def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]] =
+    Future {
+      val skuIds = bySkuData(activity) ++: byNoteData(activity)
+      skuIds.distinct.map(createConnection(_, activity.id))
+    }
 
   def createConnection(formId: String, activityId: Int): Connection = {
     Connection(dimension = dimension,

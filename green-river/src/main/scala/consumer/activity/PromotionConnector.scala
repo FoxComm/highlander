@@ -6,14 +6,15 @@ import consumer.aliases._
 
 import org.json4s.JsonAST.{JInt, JString, JNothing}
 
-final case class PromotionConnector()(implicit ec: EC) extends ActivityConnector {
+object PromotionConnector extends ActivityConnector {
   val dimension = "promotion"
 
-  def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
-    val promoIds = byNoteData(activity)
+  def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]] =
+    Future {
+      val promoIds = byNoteData(activity)
 
-    promoIds.distinct.map(createConnection(_, activity.id))
-  }
+      promoIds.distinct.map(createConnection(_, activity.id))
+    }
 
   def createConnection(formId: String, activityId: Int): Connection = {
     Connection(dimension = dimension, objectId = formId, data = JNothing, activityId = activityId)
@@ -26,4 +27,3 @@ final case class PromotionConnector()(implicit ec: EC) extends ActivityConnector
     }
   }
 }
-

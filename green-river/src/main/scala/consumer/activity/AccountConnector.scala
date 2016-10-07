@@ -7,10 +7,10 @@ import consumer.utils.JsonTransformers.extractStringSeq
 
 import org.json4s.JsonAST.{JInt, JString, JNothing}
 
-final case class AccountConnector()(implicit ec: EC) extends ActivityConnector {
+object AccountConnector extends ActivityConnector {
   val dimension = "account"
 
-  def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
+  def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]] = Future {
     val accountIds =
       byContextType(activity) ++:
       byNoteData(activity) ++:
