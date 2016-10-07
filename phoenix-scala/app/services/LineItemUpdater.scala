@@ -126,18 +126,25 @@ object LineItemUpdater {
       implicit ec: EC,
       ctx: OC): DbResultT[Seq[CartLineItem]] = {
 
-    val lineItemUpdActions = foldQuantityPayload(payload).map {
-      case (skuCode, qty) ⇒
-        for {
-          sku ← * <~ Skus
-                 .filterByContext(contextId)
-                 .filter(_.code === skuCode)
-                 .mustFindOneOr(SkuNotFoundForContext(skuCode, contextId))
-          _   ← * <~ mustFindProductIdForSku(sku, cart.refNum)
-          lis ← * <~ doUpdateLineItems(sku.id, qty, cart.refNum)
-        } yield lis
-    }
-    DbResultT.sequence(lineItemUpdActions).map(_.flatten.toSeq)
+    for {
+      itemsDeleted ← * <~ CartLineItems.byCordRef(cart.referenceNumber).delete
+      upAc ← * <~ DbResultT.sequence(payload.map { lineItem ⇒
+              for {
+                sku ← * <~ Skus
+                       .filterByContext(contextId)
+                       .filter(_.code === lineItem.sku)
+                       .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, contextId))
+                _   ← * <~ mustFindProductIdForSku(sku, cart.refNum)
+                updateAction ← * <~ updateLineItem(sku.id, cart.refNum)
+              } yield updateAction
+            })
+
+    } yield upAc
+  }
+
+  private def updateLineItem(skuId: Int, cordRef: String)(implicit ec: EC) = {
+    val itemToAdd = CartLineItem(cordRef = cordRef, skuId = skuId)
+    CartLineItems.create(itemToAdd)
   }
 
   private def addQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload])(

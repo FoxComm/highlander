@@ -48,6 +48,7 @@ object Customer {
                 reqItems ⇒
                   mutateOrFailures {
                     LineItemUpdater.updateQuantitiesOnCustomersCart(auth.model, reqItems)
+
                   }
               } ~
               (patch & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
