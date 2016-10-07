@@ -2,7 +2,7 @@
 import React from 'react';
 import types from '../base/types';
 
-import OrderTarget from '../base/order-target';
+import CordTarget from '../base/cord-target';
 import Title from '../base/title';
 import AddressDetails from '../../../addresses/address-details';
 
@@ -16,11 +16,11 @@ function omitAddressName(address) {
 const representatives = {
   [types.CART_SHIPPING_ADDRESS_UPDATED]: {
     title: (data, activity) => {
-      const order = data.order || data.cart;
+      const cord = data.order || data.cart;
 
       return (
         <Title activity={activity}>
-          <strong>edited a shipping address</strong> on <OrderTarget order={order} />
+          <strong>edited a shipping address</strong> on <CordTarget cord={cord} />
         </Title>
       );
     },
@@ -35,11 +35,11 @@ const representatives = {
   },
   [types.CART_SHIPPING_ADDRESS_ADDED]: {
     title: (data, activity) => {
-      const order = data.order || data.cart;
+      const cord = data.order || data.cart;
 
       return (
         <Title activity={activity}>
-          <strong>added the shipping address</strong> to <OrderTarget order={order} />
+          <strong>added the shipping address</strong> to <CordTarget cord={cord} />
         </Title>
       );
     },
@@ -52,11 +52,11 @@ const representatives = {
   },
   [types.CART_SHIPPING_ADDRESS_REMOVED]: {
     title: (data, activity) => {
-      const order = data.order || data.cart;
+      const cord = data.order || data.cart;
 
       return (
         <Title activity={activity}>
-          <strong>removed the shipping address</strong> from <OrderTarget order={order} />
+          <strong>removed the shipping address</strong> from <CordTarget cord={cord} />
         </Title>
       );
     },
