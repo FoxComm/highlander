@@ -57,13 +57,13 @@ These are expected to be run once, not for each production setup
     
     ```
     $ terraform plan \
-    -state=terraform/envs/gce_<project>/terraform.tfstate \
-    -var-file=terraform/envs/gce_<project>/tpg.tfvars \
-    terraform/base/gce_<project>
+        -state=terraform/envs/gce_<project>/terraform.tfstate \
+        -var-file=terraform/envs/gce_<project>/tpg.tfvars \
+        terraform/base/gce_<project>
     $ terraform apply \
-    -state=terraform/envs/gce_<project>/terraform.tfstate \
-    -var-file=terraform/envs/gce_<project>/<project>.tfvars \
-    terraform/base/gce_<project>
+        -state=terraform/envs/gce_<project>/terraform.tfstate \
+        -var-file=terraform/envs/gce_<project>/<project>.tfvars \
+        terraform/base/gce_<project>
    ```
 
 6. Uncomment remaining resources: web, ssh, internal. As far as networking is up, they are going to be applied successfully. Run terraforming.
