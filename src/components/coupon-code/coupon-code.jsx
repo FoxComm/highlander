@@ -1,21 +1,36 @@
+/* @flow */
 
+// libs
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
-import styles from './checkout.css';
 import { saveCouponCode } from 'modules/checkout';
 import { connect } from 'react-redux';
 
+// localization
 import localized from 'lib/i18n';
 
-import EditableBlock from 'ui/editable-block';
+// components
 import { TextInput } from 'ui/inputs';
 import Button from 'ui/buttons';
 import { FormField } from 'ui/forms';
 
-@localized
-class EditCouponCode extends Component {
+// styles
+import styles from './coupon-code.css';
 
-  state = {
+type Props = {
+  saveCouponCode: Function,
+  t: any,
+};
+
+type State = {
+  code: string,
+  error: any,
+};
+
+class CouponCode extends Component {
+  props: Props;
+
+  state: State = {
     code: '',
     error: false,
   };
@@ -29,7 +44,7 @@ class EditCouponCode extends Component {
   }
 
   @autobind
-  onSave() {
+  save() {
     const { t } = this.props;
 
     const code = this.state.code.replace(/\s+/g, '');
@@ -45,35 +60,21 @@ class EditCouponCode extends Component {
     const { t } = this.props;
 
     return (
-      <div styleName="coupon-content">
-        <FormField styleName="coupon-code-field" error={this.state.error}>
+      <div styleName="coupon">
+        <FormField styleName="code-field" error={this.state.error}>
           <TextInput
-            styleName="coupon-code"
+            styleName="code"
             placeholder={t('CODE')}
             value={this.state.code}
             onChange={this.changeCode}
           />
         </FormField>
-        <Button styleName="coupon-submit" onClick={this.onSave}>
+        <Button styleName="submit" onClick={this.save}>
           {t('apply')}
         </Button>
       </div>
     );
   }
 }
-
-const CouponCode = props => {
-  const { t } = props;
-
-  return (
-    <EditableBlock
-      styleName="checkout-block"
-      title={t('PROMO CODE')}
-      isEditing
-      collapsed={false}
-      content={<EditCouponCode saveCouponCode={props.saveCouponCode} />}
-    />
-  );
-};
 
 export default connect(null, { saveCouponCode })(localized(CouponCode));

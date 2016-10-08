@@ -16,6 +16,10 @@
 }
 
 :root {
+  --base-color: #fff;
+  --additional-color: #3E3436;
+  --border-color: rgba(33, 33, 33, 0.10);
+
   --color-error: var(--redish);
   --color-panels-bg: var(--white-smokish);
   --color-text-grey: var(--greyish);

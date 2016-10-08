@@ -27,7 +27,7 @@ const EditableBlock = (props: EditableProps) => {
   const content = !props.collapsed ? props.content : null;
 
   return (
-    <div styleName="editable-block" {...props}>
+    <div styleName="editable-block">
       <div styleName="header">
         <div styleName="title">{props.title}</div>
         {editLink}

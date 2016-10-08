@@ -6,15 +6,14 @@
   font-size: 1rem;
   line-height: 20px;
   padding: 14px 10px;
-  border: 1px solid var(--blackish);
-  background-color: var(--blackish);
+  border: none;
+  background-color: var(--additional-color);
   color: var(--whitish);
   text-align: center;
   cursor: pointer;
 
   &:hover {
-    background: var(--whitish);
-    color: var(--blackish);
+    background: #594B4D;
   }
 
   & > span {

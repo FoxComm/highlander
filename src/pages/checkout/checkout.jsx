@@ -14,7 +14,8 @@ import Delivery from './delivery';
 import Billing from './billing';
 import OrderSummary from './order-summary';
 import GiftCard from './gift-card';
-import CouponCode from './coupon-code';
+import CouponCode from '../../components/coupon-code/coupon-code';
+import EditableBlock from 'ui/editable-block';
 
 import type { Promise as PromiseType } from 'types/promise';
 
@@ -173,7 +174,13 @@ class Checkout extends Component {
           </div>
           <div styleName="right-forms">
             <OrderSummary />
-            <CouponCode />
+            <EditableBlock
+              styleName="checkout-block"
+              title="PROMO CODE"
+              isEditing
+              collapsed={false}
+              content={<CouponCode />}
+            />
             <GiftCard />
           </div>
         </div>

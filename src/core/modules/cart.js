@@ -87,13 +87,13 @@ export function addLineItem(id, quantity) {
   };
 }
 
-// remove item from cart
-export function deleteLineItem(id) {
+// update line item quantity
+export function updateLineItemQuantity(id, qtt) {
   return (dispatch, getState) => {
     const state = getState();
     const lineItems = _.get(state, ['cart', 'skus'], []);
     const newLineItems = _.map(lineItems, (item) => {
-      const quantity = item.sku === id ? 0 : item.quantity;
+      const quantity = item.sku === id ? parseInt(qtt, 10) : item.quantity;
       return {
         sku: item.sku,
         quantity,
@@ -102,6 +102,12 @@ export function deleteLineItem(id) {
     return dispatch(submitChange(newLineItems));
   };
 }
+
+// remove item from cart
+export function deleteLineItem(id) {
+  return updateLineItemQuantity(id, 0);
+}
+
 
 function fetchMyCart(): global.Promise {
   return this.api.get(`/v1/my/cart`);

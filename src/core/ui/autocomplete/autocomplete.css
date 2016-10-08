@@ -1,3 +1,5 @@
+@import "colors.css";
+@import "media-queries.css";
 
 .autocomplete {
   position: relative;
@@ -29,6 +31,12 @@
 
 .input {
   composes: text-input from "ui/css/input.css";
+  width: 100%;
+  border-color: var(--additional-color);
+
+  &:hover {
+    border-color: #8D757A;
+  }
 }
 
 .item {
@@ -41,4 +49,12 @@
 .item-highlighted {
   composes: item;
   background: #f4f4f4;
+}
+
+@media (--medium) {
+  .input {
+    &:hover {
+      border-color: #8D757A;
+    }
+  }
 }
