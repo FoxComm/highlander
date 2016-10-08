@@ -35,69 +35,69 @@ shortcuts:
   # Bootstrappers
   - name: Bootstrap Annabelle
     alias: annabelle.yml
-    target: ansible/playbook/bootstrap/annabelle.yml
+    target: ansible/playbooks/bootstrap/annabelle.yml
   - name: Bootstrap Build Agents
     alias: build_agents.yml
-    target: ansible/playbook/bootstrap/build_agents.yml
+    target: ansible/playbooks/bootstrap/build_agents.yml
   - name: Bootstrap Build Agents Keys
     alias: build_agent_keys.yml
-    target: ansible/playbook/bootstrap/build_agent_keys.yml
+    target: ansible/playbooks/bootstrap/build_agent_keys.yml
   - name: Bootstrap Consul Alerts
     alias: consul_alerts.yml
-    target: ansible/playbook/bootstrap/consul_alerts.yml
+    target: ansible/playbooks/bootstrap/consul_alerts.yml
   - name: Bootstrap Database Backup
     alias: db_backup.yml
-    target: ansible/playbook/bootstrap/db_backup.yml
+    target: ansible/playbooks/bootstrap/db_backup.yml
   - name: Bootstrap Messaging Plugin
     alias: messaging_plugin.yml
-    target: ansible/playbook/bootstrap/messaging_plugin.yml
+    target: ansible/playbooks/bootstrap/messaging_plugin.yml
   - name: Bootstrap Mesos Consul
     alias: mesos_consul.yml
-    target: ansible/playbook/bootstrap/mesos_consul.yml
+    target: ansible/playbooks/bootstrap/mesos_consul.yml
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
-    target: ansible/playbook/bootstrap/openvpn_key.yml
+    target: ansible/playbooks/bootstrap/openvpn_key.yml
   - name: Bootstrap Tinystack
     alias: tinystack.yml
-    target: ansible/playbook/bootstrap/tinystack.yml
+    target: ansible/playbooks/bootstrap/tinystack.yml
   - name: Bootstrap Vanilla
     alias: vanilla.yml
-    target: ansible/playbook/bootstrap/vanilla.yml
+    target: ansible/playbooks/bootstrap/vanilla.yml
   - name: Bootstrap Vanilla DB
     alias: vanilla_db.yml
-    target: ansible/playbook/bootstrap/vanilla_db.yml
+    target: ansible/playbooks/bootstrap/vanilla_db.yml
   - name: Bootstrap Vanilla Seeder
     alias: vanilla_seed.yml
-    target: ansible/playbook/bootstrap/vanilla_seed.yml
+    target: ansible/playbooks/bootstrap/vanilla_seed.yml
   - name: Bootstrap Vanilla VPN
     alias: vanilla_vpn.yml
-    target: ansible/playbook/bootstrap/vanilla_vpn.yml
+    target: ansible/playbooks/bootstrap/vanilla_vpn.yml
 
   # Hotfix playbooks
   - name: Hotfix Balancer
     alias: balancer.yml
-    target: ansible/playbook/hotfix/balancer.yml
+    target: ansible/playbooks/hotfix/balancer.yml
   - name: Hotfix Database
     alias: db.yml
-    target: ansible/playbook/hotfix/db.yml
+    target: ansible/playbooks/hotfix/db.yml
   - name: Hotfix Docker Registry
     alias: docker_registry.yml
-    target: ansible/playbook/hotfix/docker_registry.yml
+    target: ansible/playbooks/hotfix/docker_registry.yml
   - name: Hotfix Mesos
     alias: mesos.yml
-    target: ansible/playbook/hotfix/mesos.yml
+    target: ansible/playbooks/hotfix/mesos.yml
   - name: Hotfix Mesos Worker
     alias: mesos_worker.yml
-    target: ansible/playbook/hotfix/mesos_worker.yml
+    target: ansible/playbooks/hotfix/mesos_worker.yml
   - name: Hotfix Stage Consul
     alias: stage_consul.yml
-    target: ansible/playbook/hotfix/stage_consul.yml
+    target: ansible/playbooks/hotfix/stage_consul.yml
   - name: Hotfix Stage Database
     alias: stage_db.yml
-    target: ansible/playbook/hotfix/stage_db.yml
+    target: ansible/playbooks/hotfix/stage_db.yml
   - name: Hotfix Zookeeper
     alias: openvpn_key.yml
-    target: ansible/playbook/hotfix/zk.yml
+    target: ansible/playbooks/hotfix/zk.yml
 
 # Packer shortcuts
 - type: snowflake
