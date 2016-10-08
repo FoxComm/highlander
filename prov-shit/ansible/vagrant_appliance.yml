@@ -11,7 +11,6 @@
     mesos_quorum: 1
   roles:
     - { role: base/phoenix }
-    - { role: base/middlewarehouse }
     - { role: base/isaac }
     - { role: base/greenriver }
     - { role: base/ashes }

@@ -1,28 +1,29 @@
 ---
 
-- name: Copy Binary
-  copy: src={{middlewarehouse_bin_src}} dest={{middlewarehouse_bin}} mode="u+x,g+x,o+x"
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
+  sudo: true
+
+- name: Copy Middlewarehouse Marathon JSON
+  template: src=middlewarehouse.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
   sudo: true
   when: updating_mwh
 
-- name: Copy Stock Items Consumer Binary
-  copy: src={{stock_items_consumer_bin_src}} dest={{stock_items_consumer_bin}} mode="u+x,g+x,o+x"
+- name: Copy Stock Items Consumer Marathon JSON
+  template: src=stock-items-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
   sudo: true
   when: updating_mwh
 
-- name: Copy Shipments Consumer Binary
-  copy: src={{shipments_consumer_bin_src}} dest={{shipments_consumer_bin}} mode="u+x,g+x,o+x"
+- name: Copy Shipments Consumer Marathon JSON
+  template: src=shipments-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
   sudo: true
   when: updating_mwh
 
-- name: Restart Middlewarehouse
-  service: name=middlewarehouse state=restarted enabled=yes
-  sudo: true
+- name: Update Middlewarehouse in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/middlewarehouse.json -H "Content-Type: application/json" http://marathon.service.consul:8080/v2/apps/middlewarehouse'
 
-- name: Restart Stock Items Consumer
-  service: name=stock-items-consumer state=restarted enabled=yes
-  sudo: true
+- name: Update Stock Items Consumer in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/stock-items-consumer.json -H "Content-Type: application/json" http://marathon.service.consul:8080/v2/apps/stock-items-consumer'
 
-- name: Restart Shipments Consumer
-  service: name=shipments-consumer state=restarted enabled=yes
-  sudo: true
+- name: Update Shipments Consumer in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/shipments-consumer.json -H "Content-Type: application/json" http://marathon.service.consul:8080/v2/apps/shipments-consumer'
