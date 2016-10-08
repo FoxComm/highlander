@@ -21,17 +21,18 @@ var (
 )
 
 type Client struct {
-	apiURL string
-	jwt    string
+	elasticURL string
+	phoenixURL string
+	jwt        string
 }
 
-func NewClient(apiURL, jwt string) *Client {
-	return &Client{apiURL, jwt}
+func NewClient(elasticURL, phoenixURL, jwt string) *Client {
+	return &Client{elasticURL, phoenixURL, jwt}
 }
 
 func (c *Client) FindProductID(context, field, value string) (int, *ServiceError) {
 	query := createQueryFilter(context, field, value)
-	url := fmt.Sprintf("%s/%s", c.apiURL, productSearch)
+	url := fmt.Sprintf("%s/%s", c.elasticURL, productSearch)
 	headers := map[string]string{"JWT": c.jwt}
 
 	resp, err := consumers.Post(url, headers, &query)
@@ -83,7 +84,7 @@ func (c *Client) FindProductID(context, field, value string) (int, *ServiceError
 }
 
 func (c *Client) CreateProduct(context string, payload map[string]interface{}) (int, map[string]interface{}, *ServiceError) {
-	url := fmt.Sprintf("%s/%s/%s", c.apiURL, productUpdateBase, context)
+	url := fmt.Sprintf("%s/%s/%s", c.phoenixURL, productUpdateBase, context)
 	headers := map[string]string{"JWT": c.jwt}
 
 	resp, err := consumers.Post(url, headers, payload)
@@ -108,7 +109,7 @@ func (c *Client) CreateProduct(context string, payload map[string]interface{}) (
 }
 
 func (c *Client) UpdateProduct(context string, productID int, payload map[string]interface{}) (int, map[string]interface{}, *ServiceError) {
-	url := fmt.Sprintf("%s/%s/%s/%v", c.apiURL, productUpdateBase, context, productID)
+	url := fmt.Sprintf("%s/%s/%s/%v", c.phoenixURL, productUpdateBase, context, productID)
 	headers := map[string]string{"JWT": c.jwt}
 
 	resp, err := consumers.Patch(url, headers, payload)

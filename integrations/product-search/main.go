@@ -28,9 +28,14 @@ func getJWT(req *http.Request) (string, *service.ServiceError) {
 }
 
 func main() {
-	apiURL := os.Getenv("API_URL")
-	if apiURL == "" {
-		log.Fatalf("API_URL must be set")
+	elasticURL := os.Getenv("ELASTIC_URL")
+	if elasticURL == "" {
+		log.Fatalf("ELASTIC_URL must be set")
+	}
+
+	phoenixURL := os.Getenv("PHOENIX_URL")
+	if phoenixURL == "" {
+		log.Fatalf("PHOENIX_URL must be set")
 	}
 
 	r := gin.Default()
@@ -50,7 +55,7 @@ func main() {
 			return
 		}
 
-		client := service.NewClient(apiURL, jwt)
+		client := service.NewClient(elasticURL, phoenixURL, jwt)
 		productID, svcErr := client.FindProductID(context, payload.Field, payload.Value)
 		if svcErr != nil {
 			svcErr.Response(c)
