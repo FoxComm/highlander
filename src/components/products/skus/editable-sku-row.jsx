@@ -135,7 +135,6 @@ class EditableSkuRow extends Component {
     );
   }
 
-  @autobind
   closeSkusMenu(callback: Function = _.noop) {
     this.setState({
       isMenuVisible: false
@@ -147,7 +146,7 @@ class EditableSkuRow extends Component {
       <li
         styleName="sku-item"
         className="_new"
-        onMouseDown={ this.closeSkusMenu }>
+        onMouseDown={() => this.closeSkusMenu() }>
         <div>New SKU</div>
         <strong>{this.state.sku.code}</strong>
       </li>
@@ -239,7 +238,7 @@ class EditableSkuRow extends Component {
     const variant = _.get(this.props.variants, idx, {});
     const variantName = _.get(variant, 'attributes.name.v');
     const skuAttributeCode = _.get(sku, 'attributes.code.v');
-    const skuCode = !_.isEmpty(skuAttributeCode) ? skuAttributeCode : sku.feCode;
+    const skuCode = sku.feCode || skuAttributeCode;
 
     const variantValue = _.get(mapping, [skuCode, variantName]);
 
@@ -249,7 +248,7 @@ class EditableSkuRow extends Component {
   }
 
   actionsCell(sku: Sku): Element {
-    const skuCode = _.get(sku.attributes, 'code.v') || sku.feCode;
+    const skuCode = sku.feCode || _.get(sku.attributes, 'code.v');
     return <DeleteButton onClick={() => this.props.onDeleteClick(skuCode)}/>;
   }
 

@@ -152,7 +152,16 @@ export function configureProduct(product: Product): Product {
       [key]: attr,
       ...res.attributes,
     });
-  }, product);
+  }, ensureProductHasSkus(product));
+}
+
+function ensureProductHasSkus(product: Product): Product {
+  if (_.isEmpty(product.skus)) {
+    return assoc(product,
+      'skus', [createEmptySku()]
+    );
+  }
+  return product;
 }
 
 export function setSkuAttribute(product: Product,

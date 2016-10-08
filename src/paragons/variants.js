@@ -89,9 +89,10 @@ function indexByName(variants: Array<Option>): Object {
   }, {});
 }
 
-function skuCode(sku: Sku): string {
-  const realCode = _.get(sku.attributes, 'code.v');
-  return realCode || sku.feCode;
+// we should identity sku be feCode first
+// because we want to persist sku even if code has been changes
+function skuId(sku: Sku): string {
+  return sku.feCode || _.get(sku.attributes, 'code.v');
 }
 
 function maxIndexBy(collection: Array<any>, iteratee: (item: any) => number, skipIndexes: Array<number> = []) {
@@ -123,7 +124,7 @@ function findClosestTuples(smallCartesian: Array<Array<any>>,
 }
 
 export function deleteVariantCombination(product: Product, code: string): Product {
-  const newSkus = _.filter(product.skus, sku => skuCode(sku) != code);
+  const newSkus = _.filter(product.skus, sku => skuId(sku) != code);
   const newVariants = _.cloneDeep(product.variants);
   _.each(newVariants, variant => {
     _.each(variant.values, variantValue => {
@@ -161,7 +162,7 @@ export function availableVariantsValues(product: Product): Array<Array<OptionVal
   const indexedVariants = indexBySku(product.variants);
   const allVariants = allVariantsValues(product.variants);
   const existsVariants = _.map(product.skus, sku => {
-    return indexedVariants.q({av: [['sku', skuCode(sku)]]}).map(indexedVariants.get).map(x => x.variant);
+    return indexedVariants.q({av: [['sku', skuId(sku)]]}).map(indexedVariants.get).map(x => x.variant);
   });
 
   const identity = value => value.name;
@@ -175,7 +176,7 @@ export function availableVariantsValues(product: Product): Array<Array<OptionVal
 
 function bindSkuToVariantsTuple(tuple: Array<OptionValue>, sku: string): void {
   _.each(tuple, variantValue => {
-    variantValue.skuCodes = _.uniq([...variantValue.skuCodes, skuCode(sku)]);
+    variantValue.skuCodes = _.uniq([...variantValue.skuCodes, skuId(sku)]);
   });
 }
 
@@ -186,7 +187,7 @@ export function autoAssignVariants(product: Product, variants: Array<Option>): P
   const availableValues = allVariantsValues(newVariants);
   // here we assume that there is defined sku (even with feCode only) for each variant
   const existsValues = _.map(existsSkus, sku => {
-    return indexedVariants.q({av: [['sku', skuCode(sku)]]}).map(indexedVariants.get).map(x => x.variant);
+    return indexedVariants.q({av: [['sku', skuId(sku)]]}).map(indexedVariants.get).map(x => x.variant);
   });
 
   let closestTuples;

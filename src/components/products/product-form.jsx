@@ -33,7 +33,7 @@ type Props = {
 };
 
 type State = {
-  isAddingProperty: bool,
+  isAddingProperty: boolean,
   variants: Array<any>,
 };
 

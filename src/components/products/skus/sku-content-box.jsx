@@ -27,7 +27,7 @@ import type { Sku } from 'modules/skus/details';
 type UpdateFn = (code: string, field: string, value: any) => void;
 
 type Props = {
-  fullProduct: ?Product,
+  fullProduct: Product,
   updateField: UpdateFn,
   onDeleteSku: (skuCode: string) => void,
   onAddNewVariants: (options: Array<Array<OptionValue>>) => void,

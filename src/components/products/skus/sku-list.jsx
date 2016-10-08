@@ -12,14 +12,15 @@ import EditableSkuRow from './editable-sku-row';
 import MultiSelectTable from 'components/table/multi-select-table';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 
-import type { Product } from 'paragons/product';
 import { mapSkusToVariants } from 'paragons/variants';
+
+import type { Product } from 'paragons/product';
 import type { Sku } from 'modules/skus/details';
 
 type UpdateFn = (code: string, field: string, value: any) => void;
 
 type Props = {
-  fullProduct: ?Product,
+  fullProduct: Product,
   skus: Array<any>,
   updateField: UpdateFn,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
@@ -42,7 +43,7 @@ export default class SkuList extends Component {
   };
 
   componentWillReceiveProps(nextProps: Props) {
-    if (this.props.variants != nextProps.variants) {
+    if (this.props.variants != nextProps.variants || this.props.fullProduct.skus !== nextProps.fullProduct.skus) {
       const variantsSkusIndex = mapSkusToVariants(nextProps.variants);
       this.setState({variantsSkusIndex});
     }
