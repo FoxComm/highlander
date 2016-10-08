@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
-	_ "github.com/jpfuentes2/go-env/autoload"
 )
 
 func main() {
