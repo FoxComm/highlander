@@ -93,7 +93,7 @@ class Cart extends Component {
   closeError(error, index) {
     const { errors } = this.state;
 
-    if (!errors) return;
+    if (!errors || _.isEmpty(this.state.errors)) return;
 
     errors.splice(index, 1);
 
@@ -103,7 +103,7 @@ class Cart extends Component {
   }
 
   get errorsLine() {
-    if (this.state.errors) {
+    if (this.state.errors && !_.isEmpty(this.state.errors)) {
       return <ErrorAlerts errors={this.state.errors} closeAction={this.closeError} />;
     }
   }
