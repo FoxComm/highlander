@@ -1,7 +1,7 @@
 build:
-    true
+	true
 
 test:
-    true
+	true
 
 .PHONY: build test
