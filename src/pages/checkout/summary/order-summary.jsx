@@ -1,3 +1,4 @@
+/* @flow */
 
 // libs
 import _ from 'lodash';
@@ -18,10 +19,33 @@ import styles from './order-summary.css';
 
 const getState = state => ({ ...state.cart });
 
-class OrderSummary extends Component {
+type Totals = {
+  subTotal: number,
+  total: number,
+  shipping: number,
+  taxes: number,
+};
 
-  state = {
+type Props = {
+  totals: Totals,
+  skus: Array<any>,
+  paymentMethods?: Object,
+  t: any,
+};
+
+type State = {
+  isCollapsed: boolean,
+};
+
+class OrderSummary extends Component {
+  props: Props;
+
+  state: State = {
     isCollapsed: true,
+  };
+
+  static defaultProps = {
+    paymentMethods: {}
   };
 
   renderGiftCard(amount) {

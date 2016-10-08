@@ -1,3 +1,4 @@
+/* @flow */
 
 // libs
 import React from 'react';
@@ -8,7 +9,14 @@ import styles from './summary-line-item.css';
 // components
 import Currency from 'ui/currency';
 
-const LineItemRow = props => {
+type Props = {
+  imagePath: string,
+  name: string,
+  quantity: string,
+  totalPrice: number,
+};
+
+const LineItemRow = (props: Props) => {
   return (
     <tr>
       <td styleName="product-image">

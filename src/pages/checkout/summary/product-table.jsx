@@ -1,3 +1,5 @@
+/* @flow */
+
 // libs
 import _ from 'lodash';
 import React from 'react';
@@ -8,7 +10,11 @@ import LineItemRow from './summary-line-item';
 // styles
 import styles from './product-table.css';
 
-const Products = props => {
+type Props = {
+  skus: Array<any>,
+};
+
+const Products = (props: Props) => {
   const rows = _.map(props.skus, (item) => <LineItemRow {...item} key={item.sku} />);
 
   return (
