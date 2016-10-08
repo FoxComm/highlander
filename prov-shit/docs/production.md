@@ -1,17 +1,17 @@
 # Production Environment From Scratch
 
 Navigation:
-* [Generic operations](#generic-operations)
+* [Preparation](#Preparation)
 * [VPN machine](#vpn-machine)
 * [Service machines](#service-machines)
 
-## Generic operations
+## Preparation
 
 These are expected to be run once, not for each production setup
 
 1. Open foxcommerce-production-shared proejct in GCE
 2. Add SSH key if not yet on [SSH Keys](https://console.cloud.google.com/compute/metadata/sshKeys) page.
-3. Add service account at [Serice accounts](https://console.cloud.google.com/iam-admin/serviceaccounts/project) page.
+3. Add service account at [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts/project) page.
 4. Download created service account file to `highlander/prov-shit/account.json`
 4. Ask project owner to provide IAM rights.
 5. Create `prov-shit/terraform.tfvars` file containing your keys:
@@ -69,7 +69,7 @@ These are expected to be run once, not for each production setup
         terraform/base/gce_<project>
    ```
 
-6. Uncomment remaining resources: web, ssh, internal. As far as networking is up, they are going to be applied successfully. Run terraforming again.
+6. Uncomment remaining resources: `web`, `ssh`, `internal`. As far as networking is up, they are going to be applied successfully. Run terraforming again.
 
 7. Create `bin/envs/<project>_vpn` inventory file and write IP of created machine VPN under `<project>-vpn` (host) section:
     
@@ -102,7 +102,7 @@ Do all the steps while connected to created VPN service.
     $ packer build -only=google -var-file=packer/envs/<project>.json packer/base/base.json
     ```
 
-3. Update `base_image` variable in `packer/envs/<project>.jso`n with name of created image
+3. Update `base_image` variable in `packer/envs/<project>.json` with name of created image
 
 4. Build base Mesos image:
     
@@ -159,7 +159,8 @@ Do all the steps while connected to created VPN service.
        terraform/base/gce_<project>
     ```
 
-11. Add new project ID in `projects.json`
+11. Add new project ID into `projects.json`, with mapping to GCE project name.
+
 12. Build inventory:
     
     ```
@@ -170,23 +171,24 @@ Do all the steps while connected to created VPN service.
     
     ```
     #!/bin/bash
+    
     bin/inventory --env <project> "$@"
     ```
 
-14. Bootstrap the initial data:
+14. Bootstrap initial data:
     
     ```
-    $ ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml
+    $ ansible-playbook -v -i bin/envs/<project> ansible/bootstrap_vanilla.yml
     ```
 
-15. Bootstrap consul alerts, if necessary (continue with prompts manually):
+15. Bootstrap Consul Alerts:
 
     ```
-    $ ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_consul_alerts.yml
+    $ ansible-playbook -v -i bin/envs/<project> ansible/bootstrap_consul_alerts.yml
     ```
 
-16. Bootstrap database backups, if necessary (continue with prompts manually):
+16. Bootstrap Database Backups:
 
     ```
-    $ ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_db_backup.yml
+    $ ansible-playbook -v -i bin/envs/<project> ansible/bootstrap_db_backup.yml
     ```
