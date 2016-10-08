@@ -17,12 +17,16 @@ set -ue
 PROJECTS=(
     'api-js'
     'ashes'
+    'engineering-wiki'
     'firebrand'
     'fox-notifications'
     'green-river'
     'integration-tests'
     'isaac'
+    'marketplace'
+    'marketplace-ui'
     'middlewarehouse'
+    'permissions'
     'phoenix-scala'
     'prov-shit'
 )
