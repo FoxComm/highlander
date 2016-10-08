@@ -216,7 +216,7 @@ Do all the steps while connected to created VPN service.
 
     * `https://<subdomain>.foxcommerce.com:5000/v2/`
 
-5. Copy [public_key.pem](../ansible/roles/base/secret_keys/public_key.pem) to [ashes](../../ashes) and [firebrand](../../firebrand) subdirectories - they will be copied to related Docker containers.
+5. Copy [public_key.pem](../ansible/roles/base/secret_keys/files/public_key.pem) to [ashes](../../ashes) and [firebrand](../../firebrand) subdirectories - they will be copied to related Docker containers. **TBD: Automated key generation for each project.**
 
 6. Build Ashes using Docker and push it to private Docker Registry:
 
