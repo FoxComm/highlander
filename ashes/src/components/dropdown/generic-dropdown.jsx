@@ -9,6 +9,7 @@ import classNames from 'classnames';
 import DropdownItem from './dropdownItem';
 import Overlay from '../overlay/overlay';
 import { Button } from '../common/buttons';
+import BodyPortal from '../body-portal/body-portal';
 
 export type ValueType = ?string|number;
 
@@ -35,6 +36,7 @@ export type Props = {
   renderAppend?: Function,
   onChange?: Function,
   dropdownProps?: Object,
+  detached?: boolean,
 };
 
 type State = {
@@ -60,6 +62,7 @@ export default class GenericDropdown extends Component {
     inputFirst: true,
     dropdownProps: {},
     value: '',
+    detached: false,
   };
 
   state: State = {
@@ -67,6 +70,9 @@ export default class GenericDropdown extends Component {
     dropup: false,
     selectedValue: this.props.value,
   };
+
+  _menu: HTMLElement;
+  _container: HTMLElement;
 
   componentWillReceiveProps(newProps: Props) {
     this.setState({
@@ -76,25 +82,36 @@ export default class GenericDropdown extends Component {
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.state.open && !prevState.open) {
+      this.setMenuPosition();
       this.setMenuOrientation();
     }
   }
 
+  setMenuPosition() {
+    if (!this.props.detached) {
+      return;
+    }
+
+    const parentDim = this._container.getBoundingClientRect();
+
+    this._menu.style.minWidth = `${this._container.offsetWidth}px`;
+    this._menu.style.top = `${parentDim.top + parentDim.height + window.scrollY}px`;
+    this._menu.style.left = `${parentDim.left}px`;
+  }
+
   setMenuOrientation() {
-    const menuNode = this.refs.items;
-    const containerNode = this.refs.container;
     const viewportHeight = window.innerHeight;
 
-    const containerPos = containerNode.getBoundingClientRect();
+    const containerPos = this._container.getBoundingClientRect();
     const spaceAtTop = containerPos.top;
     const spaceAtBottom = viewportHeight - containerPos.bottom;
 
     let dropup = false;
 
-    if (!menuNode) {
+    if (!this._menu) {
       if (spaceAtBottom < viewportHeight / 2) dropup = true;
     } else {
-      const menuRect = menuNode.getBoundingClientRect();
+      const menuRect = this._menu.getBoundingClientRect();
       if (spaceAtBottom < menuRect.height && spaceAtBottom < spaceAtTop) {
         dropup = true;
       }
@@ -124,21 +141,19 @@ export default class GenericDropdown extends Component {
   }
 
   get dropdownClassName(): string {
-    const { primary, editable, disabled } = this.props;
-    const { open } = this.state;
-    const className = classNames(this.props.className, {
-      'fc-dropdown': true,
+    const { primary, editable, disabled, className } = this.props;
+
+    return classNames(className, 'fc-dropdown', {
       '_primary': primary,
       '_editable': editable,
-      '_open': open,
-      '_disabled': disabled
+      '_disabled': disabled,
     });
-    return className;
   }
 
   get listClassName(): string {
-    const { dropup } = this.state;
+    const { open, dropup } = this.state;
     return classNames('fc-dropdown__items', {
+      '_open': open,
       '_dropup': dropup,
       '_dropdown': !dropup,
     });
@@ -254,24 +269,35 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  render() {
-    const { editable } = this.props;
+  get menu(): Element[] {
+    if (!this.state.open) {
+      return;
+    }
 
     return (
-      <div className={this.dropdownClassName} ref="container" tabIndex="0">
-        <Overlay shown={this.state.open} onClick={this.handleToggleClick} />
-        <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
-          {this.controls}
-        </div>
-        <div className={this.listClassName} ref="items">
+      <BodyPortal active={this.props.detached}>
+        <div className={this.listClassName} ref={m => this._menu = m}>
           {this.prependList}
           <ul className={this.optionsContainerClass}>
             {this.renderItems()}
           </ul>
           {this.appendList}
         </div>
+      </BodyPortal>
+    );
+  };
+
+  render() {
+    const { editable, wrapMenu } = this.props;
+
+    return (
+      <div className={this.dropdownClassName} ref={c => this._container = c} tabIndex="0">
+        <Overlay shown={this.state.open} onClick={this.handleToggleClick} />
+        <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
+          {this.controls}
+        </div>
+        {this.menu}
       </div>
     );
   }
-
 }
