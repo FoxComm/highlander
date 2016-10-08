@@ -2,9 +2,11 @@
 
 Welcome to the FoxCommerce Engineering Wiki. Here you can find information about the overall engineering team, as well as the individual projects. Look below to find your way around.
 
-## Environments
+## DevOps
 
-* [FoxCommerce Project Environments](PROJECTS.md)
+* [Build and Deploy for Infrastructures](devops/build_and_deploy.md)
+* [Production Environment From Scratch](devops/production.md)
+* [FoxCommerce Project Environments](devops/environments.md)
 
 ## Design Documents
 
@@ -48,7 +50,7 @@ More detail on what's going on behind the scenes.
 ┌─────────────────────┐     │ Public Storefront [Firebird] │   ├ Frontend
 │ Store Admin [Ashes] │     └──────────────┬───────────────┘   │
 └─────────┬───────────┘                    │                   ╯
-          └───────────────┬────────────────┘                        
+          └───────────────┬────────────────┘
                           │
                ┌──────────┴──────────┐                         ╮
                │ API Gateway [nginx] │                         │

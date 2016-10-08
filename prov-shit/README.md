@@ -1,10 +1,5 @@
 # prov-shit
 
-### Docs
-
-- [Build and Deploy for Infrastructure](docs/build_and_deploy.md)
-- [Production Environment From Scratch](docs/production.md)
-
 ### Dependencies
 
 - [Ansible](http://docs.ansible.com/ansible/intro_installation.html#installation) (1.9.x)
