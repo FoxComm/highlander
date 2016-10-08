@@ -4,6 +4,7 @@ Navigation:
 * [Preparation](#preparation)
 * [VPN machine](#vpn-machine)
 * [Service machines](#service-machines)
+* [Mesosphere](#mesosphere)
 
 ## Preparation
 
@@ -175,20 +176,91 @@ Do all the steps while connected to created VPN service.
     bin/inventory --env <project> "$@"
     ```
 
-14. Bootstrap initial data:
+14. Bootstrap initial data for Green River, Kafka, Elasticsearch and PostgreSQL:
 
     ```
     $ ansible-playbook -v -i bin/envs/<project> ansible/playbook/bootstrap/vanilla.yml
     ```
 
-15. Bootstrap Consul Alerts:
+15. Seed database with demo fixtures:
+
+    ```
+    $ ansible-playbook -v -i bin/envs/<project> ansible/playbook/bootstrap/vanilla_seed.yml
+    ```
+
+16. Bootstrap Consul Alerts:
 
     ```
     $ ansible-playbook -v -i bin/envs/<project> ansible/playbook/bootstrap/consul_alerts.yml
     ```
 
-16. Bootstrap Database Backups:
+17. Bootstrap Database Backups:
 
     ```
     $ ansible-playbook -v -i bin/envs/<project> ansible/playbook/bootstrap/db_backup.yml
     ```
+
+## Mesosphere
+
+1. Ensure that Consul, Mesos and Marathon UIs are working. Connect to VPN and open URLs:
+
+    * http://<amigo_server_0_private_ip>:8500/ui/
+    * http://<amigo_server_0_private_ip>:5050/#/
+    * http://<amigo_server_0_private_ip>:8080/ui/#/apps
+
+2. Check same thing for staging environment, use `stage_amigo` server private IP address.
+
+3. For quicker access to Amigo Servers, configure subdomains in [DNS Simple](https://dnsimple.com). Select [foxcommerce.com](https://dnsimple.com/a/6134/domains/foxcommerce.com) and add related A-records pointing to private IPs. Example: `docker-<project>-stage.foxcommerce.com`
+
+4. Ensure that private Docker Registry is running, open (should return 200 OK):
+
+    * https://<subdomain>.foxcommerce.com:5000/v2/
+
+5. Copy [public_key.pem](../ansible/roles/base/secret_keys/public_key.pem) to [ashes](../../ashes) and [firebrand](../../firebrand) subdirectories - they will be copied to related Docker containers.
+
+6. Build Ashes using Docker and push it to private Docker Registry:
+
+    ```
+    $ cd highlander/ashes
+    $ make build
+    $ docker build . --tag ashes
+    $ docker tag ashes <subdomain>.foxcommerce.com:5000/ashes
+    $ docker push <subdomain>.foxcommerce.com:5000/ashes
+    ```
+
+7. Perform same actions for Storefront:
+
+    ```
+    $ cd highlander/firebrand
+    $ STRIPE_PUBLISHABLE_KEY=<FILL_ME_IN> make build
+    $ docker build . --tag storefront
+    $ docker tag storefront <subdomain>.foxcommerce.com:5000/storefront
+    $ docker push <subdomain>.foxcommerce.com:5000/storefront
+    ```
+
+8. Bootstrap Mesos Consul application to auto-register Marathon apps in Consul:
+
+    ```
+    $ ansible-playbook -v -i bin/envs/<project> ansible/playbook/bootstrap/mesos_consul.yml
+    ```
+
+9. Go to Marathon UI and add 2 new applications, using JSON configurations (you should set proper Docker Registry URLs in this files and `STRIPE_PUBLISHABLE_KEY` environment variable in `storefront.json`):
+
+    * [ashes.json](../marathon/ashes.json)
+    * [storefront.json](../marathon/storefront.json)
+
+10. Scale created applications, a single instance per each app. Perform same actions on staging Marathon, because it uses own Mesos cluster.
+
+11. For Google OAuth, add authorized JavaScript origins and authorized redirect URIs in [Google Developers Console](https://console.developers.google.com/apis/credentials/oauthclient/953682058057-trm1gl4qpa6c9c8av6b42e4p766bloa7.apps.googleusercontent.com?project=foxcomm-staging&authuser=1) using previously created DNS records. Ensure that same values (client ID, client secret, origins and URIs) are filled on instances that are running `phoenix.service`.
+
+12. Configure `balancer` service to be a reverse proxy for Ashes and Storefront (TBD).
+
+13. Add DNS Simple records pointing to machines with `balancer`. Example:
+
+    * `<project>.foxcommerce.com`
+    * `<project>-stage.foxcommerce.com`
+
+14. Perform sanity check for Ashes and Storefront by opening URLs:
+
+    * `https://<project>.foxcommerce.com`
+    * `https://<project>.foxcommerce.com/admin`
