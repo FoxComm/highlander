@@ -204,9 +204,9 @@ Do all the steps while connected to created VPN service.
 
 1. Ensure that Consul, Mesos and Marathon UIs are working. Connect to VPN and open URLs:
 
-    * http://<amigo_server_0_private_ip>:8500/ui/
-    * http://<amigo_server_0_private_ip>:5050/#/
-    * http://<amigo_server_0_private_ip>:8080/ui/#/apps
+    * `http://<amigo_server_0_private_ip>:8500/ui/`
+    * `http://<amigo_server_0_private_ip>:5050/#/`
+    * `http://<amigo_server_0_private_ip>:8080/ui/#/apps`
 
 2. Check same thing for staging environment, use `stage_amigo` server private IP address.
 
@@ -214,7 +214,7 @@ Do all the steps while connected to created VPN service.
 
 4. Ensure that private Docker Registry is running, open (should return 200 OK):
 
-    * https://<subdomain>.foxcommerce.com:5000/v2/
+    * `https://<subdomain>.foxcommerce.com:5000/v2/`
 
 5. Copy [public_key.pem](../ansible/roles/base/secret_keys/public_key.pem) to [ashes](../../ashes) and [firebrand](../../firebrand) subdirectories - they will be copied to related Docker containers.
 
@@ -244,7 +244,7 @@ Do all the steps while connected to created VPN service.
     $ ansible-playbook -v -i bin/envs/<project> ansible/playbook/bootstrap/mesos_consul.yml
     ```
 
-9. Go to Marathon UI and add 2 new applications, using JSON configurations (you should set proper Docker Registry URLs in this files and `STRIPE_PUBLISHABLE_KEY` environment variable in `storefront.json`):
+9. Go to Marathon UI and add 2 new applications, using JSON configurations (you should set proper Docker Registry URLs in both files and `STRIPE_PUBLISHABLE_KEY` environment variable for storefront):
 
     * [ashes.json](../marathon/ashes.json)
     * [storefront.json](../marathon/storefront.json)
@@ -253,9 +253,9 @@ Do all the steps while connected to created VPN service.
 
 11. For Google OAuth, add authorized JavaScript origins and authorized redirect URIs in [Google Developers Console](https://console.developers.google.com/apis/credentials/oauthclient/953682058057-trm1gl4qpa6c9c8av6b42e4p766bloa7.apps.googleusercontent.com?project=foxcomm-staging&authuser=1) using previously created DNS records. Ensure that same values (client ID, client secret, origins and URIs) are filled on instances that are running `phoenix.service`.
 
-12. Configure `balancer` service to be a reverse proxy for Ashes and Storefront (TBD).
+12. Configure `balancer` service to be a reverse proxy for Ashes and Storefront<sup>TBD</sup>.
 
-13. Add DNS Simple records pointing to machines with `balancer`. Example:
+13. Add DNS Simple records pointing to machines with `balancer`. Ensure they have public IPs in Google Cloud and firewall enables HTTPS access. Example:
 
     * `<project>.foxcommerce.com`
     * `<project>-stage.foxcommerce.com`
