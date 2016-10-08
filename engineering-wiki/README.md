@@ -4,7 +4,7 @@ Welcome to the FoxCommerce Engineering Wiki. Here you can find information about
 
 ## DevOps
 
-* [Build and Deploy for Infrastructures](devops/build_and_deploy.md)
+* [Build and Deploy for Infrastructure](devops/build_and_deploy.md)
 * [Production Environment From Scratch](devops/production.md)
 * [FoxCommerce Project Environments](devops/environments.md)
 
