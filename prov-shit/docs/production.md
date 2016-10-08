@@ -1,7 +1,7 @@
 # Production Environment From Scratch
 
 Navigation:
-* [Preparation](#Preparation)
+* [Preparation](#preparation)
 * [VPN machine](#vpn-machine)
 * [Service machines](#service-machines)
 
