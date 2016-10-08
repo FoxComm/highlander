@@ -77,7 +77,7 @@ class CartValidatorIntegrationTest
     }
 
     "/v1/orders/:refNum/line-items" in new LineItemFixture {
-      val payload = Seq(UpdateLineItemsPayload(sku.code, 1))
+      val payload = Seq(UpdateLineItemsPayload(sku.code, 1, None))
       checkResponse(POST(s"v1/orders/$refNum/line-items", payload),
                     Seq(InsufficientFunds(refNum), NoShipAddress(refNum), NoShipMethod(refNum)))
     }
@@ -89,7 +89,7 @@ class CartValidatorIntegrationTest
 
     "must validate funds with line items:" - {
       "must return warning when credit card is removed" in new LineItemAndFundsFixture {
-        val lineItemPayload = Seq(UpdateLineItemsPayload(sku.code, 1))
+        val lineItemPayload = Seq(UpdateLineItemsPayload(sku.code, 1, None))
         val response1       = POST(s"v1/orders/$refNum/line-items", lineItemPayload)
         response1.status must === (StatusCodes.OK)
 
@@ -102,7 +102,7 @@ class CartValidatorIntegrationTest
       }
 
       "must return warning when store credits are removed" in new LineItemAndFundsFixture {
-        val lineItemPayload = Seq(UpdateLineItemsPayload(sku.code, 1))
+        val lineItemPayload = Seq(UpdateLineItemsPayload(sku.code, 1, None))
         val response1       = POST(s"v1/orders/$refNum/line-items", lineItemPayload)
         response1.status must === (StatusCodes.OK)
 
@@ -115,7 +115,7 @@ class CartValidatorIntegrationTest
       }
 
       "must return warning when gift card is removed" in new LineItemAndFundsFixture {
-        val lineItemPayload = Seq(UpdateLineItemsPayload(sku.code, 1))
+        val lineItemPayload = Seq(UpdateLineItemsPayload(sku.code, 1, None))
         val response1       = POST(s"v1/orders/$refNum/line-items", lineItemPayload)
         response1.status must === (StatusCodes.OK)
 

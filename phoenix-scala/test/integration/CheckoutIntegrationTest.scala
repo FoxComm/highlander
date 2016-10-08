@@ -43,7 +43,7 @@ class CheckoutIntegrationTest
       createCart.status must === (StatusCodes.OK)
       val refNum = createCart.as[CartResponse].referenceNumber
       // Add line items
-      POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2))).status must === (
+      POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2, None))).status must === (
           StatusCodes.OK)
       // Set address
       PATCH(s"v1/orders/$refNum/shipping-address/${address.id}").status must === (StatusCodes.OK)
@@ -101,7 +101,7 @@ class CheckoutIntegrationTest
       val refNum =
         POST("v1/orders", CreateCart(Some(customer.id))).as[OrderResponse].referenceNumber
 
-      POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2))).status must === (
+      POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2, None))).status must === (
           StatusCodes.OK)
 
       // Set address
@@ -139,7 +139,7 @@ class CheckoutIntegrationTest
       createCart.status must === (StatusCodes.OK)
       val refNum = createCart.as[CartResponse].referenceNumber
       // Add line items
-      POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2))).status must === (
+      POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2, None))).status must === (
           StatusCodes.OK)
       // Set address
       PATCH(s"v1/orders/$refNum/shipping-address/${address.id}").status must === (StatusCodes.OK)

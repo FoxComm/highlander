@@ -68,7 +68,7 @@ class CartIntegrationTest
   }
 
   "POST /v1/orders/:refNum/line-items" - {
-    val payload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
+    val payload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, None))
 
     "should successfully update line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
@@ -84,7 +84,7 @@ class CartIntegrationTest
 
     "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
     with Sku_Raw with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val payload = Seq(UpdateLineItemsPayload(simpleSku.code, 1))
+      val payload = Seq(UpdateLineItemsPayload(simpleSku.code, 1, None))
 
       val response = POST(s"v1/orders/${cart.refNum}/line-items", payload)
 
@@ -100,7 +100,7 @@ class CartIntegrationTest
   }
 
   "PATCH /v1/orders/:refNum/line-items" - {
-    val addPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
+    val addPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, None))
 
     "should successfully add line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
@@ -116,7 +116,7 @@ class CartIntegrationTest
 
     "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
     with Sku_Raw with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val payload = Seq(UpdateLineItemsPayload(simpleSku.code, 1))
+      val payload = Seq(UpdateLineItemsPayload(simpleSku.code, 1, None))
 
       val response = PATCH(s"v1/orders/${cart.refNum}/line-items", payload)
 
@@ -126,7 +126,7 @@ class CartIntegrationTest
 
     "should successfully remove line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1))
+      val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1, None))
       val response        = PATCH(s"v1/orders/${cart.refNum}/line-items", subtractPayload)
 
       response.status must === (StatusCodes.OK)
@@ -139,7 +139,7 @@ class CartIntegrationTest
 
     "removing too many of an item should remove all of that item" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -3))
+      val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -3, None))
       val response        = PATCH(s"v1/orders/${cart.refNum}/line-items", subtractPayload)
 
       response.status must === (StatusCodes.OK)
@@ -156,7 +156,7 @@ class CartIntegrationTest
 
     "should add line items if productId and skuId are different" in new OrderShippingMethodFixture
     with ProductAndSkus_Baked {
-      val addPayload = Seq(UpdateLineItemsPayload("TEST", 1))
+      val addPayload = Seq(UpdateLineItemsPayload("TEST", 1, None))
       val response   = POST(s"v1/orders/${cart.refNum}/line-items", addPayload)
 
       response.status must === (StatusCodes.OK)

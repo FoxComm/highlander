@@ -1,6 +1,7 @@
 package payloads
 
 import cats.data._
+import cats.implicits._
 import failures.Failure
 import utils.Money._
 import utils.Validation
@@ -13,12 +14,13 @@ object LineItemPayloads {
     def validate: ValidatedNel[Failure, GiftCardRecipient] = {
       import Validation._
 
-      (validExpr(name.isEmpty && email.isEmpty && message.length < 500 && message.length > 0,
-                 "recepient name must be given") |@|
-          validExpr(email.isEmpty && message.length < 500 && message.length > 0,"email must be given") |@|
-          validExpr(message.length > 0, "message  cannot be empty") |@|
-          validExpr( message.length < 500,
-          "message can't have more than 500 characters" )).map { case _ ⇒ this }
+      (validExpr(name.isEmpty, "recepient name must be given") |@|
+            validExpr(email.isEmpty && message.length < 500 && message.length > 0,
+                      "email must be given") |@|
+            validExpr(message.length > 0, "message  cannot be empty") |@|
+            validExpr(message.length < 500, "message can't have more than 500 characters")).map {
+        case _ ⇒ this
+      }
     }
   }
 
