@@ -3,7 +3,6 @@
 ### Docs
 
 - [Build and Deploy for Infrastructure](docs/build_and_deploy.md)
-- [How To Update Base Images](docs/base_images.md)
 - [Production Environment From Scratch](docs/production.md)
 
 ### Dependencies
@@ -90,4 +89,4 @@ Get the private IP address
     $ vagrant ssh
     $ ifconfig eth0
 
-Edit your hosts file so that `local.foxcommerce.com` points to the new box using the private IP address you just retrieved.  
+Edit your hosts file so that `local.foxcommerce.com` points to the new box using the private IP address you just retrieved.
