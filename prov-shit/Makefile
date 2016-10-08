@@ -23,6 +23,9 @@ test:
 	go get github.com/stretchr/testify
 	$(GO) test -v ./inventory/
 
+easy-cluster:
+	ansible-playbook -v -i bin/envs/localhost ansible/easy_cluster.yml
+
 bootstrap-annabelle:
 	ansible-playbook -v -i bin/envs/api_docs ansible/playbook/bootstrap/annabelle.yml
 
