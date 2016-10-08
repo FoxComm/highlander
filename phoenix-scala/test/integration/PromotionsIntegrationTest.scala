@@ -54,6 +54,29 @@ class PromotionsIntegrationTest
     }
   }
 
+  "PATCH /v1/promotions/:context/:id" - {
+    "change qualifier in promotion" in new Fixture {
+      val formDiscount = promoRoot.form.discounts.head.copy(attributes = discountForm.attributes.transformField {
+        case ("orderTotalAmount", q) ⇒ ("orderAny", q)
+      })
+
+      val shadowDiscount = promoRoot.shadow.discounts.head
+
+      val disablePromoPayload = UpdatePromotion(applyType = promotion.applyType,
+          form = UpdatePromotionForm(
+            attributes = promoForm.attributes,
+            discounts = Seq(UpdatePromoDiscountForm(id = formDiscount.id,
+              attributes = formDiscount.attributes
+            ))),
+          shadow = UpdatePromotionShadow(attributes = promoShadow.attributes,
+            discounts = Seq(UpdatePromoDiscountShadow(id = shadowDiscount.id,
+              attributes = discountShadow.attributes
+            ))))
+
+      promotionsApi(promotion.formId).update(disablePromoPayload).as[PromotionResponse.Root]
+    }
+  }
+
   trait Fixture extends StoreAdmin_Seed {
 
     implicit val au = storeAdminAuthData
@@ -76,6 +99,7 @@ class PromotionsIntegrationTest
         }
       }
     }"""))
+
     val discountShadow = CreateDiscountShadow(
         attributes = parse("""
         {
@@ -102,7 +126,7 @@ class PromotionsIntegrationTest
 
     def couponPayload(promoId: Int): CreateCoupon = CreateCoupon(couponForm, couponShadow, promoId)
 
-    val (promotion, coupon) = (for {
+    val (promotion, coupon, promoRoot) = (for {
       promoRoot ← * <~ PromotionManager.create(promoPayload, ctx.name)
       promotion ← * <~ Promotions
                    .filter(_.contextId === ctx.id)
@@ -111,7 +135,7 @@ class PromotionsIntegrationTest
                    .mustFindOneOr(NotFoundFailure404(Promotion, "test"))
 
       coupon ← * <~ CouponManager.create(couponPayload(promoRoot.form.id), ctx.name, None)
-    } yield (promotion, coupon)).gimme
+    } yield (promotion, coupon, promoRoot)).gimme
   }
 
 }

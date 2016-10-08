@@ -17,6 +17,7 @@ import payloads.NotePayloads._
 import payloads.OrderPayloads._
 import payloads.PaymentPayloads._
 import payloads.ProductPayloads._
+import payloads.PromotionPayloads.UpdatePromotion
 import payloads.SharedSearchPayloads._
 import payloads.SkuPayloads._
 import payloads.StoreAdminPayloads._
@@ -571,6 +572,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def delete(): HttpResponse =
       DELETE(promotionPath)
+
+    def update(payload: UpdatePromotion): HttpResponse =
+      PATCH(promotionPath, payload)
   }
 
   object categoriesApi {
