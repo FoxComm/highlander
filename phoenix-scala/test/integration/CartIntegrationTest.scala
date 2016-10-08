@@ -71,7 +71,7 @@ class CartIntegrationTest
   }
 
   "POST /v1/orders/:refNum/line-items" - {
-    val payload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
+    val payload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, None))
 
     "should successfully update line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
@@ -106,7 +106,7 @@ class CartIntegrationTest
   }
 
   "PATCH /v1/orders/:refNum/line-items" - {
-    val addPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
+    val addPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, None))
 
     "should successfully add line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
@@ -126,9 +126,7 @@ class CartIntegrationTest
 
     "should successfully remove line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-
       val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1))
-
       val root = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse]
 
       val skus = root.lineItems.skus
@@ -157,7 +155,6 @@ class CartIntegrationTest
         .asTheResult[CartResponse]
         .lineItems
         .skus
-
       skus must have size 2
       skus.map(_.sku) must contain theSameElementsAs Seq("SKU-YAX", "TEST")
       skus.map(_.quantity) must contain theSameElementsAs Seq(1, 2)

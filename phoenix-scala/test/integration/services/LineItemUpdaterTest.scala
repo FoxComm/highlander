@@ -34,8 +34,8 @@ class LineItemUpdaterTest
       val (context, products) = createProducts(2).gimme
 
       val payload = Seq[Payload](
-          Payload(sku = "1", quantity = 3),
-          Payload(sku = "2", quantity = 0)
+          Payload(sku = "1", quantity = 3, None),
+          Payload(sku = "2", quantity = 0, None)
       )
 
       val root =
@@ -65,9 +65,9 @@ class LineItemUpdaterTest
       CartLineItems.createAll(seedItems).gimme
 
       val payload = Seq[Payload](
-          Payload(sku = "1", quantity = 3),
-          Payload(sku = "2", quantity = 0),
-          Payload(sku = "3", quantity = 1)
+          Payload(sku = "1", quantity = 3, None),
+          Payload(sku = "2", quantity = 0, None),
+          Payload(sku = "3", quantity = 1, None)
       )
 
       val root =
