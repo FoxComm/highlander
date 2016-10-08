@@ -9,7 +9,7 @@ Navigation:
 
 These are expected to be run once, not for each production setup
 
-1. Open foxcommerce-production-shared proejct in GCE
+1. Open [foxcommerce-production-shared](https://console.cloud.google.com/compute/instances?project=foxcomm-production-shared) project in GCE.
 2. Add SSH key if not yet on [SSH Keys](https://console.cloud.google.com/compute/metadata/sshKeys) page.
 3. Add service account at [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts/project) page.
 4. Download created service account file to `highlander/prov-shit/account.json`
