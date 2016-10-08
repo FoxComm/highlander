@@ -43,6 +43,13 @@ class OptionEditDialog extends Component {
     return _.get(this.props, 'option.id') === 'new' ? 'New option' : 'Edit option';
   }
 
+  componentDidMount() {
+    const { nameInput } = this.refs;
+    if (nameInput) {
+      nameInput.focus();
+    }
+  }
+
   @autobind
   handleChange(value: string, field: string): void {
     const option = assoc(this.state.option,
@@ -72,6 +79,7 @@ class OptionEditDialog extends Component {
           required={true} >
           <input
             type="text"
+            ref="nameInput"
             value={name}
             onChange={({target}) => this.handleChange(target.value, 'name')}
           />

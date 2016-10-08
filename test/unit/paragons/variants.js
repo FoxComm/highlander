@@ -15,7 +15,7 @@ function makeSkus(count) {
   return result;
 }
 
-describe.only('Variants', function () {
+describe('Variants', function () {
   context('#autoAssignVariants', () => {
     it('grow1', () => {
       const skus = makeSkus(2);

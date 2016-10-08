@@ -38,6 +38,13 @@ class ValueEditDialog extends Component {
     value: this.props.value.value,
   };
 
+  componentDidMount() {
+    const { nameInput } = this.refs;
+    if (nameInput) {
+      nameInput.focus();
+    }
+  }
+
   get title(): string {
     return this.props.value.id === 'new' ? 'New value' : 'Edit value';
   }
@@ -74,6 +81,7 @@ class ValueEditDialog extends Component {
           <input
             type="text"
             value={name}
+            ref="nameInput"
             onChange={({target}) => this.handleChange(target.value, 'name')}
           />
         </FormField>
