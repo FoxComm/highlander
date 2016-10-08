@@ -6,7 +6,6 @@ RUN apt-get clean
 RUN mkdir -p /stock-items-consumer
 WORKDIR /stock-items-consumer
 COPY stock-items-consumer /stock-items-consumer
-ADD .env /stock-items-consumer
 
 CMD ["/stock-items-consumer/stock-items-consumer"] 
 
