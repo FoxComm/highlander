@@ -30,7 +30,7 @@
             "security_group_id": "{{user `security_group_id`}}",
             "subnet_id": "{{user `subnet_id`}}",
             "tags": {
-                "Name": "vanilla-phoenix-{{timestamp}}"
+                "Name": "{{user `image_prefix`}}-phoenix-{{timestamp}}"
             }
         }
     ],
@@ -40,8 +40,8 @@
             "playbook_file" : "ansible/packer_service_phoenix.yml",
             "extra_arguments": [
                 "-vvvv",
-                "--extra-vars", "@packer/envs/{{user `variables_file`}}",
-                "--extra-vars", "@packer/envs/{{user `key_variables_file`}}"
+                "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"
+                "--extra-vars", "@packer/envs/{{user `project_base`}}/secret_keys.json"
             ]
         }
     ]
