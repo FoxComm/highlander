@@ -8,11 +8,11 @@
             "source_image": "{{user `base_mesos`}}",
             "network": "{{user `network`}}",
             "zone": "us-central1-a",
-            "image_name": "{{user `image_prefix`}}-amigo-server-{{timestamp}}",
-            "image_description": "{{user `image_title`}} Amigo Server Image",
-            "instance_name": "packer-amigo-server-{{uuid}}",
+            "image_name": "{{user `image_prefix`}}-stage-amigo-{{timestamp}}",
+            "image_description": "{{user `image_title`}} Stage Amigo Image",
+            "instance_name": "packer-stage-amigo-{{uuid}}",
             "machine_type": "n1-standard-2",
-            "tags": ["no-ip", "packer-amigo-server"],
+            "tags": ["no-ip", "packer-stage-amigo"],
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}",
             "disk_size" : 20
@@ -23,8 +23,8 @@
             "source_ami": "{{user `base_mesos_ami`}}",
             "instance_type": "{{user `instance_type`}}",
             "region": "{{user `region`}}",
-            "ami_name": "{{user `image_prefix`}}-amigo-server-{{timestamp}}",
-            "ami_description": "{{user `image_title`}} Amigo Server Image",
+            "ami_name": "{{user `image_prefix`}}-stage-amigo-{{timestamp}}",
+            "ami_description": "{{user `image_title`}} Stage Amigo Image",
             "associate_public_ip_address": true,
             "ssh_username" : "{{user `ssh_username`}}",
             "vpc_id": "{{user `vpc_id`}}",
@@ -41,17 +41,17 @@
                 "delete_on_termination": true
             }],
             "tags": {
-                "packer": "amigo-server"
+                "Name": "{{user `image_prefix`}}-stage-amigo-{{timestamp}}"
             }
         }
     ],
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_amigo_server.yml",
+            "playbook_file" : "ansible/packer_stage_amigo.yml",
             "extra_arguments": [
                 "-vvvv",
-                "--extra-vars", "@packer/envs/{{user `variables_file`}}"
+                "--extra-vars", "@packer/envs/{{user `project_base`}}/params_stage.json"
             ]
         }
     ]

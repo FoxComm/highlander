@@ -39,11 +39,11 @@
                 "device_name": "/dev/sda1",
                 "volume_size": 20,
                 "delete_on_termination": true
-            }],            
+            }],
             "tags": {
-                "Name": "vanilla-stage-frontend-{{timestamp}}"
+                "Name": "{{user `image_prefix`}}-stage-frontend-{{timestamp}}"
             }
-        }        
+        }
     ],
     "provisioners" : [
         {
@@ -51,7 +51,8 @@
             "playbook_file" : "ansible/packer_stage_frontend.yml",
             "extra_arguments": [
                 "-vvvv",
-                "--extra-vars", "@packer/envs/{{user `stage_variables_file`}}"
+                "--extra-vars", "@packer/envs/{{user `project_base`}}/params_stage.json"
+                "--extra-vars", "@packer/envs/{{user `project_base`}}/secret_keys_stage.json"
             ]
         }
     ]

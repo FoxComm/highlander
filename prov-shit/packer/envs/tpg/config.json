@@ -1,4 +1,5 @@
 {
+    "project_base": "tpg",
     "image_prefix": "tpg",
     "image_title": "tpg",
     "account_file": "foxcomm-vanilla.json",

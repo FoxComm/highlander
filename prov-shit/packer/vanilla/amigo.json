@@ -5,14 +5,14 @@
             "type": "googlecompute",
             "account_file": "{{user `account_file`}}",
             "project_id" : "{{user `project_id`}}",
-            "source_image": "{{user `base_node_image`}}",
+            "source_image": "{{user `base_mesos`}}",
             "network": "{{user `network`}}",
-            "zone": "{{user `zone`}}",
-            "image_name": "{{user `image_prefix`}}-front-{{timestamp}}",
-            "image_description": "{{user `image_title`}} Frontend Image",
-            "instance_name": "packer-{{user `image_prefix`}}-front-{{uuid}}",
-            "machine_type": "n1-standard-1",
-            "tags": ["ssh", "no-ip", "{{user `image_prefix`}}", "front"],
+            "zone": "us-central1-a",
+            "image_name": "{{user `image_prefix`}}-amigo-server-{{timestamp}}",
+            "image_description": "{{user `image_title`}} Amigo Server Image",
+            "instance_name": "packer-amigo-server-{{uuid}}",
+            "machine_type": "n1-standard-2",
+            "tags": ["no-ip", "packer-amigo-server"],
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}",
             "disk_size" : 20
@@ -20,11 +20,11 @@
         {
             "name": "amazon",
             "type": "amazon-ebs",
-            "source_ami": "{{user `base_node_ami`}}",
+            "source_ami": "{{user `base_mesos_ami`}}",
             "instance_type": "{{user `instance_type`}}",
             "region": "{{user `region`}}",
-            "ami_name": "{{user `image_prefix`}}-front-{{timestamp}}",
-            "ami_description": "{{user `image_title`}} Frontend Image",
+            "ami_name": "{{user `image_prefix`}}-amigo-server-{{timestamp}}",
+            "ami_description": "{{user `image_title`}} Amigo Server Image",
             "associate_public_ip_address": true,
             "ssh_username" : "{{user `ssh_username`}}",
             "vpc_id": "{{user `vpc_id`}}",
@@ -41,17 +41,17 @@
                 "delete_on_termination": true
             }],
             "tags": {
-                "Name": "vanilla-front-worker-{{timestamp}}"
+                "Name": "{{user `image_prefix`}}-amigo-{{timestamp}}"
             }
         }
     ],
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_service_front.yml",
+            "playbook_file" : "ansible/packer_amigo.yml",
             "extra_arguments": [
                 "-vvvv",
-                "--extra-vars", "@packer/envs/{{user `variables_file`}}"
+                "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"
             ]
         }
     ]
