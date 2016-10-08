@@ -81,13 +81,13 @@ These are expected to be run once, not for each production setup
 8. Bootstrap VPN there:
 
     ```
-    $ ansible-playbook -v -i bin/envs/<project>_vpn ansible/bootstrap_vanilla_vpn.yml
+    $ ansible-playbook -v -i bin/envs/<project>_vpn ansible/playbook/bootstrap/vanilla_vpn.yml
     ```
 
 9. Generate OpenVPN credentials (repeat for desired number of credentials):
 
     ```
-    $ ansible-playbook -v -i bin/envs/<project>_vpn ansible/bootstrap_openvpn_key.yml
+    $ ansible-playbook -v -i bin/envs/<project>_vpn ansible/playbook/bootstrap/openvpn_key.yml
     ```
 
 ## Service machines
@@ -178,17 +178,17 @@ Do all the steps while connected to created VPN service.
 14. Bootstrap initial data:
 
     ```
-    $ ansible-playbook -v -i bin/envs/<project> ansible/bootstrap_vanilla.yml
+    $ ansible-playbook -v -i bin/envs/<project> ansible/playbook/bootstrap/vanilla.yml
     ```
 
 15. Bootstrap Consul Alerts:
 
     ```
-    $ ansible-playbook -v -i bin/envs/<project> ansible/bootstrap_consul_alerts.yml
+    $ ansible-playbook -v -i bin/envs/<project> ansible/playbook/bootstrap/consul_alerts.yml
     ```
 
 16. Bootstrap Database Backups:
 
     ```
-    $ ansible-playbook -v -i bin/envs/<project> ansible/bootstrap_db_backup.yml
+    $ ansible-playbook -v -i bin/envs/<project> ansible/playbook/bootstrap/db_backup.yml
     ```

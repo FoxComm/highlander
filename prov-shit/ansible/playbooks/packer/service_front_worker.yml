@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Packer Vanilla Front
+- name: Provision Packer Vanilla Front Worker
   hosts: all
   tags:
       - packer-vanilla-front

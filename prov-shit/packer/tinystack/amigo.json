@@ -9,10 +9,10 @@
             "network": "{{user `network`}}",
             "zone": "{{user `zone`}}",
             "image_name": "{{user `image_prefix`}}-amigo-{{timestamp}}",
-            "image_description": "{{user `image_title`}} Consul Image",
+            "image_description": "{{user `image_title`}} Amigo Image",
             "instance_name": "packer-{{user `image_prefix`}}-amigo-{{uuid}}",
             "machine_type": "n1-standard-2",
-            "tags": ["ssh", "no-ip", "{{user `image_prefix`}}", "consul-server"],
+            "tags": ["ssh", "no-ip", "{{user `image_prefix`}}", "amigo"],
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}"
         }
@@ -20,14 +20,10 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_amigo_server.yml",
+            "playbook_file" : "ansible/playbooks/packer/tinystack_amigo.yml",
             "extra_arguments": [
-              "--extra-vars",
-              "@packer/envs/{{user `variables_file`}}",
-              "--extra-vars",
-              "'{\"join_type\": \"join-wan\"}'",
-              "--extra-vars",
-              "'{\"consul_expect\": \"1\"}'"
+                "-vvvv",
+                "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"
             ]
         }
     ]
