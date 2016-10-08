@@ -91,7 +91,21 @@
   }
 
   .content {
-    margin-top: 222px;
+    lost-column: 10/12;
+    lost-offset: -1/12;
+    margin-top: 282px;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+  }
+
+  .summary {
+    lost-column: 4/10;
+    margin: 0 !important;
+  }
+
+  .forms {
+    lost-column: 6/10;
   }
 }
 

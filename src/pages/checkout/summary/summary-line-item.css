@@ -10,11 +10,12 @@
 }
 
 .product-price {
+  width: 100px;
   text-align: right;
 }
 
 .product-info {
-  padding: 0 10px;
+  padding-left: 10px;
   display: flex;
 }
 
@@ -24,6 +25,9 @@
 }
 
 .product-qty {
+  margin-left: 15px;
+  width: 2em;
+  text-align: center;
   font-weight: 300;
 }
 
@@ -34,5 +38,11 @@
 
   .product-name {
     margin-bottom: 8px;
+  }
+}
+
+@media (--large) {
+  .product-info {
+    justify-content: space-between;
   }
 }

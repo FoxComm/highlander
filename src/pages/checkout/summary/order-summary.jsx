@@ -81,9 +81,12 @@ class OrderSummary extends Component {
           <table styleName="products-table">
             <thead>
             <tr>
-              <th styleName="product-image">{t('ITEM')}</th>
-              <th styleName="product-name" />
-              <th styleName="product-qty">{t('QTY')}</th>
+              <th colSpan="2">
+                <span styleName="product-info">
+                  <span>{t('ITEM')}</span>
+                  <span>{t('QTY')}</span>
+                </span>
+              </th>
               <th styleName="product-price">{t('PRICE')}</th>
             </tr>
             </thead>
