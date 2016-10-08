@@ -1,0 +1,494 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{listings}
+%for dotex
+\usepackage[pdftex]{graphicx}
+\usepackage[pdf]{graphviz}
+\usepackage[boxed]{algorithm2e} %end for dote
+\usepackage{color}
+
+% "define" Scala
+\lstdefinelanguage{scala}{
+  morekeywords={abstract,case,catch,class,def,%
+    do,else,extends,false,final,finally,%
+    for,if,implicit,import,match,mixin,%
+    new,null,object,override,package,%
+    private,protected,requires,return,sealed,%
+    super,this,throw,trait,true,try,%
+    type,val,var,while,with,yield},
+  otherkeywords={=>,<-,<\%,<:,>:,\#,@},
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[n]{/*}{*/},
+  morestring=[b]",
+  morestring=[b]',
+  morestring=[b]"""
+}
+
+\lstset{ %
+    language=scala,
+    identifierstyle=\textbf
+}
+
+\title{The Enlightened, Post-Modern Product Model}
+\author{Maxim Noah Khailo \& Jeff Mataya}
+\begin{document}
+\maketitle
+\section{Purpose}
+
+There is both a universal objective reality and our subjective interpretations of 
+it. The post-modern world is one of flux and uncertainty which can only collapse
+into the shadow of objectivity when illuminated. 
+
+Below is a description of a product model, nay, a content model that both provides
+variants in the face of contextualization, but has its objective reality and definition.
+
+Please read the companion paper "Everything is Search" after this one to realize
+the full potential of the approach described below.
+
+\section{Forces}
+
+We have to balance several problems.
+
+\begin{itemize}
+    \item Provide the most appropriate information at the right time.
+    \item Semantically structure information into a computable form.
+    \item Provide a manageable way to handle variants.
+\end{itemize}
+
+\newpage
+\section{The Form and Shadow}
+
+The model is split into two concepts, the \emph{Form} and the \emph{Shadow}. 
+A product takes on one form but can have many shadows. Shadows are created when
+a \emph{Context} illuminates the \emph{Form}.
+
+\digraph{Parts} {
+    node [shape=record];
+    Context [label="Context"];
+    Form [label="Product"];
+    Shadow1 [label="Desktop Shadow"];
+    Shadow2 [label="Mobile Shadow"];
+    Shadow3 [label="Shadow ..."];
+
+    Context -> Form [label="Illuminates"];
+    Form -> Shadow1 [label="Projects"];
+    Form -> Shadow2 [label="Projects"];
+    Form -> Shadow3 [label="Projects"];
+}
+
+\newpage
+\subsection{Product}
+The product is a combination of schema and data. The model is composed of dynamic
+attributes which have a type. Each attribute is a map of values that have names.
+The Form may look like this, represented as JSON.
+
+\begin{lstlisting}
+    //Product 
+    {
+        id: 3
+        name: { 
+            type: "string": 
+            x: "Red Shoe", 
+            y: "Big Red Shoe", 
+        },
+        description: { 
+            type: "string"
+            x: "Buy Me", 
+            y: "Purchase Me", 
+        },
+        image: { 
+            type: "uri"
+            x: "http://a", 
+            y: "http://b", 
+            z: "http://c",  
+        } 
+    }
+\end{lstlisting}
+
+
+\newpage
+\subsection{The Shadow}
+The Product Shadow is what is used when displaying a product to a customer.
+At any point in time, the customer has a Context. The Product Shadow is the shape 
+you get when you illuminate the Form from a particular vantage point called the Context.  
+Here is an example of a Shadow represented as JSON.
+
+\begin{lstlisting}
+    //Product Shadow for English Desktop
+    {
+        context: { modality: "desktop", language: "english" },
+        product: 3,
+        name: "x",
+        description: "x",
+        image: "x",
+    }
+\end{lstlisting}
+
+And here is another, but for mobile...
+
+\begin{lstlisting}
+    //Product Shadow for English Mobile
+    {
+        context: { modality: "mobile", language: "english" },
+        product: 3,
+        name: "y",
+        description: "y",
+        image: "z",
+    }
+\end{lstlisting}
+
+Each attribute in the Shadow corresponds to an attribute in the Form. It selects
+the value from the Form via it's name. For example, the 'x' value from the 'name' 
+attribute in the Form..
+
+
+\section{The Context}
+
+Each \emph{Shadow} is a representation of the product \emph{Form} given a \emph{Context}. Each user
+will have a Context when they interact with our system. The Context is used
+to select which shadows to display for a particular product.
+
+If we assign statistics to each of the Shadow's attributes, as described in 
+the companion paper "Everything is Search", this model will provide a solid
+foundation for algorithms that could modify shadows or create new ones based on 
+data and statistics.
+
+\newpage
+\section{Mapping Variants to SKUs}
+
+The product varies in two different ways. It varies based on the context the user
+is in and it varies based on properties like size and color. Remember a context
+describes the environment the customer is in like "mobile and english"
+
+Lets call the way the product varies by context the "Context Variant" and the way
+the product varies by property the "Property Varaint"
+
+How do we map all the ways the product varies to a SKUs? 
+
+The Product can have "Context Variants" which represent trees where the leaf nodes are
+the SKUs. A walk down the tree represents a unique ID. Given the product ID and this
+walk down the tree we get a mapping of product to SKU.
+
+\begin{lstlisting}
+    {
+        context1 : {
+            color : {
+                red : "SKU-RED1",
+                green : "SKU-GREEN2",
+            }
+        }
+        context2 : {
+            color : {
+                purple : "SKU-BLUE3",
+                orange : "SKU-ORGAN3",
+            }
+        }
+        ...
+    }
+\end{lstlisting}
+
+The benefit of this model is we can represent arbitrarily complex variants 
+by simply assigning the leaves of the tree with SKU values. If the leaf nodes are
+empty, we can have an algorithm that can walk the tree and assign meaningful
+SKU numbers.
+
+Also, because of our Shadow model, we can handle cases such as "Only purple and orange
+are available in Germany." if the user is in a German context. 
+
+Image a product has the following variants
+
+\begin{lstlisting}
+    //Product With Variants
+    {
+        Germany : {
+            color : {
+                red : "SKU-RED1",
+                green : "SKU-GREEN2",
+            }
+        }
+        USA : {
+            color : {
+                purple : "SKU-BLUE3",
+                orange : "SKU-ORGAN3",
+            }
+        }
+        ...
+    }
+\end{lstlisting}
+We can map the variant in the product form and shadow like so.
+
+\begin{lstlisting}
+    //Product with Variant Attributes
+    {
+        id: 3
+        name: { 
+            type: "string": 
+            USA : {  
+                color : {
+                    purple: "Purple Shoe", 
+                    orange: "Sun Orange Shoe", 
+                }
+            }
+            German : { ... }
+        }
+        ...
+    }
+\end{lstlisting}
+
+\begin{lstlisting}
+    //Product Shadow Using "USA" variant
+    {
+        context: { language: "english", region: "USA" }
+        product: 3,
+        name: "usa",
+        description: "english"
+    }
+\end{lstlisting}
+
+The benefit of this approach is that not all attributes have to change based on variants
+But it allows some to change. For example, the description attribute above doesn't
+change based on variant, but the name attribute does.
+
+Also we can reuse different variants and attributes in different contexts.
+
+\newpage
+\section{SKUs}
+
+The combination of Product and Product Shadow gives us a way to represent the way that a
+Product Details Page (PDP) is represented to the user. For that reason, these data models
+are fundamentally used for acts of merchandising.
+
+However, in many cases the basic attributes of the SKU will change based on the context.
+Price, for example, has this behavior. Taking a simple example will show this behavior.
+
+Foxy Suncare is selling sunscreen that comes in three sizes: trial (4oz), regular (8oz),
+and jumbo (16oz) at costs of \$8.00, \$15.00, and \$22.00. Since all of these items would
+appear on a single PDP, they are all represented by the same Product, and same set of
+Product Shadows. Naturally, we would like to see price then be an attribute of SKU.
+
+And since price may change based on context (for example, the sunscreen myght be sold at
+different prices in the United States vs Thailand), we need to apply the Shadow concept to
+SKUs.
+
+\begin{lstlisting}
+    // SKU
+    {
+        id: 1,
+        sku: "SUNSCREEN-TRAVEL",
+        description: {
+            "USA": "SPF-5, so you can feel like you're wearing protection and still get burned"
+        },
+        price: {
+            "USA": 800,
+            "THAILAND": 2300,
+            "UK": 650
+        }
+    }
+\end{lstlisting}
+
+\begin{lstlisting}
+    // SKU Shadow for USA
+    {
+        id: 1,
+        description: "USA",
+        price: "USA"
+    }
+\end{lstlisting}
+
+\begin{lstlisting}
+    // SKU Shadow for Thailand
+    {
+        id: 1,
+        description: "USA",
+        price: "Thailand"
+    }
+\end{lstlisting}
+
+\section{Models}
+
+\subsection{Context}
+
+A Context has an identifier, name, and attributes. 
+\begin{lstlisting}
+    case class Context(
+        id: Id,
+        name: String,
+        attributes: Json)
+\end{lstlisting}
+
+Where the attributes can be arbitrarily specific, but should be of a flat key/value nature.
+
+\begin{lstlisting}
+    {
+        modality: "x",
+        language: "y"
+    }
+\end{lstlisting}
+
+
+\subsection{Product}
+
+The Productrepresents a product as described above. 
+
+\begin{lstlisting}
+    case class Product(
+        id: Id,
+        attributes: Json,
+        variants: Json)
+\end{lstlisting}
+
+The attributes should be of the form
+\begin{lstlisting}
+    {
+        attribute1: {
+            type: "abc",
+            val1 : "x",
+            val2 : "y",
+            ...
+        }
+        attribute2: {
+            ...
+        }
+    }
+\end{lstlisting}
+
+
+\subsection{ProductShadow}
+
+The ProductShadow represents a Shadow of a product as described above. 
+
+\begin{lstlisting}
+    case class ProductShadow(
+        id: Id,
+        context: Id,
+        productForm: Id,
+        attributes: Json)
+\end{lstlisting}
+
+Where the attributes correspond to attributes in the product form, selected by
+name.
+
+\begin{lstlisting}
+    {
+        attribute1: "x",
+        attribute2: "...",
+        ...
+    }
+\end{lstlisting}
+
+\subsection{Sku}
+
+The Sku represents a product as described above. 
+
+\begin{lstlisting}
+    case class Sku(
+        id: Id,
+        sku: String,
+        attributes: Json)
+\end{lstlisting}
+
+The attributes should be of the form
+\begin{lstlisting}
+    {
+        attribute1: {
+            type: "abc",
+            val1 : "x",
+            val2 : "y",
+            ...
+        }
+        attribute2: {
+            ...
+        }
+    }
+\end{lstlisting}
+
+
+\subsection{SkuShadow}
+
+The SkuShadow represents a Shadow of a SKU as described above. 
+
+\begin{lstlisting}
+    case class SkuShadow(
+        id: Id,
+        context: Id,
+        sku: Id,
+        attributes: Json)
+\end{lstlisting}
+
+Where the attributes correspond to attributes in the Sku, selected by
+name.
+
+\begin{lstlisting}
+    {
+        attribute1: "x",
+        attribute2: "...",
+        ...
+    }
+\end{lstlisting}
+
+\newpage
+\subsection{Tiny MVP}
+
+For Tiny MVP we will seed only 1 default context. The product form will have one
+"default" variant and minimal set of attributes.
+
+\begin{lstlisting}
+    //MVP Product 
+    {
+        title: { 
+            type: "string",
+            ...
+        }
+        description: { 
+            type: "string",
+            ...  
+        }
+        images: { 
+            type: "images"
+            ...  
+        }
+        price: {
+            type: "price"
+            ...
+        }
+    }
+\end{lstlisting}
+\newpage
+
+We provide the following Admin endpoints
+
+\begin{itemize}
+    \item GET /api/v1/contexts
+    \item GET /api/v1/products/x
+    \item GET /api/v1/product-shadows/x
+    \item POST /api/v1/product-shadows/
+    \item PUT /api/v1/product-shadows/x
+    \item GET /api/v1/product-forms/x
+    \item POST /api/v1/product-forms/
+    \item PUT /api/v1/product-forms/x
+    \item GET /api/v1/skus/x
+    \item POST /api/v1/skus/
+    \item PUT /api/v1/skus/x
+    \item GET /api/v1/sku-shadows/x
+    \item POST /api/v1/sku-shadows/
+    \item PUT /api/v1/sku-shadows/x
+\end{itemize}
+
+The "/api/v1/products/" route will implement what eventually the storefront JSON will look
+like.
+
+We can index everything in ES using context like this.
+
+\begin{itemize}
+    \item /api/search/products-[context]/
+    \item /api/search/product-shadows-[context]/
+    \item /api/search/product-forms-[context]/
+    \item /api/search/skus-[context]/
+    \item /api/search/sku-shadows-[context]/
+\end{itemize}
+
+
+\end{document}
