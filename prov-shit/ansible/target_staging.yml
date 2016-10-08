@@ -40,3 +40,4 @@
     - { role: base/ssh_keys }
     - { role: dev/phoenix }
     - { role: dev/messaging }
+    - { role: dev/middlewarehouse }
