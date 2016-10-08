@@ -81,7 +81,7 @@ These are expected to be run once, not for each production setup
 8. Bootstrap VPN there:
     
     ```
-    $ ansible-playbook -v -i bin/envs/<project>_vpn ansible/boo tstrap_vanilla_vpn.yml
+    $ ansible-playbook -v -i bin/envs/<project>_vpn ansible/bootstrap_vanilla_vpn.yml
     ```
 
 9. Generate OpenVPN credentials (repeat for desired number of credentials):
