@@ -2,6 +2,10 @@
 
 Welcome to the FoxCommerce Engineering Wiki. Here you can find information about the overall engineering team, as well as the individual projects. Look below to find your way around.
 
+## Environments
+
+* [FoxCommerce Project Environments](PROJECTS.md)
+
 ## Design Documents
 
 * [System Architecture](design/architecture)
