@@ -6,11 +6,12 @@ import failures.{Failure, Failures, GeneralFailure}
 import utils.Strings._
 import utils.{Validation, friendlyClassName}
 
-trait FoxModel[M <: FoxModel[M]] extends Validation[M] { self: M ⇒
-
+trait Identity[A] { self: A ⇒
   type Id = Int
-
   def id: Id
+}
+
+trait FoxModel[M <: FoxModel[M]] extends Validation[M] with Identity[M] { self: M ⇒
 
   def isNew: Boolean = id == 0
 

@@ -36,22 +36,22 @@ object AdminRoutes {
         pathPrefix("order" / cordRefNumRegex) { refNum ⇒
           (get & pathEnd) {
             getOrFailures {
-              OrderNoteManager.list(refNum)
+              CordNoteManager.list(refNum)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             mutateOrFailures {
-              OrderNoteManager.create(refNum, auth.model, payload)
+              CordNoteManager.create(refNum, auth.model, payload)
             }
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[UpdateNote])) { (noteId, payload) ⇒
             mutateOrFailures {
-              OrderNoteManager.update(refNum, noteId, auth.model, payload)
+              CordNoteManager.update(refNum, noteId, auth.model, payload)
             }
           } ~
           (delete & path(IntNumber)) { noteId ⇒
             deleteOrFailures {
-              OrderNoteManager.delete(refNum, noteId, auth.model)
+              CordNoteManager.delete(refNum, noteId, auth.model)
             }
           }
         } ~
