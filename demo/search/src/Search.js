@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 
 import SearchResults from './SearchResults';
 
+import './Search.css';
+
 const sampleProducts = [
   {
     title: 'Donkey',
@@ -36,7 +38,7 @@ const sampleProducts = [
 ]
 
 class Search extends Component {
-  state = { search: '', results: [] };
+  state = { search: '', results: null };
 
   handleKeyDown = (event) => {
     if (event.keyCode !== 13) {
@@ -55,10 +57,12 @@ class Search extends Component {
     const { search, results } = this.state;
 
     return (
-      <div>
+      <div className="container">
         <input type="text" 
+               className="search-input"
                onChange={this.handleSearchUpdate.bind(this)}
                onKeyDown={this.handleKeyDown.bind(this)}
+               placeholder="Search"
                value={search} />
         <SearchResults results={results} />
       </div>

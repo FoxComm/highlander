@@ -11,8 +11,8 @@ class SearchResult extends Component {
         <div>
           <img className="search-image" src={image} alt={title} />
         </div>
-        <div>{title}</div>
-        <div>{formattedPrice}</div>
+        <div className="search-title">{title}</div>
+        <div className="search-price">{formattedPrice}</div>
       </div>
     );
   }
