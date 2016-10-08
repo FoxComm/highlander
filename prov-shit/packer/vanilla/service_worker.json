@@ -48,7 +48,7 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_service_worker.yml",
+            "playbook_file" : "ansible/playbooks/packer/service_worker.yml",
             "extra_arguments": [
                 "-vvvv",
                 "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"

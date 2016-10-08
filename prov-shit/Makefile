@@ -24,64 +24,64 @@ test:
 	$(GO) test -v ./inventory/
 
 bootstrap-annabelle:
-	ansible-playbook -v -i bin/envs/api_docs ansible/bootstrap_annabelle.yml
+	ansible-playbook -v -i bin/envs/api_docs ansible/playbook/bootstrap/annabelle.yml
 
 bootstrap-build-agents:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_build_agents.yml
+	ansible-playbook -v -i bin/envs/staging ansible/playbook/bootstrap/build_agents.yml
 
 bootstrap-build-agent-keys:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_build_agent_keys.yml --private-key=$(PRIVATE_KEY)
+	ansible-playbook -v -i bin/envs/staging ansible/playbook/bootstrap/build_agent_keys.yml --private-key=$(PRIVATE_KEY)
 
 bootstrap-build-agent-gce:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_build_agent_gce.yml --private-key=$(PRIVATE_KEY)
+	ansible-playbook -v -i bin/envs/staging ansible/playbook/bootstrap/build_agent_gce.yml --private-key=$(PRIVATE_KEY)
 
 bootstrap-consul-alerts:
-	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_consul_alerts.yml
+	ansible-playbook -v -i bin/envs/vanilla ansible/playbook/bootstrap/consul_alerts.yml
 
 bootstrap-db-backup:
-	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_db_backup.yml
+	ansible-playbook -v -i bin/envs/vanilla ansible/playbook/bootstrap/db_backup.yml
 
 bootstrap-messaging-plugin:
 	ansible-playbook -v -i bin/envs/staging ansible/boostrap_messaging_plugin.yml
 
 bootstrap-middlewarehouse:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_middlewarehouse.yml --private-key=$(PRIVATE_KEY)
+	ansible-playbook -v -i bin/envs/staging ansible/playbook/bootstrap/middlewarehouse.yml --private-key=$(PRIVATE_KEY)
 
 bootstrap-staging-openvpn-key:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_openvpn_key.yml
+	ansible-playbook -v -i bin/envs/staging ansible/playbook/bootstrap/openvpn_key.yml
 
 bootstrap-staging:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml
+	ansible-playbook -v -i bin/envs/staging ansible/playbook/bootstrap/tinystack.yml
 
 bootstrap-staging-backend:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=backend
+	ansible-playbook -v -i bin/envs/staging ansible/playbook/bootstrap/tinystack.yml --tags=backend
 
 bootstrap-staging-frontend:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_tinystack.yml --tags=frontend
+	ansible-playbook -v -i bin/envs/staging ansible/playbook/bootstrap/tinystack.yml --tags=frontend
 
 bootstrap-target:
-	ansible-playbook -v -i bin/envs/target ansible/bootstrap_vanilla.yml
+	ansible-playbook -v -i bin/envs/target ansible/playbook/bootstrap/vanilla.yml
 
 bootstrap-target-openvpn-key:
-	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_openvpn_key.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+	ansible-playbook -v -i bin/envs/target_vpn ansible/playbook/bootstrap/openvpn_key.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 bootstrap-target-vpn:
-	ansible-playbook -v -i bin/envs/target_vpn ansible/bootstrap_vanilla_vpn.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+	ansible-playbook -v -i bin/envs/target_vpn ansible/playbook/bootstrap/vanilla_vpn.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 bootstrap-vanilla:
-	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla.yml
+	ansible-playbook -v -i bin/envs/vanilla ansible/playbook/bootstrap/vanilla.yml
 
 bootstrap-vanilla-db:
-	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_vanilla_db.yml
+	ansible-playbook -v -i bin/envs/vanilla ansible/playbook/bootstrap/vanilla_db.yml
 
 bootstrap-vanilla-openvpn-key:
-	ansible-playbook -v -i bin/envs/vanilla ansible/bootstrap_openvpn_key.yml
+	ansible-playbook -v -i bin/envs/vanilla ansible/playbook/bootstrap/openvpn_key.yml
 
 bootstrap-vanilla-vpn:
-	ansible-playbook -v -i bin/envs/vanilla_vpn ansible/bootstrap_vanilla_vpn.yml
+	ansible-playbook -v -i bin/envs/vanilla_vpn ansible/playbook/bootstrap/vanilla_vpn.yml
 
 bootstrap-db:
-	ansible-playbook -v -i bin/envs/staging ansible/bootstrap_db.yml
+	ansible-playbook -v -i bin/envs/staging ansible/playbook/bootstrap/db.yml
 
 deploy-stage:
 	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
@@ -123,36 +123,36 @@ tf-target-dev:
 	terraform $(TF_CMD) -state=$(TF_ENVS)/aws_target_dev/terraform.tfstate -var-file=$(TF_ENVS)/aws_target_dev/target.tfvars $(TF_BASE)/aws_target_dev
 
 hotfix-mesos:
-	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_mesos.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+	ansible-playbook -v -i bin/envs/target_aws ansible/playbooks/hotfix/mesos.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 hotfix-zk:
-	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_zk.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+	ansible-playbook -v -i bin/envs/target_aws ansible/playbooks/hotfix/zk.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 hotfix-stage-consul:
-	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_stage_consul.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+	ansible-playbook -v -i bin/envs/target_aws ansible/playbooks/hotfix/stage_consul.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 hotfix-stage-db:
-	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_stage_db.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+	ansible-playbook -v -i bin/envs/target_aws ansible/playbooks/hotfix/stage_db.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 hotfix-mesos-worker:
-	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_mesos_worker.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+	ansible-playbook -v -i bin/envs/target_aws ansible/playbooks/hotfix/mesos_worker.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 hotfix-db:
-	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_db.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+	ansible-playbook -v -i bin/envs/target_aws ansible/playbooks/hotfix/db.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 hotfix-docker-registry:
-	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_docker_registry.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+	ansible-playbook -v -i bin/envs/target_aws ansible/playbooks/hotfix/docker_registry.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 hotfix-balancer:
-	ansible-playbook -v -i bin/envs/target_aws ansible/hotfix_balancer.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+	ansible-playbook -v -i bin/envs/target_aws ansible/playbooks/hotfix/balancer.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 target-consul-alerts:
-	ansible-playbook -v -i bin/envs/target_aws ansible/bootstrap_consul_alerts.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+	ansible-playbook -v -i bin/envs/target_aws ansible/playbook/bootstrap/consul_alerts.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 target-mesos-consul:
-	ansible-playbook -v -i bin/envs/target_aws ansible/bootstrap_mesos_consul.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+	ansible-playbook -v -i bin/envs/target_aws ansible/playbook/bootstrap/mesos_consul.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 target-db-seed:
-	ansible-playbook -v -i bin/envs/target_aws ansible/bootstrap_vanilla_seed.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
+	ansible-playbook -v -i bin/envs/target_aws ansible/playbook/bootstrap/vanilla_seed.yml --private-key=$(PRIVATE_KEY) -u $(SSH_USER)
 
 .PHONY: all build lint test

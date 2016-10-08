@@ -21,11 +21,9 @@
     "provisioners": [
         {
             "type": "ansible",
-            "playbook_file": "ansible/packer_buildkite_agent.yml",
+            "playbook_file": "ansible/playbooks/packer/buildkite_agent.yml",
             "user": "{{user `ssh_username`}}",
-            "extra_arguments": [
-                "-vvvv"
-            ]
+            "extra_arguments": ["-vvvv"]
         }
     ]
 }
