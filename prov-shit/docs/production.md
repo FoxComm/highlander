@@ -136,7 +136,7 @@ Do all the steps while connected to created VPN service.
     $ packer build -only=google -var-file=packer/envs/<project>/config.json packer/vanilla/db.json
     $ packer build -only=google -var-file=packer/envs/<project>/config.json packer/vanilla/es.json
     $ packer build -only=google -var-file=packer/envs/<project>/config.json packer/vanilla/es_log.json
-    $ packer build -only=google -var-file=packer/envs/<project>/config.json packer/vanilla/front.json
+    $ packer build -only=google -var-file=packer/envs/<project>/config.json packer/vanilla/front_worker.json
     $ packer build -only=google -var-file=packer/envs/<project>/config.json packer/vanilla/greenriver.json
     $ packer build -only=google -var-file=packer/envs/<project>/config.json packer/vanilla/kafka.json
     $ packer build -only=google -var-file=packer/envs/<project>/config.json packer/vanilla/phoenix.json
