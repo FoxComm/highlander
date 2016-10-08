@@ -12,7 +12,7 @@ import Currency from 'ui/currency';
 type Props = {
   imagePath: string,
   name: string,
-  quantity: string,
+  quantity: number,
   totalPrice: number,
 };
 

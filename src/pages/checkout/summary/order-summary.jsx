@@ -17,8 +17,6 @@ import ProductTable from './product-table';
 // styles
 import styles from './order-summary.css';
 
-const getState = state => ({ ...state.cart });
-
 type Totals = {
   subTotal: number,
   total: number,
@@ -139,4 +137,6 @@ class OrderSummary extends Component {
   }
 }
 
-export default connect(getState, {})(localized(OrderSummary));
+const mapStateToProps = state => state.cart;
+
+export default connect(mapStateToProps, {})(localized(OrderSummary));
