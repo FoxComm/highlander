@@ -1,6 +1,5 @@
 {
 	"staging": "foxcomm-staging",
-	"target": "foxcommerce-production-shared",
 	"vanilla": "foxcommerce-production-shared",
 	"topdrawer": "foxcommerce-production-shared",
 	"tpg": "foxcommerce-production-shared"
