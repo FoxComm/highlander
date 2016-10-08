@@ -28,4 +28,3 @@
     - { role: base/kibana, sudo: yes }
     - { role: base/isaac }
     - { role: base/greenriver }
-    - { role: base/middlewarehouse }
