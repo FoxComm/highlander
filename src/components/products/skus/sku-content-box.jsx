@@ -76,11 +76,12 @@ class SkuContentBox extends Component {
     const { selectedOptions } = this.state;
 
     const list = _.map(availableVariants, (values: Array<OptionValue>, i) => {
-      const checked = !!selectedOptions[this.getValuesKey(values)];
+      const key = this.getValuesKey(values);
+      const checked = !!selectedOptions[key];
       const content = values.map(value => value.name).join(', ');
 
       return (
-        <li>
+        <li key={`sku-${key}`}>
           <Checkbox
             id={`sku-option-${i}`}
             onChange={() => this.toggleAddedOption(values)}
@@ -102,6 +103,7 @@ class SkuContentBox extends Component {
     );
     return (
       <ConfirmationDialog
+        key="add-skus"
         isVisible={this.state.addDialogIsShown}
         header="Add SKUs"
         body={body}
@@ -155,6 +157,7 @@ class SkuContentBox extends Component {
     return (
       <ContentBox title="SKUs" actionBlock={ this.actions }>
         <SkuList
+          key="sku-list"
           fullProduct={this.props.fullProduct}
           updateField={this.props.updateField}
           updateFields={this.props.updateFields}
