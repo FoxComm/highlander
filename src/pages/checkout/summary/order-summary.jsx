@@ -11,7 +11,7 @@ import localized from 'lib/i18n';
 // components
 import TermValueLine from 'ui/term-value-line';
 import Currency from 'ui/currency';
-import LineItemRow from './summary-line-item';
+import ProductTable from './product-table';
 
 // styles
 import styles from './order-summary.css';
@@ -25,6 +25,8 @@ class OrderSummary extends Component {
   };
 
   renderGiftCard(amount) {
+    const { t } = this.props;
+
     return (
       <li>
         <TermValueLine>
@@ -36,6 +38,8 @@ class OrderSummary extends Component {
   }
 
   renderCoupon(amount) {
+    const { t } = this.props;
+
     return (
       <li>
         <TermValueLine>
@@ -56,7 +60,6 @@ class OrderSummary extends Component {
   render() {
     const props = this.props;
     const { t } = props;
-    const rows = _.map(props.skus, (item) => <LineItemRow {...item} key={item.sku} />);
 
     const giftCardPresent = _.some(props.paymentMethods, {type: 'giftCard'});
     const giftCardAmount = _.get(_.find(props.paymentMethods, {type: 'giftCard'}), 'amount', 0);
@@ -78,22 +81,8 @@ class OrderSummary extends Component {
           <Currency styleName="price" value={grandTotalResult} />
         </header>
         <div styleName="content">
-          <table styleName="products-table">
-            <thead>
-            <tr>
-              <th colSpan="2">
-                <span styleName="product-info">
-                  <span>{t('ITEM')}</span>
-                  <span>{t('QTY')}</span>
-                </span>
-              </th>
-              <th styleName="product-price">{t('PRICE')}</th>
-            </tr>
-            </thead>
-            <tbody>
-            {rows}
-            </tbody>
-          </table>
+          <ProductTable skus={props.skus} />
+
           <ul styleName="price-summary">
             <li>
               <TermValueLine>
@@ -127,4 +116,3 @@ class OrderSummary extends Component {
 }
 
 export default connect(getState, {})(localized(OrderSummary));
-

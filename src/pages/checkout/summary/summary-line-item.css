@@ -25,9 +25,6 @@
 }
 
 .product-qty {
-  margin-left: 15px;
-  width: 2em;
-  text-align: center;
   font-weight: 300;
 }
 
@@ -44,5 +41,11 @@
 @media (--large) {
   .product-info {
     justify-content: space-between;
+  }
+
+  .product-qty {
+    margin-left: 15px;
+    width: 2em;
+    text-align: center;
   }
 }

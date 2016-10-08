@@ -1,7 +1,11 @@
 
+// libs
 import React from 'react';
+
+// styles
 import styles from './summary-line-item.css';
 
+// components
 import Currency from 'ui/currency';
 
 const LineItemRow = props => {
@@ -16,7 +20,9 @@ const LineItemRow = props => {
           <span styleName="product-qty">{props.quantity}</span>
         </span>
       </td>
-      <td styleName="product-price"><Currency value={props.totalPrice} /></td>
+      <td styleName="product-price">
+        <Currency value={props.totalPrice} />
+      </td>
     </tr>
   );
 };
