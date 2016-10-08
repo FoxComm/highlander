@@ -1,12 +1,17 @@
-
+@import 'media-queries.css';
 @import "colors.css";
 
 .order-summary {
   composes: checkout-block from "../checkout.css";
   margin: 0;
-  padding: 25px 20px 30px 20px;
+  padding: 0;
   background: #FFFFFF;
-  box-shadow: 0 5px 10px rgba(0,0,0,.1);
+  color: #212121;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, .1);
+}
+
+.order-summary-collapsed {
+  composes: order-summary;
 }
 
 .divider {
@@ -15,11 +20,26 @@
   background-color: #E6E6E6;
 }
 
+.header {
+  lost-column: 10/12;
+  lost-offset: -1/12;
+  height: 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 400;
+}
+
 .title {
-  font-size: 22px;
-  color: var(--blackish);
-  line-height: 27px;
-  margin-bottom: 25px;
+  width: 100%;
+}
+
+.content {
+  lost-column: 10/12;
+  lost-offset: -1/12;
+  font-size: 13px;
+  border-top: 1px solid var(--border-color);
 }
 
 .products-table thead th {
@@ -30,25 +50,19 @@
 }
 
 .products-table tbody td {
-  font-size: 14px;
-  line-height: 17px;
+  padding-top: 15px;
+  padding-bottom: 15px;
   vertical-align: top;
-  padding-bottom: 25px;
-  padding-top: 25px;
-  border-bottom: 1px solid #E6E6E6;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .price-summary {
   margin: 0;
-  padding: 20px 0;
+  padding: 10px 0 0;
   list-style-type: none;
 
   & > li {
     padding-bottom: 10px;
-
-    &:last-child {
-      padding-bottom: 0;
-    }
   }
 
   border-bottom: 1px solid #E6E6E6;
@@ -56,9 +70,42 @@
 
 .grand-total {
   composes: term-value-line from "ui/css/term-value-line.css";
-  font-size: 18px;
-  color: var(--blackish);
-  line-height: 22px;
-  padding-top: 30px;
+  padding: 15px 0;
+  line-height: 1.4em;
+}
+
+@media (--small-only), (--medium-only) {
+  .header {
+    &:after {
+      content: "▲";
+      margin-left: 20px;
+      font-size: 12px;
+      transform: scaleY(.7);
+    }
+  }
+
+  .order-summary-collapsed {
+    & .header:after {
+      content: "▼";
+    }
+
+    & .content {
+      display: none;
+    }
+  }
+
+  .products-table thead {
+    display: none;
+  }
+}
+
+@media (--large) {
+  .header {
+    justify-content: center;
+
+    & .price {
+      display: none;
+    }
+  }
 }
 

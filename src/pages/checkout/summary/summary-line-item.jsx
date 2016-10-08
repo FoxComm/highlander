@@ -10,8 +10,12 @@ const LineItemRow = props => {
       <td styleName="product-image">
         <img src={props.imagePath} />
       </td>
-      <td styleName="product-name">{props.name}</td>
-      <td styleName="product-qty">{props.quantity}</td>
+      <td>
+        <span styleName="product-info">
+          <span styleName="product-name">{props.name}</span>
+          <span styleName="product-qty">{props.quantity}</span>
+        </span>
+      </td>
       <td styleName="product-price"><Currency value={props.totalPrice} /></td>
     </tr>
   );

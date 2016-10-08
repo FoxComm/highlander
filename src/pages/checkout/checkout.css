@@ -66,11 +66,18 @@
 }
 
 @media (--small-only), (--medium-only) {
+  .content {
+    margin-top: 146px;
+  }
+
   .summary {
     position: fixed;
-    margin-top: 146px;
     width: 100%;
     z-index: 2;
+  }
+
+  .forms {
+    padding-top: 70px;
   }
 }
 
@@ -83,8 +90,8 @@
     height: 86px;
   }
 
-  .summary {
-    margin-top: 122px;
+  .content {
+    margin-top: 222px;
   }
 }
 
