@@ -1,0 +1,29 @@
+{
+  "id": "/messaging",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 512,
+  "disk": 0,
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "docker.stage.foxcommerce.com:5000/messaging",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": false
+    }
+  },
+  "env": {
+    "JAVA_OPTS": "-Dphoenix-email={{plugins_api_user_email}} -Dphoenix-password={{plugins_api_user_password}} -Dapi-server={{api_server}} -Dapi-host={{self_host}} -Dkafka-broker={{kafka_server}} -Dschema-registry-url=http://{{schema_server}} -Dadmin-server-name={{ashes_server_name}} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{messaging_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+  },
+  "portDefinitions": [
+    {
+      "port": 10003,
+      "protocol": "tcp",
+      "labels": {}
+    }
+  ]
+}
