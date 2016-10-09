@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import superagent from 'superagent';
 
 import SearchResults from './SearchResults';
 
@@ -46,7 +47,34 @@ class Search extends Component {
     }
 
     event.preventDefault();
-    this.setState({ results: sampleProducts });
+
+    const options = { method: 'get', mode: 'no-cors' };
+    fetch('https://tgt.foxcommerce.com/api/search/public/products_catalog_view/_search', options)
+      .then(response => response.json())
+      .then(json => {
+        console.log(json);
+      });
+
+    // url (required), options (optional)
+    // fetch('https://tgt.foxcommerce.com/api/search/public/products_catalog_view/_search', {
+    //   method: 'get',
+    //   mode: 'no-cors',
+    // }).then(res => {
+    //   return res.json();
+    //   // if (res.ok) {
+    //   //   res.json().then(function(data) {
+    //   //     console.log(data);
+    //   //   });
+    //   // } else {
+    //   //   console.log("Looks like the response wasn't perfect, got status", res.status);
+    //   // }
+    // }).then(resJSON => {
+    //   console.log(resJSON);
+    // }).catch(function(err) {
+    //   console.error('Error has occurred:');
+    //   console.error(err);
+    // });
+
   };
 
   handleSearchUpdate = ({target}) => {
