@@ -1,5 +1,4 @@
 ---
 
 - name: Ensure no dpkg lock left
-  wait_for: path=/var/lib/dpkg/lock state=absent
-  timeout: 5
+  wait_for: path=/var/lib/dpkg/lock state=absent timeout=5
