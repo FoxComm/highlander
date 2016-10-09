@@ -4,6 +4,9 @@ This section covers all the endpoints that a site administrator could use to
 view and manage inventory and shipping information in FoxCommerce. Every
 endpoint in this section required authentication.
 
+<!-- include(objects/common.apib) -->
+<!-- include(objects/stock_location.apib) -->
+
 ## Group Stock Level Summaries
 
 Stock Level Summaries allows a user to see levels of inventory available across
@@ -35,3 +38,18 @@ _Inventory Count Definitions_
   field (afs = on hand - hold - reserved).
 
 <!-- include(resources/admin_stock_item_summaries.apib) -->
+
+## Group Stock Locations
+
+Stock Locations are representations of any place that inventory may be stored.
+FoxCommerce Inventory is designed to be manage and track inventory over
+multiple stock locations for a given storefront, as well as over multiple types
+of stock location.
+
+_Stock Location Types_
+
+- **Warehouse** (currently supported)
+- **Retail Store** (coming soon)
+- **Pop-up Shop** (coming soon)
+
+<!-- include(resources/admin_stock_locations.apib) -->
