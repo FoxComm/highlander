@@ -76,7 +76,7 @@ Navigation:
 | Name            | Staging                                                   | Vanilla                                              |
 |:----------------|:----------------------------------------------------------|:-----------------------------------------------------|
 | Consul          | [Consul UI](http://10.0.0.3:8500/ui/#/tpg-stage/services) | [Consul UI](http://10.0.0.10:8500/ui/#/tpg/services) |
-| Mesos           | TBD                                                       | TBD                                                  |
+| Mesos           | [Mesos UI](http://10.0.0.3:5050/#/)                       | [Mesos UI](http://10.0.0.10:5050/#/)                 |
 | Marathon        | [Marathon UI](http://10.0.0.3:8080/ui/#/apps)             | [Marathon UI](http://10.0.0.10:8080/ui/#/apps)       |
 | Storefront      | TBD                                                       | TBD                                                  |
 | Admin UI        | TBD                                                       | TBD                                                  |
