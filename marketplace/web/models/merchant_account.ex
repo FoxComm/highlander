@@ -9,7 +9,7 @@ defmodule Marketplace.MerchantAccount do
     field :description, :string
     field :email_address, :string
     field :password, :string
-    field :solomon_id, :integer
+    field :solomon_id, :integer # the corresponding account in solomon
 
     timestamps
 
