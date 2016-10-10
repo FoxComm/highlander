@@ -19,7 +19,7 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/playbooks/packer/appliance_base.yml"
+            "playbook_file" : "ansible/packer_appliance_base.yml"
         }
     ]
 }

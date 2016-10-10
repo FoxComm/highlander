@@ -1,0 +1,35 @@
+---
+
+- name: Provision Packer Vanilla Phoenix
+  hosts: all
+  tags:
+      - packer-vanilla-phoenix
+  vars:
+    user: ubuntu
+    packing: true
+    phoenix_env: staging
+    db_host: db.service.consul
+    db_user: phoenix
+    db_name: phoenix_development
+    phoenix_db_name: phoenix_development
+    phoenix_tracing: "true"
+    zipkin_collector: zipkin.service.consul
+    log_host: es-log.service.consul
+    phoenix_service_requires: ""
+    phoenix_service_after: ""
+    middlewarehouse_service_requires: ""
+    middlewarehouse_service_after: ""
+    middlewarehouse_consumers_services_requires: ""
+    middlewarehouse_consumers_services_after: ""
+  post_tasks:
+    - name: Sweet Dreams
+      pause: seconds=5
+
+  roles:
+    - { role: base/ssh_keys }
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/phoenix }
+    - { role: base/middlewarehouse }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

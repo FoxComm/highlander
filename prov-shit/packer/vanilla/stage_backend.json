@@ -48,7 +48,7 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/playbooks/packer/stage_backend.yml",
+            "playbook_file" : "ansible/packer_stage_backend.yml",
             "extra_arguments": [
                 "-vvvv",
                 "--extra-vars", "@packer/envs/{{user `project_base`}}/params_stage.json"
