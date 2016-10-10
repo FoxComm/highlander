@@ -34,6 +34,7 @@ export default function *renderReact() {
 
     this.body = renderPage({
       html: appHtml,
+      ashesUrl: process.env.ASHES_URL,
       state: JSON.stringify(store.getState()),
     });
   }

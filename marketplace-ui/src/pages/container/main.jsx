@@ -148,7 +148,6 @@ class Main extends Component {
 
     /** feed fetched and not empty - shipping page */
     if (feedFetched && !isEmpty(feed)) {
-      console.log(feed);
       this.replace(`/application/${ref}/shipping`);
     }
   }

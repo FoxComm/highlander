@@ -27,7 +27,7 @@ class ActionsPage extends Component {
           description={`In a few easy steps you can create a product and be selling through Goldfish in minutes.
           Manage Inventory & Orders withing from your dashboard.`}
           button="Select"
-          onSelect={() => window.location.replace(process.env.ASHES_URL)}
+          onSelect={() => window.location.replace(window.__ASHES_URL__)}
         />
         <Card
           title="Add product feed"
@@ -41,7 +41,7 @@ class ActionsPage extends Component {
           description={`Integrate your eCommerce store with Goldfish with Marketplace apps or via API to use your
           exising tools to import products and receive orders.`}
           button="Select"
-          onSelect={() => window.location.replace(process.env.ASHES_URL)}
+          onSelect={() => window.location.replace(window.__ASHES_URL__)}
         />
       </div>
     );
