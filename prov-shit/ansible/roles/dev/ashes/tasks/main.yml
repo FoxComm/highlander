@@ -1,42 +1,12 @@
 ---
 
-- name: Remove Ashes Dir
-  file: path={{ashes_install_dir}} state=absent
-
-- name: Add Ashes Dir
-  file: path={{ashes_install_dir}} state=directory
-
-- name: Untar Ashes code
-  become: no
-  unarchive:
-    src: '{{ashes_source_package}}'
-    dest: '{{ashes_install_dir}}/'
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
   sudo: true
 
-- name: Build Ashes
-  shell: NODE_ENV={{ashes_env}} DEMO_USER={{demo_user}} DEMO_PASS={{demo_pass}} STRIPE_PUBLISHABLE_KEY={{ stripe_publishable_key }} gulp build
-  args:
-    chdir: "{{ashes_install_dir}}"
-  when: demo_user != ""
-
-- name: Install Ashes run script
-  sudo: true
-  template: src=run_ashes.sh.j2 dest="{{ ashes_install_dir }}/run_ashes.sh" mode="u=rwx,g=rwx,o=r"
-
-- name: Install Ashes service entry
-  sudo: true
-  template:
-    src: "{{role_path}}/../../base/ashes/templates/ashes.service.j2"
-    dest: "{{dest_services}}/ashes.service"
-
-- name: Reload Systemd for Ashes
-  sudo: yes
-  command: systemctl daemon-reload
-
-- name: Restart Ashes
-  service: name=ashes state=restarted enabled=true
+- name: Copy Ashes Marathon JSON
+  template: src=ashes.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
   sudo: true
 
-- name: Restart Ashes
-  service: name=ashes state=restarted enabled=true
-  sudo: true
+- name: Update solomon in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/ashes.json -H "Content-Type: application/json" http://marathon.service.consul:8080/v2/apps/ashes'
