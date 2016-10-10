@@ -6,16 +6,16 @@ import styles from './checkout.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
-import { Link } from 'react-router';
 
-import Icon from 'ui/icon';
+// components
 import Shipping from './shipping';
 import Delivery from './delivery';
 import Billing from './billing';
-import OrderSummary from './order-summary';
+import OrderSummary from './summary/order-summary';
 import GiftCard from './gift-card';
 import CouponCode from '../../components/coupon-code/coupon-code';
 import EditableBlock from 'ui/editable-block';
+import Header from './header';
 
 import type { Promise as PromiseType } from 'types/promise';
 
@@ -137,14 +137,15 @@ class Checkout extends Component {
     const props = this.props;
 
     return (
-      <div styleName="checkout">
-        <div styleName="logo-link">
-          <Link to="/">
-            <Icon styleName="logo" name="fc-logo"/>
-          </Link>
-        </div>
-        <div styleName="checkout-content">
-          <div styleName="left-forms">
+      <section styleName="checkout">
+        <Header />
+
+        <div styleName="content">
+          <div styleName="summary">
+            <OrderSummary />
+          </div>
+
+          <div styleName="forms">
             <Shipping
               isEditing={props.editStage == EditStages.SHIPPING}
               collapsed={props.editStage < EditStages.SHIPPING}
@@ -171,9 +172,6 @@ class Checkout extends Component {
               continueAction={this.placeOrder}
               error={this.errorsFor(EditStages.BILLING)}
             />
-          </div>
-          <div styleName="right-forms">
-            <OrderSummary />
             <EditableBlock
               styleName="checkout-block"
               title="PROMO CODE"
@@ -184,7 +182,7 @@ class Checkout extends Component {
             <GiftCard />
           </div>
         </div>
-      </div>
+      </section>
     );
   }
 }
