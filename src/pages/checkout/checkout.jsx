@@ -6,9 +6,8 @@ import styles from './checkout.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
-import { Link } from 'react-router';
 
-import Icon from 'ui/icon';
+// components
 import Shipping from './shipping';
 import Delivery from './delivery';
 import Billing from './billing';
@@ -16,6 +15,7 @@ import OrderSummary from './summary/order-summary';
 import GiftCard from './gift-card';
 import CouponCode from '../../components/coupon-code/coupon-code';
 import EditableBlock from 'ui/editable-block';
+import Header from './header';
 
 import type { Promise as PromiseType } from 'types/promise';
 
@@ -138,20 +138,7 @@ class Checkout extends Component {
 
     return (
       <section styleName="checkout">
-        <header styleName="header">
-          <div styleName="logo">
-            <Link to="/">
-              <Icon styleName="logo" name="fc-logo"/>
-            </Link>
-          </div>
-          <nav styleName="navigation">
-            <ol styleName="nav-list">
-              <li styleName="nav-item"><a href="">Shipping</a></li>
-              <li styleName="nav-item"><a href="">Delivery</a></li>
-              <li styleName="nav-item"><a href="">Billing</a></li>
-            </ol>
-          </nav>
-        </header>
+        <Header />
 
         <div styleName="content">
           <div styleName="summary">
