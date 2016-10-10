@@ -44,7 +44,7 @@ defmodule Marketplace.MerchantAccountController do
     case Repo.insert(changeset) do 
       {:ok, merchant_account} -> 
         role_id = PermissionManager.create_admin_role_from_scope_id(scope_id)
-        PermissionManager.grant_account_id_role_id(merchant_account.id, role_id)
+        PermissionManager.grant_account_id_role_id(solomon_id, role_id)
         conn
         |> put_status(:created)
         |> put_resp_header("location", merchant_account_path(conn, :show, merchant_id, merchant_account))
