@@ -1,11 +1,12 @@
+archive = firebrand.tar.bz2
 
 setup:
 	npm install
 
 build: setup
 	test -f .env && export eval `cat .env` || true && ./node_modules/.bin/gulp build
-	touch firebrand.tar.bz2
-	tar --exclude 'firebrand.tar.bz2' -jcf firebrand.tar.bz2 ./
+	touch $(archive)
+	tar --exclude '$(archive)' -jcf $(archive) ./
 
 docker: build
 	docker build -t firebrand .
@@ -16,4 +17,4 @@ clean:
 test:
 	npm test
 
-.PHONY: setup build package test docker
+.PHONY: setup build docker clean test
