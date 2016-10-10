@@ -45,8 +45,6 @@
     - libpqxx-dev
   tags: isaac
 
-- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
-
 - name: Get Proxygen
   git: repo=https://github.com/facebook/proxygen.git dest={{proxygen_install_dir}} version={{proxygen_version}} force=yes
   tags: isaac
@@ -94,8 +92,6 @@
     - glide
   tags: golang
 
-- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
-
 - name: Remove Ansible 2.x
   command: pip uninstall -y ansible
   tags: ansible19
@@ -111,8 +107,6 @@
   apt: name=libffi-dev state=latest force=yes
   sudo: true
   tags: ansible-lint
-
-- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
 
 - name: Install ansible-lint
   pip: name=ansible-lint

@@ -11,7 +11,7 @@
     - { role: dev/db }
 
   handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
+     - include: ../../roles/base/consul_agent/handlers/main.yml
 
 - name: Hotfix Phoenix and MWH Migrations
   hosts:
@@ -28,4 +28,4 @@
     - { role: dev/middlewarehouse }
 
   handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
+     - include: ../../roles/base/consul_agent/handlers/main.yml

@@ -16,8 +16,6 @@
     - lua-cjson-dev
     - nginx-extras
 
-- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
-
 - name: Instal lua request uuid handler
   copy: src=uuid4.lua dest=/etc/nginx/uuid4.lua
 

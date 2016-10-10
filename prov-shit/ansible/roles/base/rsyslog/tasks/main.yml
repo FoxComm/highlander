@@ -6,8 +6,6 @@
     - rsyslog
     - rsyslog-elasticsearch
 
-- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
-
 - name: Install base rsyslog config
   template: >
     src=rsyslog.conf.j2

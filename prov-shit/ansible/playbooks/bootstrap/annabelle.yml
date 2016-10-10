@@ -25,3 +25,6 @@
 
   roles:
       - { role: dev/annabelle }
+
+  handlers:
+     - include: ../../roles/base/consul_agent/handlers/main.yml

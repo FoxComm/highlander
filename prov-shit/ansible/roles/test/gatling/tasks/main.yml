@@ -21,8 +21,6 @@
     - nginx-extras
   sudo: true
 
-- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
-
 - name: Assign User to Group www-data
   user: name={{user}} groups=www-data
   sudo: true

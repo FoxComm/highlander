@@ -6,8 +6,6 @@
     - nodejs
     - npm
 
-- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
-
 - name: Upgrade NPM
   shell: npm update -g npm
   sudo: true

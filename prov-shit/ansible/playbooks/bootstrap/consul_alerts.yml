@@ -29,4 +29,4 @@
       - { role: dev/consul_alerts }
 
   handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
+     - include: ../../roles/base/consul_agent/handlers/main.yml

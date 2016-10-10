@@ -23,4 +23,4 @@
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
 
   handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
+     - include: ../../roles/base/consul_agent/handlers/main.yml

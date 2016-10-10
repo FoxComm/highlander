@@ -24,8 +24,6 @@
   apt: name=dnsmasq state=latest force=yes
   sudo: true
 
-- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"
-
 - name: Touch Dnsmasq Config
   file: path=/etc/dnsmasq.d/10-consul state=touch
   sudo: true
