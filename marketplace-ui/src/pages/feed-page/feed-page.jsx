@@ -1,6 +1,6 @@
 /* @flow */
 
-import get from 'lodash/get';
+import { get, isEmpty } from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -12,14 +12,11 @@ import UploadForm from '../../forms/feed/upload-form';
 
 import {
   getApplication,
-  getApplicationFetched,
-  getApplicationFetchFailed,
   getFeedSubmitInProgress,
   getFeedSubmitFailed,
   getFeedUploadInProgress,
   getFeedUploadFailed,
 } from '../../core/modules';
-import { fetch as fetchApplication, clearErrors } from '../../core/modules/merchant-application';
 import { submit, upload } from '../../core/modules/products-feed';
 
 import { fields as feedFields, initialValues } from '../../forms/feed/feed-fields';
@@ -29,20 +26,18 @@ import styles from './feed-page.css';
 
 import type { HTMLElement } from '../../core/types';
 import type { Application } from '../../core/modules/merchant-application';
+import type { Feed } from '../../core/modules/products-feed';
 
 type Props = {
   params: Object;
+  feed: Feed;
+  application: Application;
   feedSubmitInProgress: boolean;
   feedSubmitFailed: boolean;
   feedUploadInProgress: boolean;
   feedUploadFailed: boolean;
-  application: Application;
-  applicationFetched: boolean;
-  applicationFetchFailed: boolean;
-  fetchApplication: (reference: string) => Promise<*>;
   submit: (data: Object) => Promise<*>;
   upload: (data: Object) => Promise<*>;
-  clearErrors: () => void;
   replace: (path: string) => void;
 }
 
@@ -50,23 +45,9 @@ type Props = {
 class FeedPage extends Component {
   props: Props;
 
-  componentWillMount(): void {
-    const {
-      fetchApplication,
-      params: { ref },
-      applicationFetched,
-      applicationFetchFailed,
-      clearErrors,
-      replace,
-    } = this.props;
-
-    if (!applicationFetched) {
-      fetchApplication(ref);
-    }
-
-    if (applicationFetchFailed) {
-      clearErrors();
-      replace('/application');
+  componentWillReceiveProps(nextProps: Props) {
+    if (!isEmpty(nextProps.feed)) {
+      this.props.replace(`/application/${this.props.params.ref}/shipping`);
     }
   }
 
@@ -146,13 +127,12 @@ class FeedPage extends Component {
 }
 
 const mapState = state => ({
+  feed: getApplication(state),
   application: getApplication(state),
-  applicationFetched: getApplicationFetched(state),
-  applicationFetchFailed: getApplicationFetchFailed(state),
   feedSubmitInProgress: getFeedSubmitInProgress(state),
   feedSubmitFailed: getFeedSubmitFailed(state),
   feedUploadInProgress: getFeedUploadInProgress(state),
   feedUploadFailed: getFeedUploadFailed(state),
 });
 
-export default connect(mapState, { fetchApplication, submit, upload, clearErrors, replace })(FeedPage);
+export default connect(mapState, { submit, upload, replace })(FeedPage);

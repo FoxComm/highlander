@@ -33,7 +33,7 @@ type State = {} | Application;
 export const ACTION_FETCH = 'merchantApplicationFetch';
 export const ACTION_SUBMIT = 'merchantApplicationSubmit';
 
-const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, data =>
+const { perform: submit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, data =>
   new Promise((resolve, reject) =>
     api.post('/merchant_applications', { merchant_application: { ...data } })
       .then((application: Application) =>
@@ -48,7 +48,7 @@ const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_S
   )
 );
 
-const { perform: performFetch, clearErrors, ...actionsFetch } = createAsyncActions(ACTION_FETCH, reference =>
+const { perform: fetch, clearErrors, ...actionsFetch } = createAsyncActions(ACTION_FETCH, reference =>
   api.get(`/merchant_applications/by_ref/${reference}`)
 );
 
@@ -71,8 +71,8 @@ const getApplicationApproved = (state: State) => state.state === 'approved';
 
 export {
   reducer as default,
-  performSubmit as submit,
-  performFetch as fetch,
+  submit,
+  fetch,
   clearErrors,
 
   /* selectors */

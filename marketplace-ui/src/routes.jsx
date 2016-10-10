@@ -7,6 +7,7 @@ import AccountPage from './pages/account/account-page';
 import InfoPage from './pages/info/info-page';
 import ActionsPage from './pages/actions/actions-page';
 import FeedPage from './pages/feed-page/feed-page';
+import ShippingPage from './pages/shipping-page/shipping-page';
 import Main from './pages/container/main';
 
 const routes = (
@@ -19,6 +20,7 @@ const routes = (
       <Route path=":ref/info" component={InfoPage} />
       <Route path=":ref/actions" component={ActionsPage} />
       <Route path=":ref/feed" component={FeedPage} />
+      <Route path=":ref/shipping" component={ShippingPage} />
     </Route>
   </Route>
 );

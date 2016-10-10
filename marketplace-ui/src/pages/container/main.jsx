@@ -17,11 +17,17 @@ import {
   getAccountsFetched,
   getInfo,
   getInfoFetched,
+  getFeed,
+  getFeedFetched,
+  getShipping,
+  getShippingFetched,
 } from '../../core/modules';
 
 import { fetch as fetchApplication } from '../../core/modules/merchant-application';
 import { fetch as fetchAccounts } from '../../core/modules/merchant-account';
 import { fetch as fetchInfo } from '../../core/modules/merchant-info';
+import { fetch as fetchFeed } from '../../core/modules/products-feed';
+import { fetch as fetchShipping } from '../../core/modules/shipping-solution';
 
 import ThanksOrNot from '../../components/thanks-or-not/thanks-or-not';
 
@@ -45,6 +51,8 @@ type Props = {
   fetchApplication: (reference: string) => Promise<*>;
   fetchAccounts: (merchantId: number) => Promise<*>;
   fetchInfo: (merchantId: number) => Promise<*>;
+  fetchFeed: (merchantId: number) => Promise<*>;
+  fetchShipping: (merchantId: number) => Promise<*>;
 
   children?: HTMLElement;
   location: { pathname: string };
@@ -69,7 +77,7 @@ const steps = (pathname) => [
   },
   {
     key: STEP_INFO,
-    active: /\/info|actions|feed\/?$/.test(pathname),
+    active: /\/info|actions|feed|shipping\/?$/.test(pathname),
     title: 'More Info',
   },
 ];
@@ -86,9 +94,15 @@ class Main extends Component {
       accountsFetched,
       info,
       infoFetched,
+      feed,
+      feedFetched,
+      shipping,
+      shippingFetched,
       fetchApplication,
       fetchAccounts,
       fetchInfo,
+      fetchFeed,
+      fetchShipping,
       params: { ref },
     } = this.props;
 
@@ -122,9 +136,20 @@ class Main extends Component {
       this.replace(`/application/${ref}/info`);
     }
 
+    /** accounts fetched and not empty - fetching info */
+    if (infoFetched && !isEmpty(info) && !feedFetched) {
+      fetchFeed(get(application, 'merchant.id'));
+    }
+
     /** info fetched and not empty - actions page */
-    if (infoFetched && !isEmpty(info)) {
+    if (feedFetched && isEmpty(feed)) {
       this.replace(`/application/${ref}/actions`);
+    }
+
+    /** feed fetched and not empty - shipping page */
+    if (feedFetched && !isEmpty(feed)) {
+      console.log(feed);
+      this.replace(`/application/${ref}/shipping`);
     }
   }
 
@@ -171,6 +196,12 @@ const mapState = state => ({
   accountsFetched: getAccountsFetched(state),
   info: getInfo(state),
   infoFetched: getInfoFetched(state),
+  feed: getFeed(state),
+  feedFetched: getFeedFetched(state),
+  shipping: getShipping(state),
+  shippingFetched: getShippingFetched(state),
 });
 
-export default connect(mapState, { fetchApplication, fetchAccounts, fetchInfo, replace })(withRouter(Main));
+const mapActions = { fetchApplication, fetchAccounts, fetchInfo, fetchFeed, fetchShipping, replace };
+
+export default connect(mapState, mapActions)(withRouter(Main));

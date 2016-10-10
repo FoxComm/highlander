@@ -1,5 +1,6 @@
 /* @flow */
 
+import pick from 'lodash/pick';
 import { createReducer } from 'redux-act';
 import { SubmissionError } from 'redux-form';
 
@@ -11,27 +12,33 @@ export type Feed = {
   id?: number;
 }
 
-type FeedResponse = {
-  products_feed: Feed
-}
+type State = Array<Feed>;
 
-type State = Feed;
-
+export const ACTION_FETCH = 'productsFeedSFetch';
 export const ACTION_SUBMIT = 'productsFeedSubmit';
 export const ACTION_UPLOAD = 'productsFeedUpload';
 
-const { perform: submit, ...submitActions } = createAsyncActions(ACTION_SUBMIT, (id, data) =>
-  new Promise((resolve, reject) =>
-    api.post(`/merchants/${id}/products_feed`, { products_feed: { ...data } })
-      .then(() => resolve())
-      .catch(err => reject(new SubmissionError(err.response.data.errors)))
-  )
+const { perform: fetch, ...actionsFetch } = createAsyncActions(ACTION_FETCH, merchantId =>
+  api.get(`/merchants/${merchantId}/products_feed`)
 );
 
+const { perform: submit, ...submitActions } = createAsyncActions(ACTION_SUBMIT, (merchantId, data) => {
+  const schedule = data.schedule.toLowerCase() === 'weekly' ? data.scheduleDays : data.schedule;
+  const feed = pick({
+    ...data,
+    schedule: schedule.toLowerCase(),
+  }, ['name', 'url', 'schedule']);
 
-const { perform: upload, ...uploadActions } = createAsyncActions(ACTION_UPLOAD, (id, data) =>
+  return new Promise((resolve, reject) =>
+    api.post(`/merchants/${merchantId}/products_feed`, { products_feed: { ...feed } })
+      .then((feed: Feed) => resolve(feed))
+      .catch(err => reject(new SubmissionError(err.response.data.errors)))
+  );
+});
+
+const { perform: upload, ...uploadActions } = createAsyncActions(ACTION_UPLOAD, (merchantId, data) =>
   new Promise((resolve, reject) =>
-    api.post(`/merchants/${id}/products_feed`, { products_feed: { ...data } })
+    api.post(`/merchants/${merchantId}/products_feed`, { products_feed: { ...data } })
       .then(() => resolve())
       .catch(err => reject(new SubmissionError(err.response.data.errors)))
   )
@@ -40,14 +47,16 @@ const { perform: upload, ...uploadActions } = createAsyncActions(ACTION_UPLOAD, 
 const initialState: State = {};
 
 const reducer = createReducer({
-  [submitActions.succeeded]: (state: State, feed: FeedResponse) => ({ ...state, ...feed.products_feed }),
-  [uploadActions.succeeded]: (state: State, feed: FeedResponse) => ({ ...state, ...feed.products_feed }),
+  [actionsFetch.succeeded]: (state: State, feed: Feed) => feed.product_feeds,
+  [submitActions.succeeded]: (state: State, feed: Feed) => feed,
+  [uploadActions.succeeded]: (state: State, feed: Feed) => ({ ...state, ...feed }),
 }, initialState);
 
-const getFeed = (state: State) => state;
+const getFeed = (state: State): Array<Feed> => state;
 
 export {
   reducer as default,
+  fetch,
   submit,
   upload,
 
