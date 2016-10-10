@@ -3,7 +3,6 @@ defmodule Marketplace.MerchantController do
   alias Ecto.Multi
   alias Marketplace.Repo
   alias Marketplace.Merchant
-  alias Marketplace.MerchantAccount
   alias Marketplace.MerchantApplication
   alias Marketplace.MerchantApplicationBusinessProfile
   alias Marketplace.MerchantApplicationSocialProfile
@@ -66,21 +65,6 @@ defmodule Marketplace.MerchantController do
         scope_id = PermissionManager.create_scope
         organization_id = PermissionManager.create_organization_from_merchant_application(ma, scope_id)
 
-        merchant_account_params = %{
-          "first_name" => ma.business_name,
-          "last_name" => "admin",
-          "email_address" => ma.email_address,
-          "phone_number" => ma.phone_number,
-          "password" => "password" # probably not
-        }
-
-        solomon_id = PermissionManager.create_user_from_merchant_account(merchant_account_params)
-        role_id = PermissionManager.create_admin_role_from_scope_id(scope_id)
-        PermissionManager.grant_account_id_role_id(solomon_id, role_id)
-        merchant_account_cs = MerchantAccount.changeset(
-          %MerchantAccount{solomon_id: solomon_id}, merchant_account_params
-        )
-
         merchant = %{
           name: ma.name,
           business_name: ma.name, 
@@ -103,8 +87,6 @@ defmodule Marketplace.MerchantController do
 
         case Repo.transaction(multi_txn) do
           {:ok, %{merchant: inserted_merchant, merchant_business_profile: m_bp, merchant_social_profile: m_sp}} -> 
-            MerchantAccount.changeset(merchant_account_cs, %{"merchant_id" => inserted_merchant.id})
-            |> Repo.insert
             conn 
             |> put_status(:created)
             |> put_resp_header("location", merchant_path(conn, :show, inserted_merchant))
