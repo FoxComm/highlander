@@ -11,5 +11,3 @@
 - name: Install Packages
   apt: name=confluent-platform-2.11.7 state=latest force=yes
   sudo: true
-
-- include: "{{playbook_dir}}/tasks/dpkg_lock_check.yml"

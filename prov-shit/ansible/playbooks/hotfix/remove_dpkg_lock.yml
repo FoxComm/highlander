@@ -5,4 +5,4 @@
     - all
 
   tasks:
-    - include: tasks/dpkg_lock_check.yml
+    - include: ../../tasks/dpkg_lock_check.yml
