@@ -1,9 +1,10 @@
 package models.taxonomy
 import java.time.Instant
 
+import com.github.tminglei.slickpg.LTree
 import models.objects._
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
 import utils.Validation
 import utils.db._
@@ -13,6 +14,7 @@ object Taxonomy {
 }
 
 case class Taxonomy(id: Int = 0,
+                    scope: LTree,
                     hierarchical: Boolean,
                     contextId: Int,
                     formId: Int,
@@ -34,7 +36,16 @@ class Taxonomies(tag: Tag) extends ObjectHeads[Taxonomy](tag, "taxonomies") {
   def hierarchical = column[Boolean]("hierarchical")
 
   def * =
-    (id, hierarchical, contextId, formId, shadowId, commitId, updatedAt, createdAt, archivedAt) <> ((Taxonomy.apply _).tupled, Taxonomy.unapply)
+    (id,
+     scope,
+     hierarchical,
+     contextId,
+     formId,
+     shadowId,
+     commitId,
+     updatedAt,
+     createdAt,
+     archivedAt) <> ((Taxonomy.apply _).tupled, Taxonomy.unapply)
 }
 
 object Taxonomies

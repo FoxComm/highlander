@@ -1,6 +1,5 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
 import cats.implicits._
 import failures.TaxonomyFailures._
 import models.taxonomy._
@@ -8,8 +7,9 @@ import org.json4s.JsonDSL._
 import org.json4s._
 import payloads.TaxonomyPayloads._
 import responses.TaxonomyResponses._
-import util._
-import util.fixtures.BakedFixtures
+import utils.db.ExPostgresDriver.api._
+import testutils._
+import testutils.fixtures.BakedFixtures
 
 class TaxonomyIntegrationTest
     extends IntegrationTestBase
@@ -32,7 +32,7 @@ class TaxonomyIntegrationTest
   }
 
   "GET v1/taxonomy/:contextName/:taxonomyFormId" - {
-    "gets taxonomy" in new Taxonomy_Seed {
+    "gets taxonomy" in new TaxonomyFixture {
       val response = queryGetTaxon(taxonomy.formId)
       response.id must === (taxonomy.formId)
       response.terms mustBe empty
@@ -54,7 +54,7 @@ class TaxonomyIntegrationTest
   }
 
   "PATCH v1/taxonomy/:contextName/:taxonomyFormId" - {
-    "updates taxonomy" in new Taxonomy_Seed {
+    "updates taxonomy" in new TaxonomyFixture {
       val newAttributes = taxonomyAttributes + ("testValue" → (("t" → "string") ~ ("v" → "test")))
       val payload       = UpdateTaxonomyPayload(newAttributes)
       val resp          = PATCH(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}", payload)
@@ -66,16 +66,26 @@ class TaxonomyIntegrationTest
   }
 
   "DELETE v1/taxonomy/:contextName/:taxonomyFormId" - {
-    "deletes taxonomy" in new Taxonomy_Seed {
+    "deletes taxonomy" in new TaxonomyFixture {
       val resp = DELETE(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}")
       resp.status must === (StatusCodes.NoContent)
       val updatedTaxonomy = Taxonomies.mustFindByFormId404(taxonomy.formId).gimme
       updatedTaxonomy.archivedAt mustBe defined
     }
+
+    "deletes taxonomy with all related taxons" in new HierarchyTaxonsFixture {
+      val resp = DELETE(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}")
+      resp.status must === (StatusCodes.NoContent)
+
+      val allLinks: Seq[TaxonomyTaxonLink] = TaxonomyTaxonLinks.filter(_.id.inSet(links.map(_.id))).result.gimme
+      allLinks.map(_.archivedAt).filter(_.isEmpty) mustBe empty
+      val allTaxons: Seq[Taxon] = Taxons.filter(_.id.inSet(taxons.map(_.id))).result.gimme
+      allTaxons.map(_.archivedAt).filter(_.isEmpty) mustBe empty
+    }
   }
 
   "GET v1/taxonomy/:contextName/taxon/:taxonFormId" - {
-    "gets taxon" in new FlatTaxons_Baked {
+    "gets taxon" in new FlatTaxonsFixture {
       private val taxonToQuery: Taxon = taxons.head
       val resp                        = GET(s"v1/taxonomy/${ctx.name}/taxon/${taxonToQuery.formId}")
       resp.status must === (StatusCodes.OK)
@@ -87,7 +97,7 @@ class TaxonomyIntegrationTest
   }
 
   "POST v1/taxonomy/:contextName/:taxonomyFormId" - {
-    "creates taxon" in new Taxonomy_Seed {
+    "creates taxon" in new TaxonomyFixture {
       val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
       val resp =
         POST(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}", CreateTaxonPayload(attributes, None))
@@ -102,7 +112,7 @@ class TaxonomyIntegrationTest
       taxons.head.attributes must === (createdTaxon.attributes)
     }
 
-    "creates taxon at position" in new FlatTaxons_Baked {
+    "creates taxon at position" in new FlatTaxonsFixture {
       val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
       val resp =
         POST(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}",
@@ -118,7 +128,7 @@ class TaxonomyIntegrationTest
                                                                     taxons(1).formId)
     }
 
-    "creates child taxon" in new HierarchyTaxons_Baked {
+    "creates child taxon" in new HierarchyTaxonsFixture {
       val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
 
       val sibling  = links.filter(_.parentIndex.isDefined).head
@@ -140,7 +150,7 @@ class TaxonomyIntegrationTest
       responseParent.children.map(_.id) must contain(createdTerm.id)
     }
 
-    "fails if position is invalid" in new HierarchyTaxons_Baked {
+    "fails if position is invalid" in new HierarchyTaxonsFixture {
       val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
 
       val sibling = links.filter(_.parentIndex.isDefined).head
@@ -159,7 +169,7 @@ class TaxonomyIntegrationTest
   }
 
   "PATCH v1/taxonomy/:contextName/taxon/:termFormId" - {
-    "moves taxons between subtrees" in new HierarchyTaxons_Baked {
+    "moves taxons between subtrees" in new HierarchyTaxonsFixture {
       val taxonsBefore = queryGetTaxon(taxonomy.formId).terms
 
       val List(left, right) = taxonsBefore.take(2)
@@ -178,7 +188,7 @@ class TaxonomyIntegrationTest
       rightAfter.children.map(_.id) must contain(taxonToMoveId)
     }
 
-    "fails to move taxon to children" in new HierarchyTaxons_Baked {
+    "fails to move taxon to children" in new HierarchyTaxonsFixture {
       val taxonsBefore = queryGetTaxon(taxonomy.formId).terms
 
       val List(left, right) = taxonsBefore.take(2)
@@ -194,7 +204,7 @@ class TaxonomyIntegrationTest
   }
 
   "DELETE v1/taxonomy/:contextName/taxon/:taxonFormId" - {
-    "deletes taxon" in new FlatTaxons_Baked {
+    "deletes taxon" in new FlatTaxonsFixture {
       val resp = DELETE(s"v1/taxonomy/${ctx.name}/taxon/${taxons.head.formId}")
       resp.status must === (StatusCodes.NoContent)
 
@@ -202,7 +212,7 @@ class TaxonomyIntegrationTest
       taxon.archivedAt mustBe defined
     }
 
-    "rejects to delete taxon if it has children" in new HierarchyTaxons_Baked {
+    "rejects to delete taxon if it has children" in new HierarchyTaxonsFixture {
       val parent         = links.filter(_.parentIndex.isDefined).head
       val taxonToArchive = Taxons.mustFindById404(parent.taxonId).gimme
 
@@ -212,4 +222,15 @@ class TaxonomyIntegrationTest
     }
   }
 
+  trait FlatTaxonsFixture extends StoreAdmin_Seed with FlatTaxons_Baked {
+    def au = storeAdminAuthData
+  }
+
+  trait HierarchyTaxonsFixture extends StoreAdmin_Seed with HierarchyTaxons_Baked {
+    def au = storeAdminAuthData
+  }
+
+  trait TaxonomyFixture extends StoreAdmin_Seed with Taxonomy_Raw {
+    def au = storeAdminAuthData
+  }
 }

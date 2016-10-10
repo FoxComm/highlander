@@ -60,7 +60,8 @@ object TaxonomyManager {
     } yield TaxonomyResponse.build(taxonomy, taxons)
 
   def createTaxonomy(payload: CreateTaxonomyPayload)(implicit ec: EC,
-                                                     oc: OC): DbResultT[TaxonomyResponse] = {
+                                                     oc: OC,
+                                                     au: AU): DbResultT[TaxonomyResponse] = {
     val form   = ObjectForm.fromPayload(Taxonomy.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
@@ -68,6 +69,7 @@ object TaxonomyManager {
       ins ← * <~ ObjectUtils.insert(form, shadow)
       taxonomy ← * <~ Taxonomies.create(
                     Taxonomy(hierarchical = payload.hierarchical,
+                             scope = LTree(au.token.scope),
                              contextId = oc.id,
                              formId = ins.form.id,
                              shadowId = ins.shadow.id,
@@ -98,14 +100,7 @@ object TaxonomyManager {
       taxonomyFormId: ObjectForm#Id)(implicit ec: EC, oc: OC, db: DB): DbResultT[Unit] =
     for {
       taxonomy ← * <~ Taxonomies.mustFindByFormId404(taxonomyFormId)
-      archivedAt = Some(Instant.now)
-      archived ← * <~ Taxonomies.update(taxonomy, taxonomy.copy(archivedAt = archivedAt))
-      allLinks ← * <~ TaxonomyTaxonLinks.queryRightByLeftWithLinks(taxonomy)
-      _ ← * <~ allLinks.map {
-           case (_, link) ⇒ TaxonomyTaxonLinks.update(link, link.copy(archivedAt = archivedAt))
-         }
-      _ ← * <~ allLinks.map { case (taxon, _) ⇒ taxon.model }.distinct.map(taxon ⇒
-               Taxons.update(taxon, taxon.copy(archivedAt = archivedAt)))
+      archived ← * <~ Taxonomies.update(taxonomy, taxonomy.copy(archivedAt = Some(Instant.now)))
     } yield {}
 
   def getTaxon(
@@ -133,9 +128,9 @@ object TaxonomyManager {
                          .meh)
     } yield parentLink
 
-  def createTaxon(taxonFormId: ObjectForm#Id, payload: CreateTaxonPayload)(
-      implicit ec: EC,
-      oc: OC): DbResultT[TaxonResponse] = {
+  def createTaxon(
+      taxonFormId: ObjectForm#Id,
+      payload: CreateTaxonPayload)(implicit ec: EC, oc: OC, au: AU): DbResultT[TaxonResponse] = {
     val form   = ObjectForm.fromPayload(Taxon.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
@@ -145,6 +140,7 @@ object TaxonomyManager {
       ins ← * <~ ObjectUtils.insert(form, shadow)
       taxon ← * <~ Taxons.create(
                  Taxon(contextId = oc.id,
+                       scope = LTree(au.token.scope),
                        shadowId = ins.form.id,
                        formId = ins.shadow.id,
                        commitId = ins.commit.id))

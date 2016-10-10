@@ -1,21 +1,24 @@
-package util
+package testutils
 
 import com.github.tminglei.slickpg.LTree
+import models.account.User
 import models.objects.{ObjectForm, ObjectShadow, ObjectUtils}
 import models.taxonomy._
 import org.json4s.JsonDSL._
-import util.fixtures.TestFixtureBase
+import services.Authenticator.AuthData
+import testutils.fixtures.TestFixtureBase
 import utils.aliases.Json
 import utils.db._
 
 trait TaxonomySeeds extends TestFixtureBase {
 
-  trait FlatTaxons_Baked extends Taxonomy_Seed with FlatTaxons_Raw
-  trait HierarchyTaxons_Baked extends Taxonomy_Seed with HierarchicalTaxons_Raw {
+  trait FlatTaxons_Baked extends Taxonomy_Raw with FlatTaxons_Raw
+  trait HierarchyTaxons_Baked extends Taxonomy_Raw with HierarchicalTaxons_Raw {
     override def taxonomyHierarchical = true
   }
 
-  trait Taxonomy_Seed {
+  trait Taxonomy_Raw {
+    def au: AuthData[User]
     val taxonomyAttributes: Map[String, Json] = Map("name" → (("t" → "string") ~ ("v" → "taxon")),
                                                     "test" → (("t" → "string") ~ ("v" → "taxon")))
     def taxonomyHierarchical = false
@@ -28,6 +31,7 @@ trait TaxonomySeeds extends TestFixtureBase {
         ins ← * <~ ObjectUtils.insert(form, shadow)
         taxonomy ← * <~ Taxonomies.create(
                       Taxonomy(id = 0,
+                               scope = LTree(au.token.scope),
                                hierarchical = taxonomyHierarchical,
                                ctx.id,
                                ins.form.id,
@@ -40,6 +44,7 @@ trait TaxonomySeeds extends TestFixtureBase {
   }
 
   trait TaxonSeedBase {
+    def au: AuthData[User]
     val taxonAttributesBase = Map("name" → (("t" → "string") ~ ("v" → "term")))
 
     def createTaxon(attributes: Map[String, Json]) = {
@@ -47,8 +52,14 @@ trait TaxonomySeeds extends TestFixtureBase {
       val shadow = ObjectShadow.fromPayload(attributes)
 
       (for {
-        ins  ← * <~ ObjectUtils.insert(form, shadow)
-        term ← * <~ Taxons.create(Taxon(0, ctx.id, ins.shadow.id, ins.form.id, ins.commit.id))
+        ins ← * <~ ObjectUtils.insert(form, shadow)
+        term ← * <~ Taxons.create(
+                  Taxon(0,
+                        scope = LTree(au.token.scope),
+                        ctx.id,
+                        ins.shadow.id,
+                        ins.form.id,
+                        ins.commit.id))
       } yield term).gimme
     }
 

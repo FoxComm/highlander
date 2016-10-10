@@ -2,9 +2,10 @@ package models.taxonomy
 
 import java.time.Instant
 
+import com.github.tminglei.slickpg.LTree
 import models.objects._
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
 import utils.Validation
 import utils.db._
@@ -14,6 +15,7 @@ object Taxon {
 }
 
 case class Taxon(id: Int = 0,
+                 scope: LTree,
                  contextId: Int,
                  shadowId: Int,
                  formId: Int,
@@ -32,7 +34,8 @@ case class Taxon(id: Int = 0,
 class Taxons(tag: Tag) extends ObjectHeads[Taxon](tag, "taxons") {
 
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Taxon.apply _).tupled, Taxon.unapply)
+    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Taxon.apply _).tupled,
+        Taxon.unapply)
 }
 
 object Taxons
