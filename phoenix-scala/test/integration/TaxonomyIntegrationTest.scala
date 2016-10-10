@@ -1,6 +1,7 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import cats.implicits._
 import failures.TaxonomyFailures._
 import models.taxonomy._
 import org.json4s.JsonDSL._
@@ -88,8 +89,8 @@ class TaxonomyIntegrationTest
   "POST v1/taxonomy/:contextName/:taxonomyFormId" - {
     "creates taxon" in new Taxonomy_Seed {
       val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
-      val resp = POST(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}",
-                      CreateTaxonPayload(attributes = attributes, parent = None, sibling = None))
+      val resp =
+        POST(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}", CreateTaxonPayload(attributes, None))
 
       resp.status must === (StatusCodes.OK)
       val createdTaxon = resp.as[TaxonResponse]
@@ -103,10 +104,10 @@ class TaxonomyIntegrationTest
 
     "creates taxon at position" in new FlatTaxons_Baked {
       val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
-      val resp = POST(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}",
-                      CreateTaxonPayload(attributes = attributes,
-                                         parent = None,
-                                         sibling = Some(taxons.head.formId)))
+      val resp =
+        POST(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}",
+             CreateTaxonPayload(attributes = attributes,
+                                location = TaxonLocation(parent = None, position = 1).some))
 
       resp.status must === (StatusCodes.OK)
       val createdTaxon = resp.as[TaxonResponse]
@@ -127,9 +128,8 @@ class TaxonomyIntegrationTest
       val siblingFormId = Taxons.mustFindById404(sibling.taxonId).gimme.formId
       val parentFormId  = Taxons.mustFindById404(parent.taxonId).gimme.formId
 
-      val resp =
-        POST(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}",
-             CreateTaxonPayload(attributes = attributes, parent = Some(parentFormId), None))
+      val resp = POST(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}",
+                      CreateTaxonPayload(attributes, TaxonLocation(parentFormId.some, 0).some))
 
       resp.status must === (StatusCodes.OK)
       val createdTerm = resp.as[TaxonResponse]
@@ -140,22 +140,21 @@ class TaxonomyIntegrationTest
       responseParent.children.map(_.id) must contain(createdTerm.id)
     }
 
-    "fails if both parent and sibling are specified" in new HierarchyTaxons_Baked {
+    "fails if position is invalid" in new HierarchyTaxons_Baked {
       val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
 
       val sibling = links.filter(_.parentIndex.isDefined).head
       val parent  = links.filter(_.index == sibling.parentIndex.get).head
 
-      val siblingFormId = Taxons.mustFindById404(sibling.taxonId).gimme.formId
-      val parentFormId  = Taxons.mustFindById404(parent.taxonId).gimme.formId
+      val parentFormId = Taxons.mustFindById404(parent.taxonId).gimme.formId
 
-      val resp = POST(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}",
-                      CreateTaxonPayload(attributes = attributes,
-                                         parent = Some(parentFormId),
-                                         Some(siblingFormId)))
+      val resp =
+        POST(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}",
+             CreateTaxonPayload(attributes,
+                                Some(TaxonLocation(Some(parentFormId), Integer.MAX_VALUE))))
 
       resp.status must === (StatusCodes.BadRequest)
-      resp.error must === (ParentOrSiblingIsInvalid.description)
+      resp.error must === (NoTaxonAtPosition(parentFormId.some, Integer.MAX_VALUE).description)
     }
   }
 
@@ -168,7 +167,7 @@ class TaxonomyIntegrationTest
       val newParentId       = right.id
 
       val resp = PATCH(s"v1/taxonomy/${ctx.name}/taxon/$taxonToMoveId",
-                       UpdateTaxonPayload(None, Some(newParentId), None))
+                       UpdateTaxonPayload(None, TaxonLocation(newParentId.some, 0).some))
       resp.status must === (StatusCodes.OK)
 
       val taxonsAfter = queryGetTaxon(taxonomy.formId).terms
@@ -188,7 +187,7 @@ class TaxonomyIntegrationTest
       val taxonToMoveId = left.id
 
       val resp = PATCH(s"v1/taxonomy/${ctx.name}/taxon/$taxonToMoveId",
-                       UpdateTaxonPayload(None, Some(newParentId), None))
+                       UpdateTaxonPayload(None, TaxonLocation(newParentId.some, 0).some))
       resp.status must === (StatusCodes.BadRequest)
       resp.error must === (CannotMoveParentTaxonUnderChild.description)
     }

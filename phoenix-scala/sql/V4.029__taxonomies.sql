@@ -27,7 +27,7 @@ create table taxonomy_taxon_links (
   taxonomy_id integer not null references taxonomies (id),
   taxon_id    integer not null references taxons (id),
   position    integer not null,
-  path        ltree   not null,
+  path        exts.ltree   not null,
   updated_at  generic_timestamp,
   created_at  generic_timestamp,
   archived_at generic_timestamp
@@ -37,6 +37,10 @@ create index taxonomy_taxon_link_taxonomy_idx
   on taxonomy_taxon_links (taxonomy_id);
 create index taxonomy_taxon_link_term_idx
   on taxonomy_taxon_links (taxon_id);
+
+create unique index taxonomy_taxon_link_index_idx
+on taxonomy_taxon_links (taxonomy_id, index)
+  where archived_at is null ;
 
 create table product_taxonomy_links (
   id          serial primary key,

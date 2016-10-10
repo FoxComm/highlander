@@ -3,6 +3,7 @@ package models.taxonomy
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
+import failures.TaxonomyFailures
 import failures.TaxonomyFailures.NoTermInTaxonomy
 import models.objects.ObjectForm
 import models.objects.ObjectHeadLinks._
@@ -12,6 +13,15 @@ import utils.Validation
 import utils.aliases.{EC, OC}
 import utils.db.ExPostgresDriver.api._
 import utils.db._
+
+trait TaxonLocation {
+  def path: LTree
+  def position: Int
+
+  def sameLocationAs(other: TaxonLocation): Boolean =
+    samePathAs(other) && position == other.position
+  def samePathAs(other: TaxonLocation): Boolean = path == other.path
+}
 
 case class TaxonomyTaxonLink(id: Int = 0,
                              index: Int,
@@ -24,7 +34,8 @@ case class TaxonomyTaxonLink(id: Int = 0,
                              archivedAt: Option[Instant] = None)
     extends FoxModel[TaxonomyTaxonLink]
     with Validation[TaxonomyTaxonLink]
-    with ObjectHeadLink[TaxonomyTaxonLink] {
+    with ObjectHeadLink[TaxonomyTaxonLink]
+    with TaxonLocation {
   override def leftId: Id = taxonomyId
 
   override def rightId: Id = taxonId
@@ -71,7 +82,7 @@ object TaxonomyTaxonLinks
            where taxonomy_id = $taxonomyId
            and path=text2ltree($pathString)
            and position >= $position
-           and archived_at is null"""
+           and archived_at is null""".transactionally
   }
 
   private def shrinkPositions(taxonId: Int, path: LTree, position: Int): DBIO[Int] = {
@@ -83,17 +94,20 @@ object TaxonomyTaxonLinks
   }
 
   def moveTaxonAfter(link: TaxonomyTaxonLink, after: TaxonomyTaxonLink)(
-      implicit ec: EC): DbResultT[TaxonomyTaxonLink] = {
-    require(link.id != after.id)
-    require(link.position < 0)
-    require(after.position >= 0)
-    require(link.parentIndex == after.parentIndex)
-
-    val newPosition: Int = after.position + 1
+      implicit ec: EC): DbResultT[TaxonomyTaxonLink] =
     for {
-      _       ← * <~ shiftPositions(link.taxonomyId, link.path, newPosition)
-      newLink ← * <~ TaxonomyTaxonLinks.update(link, link.copy(position = newPosition))
-      _ = assert(newLink.id == link.id && newLink.position == after.position + 1)
+      prepared ← * <~ preparePosition(link, after.position + 1)
+      newLink  ← * <~ TaxonomyTaxonLinks.update(link, prepared)
+    } yield newLink
+
+  def preparePosition(link: TaxonomyTaxonLink, newPosition: Int)(
+      implicit ec: EC): DbResultT[TaxonomyTaxonLink] = {
+    require(newPosition >= 0)
+
+    for {
+      _ ← * <~ shiftPositions(link.taxonomyId, link.path, newPosition)
+      newLink = link.copy(position = newPosition)
+      _       = assert(newLink.id == link.id && newLink.position == newPosition)
     } yield newLink
   }
 
@@ -104,7 +118,7 @@ object TaxonomyTaxonLinks
       _ ← * <~ shrinkPositions(link.taxonomyId, link.path, link.position)
     } yield {}
 
-  def updatePath(taxonomyId: Int, oldPrefix: LTree, newPrefix: LTree): DBIO[Int] = {
+  def updatePaths(taxonomyId: Int, oldPrefix: LTree, newPrefix: LTree): DBIO[Int] = {
     val patternLength = oldPrefix.value.length
     sqlu"""update taxonomy_taxon_links as t
              set path = (text2ltree(${newPrefix.toString}) || subpath(t.path, $patternLength))
@@ -140,10 +154,6 @@ object TaxonomyTaxonLinks
           taxonFormId && term.contextId === oc.id
     }.map { case (link, _) ⇒ link }
 
-  def filterByTaxonomyAndTaxonFormId(taxonomyId: Taxonomy#Id, taxonFormId: ObjectForm#Id)(
-      implicit oc: OC): QuerySeq =
-    filterByTaxonFormId(taxonFormId).filter(_.taxonomyId === taxonomyId)
-
   def build(left: Taxonomy, right: Taxon): TaxonomyTaxonLink =
     TaxonomyTaxonLink(0, 0, left.id, right.id, 0, LTree(""))
 
@@ -157,10 +167,27 @@ object TaxonomyTaxonLinks
     implicit class ExtractLinks(q: QuerySeq) {
       def nonArchived = q.filter(_.archivedAt.isEmpty)
 
+      def filterByTaxonFormId(taxonFormId: ObjectForm#Id)(implicit oc: OC): QuerySeq =
+        q.join(Taxons)
+          .on { case (link, term) ⇒ link.taxonId === term.id }
+          .filter {
+            case (_, term) ⇒
+              term.formId ===
+                taxonFormId && term.contextId === oc.id
+          }
+          .map { case (link, _) ⇒ link }
+
+      def filterByTaxonomyAndTaxonFormId(taxonomyId: Taxonomy#Id, taxonFormId: ObjectForm#Id)(
+          implicit oc: OC): QuerySeq =
+        filterByTaxonFormId(taxonFormId).filter(_.taxonomyId === taxonomyId)
+
       def mustFindByTaxonomyAndTaxonFormId(taxonomy: Taxonomy,
                                            taxonFormId: ObjectForm#Id)(implicit oc: OC, ec: EC) =
-        filterByTaxonomyAndTaxonFormId(taxonomy.id, taxonFormId)
+        q.filterByTaxonomyAndTaxonFormId(taxonomy.id, taxonFormId)
           .mustFindOneOr(NoTermInTaxonomy(taxonomy.formId, taxonFormId))
+
+      def findByPathAndPosition(path: LTree, position: Int)(implicit oc: OC, ec: EC): QuerySeq =
+        q.filter(l ⇒ l.path === path && l.position === position)
     }
   }
 }
