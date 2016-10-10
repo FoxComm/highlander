@@ -10,14 +10,14 @@ shortcuts:
   - name: Inventory Files
     flag: "--inventory-file"
     aliases:
-      api_docs: ansible/bin/envs/api_docs
-      staging: ansible/bin/envs/staging
-      target_aws: ansible/bin/envs/target_aws
-      topdrawer: ansible/bin/envs/topdrawer
-      tpg: ansible/bin/envs/tpg
-      tpg_vpn: ansible/bin/envs/tpg_vpn
-      vanilla: ansible/bin/envs/vanilla
-      vanilla_vpn: ansible/bin/envs/vanilla_vpn
+      api_docs: bin/envs/api_docs
+      staging: bin/envs/staging
+      target_aws: bin/envs/target_aws
+      topdrawer: bin/envs/topdrawer
+      tpg: bin/envs/tpg
+      tpg_vpn: bin/envs/tpg_vpn
+      vanilla: bin/envs/vanilla
+      vanilla_vpn: bin/envs/vanilla_vpn
   - name: Private Key Files
     flag: "--private-key"
     aliases:
