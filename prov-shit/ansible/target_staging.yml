@@ -24,6 +24,8 @@
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
+    # TODO: Move to packer
+    - { role: base/marketplace }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
@@ -43,3 +45,4 @@
     - { role: dev/middlewarehouse }
     - { role: dev/isaac }
     - { role: dev/solomon }
+    - { role: dev/marketplace }
