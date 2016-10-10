@@ -33,7 +33,7 @@ defmodule Marketplace.MerchantAccountController do
     assoc(merchant, :merchant_accounts)
   end
 
-  def create_admin(conn, %{"merchant_id" => merchant_id, "account" => merchant_account_params) do
+  def create_admin(conn, %{"merchant_id" => merchant_id, "account" => merchant_account_params}) do
     solomon_id = PermissionManager.create_user_from_merchant_account(merchant_account_params)
     scope_id = Repo.one(from merchant in Merchant,
                         where: merchant.id == ^merchant_id,
@@ -58,7 +58,7 @@ defmodule Marketplace.MerchantAccountController do
 
   defp validate_scope_id(changeset, scope_id) do
     case scope_id do
-      nil -> add_error(changeset, :scope_id, "validate.required")
+      nil -> Ecto.Changeset.add_error(changeset, :scope_id, "validate.required")
       scope_id -> changeset
     end
   end
