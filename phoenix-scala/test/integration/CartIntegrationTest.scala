@@ -157,7 +157,7 @@ class CartIntegrationTest
     "should add line items if productId and skuId are different" in new OrderShippingMethodFixture
     with ProductAndSkus_Baked {
       val addPayload = Seq(UpdateLineItemsPayload("TEST", 1, None))
-      val response   = POST(s"v1/orders/${cart.refNum}/line-items", addPayload)
+      val response   = PATCH(s"v1/orders/${cart.refNum}/line-items", addPayload)
 
       response.status must === (StatusCodes.OK)
       val root = response.ignoreFailuresAndGiveMe[CartResponse]

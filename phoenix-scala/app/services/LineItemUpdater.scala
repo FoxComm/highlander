@@ -21,6 +21,8 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
+import scala.reflect.internal.util.Statistics.Quantity
+
 object LineItemUpdater {
 
   def updateQuantitiesOnCart(admin: StoreAdmin,
@@ -122,25 +124,37 @@ object LineItemUpdater {
 
   private def updateQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload], contextId: Int)(
       implicit ec: EC): DbResultT[Seq[CartLineItem]] = {
-
     for {
       itemsDeleted ← * <~ CartLineItems.byCordRef(cart.referenceNumber).delete
-      upAc ← * <~ DbResultT.sequence(payload.map { lineItem ⇒
-              for {
-                sku ← * <~ Skus
-                       .filterByContext(contextId)
-                       .filter(_.code === lineItem.sku)
-                       .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, contextId))
-                updateAction ← * <~ updateLineItem(sku.id, cart.refNum)
-              } yield updateAction
-            })
-
-    } yield upAc
+      upAc ← * <~ payload
+              .filter(lI ⇒ lI.quantity > 0)
+              .map(lineItem ⇒ updateLineItems(cart, lineItem, contextId))
+      flatList ← * <~ upAc.flatten
+    } yield flatList
   }
 
-  private def updateLineItem(skuId: Int, cordRef: String)(implicit ec: EC) = {
-    val itemToAdd = CartLineItem(cordRef = cordRef, skuId = skuId)
-    CartLineItems.create(itemToAdd)
+  private def updateLineItems(cart: Cart, lineItem: UpdateLineItemsPayload, contextId: Int)(
+      implicit ec: EC) = {
+    for {
+      sku ← * <~ Skus
+             .filterByContext(contextId)
+             .filter(_.code === lineItem.sku)
+             .mustFindOneOr({
+               println("===============> lineItemSku: " + lineItem.sku);
+               SkuNotFoundForContext(lineItem.sku, contextId)
+             })
+      _ ← * <~ ProductSkuLinks
+           .filter(_.rightId === sku.id)
+           .mustFindOneOr(SKUWithNoProductAdded(cart.refNum, lineItem.sku))
+      updateAction ← * <~ addLineItem(sku.id, cart.refNum, lineItem.quantity)
+      _            ← * <~ DbResultT.good(println(sku))
+    } yield updateAction
+  }
+
+  private def addLineItem(skuId: Int, cordRef: String, quantity: Int)(implicit ec: EC) = {
+
+    val itemsToAdd = List.fill(quantity)(CartLineItem(cordRef = cordRef, skuId = skuId))
+    itemsToAdd.map(cli ⇒ CartLineItems.create(cli))
   }
 
   private def addQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload])(
