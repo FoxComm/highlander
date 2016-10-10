@@ -20,7 +20,7 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/playbooks/packer/tinystack_amigo.yml",
+            "playbook_file" : "ansible/packer_tinystack_amigo.yml",
             "extra_arguments": [
                 "-vvvv",
                 "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"

@@ -1,0 +1,26 @@
+---
+
+- name: Provision All The Things
+  hosts: all
+  vars:
+    cert_path: stage
+    ashes_server_name: local.foxcommerce.com
+    storefront_server_name: local.foxcommerce.com
+  roles:
+    - { role: base/phoenix }
+    - { role: base/middlewarehouse }
+    - { role: base/isaac }
+    - { role: base/greenriver }
+    - { role: base/ashes }
+    - { role: base/firebrand }
+    - { role: dev/kafka }
+    - { role: dev/elasticsearch }
+    - { role: dev/balancer, sudo: yes }
+    - { role: dev/db }
+    - { role: dev/phoenix }
+    - { role: dev/middlewarehouse }
+    - { role: dev/greenriver }
+    - { role: dev/messaging, retailer_name: 'FoxCommerce' }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

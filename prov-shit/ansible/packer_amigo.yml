@@ -1,0 +1,21 @@
+---
+
+- name: Packing Three Amigos
+  hosts: all
+  tags:
+    - packer
+  vars:
+    user: ubuntu
+    packing: true
+    join_type: join
+    mesos_quorum: 2
+    zookeeper_server: "localhost:2181"
+
+  roles:
+    - { role: base/consul_server }
+    - { role: base/zookeeper }
+    - { role: base/docker_registry }
+    - { role: base/mesos_master }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

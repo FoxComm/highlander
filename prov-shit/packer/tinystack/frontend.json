@@ -20,7 +20,7 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/playbooks/packer/stage_frontend.yml",
+            "playbook_file" : "ansible/packer_stage_frontend.yml",
             "extra_arguments": [
                 "-vvvv",
                 "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"
