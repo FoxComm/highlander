@@ -43,6 +43,9 @@
     - { role: dev/phoenix }
     - { role: dev/messaging }
     - { role: dev/middlewarehouse }
+    - { role: dev/greenriver }
     - { role: dev/isaac }
     - { role: dev/solomon }
     - { role: dev/marketplace }
+    - { role: dev/ashes }
+    - { role: ext/tgt/marketplace-ui }
