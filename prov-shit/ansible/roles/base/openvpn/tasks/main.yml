@@ -58,7 +58,7 @@
   shell: chown -R openvpn:root /etc/openvpn/easy-rsa/
 
 - name: Make Sure Key Permissions Restricted
-  shell: chmod -R 0660 /etc/openvpn/easy-rsa/keys/*.key
+  shell: chmod -R 0640 /etc/openvpn/easy-rsa/keys/*.key
 
 - name: Configure Iptables
   shell: sudo /sbin/iptables -t nat -A POSTROUTING -o {{vpn_network_interface}} -j MASQUERADE
