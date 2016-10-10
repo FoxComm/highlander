@@ -21,7 +21,7 @@ Navigation:
 | Name       | Staging                                                         | Vanilla                                                        |
 |:-----------|:----------------------------------------------------------------|:---------------------------------------------------------------|
 | Consul     | [Consul UI](http://10.0.0.15:8500/ui/#/topdrawer-stage/services) | [Consul UI](http://10.0.0.3:8500/ui/#/topdrawer/services)     |
-| Mesos      | [Mesos UI](http://10.0.0.3:5050/#/)                             | [Mesos UI](http://10.0.0.15:5050/#/)                           |
+| Mesos      | [Mesos UI](http://10.0.0.15:5050/#/)                             | [Mesos UI](http://10.0.0.3:5050/#/)                           |
 | Marathon   | [Marathon UI](http://10.0.0.15:8080/ui/#/apps)                   | [Marathon UI](http://10.0.0.3:8080/ui/#/apps)                 |
 | Storefront | [Storefront](https://topdrawer-stage.foxcommerce.com)           | [Storefront](https://topdrawer-production.foxcommerce.com)     |
 | Admin UI   | [Admin UI](https://admin.topdrawer-stage.foxcommerce.com)       | [Admin UI](https://admin.topdrawer-production.foxcommerce.com) |
