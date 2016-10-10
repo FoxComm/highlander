@@ -28,7 +28,7 @@ defmodule Marketplace.Router do
     get "/merchant_applications/by_ref/:ref_num", MerchantApplicationController, :show_by_ref
     post "/merchant_applications_full", MerchantApplicationController, :merchant_application_full
     post "/merchants/activate_application/:application_id", MerchantController, :activate_application
-    post "/merchant/:merchant_id/admin_accounts", MerchantAccountController, :create_admin
+    post "/merchants/:merchant_id/admin_accounts", MerchantAccountController, :create_admin
     
     resources "/merchants", MerchantController do 
       post "/social_profile", MerchantSocialProfileController, :create, as: :social_profile
