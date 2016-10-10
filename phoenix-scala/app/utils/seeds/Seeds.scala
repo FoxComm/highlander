@@ -11,7 +11,6 @@ import com.pellucid.sealerate
 import com.typesafe.config.Config
 import failures.{Failures, FailuresOps, NotFoundFailure404}
 import failures.UserFailures._
-
 import models.auth.UserToken
 import models.Reason._
 import models.activity.ActivityContext
@@ -22,6 +21,7 @@ import models.product.SimpleContext
 import models.{Reason, Reasons}
 import models.account._
 import models.auth.Token
+import models.plugins.Plugin
 import services.Authenticator.AuthData
 import services.account.AccountManager
 import org.postgresql.ds.PGSimpleDataSource
@@ -290,10 +290,12 @@ object Seeds {
          })
     } yield {}
 
-  def createBasePlugins()(implicit db: DB, ec: EC, ac: AC): DbResultT[Unit] =
-    for {
-      _ ← * <~ Factories.createAvalaraSettings
-    } yield {}
+  def createBasePlugins()(implicit db: DB, ec: EC, ac: AC): Unit = {
+    val r = for { _ ← * <~ Factories.createAvalaraSettings } yield {}
+
+    val result: Failures Xor Unit = Await.result(r.runTxn(), 1.minute)
+    validateResults("plugins", result)
+  }
 
   object Factories
       extends CustomerSeeds
