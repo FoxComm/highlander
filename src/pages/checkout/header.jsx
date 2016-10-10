@@ -10,7 +10,7 @@ import styles from './header.css';
 import { Link } from 'react-router';
 import Icon from 'ui/icon';
 
-const Header = (props) => {
+const Header = () => {
   return (
     <header styleName="header">
       <div styleName="logo">

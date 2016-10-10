@@ -43,7 +43,7 @@ class OrderSummary extends Component {
   };
 
   static defaultProps = {
-    paymentMethods: {}
+    paymentMethods: {},
   };
 
   renderGiftCard(amount) {
