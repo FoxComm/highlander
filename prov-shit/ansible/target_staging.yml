@@ -41,4 +41,5 @@
     - { role: dev/phoenix }
     - { role: dev/messaging }
     - { role: dev/middlewarehouse }
-    - { role: dev/green-river }
+    - { role: dev/isaac }
+    - { role: dev/solomon }
