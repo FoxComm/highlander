@@ -67,7 +67,8 @@ object DiscountManager {
       extends FormAndShadow
 
   def createInternal(payload: CreateDiscount, context: ObjectContext)(
-      implicit ec: EC, au: AU): DbResultT[CreateInternalResult] = {
+      implicit ec: EC,
+      au: AU): DbResultT[CreateInternalResult] = {
     val formAndShadow = FormAndShadow.fromPayload(Discount.kind, payload.attributes)
 
     for {

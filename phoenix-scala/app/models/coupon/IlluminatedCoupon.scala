@@ -39,7 +39,7 @@ case class IlluminatedCoupon(id: Int,
   }
 
   def mustBeApplicable(code: CouponCode, accountId: Int)(implicit ec: EC,
-                                                          db: DB): DbResultT[IlluminatedCoupon] = {
+                                                         db: DB): DbResultT[IlluminatedCoupon] = {
     val usageRules = (attributes \ "usageRules").extractOpt[CouponUsageRules]
 
     val validation = usageRules match {

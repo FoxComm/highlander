@@ -21,8 +21,9 @@ import utils.db._
 
 object PromotionManager {
 
-  def create(payload: CreatePromotion,
-             contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[PromotionResponse.Root] = {
+  def create(
+      payload: CreatePromotion,
+      contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[PromotionResponse.Root] = {
     val formAndShadow =
       FormAndShadow.fromPayload(kind = Promotion.kind, attributes = payload.attributes)
 

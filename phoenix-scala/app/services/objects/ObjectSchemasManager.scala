@@ -35,7 +35,7 @@ object ObjectSchemasManager {
   def getSchemaByOptNameOrKind(schema: Option[String], kind: String)(
       implicit ec: EC): DbResultT[ObjectFullSchema] = {
     schema.fold {
-      ObjectFullSchemas.filterByKind(kind).one.toXor.flatMap {
+      ObjectFullSchemas.filterByKind(kind).one.dbresult.flatMap {
         case Some(model) ⇒ DbResultT.good(model)
         case None        ⇒ mustGetEmptySchema()
       }
