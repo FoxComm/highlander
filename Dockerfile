@@ -6,9 +6,9 @@ RUN npm install -g gulp
 RUN n stable
 
 
-RUN mkdir -p /firebrand
-WORKDIR /firebrand
-COPY . /firebrand
+RUN mkdir -p /the-perfect-gourmet
+WORKDIR /the-perfect-gourmet
+COPY . /the-perfect-gourmet
 
 EXPOSE 4041
 CMD ["gulp", "server"]
