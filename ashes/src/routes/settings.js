@@ -39,7 +39,7 @@ const getRoutes = (jwt: JWT) => {
   const pluginRoutes =
     router.read('plugins-base', { path: 'plugins', frn: frn.settings.plugin }, [
       router.read('plugins', { component: PluginsList, isIndex: true }),
-      router.read('name', { path: ':name', component: Plugin }),
+      router.read('plugin', { path: ':name', component: Plugin }),
     ]);
 
   return (
