@@ -44,6 +44,10 @@ defmodule Marketplace.Router do
       get "/products_feed", MerchantProductsFeedController, :index, as: :products_feed
       get "/products_feed/:id", MerchantProductsFeedController, :show, as: :products_feed
       patch "/products_feed/:id", MerchantProductsFeedController, :update, as: :products_feed
+      post "/products_update", MerchantProductsUpdateController, :create, as: :products_update
+      get "/products_update", MerchantProductsUpdateController, :index, as: :products_update
+      get "/products_update/:id", MerchantProductsUpdateController, :show, as: :products_update
+      patch "/products_update/:id", MerchantProductsUpdateController, :update, as: :products_update
     end
 
     get "/", PageController, :index
