@@ -6,9 +6,12 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { assoc, dissoc } from 'sprout-data';
+import { autoAssignVariants } from 'paragons/variants';
+import { skuId } from 'paragons/product';
 
 // components
 import ContentBox from 'components/content-box/content-box';
+import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import OptionEntry from './option-entry';
 import OptionEditDialog from './option-edit-dialog';
 
@@ -16,11 +19,12 @@ import OptionEditDialog from './option-edit-dialog';
 import styles from './option-list.css';
 
 // types
-import type { Option } from 'paragons/product';
+import type { Option, Product } from 'paragons/product';
 
 type Props = {
   variants: Array<Option>,
   updateVariants: Function,
+  product: Product,
 };
 
 type EditOption = {
@@ -30,6 +34,7 @@ type EditOption = {
 
 type State = {
   editOption: ?EditOption,
+  optionToDelete?: number,
 };
 
 class OptionList extends Component {
@@ -37,6 +42,7 @@ class OptionList extends Component {
 
   state: State = {
     editOption: null,
+    isDeleteDialogVisible: false,
   };
 
   get actions(): Element {
@@ -78,14 +84,17 @@ class OptionList extends Component {
     });
   }
 
-  @autobind
-  deleteOption(id: number): void {
+  getVariantsWithoutOption(id: number): Array<Option> {
     const { variants } = this.props;
 
     const newVariants = variants.slice();
     newVariants.splice(id, 1);
 
-    this.props.updateVariants(newVariants);
+    return newVariants;
+  }
+
+  deleteOption(id: number): void {
+    this.props.updateVariants(this.getVariantsWithoutOption(id));
   }
 
   @autobind
@@ -106,6 +115,19 @@ class OptionList extends Component {
     });
   }
 
+  @autobind
+  handleDeleteClick(id: number) {
+    this.setState({
+      optionToDelete: id,
+    });
+  }
+
+  closeDeleteDialog() {
+    this.setState({
+      optionToDelete: void 0
+    });
+  }
+
   renderOptions(variants: Array<Option>): Array<Element> {
     return _.map(variants, (option, key) => {
       const reactKey = `product-variant-${key}`;
@@ -115,12 +137,61 @@ class OptionList extends Component {
           id={key}
           option={option}
           editOption={this.startEditOption}
-          deleteOption={this.deleteOption}
+          deleteOption={this.handleDeleteClick}
           confirmAction={this.updateOption}
         />
       );
     });
   }
+
+  getAffectedSkusByDeletion(optionId: number) {
+    const newVariants = this.getVariantsWithoutOption(optionId);
+    const newProduct = autoAssignVariants(this.props.product, newVariants);
+    const newSkus = _.keyBy(newProduct.skus, skuId);
+
+    return _.filter(this.props.product.skus, sku => {
+      const hasRealCode = !!_.get(sku.attributes, 'code.v');
+      return hasRealCode && !(skuId(sku) in newSkus);
+    });
+  }
+
+  get deleteDialog(): ?Element {
+    if (this.state.optionToDelete == void 0 || !this.props.variants[this.state.optionToDelete]) {
+      return null;
+    }
+    const affectedSkus = this.getAffectedSkusByDeletion(this.state.optionToDelete);
+    const skuListForDeletion = affectedSkus.map(sku => {
+      return (
+        <li key={sku.attributes.code.v}><tt>{sku.attributes.code.v}</tt></li>
+      );
+    });
+    // $FlowFixMe: optionToDelete is number here
+    const deletingOption = this.props.variants[this.state.optionToDelete];
+    const optionName = _.get(deletingOption.attributes, 'name.v');
+    const confirmation = (
+      <div>
+        Are you sure you want to remove option {optionName} from the product?<br/>
+        This action will remove following SKUs from product:
+        <ul styleName="deleting-skus">
+          {skuListForDeletion}
+        </ul>
+        This action will <i>not</i> archive these SKUs.
+      </div>
+    );
+    return (
+      <ConfirmationDialog
+        isVisible={this.state.optionToDelete != void 0}
+        header="Remove option from product?"
+        body={confirmation}
+        cancel="Cancel"
+        confirm="Yes, Remove"
+        cancelAction={() => this.closeDeleteDialog()}
+        // $FlowFixMe: optionToDelete is number here
+        confirmAction={() => this.deleteOption(this.state.optionToDelete)}
+      />
+    );
+  }
+
 
   render(): Element {
     const variants = this.renderOptions(this.props.variants);
@@ -138,6 +209,7 @@ class OptionList extends Component {
       <ContentBox title="Options" actionBlock={this.actions}>
         {content}
         {this.state.editOption && optionDialog}
+        {this.deleteDialog}
       </ContentBox>
     );
   }

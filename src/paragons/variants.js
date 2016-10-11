@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import Wharf from 'entity-wharf';
 import { cartesianProductOf } from 'lib/utils';
-import { createEmptySku } from './product';
+import { createEmptySku, skuId } from './product';
 import type { Product } from './product';
 import { assoc } from 'sprout-data';
 import type { Sku } from 'modules/skus/details';
@@ -87,12 +87,6 @@ function indexByName(variants: Array<Option>): Object {
       return acc;
     }, acc);
   }, {});
-}
-
-// we should identity sku be feCode first
-// because we want to persist sku even if code has been changes
-function skuId(sku: Sku): string {
-  return sku.feCode || _.get(sku.attributes, 'code.v');
 }
 
 function maxIndexBy(collection: Array<any>, iteratee: (item: any) => number, skipIndexes: Array<number> = []) {

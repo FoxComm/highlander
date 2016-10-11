@@ -159,6 +159,7 @@ export default class ProductForm extends Component {
           />
 
           <OptionList
+            product={this.props.product}
             variants={this.props.product.variants}
             updateVariants={this.updateVariants}
           />

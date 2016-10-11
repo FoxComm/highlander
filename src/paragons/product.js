@@ -58,6 +58,12 @@ export const options = {
   title: { required: true },
 };
 
+// we should identity sku be feCode first
+// because we want to persist sku even if code has been changes
+export function skuId(sku: Sku): string {
+  return sku.feCode || _.get(sku.attributes, 'code.v');
+}
+
 export function isProductValid(product: Product): boolean {
   // Validate all required product fields.
   const validProductKeys: boolean = isSatisfied(product, options);
