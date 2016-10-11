@@ -2,13 +2,13 @@
   "id": "/ashes",
   "cmd": null,
   "cpus": 1,
-  "mem": 1024,
+  "mem": 2048,
   "disk": 0,
   "instances": 1,
   "env": {
     "NODE_ENV": "production",
-    "PORT": "4040",
-    "PUBLIC_KEY": "/keys/public_key.pem",
+    "PORT": "4000",
+    "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
     "ON_SERVER": "true",
     "STRIPE_PUBLISHABLE_KEY": "pk_test_r6t0niqmG9OOZhhaSkacUUU1",
     "GA_TRACKING_ID": "{{ashes_ga_tracking_id}}"
@@ -17,7 +17,7 @@
     {
       "port": 10008,
       "protocol": "tcp",
-      "name": "4040",
+      "name": "4000",
       "labels": {}
     }
   ],
