@@ -24,7 +24,7 @@ type Attribute = { t: string, v: any };
 type Attributes = { [key:string]: Attribute };
 
 type Props = {
-  onChange: (sku: Sku) => void,
+  onUpdateSku: (sku: Sku) => void,
   sku: ?Sku,
 };
 
@@ -88,7 +88,7 @@ export default class SkuDetails extends Component {
 
     if (sku) {
       const updatedSku = assoc(sku, 'attributes', attributes);
-      this.props.onChange(updatedSku);
+      this.props.onUpdateSku(updatedSku);
     }
   }
 
