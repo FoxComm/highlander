@@ -107,27 +107,6 @@ object TaxonomyManager {
       taxonFormId: ObjectForm#Id)(implicit ec: EC, oc: OC, db: DB): DbResultT[TaxonResponse] =
     ObjectUtils.getFullObject(Taxons.mustFindByFormId404(taxonFormId)).map(TaxonResponse.build)
 
-  def validateLocation(taxonomy: Taxonomy, taxon: Taxon, location: TaxonLocation)(
-      implicit ec: EC,
-      oc: OC): DbResultT[Option[TaxonomyTaxonLink]] =
-    for {
-      parentLink ← * <~ location.parent.fold(DbResultT.none[TaxonomyTaxonLink])(
-                      pid ⇒
-                        TaxonomyTaxonLinks
-                          .active()
-                          .mustFindByTaxonomyAndTaxonFormId(taxonomy, pid)
-                          .map(Some(_)))
-
-      _ ← * <~ doOrMeh(location.position != 0,
-                       TaxonomyTaxonLinks
-                         .active()
-                         .findByPathAndPosition(parentLink.map(_.childPath).getOrElse(LTree("")),
-                                                location.position - 1)
-                         .mustFindOneOr(TaxonomyFailures.NoTaxonAtPosition(location.parent,
-                                                                           location.position))
-                         .meh)
-    } yield parentLink
-
   def createTaxon(
       taxonFormId: ObjectForm#Id,
       payload: CreateTaxonPayload)(implicit ec: EC, oc: OC, au: AU): DbResultT[TaxonResponse] = {
@@ -135,6 +114,7 @@ object TaxonomyManager {
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
+      _        ← * <~ payload.validate
       taxonomy ← * <~ Taxonomies.mustFindByFormId404(taxonFormId)
 
       ins ← * <~ ObjectUtils.insert(form, shadow)
@@ -164,16 +144,43 @@ object TaxonomyManager {
     } yield TaxonResponse.build(FullObject(taxon, ins.form, ins.shadow))
   }
 
-  def mustFindSingleTaxonomyForTaxon(taxon: Taxon)(implicit ec: EC,
-                                                   db: DB): DbResultT[FullObject[Taxonomy]] =
+  private def validateLocation(taxonomy: Taxonomy, taxon: Taxon, location: TaxonLocation)(
+      implicit ec: EC,
+      oc: OC): DbResultT[Option[TaxonomyTaxonLink]] =
     for {
-      taxonomies ← * <~ TaxonomyTaxonLinks.queryLeftByRight(taxon)
-      taxonomy ← * <~ (taxonomies.toList match {
-                      case t :: Nil ⇒ DbResultT.good(t)
-                      case _ ⇒
-                        DbResultT.failure(InvalidTaxonomiesForTaxon(taxon, taxonomies.length))
+      parentLink ← * <~ location.parent.fold(DbResultT.none[TaxonomyTaxonLink])(
+                      pid ⇒
+                        TaxonomyTaxonLinks
+                          .active()
+                          .mustFindByTaxonomyAndTaxonFormId(taxonomy, pid)
+                          .map(Some(_)))
+
+      _ ← * <~ doOrMeh(location.position != 0,
+                       TaxonomyTaxonLinks
+                         .active()
+                         .findByPathAndPosition(parentLink.map(_.childPath).getOrElse(LTree("")),
+                                                location.position - 1)
+                         .mustFindOneOr(TaxonomyFailures.NoTaxonAtPosition(location.parent,
+                                                                           location.position))
+                         .meh)
+    } yield parentLink
+
+  def updateTaxon(taxonId: Int, payload: UpdateTaxonPayload)(implicit ec: EC,
+                                                             oc: OC,
+                                                             db: DB): DbResultT[TaxonResponse] = {
+    for {
+      _     ← * <~ payload.validate
+      taxon ← * <~ Taxons.mustFindByFormId404(taxonId)
+      _     ← * <~ failIf(taxon.archivedAt.isDefined, TaxonIsArchived(taxonId))
+      newTaxon ← * <~ (payload.attributes match {
+                      case Some(attributes) ⇒ updateTaxonAttributes(taxon, attributes)
+                      case _                ⇒ DbResultT.good(taxon)
                     })
-    } yield taxonomy
+      _ ← * <~ payload.location.fold(DbResultT.unit)(location ⇒
+               updateTaxonomyHierarchy(taxon, location).meh)
+      response ← * <~ ObjectManager.getFullObject(DbResultT.good(newTaxon))
+    } yield TaxonResponse.build(response)
+  }
 
   private def updateTaxonomyHierarchy(taxon: Taxon,
                                       location: TaxonLocation)(implicit ec: EC, db: DB, oc: OC) =
@@ -187,21 +194,16 @@ object TaxonomyManager {
       _        ← * <~ doOrMeh(moveSpec.isMoveRequired, moveTaxon(taxonomy.model, moveSpec))
     } yield taxonomy
 
-  def updateTaxon(taxonId: Int, payload: UpdateTaxonPayload)(implicit ec: EC,
-                                                             oc: OC,
-                                                             db: DB): DbResultT[TaxonResponse] = {
+  private def mustFindSingleTaxonomyForTaxon(
+      taxon: Taxon)(implicit ec: EC, db: DB): DbResultT[FullObject[Taxonomy]] =
     for {
-      taxon ← * <~ Taxons.mustFindByFormId404(taxonId)
-      _     ← * <~ failIf(taxon.archivedAt.isDefined, TaxonIsArchived(taxonId))
-      newTaxon ← * <~ (payload.attributes match {
-                      case Some(attributes) ⇒ updateTaxonAttributes(taxon, attributes)
-                      case _                ⇒ DbResultT.good(taxon)
+      taxonomies ← * <~ TaxonomyTaxonLinks.queryLeftByRight(taxon)
+      taxonomy ← * <~ (taxonomies.toList match {
+                      case t :: Nil ⇒ DbResultT.good(t)
+                      case _ ⇒
+                        DbResultT.failure(InvalidTaxonomiesForTaxon(taxon, taxonomies.length))
                     })
-      _ ← * <~ payload.location.fold(DbResultT.unit)(location ⇒
-               updateTaxonomyHierarchy(taxon, location).meh)
-      response ← * <~ ObjectManager.getFullObject(DbResultT.good(newTaxon))
-    } yield TaxonResponse.build(response)
-  }
+    } yield taxonomy
 
   private def moveTaxon(taxon: Taxonomy, moveSpec: MoveSpec)(implicit ec: EC, oc: OC, db: DB) =
     for {

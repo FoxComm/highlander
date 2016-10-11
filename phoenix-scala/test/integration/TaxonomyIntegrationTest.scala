@@ -77,7 +77,8 @@ class TaxonomyIntegrationTest
       val resp = DELETE(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}")
       resp.status must === (StatusCodes.NoContent)
 
-      val allLinks: Seq[TaxonomyTaxonLink] = TaxonomyTaxonLinks.filter(_.id.inSet(links.map(_.id))).result.gimme
+      val allLinks: Seq[TaxonomyTaxonLink] =
+        TaxonomyTaxonLinks.filter(_.id.inSet(links.map(_.id))).result.gimme
       allLinks.map(_.archivedAt).filter(_.isEmpty) mustBe empty
       val allTaxons: Seq[Taxon] = Taxons.filter(_.id.inSet(taxons.map(_.id))).result.gimme
       allTaxons.map(_.archivedAt).filter(_.isEmpty) mustBe empty
