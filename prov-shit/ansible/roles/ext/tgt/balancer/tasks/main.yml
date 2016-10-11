@@ -1,0 +1,20 @@
+---
+
+- name: Install Service Locations Upstreams
+  template: src=service_locations.j2 dest=/etc/nginx/service_locations.conf
+
+- name: Install Service Upstreams
+  template: src=services.j2 dest=/etc/nginx/sites-available/services
+
+- name: Enable Service Upstreams
+  file: src=/etc/nginx/sites-available/services dest=/etc/nginx/sites-enabled/services owner=root group=root state=link
+
+- name: Install Web UI Hosts
+  template: src=web-ui.j2 dest=/etc/nginx/sites-available/web-ui
+
+- name: Enable Web UI Hosts
+  file: src=/etc/nginx/sites-available/web-ui dest=/etc/nginx/sites-enabled/web-ui owner=root group=root state=link
+
+- name: Restart Nginx
+  service: name=nginx state=restarted
+  when: not packing
