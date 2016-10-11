@@ -27,7 +27,7 @@ type Props = {
   isValid: boolean,
   codeGeneration: Object,
   coupon: Object,
-  saveCoupon: Function,
+  createCoupon: Function,
   couponsGenerationSelectBulk: Function,
   couponsGenerationSelectSingle: Function,
   generateCodes: Function,
@@ -85,7 +85,7 @@ class CouponCodes extends Component {
   @autobind
   handleGenerateBulkClick(): void {
     if (this.codeIsOfValidLength()) {
-      let willBeCoupon = this.props.isNew ? this.props.saveCoupon() : Promise.resolve();
+      let willBeCoupon = this.props.isNew ? this.props.createCoupon() : Promise.resolve();
 
       if (willBeCoupon == null) return;
 
