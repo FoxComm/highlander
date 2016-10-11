@@ -19,7 +19,8 @@ import OptionEditDialog from './option-edit-dialog';
 import styles from './option-list.css';
 
 // types
-import type { Option, Product } from 'paragons/product';
+import type { Option, OptionValue, Product } from 'paragons/product';
+import type { Sku } from 'modules/skus/details';
 
 type Props = {
   variants: Array<Option>,
@@ -32,9 +33,18 @@ type EditOption = {
   option: Option,
 };
 
+type DeletingContext = {
+  id: number,
+  affectedSkus: Array<Sku>,
+  deletingValueContext?: {
+    option: Option,
+    value: OptionValue
+  },
+}
+
 type State = {
   editOption: ?EditOption,
-  optionToDelete?: number,
+  deletingContext?: DeletingContext,
 };
 
 class OptionList extends Component {
@@ -98,6 +108,51 @@ class OptionList extends Component {
   }
 
   @autobind
+  handleUpdateOption(id: string|number, option: Option, deletingValue: ?OptionValue): void {
+    let needConfirmation = false;
+    let affectedSkus = [];
+
+    if (deletingValue) {
+      const newVariants = assoc(this.props.variants, id, option);
+      affectedSkus = this.getRemovedSkusByNewVariants(newVariants);
+      needConfirmation = affectedSkus.length > 0;
+    }
+
+    if (needConfirmation && deletingValue) {
+      this.setState({
+        deletingContext: {
+          affectedSkus,
+          // $FlowFixMe: id is number here
+          id,
+          deletingValueContext: {
+            option,
+            value: deletingValue,
+          }
+        },
+      });
+    } else {
+      this.updateOption(id, option);
+    }
+  }
+
+  @autobind
+  handleDeleteClick(id: number) {
+    const newVariants = this.getVariantsWithoutOption(id);
+    const affectedSkus = this.getRemovedSkusByNewVariants(newVariants);
+    if (affectedSkus.length > 0) {
+      this.setState({
+        deletingContext: {
+          affectedSkus,
+          id,
+        }
+      });
+    } else {
+      this.deleteOption(id);
+    }
+  }
+
+
+  @autobind
   updateOption(id: string|number, option: Option): void {
     const { variants } = this.props;
 
@@ -115,37 +170,29 @@ class OptionList extends Component {
     });
   }
 
-  @autobind
-  handleDeleteClick(id: number) {
-    this.setState({
-      optionToDelete: id,
-    });
-  }
-
   closeDeleteDialog() {
     this.setState({
-      optionToDelete: void 0
+      deletingContext: void 0,
     });
   }
 
   renderOptions(variants: Array<Option>): Array<Element> {
-    return _.map(variants, (option, key) => {
-      const reactKey = `product-variant-${key}`;
+    return _.map(variants, (option, index) => {
+      const key = _.get(option.attributes, 'name.v', index);
       return (
         <OptionEntry
-          key={reactKey}
-          id={key}
+          key={key}
+          id={index}
           option={option}
           editOption={this.startEditOption}
           deleteOption={this.handleDeleteClick}
-          confirmAction={this.updateOption}
+          confirmAction={this.handleUpdateOption}
         />
       );
     });
   }
 
-  getAffectedSkusByDeletion(optionId: number) {
-    const newVariants = this.getVariantsWithoutOption(optionId);
+  getRemovedSkusByNewVariants(newVariants: Array<Option>): Array<Sku> {
     const newProduct = autoAssignVariants(this.props.product, newVariants);
     const newSkus = _.keyBy(newProduct.skus, skuId);
 
@@ -155,22 +202,43 @@ class OptionList extends Component {
     });
   }
 
-  get deleteDialog(): ?Element {
-    if (this.state.optionToDelete == void 0 || !this.props.variants[this.state.optionToDelete]) {
-      return null;
+  confirmDeletion() {
+    if (!this.state.deletingContext) return;
+
+    const { id, deletingValueContext } = this.state.deletingContext;
+    if (!deletingValueContext) {
+      this.deleteOption(id);
+    } else {
+      this.updateOption(id, deletingValueContext.option);
     }
-    const affectedSkus = this.getAffectedSkusByDeletion(this.state.optionToDelete);
+    this.closeDeleteDialog();
+  }
+
+  get deletionDialog(): ?Element {
+    if (!this.state.deletingContext) return;
+
+    const { id, affectedSkus, deletingValueContext } = this.state.deletingContext;
     const skuListForDeletion = affectedSkus.map(sku => {
       return (
         <li key={sku.attributes.code.v}><tt>{sku.attributes.code.v}</tt></li>
       );
     });
-    // $FlowFixMe: optionToDelete is number here
-    const deletingOption = this.props.variants[this.state.optionToDelete];
-    const optionName = _.get(deletingOption.attributes, 'name.v');
+    let removeTarget;
+    let removeTargetTitle;
+    if (!deletingValueContext) {
+      const deletingOption = this.props.variants[id];
+      const optionName = _.get(deletingOption, 'attributes.name.v');
+      removeTargetTitle = 'option';
+      removeTarget = `option ${optionName}`;
+    } else {
+      const { value } = deletingValueContext;
+      removeTargetTitle = 'option value';
+      removeTarget = `option value ${value.name}`;
+    }
+
     const confirmation = (
       <div>
-        Are you sure you want to remove option {optionName} from the product?<br/>
+        Are you sure you want to remove {removeTarget} from the product?<br/>
         This action will remove following SKUs from product:
         <ul styleName="deleting-skus">
           {skuListForDeletion}
@@ -180,18 +248,16 @@ class OptionList extends Component {
     );
     return (
       <ConfirmationDialog
-        isVisible={this.state.optionToDelete != void 0}
-        header="Remove option from product?"
+        isVisible={true}
+        header={`Remove ${removeTargetTitle} from product?`}
         body={confirmation}
         cancel="Cancel"
         confirm="Yes, Remove"
         cancelAction={() => this.closeDeleteDialog()}
-        // $FlowFixMe: optionToDelete is number here
-        confirmAction={() => this.deleteOption(this.state.optionToDelete)}
+        confirmAction={() => this.confirmDeletion()}
       />
     );
   }
-
 
   render(): Element {
     const variants = this.renderOptions(this.props.variants);
@@ -209,7 +275,7 @@ class OptionList extends Component {
       <ContentBox title="Options" actionBlock={this.actions}>
         {content}
         {this.state.editOption && optionDialog}
-        {this.deleteDialog}
+        {this.deletionDialog}
       </ContentBox>
     );
   }

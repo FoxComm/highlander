@@ -24,7 +24,7 @@ type Props = {
   option: ?Option,
   editOption: Function,
   deleteOption: Function,
-  confirmAction: (id: string|number, option: Option) => void,
+  confirmAction: (id: string|number, option: Option, deletingValue: ?OptionValue) => void,
 };
 
 type Value = {
@@ -109,7 +109,7 @@ class OptionEntry extends Component {
     newValues.splice(id, 1);
 
     const option = assoc(this.props.option, 'values', newValues);
-    this.props.confirmAction(this.props.id, option);
+    this.props.confirmAction(this.props.id, option, values[id]);
   }
 
   @autobind
@@ -118,7 +118,7 @@ class OptionEntry extends Component {
     const newValues = id == 'new' ? [...values, value] : assoc(values, id, value);
 
     const option = assoc(this.props.option, 'values', newValues);
-    this.props.confirmAction(this.props.id, option);
+    this.props.confirmAction(this.props.id, option, void 0);
 
     this.setState({ editValue: null });
   }
