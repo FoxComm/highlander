@@ -1,4 +1,4 @@
-defmodule Marketplace.Repo.Migrations.CreateProductsUpload do
+defmodule Marketplace.Repo.Migrations.CreateProductsUploads do
   use Ecto.Migration
 
   def change do

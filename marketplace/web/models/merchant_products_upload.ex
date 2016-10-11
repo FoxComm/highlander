@@ -6,7 +6,7 @@ defmodule Marketplace.MerchantProductsUpload do
     belongs_to :products_upload, Marketplace.ProductUpload
   end
 
-  @required_fields ~w(merchant_id, products_upload_id)a
+  @required_fields ~w(merchant_id products_upload_id)a
   @optional_fields ~w()a
 
   def changeset(model, params \\ :empty) do
