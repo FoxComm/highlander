@@ -26,5 +26,4 @@
     - { role: base/phoenix }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
-    - { role: base/isaac }
     - { role: base/greenriver }
