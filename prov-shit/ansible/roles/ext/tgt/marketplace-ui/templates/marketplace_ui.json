@@ -6,8 +6,8 @@
   "disk": 0,
   "instances": 1,
   "env": {
-    "API_URL": "https://tgt.foxcommerce.com/api/mkt ",
-    "ASHES_URL": "https://tgt.foxcommerce.com/admin"
+    "API_URL": "https://{{storefront_server_name}}/api/v1/mkt ",
+    "ASHES_URL": "https://{{storefront_server_name}}/admin"
   },
   "portDefinitions": [
     {
