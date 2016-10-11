@@ -12,9 +12,6 @@
     - { role: base/ssh_keys }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/balancer, sudo: yes }
-    - { role: base/node }
-    - { role: base/ashes }
-    - { role: base/firebrand }
     - { role: dev/balancer, sudo: yes }
 
   handlers:

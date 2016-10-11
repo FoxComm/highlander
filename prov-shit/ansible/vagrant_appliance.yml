@@ -8,10 +8,7 @@
     storefront_server_name: local.foxcommerce.com
   roles:
     - { role: base/phoenix }
-    - { role: base/isaac }
     - { role: base/greenriver }
-    - { role: base/ashes }
-    - { role: base/firebrand }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/balancer, sudo: yes }
