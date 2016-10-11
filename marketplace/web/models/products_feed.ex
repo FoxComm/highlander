@@ -1,6 +1,5 @@
 defmodule Marketplace.ProductsFeed do
   use Marketplace.Web, :model
-  import Marketplace.Validation
 
   schema "products_feeds" do
     field :name, :string

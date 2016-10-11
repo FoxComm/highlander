@@ -1,6 +1,5 @@
 defmodule Marketplace.MerchantProductsFeed do
   use Marketplace.Web, :model
-  import Marketplace.Validation
 
   schema "merchant_products_feeds" do
     belongs_to :merchant, Marketplace.Merchant

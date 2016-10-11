@@ -1,6 +1,5 @@
 defmodule Marketplace.BusinessProfile do 
   use Marketplace.Web, :model
-  import Marketplace.Validation
 
   schema "business_profiles" do
     field :monthly_sales_volume, :string
