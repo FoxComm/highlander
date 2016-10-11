@@ -13,7 +13,7 @@ import utils.{IlluminateAlgorithm, JsonFormatters}
 
 /**
   * An IlluminatedPromotion is what you get when you combine the promotion shadow and
-  * the form. 
+  * the form.
   */
 case class IlluminatedPromotion(id: Int,
                                 context: IlluminatedContext,
@@ -23,8 +23,8 @@ case class IlluminatedPromotion(id: Int,
   implicit val formats = JsonFormatters.phoenixFormats
 
   def mustBeActive: Failures Xor IlluminatedPromotion = {
-    val activeFrom = (attributes \ "activeFrom").extractOpt[Instant]
-    val activeTo   = (attributes \ "activeTo").extractOpt[Instant]
+    val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]
+    val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
     val now        = Instant.now
 
     (applyType, activeFrom, activeTo) match {

@@ -58,6 +58,22 @@ object IlluminateAlgorithm extends LazyLogging {
       case (JObject(from), JObject(shadow)) ⇒
         shadow.obj.map {
           case (attr, link) ⇒
+            def typed = link \ "type"
+            def ref   = link \ "ref"
+            ref match {
+              case JString(key) ⇒ (attr, ("t" → typed) ~ ("v" → (formJson \ key)))
+              case _            ⇒ (attr, JNothing)
+            }
+        }
+      case _ ⇒
+        JNothing
+    }
+
+  def projectFlatAttributes(formJson: Json, shadowJson: Json): Json =
+    (formJson, shadowJson) match {
+      case (JObject(from), JObject(shadow)) ⇒
+        shadow.obj.map {
+          case (attr, link) ⇒
             def ref = link \ "ref"
             ref match {
               case JString(key) ⇒ (attr, formJson \ key)

@@ -33,6 +33,7 @@ import utils.Validation._
 import utils.aliases._
 import utils.db._
 import org.json4s._
+import org.json4s.JsonDSL._
 import services.LogActivity
 
 object ProductManager {
@@ -147,7 +148,8 @@ object ProductManager {
 
   def archiveByContextAndId(
       productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] = {
-    val payload = Map("activeFrom" → JNull, "activeTo" → JNull)
+    val payload = Map("activeFrom" → (("v" → JNull) ~ ("type" → JString("datetime"))),
+                      "activeTo" → (("v" → JNull) ~ ("type" → JString("datetime"))))
 
     val newFormAttrs   = ObjectForm.fromPayload(Product.kind, payload).attributes
     val newShadowAttrs = ObjectShadow.fromPayload(payload).attributes

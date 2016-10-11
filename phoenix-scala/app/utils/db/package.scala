@@ -218,6 +218,11 @@ package object db {
 
     def <~[A](v: DbResultT[A]): DbResultT[A] =
       v
+
+    def <~[A](v: Option[DbResultT[A]])(implicit ec: EC): DbResultT[Option[A]] =
+      v.fold(DbResultT.none[A]) { dbresult ⇒
+        dbresult.map(Some(_))
+      }
   }
 
 }

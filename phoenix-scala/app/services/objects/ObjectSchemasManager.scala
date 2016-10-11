@@ -33,17 +33,12 @@ object ObjectSchemasManager {
       .mustFindOneOr(failures.NotFoundFailure404(ObjectFullSchema, "empty"))
 
   def getSchemaByOptNameOrKind(schema: Option[String], kind: String)(
-      implicit ec: EC): DbResultT[ObjectFullSchema] = {
+      implicit ec: EC): DbResultT[Option[ObjectFullSchema]] = {
     schema.fold {
-      ObjectFullSchemas.filterByKind(kind).one.dbresult.flatMap {
-        case Some(model) ⇒ DbResultT.good(model)
-        case None        ⇒ mustGetEmptySchema()
-      }
+      ObjectFullSchemas.filterByKind(kind).one
     } { schemaName ⇒
-      ObjectFullSchemas
-        .findOneByName(schemaName)
-        .mustFindOr(NotFoundFailure404(ObjectFullSchema, schemaName))
-    }
+      ObjectFullSchemas.findOneByName(schemaName)
+    }.dbresult
   }
 
 }
