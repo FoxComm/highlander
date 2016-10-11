@@ -1,14 +1,18 @@
 ---
 
-- name: Setup docker_registry config
+- name: Setup Docker Registry config folder
   file: path=/etc/docker_registry/ state=directory
+  sudo: true
+
+- name: Copy service account file
+  copyv: src="{{role_path}}/../secret_keys/files/services/foxcomm-production-shared.json" dest=/etc/docker_registry mode=600
   sudo: true
 
 - name: Copy Docker Registry Config
   template: src=config.yml dest="/etc/docker_registry/config.yml"
   sudo: true
 
-- name: Copy Service
+- name: Copy Service file
   template: src=docker_registry.service dest="{{dest_services}}/docker_registry.service"
   sudo: true
 
@@ -16,11 +20,11 @@
   file: path=/certs state=directory mode="600"
   sudo: true
 
-- name: Copy Cert
+- name: Copy Domain Cert
   copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.crt" dest=/certs/domain.crt
   sudo: true
 
-- name: Copy Key
+- name: Copy Domain Key
   copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.key" dest=/certs/domain.key
   sudo: true
 
@@ -28,7 +32,7 @@
   sudo: true
   command: systemctl daemon-reload
 
-- name: Restart Docker Registry Server
+- name: Restart Docker Registry Service
   service: name=docker_registry state=restarted enabled=yes
   sudo: true
 
