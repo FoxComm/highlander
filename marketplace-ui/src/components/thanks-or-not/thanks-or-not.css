@@ -1,8 +1,14 @@
+@import "media-queries.css";
+
 .thanksOrNot {
   display: flex;
   align-items: center;
   flex-direction: column;
   margin: 200px 0 100px;
+
+  @media (--small-viewport) {
+    margin: 160px 0 0;
+  }
 }
 
 .icon {

@@ -1,3 +1,5 @@
+@import "media-queries.css";
+
 input,
 textarea,
 select {
@@ -67,6 +69,10 @@ label {
   margin-left: 15px;
   color: transparent;
   transition: color .4s;
+
+  @media (--small-viewport) {
+    font-size: 10px;
+  }
 }
 
 .errorActive {
@@ -132,6 +138,7 @@ input:-webkit-autofill {
   & :global(.rw-multiselect-wrapper) {
     position: relative;
     border-bottom: 1px solid #ddd;
+    line-height: 30px;
     cursor: text;
 
     &:active,
@@ -160,34 +167,34 @@ input:-webkit-autofill {
     margin-bottom: 10px;
     left: 10px;
     right: 10px;
+  }
 
-    & ul {
-      max-height: 200px;
-      margin: 0;
-      padding: 5px 0;
-      overflow: auto;
-      list-style: none;
-      outline: 0;
+  & :global(.rw-list) {
+    max-height: 200px;
+    margin: 0;
+    padding: 5px 0;
+    overflow: auto;
+    list-style: none;
+    outline: 0;
+  }
 
-      & li {
-        padding: 1px 10px;
-        margin: 2px;
-        border-radius: 3px;
-        border: 1px solid #fff;
-        cursor: pointer;
+  & :global(.rw-list-option) {
+    padding: 1px 10px;
+    margin: 2px;
+    border-radius: 3px;
+    border: 1px solid #fff;
+    cursor: pointer;
 
-        &:hover {
-          background-color: #f6f6f6;
-          border-color: #efefef;
-        }
+    &:hover {
+      background-color: #f6f6f6;
+      border-color: #efefef;
+    }
 
-        &:global(.rw-state-focus) {
-          background-color: #fff;
-          border-color: #66afe9;
+    &:global(.rw-state-focus) {
+      background-color: #fff;
+      border-color: #66afe9;
 
-          color: #333;
-        }
-      }
+      color: #333;
     }
   }
 }

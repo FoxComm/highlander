@@ -4,7 +4,7 @@
   position: relative;
   width: 750px;
   padding: 20px 120px 50px;
-  margin: 50px auto;
+  margin: 0 auto 20px;
   background: #fff;
   border-radius: 10px;
   color: #434343;
@@ -12,11 +12,12 @@
   box-shadow: 0 0 50px rgba(0, 0, 0, .2);
 
   transition: width .4s, padding .4s;
-}
 
-@media (--small-viewport) {
-  .main {
-    width: 540px;
-    padding: 50px 40px;
+  @media (--small-viewport) {
+    width: 100%;
+    padding: 20px;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 }

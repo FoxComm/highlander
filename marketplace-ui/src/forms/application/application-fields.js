@@ -21,7 +21,7 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'email_address',
-    type: 'text',
+    type: 'email',
     placeholder: 'Email Address',
     validation: 'required format.email',
   },
@@ -32,14 +32,7 @@ export const fields: Array<FormField> = [
     validation: 'required format.phone',
     mask: '+1 (999) 999-9999',
     maskChar: '_',
-    normalize: value => {
-      // console.info(value);
-      const v = value.replace(/^\+1\s?/, '').replace(/[()]/g, '').replace(/\s/g, '-');
-      // console.info(v);
-
-      return v;
-    },
-    // format: value => `+1 ${value}`,
+    normalize: value => value.replace(/[()]/g, '').replace(/\s/g, '-'),
   },
   {
     name: 'monthly_sales_volume',
@@ -54,20 +47,20 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'site_url',
-    type: 'text',
+    type: 'url',
     placeholder: 'Site URL',
     validation: 'required format.uri',
   },
   {
     name: 'target_audience',
-    type: 'select',
+    type: 'tags',
     placeholder: 'Audience',
     validation: 'required',
     values: LIST_AUDIENCE,
   },
   {
     name: 'categories',
-    type: 'select',
+    type: 'tags',
     placeholder: 'Category',
     validation: 'required',
     values: LIST_CATEGORIES,
