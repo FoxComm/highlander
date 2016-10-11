@@ -286,7 +286,8 @@ trait OrderGenerator extends ShipmentSeeds {
 
   def addProductsToCart(skuIds: Seq[Int], cartRef: String)(
       implicit db: DB): DbResultT[Seq[CartLineItem]] = {
-    val itemsToInsert = skuIds.map(skuId ⇒ CartLineItem(cordRef = cartRef, skuId = skuId))
+    val itemsToInsert =
+      skuIds.map(skuId ⇒ CartLineItem(cordRef = cartRef, skuId = skuId, attributes = None))
     CartLineItems.createAllReturningModels(itemsToInsert)
   }
 

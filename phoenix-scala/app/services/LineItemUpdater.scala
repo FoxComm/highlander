@@ -18,6 +18,7 @@ import responses.TheResponse
 import responses.cord.CartResponse
 import services.carts.{CartPromotionUpdater, CartTotaler}
 import slick.driver.PostgresDriver.api._
+import utils.aliases
 import utils.aliases._
 import utils.db._
 
@@ -146,14 +147,16 @@ object LineItemUpdater {
       _ ← * <~ ProductSkuLinks
            .filter(_.rightId === sku.id)
            .mustFindOneOr(SKUWithNoProductAdded(cart.refNum, lineItem.sku))
-      updateAction ← * <~ addLineItem(sku.id, cart.refNum, lineItem.quantity)
+      updateAction ← * <~ addLineItem(sku.id, cart.refNum, lineItem.quantity, lineItem.attributes)
       _            ← * <~ DbResultT.good(println(sku))
     } yield updateAction
   }
 
-  private def addLineItem(skuId: Int, cordRef: String, quantity: Int)(implicit ec: EC) = {
+  private def addLineItem(skuId: Int, cordRef: String, quantity: Int, attributes: Option[Json])(
+      implicit ec: EC) = {
 
-    val itemsToAdd = List.fill(quantity)(CartLineItem(cordRef = cordRef, skuId = skuId))
+    val itemsToAdd =
+      List.fill(quantity)(CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes))
     itemsToAdd.map(cli ⇒ CartLineItems.create(cli))
   }
 
@@ -192,7 +195,7 @@ object LineItemUpdater {
       implicit ec: EC): DbResultT[Unit] = {
 
     val itemsToInsert: List[CartLineItem] =
-      List.fill(delta)(CartLineItem(cordRef = cordRef, skuId = skuId))
+      List.fill(delta)(CartLineItem(cordRef = cordRef, skuId = skuId, attributes = None))
     CartLineItems.createAll(itemsToInsert).meh
   }
 

@@ -76,7 +76,8 @@ trait DemoSeedHelpers extends CreditCardSeeds {
     } yield order
 
   private def addSkusToCart(skuIds: Seq[Sku#Id], cordRef: String): DbResultT[Seq[CartLineItem]] = {
-    val itemsToInsert = skuIds.map(skuId ⇒ CartLineItem(cordRef = cordRef, skuId = skuId))
+    val itemsToInsert =
+      skuIds.map(skuId ⇒ CartLineItem(cordRef = cordRef, skuId = skuId, attributes = None))
     CartLineItems.createAllReturningModels(itemsToInsert)
   }
 
