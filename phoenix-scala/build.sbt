@@ -84,7 +84,9 @@ lazy val gatling = (project in file("gatling"))
   )
 
 // Injected seeds
-seed := (runMain in Compile in phoenixScala).partialInput(" utils.seeds.Seeds seed --seedAdmins --seedDemo 1").evaluated
+seed := (runMain in Compile in phoenixScala)
+  .partialInput(" utils.seeds.Seeds seed --seedAdmins --seedDemo 1 --seedPlugins")
+  .evaluated
 
 // Gatling seeds
 seedOneshot    := (runMain in Compile in gatling).partialInput(" seeds.OneshotSeeds").evaluated
