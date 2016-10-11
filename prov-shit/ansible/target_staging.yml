@@ -50,3 +50,4 @@
     - { role: dev/ashes }
     - { role: ext/tgt/marketplace-ui }
     - { role: ext/tgt/balancer, sudo: yes }
+    - { role: dev/seeder }
