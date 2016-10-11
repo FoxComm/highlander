@@ -13,12 +13,12 @@ import utils.{JsonFormatters, Validation}
 
 /**
   * A ObjectShadow is what you get when a context illuminates a Object.
-  * The ObjectShadow, when applied to a Object is what is displayed on the 
+  * The ObjectShadow, when applied to a Object is what is displayed on the
   * storefront.
   */
 case class ObjectShadow(id: Int = 0,
                         formId: Int = 0,
-                        schemaId: Int = 0,
+                        schemaId: Option[Int] = None,
                         attributes: Json,
                         createdAt: Instant = Instant.now)
     extends FoxModel[ObjectShadow]
@@ -29,7 +29,7 @@ object ObjectShadow {
     val attributesJson = attributes.foldLeft(JNothing: JValue) {
       case (acc, (key, value)) ⇒
         // TODO: Clean this up and make a case class to represent the shadow ref.
-        val shadowJson: JValue = key → ("ref" → key)
+        val shadowJson: JValue = key → (("type" → (value \ "t")) ~ ("ref" → key))
         acc.merge(shadowJson)
     }
 
@@ -40,7 +40,7 @@ object ObjectShadow {
 class ObjectShadows(tag: Tag) extends FoxTable[ObjectShadow](tag, "object_shadows") {
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def formId     = column[Int]("form_id")
-  def schemaId   = column[Int]("schema_id")
+  def schemaId   = column[Option[Int]]("schema_id")
   def attributes = column[Json]("attributes")
   def createdAt  = column[Instant]("created_at")
 
@@ -48,7 +48,7 @@ class ObjectShadows(tag: Tag) extends FoxTable[ObjectShadow](tag, "object_shadow
     (id, formId, schemaId, attributes, createdAt) <> ((ObjectShadow.apply _).tupled, ObjectShadow.unapply)
 
   def form   = foreignKey(ObjectForms.tableName, formId, ObjectForms)(_.id)
-  def schema = foreignKey(ObjectSchemas.tableName, schemaId, ObjectSchemas)(_.id)
+  def schema = foreignKey(ObjectSchemas.tableName, schemaId, ObjectSchemas)(_.id.?)
 }
 
 object ObjectShadows

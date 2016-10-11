@@ -69,11 +69,12 @@ object ObjectUtils {
       case JObject(o) ⇒
         o.obj.map {
           case (key, value) ⇒
+            val t = value \ "type"
             val ref = value \ "ref" match {
               case JString(s) ⇒ s
               case _          ⇒ key
             }
-            (key, JObject("ref" → JString(keyMap.getOrElse(ref, ref))))
+            (key, ("type" → t) ~ ("ref" → keyMap.getOrElse(ref, ref)))
         }
       case _ ⇒ JNothing
     }
@@ -94,6 +95,13 @@ object ObjectUtils {
   case class InsertResult(form: ObjectForm, shadow: ObjectShadow, commit: ObjectCommit)
       extends FormAndShadow
 
+  def insert(formAndShadow: FormAndShadow)(implicit ec: EC): DbResultT[InsertResult] =
+    insert(formAndShadow, None)
+
+  def insert(formProto: ObjectForm, shadowProto: ObjectShadow)(
+      implicit ec: EC): DbResultT[InsertResult] =
+    insert(formProto, shadowProto, None)
+
   def insert(formAndShadow: FormAndShadow, schema: Option[String])(
       implicit ec: EC): DbResultT[InsertResult] =
     insert(formProto = formAndShadow.form, shadowProto = formAndShadow.shadow, schema = schema)
@@ -103,12 +111,15 @@ object ObjectUtils {
     val n = ObjectUtils.newFormAndShadow(formProto.attributes, shadowProto.attributes)
 
     for {
-      schema ← * <~ ObjectSchemasManager.getSchemaByOptNameOrKind(schema, formProto.kind)
-      form   ← * <~ ObjectForms.create(formProto.copy(attributes = n.form))
+      optSchema ← * <~ ObjectSchemasManager.getSchemaByOptNameOrKind(schema, formProto.kind)
+      form      ← * <~ ObjectForms.create(formProto.copy(attributes = n.form))
       shadow ← * <~ ObjectShadows.create(
-                  shadowProto.copy(formId = form.id, attributes = n.shadow, schemaId = schema.id))
+                  shadowProto
+                    .copy(formId = form.id, attributes = n.shadow, schemaId = optSchema.map(_.id)))
       //Make sure form is correct and shadow links are correct
-      _      ← * <~ IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)
+      _ ← * <~ optSchema.map { schema ⇒
+           IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)
+         }
       commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
     } yield InsertResult(form, shadow, commit)
   }
@@ -199,9 +210,12 @@ object ObjectUtils {
                     ObjectShadow(formId = form.id,
                                  attributes = newShadowAttributes,
                                  schemaId = old.shadow.schemaId))
-        schema ← * <~ ObjectFullSchemas.mustFindById404(old.shadow.schemaId)
-        _      ← * <~ IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)
-        _      ← * <~ validateShadow(form, shadow)
+        // TODO: add schema validation here
+//        optSchema ← * <~ ObjectFullSchemas.findOneById(old.shadow.schemaId)
+//        _ ← * <~ optSchema.map { schema ⇒
+//             IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)
+//           }
+        _ ← * <~ validateShadow(form, shadow)
       } yield UpdateResult(form, shadow, updated = true)
     else DbResultT.pure(UpdateResult(old.form, old.shadow, updated = false))
   }
