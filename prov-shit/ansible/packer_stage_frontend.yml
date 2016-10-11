@@ -37,10 +37,7 @@
     - { role: base/mesos_worker }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/phoenix }
-    - { role: base/isaac }
     - { role: base/greenriver }
-    - { role: base/ashes }
-    - { role: base/firebrand }
     - { role: base/balancer, sudo: yes }
 
   handlers:
