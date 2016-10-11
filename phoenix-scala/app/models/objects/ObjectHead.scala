@@ -2,9 +2,11 @@ package models.objects
 
 import java.time.Instant
 
+import failures.ObjectFailures.ObjectHeadCannotBeFoundByFormId
+import slick.lifted.Tag
+import utils.aliases.{EC, OC}
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import slick.lifted.Tag
 
 import com.github.tminglei.slickpg._
 
@@ -47,10 +49,22 @@ abstract class ObjectHeads[M <: ObjectHead[M]](tag: Tag, table: String)
 abstract class ObjectHeadsQueries[M <: ObjectHead[M], T <: ObjectHeads[M]](construct: Tag ⇒ T)
     extends FoxTableQuery[M, T](construct) {
 
+  def mustFindByFormId404(formId: ObjectForm#Id)(implicit oc: OC, ec: EC): DbResultT[M] =
+    findOneByFormId(formId).mustFindOneOr(
+        ObjectHeadCannotBeFoundByFormId(baseTableRow.tableName, formId, oc.name))
+
+  def findOneByFormId(formId: Int)(implicit oc: OC): QuerySeq =
+    filter(_.contextId === oc.id).filter(_.formId === formId)
+
   def findOneByContextAndFormId(contextId: Int, formId: Int): QuerySeq =
     filter(_.contextId === contextId).filter(_.formId === formId)
 
   def findOneByContextAndShadowId(contextId: Int, shadowId: Int): QuerySeq =
     filter(_.contextId === contextId).filter(_.shadowId === shadowId)
 
+  def updateHead(fullObject: FullObject[M], commitId: Int)(
+      implicit ec: EC): DbResultT[FullObject[M]] =
+    update(fullObject.model,
+           fullObject.model.withNewShadowAndCommit(fullObject.shadow.id, commitId)).map(updated ⇒
+          fullObject.copy(model = updated))
 }

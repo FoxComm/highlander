@@ -33,11 +33,16 @@ object ObjectHeadLinks {
                                                            rightQuery: FoxTableQuery[R, _])
       extends FoxTableQuery[M, T](construct) {
 
-    def filterLeft(left: L): QuerySeq                 = filterLeftId(left.id)
+    def filterLeft(left: L): QuerySeq = filterLeftId(left.id)
+
     protected def filterLeftId(leftId: Int): QuerySeq = filter(_.leftId === leftId)
 
-    def filterRight(right: R): QuerySeq               = filterRightId(right.id)
-    private def filterRightId(rightId: Int): QuerySeq = filter(_.rightId === rightId)
+    def filterRight(right: R): QuerySeq = filterRightId(right.id)
+
+    protected def filterRightId(rightId: Int): QuerySeq = filter(_.rightId === rightId)
+
+    def queryLeftByRight(right: R)(implicit ec: EC, db: DB): DbResultT[Seq[FullObject[L]]] =
+      queryLeftByRightIdWithLink(right.id).map(_.map(_._1))
 
     def queryRightByLeft(left: L)(implicit ec: EC, db: DB): DbResultT[Seq[FullObject[R]]] =
       queryRightByLeftIdWithLink(left.id).map(_.map(_._1))
@@ -53,8 +58,18 @@ object ObjectHeadLinks {
         linkedObjects ← * <~ links.map(link ⇒ queryLinkedObject(link))
       } yield linkedObjects.zip(links)
 
+    private def queryLeftByRightIdWithLink(
+        rightId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[(FullObject[L], M)]] =
+      for {
+        links         ← * <~ filterRightId(rightId).result
+        linkedObjects ← * <~ links.map(queryLeftLinkedObject)
+      } yield linkedObjects.zip(links)
+
     def queryLinkedObject(link: M)(implicit ec: EC, db: DB): DbResultT[FullObject[R]] =
       ObjectUtils.getFullObject(rightQuery.mustFindById404(link.rightId))
+
+    def queryLeftLinkedObject(link: M)(implicit ec: EC, db: DB): DbResultT[FullObject[L]] =
+      ObjectUtils.getFullObject(leftQuery.mustFindById404(link.leftId))
 
     def syncLinks(left: L, rights: Seq[R])(implicit ec: EC, db: DB): DbResultT[Unit] =
       for {

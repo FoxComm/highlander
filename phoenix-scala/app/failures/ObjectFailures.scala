@@ -1,5 +1,7 @@
 package failures
 
+import models.objects.ObjectForm
+
 object ObjectFailures {
 
   object ObjectContextNotFound {
@@ -47,5 +49,13 @@ object ObjectFailures {
 
   case class ObjectRightLinkCannotBeFound(right: Int) extends Failure {
     override def description = s"Object link with right id $right cannot be found"
+  }
+
+  case class ObjectHeadCannotBeFoundByFormId(tableName: String,
+                                             formId: ObjectForm#Id,
+                                             contextName: String)
+      extends Failure {
+    override def description: String =
+      s"Object head $tableName with form $formId cannot be found in context $contextName"
   }
 }
