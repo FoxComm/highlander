@@ -74,4 +74,5 @@ module "foxcomm-staging" {
     ssh_private_key = "${var.ssh_private_key}"
     consul_leader = "${var.consul_leader}"
     consul_server_image = "${var.consul_server_image}"
+    frontend_machine_type = "n1-highmem-8"
 }
