@@ -8,8 +8,10 @@ import styles from './plugin.css';
 
 import { PageTitle } from 'components/section-title';
 import ObjectFormInner from 'components/object-form/object-form-inner';
+import ObjectForm from 'components/object-form/object-form';
 import SaveCancel from 'components/common/save-cancel';
 import WaitAnimation from 'components/common/wait-animation';
+import PluginState from './plugin-state';
 
 import * as PluginsActions from 'modules/plugins';
 import type { UpdateSettingsPayload } from 'modules/plugins';
@@ -100,6 +102,10 @@ class Plugin extends Component {
     return attributesFromSettings(this.state.settings);
   }
 
+  get title(): string {
+    return `${this.pluginName} Configuration`
+  }
+
   @autobind
   handleChange(attributes: Attributes) {
     this.setState({
@@ -119,16 +125,17 @@ class Plugin extends Component {
       return <WaitAnimation/>;
     } else {
       return (
-        <div>
-          <ObjectFormInner
-            title={this.pluginName}
-            attributes={this.attributes}
-            onChange={this.handleChange}
-          />
-          <SaveCancel
-            cancelTo="plugins"
-            onSave={this.handleSave}
-          />
+        <div className="fc-grid fc-grid-no-gutter">
+          <div className="fc-col-md-3-5">
+            <ObjectForm
+              title={this.title}
+              attributes={this.attributes}
+              onChange={this.handleChange}
+            />
+          </div>
+          <div className="fc-col-md-2-5">
+            <PluginState />
+          </div>
         </div>
       );
     }
@@ -139,7 +146,12 @@ class Plugin extends Component {
     const title = `Plugin ${this.pluginName}`;
     return (
       <div>
-        <PageTitle title={title} />
+        <PageTitle title={title}>
+          <SaveCancel
+            cancelTo="plugins"
+            onSave={this.handleSave}
+          />
+        </PageTitle>
         <div styleName="content">
           {this.content}
         </div>
