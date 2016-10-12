@@ -29,7 +29,7 @@ type State = Accounts;
 export const ACTION_FETCH = 'merchantAccountFetch';
 export const ACTION_SUBMIT = 'merchantAccountSubmit';
 
-const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, (id: number, data: Object) =>
+const { perform: submit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, (id: number, data: Object) =>
   new Promise((resolve, reject) =>
     api.post(`/merchants/${id}/accounts`, { account: { ...data } })
       .then((account: Account) => resolve(account))
@@ -37,7 +37,7 @@ const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_S
   )
 );
 
-const { perform: performFetch, ...actionsFetch } = createAsyncActions(ACTION_FETCH, merchantId =>
+const { perform: fetch, ...actionsFetch } = createAsyncActions(ACTION_FETCH, merchantId =>
   api.get(`/merchants/${merchantId}/accounts`)
 );
 
@@ -52,8 +52,8 @@ const getAccounts = (state: State) => state;
 
 export {
   reducer as default,
-  performFetch as fetch,
-  performSubmit as submit,
+  fetch,
+  submit,
 
   /* selectors */
   getAccounts,

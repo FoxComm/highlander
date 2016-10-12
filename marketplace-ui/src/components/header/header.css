@@ -1,3 +1,5 @@
+@import "media-queries.css";
+
 .header {
   text-align: center;
   margin-bottom: 30px;
@@ -14,8 +16,13 @@
 }
 
 .legend {
-  margin: 20px 0;
+  margin: 20px 100px;
   font-size: 18px;
-  line-height: 20px;
+  line-height: 24px;
   font-weight: 300;
+
+  @media (--small-viewport) {
+    margin: 10px 0;
+    font-size: 16px;
+  }
 }

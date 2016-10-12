@@ -1,9 +1,9 @@
-import { get, isEmpty, noop } from 'lodash';
+import { get, isEmpty, invoke, noop } from 'lodash';
 import cx from 'classnames';
 import React from 'react';
 import MultiSelect from 'react-widgets/lib/Multiselect';
 import MaskInput from 'react-input-mask';
-import { Field } from 'redux-form';
+import { Field, Fields } from 'redux-form';
 
 import messages from '../../core/lib/messages.json';
 
@@ -16,11 +16,11 @@ const setValue = (value, def = null) => (!isEmpty(value) ? value : def);
 /**
  * Form field wrapper
  */
-const FormField = ({ input: { name }, meta: { error, touched }, children }) => {
+export const FormField = ({ className, meta: { error, touched }, children }) => {
   const hasError = touched && error;
 
   return (
-    <div className={cx(styles.field, name, { [styles.fieldError]: hasError })}>
+    <div className={cx(styles.field, className, { [styles.fieldError]: hasError })}>
       {children}
       <span className={cx(styles.error, { [styles.errorActive]: hasError })}>
         {hasError ? get(messages, error, 'Wrong value') : ''}
@@ -33,7 +33,7 @@ const FormField = ({ input: { name }, meta: { error, touched }, children }) => {
  * Text input field
  */
 const renderInput = ({ input, type, mask, maskChar = ' ', placeholder, meta }) => (
-  <FormField input={input} meta={meta}>
+  <FormField input={input} className={input.name} meta={meta}>
     <MaskInput {...input} mask={mask} maskChar={maskChar} type={type} placeholder={placeholder} />
   </FormField>
 );
@@ -42,9 +42,29 @@ const renderInput = ({ input, type, mask, maskChar = ' ', placeholder, meta }) =
  * Textarea field
  */
 const renderTextarea = ({ input, placeholder, meta }) => (
-  <FormField input={input} meta={meta}>
+  <FormField input={input} className={input.name} meta={meta}>
     <textarea {...input} placeholder={placeholder} rows="1" />
   </FormField>
+);
+
+/**
+ * Radio field
+ */
+const renderRadio = ({ input, meta }) => (
+  <FormField input={input} meta={meta}>
+    <label htmlFor={input.value}><input {...input} type="radio" id={input.value} />{input.value}</label>
+  </FormField>
+);
+
+const renderRadios = (field: TFormField) => (
+  <div className={cx(styles.radioGroup, field.name)} key={field.name}>
+    <span className={styles.placeholder}>{field.placeholder}</span>
+    <div>
+      {field.values.map(value => (
+        <Field {...field} value={value} component={renderRadio} key={`${field.name}-${value}`} />
+      ))}
+    </div>
+  </div>
 );
 
 /**
@@ -53,10 +73,10 @@ const renderTextarea = ({ input, placeholder, meta }) => (
 const renderOptions = value => <option key={value}>{value}</option>;
 
 const renderSelect = ({ input, values, placeholder, meta }) => (
-  <FormField input={input} meta={meta}>
-    {!input.value && <label htmlFor={input.name}>{placeholder}</label>}
+  <FormField input={input} className={input.name} meta={meta}>
+    {!input.value && <span className={styles.placeholderInline}>{placeholder}</span>}
     <select {...input} value={setValue(input.value, '')}>
-      <option disabled />
+      {!input.value && <option disabled />}
       {values.map(renderOptions)}
     </select>
   </FormField>
@@ -66,7 +86,7 @@ const renderSelect = ({ input, values, placeholder, meta }) => (
  * Multi-select "tags" field
  */
 const renderTags = ({ input, values, placeholder, meta }) => (
-  <FormField input={input} meta={meta}>
+  <FormField input={input} className={input.name} meta={meta}>
     <MultiSelect
       {...input}
       value={setValue(input.value)}
@@ -77,22 +97,40 @@ const renderTags = ({ input, values, placeholder, meta }) => (
   </FormField>
 );
 
-export default (field: TFormField) => {
-  let renderField = renderInput;
+const renderFile = ({ input, file, placeholder, meta }) => {
+  const fileName = get(file, '[0].name');
 
-  switch (field.type) {
-    case 'select':
-      renderField = renderSelect;
-      break;
-    case 'tags':
-      renderField = renderTags;
-      break;
-    case 'textarea':
-      renderField = renderTextarea;
-      break;
-    default:
-      renderField = renderInput;
+  return (
+    <FormField input={input} className={input.name} meta={meta}>
+      <span className={styles.placeholder}>{placeholder}</span>
+      <div className={styles.file}>
+        <span>Select File</span>
+        <input {...input} onBlur={noop} type="file" />
+      </div>
+      {fileName && <span className={styles.fileName}>Selected file: {fileName}</span>}
+    </FormField>
+  );
+};
+
+const typeRendererMap = {
+  select: renderSelect,
+  tags: renderTags,
+  textarea: renderTextarea,
+  file: renderFile,
+};
+
+export default (field: TFormField, values: string) => {
+  if (!isEmpty(values) && field.showPredicate && !invoke(field, 'showPredicate', values)) {
+    return;
   }
+
+  // TODO: better implementation of radio rendering.
+  // The problem is that it requires one Field component for each radio, not a radio group
+  if (field.type === 'radio') {
+    return renderRadios(field);
+  }
+
+  const renderField = get(typeRendererMap, field.type, renderInput);
 
   return (
     <Field

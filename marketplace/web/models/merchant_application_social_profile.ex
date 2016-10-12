@@ -1,6 +1,5 @@
 defmodule Marketplace.MerchantApplicationSocialProfile do 
   use Marketplace.Web, :model
-  import Marketplace.Validation
 
   schema "merchant_application_social_profiles" do
     belongs_to :merchant_application, Marketplace.MerchantApplication

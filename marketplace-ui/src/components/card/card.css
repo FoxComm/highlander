@@ -1,0 +1,32 @@
+@import "media-queries.css";
+
+.card {
+  display: flex;
+  flex-direction: column;
+  width: 32%;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+
+  @media (--small-viewport) {
+    width: auto;
+    margin-bottom: 20px;
+  }
+}
+
+.title {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.description {
+  flex-grow: 1;
+  font-size: 14px;
+}
+
+.button {
+  width: 100%;
+  margin: 20px 0 0;
+  font-size: 18px;
+  line-height: 36px;
+}

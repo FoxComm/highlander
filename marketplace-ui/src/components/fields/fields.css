@@ -1,5 +1,49 @@
 @import "media-queries.css";
 
+.field {
+  position: relative;
+  margin-bottom: 25px;
+}
+
+.error {
+  position: absolute;
+  bottom: -18px;
+  display: block;
+  font-size: 12px;
+  margin-left: 15px;
+  color: transparent;
+  transition: color .4s;
+
+  @media (--small-viewport) {
+    font-size: 10px;
+  }
+}
+
+.errorActive {
+  color: #db2727;
+}
+
+.fieldError {
+  & input {
+    border-color: #db2727;
+  }
+}
+
+.placeholder {
+  display: block;
+  margin: 0 0 15px 15px;
+  color: #aaa;
+  font-weight: 300;
+
+  pointer-events: none;
+}
+
+.placeholderInline {
+  composes: placeholder;
+  position: absolute;
+  top: 8px;
+}
+
 input,
 textarea,
 select {
@@ -40,43 +84,72 @@ select {
   }
 }
 
-label {
-  position: absolute;
-  top: 8px;
-  left: 15px;
-  color: #aaa;
-  font-weight: 300;
-
-  pointer-events: none;
-}
-
-.field {
+input[type="radio"] {
+  display: inline-block;
   position: relative;
-  margin-bottom: 25px;
-}
-
-.fieldError {
-  & input {
-    border-color: #db2727;
-  }
-}
-
-.error {
-  position: absolute;
-  bottom: -18px;
-  display: block;
-  font-size: 12px;
+  top: -1px;
+  width: auto;
+  border: none;
   margin-left: 15px;
-  color: transparent;
-  transition: color .4s;
 
-  @media (--small-viewport) {
-    font-size: 10px;
+  appearance: radio;
+}
+
+.radioGroup {
+  & .field {
+    display: inline-block;
   }
 }
 
-.errorActive {
-  color: #db2727;
+input[type="file"] {
+  border: none;
+  line-height: initial;
+}
+
+.file {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  margin: 0;
+  text-align: center;
+  transition: background .4s;
+
+  &:hover {
+    background: #f9f9f9;
+  }
+
+  &:active {
+    background: #f0f0f0;
+  }
+
+  & input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+  }
+}
+
+.fileName {
+  display: block;
+  margin: 3px 15px -17px;
+  font-size: 12px;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+label {
+  font-weight: 300;
+  font-size: 16px;
 }
 
 ::-webkit-input-placeholder,
