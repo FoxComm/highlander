@@ -116,6 +116,8 @@ object ObjectUtils {
       shadow ← * <~ ObjectShadows.create(
                   shadowProto
                     .copy(formId = form.id, attributes = n.shadow, schemaId = optSchema.map(_.id)))
+      _ ← * <~ failIfErrors(
+             IlluminateAlgorithm.validateAttributesTypes(form.attributes, shadow.attributes))
       //Make sure form is correct and shadow links are correct
       _ ← * <~ optSchema.map { schema ⇒
            IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)
