@@ -14,8 +14,9 @@ These are expected to be run once, not for each production setup
 2. Add SSH key if not yet on [SSH Keys](https://console.cloud.google.com/compute/metadata/sshKeys) page.
 3. Add service account at [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts/project) page.
 4. Download created service account file to `prov-shit/account.json`
-4. Ask project owner to provide IAM rights.
-5. Create `prov-shit/terraform.tfvars` file containing your keys:
+5. Download common service account to `ansible/roles/base/secret_keys/files/services/foxcomm-production-shared.json`
+6. Ask project owner to provide IAM rights.
+7. Create `prov-shit/terraform.tfvars` file containing your keys:
 
 	```
 	ssh_user = "<username>"
@@ -216,9 +217,9 @@ Do all the steps while connected to created VPN service.
 
     * `https://<subdomain>.foxcommerce.com:5000/v2/`
 
-5. Copy [public_key.pem](../ansible/roles/base/secret_keys/files/public_key.pem) to [ashes](../../ashes) and [firebrand](../../firebrand) subdirectories - they will be copied to related Docker containers. **TBD: Automated key generation for each project.**
+5. Copy [public_key.pem](../../prov-shit/ansible/roles/base/secret_keys/files/public_key.pem) to [ashes](../../ashes) and [firebrand](../../firebrand) subdirectories - they will be copied to related Docker containers. **TBD: Automated key generation for each project.**
 
-6. Build Ashes using Docker and push it to private Docker Registry:
+6. Build Ashes using Docker and push it to private Docker Registry (both Staging and Production):
 
     ```
     $ cd highlander/ashes
@@ -228,7 +229,7 @@ Do all the steps while connected to created VPN service.
     $ docker push <subdomain>.foxcommerce.com:5000/ashes
     ```
 
-7. Perform same actions for Storefront:
+7. Build Storefront using Docker and push it to private Docker Registry (both Staging and Production):
 
     ```
     $ cd highlander/firebrand
@@ -238,22 +239,30 @@ Do all the steps while connected to created VPN service.
     $ docker push <subdomain>.foxcommerce.com:5000/storefront
     ```
 
-8. Bootstrap Mesos Consul application to auto-register Marathon apps in Consul:
+8. Bootstrap Mesos Consul application to auto-register Marathon apps in Consul (both Staging and Production):
+    Zookeeper urls will be likely:
+     - `<project>-stage-amigo-server:2181` for Staging
+     - `<project>-amigo-server-0:2181,<project>-amigo-server-1:2181,<project>-amigo-server-2:2181` for Production
 
     ```
-    $ ansible-playbook -v -i bin/envs/<project> ansible/playbook/bootstrap/mesos_consul.yml
+    $ ansible-playbook -v -i bin/envs/<project> ansible/bootstrap_mesos_consul.yml
     ```
 
-9. Go to Marathon UI and add 2 new applications, using JSON configurations (you should set proper Docker Registry URLs in both files and `STRIPE_PUBLISHABLE_KEY` environment variable for storefront):
+9. Go to Marathon UI and add 2 new applications, using JSON configurations (you should set proper Docker Registry URLs in both files and `STRIPE_PUBLISHABLE_KEY` environment variable for Storefront):
 
     * [ashes.json](../marathon/ashes.json)
     * [storefront.json](../marathon/storefront.json)
 
-10. Scale created applications, a single instance per each app. Perform same actions on staging Marathon, because it uses own Mesos cluster.
+10. Created applications are to be running with a single instance per each app. Perform same actions on staging Marathon, because it uses own Mesos cluster.
 
-11. For Google OAuth, add authorized JavaScript origins and authorized redirect URIs in [Google Developers Console](https://console.developers.google.com/apis/credentials/oauthclient/953682058057-trm1gl4qpa6c9c8av6b42e4p766bloa7.apps.googleusercontent.com?project=foxcomm-staging&authuser=1) using previously created DNS records. Ensure that same values (client ID, client secret, origins and URIs) are filled on instances that are running `phoenix.service`.
+11. For Google OAuth, add authorized JavaScript origins and authorized redirect URIs in [Google Developers Console](https://console.developers.google.com/apis/credentials/oauthclient/953682058057-trm1gl4qpa6c9c8av6b42e4p766bloa7.apps.googleusercontent.com?project=foxcomm-staging&authuser=1) using previously created DNS records.
+Ensure that same values (client ID, client secret, authorized origins and authorized redirect URIs) are filled on instances that are running `phoenix.service`.
 
-12. Configure `balancer` service to be a reverse proxy for Ashes and Storefront<sup>TBD</sup>.
+12. Configure `balancer` service to be a reverse proxy for Ashes and Storefront (both Staging and Production):
+
+    ```
+    $ ansible-playbook -v i bin/envs/<project> ansible/bootstrap_prod_balancer.yml
+    ```
 
 13. Add DNS Simple records pointing to machines with `balancer`. Ensure they have public IPs in Google Cloud and firewall enables HTTPS access. Example:
 

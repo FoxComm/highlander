@@ -1,0 +1,22 @@
+---
+
+- name: Provision balancer configs
+  hosts: "{{hostname}}"
+  vars:
+    ashes_server: ashes.service.consul:4000
+    storefront_server: storefront.service.consul:8080
+    phoenix_server: phoenix.service.consul:9090
+    search_host: elasticsearch.service.consul
+    search_server_http: "{{search_host}}:9200"
+    middlewarehouse_server: middlewarehouse.service.consul:9292
+    isaac_server: isaac.service.consul:9190
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a balancer"
+      private: no
+    - name: "webui_server_name"
+      prompt: "Enter a domain name for balancer"
+      private: no
+
+  roles:
+    - { role: prod/balancer, sudo: yes }
