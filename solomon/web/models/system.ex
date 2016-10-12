@@ -1,5 +1,5 @@
-defmodule Permissions.System do
-  use Permissions.Web, :model
+defmodule Solomon.System do
+  use Solomon.Web, :model
 
   schema "systems" do
     field :name, :string

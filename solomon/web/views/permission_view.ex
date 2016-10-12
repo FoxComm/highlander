@@ -1,6 +1,6 @@
-defmodule Permissions.PermissionView do
-  use Permissions.Web, :view
-  alias Permissions.PermissionView
+defmodule Solomon.PermissionView do
+  use Solomon.Web, :view
+  alias Solomon.PermissionView
 
   def render("index.json", %{permissions: permissions}) do
     %{permissions: render_many(permissions, PermissionView, "permission.json")}

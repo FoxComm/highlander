@@ -1,4 +1,4 @@
-defmodule Permissions.ErrorHelpers do
+defmodule Solomon.ErrorHelpers do
   @moduledoc """
   Conveniences for translating and building error messages.
   """
@@ -21,9 +21,9 @@ defmodule Permissions.ErrorHelpers do
     #     dgettext "errors", "is invalid"
     #
     if count = opts[:count] do
-      Gettext.dngettext(Permissions.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(Solomon.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(Permissions.Gettext, "errors", msg, opts)
+      Gettext.dgettext(Solomon.Gettext, "errors", msg, opts)
     end
   end
 end

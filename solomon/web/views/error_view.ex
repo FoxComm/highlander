@@ -1,5 +1,5 @@
-defmodule Permissions.ErrorView do
-  use Permissions.Web, :view
+defmodule Solomon.ErrorView do
+  use Solomon.Web, :view
 
   def render("404.json", _assigns) do
     %{errors: %{detail: "Resource not found"}}

@@ -1,7 +1,7 @@
-defmodule Permissions.AccountRoleView do
-  use Permissions.Web, :view
-  alias Permissions.AccountRoleView
-  alias Permissions.PermissionView
+defmodule Solomon.AccountRoleView do
+  use Solomon.Web, :view
+  alias Solomon.AccountRoleView
+  alias Solomon.PermissionView
 
   #Throughout this controller, we present the id of the granted_role as the AccountRole ID
   def render("index.json", %{account_roles: account_roles}) do

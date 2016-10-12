@@ -1,7 +1,7 @@
-defmodule Permissions.Endpoint do
+defmodule Solomon.Endpoint do
   use Phoenix.Endpoint, otp_app: :permissions
 
-  socket "/socket", Permissions.UserSocket
+  socket "/socket", Solomon.UserSocket
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -36,5 +36,5 @@ defmodule Permissions.Endpoint do
     key: "_permissions_key",
     signing_salt: "+fPMkiW/"
 
-  plug Permissions.Router
+  plug Solomon.Router
 end

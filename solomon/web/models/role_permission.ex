@@ -1,9 +1,9 @@
-defmodule Permissions.RolePermission do
-  use Permissions.Web, :model
+defmodule Solomon.RolePermission do
+  use Solomon.Web, :model
 
   schema "role_permissions" do 
-    belongs_to :role, Permissions.Role
-    belongs_to :permission, Permissions.Permission
+    belongs_to :role, Solomon.Role
+    belongs_to :permission, Solomon.Permission
   end
 
   @required_fields ~w(role_id permission_id)a

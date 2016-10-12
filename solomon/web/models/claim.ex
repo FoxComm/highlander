@@ -1,5 +1,5 @@
-defmodule Permissions.Claim do 
-  use Permissions.Web, :model
+defmodule Solomon.Claim do 
+  use Solomon.Web, :model
 
   schema "claims" do
     field :frn, :string #Fox Resource Name

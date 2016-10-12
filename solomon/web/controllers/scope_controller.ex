@@ -1,7 +1,7 @@
-defmodule Permissions.ScopeController do
-  use Permissions.Web, :controller
-  alias Permissions.Repo
-  alias Permissions.Scope
+defmodule Solomon.ScopeController do
+  use Solomon.Web, :controller
+  alias Solomon.Repo
+  alias Solomon.Scope
 
   def index(conn, _params) do 
     scopes = Repo.all(Scope)
@@ -20,7 +20,7 @@ defmodule Permissions.ScopeController do
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Permissions.ChangesetView, "errors.json", changeset: changeset)
+        |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
     end
   end
 
@@ -39,7 +39,7 @@ defmodule Permissions.ScopeController do
       {:error, changeset} -> 
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Permissions.ChangesetView, "errors.json", changeset: changeset)
+        |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
     end
   end
 end

@@ -1,7 +1,7 @@
-defmodule Permissions.RoleView do
-  use Permissions.Web, :view
-  alias Permissions.RoleView
-  alias Permissions.PermissionView
+defmodule Solomon.RoleView do
+  use Solomon.Web, :view
+  alias Solomon.RoleView
+  alias Solomon.PermissionView
 
   def render("index.json", %{roles: roles}) do
     %{roles: render_many(roles, RoleView, "role_with_permissions.json")}

@@ -1,10 +1,10 @@
-defmodule Permissions.UserController do
-  use Permissions.Web, :controller
+defmodule Solomon.UserController do
+  use Solomon.Web, :controller
   alias Ecto.Multi
-  alias Permissions.Repo
-  alias Permissions.User
-  alias Permissions.Account
-  alias Permissions.AccountAccessMethod
+  alias Solomon.Repo
+  alias Solomon.User
+  alias Solomon.Account
+  alias Solomon.AccountAccessMethod
 
   def index(conn, _params) do 
     users = Repo.all(User)
@@ -25,7 +25,7 @@ defmodule Permissions.UserController do
       {:error, failed_operation, failed_value, changes_completedchangeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Permissions.ChangesetView, "errors.json", changeset: failed_value)
+        |> render(Solomon.ChangesetView, "errors.json", changeset: failed_value)
     end
   end
 
@@ -46,7 +46,7 @@ defmodule Permissions.UserController do
       {:error, changeset} -> 
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Permissions.ChangesetView, "errors.json", changeset: changeset)
+        |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
     end
   end 
 

@@ -1,5 +1,5 @@
-defmodule Permissions.User do
-  use Permissions.Web, :model
+defmodule Solomon.User do
+  use Solomon.Web, :model
 
   schema "users" do
     field :email, :string
@@ -10,7 +10,7 @@ defmodule Permissions.User do
     field :name, :string
     field :phone_number, :string
 
-    belongs_to :account, Permissions.Account
+    belongs_to :account, Solomon.Account
   end
 
   @required_fields ~w(email name)a

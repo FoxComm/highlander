@@ -1,8 +1,8 @@
-defmodule Permissions.Organization do
-  use Permissions.Web, :model
-  alias Permissions.Organization
-  alias Permissions.OrganizationType
-  alias Permissions.Scope
+defmodule Solomon.Organization do
+  use Solomon.Web, :model
+  alias Solomon.Organization
+  alias Solomon.OrganizationType
+  alias Solomon.Scope
 
   schema "organizations" do 
     field :name, :string

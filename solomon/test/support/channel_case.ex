@@ -1,4 +1,4 @@
-defmodule Permissions.ChannelCase do
+defmodule Solomon.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
   channel tests.
@@ -20,22 +20,22 @@ defmodule Permissions.ChannelCase do
       # Import conveniences for testing with channels
       use Phoenix.ChannelTest
 
-      alias Permissions.Repo
+      alias Solomon.Repo
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
 
 
       # The default endpoint for testing
-      @endpoint Permissions.Endpoint
+      @endpoint Solomon.Endpoint
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Permissions.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Solomon.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Permissions.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(Solomon.Repo, {:shared, self()})
     end
 
     :ok
