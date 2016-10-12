@@ -6,14 +6,16 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
+import makeLocalStore from 'lib/make-local-store';
 import styles from './editable-sku-row.css';
 
-import { FormField } from '../forms';
-import CurrencyInput from '../forms/currency-input';
-import MultiSelectRow from '../table/multi-select-row';
-import LoadingInputWrapper from '../forms/loading-input-wrapper';
+import { FormField } from 'components/forms';
+import CurrencyInput from 'components/forms/currency-input';
+import MultiSelectRow from 'components/table/multi-select-row';
+import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
+import { DeleteButton } from 'components/common/buttons';
 
-import { suggestSkus } from 'modules/skus/suggest';
+import reducer, { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
 import type { Sku } from 'modules/skus/details';
 import type { Sku as SearchViewSku } from 'modules/skus/list';
@@ -30,9 +32,12 @@ type Props = {
   skuContext: string,
   updateField: (code: string, field: string, value: string) => void,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
+  onDeleteClick: (id: string) => void,
   isFetchingSkus: boolean|null,
+  variantsSkusIndex: Object,
   suggestSkus: (code: string, context?: SuggestOptions) => Promise,
   suggestedSkus: Array<SearchViewSku>,
+  variants: Array<any>,
 };
 
 type State = {
@@ -40,10 +45,10 @@ type State = {
   isMenuVisible: boolean,
 };
 
-function mapStateToProps(state) {
+function mapLocalStateToProps(state) {
   return {
-    isFetchingSkus: _.get(state.asyncActions, 'skus-suggest.inProgress', null),
-    suggestedSkus: _.get(state, 'skus.suggest.skus', []),
+    isFetchingSkus: _.get(state, 'skus-suggest.inProgress', null),
+    suggestedSkus: _.get(state, 'skus', []),
   };
 }
 
@@ -130,7 +135,6 @@ class EditableSkuRow extends Component {
     );
   }
 
-  @autobind
   closeSkusMenu(callback: Function = _.noop) {
     this.setState({
       isMenuVisible: false
@@ -142,8 +146,7 @@ class EditableSkuRow extends Component {
       <li
         styleName="sku-item"
         className="_new"
-        onMouseDown={ this.closeSkusMenu }
-      >
+        onMouseDown={() => this.closeSkusMenu() }>
         <div>New SKU</div>
         <strong>{this.state.sku.code}</strong>
       </li>
@@ -158,8 +161,7 @@ class EditableSkuRow extends Component {
         <li
           styleName="sku-item"
           onMouseDown={() => { this.handleSelectSku(sku); }}
-          key={`item-${sku.id}`}
-        >
+          key={`item-${sku.id}`}>
           <strong>{sku.skuCode}</strong>
         </li>
       );
@@ -209,6 +211,47 @@ class EditableSkuRow extends Component {
     return <div>{code}</div>;
   }
 
+  imageCell(sku: Sku): Element {
+    const imageObject = _.get(sku, ['albums', 0, 'images', 0]);
+
+    if (!_.isEmpty(imageObject)) {
+      return (
+        <div styleName="image-cell">
+          <img {...imageObject} styleName="cell-thumbnail" />
+        </div>
+      );
+    }
+
+    return (
+      <span styleName="no-image-text">No image.</span>
+    );
+  }
+
+  variantCell(field: any, sku: Sku): ?Element {
+    if (field.indexOf('variant') < 0) {
+      return null;
+    }
+
+    const idx = parseInt(field);
+    const mapping = this.props.variantsSkusIndex;
+
+    const variant = _.get(this.props.variants, idx, {});
+    const variantName = _.get(variant, 'attributes.name.v');
+    const skuAttributeCode = _.get(sku, 'attributes.code.v');
+    const skuCode = sku.feCode || skuAttributeCode;
+
+    const variantValue = _.get(mapping, [skuCode, variantName]);
+
+    return (
+      <div styleName="variant-value">{variantValue}</div>
+    );
+  }
+
+  actionsCell(sku: Sku): Element {
+    const skuCode = sku.feCode || _.get(sku.attributes, 'code.v');
+    return <DeleteButton onClick={() => this.props.onDeleteClick(skuCode)}/>;
+  }
+
   @autobind
   setCellContents(sku: Sku, field: string): any {
     switch(field) {
@@ -219,8 +262,12 @@ class EditableSkuRow extends Component {
         return this.priceCell(sku, field);
       case 'upc':
         return this.upcCell(sku);
+      case 'image':
+        return this.imageCell(sku);
+      case 'actions':
+        return this.actionsCell(sku);
       default:
-        return null;
+        return this.variantCell(field, sku);
     }
   }
 
@@ -278,4 +325,7 @@ class EditableSkuRow extends Component {
   }
 }
 
-export default connect(mapStateToProps, { suggestSkus })(EditableSkuRow);
+export default _.flowRight(
+  makeLocalStore(reducer),
+  connect(mapLocalStateToProps, { suggestSkus })
+)(EditableSkuRow);

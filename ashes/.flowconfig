@@ -18,6 +18,8 @@
 .*/node_modules/watchify/*
 .*/node_modules/y18n/*
 .*/node_modules/react-motion/src/*
+.*/node_modules/react-motion/lib/Motion.js.flow
+.*/node_modules/react-motion/lib/Types.js.flow
 .*/test/fixtures/*
 .*/node_modules/react/.*
 

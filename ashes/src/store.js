@@ -1,4 +1,4 @@
-import { createStore, applyMiddleware, compose } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import rootReducer from './modules';
 import { routerMiddleware } from 'react-router-redux';
@@ -8,18 +8,20 @@ function useLogger() {
   return typeof window !== 'undefined';
 }
 
+export const baseMiddlewares = [thunk];
+
 export default function configureStore(history, initialState) {
-  const middlewares = [applyMiddleware(thunk), applyMiddleware(routerMiddleware(history))];
+  let middlewares = [...baseMiddlewares, routerMiddleware(history)];
 
   if (useLogger()) {
     const createLogger = require(`redux-logger`);
-    const logger = applyMiddleware(createLogger({
+    const logger = createLogger({
       duration: true,
       collapsed: true
-    }));
+    });
     // logger should be latest always, except devTools()
-    middlewares.push(logger);
+    middlewares = [...middlewares, logger];
   }
 
-  return compose(...middlewares)(createStore)(rootReducer, initialState);
+  return createStore(rootReducer, initialState, applyMiddleware(...middlewares));
 }
