@@ -88,14 +88,12 @@ class ProductPage extends ObjectPage {
   }
 
   get preventSave(): boolean {
-    // const product = this.state.entity;
-    // if (product) {
-    //   return !isProductValid(product);
-    // }
-    //
-    // return true;
+    const product = this.state.entity;
+    if (product) {
+      return !isProductValid(product);
+    }
 
-    return false;
+    return true;
   }
 
   @autobind
