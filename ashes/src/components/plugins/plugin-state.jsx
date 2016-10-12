@@ -25,7 +25,7 @@ export default class PluginState extends Component {
 
   render() {
      return (
-      <ContentBox title="Account State">
+      <ContentBox title="Plugin State">
         <Dropdown value={this.currentValue}
                   // onChange={(value) => this.handleDropdownChange(value)}
                   disabled={this.props.disabled}
