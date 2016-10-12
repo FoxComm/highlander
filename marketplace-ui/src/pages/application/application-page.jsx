@@ -22,9 +22,6 @@ import type { HTMLElement } from '../../core/types';
 import type { Application } from '../../core/modules/merchant-application';
 
 type Props = {
-  params: {
-    ref: string;
-  };
   replace: (path: string) => void;
   application: Application;
   submit: (data: Object) => Promise<*>;
@@ -35,25 +32,12 @@ type Props = {
 class MerchantApplicationPage extends Component {
   props: Props;
 
-  componentWillMount(): void {
-    const { application, params } = this.props;
-
-    if (application.state === 'approved') {
-      this.props.replace(`/application/${params.ref}/account`);
-    }
-  }
-
   componentWillReceiveProps(nextProps: Props) {
     const oldRef = get(this.props, 'application.reference_number');
     const newRef = get(nextProps, 'application.reference_number');
-    const state = get(nextProps, 'application.state');
 
     if (!oldRef && newRef) {
       this.props.replace(`/application/${newRef}`);
-    }
-
-    if (newRef && state === 'approved') {
-      this.props.replace(`/application/${newRef}/account`);
     }
   }
 

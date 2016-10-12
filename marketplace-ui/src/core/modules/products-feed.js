@@ -15,7 +15,7 @@ export type Feed = {
 
 type State = Array<Feed>;
 
-export const ACTION_FETCH = 'productsFeedSFetch';
+export const ACTION_FETCH = 'productsFeedFetch';
 export const ACTION_SUBMIT = 'productsFeedSubmit';
 export const ACTION_UPLOAD = 'productsFeedUpload';
 

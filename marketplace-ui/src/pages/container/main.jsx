@@ -117,7 +117,7 @@ class Main extends Component {
     }
 
     /** application is approved but no accounts fetched - fetching accounts */
-    if (applicationApproved && !accountsFetched && isEmpty(accounts)) {
+    if (applicationApproved && !accountsFetched) {
       fetchAccounts(get(application, 'merchant.id'));
     }
 
@@ -147,9 +147,9 @@ class Main extends Component {
     }
 
     /** feed fetched and not empty - shipping page */
-    // if (feedFetched && !isEmpty(feed)) {
-    //   this.replace(`/application/${ref}/shipping`);
-    // }
+    if (feedFetched && !isEmpty(feed)) {
+      this.replace(`/application/${ref}/shipping`);
+    }
   }
 
   replace(path: string) {
