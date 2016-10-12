@@ -103,13 +103,13 @@ export default class Cart {
    * @method updateQuantities(itemQuantities: ItemQuantities): Promise<FullOrder>
    */
   updateQuantities(itemQuantities) {
-    const updateSkusPayload = _.map(itemQuantities, (quantity, sku) => {
+    const updateSkusPayload = _.map(itemQuantities, (quantity, sku,properties) => {
       return {
         sku,
-        quantity
+        quantity,
+        properties
       };
     });
-
     return this.api.post(endpoints.cartLineItems, updateSkusPayload).then(normalizeResponse);
   }
 
@@ -122,7 +122,8 @@ export default class Cart {
      */
   getLineItemPayload(sku,quantity,properties){
       return  {
-          [sku]: quantity,
+          sku:sku,
+          quantity: quantity,
           properties: properties
       }
   }
