@@ -43,3 +43,23 @@
     }
   }
 }
+
+.no-image-text {
+  font-weight: 600;
+  color: #9BA3A7;
+}
+
+.image-cell {
+  height: 60px;
+}
+
+.cell-thumbnail {
+  height: 100%;
+}
+
+.variant-value {
+  background-color: #d9d9d9;
+  border: 1px solid #ced2d5;
+  padding: 10px;
+  white-space: nowrap;
+}

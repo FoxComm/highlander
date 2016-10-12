@@ -14,7 +14,6 @@ import { getJWT } from 'lib/claims';
 
 // types
 import type { Sku } from 'modules/skus/details';
-import type { Dictionary } from './types';
 import type { Attribute, Attributes } from './object';
 import type { JWT } from 'lib/claims';
 
@@ -32,24 +31,40 @@ export type Product = {
   productId: ?number,
   attributes: Attributes,
   skus: Array<Sku>,
+  variants: Array<Option>,
   context: Context,
 };
 
-export type Variant = {
-  name: ?string,
-  type: ?string,
-  values: Dictionary<VariantValue>,
+export type Option = {
+  attributes?: {
+    name: {
+      t: ?string,
+      v: ?string,
+    },
+    type?: {
+      t: string,
+      v: string,
+    },
+  },
+  values: Array<OptionValue>,
 };
 
-export type VariantValue = {
-  id: number,
+export type OptionValue = {
+  name: string,
   swatch: ?string,
   image: ?string,
+  skuCodes: Array<string>,
 };
 
 export const options = {
   title: { required: true },
 };
+
+// we should identity sku be feCode first
+// because we want to persist sku even if code has been changes
+export function skuId(sku: Sku): string {
+  return sku.feCode || _.get(sku.attributes, 'code.v');
+}
 
 export function isProductValid(product: Product): boolean {
   // Validate all required product fields.
@@ -88,6 +103,7 @@ export function createEmptyProduct(): Product {
     },
     skus: [],
     context: {name: 'default'},
+    variants: [],
   };
 
   if (isMerchant()) {
@@ -115,15 +131,13 @@ export function createEmptyProduct(): Product {
   return configureProduct(addEmptySku(product));
 }
 
-export function addEmptySku(product: Product): Product {
+export function createEmptySku(): Object {
   const pseudoRandomCode = generateSkuCode();
-
   const emptyPrice = {
     t: 'price',
     v: { currency: 'USD', value: 0 },
   };
-
-  let emptySku = {
+  const emptySku = {
     feCode: pseudoRandomCode,
     attributes: {
       code: {
@@ -138,6 +152,11 @@ export function addEmptySku(product: Product): Product {
       salePrice: emptyPrice,
     },
   };
+  return emptySku;
+}
+
+export function addEmptySku(product: Product): Product {
+  let emptySku = createEmptySku();
 
   if (isMerchant()) {
     const merchantAttributes = {
@@ -189,7 +208,16 @@ export function configureProduct(product: Product): Product {
       [key]: attr,
       ...res.attributes,
     });
-  }, product);
+  }, ensureProductHasSkus(product));
+}
+
+function ensureProductHasSkus(product: Product): Product {
+  if (_.isEmpty(product.skus)) {
+    return assoc(product,
+      'skus', [createEmptySku()]
+    );
+  }
+  return product;
 }
 
 export function setSkuAttribute(product: Product,
@@ -205,9 +233,9 @@ export function setSkuAttribute(product: Product,
   const val = type == 'price' ? parseInt(value) : value;
 
   const updateAttribute = sku => {
-    const code = _.get(sku, 'attributes.code.v');
+    const skuCode = _.get(sku, 'attributes.code.v');
 
-    return (code == code || sku.feCode == code)
+    return (skuCode == code || sku.feCode == code)
       ? assoc(sku, attrPath, val)
       : sku;
   };
