@@ -35,15 +35,8 @@ export const ACTION_SUBMIT = 'merchantApplicationSubmit';
 
 const { perform: submit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, data =>
   new Promise((resolve, reject) =>
-    api.post('/merchant_applications', { merchant_application: { ...data } })
-      .then((application: Application) =>
-        Promise.all([
-          api.post(`/merchant_applications/${application.id}/business_profile`, { business_profile: { ...data } }),
-          api.post(`/merchant_applications/${application.id}/social_profile`, { social_profile: { ...data } }),
-        ])
-          .then(() => resolve(application))
-          .catch(() => reject())
-      )
+    api.post('/merchant_applications_full', { merchant_application: { ...data } })
+      .then((application: Application) => resolve(application))
       .catch(err => reject(new SubmissionError(err.response.data.errors)))
   )
 );
@@ -52,8 +45,7 @@ const { perform: fetch, clearErrors, ...actionsFetch } = createAsyncActions(ACTI
   api.get(`/merchant_applications/by_ref/${reference}`)
 );
 
-const initialState: State = {
-};
+const initialState: State = {};
 
 const reducer = createReducer({
   [actionsFetch.succeeded]: (state: State, application: ApplicationResponse) => ({
