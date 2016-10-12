@@ -18,7 +18,7 @@ class TaxonomyIntegrationTest
     with BakedFixtures
     with TaxonomySeeds {
 
-  def findTermById(terms: TermList, id: Int): Option[TaxonResponse] =
+  def findTermById(terms: TaxonList, id: Int): Option[TaxonResponse] =
     terms
       .find(_.id == id)
       .orElse(
@@ -35,7 +35,7 @@ class TaxonomyIntegrationTest
     "gets taxonomy" in new TaxonomyFixture {
       val response = queryGetTaxon(taxonomy.formId)
       response.id must === (taxonomy.formId)
-      response.terms mustBe empty
+      response.taxons mustBe empty
       response.attributes must === (JObject(taxonomyAttributes.toList: _*))
     }
   }
@@ -49,7 +49,7 @@ class TaxonomyIntegrationTest
       val taxonResp = resp.as[TaxonomyResponse]
       queryGetTaxon(taxonResp.id) must === (taxonResp)
       taxonResp.attributes must === (JObject(payload.attributes.toList: _*))
-      taxonResp.terms mustBe empty
+      taxonResp.taxons mustBe empty
     }
   }
 
@@ -107,7 +107,7 @@ class TaxonomyIntegrationTest
       val createdTaxon = resp.as[TaxonResponse]
       createdTaxon.attributes must === (JObject(attributes.toList: _*))
 
-      val taxons = queryGetTaxon(taxonomy.formId).terms
+      val taxons = queryGetTaxon(taxonomy.formId).taxons
       taxons.size must === (1)
       taxons.head.id must === (createdTaxon.id)
       taxons.head.attributes must === (createdTaxon.attributes)
@@ -123,7 +123,7 @@ class TaxonomyIntegrationTest
       resp.status must === (StatusCodes.OK)
       val createdTaxon = resp.as[TaxonResponse]
 
-      val newTaxons = queryGetTaxon(taxonomy.formId).terms
+      val newTaxons = queryGetTaxon(taxonomy.formId).taxons
       newTaxons.map(_.id) must contain theSameElementsInOrderAs Seq(taxons.head.formId,
                                                                     createdTaxon.id,
                                                                     taxons(1).formId)
@@ -145,7 +145,7 @@ class TaxonomyIntegrationTest
       resp.status must === (StatusCodes.OK)
       val createdTerm = resp.as[TaxonResponse]
 
-      val newTaxons      = queryGetTaxon(taxonomy.formId).terms
+      val newTaxons      = queryGetTaxon(taxonomy.formId).taxons
       val responseParent = findTermById(newTaxons, parentFormId).get
       responseParent.children.size must === (children.size + 1)
       responseParent.children.map(_.id) must contain(createdTerm.id)
@@ -171,7 +171,7 @@ class TaxonomyIntegrationTest
 
   "PATCH v1/taxonomy/:contextName/taxon/:termFormId" - {
     "moves taxons between subtrees" in new HierarchyTaxonsFixture {
-      val taxonsBefore = queryGetTaxon(taxonomy.formId).terms
+      val taxonsBefore = queryGetTaxon(taxonomy.formId).taxons
 
       val List(left, right) = taxonsBefore.take(2)
       val taxonToMoveId     = left.children.head.id
@@ -181,7 +181,7 @@ class TaxonomyIntegrationTest
                        UpdateTaxonPayload(None, TaxonLocation(newParentId.some, 0).some))
       resp.status must === (StatusCodes.OK)
 
-      val taxonsAfter = queryGetTaxon(taxonomy.formId).terms
+      val taxonsAfter = queryGetTaxon(taxonomy.formId).taxons
 
       val List(leftAfter, rightAfter) = taxonsAfter.take(2)
       leftAfter.children.size must === (left.children.size - 1)
@@ -190,7 +190,7 @@ class TaxonomyIntegrationTest
     }
 
     "fails to move taxon to children" in new HierarchyTaxonsFixture {
-      val taxonsBefore = queryGetTaxon(taxonomy.formId).terms
+      val taxonsBefore = queryGetTaxon(taxonomy.formId).taxons
 
       val List(left, right) = taxonsBefore.take(2)
 
