@@ -1,4 +1,4 @@
-import axios from 'axios';
+import request from './request';
 
 export class Api {
   defaultHeaders = {
@@ -12,24 +12,14 @@ export class Api {
   }
 
   request(method, url, data, options = {}) {
-    return axios({
-      method,
-      url,
-      data,
-      baseURL: this.baseUrl,
+    const clearUrl = url.replace(/^\//, '');
+
+    return request(method, `${this.baseUrl}/${clearUrl}`, data, {
       headers: {
         ...this.defaultHeaders,
         ...(options && options.headers || {}),
       },
-    })
-      .then(response => response.data)
-      .catch(err => {
-        const message = `${method.toUpperCase()} ${url} responded with ${err.response.statusText}`;
-        const error = new Error(message);
-        error.response = err.response;
-
-        throw error;
-      });
+    });
   }
 
   get(...args) {

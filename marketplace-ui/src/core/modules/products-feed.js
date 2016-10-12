@@ -1,11 +1,12 @@
 /* @flow */
 
-import pick from 'lodash/pick';
+import { pick } from 'lodash';
 import { createReducer } from 'redux-act';
 import { SubmissionError } from 'redux-form';
 
 import createAsyncActions from './async-utils';
 
+import request from '../lib/request';
 import api from '../lib/api';
 
 export type Feed = {
@@ -36,13 +37,26 @@ const { perform: submit, ...submitActions } = createAsyncActions(ACTION_SUBMIT, 
   );
 });
 
-const { perform: upload, ...uploadActions } = createAsyncActions(ACTION_UPLOAD, (merchantId, data) =>
-  new Promise((resolve, reject) =>
-    api.post(`/merchants/${merchantId}/products_feed`, { products_feed: { ...data } })
-      .then(() => resolve())
-      .catch(err => reject(new SubmissionError(err.response.data.errors)))
-  )
-);
+const { perform: upload, ...uploadActions } = createAsyncActions(ACTION_UPLOAD, (merchantId, data) => {
+  const file = data.file[0];
+  const type = file.type;
+  const name = encodeURIComponent(file.name);
+
+  return new Promise((resolve, reject) =>
+    request('get', '/s3sign', { name, type })
+      .then(signed => {
+        request('put', signed.signedRequest, file, { headers: { 'Content-Type': type } })
+          .then(() =>
+            api.post(`/merchants/${merchantId}/products_feed`, { products_feed: { url: signed.url } })
+              .then(() => resolve())
+              .catch(err => reject(new SubmissionError(err.response.data.errors)))
+          )
+          .catch(() => reject(new SubmissionError()));
+      })
+      .catch(() => reject(new SubmissionError()))
+  );
+});
+
 
 const initialState: State = {};
 

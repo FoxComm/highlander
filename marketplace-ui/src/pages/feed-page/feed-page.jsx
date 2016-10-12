@@ -12,6 +12,7 @@ import UploadForm from '../../forms/feed/upload-form';
 
 import {
   getApplication,
+  getFeed,
   getFeedSubmitInProgress,
   getFeedSubmitFailed,
   getFeedUploadInProgress,
@@ -127,7 +128,7 @@ class FeedPage extends Component {
 }
 
 const mapState = state => ({
-  feed: getApplication(state),
+  feed: getFeed(state),
   application: getApplication(state),
   feedSubmitInProgress: getFeedSubmitInProgress(state),
   feedSubmitFailed: getFeedSubmitFailed(state),

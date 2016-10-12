@@ -147,9 +147,9 @@ class Main extends Component {
     }
 
     /** feed fetched and not empty - shipping page */
-    if (feedFetched && !isEmpty(feed)) {
-      this.replace(`/application/${ref}/shipping`);
-    }
+    // if (feedFetched && !isEmpty(feed)) {
+    //   this.replace(`/application/${ref}/shipping`);
+    // }
   }
 
   replace(path: string) {

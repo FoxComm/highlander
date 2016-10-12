@@ -20,4 +20,4 @@ const UploadForm = props => {
 
 const selector = formValueSelector('upload');
 
-export default connect(state => ({ file: selector(state, 'feed_file') }))(UploadForm);
+export default connect(state => ({ file: selector(state, 'file') }))(UploadForm);
