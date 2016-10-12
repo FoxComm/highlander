@@ -9,17 +9,14 @@
 - name: Enable Service Upstreams
   file: src=/etc/nginx/sites-available/services dest=/etc/nginx/sites-enabled/services owner=root group=root state=link
 
-- name: Install Ashes hosts
-  template: src=ashes.j2 dest=/etc/nginx/sites-available/ashes
+- name: Install Web UI hosts
+  template: src=webui.j2 dest=/etc/nginx/sites-available/webui
 
-- name: Enable Ashes hosts
-  file: src=/etc/nginx/sites-available/ashes dest=/etc/nginx/sites-enabled/ashes owner=root group=root state=link
+- name: Enable Web UI hosts
+  file: src=/etc/nginx/sites-available/webui dest=/etc/nginx/sites-enabled/webui owner=root group=root state=link
 
-- name: Install Firebrand hosts
-  template: src=storefront.j2 dest=/etc/nginx/sites-available/storefront
-
-- name: Enable Firebrand hosts
-  file: src=/etc/nginx/sites-available/storefront dest=/etc/nginx/sites-enabled/storefront owner=root group=root state=link
+- name: Remove default link
+  file: path=/etc/nginx/sites-enabled/default state=absent
 
 - name: Restart Nginx
   service: name=nginx state=restarted

@@ -16,7 +16,7 @@
     - lua-cjson-dev
     - nginx-extras
 
-- name: Instal lua request uuid handler
+- name: Install lua request uuid handler
   copy: src=uuid4.lua dest=/etc/nginx/uuid4.lua
 
 - name: Install base config
