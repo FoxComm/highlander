@@ -20,7 +20,7 @@ create table object_full_schemas(
 create index object_full_schemas_kind_idx on object_full_schemas (kind);
 
 
-alter table object_shadows add column schema_id integer not null
+alter table object_shadows add column schema_id integer
     references object_full_schemas(id) on update restrict on delete restrict;
 create index object_shadows_object_schema_idx on object_shadows (schema_id);
 

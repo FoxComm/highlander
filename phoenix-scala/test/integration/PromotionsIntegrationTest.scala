@@ -4,7 +4,7 @@ import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import models.objects.ObjectContext
 import models.promotion._
-import org.json4s.JsonAST.JNothing
+import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 import payloads.CouponPayloads._
@@ -17,6 +17,7 @@ import services.promotion.PromotionManager
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
+import testutils.PayloadHelpers._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.time.RichInstant
@@ -56,22 +57,14 @@ class PromotionsIntegrationTest
 
   "PATCH /v1/promotions/:context/:id" - {
     "change qualifier in promotion" in new Fixture {
-      val formDiscount = promoRoot.form.discounts.head.copy(attributes = discountForm.attributes.transformField {
-        case ("orderTotalAmount", q) ⇒ ("orderAny", q)
-      })
 
-      val shadowDiscount = promoRoot.shadow.discounts.head
-
-      val disablePromoPayload = UpdatePromotion(applyType = promotion.applyType,
-          form = UpdatePromotionForm(
-            attributes = promoForm.attributes,
-            discounts = Seq(UpdatePromoDiscountForm(id = formDiscount.id,
-              attributes = formDiscount.attributes
-            ))),
-          shadow = UpdatePromotionShadow(attributes = promoShadow.attributes,
-            discounts = Seq(UpdatePromoDiscountShadow(id = shadowDiscount.id,
-              attributes = discountShadow.attributes
-            ))))
+      val newDiscountAttrs = makeDiscountAttrs("orderAny", "any" → JInt(0))
+      val formDiscount     = promoRoot.form.discounts.head
+      val disablePromoPayload =
+        UpdatePromotion(applyType = promotion.applyType,
+                        attributes = promoAttributes,
+                        discounts =
+                          Seq(UpdatePromoDiscount(formDiscount.id, attributes = newDiscountAttrs)))
 
       promotionsApi(promotion.formId).update(disablePromoPayload).as[PromotionResponse.Root]
     }
@@ -81,50 +74,38 @@ class PromotionsIntegrationTest
 
     implicit val au = storeAdminAuthData
 
-    val percentOff   = 10
-    val totalAmount  = 0
-    val discountForm = CreateDiscountForm(attributes = parse(s"""
-    {
-      "title" : "Get $percentOff% off when you spend $totalAmount dollars",
-      "description" : "$percentOff% off when you spend over $totalAmount dollars",
-      "tags" : [],
-      "qualifier" : {
-        "orderTotalAmount" : {
-          "totalAmount" : ${totalAmount * 100}
-        }
-      },
-      "offer" : {
-        "orderPercentOff": {
-          "discount": $percentOff
-        }
-      }
-    }"""))
+    def makeDiscountAttrs(qualifier: String, qualifierValue: JObject): Map[String, JValue] = {
+      Map[String, Any](
+          "title"       → s"Get $percentOff% off when you spend $totalAmount dollars",
+          "description" → s"$percentOff% off when you spend over $totalAmount dollars",
+          "tags"        → Array[String](),
+          "qualifier" → JObject(
+              qualifier → qualifierValue
+          ),
+          "offer" → JObject(
+              "orderPercentOff" → JObject(
+                  "discount" → JInt(percentOff)
+              )
+          )
+      ).jsonifyValues
+    }
 
-    val discountShadow = CreateDiscountShadow(
-        attributes = parse("""
-        {
-          "title" : {"type": "string", "ref": "title"},
-          "description" : {"type": "richText", "ref": "description"},
-          "tags" : {"type": "tags", "ref": "tags"},
-          "qualifier" : {"type": "qualifier", "ref": "qualifier"},
-          "offer" : {"type": "offer", "ref": "offer"}
-        }"""))
+    val percentOff  = 10
+    val totalAmount = 0
+    val discountAttributes =
+      makeDiscountAttrs("orderTotalAmount", "totalAmount" → JInt(totalAmount * 100))
 
-    val promoForm = CreatePromotionForm(attributes = ("name"
-                                                → (("t" → "string") ~ ("v" → "donkey promo"))),
-                                        discounts = Seq(discountForm))
-    val promoShadow = CreatePromotionShadow(attributes = ("name"
-                                                    → (("type" → "string") ~ ("ref" → "name"))),
-                                            discounts = Seq(discountShadow))
-    val promoPayload = CreatePromotion(applyType = Promotion.Coupon, promoForm, promoShadow)
+    val promoAttributes = Map[String, JString]("name" → JString("donkey promo"))
 
-    val couponForm = CreateCouponForm(attributes = ("name" → "donkey coupon"))
+    val promoPayload = CreatePromotion(applyType = Promotion.Coupon,
+                                       attributes = promoAttributes,
+                                       discounts =
+                                         Seq(CreateDiscount(attributes = discountAttributes)))
 
-    val couponShadow = CreateCouponShadow(
-        attributes = ("name"
-                → (("type" → "string") ~ ("ref" → "name"))))
+    val couponAttributes = Map[String, JString]("name" → JString("donkey coupon"))
 
-    def couponPayload(promoId: Int): CreateCoupon = CreateCoupon(couponForm, couponShadow, promoId)
+    def couponPayload(promoId: Int): CreateCoupon =
+      CreateCoupon(attributes = couponAttributes, promoId)
 
     val (promotion, coupon, promoRoot) = (for {
       promoRoot ← * <~ PromotionManager.create(promoPayload, ctx.name)

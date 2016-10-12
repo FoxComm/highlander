@@ -17,6 +17,7 @@ import responses.ProductResponses.ProductResponse.Root
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
+import testutils.PayloadHelpers._
 import utils.JsonFormatters
 import utils.Money.Currency
 import utils.aliases._
@@ -384,24 +385,24 @@ class ProductIntegrationTest
 
   trait Fixture extends StoreAdmin_Seed {
 
-    def makeSkuPayload(code: String, name: String) = {
-      val attrMap =
-        Map("name" → (("t" → "string") ~ ("v" → name)), "code" → (("t" → "string") ~ ("v" → code)))
+    def makeSkuPayload(code: String, name: String): SkuPayload = {
+      val attrMap = Map[String, Any](
+          "name" → name,
+          "code" → code
+      ).jsonifyValues
+
       SkuPayload(attrMap)
     }
 
     def makeSkuPayload(code: String, attrMap: Map[String, Json]) = {
-      val codeJson = ("t" → "string") ~ ("v" → code)
-      SkuPayload(attrMap + ("code" → codeJson))
+      SkuPayload(attrMap + ("code" → JString(code)))
     }
 
     val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-    val priceJson  = ("t" → "price") ~ ("v" → priceValue)
-    val skuAttrMap = Map("price" → priceJson)
+    val skuAttrMap = Map("price" → priceValue)
     val skuPayload = makeSkuPayload("SKU-NEW-TEST", skuAttrMap)
 
-    val nameJson = ("t"       → "string") ~ ("v" → "Product name")
-    val attrMap  = Map("name" → nameJson)
+    val attrMap = Map[String, Any]("name" → "Product name").jsonifyValues
     val productPayload =
       CreateProductPayload(attributes = attrMap, skus = Seq(skuPayload), variants = None)
 
