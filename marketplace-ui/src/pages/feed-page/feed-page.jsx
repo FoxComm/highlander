@@ -9,6 +9,8 @@ import { replace } from 'react-router-redux';
 import Header from '../../components/header/header';
 import FeedForm from '../../forms/feed/feed-form';
 import UploadForm from '../../forms/feed/upload-form';
+import ThanksOrNot from '../../components/thanks-or-not/thanks-or-not';
+import Loader from '../../components/loader/loader';
 
 import {
   getApplication,
@@ -42,14 +44,27 @@ type Props = {
   replace: (path: string) => void;
 }
 
+const TIMEOUT_REDIRECT = 3000;
 
 class FeedPage extends Component {
   props: Props;
 
   componentWillReceiveProps(nextProps: Props) {
     if (!isEmpty(nextProps.feed)) {
-      this.props.replace(`/application/${this.props.params.ref}/shipping`);
+      this.handleInfoSucceeded();
+      // this.props.replace(`/application/${this.props.params.ref}/shipping`);
     }
+  }
+
+  handleInfoSucceeded() {
+    if (!window) {
+      return;
+    }
+
+    setTimeout(
+      () => window.location.replace(window.__ASHES_URL__),
+      TIMEOUT_REDIRECT
+    );
   }
 
   @autobind
@@ -109,6 +124,36 @@ class FeedPage extends Component {
     );
   }
 
+  get loader(): HTMLElement {
+    if (isEmpty(this.props.feed)) {
+      return;
+    }
+
+    return (
+      <ThanksOrNot
+        className={styles.thanksOrNot}
+        title="You're done!"
+        message="You're being redirected to admin page now"
+      >
+        <Loader />
+      </ThanksOrNot>
+    );
+  }
+
+  get forms(): HTMLElement {
+    if (!isEmpty(this.props.feed)) {
+      return;
+    }
+
+    return (
+      <div className={styles.forms}>
+        {this.form}
+        <div className={styles.or}>Or</div>
+        {this.upload}
+      </div>
+    );
+  }
+
   render(): HTMLElement {
     return (
       <div className={styles.feed}>
@@ -117,11 +162,8 @@ class FeedPage extends Component {
           legend={`If you have an existing Google Product or Amazon Product feed, we can automatically import
           your products. Or you can select to manually supply your products via an .XML, .CSV, or .TXT files.`}
         />
-        <div className={styles.forms}>
-          {this.form}
-          <div className={styles.or}>Or</div>
-          {this.upload}
-        </div>
+        {this.loader}
+        {this.forms}
       </div>
     );
   }

@@ -8,8 +8,6 @@ import { replace } from 'react-router-redux';
 
 import Header from '../../components/header/header';
 import Form from '../../components/form/form';
-import ThanksOrNot from '../../components/thanks-or-not/thanks-or-not';
-import Loader from '../../components/loader/loader';
 
 import { getApplication, getInfo, getInfoSubmitInProgress, getInfoSubmitFailed } from '../../core/modules';
 import { submit } from '../../core/modules/merchant-info';
@@ -49,20 +47,6 @@ class MerchantInfoPage extends Component {
     }
 
     return this.props.submit(merchantId, data);
-  }
-
-  get loader(): HTMLElement {
-    if (!this.props.info.id) {
-      return;
-    }
-
-    const message = <span>You're being redirected to admin page now</span>;
-
-    return (
-      <ThanksOrNot className={styles.thanksOrNot} title="You're done!" message={message}>
-        <Loader />
-      </ThanksOrNot>
-    );
   }
 
   get form(): HTMLElement {

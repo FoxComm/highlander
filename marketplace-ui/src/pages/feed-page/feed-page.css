@@ -35,6 +35,10 @@
       margin: 0;
     }
   }
+
+  & .thanksOrNot {
+    margin-top: 50px;
+  }
 }
 
 .or {

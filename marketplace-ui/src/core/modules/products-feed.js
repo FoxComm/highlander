@@ -40,15 +40,15 @@ const { perform: submit, ...submitActions } = createAsyncActions(ACTION_SUBMIT, 
 const { perform: upload, ...uploadActions } = createAsyncActions(ACTION_UPLOAD, (merchantId, data) => {
   const file = data.file[0];
   const type = file.type;
-  const name = encodeURIComponent(file.name);
+  const name = file.name;
 
   return new Promise((resolve, reject) =>
     request('get', '/s3sign', { name, type })
       .then(signed => {
         request('put', signed.signedRequest, file, { headers: { 'Content-Type': type } })
           .then(() =>
-            api.post(`/merchants/${merchantId}/products_feed`, { products_feed: { url: signed.url } })
-              .then(() => resolve())
+            api.post(`/merchants/${merchantId}/products_upload`, { products_upload: { file_url: signed.url } })
+              .then(upload => resolve(upload))
               .catch(err => reject(new SubmissionError(err.response.data.errors)))
           )
           .catch(() => reject(new SubmissionError()));

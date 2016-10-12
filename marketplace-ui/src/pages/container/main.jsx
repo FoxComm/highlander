@@ -137,19 +137,20 @@ class Main extends Component {
     }
 
     /** accounts fetched and not empty - fetching info */
-    if (infoFetched && !isEmpty(info) && !feedFetched) {
-      fetchFeed(get(application, 'merchant.id'));
-    }
-
-    /** info fetched and not empty - actions page */
-    if (feedFetched && isEmpty(feed)) {
+    if (infoFetched && !isEmpty(info) /*&& !feedFetched*/) {
+      // fetchFeed(get(application, 'merchant.id'));
       this.replace(`/application/${ref}/actions`);
     }
 
+    /** info fetched and not empty - actions page */
+    // if (feedFetched && isEmpty(feed)) {
+    //   this.replace(`/application/${ref}/actions`);
+    // }
+
     /** feed fetched and not empty - shipping page */
-    if (feedFetched && !isEmpty(feed)) {
-      this.replace(`/application/${ref}/shipping`);
-    }
+    // if (feedFetched && !isEmpty(feed)) {
+    //   this.replace(`/application/${ref}/shipping`);
+    // }
   }
 
   replace(path: string) {
