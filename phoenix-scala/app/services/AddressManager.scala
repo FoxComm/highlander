@@ -31,7 +31,6 @@ object AddressManager {
       response ← * <~ AddressResponse.fromAddress(address)
     } yield response
 
-<<<<<<< HEAD
   def create(
       originator: User,
       payload: CreateAddressPayload,
@@ -39,19 +38,6 @@ object AddressManager {
     for {
       customer ← * <~ Users.mustFindById404(customerId)
       address  ← * <~ Addresses.create(Address.fromPayload(payload, customerId))
-=======
-  def create(originator: Originator, payload: CreateAddressPayload, customerId: Int)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      apis: Apis): DbResultT[AddressResponse] =
-    for {
-      customer ← * <~ Customers.mustFindById404(customerId)
-      address  ← * <~ Addresses.create(Address.fromPayload(payload, customerId))
-      region   ← * <~ Regions.mustFindById400(address.regionId)
-      country  ← * <~ Countries.mustFindById400(region.countryId)
-      _        ← * <~ apis.avalaraApi.validateAddress(address, region, country)
->>>>>>> validate addresses
       response ← * <~ AddressResponse.fromAddress(address)
       _        ← * <~ LogActivity.addressCreated(originator, customer, response)
     } yield response
@@ -67,19 +53,9 @@ object AddressManager {
                     .findActiveByIdAndAccount(addressId, accountId)
                     .mustFindOneOr(addressNotFound(addressId))
       address     ← * <~ Address.fromPayload(payload, accountId).copy(id = addressId).validate
-<<<<<<< HEAD
       region      ← * <~ Regions.mustFindById400(address.regionId)
       country     ← * <~ Countries.mustFindById400(region.countryId)
       _           ← * <~ TaxesService.saveAddressValidationDetails(address)
-=======
-      address ← * <~ Address
-                 .fromPayload(payload)
-                 .copy(customerId = customerId, id = addressId)
-                 .validate
-      region      ← * <~ Regions.mustFindById400(address.regionId)
-      country     ← * <~ Countries.mustFindById400(region.countryId)
-      _           ← * <~ apis.avalaraApi.validateAddress(address, region, country)
->>>>>>> validate addresses
       _           ← * <~ Addresses.insertOrUpdate(address)
       response    ← * <~ AddressResponse.fromAddress(address)
       oldResponse ← * <~ AddressResponse.fromAddress(oldAddress)

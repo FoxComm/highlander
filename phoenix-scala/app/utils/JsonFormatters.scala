@@ -20,6 +20,7 @@ import models.{Assignment, Note, Reason}
 import models.admin.AdminData
 import org.json4s.jackson
 import responses.PublicResponses.CountryWithRegions
+import responses.plugins.PluginCommonResponses
 import utils.apis.Avalara
 
 object JsonFormatters {
@@ -41,7 +42,8 @@ object JsonFormatters {
       CreditCardCharge.State.jsonFormat + CountryWithRegions.jsonFormat +
       QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
       PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +
-      IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat
+      IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +
+      PluginCommonResponses.State.jsonFormat
 
   val avalaraFormats = DefaultFormats + Avalara.Responses.SeverityLevel.jsonFormat +
       Avalara.DocType.jsonFormat + Avalara.DetailLevel.jsonFormat +
