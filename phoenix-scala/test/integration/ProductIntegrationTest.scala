@@ -386,23 +386,24 @@ class ProductIntegrationTest
   trait Fixture extends StoreAdmin_Seed {
 
     def makeSkuPayload(code: String, name: String): SkuPayload = {
-      val attrMap = Map[String, Any](
-          "name" → name,
-          "code" → code
-      ).jsonifyValues
+      val attrMap =
+        Map("name" → (("t" → "string") ~ ("v" → name)), "code" → (("t" → "string") ~ ("v" → code)))
 
       SkuPayload(attrMap)
     }
 
     def makeSkuPayload(code: String, attrMap: Map[String, Json]) = {
-      SkuPayload(attrMap + ("code" → JString(code)))
+      val codeJson = ("t" → "string") ~ ("v" → code)
+      SkuPayload(attrMap + ("code" → codeJson))
     }
 
     val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-    val skuAttrMap = Map("price" → priceValue)
+    val priceJson  = ("t" → "price") ~ ("v" → priceValue)
+    val skuAttrMap = Map("price" → priceJson)
     val skuPayload = makeSkuPayload("SKU-NEW-TEST", skuAttrMap)
 
-    val attrMap = Map[String, Any]("name" → "Product name").jsonifyValues
+    val nameJson = ("t" → "string") ~ ("v" → "Product name")
+    val attrMap = Map("name" → nameJson)
     val productPayload =
       CreateProductPayload(attributes = attrMap, skus = Seq(skuPayload), variants = None)
 

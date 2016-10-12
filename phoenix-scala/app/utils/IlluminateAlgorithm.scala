@@ -1,14 +1,18 @@
 package utils
 
+import java.time.Instant
+
 import cats.data._
 import com.typesafe.scalalogging.LazyLogging
-import failures.Failure
+import failures.{Failure, Failures}
 import failures.ObjectFailures._
 import models.objects._
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
 import utils.aliases._
 import utils.db._
+
+import org.json4s.jackson.JsonMethods._
 
 // json schema
 import scala.collection.JavaConverters._
@@ -90,8 +94,9 @@ object IlluminateAlgorithm extends LazyLogging {
         shadow.obj.flatMap {
           case (attr, link) ⇒
             val ref = link \ "ref"
+            val t   = link \ "type"
             ref match {
-              case JString(key) ⇒ validateAttribute(attr, key, formJson)
+              case JString(key) ⇒ validateAttribute(attr, key, t, formJson)
               case _            ⇒ Seq(ShadowAttributeMissingRef(attr))
             }
         }
@@ -102,11 +107,50 @@ object IlluminateAlgorithm extends LazyLogging {
       case _ ⇒
         Seq(FormAttributesAreEmpty, ShadowAttributesAreEmpty)
     }
+  def validateAttributesTypes(formJson: Json, shadowJson: Json): Seq[Failure] = {
+    (formJson, shadowJson) match {
+      case (JObject(form), JObject(shadow)) ⇒
+        shadow.obj.flatMap {
+          case (attr, link) ⇒
+            val typed = link \ "type"
+            val ref   = link \ "ref"
+            ref match {
+              case JString(key) ⇒ validateAttributeType(attr, key, typed, formJson)
+              case _            ⇒ Seq.empty[Failure]
+            }
+        }
+      case _ ⇒ Seq.empty[Failure]
+    }
+  }
 
-  private def validateAttribute(attr: String, key: String, form: Json): Seq[Failure] =
-    form \ key match {
+  private def validateAttributeType(attr: String,
+                                    key: String,
+                                    typed: JValue,
+                                    form: Json): Seq[Failure] = {
+    val value = form \ key
+
+    typed match {
+      case JString("datetime") ⇒
+        if (value != JNull && value != JNothing && value.extractOpt[Instant].isEmpty)
+          Seq(ShadowAttributeInvalidTime(attr, value.toString))
+        else
+          Seq.empty[Failure]
+      case _ ⇒ Seq.empty[Failure]
+    }
+  }
+
+  private def validateAttribute(attr: String,
+                                key: String,
+                                typed: JValue,
+                                form: Json): Seq[Failure] = {
+    val value = form \ key
+
+    val shadowAttributesErrors = value match {
       case JNothing ⇒ Seq(ShadowHasInvalidAttribute(attr, key))
       case _        ⇒ Seq.empty[Failure]
     }
+
+    validateAttributeType(attr, key, typed, form) ++ shadowAttributesErrors
+  }
 
 }
