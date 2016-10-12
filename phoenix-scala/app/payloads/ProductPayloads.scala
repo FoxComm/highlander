@@ -7,8 +7,8 @@ import utils.aliases._
 object ProductPayloads {
   case class CreateProductPayload(attributes: Map[String, Json],
                                   skus: Seq[SkuPayload],
-                                  schema: Option[String],
-                                  variants: Option[Seq[VariantPayload]])
+                                  variants: Option[Seq[VariantPayload]],
+                                  schema: Option[String] = None)
 
   case class UpdateProductPayload(attributes: Map[String, Json],
                                   skus: Option[Seq[SkuPayload]],
