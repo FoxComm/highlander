@@ -30,7 +30,8 @@ const tableColumns: Array<Object> = [
   },
   { field: 'description', text: 'Description' },
   { field: 'version', text: 'Version' },
-  { field: 'createdAt', text: 'Date/Time Created', type: 'datetime' },
+  { field: 'createdAt', text: 'Date/Time Added', type: 'datetime' },
+  { field: 'state', text: 'State', type: 'status', model: 'plugin' },
 ];
 
 class PluginsList extends Component {

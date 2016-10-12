@@ -52,6 +52,10 @@ export const states = {
     onHand: 'OnHand',
     onHold: 'OnHold',
     reserved: 'Reserved',
+  },
+  plugin: {
+    active: 'Active',
+    inactive: 'Inactive',
   }
 };
 
