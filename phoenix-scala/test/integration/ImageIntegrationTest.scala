@@ -3,7 +3,6 @@ import java.time.Instant
 
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
-import akka.stream.scaladsl.Source
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
@@ -352,23 +351,62 @@ class ImageIntegrationTest
         uploadedImage.alt must === ("foxy.jpg".some)
       }
 
+      "uploads multiple images" in new Fixture {
+
+        val response = POST(s"/v1/albums/ru/${ctx.name}/images")
+
+        val updatedAlbumImages = ImageManager
+          .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), ctx)
+          .gimme
+
+        val responseAlbum = uploadImage(album, 2).as[AlbumRoot]
+        responseAlbum.images.size must === (updatedAlbumImages.size + 2)
+
+        val uploadedImage = responseAlbum.images.last
+
+        uploadedImage.src must === ("amazon-image-url")
+        uploadedImage.title must === ("foxy.jpg".some)
+        uploadedImage.alt must === ("foxy.jpg".some)
+      }
+
+      "fails if uploading no images" in new Fixture {
+
+        val response = POST(s"/v1/albums/ru/${ctx.name}/images")
+
+        val updatedAlbumImages = ImageManager
+          .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), ctx)
+          .gimme
+
+        val responseAlbum = uploadImage(album, 0)
+        responseAlbum.error must === (ImageNotFoundInPayload.description)
+      }
+
       "fail when uploading to archived album" in new ArchivedAlbumFixture {
         uploadImage(archivedAlbum).mustFailWith400(
             AddImagesToArchivedAlbumFailure(archivedAlbum.id))
       }
 
-      def uploadImage(album: Album): HttpResponse = {
+      def uploadImage(album: Album, count: Int = 1): HttpResponse = {
         val image = Paths.get("test/resources/foxy.jpg")
         image.toFile.exists mustBe true
 
-        val bodyPart =
-          Multipart.FormData.BodyPart.fromPath(name = "upload-file",
-                                               contentType = MediaTypes.`application/octet-stream`,
-                                               file = image)
-        val formData = Multipart.FormData(Source.single(bodyPart))
-        val entity   = Marshal(formData).to[RequestEntity].futureValue
-        val uri      = pathToAbsoluteUrl(s"v1/albums/${ctx.name}/${album.id}/images")
-        val request  = HttpRequest(method = HttpMethods.POST, uri = uri, entity = entity)
+        val entity = if (count == 0) {
+          Marshal(Multipart.FormData(Multipart.FormData.BodyPart.apply("test", HttpEntity.Empty)))
+            .to[RequestEntity]
+            .futureValue
+        } else {
+          val bodyParts = 1 to count map { _ ⇒
+            Multipart.FormData.BodyPart.fromPath(name = "upload-file",
+                                                 contentType =
+                                                   MediaTypes.`application/octet-stream`,
+                                                 file = image)
+          }
+          val formData = Multipart.FormData(bodyParts.toList: _*)
+          Marshal(formData).to[RequestEntity].futureValue
+        }
+
+        val uri     = pathToAbsoluteUrl(s"v1/albums/${ctx.name}/${album.id}/images")
+        val request = HttpRequest(method = HttpMethods.POST, uri = uri, entity = entity)
         dispatchRequest(request)
       }
     }
