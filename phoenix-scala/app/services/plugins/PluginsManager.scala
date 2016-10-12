@@ -14,8 +14,8 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 import utils.JsonFormatters
-
 import com.typesafe.scalalogging.LazyLogging
+import models.account.UserPasswordReset.Disabled
 
 object PluginsManager extends LazyLogging {
 
@@ -118,5 +118,19 @@ object PluginsManager extends LazyLogging {
       plugin ← * <~ Plugins.findByName(name).mustFindOr(NotFoundFailure404(Plugin, name))
     } yield plugin.settings
   }
+
+  def updateState(name: String, payload: UpdatePluginState)(implicit ec: EC,
+                                                            db: DB,
+                                                            ac: AC): DbResultT[PluginInfo] =
+    for {
+      plugin ← * <~ Plugins.findByName(name).mustFindOr(NotFoundFailure404(Plugin, name))
+      updated ← * <~ Plugins.update(plugin,
+                                    plugin.copy(
+                                        isDisabled =
+                                          if (payload.state == Plugin.Inactive)
+                                            false
+                                          else
+                                            true))
+    } yield PluginInfo.fromPlugin(updated)
 
 }

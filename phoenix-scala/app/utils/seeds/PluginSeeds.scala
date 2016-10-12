@@ -4,7 +4,6 @@ import models.plugins.PluginSettings._
 import models.plugins._
 import org.json4s.JsonAST._
 import payloads.PluginPayloads.RegisterPluginPayload
-import services.plugins.PluginsManager
 import utils.aliases._
 import utils.db._
 
@@ -46,6 +45,7 @@ trait PluginSeeds {
       commitDocs.name      → JBool(false),
       logTransactions.name → JBool(false)
   )
+
   val avalara = RegisterPluginPayload(name = "Avalara AvaTax",
                                       version = "1.0.0",
                                       description = "Sales tax stuff",

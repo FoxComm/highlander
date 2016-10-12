@@ -3,7 +3,7 @@ package responses.plugins
 import models.plugins.Plugin
 import java.time.Instant
 
-import com.pellucid.sealerate
+import models.plugins.Plugin._
 import models.plugins.PluginSettings.SettingsValues
 import utils._
 
@@ -13,14 +13,6 @@ object PluginCommonResponses {
 
   def buildRegister(plugin: Plugin, foundOrCreated: db.FoundOrCreated): RegisterAnswer = {
     RegisterAnswer(foundOrCreated = foundOrCreated.toString, settings = plugin.settings)
-  }
-
-  sealed trait State
-  case object Active   extends State
-  case object Inactive extends State
-
-  object State extends ADT[State] {
-    def types = sealerate.values[State]
   }
 
   case class SettingsUpdated(settings: SettingsValues)

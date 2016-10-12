@@ -5,6 +5,7 @@ import java.time.Instant
 import cats.data.ValidatedNel
 import cats.implicits._
 import failures.Failure
+import models.plugins.Plugin.State
 import utils.Validation
 import utils.Validation._
 import utils.aliases._
@@ -29,5 +30,7 @@ object PluginPayloads {
   }
 
   case class UpdateSettingsPayload(settings: SettingsValues)
+
+  case class UpdatePluginState(state: State)
 
 }

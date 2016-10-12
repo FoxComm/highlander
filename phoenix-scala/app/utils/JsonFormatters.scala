@@ -13,6 +13,7 @@ import models.payment.storecredit.{StoreCredit, StoreCreditAdjustment}
 import models.plugins.PluginSettings
 import models.promotion.Promotion
 import models.returns._
+import models.plugins._
 import models.rules.{Condition, QueryStatement}
 import models.sharedsearch.SharedSearch
 import models.shipping.Shipment
@@ -20,7 +21,6 @@ import models.{Assignment, Note, Reason}
 import models.admin.AdminData
 import org.json4s.jackson
 import responses.PublicResponses.CountryWithRegions
-import responses.plugins.PluginCommonResponses
 import utils.apis.Avalara
 
 object JsonFormatters {
@@ -43,7 +43,7 @@ object JsonFormatters {
       QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
       PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +
       IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +
-      PluginCommonResponses.State.jsonFormat
+      Plugin.State.jsonFormat
 
   val avalaraFormats = DefaultFormats + Avalara.Responses.SeverityLevel.jsonFormat +
       Avalara.DocType.jsonFormat + Avalara.DetailLevel.jsonFormat +
