@@ -32,6 +32,16 @@
   args:
     chdir: "{{phoenix_dir}}"
 
+- name: Synchronize Middlewarehouse Seeder
+  synchronize: src="{{middlewarehouse_src}}/seeder" dest="{{middlewarehouse_dir}}" delete=yes
+  sudo: true
+
+- name: Seed Middlewarehouse Database
+  shell: DB_HOST={{db_host}} DB_NAME={{middlewarehouse_db_name}} DB_USER={{middlewarehouse_db_user}}
+  sudo: true
+  args:
+    chdir: "{{middlewarehouse_dir}}"
+
 - name: Copy Service
   template: src=seeder.service dest="{{dest_services}}/seeder.service"
   sudo: true
