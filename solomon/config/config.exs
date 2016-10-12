@@ -7,14 +7,14 @@ use Mix.Config
 
 # General application configuration
 config :permissions,
-  ecto_repos: [Permissions.Repo]
+  ecto_repos: [Solomon.Repo]
 
 # Configures the endpoint
-config :permissions, Permissions.Endpoint,
+config :permissions, Solomon.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "2oOW13I0lUdSJIkfywxxryGAWuf9CX9G5sHtbRXqbFwvtAapVQnWpiYZeDL6HIK9",
-  render_errors: [view: Permissions.ErrorView, accepts: ~w(json)],
-  pubsub: [name: Permissions.PubSub,
+  render_errors: [view: Solomon.ErrorView, accepts: ~w(json)],
+  pubsub: [name: Solomon.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger

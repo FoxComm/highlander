@@ -1,12 +1,12 @@
-defmodule Permissions.PermissionClaimService do
+defmodule Solomon.PermissionClaimService do
   import Ecto
   import Ecto.Query
   alias Ecto.Changeset
   alias Ecto.Multi
   alias Ecto.Query
-  alias Permissions.Permission
-  alias Permissions.Claim
-  alias Permissions.Repo
+  alias Solomon.Permission
+  alias Solomon.Claim
+  alias Solomon.Repo
 
   def insert_permission(params) do
     perm_changeset = Permission.changeset(%Permission{}, params)

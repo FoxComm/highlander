@@ -1,7 +1,7 @@
-defmodule Permissions.SystemController do
-  use Permissions.Web, :controller
-  alias Permissions.Repo
-  alias Permissions.System
+defmodule Solomon.SystemController do
+  use Solomon.Web, :controller
+  alias Solomon.Repo
+  alias Solomon.System
 
   def index(conn, _params) do 
     systems = Repo.all(System)
@@ -20,7 +20,7 @@ defmodule Permissions.SystemController do
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Permissions.ChangesetView, "errors.json", changeset: changeset)
+        |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
     end
   end
 
@@ -39,7 +39,7 @@ defmodule Permissions.SystemController do
       {:error, changeset} -> 
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Permissions.ChangesetView, "errors.json", changeset: changeset)
+        |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
     end
   end 
 

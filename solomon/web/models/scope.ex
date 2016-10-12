@@ -1,12 +1,12 @@
-defmodule Permissions.Scope do
-  use Permissions.Web, :model
+defmodule Solomon.Scope do
+  use Solomon.Web, :model
 
   schema "scopes" do 
     field :source, :string
     
     #Implementing without ltree for now.  Custom relation will be needed
-    belongs_to :parent, Permissions.Scope
-    has_many :children, Permissions.Scope, foreign_key: :parent_id
+    belongs_to :parent, Solomon.Scope
+    has_many :children, Solomon.Scope, foreign_key: :parent_id
   end
 
   @required_fields ~w()a

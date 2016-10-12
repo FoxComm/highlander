@@ -1,13 +1,13 @@
-defmodule Permissions.Account do
-  use Permissions.Web, :model
+defmodule Solomon.Account do
+  use Solomon.Web, :model
 
   schema "accounts" do
     field :ratchet, :integer
 
-    has_many :account_roles, Permissions.AccountRole
+    has_many :account_roles, Solomon.AccountRole
     has_many :roles, through: [:account_roles, :role]
-    has_many :account_access_methods, Permissions.AccountAccessMethod
-    has_one :user, Permissions.User
+    has_many :account_access_methods, Solomon.AccountAccessMethod
+    has_one :user, Solomon.User
   end
 
   def changeset(model, params \\ :empty) do 

@@ -5,22 +5,22 @@
 # Inside the script, you can read and write to any of your
 # repositories directly:
 #
-#     Permissions.Repo.insert!(%Permissions.SomeModel{})
+#     Solomon.Repo.insert!(%Solomon.SomeModel{})
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
-alias Permissions.Repo
-alias Permissions.Account
-alias Permissions.System
-alias Permissions.Resource
-alias Permissions.Action
-alias Permissions.Role
-alias Permissions.RolePermission
-alias Permissions.RoleArchetype
-alias Permissions.Scope
-alias Permissions.Permission
-alias Permissions.AccountRole
-alias Permissions.Organization
+alias Solomon.Repo
+alias Solomon.Account
+alias Solomon.System
+alias Solomon.Resource
+alias Solomon.Action
+alias Solomon.Role
+alias Solomon.RolePermission
+alias Solomon.RoleArchetype
+alias Solomon.Scope
+alias Solomon.Permission
+alias Solomon.AccountRole
+alias Solomon.Organization
 
 organizations = for org_name <- ~w(MasterMerchant Merchant1 Merchant2) do
   Repo.insert! %Organization{

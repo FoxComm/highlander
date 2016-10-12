@@ -1,11 +1,11 @@
-defmodule Permissions.Router do
-  use Permissions.Web, :router
+defmodule Solomon.Router do
+  use Solomon.Web, :router
 
   pipeline :api do
     plug :accepts, ["json"]
   end
 
-  scope "/", Permissions do
+  scope "/", Solomon do
     pipe_through :api
 
     resources "/organizations", OrganizationController

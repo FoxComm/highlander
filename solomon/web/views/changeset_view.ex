@@ -1,5 +1,5 @@
-defmodule Permissions.ChangesetView do
-  use Permissions.Web, :view
+defmodule Solomon.ChangesetView do
+  use Solomon.Web, :view
 
   def translate_errors(changeset) do 
     Ecto.Changeset.traverse_errors(changeset, &translate_error/1)

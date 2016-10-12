@@ -1,9 +1,9 @@
-defmodule Permissions.AccountPermission do
-  use Permissions.Web, :model
+defmodule Solomon.AccountPermission do
+  use Solomon.Web, :model
 
   schema "account_permissions" do 
-    belongs_to :account, Permissions.Account
-    belongs_to :permission, Permissions.Permission
+    belongs_to :account, Solomon.Account
+    belongs_to :permission, Solomon.Permission
   end
 
   @required_fields ~w(account_id permission_id)a

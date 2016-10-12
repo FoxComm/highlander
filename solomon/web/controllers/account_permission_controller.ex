@@ -5,12 +5,12 @@
 # We might consider this being somehow integrated into role_permissions 
 # controller.
 
-defmodule Permissions.AccountPermissionController do
-  use Permissions.Web, :controller
-  alias Permissions.Repo
-  alias Permissions.Role
-  alias Permissions.Account
-  alias Permissions.Permission
+defmodule Solomon.AccountPermissionController do
+  use Solomon.Web, :controller
+  alias Solomon.Repo
+  alias Solomon.Role
+  alias Solomon.Account
+  alias Solomon.Permission
 
   def index(conn, %{"account_id" => account_id}) do
     ac_id = String.to_integer(account_id)

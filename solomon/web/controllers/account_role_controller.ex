@@ -1,8 +1,8 @@
-defmodule Permissions.AccountRoleController do
-  use Permissions.Web, :controller
-  alias Permissions.Repo
-  alias Permissions.AccountRole
-  alias Permissions.Account
+defmodule Solomon.AccountRoleController do
+  use Solomon.Web, :controller
+  alias Solomon.Repo
+  alias Solomon.AccountRole
+  alias Solomon.Account
 
   def index(conn, %{"account_id" => account_id}) do 
     account_roles = 
@@ -23,7 +23,7 @@ defmodule Permissions.AccountRoleController do
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(Permissions.ChangesetView, "errors.json", changeset: changeset)
+        |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
     end
   end
 

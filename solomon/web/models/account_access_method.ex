@@ -1,5 +1,5 @@
-defmodule Permissions.AccountAccessMethod do
-  use Permissions.Web, :model
+defmodule Solomon.AccountAccessMethod do
+  use Solomon.Web, :model
 
   schema "account_access_methods" do
     field :name, :string

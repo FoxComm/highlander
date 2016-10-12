@@ -1,12 +1,12 @@
-defmodule Permissions.Role do
-  use Permissions.Web, :model
+defmodule Solomon.Role do
+  use Solomon.Web, :model
 
   schema "roles" do
     field :name, :string
 
-    belongs_to :scope, Permissions.Scope
+    belongs_to :scope, Solomon.Scope
 
-    has_many :role_permissions, Permissions.RolePermission
+    has_many :role_permissions, Solomon.RolePermission
     has_many :permissions, through: [:role_permissions, :permission]
   end
 

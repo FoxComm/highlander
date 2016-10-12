@@ -1,4 +1,4 @@
-defmodule Permissions.Mixfile do
+defmodule Solomon.Mixfile do
   use Mix.Project
 
   def project do
@@ -17,7 +17,7 @@ defmodule Permissions.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {Permissions, []},
+    [mod: {Solomon, []},
      applications: [:phoenix, :phoenix_pubsub, :cowboy, :logger, :gettext,
                     :phoenix_ecto, :postgrex]]
   end
