@@ -24,8 +24,8 @@ func (suite *ShippingMethodModelTestSuite) SetupSuite() {
 
 func (suite *ShippingMethodModelTestSuite) Test_NewShippingMethodFromPayload_ReturnsValidModel() {
 	//arrange
-	carrierID, name, code := uint(1), "UPS 2 days ground", "GROUND"
-	payload := &payloads.ShippingMethod{carrierID, name, code}
+	carrierID, name, code, shippingDays := uint(1), "UPS 2 days ground", "GROUND", 2
+	payload := &payloads.ShippingMethod{carrierID, name, code, shippingDays}
 
 	//act
 	model := NewShippingMethodFromPayload(payload)

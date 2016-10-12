@@ -5,11 +5,12 @@ import (
 )
 
 type ShippingMethod struct {
-	ID        uint
-	CarrierID uint
-	Carrier   Carrier
-	Name      string
-	Code      string
+	ID           uint
+	CarrierID    uint
+	Carrier      Carrier
+	Name         string
+	Code         string
+	ShippingDays int `gorm:"column:expected_num_ship_days"`
 }
 
 func (shippingMethod *ShippingMethod) Identifier() uint {
@@ -18,8 +19,9 @@ func (shippingMethod *ShippingMethod) Identifier() uint {
 
 func NewShippingMethodFromPayload(payload *payloads.ShippingMethod) *ShippingMethod {
 	return &ShippingMethod{
-		CarrierID: payload.CarrierID,
-		Name:      payload.Name,
-		Code:      payload.Code,
+		CarrierID:    payload.CarrierID,
+		Name:         payload.Name,
+		Code:         payload.Code,
+		ShippingDays: payload.ShippingDays,
 	}
 }

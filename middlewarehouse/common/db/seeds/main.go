@@ -51,24 +51,28 @@ func createShippingMethods(db *gorm.DB) error {
 
 	shippingMethods := []*models.ShippingMethod{
 		&models.ShippingMethod{
-			CarrierID: carriers[0].ID,
-			Name:      "Standard shipping",
-			Code:      "STANDARD",
+			CarrierID:    carriers[0].ID,
+			Name:         "Standard shipping",
+			Code:         "STANDARD",
+			ShippingDays: 7,
 		},
 		&models.ShippingMethod{
-			CarrierID: carriers[0].ID,
-			Name:      "Standard shipping",
-			Code:      "STANDARD-FREE",
+			CarrierID:    carriers[0].ID,
+			Name:         "Standard shipping",
+			Code:         "STANDARD-FREE",
+			ShippingDays: 7,
 		},
 		&models.ShippingMethod{
-			CarrierID: carriers[1].ID,
-			Name:      "2-3 day express",
-			Code:      "EXPRESS",
+			CarrierID:    carriers[1].ID,
+			Name:         "2-3 day express",
+			Code:         "EXPRESS",
+			ShippingDays: 3,
 		},
 		&models.ShippingMethod{
-			CarrierID: carriers[1].ID,
-			Name:      "Overnight shipping",
-			Code:      "OVERNIGHT",
+			CarrierID:    carriers[1].ID,
+			Name:         "Overnight shipping",
+			Code:         "OVERNIGHT",
+			ShippingDays: 1,
 		},
 	}
 
