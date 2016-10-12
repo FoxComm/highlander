@@ -1,18 +1,18 @@
 variable "image" {}
 variable "datacenter" {}
 variable "servers" {}
-variable "ssh_user" {} 
-variable "ssh_private_key" {} 
-variable "network" {} 
+variable "ssh_user" {}
+variable "ssh_private_key" {}
+variable "network" {}
 
-resource "google_compute_instance" "amigo_server" { 
+resource "google_compute_instance" "amigo_server" {
     name = "${var.datacenter}-amigo-server-${count.index}"
     machine_type = "n1-standard-1"
     tags = ["ssh", "no-ip", "${var.datacenter}-amigo-server-${count.index}", "${var.datacenter}-amigo-server", "${var.datacenter}"]
     zone = "us-central1-a"
     count = "${var.servers}"
 
-    metadata { 
+    metadata {
         amigo_dc = "${var.datacenter}"
     }
 
@@ -20,7 +20,7 @@ resource "google_compute_instance" "amigo_server" {
         image = "${var.image}"
         type = "pd-ssd"
         size = "30"
-    }   
+    }
 
     network_interface {
         network = "${var.network}"
@@ -30,10 +30,10 @@ resource "google_compute_instance" "amigo_server" {
         scopes = ["storage-rw"]
     }
 
-    connection { 
+    connection {
         type = "ssh"
         user = "${var.ssh_user}"
-        private_key="${file(var.ssh_private_key)}"
+        private_key = "${file(var.ssh_private_key)}"
     }
 
     provisioner "remote-exec" {

@@ -1,18 +1,18 @@
 variable "image" {}
 variable "datacenter" {}
 variable "servers" {}
-variable "ssh_user" {} 
-variable "ssh_private_key" {} 
-variable "network" {} 
+variable "ssh_user" {}
+variable "ssh_private_key" {}
+variable "network" {}
 
-resource "google_compute_instance" "consul_server" { 
+resource "google_compute_instance" "consul_server" {
     name = "${var.datacenter}-consul-server-${count.index}"
     machine_type = "n1-standard-1"
     tags = ["ssh", "no-ip", "${var.datacenter}-consul-server-${count.index}", "${var.datacenter}-consul-server", "${var.datacenter}"]
     zone = "us-central1-a"
     count = "${var.servers}"
 
-    metadata { 
+    metadata {
         consul_dc = "${var.datacenter}"
     }
 
@@ -20,16 +20,16 @@ resource "google_compute_instance" "consul_server" {
         image = "${var.image}"
         type = "pd-ssd"
         size = "30"
-    }   
+    }
 
     network_interface {
         network = "${var.network}"
     }
 
-    connection { 
+    connection {
         type = "ssh"
         user = "${var.ssh_user}"
-        private_key="${file(var.ssh_private_key)}"
+        private_key = "${file(var.ssh_private_key)}"
     }
 
     provisioner "file" {

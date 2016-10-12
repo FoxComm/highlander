@@ -32,7 +32,7 @@ resource "google_compute_instance" "tiny-consul" {
     connection {
         type = "ssh"
         user = "${var.ssh_user}"
-        private_key="${file(var.ssh_private_key)}"
+        private_key = "${file(var.ssh_private_key)}"
     }
 
     provisioner "remote-exec" {
