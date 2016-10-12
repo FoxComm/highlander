@@ -11,6 +11,7 @@ final case class SkuSearchView()(implicit ec: EC) extends AvroTransformer {
       field("id", IntegerType),
       field("skuCode", StringType).analyzer("autocomplete"),
       field("context", StringType).index("not_analyzed"),
+      field("scope", StringType).analyzer("autocomplete"),
       field("title", StringType)
         .analyzer("autocomplete")
         .fields(field("raw", StringType).index("not_analyzed")),
