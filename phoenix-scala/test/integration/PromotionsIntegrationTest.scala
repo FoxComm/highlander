@@ -21,6 +21,7 @@ import testutils.PayloadHelpers._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.time.RichInstant
+import utils.aliases._
 
 class PromotionsIntegrationTest
     extends IntegrationTestBase
@@ -37,7 +38,7 @@ class PromotionsIntegrationTest
         promotionResponse.archivedAt.value.isBeforeNow mustBe true
       }
 
-      val couponRoot = couponsApi(coupon.form.id).get().as[CouponResponse.Root]
+      val couponRoot = couponsApi(coupon.id).get().as[CouponResponse.Root]
       withClue(couponRoot.archivedAt.value → Instant.now) {
         couponRoot.archivedAt.value.isBeforeNow mustBe true
       }
@@ -59,7 +60,7 @@ class PromotionsIntegrationTest
     "change qualifier in promotion" in new Fixture {
 
       val newDiscountAttrs = makeDiscountAttrs("orderAny", "any" → JInt(0))
-      val formDiscount     = promoRoot.form.discounts.head
+      val formDiscount     = promoRoot.discounts.head
       val disablePromoPayload =
         UpdatePromotion(applyType = promotion.applyType,
                         attributes = promoAttributes,
@@ -74,20 +75,18 @@ class PromotionsIntegrationTest
 
     implicit val au = storeAdminAuthData
 
-    def makeDiscountAttrs(qualifier: String, qualifierValue: JObject): Map[String, JValue] = {
+    def makeDiscountAttrs(qualifier: String, qualifierValue: JObject): Map[String, Json] = {
       Map[String, Any](
           "title"       → s"Get $percentOff% off when you spend $totalAmount dollars",
           "description" → s"$percentOff% off when you spend over $totalAmount dollars",
-          "tags"        → Array[String](),
-          "qualifier" → JObject(
-              qualifier → qualifierValue
-          ),
+          "tags"        → tv(JArray(List.empty[JString]), "tags"),
+          "qualifier"   → JObject(qualifier → qualifierValue).asShadowVal(t = "qualifier"),
           "offer" → JObject(
               "orderPercentOff" → JObject(
                   "discount" → JInt(percentOff)
               )
-          )
-      ).jsonifyValues
+          ).asShadowVal("offer")
+      ).asShadow
     }
 
     val percentOff  = 10
@@ -95,14 +94,14 @@ class PromotionsIntegrationTest
     val discountAttributes =
       makeDiscountAttrs("orderTotalAmount", "totalAmount" → JInt(totalAmount * 100))
 
-    val promoAttributes = Map[String, JString]("name" → JString("donkey promo"))
+    val promoAttributes = Map[String, Json]("name" → tv("donkey promo"))
 
     val promoPayload = CreatePromotion(applyType = Promotion.Coupon,
                                        attributes = promoAttributes,
                                        discounts =
                                          Seq(CreateDiscount(attributes = discountAttributes)))
 
-    val couponAttributes = Map[String, JString]("name" → JString("donkey coupon"))
+    val couponAttributes = Map[String, Json]("name" → tv("donkey coupon"))
 
     def couponPayload(promoId: Int): CreateCoupon =
       CreateCoupon(attributes = couponAttributes, promoId)
@@ -111,11 +110,10 @@ class PromotionsIntegrationTest
       promoRoot ← * <~ PromotionManager.create(promoPayload, ctx.name)
       promotion ← * <~ Promotions
                    .filter(_.contextId === ctx.id)
-                   .filter(_.formId === promoRoot.form.id)
-                   .filter(_.shadowId === promoRoot.shadow.id)
+                   .filter(_.formId === promoRoot.id)
                    .mustFindOneOr(NotFoundFailure404(Promotion, "test"))
 
-      coupon ← * <~ CouponManager.create(couponPayload(promoRoot.form.id), ctx.name, None)
+      coupon ← * <~ CouponManager.create(couponPayload(promoRoot.id), ctx.name, None)
     } yield (promotion, coupon, promoRoot)).gimme
   }
 

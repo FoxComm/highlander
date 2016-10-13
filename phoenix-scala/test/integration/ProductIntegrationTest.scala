@@ -402,8 +402,8 @@ class ProductIntegrationTest
     val skuAttrMap = Map("price" → priceJson)
     val skuPayload = makeSkuPayload("SKU-NEW-TEST", skuAttrMap)
 
-    val nameJson = ("t" → "string") ~ ("v" → "Product name")
-    val attrMap = Map("name" → nameJson)
+    val nameJson = ("t"       → "string") ~ ("v" → "Product name")
+    val attrMap  = Map("name" → nameJson)
     val productPayload =
       CreateProductPayload(attributes = attrMap, skus = Seq(skuPayload), variants = None)
 

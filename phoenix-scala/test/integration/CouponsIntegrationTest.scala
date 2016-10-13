@@ -50,7 +50,7 @@ class CouponsIntegrationTest
     "create coupon with invalid date should fail" in new Fixture {
       val invalidCouponAttributes = Map[String, Any](
           "name"       → "donkey coupon",
-          "activeFrom" → "2016-07-19T08:28:21.405+00:00").jsonifyValues
+          "activeFrom" → ShadowValue("2016-07-19T08:28:21.405+00:00", "datetime")).asShadow
 
       couponsApi
         .create(CreateCoupon(attributes = invalidCouponAttributes, promotion = promotion.id))
@@ -61,7 +61,7 @@ class CouponsIntegrationTest
 
   "DELETE /v1/coupons/:context/:id" - {
     "archive existing coupon" in new Fixture {
-      val couponResponse = couponsApi.delete(coupon.form.id).as[CouponResponse.Root]
+      val couponResponse = couponsApi.delete(coupon.id).as[CouponResponse.Root]
       withClue(couponResponse.archivedAt.value → Instant.now) {
         couponResponse.archivedAt.value.isBeforeNow mustBe true
       }
@@ -74,7 +74,7 @@ class CouponsIntegrationTest
     "404 when context not found" in new Fixture {
       implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
       couponsApi
-        .delete(coupon.form.id)(donkeyContext)
+        .delete(coupon.id)(donkeyContext)
         .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }
   }
@@ -121,29 +121,28 @@ class CouponsIntegrationTest
 
     val percentOff  = 10
     val totalAmount = 0
-    val discountAttributes: Map[String, Json] = Map[String, Any](
-        "title"       → s"Get $percentOff% off when you spend $totalAmount dollars",
-        "description" → s"$percentOff% off when you spend over $totalAmount dollars",
-        "tags"        → Array[String](),
-        "qualifier" → JObject(
-            "orderTotalAmount" → JObject(
-                "totalAmount" → JInt(totalAmount * 100)
-            )
-        ),
-        "offer" → JObject(
-            "orderPercentOff" → JObject(
-                "discount" → JInt(percentOff)
-            )
-        )).jsonifyValues
+    val discountAttributes = Map[String, Json](
+        "title"       → tv(s"Get $percentOff% off when you spend $totalAmount dollars"),
+        "description" → tv(s"$percentOff% off when you spend over $totalAmount dollars"),
+        "tags"        → tv(JArray(List.empty[Json]), "tags"),
+        "qualifier" → (("t" → "qualifier") ~ ("v" →
+                  JObject("orderTotalAmount" → JObject(
+                          "totalAmount" → JInt(totalAmount * 100)
+                      )))),
+        "offer" → (("t" → "offer") ~ ("v" →
+                  JObject("orderPercentOff" → JObject(
+                          "discount" → JInt(percentOff)
+                      ))))
+    )
 
-    val promoAttributes = Map[String, Any]("name" → "donkey promo").jsonifyValues
+    val promoAttributes = Map[String, Json]("name" → tv("donkey promo"))
 
     val promoPayload = CreatePromotion(applyType = Promotion.Coupon,
                                        attributes = promoAttributes,
                                        discounts =
                                          Seq(CreateDiscount(attributes = discountAttributes)))
 
-    val couponAttributes = Map[String, JString]("name" → JString("donkey coupon"))
+    val couponAttributes = Map[String, Json]("name" → tv("donkey promo"))
 
     def couponPayload(promoId: Int): CreateCoupon = CreateCoupon(couponAttributes, promoId)
 
@@ -151,11 +150,10 @@ class CouponsIntegrationTest
       promoRoot ← * <~ PromotionManager.create(promoPayload, ctx.name)
       promotion ← * <~ Promotions
                    .filter(_.contextId === ctx.id)
-                   .filter(_.formId === promoRoot.form.id)
-                   .filter(_.shadowId === promoRoot.shadow.id)
+                   .filter(_.formId === promoRoot.id)
                    .mustFindOneOr(NotFoundFailure404(Promotion, "test"))
 
-      coupon ← * <~ CouponManager.create(couponPayload(promoRoot.form.id), ctx.name, None)
+      coupon ← * <~ CouponManager.create(couponPayload(promoRoot.id), ctx.name, None)
     } yield (promotion, coupon)).gimme
   }
 
@@ -164,41 +162,44 @@ class CouponsIntegrationTest
     val fromCouponAttributes: Map[String, Json] = Map[String, Any](
         "name"           → "Order coupon",
         "storefrontName" → "Order coupon",
-        "description"    → "JOrder coupon description",
+        "description"    → "Order coupon description",
         "details"        → "Order coupon details",
-        "usageRules"                    → (("isExclusive" → true) ~ ("isUnlimitedPerCode" → true) ~
-              ("isUnlimitedPerCustomer" → true)),
-        "activeFrom"                    → Instant.now.minus(1, ChronoUnit.DAYS).toString).jsonifyValues
+        "usageRules" → (("isExclusive" → true) ~
+              ("isUnlimitedPerCode"     → true) ~
+              ("isUnlimitedPerCustomer" → true)).asShadowVal(t = "usageRules"),
+        "activeFrom"                    → Instant.now.minus(1, ChronoUnit.DAYS)).asShadow
 
     val fromToCouponAttributes: Map[String, Json] = Map[String, Any](
         "name"           → "Order coupon",
         "storefrontName" → "Order coupon",
         "description"    → "Order coupon description",
-        "details"        → "Order coupon details",
-        "usageRules"                → (("isExclusive" → true) ~
-              ("isUnlimitedPerCode" → true) ~ ("isUnlimitedPerCustomer" → true)),
-        "activeFrom"                → Instant.now.minus(1, ChronoUnit.DAYS).toString,
-        "activeTo"                  → Instant.now.plus(1, ChronoUnit.DAYS).toString).jsonifyValues
+        "details"        → "Order coupon details".richText,
+        "usageRules" → (("isExclusive" → true) ~
+              ("isUnlimitedPerCode"     → true) ~
+              ("isUnlimitedPerCustomer" → true)).asShadowVal(t = "usageRules"),
+        "activeFrom"                    → Instant.now.minus(1, ChronoUnit.DAYS),
+        "activeTo"                      → Instant.now.plus(1, ChronoUnit.DAYS)).asShadow
 
     val wasActiveBeforeCouponAttributes: Map[String, Json] = Map[String, Any](
         "name"           → "Order coupon",
         "storefrontName" → "Order coupon",
         "description"    → "Order coupon description",
-        "details"        → "Order coupon details",
+        "details"        → "Order coupon details".richText,
         "usageRules"                    → (("isExclusive" → true) ~ ("isUnlimitedPerCode" → true) ~
-              ("isUnlimitedPerCustomer" → true)),
-        "activeFrom"                    → Instant.now.minus(2, ChronoUnit.DAYS).toString,
-        "activeTo"                      → Instant.now.minus(1, ChronoUnit.DAYS).toString).jsonifyValues
+              ("isUnlimitedPerCustomer" → true)).asShadowVal(t = "usageRules"),
+        "activeFrom"                    → Instant.now.minus(2, ChronoUnit.DAYS),
+        "activeTo"                      → Instant.now.minus(1, ChronoUnit.DAYS)).asShadow
 
     val willBeActiveCouponAttributes: Map[String, Json] = Map[String, Any](
         "name"           → "Order coupon",
         "storefrontName" → "Order coupon",
         "description"    → "Order coupon description",
-        "details"        → "Order coupon details",
-        "usageRules"                → (("isExclusive" → true) ~
-              ("isUnlimitedPerCode" → true) ~ ("isUnlimitedPerCustomer" → true)),
-        "activeFrom"                → Instant.now.plus(1, ChronoUnit.DAYS).toString,
-        "activeTo"                  → Instant.now.plus(2, ChronoUnit.DAYS).toString).jsonifyValues
+        "details"        → "Order coupon details".richText,
+        "usageRules" → (("isExclusive" → true) ~
+              ("isUnlimitedPerCode" → true) ~ ("isUnlimitedPerCustomer" → true))
+          .asShadowVal(t = "usageRules"),
+        "activeFrom" → Instant.now.plus(1, ChronoUnit.DAYS),
+        "activeTo"   → Instant.now.plus(2, ChronoUnit.DAYS)).asShadow
 
     val fromCode         = "activeWithFrom"
     val fromToCode       = "activeWithFromTo"
@@ -220,10 +221,10 @@ class CouponsIntegrationTest
       willBeActiveCoupon ← * <~ CouponManager.create(couponPayload(willBeActiveCouponAttributes),
                                                      ctx.name,
                                                      None)
-      _            ← * <~ CouponManager.generateCode(fromCoupon.form.id, fromCode, authedUser)
-      _            ← * <~ CouponManager.generateCode(fromToCoupon.form.id, fromToCode, authedUser)
-      _            ← * <~ CouponManager.generateCode(wasActiveBeforeCoupon.form.id, wasActiveCode, authedUser)
-      _            ← * <~ CouponManager.generateCode(willBeActiveCoupon.form.id, willBeActiveCode, authedUser)
+      _            ← * <~ CouponManager.generateCode(fromCoupon.id, fromCode, authedUser)
+      _            ← * <~ CouponManager.generateCode(fromToCoupon.id, fromToCode, authedUser)
+      _            ← * <~ CouponManager.generateCode(wasActiveBeforeCoupon.id, wasActiveCode, authedUser)
+      _            ← * <~ CouponManager.generateCode(willBeActiveCoupon.id, willBeActiveCode, authedUser)
       firstAccount ← * <~ Accounts.create(Account())
       firstCustomer ← * <~ Users.create(
                          Factories.customer.copy(accountId = firstAccount.id,
