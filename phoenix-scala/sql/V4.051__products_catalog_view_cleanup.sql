@@ -1,5 +1,3 @@
-alter table products_catalog_view add column archived_at generic_string;
-
 drop trigger evict_archived_products_cat_search_view_from_object_forms on products;
 drop trigger evict_products_cat_search_view_from_object_forms on products;
 drop function delete_inactive_products_cat_search_view_fn();
