@@ -2,6 +2,7 @@
 
 Navigation:
 * [Staging](#staging)
+* [Vanilla](#vanilla)
 * [TopDrawer](#topdrawer)
 * [Target](#target)
 * [The Perfect Gourmet](#the-perfect-gourmet)
@@ -19,6 +20,20 @@ Navigation:
 | Marathon   | [Marathon UI](http://10.240.0.3:8080/ui/#/apps)                  |
 | Storefront | [Storefront](https://stage.foxcommerce.com)                      |
 | Admin UI   | [Admin UI](https://stage.foxcommerce.com/admin)                  |
+
+## Vanilla
+
+* Platform: [Google Compute Engine](https://console.cloud.google.com/compute/instances?project=foxcommerce-production-shared&authuser=1)
+* VPN IP: `104.197.84.113`
+* Docker Registry: https://docker.vanilla.foxcommerce.com:5000 (uses `vanilla-docker` storage bucket)
+
+| Name       | Link                                                    |
+|:-----------|:--------------------------------------------------------|
+| Consul     | [Consul UI](http://10.0.0.3:8500/ui/#/vanilla/services) |
+| Mesos      | [Mesos UI](http://10.0.0.3:5050/#/)                     |
+| Marathon   | [Marathon UI](http://10.0.0.3:8080/ui/#/apps)           |
+| Storefront | [Storefront](https://vanilla.foxcommerce.com)           |
+| Admin UI   | [Admin UI](https://admin.vanilla.foxcommerce.com)       |
 
 ## TopDrawer
 
