@@ -26,6 +26,7 @@ func (controller *shipmentController) SetUp(router gin.IRouter) {
 	router.POST("", controller.createShipment())
 	router.PATCH(":id", controller.updateShipment())
 	router.POST("from-order", controller.createShipmentFromOrder())
+	router.PATCH("from-order", controller.updateShipmentFromOrder())
 }
 
 func (controller *shipmentController) getShipmentsByOrder() gin.HandlerFunc {
@@ -88,6 +89,35 @@ func (controller *shipmentController) updateShipment() gin.HandlerFunc {
 		}
 
 		context.JSON(http.StatusOK, responses.NewShipmentFromModel(shipment))
+	}
+}
+
+func (controller *shipmentController) updateShipmentFromOrder() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		referenceNumber := context.Params.ByName("referenceNumber")
+		shipments, err := controller.shipmentService.GetShipmentsByOrder(referenceNumber)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		var updates []*models.Shipment
+		for _, s := range shipments {
+			up, err := controller.shipmentService.UpdateShipment(s)
+			if err != nil {
+				handleServiceError(context, err)
+				return
+			}
+
+			updates = append(updates, up)
+
+			response := &responses.Shipments{}
+			for _, shipment := range updates {
+				response.Shipments = append(response.Shipments, *responses.NewShipmentFromModel(shipment))
+			}
+
+			context.JSON(http.StatusOK, response)
+		}
 	}
 }
 

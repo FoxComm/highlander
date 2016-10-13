@@ -9,8 +9,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/FoxComm/metamorphosis"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/metamorphosis"
 )
 
 const (
@@ -57,6 +57,11 @@ func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 	log.Printf(
 		"Found order %s in fulfillmentStarted. Add to middlewarehouse!",
 		order.ReferenceNumber,
+	)
+
+	log.Printf(
+		"Order content is: %v",
+		order,
 	)
 
 	b, err := json.Marshal(&order)
