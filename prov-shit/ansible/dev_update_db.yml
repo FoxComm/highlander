@@ -1,0 +1,21 @@
+---
+
+- name: Update db
+  hosts: "{{hostname}}"
+  vars:
+    user: "{{ansible_ssh_user}}"
+    db_host: "{{hostname}}"
+    db_name: "{{phoenix_db_name}}"
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter the hostname with db"
+      private: no
+    - name: "phoenix_db_name"
+      prompt: "Enter db name for phoenix"
+      private: no
+    - name: "middlewarehouse_db_name"
+      prompt: "Enter db name for middlewarehouse"
+      private: no
+
+  roles:
+    - { role: dev/db }

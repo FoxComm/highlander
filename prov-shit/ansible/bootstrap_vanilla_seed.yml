@@ -9,8 +9,12 @@
     seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedDemo 1
   vars_prompt:
     - name: "hostname"
-      prompt: "Enter a hostname with a database to seed"
-      default: "vanilla-db"
+      prompt: "Enter a hostname with phoenix"
+      default: "vanilla-phoenix"
+      private: no
+    - name: "db_name"
+      prompt: "Enter name of database to seed into"
+      default: "phoenix"
       private: no
 
   roles:
