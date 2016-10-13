@@ -29,7 +29,61 @@ defmodule Marketplace.PermissionManager do
     end
   end
 
-  # Will create an organization from solomon via HTTP and return an ID
+  # Will create a role named "admin" and return an ID
+  def create_admin_role_from_scope_id(scope_id) do
+    HTTPoison.start
+    post_body = %{}
+    |> Poison.encode!
+    post_headers = [{'content-type', 'application/json'}]
+
+    case HTTPoison.post("#{full_perm_path}/scopes/#{scope_id}/admin_role", post_body, post_headers) do
+      {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
+        case Poison.decode(body) do
+        {:ok, decoded_body} ->
+          Map.fetch!(decoded_body, "role")
+          |> Map.fetch!("id")
+        {:error, decoded_body} ->
+          # TODO: Probably a good idea to write this to a queue.
+          # To retry when solomon is back up.
+          nil
+        end
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        IO.inspect("ERROR FROM HTTP CLIENT!")
+        IO.inspect(reason)
+        nil
+    end
+  end
+
+  # grants account with a role over HTTP then returns the role_id
+  def grant_account_id_role_id(account_id, role_id) do
+    HTTPoison.start
+    post_body = %{
+      granted_role: %{
+        role_id: role_id
+      }
+    }
+    |> Poison.encode!
+    post_headers = [{'content-type', 'application/json'}]
+
+    case HTTPoison.post("#{full_perm_path}/accounts/#{account_id}/granted_roles", post_body, post_headers) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        case Poison.decode(body) do 
+        {:ok, decoded_body} -> 
+          Map.fetch!(decoded_body, "granted_role")
+          |> Map.fetch!("role_id")
+        {:error, decoded_body} -> 
+          # TODO: Probably a good idea to write this to a queue.  
+          # To retry when solomon is back up.
+          nil
+        end
+      {:error, %HTTPoison.Error{reason: reason}} -> 
+        IO.inspect("ERROR FROM HTTP CLIENT!")
+        IO.inspect(reason)
+        nil
+    end
+  end
+
+  # Will create a user from solomon via HTTP and return the associated account_id
   def create_user_from_merchant_account(ma) do
     HTTPoison.start
     first_name = Map.get(ma, "first_name", "FirstName")

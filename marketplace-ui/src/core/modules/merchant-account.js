@@ -29,7 +29,7 @@ const ACTION_FETCH = 'merchantAccountFetch';
 const ACTION_SUBMIT = 'merchantAccountSubmit';
 
 const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, (id: number, data: Object) =>
-  api.post(`/merchants/${id}/accounts`, { account: { ...data } })
+  api.post(`/merchants/${id}/admin_accounts`, { account: { ...data } })
 );
 
 const { perform: performFetch, ...actionsFetch } = createAsyncActions(ACTION_FETCH, merchantId =>

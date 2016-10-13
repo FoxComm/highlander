@@ -2,6 +2,10 @@ defmodule Solomon.ScopeController do
   use Solomon.Web, :controller
   alias Solomon.Repo
   alias Solomon.Scope
+  alias Solomon.Role
+  alias Solomon.ScopeService
+
+  @admin_resources ~w(cart order product sku album coupon user org)s
 
   def index(conn, _params) do 
     scopes = Repo.all(Scope)
@@ -42,5 +46,19 @@ defmodule Solomon.ScopeController do
         |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
     end
   end
-end
 
+  def create_admin_role(conn, %{"id" => id}) do
+    role_cs = Role.changeset(%Role{}, %{name: "admin", scope_id: id})
+    case ScopeService.create_role_with_permissions(role_cs, @admin_resources) do
+      {:ok, role} ->
+        conn
+        |> put_status(:created)
+        |> put_resp_header("location", role_path(conn, :show, role))
+        |> render("show.json", role: role)
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Permissions.ChangesetView, "errors.json", changeset: changeset)
+    end
+  end
+end
