@@ -1,5 +1,7 @@
 package consumer.elastic
 
+import consumer.AvroJsonHelper
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.control.NonFatal
@@ -39,16 +41,54 @@ class ElasticSearchProcessor(
     createIndex()
   }
 
-  def process(offset: Long, topic: String, inputJson: String): Future[Unit] = {
-    // Find json transformer
-    jsonTransformers get topic match {
-      case Some(t) ⇒
-        t.transform(inputJson).map { outJson ⇒
-          save(outJson, topic)
+  def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] = {
+
+    val id = getIntKey(key)
+
+    inputJson match {
+      case null ⇒ deleteFromIndex(topic, id)
+      case _ ⇒ {
+          // Find json transformer
+          jsonTransformers get topic match {
+            case Some(t) ⇒
+              t.transform(inputJson).map { outJson ⇒
+                save(outJson, topic, id)
+              }
+            case None ⇒
+              Console.out.println(s"Skipping information from topic $topic with key ${key}")
+              Future { () }
+          }
         }
-      case None ⇒
-        Console.out.println(s"Skipping information from topic $topic")
-        Future { () }
+    }
+  }
+
+  private def deleteFromIndex(topic: String, id: BigInt): Future[Unit] = {
+    id.toInt match {
+      case 0 ⇒ Future { () }
+      case jid ⇒
+        val req = client.execute {
+          delete id jid from indexName / topic
+        }
+
+        req onFailure {
+          case NonFatal(e) ⇒ Console.err.println(s"Error while deleting: $jid")
+        }
+
+        req.map { r ⇒
+          ()
+        }
+    }
+  }
+
+  private val idFields = List("id")
+
+  private def getIntKey(rawJson: String): BigInt = {
+    Console.out.println(s"raw: ${rawJson}")
+    val idJson = AvroJsonHelper.transformJsonRaw(rawJson, idFields)
+    Console.out.println(s"idJson: ${idJson}")
+    idJson \ "id" match {
+      case JInt(id) ⇒ id
+      case _        ⇒ 0
     }
   }
 
@@ -90,11 +130,11 @@ class ElasticSearchProcessor(
     }
   }
 
-  private def save(document: String, topic: String): Future[Unit] = {
+  private def save(document: String, topic: String, id: BigInt): Future[Unit] = {
     // See if it has an id and use that as _id in elasticsearch.
     parse(document) \ "id" match {
       case JInt(jid) ⇒
-        Console.out.println(s"Indexing document with ID $jid from topic $topic...\r\n$document")
+        Console.out.println(s"Indexing document with ID $id from topic $topic...\r\n$document")
 
         val req = client.execute {
           index into indexName / topic id jid doc PassthroughSource(document)
