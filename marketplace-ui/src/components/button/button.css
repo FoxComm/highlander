@@ -1,7 +1,7 @@
 .button {
   display: block;
   position: relative;
-  width: 300px;
+  width: 100%;
   margin: 30px auto 10px;
   font-size: 18px;
   line-height: 48px;
@@ -13,8 +13,14 @@
 
   transition: background .4s, color .4s;
 
-  &:not(:disabled):hover {
-    background: #699fdd;
+  &:not(:disabled) {
+    &:hover {
+      background: #699fdd;
+    }
+
+    &:active {
+      background: #5b8fca;
+    }
   }
 
   &:disabled {

@@ -271,8 +271,8 @@ object ImageManager {
                                              context: ObjectContext)(implicit ec: EC, db: DB) =
     ObjectManager.getFullObject(mustFindAlbumByFormIdAndContext404(id, context))
 
-  private def mustFindAlbumByFormIdAndContext404(id: Int, context: ObjectContext)(implicit ec: EC,
-                                                                                  db: DB) =
+  def mustFindAlbumByFormIdAndContext404(id: Int, context: ObjectContext)(implicit ec: EC,
+                                                                          db: DB) =
     Albums
       .filterByContextAndFormId(context.id, id)
       .mustFindOneOr(AlbumNotFoundForContext(id, context.id))

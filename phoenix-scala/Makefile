@@ -1,5 +1,5 @@
 build:
-	sbt assembly
+	sbt all
 
 clean:
 	sbt clean

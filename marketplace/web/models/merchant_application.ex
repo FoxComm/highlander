@@ -1,6 +1,5 @@
 defmodule Marketplace.MerchantApplication do
   use Marketplace.Web, :model
-  import Marketplace.Validation
 
   schema "merchant_applications" do
     field :reference_number, Ecto.UUID, autogenerate: true

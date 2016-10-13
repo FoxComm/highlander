@@ -20,7 +20,7 @@ type State = Info;
 export const ACTION_FETCH = 'merchantInfoFetch';
 export const ACTION_SUBMIT = 'merchantInfoSubmit';
 
-const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, (id, data) =>
+const { perform: submit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, (id, data) =>
   new Promise((resolve, reject) =>
     api.post(`/merchants/${id}/legal_profile`, { legal_profile: { ...data } })
       .then((profile: Info) =>
@@ -32,7 +32,7 @@ const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_S
   )
 );
 
-const { perform: performFetch, ...actionsFetch } = createAsyncActions(ACTION_FETCH, merchantId =>
+const { perform: fetch, ...actionsFetch } = createAsyncActions(ACTION_FETCH, merchantId =>
   api.get(`/merchants/${merchantId}/legal_profile`)
 );
 
@@ -47,8 +47,8 @@ const getInfo = (state: State) => state;
 
 export {
   reducer as default,
-  performFetch as fetch,
-  performSubmit as submit,
+  fetch,
+  submit,
 
   /* selectors */
   getInfo,

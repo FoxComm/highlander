@@ -4,6 +4,7 @@ import onerror from 'koa-onerror';
 
 import renderReact from '../src/server';
 import makeApiProxy from './routes/api';
+import s3sign from './s3sign';
 
 export default class App extends KoaApp {
 
@@ -13,6 +14,7 @@ export default class App extends KoaApp {
 
     this.use(serve('public'))
       .use(makeApiProxy())
+      .use(s3sign)
       .use(renderReact);
   }
 

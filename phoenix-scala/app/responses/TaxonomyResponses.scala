@@ -8,7 +8,7 @@ import utils.aliases.Json
 
 object TaxonomyResponses {
 
-  type TermList   = Seq[TaxonResponse]
+  type TaxonList  = Seq[TaxonResponse]
   type LinkedTerm = (FullObject[Taxon], TaxonomyTaxonLink)
 
   implicit class LTreeExtension(ltree: LTree) {
@@ -22,7 +22,7 @@ object TaxonomyResponses {
     }
   }
 
-  case class TaxonomyResponse(id: Int, hierarchical: Boolean, attributes: Json, terms: TermList)
+  case class TaxonomyResponse(id: Int, hierarchical: Boolean, attributes: Json, taxons: TaxonList)
 
   object TaxonomyResponse {
     def build(taxon: FullObject[Taxonomy], terms: Seq[LinkedTerm]): TaxonomyResponse = {
@@ -34,7 +34,7 @@ object TaxonomyResponses {
     }
   }
 
-  case class TaxonResponse(id: Int, attributes: Json, children: TermList)
+  case class TaxonResponse(id: Int, attributes: Json, children: TaxonList)
 
   object TaxonResponse {
 
@@ -45,10 +45,10 @@ object TaxonomyResponses {
           Seq())
     }
 
-    def buildTree(nodes: Seq[LinkedTerm]): TermList =
+    def buildTree(nodes: Seq[LinkedTerm]): TaxonList =
       buildTree(0, nodes.sortBy { case (_, link) ⇒ link.path.level })
 
-    private def buildTree(level: Int, nodesSorted: Seq[LinkedTerm]): TermList = {
+    private def buildTree(level: Int, nodesSorted: Seq[LinkedTerm]): TaxonList = {
       val (heads, tail)   = nodesSorted.span { case (_, link) ⇒ link.path.level == level }
       val headsByPosition = heads.sortBy { case (_, link)     ⇒ link.position }
       headsByPosition.map {

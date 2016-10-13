@@ -21,7 +21,15 @@ Watch command will launch built-in web server with livereload on [http://localho
 Watch Admin Endpoints:
 
 	$ make watch
-	
+  
+Watch Merchandising Endpoints:
+
+    $ make watch_merchandising
+    
+Watch Transaction Endpoints:
+    
+    $ make watch_transactions
+
 Watch Customer Endpoints:
 
 	$ make watch_customer

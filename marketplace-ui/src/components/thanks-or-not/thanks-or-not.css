@@ -71,6 +71,10 @@
 .title {
   font-size: 36px;
   margin-bottom: 10px;
+
+  @media (--small-viewport) {
+    font-size: 24px;
+  }
 }
 
 .message {
@@ -78,4 +82,9 @@
   line-height: 26px;
   font-size: 18px;
   font-weight: 300;
+
+  @media (--small-viewport) {
+    font-size: 12px;
+    line-height: 24px;
+  }
 }

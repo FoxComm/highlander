@@ -82,7 +82,7 @@ module.exports = function(gulp) {
     gulp.on('task_err', checkForResume);
     gulp.on('task_stop', checkForResume);
 
-    gulp.watch(['server/**.*.js', 'src/server.jsx'], ['server.restart']);
+    gulp.watch(['server/**/*.js', 'src/server.jsx'], ['server.restart']);
   });
 
   function silentlyKill() {
