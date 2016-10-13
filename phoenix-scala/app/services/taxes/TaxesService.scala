@@ -5,6 +5,7 @@ import models.cord.lineitems._
 import CartLineItems.scope._
 import failures.NotFoundFailure400
 import models.location._
+import plugins.AvalaraPlugin
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -12,6 +13,8 @@ import utils.apis.Apis
 import utils.db._
 
 object TaxesService {
+
+  val plugin = AvalaraPlugin
 
   def getTaxRate(cart: Cart)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Int] =
     for {
@@ -29,12 +32,12 @@ object TaxesService {
       li       ← * <~ CartLineItems.byCordRef(cart.refNum).lineItems.result
       country  ← * <~ Countries.mustFindById400(region.countryId)
       discount ← * <~ CartTotaler.adjustmentsTotal(cart)
-      result ← * <~ apis.avalara.getTaxForCart(cart,
-                                               li,
-                                               Address.fromOrderShippingAddress(address),
-                                               region,
-                                               country,
-                                               discount)
+      result ← * <~ plugin.getTaxForCart(cart,
+                                         li,
+                                         Address.fromOrderShippingAddress(address),
+                                         region,
+                                         country,
+                                         discount)
     } yield result
 
   def finalizeTaxes(cart: Cart)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Unit] =
@@ -47,17 +50,17 @@ object TaxesService {
       region   ← * <~ Regions.mustFindById404(address.regionId)
       country  ← * <~ Countries.mustFindById404(region.countryId)
       discount ← * <~ CartTotaler.adjustmentsTotal(cart)
-      _ ← * <~ apis.avalara.getTaxForOrder(cart,
-                                           lineItems,
-                                           Address.fromOrderShippingAddress(address),
-                                           region,
-                                           country,
-                                           discount)
+      _ ← * <~ plugin.getTaxForOrder(cart,
+                                     lineItems,
+                                     Address.fromOrderShippingAddress(address),
+                                     region,
+                                     country,
+                                     discount)
     } yield {}
 
   def cancelTaxes(cord: Order)(implicit ec: EC, apis: Apis): DbResultT[Unit] =
     for {
-      _ ← * <~ apis.avalara.cancelTax(cord)
+      _ ← * <~ plugin.cancelTax(cord)
     } yield {}
 
   def saveAddressValidationDetails(
@@ -71,7 +74,7 @@ object TaxesService {
     for {
       region  ← * <~ Regions.mustFindById400(address.regionId)
       country ← * <~ Countries.mustFindById400(region.countryId)
-      _       ← * <~ apis.avalara.validateAddress(address, region, country)
+      _       ← * <~ plugin.validateAddress(address, region, country)
     } yield {}
 
 }
