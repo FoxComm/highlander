@@ -1,0 +1,13 @@
+---
+
+- name: Update isaac
+  hosts: "{{hostname}}"
+  vars:
+    user: '{{ansible_ssh_user}}'
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname to upload isaac to"
+      private: no
+
+  roles:
+    - { role: dev/isaac }
