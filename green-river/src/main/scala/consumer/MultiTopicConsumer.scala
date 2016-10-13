@@ -7,6 +7,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 import consumer.aliases._
+import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord}
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener
 import org.apache.kafka.common.TopicPartition
@@ -80,8 +81,10 @@ class MultiTopicConsumer(topics: Seq[String],
   val props = new Properties()
   props.put("bootstrap.servers", broker)
   props.put("group.id", groupId)
-  props.put("key.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer")
-  props.put("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer")
+  props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+            "org.apache.kafka.common.serialization.ByteArrayDeserializer")
+  props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+            "org.apache.kafka.common.serialization.ByteArrayDeserializer")
   props.put("enable.auto.commit", "false") //don't commit offset automatically
 
   val consumer = new RawConsumer(props)
@@ -93,10 +96,10 @@ class MultiTopicConsumer(topics: Seq[String],
 
       records.map { r ⇒
         Console.err.println(s"Processing ${r.topic} offset ${r.offset}")
-        val f = processor.process(r.offset, r.topic, r.value)
+        val f = processor.process(r.offset, r.topic, r.key, r.value)
         f onSuccess {
           case result ⇒ {
-              Console.err.println(s"Processed ${r.topic} offset ${r.offset}")
+              Console.err.println(s"Processed: ${r.topic} offset: ${r.offset}")
             }
         }
 

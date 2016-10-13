@@ -34,18 +34,14 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
       schemaRegistryUrl, DEFAULT_MAX_SCHEMAS_PER_SUBJECT)
   val encoderFactory = EncoderFactory.get()
 
-  def process(offset: Long, topic: String, message: Array[Byte]): Future[Unit] = {
+  def process(offset: Long, topic: String, key: Array[Byte], message: Array[Byte]): Future[Unit] = {
     try {
-      val stream  = new ByteArrayOutputStream
-      val obj     = deserialize(message)
-      val schema  = getSchema(obj)
-      val encoder = this.encoderFactory.jsonEncoder(schema, stream)
-      val writer  = new GenericDatumWriter[Object](schema)
-      writer.write(obj, encoder)
-      encoder.flush()
 
-      val json = new String(stream.toByteArray, "UTF-8")
-      val f    = processor.process(offset, topic, json)
+      val keyJson = deserializeAvro(key)
+      val json    = deserializeAvro(message)
+
+      val f = processor.process(offset, topic, keyJson, json)
+
       f onFailure {
         case NonFatal(e) ⇒ Future { Console.err.println(s"Error processing avro message $e") }
       }
@@ -57,6 +53,17 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
       case NonFatal(e) ⇒ Future { Console.err.println(s"Error processing avro message $e") }
     }
   }
+
+  def deserializeAvro(v: Array[Byte]): String = {
+    val obj     = deserialize(v)
+    val schema  = getSchema(obj)
+    val stream  = new ByteArrayOutputStream
+    val encoder = this.encoderFactory.jsonEncoder(schema, stream)
+    val writer  = new GenericDatumWriter[Object](schema)
+    writer.write(obj, encoder)
+    encoder.flush()
+    new String(stream.toByteArray, "UTF-8")
+  }
 }
 
 /**
@@ -66,9 +73,11 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
 object AvroJsonHelper {
 
   def transformJson(json: String, fields: List[String] = List.empty): String = {
-    val filteredJson =
-      JsonTransformers.camelCase(stringToJson(deannotateAvroTypes(parse(json)), fields))
-    compact(render(filteredJson))
+    compact(render(transformJsonRaw(json, fields)))
+  }
+
+  def transformJsonRaw(json: String, fields: List[String] = List.empty): JValue = {
+    JsonTransformers.camelCase(stringToJson(deannotateAvroTypes(parse(json)), fields))
   }
 
   private def convertType(typeName: String, value: JValue): JValue =
