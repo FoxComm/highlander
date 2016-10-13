@@ -15,7 +15,6 @@ import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.client.transport.NoNodeAvailableException
 import org.elasticsearch.transport.RemoteTransportException
 import org.json4s.JsonAST.JInt
-import org.json4s.jackson.JsonMethods.parse
 
 /**
   * This is a JsonProcessor which processes json and indexs it into elastic search.
@@ -41,13 +40,13 @@ class ElasticSearchProcessor(
     createIndex()
   }
 
-  def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] = {
+  private val futureUnit: Future[Unit] = Future { () }
 
-    val id = getIntKey(key)
-
-    inputJson match {
-      case "null" ⇒ deleteFromIndex(topic, id)
-      case _ ⇒ {
+  def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] =
+    getIntKey(key).fold(futureUnit) { id ⇒
+      inputJson match {
+        case "null" ⇒ deleteFromIndex(topic, id)
+        case _      ⇒
           // Find json transformer
           jsonTransformers get topic match {
             case Some(t) ⇒
@@ -56,37 +55,32 @@ class ElasticSearchProcessor(
               }
             case None ⇒
               Console.out.println(s"Skipping information from topic $topic with key ${key}")
-              Future { () }
+              futureUnit
           }
-        }
+      }
     }
-  }
 
   private def deleteFromIndex(topic: String, id: BigInt): Future[Unit] = {
-    id.toInt match {
-      case 0 ⇒ Future { () }
-      case jid ⇒
-        val req = client.execute {
-          delete id jid from indexName / topic
-        }
+    Console.out.println(s"Deleting document with ID $id from topic $topic")
+    val req = client.execute {
+      delete id id from indexName / topic
+    }
 
-        req onFailure {
-          case NonFatal(e) ⇒ Console.err.println(s"Error while deleting: $jid")
-        }
-
-        req.map { r ⇒
-          ()
-        }
+    req onFailure {
+      case NonFatal(e) ⇒ Console.err.println(s"Error while deleting: $id")
+    }
+    req.map { r ⇒
+      ()
     }
   }
 
   private val idFields = List("id")
 
-  private def getIntKey(rawJson: String): BigInt = {
+  private def getIntKey(rawJson: String): Option[BigInt] = {
     val idJson = AvroJsonHelper.transformJsonRaw(rawJson, idFields)
     idJson \ "id" match {
-      case JInt(id) ⇒ id
-      case _        ⇒ 0
+      case JInt(id) ⇒ Some(id)
+      case _        ⇒ None
     }
   }
 
@@ -130,25 +124,18 @@ class ElasticSearchProcessor(
 
   private def save(document: String, topic: String, id: BigInt): Future[Unit] = {
     // See if it has an id and use that as _id in elasticsearch.
+    Console.out.println(s"Indexing document with ID $id from topic $topic...\r\n$document")
 
-    parse(document) \ "id" match {
-      case JInt(jid) ⇒
-        Console.out.println(s"Indexing document with ID $id from topic $topic...\r\n$document")
+    val req = client.execute {
+      index into indexName / topic id id doc PassthroughSource(document)
+    }
 
-        val req = client.execute {
-          index into indexName / topic id jid doc PassthroughSource(document)
-        }
+    req onFailure {
+      case NonFatal(e) ⇒ Console.err.println(s"Error while indexing: $e")
+    }
 
-        req onFailure {
-          case NonFatal(e) ⇒ Console.err.println(s"Error while indexing: $e")
-        }
-
-        req.map { r ⇒
-          ()
-        }
-      case _ ⇒
-        Console.out.println(s"Skipping unidentified document from topic $topic...\r\n$document")
-        Future { () }
+    req.map { r ⇒
+      ()
     }
   }
 }
