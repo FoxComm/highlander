@@ -132,17 +132,17 @@ case class Checkout(
     for {
       liSkus ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       skuObjects ← * <~ liSkus.map { liSku ⇒
-                     for {
-                       sku ← * <~ SkuManager.mustFindSkuByContextAndCode(contextId = ctx.id,
-                                                                          liSku._1)
-                       s ← * <~ ObjectShadows.mustFindById400(sku.shadowId)
-                       f ← * <~ ObjectForms.mustFindById400(s.formId)
-                       trackInventory = ObjectUtils.get("trackInventory", f, s) match {
-                         case JBool(trackInv) ⇒ trackInv
-                         case _               ⇒ true
-                       }
-                     } yield (trackInventory, liSku)
-                   }
+                    for {
+                      sku ← * <~ SkuManager.mustFindSkuByContextAndCode(contextId = ctx.id,
+                                                                        liSku._1)
+                      s ← * <~ ObjectShadows.mustFindById400(sku.shadowId)
+                      f ← * <~ ObjectForms.mustFindById400(s.formId)
+                      trackInventory = ObjectUtils.get("trackInventory", f, s) match {
+                        case JBool(trackInv) ⇒ trackInv
+                        case _               ⇒ true
+                      }
+                    } yield (trackInventory, liSku)
+                  }
       skusToHold ← * <~ skuObjects.filter(_._1).map(_._2)
       skus = skusToHold.map { case (skuCode, qty) ⇒ SkuInventoryHold(skuCode, qty) }.toSeq
       _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skus))

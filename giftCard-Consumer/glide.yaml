@@ -1,0 +1,6 @@
+package: github.com/FoxComm/shipstation
+import:
+  - package: github.com/FoxComm/metamorphosis
+    vcs: git
+    version: e034438c2ca03d5dbdc117eaadfb2c1b23ee21c0
+    repo: git@github.com:FoxComm/metamorphosis.git
