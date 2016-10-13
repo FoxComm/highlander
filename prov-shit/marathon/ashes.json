@@ -21,11 +21,12 @@
     "API_URL": "http://balancer.service.consul",
     "NODE_ENV": "production",
     "PORT": "4000",
-    "PHOENIX_PUBLIC_KEY": "/ashes/public_key.pem"
+    "PHOENIX_PUBLIC_KEY": "/ashes/public_key.pem",
+    "ON_SERVER": "1" 
   },
   "healthChecks": [
     {
-      "path": "/login",
+      "path": "/admin/login",
       "protocol": "HTTP",
       "gracePeriodSeconds": 300,
       "intervalSeconds": 60,
