@@ -97,7 +97,7 @@ trait PromotionGenerator {
                                         Seq(CreateDiscount(attributes = discountFS.toPayload)))
 
                     PromotionManager.create(payload, context.name).map { newPromo ⇒
-                      source.copy(promotionId = newPromo.form.id)
+                      source.copy(promotionId = newPromo.id)
                     }
                   })
     } yield promotions

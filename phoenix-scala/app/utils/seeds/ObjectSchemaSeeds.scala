@@ -10,7 +10,7 @@ import org.json4s.jackson.JsonMethods._
 
 trait ObjectSchemaSeeds {
 
-  def createObjectSchemas: DbResultT[ObjectSchema] =
+  def createObjectSchemas(): DbResultT[ObjectSchema] =
     for {
       empty     ← * <~ ObjectSchemas.create(getSchema("empty"))
       _         ← * <~ ObjectSchemas.create(getSchema("album"))
