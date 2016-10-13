@@ -1,38 +1,33 @@
 /* @flow */
 
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 
 import { Dropdown } from 'components/dropdown';
 import ContentBox from 'components/content-box/content-box';
 
 type Props = {
   currentValue: string,
-  disabled?: bool,
+  handleDropdownChange: Function,
 };
 
-const AVAILABLE_STATES = {
-  active: [['inactive', 'Inactive']],
-  inactive: [['active', 'Active']],
-};
+const AVAILABLE_STATES = [
+  ['inactive', 'Inactive'],
+  ['active', 'Active']
+];
 
-export default class PluginState extends Component {
+const PluginState = (props: Props): Element => {
 
-  props: Props;
+  const { currentValue, handleDropdownChange } = props;
 
-  get currentValue(): string {
-    return this.props.currentValue;
-  }
-
-  render() {
-     return (
-      <ContentBox title="Plugin State">
-        <Dropdown value={this.currentValue}
-                  // onChange={(value) => this.handleDropdownChange(value)}
-                  disabled={this.props.disabled}
-                  items={AVAILABLE_STATES[this.currentValue]}
-                  // changeable={false}
-        />
-      </ContentBox>
-    );
-  }
+  return (
+    <ContentBox title="Plugin State">
+      <Dropdown
+        value={currentValue}
+        onChange={(value) => handleDropdownChange(value)}
+        items={AVAILABLE_STATES}
+      />
+    </ContentBox>
+  );
 }
+
+export default PluginState;

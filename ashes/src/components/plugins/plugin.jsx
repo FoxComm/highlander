@@ -20,10 +20,13 @@ import type { Attribute, Attributes } from 'paragons/object';
 type Props = {
   fetchSettings: (name: string) => Promise,
   updateSettings: (name: string, payload: UpdateSettingsPayload) => Promise,
+  changeState: (name: string, payload: UpdateStatePayload) => Promise,
   params: {
     name: string,
   },
-  settings: Object,
+  currentPlugin: {
+    settings: Object,
+  },
   isFetching: boolean,
 }
 
@@ -63,7 +66,7 @@ function settingsFromAttributes(attributes: Attributes): Object {
 
 function mapStateToProps(state) {
   return {
-    settings: state.plugins.settings,
+    currentPlugin: state.plugins.currentPlugin,
     isFetching: _.get(state.asyncActions, 'fetchPluginSettings.inProgress', null),
   };
 }
@@ -84,12 +87,13 @@ class Plugin extends Component {
   }
 
   componentWillReceiveProps(nextProps: Props) {
+    console.log(nextProps);
     if (pluginName(nextProps) != this.pluginName) {
       this.props.fetchSettings(pluginName(nextProps));
     }
-    if (!_.isEqual(nextProps.settings, this.state.settings)) {
+    if (nextProps.currentPlugin != null && !_.isEqual(nextProps.currentPlugin.settings, this.state.settings)) {
       this.setState({
-        settings: nextProps.settings,
+        settings: nextProps.currentPlugin.settings,
       });
     }
   }
@@ -120,6 +124,13 @@ class Plugin extends Component {
     });
   }
 
+  @autobind
+  handleStateChange(newState: string) {
+    if (this.props.currentPlugin.state !== newState) {
+      this.props.changeState(this.pluginName, {state: newState});
+    }
+  }
+
   get content(): Element {
     if (this.props.isFetching !== false) {
       return <WaitAnimation/>;
@@ -134,7 +145,10 @@ class Plugin extends Component {
             />
           </div>
           <div className="fc-col-md-2-5">
-            <PluginState />
+            <PluginState
+              currentValue={this.props.currentPlugin.state}
+              handleDropdownChange={(value) => this.handleStateChange(value)}
+            />
           </div>
         </div>
       );
