@@ -46,7 +46,7 @@ class ElasticSearchProcessor(
     val id = getIntKey(key)
 
     inputJson match {
-      case null ⇒ deleteFromIndex(topic, id)
+      case "null" ⇒ deleteFromIndex(topic, id)
       case _ ⇒ {
           // Find json transformer
           jsonTransformers get topic match {
@@ -83,9 +83,7 @@ class ElasticSearchProcessor(
   private val idFields = List("id")
 
   private def getIntKey(rawJson: String): BigInt = {
-    Console.out.println(s"raw: ${rawJson}")
     val idJson = AvroJsonHelper.transformJsonRaw(rawJson, idFields)
-    Console.out.println(s"idJson: ${idJson}")
     idJson \ "id" match {
       case JInt(id) ⇒ id
       case _        ⇒ 0
@@ -132,6 +130,7 @@ class ElasticSearchProcessor(
 
   private def save(document: String, topic: String, id: BigInt): Future[Unit] = {
     // See if it has an id and use that as _id in elasticsearch.
+
     parse(document) \ "id" match {
       case JInt(jid) ⇒
         Console.out.println(s"Indexing document with ID $id from topic $topic...\r\n$document")
