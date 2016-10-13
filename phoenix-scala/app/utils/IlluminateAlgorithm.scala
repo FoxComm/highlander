@@ -4,7 +4,7 @@ import java.time.Instant
 
 import cats.data._
 import com.typesafe.scalalogging.LazyLogging
-import failures.{Failure, Failures}
+import failures.Failure
 import failures.ObjectFailures._
 import models.objects._
 import org.json4s.JsonAST._
@@ -12,12 +12,8 @@ import org.json4s.JsonDSL._
 import utils.aliases._
 import utils.db._
 
-import org.json4s.jackson.JsonMethods._
-
 // json schema
 import scala.collection.JavaConverters._
-
-import com.fasterxml.jackson.databind.JsonNode
 import com.networknt.schema.JsonSchemaFactory
 import org.json4s.jackson.JsonMethods.asJsonNode
 
