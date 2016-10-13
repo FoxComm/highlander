@@ -5,42 +5,16 @@ import java.time.Instant
 import models.coupon._
 import models.objects._
 import responses.ObjectResponses.ObjectContextResponse
+import utils.IlluminateAlgorithm
 import utils.aliases._
 
 object CouponResponses {
 
   object CouponFormResponse {
-
     case class Root(id: Int, attributes: Json, createdAt: Instant) extends ResponseItem
 
     def build(f: ObjectForm): Root =
       Root(id = f.id, attributes = f.attributes, createdAt = f.createdAt)
-  }
-
-  object CouponShadowResponse {
-
-    case class Root(id: Int, formId: Int, attributes: Json, createdAt: Instant)
-        extends ResponseItem
-
-    def build(s: ObjectShadow): Root =
-      Root(id = s.id, formId = s.formId, attributes = s.attributes, createdAt = s.createdAt)
-  }
-
-  object CouponResponse {
-
-    case class Root(id: Int,
-                    form: CouponFormResponse.Root,
-                    shadow: CouponShadowResponse.Root,
-                    promotion: Int,
-                    archivedAt: Option[Instant])
-        extends ResponseItem
-
-    def build(coupon: Coupon, f: ObjectForm, s: ObjectShadow): Root =
-      Root(id = coupon.formId,
-           form = CouponFormResponse.build(f),
-           shadow = CouponShadowResponse.build(s),
-           promotion = coupon.promotionId,
-           archivedAt = coupon.archivedAt)
   }
 
   object CouponCodesResponse {
@@ -53,15 +27,27 @@ object CouponResponses {
       }
   }
 
-  object IlluminatedCouponResponse {
+  object CouponResponse {
 
-    case class Root(id: Int, context: ObjectContextResponse.Root, attributes: Json, promotion: Int)
+    case class Root(id: Int,
+                    context: ObjectContextResponse.Root,
+                    attributes: Json,
+                    promotion: Int,
+                    archivedAt: Option[Instant])
         extends ResponseItem
 
-    def build(coupon: IlluminatedCoupon): Root =
+    def build(coupon: IlluminatedCoupon, originalCoupon: Coupon): Root =
       Root(id = coupon.id,
            context = ObjectContextResponse.build(coupon.context),
            attributes = coupon.attributes,
-           promotion = coupon.promotion)
+           promotion = coupon.promotion,
+           archivedAt = originalCoupon.archivedAt)
+
+    def build(context: ObjectContext,
+              coupon: Coupon,
+              form: ObjectForm,
+              shadow: ObjectShadow): Root =
+      build(IlluminatedCoupon.illuminate(context, coupon, form, shadow), coupon)
+
   }
 }

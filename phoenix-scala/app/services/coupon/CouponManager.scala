@@ -12,7 +12,7 @@ import models.coupon._
 import models.objects._
 import models.promotion._
 import payloads.CouponPayloads._
-import responses.CouponResponses.{IlluminatedCouponResponse ⇒ Illuminated, _}
+import responses.CouponResponses._
 import services.LogActivity
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -44,7 +44,7 @@ object CouponManager {
                          shadowId = ins.shadow.id,
                          commitId = ins.commit.id,
                          promotionId = payload.promotion))
-      response = CouponResponse.build(coupon, ins.form, ins.shadow)
+      response = CouponResponse.build(context, coupon, ins.form, ins.shadow)
       _ ← * <~ LogActivity.couponCreated(response, admin)
     } yield response
   }
@@ -72,13 +72,13 @@ object CouponManager {
                                         formAndShadow.shadow.attributes)
       commit ← * <~ ObjectUtils.commit(updated)
       coupon ← * <~ updateHead(coupon, payload.promotion, updated.shadow, commit)
-      response = CouponResponse.build(coupon, updated.form, updated.shadow)
+      response = CouponResponse.build(context, coupon, updated.form, updated.shadow)
       _ ← * <~ LogActivity.couponUpdated(response, Some(admin))
     } yield response
   }
 
   def getIlluminated(id: Int, contextName: String)(implicit ec: EC,
-                                                   db: DB): DbResultT[Illuminated.Root] =
+                                                   db: DB): DbResultT[CouponResponse.Root] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -88,7 +88,7 @@ object CouponManager {
 
   def getIlluminatedByCode(code: String, contextName: String)(
       implicit ec: EC,
-      db: DB): DbResultT[Illuminated.Root] =
+      db: DB): DbResultT[CouponResponse.Root] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -99,8 +99,9 @@ object CouponManager {
       result ← * <~ getIlluminatedIntern(couponCode.couponFormId, context)
     } yield result
 
-  def getIlluminatedIntern(id: Int, context: ObjectContext)(implicit ec: EC,
-                                                            db: DB): DbResultT[Illuminated.Root] =
+  def getIlluminatedIntern(id: Int, context: ObjectContext)(
+      implicit ec: EC,
+      db: DB): DbResultT[CouponResponse.Root] =
     for {
       coupon ← * <~ Coupons
                 .filter(_.contextId === context.id)
@@ -108,7 +109,7 @@ object CouponManager {
                 .mustFindOneOr(CouponNotFound(id))
       form   ← * <~ ObjectForms.mustFindById404(coupon.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
-    } yield Illuminated.build(IlluminatedCoupon.illuminate(context, coupon, form, shadow))
+    } yield CouponResponse.build(context, coupon, form, shadow)
 
   def archiveByContextAndId(contextName: String,
                             formId: Int)(implicit ec: EC, db: DB): DbResultT[CouponResponse.Root] =
@@ -122,7 +123,7 @@ object CouponManager {
       archiveResult ← * <~ Coupons.update(model, model.copy(archivedAt = Some(Instant.now)))
       form          ← * <~ ObjectForms.mustFindById404(archiveResult.formId)
       shadow        ← * <~ ObjectShadows.mustFindById404(archiveResult.shadowId)
-    } yield CouponResponse.build(archiveResult, form, shadow)
+    } yield CouponResponse.build(context, archiveResult, form, shadow)
 
   def generateCode(id: Int, code: String, admin: User)(implicit ec: EC,
                                                        db: DB,

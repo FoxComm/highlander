@@ -19,11 +19,7 @@ object SimpleCoupon {
   type Percent = Int
 }
 
-case class SimpleCoupon(formId: Int = 0,
-                        shadowId: Int = 0,
-                        percentOff: Percent,
-                        totalAmount: Int,
-                        promotionId: Int)
+case class SimpleCoupon(formId: Int = 0, percentOff: Percent, totalAmount: Int, promotionId: Int)
 
 case class SimpleCouponForm(percentOff: Percent, totalAmount: Int) {
 
@@ -81,7 +77,7 @@ trait CouponGenerator {
                    CreateCoupon(attributes = couponFS.toPayload, promotion = source.promotionId)
 
                  CouponManager.create(payload, context.name, None).map { newCoupon ⇒
-                   source.copy(formId = newCoupon.form.id, shadowId = newCoupon.shadow.id)
+                   source.copy(formId = newCoupon.id)
                  }
                })
     } yield coupons
