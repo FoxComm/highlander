@@ -36,7 +36,7 @@ object ImageFacade {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       album   ← * <~ mustFindAlbumByFormIdAndContext404(albumId, context)
       _       ← * <~ album.mustNotBeArchived
-      result ← * <~ uploadImages(album, request, context)
+      result  ← * <~ uploadImages(album, request, context)
     } yield result).run()
   }
 
