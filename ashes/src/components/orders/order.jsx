@@ -54,6 +54,7 @@ export default class Order extends React.Component {
     }),
     children: PropTypes.node,
     updateOrder: PropTypes.func,
+    updateShipments: PropTypes.func,
     fetchOrder: PropTypes.func,
     clearFetchErrors: PropTypes.func,
     increaseRemorsePeriod: PropTypes.func
@@ -168,6 +169,11 @@ export default class Order extends React.Component {
     this.setState({
       newOrderState: null
     });
+
+    if (this.state.newOrderState == 'shipped') {
+      this.props.updateShipments(this.orderRefNum);
+    }
+
     this.props.updateOrder(this.orderRefNum, { state: this.state.newOrderState });
   }
 
