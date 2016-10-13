@@ -22,7 +22,7 @@
         "LISTEN_PORT": "8080",
         "NODE_ENV": "production",
         "FIREBRAND_LANGUAGE": "en",
-        "PHOENIX_PUBLIC_KEY": "/firebrand/public_key.pem",
+        "PHOENIX_PUBLIC_KEY": "/storefront/public_key.pem",
         "STRIPE_PUBLISHABLE_KEY": "FILL_ME_IN"
     },
     "healthChecks": [

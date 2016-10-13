@@ -6,9 +6,9 @@ RUN npm install -g gulp
 RUN n stable
 
 
-RUN mkdir -p /firebrand
-WORKDIR /firebrand
-COPY . /firebrand
+RUN mkdir -p /storefront
+WORKDIR /storefront
+COPY . /storefront
 
 EXPOSE 4041
 CMD ["gulp", "server"]
