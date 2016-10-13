@@ -3,6 +3,7 @@ package plugins
 import models.cord.{Cart, Order}
 import models.cord.lineitems.CartLineItems._
 import models.location.{Address, Country, Region}
+import org.json4s.JsonAST.JValue
 import services._
 import utils.aliases._
 import utils.apis._
@@ -17,12 +18,16 @@ case class AvalaraPluginSettings(url: String = "",
     extends PluginSettings
 
 object AvalaraPlugin extends Plugin {
+  register()
 
   val identifier = "Avalara AvaTax"
 
   var settings = AvalaraPluginSettings()
 
   val defaultTaxValue = 0
+
+  //ToDo: @eugene - make it work
+  override def receiveSettings(isDisabled: Boolean, newSettings: Map[String, JValue]): Unit = {}
 
   def validateAddress(address: Address, region: Region, country: Country)(
       implicit ec: EC,

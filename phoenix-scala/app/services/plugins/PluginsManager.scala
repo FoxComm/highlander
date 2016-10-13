@@ -15,6 +15,7 @@ import utils.aliases._
 import utils.db._
 import utils.JsonFormatters
 import com.typesafe.scalalogging.LazyLogging
+import plugins.PluginRegistry
 
 object PluginsManager extends LazyLogging {
 
@@ -104,6 +105,9 @@ object PluginsManager extends LazyLogging {
       plugin ← * <~ Plugins.findByName(name).mustFindOr(NotFoundFailure404(Plugin, name))
       newSettings = plugin.settings merge payload.settings
       updated ← * <~ Plugins.update(plugin, plugin.copy(settings = newSettings))
+      _ ← * <~ DbResultT.good(
+             PluginRegistry
+               .notifySettingsChange(updated.name, updated.isDisabled, updated.settings))
     } yield updated
 
     updated.map { p ⇒
@@ -129,6 +133,9 @@ object PluginsManager extends LazyLogging {
                                             true
                                           else
                                             false))
+      _ ← * <~ DbResultT.good(
+             PluginRegistry
+               .notifySettingsChange(updated.name, updated.isDisabled, updated.settings))
     } yield FullPluginInfo.fromPlugin(updated)
 
 }
