@@ -212,11 +212,13 @@ object ObjectUtils {
                     ObjectShadow(formId = form.id,
                                  attributes = newShadowAttributes,
                                  schemaId = old.shadow.schemaId))
-        // TODO: add schema validation here
-//        optSchema ← * <~ ObjectFullSchemas.findOneById(old.shadow.schemaId)
-//        _ ← * <~ optSchema.map { schema ⇒
-//             IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)
-//           }
+
+        optSchema ← * <~ old.shadow.schemaId.map { schemaId ⇒
+                     ObjectFullSchemas.mustFindById404(schemaId)
+                   }
+        _ ← * <~ optSchema.map { schema ⇒
+             IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)
+           }
         _ ← * <~ validateShadow(form, shadow)
       } yield UpdateResult(form, shadow, updated = true)
     else DbResultT.pure(UpdateResult(old.form, old.shadow, updated = false))
