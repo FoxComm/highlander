@@ -9,7 +9,7 @@ build: setup
 	tar --exclude '$(archive)' -jcf $(archive) ./
 
 docker: build
-	docker build --tag firebrand .
+	docker build --tag storefront .
 
 clean:
 	rm -rf ./node_modules
