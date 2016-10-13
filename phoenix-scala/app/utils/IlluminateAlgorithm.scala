@@ -34,7 +34,7 @@ object IlluminateAlgorithm extends LazyLogging {
 
   def validateObjectBySchema(schema: ObjectFullSchema, form: ObjectForm, shadow: ObjectShadow)(
       implicit ec: EC): DbResultT[Json] = {
-    val illuminated = projectAttributes(form.attributes, shadow.attributes)
+    val illuminated = projectFlatAttributes(form.attributes, shadow.attributes)
     getInternalAttributes(schema).fold {
       logger.warn(s"Can't find attributes in schema ${schema.name}")
       DbResultT.good(illuminated)
