@@ -62,6 +62,9 @@ shortcuts:
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
+  - name: Bootstrap Phoenix DB
+    alias: db_phoenix.yml
+    target: ansible/bootstrap_db_phoenix.yml
   - name: Bootstrap Tinystack
     alias: tinystack.yml
     target: ansible/bootstrap_tinystack.yml
