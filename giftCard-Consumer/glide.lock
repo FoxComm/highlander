@@ -1,0 +1,8 @@
+hash: 04415d99213325eb52744f152206a17e7290082d8377dfcba64cbc9235d0882e
+updated: 2016-08-10T16:15:46.130537394-07:00
+imports:
+- name: github.com/FoxComm/metamorphosis
+  version: e034438c2ca03d5dbdc117eaadfb2c1b23ee21c0
+  repo: git@github.com:FoxComm/metamorphosis.git
+  vcs: git
+devImports: []
