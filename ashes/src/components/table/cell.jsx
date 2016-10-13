@@ -28,7 +28,7 @@ function getCell(column, children, row) {
       return <State value={children} model={column.model} />;
     case 'roundedPill':
       const content = <State value={children} model={column.model} />;
-      return <RoundedPill text={content} />
+      return <RoundedPill text={content} />;
     case 'currency':
       return <Currency value={children} currency={getCurrency(column, row)} />;
     case 'transaction':

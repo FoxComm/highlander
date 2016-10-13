@@ -107,7 +107,7 @@ class Plugin extends Component {
   }
 
   get title(): string {
-    return `${this.pluginName} Configuration`
+    return `${this.pluginName} Configuration`;
   }
 
   @autobind

@@ -28,6 +28,6 @@ const PluginState = (props: Props): Element => {
       />
     </ContentBox>
   );
-}
+};
 
 export default PluginState;
