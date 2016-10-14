@@ -43,6 +43,15 @@ export function getClaims(token: ?JWT = getJWT()): Claims {
     : merchant();
 }
 
+export function getUserId(): number {
+  const token = getJWT();
+  if (!token) {
+    return {};
+  }
+
+  return token.id;
+}
+
 export function isPermitted(expectedClaims: Claims, actualClaims: Claims): boolean {
   return _.reduce(expectedClaims, (res, expActions, expFRN) => {
     const actions = _.get(actualClaims, expFRN);

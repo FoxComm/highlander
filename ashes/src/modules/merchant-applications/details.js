@@ -36,10 +36,23 @@ const _approveApplication = createAsyncActions(
   (id: number) => Api.post(`/mkt/merchants/activate_application/${id}`)
 );
 
+
+const _getRealSocialProfile = createAsyncActions(
+  'getRealSocialProfile',
+  (id: number) => Api.get(`/mkt/merchants/${id}/social_profile`)
+);
+
+const _updateSocialProfile = createAsyncActions(
+  'updateSocialProfile',
+  (id: number, data: Object) => Api.patch(`/mkt/merchants/${id}/social_profile`, data)
+);
+
 export const fetchApplication = _getApplication.perform;
 export const fetchBusinessProfile = _getBusinessProfile.perform;
 export const fetchSocialProfile = _getSocialProfile.perform;
 export const approveApplication = _approveApplication.perform;
+export const updateSocialProfile = _updateSocialProfile.perform;
+export const fetchRealSocialProfile = _getRealSocialProfile.perform;
 
 function applicationSucceeded(state: State, payload: Object): State {
   const application = payload.merchant_application || payload;
@@ -62,6 +75,8 @@ const reducer = createReducer({
   [_approveApplication.succeeded]: applicationSucceeded,
   [_getBusinessProfile.succeeded]: businessProfileSucceeded,
   [_getSocialProfile.succeeded]: socialProfileSucceeded,
+  [_updateSocialProfile.succeeded]: socialProfileSucceeded,
+  [_getRealSocialProfile.succeeded]: socialProfileSucceeded,
 }, initialState);
 
 export default reducer;
