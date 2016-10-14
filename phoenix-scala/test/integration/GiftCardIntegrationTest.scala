@@ -1,12 +1,17 @@
+import akka.http.scaladsl.model.StatusCodes
+import Extensions._
 import cats.implicits._
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures._
 import models.Reason
 import models.account._
+import models.cord.{Cord, Cords}
+import models.customer.Customer
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard._
 import models.payment.storecredit
 import models.payment.storecredit.StoreCredit
+import org.json4s.jackson.JsonMethods._
 import payloads.GiftCardPayloads._
 import responses.GiftCardAdjustmentsResponse.{Root ⇒ GcAdjRoot}
 import responses.GiftCardResponse.{Root ⇒ GcRoot}
@@ -40,6 +45,20 @@ class GiftCardIntegrationTest
         val manual: GiftCardManual = GiftCardManuals.findOneById(giftCard.originId).gimme.value
         manual.reasonId must === (1)
         manual.adminId must === (storeAdmin.accountId)
+      }
+
+      "successfully creates gift card as a custumer from payload" in new Reason_Baked {
+        val cordInsert = Cords.create(Cord(1, "1", true)).gimme
+        val attributes = Some(
+            parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
+        val response =
+          POST(s"v1/gift-cards",
+               GiftCardCreatedByCustomer(balance = 555, details = attributes, cordRef = "1"))
+        response.status must === (StatusCodes.OK)
+        val root = response.as[GiftCardResponse.Root]
+        root.currency must === (Currency.USD)
+        root.availableBalance must === (555)
+
       }
 
       "create two gift cards with unique codes" in new Reason_Baked {

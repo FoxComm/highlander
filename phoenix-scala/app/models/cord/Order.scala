@@ -150,7 +150,7 @@ object Orders
   def prepareOrderLineItemsFromCart(cart: Cart, contextId: Int)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[OrderLineItem]] = {
-    val countBySku = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
+    val countBySku = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.id).map {
       case (sku, q) ⇒ sku → q.length
     }
 
@@ -158,19 +158,20 @@ object Orders
       countBySku ← countBySku
       (skuId, count) = countBySku
       sku ← Skus if sku.id === skuId
-    } yield (sku, count)
+    } yield (skuId, sku)
 
     for {
-      skuItems ← * <~ orderLineItemSkusQuery.result
-      lineItems ← * <~ skuItems.flatMap {
-                   case (sku, count) ⇒
-                     List.fill(count)(
-                         OrderLineItem(cordRef = cart.referenceNumber,
-                                       skuId = sku.id,
-                                       skuShadowId = sku.shadowId,
-                                       state = OrderLineItem.Pending))
-                 }
-    } yield lineItems
+      skuItems  ← * <~ orderLineItemSkusQuery.result
+      skuMaps   ← * <~ skuItems.toMap
+      lineItems ← * <~ CartLineItems.byCordRef(cart.referenceNumber).result
+      orderLineItems ← * <~ lineItems.map { cli ⇒
+                        OrderLineItem(cordRef = cart.referenceNumber,
+                                      skuId = skuMaps.get(cli.skuId).get.id,
+                                      skuShadowId = skuMaps.get(cli.skuId).get.shadowId,
+                                      state = OrderLineItem.Pending,
+                                      attributes = cli.attributes)
+                      }
+    } yield orderLineItems
   }
 
   def findByAccount(cust: Account): QuerySeq =
