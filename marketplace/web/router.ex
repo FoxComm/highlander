@@ -26,6 +26,7 @@ defmodule Marketplace.Router do
     end
 
     get "/merchant_applications/by_ref/:ref_num", MerchantApplicationController, :show_by_ref
+    post "/merchant_applications_full", MerchantApplicationController, :merchant_application_full
     post "/merchants/activate_application/:application_id", MerchantController, :activate_application
     
     resources "/merchants", MerchantController do 
