@@ -27,7 +27,7 @@ final case class MainConfig(activityTopic: String,
 }
 
 object MainConfig {
-  type IndexTopicMap = Map[String, Seq[String]];
+  type IndexTopicMap = Map[String, Seq[String]]
   val environmentProperty = "env"
   val defaultEnvironment  = "default"
 

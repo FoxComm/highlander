@@ -4,6 +4,8 @@ import scala.concurrent.Future
 import consumer.activity._
 import consumer.aliases._
 import consumer.elastic.ElasticSearchProcessor
+import consumer.elastic.ScopeProcessor
+import consumer.elastic.ScopedIndexer
 import consumer.elastic.mappings._
 import consumer.elastic.mappings.admin._
 import consumer.utils.PhoenixConnectionInfo
@@ -85,13 +87,36 @@ object Workers {
     Future.sequence(futures)
   }
 
-  def scopedSearchViewWorker(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)(
+  def scopedSearchViewWorkers(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)(
       implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC): Future[Unit] = Future {
 
     val transformers = topicTransformers(connectionInfo)
     val indexTopics  = conf.scopedIndexTopics
+    val ADMIN_INDEX  = "admin"
+    val SCOPES_TABLE = "scopes"
 
-    val futures = indexTopics.flatMap {
+    val scopeProcessorFuture = Future {
+
+      val scopedProcessor = new ScopeProcessor(uri = conf.elasticSearchUrl,
+                                               cluster = conf.elasticSearchCluster,
+                                               indexTopics = indexTopics,
+                                               jsonTransformers = transformers)
+
+      val avroProcessor = new AvroProcessor(schemaRegistryUrl = conf.avroSchemaRegistryUrl,
+                                            processor = scopedProcessor)
+
+      val consumer = new MultiTopicConsumer(topics = Seq(SCOPES_TABLE),
+                                            broker = conf.kafkaBroker,
+                                            groupId = s"${conf.kafkaGroupId}_scopes",
+                                            processor = avroProcessor,
+                                            startFromBeginning = conf.startFromBeginning)
+
+      // Start consuming & processing
+      Console.out.println(s"Scope Processor reading from broker ${conf.kafkaBroker}")
+      consumer.readForever()
+    }
+
+    val indexers = indexTopics.flatMap {
       case (index, topics) ⇒ {
           topics.map { topic ⇒
             Future {
@@ -101,26 +126,26 @@ object Workers {
               maybeTransformer match {
                 case Some(transformer) ⇒
                   // Init
-                  val esProcessor = new ElasticSearchProcessor(uri = conf.elasticSearchUrl,
-                                                               cluster = conf.elasticSearchCluster,
-                                                               indexName = index,
-                                                               topics = Seq(topic),
-                                                               jsonTransformers =
-                                                                 Map(topic → transformer))
+                  val esProcessor = new ScopedIndexer(uri = conf.elasticSearchUrl,
+                                                      cluster = conf.elasticSearchCluster,
+                                                      indexName = index,
+                                                      topics = Seq(topic),
+                                                      jsonTransformers = Map(topic → transformer))
 
                   val avroProcessor =
                     new AvroProcessor(schemaRegistryUrl = conf.avroSchemaRegistryUrl,
                                       processor = esProcessor)
 
-                  val consumer = new MultiTopicConsumer(topics = Seq(topic),
-                                                        broker = conf.kafkaBroker,
-                                                        groupId = s"${conf.kafkaGroupId}_$topic",
-                                                        processor = avroProcessor,
-                                                        startFromBeginning =
-                                                          conf.startFromBeginning)
+                  val consumer =
+                    new MultiTopicConsumer(topics = Seq(topic),
+                                           broker = conf.kafkaBroker,
+                                           groupId = s"scoped_${conf.kafkaGroupId}_$topic",
+                                           processor = avroProcessor,
+                                           startFromBeginning = conf.startFromBeginning)
 
                   // Start consuming & processing
-                  Console.out.println(s"Reading from broker ${conf.kafkaBroker}")
+                  Console.out.println(
+                      s"Scoped $topic Processor Reading from broker ${conf.kafkaBroker}")
                   consumer.readForever()
                 case None ⇒
                   throw new IllegalArgumentException(
@@ -131,7 +156,7 @@ object Workers {
         }
     }
 
-    Future.sequence(futures)
+    Future.sequence(Seq(scopeProcessorFuture) ++ indexers)
   }
 
   def topicTransformers(connectionInfo: PhoenixConnectionInfo)(

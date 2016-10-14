@@ -2,10 +2,12 @@ package consumer.elastic
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.collection.mutable.Buffer
 import scala.util.control.NonFatal
 
 import consumer.{AvroJsonHelper, JsonProcessor}
 import consumer.PassthroughSource
+import consumer.MainConfig.IndexTopicMap
 import consumer.elastic.mappings._
 import consumer.aliases._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
@@ -29,8 +31,7 @@ final case class Scope(id: Int = 0, parentPath: Option[String]) {
   */
 class ScopeProcessor(uri: String,
                      cluster: String,
-                     indexName: String,
-                     topics: Seq[String],
+                     indexTopics: IndexTopicMap,
                      jsonTransformers: Map[String, JsonTransformer])(
     implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC)
     extends JsonProcessor {
@@ -53,18 +54,24 @@ class ScopeProcessor(uri: String,
   }
 
   private def createIndex(scope: Scope): Future[Unit] = {
-    val scopedIndexName = s"${indexName}_${scope.path}"
-    Console.out.println(s"Creating type mappings for index: ${scopedIndexName}")
-    //get json mappings for topics
-    val jsonMappings = jsonTransformers.filter {
-      case (key, _) ⇒ topics.contains(key)
-    }.mapValues(_.mapping()).values.toSeq
+    var createFutures = Buffer[Future[Unit]]()
+    indexTopics.foreach {
+      case (indexName, topics) ⇒ {
+          val scopedIndexName = s"${indexName}_${scope.path}"
+          Console.out.println(s"Creating type mappings for index: ${scopedIndexName}")
+          //get json mappings for topics
+          val jsonMappings = jsonTransformers.filter {
+            case (key, _) ⇒ topics.contains(key)
+          }.mapValues(_.mapping()).values.toSeq
 
-    // create index with scope in the
-    client.execute {
-      create index scopedIndexName mappings (jsonMappings: _*) analysis (autocompleteAnalyzer, lowerCasedAnalyzer, upperCasedAnalyzer)
-    }.map { _ ⇒
-      ()
+          // create index with scope in the
+          createFutures += client.execute {
+            create index scopedIndexName mappings (jsonMappings: _*) analysis (autocompleteAnalyzer, lowerCasedAnalyzer, upperCasedAnalyzer)
+          }.map { _ ⇒
+            ()
+          }
+        }
     }
+    Future.sequence(createFutures).map(_ ⇒ ())
   }
 }
