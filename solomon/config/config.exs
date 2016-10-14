@@ -6,11 +6,11 @@
 use Mix.Config
 
 # General application configuration
-config :permissions,
+config :solomon,
   ecto_repos: [Solomon.Repo]
 
 # Configures the endpoint
-config :permissions, Solomon.Endpoint,
+config :solomon, Solomon.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "2oOW13I0lUdSJIkfywxxryGAWuf9CX9G5sHtbRXqbFwvtAapVQnWpiYZeDL6HIK9",
   render_errors: [view: Solomon.ErrorView, accepts: ~w(json)],

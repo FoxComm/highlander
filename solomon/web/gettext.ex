@@ -20,5 +20,5 @@ defmodule Solomon.Gettext do
 
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
-  use Gettext, otp_app: :permissions
+  use Gettext, otp_app: :solomon
 end
