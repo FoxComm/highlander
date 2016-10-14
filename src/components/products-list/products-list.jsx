@@ -51,8 +51,9 @@ class ProductsList extends Component {
     return (
       <header styleName={className}>
         <div styleName="header-wrap">
-          <h1 styleName="title">{title}</h1>
-          {description}
+          <span styleName="description">{description}</span>
+          <span styleName="title">{title}</span>
+          <div styleName="title-line-accent"></div>
         </div>
       </header>
     );

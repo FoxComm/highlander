@@ -19,19 +19,116 @@
   height: auto;
 }
 
+.hover-info {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  background-color: #332A2C;
+  opacity: 0.9;
+}
+
 .preview-image {
   width: 100%;
   max-width: 100%;
   height: auto;
 }
 
-.name {
+.bottom-stack {
+  text-align: left;
+}
+
+.title {
+  margin-top: 20px;
+  font-family: PlayfairDisplay;
+  font-weight: 400;
+  font-size: 26px;
+  color: var(--text-color-dark);
+  letter-spacing: 0.7px;
+}
+
+.divider {
+  width: 48px;
+  height: 2px;
+  background-color: #3D2228;
   margin-top: 20px;
 }
 
-.price {
-  margin-top: 10px;
+.description {
+  font-family: Roboto;
   font-weight: 300;
+  font-size: 15px;
+  color: var(--text-color-dark);
+  opacity: 0.44;
+  letter-spacing: 0px;
+  margin-top: 10px;
 }
 
+.price-line {
+  margin-top: 10px;
+  display: table;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
 
+.price {
+  font-family: Roboto;
+  font-weight: 400;
+  font-size: 15px;
+  color: var(--text-color-dark);
+  opacity: 0.74;
+  letter-spacing: 1.5px;
+}
+
+.add-to-cart {
+  display: table;
+
+  &:hover {
+    & .add-title-expanded {
+      display: table-cell;
+    }
+
+    & .add-to-cart-btn {
+      background-color: #3D2228;
+      color: white;
+      cursor: pointer;
+    }
+  }
+}
+
+.add-to-cart-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #3D2228;
+  color: #3D2228;
+  font-weight: bold;
+  font-size: 30px;
+  text-align: center;
+  display: table;
+
+  & .add-icon {
+    display: table-cell;
+    vertical-align: middle;
+  }
+
+  &:hover {
+    background-color: #3D2228;
+    color: white;
+    cursor: pointer;
+  }
+}
+
+.add-title-expanded {
+  display: none;
+  font-family: Roboto;
+  font-size: 12px;
+  font-weight: normal;
+  height: 40px;
+  vertical-align: middle;
+  background-color: #3D2228;
+  color: white;
+  padding-left: 5px;
+  padding-right: 5px;
+  cursor: pointer;
+}

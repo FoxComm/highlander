@@ -29,4 +29,5 @@
   --search-placeholder: rgba(255,255,255,.14);
   --icon: var(--bunker);
   --input-text-color: var(--bunker-transparent);
+  --text-color-dark: var(--bunker);
 }
