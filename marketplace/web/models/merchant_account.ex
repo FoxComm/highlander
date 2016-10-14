@@ -1,6 +1,5 @@
 defmodule Marketplace.MerchantAccount do
   use Marketplace.Web, :model
-  import Marketplace.Validation
 
   schema "merchant_accounts" do
     field :first_name, :string

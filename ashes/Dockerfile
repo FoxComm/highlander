@@ -10,5 +10,5 @@ RUN mkdir -p /ashes
 WORKDIR /ashes
 COPY . /ashes
 
-EXPOSE 4040
+EXPOSE 4000
 CMD ["gulp", "server"]

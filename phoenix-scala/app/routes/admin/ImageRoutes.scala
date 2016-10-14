@@ -43,7 +43,7 @@ object ImageRoutes {
               (post & pathEnd) {
                 extractRequest { req ⇒
                   goodOrFailures {
-                    ImageFacade.uploadImage(albumId, context, req)
+                    ImageFacade.uploadImages(albumId, context, req)
                   }
                 }
               }

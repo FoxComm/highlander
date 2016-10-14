@@ -1,10 +1,13 @@
 export type FormField = {
-  name: string;
+  name?: string;
+  names?: Array<string>;
   type: string;
   placeholder: string;
+  value?: string;
   values?: Array<string>;
   validation?: Array<string>;
   normalize?: (value: string) => any;
+  showPredicate?: (values: Array<string>) => boolean;
 }
 
 export type FieldValue = string|number;

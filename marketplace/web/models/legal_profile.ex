@@ -1,6 +1,5 @@
 defmodule Marketplace.LegalProfile do 
   use Marketplace.Web, :model
-  import Marketplace.Validation
 
   schema "legal_profiles" do
     field :bank_account_number, :string

@@ -1,6 +1,5 @@
 defmodule Marketplace.SocialProfile do 
   use Marketplace.Web, :model
-  import Marketplace.Validation
 
   schema "social_profiles" do
     field :twitter_handle, :string

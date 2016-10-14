@@ -28,12 +28,7 @@ module.exports = function (gulp, $, opts) {
       standalone: 'App',
       extensions: ['.jsx'],
       debug: !production,
-    }, watchify.args)).transform(envify({
-      _: 'purge',
-      NODE_ENV: process.env.NODE_ENV || 'development',
-      API_URL: process.env.API_URL,
-      ASHES_URL: process.env.ASHES_URL || 'https://stage.foxcommerce.com/admin',
-    }));
+    }, watchify.args));
 
     bundler.plugin(require('css-modulesify'), Object.assign({
       output: path.resolve('build/bundle.css'),

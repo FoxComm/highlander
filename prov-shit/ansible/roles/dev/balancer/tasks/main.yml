@@ -15,6 +15,10 @@
 - name: Enable Web UI Hosts
   file: src=/etc/nginx/sites-available/web-ui dest=/etc/nginx/sites-enabled/web-ui owner=root group=root state=link
 
+- name: Restart Middlewarehouse If Present
+  service: name=middlewarehouse state=restarted
+  ignore_errors: yes
+
 - name: Restart Nginx
   service: name=nginx state=restarted
   when: not packing

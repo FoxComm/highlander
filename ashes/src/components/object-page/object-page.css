@@ -9,6 +9,10 @@
       margin-top: 0;
     }
   }
+
+  & :global(.fc-content-box) + :global(.fc-content-box) {
+    margin-top: 20px;
+  }
 }
 
 .cancel-button {

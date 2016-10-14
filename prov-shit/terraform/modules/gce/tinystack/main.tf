@@ -5,6 +5,9 @@ variable "ssh_user" {}
 variable "ssh_private_key" {}
 variable "consul_leader" {}
 variable "consul_server_image" {}
+variable "frontend_machine_type" {
+    default = "n1-highcpu-8"
+}
 
 resource "google_compute_instance" "tiny-consul" {
     name = "${var.datacenter}-consul-server"
@@ -29,7 +32,7 @@ resource "google_compute_instance" "tiny-consul" {
     connection {
         type = "ssh"
         user = "${var.ssh_user}"
-        private_key="${file(var.ssh_private_key)}"
+        private_key = "${file(var.ssh_private_key)}"
     }
 
     provisioner "remote-exec" {
@@ -43,7 +46,7 @@ resource "google_compute_instance" "tiny-consul" {
 
 resource "google_compute_instance" "tiny-frontend" {
     name = "${var.datacenter}-frontend"
-    machine_type = "n1-highcpu-8"
+    machine_type = "${var.frontend_machine_type}"
     tags = ["no-ip", "http-server", "https-server", "${var.datacenter}-frontend"]
     zone = "us-central1-a"
 
@@ -60,7 +63,7 @@ resource "google_compute_instance" "tiny-frontend" {
     connection {
         type = "ssh"
         user = "${var.ssh_user}"
-        private_key="${file(var.ssh_private_key)}"
+        private_key = "${file(var.ssh_private_key)}"
     }
 
     provisioner "remote-exec" {
@@ -90,7 +93,7 @@ resource "google_compute_instance" "tiny-backend" {
     connection {
         type = "ssh"
         user = "${var.ssh_user}"
-        private_key="${file(var.ssh_private_key)}"
+        private_key = "${file(var.ssh_private_key)}"
     }
 
     provisioner "remote-exec" {

@@ -37,6 +37,9 @@ shortcuts:
   - name: Bootstrap Annabelle
     alias: annabelle.yml
     target: ansible/bootstrap_annabelle.yml
+  - name: Bootstrap Backend
+    alias: backend.yml
+    target: ansible/bootstrap_backend.yml
   - name: Bootstrap Build Agents
     alias: build_agents.yml
     target: ansible/bootstrap_build_agents.yml

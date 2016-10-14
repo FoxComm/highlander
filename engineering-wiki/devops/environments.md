@@ -2,6 +2,7 @@
 
 Navigation:
 * [Staging](#staging)
+* [Vanilla](#vanilla)
 * [TopDrawer](#topdrawer)
 * [Target](#target)
 * [The Perfect Gourmet](#the-perfect-gourmet)
@@ -9,7 +10,30 @@ Navigation:
 ## Staging
 
 * Platform: [Google Compute Engine](https://console.cloud.google.com/compute/instances?project=foxcomm-staging&authuser=1)
-* VPN IP: `146.148.43.48 `
+* VPN IP: `146.148.43.48`
+* Docker Registry: https://docker.stage.foxcommerce.com:5000 (uses `stage-docker` storage bucket)
+
+| Name       | Link                                                             |
+|:-----------|:-----------------------------------------------------------------|
+| Consul     | [Consul UI](http://10.240.0.10:8500/ui/#/foxcomm-stage/services) |
+| Mesos      | [Mesos UI](http://10.240.0.3:5050/#/)                            |
+| Marathon   | [Marathon UI](http://10.240.0.3:8080/ui/#/apps)                  |
+| Storefront | [Storefront](https://stage.foxcommerce.com)                      |
+| Admin UI   | [Admin UI](https://stage.foxcommerce.com/admin)                  |
+
+## Vanilla
+
+* Platform: [Google Compute Engine](https://console.cloud.google.com/compute/instances?project=foxcommerce-production-shared&authuser=1)
+* VPN IP: `104.197.84.113`
+* Docker Registry: https://docker.vanilla.foxcommerce.com:5000 (uses `vanilla-docker` storage bucket)
+
+| Name       | Link                                                    |
+|:-----------|:--------------------------------------------------------|
+| Consul     | [Consul UI](http://10.0.0.3:8500/ui/#/vanilla/services) |
+| Mesos      | [Mesos UI](http://10.0.0.3:5050/#/)                     |
+| Marathon   | [Marathon UI](http://10.0.0.3:8080/ui/#/apps)           |
+| Storefront | [Storefront](https://vanilla.foxcommerce.com)           |
+| Admin UI   | [Admin UI](https://admin.vanilla.foxcommerce.com)       |
 
 ## TopDrawer
 
@@ -18,13 +42,13 @@ Navigation:
 * VPN IP: `130.211.158.41`
 * Docker Registry: https://docker.topdrawer.foxcommerce.com:5000 (uses `topdrawer-docker` storage bucket)
 
-| Name       | Staging                                                         | Vanilla                                                        |
-|:-----------|:----------------------------------------------------------------|:---------------------------------------------------------------|
-| Consul     | [Consul UI](http://10.0.0.15:8500/ui/#/topdrawer-stage/services) | [Consul UI](http://10.0.0.3:8500/ui/#/topdrawer/services)     |
-| Mesos      | [Mesos UI](http://10.0.0.15:5050/#/)                             | [Mesos UI](http://10.0.0.3:5050/#/)                           |
-| Marathon   | [Marathon UI](http://10.0.0.15:8080/ui/#/apps)                   | [Marathon UI](http://10.0.0.3:8080/ui/#/apps)                 |
-| Storefront | [Storefront](https://topdrawer-stage.foxcommerce.com)           | [Storefront](https://topdrawer-production.foxcommerce.com)     |
-| Admin UI   | [Admin UI](https://admin.topdrawer-stage.foxcommerce.com)       | [Admin UI](https://admin.topdrawer-production.foxcommerce.com) |
+| Name       | Staging                                                          | Vanilla                                                        |
+|:-----------|:-----------------------------------------------------------------|:---------------------------------------------------------------|
+| Consul     | [Consul UI](http://10.0.0.15:8500/ui/#/topdrawer-stage/services) | [Consul UI](http://10.0.0.3:8500/ui/#/topdrawer/services)      |
+| Mesos      | [Mesos UI](http://10.0.0.15:5050/#/)                             | [Mesos UI](http://10.0.0.3:5050/#/)                            |
+| Marathon   | [Marathon UI](http://10.0.0.15:8080/ui/#/apps)                   | [Marathon UI](http://10.0.0.3:8080/ui/#/apps)                  |
+| Storefront | [Storefront](https://topdrawer-stage.foxcommerce.com)            | [Storefront](https://topdrawer-production.foxcommerce.com)     |
+| Admin UI   | [Admin UI](https://admin.topdrawer-stage.foxcommerce.com)        | [Admin UI](https://admin.topdrawer-production.foxcommerce.com) |
 
 ## Target
 

@@ -21,6 +21,16 @@ build: glide
 	cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
 	cd $(BUILD_PATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
 
+docker: glide
+	cd $(BUILD_PATH) && GOOS=linux go build -o middlewarehouse main.go
+	cd $(BUILD_PATH) && GOOS=linux go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
+	cd $(BUILD_PATH) && GOOS=linux go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
+	cd $(BUILD_PATH) && GOOS=linux go build -o consumers/capture/capture-consumer consumers/capture/*.go
+	docker build -t middlewarehouse --no-cache .
+	docker build -t stock-items-consumer --no-cache consumers/stock-items/
+	docker build -t shipments-consumer --no-cache consumers/shipments/
+	docker build -t capture-consumer --no-cache consumers/capture/
+
 clean:
 	rm -rf ./vendor
 

@@ -1,9 +1,12 @@
 ---
 
-- name: Copy Isaac
-  copy: src={{isaac_src}} dest=/usr/local/bin/isaac mode="u+x,g+x,o+x"
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
   sudo: true
 
-- name: Restart Isaac
-  service: name=isaac state=restarted enabled=yes
+- name: Copy Isaac Marathon JSON
+  template: src=isaac.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
   sudo: true
+
+- name: Update Isaac in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/isaac.json -H "Content-Type: application/json" http://marathon.service.consul:8080/v2/apps/isaac'

@@ -1,6 +1,5 @@
 defmodule Marketplace.MerchantLegalProfile do 
   use Marketplace.Web, :model
-  import Marketplace.Validation
 
   schema "merchant_legal_profiles" do
     belongs_to :merchant, Marketplace.Merchant
