@@ -1,9 +1,9 @@
-defmodule Permissions.ScopeService do
+defmodule Solomon.ScopeService do
   alias Ecto.Changeset
-  alias Permissions.Repo
-  alias Permissions.Resource
-  alias Permissions.RolePermission
-  alias Permissions.PermissionClaimService
+  alias Solomon.Repo
+  alias Solomon.Resource
+  alias Solomon.RolePermission
+  alias Solomon.PermissionClaimService
 
   def create_role_with_permissions(role_cs, resources) do
     scope_id = Changeset.get_change(role_cs, :scope_id)
