@@ -166,6 +166,7 @@ object Seeds {
   def createAdminsSeeds(implicit db: DB, ec: EC, ac: AC): Int = {
     val r = for {
       _      ← * <~ createSingleMerchantSystem
+      _      ← * <~ createSecondMerchant
       admins ← * <~ Factories.createStoreAdmins
     } yield admins
 
@@ -362,6 +363,9 @@ object Seeds {
 
   def createSingleMerchantSystem(implicit ec: EC) =
     sql""" select bootstrap_single_merchant_system() """.as[Int]
+
+  def createSecondMerchant(implicit ec: EC) =
+    sql""" select bootstrap_demo_organization('merchant2', 'merchant2.com', 1, 1) """.as[Int]
 
   private def flyWayMigrate(config: Config): Unit = {
     val flyway = newFlyway(jdbcDataSourceFromConfig("db", config))

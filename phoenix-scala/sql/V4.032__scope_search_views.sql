@@ -1,3 +1,59 @@
+create or replace function bootstrap_demo_organization(org_name text, org_com text, parent_org_id integer, parent_scope_id integer) returns int as $$
+declare 
+    merch_scope_id integer;
+    merch_id integer;
+    merch_admin_id integer;
+    customer_id integer;
+    cart_id integer;
+    order_id integer;
+    product_id integer;
+    sku_id integer;
+    album_id integer;
+    coupon_id integer;
+    user_id integer;
+    org_id integer;
+    my_cart_id integer;
+    my_info_id integer;
+
+begin
+
+    insert into scopes(source, parent_id, parent_path) values ('org', parent_scope_id,
+        text2ltree(parent_scope_id::text)) returning id into merch_scope_id;
+
+    insert into organizations(name, kind, parent_id, scope_id) values 
+        (org_name, 'merchant', parent_org_id, merch_scope_id) returning id into merch_id;
+
+    insert into scope_domains(scope_id, domain) values (merch_scope_id, org_com);
+
+    select id from resources where name='cart' into cart_id;
+    select id from resources where name='order' into order_id;
+    select id from resources where name='product' into product_id;
+    select id from resources where name='sku' into sku_id;
+    select id from resources where name='album' into album_id;
+    select id from resources where name='coupon' into coupon_id;
+    select id from resources where name='user' into user_id;
+    select id from resources where name='org' into org_id;
+    select id from resources where name='my:cart' into my_cart_id;
+    select id from resources where name='my:info' into my_info_id;
+
+    insert into roles(name, scope_id) values ('admin', merch_scope_id) returning id into merch_admin_id;
+
+    perform add_perm(merch_admin_id, merch_scope_id, cart_id, ARRAY['c', 'r', 'u', 'd']);
+    perform add_perm(merch_admin_id, merch_scope_id, order_id, ARRAY['c', 'r', 'u', 'd']);
+    perform add_perm(merch_admin_id, merch_scope_id, product_id, ARRAY['c', 'r', 'u', 'd']);
+    perform add_perm(merch_admin_id, merch_scope_id, sku_id, ARRAY['c', 'r', 'u', 'd']);
+    perform add_perm(merch_admin_id, merch_scope_id, album_id, ARRAY['c', 'r', 'u', 'd']);
+    perform add_perm(merch_admin_id, merch_scope_id, coupon_id, ARRAY['c', 'r', 'u', 'd']);
+    perform add_perm(merch_admin_id, merch_scope_id, user_id, ARRAY['c', 'r', 'u', 'd']);
+
+    insert into roles(name, scope_id) values ('customer', merch_scope_id) returning id into customer_id;
+
+    perform add_perm(customer_id, merch_scope_id, my_cart_id, ARRAY['r', 'u']);
+    perform add_perm(customer_id, merch_scope_id, my_info_id, ARRAY['r', 'u']);
+
+    return 1;
+end;
+$$ LANGUAGE plpgsql;
 
 --adding scope to search views based on object store
 create or replace function illuminate_text(form object_forms, shadow object_shadows, key text) returns text as $$

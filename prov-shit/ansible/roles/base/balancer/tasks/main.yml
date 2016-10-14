@@ -12,12 +12,16 @@
 - name: Install nginx dependencies
   apt: name={{ item }} force=yes state=latest
   with_items:
+    - luajit
     - lua-cjson
     - lua-cjson-dev
     - nginx-extras
 
-- name: Instal lua request uuid handler
+- name: Install uuid4 Lua Lib
   copy: src=uuid4.lua dest=/etc/nginx/uuid4.lua
+
+- name: Install basexx Lua Lib
+  copy: src=basexx.lua dest=/etc/nginx/basexx.lua
 
 - name: Install base config
   template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf

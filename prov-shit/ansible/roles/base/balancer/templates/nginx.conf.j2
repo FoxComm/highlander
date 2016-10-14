@@ -56,21 +56,68 @@ http {
 
   lua_package_path '/etc/nginx/?.lua;;';
   init_by_lua '
+      string = require "string"
+      table = require "table"
       cjson = require "cjson"
       uuid4 = require "uuid4"
       math = require "math"
+      basexx = require "basexx"
       j = cjson.new()
+
+      -- TODO: Remove table once all search views are scoped
+      scoped_views = {
+        products_search_view = 1,
+        promotions_search_view = 1,
+        coupons_search_view = 1,
+        coupon_codes_search_view = 1,
+        sku_search_view = 1
+      } 
 
       function map(array, func)
         local new_array = {}
         for i,v in ipairs(array) do
-        new_array[i] = func(v)
+            new_array[i] = func(v)
         end
         return new_array
       end
 
+      function split_on_dot(str)
+        local seperator = string.format("([^%s]+)", "%.")
+        local parts = {}
+        for match in str:gmatch(seperator) do
+            parts[#parts+1] = match
+        end
+        return parts
+      end
+
+      function parse_jwt_payload(jwt)
+        local encoded_parts = split_on_dot(jwt)
+        local decoded_payload = basexx.from_base64(encoded_parts[2])
+        return j.decode(decoded_payload)
+      end
+
+      function get_doc_type(prefix, uri)
+        return uri:match(prefix .. "/([_%a]*)/")
+      end
+
       function request_internal_search(idx)
-        local req = ngx.re.sub(ngx.var.request_uri, "api/search/" .. idx, "internal-search-" .. idx)
+        local req
+        local jwt = ngx.req.get_headers()["JWT"]
+        local request_prefix = "api/search/" .. idx
+
+        if jwt ~= nil then
+            local payload = parse_jwt_payload(jwt)
+            local view = get_doc_type(request_prefix, ngx.var.request_uri)
+            local scope = payload.scope
+
+            if scoped_views[view] then
+                req = ngx.re.sub(ngx.var.request_uri, request_prefix, "internal-search/" .. idx .. "_" .. scope)
+            else
+                req = ngx.re.sub(ngx.var.request_uri, request_prefix, "internal-search/" .. idx)
+            end
+        else
+            req = ngx.re.sub(ngx.var.request_uri, request_prefix, "internal-search/" .. idx)
+        end
 
         -- map is needed because ngx.var.request_method returns a string
         local methodsMap = {
