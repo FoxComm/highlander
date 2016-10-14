@@ -29,7 +29,26 @@ export default class SettingsEntry extends Component {
     const allClaims = { ...userClaims, ...pluginClaims };
 
     if (!anyPermitted(allClaims, claims)) {
-      return <div></div>;
+      return (
+        <li>
+          <NavigationItem
+            to="shopify"
+            icon="icon-settings"
+            title="Settings"
+            isIndex={true}
+            isExpandable={true}
+            routes={routes}
+            collapsed={collapsed}
+            status={status}
+            toggleMenuItem={toggleMenuItem}>
+            <IndexLink
+              to="shopify"
+              className="fc-navigation-item__sublink">
+              Shopify
+            </IndexLink>
+          </NavigationItem>
+        </li>
+      );
     }
 
     return (
