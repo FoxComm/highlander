@@ -77,7 +77,7 @@ const steps = (pathname) => [
   },
   {
     key: STEP_INFO,
-    active: /\/info|actions|feed|shipping\/?$/.test(pathname),
+    active: /\/info|actions|feed|shipping|integration\/?$/.test(pathname),
     title: 'More Info',
   },
 ];
