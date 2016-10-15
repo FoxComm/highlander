@@ -1,24 +1,6 @@
 package testutils
 
-import java.util.concurrent.TimeUnit
-
-import akka.util.Timeout
-
-import org.scalatest.concurrent.AbstractPatienceConfiguration
-import org.scalatest.time.{Millisecond, Seconds, Span}
-
-trait IntegrationTestBase
-    extends TestBase
-    with AbstractPatienceConfiguration
-    with DbTestSupport
-    with GimmeSupport {
-
-  override implicit def patienceConfig: PatienceConfig = PatienceConfig(
-      timeout = Span(6, Seconds),
-      interval = Span(1, Millisecond)
-  )
-
-  implicit val timeout: Timeout = Timeout(6, TimeUnit.SECONDS)
+trait IntegrationTestBase extends TestBase with DbTestSupport with GimmeSupport {
 
   implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
 }
