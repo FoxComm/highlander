@@ -18,8 +18,14 @@ type State = ShopifyIntegration;
 export const ACTION_SUBMIT = 'shopifyIntegrationSubmit';
 
 const { perform: submit, ...submitActions } = createAsyncActions(ACTION_SUBMIT, (merchantId, data) => {
+  const origin_integration = {
+    shopify_key: data.shopifyKey,
+    shopify_password: data.shopifyPassword,
+    shopify_domain: data.shopifyDomain,
+  };
+
   return new Promise((resolve, reject) =>
-    api.post(`/merchants/${merchantId}/shopify_integration`, { shopify_integration: data })
+    api.post(`/merchants/${merchantId}/origin_integrations`, { origin_integration })
       .then((integration: ShopifyIntegration) => resolve(integration))
       .catch(err => reject(new SubmissionError(err.response.data.errors)))
   );
