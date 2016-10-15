@@ -72,19 +72,6 @@ class ShopifyPage extends Component {
     return this.props.submit(merchantId, data);
   }
 
-  @autobind
-  handleUpload(data) {
-    const merchantId = get(this.props.application, 'merchant.id');
-
-    if (!merchantId) {
-      console.error('No merchantId');
-
-      return;
-    }
-
-    return this.props.upload(merchantId, data);
-  }
-
   get form(): HTMLElement {
     const { shopifySubmitInProgress, shopifySubmitFailed } = this.props;
 
