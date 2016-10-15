@@ -4,9 +4,16 @@ import { get, isEmpty } from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+<<<<<<< HEAD
 
 import Header from '../../components/header/header';
 import Form from '../../components/form/form';
+=======
+import { replace } from 'react-router-redux';
+
+import Header from '../../components/header/header';
+import ShopifyForm from '../../forms/shopify/shopify-form'
+>>>>>>> Base shopify page in onboarding
 import ThanksOrNot from '../../components/thanks-or-not/thanks-or-not';
 import Loader from '../../components/loader/loader';
 
@@ -77,6 +84,7 @@ class ShopifyPage extends Component {
 
     return (
       <ThanksOrNot
+        className={styles.thanksOrNot}
         title="You're done!"
         message="You're being redirected to admin page now"
       >
