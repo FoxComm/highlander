@@ -30,15 +30,11 @@ import type { ShopifyIntegration } from '../../core/modules/shopify-integration'
 
 type Props = {
   params: Object;
-  feed: Feed;
+  shopify: ShopifyIntegration,
   application: Application;
-  feedSubmitInProgress: boolean;
-  feedSubmitFailed: boolean;
-  feedUploadInProgress: boolean;
-  feedUploadFailed: boolean;
+  getShopifySubmitInProgress: boolean;
+  getShopifySubmitFailed: boolean;
   submit: (data: Object) => Promise<*>;
-  upload: (data: Object) => Promise<*>;
-  replace: (path: string) => void;
 }
 
 const TIMEOUT_REDIRECT = 3000;
@@ -47,9 +43,8 @@ class ShopifyPage extends Component {
   props: Props;
 
   componentWillReceiveProps(nextProps: Props) {
-    if (!isEmpty(nextProps.feed)) {
+    if (!isEmpty(nextProps.shopify)) {
       this.handleInfoSucceeded();
-      // this.props.replace(`/application/${this.props.params.ref}/shipping`);
     }
   }
 
