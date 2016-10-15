@@ -19,6 +19,7 @@ import reducer, { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
 import type { Sku } from 'modules/skus/details';
 import type { Sku as SearchViewSku } from 'modules/skus/list';
+import { skuId } from 'paragons/product';
 
 type Column = {
   field: string,
@@ -111,11 +112,7 @@ class EditableSkuRow extends Component {
   }
 
   get code(): string {
-    if (this.props.sku.code) {
-      return this.props.sku.code;
-    }
-
-    return this.props.sku.feCode || 'new';
+    return skuId(this.props.sku);
   }
 
   suggestSkus(text: string): Promise|void {
