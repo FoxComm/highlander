@@ -43,7 +43,11 @@ class ElasticSearchProcessor(
   private val futureUnit: Future[Unit] = Future { () }
 
   def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] =
-    getIntKey(key).fold(futureUnit) { id ⇒
+    getIntKey(key).fold {
+      Console.err.println(
+          s"Can't find ID for document $inputJson and key $key for topic $topic, offset = $offset")
+      futureUnit
+    } { id ⇒
       inputJson match {
         case "null" ⇒ deleteFromIndex(topic, id)
         case _      ⇒
