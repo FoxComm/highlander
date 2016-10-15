@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/async"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/utils"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
@@ -202,6 +203,14 @@ func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, new
 		_, err = unitRepo.UnsetUnitsInOrder(newShipment.OrderRefNum)
 
 	case models.ShipmentStateShipped:
+		// log.Printf("Now is %v", time.Now())
+		// futureDays := time.Hour * 24 * time.Duration(oldShipment.ShippingMethod.ShippingDays)
+		// log.Printf("futureDays is %v", futureDays)
+		// expectedDate := time.Now().Add(futureDays).Format("Jan 01 2006")
+		// log.Printf("expectedDate is %s", expectedDate)
+		f := "October 20, 2016"
+		newShipment.EstimatedArrival = utils.MakeSqlNullString(&f)
+
 		unitIDs := []uint{}
 		for _, lineItem := range newShipment.ShipmentLineItems {
 			unitIDs = append(unitIDs, lineItem.StockItemUnitID)

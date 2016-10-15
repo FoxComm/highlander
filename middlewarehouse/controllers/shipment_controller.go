@@ -24,9 +24,9 @@ func NewShipmentController(
 func (controller *shipmentController) SetUp(router gin.IRouter) {
 	router.GET(":referenceNumber", controller.getShipmentsByOrder())
 	router.POST("", controller.createShipment())
-	router.PATCH(":id", controller.updateShipment())
+	// router.PATCH(":id", controller.updateShipment())
 	router.POST("from-order", controller.createShipmentFromOrder())
-	router.PATCH("from-order", controller.updateShipmentFromOrder())
+	router.PATCH("from-order/:referenceNumber", controller.updateShipmentFromOrder())
 }
 
 func (controller *shipmentController) getShipmentsByOrder() gin.HandlerFunc {
@@ -94,6 +94,11 @@ func (controller *shipmentController) updateShipment() gin.HandlerFunc {
 
 func (controller *shipmentController) updateShipmentFromOrder() gin.HandlerFunc {
 	return func(context *gin.Context) {
+		payload := &payloads.UpdateShipment{}
+		if parse(context, payload) != nil {
+			return
+		}
+
 		referenceNumber := context.Params.ByName("referenceNumber")
 		shipments, err := controller.shipmentService.GetShipmentsByOrder(referenceNumber)
 		if err != nil {
@@ -102,8 +107,15 @@ func (controller *shipmentController) updateShipmentFromOrder() gin.HandlerFunc 
 		}
 
 		var updates []*models.Shipment
-		for _, s := range shipments {
-			up, err := controller.shipmentService.UpdateShipment(s)
+		for _, toUpdate := range shipments {
+
+			model := models.NewShipmentFromUpdatePayload(payload)
+			model.ID = toUpdate.ID
+			for i, _ := range model.ShipmentLineItems {
+				model.ShipmentLineItems[i].ShipmentID = model.ID
+			}
+
+			up, err := controller.shipmentService.UpdateShipment(model)
 			if err != nil {
 				handleServiceError(context, err)
 				return
