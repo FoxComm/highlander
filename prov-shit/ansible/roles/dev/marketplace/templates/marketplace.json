@@ -1,0 +1,37 @@
+{
+  "id": "/marketplace",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 256,
+  "disk": 0,
+  "instances": 1,
+  "env": {
+    "DB_NAME": "marketplace_development",
+    "PHOENIX_URL": "phoenix.service.consul",
+    "PHOENIX_PORT": "9090",
+    "SOLOMON_URL": "solomon.service.consul",
+    "DB_HOST": "db.service.consul",
+    "DB_USER": "marketplace",
+    "DB_PASSWORD": "",
+    "SOLOMON_PORT": "4002"
+  },
+  "portDefinitions": [
+    {
+      "port": 10004,
+      "protocol": "tcp",
+      "name": "4003",
+      "labels": {}
+    }
+  ],
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "docker.stage.foxcommerce.com:5000/marketplace",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  }
+}

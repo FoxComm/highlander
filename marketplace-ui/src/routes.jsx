@@ -8,6 +8,7 @@ import InfoPage from './pages/info/info-page';
 import ActionsPage from './pages/actions/actions-page';
 import FeedPage from './pages/feed-page/feed-page';
 import ShippingPage from './pages/shipping-page/shipping-page';
+import ShopifyPage from './pages/shopify-page/shopify-page';
 import Main from './pages/container/main';
 
 const routes = (
@@ -21,6 +22,7 @@ const routes = (
       <Route path=":ref/actions" component={ActionsPage} />
       <Route path=":ref/feed" component={FeedPage} />
       <Route path=":ref/shipping" component={ShippingPage} />
+      <Route path=":ref/integration" component={ShopifyPage} />
     </Route>
   </Route>
 );

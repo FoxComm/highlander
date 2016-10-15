@@ -103,6 +103,17 @@ export const fields: Array<FormField> = [
     validation: 'required',
   },
   {
+    name: 'address1',
+    type: 'text',
+    placeholder: 'Legal Entity Address: Address 1',
+    validation: 'required',
+  },
+  {
+    name: 'address2',
+    type: 'text',
+    placeholder: 'Legal Entity Address: Address 2',
+  },
+  {
     name: 'city',
     type: 'text',
     placeholder: 'Legal Entity Address: City',
@@ -117,17 +128,6 @@ export const fields: Array<FormField> = [
     format: get(_, invert(LIST_STATES)),
     normalize: getOr(null, _, LIST_STATES),
     validation: 'required',
-  },
-  {
-    name: 'address1',
-    type: 'text',
-    placeholder: 'Legal Entity Address: Address 1',
-    validation: 'required',
-  },
-  {
-    name: 'address2',
-    type: 'text',
-    placeholder: 'Legal Entity Address: Address 2',
   },
   {
     name: 'zip',

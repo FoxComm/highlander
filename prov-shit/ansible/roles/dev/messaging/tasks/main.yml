@@ -1,17 +1,12 @@
 ---
 
-- name: Copy Messaging JAR
-  copy: src={{messaging_jar_src}} dest={{messaging_jar}} mode="u+x,g+x,o+x"
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
   sudo: true
 
-- name: Copy Messaging Service
-  template: src=messaging.service dest="{{dest_services}}/messaging.service"
+- name: Copy Messaging Marathon JSON
+  template: src=messaging.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
   sudo: true
 
-- name: Reload Systemd for Messaging
-  sudo: yes
-  command: systemctl daemon-reload
-
-- name: Restart Messaging
-  service: name=messaging state=restarted enabled=yes
-  sudo: true
+- name: Update Middlewarehouse in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/messaging.json -H "Content-Type: application/json" http://marathon.service.consul:8080/v2/apps/messaging'

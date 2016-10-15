@@ -1,0 +1,31 @@
+{
+  "id": "/marketplace-ui",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 1024,
+  "disk": 0,
+  "instances": 1,
+  "env": {
+    "API_URL": "https://{{storefront_server_name}}/api/v1/mkt ",
+    "ASHES_URL": "https://{{storefront_server_name}}/admin"
+  },
+  "portDefinitions": [
+    {
+      "port": 10007,
+      "protocol": "tcp",
+      "name": "4042",
+      "labels": {}
+    }
+  ],
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "docker.stage.foxcommerce.com:5000/marketplace-ui",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  }
+}
