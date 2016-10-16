@@ -5,35 +5,13 @@ defmodule Marketplace.Stripe do
 
   # This function will create a new managed account in Stripe Connect and
   # return the account ID for the new account, if successful.
-  def create_account do
+  def create_account(merchant_account, legal_profile_params) do
     HTTPoison.start
     post_headers = [{'Authorization',  "Basic #{stripe_key()}"}]
     post_url = 'https://api.stripe.com/v1/accounts'
-    post_body = {:form, [managed: true, country: 'US']}
-
-    case HTTPoison.post(post_url, post_body, post_headers) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        case Poison.decode(body) do
-        {:ok, decoded_body} ->
-          account_id = Map.fetch!(decoded_body, "id")
-          IO.inspect("Received account from stripe")
-          IO.inspect(account_id)
-          account_id
-        {:error, decoded_body} ->
-          nil
-        end
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        IO.inspect("ERROR FROM HTTP CLIENT CONNECTING TO STRIPE!")
-        IO.inspect(reason)
-        nil
-    end
-  end
-
-  def verify_account(merchant_account, legal_profile_params, stripe_account_id) do
-    HTTPoison.start
-    post_headers = [{'Authorization',  "Basic #{stripe_key()}"}]
-    post_url = "https://api.stripe.com/v1/accounts/#{stripe_account_id}"
     post_body = {:form, [
+      'managed': true,
+      'country': 'US',
       'legal_entity[dob][day]': String.to_integer(legal_profile_params["business_founded_day"]),
       'legal_entity[dob][month]': String.to_integer(legal_profile_params["business_founded_month"]),
       'legal_entity[dob][year]': String.to_integer(legal_profile_params["business_founded_year"]),
@@ -60,9 +38,11 @@ defmodule Marketplace.Stripe do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         case Poison.decode(body) do
         {:ok, decoded_body} ->
-          IO.inspect("Updated account in stripe")
-          nil
-        {:error, decoded_body} ->
+          account_id = Map.fetch!(decoded_body, "id")
+          IO.inspect("Received account from stripe")
+          IO.inspect(account_id)
+          account_id
+        {:error} ->
           nil
         end
       {:error, %HTTPoison.Error{reason: reason}} ->
