@@ -29,22 +29,29 @@ defmodule Marketplace.Stripe do
     end
   end
 
-  def verify_account do
+  def verify_account(merchant_account, legal_profile_params, stripe_account_id) do
     HTTPoison.start
     post_headers = [{'Authorization',  "Basic #{stripe_key()}"}]
-    post_url = 'https://api.stripe.com/v1/accounts/acct_19566hH3onkspVzM'
+    post_url = "https://api.stripe.com/v1/accounts/#{stripe_account_id}"
     post_body = {:form, [
-      'legal_entity[dob][day]': 10,
-      'legal_entity[dob][month]': 1,
-      'legal_entity[dob][year]': 1986,
-      'legal_entity[first_name]': 'Jenny',
-      'legal_entity[last_name]': 'Rosen',
-      'legal_entity[type]': 'individual',
+      'legal_entity[dob][day]': String.to_integer(legal_profile_params["business_founded_day"]),
+      'legal_entity[dob][month]': String.to_integer(legal_profile_params["business_founded_month"]),
+      'legal_entity[dob][year]': String.to_integer(legal_profile_params["business_founded_year"]),
+      'legal_entity[first_name]': merchant_account.first_name,
+      'legal_entity[last_name]': merchant_account.last_name,
+      'legal_entity[business_name]': legal_profile_params["legal_entity_name"],
+      'legal_entity[type]': legal_profile_params["legal_entity_type"],
       'external_account[object]': 'bank_account',
       'external_account[country]': 'US',
       'external_account[currency]': 'usd',
-      'external_account[routing_number]': '110000000',
-      'external_account[account_number]': '000123456789',
+      'external_account[routing_number]': legal_profile_params["bank_routing_number"],
+      'external_account[account_number]': legal_profile_params["bank_account_number"],
+      'legal_entity[address][city]': legal_profile_params["city"],
+      'legal_entity[address][line1]': legal_profile_params["address1"],
+      'legal_entity[address][postal_code]': legal_profile_params["zip"],
+      'legal_entity[address][state]': legal_profile_params["state"],
+      'legal_entity[business_tax_id]': legal_profile_params["legal_entity_tax_id"],
+      'legal_entity[ssn_last_4]': legal_profile_params["representative_ssn_trailing_four"],
       'tos_acceptance[date]': 1476587489,
       'tos_acceptance[ip]': '67.170.86.209'
     ]} 

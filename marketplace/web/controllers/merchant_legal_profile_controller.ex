@@ -2,13 +2,16 @@ defmodule Marketplace.MerchantLegalProfileController do
   use Marketplace.Web, :controller
   alias Ecto.Multi
   alias Marketplace.Repo
+  alias Marketplace.MerchantAccount
   alias Marketplace.LegalProfile
   alias Marketplace.MerchantLegalProfile
   alias Marketplace.LegalProfileView
   alias Marketplace.Stripe
 
   def create(conn, %{"legal_profile" => legal_profile_params, "merchant_id" => merchant_id}) do 
-    Stripe.verify_account()
+    ma = Repo.get_by!(MerchantAccount, merchant_id: merchant_id)
+    Stripe.verify_account(ma, legal_profile_params, ma.stripe_account_id)
+
     case Repo.transaction(insert_and_relate(legal_profile_params, merchant_id)) do 
       {:ok, %{legal_profile: legal_profile, merchant_legal_profile: m_lp}} -> 
         conn
