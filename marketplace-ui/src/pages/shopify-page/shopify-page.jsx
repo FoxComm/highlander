@@ -4,10 +4,9 @@ import { get, isEmpty } from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { replace } from 'react-router-redux';
 
 import Header from '../../components/header/header';
-import ShopifyForm from '../../forms/shopify/shopify-form'
+import Form from '../../components/form/form';
 import ThanksOrNot from '../../components/thanks-or-not/thanks-or-not';
 import Loader from '../../components/loader/loader';
 
@@ -29,11 +28,10 @@ import type { Application } from '../../core/modules/merchant-application';
 import type { ShopifyIntegration } from '../../core/modules/shopify-integration';
 
 type Props = {
-  params: Object;
   shopify: ShopifyIntegration,
   application: Application;
-  getShopifySubmitInProgress: boolean;
-  getShopifySubmitFailed: boolean;
+  shopifySubmitInProgress: boolean;
+  shopifySubmitFailed: boolean;
   submit: (data: Object) => Promise<*>;
 }
 
@@ -72,23 +70,8 @@ class ShopifyPage extends Component {
     return this.props.submit(merchantId, data);
   }
 
-  get form(): HTMLElement {
-    const { shopifySubmitInProgress, shopifySubmitFailed } = this.props;
-
-    return (
-      <ShopifyForm
-        className={styles.form}
-        form="feed"
-        fields={shopifyFields}
-        onSubmit={this.submit}
-        inProgress={shopifySubmitInProgress}
-        failed={shopifySubmitFailed}
-      />
-    );
-  }
-
   get loader(): HTMLElement {
-    if (isEmpty(this.props.feed)) {
+    if (isEmpty(this.props.shopify)) {
       return;
     }
 
@@ -103,24 +86,34 @@ class ShopifyPage extends Component {
     );
   }
 
-  get forms(): HTMLElement {
+  get form(): HTMLElement {
+    if (!isEmpty(this.props.shopify)) {
+      return;
+    }
+
+    const { shopifySubmitInProgress, shopifySubmitFailed } = this.props;
+
     return (
-      <div className={styles.forms}>
-        {this.form}
-      </div>
+      <Form
+        form="shopify"
+        fields={shopifyFields}
+        onSubmit={this.submit}
+        inProgress={shopifySubmitInProgress}
+        failed={shopifySubmitFailed}
+      />
     );
   }
 
   render(): HTMLElement {
     return (
-      <div className={styles.feed}>
+      <div className={styles.shopify}>
         <Header
           title="Integrate with your Shopify storefront"
           legend={`If you have an existing Shopify storefront, we can automatically import your products and
           synchronize your orders, inventory, and shipments.`}
         />
         {this.loader}
-        {this.forms}
+        {this.form}
       </div>
     );
   }
@@ -133,4 +126,4 @@ const mapState = state => ({
   shopifySubmitFailed: getShopifySubmitFailed(state),
 });
 
-export default connect(mapState, { submit, replace })(ShopifyPage);
+export default connect(mapState, { submit })(ShopifyPage);
