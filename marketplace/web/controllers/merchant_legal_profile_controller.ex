@@ -5,8 +5,10 @@ defmodule Marketplace.MerchantLegalProfileController do
   alias Marketplace.LegalProfile
   alias Marketplace.MerchantLegalProfile
   alias Marketplace.LegalProfileView
+  alias Marketplace.Stripe
 
   def create(conn, %{"legal_profile" => legal_profile_params, "merchant_id" => merchant_id}) do 
+    Stripe.verify_account()
     case Repo.transaction(insert_and_relate(legal_profile_params, merchant_id)) do 
       {:ok, %{legal_profile: legal_profile, merchant_legal_profile: m_lp}} -> 
         conn
