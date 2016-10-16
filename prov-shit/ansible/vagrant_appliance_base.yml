@@ -9,12 +9,14 @@
     mesos_master: 127.0.0.1
     mesos_quorum: 1
     join_type: join
+    consul_expect: 1
     zookeeper_server: "localhost:2181"
     zookeepers : "zk://127.0.0.1:2181"
-    docker_registry: "https://localhost"
+    docker_registry: "https://docker-stage.foxcommerce.com"
   roles:
     - { role: base/common }
     - { role: base/consul }
+    - { role: base/consul_server }
     - { role: base/ssh_keys }
     - { role: base/scala }
     - { role: base/docker }
