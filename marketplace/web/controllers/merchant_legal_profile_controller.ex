@@ -3,9 +3,6 @@ defmodule Marketplace.MerchantLegalProfileController do
   alias Ecto.Multi
   alias Marketplace.Repo
   alias Marketplace.MerchantAccount
-  alias Marketplace.LegalProfile
-  alias Marketplace.MerchantLegalProfile
-  alias Marketplace.LegalProfileView
   alias Marketplace.Stripe
 
   def create(conn, %{"legal_profile" => legal_profile_params, "merchant_id" => merchant_id}) do 

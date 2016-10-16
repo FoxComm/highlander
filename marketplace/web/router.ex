@@ -38,8 +38,6 @@ defmodule Marketplace.Router do
       get "/business_profile", MerchantBusinessProfileController, :show, as: :business_profile
       patch "/business_profile", MerchantBusinessProfileController, :update, as: :business_profile
       post "/legal_profile", MerchantLegalProfileController, :create, as: :legal_profile
-      get "/legal_profile", MerchantLegalProfileController, :show, as: :legal_profile
-      patch "/legal_profile", MerchantLegalProfileController, :update, as: :legal_profile
       resources "/addresses", MerchantAddressController
       resources "/accounts", MerchantAccountController, as: :account
       post "/products_feed", MerchantProductsFeedController, :create, as: :products_feed
