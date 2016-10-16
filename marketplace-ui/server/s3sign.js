@@ -1,7 +1,7 @@
 import aws from 'aws-sdk';
 
 export default function *s3sign(next) {
-  if (!this.request.url.match(/^\/s3sign/)) {
+  if (!this.request.url.match(/\/s3sign/)) {
     yield next;
   } else {
     const s3 = new aws.S3();
