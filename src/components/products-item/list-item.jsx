@@ -52,25 +52,24 @@ class ListItem extends React.Component {
         {previewImageUrl &&
           <div styleName="preview" onClick={click}>
             <img src={previewImageUrl} styleName="preview-image" />
-            {false && <div styleName="hover-info"></div>}
+            <div styleName="hover-info">
+              <h2 styleName="additional-description">{description}</h2>
+            </div>
           </div>}
 
-        <div styleName="bottom-stack">
-          <div styleName="title">
+        <div styleName="text-block">
+          <h1 styleName="title" alt={title}>
             {title}
-          </div>
-          <div styleName="divider"></div>
-          <div styleName="description">{description}</div>
+          </h1>
+          <h2 styleName="description">{description}</h2>
           <div styleName="price-line">
             <div styleName="price">
               <Currency value={salePrice} currency={currency} />
             </div>
             <div styleName="add-to-cart">
-              <div styleName="add-to-cart-btn">
-                <div styleName="add-icon">
-                  <span>+</span>
-                </div>
-              </div>
+              <button styleName="add-to-cart-btn">
+                <span styleName="add-icon">+</span>
+              </button>
               <div styleName="add-title-expanded">ADD TO CART</div>
             </div>
           </div>

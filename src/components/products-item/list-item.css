@@ -17,14 +17,37 @@
   width: 100%;
   max-width: 100%;
   height: auto;
+  position: relative;
+
+  &:hover .hover-info {
+    opacity: 0.9;
+  }
+
 }
 
 .hover-info {
-  display: inline-block;
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 100%;
-  height: 100%;
+  height: 99%;
   background-color: #332A2C;
-  opacity: 0.9;
+  opacity: 0;
+  transition: opacity .3s ease-out;
+  display: flex;
+
+  & .additional-description {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    font-family: var(--font-main);
+    font-weight: 300;
+    font-size: 16px;
+    color: white;
+    line-height: 33px;
+  }
 }
 
 .preview-image {
@@ -33,7 +56,7 @@
   height: auto;
 }
 
-.bottom-stack {
+.text-block {
   text-align: left;
 }
 
@@ -42,22 +65,28 @@
   font-family: var(--font-playfair);
   font-weight: 400;
   font-size: 26px;
-  color: var(--text-color-dark);
+  color: var(--text-color-main);
   letter-spacing: 0.7px;
-}
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  line-height: 30px;
 
-.divider {
-  width: 48px;
-  height: 2px;
-  background-color: #3D2228;
-  margin-top: 20px;
+  &:after {
+    content: "";
+    display: block;
+    width: 48px;
+    height: 2px;
+    background-color: #3D2228;
+    margin-top: 20px;
+  }
 }
 
 .description {
   font-family: var(--font-main);
   font-weight: 300;
   font-size: 15px;
-  color: var(--text-color-dark);
+  color: var(--text-color-main);
   opacity: 0.44;
   letter-spacing: 0px;
   margin-top: 10px;
@@ -76,9 +105,15 @@
   font-family: var(--font-main);
   font-weight: 400;
   font-size: 15px;
-  color: var(--text-color-dark);
+  color: var(--text-color-main);
   opacity: 0.74;
   letter-spacing: 1.5px;
+}
+
+.add-to-cart-btn-hover {
+  background-color: #3D2228;
+  color: white;
+  cursor: pointer;
 }
 
 .add-to-cart {
@@ -90,9 +125,7 @@
     }
 
     & .add-to-cart-btn {
-      background-color: #3D2228;
-      color: white;
-      cursor: pointer;
+      composes: add-to-cart-btn-hover;
     }
   }
 }
@@ -108,14 +141,11 @@
   display: table;
 
   & .add-icon {
-    display: table-cell;
-    vertical-align: middle;
+
   }
 
   &:hover {
-    background-color: #3D2228;
-    color: white;
-    cursor: pointer;
+    composes: add-to-cart-btn-hover;
   }
 }
 
@@ -124,11 +154,11 @@
   font-family: var(--font-main);
   font-size: 12px;
   font-weight: normal;
-  height: 40px;
   vertical-align: middle;
   background-color: #3D2228;
   color: white;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 2px;
   cursor: pointer;
 }
