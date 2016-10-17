@@ -34,7 +34,7 @@ class ScopedIndexer(uri: String,
   val settings = Settings.settingsBuilder().put("cluster.name", cluster).build()
   val client   = ElasticClient.transport(settings, ElasticsearchClientUri(uri))
 
-  def process(offset: Long, topic: String, inputJson: String): Future[Unit] = {
+  def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] = {
     // Find json transformer
     jsonTransformers get topic match {
       case Some(t) ⇒

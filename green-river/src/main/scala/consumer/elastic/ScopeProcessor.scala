@@ -42,7 +42,7 @@ class ScopeProcessor(uri: String,
   val client          = ElasticClient.transport(settings, ElasticsearchClientUri(uri))
   val scopeJsonFields = List("id", "parentPath")
 
-  def process(offset: Long, topic: String, inputJson: String): Future[Unit] = {
+  def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] = {
 
     val scopeJson = AvroJsonHelper.transformJson(inputJson, scopeJsonFields)
     val scope     = parse(scopeJson).extract[Scope]
