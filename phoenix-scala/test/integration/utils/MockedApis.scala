@@ -8,6 +8,8 @@ import com.stripe.model.DeletedCard
 import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
 import org.scalatest.mock.MockitoSugar
 import services.Result
 import utils.TestStripeSupport.randomStripeishId
@@ -75,10 +77,18 @@ trait MockedApis extends MockitoSugar {
     mocked
   }
 
+  var middlewarehouseApiMockCancels: Seq[String] = Seq.empty
+
   lazy val middlewarehouseApiMock = {
     val mocked = mock[MiddlewarehouseApi]
     when(mocked.hold(any[OrderInventoryHold])(any[EC])).thenReturn(Result.unit)
-    when(mocked.cancelHold(any[String])(any[EC])).thenReturn(Result.unit)
+    when(mocked.cancelHold(any[String])(any[EC])).`then`(new Answer[Result[Unit]] {
+      override def answer(invocation: InvocationOnMock): Result[Unit] = {
+        middlewarehouseApiMockCancels =
+          middlewarehouseApiMockCancels.+:(invocation.getArgument(0).asInstanceOf[String])
+        Result.unit
+      }
+    })
     mocked
   }
 

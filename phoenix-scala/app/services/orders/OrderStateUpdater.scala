@@ -1,5 +1,6 @@
 package services.orders
 
+import cats.data.Xor
 import failures.{NotFoundFailure400, StateTransitionNotAllowed}
 import models.account._
 import models.cord.Order._
@@ -12,8 +13,11 @@ import models.payment.storecredit.StoreCreditAdjustments.scope._
 import responses.cord.{AllOrders, OrderResponse}
 import responses.{BatchMetadata, BatchMetadataSource, BatchResponse}
 import services.LogActivity.{orderBulkStateChanged, orderStateChanged}
+import services.Result
+import slick.dbio.DBIOAction
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 object OrderStateUpdater {
@@ -21,7 +25,8 @@ object OrderStateUpdater {
   def updateState(admin: User, refNum: String, newState: Order.State)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[OrderResponse] =
+      ac: AC,
+      apis: Apis): DbResultT[OrderResponse] =
     for {
       order    ← * <~ Orders.mustFindByRefNum(refNum)
       _        ← * <~ order.transitionState(newState)
@@ -37,7 +42,8 @@ object OrderStateUpdater {
                    skipActivity: Boolean = false)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[BatchResponse[AllOrders.Root]] =
+      ac: AC,
+      apis: Apis): DbResultT[BatchResponse[AllOrders.Root]] =
     for {
       // Turn failures into errors
       batchMetadata ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity)
@@ -45,11 +51,13 @@ object OrderStateUpdater {
                     Orders.filter(_.referenceNumber.inSetBind(refNumbers)))
     } yield response.copy(errors = batchMetadata.flatten, batch = Some(batchMetadata))
 
-  private def updateStatesDbio(
-      admin: User,
-      refNumbers: Seq[String],
-      newState: Order.State,
-      skipActivity: Boolean = false)(implicit ec: EC, ac: AC): DbResultT[BatchMetadata] = {
+  private def updateStatesDbio(admin: User,
+                               refNumbers: Seq[String],
+                               newState: Order.State,
+                               skipActivity: Boolean = false)(
+      implicit ec: EC,
+      ac: AC,
+      apis: Apis): DbResultT[BatchMetadata] = {
 
     val query = Orders.filter(_.referenceNumber.inSet(refNumbers)).result
     appendForUpdate(query).dbresult.flatMap { orders ⇒
@@ -74,10 +82,11 @@ object OrderStateUpdater {
     }
   }
 
-  private def updateQueriesWrapper(admin: User,
-                                   cordRefs: Seq[String],
-                                   newState: State,
-                                   skipActivity: Boolean = false)(implicit ec: EC, ac: AC) = {
+  private def updateQueriesWrapper(
+      admin: User,
+      cordRefs: Seq[String],
+      newState: State,
+      skipActivity: Boolean = false)(implicit ec: EC, ac: AC, apis: Apis) = {
 
     if (skipActivity)
       updateQueries(admin, cordRefs, newState)
@@ -86,7 +95,8 @@ object OrderStateUpdater {
       updateQueries(admin, cordRefs, newState)
   }
 
-  private def updateQueries(admin: User, cordRefs: Seq[String], newState: State)(implicit ec: EC) =
+  private def updateQueries(admin: User, cordRefs: Seq[String], newState: State)(implicit ec: EC,
+                                                                                 apis: Apis) =
     newState match {
       case Canceled ⇒
         cancelOrders(cordRefs)
@@ -94,7 +104,7 @@ object OrderStateUpdater {
         Orders.filter(_.referenceNumber.inSet(cordRefs)).map(_.state).update(newState)
     }
 
-  private def cancelOrders(cordRefs: Seq[String])(implicit ec: EC) = {
+  private def cancelOrders(cordRefs: Seq[String])(implicit ec: EC, apis: Apis) = {
     val updateLineItems = OrderLineItems
       .filter(_.cordRef.inSetBind(cordRefs))
       .map(_.state)
@@ -110,8 +120,15 @@ object OrderStateUpdater {
     val updateOrder =
       Orders.filter(_.referenceNumber.inSetBind(cordRefs)).map(_.state).update(Canceled)
 
-    // (updateLineItems >> updateOrderPayments >> updateOrder).transactionally
-    (updateLineItems >> updateOrder >> cancelPayments).transactionally
+    val mwhCancelHold = DBIOAction.from(
+        cordRefs.map(apis.middlwarehouse.cancelHold).foldLeft(Result.unit) { (result, call) ⇒
+      result.flatMap {
+        case Xor.Left(errs) ⇒ Result.left(errs)
+        case Xor.Right(res) ⇒ call
+      }
+    })
+
+    (updateLineItems >> updateOrder >> cancelPayments >> mwhCancelHold).transactionally
   }
 
   private def cancelGiftCards(orderPayments: Seq[OrderPayment]) = {
