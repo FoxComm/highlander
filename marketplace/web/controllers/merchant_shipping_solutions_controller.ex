@@ -24,33 +24,34 @@ defmodule Marketplace.MerchantShippingSolutionController do
   end
   
   def create(conn, %{"shipping_solutions" => shipping_solutions_params, "merchant_id" => merchant_id}) do
-    case Repo.transaction(insert_and_relate(shipping_solutions_params, merchant_id)) do
-      {:ok, %{shipping_solution: shipping_solution, merchant_shipping_solution: m_ss}} ->
+    case insert_and_relate(shipping_solutions_params, merchant_id) do
+      {:ok, results_maps} ->
+        shipping_solutions = Enum.map(results_maps, fn m -> Map.get(m, :shipping_solution) end)
         conn
         |> put_status(:created)
-        |> put_resp_header("location", merchant_shipping_solutions_path(conn, :show, merchant_id))
-        |> render(ShippingSolutionView, "shipping_solution.json", shipping_solution: shipping_solution)
-      {:error, failed_operation, failed_value, changes_completed} ->
+        |> put_resp_header("location", merchant_shipping_solutions_path(conn, :index, merchant_id))
+        |> render(ShippingSolutionView, "index.json", %{shipping_solutions: shipping_solutions})
+      {:error, _failed_operation, failed_value, _changes_completed} ->
         conn
         |> put_status(:unprocessable_entity)
         |> render(Marketplace.ChangesetView, "errors.json", changeset: failed_value)
     end
   end
 
-  defp insert_and_relate(shipping_solutions_params, merchant_id) do
-    multi = Ecto.Multi.new
-    for shipping_solution_param <- shipping_solutions_params do
-        IO.puts(shipping_solution_param)
-        ss_cs = ShippingSolution.changeset(%ShippingSolution{}, shipping_solution_param)
-        rhs = Multi.new
-                      |> Multi.insert(:shipping_solution, ss_cs)
-                      |> Multi.run(:merchant_shipping_solution, fn %{shipping_solution: shipping_solution} ->
-                        map_shipping_solution_to_merchant(shipping_solution, merchant_id) end
-                      )
-        multi = Multi.append(multi, rhs)
-    end
+  defp insert_and_relate(shipping_solutions_params, merchant_id) when is_list(shipping_solutions_params) do
+    results = shipping_solutions_params
+            |> Enum.map(fn solution -> insert_and_relate(solution, merchant_id) end)
+            |> Enum.reduce({:ok, []}, fn (res, acc) -> reduce_results(res, acc) end)
+    results
+  end
 
-    multi
+  defp insert_and_relate(solution, merchant_id) when is_map(solution) do
+    Multi.new
+    |> Multi.insert(:shipping_solution, ShippingSolution.changeset(%ShippingSolution{}, solution))
+    |> Multi.run(:merchant_shipping_solution, fn %{shipping_solution: shipping_solution} ->
+      map_shipping_solution_to_merchant(shipping_solution, merchant_id) end
+    )
+    |> Repo.transaction
   end
 
   defp map_shipping_solution_to_merchant(shipping_solution, merchant_id) do
@@ -60,5 +61,17 @@ defmodule Marketplace.MerchantShippingSolutionController do
       })
 
     Repo.insert(mass_cs)
+  end
+
+  defp reduce_results({:ok, map}, {:ok, maps}) do
+    {:ok, [map | maps]}
+  end
+
+  defp reduce_results({:error, op, val, chgs}, _other) do
+    {:error, op, val, chgs}
+  end
+
+  defp reduce_results(_other, {:error, op, val, chgs}) do
+    {:error, op, val, chgs}
   end
 end

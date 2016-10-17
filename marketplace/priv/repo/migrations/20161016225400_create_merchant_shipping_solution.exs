@@ -5,8 +5,6 @@ defmodule Marketplace.Repo.Migrations.CreateMerchantShippingSolution do
     create table(:merchant_shipping_solutions) do
       add :merchant_id, references(:merchants)
       add :shipping_solution_id, references(:shipping_solutions)
-
-      timestamps()
     end
   end
 end
