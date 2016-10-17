@@ -34,7 +34,7 @@ class MerchantInfoPage extends Component {
 
   componentWillReceiveProps(nextProps: Props): void {
     if (nextProps.info.id) {
-      this.props.replace(`/application/${this.props.params.ref}/actions`);
+      this.props.replace(`/application/${this.props.params.ref}/shipping`);
     }
   }
 

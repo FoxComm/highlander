@@ -36,6 +36,7 @@ import type { HTMLElement } from '../../core/types';
 import type { Application } from '../../core/modules/merchant-application';
 import type { Accounts } from '../../core/modules/merchant-account';
 import type { Info } from '../../core/modules/merchant-info';
+import type { Shipping } from '../../core/modules/shipping-solution';
 
 import styles from './main.css';
 
@@ -43,11 +44,13 @@ type Props = {
   application: Application;
   accounts: Accounts,
   info: Info,
+  shipping: Shipping,
   applicationApproved: boolean;
   applicationFetched: boolean;
   applicationFetchFailed: boolean;
   accountsFetched: boolean;
   infoFetched: boolean;
+  shippingFetched: boolean;
   fetchApplication: (reference: string) => Promise<*>;
   fetchAccounts: (merchantId: number) => Promise<*>;
   fetchInfo: (merchantId: number) => Promise<*>;
@@ -137,8 +140,18 @@ class Main extends Component {
     }
 
     /** accounts fetched and not empty - fetching info */
-    if (infoFetched && !isEmpty(info) /*&& !feedFetched*/) {
-      // fetchFeed(get(application, 'merchant.id'));
+    if (infoFetched && !isEmpty(info) && !shippingFetched) {
+      fetchShipping(get(application, 'merchant.id'));
+    }
+
+    /** info fetched but empty - info page */
+    if (shippingFetched && isEmpty(shipping)) {
+      this.replace(`/application/${ref}/shipping`);
+    }
+
+    /** accounts fetched and not empty - fetching info */
+    console.log(shippingFetched, shipping);
+    if (shippingFetched && !isEmpty(shipping)/* && !feedFetched*/) {
       this.replace(`/application/${ref}/actions`);
     }
 

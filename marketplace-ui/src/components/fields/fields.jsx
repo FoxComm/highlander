@@ -68,6 +68,15 @@ const renderRadios = (field: TFormField) => (
 );
 
 /**
+ * Checkbox field
+ */
+const renderCheckbox = ({ input, placeholder, meta }) => (
+  <FormField input={input} className={input.name} meta={meta}>
+    <label htmlFor={input.name}><input {...input} type="checkbox" id={input.name} />{placeholder}</label>
+  </FormField>
+);
+
+/**
  * Native select field
  */
 const renderOptions = value => <option key={value}>{value}</option>;
@@ -114,13 +123,14 @@ const renderFile = ({ input, file, placeholder, meta }) => {
 
 const typeRendererMap = {
   select: renderSelect,
+  checkbox: renderCheckbox,
   tags: renderTags,
   textarea: renderTextarea,
   file: renderFile,
 };
 
 export default (field: TFormField, values: string) => {
-  if (!isEmpty(values) && field.showPredicate && !invoke(field, 'showPredicate', values)) {
+  if (field.showPredicate && !invoke(field, 'showPredicate', values)) {
     return;
   }
 

@@ -1,4 +1,15 @@
 @import "media-queries.css";
 
 .shipping {
+  & .form {
+    & > div {
+      display: inline-block;
+      width: 50%;
+
+      @media (--small-viewport) {
+        display: block;
+        width: 100%;
+      }
+    }
+  }
 }
