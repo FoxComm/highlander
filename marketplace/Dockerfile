@@ -14,10 +14,13 @@ RUN mix local.hex --force
 RUN mix local.rebar --force
 RUN mix deps.get
 
+RUN MIX_ENV=prod mix compile
+RUN MIX_ENV=prod mix compile.protocols
+RUN MIX_ENV=prod mix phoenix.digest
+
 RUN echo "mix ecto.migrate" > ./run_marketplace.sh
-RUN echo "MIX_ENV=prod mix compile.protocols" > ./run_marketplace.sh
-RUN echo "MIX_ENV=prod mix phoenix.digest" > ./run_marketplace.sh
 RUN echo "MIX_ENV=prod elixir -pa _build/prod/consolidated -S mix phoenix.server" > ./run_marketplace.sh
+
 RUN chmod +x ./run_marketplace.sh
 
 RUN npm install
