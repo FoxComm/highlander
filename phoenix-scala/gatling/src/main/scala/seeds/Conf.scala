@@ -24,7 +24,7 @@ object Conf {
   val defaultAssertion = global.failedRequests.count.is(0)
 
   val httpConf = http
-    .baseURL("http://localhost:9090")
+    .baseURL(appConfig.getString("app.baseUrl"))
     .acceptHeader("application/json")
     .contentTypeHeader("application/json")
     .disableWarmUp

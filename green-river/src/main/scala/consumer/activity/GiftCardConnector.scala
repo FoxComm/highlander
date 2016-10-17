@@ -7,16 +7,17 @@ import consumer.utils.JsonTransformers.extractStringSeq
 
 import org.json4s.JsonAST.{JInt, JString, JNothing}
 
-final case class GiftCardConnector()(implicit ec: EC) extends ActivityConnector {
+object GiftCardConnector extends ActivityConnector {
   val dimension = "gift_card"
 
-  def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
-    val giftCardIds =
-      byGiftCardData(activity) ++: byAssignmentSingleData(activity) ++:
-      byAssignmentBulkData(activity) ++: byNoteData(activity)
+  def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]] =
+    Future {
+      val giftCardIds =
+        byGiftCardData(activity) ++: byAssignmentSingleData(activity) ++:
+        byAssignmentBulkData(activity) ++: byNoteData(activity)
 
-    giftCardIds.distinct.map(createConnection(_, activity.id))
-  }
+      giftCardIds.distinct.map(createConnection(_, activity.id))
+    }
 
   def createConnection(code: String, activityId: Int): Connection = {
     Connection(dimension = dimension,

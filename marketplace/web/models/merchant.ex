@@ -1,6 +1,5 @@
 defmodule Marketplace.Merchant do
   use Marketplace.Web, :model
-  import Marketplace.Validation
 
   schema "merchants" do
     field :name, :string
@@ -22,6 +21,10 @@ defmodule Marketplace.Merchant do
     has_one :merchant_business_profile, Marketplace.MerchantBusinessProfile
     has_one :social_profile, through: [:merchant_social_profile, :social_profile]
     has_one :business_profile, through: [:merchant_business_profile, :business_profile]
+    has_one :merchant_products_feed, Marketplace.MerchantProductsFeed
+    has_one :products_feed, through: [:merchant_products_feed, :products_feed]
+    has_one :merchant_products_upload, Marketplace.MerchantProductsUpload
+    has_one :products_upload, through: [:merchant_products_upload, :products_upload]
   end
 
   @states ~w(new approved suspended cancelled activated)s

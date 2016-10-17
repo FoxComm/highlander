@@ -7,29 +7,30 @@ import consumer.utils.JsonTransformers.extractStringSeq
 
 import org.json4s.JsonAST.{JInt, JString, JNothing}
 
-final case class AccountConnector()(implicit ec: EC) extends ActivityConnector {
+object AccountConnector extends ActivityConnector {
   val dimension = "account"
 
-  def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
-    val accountIds =
-      byContextType(activity) ++:
-      byNoteData(activity) ++:
-      byData(activity, "account") ++:
-      byData(activity, "user") ++:
-      byData(activity, "admin") ++:
-      byData(activity, "customer") ++:
-      byData(activity, "assignee") ++:
-      byId(activity, "accountId") ++:
-      byId(activity, "userId") ++:
-      byId(activity, "customerId") ++:
-      byId(activity, "adminId") ++:
-      byUpdatedActivity(activity) ++:
-      byAssignmentSingleData(activity) ++:
-      byAssignmentBulkData(activity) ++:
-      byAssigneesData(activity)
+  def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]] =
+    Future {
+      val accountIds =
+        byContextType(activity) ++:
+        byNoteData(activity) ++:
+        byData(activity, "account") ++:
+        byData(activity, "user") ++:
+        byData(activity, "admin") ++:
+        byData(activity, "customer") ++:
+        byData(activity, "assignee") ++:
+        byId(activity, "accountId") ++:
+        byId(activity, "userId") ++:
+        byId(activity, "customerId") ++:
+        byId(activity, "adminId") ++:
+        byUpdatedActivity(activity) ++:
+        byAssignmentSingleData(activity) ++:
+        byAssignmentBulkData(activity) ++:
+        byAssigneesData(activity)
 
-    accountIds.distinct.map(createConnection(_, activity.id))
-  }
+      accountIds.distinct.map(createConnection(_, activity.id))
+    }
 
   def createConnection(accountId: String, activityId: Int): Connection = {
     Connection(dimension = dimension,

@@ -10,16 +10,17 @@ import _ from 'lodash';
 import { flow, filter } from 'lodash/fp';
 
 // components
-import ContentBox from '../content-box/content-box';
 import ObjectForm from '../object-form/object-form';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
-import SkuList from './sku-list';
 import Tags from '../tags/tags';
-import VariantList from './variant-list';
+import OptionList from './options/option-list';
+import SkuContentBox from './skus/sku-content-box';
+
+import { autoAssignVariants, deleteVariantCombination, addSkusForVariants } from 'paragons/variants';
 
 // types
 import type { Attributes } from 'paragons/object';
-import type { Product } from 'paragons/product';
+import type { Product, Option, OptionValue } from 'paragons/product';
 
 // paragon
 import { options } from 'paragons/product';
@@ -32,7 +33,8 @@ type Props = {
 };
 
 type State = {
-  isAddingProperty: bool,
+  isAddingProperty: boolean,
+  variants: Array<any>,
 };
 
 const omitKeys = {
@@ -54,6 +56,7 @@ export default class ProductForm extends Component {
 
   state: State = {
     isAddingProperty: false,
+    variants: this.props.product.variants,
   };
 
   get generalAttrs(): Array<string> {
@@ -74,20 +77,13 @@ export default class ProductForm extends Component {
     ];
   }
 
-  get skusContentBox(): Element {
-    return (
-      <ContentBox title="SKUs">
-        <SkuList
-          fullProduct={this.props.product}
-          updateField={this.props.onSetSkuProperty}
-          updateFields={this.props.onSetSkuProperties}
-        />
-      </ContentBox>
-    );
-  }
-
-  get variantContentBox(): Element {
-    return <VariantList variants={{}} />;
+  @autobind
+  updateVariants(newVariants: Array<Option>): void {
+    // here we have new variants, but
+    // we don't have empty skus in order user be able to edit them
+    // also we need skuCodes for them in variant.values
+    const newProduct = autoAssignVariants(this.props.product, newVariants);
+    this.props.onUpdateProduct(newProduct);
   }
 
   @autobind
@@ -133,6 +129,20 @@ export default class ProductForm extends Component {
     );
   }
 
+  @autobind
+  handleDeleteSku(skuCode: string) {
+    this.props.onUpdateProduct(
+      deleteVariantCombination(this.props.product, skuCode)
+    );
+  }
+
+  @autobind
+  handleAddVariants(variantValues: Array<Array<OptionValue>>) {
+    this.props.onUpdateProduct(
+      addSkusForVariants(this.props.product, variantValues)
+    );
+  }
+
   render(): Element {
     const attributes = _.get(this.props, 'product.attributes', {});
 
@@ -145,18 +155,36 @@ export default class ProductForm extends Component {
             fieldsToRender={this.generalAttrs}
             attributes={attributes}
             options={options}
-            title="General" />
-          {this.skusContentBox}
+            title="General"
+          />
+
+          <OptionList
+            product={this.props.product}
+            variants={this.props.product.variants}
+            updateVariants={this.updateVariants}
+          />
+
+          <SkuContentBox
+            fullProduct={this.props.product}
+            updateField={this.props.onSetSkuProperty}
+            updateFields={this.props.onSetSkuProperties}
+            onDeleteSku={this.handleDeleteSku}
+            onAddNewVariants={this.handleAddVariants}
+            variants={this.props.product.variants}
+          />
+
           <ObjectForm
             onChange={this.handleProductChange}
             fieldsToRender={defaultKeys.seo}
             attributes={attributes}
-            title="SEO" />
+            title="SEO"
+          />
         </div>
         <div className="fc-col-md-2-5">
           <Tags
             attributes={attributes}
-            onChange={this.handleProductChange} />
+            onChange={this.handleProductChange}
+          />
           {this.productState}
         </div>
       </div>

@@ -26,6 +26,7 @@ defmodule Marketplace.Router do
     end
 
     get "/merchant_applications/by_ref/:ref_num", MerchantApplicationController, :show_by_ref
+    post "/merchant_applications_full", MerchantApplicationController, :merchant_application_full
     post "/merchants/activate_application/:application_id", MerchantController, :activate_application
     
     resources "/merchants", MerchantController do 
@@ -40,6 +41,14 @@ defmodule Marketplace.Router do
       patch "/legal_profile", MerchantLegalProfileController, :update, as: :legal_profile
       resources "/addresses", MerchantAddressController
       resources "/accounts", MerchantAccountController, as: :account
+      post "/products_feed", MerchantProductsFeedController, :create, as: :products_feed
+      get "/products_feed", MerchantProductsFeedController, :index, as: :products_feed
+      get "/products_feed/:id", MerchantProductsFeedController, :show, as: :products_feed
+      patch "/products_feed/:id", MerchantProductsFeedController, :update, as: :products_feed
+      post "/products_upload", MerchantProductsUploadController, :create, as: :products_upload
+      get "/products_upload", MerchantProductsUploadController, :index, as: :products_upload
+      get "/products_upload/:id", MerchantProductsUploadController, :show, as: :products_upload
+      patch "/products_upload/:id", MerchantProductsUploadController, :update, as: :products_upload
     end
 
     get "/", PageController, :index

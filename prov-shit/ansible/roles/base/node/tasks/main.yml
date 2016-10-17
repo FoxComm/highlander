@@ -3,7 +3,7 @@
   apt: name={{ item }} state=latest force=yes
   sudo: true
   with_items:
-    - nodejs-legacy
+    - nodejs
     - npm
 
 - name: Upgrade NPM

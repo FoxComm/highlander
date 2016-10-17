@@ -6,13 +6,17 @@
   justify-content: space-between;
 
   position: relative;
-  margin: 30px -120px;
+  margin: 30px -20px;
   line-height: 50px;
   font-size: 14px;
   text-transform: uppercase;
   background: #f9f9f9;
 
   transition: margin .4s;
+
+  @media (--small-viewport) {
+    margin: 0 0 20px;
+  }
 }
 
 .step {
@@ -29,11 +33,14 @@
 
   &.active {
     color: #363636;
-  }
-}
 
-@media (--small-viewport) {
-  .step {
-    margin: 0 -40px;
+    @media (--small-viewport) {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  @media (--small-viewport) {
+    display: none;
   }
 }

@@ -23,6 +23,7 @@ defmodule Marketplace.Web do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
+      import Marketplace.Validation
     end
   end
 

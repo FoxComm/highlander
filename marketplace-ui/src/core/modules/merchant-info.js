@@ -7,15 +7,20 @@ import createAsyncActions from './async-utils';
 
 import api from '../lib/api';
 
-type Profile = {
+export type Info = {
   id?: number;
 }
 
-type State = Profile;
+type InfoResponse = {
+  legal_profile: Info
+}
 
-const ACTION_SUBMIT = 'merchantInfoSubmit';
+type State = Info;
 
-const { perform, ...actions } = createAsyncActions(ACTION_SUBMIT, (id, data) =>
+export const ACTION_FETCH = 'merchantInfoFetch';
+export const ACTION_SUBMIT = 'merchantInfoSubmit';
+
+const { perform: submit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, (id, data) =>
   new Promise((resolve, reject) =>
     api.post(`/merchants/${id}/legal_profile`, { legal_profile: { ...data } })
       .then((profile: Info) =>
@@ -27,22 +32,25 @@ const { perform, ...actions } = createAsyncActions(ACTION_SUBMIT, (id, data) =>
   )
 );
 
+const { perform: fetch, ...actionsFetch } = createAsyncActions(ACTION_FETCH, merchantId =>
+  api.get(`/merchants/${merchantId}/legal_profile`)
+);
+
 const initialState: State = {};
 
 const reducer = createReducer({
-  [actions.succeeded]: (state: State, info) => ({
-    ...state,
-    ...info,
-  }),
+  [actionsFetch.succeeded]: (state: State, info: InfoResponse) => info.legal_profile,
+  [actionsSubmit.succeeded]: (state: State, info: InfoResponse) => ({ ...state, ...info.legal_profile }),
 }, initialState);
 
-const getInfoActionNamespace = () => ACTION_SUBMIT;
+const getInfo = (state: State) => state;
 
 export {
   reducer as default,
-  perform as submit,
+  fetch,
+  submit,
 
   /* selectors */
-  getInfoActionNamespace,
+  getInfo,
 };
 

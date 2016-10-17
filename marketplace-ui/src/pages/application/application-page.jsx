@@ -1,6 +1,6 @@
 /* @flow */
 
-import get from 'lodash/get';
+import { get, isEmpty } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { replace } from 'react-router-redux';
@@ -11,42 +11,26 @@ import ThanksOrNot from '../../components/thanks-or-not/thanks-or-not';
 
 import {
   getApplication,
-  getApplicationFetchFailed,
-  getApplicationInProgress,
-  getApplicationFailed,
+  getApplicationSubmitInProgress,
+  getApplicationSubmitFailed,
 } from '../../core/modules';
 
-import { fetch, submit } from '../../core/modules/merchant-application';
+import { submit } from '../../core/modules/merchant-application';
 import { fields } from '../../forms/application/application-fields';
 
 import type { HTMLElement } from '../../core/types';
 import type { Application } from '../../core/modules/merchant-application';
 
 type Props = {
-  params: Object;
   replace: (path: string) => void;
   application: Application;
-  fetch: (reference: string) => Promise<*>;
   submit: (data: Object) => Promise<*>;
-  inProgress: boolean;
-  fetchFailed: boolean;
+  submitInProgress: boolean;
   submitFailed: boolean;
 }
 
 class MerchantApplicationPage extends Component {
   props: Props;
-
-  componentWillMount(): void {
-    const { fetch, params: { ref: refParam }, application: { reference_number: ref, state } } = this.props;
-
-    if (refParam && !ref) {
-      fetch(refParam);
-    }
-
-    if (ref && state === 'approved') {
-      this.props.replace(`/application/${ref}/account`);
-    }
-  }
 
   componentWillReceiveProps(nextProps: Props) {
     const oldRef = get(this.props, 'application.reference_number');
@@ -58,16 +42,16 @@ class MerchantApplicationPage extends Component {
   }
 
   get thank(): HTMLElement {
-    const { application: { reference_number: ref } } = this.props;
+    const { application } = this.props;
 
-    if (!ref) {
+    if (isEmpty(application)) {
       return;
     }
 
     const message = (
       <span>
         Your application has been submitted and will be evaluated soon.<br />
-        Your application id is: {ref}<br />
+        Your application id is:<br />{application.reference_number}<br />
         You will hear from us as soon as your account has been approved.
       </span>
     );
@@ -75,46 +59,32 @@ class MerchantApplicationPage extends Component {
     return <ThanksOrNot message={message} />;
   }
 
-  get error(): HTMLElement {
-    const { fetchFailed, params: { ref } } = this.props;
-    if (!fetchFailed) {
-      return;
-    }
-
-    const message = <span>No application with reference number<br />{ref}<br />found.</span>;
-
-    return <ThanksOrNot title="Sorry" message={message} error />;
-  }
-
   get form(): HTMLElement {
-    if (this.props.application.id || this.props.fetchFailed) {
+    if (!isEmpty(this.props.application)) {
       return;
     }
 
-    const { submit, inProgress, submitFailed } = this.props;
+    const { submit, submitInProgress, submitFailed } = this.props;
 
     return (
-      <div>
-        <Header
-          title="Apply to Sell"
-          legend="Apply to be a merchant on the GoldFish marketplace."
-        />
-        <Form
-          form="application"
-          fields={fields}
-          onSubmit={submit}
-          inProgress={inProgress}
-          failed={submitFailed}
-          submitText="Apply"
-        />
-      </div>
+      <Form
+        form="application"
+        fields={fields}
+        onSubmit={submit}
+        inProgress={submitInProgress}
+        failed={submitFailed}
+        submitText="Apply"
+      />
     );
   }
 
   render(): HTMLElement {
     return (
       <div>
-        {this.error}
+        <Header
+          title="Apply to Sell"
+          legend="Apply to be a merchant on the GoldFish marketplace."
+        />
         {this.thank}
         {this.form}
       </div>
@@ -124,9 +94,8 @@ class MerchantApplicationPage extends Component {
 
 const mapState = state => ({
   application: getApplication(state),
-  fetchFailed: getApplicationFetchFailed(state),
-  inProgress: getApplicationInProgress(state),
-  submitFailed: getApplicationFailed(state),
+  submitInProgress: getApplicationSubmitInProgress(state),
+  submitFailed: getApplicationSubmitFailed(state),
 });
 
-export default connect(mapState, { fetch, submit, replace })(MerchantApplicationPage);
+export default connect(mapState, { submit, replace })(MerchantApplicationPage);

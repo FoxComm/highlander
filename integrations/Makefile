@@ -1,4 +1,4 @@
-SUBDIRS = shipstation
+SUBDIRS = product-search shipstation
 BUILDDIRS = $(SUBDIRS:%=build-%)
 
 build:

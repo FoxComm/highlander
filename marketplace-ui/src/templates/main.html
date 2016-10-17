@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>Marketplace UI</title>
-    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/app.css" />
     <link rel="icon" href="/favicon.ico" />
   </head>
@@ -10,6 +10,7 @@
     <div id="app">{{= it.html }}</div>
 
     <script charset="UTF-8">
+      window.__ASHES_URL__='{{= it.ashesUrl}}';
       window.initialState={{= it.state }};
     </script>
     <script type="text/javascript" src="/app.js"></script>

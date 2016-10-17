@@ -9,10 +9,6 @@
     display: inline-block;
     width: 30%;
     margin-left: 5%;
-
-    & :global(.rw-input):first-child {
-      min-width: 110px;
-    }
   }
   & :global(.business_founded_day) {
     margin-left: 0;

@@ -22,7 +22,7 @@ final case class NotesSearchView()(implicit ec: EC) extends AvroTransformer {
           field("department", StringType).analyzer("autocomplete")
       ),
       field("order").nested(
-          field("customerId", IntegerType),
+          field("accountId", IntegerType),
           field("referenceNumber", StringType).analyzer("upper_cased"),
           field("state", StringType).index("not_analyzed"),
           field("createdAt", DateType).format(dateFormat),

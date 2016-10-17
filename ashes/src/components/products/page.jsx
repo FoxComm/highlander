@@ -5,32 +5,18 @@
 // libs
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import _ from 'lodash';
+import { isProductValid, setSkuAttribute } from 'paragons/product';
 
 // actions
 import * as ProductActions from 'modules/products/details';
-import * as ArchiveActions from 'modules/products/archive';
+// import * as OptionsActions from 'modules/products/options';
+import { sanitizeError } from 'modules/products/details';
 
 // components
-import { Dropdown } from '../dropdown';
-import { PageTitle } from '../section-title';
-import { Button } from '../common/buttons';
-import ButtonWithMenu from '../common/button-with-menu';
-import ErrorAlerts from 'components/alerts/error-alerts';
 import SubNav from './sub-nav';
-import WaitAnimation from '../common/wait-animation';
-import ArchiveActionsSection from '../archive-actions/archive-actions';
-
-// styles
-import styles from '../discounts/page.css';
-
-// helpers
-import { isArchived } from 'paragons/common';
-import { transitionTo } from 'browserHistory';
-import { isProductValid, setSkuAttribute } from 'paragons/product';
-import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
+import { connectPage, ObjectPage } from '../object-page/object-page';
+import { Dropdown } from '../dropdown';
 
 // types
 import type { Product } from 'paragons/product';
@@ -41,22 +27,14 @@ type Props = {
     fetchProduct: (productId: string, context: string) => Promise,
     productNew: () => void,
     updateProduct: (product: Product, context: string) => void,
+    archiveProduct: (id: string|number, context: ?string) => Promise,
   },
   children: any,
   params: { productId: string, context: string },
-  products: {
-    isFetching: boolean,
-    isUpdating: boolean,
+  details: {
     product: ?Product,
-    err: ?Object,
   },
   selectContextAvailable: boolean,
-  archiveProduct: Function,
-};
-
-type State = {
-  product: ?Product,
-  context: string,
 };
 
 const SELECT_CONTEXT = [
@@ -68,54 +46,16 @@ const SELECT_CONTEXT = [
  * ProductPage represents the default layout of a product details page.
  * It displays the title, sub nav, and save button.
  */
-class ProductPage extends Component {
+class ProductPage extends ObjectPage {
   props: Props;
 
+  // $FlowFixMe: defaultProps
   static defaultProps = {
     selectContextAvailable: false,
   };
 
-  state: State = {
-    product: this.props.products.product,
-    context: _.get(this.props.params, 'context', 'default'),
-  };
-
-  componentDidMount() {
-    if (this.isNew) {
-      this.props.actions.productNew();
-    } else {
-      this.props.actions.fetchProduct(this.props.params.productId, this.props.params.context)
-        .then(({payload}) => {
-          if (isArchived(payload)) transitionTo('products');
-        });
-    }
-  }
-
-  componentWillUnmount() {
-    this.props.actions.productNew();
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    const { isFetching, isUpdating } = nextProps.products;
-    if (!isFetching && !isUpdating) {
-      this.setState({ product: nextProps.products.product });
-    }
-  }
-
-  get error(): ?Element {
-    const { err } = this.props.products;
-    if (!err) return null;
-
-    const message = _.get(err, ['messages', 0], 'There was an error saving the product.');
-    return (
-      <div styleName="error" className="fc-col-md-1-1">
-        <ErrorAlerts error={message} />
-      </div>
-    );
-  }
-
-  get isNew(): boolean {
-    return this.props.params.productId === 'new';
+  get entityContext(): string {
+    return _.get(this.props.params, 'context', 'default');
   }
 
   get pageTitle(): string {
@@ -123,22 +63,32 @@ class ProductPage extends Component {
       return 'New Product';
     }
 
-    const { product } = this.props.products;
-    return _.get(product, 'attributes.title.v', '');
+    return _.get(this.entity, 'attributes.title.v', '');
+  }
+
+  fetchEntity(): Promise {
+    return this.props.actions.fetchProduct(this.entityId, this.entityContext);
   }
 
   get selectContextDropdown() {
     if (this.props.selectContextAvailable) {
       return (
-        <Dropdown onChange={this.handleContextChange}
-                  value={this.props.params.context}
-                  items={SELECT_CONTEXT} />
+        <Dropdown
+          onChange={this.handleContextChange}
+          value={this.entityContext}
+          items={SELECT_CONTEXT}
+        />
       );
     }
   }
 
+  @autobind
+  sanitizeError(error: string): string {
+    return sanitizeError(error);
+  }
+
   get preventSave(): boolean {
-    const { product } = this.state;
+    const product = this.state.entity;
     if (product) {
       return !isProductValid(product);
     }
@@ -148,164 +98,74 @@ class ProductPage extends Component {
 
   @autobind
   handleContextChange(context: string) {
-    const productId = this.props.params.productId;
-    transitionTo('product-details', {
-      productId: productId,
-      context: context,
+    this.transitionTo(this.entityId, {
+      context,
     });
-    this.props.actions.fetchProduct(productId, context);
+    this.props.actions.fetchProduct(this.entityId, context);
   }
 
   @autobind
   handleSetSkuProperty(code: string, field: string, value: string) {
-    const { product } = this.state;
+    const { entity } = this.state;
 
-    if (product) {
+    if (entity) {
       this.setState({
-        product: setSkuAttribute(product, code, field, value),
+        entity: setSkuAttribute(entity, code, field, value),
       });
     }
   }
 
   @autobind
   handleSetSkuProperties(code: string, updateArray: Array<Array<any>>) {
-    const { product } = this.state;
+    const { entity } = this.state;
 
-    if (product) {
+    if (entity) {
       const newProduct = _.reduce(updateArray, (p, [field, value]) => {
         return setSkuAttribute(p, code, field, value);
-      }, product);
-      this.setState({product: newProduct});
+      }, entity);
+      this.setState({entity: newProduct});
     }
   }
 
-  @autobind
-  handleUpdateProduct(product: Product) {
-    this.setState({ product });
+  createEntity(entity) {
+    return this.props.actions.createProduct(entity, this.entityContext);
   }
 
-  save() {
-    let mayBeSaved = false;
-
-    if (this.state.product) {
-      if (this.isNew) {
-        mayBeSaved = this.props.actions.createProduct(this.state.product, this.state.context);
-      } else {
-        mayBeSaved = this.props.actions.updateProduct(this.state.product, this.state.context);
-      }
-    }
-
-    return mayBeSaved;
+  updateEntity(entity) {
+    return this.props.actions.updateProduct(entity, this.entityContext);
   }
 
   @autobind
-  handleSubmit() {
-    this.save();
-  }
-
-  renderArchiveActions() {
-    return(
-      <ArchiveActionsSection type="Product"
-                             title={this.pageTitle}
-                             archive={this.archiveProduct} />
-    );
-  }
-
-  @autobind
-  archiveProduct() {
-    this.props.archiveProduct(this.props.params.productId, this.state.context).then(() => {
-      transitionTo('products');
+  archiveEntity() {
+    this.props.actions.archiveProduct(this.entityId, this.entityContext).then(() => {
+      this.transitionToList();
     });
   }
 
-  @autobind
-  handleCancel(): void {
-    transitionTo('products');
+  detailsRouteProps(): Object {
+    return {
+      context: this.entityContext,
+    };
   }
 
-  @autobind
-  handleSelectSaving(value) {
-    const mayBeSaved = this.save();
-    if (!mayBeSaved) return;
-
-    mayBeSaved.then(() => {
-      switch (value) {
-        case SAVE_COMBO.NEW:
-          transitionTo('product-details', {
-            productId: 'new',
-            context: this.state.context,
-          });
-          this.props.actions.productNew();
-          break;
-        case SAVE_COMBO.DUPLICATE:
-          transitionTo('product-details', {
-            productId: 'new',
-            context: this.state.context,
-          });
-          break;
-        case SAVE_COMBO.CLOSE:
-          transitionTo('products');
-          break;
-      }
-    });
-  }
-
-  render(): Element {
-    const { product, context } = this.state;
-    const { isFetching } = this.props.products;
-    if (!product || isFetching) {
-      return <div className="fc-product-details"><WaitAnimation /></div>;
-    }
-
-    const children = React.cloneElement(this.props.children, {
-      ...this.props.children.props,
-      onUpdateProduct: this.handleUpdateProduct,
+  childrenProps() {
+    return {
+      ...super.childrenProps(),
       onSetSkuProperty: this.handleSetSkuProperty,
       onSetSkuProperties: this.handleSetSkuProperties,
-      product,
-      entity: { entityId: this.props.params.productId, entityType: 'product' },
-    });
+    };
+  }
 
-    const { isUpdating } = this.props.products;
+  subNav() {
+    return <SubNav productId={this.entityId} product={this.state.entity} context={this.entityContext} />;
+  }
 
-    return (
-      <div className="fc-product-details">
-        <PageTitle title={this.pageTitle}>
-          { this.selectContextDropdown }
-          <Button
-            type="button"
-            onClick={this.handleCancel}
-            styleName="cancel-button">
-            Cancel
-          </Button>
-          <ButtonWithMenu
-            title="Save"
-            menuPosition="right"
-            onPrimaryClick={this.handleSubmit}
-            onSelect={this.handleSelectSaving}
-            isLoading={isUpdating}
-            items={SAVE_COMBO_ITEMS}
-            buttonDisabled={this.preventSave}
-          />
-        </PageTitle>
-        <SubNav productId={this.props.params.productId} product={product} context={context}/>
-        <div className="fc-grid">
-          {this.error}
-          <div className="fc-col-md-1-1">
-            {children}
-          </div>
-        </div>
-
-        {!this.isNew && this.renderArchiveActions()}
-      </div>
-    );
+  renderHead() {
+    return [
+      this.selectContextDropdown,
+      this.cancelButton,
+    ];
   }
 }
 
-export default connect(
-  state => ({ products: state.products.details }),
-  dispatch => ({
-    actions: bindActionCreators(ProductActions, dispatch),
-    ...bindActionCreators(ArchiveActions, dispatch),
-  })
-)(ProductPage);
+export default connectPage('product', ProductActions)(ProductPage);

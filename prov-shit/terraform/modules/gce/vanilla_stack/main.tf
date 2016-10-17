@@ -16,7 +16,7 @@ variable "front_workers" {}
 variable "ssh_user" {}
 variable "ssh_private_key" {}
 variable "amigo_leader" {}
-variable "stage_amigo_image" {}
+variable "stage_amigo_server_image" {}
 variable "network" {}
 variable "zone" {}
 
@@ -49,7 +49,7 @@ resource "google_compute_instance" "kafka" {
     connection {
         type = "ssh"
         user = "${var.ssh_user}"
-        private_key="${file(var.ssh_private_key)}"
+        private_key = "${file(var.ssh_private_key)}"
     }
 
     provisioner "remote-exec" {
@@ -82,7 +82,7 @@ resource "google_compute_instance" "db" {
     connection {
         type = "ssh"
         user = "${var.ssh_user}"
-        private_key="${file(var.ssh_private_key)}"
+        private_key = "${file(var.ssh_private_key)}"
     }
 
     provisioner "remote-exec" {
@@ -112,7 +112,7 @@ resource "google_compute_instance" "es" {
     connection {
         type = "ssh"
         user = "${var.ssh_user}"
-        private_key="${file(var.ssh_private_key)}"
+        private_key = "${file(var.ssh_private_key)}"
     }
 
     provisioner "remote-exec" {
@@ -141,7 +141,7 @@ resource "google_compute_instance" "log" {
     connection {
         type = "ssh"
         user = "${var.ssh_user}"
-        private_key="${file(var.ssh_private_key)}"
+        private_key = "${file(var.ssh_private_key)}"
     }
 
     provisioner "remote-exec" {
@@ -170,7 +170,7 @@ resource "google_compute_instance" "phoenix" {
     connection {
         type = "ssh"
         user = "${var.ssh_user}"
-        private_key="${file(var.ssh_private_key)}"
+        private_key = "${file(var.ssh_private_key)}"
     }
 
     provisioner "remote-exec" {
@@ -238,7 +238,7 @@ resource "google_compute_instance" "greenriver" {
     connection {
         type = "ssh"
         user = "${var.ssh_user}"
-        private_key="${file(var.ssh_private_key)}"
+        private_key = "${file(var.ssh_private_key)}"
     }
 
     provisioner "remote-exec" {
@@ -300,7 +300,7 @@ resource "google_compute_instance" "stage-amigo" {
     }
 
     disk {
-        image = "${var.stage_amigo_image}"
+        image = "${var.stage_amigo_server_image}"
         type = "pd-ssd"
         size = "20"
     }
@@ -312,7 +312,7 @@ resource "google_compute_instance" "stage-amigo" {
     connection {
         type = "ssh"
         user = "${var.ssh_user}"
-        private_key="${file(var.ssh_private_key)}"
+        private_key = "${file(var.ssh_private_key)}"
     }
 
     provisioner "remote-exec" {
@@ -342,7 +342,7 @@ resource "google_compute_instance" "stage-frontend" {
     connection {
         type = "ssh"
         user = "${var.ssh_user}"
-        private_key="${file(var.ssh_private_key)}"
+        private_key = "${file(var.ssh_private_key)}"
     }
 
     provisioner "remote-exec" {
@@ -371,7 +371,7 @@ resource "google_compute_instance" "stage-backend" {
     connection {
         type = "ssh"
         user = "${var.ssh_user}"
-        private_key="${file(var.ssh_private_key)}"
+        private_key = "${file(var.ssh_private_key)}"
     }
 
     provisioner "remote-exec" {

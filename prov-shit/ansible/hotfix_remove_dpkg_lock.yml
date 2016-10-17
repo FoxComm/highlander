@@ -1,0 +1,8 @@
+---
+
+- name: Hotfix Remove dpkg lock
+  hosts:
+    - all
+
+  tasks:
+    - include: ../../tasks/dpkg_lock_check.yml

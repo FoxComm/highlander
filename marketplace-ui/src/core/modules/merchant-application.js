@@ -1,5 +1,6 @@
 /* @flow */
 
+import pick from 'lodash/pick';
 import { createReducer } from 'redux-act';
 import { SubmissionError } from 'redux-form';
 
@@ -30,30 +31,28 @@ type ApplicationResponse = {
 
 type State = {} | Application;
 
-const ACTION_FETCH = 'merchantApplicationFetch';
-const ACTION_SUBMIT = 'merchantApplicationSubmit';
+export const ACTION_FETCH = 'merchantApplicationFetch';
+export const ACTION_SUBMIT = 'merchantApplicationSubmit';
 
-const { perform: performSubmit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, data =>
-  new Promise((resolve, reject) =>
-    api.post('/merchant_applications', { merchant_application: { ...data } })
-      .then((application: Application) =>
-        Promise.all([
-          api.post(`/merchant_applications/${application.id}/business_profile`, { business_profile: { ...data } }),
-          api.post(`/merchant_applications/${application.id}/social_profile`, { social_profile: { ...data } }),
-        ])
-          .then(() => resolve(application))
-          .catch(() => reject())
-      )
+const { perform: submit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, data => {
+  const application = {
+    ...pick(data, ['business_name', 'email_address', 'phone_number', 'site_url']),
+    social_profile: pick(data, ['twitter_handle']),
+    business_profile: pick(data, ['monthly_sales_volume', 'target_audience', 'categories']),
+  };
+
+  return new Promise((resolve, reject) =>
+    api.post('/merchant_applications_full', { merchant_application: application })
+      .then((application: Application) => resolve(application))
       .catch(err => reject(new SubmissionError(err.response.data.errors)))
-  )
-);
+  );
+});
 
-const { perform: performFetch, clearErrors, ...actionsFetch } = createAsyncActions(ACTION_FETCH, reference =>
+const { perform: fetch, clearErrors, ...actionsFetch } = createAsyncActions(ACTION_FETCH, reference =>
   api.get(`/merchant_applications/by_ref/${reference}`)
 );
 
-const initialState: State = {
-};
+const initialState: State = {};
 
 const reducer = createReducer({
   [actionsFetch.succeeded]: (state: State, application: ApplicationResponse) => ({
@@ -67,18 +66,16 @@ const reducer = createReducer({
 }, initialState);
 
 const getApplication = (state: State) => state;
-const getApplicationActionNamespace = () => ACTION_SUBMIT;
-const getApplicationFetchActionNamespace = () => ACTION_FETCH;
+const getApplicationApproved = (state: State) => state.state === 'approved';
 
 export {
   reducer as default,
-  performSubmit as submit,
-  performFetch as fetch,
+  submit,
+  fetch,
   clearErrors,
 
   /* selectors */
   getApplication,
-  getApplicationActionNamespace,
-  getApplicationFetchActionNamespace,
+  getApplicationApproved,
 };
 

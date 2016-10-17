@@ -14,13 +14,15 @@ object Workers {
   def activityWorker(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)(
       implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC): Future[Unit] = Future {
     // Init
-    val activityConnectors = Seq(AccountConnector(),
-                                 OrderConnector(),
-                                 GiftCardConnector(),
-                                 SharedSearchConnector(),
-                                 StoreCreditConnector(),
-                                 ProductConnector(),
-                                 SkuConnector())
+    val activityConnectors = Seq(AccountConnector,
+                                 OrderConnector,
+                                 GiftCardConnector,
+                                 SharedSearchConnector,
+                                 StoreCreditConnector,
+                                 ProductConnector,
+                                 SkuConnector,
+                                 PromotionConnector,
+                                 CouponConnector)
 
     val activityProcessor = new ActivityProcessor(connectionInfo, activityConnectors)
 

@@ -48,6 +48,10 @@
   sudo: yes
   command: systemctl daemon-reload
 
+- name: Restart Middlewarehouse If Present
+  service: name=middlewarehouse state=restarted
+  ignore_errors: yes
+
 - name: Restart Nginx
   service: name=nginx state=restarted
   when: not packing

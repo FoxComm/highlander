@@ -6,7 +6,7 @@ import { joinEntities } from '../base/utils';
 
 // components
 import GiftCardLink from '../base/gift-card-link';
-import OrderTarget from '../base/order-target';
+import CordTarget from '../base/cord-target';
 import Currency from '../../../common/currency';
 import Title from '../base/title';
 
@@ -18,10 +18,10 @@ const authorizedAndCapturedDesc = {
     const actionTitle = activity.kind == types.GIFT_CARD_AUTHORIZED_FUNDS ?
       'authorized funds' : 'captured funds';
     const order = data.order || data.cart;
-    
+
     return (
       <Title activity={activity}>
-        <strong>{actionTitle}</strong> for <OrderTarget order={order} />
+        <strong>{actionTitle}</strong> for <CordTarget cord={order} />
         &nbsp;with amount <Currency value={data.amount} /> from {joinEntities(giftCards)} {giftCardText}
       </Title>
     );

@@ -6,6 +6,9 @@ variable "subnet_id" {}
 variable "security_groups" {
   type = "list"
 }
+variable "sg_https" {
+  type = "list"
+}
 
 variable "kafka_image" {}
 variable "db_image" {}
@@ -263,35 +266,35 @@ resource "aws_instance" "service-worker-0" {
   }
 }
 
-# resource "aws_instance" "front-worker-0" {
-#   ami = "${var.front_image}"
-#   instance_type = "m4.large"
-#   key_name = "${var.key_name}"
+resource "aws_instance" "front-worker-0" {
+  ami = "${var.front_image}"
+  instance_type = "m4.large"
+  key_name = "${var.key_name}"
 
-#   tags = {
-#     Name = "target-front-worker-0"
-#     Datacenter = "${var.datacenter}"
-#   }
+  tags = {
+    Name = "target-front-worker-0"
+    Datacenter = "${var.datacenter}"
+  }
 
-#   subnet_id = "${var.subnet_id}"
-#   vpc_security_group_ids = "${var.security_groups}"
-#   availability_zone = "us-west-2a"
-#   associate_public_ip_address = false
+  subnet_id = "${var.subnet_id}"
+  vpc_security_group_ids = "${var.sg_https}"
+  availability_zone = "us-west-2a"
+  associate_public_ip_address = false
 
-#   root_block_device {
-#     volume_type = "standard"
-#     volume_size = "20"
-#   }
+  root_block_device {
+    volume_type = "standard"
+    volume_size = "20"
+  }
 
-#   connection {
-#       type = "ssh"
-#       user = "${var.ssh_user}"
-#       private_key = "${file(var.ssh_private_key)}"
-#   }
+  connection {
+      type = "ssh"
+      user = "${var.ssh_user}"
+      private_key = "${file(var.ssh_private_key)}"
+  }
 
-#   provisioner "remote-exec" {
-#       inline = [
-#         "/usr/local/bin/bootstrap_consul_aws.sh ${var.datacenter} ${var.amigo_leader}",
-#       ]
-#   }
-# }
+  provisioner "remote-exec" {
+      inline = [
+        "/usr/local/bin/bootstrap_consul_aws.sh ${var.datacenter} ${var.amigo_leader}",
+      ]
+  }
+}

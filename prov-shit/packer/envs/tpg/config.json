@@ -1,0 +1,18 @@
+{
+    "project_base": "tpg",
+    "image_prefix": "tpg",
+    "image_title": "tpg",
+    "account_file": "foxcomm-vanilla.json",
+    "variables_file": "tpg_ansible.json",
+    "key_variables_file": "tpg_keys.json",
+    "stage_variables_file": "tpg_stage_ansible.json",
+    "project_id": "foxcommerce-production-shared",
+    "network": "tpg",
+    "zone": "us-central1-a",
+    "base_ubuntu_image": "ubuntu-1604-xenial-v20160921",
+    "base_image": "base-1475575149",
+    "base_mesos": "base-mesos-1475665242",
+    "base_node_image": "base-node-1475577253",
+    "base_jvm_image": "base-jvm-1475576876",
+    "ssh_username": "ubuntu"
+}

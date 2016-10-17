@@ -1,0 +1,52 @@
+@import "media-queries.css";
+
+.feed {
+  & .forms {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    @media (--small-viewport) {
+      flex-direction: column;
+    }
+  }
+
+  & .form {
+    padding: 20px 10px;
+    height: 100%;
+    margin: 20px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    flex: 1;
+
+    @media (--small-viewport) {
+      width: 100%;
+    }
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    @media (--small-viewport) {
+      margin: 0;
+    }
+  }
+
+  & .thanksOrNot {
+    margin-top: 50px;
+  }
+}
+
+.or {
+  text-transform: uppercase;
+  font-size: 18px;
+  text-align: center;
+
+  @media (--small-viewport) {
+    margin: 20px 0;
+  }
+}

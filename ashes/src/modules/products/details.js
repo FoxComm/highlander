@@ -5,45 +5,33 @@
 // libs
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
-import { push } from 'react-router-redux';
 import Api from 'lib/api';
 import { createEmptyProduct, configureProduct } from 'paragons/product';
+import createAsyncActions from '../async-utils';
+import { dissoc } from 'sprout-data';
 
 // types
 import type { Product } from 'paragons/product';
 
-const onServer = process.env.ON_SERVER;
-const rootPath = onServer ? '/admin' : '/';
-
-export type Error = {
-  status: ?number,
-  statusText: ?string,
-  messages: Array<string>,
-};
-
 export type ProductDetailsState = {
-  err: ?Error,
-  isFetching: boolean,
-  isUpdating: boolean,
   product: ?Product,
+  skuVariantMap: Object,
 };
 
 const defaultContext = 'default';
 
-const productRequestStart = createAction('PRODUCTS_REQUEST_START');
-const productRequestSuccess = createAction('PRODUCTS_REQUEST_SUCCESS');
-const productRequestFailure = createAction('PRODUCTS_REQUEST_FAILURE');
-
-const productUpdateStart = createAction('PRODUCTS_UPDATE_START');
-const productUpdateSuccess = createAction('PRODUCTS_UPDATE_SUCCESS');
-const productUpdateFailure = createAction('PRODUCTS_UPDATE_FAILURE');
-
 export const productNew = createAction('PRODUCTS_NEW');
-const productSet = createAction('PRODUCTS_SET');
+const clearProduct = createAction('PRODUCT_CLEAR');
 
-const setError = createAction('PRODUCTS_SET_ERROR');
+const _archiveProduct = createAsyncActions(
+  'archiveProduct',
+  (id, context = defaultContext) => {
+    return Api.delete(`/products/${context}/${id}`);
+  }
+);
+export const archiveProduct = _archiveProduct.perform;
 
-function sanitizeError(error: string): string {
+export function sanitizeError(error: string): string {
   if (error.indexOf('sku_code violates check constraint "sku_code_check"') != -1) {
     return 'Product must contain a SKU.';
   }
@@ -51,64 +39,102 @@ function sanitizeError(error: string): string {
   return error;
 }
 
+const _fetchProduct = createAsyncActions(
+  'fetchProduct',
+  (id: string, context: string = defaultContext) => {
+    return Api.get(`/products/${context}/${id}`);
+  }
+);
+
 export function fetchProduct(id: string, context: string = defaultContext): ActionDispatch {
   return dispatch => {
     if (id.toLowerCase() == 'new') {
       dispatch(productNew());
     } else {
-      dispatch(productRequestStart());
-      return Api.get(`/products/${context}/${id}`)
-        .then(
-          (product: Product) => dispatch(productRequestSuccess(product)),
-          (err: Object) => {
-            dispatch(productRequestFailure());
-            dispatch(setError(err));
-          }
-        );
+      return dispatch(_fetchProduct.perform(id, context));
     }
   };
 }
 
-export function createProduct(product: Product, context: string = defaultContext): ActionDispatch {
-  return dispatch => {
-    dispatch(productSet(product));
-    dispatch(productUpdateStart());
-    return Api.post(`/products/${context}`, product)
-      .then(
-        (product: Product) => {
-          dispatch(productUpdateSuccess(product));
-          dispatch(push(`${rootPath}/products/${context}/${product.id}`));
-        },
-        (err: Object) => {
-          dispatch(productUpdateFailure());
-          dispatch(setError(err));
+const _createProduct = createAsyncActions(
+  'createProduct',
+  (product: Product, context: string = defaultContext) => {
+    return Api.post(`/products/${context}`, cleanProductPayload(product));
+  }
+);
+
+function cleanProductPayload(product) {
+  // get rid of temp. skus
+  const feCodes = {};
+  product.skus = _.reduce(product.skus, (acc, sku) => {
+    const code = _.get(sku, 'attributes.code.v');
+    if (sku.feCode) {
+      feCodes[sku.feCode] = code || '';
+    }
+    if (code) {
+      return [...acc, dissoc(sku, 'feCode')];
+    }
+    return acc;
+  }, []);
+
+  product.variants = _.cloneDeep(product.variants);
+
+  // Wow, this is super-duper ugly.
+  for (let i = 0; i < product.variants.length; i++) {
+    const variant = product.variants[i];
+    for (let j = 0; j < variant.values.length; j++) {
+      const value = variant.values[j];
+      value.skuCodes = _.reduce(value.skuCodes, (acc, code) => {
+        if (code) {
+          const value = _.get(feCodes, code, code);
+          if (value) {
+            return [...acc, value];
+          }
         }
-      );
-  };
+        return acc;
+      }, []);
+    }
+  }
+
+  return product;
 }
 
-export function updateProduct(product: Product, context: string = defaultContext): ActionDispatch {
-  return dispatch => {
-    dispatch(productSet(product));
-    dispatch(productUpdateStart());
-    return Api.patch(`/products/${context}/${product.id}`, product)
-      .then(
-        (product: Product) => dispatch(productUpdateSuccess(product)),
-        (err: Object) => {
-          dispatch(productUpdateFailure());
-          dispatch(setError(err));
-        }
-      );
-  };
+const _updateProduct = createAsyncActions(
+  'updateProduct',
+  (product: Product, context: string = defaultContext) => {
+    return Api.patch(`/products/${context}/${product.id}`, cleanProductPayload(product));
+  }
+);
+
+export const createProduct = _createProduct.perform;
+export const updateProduct = _updateProduct.perform;
+
+function updateProductInState(state: ProductDetailsState, response) {
+  const product = configureProduct(response);
+  return { ...state, product };
 }
 
 const initialState: ProductDetailsState = {
-  err: null,
-  isFetching: false,
-  isUpdating: false,
   product: null,
-  response: null,
+  skuVariantMap: {},
 };
+
+export function clearSubmitErrors() {
+  return (dispatch: Function) => {
+    dispatch(_createProduct.clearErrors());
+    dispatch(_updateProduct.clearErrors());
+  };
+}
+
+export const clearFetchErrors = _fetchProduct.clearErrors;
+
+export function reset() {
+  return (dispatch: Function) => {
+    dispatch(clearProduct());
+    dispatch(clearSubmitErrors());
+    dispatch(clearFetchErrors());
+  };
+}
 
 const reducer = createReducer({
   [productNew]: (state: ProductDetailsState) => {
@@ -117,67 +143,12 @@ const reducer = createReducer({
       product: createEmptyProduct(),
     };
   },
-  [productSet]: (state: ProductDetailsState, product: Product) => {
-    return {
-      ...initialState,
-      product,
-    };
+  [clearProduct]: (state: ProductDetailsState) => {
+    return dissoc(state, 'product');
   },
-  [productRequestStart]: (state: ProductDetailsState) => {
-    return {
-      ...state,
-      err: null,
-      isFetching: true,
-    };
-  },
-  [productRequestSuccess]: (state: ProductDetailsState, response: Product) => {
-    return {
-      ...state,
-      err: null,
-      isFetching: false,
-      product: configureProduct(response),
-    };
-  },
-  [productRequestFailure]: (state: ProductDetailsState) => {
-    return {
-      ...state,
-      isFetching: false,
-    };
-  },
-  [productUpdateStart]: (state: ProductDetailsState) => {
-    return {
-      ...state,
-      isUpdating: true,
-    };
-  },
-  [productUpdateSuccess]: (state: ProductDetailsState, response: Product) => {
-    return {
-      ...state,
-      err: null,
-      isUpdating: false,
-      product: configureProduct(response),
-    };
-  },
-  [productUpdateFailure]: (state: ProductDetailsState) => {
-    return {
-      ...state,
-      isUpdating: false,
-    };
-  },
-  [setError]: (state: ProductDetailsState, err: Object) => {
-    const messages = _.get(err, 'response.body.errors', []);
-
-    const error: Error = {
-      status: _.get(err, 'response.status'),
-      statusText: _.get(err, 'response.statusText', ''),
-      messages: _.map(messages, m => sanitizeError(m)),
-    };
-
-    return {
-      ...state,
-      err: error,
-    };
-  },
+  [_fetchProduct.succeeded]: updateProductInState,
+  [_updateProduct.succeeded]: updateProductInState,
+  [_createProduct.succeeded]: updateProductInState,
 }, initialState);
 
 

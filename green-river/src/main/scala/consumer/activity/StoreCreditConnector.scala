@@ -7,13 +7,14 @@ import consumer.utils.JsonTransformers.extractBigIntSeq
 
 import org.json4s.JsonAST.{JInt, JNothing}
 
-final case class StoreCreditConnector()(implicit ec: EC) extends ActivityConnector {
+object StoreCreditConnector extends ActivityConnector {
   val dimension = "store_credit"
 
-  def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
-    val storeCreditIds = byStoreCreditData(activity) ++: byBulkData(activity)
-    storeCreditIds.distinct.map(createConnection(_, activity.id))
-  }
+  def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]] =
+    Future {
+      val storeCreditIds = byStoreCreditData(activity) ++: byBulkData(activity)
+      storeCreditIds.distinct.map(createConnection(_, activity.id))
+    }
 
   def createConnection(storeCreditId: String, activityId: Int): Connection = {
     Connection(dimension = dimension,

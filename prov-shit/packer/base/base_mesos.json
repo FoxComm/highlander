@@ -40,7 +40,7 @@
                 "delete_on_termination": true
             }],
             "tags": {
-                "name": "base-mesos-{{timestamp}}"
+                "Name": "base-mesos-{{timestamp}}"
             }
         }
     ],

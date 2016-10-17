@@ -46,6 +46,10 @@
     user-select: none;
     max-height: 50vh;
     overflow: hidden;
+
+    &._open {
+      display: inline-block;
+    }
   }
 
   &__item-container {
@@ -97,11 +101,6 @@
     .fc-dropdown__button {
       color: @color-decor31;
       cursor: default;
-    }
-  }
-  &._open {
-    .fc-dropdown__items {
-      display: inline-block;
     }
   }
 
