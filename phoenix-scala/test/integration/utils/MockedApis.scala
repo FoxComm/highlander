@@ -108,8 +108,7 @@ trait MockedApis extends MockitoSugar {
     mocked
   }
 
-  implicit lazy val apisOverride: Apis =
-    Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock, avalaraApiMock)
+  implicit lazy val apisOverride: Apis = Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock)
 
   implicit lazy val es: ElasticsearchApi = utils.ElasticsearchApi.default()
 }
