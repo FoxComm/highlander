@@ -39,7 +39,7 @@
 
 .title {
   margin-top: 20px;
-  font-family: PlayfairDisplay;
+  font-family: var(--font-playfair);
   font-weight: 400;
   font-size: 26px;
   color: var(--text-color-dark);
@@ -54,7 +54,7 @@
 }
 
 .description {
-  font-family: Roboto;
+  font-family: var(--font-main);
   font-weight: 300;
   font-size: 15px;
   color: var(--text-color-dark);
@@ -73,7 +73,7 @@
 }
 
 .price {
-  font-family: Roboto;
+  font-family: var(--font-main);
   font-weight: 400;
   font-size: 15px;
   color: var(--text-color-dark);
@@ -121,7 +121,7 @@
 
 .add-title-expanded {
   display: none;
-  font-family: Roboto;
+  font-family: var(--font-main);
   font-size: 12px;
   font-weight: normal;
   height: 40px;
