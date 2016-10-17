@@ -19,12 +19,12 @@ import com.typesafe.scalalogging.LazyLogging
 import models.account.User
 import org.json4s._
 import org.json4s.jackson._
+import plugins.AvalaraPlugin
 import services.account.AccountCreateContext
 import services.Authenticator
 import services.Authenticator.UserAuthenticator
 import services.Authenticator.requireAdminAuth
 import services.actors._
-
 import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{Development, Staging}
 import utils.apis._
@@ -206,4 +206,6 @@ class Service(systemOverride: Option[ActorSystem] = None,
     logger.info("Avalara config loaded successfully")
     avalaraAdapter
   }
+
+  AvalaraPlugin.initialize()
 }

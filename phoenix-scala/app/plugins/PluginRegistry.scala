@@ -13,6 +13,7 @@ trait Plugin {
   def receiveSettings(isDisabled: Boolean, newSettings: Map[String, JValue]): Unit
 
   def register(): Unit = {
+    println(s"Registering plugin $identifier")
     PluginRegistry.registerPlugin(identifier, this)
   }
 }
