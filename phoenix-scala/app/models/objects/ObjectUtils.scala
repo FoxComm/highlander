@@ -114,8 +114,9 @@ object ObjectUtils {
       optSchema ← * <~ ObjectSchemasManager.getSchemaByOptNameOrKind(schema, formProto.kind)
       form      ← * <~ ObjectForms.create(formProto.copy(attributes = n.form))
       shadow ← * <~ ObjectShadows.create(
-                  shadowProto
-                    .copy(formId = form.id, attributes = n.shadow, schemaId = optSchema.map(_.id)))
+                  shadowProto.copy(formId = form.id,
+                                   attributes = n.shadow,
+                                   jsonSchema = optSchema.map(_.name)))
       _ ← * <~ failIfErrors(
              IlluminateAlgorithm.validateAttributesTypes(form.attributes, shadow.attributes))
       //Make sure form is correct and shadow links are correct
@@ -211,10 +212,10 @@ object ObjectUtils {
         shadow ← * <~ ObjectShadows.create(
                     ObjectShadow(formId = form.id,
                                  attributes = newShadowAttributes,
-                                 schemaId = old.shadow.schemaId))
+                                 jsonSchema = old.shadow.jsonSchema))
 
-        optSchema ← * <~ old.shadow.schemaId.map { schemaId ⇒
-                     ObjectFullSchemas.mustFindById404(schemaId)
+        optSchema ← * <~ old.shadow.jsonSchema.map { schemaName ⇒
+                     ObjectFullSchemas.mustFindByName404(schemaName)
                    }
         _ ← * <~ optSchema.map { schema ⇒
              IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)

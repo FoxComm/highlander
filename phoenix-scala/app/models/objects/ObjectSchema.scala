@@ -81,6 +81,10 @@ object ObjectFullSchemas
   def filterByKind(kind: String): QuerySeq =
     filter(_.kind === kind)
 
+  def mustFindByName404(name: String)(implicit ec: EC): DbResultT[ObjectFullSchema] =
+    filter(_.name === name)
+      .mustFindOneOr(failures.NotFoundFailure404(ObjectFullSchemas, "name", name))
+
   def findOneByName(name: String): DBIO[Option[ObjectFullSchema]] =
     filter(_.name === name).one
 
