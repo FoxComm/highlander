@@ -127,12 +127,7 @@ object PluginsManager extends LazyLogging {
     for {
       plugin ← * <~ Plugins.findByName(name).mustFindOr(NotFoundFailure404(Plugin, name))
       updated ← * <~ Plugins.update(plugin,
-                                    plugin.copy(
-                                        isDisabled =
-                                          if (payload.state == Plugin.Inactive)
-                                            true
-                                          else
-                                            false))
+                                    plugin.copy(isDisabled = payload.state == Plugin.Inactive))
       _ ← * <~ DbResultT.good(
              PluginRegistry
                .notifySettingsChange(updated.name, updated.isDisabled, updated.settings))
