@@ -309,7 +309,7 @@ object Mvp {
       productSchema ← * <~ ObjectFullSchemas.findOneByName("product")
       productShadow ← * <~ ObjectShadows.create(
                          simpleShadow.create.copy(formId = productForm.id,
-                                                  schemaId = productSchema.map(_.id)))
+                                                  jsonSchema = productSchema.map(_.name)))
 
       productCommit ← * <~ ObjectCommits.create(
                          ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
@@ -336,7 +336,7 @@ object Mvp {
       sShadow   ← * <~ SimpleSkuShadow(s)
       skuSchema ← * <~ ObjectFullSchemas.findOneByName("sku")
       shadow ← * <~ ObjectShadows.create(
-                  sShadow.create.copy(formId = form.id, schemaId = skuSchema.map(_.id)))
+                  sShadow.create.copy(formId = form.id, jsonSchema = skuSchema.map(_.name)))
       commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       sku ← * <~ Skus.create(
                Sku(scope = scope,
@@ -359,7 +359,7 @@ object Mvp {
     for {
       form    ← * <~ ObjectForms.create(v.create)
       sShadow ← * <~ SimpleVariantShadow(v)
-      shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id, schemaId = None))
+      shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       variant ← * <~ Variants.create(
                    Variant(scope = scope,
@@ -384,7 +384,7 @@ object Mvp {
     for {
       form    ← * <~ ObjectForms.create(v.create)
       sShadow ← * <~ SimpleVariantValueShadow(v)
-      shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id, schemaId = None))
+      shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       value ← * <~ VariantValues.create(
                  VariantValue(scope = scope,
@@ -435,7 +435,7 @@ object Mvp {
       productSchema ← * <~ ObjectFullSchemas.findOneByName("product")
       productShadow ← * <~ ObjectShadows.create(
                          simpleShadow.create.copy(formId = productForm.id,
-                                                  schemaId = productSchema.map(_.id)))
+                                                  jsonSchema = productSchema.map(_.name)))
 
       productCommit ← * <~ ObjectCommits.create(
                          ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
@@ -451,7 +451,7 @@ object Mvp {
       skuSchema       ← * <~ ObjectFullSchemas.findOneByName("sku")
       skuShadow ← * <~ ObjectShadows.create(
                      simpleSkuShadow.create.copy(formId = skuForm.id,
-                                                 schemaId = skuSchema.map(_.id)))
+                                                 jsonSchema = skuSchema.map(_.name)))
 
       skuCommit ← * <~ ObjectCommits.create(
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
@@ -480,7 +480,7 @@ object Mvp {
       albumSchema ← * <~ ObjectFullSchemas.findOneByName("album")
       albumShadow ← * <~ ObjectShadows.create(
                        SimpleAlbumShadow(simpleAlbum).create
-                         .copy(formId = albumForm.id, schemaId = albumSchema.map(_.id)))
+                         .copy(formId = albumForm.id, jsonSchema = albumSchema.map(_.name)))
       albumCommit ← * <~ ObjectCommits.create(
                        ObjectCommit(formId = albumForm.id, shadowId = albumShadow.id))
 

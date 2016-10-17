@@ -20,9 +20,9 @@ create table object_full_schemas(
 create index object_full_schemas_kind_idx on object_full_schemas (kind);
 
 
-alter table object_shadows add column schema_id integer
-    references object_full_schemas(id) on update restrict on delete restrict;
-create index object_shadows_object_schema_idx on object_shadows (schema_id);
+alter table object_shadows add column json_schema generic_string
+    references object_full_schemas(name) on update restrict on delete restrict;
+create index object_shadows_object_schema_idx on object_shadows (json_schema);
 
 
 create or replace function get_definitions_for_object_schema(text) returns jsonb as $$
