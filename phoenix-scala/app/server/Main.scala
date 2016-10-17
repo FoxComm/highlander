@@ -43,6 +43,7 @@ object Main extends App with LazyLogging {
     service.performSelfCheck()
     service.bind()
     service.setupRemorseTimers()
+    service.setupPlugins()
 
     logger.info("Startup process complete")
   } catch {
@@ -78,9 +79,8 @@ class Service(systemOverride: Option[ActorSystem] = None,
 
   val logger = Logging(system, getClass)
 
-  implicit val db: Database = dbOverride.getOrElse(Database.forConfig("db", config))
-  lazy val defaultApis: Apis =
-    Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse(), setupAvalara())
+  implicit val db: Database  = dbOverride.getOrElse(Database.forConfig("db", config))
+  lazy val defaultApis: Apis = Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse())
 
   implicit val apis: Apis           = apisOverride.getOrElse(defaultApis: Apis)
   implicit val es: ElasticsearchApi = esOverride.getOrElse(ElasticsearchApi.fromConfig(config))
@@ -196,16 +196,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
     new Middlewarehouse(url)
   }
 
-  def setupAvalara(): Avalara = {
-    logger.info("Loading Avalara config")
-    val url            = config.getString("avalara.url")
-    val account        = config.getString("avalara.account")
-    val license        = config.getString("avalara.license")
-    val profile        = config.getString("avalara.profile")
-    val avalaraAdapter = AvalaraAdapter(url, account, license, profile)
-    logger.info("Avalara config loaded successfully")
-    avalaraAdapter
+  def setupPlugins(): Unit = {
+    AvalaraPlugin.initialize()
   }
-
-  AvalaraPlugin.initialize()
 }

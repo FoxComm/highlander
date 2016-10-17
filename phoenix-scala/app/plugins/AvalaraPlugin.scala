@@ -130,7 +130,7 @@ object AvalaraPlugin extends Plugin {
 
   def cancelTax(order: Order)(implicit ec: EC, apis: Apis): Result[Unit] = {
     if (!settings.isDisabled)
-      apis.avalara.cancelTax(order)
+      avalara.cancelTax(order)
     else
       Result.unit
   }
