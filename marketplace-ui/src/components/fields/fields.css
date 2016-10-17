@@ -160,6 +160,24 @@ label {
   line-height: 37px;
 }
 
+.fieldCheckbox {
+}
+
+.fieldCurrency {
+  &::before {
+    content: "$";
+    display: inline-block;
+    position: absolute;
+    left: 15px;
+    top: 9px;
+    color: #ccc;
+  }
+
+  & input {
+    padding-left: 30px;
+  }
+}
+
 ::-webkit-input-placeholder,
 :-moz-placeholder,
 ::-moz-placeholder,

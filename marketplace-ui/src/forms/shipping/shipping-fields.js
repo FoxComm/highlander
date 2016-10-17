@@ -3,6 +3,8 @@
 import get from 'lodash/fp/get';
 import type { FormField } from '../../core/types/fields';
 
+const normalize = (value, prev) => (/^([0-9]+(\.[0-9]{0,2})?)?$/.test(value) ? value : prev);
+
 export const fields: Array<FormField> = [
   {
     name: 'usp7',
@@ -11,10 +13,11 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'usp7Price',
-    type: 'text',
+    type: 'currency',
     placeholder: 'Price',
     showPredicate: get('usp7'),
     validation: 'required',
+    normalize,
   },
   {
     name: 'usp2',
@@ -23,10 +26,11 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'usp2Price',
-    type: 'text',
+    type: 'currency',
     placeholder: 'Price',
     showPredicate: get('usp2'),
     validation: 'required',
+    normalize,
   },
   {
     name: 'usp1',
@@ -35,10 +39,11 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'usp1Price',
-    type: 'text',
+    type: 'currency',
     placeholder: 'Price',
     showPredicate: get('usp1'),
     validation: 'required',
+    normalize,
   },
   {
     name: 'usps7',
@@ -47,10 +52,11 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'usps7Price',
-    type: 'text',
+    type: 'currency',
     placeholder: 'Price',
     showPredicate: get('usps7'),
     validation: 'required',
+    normalize,
   },
   {
     name: 'usps2',
@@ -59,10 +65,11 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'usps2Price',
-    type: 'text',
+    type: 'currency',
     placeholder: 'Price',
     showPredicate: get('usps2'),
     validation: 'required',
+    normalize,
   },
   {
     name: 'usps1',
@@ -71,10 +78,11 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'usps1Price',
-    type: 'text',
+    type: 'currency',
     placeholder: 'Price',
     showPredicate: get('usps1'),
     validation: 'required',
+    normalize,
   },
   {
     name: 'fedex7',
@@ -83,10 +91,11 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'fedex7Price',
-    type: 'text',
+    type: 'currency',
     placeholder: 'Price',
     showPredicate: get('fedex7'),
     validation: 'required',
+    normalize,
   },
   {
     name: 'fedex2',
@@ -95,10 +104,11 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'fedex2Price',
-    type: 'text',
+    type: 'currency',
     placeholder: 'Price',
     showPredicate: get('fedex2'),
     validation: 'required',
+    normalize,
   },
   {
     name: 'fedex1',
@@ -107,9 +117,10 @@ export const fields: Array<FormField> = [
   },
   {
     name: 'fedex1Price',
-    type: 'text',
+    type: 'currency',
     placeholder: 'Price',
     showPredicate: get('fedex1'),
     validation: 'required',
+    normalize,
   },
 ];

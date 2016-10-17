@@ -39,7 +39,7 @@ class ShippingPage extends Component {
 
   componentWillReceiveProps(nextProps: Props) {
     if (this.props.shipping.length !== nextProps.shipping.length) {
-      this.props.replace(`/application/${this.props.params.ref}/info`);
+      this.props.replace(`/application/${this.props.params.ref}/actions`);
     }
   }
 
