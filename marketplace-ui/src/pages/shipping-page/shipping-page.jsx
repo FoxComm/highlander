@@ -7,10 +7,11 @@ import { connect } from 'react-redux';
 import { replace } from 'react-router-redux';
 
 import Header from '../../components/header/header';
-import Form from '../../components/form/form';
+import ShippingForm from '../../forms/shipping/shipping-form';
 
 import {
   getApplication,
+  getShipping,
   getShippingSubmitInProgress,
   getShippingSubmitFailed,
 } from '../../core/modules';
@@ -59,13 +60,13 @@ class ShippingPage extends Component {
     const { shippingSubmitInProgress, shippingSubmitFailed } = this.props;
 
     return (
-      <Form
-        className={styles.form}
+      <ShippingForm
         form="shipping"
         fields={fields}
         onSubmit={this.submit}
         inProgress={shippingSubmitInProgress}
         failed={shippingSubmitFailed}
+        className={styles.form}
       />
     );
   }
@@ -87,6 +88,7 @@ class ShippingPage extends Component {
 
 const mapState = state => ({
   application: getApplication(state),
+  shipping: getShipping(state),
   shippingSubmitInProgress: getShippingSubmitInProgress(state),
   shippingSubmitFailed: getShippingSubmitFailed(state),
 });
