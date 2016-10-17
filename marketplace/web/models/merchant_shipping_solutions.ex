@@ -3,7 +3,7 @@ defmodule Marketplace.MerchantShippingSolution do
 
   schema "merchant_shipping_solutions" do
     belongs_to :merchant, Marketplace.Merchant
-    belongs_to :shipping_solutions, Marketplace.ShippingSolution
+    belongs_to :shipping_solutions, Marketplace.ShippingSolution, foreign_key: :shipping_solution_id
   end
 
   @required_fields ~w(merchant_id shipping_solution_id)a
