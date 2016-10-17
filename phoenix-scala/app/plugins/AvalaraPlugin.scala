@@ -1,6 +1,8 @@
 package plugins
 
 import scala.concurrent.Future
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 
 import models.cord.{Cart, Order}
 import models.cord.lineitems.CartLineItems._
@@ -53,13 +55,19 @@ object AvalaraPluginSettings {
 
 object AvalaraPlugin extends Plugin {
   val identifier = "Avalara AvaTax"
+
+  implicit val system: ActorSystem             = ActorSystem.create("Avalara")
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
+
   var settings = AvalaraPluginSettings()
+  var avalara  = avalaraForNewSettings()
   val defaultTaxValue = 0
 
   def initialize()(implicit db: DB, ec: EC): Unit = {
     Plugins.findByName(identifier).run().map {
       case Some(plugin) ⇒ {
         settings = AvalaraPluginSettings.fromJson(plugin.settings, plugin.isDisabled)
+        avalara = avalaraForNewSettings()
         register()
       }
       case _ ⇒ {
@@ -71,11 +79,13 @@ object AvalaraPlugin extends Plugin {
 
   override def receiveSettings(isDisabled: Boolean, newSettings: Map[String, JValue]): Unit = {
     settings = AvalaraPluginSettings.fromJson(newSettings, isDisabled)
+    avalara = avalaraForNewSettings()
     println(s"$identifier plugin received new settings.")
   }
 
   def receiveSettings(newSettings: AvalaraPluginSettings): Unit = {
     settings = newSettings
+    avalara = avalaraForNewSettings()
     println(s"$identifier plugin received new settings.")
   }
 
@@ -83,7 +93,7 @@ object AvalaraPlugin extends Plugin {
       implicit ec: EC,
       apis: Apis): Result[Unit] = {
     if (settings.isDisabled)
-      apis.avalara.validateAddress(address, region, country)
+      avalara.validateAddress(address, region, country)
     else
       Result.unit
   }
@@ -95,7 +105,7 @@ object AvalaraPlugin extends Plugin {
                     country: Country,
                     discount: Int)(implicit ec: EC, apis: Apis): Result[Int] = {
     if (settings.isDisabled) {
-      apis.avalara.getTaxForCart(cart, lineItems, address, region, country, discount)
+      avalara.getTaxForCart(cart, lineItems, address, region, country, discount)
     } else {
       Result.good(defaultTaxValue)
     }
@@ -109,9 +119,9 @@ object AvalaraPlugin extends Plugin {
                      discount: Int)(implicit ec: EC, apis: Apis): Result[Int] = {
     if (settings.isDisabled) {
       if (settings.commitEnabled) {
-        apis.avalara.getTaxForOrder(cart, lineItems, address, region, country, discount)
+        avalara.getTaxForOrder(cart, lineItems, address, region, country, discount)
       } else {
-        apis.avalara.getTaxForCart(cart, lineItems, address, region, country, discount)
+        avalara.getTaxForCart(cart, lineItems, address, region, country, discount)
       }
     } else {
       Result.good(defaultTaxValue)
@@ -123,6 +133,14 @@ object AvalaraPlugin extends Plugin {
       apis.avalara.cancelTax(order)
     else
       Result.unit
+  }
+
+  private def avalaraForNewSettings(): Avalara = {
+    AvalaraAdapter(url = settings.url,
+                   account = settings.account,
+                   license = settings.license,
+                   profile = settings.profile,
+                   enableLogging = settings.loggingEnabled)
   }
 
 }

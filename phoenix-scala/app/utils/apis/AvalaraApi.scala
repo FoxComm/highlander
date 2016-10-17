@@ -349,16 +349,20 @@ object Avalara {
 }
 
 object AvalaraAdapter {
-  def apply(url: String, account: String, license: String, profile: String)(
-      implicit as: ActorSystem,
-      am: ActorMaterializer) = {
+  def apply(url: String,
+            account: String,
+            license: String,
+            profile: String,
+            enableLogging: Boolean = false)(implicit as: ActorSystem, am: ActorMaterializer) = {
     new Avalara(url, account, license, profile)
   }
 }
 
-class Avalara(url: String, account: String, license: String, profile: String)(
-    implicit as: ActorSystem,
-    am: ActorMaterializer)
+class Avalara(url: String,
+              account: String,
+              license: String,
+              profile: String,
+              enableLogging: Boolean = false)(implicit as: ActorSystem, am: ActorMaterializer)
     extends AvalaraApi {
 
   type UM[T] =
@@ -374,7 +378,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
           .toStrict(1.second)
           .map(_.data)
           .map(_.decodeString("utf-8"))
-          .map(json ⇒ { println(json); json })
+          .map(json ⇒ { logMessage(s"Response payload is: $json"); json })
           .map(json ⇒ parse(json).extract[T])
       }
     }
@@ -382,6 +386,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
 
   override def validateAddress(address: Address, region: Region, country: Country)(
       implicit ec: EC): Result[Unit] = {
+    logMessage(s"Sending request to validate address: ${address.id}")
     val payload = PayloadBuilder.buildAddress(address, region, country)
 
     val result: Future[Avalara.Responses.AddressValidation] =
@@ -407,7 +412,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                              country: Country,
                              discount: Int)(implicit ec: EC): Result[Int] = {
     val payload = PayloadBuilder.buildOrder(cart, lineItems, address, region, country, discount)
-    println(write(payload))
+    logMessage(s"Sending request to get taxes for cart: ${cart.referenceNumber}")
     getTax(payload)
   }
 
@@ -418,11 +423,12 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                               country: Country,
                               discount: Int)(implicit ec: EC): Result[Int] = {
     val payload = PayloadBuilder.buildInvoice(cart, lineItems, address, region, country, discount)
-    println(write(payload))
+    logMessage(s"Sending request to commit taxes for order: ${cart.referenceNumber}")
     getTax(payload)
   }
 
   override def cancelTax(order: Order)(implicit ec: EC): Result[Unit] = {
+    logMessage(s"Sending request to cancel taxes for order: ${order.referenceNumber}")
     val payload = HttpEntity(write(PayloadBuilder.cancelOrder(order)))
 
     val result: Future[Avalara.Responses.CancelTaxResult] =
@@ -500,6 +506,13 @@ class Avalara(url: String, account: String, license: String, profile: String)(
   }
 
   private def failureHandler(failure: Throwable) = {
+    logMessage(s"Request failed with error: $failure")
     Result.left(UnableToMatchResponse.single)
+  }
+
+  private def logMessage(message: String): Unit = {
+    if (enableLogging) {
+      println("Avalara event: " + message)
+    }
   }
 }
