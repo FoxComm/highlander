@@ -3,7 +3,7 @@ defmodule Marketplace.ShippingSolution do
 
   schema "shipping_solutions" do
     field :carrier_name, :string
-    field :price, :string
+    field :price, :integer
 
     timestamps()
   end

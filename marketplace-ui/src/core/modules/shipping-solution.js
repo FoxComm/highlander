@@ -21,6 +21,8 @@ type State = Shipping;
 export const ACTION_FETCH = 'shippingSolutionFetch';
 export const ACTION_SUBMIT = 'shippingSolutionSubmit';
 
+const formatPrice = value => Number(value) * 1e2;
+
 const { perform: fetch, ...actionsFetch } = createAsyncActions(ACTION_FETCH, merchantId =>
   api.get(`/merchants/${merchantId}/shipping_solutions`)
 );
@@ -30,7 +32,7 @@ const { perform: submit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, 
     if (!endsWith(field.toLowerCase(), 'price') && data[field]) {
       methods.push({
         carrier_name: field,
-        price: data[`${field}Price`],
+        price: formatPrice(data[`${field}Price`]),
       });
     }
 
