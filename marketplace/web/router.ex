@@ -53,6 +53,8 @@ defmodule Marketplace.Router do
       patch "/products_upload/:id", MerchantProductsUploadController, :update, as: :products_upload
       post "/origin_integrations", OriginIntegrationController, :create, as: :origin_integration
       get "/origin_integrations", OriginIntegrationController, :show, as: :origin_integration
+      get "/shipping_solutions", MerchantShippingSolutionController, :index, as: :shipping_solutions
+      post "/shipping_solutions", MerchantShippingSolutionController, :create, as: :shipping_solutions
     end
 
     get "/", PageController, :index

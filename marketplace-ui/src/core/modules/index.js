@@ -53,7 +53,7 @@ const infoSubmitSelector = asyncSelector(info.ACTION_SUBMIT);
 const feedFetchSelector = asyncSelector(feed.ACTION_FETCH);
 const feedSubmitSelector = asyncSelector(feed.ACTION_SUBMIT);
 const feedUploadSelector = asyncSelector(feed.ACTION_UPLOAD);
-const shippingFetchSelector = asyncSelector(shipping.ACTION_SUBMIT);
+const shippingFetchSelector = asyncSelector(shipping.ACTION_FETCH);
 const shippingSubmitSelector = asyncSelector(shipping.ACTION_SUBMIT);
 const shopifySubmitSelector = asyncSelector(shopify.ACTION_SUBMIT);
 
