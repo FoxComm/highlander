@@ -33,13 +33,13 @@ object AvalaraPluginSettings {
 
   implicit val jsonFormats = JsonFormatters.phoenixFormats
 
-  def fromJson(settigns: Map[String, JValue], isDisabled: Boolean): AvalaraPluginSettings = {
-    val urlValue            = settigns.get(url).getOrElse(JString("")).extract[String]
-    val accountValue        = settigns.get(account).getOrElse(JString("")).extract[String]
-    val licenseValue        = settigns.get(license).getOrElse(JString("")).extract[String]
-    val profileValue        = settigns.get(profile).getOrElse(JString("")).extract[String]
-    val loggingEnabledValue = settigns.get(loggingEnabled).getOrElse(JBool(false)).extract[Boolean]
-    val commitEnabledValue  = settigns.get(commitEnabled).getOrElse(JBool(false)).extract[Boolean]
+  def fromJson(settings: Map[String, JValue], isDisabled: Boolean): AvalaraPluginSettings = {
+    val urlValue            = settings.get(url).getOrElse(JString("")).extract[String]
+    val accountValue        = settings.get(account).getOrElse(JString("")).extract[String]
+    val licenseValue        = settings.get(license).getOrElse(JString("")).extract[String]
+    val profileValue        = settings.get(profile).getOrElse(JString("")).extract[String]
+    val loggingEnabledValue = settings.get(loggingEnabled).getOrElse(JBool(false)).extract[Boolean]
+    val commitEnabledValue  = settings.get(commitEnabled).getOrElse(JBool(false)).extract[Boolean]
 
     AvalaraPluginSettings(
         url = urlValue,
