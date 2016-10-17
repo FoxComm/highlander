@@ -57,7 +57,7 @@ object Seeds {
       adminName: String = "",
       adminEmail: String = "",
       adminOrg: String = "",
-      adminRoles: List[String] = List.empty
+      adminRoles: String = ""
   )
 
   def main(args: Array[String]): Unit = {
@@ -100,7 +100,12 @@ object Seeds {
             opt[String]("email")
               .required()
               .action((x, c) ⇒ c.copy(adminEmail = x))
-              .text("Admin email")
+              .text("Admin email"),
+            opt[String]("org").required().action((x, c) ⇒ c.copy(adminOrg = x)).text("Admin Org"),
+            opt[String]("roles")
+              .required()
+              .action((x, c) ⇒ c.copy(adminRoles = x))
+              .text("Admin Roles")
         )
     }
 
@@ -141,7 +146,7 @@ object Seeds {
         createAdminManually(name = cfg.adminName,
                             email = cfg.adminEmail,
                             org = cfg.adminOrg,
-                            roles = cfg.adminRoles)
+                            roles = cfg.adminRoles.split(",").toList)
       case _ ⇒
         System.err.println(usage)
     }
