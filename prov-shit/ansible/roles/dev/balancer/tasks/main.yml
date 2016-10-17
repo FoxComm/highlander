@@ -1,5 +1,34 @@
 ---
 
+- name: Install uuid4 Lua Lib
+  copy: src=uuid4.lua dest=/etc/nginx/uuid4.lua
+
+- name: Install basexx Lua Lib
+  copy: src=basexx.lua dest=/etc/nginx/basexx.lua
+
+- name: Install base config
+  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
+
+- name: Remove default config
+  sudo: yes
+  file: path=/etc/nginx/sites-available/default state=absent
+
+- name: Make Certs Directory
+  file: path=/certs state=directory mode="600"
+  sudo: true
+
+- name: Copy Cert
+  copyv: src="{{role_path}}/../../base/secret_keys/files/certs/{{cert_path}}/frontend/domain.crt" dest=/certs/domain.crt mode="600"
+  sudo: true
+
+- name: Copy Key
+  copyv: src="{{role_path}}/../../base/secret_keys/files/certs/{{cert_path}}/frontend/domain.key" dest=/certs/domain.key mode="600"
+  sudo: true
+
+- name: Make Sure Nginx Restarts After Failure
+  lineinfile: dest=/etc/systemd/system/multi-user.target.wants/nginx.service line="Restart=always" insertafter="^KillMode" state=present
+  sudo: true
+
 - name: Install Service Locations Upstreams
   template: src=service_locations.j2 dest=/etc/nginx/service_locations.conf
 
@@ -14,6 +43,10 @@
 
 - name: Enable Web UI Hosts
   file: src=/etc/nginx/sites-available/web-ui dest=/etc/nginx/sites-enabled/web-ui owner=root group=root state=link
+
+- name: Reload Systemd for Nginx
+  sudo: yes
+  command: systemctl daemon-reload
 
 - name: Restart Nginx
   service: name=nginx state=restarted

@@ -92,8 +92,12 @@ http {
 
       function parse_jwt_payload(jwt)
         local encoded_parts = split_on_dot(jwt)
-        local decoded_payload = basexx.from_base64(encoded_parts[2])
-        return j.decode(decoded_payload)
+        local encoded_payload = encoded_parts[2]
+        if encoded_payload ~= nil then
+            local decoded_payload = basexx.from_base64(encoded_payload)
+            return j.decode(decoded_payload)
+        end
+        return nil
       end
 
       function get_doc_type(prefix, uri)
@@ -105,18 +109,18 @@ http {
         local jwt = ngx.req.get_headers()["JWT"]
         local request_prefix = "api/search/" .. idx
 
+        req = ngx.re.sub(ngx.var.request_uri, request_prefix, "internal-search/" .. idx)
+
         if jwt ~= nil then
             local payload = parse_jwt_payload(jwt)
-            local view = get_doc_type(request_prefix, ngx.var.request_uri)
-            local scope = payload.scope
+            if payload ~= nil then
+                local scope = payload.scope
+                local view = get_doc_type(request_prefix, ngx.var.request_uri)
 
-            if scoped_views[view] then
-                req = ngx.re.sub(ngx.var.request_uri, request_prefix, "internal-search/" .. idx .. "_" .. scope)
-            else
-                req = ngx.re.sub(ngx.var.request_uri, request_prefix, "internal-search/" .. idx)
+                if scoped_views[view] then
+                    req = ngx.re.sub(ngx.var.request_uri, request_prefix, "internal-search/" .. idx .. "_" .. scope)
+                end
             end
-        else
-            req = ngx.re.sub(ngx.var.request_uri, request_prefix, "internal-search/" .. idx)
         end
 
         -- map is needed because ngx.var.request_method returns a string
