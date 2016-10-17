@@ -150,7 +150,6 @@ class Main extends Component {
     }
 
     /** accounts fetched and not empty - fetching info */
-    console.log(shippingFetched, shipping);
     if (shippingFetched && !isEmpty(shipping)/* && !feedFetched*/) {
       this.replace(`/application/${ref}/actions`);
     }
