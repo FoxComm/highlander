@@ -1,12 +1,11 @@
 package plugins
 
-import scala.concurrent.Future
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 
 import models.cord.{Cart, Order}
 import models.cord.lineitems.CartLineItems._
-import models.location.{Address, Country, Region}
+import models.location._
 import models.plugins.Plugins
 import org.json4s.JsonAST._
 import services._
@@ -71,7 +70,7 @@ object AvalaraPlugin extends Plugin {
         register()
       }
       case _ ⇒ {
-        println(s"Cannot find settings for $identifier plugin")
+        logger.info(s"Cannot find settings for $identifier plugin")
         register()
       }
     }
@@ -80,19 +79,19 @@ object AvalaraPlugin extends Plugin {
   override def receiveSettings(isDisabled: Boolean, newSettings: Map[String, JValue]): Unit = {
     settings = AvalaraPluginSettings.fromJson(newSettings, isDisabled)
     avalara = avalaraForNewSettings()
-    println(s"$identifier plugin received new settings.")
+    logger.info(s"$identifier plugin received new settings.")
   }
 
   def receiveSettings(newSettings: AvalaraPluginSettings): Unit = {
     settings = newSettings
     avalara = avalaraForNewSettings()
-    println(s"$identifier plugin received new settings.")
+    logger.info(s"$identifier plugin received new settings.")
   }
 
   def validateAddress(address: Address, region: Region, country: Country)(
       implicit ec: EC,
       apis: Apis): Result[Unit] = {
-    if (settings.isDisabled)
+    if (!settings.isDisabled)
       avalara.validateAddress(address, region, country)
     else
       Result.unit
@@ -104,7 +103,7 @@ object AvalaraPlugin extends Plugin {
                     region: Region,
                     country: Country,
                     discount: Int)(implicit ec: EC, apis: Apis): Result[Int] = {
-    if (settings.isDisabled) {
+    if (!settings.isDisabled) {
       avalara.getTaxForCart(cart, lineItems, address, region, country, discount)
     } else {
       Result.good(defaultTaxValue)
@@ -117,7 +116,7 @@ object AvalaraPlugin extends Plugin {
                      region: Region,
                      country: Country,
                      discount: Int)(implicit ec: EC, apis: Apis): Result[Int] = {
-    if (settings.isDisabled) {
+    if (!settings.isDisabled) {
       if (settings.commitEnabled) {
         avalara.getTaxForOrder(cart, lineItems, address, region, country, discount)
       } else {

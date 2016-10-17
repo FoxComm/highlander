@@ -6,7 +6,6 @@ import java.time.Instant
 import scala.collection.immutable.{Seq ⇒ ImmutableSeq}
 import scala.concurrent.Future
 import akka.http.scaladsl.Http
-import scala.util.{Failure, Success}
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers._
@@ -17,20 +16,17 @@ import concurrent.duration._
 
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import org.json4s.jackson
 import org.json4s.jackson.Serialization._
-import org.json4s.ext._
 import com.pellucid.sealerate
+import com.typesafe.scalalogging.LazyLogging
 import failures.AvalaraFailures._
 import models.cord._
 import models.cord.lineitems.CartLineItems.FindLineItemResult
 import models.location._
 import services.Result
-import utils.{ADT, JsonFormatters, Money, time}
-import utils.FoxConfig._
+import utils._
 import utils.aliases.EC
 import utils.apis.Avalara.PayloadBuilder
-import utils.apis.Avalara.Responses._
 
 trait AvalaraApi {
 
@@ -353,8 +349,8 @@ object AvalaraAdapter {
             account: String,
             license: String,
             profile: String,
-            enableLogging: Boolean = false)(implicit as: ActorSystem, am: ActorMaterializer) = {
-    new Avalara(url, account, license, profile)
+            enableLogging: Boolean)(implicit as: ActorSystem, am: ActorMaterializer) = {
+    new Avalara(url, account, license, profile, enableLogging)
   }
 }
 
@@ -362,8 +358,9 @@ class Avalara(url: String,
               account: String,
               license: String,
               profile: String,
-              enableLogging: Boolean = false)(implicit as: ActorSystem, am: ActorMaterializer)
-    extends AvalaraApi {
+              enableLogging: Boolean)(implicit as: ActorSystem, am: ActorMaterializer)
+    extends AvalaraApi
+    with LazyLogging {
 
   type UM[T] =
     akka.http.scaladsl.unmarshalling.Unmarshaller[akka.http.scaladsl.model.HttpResponse, T]
@@ -512,7 +509,7 @@ class Avalara(url: String,
 
   private def logMessage(message: String): Unit = {
     if (enableLogging) {
-      println("Avalara event: " + message)
+      logger.info("Avalara event: " + message)
     }
   }
 }
