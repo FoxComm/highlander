@@ -17,23 +17,26 @@ import utils.db._
 
 object CartQueries extends CordQueries {
 
-  def findOne(
-      refNum: String)(implicit ec: EC, db: DB, ctx: OC): DbResultT[TheResponse[CartResponse]] =
+  def findOne(refNum: String, grouped: Boolean = true)(
+      implicit ec: EC,
+      db: DB,
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart      ← * <~ Carts.mustFindByRefNum(refNum)
       validated ← * <~ CartValidator(cart).validate()
-      response  ← * <~ CartResponse.fromCart(cart)
+      response  ← * <~ CartResponse.fromCart(cart, grouped)
     } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
 
-  def findOneByUser(
-      refNum: String,
-      customer: User)(implicit ec: EC, db: DB, ctx: OC): DbResultT[TheResponse[CartResponse]] =
+  def findOneByUser(refNum: String, customer: User, grouped: Boolean = true)(
+      implicit ec: EC,
+      db: DB,
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart ← * <~ Carts
               .findByRefNumAndAccountId(refNum, customer.accountId)
               .mustFindOneOr(NotFoundFailure404(Carts, refNum))
       validated ← * <~ CartValidator(cart).validate()
-      response  ← * <~ CartResponse.fromCart(cart)
+      response  ← * <~ CartResponse.fromCart(cart, grouped)
     } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
 
   def findOrCreateCartByAccount(customer: User,
@@ -55,16 +58,18 @@ object CartQueries extends CordQueries {
       fullOrder ← * <~ findOrCreateCartByAccountInner(customer, admin)
     } yield fullOrder
 
-  def findOrCreateCartByAccountInner(
-      customer: User,
-      admin: Option[User])(implicit db: DB, ec: EC, ac: AC, ctx: OC): DbResultT[CartResponse] =
+  def findOrCreateCartByAccountInner(customer: User, admin: Option[User], grouped: Boolean = true)(
+      implicit db: DB,
+      ec: EC,
+      ac: AC,
+      ctx: OC): DbResultT[CartResponse] =
     for {
       result ← * <~ Carts
                 .findByAccountId(customer.accountId)
                 .one
                 .findOrCreateExtended(Carts.create(Cart(accountId = customer.accountId)))
       (cart, foundOrCreated) = result
-      fullOrder ← * <~ CartResponse.fromCart(cart)
+      fullOrder ← * <~ CartResponse.fromCart(cart, grouped)
       _         ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)
     } yield fullOrder
 

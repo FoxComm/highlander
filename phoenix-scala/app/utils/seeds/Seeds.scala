@@ -130,7 +130,7 @@ object Seeds {
         }
 
         if (cfg.seedBase) createBaseSeeds
-        if (cfg.seedAdmins) createAdminsSeeds
+        if (cfg.seedAdmins) createStageAdminsSeeds
         if (cfg.seedRandom > 0)
           createRandomSeeds(cfg.seedRandom, cfg.customersScaleMultiplier)
         if (cfg.seedStage) {
@@ -168,9 +168,10 @@ object Seeds {
     validateResults("get first admin", result)
   }
 
-  def createAdminsSeeds(implicit db: DB, ec: EC, ac: AC): Int = {
+  def createStageAdminsSeeds(implicit db: DB, ec: EC, ac: AC): Int = {
     val r = for {
       _      ← * <~ createSingleMerchantSystem
+      _      ← * <~ createSecondStageMerchant
       admins ← * <~ Factories.createStoreAdmins
     } yield admins
 
@@ -367,6 +368,9 @@ object Seeds {
 
   def createSingleMerchantSystem(implicit ec: EC) =
     sql""" select bootstrap_single_merchant_system() """.as[Int]
+
+  def createSecondStageMerchant(implicit ec: EC) =
+    sql""" select bootstrap_demo_organization('merchant2', 'merchant2.com', 1, 1) """.as[Int]
 
   private def flyWayMigrate(config: Config): Unit = {
     val flyway = newFlyway(jdbcDataSourceFromConfig("db", config))
