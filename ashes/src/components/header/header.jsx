@@ -1,6 +1,7 @@
+/* @flow weak */
 
 // libs
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, Component, Element } from 'react';
 import { inflect } from 'fleck';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -18,6 +19,14 @@ import type { TUser } from 'modules/user';
 
 import styles from './header.css';
 
+type Props = {
+  routes: Array<any>,
+  params: Object,
+  fetchUserInfo: Function,
+  toggleUserMenu: Function,
+  isMenuVisible?: bool,
+};
+
 const mapState = state => ({
   user: state.user.current,
   isMenuVisible: state.usermenu.isVisible,
@@ -25,26 +34,19 @@ const mapState = state => ({
 
 @connect(mapState, { ...userActions, toggleUserMenu })
 export default class Header extends React.Component {
+  props: Props;
 
-  static propTypes = {
-    routes: PropTypes.array,
-    params: PropTypes.object,
-    fetchUserInfo: PropTypes.func.isRequired,
-    toggleUserMenu: PropTypes.func.isRequired,
-    isMenuVisible: PropTypes.bool,
-  };
-
-  componentDidMount() {
+  componentDidMount(): void {
     this.props.fetchUserInfo();
   }
 
   @autobind
-  handleUserClick(e) {
+  handleUserClick(e): void {
     e.stopPropagation();
     this.props.toggleUserMenu();
   }
 
-  render() {
+  render(): Element {
     const props = this.props;
     const user: ?TUser = props.user;
 
