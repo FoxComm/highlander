@@ -1,0 +1,527 @@
+{
+	"variables": [],
+	"info": {
+		"name": "MarketPlace Elixir",
+		"_postman_id": "73e6bc79-afbd-bb10-0e00-f79b066cec8d",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Vendor - Index",
+			"request": {
+				"url": "localhost:4000/merchants",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Vendor - Create ",
+			"request": {
+				"url": "localhost:4000/vendors",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"vendor\": {\n      \"state\": \"New\",\n      \"name\": \"Adil3\",\n      \"description\": \"Stronk.\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Vendor - Update",
+			"request": {
+				"url": "localhost:4000/vendors/4",
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"vendor\": {\n      \"state\": \"New\",\n      \"name\": \"Adil 7\",\n      \"description\": \"Stronk Seven.\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Merchant - Index",
+			"request": {
+				"url": "localhost:4000/merchants",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Merchant - Create",
+			"request": {
+				"url": "localhost:4000/merchants",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"merchant\": {\n      \"state\": \"New\",\n      \"name\": \"Adil3\",\n      \"description\": \"Stronk.\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Merchant - Update",
+			"request": {
+				"url": "localhost:4000/merchants/2",
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"merchant\": {\n      \"state\": \"New\",\n      \"name\": \"Adil 7\",\n      \"description\": \"Stronk Seven.\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Merchant - Activate Application",
+			"request": {
+				"url": "localhost:4000/merchants/activate_application/6",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"merchant\": {\n      \"state\": \"New\",\n      \"name\": \"Adil3\",\n      \"description\": \"Stronk.\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Merchant/Address Index",
+			"request": {
+				"url": "localhost:4000/merchants/1/addresses",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Merchant/Address Create",
+			"request": {
+				"url": "localhost:4000/merchants/1/addresses",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"merchant_address\": {\n      \"name\": \"Adil Address 1\",\n      \"address1\": \"1407 E Boston St.\",\n      \"description\": \"Stronk.\",\n      \"zip\": \"98112\",\n      \"state\": \"WA\",\n      \"city\": \"Seattle\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Merchant/Account Index",
+			"request": {
+				"url": "localhost:4000/merchants/1/accounts",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Merchant/Account Create",
+			"request": {
+				"url": "localhost:4000/merchants/1/accounts",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"account\": {\n      \"first_name\": \"Adil\",\n      \"last_name\": \"Wali\",\n      \"phone_number\": \"415-733-3585\",\n      \"business_name\": \"Stronk Industries\",\n      \"descripiton\": \"Pretty much the best.\",\n      \"email_address\": \"adil@adil.io\",\n      \"password\": \"d0nk3y\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Merchant/BusinessProfile - Show",
+			"request": {
+				"url": "localhost:4000/merchants/1/business_profile",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"social_profile\": {\n      \"twitter_handle\": \"AdilWali3\",\n      \"instagram_handle\": \"InstaAdil3\",\n      \"google_plus_handle\": \"PlusAdil\",\n      \"facebook_url\": \"fb.com/bombasfuck\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Merchant/BusinessProfile - Create",
+			"request": {
+				"url": "localhost:4000/merchants/1/business_profile",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"business_profile\": {\n      \"monthly_sales_volume\": \"1000000\",\n      \"target_audience\": \"Men\",\n      \"categories\": [\"Shirts\", \"Hats\", \"Donkeys\"]\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Merchant/BusinessProfile - Update",
+			"request": {
+				"url": "localhost:4000/merchants/1/business_profile",
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"business_profile\": {\n      \"monthly_sales_volume\": \"2500000\",\n      \"target_audience\": \"Women\",\n      \"categories\": [\"Flirts\", \"Bats\", \"Ronkeys\"]\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Merchant/SocialProfile - Show",
+			"request": {
+				"url": "localhost:4000/merchants/1/social_profile",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"social_profile\": {\n      \"twitter_handle\": \"AdilWali3\",\n      \"instagram_handle\": \"InstaAdil3\",\n      \"google_plus_handle\": \"PlusAdil\",\n      \"facebook_url\": \"fb.com/bombasfuck\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Merchant/SocialProfile - Create",
+			"request": {
+				"url": "localhost:4000/merchants/1/social_profile",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"social_profile\": {\n      \"twitter_handle\": \"AdilWali3\",\n      \"instagram_handle\": \"InstaAdil3\",\n      \"google_plus_handle\": \"PlusAdil\",\n      \"facebook_url\": \"fb.com/bombasfuck\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Merchant/SocialProfile - Update",
+			"request": {
+				"url": "localhost:4000/merchants/3/social_profile",
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"social_profile\": {\n      \"twitter_handle\": \"AdilWali88\",\n      \"instagram_handle\": \"InstaAdil88\",\n      \"google_plus_handle\": \"PlusAdil\",\n      \"facebook_url\": \"fb.com/bombasfuck\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "MerchantApplication - Index",
+			"request": {
+				"url": "localhost:4000/merchant_applications",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"merchant\": {\n      \"state\": \"New\",\n      \"name\": \"Adil3\",\n      \"description\": \"Stronk.\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "MerchantApplication - Show",
+			"request": {
+				"url": "localhost:4000/merchant_applications/4",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"merchant\": {\n      \"state\": \"New\",\n      \"name\": \"Adil3\",\n      \"description\": \"Stronk.\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "MerchantApplication - Create",
+			"request": {
+				"url": "localhost:4000/merchant_applications",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"merchant_application\": {\n      \"name\": \"Adil3\",\n      \"business_name\": \"Adil3 LLC.\",\n      \"email_address\": \"Adil@adilwali.com\",\n      \"description\": \"Stronk.\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "MerchantApplication - Update",
+			"request": {
+				"url": "localhost:4000/merchant_applications/4",
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"merchant_application\": {\n      \"name\": \"Adil4\",\n      \"business_name\": \"Adil3 LLC.\",\n      \"email_address\": \"Adil@adilwali.com\",\n      \"description\": \"Stronk.\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "MerchantApplication/SocialProfile - Create",
+			"request": {
+				"url": "localhost:4000/merchant_applications/1/social_profile",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"social_profile\": {\n      \"twitter_handle\": \"AdilWali3\",\n      \"instagram_handle\": \"InstaAdil3\",\n      \"google_plus_handle\": \"PlusAdil\",\n      \"facebook_url\": \"fb.com/bombasfuck\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "MerchantApplication/SocialProfile - Show",
+			"request": {
+				"url": "localhost:4000/merchant_applications/1/social_profile",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"social_profile\": {\n      \"twitter_handle\": \"AdilWali3\",\n      \"instagram_handle\": \"InstaAdil3\",\n      \"google_plus_handle\": \"PlusAdil\",\n      \"facebook_url\": \"fb.com/bombasfuck\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "MerchantApplication/SocialProfile - Update",
+			"request": {
+				"url": "localhost:4000/merchant_applications/1/social_profile",
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"social_profile\": {\n      \"twitter_handle\": \"AdilWali3\",\n      \"instagram_handle\": \"InstaAdil3\",\n      \"google_plus_handle\": \"PlusAdil\",\n      \"facebook_url\": \"fb.com/bombasfuck\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "MerchantApplication/BusinessProfile - Show",
+			"request": {
+				"url": "localhost:4000/merchant_applications/1/business_profile",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"social_profile\": {\n      \"twitter_handle\": \"AdilWali3\",\n      \"instagram_handle\": \"InstaAdil3\",\n      \"google_plus_handle\": \"PlusAdil\",\n      \"facebook_url\": \"fb.com/bombasfuck\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "MerchantApplication/BusinessProfile - Create",
+			"request": {
+				"url": "localhost:4000/merchant_applications/1/business_profile",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"business_profile\": {\n      \"monthly_sales_volume\": \"1000000\",\n      \"target_audience\": \"Men\",\n      \"categories\": [\"Shirts\", \"Hats\", \"Donkeys\"]\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "MerchantApplication/BusinessProfile - Update",
+			"request": {
+				"url": "localhost:4000/merchant_applications/1/business_profile",
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"business_profile\": {\n      \"monthly_sales_volume\": \"2500000\",\n      \"target_audience\": \"Women\",\n      \"categories\": [\"Flirts\", \"Bats\", \"Ronkeys\"]\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

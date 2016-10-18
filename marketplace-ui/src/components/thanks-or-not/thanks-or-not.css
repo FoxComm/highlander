@@ -1,0 +1,90 @@
+@import "media-queries.css";
+
+.thanksOrNot {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin: 200px 0 100px;
+
+  @media (--small-viewport) {
+    margin: 160px 0 0;
+  }
+}
+
+.icon {
+  position: relative;
+  left: 90px;
+  margin-bottom: 20px;
+
+  transform-origin: 0 100%;
+  transform: rotate(-45deg);
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 100%;
+  }
+
+  &.thanks {
+    background: #6bb2ef;
+    width: 180px;
+    height: 44px;
+
+    &::before {
+      width: 36px;
+      height: 80px;
+      background: #6bb2ef;
+      box-shadow: inset -3px -32px 32px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  &.error {
+    background: #f44336;
+    width: 176px;
+    height: 40px;
+    left: 41px;
+
+    &::before,
+    &::after {
+      content: "";
+      position: absolute;
+      left: 68px;
+      width: 40px;
+      background: #f44336;
+      box-shadow: inset -3px -32px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    &::before {
+      height: 67px;
+      bottom: 40px;
+    }
+
+    &::after {
+      height: 66px;
+      bottom: -66px;
+      box-shadow: inset -3px 32px 32px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+.title {
+  font-size: 36px;
+  margin-bottom: 10px;
+
+  @media (--small-viewport) {
+    font-size: 24px;
+  }
+}
+
+.message {
+  text-align: center;
+  line-height: 26px;
+  font-size: 18px;
+  font-weight: 300;
+
+  @media (--small-viewport) {
+    font-size: 12px;
+    line-height: 24px;
+  }
+}

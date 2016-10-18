@@ -4,23 +4,25 @@ import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.auth.Identity
+
 import payloads.LoginPayload
-import payloads.CustomerPayloads._
+import payloads.UserPayloads._
 import services.Authenticator
+import services.account.AccountManager
 import services.auth.GoogleOauth.oauthServiceFromConfig
+import services.auth.GoogleOauthUser
 import services.auth.OauthDirectives._
-import utils.http.CustomDirectives._
-import services.customers.CustomerManager
-import utils.http.Http._
 import utils.aliases._
+import utils.http.CustomDirectives._
+import utils.http.Http._
 
 object AuthRoutes {
 
-  lazy val customerGoogleOauth = oauthServiceFromConfig(Identity.Customer)
-  lazy val adminGoogleOauth    = oauthServiceFromConfig(Identity.Admin)
-
   def routes(implicit ec: EC, db: DB) = {
+
+    lazy val customerGoogleOauth = oauthServiceFromConfig("customer")
+    lazy val adminGoogleOauth    = oauthServiceFromConfig("admin")
+
     pathPrefix("public") {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒
         onSuccess(Authenticator.authenticate(payload)) { result ⇒
@@ -32,12 +34,12 @@ object AuthRoutes {
       activityContext() { implicit ac ⇒
         (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.resetPasswordSend(payload.email)
+            AccountManager.resetPasswordSend(payload.email)
           }
         } ~
         (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.resetPassword(code = payload.code, newPassword = payload.newPassword)
+            AccountManager.resetPassword(code = payload.code, newPassword = payload.newPassword)
           }
         }
       } ~

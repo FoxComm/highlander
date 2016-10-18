@@ -1439,10 +1439,10 @@ In case if err is Error itself returns array of single element - that error as a
 		<td>Register new user</td>
 	</tr>
 	<tr id='auth-login'>
-		<td><code><b>login</b>(<nobr>&lt;String&gt;</nobr> <i>email</i>, <nobr>&lt;String&gt;</nobr> <i>password</i>, <nobr>&lt;String&gt;</nobr> <i>kind</i>)</nobr></code></td>
+		<td><code><b>login</b>(<nobr>&lt;String&gt;</nobr> <i>email</i>, <nobr>&lt;String&gt;</nobr> <i>password</i>, <nobr>&lt;String&gt;</nobr> <i>org</i>)</nobr></code></td>
 		<td><code>Promise&lt;<a href='#loginresponse'>LoginResponse</a>&gt;</code></td>
 		<td>Authenticate user by username and password.
-<code>kind</code> can be &#39;customer&#39; or &#39;admin&#39;</td>
+<code>org</code> is the name of the organization you want to log in under</td>
 	</tr>
 	<tr id='auth-googlesignin'>
 		<td><code><b>googleSignin</b>()</nobr></code></td>

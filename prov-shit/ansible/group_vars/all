@@ -33,6 +33,10 @@ phoenix_db_name: phoenix_development
 phoenix_test_db_name: phoenix_test
 phoenix_tracing: "false"
 
+# Do not use this in production
+# This is a ttl of 1 year
+phoenix_token_ttl: 525600
+
 # Middlewarehouse
 middlewarehouse_env: staging
 middlewarehouse_dir: /middlewarehouse
@@ -150,5 +154,8 @@ stripe_publishable_key: pk_test_r6t0niqmG9OOZhhaSkacUUU1
 
 cert_path: stage
 
-#mesos
+# Mesos
 mesos_quorum: 2
+
+# Use seeder service or not?
+with_seeder: true

@@ -27,7 +27,7 @@ object CreditCardsResponse {
 
   def build(cc: CreditCard, region: Region): Root =
     Root(id = cc.id,
-         customerId = cc.customerId,
+         customerId = cc.accountId,
          holderName = cc.holderName,
          lastFour = cc.lastFour,
          expMonth = cc.expMonth,
@@ -55,7 +55,7 @@ object CreditCardsResponse {
 
   def buildSimple(cc: CreditCard): RootSimple =
     RootSimple(id = cc.id,
-               customerId = cc.customerId,
+               customerId = cc.accountId,
                holderName = cc.holderName,
                lastFour = cc.lastFour,
                expMonth = cc.expMonth,

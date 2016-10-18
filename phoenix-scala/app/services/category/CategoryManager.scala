@@ -2,7 +2,7 @@ package services.category
 
 import failures.CategoryFailures._
 import failures.ObjectFailures._
-import models.StoreAdmin
+import models.account._
 import models.category._
 import models.objects._
 import payloads.CategoryPayloads._
@@ -10,6 +10,7 @@ import responses.CategoryResponses._
 import responses.ObjectResponses.ObjectContextResponse
 import services.LogActivity
 import slick.driver.PostgresDriver.api._
+import com.github.tminglei.slickpg.LTree
 import utils.aliases._
 import utils.db._
 
@@ -37,23 +38,25 @@ object CategoryManager {
     getCategoryFull(categoryId, contextName).map(c ⇒
           FullCategoryResponse.build(c.category, c.form, c.shadow))
 
-  def createCategory(admin: StoreAdmin, payload: CreateFullCategory, contextName: String)(
+  def createCategory(admin: User, payload: CreateFullCategory, contextName: String)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[FullCategoryResponse.Root] =
+      ac: AC,
+      au: AU): DbResultT[FullCategoryResponse.Root] =
     for {
-      context  ← * <~ contextByName(contextName)
-      form     ← * <~ ObjectForm(kind = Category.kind, attributes = payload.form.attributes)
-      shadow   ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
-      insert   ← * <~ ObjectUtils.insert(form, shadow)
-      category ← * <~ Categories.create(Category.build(context.id, insert))
+      context ← * <~ contextByName(contextName)
+      form    ← * <~ ObjectForm(kind = Category.kind, attributes = payload.form.attributes)
+      shadow  ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
+      insert  ← * <~ ObjectUtils.insert(form, shadow)
+      category ← * <~ Categories.create(
+                    Category.build(LTree.apply(au.token.scope), context.id, insert))
       response = FullCategoryResponse.build(category, insert.form, insert.shadow)
       _ ← * <~ LogActivity
            .fullCategoryCreated(Some(admin), response, ObjectContextResponse.build(context))
     } yield response
 
   def updateCategory(
-      admin: StoreAdmin,
+      admin: User,
       categoryId: Int,
       payload: UpdateFullCategory,
       contextName: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[FullCategoryResponse.Root] =

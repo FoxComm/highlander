@@ -177,7 +177,7 @@ export default class Order extends React.Component {
     if (order.orderState === 'canceled' ||
         order.orderState === 'fulfillmentStarted' ||
         order.orderState === 'shipped') {
-      return <State value={order.shippingState} model={"order"} />;
+      return <State value={order.shippingState} model="order" />;
     }
 
     const visibleAndSortedOrderStates = [

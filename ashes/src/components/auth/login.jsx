@@ -25,6 +25,7 @@ import type {
 
 
 type TState = {
+  org: string;
   email: string;
   password: string;
 };
@@ -52,6 +53,7 @@ type LoginProps = {
 /* ::`*/
 export default class Login extends Component {
   state: TState = {
+    org: '',
     email: '',
     password: '',
   };
@@ -61,12 +63,16 @@ export default class Login extends Component {
 
   @autobind
   submitLogin() {
-    const payload = _.pick(this.state, 'email', 'password');
-    payload['kind'] = 'admin';
+    const payload = _.pick(this.state, 'email', 'password', 'org');
 
     this.props.authenticate(payload).then(() => {
       transitionTo('home');
     });
+  }
+
+  @autobind
+  onOrgChange({target}: Object) {
+    this.setState({org: target.value});
   }
 
   @autobind
@@ -129,6 +135,9 @@ export default class Login extends Component {
         <Form styleName="form" onSubmit={this.submitLogin}>
           <WrapToLines styleName="or-line">or</WrapToLines>
           {this.errorMessage}
+          <FormField label="Organization">
+            <input onChange={this.onOrgChange} value={this.state.org} type="text" className="fc-input"/>
+          </FormField>
           <FormField label="Email">
             <input onChange={this.onEmailChange} value={this.state.email} type="text" className="fc-input"/>
           </FormField>

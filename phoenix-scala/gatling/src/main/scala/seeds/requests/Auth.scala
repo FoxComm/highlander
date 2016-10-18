@@ -3,7 +3,6 @@ package seeds.requests
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
-import models.auth.Identity.Admin
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.LoginPayload
 import utils.JsonFormatters
@@ -16,7 +15,7 @@ object Auth {
     .post("/v1/public/login")
     .body(StringBody(json(LoginPayload(email = "${adminEmail}",
                                        password = "${adminPassword}",
-                                       kind = Admin))))
+                                       org = "${adminOrg}"))))
     .check(header("JWT").saveAs("jwtTokenAdmin"))
 
   val loginAsRandomAdmin = feed(csv("data/store_admins.csv").random).exec(loginAsAdmin)

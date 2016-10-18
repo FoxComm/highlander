@@ -1,0 +1,46 @@
+@import "media-queries.css";
+
+.steps {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  position: relative;
+  margin: 30px -20px;
+  line-height: 50px;
+  font-size: 14px;
+  text-transform: uppercase;
+  background: #f9f9f9;
+
+  transition: margin .4s;
+
+  @media (--small-viewport) {
+    margin: 0 0 20px;
+  }
+}
+
+.step {
+  flex: 1;
+
+  padding: 10px 20px 4px;
+  color: #999;
+  line-height: 36px;
+  text-align: center;
+  text-decoration: none;
+  cursor: default;
+
+  transition: padding .4s, color .2s;
+
+  &.active {
+    color: #363636;
+
+    @media (--small-viewport) {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  @media (--small-viewport) {
+    display: none;
+  }
+}

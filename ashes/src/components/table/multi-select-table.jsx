@@ -47,6 +47,12 @@ export default class MultiSelectTable extends React.Component {
     };
   }
 
+  componentWillReceiveProps(newProps) {
+    if (newProps.columns !== this.state.columns) {
+      this.setState({ columns: this.getSelectedColumns(newProps) });
+    }
+  }
+
   getTableIdentifier() {
     if (!this.props.identifier) {
       return this.props.columns.map(item => {
@@ -56,13 +62,13 @@ export default class MultiSelectTable extends React.Component {
     return this.props.identifier;
   }
 
-  getSelectedColumns() {
+  getSelectedColumns(props = this.props) {
     const tableName = this.getTableIdentifier();
     let savedColumns = localStorage.getItem('columns');
-    if (!savedColumns) return this.props.columns;
+    if (!savedColumns) return props.columns;
 
     const columns = JSON.parse(savedColumns);
-    if (!columns[tableName]) return this.props.columns;
+    if (!columns[tableName]) return props.columns;
     return _.filter(columns[tableName], { isVisible: true });
   }
 
@@ -167,6 +173,13 @@ export default class MultiSelectTable extends React.Component {
     });
   }
 
+  get selectableColumns() {
+    if (this.props.dataTable) {
+      return this.columns.slice(1);
+    }
+    return [];
+  }
+
   render() {
     const columns = this.columns;
 
@@ -178,7 +191,7 @@ export default class MultiSelectTable extends React.Component {
         className={classNames('fc-multi-select-table', this.props.className)}
         columns={columns}
         setColumnSelected={this.setColumnSelected}
-        selectableColumns={!!this.props.dataTable && columns.slice(1)}
+        selectableColumns={this.selectableColumns}
         tableIdentifier={this.getTableIdentifier()}
         renderRow={this.renderRow}
       />

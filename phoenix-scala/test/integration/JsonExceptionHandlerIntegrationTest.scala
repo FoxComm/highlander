@@ -3,7 +3,7 @@ import akka.http.scaladsl.model.StatusCodes.ClientError
 import akka.http.scaladsl.model.{ContentTypes, ErrorInfo, IllegalRequestException, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 
-import util._
+import testutils._
 import utils.MockedApis
 
 class JsonExceptionHandlerIntegrationTest
@@ -11,8 +11,6 @@ class JsonExceptionHandlerIntegrationTest
     with HttpSupport
     with AutomaticAuth
     with MockedApis {
-
-  import Extensions._
 
   val illegalRequestExceptionText = "A test IllegalRequestException"
   val exceptionText               = "A test exception"
@@ -32,7 +30,7 @@ class JsonExceptionHandlerIntegrationTest
   "return a valid JSON exception on an IllegalRequestException" in {
     val response = GET("testThrowAnIllegalRequestException")
 
-    response.status must === (StatusCodes.BadRequest)
+    response.mustHaveStatus(StatusCodes.BadRequest)
     response.entity.contentType must === (ContentTypes.`application/json`)
     response.error must startWith(illegalRequestExceptionText)
   }
@@ -40,7 +38,7 @@ class JsonExceptionHandlerIntegrationTest
   "return a valid JSON exception on an other exception" in {
     val response = GET("testThrowAnExcepton")
 
-    response.status must === (StatusCodes.InternalServerError)
+    response.mustHaveStatus(StatusCodes.InternalServerError)
     response.entity.contentType must === (ContentTypes.`application/json`)
     response.error must startWith(exceptionText)
   }

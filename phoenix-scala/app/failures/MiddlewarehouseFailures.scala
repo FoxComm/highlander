@@ -1,8 +1,10 @@
 package failures
 
-import com.stripe.exception.StripeException
-
 object MiddlewarehouseFailures {
+
+  case class MiddlewarehouseError(message: String) extends Failure {
+    override def description = message
+  }
 
   case object UnableToHoldLineItems extends Failure {
     override def description = s"Unable to hold line items"

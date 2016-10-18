@@ -1,0 +1,15 @@
+{
+    "service" : {
+        "name": "consul_alerts",
+        "tags": ["consul_alerts"],
+        "port": 24476,
+        "checks": [
+            {
+                "name": "HTTP API on port 9000",
+                "http": "http://localhost:9000/v1/info",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

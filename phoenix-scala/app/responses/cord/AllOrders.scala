@@ -2,8 +2,8 @@ package responses.cord
 
 import java.time.Instant
 
+import models.account.User
 import models.cord.Order
-import models.customer.Customer
 import models.payment.creditcard.CreditCardCharge
 import responses.ResponseItem
 
@@ -25,7 +25,7 @@ object AllOrders {
       extends ResponseItem
 
   def build(order: Order,
-            customer: Option[Customer] = None,
+            customer: Option[User] = None,
             paymentState: Option[CreditCardCharge.State] = None): Root = Root(
       referenceNumber = order.referenceNumber,
       orderState = order.state,

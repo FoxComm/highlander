@@ -4,10 +4,12 @@ import java.time.Instant
 
 import models.objects._
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
 import utils.db._
 import utils.{JsonFormatters, Validation}
+
+import com.github.tminglei.slickpg._
 
 object Variant {
   val kind = "variant"
@@ -19,6 +21,7 @@ object Variant {
   * individual attributes that can be used to select a SKU.
   */
 case class Variant(id: Int = 0,
+                   scope: LTree,
                    contextId: Int,
                    shadowId: Int,
                    formId: Int,
@@ -36,7 +39,7 @@ case class Variant(id: Int = 0,
 
 class Variants(tag: Tag) extends ObjectHeads[Variant](tag, "variants") {
   def * =
-    (id, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Variant.apply _).tupled, Variant.unapply)
+    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Variant.apply _).tupled, Variant.unapply)
 }
 
 object Variants

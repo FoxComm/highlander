@@ -87,9 +87,9 @@ case class InvalidFieldFailure(name: String) extends Failure {
   override def description = s"Invalid value for field '$name' provided"
 }
 
-case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failure {
+case class AlreadySavedForLater(accountId: Int, skuId: Int) extends Failure {
   override def description =
-    s"Customer with id=$customerId already has SKU with id=$skuId saved for later"
+    s"Customer with id=$accountId already has SKU with id=$skuId saved for later"
 }
 
 case class ShipmentNotFoundFailure(cordRefNum: String) extends Failure {

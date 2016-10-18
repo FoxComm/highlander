@@ -19,7 +19,7 @@ import models.objects._
 import models.promotion.Promotions.scope._
 import models.promotion._
 import models.shipping
-import models.traits.Originator
+import models.account.User
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.discount.compilers._
@@ -61,7 +61,7 @@ object CartPromotionUpdater {
       _ ← * <~ OrderLineItemAdjustments.createAll(adjustments)
     } yield {}
 
-  def attachCoupon(originator: Originator, refNum: Option[String] = None, code: String)(
+  def attachCoupon(originator: User, refNum: Option[String] = None, code: String)(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -83,7 +83,7 @@ object CartPromotionUpdater {
       couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
       couponObject = IlluminatedCoupon.illuminate(ctx, coupon, couponForm, couponShadow)
       _ ← * <~ couponObject.mustBeActive
-      _ ← * <~ couponObject.mustBeApplicable(couponCode, cart.customerId)
+      _ ← * <~ couponObject.mustBeApplicable(couponCode, cart.accountId)
       // Fetch promotion + validate
       promotion ← * <~ Promotions
                    .filterByContextAndFormId(ctx.id, coupon.promotionId)
@@ -100,7 +100,7 @@ object CartPromotionUpdater {
       response  ← * <~ CartResponse.buildRefreshed(cart)
     } yield TheResponse.validated(response, validated)
 
-  def detachCoupon(originator: Originator, refNum: Option[String] = None)(
+  def detachCoupon(originator: User, refNum: Option[String] = None)(
       implicit ec: EC,
       es: ES,
       db: DB,

@@ -8,7 +8,7 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname where to install Consul Alerts"
-      default: "vanilla-consul-server-0"
+      default: "stage-amigo-server"
       private: no
     - name: "slack_channel"
       prompt: "Enter a Slack channel name where notifications will be posted"
@@ -27,3 +27,6 @@
 
   roles:
       - { role: dev/consul_alerts }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

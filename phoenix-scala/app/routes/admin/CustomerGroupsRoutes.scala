@@ -3,17 +3,18 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.StoreAdmin
+import models.account.User
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import services.GroupManager
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object CustomerGroupsRoutes {
-  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
-    activityContext(admin) { implicit ac ⇒
+    activityContext(auth.model) { implicit ac ⇒
       pathPrefix("groups") {
         (get & pathEnd) {
           getOrFailures {
@@ -22,7 +23,7 @@ object CustomerGroupsRoutes {
         } ~
         (post & pathEnd & entity(as[CustomerDynamicGroupPayload])) { payload ⇒
           mutateOrFailures {
-            GroupManager.create(payload, admin)
+            GroupManager.create(payload, auth.model)
           }
         }
       } ~

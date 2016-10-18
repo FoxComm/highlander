@@ -15,7 +15,7 @@ import utils.Validation
 import utils.db._
 
 case class Address(id: Int = 0,
-                   customerId: Int,
+                   accountId: Int,
                    regionId: Int,
                    name: String,
                    address1: String,
@@ -34,8 +34,8 @@ case class Address(id: Int = 0,
   override def sanitize = super.sanitize(this)
   override def validate = super.validate
 
-  def mustBelongToCustomer(customerId: Int): Failures Xor Address =
-    if (this.isNew || this.customerId == customerId) right(this)
+  def mustBelongToAccount(accountId: Int): Failures Xor Address =
+    if (this.isNew || this.accountId == accountId) right(this)
     else left(NotFoundFailure404(Address, this.id).single)
 }
 
@@ -43,18 +43,18 @@ object Address {
   val zipPattern   = "(?i)^[a-z0-9][a-z0-9\\- ]{0,10}[a-z0-9]$"
   val zipPatternUs = "^\\d{5}(?:\\d{4})?$"
 
-  def fromPayload(payload: CreateAddressPayload, customerId: Int): Address =
-    Address(customerId = customerId,
-            regionId = payload.regionId,
-            name = payload.name,
-            address1 = payload.address1,
-            address2 = payload.address2,
-            city = payload.city,
-            zip = payload.zip,
-            phoneNumber = payload.phoneNumber)
+  def fromPayload(p: CreateAddressPayload, accountId: Int): Address =
+    Address(accountId = accountId,
+            regionId = p.regionId,
+            name = p.name,
+            address1 = p.address1,
+            address2 = p.address2,
+            city = p.city,
+            zip = p.zip,
+            phoneNumber = p.phoneNumber)
 
   def fromOrderShippingAddress(osa: OrderShippingAddress): Address =
-    Address(customerId = 0,
+    Address(accountId = 0,
             regionId = osa.regionId,
             name = osa.name,
             address1 = osa.address1,
@@ -64,7 +64,7 @@ object Address {
             phoneNumber = osa.phoneNumber)
 
   def fromCreditCard(cc: CreditCard): Address =
-    Address(customerId = 0,
+    Address(accountId = 0,
             regionId = cc.regionId,
             name = cc.addressName,
             address1 = cc.address1,
@@ -75,7 +75,7 @@ object Address {
 
 class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
   def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def customerId        = column[Int]("customer_id")
+  def accountId         = column[Int]("account_id")
   def regionId          = column[Int]("region_id")
   def name              = column[String]("name")
   def address1          = column[String]("address1")
@@ -88,7 +88,7 @@ class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
 
   def * =
     (id,
-     customerId,
+     accountId,
      regionId,
      name,
      address1,
@@ -112,25 +112,25 @@ object Addresses
 
   type AddressesWithRegionsQuery = Query[(Addresses, Regions), (Address, Region), Seq]
 
-  def findAllByCustomerId(customerId: Int): QuerySeq = filter(_.customerId === customerId)
+  def findAllByAccountId(accountId: Int): QuerySeq = filter(_.accountId === accountId)
 
-  def findAllActiveByCustomerId(customerId: Int): QuerySeq =
-    findAllByCustomerId(customerId).filter(_.deletedAt.isEmpty)
+  def findAllActiveByAccountId(accountId: Int): QuerySeq =
+    findAllByAccountId(accountId).filter(_.deletedAt.isEmpty)
 
-  def findAllByCustomerIdWithRegions(customerId: Int): AddressesWithRegionsQuery =
-    findAllByCustomerId(customerId).withRegions
+  def findAllByAccountIdWithRegions(accountId: Int): AddressesWithRegionsQuery =
+    findAllByAccountId(accountId).withRegions
 
-  def findAllActiveByCustomerIdWithRegions(customerId: Int): AddressesWithRegionsQuery =
-    findAllActiveByCustomerId(customerId).withRegions
+  def findAllActiveByAccountIdWithRegions(accountId: Int): AddressesWithRegionsQuery =
+    findAllActiveByAccountId(accountId).withRegions
 
-  def findShippingDefaultByCustomerId(customerId: Int): QuerySeq =
-    filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
+  def findShippingDefaultByAccountId(accountId: Int): QuerySeq =
+    filter(_.accountId === accountId).filter(_.isDefaultShipping === true)
 
-  def findByIdAndCustomer(addressId: Int, customerId: Int): QuerySeq =
-    findById(addressId).extract.filter(_.customerId === customerId)
+  def findByIdAndAccount(addressId: Int, accountId: Int): QuerySeq =
+    findById(addressId).extract.filter(_.accountId === accountId)
 
-  def findActiveByIdAndCustomer(addressId: Int, customerId: Int): QuerySeq =
-    findByIdAndCustomer(addressId, customerId).filter(_.deletedAt.isEmpty)
+  def findActiveByIdAndAccount(addressId: Int, accountId: Int): QuerySeq =
+    findByIdAndAccount(addressId, accountId).filter(_.deletedAt.isEmpty)
 
   object scope {
     implicit class AddressesQuerySeqConversions(q: QuerySeq) {

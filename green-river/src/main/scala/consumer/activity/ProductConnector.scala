@@ -6,14 +6,15 @@ import consumer.aliases._
 
 import org.json4s.JsonAST.{JInt, JString, JNothing}
 
-final case class ProductConnector()(implicit ec: EC) extends ActivityConnector {
+object ProductConnector extends ActivityConnector {
   val dimension = "product"
 
-  def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
-    val productIds = byProductData(activity)
+  def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]] =
+    Future {
+      val productIds = byProductData(activity) ++: byNoteData(activity)
 
-    productIds.distinct.map(createConnection(_, activity.id))
-  }
+      productIds.distinct.map(createConnection(_, activity.id))
+    }
 
   def createConnection(formId: String, activityId: Int): Connection = {
     Connection(dimension = dimension,
@@ -26,6 +27,13 @@ final case class ProductConnector()(implicit ec: EC) extends ActivityConnector {
     activity.data \ "product" \ "form" \ "product" \ "id" match {
       case JInt(formId) ⇒ Seq(formId.toString)
       case _            ⇒ Seq.empty
+    }
+  }
+
+  private def byNoteData(activity: Activity): Seq[String] = {
+    (activity.data \ "note" \ "referenceType", activity.data \ "entity" \ "id") match {
+      case (JString("product"), JInt(id)) ⇒ Seq(id.toString)
+      case _                              ⇒ Seq.empty
     }
   }
 }

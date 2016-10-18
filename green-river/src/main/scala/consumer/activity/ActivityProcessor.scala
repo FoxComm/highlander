@@ -31,7 +31,7 @@ final case class AppendNotification(
     sourceDimension: String, sourceObjectId: String, activityId: Int, data: JValue)
 
 trait ActivityConnector {
-  def process(offset: Long, activity: Activity): Future[Seq[Connection]]
+  def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]]
 }
 
 final case class FailedToConnectActivity(
@@ -59,7 +59,7 @@ class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityCon
   val activityJsonFields = List("id", "activityType", "data", "context", "createdAt")
   val phoenix            = Phoenix(conn)
 
-  def process(offset: Long, topic: String, inputJson: String): Future[Unit] = {
+  def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] = {
 
     val activityJson = AvroJsonHelper.transformJson(inputJson, activityJsonFields)
     val activity     = parse(activityJson).extract[Activity]
@@ -73,10 +73,15 @@ class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityCon
         responses   ← process(connections)
       } yield responses
     }
+
     val responses = Future.sequence(result).map(_.flatten)
 
     //TODO check errors
-    responses.map(r ⇒ ())
+    responses.map { r ⇒
+      if (r.length == 0)
+        System.out.println(s"MISSING CONNECTOR: ${activity.activityType}")
+      ()
+    }
   }
 
   private def process(cs: Seq[Connection]): Future[Seq[HttpResponse]] = {

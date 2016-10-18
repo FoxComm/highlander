@@ -5,8 +5,8 @@ import java.time.Instant.now
 import cats.implicits._
 import models.cord.Order._
 import models.cord._
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.time._
 
 class OrdersIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {

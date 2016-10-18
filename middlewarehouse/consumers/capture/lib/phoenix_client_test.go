@@ -141,7 +141,7 @@ func (fp *fakePhoenix) handleLogin(w http.ResponseWriter, r *http.Request) {
 	fp.suite.Nil(err)
 	fp.suite.Equal(payload.Email, fp.username)
 	fp.suite.Equal(payload.Password, fp.password)
-	fp.suite.Equal(payload.Kind, "admin")
+	fp.suite.Equal(payload.Org, "tenant")
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("JWT", "FAKEJWT")

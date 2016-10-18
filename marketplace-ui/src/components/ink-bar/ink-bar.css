@@ -1,0 +1,18 @@
+@import "media-queries.css";
+
+.inkBar {
+  display: block;
+  position: absolute;
+  height: 3px;
+  width: calc(100% / 3);
+  left: 0;
+  bottom: 0;
+  background: #6bb2ef;
+
+  transition: all .6s cubic-bezier(0.3, 1.4, 0.8, 1);
+
+  @media (--small-viewport) {
+    width: 100% !important;
+    transform: translateX(0) !important;
+  }
+}

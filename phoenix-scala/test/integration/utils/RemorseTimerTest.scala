@@ -9,8 +9,8 @@ import akka.testkit.{TestActorRef, TestKit}
 import models.cord._
 import org.scalatest.BeforeAndAfterAll
 import services.actors._
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 
 class RemorseTimerTest(_system: ActorSystem)
     extends TestKit(_system)
@@ -21,7 +21,7 @@ class RemorseTimerTest(_system: ActorSystem)
 
   def this() = this(ActorSystem("RemorseTimerTest"))
 
-  override def afterAll() = TestKit.shutdownActorSystem(system)
+  override def afterAll(): Unit = TestKit.shutdownActorSystem(system)
 
   val timer = TestActorRef(new RemorseTimer())
 

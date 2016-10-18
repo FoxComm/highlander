@@ -1,0 +1,35 @@
+# Data structures
+
+### CreateTaxonomyPayload
++ attributes (required, object) - Custom attributes.
++ hierarchical (required, boolean) - Defines whether taxonomy is hierarchical or flat.
+
+### UpdateTaxonomyPayload
++ attributes (required, object) - Custom attributes.
+
+### CreateTaxonPayload
++ attributes (required, object) - Custom attributes.
++ location (optional, TaxonLocation) - Defines location of taxon in taxonomy hierarchy (for hierarchical taxonomies only).
+
+### UpdateTaxonPayload
++ attributes (optional, object) - Custom attributes.
++ location (optional, TaxonLocation) - Defines location of taxon in taxonomy hierarchy (for hierarchical taxonomies only).
+
+### TaxonLocation
++ parent (optional, number) - Defines parent taxon (for hierarchical taxons only). If this value is specified the new
+ taxon will be inserted or moved under taxon with id = parent.
++ position (required, number) - Defines position of taxon on the same level of hierarchy (for hierarchical taxonomies
+ only).
+
+### TaxonResponse
++ id (required, number) - Taxon id
++ attributes (required, object) - Custom attributes
++ children (optional, array[TaxonResponse]) - Children taxons of the taxonomy (for hierarchical taxons only)
+
+
+### TaxonomyResponse
++ id (required, number) - Taxonomy id
++ hierarchical (required, boolean) - Type of taxonomy (hierarchical or flat)
++ attributes (required, object) - Custom attributes
++ taxons (required, array[TaxonResponse]) - Taxons of the taxonomy
+

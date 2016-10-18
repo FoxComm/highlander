@@ -3,39 +3,40 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.StoreAdmin
+import models.account.User
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
 import payloads.GiftCardPayloads._
 import services.CustomerCreditConverter
 import services.giftcards._
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object GiftCardRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
-    activityContext(admin) { implicit ac ⇒
+    activityContext(auth.model) { implicit ac ⇒
       pathPrefix("gift-cards") {
         (patch & pathEnd & entity(as[GiftCardBulkUpdateStateByCsr])) { payload ⇒
           mutateOrFailures {
-            GiftCardService.bulkUpdateStateByCsr(payload, admin)
+            GiftCardService.bulkUpdateStateByCsr(payload, auth.model)
           }
         } ~
         (post & pathEnd & entity(as[GiftCardBulkCreateByCsr])) { payload ⇒
           mutateOrFailures {
-            GiftCardService.createBulkByAdmin(admin, payload)
+            GiftCardService.createBulkByAdmin(auth.model, payload)
           }
         } ~
         (post & pathEnd & entity(as[GiftCardCreateByCsr])) { payload ⇒
           mutateOrFailures {
-            GiftCardService.createByAdmin(admin, payload)
+            GiftCardService.createByAdmin(auth.model, payload)
           }
         } ~
         (post & pathEnd & entity(as[GiftCardCreatedByCustomer])) { payload ⇒
           mutateOrFailures {
-            GiftCardService.createByUser(admin, payload)
+            GiftCardService.createByUser(auth.model, payload)
           }
         }
       } ~
@@ -47,7 +48,7 @@ object GiftCardRoutes {
         } ~
         (patch & pathEnd & entity(as[GiftCardUpdateStateByCsr])) { payload ⇒
           mutateOrFailures {
-            GiftCardService.updateStateByCsr(code, payload, admin)
+            GiftCardService.updateStateByCsr(code, payload, auth.model)
           }
         } ~
         path("transactions") {
@@ -60,7 +61,7 @@ object GiftCardRoutes {
         path("convert" / IntNumber) { customerId ⇒
           (post & pathEnd) {
             mutateOrFailures {
-              CustomerCreditConverter.toStoreCredit(code, customerId, admin)
+              CustomerCreditConverter.toStoreCredit(code, customerId, auth.model)
             }
           }
         }

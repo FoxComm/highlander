@@ -4,7 +4,8 @@ import java.time.Instant
 
 import failures.NotFoundFailure404
 import models.Notes.scope._
-import models.{Note, Notes, StoreAdmin}
+import models.{Note, Notes}
+import models.account._
 import payloads.NotePayloads._
 import responses.AdminNotes
 import responses.AdminNotes.Root
@@ -12,39 +13,44 @@ import services._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
+import utils.FoxConfig._
 
-trait NoteManager[K, T <: FoxModel[T]] {
+trait NoteManager[K, T <: Identity[T]] {
+
+  // TODO: FIXME
+  // Notes are context indepedent, but for Activities for now we can store only one entity
+  // We have decided to store entity with default context for now
+  val defaultContextId: Int = config.getInt(s"app.defaultContextId")
+
   // Define this methods in inherit object
   def noteType(): Note.ReferenceType
   def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResultT[T]
+  def getEntityId(e: T): Int = e.id
 
   // Use this methods wherever you want
   def list(key: K)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Root]] =
     for {
       entity   ← * <~ fetchEntity(key)
-      response ← * <~ forModel(entityQuerySeq(entity.id))
+      response ← * <~ forModel(entityQuerySeq(getEntityId(entity)))
     } yield response
 
-  def create(key: K, author: StoreAdmin, payload: CreateNote)(implicit ec: EC,
-                                                              db: DB,
-                                                              ac: AC): DbResultT[Root] =
+  def create(key: K, author: User, payload: CreateNote)(implicit ec: EC,
+                                                        db: DB,
+                                                        ac: AC): DbResultT[Root] =
     for {
       entity ← * <~ fetchEntity(key)
-      note   ← * <~ createInner(entity, entity.id, noteType(), author, payload)
+      note   ← * <~ createInner(entity, noteType(), author, payload)
     } yield AdminNotes.build(note, author)
 
-  def update(key: K, noteId: Int, author: StoreAdmin, payload: UpdateNote)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[Root] =
+  def update(key: K, noteId: Int, author: User, payload: UpdateNote)(implicit ec: EC,
+                                                                     db: DB,
+                                                                     ac: AC): DbResultT[Root] =
     for {
       entity ← * <~ fetchEntity(key)
       note   ← * <~ updateInner(entity, noteId, author, payload)
     } yield note
 
-  def delete(key: K, noteId: Int, author: StoreAdmin)(implicit ec: EC,
-                                                      db: DB,
-                                                      ac: AC): DbResultT[Unit] =
+  def delete(key: K, noteId: Int, author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
     for {
       entity ← * <~ fetchEntity(key)
       _      ← * <~ deleteInner(entity, noteId, author)
@@ -55,38 +61,38 @@ trait NoteManager[K, T <: FoxModel[T]] {
     Notes.filter(_.referenceType === noteType()).filter(_.referenceId === entityId).notDeleted
 
   private def createInner(entity: T,
-                          refId: Int,
                           refType: Note.ReferenceType,
-                          author: StoreAdmin,
+                          author: User,
                           payload: CreateNote)(implicit ec: EC, db: DB, ac: AC): DbResultT[Note] =
     for {
       note ← * <~ Notes.create(
-                Note(storeAdminId = author.id,
-                     referenceId = refId,
+                Note(storeAdminId = author.accountId,
+                     referenceId = getEntityId(entity),
                      referenceType = refType,
                      body = payload.body))
       _ ← * <~ LogActivity.noteCreated(author, entity, note)
     } yield note
 
-  private def updateInner(entity: T, noteId: Int, author: StoreAdmin, payload: UpdateNote)(
+  private def updateInner(entity: T, noteId: Int, author: User, payload: UpdateNote)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] =
     for {
       oldNote ← * <~ Notes
-                 .filterByIdAndAdminId(noteId, author.id)
+                 .filterByIdAndAdminId(noteId, author.accountId)
                  .mustFindOneOr(NotFoundFailure404(Note, noteId))
       newNote ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))
       _       ← * <~ LogActivity.noteUpdated(author, entity, oldNote, newNote)
     } yield AdminNotes.build(newNote, author)
 
-  private def deleteInner(entity: T, noteId: Int, admin: StoreAdmin)(implicit ec: EC,
-                                                                     db: DB,
-                                                                     ac: AC): DbResultT[Unit] =
+  private def deleteInner(entity: T, noteId: Int, admin: User)(implicit ec: EC,
+                                                               db: DB,
+                                                               ac: AC): DbResultT[Unit] =
     for {
       note ← * <~ Notes.mustFindById404(noteId)
-      _ ← * <~ Notes.update(note,
-                            note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.id)))
+      _ ← * <~ Notes.update(
+             note,
+             note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.accountId)))
       _ ← * <~ LogActivity.noteDeleted(admin, entity, note)
     } yield ()
 

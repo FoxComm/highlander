@@ -275,6 +275,17 @@ activities = [...activities,
 
 createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
+const createNote = (body, id, refId, refType) => {
+  return {
+    body: body,
+    createdAt: createdAt,
+    id: id,
+    referenceId: refId,
+    referenceType: refType,
+    storeAdminId: 1
+  };
+};
+
 activities = [...activities,
 
   // order notes
@@ -286,7 +297,7 @@ activities = [...activities,
       entity: {
         referenceNumber: 'BR10001'
       },
-      text: 'New note for order.'
+      note: createNote('New note for order.', id, 'BR10001', 'order')
     }
   },
   {
@@ -297,7 +308,7 @@ activities = [...activities,
       entity: {
         referenceNumber: 'BR10001'
       },
-      text: 'Lorem ipsum dot color.'
+      note: createNote('Lorem ipsum dot color.', id, 'BR10001', 'order')
     }
   },
   {
@@ -308,8 +319,8 @@ activities = [...activities,
       entity: {
         referenceNumber: 'BR10001'
       },
-      oldText: 'Lorem ipsum dot color.',
-      newText: 'New one'
+      note: createNote('New one', id, 'BR10001', 'order'),
+      oldNote: createNote('Lorem ipsum dot color.', id, 'BR10001', 'order')
     }
   },
 ];
@@ -350,7 +361,7 @@ activities = [...activities,
     id: id++,
     createdAt,
     data: {
-      order,
+      cart: order,
     }
   }
 ];

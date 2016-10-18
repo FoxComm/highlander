@@ -52,8 +52,8 @@ object CreditCardFailures {
     override def description = s"creditCard with id=${cc.id} is inactive"
   }
 
-  case class CustomerHasNoCreditCard(customerId: Int) extends Failure {
-    override def description = s"No credit card found for customer with id=$customerId"
+  case class CustomerHasNoCreditCard(accountId: Int) extends Failure {
+    override def description = s"No credit card found for customer with id=$accountId"
   }
 
   case object CustomerHasDefaultCreditCard extends Failure {

@@ -2,15 +2,17 @@ package services.giftcards
 
 import cats.implicits._
 import failures.{NotFoundFailure400, OpenTransactionsFailure}
-import models.customer.Customers
+import models.account._
+import models.customer._
 import models.payment.giftcard.GiftCard.Canceled
 import models.payment.giftcard.GiftCardSubtypes.scope._
 import models.payment.giftcard._
-import models.{Reasons, StoreAdmin, StoreAdmins}
+import models.{Reasons}
+
 import payloads.GiftCardPayloads._
 import responses.GiftCardBulkResponse._
 import responses.GiftCardResponse._
-import responses.{CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreAdminResponse}
+import responses.{CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, UserResponse}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -32,28 +34,27 @@ object GiftCardService {
     } yield response
 
   private def buildResponse(giftCard: GiftCard)(implicit ec: EC) =
-    (giftCard.originType, giftCard.customerId) match {
+    (giftCard.originType, giftCard.accountId) match {
       case (GiftCard.CsrAppeasement, _) ⇒
         for {
-          origin ← GiftCardManuals.filter(_.id === giftCard.originId).one
-          admin ← origin
-                   .map(o ⇒ StoreAdmins.findOneById(o.adminId))
-                   .getOrElse(DBIO.successful(None))
-          adminResponse = admin.map(StoreAdminResponse.build)
-        } yield GiftCardResponse.build(giftCard, None, adminResponse)
+          origin ← * <~ GiftCardManuals
+                    .filter(_.id === giftCard.originId)
+                    .mustFindOneOr(NotFoundFailure400(GiftCardManuals, giftCard.originId))
+          admin ← * <~ Users.mustFindByAccountId(origin.adminId)
+        } yield GiftCardResponse.build(giftCard, None, Some(UserResponse.build(admin)))
 
-      case (GiftCard.CustomerPurchase, Some(customerId)) ⇒
-        Customers.findOneById(customerId).map { maybeCustomer ⇒
-          val customerResponse = maybeCustomer.map(c ⇒ CustomerResponse.build(c))
-          GiftCardResponse.build(giftCard, customerResponse, None)
-        }
-
-      case _ ⇒ DBIO.successful(GiftCardResponse.build(giftCard, None, None))
+      case (GiftCard.CustomerPurchase, Some(accountId)) ⇒
+        for {
+          customer ← * <~ Users.mustFindByAccountId(accountId)
+          custData ← * <~ CustomersData.mustFindByAccountId(accountId)
+        } yield
+          GiftCardResponse.build(giftCard, Some(CustomerResponse.build(customer, custData)), None)
+      case _ ⇒ DbResultT.good(GiftCardResponse.build(giftCard, None, None))
     }
 
-  def createByAdmin(admin: StoreAdmin, payload: GiftCardCreateByCsr)(implicit ec: EC,
-                                                                     db: DB,
-                                                                     ac: AC): DbResultT[Root] =
+  def createByAdmin(admin: User, payload: GiftCardCreateByCsr)(implicit ec: EC,
+                                                               db: DB,
+                                                               ac: AC): DbResultT[Root] =
     for {
       _ ← * <~ payload.validate
       _ ← * <~ Reasons.mustFindById400(payload.reasonId)
@@ -65,24 +66,24 @@ object GiftCardService {
                    .map(Some(_)) // A bit silly but need to rewrap it back
                }
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = admin.id, reasonId = payload.reasonId))
+                  GiftCardManual(adminId = admin.accountId, reasonId = payload.reasonId))
       giftCard ← * <~ GiftCards.create(GiftCard.buildAppeasement(payload, origin.id))
-      adminResp = Some(StoreAdminResponse.build(admin))
+      adminResp = Some(UserResponse.build(admin))
       _ ← * <~ LogActivity.gcCreated(admin, giftCard)
     } yield build(gc = giftCard, admin = adminResp)
 
-  def createByUser(
-      admin: StoreAdmin,
-      payload: GiftCardCreatedByCustomer)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+  def createByUser(admin: User, payload: GiftCardCreatedByCustomer)(implicit ec: EC,
+                                                                    db: DB,
+                                                                    ac: AC): DbResultT[Root] =
     for {
       _      ← * <~ payload.validate
-      origin ← * <~ GiftCardOrders.create(GiftCardOrder(0, payload.cordRef))
-      adminResp = Some(StoreAdminResponse.build(admin))
+      origin ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = payload.cordRef))
+      adminResp = UserResponse.build(admin).some
       giftCard ← * <~ GiftCards.create(GiftCard.buildAppeasementByCustomer(payload, origin.id))
       _        ← * <~ LogActivity.gcCreated(admin, giftCard)
     } yield build(gc = giftCard, admin = adminResp)
 
-  def createBulkByAdmin(admin: StoreAdmin, payload: GiftCardBulkCreateByCsr)(
+  def createBulkByAdmin(admin: User, payload: GiftCardBulkCreateByCsr)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Seq[ItemResult]] =
@@ -96,10 +97,9 @@ object GiftCardService {
                 }
     } yield response
 
-  def bulkUpdateStateByCsr(payload: GiftCardBulkUpdateStateByCsr, admin: StoreAdmin)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[Seq[ItemResult]] =
+  def bulkUpdateStateByCsr(
+      payload: GiftCardBulkUpdateStateByCsr,
+      admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[ItemResult]] =
     for {
       _ ← * <~ payload.validate.toXor
       response ← * <~ payload.codes.map { code ⇒
@@ -110,7 +110,7 @@ object GiftCardService {
                 }
     } yield response
 
-  def updateStateByCsr(code: String, payload: GiftCardUpdateStateByCsr, admin: StoreAdmin)(
+  def updateStateByCsr(code: String, payload: GiftCardUpdateStateByCsr, admin: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[Root] =
@@ -125,7 +125,7 @@ object GiftCardService {
   private def cancelOrUpdate(giftCard: GiftCard,
                              newState: GiftCard.State,
                              reasonId: Option[Int],
-                             admin: StoreAdmin)(implicit ec: EC) = newState match {
+                             admin: User)(implicit ec: EC) = newState match {
     case Canceled ⇒
       for {
         _ ← * <~ GiftCardAdjustments

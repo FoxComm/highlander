@@ -1,0 +1,16 @@
+{
+    "project_base": "aws_target",
+    "ssh_username": "ubuntu",
+    "image_prefix": "tgt",
+    "image_title": "TGT",
+    "region": "us-west-2",
+    "instance_type": "m4.large",
+    "source_ami": "ami-9ece19fe",
+    "vpc_id": "vpc-ec476d88",
+    "subnet_id": "subnet-9794cdf3",
+    "security_group_id": "sg-60051106",
+    "base_ami": "ami-500ed230",
+    "base_mesos_ami": "ami-3011cd50",
+    "base_jvm_ami": "ami-a60fd3c6",
+    "base_node_ami": "ami-fa08d49a"
+}

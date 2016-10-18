@@ -1,11 +1,17 @@
 package services
 
 import cats.implicits._
-import failures.CaptureFailures
+import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
+import failures.GeneralFailure
+import failures.CaptureFailures
+import failures.PromotionFailures.PromotionNotFoundForContext
 import models.cord._
 import models.cord.lineitems._
-import models.customer.{Customer, Customers}
+import models.coupon._
+import models.account.{User, Users}
+import models.inventory.{Sku, Skus}
+import models.objects._
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
@@ -45,7 +51,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       order ← * <~ Orders.mustFindByRefNum(payload.order)
       _     ← * <~ validateOrder(order)
 
-      customer ← * <~ Customers.mustFindById404(order.customerId)
+      customer ← * <~ Users.mustFindByAccountId(order.accountId)
       items    ← * <~ OrderLineItems.findLineItemsByCordRef(payload.order).result
 
       lineItemData ← * <~ items.map { lineItem ⇒
@@ -119,7 +125,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
 
   private def internalCapture(total: Int,
                               order: Order,
-                              customer: Customer,
+                              customer: User,
                               gcPayments: Seq[(OrderPayment, GiftCard)],
                               scPayments: Seq[(OrderPayment, StoreCredit)]): DbResultT[Unit] =
     for {

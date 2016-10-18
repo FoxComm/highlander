@@ -6,7 +6,7 @@ import React, { Component, Element, PropTypes } from 'react';
 import { findDOMNode } from 'react-dom';
 import * as validators from 'lib/validators';
 import classNames from 'classnames';
-import { isDefined } from 'lib/lang';
+import { isDefined } from 'lib/utils';
 
 type FormFieldProps = {
   validator?: string|(value: any) => string;
@@ -281,7 +281,8 @@ export default class FormField extends Component {
     const className = classNames(
       'fc-form-field',
       this.props.className,
-      {'_form-field-error': this.hasError}
+      {'_form-field-error': this.hasError},
+      {'_form-field-required': this.props.required}
     );
     const children = React.cloneElement(this.props.children, {
       key: `fc-form-field-children-${this.props.label}`,

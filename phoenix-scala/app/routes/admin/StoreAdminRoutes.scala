@@ -3,23 +3,22 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.StoreAdmin
-import models.auth.AdminToken
-import models.traits.Originator
+import models.account.User
 import payloads.StoreAdminPayloads._
 import services.StoreAdminManager
+import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object StoreAdminRoutes {
 
-  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
-    activityContext(admin) { implicit ac ⇒
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
+    activityContext(auth.model) { implicit ac ⇒
       pathPrefix("store-admins") {
         (post & pathEnd & entity(as[CreateStoreAdminPayload])) { payload ⇒
           mutateOrFailures {
-            StoreAdminManager.create(payload, Originator(admin))
+            StoreAdminManager.create(payload, Some(auth.model))
           }
         } ~
         pathPrefix(IntNumber) { saId ⇒
@@ -30,25 +29,20 @@ object StoreAdminRoutes {
           } ~
           (patch & pathEnd & entity(as[UpdateStoreAdminPayload])) { payload ⇒
             mutateOrFailures {
-              StoreAdminManager.update(saId, payload, Originator(admin))
+              StoreAdminManager.update(saId, payload, auth.model)
             }
           } ~
           (delete & pathEnd) {
             deleteOrFailures {
-              StoreAdminManager.delete(saId, Originator(admin))
+              StoreAdminManager.delete(saId, auth.model)
             }
           } ~
           pathPrefix("state") {
             (patch & pathEnd & entity(as[StateChangeStoreAdminPayload])) { payload ⇒
               mutateOrFailures {
-                StoreAdminManager.changeState(saId, payload, Originator(admin))
+                StoreAdminManager.changeState(saId, payload, auth.model)
               }
             }
-          }
-        } ~
-        pathPrefix("me") {
-          (get & pathEnd) {
-            complete(AdminToken.fromAdmin(admin))
           }
         }
       }

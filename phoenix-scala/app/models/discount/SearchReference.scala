@@ -24,7 +24,7 @@ case class CustomerSearch(customerSearchId: Int) extends SearchReference[Int, Lo
   val typeName: String  = customersSearchView
   val fieldName: String = customersSearchField
 
-  def references(input: DiscountInput): Seq[Int] = Seq(input.cart.customerId)
+  def references(input: DiscountInput): Seq[Int] = Seq(input.cart.accountId)
 
   def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Long] = {
     SharedSearches.findOneById(customerSearchId).run().flatMap {

@@ -1,8 +1,8 @@
 package models
 
 import models.payment.creditcard.CreditCards
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -21,6 +21,6 @@ class CreditCardIntegrationTest
   }
 
   trait Fixture extends CustomerAddress_Baked {
-    val cc = CreditCards.create(Factories.creditCard.copy(customerId = customer.id)).gimme
+    val cc = CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId)).gimme
   }
 }

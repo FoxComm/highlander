@@ -4,9 +4,10 @@ import models.cord.lineitems._
 import models.objects._
 import models.product.{Mvp, SimpleContext, SimpleProductData}
 import payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.MockedApis
+import utils.aliases._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -17,7 +18,8 @@ class LineItemUpdaterTest
     with MockedApis
     with BakedFixtures {
 
-  def createProducts(num: Int): DbResultT[(ObjectContext, Seq[SimpleProductData])] =
+  def createProducts(num: Int)(
+      implicit au: AU): DbResultT[(ObjectContext, Seq[SimpleProductData])] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       products ← * <~ Mvp.insertProducts((1 to num).map { i ⇒
@@ -28,6 +30,7 @@ class LineItemUpdaterTest
   "LineItemUpdater" - {
 
     "Adds line items when the sku doesn't exist in cart" in new Fixture {
+      implicit val au         = storeAdminAuthData
       val (context, products) = createProducts(2).gimme
 
       val payload = Seq[Payload](
@@ -44,14 +47,16 @@ class LineItemUpdaterTest
         case Some(s) ⇒
           s.quantity must be(3)
         case None ⇒
-          assert(false, "Should have found sku 1")
+          fail("Should have found sku 1")
       }
 
-      val allRecords = CartLineItems.gimme
-      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (allRecords.size)
+      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (CartLineItems.size.gimme)
     }
 
     "Updates line items when the Sku already is in cart" in new Fixture {
+
+      implicit val au = storeAdminAuthData
+
       val (context, products) = createProducts(3).gimme
       val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId ⇒
         CartLineItem(cordRef = cart.refNum, skuId = skuId)
@@ -75,7 +80,7 @@ class LineItemUpdaterTest
         case Some(s) ⇒
           s.quantity must be(3)
         case None ⇒
-          assert(false, "Should have found sku 1")
+          fail("Should have found sku 1")
       }
 
       root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (CartLineItems.gimme.size)

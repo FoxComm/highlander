@@ -1,0 +1,15 @@
+.form {
+  min-width: 0;
+}
+
+.error {
+  display: block;
+  font-size: 14px;
+  text-align: center;
+  color: transparent;
+  transition: color .4s;
+}
+
+.errorActive {
+  color: #db2727;
+}

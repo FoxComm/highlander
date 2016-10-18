@@ -7,17 +7,18 @@ import consumer.utils.JsonTransformers.extractStringSeq
 
 import org.json4s.JsonAST.{JString, JNothing}
 
-final case class OrderConnector()(implicit ec: EC) extends ActivityConnector {
+object OrderConnector extends ActivityConnector {
   val dimension = "order"
 
-  def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
-    val orderIds =
-      byOrderData(activity) ++: byCartData(activity) ++: byOrderReferenceNumber(activity) ++:
-      byAssignmentBulkData(activity) ++: byAssignmentSingleData(activity) ++:
-      byBulkData(activity) ++: byNoteData(activity)
+  def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]] =
+    Future {
+      val orderIds =
+        byOrderData(activity) ++: byCartData(activity) ++: byOrderReferenceNumber(activity) ++:
+        byAssignmentBulkData(activity) ++: byAssignmentSingleData(activity) ++:
+        byBulkData(activity) ++: byNoteData(activity)
 
-    orderIds.distinct.map(createConnection(_, activity.id))
-  }
+      orderIds.distinct.map(createConnection(_, activity.id))
+    }
 
   def createConnection(refNum: String, activityId: Int): Connection = {
     Connection(dimension = dimension,

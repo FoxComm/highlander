@@ -10,11 +10,12 @@ import { isSatisfied } from 'paragons/object';
 
 // helpers
 import { generateSkuCode, isSkuValid } from './sku';
+import { getJWT } from 'lib/claims';
 
 // types
 import type { Sku } from 'modules/skus/details';
-import type { Dictionary } from './types';
 import type { Attribute, Attributes } from './object';
+import type { JWT } from 'lib/claims';
 
 type Context = {
   name: string,
@@ -30,24 +31,40 @@ export type Product = {
   productId: ?number,
   attributes: Attributes,
   skus: Array<Sku>,
+  variants: Array<Option>,
   context: Context,
 };
 
-export type Variant = {
-  name: ?string,
-  type: ?string,
-  values: Dictionary<VariantValue>,
+export type Option = {
+  attributes?: {
+    name: {
+      t: ?string,
+      v: ?string,
+    },
+    type?: {
+      t: string,
+      v: string,
+    },
+  },
+  values: Array<OptionValue>,
 };
 
-export type VariantValue = {
-  id: number,
+export type OptionValue = {
+  name: string,
   swatch: ?string,
   image: ?string,
+  skuCodes: Array<string>,
 };
 
 export const options = {
   title: { required: true },
 };
+
+// we should identity sku be feCode first
+// because we want to persist sku even if code has been changes
+export function skuId(sku: Sku): string {
+  return sku.feCode || _.get(sku.attributes, 'code.v');
+}
 
 export function isProductValid(product: Product): boolean {
   // Validate all required product fields.
@@ -67,8 +84,18 @@ export function isProductValid(product: Product): boolean {
   return true;
 }
 
+// THIS IS A HAAAAACK.
+function isMerchant(): boolean {
+  const jwt = getJWT();
+  if (jwt.email == 'admin@admin.com') {
+    return false;
+  }
+
+  return true;
+}
+
 export function createEmptyProduct(): Product {
-  const product = {
+  let product = {
     id: null,
     productId: null,
     attributes: {
@@ -76,19 +103,40 @@ export function createEmptyProduct(): Product {
     },
     skus: [],
     context: {name: 'default'},
+    variants: [],
   };
+
+  if (isMerchant()) {
+    const merchantAttributes = {
+      attributes: {
+        description: {t: 'richText', v: ''},
+        shortDescription: { t: 'string', v: '' },
+        externalUrl: {t: 'string', v: ''},
+        externalId: {t: 'string', v: ''},
+        type: { t: 'string', v: '' },
+        vendor: { t: 'string', v: '' },
+        manufacturer: { t: 'string', v: '' },
+        audience: { t: 'string', v: '' },
+        permalink: { t: 'string', v: '' },
+        handle: { t: 'string', v: '' },
+        manageInventory: { t: 'bool', v: true },
+        backordersAllowed: { t: 'bool', v: false },
+        featured: { t: 'bool', v: false },
+      },
+    };
+
+    product = {...product, ...merchantAttributes };
+  }
 
   return configureProduct(addEmptySku(product));
 }
 
-export function addEmptySku(product: Product): Product {
+export function createEmptySku(): Object {
   const pseudoRandomCode = generateSkuCode();
-
   const emptyPrice = {
     t: 'price',
     v: { currency: 'USD', value: 0 },
   };
-
   const emptySku = {
     feCode: pseudoRandomCode,
     attributes: {
@@ -104,6 +152,27 @@ export function addEmptySku(product: Product): Product {
       salePrice: emptyPrice,
     },
   };
+  return emptySku;
+}
+
+export function addEmptySku(product: Product): Product {
+  let emptySku = createEmptySku();
+
+  if (isMerchant()) {
+    const merchantAttributes = {
+      attributes: {
+        externalId: {t: 'string', v: ''},
+        mpn: { t: 'string', v: '' },
+        gtin: { t: 'string', v: '' },
+        weight: { t: 'string', v: '' },
+        height: { t: 'string', v: '' },
+        width: { t: 'string', v: '' },
+        depth: { t: 'string', v: '' },
+      },
+    };
+
+    emptySku = { ...emptySku, ...merchantAttributes };
+  }
 
   const newSkus = [emptySku, ...product.skus];
   return assoc(product, 'skus', newSkus);
@@ -139,7 +208,16 @@ export function configureProduct(product: Product): Product {
       [key]: attr,
       ...res.attributes,
     });
-  }, product);
+  }, ensureProductHasSkus(product));
+}
+
+function ensureProductHasSkus(product: Product): Product {
+  if (_.isEmpty(product.skus)) {
+    return assoc(product,
+      'skus', [createEmptySku()]
+    );
+  }
+  return product;
 }
 
 export function setSkuAttribute(product: Product,
@@ -155,9 +233,9 @@ export function setSkuAttribute(product: Product,
   const val = type == 'price' ? parseInt(value) : value;
 
   const updateAttribute = sku => {
-    const code = _.get(sku, 'attributes.code.v');
+    const skuCode = _.get(sku, 'attributes.code.v');
 
-    return (code == code || sku.feCode == code)
+    return (skuCode == code || sku.feCode == code)
       ? assoc(sku, attrPath, val)
       : sku;
   };

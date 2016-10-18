@@ -1,0 +1,195 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{listings}
+%for dotex
+\usepackage[pdftex]{graphicx}
+\usepackage[pdf]{graphviz}
+\usepackage[boxed]{algorithm2e} %end for dote
+\usepackage{color}
+
+\title{The Judgement of Solomon}
+\begin{document}
+\maketitle
+\section{The Problem}
+
+There are many services that will manage resources. The challenge is how do we
+assign resources to the appropriate users and manage access control
+without requiring each service detailed knowledge and logic of the permission
+system?
+
+\section{The Solution}
+
+Each service that manages data needs to group data by some mechanism. For our
+purposes we will call it a scope. Each request to a service will have a claim
+to a scope inside a JWT token. This token will be signed by a service called 
+Solomon.
+
+\section{Solomon is Wise}
+
+Solmon's job is to add claims to scopes inside the JWT tokens.
+Users who log in will get a JWT token with all the claims they have inside
+the JWT token.
+
+Solomon will maintain a mapping table of users to roles and roles to claims. 
+
+Solomon will walk the mapping tables and add the claims to the users JWT, then
+sign the JWT and return it.
+
+The user can then pass this JWT token to a downstream service to retrieve the
+resources they have claims to.
+
+In addition to creating JWT tokens, Solomon will also provide endpoints to manage
+accounts, users, roles, scopes, and organizations.
+
+\section{Many Shepards, Many Sheep}
+
+Since FoxCommerce will support many types of eCommerce systems which may have
+varying permissions systems and business logic around access, we want to avoid
+building all that logic within Solomon.
+
+We do this by taking the responsibility for maintaining what the different roles,
+users, and organizations are created in another service called a Shepard.
+
+For example, a simple one storefront customer will have separate security requirements
+than a marketplace. 
+
+We can build out different Shepard services depending on the needs of our customers.
+
+All Solomon can do is understand the mapping table and follow it. It doesn't care
+or understand what the roles and claims actually represent. 
+It doesn't understand that an organization may be a merchant or vendor, for
+example.
+
+\section{Design}
+ 
+\begin{enumerate}
+    \item Each system groups resources under scopes.
+    \item JWT tokens are used to make claims.
+    \item Solomon understands the user to scope, and scope to scope mapping tables.
+    \item Shepard services maintain the scope mapping tables.
+    \item Isaac validates JWT tokens are authentic.
+\end{enumerate}
+
+\digraph[scale=0.80]{SolomonDesign}{
+    splines="ortho";
+    rankdir=LR;
+    node [shape=box,style=filled,fillcolor="lightblue"];
+
+    subgraph zero{
+        client [shape=egg, label="Client"]
+    };
+    subgraph first{
+        solomon [shape=record,label="{Isaac|Solomon}"];
+        shepard [shape=record,label="{Isaac|Shepard}"];
+        DB [shape=box3d, label="Claim DB"];
+    };
+    subgraph second {
+        oms [shape=record,label="{Isaac|OMS}"];
+        pim [shape=record,label="{Isaac|PIM}"];
+    };
+
+    client -> solomon [dir="both", label="Login returns JWT"];
+    solomon -> DB;
+    shepard -> solomon;
+    client -> oms[label="JWT"];
+    client -> pim[label="JWT"];
+    client -> shepard[label="JWT"];
+}
+
+\section{Scopes}
+
+Scopes are a hierarchical id that is used to group resources. Scopes can have
+child scopes.
+
+For example, lets say we have a scope...
+
+\begin{quote}
+"1"
+\end{quote}
+
+Which represents a tenant. That tenant can add merchants scopes and adds the 
+first merchant 
+
+\begin{quote}
+"1.1"
+\end{quote}
+
+And then second merchant gets
+
+\begin{quote}
+"1.2"
+\end{quote}
+
+The tenant has de facto access to "1.1" and "1.2" because their scope "1" is a 
+prefix match to those other scopes.
+
+Services can do a prefix match on the claimed scope to see if the client
+has access to the requested scope.
+
+\section{Claims}
+
+Solomon will add claims to JWT tokens. The claims will be represented as URIs
+to the resources under some scope. 
+
+The format of the URI is.
+
+\begin{quote}
+    "frn:\textless system\textgreater :\textless resource\textgreater :\textless scope\textgreater "
+\end{quote}
+
+Where the order grows in specificity. "frn" stands for "Fox Resource Name"
+and is modelled after a URN which is a type of URI.
+
+For example, a claim to orders may look like this.
+
+\begin{quote}
+    "frn:oms:order:1.2"
+\end{quote}
+
+Where the first part of the URI is the resource "frn:oms:order" and the second
+part is the scope "1.2".
+
+A claim in the JWT above is divided into the resource and the action allowed.
+Which actions are allowed for a resource depends on the service managing that resource.
+
+An admin user for organization "z" which maps to scope "1.2" might have claims to all 
+use orders. 
+
+\begin{lstlisting}
+    {
+        "frn:oms:order:1.2": ["c", "r", "u", "d"]
+    }   
+\end{lstlisting}
+
+Where the actions represent create, read, update, and delete.
+
+\section{Use Cases}
+\subsection{Assigning Users to Roles}
+
+Solomon's job is to validate claims, however the service is not responsible 
+maintaining and augmenting the role mappings. That job is delegated to another
+service we shall call the Shepard service.
+
+\subsection{User requests access to a resource from a service}
+
+The user will give the service the JWT token. In front of the service Isaac
+will validate the JWT token. The service can then decode the JWT token and 
+check that the user has a claim to the requested resource. 
+
+\subsection{User requests a new resource from a service}
+
+Similar to the access request use case, the JWT token is validated by Isaac.
+The service can then create the new resource giving it the scope the user requested
+as long as they have a claim to data under that scope.
+
+\subsection{Careful Considerations}
+
+\begin{itemize}
+    \item How do we put Isaac in front of services, nginx?
+    \item Does it make sense the way Isaac validates users and Solomon roles?
+\end{itemize}
+
+
+\end{document}

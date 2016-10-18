@@ -13,11 +13,6 @@ trait GiftCardSeeds {
 
   def giftCard: GiftCard = build(payload(balance = 5000, reasonId = 1), originId = 1)
 
-  def insertCords: DbResultT[Unit] =
-    for {
-      _ ← * <~ Cords.create(Cord(1, "referenceNumber", true))
-    } yield {}
-
   def createGiftCards: DbResultT[Unit] =
     for {
       _      ← * <~ GiftCardSubtypes.createAll(giftCardSubTypes)

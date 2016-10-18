@@ -3,8 +3,8 @@ package utils.seeds.generators
 import scala.util.Random
 
 import faker._
-import models.customer.Customer
 import models.location.Address;
+import models.account._;
 
 trait AddressGenerator {
 
@@ -14,7 +14,7 @@ trait AddressGenerator {
   //TODO: Generate random geo coordinates from distance of random city in a set of cities.
   //      Use reverse geo coder to get address of coordinate.
   //      This can probably be done once offline and stored in a file and pulled here.
-  def generateAddress(customer: Customer, isDefault: Boolean): Address = {
+  def generateAddress(customer: User, isDefault: Boolean): Address = {
     val base = new Base {}
 
     val houseNumberTemplate = base.fetch[String]("address.street_address")
@@ -33,7 +33,7 @@ trait AddressGenerator {
     val hasPhone    = Random.nextBoolean()
     val phoneNumber = if (hasPhone) Some(Name.numerify("##########")) else None
 
-    Address(customerId = customer.id,
+    Address(accountId = customer.accountId,
             regionId = 4177,
             name = customer.name.getOrElse(Name.name),
             address1 = streetName,

@@ -2,10 +2,10 @@ package services.carts
 
 import failures.CartFailures.NoShipAddress
 import failures.NotFoundFailure404
+import models.account._
 import models.cord._
 import models.location.Addresses.scope._
 import models.location._
-import models.traits.Originator
 import payloads.AddressPayloads._
 import responses.AddressResponse.buildOneShipping
 import responses.TheResponse
@@ -23,7 +23,7 @@ object CartShippingAddressUpdater {
   def mustFindShipAddressForCart(cart: Cart)(implicit ec: EC): DbResultT[OrderShippingAddress] =
     OrderShippingAddresses.findByOrderRef(cart.refNum).mustFindOneOr(NoShipAddress(cart.refNum))
 
-  def createShippingAddressFromAddressId(originator: Originator,
+  def createShippingAddressFromAddressId(originator: User,
                                          addressId: Int,
                                          refNum: Option[String] = None)(
       implicit ec: EC,
@@ -35,7 +35,7 @@ object CartShippingAddressUpdater {
       addAndReg ← * <~ mustFindAddressWithRegion(addressId)
       _         ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).delete
       (address, _) = addAndReg
-      _           ← * <~ address.mustBelongToCustomer(cart.customerId)
+      _           ← * <~ address.mustBelongToAccount(cart.accountId)
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, cart.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       validated   ← * <~ CartValidator(cart).validate()
@@ -44,7 +44,7 @@ object CartShippingAddressUpdater {
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(response, validated)
 
-  def createShippingAddressFromPayload(originator: Originator,
+  def createShippingAddressFromPayload(originator: User,
                                        payload: CreateAddressPayload,
                                        refNum: Option[String] = None)(
       implicit ec: EC,
@@ -53,7 +53,7 @@ object CartShippingAddressUpdater {
       ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart        ← * <~ getCartByOriginator(originator, refNum)
-      newAddress  ← * <~ Addresses.create(Address.fromPayload(payload, cart.customerId))
+      newAddress  ← * <~ Addresses.create(Address.fromPayload(payload, cart.accountId))
       _           ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).delete
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, cart.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
@@ -63,7 +63,7 @@ object CartShippingAddressUpdater {
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(response, validated)
 
-  def updateShippingAddressFromPayload(originator: Originator,
+  def updateShippingAddressFromPayload(originator: User,
                                        payload: UpdateAddressPayload,
                                        refNum: Option[String] = None)(
       implicit ec: EC,
@@ -83,7 +83,7 @@ object CartShippingAddressUpdater {
                                                        buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(response, validated)
 
-  def removeShippingAddress(originator: Originator, refNum: Option[String] = None)(
+  def removeShippingAddress(originator: User, refNum: Option[String] = None)(
       implicit ec: EC,
       db: DB,
       ac: AC,

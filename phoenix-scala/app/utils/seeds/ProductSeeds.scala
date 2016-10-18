@@ -1,6 +1,7 @@
 package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import com.github.tminglei.slickpg.LTree
 
 import models.objects.ObjectContexts
 import models.product.{Mvp, SimpleContext, SimpleProductData}
@@ -18,7 +19,7 @@ trait ProductSeeds extends {
                        SimpleProductData,
                        SimpleProductData)
 
-  def createProducts(implicit db: DB): DbResultT[SeedProducts] =
+  def createProducts(implicit db: DB, au: AU): DbResultT[SeedProducts] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       ps      ← * <~ Mvp.insertProducts(products, context.id)
@@ -97,7 +98,7 @@ trait ProductSeeds extends {
             active = true,
             tags = Seq("sunglasses")))
 
-  def createRuProducts(products: SeedProducts)(implicit db: DB): DbResultT[SeedProducts] = {
+  def createRuProducts(products: SeedProducts)(implicit db: DB, au: AU): DbResultT[SeedProducts] = {
     val p1 = products._1.copy(title = "осел",
                               description = "Стилизированный, пригодный для жизни осла.",
                               price = 3300,

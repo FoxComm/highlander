@@ -3,8 +3,8 @@ package services
 import models.returns._
 import payloads.ReturnPayloads.ReturnCreatePayload
 import services.returns.ReturnService
-import util._
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.fixtures.BakedFixtures
 import utils.db._
 
 class ReturnServiceTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {

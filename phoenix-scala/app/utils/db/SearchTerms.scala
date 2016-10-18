@@ -68,3 +68,19 @@ trait SearchByCode[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T] 
     }
   }
 }
+
+trait SearchByIdAndName[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T] {
+
+  override def primarySearchTerm = "name"
+
+  def findOneByIdAndName(id: Int, name: String): DBIO[Option[M]]
+
+  def mustFindByName(id: Int, name: String, notFoundFailure: String ⇒ Failure = notFound404K)(
+      implicit ec: EC,
+      db: DB): DbResultT[M] = {
+    findOneByIdAndName(id, name).dbresult.flatMap {
+      case Some(model) ⇒ DbResultT.good(model)
+      case None        ⇒ DbResultT.failure(notFoundFailure(name))
+    }
+  }
+}

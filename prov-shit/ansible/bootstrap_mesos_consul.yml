@@ -1,0 +1,21 @@
+---
+
+- name: Bootstrap Mesos Consul
+  hosts: '{{hostname}}'
+  vars:
+    user: '{{ansible_ssh_user}}'
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname where to install Mesos Consul"
+      default: "stage-amigo-server"
+      private: no
+    - name: "zookeepers"
+      prompt: "Enter Zookeeper hosts divided by comma"
+      default: "127.0.0.1:2181"
+      private: no
+
+  roles:
+      - { role: dev/mesos_consul }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

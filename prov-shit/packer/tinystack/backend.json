@@ -22,7 +22,10 @@
         {
             "type": "ansible",
             "playbook_file" : "ansible/packer_stage_backend.yml",
-            "extra_arguments": ["--extra-vars", "@packer/envs/{{user `variables_file`}}"]
+            "extra_arguments": [
+                "-vvvv",
+                "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"
+            ]
         }
     ]
 }

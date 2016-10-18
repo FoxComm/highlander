@@ -1,16 +1,16 @@
 package services.activity
 
 import models.sharedsearch.SharedSearch
-import responses.StoreAdminResponse
+import responses.UserResponse
 
 object SharedSearchTailored {
-  case class AssociatedWithSearch(admin: StoreAdminResponse.Root,
+  case class AssociatedWithSearch(admin: UserResponse.Root,
                                   search: SharedSearch,
-                                  associates: Seq[StoreAdminResponse.Root])
+                                  associates: Seq[UserResponse.Root])
       extends ActivityBase[AssociatedWithSearch]
 
-  case class UnassociatedFromSearch(admin: StoreAdminResponse.Root,
+  case class UnassociatedFromSearch(admin: UserResponse.Root,
                                     search: SharedSearch,
-                                    associate: StoreAdminResponse.Root)
+                                    associate: UserResponse.Root)
       extends ActivityBase[UnassociatedFromSearch]
 }

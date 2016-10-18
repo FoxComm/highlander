@@ -5,7 +5,7 @@ import java.time.{Instant, ZoneId}
 import scala.util.Random
 
 import faker._
-import models.customer.Customer
+import models.account.User
 import models.payment.creditcard.CreditCard;
 
 trait CreditCardGenerator extends AddressGenerator {
@@ -38,12 +38,12 @@ trait CreditCardGenerator extends AddressGenerator {
 
   val today = Instant.now().atZone(ZoneId.of("UTC"))
 
-  def generateCreditCard(customer: Customer) = {
+  def generateCreditCard(customer: User) = {
     val base              = new Base {}
     val address           = generateAddress(customer, false)
     val gatewayCustomerId = randomCustomerGatewayId
     val gatewayCardId     = ""
-    CreditCard(customerId = customer.id,
+    CreditCard(accountId = customer.accountId,
                gatewayCustomerId = gatewayCustomerId,
                gatewayCardId = gatewayCardId,
                holderName = customer.name.getOrElse(Name.name),
@@ -60,6 +60,6 @@ trait CreditCardGenerator extends AddressGenerator {
                brand = "Visa")
   }
 
-  def generateCreditCards(customers: Seq[Customer]): Seq[CreditCard] =
+  def generateCreditCards(customers: Seq[User]): Seq[CreditCard] =
     customers map generateCreditCard
 }

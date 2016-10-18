@@ -121,8 +121,7 @@ Vagrant.configure("2") do |config|
       ansible.verbose = "vvvv"
       ansible.playbook = "prov-shit/ansible/vagrant_appliance.yml"
       ansible.extra_vars = {
-        user: user,
-        storefront_server_name: 'demo1.foxcommerce.com'
+        user: user
       }
     end
   end

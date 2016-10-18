@@ -30,6 +30,7 @@ const stateChanger = (rowId, rowState, changeState) => {
                   items={ activeStateTransitions }
                   placeholder={ currentState }
                   value={ rowState }
+                  detached={true}
                   onChange={(value) => changeState(rowId, value)} />
       );
     case 'onHold':
@@ -39,6 +40,7 @@ const stateChanger = (rowId, rowState, changeState) => {
                   items={ onHoldStateTransitions }
                   placeholder={ currentState }
                   value={ rowState }
+                  detached={true}
                   onChange={(value) => changeState(rowId, value)} />
       );
     default:

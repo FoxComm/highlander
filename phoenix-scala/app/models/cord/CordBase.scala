@@ -8,7 +8,7 @@ trait CordBase[A <: FoxModel[A]] extends FoxModel[A] { self: A ⇒
   def referenceNumber: String
   def refNum: String = referenceNumber
 
-  def customerId: Int
+  def accountId: Int
   def currency: Currency
 
   def subTotal: Int

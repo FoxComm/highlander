@@ -3,7 +3,7 @@ package models.sharedsearch
 import java.time.Instant
 
 import com.pellucid.sealerate
-import models.StoreAdmin
+import models.account._
 import models.sharedsearch.SharedSearch._
 import payloads.SharedSearchPayloads.SharedSearchPayload
 import shapeless._
@@ -19,7 +19,7 @@ case class SharedSearch(id: Int = 0,
                         title: String,
                         query: Json,
                         rawQuery: Json,
-                        scope: Scope = CustomersScope,
+                        scope: SharedSearch.Scope = SharedSearch.CustomersScope,
                         storeAdminId: Int,
                         isSystem: Boolean = false,
                         createdAt: Instant = Instant.now,
@@ -46,12 +46,12 @@ object SharedSearch {
 
   val sharedSearchRegex = """([a-z0-9]*)""".r
 
-  def byAdmin(admin: StoreAdmin, payload: SharedSearchPayload): SharedSearch =
+  def byAdmin(admin: User, payload: SharedSearchPayload): SharedSearch =
     SharedSearch(
         title = payload.title,
         query = payload.query,
         rawQuery = payload.rawQuery,
-        storeAdminId = admin.id,
+        storeAdminId = admin.accountId,
         scope = payload.scope
     )
 
@@ -64,7 +64,7 @@ class SharedSearches(tag: Tag) extends FoxTable[SharedSearch](tag, "shared_searc
   def title        = column[String]("title")
   def query        = column[Json]("query")
   def rawQuery     = column[Json]("raw_query")
-  def scope        = column[Scope]("scope")
+  def scope        = column[SharedSearch.Scope]("scope")
   def storeAdminId = column[Int]("store_admin_id")
   def isSystem     = column[Boolean]("is_system")
   def createdAt    = column[Instant]("created_at")
@@ -96,7 +96,7 @@ object SharedSearches
   def findActiveByCodeAndAdmin(code: String, adminId: Int): DBIO[Option[SharedSearch]] =
     filter(_.code === code).filter(_.storeAdminId === adminId).notDeleted.one
 
-  def findActiveByScopeAndAdmin(scope: Scope, adminId: Int): QuerySeq =
+  def findActiveByScopeAndAdmin(scope: SharedSearch.Scope, adminId: Int): QuerySeq =
     byAdmin(adminId).filter(_.scope === scope).notDeleted
 
   def byAdmin(adminId: Int): QuerySeq = filter(_.storeAdminId === adminId)

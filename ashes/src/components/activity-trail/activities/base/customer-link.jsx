@@ -17,8 +17,8 @@ CustomerLink.propTypes = {
   }),
 };
 
-export function eventTarget(context, customer) {
-  if (context.userType == 'admin') {
+export function eventTarget(activity, customer) {
+  if (!activity.data.admin && activity.context.userType == 'user' ) {
     return <span> for customer <CustomerLink customer={customer} /></span>;
   }
 }

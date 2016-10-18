@@ -1,0 +1,273 @@
+@import "media-queries.css";
+
+.field {
+  position: relative;
+  margin-bottom: 25px;
+}
+
+.error {
+  position: absolute;
+  bottom: -18px;
+  display: block;
+  font-size: 12px;
+  margin-left: 15px;
+  color: transparent;
+  transition: color .4s;
+
+  @media (--small-viewport) {
+    font-size: 10px;
+  }
+}
+
+.errorActive {
+  color: #db2727;
+}
+
+.fieldError {
+  & input {
+    border-color: #db2727;
+  }
+}
+
+.placeholder {
+  display: block;
+  margin: 0 0 15px 15px;
+  color: #aaa;
+  font-weight: 300;
+
+  pointer-events: none;
+}
+
+.placeholderInline {
+  composes: placeholder;
+  position: absolute;
+  top: 8px;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 0 15px;
+  line-height: 36px;
+  font-weight: 300;
+  font-size: 16px;
+  color: #000;
+
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  border-bottom: 1px solid #ddd;
+
+  transition: border-color .4s;
+
+  appearance: none;
+
+  &:focus,
+  &:active {
+    border-color: #7bb2f1;
+  }
+}
+
+select {
+  height: 36px;
+
+  background-image: linear-gradient(45deg, transparent 50%, #aaa 50%), linear-gradient(135deg, #aaa 50%, transparent 50%);
+  background-position: calc(100% - 10px) calc(1em + 2px), calc(100% - 5px) calc(1em + 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+
+  transition: border-color .4s, background-image .4s;
+
+  &:focus {
+    background-image: linear-gradient(45deg, transparent 50%, #7bb2f1 50%), linear-gradient(135deg, #7bb2f1 50%, transparent 50%);
+  }
+}
+
+input[type="radio"] {
+  display: inline-block;
+  position: relative;
+  top: -1px;
+  width: auto;
+  border: none;
+  margin-left: 15px;
+
+  appearance: radio;
+}
+
+.radioGroup {
+  & .field {
+    display: inline-block;
+  }
+}
+
+input[type="file"] {
+  border: none;
+  line-height: initial;
+}
+
+.file {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  margin: 0;
+  text-align: center;
+  transition: background .4s;
+
+  &:hover {
+    background: #f9f9f9;
+  }
+
+  &:active {
+    background: #f0f0f0;
+  }
+
+  & input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+  }
+}
+
+.fileName {
+  display: block;
+  margin: 3px 15px -17px;
+  font-size: 12px;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+label {
+  font-weight: 300;
+  font-size: 16px;
+}
+
+::-webkit-input-placeholder,
+:-moz-placeholder,
+::-moz-placeholder,
+:-ms-input-placeholder {
+  color: #ccc;
+}
+
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px white inset;
+}
+
+:global(.rw-multiselect) {
+  &:global(.rw-open) {
+    & :global(.rw-multiselect-wrapper) {
+      border-color: #7bb2f1;
+    }
+  }
+
+  & :global(.rw-multiselect-taglist) {
+    display: inline;
+    margin: 0;
+    padding: 0 10px;
+    list-style: none;
+
+    & li {
+      display: inline-block;
+      padding: 3px 5px;
+      font-weight: 300;
+      color: #000;
+      cursor: pointer;
+    }
+
+    & :global(.rw-tag-btn) {
+      position: relative;
+      top: 1px;
+      margin-left: 5px;
+    }
+  }
+
+  & :global(.rw-input) {
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+    padding: 0;
+    margin-bottom: 0;
+    border: none;
+
+    &:first-child {
+      padding-left: 15px;
+    }
+  }
+
+  & :global(.rw-sr) {
+    display: none;
+  }
+
+  & :global(.rw-multiselect-wrapper) {
+    position: relative;
+    border-bottom: 1px solid #ddd;
+    line-height: 30px;
+    cursor: text;
+
+    &:active,
+    &:focus {
+      border-color: #7bb2f1;
+    }
+  }
+
+  & :global(.rw-popup-container) {
+    position: absolute;
+    top: 100%;
+    margin-top: 1px;
+    z-index: 1005;
+    left: -11px;
+    right: -11px;
+  }
+
+  & :global(.rw-popup) {
+    position: absolute;
+    box-shadow: 0 5px 6px rgba(0, 0, 0, .2);
+    border-radius: 0 0 3px 3px;
+    border: 1px solid #ccc;
+    background: #fff;
+    padding: 2px;
+    overflow: auto;
+    margin-bottom: 10px;
+    left: 10px;
+    right: 10px;
+  }
+
+  & :global(.rw-list) {
+    max-height: 200px;
+    margin: 0;
+    padding: 5px 0;
+    overflow: auto;
+    list-style: none;
+    outline: 0;
+  }
+
+  & :global(.rw-list-option) {
+    padding: 1px 10px;
+    margin: 2px;
+    border-radius: 3px;
+    border: 1px solid #fff;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #f6f6f6;
+      border-color: #efefef;
+    }
+
+    &:global(.rw-state-focus) {
+      background-color: #fff;
+      border-color: #66afe9;
+
+      color: #333;
+    }
+  }
+}

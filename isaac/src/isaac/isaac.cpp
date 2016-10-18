@@ -38,8 +38,7 @@ po::options_description create_descriptions()
         ("http2_port,P", po::value<std::uint16_t>()->default_value(9191), "http 2.0 port")
         ("public_key,k", po::value<std::string>()->default_value("public_key.pem"), "public key file")
         ("db,d", po::value<std::string>()->default_value("host=127.0.0.1 dbname=phoenix_development user=phoenix"), "db connection string")
-        ("customer_est", po::value<std::size_t>()->default_value(20000), "estimated amount of customers")
-        ("admin_est", po::value<std::size_t>()->default_value(100), "estimated amount of admins")
+        ("user_est", po::value<std::size_t>()->default_value(20000), "estimated amount of users")
         ("token_header", po::value<std::string>()->default_value("JWT"), "Header which has the JWT token")
         ("workers,w", po::value<std::size_t>()->default_value(workers), "worker threads");
 
@@ -89,8 +88,7 @@ try
     const auto http2_port = opt["http2_port"].as<std::uint16_t>();
     const auto key_file = opt["public_key"].as<std::string>();
     const auto db_conn = opt["db"].as<std::string>();
-    const auto customer_est = opt["customer_est"].as<std::size_t>();
-    const auto admin_est = opt["admin_est"].as<std::size_t>();
+    const auto user_est = opt["user_est"].as<std::size_t>();
     const auto workers = opt["workers"].as<std::size_t>();
     const auto token_header = opt["token_header"].as<std::string>();
 
@@ -107,7 +105,7 @@ try
         return 1;
     }
 
-    isaac::db::user_cache user_cache{customer_est, admin_est};
+    isaac::db::user_cache user_cache{user_est};
     ctx.user_cache = &user_cache;
 
     std::vector<proxygen::HTTPServer::IPConfig> IPs = {

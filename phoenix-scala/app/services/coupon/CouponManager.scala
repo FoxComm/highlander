@@ -2,16 +2,17 @@ package services.coupon
 
 import java.time.Instant
 
+import com.github.tminglei.slickpg.LTree
 import failures.CouponFailures._
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import failures.PromotionFailures._
-import models.StoreAdmin
+import models.account._
 import models.coupon._
 import models.objects._
 import models.promotion._
 import payloads.CouponPayloads._
-import responses.CouponResponses.{CouponResponse, IlluminatedCouponResponse ⇒ Illuminated, _}
+import responses.CouponResponses.{IlluminatedCouponResponse ⇒ Illuminated, _}
 import services.LogActivity
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -50,10 +51,11 @@ object CouponManager {
       shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
     } yield CouponResponse.build(coupon, form, shadow))
 
-  def create(payload: CreateCoupon, contextName: String, admin: Option[StoreAdmin])(
+  def create(payload: CreateCoupon, contextName: String, admin: Option[User])(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[CouponResponse.Root] =
+      ac: AC,
+      au: AU): DbResultT[CouponResponse.Root] =
     for {
 
       context ← * <~ ObjectContexts
@@ -66,7 +68,8 @@ object CouponManager {
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow)
       coupon ← * <~ Coupons.create(
-                  Coupon(contextId = context.id,
+                  Coupon(scope = LTree(au.token.scope),
+                         contextId = context.id,
                          formId = ins.form.id,
                          shadowId = ins.shadow.id,
                          commitId = ins.commit.id,
@@ -75,7 +78,7 @@ object CouponManager {
       _ ← * <~ LogActivity.couponCreated(response, admin)
     } yield response
 
-  def update(id: Int, payload: UpdateCoupon, contextName: String, admin: StoreAdmin)(
+  def update(id: Int, payload: UpdateCoupon, contextName: String, admin: User)(
       implicit ec: EC,
       db: DB,
       ac: AC): DbResultT[CouponResponse.Root] =
@@ -146,9 +149,9 @@ object CouponManager {
       shadow        ← * <~ ObjectShadows.mustFindById404(archiveResult.shadowId)
     } yield CouponResponse.build(archiveResult, form, shadow)
 
-  def generateCode(id: Int, code: String, admin: StoreAdmin)(implicit ec: EC,
-                                                             db: DB,
-                                                             ac: AC): DbResultT[String] =
+  def generateCode(id: Int, code: String, admin: User)(implicit ec: EC,
+                                                       db: DB,
+                                                       ac: AC): DbResultT[String] =
     for {
       coupon     ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
       couponCode ← * <~ CouponCodes.create(CouponCode(couponFormId = id, code = code))
@@ -157,7 +160,7 @@ object CouponManager {
 
   def generateCodes(id: Int,
                     payload: GenerateCouponCodes,
-                    admin: StoreAdmin)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[String]] =
+                    admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[String]] =
     for {
       _         ← * <~ validateCouponCodePayload(payload)
       coupon    ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))

@@ -8,7 +8,7 @@ import cats.implicits._
 import com.pellucid.sealerate
 import failures.{Failures, GeneralFailure}
 import models.cord.lineitems.{OrderLineItem, OrderLineItems, CartLineItems}
-import models.customer.Customer
+import models.account.Account
 import models.inventory.Skus
 import shapeless._
 import slick.ast.BaseTypedType
@@ -22,7 +22,7 @@ import utils.{ADT, FSM}
 
 case class Order(id: Int = 0,
                  referenceNumber: String = "",
-                 customerId: Int,
+                 accountId: Int,
                  currency: Currency = Currency.USD,
                  subTotal: Int = 0,
                  shippingTotal: Int = 0,
@@ -92,7 +92,7 @@ object Order {
 class Orders(tag: Tag) extends FoxTable[Order](tag, "orders") {
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber  = column[String]("reference_number")
-  def customerId       = column[Int]("customer_id")
+  def accountId        = column[Int]("account_id")
   def currency         = column[Currency]("currency")
   def subTotal         = column[Int]("sub_total")
   def shippingTotal    = column[Int]("shipping_total")
@@ -108,7 +108,7 @@ class Orders(tag: Tag) extends FoxTable[Order](tag, "orders") {
   def * =
     (id,
      referenceNumber,
-     customerId,
+     accountId,
      currency,
      subTotal,
      shippingTotal,
@@ -132,7 +132,7 @@ object Orders
 
   def createFromCart(cart: Cart, contextId: Int)(implicit ec: EC, db: DB): DbResultT[Order] = {
     val newOrder = Order(referenceNumber = cart.referenceNumber,
-                         customerId = cart.customerId,
+                         accountId = cart.accountId,
                          currency = cart.currency,
                          subTotal = cart.subTotal,
                          shippingTotal = cart.shippingTotal,
@@ -174,11 +174,11 @@ object Orders
     } yield orderLineItems
   }
 
-  def findByCustomer(cust: Customer): QuerySeq =
-    findByCustomerId(cust.id)
+  def findByAccount(cust: Account): QuerySeq =
+    findByAccountId(cust.id)
 
-  def findByCustomerId(customerId: Int): QuerySeq =
-    filter(_.customerId === customerId)
+  def findByAccountId(accountId: Int): QuerySeq =
+    filter(_.accountId === accountId)
 
   def findByRefNum(refNum: String): QuerySeq =
     filter(_.referenceNumber === refNum)
@@ -186,8 +186,8 @@ object Orders
   def findOneByRefNum(refNum: String): DBIO[Option[Order]] =
     filter(_.referenceNumber === refNum).one
 
-  def findOneByRefNumAndCustomer(refNum: String, customer: Customer): QuerySeq =
-    filter(_.referenceNumber === refNum).filter(_.customerId === customer.id)
+  def findOneByRefNumAndAccount(refNum: String, account: Account): QuerySeq =
+    filter(_.referenceNumber === refNum).filter(_.accountId === account.id)
 
   type Ret       = (Int, String, Option[Instant])
   type PackedRet = (Rep[Int], Rep[String], Rep[Option[Instant]])

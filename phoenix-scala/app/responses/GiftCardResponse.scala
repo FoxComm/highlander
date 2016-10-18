@@ -23,13 +23,13 @@ object GiftCardResponse {
                   canceledAmount: Option[Int],
                   canceledReason: Option[Int],
                   customer: Option[CustomerResponse.Root],
-                  storeAdmin: Option[StoreAdminResponse.Root],
+                  storeAdmin: Option[UserResponse.Root],
                   message: String)
       extends ResponseItem
 
   def build(gc: GiftCard,
             customer: Option[CustomerResponse.Root] = None,
-            admin: Option[StoreAdminResponse.Root] = None): Root =
+            admin: Option[UserResponse.Root] = None): Root =
     Root(
         id = gc.id,
         createdAt = gc.createdAt,

@@ -11,7 +11,11 @@ function parseError(err) {
 }
 
 const ErrorAlerts = props => {
-  const errors = props.errors || parseError(props.error);
+  let errors = props.errors || parseError(props.error);
+
+  if (props.sanitizeError) {
+    errors = _.map(errors, props.sanitizeError);
+  }
 
   if (errors && errors.length) {
     return (
@@ -39,7 +43,8 @@ const ErrorAlerts = props => {
 ErrorAlerts.propTypes = {
   errors: PropTypes.array,
   error: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-  closeAction: PropTypes.func
+  closeAction: PropTypes.func,
+  sanitizeError: PropTypes.func,
 };
 
 export default ErrorAlerts;

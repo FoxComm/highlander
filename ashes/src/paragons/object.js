@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import type { Dictionary } from './types';
-import { isDefined } from 'lib/lang';
+import { isDefined } from 'lib/utils';
 
 export type Attribute = { t: string, v: any };
 export type Attributes = Dictionary<Attribute>;

@@ -1,0 +1,14 @@
+{
+    "service": {
+        "name": "greenriver",
+        "tags": ["greenriver"],
+        "checks": [
+            {
+                "name": "Green River",
+                "script": "systemctl status greenriver",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

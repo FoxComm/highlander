@@ -12,6 +12,7 @@ import models.cord.lineitems.CartLineItems.scope._
 import models.cord.lineitems.OrderLineItems
 import models.cord.lineitems.OrderLineItems.scope._
 import models.coupon._
+import models.account._
 import models.customer._
 import models.objects._
 import models.payment.creditcard._
@@ -75,16 +76,16 @@ object Checkout {
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order
 
-  def forCustomer(customer: Customer)(implicit ec: EC,
-                                      db: DB,
-                                      apis: Apis,
-                                      ac: AC,
-                                      ctx: OC): DbResultT[OrderResponse] =
+  def forCustomer(customer: User)(implicit ec: EC,
+                                  db: DB,
+                                  apis: Apis,
+                                  ac: AC,
+                                  ctx: OC): DbResultT[OrderResponse] =
     for {
       result ← * <~ Carts
-                .findByCustomer(customer)
+                .findByAccountId(customer.accountId)
                 .one
-                .findOrCreateExtended(Carts.create(Cart(customerId = customer.id)))
+                .findOrCreateExtended(Carts.create(Cart(accountId = customer.accountId)))
       (cart, _) = result
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order
@@ -103,7 +104,7 @@ case class Checkout(
 
   def checkout: Result[OrderResponse] = {
     val actions = for {
-      customer  ← * <~ Customers.mustFindById404(cart.customerId)
+      customer  ← * <~ Users.mustFindByAccountId(cart.accountId)
       _         ← * <~ customer.mustHaveCredentials
       _         ← * <~ customer.mustNotBeBlacklisted
       _         ← * <~ activePromos
@@ -130,23 +131,25 @@ case class Checkout(
   private def holdInMiddleWarehouse(implicit ctx: OC): DbResultT[Unit] =
     for {
       liSkus ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      skuObjects ← * <~ liSkus.map { liSku ⇒
-                    for {
-                      sku ← * <~ SkuManager.mustFindSkuByContextAndCode(contextId = ctx.id,
-                                                                        liSku._1)
-                      s ← * <~ ObjectShadows.mustFindById400(sku.shadowId)
-                      f ← * <~ ObjectForms.mustFindById400(s.formId)
-                      trackInventory = ObjectUtils.get("trackInventory", f, s) match {
-                        case JBool(trackInv) ⇒ trackInv
-                        case _               ⇒ true
-                      }
-                    } yield (trackInventory, liSku)
+      skuObjects ← * <~ liSkus.map {
+                    case (cordRef, skuAmount) ⇒ getSkuObjects(cordRef, skuAmount)
                   }
       skusToHold ← * <~ skuObjects.filter(_._1).map(_._2)
       skus = skusToHold.map { case (skuCode, qty) ⇒ SkuInventoryHold(skuCode, qty) }.toSeq
       _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skus))
       mutatingResult = externalCalls.middleWarehouseSuccess = true
     } yield {}
+
+  private def getSkuObjects(cordRef: String, skuAmount: Int) =
+    for {
+      sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(contextId = ctx.id, cordRef)
+      shadow ← * <~ ObjectShadows.mustFindById400(sku.shadowId)
+      form   ← * <~ ObjectForms.mustFindById400(shadow.formId)
+      trackInventory = ObjectUtils.get("trackInventory", form, shadow) match {
+        case JBool(trackInv) ⇒ trackInv
+        case _               ⇒ true
+      }
+    } yield (trackInventory, (cordRef, skuAmount))
 
   private def cancelHoldInMiddleWarehouse: Result[Unit] =
     apis.middlwarehouse.cancelHold(cart.referenceNumber)
@@ -182,11 +185,10 @@ case class Checkout(
       couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
       couponObject = IlluminatedCoupon.illuminate(ctx, coupon, couponForm, couponShadow)
       _ ← * <~ couponObject.mustBeActive
-      _ ← * <~ couponObject.mustBeApplicable(couponCode, cart.customerId)
+      _ ← * <~ couponObject.mustBeApplicable(couponCode, cart.accountId)
     } yield {}
 
-  private def updateCouponCountersForPromotion(customer: Customer)(
-      implicit ctx: OC): DbResultT[Unit] =
+  private def updateCouponCountersForPromotion(customer: User)(implicit ctx: OC): DbResultT[Unit] =
     for {
       maybePromo ← * <~ OrderPromotions.filterByCordRef(cart.refNum).one
       _ ← * <~ maybePromo.map { promo ⇒
@@ -194,7 +196,7 @@ case class Checkout(
          }
     } yield {}
 
-  private def authPayments(customer: Customer): DbResultT[Unit] =
+  private def authPayments(customer: User): DbResultT[Unit] =
     for {
 
       scPayments ← * <~ OrderPayments.findAllStoreCreditsByCordRef(cart.refNum).result

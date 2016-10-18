@@ -8,7 +8,7 @@ variable "network" {}
 variable "bucket_location" {}
 variable "zone" {}
 variable "vpn_image" {}
-variable "amigo_cluster_image" {}
+variable "amigo_server_image" {}
 variable "kafka_image" {}
 variable "db_image" {}
 variable "es_image" {}
@@ -22,7 +22,7 @@ variable "front_workers" {}
 
 variable "stage_backend_image" {}
 variable "stage_frontend_image" {}
-variable "stage_amigo_image" {}
+variable "stage_amigo_server_image" {}
 
 provider "google"
 {
@@ -113,7 +113,7 @@ module "vanilla_amigo_cluster" {
     network = "${var.network}"
     datacenter = "${var.network}"
     servers = 3
-    image = "${var.amigo_cluster_image}"
+    image = "${var.amigo_server_image}"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }
@@ -142,7 +142,7 @@ module "vanilla_stack" {
 
     stage_backend_image = "${var.stage_backend_image}"
     stage_frontend_image = "${var.stage_frontend_image}"
-    stage_amigo_image = "${var.stage_amigo_image}"
+    stage_amigo_server_image = "${var.stage_amigo_server_image}"
 
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"

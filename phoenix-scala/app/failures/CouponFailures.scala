@@ -48,6 +48,11 @@ object CouponFailures {
           s"Coupon with id=$couponId with coupon context $contextName cannot be found")
   }
 
+  object CouponNotFoundForDefaultContext {
+    def apply(couponId: Int) =
+      NotFoundFailure404(s"Coupon with id=$couponId with default context cannot be found")
+  }
+
   case class CouponShadowHasInvalidAttribute(key: String, value: String) extends Failure {
     override def description = s"Coupon shadow has an invalid attribute $key with value $value"
   }
@@ -77,9 +82,9 @@ object CouponFailures {
     override def description = s"Coupon code '${couponCode}' cannot be used anymore"
   }
 
-  case class CouponCodeCannotBeUsedByCustomerAnymore(couponCode: String, customerId: Int)
+  case class CouponCodeCannotBeUsedByCustomerAnymore(couponCode: String, accountId: Int)
       extends Failure {
     override def description =
-      s"Coupon code '${couponCode}' cannot be used by this customer ${customerId} anymore"
+      s"Coupon code '${couponCode}' cannot be used by this customer ${accountId} anymore"
   }
 }

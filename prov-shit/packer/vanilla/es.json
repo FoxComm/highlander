@@ -30,7 +30,7 @@
             "security_group_id": "{{user `security_group_id`}}",
             "subnet_id": "{{user `subnet_id`}}",
             "tags": {
-                "Name": "vanilla-es-{{timestamp}}"
+                "Name": "{{user `image_prefix`}}-es-{{timestamp}}"
             }
         }
     ],
@@ -39,8 +39,8 @@
             "type": "ansible",
             "playbook_file" : "ansible/packer_service_es.yml",
             "extra_arguments": [
-                "-vvvv", 
-                "--extra-vars", "@packer/envs/{{user `variables_file`}}"
+                "-vvvv",
+                "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"
             ]
         }
     ]

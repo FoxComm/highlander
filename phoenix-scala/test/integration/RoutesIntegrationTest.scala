@@ -1,56 +1,58 @@
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.directives.SecurityDirectives.challengeFor
 
-import models.StoreAdmin
-import models.customer.{Customer, Customers}
-import services.Authenticator.AsyncAuthenticator
-import util._
+import cats.implicits._
+import models.account._
+import services.Authenticator.UserAuthenticator
+import testutils._
 import utils.MockedApis
 import utils.seeds.Seeds.Factories
 
 class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSupport with MockedApis {
 
-  val authedStoreAdmin = StoreAdmin.build(id = 1,
-                                          email = "donkey@donkey.com",
-                                          password = Some("donkeyPass"),
-                                          name = "Mister Donkey",
-                                          state = StoreAdmin.Active)
+  val authedStoreAdmin =
+    User(id = 1, accountId = 1, email = "admin@admin.com".some, name = "Mister Donkey".some)
 
-  override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] =
-    AuthAs(authedStoreAdmin)
-  override def overrideCustomerAuth: AsyncAuthenticator[Customer] =
-    AuthFailWith[Customer](challengeFor("test"))
+  val authedCustomer =
+    User(id = 2, accountId = 2, email = "donkey@donkey.com".some, name = "Mister Donkey".some)
+
+  override def overrideUserAuth: UserAuthenticator =
+    AuthAs(authedStoreAdmin, authedCustomer)
 
   "Requests with StoreAdmin only session (w/o customer)" - {
     "GET /v1/404alkjflskfdjg" in {
-      GET("v1/404alkjflskfdjg").status must === (StatusCodes.NotFound)
+      GET("v1/404alkjflskfdjg").mustHaveStatus(StatusCodes.NotFound)
     }
   }
 }
 
 class RoutesCustomerOnlyIntegrationTest
     extends IntegrationTestBase
+    with TestActivityContext.AdminAC
     with HttpSupport
     with MockedApis {
 
-  val authedCustomer = Customer.build(id = 1,
-                                      email = "donkey@donkey.com",
-                                      password = Some("donkeyPass"),
-                                      name = Some("Mister Donkey"))
+  val authedStoreAdmin =
+    User(id = 1, accountId = 1, email = "admin@admin.com".some, name = "Mister Donkey".some)
 
-  override def overrideCustomerAuth: AsyncAuthenticator[Customer] =
-    AuthAs(authedCustomer)
-  override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] =
-    AuthFailWith[StoreAdmin](challengeFor("test"))
+  val authedCustomer =
+    User(id = 1, accountId = 1, email = "donkey@donkey.com".some, name = "Mister Donkey".some)
+
+  override def overrideUserAuth: UserAuthenticator =
+    AuthAs(authedStoreAdmin, authedCustomer)
 
   "Requests with Customer only session (w/o StoreAdmin)" - {
     "GET v1/my/404hello" in {
-      GET(s"v1/my/404hello").status must === (StatusCodes.NotFound)
+      GET(s"v1/my/404hello").mustHaveStatus(StatusCodes.NotFound)
     }
 
     "GET v1/my/cart" in {
-      Customers.create(Factories.customer).gimme
-      GET(s"v1/my/cart").status must === (StatusCodes.OK)
+      Factories
+        .createCustomer(user = authedCustomer,
+                        isGuest = false,
+                        scopeId = 2,
+                        password = "password".some)
+        .gimme
+      GET(s"v1/my/cart").mustBeOk()
     }
   }
 }

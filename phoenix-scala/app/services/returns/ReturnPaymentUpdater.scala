@@ -52,7 +52,7 @@ object ReturnPaymentUpdater {
       payment   ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
       origin    ← * <~ StoreCreditRefunds.create(StoreCreditRefund(returnId = rma.id))
 
-      storeCredit = StoreCredit.buildRmaProcess(rma.customerId, origin.id, payment.currency)
+      storeCredit = StoreCredit.buildRmaProcess(rma.accountId, origin.id, payment.currency)
       sc ← * <~ StoreCredits.create(storeCredit)
       pmt ← * <~ ReturnPayments.create(
                ReturnPayment.build(sc, rma.id, payload.amount, payment.currency))

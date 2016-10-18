@@ -4,8 +4,8 @@ import java.time.ZonedDateTime
 
 import cats.implicits._
 import payloads.OrderPayloads.CreateCart
-import util.CustomMatchers._
-import util.TestBase
+import testutils.CustomMatchers._
+import testutils.TestBase
 import utils.seeds.Seeds.Factories
 
 class CartPayloadsTest extends TestBase {

@@ -1,33 +1,29 @@
-import akka.http.scaladsl.model.StatusCodes
-
-import Extensions._
 import com.github.tminglei.slickpg.LTree
+import failures.TreeFailures._
 import models.objects._
 import models.tree._
 import org.json4s.JsonDSL._
 import org.scalatest.Matchers._
 import payloads.GenericTreePayloads._
-import responses.GenericTreeResponses.{FullTreeResponse, TreeResponse}
+import responses.GenericTreeResponses.FullTreeResponse.Root
+import responses.GenericTreeResponses.TreeResponse
 import slick.driver.PostgresDriver.api._
-import util._
+import testutils._
+import testutils.apis.PhoenixAdminApi
 import utils.MockedApis
 import utils.aliases._
 import utils.db._
 
 class GenericTreeIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with MockedApis {
 
   "GenericTreeIntegrationTest" - {
     "GET /v1/tree/default/test" - {
       "should return full tree" in new TestTree {
-        val response = GET(s"v1/tree/${context.name}/${tree.name}")
-        response.status must === (StatusCodes.OK)
-
-        val responseContent: FullTreeResponse.Root = response.as[FullTreeResponse.Root]
-        val responseTree                           = responseContent.tree.nodes
+        val responseTree = genericTreesApi(tree.name).get().as[Root].tree.nodes
 
         responseTree.children must have size 2
         nodeByPath(responseTree, Seq(1, 3)).get.children must have size 3
@@ -37,43 +33,32 @@ class GenericTreeIntegrationTest
     "POST /v1/tree/default/test" - {
 
       "should create tree" in new TestObjects {
-        val testTree: NodePayload = NodePayload("test",
-                                                testObjects.head.id,
-                                                List(NodePayload("test", testObjects(1).id, Nil),
-                                                     NodePayload("test", testObjects(2).id, Nil)))
+        val testTree = NodePayload("test",
+                                   testObjects.head.id,
+                                   List(NodePayload("test", testObjects(1).id, Nil),
+                                        NodePayload("test", testObjects(2).id, Nil)))
 
-        val response = POST(s"v1/tree/default/test", testTree)
-
-        response.status must === (StatusCodes.OK)
-        val treeResponse = response.as[FullTreeResponse.Root].tree
-
+        val treeResponse = genericTreesApi("test").create(testTree).as[Root].tree
         treeResponse.nodes.children must have size 2
       }
 
       "should rewrite tree" in new TestTree {
-        val testTree: NodePayload = NodePayload("test",
-                                                testObjects.head.id,
-                                                List(NodePayload("test", testObjects(1).id, Nil),
-                                                     NodePayload("test", testObjects(2).id, Nil)))
+        val testTree = NodePayload("test",
+                                   testObjects.head.id,
+                                   List(NodePayload("test", testObjects(1).id, Nil),
+                                        NodePayload("test", testObjects(2).id, Nil)))
 
-        val response = POST(s"v1/tree/${context.name}/${tree.name}", testTree)
-
-        response.status must === (StatusCodes.OK)
-        val treeResponse = response.as[FullTreeResponse.Root].tree
-
+        val treeResponse = genericTreesApi("test").create(testTree).as[Root].tree
         treeResponse.nodes.children must have size 2
       }
 
       "should update subtree" in new TestTree {
-        val testTree: NodePayload = NodePayload("test",
-                                                testObjects.head.id,
-                                                List(NodePayload("test", testObjects(1).id, Nil),
-                                                     NodePayload("test", testObjects(2).id, Nil)))
+        val testTree = NodePayload("test",
+                                   testObjects.head.id,
+                                   List(NodePayload("test", testObjects(1).id, Nil),
+                                        NodePayload("test", testObjects(2).id, Nil)))
 
-        val response = POST(s"v1/tree/${context.name}/${tree.name}/1.3.4", testTree)
-
-        response.status must === (StatusCodes.OK)
-        val treeResponse: TreeResponse.Root = response.as[FullTreeResponse.Root].tree
+        val treeResponse = genericTreesApi(tree.name).createInPath("1.3.4", testTree).as[Root].tree
 
         treeResponse.nodes.objectId mustEqual testObjects.head.id
         treeResponse.nodes.children must have size 2
@@ -85,21 +70,21 @@ class GenericTreeIntegrationTest
       }
 
       "fails if subtree doesn't exits" in new TestTree {
-        val testTree: NodePayload = NodePayload("test",
-                                                testObjects.head.id,
-                                                List(NodePayload("test", testObjects(1).id, Nil),
-                                                     NodePayload("test", testObjects(2).id, Nil)))
+        val testTree = NodePayload("test",
+                                   testObjects.head.id,
+                                   List(NodePayload("test", testObjects(1).id, Nil),
+                                        NodePayload("test", testObjects(2).id, Nil)))
 
-        POST(s"v1/categories/default/tree/1.5.10", testTree).status must === (StatusCodes.NotFound)
+        genericTreesApi(tree.name)
+          .createInPath("1.5.10", testTree)
+          .mustFailWith404(TreeNotFound(tree.name, ctx.name, "1.5.10"))
       }
     }
 
     "PATCH /v1/tree/default/tree" - {
       "should move nodes" in new TestTree {
-        val response = PATCH(s"v1/tree/${context.name}/${tree.name}", MoveNodePayload(Some(2), 4))
-
-        response.status must === (StatusCodes.OK)
-        val treeResponse: TreeResponse.Root = response.as[FullTreeResponse.Root].tree
+        val treeResponse =
+          genericTreesApi(tree.name).moveNode(MoveNodePayload(Some(2), 4)).as[Root].tree
 
         treeResponse must not be null
         treeResponse.nodes.objectId mustEqual testObjects.head.id
@@ -111,18 +96,18 @@ class GenericTreeIntegrationTest
       }
 
       "fails to make node to be child of its child" in new TestTree {
-        PATCH(s"v1/tree/${context.name}/${tree.name}", MoveNodePayload(Some(4), 3)).status must === (
-            StatusCodes.BadRequest)
+        genericTreesApi(tree.name)
+          .moveNode(MoveNodePayload(Some(4), 3))
+          .mustFailWith400(ParentChildSwapFailure(4, 3))
       }
     }
 
     "PATCH v1/tree/default/test/:path" - {
       "should update node content" in new TestTree {
-        val response = PATCH(s"v1/tree/${context.name}/${tree.name}/1.2",
-                             NodeValuesPayload("test", testObjects.head.id))
-
-        response.status must === (StatusCodes.OK)
-        val treeResponse: TreeResponse.Root = response.as[FullTreeResponse.Root].tree
+        val treeResponse = genericTreesApi(tree.name)
+          .moveNodeInPath("1.2", NodeValuesPayload("test", testObjects.head.id))
+          .as[Root]
+          .tree
 
         treeResponse.nodes.kind must === ("test")
         nodeByPath(treeResponse.nodes, Seq(1, 2)).get.objectId must === (testObjects.head.id)

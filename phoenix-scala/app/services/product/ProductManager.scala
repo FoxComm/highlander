@@ -1,6 +1,7 @@
 package services.product
 
 import java.time.Instant
+import com.github.tminglei.slickpg.LTree
 
 import cats.data._
 import cats.implicits._
@@ -8,11 +9,11 @@ import cats.data.ValidatedNel
 import failures._
 import failures.ArchiveFailures._
 import failures.ProductFailures._
-import models.StoreAdmin
 import models.image.{AlbumImageLinks, Albums}
 import models.inventory._
 import models.objects._
 import models.product._
+import models.account._
 import payloads.ImagePayloads.UpdateAlbumPositionPayload
 import payloads.ProductPayloads._
 import payloads.SkuPayloads._
@@ -37,11 +38,12 @@ import services.LogActivity
 
 object ProductManager {
 
-  def createProduct(admin: StoreAdmin, payload: CreateProductPayload)(
+  def createProduct(admin: User, payload: CreateProductPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
-      oc: OC): DbResultT[ProductResponse.Root] = {
+      oc: OC,
+      au: AU): DbResultT[ProductResponse.Root] = {
 
     val form            = ObjectForm.fromPayload(Product.kind, payload.attributes)
     val shadow          = ObjectShadow.fromPayload(payload.attributes)
@@ -52,7 +54,8 @@ object ProductManager {
       _   ← * <~ validateCreate(payload)
       ins ← * <~ ObjectUtils.insert(form, shadow)
       product ← * <~ Products.create(
-                   Product(contextId = oc.id,
+                   Product(scope = LTree(au.token.scope),
+                           contextId = oc.id,
                            formId = ins.form.id,
                            shadowId = ins.shadow.id,
                            commitId = ins.commit.id))
@@ -95,11 +98,12 @@ object ProductManager {
           if (hasVariants) variantSkus else productSkus,
           variantResponses)
 
-  def updateProduct(admin: StoreAdmin, productId: Int, payload: UpdateProductPayload)(
+  def updateProduct(admin: User, productId: Int, payload: UpdateProductPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
-      oc: OC): DbResultT[ProductResponse.Root] = {
+      oc: OC,
+      au: AU): DbResultT[ProductResponse.Root] = {
 
     val newFormAttrs   = ObjectForm.fromPayload(Product.kind, payload.attributes).attributes
     val newShadowAttrs = ObjectShadow.fromPayload(payload.attributes).attributes
@@ -256,7 +260,8 @@ object ProductManager {
                                        variantsPayload: Option[Seq[VariantPayload]])(
       implicit ec: EC,
       db: DB,
-      oc: OC): DbResultT[Seq[FullVariant]] =
+      oc: OC,
+      au: AU): DbResultT[Seq[FullVariant]] =
     variantsPayload match {
       case Some(payloads) ⇒
         findOrCreateVariantsForProduct(product, payloads)
@@ -280,7 +285,7 @@ object ProductManager {
   private def findOrCreateSkusForProduct(
       product: Product,
       skuPayloads: Seq[SkuPayload],
-      createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC) =
+      createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC, au: AU) =
     skuPayloads.map { payload ⇒
       for {
         code ← * <~ SkuManager.mustGetSkuCode(payload)
@@ -312,7 +317,8 @@ object ProductManager {
   private def findOrCreateVariantsForProduct(product: Product, payload: Seq[VariantPayload])(
       implicit ec: EC,
       db: DB,
-      oc: OC): DbResultT[Seq[FullVariant]] =
+      oc: OC,
+      au: AU): DbResultT[Seq[FullVariant]] =
     for {
       variants ← * <~ payload.map(VariantManager.updateOrCreateVariant(oc, _))
       _ ← * <~ ProductVariantLinks.syncLinks(product, variants.map {

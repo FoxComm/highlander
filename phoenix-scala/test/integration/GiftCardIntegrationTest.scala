@@ -1,27 +1,30 @@
 import akka.http.scaladsl.model.StatusCodes
-import Extensions._
 import cats.implicits._
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures._
 import models.Reason
 import models.cord.{Cord, Cords}
-import models.customer.Customer
+import models.account._
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard._
 import models.payment.storecredit
 import models.payment.storecredit.StoreCredit
 import org.json4s.jackson.JsonMethods._
 import payloads.GiftCardPayloads._
+import responses.GiftCardAdjustmentsResponse.{Root ⇒ GcAdjRoot}
+import responses.GiftCardResponse.{Root ⇒ GcRoot}
+import responses.StoreCreditResponse.{Root ⇒ ScRoot}
 import responses._
 import slick.driver.PostgresDriver.api._
-import util.IntegrationTestBase
-import util.fixtures.BakedFixtures
+import testutils._
+import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.BakedFixtures
 import utils.Money._
 import utils.db._
 
 class GiftCardIntegrationTest
     extends IntegrationTestBase
-    with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with BakedFixtures {
 
@@ -29,19 +32,17 @@ class GiftCardIntegrationTest
 
     "POST /v1/gift-cards" - {
       "successfully creates gift card from payload" in new Reason_Baked {
-        val response =
-          POST(s"v1/gift-cards", GiftCardCreateByCsr(balance = 555, reasonId = reason.id))
-        response.status must === (StatusCodes.OK)
+        private val payload  = GiftCardCreateByCsr(balance = 555, reasonId = reason.id)
+        val giftCard: GcRoot = giftCardsApi.create(payload).as[GcRoot]
 
-        val root = response.as[GiftCardResponse.Root]
-        root.originType must === (GiftCard.CsrAppeasement)
-        root.currency must === (Currency.USD)
-        root.availableBalance must === (555)
+        giftCard.originType must === (GiftCard.CsrAppeasement)
+        giftCard.currency must === (Currency.USD)
+        giftCard.availableBalance must === (555)
 
         // Check that proper link is created
-        val manual = GiftCardManuals.findOneById(root.originId).gimme.value
+        val manual: GiftCardManual = GiftCardManuals.findOneById(giftCard.originId).gimme.value
         manual.reasonId must === (1)
-        manual.adminId must === (storeAdmin.id)
+        manual.adminId must === (storeAdmin.accountId)
       }
 
       "successfully creates gift card as a custumer from payload" in new Reason_Baked {
@@ -59,153 +60,113 @@ class GiftCardIntegrationTest
       }
 
       "create two gift cards with unique codes" in new Reason_Baked {
-        val payload = GiftCardCreateByCsr(balance = 555, reasonId = reason.id)
+        private val payload = GiftCardCreateByCsr(balance = 555, reasonId = reason.id)
 
-        val responseFirst = POST(s"v1/gift-cards", payload)
-        responseFirst.status must === (StatusCodes.OK)
-
-        val responseSecond = POST(s"v1/gift-cards", payload)
-        responseSecond.status must === (StatusCodes.OK)
-
-        val rootFirst  = responseFirst.as[GiftCardResponse.Root]
-        val rootSecond = responseSecond.as[GiftCardResponse.Root]
-        rootFirst.code must !==(rootSecond.code)
+        private val code1 = giftCardsApi.create(payload).as[GcRoot].code
+        private val code2 = giftCardsApi.create(payload).as[GcRoot].code
+        code1 must !==(code2)
       }
 
       "succeeds with valid subTypeId" in new Reason_Baked with GiftCardSubtype_Seed {
-        val payload = GiftCardCreateByCsr(balance = 25,
-                                          reasonId = reason.id,
-                                          subTypeId = giftCardSubtype.id.some)
-        val response = POST(s"v1/gift-cards", payload)
+        private val payload = GiftCardCreateByCsr(balance = 25,
+                                                  reasonId = reason.id,
+                                                  subTypeId = giftCardSubtype.id.some)
 
-        response.status must === (StatusCodes.OK)
-        val sc = response.as[GiftCardResponse.Root]
-        sc.subTypeId.value must === (1)
+        giftCardsApi.create(payload).as[GcRoot].subTypeId.value must === (1)
       }
 
       "fails if subtypeId is not found" in new Reason_Baked {
-        val payload  = GiftCardCreateByCsr(balance = 25, reasonId = reason.id, subTypeId = 255.some)
-        val response = POST(s"v1/gift-cards", payload)
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure404(GiftCardSubtype, 255).description)
+        giftCardsApi
+          .create(GiftCardCreateByCsr(balance = 25, reasonId = reason.id, subTypeId = 255.some))
+          .mustFailWith400(NotFoundFailure404(GiftCardSubtype, 255))
       }
 
       "fails to create gift card with negative balance" in new Reason_Baked {
-        val response =
-          POST(s"v1/gift-cards", GiftCardCreateByCsr(balance = -555, reasonId = reason.id))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("Balance got -555, expected more than 0")
+        giftCardsApi
+          .create(GiftCardCreateByCsr(balance = -555, reasonId = reason.id))
+          .mustFailWithMessage("Balance got -555, expected more than 0")
       }
 
       "fails to create gift card with invalid reason" in new Reason_Baked {
-        val response = POST(s"v1/gift-cards", GiftCardCreateByCsr(balance = 555, reasonId = 999))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure404(Reason, 999).description)
+        giftCardsApi
+          .create(GiftCardCreateByCsr(balance = 555, reasonId = 999))
+          .mustFailWith400(NotFoundFailure404(Reason, 999))
       }
     }
 
     "POST /v1/gift-cards (bulk)" - {
       "successfully creates multiple gift cards from payload" in new Reason_Baked {
-        val response =
-          POST(s"v1/gift-cards",
-               GiftCardBulkCreateByCsr(quantity = 5, balance = 256, reasonId = reason.id))
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[Seq[GiftCardBulkResponse.ItemResult]]
-        root.length must === (5)
+        giftCardsApi
+          .createBulk(GiftCardBulkCreateByCsr(quantity = 5, balance = 256, reasonId = reason.id))
+          .as[Seq[GiftCardBulkResponse.ItemResult]] must have size 5
       }
 
       "fails to create multiple gift cards with zero balance" in new Reason_Baked {
-        val response =
-          POST(s"v1/gift-cards",
-               GiftCardBulkCreateByCsr(quantity = 5, balance = 0, reasonId = reason.id))
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("Balance got 0, expected more than 0")
+        giftCardsApi
+          .createBulk(GiftCardBulkCreateByCsr(quantity = 5, balance = 0, reasonId = reason.id))
+          .mustFailWithMessage("Balance got 0, expected more than 0")
       }
 
       "fails to create multiple gift cards with negative balance" in new Reason_Baked {
-        val response =
-          POST(s"v1/gift-cards",
-               GiftCardBulkCreateByCsr(quantity = 5, balance = -555, reasonId = reason.id))
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("Balance got -555, expected more than 0")
+        giftCardsApi
+          .createBulk(GiftCardBulkCreateByCsr(quantity = 5, balance = -555, reasonId = reason.id))
+          .mustFailWithMessage("Balance got -555, expected more than 0")
       }
 
       "fails to create multiple gift cards with negative quantity" in new Reason_Baked {
-        val response =
-          POST(s"v1/gift-cards",
-               GiftCardBulkCreateByCsr(quantity = -5, balance = 256, reasonId = reason.id))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("Quantity got -5, expected more than 0")
+        giftCardsApi
+          .createBulk(GiftCardBulkCreateByCsr(quantity = -5, balance = 256, reasonId = reason.id))
+          .mustFailWithMessage("Quantity got -5, expected more than 0")
       }
 
       "fails to create multiple gift cards with count more than limit" in new Reason_Baked {
-        val response =
-          POST(s"v1/gift-cards",
-               GiftCardBulkCreateByCsr(quantity = 25, balance = 256, reasonId = reason.id))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("Quantity got 25, expected 20 or less")
+        giftCardsApi
+          .createBulk(GiftCardBulkCreateByCsr(quantity = 25, balance = 256, reasonId = reason.id))
+          .mustFailWithMessage("Quantity got 25, expected 20 or less")
       }
     }
 
     "GET /v1/gift-cards/:code" - {
       "finds a gift card by code" in new GiftCard_Baked {
-        val response     = GET(s"v1/gift-cards/${giftCard.code}")
-        val giftCardResp = response.as[GiftCardResponse.Root]
-
-        response.status must === (StatusCodes.OK)
-        giftCardResp.code must === (giftCard.code)
+        giftCardsApi(giftCard.code).get().as[GcRoot].code must === (giftCard.code)
       }
 
       "returns not found when GC doesn't exist" in {
-        val notFoundResponse = GET(s"v1/gift-cards/ABC-666")
-        notFoundResponse.status must === (StatusCodes.NotFound)
-        notFoundResponse.error must === (NotFoundFailure404(GiftCard, "ABC-666").description)
+        giftCardsApi("ABC-666").get().mustFailWith404(NotFoundFailure404(GiftCard, "ABC-666"))
       }
     }
 
     "PATCH /v1/gift-cards/:code" - {
       "successfully changes state from Active to OnHold and vice-versa" in new GiftCard_Baked {
-        val response =
-          PATCH(s"v1/gift-cards/${giftCard.code}", GiftCardUpdateStateByCsr(state = OnHold))
-        response.status must === (StatusCodes.OK)
-
-        val responseBack =
-          PATCH(s"v1/gift-cards/${giftCard.code}", GiftCardUpdateStateByCsr(state = Active))
-        responseBack.status must === (StatusCodes.OK)
+        giftCardsApi(giftCard.code).update(GiftCardUpdateStateByCsr(state = OnHold)).mustBeOk()
+        giftCardsApi(giftCard.code).update(GiftCardUpdateStateByCsr(state = Active)).mustBeOk()
       }
 
       "returns error if no cancellation reason provided" in new GiftCard_Baked {
-        val response =
-          PATCH(s"v1/gift-cards/${giftCard.code}", GiftCardUpdateStateByCsr(state = Canceled))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (EmptyCancellationReasonFailure.description)
+        giftCardsApi(giftCard.code)
+          .update(GiftCardUpdateStateByCsr(state = Canceled))
+          .mustFailWith400(EmptyCancellationReasonFailure)
       }
 
       "returns error on cancellation if gift card has auths" in new Fixture {
-        val response = PATCH(s"v1/gift-cards/${giftCard1.code}",
-                             GiftCardUpdateStateByCsr(state = Canceled, reasonId = reason.id.some))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (OpenTransactionsFailure.description)
+        giftCardsApi(giftCard1.code)
+          .update(GiftCardUpdateStateByCsr(state = Canceled, reasonId = reason.id.some))
+          .mustFailWith400(OpenTransactionsFailure)
       }
 
       "successfully cancels gift card with provided reason, cancel adjustment is created" in new Fixture {
         // Cancel pending adjustment (should be done before cancellation)
         GiftCardAdjustments.cancel(adjustment1.id).gimme
 
-        val response = PATCH(s"v1/gift-cards/${giftCard1.code}",
-                             GiftCardUpdateStateByCsr(state = Canceled, reasonId = reason.id.some))
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[GiftCardResponse.Root]
-        root.canceledAmount must === (Some(giftCard1.originalBalance))
+        giftCardsApi(giftCard1.code)
+          .update(GiftCardUpdateStateByCsr(state = Canceled, reasonId = reason.id.some))
+          .as[GcRoot]
+          .canceledAmount must === (Some(giftCard1.originalBalance))
 
         // Ensure that cancel adjustment is automatically created
-        val adjustments = GiftCardAdjustments.filterByGiftCardId(giftCard1.id).gimme
-        adjustments.size mustBe 2
+        val adjustments: Seq[GiftCardAdjustment] =
+          GiftCardAdjustments.filterByGiftCardId(giftCard1.id).gimme
+        adjustments must have size 2
         adjustments.head.state must === (GiftCardAdjustment.CancellationCapture)
       }
 
@@ -215,60 +176,57 @@ class GiftCardIntegrationTest
         // Update balance
         GiftCards.update(giftCard1, giftCard1.copy(availableBalance = 0)).gimme
 
-        val response = PATCH(s"v1/gift-cards/${giftCard1.code}",
-                             GiftCardUpdateStateByCsr(state = Canceled, reasonId = reason.id.some))
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[GiftCardResponse.Root]
-        root.canceledAmount.value must === (0)
+        giftCardsApi(giftCard1.code)
+          .update(GiftCardUpdateStateByCsr(state = Canceled, reasonId = reason.id.some))
+          .as[GcRoot]
+          .canceledAmount
+          .value must === (0)
 
         // Ensure that cancel adjustment is automatically created
-        val adjustments = GiftCardAdjustments.filterByGiftCardId(giftCard1.id).gimme
+        val adjustments: Seq[GiftCardAdjustment] =
+          GiftCardAdjustments.filterByGiftCardId(giftCard1.id).gimme
         adjustments.size mustBe 2
         adjustments.head.state must === (GiftCardAdjustment.CancellationCapture)
       }
 
       "fails to cancel gift card if invalid reason provided" in new Fixture {
-        // Cancel pending adjustment
         GiftCardAdjustments.cancel(adjustment1.id).gimme
 
-        val response = PATCH(s"v1/gift-cards/${giftCard1.code}",
-                             GiftCardUpdateStateByCsr(state = Canceled, reasonId = 999.some))
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure400(Reason, 999).description)
+        giftCardsApi(giftCard1.code)
+          .update(GiftCardUpdateStateByCsr(state = Canceled, reasonId = 999.some))
+          .mustFailWith400(NotFoundFailure400(Reason, 999))
       }
     }
 
     "GET /v1/gift-cards/:code/transactions" - {
       "returns the list of adjustments" in new Fixture {
-        val response    = GET(s"v1/gift-cards/${giftCard1.code}/transactions")
-        val adjustments = response.as[Seq[GiftCardAdjustmentsResponse.Root]]
+        val adjustments: Seq[GcAdjRoot] =
+          giftCardsApi(giftCard1.code).transactions().as[Seq[GcAdjRoot]]
 
-        response.status must === (StatusCodes.OK)
-        adjustments.size mustBe 1
+        adjustments must have size 1
 
-        val firstAdjustment = adjustments.head
+        val firstAdjustment: GcAdjRoot = adjustments.head
         firstAdjustment.amount must === (-adjustment1.debit)
         firstAdjustment.availableBalance must === (giftCard1.originalBalance - adjustment1.debit)
-        firstAdjustment.cordRef.value mustBe cart.referenceNumber
+        firstAdjustment.cordRef.value must === (cart.referenceNumber)
       }
     }
 
     "PATCH /v1/gift-cards" - {
       "successfully changes statuses of multiple gift cards" in new Fixture {
-        val payload = GiftCardBulkUpdateStateByCsr(
-            codes = Seq(giftCard1.code, giftCard2.code),
+        private val bothCodes = Seq(giftCard1.code, giftCard2.code)
+
+        private val payload = GiftCardBulkUpdateStateByCsr(
+            codes = bothCodes,
             state = GiftCard.OnHold
         )
 
-        val response = PATCH(s"v1/gift-cards", payload)
-        response.status must === (StatusCodes.OK)
+        giftCardsApi.updateBulk(payload).mustBeOk()
 
-        val firstUpdated = GiftCards.findOneById(giftCard1.id).gimme
-        firstUpdated.value.state must === (GiftCard.OnHold)
-
-        val secondUpdated = GiftCards.findOneById(giftCard2.id).gimme
-        secondUpdated.value.state must === (GiftCard.OnHold)
+        GiftCards
+          .filter(_.code.inSet(bothCodes))
+          .map(_.state)
+          .gimme must contain only GiftCard.OnHold
       }
 
       "returns multiple errors if no cancellation reason provided" in new Fixture {
@@ -277,54 +235,51 @@ class GiftCardIntegrationTest
             state = GiftCard.Canceled
         )
 
-        val response = PATCH(s"v1/gift-cards", payload)
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (EmptyCancellationReasonFailure.description)
+        giftCardsApi.updateBulk(payload).mustFailWith400(EmptyCancellationReasonFailure)
       }
     }
 
     "POST /v1/gift-cards/:code/convert/:customerId" - {
       "successfully converts GC to SC" in new Fixture {
-        val response = POST(s"v1/gift-cards/${giftCard2.code}/convert/${customer.id}")
-        response.status must === (StatusCodes.OK)
+        val root: ScRoot =
+          giftCardsApi(giftCard2.code).convertToStoreCredit(customer.accountId).as[ScRoot]
 
-        val root = response.as[StoreCreditResponse.Root]
-        root.customerId must === (customer.id)
+        root.customerId must === (customer.accountId)
         root.originType must === (StoreCredit.GiftCardTransfer)
         root.state must === (storecredit.StoreCredit.Active)
         root.originalBalance must === (giftCard2.originalBalance)
 
-        val redeemedGc = GiftCards.findByCode(giftCard2.code).one.gimme.value
+        val redeemedGc: GiftCard = GiftCards.findByCode(giftCard2.code).one.gimme.value
         redeemedGc.state must === (GiftCard.FullyRedeemed)
         redeemedGc.availableBalance must === (0)
         redeemedGc.currentBalance must === (0)
       }
 
       "fails to convert when GC not found" in new Fixture {
-        val response = POST(s"v1/gift-cards/ABC-666/convert/${customer.id}")
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(GiftCard, "ABC-666").description)
+        giftCardsApi("ABC-666")
+          .convertToStoreCredit(customer.accountId)
+          .mustFailWith404(NotFoundFailure404(GiftCard, "ABC-666"))
       }
 
       "fails to convert when customer not found" in new Fixture {
-        val response = POST(s"v1/gift-cards/${giftCard2.code}/convert/666")
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Customer, 666).description)
+        giftCardsApi(giftCard2.code)
+          .convertToStoreCredit(666)
+          .mustFailWith404(NotFoundFailure404(User, 666))
       }
 
       "fails to convert GC to SC if open transactions are present" in new Fixture {
-        val response = POST(s"v1/gift-cards/${giftCard1.code}/convert/${customer.id}")
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (OpenTransactionsFailure.description)
+        giftCardsApi(giftCard1.code)
+          .convertToStoreCredit(customer.accountId)
+          .mustFailWith400(OpenTransactionsFailure)
       }
 
       "fails to convert inactive GC to SC" in new Fixture {
         GiftCards.findByCode(giftCard2.code).map(_.state).update(GiftCard.OnHold).gimme
         val updatedGc = GiftCards.findByCode(giftCard2.code).one.gimme
 
-        val response = POST(s"v1/gift-cards/${giftCard2.code}/convert/${customer.id}")
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (GiftCardConvertFailure(updatedGc.value).description)
+        giftCardsApi(giftCard2.code)
+          .convertToStoreCredit(customer.accountId)
+          .mustFailWith400(GiftCardConvertFailure(updatedGc.value))
       }
     }
   }

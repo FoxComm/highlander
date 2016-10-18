@@ -1,0 +1,22 @@
+
+:root {
+  --lightest-blackish: #595959;
+  --light-blackish: #3F3F3F;
+  --blackish: #363636;
+  --black-decor: #868686;
+  --whitish: #fff;
+  --greyish: #C4C4C4;
+  --redish: #f65554;
+  --greenish: #49C699;
+  --blueish: #A7F4FF;
+  --light-grayish: rgba(0, 0, 0, 0.3);
+  --dark-grayish: #616161;
+  --white-smokish: #F4F4F4;
+  --star-dustish: #9F9F9F;
+}
+
+:root {
+  --color-error: var(--redish);
+  --color-panels-bg: var(--white-smokish);
+  --color-text-grey: var(--greyish);
+}
