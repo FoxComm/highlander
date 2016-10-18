@@ -20,7 +20,7 @@
 
 .title {
   margin-bottom: 26px;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 18px;
 }
 
@@ -54,7 +54,12 @@
   margin-bottom: 10px;
 
   & > input {
+    height: 50px;
     width: 100%;
+    background: #F4F4F4;
+    color: #212121;
+    font-size: 14px;
+    opacity: 0.38;
   }
 }
 
@@ -64,9 +69,11 @@
 }
 
 .switch-stage {
-  margin-top: 19px;
+  margin-top: 20px;
   font-size: 15px;
   line-height: 18px;
+  font-weight: 300;
+  color: #212121;
 }
 
 .top-message {
@@ -86,11 +93,22 @@
 }
 
 .restore-link {
-  color: var(--greyish);
+  font-weight: 400;
+  font-size: 14px;
+  color: #212121;
+  opacity: 0.38;
+
+  &:hover {
+    opacity: 1.0;
+  }
 }
 
 .link {
-  color: var(--blackish);
+  color: #8D757A;
+
+  &:hover {
+    color: #3E3436;
+  }
 }
 
 @media (--small-only) {
@@ -134,18 +152,5 @@
   .auth-block {
     lost-column: 5/11;
     lost-offset: -3/11;
-  }
-}
-
-@media (--medium) {
-  .link,
-  .restore-link {
-    text-decoration: none;
-    box-shadow: 0 1px;
-
-    &:hover {
-      color: var(--blackish);
-      box-shadow: none;
-    }
   }
 }

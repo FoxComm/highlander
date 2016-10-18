@@ -11,7 +11,6 @@ import styles from './auth.css';
 import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import { FormField } from 'ui/forms';
 import Button from 'ui/buttons';
-import WrapToLines from 'ui/wrap-to-lines';
 
 import * as actions from 'modules/auth';
 import { authBlockTypes } from 'paragons/auth';
@@ -106,13 +105,7 @@ class Login extends Component {
 
     return (
       <div>
-        <div styleName="title">{t('LOG IN')}</div>
-        <form>
-          <Button icon="fc-google" onClick={this.googleAuthenticate} type="button" styleName="google-login">
-            {t('LOG IN WITH GOOGLE')}
-          </Button>
-        </form>
-        <WrapToLines styleName="divider">{t('or')}</WrapToLines>
+        <div styleName="title">{t('SIGN IN')}</div>
         <form>
           <FormField key="email" styleName="form-field" error={this.state.error}>
             <TextInput placeholder={t('EMAIL')} value={email} type="email" onChange={this.onChangeEmail} />
@@ -121,7 +114,8 @@ class Login extends Component {
             <TextInputWithLabel
               placeholder="PASSWORD"
               label={!password && restoreLink}
-              value={password} onChange={this.onChangePassword} type="password"
+              value={password}
+              onChange={this.onChangePassword} type="password"
             />
           </FormField>
           <Button
@@ -129,7 +123,7 @@ class Login extends Component {
             isLoading={props.isLoading}
             onClick={this.authenticate}
           >
-            {t('LOG IN')}
+            {t('SIGN IN')}
           </Button>
         </form>
         <div styleName="switch-stage">

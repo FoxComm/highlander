@@ -3,7 +3,7 @@
 @import "media-queries.css";
 
 .button {
-  font-size: 1rem;
+  font-size: 14px;
   line-height: 20px;
   padding: 14px 10px;
   border: none;
