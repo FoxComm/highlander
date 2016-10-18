@@ -41,7 +41,7 @@ defmodule Marketplace.MerchantShippingSolutionController do
   defp insert_and_relate(shipping_solutions_params, merchant_id) when is_list(shipping_solutions_params) do
     results = shipping_solutions_params
             |> Enum.map(fn solution -> insert_and_relate(solution, merchant_id) end)
-            |> Enum.reduce({:ok, []}, fn (res, acc) -> reduce_results(res, acc) end)
+            |> Enum.reduce({:ok, []}, fn (res, acc) -> reduce_insert_statuses(res, acc) end)
     results
   end
 
@@ -63,15 +63,15 @@ defmodule Marketplace.MerchantShippingSolutionController do
     Repo.insert(mass_cs)
   end
 
-  defp reduce_results({:ok, map}, {:ok, maps}) do
+  defp reduce_insert_statuses({:ok, map}, {:ok, maps}) do
     {:ok, [map | maps]}
   end
 
-  defp reduce_results({:error, op, val, chgs}, _other) do
+  defp reduce_insert_statuses({:error, op, val, chgs}, _other) do
     {:error, op, val, chgs}
   end
 
-  defp reduce_results(_other, {:error, op, val, chgs}) do
+  defp reduce_insert_statuses(_other, {:error, op, val, chgs}) do
     {:error, op, val, chgs}
   end
 end
