@@ -1,7 +1,6 @@
 package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.github.tminglei.slickpg.LTree
 
 import models.objects.ObjectContexts
 import models.product.{Mvp, SimpleContext, SimpleProductData}

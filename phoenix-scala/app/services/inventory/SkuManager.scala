@@ -1,7 +1,6 @@
 package services.inventory
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
 import cats.data._
 import failures.ProductFailures._
@@ -89,10 +88,11 @@ object SkuManager {
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
-      code ← * <~ mustGetSkuCode(payload)
-      ins  ← * <~ ObjectUtils.insert(form, shadow)
+      scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      code  ← * <~ mustGetSkuCode(payload)
+      ins   ← * <~ ObjectUtils.insert(form, shadow)
       sku ← * <~ Skus.create(
-               Sku(scope = LTree(au.token.scope),
+               Sku(scope = scope,
                    contextId = context.id,
                    code = code,
                    formId = ins.form.id,

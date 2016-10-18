@@ -1,7 +1,6 @@
 package services.image
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
 import failures.ImageFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
@@ -92,8 +91,9 @@ object ImageManager {
     for {
       payload ← * <~ createPayload.validate
 
-      album ← * <~ ObjectUtils.insertFullObject(payload.formAndShadow,
-                                                ins ⇒ createAlbumHeadFromInsert(context, ins))
+      album ← * <~ ObjectUtils.insertFullObject(
+                 payload.formAndShadow,
+                 ins ⇒ createAlbumHeadFromInsert(context, ins, createPayload.scope))
       images ← * <~ (payload.images match {
                     case Some(imagesPayload) ⇒
                       createImagesForAlbum(album.model, imagesPayload, context)
@@ -133,7 +133,7 @@ object ImageManager {
         for {
           inserted ← * <~ ObjectUtils.insertFullObject(
                         payload.formAndShadow,
-                        ins ⇒ createImageHeadFromInsert(context, ins))
+                        ins ⇒ createImageHeadFromInsert(context, ins, payload.scope))
           _ ← * <~ AlbumImageLinks.create(
                  AlbumImageLink(leftId = album.id,
                                 position = position,
@@ -166,8 +166,9 @@ object ImageManager {
     for {
       images ← * <~ imagesPayload.map(
                   img ⇒
-                    ObjectUtils.insertFullObject(img.formAndShadow,
-                                                 ins ⇒ createImageHeadFromInsert(context, ins)))
+                    ObjectUtils.insertFullObject(
+                        img.formAndShadow,
+                        ins ⇒ createImageHeadFromInsert(context, ins, img.scope)))
       links ← * <~ images.zipWithIndex.map {
                case (image, index) ⇒
                  AlbumImageLinks.create(
@@ -286,13 +287,17 @@ object ImageManager {
 
   private def createAlbumHeadFromInsert(
       oc: ObjectContext,
-      insert: InsertResult)(implicit ec: EC, db: DB, au: AU): DbResultT[Album] =
-    Albums.create(
-        Album(scope = LTree(au.token.scope),
-              contextId = oc.id,
-              shadowId = insert.shadow.id,
-              formId = insert.form.id,
-              commitId = insert.commit.id))
+      insert: InsertResult,
+      maybeScope: Option[String])(implicit ec: EC, db: DB, au: AU): DbResultT[Album] =
+    for {
+      scope ← * <~ Scope.getScopeOrSubscope(maybeScope)
+      album ← * <~ Albums.create(
+                 Album(scope = scope,
+                       contextId = oc.id,
+                       shadowId = insert.shadow.id,
+                       formId = insert.form.id,
+                       commitId = insert.commit.id))
+    } yield album
 
   private def updateAlbumHead(fullObject: FullObject[Album], commitId: Int)(
       implicit ec: EC,
@@ -305,14 +310,17 @@ object ImageManager {
 
   private def createImageHeadFromInsert(
       oc: ObjectContext,
-      ins: InsertResult)(implicit ec: EC, db: DB, au: AU): DbResultT[Image] = {
-    Images.create(
-        Image(scope = LTree(au.token.scope),
-              contextId = oc.id,
-              shadowId = ins.shadow.id,
-              formId = ins.form.id,
-              commitId = ins.commit.id))
-  }
+      ins: InsertResult,
+      maybeScope: Option[String])(implicit ec: EC, db: DB, au: AU): DbResultT[Image] =
+    for {
+      scope ← * <~ Scope.getScopeOrSubscope(maybeScope)
+      image ← * <~ Images.create(
+                 Image(scope = scope,
+                       contextId = oc.id,
+                       shadowId = ins.shadow.id,
+                       formId = ins.form.id,
+                       commitId = ins.commit.id))
+    } yield image
 
   private def updateImageHead(fullObject: FullObject[Image], commitId: Int)(
       implicit ec: EC,

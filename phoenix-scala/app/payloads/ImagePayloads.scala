@@ -16,7 +16,8 @@ object ImagePayloads {
   case class ImagePayload(id: Option[Int] = None,
                           src: String,
                           title: Option[String] = None,
-                          alt: Option[String] = None) {
+                          alt: Option[String] = None,
+                          scope: Option[String] = None) {
 
     def formAndShadow: FormAndShadow = {
       val jsonBuilder: AttributesBuilder = ObjectPayloads.optionalAttributes(
@@ -29,7 +30,10 @@ object ImagePayloads {
     }
   }
 
-  case class CreateAlbumPayload(name: String, images: Images = None, position: Option[Int] = None)
+  case class CreateAlbumPayload(name: String,
+                                images: Images = None,
+                                position: Option[Int] = None,
+                                scope: Option[String] = None)
       extends Validation[CreateAlbumPayload] {
 
     def formAndShadow: FormAndShadow = {

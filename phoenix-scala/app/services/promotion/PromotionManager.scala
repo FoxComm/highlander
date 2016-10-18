@@ -1,12 +1,12 @@
 package services.promotion
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import failures.PromotionFailures._
 import models.coupon.Coupons
+import models.account._
 import models.discount._
 import models.objects._
 import models.promotion._
@@ -64,6 +64,7 @@ object PromotionManager {
       payload: CreatePromotion,
       contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[PromotionResponse.Root] =
     for {
+      scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
@@ -71,7 +72,7 @@ object PromotionManager {
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow)
       promotion ← * <~ Promotions.create(
-                     Promotion(scope = LTree(au.token.scope),
+                     Promotion(scope = scope,
                                contextId = context.id,
                                applyType = payload.applyType,
                                formId = ins.form.id,
