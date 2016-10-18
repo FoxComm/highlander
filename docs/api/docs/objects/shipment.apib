@@ -1,0 +1,42 @@
+### Shipment
++ id: 1 (required, number) - Unique ID.
++ referenceNumber: `SR10001` (required, string) - Unique ID for the shipment.
++ shippingMethod: (required, ShippingMethod)
++ orderRefNum: `BR10001` (required, string) - Order that the shipment is associated with.
++ state: `pending` (required, string) - State of the shipment.
++ shipmentDate: `2020-01-01T12:00:00Z` (optional, string) - Date that the shipment leaves the warehouse.
++ estimatedArrival: `2020-01-01T12:00:00Z` (optional, string) - Date that the shipment is expected to arrive to the customer.
++ deliveredDate: `2020-01-01T12:00:00Z` (optional, string) - Date that the shipment was delivered.
++ address: (required, ShippingAddress) - Destination address.
++ shipmentLineItems: (required, array[ShipmentLineItem]) - The items that should be part of the shipment.
++ trackingNumber: `1Z9999999999999999` (optional, string) - An optional tracking number, if it's provided.
++ shippingPrice: 399 (required, number) - The price of the shipment.
+
+### ShippingAddress
++ id: 1 (required, number) - Unique ID.
++ region (required, Region) - Associated region.
++ name: `Home` (required, string) - Address record name.
++ address1: `38 Baker Street` (required, string) - Actual address.
++ address2: `39 Baker Street` (optional, string) - Additional address line.
++ city: `Donkeyville` (required, string) - City.
++ zip: `55555` (required, string) - Zip code.
+
+### ShippingMethod
++ id: 1 (required, number) - Unique ID.
++ name: `Ground Shipping` (required, string) - Name of the shipping method to show to the customer.
++ carrier: (required, Carrier) - The carrier that's delivering the shipment.
++ code: `UPS-GROUND` (required, string) - A code that uniquely identifies this shipping method.
+
+### Carrier
++ id: 1 (required, number) - Unique ID.
++ name: `UPS` (required, string) - Name of the carrier shown to the customer.
++ trackingTemplate: `http://wwwapps.ups.com/WebTracking/track?track=yes&trackNums=%s` - (optional, string) - Template to use to construct links to tracking codes.
+
+### ShipmentLineItem
++ id: 1 (required, number) - Unique ID.
++ referenceNumber: `SR10001` (required, string) - Unique ID for the line item.
++ sku: `test-sku` (required, string) - Unique identifier for the SKU.
++ name: `Brown Shoes` (required, string) - Name of the SKU shown on the storefront.
++ price: 999 (required, number) - The price in cents.
++ imagePath: `http://testsku.png` (required, string) - URL to an image for the SKU.
+
