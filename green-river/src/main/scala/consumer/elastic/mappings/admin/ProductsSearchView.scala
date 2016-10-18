@@ -28,7 +28,8 @@ final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
           field("images").nested(
               field("alt", StringType).index("not_analyzed"),
               field("src", StringType).index("not_analyzed"),
-              field("title", StringType).index("not_analyzed")
+              field("title", StringType).index("not_analyzed"),
+              field("baseUrl", StringType).index("not_analyzed")
           )
       )
   )

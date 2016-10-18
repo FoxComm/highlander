@@ -124,8 +124,8 @@ object TaxonomyManager {
       taxon ← * <~ Taxons.create(
                  Taxon(contextId = oc.id,
                        scope = scope,
-                       shadowId = ins.form.id,
-                       formId = ins.shadow.id,
+                       formId = ins.form.id,
+                       shadowId = ins.shadow.id,
                        commitId = ins.commit.id))
 
       parentLink ← * <~ payload.location.fold(DbResultT.none[TaxonomyTaxonLink])(location ⇒
