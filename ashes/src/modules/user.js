@@ -40,11 +40,6 @@ export const INFO_MESSAGES = {
   LOGGED_OUT: 'You have successfully logged out.',
 };
 
-const _fetchUserInfo = createAsyncActions(
-  'fetchUserInfo',
-  () => Api.get(`/store-admins/me`)
-);
-
 export function fetchUserInfo(): ActionDispatch {
   return (dispatch, getState) => {
     let user = getState().user.current;
@@ -57,8 +52,6 @@ export function fetchUserInfo(): ActionDispatch {
       } catch(e) {
       }
     }
-
-    dispatch(_fetchUserInfo.perform());
   };
 }
 
@@ -135,7 +128,6 @@ function saveUser(state: UserState, user: TUser) {
 
 const reducer = createReducer({
   [setUser]: saveUser,
-  [_fetchUserInfo.succeeded]: saveUser,
   [removeUser]: (state: UserState, user: TUser) => {
     return dissoc(state, 'user');
   },
