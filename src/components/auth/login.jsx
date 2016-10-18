@@ -112,6 +112,7 @@ class Login extends Component {
           </FormField>
           <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
             <TextInputWithLabel
+              styleName="form-field-input"
               placeholder="PASSWORD"
               label={!password && restoreLink}
               value={password}

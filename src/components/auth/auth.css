@@ -13,9 +13,9 @@
 }
 
 .logo {
-  width: 96px;
-  height: 96px;
-  margin-bottom: 48px;
+  width: 208px;
+  height: 102px;
+  margin-bottom: 40px;
 }
 
 .title {
@@ -49,6 +49,19 @@
   margin-bottom: calc(30px - var(--dividerMargin));
 }
 
+.form-field-input {
+  composes: text-input from "ui/css/input.css";
+  height: 50px;
+  width: 100%;
+  background: #F4F4F4;
+  opacity: 0.38;
+
+  &::-webkit-input-placeholder { color:#212121; }
+  &::-moz-placeholder { color:#212121; }
+  &:-moz-placeholder { color:#212121; }
+  &:-ms-input-placeholder { color:#212121; }
+}
+
 .form-field {
   width: 100%;
   margin-bottom: 10px;
@@ -57,9 +70,12 @@
     height: 50px;
     width: 100%;
     background: #F4F4F4;
-    color: #212121;
-    font-size: 14px;
     opacity: 0.38;
+
+    &::-webkit-input-placeholder { color:#212121; }
+    &::-moz-placeholder { color:#212121; }
+    &:-moz-placeholder { color:#212121; }
+    &:-ms-input-placeholder { color:#212121; }
   }
 }
 
