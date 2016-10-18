@@ -29,4 +29,5 @@ config :permissions, Permissions.Repo,
   password: "",
   database: "phoenix_development",
   hostname: "localhost",
-  pool_size: 10
+  pool_size: 10,
+  extensions: [{Permissions.GenericText, :copy}]

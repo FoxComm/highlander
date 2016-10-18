@@ -1,19 +1,32 @@
 package testutils
 
+import java.util.concurrent.TimeUnit
+
+import akka.util.Timeout
+
 import cats.data.Xor
 import failures.Failures
 import org.scalactic.TypeCheckedTripleEquals
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.concurrent.{AbstractPatienceConfiguration, ScalaFutures}
+import org.scalatest.time.{Milliseconds, Seconds, Span}
 import org.scalatest.{FreeSpecLike, MustMatchers, OptionValues, Tag}
 import utils.FoxConfig
 
 trait TestBase
     extends FreeSpecLike
     with MustMatchers
+    with AbstractPatienceConfiguration
     with ScalaFutures
     with OptionValues
     with TypeCheckedTripleEquals
     with CatsHelpers {
+
+  override implicit def patienceConfig: PatienceConfig = PatienceConfig(
+      timeout = Span(5, Seconds),
+      interval = Span(15, Milliseconds)
+  )
+
+  implicit val timeout: Timeout = Timeout(5, TimeUnit.SECONDS)
 
   val config = TestBase.config
 
