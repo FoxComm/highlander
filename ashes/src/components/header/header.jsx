@@ -24,7 +24,7 @@ type Props = {
   params: Object,
   fetchUserInfo: Function,
   toggleUserMenu: Function,
-  isMenuVisible?: bool,
+  isMenuVisible?: boolean,
 };
 
 const mapState = state => ({
