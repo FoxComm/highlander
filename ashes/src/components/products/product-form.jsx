@@ -12,6 +12,7 @@ import { flow, filter } from 'lodash/fp';
 // components
 import ObjectForm from '../object-form/object-form';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
+import ProductPromotion from './promotion';
 import Tags from '../tags/tags';
 import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
@@ -44,7 +45,6 @@ const omitKeys = {
 const defaultKeys = {
   general: ['title', 'description'],
   misc: ['images'],
-  seo: ['url', 'metaTitle', 'metaDescription'],
 };
 
 /**
@@ -63,7 +63,6 @@ export default class ProductForm extends Component {
     const toOmit = [
       ...defaultKeys.general,
       ...defaultKeys.misc,
-      ...defaultKeys.seo,
       ..._.flatten(_.valuesIn(omitKeys)),
     ];
     const attributes = _.get(this.props, 'product.attributes', {});
@@ -186,6 +185,7 @@ export default class ProductForm extends Component {
             onChange={this.handleProductChange}
           />
           {this.productState}
+          <ProductPromotion />
         </div>
       </div>
     );

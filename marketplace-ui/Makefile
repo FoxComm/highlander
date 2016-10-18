@@ -3,10 +3,10 @@ setup:
 	npm install
 
 build: setup
-	test -f .env && export eval `cat .env` || true && ./node_modules/.bin/gulp build
+	test -f .env && source .env || true && ./node_modules/.bin/gulp build
 
 build-production:
-	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
+	test -f .env && source .env || true && NODE_ENV=production ./node_modules/.bin/gulp build
 
 package: build
 	touch marketplace-ui.tar.bz2

@@ -1,0 +1,41 @@
+{
+  "id": "/ashes",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 2048,
+  "disk": 0,
+  "instances": 1,
+  "env": {
+    "NODE_ENV": "production",
+    "PORT": "4000",
+    "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
+    "ON_SERVER": "true",
+    "STRIPE_PUBLISHABLE_KEY": "pk_test_r6t0niqmG9OOZhhaSkacUUU1",
+    "GA_TRACKING_ID": "{{ashes_ga_tracking_id}}"
+  },
+  "portDefinitions": [
+    {
+      "port": 10008,
+      "protocol": "tcp",
+      "name": "4000",
+      "labels": {}
+    }
+  ],
+  "container": {
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "/keys",
+        "hostPath": "/etc/keys",
+        "mode": "RO"
+      }
+    ],
+    "docker": {
+      "image": "docker.stage.foxcommerce.com:5000/ashes",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  }
+}

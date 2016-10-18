@@ -4,6 +4,7 @@ defmodule Marketplace.MerchantAccountController do
   alias Marketplace.MerchantAccount
   alias Marketplace.Merchant
   alias Marketplace.PermissionManager
+  alias Marketplace.Stripe
 
   def index(conn, %{"merchant_id" => merchant_id}) do
     merchant_accounts = Repo.all(merchant_accounts(merchant_id))
@@ -12,7 +13,8 @@ defmodule Marketplace.MerchantAccountController do
 
   def create(conn, %{"merchant_id" => merchant_id, "account" => merchant_account_params}) do
     solomon_id = PermissionManager.create_user_from_merchant_account(merchant_account_params)
-    changeset = MerchantAccount.changeset(%MerchantAccount{merchant_id: String.to_integer(merchant_id), solomon_id: solomon_id}, merchant_account_params)
+    account = %MerchantAccount{merchant_id: String.to_integer(merchant_id), solomon_id: solomon_id}
+    changeset = MerchantAccount.changeset(account, merchant_account_params)
 
     case Repo.insert(changeset) do 
       {:ok, merchant_account} -> 

@@ -36,6 +36,7 @@ export const frn = {
   oms: {
     cart: 'frn:oms:cart',
     order: 'frn:oms:order',
+    fraud: 'frn:oms:fraud',
   },
   pim: {
     album: 'frn:pim:album',
@@ -45,9 +46,11 @@ export const frn = {
   settings: {
     user: 'frn:settings:usr',
     plugin: 'frn:settings:plugin',
+    application: 'frn:settings:application',
   },
   user: {
     customer: 'frn:usr:customer',
+    customerDetails: 'frn:usr:customer-details',
     customerCart: 'frn:usr:customer-cart',
     customerGroup: 'frn:usr:customer-group',
     customerTransaction: 'frn:usr:customer-transaction',
@@ -71,7 +74,6 @@ export function superAdmin(): Claims {
 export function merchant(): Claims {
   return {
     ...readAction(frn.pim.product),
-    ...readAction(frn.pim.sku),
     ...readAction(frn.pim.album),
     ...readAction(frn.mdl.summary),
     ...readAction(frn.oms.order),

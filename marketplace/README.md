@@ -11,19 +11,19 @@ To get started, please follow the below instructions:
   * Seed the database with: `mix run priv/repo/seeds.exs`
   * Start Phoenix endpoint with `mix phoenix.server`
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+Now you can visit [`localhost:4003`](http://localhost:4003) from your browser.
 
 ## System Requirements
   * PostgreSQL: `psql --version`
   * Node.js: `node --version`
 
 ## Interactions with Other Systems
-This application interacts with both `phoenix` and `solomon`.  The following environment 
+This application interacts with both `phoenix` and `solomon`.  The following environment
 variables must be set:
   * `PHOENIX_URL`
   * `PHOENIX_PORT`
   * `SOLOMON_URL`
   * `SOLOMON_PORT`
 
-For your convenience, there is already a .env file in the root of this directory that is set with the default of those applications.  
+For your convenience, there is already a .env file in the root of this directory that is set with the default of those applications.
 You can simply run `source .env` and then `mix phoenix.server`

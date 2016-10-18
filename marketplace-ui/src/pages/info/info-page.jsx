@@ -33,7 +33,7 @@ class MerchantInfoPage extends Component {
   props: Props;
 
   componentWillReceiveProps(nextProps: Props): void {
-    if (nextProps.info.id) {
+    if (nextProps.info.saved) {
       this.props.replace(`/application/${this.props.params.ref}/actions`);
     }
   }
@@ -50,7 +50,7 @@ class MerchantInfoPage extends Component {
   }
 
   get form(): HTMLElement {
-    if (this.props.info.id) {
+    if (this.props.info.saved) {
       return;
     }
 

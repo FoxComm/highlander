@@ -1,0 +1,33 @@
+{
+  "id": "/solomon",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 256,
+  "disk": 0,
+  "instances": 1,
+  "env": {
+    "DB_USER": "phoenix",
+    "DB_HOST": "db.service.consul",
+    "DB_NAME": "phoenix_development",
+    "DB_PASSWORD": ""
+  },
+  "portDefinitions": [
+    {
+      "port": 10006,
+      "protocol": "tcp",
+      "name": "4002",
+      "labels": {}
+    }
+  ],
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "docker.stage.foxcommerce.com:5000/solomon",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  }
+}
