@@ -30,4 +30,4 @@ config :solomon, Solomon.Repo,
   database: "phoenix_development",
   hostname: "localhost",
   pool_size: 10,
-  extensions: [{Permissions.GenericText, :copy}]
+  extensions: [{Solomon.GenericText, :copy}]
