@@ -24,3 +24,6 @@
     - { role: test/db }
     - { role: test/selenium }
     - { role: dev/ssh_gce }
+
+  tasks:
+    - include: tasks/restart_buildkite_agent.yml
