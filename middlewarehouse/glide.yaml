@@ -10,7 +10,7 @@ import:
   - package: github.com/stretchr/testify
   - package: github.com/FoxComm/metamorphosis
     vcs: git
-    version: 13386198c4fd57672dacafc1b5a094c54ff2ca97 
+    version: 13386198c4fd57672dacafc1b5a094c54ff2ca97
     repo: git@github.com:FoxComm/metamorphosis.git
   - package: github.com/elodina/go-avro
     version: 0c8185d9a3ba82aeac98db3313a268a5b6df99b5
@@ -32,3 +32,4 @@ import:
   - package: github.com/golang/snappy
   - package: github.com/Shopify/sarama
   - package: github.com/cihub/seelog
+  - package: github.com/SermoDigital/jose
