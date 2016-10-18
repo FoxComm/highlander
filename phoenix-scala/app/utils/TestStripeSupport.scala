@@ -18,7 +18,7 @@ object TestStripeSupport {
 
   // Reuse existing customer id. If this one doesn't work anymore, head to Stripe dashboard and search for customer with
   // active credit card.
-  val realStripeCustomerId = "cus_94Z7DcUVKfmdKx"
+  val realStripeCustomerId = "cus_9OoHV3spTWn4n8"
 
   def createTokenForCard(cardNumber: String): Result[Token] =
     createToken(cardNumber = cardNumber,
