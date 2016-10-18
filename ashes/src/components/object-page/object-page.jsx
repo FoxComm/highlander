@@ -45,6 +45,8 @@ export function connectPage(namespace, actions) {
       details: state[plural].details,
       isFetching: _.get(state.asyncActions, `${actionNames.fetch}.inProgress`, null),
       fetchError: _.get(state.asyncActions, `${actionNames.fetch}.err`, null),
+      createError: _.get(state.asyncActions, `${actionNames.create}.err`, null),
+      updateError: _.get(state.asyncActions, `${actionNames.update}.err`, null),
       isSaving: (
         _.get(state.asyncActions, `${actionNames.create}.inProgress`, false)
         || _.get(state.asyncActions, `${actionNames.update}.inProgress`, false)
@@ -152,10 +154,10 @@ export class ObjectPage extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { isFetching, isSaving } = nextProps;
+    const { isFetching, isSaving, fetchError, createError, updateError } = nextProps;
     const { namespace } = this.props;
 
-    if (!isFetching && !isSaving && !nextProps.fetchError) {
+    if (!isFetching && !isSaving && !fetchError && !createError && !updateError) {
       const nextEntity = nextProps.details[namespace];
       if (!nextEntity) return;
 
