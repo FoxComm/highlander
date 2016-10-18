@@ -252,9 +252,10 @@ class FormField extends Component {
 
   render() {
     const styleName = (this.hasError && this.readyToShowErrors) ? 'has-error' : '';
+    const className = _.isEmpty(this.props.className) ? null : {className: this.props.className};
 
     return (
-      <div styleName={styleName} className={this.props.className}>
+      <div styleName={styleName} {...className} >
         {this.props.children}
         {this.errorMessages}
       </div>
