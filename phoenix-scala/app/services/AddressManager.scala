@@ -5,11 +5,15 @@ import java.time.Instant
 import cats.implicits._
 import failures.NotFoundFailure404
 import models.account._
-import models.location.{Address, Addresses}
+import models.customer._
+import models.location._
+import models.traits._
 import payloads.AddressPayloads._
 import responses.AddressResponse
+import services.taxes.TaxesService
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 object AddressManager {
@@ -27,12 +31,13 @@ object AddressManager {
       response ← * <~ AddressResponse.fromAddress(address)
     } yield response
 
-  def create(originator: User,
-             payload: CreateAddressPayload,
-             accountId: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[AddressResponse] =
+  def create(
+      originator: User,
+      payload: CreateAddressPayload,
+      customerId: Int)(implicit ec: EC, db: DB, ac: AC, apis: Apis): DbResultT[AddressResponse] =
     for {
-      customer ← * <~ Users.mustFindByAccountId(accountId)
-      address  ← * <~ Addresses.create(Address.fromPayload(payload, accountId))
+      customer ← * <~ Users.mustFindById404(customerId)
+      address  ← * <~ Addresses.create(Address.fromPayload(payload, customerId))
       response ← * <~ AddressResponse.fromAddress(address)
       _        ← * <~ LogActivity.addressCreated(originator, customer, response)
     } yield response
@@ -40,13 +45,17 @@ object AddressManager {
   def edit(originator: User, addressId: Int, accountId: Int, payload: CreateAddressPayload)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[AddressResponse] =
+      ac: AC,
+      apis: Apis): DbResultT[AddressResponse] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       oldAddress ← * <~ Addresses
                     .findActiveByIdAndAccount(addressId, accountId)
                     .mustFindOneOr(addressNotFound(addressId))
       address     ← * <~ Address.fromPayload(payload, accountId).copy(id = addressId).validate
+      region      ← * <~ Regions.mustFindById400(address.regionId)
+      country     ← * <~ Countries.mustFindById400(region.countryId)
+      _           ← * <~ TaxesService.saveAddressValidationDetails(address)
       _           ← * <~ Addresses.insertOrUpdate(address)
       response    ← * <~ AddressResponse.fromAddress(address)
       oldResponse ← * <~ AddressResponse.fromAddress(oldAddress)

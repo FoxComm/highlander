@@ -151,13 +151,15 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
 
     implicit val au = storeAdminAuthData
 
+    val defaultTax = 0
+
     val cart = (for {
       cart ← * <~ Carts.create(Factories.cart.copy(accountId = customer.accountId))
       product ← * <~ Mvp.insertProduct(ctx.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       _ ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
 
-      cart ← * <~ CartTotaler.saveTotals(cart)
+      cart ← * <~ CartTotaler.saveTotals(cart, defaultTax)
     } yield cart).gimme
 
     val californiaId = 4129
@@ -261,6 +263,8 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
 
     implicit val au = storeAdminAuthData
 
+    val defaultTax = 10
+
     val scope = LTree(au.token.scope)
 
     val conditions = parse(
@@ -315,8 +319,8 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
       _ ← * <~ OrderShippingAddresses.copyFromAddress(address = expensiveAddress,
                                                       cordRef = expensiveCart.refNum)
 
-      cheapCart     ← * <~ CartTotaler.saveTotals(cheapCart)
-      expensiveCart ← * <~ CartTotaler.saveTotals(expensiveCart)
+      cheapCart     ← * <~ CartTotaler.saveTotals(cheapCart, defaultTax)
+      expensiveCart ← * <~ CartTotaler.saveTotals(expensiveCart, defaultTax)
     } yield (shippingMethod, cheapCart, expensiveCart)).gimme
   }
 

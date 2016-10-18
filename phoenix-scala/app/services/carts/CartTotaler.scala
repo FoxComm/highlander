@@ -6,6 +6,7 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 import models.location.Region._
+import utils.apis.Apis
 
 // TODO: Use utils.Money
 object CartTotaler {
@@ -63,19 +64,20 @@ object CartTotaler {
         if (address.regionId == californiaId) caTaxRate
         else defaultTaxRate
       }.getOrElse(defaultTaxRate)
-    } yield ((subTotal - adjustments + shipping) * taxRate).toInt
+    } yield
+      ((subTotal - adjustments + shipping) * defaultTaxRate).toInt //ToDo @Eugene: replace defaultTaxRate
 
-  def totals(cart: Cart)(implicit ec: EC): DbResultT[Totals] =
+  def totals(cart: Cart, tax: Int)(implicit ec: EC): DbResultT[Totals] =
     for {
       sub  ← * <~ subTotal(cart)
       ship ← * <~ shippingTotal(cart)
       adj  ← * <~ adjustmentsTotal(cart)
-      tax  ← * <~ taxesTotal(cart = cart, subTotal = sub, shipping = ship, adjustments = adj)
+//      tax  ← * <~ taxesTotal(cart = cart, subTotal = sub, shipping = ship, adjustments = adj)
     } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj, taxes = tax)
 
-  def saveTotals(cart: Cart)(implicit ec: EC): DbResultT[Cart] =
+  def saveTotals(cart: Cart, tax: Int)(implicit ec: EC): DbResultT[Cart] =
     for {
-      t ← * <~ totals(cart)
+      t ← * <~ totals(cart, tax)
       withTotals = cart.copy(subTotal = t.subTotal,
                              shippingTotal = t.shipping,
                              adjustmentsTotal = t.adjustments,

@@ -1,3 +1,6 @@
 package utils.apis
 
-case class Apis(stripe: FoxStripeApi, amazon: AmazonApi, middlwarehouse: MiddlewarehouseApi)
+case class Apis(stripe: FoxStripeApi,
+                amazon: AmazonApi,
+                middlwarehouse: MiddlewarehouseApi,
+                avalara: AvalaraApi)

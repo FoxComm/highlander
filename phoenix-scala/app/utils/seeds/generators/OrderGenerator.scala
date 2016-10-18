@@ -33,6 +33,8 @@ import failures.NotFoundFailure400
 
 trait OrderGenerator extends ShipmentSeeds {
 
+  val defaultTax = 0
+
   def orderGenerators()(implicit db: DB) =
     List[(Int, ObjectContext, Seq[Int], GiftCard) ⇒ DbResultT[Order]](manualHoldOrder,
                                                                       manualHoldStoreCreditOrder,
@@ -185,7 +187,7 @@ trait OrderGenerator extends ShipmentSeeds {
       addr ← * <~ getDefaultAddress(accountId)
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
-      _ ← * <~ CartTotaler.saveTotals(cart)
+      _ ← * <~ CartTotaler.saveTotals(cart, defaultTax)
     } yield cart
   }
 
@@ -202,7 +204,7 @@ trait OrderGenerator extends ShipmentSeeds {
       addr ← * <~ getDefaultAddress(accountId)
       _ ← * <~ OrderShippingAddresses.create(
              OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
-      _ ← * <~ CartTotaler.saveTotals(cart)
+      _ ← * <~ CartTotaler.saveTotals(cart, defaultTax)
     } yield cart
 
   def shippedOrderUsingCreditCard(accountId: Int,

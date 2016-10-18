@@ -482,6 +482,7 @@ class CartIntegrationTest
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = ({
 
       implicit val au = storeAdminAuthData
+      val taxRate     = 0
 
       for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
@@ -493,7 +494,7 @@ class CartIntegrationTest
                                     lowShippingMethod.copy(isActive = false, code = "INACTIVE"))
         highShippingMethod ← * <~ ShippingMethods.create(highSm)
 
-        _ ← * <~ CartTotaler.saveTotals(cart)
+        _ ← * <~ CartTotaler.saveTotals(cart, 0)
       } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)
     }).gimme
   }

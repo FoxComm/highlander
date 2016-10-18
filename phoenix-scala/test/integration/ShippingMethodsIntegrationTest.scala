@@ -112,6 +112,7 @@ class ShippingMethodsIntegrationTest
     val michiganId   = 4148
     val oregonId     = 4164
     val washingtonId = 4177
+    val taxValue     = 0
 
     val (address, orderShippingAddress) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
@@ -122,7 +123,7 @@ class ShippingMethodsIntegrationTest
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       _ ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
-      _ ← * <~ CartTotaler.saveTotals(cart)
+      _ ← * <~ CartTotaler.saveTotals(cart, taxValue)
     } yield (address, shipAddress)).gimme
   }
 

@@ -6,6 +6,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.stripe.model.DeletedCard
 import org.mockito.ArgumentMatcher
+import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
+import models.cord._
+import models.cord.lineitems.CartLineItems.FindLineItemResult
+import models.location._
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
@@ -82,7 +86,30 @@ trait MockedApis extends MockitoSugar {
     mocked
   }
 
-  implicit lazy val apisOverride: Apis = Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock)
+  lazy val avalaraApiMock = {
+    val mocked = mock[AvalaraApi]
+    when(mocked.validateAddress(any[Address], any[Region], any[Country])(any[EC]))
+      .thenReturn(Result.unit)
+    when(
+        mocked.getTaxForCart(any[Cart],
+                             any[Seq[FindLineItemResult]],
+                             any[Address],
+                             any[Region],
+                             any[Country],
+                             any[Int])(any[EC])).thenReturn(Result.good(0))
+    when(
+        mocked.getTaxForOrder(any[Cart],
+                              any[Seq[FindLineItemResult]],
+                              any[Address],
+                              any[Region],
+                              any[Country],
+                              any[Int])(any[EC])).thenReturn(Result.good(0))
+    when(mocked.cancelTax(any[Order])(any[EC])).thenReturn(Result.unit)
+    mocked
+  }
+
+  implicit lazy val apisOverride: Apis =
+    Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock, avalaraApiMock)
 
   implicit lazy val es: ElasticsearchApi = utils.ElasticsearchApi.default()
 }

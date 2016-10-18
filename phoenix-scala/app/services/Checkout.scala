@@ -5,13 +5,14 @@ import scala.util.Random
 import cats.data.Xor
 import cats.implicits._
 import failures.CouponFailures.CouponWithCodeCannotBeFound
-import failures.GeneralFailure
+import failures.{GeneralFailure, NotFoundFailure400}
 import failures.PromotionFailures.PromotionNotFoundForContext
 import models.cord._
 import models.cord.lineitems.CartLineItems
 import models.cord.lineitems.CartLineItems.scope._
 import models.coupon._
 import models.account._
+import models.location._
 import models.customer._
 import models.objects._
 import models.payment.creditcard._
@@ -20,6 +21,7 @@ import models.payment.storecredit._
 import models.promotion._
 import responses.cord.OrderResponse
 import services.coupon.CouponUsageService
+import services.taxes.TaxesService
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis._
@@ -63,6 +65,7 @@ object PaymentHelper {
 object Checkout {
 
   def fromCart(refNum: String)(implicit ec: EC,
+                               es: ES,
                                db: DB,
                                apis: Apis,
                                ac: AC,
@@ -73,6 +76,7 @@ object Checkout {
     } yield order
 
   def forCustomer(customer: User)(implicit ec: EC,
+                                  es: ES,
                                   db: DB,
                                   apis: Apis,
                                   ac: AC,
@@ -94,7 +98,7 @@ class ExternalCalls {
 
 case class Checkout(
     cart: Cart,
-    cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC) {
+    cartValidator: CartValidation)(implicit ec: EC, es: ES, db: DB, apis: Apis, ac: AC, ctx: OC) {
 
   var externalCalls = new ExternalCalls()
 
@@ -108,6 +112,7 @@ case class Checkout(
       _         ← * <~ holdInMiddleWarehouse
       _         ← * <~ authPayments(customer)
       _         ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
+      _         ← * <~ TaxesService.finalizeTaxes(cart)
       order     ← * <~ Orders.createFromCart(cart)
       _         ← * <~ fraudScore(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)

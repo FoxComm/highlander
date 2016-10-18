@@ -23,9 +23,11 @@ import models.account.User
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.discount.compilers._
+import services.taxes.TaxesService
 import services.{CartValidator, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 object CartPromotionUpdater {
@@ -66,7 +68,8 @@ object CartPromotionUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] =
+      ctx: OC,
+      apis: Apis): DbResultT[TheResponse[CartResponse]] =
     for {
       // Fetch base data
       cart ← * <~ getCartByOriginator(originator, refNum)
@@ -95,9 +98,10 @@ object CartPromotionUpdater {
       // Write event to application logs
       _ ← * <~ LogActivity.orderCouponAttached(cart, couponCode)
       // Response
-      cart      ← * <~ CartTotaler.saveTotals(cart)
-      validated ← * <~ CartValidator(cart).validate()
-      response  ← * <~ CartResponse.buildRefreshed(cart)
+      tax         ← * <~ TaxesService.getTaxRate(cart)
+      updatedCart ← * <~ CartTotaler.saveTotals(cart, tax)
+      validated   ← * <~ CartValidator(updatedCart).validate()
+      response    ← * <~ CartResponse.buildRefreshed(updatedCart)
     } yield TheResponse.validated(response, validated)
 
   def detachCoupon(originator: User, refNum: Option[String] = None)(
@@ -105,7 +109,8 @@ object CartPromotionUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] =
+      ctx: OC,
+      apis: Apis): DbResultT[TheResponse[CartResponse]] =
     for {
       // Read
       cart            ← * <~ getCartByOriginator(originator, refNum)
@@ -118,10 +123,11 @@ object CartPromotionUpdater {
       _ ← * <~ OrderLineItemAdjustments
            .filterByOrderRefAndShadows(cart.refNum, deleteShadowIds)
            .delete
-      _         ← * <~ CartTotaler.saveTotals(cart)
-      _         ← * <~ LogActivity.orderCouponDetached(cart)
-      validated ← * <~ CartValidator(cart).validate()
-      response  ← * <~ CartResponse.buildRefreshed(cart)
+      tax         ← * <~ TaxesService.getTaxRate(cart)
+      updatedCart ← * <~ CartTotaler.saveTotals(cart, tax)
+      _           ← * <~ LogActivity.orderCouponDetached(updatedCart)
+      validated   ← * <~ CartValidator(updatedCart).validate()
+      response    ← * <~ CartResponse.buildRefreshed(updatedCart)
     } yield TheResponse.validated(response, validated)
 
   /**

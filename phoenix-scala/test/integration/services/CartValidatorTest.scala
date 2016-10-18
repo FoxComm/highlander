@@ -85,7 +85,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
       }
 
       "if the grandTotal == 0" in new LineItemsFixture0 {
-        CartTotaler.saveTotals(cart).gimme
+        CartTotaler.saveTotals(cart, taxValue).gimme
 
         val result = CartValidator(refresh(cart)).validate().gimme
 
@@ -142,6 +142,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
 
   trait Fixture extends EmptyCustomerCart_Baked {
     implicit val au = storeAdminAuthData
+    val taxValue    = 0
   }
 
   trait LineItemsFixture extends Fixture {
@@ -155,7 +156,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
       skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
       items         ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = sku.id))
-      _             ← * <~ CartTotaler.saveTotals(cart)
+      _             ← * <~ CartTotaler.saveTotals(cart, taxValue)
     } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme
 
     val grandTotal = refresh(cart).grandTotal
@@ -171,7 +172,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
       skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
       items         ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = sku.id))
-      _             ← * <~ CartTotaler.saveTotals(cart)
+      _             ← * <~ CartTotaler.saveTotals(cart, taxValue)
     } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme
 
     val grandTotal = refresh(cart).grandTotal

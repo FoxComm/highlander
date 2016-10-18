@@ -71,6 +71,7 @@ class CartValidatorIntegrationTest
       val api = cartsApi(refNum).shippingMethod
       checkResponse(api.update(UpdateShippingMethod(shipMethod.id)),
                     Seq(EmptyCart(refNum), InsufficientFunds(refNum)))
+
       checkResponse(api.delete(), Seq(EmptyCart(refNum), NoShipMethod(refNum)))
     }
 
