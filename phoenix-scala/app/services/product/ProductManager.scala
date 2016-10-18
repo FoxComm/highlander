@@ -1,7 +1,6 @@
 package services.product
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
 import cats.data._
 import cats.implicits._
@@ -51,10 +50,11 @@ object ProductManager {
     val hasVariants     = variantPayloads.nonEmpty
 
     for {
-      _   ← * <~ validateCreate(payload)
-      ins ← * <~ ObjectUtils.insert(form, shadow)
+      scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      _     ← * <~ validateCreate(payload)
+      ins   ← * <~ ObjectUtils.insert(form, shadow)
       product ← * <~ Products.create(
-                   Product(scope = LTree(au.token.scope),
+                   Product(scope = scope,
                            contextId = oc.id,
                            formId = ins.form.id,
                            shadowId = ins.shadow.id,

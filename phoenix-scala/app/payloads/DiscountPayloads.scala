@@ -8,7 +8,9 @@ object DiscountPayloads {
 
   case class CreateDiscountShadow(attributes: Json)
 
-  case class CreateDiscount(form: CreateDiscountForm, shadow: CreateDiscountShadow)
+  case class CreateDiscount(form: CreateDiscountForm,
+                            shadow: CreateDiscountShadow,
+                            scope: Option[String] = None)
 
   case class UpdateDiscountForm(attributes: Json)
 

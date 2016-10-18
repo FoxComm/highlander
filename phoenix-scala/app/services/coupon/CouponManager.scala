@@ -2,11 +2,10 @@ package services.coupon
 
 import java.time.Instant
 
-import com.github.tminglei.slickpg.LTree
-import failures.CouponFailures._
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import failures.PromotionFailures._
+import failures.CouponFailures._
 import models.account._
 import models.coupon._
 import models.objects._
@@ -57,7 +56,7 @@ object CouponManager {
       ac: AC,
       au: AU): DbResultT[CouponResponse.Root] =
     for {
-
+      scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
@@ -68,7 +67,7 @@ object CouponManager {
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow)
       coupon ← * <~ Coupons.create(
-                  Coupon(scope = LTree(au.token.scope),
+                  Coupon(scope = scope,
                          contextId = context.id,
                          formId = ins.form.id,
                          shadowId = ins.shadow.id,

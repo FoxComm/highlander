@@ -1,8 +1,8 @@
 package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.github.tminglei.slickpg.LTree
 
+import models.account._
 import models.discount._
 import models.discount.offers._
 import models.discount.qualifiers._
@@ -29,11 +29,12 @@ trait DiscountSeeds {
       implicit db: DB,
       au: AU): DbResultT[BaseDiscount] =
     for {
+      scope  ← * <~ Scope.getScopeOrSubscope(payload.scope)
       form   ← * <~ ObjectForm(kind = Discount.kind, attributes = payload.form.attributes)
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow)
       discount ← * <~ Discounts.create(
-                    Discount(scope = LTree(au.token.scope),
+                    Discount(scope = scope,
                              contextId = context.id,
                              formId = ins.form.id,
                              shadowId = ins.shadow.id,

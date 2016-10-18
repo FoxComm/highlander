@@ -1,13 +1,12 @@
 package services.discount
 
-import com.github.tminglei.slickpg.LTree
-
 import cats.implicits._
 import failures.DiscountFailures._
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import models.discount._
 import models.objects._
+import models.account._
 import payloads.DiscountPayloads._
 import responses.DiscountResponses._
 import slick.driver.PostgresDriver.api._
@@ -70,11 +69,12 @@ object DiscountManager {
       implicit ec: EC,
       au: AU): DbResultT[CreateInternalResult] =
     for {
+      scope  ← * <~ Scope.getScopeOrSubscope(payload.scope)
       form   ← * <~ ObjectForm(kind = Discount.kind, attributes = payload.form.attributes)
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow)
       discount ← * <~ Discounts.create(
-                    Discount(scope = LTree(au.token.scope),
+                    Discount(scope = scope,
                              contextId = context.id,
                              formId = ins.form.id,
                              shadowId = ins.shadow.id,

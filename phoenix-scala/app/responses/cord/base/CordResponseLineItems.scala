@@ -31,10 +31,11 @@ object CordResponseLineItems {
       db: DB): DbResultT[CordResponseLineItems] =
     fetch(cordRef, adjustments, cordLineItemsFromOrder)
 
-  def fetchCart(cordRef: String, adjustments: Seq[CordResponseLineItemAdjustment])(
-      implicit ec: EC,
-      db: DB): DbResultT[CordResponseLineItems] =
-    fetch(cordRef, adjustments, cordLineItemsFromCart)
+  def fetchCart(cordRef: String,
+                adjustments: Seq[CordResponseLineItemAdjustment],
+                grouped: Boolean)(implicit ec: EC, db: DB): DbResultT[CordResponseLineItems] =
+    if (grouped) fetch(cordRef, adjustments, cordLineItemsFromCartGrouped)
+    else fetch(cordRef, adjustments, cordLineItemsFromCart)
 
   def fetch(cordRef: String,
             adjustments: Seq[CordResponseLineItemAdjustment],
@@ -59,7 +60,7 @@ object CordResponseLineItems {
                 .toSeq
     } yield result
 
-  def cordLineItemsFromCart(cordRef: String, adjustmentMap: AdjustmentMap)(
+  def cordLineItemsFromCartGrouped(cordRef: String, adjustmentMap: AdjustmentMap)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
@@ -72,6 +73,19 @@ object CordResponseLineItems {
                 //Convert groups to responses.
                 .map {
                   case (_, lineItemGroup) ⇒ createResponseGrouped(lineItemGroup, adjustmentMap)
+                }
+                .toSeq
+    } yield result
+
+  def cordLineItemsFromCart(cordRef: String, adjustmentMap: AdjustmentMap)(
+      implicit ec: EC,
+      db: DB): DbResultT[Seq[CordResponseLineItem]] =
+    for {
+      lineItems ← * <~ CartLineItems.byCordRef(cordRef).lineItems.result
+      result ← * <~ lineItems
+                .map(resultToCartData)
+                .map { data ⇒
+                  createResponse(data, 1)
                 }
                 .toSeq
     } yield result

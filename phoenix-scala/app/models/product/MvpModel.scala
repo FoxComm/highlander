@@ -11,6 +11,7 @@ import failures.ProductFailures._
 import models.image._
 import models.inventory._
 import models.objects._
+import models.account._
 import org.json4s.JsonAST.{JNothing, JString}
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -424,7 +425,7 @@ object Mvp {
       simpleAlbum: SimpleAlbum,
       p: SimpleProductData)(implicit db: DB, au: AU): DbResultT[SimpleProductData] =
     for {
-
+      scope         ← * <~ Scope.getScopeOrSubscope(None)
       simpleShadow  ← * <~ SimpleProductShadow(simpleProduct)
       productShadow ← * <~ ObjectShadows.create(simpleShadow.create.copy(formId = productForm.id))
 
@@ -432,7 +433,7 @@ object Mvp {
                          ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
 
       product ← * <~ Products.create(
-                   Product(scope = LTree(au.token.scope),
+                   Product(scope = scope,
                            contextId = contextId,
                            formId = productForm.id,
                            shadowId = productShadow.id,
@@ -445,7 +446,7 @@ object Mvp {
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
 
       sku ← * <~ Skus.create(
-               Sku(scope = LTree(au.token.scope),
+               Sku(scope = scope,
                    contextId = contextId,
                    code = p.code,
                    formId = skuForm.id,
@@ -465,13 +466,14 @@ object Mvp {
                              productShadow: ObjectShadow,
                              product: Product)(implicit db: DB, au: AU): DbResultT[Album] = {
     for {
+      scope ← * <~ Scope.getScopeOrSubscope(None)
       albumShadow ← * <~ ObjectShadows.create(
                        SimpleAlbumShadow(simpleAlbum).create.copy(formId = albumForm.id))
       albumCommit ← * <~ ObjectCommits.create(
                        ObjectCommit(formId = albumForm.id, shadowId = albumShadow.id))
 
       album ← * <~ Albums.create(
-                 Album(scope = LTree(au.token.scope),
+                 Album(scope = scope,
                        contextId = context.id,
                        formId = albumForm.id,
                        shadowId = albumShadow.id,

@@ -16,7 +16,8 @@ object PromotionPayloads {
 
   case class CreatePromotion(applyType: ApplyType,
                              form: CreatePromotionForm,
-                             shadow: CreatePromotionShadow)
+                             shadow: CreatePromotionShadow,
+                             scope: Option[String] = None)
 
   case class UpdatePromotionForm(attributes: Json, discounts: Seq[UpdatePromoDiscountForm])
 

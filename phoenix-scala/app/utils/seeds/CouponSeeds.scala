@@ -1,9 +1,9 @@
 package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.github.tminglei.slickpg.LTree
 
 import models.coupon._
+import models.account._
 import models.objects._
 import models.product.SimpleContext
 import payloads.CouponPayloads._
@@ -34,11 +34,12 @@ trait CouponSeeds {
       au: AU): DbResultT[(BaseCoupon, Seq[CouponCode])] =
     for {
       // Create coupon
+      scope  ← * <~ Scope.getScopeOrSubscope(payload.scope)
       form   ← * <~ ObjectForm(kind = Coupon.kind, attributes = payload.form.attributes)
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow)
       coupon ← * <~ Coupons.create(
-                  Coupon(scope = LTree(au.token.scope),
+                  Coupon(scope = scope,
                          contextId = context.id,
                          formId = ins.form.id,
                          shadowId = ins.shadow.id,

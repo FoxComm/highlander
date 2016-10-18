@@ -1,13 +1,14 @@
 package services.taxonomy
 
 import java.time.Instant
+import com.github.tminglei.slickpg.LTree
 
 import cats.data.ValidatedNel
 import cats.implicits._
-import com.github.tminglei.slickpg.LTree
 import failures.TaxonomyFailures._
 import failures.{Failure, TaxonomyFailures}
 import models.objects._
+import models.account._
 import models.taxonomy.TaxonomyTaxonLinks.scope._
 import models.taxonomy.{TaxonLocation ⇒ _, _}
 import payloads.TaxonomyPayloads._
@@ -66,10 +67,11 @@ object TaxonomyManager {
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
-      ins ← * <~ ObjectUtils.insert(form, shadow)
+      scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      ins   ← * <~ ObjectUtils.insert(form, shadow)
       taxonomy ← * <~ Taxonomies.create(
                     Taxonomy(hierarchical = payload.hierarchical,
-                             scope = LTree(au.token.scope),
+                             scope = scope,
                              contextId = oc.id,
                              formId = ins.form.id,
                              shadowId = ins.shadow.id,
@@ -115,12 +117,13 @@ object TaxonomyManager {
 
     for {
       _        ← * <~ payload.validate
+      scope    ← * <~ Scope.getScopeOrSubscope(payload.scope)
       taxonomy ← * <~ Taxonomies.mustFindByFormId404(taxonFormId)
 
       ins ← * <~ ObjectUtils.insert(form, shadow)
       taxon ← * <~ Taxons.create(
                  Taxon(contextId = oc.id,
-                       scope = LTree(au.token.scope),
+                       scope = scope,
                        shadowId = ins.form.id,
                        formId = ins.shadow.id,
                        commitId = ins.commit.id))

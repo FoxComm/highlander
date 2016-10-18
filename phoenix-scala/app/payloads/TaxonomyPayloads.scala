@@ -8,7 +8,9 @@ import utils.aliases._
 object TaxonomyPayloads {
   type AttributesMap = Map[String, Json]
 
-  case class CreateTaxonomyPayload(attributes: AttributesMap, hierarchical: Boolean)
+  case class CreateTaxonomyPayload(attributes: AttributesMap,
+                                   hierarchical: Boolean,
+                                   scope: Option[String])
 
   case class UpdateTaxonomyPayload(attributes: AttributesMap)
 
@@ -17,7 +19,9 @@ object TaxonomyPayloads {
       Validation.greaterThanOrEqual(position, 0, "location.position").map(_ ⇒ this)
   }
 
-  case class CreateTaxonPayload(attributes: AttributesMap, location: Option[TaxonLocation])
+  case class CreateTaxonPayload(attributes: AttributesMap,
+                                location: Option[TaxonLocation],
+                                scope: Option[String] = None)
       extends Validation[CreateTaxonPayload] {
     override def validate: ValidatedNel[Failure, CreateTaxonPayload] =
       location.map(_.validate).getOrElse(Validation.ok).map(_ ⇒ this)

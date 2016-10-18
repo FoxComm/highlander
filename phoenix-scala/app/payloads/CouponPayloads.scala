@@ -8,7 +8,10 @@ object CouponPayloads {
 
   case class CreateCouponShadow(attributes: Json)
 
-  case class CreateCoupon(form: CreateCouponForm, shadow: CreateCouponShadow, promotion: Int)
+  case class CreateCoupon(form: CreateCouponForm,
+                          shadow: CreateCouponShadow,
+                          promotion: Int,
+                          scope: Option[String] = None)
 
   case class UpdateCouponForm(attributes: Json)
 
