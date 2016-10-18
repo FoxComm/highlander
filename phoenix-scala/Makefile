@@ -4,7 +4,7 @@ build: clean
 clean:
 	sbt clean
 
-test: clean
+test:
 	sbt test
 
 .PHONY: build test
