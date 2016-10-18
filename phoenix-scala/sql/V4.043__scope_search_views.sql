@@ -490,6 +490,41 @@ begin
 end;
 $$ language plpgsql;
 
+create or replace function update_skus_view_from_object_attrs_fn() returns trigger as $$
+begin
+  update sku_search_view set
+    sku_code = subquery.code,
+    title = subquery.title,
+    images = subquery.images,
+    sale_price = subquery.sale_price,
+    sale_price_currency = subquery.sale_price_currency,
+    archived_at = subquery.archived_at,
+    retail_price = subquery.retail_price,
+    retail_price_currency = subquery.retail_price_currency,
+    external_id = subquery.external_id,
+    scope = subquery.scope
+    from (select
+        sku.id,
+        sku.code,
+        illuminate_text(sku_form, sku_shadow, 'title') as title,
+        illuminate_obj(sku_form, sku_shadow, 'images')->>0 as image,
+        illuminate_obj(sku_form, sku_shadow, 'salePrice')->>'value' as sale_price,
+        illuminate_obj(sku_form, sku_shadow, 'salePrice')->>'currency' as sale_price_currency,
+        to_char(new.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at,
+        illuminate_obj(sku_form, sku_shadow, 'retailPrice')->>'value' as retail_price,
+        illuminate_obj(sku_form, sku_shadow, 'retailPrice')->>'currency' as retail_price_currency,
+        illuminate_obj(sku_form, sku_shadow, 'externalId') as external_id,
+        sku.scope as scope
+      from skus as sku
+      inner join object_forms as sku_form on (sku_form.id = sku.form_id)
+      inner join object_shadows as sku_shadow on (sku_shadow.id = sku.shadow_id)
+      where sku.id = new.id) as subquery
+      where subquery.id = sku_search_view.id;
+
+    return null;
+end;
+$$ language plpgsql;
+
 create or replace function update_promotions_search_view_insert_fn() returns trigger as $$
 begin
  insert into promotions_search_view select distinct on (p.id)
