@@ -1,3 +1,4 @@
+const browserSync = require('browser-sync');
 
 module.exports = function(gulp, $) {
   const src = [
@@ -12,7 +13,8 @@ module.exports = function(gulp, $) {
   gulp.task('css', function() {
     return gulp.src(src)
       .pipe($.concat('app.css'))
-      .pipe(gulp.dest('public'));
+      .pipe(gulp.dest('public'))
+      .pipe(browserSync.stream({ match: '**/*.css' }));
   });
 
   gulp.task('css.watch', function() {

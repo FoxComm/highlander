@@ -5,6 +5,7 @@
 .*/node_modules/y18n/.*
 .*/node_modules/json5/.*
 .*/node_modules/systemjs-builder/.*
+.*/node_modules/.tmp/.*
 
 [include]
 src
