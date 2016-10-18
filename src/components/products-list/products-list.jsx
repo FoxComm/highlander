@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import styles from './products-list.css';
 
 import ListItem from '../products-item/list-item';
+import Dropdown from 'ui/dropdown';
 
 import type { HTMLElement } from 'types';
 import type { Product } from 'modules/products';
@@ -77,6 +78,9 @@ class ProductsList extends Component {
     return (
       <section styleName="catalog">
         {this.renderHeader()}
+        <div styleName="dropdown">
+          <Dropdown />
+        </div>
         <div styleName="list">
           {items}
         </div>
