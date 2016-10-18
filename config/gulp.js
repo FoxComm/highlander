@@ -1,8 +1,7 @@
 
 const fs = require('fs');
 
-// by default enable for all platforms, except mac
-exports.enableNotifier = true; // process.platform != 'darwin';
+exports.enableNotifier = process.argv.indexOf('--notifications') >= 0;
 
 // install pre-push hooks
 exports.autoInstallHooks = true;
