@@ -5,11 +5,12 @@ import React, { PropTypes } from 'react';
 
 // components
 import columnPropType from './column-prop-type';
-import { Moment, Date, DateTime, Time } from '../common/datetime';
-import Currency from '../common/currency';
-import State from '../common/state';
-import Change from '../common/change';
-import Link from '../link/link';
+import { Moment, Date, DateTime, Time } from 'components/common/datetime';
+import Currency from 'components/common/currency';
+import State from 'components/common/state';
+import Change from 'components/common/change';
+import Link from 'components/link/link';
+import RoundedPill from 'components/rounded-pill/rounded-pill';
 
 function getCurrency(column, row) {
   const currencyField = column.currencyField;
@@ -25,6 +26,9 @@ function getCell(column, children, row) {
       return <img src={children} />;
     case 'state':
       return <State value={children} model={column.model} />;
+    case 'roundedPill':
+      const content = <State value={children} model={column.model} />;
+      return <RoundedPill text={content} />;
     case 'currency':
       return <Currency value={children} currency={getCurrency(column, row)} />;
     case 'transaction':

@@ -6,6 +6,7 @@ const columnType = PropTypes.shape({
     'id',
     'image',
     'state',
+    'roundedPill',
     'currency',
     'transaction',
     'moment',

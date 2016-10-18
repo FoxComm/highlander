@@ -6,7 +6,7 @@
     user: '{{ansible_ssh_user}}'
     with_seeder: false
     db_host: db.service.consul
-    seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedDemo 1
+    seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedDemo 1 --seedPlugins
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to seed"

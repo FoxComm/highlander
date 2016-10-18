@@ -6,7 +6,7 @@
     - backend
   vars:
     user: '{{ansible_ssh_user}}'
-    seeds_cmd: utils.seeds.Seeds seed --seedDemo 1
+    seeds_cmd: utils.seeds.Seeds seed --seedDemo 1 --seedPlugins
     updating_mwh: true
     middlewarehouse_src: "{{gopath}}/src/github.com/FoxComm/highlander/middlewarehouse"
   vars_prompt:

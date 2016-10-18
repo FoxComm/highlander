@@ -39,6 +39,12 @@ object PluginRoutes {
               mutateOrFailures {
                 updateSettings(name, payload)
               }
+          } ~
+          (patch & pathPrefix(Segment) & pathEnd & entity(as[UpdatePluginState])) {
+            (name, payload) ⇒
+              mutateOrFailures {
+                updateState(name, payload)
+              }
           }
         }
       }

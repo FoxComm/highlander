@@ -8,8 +8,10 @@ import styles from './plugin.css';
 
 import { PageTitle } from 'components/section-title';
 import ObjectFormInner from 'components/object-form/object-form-inner';
+import ObjectForm from 'components/object-form/object-form';
 import SaveCancel from 'components/common/save-cancel';
 import WaitAnimation from 'components/common/wait-animation';
+import PluginState from './plugin-state';
 
 import * as PluginsActions from 'modules/plugins';
 import type { UpdateSettingsPayload } from 'modules/plugins';
@@ -18,10 +20,13 @@ import type { Attribute, Attributes } from 'paragons/object';
 type Props = {
   fetchSettings: (name: string) => Promise,
   updateSettings: (name: string, payload: UpdateSettingsPayload) => Promise,
+  changeState: (name: string, payload: UpdateStatePayload) => Promise,
   params: {
     name: string,
   },
-  settings: Object,
+  currentPlugin: {
+    settings: Object,
+  },
   isFetching: boolean,
 }
 
@@ -61,7 +66,7 @@ function settingsFromAttributes(attributes: Attributes): Object {
 
 function mapStateToProps(state) {
   return {
-    settings: state.plugins.settings,
+    currentPlugin: state.plugins.currentPlugin,
     isFetching: _.get(state.asyncActions, 'fetchPluginSettings.inProgress', null),
   };
 }
@@ -82,12 +87,13 @@ class Plugin extends Component {
   }
 
   componentWillReceiveProps(nextProps: Props) {
+    console.log(nextProps);
     if (pluginName(nextProps) != this.pluginName) {
       this.props.fetchSettings(pluginName(nextProps));
     }
-    if (!_.isEqual(nextProps.settings, this.state.settings)) {
+    if (nextProps.currentPlugin != null && !_.isEqual(nextProps.currentPlugin.settings, this.state.settings)) {
       this.setState({
-        settings: nextProps.settings,
+        settings: nextProps.currentPlugin.settings,
       });
     }
   }
@@ -98,6 +104,10 @@ class Plugin extends Component {
 
   get attributes(): Attributes {
     return attributesFromSettings(this.state.settings);
+  }
+
+  get title(): string {
+    return `${this.pluginName} Configuration`;
   }
 
   @autobind
@@ -114,21 +124,32 @@ class Plugin extends Component {
     });
   }
 
+  @autobind
+  handleStateChange(newState: string) {
+    if (this.props.currentPlugin.state !== newState) {
+      this.props.changeState(this.pluginName, {state: newState});
+    }
+  }
+
   get content(): Element {
     if (this.props.isFetching !== false) {
       return <WaitAnimation/>;
     } else {
       return (
-        <div>
-          <ObjectFormInner
-            title={this.pluginName}
-            attributes={this.attributes}
-            onChange={this.handleChange}
-          />
-          <SaveCancel
-            cancelTo="plugins"
-            onSave={this.handleSave}
-          />
+        <div className="fc-grid fc-grid-no-gutter">
+          <div className="fc-col-md-3-5">
+            <ObjectForm
+              title={this.title}
+              attributes={this.attributes}
+              onChange={this.handleChange}
+            />
+          </div>
+          <div className="fc-col-md-2-5">
+            <PluginState
+              currentValue={this.props.currentPlugin.state}
+              handleDropdownChange={(value) => this.handleStateChange(value)}
+            />
+          </div>
         </div>
       );
     }
@@ -139,7 +160,12 @@ class Plugin extends Component {
     const title = `Plugin ${this.pluginName}`;
     return (
       <div>
-        <PageTitle title={title} />
+        <PageTitle title={title}>
+          <SaveCancel
+            cancelTo="plugins"
+            onSave={this.handleSave}
+          />
+        </PageTitle>
         <div styleName="content">
           {this.content}
         </div>

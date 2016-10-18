@@ -1,7 +1,7 @@
 package models.plugins
 
 import com.pellucid.sealerate
-import org.json4s.JsonAST.JValue
+import org.json4s.JsonAST._
 import utils.ADT
 import org.json4s.Extraction
 import utils.JsonFormatters
@@ -19,9 +19,9 @@ object PluginSettings {
 
   case class SettingDef(name: String,
                         title: String,
-                        description: Option[String],
+                        description: Option[String] = None,
                         `type`: SettingType,
-                        default: JValue)
+                        default: JValue = JNull)
 
   type SettingsSchema = Seq[SettingDef]
   type SettingsValues = Map[String, JValue]

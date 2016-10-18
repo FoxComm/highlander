@@ -7,13 +7,14 @@ import failures.Failure
 import org.json4s.JsonAST._
 import payloads.PluginPayloads.RegisterPluginPayload
 import shapeless._
-import utils.{JsonFormatters, Validation}
+import utils.{ADT, JsonFormatters, Validation}
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import cats.implicits._
 import PluginSettings._
 import com.github.tminglei.slickpg.utils.SimpleArrayUtils
+import com.pellucid.sealerate
 import org.json4s.jackson.JsonMethods._
 import slick.driver.PostgresDriver.api.MappedColumnType
 import org.json4s.Extraction
@@ -46,6 +47,14 @@ case class Plugin(id: Int = 0,
 }
 
 object Plugin {
+
+  sealed trait State
+  case object Active   extends State
+  case object Inactive extends State
+
+  object State extends ADT[State] {
+    def types = sealerate.values[State]
+  }
 
   def fromPayload(payload: RegisterPluginPayload): Plugin = {
     Plugin(name = payload.name,

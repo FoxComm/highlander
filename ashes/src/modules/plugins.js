@@ -1,18 +1,23 @@
 // @flow
+
 import { createReducer } from 'redux-act';
 import Api from 'lib/api';
 import createAsyncActions from './async-utils';
 
 export type UpdateSettingsPayload = {
   settings: {[key: string]: any},
-}
+};
 
 export type PluginInfo = {
   createdAt: string,
   description: string,
   name: string,
   version: string,
-}
+};
+
+export type UpdateStatePayload = {
+  state: string,
+};
 
 const _fetchPlugins = createAsyncActions(
   'fetchPlugins',
@@ -32,9 +37,15 @@ const _updateSettings = createAsyncActions(
 );
 export const updateSettings = _updateSettings.perform;
 
+const _changeState = createAsyncActions(
+  'changePluginState',
+  (name: string, payload: UpdateStatePayload) => Api.patch(`plugins/settings/${name}`, payload)
+);
+export const changeState = _changeState.perform;
+
 const initialState = {
   list: [],
-  settings: {},
+  currentPlugin: {},
 };
 
 const reducer = createReducer({
@@ -47,15 +58,21 @@ const reducer = createReducer({
   [_fetchSettings.started]: state => {
     return {
       ...state,
-      settings: {},
+      currentPlugin: {},
     };
   },
-  [_fetchSettings.succeeded]: (state, settings) => {
+  [_fetchSettings.succeeded]: (state, currentPlugin) => {
     return {
       ...state,
-      settings,
+      currentPlugin,
     };
-  }
+  },
+  [_changeState.succeeded]: (state, currentPlugin) => {
+    return {
+      ...state,
+      currentPlugin,
+    };
+  },
 }, initialState);
 
 export default reducer;

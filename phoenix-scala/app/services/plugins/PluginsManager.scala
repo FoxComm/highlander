@@ -5,7 +5,7 @@ import scala.concurrent.Future
 import dispatch.{Http, as, host, url ⇒ request}
 import failures.NotFoundFailure404
 import models.plugins._
-import models.plugins.PluginSettings.{SettingsSchema, SettingsValues}
+import models.plugins.PluginSettings._
 import models.plugins.PluginSettings.SettingsValues._
 import org.json4s.jackson.JsonMethods._
 import payloads.PluginPayloads._
@@ -14,8 +14,8 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 import utils.JsonFormatters
-
 import com.typesafe.scalalogging.LazyLogging
+import plugins.PluginRegistry
 
 object PluginsManager extends LazyLogging {
 
@@ -105,6 +105,9 @@ object PluginsManager extends LazyLogging {
       plugin ← * <~ Plugins.findByName(name).mustFindOr(NotFoundFailure404(Plugin, name))
       newSettings = plugin.settings merge payload.settings
       updated ← * <~ Plugins.update(plugin, plugin.copy(settings = newSettings))
+      _ ← * <~ DbResultT.good(
+             PluginRegistry
+               .notifySettingsChange(updated.name, updated.isDisabled, updated.settings))
     } yield updated
 
     updated.map { p ⇒
@@ -113,10 +116,21 @@ object PluginsManager extends LazyLogging {
     }
   }
 
-  def listSettings(name: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[SettingsValues] = {
+  def listSettings(name: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[FullPluginInfo] =
     for {
       plugin ← * <~ Plugins.findByName(name).mustFindOr(NotFoundFailure404(Plugin, name))
-    } yield plugin.settings
-  }
+    } yield FullPluginInfo.fromPlugin(plugin)
+
+  def updateState(name: String, payload: UpdatePluginState)(implicit ec: EC,
+                                                            db: DB,
+                                                            ac: AC): DbResultT[FullPluginInfo] =
+    for {
+      plugin ← * <~ Plugins.findByName(name).mustFindOr(NotFoundFailure404(Plugin, name))
+      updated ← * <~ Plugins.update(plugin,
+                                    plugin.copy(isDisabled = payload.state == Plugin.Inactive))
+      _ ← * <~ DbResultT.good(
+             PluginRegistry
+               .notifySettingsChange(updated.name, updated.isDisabled, updated.settings))
+    } yield FullPluginInfo.fromPlugin(updated)
 
 }

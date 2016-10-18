@@ -13,6 +13,7 @@ import models.payment.storecredit.{StoreCredit, StoreCreditAdjustment}
 import models.plugins.PluginSettings
 import models.promotion.Promotion
 import models.returns._
+import models.plugins._
 import models.rules.{Condition, QueryStatement}
 import models.sharedsearch.SharedSearch
 import models.shipping.Shipment
@@ -41,7 +42,8 @@ object JsonFormatters {
       CreditCardCharge.State.jsonFormat + CountryWithRegions.jsonFormat +
       QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
       PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +
-      IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat
+      IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +
+      Plugin.State.jsonFormat
 
   val avalaraFormats = DefaultFormats + Avalara.Responses.SeverityLevel.jsonFormat +
       Avalara.DocType.jsonFormat + Avalara.DetailLevel.jsonFormat +

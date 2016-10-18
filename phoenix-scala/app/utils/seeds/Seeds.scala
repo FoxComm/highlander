@@ -11,7 +11,6 @@ import com.pellucid.sealerate
 import com.typesafe.config.Config
 import failures.{Failures, FailuresOps, NotFoundFailure404}
 import failures.UserFailures._
-
 import models.auth.UserToken
 import models.Reason._
 import models.activity.ActivityContext
@@ -22,6 +21,7 @@ import models.product.SimpleContext
 import models.{Reason, Reasons}
 import models.account._
 import models.auth.Token
+import models.plugins.Plugin
 import services.Authenticator.AuthData
 import services.account.AccountManager
 import org.postgresql.ds.PGSimpleDataSource
@@ -53,6 +53,7 @@ object Seeds {
       seedRandom: Int = 0,
       seedStage: Boolean = false,
       seedDemo: Int = 0,
+      seedPlugins: Boolean = false,
       customersScaleMultiplier: Int = 1000,
       mode: Command = NoCommand,
       adminName: String = "",
@@ -87,7 +88,10 @@ object Seeds {
             opt[Unit]("seedStage")
               .action((x, c) ⇒ c.copy(seedStage = true))
               .text("Create stage seeds"),
-            opt[Int]("seedDemo").action((x, c) ⇒ c.copy(seedDemo = x)).text("Create demo seeds"))
+            opt[Int]("seedDemo").action((x, c) ⇒ c.copy(seedDemo = x)).text("Create demo seeds"),
+            opt[Unit]("seedPlugins")
+              .action((x, c) ⇒ c.copy(seedPlugins = true))
+              .text("Create plugin metadata"))
 
       cmd("createAdmin")
         .action((_, c) ⇒ c.copy(mode = CreateAdmin))
@@ -119,7 +123,7 @@ object Seeds {
     implicit val ac: AC          = ActivityContext(userId = 1, userType = "user", transactionId = "seeds")
 
     cfg.mode match {
-      case Seed ⇒
+      case Seed ⇒ {
         if (cfg.migrateDb) {
           Console.err.println("Cleaning DB and running migrations")
           flyWayMigrate(config)
@@ -138,13 +142,17 @@ object Seeds {
           createStageSeeds(adminId)
           createRandomSeeds(cfg.seedDemo, cfg.customersScaleMultiplier)
         }
-      case CreateAdmin ⇒
+        if (cfg.seedPlugins) createBasePlugins
+      }
+      case CreateAdmin ⇒ {
         createAdminManually(name = cfg.adminName,
                             email = cfg.adminEmail,
                             org = cfg.adminOrg,
                             roles = cfg.adminRoles)
-      case _ ⇒
+      }
+      case _ ⇒ {
         System.err.println(usage)
+      }
     }
 
     db.close()
@@ -282,6 +290,13 @@ object Seeds {
          })
     } yield {}
 
+  def createBasePlugins()(implicit db: DB, ec: EC, ac: AC): Unit = {
+    val r = for { _ ← * <~ Factories.createAvalaraSettings } yield {}
+
+    val result: Failures Xor Unit = Await.result(r.runTxn(), 1.minute)
+    validateResults("plugins", result)
+  }
+
   object Factories
       extends CustomerSeeds
       with GiftCardSeeds
@@ -297,7 +312,8 @@ object Seeds {
       with DiscountSeeds
       with PromotionSeeds
       with CouponSeeds
-      with SharedSearchSeeds {
+      with SharedSearchSeeds
+      with PluginSeeds {
 
     implicit val formats = JsonFormatters.phoenixFormats
 

@@ -6,7 +6,6 @@ import java.time.Instant
 import scala.collection.immutable.{Seq ⇒ ImmutableSeq}
 import scala.concurrent.Future
 import akka.http.scaladsl.Http
-import scala.util.{Failure, Success}
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers._
@@ -17,20 +16,17 @@ import concurrent.duration._
 
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import org.json4s.jackson
 import org.json4s.jackson.Serialization._
-import org.json4s.ext._
 import com.pellucid.sealerate
+import com.typesafe.scalalogging.LazyLogging
 import failures.AvalaraFailures._
 import models.cord._
 import models.cord.lineitems.CartLineItems.FindLineItemResult
 import models.location._
 import services.Result
-import utils.{ADT, JsonFormatters, Money, time}
-import utils.FoxConfig._
+import utils._
 import utils.aliases.EC
 import utils.apis.Avalara.PayloadBuilder
-import utils.apis.Avalara.Responses._
 
 trait AvalaraApi {
 
@@ -349,17 +345,22 @@ object Avalara {
 }
 
 object AvalaraAdapter {
-  def apply(url: String, account: String, license: String, profile: String)(
-      implicit as: ActorSystem,
-      am: ActorMaterializer) = {
-    new Avalara(url, account, license, profile)
+  def apply(url: String,
+            account: String,
+            license: String,
+            profile: String,
+            enableLogging: Boolean)(implicit as: ActorSystem, am: ActorMaterializer) = {
+    new Avalara(url, account, license, profile, enableLogging)
   }
 }
 
-class Avalara(url: String, account: String, license: String, profile: String)(
-    implicit as: ActorSystem,
-    am: ActorMaterializer)
-    extends AvalaraApi {
+class Avalara(url: String,
+              account: String,
+              license: String,
+              profile: String,
+              enableLogging: Boolean)(implicit as: ActorSystem, am: ActorMaterializer)
+    extends AvalaraApi
+    with LazyLogging {
 
   type UM[T] =
     akka.http.scaladsl.unmarshalling.Unmarshaller[akka.http.scaladsl.model.HttpResponse, T]
@@ -374,7 +375,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
           .toStrict(1.second)
           .map(_.data)
           .map(_.decodeString("utf-8"))
-          .map(json ⇒ { println(json); json })
+          .map(json ⇒ { logMessage(s"Response payload is: $json"); json })
           .map(json ⇒ parse(json).extract[T])
       }
     }
@@ -382,6 +383,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
 
   override def validateAddress(address: Address, region: Region, country: Country)(
       implicit ec: EC): Result[Unit] = {
+    logMessage(s"Sending request to validate address: ${address.id}")
     val payload = PayloadBuilder.buildAddress(address, region, country)
 
     val result: Future[Avalara.Responses.AddressValidation] =
@@ -407,7 +409,7 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                              country: Country,
                              discount: Int)(implicit ec: EC): Result[Int] = {
     val payload = PayloadBuilder.buildOrder(cart, lineItems, address, region, country, discount)
-    println(write(payload))
+    logMessage(s"Sending request to get taxes for cart: ${cart.referenceNumber}")
     getTax(payload)
   }
 
@@ -418,11 +420,12 @@ class Avalara(url: String, account: String, license: String, profile: String)(
                               country: Country,
                               discount: Int)(implicit ec: EC): Result[Int] = {
     val payload = PayloadBuilder.buildInvoice(cart, lineItems, address, region, country, discount)
-    println(write(payload))
+    logMessage(s"Sending request to commit taxes for order: ${cart.referenceNumber}")
     getTax(payload)
   }
 
   override def cancelTax(order: Order)(implicit ec: EC): Result[Unit] = {
+    logMessage(s"Sending request to cancel taxes for order: ${order.referenceNumber}")
     val payload = HttpEntity(write(PayloadBuilder.cancelOrder(order)))
 
     val result: Future[Avalara.Responses.CancelTaxResult] =
@@ -500,6 +503,13 @@ class Avalara(url: String, account: String, license: String, profile: String)(
   }
 
   private def failureHandler(failure: Throwable) = {
+    logMessage(s"Request failed with error: $failure")
     Result.left(UnableToMatchResponse.single)
+  }
+
+  private def logMessage(message: String): Unit = {
+    if (enableLogging) {
+      logger.info("Avalara event: " + message)
+    }
   }
 }
