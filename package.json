@@ -1,7 +1,7 @@
 {
-  "name": "firebird",
+  "name": "the-perfect-gourmet",
   "version": "1.0.0",
-  "description": "The demo storefront UI",
+  "description": "The Perfect Gourmet Storefront",
   "main": "index.js",
   "scripts": {
     "lint": "eslint --ext .js --ext .jsx .",
