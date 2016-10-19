@@ -1,0 +1,30 @@
+{
+  "id": "/product-search",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 128,
+  "disk": 0,
+  "instances": 1,
+  "env": {
+    "API_URL": "https://tgt4.foxcommerce.com",
+    "ELASTIC_URL": "https://tgt4.foxcommerce.com"
+  },
+  "portDefinitions": [
+    {
+      "port": 10008,
+      "protocol": "tcp",
+      "name": "5492",
+      "labels": {}
+    }
+  ],
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "{{docker_registry}}:5000/product-search",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  }
+}
