@@ -45,7 +45,7 @@ Grab a cup of coffee... this will take a while.
 When everything is completed, all executables needed to build a development VM
 will have been created. You can exit the VM.
 
-### Launch a V
+### Launch a VM
 
 The appliance VM (a single VM containing all services) can be run either on your
 local environment through VirtualBox or VMWare Fusion, or in the cloud through
