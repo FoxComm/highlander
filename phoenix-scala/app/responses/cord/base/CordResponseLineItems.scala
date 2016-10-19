@@ -17,6 +17,7 @@ case class CordResponseLineItem(imagePath: String,
                                 quantity: Int = 1,
                                 totalPrice: Int,
                                 productFormId: Int,
+                                externalId: Option[Int],
                                 state: OrderLineItem.State)
     extends ResponseItem
 
@@ -145,6 +146,7 @@ object CordResponseLineItems {
 
     val price = Mvp.priceAsInt(data.skuForm, data.skuShadow)
     val name  = Mvp.name(data.skuForm, data.skuShadow)
+    val externalId  = Mvp.externalId(data.skuForm, data.skuShadow)
     val image = Mvp.firstImage(data.skuForm, data.skuShadow).getOrElse(NO_IMAGE)
 
     val li = CordResponseLineItem(imagePath = image,
@@ -153,6 +155,7 @@ object CordResponseLineItems {
                                   state = data.lineItemState,
                                   name = name,
                                   price = price,
+                                  externalId = externalId,
                                   productFormId = data.product.formId,
                                   totalPrice = price,
                                   quantity = quantity)
