@@ -269,7 +269,7 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  get menu(): Element {
+  get menu(): ?Element {
     if (!this.state.open) {
       return;
     }
@@ -288,7 +288,7 @@ export default class GenericDropdown extends Component {
   };
 
   render() {
-    const { editable, wrapMenu } = this.props;
+    const { editable } = this.props;
 
     return (
       <div className={this.dropdownClassName} ref={c => this._container = c} tabIndex="0">

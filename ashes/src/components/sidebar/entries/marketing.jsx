@@ -10,7 +10,7 @@ import { IndexLink, Link } from 'components/link';
 import type { Claims } from 'lib/claims';
 
 type Props = {
-  routes: Object,
+  routes: Array<Object>,
   collapsed: boolean,
   status: string,
   toggleMenuItem: Function,
