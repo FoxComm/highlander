@@ -6,7 +6,7 @@
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
-import { isProductValid, setSkuAttribute } from 'paragons/product';
+import { setSkuAttribute } from 'paragons/product';
 
 // actions
 import * as ProductActions from 'modules/products/details';
@@ -34,6 +34,7 @@ type Props = {
   details: {
     product: ?Product,
   },
+  originalObject: ?Product,
   selectContextAvailable: boolean,
 };
 
@@ -63,7 +64,7 @@ class ProductPage extends ObjectPage {
       return 'New Product';
     }
 
-    return _.get(this.entity, 'attributes.title.v', '');
+    return _.get(this.props.originalObject, 'attributes.title.v', '');
   }
 
   fetchEntity(): Promise {
@@ -87,15 +88,6 @@ class ProductPage extends ObjectPage {
     return sanitizeError(error);
   }
 
-  get preventSave(): boolean {
-    const product = this.state.entity;
-    if (product) {
-      return !isProductValid(product);
-    }
-
-    return true;
-  }
-
   @autobind
   handleContextChange(context: string) {
     this.transitionTo(this.entityId, {
@@ -106,24 +98,24 @@ class ProductPage extends ObjectPage {
 
   @autobind
   handleSetSkuProperty(code: string, field: string, value: string) {
-    const { entity } = this.state;
+    const { object } = this.state;
 
-    if (entity) {
+    if (object) {
       this.setState({
-        entity: setSkuAttribute(entity, code, field, value),
+        object: setSkuAttribute(object, code, field, value),
       });
     }
   }
 
   @autobind
   handleSetSkuProperties(code: string, updateArray: Array<Array<any>>) {
-    const { entity } = this.state;
+    const { object } = this.state;
 
-    if (entity) {
+    if (object) {
       const newProduct = _.reduce(updateArray, (p, [field, value]) => {
         return setSkuAttribute(p, code, field, value);
-      }, entity);
-      this.setState({entity: newProduct});
+      }, object);
+      this.setState({object: newProduct});
     }
   }
 
@@ -157,7 +149,7 @@ class ProductPage extends ObjectPage {
   }
 
   subNav() {
-    return <SubNav productId={this.entityId} product={this.state.entity} context={this.entityContext} />;
+    return <SubNav productId={this.entityId} product={this.state.object} context={this.entityContext} />;
   }
 
   renderHead() {

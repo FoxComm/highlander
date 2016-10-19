@@ -8,13 +8,9 @@ import { createAction, createReducer } from 'redux-act';
 import createAsyncActions from '../async-utils';
 import _ from 'lodash';
 
-import { addIlluminatedAttribute } from 'paragons/form-shadow-object';
 import { createEmptySku } from 'paragons/sku';
 
 import { pushStockItemChanges } from '../inventory/warehouses';
-
-type Attribute = { t: string, v: any };
-type Attributes = { [key:string]: Attribute };
 
 export type Sku = {
   code?: string,
@@ -28,14 +24,6 @@ export type Sku = {
 };
 
 const defaultContext = 'default';
-
-const requiredFields = {
-  upc: 'string',
-  description: 'richText',
-  retailPrice: 'price',
-  salePrice: 'price',
-  unitCost: 'price',
-};
 
 export const skuNew = createAction('SKU_NEW');
 const skuClear = createAction('SKU_CLEAR');
@@ -108,14 +96,9 @@ const initialState: SkuState = {
 };
 
 function updateSkuInState(state: SkuState, sku: Sku) {
-  const configuredSku = _.reduce(requiredFields, (res, value, key) => {
-    const attrs = addIlluminatedAttribute(key, value, null, res.attributes);
-    return assoc(sku, 'attributes', attrs);
-  }, sku);
-
   return {
     ...state,
-    sku: configuredSku,
+    sku,
   };
 }
 

@@ -6,26 +6,19 @@ import React, { PropTypes, Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 
-import styles from './promotion-form.css';
+import styles from '../object-page/object-details.css';
 
-import ContentBox from '../content-box/content-box';
-import FullObjectForm from '../object-form/full-object-form';
-import { Dropdown, DropdownItem } from '../dropdown';
-import FullObjectScheduler from '../object-scheduler/full-object-scheduler';
-import { FormField, Form } from '../forms';
+import ObjectDetails from '../object-page/object-details';
+import { Dropdown } from '../dropdown';
+import { FormField } from '../forms';
 import SelectCustomerGroups from '../customers-groups/select-groups';
-import FullObjectTags from '../tags/full-object-tags';
 import DiscountAttrs from './discount-attrs';
 import offers from './offers';
 import qualifiers from './qualifiers';
-import Watchers from '../watchers/watchers';
 
-import { setDiscountAttr } from '../../paragons/promotion';
 
-type Props = {
-  promotion: Object,
-  onUpdatePromotion: Function,
-};
+import { setDiscountAttr } from 'paragons/promotion';
+const layout = require('./layout.json');
 
 type State = {
   qualifiedCustomerGroupIds: Array<any>,
@@ -36,166 +29,113 @@ const SELECT_COUPON_TYPE = [
   ['coupon', 'Coupon'],
 ];
 
-export default class PromotionForm extends Component {
-  props: Props;
-
+export default class PromotionForm extends ObjectDetails {
+  // $FlowFixMe: flow!
   state: State = {
-    qualifiedCustomerGroupIds: [], // it's temporary state until qualified customer groups not implented in backend!
+    qualifiedCustomerGroupIds: [], // it's temporary state until qualified customer groups not implemented in backend!
   };
+  layout = layout;
 
-  get generalAttrs(): Array<any> {
-    return ['name', 'storefrontName', 'description', 'details'];
-  }
+  renderApplyType() {
+    const promotion = this.props.object;
 
-  @autobind
-  handleChange(form: Object, shadow: Object) {
-    const newPromotion = assoc(this.props.promotion,
-      ['form', 'attributes'], form,
-      ['shadow', 'attributes'], shadow
+    return (
+      <FormField
+        ref="applyTypeField"
+        className="fc-object-form__field"
+        label="Apply Type"
+        getTargetValue={() => promotion.applyType}
+        required
+      >
+        <div>
+          <Dropdown
+            placeholder="- Select -"
+            value={promotion.applyType}
+            onChange={this.handleApplyTypeChange}
+            items={SELECT_COUPON_TYPE}
+          />
+        </div>
+      </FormField>
     );
-
-    this.props.onUpdatePromotion(newPromotion);
   }
 
   @autobind
   handleQualifierChange(qualifier: Object) {
-    const newPromotion = setDiscountAttr(this.props.promotion,
-      'qualifier', 'qualifier', qualifier
+    const newPromotion = setDiscountAttr(this.props.object,
+      'qualifier', qualifier
     );
 
-    this.props.onUpdatePromotion(newPromotion);
+    this.props.onUpdateObject(newPromotion);
   }
 
   @autobind
   handleOfferChange(offer: Object) {
-    const newPromotion = setDiscountAttr(this.props.promotion,
-      'offer', 'offer', offer
+    const newPromotion = setDiscountAttr(this.props.object,
+      'offer', offer
     );
 
-    this.props.onUpdatePromotion(newPromotion);
+    this.props.onUpdateObject(newPromotion);
   }
 
   @autobind
   handleApplyTypeChange(value: any) {
-    const newPromotion = assoc(this.props.promotion, 'applyType', value);
+    const newPromotion = assoc(this.props.object, 'applyType', value);
 
-    this.props.onUpdatePromotion(newPromotion);
+    this.props.onUpdateObject(newPromotion);
     this.refs.applyTypeField.validate();
   }
 
-  get promotionState(): ?Element {
-    const { promotion } = this.props;
-    const formAttributes = _.get(promotion, 'form.attributes', []);
-    const shadowAttributes = _.get(promotion, 'shadow.attributes', []);
-    const { applyType } = promotion;
-
+  renderState(): ?Element {
+    const applyType = this.props.object.applyType;
     if (applyType == 'coupon') {
       return null;
     }
 
+    return super.renderState();
+  }
+
+  renderQualifier() {
+    const discount = _.get(this.props.object, 'discounts.0', {});
+
+    return [
+      <div styleName="sub-title" key="title">Qualifier Type</div>,
+      <DiscountAttrs
+        key="attrs"
+        discount={discount}
+        attr="qualifier"
+        descriptions={qualifiers}
+        onChange={this.handleQualifierChange}
+      />
+    ];
+  }
+
+  renderOffer() {
+    const discount = _.get(this.props.object, 'discounts.0', {});
+
+    return [
+      <div styleName="sub-title" key="title">Offer Type</div>,
+      <DiscountAttrs
+        key="attrs"
+        discount={discount}
+        attr="offer"
+        descriptions={offers}
+        onChange={this.handleOfferChange}
+      />
+    ];
+  }
+
+  renderCustomers() {
     return (
-      <FullObjectScheduler
+      <SelectCustomerGroups
         parent="Promotions"
-        form={formAttributes}
-        shadow={shadowAttributes}
-        onChange={this.handleChange}
-        title="Promotion" />
-    );
-  }
-
-  get watchersBlock(): ?Element {
-    const { promotion } = this.props;
-
-    if (promotion.form.id) {
-      return <Watchers entity={{entityId: promotion.form.id, entityType: 'promotions'}} />;
-    }
-  }
-
-  checkValidity(): boolean {
-    return this.refs.form.checkValidity();
-  }
-
-  render(): Element {
-    const { promotion } = this.props;
-    const formAttributes = _.get(promotion, 'form.attributes', []);
-    const shadowAttributes = _.get(promotion, 'shadow.attributes', []);
-
-    const discount = {
-      form: _.get(promotion, 'form.discounts.0', {}),
-      shadow: _.get(promotion, 'shadow.discounts.0', {}),
-    };
-
-    return (
-      <Form ref="form" styleName="promotion-form">
-        <div styleName="main">
-          <ContentBox title="General">
-            <FormField
-              ref="applyTypeField"
-              className="fc-object-form__field"
-              label="Apply Type"
-              getTargetValue={() => promotion.applyType}
-              required
-            >
-              <div>
-                <Dropdown
-                  placeholder="- Select -"
-                  value={promotion.applyType}
-                  onChange={this.handleApplyTypeChange}
-                  items={SELECT_COUPON_TYPE}
-                />
-              </div>
-            </FormField>
-            <FullObjectForm
-              onChange={this.handleChange}
-              fieldsToRender={this.generalAttrs}
-              form={formAttributes}
-              shadow={shadowAttributes}
-              options={{
-                name: {required: true}
-              }}
-            />
-          </ContentBox>
-          <ContentBox title="Qualifier">
-            <div styleName="sub-title">Qualifier Type</div>
-            <DiscountAttrs
-              discount={discount}
-              attr="qualifier"
-              descriptions={qualifiers}
-              onChange={this.handleQualifierChange}
-            />
-          </ContentBox>
-          <ContentBox title="Offer">
-            <div styleName="sub-title">Offer Type</div>
-            <DiscountAttrs
-              discount={discount}
-              attr="offer"
-              descriptions={offers}
-              onChange={this.handleOfferChange}
-            />
-          </ContentBox>
-          <ContentBox title="Customers">
-            <SelectCustomerGroups
-              parent="Promotions"
-              selectedGroupIds={this.state.qualifiedCustomerGroupIds}
-              onSelect={(ids) => {
+        selectedGroupIds={this.state.qualifiedCustomerGroupIds}
+        onSelect={(ids) => {
+          // $FlowFixMe: WTF!
                 this.setState({
                   qualifiedCustomerGroupIds: ids,
                 });
               }}
-            />
-          </ContentBox>
-        </div>
-        <div styleName="aside">
-          <FullObjectTags
-            parent="Promotions"
-            form={formAttributes}
-            shadow={shadowAttributes}
-            onChange={this.handleChange}
-          />
-          {this.promotionState}
-          {this.watchersBlock}
-        </div>
-      </Form>
+      />
     );
   }
 }

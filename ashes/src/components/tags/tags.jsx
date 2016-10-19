@@ -12,9 +12,6 @@ import TextInput from '../forms/text-input';
 
 import styles from './tags.css';
 
-type Attribute = { t: string, v: any };
-type Attributes = { [key:string]: Attribute };
-
 type Props = {
   attributes: Attributes,
   onChange: (attributes: Attributes) => void,
@@ -22,11 +19,11 @@ type Props = {
 };
 
 type State = {
-  isAdding: bool;
+  isAdding: boolean;
   addingValue: string,
 };
 
-export default class Tags extends Component<void, Props, State> {
+export default class Tags extends Component {
   state: State = { isAdding: false, addingValue: '' };
   props: Props;
 

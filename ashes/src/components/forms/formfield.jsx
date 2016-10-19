@@ -8,6 +8,14 @@ import * as validators from 'lib/validators';
 import classNames from 'classnames';
 import { isDefined } from 'lib/utils';
 
+export function FormFieldError(props: {error: Element|string}) {
+  return (
+    <div className="fc-form-field-error">
+      {props.error}
+    </div>
+  );
+}
+
 type FormFieldProps = {
   validator?: string|(value: any) => string;
   children: Element;
@@ -24,6 +32,7 @@ type FormFieldProps = {
   label?: Element|string;
   validationLabel?: string;
   requiredMessage?: string;
+  isDefined: (value: any) => boolean;
 };
 
 export default class FormField extends Component {
@@ -38,6 +47,7 @@ export default class FormField extends Component {
   static defaultProps = {
     target: 'input,textarea,select',
     getTargetValue: node => node.type == 'checkbox' ? node.checked : node.value,
+    isDefined: isDefined,
   };
 
   state = {
@@ -123,7 +133,9 @@ export default class FormField extends Component {
   }
 
   findTargetNode() {
-    return findDOMNode(this).querySelector(this.props.target);
+    if (this.props.target) {
+      return findDOMNode(this).querySelector(this.props.target);
+    }
   }
 
   get errors() {
@@ -200,7 +212,7 @@ export default class FormField extends Component {
       if (!requiredMessage) requiredMessage = `${label} is a required field`;
     }
 
-    if (isDefined(value)) {
+    if (this.props.isDefined(value)) {
       if (this.props.maxLength && _.isString(value) && value.length > this.props.maxLength) {
         errors = [...errors, `${label} can not be more than ${this.props.maxLength} characters`];
       }
@@ -211,7 +223,7 @@ export default class FormField extends Component {
           errors = [...errors, validatorError];
         }
       }
-    } else if ('required' in this.props) {
+    } else if (this.props.required) {
       errors = [...errors, requiredMessage];
     }
 
@@ -248,13 +260,7 @@ export default class FormField extends Component {
     if (this.errors.length && this.readyToShowErrors) {
       return (
         <div>
-          {this.errors.map((error, index) => {
-            return (
-              <div key={`error-${index}`} className="fc-form-field-error">
-                {error}
-              </div>
-            );
-          })}
+          {this.errors.map((error, index) => <FormFieldError key={`error-${index}`} error={error} />)}
         </div>
       );
     }
@@ -264,9 +270,8 @@ export default class FormField extends Component {
     if (this.props.label) {
       const optionalMark = 'optional' in this.props ? <span className="fc-form-field-optional">(optional)</span> : null;
       const className = classNames('fc-form-field-label', this.props.labelClassName);
-      const key = `fc-form-field-label-${this.props.label}`;
       return (
-        <label className={className} htmlFor={this.state.targetId} key={key}>
+        <label className={className} htmlFor={this.state.targetId} key="label">
           {this.props.label}
           {optionalMark}
           <div className="fc-right">
@@ -285,7 +290,7 @@ export default class FormField extends Component {
       {'_form-field-required': this.props.required}
     );
     const children = React.cloneElement(this.props.children, {
-      key: `fc-form-field-children-${this.props.label}`,
+      key: 'children',
     });
 
     const content = this.props.labelAfterInput

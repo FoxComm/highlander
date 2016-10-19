@@ -31,7 +31,7 @@ type Props = {
   sku: Sku,
   params: Object,
   skuContext: string,
-  updateField: (code: string, field: string, value: string) => void,
+  updateField: (code: string, field: string, value: any) => void,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
   onDeleteClick: (id: string) => void,
   isFetchingSkus: boolean|null,
@@ -58,7 +58,15 @@ function stop(event: SyntheticEvent) {
 }
 
 function pickSkuAttrs(searchViewSku: SearchViewSku) {
-  const sku = _.pick(searchViewSku, ['title', 'context', 'salePrice', 'retailPrice']);
+  const sku = _.pick(searchViewSku, ['title', 'context']);
+  sku.salePrice = {
+    value: Number(searchViewSku.salePrice),
+    currency: searchViewSku.salePriceCurrency,
+  };
+  sku.retailPrice = {
+    value: Number(searchViewSku.retailPrice),
+    currency: searchViewSku.retailPriceCurrency,
+  };
   sku.code = searchViewSku.skuCode;
   return sku;
 }
@@ -92,11 +100,12 @@ class EditableSkuRow extends Component {
 
   @autobind
   priceCell(sku: Sku, field: string): Element {
-    const value = _.get(this.state.sku, field) || _.get(sku, ['attributes', field, 'v', 'value']);
-    const onChange = (value) => this.handleUpdatePrice(field, value);
+    const value = _.get(this.state.sku, [field, 'value']) || _.get(sku, ['attributes', field, 'v', 'value']);
+    const currency = _.get(sku, ['attributes', field, 'v', 'currency'], 'USD');
+    const onChange = (value) => this.handleUpdatePrice(field, value, currency);
     return (
       <div className="fc-editable-sku-row__price">
-        <CurrencyInput value={value} onChange={onChange} />
+        <CurrencyInput value={value} currency={currency} onChange={onChange} />
       </div>
     );
   }
@@ -294,9 +303,12 @@ class EditableSkuRow extends Component {
   }
 
   @autobind
-  handleUpdatePrice(field: string, value: string) {
+  handleUpdatePrice(field: string, value: string, currency: string) {
     this.updateSku({
-      [field]: value,
+      [field]: {
+        currency,
+        value: Number(value),
+      },
     });
   }
 

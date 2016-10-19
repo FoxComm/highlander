@@ -12,6 +12,6 @@ export function prefix(prefix) {
   };
 }
 
-export function toNumber(str: string): number {
-  return str ? parseInt(str, 10) : 1;
+export function stripTags(input: string): string {
+  return input.replace(/<(?:.|\n)*?>/gm, '');
 }
