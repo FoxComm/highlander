@@ -25,6 +25,7 @@ type Props = {
   fetchUserInfo: Function,
   toggleUserMenu: Function,
   isMenuVisible?: boolean,
+  user: ?TUser,
 };
 
 const mapState = state => ({
@@ -50,7 +51,7 @@ export default class Header extends React.Component {
     const props = this.props;
     const user: ?TUser = props.user;
 
-    const name = (_.isEmpty(user) || user.name == null) ? '' : user.name.split(' ')[0];
+    const name = (user == null || _.isEmpty(user) || user.name == null) ? '' : user.name.split(' ')[0];
     return (
       <header role='banner' styleName="header">
         <Breadcrumb routes={props.routes} params={props.params}/>

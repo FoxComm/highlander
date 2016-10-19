@@ -23,7 +23,7 @@ type Props = {
   isNew: bool,
 };
 
-class UserForm extends Component {
+export default class UserForm extends Component {
   props: Props;
 
   @autobind
@@ -101,5 +101,3 @@ class UserForm extends Component {
     );
   }
 }
-
-export default UserForm;
