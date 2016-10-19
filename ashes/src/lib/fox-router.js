@@ -15,6 +15,8 @@ type RouteParams = {
 };
 
 export default class FoxRouter {
+  jwt: JWT;
+
   constructor(jwt: JWT) {
     this.jwt = jwt;
   }
