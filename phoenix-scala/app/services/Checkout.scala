@@ -143,11 +143,25 @@ case class Checkout(
                       }
                     } yield (trackInventory, liSku)
                   }
-      skusToHold ← * <~ skuObjects.filter(_._1).map(_._2)
-      skus = skusToHold.map { case (skuCode, qty) ⇒ SkuInventoryHold(skuCode, qty) }.toSeq
-      _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skus))
+      skusToHold ← * <~ skuObjects.filter {
+                    case (holdInventory, cordRef, skuAmount)   ⇒ holdInventory
+                  }.map { case (holdInventory, sku, skuAmount) ⇒ (sku, skuAmount) }
+      skus = skusToHold.map { case (skuCode, qty) ⇒ SkuInventoryHold(skuCode, qty) }
+      _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skus.toSeq))
       mutatingResult = externalCalls.middleWarehouseSuccess = true
     } yield {}
+
+
+  private def getSkuObjects(cordRef: String, skuAmount: Int) =
+    for {
+      sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(contextId = ctx.id, cordRef)
+      shadow ← * <~ ObjectShadows.mustFindById400(sku.shadowId)
+      form   ← * <~ ObjectForms.mustFindById400(shadow.formId)
+      trackInventory = ObjectUtils.get("trackInventory", form, shadow) match {
+        case JBool(trackInv) ⇒ trackInv
+        case _               ⇒ true
+      }
+    } yield (trackInventory, cordRef, skuAmount)
 
   private def cancelHoldInMiddleWarehouse: Result[Unit] =
     apis.middlwarehouse.cancelHold(cart.referenceNumber)

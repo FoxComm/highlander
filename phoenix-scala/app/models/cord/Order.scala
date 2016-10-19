@@ -150,7 +150,7 @@ object Orders
   def prepareOrderLineItemsFromCart(cart: Cart, contextId: Int)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[OrderLineItem]] = {
-    val countBySku = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.id).map {
+    val countBySku = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
       case (sku, q) ⇒ sku → q.length
     }
 
@@ -165,9 +165,10 @@ object Orders
       skuMaps   ← * <~ skuItems.toMap
       lineItems ← * <~ CartLineItems.byCordRef(cart.referenceNumber).result
       orderLineItems ← * <~ lineItems.map { cli ⇒
+                        val sku = skuMaps.get(cli.skuId).get
                         OrderLineItem(cordRef = cart.referenceNumber,
-                                      skuId = skuMaps.get(cli.skuId).get.id,
-                                      skuShadowId = skuMaps.get(cli.skuId).get.shadowId,
+                                      skuId = sku.id,
+                                      skuShadowId = sku.shadowId,
                                       state = OrderLineItem.Pending,
                                       attributes = cli.attributes)
                       }

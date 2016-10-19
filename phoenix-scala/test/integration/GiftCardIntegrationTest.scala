@@ -51,11 +51,11 @@ class GiftCardIntegrationTest
         val cordInsert = Cords.create(Cord(1, "1", true)).gimme
         val attributes = Some(
             parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
-        val response =
-          POST(s"v1/gift-cards",
-               GiftCardCreatedByCustomer(balance = 555, details = attributes, cordRef = "1"))
-        response.status must === (StatusCodes.OK)
-        val root = response.as[GiftCardResponse.Root]
+        val root = giftCardsApi
+          .createFromCustomer(GiftCardCreatedByCustomer(balance = 555,
+                                                        details = attributes,
+                                                        cordRef = cordInsert.referenceNumber))
+          .as[GiftCardResponse.Root]
         root.currency must === (Currency.USD)
         root.availableBalance must === (555)
 

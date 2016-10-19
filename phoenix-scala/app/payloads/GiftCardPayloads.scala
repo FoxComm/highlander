@@ -18,9 +18,8 @@ object GiftCardPayloads {
                                        cordRef: String)
       extends Validation[GiftCardCreatedByCustomer] {
 
-    def validate: ValidatedNel[Failure, GiftCardCreatedByCustomer] = {
+    def validate: ValidatedNel[Failure, GiftCardCreatedByCustomer] =
       greaterThan(balance, 0, "Balance").map(_ ⇒ this)
-    }
   }
 
   case class GiftCardCreateByCsr(balance: Int,

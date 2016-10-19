@@ -204,48 +204,35 @@ object LineItemUpdater {
     } yield link
   }
 
-  /** private def doUpdateLineItems(skuId: Int, newQuantity: Int, cordRef: String,attributes:Option[Json])(
->>>>>>> add and remove giftcard lineItems feature and test added
-      implicit ec: EC): DbResultT[Seq[CartLineItem]] =
-    for {
-      current ← * <~ CartLineItems.byCordRef(cordRef).filter(_.skuId === skuId).size.result
-      _ ← * <~ (if (newQuantity > current)
-                  increaseLineItems(skuId, newQuantity - current, cordRef,attributes)
-                else decreaseLineItems(skuId, current - newQuantity, cordRef))
-      lineItems ← * <~ CartLineItems.byCordRef(cordRef).result
-    } yield lineItems**/
   private def increaseLineItems(skuId: Int, delta: Int, cordRef: String, attributes: Option[Json])(
       implicit ec: EC): DbResultT[Unit] = {
     val itemsToInsert: List[CartLineItem] =
       List.fill(delta)(CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes))
-    val a = for {
-      a ← * <~ CartLineItems.byCordRef(cordRef).filter(_.skuId === skuId)
-      _ ← * <~ println("amount of lineItems with sku " + skuId + "  " + a.length)
-
-    } yield {}
     CartLineItems.createAll(itemsToInsert).meh
   }
 
   private def decreaseLineItems(skuId: Int, delta: Int, cordRef: String, attributes: Option[Json])(
       implicit ec: EC): DbResultT[Unit] = {
-    for {
-      _ ← * <~ CartLineItems.byCordRef(cordRef).filter(_.skuId === skuId).result.flatMap {
-           lineItems ⇒
-             val matchedLineItems = lineItemAttributesComparison(lineItems, attributes).map(_.id)
-             println("matchLineItems size " + matchedLineItems.length)
-             val itemsToDelete =
-               CartLineItems.byCordRef(cordRef).filter(cli ⇒ cli.id.inSet(matchedLineItems))
-             if (delta < matchedLineItems.length)
-               itemsToDelete.filter(_.id in itemsToDelete.take(delta).map(_.id)).delete
-             else if (delta > matchedLineItems.length && matchedLineItems.length != 0)
-               itemsToDelete
-                 .filter(_.id in itemsToDelete.take(matchedLineItems.length).map(_.id))
-                 .delete
-             else
-               DBIOAction.successful(0)
-         }
-
-    } yield {}
+    CartLineItems
+      .byCordRef(cordRef)
+      .filter(_.skuId === skuId)
+      .result
+      .flatMap { lineItems ⇒
+        val itemsWithSameAtributtes =
+          lineItemJsonAttributesComparison(lineItems, attributes).map(_.id)
+        val itemsToDelete =
+          CartLineItems.byCordRef(cordRef).filter(_.id.inSet(itemsWithSameAtributtes))
+        if (delta < itemsWithSameAtributtes.length)
+          itemsToDelete.filter(_.id in itemsToDelete.take(delta).map(_.id)).delete
+        else if (delta > itemsWithSameAtributtes.length && itemsWithSameAtributtes.length != 0)
+          itemsToDelete
+            .filter(_.id in itemsToDelete.take(itemsWithSameAtributtes.length).map(_.id))
+            .delete
+        else
+          DBIOAction.successful(0)
+      }
+      .dbresult
+      .meh
   }
 
   private def lineItemAttributesComparison(lineItems: Seq[CartLineItem],
@@ -255,7 +242,7 @@ object LineItemUpdater {
         case (Some(p), Some(a))          ⇒ println("is where it should be " + p + "   " + a); p == a
         case (None, Some(a: JNull.type)) ⇒ true
         case (None, None)                ⇒ true
-        case (a, b)                      ⇒ false
+        case _                           ⇒ false
       }
     }
   }
