@@ -3,7 +3,7 @@ package utils.seeds.generators
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
-import com.github.tminglei.slickpg.LTree
+import models.account.Scope
 import models.cord.{Cart, Carts, Order, Orders}
 import models.objects.ObjectContext
 import models.payment.giftcard._
@@ -31,7 +31,7 @@ trait GiftCardGenerator {
       implicit db: DB,
       au: AU): DbResultT[GiftCard] =
     for {
-      cart  ← * <~ Carts.create(Cart(accountId = accountId, scope = LTree(au.token.scope)))
+      cart  ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
       order ← * <~ Orders.createFromCart(cart, context.id)
       order ← * <~ Orders.update(order, order.copy(state = Order.ManualHold))
       orig  ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = order.refNum))

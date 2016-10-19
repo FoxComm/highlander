@@ -1,5 +1,5 @@
-alter table carts add column scope text not null;
-alter table carts_search_view add column scope text not null;
+alter table carts add column scope exts.ltree not null;
+alter table carts_search_view add column scope exts.ltree not null;
 
 update carts set scope = exts.text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
 update carts_search_view set scope = text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);

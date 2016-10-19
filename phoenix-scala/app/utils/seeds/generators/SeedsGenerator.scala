@@ -4,7 +4,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
 import cats.implicits._
-import com.github.tminglei.slickpg.LTree
 import faker.Faker
 import models.account._
 import models.cord._
@@ -64,7 +63,7 @@ object RankingSeedsGenerator {
     def makeOrders(c: User, context: ObjectContext) = {
       (1 to 5 + Random.nextInt(20)).map { i ⇒
         for {
-          cart  ← * <~ Carts.create(Cart(accountId = c.accountId, scope = LTree(au.token.scope)))
+          cart  ← * <~ Carts.create(Cart(accountId = c.accountId, scope = Scope.current))
           order ← * <~ Orders.createFromCart(cart, context.id)
           order ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))
           order ← * <~ Orders.update(order, order.copy(state = Order.Shipped))
