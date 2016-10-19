@@ -26,6 +26,7 @@
     - { role: dev/marketplace }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/ashes }
+    - { role: dev/balancer, sudo: true }
     - { role: ext/tgt/marketplace-ui }
     - { role: ext/tgt/balancer, sudo: true }
     - { role: dev/seeder }

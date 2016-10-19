@@ -14,3 +14,11 @@ upstream isaac {
 upstream middlewarehouse {
 	server {{ middlewarehouse_server }} fail_timeout=30s;
 }
+
+upstream sol {
+  server {{ solomon_server }} fail_timeout=30s;
+}
+
+upstream ashes {
+  server {{ ashes_server }} fail_timeout=10s max_fails=360;
+}
