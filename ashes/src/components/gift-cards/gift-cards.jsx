@@ -124,6 +124,7 @@ export default class GiftCards extends React.Component {
           entity="gift card"
           actions={this.bulkActions}>
           <SelectableSearchList
+            entity="giftCards.list"
             emptyMessage="No gift cards found."
             list={list}
             renderRow={this.renderRow}

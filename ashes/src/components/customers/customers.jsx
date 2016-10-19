@@ -53,6 +53,7 @@ class Customers extends Component {
     const {list, tableColumns, actions} = this.props;
     return (
       <SelectableSearchList
+        entity="customers.list"
         emptyMessage="No customers found."
         list={list}
         renderRow={this.renderRow}

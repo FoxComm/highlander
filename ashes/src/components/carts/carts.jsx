@@ -58,6 +58,7 @@ class Carts extends Component {
 
     return (
       <SelectableSearchList
+        entity="carts.list"
         emptyMessage="No carts found."
         list={list}
         renderRow={this.renderRow}

@@ -301,6 +301,7 @@ export default class StoreCredits extends React.Component {
             entity="store credit"
             actions={this.bulkActions}>
             <SelectableSearchList
+              entity="customers.storeCredits"
               title="Store Credits"
               emptyMessage="No store credits found."
               list={this.props.list}

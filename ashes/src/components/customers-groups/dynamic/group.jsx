@@ -230,6 +230,7 @@ export default class DynamicGroup extends Component {
 
     return (
       <SelectableSearchList
+        entity="customerGroups.dynamic.list"
         emptyMessage="No customers found."
         list={list}
         renderRow={this.renderRow}
