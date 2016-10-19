@@ -17,7 +17,7 @@ case class CordResponseLineItem(imagePath: String,
                                 quantity: Int = 1,
                                 totalPrice: Int,
                                 productFormId: Int,
-                                externalId: Option[Int],
+                                externalId: Option[String],
                                 state: OrderLineItem.State)
     extends ResponseItem
 
