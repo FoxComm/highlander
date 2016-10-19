@@ -2,10 +2,6 @@ upstream marketplace-ui {
   server {{ marketplace_ui_server }} fail_timeout=10s max_fails=360; 
 }
 
-upstream ashes {
-    server {{ ashes_server }} fail_timeout=10s max_fails=360;
-}
-
 server {
   listen 80 default_server;
   listen [::]:80 default_server;
@@ -32,24 +28,15 @@ server {
   }
   {% if storefront_fixed_language %}set $accept_language {{storefront_default_language}};{% endif %}
 
-  # Proxy to ashes
-  location /admin/ {
-      proxy_pass http://ashes;
-  }
-
-  location @ashes {
-      proxy_pass http://ashes;
-  }
-
   # Proxy to marketplace-ui
   location / {
       proxy_pass http://marketplace-ui;
   }
 
-  location @storefront {
+  location @marketplace-ui {
       proxy_pass http://marketplace-ui;
   }
 
   include /etc/nginx/service_locations.conf;
-
+  include /etc/nginx/tgt_service_locations.conf;
 }
