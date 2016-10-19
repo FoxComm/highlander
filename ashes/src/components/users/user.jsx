@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
 
 // actions
-import * as UserActions from '../../modules/users/details';
+import * as UserActions from 'modules/users/details';
 
 // components
 import WaitAnimation from '../common/wait-animation';

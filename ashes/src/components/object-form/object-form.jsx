@@ -3,12 +3,9 @@
  */
 
 import React, { Component, Element, PropTypes } from 'react';
-import _ from 'lodash';
 
 import ContentBox from '../content-box/content-box';
 import ObjectFormInner from './object-form-inner';
-
-import type { Attribute, Attributes } from 'paragons/object';
 
 type Props = {
   canAddProperty?: boolean,
@@ -20,16 +17,14 @@ type Props = {
   options?: Object,
 };
 
-export default class ObjectForm extends Component<void, Props, void> {
-  props: Props;
+const ObjectFrom = (props: Props) => {
+  const { title, className, ...rest } = props;
 
-  render(): Element {
-    const { title, className, ...rest } = this.props;
+  return (
+    <ContentBox title={title} className={className}>
+      <ObjectFormInner {...rest} />
+    </ContentBox>
+  );
+};
 
-    return (
-      <ContentBox title={title} className={className}>
-        <ObjectFormInner {...rest} />
-      </ContentBox>
-    );
-  }
-}
+export default ObjectFrom;

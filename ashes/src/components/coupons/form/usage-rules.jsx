@@ -7,19 +7,16 @@ import { autobind } from 'core-decorators';
 
 // components
 import ContentBox from '../../content-box/content-box';
-import RadioButton from '../../forms/radio-button';
-import { PrimaryButton } from '../../common/buttons';
 import { Checkbox } from '../../checkbox/checkbox';
 import Counter from '../../forms/counter';
-import FormField from '../../forms/formfield';
 
 // styles
 import styles from './styles.css';
 
 type UsageRuleProps = {
-  isExclusive: bool,
-  isUnlimitedPerCode: bool,
-  isUnlimitedPerCustomer: bool,
+  isExclusive: boolean,
+  isUnlimitedPerCode: boolean,
+  isUnlimitedPerCustomer: boolean,
   usesPerCode: number,
   usesPerCustomer: number,
   onChange: Function,
@@ -98,7 +95,7 @@ export default class UsageRules extends Component {
                 disabled={this.props.isUnlimitedPerCode}
                 decreaseAction={() => this.handleUsesPerCodeChange(this.props.usesPerCode - 1)}
                 increaseAction={() => this.handleUsesPerCodeChange(this.props.usesPerCode + 1)}
-                onChange={({target}) => this.handleUsesPerCodeChange(target.value)}
+                onChange={({target}) => this.handleUsesPerCodeChange(parseInt(target.value))}
                 min={1}
               />
             </div>
@@ -126,7 +123,7 @@ export default class UsageRules extends Component {
                 disabled={this.props.isUnlimitedPerCustomer}
                 decreaseAction={() => this.handleUsesPerCustomerChange(this.props.usesPerCustomer - 1)}
                 increaseAction={() => this.handleUsesPerCustomerChange(this.props.usesPerCustomer + 1)}
-                onChange={({target}) => this.handleUsesPerCustomerChange(target.value)}
+                onChange={({target}) => this.handleUsesPerCustomerChange(parseInt(target.value))}
                 min={1}
               />
             </div>

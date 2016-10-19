@@ -117,9 +117,9 @@ function changeState(actions, ids, isActive) {
     const failures = {};
     dispatch(actions.bulkDone(successes, failures));
   };
-};
+}
 
-function updateAttributes(actions, ids, form, shadow) {
+function updateAttributes(actions, ids, object) {
   return dispatch => {
     const successes = {
       'id1': [],
@@ -127,7 +127,7 @@ function updateAttributes(actions, ids, form, shadow) {
     const failures = {};
     dispatch(actions.bulkDone(successes, failures));
   };
-};
+}
 
 export default function makeBulkActions(path: string): Store {
   return createStore({

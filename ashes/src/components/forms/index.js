@@ -1,5 +1,5 @@
 
 import Form from './form';
-import FormField from './formfield';
+import FormField, { FormFieldError } from './formfield';
 
-export { Form, FormField };
+export { Form, FormField, FormFieldError };

@@ -9,11 +9,9 @@ import _ from 'lodash';
 import { isActive } from 'paragons/common';
 import { trackEvent } from 'lib/analytics';
 
-import { Dropdown, DropdownItem } from '../dropdown';
+import { Dropdown } from '../dropdown';
 import DateTimePicker from '../date-time-picker/date-time-picker';
 
-export type Attribute = { t: string, v: any };
-export type Attributes = { [key:string]: Attribute };
 
 type Props = {
   attributes: Attributes,
