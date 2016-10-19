@@ -144,10 +144,10 @@ object CordResponseLineItems {
       db: DB): DbResultT[CordResponseLineItem] = {
     require(quantity > 0)
 
-    val price = Mvp.priceAsInt(data.skuForm, data.skuShadow)
-    val name  = Mvp.name(data.skuForm, data.skuShadow)
-    val externalId  = Mvp.externalId(data.skuForm, data.skuShadow)
-    val image = Mvp.firstImage(data.skuForm, data.skuShadow).getOrElse(NO_IMAGE)
+    val price      = Mvp.priceAsInt(data.skuForm, data.skuShadow)
+    val name       = Mvp.name(data.skuForm, data.skuShadow)
+    val externalId = Mvp.externalId(data.skuForm, data.skuShadow)
+    val image      = Mvp.firstImage(data.skuForm, data.skuShadow).getOrElse(NO_IMAGE)
 
     val li = CordResponseLineItem(imagePath = image,
                                   sku = data.sku.code,
