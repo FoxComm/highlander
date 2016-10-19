@@ -4,10 +4,14 @@
   hosts: all
   vars:
     cert_path: stage
-    ashes_server_name: local.foxcommerce.com
-    storefront_server_name: local.foxcommerce.com
+    ashes_server_name: tgt4.foxcommerce.com
+    storefront_server_name: tgt4.foxcommerce.com
     docker_registry: 127.0.0.1
     marathon_server: 127.0.0.1:8080
+    marketplace_server: 127.0.0.1:4003
+    marketplace_ui_server: 127.0.0.1:4042
+
+    docker_db_host: 172.17.0.1
   roles:
     - { role: base/phoenix }
     - { role: base/greenriver }
@@ -19,9 +23,11 @@
     - { role: dev/solomon }
     - { role: dev/middlewarehouse }
     - { role: dev/greenriver }
+    - { role: dev/marketplace }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/ashes }
-    - { role: dev/balancer, sudo: yes }
+    - { role: ext/tgt/marketplace-ui }
+    - { role: ext/tgt/balancer, sudo: true }
     - { role: dev/seeder }
 
   handlers:

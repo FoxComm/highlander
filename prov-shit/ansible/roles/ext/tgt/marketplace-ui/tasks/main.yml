@@ -9,4 +9,4 @@
   sudo: true
 
 - name: Update marketplace in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/marketplace_ui.json -H "Content-Type: application/json" http://marathon.service.consul:8080/v2/apps/marketplace-ui'
+  shell: 'curl -X PUT -d@/marathon/applications/marketplace_ui.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/marketplace-ui'
