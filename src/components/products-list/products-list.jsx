@@ -26,6 +26,13 @@ type Props = {
 }
 
 const mapStateToProps = state => ({categories: state.categories.list});
+const productTags = [
+  { id: 1, title: 'All' },
+  { id: 2, title: 'Poultry' },
+  { id: 3, title: 'Seafood' },
+  { id: 4, title: 'Beef' },
+  { id: 5, title: 'Vegitarian' },
+];
 
 class ProductsList extends Component {
   props: Props;
@@ -79,7 +86,7 @@ class ProductsList extends Component {
       <section styleName="catalog">
         {this.renderHeader()}
         <div styleName="dropdown">
-          <Dropdown />
+          <Dropdown items={productTags} />
         </div>
         <div styleName="list">
           {items}
