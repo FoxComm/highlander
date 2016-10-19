@@ -51,7 +51,7 @@ defmodule Solomon.UserController do
 
   def insert_and_relate(user_params) do
     account_cs = Account.changeset(%Account{}, %{
-      "ratchet" => 1
+      "ratchet" => 0
     })
 
     Multi.new
@@ -73,11 +73,5 @@ defmodule Solomon.UserController do
       Repo.insert(aam_cs)
     end)
   end
-  
-  def create_account do
-    account_cs = Account.changeset(%Account{}, %{
-      "ratchet" => 1
-    })
-  end 
 end
 

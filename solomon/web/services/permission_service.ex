@@ -42,14 +42,14 @@ defmodule Solomon.PermissionClaimService do
         changeset_with_claim = Permission.changeset(perm_changeset, %{"frn" => frn})
         Multi.new
         |> Multi.insert(:permission, changeset_with_claim)
-      {:error, _} ->
-        Multi.new
+      :error ->
+        {:error, Changeset.add_error(perm_changeset, :resource_id, "failed to create frn")}
     end
   end
 
   defp construct_frn(fp) do
     case fp do 
-      fp when is_nil fp -> {:error, "Resource not found"}
+      fp when is_nil fp -> :error
       fp ->  {:ok, "frn:#{fp.system_name}:#{fp.resource_name}:#{fp.scope_id}"}
     end
   end

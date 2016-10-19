@@ -11,8 +11,8 @@ defmodule Solomon.Permission do
     has_many :roles, through: [:role_permissions, :role]
   end
 
-  @required_fields ~w(resource_id scope_id frn actions)a
-  @optional_fields ~w()a
+  @required_fields ~w(resource_id scope_id actions)a
+  @optional_fields ~w(frn)a
 
   def changeset(model, params \\ :empty) do
     model
