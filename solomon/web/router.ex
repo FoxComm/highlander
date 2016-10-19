@@ -18,7 +18,6 @@ defmodule Solomon.Router do
     resources "/permissions", PermissionController
     resources "/accounts", AccountController do 
       resources "/granted_roles", AccountRoleController
-      resources "/granted_permissions", AccountPermissionController
     end
     resources "/users", UserController
   end

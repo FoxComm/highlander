@@ -13,8 +13,8 @@ defmodule Solomon.Organization do
     has_many :children, Organization, foreign_key: :parent_id
   end
   
-  @required_fields ~w(name kind)a
-  @optional_fields ~w(parent_id scope_id)a
+  @required_fields ~w(name kind parent_id scope_id)a
+  @optional_fields ~w()a
 
   def changeset(model, params \\ :empty) do
     model 

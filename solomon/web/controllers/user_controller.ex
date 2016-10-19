@@ -32,8 +32,7 @@ defmodule Solomon.UserController do
   def show(conn, %{"id" => id}) do
     user = Repo.get!(User, id)
     |> Repo.preload(:account)
-    aam = assoc(user.account, :account_access_methods)
-    render(conn, "show_with_account.json", user: user)
+    render(conn, "show_with_account_id.json", user: user)
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do

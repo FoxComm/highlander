@@ -9,8 +9,8 @@ defmodule Solomon.Scope do
     has_many :children, Solomon.Scope, foreign_key: :parent_id
   end
 
-  @required_fields ~w()a
-  @optional_fields ~w(source parent_id)a
+  @required_fields ~w(source parent_id)a
+  @optional_fields ~w()a
 
   def changeset(model, params \\ :empty) do
     model 

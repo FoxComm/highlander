@@ -14,7 +14,6 @@ defmodule Solomon.ScopeService do
         {:ok, role}
       {:error, changeset} -> {:error, changeset}
     end
-
   end
 
   defp insert_permissions(scope_id, resources) do

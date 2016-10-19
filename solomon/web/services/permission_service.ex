@@ -5,7 +5,6 @@ defmodule Solomon.PermissionClaimService do
   alias Ecto.Multi
   alias Ecto.Query
   alias Solomon.Permission
-  alias Solomon.Claim
   alias Solomon.Repo
   alias Solomon.Resource
   alias Solomon.System
@@ -38,21 +37,20 @@ defmodule Solomon.PermissionClaimService do
     |> List.first
     |> Map.merge(%{scope_id: scope_id})
     |> construct_frn
-    changeset_with_claim = Permission.changeset(perm_changeset, %{"frn" => claim_frn})
-
-    Multi.new
-    |> Multi.insert(:permission, changeset_with_claim)
+    case claim_frn do
+      {:ok, frn} -> 
+        changeset_with_claim = Permission.changeset(perm_changeset, %{"frn" => frn})
+        Multi.new
+        |> Multi.insert(:permission, changeset_with_claim)
+      {:error, _} ->
+        Multi.new
+    end
   end
 
   defp construct_frn(fp) do
     case fp do 
-      fp when is_nil fp -> empty_frn
-      fp ->  "frn:#{fp.system_name}:#{fp.resource_name}:#{fp.scope_id}"
+      fp when is_nil fp -> {:error, "Resource not found"}
+      fp ->  {:ok, "frn:#{fp.system_name}:#{fp.resource_name}:#{fp.scope_id}"}
     end
   end
-
-  defp empty_frn() do
-    "frn:none"
-  end
-
 end
