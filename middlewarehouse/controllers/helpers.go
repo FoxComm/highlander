@@ -96,5 +96,9 @@ func getContextScope(context *gin.Context) (string, error) {
 }
 
 func ensureScopeIsValid(jwtScope string, givenScope string) error {
-    return nil
+	if strings.HasPrefix(givenScope, jwtScope) {
+		return nil
+	}
+
+	return fmt.Errorf("Given scope %s is not in JWT scope %s", givenScope, jwtScope)
 }
