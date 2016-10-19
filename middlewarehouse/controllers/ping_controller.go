@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -43,14 +44,14 @@ func getContextScope(context *gin.Context) (string, error) {
 	rawJWT := context.Request.Header.Get("JWT")
 
 	token, err := jws.ParseJWT([]byte(rawJWT))
-
 	if err != nil {
 		return "", err
 	}
 
-    if scope, ok := token.Claims()["scope"].(string); ok {
-        return scope, nil
-    }
+	scope, ok := token.Claims()["scope"].(string)
+	if !ok {
+		return "", errors.New("No scope found in JWT")
+	}
 
-	return "JWT parsed", nil
+	return scope, nil
 }
