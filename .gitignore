@@ -15,4 +15,4 @@ ashes/public_key.pem
 .env.local
 
 # vendor folder for giftcard-consumer
-.gitcard-consumer/vendor/
+vendor/

@@ -1,0 +1,18 @@
+# IDE/editor files
+.vscode
+.idea
+
+# debug output
+debug
+
+# vendor folder
+vendor/
+
+# logs
+logs/
+
+# binaries
+main.exe
+main
+
+
