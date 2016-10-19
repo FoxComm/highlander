@@ -7,9 +7,10 @@ import org.json4s.JsonDSL._
 import org.json4s._
 import payloads.TaxonomyPayloads._
 import responses.TaxonomyResponses._
-import utils.db.ExPostgresDriver.api._
 import testutils._
 import testutils.fixtures.BakedFixtures
+import utils.aliases._
+import utils.db.ExPostgresDriver.api._
 
 class TaxonomyIntegrationTest
     extends IntegrationTestBase
@@ -43,7 +44,8 @@ class TaxonomyIntegrationTest
   "POST v1/taxonomy/:contextName" - {
     "creates taxonomy" in {
       val payload = CreateTaxonomyPayload(Map("name" → (("t" → "string") ~ ("v" → "name"))),
-                                          hierarchical = false)
+                                          hierarchical = false,
+                                          scope = None)
       val resp = POST(s"v1/taxonomy/${ctx.name}", payload)
       resp.status must === (StatusCodes.OK)
       val taxonResp = resp.as[TaxonomyResponse]

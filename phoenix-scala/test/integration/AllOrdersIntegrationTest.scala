@@ -9,6 +9,7 @@ import responses.cord._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
+import utils.aliases.AU
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -19,7 +20,8 @@ class AllOrdersIntegrationTest
     with BakedFixtures {
 
   "PATCH /v1/orders" - {
-    "bulk update states" in new StateUpdateFixture {
+    "bulk update states" in new StateUpdateFixture with StoreAdmin_Seed {
+      val au      = storeAdminAuthData
       val payload = BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
 
       val all = ordersApi.update(payload).as[BatchResponse[AllOrders.Root]]
@@ -46,11 +48,12 @@ class AllOrdersIntegrationTest
   }
 
   trait StateUpdateFixture {
+    implicit val au: AU
     (for {
       acc  ← * <~ Accounts.create(Account())
       cust ← * <~ Users.create(Factories.customer.copy(accountId = acc.id))
       _    ← * <~ CustomersData.create(CustomerData(userId = cust.id, accountId = acc.id))
-      c = Factories.cart.copy(accountId = acc.id)
+      c = Factories.cart(Scope.current).copy(accountId = acc.id)
       cart  ← * <~ Carts.create(c.copy(referenceNumber = "foo"))
       order ← * <~ Orders.createFromCart(cart)
       _     ← * <~ Orders.update(order, order.copy(state = FraudHold))

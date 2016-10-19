@@ -11,6 +11,7 @@ import responses.cord.AllOrders
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
+import utils.aliases.AU
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -149,12 +150,17 @@ class AssignmentsIntegrationTest
   }
 
   trait BulkAssignmentFixture extends Customer_Seed with StoreAdmin_Seed {
+    implicit val au: AU = storeAdminAuthData
     val (order1, order2) = (for {
       cart ← * <~ Carts.create(
-                Factories.cart.copy(accountId = customer.accountId, referenceNumber = "foo"))
+                Factories
+                  .cart(Scope.current)
+                  .copy(accountId = customer.accountId, referenceNumber = "foo"))
       order1 ← * <~ Orders.createFromCart(cart)
       cart ← * <~ Carts.create(
-                Factories.cart.copy(accountId = customer.accountId, referenceNumber = "bar"))
+                Factories
+                  .cart(Scope.current)
+                  .copy(accountId = customer.accountId, referenceNumber = "bar"))
       order2 ← * <~ Orders.createFromCart(cart)
       _ ← * <~ Assignments.create(
              Assignment(referenceType = Assignment.Order,

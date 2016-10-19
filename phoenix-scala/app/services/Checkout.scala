@@ -4,15 +4,15 @@ import scala.util.Random
 
 import cats.data.Xor
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.GeneralFailure
 import failures.PromotionFailures.PromotionNotFoundForContext
+import models.account._
 import models.cord._
 import models.cord.lineitems.CartLineItems
 import models.cord.lineitems.CartLineItems.scope._
 import models.coupon._
-import models.account._
-import models.customer._
 import models.objects._
 import models.payment.creditcard._
 import models.payment.giftcard._
@@ -76,12 +76,14 @@ object Checkout {
                                   db: DB,
                                   apis: Apis,
                                   ac: AC,
-                                  ctx: OC): DbResultT[OrderResponse] =
+                                  ctx: OC,
+                                  au: AU): DbResultT[OrderResponse] =
     for {
       result ← * <~ Carts
                 .findByAccountId(customer.accountId)
                 .one
-                .findOrCreateExtended(Carts.create(Cart(accountId = customer.accountId)))
+                .findOrCreateExtended(Carts.create(
+                        Cart(accountId = customer.accountId, scope = LTree(au.token.scope))))
       (cart, _) = result
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order

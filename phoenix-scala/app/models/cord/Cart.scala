@@ -1,16 +1,18 @@
 package models.cord
 
+import com.github.tminglei.slickpg.LTree
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.{Failure, NotFoundFailure404}
 import models.account.Account
 import models.traits.Lockable
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import utils.Money.Currency
 import utils.aliases._
 import utils.db._
 
 case class Cart(id: Int = 0,
+                scope: LTree,
                 referenceNumber: String = "",
                 accountId: Int,
                 currency: Currency = Currency.USD,
@@ -29,6 +31,7 @@ case class Cart(id: Int = 0,
 
 class Carts(tag: Tag) extends FoxTable[Cart](tag, "carts") {
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def scope            = column[LTree]("scope")
   def referenceNumber  = column[String]("reference_number")
   def accountId        = column[Int]("account_id")
   def currency         = column[Currency]("currency")
@@ -41,6 +44,7 @@ class Carts(tag: Tag) extends FoxTable[Cart](tag, "carts") {
 
   def * =
     (id,
+     scope,
      referenceNumber,
      accountId,
      currency,
