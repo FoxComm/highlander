@@ -182,9 +182,6 @@ object LineItemUpdater {
       implicit ec: EC): DbResultT[Unit] = {
     val itemsToInsert: List[CartLineItem] =
       List.fill(delta)(CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes))
-    val a = for {
-      a ← * <~ CartLineItems.byCordRef(cordRef).filter(_.skuId === skuId)
-    } yield {}
     CartLineItems.createAll(itemsToInsert).meh
   }
 
@@ -209,8 +206,8 @@ object LineItemUpdater {
         else
           DBIOAction.successful(0)
       }
-      .map(resul ⇒ ())
       .dbresult
+      .meh
   }
 
   private def lineItemJsonAttributesComparison(lineItems: Seq[CartLineItem],
@@ -220,7 +217,7 @@ object LineItemUpdater {
         case (Some(p), Some(a))          ⇒ p == a
         case (None, Some(a: JNull.type)) ⇒ true
         case (None, None)                ⇒ true
-        case (_, _)                      ⇒ false
+        case _                           ⇒ false
       }
     }
   }

@@ -5,7 +5,7 @@ import models.product._
 import utils.aliases._
 import shapeless._
 import utils.db.ExPostgresDriver.api._
-import utils.db.{FoxModel, FoxTable, FoxTableQuery, ReturningId}
+import utils.db._
 
 case class CartLineItemProductData(sku: Sku,
                                    skuForm: ObjectForm,

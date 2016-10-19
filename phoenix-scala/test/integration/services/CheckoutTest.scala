@@ -210,7 +210,7 @@ class CheckoutTest
                      Factories.products.head.copy(price = cost, code = Lorem.letterify("?????")))
         sku ← * <~ Skus.mustFindById404(product.skuId)
       } yield sku).gimme
-      Seq(UpdateLineItemsPayload(sku.code, 1, None))
+      Seq(UpdateLineItemsPayload(sku.code, 1))
     }
 
     def generateGiftCards(amount: Seq[Int]) =

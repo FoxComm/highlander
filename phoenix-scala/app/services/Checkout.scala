@@ -134,9 +134,11 @@ case class Checkout(
       skuObjects ← * <~ liSkus.map {
                     case (cordRef, skuAmount) ⇒ getSkuObjects(cordRef, skuAmount)
                   }
-      skusToHold ← * <~ skuObjects.filter(_._1).map(_._2)
-      skus = skusToHold.map { case (skuCode, qty) ⇒ SkuInventoryHold(skuCode, qty) }.toSeq
-      _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skus))
+      skusToHold ← * <~ skuObjects.filter {
+                    case (holdInventory, cordRef, skuAmount)   ⇒ holdInventory
+                  }.map { case (holdInventory, sku, skuAmount) ⇒ (sku, skuAmount) }
+      skus = skusToHold.map { case (skuCode, qty) ⇒ SkuInventoryHold(skuCode, qty) }
+      _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skus.toSeq))
       mutatingResult = externalCalls.middleWarehouseSuccess = true
     } yield {}
 
@@ -149,7 +151,7 @@ case class Checkout(
         case JBool(trackInv) ⇒ trackInv
         case _               ⇒ true
       }
-    } yield (trackInventory, (cordRef, skuAmount))
+    } yield (trackInventory, cordRef, skuAmount)
 
   private def cancelHoldInMiddleWarehouse: Result[Unit] =
     apis.middlwarehouse.cancelHold(cart.referenceNumber)
