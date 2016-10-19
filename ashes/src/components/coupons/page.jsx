@@ -62,6 +62,10 @@ class CouponPage extends ObjectPage {
     };
   }
 
+  componentWillUpdate(newProps, newState) {
+    console.log(newProps, newState);
+  }
+
   get selectedPromotions(): Array<any> {
     return _.get(this.props, 'details.selectedPromotions', []);
   }

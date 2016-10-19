@@ -7,7 +7,7 @@ import type { Claims } from 'lib/claims';
 type FoxRoute = Route|IndexRoute;
 type JWT = { claims: Claims };
 type RouteParams = {
-  component?: Element,
+  component?: ReactClass,
   dimension?: string,
   isIndex?: bool,
   path?: string,
@@ -19,19 +19,19 @@ export default class FoxRouter {
     this.jwt = jwt;
   }
 
-  create(name: string, params: RouteParams, children: Array<FoxRoute>): FoxRoute {
+  create(name: string, params: RouteParams, children?: Array<FoxRoute>): FoxRoute {
     return this.request(name, 'c', params, children);
   }
 
-  read(name: string, params: RouteParams, children: Array<FoxRoute>): FoxRoute {
+  read(name: string, params: RouteParams, children?: Array<FoxRoute>): FoxRoute {
     return this.request(name, 'r', params, children);
   }
 
-  update(name: string, params: RouteParams, children: Array<FoxRoute>): FoxRoute {
+  update(name: string, params: RouteParams, children?: Array<FoxRoute>): FoxRoute {
     return this.request(name, 'u', params, children);
   }
 
-  request(name: string, action: string, params: RouteParams, children: Array<FoxRoute>): FoxRoute {
+  request(name: string, action: string, params: RouteParams, children?: Array<FoxRoute>): FoxRoute {
     const { isIndex, frn, ...rest } = params;
     const RouteComponent = isIndex ? IndexRoute : Route;
     return (

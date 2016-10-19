@@ -6,6 +6,7 @@ import { isSatisfied } from 'paragons/object';
 import { getJWT } from 'lib/claims';
 
 import type { Sku } from '../modules/skus/details';
+import type { JWT } from 'lib/claims';
 
 export const options = {
   code: { label: 'SKU', required: true },
@@ -43,7 +44,7 @@ export function isSkuValid(sku: Sku): boolean {
 // HACK
 function isMerchant(): boolean {
   const jwt = getJWT();
-  if (jwt.email == 'admin@admin.com') {
+  if (jwt != null && jwt.email == 'admin@admin.com') {
     return false;
   }
 

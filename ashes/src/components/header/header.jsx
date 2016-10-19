@@ -25,6 +25,7 @@ type Props = {
   fetchUserInfo: Function,
   toggleUserMenu: Function,
   isMenuVisible?: boolean,
+  user: ?TUser,
 };
 
 const mapState = state => ({

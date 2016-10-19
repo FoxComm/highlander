@@ -269,7 +269,7 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  get menu(): Element[] {
+  get menu(): Element {
     if (!this.state.open) {
       return;
     }

@@ -7,11 +7,14 @@ import { frn, readAction } from 'lib/frn';
 import NavigationItem from 'components/sidebar/navigation-item';
 import { IndexLink, Link } from 'components/link';
 
+import type { Claims } from 'lib/claims';
+
 type Props = {
   routes: Array<Object>,
   collapsed: boolean,
   status: string,
   toggleMenuItem: Function,
+  claims: Claims,
 };
 
 const userClaims = readAction(frn.settings.user);
