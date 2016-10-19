@@ -129,7 +129,7 @@ export class ObjectPage extends Component {
       this.props.actions.newEntity();
     } else {
       this.fetchEntity()
-        .then(({payload}) => {
+        .then(({ payload }) => {
           if (isArchived(payload)) this.transitionToList();
         });
     }
@@ -143,7 +143,7 @@ export class ObjectPage extends Component {
     return {};
   }
 
-  transitionTo(id, props={}) {
+  transitionTo(id, props = {}) {
     transitionTo(`${this.props.namespace}-details`, {
       ...this.detailsRouteProps(),
       ...props,
@@ -262,7 +262,7 @@ export class ObjectPage extends Component {
 
   transitionToList() {
     const { dispatch, plural } = this.props;
-    dispatch(push(`/${plural}`));
+    dispatch(push({ name: plural }));
   }
 
   @autobind
@@ -273,7 +273,7 @@ export class ObjectPage extends Component {
   }
 
   renderArchiveActions() {
-    return(
+    return (
       <ArchiveActionsSection
         type={this.props.capitalized}
         title={this.pageTitle}
