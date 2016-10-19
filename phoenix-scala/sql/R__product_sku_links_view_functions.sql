@@ -22,7 +22,7 @@ begin
       from product_variant_links as pvlink
         inner join variant_variant_value_links as vvlink on (pvlink.right_id = vvlink.left_id)
         inner join variant_value_sku_links as vsku_link on (vsku_link.left_id = vvlink.right_id)
-        inner join skus as sku on (vsku_link.left_id = sku.id)
+        inner join skus as sku on (vsku_link.right_id = sku.id)
       where pvlink.left_id = $1;
   end if;
 
