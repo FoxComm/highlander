@@ -21,7 +21,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "docker.stage.foxcommerce.com:5000/marketplace-ui",
+      "image": "{{docker_registry}}:5000/marketplace-ui",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

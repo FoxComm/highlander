@@ -6,9 +6,9 @@
   "disk": 0,
   "instances": 1,
   "env": {
-    "DB_USER": "phoenix",
-    "DB_HOST": "db.service.consul",
-    "DB_NAME": "phoenix_development",
+    "DB_USER": "{{db_user}}",
+    "DB_HOST": "{{docker_db_host}}",
+    "DB_NAME": "{{phoenix_db_name}}",
     "DB_PASSWORD": ""
   },
   "portDefinitions": [
@@ -23,7 +23,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "docker.stage.foxcommerce.com:5000/solomon",
+      "image": "{{docker_registry}}:5000/solomon",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

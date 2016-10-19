@@ -20,10 +20,10 @@
   when: updating_mwh
 
 - name: Update Middlewarehouse in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/middlewarehouse.json -H "Content-Type: application/json" http://marathon.service.consul:8080/v2/apps/middlewarehouse'
+  shell: 'curl -X PUT -d@/marathon/applications/middlewarehouse.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/middlewarehouse'
 
 - name: Update Stock Items Consumer in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/stock-items-consumer.json -H "Content-Type: application/json" http://marathon.service.consul:8080/v2/apps/stock-items-consumer'
+  shell: 'curl -X PUT -d@/marathon/applications/stock-items-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/stock-items-consumer'
 
 - name: Update Shipments Consumer in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/shipments-consumer.json -H "Content-Type: application/json" http://marathon.service.consul:8080/v2/apps/shipments-consumer'
+  shell: 'curl -X PUT -d@/marathon/applications/shipments-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/shipments-consumer'

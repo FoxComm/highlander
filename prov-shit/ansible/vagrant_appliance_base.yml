@@ -11,7 +11,7 @@
     join_type: join
     zookeeper_server: "localhost:2181"
     zookeepers : "zk://127.0.0.1:2181"
-    docker_registry: "https://localhost"
+    docker_registry: "https://tgt4.foxcommerce.com"
   roles:
     - { role: base/common }
     - { role: base/consul }

@@ -7,9 +7,9 @@
   "instances": 1,
   "env": {
     "PUBLIC_KEY": "/certs/public_key.pem",
-    "DB_HOST": "db.service.consul",
-    "DB_NAME": "phoenix_development",
-    "DB_USER": "phoenix"
+    "DB_HOST": "{{docker_db_host}}",
+    "DB_NAME": "{{phoenix_db_name}}",
+    "DB_USER": "{{db_user}}"
   },
   "portDefinitions": [
     {
@@ -29,7 +29,7 @@
       }
     ],
     "docker": {
-      "image": "docker.stage.foxcommerce.com:5000/isaac",
+      "image": "{{docker_registry}}:5000/isaac",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

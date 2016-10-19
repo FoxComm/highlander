@@ -9,7 +9,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "docker.stage.foxcommerce.com:5000/stock-items-consumer",
+      "image": "{{docker_registry}}:5000/stock-items-consumer",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
