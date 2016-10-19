@@ -16,10 +16,13 @@ import SkuContentBox from './skus/sku-content-box';
 import { autoAssignVariants, deleteVariantCombination, addSkusForVariants } from 'paragons/variants';
 
 // types
-import type { Attributes } from 'paragons/object';
 import type { DetailsProps } from '../object-page/object-details';
 import type { Product, Option, OptionValue } from 'paragons/product';
 const layout = require('./layout.json');
+
+type Props = DetailsProps & {
+  object: Product
+}
 
 /**
  * ProductForm is dumb component that implements the logic needed for creating
@@ -27,13 +30,12 @@ const layout = require('./layout.json');
  */
 export default class ProductForm extends ObjectDetails {
   layout = layout;
-  props: DetailsProps & {
-    object: Product
-  };
+  props: Props;
 
   renderSkuList(): Element<any> {
     return (
       <SkuContentBox
+        // $FlowFixMe: WTF?
         fullProduct={this.props.object}
         updateField={this.props.onSetSkuProperty}
         updateFields={this.props.onSetSkuProperties}
@@ -81,6 +83,7 @@ export default class ProductForm extends ObjectDetails {
   renderOptionList() {
     return (
       <OptionList
+        // $FlowFixMe: WTF?
         product={this.props.object}
         variants={this.props.object.variants}
         updateVariants={this.updateVariants}
