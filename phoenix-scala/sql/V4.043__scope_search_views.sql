@@ -495,7 +495,7 @@ begin
   update sku_search_view set
     sku_code = subquery.code,
     title = subquery.title,
-    images = subquery.images,
+    image = subquery.image,
     sale_price = subquery.sale_price,
     sale_price_currency = subquery.sale_price_currency,
     archived_at = subquery.archived_at,
