@@ -31,7 +31,7 @@ PROJECTS=(
     'marketplace'
     'marketplace-ui'
     'middlewarehouse'
-    'permissions'
+    'solomon'
     'phoenix-scala'
     'prov-shit'
 )
