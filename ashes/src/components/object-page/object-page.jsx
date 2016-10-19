@@ -7,6 +7,7 @@ import React, { Component, Element } from 'react';
 import invariant from 'invariant';
 import { push } from 'react-router-redux';
 import { autobind } from 'core-decorators';
+import jsen from 'jsen';
 
 import styles from './object-page.css';
 
@@ -24,12 +25,16 @@ import Prompt from '../common/prompt';
 import { isArchived } from 'paragons/common';
 import { transitionTo } from 'browserHistory';
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
+import { supressTV } from 'paragons/object';
+
+// modules
+import * as SchemaActions from 'modules/object-schema';
 
 export function connectPage(namespace, actions) {
   const capitalized = _.upperFirst(namespace);
   const plural = `${namespace}s`;
   const actionNames = {
-    new: `${namespace}New`, // promotionsNew
+    new: `${namespace}New`, // promotionNew
     fetch: `fetch${capitalized}`, // fetchPromotion
     create: `create${capitalized}`, // createPromotion
     update: `update${capitalized}`, // updatePromotion
@@ -42,8 +47,11 @@ export function connectPage(namespace, actions) {
       plural,
       capitalized,
       actionNames,
+      schema: _.get(state.objectSchemas, namespace),
       details: state[plural].details,
+      originalObject: _.get(state, [plural, 'details', namespace], {}),
       isFetching: _.get(state.asyncActions, `${actionNames.fetch}.inProgress`, null),
+      isSchemaFetching: _.get(state.asyncActions, 'fetchSchema.inProgress', null),
       fetchError: _.get(state.asyncActions, `${actionNames.fetch}.err`, null),
       createError: _.get(state.asyncActions, `${actionNames.create}.err`, null),
       updateError: _.get(state.asyncActions, `${actionNames.update}.err`, null),
@@ -61,6 +69,7 @@ export function connectPage(namespace, actions) {
   function generalizeActions(actions) {
     const result = {
       ...actions,
+      ...SchemaActions
     };
 
     _.each(actionNames, (name, key) => {
@@ -88,7 +97,8 @@ function getObjectId(object) {
 
 export class ObjectPage extends Component {
   state = {
-    [this.props.namespace]: this.props.details[this.props.namespace],
+    object: this.props.originalObject,
+    schema: this.props.schema,
   };
 
   get entityIdName(): string {
@@ -101,6 +111,10 @@ export class ObjectPage extends Component {
 
   get isNew(): boolean {
     return this.entityId === 'new';
+  }
+
+  isObjectValid(object: Object): boolean {
+    return jsen(this.props.schema)(supressTV(object));
   }
 
   componentWillMount() {
@@ -127,6 +141,7 @@ export class ObjectPage extends Component {
 
   componentDidMount() {
     this.props.actions.clearFetchErrors();
+    this.props.actions.fetchSchema(this.props.namespace);
     if (this.isNew) {
       this.props.actions.newEntity();
     } else {
@@ -138,7 +153,7 @@ export class ObjectPage extends Component {
   }
 
   get unsaved(): boolean {
-    return !_.isEqual(this.entity, this.state.entity);
+    return !_.isEqual(this.props.originalObject, this.state.object);
   }
 
   detailsRouteProps(): Object {
@@ -155,23 +170,31 @@ export class ObjectPage extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { isFetching, isSaving, fetchError, createError, updateError } = nextProps;
-    const { namespace } = this.props;
+
+    const nextSchema = nextProps.schema;
+    if (nextSchema) {
+      this.setState({
+        schema: nextSchema,
+      });
+    }
 
     if (!isFetching && !isSaving && !fetchError && !createError && !updateError) {
-      const nextEntity = nextProps.details[namespace];
-      if (!nextEntity) return;
+      const nextObject = nextProps.originalObject;
+      if (nextObject && nextObject != this.props.originalObject) {
+        const nextObjectId = getObjectId(nextObject);
+        const isNew = this.isNew;
 
-      const nextEntityId = getObjectId(nextEntity);
-
-      if (this.isNew && nextEntityId) {
-        this.transitionTo(nextEntityId);
+        this.setState({
+          object: nextProps.originalObject
+        }, () => {
+          if (isNew && nextObjectId) {
+            this.transitionTo(nextObjectId);
+          }
+          if (!isNew && !nextObjectId) {
+            this.transitionTo('new');
+          }
+        });
       }
-      if (!this.isNew && !nextEntityId) {
-        this.transitionTo('new');
-      }
-      this.setState({
-        entity: nextProps.details[namespace]
-      });
     }
   }
 
@@ -179,22 +202,19 @@ export class ObjectPage extends Component {
     this.props.actions.reset();
   }
 
-  get entity() {
-    return this.props.details[this.props.namespace];
-  }
 
   get pageTitle(): string {
     if (this.isNew) {
       return `New ${this.props.capitalized}`;
     }
 
-    return _.get(this.entity, 'form.attributes.name', '');
+    return _.get(this.props.originalObject, 'attributes.name.v', '');
   }
 
   @autobind
-  handleUpdateEntity(entity) {
+  handleUpdateObject(object) {
     this.setState({
-      entity,
+      object,
     });
   }
 
@@ -221,16 +241,19 @@ export class ObjectPage extends Component {
   save() {
     let mayBeSaved = false;
 
-    if (this.state.entity) {
-      const entity = this.state.entity;
+    if (this.state.object) {
+      const object = this.state.object;
 
       if (!this.validateForm()) return;
 
       if (this.isNew) {
-        mayBeSaved = this.createEntity(entity);
+        mayBeSaved = this.createEntity(object);
       } else {
-        mayBeSaved = this.updateEntity(entity);
+        mayBeSaved = this.updateEntity(object);
       }
+    }
+    if (this.state.schema) {
+      this.props.actions.saveSchema(this.props.namespace, this.state.schema);
     }
 
     return mayBeSaved;
@@ -308,14 +331,18 @@ export class ObjectPage extends Component {
 
   childrenProps() {
     const props = this.props;
-    const { entity } = this.state;
-    const { namespace, capitalized } = props;
+    const { object, schema } = this.state;
+    const { namespace, capitalized, plural } = props;
 
     return {
       ...props.children.props,
-      [namespace]: entity,
+      object,
+      title: capitalized,
+      plural,
       ref: 'form',
-      [`onUpdate${capitalized}`]: this.handleUpdateEntity,
+      isNew: this.isNew,
+      schema,
+      onUpdateObject: this.handleUpdateObject,
       entity: { entityId: this.entityId, entityType: namespace },
     };
   }
@@ -326,7 +353,12 @@ export class ObjectPage extends Component {
   }
 
   get preventSave(): boolean {
-    return false;
+    const object = this.state.object;
+    if (object) {
+      return !this.isObjectValid(object);
+    }
+
+    return true;
   }
 
   renderHead() {
@@ -335,14 +367,14 @@ export class ObjectPage extends Component {
 
   render(): Element {
     const props = this.props;
-    const { entity } = this.state;
+    const { object } = this.state;
     const { actions, namespace } = props;
 
-    if (props.isFetching !== false && !entity) {
+    if ((props.isFetching !== false && !object) || (props.isSchemaFetching !== false || !props.schema)) {
       return <div><WaitAnimation /></div>;
     }
 
-    if (!entity) {
+    if (!object) {
       return <Error err={props.fetchError} notFound={`There is no ${namespace} with id ${this.entityId}`} />;
     }
 

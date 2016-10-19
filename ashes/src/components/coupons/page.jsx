@@ -10,11 +10,11 @@ import { connectPage, ObjectPage } from '../object-page/object-page';
 import SubNav from './sub-nav';
 
 // actions
-import * as CouponActions from '../../modules/coupons/details';
+import * as CouponActions from 'modules/coupons/details';
 
 type State = {
   promotionError?: boolean,
-  entity?: Object,
+  object?: Object,
 };
 
 type Params = {
@@ -92,9 +92,9 @@ class CouponPage extends ObjectPage {
   }
 
   @autobind
-  handleUpdateEntity(coupon: Object): void {
+  handleUpdateObject(coupon: Object): void {
     let newState: State = {
-      entity: coupon,
+      object: coupon,
     };
     if (_.isNumber(coupon.promotion)) {
       newState = {
@@ -112,7 +112,7 @@ class CouponPage extends ObjectPage {
   }
 
   validateForm() {
-    const coupon = this.state.entity;
+    const coupon = this.state.object;
     let formValid = super.validateForm();
 
     if (coupon && !_.isNumber(coupon.promotion)) {
@@ -129,7 +129,7 @@ class CouponPage extends ObjectPage {
       return null;
     }
 
-    return this.props.actions.createCoupon(this.state.entity);
+    return this.props.actions.createCoupon(this.state.object);
   }
 
   childrenProps() {

@@ -14,9 +14,6 @@ import { connectPage, ObjectPage } from '../object-page/object-page';
 // actions
 import * as SkuActions from 'modules/skus/details';
 
-//helpers
-import { isSkuValid } from 'paragons/sku';
-
 // types
 import type { Sku } from 'modules/skus/details';
 
@@ -28,8 +25,8 @@ type Props = {
     updateSku: (sku: Sku, context?: string) => Promise,
     archiveSku: (code: string, context?: string) => Promise,
   },
-  sku: ?Sku,
   params: { skuCode: string },
+  originalObject: Sku,
   children: Element,
 };
 
@@ -37,7 +34,7 @@ class SkuPage extends ObjectPage {
   props: Props;
 
   get code(): string {
-    return _.get(this.entity, 'attributes.code.v', '');
+    return _.get(this.props.originalObject, 'attributes.code.v', '');
   }
 
   get pageTitle(): string {
@@ -46,15 +43,6 @@ class SkuPage extends ObjectPage {
     }
 
     return this.code.toUpperCase();
-  }
-
-  get preventSave(): boolean {
-    const { entity } = this.state;
-    if (entity) {
-      return !isSkuValid(entity);
-    }
-
-    return true;
   }
 
   get entityIdName(): string {

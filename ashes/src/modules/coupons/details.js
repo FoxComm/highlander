@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
-import { createEmptyCoupon, configureCoupon} from '../../paragons/coupons';
+import { createEmptyCoupon } from '../../paragons/coupons';
 import createAsyncActions from '../async-utils';
 import Api from 'lib/api';
 
@@ -32,7 +32,7 @@ const _createCoupon = createAsyncActions(
 const _updateCoupon = createAsyncActions(
   'updateCoupon',
   (coupon, context = defaultContext) => {
-    const id = coupon.form.id;
+    const id = coupon.id;
     return Api.patch(`/coupons/${context}/${id}`, coupon);
   }
 );
@@ -81,7 +81,7 @@ export const archiveCoupon = _archiveCoupon.perform;
 function updateCouponInState(state, response) {
   return {
     ...state,
-    coupon: configureCoupon(response)
+    coupon: response
   };
 }
 
@@ -145,8 +145,8 @@ export function codeIsOfValidLength(): Function {
 
 const initialCodeGenerationState = {
   bulk: void 0,
-  codesPrefix: null,
-  singleCode: null,
+  codesPrefix: '',
+  singleCode: '',
   codesQuantity: 1,
   codesLength: 1,
   isDialogVisible: false,
@@ -219,7 +219,7 @@ const reducer = createReducer({
     return assoc(state, ['codeGeneration', name], value);
   },
   [couponsResetId]: (state) => {
-    return assoc(state, ['coupon', 'form', 'id'], null);
+    return assoc(state, ['coupon', 'id'], null);
   },
 }, initialState);
 

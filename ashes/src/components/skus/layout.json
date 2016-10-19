@@ -1,0 +1,39 @@
+{
+  "main": [
+    {
+      "type": "group",
+      "title": "General",
+      "fields": {
+        "canAddProperty": true,
+        "value": [
+          "code",
+          "title",
+          "upc",
+          "description"
+        ],
+        "includeRest": true,
+        "omit": [
+          "activeFrom",
+          "activeTo",
+          "tags"
+        ]
+      }
+    },
+    {
+      "type": "group",
+      "title": "SKUs",
+      "fields": {
+        "value": [
+          "retailPrice",
+          "salePrice",
+          "unitCost"
+        ]
+      }
+    }
+  ],
+  "aside": [
+    {
+      "type": "state"
+    }
+  ]
+}
