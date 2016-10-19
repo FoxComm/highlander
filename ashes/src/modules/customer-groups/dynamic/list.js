@@ -5,7 +5,8 @@ const { reducer, actions } = makeLiveSearch(
   'customerGroups.dynamic.list',
   searchTerms,
   'customers_search_view/_search',
-  'customersScope'
+  'customersScope',
+  { skipInitialFetch: true }
 );
 
 export {
