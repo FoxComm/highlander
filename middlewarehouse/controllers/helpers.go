@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 
+	"github.com/SermoDigital/jose/jws"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
@@ -72,4 +74,27 @@ func logFailure(fail failures.Failure) {
 	}
 
 	log.Println(strings.Join(messages, "\n"))
+}
+
+func getContextScope(context *gin.Context) (string, error) {
+	rawJWT := context.Request.Header.Get("JWT")
+	if rawJWT == "" {
+		return "", errors.New("JWT header not found in request")
+	}
+
+	token, err := jws.ParseJWT([]byte(rawJWT))
+	if err != nil {
+		return "", err
+	}
+
+	scope, ok := token.Claims()["scope"].(string)
+	if !ok {
+		return "", errors.New("No scope found in JWT")
+	}
+
+	return scope, nil
+}
+
+func ensureScopeIsValid(jwtScope string, givenScope string) error {
+    return nil
 }
