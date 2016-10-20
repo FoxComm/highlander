@@ -1,23 +1,21 @@
 {
-  "id": "/ashes",
+  "id": "/firebrand",
   "cmd": null,
   "cpus": 1,
-  "mem": 6144,
+  "mem": 4096,
   "disk": 0,
   "instances": 1,
   "env": {
     "NODE_ENV": "production",
-    "PORT": "4000",
+    "PORT": "4041",
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
-    "ON_SERVER": "true",
-    "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}",
-    "GA_TRACKING_ID": "{{ashes_ga_tracking_id}}"
+    "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}"
   },
   "portDefinitions": [
     {
       "port": 10008,
       "protocol": "tcp",
-      "name": "4000",
+      "name": "4041",
       "labels": {}
     }
   ],
@@ -31,7 +29,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/ashes",
+      "image": "{{docker_registry}}:5000/firebrand",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

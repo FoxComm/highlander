@@ -1,27 +1,26 @@
 {
-  "id": "/marketplace-ui",
+  "id": "/product-search",
   "cmd": null,
   "cpus": 1,
-  "mem": 1024,
+  "mem": 128,
   "disk": 0,
   "instances": 1,
   "env": {
-    "API_URL": "https://{{storefront_server_name}}/api/v1/mkt",
-    "ASHES_URL": "https://{{storefront_server_name}}/admin"
+    "PHOENIX_URL": "https://tgt4.foxcommerce.com",
+    "ELASTIC_URL": "https://tgt4.foxcommerce.com"
   },
   "portDefinitions": [
     {
-      "port": 10007,
+      "port": 10008,
       "protocol": "tcp",
-      "name": "4042",
+      "name": "5492",
       "labels": {}
     }
   ],
   "container": {
     "type": "DOCKER",
-    "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/marketplace-ui",
+      "image": "{{docker_registry}}:5000/product-search",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

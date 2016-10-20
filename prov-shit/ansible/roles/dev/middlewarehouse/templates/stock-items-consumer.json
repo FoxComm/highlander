@@ -9,7 +9,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "docker.stage.foxcommerce.com:5000/stock-items-consumer",
+      "image": "{{docker_registry}}:5000/stock-items-consumer",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -18,9 +18,9 @@
   },
   "env": {
     "TOPIC": "sku_search_view",
-    "SCHEMA_REPOSITORY_URL": "http://schema-registry.service.consul:8081",
-    "ZOOKEEPER_URL": "zookeeper.service.consul:2181",
-    "MWH_URL": "http://middlewarehouse.service.consul:9292",
+    "SCHEMA_REPOSITORY_URL": "{{schema_server}}",
+    "ZOOKEEPER_URL": "{{zookeeper_server}}",
+    "MWH_URL": "http://{{middlewarehouse_server}}",
     "PARTITION": "1"
   },
   "portDefinitions": [
