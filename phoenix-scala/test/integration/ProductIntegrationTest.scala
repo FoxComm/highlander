@@ -178,7 +178,7 @@ class ProductIntegrationTest
         productsApi
           .create(newProductPayload)
           .mustFailWithMessage(
-              """ERROR: value for domain sku_code violates check constraint "sku_code_check"""")
+              """Object sku with id=13 doesn't pass validation: $.code: must be at least 1 characters long""")
       }
 
       "trying to create a product with archived SKU" in new ArchivedSkuFixture {
@@ -386,15 +386,17 @@ class ProductIntegrationTest
   trait Fixture extends StoreAdmin_Seed {
 
     def makeSkuPayload(code: String, name: String): SkuPayload = {
-      val attrMap =
-        Map("name" → (("t" → "string") ~ ("v" → name)), "code" → (("t" → "string") ~ ("v" → code)))
+      val attrMap = Map("title" → (("t" → "string") ~ ("v" → name)),
+                        "name" → (("t" → "string") ~ ("v" → name)),
+                        "code" → (("t" → "string") ~ ("v" → code)))
 
       SkuPayload(attrMap)
     }
 
     def makeSkuPayload(code: String, attrMap: Map[String, Json]) = {
-      val codeJson = ("t" → "string") ~ ("v" → code)
-      SkuPayload(attrMap + ("code" → codeJson))
+      val codeJson  = ("t" → "string") ~ ("v" → code)
+      val titleJson = ("t" → "string") ~ ("v" → ("title_" + code))
+      SkuPayload((attrMap + ("code" → codeJson)) + ("title" → titleJson))
     }
 
     val priceValue = ("currency" → "USD") ~ ("value" → 9999)
@@ -402,8 +404,8 @@ class ProductIntegrationTest
     val skuAttrMap = Map("price" → priceJson)
     val skuPayload = makeSkuPayload("SKU-NEW-TEST", skuAttrMap)
 
-    val nameJson = ("t"       → "string") ~ ("v" → "Product name")
-    val attrMap  = Map("name" → nameJson)
+    val nameJson = ("t"       → "string") ~ ("v"  → "Product name")
+    val attrMap  = Map("name" → nameJson, "title" → nameJson)
     val productPayload =
       CreateProductPayload(attributes = attrMap, skus = Seq(skuPayload), variants = None)
 
