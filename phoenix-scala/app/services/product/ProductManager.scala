@@ -51,7 +51,6 @@ object ProductManager {
     val hasVariants     = variantPayloads.nonEmpty
 
     for {
-      _   ← * <~ payload.validate
       _   ← * <~ validateCreate(payload)
       ins ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       product ← * <~ Products.create(
@@ -111,7 +110,6 @@ object ProductManager {
     val payloadSkus = payload.skus.getOrElse(Seq.empty)
 
     for {
-      _          ← * <~ payload.validate
       oldProduct ← * <~ mustFindFullProductById(productId)
 
       mergedAttrs = oldProduct.shadow.attributes.merge(formAndShadow.shadow.attributes)
