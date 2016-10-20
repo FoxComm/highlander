@@ -11,3 +11,4 @@ seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedStage
 demo_domain: stage-tgt.foxcommerce.com
 ashes_server_name: stage-tgt.foxcommerce.com
 retailer_name: FoxCommerce
+docker_registry: docker-stage.foxcommerce.com
