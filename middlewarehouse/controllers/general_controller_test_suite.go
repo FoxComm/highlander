@@ -9,6 +9,9 @@ import (
 	"net/http/httptest"
 	"strings"
 
+	"fmt"
+	"github.com/SermoDigital/jose/crypto"
+	"github.com/SermoDigital/jose/jws"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/suite"
 )
@@ -49,6 +52,15 @@ func (suite *GeneralControllerTestSuite) Delete(url string, args ...interface{})
 }
 
 func (suite *GeneralControllerTestSuite) query(request *http.Request, target ...interface{}) *httptest.ResponseRecorder {
+	rawClaims := make(map[string]interface{})
+	rawClaims["scope"] = "1"
+	jwt := jws.NewJWT(jws.Claims(rawClaims), crypto.SigningMethodHS256)
+	serializedJWT, err := jwt.Serialize([]byte("key"))
+	if err != nil {
+		panic(fmt.Sprintf("Serialization error: %s", err.Error()))
+	}
+	request.Header.Set("JWT", string(serializedJWT))
+
 	//record response
 	response := httptest.NewRecorder()
 

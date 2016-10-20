@@ -17,11 +17,13 @@ func GetCarrier(id uint) *models.Carrier {
 }
 
 func ToCarrierPayload(carrier *models.Carrier) *payloads.Carrier {
-	return &payloads.Carrier{
+	payload := &payloads.Carrier{
 		Name:             carrier.Name,
 		TrackingTemplate: carrier.TrackingTemplate,
-		Scope:            carrier.Scope,
 	}
+	payload.Scope = carrier.Scope
+
+	return payload
 }
 
 func GetCarrierColumns() []string {

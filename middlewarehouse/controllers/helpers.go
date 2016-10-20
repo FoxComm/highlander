@@ -7,9 +7,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 
-	"github.com/SermoDigital/jose/jws"
+	"github.com/SermoDigital/jose/jwt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
@@ -76,29 +77,36 @@ func logFailure(fail failures.Failure) {
 	log.Println(strings.Join(messages, "\n"))
 }
 
-func getContextScope(context *gin.Context) (string, error) {
-	rawJWT := context.Request.Header.Get("JWT")
-	if rawJWT == "" {
-		return "", errors.New("JWT header not found in request")
-	}
-
-	token, err := jws.ParseJWT([]byte(rawJWT))
+func setScope(context *gin.Context, scopable payloads.IScopable) bool {
+	contextScope, err := getContextScope(context)
 	if err != nil {
-		return "", err
+		handleServiceError(context, err)
+		return false
 	}
 
+	payloadScope := scopable.GetScope()
+
+	//use context scope if no scope in payload
+	if payloadScope == "" {
+		scopable.SetScope(contextScope)
+		return true
+	}
+
+	//ensure payload scope is in context
+	if !strings.HasPrefix(payloadScope, contextScope) {
+		handleServiceError(context, fmt.Errorf("Payload scope %s is not in JWT scope %s", payloadScope, contextScope))
+		return false
+	}
+
+	return true
+}
+
+func getContextScope(context *gin.Context) (string, error) {
+	token := context.Keys["jwt"].(jwt.JWT)
 	scope, ok := token.Claims()["scope"].(string)
 	if !ok {
 		return "", errors.New("No scope found in JWT")
 	}
 
 	return scope, nil
-}
-
-func ensureScopeIsValid(jwtScope string, givenScope string) error {
-	if strings.HasPrefix(givenScope, jwtScope) {
-		return nil
-	}
-
-	return fmt.Errorf("Given scope %s is not in JWT scope %s", givenScope, jwtScope)
 }
