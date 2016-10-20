@@ -7,24 +7,27 @@
       "type": "number"
     },
     "attributes": {
-      "tags": {
-        "type": "array",
-        "items": {
+      "type": "object",
+      "properties": {
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "offer": {
+          "type": "object"
+        },
+        "title": {
           "type": "string"
+        },
+        "qualifier": {
+          "type": "object"
+        },
+        "description": {
+          "type": "string",
+          "widget": "richText"
         }
-      },
-      "offer": {
-        "type": "object"
-      },
-      "title": {
-        "type": "string"
-      },
-      "qualifier": {
-        "type": "object"
-      },
-      "description": {
-        "type": "string",
-        "widget": "richText"
       }
     }
   }
