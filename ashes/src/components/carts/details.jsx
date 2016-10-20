@@ -69,7 +69,7 @@ export default class CartDetails extends Component {
             <Messages errors={errors} warnings={warnings} />
             <TotalsSummary entity={cart} title="Cart" />
             <CustomerCard customer={cart.customer} />
-            <Watchers entity={{entityId: cart.referenceNumber, entityType: 'orders'}} />
+            <Watchers entity={{entityId: cart.referenceNumber, entityType: 'carts'}} />
           </div>
         </div>
       </div>
