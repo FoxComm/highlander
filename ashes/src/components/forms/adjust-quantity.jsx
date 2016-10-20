@@ -2,12 +2,15 @@
 
 import _ from 'lodash';
 import React, { Component } from 'react';
+import { findDOMNode } from 'react-dom';
 import classNames from 'classnames';
-import styles from './css/adjust-quantity.css';
 import { autobind } from 'core-decorators';
 
 import Counter from './counter';
+import BodyPortal from '../body-portal/body-portal';
 import Overlay from '../overlay/overlay';
+
+import styles from './css/adjust-quantity.css';
 
 type State = {
   diff: number,
@@ -33,6 +36,23 @@ export default class AdjustQuantity extends Component {
     min: 0,
   };
 
+  _popup;
+
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.isPopupShown && !prevProps.isPopupShown) {
+      this.setMenuPosition();
+    }
+  }
+
+  setMenuPosition() {
+    const node = findDOMNode(this);
+    const parentDim = node.getBoundingClientRect();
+
+    this._popup.style.width = `${node.offsetWidth}px`;
+    this._popup.style.top = `${parentDim.top + parentDim.height + window.scrollY}px`;
+    this._popup.style.left = `${parentDim.left}px`;
+  }
+
   adjustValue(newValue: number) {
     if (newValue < this.props.min) {
       newValue = this.props.min;
@@ -48,7 +68,7 @@ export default class AdjustQuantity extends Component {
   }
 
   @autobind
-  handleChange({target}: Object) {
+  handleChange({ target }: Object) {
     const quantity = Number(target.value);
     if (!_.isNaN(quantity)) {
       this.adjustValue(quantity);
@@ -81,16 +101,18 @@ export default class AdjustQuantity extends Component {
           onFocus={this.handleInputFocus}
           min={this.props.min}
         />
-        <div styleName="popup" className={popupState}>
-          <div styleName="title">Adjust Quantity</div>
-          <Counter
-            value={this.state.diff}
-            increaseAction={() => this.adjustValue(this.state.value + 1)}
-            decreaseAction={() => this.adjustValue(this.state.value - 1)}
-            min={null}
-            onBlur={evt => evt.stopPropagation()}
-          />
-        </div>
+        <BodyPortal>
+          <div styleName="popup" className={popupState} ref={p => this._popup = p}>
+            <div styleName="title">Adjust Quantity</div>
+            <Counter
+              value={this.state.diff}
+              increaseAction={() => this.adjustValue(this.state.value + 1)}
+              decreaseAction={() => this.adjustValue(this.state.value - 1)}
+              min={null}
+              onBlur={evt => evt.stopPropagation()}
+            />
+          </div>
+        </BodyPortal>
       </div>
     );
   }
