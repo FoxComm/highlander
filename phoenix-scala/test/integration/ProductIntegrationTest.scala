@@ -383,7 +383,7 @@ class ProductIntegrationTest
     }
   }
 
-  trait Fixture extends StoreAdmin_Seed {
+  trait Fixture extends StoreAdmin_Seed with Schemas_Seed {
 
     def makeSkuPayload(code: String, name: String): SkuPayload = {
       val attrMap = Map("title" → (("t" → "string") ~ ("v" → name)),
