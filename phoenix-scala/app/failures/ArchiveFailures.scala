@@ -17,4 +17,7 @@ object ArchiveFailures {
     override def description: String = s"Cannot add image to archived album with id=${albumId}"
   }
 
+  case class ProductIsPresentInCarts(productId: Int) extends Failure {
+    override def description: String = s"Can't archive product with id=$productId due because it's present in carts"
+  }
 }

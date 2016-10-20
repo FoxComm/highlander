@@ -1,8 +1,8 @@
 package services.product
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
+import com.github.tminglei.slickpg.LTree
 import cats.data._
 import cats.implicits._
 import cats.data.ValidatedNel
@@ -14,6 +14,7 @@ import models.inventory._
 import models.objects._
 import models.product._
 import models.account._
+import models.cord.lineitems.CartLineItems
 import payloads.ImagePayloads.UpdateAlbumPositionPayload
 import payloads.ProductPayloads._
 import payloads.SkuPayloads._
@@ -156,6 +157,7 @@ object ProductManager {
 
     for {
       productObject ← * <~ mustFindFullProductByFormId(productId)
+      ← * <~ mustNotBePresentInCarts(productId)
       mergedAttrs = productObject.shadow.attributes.merge(newShadowAttrs)
       inactive ← * <~ ObjectUtils.update(productObject.form.id,
                                          productObject.shadow.id,
@@ -338,4 +340,11 @@ object ProductManager {
   def mustFindFullProductById(productId: Int)(implicit ec: EC,
                                               db: DB): DbResultT[FullObject[Product]] =
     ObjectManager.getFullObject(Products.mustFindById404(productId))
+
+  def mustNotBePresentInCarts(productId: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
+    for {
+      skus ← * <~ ProductSkuLinks.filter(_.leftId === productId).result
+      inCartCount ← * <~ CartLineItems.filter(_.skuId.inSetBind(skus.map(_.rightId))).size.result
+      _ ← * <~ failIf(inCartCount > 0, ProductIsPresentInCarts(productId))
+    } yield {}
 }
