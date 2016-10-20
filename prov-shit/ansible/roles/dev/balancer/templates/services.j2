@@ -22,3 +22,7 @@ upstream sol {
 upstream ashes {
   server {{ ashes_server }} fail_timeout=10s max_fails=360;
 }
+
+upstream marathon {
+  server {{ marathon_server }} fail_timeout=30s;
+}
