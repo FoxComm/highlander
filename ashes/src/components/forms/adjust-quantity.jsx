@@ -36,7 +36,7 @@ export default class AdjustQuantity extends Component {
     min: 0,
   };
 
-  _popup;
+  _popup: HTMLElement;
 
   componentDidUpdate(prevProps: Props) {
     if (this.props.isPopupShown && !prevProps.isPopupShown) {
