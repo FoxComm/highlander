@@ -9,7 +9,6 @@ import (
 	"net/http/httptest"
 	"strings"
 
-	"fmt"
 	"github.com/SermoDigital/jose/crypto"
 	"github.com/SermoDigital/jose/jws"
 	"github.com/gin-gonic/gin"
@@ -55,10 +54,7 @@ func (suite *GeneralControllerTestSuite) query(request *http.Request, target ...
 	rawClaims := make(map[string]interface{})
 	rawClaims["scope"] = "1"
 	jwt := jws.NewJWT(jws.Claims(rawClaims), crypto.SigningMethodHS256)
-	serializedJWT, err := jwt.Serialize([]byte("key"))
-	if err != nil {
-		panic(fmt.Sprintf("Serialization error: %s", err.Error()))
-	}
+	serializedJWT, _ := jwt.Serialize([]byte("key"))
 	request.Header.Set("JWT", string(serializedJWT))
 
 	//record response
