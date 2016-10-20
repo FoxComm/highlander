@@ -95,7 +95,9 @@
 .top-message {
   margin-bottom: 30px;
   font-size: 15px;
-  line-height: 18px;
+  line-height: 33px;
+  text-align: left;
+  font-weight: 300;
 }
 
 .top-message-success {
@@ -121,6 +123,8 @@
 
 .link {
   color: #8D757A;
+  text-decoration: none;
+  font-weight: 500;
 
   &:hover {
     color: #3E3436;
