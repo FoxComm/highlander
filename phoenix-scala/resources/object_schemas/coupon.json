@@ -26,11 +26,11 @@
         "usageRules": {
           "type": "object",
           "properties": {
-            "isExclusive": "boolean",
-            "isUnlimitedPerCode": "boolean",
-            "usesPerCode": "integer",
-            "usesPerCustomer": "integer",
-            "isUnlimitedPerCustomer": "boolean"
+            "isExclusive": {"type": "boolean"},
+            "isUnlimitedPerCode": {"type": "boolean"},
+            "usesPerCode": {"type": "integer"},
+            "usesPerCustomer": {"type": "integer"},
+            "isUnlimitedPerCustomer": {"type": "boolean"}
           }
         },
         "activeFrom": {
