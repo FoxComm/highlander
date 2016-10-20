@@ -237,7 +237,7 @@ object AssignmentsRoutes {
         }
       } ~
       // Carts Bulk Assignments
-      pathPrefix("bulk") {
+      pathPrefix("carts") {
         pathPrefix("assignees") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
@@ -272,7 +272,7 @@ object AssignmentsRoutes {
         }
       } ~
       // Carts Single Assignments
-      pathPrefix("cart" / cordRefNumRegex) { refNum ⇒
+      pathPrefix("carts" / cordRefNumRegex) { refNum ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
             getOrFailures {
