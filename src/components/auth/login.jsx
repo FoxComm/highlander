@@ -68,7 +68,7 @@ class Login extends Component {
     e.preventDefault();
     e.stopPropagation();
     const { email, password } = this.state;
-    const kind = 'customer';
+    const kind = 'merchant';
     this.props.authenticate({email, password, kind}).then(() => {
       this.props.fetchCart();
       browserHistory.push(this.props.getPath());

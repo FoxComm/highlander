@@ -8,7 +8,7 @@
     "flow": "flow check",
     "dev": "gulp dev",
     "dev-local": "npm run dev",
-    "dev-stage": "API_URL=http://stage.foxcommerce.com npm run dev",
+    "dev-stage": "API_URL=https://stage.foxcommerce.com npm run dev",
     "test": "mocha"
   },
   "author": "FoxCommerce",
