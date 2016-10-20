@@ -65,7 +65,8 @@ begin
       sku.sale_price_currency as currency,
       f.attributes->>(s.attributes->'tags'->>'ref') as tags,
       albumLink.albums as albums,
-      p.scope as scope
+      p.scope as scope,
+      sv.skus as skus
       from products as p
         inner join object_contexts as context on (p.context_id = context.id)
         inner join object_forms as f on (f.id = p.form_id)
@@ -86,7 +87,8 @@ begin
         currency = subquery.currency,
         tags = subquery.tags,
         albums = subquery.albums,
-        scope = subquery.scope
+        scope = subquery.scope,
+        skus = subquery.skus
       from (select
                 p.id,
                 f.id as product_id,
@@ -102,7 +104,8 @@ begin
                     (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') is not false or
                     ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp >= current_timestamp)))
                 as alive,
-                p.scope as scope
+                p.scope as scope,
+                sv.skus as skus
               from products as p
                 inner join object_contexts as context on (p.context_id = context.id)
                 inner join object_forms as f on (f.id = p.form_id)
