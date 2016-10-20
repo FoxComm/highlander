@@ -1,6 +1,7 @@
 /* @flow */
 import _ from 'lodash';
 import React, { PropTypes, Element } from 'react';
+import { connect } from 'react-redux';
 
 import { getClaims } from 'lib/claims';
 
@@ -12,6 +13,8 @@ import MarketingEntry from './entries/marketing';
 import OrdersEntry from './entries/orders';
 import SettingsEntry from './entries/settings';
 
+import type { JWT } from 'lib/claims';
+
 function getMenuItemState(props, to) {
   return _.get(props, ['menuItems', to]);
 }
@@ -20,10 +23,17 @@ type Props = {
   routes: Array<Object>,
   collapsed: boolean,
   toggleMenuItem: Function,
+  token: JWT,
 };
 
+function mapStateToProps(state) {
+  return {
+    token: state.user.current,
+  };
+}
+
 const Navigation = (props: Props): Element => {
-  const claims = getClaims();
+  const claims = getClaims(props.token);
 
   return (
     <nav>
@@ -63,4 +73,4 @@ const Navigation = (props: Props): Element => {
   );
 };
 
-export default Navigation;
+export default connect(mapStateToProps)(Navigation);

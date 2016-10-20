@@ -16,25 +16,25 @@ import settingsRoutes from './routes/settings';
 
 import { getClaims } from 'lib/claims';
 
-const claims = getClaims();
-
 const rootPath = process.env.ON_SERVER ? '/admin' : '/';
 const indexRedirect = `${rootPath}/orders`;
 
-const routes = (
-  <Route path={rootPath}>
-    <IndexRedirect to={indexRedirect}/>
-    {authRoutes(claims)}
-    <Route component={Site}>
-      <IndexRoute name="home" component={Home}/>
-      {orderRoutes(claims)}
-      {customerRoutes(claims)}
-      {catalogRoutes(claims)}
-      {marketingRoutes(claims)}
-      {settingsRoutes(claims)}
-      {devRoutes(claims)}
-    </Route>
-  </Route>
-);
+export default function makeRoutes(jwtToken) {
+  const claims = getClaims(jwtToken);
 
-export default routes;
+  return (
+    <Route path={rootPath}>
+      <IndexRedirect to={indexRedirect}/>
+      {authRoutes(claims)}
+      <Route component={Site}>
+        <IndexRoute name="home" component={Home}/>
+        {orderRoutes(claims)}
+        {customerRoutes(claims)}
+        {catalogRoutes(claims)}
+        {marketingRoutes(claims)}
+        {settingsRoutes(claims)}
+        {devRoutes(claims)}
+      </Route>
+    </Route>
+  );
+}

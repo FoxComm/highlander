@@ -67,7 +67,7 @@ export function superAdmin(): Claims {
 
     return { ...claimsList, ...leaves };
   }, {});
-};
+}
 
 export function merchant(): Claims {
   return {
