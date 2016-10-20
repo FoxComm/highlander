@@ -6,6 +6,8 @@ My short reviews about various Scala guides after a month of development.
 
 1. [Scala Exercises](http://scala-exercises.47deg.com/koans) - very basic (no `Futures`, only one section related to `Options` etc.) tutorial in form of koans, with some sections overbloated by repetetive exercises (e.g. `Traversables`), while more important stuff (e.g. pattern-matching `Options`) lacks good practice. Contains outdated stuff like `Manifests` (deprecated since 2.10).
 
+    1. **Update** - new version of [Scala Exercises](https://www.scala-exercises.org) really rocks!
+
 2. Twitter's [Scala School](http://twitter.github.io/scala_school) and [Effective Scala](http://twitter.github.io/effectivescala) - good tutorials, by very short and superficial, obviously written by highly-skilled engineer, who doesn't want to waste time describing details, since they're obvious to him. Both can be used as cheat sheets at start.
 
 3. [A Little Guide on Using Futures for Web Developers](http://codemonkeyism.com/a-little-guide-on-using-futures-for-web-developers) - probably the best tutorial about `Futures`.
