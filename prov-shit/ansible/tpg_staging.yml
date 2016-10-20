@@ -1,19 +1,19 @@
 ---
 
 - name: Provision Mesos Service Discovery
-  hosts: new-perfect-gourmet-stage-consul-server
+  hosts: new-target-stage-consul-server
   vars:
     user: '{{ansible_ssh_user}}'
     zookeepers: zookeeper.service.consul:2181
   tags:
     - consul
   roles:
-    - { role: dev/mesos_consul }
+    - { role: dev/mesos_consul } 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
 
-- name: Provision TPG Stage Backend
-  hosts: new-perfect-gourmet-stage-backend
+- name: Provision Target Stage Backend
+  hosts: new-target-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
     updating_mwh: true
@@ -30,8 +30,8 @@
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
 
-- name: Provision TPG Stage Frontend
-  hosts: new-perfect-gourmet-stage-frontend
+- name: Provision Target Stage Frontend
+  hosts: new-target-stage-frontend
   vars:
     user: '{{ansible_ssh_user}}'
     middlewarehouse_server: middlewarehouse.service.consul:9292
