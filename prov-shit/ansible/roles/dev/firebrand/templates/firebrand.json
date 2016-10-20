@@ -7,7 +7,7 @@
   "instances": 1,
   "env": {
     "NODE_ENV": "production",
-    "PORT": "4001",
+    "PORT": "4041",
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
     "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}"
   },
@@ -15,7 +15,7 @@
     {
       "port": 10008,
       "protocol": "tcp",
-      "name": "4001",
+      "name": "4041",
       "labels": {}
     }
   ],
@@ -29,7 +29,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/ashes",
+      "image": "{{docker_registry}}:5000/firebrand",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
