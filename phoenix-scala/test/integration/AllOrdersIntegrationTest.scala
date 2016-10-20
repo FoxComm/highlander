@@ -20,8 +20,8 @@ class AllOrdersIntegrationTest
     with BakedFixtures {
 
   "PATCH /v1/orders" - {
-    "bulk update states" in new StateUpdateFixture with StoreAdmin_Seed {
-      val au      = storeAdminAuthData
+    "bulk update states" in new StoreAdmin_Seed with StateUpdateFixture {
+      override def au = storeAdminAuthData
       val payload = BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
 
       val all = ordersApi.update(payload).as[BatchResponse[AllOrders.Root]]
@@ -48,7 +48,7 @@ class AllOrdersIntegrationTest
   }
 
   trait StateUpdateFixture {
-    implicit val au: AU
+    implicit def au: AU
     (for {
       acc  ← * <~ Accounts.create(Account())
       cust ← * <~ Users.create(Factories.customer.copy(accountId = acc.id))
