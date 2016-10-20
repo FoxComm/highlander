@@ -7,8 +7,8 @@ defmodule Solomon.ScopeController do
 
   @admin_resources ~w(cart order product sku album coupon user org)s
 
-  def index(conn, _params) do 
-    scopes = Repo.all(Scope)
+  def index(conn, _params) do
+    scopes = ScopeService.scoped_index(conn, Scope)
     render(conn, "index.json", scopes: scopes)
   end
 
@@ -16,7 +16,7 @@ defmodule Solomon.ScopeController do
     changeset = Scope.changeset(%Scope{}, scope_params)
 
     case Repo.insert(changeset) do
-      {:ok, scope} -> 
+      {:ok, scope} ->
         conn
         |> put_status(:created)
         |> put_resp_header("location", fc_scope_path(conn, :show, scope))
@@ -37,10 +37,10 @@ defmodule Solomon.ScopeController do
     scope = Repo.get!(Scope, id)
     changeset = Scope.update_changeset(scope, scope_params)
     case Repo.update(changeset) do
-      {:ok, scope} -> 
+      {:ok, scope} ->
         conn
         |> render("show.json", scope: scope)
-      {:error, changeset} -> 
+      {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
         |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)

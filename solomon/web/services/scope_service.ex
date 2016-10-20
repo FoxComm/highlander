@@ -1,4 +1,6 @@
 defmodule Solomon.ScopeService do
+  import Plug.Conn
+  import Ecto.Query
   alias Ecto.Changeset
   alias Solomon.Repo
   alias Solomon.Resource
@@ -23,15 +25,60 @@ defmodule Solomon.ScopeService do
     end
   end
 
-  def get_scope_path(scope_id) do
+  def get_scope_path_by_id(scope_id) do
     case Repo.get(Scope, scope_id) do
       nil ->
         {:error, "scope not found"}
       scope ->
-        case scope.parent_path do
-          nil -> {:ok, to_string(scope_id)}
-          parent_path -> {:ok, parent_path <> "." <> to_string(scope_id)}
-        end
+        {:ok, get_scope_path(scope)}
+    end
+  end
+
+  def get_scope_path_by_id!(scope_id) do
+    Repo.get!(Scope, scope_id)
+    |> get_scope_path
+  end
+
+  def get_scope_path(scope) do
+    case scope.parent_path do
+      nil -> to_string(scope.id)
+      "" -> to_string(scope.id)
+      parent_path -> parent_path <> "." <> to_string(scope.id)
+    end
+  end
+
+  def scoped_index(conn, Scope) do
+    req_scope_path = get_request_scope_regex(conn)
+    Repo.all(Scope)
+    |> Enum.filter(
+      fn scope ->
+        Regex.match?(req_scope_path, get_scope_path(scope))
+      end
+    )
+  end
+
+  def scoped_index(conn, schema) do
+    req_scope_path = get_request_scope_regex(conn)
+    Repo.all(
+      from thing in schema,
+      join: scope in Scope,
+      on: thing.scope_id == scope.id,
+      select: {thing, scope}
+    ) # get all the things
+    |> Enum.filter(
+      fn {thing, scope} ->
+        Regex.match?(req_scope_path, get_scope_path(scope))
+      end
+    ) # filter all the things
+    |> Enum.map(fn {thing, scope} -> thing end) # return only things
+  end
+
+  def get_request_scope_regex(conn) do
+    case get_resp_header(conn, "scope") do
+      [] -> {:error, "scope not found"}
+      [scope] ->
+        "^" <> Regex.escape(scope)
+        |> Regex.compile!
     end
   end
 

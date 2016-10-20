@@ -2,9 +2,10 @@ defmodule Solomon.RoleController do
   use Solomon.Web, :controller
   alias Solomon.Repo
   alias Solomon.Role
+  alias Solomon.ScopeService
 
-  def index(conn, _params) do 
-    roles = Repo.all(Role)
+  def index(conn, _params) do
+    roles = ScopeService.scoped_index(conn, Role)
     |> Repo.preload(:permissions)
     render(conn, "index.json", roles: roles)
   end
@@ -13,7 +14,7 @@ defmodule Solomon.RoleController do
     changeset = Role.changeset(%Role{}, role_params)
 
     case Repo.insert(changeset) do
-      {:ok, role} -> 
+      {:ok, role} ->
         conn
         |> put_status(:created)
         |> put_resp_header("location", role_path(conn, :show, role))
@@ -26,7 +27,7 @@ defmodule Solomon.RoleController do
   end
 
   def show(conn, %{"id" => id}) do
-    role = 
+    role =
       Repo.get!(Role, id)
       |> Repo.preload(:permissions)
     render(conn, "show_with_permissions.json", role: role)
@@ -36,15 +37,15 @@ defmodule Solomon.RoleController do
     role = Repo.get!(Role, id)
     changeset = Role.update_changeset(role, role_params)
     case Repo.update(changeset) do
-      {:ok, role} -> 
+      {:ok, role} ->
         conn
         |> render("show.json", role: role)
-      {:error, changeset} -> 
+      {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
         |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
     end
-  end 
+  end
 
 end
 

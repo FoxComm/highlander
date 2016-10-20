@@ -3,7 +3,7 @@ defmodule Solomon.Plug.JWTScope do
 
   def init(default), do: default
 
-  def call(conn, default) do
+  def call(conn, _default) do
     scope_or_error =  extract_jwt_body(conn)
                       |> decode
                       |> extract_scope
@@ -31,7 +31,7 @@ defmodule Solomon.Plug.JWTScope do
       :error -> {:error, "base64 encoding: " <> bin}
     end
   end
-  
+
   defp extract_scope({:error, bin}), do: {:error, bin}
   defp extract_scope({:ok, bin}) do
     case Poison.decode(bin) do

@@ -2,9 +2,10 @@ defmodule Solomon.OrganizationController do
   use Solomon.Web, :controller
   alias Solomon.Repo
   alias Solomon.Organization
+  alias Solomon.ScopeService
 
   def index(conn, _params) do
-    organizations = Repo.all(Organization)
+    organizations = ScopeService.scoped_index(conn, Organization)
     render(conn, "index.json", organizations: organizations)
   end
 
@@ -12,7 +13,7 @@ defmodule Solomon.OrganizationController do
     changeset = Organization.changeset(%Organization{}, organization_params)
 
     case Repo.insert(changeset) do
-      {:ok, organization} -> 
+      {:ok, organization} ->
         conn
         |> put_status(:created)
         |> put_resp_header("location", organization_path(conn, :show, organization))
@@ -33,10 +34,10 @@ defmodule Solomon.OrganizationController do
     organization = Repo.get!(Organization, id)
     changeset = Organization.update_changeset(organization, organization_params)
     case Repo.update(changeset) do
-      {:ok, organization} -> 
+      {:ok, organization} ->
         conn
         |> render("show.json", organization: organization)
-      {:error, changeset} -> 
+      {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
         |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
