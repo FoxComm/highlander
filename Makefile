@@ -1,7 +1,6 @@
 archive = the-perfect-gourmet.tar.bz2
 
 setup:
-	npm install -g babel-cli
 	npm install
 
 build: setup
@@ -15,7 +14,7 @@ docker: build
 clean:
 	rm -rf ./node_modules
 
-test: setup
+test:
 	npm test
 
 .PHONY: setup build docker clean test
