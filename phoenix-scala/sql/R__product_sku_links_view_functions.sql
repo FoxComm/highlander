@@ -61,6 +61,17 @@ begin
       inner join product_sku_links as link on link.left_id = p.id
       inner join skus as sku on (sku.id = link.right_id)
       where sku.id = new.id;
+    when 'variant_value_sku_links' then
+      select array_agg(p.id) into product_ids
+      from products as p
+      inner join product_variant_links as pvlink on (pvlink.left_id = p.id)
+      inner join variant_variant_value_links as vvlink on (pvlink.right_id = vvlink.left_id)
+      where vvlink.right_id = (case TG_OP
+                            when 'DELETE' then
+                              old.left_id
+                            else
+                              new.left_id
+                          end);
   end case;
 
   update product_sku_links_view set
@@ -75,5 +86,3 @@ begin
     return null;
 end;
 $$ language plpgsql;
-
-
