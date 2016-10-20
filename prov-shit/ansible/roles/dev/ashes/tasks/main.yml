@@ -8,5 +8,5 @@
   template: src=ashes.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
   sudo: true
 
-- name: Update solomon in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/ashes.json -H "Content-Type: application/json" http://marathon.service.consul:8080/v2/apps/ashes'
+- name: Update Ashes in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/ashes.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/ashes'

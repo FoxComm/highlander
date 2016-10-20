@@ -9,22 +9,22 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "docker.stage.foxcommerce.com:5000/middlewarehouse",
+      "image": "{{docker_registry}}:5000/middlewarehouse",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
-      "forcePullImage": false
+      "forcePullImage": true
     }
   },
   "env": {
     "DB_SSLMODE": "disable",
-    "SCHEMA_REGISTRY_URL": "http://schema-registry.service.consul:8081",
-    "DB_NAME": "middlewarehouse_development",
-    "PHOENIX_URL": "http://phoenix.service.consul:9090",
-    "ZOOKEEPER_URL": "zookeeper.service.consul:2181",
+    "SCHEMA_REGISTRY_URL": "{{schema_server}}",
+    "DB_NAME": "{{middlewarehouse_db_name}}",
+    "PHOENIX_URL": "http://{{phoenix_server}}",
+    "ZOOKEEPER_URL": "{{zookeeper_server}}",
     "LOG_LEVEL": "info",
-    "DB_HOST": "db.service.consul",
-    "KAFKA_BROKER": "kafka.service.consul:9092",
+    "DB_HOST": "{{docker_db_host}}",
+    "KAFKA_BROKER": "{{kafka_server}}",
     "DB_USER": "middlewarehouse"
   },
   "healthChecks": [

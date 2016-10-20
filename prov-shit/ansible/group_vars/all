@@ -86,7 +86,9 @@ plugins_api_user_password: ""
 # Lies & BS
 self_host: 127.0.0.1
 phoenix_api_version: v1
-phoenix_server: 127.0.0.1:9090
+phoenix_host: 127.0.0.1
+phoenix_port: 9090
+phoenix_server: "{{phoenix_host}}:{{phoenix_port}}"
 isaac_server: 127.0.0.1:9190
 search_host: 127.0.0.1
 search_server_http: "{{search_host}}:9200"
@@ -98,6 +100,9 @@ kafka_server: 127.0.0.1:9092
 zookeeper_server: 127.0.0.1:2181
 schema_server: 127.0.0.1:8081
 middlewarehouse_server: 127.0.0.1:9292
+solomon_host: 127.0.0.1
+solomon_port: 4002
+solomon_server: "{{solomon_host}}:{{solomon_port}}"
 api_server: 127.0.0.1
 log_host: 127.0.0.1
 
@@ -149,8 +154,8 @@ upload_phoenix_jar: true
 updating_mwh: false
 
 # Test Stripe api key
-stripe_api_key: sk_test_uvaf3GCFsjCsvvKO7FsQhNRm
-stripe_publishable_key: pk_test_r6t0niqmG9OOZhhaSkacUUU1
+stripe_api_key: sk_test_13rnEgvA4DGHgv4f2GMCDtes
+stripe_publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
 
 cert_path: stage
 
@@ -162,3 +167,4 @@ with_seeder: true
 
 # Marketplace
 marketplace_db_name: marketplace_development
+marketplace_db_user: marketplace

@@ -9,7 +9,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "docker.stage.foxcommerce.com:5000/messaging",
+      "image": "{{docker_registry}}:5000/messaging",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
