@@ -8,7 +8,7 @@ version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('pa
 clean:
 	rm -rf ./node_modules
 
-test:
+test: setup
 	@NODE_ENV=$(NODE_ENV) \
 		./node_modules/.bin/gulp test
 
