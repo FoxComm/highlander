@@ -44,7 +44,7 @@ if $ALL; then
 else
     # get the current branch name
     CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    ALL_CHANGED=$(git diff --name-only master $CURRENT_BRANCH | cut -d'/' -f1 | uniq)
+    ALL_CHANGED=$(git diff --name-only master...$CURRENT_BRANCH | cut -d'/' -f1 | uniq)
 
     # make newlines the only separator
     IFS=$'\n'
