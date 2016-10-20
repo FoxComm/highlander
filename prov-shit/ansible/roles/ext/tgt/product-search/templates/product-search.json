@@ -6,7 +6,7 @@
   "disk": 0,
   "instances": 1,
   "env": {
-    "API_URL": "https://tgt4.foxcommerce.com",
+    "PHOENIX_URL": "https://tgt4.foxcommerce.com",
     "ELASTIC_URL": "https://tgt4.foxcommerce.com"
   },
   "portDefinitions": [

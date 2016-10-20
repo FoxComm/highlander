@@ -242,6 +242,13 @@ location /sse/ {
     proxy_cache off;
 }
 
+# Proxy to marathon 
+location /fc-admin/marathon/ {
+    auth_request /internal-auth;
+    default_type 'application/json';
+    proxy_pass http://marathon//;
+}
+
 # Error pages
 location @500 {
     if ($http_content_type ~ .*json.*) {

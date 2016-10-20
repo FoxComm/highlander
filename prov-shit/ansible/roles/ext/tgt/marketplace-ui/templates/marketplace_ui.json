@@ -6,7 +6,7 @@
   "disk": 0,
   "instances": 1,
   "env": {
-    "API_URL": "https://{{storefront_server_name}}/api/v1/mkt ",
+    "API_URL": "https://{{storefront_server_name}}/api/v1/mkt",
     "ASHES_URL": "https://{{storefront_server_name}}/admin"
   },
   "portDefinitions": [
