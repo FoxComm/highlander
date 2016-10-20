@@ -307,6 +307,9 @@ export default class ObjectFormInner extends Component {
       name = schema.widget || schema.type;
     }
     invariant(name != null, `You should provide attribute itself or schema for rendering attribute`);
+    if (name == 'integer') {
+      name = 'number';
+    }
 
     let renderName = `render${_.upperFirst(name)}`;
     if (!(renderName in this)) {
