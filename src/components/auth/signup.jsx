@@ -104,6 +104,12 @@ class Signup extends Component {
       </Link>
     );
 
+    const showLink = (
+      <Link to="" styleName="restore-link">
+        {t('SHOW')}
+      </Link>
+    );
+
     return (
       <div>
         <div styleName="title">{t('SIGN UP')}</div>
@@ -136,6 +142,7 @@ class Signup extends Component {
               value={password}
               onChange={this.onChangePassword}
               type="password"
+              label={showLink}
             />
           </FormField>
           <Button
