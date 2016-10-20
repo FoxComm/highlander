@@ -1,7 +1,7 @@
 ## Credit Card [/v1/my/payment-methods/credit-cards/{creditCardId}]
 
 + Parameters
-    + creditCard: 1 (required, number) - Credit card ID.
+    + creditCardId: 1 (required, number) - Credit card ID.
 
 ### List [GET /v1/my/payment-methods/credit-cards]
 
@@ -16,23 +16,23 @@
 ### Create [POST /v1/my/payment-methods/credit-cards]
 
 + Request (application/json)
-    + Attributes(CreditCardCreatePayload)
+    + Attributes (CreditCardCreatePayload)
 + Response 200 (application/json)
     + Attributes (CreditCard)
 
 ### Update [PATCH]
 
 + Request (application/json)
-    + Attributes(CreditCardUpdatePayload)
+    + Attributes (CreditCardUpdatePayload)
 + Response 200 (application/json)
     + Attributes (CreditCard)
 
 ### Set as Default [POST /v1/my/payment-methods/credit-cards/{creditCardId}/default]
 
 + Parameters
-    + creditCard: 1 (required, number) - Credit card ID.
+    + creditCardId: 1 (required, number) - Credit card ID.
 + Request (application/json)
-    + Attributes(CreditCardToggleDefaultPayload)
+    + Attributes (CreditCardToggleDefaultPayload)
 + Response 200 (application/json)
     + Attributes (CreditCard)
 

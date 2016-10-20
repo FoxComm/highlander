@@ -3,8 +3,6 @@
 Streams unread and new notifications for requested admin.
 Heartbeats with `data:` every 30 seconds.
 
-+ Parameters
-  + adminId: 1 (required, number) - Store admin id
 + Response 200 (text/event-stream)
 
         data:
@@ -26,7 +24,6 @@ Creates new notification connection and notifies all open and listening streams.
 Any activity prior to and including requested won't show up in newly open streams.
 
 + Parameters
-  + adminId: 1 (required, number) - Store admin id
-  + activityId: 1 (required, number) - Last seen activity id
+    + activityId: 1 (required, number) - Last seen activity id
 + Response 200
   + Attributes (LastSeenActivityResponse)
