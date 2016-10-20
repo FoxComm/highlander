@@ -16,8 +16,8 @@
 + shipmentDate: `2020-01-01T12:00:00Z` (optional, string) - Date that the shipment leaves the warehouse.
 + estimatedArrival: `2020-01-01T12:00:00Z` (optional, string) - Date that the shipment is expected to arrive to the customer.
 + deliveredDate: `2020-01-01T12:00:00Z` (optional, string) - Date that the shipment was delivered.
-+ address: (required, ShippingAddress) - Destination address.
-+ shipmentLineItems: (required, array[ShipmentLineItem]) - The items that should be part of the shipment.
++ address (required, ShippingAddress) - Destination address.
++ shipmentLineItems (required, array[ShipmentLineItem]) - The items that should be part of the shipment.
 + trackingNumber: `1Z9999999999999999` (optional, string) - An optional tracking number, if it's provided.
 + shippingPrice: 399 (required, number) - The price of the shipment.
 
@@ -29,22 +29,22 @@
 + shipmentDate: `2020-01-01T12:00:00Z` (optional, string) - Date that the shipment leaves the warehouse.
 + estimatedArrival: `2020-01-01T12:00:00Z` (optional, string) - Date that the shipment is expected to arrive to the customer.
 + deliveredDate: `2020-01-01T12:00:00Z` (optional, string) - Date that the shipment was delivered.
-+ address: (optional, ShippingAddress) - Destination address.
-+ shipmentLineItems: (optional, array[ShipmentLineItem]) - The items that should be part of the shipment.
++ address (optional, ShippingAddress) - Destination address.
++ shipmentLineItems (optional, array[ShipmentLineItem]) - The items that should be part of the shipment.
 + trackingNumber: `1Z9999999999999999` (optional, string) - An optional tracking number, if it's provided.
 + shippingPrice: 399 (optional, number) - The price of the shipment.
 
 ### ShipmentResponse
 + id: 1 (required, number) - Unique ID.
 + referenceNumber: `SR10001` (required, string) - Unique ID for the shipment.
-+ shippingMethod: (required, InventoryShippingMethod)
++ shippingMethod (required, InventoryShippingMethod)
 + orderRefNum: `BR10001` (required, string) - Order that the shipment is associated with.
 + Include ShipmentState
 + shipmentDate: `2020-01-01T12:00:00Z` (optional, string) - Date that the shipment leaves the warehouse.
 + estimatedArrival: `2020-01-01T12:00:00Z` (optional, string) - Date that the shipment is expected to arrive to the customer.
 + deliveredDate: `2020-01-01T12:00:00Z` (optional, string) - Date that the shipment was delivered.
-+ address: (required, ShippingAddressResponse) - Destination address.
-+ shipmentLineItems: (required, array[ShipmentLineItemResponse]) - The items that should be part of the shipment.
++ address (required, ShippingAddressResponse) - Destination address.
++ shipmentLineItems (required, array[ShipmentLineItemResponse]) - The items that should be part of the shipment.
 + trackingNumber: `1Z9999999999999999` (optional, string) - An optional tracking number, if it's provided.
 + shippingPrice: 399 (required, number) - The price of the shipment.
 
@@ -64,7 +64,7 @@
 ### InventoryShippingMethod
 + id: 1 (required, number) - Unique ID.
 + name: `Ground Shipping` (required, string) - Name of the shipping method to show to the customer.
-+ carrier: (required, Carrier) - The carrier that's delivering the shipment.
++ carrier (required, Carrier) - The carrier that's delivering the shipment.
 + code: `UPS-GROUND` (required, string) - A code that uniquely identifies this shipping method.
 
 ### Carrier
