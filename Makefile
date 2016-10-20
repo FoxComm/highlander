@@ -1,6 +1,7 @@
 archive = the-perfect-gourmet.tar.bz2
 
 setup:
+	cd ../highlander/api-js && npm install
 	npm install
 
 build: setup
