@@ -63,7 +63,8 @@ defmodule Marketplace.MerchantController do
       state when state == "new" ->
         #AWTODO: Later, we'll want to detect the parent scope, if any, and create underneath it.
         scope_id = PermissionManager.create_scope
-        organization_id = PermissionManager.create_organization_from_merchant_application(ma)
+        organization_id = PermissionManager.create_organization_from_merchant_application(ma, scope_id)
+
         merchant = %{
           name: ma.name,
           business_name: ma.business_name,
@@ -76,8 +77,7 @@ defmodule Marketplace.MerchantController do
           organization_id: organization_id
         } 
         merchant_cs = Merchant.changeset(%Merchant{}, merchant)
-    
-        
+
         multi_txn = Multi.new
         |> Multi.insert(:merchant, merchant_cs)
         |> Multi.run(:merchant_business_profile, fn %{merchant: merchant} -> 
@@ -86,7 +86,6 @@ defmodule Marketplace.MerchantController do
           copy_social_profile_from_merchant_application(application_id, merchant) end)
         |> Multi.run(:merchant_application, fn %{merchant: merchant} ->
           update_merchant_application(application_id, merchant) end)
-
 
         case Repo.transaction(multi_txn) do
           {:ok, %{merchant: inserted_merchant, merchant_business_profile: m_bp, merchant_social_profile: m_sp}} -> 

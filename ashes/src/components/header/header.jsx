@@ -25,14 +25,15 @@ type Props = {
   fetchUserInfo: Function,
   toggleUserMenu: Function,
   isMenuVisible?: boolean,
+  user: ?TUser,
 };
 
-const mapState = state => ({
+const mapStateToProps = state => ({
   user: state.user.current,
   isMenuVisible: state.usermenu.isVisible,
 });
 
-@connect(mapState, { ...userActions, toggleUserMenu })
+@connect(mapStateToProps, { ...userActions, toggleUserMenu })
 export default class Header extends React.Component {
   props: Props;
 
@@ -46,11 +47,18 @@ export default class Header extends React.Component {
     this.props.toggleUserMenu();
   }
 
+  get initials(): ?Element {
+    const { user } = this.props;
+    if (user) {
+      return <DetailedInitials {...user} />;
+    }
+  }
+
   render(): Element {
     const props = this.props;
     const user: ?TUser = props.user;
 
-    const name = (_.isEmpty(user) || user.name == null) ? '' : user.name.split(' ')[0];
+    const name = (user == null || _.isEmpty(user) || user.name == null) ? '' : user.name.split(' ')[0];
     return (
       <header role='banner' styleName="header">
         <Breadcrumb routes={props.routes} params={props.params}/>
@@ -59,7 +67,7 @@ export default class Header extends React.Component {
             <NotificationBlock />
           </div>
           <div styleName="user" onClick={this.handleUserClick}>
-            <div styleName="initials"><DetailedInitials {...user} /></div>
+            <div styleName="initials">{this.initials}</div>
             <div styleName="name">{name}</div>
             <div styleName="arrow">
               {props.isMenuVisible ? <i className="icon-chevron-up"/> : <i className="icon-chevron-down"/>}

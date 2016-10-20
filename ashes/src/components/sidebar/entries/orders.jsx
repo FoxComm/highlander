@@ -12,7 +12,7 @@ import type { Claims } from 'lib/claims';
 
 type Props = {
   claims: Claims,
-  routes: Object,
+  routes: Array<Object>,
   collapsed: boolean,
   status: string,
   toggleMenuItem: Function,
@@ -25,7 +25,7 @@ export default class OrdersEntry extends Component {
   props: Props;
 
   render(): Element {
-    const { claims, collapsed, routes, status, to, toggleMenuItem } = this.props;
+    const { claims, collapsed, routes, status, toggleMenuItem } = this.props;
     const allClaims = { ...cartClaims, ...orderClaims };
 
     if (!anyPermitted(allClaims, claims)) {

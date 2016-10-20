@@ -61,15 +61,28 @@ class SkuPage extends ObjectPage {
     return 'skuCode';
   }
 
+  get detailsLinks() {
+    if (this.isNew) {
+      return;
+    }
+
+    const { params } = this.props;
+
+    return [
+      <Link to="sku-images" params={params} key="images">Images</Link>,
+      <Link to="sku-inventory-details" params={params} key="inventory">Inventory</Link>,
+      <Link to="sku-notes" params={params} key="notes">Notes</Link>,
+      <Link to="sku-activity-trail" params={params} key="activity-trail">Activity Trail</Link>,
+    ];
+  }
+
   subNav() {
     const { params } = this.props;
+
     return (
       <LocalNav>
         <IndexLink to="sku-details" params={params}>Details</IndexLink>
-        <Link to="sku-images" params={params}>Images</Link>
-        <Link to="sku-inventory-details" params={params}>Inventory</Link>
-        <Link to="sku-notes" params={params}>Notes</Link>
-        <Link to="sku-activity-trail" params={params}>Activity Trail</Link>
+        {this.detailsLinks}
       </LocalNav>
     );
   }

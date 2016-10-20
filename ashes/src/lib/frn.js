@@ -17,7 +17,7 @@ export const frn = {
   mkt: {
     coupon: 'frn:mkt:coupon',
     giftCard: 'frn:mkt:giftCard',
-    GiftCardTransaction: 'frn:mkt:GiftCardTransaction',
+    giftCardTransaction: 'frn:mkt:giftCardTransaction',
     promotion: 'frn:mkt:promotion',
   },
   mdl: {
@@ -32,6 +32,7 @@ export const frn = {
     promotion: 'frn:note:promotion',
     sku: 'frn:order:sku',
     order: 'frn:note:order',
+    coupon: 'frn:note:coupon',
   },
   oms: {
     cart: 'frn:oms:cart',
@@ -66,7 +67,7 @@ export function superAdmin(): Claims {
 
     return { ...claimsList, ...leaves };
   }, {});
-};
+}
 
 export function merchant(): Claims {
   return {

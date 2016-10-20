@@ -89,12 +89,12 @@ const fetchGroupStats = (actions, mainCondition, conditions) => dispatch => {
     );
 
   return search.post('customers_search_view/_search?size=0', request.toRequest()).then(
-    ({aggregations}) => {
+    ({ result }) => {
       dispatch(actions.setGroupStats({
-        ordersCount: aggregations.ordersCount.ordersCount.value,
-        totalSales: aggregations.totalSales.value,
-        averageOrderSize: aggregations.averageOrderSize.averageOrderSize.value,
-        averageOrderSum: aggregations.averageOrderSum.averageOrderSum.value,
+        ordersCount: _.get(result, 'ordersCount.ordersCount.value', 0),
+        totalSales: _.get(result, 'totalSales.totalSales.value', 0),
+        averageOrderSize: _.get(result, 'averageOrderSize.averageOrderSize.value', 0),
+        averageOrderSum: _.get(result, 'averageOrderSum.averageOrderSum.value', 0),
       }));
     }
   );
@@ -108,7 +108,7 @@ const validateCondition = ([field, operator, value]) => {
   }
 
   const criterion = getCriterion(field);
-  const {isValid} = getWidget(criterion, operator);
+  const { isValid } = getWidget(criterion, operator);
 
   return isValid(value, criterion);
 };
@@ -117,7 +117,7 @@ const reducers = {
   reset: () => {
     return initialState;
   },
-  setData: (state, {id, type, name, createdAt, updatedAt, clientState: {mainCondition, conditions}}) => {
+  setData: (state, { id, type, name, createdAt, updatedAt, clientState: { mainCondition, conditions } }) => {
     return {
       ...state,
       id,

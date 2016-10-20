@@ -9,16 +9,22 @@ import { useRouterHistory } from 'react-router';
 import useNamedRoutes from 'use-named-routes';
 
 import configureStore from './store';
-import routes from './routes';
+import makeRoutes from './routes';
 import { setHistory } from 'browserHistory';
 import { trackPageView, initTracker } from './lib/analytics';
+import { getJWT } from 'lib/claims';
 
 const createBrowserHistory = useNamedRoutes(useRouterHistory(createHistory));
 
 export function start() {
+  const routes = makeRoutes();
   let history = createBrowserHistory({ routes });
 
-  const initialState = {};
+  const initialState = {
+    user: {
+      current: getJWT(),
+    },
+  };
   const store = configureStore(history, initialState);
   history = syncHistoryWithStore(history, store);
   setHistory(history);

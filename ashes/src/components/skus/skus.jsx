@@ -64,6 +64,7 @@ export class Skus extends Component {
     return (
       <div>
         <SelectableSearchList
+          entity="skus.list"
           emptyMessage="No SKUs found."
           list={list}
           renderRow={this.renderRow}

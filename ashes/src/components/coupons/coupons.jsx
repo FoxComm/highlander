@@ -88,6 +88,7 @@ export default class Coupons extends Component {
       <div className="coupons">
         <BulkWrapper entity="coupon">
           <SelectableSearchList
+            entity="coupons.list"
             emptyMessage="No coupons found."
             list={list}
             renderRow={this.renderRow}

@@ -6,7 +6,7 @@ import {autobind} from 'core-decorators';
 
 // components
 import { Button } from '../common/buttons';
-import ArchveConfirmation from './archive-confirmatiom';
+import ArchveConfirmation from './archive-confirmation';
 
 type Props = {
   title: string,

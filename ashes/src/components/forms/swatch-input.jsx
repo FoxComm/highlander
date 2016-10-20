@@ -14,6 +14,12 @@ type Props = {
   value: string,
 };
 
+type EventTarget = {
+  target: {
+    value: string,
+  },
+};
+
 class SwatchInput extends Component {
   props: Props;
 
@@ -22,7 +28,7 @@ class SwatchInput extends Component {
   };
 
   @autobind
-  handleChange({ target }) {
+  handleChange({ target }: EventTarget) {
     this.props.onChange(target.value);
   };
 

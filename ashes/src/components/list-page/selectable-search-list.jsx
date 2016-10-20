@@ -6,6 +6,7 @@ import MultiSelectTable from '../table/multi-select-table';
 export default class SelectableSearchList extends React.Component {
 
   static propTypes = {
+    entity: PropTypes.string.isRequired,
     emptyMessage: PropTypes.string,
     errorMessage: PropTypes.string,
     list: PropTypes.object,
@@ -71,6 +72,7 @@ export default class SelectableSearchList extends React.Component {
     return (
       <LiveSearchAdapter
         {...props.searchOptions}
+        entity={props.entity}
         searchActions={props.searchActions}
         searches={props.list}
         noGutter={props.noGutter}

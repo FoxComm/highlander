@@ -551,4 +551,11 @@ object Mvp {
       case _ ⇒ None
     }
   }
+
+  def externalId(f: ObjectForm, s: ObjectShadow): Option[String] = {
+    ObjectUtils.get("externalId", f, s) match {
+      case JString(externalId) ⇒ externalId.some
+      case _                   ⇒ None
+    }
+  }
 }

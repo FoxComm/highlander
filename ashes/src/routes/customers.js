@@ -68,10 +68,14 @@ const getRoutes = (jwt: Object) => {
          }),
         router.read('customer-items', { title: 'Items', path: 'items', component: CustomerItems }),
         router.read('customer-notes', { path: 'notes', component: Notes }),
-        router.read('customer-activity-trail', { path: 'activity-trail', dimension: 'account', component: ActivityTrailPage }),
+        router.read('customer-activity-trail', {
+          path: 'activity-trail',
+          dimension: 'account',
+          component: ActivityTrailPage
+        }),
         router.read('customer-storecredits-base', { path: 'storecredit' }, [
           router.read('customer-storecredits', { component: StoreCredits, isIndex: true }),
-          router.read('customer-storecredit-transactions', { path: 'transactions', 
+          router.read('customer-storecredit-transactions', { path: 'transactions',
               component: StoreCreditsTransactions }),
         ]),
       ]),

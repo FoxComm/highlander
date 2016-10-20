@@ -85,6 +85,7 @@ export default class Promotions extends Component {
       <div className="promotions">
         <BulkWrapper entity="promotion">
           <SelectableSearchList
+            entity="promotions.list"
             emptyMessage="No promotions found."
             list={list}
             renderRow={this.renderRow}

@@ -1,0 +1,41 @@
+## Credit Card [/v1/my/payment-methods/credit-cards/{creditCardId}]
+
++ Parameters
+    + creditCardId: 1 (required, number) - Credit card ID.
+
+### List [GET /v1/my/payment-methods/credit-cards]
+
++ Response 200 (application/json)
+    + Attributes (CreditCards)
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (CreditCard)
+
+### Create [POST /v1/my/payment-methods/credit-cards]
+
++ Request (application/json)
+    + Attributes (CreditCardCreatePayload)
++ Response 200 (application/json)
+    + Attributes (CreditCard)
+
+### Update [PATCH]
+
++ Request (application/json)
+    + Attributes (CreditCardUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (CreditCard)
+
+### Set as Default [POST /v1/my/payment-methods/credit-cards/{creditCardId}/default]
+
++ Parameters
+    + creditCardId: 1 (required, number) - Credit card ID.
++ Request (application/json)
+    + Attributes (CreditCardToggleDefaultPayload)
++ Response 200 (application/json)
+    + Attributes (CreditCard)
+
+### Delete [DELETE]
+
++ Response 204 (application/json)
