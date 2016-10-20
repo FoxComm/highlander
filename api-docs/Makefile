@@ -1,14 +1,14 @@
-BUILD_DIR?=./build
-PORT?=3000
+BUILD_DIR ?= ./build
+PORT ?= 3000
 
 all: clean install build
 
 install:
 	npm install
 
-build:
+build: install
 	mkdir -p $(BUILD_DIR)
-	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/public.apib -o $(BUILD_DIR)/public.html	
+	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/public.apib -o $(BUILD_DIR)/public.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/customer.apib -o $(BUILD_DIR)/storefront.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/transactions.apib -o $(BUILD_DIR)/transactions.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/merchandising.apib -o $(BUILD_DIR)/merchandising.html
@@ -32,4 +32,7 @@ watch_transactions:
 clean:
 	rm -rf $(BUILD_DIR)
 
-.PHONY: install build watch clean
+test:
+	true
+
+.PHONY: install build watch clean test
