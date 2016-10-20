@@ -4,6 +4,7 @@ defmodule Solomon.ScopeService do
   alias Solomon.Resource
   alias Solomon.Scope
   alias Solomon.RolePermission
+  alias Solomon.Scope
   alias Solomon.PermissionClaimService
 
   def create_role_with_permissions(role_cs, resources) do
@@ -19,6 +20,18 @@ defmodule Solomon.ScopeService do
             {:ok, role}
         end
       {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  def get_scope_path(scope_id) do
+    case Repo.get(Scope, scope_id) do
+      nil ->
+        {:error, "scope not found"}
+      scope ->
+        case scope.parent_path do
+          nil -> {:ok, to_string(scope_id)}
+          parent_path -> {:ok, parent_path <> "." <> to_string(scope_id)}
+        end
     end
   end
 
@@ -47,8 +60,7 @@ defmodule Solomon.ScopeService do
 
   defp handle_permission_error(permissions) do
     case Enum.find(permissions, fn x -> is_tuple(x) end) do
-      nil ->
-        permissions
+      nil -> permissions
       {:error, changeset} -> {:error, changeset}
     end
   end
