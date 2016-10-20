@@ -28,12 +28,12 @@ type Props = {
   user: ?TUser,
 };
 
-const mapState = state => ({
+const mapStateToProps = state => ({
   user: state.user.current,
   isMenuVisible: state.usermenu.isVisible,
 });
 
-@connect(mapState, { ...userActions, toggleUserMenu })
+@connect(mapStateToProps, { ...userActions, toggleUserMenu })
 export default class Header extends React.Component {
   props: Props;
 
@@ -45,6 +45,13 @@ export default class Header extends React.Component {
   handleUserClick(e): void {
     e.stopPropagation();
     this.props.toggleUserMenu();
+  }
+
+  get initials(): ?Element {
+    const { user } = this.props;
+    if (user) {
+      return <DetailedInitials {...user} />;
+    }
   }
 
   render(): Element {
@@ -60,7 +67,7 @@ export default class Header extends React.Component {
             <NotificationBlock />
           </div>
           <div styleName="user" onClick={this.handleUserClick}>
-            <div styleName="initials"><DetailedInitials {...user} /></div>
+            <div styleName="initials">{this.initials}</div>
             <div styleName="name">{name}</div>
             <div styleName="arrow">
               {props.isMenuVisible ? <i className="icon-chevron-up"/> : <i className="icon-chevron-down"/>}
