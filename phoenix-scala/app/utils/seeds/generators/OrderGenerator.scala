@@ -2,15 +2,19 @@ package utils.seeds.generators
 
 import java.time.Instant
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
+
 import cats.implicits._
 import failures.CreditCardFailures.CustomerHasNoCreditCard
 import failures.CustomerFailures.CustomerHasNoDefaultAddress
+import failures.NotFoundFailure400
 import faker._
 import models.Note
+import models.account.Scope
 import models.cord.Order._
 import models.cord._
 import models.cord.lineitems._
-import models.account.User
 import models.inventory.Skus
 import models.location.Addresses
 import models.objects.ObjectContext
@@ -26,14 +30,10 @@ import utils.aliases._
 import utils.db._
 import utils.seeds.ShipmentSeeds
 import utils.time
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Random
-
-import failures.NotFoundFailure400
 
 trait OrderGenerator extends ShipmentSeeds {
 
-  def orderGenerators()(implicit db: DB) =
+  def orderGenerators()(implicit db: DB, au: AU) =
     List[(Int, ObjectContext, Seq[Int], GiftCard) ⇒ DbResultT[Order]](manualHoldOrder,
                                                                       manualHoldStoreCreditOrder,
                                                                       fraudHoldOrder,
@@ -41,7 +41,7 @@ trait OrderGenerator extends ShipmentSeeds {
                                                                       shippedOrderUsingGiftCard,
                                                                       shippedOrderUsingCreditCard)
 
-  def cartGenerators()(implicit db: DB) =
+  def cartGenerators()(implicit db: DB, au: AU) =
     List[(Int, ObjectContext, Seq[Int], GiftCard) ⇒ DbResultT[Cart]](cartOrderUsingGiftCard,
                                                                      cartOrderUsingCreditCard)
 
@@ -56,7 +56,8 @@ trait OrderGenerator extends ShipmentSeeds {
   }
 
   def generateOrders(accountId: Int, context: ObjectContext, skuIds: Seq[Int], giftCard: GiftCard)(
-      implicit db: DB): DbResultT[Unit] = {
+      implicit db: DB,
+      au: AU): DbResultT[Unit] = {
     val cartFunctions  = cartGenerators
     val orderFunctions = orderGenerators
     val cartIdx        = Random.nextInt(cartFunctions.length)
@@ -76,9 +77,9 @@ trait OrderGenerator extends ShipmentSeeds {
   def manualHoldOrder(accountId: Int,
                       context: ObjectContext,
                       skuIds: Seq[Int],
-                      giftCard: GiftCard)(implicit db: DB): DbResultT[Order] =
+                      giftCard: GiftCard)(implicit db: DB, au: AU): DbResultT[Order] =
     for {
-      cart   ← * <~ Carts.create(Cart(accountId = accountId))
+      cart   ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
       order  ← * <~ Orders.createFromCart(cart, context.id)
       order  ← * <~ Orders.update(order, order.copy(state = ManualHold, placedAt = yesterday))
       _      ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Pending)
@@ -99,9 +100,9 @@ trait OrderGenerator extends ShipmentSeeds {
   def manualHoldStoreCreditOrder(accountId: Int,
                                  context: ObjectContext,
                                  skuIds: Seq[Int],
-                                 giftCard: GiftCard)(implicit db: DB): DbResultT[Order] =
+                                 giftCard: GiftCard)(implicit db: DB, au: AU): DbResultT[Order] =
     for {
-      cart   ← * <~ Carts.create(Cart(accountId = accountId))
+      cart   ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
       order  ← * <~ Orders.createFromCart(cart, context.id)
       order  ← * <~ Orders.update(order, order.copy(state = ManualHold, placedAt = yesterday))
       _      ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Pending)
@@ -123,9 +124,10 @@ trait OrderGenerator extends ShipmentSeeds {
     } yield order
 
   def fraudHoldOrder(accountId: Int, context: ObjectContext, skuIds: Seq[Int], giftCard: GiftCard)(
-      implicit db: DB): DbResultT[Order] =
+      implicit db: DB,
+      au: AU): DbResultT[Order] =
     for {
-      cart  ← * <~ Carts.create(Cart(accountId = accountId))
+      cart  ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
       order ← * <~ Orders.createFromCart(cart, context.id)
       order ← * <~ Orders.update(order, order.copy(state = FraudHold, placedAt = yesterday))
       _     ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Pending)
@@ -143,11 +145,12 @@ trait OrderGenerator extends ShipmentSeeds {
     } yield order
 
   def remorseHold(accountId: Int, context: ObjectContext, skuIds: Seq[Int], giftCard: GiftCard)(
-      implicit db: DB): DbResultT[Order] =
+      implicit db: DB,
+      au: AU): DbResultT[Order] =
     for {
       randomHour    ← * <~ 1 + Random.nextInt(48)
       randomSeconds ← * <~ randomHour * 3600
-      cart          ← * <~ Carts.create(Cart(accountId = accountId))
+      cart          ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
       order         ← * <~ Orders.createFromCart(cart, context.id)
       order ← * <~ Orders.update(order,
                                  order.copy(state = RemorseHold,
@@ -171,10 +174,10 @@ trait OrderGenerator extends ShipmentSeeds {
   def cartOrderUsingGiftCard(accountId: Int,
                              context: ObjectContext,
                              skuIds: Seq[Int],
-                             giftCard: GiftCard)(implicit db: DB): DbResultT[Cart] = {
+                             giftCard: GiftCard)(implicit db: DB, au: AU): DbResultT[Cart] = {
 
     for {
-      cart   ← * <~ Carts.create(Cart(accountId = accountId))
+      cart   ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
       _      ← * <~ addProductsToCart(skuIds, cart.refNum)
       cc     ← * <~ getCc(accountId)
       gc     ← * <~ GiftCards.mustFindById404(giftCard.id)
@@ -192,9 +195,9 @@ trait OrderGenerator extends ShipmentSeeds {
   def cartOrderUsingCreditCard(accountId: Int,
                                context: ObjectContext,
                                skuIds: Seq[Int],
-                               giftCard: GiftCard)(implicit db: DB): DbResultT[Cart] =
+                               giftCard: GiftCard)(implicit db: DB, au: AU): DbResultT[Cart] =
     for {
-      cart ← * <~ Carts.create(Cart(accountId = accountId))
+      cart ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
       _    ← * <~ addProductsToCart(skuIds, cart.refNum)
       cc   ← * <~ getCc(accountId)
       _ ← * <~ OrderPayments.create(
@@ -205,14 +208,15 @@ trait OrderGenerator extends ShipmentSeeds {
       _ ← * <~ CartTotaler.saveTotals(cart)
     } yield cart
 
-  def shippedOrderUsingCreditCard(accountId: Int,
-                                  context: ObjectContext,
-                                  skuIds: Seq[Int],
-                                  giftCard: GiftCard)(implicit db: DB): DbResultT[Order] = {
+  def shippedOrderUsingCreditCard(
+      accountId: Int,
+      context: ObjectContext,
+      skuIds: Seq[Int],
+      giftCard: GiftCard)(implicit db: DB, au: AU): DbResultT[Order] = {
     for {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
-      cart          ← * <~ Carts.create(Cart(accountId = accountId))
+      cart          ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
       order         ← * <~ Orders.createFromCart(cart, context.id)
       order         ← * <~ Orders.update(order, order.copy(state = FulfillmentStarted))
       order         ← * <~ Orders.update(order, order.copy(state = Shipped, placedAt = yesterday))
@@ -236,11 +240,11 @@ trait OrderGenerator extends ShipmentSeeds {
   def shippedOrderUsingGiftCard(accountId: Int,
                                 context: ObjectContext,
                                 skuIds: Seq[Int],
-                                giftCard: GiftCard)(implicit db: DB): DbResultT[Order] = {
+                                giftCard: GiftCard)(implicit db: DB, au: AU): DbResultT[Order] = {
     for {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
-      cart          ← * <~ Carts.create(Cart(accountId = accountId))
+      cart          ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
       order         ← * <~ Orders.createFromCart(cart, context.id)
       order         ← * <~ Orders.update(order, order.copy(state = FulfillmentStarted))
       order         ← * <~ Orders.update(order, order.copy(state = Shipped, placedAt = yesterday))

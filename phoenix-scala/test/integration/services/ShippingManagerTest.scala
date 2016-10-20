@@ -152,7 +152,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
     implicit val au = storeAdminAuthData
 
     val cart = (for {
-      cart ← * <~ Carts.create(Factories.cart.copy(accountId = customer.accountId))
+      cart ← * <~ Carts.create(Factories.cart(Scope.current).copy(accountId = customer.accountId))
       product ← * <~ Mvp.insertProduct(ctx.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       _ ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
@@ -281,8 +281,9 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
       customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
       _        ← * <~ CustomersData.create(CustomerData(userId = customer.id, accountId = account.id))
       cheapCart ← * <~ Carts.create(
-                     Factories.cart.copy(accountId = customer.accountId,
-                                         referenceNumber = "CS1234-AA"))
+                     Factories
+                       .cart(Scope.current)
+                       .copy(accountId = customer.accountId, referenceNumber = "CS1234-AA"))
       cheapProduct ← * <~ Mvp.insertProduct(productContext.id,
                                             Factories.products.head.copy(title = "Cheap Donkey",
                                                                          price = 10,
@@ -300,8 +301,9 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
                      Factories.customer.copy(accountId = account2.id, email = "foo@bar.baz".some))
       _ ← * <~ CustomersData.create(CustomerData(userId = customer2.id, accountId = account2.id))
       expensiveCart ← * <~ Carts.create(
-                         Factories.cart.copy(accountId = customer2.accountId,
-                                             referenceNumber = "CS1234-AB"))
+                         Factories
+                           .cart(Scope.current)
+                           .copy(accountId = customer2.accountId, referenceNumber = "CS1234-AB"))
       expensiveProduct ← * <~ Mvp.insertProduct(productContext.id,
                                                 Factories.products.head.copy(title =
                                                                                "Expensive Donkey",

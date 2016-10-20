@@ -32,6 +32,7 @@ import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures
 import utils.MockedApis
+import utils.aliases.AU
 import utils.aliases.stripe.StripeCard
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -116,7 +117,9 @@ class CustomerIntegrationTest
         customersApi(customer.accountId).get().as[Root] must === (customerRoot)
       }
 
-      "last shipping address" in {
+      "last shipping address" in new StoreAdmin_Seed {
+
+        implicit val au: AU = storeAdminAuthData
 
         val phoneNumbers = Seq("1111111111", "2222222222")
 
@@ -138,12 +141,16 @@ class CustomerIntegrationTest
           address ← * <~ Addresses.create(defaultAddress.copy(accountId = customer.accountId))
           region  ← * <~ Regions.findOneById(address.regionId)
           cart1 ← * <~ Carts.create(
-                     Cart(referenceNumber = "ABC-1", accountId = customer.accountId))
+                     Cart(referenceNumber = "ABC-1",
+                          scope = Scope.current,
+                          accountId = customer.accountId))
           order1 ← * <~ Orders.createFromCart(cart1)
           order1 ← * <~ Orders.update(order1, order1.copy(state = Order.FulfillmentStarted))
           order1 ← * <~ Orders.update(order1, order1.copy(state = Order.Shipped))
           cart2 ← * <~ Carts.create(
-                     Cart(referenceNumber = "ABC-2", accountId = customer.accountId))
+                     Cart(referenceNumber = "ABC-2",
+                          scope = Scope.current,
+                          accountId = customer.accountId))
           order2 ← * <~ Orders.createFromCart(cart2)
           order2 ← Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))
           order2 ← Orders.update(order2, order2.copy(state = Order.Shipped))
@@ -591,6 +598,7 @@ class CustomerIntegrationTest
   }
 
   trait FixtureForRanking extends EmptyCustomerCart_Baked with CreditCardFixture {
+    implicit val au: AU = storeAdminAuthData
     val (order, orderPayment, customer2, charge1, charge2) = (for {
       account ← * <~ Accounts.create(Account())
       customer2 ← * <~ Users.create(
@@ -599,7 +607,10 @@ class CustomerIntegrationTest
                                              name = "second".some))
       custData2 ← * <~ CustomersData.create(
                      CustomerData(userId = customer2.id, accountId = account.id))
-      cart2  ← * <~ Carts.create(Cart(accountId = customer2.accountId, referenceNumber = "ABC-456"))
+      cart2 ← * <~ Carts.create(
+                 Cart(accountId = customer2.accountId,
+                      scope = Scope.current,
+                      referenceNumber = "ABC-456"))
       order  ← * <~ Orders.createFromCart(cart)
       order2 ← * <~ Orders.createFromCart(cart2)
       orderPayment ← * <~ OrderPayments.create(

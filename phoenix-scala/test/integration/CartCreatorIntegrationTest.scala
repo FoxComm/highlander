@@ -1,5 +1,5 @@
 import cats.implicits._
-import failures.{NotFoundFailure400, NotFoundFailure404}
+import failures.NotFoundFailure404
 import models.account._
 import payloads.OrderPayloads.CreateCart
 import responses.cord.CartResponse
@@ -34,6 +34,7 @@ class CartCreatorIntegrationTest
       }
 
       "returns current cart if customer already has one" in new Fixture {
+        implicit val au = storeAdminAuthData
         CartCreator.createCart(storeAdmin, CreateCart(customerId = customer.accountId.some)).gimme
 
         cartsApi

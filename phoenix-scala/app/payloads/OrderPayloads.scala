@@ -16,7 +16,9 @@ object OrderPayloads {
 
   case class CreateOrderNotePayload(body: String)
 
-  case class CreateCart(customerId: Option[Int] = None, email: Option[String] = None)
+  case class CreateCart(customerId: Option[Int] = None,
+                        email: Option[String] = None,
+                        scope: Option[String] = None)
       extends Validation[CreateCart] {
 
     def validate: ValidatedNel[Failure, CreateCart] = {

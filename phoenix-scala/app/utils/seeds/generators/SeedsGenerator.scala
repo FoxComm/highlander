@@ -4,11 +4,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
 import cats.implicits._
-import faker.{Faker, Lorem}
+import faker.Faker
+import models.account._
 import models.cord._
 import models.coupon._
 import models.customer._
-import models.account._
 import models.inventory._
 import models.location.{Address, Addresses}
 import models.objects.{ObjectContext, ObjectContexts}
@@ -56,14 +56,14 @@ object RankingSeedsGenerator {
                          elasticRequest = fakeJson,
                          customersCount = Some(Random.nextInt))
 
-  def insertRankingSeeds(customersCount: Int)(implicit db: Database) = {
+  def insertRankingSeeds(customersCount: Int)(implicit db: Database, au: AU) = {
 
     val location = "Arkham"
 
     def makeOrders(c: User, context: ObjectContext) = {
       (1 to 5 + Random.nextInt(20)).map { i ⇒
         for {
-          cart  ← * <~ Carts.create(Cart(accountId = c.accountId))
+          cart  ← * <~ Carts.create(Cart(accountId = c.accountId, scope = Scope.current))
           order ← * <~ Orders.createFromCart(cart, context.id)
           order ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))
           order ← * <~ Orders.update(order, order.copy(state = Order.Shipped))

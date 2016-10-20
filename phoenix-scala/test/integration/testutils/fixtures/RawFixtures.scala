@@ -43,15 +43,15 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   }
 
   // Cart
-  trait EmptyCart_Raw {
+  trait EmptyCart_Raw extends StoreAdmin_Seed {
     def customer: User
-    def storeAdmin: User
 
     def cart: Cart = _cart
 
     private val _cart: Cart = {
-      val payload  = OrderPayloads.CreateCart(customerId = customer.accountId.some)
-      val response = CartCreator.createCart(storeAdmin, payload).gimme
+      implicit val au = storeAdminAuthData
+      val payload     = OrderPayloads.CreateCart(customerId = customer.accountId.some)
+      val response    = CartCreator.createCart(storeAdmin, payload).gimme
       Carts.mustFindByRefNum(response.referenceNumber).gimme
     }
   }

@@ -1,5 +1,6 @@
 package utils.seeds
 
+import com.github.tminglei.slickpg.LTree
 import models.Note
 import models.cord.Order._
 import models.cord._
@@ -9,8 +10,8 @@ trait OrderSeeds {
   def order: Order =
     Order(accountId = 1, referenceNumber = "ABCD1234-11", state = ManualHold, contextId = 1)
 
-  def cart: Cart =
-    Cart(accountId = 1, referenceNumber = "ABCD1234-11")
+  def cart(scope: LTree): Cart =
+    Cart(accountId = 1, referenceNumber = "ABCD1234-11", scope = scope)
 
   def orderNotes: Seq[Note] = {
     def newNote(body: String) =

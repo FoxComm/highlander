@@ -12,9 +12,11 @@ import utils.db._
 
 object CartCreator {
 
-  def createCart(
-      admin: User,
-      payload: CreateCart)(implicit db: DB, ec: EC, ac: AC, ctx: OC): DbResultT[CartResponse] = {
+  def createCart(admin: User, payload: CreateCart)(implicit db: DB,
+                                                   ec: EC,
+                                                   ac: AC,
+                                                   ctx: OC,
+                                                   au: AU): DbResultT[CartResponse] = {
 
     def existingCustomerOrNewGuest: DbResultT[CartResponse] =
       (payload.customerId, payload.email) match {
@@ -35,8 +37,9 @@ object CartCreator {
         guest   ← * <~ Users.create(User(accountId = account.id, email = email.some))
         custData ← * <~ CustomersData.create(
                       CustomerData(userId = guest.id, accountId = account.id, isGuest = true))
-        cart ← * <~ Carts.create(Cart(accountId = account.id))
-        _    ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest, custData))
+        scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
+        cart  ← * <~ Carts.create(Cart(accountId = account.id, scope = scope))
+        _     ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest, custData))
       } yield root(cart, guest, custData)
 
     for {

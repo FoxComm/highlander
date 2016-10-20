@@ -1,16 +1,10 @@
 package models.account
 
-import java.time.Instant
-
-import cats.data.{Validated, ValidatedNel, Xor}
-import cats.implicits._
-import failures._
-import failures.ScopeFailures._
-import shapeless._
-import utils.Validation
-import slick.driver.PostgresDriver.api._
 import com.github.tminglei.slickpg.LTree
-
+import failures.ScopeFailures._
+import failures._
+import shapeless._
+import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
@@ -22,6 +16,8 @@ case class Scope(id: Int = 0, source: String, parentPath: Option[String]) extend
 }
 
 object Scope {
+
+  def current(implicit au: AU): LTree = LTree(au.token.scope)
 
   def getScopeOrSubscope(potentialSubscope: Option[String])(implicit ec: EC,
                                                             au: AU): DbResultT[LTree] = {
