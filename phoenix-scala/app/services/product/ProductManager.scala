@@ -343,8 +343,8 @@ object ProductManager {
 
   def mustNotBePresentInCarts(productId: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
-      skus ← * <~ ProductSkuLinks.filter(_.leftId === productId).result
+      skus        ← * <~ ProductSkuLinks.filter(_.leftId === productId).result
       inCartCount ← * <~ CartLineItems.filter(_.skuId.inSetBind(skus.map(_.rightId))).size.result
-      _ ← * <~ failIf(inCartCount > 0, ProductIsPresentInCarts(productId))
+      _           ← * <~ failIf(inCartCount > 0, ProductIsPresentInCarts(productId))
     } yield {}
 }
