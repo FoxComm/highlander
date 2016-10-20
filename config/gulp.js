@@ -1,7 +1,7 @@
 
 const fs = require('fs');
 
-exports.enableNotifier = process.argv.indexOf('--notifications') >= 0;
+exports.enableNotifier = true;
 
 // install pre-push hooks
 exports.autoInstallHooks = true;

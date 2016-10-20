@@ -38,16 +38,17 @@
   overflow: hidden;
   left: 50%;
   transform: translate(-50%, -100%);
+  z-index: -1;
 
   &:after {
     content: '';
     position: absolute;
-    width: 35px;
-    height: 35px;
+    width: 36px;
+    height: 36px;
     background-color: #3E3436;
     transform: rotate(45deg);
     top: 53px;
-    left: 17.5px;
+    left: 13px;
   }
 }
 

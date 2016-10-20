@@ -1,11 +1,9 @@
-/* @flow */
+/* @flow weak */
 
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-
 import styles from './products-list.css';
-
 import ListItem from '../products-item/list-item';
 import Dropdown from 'ui/dropdown';
 
@@ -25,7 +23,10 @@ type Props = {
   categoryType: ?string;
 }
 
-const mapStateToProps = state => ({categories: state.categories.list});
+const mapStateToProps = state => ({
+  categories: state.categories.list,
+});
+
 const productTags = [
   { id: 1, title: 'All' },
   { id: 2, title: 'Poultry' },
@@ -33,6 +34,18 @@ const productTags = [
   { id: 4, title: 'Beef' },
   { id: 5, title: 'Vegitarian' },
 ];
+
+const SKU_BY_PRODUCT_ID = {
+  1: 'SKU-YAX',
+  5: 'SKU-BRO',
+  9: 'SKU-ABC',
+  13: 'SKU-SHH',
+  17: 'SKU-ZYA',
+  21: 'SKU-MRP',
+  25: 'SKU-TRL',
+  218: 'SKU-CLK2',
+};
+
 
 class ProductsList extends Component {
   props: Props;
@@ -70,8 +83,15 @@ class ProductsList extends Component {
 
   getItemList() {
     return _.map(this.props.list, (item) => {
+      const sku = SKU_BY_PRODUCT_ID[item.productId];
+
       return (
-        <ListItem {...item} key={`product-${item.id}`} ref={`product-${item.id}`}/>
+        <ListItem
+          {...item}
+          key={`product-${item.id}`}
+          ref={`product-${item.id}`}
+          skuId={sku}
+        />
       );
     });
   }

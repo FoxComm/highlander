@@ -5,6 +5,10 @@ import type { HTMLElement } from 'types';
 import styles from './list-item.css';
 import { browserHistory } from 'react-router';
 import _ from 'lodash';
+import { autobind } from 'core-decorators';
+import { addLineItem } from 'modules/cart';
+import { connect } from 'react-redux';
+import cx from 'classnames';
 
 import Currency from 'ui/currency';
 
@@ -30,8 +34,36 @@ type Product = {
   albums: ?Array<Album>,
 };
 
+const mapStateToProps = (state, props) => {
+  const lineItems = _.get(state, ['cart', 'skus'], []);
+  const itemAddedToCart = _.find(lineItems, item => item.sku === props.skuId);
+
+  return {
+    itemAddedToCart,
+  };
+};
+
 class ListItem extends React.Component {
   props: Product;
+
+  @autobind
+  addToCart () {
+    if (this.props.itemAddedToCart) {
+      return;
+    }
+
+    const quantity = 1;
+
+    this.props.addLineItem(this.props.skuId, quantity)
+      .then(() => {
+
+      })
+      .catch(ex => {
+        this.setState({
+          error: ex,
+        });
+      });
+  }
 
   render(): HTMLElement {
     const {
@@ -46,6 +78,9 @@ class ListItem extends React.Component {
     const previewImageUrl = _.get(albums, [0, 'images', 0, 'src']);
 
     const click = () => browserHistory.push(`/products/${productId}`);
+    const btnCls = cx(styles['add-to-cart-btn'], {
+      [styles['item-added']]: this.props.itemAddedToCart,
+    });
 
     return (
       <div styleName="list-item">
@@ -66,12 +101,16 @@ class ListItem extends React.Component {
             <div styleName="price">
               <Currency value={salePrice} currency={currency} />
             </div>
-            <div styleName="add-to-cart">
-              <button styleName="add-to-cart-btn">
-                <span styleName="add-icon">+</span>
+
+            <div styleName="add-to-cart" onClick={this.addToCart}>
+              <button className={btnCls}>
+                <span styleName="add-icon">{this.props.itemAddedToCart ? '✓' : '+'}</span>
               </button>
-              <div styleName="add-title-expanded">ADD TO CART</div>
+
+              {!this.props.itemAddedToCart &&
+                <div styleName="add-title-expanded">ADD TO CART</div>}
             </div>
+
           </div>
         </div>
       </div>
@@ -79,4 +118,6 @@ class ListItem extends React.Component {
   }
 }
 
-export default ListItem;
+export default connect(mapStateToProps, {
+  addLineItem,
+})(ListItem);

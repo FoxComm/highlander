@@ -55,7 +55,7 @@ export default class Dropdown extends Component {
 
     return (
       <div styleName="dropdown">
-        <div className={cls} onClick={this.toggleDropdown}>All</div>
+        <div className={cls} onClick={this.toggleDropdown}>{this.state.activeItem.title}</div>
 
         <CSSTransitionGroup
           transitionName={styles.items}
@@ -63,7 +63,6 @@ export default class Dropdown extends Component {
           transitionLeaveTimeout={300}
         >
           {this.state.open &&
-
             <div styleName="items">
               <div styleName="top-triangle"></div>
               <div styleName="items-wrap">

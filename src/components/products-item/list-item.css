@@ -88,7 +88,7 @@
   font-size: 15px;
   color: var(--text-color-main);
   opacity: 0.44;
-  letter-spacing: 0px;
+  letter-spacing: 2.15px;
   margin-top: 10px;
 }
 
@@ -125,7 +125,10 @@
     }
 
     & .add-to-cart-btn {
-      composes: add-to-cart-btn-hover;
+      /*composes: add-to-cart-btn-hover;*/
+      background-color: #3D2228;
+      color: white;
+      cursor: pointer;
     }
   }
 }
@@ -140,11 +143,24 @@
   display: table;
 
   & .add-icon {
+  }
 
+  &.item-added {
+    background-color: var(--greenish);
+    border: none;
+    color: white;
+    font-size: 15px;
+
+    &:hover {
+      background-color: var(--greenish);
+    }
   }
 
   &:hover {
-    composes: add-to-cart-btn-hover;
+    /*composes: add-to-cart-btn-hover;*/
+    background-color: #3D2228;
+    color: white;
+    cursor: pointer;
   }
 }
 
