@@ -1,7 +1,7 @@
 ---
 
 - name: Provision Mesos Service Discovery
-  hosts: target-stage-consul-server
+  hosts: new-target-stage-consul-server
   vars:
     user: '{{ansible_ssh_user}}'
     zookeepers: zookeeper.service.consul:2181
@@ -13,7 +13,7 @@
     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Target Stage Backend
-  hosts: target-stage-backend
+  hosts: new-target-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
     updating_mwh: true
@@ -31,7 +31,7 @@
     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Target Stage Frontend
-  hosts: target-stage-frontend
+  hosts: new-target-stage-frontend
   vars:
     user: '{{ansible_ssh_user}}'
     middlewarehouse_server: middlewarehouse.service.consul:9292
