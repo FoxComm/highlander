@@ -36,7 +36,6 @@
     user: '{{ansible_ssh_user}}'
     middlewarehouse_server: middlewarehouse.service.consul:9292
     marathon_server: marathon.service.consul:8080
-    product_search_server: product-search.service.consul:5492
     docker_db_host: db.service.consul
     updating_mwh: true
   tags:
@@ -51,6 +50,5 @@
     - { role: dev/solomon }
     - { role: dev/marketplace }
     - { role: dev/ashes }
-    - { role: ext/tgt/marketplace-ui }
-    - { role: ext/tgt/balancer, sudo: yes }
+    - { role: dev/balancer, sudo: yes }
     - { role: dev/seeder }
