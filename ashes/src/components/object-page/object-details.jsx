@@ -9,7 +9,6 @@ import { assoc } from 'sprout-data';
 import { flow, filter } from 'lodash/fp';
 import { expandRefs } from 'lib/object-schema';
 import { addKeys } from 'lib/react-utils';
-import { getAttrSchema } from 'paragons/object';
 
 // components
 import ContentBox from '../content-box/content-box';
@@ -75,19 +74,6 @@ export default class ObjectDetails extends Component {
 
     return assoc(object,
       'attributes', attributes
-    );
-  }
-
-  updateSchema(newTypes: {[name: string]: string}): Object {
-    // update schema
-    const attrsSchema = _.cloneDeep(this.schema.properties.attributes);
-
-    _.each(newTypes, (type, name) => {
-      attrsSchema.properties[name] = getAttrSchema(type);
-    });
-
-    return assoc(this.props.schema,
-      ['properties', 'attributes'], attrsSchema
     );
   }
 
