@@ -9,7 +9,7 @@ defmodule Marketplace.MerchantAccount do
     field :description, :string
     field :email_address, :string
     field :password, :string
-    field :solomon_id, :integer
+    field :solomon_id, :integer # the corresponding account in solomon
 
     timestamps
 
@@ -17,8 +17,8 @@ defmodule Marketplace.MerchantAccount do
 
   end
 
-  @required_fields ~w(first_name last_name email_address password)a
-  @optional_fields ~w(phone_number business_name description)a
+  @required_fields ~w(first_name last_name email_address password merchant_id)a
+  @optional_fields ~w(phone_number business_name description solomon_id)a
 
   def changeset(model, params \\ :empty) do
     model 
