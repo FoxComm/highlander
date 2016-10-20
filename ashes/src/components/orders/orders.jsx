@@ -135,6 +135,7 @@ export default class Orders extends React.Component {
           watchActions={true}
           actions={this.bulkActions}>
           <SelectableSearchList
+            entity="orders.list"
             emptyMessage="No orders found."
             list={list}
             renderRow={this.renderRow}

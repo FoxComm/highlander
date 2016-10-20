@@ -216,10 +216,12 @@ renderPilledInput.propTypes = {
   shares: PropTypes.object,
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, props) => {
+  const search = _.invoke(state, `${props.entity}.currentSearch`);
+
   return {
-    search: state.orders.list.currentSearch(),
-    shares: _.get(state.orders.list.currentSearch(), 'shares', {}),
+    search,
+    shares: _.get(search, 'shares', {}),
   };
 };
 
