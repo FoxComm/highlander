@@ -34,7 +34,6 @@ class ReturnIntegrationTest extends IntegrationTestBase with TestObjectContext w
   }
 
   trait Fixture extends Order_Baked with StoreAdmin_Seed {
-    implicit val au: AU = storeAdminAuthData
     Cart(referenceNumber = "ABC-123", scope = Scope.current, accountId = customer.accountId)
   }
 }

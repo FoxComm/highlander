@@ -73,14 +73,16 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
   }
 
   "Model update" - {
-    "model decides if it can be updated successfully" in {
-      val origin      = Factories.order
+    "model decides if it can be updated successfully" in new Customer_Seed {
+      implicit val au = customerAuthData
+      val origin      = Factories.order(Scope.current)
       val destination = origin.copy(accountId = 123)
       origin.updateTo(destination).rightVal must === (destination)
     }
 
-    "model refuses to update if FSM check fails" in {
-      val origin      = Factories.order
+    "model refuses to update if FSM check fails" in new Customer_Seed {
+      implicit val au = customerAuthData
+      val origin      = Factories.order(Scope.current)
       val destination = origin.copy(state = Shipped)
       val failure     = leftValue(origin.updateTo(destination))
       failure must === (
@@ -102,8 +104,12 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       Orders.findOneByRefNum(order.refNum).gimme.value must === (order)
     }
 
-    "won't update unsaved model" in {
-      Orders.update(Factories.order, Factories.order).run().futureValue mustBe 'left
+    "won't update unsaved model" in new Customer_Seed {
+      implicit val au = customerAuthData
+      Orders
+        .update(Factories.order(Scope.current), Factories.order(Scope.current))
+        .run()
+        .futureValue mustBe 'left
     }
   }
 

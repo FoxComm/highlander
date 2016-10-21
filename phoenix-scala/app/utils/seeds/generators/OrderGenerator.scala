@@ -80,7 +80,7 @@ trait OrderGenerator extends ShipmentSeeds {
                       giftCard: GiftCard)(implicit db: DB, au: AU): DbResultT[Order] =
     for {
       cart   ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
-      order  ← * <~ Orders.createFromCart(cart, context.id)
+      order  ← * <~ Orders.createFromCart(cart, context.id, None)
       order  ← * <~ Orders.update(order, order.copy(state = ManualHold, placedAt = yesterday))
       _      ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Pending)
       origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = 1, reasonId = 1))
@@ -103,7 +103,7 @@ trait OrderGenerator extends ShipmentSeeds {
                                  giftCard: GiftCard)(implicit db: DB, au: AU): DbResultT[Order] =
     for {
       cart   ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
-      order  ← * <~ Orders.createFromCart(cart, context.id)
+      order  ← * <~ Orders.createFromCart(cart, context.id, None)
       order  ← * <~ Orders.update(order, order.copy(state = ManualHold, placedAt = yesterday))
       _      ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Pending)
       origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = 1, reasonId = 1))
@@ -128,7 +128,7 @@ trait OrderGenerator extends ShipmentSeeds {
       au: AU): DbResultT[Order] =
     for {
       cart  ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
-      order ← * <~ Orders.createFromCart(cart, context.id)
+      order ← * <~ Orders.createFromCart(cart, context.id, None)
       order ← * <~ Orders.update(order, order.copy(state = FraudHold, placedAt = yesterday))
       _     ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Pending)
       cc    ← * <~ getCc(accountId)
@@ -151,7 +151,7 @@ trait OrderGenerator extends ShipmentSeeds {
       randomHour    ← * <~ 1 + Random.nextInt(48)
       randomSeconds ← * <~ randomHour * 3600
       cart          ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
-      order         ← * <~ Orders.createFromCart(cart, context.id)
+      order         ← * <~ Orders.createFromCart(cart, context.id, None)
       order ← * <~ Orders.update(order,
                                  order.copy(state = RemorseHold,
                                             remorsePeriodEnd =
@@ -217,7 +217,7 @@ trait OrderGenerator extends ShipmentSeeds {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
       cart          ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
-      order         ← * <~ Orders.createFromCart(cart, context.id)
+      order         ← * <~ Orders.createFromCart(cart, context.id, None)
       order         ← * <~ Orders.update(order, order.copy(state = FulfillmentStarted))
       order         ← * <~ Orders.update(order, order.copy(state = Shipped, placedAt = yesterday))
       _             ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Shipped)
@@ -245,7 +245,7 @@ trait OrderGenerator extends ShipmentSeeds {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
       cart          ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
-      order         ← * <~ Orders.createFromCart(cart, context.id)
+      order         ← * <~ Orders.createFromCart(cart, context.id, None)
       order         ← * <~ Orders.update(order, order.copy(state = FulfillmentStarted))
       order         ← * <~ Orders.update(order, order.copy(state = Shipped, placedAt = yesterday))
       _             ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Shipped)

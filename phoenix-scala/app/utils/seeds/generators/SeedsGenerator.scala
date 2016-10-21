@@ -56,7 +56,7 @@ object RankingSeedsGenerator {
                          elasticRequest = fakeJson,
                          customersCount = Some(Random.nextInt))
 
-  def insertRankingSeeds(customersCount: Int)(implicit db: Database, au: AU) = {
+  def insertRankingSeeds(customersCount: Int)(implicit db: DB, au: AU) = {
 
     val location = "Arkham"
 
@@ -64,7 +64,7 @@ object RankingSeedsGenerator {
       (1 to 5 + Random.nextInt(20)).map { i ⇒
         for {
           cart  ← * <~ Carts.create(Cart(accountId = c.accountId, scope = Scope.current))
-          order ← * <~ Orders.createFromCart(cart, context.id)
+          order ← * <~ Orders.createFromCart(cart, context.id, None)
           order ← * <~ Orders.update(order, order.copy(state = Order.FulfillmentStarted))
           order ← * <~ Orders.update(order, order.copy(state = Order.Shipped))
         } yield order

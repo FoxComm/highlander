@@ -9,7 +9,7 @@ import responses.cord._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.aliases.AU
+import utils.aliases._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -21,7 +21,6 @@ class AllOrdersIntegrationTest
 
   "PATCH /v1/orders" - {
     "bulk update states" in new StoreAdmin_Seed with StateUpdateFixture {
-      override def au = storeAdminAuthData
       val payload = BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
 
       val all = ordersApi.update(payload).as[BatchResponse[AllOrders.Root]]
@@ -47,20 +46,22 @@ class AllOrdersIntegrationTest
     }
   }
 
-  trait StateUpdateFixture {
-    implicit def au: AU
+  trait StateUpdateFixture extends StoreAdmin_Seed {
+
+    implicit val au = storeAdminAuthData
+
     (for {
       acc  ← * <~ Accounts.create(Account())
       cust ← * <~ Users.create(Factories.customer.copy(accountId = acc.id))
       _    ← * <~ CustomersData.create(CustomerData(userId = cust.id, accountId = acc.id))
       c = Factories.cart(Scope.current).copy(accountId = acc.id)
       cart  ← * <~ Carts.create(c.copy(referenceNumber = "foo"))
-      order ← * <~ Orders.createFromCart(cart)
+      order ← * <~ Orders.createFromCart(cart, None)
       _     ← * <~ Orders.update(order, order.copy(state = FraudHold))
       cart  ← * <~ Carts.create(c.copy(referenceNumber = "bar"))
-      _     ← * <~ Orders.createFromCart(cart)
+      _     ← * <~ Orders.createFromCart(cart, None)
       cart  ← * <~ Carts.create(c.copy(referenceNumber = "baz"))
-      order ← * <~ Orders.createFromCart(cart)
+      order ← * <~ Orders.createFromCart(cart, None)
       _     ← * <~ Orders.update(order, order.copy(state = ManualHold))
     } yield {}).gimme
   }

@@ -19,25 +19,25 @@ class CordsIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     cord.isCart mustBe true
   }
 
-  "should generate and increment reference_number if empty" in new Customer_Seed
-  with StoreAdmin_Seed {
-    implicit val au: AU = storeAdminAuthData
+  "should generate and increment reference_number if empty" in new Customer_Seed {
+
+    implicit val au = customerAuthData
+
     (1 to 3).map { i ⇒
       val cart = Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)).gimme
       val cord = Cords.findOneByRefNum(cart.refNum).gimme.value
       cord.referenceNumber must === (s"BR1000$i")
       cart.referenceNumber must === (cord.referenceNumber)
       cord.isCart mustBe true
-      Orders.createFromCart(cart).gimme
+      Orders.createFromCart(cart, None).gimme
     }
   }
 
-  "cord should be updated and cart should be deleted on order creation" in new Customer_Seed
-  with StoreAdmin_Seed {
-    implicit val au: AU = storeAdminAuthData
-    val cart            = Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)).gimme
-    val order           = Orders.createFromCart(cart).gimme
-    val cord            = Cords.result.headOption.gimme.value
+  "cord should be updated and cart should be deleted on order creation" in new Customer_Seed {
+    implicit val au = customerAuthData
+    val cart        = Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)).gimme
+    val order       = Orders.createFromCart(cart, None).gimme
+    val cord        = Cords.result.headOption.gimme.value
     cart.referenceNumber must === (cord.referenceNumber)
     order.referenceNumber must === (cord.referenceNumber)
     cord.isCart mustBe false

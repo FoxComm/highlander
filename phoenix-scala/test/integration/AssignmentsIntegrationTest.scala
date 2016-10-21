@@ -156,12 +156,12 @@ class AssignmentsIntegrationTest
                 Factories
                   .cart(Scope.current)
                   .copy(accountId = customer.accountId, referenceNumber = "foo"))
-      order1 ← * <~ Orders.createFromCart(cart)
+      order1 ← * <~ Orders.createFromCart(cart, None)
       cart ← * <~ Carts.create(
                 Factories
                   .cart(Scope.current)
                   .copy(accountId = customer.accountId, referenceNumber = "bar"))
-      order2 ← * <~ Orders.createFromCart(cart)
+      order2 ← * <~ Orders.createFromCart(cart, None)
       _ ← * <~ Assignments.create(
              Assignment(referenceType = Assignment.Order,
                         referenceId = order1.id,

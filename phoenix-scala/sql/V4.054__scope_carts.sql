@@ -1,5 +1,6 @@
 alter table carts add column scope exts.ltree not null;
 alter table carts_search_view add column scope exts.ltree not null;
+alter table carts_search_view add column scopes text[];
 
 update carts set scope = exts.text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
 update carts_search_view set scope = text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
@@ -45,5 +46,56 @@ begin
                                 from customers_search_view as c
                                 where (new.account_id = c.id);
   return null;
+end;
+$$ language plpgsql;
+
+create or replace function update_carts_view_from_line_items_fn() returns trigger as $$
+declare cord_refs text[];
+begin
+  case tg_table_name
+    when 'cart_line_items' then
+      cord_refs := array_agg(new.cord_ref);
+    when 'skus' then
+      select array_agg(cord_ref) into strict cord_refs
+        from cart_line_items as cli
+        where cli.sku_id = new.id;
+    when 'object_forms' then
+      select array_agg(cord_ref) into strict cord_refs
+      from cart_line_items as cli
+        inner join skus as sku on (cli.sku_id = sku.id)
+        where sku.form_id = new.id;
+  end case;
+
+  update carts_search_view set
+    line_item_count = subquery.count,
+    scopes = subquery.scopes,
+    line_items = subquery.items from (select
+          c.id,
+          count(sku.id) as count,
+          case when count(sku) = 0
+          then
+            '[]'
+          else
+            json_agg((
+                       cli_skus.reference_number,
+                       'cart',
+                    sku.code,
+                    sku_form.attributes->>(sku_shadow.attributes->'title'->>'ref'),
+                    sku_form.attributes->>(sku_shadow.attributes->'externalId'->>'ref'),
+                    sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value',
+                    sku.scope)::export_line_items)
+                    ::jsonb
+          end as items,
+          array_agg(sku.scope) as scopes
+          from carts as c
+          left join cart_line_items as cli_skus on (c.reference_number = cli_skus.cord_ref)
+          left join skus as sku on (cli_skus.sku_id = sku.id)
+          left join object_forms as sku_form on (sku.form_id = sku_form.id)
+          left join object_shadows as sku_shadow on (sku.shadow_id = sku_shadow.id)
+          where c.reference_number = any(cord_refs)
+          group by c.id) as subquery
+      where carts_search_view.id = subquery.id;
+
+    return null;
 end;
 $$ language plpgsql;

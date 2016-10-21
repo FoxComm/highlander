@@ -34,8 +34,11 @@ class OrderIntegrationTest
     }
 
     "fails if transition from current status is not allowed" in new EmptyCustomerCart_Baked {
+
+      implicit val au = storeAdminAuthData
+
       val order = (for {
-        order ← * <~ Orders.createFromCart(cart)
+        order ← * <~ Orders.createFromCart(cart, None)
         order ← * <~ Orders.update(order, order.copy(state = Canceled))
       } yield order).gimme
 
@@ -70,10 +73,13 @@ class OrderIntegrationTest
   }
 
   trait Fixture extends EmptyCartWithShipAddress_Baked {
+
+    implicit val au = storeAdminAuthData
+
     val order = (for {
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
       _          ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
-      order      ← * <~ Orders.createFromCart(cart)
+      order      ← * <~ Orders.createFromCart(cart, None)
     } yield order).gimme
   }
 }

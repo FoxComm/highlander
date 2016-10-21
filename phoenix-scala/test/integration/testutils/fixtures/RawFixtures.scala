@@ -98,10 +98,13 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   trait FullCart_Raw extends EmptyCart_Raw with CartWithPayments_Raw
 
   // Order
-  trait Order_Raw {
+  trait Order_Raw extends Customer_Seed {
+
+    implicit val au = customerAuthData
+
     def cart: Cart
 
-    val order: Order = Orders.createFromCart(cart).gimme
+    val order: Order = Orders.createFromCart(cart, None).gimme
   }
 
   // Product

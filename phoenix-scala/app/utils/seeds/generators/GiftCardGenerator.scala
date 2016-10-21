@@ -32,7 +32,7 @@ trait GiftCardGenerator {
       au: AU): DbResultT[GiftCard] =
     for {
       cart  ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
-      order ← * <~ Orders.createFromCart(cart, context.id)
+      order ← * <~ Orders.createFromCart(cart, context.id, None)
       order ← * <~ Orders.update(order, order.copy(state = Order.ManualHold))
       orig  ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = order.refNum))
       gc ← * <~ GiftCards.create(

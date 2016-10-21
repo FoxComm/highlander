@@ -12,8 +12,7 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.client.transport.NoNodeAvailableException
 import org.elasticsearch.transport.RemoteTransportException
-import org.json4s.JsonAST.JInt
-import org.json4s.JsonAST.JString
+import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods.parse
 
 /**
@@ -39,7 +38,7 @@ class ScopedIndexer(uri: String,
     jsonTransformers get topic match {
       case Some(t) ⇒
         t.transform(inputJson).map { outJson ⇒
-          save(outJson, topic)
+          indexJson(outJson, topic)
         }
       case None ⇒
         Console.out.println(s"Skipping information from topic $topic")
@@ -56,23 +55,19 @@ class ScopedIndexer(uri: String,
   //2.  admin_1.2
   //3.  admin_1
   //
-  private def save(document: String, topic: String): Future[Unit] = {
+  //If there is a "scopes" attribute in the json, the document will also be
+  //put in the scopeWalk of each scope specified.
+  private def indexJson(document: String, topic: String): Future[Unit] = {
     val json = parse(document)
     json \ "id" match {
       case JInt(jid) ⇒
         json \ "scope" match {
           case JString(scope) ⇒ {
-              val path = scope.split('.')
-              Future
-                .sequence((1 to path.length).map { idx ⇒
-                  val partialScope    = path.slice(0, idx).mkString(".")
-                  val scopedIndexName = s"${indexName}_${partialScope}"
-                  save(scopedIndexName, jid, document, topic)
-                })
-                .map(_ ⇒ ())
+              val scopes = extractScopes(scope, json)
+              indexScopes(scopes, jid, document, topic)
             }
           //if no scope found, just save the good old way
-          case _ ⇒ save(indexName, jid, document, topic)
+          case _ ⇒ indexDocument(indexName, jid, document, topic)
         }
       case _ ⇒
         Console.out.println(s"Skipping unidentified document from topic $topic...\r\n$document")
@@ -80,10 +75,54 @@ class ScopedIndexer(uri: String,
     }
   }
 
-  private def save(scopedIndexName: String,
-                   documentId: BigInt,
-                   document: String,
-                   topic: String): Future[Unit] = {
+  //Returns the scopeWalk of scope and any the scopeWalk of any scopes in the "scopes" attribute
+  //The returned list is unique
+  private def extractScopes(scope: String, json: JValue): Seq[String] = {
+    require(!scope.isEmpty)
+
+    val allScopes =
+      scopeWalk(scope) ++
+      (json \ "scopes" match {
+        case JArray(scopes) ⇒
+          scopes.map {
+            case JString(s) ⇒ scopeWalk(s)
+            case _          ⇒ Seq("")
+          }
+        case _ ⇒ Seq()
+      }).flatten.filter(s ⇒ s.isEmpty == false)
+
+    //calling "distinct" here is important because allScopes nessasarily
+    //has duplicates.
+    allScopes.distinct
+  } ensuring { distinctScopes ⇒
+    !distinctScopes.isEmpty
+  }
+
+  //Produces a set of scopes by following up the tree
+  //Example
+  //input: "1.5.7.8"
+  //output: ["1.5.7.8", "1.5.7", "1.5, "1"]
+  private def scopeWalk(scope: String): Seq[String] = {
+    val path = scope.split('.')
+    (1 to path.length).map { idx ⇒
+      path.slice(0, idx).mkString(".")
+    }
+  }
+
+  private def indexScopes(
+      scopes: Seq[String], documentId: BigInt, document: String, topic: String): Future[Unit] = {
+    Future
+      .sequence(scopes.map { scope ⇒
+        val scopedIndexName = s"${indexName}_${scope}"
+        indexDocument(scopedIndexName, documentId, document, topic)
+      })
+      .map(_ ⇒ ())
+  }
+
+  private def indexDocument(scopedIndexName: String,
+                            documentId: BigInt,
+                            document: String,
+                            topic: String): Future[Unit] = {
     Console.out.println(s"Scoped Indexing $topic into $scopedIndexName")
     val req = client.execute {
       index into scopedIndexName / topic id documentId doc PassthroughSource(document)
