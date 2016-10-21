@@ -3,6 +3,7 @@ import java.time.Instant
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.LinkArchivedSkuFailure
 import failures.ProductFailures.VariantNotFoundForContext
+import models.account.Scope
 import models.inventory.Skus
 import models.product._
 import org.json4s.JsonDSL._
@@ -115,10 +116,7 @@ class VariantIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed {
-
-    implicit val au = storeAdminAuthData
-
-    val scope = LTree(au.token.scope)
+    val scope = Scope.current
 
     val createVariantPayload = VariantPayload(attributes =
                                                 Map("name" → (("t" → "string") ~ ("v" → "Color"))),

@@ -148,9 +148,6 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
   }
 
   trait Fixture extends StoreAdmin_Seed with Customer_Seed {
-
-    implicit val au = storeAdminAuthData
-
     val cart = (for {
       cart ← * <~ Carts.create(Factories.cart(Scope.current).copy(accountId = customer.accountId))
       product ← * <~ Mvp.insertProduct(ctx.id,
@@ -258,10 +255,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
   }
 
   trait PriceConditionFixture extends StoreAdmin_Seed {
-
-    implicit val au = storeAdminAuthData
-
-    val scope = LTree(au.token.scope)
+    val scope = Scope.current
 
     val conditions = parse(
         """

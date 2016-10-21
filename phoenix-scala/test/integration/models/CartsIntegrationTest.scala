@@ -19,7 +19,6 @@ class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext wi
 
     "doesn't overwrite a non-empty referenceNumber after insert" in new Customer_Seed
     with StoreAdmin_Seed {
-      implicit val au: AU = storeAdminAuthData
       val cart = Carts
         .create(
             Cart(accountId = customer.accountId,
@@ -30,8 +29,7 @@ class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     }
 
     "can only have one cart per customer" in new Customer_Seed with StoreAdmin_Seed {
-      implicit val au: AU = storeAdminAuthData
-      val cart            = Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)).gimme
+      val cart = Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)).gimme
 
       val failure = Carts
         .create(cart.copy(id = 0, referenceNumber = cart.refNum + "ZZZ"))
@@ -43,8 +41,7 @@ class CartsIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     }
 
     "has a unique index on referenceNumber" in new Customer_Seed with StoreAdmin_Seed {
-      implicit val au: AU = storeAdminAuthData
-      val cart            = Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)).gimme
+      val cart = Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)).gimme
 
       val failure = Carts.create(cart.copy(id = 0).copy(subTotal = 123)).run().futureValue.leftVal
       failure.getMessage must include(

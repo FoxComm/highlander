@@ -5,6 +5,7 @@ import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures._
 import failures.NotFoundFailure404
 import failures.ProductFailures._
+import models.account.Scope
 import models.inventory.Skus
 import models.objects._
 import models.product._
@@ -435,9 +436,7 @@ class ProductIntegrationTest
                                                              (skuGreenLargeCode, "green", "large"))
 
     val (product, skus, variants) = ({
-
-      implicit val au = storeAdminAuthData
-      val scope       = LTree(au.token.scope)
+      val scope = Scope.current
 
       for {
         // Create the SKUs.

@@ -108,9 +108,6 @@ class CategoryIntegrationTest
     }
 
     trait Fixture extends StoreAdmin_Seed {
-
-      implicit val au = storeAdminAuthData
-
       val testAttributes = List("attr1" → JString("val1"))
 
       val category = CategoryManager

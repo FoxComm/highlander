@@ -67,9 +67,7 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
     }
   }
 
-  trait Fixture extends EmptyCustomerCart_Baked with CustomerAddress_Raw {
-    implicit val au = storeAdminAuthData
-  }
+  trait Fixture extends EmptyCustomerCart_Baked with CustomerAddress_Raw
 
   trait SkuLineItemsFixture extends Fixture {
     val (productContext, product, productShadow, sku, skuShadow, skuPrice) = (for {

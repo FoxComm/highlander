@@ -1,3 +1,4 @@
+import cats.syntax.order
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.account._
 import models.cord.Order._
@@ -21,7 +22,6 @@ class AllOrdersIntegrationTest
 
   "PATCH /v1/orders" - {
     "bulk update states" in new StoreAdmin_Seed with StateUpdateFixture {
-      override def au = storeAdminAuthData
       val payload = BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
 
       val all = ordersApi.update(payload).as[BatchResponse[AllOrders.Root]]
@@ -47,8 +47,7 @@ class AllOrdersIntegrationTest
     }
   }
 
-  trait StateUpdateFixture {
-    implicit def au: AU
+  trait StateUpdateFixture extends StoreAdmin_Seed {
     (for {
       acc  ← * <~ Accounts.create(Account())
       cust ← * <~ Users.create(Factories.customer.copy(accountId = acc.id))
