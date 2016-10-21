@@ -35,18 +35,6 @@ const productTags = [
   { id: 5, title: 'Vegitarian' },
 ];
 
-const SKU_BY_PRODUCT_ID = {
-  1: 'SKU-YAX',
-  5: 'SKU-BRO',
-  9: 'SKU-ABC',
-  13: 'SKU-SHH',
-  17: 'SKU-ZYA',
-  21: 'SKU-MRP',
-  25: 'SKU-TRL',
-  218: 'SKU-CLK2',
-};
-
-
 class ProductsList extends Component {
   props: Props;
 
@@ -83,14 +71,11 @@ class ProductsList extends Component {
 
   getItemList() {
     return _.map(this.props.list, (item) => {
-      const sku = SKU_BY_PRODUCT_ID[item.productId];
-
       return (
         <ListItem
           {...item}
           key={`product-${item.id}`}
           ref={`product-${item.id}`}
-          skuId={sku}
         />
       );
     });

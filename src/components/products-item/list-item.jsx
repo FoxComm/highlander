@@ -3,7 +3,7 @@
 import React from 'react';
 import type { HTMLElement } from 'types';
 import styles from './list-item.css';
-import { browserHistory } from 'react-router';
+import { Link } from 'react-router';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { addLineItem, deleteLineItem } from 'modules/cart';
@@ -33,14 +33,15 @@ type Product = {
   currency: string,
   albums: ?Array<Album>,
   itemAddedToCart: boolean,
-  skuId: int,
+  skus: Array<String>,
   addLineItem: Function,
   deleteLineItem: Function,
 };
 
 const mapStateToProps = (state, props) => {
   const lineItems = _.get(state, ['cart', 'skus'], []);
-  const itemAddedToCart = !!_.find(lineItems, item => item.sku === props.skuId);
+  const skuId = props.skus[0];
+  const itemAddedToCart = !!_.find(lineItems, item => item.sku === skuId);
 
   return {
     itemAddedToCart,
@@ -50,9 +51,13 @@ const mapStateToProps = (state, props) => {
 class ListItem extends React.Component {
   props: Product;
 
+  static defaultProps = {
+    skus: [],
+  }
+
   @autobind
   addOrRemoveFromCart () {
-    const { skuId } = this.props;
+    const skuId = this.props.skus[0];
 
     if (this.props.itemAddedToCart) {
       this.props.deleteLineItem(skuId).catch(ex => {
@@ -87,7 +92,6 @@ class ListItem extends React.Component {
 
     const previewImageUrl = _.get(albums, [0, 'images', 0, 'src']);
 
-    const click = () => browserHistory.push(`/products/${productId}`);
     const btnCls = cx(styles['add-to-cart-btn'], {
       [styles['item-added']]: this.props.itemAddedToCart,
     });
@@ -95,12 +99,15 @@ class ListItem extends React.Component {
     return (
       <div styleName="list-item">
         {previewImageUrl &&
-          <div styleName="preview" onClick={click}>
-            <img src={previewImageUrl} styleName="preview-image" />
-            <div styleName="hover-info">
-              <h2 styleName="additional-description">{description}</h2>
+          <Link to={`/products/${productId}`}>
+            <div styleName="preview">
+              <img src={previewImageUrl} styleName="preview-image" />
+              <div styleName="hover-info">
+                <h2 styleName="additional-description">{description}</h2>
+              </div>
             </div>
-          </div>}
+          </Link>
+          }
 
         <div styleName="text-block">
           <h1 styleName="title" alt={title}>
