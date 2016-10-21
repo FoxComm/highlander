@@ -44,7 +44,7 @@ class ShareSearch extends Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.search.code != nextProps.search.code) {
+    if (nextProps.search.code && this.props.search.code != nextProps.search.code) {
       this.setState({
         firstLoad: true,
         numberUpdatedUsers: 0,
