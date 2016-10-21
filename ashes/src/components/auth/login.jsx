@@ -71,18 +71,18 @@ export default class Login extends Component {
   }
 
   @autobind
-  onOrgChange({target}: Object) {
-    this.setState({org: target.value});
+  onOrgChange({ target }: Object) {
+    this.setState({ org: target.value });
   }
 
   @autobind
-  onEmailChange({target}: Object) {
-    this.setState({email: target.value});
+  onEmailChange({ target }: Object) {
+    this.setState({ email: target.value });
   }
 
   @autobind
-  onPasswordChange({target}: Object) {
-    this.setState({password: target.value});
+  onPasswordChange({ target }: Object) {
+    this.setState({ password: target.value });
   }
 
   @autobind
@@ -95,13 +95,8 @@ export default class Login extends Component {
     this.props.googleSignin();
   }
 
-  get passwordLabel() {
-    return (
-      <div styleName="password-label">
-        <div>Password</div>
-        <a onClick={this.onForgotClick} styleName="forgot-link">i forgot</a>
-      </div>
-    );
+  get iForgot() {
+    return <a onClick={this.onForgotClick} styleName="forgot-link">i forgot</a>;
   }
 
   get infoMessage() {
@@ -121,6 +116,8 @@ export default class Login extends Component {
       return <WaitAnimation />;
     }
 
+    const { org, email, password } = this.state;
+
     return (
       <div styleName="content">
         {this.infoMessage}
@@ -135,14 +132,14 @@ export default class Login extends Component {
         <Form styleName="form" onSubmit={this.submitLogin}>
           <WrapToLines styleName="or-line">or</WrapToLines>
           {this.errorMessage}
-          <FormField label="Organization">
-            <input onChange={this.onOrgChange} value={this.state.org} type="text" className="fc-input"/>
+          <FormField label="Organization" required>
+            <input onChange={this.onOrgChange} value={org} type="text" className="fc-input" />
           </FormField>
-          <FormField label="Email">
-            <input onChange={this.onEmailChange} value={this.state.email} type="text" className="fc-input"/>
+          <FormField label="Email" required>
+            <input onChange={this.onEmailChange} value={email} type="text" className="fc-input" />
           </FormField>
-          <FormField label={this.passwordLabel}>
-            <input onChange={this.onPasswordChange} value={this.state.password} type="password" className="fc-input"/>
+          <FormField label="Password" labelAtRight={this.iForgot} required>
+            <input onChange={this.onPasswordChange} value={password} type="password" className="fc-input" />
           </FormField>
           <PrimaryButton
             styleName="submit-button"
