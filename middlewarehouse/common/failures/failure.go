@@ -12,9 +12,9 @@ type Failure interface {
 	ToJSON() responses.Error
 }
 
-func Abort(c *gin.Context, f Failure) {
-	c.JSON(f.Status(), f.ToJSON())
-	c.Abort()
+func Abort(context *gin.Context, failure Failure) {
+	context.JSON(failure.Status(), failure.ToJSON())
+	context.Abort()
 }
 
 func toJSON(err error) responses.Error {

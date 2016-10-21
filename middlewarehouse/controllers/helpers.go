@@ -15,49 +15,49 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-func parse(c *gin.Context, model interface{}) failures.Failure {
-	err := c.BindJSON(model)
+func parse(context *gin.Context, model interface{}) failures.Failure {
+	err := context.BindJSON(model)
 	if err == nil {
 		return nil
 	}
 
 	fail := failures.NewBadRequest(err)
-	failures.Abort(c, fail)
+	failures.Abort(context, fail)
 	return fail
 }
 
-func paramInt(c *gin.Context, key string) (int, failures.Failure) {
-	intStr := c.Params.ByName(key)
+func paramInt(context *gin.Context, key string) (int, failures.Failure) {
+	intStr := context.Params.ByName(key)
 	id, err := strconv.Atoi(intStr)
 	if err != nil {
 		fError := fmt.Errorf("Unable to get int param %s", key)
 		fail := failures.NewBadRequest(fError)
-		failures.Abort(c, fail)
+		failures.Abort(context, fail)
 		return 0, fail
 	}
 
 	return id, nil
 }
 
-func paramUint(c *gin.Context, key string) (uint, failures.Failure) {
-	intStr := c.Params.ByName(key)
+func paramUint(context *gin.Context, key string) (uint, failures.Failure) {
+	intStr := context.Params.ByName(key)
 	id, err := strconv.Atoi(intStr)
 	if err != nil {
 		fError := fmt.Errorf("Unable to get uint param %s", key)
 		fail := failures.NewBadRequest(fError)
-		failures.Abort(c, fail)
+		failures.Abort(context, fail)
 		return 0, fail
 	}
 
 	return uint(id), nil
 }
 
-func handleServiceError(c *gin.Context, err error) {
+func handleServiceError(context *gin.Context, err error) {
 	fail := getFailure(err)
 
 	logFailure(fail)
 
-	failures.Abort(c, fail)
+	failures.Abort(context, fail)
 }
 
 func getFailure(err error) failures.Failure {
