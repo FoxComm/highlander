@@ -13,14 +13,14 @@
 }
 
 .logo {
-  width: 96px;
-  height: 96px;
-  margin-bottom: 48px;
+  width: 208px;
+  height: 102px;
+  margin-bottom: 40px;
 }
 
 .title {
   margin-bottom: 26px;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 18px;
 }
 
@@ -49,12 +49,43 @@
   margin-bottom: calc(30px - var(--dividerMargin));
 }
 
+.form-field-input {
+  composes: text-input from "ui/css/input.css";
+  height: 50px;
+  width: 100%;
+  font-weight: 400;
+  color:  var(--input-text-color);
+  background: #F4F4F4;
+
+  &:focus, &:hover {
+    border-color: var(--input-text-color);
+  }
+
+  &::-webkit-input-placeholder { color: var(--input-text-color); }
+  &::-moz-placeholder { color: var(--input-text-color); }
+  &:-moz-placeholder { color: var(--input-text-color); }
+  &:-ms-input-placeholder { color: var(--input-text-color); }
+}
+
 .form-field {
   width: 100%;
   margin-bottom: 10px;
 
   & > input {
+    height: 50px;
     width: 100%;
+    font-weight: 400;
+    color:  var(--input-text-color);
+    background: #F4F4F4;
+
+    &:focus, &:hover {
+      border-color: var(--input-text-color);
+    }
+
+    &::-webkit-input-placeholder { color: var(--input-text-color); }
+    &::-moz-placeholder { color: var(--input-text-color); }
+    &:-moz-placeholder { color: var(--input-text-color); }
+    &:-ms-input-placeholder { color: var(--input-text-color); }
   }
 }
 
@@ -64,15 +95,19 @@
 }
 
 .switch-stage {
-  margin-top: 19px;
+  margin-top: 20px;
   font-size: 15px;
   line-height: 18px;
+  font-weight: 300;
+  color: #212121;
 }
 
 .top-message {
   margin-bottom: 30px;
   font-size: 15px;
-  line-height: 18px;
+  line-height: 33px;
+  text-align: left;
+  font-weight: 300;
 }
 
 .top-message-success {
@@ -86,11 +121,25 @@
 }
 
 .restore-link {
-  color: var(--greyish);
+  font-weight: 400;
+  font-size: 14px;
+  color: #212121;
+  opacity: 0.38;
+  text-decoration: none;
+
+  &:hover {
+    opacity: 1.0;
+  }
 }
 
 .link {
-  color: var(--blackish);
+  color: #8D757A;
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover {
+    color: #3E3436;
+  }
 }
 
 @media (--small-only) {
@@ -134,18 +183,5 @@
   .auth-block {
     lost-column: 5/11;
     lost-offset: -3/11;
-  }
-}
-
-@media (--medium) {
-  .link,
-  .restore-link {
-    text-decoration: none;
-    box-shadow: 0 1px;
-
-    &:hover {
-      color: var(--blackish);
-      box-shadow: none;
-    }
   }
 }

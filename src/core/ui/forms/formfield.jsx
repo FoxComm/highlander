@@ -5,6 +5,7 @@ import { findDOMNode } from 'react-dom';
 import * as validators from './validators';
 import styles from './formfield.css';
 import formatString from 'lib/string-format';
+import classNames from 'classnames';
 
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
@@ -251,10 +252,12 @@ class FormField extends Component {
   }
 
   render() {
-    const styleName = (this.hasError && this.readyToShowErrors) ? 'has-error' : '';
+    const className = classNames(this.props.className, {
+      [styles['has-error']]: this.errors.length && this.readyToShowErrors,
+    });
 
     return (
-      <div styleName={styleName} className={this.props.className}>
+      <div className={className} >
         {this.props.children}
         {this.errorMessages}
       </div>

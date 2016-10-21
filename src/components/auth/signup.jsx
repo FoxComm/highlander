@@ -14,7 +14,6 @@ import type { Localized } from 'lib/i18n';
 import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
-import WrapToLines from 'ui/wrap-to-lines';
 
 import * as actions from 'modules/auth';
 import { authBlockTypes } from 'paragons/auth';
@@ -105,11 +104,15 @@ class Signup extends Component {
       </Link>
     );
 
+    const showLink = (
+      <Link to="" styleName="restore-link">
+        {t('SHOW')}
+      </Link>
+    );
+
     return (
       <div>
         <div styleName="title">{t('SIGN UP')}</div>
-        <Button icon="fc-google" type="button" styleName="google-login">{t('SIGN UP WITH GOOGLE')}</Button>
-        <WrapToLines styleName="divider">{t('or')}</WrapToLines>
         <Form onSubmit={this.submitUser}>
           <FormField key="username" styleName="form-field" error={usernameError}>
             <TextInput
@@ -133,11 +136,13 @@ class Signup extends Component {
           <FormField key="passwd" styleName="form-field">
             <TextInputWithLabel
               required
+              styleName="form-field-input"
               placeholder={t('CREATE PASSWORD')}
               name="password"
               value={password}
               onChange={this.onChangePassword}
               type="password"
+              label={showLink}
             />
           </FormField>
           <Button

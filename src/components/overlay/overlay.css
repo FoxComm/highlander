@@ -41,6 +41,12 @@
 .close-icon {
   width: 17px;
   height: 17px;
+  color: #212121;
+  opacity: 0.78;
+
+  &:hover {
+    opacity: 1.0;
+  }
 }
 
 @media (--medium) {
@@ -51,7 +57,6 @@
   .close-icon {
     width: 33px;
     height: 33px;
-    color: #767676;
   }
 }
 

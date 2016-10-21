@@ -2,7 +2,7 @@
   "headers": { },
   "translations": {
     "": {
-      "LOG IN": {
+      "SIGN IN": {
         "msgstr": [
           "ВОЙТИ"
         ]
@@ -72,7 +72,7 @@
           "ПОДТВЕРЖДЕНИЕ ПАРОЛЯ"
         ]
       },
-      "BACK TO LOG IN": {
+      "BACK TO SIGN IN": {
         "msgstr": [
           "НАЗАД К ВХОДУ"
         ]
@@ -92,9 +92,14 @@
           "Пользователь с таким email не зарегистрирован"
         ]
       },
-      "An email with reset instructions was successfully sent to": {
+      "An email was successfully sent to": {
         "msgstr": [
-          "Письмо с инструкциями по восстановлению пароля было успешно отправлено на адрес"
+          "Письмо было успешно отправлено на адрес"
+        ]
+      },
+      "with reset instructions": {
+        "msgstr": [
+          "с инструкциями по восстановлению пароля"
         ]
       },
       "No worries! We’ll email you instructions on how to reset your password.": {

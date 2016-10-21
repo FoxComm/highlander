@@ -72,7 +72,7 @@ export default class RestorePassword extends Component {
 
     if (error) {
       return (
-        <div styleName="top-message-error">
+        <div styleName="top-message">
           {error}
         </div>
       );
@@ -80,8 +80,8 @@ export default class RestorePassword extends Component {
 
     if (emailSent) {
       return (
-        <div styleName="top-message-success">
-          {t('An email with reset instructions was successfully sent to')} <strong>{email}</strong>!
+        <div styleName="top-message">
+          {t('An email was successfully sent to')} <strong>{email}</strong> {t('with reset instructions')}!
         </div>
       );
     }
@@ -124,7 +124,7 @@ export default class RestorePassword extends Component {
     if (emailSent) {
       return (
         <Button styleName="primary-button" onClick={this.goToLogin} type="button">
-          {t('BACK TO LOG IN')}
+          {t('BACK TO SIGN IN')}
         </Button>
       );
     }
@@ -140,7 +140,7 @@ export default class RestorePassword extends Component {
       return (
         <div styleName="switch-stage">
           <Link to={getPath(authBlockTypes.LOGIN)} styleName="link">
-            {t('BACK TO LOG IN')}
+            {t('BACK TO SIGN IN')}
           </Link>
         </div>
       );
