@@ -9,4 +9,5 @@ type Address struct {
 	Address1    string  `json:"address1" binding:"required"`
 	Address2    *string `json:"address2"`
 	PhoneNumber string  `json:"phoneNumber"`
+    Scopable
 }
