@@ -6,7 +6,7 @@ import styles from './list-item.css';
 import { browserHistory } from 'react-router';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
-import { addLineItem } from 'modules/cart';
+import { addLineItem, deleteLineItem } from 'modules/cart';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 
@@ -32,11 +32,15 @@ type Product = {
   salePrice: string,
   currency: string,
   albums: ?Array<Album>,
+  itemAddedToCart: boolean,
+  skuId: int,
+  addLineItem: Function,
+  deleteLineItem: Function,
 };
 
 const mapStateToProps = (state, props) => {
   const lineItems = _.get(state, ['cart', 'skus'], []);
-  const itemAddedToCart = _.find(lineItems, item => item.sku === props.skuId);
+  const itemAddedToCart = !!_.find(lineItems, item => item.sku === props.skuId);
 
   return {
     itemAddedToCart,
@@ -47,22 +51,28 @@ class ListItem extends React.Component {
   props: Product;
 
   @autobind
-  addToCart () {
+  addOrRemoveFromCart () {
+    const { skuId } = this.props;
+
     if (this.props.itemAddedToCart) {
-      return;
-    }
-
-    const quantity = 1;
-
-    this.props.addLineItem(this.props.skuId, quantity)
-      .then(() => {
-
-      })
-      .catch(ex => {
+      this.props.deleteLineItem(skuId).catch(ex => {
         this.setState({
           error: ex,
         });
       });
+    } else {
+      const quantity = 1;
+
+      this.props.addLineItem(skuId, quantity)
+        .then(() => {
+
+        })
+        .catch(ex => {
+          this.setState({
+            error: ex,
+          });
+        });
+    }
   }
 
   render(): HTMLElement {
@@ -102,7 +112,7 @@ class ListItem extends React.Component {
               <Currency value={salePrice} currency={currency} />
             </div>
 
-            <div styleName="add-to-cart" onClick={this.addToCart}>
+            <div styleName="add-to-cart" onClick={this.addOrRemoveFromCart}>
               <button className={btnCls}>
                 <span styleName="add-icon">{this.props.itemAddedToCart ? '✓' : '+'}</span>
               </button>
@@ -120,4 +130,5 @@ class ListItem extends React.Component {
 
 export default connect(mapStateToProps, {
   addLineItem,
+  deleteLineItem,
 })(ListItem);
