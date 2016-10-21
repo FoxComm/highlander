@@ -2,6 +2,7 @@
 
 /** Libs */
 import _ from 'lodash';
+import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import React, { Component, PropTypes } from 'react';
 
@@ -54,6 +55,12 @@ class ShareSearch extends Component {
     }
 
     const state = { ...this.state };
+
+    if (!this.props.isVisible && nextProps.isVisible) {
+      this.props.setTerm('');
+
+      state.numberUpdatedUsers = 0;
+    }
 
     const numberUpdatedUsers = nextProps.shares.associations.length - this.props.shares.associations.length;
 
