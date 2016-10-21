@@ -102,7 +102,7 @@ class ShareSearch extends Component {
   }
 
   get associationsList() {
-    const { isFetchingAssociations = false, associations = [], storeAdminId } = this.props.shares;
+    const { shares: { isFetchingAssociations = false, associations = [] }, search } = this.props;
 
     if (isFetchingAssociations) {
       return <WaitAnimation size="s" />;
@@ -115,8 +115,8 @@ class ShareSearch extends Component {
         <p>Shared with <strong>{associationsNumber}</strong> users:</p>
         <ul className="fc-share-search__associations-list">
           {associations.map(item => {
-            const isOwner = !storeAdminId || storeAdminId === item.id;
-            const closeHandler = isOwner ? _.noop : this.props.dissociateSearch.bind(null, this.props.search, item.id);
+            const isOwner = item.id === search.storeAdminId;
+            const closeHandler = isOwner ? _.noop : this.props.dissociateSearch.bind(null, search, item.id);
             const closeButtonClass = isOwner ? '_disabled' : '';
 
             return (
