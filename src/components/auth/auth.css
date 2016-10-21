@@ -53,13 +53,18 @@
   composes: text-input from "ui/css/input.css";
   height: 50px;
   width: 100%;
+  font-weight: 400;
+  color:  var(--input-text-color);
   background: #F4F4F4;
-  opacity: 0.38;
 
-  &::-webkit-input-placeholder { color:#212121; }
-  &::-moz-placeholder { color:#212121; }
-  &:-moz-placeholder { color:#212121; }
-  &:-ms-input-placeholder { color:#212121; }
+  &:focus, &:hover {
+    border-color: var(--input-text-color);
+  }
+
+  &::-webkit-input-placeholder { color: var(--input-text-color); }
+  &::-moz-placeholder { color: var(--input-text-color); }
+  &:-moz-placeholder { color: var(--input-text-color); }
+  &:-ms-input-placeholder { color: var(--input-text-color); }
 }
 
 .form-field {
@@ -69,13 +74,18 @@
   & > input {
     height: 50px;
     width: 100%;
+    font-weight: 400;
+    color:  var(--input-text-color);
     background: #F4F4F4;
-    opacity: 0.38;
 
-    &::-webkit-input-placeholder { color:#212121; }
-    &::-moz-placeholder { color:#212121; }
-    &:-moz-placeholder { color:#212121; }
-    &:-ms-input-placeholder { color:#212121; }
+    &:focus, &:hover {
+      border-color: var(--input-text-color);
+    }
+
+    &::-webkit-input-placeholder { color: var(--input-text-color); }
+    &::-moz-placeholder { color: var(--input-text-color); }
+    &:-moz-placeholder { color: var(--input-text-color); }
+    &:-ms-input-placeholder { color: var(--input-text-color); }
   }
 }
 

@@ -13,6 +13,7 @@
   --dark-grayish: #616161;
   --white-smokish: #F4F4F4;
   --star-dustish: #9F9F9F;
+  --bunker: rgba(33, 33, 33, .38);
 }
 
 :root {
@@ -25,5 +26,6 @@
   --color-text-grey: var(--greyish);
 
   --search-placeholder: rgba(255,255,255,.14);
-  --icon: #212121;
+  --icon: var(--bunker);
+  --input-text-color: var(--bunker);
 }
