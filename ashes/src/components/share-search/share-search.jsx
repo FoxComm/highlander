@@ -2,6 +2,7 @@
 
 /** Libs */
 import _ from 'lodash';
+import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import React, { Component, PropTypes } from 'react';
 
@@ -44,7 +45,7 @@ class ShareSearch extends Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.search.code != nextProps.search.code) {
+    if (nextProps.search.code && this.props.search.code != nextProps.search.code) {
       this.setState({
         firstLoad: true,
         numberUpdatedUsers: 0,
@@ -54,6 +55,12 @@ class ShareSearch extends Component {
     }
 
     const state = { ...this.state };
+
+    if (!this.props.isVisible && nextProps.isVisible) {
+      this.props.setTerm('');
+
+      state.numberUpdatedUsers = 0;
+    }
 
     const numberUpdatedUsers = nextProps.shares.associations.length - this.props.shares.associations.length;
 
@@ -102,7 +109,7 @@ class ShareSearch extends Component {
   }
 
   get associationsList() {
-    const { isFetchingAssociations = false, associations = [], storeAdminId } = this.props.shares;
+    const { shares: { isFetchingAssociations = false, associations = [] }, search } = this.props;
 
     if (isFetchingAssociations) {
       return <WaitAnimation size="s" />;
@@ -115,8 +122,8 @@ class ShareSearch extends Component {
         <p>Shared with <strong>{associationsNumber}</strong> users:</p>
         <ul className="fc-share-search__associations-list">
           {associations.map(item => {
-            const isOwner = !storeAdminId || storeAdminId === item.id;
-            const closeHandler = isOwner ? _.noop : this.props.dissociateSearch.bind(null, this.props.search, item.id);
+            const isOwner = item.id === search.storeAdminId;
+            const closeHandler = isOwner ? _.noop : this.props.dissociateSearch.bind(null, search, item.id);
             const closeButtonClass = isOwner ? '_disabled' : '';
 
             return (
