@@ -49,9 +49,8 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
     def cart: Cart = _cart
 
     private val _cart: Cart = {
-      implicit val au = storeAdminAuthData
-      val payload     = OrderPayloads.CreateCart(customerId = customer.accountId.some)
-      val response    = CartCreator.createCart(storeAdmin, payload).gimme
+      val payload  = OrderPayloads.CreateCart(customerId = customer.accountId.some)
+      val response = CartCreator.createCart(storeAdmin, payload).gimme
       Carts.mustFindByRefNum(response.referenceNumber).gimme
     }
   }
@@ -108,9 +107,6 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   trait Product_Raw extends StoreAdmin_Seed {
 
     val simpleProduct: Product = ({
-
-      implicit val au = storeAdminAuthData
-
       for {
         spd ← * <~ Mvp.insertProduct(ctx.id,
                                      SimpleProductData(title = "Test Product",
@@ -126,10 +122,7 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
 
   trait Sku_Raw extends StoreAdmin_Seed {
 
-    val simpleSku: Sku = Mvp
-      .insertSku(LTree(storeAdminAuthData.token.scope),
-                 ctx.id,
-                 SimpleSku("BY-ITSELF", "A lonely item", 9999))
-      .gimme
+    val simpleSku: Sku =
+      Mvp.insertSku(Scope.current, ctx.id, SimpleSku("BY-ITSELF", "A lonely item", 9999)).gimme
   }
 }

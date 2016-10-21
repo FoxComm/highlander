@@ -150,7 +150,6 @@ class AssignmentsIntegrationTest
   }
 
   trait BulkAssignmentFixture extends Customer_Seed with StoreAdmin_Seed {
-    implicit val au: AU = storeAdminAuthData
     val (order1, order2) = (for {
       cart ← * <~ Carts.create(
                 Factories
