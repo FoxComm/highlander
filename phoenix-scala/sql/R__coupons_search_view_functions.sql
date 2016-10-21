@@ -64,3 +64,18 @@ begin
     end;
 $$ language plpgsql;
 
+create or replace function update_coupons_view_update_codes_fn() returns trigger as $$
+begin
+    update coupons_search_view set
+      codes = q.codes
+      from (select
+              cp.form_id,
+              jsonb_agg(c.code) filter (where c.code is not null) over (partition by cp.form_id)  as codes
+            from coupons as cp
+            left join coupon_codes as c on (cp.form_id = c.coupon_form_id)
+            where c.id = new.id) as q
+    where coupons_search_view.id = q.form_id;
+
+    return null;
+    end;
+$$ language plpgsql;
