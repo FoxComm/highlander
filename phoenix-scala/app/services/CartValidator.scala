@@ -88,17 +88,9 @@ case class CartValidator(cart: Cart)(implicit ec: EC) extends CartValidation {
         val authorizedGiftCardPayments =
           GiftCardAdjustments.authorizedOrderPayments(paymentIds).map(_.debit)
 
-        authorizedStoreCreditPayments.unionAll(authorizedGiftCardPayments)
+        authorizedStoreCreditPayments.unionAll(authorizedGiftCardPayments).sum.result
       } else {
-        def forType(typeFilter: OrderPayment ⇒ Boolean) =
-          payments.filter(typeFilter).map(_.paymentMethodId).toSet
-
-        val availableStoreCreditBalance =
-          StoreCredits.findAllByIds(forType(_.isStoreCredit)).map(_.availableBalance)
-        val availableGiftCardBalance =
-          GiftCards.findAllByIds(forType(_.isGiftCard)).map(_.availableBalance)
-
-        availableStoreCreditBalance.unionAll(availableGiftCardBalance)
+        DBIO.successful(Some(payments.flatMap(_.amount).sum))
       }
     }
 
@@ -108,7 +100,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC) extends CartValidation {
       if (payments.exists(_.isCreditCard)) {
         lift(response)
       } else if (payments.nonEmpty) {
-        cartFunds(payments).sum.result.map {
+        cartFunds(payments).map {
           case Some(funds) if funds >= grandTotal ⇒
             response
 
