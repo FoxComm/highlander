@@ -244,7 +244,7 @@ object Authenticator {
 
     val tokenResult = (for {
       organization ← * <~ Organizations.findByName(payload.org).mustFindOr(LoginFailed)
-      user         ← * <~ Users.findByEmail(payload.email).mustFindOneOr(LoginFailed)
+      user         ← * <~ Users.findByEmail(payload.email.toLowerCase).mustFindOneOr(LoginFailed)
       accessMethod ← * <~ AccountAccessMethods
                       .findOneByAccountIdAndName(user.accountId, "login")
                       .mustFindOr(LoginFailed)
