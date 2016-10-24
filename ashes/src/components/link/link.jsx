@@ -5,9 +5,9 @@ import { Link as ReactRouterLink } from 'react-router';
 import { isPermitted } from 'lib/claims';
 import type { Claims } from 'lib/claims';
 
-type Props = {
+export type LinkProps = {
   actualClaims: Claims,
-  children: Element|Array<Element>,
+  children?: Element|Array<Element>,
   expectedClaims: Claims,
   params: Object,
   to: string,
@@ -19,7 +19,7 @@ type DefaultProps = {
 };
 
 export default class Link extends React.Component {
-  props: Props;
+  props: LinkProps;
 
   static defaultProps: DefaultProps = {
     actualClaims: {},

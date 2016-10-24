@@ -70,6 +70,7 @@ class CustomerItems extends Component {
     return (
       <div className="fc-customer-items">
         <ListPage
+          entity="customers.transactions"
           addTitle="Items"
           documentTitle={`${props.customer.name || 'Customer'} Items`}
           emptyMessage="No purchased items found."

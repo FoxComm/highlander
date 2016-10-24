@@ -24,7 +24,7 @@ import { transitionTo } from 'browserHistory';
 
 const prefixed = prefix('fc-customer-group-dynamic-edit');
 
-const mapStateToProps = state => ({group: state.customerGroups.dynamic.group});
+const mapStateToProps = state => ({ group: state.customerGroups.dynamic.group });
 const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(actions, dispatch),
   fetchRegions: () => dispatch(fetchRegions()),
@@ -54,15 +54,15 @@ export default class EditDynamicGroup extends React.Component {
   }
 
   componentDidMount() {
-    const {params, actions, fetchRegions} = this.props;
+    const { params, actions, fetchRegions } = this.props;
     actions.fetchGroup(params.groupId);
     fetchRegions();
   }
 
   componentDidUpdate() {
-    const {id, isSaved} = this.props.group;
+    const { id, isSaved } = this.props.group;
     if (isSaved) {
-      transitionTo('customer-group', {groupId: id});
+      transitionTo('customer-group', { groupId: id });
       return false;
     }
 
@@ -70,14 +70,14 @@ export default class EditDynamicGroup extends React.Component {
   }
 
   render() {
-    const {group, actions} = this.props;
+    const { group, actions, params } = this.props;
 
     return (
       <NewGroupBase title="Edit Dynamic Customer Group">
         <Form onSubmit={() => actions.saveGroup()}>
           <DynamicGroupEditor />
           <div className={prefixed('form-submits')}>
-            <Link to="customer-group" params={{groupId: group.id}}>Cancel</Link>
+            <Link to="customer-group" params={params}>Cancel</Link>
             <PrimaryButton type="submit" disabled={!group.isValid}>Save Dynamic Group</PrimaryButton>
           </div>
         </Form>

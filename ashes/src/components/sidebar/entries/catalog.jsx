@@ -11,7 +11,7 @@ import type { Claims } from 'lib/claims';
 
 type Props = {
   claims: Claims,
-  routes: Object,
+  routes: Array<Object>,
   collapsed: boolean,
   status: string,
   toggleMenuItem: Function,

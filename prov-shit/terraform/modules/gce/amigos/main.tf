@@ -43,5 +43,4 @@ resource "google_compute_instance" "amigo_server" {
           "sudo su -c 'echo ${count.index + 1} > /var/lib/zookeeper/myid'"
         ]
     }
-
 }

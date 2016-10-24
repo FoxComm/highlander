@@ -34,6 +34,7 @@ const Users = props => {
 
   return (
     <SelectableSearchList
+      entity="users.list"
       emptyMessage="No users found."
       list={props.list}
       renderRow={renderRow}

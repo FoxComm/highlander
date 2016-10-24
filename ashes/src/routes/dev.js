@@ -26,7 +26,7 @@ const getRoutes = (jwt: JWT) => {
 
   const router = new FoxRouter(jwt);
   const devRoutes =
-    router.read('dev', [
+    router.read('dev', {}, [
       router.read('style-guide', { path: 'style-guide', component: StyleGuide }, [
         router.read('style-guide-grid', { component: StyleGuideGrid, isIndex: true }),
         router.read('style-guide-buttons', { path: 'buttons', component: StyleGuideButtons }),

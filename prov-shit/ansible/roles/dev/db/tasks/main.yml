@@ -114,10 +114,6 @@
   cron: name="refresh customer ranking" minute="*/5" job="{{usr_local}}/bin/refresh_customer_ranks.sh > /dev/null"
   sudo: true
 
-- name: Setup Cron to Refresh Products Catalog View
-  cron: name="refresh customer ranking" minute="*" job="{{usr_local}}/bin/refresh_products_catalog.sh > /dev/null"
-  sudo: true
-
 - name: Reload Systemd for Materialized Views
   sudo: yes
   command: systemctl daemon-reload

@@ -1,0 +1,40 @@
+## Stock Items [/v1/inventory/stock-items/{id}]
+
++ Parameters
+    + id: 1 (required, number) - Stock Item ID.
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (StockItemResponse)
+
+### Create [POST /v1/inventory/stock-items]
+
++ Request (application/json)
+    + Attributes (StockItemPayload)
++ Response 201 (application/json)
+    + Attributes (StockItemResponse)
+
+### Increment [PATCH /v1/inventory/stock-items/{id}/increment]
+
+Increment the number of units available to a stock item in the on hand state.
+Units can be added to any type (sellable, nonsellable, preorder, or backorder).
+
++ Parameters
+    + id: 1 (required, number) - Stock Item ID.
++ Request (application/json)
+    + Attributes (IncrementStockItemPayload)
++ Response 204
+
+### Decrement [PATCH /v1/inventory/stock-items/{id}/decrement]
+
+Decrement the number of units available to a stock item in the on hand state.
+Units can be removed from any type (sellable, nonsellable, preorder, or
+backorder).
+
++ Parameters
+    + id: 1 (required, number) - Stock Item ID.
++ Request (application/json)
+    + Attributes (DecrementStockItemPayload)
++ Response 204
+

@@ -8,7 +8,7 @@ version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('pa
 clean:
 	rm -rf ./node_modules
 
-test:
+test: setup
 	@NODE_ENV=$(NODE_ENV) \
 		./node_modules/.bin/gulp test
 
@@ -31,9 +31,11 @@ run-production: setup stop
 	export NODE_ENV=production; nohup ./node_modules/.bin/gulp server 2>&1 &
 
 pre-build: setup
+	./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && ON_SERVER=true ./node_modules/.bin/gulp build
 
 pre-build-production: setup
+	./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true ./node_modules/.bin/gulp build
 
 build: pre-build

@@ -90,6 +90,7 @@ class StoreCreditTransactions extends Component {
                  transactionsSelected={true} />
         <div className="fc-store-credits__list">
           <SelectableSearchList
+            entity="customers.storeCreditTransactions"
             title="Transactions"
             emptyMessage="No transactions found."
             list={this.props.list}

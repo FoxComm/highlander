@@ -17,8 +17,9 @@ case class CordResponseLineItem(imagePath: String,
                                 quantity: Int = 1,
                                 totalPrice: Int,
                                 productFormId: Int,
-                                state: OrderLineItem.State,
-                                attributes: Option[Json] = None)
+                                attributes: Option[Json] = None,
+                                externalId: Option[String],
+                                state: OrderLineItem.State)
     extends ResponseItem
 
 case class CordResponseLineItems(skus: Seq[CordResponseLineItem] = Seq.empty) extends ResponseItem
@@ -32,10 +33,11 @@ object CordResponseLineItems {
       db: DB): DbResultT[CordResponseLineItems] =
     fetch(cordRef, adjustments, cordLineItemsFromOrder)
 
-  def fetchCart(cordRef: String, adjustments: Seq[CordResponseLineItemAdjustment])(
-      implicit ec: EC,
-      db: DB): DbResultT[CordResponseLineItems] =
-    fetch(cordRef, adjustments, cordLineItemsFromCart)
+  def fetchCart(cordRef: String,
+                adjustments: Seq[CordResponseLineItemAdjustment],
+                grouped: Boolean)(implicit ec: EC, db: DB): DbResultT[CordResponseLineItems] =
+    if (grouped) fetch(cordRef, adjustments, cordLineItemsFromCartGrouped)
+    else fetch(cordRef, adjustments, cordLineItemsFromCart)
 
   def fetch(cordRef: String,
             adjustments: Seq[CordResponseLineItemAdjustment],
@@ -60,7 +62,7 @@ object CordResponseLineItems {
                 .toSeq
     } yield result
 
-  def cordLineItemsFromCart(cordRef: String, adjustmentMap: AdjustmentMap)(
+  def cordLineItemsFromCartGrouped(cordRef: String, adjustmentMap: AdjustmentMap)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
@@ -73,6 +75,19 @@ object CordResponseLineItems {
                 //Convert groups to responses.
                 .map {
                   case (_, lineItemGroup) ⇒ createResponseGrouped(lineItemGroup, adjustmentMap)
+                }
+                .toSeq
+    } yield result
+
+  def cordLineItemsFromCart(cordRef: String, adjustmentMap: AdjustmentMap)(
+      implicit ec: EC,
+      db: DB): DbResultT[Seq[CordResponseLineItem]] =
+    for {
+      lineItems ← * <~ CartLineItems.byCordRef(cordRef).lineItems.result
+      result ← * <~ lineItems
+                .map(resultToCartData)
+                .map { data ⇒
+                  createResponse(data, 1)
                 }
                 .toSeq
     } yield result
@@ -130,9 +145,10 @@ object CordResponseLineItems {
       db: DB): DbResultT[CordResponseLineItem] = {
     require(quantity > 0)
 
-    val price = Mvp.priceAsInt(data.skuForm, data.skuShadow)
-    val name  = Mvp.name(data.skuForm, data.skuShadow)
-    val image = Mvp.firstImage(data.skuForm, data.skuShadow).getOrElse(NO_IMAGE)
+    val price      = Mvp.priceAsInt(data.skuForm, data.skuShadow)
+    val name       = Mvp.name(data.skuForm, data.skuShadow)
+    val externalId = Mvp.externalId(data.skuForm, data.skuShadow)
+    val image      = Mvp.firstImage(data.skuForm, data.skuShadow).getOrElse(NO_IMAGE)
 
     val li = CordResponseLineItem(imagePath = image,
                                   sku = data.sku.code,
@@ -140,6 +156,7 @@ object CordResponseLineItems {
                                   state = data.lineItemState,
                                   name = name,
                                   price = price,
+                                  externalId = externalId,
                                   productFormId = data.product.formId,
                                   totalPrice = price,
                                   quantity = quantity)

@@ -67,6 +67,7 @@ export default class GiftCardTransactions extends React.Component {
     return (
       <div className="fc-gift-card-transactions">
         <SelectableSearchList
+          entity="giftCards.transactions"
           emptyMessage="No transactions found."
           list={this.props.list}
           renderRow={this.renderRow}

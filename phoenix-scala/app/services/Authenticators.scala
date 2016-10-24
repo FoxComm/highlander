@@ -259,6 +259,7 @@ object Authenticator {
       //_             ← * <~ adminUsers.map(aus ⇒ checkState(aus))
 
       claimSet     ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
+      _            ← * <~ validateClaimSet(claimSet)
       checkedToken ← * <~ UserToken.fromUserAccount(validatedUser, account, claimSet)
     } yield checkedToken).run()
 
@@ -266,6 +267,14 @@ object Authenticator {
       authTokenLoginResponse(token)
     })
   }
+
+  //A user must have at least some role in an organization to login under that
+  //organization. Otherwise they get an auth failure.
+  private def validateClaimSet(claimSet: Account.ClaimSet): Failures Xor Unit =
+    if (claimSet.roles.isEmpty)
+      Xor.left(AuthFailed(reason = "User has no roles in the organization").single)
+    else
+      Xor.right(Unit)
 
   private def validatePassword[User](user: User,
                                      hashedPassword: String,

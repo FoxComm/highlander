@@ -21,6 +21,7 @@
     - { role: dev/middlewarehouse }
     - { role: dev/greenriver }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
+    - { role: dev/seeder }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

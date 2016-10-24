@@ -1,6 +1,7 @@
+/* @flow weak */
 
 // libs
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, Component, Element } from 'react';
 import { inflect } from 'fleck';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -18,37 +19,46 @@ import type { TUser } from 'modules/user';
 
 import styles from './header.css';
 
-const mapState = state => ({
+type Props = {
+  routes: Array<any>,
+  params: Object,
+  fetchUserInfo: Function,
+  toggleUserMenu: Function,
+  isMenuVisible?: boolean,
+  user: ?TUser,
+};
+
+const mapStateToProps = state => ({
   user: state.user.current,
   isMenuVisible: state.usermenu.isVisible,
 });
 
-@connect(mapState, { ...userActions, toggleUserMenu })
+@connect(mapStateToProps, { ...userActions, toggleUserMenu })
 export default class Header extends React.Component {
+  props: Props;
 
-  static propTypes = {
-    routes: PropTypes.array,
-    params: PropTypes.object,
-    fetchUserInfo: PropTypes.func.isRequired,
-    toggleUserMenu: PropTypes.func.isRequired,
-    isMenuVisible: PropTypes.bool,
-  };
-
-  componentDidMount() {
+  componentDidMount(): void {
     this.props.fetchUserInfo();
   }
 
   @autobind
-  handleUserClick(e) {
+  handleUserClick(e): void {
     e.stopPropagation();
     this.props.toggleUserMenu();
   }
 
-  render() {
+  get initials(): ?Element {
+    const { user } = this.props;
+    if (user) {
+      return <DetailedInitials {...user} />;
+    }
+  }
+
+  render(): Element {
     const props = this.props;
     const user: ?TUser = props.user;
 
-    const name = (_.isEmpty(user) || user.name == null) ? '' : user.name.split(' ')[0];
+    const name = (user == null || _.isEmpty(user) || user.name == null) ? '' : user.name.split(' ')[0];
     return (
       <header role='banner' styleName="header">
         <Breadcrumb routes={props.routes} params={props.params}/>
@@ -57,7 +67,7 @@ export default class Header extends React.Component {
             <NotificationBlock />
           </div>
           <div styleName="user" onClick={this.handleUserClick}>
-            <div styleName="initials"><DetailedInitials {...user} /></div>
+            <div styleName="initials">{this.initials}</div>
             <div styleName="name">{name}</div>
             <div styleName="arrow">
               {props.isMenuVisible ? <i className="icon-chevron-up"/> : <i className="icon-chevron-down"/>}

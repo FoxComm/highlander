@@ -13,7 +13,7 @@ docker: build
 clean:
 	rm -rf ./node_modules
 
-test:
+test: setup
 	npm test
 
 .PHONY: setup build package test docker

@@ -14,7 +14,12 @@
     width: 130px;
     padding-left: 30px;
   }
+
+  & input {
+    text-transform: uppercase;
+  }
 }
+
 .swatch {
   width: 40px;
   height: 40px;

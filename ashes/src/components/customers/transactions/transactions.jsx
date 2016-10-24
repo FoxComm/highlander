@@ -60,6 +60,7 @@ export default class CustomerTransactions extends React.Component {
     return (
       <div className="fc-customer-transactions">
         <ListPage
+          entity="customers.transactions"
           addTitle="Order"
           emptyMessage="No orders found."
           list={this.props.list}

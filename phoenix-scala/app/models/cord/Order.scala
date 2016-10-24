@@ -166,6 +166,8 @@ object Orders
       lineItems ← * <~ CartLineItems.byCordRef(cart.referenceNumber).result
       orderLineItems ← * <~ lineItems.map { cli ⇒
                         val sku = skuMaps.get(cli.skuId).get
+                        println("sku value in Order line169 ")
+                        println(sku)
                         OrderLineItem(cordRef = cart.referenceNumber,
                                       skuId = sku.id,
                                       skuShadowId = sku.shadowId,

@@ -69,6 +69,7 @@ export class Products extends Component {
     return (
       <div className="fc-products-list">
         <SelectableSearchList
+          entity="products.list"
           emptyMessage="No products found."
           list={list}
           renderRow={this.renderRow}

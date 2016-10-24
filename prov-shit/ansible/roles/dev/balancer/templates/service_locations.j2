@@ -24,16 +24,10 @@ location = /internal-auth {
 }
 
 # Proxy to ElasticSearch phoenix index for internal use by /api/search
-location /internal-search-admin/ {
+location /internal-search/ {
     internal;
-    proxy_pass http://search/admin/;
+    proxy_pass http://search/;
 }
-
-location /internal-search-public/ {
-    internal;
-    proxy_pass http://search/public/;
-}
-
 
 # Proxy the internal search location and sanitizes output from ES for external use
 location ~ /api/search/admin/.*/_search {

@@ -12,7 +12,8 @@ defmodule Marketplace.MerchantAccountView do
       phone_number: merchant_account.phone_number,
       business_name: merchant_account.business_name,
       description: merchant_account.description,
-      email_address: merchant_account.email_address
+      email_address: merchant_account.email_address,
+      solomon_id: merchant_account.solomon_id # the corresponding account in solomon
      }
   end
 

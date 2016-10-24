@@ -66,6 +66,7 @@ export default class LiveSearch extends React.Component {
 
   static propTypes = {
     children: PropTypes.node,
+    entity: PropTypes.string.isRequired,
     placeholder: PropTypes.string,
     deleteSearch: PropTypes.func.isRequired,
     saveSearch: PropTypes.func,
@@ -582,7 +583,7 @@ export default class LiveSearch extends React.Component {
 
     return (
       <ShareSearch
-        search={this.currentSearch}
+        entity={this.props.entity}
         isVisible={this.state.isShareVisible}
         title={this.currentSearch.title}
         onClose={this.handleCloseShareSearch}
