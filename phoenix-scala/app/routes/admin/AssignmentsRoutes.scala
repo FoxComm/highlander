@@ -20,6 +20,7 @@ object AssignmentsRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
     activityContext(auth.model) { implicit ac ⇒
+      // Customers Bulk Assignments
       pathPrefix("customers") {
         pathPrefix("assignees") {
           (post & pathEnd) {
@@ -54,6 +55,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
+      // Customers Single Assignments
       pathPrefix("customers" / IntNumber) { accountId ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
@@ -90,6 +92,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
+      // Gift Cards Bulk Assignments
       pathPrefix("gift-cards") {
         pathPrefix("assignees") {
           (post & pathEnd) {
@@ -124,6 +127,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
+      // Gift Cards Single Assignments
       pathPrefix("gift-cards" / giftCardCodeRegex) { code ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
@@ -160,6 +164,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
+      // Orders Bulk Assignments
       pathPrefix("orders") {
         pathPrefix("assignees") {
           (post & pathEnd) {
@@ -194,6 +199,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
+      // Orders Single Assignments
       pathPrefix("orders" / cordRefNumRegex) { refNum ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
@@ -230,6 +236,79 @@ object AssignmentsRoutes {
           }
         }
       } ~
+      // Carts Bulk Assignments
+      pathPrefix("carts") {
+        pathPrefix("assignees") {
+          (post & pathEnd) {
+            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
+              mutateOrFailures {
+                CartAssignmentsManager.assignBulk(auth.model, payload)
+              }
+            }
+          } ~
+          (post & path("delete") & pathEnd) {
+            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
+              mutateOrFailures {
+                CartAssignmentsManager.unassignBulk(auth.model, payload)
+              }
+            }
+          }
+        } ~
+        pathPrefix("watchers") {
+          (post & pathEnd) {
+            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
+              mutateOrFailures {
+                CartWatchersManager.assignBulk(auth.model, payload)
+              }
+            }
+          } ~
+          (post & path("delete") & pathEnd) {
+            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
+              mutateOrFailures {
+                CartWatchersManager.unassignBulk(auth.model, payload)
+              }
+            }
+          }
+        }
+      } ~
+      // Carts Single Assignments
+      pathPrefix("carts" / cordRefNumRegex) { refNum ⇒
+        pathPrefix("assignees") {
+          (get & pathEnd) {
+            getOrFailures {
+              CartAssignmentsManager.list(refNum)
+            }
+          } ~
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            mutateOrFailures {
+              CartAssignmentsManager.assign(refNum, payload, auth.model)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            mutateOrFailures {
+              CartAssignmentsManager.unassign(refNum, assigneeId, auth.model)
+            }
+          }
+        } ~
+        pathPrefix("watchers") {
+          (get & pathEnd) {
+            getOrFailures {
+              CartWatchersManager.list(refNum)
+            }
+          } ~
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            mutateOrFailures {
+              CartWatchersManager.assign(refNum, payload, auth.model)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            mutateOrFailures {
+              CartWatchersManager.unassign(refNum, assigneeId, auth.model)
+            }
+          }
+        }
+      } ~
+      // Returns Bulk Assignments
       pathPrefix("returns") {
         pathPrefix("assignees") {
           (post & pathEnd) {
@@ -264,6 +343,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
+      // Returns Single Assignments
       pathPrefix("returns" / returnRefNumRegex) { refNum ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
@@ -300,6 +380,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
+      // Products Bulk Assignments
       pathPrefix("products") {
         pathPrefix("assignees") {
           (post & pathEnd) {
@@ -334,6 +415,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
+      // Products Single Assignments
       pathPrefix("products" / IntNumber) { productId ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
@@ -370,6 +452,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
+      // SKUs Bulk Assignments
       pathPrefix("skus") {
         pathPrefix("assignees") {
           (post & pathEnd) {
@@ -404,6 +487,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
+      // SKUs Single Assignments
       pathPrefix("skus" / skuCodeRegex) { refNum ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
@@ -440,6 +524,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
+      // Promotions Bulk Assignments
       pathPrefix("promotions") {
         pathPrefix("assignees") {
           (post & pathEnd) {
@@ -474,6 +559,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
+      // Promotions Single Assignments
       pathPrefix("promotions" / IntNumber) { promotionId ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
@@ -510,6 +596,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
+      // Coupons Bulk Assignments
       pathPrefix("coupons") {
         pathPrefix("assignees") {
           (post & pathEnd) {
@@ -544,6 +631,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
+      // Coupons Single Assignments
       pathPrefix("coupons" / IntNumber) { couponId ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {

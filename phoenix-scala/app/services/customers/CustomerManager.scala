@@ -77,7 +77,7 @@ object CustomerManager {
              context: AccountCreateContext)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
       user ← * <~ AccountManager.createUser(name = payload.name,
-                                            email = payload.email.some,
+                                            email = payload.email.toLowerCase.some,
                                             password = payload.password,
                                             context = context,
                                             checkEmail = !payload.isGuest.getOrElse(false))
@@ -112,7 +112,7 @@ object CustomerManager {
     for {
       _        ← * <~ payload.validate
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      _        ← * <~ Users.updateEmailMustBeUnique(payload.email, accountId)
+      _        ← * <~ Users.updateEmailMustBeUnique(payload.email.map(_.toLowerCase), accountId)
       updated  ← * <~ Users.update(customer, updatedUser(customer, payload))
       custData ← * <~ CustomersData.mustFindByAccountId(accountId)
       _        ← * <~ CustomersData.update(custData, updatedCustUser(custData, payload))
@@ -121,7 +121,7 @@ object CustomerManager {
 
   def updatedUser(customer: User, payload: UpdateCustomerPayload): User = {
     customer.copy(name = payload.name.fold(customer.name)(Some(_)),
-                  email = payload.email.orElse(customer.email),
+                  email = payload.email.map(_.toLowerCase).orElse(customer.email),
                   phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))
   }
 

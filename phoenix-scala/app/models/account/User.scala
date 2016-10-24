@@ -29,9 +29,9 @@ case class User(id: Int = 0,
 
   import Validation._
 
-  def mustHaveCredentials: Failures Xor User = (name, email) match {
-    case (Some(n), Some(e)) ⇒ Xor.Right(this)
-    case _                  ⇒ Xor.Left(UserMustHaveCredentials.single)
+  def mustHaveCredentials: Failures Xor User = email match {
+    case Some(e) ⇒ Xor.Right(this)
+    case _       ⇒ Xor.Left(UserMustHaveCredentials.single)
   }
 
   def mustNotBeBlacklisted: Failures Xor User = {

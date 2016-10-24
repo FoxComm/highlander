@@ -71,8 +71,8 @@ object CartResponse {
       )
 
   def buildEmpty(cart: Cart,
-                 customer: Option[User],
-                 customerData: Option[CustomerData]): CartResponse = {
+                 customer: Option[User] = None,
+                 customerData: Option[CustomerData] = None): CartResponse = {
     CartResponse(
         referenceNumber = cart.refNum,
         lineItems = CordResponseLineItems(),
