@@ -53,14 +53,19 @@ class CartIntegrationTest
 
       implicit val au = storeAdminAuthData
 
-      val imgUrl = "testImgUrl";
+      val imgUrl = "testImgUrl"
+      val title  = "Image Path Product"
+
       (for {
-        product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
-        _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+        product ← * <~ Mvp.insertProduct(
+                     ctx.id,
+                     Factories.products.head.copy(title = title, image = imgUrl))
+        _ ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
       } yield {}).gimme
 
       val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
       fullCart.lineItems.skus.size must === (1)
+      fullCart.lineItems.skus.head.name must === (Some(title))
       fullCart.lineItems.skus.head.imagePath must === (imgUrl)
     }
   }

@@ -124,10 +124,7 @@ object CordResponseLineItems {
     require(quantity > 0)
 
     val title = Mvp.title(data.productForm, data.productShadow)
-    val image = Mvp.firstImage(data.skuForm, data.skuShadow) match {
-      case Some(skuImage) ⇒ skuImage
-      case None           ⇒ Mvp.firstImage(data.productForm, data.productShadow).getOrElse(NO_IMAGE)
-    }
+    val image = data.image.getOrElse(NO_IMAGE)
 
     val price      = Mvp.priceAsInt(data.skuForm, data.skuShadow)
     val externalId = Mvp.externalId(data.skuForm, data.skuShadow)

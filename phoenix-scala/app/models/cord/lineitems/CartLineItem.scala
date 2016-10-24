@@ -14,6 +14,7 @@ case class CartLineItemProductData(sku: Sku,
                                    skuShadow: ObjectShadow,
                                    productForm: ObjectForm,
                                    productShadow: ObjectShadow,
+                                   image: Option[String],
                                    lineItem: CartLineItem)
     extends LineItemProductData[CartLineItem] {
 
