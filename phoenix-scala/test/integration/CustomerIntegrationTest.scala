@@ -119,8 +119,6 @@ class CustomerIntegrationTest
 
       "last shipping address" in new StoreAdmin_Seed {
 
-        implicit val au: AU = storeAdminAuthData
-
         val phoneNumbers = Seq("1111111111", "2222222222")
 
         val defaultAddress = Factories.address.copy(isDefaultShipping = true, phoneNumber = None)
@@ -598,7 +596,6 @@ class CustomerIntegrationTest
   }
 
   trait FixtureForRanking extends EmptyCustomerCart_Baked with CreditCardFixture {
-    implicit val au: AU = storeAdminAuthData
     val (order, orderPayment, customer2, charge1, charge2) = (for {
       account ← * <~ Accounts.create(Account())
       customer2 ← * <~ Users.create(

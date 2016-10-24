@@ -1,5 +1,6 @@
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import models.account.Scope
 import models.image._
 import models.objects._
 import models.product._
@@ -110,16 +111,15 @@ class ProductsCatalogViewIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed {
-    implicit val au         = storeAdminAuthData
     val imagePayload        = ImagePayload(None, "http://lorem.png", "lorem.png".some, "Lorem Ipsum".some)
     val defaultAlbumPayload = CreateAlbumPayload("Sample Album", Some(Seq(imagePayload)))
-    val scope               = LTree(au.token.scope)
+    val scope               = Scope.current
 
     val (album, albumImages, product, sku) = (for {
       fullAlbum ← * <~ ObjectUtils.insertFullObject(defaultAlbumPayload.formAndShadow,
                                                     ins ⇒
                                                       Albums.create(
-                                                          Album(scope = LTree(au.token.scope),
+                                                          Album(scope = Scope.current,
                                                                 contextId = ctx.id,
                                                                 shadowId = ins.shadow.id,
                                                                 formId = ins.form.id,

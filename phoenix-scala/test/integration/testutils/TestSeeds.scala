@@ -12,6 +12,7 @@ import services.Authenticator.AuthData
 import services.account.AccountManager
 import slick.driver.PostgresDriver.api._
 import testutils.fixtures.TestFixtureBase
+import utils.aliases._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -33,6 +34,7 @@ trait TestSeeds extends TestFixtureBase {
                        UserToken.fromUserAccount(storeAdmin, storeAdminAccount, storeAdminClaims),
                      model = storeAdmin,
                      account = storeAdminAccount)
+    implicit lazy val au: AU = storeAdminAuthData
 
     private val (_storeAdminAccount, _storeAdmin, _storeAdminUser, _storeAdminClaims) = (for {
       maybeAdmin ← * <~ Users

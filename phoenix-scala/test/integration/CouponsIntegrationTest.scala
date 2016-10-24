@@ -117,9 +117,6 @@ class CouponsIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed {
-
-    implicit val au = storeAdminAuthData
-
     val percentOff   = 10
     val totalAmount  = 0
     val discountForm = CreateDiscountForm(attributes = parse(s"""

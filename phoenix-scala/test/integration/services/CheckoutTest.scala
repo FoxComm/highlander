@@ -44,7 +44,6 @@ class CheckoutTest
   "Checkout" - {
 
     "fails if the cart validator fails" in new EmptyCustomerCart_Baked {
-      implicit val au   = customerAuthData
       val failure       = GeneralFailure("scalac")
       val mockValidator = mock[CartValidation]
       when(mockValidator.validate(isCheckout = false, fatalWarnings = true))
@@ -55,7 +54,6 @@ class CheckoutTest
     }
 
     "fails if the cart validator has warnings" in new EmptyCustomerCart_Baked {
-      implicit val au   = customerAuthData
       val failure       = GeneralFailure("scalac")
       val mockValidator = mock[CartValidation]
       val liftedFailure = DbResultT.failure[CartValidatorResponse](failure)
@@ -197,9 +195,6 @@ class CheckoutTest
   }
 
   trait PaymentFixture extends CustomerAddress_Baked with StoreAdmin_Seed {
-
-    implicit val au = storeAdminAuthData
-
     val (reason, shipMethod) = (for {
       reason     ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)

@@ -1,3 +1,4 @@
+import cats.syntax.order
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.account._
 import models.cord.Order._
@@ -47,9 +48,6 @@ class AllOrdersIntegrationTest
   }
 
   trait StateUpdateFixture extends StoreAdmin_Seed {
-
-    implicit val au = storeAdminAuthData
-
     (for {
       acc  ← * <~ Accounts.create(Account())
       cust ← * <~ Users.create(Factories.customer.copy(accountId = acc.id))

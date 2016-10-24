@@ -10,7 +10,6 @@ import utils.aliases._
 class CordsIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
   "should not override cart's reference_number" in new Customer_Seed with StoreAdmin_Seed {
-    implicit val au: AU = storeAdminAuthData
     Carts
       .create(Cart(referenceNumber = "foo", scope = Scope.current, accountId = customer.accountId))
       .gimme

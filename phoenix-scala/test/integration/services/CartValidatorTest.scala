@@ -140,9 +140,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
     }
   }
 
-  trait Fixture extends EmptyCustomerCart_Baked {
-    implicit val au = storeAdminAuthData
-  }
+  trait Fixture extends EmptyCustomerCart_Baked
 
   trait LineItemsFixture extends Fixture {
 

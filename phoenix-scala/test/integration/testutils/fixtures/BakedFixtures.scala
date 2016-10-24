@@ -27,7 +27,9 @@ trait BakedFixtures extends TestSeeds with RawFixtures {
       with CustomerAddress_Baked
       with CartWithShipAddress_Raw
 
-  trait Order_Baked extends EmptyCartWithShipAddress_Baked with Order_Raw
+  trait Order_Baked extends EmptyCartWithShipAddress_Baked with Order_Raw {
+    override implicit lazy val au = customerAuthData
+  }
 
   trait ProductAndSkus_Baked extends StoreAdmin_Seed with Sku_Raw with Product_Raw
 
