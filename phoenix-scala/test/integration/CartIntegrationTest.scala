@@ -89,6 +89,17 @@ class CartIntegrationTest
         .mustFailWith400(SKUWithNoProductAdded(cart.refNum, simpleSku.code))
     }
 
+    "adding a SKU that's associated through a variant should succeed" in new ProductAndVariants_Baked
+    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+      val (_, _, skus) = productWithVariants
+      val code         = skus.head.code
+
+      val testPayload = Seq(UpdateLineItemsPayload(code, 1))
+      val root        = cartsApi(cart.refNum).lineItems.add(testPayload).asTheResult[CartResponse]
+      val liSkus      = root.lineItems.skus
+      liSkus must have size 1
+    }
+
     "should respond with 404 if cart is not found" in {
       cartsApi("NOPE").lineItems.add(payload).mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
     }
