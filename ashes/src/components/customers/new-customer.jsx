@@ -52,7 +52,7 @@ class NewCustomer extends Component {
       email: this.state.email,
     };
     this.props.createCustomer(payload).then(data => {
-      transitionTo('customer', { customerId: data.id })
+      transitionTo('customer', { customerId: data.id });
     });
   }
 

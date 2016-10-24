@@ -11,7 +11,7 @@ export type NewCustomerPayload = {
 const _createCustomer = createAsyncActions(
   'createCustomer',
   (customerPayload: NewCustomerPayload) => {
-    return Api.post('/customers', customerPayload)
+    return Api.post('/customers', customerPayload);
   }
 );
 
