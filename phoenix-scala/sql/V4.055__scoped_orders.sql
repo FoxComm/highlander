@@ -1,10 +1,13 @@
-alter table orders add column scope exts.ltree not null;
-alter table orders_search_view add column scope exts.ltree not null;
+alter table orders add column scope exts.ltree;
+alter table orders_search_view add column scope exts.ltree;
 alter table orders_search_view add column scopes text[];
 alter table export_line_items add column scope exts.ltree;
 
 update orders set scope = text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
 update orders_search_view set scope = text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
+
+alter table orders alter column scope set not null;
+alter table orders_search_view alter column scope set not null;
 
 create or replace function update_orders_view_from_orders_insert_fn() returns trigger as $$
     begin

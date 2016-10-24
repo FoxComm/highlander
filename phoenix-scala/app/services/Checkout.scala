@@ -100,7 +100,6 @@ case class Checkout(
     cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC, au: AU) {
 
   var externalCalls = new ExternalCalls()
-  val NO_SUBSCOPE = None
 
   def checkout: Result[OrderResponse] = {
     val actions = for {
@@ -112,7 +111,7 @@ case class Checkout(
       _         ← * <~ holdInMiddleWarehouse
       _         ← * <~ authPayments(customer)
       _         ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
-      order     ← * <~ Orders.createFromCart(cart, NO_SUBSCOPE)
+      order     ← * <~ Orders.createFromCart(cart, subScope = None)
       _         ← * <~ fraudScore(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)
       fullOrder ← * <~ OrderResponse.fromOrder(order)
