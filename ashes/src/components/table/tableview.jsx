@@ -112,6 +112,7 @@ TableView.propTypes = {
   emptyMessage: PropTypes.string,
   errorMessage: PropTypes.string,
   className: PropTypes.string,
+  renderHeadIfEmpty: PropTypes.bool,
 };
 
 TableView.defaultProps = {
