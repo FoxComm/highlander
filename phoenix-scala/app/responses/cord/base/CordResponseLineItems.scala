@@ -4,6 +4,7 @@ import models.cord.lineitems.CartLineItems.scope._
 import models.cord.lineitems._
 import models.product.Mvp
 import responses.ResponseItem
+import service.carts.CartLineItemManager
 import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -32,9 +33,10 @@ object CordResponseLineItems {
       db: DB): DbResultT[CordResponseLineItems] =
     fetch(cordRef, adjustments, cordLineItemsFromOrder)
 
-  def fetchCart(cordRef: String,
-                adjustments: Seq[CordResponseLineItemAdjustment],
-                grouped: Boolean)(implicit ec: EC, db: DB): DbResultT[CordResponseLineItems] =
+  def fetchCart(
+      cordRef: String,
+      adjustments: Seq[CordResponseLineItemAdjustment],
+      grouped: Boolean)(implicit ec: EC, db: DB, oc: OC): DbResultT[CordResponseLineItems] =
     if (grouped) fetch(cordRef, adjustments, cordLineItemsFromCartGrouped)
     else fetch(cordRef, adjustments, cordLineItemsFromCart)
 
@@ -63,15 +65,12 @@ object CordResponseLineItems {
 
   def cordLineItemsFromCartGrouped(cordRef: String, adjustmentMap: AdjustmentMap)(
       implicit ec: EC,
+      oc: OC,
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
-      lineItems ← * <~ CartLineItems.byCordRef(cordRef).lineItems.result
-      //Convert to OrderLineItemProductData
+      lineItems ← * <~ CartLineItemManager.getLineItems(cordRef)
       result ← * <~ lineItems
-                .map(resultToCartData)
-                //Group by adjustments/unadjusted
                 .groupBy(lineItem ⇒ groupKey(lineItem, adjustmentMap))
-                //Convert groups to responses.
                 .map {
                   case (_, lineItemGroup) ⇒ createResponseGrouped(lineItemGroup, adjustmentMap)
                 }

@@ -78,7 +78,7 @@ object ProductManager {
   def getProduct(
       productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] =
     for {
-      oldProduct ← * <~ mustFindFullProductById(productId)
+      oldProduct ← * <~ mustFindFullProductByFormId(productId)
       albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.form.id)
 
       fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
@@ -110,7 +110,7 @@ object ProductManager {
     val payloadSkus    = payload.skus.getOrElse(Seq.empty)
 
     for {
-      oldProduct ← * <~ mustFindFullProductById(productId)
+      oldProduct ← * <~ mustFindFullProductByFormId(productId)
 
       mergedAttrs = oldProduct.shadow.attributes.merge(newShadowAttrs)
       updated ← * <~ ObjectUtils.update(oldProduct.form.id,
@@ -155,7 +155,7 @@ object ProductManager {
     val newShadowAttrs = ObjectShadow.fromPayload(payload).attributes
 
     for {
-      productObject ← * <~ mustFindFullProductById(productId)
+      productObject ← * <~ mustFindFullProductByFormId(productId)
       mergedAttrs = productObject.shadow.attributes.merge(newShadowAttrs)
       inactive ← * <~ ObjectUtils.update(productObject.form.id,
                                          productObject.shadow.id,
@@ -350,6 +350,11 @@ object ProductManager {
       contexts   ← * <~ ObjectContexts.filter(_.id.inSet(contextIds)).sortBy(_.id).result
     } yield contexts.map(ObjectContextResponse.build)
 
-  def mustFindFullProductById(productId: Int)(implicit ec: EC, db: DB, oc: OC) =
+  def mustFindFullProductByFormId(
+      productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullObject[Product]] =
     ObjectManager.getFullObject(mustFindProductByContextAndFormId404(oc.id, productId))
+
+  def mustFindFullProductById(
+      productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullObject[Product]] =
+    ObjectManager.getFullObject(mustFindProductByContextAndId404(oc.id, productId))
 }

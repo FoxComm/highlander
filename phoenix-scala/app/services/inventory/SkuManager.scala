@@ -159,6 +159,15 @@ object SkuManager {
   def mustFindFullSkuById(id: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullObject[Sku]] =
     ObjectManager.getFullObject(Skus.filter(_.id === id).mustFindOneOr(SkuNotFound(id)))
 
+  def mustFindFullSkuByIdAndShadowId(
+      skuId: Int,
+      shadowId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullObject[Sku]] =
+    for {
+      shadow ← * <~ ObjectShadows.mustFindById404(shadowId)
+      form   ← * <~ ObjectForms.mustFindById404(shadow.formId)
+      sku    ← * <~ Skus.mustFindById404(skuId)
+    } yield FullObject(sku, form, shadow)
+
   def illuminateSku(
       fullSku: FullObject[Sku])(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
     ImageManager
