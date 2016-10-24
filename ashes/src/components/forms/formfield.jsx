@@ -12,6 +12,7 @@ type FormFieldProps = {
   validator?: string|(value: any) => string;
   children: Element;
   required: ?any;
+  validateOnBlur: ?any;
   maxLength: ?number;
   target: ?string;
   name: ?string;
@@ -165,7 +166,7 @@ export default class FormField extends Component {
   }
 
   @autobind
-  handleInvalid({target}) {
+  handleInvalid({ target }) {
     this.setState({
       isValid: target.validity.valid,
       validationMessage: target.validationMessage,
@@ -173,8 +174,10 @@ export default class FormField extends Component {
   }
 
   @autobind
-  handleBlur({target}) {
-    this.fullValidate(target);
+  handleBlur({ target }) {
+    if (this.props.validateOnBlur) {
+      this.fullValidate(target);
+    }
 
     this.setState({
       touched: true,
@@ -236,7 +239,7 @@ export default class FormField extends Component {
 
   @autobind
   @debounce(200)
-  handleChange({target}) {
+  handleChange({ target }) {
     // validate only if field had touched once (or we have error for this field)
     // so we don't produce error if user start typing for example
     if (!this._willUnmount && (this.state.touched || this.hasError)) {
@@ -281,8 +284,8 @@ export default class FormField extends Component {
     const className = classNames(
       'fc-form-field',
       this.props.className,
-      {'_form-field-error': this.hasError},
-      {'_form-field-required': this.props.required}
+      { '_form-field-error': this.hasError },
+      { '_form-field-required': this.props.required }
     );
     const children = React.cloneElement(this.props.children, {
       key: `fc-form-field-children-${this.props.label}`,
