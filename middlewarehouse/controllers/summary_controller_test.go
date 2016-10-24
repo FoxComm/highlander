@@ -55,7 +55,7 @@ func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
 	sku := "TEST-SKU"
 	suite.service.On("GetSummaryBySKU", sku).Return([]*models.StockItemSummary{{
 		StockItemID: 1,
-		StockItem:   models.StockItem{SKU: sku},
+		StockItem:   models.StockItem{SkuCode: sku},
 		Type:        models.Sellable,
 	}}, nil).Once()
 

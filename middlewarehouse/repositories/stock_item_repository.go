@@ -56,7 +56,7 @@ func (repository *stockItemRepository) GetStockItemById(id uint) (*models.StockI
 
 func (repository *stockItemRepository) GetStockItemsBySKUs(skus []string) ([]*models.StockItem, error) {
 	items := []*models.StockItem{}
-	err := repository.db.Where("sku in (?)", skus).Find(&items).Error
+	err := repository.db.Where("sku_code in (?)", skus).Find(&items).Error
 
 	return items, err
 }
@@ -75,10 +75,10 @@ func (repository *stockItemRepository) GetAFSByID(id uint, unitType models.UnitT
 	return afs, nil
 }
 
-func (repository *stockItemRepository) GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error) {
+func (repository *stockItemRepository) GetAFSBySKU(skuCode string, unitType models.UnitType) (*models.AFS, error) {
 	afs := &models.AFS{}
 
-	if err := repository.getAFSQuery(unitType).Where("si.sku = ?", sku).Find(afs).Error; err != nil {
+	if err := repository.getAFSQuery(unitType).Where("si.sku_code = ?", skuCode).Find(afs).Error; err != nil {
 		return nil, err
 	}
 
@@ -109,7 +109,7 @@ func (repository *stockItemRepository) DeleteStockItem(stockItemId uint) error {
 
 func (repository *stockItemRepository) UpsertStockItem(item *models.StockItem) error {
 	onConflict := fmt.Sprintf(
-		"ON CONFLICT (sku, stock_location_id) DO UPDATE SET default_unit_cost = '%d'",
+		"ON CONFLICT (sku_code, stock_location_id) DO UPDATE SET default_unit_cost = '%d'",
 		item.DefaultUnitCost,
 	)
 
@@ -123,7 +123,7 @@ func (repository *stockItemRepository) UpsertStockItem(item *models.StockItem) e
 func (repository *stockItemRepository) getAFSQuery(unitType models.UnitType) *gorm.DB {
 	return repository.db.
 		Table("stock_items si").
-		Select("si.id as stock_item_id, si.sku, s.afs").
+		Select("si.id as stock_item_id, si.sku_code as sku, s.afs").
 		Joins("left join stock_item_summaries s ON s.stock_item_id=si.id").
 		Where("s.type = ?", unitType)
 }

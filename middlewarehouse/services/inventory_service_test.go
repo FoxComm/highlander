@@ -63,7 +63,7 @@ func (suite *InventoryServiceTestSuite) Test_CreateStockItem() {
 	resp, err := suite.service.CreateStockItem(stockItem)
 
 	suite.Nil(err)
-	suite.Equal(stockItem.SKU, resp.SKU)
+	suite.Equal(stockItem.SkuCode, resp.SkuCode)
 }
 
 func (suite *InventoryServiceTestSuite) Test_GetStockItemById() {
@@ -72,7 +72,7 @@ func (suite *InventoryServiceTestSuite) Test_GetStockItemById() {
 	resp, err := suite.service.GetStockItemById(stockItem.ID)
 
 	suite.Nil(err)
-	suite.Equal(stockItem.SKU, resp.SKU)
+	suite.Equal(stockItem.SkuCode, resp.SkuCode)
 }
 
 func (suite *InventoryServiceTestSuite) Test_CreateExistingStockItem() {
@@ -91,7 +91,7 @@ func (suite *InventoryServiceTestSuite) Test_CreateExistingStockItem() {
 
 	suite.Nil(err)
 	suite.Equal(resp.ID, respUpdate.ID)
-	suite.Equal(resp.SKU, respUpdate.SKU)
+	suite.Equal(resp.SkuCode, respUpdate.SkuCode)
 
 	itemUpdate, err := suite.service.GetStockItemById(stockItem.ID)
 

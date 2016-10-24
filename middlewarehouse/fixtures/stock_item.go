@@ -7,7 +7,8 @@ import (
 func GetStockItem(stockLocationId uint, sku string) *models.StockItem {
 	return &models.StockItem{
 		StockLocationID: stockLocationId,
-		SKU:             sku,
+		SkuID:           1,
+		SkuCode:         sku,
 		DefaultUnitCost: 5000,
 	}
 }

@@ -4,7 +4,8 @@ import "github.com/FoxComm/highlander/middlewarehouse/models"
 
 type StockItem struct {
 	ID              uint   `json:"id"`
-	SKU             string `json:"sku"`
+	SkuID           uint   `json:"skuId"`
+	SkuCode         string `json:"skuCode"`
 	StockLocationID uint   `json:"stockLocationId"`
 	DefaultUnitCost int    `json:"defaultUnitCost"`
 }
@@ -12,7 +13,8 @@ type StockItem struct {
 func NewStockItemFromModel(si *models.StockItem) *StockItem {
 	return &StockItem{
 		ID:              si.ID,
-		SKU:             si.SKU,
+		SkuID:           si.SkuID,
+		SkuCode:         si.SkuCode,
 		StockLocationID: si.StockLocationID,
 		DefaultUnitCost: si.DefaultUnitCost,
 	}

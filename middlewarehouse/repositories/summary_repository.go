@@ -52,7 +52,7 @@ func (repository *summaryRepository) GetSummaryBySKU(sku string) ([]*models.Stoc
 		Preload("StockItem").
 		Preload("StockItem.StockLocation").
 		Joins("left join stock_items si ON stock_item_summaries.stock_item_id=si.id").
-		Where("si.sku = ?", sku).
+		Where("si.sku_code = ?", sku).
 		Order("created_at").
 		Find(&summary).
 		Error

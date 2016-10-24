@@ -41,7 +41,7 @@ func (suite *stockItemControllerTestSuite) TearDownTest() {
 func (suite *stockItemControllerTestSuite) Test_GetStockItems() {
 	suite.service.On("GetStockItems").Return([]*models.StockItem{
 		{
-			SKU:             "SKU",
+			SkuCode:         "SKU",
 			StockLocationID: 1,
 		},
 	}, nil).Once()
@@ -49,7 +49,7 @@ func (suite *stockItemControllerTestSuite) Test_GetStockItems() {
 	res := suite.Get("/stock-items")
 
 	suite.Equal(http.StatusOK, res.Code)
-	suite.Contains(res.Body.String(), `"sku":"SKU"`)
+	suite.Contains(res.Body.String(), `"skuCode":"SKU"`)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -67,14 +67,14 @@ func (suite *stockItemControllerTestSuite) Test_GetStockItems_Error() {
 
 func (suite *stockItemControllerTestSuite) Test_GetStockItemById() {
 	suite.service.On("GetStockItemById", uint(1)).Return(&models.StockItem{
-		SKU:             "SKU",
+		SkuCode:         "SKU",
 		StockLocationID: 1,
 	}, nil).Once()
 
 	res := suite.Get("/stock-items/1")
 
 	suite.Equal(http.StatusOK, res.Code)
-	suite.Contains(res.Body.String(), `"sku":"SKU"`)
+	suite.Contains(res.Body.String(), `"skuCode":"SKU"`)
 	suite.service.AssertExpectations(suite.T())
 }
 
@@ -96,12 +96,12 @@ func (suite *stockItemControllerTestSuite) Test_GetStockItemById_WrongId() {
 }
 
 func (suite *stockItemControllerTestSuite) Test_CreateStockItem() {
-	stockItem := &models.StockItem{SKU: "SKU", StockLocationID: 1, DefaultUnitCost: 1000}
+	stockItem := &models.StockItem{SkuID: 1, SkuCode: "SKU", StockLocationID: 1, DefaultUnitCost: 1000}
 
 	suite.service.On("CreateStockItem", stockItem).Return(stockItem, nil).Once()
 
 	var result models.StockItem
-	jsonStr := `{"sku":"SKU","stockLocationID":1,"defaultUnitCost":1000}`
+	jsonStr := `{"skuId":1,"skuCode":"SKU","stockLocationID":1,"defaultUnitCost":1000}`
 	res := suite.Post("/stock-items", jsonStr, &result)
 
 	suite.Equal(http.StatusCreated, res.Code)
@@ -110,11 +110,11 @@ func (suite *stockItemControllerTestSuite) Test_CreateStockItem() {
 }
 
 func (suite *stockItemControllerTestSuite) Test_CreateStockItem_Error() {
-	stockItem := &models.StockItem{SKU: "SKU", StockLocationID: 1, DefaultUnitCost: 1000}
+	stockItem := &models.StockItem{SkuID: 1, SkuCode: "SKU", StockLocationID: 1, DefaultUnitCost: 1000}
 
 	suite.service.On("CreateStockItem", stockItem).Return(nil, gorm.ErrInvalidTransaction).Once()
 
-	jsonStr := `{"sku":"SKU","stockLocationID":1,"defaultUnitCost":1000}`
+	jsonStr := `{"skuId":1,"skuCode":"SKU","stockLocationID":1,"defaultUnitCost":1000}`
 	res := suite.Post("/stock-items", jsonStr)
 
 	suite.Equal(http.StatusBadRequest, res.Code)

@@ -123,7 +123,7 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 	// get available units for each stock item
 	unitsIds := []uint{}
 	for _, si := range items {
-		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
+		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SkuCode])
 		if err != nil {
 			aggregateErr.Add(err)
 		}
@@ -148,7 +148,7 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 	// update summary
 	stockItemsMap := make(map[uint]int)
 	for _, si := range items {
-		stockItemsMap[si.ID] = skus[si.SKU]
+		stockItemsMap[si.ID] = skus[si.SkuCode]
 	}
 	statusShift := models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold}
 	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)
