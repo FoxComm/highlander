@@ -11,7 +11,8 @@ import { browserHistory, Link } from 'react-router';
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
-import { TextInput, TextInputWithLabel } from 'ui/inputs';
+import { TextInput } from 'ui/inputs';
+import ShowHidePassword from 'ui/forms/show-hide-password';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 
@@ -104,12 +105,6 @@ class Signup extends Component {
       </Link>
     );
 
-    const showLink = (
-      <Link to="" styleName="restore-link">
-        {t('SHOW')}
-      </Link>
-    );
-
     return (
       <div>
         <div styleName="title">{t('SIGN UP')}</div>
@@ -134,15 +129,13 @@ class Signup extends Component {
             />
           </FormField>
           <FormField key="passwd" styleName="form-field">
-            <TextInputWithLabel
-              required
-              styleName="form-field-input"
+            <ShowHidePassword
+              className={styles['form-field-input']}
+              linkClassName={styles['restore-link']}
               placeholder={t('CREATE PASSWORD')}
               name="password"
               value={password}
               onChange={this.onChangePassword}
-              type="password"
-              label={showLink}
             />
           </FormField>
           <Button

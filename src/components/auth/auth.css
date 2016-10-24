@@ -145,6 +145,7 @@
 @media (--small-only) {
   .auth-block {
     lost-column: 1/1;
+    lost-offset: 0;
     margin-top: 10px;
     padding-left: 20px;
     padding-right: 20px;
@@ -155,9 +156,9 @@
   }
 
   .logo {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 20px;
+    width: 104px;
+    height: 56px;
+    margin-bottom: 40px;
   }
 
   .title {
