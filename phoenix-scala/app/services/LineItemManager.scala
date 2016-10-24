@@ -62,7 +62,7 @@ object LineItemManager {
                                image = image,
                                lineItem = orderLineItem)
 
-  private def getProductForSku(sku: Sku)(implicit ec: EC, db: DB) = {
+  private def getProductForSku(sku: Sku)(implicit ec: EC, db: DB) =
     for {
       productId ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
                    case Some(productLink) ⇒
@@ -82,7 +82,6 @@ object LineItemManager {
                  }
       product ← * <~ ProductManager.mustFindFullProductById(productId)
     } yield product
-  }
 
   private def getLineItemImage(sku: Sku, product: Product)(implicit ec: EC, db: DB) =
     for {
