@@ -43,7 +43,12 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
           field("sku", StringType).index("not_analyzed"),
           field("name", StringType).analyzer("autocomplete"),
           field("externalId", StringType).index("not_analyzed"),
-          field("price", IntegerType)
+          field("price", IntegerType),
+     //     field("attributes").nested(
+     //         field (attributes).nested(
+     //             gift
+     //         ) """{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
+     //     )
       ),
       // Payments
       field("payments").nested(
@@ -101,6 +106,7 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
       "shipping_addresses",
       "billing_addresses",
       "assignees",
-      "returns"
+      "returns",
+    //  "attributes"
   )
 }
