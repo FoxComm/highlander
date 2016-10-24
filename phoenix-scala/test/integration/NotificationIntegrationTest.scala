@@ -208,19 +208,20 @@ class NotificationIntegrationTest
     val customerDimension = "customer"
 
     // Basic flow test for 1 admin + 1 subscription + 1 object updates
-    "...must flow!" in new Customer_Seed with StoreAdmin_Seed {
+    "...must flow!" in new Customer_Seed {
       // Setup data
       createDimension.gimme
 
       // Let's go
-      createActivityAndConnections("X")
+      createActivityAndConnections("X", customer.id)
       Activities.gimme must have size 3 //includes customer and admin creation activity
 
       // No notification connection/trail should be created yet, only customer ones
       connections must === (Seq((customerDimension, 3)))
 
-      subscribeToNotifications(dimension = customerDimension)
-      createActivityAndConnections("Y")
+      subscribeToNotifications(dimension = customerDimension,
+                               objectIds = Seq(customer.id.toString))
+      createActivityAndConnections("Y", customer.id)
       // Both connections must be created this time
       connections must contain allOf ((customerDimension, 3), (customerDimension, 4), (Dimension.notification,
                                                                                        4))
@@ -233,7 +234,7 @@ class NotificationIntegrationTest
                   objectIds = Seq("1"),
                   reason = Watching,
                   dimension = customerDimension)
-      createActivityAndConnections("Z")
+      createActivityAndConnections("Z", customer.id)
       Activities.gimme must have size 5
       // No new notification connections must appear
       connections must contain allOf ((customerDimension, 3), (customerDimension, 4),
@@ -246,16 +247,16 @@ class NotificationIntegrationTest
         con ← Connections.filter(_.dimensionId === dim.id)
       } yield (dim.name, con.activityId)).gimme
 
-    def createActivityAndConnections(newName: String) = {
+    def createActivityAndConnections(newName: String, userId: User#Id) = {
       // Trigger activity creation
-      customersApi(1).update(UpdateCustomerPayload(name = newName.some)).mustBeOk()
+      customersApi(userId).update(UpdateCustomerPayload(name = newName.some)).mustBeOk()
       // Emulate Green river calls
       val aId = Activities.sortBy(_.id.desc).gimme.headOption.value.id
       activityTrailsApi
-        .appendActivity(customerDimension, 1, AppendActivity(activityId = aId, data = None))
+        .appendActivity(customerDimension, userId, AppendActivity(activityId = aId, data = None))
         .mustBeOk()
       val payload = CreateNotification(sourceDimension = customerDimension,
-                                       sourceObjectId = "1",
+                                       sourceObjectId = "" + userId,
                                        activityId = aId,
                                        data = None)
       notificationsApi.create(payload).mustBeOk()

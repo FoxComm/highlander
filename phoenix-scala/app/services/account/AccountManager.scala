@@ -1,16 +1,12 @@
 package services.account
 
 import java.time.Instant
-import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import failures.UserFailures._
-import models.cord.{OrderShippingAddresses, Orders}
 import models.account._
-import models.location.Addresses
-import models.shipping.Shipments
-import payloads.UserPayloads._
 import responses.UserResponse._
 import services._
 import slick.driver.PostgresDriver.api._
@@ -124,7 +120,11 @@ object AccountManager {
                }
              })
 
-      user ← * <~ Users.create(User(accountId = account.id, email = email, name = name))
+      user ← * <~ Users.create(
+                User(accountId = account.id,
+                     email = email,
+                     name = name,
+                     scope = LTree(scope.path)))
 
       _ ← * <~ AccountOrganizations.create(
              AccountOrganization(accountId = account.id, organizationId = organization.id))

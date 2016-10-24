@@ -95,8 +95,8 @@ trait HttpSupport
       |}
     """.stripMargin).withFallback(ConfigFactory.load())
 
-  val adminUser    = Factories.storeAdmin.copy(id = 1, accountId = 1)
-  val customerData = Factories.customer.copy(id = 2, accountId = 2)
+  val adminUser    = Factories.storeAdminTemplate.copy(id = 1, accountId = 1)
+  val customerData = Factories.customerTemplate.copy(id = 2, accountId = 2)
 
   def overrideUserAuth: UserAuthenticator =
     AuthAs(adminUser, customerData)

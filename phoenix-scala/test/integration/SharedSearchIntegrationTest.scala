@@ -1,6 +1,8 @@
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
+import failures.UserFailures.OrganizationNotFoundByName
 import models.account._
 import models.admin._
 import models.sharedsearch.SharedSearch._
@@ -344,11 +346,17 @@ class SharedSearchIntegrationTest
 
   trait SecondAdminFixture {
     val secondAccount = Accounts.create(Account()).gimme
+    val scope = (for {
+      org   ← * <~ Organizations.findByName(TENANT).mustFindOr(OrganizationNotFoundByName(TENANT))
+      scope ← * <~ Scopes.mustFindById404(org.scopeId)
+    } yield scope.path).gimme
+
     val secondAdmin = Users
       .create(
-          Factories.storeAdmin.copy(accountId = secondAccount.id,
-                                    name = "Junior".some,
-                                    email = "another@domain.com".some))
+          Factories.storeAdminTemplate.copy(accountId = secondAccount.id,
+                                            name = "Junior".some,
+                                            email = "another@domain.com".some,
+                                            scope = LTree(scope)))
       .gimme
     val secondAdminUser = AdminsData
       .create(

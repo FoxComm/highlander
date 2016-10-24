@@ -9,11 +9,17 @@ import utils.seeds.Seeds.Factories
 
 class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSupport with MockedApis {
 
-  val authedStoreAdmin =
-    User(id = 1, accountId = 1, email = "admin@admin.com".some, name = "Mister Donkey".some)
+  val authedStoreAdmin = User(id = 1,
+                              accountId = 1,
+                              email = "admin@admin.com".some,
+                              name = "Mister Donkey".some,
+                              scope = Scope.empty)
 
-  val authedCustomer =
-    User(id = 2, accountId = 2, email = "donkey@donkey.com".some, name = "Mister Donkey".some)
+  val authedCustomer = User(id = 2,
+                            accountId = 2,
+                            email = "donkey@donkey.com".some,
+                            name = "Mister Donkey".some,
+                            scope = Scope.empty)
 
   override def overrideUserAuth: UserAuthenticator =
     AuthAs(authedStoreAdmin, authedCustomer)
@@ -31,11 +37,17 @@ class RoutesCustomerOnlyIntegrationTest
     with HttpSupport
     with MockedApis {
 
-  val authedStoreAdmin =
-    User(id = 1, accountId = 1, email = "admin@admin.com".some, name = "Mister Donkey".some)
+  val authedStoreAdmin = User(id = 1,
+                              accountId = 1,
+                              email = "admin@admin.com".some,
+                              name = "Mister Donkey".some,
+                              scope = Scope.empty)
 
-  val authedCustomer =
-    User(id = 1, accountId = 1, email = "donkey@donkey.com".some, name = "Mister Donkey".some)
+  val authedCustomer = User(id = 1,
+                            accountId = 1,
+                            email = "donkey@donkey.com".some,
+                            name = "Mister Donkey".some,
+                            scope = Scope.empty)
 
   override def overrideUserAuth: UserAuthenticator =
     AuthAs(authedStoreAdmin, authedCustomer)

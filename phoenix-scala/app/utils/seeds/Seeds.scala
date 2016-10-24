@@ -9,22 +9,20 @@ import scala.concurrent.duration._
 import cats.data.Xor
 import com.pellucid.sealerate
 import com.typesafe.config.Config
-import failures.{Failures, FailuresOps, NotFoundFailure404}
 import failures.UserFailures._
-
-import models.auth.UserToken
+import failures.{Failures, FailuresOps, NotFoundFailure404}
 import models.Reason._
+import models.account._
 import models.activity.ActivityContext
+import models.auth.UserToken
 import models.cord.{OrderPayment, OrderShippingAddress}
 import models.objects.ObjectContexts
 import models.payment.creditcard.CreditCardCharge
 import models.product.SimpleContext
 import models.{Reason, Reasons}
-import models.account._
-import models.auth.Token
+import org.postgresql.ds.PGSimpleDataSource
 import services.Authenticator.AuthData
 import services.account.AccountManager
-import org.postgresql.ds.PGSimpleDataSource
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.DatabaseDef
 import utils.aliases._
@@ -198,8 +196,11 @@ object Seeds {
   val MERCHANT       = "merchant"
   val MERCHANT_EMAIL = "hackerman@yahoo.com"
 
-  def getMerchant(implicit db: DB,
-                  ac: AC): DbResultT[(Organization, User, Account, Account.ClaimSet)] =
+  def merchantAuthData(implicit db: DB): DbResultT[AuthData[User]] =
+    getMerchant.map{case (_, merchant, account, claims) ⇒ AuthData[User](token = UserToken.fromUserAccount(merchant, account, claims),
+      model = merchant, account = account)}
+
+  def getMerchant(implicit db: DB): DbResultT[(Organization, User, Account, Account.ClaimSet)] =
     for {
       organization ← * <~ Organizations
                       .findByName(MERCHANT)
@@ -226,18 +227,11 @@ object Seeds {
     (1 to batchs).foreach { b ⇒
       Console.err.println(s"Generating random batch $b of $batchSize customers")
       val r = for {
-        r ← * <~ getMerchant
-        (organization, merchant, account, claims) = r
-        _ ← * <~ ({
-             implicit val au =
-               AuthData[User](token = UserToken.fromUserAccount(merchant, account, claims),
-                              model = merchant,
-                              account = account)
+        merchantAU ← * <~ merchantAuthData
 
-             for {
-               _ ← * <~ SeedsGenerator.insertRandomizedSeeds(batchSize, appeasementsPerBatch)
-             } yield {}
-           })
+        _ ← * <~ {
+             implicit val au = merchantAU
+             SeedsGenerator.insertRandomizedSeeds(batchSize, appeasementsPerBatch)}
       } yield {}
 
       val result = Await.result(r.runTxn(), (120 * scale).second)
@@ -253,7 +247,7 @@ object Seeds {
     } yield context.id
 
   def createAdmins(implicit db: DB, ec: EC, ac: AC): DbResultT[Int] =
-    Factories.createStoreAdmins
+      Factories.createStoreAdmins
 
   def createStage(adminId: Int)(implicit db: DB, ac: AC): DbResultT[Unit] =
     for {

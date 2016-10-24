@@ -12,8 +12,9 @@ class SlickTest extends IntegrationTestBase {
 
   "supports update with returning query for a single column" in {
     val account = Accounts.create(Account()).gimme
-    val customer =
-      Users.create(Factories.customer.copy(accountId = account.id, name = "Jane".some)).gimme
+    val customer = Users
+      .create(Factories.customerTemplate.copy(accountId = account.id, name = "Jane".some))
+      .gimme
     val update =
       Users.filter(_.id === 1).map(_.name).updateReturningHead(Users.map(_.name), "Sally".some)
 
@@ -23,7 +24,7 @@ class SlickTest extends IntegrationTestBase {
 
   "supports update with returning query for a multiple columns" in {
     val account = Accounts.create(Account()).gimme
-    Users.create(Factories.customer.copy(accountId = account.id, name = "Jane".some)).gimme
+    Users.create(Factories.customerTemplate.copy(accountId = account.id, name = "Jane".some)).gimme
     val update = Users
       .filter(_.id === 1)
       .map { _.name }
@@ -37,7 +38,7 @@ class SlickTest extends IntegrationTestBase {
     val (customer, updatedCustomer) = (for {
       account ← * <~ Accounts.create(Account())
       customer ← * <~ Users.create(
-                    Factories.customer.copy(accountId = account.id, name = "Jane".some))
+                    Factories.customerTemplate.copy(accountId = account.id, name = "Jane".some))
       updatedCustomer ← * <~ Users
                          .filter(_.id === 1)
                          .map(_.name)
@@ -52,7 +53,7 @@ class SlickTest extends IntegrationTestBase {
     val (customer, updatedCustomer) = (for {
       account ← * <~ Accounts.create(Account())
       customer ← * <~ Users.create(
-                    Factories.customer.copy(accountId = account.id, name = "Jane".some))
+                    Factories.customerTemplate.copy(accountId = account.id, name = "Jane".some))
       updatedCustomer ← * <~ Users
                          .filter(_.id === 1)
                          .map(_.name)

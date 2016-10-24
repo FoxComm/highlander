@@ -57,8 +57,8 @@ case class AuthFailWith(challenge: HttpChallenge) extends FakeAuth {
 
 trait AutomaticAuth extends SuiteMixin with HttpSupport { self: FoxSuite ⇒
 
-  val authedUser     = Factories.storeAdmin.copy(id = 1, accountId = 1)
-  val authedCustomer = Factories.customer.copy(id = 2, accountId = 2)
+  val authedUser     = Factories.storeAdminTemplate.copy(id = 1, accountId = 1)
+  val authedCustomer = Factories.customerTemplate.copy(id = 2, accountId = 2)
 
   override def overrideUserAuth: UserAuthenticator =
     AuthAs(authedUser, authedCustomer)

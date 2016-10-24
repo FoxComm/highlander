@@ -1,11 +1,10 @@
 package services.auth
 
-import services.account._
-import cats.implicits._
-import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, UserInfo}
-import models.auth.{UserToken, Token}
-import models.account._
 import failures.UserFailures._
+import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, UserInfo}
+import models.account._
+import models.auth.{Token, UserToken}
+import services.account._
 import utils.FoxConfig._
 import utils.aliases._
 import utils.db._
@@ -32,7 +31,8 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB)
       user ← * <~ Users.create(
                 User(accountId = account.id,
                      email = Some(userInfo.email),
-                     name = Some(userInfo.name)))
+                     name = Some(userInfo.name),
+                     scope = Scope.empty))
 
       _ ← * <~ AccountOrganizations.create(
              AccountOrganization(accountId = account.id, organizationId = organization.id))

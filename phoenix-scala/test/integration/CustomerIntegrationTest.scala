@@ -94,7 +94,8 @@ class CustomerIntegrationTest
     }
 
     "empty phone number is resolved from" - {
-      "default shipping address" in {
+      "default shipping address" in new StoreAdmin_Seed {
+
         val defaultPhoneNumber: String = "1111111111"
 
         val (customer, customerData, region) = (for {

@@ -25,10 +25,11 @@ import utils.seeds.Seeds.Factories
 object RankingSeedsGenerator {
   def fakeJson = JObject()
 
-  def generateCustomer: User =
+  def generateCustomer(implicit au: AU): User =
     User(accountId = 0,
          email = s"${randomString(10)}@email.com".some,
-         name = Some(randomString(10)))
+         name = Some(randomString(10)),
+         scope = Scope.current)
 
   def generateOrderPayment[A <: PaymentMethod with FoxModel[A]](
       orderRef: String,
@@ -80,10 +81,13 @@ object RankingSeedsGenerator {
         Account()
       })
 
-    def insertCustomers(accountIds: Seq[Int]) =
+    def insertCustomers(accountIds: Seq[Int])(implicit au: AU) =
       Users.createAll(accountIds.map { accountId ⇒
         val s = randomString(15)
-        User(accountId = accountId, name = s.some, email = s"$s-$accountId@email.com".some)
+        User(accountId = accountId,
+             name = s.some,
+             email = s"$s-$accountId@email.com".some,
+             scope = Scope.current)
       })
 
     def insertOrders() =
