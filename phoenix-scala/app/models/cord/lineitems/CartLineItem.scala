@@ -12,7 +12,8 @@ import utils.db.{FoxModel, ReturningId, FoxTableQuery, FoxTable}
 case class CartLineItemProductData(sku: Sku,
                                    skuForm: ObjectForm,
                                    skuShadow: ObjectShadow,
-                                   product: ObjectShadow,
+                                   productForm: ObjectForm,
+                                   productShadow: ObjectShadow,
                                    lineItem: CartLineItem)
     extends LineItemProductData[CartLineItem] {
 
@@ -42,23 +43,8 @@ object CartLineItems
 
   def byCordRef(cordRef: String): QuerySeq = filter(_.cordRef === cordRef)
 
-  type FindLineItemResult      = (Sku, ObjectForm, ObjectShadow, ObjectShadow, CartLineItem)
-  type FindLineItemResultMulti = (Skus, ObjectForms, ObjectShadows, ObjectShadows, CartLineItems)
-
   object scope {
     implicit class ExtractLineItems(q: QuerySeq) {
-
-      def lineItems: Query[FindLineItemResultMulti, FindLineItemResult, Seq] =
-        for {
-          skuLineItems  ← q
-          sku           ← skuLineItems.sku
-          skuForm       ← ObjectForms if skuForm.id === sku.formId
-          skuShadow     ← sku.shadow
-          link          ← ProductSkuLinks if link.rightId === sku.id
-          product       ← Products if product.id === link.leftId
-          productShadow ← ObjectShadows if productShadow.id === product.shadowId
-        } yield (sku, skuForm, skuShadow, productShadow, skuLineItems)
-
       // Map [SKU code → quantity in cart/order]
       def countSkus(implicit ec: EC): DBIO[Map[String, Int]] =
         (for {

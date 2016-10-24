@@ -156,12 +156,12 @@ object SkuManager {
              .mustFindOneOr(SkuNotFoundForContext(code, contextId))
     } yield sku
 
-  def mustFindFullSkuById(id: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullObject[Sku]] =
+  def mustFindFullSkuById(id: Int)(implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] =
     ObjectManager.getFullObject(Skus.filter(_.id === id).mustFindOneOr(SkuNotFound(id)))
 
-  def mustFindFullSkuByIdAndShadowId(
-      skuId: Int,
-      shadowId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullObject[Sku]] =
+  def mustFindFullSkuByIdAndShadowId(skuId: Int, shadowId: Int)(
+      implicit ec: EC,
+      db: DB): DbResultT[FullObject[Sku]] =
     for {
       shadow ← * <~ ObjectShadows.mustFindById404(shadowId)
       form   ← * <~ ObjectForms.mustFindById404(shadow.formId)

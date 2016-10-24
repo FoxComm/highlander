@@ -19,7 +19,8 @@ trait LineItemProductData[LI] {
   def sku: Sku
   def skuForm: ObjectForm
   def skuShadow: ObjectShadow
-  def product: ObjectShadow
+  def productForm: ObjectForm
+  def productShadow: ObjectShadow
   def lineItem: LI
 
   def lineItemReferenceNumber: String
@@ -29,7 +30,8 @@ trait LineItemProductData[LI] {
 case class OrderLineItemProductData(sku: Sku,
                                     skuForm: ObjectForm,
                                     skuShadow: ObjectShadow,
-                                    product: ObjectShadow,
+                                    productForm: ObjectForm,
+                                    productShadow: ObjectShadow,
                                     lineItem: OrderLineItem)
     extends LineItemProductData[OrderLineItem] {
   def lineItemReferenceNumber = lineItem.referenceNumber
@@ -108,21 +110,6 @@ object OrderLineItems
 
   def findBySkuId(id: Int): DBIO[Option[OrderLineItem]] =
     filter(_.skuId === id).one
-
-  type FindLineItemResult      = (Sku, ObjectForm, ObjectShadow, ObjectShadow, OrderLineItem)
-  type FindLineItemResultMulti = (Skus, ObjectForms, ObjectShadows, ObjectShadows, OrderLineItems)
-
-  def findLineItemsByCordRef(
-      refNum: String): Query[FindLineItemResultMulti, FindLineItemResult, Seq] =
-    for {
-      lineItems     ← OrderLineItems.filter(_.cordRef === refNum)
-      sku           ← lineItems.sku
-      skuForm       ← ObjectForms if skuForm.id === sku.formId
-      skuShadow     ← lineItems.shadow
-      link          ← ProductSkuLinks if link.rightId === sku.id
-      product       ← Products if product.id === link.leftId
-      productShadow ← ObjectShadows if productShadow.id === product.shadowId
-    } yield (sku, skuForm, skuShadow, productShadow, lineItems)
 
   object scope {
     implicit class OrderLineItemQuerySeqConversions(q: QuerySeq) {

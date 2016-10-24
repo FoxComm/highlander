@@ -334,14 +334,6 @@ object ProductManager {
       .filter(_.formId === formId)
       .mustFindOneOr(ProductFormNotFoundForContext(formId, contextId))
 
-  def mustFindProductByContextAndId404(contextId: Int, productId: Int)(
-      implicit ec: EC,
-      db: DB): DbResultT[Product] =
-    Products
-      .filter(_.contextId === contextId)
-      .filter(_.id === productId)
-      .mustFindOneOr(ProductNotFoundForContext(productId, contextId))
-
   def getContextsForProduct(formId: Int)(implicit ec: EC,
                                          db: DB): DbResultT[Seq[ObjectContextResponse.Root]] =
     for {
@@ -354,7 +346,7 @@ object ProductManager {
       productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullObject[Product]] =
     ObjectManager.getFullObject(mustFindProductByContextAndFormId404(oc.id, productId))
 
-  def mustFindFullProductById(
-      productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullObject[Product]] =
-    ObjectManager.getFullObject(mustFindProductByContextAndId404(oc.id, productId))
+  def mustFindFullProductById(productId: Int)(implicit ec: EC,
+                                              db: DB): DbResultT[FullObject[Product]] =
+    ObjectManager.getFullObject(Products.mustFindById404(productId))
 }

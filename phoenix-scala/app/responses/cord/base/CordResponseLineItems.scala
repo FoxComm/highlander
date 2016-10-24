@@ -4,7 +4,7 @@ import models.cord.lineitems.CartLineItems.scope._
 import models.cord.lineitems._
 import models.product.Mvp
 import responses.ResponseItem
-import service.carts.CartLineItemManager
+import services.LineItemManager
 import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -33,10 +33,9 @@ object CordResponseLineItems {
       db: DB): DbResultT[CordResponseLineItems] =
     fetch(cordRef, adjustments, cordLineItemsFromOrder)
 
-  def fetchCart(
-      cordRef: String,
-      adjustments: Seq[CordResponseLineItemAdjustment],
-      grouped: Boolean)(implicit ec: EC, db: DB, oc: OC): DbResultT[CordResponseLineItems] =
+  def fetchCart(cordRef: String,
+                adjustments: Seq[CordResponseLineItemAdjustment],
+                grouped: Boolean)(implicit ec: EC, db: DB): DbResultT[CordResponseLineItems] =
     if (grouped) fetch(cordRef, adjustments, cordLineItemsFromCartGrouped)
     else fetch(cordRef, adjustments, cordLineItemsFromCart)
 
@@ -53,22 +52,15 @@ object CordResponseLineItems {
       implicit ec: EC,
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
-      li ← * <~ OrderLineItems.findLineItemsByCordRef(cordRef).result
-      //Convert to OrderLineItemProductData
-      result ← * <~ li
-                .map(resultToData)
-                .map { data ⇒
-                  createResponse(data, 1)
-                }
-                .toSeq
+      li     ← * <~ LineItemManager.getOrderLineItems(cordRef)
+      result ← * <~ li.map(data ⇒ createResponse(data, 1))
     } yield result
 
   def cordLineItemsFromCartGrouped(cordRef: String, adjustmentMap: AdjustmentMap)(
       implicit ec: EC,
-      oc: OC,
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
-      lineItems ← * <~ CartLineItemManager.getLineItems(cordRef)
+      lineItems ← * <~ LineItemManager.getCartLineItems(cordRef)
       result ← * <~ lineItems
                 .groupBy(lineItem ⇒ groupKey(lineItem, adjustmentMap))
                 .map {
@@ -81,20 +73,9 @@ object CordResponseLineItems {
       implicit ec: EC,
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
-      lineItems ← * <~ CartLineItems.byCordRef(cordRef).lineItems.result
-      result ← * <~ lineItems
-                .map(resultToCartData)
-                .map { data ⇒
-                  createResponse(data, 1)
-                }
-                .toSeq
+      lineItems ← * <~ LineItemManager.getCartLineItems(cordRef)
+      result    ← * <~ lineItems.map(data ⇒ createResponse(data, 1))
     } yield result
-
-  private def resultToData(result: OrderLineItems.FindLineItemResult): OrderLineItemProductData =
-    (OrderLineItemProductData.apply _).tupled(result)
-
-  private def resultToCartData(result: CartLineItems.FindLineItemResult): CartLineItemProductData =
-    (CartLineItemProductData.apply _).tupled(result)
 
   private val NOT_A_REF = "not_a_ref"
 
@@ -155,10 +136,10 @@ object CordResponseLineItems {
                                   name = name,
                                   price = price,
                                   externalId = externalId,
-                                  productFormId = data.product.formId,
+                                  productFormId = data.productForm.id,
                                   totalPrice = price,
                                   quantity = quantity)
-    ProductManager.getFirstProductImageByFromId(data.product.formId).map {
+    ProductManager.getFirstProductImageByFromId(data.productForm.id).map {
       case Some(url) ⇒ li.copy(imagePath = url)
       case _         ⇒ li
     }
