@@ -185,3 +185,10 @@
     lost-offset: -3/11;
   }
 }
+
+@media (--small-only) {
+  .auth-block {
+    lost-column: 11/11;
+    lost-offset: 0;
+  }
+}
