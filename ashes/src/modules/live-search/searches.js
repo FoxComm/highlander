@@ -333,8 +333,12 @@ function _updateSearchStart(state, idx) {
 }
 
 function _updateSearchSuccess(state, [idx, payload]) {
+  // keep shares array for updated search
+  const shares = _.get(state, ['savedSearches', idx, 'shares']);
+
   return assoc(state,
     ['savedSearches', idx], { ...emptyState, ...payload },
+    ['savedSearches', idx, 'shares'], shares,
     'updateNum', state.updateNum + 1);
 }
 

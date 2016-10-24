@@ -28,6 +28,7 @@ case class Dimension(id: Int = 0, name: String, description: String)
 
 object Dimension {
   val admin        = "admin"
+  val cart         = "cart"
   val coupon       = "coupon"
   val customer     = "customer"
   val giftCard     = "giftCard"

@@ -33,6 +33,7 @@ object Assignment {
     AssignmentType.slickColumn
 
   sealed trait ReferenceType
+  case object Cart      extends ReferenceType
   case object Order     extends ReferenceType
   case object GiftCard  extends ReferenceType
   case object Customer  extends ReferenceType

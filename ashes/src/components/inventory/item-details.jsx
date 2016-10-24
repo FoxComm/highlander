@@ -18,6 +18,7 @@ import type { WarehouseInventorySummary, WarehouseInventoryMap } from 'modules/i
 const mapStateToProps = (state, props) => ({
   inventoryDetails: _.get(state, ['inventory', 'warehouses', 'details', props.params.skuCode], {}),
   fetchState: _.get(state, 'asyncActions.inventory-summary', {}),
+  inventoryUpdated: _.get(state, 'asyncActions.inventory-increment.finished', false),
 });
 
 type Props = {
@@ -46,25 +47,31 @@ class InventoryItemDetails extends Component {
     this.props.fetchSummary(this.props.params.skuCode);
   }
 
+  componentWillReceiveProps(nextProps: Props) {
+    if (!this.props.inventoryUpdated && nextProps.inventoryUpdated) {
+      this.props.fetchSummary(this.props.params.skuCode);
+    }
+  }
+
   get tableColumns() {
     return [
-      {field: 'stockLocation.name', text: 'Warehouse'},
-      {field: 'onHand', text: 'On Hand'},
-      {field: 'onHold', text: 'Hold'},
-      {field: 'reserved', text: 'Reserved'},
-      {field: 'afs', text: 'AFS'},
-      {field: 'afsCost', text: 'AFS Cost Value', type: 'currency'},
+      { field: 'stockLocation.name', text: 'Warehouse' },
+      { field: 'onHand', text: 'On Hand' },
+      { field: 'onHold', text: 'Hold' },
+      { field: 'reserved', text: 'Reserved' },
+      { field: 'afs', text: 'AFS' },
+      { field: 'afsCost', text: 'AFS Cost Value', type: 'currency' },
     ];
   }
 
   get drawerColumns() {
     return [
-      {field: 'type', text: 'Type'},
-      {field: 'onHand', text: 'On Hand'},
-      {field: 'onHold', text: 'Hold'},
-      {field: 'reserved', text: 'Reserved'},
-      {field: 'afs', text: 'AFS'},
-      {field: 'afsCost', text: 'AFS Cost Value', type: 'currency'},
+      { field: 'type', text: 'Type' },
+      { field: 'onHand', text: 'On Hand' },
+      { field: 'onHold', text: 'Hold' },
+      { field: 'reserved', text: 'Reserved' },
+      { field: 'afs', text: 'AFS' },
+      { field: 'afsCost', text: 'AFS Cost Value', type: 'currency' },
     ];
   }
 
