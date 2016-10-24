@@ -9,5 +9,6 @@ func GetStockItem(stockLocationId uint, sku string) *models.StockItem {
 		StockLocationID: stockLocationId,
 		SKU:             sku,
 		DefaultUnitCost: 5000,
+		Scope:           "1",
 	}
 }

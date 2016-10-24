@@ -9,6 +9,7 @@ func GetStockItemUnit(stockItem *models.StockItem) *models.StockItemUnit {
 		UnitCost:    500,
 		Type:        models.Sellable,
 		Status:      models.StatusOnHand,
+		Scope:       "1",
 	}
 }
 
