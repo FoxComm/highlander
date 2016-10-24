@@ -17,6 +17,7 @@ case class CordResponseLineItem(imagePath: String,
                                 quantity: Int = 1,
                                 totalPrice: Int,
                                 productFormId: Int,
+                                attributes: Option[Json] = None,
                                 externalId: Option[String],
                                 state: OrderLineItem.State)
     extends ResponseItem
@@ -126,9 +127,9 @@ object CordResponseLineItems {
     val data = lineItemData.head
 
     //only show reference number for line items that have adjustments.
-    //This is because the adjustment list references the line item by the 
+    //This is because the adjustment list references the line item by the
     //reference number. In the future it would be better if each line item
-    //simply had a list of adjustments instead of the list sitting outside 
+    //simply had a list of adjustments instead of the list sitting outside
     //the line item.
     val referenceNumber =
       if (adjMap.contains(data.lineItemReferenceNumber))

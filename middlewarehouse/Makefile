@@ -8,7 +8,6 @@ BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
 
 prep:
-	rm -rf $(BUILD_ROOT_PATH)
 	mkdir -p $(BUILD_ROOT_PATH)
 	ln -s ${CURDIR} $(BUILD_PATH)
 

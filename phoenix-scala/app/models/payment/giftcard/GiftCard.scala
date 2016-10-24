@@ -13,7 +13,7 @@ import models.cord.OrderPayment
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
-import payloads.GiftCardPayloads.GiftCardCreateByCsr
+import payloads.GiftCardPayloads.{GiftCardCreateByCsr, GiftCardCreatedByCustomer}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -145,6 +145,18 @@ object GiftCard {
         currentBalance = payload.balance
     )
   }
+
+  def buildAppeasementByCustomer(payload: GiftCardCreatedByCustomer, originId: Int): GiftCard =
+    GiftCard(
+        originId = originId,
+        originType = GiftCard.CsrAppeasement,
+        subTypeId = payload.subTypeId,
+        state = GiftCard.Active,
+        currency = payload.currency,
+        originalBalance = payload.balance,
+        availableBalance = payload.balance,
+        currentBalance = payload.balance
+    )
 
   def buildScTransfer(balance: Int, originId: Int, currency: Currency): GiftCard = {
     GiftCard(

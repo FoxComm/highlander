@@ -103,46 +103,50 @@ export default class Cart {
    * @method updateQuantities(itemQuantities: ItemQuantities): Promise<FullOrder>
    */
   updateQuantities(itemQuantities) {
-    const updateSkusPayload = _.map(itemQuantities, (quantity, sku) => {
+    const updateSkusPayload = _.map(itemQuantities, (quantity, sku,properties) => {
       return {
         sku,
-        quantity
+        quantity,
+        properties
       };
     });
-
     return this.api.post(endpoints.cartLineItems, updateSkusPayload).then(normalizeResponse);
   }
 
-  /**
-   * @method updateQty(sku: String, qty: Number): Promise<FullOrder>
-   * Updates quantity for selected item in the cart
-   */
-  updateQty(sku, qty) {
-    return this.updateQuantities({
-      [sku]: qty
-    });
+    /**
+     * Get LineItem Json object to be used as payload
+     * @param sku
+     * @param quantity
+     * @param properties
+     * @returns {{properties: *}}
+     */
+  getLineItemPayload(sku,quantity,properties){
+      return  {
+          sku:sku,
+          quantity: quantity,
+          properties: properties
+      }
   }
 
   /**
    * @method addSku(sku: String, quantity: Number): Promise<FullOrder>
    * Adds sku by defined quantity in the cart.
    */
-  addSku(sku, quantity) {
-    return this.get().then(cart => {
-      const skuData = _.find(_.get(cart, 'lineItems.skus', []), { sku });
-      const existsQuantity = skuData ? skuData.quantity : 0;
-
-      return this.updateQty(sku, existsQuantity + quantity);
-    });
+  addSku(sku, quantity,properties) {
+      updateSkusPayload = getLineItemPayload(sku,quantity,properties)
+      return this.api.patch(endpoints.cartLineItems, updateSkusPayload).then(normalizeResponse);
   }
 
   /**
    * @method removeSku(sku: String): Promise<FullOrder>
    * Removes selected sku from the cart.
    */
-  removeSku(sku) {
-    return this.updateQty(sku, 0);
+  removeSku(sku,properties) {
+    updateSkusPayload = getLineItemPayload(sku,0,properties);
+    return this.api.post(endpoints.cartLineItems, updateSkusPayload).then(normalizeResponse);
+
   }
+
 
   /**
    * @method addCreditCard(creditCardId: Number): Promise<FullOrder>

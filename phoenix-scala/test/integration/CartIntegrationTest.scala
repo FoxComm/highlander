@@ -1,5 +1,4 @@
 import akka.http.scaladsl.model.StatusCodes
-
 import cats.implicits._
 import failures.CartFailures._
 import failures.LockFailures._
@@ -26,6 +25,7 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
+import org.json4s.jackson.JsonMethods._
 
 class CartIntegrationTest
     extends IntegrationTestBase
@@ -79,9 +79,15 @@ class CartIntegrationTest
 
     "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
     with Sku_Raw with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+      val payload = Seq(UpdateLineItemsPayload(simpleSku.code, 1))
+
+      val response = POST(s"v1/orders/${cart.refNum}/line-items", payload)
+
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (SkuWithNoProductAdded(cart.refNum, simpleSku.code).description)
       cartsApi(cart.refNum).lineItems
         .add(Seq(UpdateLineItemsPayload(simpleSku.code, 1)))
-        .mustFailWith400(SKUWithNoProductAdded(cart.refNum, simpleSku.code))
+        .mustFailWith400(SkuWithNoProductAdded(cart.refNum, simpleSku.code))
     }
 
     "should respond with 404 if cart is not found" in {
@@ -91,38 +97,66 @@ class CartIntegrationTest
 
   "PATCH /v1/orders/:refNum/line-items" - {
     val addPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
+    val attributes = Some(
+        parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
+    val addGiftCardPayload    = Seq(UpdateLineItemsPayload("SKU-YAX", 2, attributes))
+    val removeGiftCardPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1, attributes))
 
     "should successfully add line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
       val root = cartsApi(cart.refNum).lineItems.update(addPayload).asTheResult[CartResponse]
       val skus = root.lineItems.skus
       skus must have size 1
-      skus.map(_.sku).toSet must === (Set("SKU-YAX"))
-      skus.map(_.quantity).toSet must === (Set(4))
+      skus.map(_.sku).headOption.value must === ("SKU-YAX")
+      skus.map(_.quantity).headOption.value must === (4)
+    }
+
+    "should successfully add a gift card line item" in new OrderShippingMethodFixture
+    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+      val root =
+        cartsApi(cart.refNum).lineItems.update(addGiftCardPayload).asTheResult[CartResponse]
+      val skus = root.lineItems.skus
+      skus must have size 1
+      skus.map(_.sku).headOption.value must === ("SKU-YAX")
+      skus.map(_.quantity).headOption.value must === (4)
     }
 
     "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
     with Sku_Raw with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
       cartsApi(cart.refNum).lineItems
         .update(Seq(UpdateLineItemsPayload(simpleSku.code, 1)))
-        .mustFailWith400(SKUWithNoProductAdded(cart.refNum, simpleSku.code))
+        .mustFailWith400(SkuWithNoProductAdded(cart.refNum, simpleSku.code))
     }
 
     "should successfully remove line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-
       val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1))
+      val root            = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse]
+      val skus            = root.lineItems.skus
+      skus must have size 1
+      skus.map(_.sku).headOption.value must === ("SKU-YAX")
+      skus.map(_.quantity).headOption.value must === (1)
+    }
 
-      val root = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse]
-
+    "should successfully remove gift card line item" in new OrderShippingMethodFixture
+    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+      val regRoot =
+        cartsApi(cart.refNum).lineItems.update(addGiftCardPayload).asTheResult[CartResponse]
+      val regSkus = regRoot.lineItems.skus
+      regSkus must have size 1
+      regSkus.map(_.sku).headOption.value must === ("SKU-YAX")
+      regSkus.map(_.quantity).headOption.value must === (4)
+      val root =
+        cartsApi(cart.refNum).lineItems.update(removeGiftCardPayload).asTheResult[CartResponse]
       val skus = root.lineItems.skus
       skus must have size 1
-      skus.map(_.sku).toSet must === (Set("SKU-YAX"))
-      skus.map(_.quantity).toSet must === (Set(1))
+      skus.map(_.sku).headOption.value must === ("SKU-YAX")
+      skus.map(_.quantity).headOption.value must === (3)
     }
 
     "removing too many of an item should remove all of that item" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+      val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -3))
       cartsApi(cart.refNum).lineItems
         .update(Seq(UpdateLineItemsPayload("SKU-YAX", -3)))
         .asTheResult[CartResponse]
@@ -136,12 +170,12 @@ class CartIntegrationTest
 
     "should add line items if productId and skuId are different" in new OrderShippingMethodFixture
     with ProductAndSkus_Baked {
+      val addPayload = Seq(UpdateLineItemsPayload("TEST", 1))
       val skus: Seq[CordResponseLineItem] = cartsApi(cart.refNum).lineItems
-        .add(Seq(UpdateLineItemsPayload("TEST", 1)))
+        .update(Seq(UpdateLineItemsPayload("TEST", 1)))
         .asTheResult[CartResponse]
         .lineItems
         .skus
-
       skus must have size 2
       skus.map(_.sku) must contain theSameElementsAs Seq("SKU-YAX", "TEST")
       skus.map(_.quantity) must contain theSameElementsAs Seq(1, 2)

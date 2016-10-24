@@ -1,13 +1,11 @@
 package models.cord.lineitems
-
-import models.cord.lineitems.OrderLineItems._
-import models.inventory.{Skus, Sku}
-import models.objects.{ProductSkuLinks, ObjectShadows, ObjectForms, ObjectShadow, ObjectForm}
-import models.product.Products
+import models.inventory._
+import models.objects._
+import models.product._
+import utils.aliases._
 import shapeless._
-import slick.driver.PostgresDriver.api._
-import utils.aliases.EC
-import utils.db.{FoxModel, ReturningId, FoxTableQuery, FoxTable}
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 case class CartLineItemProductData(sku: Sku,
                                    skuForm: ObjectForm,
@@ -20,7 +18,11 @@ case class CartLineItemProductData(sku: Sku,
   def lineItemState           = OrderLineItem.Cart
 }
 
-case class CartLineItem(id: Int = 0, referenceNumber: String = "", cordRef: String, skuId: Int)
+case class CartLineItem(id: Int = 0,
+                        referenceNumber: String = "",
+                        cordRef: String,
+                        skuId: Int,
+                        attributes: Option[Json] = None)
     extends FoxModel[CartLineItem]
 
 class CartLineItems(tag: Tag) extends FoxTable[CartLineItem](tag, "cart_line_items") {
@@ -28,9 +30,10 @@ class CartLineItems(tag: Tag) extends FoxTable[CartLineItem](tag, "cart_line_ite
   def referenceNumber = column[String]("reference_number")
   def cordRef         = column[String]("cord_ref")
   def skuId           = column[Int]("sku_id")
+  def attributes      = column[Option[Json]]("attributes")
 
   def * =
-    (id, referenceNumber, cordRef, skuId) <> ((CartLineItem.apply _).tupled, CartLineItem.unapply)
+    (id, referenceNumber, cordRef, skuId, attributes) <> ((CartLineItem.apply _).tupled, CartLineItem.unapply)
   def sku = foreignKey(Skus.tableName, skuId, Skus)(_.id)
 }
 

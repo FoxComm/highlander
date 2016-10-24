@@ -72,6 +72,17 @@ object GiftCardService {
       _ ← * <~ LogActivity.gcCreated(admin, giftCard)
     } yield build(gc = giftCard, admin = adminResp)
 
+  def createByUser(admin: User, payload: GiftCardCreatedByCustomer)(implicit ec: EC,
+                                                                    db: DB,
+                                                                    ac: AC): DbResultT[Root] =
+    for {
+      _      ← * <~ payload.validate
+      origin ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = payload.cordRef))
+      adminResp = UserResponse.build(admin).some
+      giftCard ← * <~ GiftCards.create(GiftCard.buildAppeasementByCustomer(payload, origin.id))
+      _        ← * <~ LogActivity.gcCreated(admin, giftCard)
+    } yield build(gc = giftCard, admin = adminResp)
+
   def createBulkByAdmin(admin: User, payload: GiftCardBulkCreateByCsr)(
       implicit ec: EC,
       db: DB,

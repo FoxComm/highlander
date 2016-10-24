@@ -1,3 +1,4 @@
+
 build: clean
 	sbt assembly
 
