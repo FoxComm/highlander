@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux';
 import list from './list';
-import adding from './new';
 
 import _details from './details';
 import addressesDetails from './addresses-details';
@@ -21,7 +20,6 @@ const details = reduceReducers(_details, contacts);
 
 const customerReducer = combineReducers({
   list,
-  adding,
   details,
   transactions,
   addressesDetails,

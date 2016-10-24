@@ -1,49 +1,82 @@
-// libs
-import React, { PropTypes } from 'react';
+// @flow weak
+import _ from 'lodash';
+import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import transitionTo from 'browserHistory';
 
 // redux
-import * as CustomersActions from '../../modules/customers/new';
+import * as CustomersActions from 'modules/customers/new';
 
 // components
 import FormField from '../forms/formfield.jsx';
 import Form from '../forms/form.jsx';
-import { Link } from '../link';
 import SaveCancel from '../common/save-cancel';
+import ErrorAlerts from '../alerts/error-alerts';
 
-@connect((state, ownProps) => ({
-  ...state.customers.adding,
-  ...ownProps.location.query,
-}), CustomersActions)
-export default class NewCustomer extends React.Component {
+import type { NewCustomerPayload } from 'modules/customers/new';
 
-  static propTypes = {
-    createCustomer: PropTypes.func.isRequired,
-    changeFormData: PropTypes.func.isRequired,
-    resetForm: PropTypes.func.isRequired,
-    name: PropTypes.string,
-    email: PropTypes.string,
-    id: PropTypes.number
+type Props = {
+  submitStatus: AsyncStatus,
+  createCustomer: (payload: NewCustomerPayload) => Promise,
+  clearErrors: () => void,
+}
+
+function mapStateToProps(state) {
+  return {
+    submitStatus: _.get(state, 'asyncActions.createCustomer', {}),
+  };
+}
+
+type State = {
+  name: string,
+  email: string,
+}
+
+
+class NewCustomer extends Component {
+  props: Props;
+  state: State = {
+    name: '',
+    email: '',
   };
 
+  componentWillMount() {
+    this.props.clearErrors();
+  }
+
   @autobind
-  submitForm(event) {
-    event.preventDefault();
-    this.props.createCustomer();
+  submitForm() {
+    const payload = {
+      name: this.state.name,
+      email: this.state.email,
+    };
+    this.props.createCustomer(payload).then(data => {
+      transitionTo('customer', { customerId: data.id });
+    });
   }
 
   @autobind
   onChangeValue({ target }) {
-    this.props.changeFormData(target.name, target.value);
+    this.setState({
+      [target.name]: target.value,
+    });
   }
 
-  componentDidMount() {
-    this.props.resetForm();
+  get errors() {
+    const { submitStatus } = this.props;
+    if (submitStatus.err) {
+      return (
+        <li>
+          <ErrorAlerts error={submitStatus.err} />
+        </li>
+      );
+    }
   }
 
   render() {
-    const { name, email } = this.props;
+    const { name, email } = this.state;
+    const { submitStatus } = this.props;
 
     return (
       <div className="fc-customer-create">
@@ -81,9 +114,13 @@ export default class NewCustomer extends React.Component {
                              required />
                     </FormField>
                   </li>
+                  {this.errors}
                   <li className="fc-customer-form-controls">
-                    <SaveCancel cancelTo="customers"
-                                saveText="Save Customer" />
+                    <SaveCancel
+                      cancelTo="customers"
+                      saveText="Save Customer"
+                      isLoading={submitStatus.inProgress}
+                    />
                   </li>
                 </ul>
               </Form>
@@ -94,3 +131,5 @@ export default class NewCustomer extends React.Component {
     );
   }
 }
+
+export default connect(mapStateToProps, CustomersActions)(NewCustomer);
