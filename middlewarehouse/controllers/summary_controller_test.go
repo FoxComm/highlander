@@ -51,35 +51,35 @@ func (suite *summaryControllerTestSuite) Test_GetSummary() {
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
+func (suite *summaryControllerTestSuite) Test_GetSummaryBySkuCode() {
 	sku := "TEST-SKU"
-	suite.service.On("GetSummaryBySKU", sku).Return([]*models.StockItemSummary{{
+	suite.service.On("GetSummaryBySkuCode", sku).Return([]*models.StockItemSummary{{
 		StockItemID: 1,
 		StockItem:   models.StockItem{SkuCode: sku},
 		Type:        models.Sellable,
 	}}, nil).Once()
 
-	res := suite.Get(fmt.Sprintf("/summary/%s", sku))
+	res := suite.Get(fmt.Sprintf("/summary/skuCode/%s", sku))
 
 	suite.Equal(http.StatusOK, res.Code)
 	suite.Contains(res.Body.String(), sku)
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUNoSKU() {
-	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, gorm.ErrRecordNotFound).Once()
+func (suite *summaryControllerTestSuite) Test_GetSummaryBySkuCodeNoSKU() {
+	suite.service.On("GetSummaryBySkuCode", "NO-SKU").Return(nil, gorm.ErrRecordNotFound).Once()
 
-	res := suite.Get("/summary/NO-SKU")
+	res := suite.Get("/summary/skuCode/NO-SKU")
 
 	suite.Equal(http.StatusNotFound, res.Code)
 	suite.Contains(res.Body.String(), "errors")
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUServerError() {
-	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, gorm.ErrUnaddressable).Once()
+func (suite *summaryControllerTestSuite) Test_GetSummaryBySkuCodeServerError() {
+	suite.service.On("GetSummaryBySkuCode", "NO-SKU").Return(nil, gorm.ErrUnaddressable).Once()
 
-	res := suite.Get("/summary/NO-SKU")
+	res := suite.Get("/summary/skuCode/NO-SKU")
 
 	suite.Equal(http.StatusBadRequest, res.Code)
 	suite.Contains(res.Body.String(), "errors")

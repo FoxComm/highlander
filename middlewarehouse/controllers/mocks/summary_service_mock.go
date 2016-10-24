@@ -20,8 +20,18 @@ func (m *SummaryServiceMock) GetSummary() ([]*models.StockItemSummary, error) {
 	return nil, args.Error(1)
 }
 
-func (m *SummaryServiceMock) GetSummaryBySKU(code string) ([]*models.StockItemSummary, error) {
-	args := m.Called(code)
+func (m *SummaryServiceMock) GetSummaryBySkuCode(skuCode string) ([]*models.StockItemSummary, error) {
+	args := m.Called(skuCode)
+
+	if model, ok := args.Get(0).([]*models.StockItemSummary); ok {
+		return model, nil
+	}
+
+	return nil, args.Error(1)
+}
+
+func (m *SummaryServiceMock) GetSummaryBySkuID(skuId uint) ([]*models.StockItemSummary, error) {
+	args := m.Called(skuId)
 
 	if model, ok := args.Get(0).([]*models.StockItemSummary); ok {
 		return model, nil
