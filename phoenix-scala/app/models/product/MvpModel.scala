@@ -532,7 +532,7 @@ object Mvp {
   def priceAsInt(f: ObjectForm, s: ObjectShadow): Int =
     price(f, s).map { case (value, _) ⇒ value }.getOrElse(0)
 
-  def name(f: ObjectForm, s: ObjectShadow): Option[String] = {
+  def title(f: ObjectForm, s: ObjectShadow): Option[String] = {
     ObjectUtils.get("title", f, s) match {
       case JString(title) ⇒ title.some
       case _              ⇒ None

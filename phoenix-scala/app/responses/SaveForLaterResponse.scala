@@ -38,7 +38,7 @@ object SaveForLaterResponse {
   def build(sfl: SaveForLater, sku: Sku, form: ObjectForm, shadow: ObjectShadow): Root = {
 
     val price = Mvp.priceAsInt(form, shadow)
-    val name  = Mvp.name(form, shadow)
+    val name  = Mvp.title(form, shadow)
 
     Root(
         id = sfl.id,

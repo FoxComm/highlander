@@ -203,17 +203,6 @@ object ProductManager {
       )
   }
 
-  def getFirstProductImageByFromId(formId: ObjectForm#Id)(implicit ec: EC,
-                                                          db: DB): DbResultT[Option[String]] =
-    for {
-      products ← * <~ Products.filterByFormId(formId).result
-      albums   ← * <~ products.take(1).map(ProductAlbumLinks.queryRightByLeft)
-      images ← * <~ albums.flatten
-                .take(1)
-                .map(album ⇒ AlbumImageLinks.queryRightByLeft(album.model))
-      productImage ← * <~ images.flatten.take(1).map(i ⇒ ImageResponse.build(i).src).headOption
-    } yield productImage
-
   private def getVariantsWithRelatedSkus(variants: Seq[FullVariant])(
       implicit ec: EC,
       db: DB,

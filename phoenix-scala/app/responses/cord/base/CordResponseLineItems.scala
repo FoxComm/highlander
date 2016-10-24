@@ -101,7 +101,7 @@ object CordResponseLineItems {
   private def createResponseGrouped(lineItemData: Seq[CartLineItemProductData],
                                     adjMap: Map[String, CordResponseLineItemAdjustment])(
       implicit ec: EC,
-      db: DB): DbResultT[CordResponseLineItem] = {
+      db: DB): CordResponseLineItem = {
 
     val data = lineItemData.head
 
@@ -119,30 +119,29 @@ object CordResponseLineItems {
                    lineItemData.length)
   }
 
-  private def createResponse(data: LineItemProductData[_], quantity: Int)(
-      implicit ec: EC,
-      db: DB): DbResultT[CordResponseLineItem] = {
+  private def createResponse(data: LineItemProductData[_],
+                             quantity: Int)(implicit ec: EC, db: DB): CordResponseLineItem = {
     require(quantity > 0)
 
-    val price      = Mvp.priceAsInt(data.skuForm, data.skuShadow)
-    val name       = Mvp.name(data.skuForm, data.skuShadow)
-    val externalId = Mvp.externalId(data.skuForm, data.skuShadow)
-    val image      = Mvp.firstImage(data.skuForm, data.skuShadow).getOrElse(NO_IMAGE)
-
-    val li = CordResponseLineItem(imagePath = image,
-                                  sku = data.sku.code,
-                                  referenceNumber = data.lineItemReferenceNumber,
-                                  state = data.lineItemState,
-                                  name = name,
-                                  price = price,
-                                  externalId = externalId,
-                                  productFormId = data.productForm.id,
-                                  totalPrice = price,
-                                  quantity = quantity)
-    ProductManager.getFirstProductImageByFromId(data.productForm.id).map {
-      case Some(url) ⇒ li.copy(imagePath = url)
-      case _         ⇒ li
+    val title = Mvp.title(data.productForm, data.productShadow)
+    val image = Mvp.firstImage(data.skuForm, data.skuShadow) match {
+      case Some(skuImage) ⇒ skuImage
+      case None           ⇒ Mvp.firstImage(data.productForm, data.productShadow).getOrElse(NO_IMAGE)
     }
+
+    val price      = Mvp.priceAsInt(data.skuForm, data.skuShadow)
+    val externalId = Mvp.externalId(data.skuForm, data.skuShadow)
+
+    CordResponseLineItem(imagePath = image,
+                         sku = data.sku.code,
+                         referenceNumber = data.lineItemReferenceNumber,
+                         state = data.lineItemState,
+                         name = title,
+                         price = price,
+                         externalId = externalId,
+                         productFormId = data.productForm.id,
+                         totalPrice = price,
+                         quantity = quantity)
   }
 }
 
