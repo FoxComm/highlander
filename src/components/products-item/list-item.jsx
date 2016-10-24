@@ -6,9 +6,8 @@ import styles from './list-item.css';
 import { Link } from 'react-router';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
-import { addLineItem, deleteLineItem } from 'modules/cart';
+import { addLineItem, toggleCart } from 'modules/cart';
 import { connect } from 'react-redux';
-import cx from 'classnames';
 
 import Currency from 'ui/currency';
 
@@ -32,20 +31,10 @@ type Product = {
   salePrice: string,
   currency: string,
   albums: ?Array<Album>,
-  itemAddedToCart: boolean,
   skus: Array<String>,
   addLineItem: Function,
   deleteLineItem: Function,
-};
-
-const mapStateToProps = (state, props) => {
-  const lineItems = _.get(state, ['cart', 'skus'], []);
-  const skuId = props.skus[0];
-  const itemAddedToCart = !!_.find(lineItems, item => item.sku === skuId);
-
-  return {
-    itemAddedToCart,
-  };
+  toggleCart: Function,
 };
 
 class ListItem extends React.Component {
@@ -58,26 +47,17 @@ class ListItem extends React.Component {
   @autobind
   addOrRemoveFromCart () {
     const skuId = this.props.skus[0];
+    const quantity = 1;
 
-    if (this.props.itemAddedToCart) {
-      this.props.deleteLineItem(skuId).catch(ex => {
+    this.props.addLineItem(skuId, quantity)
+      .then(() => {
+        this.props.toggleCart();
+      })
+      .catch(ex => {
         this.setState({
           error: ex,
         });
       });
-    } else {
-      const quantity = 1;
-
-      this.props.addLineItem(skuId, quantity)
-        .then(() => {
-
-        })
-        .catch(ex => {
-          this.setState({
-            error: ex,
-          });
-        });
-    }
   }
 
   render(): HTMLElement {
@@ -91,10 +71,6 @@ class ListItem extends React.Component {
     } = this.props;
 
     const previewImageUrl = _.get(albums, [0, 'images', 0, 'src']);
-
-    const btnCls = cx(styles['add-to-cart-btn'], {
-      [styles['item-added']]: this.props.itemAddedToCart,
-    });
 
     return (
       <div styleName="list-item">
@@ -120,14 +96,11 @@ class ListItem extends React.Component {
             </div>
 
             <div styleName="add-to-cart" onClick={this.addOrRemoveFromCart}>
-              <button className={btnCls}>
-                <span styleName="add-icon">{this.props.itemAddedToCart ? '✓' : '+'}</span>
+              <button styleName="add-to-cart-btn">
+                <span styleName="add-icon">+</span>
               </button>
-
-              {!this.props.itemAddedToCart &&
-                <div styleName="add-title-expanded">ADD TO CART</div>}
+              <div styleName="add-title-expanded">ADD TO CART</div>
             </div>
-
           </div>
         </div>
       </div>
@@ -135,7 +108,7 @@ class ListItem extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, {
+export default connect(null, {
   addLineItem,
-  deleteLineItem,
+  toggleCart,
 })(ListItem);
