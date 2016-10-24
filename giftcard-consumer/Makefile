@@ -1,6 +1,6 @@
 
 build:
-	go build -o shipstation main.go
+	go build -o giftcard-consumer main.go
 
 build-linux:
 	GOOS=linux $(MAKE) build

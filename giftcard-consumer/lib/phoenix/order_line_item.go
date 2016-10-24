@@ -7,4 +7,5 @@ type OrderLineItem struct {
 	Price           int
 	State           string
 	ReferenceNumber string `json:"reference_number"`
+    attributes      string
 }
