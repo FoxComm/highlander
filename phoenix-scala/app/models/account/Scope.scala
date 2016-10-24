@@ -46,8 +46,7 @@ object Scope {
   //A subscope is a child if the scope is a prefix match and where it matches
   //is a '.' since scopes are seperated by period characters.
   def isScopeOrChild(scope: String, possibleSubscope: String): Boolean =
-    scope.equals(possibleSubscope) ||
-      (possibleSubscope.startsWith(scope) && possibleSubscope.charAt(scope.length) == '.')
+    scope.equals(possibleSubscope) || possibleSubscope.startsWith(scope + ".")
 }
 
 class Scopes(tag: Tag) extends FoxTable[Scope](tag, "scopes") {
