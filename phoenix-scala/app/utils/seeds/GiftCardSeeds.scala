@@ -1,8 +1,7 @@
 package utils.seeds
 
-import models.cord.{Cord, Cords}
-
 import scala.concurrent.ExecutionContext.Implicits.global
+
 import models.payment.giftcard.GiftCard.{buildAppeasement ⇒ build}
 import models.payment.giftcard._
 import models.{Note, Notes}
