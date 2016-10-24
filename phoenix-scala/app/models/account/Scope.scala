@@ -17,6 +17,8 @@ case class Scope(id: Int = 0, source: String, parentPath: Option[String]) extend
 
 object Scope {
 
+  def empty: LTree = LTree("")
+
   def current(implicit au: AU): LTree = LTree(au.token.scope)
 
   def getScopeOrSubscope(potentialSubscope: Option[String])(implicit ec: EC,

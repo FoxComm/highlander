@@ -4,13 +4,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.implicits._
 import models.account._
-import models.customer._
-import services.account._
-import services.customers._
 import models.{Note, Notes}
 import payloads.CustomerPayloads.CreateCustomerPayload
-import utils.db._
+import services.account._
+import services.customers._
 import utils.aliases._
+import utils.db._
 
 trait CustomerSeeds {
 
@@ -54,29 +53,34 @@ trait CustomerSeeds {
     User(accountId = 0,
          name = "Yax Man".some,
          email = "yax@yax.com".some,
-         phoneNumber = Some("123-444-4388"))
+         phoneNumber = Some("123-444-4388"),
+         scope = Scope.empty)
 
   def usCustomer2 =
     User(accountId = 0,
          email = "adil@adil.com".some,
          phoneNumber = "123-444-0909".some,
-         isDisabled = true) // FIXME: `disabledBy` is not required for `isDisabled`=true
+         isDisabled = true,
+         scope = Scope.empty) // FIXME: `disabledBy` is not required for `isDisabled`=true
 
   def canadaCustomer =
     User(accountId = 100, //hack to make one guest
          email = "iamvery@sorry.com".some,
          name = "John Nicholson".some,
-         phoneNumber = Some("858-867-5309"))
+         phoneNumber = Some("858-867-5309"),
+         scope = Scope.empty)
 
   def rowCustomer =
     User(accountId = 0,
          email = "fran@absinthelovers.cz".some,
          name = "František Materna".some,
-         phoneNumber = Some("883-444-4321"))
+         phoneNumber = Some("883-444-4321"),
+         scope = Scope.empty)
 
   def customers: Seq[User] = Seq(usCustomer1, usCustomer2, canadaCustomer, rowCustomer)
 
-  def customer: User = usCustomer1
+  def customerTemplate: User          = usCustomer1
+  def customer(implicit au: AU): User = customerTemplate.copy(scope = Scope.current)
 
   def customerNotes: Seq[Note] = {
     def newNote(body: String) =

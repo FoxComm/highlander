@@ -5,15 +5,14 @@ import java.io.File
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import com.github.tototoshi.csv._
 import models.account._
 import models.admin._
-import services.StoreAdminManager
-import failures.UserFailures._
-import utils.db._
-import utils.aliases._
-
 import payloads.StoreAdminPayloads.CreateStoreAdminPayload
+import services.StoreAdminManager
+import utils.aliases._
+import utils.db._
 
 trait StoreAdminSeeds {
 
@@ -43,7 +42,8 @@ trait StoreAdminSeeds {
     val reader = CSVReader.open(new File("gatling-classes/data/store_admins.csv"))
     val admins = reader.all.drop(1).collect {
       case name :: email :: password :: org :: role :: Nil ⇒ {
-        val user = User(accountId = 0, name = name.some, email = email.some)
+        //scope is not used by createStoreAdmin so fill it with any value.
+        val user = User(accountId = 0, name = name.some, email = email.some, scope = LTree(""))
         createStoreAdmin(user, password, org, List(role), AdminData.Active, None)
       }
     }
@@ -63,9 +63,13 @@ trait StoreAdminSeeds {
       case None    ⇒ scala.io.StdIn.readLine(s"Enter password for new admin $username: ")
     }
 
-    val user = User(accountId = 0, name = username.some, email = email.some)
+    //scope is not used by createStoreAdmin so fill it with any value.
+    val user = User(accountId = 0, name = username.some, email = email.some, scope = LTree(""))
     createStoreAdmin(user, pw, org, roles, AdminData.Active, None)
   }
 
-  def storeAdmin = User(accountId = 0, name = "admin".some, email = "admin@admin.com".some)
+  def storeAdminTemplate =
+    User(accountId = 0, name = "admin".some, email = "admin@admin.com".some, scope = Scope.empty)
+
+  def storeAdmin(implicit au: AU) = storeAdminTemplate.copy(scope = Scope.current)
 }

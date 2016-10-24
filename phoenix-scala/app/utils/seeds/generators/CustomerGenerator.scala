@@ -1,20 +1,18 @@
 package utils.seeds.generators
 
-import models.account.User
-import GeneratorUtils.randomString
-import utils.Passwords.hashPassword
-
 import cats.implicits._
 import faker._
+import models.account.{Scope, User}
+import utils.aliases.AU
 
 trait CustomerGenerator {
 
-  def generateCustomer: User = {
+  def generateCustomer(implicit au: AU): User = {
     val name = Name.name
-    User(accountId = 0, email = generateEmail(name).some, name = name.some)
+    User(accountId = 0, email = generateEmail(name).some, name = name.some, scope = Scope.current)
   }
 
-  def generateCustomers(total: Int): Seq[User] =
+  def generateCustomers(total: Int)(implicit au: AU): Seq[User] =
     (1 to total) map { c ⇒
       generateCustomer
     }

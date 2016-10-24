@@ -4,16 +4,18 @@ import java.time.Instant
 
 import cats.data.{Validated, ValidatedNel, Xor}
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures.UserFailures._
 import failures._
 import shapeless._
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import utils.Validation
 import utils.aliases._
 import utils.db._
 
 case class User(id: Int = 0,
                 accountId: Int,
+                scope: LTree,
                 name: Option[String] = None,
                 email: Option[String] = None,
                 phoneNumber: Option[String] = None,
@@ -72,6 +74,7 @@ object User {
 class Users(tag: Tag) extends FoxTable[User](tag, "users") {
   def id            = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def accountId     = column[Int]("account_id")
+  def scope         = column[LTree]("scope")
   def name          = column[Option[String]]("name")
   def email         = column[Option[String]]("email")
   def phoneNumber   = column[Option[String]]("phone_number")
@@ -86,6 +89,7 @@ class Users(tag: Tag) extends FoxTable[User](tag, "users") {
   def * =
     (id,
      accountId,
+     scope,
      name,
      email,
      phoneNumber,

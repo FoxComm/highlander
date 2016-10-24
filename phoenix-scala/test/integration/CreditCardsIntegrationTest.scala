@@ -107,7 +107,7 @@ class CreditCardsIntegrationTest
       Mockito.verify(stripeWrapperMock, never()).createCustomer(m.any())
     }
 
-    "creates cards for different customers correctly" in {
+    "creates cards for different customers correctly" in new StoreAdmin_Seed {
       val customer1 = new Customer_Seed {}.customer
       val account2  = Accounts.create(Account()).gimme
       val customer2 = Users
@@ -250,7 +250,7 @@ class CreditCardsIntegrationTest
     }
 
     // This test is pending because currently there is no way to auth as another customer midtest
-    "creates cards for different customers correctly" in {
+    "creates cards for different customers correctly" in new StoreAdmin_Seed {
       pending
 
       val customer1 = new Customer_Seed {}.customer

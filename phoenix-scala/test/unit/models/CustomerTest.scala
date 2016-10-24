@@ -11,20 +11,20 @@ class CustomerTest extends TestBase {
     ".validate" - {
       "when isGuest" - {
         "fails if name contains '@' character" in {
-          val customer = Factories.customer.copy(name = Some("hi@there"))
+          val customer = Factories.customerTemplate.copy(name = Some("hi@there"))
           val result   = customer.validate
           result mustBe 'invalid
           invalidValue(result) must includeMatchesFailure("name", User.namePattern)
         }
 
         "succeeds" in {
-          Factories.customer.validate mustBe 'valid
+          Factories.customerTemplate.validate mustBe 'valid
         }
       }
 
       "when NOT isGuest" - {
         "fails" in {
-          val c = Factories.customer
+          val c = Factories.customerTemplate
 
           val customers = Table(
               ("users", "errors"),
@@ -41,7 +41,7 @@ class CustomerTest extends TestBase {
         }
 
         "succeeds" in {
-          Factories.customer.validate mustBe 'valid
+          Factories.customerTemplate.validate mustBe 'valid
         }
       }
     }

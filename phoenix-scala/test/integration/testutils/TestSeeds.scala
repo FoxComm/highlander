@@ -12,7 +12,7 @@ import services.Authenticator.AuthData
 import services.account.AccountManager
 import slick.driver.PostgresDriver.api._
 import testutils.fixtures.TestFixtureBase
-import utils.aliases._
+import utils.aliases.AU
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -38,17 +38,17 @@ trait TestSeeds extends TestFixtureBase {
 
     private val (_storeAdminAccount, _storeAdmin, _storeAdminUser, _storeAdminClaims) = (for {
       maybeAdmin ← * <~ Users
-                    .findByEmail(Factories.storeAdmin.email.getOrElse(""))
+                    .findByEmail(Factories.storeAdminTemplate.email.getOrElse(""))
                     .result
                     .headOption
 
       ad ← * <~ (maybeAdmin match {
                 case Some(admin) ⇒ DbResultT.pure(admin)
                 case None ⇒
-                  Factories.createStoreAdmin(user = Factories.storeAdmin,
+                  Factories.createStoreAdmin(user = Factories.storeAdminTemplate,
                                              password = "password",
                                              state = AdminData.Active,
-                                             org = "tenant",
+                                             org = TENANT,
                                              roles = List("admin"),
                                              author = None)
               })
@@ -62,7 +62,7 @@ trait TestSeeds extends TestFixtureBase {
 
   }
 
-  trait Customer_Seed {
+  trait Customer_Seed extends StoreAdmin_Seed {
     def account: Account                  = _account
     def customer: User                    = _customer
     def customerData: CustomerData        = _customerData

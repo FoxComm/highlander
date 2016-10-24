@@ -34,12 +34,12 @@ object CartCreator {
     def createCartAndGuest(email: String): DbResultT[CartResponse] =
       for {
         account ← * <~ Accounts.create(Account())
-        guest   ← * <~ Users.create(User(accountId = account.id, email = email.some))
+        scope   ← * <~ Scope.getScopeOrSubscope(payload.scope)
+        guest   ← * <~ Users.create(User(accountId = account.id, email = email.some, scope = scope))
         custData ← * <~ CustomersData.create(
                       CustomerData(userId = guest.id, accountId = account.id, isGuest = true))
-        scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
-        cart  ← * <~ Carts.create(Cart(accountId = account.id, scope = scope))
-        _     ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest, custData))
+        cart ← * <~ Carts.create(Cart(accountId = account.id, scope = scope))
+        _    ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest, custData))
       } yield root(cart, guest, custData)
 
     for {
