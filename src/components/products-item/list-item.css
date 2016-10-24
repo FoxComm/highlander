@@ -94,7 +94,6 @@
 
 .price-line {
   margin-top: 10px;
-  display: table;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -110,12 +109,6 @@
   letter-spacing: 1.5px;
 }
 
-.add-to-cart-btn-hover {
-  background-color: #3D2228;
-  color: white;
-  cursor: pointer;
-}
-
 .add-to-cart {
   display: table;
 
@@ -125,7 +118,6 @@
     }
 
     & .add-to-cart-btn {
-      /*composes: add-to-cart-btn-hover;*/
       background-color: #3D2228;
       color: white;
       cursor: pointer;
@@ -157,7 +149,6 @@
   }
 
   &:hover {
-    /*composes: add-to-cart-btn-hover;*/
     background-color: #3D2228;
     color: white;
     cursor: pointer;
@@ -176,4 +167,38 @@
   padding-right: 10px;
   padding-top: 2px;
   cursor: pointer;
+}
+
+@media (--small-only) {
+  .title {
+    font-weight: 400;
+    font-size: 15px;
+    color: #212121;
+    letter-spacing: 0.52px;
+  }
+
+  .description {
+    font-size: 13px;
+    letter-spacing: 0px;
+  }
+}
+
+@media (--medium) {
+  .title {
+    font-size: 20px;
+    letter-spacing: 0.7px;
+  }
+
+}
+
+@media (--large), (--x-large) {
+  .title {
+    font-size: 26px;
+    letter-spacing: 0.7px;
+  }
+
+  .description {
+    font-size: 15px;
+    letter-spacing: 0px;
+  }
 }

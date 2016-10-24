@@ -1,14 +1,20 @@
 /* @flow weak */
 
+// libs
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import styles from './products-list.css';
-import ListItem from '../products-item/list-item';
-import Dropdown from 'ui/dropdown';
 import { browserHistory } from 'react-router';
 import { autobind } from 'core-decorators';
 
+// styles
+import styles from './products-list.css';
+
+// components
+import ListItem from '../products-item/list-item';
+import Dropdown from 'ui/dropdown';
+
+// types
 import type { HTMLElement } from 'types';
 import type { Product } from 'modules/products';
 

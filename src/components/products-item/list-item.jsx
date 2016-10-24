@@ -89,7 +89,7 @@ class ListItem extends React.Component {
           <h1 styleName="title" alt={title}>
             {title}
           </h1>
-          <h2 styleName="description">{description}</h2>
+          <h2 styleName="description">{/* serving size */}</h2>
           <div styleName="price-line">
             <div styleName="price">
               <Currency value={salePrice} currency={currency} />
