@@ -9,7 +9,7 @@ import { authBlockTypes } from 'paragons/auth';
 
 import localized from 'lib/i18n';
 
-import { TextInput } from 'ui/inputs';
+import ShowHidePassword from 'ui/forms/show-hide-password';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 
@@ -102,9 +102,10 @@ export default class ResetPassword extends Component {
 
     return [
       <FormField key="passwd1" styleName="form-field" error={!!error}>
-        <TextInput
+        <ShowHidePassword
+          className={styles['form-field-input']}
+          linkClassName={styles['restore-link']}
           placeholder={t('NEW PASSWORD')}
-          required
           type="password"
           minLength="8"
           value={passwd1}
@@ -113,9 +114,10 @@ export default class ResetPassword extends Component {
         />
       </FormField>,
       <FormField key="passwd2" styleName="form-field" error={!!error}>
-        <TextInput
+        <ShowHidePassword
+          className={styles['form-field-input']}
+          linkClassName={styles['restore-link']}
           placeholder={t('CONFIRM PASSWORD')}
-          required
           type="password"
           minLength="8"
           value={passwd2}

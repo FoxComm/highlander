@@ -19,6 +19,7 @@ type Props = {
   placeholder?: string,
   linkClassName?: string,
   t: Function,
+  minLength?: number,
 };
 
 class ShowHidePassword extends Component {
@@ -45,7 +46,7 @@ class ShowHidePassword extends Component {
   }
 
   render() {
-    const { name, className, onChange, placeholder, value } = this.props;
+    const { name, className, onChange, placeholder, value, minLength } = this.props;
     const inputType = this.state.isShown ? 'text' : 'password';
 
     return (
@@ -57,6 +58,7 @@ class ShowHidePassword extends Component {
         onChange={onChange}
         type={inputType}
         label={this.showLink}
+        minLength={minLength}
       />
     );
   }
