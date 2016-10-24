@@ -23,7 +23,8 @@ type IInventoryService interface {
 	GetStockItemById(id uint) (*models.StockItem, error)
 	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error)
 	GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error)
-	GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error)
+	GetAFSBySkuCode(skuCode string, unitType models.UnitType) (*models.AFS, error)
+	GetAFSBySkuID(skuId uint, unitType models.UnitType) (*models.AFS, error)
 
 	IncrementStockItemUnits(id uint, unitType models.UnitType, units []*models.StockItemUnit) error
 	DecrementStockItemUnits(id uint, unitType models.UnitType, qty int) error
@@ -64,8 +65,12 @@ func (service *inventoryService) GetAFSByID(id uint, unitType models.UnitType) (
 	return service.stockItemRepo.GetAFSByID(id, unitType)
 }
 
-func (service *inventoryService) GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error) {
-	return service.stockItemRepo.GetAFSBySKU(sku, unitType)
+func (service *inventoryService) GetAFSBySkuCode(skuCode string, unitType models.UnitType) (*models.AFS, error) {
+	return service.stockItemRepo.GetAFSBySkuCode(skuCode, unitType)
+}
+
+func (service *inventoryService) GetAFSBySkuID(skuId uint, unitType models.UnitType) (*models.AFS, error) {
+	return service.stockItemRepo.GetAFSBySkuID(skuId, unitType)
 }
 
 func (service *inventoryService) IncrementStockItemUnits(stockItemId uint, unitType models.UnitType, units []*models.StockItemUnit) error {

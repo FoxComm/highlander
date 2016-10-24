@@ -171,29 +171,31 @@ func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits_WrongQty
 }
 
 func (suite *stockItemControllerTestSuite) Test_GetAFS_ById() {
-	suite.service.On("GetAFSByID", uint(1), models.Sellable).Return(&models.AFS{
+	suite.service.On("GetAFSBySkuID", uint(1), models.Sellable).Return(&models.AFS{
 		StockItemID: 1,
-		SKU:         "SKU",
+		SkuID:       1,
+		SkuCode:     "SKU",
 		AFS:         10,
 	}, nil).Once()
 
 	res := suite.Get("/stock-items/1/afs/Sellable")
 
 	suite.Equal(http.StatusOK, res.Code)
-	suite.Contains(res.Body.String(), `"sku":"SKU"`)
+	suite.Contains(res.Body.String(), `"skuCode":"SKU"`)
 	suite.service.AssertExpectations(suite.T())
 }
 
 func (suite *stockItemControllerTestSuite) Test_GetAFS_BySKU() {
-	suite.service.On("GetAFSBySKU", "SKU", models.Sellable).Return(&models.AFS{
+	suite.service.On("GetAFSBySkuCode", "SKU", models.Sellable).Return(&models.AFS{
 		StockItemID: 1,
-		SKU:         "SKU",
+		SkuID:       1,
+		SkuCode:     "SKU",
 		AFS:         10,
 	}, nil).Once()
 
 	res := suite.Get("/stock-items/SKU/afs/Sellable")
 
 	suite.Equal(http.StatusOK, res.Code)
-	suite.Contains(res.Body.String(), `"sku":"SKU"`)
+	suite.Contains(res.Body.String(), `"skuCode":"SKU"`)
 	suite.service.AssertExpectations(suite.T())
 }

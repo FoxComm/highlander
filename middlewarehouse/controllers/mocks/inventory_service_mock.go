@@ -39,8 +39,18 @@ func (m *InventoryServiceMock) GetAFSByID(id uint, unitType models.UnitType) (*m
 	return nil, args.Error(1)
 }
 
-func (m *InventoryServiceMock) GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error) {
-	args := m.Called(sku, unitType)
+func (m *InventoryServiceMock) GetAFSBySkuCode(skuCode string, unitType models.UnitType) (*models.AFS, error) {
+	args := m.Called(skuCode, unitType)
+
+	if model, ok := args.Get(0).(*models.AFS); ok {
+		return model, nil
+	}
+
+	return nil, args.Error(1)
+}
+
+func (m *InventoryServiceMock) GetAFSBySkuID(skuId uint, unitType models.UnitType) (*models.AFS, error) {
+	args := m.Called(skuId, unitType)
 
 	if model, ok := args.Get(0).(*models.AFS); ok {
 		return model, nil

@@ -184,7 +184,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID() {
 
 	suite.Nil(err)
 	suite.Equal(stockItem.ID, afs.StockItemID)
-	suite.Equal(stockItem.SkuCode, afs.SKU)
+	suite.Equal(stockItem.SkuCode, afs.SkuCode)
 	suite.Equal(10, afs.AFS)
 }
 
@@ -206,9 +206,9 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU() {
 
 	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10)))
 
-	afs, _ := suite.service.GetAFSBySKU(stockItem.SkuCode, models.Sellable)
+	afs, _ := suite.service.GetAFSBySkuCode(stockItem.SkuCode, models.Sellable)
 
-	suite.Equal(stockItem.SkuCode, afs.SKU)
+	suite.Equal(stockItem.SkuCode, afs.SkuCode)
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU_NotFound() {
@@ -217,7 +217,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU_NotFound() {
 
 	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10)))
 
-	afs, err := suite.service.GetAFSBySKU("BLA-BLA-SKU", models.Sellable)
+	afs, err := suite.service.GetAFSBySkuCode("BLA-BLA-SKU", models.Sellable)
 
 	suite.Equal(gorm.ErrRecordNotFound, err)
 	suite.Nil(afs)

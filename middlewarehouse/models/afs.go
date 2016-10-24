@@ -2,6 +2,7 @@ package models
 
 type AFS struct {
 	StockItemID uint
-	SKU         string
+	SkuID       uint
+	SkuCode     string
 	AFS         int
 }
