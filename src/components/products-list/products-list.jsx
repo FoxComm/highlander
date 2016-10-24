@@ -6,6 +6,8 @@ import { connect } from 'react-redux';
 import styles from './products-list.css';
 import ListItem from '../products-item/list-item';
 import Dropdown from 'ui/dropdown';
+import { browserHistory } from 'react-router';
+import { autobind } from 'core-decorators';
 
 import type { HTMLElement } from 'types';
 import type { Product } from 'modules/products';
@@ -19,28 +21,30 @@ type Category = {
 type Props = {
   list: ?Array<Product>;
   categories: ?Array<Category>;
-  category: ?string;
-  categoryType: ?string;
+  categoryName: ?string;
+  productType: ?string;
 }
 
 const mapStateToProps = state => ({
   categories: state.categories.list,
 });
 
-const productTags = [
-  { id: 1, title: 'All' },
-  { id: 2, title: 'Poultry' },
-  { id: 3, title: 'Seafood' },
-  { id: 4, title: 'Beef' },
-  { id: 5, title: 'Vegitarian' },
+const productTypes = [
+  'All',
+  'Poultry',
+  'Seafood',
+  'Beef',
+  'Vegitarian',
 ];
+
+const defaultProductType = productTypes[0];
 
 class ProductsList extends Component {
   props: Props;
 
   renderHeader() {
     const props = this.props;
-    const categoryName = props.category;
+    const { categoryName } = props;
 
     if (!categoryName) return;
 
@@ -52,9 +56,9 @@ class ProductsList extends Component {
     let className = `header-${categoryName}`;
     let title = categoryName;
 
-    if (props.categoryType) {
-      className = `${className}-${props.categoryType}`;
-      title = `${props.categoryType}'s ${title}`;
+    if (props.productType) {
+      className = `${className}-${props.productType}`;
+      title = `${props.productType}'s ${title}`;
     }
 
     return (
@@ -81,8 +85,20 @@ class ProductsList extends Component {
     });
   }
 
+  @autobind
+  onDropDownItemClick (productType = '') {
+    const { categoryName } = this.props;
+
+    if (productType.toLowerCase() !== defaultProductType.toLowerCase()) {
+      browserHistory.push(`/${categoryName}/${productType.toUpperCase()}`);
+    } else {
+      browserHistory.push(`/${categoryName}`);
+    }
+  }
+
   render() : HTMLElement {
     const props = this.props;
+    const { productType = '' } = props;
     const items = props.list && props.list.length > 0
       ? this.getItemList()
       : <div styleName="not-found">No products found.</div>;
@@ -91,7 +107,11 @@ class ProductsList extends Component {
       <section styleName="catalog">
         {this.renderHeader()}
         <div styleName="dropdown">
-          <Dropdown items={productTags} />
+          <Dropdown
+            items={productTypes}
+            activeItem={productType.toUpperCase() || productTypes[0]}
+            onItemClick={this.onDropDownItemClick}
+          />
         </div>
         <div styleName="list">
           {items}
