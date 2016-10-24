@@ -5,6 +5,7 @@ import "errors"
 type DecrementStockItemUnits struct {
 	Qty  int    `json:"qty" binding:"required"`
 	Type string `json:"type" binding:"required"`
+	Scopable
 }
 
 func (r DecrementStockItemUnits) Validate() error {

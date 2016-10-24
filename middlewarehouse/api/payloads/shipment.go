@@ -11,4 +11,14 @@ type Shipment struct {
 	ShipmentLineItems  []ShipmentLineItem `json:"lineItems" binding:"required"`
 	TrackingNumber     *string            `json:"trackingNumber"`
 	ShippingPrice      int                `json:"shippingPrice"`
+	Scopable
+}
+
+func (shipment *Shipment) SetScope(scope string) {
+	shipment.Scope = scope
+
+	for i := range shipment.ShipmentLineItems {
+		shipment.ShipmentLineItems[i].SetScope(scope)
+	}
+	shipment.Address.SetScope(scope)
 }

@@ -9,6 +9,7 @@ type StockLocation struct {
 	Name    string   `json:"name"`
 	Type    string   `json:"type"`
 	Address *Address `json:"address,omitempty"`
+	Scope   string   `json:"scope"`
 }
 
 func NewStockLocationsFromModels(locations []*models.StockLocation) []*StockLocation {
@@ -30,6 +31,8 @@ func NewStockLocationFromModel(location *models.StockLocation) *StockLocation {
 	if location.Address != nil {
 		response.Address = NewAddressFromModel(location.Address)
 	}
+
+	response.Scope = location.Scope
 
 	return response
 }

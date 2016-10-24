@@ -6,4 +6,5 @@ type OrderTotals struct {
 	Shipping    int `json:"shipping"`
 	SubTotal    int `json:"subTotal"`
 	Adjustments int `json:"adjustments"`
+	Scopable
 }

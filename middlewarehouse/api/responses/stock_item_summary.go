@@ -2,7 +2,8 @@ package responses
 
 import (
 	"time"
-    "github.com/FoxComm/highlander/middlewarehouse/models"
+
+	"github.com/FoxComm/highlander/middlewarehouse/models"
 )
 
 type stockItemSummary struct {
@@ -17,6 +18,7 @@ type stockItemSummary struct {
 	AFS           int            `json:"afs"`
 	AFSCost       int            `json:"afsCost"`
 	CreatedAt     time.Time      `json:"createdAt"`
+	Scope         string         `json:"scope"`
 }
 
 type StockItemSummary struct {
@@ -48,5 +50,6 @@ func summaryFromModel(summary *models.StockItemSummary) stockItemSummary {
 		AFS:           summary.AFS,
 		AFSCost:       summary.AFSCost,
 		CreatedAt:     summary.CreatedAt,
+		Scope:         summary.Scope,
 	}
 }

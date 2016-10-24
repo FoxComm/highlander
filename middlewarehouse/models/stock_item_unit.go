@@ -15,6 +15,7 @@ type StockItemUnit struct {
 	RefNum      sql.NullString
 	UnitCost    int
 	Status      UnitStatus
+	Scope       string
 }
 
 func (siu StockItemUnit) Identifier() uint {
@@ -30,6 +31,7 @@ func NewStockItemUnitsFromPayload(stockItemID uint, payload *payloads.IncrementS
 			UnitCost:    payload.UnitCost,
 			Status:      UnitStatus(payload.Status),
 			Type:        UnitType(payload.Type),
+			Scope:       payload.Scope,
 		}
 		units = append(units, item)
 	}

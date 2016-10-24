@@ -11,4 +11,13 @@ type PaymentMethod struct {
 	LastFour   *string  `json:"lastFour"`
 	Code       *string  `json:"code"`
 	HolderName string   `json:"holderName"`
+	Scopable
+}
+
+func (paymentMethod *PaymentMethod) SetScope(scope string) {
+	paymentMethod.Scope = scope
+
+	if paymentMethod.Address != nil {
+		paymentMethod.Address.SetScope(scope)
+	}
 }

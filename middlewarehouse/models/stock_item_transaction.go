@@ -11,4 +11,5 @@ type StockItemTransaction struct {
 	QuantityChange int
 	AFSNew         uint
 	CreatedAt      time.Time
+	Scope          string
 }

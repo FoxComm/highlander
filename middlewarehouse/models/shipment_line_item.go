@@ -15,6 +15,7 @@ type ShipmentLineItem struct {
 	Name            string
 	Price           uint
 	ImagePath       string
+	Scope           string
 }
 
 func NewShipmentLineItemFromPayload(payload *payloads.ShipmentLineItem) *ShipmentLineItem {
@@ -27,6 +28,7 @@ func NewShipmentLineItemFromPayload(payload *payloads.ShipmentLineItem) *Shipmen
 		Name:            payload.Name,
 		Price:           payload.Price,
 		ImagePath:       payload.ImagePath,
+		Scope:           payload.Scope,
 	}
 }
 
@@ -37,5 +39,6 @@ func NewShipmentLineItemFromOrderPayload(payload *payloads.OrderLineItem) *Shipm
 		Name:            payload.Name,
 		Price:           payload.Price,
 		ImagePath:       payload.ImagePath,
+		Scope:           payload.Scope,
 	}
 }
