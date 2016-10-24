@@ -22,6 +22,7 @@ func NewShipmentController(
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
+    router.Use(FetchJWT)
 	router.GET(":referenceNumber", controller.getShipmentsByOrder())
 	router.POST("", controller.createShipment())
 	router.PATCH(":id", controller.updateShipment())
@@ -50,6 +51,10 @@ func (controller *shipmentController) createShipment() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		payload := &payloads.Shipment{}
 		if parse(context, payload) != nil {
+			return
+		}
+
+		if !setScope(context, payload) {
 			return
 		}
 
