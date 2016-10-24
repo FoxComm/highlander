@@ -1,8 +1,9 @@
 package services.image
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
+import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures.ImageFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
 import models.account._
@@ -11,6 +12,7 @@ import models.inventory.Sku
 import models.objects.ObjectUtils.InsertResult
 import models.objects._
 import models.product._
+import org.json4s.JsonAST.JString
 import payloads.ImagePayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
@@ -283,6 +285,20 @@ object ImageManager {
       images ← * <~ imageIds.map(imgId ⇒
                     ObjectManager.getFullObject(Images.mustFindById404(imgId)))
     } yield images
+
+  def getFirstImageForAlbum(album: Album)(implicit ec: EC, db: DB): DbResultT[Option[String]] =
+    for {
+      imageLink ← * <~ AlbumImageLinks.filterLeft(album).sortBy(_.position).one.dbresult
+      src ← * <~ imageLink.fold(DbResultT.none[String]) { link ⇒
+             for {
+               fullImage ← * <~ ObjectManager.getFullObject(Images.mustFindById404(link.rightId))
+             } yield
+               ObjectUtils.get("src", fullImage.form, fullImage.shadow) match {
+                 case JString(src) ⇒ src.some
+                 case _            ⇒ None
+               }
+           }
+    } yield src
 
   private def createAlbumHeadFromInsert(
       oc: ObjectContext,

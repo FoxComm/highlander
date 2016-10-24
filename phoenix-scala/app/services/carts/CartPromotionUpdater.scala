@@ -23,7 +23,7 @@ import models.account.User
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.discount.compilers._
-import services.{CartValidator, LogActivity}
+import services.{CartValidator, LineItemManager, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -137,20 +137,10 @@ object CartPromotionUpdater {
       es: ES,
       db: DB) =
     for {
-      cartDetails ← * <~ fetchCartDetails(cart)
-      (lineItems, shippingMethod) = cartDetails
-      input                       = DiscountInput(promo, cart, lineItems, shippingMethod)
+      lineItems      ← * <~ LineItemManager.getCartLineItems(cart.refNum)
+      shippingMethod ← * <~ shipping.ShippingMethods.forCordRef(cart.refNum).one
+      input = DiscountInput(promo, cart, lineItems, shippingMethod)
       _           ← * <~ qualifier.check(input)
       adjustments ← * <~ offer.adjust(input)
     } yield adjustments
-
-  private def fetchCartDetails(cart: Cart)(implicit ec: EC) =
-    for {
-      lineItemTup ← CartLineItems.byCordRef(cart.refNum).lineItems.result
-      lineItems = lineItemTup.map {
-        case (sku, skuForm, skuShadow, productShadow, lineItem) ⇒
-          CartLineItemProductData(sku, skuForm, skuShadow, productShadow, lineItem)
-      }
-      shipMethod ← shipping.ShippingMethods.forCordRef(cart.refNum).one
-    } yield (lineItems, shipMethod)
 }
