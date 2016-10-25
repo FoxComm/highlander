@@ -65,9 +65,9 @@ class ProductsList extends Component {
     let className = `header-${categoryName}`;
     let title = categoryName;
 
-    if (props.productType) {
-      className = `${className}-${props.productType}`;
-      title = `${props.productType}'s ${title}`;
+    if (productType) {
+      className = `${className}-${productType}`;
+      title = `${productType}'s ${title}`;
     }
 
     return (

@@ -14,6 +14,7 @@ import * as actions from 'modules/products';
 
 type Params = {
   categoryName: ?string,
+  productType: ?string
 };
 
 type Props = {
