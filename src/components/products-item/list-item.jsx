@@ -31,9 +31,8 @@ type Product = {
   salePrice: string,
   currency: string,
   albums: ?Array<Album>,
-  skus: Array<String>,
+  skus: Array<string>,
   addLineItem: Function,
-  deleteLineItem: Function,
   toggleCart: Function,
 };
 

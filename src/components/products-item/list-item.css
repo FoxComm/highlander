@@ -35,6 +35,7 @@
   opacity: 0;
   transition: opacity .3s ease-out;
   display: flex;
+  padding: 12px;
 
   & .additional-description {
     width: 100%;
