@@ -111,7 +111,7 @@ export function deleteLineItem(id) {
 
 
 function fetchMyCart(user): global.Promise {
-  const api = user ? foxApi.removeAuth() : foxApi;
+  const api = user ? foxApi : foxApi.removeAuth();
   return api.cart.get();
 }
 
