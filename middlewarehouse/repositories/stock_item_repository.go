@@ -19,7 +19,7 @@ type stockItemRepository struct {
 type IStockItemRepository interface {
 	GetStockItems() ([]*models.StockItem, error)
 	GetStockItemById(id uint) (*models.StockItem, error)
-	GetStockItemsBySKUs(skus []string) ([]*models.StockItem, error)
+	GetStockItemsBySKUs(skus []uint) ([]*models.StockItem, error)
 	GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error)
 	GetAFSBySkuCode(skuCode string, unitType models.UnitType) (*models.AFS, error)
 	GetAFSBySkuID(skuId uint, unitType models.UnitType) (*models.AFS, error)
@@ -55,9 +55,9 @@ func (repository *stockItemRepository) GetStockItemById(id uint) (*models.StockI
 	return si, nil
 }
 
-func (repository *stockItemRepository) GetStockItemsBySKUs(skus []string) ([]*models.StockItem, error) {
+func (repository *stockItemRepository) GetStockItemsBySKUs(skus []uint) ([]*models.StockItem, error) {
 	items := []*models.StockItem{}
-	err := repository.db.Where("sku_code in (?)", skus).Find(&items).Error
+	err := repository.db.Where("sku_id in (?)", skus).Find(&items).Error
 
 	return items, err
 }

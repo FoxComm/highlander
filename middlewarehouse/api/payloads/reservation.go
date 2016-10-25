@@ -8,8 +8,8 @@ type Reservation struct {
 }
 
 type ItemReservation struct {
-	SKU string `json:"sku" binding:"required"`
-	Qty uint   `json:"qty" binding:"required"`
+	SkuId uint `json:"skuId" binding:"required"`
+	Qty   uint `json:"qty" binding:"required"`
 }
 
 func (r Reservation) Validate() error {

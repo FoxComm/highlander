@@ -49,7 +49,7 @@ func (suite *summaryServiceTestSuite) SetupSuite() {
 	stockLocationService := NewStockLocationService(stockLocationRepository)
 
 	sl, _ := stockLocationService.CreateLocation(fixtures.GetStockLocation())
-	si, _ := inventoryService.CreateStockItem(fixtures.GetStockItem(sl.ID, "SKU"))
+	si, _ := inventoryService.CreateStockItem(fixtures.GetStockItem(sl.ID, 1, "SKU"))
 
 	suite.si = si
 	suite.onHand = 10

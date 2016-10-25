@@ -81,7 +81,7 @@ func (m *InventoryServiceMock) DecrementStockItemUnits(id uint, unitType models.
 	return args.Error(0)
 }
 
-func (m *InventoryServiceMock) HoldItems(refNum string, skus map[string]int) error {
+func (m *InventoryServiceMock) HoldItems(refNum string, skus map[uint]int) error {
 	args := m.Called(refNum, skus)
 
 	return args.Error(0)

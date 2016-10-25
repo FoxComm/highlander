@@ -2,11 +2,12 @@ package responses
 
 import (
 	"time"
-    "github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
 )
 
 type stockItemSummary struct {
-	SKU           string         `json:"sku"`
+	SkuID         uint           `json:"skuId"`
+	SkuCode       string         `json:"skuCode"`
 	StockItem     *StockItem     `json:"stockItem"`
 	StockLocation *StockLocation `json:"stockLocation"`
 	Type          string         `json:"type"`
@@ -37,7 +38,8 @@ func NewSummaryFromModel(summaries []*models.StockItemSummary) *StockItemSummary
 
 func summaryFromModel(summary *models.StockItemSummary) stockItemSummary {
 	return stockItemSummary{
-		SKU:           summary.StockItem.SkuCode,
+		SkuID:         summary.StockItem.SkuID,
+		SkuCode:       summary.StockItem.SkuCode,
 		StockItem:     NewStockItemFromModel(&summary.StockItem),
 		StockLocation: NewStockLocationFromModel(&summary.StockItem.StockLocation),
 		Type:          string(summary.Type),

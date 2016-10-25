@@ -36,9 +36,9 @@ func (controller *reservationController) Hold() gin.HandlerFunc {
 			return
 		}
 
-		skuMap := map[string]int{}
+		skuMap := map[uint]int{}
 		for _, sku := range payload.Items {
-			skuMap[sku.SKU] = int(sku.Qty)
+			skuMap[sku.SkuId] = int(sku.Qty)
 		}
 
 		if err := controller.service.HoldItems(payload.RefNum, skuMap); err != nil {

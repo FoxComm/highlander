@@ -41,7 +41,7 @@ func NewCapturePayload(activity activities.ISiteActivity) (*CapturePayload, erro
 	for _, lineItem := range shipment.ShipmentLineItems {
 		cLineItem := CaptureLineItem{
 			ReferenceNumber: lineItem.ReferenceNumber,
-			SKU:             lineItem.SKU,
+			SKU:             lineItem.SkuCode,
 		}
 
 		capture.Items = append(capture.Items, cLineItem)
