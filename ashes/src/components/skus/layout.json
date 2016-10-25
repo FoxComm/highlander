@@ -21,7 +21,7 @@
     },
     {
       "type": "group",
-      "title": "SKUs",
+      "title": "Pricing",
       "fields": {
         "value": [
           "retailPrice",
