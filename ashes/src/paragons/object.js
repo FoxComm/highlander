@@ -31,7 +31,7 @@ export function guessType(value: any): string {
 function supressor(object: Object): Object {
   if (object.attributes) {
     object.attributes = _.reduce(object.attributes, (acc, value, key) => {
-      acc[key] = value.v ? value.v : value;
+      acc[key] = _.get(value, 'v', value);
       return acc;
     }, {});
   }

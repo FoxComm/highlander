@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { Component, Element } from 'react';
+import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
@@ -29,6 +29,7 @@ type Column = {
 type Props = {
   columns: Array<Column>,
   sku: Sku,
+  index: number,
   params: Object,
   skuContext: string,
   updateField: (code: string, field: string, value: any) => void,
@@ -44,6 +45,7 @@ type Props = {
 type State = {
   sku: { [key:string]: string },
   isMenuVisible: boolean,
+  codeError?: Object,
 };
 
 function mapLocalStateToProps(state) {
@@ -78,6 +80,41 @@ class EditableSkuRow extends Component {
     sku: {},
     isMenuVisible: false,
   };
+
+  static contextTypes = {
+    validationDispatcher: PropTypes.object,
+  };
+
+  toggleBindToDispatcher(bind) {
+    const { validationDispatcher } = this.context;
+    if (validationDispatcher) {
+      const toggleBind = bind ? validationDispatcher.on : validationDispatcher.removeListener;
+
+      toggleBind.call(validationDispatcher, 'errors', this.handleValidationErrors);
+    }
+  }
+
+  componentDidMount() {
+    this.toggleBindToDispatcher(true);
+  }
+
+  componentWillUnmount() {
+    this.toggleBindToDispatcher(false);
+  }
+
+  @autobind
+  handleValidationErrors(event) {
+    const codeError = _.find(event.errors, error => {
+      return error.path == `skus.${this.props.index}.attributes.code`;
+    });
+    if (codeError) {
+      event.preventSave();
+    }
+
+    this.setState({
+      codeError,
+    });
+  }
 
   componentWillReceiveProps(nextProps: Props) {
     if (this.props.isFetchingSkus && !nextProps.isFetchingSkus) {
@@ -196,9 +233,11 @@ class EditableSkuRow extends Component {
   skuCell(sku: Sku): Element {
     const code = _.get(this.props, 'sku.attributes.code.v');
     if (this.props.sku.feCode) {
+      const { codeError } = this.state;
+      const error = codeError ? `SKU Code violates constraint: ${codeError.keyword}` : void 0;
       return (
         <div styleName="sku-cell">
-          <FormField>
+          <FormField error={error} scrollToErrors>
             <LoadingInputWrapper inProgress={this.props.isFetchingSkus}>
               <input
                 className="fc-text-input"

@@ -2,8 +2,9 @@
 
 import _ from 'lodash';
 import { connect } from 'react-redux';
+import { EventEmitter } from 'events';
 import { bindActionCreators } from 'redux';
-import React, { Component, Element } from 'react';
+import React, { Component, Element, PropTypes } from 'react';
 import invariant from 'invariant';
 import { push } from 'react-router-redux';
 import { autobind } from 'core-decorators';
@@ -100,6 +101,19 @@ export class ObjectPage extends Component {
     object: this.props.originalObject,
     schema: this.props.schema,
   };
+  _context: {
+    validationDispatcher: EventEmitter,
+  };
+
+  static childContextTypes = {
+    validationDispatcher: PropTypes.object,
+  };
+
+  getChildContext() {
+    return this._context || (this._context = {
+      validationDispatcher: new EventEmitter()
+    });
+  }
 
   get entityIdName(): string {
     return `${this.props.namespace}Id`;
@@ -113,8 +127,11 @@ export class ObjectPage extends Component {
     return this.entityId === 'new';
   }
 
-  isObjectValid(object: Object): boolean {
-    return jsen(this.props.schema)(supressTV(object));
+  validateObject(object: Object): ?Array<Object> {
+    const validate = jsen(this.props.schema);
+    if (!validate(supressTV(object))) {
+      return validate.errors;
+    }
   }
 
   componentWillMount() {
@@ -238,6 +255,23 @@ export class ObjectPage extends Component {
     return this.props.actions.updateEntity(entity);
   }
 
+  /**
+   * Validates object and emit errors for handling
+   * @returns {boolean} true if there is at least one errors are handled at client side
+   */
+  validate(): boolean {
+    const errors = this.validateObject(supressTV(this.state.object));
+    let preventSave = false;
+    const event = {
+      preventSave() {
+        preventSave = true;
+      },
+      errors,
+    };
+    this.getChildContext().validationDispatcher.emit('errors', event);
+    return !errors || !preventSave;
+  }
+
   save() {
     let mayBeSaved = false;
 
@@ -245,6 +279,7 @@ export class ObjectPage extends Component {
       const object = this.state.object;
 
       if (!this.validateForm()) return;
+      if (!this.validate()) return;
 
       if (this.isNew) {
         mayBeSaved = this.createEntity(object);
@@ -352,15 +387,6 @@ export class ObjectPage extends Component {
     return error;
   }
 
-  get preventSave(): boolean {
-    const object = this.state.object;
-    if (object) {
-      return !this.isObjectValid(object);
-    }
-
-    return true;
-  }
-
   renderHead() {
     return this.cancelButton;
   }
@@ -395,7 +421,6 @@ export class ObjectPage extends Component {
             onSelect={this.handleSelectSaving}
             isLoading={props.isSaving}
             items={SAVE_COMBO_ITEMS}
-            buttonDisabled={this.preventSave}
           />
         </PageTitle>
         {this.subNav()}

@@ -8,10 +8,18 @@ import * as validators from 'lib/validators';
 import classNames from 'classnames';
 import { isDefined } from 'lib/utils';
 
-export function FormFieldError(props: {error: Element|string}) {
+import AutoScroll from '../common/auto-scroll';
+
+type FormFieldErrorProps = {
+  error: Element|string,
+  autoScroll?: boolean,
+}
+
+export function FormFieldError(props: FormFieldErrorProps) {
   return (
     <div className="fc-form-field-error">
       {props.error}
+      {props.autoScroll && <AutoScroll />}
     </div>
   );
 }
@@ -33,6 +41,7 @@ type FormFieldProps = {
   validationLabel?: string;
   requiredMessage?: string;
   isDefined: (value: any) => boolean;
+  scrollToErrors?: boolean,
 };
 
 export default class FormField extends Component {
@@ -260,7 +269,15 @@ export default class FormField extends Component {
     if (this.errors.length && this.readyToShowErrors) {
       return (
         <div>
-          {this.errors.map((error, index) => <FormFieldError key={`error-${index}`} error={error} />)}
+          {this.errors.map((error, index) => {
+            return (
+              <FormFieldError
+                key={`error-${index}`}
+                error={error}
+                autoScroll={this.props.scrollToErrors}
+              />
+            );
+          })}
         </div>
       );
     }

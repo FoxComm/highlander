@@ -10,7 +10,6 @@ import { setSkuAttribute } from 'paragons/product';
 
 // actions
 import * as ProductActions from 'modules/products/details';
-// import * as OptionsActions from 'modules/products/options';
 import { sanitizeError } from 'modules/products/details';
 
 // components

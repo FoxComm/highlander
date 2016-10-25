@@ -21,7 +21,7 @@ import type { Product, Option, OptionValue } from 'paragons/product';
 const layout = require('./layout.json');
 
 type Props = DetailsProps & {
-  object: Product
+  object: Product,
 }
 
 /**
@@ -33,15 +33,16 @@ export default class ProductForm extends ObjectDetails {
   props: Props;
 
   renderSkuList(): Element<any> {
+    const { props } = this;
     return (
       <SkuContentBox
         // $FlowFixMe: WTF?
-        fullProduct={this.props.object}
-        updateField={this.props.onSetSkuProperty}
-        updateFields={this.props.onSetSkuProperties}
+        fullProduct={props.object}
+        updateField={props.onSetSkuProperty}
+        updateFields={props.onSetSkuProperties}
         onDeleteSku={this.handleDeleteSku}
         onAddNewVariants={this.handleAddVariants}
-        variants={this.props.object.variants}
+        variants={props.object.variants}
       />
     );
   }
