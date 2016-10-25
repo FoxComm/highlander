@@ -2,6 +2,7 @@ package models.account
 
 import com.github.tminglei.slickpg.LTree
 import failures.ScopeFailures._
+import failures.UserFailures.OrganizationNotFoundByName
 import failures._
 import shapeless._
 import slick.driver.PostgresDriver.api._
@@ -61,4 +62,10 @@ class Scopes(tag: Tag) extends FoxTable[Scope](tag, "scopes") {
 object Scopes extends FoxTableQuery[Scope, Scopes](new Scopes(_)) with ReturningId[Scope, Scopes] {
 
   val returningLens: Lens[Scope, Int] = lens[Scope].id
+
+  def forOrganization(org: String)(implicit ec: EC, db:DB): DbResultT[LTree] =
+    for {
+      organization ← * <~ Organizations.findByName(org).mustFindOr(OrganizationNotFoundByName(org))
+      scope        ← * <~ Scopes.mustFindById400(organization.scopeId)
+    } yield LTree(scope.path)
 }

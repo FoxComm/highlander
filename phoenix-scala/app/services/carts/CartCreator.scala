@@ -36,7 +36,10 @@ object CartCreator {
         account ← * <~ Accounts.create(Account())
         guest   ← * <~ Users.create(User(accountId = account.id, email = email.some))
         custData ← * <~ CustomersData.create(
-                      CustomerData(userId = guest.id, accountId = account.id, isGuest = true))
+                      CustomerData(userId = guest.id,
+                                   accountId = account.id,
+                                   isGuest = true,
+                                   scope = Scope.current))
         scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
         cart  ← * <~ Carts.create(Cart(accountId = account.id, scope = scope))
         _     ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest, custData))

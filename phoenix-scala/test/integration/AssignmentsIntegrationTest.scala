@@ -11,7 +11,6 @@ import responses.cord.AllOrders
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.aliases.AU
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -145,7 +144,10 @@ class AssignmentsIntegrationTest
       secondAdmin ← * <~ Users.create(
                        Factories.storeAdmin
                          .copy(accountId = account.id, email = "a@b.c".some, name = "Admin2".some))
-      custData ← * <~ AdminsData.create(AdminData(userId = secondAdmin.id, accountId = account.id))
+      custData ← * <~ AdminsData.create(
+                    AdminData(userId = secondAdmin.id,
+                              accountId = account.id,
+                              scope = Scope.current))
     } yield (assignee, secondAdmin)).gimme
   }
 

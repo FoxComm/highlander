@@ -1,17 +1,17 @@
 package services
 
+import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
+import failures.UserFailures._
 import models.account._
-import models.admin.{AdminsData, AdminData}
+import models.admin.{AdminData, AdminsData}
 import payloads.StoreAdminPayloads._
 import responses.StoreAdminResponse
 import services.account._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import failures.UserFailures._
-
-import cats.implicits._
 
 object StoreAdminManager {
 
@@ -37,10 +37,12 @@ object StoreAdminManager {
                                              email = payload.email.some,
                                              password = payload.password,
                                              context = context)
+      scope ← * <~ Scopes.mustFindById400(organization.scopeId)
       adminUser ← * <~ AdminsData.create(
                      AdminData(accountId = admin.accountId,
                                userId = admin.id,
-                               state = AdminData.Invited))
+                               state = AdminData.Invited,
+                               scope = LTree(scope.path)))
 
       _ ← * <~ LogActivity.storeAdminCreated(admin, author)
     } yield StoreAdminResponse.build(admin, adminUser)
