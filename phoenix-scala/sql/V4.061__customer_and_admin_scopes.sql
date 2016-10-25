@@ -1,8 +1,11 @@
-alter table customer_data add column scope exts.ltree not null default exts.text2ltree('');
-alter table admin_data add column scope exts.ltree not null default exts.text2ltree('');
+alter table customer_data add column scope exts.ltree;
+alter table admin_data add column scope exts.ltree;
 
 update customer_data set scope = text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
 update admin_data set scope = text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
+
+alter table customer_data alter column scope set not null;
+alter table admin_data alter column scope set not null;
 
 drop materialized view customer_items_view;
 drop materialized view customer_purchased_items_view;
@@ -80,7 +83,7 @@ create materialized view customer_items_view as
     full outer join customer_save_for_later_view as t2 ON t1.id = t2.id;
 
 alter table customers_search_view add column scope exts.ltree;
-update customers_search_view set scope = customer_data.scope where customer_data.id = customers_search_view.id;
+update customers_search_view set scope = cd.scope from customer_data as cd where cd.id = customers_search_view.id;
 
 create or replace function update_customers_view_from_customers_insert_fn() returns trigger as $$
 begin
@@ -104,7 +107,7 @@ end;
 $$ language plpgsql;
 
 alter table store_admins_search_view add column scope exts.ltree;
-update store_admins_search_view set scope = admin_data.scope where admin_data.id = store_admins_search_view.id;
+update store_admins_search_view set scope = ad.scope from admin_data as ad where ad.id = store_admins_search_view.id;
 
 create or replace function update_store_admins_view_insert_fn() returns trigger as $$
 begin
