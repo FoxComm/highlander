@@ -1,6 +1,7 @@
 package services
 
 import scala.util.Random
+
 import cats.data.Xor
 import cats.implicits._
 import failures.CouponFailures.CouponWithCodeCannotBeFound
@@ -9,8 +10,6 @@ import failures.PromotionFailures.PromotionNotFoundForContext
 import models.cord._
 import models.cord.lineitems.CartLineItems
 import models.cord.lineitems.CartLineItems.scope._
-import models.cord.lineitems.OrderLineItems
-import models.cord.lineitems.OrderLineItems.scope._
 import models.coupon._
 import models.account._
 import models.customer._
@@ -19,11 +18,8 @@ import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.promotion._
-import org.json4s.JsonAST.{JBool, JValue}
 import responses.cord.OrderResponse
 import services.coupon.CouponUsageService
-import services.inventory.SkuManager
-import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis._
@@ -128,30 +124,13 @@ case class Checkout(
     }
   }
 
-  private def holdInMiddleWarehouse(implicit ctx: OC): DbResultT[Unit] =
+  private def holdInMiddleWarehouse: DbResultT[Unit] =
     for {
       liSkus ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      skuObjects ← * <~ liSkus.map {
-                    case (cordRef, skuAmount) ⇒ getSkuObjects(cordRef, skuAmount)
-                  }
-      skusToHold ← * <~ skuObjects.filter {
-                    case (holdInventory, cordRef, skuAmount)   ⇒ holdInventory
-                  }.map { case (holdInventory, sku, skuAmount) ⇒ (sku, skuAmount) }
-      skus = skusToHold.map { case (skuCode, qty) ⇒ SkuInventoryHold(skuCode, qty) }
-      _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skus.toSeq))
+      skus = liSkus.map { case (skuCode, qty) ⇒ SkuInventoryHold(skuCode, qty) }.toSeq
+      _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skus))
       mutatingResult = externalCalls.middleWarehouseSuccess = true
     } yield {}
-
-  private def getSkuObjects(cordRef: String, skuAmount: Int) =
-    for {
-      sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(contextId = ctx.id, cordRef)
-      shadow ← * <~ ObjectShadows.mustFindById400(sku.shadowId)
-      form   ← * <~ ObjectForms.mustFindById400(shadow.formId)
-      trackInventory = ObjectUtils.get("trackInventory", form, shadow) match {
-        case JBool(trackInv) ⇒ trackInv
-        case _               ⇒ true
-      }
-    } yield (trackInventory, cordRef, skuAmount)
 
   private def cancelHoldInMiddleWarehouse: Result[Unit] =
     apis.middlwarehouse.cancelHold(cart.referenceNumber)

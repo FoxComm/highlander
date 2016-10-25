@@ -47,6 +47,3 @@ gatling-results/
 gatling-classes/
 
 version
-
-#style files
-**/codeStyleSettings.xml

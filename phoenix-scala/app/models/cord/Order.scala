@@ -158,23 +158,19 @@ object Orders
       countBySku ← countBySku
       (skuId, count) = countBySku
       sku ← Skus if sku.id === skuId
-    } yield (skuId, sku)
+    } yield (sku, count)
 
     for {
-      skuItems  ← * <~ orderLineItemSkusQuery.result
-      skuMaps   ← * <~ skuItems.toMap
-      lineItems ← * <~ CartLineItems.byCordRef(cart.referenceNumber).result
-      orderLineItems ← * <~ lineItems.map { cli ⇒
-                        val sku = skuMaps.get(cli.skuId).get
-                        println("sku value in Order line169 ")
-                        println(sku)
-                        OrderLineItem(cordRef = cart.referenceNumber,
-                                      skuId = sku.id,
-                                      skuShadowId = sku.shadowId,
-                                      state = OrderLineItem.Pending,
-                                      attributes = cli.attributes)
-                      }
-    } yield orderLineItems
+      skuItems ← * <~ orderLineItemSkusQuery.result
+      lineItems ← * <~ skuItems.flatMap {
+                   case (sku, count) ⇒
+                     List.fill(count)(
+                         OrderLineItem(cordRef = cart.referenceNumber,
+                                       skuId = sku.id,
+                                       skuShadowId = sku.shadowId,
+                                       state = OrderLineItem.Pending))
+                 }
+    } yield lineItems
   }
 
   def findByAccount(cust: Account): QuerySeq =
