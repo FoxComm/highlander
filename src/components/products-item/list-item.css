@@ -16,13 +16,13 @@
 .preview {
   width: 100%;
   max-width: 100%;
-  height: auto;
   position: relative;
+  display: flex;
+  align-items: center;
 
   &:hover .hover-info {
     opacity: 0.9;
   }
-
 }
 
 .hover-info {
@@ -30,7 +30,7 @@
   left: 0;
   top: 0;
   width: 100%;
-  height: 99%;
+  height: 100%;
   background-color: #332A2C;
   opacity: 0;
   transition: opacity .3s ease-out;
