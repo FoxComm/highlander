@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import createAsyncActions from './async-utils';
+import { api as foxApi } from 'lib/api';
 
 export const toggleCart = createAction('TOGGLE_CART');
 export const hideCart = createAction('HIDE_CART');
@@ -109,8 +110,9 @@ export function deleteLineItem(id) {
 }
 
 
-function fetchMyCart(): global.Promise {
-  return this.api.get(`/v1/my/cart`);
+function fetchMyCart(user): global.Promise {
+  const api = user ? foxApi.removeAuth() : foxApi;
+  return api.cart.get();
 }
 
 const {fetch, ...actions} = createAsyncActions('cart', fetchMyCart);

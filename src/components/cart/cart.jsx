@@ -35,7 +35,7 @@ type Props = {
   toggleCart: Function,
   skus: Array<any>,
   totals: Object,
-  user: Object,
+  user?: Object,
   isVisible: boolean,
   t: any,
 };
@@ -52,10 +52,10 @@ class Cart extends Component {
   };
 
   componentDidMount() {
-    /** prevent loading if no user logged in */
     if (this.props.user) {
-      this.props.fetch();
+      this.props.fetch(this.props.user);
     }
+    this.props.fetch();
   }
 
   @autobind
