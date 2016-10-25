@@ -1,0 +1,39 @@
+steps:
+  - command: |-
+      mkdir build || true
+      cd build
+      cmake ..
+      make
+    label: build
+    agents:
+      - queue=core
+    artifact_paths: build/src/isaac/isaac
+
+  - wait
+
+  - command: "mkdir -p build && buildkite-agent artifact download \"build/src/isaac/isaac\" build/\n\n"
+    label: dump to stage master
+    agents:
+      - queue=stage_master
+    branches: master
+
+  - wait
+
+  - command: |-
+      curl -X POST "https://api.buildkite.com/v1/organizations/foxcommerce/projects/$PROJECT/builds?access_token=$TOKEN" \
+       -d '{
+          "commit": "HEAD",
+          "branch": "master",
+          "message": "Isaac Updated",
+          "author": {
+            "name": "CI",
+            "email": "ci@foxcommerce.com"
+          }
+        }'
+    label: provision stage
+    agents:
+      - queue=core
+    env:
+      TOKEN: c5e4764e4d0116e34e17c2d4e0b1e7df45aaa468
+      PROJECT: stage-provisioning
+    branches: master

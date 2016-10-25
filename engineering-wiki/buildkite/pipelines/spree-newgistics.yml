@@ -1,0 +1,17 @@
+env:
+  ENABLE_NEWGISTICS: false
+  NEWGISTICS_API_KEY: d3cccbcf49e145e58b6aa6c421fa1bfa
+  NEWGISTICS_URL: http://apistaging.newgisticsfulfillment.com
+
+steps:
+  - command: bundle
+    label: Bundle
+    agents:
+      - queue=beautykind
+
+  - wait
+
+  - command: bundle exec rake
+    label: Run Tests
+    agents:
+      - queue=beautykind

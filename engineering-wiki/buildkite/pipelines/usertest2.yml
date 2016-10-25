@@ -1,0 +1,9 @@
+env:
+  GOPATH: "/var/lib/buildkite-agent/go"
+
+steps:
+  - command: "cp /var/lib/buildkite-agent/.vault_pass ./\ncp /var/lib/buildkite-agent/account.json ./\nmake \nmake test\nmake deploy-usertest2"
+    label: deploy usertest 2
+    agents:
+      - queue=stage_master
+    branches: master

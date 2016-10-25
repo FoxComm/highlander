@@ -1,0 +1,57 @@
+env:
+  ARTIFACT: gatling/target/scala-2.11/phoenix-scala-assembly-1.0.jar
+
+steps:
+  - command: sbt '; clean ; gatling/clean ; scalafmtTest ; gatling/scalafmtTest'
+    label: scalafmt
+    agents:
+      - queue=core
+
+  - wait
+
+  - command: 'bash -c "make -C docs/api all && sbt all && tar -zcvf gatling-classes.tar.gz gatling-classes"
+  
+  '
+    label: build, test, package
+    agents:
+      - queue=core
+    artifact_paths: docs/api/build/*.html;gatling/target/**/phoenix-scala-assembly-*;gatling-classes.tar.gz
+    timeout: 60
+
+  - wait
+
+  - command: |
+      rm -rf gatling && mkdir gatling && cd gatling
+  
+      buildkite-agent artifact download "$ARTIFACT" .
+  
+      cd ../
+  
+      buildkite-agent artifact download "gatling-classes.tar.gz" ./
+  
+      rm -rf gatling-classes && tar -zxvf gatling-classes.tar.gz
+    label: dump to stage master
+    agents:
+      - queue=stage_master
+    branches: master
+
+  - wait
+
+  - command: |-
+      curl -X POST "https://api.buildkite.com/v1/organizations/foxcommerce/projects/$PROJECT/builds?access_token=$TOKEN" \
+       -d '{
+          "commit": "HEAD",
+          "branch": "master",
+          "message": "Phoenix Updated",
+          "author": {
+            "name": "CI",
+            "email": "ci@foxcommerce.com"
+          }
+        }'
+    label: provision stage
+    agents:
+      - queue=stage_master
+    env:
+      TOKEN: c5e4764e4d0116e34e17c2d4e0b1e7df45aaa468
+      PROJECT: stage-provisioning
+    branches: master
