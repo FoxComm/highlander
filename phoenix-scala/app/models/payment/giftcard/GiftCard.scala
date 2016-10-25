@@ -5,9 +5,10 @@ import java.time.Instant
 import cats.data.Validated._
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import failures.GiftCardFailures._
-import failures.{EmptyCancellationReasonFailure, Failure, Failures, GeneralFailure}
+import failures._
 import models.account._
 import models.cord.OrderPayment
 import models.payment.PaymentMethod
@@ -16,15 +17,16 @@ import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments 
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Money._
 import utils.Validation._
 import utils._
 import utils.aliases._
+import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 case class GiftCard(id: Int = 0,
+                    scope: LTree,
                     originId: Int,
                     originType: OriginType = CustomerPurchase,
                     code: String = "",
@@ -121,66 +123,56 @@ object GiftCard {
 
   val giftCardCodeRegex = """([a-zA-Z0-9-_]*)""".r
 
-  def build(balance: Int, originId: Int, currency: Currency): GiftCard = {
-    GiftCard(
-        originId = originId,
-        originType = GiftCard.CustomerPurchase,
-        state = GiftCard.Active,
-        currency = currency,
-        originalBalance = balance,
-        availableBalance = balance,
-        currentBalance = balance
-    )
-  }
+  def build(balance: Int, originId: Int, currency: Currency)(implicit au: AU): GiftCard =
+    GiftCard(scope = Scope.current,
+             originId = originId,
+             originType = GiftCard.CustomerPurchase,
+             state = GiftCard.Active,
+             currency = currency,
+             originalBalance = balance,
+             availableBalance = balance,
+             currentBalance = balance)
 
-  def buildAppeasement(payload: GiftCardCreateByCsr, originId: Int): GiftCard = {
-    GiftCard(
-        originId = originId,
-        originType = GiftCard.CsrAppeasement,
-        subTypeId = payload.subTypeId,
-        state = GiftCard.Active,
-        currency = payload.currency,
-        originalBalance = payload.balance,
-        availableBalance = payload.balance,
-        currentBalance = payload.balance
-    )
-  }
+  def buildAppeasement(payload: GiftCardCreateByCsr, originId: Int, scope: LTree): GiftCard =
+    GiftCard(scope = scope,
+             originId = originId,
+             originType = GiftCard.CsrAppeasement,
+             subTypeId = payload.subTypeId,
+             state = GiftCard.Active,
+             currency = payload.currency,
+             originalBalance = payload.balance,
+             availableBalance = payload.balance,
+             currentBalance = payload.balance)
 
-  def buildScTransfer(balance: Int, originId: Int, currency: Currency): GiftCard = {
-    GiftCard(
-        originId = originId,
-        originType = GiftCard.FromStoreCredit,
-        state = GiftCard.Active,
-        currency = currency,
-        originalBalance = balance,
-        availableBalance = balance,
-        currentBalance = balance
-    )
-  }
+  def buildScTransfer(balance: Int, originId: Int, currency: Currency, scope: LTree): GiftCard =
+    GiftCard(scope = scope,
+             originId = originId,
+             originType = GiftCard.FromStoreCredit,
+             state = GiftCard.Active,
+             currency = currency,
+             originalBalance = balance,
+             availableBalance = balance,
+             currentBalance = balance)
 
-  def buildLineItem(balance: Int, originId: Int, currency: Currency): GiftCard = {
-    GiftCard(
-        originId = originId,
-        originType = GiftCard.CustomerPurchase,
-        state = GiftCard.Cart,
-        currency = currency,
-        originalBalance = balance,
-        availableBalance = balance,
-        currentBalance = balance
-    )
-  }
+  def buildLineItem(balance: Int, originId: Int, currency: Currency)(implicit au: AU): GiftCard =
+    GiftCard(scope = Scope.current,
+             originId = originId,
+             originType = GiftCard.CustomerPurchase,
+             state = GiftCard.Cart,
+             currency = currency,
+             originalBalance = balance,
+             availableBalance = balance,
+             currentBalance = balance)
 
-  def buildRmaProcess(originId: Int, currency: Currency): GiftCard = {
-    GiftCard(
-        originId = originId,
-        originType = GiftCard.RmaProcess,
-        state = GiftCard.Cart,
-        currency = currency,
-        originalBalance = 0,
-        availableBalance = 0,
-        currentBalance = 0
-    )
-  }
+  def buildRmaProcess(originId: Int, currency: Currency)(implicit au: AU): GiftCard =
+    GiftCard(scope = Scope.current,
+             originId = originId,
+             originType = GiftCard.RmaProcess,
+             state = GiftCard.Cart,
+             currency = currency,
+             originalBalance = 0,
+             availableBalance = 0,
+             currentBalance = 0)
 
   def validateStateReason(state: State, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
     if (state == Canceled) {
@@ -197,6 +189,7 @@ object GiftCard {
 
 class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def scope            = column[LTree]("scope")
   def originId         = column[Int]("origin_id")
   def originType       = column[GiftCard.OriginType]("origin_type")
   def subTypeId        = column[Option[Int]]("subtype_id")
@@ -214,6 +207,7 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
 
   def * =
     (id,
+     scope,
      originId,
      originType,
      code,

@@ -29,7 +29,8 @@ object ReturnPaymentUpdater {
     } yield response
 
   def addGiftCard(refNum: String, payload: ReturnPaymentPayload)(implicit ec: EC,
-                                                                 db: DB): DbResultT[Root] =
+                                                                 db: DB,
+                                                                 au: AU): DbResultT[Root] =
     for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
