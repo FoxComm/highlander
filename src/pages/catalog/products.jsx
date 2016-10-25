@@ -14,6 +14,7 @@ import * as actions from 'modules/products';
 
 type Params = {
   categoryName: ?string,
+  productType: ?string
 };
 
 type Props = {
@@ -37,15 +38,19 @@ class Products extends Component {
   props: Props;
 
   componentWillMount() {
-    const { categoryName } = this.props.params;
-    this.props.fetch(categoryName);
+    const { categoryName, productType } = this.props.params;
+    this.props.fetch(categoryName, productType);
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { categoryName } = this.props.params;
-    const nextName = nextProps.params.categoryName;
-    if (categoryName !== nextName) {
-      this.props.fetch(nextName);
+    const { categoryName, productType } = this.props.params;
+    const {
+      categoryName: nextCategoryName,
+      productType: nextProductType,
+    } = nextProps.params;
+
+    if ((categoryName !== nextCategoryName) || (productType !== nextProductType)) {
+      this.props.fetch(nextCategoryName, nextProductType);
     }
   }
 
@@ -59,8 +64,8 @@ class Products extends Component {
       ? <Loader/>
       : <ProductsList
         list={this.props.list}
-        category={this.props.params.categoryName}
-        categoryType={this.props.location.query.type}
+        categoryName={this.props.params.categoryName}
+        productType={this.props.params.productType}
       />;
   }
 }

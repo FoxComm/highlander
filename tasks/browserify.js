@@ -125,5 +125,9 @@ module.exports = function(gulp, $, opts) {
     getBundler().on('update', function() {
       runSequence('browserify');
     });
+
+    if (opts.enableBrowserSync) {
+      gulp.watch(['src/**/*.jsx', 'src/**/*.js'], ['browserify']);
+    }
   });
 };

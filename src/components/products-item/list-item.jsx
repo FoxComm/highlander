@@ -3,8 +3,11 @@
 import React from 'react';
 import type { HTMLElement } from 'types';
 import styles from './list-item.css';
-import { browserHistory } from 'react-router';
+import { Link } from 'react-router';
 import _ from 'lodash';
+import { autobind } from 'core-decorators';
+import { addLineItem, toggleCart } from 'modules/cart';
+import { connect } from 'react-redux';
 
 import Currency from 'ui/currency';
 
@@ -28,35 +31,85 @@ type Product = {
   salePrice: string,
   currency: string,
   albums: ?Array<Album>,
+  skus: Array<string>,
+  addLineItem: Function,
+  toggleCart: Function,
+};
+
+type State = {
+  error?: any,
 };
 
 class ListItem extends React.Component {
   props: Product;
+  state: State;
+
+  static defaultProps = {
+    skus: [],
+  };
+
+  @autobind
+  addToCart () {
+    const skuId = this.props.skus[0];
+    const quantity = 1;
+
+    this.props.addLineItem(skuId, quantity)
+      .then(() => {
+        this.props.toggleCart();
+      })
+      .catch(ex => {
+        this.setState({
+          error: ex,
+        });
+      });
+  }
 
   render(): HTMLElement {
-    const {productId, title, albums, salePrice, currency} = this.props;
-    const previewImage = _.get(albums, [0, 'images', 0, 'src']);
+    const {
+      productId,
+      title,
+      description,
+      albums,
+      salePrice,
+      currency,
+    } = this.props;
 
-    const image = previewImage
-      ? <img src={previewImage} styleName="preview-image" />
-      : null;
-
-    const click = () => browserHistory.push(`/products/${productId}`);
+    const previewImageUrl = _.get(albums, [0, 'images', 0, 'src']);
 
     return (
-      <div styleName="list-item" onClick={click}>
-        <div styleName="preview">
-          {image}
-        </div>
-        <div styleName="name">
-          {title}
-        </div>
-        <div styleName="price">
-          <Currency value={salePrice} currency={currency}/>
+      <div styleName="list-item">
+        {previewImageUrl &&
+          <Link to={`/products/${productId}`}>
+            <div styleName="preview">
+              <img src={previewImageUrl} styleName="preview-image" />
+              <div styleName="hover-info">
+                <h2 styleName="additional-description">{description}</h2>
+              </div>
+            </div>
+          </Link>}
+
+        <div styleName="text-block">
+          <h1 styleName="title" alt={title}>
+            {title}
+          </h1>
+          <h2 styleName="description">{/* serving size */}</h2>
+          <div styleName="price-line">
+            <div styleName="price">
+              <Currency value={salePrice} currency={currency} />
+            </div>
+
+            <button styleName="add-to-cart-btn" onClick={this.addToCart}>
+              <span styleName="add-icon">+</span>
+              <span styleName="add-btn-title">ADD TO CART</span>
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 }
 
-export default ListItem;
+export default connect(null, {
+  addLineItem,
+  toggleCart,
+})(ListItem);
