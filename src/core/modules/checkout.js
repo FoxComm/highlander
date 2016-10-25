@@ -56,11 +56,11 @@ const startLoadingAddress = createAction('START_LOADING_ADDRESS');
 /* eslint-disable quotes, quote-props */
 
 function _fetchShippingMethods() {
-  return this.api.get('/v1/my/cart/shipping-methods');
+  return foxApi.cart.getShippingMethods();
 }
 
 function _fetchAddresses() {
-  return this.api.get('/v1/my/addresses');
+  return foxApi.addresses.list();
 }
 
 function _fetchCreditCards() {
@@ -150,10 +150,10 @@ function addressToPayload(address, countries = []) {
 }
 
 export function saveShippingAddress(id): Function {
-  return (dispatch, getState, api) => {
+  return (dispatch, getState) => {
     const address = getState().checkout.addresses[id];
 
-    return api.patch(`/v1/my/cart/shipping-address/${id}`, address)
+    return foxApi.addresses.update(id, address)
       .then(res => {
         dispatch(updateCart(res.result));
       });
@@ -161,12 +161,12 @@ export function saveShippingAddress(id): Function {
 }
 
 export function saveShippingMethod(): Function {
-  return (dispatch, getState, api) => {
+  return (dispatch, getState) => {
     const payload = {
       shippingMethodId: getState().cart.shippingMethod.id,
     };
 
-    return api.patch('/v1/my/cart/shipping-method', payload)
+    return foxApi.addresses.add(payload)
       .then(res => {
         dispatch(updateCart(res.result));
       });
@@ -174,10 +174,10 @@ export function saveShippingMethod(): Function {
 }
 
 export function saveGiftCard(code: string): Function {
-  return (dispatch, getState, api) => {
+  return (dispatch) => {
     const payload = { code: code.trim() };
 
-    return api.post('/v1/my/cart/payment-methods/gift-cards', payload)
+    return foxApi.cart.addGiftCard(payload)
       .then(res => {
         dispatch(updateCart(res.result));
       });
@@ -185,7 +185,7 @@ export function saveGiftCard(code: string): Function {
 }
 
 export function saveCouponCode(code: string): Function {
-  return (dispatch, getState, api) => {
+  return (dispatch, api) => {
     return api.post(`/v1/my/cart/coupon/${code.trim()}`, {})
       .then(res => {
         dispatch(updateCart(res));
@@ -193,16 +193,16 @@ export function saveCouponCode(code: string): Function {
   };
 }
 
-function createOrUpdateAddress(api, payload, id) {
+function createOrUpdateAddress(payload, id) {
   if (id) {
-    return api.patch(`/v1/my/addresses/${id}`, payload);
+    return foxApi.addresses.update(id, payload);
   }
-  return api.post(`/v1/my/addresses`, payload);
+  return foxApi.addresses.add(payload);
 }
 
 function setDefaultAddress(id: number): Function {
-  return (dispatch, getState, api) => {
-    return api.post(`/v1/my/addresses/${id}/default`)
+  return (dispatch) => {
+    return foxApi.addresses.setAsDefault(id)
       .then(() => {
         dispatch(fetchAddresses());
       });
@@ -210,11 +210,11 @@ function setDefaultAddress(id: number): Function {
 }
 
 export function updateAddress(id?: number): Function {
-  return (dispatch, getState, api) => {
+  return (dispatch, getState) => {
     const shippingAddress = getState().checkout.shippingAddress;
     const payload = addressToPayload(shippingAddress);
 
-    return createOrUpdateAddress(api, payload, id)
+    return createOrUpdateAddress(payload, id)
       .then((address) => {
         dispatch(extendAddressData('shippingAddress', dispatch(emptyAddress())));
 
@@ -259,8 +259,8 @@ export function addCreditCard(): Function {
 
 // Place order from cart.
 export function checkout(): Function {
-  return (dispatch, getState, api) => {
-    return api.post('/v1/my/cart/checkout').then(res => {
+  return (dispatch) => {
+    return foxApi.cart.checkout().then(res => {
       dispatch(orderPlaced(res));
       return dispatch(updateCart(res));
     });
