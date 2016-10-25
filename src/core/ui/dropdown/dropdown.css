@@ -20,14 +20,19 @@
   margin: 0 auto;
   cursor: pointer;
 
+  &:before, &:after {
+    font-size: 10px;
+    transform: scaleX(2);
+  }
+
   &:after {
     float: right;
     margin-right: -5px;
-    content: '\25BE'; /* down triangle */
+    content: '▼';
   }
 
   &.open:after {
-    content: '\25B4'; /* up triangle */
+    content: '▲';
   }
 }
 
