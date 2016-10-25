@@ -1,24 +1,23 @@
 @import "colors.css";
 
 .editable-block {
-  padding: 20px;
-  background: var(--color-panels-bg);
 }
 
 .header {
-  margin-top: 5px;
   display: flex;
 }
 
 .title {
-  font-size: 22px;
-  line-height: 27px;
   flex-grow: 1;
-  text-align: left;
+  margin: 0;
+  text-transform: uppercase;
+  font-size: 1em;
 }
 
 .edit {
-  color: #9E9E9E;
+  color: #8D757A;
+  font-size: 13px;
+  font-weight: 400;
   text-align: right;
   cursor: pointer;
 }

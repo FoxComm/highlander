@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import React, { Component } from 'react';
 
-import styles from './checkout.css';
+import styles from '../checkout.css';
 
 import localized from 'lib/i18n';
 

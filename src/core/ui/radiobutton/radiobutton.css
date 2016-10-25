@@ -1,0 +1,41 @@
+@import "colors.css";
+
+.radiobutton {
+  --size: 28px;
+
+  & .input {
+    width: var(--size);
+    height: var(--size);
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+
+    &:checked, &:hover {
+      & + .label:before {
+        background: #8C757A;
+        box-shadow: inset 0 0 0 3px #fff;
+      }
+    }
+  }
+
+  & .label {
+    display: flex;
+    margin-top: -28px;
+    line-height: 28px;
+    position: relative;
+
+    &:before {
+      content: "";
+      display: inline-block;
+      width: var(--size);
+      height: var(--size);
+      background: #ffffff;
+      margin-right: 0.9em;
+      vertical-align: middle;
+      border-radius: 100%;
+      border: 1px solid #8C757A;
+    }
+  }
+
+}
+

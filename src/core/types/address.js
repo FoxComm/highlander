@@ -1,19 +1,29 @@
 
 type State = {
-  name: string;
-}
+  name: string,
+};
 
 type Country = {
-  alpha3: string;
-  name?: string;
-}
+  alpha3: string,
+  name?: string,
+};
+
+type Region = {
+  id: number,
+  countryId: number,
+  name: string,
+};
 
 export type Address = {
-  name: string;
-  address1: string;
-  address2?: string;
-  state: State;
-  country: Country;
-  zip: string|number;
-  phone?: string;
+  id?: number,
+  region?: Region,
+  country?: Country,
+  state?: State,
+  city?: string,
+  name: string,
+  address1: string,
+  address2?: string,
+  zip: string|number,
+  isDefault?: boolean,
+  phoneNumber?: string,
 };

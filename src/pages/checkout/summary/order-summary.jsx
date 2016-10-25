@@ -5,6 +5,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import classNames from 'classnames/dedupe';
 
 // localization
 import localized from 'lib/i18n';
@@ -29,6 +30,7 @@ type Props = {
   skus: Array<any>,
   paymentMethods?: Object,
   t: any,
+  isScrolled: boolean,
 };
 
 type State = {
@@ -94,10 +96,13 @@ class OrderSummary extends Component {
     const grandTotal = giftCardPresent ? props.totals.total - giftCardAmount : props.totals.total;
     const grandTotalResult = grandTotal > 0 ? grandTotal : 0;
 
-    const style = this.state.isCollapsed ? 'order-summary-collapsed' : 'order-summary';
+    const style = classNames({
+      [styles.collapsed]: this.state.isCollapsed,
+      [styles.scrolled]: this.props.isScrolled,
+    });
 
     return (
-      <section styleName={style}>
+      <section styleName="order-summary" className={style}>
         <header styleName="header" onClick={this.toggleCollapsed}>
           <div styleName="title">{t('ORDER TOTAL')}</div>
           <Currency styleName="price" value={grandTotalResult} />

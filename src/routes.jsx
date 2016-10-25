@@ -7,7 +7,7 @@ import Pdp from './pages/catalog/pdp';
 import Search from './pages/search/search';
 
 import Checkout from './pages/checkout/checkout';
-import OrderPlaced from './pages/checkout/order-placed';
+import OrderPlaced from './pages/checkout/04-order-placed/order-placed';
 
 const routes = (
   <Route path="/" component={Site}>

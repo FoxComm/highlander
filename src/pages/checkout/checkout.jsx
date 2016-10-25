@@ -8,13 +8,10 @@ import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
 
 // components
-import Shipping from './shipping';
-import Delivery from './delivery';
-import Billing from './billing';
+import Shipping from './01-shipping/shipping';
+import Delivery from './02-delivery/delivery';
+import Billing from './03-billing/billing';
 import OrderSummary from './summary/order-summary';
-import GiftCard from './gift-card';
-import CouponCode from '../../components/coupon-code/coupon-code';
-import EditableBlock from 'ui/editable-block';
 import Header from './header';
 
 import type { Promise as PromiseType } from 'types/promise';
@@ -28,27 +25,17 @@ type Props = CheckoutState & {
   setEditStage: (stage: EditStage) => Object,
   saveShippingAddress: () => PromiseType,
   saveShippingMethod: () => PromiseType,
+  setDefaultAddress: () => PromiseType,
   fetchCart: () => PromiseType,
   addCreditCard: () => PromiseType,
   checkout: () => PromiseType,
   hideCart: () => PromiseType,
+  addresses: Array<any>,
+  fetchAddresses: Function,
+  updateAddress: Function,
+  cart: Object,
+  isAddressLoaded: boolean,
 };
-
-function isDeliveryDirty(state) {
-  return !!state.cart.shippingMethod;
-}
-
-function isBillingDirty(state) {
-  return !_.isEmpty(state.checkout.billingData) || !_.isEmpty(state.checkout.billingAddress);
-}
-
-function mapStateToProps(state) {
-  return {
-    ...state.checkout,
-    isBillingDirty: isBillingDirty(state),
-    isDeliveryDirty: isDeliveryDirty(state),
-  };
-}
 
 class Checkout extends Component {
   props: Props;
@@ -58,12 +45,28 @@ class Checkout extends Component {
     deliveryInProgress: false,
     shippingInProgress: false,
     error: null,
+    isScrolled: false,
   };
 
   componentDidMount() {
     this.props.fetchCart();
     this.props.hideCart();
+
+    this.checkScroll();
+    window.addEventListener('scroll', this.checkScroll);
   }
+
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.checkScroll);
+  }
+
+  checkScroll = () => {
+    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    const checkoutHeaderHeight = 136;
+    const isScrolled = scrollTop > checkoutHeaderHeight;
+
+    this.setState({isScrolled});
+  };
 
   performStageTransition(name: string, perform: () => PromiseType): PromiseType {
     return new Promise(resolve => {
@@ -94,9 +97,9 @@ class Checkout extends Component {
   }
 
   @autobind
-  setDeliveryStage() {
+  setDeliveryStage(id) {
     this.performStageTransition('shippingInProgress', () => {
-      return this.props.saveShippingAddress().then(() => {
+      return this.props.saveShippingAddress(id).then(() => {
         this.props.setEditStage(EditStages.DELIVERY);
       });
     });
@@ -138,11 +141,11 @@ class Checkout extends Component {
 
     return (
       <section styleName="checkout">
-        <Header />
+        <Header isScrolled={this.state.isScrolled}/>
 
         <div styleName="content">
           <div styleName="summary">
-            <OrderSummary />
+            <OrderSummary isScrolled={this.state.isScrolled} />
           </div>
 
           <div styleName="forms">
@@ -153,6 +156,11 @@ class Checkout extends Component {
               inProgress={this.state.shippingInProgress}
               continueAction={this.setDeliveryStage}
               error={this.errorsFor(EditStages.SHIPPING)}
+              addresses={this.props.addresses}
+              fetchAddresses={this.props.fetchAddresses}
+              shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
+              updateAddress={this.props.updateAddress}
+              isAddressLoaded={this.props.isAddressLoaded}
             />
             <Delivery
               isEditing={props.editStage == EditStages.DELIVERY}
@@ -172,19 +180,28 @@ class Checkout extends Component {
               continueAction={this.placeOrder}
               error={this.errorsFor(EditStages.BILLING)}
             />
-            <EditableBlock
-              styleName="checkout-block"
-              title="PROMO CODE"
-              isEditing
-              collapsed={false}
-              content={<CouponCode />}
-            />
-            <GiftCard />
           </div>
         </div>
       </section>
     );
   }
+}
+
+function isDeliveryDirty(state) {
+  return !!state.cart.shippingMethod;
+}
+
+function isBillingDirty(state) {
+  return !_.isEmpty(state.checkout.billingData) || !_.isEmpty(state.checkout.billingAddress);
+}
+
+function mapStateToProps(state) {
+  return {
+    ...state.checkout,
+    cart: state.cart,
+    isBillingDirty: isBillingDirty(state),
+    isDeliveryDirty: isDeliveryDirty(state),
+  };
 }
 
 export default connect(mapStateToProps, { ...actions, fetchCart, hideCart })(Checkout);

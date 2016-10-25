@@ -67,6 +67,11 @@
     top: 90px;
     left: 0;
     width: 63px;
+
+    & input {
+      height: 30px;
+      font-size: 12px;
+    }
   }
 }
 

@@ -10,9 +10,15 @@ import styles from './header.css';
 import { Link } from 'react-router';
 import Icon from 'ui/icon';
 
-const Header = () => {
+type Props = {
+  isScrolled: boolean,
+};
+
+const Header = (props: Props) => {
+  const headerStyle = props.isScrolled ? 'header-scrolled' : 'header';
+
   return (
-    <header styleName="header">
+    <header styleName={headerStyle}>
       <div styleName="logo">
         <Link to="/">
           <Icon styleName="logo" name="fc-logo"/>

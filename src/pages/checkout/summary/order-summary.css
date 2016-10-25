@@ -2,15 +2,11 @@
 @import "colors.css";
 
 .order-summary {
-  composes: checkout-block from "../checkout.css";
+  width: 100%;
   margin: 0;
   padding: 0;
   background: #FFFFFF;
   color: #212121;
-}
-
-.order-summary-collapsed {
-  composes: order-summary;
 }
 
 .divider {
@@ -20,7 +16,7 @@
 }
 
 .header {
-  height: 70px;
+  height: 50px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -58,13 +54,15 @@
   padding: 1.3em 0;
 }
 
-@media (--small-only), (--medium-only) {
+@media (--small-only) {
   .header,
   .content {
-    lost-column: 10/12;
-    lost-offset: -1/12;
+    margin-left: 20px;
+    margin-right: 20px;
   }
+}
 
+@media (--small-only), (--medium-only) {
   .header {
     &:after {
       content: "▲";
@@ -75,19 +73,39 @@
   }
 
   .order-summary {
+    position: fixed;
     box-shadow: 0 5px 10px rgba(0, 0, 0, .1);
-    max-height: 100%;
     overflow-y: auto;
+    max-height: calc(100% - 146px);
+
+    &.collapsed {
+      & .header:after {
+        content: "▼";
+      }
+
+      & .content {
+        display: none;
+      }
+    }
+
+    &.scrolled {
+      top: 60px;
+      max-height: calc(100% - 60px);
+    }
   }
+}
 
-  .order-summary-collapsed {
-    & .header:after {
-      content: "▼";
-    }
+@media (--medium-only) {
+  .header,
+  .content {
+    lost-column: 10/12;
+    lost-offset: -1/12;
+  }
+}
 
-    & .content {
-      display: none;
-    }
+@media (--medium) {
+  .header {
+    height: 70px;
   }
 }
 

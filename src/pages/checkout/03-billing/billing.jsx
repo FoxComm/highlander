@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import React, { Component } from 'react';
-import styles from './checkout.css';
+import styles from '../checkout.css';
 import textStyles from 'ui/css/input.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -14,18 +14,21 @@ import { api as foxApi } from 'lib/api';
 import { Form, FormField } from 'ui/forms';
 import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import Button from 'ui/buttons';
-import Checkbox from 'ui/checkbox';
+import Checkbox from 'ui/checkbox/checkbox';
 import EditableBlock from 'ui/editable-block';
 import Autocomplete from 'ui/autocomplete';
 import InputMask from 'react-input-mask';
-import EditAddress from './edit-address';
+import EditAddress from '../address/edit-address';
 import CreditCards from './credit-cards';
 import Icon from 'ui/icon';
-import ViewAddress from './view-address';
+import ViewAddress from '../address/view-address';
 import CvcHelp from './cvc-help';
 import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
+import GiftCard from './gift-card';
+import CouponCode from '../../../components/coupon-code/coupon-code';
 
-import type { CheckoutBlockProps } from './types';
+
+import type { CheckoutBlockProps } from '../types';
 import * as cartActions from 'modules/cart';
 import * as checkoutActions from 'modules/checkout';
 import { AddressKind } from 'modules/checkout';
@@ -292,6 +295,15 @@ class EditBilling extends Component {
         </div>
         <CreditCards selectCreditCard={this.selectCreditCard} />
         {form}
+
+        <EditableBlock
+          styleName="checkout-block"
+          title="PROMO CODE"
+          isEditing
+          collapsed={false}
+          content={<CouponCode />}
+        />
+        <GiftCard />
       </div>
     );
   }

@@ -67,7 +67,7 @@ type Product = {
   description: string,
   images: Array<string>,
   currency: string,
-  price: string,
+  price: number|string,
 };
 
 const mapStateToProps = state => {

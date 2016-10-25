@@ -1,20 +1,20 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
-import styles from './checkout.css';
+import styles from '../checkout.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
 import localized from 'lib/i18n';
 
 import Button from 'ui/buttons';
-import Checkbox from 'ui/checkbox';
+import Checkbox from 'ui/checkbox/checkbox';
 import EditableBlock from 'ui/editable-block';
 import { Form } from 'ui/forms';
 import Currency from 'ui/currency';
 import Loader from 'ui/loader';
 import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 
-import type { CheckoutBlockProps } from './types';
+import type { CheckoutBlockProps } from '../types';
 import * as cartActions from 'modules/cart';
 import { fetchShippingMethods } from 'modules/checkout';
 

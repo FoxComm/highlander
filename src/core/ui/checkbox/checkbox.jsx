@@ -1,8 +1,10 @@
-
 /* @flow */
 
+// libs
 import React from 'react';
-import styles from './css/checkbox.css';
+
+// styles
+import styles from './checkbox.css';
 
 import type { HTMLElement } from 'types';
 

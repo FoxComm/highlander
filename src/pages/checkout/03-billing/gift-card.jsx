@@ -1,7 +1,7 @@
 
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
-import styles from './checkout.css';
+import styles from '../checkout.css';
 import { saveGiftCard } from 'modules/checkout';
 import { connect } from 'react-redux';
 

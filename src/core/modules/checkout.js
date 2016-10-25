@@ -50,11 +50,17 @@ export const setAddressData = createAction('CHECKOUT_SET_ADDRESS_DATA', (kind, k
 export const extendAddressData = createAction('CHECKOUT_EXTEND_ADDRESS_DATA', (kind, props) => [kind, props]);
 export const resetCheckout = createAction('CHECKOUT_RESET');
 const orderPlaced = createAction('CHECKOUT_ORDER_PLACED');
+const finishLoadingAddress = createAction('FINISH_LOADING_ADDRESS');
+const startLoadingAddress = createAction('START_LOADING_ADDRESS');
 
 /* eslint-disable quotes, quote-props */
 
 function _fetchShippingMethods() {
   return this.api.get('/v1/my/cart/shipping-methods');
+}
+
+function _fetchAddresses() {
+  return this.api.get('/v1/my/addresses');
 }
 
 function _fetchCreditCards() {
@@ -65,45 +71,72 @@ function _fetchCreditCards() {
 
 const shippingMethodsActions = createAsyncActions('shippingMethods', _fetchShippingMethods);
 const creditCardsActions = createAsyncActions('creditCards', _fetchCreditCards);
+const addressesActions = createAsyncActions('addresses', _fetchAddresses);
 
 export const fetchShippingMethods = shippingMethodsActions.fetch;
 export const fetchCreditCards = creditCardsActions.fetch;
+export const fetchAddresses = addressesActions.fetch;
 export const toggleSeparateBillingAddress = createAction('CHECKOUT_TOGGLE_BILLING_ADDRESS');
 
-export function initAddressData(kind: AddressKindType): Function {
+function emptyAddress() {
   return (dispatch, getState) => {
     const state = getState();
-
-    const shippingAddress = getState().cart.shippingAddress;
 
     const countries = state.countries.list;
 
     const usaCountry = _.find(countries, { alpha3: 'USA' });
     const countryDetails = state.countries.details[usaCountry && usaCountry.id] || { regions: [] };
 
-    let uiAddressData = {
+    return {
+      name: '',
+      address1: '',
+      address2: '',
+      city: '',
+      zip: '',
+      phoneNumber: '',
+      isDefault: false,
       country: usaCountry,
       state: countryDetails.regions[0],
     };
+  };
+}
+export function initAddressData(kind: AddressKindType, savedAddress): Function {
+  return (dispatch, getState) => {
+    dispatch(startLoadingAddress());
 
-    if (kind == AddressKind.SHIPPING && shippingAddress && shippingAddress.region) {
-      dispatch(fetchCountry(shippingAddress.region.countryId)).then(() => {
-        const countryInfo = getState().countries.details[shippingAddress.region.countryId];
+    let uiAddressData;
 
-        uiAddressData = _.pick(shippingAddress, ['name', 'address1', 'address2', 'city', 'zip', 'phoneNumber']);
+    const validAddress = kind == AddressKind.SHIPPING && !_.isEmpty(savedAddress) && savedAddress.region;
+
+    if (validAddress) {
+      dispatch(fetchCountry(savedAddress.region.countryId)).then(() => {
+        const countryInfo = getState().countries.details[savedAddress.region.countryId];
+
+        uiAddressData = _.pick(savedAddress, [
+          'name',
+          'address1',
+          'address2',
+          'city',
+          'zip',
+          'phoneNumber',
+          'isDefault',
+        ]);
         uiAddressData.country = countryInfo;
-        uiAddressData.state = _.find(countryInfo.regions, { id: shippingAddress.region.id });
+        uiAddressData.state = _.find(countryInfo.regions, { id: savedAddress.region.id });
 
         dispatch(extendAddressData(kind, uiAddressData));
+        dispatch(finishLoadingAddress());
       });
     } else {
+      uiAddressData = dispatch(emptyAddress());
       dispatch(extendAddressData(kind, uiAddressData));
+      dispatch(finishLoadingAddress());
     }
   };
 }
 
 function addressToPayload(address, countries = []) {
-  const payload = _.pick(address, ['name', 'address1', 'address2', 'city', 'zip', 'phoneNumber']);
+  const payload = _.pick(address, ['name', 'address1', 'address2', 'city', 'zip', 'phoneNumber', 'isDefault']);
   payload.phoneNumber = String(payload.phoneNumber);
   payload.regionId = _.get(address, 'region.id', _.get(address, 'state.id', ''));
 
@@ -116,12 +149,11 @@ function addressToPayload(address, countries = []) {
   return payload;
 }
 
-export function saveShippingAddress(): Function {
+export function saveShippingAddress(id): Function {
   return (dispatch, getState, api) => {
-    const shippingAddress = getState().checkout.shippingAddress;
-    const payload = addressToPayload(shippingAddress);
+    const address = getState().checkout.addresses[id];
 
-    return api.post('/v1/my/cart/shipping-address', payload)
+    return api.patch(`/v1/my/cart/shipping-address/${id}`, address)
       .then(res => {
         dispatch(updateCart(res.result));
       });
@@ -157,6 +189,40 @@ export function saveCouponCode(code: string): Function {
     return api.post(`/v1/my/cart/coupon/${code.trim()}`, {})
       .then(res => {
         dispatch(updateCart(res));
+      });
+  };
+}
+
+function createOrUpdateAddress(api, payload, id) {
+  if (id) {
+    return api.patch(`/v1/my/addresses/${id}`, payload);
+  }
+  return api.post(`/v1/my/addresses`, payload);
+}
+
+function setDefaultAddress(id: number): Function {
+  return (dispatch, getState, api) => {
+    return api.post(`/v1/my/addresses/${id}/default`)
+      .then(() => {
+        dispatch(fetchAddresses());
+      });
+  };
+}
+
+export function updateAddress(id?: number): Function {
+  return (dispatch, getState, api) => {
+    const shippingAddress = getState().checkout.shippingAddress;
+    const payload = addressToPayload(shippingAddress);
+
+    return createOrUpdateAddress(api, payload, id)
+      .then((address) => {
+        dispatch(extendAddressData('shippingAddress', dispatch(emptyAddress())));
+
+        if (payload.isDefault) {
+          dispatch(setDefaultAddress(address.id));
+        } else {
+          dispatch(fetchAddresses());
+        }
       });
   };
 }
@@ -209,6 +275,8 @@ const initialState: CheckoutState = {
   billingAddressIsSame: true,
   shippingMethods: [],
   creditCards: [],
+  addresses: [],
+  isAddressLoaded: false,
 };
 
 const reducer = createReducer({
@@ -230,6 +298,18 @@ const reducer = createReducer({
       [ns], props
     );
   },
+  [startLoadingAddress]: (state) => {
+    return {
+      ...state,
+      isAddressLoaded: false,
+    };
+  },
+  [finishLoadingAddress]: (state) => {
+    return {
+      ...state,
+      isAddressLoaded: true,
+    };
+  },
   [setBillingData]: (state, [key, value]) => {
     return assoc(state,
       ['billingData', key], value
@@ -245,6 +325,12 @@ const reducer = createReducer({
     return {
       ...state,
       creditCards: list,
+    };
+  },
+  [addressesActions.succeeded]: (state, list) => {
+    return {
+      ...state,
+      addresses: list,
     };
   },
   [toggleSeparateBillingAddress]: state => {

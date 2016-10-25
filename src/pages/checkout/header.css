@@ -3,8 +3,17 @@
 
 .header {
   position: fixed;
-  z-index: 1;
+  z-index: 10;
   width: 100%;
+}
+
+.header-scrolled {
+  composes: header;
+
+  & .logo,
+  & .title {
+    display: none;
+  }
 }
 
 .logo {
@@ -30,6 +39,7 @@
   justify-content: center;
   counter-reset: item;
   text-transform: uppercase;
+  font-size: 13px;
 }
 
 .nav-item {
@@ -94,6 +104,10 @@
     height: 96px;
     letter-spacing: 2px;
     font-size: 15px;
+  }
+
+  .header-scrolled {
+
   }
 }
 

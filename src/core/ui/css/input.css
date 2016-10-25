@@ -2,8 +2,8 @@
 @import "media-queries.css";
 
 .text-input {
-  height: 30px;
-  font-size: 12px;
+  height: 46px;
+  font-size: 14px;
   padding: 0 10px;
   border: 1px solid var(--whitish);
   color: #212121;
@@ -34,10 +34,7 @@
 
 @media (--medium) {
   .text-input {
-    padding: 0 20px;
-    height: 46px;
     font-weight: 400;
-    font-size: 14px;
     line-height: 19px;
     transition: all 300ms;
 
@@ -52,7 +49,5 @@
 
   .label {
     --line-height: 19px;
-
-    right: 20px;
   }
 }

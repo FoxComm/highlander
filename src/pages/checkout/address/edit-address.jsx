@@ -1,25 +1,33 @@
 
+// libs
 import _ from 'lodash';
 import React, { Component } from 'react';
-import styles from './checkout.css';
 import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
 
+// localization
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
+// components
 import { TextInput } from 'ui/inputs';
 import { FormField } from 'ui/forms';
 import Autocomplete from 'ui/autocomplete';
+import Checkbox from 'ui/checkbox/checkbox';
+import Loader from 'ui/loader';
 
+// styles
+import styles from '../checkout.css';
+
+// actions
 import * as checkoutActions from 'modules/checkout';
 import { AddressKind } from 'modules/checkout';
 
 type EditShippingProps = Localized & {
-  setAddressData: Function;
-  selectedCountry: Object;
-  state: Object;
-}
+  setAddressData: Function,
+  selectedCountry: Object,
+  state: Object,
+};
 
 function mapStateToProps(state, props) {
   const { addressKind } = props;
@@ -50,8 +58,8 @@ export default class EditAddress extends Component {
   lookupXhr: ?XMLHttpRequest;
 
   componentDidMount() {
-    const { initAddressData, addressKind } = this.props;
-    initAddressData(addressKind);
+    const { initAddressData, addressKind, address } = this.props;
+    initAddressData(addressKind, address);
   }
 
   setAddressData(key, value) {
@@ -101,21 +109,35 @@ export default class EditAddress extends Component {
   }
 
   @autobind
-  changeCountry(item) {
-    this.setAddressData('country', item);
-  }
-
-  @autobind
   changeState(item) {
     this.setAddressData('state', item);
   }
 
+  @autobind
+  changeDefault(value) {
+    this.setAddressData('isDefault', value);
+  }
+
   render() {
+    if (!this.props.isAddressLoaded) return <Loader size="m"/>;
+
     const props: EditShippingProps = this.props;
-    const { countries, selectedCountry, data, t } = props;
+    const { selectedCountry, data, t } = props;
+
+    const checked = _.get(data, 'isDefault', false);
 
     return (
       <div styleName="checkout-form">
+        <Checkbox
+          styleName="checkbox-field"
+          name="isDefault"
+          checked={checked}
+          onChange={({target}) => this.changeDefault(target.checked)}
+          id="set-default-address"
+        >
+          Make this address my default
+        </Checkbox>
+
         <FormField styleName="text-field">
           <TextInput required
             name="name" placeholder={t('FIRST & LAST NAME')} value={data.name} onChange={this.changeFormData}
@@ -133,38 +155,23 @@ export default class EditAddress extends Component {
             onChange={this.changeFormData}
           />
         </FormField>
-        <div styleName="union-fields">
-          <FormField styleName="text-field">
-            <Autocomplete
-              inputProps={{
-                placeholder: t('COUNTRY'),
-              }}
-              getItemValue={item => item.name}
-              items={countries}
-              onSelect={this.changeCountry}
-              selectedItem={selectedCountry}
-            />
-          </FormField>
-          <FormField styleName="text-field" validator="zipCode">
-            <TextInput required placeholder={t('ZIP')} onChange={this.handleZipChange} value={data.zip} />
-          </FormField>
-        </div>
-        <div styleName="union-fields">
-          <FormField styleName="text-field">
-            <TextInput required name="city" placeholder={t('CITY')} onChange={this.changeFormData} value={data.city} />
-          </FormField>
-          <FormField styleName="text-field">
-            <Autocomplete
-              inputProps={{
-                placeholder: t('STATE'),
-              }}
-              getItemValue={item => item.name}
-              items={selectedCountry.regions}
-              onSelect={this.changeState}
-              selectedItem={props.state}
-            />
-          </FormField>
-        </div>
+        <FormField styleName="text-field" validator="zipCode">
+          <TextInput required placeholder={t('ZIP')} onChange={this.handleZipChange} value={data.zip} />
+        </FormField>
+        <FormField styleName="text-field">
+          <TextInput required name="city" placeholder={t('CITY')} onChange={this.changeFormData} value={data.city}/>
+        </FormField>
+        <FormField styleName="text-field">
+          <Autocomplete
+            inputProps={{
+              placeholder: t('STATE'),
+            }}
+            getItemValue={item => item.name}
+            items={selectedCountry.regions}
+            onSelect={this.changeState}
+            selectedItem={props.state}
+          />
+        </FormField>
         <FormField label={t('Phone Number')} styleName="text-field" validator="phoneNumber">
           <TextInput
             required
