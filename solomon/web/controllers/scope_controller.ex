@@ -29,6 +29,15 @@ defmodule Solomon.ScopeController do
   end
 
   def show(conn, %{"id" => id}) do
+    scope = ScopeService.scoped_show(conn, Scope, id)
+    case scope do
+      {:error, changeset} ->
+        conn
+        |> put_status(:unauthorized)
+        |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
+      _ ->
+        render(conn, "show.json", scope: scope)
+    end
     scope = Repo.get!(Scope, id)
     render(conn, "show.json", scope: scope)
   end

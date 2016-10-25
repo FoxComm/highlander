@@ -2,6 +2,7 @@ defmodule Solomon.ScopeService do
   import Plug.Conn
   import Ecto.Query
   alias Ecto.Changeset
+  alias Solomon.ErrorView
   alias Solomon.Repo
   alias Solomon.Resource
   alias Solomon.Scope
@@ -23,6 +24,43 @@ defmodule Solomon.ScopeService do
         end
       {:error, changeset} -> {:error, changeset}
     end
+  end
+
+  defp insert_permissions(scope_id, resources) do
+    permissions = Repo.all(Resource)
+    |> Enum.filter(fn resource -> Enum.any?(resources, fn s -> s == resource.name end) end)
+    |> Enum.map(
+      fn resource -> PermissionClaimService.insert_permission(
+        %{resource_id: resource.id, scope_id: scope_id, actions: resource.actions})
+      end)
+    |> handle_permission_error
+    case permissions do
+      {:error, changeset} ->
+        {:error, changeset}
+      permissions ->
+        permissions
+        |> Enum.map(fn txn ->
+          case Repo.transaction(txn) do
+            {:ok, %{permission: permission}} -> permission
+            # This should be handled
+            {:error, _, _, _} -> nil
+          end
+        end)
+    end
+  end
+
+  defp handle_permission_error(permissions) do
+    case Enum.find(permissions, fn x -> is_tuple(x) end) do
+      nil ->
+        IO.inspect(permissions)
+        permissions
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  defp insert_role_permission(role_id, permission_id) do
+    changeset = RolePermission.changeset(%RolePermission{}, %{role_id: role_id, permission_id: permission_id})
+    Repo.insert(changeset)
   end
 
   def get_scope_path_by_id(scope_id) do
@@ -47,6 +85,15 @@ defmodule Solomon.ScopeService do
     end
   end
 
+  def get_request_scope_regex(conn) do
+    case get_resp_header(conn, "scope") do
+      [] -> {:error, "scope not found"}
+      [scope] ->
+        "^" <> Regex.escape(scope)
+        |> Regex.compile!
+    end
+  end
+
   def scoped_index(conn, Scope) do
     req_scope_path = get_request_scope_regex(conn)
     Repo.all(Scope)
@@ -60,48 +107,48 @@ defmodule Solomon.ScopeService do
   def scoped_index(conn, schema) do
     req_scope_path = get_request_scope_regex(conn)
     Repo.all(
-      from thing in schema,
+      from object in schema,
       join: scope in Scope,
-      on: thing.scope_id == scope.id,
-      select: {thing, scope}
-    ) # get all the things
+      on: object.scope_id == scope.id,
+      select: {object, scope}
+    )
     |> Enum.filter(
-      fn {thing, scope} ->
+      fn {object, scope} ->
         Regex.match?(req_scope_path, get_scope_path(scope))
       end
-    ) # filter all the things
-    |> Enum.map(fn {thing, scope} -> thing end) # return only things
+    )
+    |> Enum.map(fn {object, scope} -> object end)
   end
 
-  def get_request_scope_regex(conn) do
-    case get_resp_header(conn, "scope") do
-      [] -> {:error, "scope not found"}
-      [scope] ->
-        "^" <> Regex.escape(scope)
-        |> Regex.compile!
+  def scoped_show(conn, Scope, id) do
+    req_scope_path = get_request_scope_regex(conn)
+    scope = Repo.get!(Scope, id)
+    if Regex.match?(get_request_scope_regex(conn), get_scope_path(scope)) do
+      scope
+    else {
+      :error,
+      Ecto.Changeset.add_error(
+        Scope.changeset(scope, %{}),
+        :scope,
+        "unauthorized"
+      )
+    }
     end
   end
-
-  defp insert_permissions(scope_id, resources) do
-    permissions = Repo.all(Resource)
-    |> Enum.filter(fn resource -> Enum.any?(resources, fn s -> s == resource.name end) end)
-    |> Enum.map(
-      fn resource -> PermissionClaimService.insert_permission(
-        %{resource_id: resource.id, scope_id: scope_id, actions: resource.actions})
-      end)
-    |> handle_permission_error
-    case permissions do
-      {:error, changeset} ->
-        {:error, changeset}
-      permissions ->
-        permissions
-        |> Enum.map(fn txn ->
-          case Repo.transaction(txn) do
-            {:ok, %{permission: permission}} -> permission
-            # This should be handled
-            {:error, _, _, _} -> nil
-          end
-        end)
+  
+  def scoped_show(conn, schema, id) do
+    req_scope_path = get_request_scope_regex(conn)
+    object = Repo.get!(schema, id)
+    if Regex.match?(get_request_scope_regex(conn), get_scope_path_by_id!(object.scope_id)) do
+      object
+    else {
+      :error,
+      Ecto.Changeset.add_error(
+        schema.changeset(object, %{}),
+        :scope,
+        "unauthorized"
+      )
+    }
     end
   end
 

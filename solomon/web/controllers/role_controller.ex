@@ -27,10 +27,19 @@ defmodule Solomon.RoleController do
   end
 
   def show(conn, %{"id" => id}) do
-    role =
-      Repo.get!(Role, id)
-      |> Repo.preload(:permissions)
-    render(conn, "show_with_permissions.json", role: role)
+    role = ScopeService.scoped_show(conn, Role, id)
+    case role do
+      {:error, changeset} ->
+        conn
+        |> put_status(:unauthorized)
+        |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
+      _ ->
+        role_with_permissions =
+          role
+          |> Repo.preload(:permissions)
+        conn
+        |> render("show_with_permissions.json", role: role_with_permissions)
+    end
   end
 
   def update(conn, %{"id" => id, "role" => role_params}) do

@@ -25,10 +25,19 @@ defmodule Solomon.PermissionController do
   end
 
   def show(conn, %{"id" => id}) do
-    permission =
-      Repo.get!(Permission, id)
-      |> Repo.preload([:resource, :scope])
-    render(conn, "show_full.json", permission: permission)
+    permission = ScopeService.scoped_show(conn, Permission, id)
+    case permission do
+      {:error, changeset} ->
+        conn
+        |> put_status(:unauthorized)
+        |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
+      _ ->
+        permission_full =
+          permission
+          |> Repo.preload([:resource, :scope])
+        conn
+        |> render("show_full.json", permission: permission_full)
+    end
   end
 
   def update(conn, %{"id" => id, "permission" => permission_params}) do

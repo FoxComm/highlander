@@ -26,8 +26,15 @@ defmodule Solomon.OrganizationController do
   end
 
   def show(conn, %{"id" => id}) do
-    organization = Repo.get!(Organization, id)
-    render(conn, "show.json", organization: organization)
+    organization = ScopeService.scoped_show(conn, Organization, id)
+    case organization do
+      {:error, changeset} ->
+        conn
+        |> put_status(:unauthorized)
+        |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
+      _ ->
+        render(conn, "show.json", organization: organization)
+    end
   end
 
   def update(conn, %{"id" => id, "organization" => organization_params}) do
