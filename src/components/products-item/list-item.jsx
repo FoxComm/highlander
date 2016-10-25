@@ -36,12 +36,17 @@ type Product = {
   toggleCart: Function,
 };
 
+type State = {
+  error?: any,
+};
+
 class ListItem extends React.Component {
   props: Product;
+  state: State;
 
   static defaultProps = {
     skus: [],
-  }
+  };
 
   @autobind
   addToCart () {
