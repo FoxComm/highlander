@@ -11,16 +11,7 @@ defmodule Solomon.PermissionClaimService do
   alias Solomon.System
   alias Solomon.ScopeService
 
-  def insert_permission(params) do
-    perm_changeset = Permission.changeset(%Permission{}, params)
-    |> create_claim_changeset
-    #Multi.new
-    #|> Multi.insert(:permission, perm_changeset)
-    #|> Multi.run(:claim, fn %{permission: permission} -> create_claim_changeset(permission) end)
-    
-  end
-
-  defp create_claim_changeset(perm_changeset) do
+  def create_claim_changeset(perm_changeset) do
     resource_id = Changeset.get_change(perm_changeset, :resource_id)
     scope_id = Changeset.get_change(perm_changeset, :scope_id)
     actions = Changeset.get_change(perm_changeset, :actions)

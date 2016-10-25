@@ -11,7 +11,11 @@ defmodule Solomon.PermissionController do
   end
 
   def create(conn, %{"permission" => permission_params}) do
-    case Repo.transaction(PermissionClaimService.insert_permission(permission_params)) do
+    scope_id = Map.get(permission_params, "scope_id")
+    changeset = Permission.changeset(%Permission{}, permission_params)
+                |> ScopeService.validate_scoped_changeset(conn, scope_id)
+
+    case Repo.transaction(PermissionClaimService.create_claim_changeset(changeset)) do
       {:ok, %{permission: permission}} ->
         conn
         |> put_status(:created)

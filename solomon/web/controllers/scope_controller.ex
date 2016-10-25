@@ -13,7 +13,9 @@ defmodule Solomon.ScopeController do
   end
 
   def create(conn, %{"scope" => scope_params}) do
+    parent_id = Map.get(scope_params, "parent_id")
     changeset = Scope.changeset(%Scope{}, scope_params)
+                |> ScopeService.validate_scoped_changeset(conn, parent_id)
 
     case Repo.insert(changeset) do
       {:ok, scope} ->

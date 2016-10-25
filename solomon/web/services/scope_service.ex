@@ -123,7 +123,7 @@ defmodule Solomon.ScopeService do
   def scoped_show(conn, Scope, id) do
     req_scope_path = get_request_scope_regex(conn)
     scope = Repo.get!(Scope, id)
-    if Regex.match?(get_request_scope_regex(conn), get_scope_path(scope)) do
+    if Regex.match?(req_scope_path, get_scope_path(scope)) do
       scope
     else {
       :error,
@@ -139,7 +139,7 @@ defmodule Solomon.ScopeService do
   def scoped_show(conn, schema, id) do
     req_scope_path = get_request_scope_regex(conn)
     object = Repo.get!(schema, id)
-    if Regex.match?(get_request_scope_regex(conn), get_scope_path_by_id!(object.scope_id)) do
+    if Regex.match?(req_scope_path, get_scope_path_by_id!(object.scope_id)) do
       object
     else {
       :error,
@@ -149,6 +149,22 @@ defmodule Solomon.ScopeService do
         "unauthorized"
       )
     }
+    end
+  end
+
+  def validate_scoped_changeset(changeset, conn, scope_id) do
+    req_scope_path = get_request_scope_regex(conn)
+    if(
+      !changeset.valid? || # pass on existing errors
+      Regex.match?(req_scope_path, get_scope_path_by_id!(scope_id))
+    ) do
+      changeset
+    else
+      Ecto.Changeset.add_error(
+        changeset,
+        :scope,
+        "unauthorized"
+      )
     end
   end
 

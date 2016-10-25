@@ -11,7 +11,9 @@ defmodule Solomon.RoleController do
   end
 
   def create(conn, %{"role" => role_params}) do
+    scope_id = Map.get(role_params, "scope_id")
     changeset = Role.changeset(%Role{}, role_params)
+                |> ScopeService.validate_scoped_changeset(conn, scope_id)
 
     case Repo.insert(changeset) do
       {:ok, role} ->
