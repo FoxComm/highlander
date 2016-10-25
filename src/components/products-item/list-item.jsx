@@ -81,8 +81,7 @@ class ListItem extends React.Component {
                 <h2 styleName="additional-description">{description}</h2>
               </div>
             </div>
-          </Link>
-          }
+          </Link>}
 
         <div styleName="text-block">
           <h1 styleName="title" alt={title}>
@@ -94,12 +93,10 @@ class ListItem extends React.Component {
               <Currency value={salePrice} currency={currency} />
             </div>
 
-            <div styleName="add-to-cart" onClick={this.addToCart}>
-              <button styleName="add-to-cart-btn">
-                <span styleName="add-icon">+</span>
-              </button>
-              <button styleName="add-title-expanded">ADD TO CART</button>
-            </div>
+            <button styleName="add-to-cart-btn" onClick={this.addToCart}>
+              <span styleName="add-icon">+</span>
+              <span styleName="add-btn-title">ADD TO CART</span>
+            </button>
           </div>
         </div>
       </div>

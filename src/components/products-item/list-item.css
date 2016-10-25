@@ -110,24 +110,25 @@
   letter-spacing: 1.5px;
 }
 
-.add-to-cart {
-  &:hover {
-    & .add-title-expanded {
-      width: auto;
-      padding-left: 10px;
-      padding-right: 10px;
-      padding-top: 2px;
-      opacity: 1;
-    }
+.add-to-cart-btn {
+  white-space: nowrap;
+  max-width: 40px;
+  overflow: hidden;
+  cursor: pointer;
 
-    & .add-to-cart-btn {
-      background-color: #3D2228;
-      color: white;
+  &:hover {
+    max-width: 100%;
+    background-color: #3D2228;
+    color: white;
+    cursor: pointer;
+
+    & .add-btn-title {
+      opacity: 1;
     }
   }
 }
 
-.add-to-cart-btn {
+.add-icon {
   width: 40px;
   height: 40px;
   border: 1px solid #3D2228;
@@ -135,29 +136,19 @@
   font-size: 30px;
   text-align: center;
   display: inline-block;
-  float: left;
-
-  &:hover {
-    background-color: #3D2228;
-    color: white;
-    cursor: pointer;
-  }
 }
 
-.add-title-expanded {
+.add-btn-title {
   display: inline-block;
-  float: left;
-  width: 0;
-  height: 40px;
-  opacity: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+  line-height: 40px;
+  vertical-align: top;
   font-family: var(--font-main);
   font-size: 12px;
   font-weight: normal;
-  vertical-align: middle;
-  background-color: #3D2228;
-  color: white;
-  cursor: pointer;
-  white-space: nowrap;
+
+  opacity: 0;
 }
 
 @media (--small-only) {
