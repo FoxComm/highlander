@@ -1,11 +1,13 @@
+/* flow */
+
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
-import styles from './dropdown.css';
+import styles from './product-type-selector.css';
 import cx from 'classnames';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
 import _ from 'lodash';
 
-export default class Dropdown extends Component {
+export default class ProductTypeSelector extends Component {
   props: {
     items: Array<string>,
     activeItem: string,

@@ -12,7 +12,7 @@ import styles from './products-list.css';
 
 // components
 import ListItem from '../products-item/list-item';
-import Dropdown from 'ui/dropdown';
+import ProductTypeSelector from 'ui/product-type-selector';
 
 // types
 import type { HTMLElement } from 'types';
@@ -107,7 +107,7 @@ class ProductsList extends Component {
 
   render() : HTMLElement {
     const props = this.props;
-    const { productType = '' } = props;
+    const { productType } = props;
     const items = props.list && props.list.length > 0
       ? this.getItemList()
       : <div styleName="not-found">No products found.</div>;
@@ -116,9 +116,9 @@ class ProductsList extends Component {
       <section styleName="catalog">
         {this.renderHeader()}
         <div styleName="dropdown">
-          <Dropdown
+          <ProductTypeSelector
             items={productTypes}
-            activeItem={productType.toUpperCase() || productTypes[0]}
+            activeItem={(productType || '').toUpperCase() || productTypes[0]}
             onItemClick={this.onDropDownItemClick}
           />
         </div>
