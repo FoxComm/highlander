@@ -162,11 +162,9 @@ export function saveShippingAddress(id): Function {
 
 export function saveShippingMethod(): Function {
   return (dispatch, getState, api) => {
-    const payload = {
-      shippingMethodId: getState().cart.shippingMethod.id,
-    };
+    const methodId = getState().cart.shippingMethod.id;
 
-    return api.patch('/v1/my/cart/shipping-method', payload)
+    return api.cart.chooseShippingMethod(methodId)
       .then(res => {
         dispatch(updateCart(res.result));
       });
