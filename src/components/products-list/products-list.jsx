@@ -50,9 +50,12 @@ class ProductsList extends Component {
 
   renderHeader() {
     const props = this.props;
-    const { categoryName } = props;
+    const { categoryName, productType } = props;
 
-    if (!categoryName) return;
+    if (!categoryName ||
+        (categoryName.toLowerCase() === defaultProductType.toLowerCase())) {
+      return;
+    }
 
     const categoryInfo = _.find(props.categories, {name: categoryName});
     const description = (categoryInfo && categoryInfo.description)
@@ -93,7 +96,7 @@ class ProductsList extends Component {
 
   @autobind
   onDropDownItemClick (productType = '') {
-    const { categoryName } = this.props;
+    const { categoryName = defaultProductType.toUpperCase() } = this.props;
 
     if (productType.toLowerCase() !== defaultProductType.toLowerCase()) {
       browserHistory.push(`/${categoryName}/${productType.toUpperCase()}`);
