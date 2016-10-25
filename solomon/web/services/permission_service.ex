@@ -9,6 +9,7 @@ defmodule Solomon.PermissionClaimService do
   alias Solomon.Resource
   alias Solomon.ScopeService
   alias Solomon.System
+  alias Solomon.ScopeService
 
   def insert_permission(params) do
     perm_changeset = Permission.changeset(%Permission{}, params)
