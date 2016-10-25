@@ -150,10 +150,10 @@ function addressToPayload(address, countries = []) {
 }
 
 export function saveShippingAddress(id): Function {
-  return (dispatch, getState) => {
+  return (dispatch, getState, api) => {
     const address = getState().checkout.addresses[id];
 
-    return foxApi.addresses.update(id, address)
+    return api.patch(`/v1/my/cart/shipping-address/${id}`, address)
       .then(res => {
         dispatch(updateCart(res.result));
       });
@@ -161,12 +161,12 @@ export function saveShippingAddress(id): Function {
 }
 
 export function saveShippingMethod(): Function {
-  return (dispatch, getState) => {
+  return (dispatch, getState, api) => {
     const payload = {
       shippingMethodId: getState().cart.shippingMethod.id,
     };
 
-    return foxApi.addresses.add(payload)
+    return api.patch('/v1/my/cart/shipping-method', payload)
       .then(res => {
         dispatch(updateCart(res.result));
       });
