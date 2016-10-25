@@ -1,6 +1,6 @@
 # The Perfect Gourmet
 
-[![Build status](https://badge.buildkite.com/68cb05a9ec22487b81ecc2ab3befcd42c7648b78416a65e708.svg)](https://buildkite.com/foxcommerce/the-perfect-gourmet)
+[![Build status](https://badge.buildkite.com/99167bb0d9f818e7018b5bea587dceb9c7540912eda5e4669b.svg)](https://buildkite.com/foxcommerce/the-perfect-gourmet)
 
 The Perfect Gourmet store. Isomorphic React app powered by FoxComm's backend API.
 
