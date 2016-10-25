@@ -20,6 +20,8 @@ case class CartLineItemProductData(sku: Sku,
 
   def lineItemReferenceNumber = lineItem.referenceNumber
   def lineItemState           = OrderLineItem.Cart
+  def withLineItemReferenceNumber(newLineItemRef: String) =
+    this.copy(lineItem = lineItem.copy(referenceNumber = newLineItemRef))
 }
 
 case class CartLineItem(id: Int = 0, referenceNumber: String = "", cordRef: String, skuId: Int)
