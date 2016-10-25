@@ -112,13 +112,17 @@ class ProductsList extends Component {
       ? this.getItemList()
       : <div styleName="not-found">No products found.</div>;
 
+    const type = (productType && !_.isEmpty(productType))
+      ? productType.toUpperCase()
+      : productTypes[0];
+
     return (
       <section styleName="catalog">
         {this.renderHeader()}
         <div styleName="dropdown">
           <ProductTypeSelector
             items={productTypes}
-            activeItem={(productType || '').toUpperCase() || productTypes[0]}
+            activeItem={type}
             onItemClick={this.onDropDownItemClick}
           />
         </div>
