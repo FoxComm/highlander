@@ -57,23 +57,23 @@ export default class ProductForm extends ObjectDetails {
   }
 
   updateAttributes(attributes: Attributes) {
-    // If the product only has one SKU, ensure that a few fields are fields are
+    // If the product only has at least one SKU, ensure that a few fields are fields are
     // kept in sync:
     // * Title
     // * Active To
     // * Active From
     const newObject = super.updateAttributes(attributes);
     let skus = this.props.object.skus;
-    if (skus.length == 1) {
+    if (skus.length) {
       const syncFields = ['title', 'activeTo', 'activeFrom'];
       const updateArgs =_.flatMap(syncFields, field => {
         const originalValue = _.get(this.props.object, ['attributes', field]);
         return [
-          [0, 'attributes', field], _.get(attributes, field, originalValue)
+          ['attributes', field], _.get(attributes, field, originalValue)
         ];
       });
 
-      skus = assoc(skus, ...updateArgs);
+      skus = _.map(skus, sku => assoc(sku, ...updateArgs));
     }
 
     return assoc(newObject,
