@@ -63,8 +63,11 @@ begin
   --
   insert into object_full_schemas(id, kind, "name", "schema", created_at)
     values(new.id, new.kind, new.name, new.schema || get_definitions_for_object_schema(new.name), new.created_at)
-  on conflict ("name") do update
-    set "schema" = new.schema || get_definitions_for_object_schema(new.name);
+  on conflict (id) do update
+    set
+      "schema" = new.schema || get_definitions_for_object_schema(new.name),
+      "name" = new.name,
+      kind = new.kind;
 
   return null;
 end;
