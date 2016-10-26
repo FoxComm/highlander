@@ -54,16 +54,13 @@ class ScopedIndexer(uri: String,
   //1.  admin_1.2.3
   //2.  admin_1.2
   //3.  admin_1
-  //
-  //If there is a "scopes" attribute in the json, the document will also be
-  //put in the scopeWalk of each scope specified.
   private def indexJson(document: String, topic: String): Future[Unit] = {
     val json = parse(document)
     json \ "id" match {
       case JInt(jid) ⇒
         json \ "scope" match {
           case JString(scope) ⇒ {
-              val scopes = extractScopes(scope, json)
+              val scopes = scopeWalk(scope)
               indexScopes(scopes, jid, document, topic)
             }
           //if no scope found, just save the good old way
@@ -75,29 +72,6 @@ class ScopedIndexer(uri: String,
     }
   }
 
-  //Returns the scopeWalk of scope and any the scopeWalk of any scopes in the "scopes" attribute
-  //The returned list is unique
-  private def extractScopes(scope: String, json: JValue): Seq[String] = {
-    require(!scope.isEmpty)
-
-    val allScopes =
-      scopeWalk(scope) ++
-      (json \ "scopes" match {
-        case JArray(scopes) ⇒
-          scopes.map {
-            case JString(s) ⇒ scopeWalk(s)
-            case _          ⇒ Seq("")
-          }
-        case _ ⇒ Seq()
-      }).flatten.filter(s ⇒ s.isEmpty == false)
-
-    //calling "distinct" here is important because allScopes nessasarily
-    //has duplicates.
-    allScopes.distinct
-  } ensuring { distinctScopes ⇒
-    !distinctScopes.isEmpty
-  }
-
   //Produces a set of scopes by following up the tree
   //Example
   //input: "1.5.7.8"
@@ -106,7 +80,7 @@ class ScopedIndexer(uri: String,
     val path = scope.split('.')
     (1 to path.length).map { idx ⇒
       path.slice(0, idx).mkString(".")
-    }
+    }.distinct
   }
 
   private def indexScopes(

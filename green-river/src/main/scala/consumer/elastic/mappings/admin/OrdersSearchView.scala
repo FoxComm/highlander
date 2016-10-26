@@ -10,10 +10,9 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("orders_search_view").fields(
       // Order
       field("id", IntegerType),
-      field("scope", StringType),
-      field("scopes", StringType),
       field("referenceNumber", StringType).analyzer("upper_cased"),
       field("state", StringType).index("not_analyzed"),
+      field("scope", StringType),
       field("createdAt", DateType).format(dateFormat),
       field("placedAt", DateType).format(dateFormat),
       field("currency", StringType).index("not_analyzed"),
@@ -44,7 +43,6 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
           field("state", StringType).index("not_analyzed"),
           field("sku", StringType).index("not_analyzed"),
           field("name", StringType).analyzer("autocomplete"),
-          field("externalId", StringType).index("not_analyzed"),
           field("price", IntegerType)
       ),
       // Payments

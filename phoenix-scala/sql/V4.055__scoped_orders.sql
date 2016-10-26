@@ -1,6 +1,5 @@
 alter table orders add column scope exts.ltree;
 alter table orders_search_view add column scope exts.ltree;
-alter table orders_search_view add column scopes text[];
 alter table export_line_items add column scope exts.ltree;
 
 update orders set scope = text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
@@ -65,7 +64,6 @@ begin
   end case;
   update orders_search_view set
     line_item_count = subquery.count,
-    scopes = subquery.scopes,
     line_items = subquery.items from (select
           o.id,
           count(sku.id) as count,
@@ -82,8 +80,7 @@ begin
                     sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value',
                     sku.scope)::export_line_items)
                     ::jsonb
-          end as items,
-          array_agg(sku.scope) as scopes
+          end as items
           from orders as o
           left join order_line_items as oli on (o.reference_number = oli.cord_ref)
           left join skus as sku on (oli.sku_id = sku.id)
