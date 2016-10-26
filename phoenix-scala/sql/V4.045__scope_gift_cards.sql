@@ -1,6 +1,6 @@
 -- Gift cards table
-alter table gift_cards add column scope exts.ltree not null;
-alter table gift_cards_search_view add column scope exts.ltree not null;
+alter table gift_cards add column scope exts.ltree;
+alter table gift_cards_search_view add column scope exts.ltree;
 
 update gift_cards set scope = exts.text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
 
@@ -56,3 +56,6 @@ inner join gift_card_transactions_admins_view as gctav on (gctav.id = gca.id)
 order by gca.id;
 
 create unique index gift_card_transactions_view_idx on gift_card_transactions_view (id);
+
+alter table gift_cards alter column scope set not null;
+alter table gift_cards_search_view alter column scope set not null;
