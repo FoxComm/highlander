@@ -8,20 +8,13 @@ import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
 import utils.db._
 import utils.{JsonFormatters, Validation}
-import com.github.tminglei.slickpg._
+import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.ProductIsPresentInCarts
 import models.cord.lineitems.CartLineItems
-import _root_.utils.aliases._
+import utils.aliases._
 
 object Product {
   val kind = "product"
-
-  def mustNotBePresentInCarts(productId: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
-    for {
-      skus        ← * <~ ProductSkuLinks.filter(_.leftId === productId).result
-      inCartCount ← * <~ CartLineItems.filter(_.skuId.inSetBind(skus.map(_.rightId))).size.result
-      _           ← * <~ failIf(inCartCount > 0, ProductIsPresentInCarts(productId))
-    } yield {}
 }
 
 /**
@@ -46,6 +39,13 @@ case class Product(id: Int = 0,
 
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Product =
     this.copy(shadowId = shadowId, commitId = commitId)
+
+  def mustNotBePresentInCarts(implicit ec: EC, db: DB): DbResultT[Unit] =
+    for {
+      skus        ← * <~ ProductSkuLinks.filter(_.leftId === formId).result
+      inCartCount ← * <~ CartLineItems.filter(_.skuId.inSetBind(skus.map(_.rightId))).size.result
+      _           ← * <~ failIf(inCartCount > 0, ProductIsPresentInCarts(formId))
+    } yield {}
 }
 
 class Products(tag: Tag) extends ObjectHeads[Product](tag, "products") {

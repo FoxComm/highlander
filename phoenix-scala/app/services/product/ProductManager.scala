@@ -157,7 +157,7 @@ object ProductManager {
 
     for {
       productObject ← * <~ mustFindFullProductByFormId(productId)
-      _             ← * <~ Product.mustNotBePresentInCarts(productId)
+      _             ← * <~ productObject.model.mustNotBePresentInCarts
       mergedAttrs = productObject.shadow.attributes.merge(newShadowAttrs)
       inactive ← * <~ ObjectUtils.update(productObject.form.id,
                                          productObject.shadow.id,

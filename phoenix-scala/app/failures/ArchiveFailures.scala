@@ -8,17 +8,16 @@ object ArchiveFailures {
   object LinkArchivedSkuFailure {
     def apply[T](target: T, targetId: Any, code: String): LinkArchivedSkuFailure = {
       LinkArchivedSkuFailure(
-          s"Cannot attach archived sku with code $code to ${friendlyClassName(target)} with id " +
-            s"${targetId}")
+          s"Cannot attach archived sku with code $code to ${friendlyClassName(target)} with id $targetId")
     }
   }
 
   case class AddImagesToArchivedAlbumFailure(albumId: Int) extends Failure {
-    override def description: String = s"Cannot add image to archived album with id=${albumId}"
+    override def description: String = s"Cannot add image to archived album with id=$albumId"
   }
 
-  case class ProductIsPresentInCarts(productId: Int) extends Failure {
+  case class ProductIsPresentInCarts(formId: Int) extends Failure {
     override def description: String =
-      s"Can't archive product with id=$productId because it's present in carts"
+      s"Can't archive product with formId=$formId because it's present in carts"
   }
 }
