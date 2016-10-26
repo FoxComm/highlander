@@ -4,7 +4,8 @@ defmodule Solomon.Plug.JWTScope do
   def init(default), do: default
 
   def call(conn, _default) do
-    scope_or_error =  extract_jwt_body(conn)
+    scope_or_error =  get_jwt_string(conn)
+                      |> extract_jwt_body
                       |> decode
                       |> extract_scope
     case scope_or_error do
@@ -15,13 +16,25 @@ defmodule Solomon.Plug.JWTScope do
     end
   end
 
-  defp extract_jwt_body(conn) do
+  defp get_jwt_string(conn) do
+    case Map.fetch(fetch_cookies(conn).cookies, "jwt") do
+      {:ok, bin} -> {:ok, [bin]}
+      :error -> get_header_jwt(conn)
+    end
+  end
+
+  defp get_header_jwt(conn) do
     case get_req_header(conn, "jwt") do
       [] -> {:error, "no jwt"}
-      val ->  {:ok, val
-              |> Enum.flat_map(fn s -> String.split(s, ".") end)
-              |> Enum.at(1)}
+      val ->  {:ok, val}
     end
+  end
+
+  defp extract_jwt_body({:error, bin}), do: {:error, bin}
+  defp extract_jwt_body({:ok, jwt}) do
+    {:ok, jwt
+    |> Enum.flat_map(fn s -> String.split(s, ".") end)
+    |> Enum.at(1)}
   end
 
   defp decode({:error, bin}), do: {:error, bin}
