@@ -2,6 +2,7 @@ package utils.seeds
 
 import com.github.tminglei.slickpg.LTree
 import models.Note
+import models.account.Scope
 import models.cord.Order._
 import models.cord._
 import utils.aliases._
@@ -20,9 +21,13 @@ trait OrderSeeds {
   def cart(scope: LTree): Cart =
     Cart(accountId = 1, referenceNumber = "ABCD1234-11", scope = scope)
 
-  def orderNotes: Seq[Note] = {
+  def orderNotes(implicit au: AU): Seq[Note] = {
     def newNote(body: String) =
-      Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, body = body)
+      Note(referenceId = 1,
+           referenceType = Note.Order,
+           storeAdminId = 1,
+           body = body,
+           scope = Scope.current)
     Seq(
         newNote("This customer is a donkey."),
         newNote("No, seriously."),

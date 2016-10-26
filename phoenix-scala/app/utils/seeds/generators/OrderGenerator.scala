@@ -288,9 +288,13 @@ trait OrderGenerator extends ShipmentSeeds {
     CartLineItems.createAllReturningModels(itemsToInsert)
   }
 
-  def orderNotes: Seq[Note] = {
+  def orderNotes(implicit au: AU): Seq[Note] = {
     def newNote(body: String) =
-      Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, body = body)
+      Note(referenceId = 1,
+           referenceType = Note.Order,
+           storeAdminId = 1,
+           body = body,
+           scope = Scope.current)
     (1 to Random.nextInt(4)) map { i ⇒
       newNote(Lorem.sentence(Random.nextInt(5)))
     }

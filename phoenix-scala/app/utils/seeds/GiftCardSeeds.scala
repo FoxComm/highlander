@@ -34,9 +34,13 @@ trait GiftCardSeeds {
       GiftCardSubtype(title = "Appeasement Subtype C", originType = GiftCard.CsrAppeasement)
   )
 
-  def giftCardNotes: Seq[Note] = {
+  def giftCardNotes(implicit au: AU): Seq[Note] = {
     def newNote(body: String) =
-      Note(referenceId = 1, referenceType = Note.GiftCard, storeAdminId = 1, body = body)
+      Note(referenceId = 1,
+           referenceType = Note.GiftCard,
+           storeAdminId = 1,
+           body = body,
+           scope = Scope.current)
     Seq(
         newNote("This customer is a donkey."),
         newNote("No, seriously."),

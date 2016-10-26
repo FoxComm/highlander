@@ -3,20 +3,21 @@ package models
 import java.time.Instant
 
 import models.account._
-
 import cats.data.ValidatedNel
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import shapeless._
 import failures.Failure
 import payloads.NotePayloads.CreateNote
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{ADT, Validation}
 import utils.db._
 
 case class Note(id: Int = 0,
+                scope: LTree,
                 storeAdminId: Int,
                 referenceId: Int,
                 referenceType: Note.ReferenceType,
@@ -59,6 +60,7 @@ object Note {
 
 class Notes(tag: Tag) extends FoxTable[Note](tag, "notes") {
   def id            = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def scope         = column[LTree]("scope")
   def storeAdminId  = column[Int]("store_admin_id")
   def referenceId   = column[Int]("reference_id")
   def referenceType = column[Note.ReferenceType]("reference_type")
@@ -68,7 +70,7 @@ class Notes(tag: Tag) extends FoxTable[Note](tag, "notes") {
   def deletedBy     = column[Option[Int]]("deleted_by")
 
   def * =
-    (id, storeAdminId, referenceId, referenceType, body, createdAt, deletedAt, deletedBy) <> ((Note.apply _).tupled, Note.unapply)
+    (id, scope, storeAdminId, referenceId, referenceType, body, createdAt, deletedAt, deletedBy) <> ((Note.apply _).tupled, Note.unapply)
 
   def author = foreignKey(Users.tableName, storeAdminId, Users)(_.accountId)
 }

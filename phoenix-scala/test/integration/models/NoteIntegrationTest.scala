@@ -1,5 +1,6 @@
 package models
 
+import models.account.Scope
 import testutils.CustomMatchers._
 import testutils._
 import testutils.fixtures.BakedFixtures
@@ -21,17 +22,24 @@ class NoteIntegrationTest extends IntegrationTestBase with BakedFixtures with Te
     }
 
     "validate" - {
-      "fails when body is empty" in {
-        val note   = Note(storeAdminId = 0, referenceId = 0, referenceType = Note.Order, body = "")
+      "fails when body is empty" in new StoreAdmin_Seed {
+        val note = Note(storeAdminId = 0,
+                        referenceId = 0,
+                        referenceType = Note.Order,
+                        body = "",
+                        scope = Scope.current)
         val result = note.validate
 
         result must be('invalid)
         invalidValue(result) must includeFailure("body must not be empty")
       }
 
-      "fails when body is more than 1000 characters" in {
-        val note =
-          Note(storeAdminId = 0, referenceId = 0, referenceType = Note.Order, body = "z" * 1001)
+      "fails when body is more than 1000 characters" in new StoreAdmin_Seed {
+        val note = Note(storeAdminId = 0,
+                        referenceId = 0,
+                        referenceType = Note.Order,
+                        body = "z" * 1001,
+                        scope = Scope.current)
         val result = note.validate
 
         result must be('invalid)
