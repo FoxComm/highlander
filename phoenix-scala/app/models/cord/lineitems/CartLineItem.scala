@@ -2,13 +2,12 @@ package models.cord.lineitems
 
 import models.cord.lineitems.OrderLineItems._
 import models.inventory.{Sku, Skus}
-import models.objects.{ObjectForm, ObjectForms, ObjectShadow, ObjectShadows, ProductSkuLinks}
+import models.objects._
 import models.product.Products
 import utils.aliases.Json
 import shapeless._
 import utils.db.ExPostgresDriver.api._
-import utils.aliases
-import utils.aliases.EC
+import utils.aliases._
 import utils.db._
 
 case class CartLineItemProductData(sku: Sku,
@@ -28,7 +27,7 @@ case class CartLineItem(id: Int = 0,
                         referenceNumber: String = "",
                         cordRef: String,
                         skuId: Int,
-                        attributes: Option[aliases.Json] = None)
+                        attributes: Option[Json] = None)
     extends FoxModel[CartLineItem]
 
 class CartLineItems(tag: Tag) extends FoxTable[CartLineItem](tag, "cart_line_items") {

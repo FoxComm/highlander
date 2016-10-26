@@ -9,21 +9,17 @@ import failures.PromotionFailures.PromotionNotFoundForContext
 import models.cord._
 import models.cord.lineitems.CartLineItems
 import models.cord.lineitems.CartLineItems.scope._
-import models.cord.lineitems.OrderLineItems
-import models.cord.lineitems.OrderLineItems.scope._
 import models.coupon._
 import models.account._
-import models.customer._
 import models.objects._
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.promotion._
-import org.json4s.JsonAST.{JBool, JValue}
+import org.json4s.JsonAST._
 import responses.cord.OrderResponse
 import services.coupon.CouponUsageService
 import services.inventory.SkuManager
-import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis._
@@ -131,17 +127,8 @@ case class Checkout(
   private def holdInMiddleWarehouse(implicit ctx: OC): DbResultT[Unit] =
     for {
       liSkus ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      skuObjects ← * <~ liSkus.map { liSku ⇒
-                    for {
-                      sku ← * <~ SkuManager.mustFindSkuByContextAndCode(contextId = ctx.id,
-                                                                        liSku._1)
-                      s ← * <~ ObjectShadows.mustFindById400(sku.shadowId)
-                      f ← * <~ ObjectForms.mustFindById400(s.formId)
-                      trackInventory = ObjectUtils.get("trackInventory", f, s) match {
-                        case JBool(trackInv) ⇒ trackInv
-                        case _               ⇒ true
-                      }
-                    } yield (trackInventory, liSku)
+      skuObjects ← * <~ liSkus.map {
+                    case (cordRef, skuAmount) ⇒ getSkuObjects(cordRef, skuAmount)
                   }
       skusToHold ← * <~ skuObjects.filter {
                     case (holdInventory, cordRef, skuAmount)   ⇒ holdInventory
@@ -150,7 +137,6 @@ case class Checkout(
       _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skus.toSeq))
       mutatingResult = externalCalls.middleWarehouseSuccess = true
     } yield {}
-
 
   private def getSkuObjects(cordRef: String, skuAmount: Int) =
     for {
