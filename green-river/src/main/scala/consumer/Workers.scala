@@ -3,7 +3,7 @@ package consumer
 import scala.concurrent.Future
 import consumer.activity._
 import consumer.aliases._
-import consumer.elastic.ElasticSearchProcessor
+import consumer.elastic.{ElasticSearchProcessor, ObjectSchemaProcessor}
 import consumer.elastic.ScopeProcessor
 import consumer.elastic.ScopedIndexer
 import consumer.elastic.mappings._
@@ -37,6 +37,24 @@ object Workers {
 
     // Start consuming & processing
     Console.out.println(s"Reading activities from broker ${conf.kafkaBroker}")
+    consumer.readForever()
+  }
+
+  def objectSchemasWorker(conf: MainConfig, connnectionInfo: PhoenixConnectionInfo)(
+      implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC): Future[Unit] = Future {
+    val schemasProcessor = new ObjectSchemaProcessor(uri = conf.elasticSearchUrl,
+                                                     cluster = conf.elasticSearchCluster,
+                                                     schemasTopic = conf.objectSchemasTopic)
+
+    val avroProcessor = new AvroProcessor(
+        schemaRegistryUrl = conf.avroSchemaRegistryUrl, processor = schemasProcessor)
+
+    val consumer = new MultiTopicConsumer(topics = Seq(conf.objectSchemasTopic),
+                                          broker = conf.kafkaBroker,
+                                          groupId = s"${conf.kafkaGroupId}_schemas",
+                                          processor = avroProcessor,
+                                          startFromBeginning = true)
+    Console.out.println(s"Reading schemas changes from broker ${conf.kafkaBroker}")
     consumer.readForever()
   }
 
