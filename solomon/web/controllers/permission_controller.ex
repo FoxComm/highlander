@@ -46,7 +46,10 @@ defmodule Solomon.PermissionController do
 
   def update(conn, %{"id" => id, "permission" => permission_params}) do
     permission = Repo.get!(Permission, id)
+    scope_id = Map.get(permission_params, "scope_id", permission.scope_id)
     changeset = Permission.update_changeset(permission, permission_params)
+                |> ScopeService.validate_scoped_changeset(conn, permission.scope_id)
+                |> ScopeService.validate_scoped_changeset(conn, scope_id)
     case Repo.update(changeset) do
       {:ok, permission} ->
         conn

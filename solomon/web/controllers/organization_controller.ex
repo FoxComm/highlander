@@ -41,7 +41,10 @@ defmodule Solomon.OrganizationController do
 
   def update(conn, %{"id" => id, "organization" => organization_params}) do
     organization = Repo.get!(Organization, id)
+    scope_id = Map.get(organization_params, "scope_id", organization.scope_id)
     changeset = Organization.update_changeset(organization, organization_params)
+                |> ScopeService.validate_scoped_changeset(conn, organization.scope_id)
+                |> ScopeService.validate_scoped_changeset(conn, scope_id)
     case Repo.update(changeset) do
       {:ok, organization} ->
         conn

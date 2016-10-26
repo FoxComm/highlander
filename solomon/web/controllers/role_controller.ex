@@ -46,7 +46,10 @@ defmodule Solomon.RoleController do
 
   def update(conn, %{"id" => id, "role" => role_params}) do
     role = Repo.get!(Role, id)
+    scope_id = Map.get(role_params, "scope_id", role.scope_id)
     changeset = Role.update_changeset(role, role_params)
+                |> ScopeService.validate_scoped_changeset(conn, role.scope_id)
+                |> ScopeService.validate_scoped_changeset(conn, scope_id)
     case Repo.update(changeset) do
       {:ok, role} ->
         conn
