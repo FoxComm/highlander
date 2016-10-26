@@ -107,9 +107,7 @@ def tune_vm(config, opts = {})
 end
 
 Vagrant.configure("2") do |config|
-  if ENV['GOOGLE_SSH_USERNAME'] != ""
-    user = ENV['GOOGLE_SSH_USERNAME']
-  end
+  user = ENV['GOOGLE_SSH_USERNAME'] || "vagrant"
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
