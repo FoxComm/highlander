@@ -59,7 +59,6 @@ export default class SkuList extends Component {
     });
 
     let columns = [
-      { field: 'image', text: 'Image' },
       ...variantColumns,
       { field: 'sku', text: 'SKU' },
       { field: 'retailPrice', text: 'Retail Price' },
