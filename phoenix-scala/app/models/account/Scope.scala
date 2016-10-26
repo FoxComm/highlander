@@ -19,8 +19,8 @@ object Scope {
 
   def current(implicit au: AU): LTree = LTree(au.token.scope)
 
-  def getScopeOrSubscope(potentialSubscope: Option[String])(implicit ec: EC,
-                                                            au: AU): DbResultT[LTree] = {
+  def getScopeOrSubscope(potentialSubscope: Option[String] = None)(implicit ec: EC,
+                                                                   au: AU): DbResultT[LTree] = {
     val scope = au.token.scope
     scopeOrSubscope(scope, potentialSubscope) match {
       case Some(scope) ⇒ DbResultT.good(LTree(scope))

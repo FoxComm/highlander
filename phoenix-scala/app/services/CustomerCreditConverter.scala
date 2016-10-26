@@ -25,8 +25,7 @@ object CustomerCreditConverter {
       _        ← * <~ Users.mustFindByAccountId(accountId)
       _ ← * <~ GiftCardAdjustments
            .lastAuthByGiftCardId(giftCard.id)
-           .one
-           .mustNotFindOr(OpenTransactionsFailure)
+           .mustNotFindOneOr(OpenTransactionsFailure)
       // Update state and make adjustment
       _ ← * <~ GiftCards
            .findActiveByCode(giftCard.code)
@@ -44,11 +43,11 @@ object CustomerCreditConverter {
       _ ← * <~ LogActivity.gcConvertedToSc(admin, giftCard, storeCredit)
     } yield StoreCreditResponse.build(storeCredit)
 
-  def toGiftCard(storeCreditId: Int,
-                 accountId: Int,
-                 admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[GiftCardResponse.Root] =
+  def toGiftCard(
+      storeCreditId: Int,
+      accountId: Int,
+      admin: User)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[GiftCardResponse.Root] =
     for {
-
       credit ← * <~ StoreCredits.mustFindById404(storeCreditId)
       _      ← * <~ failIf(!credit.isActive, StoreCreditConvertFailure(credit))
       _      ← * <~ Users.mustFindByAccountId(accountId)
@@ -66,7 +65,8 @@ object CustomerCreditConverter {
       conversion ← * <~ GiftCardFromStoreCredits.create(
                       GiftCardFromStoreCredit(storeCreditId = credit.id))
       giftCard ← * <~ GiftCards.create(
-                    GiftCard(originId = conversion.id,
+                    GiftCard(scope = Scope.current,
+                             originId = conversion.id,
                              originType = GiftCard.FromStoreCredit,
                              currency = credit.currency,
                              originalBalance = credit.currentBalance,
