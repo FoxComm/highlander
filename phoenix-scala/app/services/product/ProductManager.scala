@@ -157,7 +157,7 @@ object ProductManager {
 
     for {
       productObject ← * <~ mustFindFullProductByFormId(productId)
-      _ ← * <~ mustNotBePresentInCarts(productId)
+      _ ← * <~ Product.mustNotBePresentInCarts(productId)
       mergedAttrs = productObject.shadow.attributes.merge(newShadowAttrs)
       inactive ← * <~ ObjectUtils.update(productObject.form.id,
                                          productObject.shadow.id,
@@ -340,11 +340,4 @@ object ProductManager {
   def mustFindFullProductById(productId: Int)(implicit ec: EC,
                                               db: DB): DbResultT[FullObject[Product]] =
     ObjectManager.getFullObject(Products.mustFindById404(productId))
-
-  def mustNotBePresentInCarts(productId: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
-    for {
-      skus        ← * <~ ProductSkuLinks.filter(_.leftId === productId).result
-      inCartCount ← * <~ CartLineItems.filter(_.skuId.inSetBind(skus.map(_.rightId))).size.result
-      _           ← * <~ failIf(inCartCount > 0, ProductIsPresentInCarts(productId))
-    } yield {}
 }

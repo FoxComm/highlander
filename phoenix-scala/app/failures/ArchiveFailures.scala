@@ -19,6 +19,6 @@ object ArchiveFailures {
 
   case class ProductIsPresentInCarts(productId: Int) extends Failure {
     override def description: String =
-      s"Can't archive product with id=$productId due because it's present in carts"
+      s"Can't archive product with id=$productId because it's present in carts"
   }
 }

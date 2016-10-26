@@ -8,11 +8,20 @@ import utils.db.ExPostgresDriver.api._
 import slick.lifted.Tag
 import utils.db._
 import utils.{JsonFormatters, Validation}
-
 import com.github.tminglei.slickpg._
+import failures.ArchiveFailures.ProductIsPresentInCarts
+import models.cord.lineitems.CartLineItems
+import _root_.utils.aliases._
 
 object Product {
   val kind = "product"
+
+  def mustNotBePresentInCarts(productId: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
+    for {
+      skus        ← * <~ ProductSkuLinks.filter(_.leftId === productId).result
+      inCartCount ← * <~ CartLineItems.filter(_.skuId.inSetBind(skus.map(_.rightId))).size.result
+      _           ← * <~ failIf(inCartCount > 0, ProductIsPresentInCarts(productId))
+    } yield {}
 }
 
 /**
