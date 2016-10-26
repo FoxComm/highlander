@@ -1,4 +1,5 @@
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures._
 import models.Reason
@@ -74,6 +75,20 @@ class GiftCardIntegrationTest
         giftCardsApi
           .create(GiftCardCreateByCsr(balance = 555, reasonId = 999))
           .mustFailWith400(NotFoundFailure404(Reason, 999))
+      }
+
+      "overrides scope" in new Reason_Baked {
+        val gc1Code =
+          giftCardsApi.create(GiftCardCreateByCsr(balance = 100, reasonId = 1)).as[GcRoot].code
+
+        GiftCards.mustFindByCode(gc1Code).gimme.scope must === (LTree("1"))
+
+        val gc2Code = giftCardsApi
+          .create(GiftCardCreateByCsr(balance = 100, reasonId = 1, scope = "1.2".some))
+          .as[GcRoot]
+          .code
+
+        GiftCards.mustFindByCode(gc2Code).gimme.scope must === (LTree("1.2"))
       }
     }
 

@@ -13,11 +13,15 @@ object GiftCardPayloads {
   case class GiftCardCreateByCsr(balance: Int,
                                  reasonId: Int,
                                  currency: Currency = Currency.USD,
-                                 subTypeId: Option[Int] = None)
+                                 subTypeId: Option[Int] = None,
+                                 scope: Option[String] = None)
       extends Validation[GiftCardCreateByCsr] {
 
     def validate: ValidatedNel[Failure, GiftCardCreateByCsr] = {
-      greaterThan(balance, 0, "Balance").map(_ ⇒ this)
+      (greaterThan(balance, 0, "Balance") |@| scope.fold[ValidatedNel[Failure, Unit]](ok)(s ⇒
+                notEmpty(s, "scope"))).map {
+        case _ ⇒ this
+      }
     }
   }
 
@@ -25,7 +29,8 @@ object GiftCardPayloads {
                                      balance: Int,
                                      reasonId: Int,
                                      currency: Currency = Currency.USD,
-                                     subTypeId: Option[Int] = None)
+                                     subTypeId: Option[Int] = None,
+                                     scope: Option[String] = None)
       extends Validation[GiftCardBulkCreateByCsr] {
 
     val bulkCreateLimit = 20
@@ -34,7 +39,7 @@ object GiftCardPayloads {
       (greaterThan(balance, 0, "Balance") |@| greaterThan(quantity, 0, "Quantity") |@| lesserThanOrEqual(
               quantity,
               bulkCreateLimit,
-              "Quantity")).map { case _ ⇒ this }
+              "Quantity") |@| scope.fold(ok)(s ⇒ notEmpty(s, "scope"))).map { case _ ⇒ this }
     }
   }
 
