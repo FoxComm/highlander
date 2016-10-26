@@ -17,7 +17,7 @@ final case class GiftCardsSearchView()(implicit ec: EC) extends AvroTransformer 
       field("currentBalance", IntegerType),
       field("availableBalance", IntegerType),
       field("canceledAmount", IntegerType),
-      field("scope", StringType).analyzer("not_analyzed"),
+      field("scope", StringType),
       field("createdAt", DateType).format(dateFormat),
       field("updatedAt", DateType).format(dateFormat)
   )
