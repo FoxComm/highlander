@@ -1,6 +1,6 @@
 
 build:
-	mkdir build; true
+	mkdir -p build
 	cd build && cmake .. && make
 
 clean:
