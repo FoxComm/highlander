@@ -93,7 +93,7 @@ func setScope(context *gin.Context, scopable payloads.IScopable) bool {
 	}
 
 	//ensure payload scope is in context
-	if !strings.HasPrefix(payloadScope, contextScope) {
+	if payloadScope != contextScope && !strings.HasPrefix(payloadScope, contextScope+".") {
 		handleServiceError(context, fmt.Errorf("Payload scope %s is not in JWT scope %s", payloadScope, contextScope))
 		return false
 	}
