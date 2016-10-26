@@ -121,7 +121,8 @@ Vagrant.configure("2") do |config|
       ansible.verbose = "vvvv"
       ansible.playbook = "prov-shit/ansible/vagrant_appliance.yml"
       ansible.extra_vars = {
-        user: user
+        user: user,
+        appliance_hostname: $nginx_ip,
       }
     end
   end
