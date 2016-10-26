@@ -184,7 +184,7 @@ export function saveGiftCard(code: string): Function {
 
 export function saveCouponCode(code: string): Function {
   return (dispatch, api) => {
-    return api.post(`/v1/my/cart/coupon/${code.trim()}`, {})
+    return foxApi.cart.addCoupon(code)
       .then(res => {
         dispatch(updateCart(res));
       });
