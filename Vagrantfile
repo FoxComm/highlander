@@ -93,8 +93,8 @@ def tune_vm(config, opts = {})
     aws.access_key_id = ENV['AWS_ACCESS_KEY_ID']
     aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']
     aws.keypair_name = ENV['AWS_KEY_NAME']
-    aws.associate_public_ip=true
-    aws.elastic_ip="52.38.159.101"
+    aws.associate_public_ip = true
+    aws.elastic_ip = "52.38.159.101"
     aws.block_device_mapping = [{ 'DeviceName' => '/dev/sda1', 'Ebs.VolumeSize' => 100 }]
 
     aws.ami = "ami-191fd379"
@@ -107,6 +107,7 @@ def tune_vm(config, opts = {})
 end
 
 Vagrant.configure("2") do |config|
+  user = ENV['GOOGLE_SSH_USERNAME'] || "vagrant"
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
