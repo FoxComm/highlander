@@ -6,6 +6,9 @@
     cert_path: stage
     ashes_server_name: local.foxcommerce.com
     storefront_server_name: local.foxcommerce.com
+    docker_registry: docker-stage.foxcommerce.com
+    zookeepers: "zk://127.0.0.1:2181"
+    mesos_quorum: 1
   roles:
     - { role: base/phoenix }
     - { role: base/middlewarehouse }
@@ -22,6 +25,7 @@
     - { role: dev/greenriver }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/seeder }
+    - { role: dev/appliance }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
