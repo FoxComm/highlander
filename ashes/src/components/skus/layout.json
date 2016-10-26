@@ -15,7 +15,8 @@
         "omit": [
           "activeFrom",
           "activeTo",
-          "tags"
+          "tags",
+          "context"
         ]
       }
     },

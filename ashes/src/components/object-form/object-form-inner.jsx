@@ -8,7 +8,6 @@ import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import { stripTags } from 'lib/text-utils';
 import { isDefined } from 'lib/utils';
-import invariant from 'invariant';
 
 import { FormField, FormFieldError } from '../forms';
 import { SliderCheckbox } from '../checkbox/checkbox';
@@ -306,7 +305,6 @@ export default class ObjectFormInner extends Component {
     if (schema) {
       name = schema.widget || schema.type;
     }
-    invariant(name != null, `You should provide attribute itself or schema for rendering attribute`);
     if (name == 'integer') {
       name = 'number';
     }
