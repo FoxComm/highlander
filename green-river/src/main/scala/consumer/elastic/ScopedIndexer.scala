@@ -37,9 +37,7 @@ class ScopedIndexer(uri: String,
     // Find json transformer
     jsonTransformers get topic match {
       case Some(t) ⇒
-        t.transform(inputJson).map { outJson ⇒
-          indexJson(outJson, topic)
-        }
+        t.transform(inputJson).map(outJson ⇒ indexJson(outJson, topic))
       case None ⇒
         Console.out.println(s"Skipping information from topic $topic")
         Future { () }
@@ -59,10 +57,10 @@ class ScopedIndexer(uri: String,
     json \ "id" match {
       case JInt(jid) ⇒
         json \ "scope" match {
-          case JString(scope) ⇒ {
-              val scopes = scopeWalk(scope)
-              indexScopes(scopes, jid, document, topic)
-            }
+          case JString(scope) ⇒
+            val scopes = distinctScopePaths(scope)
+            indexScopes(scopes, jid, document, topic)
+
           //if no scope found, just save the good old way
           case _ ⇒ indexDocument(indexName, jid, document, topic)
         }
@@ -76,7 +74,7 @@ class ScopedIndexer(uri: String,
   //Example
   //input: "1.5.7.8"
   //output: ["1.5.7.8", "1.5.7", "1.5, "1"]
-  private def scopeWalk(scope: String): Seq[String] = {
+  private def distinctScopePaths(scope: String): Seq[String] = {
     val path = scope.split('.')
     (1 to path.length).map { idx ⇒
       path.slice(0, idx).mkString(".")

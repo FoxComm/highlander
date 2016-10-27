@@ -138,10 +138,9 @@ object Orders
       subScope: Option[String])(implicit ec: EC, db: DB, ctx: OC, au: AU): DbResultT[Order] =
     createFromCart(cart, ctx.id, subScope)
 
-  def createFromCart(cart: Cart, contextId: Int, subScope: Option[String])(
-      implicit ec: EC,
-      db: DB,
-      au: AU): DbResultT[Order] = {
+  def createFromCart(cart: Cart,
+                     contextId: Int,
+                     subScope: Option[String])(implicit ec: EC, db: DB, au: AU): DbResultT[Order] =
     for {
       scope ← * <~ Scope.getScopeOrSubscope(subScope)
       order ← * <~ Orders.create(
@@ -159,7 +158,6 @@ object Orders
       lineItems ← * <~ prepareOrderLineItemsFromCart(cart, contextId)
       _         ← * <~ OrderLineItems.createAll(lineItems)
     } yield order
-  }
 
   def prepareOrderLineItemsFromCart(cart: Cart, contextId: Int)(
       implicit ec: EC,
