@@ -216,48 +216,50 @@ class Pdp extends Component {
           <Gallery images={images} />
         </div>
         <div styleName="details">
-          <h1 styleName="title">{title}</h1>
-          <div styleName="price">
-            <Currency value={price} currency={currency} />
-          </div>
-
-          <div styleName="cart-actions">
-            <div styleName="quantity">
-              <Autocomplete
-                inputProps={{
-                  type: 'number',
-                }}
-                getItemValue={_.identity}
-                items={QUANTITY_ITEMS}
-                onSelect={this.changeQuantity}
-                selectedItem={this.state.quantity}
-                sortItems={false}
-              />
+          <div styleName="details-wrap">
+            <h1 styleName="title">{title}</h1>
+            <div styleName="price">
+              <Currency value={price} currency={currency} />
             </div>
 
-            <div styleName="add-to-cart-btn">
-              <AddToCartBtn expanded onClick={this.addToCart} />
+            <div styleName="cart-actions">
+              <div styleName="quantity">
+                <Autocomplete
+                  inputProps={{
+                    type: 'number',
+                  }}
+                  getItemValue={_.identity}
+                  items={QUANTITY_ITEMS}
+                  onSelect={this.changeQuantity}
+                  selectedItem={this.state.quantity}
+                  sortItems={false}
+                />
+              </div>
+
+              <div styleName="add-to-cart-btn">
+                <AddToCartBtn expanded onClick={this.addToCart} />
+              </div>
             </div>
+
+            <div
+              styleName="description"
+              dangerouslySetInnerHTML={{__html: description}}
+            />
+
+            <div styleName="servings">
+              <div>{amountOfServings}</div>
+              <div>{servingSize}</div>
+            </div>
+
+            <div styleName="social-sharing">
+              <Icon name="fc-instagram" styleName="social-icon"/>
+              <Icon name="fc-facebook" styleName="social-icon"/>
+              <Icon name="fc-twitter" styleName="social-icon" />
+              <Icon name="fc-pinterest" styleName="social-icon"/>
+            </div>
+
+            <ErrorAlerts error={this.state.error} />
           </div>
-
-          <div
-            styleName="description"
-            dangerouslySetInnerHTML={{__html: description}}
-          />
-
-          <div styleName="servings">
-            <div>{amountOfServings}</div>
-            <div>{servingSize}</div>
-          </div>
-
-          <div styleName="social-sharing">
-            <Icon name="fc-instagram" styleName="social-icon"/>
-            <Icon name="fc-facebook" styleName="social-icon"/>
-            <Icon name="fc-twitter" styleName="social-icon" />
-            <Icon name="fc-pinterest" styleName="social-icon"/>
-          </div>
-
-          <ErrorAlerts error={this.state.error} />
         </div>
       </div>
     );
