@@ -23,8 +23,8 @@ class VariantValueLinks(tag: Tag)
   def * =
     (id, leftId, rightId, createdAt, updatedAt) <> ((VariantValueLink.apply _).tupled, VariantValueLink.unapply)
 
-  def left  = foreignKey(Products.tableName, leftId, Products)(_.id)
-  def right = foreignKey(Variants.tableName, rightId, Variants)(_.id)
+  def left  = foreignKey(Variants.tableName, leftId, Variants)(_.id)
+  def right = foreignKey(VariantValues.tableName, rightId, VariantValues)(_.id)
 }
 
 object VariantValueLinks

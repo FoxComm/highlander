@@ -1,5 +1,7 @@
 # Highlander
 
+[![Build status](https://badge.buildkite.com/dac897cf8947d04db75c127e62971ac46e1d2211398a302568.svg)](https://buildkite.com/foxcommerce/highlander)
+
 Highlander is the brand-spanking-new FoxCommerce mono-repo.
 
 ## Development Environment
@@ -76,6 +78,7 @@ Add the following vagrant box.
 
 Set the following environment variables.
 
+    $ export GOOGLE_SSH_USERNAME=ubuntu
     $ export GOOGLE_SSH_KEY=~/.ssh/google_compute_engine # Or the location of your key
     $ export GOOGLE_CLIENT_EMAIL=<Your FoxCommerce email>
 
@@ -114,6 +117,7 @@ Edit your hosts file so that `local.foxcommerce.com` points to the new box using
 | [firebrand](firebrand)                 | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
 | [integration-tests](integration-tests) | Our tests for hitting the system as a black box at the API level.                                            |
 | [prov-shit](prov-shit)                 | All of our DevOps tools for deploying the application to both development and production.                    |
+| [api-docs](api-docs)                   | Our API documentation in API Blueprint format and Postman query collections.                                 |
 
 ## Usage
 

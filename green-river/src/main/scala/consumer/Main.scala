@@ -78,7 +78,7 @@ object Main {
       .withMaxOpenRequests(conf.maxConnections)
       .withMaxRetries(1)
 
-    conf.indexTopics.map {
+    conf.indexTopics.foreach {
       case (index, topics) ⇒
         val esProcessor =
           new ElasticSearchProcessor(uri = conf.elasticSearchUrl,
@@ -114,9 +114,10 @@ object Main {
     Console.out.println(s"Schema Registry: ${conf.avroSchemaRegistryUrl}")
     Console.out.println(s"Phoenix: ${conf.phoenixUri}")
 
-    val connectionInfo    = conf.connectionInfo()
-    val activityWork      = Workers.activityWorker(conf, connectionInfo)
-    val searchViewWorkers = Workers.searchViewWorkers(conf, connectionInfo)
+    val connectionInfo          = conf.connectionInfo()
+    val activityWork            = Workers.activityWorker(conf, connectionInfo)
+    val searchViewWorkers       = Workers.searchViewWorkers(conf, connectionInfo)
+    val scopedSearchViewWorkers = Workers.scopedSearchViewWorkers(conf, connectionInfo)
 
     activityWork.onFailure {
       case t ⇒
@@ -130,9 +131,16 @@ object Main {
         System.exit(1)
     }
 
+    scopedSearchViewWorkers.onFailure {
+      case t ⇒
+        Console.err.println(s"Error indexing to ES: $t")
+        System.exit(1)
+    }
+
     // These threads will actually never be ready.
     // This is a hedonist bot.
     Await.ready(activityWork, Duration.Inf)
     Await.ready(searchViewWorkers, Duration.Inf)
+    Await.ready(scopedSearchViewWorkers, Duration.Inf)
   }
 }

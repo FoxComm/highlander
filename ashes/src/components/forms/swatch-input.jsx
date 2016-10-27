@@ -14,38 +14,26 @@ type Props = {
   value: string,
 };
 
-type State = {
-  value: string,
+type EventTarget = {
+  target: {
+    value: string,
+  },
 };
 
 class SwatchInput extends Component {
   props: Props;
 
   static defaultProps = {
-    value: ''
+    value: '',
   };
-
-  componentWillUpdate(nextProps: Props) {
-    if (this.state.value != nextProps.value) {
-      this.setState({ value: nextProps.value });
-    }
-  }
 
   @autobind
-  handleChange(value: string) {
-    if (this.props.onChange) {
-      this.props.onChange(value);
-    } else {
-      this.setState({value});
-    }
-  };
-
-  state: State = {
-    value: this.props.value
+  handleChange({ target }: EventTarget) {
+    this.props.onChange(target.value);
   };
 
   render(): Element {
-    const hexCode = this.state.value.toUpperCase();
+    const hexCode = this.props.value;
     const colorStyle = {
       background: `#${hexCode}`,
     };
@@ -56,7 +44,7 @@ class SwatchInput extends Component {
           type="text"
           maxLength="6"
           className="fc-text-input"
-          onChange={({ target }) => this.handleChange(target.value)}
+          onChange={this.handleChange}
           value={hexCode}
         />
         <span styleName="swatch" style={colorStyle} />

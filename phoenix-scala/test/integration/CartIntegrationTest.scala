@@ -53,14 +53,19 @@ class CartIntegrationTest
 
       implicit val au = storeAdminAuthData
 
-      val imgUrl = "testImgUrl";
+      val imgUrl = "testImgUrl"
+      val title  = "Image Path Product"
+
       (for {
-        product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
-        _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+        product ← * <~ Mvp.insertProduct(
+                     ctx.id,
+                     Factories.products.head.copy(title = title, image = imgUrl))
+        _ ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
       } yield {}).gimme
 
       val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
       fullCart.lineItems.skus.size must === (1)
+      fullCart.lineItems.skus.head.name must === (Some(title))
       fullCart.lineItems.skus.head.imagePath must === (imgUrl)
     }
   }
@@ -82,6 +87,17 @@ class CartIntegrationTest
       cartsApi(cart.refNum).lineItems
         .add(Seq(UpdateLineItemsPayload(simpleSku.code, 1)))
         .mustFailWith400(SKUWithNoProductAdded(cart.refNum, simpleSku.code))
+    }
+
+    "adding a SKU that's associated through a variant should succeed" in new ProductAndVariants_Baked
+    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+      val (_, _, skus) = productWithVariants
+      val code         = skus.head.code
+
+      val testPayload = Seq(UpdateLineItemsPayload(code, 1))
+      val root        = cartsApi(cart.refNum).lineItems.add(testPayload).asTheResult[CartResponse]
+      val liSkus      = root.lineItems.skus
+      liSkus must have size 1
     }
 
     "should respond with 404 if cart is not found" in {

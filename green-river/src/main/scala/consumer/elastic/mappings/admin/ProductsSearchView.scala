@@ -11,6 +11,7 @@ final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
       field("id", IntegerType),
       field("productId", IntegerType),
       field("context", StringType).index("not_analyzed"),
+      field("scope", StringType).analyzer("not_analyzed"),
       field("title", StringType)
         .analyzer("autocomplete")
         .fields(field("raw", StringType).index("not_analyzed")),
@@ -27,7 +28,8 @@ final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
           field("images").nested(
               field("alt", StringType).index("not_analyzed"),
               field("src", StringType).index("not_analyzed"),
-              field("title", StringType).index("not_analyzed")
+              field("title", StringType).index("not_analyzed"),
+              field("baseUrl", StringType).index("not_analyzed")
           )
       )
   )

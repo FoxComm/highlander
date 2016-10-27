@@ -15,6 +15,7 @@ object ImagePayloads {
 
   case class ImagePayload(id: Option[Int] = None,
                           src: String,
+                          baseUrl: Option[String] = None,
                           title: Option[String] = None,
                           alt: Option[String] = None) {
 
@@ -22,7 +23,8 @@ object ImagePayloads {
       val jsonBuilder: AttributesBuilder = ObjectPayloads.optionalAttributes(
           Some(StringField("src", src)),
           title.map(StringField("title", _)),
-          alt.map(StringField("alt", _)))
+          alt.map(StringField("alt", _)),
+          baseUrl.map(StringField("baseUrl", _)))
 
       (ObjectForm(kind = Image.kind, attributes = jsonBuilder.objectForm),
        ObjectShadow(attributes = jsonBuilder.objectShadow))

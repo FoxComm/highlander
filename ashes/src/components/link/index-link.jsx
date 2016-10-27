@@ -4,12 +4,7 @@ import Link from './link';
 
 import { isPermitted } from 'lib/claims';
 import type { Claims } from 'lib/claims';
-
-type Props = {
-  children: Element|Array<Element>,
-  actualClaims: Claims,
-  expectedClaims: Claims,
-};
+import type { LinkProps } from './link';
 
 type DefaultProps = {
   actualClaims: Claims,
@@ -17,7 +12,7 @@ type DefaultProps = {
 };
 
 export default class IndexLink extends Component {
-  props: Props;
+  props: LinkProps;
 
   static defaultProps: DefaultProps = {
     actualClaims: {},

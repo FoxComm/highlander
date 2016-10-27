@@ -6,7 +6,7 @@ object UserFailures {
 
   case object UserMustHaveCredentials extends Failure {
     override def description: String =
-      "User must have credentials (email, name) set for this operation"
+      "User must have email credentials set for this operation"
   }
 
   case object UserEmailNotUnique extends Failure {

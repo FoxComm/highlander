@@ -9,6 +9,8 @@
     docker_registry: docker-stage.foxcommerce.com
     marathon_server: 127.0.0.1:8080
     docker_db_host: 172.17.0.1
+    zookeepers: "zk://127.0.0.1:2181"
+    mesos_quorum: 1
   roles:
     - { role: base/phoenix }
     - { role: base/greenriver }
@@ -21,10 +23,15 @@
     - { role: dev/middlewarehouse }
     - { role: dev/greenriver }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
+<<<<<<< HEAD
     - { role: dev/ashes }
     - { role: dev/firebrand }
     - { role: dev/balancer, sudo: yes }
     - { role: dev/seeder }
+=======
+    - { role: dev/seeder }
+    - { role: dev/appliance }
+>>>>>>> master
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

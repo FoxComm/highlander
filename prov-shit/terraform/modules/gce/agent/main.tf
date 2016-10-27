@@ -27,4 +27,10 @@ resource "google_compute_instance" "agent" {
         user = "${var.ssh_user}"
         private_key = "${file(var.ssh_private_key)}"
     }
+
+    provisioner "remote-exec" {
+        inline = [
+          "sudo systemctl restart buildkite-agent"
+        ]
+    }
 }

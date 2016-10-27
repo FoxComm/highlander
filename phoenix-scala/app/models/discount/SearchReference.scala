@@ -42,7 +42,7 @@ case class ProductSearch(productSearchId: Int) extends SearchReference[Int, Buck
   val fieldName: String = productsSearchField
 
   def references(input: DiscountInput): Seq[Int] =
-    input.lineItems.map(_.product.formId)
+    input.lineItems.map(_.productForm.id)
 
   def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Buckets] = {
     SharedSearches.findOneById(productSearchId).run().flatMap {

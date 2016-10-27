@@ -1,11 +1,10 @@
 
 
-import _ from 'lodash';
-import React, { PropTypes } from 'react';
-import {EventEmitter} from 'events';
+import React, { PropTypes, Component } from 'react';
+import { EventEmitter } from 'events';
 import { autobind } from 'core-decorators';
 
-export default class Form extends React.Component {
+export default class Form extends Component {
 
   static propTypes = {
     onSubmit: PropTypes.func,

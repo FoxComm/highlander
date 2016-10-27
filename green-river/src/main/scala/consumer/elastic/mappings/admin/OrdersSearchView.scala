@@ -42,6 +42,7 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
           field("state", StringType).index("not_analyzed"),
           field("sku", StringType).index("not_analyzed"),
           field("name", StringType).analyzer("autocomplete"),
+          field("externalId", StringType).index("not_analyzed"),
           field("price", IntegerType)
       ),
       // Payments

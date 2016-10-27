@@ -1,0 +1,35 @@
+steps:
+  - command: bash -c "make package && npm run lint && npm run flow && npm test"
+    label: build, lint, test
+    agents:
+      - queue=core
+    artifact_paths: firebird.tar.bz2
+
+  - wait
+
+  - command: buildkite-agent artifact download "firebird.tar.bz2" .
+    label: dump to stage master
+    agents:
+      - queue=stage_master
+    branches: master
+
+  - wait
+
+  - command: |-
+      curl -X POST "https://api.buildkite.com/v1/organizations/foxcommerce/projects/$PROJECT/builds?access_token=$TOKEN" \
+       -d '{
+          "commit": "HEAD",
+          "branch": "master",
+          "message": "Firebird Updated",
+          "author": {
+            "name": "CI",
+            "email": "ci@foxcommerce.com"
+          }
+        }'
+    label: provision stage
+    agents:
+      - queue=core
+    env:
+      TOKEN: c5e4764e4d0116e34e17c2d4e0b1e7df45aaa468
+      PROJECT: stage-provisioning
+    branches: master

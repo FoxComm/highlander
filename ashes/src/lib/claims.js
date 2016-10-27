@@ -1,8 +1,7 @@
 /* @flow */
 import _ from 'lodash';
-import jwt from 'jsonwebtoken';
-
 import { merchant, superAdmin } from 'lib/frn';
+import jwtDecode from 'jwt-decode';
 
 export type Claims = { [claim:string]: Array<string> };
 
@@ -31,11 +30,10 @@ export function getJWT(): ?JWT {
   }
 
   // Decrypt the JWT
-  return jwt.decode(token);
+  return jwtDecode(token);
 }
 
-export function getClaims(): Claims {
-  const token = getJWT();
+export function getClaims(token: ?JWT = getJWT()): Claims {
   if (!token) {
     return {};
   }

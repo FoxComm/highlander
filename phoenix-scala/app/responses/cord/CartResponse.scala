@@ -33,13 +33,14 @@ case class CartResponse(referenceNumber: String,
 object CartResponse {
 
   def buildRefreshed(cart: Cart)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CartResponse] =
-    Carts.refresh(cart).dbresult.flatMap(fromCart)
+    Carts.refresh(cart).dbresult.flatMap(c ⇒ fromCart(c, grouped = true))
 
-  def fromCart(cart: Cart)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CartResponse] =
+  def fromCart(cart: Cart,
+               grouped: Boolean)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CartResponse] =
     for {
       lineItemAdj    ← * <~ CordResponseLineItemAdjustments.fetch(cart.refNum)
       lineItemsSku   ← * <~ CartLineItems.byCordRef(cart.refNum).result
-      lineItems      ← * <~ CordResponseLineItems.fetchCart(cart.refNum, lineItemAdj)
+      lineItems      ← * <~ CordResponseLineItems.fetchCart(cart.refNum, lineItemAdj, grouped)
       promo          ← * <~ CordResponsePromotions.fetch(cart.refNum)
       customer       ← * <~ Users.findOneByAccountId(cart.accountId)
       customerData   ← * <~ CustomersData.findOneByAccountId(cart.accountId)
@@ -70,8 +71,8 @@ object CartResponse {
       )
 
   def buildEmpty(cart: Cart,
-                 customer: Option[User],
-                 customerData: Option[CustomerData]): CartResponse = {
+                 customer: Option[User] = None,
+                 customerData: Option[CustomerData] = None): CartResponse = {
     CartResponse(
         referenceNumber = cart.refNum,
         lineItems = CordResponseLineItems(),

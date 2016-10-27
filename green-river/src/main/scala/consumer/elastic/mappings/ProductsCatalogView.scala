@@ -14,15 +14,17 @@ final case class ProductsCatalogView()(implicit ec: EC) extends AvroTransformer 
       field("salePrice", IntegerType).analyzer("autocomplete"),
       field("tags", StringType).index("not_analyzed"),
       field("archivedAt", DateType).format(dateFormat),
+      field("skus", StringType).index("not_analyzed"),
       field("albums").nested(
           field("name", StringType).index("not_analyzed"),
           field("images").nested(
               field("alt", StringType).index("not_analyzed"),
               field("src", StringType).index("not_analyzed"),
-              field("title", StringType).index("not_analyzed")
+              field("title", StringType).index("not_analyzed"),
+              field("baseUrl", StringType).index("not_analyzed")
           )
       )
   )
 
-  override def nestedFields() = List("albums", "tags")
+  override def nestedFields() = List("albums", "tags", "skus")
 }

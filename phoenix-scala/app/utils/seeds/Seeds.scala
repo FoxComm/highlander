@@ -57,7 +57,7 @@ object Seeds {
       adminName: String = "",
       adminEmail: String = "",
       adminOrg: String = "",
-      adminRoles: List[String] = List.empty
+      adminRoles: String = ""
   )
 
   def main(args: Array[String]): Unit = {
@@ -100,7 +100,12 @@ object Seeds {
             opt[String]("email")
               .required()
               .action((x, c) ⇒ c.copy(adminEmail = x))
-              .text("Admin email")
+              .text("Admin email"),
+            opt[String]("org").required().action((x, c) ⇒ c.copy(adminOrg = x)).text("Admin Org"),
+            opt[String]("roles")
+              .required()
+              .action((x, c) ⇒ c.copy(adminRoles = x))
+              .text("Admin Roles")
         )
     }
 
@@ -125,7 +130,7 @@ object Seeds {
         }
 
         if (cfg.seedBase) createBaseSeeds
-        if (cfg.seedAdmins) createAdminsSeeds
+        if (cfg.seedAdmins) createStageAdminsSeeds
         if (cfg.seedRandom > 0)
           createRandomSeeds(cfg.seedRandom, cfg.customersScaleMultiplier)
         if (cfg.seedStage) {
@@ -141,7 +146,7 @@ object Seeds {
         createAdminManually(name = cfg.adminName,
                             email = cfg.adminEmail,
                             org = cfg.adminOrg,
-                            roles = cfg.adminRoles)
+                            roles = cfg.adminRoles.split(",").toList)
       case _ ⇒
         System.err.println(usage)
     }
@@ -163,9 +168,10 @@ object Seeds {
     validateResults("get first admin", result)
   }
 
-  def createAdminsSeeds(implicit db: DB, ec: EC, ac: AC): Int = {
+  def createStageAdminsSeeds(implicit db: DB, ec: EC, ac: AC): Int = {
     val r = for {
       _      ← * <~ createSingleMerchantSystem
+      _      ← * <~ createSecondStageMerchant
       admins ← * <~ Factories.createStoreAdmins
     } yield admins
 
@@ -362,6 +368,9 @@ object Seeds {
 
   def createSingleMerchantSystem(implicit ec: EC) =
     sql""" select bootstrap_single_merchant_system() """.as[Int]
+
+  def createSecondStageMerchant(implicit ec: EC) =
+    sql""" select bootstrap_demo_organization('merchant2', 'merchant2.com', 1, 1) """.as[Int]
 
   private def flyWayMigrate(config: Config): Unit = {
     val flyway = newFlyway(jdbcDataSourceFromConfig("db", config))

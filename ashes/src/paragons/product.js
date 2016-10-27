@@ -87,7 +87,7 @@ export function isProductValid(product: Product): boolean {
 // THIS IS A HAAAAACK.
 function isMerchant(): boolean {
   const jwt = getJWT();
-  if (jwt.email == 'admin@admin.com') {
+  if (jwt != null && jwt.email == 'admin@admin.com') {
     return false;
   }
 

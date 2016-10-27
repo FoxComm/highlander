@@ -3,7 +3,7 @@
  */
 
 // libs
-import React, { Component, PropTypes } from 'react';
+import React, { Component, PropTypes, Element } from 'react';
 
 // components
 import { Link, IndexLink } from '../link';
@@ -25,19 +25,27 @@ export default class SubNav extends Component<void, Props, void> {
     context: PropTypes.string
   };
 
-  render() {
-    const params = {
-      productId: this.props.productId,
-      product: this.props.product,
-      context: this.props.context
-    };
+  get isNew(): boolean {
+    return this.props.productId === 'new';
+  }
 
+  get detailsLinks(): ?Element[] {
+    if (this.isNew) {
+      return;
+    }
+
+    return [
+      <Link to="product-images" params={this.props} key="images">Images</Link>,
+      <Link to="product-notes" params={this.props} key="notes">Notes</Link>,
+      <Link to="product-activity-trail" params={this.props} key="activity-trail">Activity Trail</Link>,
+    ];
+  }
+
+  render() {
     return (
       <LocalNav>
-        <IndexLink to="product-details" params={params}>Details</IndexLink>
-        <Link to="product-images" params={params}>Images</Link>
-        <Link to="product-notes" params={params}>Notes</Link>
-        <Link to="product-activity-trail" params={params}>Activity Trail</Link>
+        <IndexLink to="product-details" params={this.props}>Details</IndexLink>
+        {this.detailsLinks}
       </LocalNav>
     );
   }

@@ -5,6 +5,7 @@
 // libs
 import _ from 'lodash';
 import React, { Element } from 'react';
+import { autobind } from 'core-decorators';
 
 // components
 import { Link, IndexLink } from '../link';
@@ -61,15 +62,38 @@ class SkuPage extends ObjectPage {
     return 'skuCode';
   }
 
+  get detailsLinks() {
+    if (this.isNew) {
+      return;
+    }
+
+    const { params } = this.props;
+
+    return [
+      <Link to="sku-images" params={params} key="images">Images</Link>,
+      <Link to="sku-inventory-details" params={params} key="inventory">Inventory</Link>,
+      <Link to="sku-notes" params={params} key="notes">Notes</Link>,
+      <Link to="sku-activity-trail" params={params} key="activity-trail">Activity Trail</Link>,
+    ];
+  }
+
+  @autobind
+  sanitizeError(error: string): string {
+    if (error.indexOf('duplicate key value violates unique constraint "skus_code_context_id"') != -1) {
+      const code = _.get(this.state, 'entity.attributes.code.v');
+      return `SKU with code ${code} already exists in the system`;
+    }
+
+    return error;
+  }
+
   subNav() {
     const { params } = this.props;
+
     return (
       <LocalNav>
         <IndexLink to="sku-details" params={params}>Details</IndexLink>
-        <Link to="sku-images" params={params}>Images</Link>
-        <Link to="sku-inventory-details" params={params}>Inventory</Link>
-        <Link to="sku-notes" params={params}>Notes</Link>
-        <Link to="sku-activity-trail" params={params}>Activity Trail</Link>
+        {this.detailsLinks}
       </LocalNav>
     );
   }

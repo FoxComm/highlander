@@ -25,7 +25,7 @@ function mapStateToProps(state) {
   };
 }
 
-@connect(mapStateToProps, { ...newOrderActions, push })
+@connect(mapStateToProps, { ...newOrderActions })
 export default class NewOrder extends Component {
   static propTypes = {
     createOrder: PropTypes.func.isRequired,
@@ -151,7 +151,7 @@ export default class NewOrder extends Component {
   createNewCustomer(e) {
     e.preventDefault();
 
-    this.props.push({ name: 'customers-new', query: { email: this.state.query } });
+    transitionTo('customers-new');
   }
 
   @autobind

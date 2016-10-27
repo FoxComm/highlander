@@ -15,6 +15,7 @@ shortcuts:
       staging: bin/envs/staging
       target_aws: bin/envs/target_aws
       topdrawer: bin/envs/topdrawer
+      topdrawer_vpn: bin/envs/topdrawer_vpn
       tpg: bin/envs/tpg
       tpg_vpn: bin/envs/tpg_vpn
       vanilla: bin/envs/vanilla

@@ -6,7 +6,11 @@
 - name: Execute agent setup
   shell: "{{home}}/agent_core.sh"
 
-- name: Install gulp globally
+- name: Install Babel globally
+  shell: npm install babel-cli -g
+  sudo: true
+
+- name: Install Gulp globally
   shell: npm install gulp -g
   sudo: true
 

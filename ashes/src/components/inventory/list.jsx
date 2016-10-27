@@ -36,6 +36,7 @@ const InventoryList = props => {
 
   return (
     <SelectableSearchList
+      entity="inventory.list"
       emptyMessage="No inventory units found."
       list={props.list}
       renderRow={renderRow}

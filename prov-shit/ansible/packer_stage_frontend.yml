@@ -28,6 +28,7 @@
     kafka_server: kafka.service.consul:9092
     schema_server: schema-registry.service.consul:8081
     zookeepers: zk://zookeeper.service.consul:2181
+    zookeeper_server: zookeeper.service.consul:2181
   post_tasks:
     - name: Sweet Dreams
       pause: seconds=5

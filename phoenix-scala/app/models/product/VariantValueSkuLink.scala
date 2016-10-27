@@ -25,7 +25,7 @@ class VariantValueSkuLinks(tag: Tag)
   def * =
     (id, leftId, rightId, createdAt, updatedAt) <> ((VariantValueSkuLink.apply _).tupled, VariantValueSkuLink.unapply)
 
-  def left  = foreignKey(Variants.tableName, leftId, Variants)(_.id)
+  def left  = foreignKey(VariantValues.tableName, leftId, VariantValues)(_.id)
   def right = foreignKey(Skus.tableName, rightId, Skus)(_.id)
 }
 

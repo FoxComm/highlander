@@ -31,7 +31,7 @@ export const ACTION_SUBMIT = 'merchantAccountSubmit';
 
 const { perform: submit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, (id: number, data: Object) =>
   new Promise((resolve, reject) =>
-    api.post(`/merchants/${id}/accounts`, { account: { ...data } })
+    api.post(`/merchants/${id}/admin_accounts`, { account: { ...data } })
       .then((account: Account) => resolve(account))
       .catch(err => reject(new SubmissionError(err.response.data.errors)))
   )

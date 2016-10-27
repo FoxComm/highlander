@@ -93,8 +93,8 @@ def tune_vm(config, opts = {})
     aws.access_key_id = ENV['AWS_ACCESS_KEY_ID']
     aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']
     aws.keypair_name = ENV['AWS_KEY_NAME']
-    aws.associate_public_ip=true
-    aws.elastic_ip="52.38.159.101"
+    aws.associate_public_ip = true
+    aws.elastic_ip = "52.38.159.101"
     aws.block_device_mapping = [{ 'DeviceName' => '/dev/sda1', 'Ebs.VolumeSize' => 100 }]
 
     aws.ami = "ami-191fd379"
@@ -107,11 +107,12 @@ def tune_vm(config, opts = {})
 end
 
 Vagrant.configure("2") do |config|
+  user = ENV['GOOGLE_SSH_USERNAME'] || "vagrant"
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.define :appliance, primary: true do |app|
-    app.vm.box = "base_appliance_16.04_20160921"
+    app.vm.box = "base_appliance_16.04_20161016"
     app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base_appliance_16.04_20160921.box"
 
     app.vm.network :private_network, ip: $nginx_ip
@@ -121,7 +122,8 @@ Vagrant.configure("2") do |config|
       ansible.verbose = "vvvv"
       ansible.playbook = "prov-shit/ansible/vagrant_appliance.yml"
       ansible.extra_vars = {
-        user: user
+        user: user,
+        appliance_hostname: $nginx_ip,
       }
     end
   end
