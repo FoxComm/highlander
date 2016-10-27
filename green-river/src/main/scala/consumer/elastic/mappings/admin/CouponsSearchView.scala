@@ -12,6 +12,7 @@ final case class CouponsSearchView()(implicit ec: EC) extends AvroTransformer {
       field("promotionId", IntegerType),
       field("context", StringType).index("not_analyzed"),
       field("name", StringType).analyzer("autocomplete"),
+      field("codes", StringType).index("not_analyzed"),
       field("storefrontName", StringType).analyzer("autocomplete"),
       field("description", StringType).analyzer("autocomplete"),
       field("activeFrom", DateType).format(dateFormat),
@@ -20,4 +21,6 @@ final case class CouponsSearchView()(implicit ec: EC) extends AvroTransformer {
       field("createdAt", DateType).format(dateFormat),
       field("archivedAt", DateType).format(dateFormat)
   )
+
+  override def nestedFields() = List("codes")
 }

@@ -11,7 +11,7 @@ object ProductConnector extends ActivityConnector {
 
   def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]] =
     Future {
-      val productIds = byProductData(activity) ++: byNoteData(activity)
+      val productIds = byProductData(activity)
 
       productIds.distinct.map(createConnection(_, activity.id))
     }
@@ -24,16 +24,9 @@ object ProductConnector extends ActivityConnector {
   }
 
   private def byProductData(activity: Activity): Seq[String] = {
-    activity.data \ "product" \ "form" \ "product" \ "id" match {
+    activity.data \ "product" \ "id" match {
       case JInt(formId) ⇒ Seq(formId.toString)
       case _            ⇒ Seq.empty
-    }
-  }
-
-  private def byNoteData(activity: Activity): Seq[String] = {
-    (activity.data \ "note" \ "referenceType", activity.data \ "entity" \ "id") match {
-      case (JString("product"), JInt(id)) ⇒ Seq(id.toString)
-      case _                              ⇒ Seq.empty
     }
   }
 }

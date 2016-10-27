@@ -51,12 +51,8 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       order ← * <~ Orders.mustFindByRefNum(payload.order)
       _     ← * <~ validateOrder(order)
 
-      customer ← * <~ Users.mustFindByAccountId(order.accountId)
-      items    ← * <~ OrderLineItems.findLineItemsByCordRef(payload.order).result
-
-      lineItemData ← * <~ items.map { lineItem ⇒
-                      (OrderLineItemProductData.apply _).tupled(lineItem)
-                    }
+      customer     ← * <~ Users.mustFindByAccountId(order.accountId)
+      lineItemData ← * <~ LineItemManager.getOrderLineItems(payload.order)
 
       //validate payload, make sure it's including all line items since we don
       //support split capture yet.

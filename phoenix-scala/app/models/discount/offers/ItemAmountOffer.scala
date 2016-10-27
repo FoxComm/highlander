@@ -27,7 +27,7 @@ case class ItemAmountOffer(discount: Int, search: Seq[ProductSearch])
     xor match {
       case Xor.Right(buckets) ⇒
         val matchedFormIds = buckets.filter(_.docCount > 0).map(_.key)
-        input.lineItems.find(data ⇒ matchedFormIds.contains(data.product.formId.toString)) match {
+        input.lineItems.find(data ⇒ matchedFormIds.contains(data.productForm.id.toString)) match {
           case Some(data) ⇒
             buildXor(input, subtract(price(data), discount), data.lineItemReferenceNumber.some)
           case _ ⇒ pureXor()

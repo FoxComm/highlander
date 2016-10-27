@@ -14,6 +14,7 @@ import payloads.PaymentPayloads.GiftCardPayment
 import services.carts._
 import testutils._
 import testutils.fixtures.raw._
+import utils.Money.Currency
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -106,7 +107,7 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   // Product
   trait Product_Raw extends StoreAdmin_Seed {
 
-    val simpleProduct: Product = ({
+    val simpleProduct: Product = {
       for {
         spd ← * <~ Mvp.insertProduct(ctx.id,
                                      SimpleProductData(title = "Test Product",
@@ -117,12 +118,35 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
                                                        active = true))
         pd ← * <~ Products.mustFindById404(spd.productId)
       } yield pd
-    }).gimme
+    }.gimme
   }
 
   trait Sku_Raw extends StoreAdmin_Seed {
 
     val simpleSku: Sku =
       Mvp.insertSku(Scope.current, ctx.id, SimpleSku("BY-ITSELF", "A lonely item", 9999)).gimme
+  }
+
+  trait ProductWithVariants_Raw extends StoreAdmin_Seed {
+    def simpleProduct: Product
+
+    val productWithVariants: (Product, SimpleCompleteVariantData, Seq[Sku]) = {
+      implicit val au = storeAdminAuthData
+      val scope       = LTree(au.token.scope)
+
+      val testSkus = Seq(SimpleSku("SKU-TST", "SKU test", 1000, Currency.USD, active = true),
+                         SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, active = true))
+
+      val simpleSizeVariant = SimpleCompleteVariant(
+          variant = SimpleVariant("Size"),
+          variantValues = Seq(SimpleVariantValue("Small", "", Seq("SKU-TST")),
+                              SimpleVariantValue("Large", "", Seq("SKU-TS2"))))
+
+      for {
+        skus    ← * <~ Mvp.insertSkus(scope, ctx.id, testSkus)
+        product ← * <~ Products.mustFindById404(simpleProduct.id)
+        variant ← * <~ Mvp.insertVariantWithValues(scope, ctx.id, product, simpleSizeVariant)
+      } yield (product, variant, skus)
+    }.gimme
   }
 }

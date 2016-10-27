@@ -2,6 +2,7 @@ package services.product
 
 import java.time.Instant
 
+import com.github.tminglei.slickpg.LTree
 import cats.data._
 import cats.implicits._
 import cats.data.ValidatedNel
@@ -13,6 +14,7 @@ import models.inventory._
 import models.objects._
 import models.product._
 import models.account._
+import models.cord.lineitems.CartLineItems
 import payloads.ImagePayloads.UpdateAlbumPositionPayload
 import payloads.ProductPayloads._
 import payloads.SkuPayloads._
@@ -78,7 +80,7 @@ object ProductManager {
   def getProduct(
       productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] =
     for {
-      oldProduct ← * <~ mustFindFullProductById(productId)
+      oldProduct ← * <~ mustFindFullProductByFormId(productId)
       albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.form.id)
 
       fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
@@ -110,7 +112,7 @@ object ProductManager {
     val payloadSkus    = payload.skus.getOrElse(Seq.empty)
 
     for {
-      oldProduct ← * <~ mustFindFullProductById(productId)
+      oldProduct ← * <~ mustFindFullProductByFormId(productId)
 
       mergedAttrs = oldProduct.shadow.attributes.merge(newShadowAttrs)
       updated ← * <~ ObjectUtils.update(oldProduct.form.id,
@@ -155,7 +157,8 @@ object ProductManager {
     val newShadowAttrs = ObjectShadow.fromPayload(payload).attributes
 
     for {
-      productObject ← * <~ mustFindFullProductById(productId)
+      productObject ← * <~ mustFindFullProductByFormId(productId)
+      _             ← * <~ productObject.model.mustNotBePresentInCarts
       mergedAttrs = productObject.shadow.attributes.merge(newShadowAttrs)
       inactive ← * <~ ObjectUtils.update(productObject.form.id,
                                          productObject.shadow.id,
@@ -202,17 +205,6 @@ object ProductManager {
           variantResponses
       )
   }
-
-  def getFirstProductImageByFromId(formId: ObjectForm#Id)(implicit ec: EC,
-                                                          db: DB): DbResultT[Option[String]] =
-    for {
-      products ← * <~ Products.filterByFormId(formId).result
-      albums   ← * <~ products.take(1).map(ProductAlbumLinks.queryRightByLeft)
-      images ← * <~ albums.flatten
-                .take(1)
-                .map(album ⇒ AlbumImageLinks.queryRightByLeft(album.model))
-      productImage ← * <~ images.flatten.take(1).map(i ⇒ ImageResponse.build(i).src).headOption
-    } yield productImage
 
   private def getVariantsWithRelatedSkus(variants: Seq[FullVariant])(
       implicit ec: EC,
@@ -334,14 +326,6 @@ object ProductManager {
       .filter(_.formId === formId)
       .mustFindOneOr(ProductFormNotFoundForContext(formId, contextId))
 
-  def mustFindProductByContextAndId404(contextId: Int, productId: Int)(
-      implicit ec: EC,
-      db: DB): DbResultT[Product] =
-    Products
-      .filter(_.contextId === contextId)
-      .filter(_.id === productId)
-      .mustFindOneOr(ProductNotFoundForContext(productId, contextId))
-
   def getContextsForProduct(formId: Int)(implicit ec: EC,
                                          db: DB): DbResultT[Seq[ObjectContextResponse.Root]] =
     for {
@@ -350,6 +334,11 @@ object ProductManager {
       contexts   ← * <~ ObjectContexts.filter(_.id.inSet(contextIds)).sortBy(_.id).result
     } yield contexts.map(ObjectContextResponse.build)
 
-  def mustFindFullProductById(productId: Int)(implicit ec: EC, db: DB, oc: OC) =
+  def mustFindFullProductByFormId(
+      productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullObject[Product]] =
     ObjectManager.getFullObject(mustFindProductByContextAndFormId404(oc.id, productId))
+
+  def mustFindFullProductById(productId: Int)(implicit ec: EC,
+                                              db: DB): DbResultT[FullObject[Product]] =
+    ObjectManager.getFullObject(Products.mustFindById404(productId))
 }

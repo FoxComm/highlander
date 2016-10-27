@@ -1,0 +1,50 @@
+env:
+  ENABLE_NEWGISTICS: false
+  NEWGISTICS_API_KEY: d3cccbcf49e145e58b6aa6c421fa1bfa
+  NEWGISTICS_URL: http://apistaging.newgisticsfulfillment.com
+
+steps:
+  - command: cd spree_api && bundle install
+    label: Bundle spree_api
+    agents:
+      - queue=beautykind
+
+  - wait
+
+  - command: cp spree_api/config/sunspot.yml.example spree_api/config/sunspot.yml
+    label: Copy sunspot.yml
+    agents:
+      - queue=beautykind
+
+  - command: cp spree_api/config/database.yml.example spree_api/config/database.yml
+    label: Copy database.yml
+    agents:
+      - queue=beautykind
+
+  - command: cp spree_api/config/secrets.yml.example spree_api/config/secrets.yml
+    label: Copy secrets.yml
+    agents:
+      - queue=beautykind
+
+  - wait
+
+  - command: source /home/fox/.nvm/nvm.sh && cd spree_api && bundle exec rake db:drop:all && bundle exec rake db:create:all
+    label: Create the database
+    agents:
+      - queue=beautykind
+
+  - wait
+
+  - command: source /home/fox/.nvm/nvm.sh && cd spree_api && bundle exec rake db:migrate && RAILS_ENV=test bundle exec rake db:migrate
+    label: Migrate the database
+    agents:
+      - queue=beautykind
+    env:
+      ENABLE_NEWGISTICS: false
+
+  - wait
+
+  - command: source /home/fox/.nvm/nvm.sh && cd spree_api && bundle exec rake db:migrate && bundle exec rake db:test:prepare && bundle exec rake
+    label: Execute tests
+    agents:
+      - queue=beautykind

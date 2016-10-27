@@ -1,0 +1,19 @@
+steps:
+  - command: "`source $HOME/.bashrc` "
+    label: source .bashrc
+    agents:
+      - queue=core
+
+  - command: go clean
+    label: go clean
+    agents:
+      - queue=core
+    env:
+      GOPATH: "/home/ci/go"
+
+  - command: make ci
+    label: make ci
+    agents:
+      - queue=core
+    env:
+      GOPATH: "/home/ci/go"

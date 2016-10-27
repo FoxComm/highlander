@@ -5,6 +5,7 @@
 // libs
 import _ from 'lodash';
 import React, { Element } from 'react';
+import { autobind } from 'core-decorators';
 
 // components
 import { Link, IndexLink } from '../link';
@@ -74,6 +75,16 @@ class SkuPage extends ObjectPage {
       <Link to="sku-notes" params={params} key="notes">Notes</Link>,
       <Link to="sku-activity-trail" params={params} key="activity-trail">Activity Trail</Link>,
     ];
+  }
+
+  @autobind
+  sanitizeError(error: string): string {
+    if (error.indexOf('duplicate key value violates unique constraint "skus_code_context_id"') != -1) {
+      const code = _.get(this.state, 'entity.attributes.code.v');
+      return `SKU with code ${code} already exists in the system`;
+    }
+
+    return error;
   }
 
   subNav() {

@@ -55,5 +55,5 @@ create-user:
 	createuser -s $(DB_USER)
 
 test: glide reset-test
-    # -p 1 serves to run tests sequentially, as it is required for non-isolated database tests
+    # -p=1 serves to run tests sequentially, as it is required for non-isolated database tests
 	cd $(BUILD_PATH) && GOENV=test go test -p 1 `glide nv`

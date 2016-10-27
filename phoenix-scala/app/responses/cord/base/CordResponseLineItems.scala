@@ -4,6 +4,7 @@ import models.cord.lineitems.CartLineItems.scope._
 import models.cord.lineitems._
 import models.product.Mvp
 import responses.ResponseItem
+import services.LineItemManager
 import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -51,27 +52,17 @@ object CordResponseLineItems {
       implicit ec: EC,
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
-      li ← * <~ OrderLineItems.findLineItemsByCordRef(cordRef).result
-      //Convert to OrderLineItemProductData
-      result ← * <~ li
-                .map(resultToData)
-                .map { data ⇒
-                  createResponse(data, 1)
-                }
-                .toSeq
+      li     ← * <~ LineItemManager.getOrderLineItems(cordRef)
+      result ← * <~ li.map(data ⇒ createResponse(data, 1))
     } yield result
 
   def cordLineItemsFromCartGrouped(cordRef: String, adjustmentMap: AdjustmentMap)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
-      lineItems ← * <~ CartLineItems.byCordRef(cordRef).lineItems.result
-      //Convert to OrderLineItemProductData
+      lineItems ← * <~ LineItemManager.getCartLineItems(cordRef)
       result ← * <~ lineItems
-                .map(resultToCartData)
-                //Group by adjustments/unadjusted
                 .groupBy(lineItem ⇒ groupKey(lineItem, adjustmentMap))
-                //Convert groups to responses.
                 .map {
                   case (_, lineItemGroup) ⇒ createResponseGrouped(lineItemGroup, adjustmentMap)
                 }
@@ -82,20 +73,9 @@ object CordResponseLineItems {
       implicit ec: EC,
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
-      lineItems ← * <~ CartLineItems.byCordRef(cordRef).lineItems.result
-      result ← * <~ lineItems
-                .map(resultToCartData)
-                .map { data ⇒
-                  createResponse(data, 1)
-                }
-                .toSeq
+      lineItems ← * <~ LineItemManager.getCartLineItems(cordRef)
+      result    ← * <~ lineItems.map(data ⇒ createResponse(data, 1))
     } yield result
-
-  private def resultToData(result: OrderLineItems.FindLineItemResult): OrderLineItemProductData =
-    (OrderLineItemProductData.apply _).tupled(result)
-
-  private def resultToCartData(result: CartLineItems.FindLineItemResult): CartLineItemProductData =
-    (CartLineItemProductData.apply _).tupled(result)
 
   private val NOT_A_REF = "not_a_ref"
 
@@ -121,7 +101,7 @@ object CordResponseLineItems {
   private def createResponseGrouped(lineItemData: Seq[CartLineItemProductData],
                                     adjMap: Map[String, CordResponseLineItemAdjustment])(
       implicit ec: EC,
-      db: DB): DbResultT[CordResponseLineItem] = {
+      db: DB): CordResponseLineItem = {
 
     val data = lineItemData.head
 
@@ -139,30 +119,26 @@ object CordResponseLineItems {
                    lineItemData.length)
   }
 
-  private def createResponse(data: LineItemProductData[_], quantity: Int)(
-      implicit ec: EC,
-      db: DB): DbResultT[CordResponseLineItem] = {
+  private def createResponse(data: LineItemProductData[_],
+                             quantity: Int)(implicit ec: EC, db: DB): CordResponseLineItem = {
     require(quantity > 0)
 
-    val price      = Mvp.priceAsInt(data.skuForm, data.skuShadow)
-    val name       = Mvp.name(data.skuForm, data.skuShadow)
-    val externalId = Mvp.externalId(data.skuForm, data.skuShadow)
-    val image      = Mvp.firstImage(data.skuForm, data.skuShadow).getOrElse(NO_IMAGE)
+    val title = Mvp.title(data.productForm, data.productShadow)
+    val image = data.image.getOrElse(NO_IMAGE)
 
-    val li = CordResponseLineItem(imagePath = image,
-                                  sku = data.sku.code,
-                                  referenceNumber = data.lineItemReferenceNumber,
-                                  state = data.lineItemState,
-                                  name = name,
-                                  price = price,
-                                  externalId = externalId,
-                                  productFormId = data.product.formId,
-                                  totalPrice = price,
-                                  quantity = quantity)
-    ProductManager.getFirstProductImageByFromId(data.product.formId).map {
-      case Some(url) ⇒ li.copy(imagePath = url)
-      case _         ⇒ li
-    }
+    val price      = Mvp.priceAsInt(data.skuForm, data.skuShadow)
+    val externalId = Mvp.externalId(data.skuForm, data.skuShadow)
+
+    CordResponseLineItem(imagePath = image,
+                         sku = data.sku.code,
+                         referenceNumber = data.lineItemReferenceNumber,
+                         state = data.lineItemState,
+                         name = title,
+                         price = price,
+                         externalId = externalId,
+                         productFormId = data.productForm.id,
+                         totalPrice = price,
+                         quantity = quantity)
   }
 }
 

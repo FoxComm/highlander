@@ -65,7 +65,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
                                                 originalBalance = notEnoughFunds))
           payment ← * <~ OrderPayments.create(
                        Factories.giftCardPayment.copy(cordRef = cart.refNum,
-                                                      amount = skuPrice.some,
+                                                      amount = notEnoughFunds.some,
                                                       paymentMethodId = giftCard.id))
         } yield payment).gimme
 

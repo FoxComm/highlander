@@ -9,9 +9,10 @@ import CartLineItems.scope._
 import failures.CartFailures.SKUWithNoProductAdded
 import failures.GeneralFailure
 import models.account._
-import models.inventory.Skus
-import models.objects.ProductSkuLinks
+import models.inventory.{Sku, Skus}
+import models.objects.{ProductSkuLinks, ProductVariantLinks, VariantValueLinks}
 import models.payment.giftcard._
+import models.product.VariantValueSkuLinks
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import responses.TheResponse
 import responses.cord.CartResponse
@@ -124,7 +125,8 @@ object LineItemUpdater {
     }
 
   private def updateQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload], contextId: Int)(
-      implicit ec: EC): DbResultT[Seq[CartLineItem]] = {
+      implicit ec: EC,
+      ctx: OC): DbResultT[Seq[CartLineItem]] = {
 
     val lineItemUpdActions = foldQuantityPayload(payload).map {
       case (skuCode, qty) ⇒
@@ -133,9 +135,7 @@ object LineItemUpdater {
                  .filterByContext(contextId)
                  .filter(_.code === skuCode)
                  .mustFindOneOr(SkuNotFoundForContext(skuCode, contextId))
-          _ ← * <~ ProductSkuLinks
-               .filter(_.rightId === sku.id)
-               .mustFindOneOr(SKUWithNoProductAdded(cart.refNum, skuCode))
+          _   ← * <~ mustFindProductIdForSku(sku, cart.refNum)
           lis ← * <~ doUpdateLineItems(sku.id, qty, cart.refNum)
         } yield lis
     }
@@ -153,14 +153,33 @@ object LineItemUpdater {
                  .filterByContext(ctx.id)
                  .filter(_.code === skuCode)
                  .mustFindOneOr(SkuNotFoundForContext(skuCode, ctx.id))
-          _ ← * <~ ProductSkuLinks
-               .filter(_.rightId === sku.id)
-               .mustFindOneOr(SKUWithNoProductAdded(cart.refNum, skuCode))
+          _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
           lis ← * <~ (if (delta > 0) increaseLineItems(sku.id, delta, cart.refNum)
                       else decreaseLineItems(sku.id, -delta, cart.refNum))
         } yield lis
     }
     DbResultT.sequence(lineItemUpdActions).map(_.toSeq)
+  }
+
+  private def mustFindProductIdForSku(sku: Sku, refNum: String)(implicit ec: EC, oc: OC) = {
+    for {
+      link ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
+              case Some(productLink) ⇒
+                DbResultT.good(productLink.leftId)
+              case None ⇒
+                for {
+                  valueLink ← * <~ VariantValueSkuLinks
+                               .filter(_.rightId === sku.id)
+                               .mustFindOneOr(SKUWithNoProductAdded(refNum, sku.code))
+                  variantLink ← * <~ VariantValueLinks
+                                 .filter(_.rightId === valueLink.leftId)
+                                 .mustFindOneOr(SKUWithNoProductAdded(refNum, sku.code))
+                  productLink ← * <~ ProductVariantLinks
+                                 .filter(_.rightId === variantLink.leftId)
+                                 .mustFindOneOr(SKUWithNoProductAdded(refNum, sku.code))
+                } yield productLink.leftId
+            }
+    } yield link
   }
 
   private def doUpdateLineItems(skuId: Int, newQuantity: Int, cordRef: String)(

@@ -146,7 +146,7 @@ class VariantIntegrationTest
 
     val (product, variant) = (for {
       productData ← * <~ Mvp.insertProduct(ctx.id, simpleProd)
-      product     ← * <~ ProductManager.mustFindProductByContextAndId404(ctx.id, productData.productId)
+      product     ← * <~ Products.mustFindById404(productData.productId)
       variant     ← * <~ Mvp.insertVariantWithValues(scope, ctx.id, product, simpleSizeVariant)
     } yield (product, variant)).gimme
   }
