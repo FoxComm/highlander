@@ -10,7 +10,7 @@ object TaxonomyPayloads {
 
   case class CreateTaxonomyPayload(attributes: AttributesMap,
                                    hierarchical: Boolean,
-                                   scope: Option[String])
+                                   scope: Option[String] = None)
 
   case class UpdateTaxonomyPayload(attributes: AttributesMap)
 

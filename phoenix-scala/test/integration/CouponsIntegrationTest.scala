@@ -262,7 +262,7 @@ class CouponsIntegrationTest
                           .cart(Scope.current)
                           .copy(referenceNumber = "ORDER-123456",
                                 accountId = otherCustomer.accountId))
-      order ← * <~ Orders.createFromCart(cartForOrder)
+      order ← * <~ Orders.createFromCart(cartForOrder, None)
     } yield (fromCoupon, fromToCoupon, cart, order)).gimme
   }
 

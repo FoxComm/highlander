@@ -142,14 +142,14 @@ class CustomerIntegrationTest
                      Cart(referenceNumber = "ABC-1",
                           scope = Scope.current,
                           accountId = customer.accountId))
-          order1 ← * <~ Orders.createFromCart(cart1)
+          order1 ← * <~ Orders.createFromCart(cart1, None)
           order1 ← * <~ Orders.update(order1, order1.copy(state = Order.FulfillmentStarted))
           order1 ← * <~ Orders.update(order1, order1.copy(state = Order.Shipped))
           cart2 ← * <~ Carts.create(
                      Cart(referenceNumber = "ABC-2",
                           scope = Scope.current,
                           accountId = customer.accountId))
-          order2 ← * <~ Orders.createFromCart(cart2)
+          order2 ← * <~ Orders.createFromCart(cart2, None)
           order2 ← Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))
           order2 ← Orders.update(order2, order2.copy(state = Order.Shipped))
           orders = Seq(order1, order2)
@@ -608,8 +608,8 @@ class CustomerIntegrationTest
                  Cart(accountId = customer2.accountId,
                       scope = Scope.current,
                       referenceNumber = "ABC-456"))
-      order  ← * <~ Orders.createFromCart(cart)
-      order2 ← * <~ Orders.createFromCart(cart2)
+      order  ← * <~ Orders.createFromCart(cart, None)
+      order2 ← * <~ Orders.createFromCart(cart2, None)
       orderPayment ← * <~ OrderPayments.create(
                         Factories.orderPayment.copy(cordRef = order.refNum,
                                                     paymentMethodId = creditCard.id,

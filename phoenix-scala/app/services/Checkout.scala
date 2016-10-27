@@ -66,7 +66,8 @@ object Checkout {
                                db: DB,
                                apis: Apis,
                                ac: AC,
-                               ctx: OC): DbResultT[OrderResponse] =
+                               ctx: OC,
+                               au: AU): DbResultT[OrderResponse] =
     for {
       cart  ← * <~ Carts.mustFindByRefNum(refNum)
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
@@ -96,7 +97,7 @@ class ExternalCalls {
 
 case class Checkout(
     cart: Cart,
-    cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC) {
+    cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC, au: AU) {
 
   var externalCalls = new ExternalCalls()
 
@@ -110,7 +111,7 @@ case class Checkout(
       _         ← * <~ holdInMiddleWarehouse
       _         ← * <~ authPayments(customer)
       _         ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
-      order     ← * <~ Orders.createFromCart(cart)
+      order     ← * <~ Orders.createFromCart(cart, subScope = None)
       _         ← * <~ fraudScore(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)
       fullOrder ← * <~ OrderResponse.fromOrder(order)
