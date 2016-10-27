@@ -1,9 +1,11 @@
-alter table carts add column scope exts.ltree not null;
-alter table carts_search_view add column scope exts.ltree not null;
+alter table carts add column scope exts.ltree;
+alter table carts_search_view add column scope exts.ltree;
 alter table carts_search_view add column scopes text[];
 
 update carts set scope = exts.text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
 update carts_search_view set scope = text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
+
+alter table carts alter column scope set not null;
 
 create or replace function update_carts_view_from_carts_insert_fn() returns trigger as $$
 begin
