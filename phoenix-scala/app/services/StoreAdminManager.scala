@@ -1,7 +1,6 @@
 package services
 
 import cats.implicits._
-import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import failures.UserFailures._
 import models.account._
@@ -37,12 +36,13 @@ object StoreAdminManager {
                                              email = payload.email.some,
                                              password = payload.password,
                                              context = context)
-      scope ← * <~ Scopes.mustFindById400(organization.scopeId)
+      organizationScope ← * <~ Scopes.mustFindById400(organization.scopeId)
+      scope             ← * <~ Scope.mergeSubScope(organizationScope.path, payload.scope)
       adminUser ← * <~ AdminsData.create(
                      AdminData(accountId = admin.accountId,
                                userId = admin.id,
                                state = AdminData.Invited,
-                               scope = LTree(scope.path)))
+                               scope = scope))
 
       _ ← * <~ LogActivity.storeAdminCreated(admin, author)
     } yield StoreAdminResponse.build(admin, adminUser)

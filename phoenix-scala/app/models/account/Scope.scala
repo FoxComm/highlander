@@ -23,9 +23,14 @@ object Scope {
   def getScopeOrSubscope(potentialSubscope: Option[String] = None)(implicit ec: EC,
                                                                    au: AU): DbResultT[LTree] = {
     val scope = au.token.scope
+    mergeSubScope(scope, potentialSubscope)
+  }
+
+  def mergeSubScope(scope: String, potentialSubscope: Option[String])(
+      implicit ec: EC): DbResultT[LTree] = {
     scopeOrSubscope(scope, potentialSubscope) match {
-      case Some(scope) ⇒ DbResultT.good(LTree(scope))
-      case None        ⇒ DbResultT.failures(ImproperScope.single)
+      case Some(merged) ⇒ DbResultT.good(LTree(merged))
+      case None         ⇒ DbResultT.failures[LTree](ImproperScope.single)
     }
   }
 
@@ -63,7 +68,7 @@ object Scopes extends FoxTableQuery[Scope, Scopes](new Scopes(_)) with Returning
 
   val returningLens: Lens[Scope, Int] = lens[Scope].id
 
-  def forOrganization(org: String)(implicit ec: EC, db:DB): DbResultT[LTree] =
+  def forOrganization(org: String)(implicit ec: EC, db: DB): DbResultT[LTree] =
     for {
       organization ← * <~ Organizations.findByName(org).mustFindOr(OrganizationNotFoundByName(org))
       scope        ← * <~ Scopes.mustFindById400(organization.scopeId)

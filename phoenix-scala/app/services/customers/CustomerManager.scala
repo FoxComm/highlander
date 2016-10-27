@@ -77,12 +77,13 @@ object CustomerManager {
                                             context = context,
                                             checkEmail = !payload.isGuest.getOrElse(false))
 
-      scope ← * <~ Scopes.mustFindById400(context.scopeId)
+      contextScope ← * <~ Scopes.mustFindById400(context.scopeId)
+      scope        ← * <~ Scope.mergeSubScope(contextScope.path, payload.scope)
       custData ← * <~ CustomersData.create(
                     CustomerData(accountId = user.accountId,
                                  userId = user.id,
                                  isGuest = payload.isGuest.getOrElse(false),
-                                 scope = LTree(scope.path)))
+                                 scope = scope))
       response = build(user, custData)
       _ ← * <~ LogActivity.customerCreated(response, admin)
     } yield response
