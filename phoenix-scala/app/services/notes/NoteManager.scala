@@ -34,9 +34,9 @@ trait NoteManager[K, T <: Identity[T]] {
       response ← * <~ forModel(entityQuerySeq(getEntityId(entity)))
     } yield response
 
-  def create(key: K, author: User, payload: CreateNote)(implicit ec: EC,
-                                                        db: DB,
-                                                        ac: AC): DbResultT[Root] =
+  def create(key: K,
+             author: User,
+             payload: CreateNote)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Root] =
     for {
       entity ← * <~ fetchEntity(key)
       note   ← * <~ createInner(entity, noteType(), author, payload)
@@ -60,16 +60,18 @@ trait NoteManager[K, T <: Identity[T]] {
   private def entityQuerySeq(entityId: Int)(implicit ec: EC, db: DB, ac: AC): Notes.QuerySeq =
     Notes.filter(_.referenceType === noteType()).filter(_.referenceId === entityId).notDeleted
 
-  private def createInner(entity: T,
-                          refType: Note.ReferenceType,
-                          author: User,
-                          payload: CreateNote)(implicit ec: EC, db: DB, ac: AC): DbResultT[Note] =
+  private def createInner(
+      entity: T,
+      refType: Note.ReferenceType,
+      author: User,
+      payload: CreateNote)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Note] =
     for {
       note ← * <~ Notes.create(
                 Note(storeAdminId = author.accountId,
                      referenceId = getEntityId(entity),
                      referenceType = refType,
-                     body = payload.body))
+                     body = payload.body,
+                     scope = Scope.current))
       _ ← * <~ LogActivity.noteCreated(author, entity, note)
     } yield note
 

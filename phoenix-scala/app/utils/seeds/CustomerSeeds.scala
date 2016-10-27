@@ -3,14 +3,14 @@ package utils.seeds
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import models.account._
-import models.customer._
-import services.account._
-import services.customers._
 import models.{Note, Notes}
 import payloads.CustomerPayloads.CreateCustomerPayload
-import utils.db._
+import services.account._
+import services.customers._
 import utils.aliases._
+import utils.db._
 
 trait CustomerSeeds {
 
@@ -43,7 +43,9 @@ trait CustomerSeeds {
                                   scopeId = scopeId,
                                   password = "password".some))
       accountIds = users.map(_.accountId)
-      _ ← * <~ Notes.createAll(customerNotes.map(_.copy(referenceId = accountIds.head)))
+      scope ← * <~ Scopes.mustFindById400(scopeId)
+      _ ← * <~ Notes.createAll(
+             customerNotes(LTree(scope.path)).map(_.copy(referenceId = accountIds.head)))
     } yield
       accountIds.toList match {
         case c1 :: c2 :: c3 :: c4 :: Nil ⇒ (c1, c2, c3, c4)
@@ -78,9 +80,13 @@ trait CustomerSeeds {
 
   def customer: User = usCustomer1
 
-  def customerNotes: Seq[Note] = {
+  def customerNotes(scope: LTree): Seq[Note] = {
     def newNote(body: String) =
-      Note(referenceId = 1, referenceType = Note.Customer, storeAdminId = 1, body = body)
+      Note(referenceId = 1,
+           referenceType = Note.Customer,
+           storeAdminId = 1,
+           body = body,
+           scope = scope)
     Seq(
         newNote("This customer is a donkey."),
         newNote("No, seriously."),
