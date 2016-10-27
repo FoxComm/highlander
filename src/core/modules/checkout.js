@@ -20,6 +20,7 @@ export const EditStages = {
   DELIVERY: 1,
   BILLING: 2,
   FINISHED: 3,
+  GUEST_AUTH: 4,
 };
 
 export type EditStage = number;
@@ -183,7 +184,7 @@ export function saveGiftCard(code: string): Function {
 }
 
 export function saveCouponCode(code: string): Function {
-  return (dispatch, api) => {
+  return (dispatch) => {
     return foxApi.cart.addCoupon(code)
       .then(res => {
         dispatch(updateCart(res));

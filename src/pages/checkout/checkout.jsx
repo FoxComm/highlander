@@ -11,6 +11,7 @@ import { browserHistory } from 'react-router';
 import Shipping from './01-shipping/shipping';
 import Delivery from './02-delivery/delivery';
 import Billing from './03-billing/billing';
+import GuestAuth from './05-guest-auth/guest-auth';
 import OrderSummary from './summary/order-summary';
 import Header from './header';
 
@@ -51,6 +52,7 @@ class Checkout extends Component {
     isPerformingCheckout: false,
     deliveryInProgress: false,
     shippingInProgress: false,
+    guestAuthInProgress: false,
     error: null,
     isScrolled: false,
   };
@@ -142,6 +144,19 @@ class Checkout extends Component {
     });
   }
 
+  @autobind
+  checkAuthAndplaceOrder() {
+    if (false) {
+      return this.placeOrder();
+    }
+
+    this.performStageTransition('guestAuthInProgress', () => {
+      return new Promise(() => {
+        return this.props.setEditStage(EditStages.GUEST_AUTH);
+      });
+    });
+  }
+
   errorsFor(stage) {
     if (this.props.editStage === stage) {
       return this.state.error;
@@ -161,6 +176,7 @@ class Checkout extends Component {
       <section styleName="checkout">
         <Header
           isScrolled={this.state.isScrolled}
+          isGuestAuth={props.editStage == EditStages.GUEST_AUTH}
           {...setStates}
         />
 
@@ -201,10 +217,16 @@ class Checkout extends Component {
               collapsed={!props.isBillingDirty && props.editStage < EditStages.BILLING}
               editAction={this.setBillingState}
               inProgress={this.state.isPerformingCheckout}
-              continueAction={this.placeOrder}
+              continueAction={this.checkAuthAndplaceOrder}
               error={this.errorsFor(EditStages.BILLING)}
             />
           </div>
+
+          <GuestAuth
+            isEditing={props.editStage == EditStages.GUEST_AUTH}
+            inProgress={this.state.guestAuthInProgress}
+            error={this.errorsFor(EditStages.GUEST_AUTH)}
+          />
         </div>
       </section>
     );

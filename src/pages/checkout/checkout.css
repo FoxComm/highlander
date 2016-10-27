@@ -3,6 +3,10 @@
 @import "colors.css";
 @import "variables.css";
 
+.content {
+  position: relative;
+}
+
 .checkout {
   width: 100%;
   counter-reset: item;
@@ -65,7 +69,7 @@
 
 @media (--small-only), (--medium-only) {
   .content {
-    margin-top: 146px;
+    margin-top: 150px;
   }
 }
 
