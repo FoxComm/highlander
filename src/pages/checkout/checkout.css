@@ -45,12 +45,6 @@
   }
 }
 
-.checkout-submit {
-  display: inline-block;
-  width: 100%;
-  max-width: 400px;
-}
-
 @media (--small-only) {
   .checkout-block {
     & > header {
@@ -78,6 +72,11 @@
 @media (--medium-only) {
   .forms {
     padding-top: 70px;
+  }
+
+  .checkout-block {
+    lost-column: 10/12;
+    lost-offset: -1/12;
   }
 }
 
@@ -160,16 +159,6 @@
     }
   }
 }
-
-.shipping-method {
-  margin: 20px 0;
-  display: flex;
-
-  & > div:first-child {
-    flex-grow: 1;
-  }
-}
-
 .credit-cards-title {
   display: flex;
   justify-content: space-between;
