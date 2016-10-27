@@ -22,7 +22,7 @@ defmodule Solomon.Validation do
     )
     |> Enum.filter(fn x -> String.downcase(x) == String.downcase(email) end)
     case result do
-      nil -> false
+      [] -> false
       _ -> true
     end
   end

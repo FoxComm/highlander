@@ -86,7 +86,10 @@ defmodule Solomon.UserController do
   end
 
   defp check_updated_email(changeset, id) do
-    if Validation.email_is_taken(changeset.changes.email, id) do
+    if(
+      Map.has_key?(changeset.changes, "email") &&
+      Validation.email_is_taken(changeset.changes.email, id)
+    ) do
       Ecto.Changeset.add_error(changeset, :email, "Email is already taken")
     else
       changeset
