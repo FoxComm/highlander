@@ -11,3 +11,5 @@ ashes_server_name: stage-tgt.foxcommerce.com
 storefront_server_name: "stage-tgt.foxcommerce.com"
 db_host: db.service.consul
 docker_registry: docker-stage.foxcommerce.com
+zookeeper_server: zookeeper.service.consul:2181
+schema_server: schema-registry.service.consul:8081
