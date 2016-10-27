@@ -2,14 +2,15 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.account.User
+import models.account.Scope
 import models.payment.storecredit._
 import utils.Money.Currency
+import utils.aliases._
 import utils.db._
 
 trait StoreCreditSeeds {
 
-  def createStoreCredits(adminId: Int, cust1: Int, cust3: Int): DbResultT[Unit] =
+  def createStoreCredits(adminId: Int, cust1: Int, cust3: Int)(implicit au: AU): DbResultT[Unit] =
     for {
       _      ← * <~ StoreCreditSubtypes.createAll(storeCreditSubTypes)
       origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = adminId, reasonId = 1))
@@ -20,8 +21,9 @@ trait StoreCreditSeeds {
       sc4 ← * <~ StoreCredits.create(newSc.copy(originalBalance = 2000, accountId = cust3))
     } yield {}
 
-  def storeCredit =
+  def storeCredit(implicit au: AU) =
     StoreCredit(accountId = 0,
+                scope = Scope.current,
                 originId = 0,
                 originType = StoreCredit.CsrAppeasement,
                 originalBalance = 5000,

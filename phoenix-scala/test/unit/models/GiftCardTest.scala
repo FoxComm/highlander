@@ -11,22 +11,18 @@ import utils.seeds.Seeds.Factories
 
 class GiftCardTest extends TestBase {
 
-  private val totallyFakeAuthData: AU =
+  private implicit val totallyFakeAuthData: AU =
     AuthData[User](UserToken(0, None, None, Seq.empty, "foo", 1, Map.empty), null, null)
 
   "GiftCard" - {
     ".validate" - {
       "returns errors when canceled with no corresponding reason" in {
-        implicit val au: AU = totallyFakeAuthData
-
         val gc     = Factories.giftCard.copy(state = GiftCard.Canceled)
         val result = gc.validate
         invalidValue(result) must includeFailure("canceledAmount must be present when canceled")
       }
 
       "returns errors when balances >= 0" in {
-        implicit val au: AU = totallyFakeAuthData
-
         val gc     = Factories.giftCard.copy(originalBalance = 0, currentBalance = -1)
         val result = gc.validate
         invalidValue(result) must includeFailure(

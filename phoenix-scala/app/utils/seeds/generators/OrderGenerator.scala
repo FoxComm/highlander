@@ -109,7 +109,10 @@ trait OrderGenerator extends ShipmentSeeds {
       origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = 1, reasonId = 1))
       totals ← * <~ total(skuIds)
       sc ← * <~ StoreCredits.create(
-              StoreCredit(originId = origin.id, accountId = accountId, originalBalance = totals))
+              StoreCredit(scope = Scope.current,
+                          originId = origin.id,
+                          accountId = accountId,
+                          originalBalance = totals))
       op ← * <~ OrderPayments.create(
               OrderPayment.build(sc).copy(cordRef = cart.refNum, amount = totals.some))
       _             ← * <~ StoreCredits.capture(sc, op.id.some, totals)
