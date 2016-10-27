@@ -341,6 +341,78 @@ const productJSON = `
 }
 `
 
+type VariantValueCombination struct {
+	Variant string
+	Value   string
+}
+
+type SelectedSKU struct {
+	Code     string
+	Variants []VariantValueCombination
+}
+
+//func getSelectedSKUs(vs map[string][]api.VariantValue) []SelectedSKU {
+//for k, v := range vs {
+
+//}
+//return []SelectedSKU{}
+//}
+
+type SKUMapping struct {
+	AvailableSKUs []string
+	Variants      []VariantValueCombination
+}
+
+func stringersect(arr1 []string, arr2 []string) []string {
+	inter := []string{}
+	for _, a1 := range arr1 {
+		for _, a2 := range arr2 {
+			if a1 == a2 {
+				inter = append(inter, a1)
+			}
+		}
+	}
+
+	return inter
+}
+
+func iterate(variants []api.Variant, state SKUMapping) []SKUMapping {
+	tail := variants[1:]
+
+	mappings := []SKUMapping{}
+	variantName, err := variants[0].Name()
+	if err != nil {
+		panic(err)
+	}
+
+	if variantName != "Color" {
+		return iterate(tail, state)
+	}
+
+	for _, value := range variants[0].Values {
+		var nas []string
+		if len(state.AvailableSKUs) == 0 {
+			nas = value.SKUCodes
+		} else {
+			nas = stringersect(state.AvailableSKUs, value.SKUCodes)
+		}
+
+		newCombination := VariantValueCombination{Variant: variantName, Value: value.Name}
+		newVariants := append(state.Variants, newCombination)
+
+		mapping := SKUMapping{AvailableSKUs: nas, Variants: newVariants}
+
+		if len(tail) == 0 {
+			mappings = append(mappings, mapping)
+		} else {
+			newMappings := iterate(tail, mapping)
+			mappings = append(mappings, newMappings...)
+		}
+	}
+
+	return mappings
+}
+
 func main() {
 	productByte := []byte(productJSON)
 	product := new(api.Product)
@@ -349,5 +421,19 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("%v\n", product)
+	s := SKUMapping{}
+	a := iterate(product.Variants, s)
+	for _, selected := range a {
+		if len(selected.AvailableSKUs) == 0 {
+			panic("Must not have 0 SKUs")
+		}
+
+		fmt.Printf("Code: %s\n", selected.AvailableSKUs[0])
+		for _, variant := range selected.Variants {
+			fmt.Printf("Variant: %s\n", variant.Variant)
+			fmt.Printf("Value: %s\n", variant.Value)
+		}
+
+		fmt.Println("--------------------")
+	}
 }
