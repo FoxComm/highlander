@@ -10,4 +10,31 @@
   bottom: 0;
   z-index: 100;
   background: var(--whitish);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  counter-reset: item;
+}
+
+.auth-block {
+  width: 50%;
+  margin: auto 0;
+}
+
+.header {
+  text-transform: capitalize;
+  text-align: center;
+}
+
+.form:first-child {
+  border-right: 1px solid #3E3436;
+}
+
+.form {
+  height: 255px;
+}
+
+.form-content {
+  margin-top: 26px;
+  height: 100%;
 }

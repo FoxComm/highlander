@@ -16,7 +16,20 @@ class GuestAuth extends Component {
 
     return (
       <article styleName="guest-auth">
-        Guest Auth
+        <div styleName="auth-block">
+          <header styleName="header">SIGN IN & CHECKOUT</header>
+          <div styleName="form">
+            <div styleName="form-content">
+            </div>
+          </div>
+        </div>
+        <div styleName="auth-block">
+          <header styleName="header">CHECKOUT AS GUEST</header>
+          <div styleName="form">
+            <div styleName="form-content">
+            </div>
+          </div>
+        </div>
       </article>
     );
   }
