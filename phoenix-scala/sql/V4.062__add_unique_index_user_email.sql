@@ -1,1 +1,1 @@
-create unique index email_unique on users (lower(email));
+create unique index user_email on users (lower(email));
