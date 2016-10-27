@@ -8,7 +8,7 @@ import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
 import { createEmptyProduct, configureProduct } from 'paragons/product';
 import createAsyncActions from '../async-utils';
-import { dissoc } from 'sprout-data';
+import { dissoc, assoc } from 'sprout-data';
 
 // types
 import type { Product } from 'paragons/product';
@@ -66,7 +66,7 @@ const _createProduct = createAsyncActions(
 function cleanProductPayload(product) {
   // get rid of temp. skus
   const feCodes = {};
-  product.skus = _.reduce(product.skus, (acc, sku) => {
+  const skus = _.reduce(product.skus, (acc, sku) => {
     const code = _.get(sku, 'attributes.code.v');
     if (sku.feCode) {
       feCodes[sku.feCode] = code || '';
@@ -77,11 +77,11 @@ function cleanProductPayload(product) {
     return acc;
   }, []);
 
-  product.variants = _.cloneDeep(product.variants);
+  const variants = _.cloneDeep(product.variants);
 
   // Wow, this is super-duper ugly.
-  for (let i = 0; i < product.variants.length; i++) {
-    const variant = product.variants[i];
+  for (let i = 0; i < variants.length; i++) {
+    const variant = variants[i];
     for (let j = 0; j < variant.values.length; j++) {
       const value = variant.values[j];
       value.skuCodes = _.reduce(value.skuCodes, (acc, code) => {
@@ -96,7 +96,10 @@ function cleanProductPayload(product) {
     }
   }
 
-  return product;
+  return assoc(product,
+    'skus', skus,
+    'variants', variants
+  );
 }
 
 const _updateProduct = createAsyncActions(

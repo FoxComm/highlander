@@ -43,20 +43,6 @@ object CouponRoutes {
             }
           }
         } ~
-        pathPrefix("forms" / IntNumber) { id ⇒
-          (get & pathEnd) {
-            mutateOrFailures {
-              CouponManager.getForm(id)
-            }
-          }
-        } ~
-        pathPrefix("shadows" / Segment / IntNumber) { (context, id) ⇒
-          (get & pathEnd) {
-            mutateOrFailures {
-              CouponManager.getShadow(id, context)
-            }
-          }
-        } ~
         pathPrefix(Segment) { (context) ⇒
           (post & pathEnd & entity(as[CreateCoupon])) { payload ⇒
             mutateOrFailures {
@@ -64,14 +50,9 @@ object CouponRoutes {
             }
           } ~
           pathPrefix(IntNumber) { id ⇒
-            (get & path("baked")) {
-              getOrFailures {
-                CouponManager.getIlluminated(id, context)
-              }
-            } ~
             (get & pathEnd) {
               getOrFailures {
-                CouponManager.get(id, context)
+                CouponManager.getIlluminated(id, context)
               }
             } ~
             (patch & pathEnd & entity(as[UpdateCoupon])) { payload ⇒

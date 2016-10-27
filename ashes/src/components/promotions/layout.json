@@ -1,0 +1,48 @@
+{
+  "main": [
+    {
+      "type": "group",
+      "title": "General",
+      "content": [
+        {
+          "type": "apply-type"
+        },
+        {
+          "type": "fields",
+          "value": [
+            "name",
+            "storefrontName",
+            "description",
+            "details"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "title": "Qualifier",
+      "renderer": "qualifier"
+    },
+    {
+      "type": "group",
+      "title": "Offer",
+      "renderer": "offer"
+    },
+    {
+      "type": "group",
+      "title": "Customers",
+      "renderer": "customers"
+    }
+  ],
+  "aside": [
+    {
+      "type": "tags"
+    },
+    {
+      "type": "state"
+    },
+    {
+      "type": "watchers"
+    }
+  ]
+}

@@ -9,15 +9,14 @@ import models.discount.IlluminatedDiscount
 import models.objects._
 import models.promotion.Promotions.scope._
 import models.promotion._
-import responses.CouponResponses.IlluminatedCouponResponse
-import responses.PromotionResponses.IlluminatedPromotionResponse
+import responses.CouponResponses.CouponResponse
+import responses.PromotionResponses.PromotionResponse
 import responses.ResponseItem
 import slick.dbio.DBIO
 import utils.aliases._
 import utils.db._
 
-case class CordResponseCouponPair(coupon: IlluminatedCouponResponse.Root, code: String)
-    extends ResponseItem
+case class CordResponseCouponPair(coupon: CouponResponse.Root, code: String) extends ResponseItem
 
 object CordResponsePromotions {
 
@@ -76,8 +75,8 @@ object CordResponsePromotions {
             IlluminatedDiscount.illuminate(ctx.some, discount.form, discount.shadow))
       thePromotion = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
       // Responses
-      respPromo      = IlluminatedPromotionResponse.build(thePromotion, theDiscounts)
-      respCoupon     = IlluminatedCouponResponse.build(theCoupon)
+      respPromo      = PromotionResponse.build(thePromotion, theDiscounts, promotion)
+      respCoupon     = CouponResponse.build(theCoupon, coupon)
       respCouponPair = CordResponseCouponPair(coupon = respCoupon, code = couponCode.code)
     } yield (respPromo, respCouponPair).some
 

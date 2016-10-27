@@ -21,7 +21,7 @@ import styles from './user-form.css';
 type Props = {
   user: Object,
   onChange: Function,
-  isNew: bool,
+  isNew: boolean,
 };
 
 export default class UserForm extends Component {
@@ -53,7 +53,7 @@ export default class UserForm extends Component {
   }
 
   renderUserImage() {
-    const name = this.props.user.form.attributes.firstAndLastName.v || 'New User';
+    const name = this.props.user.attributes.firstAndLastName.v || 'New User';
 
     return (
       <FormField

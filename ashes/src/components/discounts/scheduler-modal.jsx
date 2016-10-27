@@ -2,11 +2,11 @@
 
 import _ from 'lodash';
 import React from 'react';
-import { numberize } from '../../lib/text-utils';
+import { numberize } from 'lib/text-utils';
 
 import styles from './scheduler-modal.css';
 
-import FullObjectScheduler from '../object-scheduler/full-object-scheduler';
+import ObjectScheduler from '../object-scheduler/object-scheduler';
 import modalWrapper from '../modal/wrapper';
 import ContentBox from '../content-box/content-box';
 import SaveCancel from '../common/save-cancel';
@@ -23,33 +23,27 @@ const SchedulerModal = (props: Props) => {
 
   const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
   const entityForm = numberize(entity, count);
-  const entityCap = _.capitalize(entityForm);
+  const entityCap = _.upperFirst(entityForm);
 
-  const form = {
-    activeFrom: new Date().toISOString(),
-    activeTo: null,
-  };
-
-  const shadow = {
+  const originalAttrs = {
     activeFrom: {
-      ref: 'activeForm',
-      type: 'datetime'
+      t: 'datetime',
+      v: new Date().toISOString()
     },
     activeTo: {
-      ref: 'activeTo',
-      type: 'datetime'
+      t: 'datetime',
+      v: null
     },
   };
 
-  let [newForm, newShadow] = [form, shadow];
+  let newAttrs = originalAttrs;
 
-  const updateSchedule = (form, shadow) => {
-    newForm = form;
-    newShadow = shadow;
+  const updateSchedule = (attrs) => {
+    newAttrs = attrs;
   };
 
   const confirmChanges = () => {
-    onConfirm(newForm, newShadow);
+    onConfirm(newAttrs);
   };
 
   return (
@@ -59,10 +53,9 @@ const SchedulerModal = (props: Props) => {
       styleName="modal"
       actionBlock={actionBlock}>
 
-      <FullObjectScheduler
+      <ObjectScheduler
         parent="Discounts"
-        form={form}
-        shadow={shadow}
+        attributes={originalAttrs}
         title={entityCap}
         onChange={updateSchedule}
       />

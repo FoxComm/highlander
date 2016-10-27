@@ -141,6 +141,7 @@ export default class SkuList extends Component {
           skuContext={this.productContext}
           columns={columns}
           sku={row}
+          index={index}
           params={params}
           variants={this.props.variants}
           variantsSkusIndex={this.state.variantsSkusIndex}

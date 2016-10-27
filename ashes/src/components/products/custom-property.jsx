@@ -8,8 +8,7 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
 // components
-import { Checkbox } from '../checkbox/checkbox';
-import { Dropdown, DropdownItem } from '../dropdown';
+import { Dropdown } from '../dropdown';
 import { FormField } from '../forms';
 import wrapModal from '../modal/wrapper';
 import ContentBox from '../content-box/content-box';

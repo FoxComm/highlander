@@ -6,10 +6,9 @@ import React, { Component, Element, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 // actions
-import { actions } from '../../modules/products/images';
+import { actions } from 'modules/products/images';
 
 // components
-import WaitAnimation from '../common/wait-animation';
 import Images from '../images/images';
 
 // types

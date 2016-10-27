@@ -1,6 +1,14 @@
 
-.promotion-form {
+.object-details {
   lost-flex-container: row;
+
+  & :global(.fc-confirmation-dialog) {
+    margin-bottom: 0;
+
+    & :global(.fc-alert) {
+      margin-bottom: 20px;
+    }
+  }
 }
 
 .main {
@@ -14,7 +22,7 @@
 .aside {
   lost-column: 4/12;
 
-  & > :global(.fc-product-state) {
+  & > div {
     margin-bottom: 20px;
   }
 }

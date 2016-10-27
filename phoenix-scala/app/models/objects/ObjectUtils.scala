@@ -9,6 +9,7 @@ import org.json4s.JsonAST.{JField, JNothing, JObject, JString}
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 import utils.IlluminateAlgorithm
+import services.objects.ObjectSchemasManager
 import utils.aliases._
 import utils.db._
 
@@ -91,42 +92,37 @@ object ObjectUtils {
     FormShadowAttributes(form, shadow)
   }
 
-  def bakedAttrToFormShadow(attr: String, value: Json): ((String, Json), (String, Json)) = {
-    val t = value \ "t"
-    val v = value \ "v"
-    t match {
-      case JString(kind) ⇒
-        val k = key(v)
-        ((k, v), (attr, ("type" → kind) ~ ("ref" → k)))
-      case _ ⇒ ((attr, JNothing), (attr, JNothing))
-    }
-  }
-
-  def bakedToFormShadow(baked: Json): (Json, Json) =
-    baked match {
-      case JObject(b) ⇒
-        val formShadowPairs = b.obj.map {
-          case (attr, obj) ⇒ bakedAttrToFormShadow(attr, obj)
-        }
-
-        val form   = JObject(formShadowPairs.map(_._1).toList)
-        val shadow = JObject(formShadowPairs.map(_._2).toList)
-        (form, shadow)
-      case _ ⇒ (JNothing, JNothing)
-    }
-
   case class InsertResult(form: ObjectForm, shadow: ObjectShadow, commit: ObjectCommit)
       extends FormAndShadow
 
+  def insert(formAndShadow: FormAndShadow)(implicit ec: EC): DbResultT[InsertResult] =
+    insert(formAndShadow, None)
+
   def insert(formProto: ObjectForm, shadowProto: ObjectShadow)(
+      implicit ec: EC): DbResultT[InsertResult] =
+    insert(formProto, shadowProto, None)
+
+  def insert(formAndShadow: FormAndShadow, schema: Option[String])(
+      implicit ec: EC): DbResultT[InsertResult] =
+    insert(formProto = formAndShadow.form, shadowProto = formAndShadow.shadow, schema = schema)
+
+  def insert(formProto: ObjectForm, shadowProto: ObjectShadow, schema: Option[String])(
       implicit ec: EC): DbResultT[InsertResult] = {
     val n = ObjectUtils.newFormAndShadow(formProto.attributes, shadowProto.attributes)
 
     for {
+      optSchema ← * <~ ObjectSchemasManager.getSchemaByOptNameOrKind(schema, formProto.kind)
+      form      ← * <~ ObjectForms.create(formProto.copy(attributes = n.form))
+      shadow ← * <~ ObjectShadows.create(
+                  shadowProto.copy(formId = form.id,
+                                   attributes = n.shadow,
+                                   jsonSchema = optSchema.map(_.name)))
+      _ ← * <~ failIfErrors(
+             IlluminateAlgorithm.validateAttributesTypes(form.attributes, shadow.attributes))
       //Make sure form is correct and shadow links are correct
-      _      ← * <~ IlluminateAlgorithm.validateTypesFish(formProto.attributes, shadowProto.attributes)
-      form   ← * <~ ObjectForms.create(formProto.copy(attributes = n.form))
-      shadow ← * <~ ObjectShadows.create(shadowProto.copy(formId = form.id, attributes = n.shadow))
+      _ ← * <~ optSchema.map { schema ⇒
+           IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)
+         }
       commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
     } yield InsertResult(form, shadow, commit)
   }
@@ -135,7 +131,7 @@ object ObjectUtils {
       proto: FormAndShadow,
       updateHead: (InsertResult) ⇒ DbResultT[H])(implicit ec: EC): DbResultT[FullObject[H]] =
     for {
-      insert ← * <~ insert(proto.form, proto.shadow)
+      insert ← * <~ insert(proto.form, proto.shadow, None)
       head   ← * <~ updateHead(insert)
     } yield FullObject[H](head, insert.form, insert.shadow)
 
@@ -167,7 +163,6 @@ object ObjectUtils {
       shadowAttributes: Json,
       force: Boolean = false)(implicit db: DB, ec: EC): DbResultT[UpdateResult] = {
     for {
-      _ ← * <~ IlluminateAlgorithm.validateTypesFish(formAttributes, shadowAttributes)
       newAttributes ← * <~ ObjectUtils.updateFormAndShadow(oldFormAndShadow.form.attributes,
                                                            formAttributes,
                                                            shadowAttributes)
@@ -182,7 +177,7 @@ object ObjectUtils {
              shadowId: Int,
              formAttributes: Json,
              shadowAttributes: Json,
-             force: Boolean = false)(implicit db: DB, ec: EC): DbResultT[UpdateResult] = {
+             force: Boolean = false)(implicit db: DB, ec: EC): DbResultT[UpdateResult] =
     for {
       oldForm   ← * <~ ObjectForms.mustFindById404(formId)
       oldShadow ← * <~ ObjectShadows.mustFindById404(shadowId)
@@ -191,7 +186,6 @@ object ObjectUtils {
                                         shadowAttributes,
                                         force)
     } yield result
-  }
 
   def commit(u: UpdateResult)(implicit ec: EC): DbResultT[Option[ObjectCommit]] =
     commit(u.form, u.shadow, u.updated)
@@ -209,14 +203,23 @@ object ObjectUtils {
       old: FormAndShadow,
       newFormAttributes: Json,
       newShadowAttributes: Json,
-      force: Boolean = false)(implicit ec: EC): DbResultT[UpdateResult] = {
+      force: Boolean = false)(implicit ec: EC, db: DB): DbResultT[UpdateResult] = {
     if (old.shadow.attributes != newShadowAttributes || force)
       for {
         form ← * <~ ObjectForms.update(
                   old.form,
                   old.form.copy(attributes = newFormAttributes, updatedAt = Instant.now))
         shadow ← * <~ ObjectShadows.create(
-                    ObjectShadow(formId = form.id, attributes = newShadowAttributes))
+                    ObjectShadow(formId = form.id,
+                                 attributes = newShadowAttributes,
+                                 jsonSchema = old.shadow.jsonSchema))
+
+        optSchema ← * <~ old.shadow.jsonSchema.map { schemaName ⇒
+                     ObjectFullSchemas.mustFindByName404(schemaName)
+                   }
+        _ ← * <~ optSchema.map { schema ⇒
+             IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)
+           }
         _ ← * <~ validateShadow(form, shadow)
       } yield UpdateResult(form, shadow, updated = true)
     else DbResultT.pure(UpdateResult(old.form, old.shadow, updated = false))

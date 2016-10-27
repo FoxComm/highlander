@@ -14,6 +14,7 @@ import slick.driver.PostgresDriver.api._
 import testutils.fixtures.TestFixtureBase
 import utils.db._
 import utils.seeds.Seeds.Factories
+import utils.seeds.ObjectSchemaSeeds
 
 /**
   * Seeds are simple values that can be created without any external dependencies.
@@ -21,6 +22,11 @@ import utils.seeds.Seeds.Factories
 trait TestSeeds extends TestFixtureBase {
 
   val TENANT = "tenant"
+
+  trait Schemas_Seed extends ObjectSchemaSeeds {
+    private val _productSchema = createObjectSchemas().gimme
+
+  }
 
   trait StoreAdmin_Seed {
     def storeAdminAccount: Account         = _storeAdminAccount
