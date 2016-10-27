@@ -10,6 +10,11 @@ defmodule Marketplace.MerchantAccountController do
     render(conn, "index.json", merchant_accounts: merchant_accounts)
   end
 
+  def show_by_solomon_id(conn, %{"solomon_id" => solomon_id}) do
+    merchant_account = Repo.get_by!(MerchantAccount, solomon_id: solomon_id)
+    render(conn, "show.json", merchant_account: merchant_account)
+  end
+
   def create(conn, %{"merchant_id" => merchant_id, "account" => merchant_account_params}) do
     solomon_id = PermissionManager.create_user_from_merchant_account(merchant_account_params)
     changeset = MerchantAccount.changeset(%MerchantAccount{merchant_id: String.to_integer(merchant_id), solomon_id: solomon_id}, merchant_account_params)
