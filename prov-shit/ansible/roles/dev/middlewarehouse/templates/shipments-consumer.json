@@ -18,7 +18,7 @@
   },
   "env": {
     "TOPIC": "sku_search_view",
-    "SCHEMA_REPOSITORY_URL": "{{schema_server}}",
+    "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
     "ZOOKEEPER_URL": "{{zookeeper_server}}",
     "MWH_URL": "http://{{middlewarehouse_server}}",
     "PARTITION": "1"
