@@ -1,3 +1,4 @@
+// @flow
 
 export function string(v: string): Attribute {
   return { t: 'string', v };
