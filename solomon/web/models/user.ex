@@ -20,12 +20,14 @@ defmodule Solomon.User do
     model 
     |> cast(params, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
+    |> unique_constraint(:email, name: :email_unique)
   end
 
   def update_changeset(model, params \\ :empty) do 
     model 
     |> cast(params, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
+    |> unique_constraint(:email, name: :email_unique)
   end
 
 end
