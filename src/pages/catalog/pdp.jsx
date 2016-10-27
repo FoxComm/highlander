@@ -22,12 +22,13 @@ import type { HTMLElement } from 'types';
 import type { ProductResponse } from 'modules/product-details';
 
 // components
-import Button from 'ui/buttons';
-import Counter from 'ui/forms/counter';
 import Currency from 'ui/currency';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
+import AddToCartBtn from 'ui/add-to-cart-btn';
+import Autocomplete from 'ui/autocomplete';
+import Icon from 'ui/icon';
 
 // styles
 import styles from './pdp.css';
@@ -68,7 +69,11 @@ type Product = {
   images: Array<string>,
   currency: string,
   price: number|string,
+  amountOfServings: string,
+  servingSize: string,
 };
+
+const QUANTITY_ITEMS = _.range(1, 1 + 10, 1);
 
 const mapStateToProps = state => {
   const product = state.productDetails.product;
@@ -146,12 +151,14 @@ class Pdp extends Component {
       images: imageUrls,
       currency: _.get(price, 'currency', 'USD'),
       price: _.get(price, 'value', 0),
+      amountOfServings: _.get(attributes, 'Amount of Servings.v'),
+      servingSize: _.get(attributes, 'Serving Size.v'),
     };
   }
 
-  changeQuantity(change: number): void {
-    const quantity = Math.max(this.state.quantity + change, 1);
-    this.setState({quantity});
+  @autobind
+  changeQuantity(quantity: number): void {
+    this.setState({ quantity });
   }
 
   @autobind
@@ -168,7 +175,7 @@ class Pdp extends Component {
       return;
     }
 
-    const quantity = this.state.quantity;
+    const { quantity } = this.state;
     const skuId = _.get(this.firstSku, 'attributes.code.v', '');
     actions.addLineItem(skuId, quantity)
       .then(() => {
@@ -183,7 +190,7 @@ class Pdp extends Component {
   }
 
   render(): HTMLElement {
-    const { t, isLoading, isCartLoading, notFound } = this.props;
+    const { t, isLoading, notFound } = this.props;
 
     if (isLoading) {
       return <Loader/>;
@@ -193,7 +200,15 @@ class Pdp extends Component {
       return <p styleName="not-found">{t('Product not found')}</p>;
     }
 
-    const { title, description, images, currency, price } = this.product;
+    const {
+      title,
+      description,
+      images,
+      currency,
+      price,
+      amountOfServings,
+      servingSize,
+    } = this.product;
 
     return (
       <div styleName="container">
@@ -201,21 +216,47 @@ class Pdp extends Component {
           <Gallery images={images} />
         </div>
         <div styleName="details">
-          <h1 styleName="name">{title}</h1>
+          <h1 styleName="title">{title}</h1>
           <div styleName="price">
             <Currency value={price} currency={currency} />
           </div>
-          <div styleName="description" dangerouslySetInnerHTML={{__html: description}}></div>
-          <div styleName="counter">
-            <Counter
-              value={this.state.quantity}
-              decreaseAction={() => this.changeQuantity(-1)}
-              increaseAction={() => this.changeQuantity(1)}
-            />
+
+          <div styleName="cart-actions">
+            <div styleName="quantity">
+              <Autocomplete
+                inputProps={{
+                  type: 'number',
+                }}
+                getItemValue={_.identity}
+                items={QUANTITY_ITEMS}
+                onSelect={this.changeQuantity}
+                selectedItem={this.state.quantity}
+                sortItems={false}
+              />
+            </div>
+
+            <div styleName="add-to-cart-btn">
+              <AddToCartBtn expanded onClick={this.addToCart} />
+            </div>
           </div>
-          <Button styleName="add-to-cart" isLoading={isCartLoading} onClick={this.addToCart}>
-            {t('ADD TO CART')}
-          </Button>
+
+          <div
+            styleName="description"
+            dangerouslySetInnerHTML={{__html: description}}
+          />
+
+          <div styleName="servings">
+            <div>{amountOfServings}</div>
+            <div>{servingSize}</div>
+          </div>
+
+          <div styleName="social-sharing">
+            <Icon name="fc-instagram" styleName="social-icon"/>
+            <Icon name="fc-facebook" styleName="social-icon"/>
+            <Icon name="fc-twitter" styleName="social-icon" />
+            <Icon name="fc-pinterest" styleName="social-icon"/>
+          </div>
+
           <ErrorAlerts error={this.state.error} />
         </div>
       </div>

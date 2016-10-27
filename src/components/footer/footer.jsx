@@ -38,8 +38,8 @@ const Footer = () : HTMLElement => {
           <a href="https://www.facebook.com/PerfectGourmet/" target="_blank">
             <Icon name="fc-facebook" styleName="social-icon"/>
           </a>
-          <a href="https://twitter.com/perfectgourmet1">
-            <Icon name="fc-twitter" styleName="social-icon" target="_blank"/>
+          <a href="https://twitter.com/perfectgourmet1" target="_blank">
+            <Icon name="fc-twitter" styleName="social-icon" />
           </a>
           <a href="https://www.pinterest.com/perfectgourmet/" target="_blank">
             <Icon name="fc-pinterest" styleName="social-icon"/>

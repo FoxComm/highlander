@@ -9,6 +9,7 @@ import { autobind } from 'core-decorators';
 import { addLineItem, toggleCart } from 'modules/cart';
 import { connect } from 'react-redux';
 
+import AddToCartBtn from 'ui/add-to-cart-btn';
 import Currency from 'ui/currency';
 
 type Image = {
@@ -98,10 +99,7 @@ class ListItem extends React.Component {
               <Currency value={salePrice} currency={currency} />
             </div>
 
-            <button styleName="add-to-cart-btn" onClick={this.addToCart}>
-              <span styleName="add-icon">+</span>
-              <span styleName="add-btn-title">ADD TO CART</span>
-            </button>
+            <AddToCartBtn onClick={this.addToCart} />
           </div>
         </div>
       </div>
