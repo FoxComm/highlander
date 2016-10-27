@@ -43,8 +43,9 @@ create or replace function update_object_schemas_es_from_schemas_fn() returns tr
 begin
   update object_schemas_es_view
     set
-      schema_attributes = (new.schema #>'{properties,attributes}')::jsonb
-    where schema_name = new.name;
+      schema_attributes = (new.schema #>'{properties,attributes}')::jsonb,
+      schema_name = new.name
+    where schema_name = old.name;
   return null;
 end;
 $$ language plpgsql;
