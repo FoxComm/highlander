@@ -255,12 +255,22 @@ export class ObjectPage extends Component {
     return this.props.actions.updateEntity(entity);
   }
 
+  prepareObjectForValidation(object) {
+    return object;
+  }
+
+  prepareObjectForSaving(object) {
+    return object;
+  }
+
   /**
    * Validates object and emit errors for handling
    * @returns {boolean} true if there is at least one errors are handled at client side
    */
   validate(): boolean {
-    const errors = this.validateObject(supressTV(this.state.object));
+    const errors = this.validateObject(
+      supressTV(this.prepareObjectForValidation(this.state.object))
+    );
     let preventSave = false;
     const event = {
       preventSave() {
@@ -276,7 +286,7 @@ export class ObjectPage extends Component {
     let mayBeSaved = false;
 
     if (this.state.object) {
-      const object = this.state.object;
+      const object = this.prepareObjectForSaving(this.state.object);
 
       if (!this.validateForm()) return;
       if (!this.validate()) return;

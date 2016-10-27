@@ -6,7 +6,8 @@
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
-import { setSkuAttribute } from 'paragons/product';
+import { setSkuAttribute, skuId } from 'paragons/product';
+import { assoc } from 'sprout-data';
 
 // actions
 import * as ProductActions from 'modules/products/details';
@@ -68,6 +69,51 @@ class ProductPage extends ObjectPage {
 
   fetchEntity(): Promise {
     return this.props.actions.fetchProduct(this.entityId, this.entityContext);
+  }
+
+  removeEmptySkus(object) {
+    let existsCodes = {};
+
+    let skus = _.reduce(object.skus, (acc, sku) => {
+      const code = _.get(sku.attributes, 'code.v');
+      if (code) {
+        existsCodes[skuId(sku)] = 1;
+        return [...acc, sku];
+      }
+      return acc;
+    }, []);
+
+    if (!skus.length && object.skus.length) {
+      const firstSku = object.skus[0];
+      skus = [firstSku];
+      existsCodes[skuId(firstSku)] = 1;
+    }
+
+    const variants = _.map(object.variants, variant => {
+      const values = _.map(variant.values, value => {
+        const skuCodes = _.reduce(value.skuCodes, (acc, code) => {
+          if (code in existsCodes) {
+            return [...acc, code];
+          }
+          return acc;
+        }, []);
+        return assoc(value, 'skuCodes', skuCodes);
+      });
+      return assoc(variant, 'values', values);
+    });
+
+    return assoc(object,
+      'skus', skus,
+      'variants', variants
+    );
+  }
+
+  prepareObjectForValidation(object) {
+    return this.removeEmptySkus(object);
+  }
+
+  prepareObjectForSaving(object) {
+    return this.removeEmptySkus(object);
   }
 
   get selectContextDropdown() {
