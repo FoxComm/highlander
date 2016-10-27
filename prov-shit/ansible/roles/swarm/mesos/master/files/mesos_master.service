@@ -1,0 +1,10 @@
+[Service]
+ExecStart=/usr/local/bin/run_mesos_master.sh
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=mesos_master
+
+[Install]
+WantedBy=multi-user.target

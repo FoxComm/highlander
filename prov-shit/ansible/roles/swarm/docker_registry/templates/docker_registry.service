@@ -1,0 +1,11 @@
+Description=Registrator Container
+After=docker.service
+Requires=docker.service
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=/usr/bin/docker-compose -f /etc/docker_registry/docker-compose.yml down
+ExecStart=/usr/bin/docker-compose -f /etc/docker_registry/docker-compose.yml up
+
+[Install]
+WantedBy=multi-user.target

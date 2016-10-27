@@ -1,0 +1,10 @@
+---
+
+- name: Install Docker
+  shell: curl -sSL https://get.docker.com/ | sudo sh
+
+- name: Install Docker Compose
+  apt: name=docker-compose state=latest force=yes
+
+- name: Add User to Docker Group
+  user: name={{user}} groups=docker append=yes

@@ -1,0 +1,12 @@
+---
+
+- name: Install Marathon
+  apt: name=marathon state=latest force=yes
+
+- name: Install Marathon Service Entry
+  template:
+    src: marathon.service
+    dest: "{{dest_services}}/marathon.service"
+
+- name: Restart Marathon
+  service: name=marathon state=restarted enabled=true

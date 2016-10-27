@@ -1,0 +1,24 @@
+---
+
+- name: Add Confluent Key
+  apt_key: url=http://packages.confluent.io/deb/2.0/archive.key
+  sudo: true
+
+- name: Add Confluent Repository
+  apt_repository: repo='deb [arch=amd64] http://packages.confluent.io/deb/2.0 stable main' state=present update_cache=yes
+  sudo: true
+
+- name: Copy Mesos Repository Setup Script
+  copy: src=mesos-repo-setup.sh dest={{home}}/mesos-repo-setup.sh mode=750
+
+- name: Run Mesos Repository Setup Script
+  shell: "{{home}}/mesos-repo-setup.sh"
+
+- name: Drop Mesos Repository Setup Script
+  file: path="{{home}}/mesos-repo-setup.sh" state=absent
+
+- name: Update Package Cache
+  apt: update_cache=yes
+
+- name: Install Mesos Package
+  apt: name=mesos state=latest force=yes

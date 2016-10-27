@@ -1,0 +1,8 @@
+registry:
+  image: registry:2
+  ports:
+    - 127.0.0.1:5000:5000
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock
+    - /etc/docker_registry/config.yml:/etc/docker/registry/config.yml
+    - /certs:/certs

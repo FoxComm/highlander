@@ -1,0 +1,10 @@
+[Service]
+ExecStart=marathon --master {{zookeepers}}/mesos --zk {{zookeepers}}/marathon
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=marathon
+
+[Install]
+WantedBy=multi-user.target

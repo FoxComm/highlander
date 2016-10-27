@@ -1,0 +1,31 @@
+---
+
+- name: Create Docker Registry config folder
+  file: path="/etc/docker_registry/" state=directory
+
+- name: Copy service account file
+  copy: src="{{account_file}}" dest=/etc/docker_registry/service_account.json mode=600
+
+- name: Copy Docker Registry Config
+  template: src=config.yml dest="/etc/docker_registry/config.yml"
+
+- name: Copy Docker Compose Config
+  template: src=docker-compose.yml dest="/etc/docker_registry/docker-compose.yml"
+
+- name: Copy Service
+  template: src=docker_registry.service dest="{{dest_services}}/docker_registry.service"
+
+- name: Make Certs Directory
+  file: path=/certs state=directory mode=600
+
+- name: Copy Cert
+  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.crt" dest=/certs/domain.crt
+
+- name: Copy Key
+  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.key" dest=/certs/domain.key
+
+- name: Reload Systemd for Docker Registry
+  command: systemctl daemon-reload
+
+- name: Restart Docker Registry Server
+  service: name=docker_registry state=restarted enabled=yes
