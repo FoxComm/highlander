@@ -17,18 +17,6 @@
 }
 
 .add-address-button {
+  composes: button-secondary from "ui/css/buttons.css";
   margin-bottom: 30px;
-  width: 11.2em;
-  height: 3.1em;
-  border: 1px solid #8D757A;
-  background: var(--color-panels-bg);
-  text-transform: uppercase;
-  font-size: 13px;
-  font-weight: 300;
-  color: #212121;
-
-  &:hover {
-    background: #8D757A;
-    color: var(--base-color)
-  }
 }
