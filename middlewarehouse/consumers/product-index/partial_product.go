@@ -23,10 +23,26 @@ func (p PartialProduct) SearchRow() (SearchRow, error) {
 	return row, nil
 }
 
-func MakePartialProducts(variants []api.Variant, state PartialProduct, visualVariants []string) ([]PartialProduct, error) {
+func MakePartialProducts(product *api.Product, visualVariants []string) ([]PartialProduct, error) {
+	variants := product.Variants
+	if len(variants) == 0 {
+		code, err := product.SKUs[0].Code()
+		if err != nil {
+			return []PartialProduct{}, err
+		}
+
+		return []PartialProduct{
+			PartialProduct{AvailableSKUs: []string{code}},
+		}, nil
+	}
+
+	return makeProducts(variants, PartialProduct{}, visualVariants)
+}
+
+func makeProducts(variants []api.Variant, state PartialProduct, visualVariants []string) ([]PartialProduct, error) {
 	mappings := []PartialProduct{}
 	if len(variants) == 0 {
-		return mappings, nil
+		return []PartialProduct{state}, nil
 	}
 
 	tail := variants[1:]
@@ -37,7 +53,7 @@ func MakePartialProducts(variants []api.Variant, state PartialProduct, visualVar
 	}
 
 	if !isVisual(variantName, visualVariants) {
-		return MakePartialProducts(tail, state, visualVariants)
+		return makeProducts(tail, state, visualVariants)
 	}
 
 	for _, value := range variants[0].Values {
@@ -58,7 +74,7 @@ func MakePartialProducts(variants []api.Variant, state PartialProduct, visualVar
 		if len(tail) == 0 {
 			mappings = append(mappings, mapping)
 		} else {
-			newMappings, err := MakePartialProducts(tail, mapping, visualVariants)
+			newMappings, err := makeProducts(tail, mapping, visualVariants)
 			if err != nil {
 				return mappings, err
 			}
