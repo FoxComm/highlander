@@ -143,15 +143,17 @@ object LineItemUpdater {
                  SkuNotFoundForContext(lineItem.sku, contextId)
              )
       _            ← * <~ mustFindProductIdForSku(sku, cart.refNum)
-      updateResult ← * <~ addLineItem(sku.id, cart.refNum, lineItem.quantity, lineItem.attributes)
+      updateResult ← * <~ addLineItems(sku.id, cart.refNum, lineItem.quantity, lineItem.attributes)
     } yield updateResult
   }
 
-  private def addLineItem(skuId: Int, cordRef: String, quantity: Int, attributes: Option[Json])(
-      implicit ec: EC) =
-    List
-      .fill(quantity)(CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes))
-      .map(CartLineItems.create(_))
+  private def addLineItems(skuId: Int, quantity: Int, cordRef: String, attributes: Option[Json])(
+      implicit ec: EC) = {
+      require(quantity > 0)
+      List
+          .fill(quantity)(CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes))
+          .map(CartLineItems.create(_))
+  }
 
   private def addQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
@@ -164,12 +166,12 @@ object LineItemUpdater {
                .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
         _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
         actionsList ← * <~ (if (lineItem.quantity > 0)
-                              increaseLineItems(sku.id,
-                                                lineItem.quantity,
-                                                cart.refNum,
-                                                lineItem.attributes)
+                              addLineItems(sku.id,
+                                  lineItem.quantity,
+                                  cart.refNum,
+                                  lineItem.attributes)
                             else
-                              decreaseLineItems(sku.id,
+                              removeLineItems(sku.id,
                                                 -lineItem.quantity,
                                                 cart.refNum,
                                                 lineItem.attributes))
@@ -206,25 +208,18 @@ object LineItemUpdater {
     CartLineItems.createAll(itemsToInsert).meh
   }
 
-  private def decreaseLineItems(skuId: Int, delta: Int, cordRef: String, attributes: Option[Json])(
+  private def removeLineItems(skuId: Int, delta: Int, cordRef: String, attributes: Option[Json])(
       implicit ec: EC): DbResultT[Unit] = {
     CartLineItems
       .byCordRef(cordRef)
       .filter(_.skuId === skuId)
       .result
       .flatMap { lineItems ⇒
-        val itemsWithSameAtributtes =
+        val itemsWithSameAttributes =
           lineItemJsonAttributesComparison(lineItems, attributes).map(_.id)
-        val itemsToDelete =
-          CartLineItems.byCordRef(cordRef).filter(_.id.inSet(itemsWithSameAtributtes))
-        if (delta < itemsWithSameAtributtes.length)
-          itemsToDelete.filter(_.id in itemsToDelete.take(delta).map(_.id)).delete
-        else if (delta > itemsWithSameAtributtes.length && itemsWithSameAtributtes.length != 0)
-          itemsToDelete
-            .filter(_.id in itemsToDelete.take(itemsWithSameAtributtes.length).map(_.id))
-            .delete
-        else
-          DBIOAction.successful(0)
+          val totalToDelete = Math.min(delta, itemsWithSameAttributes.length)
+        val idsToDelete = itemsWithSameAttributes.take(totalToDelete)
+          CartLineItems.filter(_.id inSet idsToDelete ).delete
       }
       .dbresult
       .meh

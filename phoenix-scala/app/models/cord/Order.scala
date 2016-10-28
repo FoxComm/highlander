@@ -150,19 +150,18 @@ object Orders
   def prepareOrderLineItemsFromCart(cart: Cart, contextId: Int)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[OrderLineItem]] = {
-    val countBySku = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
-      case (sku, q) ⇒ sku → q.length
+    val uniqueSkuCodesInCart = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
+      case (sku, q) ⇒ sku
     }
 
-    val orderLineItemSkusQuery = for {
-      countBySku ← countBySku
-      (skuId, count) = countBySku
-      sku ← Skus if sku.id === skuId
-    } yield (skuId, sku)
+    val skusInCart = for {
+      skuCode ← uniqueSkuCodesInCart
+      sku     ← Skus if sku.id === skuCode
+    } yield (skuCode, sku)
 
     for {
-      skuItems  ← * <~ orderLineItemSkusQuery.result
-      skuMaps   ← * <~ skuItems.toMap
+      skus      ← * <~ skusInCart.result
+      skuMaps   ← * <~ skus.toMap
       lineItems ← * <~ CartLineItems.byCordRef(cart.referenceNumber).result
       orderLineItems ← * <~ lineItems.map { cli ⇒
                         val sku = skuMaps.get(cli.skuId).get

@@ -119,35 +119,42 @@ case class Checkout(
       case failures @ Xor.Left(_) ⇒
         if (externalCalls.middleWarehouseSuccess) cancelHoldInMiddleWarehouse
         failures
+
       case result @ Xor.Right(_) ⇒
         result
     }
   }
 
+  private case class InventoryTrackedSku(isInventoryTracked: Boolean, code: String, qty: Int)
   private def holdInMiddleWarehouse(implicit ctx: OC): DbResultT[Unit] =
     for {
-      liSkus ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      skuObjects ← * <~ liSkus.map {
-                    case (cordRef, skuAmount) ⇒ getSkuObjects(cordRef, skuAmount)
+      liSkus               ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
+      inventoryTrackedSkus ← * <~ filterInventoryTrackingSkus(liSkus)
+      skusToHold ← * <~ inventoryTrackedSkus.map { s ⇒
+                    SkuInventoryHold(s.code, s.qty)
                   }
-      skusToHold ← * <~ skuObjects.filter {
-                    case (holdInventory, cordRef, skuAmount)   ⇒ holdInventory
-                  }.map { case (holdInventory, sku, skuAmount) ⇒ (sku, skuAmount) }
-      skus = skusToHold.map { case (skuCode, qty) ⇒ SkuInventoryHold(skuCode, qty) }
-      _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skus.toSeq))
+      _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold.toSeq))
       mutatingResult = externalCalls.middleWarehouseSuccess = true
     } yield {}
 
-  private def getSkuObjects(cordRef: String, skuAmount: Int) =
+  private def filterInventoryTrackingSkus(skus: Map[String, Int]) =
     for {
-      sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(contextId = ctx.id, cordRef)
+      skuInventoryData ← * <~ skus.map {
+                          case (skuCode, qty) ⇒ isInventoryTracked(skuCode, qty)
+                        }
+      inventoryTrackedSkus ← * <~ skuInventoryData.filter(_.isInventoryTracked)
+    } yield inventoryTrackedSkus
+
+  private def isInventoryTracked(skuCode: String, qty: Int) =
+    for {
+      sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(contextId = ctx.id, skuCode)
       shadow ← * <~ ObjectShadows.mustFindById400(sku.shadowId)
       form   ← * <~ ObjectForms.mustFindById400(shadow.formId)
       trackInventory = ObjectUtils.get("trackInventory", form, shadow) match {
         case JBool(trackInv) ⇒ trackInv
         case _               ⇒ true
       }
-    } yield (trackInventory, cordRef, skuAmount)
+    } yield InventoryTrackedSku(trackInventory, skuCode, qty)
 
   private def cancelHoldInMiddleWarehouse: Result[Unit] =
     apis.middlwarehouse.cancelHold(cart.referenceNumber)

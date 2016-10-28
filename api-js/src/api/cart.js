@@ -103,7 +103,7 @@ export default class Cart {
    * @method updateQuantities(itemQuantities: ItemQuantities): Promise<FullOrder>
    */
   updateQuantities(itemQuantities) {
-    const updateSkusPayload = _.map(itemQuantities, (quantity, sku,properties) => {
+    const updateSkusPayload = _.map(itemQuantities, (quantity, sku, properties) => {
       return {
         sku,
         quantity,
@@ -120,7 +120,7 @@ export default class Cart {
      * @param properties
      * @returns {{properties: *}}
      */
-  getLineItemPayload(sku,quantity,properties){
+  lineItemPayload(sku, quantity, properties){
       return  {
           sku:sku,
           quantity: quantity,
@@ -132,8 +132,8 @@ export default class Cart {
    * @method addSku(sku: String, quantity: Number): Promise<FullOrder>
    * Adds sku by defined quantity in the cart.
    */
-  addSku(sku, quantity,properties) {
-      updateSkusPayload = getLineItemPayload(sku,quantity,properties)
+  addSku(sku, quantity, properties) {
+      updateSkusPayload = lineItemPayload(sku,quantity,properties)
       return this.api.patch(endpoints.cartLineItems, updateSkusPayload).then(normalizeResponse);
   }
 
@@ -141,8 +141,8 @@ export default class Cart {
    * @method removeSku(sku: String): Promise<FullOrder>
    * Removes selected sku from the cart.
    */
-  removeSku(sku,properties) {
-    updateSkusPayload = getLineItemPayload(sku,0,properties);
+  removeSku(sku, properties) {
+    updateSkusPayload = lineItemPayload(sku,0,properties);
     return this.api.post(endpoints.cartLineItems, updateSkusPayload).then(normalizeResponse);
 
   }

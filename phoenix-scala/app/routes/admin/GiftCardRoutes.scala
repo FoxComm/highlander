@@ -36,7 +36,7 @@ object GiftCardRoutes {
         } ~
         (post & pathEnd & entity(as[GiftCardCreatedByCustomer])) { payload ⇒
           mutateOrFailures {
-            GiftCardService.createByUser(auth.model, payload)
+            GiftCardService.createByCustomer(auth.model, payload)
           }
         }
       } ~

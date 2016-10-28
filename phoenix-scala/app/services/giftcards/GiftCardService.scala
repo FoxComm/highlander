@@ -72,9 +72,9 @@ object GiftCardService {
       _ ← * <~ LogActivity.gcCreated(admin, giftCard)
     } yield build(gc = giftCard, admin = adminResp)
 
-  def createByUser(admin: User, payload: GiftCardCreatedByCustomer)(implicit ec: EC,
-                                                                    db: DB,
-                                                                    ac: AC): DbResultT[Root] =
+  def createByCustomer(admin: User, payload: GiftCardCreatedByCustomer)(implicit ec: EC,
+                                                                        db: DB,
+                                                                        ac: AC): DbResultT[Root] =
     for {
       _      ← * <~ payload.validate
       origin ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = payload.cordRef))

@@ -1,4 +1,4 @@
-vagrantSUBDIRS = $(shell ./projects.sh)
+SUBDIRS = $(shell ./projects.sh)
 $(info $(SUBDIRS))
 UPDATEDIRS = $(SUBDIRS:%=update-%)
 BUILDDIRS = $(SUBDIRS:%=build-%)
