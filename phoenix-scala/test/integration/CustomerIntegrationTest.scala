@@ -94,7 +94,7 @@ class CustomerIntegrationTest
     }
 
     "empty phone number is resolved from" - {
-      "default shipping address" in {
+      "default shipping address" in new StoreAdmin_Seed {
         val defaultPhoneNumber: String = "1111111111"
 
         val (customer, customerData, region) = (for {
@@ -102,7 +102,9 @@ class CustomerIntegrationTest
           customer ← * <~ Users.create(
                         Factories.customer.copy(accountId = account.id, phoneNumber = None))
           customerData ← * <~ CustomersData.create(
-                            CustomerData(accountId = account.id, userId = customer.id))
+                            CustomerData(accountId = account.id,
+                                         userId = customer.id,
+                                         scope = Scope.current))
           address ← * <~ Addresses.create(
                        Factories.address.copy(accountId = customer.accountId,
                                               isDefaultShipping = true,
@@ -135,7 +137,9 @@ class CustomerIntegrationTest
           customer ← * <~ Users.create(
                         Factories.customer.copy(accountId = account.id, phoneNumber = None))
           custData ← * <~ CustomersData.create(
-                        CustomerData(userId = customer.id, accountId = account.id))
+                        CustomerData(userId = customer.id,
+                                     accountId = account.id,
+                                     scope = Scope.current))
           address ← * <~ Addresses.create(defaultAddress.copy(accountId = customer.accountId))
           region  ← * <~ Regions.findOneById(address.regionId)
           cart1 ← * <~ Carts.create(
@@ -603,7 +607,9 @@ class CustomerIntegrationTest
                                              email = "second@example.org".some,
                                              name = "second".some))
       custData2 ← * <~ CustomersData.create(
-                     CustomerData(userId = customer2.id, accountId = account.id))
+                     CustomerData(userId = customer2.id,
+                                  accountId = account.id,
+                                  scope = Scope.current))
       cart2 ← * <~ Carts.create(
                  Cart(accountId = customer2.accountId,
                       scope = Scope.current,

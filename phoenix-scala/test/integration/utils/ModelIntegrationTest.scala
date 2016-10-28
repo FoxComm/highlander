@@ -24,8 +24,10 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     "sanitizes model" in {
       val result = (for {
         account  ← * <~ Accounts.create(Account())
+        scope    ← * <~ Scopes.forOrganization(TENANT)
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
-        _        ← * <~ CustomersData.create(CustomerData(userId = customer.id, accountId = account.id))
+        _ ← * <~ CustomersData.create(
+               CustomerData(userId = customer.id, accountId = account.id, scope = scope))
         address ← * <~ Addresses.create(
                      Factories.address.copy(zip = "123-45", accountId = customer.accountId))
       } yield address).gimme
@@ -36,9 +38,11 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val result = (for {
         account  ← * <~ Accounts.create(Account())
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
-        _        ← * <~ CustomersData.create(CustomerData(userId = customer.id, accountId = account.id))
-        _        ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
-        copycat  ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
+        scope    ← * <~ Scopes.forOrganization(TENANT)
+        _ ← * <~ CustomersData.create(
+               CustomerData(userId = customer.id, accountId = account.id, scope = scope))
+        _       ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
+        copycat ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
       } yield copycat).runTxn().futureValue
       result.leftVal must === (
           DatabaseFailure(

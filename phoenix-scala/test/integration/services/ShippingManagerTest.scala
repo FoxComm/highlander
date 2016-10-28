@@ -1,7 +1,6 @@
 package services
 
 import cats.implicits._
-import com.github.tminglei.slickpg.LTree
 import models.account._
 import models.cord.lineitems._
 import models.cord.{Carts, OrderShippingAddresses}
@@ -273,7 +272,8 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
                           Factories.shippingMethods.head.copy(conditions = Some(conditions)))
       account  ← * <~ Accounts.create(Account())
       customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
-      _        ← * <~ CustomersData.create(CustomerData(userId = customer.id, accountId = account.id))
+      _ ← * <~ CustomersData.create(
+             CustomerData(userId = customer.id, accountId = account.id, scope = Scope.current))
       cheapCart ← * <~ Carts.create(
                      Factories
                        .cart(Scope.current)
@@ -293,7 +293,8 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
       account2 ← * <~ Accounts.create(Account())
       customer2 ← * <~ Users.create(
                      Factories.customer.copy(accountId = account2.id, email = "foo@bar.baz".some))
-      _ ← * <~ CustomersData.create(CustomerData(userId = customer2.id, accountId = account2.id))
+      _ ← * <~ CustomersData.create(
+             CustomerData(userId = customer2.id, accountId = account2.id, scope = Scope.current))
       expensiveCart ← * <~ Carts.create(
                          Factories
                            .cart(Scope.current)

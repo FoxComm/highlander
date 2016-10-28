@@ -83,7 +83,7 @@ object SeedsGenerator
                    })
       customers ← * <~ Users.filter(_.id.inSet(customerIds)).result
       _ ← * <~ CustomersData.createAll(customers.map { c ⇒
-           CustomerData(accountId = c.accountId, userId = c.id)
+           CustomerData(accountId = c.accountId, userId = c.id, scope = Scope.current)
          })
       _ ← * <~ Addresses.createAll(generateAddresses(customers))
       _ ← * <~ CreditCards.createAll(generateCreditCards(customers))

@@ -11,7 +11,8 @@ object CustomerPayloads {
   case class CreateCustomerPayload(email: String,
                                    name: Option[String] = None,
                                    password: Option[String] = None,
-                                   isGuest: Option[Boolean] = Some(false))
+                                   isGuest: Option[Boolean] = Some(false),
+                                   scope: Option[String] = None)
 
   case class UpdateCustomerPayload(name: Option[String] = None,
                                    email: Option[String] = None,

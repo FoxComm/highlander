@@ -2,6 +2,7 @@ package models.account
 
 import com.github.tminglei.slickpg.LTree
 import failures.ScopeFailures._
+import failures.UserFailures.OrganizationNotFoundByName
 import failures._
 import shapeless._
 import slick.driver.PostgresDriver.api._
@@ -22,9 +23,14 @@ object Scope {
   def getScopeOrSubscope(potentialSubscope: Option[String] = None)(implicit ec: EC,
                                                                    au: AU): DbResultT[LTree] = {
     val scope = au.token.scope
+    overrideScope(scope, potentialSubscope)
+  }
+
+  def overrideScope(scope: String, potentialSubscope: Option[String])(
+      implicit ec: EC): DbResultT[LTree] = {
     scopeOrSubscope(scope, potentialSubscope) match {
-      case Some(scope) ⇒ DbResultT.good(LTree(scope))
-      case None        ⇒ DbResultT.failures(ImproperScope.single)
+      case Some(newScope) ⇒ DbResultT.good(LTree(newScope))
+      case None         ⇒ DbResultT.failures[LTree](ImproperScope.single)
     }
   }
 
@@ -61,4 +67,10 @@ class Scopes(tag: Tag) extends FoxTable[Scope](tag, "scopes") {
 object Scopes extends FoxTableQuery[Scope, Scopes](new Scopes(_)) with ReturningId[Scope, Scopes] {
 
   val returningLens: Lens[Scope, Int] = lens[Scope].id
+
+  def forOrganization(org: String)(implicit ec: EC, db: DB): DbResultT[LTree] =
+    for {
+      organization ← * <~ Organizations.findByName(org).mustFindOr(OrganizationNotFoundByName(org))
+      scope        ← * <~ Scopes.mustFindById400(organization.scopeId)
+    } yield LTree(scope.path)
 }
