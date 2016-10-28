@@ -7,6 +7,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
+import cx from 'classnames';
 
 // i18n
 import localized from 'lib/i18n';
@@ -99,12 +100,40 @@ const mapDispatchToProps = dispatch => ({
   }, dispatch),
 });
 
+const renderAttributes = (attributeNames, product) => {
+  return (
+    <div>
+      {attributeNames.map(attr =>
+        <div className="attribute-line" key={attr}>
+          <div styleName="attribute-title">{attr}</div>
+          <div styleName="attribute-description">
+            {_.get(product, `attributes.${attr}.v`)}
+          </div>
+        </div>)}
+    </div>
+  );
+};
+
+const renderNutritionTable = () => <div></div>;
+
+const additionalInfoRenderMap = {
+  Prep: renderAttributes.bind(null, ['Conventional Oven', 'Microwave']),
+  Ingredients: renderAttributes.bind(null, ['Ingredients', 'Allergy Alerts']),
+  Nutrition: renderNutritionTable,
+};
+
+const additionalInfoTitles = [
+  'Prep',
+  'Ingredients',
+  'Nutrition',
+];
 
 class Pdp extends Component {
   props: Props;
 
   state: State = {
     quantity: 1,
+    currentAdditionalTitle: additionalInfoTitles[0],
   };
 
   componentWillMount() {
@@ -189,6 +218,19 @@ class Pdp extends Component {
       });
   }
 
+  @autobind
+  setCurrentAdditionalAttr (currentAdditionalTitle) {
+    this.setState({ currentAdditionalTitle });
+  }
+
+  @autobind
+  renderAttributes () {
+    const renderFn =
+      additionalInfoRenderMap[this.state.currentAdditionalTitle] || _.noop;
+
+    return renderFn(this.props.product);
+  }
+
   render(): HTMLElement {
     const { t, isLoading, notFound } = this.props;
 
@@ -200,6 +242,7 @@ class Pdp extends Component {
       return <p styleName="not-found">{t('Product not found')}</p>;
     }
 
+    const product = this.product;
     const {
       title,
       description,
@@ -208,7 +251,20 @@ class Pdp extends Component {
       price,
       amountOfServings,
       servingSize,
-    } = this.product;
+    } = product;
+
+    const attributeTitles = additionalInfoTitles.map(attrTitle => {
+      const cls = cx(styles['item-title'], {
+        [styles.active]: attrTitle === this.state.currentAdditionalTitle,
+      });
+      const onClick = this.setCurrentAdditionalAttr.bind(this, attrTitle);
+
+      return (
+        <div className={cls} onClick={onClick} key={attrTitle}>
+          {attrTitle}
+        </div>
+      );
+    });
 
     return (
       <div styleName="container">
@@ -259,6 +315,17 @@ class Pdp extends Component {
             </div>
 
             <ErrorAlerts error={this.state.error} />
+          </div>
+        </div>
+        <div styleName="additional-info">
+          <div>
+            <div styleName="items-title-wrap">
+              {attributeTitles}
+            </div>
+
+            <div styleName="info-block">
+              {this.renderAttributes()}
+            </div>
           </div>
         </div>
       </div>
