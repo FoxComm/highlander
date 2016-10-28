@@ -7,9 +7,7 @@
   file: path=/var/lib/sandbox state=directory
 
 - name: Install Mesos Worker Service Entry
-  template:
-    src: mesos_worker.service
-    dest: "{{dest_services}}/mesos_worker.service"
+  file: src=mesos_worker.service dest={{dest_services}}/mesos_worker.service
 
 - name: Reload Systemd for Mesos Worker
   command: systemctl daemon-reload

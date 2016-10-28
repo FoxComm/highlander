@@ -28,4 +28,4 @@
   command: systemctl daemon-reload
 
 - name: Restart Docker Registry Server
-  service: name=docker_registry state=restarted enabled=yes
+  service: name=docker_registry state=restarted enabled=true
