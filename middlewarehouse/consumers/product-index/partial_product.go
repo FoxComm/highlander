@@ -17,7 +17,7 @@ func (p PartialProduct) SearchRow() (SearchRow, error) {
 		return row, errors.New("SearchRow must have at least one SKU")
 	}
 
-	row.SkuCode = p.AvailableSKUs[0]
+	row.SKUs = p.AvailableSKUs
 	row.Variants = p.Variants
 
 	return row, nil
