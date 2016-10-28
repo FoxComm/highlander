@@ -32,6 +32,7 @@ type Props = Localized & {
   isLoading: boolean,
   authenticate: Function,
   fetchCart: Function,
+  displayTitle: boolean,
 };
 
 const mapState = state => ({
@@ -45,6 +46,10 @@ class Login extends Component {
     email: '',
     password: '',
     error: null,
+  };
+
+  static defaultProps = {
+    displayTitle: true,
   };
 
   @autobind
@@ -86,26 +91,32 @@ class Login extends Component {
     });
   }
 
+  get title() {
+    const { t } = this.props;
+    return this.props.displayTitle
+      ? <div styleName="title">{t('SIGN IN')}</div>
+      : null;
+  }
+
   render(): HTMLElement {
     const { password, email } = this.state;
-    const props = this.props;
-    const { t } = props;
+    const { t, getPath } = this.props;
 
     const restoreLink = (
-      <Link to={props.getPath(authBlockTypes.RESTORE_PASSWORD)} styleName="restore-link">
+      <Link to={getPath(authBlockTypes.RESTORE_PASSWORD)} styleName="restore-link">
         {t('forgot?')}
       </Link>
     );
 
     const signupLink = (
-      <Link to={props.getPath(authBlockTypes.SIGNUP)} styleName="link">
+      <Link to={getPath(authBlockTypes.SIGNUP)} styleName="link">
         {t('Sign Up')}
       </Link>
     );
 
     return (
       <div>
-        <div styleName="title">{t('SIGN IN')}</div>
+        {this.title}
         <form>
           <FormField key="email" styleName="form-field" error={this.state.error}>
             <TextInput placeholder={t('EMAIL')} value={email} type="email" onChange={this.onChangeEmail} />
@@ -121,7 +132,7 @@ class Login extends Component {
           </FormField>
           <Button
             styleName="primary-button"
-            isLoading={props.isLoading}
+            isLoading={this.props.isLoading}
             onClick={this.authenticate}
           >
             {t('SIGN IN')}
