@@ -12,12 +12,3 @@ type UpdateShipment struct {
 	ShippingPrice      *int               `json:"shippingPrice"`
 	Scopable
 }
-
-func (shipment *UpdateShipment) SetScope(scope string) {
-	shipment.Scope = scope
-
-	for i := range shipment.ShipmentLineItems {
-		shipment.ShipmentLineItems[i].SetScope(scope)
-	}
-	shipment.Address.SetScope(scope)
-}

@@ -13,7 +13,6 @@ type StockItemSummary struct {
 	Shipped     int
 	AFS         int
 	AFSCost     int
-	Scope       string
 }
 
 func (sis StockItemSummary) Identifier() uint {

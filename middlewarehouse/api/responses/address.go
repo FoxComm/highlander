@@ -11,7 +11,6 @@ type Address struct {
 	Address1    string  `json:"address1"`
 	Address2    *string `json:"address2"`
 	PhoneNumber string  `json:"phoneNumber"`
-	Scope       string  `json:"scope"`
 }
 
 func NewAddressFromModel(model *models.Address) *Address {
@@ -24,6 +23,5 @@ func NewAddressFromModel(model *models.Address) *Address {
 		Address1:    model.Address1,
 		Address2:    NewStringFromSqlNullString(model.Address2),
 		PhoneNumber: model.PhoneNumber,
-		Scope:       model.Scope,
 	}
 }

@@ -20,12 +20,11 @@ func GetShipmentLineItem(id uint, shipmentID uint, stockItemUnitId uint) *models
 		Name:            "Some shit",
 		Price:           uint(3999),
 		ImagePath:       "https://test.com/some-shit.png",
-		Scope:           "1",
 	}
 }
 
 func ToShipmentLineItemPayload(shipmentLineItem *models.ShipmentLineItem) *payloads.ShipmentLineItem {
-	payload := &payloads.ShipmentLineItem{
+	return &payloads.ShipmentLineItem{
 		ID:              shipmentLineItem.ID,
 		ReferenceNumber: shipmentLineItem.ReferenceNumber,
 		SKU:             shipmentLineItem.SKU,
@@ -33,10 +32,6 @@ func ToShipmentLineItemPayload(shipmentLineItem *models.ShipmentLineItem) *paylo
 		Price:           shipmentLineItem.Price,
 		ImagePath:       shipmentLineItem.ImagePath,
 	}
-
-	payload.Scope = shipmentLineItem.Scope
-
-	return payload
 }
 
 func GetShipmentLineItemColumns() []string {

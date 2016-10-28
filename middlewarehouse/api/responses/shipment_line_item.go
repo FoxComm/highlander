@@ -9,7 +9,6 @@ type ShipmentLineItem struct {
 	Name            string `json:"name"`
 	Price           uint   `json:"price"`
 	ImagePath       string `json:"imagePath"`
-	Scope           string `json:"scope"`
 }
 
 func NewShipmentLineItemFromModel(model *models.ShipmentLineItem) *ShipmentLineItem {
@@ -20,6 +19,5 @@ func NewShipmentLineItemFromModel(model *models.ShipmentLineItem) *ShipmentLineI
 		Name:            model.Name,
 		Price:           model.Price,
 		ImagePath:       model.ImagePath,
-		Scope:           model.Scope,
 	}
 }

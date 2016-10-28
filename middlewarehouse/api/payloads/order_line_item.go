@@ -8,7 +8,6 @@ type OrderLineItem struct {
 	State           string `json:"state" binding:"required"`
 	ReferenceNumber string `json:"referenceNumber" binding:"required"`
 	ImagePath       string `json:"image_path" binding:"required"`
-	Scopable
 }
 
 type OrderLineItems struct {

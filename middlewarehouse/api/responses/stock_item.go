@@ -7,7 +7,6 @@ type StockItem struct {
 	SKU             string `json:"sku"`
 	StockLocationID uint   `json:"stockLocationId"`
 	DefaultUnitCost int    `json:"defaultUnitCost"`
-	Scope           string `json:"scope"`
 }
 
 func NewStockItemFromModel(si *models.StockItem) *StockItem {
@@ -16,6 +15,5 @@ func NewStockItemFromModel(si *models.StockItem) *StockItem {
 		SKU:             si.SKU,
 		StockLocationID: si.StockLocationID,
 		DefaultUnitCost: si.DefaultUnitCost,
-		Scope:           si.Scope,
 	}
 }

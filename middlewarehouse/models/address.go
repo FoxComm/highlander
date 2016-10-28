@@ -18,7 +18,6 @@ type Address struct {
 	Address1    string
 	Address2    sql.NullString
 	PhoneNumber string
-	Scope       string
 }
 
 func NewAddressFromPayload(payload *payloads.Address) *Address {
@@ -31,6 +30,5 @@ func NewAddressFromPayload(payload *payloads.Address) *Address {
 		Zip:         payload.Zip,
 		Address2:    utils.MakeSqlNullString(payload.Address2),
 		PhoneNumber: payload.PhoneNumber,
-		Scope:       payload.Scope,
 	}
 }

@@ -11,7 +11,6 @@ type StockItem struct {
 	StockLocation   StockLocation
 	StockLocationID uint
 	DefaultUnitCost int
-	Scope           string
 }
 
 func (si StockItem) Identifier() uint {
@@ -23,6 +22,5 @@ func NewStockItemFromPayload(payload *payloads.StockItem) *StockItem {
 		StockLocationID: payload.StockLocationID,
 		SKU:             payload.SKU,
 		DefaultUnitCost: payload.DefaultUnitCost,
-		Scope:           payload.Scope,
 	}
 }

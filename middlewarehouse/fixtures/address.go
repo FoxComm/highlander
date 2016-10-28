@@ -23,12 +23,11 @@ func GetAddress(id uint, regionID uint, region *models.Region) *models.Address {
 		Address1:    "Some st, 335",
 		Address2:    sql.NullString{},
 		PhoneNumber: "19527352893",
-		Scope:       "1",
 	}
 }
 
 func ToAddressPayload(address *models.Address) *payloads.Address {
-	payload := &payloads.Address{
+	return &payloads.Address{
 		ID:          address.ID,
 		Name:        address.Name,
 		Region:      *ToRegionPayload(&address.Region),
@@ -38,10 +37,6 @@ func ToAddressPayload(address *models.Address) *payloads.Address {
 		Address2:    responses.NewStringFromSqlNullString(address.Address2),
 		PhoneNumber: address.PhoneNumber,
 	}
-
-	payload.Scope = address.Scope
-
-	return payload
 }
 
 func GetAddressColumns() []string {

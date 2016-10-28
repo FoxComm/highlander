@@ -73,11 +73,7 @@ func (controller *stockItemController) GetStockItemById() gin.HandlerFunc {
 func (controller *stockItemController) CreateStockItem() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		payload := &payloads.StockItem{}
-		if parse(context, &payload) != nil {
-			return
-		}
-
-		if !setScope(context, payload) {
+		if parse(context, payload) != nil {
 			return
 		}
 

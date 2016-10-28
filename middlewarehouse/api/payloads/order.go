@@ -20,16 +20,6 @@ type Order struct {
 
 func (order *Order) SetScope(scope string) {
 	order.Scope = scope
-	order.Totals.SetScope(scope)
-
-	for i := range order.LineItems.SKUs {
-		order.LineItems.SKUs[i].SetScope(scope)
-	}
-
-	for i := range order.PaymentMethods {
-		order.PaymentMethods[i].SetScope(scope)
-	}
 
 	order.ShippingMethod.SetScope(scope)
-	order.ShippingAddress.SetScope(scope)
 }
