@@ -32,7 +32,7 @@ defmodule Solomon.OrganizationController do
     case organization do
       {:error, changeset} ->
         conn
-        |> put_status(:unauthorized)
+        |> put_status(:forbidden)
         |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
       _ ->
         render(conn, "show.json", organization: organization)

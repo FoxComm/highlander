@@ -35,7 +35,7 @@ defmodule Solomon.ScopeController do
     case scope do
       {:error, changeset} ->
         conn
-        |> put_status(:unauthorized)
+        |> put_status(:forbidden)
         |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
       _ ->
         render(conn, "show.json", scope: scope)

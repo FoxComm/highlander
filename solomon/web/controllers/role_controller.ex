@@ -33,7 +33,7 @@ defmodule Solomon.RoleController do
     case role do
       {:error, changeset} ->
         conn
-        |> put_status(:unauthorized)
+        |> put_status(:forbidden)
         |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
       _ ->
         role_with_permissions =

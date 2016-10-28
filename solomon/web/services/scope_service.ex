@@ -88,7 +88,13 @@ defmodule Solomon.ScopeService do
 
   def get_request_scope_regex(conn) do
     case get_resp_header(conn, "scope") do
-      [] -> {:error, "scope not found"}
+      [] -> 
+        conn
+        |> send_resp(:unauthorized, Poison.encode!(%{
+          errors: [
+            "unauthorized request"
+          ]
+        }))
       [scope] ->
         "^" <> Regex.escape(scope)
         |> Regex.compile!
@@ -131,7 +137,7 @@ defmodule Solomon.ScopeService do
       Ecto.Changeset.add_error(
         Scope.changeset(scope, %{}),
         :scope,
-        "unauthorized"
+        "insufficient permissions"
       )
     }
     end
@@ -147,7 +153,7 @@ defmodule Solomon.ScopeService do
       Ecto.Changeset.add_error(
         schema.changeset(object, %{}),
         :scope,
-        "unauthorized"
+        "insufficient permissions"
       )
     }
     end
@@ -164,7 +170,7 @@ defmodule Solomon.ScopeService do
       Ecto.Changeset.add_error(
         changeset,
         :scope,
-        "unauthorized"
+        "insufficient permissions"
       )
     end
   end
