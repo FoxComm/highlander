@@ -8,11 +8,11 @@
   tags:
     - consul
   roles:
-    - { role: dev/mesos_consul } 
+    - { role: dev/mesos_consul }
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
 
-- name: Provision Target Stage Backend
+- name: Provision TPG Stage Backend
   hosts: new-perfect-gourmet-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
@@ -30,7 +30,7 @@
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
 
-- name: Provision Target Stage Frontend
+- name: Provision TPG Stage Frontend
   hosts: new-perfect-gourmet-stage-frontend
   vars:
     user: '{{ansible_ssh_user}}'
