@@ -358,12 +358,18 @@ func main() {
 	}
 
 	for _, prod := range prods {
-		row, err := prod.SearchRow()
+		row, err := NewSearchRow(*product, prod)
 		if err != nil {
 			panic(err)
 		}
 
-		fmt.Printf("Code: %s\n", row.SkuCode)
+		fmt.Printf("Codes: %q\n", row.SKUs)
+		fmt.Printf("Context: %s\n", row.Context)
+		fmt.Printf("Title: %s\n", row.Title)
+		fmt.Printf("Description: %s\n", row.Description)
+		fmt.Printf("Image: %s\n", row.Image)
+		fmt.Printf("Sale Price: %d\n", row.SalePrice)
+		fmt.Printf("Currency: %s\n", row.Currency)
 		for variant, value := range prod.Variants {
 			fmt.Printf("Variant: %s\n", variant)
 			fmt.Printf("Value: %s\n", value)
