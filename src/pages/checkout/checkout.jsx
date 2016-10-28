@@ -46,6 +46,7 @@ type Props = CheckoutState & {
   shippingMethods: Object,
   cart: Object,
   isAddressLoaded: boolean,
+  location: Object,
 };
 
 class Checkout extends Component {
@@ -231,6 +232,7 @@ class Checkout extends Component {
             inProgress={this.state.guestAuthInProgress}
             error={this.errorsFor(EditStages.GUEST_AUTH)}
             continueAction={this.placeOrder}
+            location={this.props.location}
           />
         </div>
       </section>

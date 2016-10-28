@@ -27,7 +27,8 @@ class GuestAuth extends Component {
 
   @autobind
   getPath(newType: ?string): Object {
-    return newType ? assoc(this.props.path, ['query', 'auth'], newType) : dissoc(this.props.path, ['query', 'auth']);
+    const { location } = this.props;
+    return newType ? assoc(location, ['query', 'auth'], newType) : dissoc(location, ['query', 'auth']);
   }
 
   render() {

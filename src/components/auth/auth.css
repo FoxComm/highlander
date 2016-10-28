@@ -3,7 +3,7 @@
 
 .auth-block {
   position: relative;
-  z-index: 2;
+  z-index: 15;
   text-align: center;
   margin-top: 44px;
   margin-bottom: 20px;
