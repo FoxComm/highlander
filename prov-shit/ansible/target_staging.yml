@@ -1,7 +1,7 @@
 ---
 
 - name: Provision Mesos Service Discovery
-  hosts: target-stage-consul-server
+  hosts: new-target-stage-consul-server
   vars:
     user: '{{ansible_ssh_user}}'
     zookeepers: zookeeper.service.consul:2181
@@ -13,7 +13,7 @@
     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Target Stage Backend
-  hosts: target-stage-backend
+  hosts: new-target-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
     updating_mwh: true
@@ -31,10 +31,13 @@
     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Target Stage Frontend
-  hosts: target-stage-frontend
+  hosts: new-target-stage-frontend
   vars:
     user: '{{ansible_ssh_user}}'
     middlewarehouse_server: middlewarehouse.service.consul:9292
+    marathon_server: marathon.service.consul:8080
+    product_search_server: product-search.service.consul:5492
+    docker_db_host: db.service.consul
     updating_mwh: true
   tags:
     - frontend
@@ -49,5 +52,7 @@
     - { role: dev/marketplace }
     - { role: dev/ashes }
     - { role: ext/tgt/marketplace-ui }
+    - { role: ext/tgt/product-search }
+    - { role: dev/balancer, sudo: yes }
     - { role: ext/tgt/balancer, sudo: yes }
     - { role: dev/seeder }

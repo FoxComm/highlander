@@ -8,6 +8,7 @@ search_server: "{{search_host}}:9300"
 log_host: elasticsearch.service.consul
 es_heap_size: 2g
 seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedStage
-demo_domain: stage-tgt.foxcommerce.com
-ashes_server_name: stage-tgt.foxcommerce.com
+demo_domain: stage-new.foxcommerce.com
+ashes_server_name: stage-new.foxcommerce.com
 retailer_name: FoxCommerce
+docker_registry: docker-stage.foxcommerce.com

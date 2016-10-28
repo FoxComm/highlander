@@ -1,19 +1,19 @@
 ---
 
 - name: Provision Mesos Service Discovery
-  hosts: new-foxcomm-stage-consul-server
+  hosts: new-perfect-gourmet-stage-consul-server
   vars:
     user: '{{ansible_ssh_user}}'
     zookeepers: zookeeper.service.consul:2181
   tags:
     - consul
   roles:
-    - { role: dev/mesos_consul } 
+    - { role: dev/mesos_consul }
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
 
-- name: Provision Stage Backend
-  hosts: new-foxcomm-stage-backend
+- name: Provision TPG Stage Backend
+  hosts: new-perfect-gourmet-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
     updating_mwh: true
@@ -24,12 +24,14 @@
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
+    # TODO: Move to packer
+    - { role: base/marketplace }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
 
-- name: Provision Stage Frontend
-  hosts: new-foxcomm-stage-frontend
+- name: Provision TPG Stage Frontend
+  hosts: new-perfect-gourmet-stage-frontend
   vars:
     user: '{{ansible_ssh_user}}'
     middlewarehouse_server: middlewarehouse.service.consul:9292
@@ -46,6 +48,7 @@
     - { role: dev/greenriver }
     - { role: dev/isaac }
     - { role: dev/solomon }
+    - { role: dev/marketplace }
     - { role: dev/ashes }
     - { role: dev/balancer, sudo: yes }
     - { role: dev/seeder }
