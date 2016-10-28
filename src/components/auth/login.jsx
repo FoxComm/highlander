@@ -36,6 +36,7 @@ type Props = Localized & {
 };
 
 const mapState = state => ({
+  cart: state.cart,
   isLoading: _.get(state.asyncActions, ['auth-login', 'inProgress'], false),
 });
 
@@ -75,7 +76,12 @@ class Login extends Component {
     const { email, password } = this.state;
     const kind = 'merchant';
     this.props.authenticate({email, password, kind}).then(() => {
-      this.props.fetchCart();
+      const lineItems = _.get(this.props, 'cart.lineItems', []);
+      if (_.isEmpty(lineItems)) {
+        this.props.fetchCart();
+      } else {
+        console.log('some present');
+      }
       browserHistory.push(this.props.getPath());
     }, () => {
       this.setState({error: 'Email or password is invalid'});
@@ -113,6 +119,8 @@ class Login extends Component {
         {t('Sign Up')}
       </Link>
     );
+
+    console.log(this.props.cart);
 
     return (
       <div>
