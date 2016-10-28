@@ -13,14 +13,6 @@ import org.json4s.DefaultFormats
 import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods.parse
 
-/**
-  * This is a JsonProcessor which processes json and indexs it into elastic search.
-  * It calls a json transform function before sending it to elastic search.
-  *
-  * If the json has a {"id" : <id>} field after transformation, it extracts that
-  * id and uses it as the _id in elasticsearch for that item. This is important so that
-  * we don't duplicate entries in ES.
-  */
 case class EsOptions(typed: String,
                      name: Option[String],
                      index: Option[String],
@@ -53,6 +45,10 @@ case class EsOptions(typed: String,
 
 case class EsAttribute(path: Seq[String], es_opts: EsOptions)
 
+/**
+  * This is a ObjectSchemaProcessor which processes json with ES schema definition and
+  * update mappings in ES
+  */
 class ObjectSchemaProcessor(uri: String, cluster: String, schemasTopic: String)(
     implicit ec: ExecutionContext)
     extends JsonProcessor {
@@ -77,7 +73,6 @@ class ObjectSchemaProcessor(uri: String, cluster: String, schemasTopic: String)(
     val schemaAttributes = parse((document \ "schemaAttributes").extract[String])
     val esAttributes     = parse((document \ "esAttributes").extract[String])
 
-    val mapping          = makeMappingFromJsonSchema(schemaAttributes, esAttributes)
     val fieldsDefinition = makeMappingFromJsonSchema(schemaAttributes, esAttributes)
 
     val scopes = parse((document \ "scopes").extract[String]).extract[List[String]]
