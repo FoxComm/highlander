@@ -1,0 +1,49 @@
+{
+  "main": [
+    {
+      "type": "group",
+      "title": "General",
+      "fields": {
+        "canAddProperty": true,
+        "value": [
+          "title",
+          "description"
+        ],
+        "includeRest": true,
+        "omit": [
+          "skus",
+          "variants",
+          "activeFrom",
+          "activeTo",
+          "tags",
+          "images"
+        ]
+      }
+    },
+    {
+      "type": "option-list"
+    },
+    {
+      "type": "sku-list"
+    },
+    {
+      "type": "group",
+      "title": "SEO",
+      "fields": {
+        "value": [
+          "url",
+          "metaTitle",
+          "metaDescription"
+        ]
+      }
+    }
+  ],
+  "aside": [
+    {
+      "type": "tags"
+    },
+    {
+      "type": "state"
+    }
+  ]
+}

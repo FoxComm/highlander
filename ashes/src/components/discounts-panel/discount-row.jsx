@@ -20,8 +20,6 @@ const DiscountRow = (props: Props): Element => {
   const { item, columns, params } = props;
   const checkedParams = params || {checked: false, setChecked: noop };
 
-  const key = `order-discount-row-${item.id}`;
-
   return (
     <MultiSelectRow
       columns={columns}

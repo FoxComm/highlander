@@ -11,7 +11,7 @@ import models.coupon._
 import models.objects._
 import models.promotion._
 import payloads.CouponPayloads._
-import responses.CouponResponses.{IlluminatedCouponResponse ⇒ Illuminated, _}
+import responses.CouponResponses._
 import services.LogActivity
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -19,42 +19,14 @@ import utils.db._
 
 object CouponManager {
 
-  def getForm(id: Int)(implicit ec: EC, db: DB): DbResultT[CouponFormResponse.Root] =
-    for {
-      // guard to make sure the form is a coupon
-      coupons ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
-      form    ← * <~ ObjectForms.mustFindById404(id)
-    } yield CouponFormResponse.build(form)
-
-  def getShadow(id: Int, contextName: String)(implicit ec: EC,
-                                              db: DB): DbResultT[CouponShadowResponse.Root] =
-    for {
-      context ← * <~ ObjectContexts
-                 .filterByName(contextName)
-                 .mustFindOneOr(ObjectContextNotFound(contextName))
-      coupon ← * <~ Coupons
-                .filterByContextAndFormId(context.id, id)
-                .mustFindOneOr(CouponNotFoundForContext(id, contextName))
-      shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
-    } yield CouponShadowResponse.build(shadow)
-
-  def get(id: Int, contextName: String)(implicit ec: EC, db: DB): DbResultT[CouponResponse.Root] =
-    (for {
-      context ← * <~ ObjectContexts
-                 .filterByName(contextName)
-                 .mustFindOneOr(ObjectContextNotFound(contextName))
-      coupon ← * <~ Coupons
-                .filterByContextAndFormId(context.id, id)
-                .mustFindOneOr(CouponNotFoundForContext(id, contextName))
-      form   ← * <~ ObjectForms.mustFindById404(coupon.formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
-    } yield CouponResponse.build(coupon, form, shadow))
-
   def create(payload: CreateCoupon, contextName: String, admin: Option[User])(
       implicit ec: EC,
       db: DB,
       ac: AC,
-      au: AU): DbResultT[CouponResponse.Root] =
+      au: AU): DbResultT[CouponResponse.Root] = {
+
+    val formAndShadow = FormAndShadow.fromPayload(Coupon.kind, payload.attributes)
+
     for {
       scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
       context ← * <~ ObjectContexts
@@ -63,9 +35,7 @@ object CouponManager {
       _ ← * <~ Promotions
            .filterByContextAndFormId(context.id, payload.promotion)
            .mustFindOneOr(PromotionNotFoundForContext(payload.promotion, context.name))
-      form   ← * <~ ObjectForm(kind = Coupon.kind, attributes = payload.form.attributes)
-      shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
-      ins    ← * <~ ObjectUtils.insert(form, shadow)
+      ins ← * <~ ObjectUtils.insert(formAndShadow.form, formAndShadow.shadow, payload.schema)
       coupon ← * <~ Coupons.create(
                   Coupon(scope = scope,
                          contextId = context.id,
@@ -73,15 +43,19 @@ object CouponManager {
                          shadowId = ins.shadow.id,
                          commitId = ins.commit.id,
                          promotionId = payload.promotion))
-      response = CouponResponse.build(coupon, ins.form, ins.shadow)
+      response = CouponResponse.build(context, coupon, ins.form, ins.shadow)
       _ ← * <~ LogActivity.couponCreated(response, admin)
     } yield response
+  }
 
   def update(id: Int, payload: UpdateCoupon, contextName: String, admin: User)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[CouponResponse.Root] =
-    (for {
+      ac: AC): DbResultT[CouponResponse.Root] = {
+
+    val formAndShadow = FormAndShadow.fromPayload(Coupon.kind, payload.attributes)
+
+    for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
@@ -93,26 +67,27 @@ object CouponManager {
                 .mustFindOneOr(CouponNotFoundForContext(id, contextName))
       updated ← * <~ ObjectUtils.update(coupon.formId,
                                         coupon.shadowId,
-                                        payload.form.attributes,
-                                        payload.shadow.attributes)
+                                        formAndShadow.form.attributes,
+                                        formAndShadow.shadow.attributes)
       commit ← * <~ ObjectUtils.commit(updated)
       coupon ← * <~ updateHead(coupon, payload.promotion, updated.shadow, commit)
-      response = CouponResponse.build(coupon, updated.form, updated.shadow)
+      response = CouponResponse.build(context, coupon, updated.form, updated.shadow)
       _ ← * <~ LogActivity.couponUpdated(response, Some(admin))
-    } yield response)
+    } yield response
+  }
 
   def getIlluminated(id: Int, contextName: String)(implicit ec: EC,
-                                                   db: DB): DbResultT[Illuminated.Root] =
-    (for {
+                                                   db: DB): DbResultT[CouponResponse.Root] =
+    for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
       result ← * <~ getIlluminatedIntern(id, context)
-    } yield result)
+    } yield result
 
   def getIlluminatedByCode(code: String, contextName: String)(
       implicit ec: EC,
-      db: DB): DbResultT[Illuminated.Root] =
+      db: DB): DbResultT[CouponResponse.Root] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -123,8 +98,9 @@ object CouponManager {
       result ← * <~ getIlluminatedIntern(couponCode.couponFormId, context)
     } yield result
 
-  def getIlluminatedIntern(id: Int, context: ObjectContext)(implicit ec: EC,
-                                                            db: DB): DbResultT[Illuminated.Root] =
+  def getIlluminatedIntern(id: Int, context: ObjectContext)(
+      implicit ec: EC,
+      db: DB): DbResultT[CouponResponse.Root] =
     for {
       coupon ← * <~ Coupons
                 .filter(_.contextId === context.id)
@@ -132,7 +108,7 @@ object CouponManager {
                 .mustFindOneOr(CouponNotFound(id))
       form   ← * <~ ObjectForms.mustFindById404(coupon.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
-    } yield Illuminated.build(IlluminatedCoupon.illuminate(context, coupon, form, shadow))
+    } yield CouponResponse.build(context, coupon, form, shadow)
 
   def archiveByContextAndId(contextName: String,
                             formId: Int)(implicit ec: EC, db: DB): DbResultT[CouponResponse.Root] =
@@ -146,7 +122,7 @@ object CouponManager {
       archiveResult ← * <~ Coupons.update(model, model.copy(archivedAt = Some(Instant.now)))
       form          ← * <~ ObjectForms.mustFindById404(archiveResult.formId)
       shadow        ← * <~ ObjectShadows.mustFindById404(archiveResult.shadowId)
-    } yield CouponResponse.build(archiveResult, form, shadow)
+    } yield CouponResponse.build(context, archiveResult, form, shadow)
 
   def generateCode(id: Int, code: String, admin: User)(implicit ec: EC,
                                                        db: DB,

@@ -4,6 +4,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
 import models.objects._
+import models.objects.ObjectUtils._
 import models.product.SimpleContext
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -74,10 +75,12 @@ trait DiscountGenerator {
       discounts ← * <~ sourceData.map(source ⇒ {
                    val discountForm   = SimpleDiscountForm(source.percentOff, source.totalAmount)
                    val discountShadow = SimpleDiscountShadow(discountForm)
-                   val payload =
-                     CreateDiscount(form = CreateDiscountForm(attributes = discountForm.form),
-                                    shadow =
-                                      CreateDiscountShadow(attributes = discountShadow.shadow))
+                   def discountFS: FormAndShadow = {
+                     (ObjectForm(kind = models.discount.Discount.kind,
+                                 attributes = discountForm.form),
+                      ObjectShadow(attributes = discountShadow.shadow))
+                   }
+                   val payload = CreateDiscount(attributes = discountFS.toPayload)
                    DiscountManager.create(payload, context.name)
                  })
     } yield discounts

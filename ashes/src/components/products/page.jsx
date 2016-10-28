@@ -6,11 +6,11 @@
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
-import { isProductValid, setSkuAttribute } from 'paragons/product';
+import { setSkuAttribute, skuId } from 'paragons/product';
+import { assoc } from 'sprout-data';
 
 // actions
 import * as ProductActions from 'modules/products/details';
-// import * as OptionsActions from 'modules/products/options';
 import { sanitizeError } from 'modules/products/details';
 
 // components
@@ -34,6 +34,7 @@ type Props = {
   details: {
     product: ?Product,
   },
+  originalObject: ?Product,
   selectContextAvailable: boolean,
 };
 
@@ -63,11 +64,56 @@ class ProductPage extends ObjectPage {
       return 'New Product';
     }
 
-    return _.get(this.entity, 'attributes.title.v', '');
+    return _.get(this.props.originalObject, 'attributes.title.v', '');
   }
 
   fetchEntity(): Promise {
     return this.props.actions.fetchProduct(this.entityId, this.entityContext);
+  }
+
+  removeEmptySkus(object) {
+    let existsCodes = {};
+
+    let skus = _.reduce(object.skus, (acc, sku) => {
+      const code = _.get(sku.attributes, 'code.v');
+      if (code) {
+        existsCodes[skuId(sku)] = 1;
+        return [...acc, sku];
+      }
+      return acc;
+    }, []);
+
+    if (!skus.length && object.skus.length) {
+      const firstSku = object.skus[0];
+      skus = [firstSku];
+      existsCodes[skuId(firstSku)] = 1;
+    }
+
+    const variants = _.map(object.variants, variant => {
+      const values = _.map(variant.values, value => {
+        const skuCodes = _.reduce(value.skuCodes, (acc, code) => {
+          if (code in existsCodes) {
+            return [...acc, code];
+          }
+          return acc;
+        }, []);
+        return assoc(value, 'skuCodes', skuCodes);
+      });
+      return assoc(variant, 'values', values);
+    });
+
+    return assoc(object,
+      'skus', skus,
+      'variants', variants
+    );
+  }
+
+  prepareObjectForValidation(object) {
+    return this.removeEmptySkus(object);
+  }
+
+  prepareObjectForSaving(object) {
+    return this.removeEmptySkus(object);
   }
 
   get selectContextDropdown() {
@@ -87,15 +133,6 @@ class ProductPage extends ObjectPage {
     return sanitizeError(error);
   }
 
-  get preventSave(): boolean {
-    const product = this.state.entity;
-    if (product) {
-      return !isProductValid(product);
-    }
-
-    return true;
-  }
-
   @autobind
   handleContextChange(context: string) {
     this.transitionTo(this.entityId, {
@@ -106,24 +143,24 @@ class ProductPage extends ObjectPage {
 
   @autobind
   handleSetSkuProperty(code: string, field: string, value: string) {
-    const { entity } = this.state;
+    const { object } = this.state;
 
-    if (entity) {
+    if (object) {
       this.setState({
-        entity: setSkuAttribute(entity, code, field, value),
+        object: setSkuAttribute(object, code, field, value),
       });
     }
   }
 
   @autobind
   handleSetSkuProperties(code: string, updateArray: Array<Array<any>>) {
-    const { entity } = this.state;
+    const { object } = this.state;
 
-    if (entity) {
+    if (object) {
       const newProduct = _.reduce(updateArray, (p, [field, value]) => {
         return setSkuAttribute(p, code, field, value);
-      }, entity);
-      this.setState({entity: newProduct});
+      }, object);
+      this.setState({object: newProduct});
     }
   }
 
@@ -157,7 +194,7 @@ class ProductPage extends ObjectPage {
   }
 
   subNav() {
-    return <SubNav productId={this.entityId} product={this.state.entity} context={this.entityContext} />;
+    return <SubNav productId={this.entityId} product={this.state.object} context={this.entityContext} />;
   }
 
   renderHead() {

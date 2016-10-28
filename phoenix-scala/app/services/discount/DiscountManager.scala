@@ -67,12 +67,12 @@ object DiscountManager {
 
   def createInternal(payload: CreateDiscount, context: ObjectContext)(
       implicit ec: EC,
-      au: AU): DbResultT[CreateInternalResult] =
+      au: AU): DbResultT[CreateInternalResult] = {
+    val formAndShadow = FormAndShadow.fromPayload(Discount.kind, payload.attributes)
+
     for {
-      scope  ← * <~ Scope.getScopeOrSubscope(payload.scope)
-      form   ← * <~ ObjectForm(kind = Discount.kind, attributes = payload.form.attributes)
-      shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
-      ins    ← * <~ ObjectUtils.insert(form, shadow)
+      scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      ins   ← * <~ ObjectUtils.insert(formAndShadow.form, formAndShadow.shadow, payload.schema)
       discount ← * <~ Discounts.create(
                     Discount(scope = scope,
                              contextId = context.id,
@@ -80,6 +80,7 @@ object DiscountManager {
                              shadowId = ins.shadow.id,
                              commitId = ins.commit.id))
     } yield CreateInternalResult(discount, ins.commit, ins.form, ins.shadow)
+  }
 
   def update(discountId: Int, payload: UpdateDiscount, contextName: String)(
       implicit ec: EC,
@@ -88,7 +89,7 @@ object DiscountManager {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
-      discount ← * <~ updateInternal(discountId, payload, context)
+      discount ← * <~ updateInternal(discountId, payload.attributes, context)
     } yield DiscountResponse.build(discount.form, discount.shadow)
 
   case class UpdateInternalResult(oldDiscount: Discount,
@@ -98,9 +99,12 @@ object DiscountManager {
 
   def updateInternal(
       discountId: Int,
-      payload: UpdateDiscount,
+      attributes: Map[String, Json],
       context: ObjectContext,
-      forceUpdate: Boolean = false)(implicit ec: EC, db: DB): DbResultT[UpdateInternalResult] =
+      forceUpdate: Boolean = false)(implicit ec: EC, db: DB): DbResultT[UpdateInternalResult] = {
+
+    val formAndShadow = FormAndShadow.fromPayload(Discount.kind, attributes)
+
     for {
       discount ← * <~ Discounts
                   .filter(_.contextId === context.id)
@@ -108,12 +112,13 @@ object DiscountManager {
                   .mustFindOneOr(DiscountNotFoundForContext(discountId, context.id))
       update ← * <~ ObjectUtils.update(discount.formId,
                                        discount.shadowId,
-                                       payload.form.attributes,
-                                       payload.shadow.attributes,
+                                       formAndShadow.form.attributes,
+                                       formAndShadow.shadow.attributes,
                                        forceUpdate)
       commit  ← * <~ ObjectUtils.commit(update)
       updated ← * <~ updateHead(discount, update.shadow, commit)
     } yield UpdateInternalResult(discount, updated, update.form, update.shadow)
+  }
 
   def getIlluminated(id: Int, contextName: String)(
       implicit ec: EC,

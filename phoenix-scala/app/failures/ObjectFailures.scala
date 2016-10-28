@@ -9,6 +9,14 @@ object ObjectFailures {
       NotFoundFailure404(s"Context with name $name cannot be found")
   }
 
+  case class ObjectValidationFailure(kind: String, id: Int, errors: String) extends Failure {
+    override def description = s"Object $kind with id=$id doesn't pass validation: $errors"
+  }
+
+  case class PayloadValidationFailure(error: String) extends Failure {
+    override def description: String = s"Payload validation failed: $error"
+  }
+
   case class ShadowAttributeMissingRef(name: String) extends Failure {
     override def description = s"Shadow attribute ref $name is missing from form"
   }

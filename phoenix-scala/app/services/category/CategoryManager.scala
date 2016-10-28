@@ -48,7 +48,7 @@ object CategoryManager {
       context  ← * <~ contextByName(contextName)
       form     ← * <~ ObjectForm(kind = Category.kind, attributes = payload.form.attributes)
       shadow   ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
-      insert   ← * <~ ObjectUtils.insert(form, shadow)
+      insert   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       category ← * <~ Categories.create(Category.build(scope, context.id, insert))
       response = FullCategoryResponse.build(category, insert.form, insert.shadow)
       _ ← * <~ LogActivity

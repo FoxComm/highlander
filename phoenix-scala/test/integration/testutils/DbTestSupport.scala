@@ -8,7 +8,6 @@ import scala.annotation.tailrec
 
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.SimpleContext
-import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
@@ -28,7 +27,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
   implicit val ec: EC
 
   /* tables which should *not* be truncated b/c they're static and seeded by migration */
-  val doNotTruncate = Set("states", "countries", "regions", "schema_version")
+  val doNotTruncate = Set("states", "countries", "regions", "schema_version", "object_contexts")
 
   override protected def beforeAll(): Unit = {
     if (!migrated) {
@@ -40,6 +39,8 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
       flyway.migrate()
 
       db4fly.close()
+
+      setupObjectContext()
       migrated = true
     }
   }
@@ -78,8 +79,6 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
     }
 
     Seeds.createSingleMerchantSystem.gimme
-    setupObjectContext()
-
     conn.close()
 
     super.withFixture(test)

@@ -222,6 +222,7 @@ case class SimpleCompleteVariantData(variant: SimpleVariantData,
                                      variantValues: Seq[SimpleVariantValueData])
 
 object Mvp {
+
   def insertProductNewContext(oldContextId: Int, contextId: Int, p: SimpleProductData)(
       implicit db: DB,
       au: AU): DbResultT[SimpleProductData] =
@@ -306,7 +307,10 @@ object Mvp {
     for {
       productForm   ← * <~ ObjectForms.create(simpleProduct.create)
       simpleShadow  ← * <~ SimpleProductShadow(simpleProduct)
-      productShadow ← * <~ ObjectShadows.create(simpleShadow.create.copy(formId = productForm.id))
+      productSchema ← * <~ ObjectFullSchemas.findOneByName("product")
+      productShadow ← * <~ ObjectShadows.create(
+                         simpleShadow.create.copy(formId = productForm.id,
+                                                  jsonSchema = productSchema.map(_.name)))
 
       productCommit ← * <~ ObjectCommits.create(
                          ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
@@ -329,10 +333,12 @@ object Mvp {
 
   def insertSku(scope: LTree, contextId: Int, s: SimpleSku): DbResultT[Sku] =
     for {
-      form    ← * <~ ObjectForms.create(s.create)
-      sShadow ← * <~ SimpleSkuShadow(s)
-      shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
-      commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
+      form      ← * <~ ObjectForms.create(s.create)
+      sShadow   ← * <~ SimpleSkuShadow(s)
+      skuSchema ← * <~ ObjectFullSchemas.findOneByName("sku")
+      shadow ← * <~ ObjectShadows.create(
+                  sShadow.create.copy(formId = form.id, jsonSchema = skuSchema.map(_.name)))
+      commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       sku ← * <~ Skus.create(
                Sku(scope = scope,
                    contextId = contextId,
@@ -427,7 +433,10 @@ object Mvp {
     for {
       scope         ← * <~ Scope.getScopeOrSubscope(None)
       simpleShadow  ← * <~ SimpleProductShadow(simpleProduct)
-      productShadow ← * <~ ObjectShadows.create(simpleShadow.create.copy(formId = productForm.id))
+      productSchema ← * <~ ObjectFullSchemas.findOneByName("product")
+      productShadow ← * <~ ObjectShadows.create(
+                         simpleShadow.create.copy(formId = productForm.id,
+                                                  jsonSchema = productSchema.map(_.name)))
 
       productCommit ← * <~ ObjectCommits.create(
                          ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
@@ -440,7 +449,10 @@ object Mvp {
                            commitId = productCommit.id))
 
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
-      skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.copy(formId = skuForm.id))
+      skuSchema       ← * <~ ObjectFullSchemas.findOneByName("sku")
+      skuShadow ← * <~ ObjectShadows.create(
+                     simpleSkuShadow.create.copy(formId = skuForm.id,
+                                                 jsonSchema = skuSchema.map(_.name)))
 
       skuCommit ← * <~ ObjectCommits.create(
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
@@ -466,9 +478,11 @@ object Mvp {
                              productShadow: ObjectShadow,
                              product: Product)(implicit db: DB, au: AU): DbResultT[Album] = {
     for {
-      scope ← * <~ Scope.getScopeOrSubscope(None)
+      scope       ← * <~ Scope.getScopeOrSubscope(None)
+      albumSchema ← * <~ ObjectFullSchemas.findOneByName("album")
       albumShadow ← * <~ ObjectShadows.create(
-                       SimpleAlbumShadow(simpleAlbum).create.copy(formId = albumForm.id))
+                       SimpleAlbumShadow(simpleAlbum).create
+                         .copy(formId = albumForm.id, jsonSchema = albumSchema.map(_.name)))
       albumCommit ← * <~ ObjectCommits.create(
                        ObjectCommit(formId = albumForm.id, shadowId = albumShadow.id))
 

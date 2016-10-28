@@ -90,7 +90,7 @@ object SkuManager {
     for {
       scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
       code  ← * <~ mustGetSkuCode(payload)
-      ins   ← * <~ ObjectUtils.insert(form, shadow)
+      ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       sku ← * <~ Skus.create(
                Sku(scope = scope,
                    contextId = context.id,
@@ -146,7 +146,7 @@ object SkuManager {
       case None       ⇒ Xor.left(GeneralFailure("SKU code not found in payload").single)
     }
 
-  def getSkuCode(attributes: Map[String, Json]): Option[String] =
+  private def getSkuCode(attributes: Map[String, Json]): Option[String] =
     attributes.get("code").flatMap(json ⇒ (json \ "v").extractOpt[String])
 
   def mustFindSkuByContextAndCode(contextId: Int, code: String)(implicit ec: EC): DbResultT[Sku] =

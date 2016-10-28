@@ -5,12 +5,32 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import models.account._
 import models.objects._
 import models.product.SimpleContext
+import models.promotion.Promotion.ApplyType
 import models.promotion.{Promotion, Promotions}
-import payloads.PromotionPayloads._
 import utils.aliases._
 import utils.db._
 
+object PromotionSeeds {
+  // TODO: migrate to new payloads. // narma  22.09.16
+  import utils.seeds.DiscountSeeds._
+
+  case class UpdatePromoDiscountForm(id: Int, attributes: Json)
+  case class UpdatePromoDiscountShadow(id: Int, attributes: Json)
+  case class CreatePromotionForm(attributes: Json, discounts: Seq[CreateDiscountForm])
+  case class CreatePromotionShadow(attributes: Json, discounts: Seq[CreateDiscountShadow])
+  case class UpdatePromoDiscount(id: Int, attributes: Map[String, Json])
+
+  case class CreatePromotion(applyType: ApplyType,
+                             form: CreatePromotionForm,
+                             shadow: CreatePromotionShadow,
+                             scope: Option[String] = None)
+
+  case class UpdatePromotionForm(attributes: Json, discounts: Seq[UpdatePromoDiscountForm])
+  case class UpdatePromotionShadow(attributes: Json, discounts: Seq[UpdatePromoDiscountShadow])
+}
+
 trait PromotionSeeds {
+  import PromotionSeeds._
 
   def createCouponPromotions(discounts: Seq[BaseDiscount])(implicit db: DB,
                                                            ac: AC,
@@ -31,7 +51,7 @@ trait PromotionSeeds {
       scope  ← * <~ Scope.getScopeOrSubscope(payload.scope)
       form   ← * <~ ObjectForm(kind = Promotion.kind, attributes = payload.form.attributes)
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
-      ins    ← * <~ ObjectUtils.insert(form, shadow)
+      ins    ← * <~ ObjectUtils.insert(form, shadow, None)
       promotion ← * <~ Promotions.create(
                      Promotion(scope = scope,
                                contextId = context.id,

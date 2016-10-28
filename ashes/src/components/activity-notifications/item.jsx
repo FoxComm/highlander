@@ -6,7 +6,6 @@ import classNames from 'classnames';
 
 // components
 import { DateTime } from '../common/datetime';
-import { IndexLink, Link } from '../link';
 import AuthorTitle from '../activity-trail/activities/base/author-title';
 import AuthorIcon from '../activity-trail/activities/base/author-icon';
 import { representatives } from '../activity-trail/activities/index';

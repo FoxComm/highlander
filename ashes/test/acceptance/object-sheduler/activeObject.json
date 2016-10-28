@@ -1,36 +1,28 @@
 {
-  "form": {
-    "name": "tett",
-    "details": "",
-    "activeTo": null,
-    "activeFrom": "2016-04-26T12:59:21.929+00:00",
-    "description": "",
-    "storefrontName": ""
-  },
-  "shadow": {
+  "attributes": {
     "name": {
-      "ref": "name",
-      "type": "string"
+      "t": "string",
+      "v": "tett"
     },
     "details": {
-      "ref": "details",
-      "type": "richText"
+      "t": "string",
+      "v": ""
     },
     "activeTo": {
-      "ref": "activeTo",
-      "type": "datetime"
+      "t": "date",
+      "v": null
     },
     "activeFrom": {
-      "ref": "activeFrom",
-      "type": "datetime"
+      "t": "date",
+      "v": "2016-04-26T12:59:21.929+00:00"
     },
     "description": {
-      "ref": "description",
-      "type": "text"
+      "t": "richText",
+      "v": ""
     },
     "storefrontName": {
-      "ref": "storefrontName",
-      "type": "richText"
+      "t": "string",
+      "v": ""
     }
   }
 }
