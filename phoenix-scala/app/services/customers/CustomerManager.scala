@@ -78,7 +78,7 @@ object CustomerManager {
                                             checkEmail = !payload.isGuest.getOrElse(false))
 
       contextScope ← * <~ Scopes.mustFindById400(context.scopeId)
-      scope        ← * <~ Scope.mergeSubScope(contextScope.path, payload.scope)
+      scope        ← * <~ Scope.overrideScope(contextScope.path, payload.scope)
       custData ← * <~ CustomersData.create(
                     CustomerData(accountId = user.accountId,
                                  userId = user.id,

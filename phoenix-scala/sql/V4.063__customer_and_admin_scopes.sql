@@ -26,8 +26,8 @@ create materialized view customer_purchased_items_view as
     u.email as customer_email,
     -- SKU
     s.code as sku_code,
-    f.attributes->>(sh.attributes->'title'->>'ref') as sku_title,
-    f.attributes->(sh.attributes->'salePrice'->>'ref')->>'value' as sku_price
+    illuminate_text(f, sh, 'title') as sku_title,
+    illuminate_obj(f, sh, 'salePrice')->>'value' as sku_price
   from order_line_items as oli
     inner join orders as o on o.reference_number = oli.cord_ref and o.state = 'shipped'
     inner join customer_data as c on o.account_id = c.account_id
@@ -49,8 +49,8 @@ create materialized view customer_save_for_later_view as
     u.email as customer_email,
     -- SKU
     s.code as sku_code,
-    f.attributes->>(sh.attributes->'title'->>'ref') as sku_title,
-    f.attributes->(sh.attributes->'salePrice'->>'ref')->>'value' as sku_price,
+    illuminate_text(f, sh, 'title') as sku_title,
+    illuminate_obj(f, sh, 'salePrice')->>'value' as sku_price,
     -- Save for later
     to_char(later.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as saved_for_later_at
   from save_for_later as later

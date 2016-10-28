@@ -23,13 +23,13 @@ object Scope {
   def getScopeOrSubscope(potentialSubscope: Option[String] = None)(implicit ec: EC,
                                                                    au: AU): DbResultT[LTree] = {
     val scope = au.token.scope
-    mergeSubScope(scope, potentialSubscope)
+    overrideScope(scope, potentialSubscope)
   }
 
-  def mergeSubScope(scope: String, potentialSubscope: Option[String])(
+  def overrideScope(scope: String, potentialSubscope: Option[String])(
       implicit ec: EC): DbResultT[LTree] = {
     scopeOrSubscope(scope, potentialSubscope) match {
-      case Some(merged) ⇒ DbResultT.good(LTree(merged))
+      case Some(newScope) ⇒ DbResultT.good(LTree(newScope))
       case None         ⇒ DbResultT.failures[LTree](ImproperScope.single)
     }
   }

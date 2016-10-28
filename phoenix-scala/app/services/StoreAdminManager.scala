@@ -37,7 +37,7 @@ object StoreAdminManager {
                                              password = payload.password,
                                              context = context)
       organizationScope ← * <~ Scopes.mustFindById400(organization.scopeId)
-      scope             ← * <~ Scope.mergeSubScope(organizationScope.path, payload.scope)
+      scope             ← * <~ Scope.overrideScope(organizationScope.path, payload.scope)
       adminUser ← * <~ AdminsData.create(
                      AdminData(accountId = admin.accountId,
                                userId = admin.id,
