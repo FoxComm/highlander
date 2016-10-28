@@ -18,7 +18,7 @@ defmodule Marketplace.MerchantAccountController do
   end
 
   def create(conn, %{"merchant_id" => merchant_id, "account" => merchant_account_params}) do
-    solomon_id = PermissionManager.create_user_from_merchant_account(merchant_account_params)
+    solomon_id = PermissionManager.create_user_from_merchant_account(conn, merchant_account_params)
     account = %MerchantAccount{merchant_id: String.to_integer(merchant_id), solomon_id: solomon_id}
     changeset = MerchantAccount.changeset(account, merchant_account_params)
 
@@ -46,11 +46,12 @@ defmodule Marketplace.MerchantAccountController do
           |> Map.fetch!(:business_name)
     email = Map.fetch!(merchant_account_params, "email_address")
     passwd = Map.fetch!(merchant_account_params, "password")
-    solomon_id = PermissionManager.create_user_from_merchant_account(merchant_account_params)
+    solomon_id = PermissionManager.create_user_from_merchant_account(conn, merchant_account_params)
     scope_id = Repo.one(from merchant in Merchant,
                         where: merchant.id == ^merchant_id,
                         select: merchant.scope_id)
-    changeset = MerchantAccount.changeset(%MerchantAccount{merchant_id: String.to_integer(merchant_id), solomon_id: solomon_id}, merchant_account_params)
+    ma = %MerchantAccount{merchant_id: String.to_integer(merchant_id), solomon_id: solomon_id}
+    changeset = MerchantAccount.changeset(ma, merchant_account_params)
                 |> validate_scope_id(scope_id)
 
     txn = Multi.new
@@ -62,8 +63,8 @@ defmodule Marketplace.MerchantAccountController do
 
     case Repo.transaction(txn) do
       {:ok, %{ma_with_stripe: merchant_account}} ->
-        role_id = PermissionManager.create_admin_role_from_scope_id(scope_id)
-        PermissionManager.grant_account_id_role_id(solomon_id, role_id)
+        role_id = PermissionManager.create_admin_role_from_scope_id(conn, scope_id)
+        PermissionManager.grant_account_id_role_id(conn, solomon_id, role_id)
         conn
         |> put_status(:created)
         |> put_resp_header("location", merchant_account_path(conn, :show, merchant_id, merchant_account))

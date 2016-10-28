@@ -15,7 +15,7 @@ defmodule Solomon.PermissionController do
     changeset = Permission.changeset(%Permission{}, permission_params)
                 |> ScopeService.validate_scoped_changeset(conn, scope_id)
 
-    case Repo.transaction(PermissionClaimService.create_claim_changeset(changeset)) do
+    case Repo.transaction(PermissionClaimService.create_and_insert_claim_changeset(changeset)) do
       {:ok, %{permission: permission}} ->
         conn
         |> put_status(:created)

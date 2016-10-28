@@ -8,6 +8,7 @@ defmodule Solomon.ScopeService do
   alias Solomon.Scope
   alias Solomon.RolePermission
   alias Solomon.Scope
+  alias Solomon.Permission
   alias Solomon.PermissionClaimService
 
   def create_role_with_permissions(role_cs, resources) do
@@ -30,8 +31,10 @@ defmodule Solomon.ScopeService do
     permissions = Repo.all(Resource)
     |> Enum.filter(fn resource -> Enum.any?(resources, fn s -> s == resource.name end) end)
     |> Enum.map(
-      fn resource -> PermissionClaimService.insert_permission(
-        %{resource_id: resource.id, scope_id: scope_id, actions: resource.actions})
+      fn resource -> PermissionClaimService.create_and_insert_claim_changeset(Permission.changeset(
+          %Permission{},
+          %{resource_id: resource.id, scope_id: scope_id, actions: resource.actions}
+        ))
       end)
     |> handle_permission_error
     case permissions do
@@ -51,9 +54,7 @@ defmodule Solomon.ScopeService do
 
   defp handle_permission_error(permissions) do
     case Enum.find(permissions, fn x -> is_tuple(x) end) do
-      nil ->
-        IO.inspect(permissions)
-        permissions
+      nil -> permissions
       {:error, changeset} -> {:error, changeset}
     end
   end
