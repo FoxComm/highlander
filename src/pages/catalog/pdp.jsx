@@ -62,6 +62,7 @@ type Props = Localized & {
 type State = {
   quantity: number,
   error?: any,
+  currentAdditionalTitle: string,
 };
 
 type Product = {
@@ -114,12 +115,10 @@ const renderAttributes = (attributeNames, product) => {
   );
 };
 
-const renderNutritionTable = () => <div></div>;
-
 const additionalInfoRenderMap = {
   Prep: renderAttributes.bind(null, ['Conventional Oven', 'Microwave']),
   Ingredients: renderAttributes.bind(null, ['Ingredients', 'Allergy Alerts']),
-  Nutrition: renderNutritionTable,
+  Nutrition: renderAttributes.bind(null, ['Nutritional Information']),
 };
 
 const additionalInfoTitles = [
