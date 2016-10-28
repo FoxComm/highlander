@@ -1,0 +1,32 @@
+{
+    "builders": [
+        {
+            "name": "google",
+            "type": "googlecompute",
+            "account_file": "{{user `account_file`}}",
+            "project_id": "{{user `project_id`}}",
+            "source_image": "{{user `base_ubuntu_image`}}",
+            "network": "{{user `network`}}",
+            "zone": "{{user `zone`}}",
+            "image_name": "swarm-base-{{timestamp}}",
+            "image_description": "Base image used for provisioning",
+            "instance_name": "packer-base-{{uuid}}",
+            "machine_type": "{{user `instance_type`}}",
+            "tags": [
+                "no-ip",
+                "packer-base"
+            ],
+            "use_internal_ip": true,
+            "ssh_username": "{{user `ssh_username`}}"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "ansible",
+            "playbook_file": "ansible/packer_swarm_base.yml",
+            "extra_arguments": [
+                "-vvvv"
+            ]
+        }
+    ]
+}
