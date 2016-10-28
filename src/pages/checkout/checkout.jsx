@@ -226,6 +226,7 @@ class Checkout extends Component {
             isEditing={props.editStage == EditStages.GUEST_AUTH}
             inProgress={this.state.guestAuthInProgress}
             error={this.errorsFor(EditStages.GUEST_AUTH)}
+            continueAction={this.placeOrder}
           />
         </div>
       </section>

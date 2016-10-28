@@ -151,10 +151,8 @@ function addressToPayload(address, countries = []) {
 }
 
 export function saveShippingAddress(id): Function {
-  return (dispatch, getState, api) => {
-    const address = getState().checkout.addresses[id];
-
-    return api.patch(`/v1/my/cart/shipping-address/${id}`, address)
+  return (dispatch) => {
+    return foxApi.cart.setShippingAddressById(id)
       .then(res => {
         dispatch(updateCart(res.result));
       });
@@ -263,6 +261,13 @@ export function checkout(): Function {
       dispatch(orderPlaced(res));
       return dispatch(updateCart(res));
     });
+  };
+}
+
+// Update guest account to checkout
+export function saveEmail(email): Function {
+  return () => {
+    return foxApi.account.update({email});
   };
 }
 
