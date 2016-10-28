@@ -1,9 +1,10 @@
-alter table carts add column scope exts.ltree not null;
-alter table carts_search_view add column scope exts.ltree not null;
-alter table carts_search_view add column scopes text[];
+alter table carts add column scope exts.ltree;
+alter table carts_search_view add column scope exts.ltree;
 
 update carts set scope = exts.text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
 update carts_search_view set scope = text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
+
+alter table carts alter column scope set not null;
 
 create or replace function update_carts_view_from_carts_insert_fn() returns trigger as $$
 begin
@@ -68,7 +69,6 @@ begin
 
   update carts_search_view set
     line_item_count = subquery.count,
-    scopes = subquery.scopes,
     line_items = subquery.items from (select
           c.id,
           count(sku.id) as count,
@@ -85,8 +85,7 @@ begin
                     sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value',
                     sku.scope)::export_line_items)
                     ::jsonb
-          end as items,
-          array_agg(sku.scope) as scopes
+          end as items
           from carts as c
           left join cart_line_items as cli_skus on (c.reference_number = cli_skus.cord_ref)
           left join skus as sku on (cli_skus.sku_id = sku.id)
