@@ -48,7 +48,7 @@ class CartCreatorIntegrationTest
     "for a new guest" - {
       "successfully creates cart and new guest customer account" in new Fixture {
         val guest =
-          cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse].customer.value
+          cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].customer.value
 
         guest.isGuest mustBe true
         guest.id must !==(customer.accountId)

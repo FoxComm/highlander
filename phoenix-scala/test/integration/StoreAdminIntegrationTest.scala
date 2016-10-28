@@ -79,6 +79,19 @@ class StoreAdminIntegrationTest
         .mustFailWith404(NotFoundFailure404(User, 666))
     }
 
+    "don't update with duplicated email" in new Fixture {
+      val create_payload = CreateStoreAdminPayload(name = "Admin Donkey",
+                                                   email = "donkey.admin@donkeys.com",
+                                                   password = Some("123456"),
+                                                   phoneNumber = Some("1231231234"),
+                                                   roles = List("admin"),
+                                                   org = "tenant")
+      val admin = storeAdminsApi.create(create_payload).as[Root]
+      val payload = UpdateStoreAdminPayload(name = authedUser.name.getOrElse(""),
+                                            email = authedUser.email.getOrElse(""))
+
+      storeAdminsApi(admin.id).update(payload).mustFailWith400(UserEmailNotUnique)
+    }
   }
 
   "PATCH /v1/store-admins/:id/state" - {
