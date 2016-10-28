@@ -4,24 +4,19 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
-
+import com.github.tminglei.slickpg.LTree
 import failures.CustomerFailures._
 import failures.NotFoundFailure404
-import models.account._
-import models.account.{User, Users}
+import models.account.{User, Users, _}
 import models.cord.{OrderShippingAddresses, Orders}
-import models.customer.{CustomerData, CustomersData}
 import models.customer.CustomersData.scope._
-import models.customer._
-
+import models.customer.{CustomerData, CustomersData}
 import models.location.Addresses
 import models.shipping.Shipments
 import payloads.CustomerPayloads._
 import responses.CustomerResponse._
 import services._
 import services.account._
-import services.account._
-import failures.CustomerFailures._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -82,10 +77,13 @@ object CustomerManager {
                                             context = context,
                                             checkEmail = !payload.isGuest.getOrElse(false))
 
+      contextScope ← * <~ Scopes.mustFindById400(context.scopeId)
+      scope        ← * <~ Scope.overrideScope(contextScope.path, payload.scope)
       custData ← * <~ CustomersData.create(
                     CustomerData(accountId = user.accountId,
                                  userId = user.id,
-                                 isGuest = payload.isGuest.getOrElse(false)))
+                                 isGuest = payload.isGuest.getOrElse(false),
+                                 scope = scope))
       response = build(user, custData)
       _ ← * <~ LogActivity.customerCreated(response, admin)
     } yield response
@@ -99,9 +97,12 @@ object CustomerManager {
                                             password = None,
                                             context = context,
                                             checkEmail = false)
-
+      scope ← * <~ Scopes.mustFindById400(context.scopeId)
       custData ← * <~ CustomersData.create(
-                    CustomerData(accountId = user.accountId, userId = user.id, isGuest = true))
+                    CustomerData(accountId = user.accountId,
+                                 userId = user.id,
+                                 isGuest = true,
+                                 scope = LTree(scope.path)))
       response = build(user, custData)
     } yield (user, custData)
 

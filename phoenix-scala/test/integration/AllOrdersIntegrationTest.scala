@@ -51,7 +51,8 @@ class AllOrdersIntegrationTest
     (for {
       acc  ← * <~ Accounts.create(Account())
       cust ← * <~ Users.create(Factories.customer.copy(accountId = acc.id))
-      _    ← * <~ CustomersData.create(CustomerData(userId = cust.id, accountId = acc.id))
+      _ ← * <~ CustomersData.create(
+             CustomerData(userId = cust.id, accountId = acc.id, scope = Scope.current))
       c = Factories.cart(Scope.current).copy(accountId = acc.id)
       cart  ← * <~ Carts.create(c.copy(referenceNumber = "foo"))
       order ← * <~ Orders.createFromCart(cart, subScope = None)

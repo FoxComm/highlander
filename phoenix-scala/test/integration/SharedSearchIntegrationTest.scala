@@ -1,4 +1,5 @@
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
 import models.account._
@@ -255,13 +256,15 @@ class SharedSearchIntegrationTest
   }
 
   trait Fixture {
+    val scope             = Scopes.forOrganization(TENANT).gimme
     val storeAdminAccount = Accounts.create(Account()).gimme
     val storeAdmin        = Users.create(authedUser.copy(accountId = storeAdminAccount.id)).gimme
     val storeAdminUser = AdminsData
       .create(
           AdminData(userId = storeAdmin.id,
                     accountId = storeAdmin.accountId,
-                    state = AdminData.Active))
+                    state = AdminData.Active,
+                    scope = scope))
       .gimme
   }
 
@@ -343,6 +346,8 @@ class SharedSearchIntegrationTest
   }
 
   trait SecondAdminFixture {
+    def scope: LTree
+
     val secondAccount = Accounts.create(Account()).gimme
     val secondAdmin = Users
       .create(
@@ -354,7 +359,8 @@ class SharedSearchIntegrationTest
       .create(
           AdminData(userId = secondAdmin.id,
                     accountId = secondAdmin.accountId,
-                    state = AdminData.Active))
+                    state = AdminData.Active,
+                    scope = scope))
       .gimme
   }
 
