@@ -27,6 +27,9 @@ import * as actions from 'modules/checkout';
 import { EditStages } from 'modules/checkout';
 import { fetch as fetchCart, hideCart } from 'modules/cart';
 
+// paragons
+import { emailIsSet } from 'paragons/auth';
+
 type Props = CheckoutState & {
   setEditStage: (stage: EditStage) => Object,
   saveShippingAddress: () => PromiseType,
@@ -146,7 +149,8 @@ class Checkout extends Component {
 
   @autobind
   checkAuthAndplaceOrder() {
-    if (false) {
+    const user = _.get(this.props, ['auth', 'user'], null);
+    if (emailIsSet(user)) {
       return this.placeOrder();
     }
 
@@ -246,6 +250,7 @@ function mapStateToProps(state) {
   return {
     ...state.checkout,
     cart: state.cart,
+    auth: state.auth,
     isBillingDirty: isBillingDirty(state),
     isDeliveryDirty: isDeliveryDirty(state),
   };
