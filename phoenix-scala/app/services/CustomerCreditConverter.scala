@@ -1,5 +1,6 @@
 package services
 
+import cats.std.map
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures.OpenTransactionsFailure
 import failures.StoreCreditFailures.StoreCreditConvertFailure
@@ -7,7 +8,7 @@ import models.account._
 import models.admin.AdminsData
 import models.payment.giftcard._
 import models.payment.storecredit._
-import responses.{GiftCardResponse, UserResponse, StoreCreditResponse}
+import responses.{GiftCardResponse, StoreCreditResponse, UserResponse}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -19,7 +20,6 @@ object CustomerCreditConverter {
       db: DB,
       ac: AC): DbResultT[StoreCreditResponse.Root] =
     for {
-
       giftCard ← * <~ GiftCards.mustFindByCode(giftCardCode)
       _        ← * <~ failIf(!giftCard.isActive, GiftCardConvertFailure(giftCard))
       _        ← * <~ Users.mustFindByAccountId(accountId)
@@ -31,13 +31,19 @@ object CustomerCreditConverter {
            .findActiveByCode(giftCard.code)
            .map(_.state)
            .update(GiftCard.FullyRedeemed)
-      adjustment ← * <~ GiftCards.redeemToStoreCredit(giftCard, admin)
+      _ ← * <~ GiftCards.redeemToStoreCredit(giftCard, admin)
 
       // Finally, convert to Store Credit
       conversion ← * <~ StoreCreditFromGiftCards.create(
                       StoreCreditFromGiftCard(giftCardId = giftCard.id))
-      sc = StoreCredit.buildFromGcTransfer(accountId, giftCard).copy(originId = conversion.id)
-      storeCredit ← * <~ StoreCredits.create(sc)
+      storeCredit ← * <~ StoreCredits.create(
+                       StoreCredit(accountId = accountId,
+                                   originId = conversion.id,
+                                   scope = giftCard.scope,
+                                   originType = StoreCredit.GiftCardTransfer,
+                                   currency = giftCard.currency,
+                                   originalBalance = giftCard.currentBalance,
+                                   currentBalance = giftCard.currentBalance))
 
       // Activity
       _ ← * <~ LogActivity.gcConvertedToSc(admin, giftCard, storeCredit)
