@@ -2,10 +2,13 @@ create table object_attributes_es_mapping(
   id serial primary key,
   es_mapping generic_string not null unique,
   schema_name generic_string not null references object_schemas(name) on update restrict on delete restrict,
-  es_attributes jsonb -- TODO: add constraints ?
+  attributes text[] not null,
+  es_options jsonb -- TODO: add constraints ?
   -- es_attributes format
-  -- [{path: {}, es_opts: {} }, ...]
+  -- [{"attribute_name": opts}, ...] for ex.
+  -- [{"url": {"index": "not_analyzed"}, ...]
 );
+
 
 create index object_attributes_es_mapping_schema_idx on object_attributes_es_mapping(schema_name);
 
@@ -14,10 +17,13 @@ create table object_schemas_es_view(
   es_mapping generic_string not null,
   schema_name generic_string not null,
   schema_attributes jsonb,
-  es_attributes jsonb,
+  attributes jsonb not null,
+  es_options jsonb,
   scopes jsonb,
   created_at json_timestamp
 );
+
+select array_to_json('{hello, asd}'::text[])::jsonb;
 
 create or replace function update_object_schemas_es_insert_fn() returns trigger as $$
 begin
@@ -27,7 +33,8 @@ begin
       emap.es_mapping,
       o.name,
       (o.schema #>'{properties,attributes}')::jsonb,
-      emap.es_attributes,
+      array_to_json(emap.attributes)::jsonb,
+      emap.es_options,
       jsonb_agg(get_scope_path(s.id)) over (partition by emap.id),
       to_json_timestamp(o.created_at)
     from object_attributes_es_mapping as emap
@@ -55,7 +62,8 @@ begin
   update object_schemas_es_view
     set
       es_mapping = new.es_mapping,
-      es_attributes = new.es_attributes
+      attributes = array_to_json(new.attributes)::jsonb,
+      es_options = new.es_options
     where id = new.id;
   return null;
 end;
@@ -105,7 +113,8 @@ insert into object_schemas_es_view
       emap.es_mapping,
       o.name,
       (o.schema #>'{properties,attributes}')::jsonb as attrs,
-      emap.es_attributes,
+      array_to_json(emap.attributes)::jsonb,
+      emap.es_options,
       jsonb_agg(get_scope_path(s.id)) over (partition by emap.id) as scopes,
       to_json_timestamp(o.created_at)
     from object_attributes_es_mapping as emap
