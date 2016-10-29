@@ -18,20 +18,16 @@
     - { role: dev/elasticsearch }
     - { role: dev/isaac }
     - { role: dev/db }
+    - { role: dev/appliance }
     - { role: dev/phoenix }
     - { role: dev/solomon }
     - { role: dev/middlewarehouse }
     - { role: dev/greenriver }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
-<<<<<<< HEAD
-    - { role: dev/seeder }
-    - { role: dev/appliance }
-=======
     - { role: dev/ashes }
     - { role: dev/firebrand }
     - { role: dev/balancer, sudo: yes }
     - { role: dev/seeder }
->>>>>>> Regular and Goldfish Appliance with Docker (#210)
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
