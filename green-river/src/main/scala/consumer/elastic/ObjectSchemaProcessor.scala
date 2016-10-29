@@ -21,26 +21,32 @@ case class EsOptions(typed: String,
 
   val applyToField = applyIndex _ compose applyFormat compose applyAnalyzer
 
-  def applyIndex(field: TypedFieldDefinition): TypedFieldDefinition = applyInner(field, index)
+  def applyIndex(field: TypedFieldDefinition): TypedFieldDefinition =
+    index.fold(field) { v ⇒
+      field match {
+        case f: AttributeIndex ⇒
+          f.index(v)
+        case _ ⇒ field
+      }
+    }
 
-  def applyFormat(field: TypedFieldDefinition): TypedFieldDefinition = applyInner(field, format)
+  def applyFormat(field: TypedFieldDefinition): TypedFieldDefinition =
+    format.fold(field) { v ⇒
+      field match {
+        case f: AttributeFormat ⇒
+          f.format(v)
+        case _ ⇒ field
+      }
+    }
 
   def applyAnalyzer(field: TypedFieldDefinition): TypedFieldDefinition =
-    applyInner(field, analyzer)
-
-  private def applyInner(field: TypedFieldDefinition, option: Option[String]) =
-    option.fold(field) { value ⇒
-      applyMatch(field, value)
+    analyzer.fold(field) { v ⇒
+      field match {
+        case f: AttributeAnalyzer ⇒
+          f.analyzer(v)
+        case _ ⇒ field
+      }
     }
-
-  private def applyMatch(field: TypedFieldDefinition, value: String): TypedFieldDefinition = {
-    field match {
-      case f: AttributeIndex    ⇒ f.index(value)
-      case f: AttributeFormat   ⇒ f.format(value)
-      case f: AttributeAnalyzer ⇒ f.analyzer(value)
-      case _                    ⇒ field
-    }
-  }
 }
 
 case class EsAttribute(path: Seq[String], es_opts: EsOptions)
@@ -61,6 +67,7 @@ class ObjectSchemaProcessor(uri: String, cluster: String, schemasTopic: String)(
   private val futureUnit: Future[Unit] = Future { () }
 
   val indexPrefix = "admin" // FIXME: move to settings?
+
 
   def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] = {
     var createFutures = Buffer[Future[Unit]]()
