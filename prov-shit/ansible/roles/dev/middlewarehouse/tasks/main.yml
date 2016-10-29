@@ -15,6 +15,7 @@
 - name: Copy Shipments Consumer Marathon JSON
   template: src=shipments-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
   sudo: true
+  when: updating_mwh
 
 - name: Update Middlewarehouse in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/middlewarehouse.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/middlewarehouse'
