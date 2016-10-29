@@ -8,6 +8,7 @@ import com.sksamuel.elastic4s.mappings.attributes._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import consumer.{AvroJsonHelper, JsonProcessor}
 import org.elasticsearch.common.settings.Settings
+import org.elasticsearch.index.IndexNotFoundException
 import org.json4s.DefaultFormats
 import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods.parse
@@ -48,7 +49,7 @@ case class EsOptions(typed: Option[String],
     }
 }
 
-case class EsAttributeDefinition(path: Seq[String], es_opts: EsOptions)
+case class EsAttributeDefinition(path: Seq[String], esOpts: EsOptions)
 
 /**
   * This is a ObjectSchemaProcessor which processes json with ES schema definition and
@@ -63,15 +64,14 @@ class ObjectSchemaProcessor(uri: String, cluster: String, schemasTopic: String)(
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 
-  private val futureUnit: Future[Unit] = Future { () }
-
   val indexPrefix = "admin" // FIXME: move to settings?
-
 
   def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] = {
     val document = AvroJsonHelper.transformJsonRaw(inputJson)
 
-    val esIndex          = (document \ "esIndex").extract[String]
+    Console.out.println(s"SCHEMAS: parsed = ${AvroJsonHelper.transformJson(inputJson)}")
+
+    val esMappingName    = (document \ "esMapping").extract[String]
     val schemaAttributes = parse((document \ "schemaAttributes").extract[String])
     val esAttributes     = parse((document \ "esAttributes").extract[String])
 
@@ -80,9 +80,13 @@ class ObjectSchemaProcessor(uri: String, cluster: String, schemasTopic: String)(
     val scopes = parse((document \ "scopes").extract[String]).extract[List[String]]
 
     val esFutures = scopes.map { scope ⇒
-      Console.out.println(s"SCHEMAS: UPDATE MAPPING admin_$scope with $fieldsDefinition")
+      val index = s"${indexPrefix}_$scope"
+      Console.out.println(s"SCHEMAS: UPDATE MAPPING $index with $fieldsDefinition")
       client.execute {
-        put mapping s"${indexPrefix}_$scope" / esIndex fields fieldsDefinition
+        put mapping index / esMappingName fields fieldsDefinition
+      }.recover {
+        case _: IndexNotFoundException ⇒
+          Console.out.println(s"Index $index not found, skip")
       }.map { _ ⇒
         ()
       }
@@ -94,7 +98,7 @@ class ObjectSchemaProcessor(uri: String, cluster: String, schemasTopic: String)(
   private def makeMappingFromJsonSchema(
       schemaAttributes: JValue, esAttributes: JValue): Seq[TypedFieldDefinition] = {
     val esAttributeDefitions = esAttributes.extract[Seq[EsAttributeDefinition]]
-    val props   = schemaAttributes \ "properties"
+    val props                = schemaAttributes \ "properties"
     esAttributeDefitions.map { attr ⇒
       val schemaDefinition = attr.path.foldLeft(props) {
         case (acc, el) ⇒
@@ -104,8 +108,9 @@ class ObjectSchemaProcessor(uri: String, cluster: String, schemasTopic: String)(
     }
   }
 
-  private def schemaToEsDefinition(attr: EsAttributeDefinition, schema: JValue): TypedFieldDefinition = {
-    val name = attr.es_opts.name.getOrElse(attr.path.last)
+  private def schemaToEsDefinition(
+      attr: EsAttributeDefinition, schema: JValue): TypedFieldDefinition = {
+    val name   = attr.esOpts.name.getOrElse(attr.path.last)
     val esType = getTypeFromSchemaOrAttr(attr, schema)
     val esField: TypedFieldDefinition = esType match {
       case "attachment"  ⇒ new AttachmentFieldDefinition(name)
@@ -130,11 +135,11 @@ class ObjectSchemaProcessor(uri: String, cluster: String, schemasTopic: String)(
       case x             ⇒ throw new IllegalArgumentException(s"Unknown ES type $x")
     }
 
-    attr.es_opts.applyToField(esField)
+    attr.esOpts.applyToField(esField)
   }
 
   private def getTypeFromSchemaOrAttr(attr: EsAttributeDefinition, schema: JValue): String = {
-    attr.es_opts.typed.getOrElse {
+    attr.esOpts.typed.getOrElse {
       guessEsTypeFromSchemaType(schema \ "type")
     }
   }
@@ -145,25 +150,25 @@ class ObjectSchemaProcessor(uri: String, cluster: String, schemasTopic: String)(
     //    null, object, string
     def mapSchemaTypeToEs(schemaType: String): String = {
       schemaType match {
-        case "array" ⇒ "string"
+        case "array"   ⇒ "string"
         case "boolean" ⇒ "boolean"
         case "integer" ⇒ "integer"
-        case "number" ⇒ "float"
-        case "object" ⇒ "object"
-        case "string" ⇒ "string"
-        case x ⇒ throw new IllegalArgumentException(s"Unkown schema type $x")
+        case "number"  ⇒ "float"
+        case "object"  ⇒ "object"
+        case "string"  ⇒ "string"
+        case x         ⇒ throw new IllegalArgumentException(s"Unkown schema type $x")
       }
     }
     schemaType match {
       case JArray(values) ⇒
         // for example, it can be ["string", "null"]
-        val types = values.map(_.extract[String]).filter(_ == "null")
+        val types = values.map(_.extract[String]).filter(_ != "null")
         types match {
           case head :: _ ⇒ mapSchemaTypeToEs(head)
-          case _ ⇒ throw new IllegalArgumentException(s"schema type $values is not supported")
+          case _         ⇒ throw new IllegalArgumentException(s"schema type $values is not supported")
         }
       case JString(value) ⇒ mapSchemaTypeToEs(value)
-      case _ ⇒ throw new IllegalArgumentException(s"Not supported schema type $schemaType")
+      case _              ⇒ throw new IllegalArgumentException(s"Not supported schema type $schemaType")
     }
   }
 }

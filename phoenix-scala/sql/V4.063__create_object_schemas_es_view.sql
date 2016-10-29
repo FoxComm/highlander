@@ -1,6 +1,6 @@
 create table object_attributes_es_mapping(
   id serial primary key,
-  es_index generic_string not null unique,
+  es_mapping generic_string not null unique,
   schema_name generic_string not null references object_schemas(name) on update restrict on delete restrict,
   es_attributes jsonb -- TODO: add constraints ?
   -- es_attributes format
@@ -11,7 +11,7 @@ create index object_attributes_es_mapping_schema_idx on object_attributes_es_map
 
 create table object_schemas_es_view(
   id integer primary key,
-  es_index generic_string not null,
+  es_mapping generic_string not null,
   schema_name generic_string not null,
   schema_attributes jsonb,
   es_attributes jsonb,
@@ -24,7 +24,7 @@ begin
   insert into object_schemas_es_view
     select distinct on (emap.id)
       emap.id,
-      emap.es_index,
+      emap.es_mapping,
       o.name,
       (o.schema #>'{properties,attributes}')::jsonb,
       emap.es_attributes,
@@ -54,7 +54,7 @@ create or replace function update_object_schemas_es_update_fn() returns trigger 
 begin
   update object_schemas_es_view
     set
-      es_index = new.es_index,
+      es_mapping = new.es_mapping,
       es_attributes = new.es_attributes
     where id = new.id;
   return null;
@@ -102,7 +102,7 @@ create trigger update_object_schemas_es_on_scopes
 insert into object_schemas_es_view
   select distinct on (emap.id)
       emap.id,
-      emap.es_index,
+      emap.es_mapping,
       o.name,
       (o.schema #>'{properties,attributes}')::jsonb as attrs,
       emap.es_attributes,
