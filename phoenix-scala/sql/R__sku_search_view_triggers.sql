@@ -13,6 +13,7 @@ begin
     sku_form.attributes->(sku_shadow.attributes->'retailPrice'->>'ref')->>'value' as retail_price,
     sku_form.attributes->(sku_shadow.attributes->'retailPrice'->>'ref')->>'currency' as retail_price_currency,
     sku_form.attributes->(sku_shadow.attributes->'externalId'->>'ref') as external_id,
+    new.scope as scope,
     new.form_id as sku_id
     from object_contexts as context
        inner join object_shadows as sku_shadow on (sku_shadow.id = new.shadow_id)
@@ -34,11 +35,13 @@ begin
     archived_at = subquery.archived_at,
     retail_price = subquery.retail_price,
     retail_price_currency = subquery.retail_price_currency,
-    external_id = subquery.external_id
+    external_id = subquery.external_id,
+    scope = subquery.scope
     from (select
         sku.id,
         sku.code,
         sku.form_id,
+        sku.scope as scope,
         sku_form.attributes->>(sku_shadow.attributes->'title'->>'ref') as title,
         sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as sale_price,
         sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'currency' as sale_price_currency,
