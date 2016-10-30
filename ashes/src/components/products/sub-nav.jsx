@@ -9,14 +9,24 @@ import React, { Component, PropTypes, Element } from 'react';
 import { Link, IndexLink } from '../link';
 import LocalNav from '../local-nav/local-nav';
 
+// helpers
+import { getClaims } from 'lib/claims';
+import { frn, readAction } from 'lib/frn';
+
 // types
 import type { Product } from 'paragons/product';
+import type { Claims } from 'lib/claims';
 
 type Props = {
   productId: string,
   product: ?Product,
   context: string
 };
+
+const detailsClaim = readAction(frn.pim.product);
+const imagesClaim = readAction(frn.pim.album);
+const notesClaim = readAction(frn.note.product);
+const activityClaim = readAction(frn.activity.product);
 
 export default class SubNav extends Component<void, Props, void> {
   static propTypes = {
@@ -29,23 +39,52 @@ export default class SubNav extends Component<void, Props, void> {
     return this.props.productId === 'new';
   }
 
-  get detailsLinks(): ?Element[] {
+  detailsLinks(claims: Claims): ?Element[] {
     if (this.isNew) {
       return;
     }
 
     return [
-      <Link to="product-images" params={this.props} key="images">Images</Link>,
-      <Link to="product-notes" params={this.props} key="notes">Notes</Link>,
-      <Link to="product-activity-trail" params={this.props} key="activity-trail">Activity Trail</Link>,
+      <Link
+        to="product-images"
+        params={this.props}
+        actualClaims={claims}
+        expectedClaims={imagesClaim}
+        key="images">
+        Images
+      </Link>,
+      <Link
+        to="product-notes"
+        params={this.props}
+        actualClaims={claims}
+        expectedClaims={notesClaim}
+        key="notes">
+        Notes
+      </Link>,
+      <Link
+        to="product-activity-trail"
+        params={this.props}
+        actualClaims={claims}
+        expectedClaims={activityClaim}
+        key="activity-trail">
+        Activity Trail
+      </Link>,
     ];
   }
 
   render() {
+    const actualClaims = getClaims();
+
     return (
       <LocalNav>
-        <IndexLink to="product-details" params={this.props}>Details</IndexLink>
-        {this.detailsLinks}
+        <IndexLink
+          to="product-details"
+          params={this.props}
+          actualClaims={actualClaims}
+          expectedClaims={detailsClaim}>
+          Details
+        </IndexLink>
+        {this.detailsLinks(actualClaims)}
       </LocalNav>
     );
   }
