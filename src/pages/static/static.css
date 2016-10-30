@@ -1,0 +1,51 @@
+@import "colors.css";
+
+.page-title {
+  font-family: 'Playfair Display';
+  text-align: center;
+  font-weight: 400;
+  font-size: 41px;
+  letter-spacing: 2.7px;
+  margin-top: 60px;
+  margin-bottom: 20px;
+}
+
+.page-content {
+  lost-column: 5/6;
+  lost-offset: -1/12;
+}
+
+.title {
+  text-align: center;
+  margin-top: 60px;
+  margin-bottom: 40px;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 1.7px;
+}
+
+.paragraph-title {
+  font-weight: 400;
+  font-size: 16px;
+  letter-spacing: 0px;
+  line-height: 33px;
+}
+
+.paragraph {
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 33px;
+}
+
+.paragraph-marginless {
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 33px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.well {
+  margin-top: 60px;
+  margin-bottom: 120px;
+}
