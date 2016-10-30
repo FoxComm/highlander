@@ -1,4 +1,4 @@
-defmodule Marketplace.MerchantLegalProfileController do 
+defmodule Marketplace.MerchantStripeController do 
   use Marketplace.Web, :controller
   alias Ecto.Multi
   alias Marketplace.Repo
