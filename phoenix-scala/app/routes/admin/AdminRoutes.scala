@@ -127,26 +127,26 @@ object AdminRoutes {
             }
           }
         } ~
-        pathPrefix("sku" / Sku.skuCodeRegex) { code ⇒
+        pathPrefix("sku" / IntNumber) { skuId ⇒
           (get & pathEnd) {
             getOrFailures {
-              SkuNoteManager.list(code)
+              SkuNoteManager.list(skuId)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             mutateOrFailures {
-              SkuNoteManager.create(code, auth.model, payload)
+              SkuNoteManager.create(skuId, auth.model, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               mutateOrFailures {
-                SkuNoteManager.update(code, noteId, auth.model, payload)
+                SkuNoteManager.update(skuId, noteId, auth.model, payload)
               }
             } ~
             (delete & pathEnd) {
               deleteOrFailures {
-                SkuNoteManager.delete(code, noteId, auth.model)
+                SkuNoteManager.delete(skuId, noteId, auth.model)
               }
             }
           }

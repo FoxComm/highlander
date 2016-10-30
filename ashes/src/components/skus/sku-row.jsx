@@ -40,7 +40,7 @@ const SkuRow = (props: Props) => {
     <MultiSelectRow
       { ...commonParams }
       linkTo="sku-details"
-      linkParams={{skuId: sku.id}}
+      linkParams={{skuId: sku.skuId}}
     />
   );
 };
