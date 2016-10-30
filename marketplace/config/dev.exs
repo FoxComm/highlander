@@ -7,7 +7,7 @@ use Mix.Config
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
 config :marketplace, Marketplace.Endpoint,
-  http: [port: 4000],
+  http: [port: 4003],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
@@ -36,10 +36,10 @@ config :phoenix, :stacktrace_depth, 20
 # Configure your database
 config :marketplace, Marketplace.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
-  database: "marketplace_dev",
-  hostname: "localhost",
+  username: System.get_env("DB_USER"),
+  password: System.get_env("DB_PASSWORD"),
+  database: System.get_env("DB_NAME"),
+  hostname: System.get_env("DB_HOST"),
   pool_size: 10
 
 config :marketplace, Marketplace.MerchantAccount, 

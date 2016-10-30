@@ -29,6 +29,8 @@ defmodule Marketplace.Router do
     post "/merchant_applications_full", MerchantApplicationController, :merchant_application_full
     post "/merchants/activate_application/:application_id", MerchantController, :activate_application
     post "/merchants/:merchant_id/admin_accounts", MerchantAccountController, :create_admin
+
+    get "/users/:user_id/origin_integrations", OriginIntegrationController, :show
     
     resources "/merchants", MerchantController do 
       post "/social_profile", MerchantSocialProfileController, :create, as: :social_profile
@@ -51,8 +53,8 @@ defmodule Marketplace.Router do
       get "/products_upload", MerchantProductsUploadController, :index, as: :products_upload
       get "/products_upload/:id", MerchantProductsUploadController, :show, as: :products_upload
       patch "/products_upload/:id", MerchantProductsUploadController, :update, as: :products_upload
-      post "/origin_integrations", OriginIntegrationController, :create, as: :origin_integration
-      get "/origin_integrations", OriginIntegrationController, :show, as: :origin_integration
+      post "/origin_integrations", MerchantOriginIntegrationController, :create, as: :origin_integration
+      get "/origin_integrations", MerchantOriginIntegrationController, :show, as: :origin_integration
     end
 
     get "/", PageController, :index
