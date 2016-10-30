@@ -8,16 +8,11 @@ import createAsyncActions from './async-utils';
 import api from '../lib/api';
 
 export type Info = {
-  id?: number;
-}
-
-type InfoResponse = {
-  legal_profile: Info
+  saved?: bool,
 }
 
 type State = Info;
 
-export const ACTION_FETCH = 'merchantInfoFetch';
 export const ACTION_SUBMIT = 'merchantInfoSubmit';
 
 const { perform: submit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, (id, data) =>
@@ -25,29 +20,23 @@ const { perform: submit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, 
     api.post(`/merchants/${id}/legal_profile`, { legal_profile: { ...data } })
       .then((profile: Info) =>
         api.post(`/merchants/${id}/addresses`, { merchant_address: { ...data } })
-          .then(() => resolve(profile))
+          .then(() => resolve({ saved: true }))
           .catch(err => reject(new SubmissionError(err.response.data.errors)))
       )
       .catch(err => reject(new SubmissionError(err.response.data.errors)))
   )
 );
 
-const { perform: fetch, ...actionsFetch } = createAsyncActions(ACTION_FETCH, merchantId =>
-  api.get(`/merchants/${merchantId}/legal_profile`)
-);
-
 const initialState: State = {};
 
 const reducer = createReducer({
-  [actionsFetch.succeeded]: (state: State, info: InfoResponse) => info.legal_profile,
-  [actionsSubmit.succeeded]: (state: State, info: InfoResponse) => ({ ...state, ...info.legal_profile }),
+  [actionsSubmit.succeeded]: (state: State, info: Info) => ({ ...state, ...info }),
 }, initialState);
 
 const getInfo = (state: State) => state;
 
 export {
   reducer as default,
-  fetch,
   submit,
 
   /* selectors */
