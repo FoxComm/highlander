@@ -5,10 +5,6 @@
   vars:
     user: ubuntu
     packing: true
-    consul_expect: 1
-    mesos_quorum: 1
-    zookeepers: localhost:2181
-    zookeeper_server: localhost:2181
   post_tasks:
     - name: Sweet Dreams
       pause: seconds=5

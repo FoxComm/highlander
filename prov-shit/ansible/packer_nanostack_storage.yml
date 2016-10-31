@@ -16,3 +16,4 @@
     - { role: base/elasticsearch }
     - { role: base/rsyslog }
     - { role: base/db }
+    - { role: base/bottledwater }

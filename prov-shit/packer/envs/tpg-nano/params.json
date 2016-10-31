@@ -1,8 +1,11 @@
 {
     "cert_path": "tpg",
+    "consul_expect": 1,
+    "mesos_quorum": 1,
+    "mesos_cluster_name": "tpg-nano",
     "docker_registry_bucket": "tpg-nano-docker",
     "docker_registry": "https://tpg-stage.foxcommerce.com:5000",
-    "mesos_cluster_name": "tpg-nano",
+    "zookeeper_server": "zookeeper.service.consul:2181",
     "zookeepers": "zk://zookeeper.service.consul:2181",
     "log_host": "elasticsearch.service.consul"
 }
