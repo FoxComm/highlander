@@ -25,7 +25,6 @@ import {
 
 import { fetch as fetchApplication } from '../../core/modules/merchant-application';
 import { fetch as fetchAccounts } from '../../core/modules/merchant-account';
-import { fetch as fetchInfo } from '../../core/modules/merchant-info';
 import { fetch as fetchFeed } from '../../core/modules/products-feed';
 import { fetch as fetchShipping } from '../../core/modules/shipping-solution';
 
@@ -50,7 +49,6 @@ type Props = {
   infoFetched: boolean;
   fetchApplication: (reference: string) => Promise<*>;
   fetchAccounts: (merchantId: number) => Promise<*>;
-  fetchInfo: (merchantId: number) => Promise<*>;
   fetchFeed: (merchantId: number) => Promise<*>;
   fetchShipping: (merchantId: number) => Promise<*>;
 
@@ -100,7 +98,6 @@ class Main extends Component {
       shippingFetched,
       fetchApplication,
       fetchAccounts,
-      fetchInfo,
       fetchFeed,
       fetchShipping,
       params: { ref },
@@ -124,11 +121,6 @@ class Main extends Component {
     /** accounts fetched but empty - account page */
     if (accountsFetched && isEmpty(accounts)) {
       this.replace(`/application/${ref}/account`);
-    }
-
-    /** accounts fetched and not empty - fetching info */
-    if (accountsFetched && !isEmpty(accounts) && !infoFetched) {
-      fetchInfo(get(application, 'merchant.id'));
     }
 
     /** info fetched but empty - info page */
@@ -202,6 +194,6 @@ const mapState = state => ({
   shippingFetched: getShippingFetched(state),
 });
 
-const mapActions = { fetchApplication, fetchAccounts, fetchInfo, fetchFeed, fetchShipping, replace };
+const mapActions = { fetchApplication, fetchAccounts, fetchFeed, fetchShipping, replace };
 
 export default connect(mapState, mapActions)(withRouter(Main));
