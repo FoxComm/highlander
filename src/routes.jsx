@@ -5,6 +5,7 @@ import StoreFront from './components/layout/storefront';
 import Products from './pages/catalog/products';
 import Pdp from './pages/catalog/pdp';
 import Search from './pages/search/search';
+import ShippingAndReturns from './pages/static/shipping-and-returns';
 
 import Checkout from './pages/checkout/checkout';
 import OrderPlaced from './pages/checkout/04-order-placed/order-placed';
@@ -14,6 +15,7 @@ const routes = (
     <Route path="/checkout" component={Checkout} />
     <Route component={StoreFront}>
       <IndexRoute component={Products} />
+      <Route path="/shipping-and-returns" component={ShippingAndReturns} name="shipping-and-returns" />
       <Route path="/checkout/done" component={OrderPlaced} />
       <Route path="/products/:productId" component={Pdp} name="product" />
       <Route path=":categoryName(/:productType)" component={Products} name="category" />

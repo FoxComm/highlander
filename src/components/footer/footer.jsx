@@ -29,7 +29,7 @@ const Footer = () : HTMLElement => {
           <li><a href="#">STORES</a></li>
           <li><a href="#">GIFT CARDS</a></li>
           <li><a href="#">FAQ</a></li>
-          <li><a href="#">SHIPPING & RETURNS</a></li>
+          <li><Link to="shipping-and-returns">SHIPPING & RETURNS</Link></li>
         </ul>
 
         <div styleName="social-links">
