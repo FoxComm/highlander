@@ -11,6 +11,19 @@
   margin-bottom: 20px;
 }
 
+.title-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.divider {
+  margin-bottom: 80px;
+  width: 66px;
+  border: 1px solid #212121;
+}
+
 .page-content {
   lost-column: 1/1;
 }

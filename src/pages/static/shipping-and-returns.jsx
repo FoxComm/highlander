@@ -8,6 +8,9 @@ import { autobind } from 'core-decorators';
 // paragons
 import { fieldTypes } from 'paragons/cms';
 
+// components
+import PageTitle from '../../components/cms/page-title';
+
 // styles
 import styles from './static.css';
 
@@ -32,11 +35,7 @@ class ShippingAndReturns extends Component {
         );
       case fieldTypes.PARAGRAPH:
         return (
-          <p styleName="paragraph" key={block.id}>{block.content}</p>
-        );
-      case fieldTypes.PARAGRAPH_MARGINLESS:
-        return (
-          <p styleName="paragraph-marginless" key={block.id}>{block.content}</p>
+          <p styleName="paragraph" key={block.id} dangerouslySetInnerHTML={{__html: block.content}}></p>
         );
       case fieldTypes.PARAGRAPH_TITLE:
         return (
@@ -51,9 +50,9 @@ class ShippingAndReturns extends Component {
           </div>
         );
       case fieldTypes.EMAIL:
-        return <a href={`mailto:${block.content}`}>{block.content}</a>;
+        return <a href={`mailto:${block.content}`} styleName="link">{block.content}</a>;
       case fieldTypes.PHONE:
-        return <a href={`tel:${block.content}`}>{block.content}</a>;
+        return <a href={`tel:${block.content}`} styleName="link">{block.content}</a>;
       default:
         return block.content;
     }
@@ -62,9 +61,7 @@ class ShippingAndReturns extends Component {
   render() {
     return (
       <div>
-        <div styleName="page-title">
-          <h1>Shipping & Returns</h1>
-        </div>
+        <PageTitle title="Shipping & Returns" />
         <div styleName="page-content">
           {this.renderStatic(data)}
         </div>
