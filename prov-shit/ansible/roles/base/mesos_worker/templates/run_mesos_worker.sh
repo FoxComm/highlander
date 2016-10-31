@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -ue
-
 SANDBOX_DIR=/var/lib/sandbox
 WORK_DIR=/var/lib/mesos
 IP=`hostname -I | awk '{print $1}'`
