@@ -30,15 +30,15 @@ run-staging: setup stop
 run-production: setup stop
 	export NODE_ENV=production; nohup ./node_modules/.bin/gulp server 2>&1 &
 
-build: setup
+build-dev: setup
 	./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && ON_SERVER=true ./node_modules/.bin/gulp build
 
-build-production: setup
+build: setup
 	./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true ./node_modules/.bin/gulp build
 
-docker: build-production
+docker:
 	docker build -t ashes .
 
 docker-push: docker

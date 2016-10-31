@@ -5,7 +5,7 @@ setup:
 build: setup
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
 
-docker: build
+docker:
 	docker build -t firebrand .
 
 docker-push: docker
