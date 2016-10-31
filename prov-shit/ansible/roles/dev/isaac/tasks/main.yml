@@ -10,3 +10,6 @@
 
 - name: Update Isaac in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/isaac.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/isaac'
+
+- name: Restart Isaac in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/isaac/restart'

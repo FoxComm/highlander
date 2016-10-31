@@ -10,3 +10,6 @@
 
 - name: Update marketplace in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/marketplace.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/marketplace'
+
+- name: Restart marketplace in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/marketplace/restart'

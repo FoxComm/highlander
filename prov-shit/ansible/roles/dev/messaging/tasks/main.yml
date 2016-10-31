@@ -8,5 +8,8 @@
   template: src=messaging.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
   sudo: true
 
-- name: Update Middlewarehouse in Marathon
+- name: Update Messaging in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/messaging.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/messaging'
+
+- name: Restart Messaging in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/messaging/restart'
