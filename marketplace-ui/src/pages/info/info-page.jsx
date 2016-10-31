@@ -50,7 +50,7 @@ class MerchantInfoPage extends Component {
   }
 
   get form(): HTMLElement {
-    if (this.props.info.id) {
+    if (this.props.info.saved) {
       return;
     }
 

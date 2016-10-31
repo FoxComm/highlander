@@ -9,7 +9,8 @@ defmodule Marketplace.MerchantAccount do
     field :description, :string
     field :email_address, :string
     field :password, :string
-    field :solomon_id, :integer # the corresponding account in solomon
+    field :solomon_id, :integer
+    field :stripe_account_id, :string
 
     timestamps
 
@@ -21,7 +22,7 @@ defmodule Marketplace.MerchantAccount do
   @optional_fields ~w(phone_number business_name description solomon_id)a
 
   def changeset(model, params \\ :empty) do
-    model 
+    model
     |> cast(params, @required_fields ++ @optional_fields)
     |> validate_required_code(@required_fields)
     |> validate_phone_number(:phone_number)
@@ -30,7 +31,7 @@ defmodule Marketplace.MerchantAccount do
   end
 
   def update_changeset(model, params \\ :empty) do
-    model 
+    model
     |> cast(params, @required_fields ++ @optional_fields)
     |> validate_required_code(@required_fields)
     |> validate_phone_number(:phone_number)
