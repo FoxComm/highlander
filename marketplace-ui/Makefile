@@ -16,4 +16,11 @@ package-production: build-production
 	touch marketplace-ui.tar.bz2
 	tar --exclude 'marketplace-ui.tar.bz2' -jcf marketplace-ui.tar.bz2 ./
 
-.PHONY: setup build package
+docker:
+	docker build -t marketplace-ui .
+
+docker-push:
+	docker tag marketplace-ui docker-stage.foxcommerce.com:5000/marketplace-ui:master
+	docker push docker-stage.foxcommerce.com:5000/marketplace-ui:master
+
+.PHONY: setup build package docker docker-push

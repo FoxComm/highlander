@@ -4,13 +4,15 @@ FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/
 DB=middlewarehouse_development
 DB_TEST=middlewarehouse_test
 DB_USER=middlewarehouse
+GOPATH=$(HOME)/tmpgo
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
+HIGHLANDER_PATH=$(CURDIR)/..
 
 prep:
 	rm -rf $(BUILD_ROOT_PATH)
-	mkdir -p $(BUILD_ROOT_PATH)
-	ln -s ${CURDIR} $(BUILD_PATH)
+	mkdir -p $(GOPATH)/src/github.com/FoxComm
+	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH)
 
 glide: prep
 	cd $(BUILD_PATH) && glide install
@@ -26,10 +28,16 @@ docker: glide
 	cd $(BUILD_PATH) && GOOS=linux go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
 	cd $(BUILD_PATH) && GOOS=linux go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
 	cd $(BUILD_PATH) && GOOS=linux go build -o consumers/capture/capture-consumer consumers/capture/*.go
-	docker build -t middlewarehouse --no-cache .
-	docker build -t stock-items-consumer --no-cache consumers/stock-items/
-	docker build -t shipments-consumer --no-cache consumers/shipments/
-	docker build -t capture-consumer --no-cache consumers/capture/
+	docker build -t middlewarehouse .
+	docker build -t stock-items-consumer consumers/stock-items/
+	docker build -t shipments-consumer consumers/shipments/
+	docker build -t capture-consumer consumers/capture/
+
+docker-push:
+	docker tag middlewarehouse docker-stage.foxcommerce.com:5000/middlewarehouse:master
+	docker tag stock-items-consumer docker-stage.foxcommerce.com:5000/stock-items-consumer:master
+	docker tag shipments-consumer docker-stage.foxcommerce.com:5000/shipments-consumer:master
+	docker tag capture-consumer docker-stage.foxcommerce.com:5000/capture-consumer:master
 
 clean:
 	rm -rf ./vendor

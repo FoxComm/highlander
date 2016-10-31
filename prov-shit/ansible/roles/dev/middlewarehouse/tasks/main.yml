@@ -24,3 +24,12 @@
 
 - name: Update Shipments Consumer in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/shipments-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/shipments-consumer'
+
+- name: Restart Middlewarehouse in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/middlewarehouse/restart'
+
+- name: Restart Stock Items Consumer in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/stock-items-consumer/restart'
+
+- name: Restart Shipments Consumer in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/shipments-consumer/restart'

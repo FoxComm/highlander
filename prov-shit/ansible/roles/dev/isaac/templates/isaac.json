@@ -29,7 +29,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/isaac",
+      "image": "{{docker_registry}}:5000/isaac:{{docker_branch}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

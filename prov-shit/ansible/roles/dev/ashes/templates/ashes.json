@@ -31,7 +31,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/ashes",
+      "image": "{{docker_registry}}:5000/ashes:{{docker_branch}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

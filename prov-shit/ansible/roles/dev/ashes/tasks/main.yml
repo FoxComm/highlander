@@ -10,3 +10,6 @@
 
 - name: Update Ashes in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/ashes.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/ashes'
+
+- name: Restart Ashes in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/ashes/restart'

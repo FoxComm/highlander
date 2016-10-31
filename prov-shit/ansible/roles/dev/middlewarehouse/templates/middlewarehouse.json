@@ -9,7 +9,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/middlewarehouse",
+      "image": "{{docker_registry}}:5000/middlewarehouse:{{docker_branch}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
