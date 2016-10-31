@@ -1,7 +1,7 @@
 {
     "service" : {
-        "name": "mesos_consul",
-        "tags": ["mesos_consul"],
+        "name": "mesos-consul",
+        "tags": ["mesos-consul"],
         "port": 24476,
         "checks": [
             {

@@ -56,9 +56,6 @@ shortcuts:
   - name: Bootstrap Messaging Plugin
     alias: messaging_plugin.yml
     target: ansible/bootstrap_messaging_plugin.yml
-  - name: Bootstrap Mesos Consul
-    alias: mesos_consul.yml
-    target: ansible/bootstrap_mesos_consul.yml
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
