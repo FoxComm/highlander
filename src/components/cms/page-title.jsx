@@ -1,12 +1,7 @@
 /* @flow */
 
 // libs
-import React, { Component } from 'react';
-import _ from 'lodash';
-import { autobind } from 'core-decorators';
-
-// paragons
-import { fieldTypes } from 'paragons/cms';
+import React from 'react';
 
 // styles
 import styles from './cms.css';
