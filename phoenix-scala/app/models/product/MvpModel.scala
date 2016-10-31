@@ -431,7 +431,7 @@ object Mvp {
       simpleAlbum: SimpleAlbum,
       p: SimpleProductData)(implicit db: DB, au: AU): DbResultT[SimpleProductData] =
     for {
-      scope         ← * <~ Scope.getScopeOrSubscope(None)
+      scope         ← * <~ Scope.resolveOverride(None)
       simpleShadow  ← * <~ SimpleProductShadow(simpleProduct)
       productSchema ← * <~ ObjectFullSchemas.findOneByName("product")
       productShadow ← * <~ ObjectShadows.create(
@@ -478,7 +478,7 @@ object Mvp {
                              productShadow: ObjectShadow,
                              product: Product)(implicit db: DB, au: AU): DbResultT[Album] = {
     for {
-      scope       ← * <~ Scope.getScopeOrSubscope(None)
+      scope       ← * <~ Scope.resolveOverride(None)
       albumSchema ← * <~ ObjectFullSchemas.findOneByName("album")
       albumShadow ← * <~ ObjectShadows.create(
                        SimpleAlbumShadow(simpleAlbum).create

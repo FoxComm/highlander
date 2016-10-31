@@ -52,7 +52,7 @@ object ProductManager {
     val hasVariants     = variantPayloads.nonEmpty
 
     for {
-      scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      scope ← * <~ Scope.resolveOverride(payload.scope)
       _     ← * <~ validateCreate(payload)
       ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       product ← * <~ Products.create(

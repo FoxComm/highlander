@@ -40,7 +40,7 @@ object CartCreator {
                                    accountId = account.id,
                                    isGuest = true,
                                    scope = Scope.current))
-        scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
+        scope ← * <~ Scope.resolveOverride(payload.scope)
         cart  ← * <~ Carts.create(Cart(accountId = account.id, scope = scope))
         _     ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest, custData))
       } yield root(cart, guest, custData)

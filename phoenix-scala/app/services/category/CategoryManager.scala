@@ -44,7 +44,7 @@ object CategoryManager {
       ac: AC,
       au: AU): DbResultT[FullCategoryResponse.Root] =
     for {
-      scope    ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      scope    ← * <~ Scope.resolveOverride(payload.scope)
       context  ← * <~ contextByName(contextName)
       form     ← * <~ ObjectForm(kind = Category.kind, attributes = payload.form.attributes)
       shadow   ← * <~ ObjectShadow(attributes = payload.shadow.attributes)

@@ -84,7 +84,7 @@ object VariantManager {
     val variantValues = payload.values.getOrElse(Seq.empty)
 
     for {
-      scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      scope ← * <~ Scope.resolveOverride(payload.scope)
       ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       variant ← * <~ Variants.create(
                    Variant(scope = scope,
@@ -166,7 +166,7 @@ object VariantManager {
     val (form, shadow) = payload.formAndShadow.tupled
 
     for {
-      scope    ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      scope    ← * <~ Scope.resolveOverride(payload.scope)
       skuCodes ← * <~ payload.skuCodes.map(SkuManager.mustFindSkuByContextAndCode(context.id, _))
       _ ← * <~ skuCodes.map(sku ⇒
                DbResultT.fromXor(sku.mustNotBeArchived(Variant, variant.formId)))

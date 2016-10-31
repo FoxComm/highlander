@@ -307,7 +307,7 @@ object ImageManager {
       insert: InsertResult,
       maybeScope: Option[String])(implicit ec: EC, db: DB, au: AU): DbResultT[Album] =
     for {
-      scope ← * <~ Scope.getScopeOrSubscope(maybeScope)
+      scope ← * <~ Scope.resolveOverride(maybeScope)
       album ← * <~ Albums.create(
                  Album(scope = scope,
                        contextId = oc.id,
@@ -330,7 +330,7 @@ object ImageManager {
       ins: InsertResult,
       maybeScope: Option[String])(implicit ec: EC, db: DB, au: AU): DbResultT[Image] =
     for {
-      scope ← * <~ Scope.getScopeOrSubscope(maybeScope)
+      scope ← * <~ Scope.resolveOverride(maybeScope)
       image ← * <~ Images.create(
                  Image(scope = scope,
                        contextId = oc.id,

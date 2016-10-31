@@ -67,7 +67,7 @@ object TaxonomyManager {
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
-      scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      scope ← * <~ Scope.resolveOverride(payload.scope)
       ins   ← * <~ ObjectUtils.insert(form, shadow)
       taxonomy ← * <~ Taxonomies.create(
                     Taxonomy(hierarchical = payload.hierarchical,
@@ -117,7 +117,7 @@ object TaxonomyManager {
 
     for {
       _        ← * <~ payload.validate
-      scope    ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      scope    ← * <~ Scope.resolveOverride(payload.scope)
       taxonomy ← * <~ Taxonomies.mustFindByFormId404(taxonFormId)
 
       ins ← * <~ ObjectUtils.insert(form, shadow)
