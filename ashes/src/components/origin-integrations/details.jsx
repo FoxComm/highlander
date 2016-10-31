@@ -31,6 +31,10 @@ type Props = {
   },
   isFetching: boolean,
   fetchError: ?Object,
+  isCreating: boolean,
+  createError: ?Object,
+  isUpdating: boolean,
+  isUpdating: ?Object,
   fetchOriginIntegration: Function,
   createOriginIntegration: Function,
   updateOriginIntegration: Function,
@@ -74,7 +78,7 @@ class IntegrationDetails extends Component {
     }
   }
 
-  get isDirty(): Element {
+  get isDirty(): boolean {
     const { originIntegration } = this.props.details;
     const key = _.get(originIntegration, 'shopify_key', '');
     const password = _.get(originIntegration, 'shopify_password', '');

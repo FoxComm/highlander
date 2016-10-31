@@ -9,7 +9,7 @@ import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 
 // types
-import type { MerchantApplication } from 'paragons/merchant-applications';
+import type { MerchantApplication } from 'paragons/merchant-application';
 
 type Props = {
   application: MerchantApplication,

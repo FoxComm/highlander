@@ -65,7 +65,7 @@ class MerchantApplicationDetails extends Component {
   props: Props;
   state: State;
 
-  constructor(props: Props, ...args: Object) {
+  constructor(props: Props, ...args: any) {
     super(props, ...args);
 
     const { application } = props.details;
@@ -87,7 +87,7 @@ class MerchantApplicationDetails extends Component {
     }
   }
 
-  get isDirty(): Element {
+  get isDirty(): boolean {
     const { application } = this.props.details;
     if (!application) {
       return false;
@@ -97,12 +97,12 @@ class MerchantApplicationDetails extends Component {
   }
 
 
-  get isStateEditable(): Element {
+  get isStateEditable(): boolean {
     const state = _.get(this.props, 'details.application.state', '');
     return state == 'new';
   }
 
-  get renderPageTitle(): Element {
+  get renderPageTitle(): ?Element {
     if (this.props.details.application) {
       const title = this.props.details.application.business_name;
       return (

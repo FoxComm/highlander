@@ -18,7 +18,7 @@ import * as applicationActions from 'modules/merchant-applications/list';
 import styles from './list.css';
 
 // types
-import type { MerchantApplication } from 'paragons/merchant-applications';
+import type { MerchantApplication } from 'paragons/merchant-application';
 
 type Props = {
   list: {

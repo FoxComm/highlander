@@ -43,10 +43,10 @@ export function getClaims(token: ?JWT = getJWT()): Claims {
     : merchant();
 }
 
-export function getUserId(): number {
+export function getUserId(): ?number {
   const token = getJWT();
   if (!token) {
-    return {};
+    return null;
   }
 
   return token.id;
