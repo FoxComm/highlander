@@ -17,84 +17,71 @@ import FoxyForm from 'components/forms/foxy-form';
 import WaitAnimation from 'components/common/wait-animation';
 
 // redux
-import * as applicationActions from 'modules/merchant-applications/details';
+import * as originIntegrationActions from 'modules/origin-integrations/details';
 
 // styles
 import styles from './details.css';
 
 // types
-import type { MerchantApplication, BusinessProfile, SocialProfile } from 'paragons/merchant-application';
-
-const SELECT_STATE = [
-  ['new', 'New', true],
-  ['approved', 'Approved'],
-  ['rejected', 'Rejected'],
-  ['abandonded', 'Abandoned'],
-];
+import type { OriginIntegration } from 'paragons/origin-integration';
 
 type Props = {
   details: {
-    application: ?MerchantApplication,
-    businessProfile: ?BusinessProfile,
-    socialProfile: ?SocialProfile,
+    originIntegration: ?OriginIntegration,
   },
   isFetching: boolean,
   fetchError: ?Object,
-  fetchApplication: Function,
-  fetchBusinessProfile: Function,
-  fetchRealSocialProfile: Function,
-  approveApplication: Function,
+  fetchOriginIntegration: Function,
+  updateOriginIntegration: Function,
 };
 
 type State = {
-  newState: string,
-  instagram_handle: string,
-  google_plus_handle: string,
-  facebook_url: string,
+  shopify_key: string,
+  shopify_password: string,
+  shopify_domain: string,
 };
 
 const mapStateToProps = (state) => {
-
   return {
-    details: state.applications.details,
+    details: state.originIntegrations.details,
     isFetching: false,
-    fetchError: _.get(state.asyncActions, 'getSocialProfile.err', null),
+    fetchError: _.get(state.asyncActions, 'getOriginIntegration.err', null),
   };
 };
 
 class ShopifyDetails extends Component {
   props: Props;
-  state: State = { instagram_handle: '', google_plus_handle: '', facebook_url: '' };
+  state: State = { shopify_key: '', shopify_password: '', shopify_domain: '' };
 
   componentDidMount() {
     const userId = getUserId();
-    this.props.fetchRealSocialProfile((userId % 9) + 2);
+    this.props.fetchOriginIntegration(userId);
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { socialProfile } = nextProps.details;
-    if (socialProfile) {
+    const { originIntegration } = nextProps.details;
+    if (originIntegration) {
       this.setState({
-        instagram_handle: socialProfile.instagram_handle,
-        google_plus_handle: socialProfile.google_plus_handle,
-        facebook_url: socialProfile.facebook_url,
+        shopify_key: originIntegration.shopify_key,
+        shopify_password: originIntegration.shopify_password,
+        shopify_domain: originIntegration.shopify_domain,
       });
     }
   }
 
   get isDirty(): Element {
-    const { socialProfile } = this.props.details;
-    if (!socialProfile) {
+    const { originIntegration } = this.props.details;
+    if (!originIntegration) {
       return false;
     }
 
-    return this.state.instagram_handle !== socialProfile.instagram_handle ||
-      this.state.google_plus_handle !== socialProfile.google_plus_handle ||
-      this.state.facebook_url !== socialProfile.facebook_url;
+    return this.state.shopify_key !== originIntegration.shopify_key ||
+      this.state.shopify_password !== originIntegration.shopify_password ||
+      this.state.shopify_domain !== originIntegration.shopify_domain;
   }
 
   get renderPageTitle(): Element {
-    if (this.props.details.socialProfile) {
+    if (this.props.details.originIntegration) {
       return (
         <PageTitle title="Shopify Credentials">
           <PrimaryButton
@@ -111,27 +98,27 @@ class ShopifyDetails extends Component {
 
   @autobind
   handleSubmit() {
-    const { socialProfile } = this.props.details;
-    if (socialProfile) {
+    const { originIntegration } = this.props.details;
+    if (originIntegration) {
       // :( The Elixir app has camel cased JSON.
-      const social_profile = {
-        social_profile: {
-          instagram_handle: this.state.instagram_handle,
-          google_plus_handle: this.state.google_plus_handle,
-          facebook_url: this.state.facebook_url,
+      const origin_integration = {
+        origin_integration: {
+          shopify_key: this.state.shopify_key,
+          shopify_password: this.state.shopify_password,
+          shopify_domain: this.state.shopify_domain,
         },
       };
 
-      const userId = (getUserId() % 9) + 2;
-      this.props.updateSocialProfile(userId, social_profile);
+      const userId = getUserId();
+      this.props.updateOriginIntegration(userId, origin_integration);
     }
   }
 
   render(): Element {
-    const { socialProfile } = this.props.details;
+    const { originIntegration } = this.props.details;
     const { isFetching, fetchError } = this.props;
 
-    if (!socialProfile) {
+    if (!originIntegration) {
       return (
         <div styleName="waiting">
           <WaitAnimation />
@@ -140,15 +127,15 @@ class ShopifyDetails extends Component {
     }
 
     const handleShopifyKey = ({target}) => {
-      this.setState({ instagram_handle: target.value });
+      this.setState({ shopify_key: target.value });
     };
 
     const handleShopifyPassword = ({target}) => {
-      this.setState({ google_plus_handle: target.value });
+      this.setState({ shopify_password: target.value });
     };
 
     const handleShopifyDomain = ({target}) => {
-      this.setState({ facebook_url: target.value });
+      this.setState({ shopify_domain: target.value });
     };
 
     return (
@@ -161,17 +148,17 @@ class ShopifyDetails extends Component {
                 <ul>
                   <li styleName="entry">
                     <FormField label="Shopify Key" validator="ascii" maxLength={255}>
-                      <div><input type="text" value={this.state.instagram_handle} onChange={handleShopifyKey} /></div>
+                      <div><input type="text" value={this.state.shopify_key} onChange={handleShopifyKey} /></div>
                     </FormField>
                   </li>
                   <li styleName="entry">
                     <FormField label="Shopify Password" validator="ascii" maxLength={255}>
-                      <div><input type="text" value={this.state.google_plus_handle} onChange={handleShopifyPassword} /></div>
+                      <div><input type="text" value={this.state.shopify_password} onChange={handleShopifyPassword} /></div>
                     </FormField>
                   </li>
                   <li styleName="entry">
                     <FormField label="Shopify Domain" validator="ascii" maxLength={255}>
-                      <div><input type="text" value={this.state.facebook_url} onChange={handleShopifyDomain} /></div>
+                      <div><input type="text" value={this.state.shopify_domain} onChange={handleShopifyDomain} /></div>
                     </FormField>
                   </li>
                 </ul>
@@ -184,4 +171,4 @@ class ShopifyDetails extends Component {
   }
 }
 
-export default connect(mapStateToProps, applicationActions)(ShopifyDetails);
+export default connect(mapStateToProps, originIntegrationActions)(ShopifyDetails);
