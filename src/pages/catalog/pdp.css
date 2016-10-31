@@ -11,12 +11,14 @@
 }
 
 .gallery {
-  width: 702px;
-  height: 678px;
+  width: 100%;
+  height: auto;
+  flex: 0 0 100%;
 }
 
 .details {
-  flex: 1;
+  flex: 0 0 100%;
+  height: auto;
   text-align: center;
 }
 
@@ -27,9 +29,9 @@
 .title {
   font-family: var(--font-playfair);
   font-weight: 400;
-  font-size: 41px;
+  font-size: 30px;
+  letter-spacing: 1.28px;
   color: #212121;
-  letter-spacing: 2.7px;
   position: relative;
   line-height: 46px;
 
@@ -109,19 +111,6 @@
   }
 }
 
-@media (--small-only), (--medium-only) {
-  .gallery {
-    width: 100%;
-    height: auto;
-    flex: 0 0 100%;
-  }
-
-  .details {
-    flex: 0 0 100%;
-    height: auto;
-  }
-}
-
 .additional-info {
   height: 560px;
   background-color: #3E3436;
@@ -137,13 +126,15 @@
   justify-content: center;
 }
 
+
 .item-title {
-  font-family: var(--font-playfair);
+  font-family: var(--font-main);
+  text-transform: uppercase;
+  font-size: 11px;
+  padding: 27px 30px;
   font-weight: 400;
-  font-size: 20px;
   letter-spacing: 2.26px;
   display: inline-block;
-  padding: 36px 45px;
   cursor: pointer;
 
   &.active {
@@ -152,8 +143,9 @@
 }
 
 .info-block {
-  padding: 0 180px;
-  margin-top: 70px;
+  margin-top: 80px;
+  padding: 0 30px;
+  height: 700px;
 }
 
 .attribute-line {
@@ -162,47 +154,57 @@
 }
 
 .attribute-title {
-  font-weight: 400;
-  font-size: 15px;
+  font-weight: 600;
+  font-size: 14px;
   line-height: 26px;
   text-transform: uppercase;
   margin-top: 40px;
 }
 
+
 .attribute-description {
- font-weight: 300;
- font-size: 16px;
- line-height: 33px;
+  font-size: 13px;
+  line-height: 26px;
+  font-weight: 300;
 }
 
+@media (--large), (--x-large) {
+  .gallery {
+    width: 702px;
+    height: 678px;
+    flex: none;
+  }
 
-@media (--small-only) {
+  .details {
+    flex: 1;
+  }
+
   .title {
-    font-size: 30px;
-    letter-spacing: 1.28px;
+    font-size: 41px;
+    letter-spacing: 2.7px;
   }
 
   .info-block {
-    margin-top: 80px;
-    padding: 0 30px;
-    height: 700px;
+    padding: 0 180px;
+    margin-top: 70px;
+    height: auto;
   }
 
   .item-title {
-    font-family: var(--font-main);
-    text-transform: uppercase;
-    font-size: 11px;
-    padding: 27px 30px;
+    font-family: var(--font-playfair);
+    text-transform: none;
+    font-size: 20px;
+    padding: 36px 45px;
   }
 
   .attribute-title {
-    font-weight: 600;
-    font-size: 14px;
+    font-weight: 400;
+    font-size: 15px;
   }
 
   .attribute-description {
-    font-size: 13px;
-    line-height: 26px;
+    font-size: 16px;
+    line-height: 33px;
   }
 }
 

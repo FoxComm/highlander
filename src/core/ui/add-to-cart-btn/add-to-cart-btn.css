@@ -17,6 +17,15 @@
       opacity: 1;
     }
   }
+
+  &.expanded .add-icon {
+    border: none;
+    line-height: 40px;
+  }
+
+  &.expanded:hover {
+    background-color: #594B4D;
+  }
 }
 
 .add-icon {

@@ -16,6 +16,7 @@ type Image = {
   alt?: string,
   src: string,
   title?: string,
+  baseurl?: string,
 };
 
 type Album = {
@@ -31,7 +32,7 @@ type Product = {
   description: string,
   salePrice: string,
   currency: string,
-  albums: ?Array<Album>,
+  albums: ?Array<Album> | Object,
   skus: Array<string>,
   addLineItem: Function,
   toggleCart: Function,
