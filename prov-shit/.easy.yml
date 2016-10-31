@@ -125,6 +125,7 @@ shortcuts:
       staging: packer/envs/staging/config.json
       topdrawer: packer/envs/topdrawer/config.json
       tpg: packer/envs/tpg/config.json
+      tpg-nano: packer/envs/tpg-nano/config.json
       vanilla: packer/envs/vanilla/config.json
 
   targets:
@@ -141,6 +142,9 @@ shortcuts:
   - name: Base Node Image
     alias: base_node.json
     target: packer/base/base_node.json
+  - name: Base Nano Image
+    alias: base_nano.json
+    target: packer/base/base_nano.json
 
   # Vanilla
   - name: Vanilla Amigo
