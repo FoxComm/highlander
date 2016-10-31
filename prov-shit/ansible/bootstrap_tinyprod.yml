@@ -44,7 +44,8 @@
     phoenix_server: phoenix.service.consul:9090
     search_server_http: elasticsearch.service.consul:9200
     search_server: elasticsearch.service.consul:9300
-    schema_server: schema-regisstry.service.consul:8081
+    schema_server: schema-registry.service.consul:8081
+    zookeeper_server: zookeeper.service.consul:2181
     firebrand_default_language: en
     firebrand_fixed_language: false
     docker_db_host: db.service.consul
