@@ -2,10 +2,6 @@ upstream storefront {
   server {{ storefront_server }} fail_timeout=10s  max_fails=360;
 }
 
-upstream ashes {
-    server {{ ashes_server }} fail_timeout=10s max_fails=360;
-}
-
 server {
   listen 80 default_server;
   listen [::]:80 default_server;
@@ -31,15 +27,6 @@ server {
       set $accept_language $http_accept_language;
   }
   {% if storefront_fixed_language %}set $accept_language {{storefront_default_language}};{% endif %}
-
-  # Proxy to ashes
-  location /admin/ {
-      proxy_pass http://ashes;
-  }
-
-  location @ashes {
-      proxy_pass http://ashes;
-  }
 
   # Proxy to storefront
   location / {

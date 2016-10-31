@@ -35,6 +35,7 @@ import type { HTMLElement } from '../../core/types';
 import type { Application } from '../../core/modules/merchant-application';
 import type { Accounts } from '../../core/modules/merchant-account';
 import type { Info } from '../../core/modules/merchant-info';
+import type { Shipping } from '../../core/modules/shipping-solution';
 
 import styles from './main.css';
 
@@ -42,11 +43,13 @@ type Props = {
   application: Application;
   accounts: Accounts,
   info: Info,
+  shipping: Shipping,
   applicationApproved: boolean;
   applicationFetched: boolean;
   applicationFetchFailed: boolean;
   accountsFetched: boolean;
   infoFetched: boolean;
+  shippingFetched: boolean;
   fetchApplication: (reference: string) => Promise<*>;
   fetchAccounts: (merchantId: number) => Promise<*>;
   fetchFeed: (merchantId: number) => Promise<*>;
@@ -128,21 +131,20 @@ class Main extends Component {
       this.replace(`/application/${ref}/info`);
     }
 
-    /** accounts fetched and not empty - fetching info */
-    if (infoFetched && !isEmpty(info) /*&& !feedFetched*/) {
-      // fetchFeed(get(application, 'merchant.id'));
-      this.replace(`/application/${ref}/actions`);
+    /** info fetched and not empty - fetching shipping solutions */
+    if (infoFetched && !isEmpty(info) && !shippingFetched) {
+      fetchShipping(get(application, 'merchant.id'));
     }
 
-    /** info fetched and not empty - actions page */
-    // if (feedFetched && isEmpty(feed)) {
-    //   this.replace(`/application/${ref}/actions`);
-    // }
+    /** shipping solutions fetched but empty - shipping solutions page */
+    if (shippingFetched && isEmpty(shipping)) {
+      this.replace(`/application/${ref}/shipping`);
+    }
 
-    /** feed fetched and not empty - shipping page */
-    // if (feedFetched && !isEmpty(feed)) {
-    //   this.replace(`/application/${ref}/shipping`);
-    // }
+    /** shipping solutions fetched and not empty - actions page */
+    if (shippingFetched && !isEmpty(shipping)/* && !feedFetched*/) {
+      this.replace(`/application/${ref}/actions`);
+    }
   }
 
   replace(path: string) {

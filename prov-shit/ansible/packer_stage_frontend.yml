@@ -28,20 +28,17 @@
     kafka_server: kafka.service.consul:9092
     schema_server: schema-registry.service.consul:8081
     zookeeper_server: zookeeper.service.consul:2181
+    zookeepers: zk://zookeeper.service.consul:2181
   post_tasks:
     - name: Sweet Dreams
       pause: seconds=5
 
   roles:
-    - { role: base/ssh_keys }
+    - { role: base/ssh_keys, install_public_keys: true, install_private_keys: true }
     - { role: base/mesos_worker }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/phoenix }
-    - { role: base/isaac }
     - { role: base/greenriver }
-    - { role: base/middlewarehouse }
-    - { role: base/ashes }
-    - { role: base/firebrand }
     - { role: base/balancer, sudo: yes }
 
   handlers:

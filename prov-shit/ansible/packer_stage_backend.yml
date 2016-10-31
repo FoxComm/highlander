@@ -6,6 +6,7 @@
       - packer-tinystack-backend
   vars:
     zookeeper_server: "zookeeper.service.consul:2181"
+    zookeepers: zk://zookeeper.service.consul:2181
     user: ubuntu
     packing: true
   post_tasks:
@@ -13,7 +14,7 @@
       pause: seconds=5
 
   roles:
-    - { role: base/ssh_keys }
+    - { role: base/ssh_keys, install_public_keys: true, install_private_keys: true }
     - { role: base/confluence }
     - { role: base/mesos_worker }
     - { role: base/kafka }

@@ -4,11 +4,13 @@ setup:
 
 build: setup
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
-	touch firebrand.tar.bz2
-	tar --exclude 'firebrand.tar.bz2' -jcf firebrand.tar.bz2 ./
 
-docker: build
+docker:
 	docker build -t firebrand .
+
+docker-push:
+	docker tag firebrand docker-stage.foxcommerce.com:5000/firebrand:master
+	docker push docker-stage.foxcommerce.com:5000/firebrand:master
 
 clean:
 	rm -rf ./node_modules
@@ -16,4 +18,4 @@ clean:
 test: setup
 	npm test
 
-.PHONY: setup build package test docker
+.PHONY: setup build test docker
