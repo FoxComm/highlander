@@ -168,7 +168,7 @@
   font-weight: 300;
 }
 
-@media (--large), (--x-large) {
+@media (--large) {
   .gallery {
     width: 702px;
     height: 678px;
