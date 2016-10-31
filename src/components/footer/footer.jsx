@@ -52,7 +52,7 @@ const Footer = () : HTMLElement => {
         <p>&copy; COPYRIGHT 2016. THE PERFECT GOURMET</p>
         <ul>
           <li><a href="">Terms</a></li>
-          <li><a href="">Privacy</a></li>
+          <li><Link to="privacy-policy">Privacy</Link></li>
         </ul>
         <p><a href="http://foxcommerce.com/" target="_blank">POWERED BY FOXCOMMERCE</a>.</p>
       </div>
