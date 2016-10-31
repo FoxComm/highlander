@@ -1,7 +1,7 @@
 {
     "service": {
-        "name": "bottledwater_mwh",
-        "tags": ["bottledwater_mwh"],
+        "name": "bottledwater-mwh",
+        "tags": ["bottledwater-mwh"],
         "checks": [
             {
                 "name": "Bottledwater Middlewarehouse",

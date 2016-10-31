@@ -1,7 +1,7 @@
 {
     "service": {
-        "name": "bottledwater_phoenix",
-        "tags": ["bottledwater_phoenix"],
+        "name": "bottledwater-phoenix",
+        "tags": ["bottledwater-phoenix"],
         "checks": [
             {
                 "name": "Bottledwater Phoenix",
