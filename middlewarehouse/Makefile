@@ -4,6 +4,7 @@ FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/
 DB=middlewarehouse_development
 DB_TEST=middlewarehouse_test
 DB_USER=middlewarehouse
+GOPATH=/tmp/go
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
 
@@ -30,6 +31,12 @@ docker: glide
 	docker build -t stock-items-consumer --no-cache consumers/stock-items/
 	docker build -t shipments-consumer --no-cache consumers/shipments/
 	docker build -t capture-consumer --no-cache consumers/capture/
+
+docker-push:
+	docker tag middlewarehouse docker-stage.foxcommerce.com:5000/middlewarehouse:master
+	docker tag stock-items-consumer docker-stage.foxcommerce.com:5000/stock-items-consumer:master
+	docker tag shipments-consumer docker-stage.foxcommerce.com:5000/shipments-consumer:master
+	docker tag capture-consumer docker-stage.foxcommerce.com:5000/capture-consumer:master
 
 clean:
 	rm -rf ./vendor

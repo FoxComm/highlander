@@ -4,4 +4,10 @@ build:
 test:
 	true
 
+docker:
+	true
+
+docker-push:
+	true
+
 .PHONY: build test

@@ -6,3 +6,6 @@ clean:
 
 test:
 	true
+
+docker-push:
+	true

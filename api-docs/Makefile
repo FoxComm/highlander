@@ -36,4 +36,7 @@ clean:
 test:
 	true
 
+docker-push:
+	true
+
 .PHONY: install build watch clean test
