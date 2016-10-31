@@ -8,7 +8,7 @@ import (
 )
 
 type SKU struct {
-	ID   uint   `json:"id" binding:"required"`
+	ID   uint   `json:"sku_id" binding:"required"`
 	Code string `json:"sku_code" binding:"required"`
 }
 
