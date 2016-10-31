@@ -225,6 +225,7 @@ shortcuts:
       target-dev: terraform/envs/aws_target_dev/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
+      tpg-nano: terraform/envs/gce_tpg_nano/terraform.state
       vanilla: terraform/envs/gce_vanilla/terraform.tfstate
   - name: Variable Files
     flag: "-var-file"
@@ -236,6 +237,7 @@ shortcuts:
       target-dev: terraform/envs/aws_target_dev/target.tfvars
       topdrawer: terraform/envs/gce_topdrawer/topdrawer.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
+      tpg-nano: terraform/envs/gce_tpg_nano/tpg.tfvars
       vanilla: terraform/envs/gce_vanilla/vanilla.tfvars
 
   targets:
@@ -258,8 +260,11 @@ shortcuts:
     alias: topdrawer
     target: terraform/base/gce_topdrawer
   - name: The Perfect Gourmet
-    alias: staging
+    alias: tpg
     target: terraform/base/gce_tpg
+  - name: TPG Nanostack
+    alias: tpg-nano
+    target: terraform/base/gce_tpg_nano
   - name: Vanilla
-    alias: staging
+    alias: vanilla
     target: terraform/base/gce_vanilla

@@ -2,10 +2,8 @@
     "account_file": "foxcomm-vanilla.json",
     "project_id": "foxcommerce-production-shared",
     "base_ubuntu_image": "ubuntu-1604-xenial-v20160921",
-    "base_nano_image": "base-1477898303",
+    "base_nano_image": "nanostack-base-1477901505",
+    "project_base": "tpg",
     "network": "tpg",
-    "ssh_username": "ubuntu",
-    "docker_registry_bucket": "tpg-docker",
-    "cert_path": "tpg",
-    "docker_registry": "https://tpg-docker.foxcommerce.com"
+    "ssh_username": "ubuntu"
 }

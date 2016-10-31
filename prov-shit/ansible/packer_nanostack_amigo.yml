@@ -5,12 +5,16 @@
   vars:
     user: ubuntu
     packing: true
-    mesos_quorum: 1
     consul_expect: 1
+    mesos_quorum: 1
     zookeeper_server: localhost:2181
+  post_tasks:
+    - name: Sweet Dreams
+      pause: seconds=5
 
   roles:
     - { role: base/consul_server }
     - { role: base/zookeeper }
     - { role: base/docker_registry }
     - { role: base/mesos_master }
+    - { role: base/balancer }

@@ -1,0 +1,6 @@
+{
+    "docker_registry_bucket": "tpg-nano-docker",
+    "cert_path": "tpg",
+    "docker_registry": "https://tpg-docker.foxcommerce.com",
+    "log_host": "elasticsearch.service.consul"    
+}

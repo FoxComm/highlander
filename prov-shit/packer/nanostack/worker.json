@@ -22,7 +22,10 @@
         {
             "type": "ansible",
             "playbook_file" : "ansible/packer_nanostack_worker.yml",
-            "extra_arguments": ["-vvvv"]
+            "extra_arguments": [
+                "-vvvv",
+                "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"
+            ]
         }
     ]
 }

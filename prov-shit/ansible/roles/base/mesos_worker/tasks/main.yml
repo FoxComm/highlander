@@ -37,4 +37,3 @@
 - name: Copy Consul Mesos Worker Service File
   template: src=mesos_worker.json dest="/etc/consul.d/mesos_worker.json"
   sudo: true
-  notify: reload consul

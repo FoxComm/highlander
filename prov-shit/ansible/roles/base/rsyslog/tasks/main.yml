@@ -5,26 +5,20 @@
   with_items:
     - rsyslog
     - rsyslog-elasticsearch
+  sudo: yes
 
 - name: Install base rsyslog config
-  template: >
-    src=rsyslog.conf.j2
-    dest=/etc/rsyslog.conf
-    owner=root
-    group=root
-    mode=0644
+  template: src=rsyslog.conf.j2 dest=/etc/rsyslog.conf owner=root group=root mode=0644
+  sudo: yes
 
 - name: Install rsyslog config
-  template: >
-    src=elastic.conf.j2
-    dest=/etc/rsyslog.d/51-elastic.conf
-    owner=root
-    group=root
-    mode=0644
+  template: src=elastic.conf.j2 dest=/etc/rsyslog.d/51-elastic.conf owner=root group=root mode=0644
+  sudo: yes
 
 - name: Reload Systemd for Rsyslog
-  sudo: yes
   command: systemctl daemon-reload
+  sudo: yes
 
 - name: Restart Rsyslog
   service: name=rsyslog state=restarted
+  sudo: yes
