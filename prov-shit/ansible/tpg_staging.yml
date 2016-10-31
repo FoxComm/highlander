@@ -8,7 +8,7 @@
   tags:
     - consul
   roles:
-    - { role: dev/mesos_consul }
+    - { role: dev/mesos_consul } 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
 
