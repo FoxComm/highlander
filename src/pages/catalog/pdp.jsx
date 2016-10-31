@@ -101,7 +101,7 @@ const mapDispatchToProps = dispatch => ({
   }, dispatch),
 });
 
-const renderAttributes = (attributeNames, product) => {
+const renderAttributes = (product, attributeNames = []) => {
   return (
     <div>
       {attributeNames.map(attr =>
@@ -115,16 +115,19 @@ const renderAttributes = (attributeNames, product) => {
   );
 };
 
-const additionalInfoRenderMap = {
-  Prep: renderAttributes.bind(null, ['Conventional Oven', 'Microwave']),
-  Ingredients: renderAttributes.bind(null, ['Ingredients', 'Allergy Alerts']),
-  Nutrition: renderAttributes.bind(null, ['Nutritional Information']),
-};
-
-const additionalInfoTitles = [
-  'Prep',
-  'Ingredients',
-  'Nutrition',
+const additionalInfoAttributesMap = [
+  {
+    title: 'Prep',
+    attributes: ['Conventional Oven', 'Microwave'],
+  },
+  {
+    title: 'Ingredients',
+    attributes: ['Ingredients', 'Allergy Alerts'],
+  },
+  {
+    title: 'Nutrition',
+    attributes: ['Nutritional Information'],
+  },
 ];
 
 class Pdp extends Component {
@@ -132,7 +135,7 @@ class Pdp extends Component {
 
   state: State = {
     quantity: 1,
-    currentAdditionalTitle: additionalInfoTitles[0],
+    currentAdditionalTitle: 'Prep',
   };
 
   componentWillMount() {
@@ -159,7 +162,7 @@ class Pdp extends Component {
     return this.getId(this.props);
   }
 
-  getId(props: Props): number {
+  getId(props): number {
     return parseInt(props.params.productId, 10);
   }
 
@@ -179,8 +182,8 @@ class Pdp extends Component {
       images: imageUrls,
       currency: _.get(price, 'currency', 'USD'),
       price: _.get(price, 'value', 0),
-      amountOfServings: _.get(attributes, 'Amount of Servings.v'),
-      servingSize: _.get(attributes, 'Serving Size.v'),
+      amountOfServings: _.get(attributes, 'Amount of Servings.v', ''),
+      servingSize: _.get(attributes, 'Serving Size.v', ''),
     };
   }
 
@@ -224,10 +227,11 @@ class Pdp extends Component {
 
   @autobind
   renderAttributes () {
-    const renderFn =
-      additionalInfoRenderMap[this.state.currentAdditionalTitle] || _.noop;
+    const { attributes } =
+      _.find(additionalInfoAttributesMap,
+        attr => attr.title == this.state.currentAdditionalTitle) || {};
 
-    return renderFn(this.props.product);
+    return renderAttributes(this.props.product, attributes);
   }
 
   render(): HTMLElement {
@@ -252,7 +256,7 @@ class Pdp extends Component {
       servingSize,
     } = product;
 
-    const attributeTitles = additionalInfoTitles.map(attrTitle => {
+    const attributeTitles = additionalInfoAttributesMap.map(({ title: attrTitle }) => {
       const cls = cx(styles['item-title'], {
         [styles.active]: attrTitle === this.state.currentAdditionalTitle,
       });
