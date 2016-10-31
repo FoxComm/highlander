@@ -22,7 +22,7 @@ func NewStockItemController(service services.IInventoryService) IController {
 }
 
 func (controller *stockItemController) SetUp(router gin.IRouter) {
-    router.Use(FetchJWT)
+	router.Use(FetchJWT)
 	router.GET("", controller.GetStockItems())
 	router.GET(":id", controller.GetStockItemById())
 	router.POST("", controller.CreateStockItem())

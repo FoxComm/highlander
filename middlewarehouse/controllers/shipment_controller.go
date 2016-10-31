@@ -22,7 +22,7 @@ func NewShipmentController(
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
-    router.Use(FetchJWT)
+	router.Use(FetchJWT)
 	router.GET(":referenceNumber", controller.getShipmentsByOrder())
 	router.POST("", controller.createShipment())
 	router.PATCH(":id", controller.updateShipment())

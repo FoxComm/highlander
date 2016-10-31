@@ -21,7 +21,7 @@ func NewStockLocationController(service services.IStockLocationService) IControl
 }
 
 func (controller *stockLocationController) SetUp(router gin.IRouter) {
-    router.Use(FetchJWT)
+	router.Use(FetchJWT)
 	router.GET("", controller.GetLocations())
 	router.GET(":id", controller.GetLocationByID())
 	router.POST("", controller.CreateLocation())
