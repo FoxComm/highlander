@@ -32,7 +32,7 @@ export default class SettingsEntry extends Component {
       return (
         <li>
           <NavigationItem
-            to="shopify"
+            to="integrations"
             icon="icon-settings"
             title="Settings"
             isIndex={true}
@@ -42,9 +42,9 @@ export default class SettingsEntry extends Component {
             status={status}
             toggleMenuItem={toggleMenuItem}>
             <IndexLink
-              to="shopify"
+              to="integrations"
               className="fc-navigation-item__sublink">
-              Shopify
+              Integrations
             </IndexLink>
           </NavigationItem>
         </li>

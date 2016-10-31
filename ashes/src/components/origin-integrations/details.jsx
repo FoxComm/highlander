@@ -44,12 +44,12 @@ type State = {
 const mapStateToProps = (state) => {
   return {
     details: state.originIntegrations.details,
-    isFetching: false,
+    isFetching: _.get(state.asyncActions, 'getOriginIntegration.inProgress', true),
     fetchError: _.get(state.asyncActions, 'getOriginIntegration.err', null),
   };
 };
 
-class ShopifyDetails extends Component {
+class IntegrationDetails extends Component {
   props: Props;
   state: State = { shopify_key: '', shopify_password: '', shopify_domain: '' };
 
@@ -81,18 +81,16 @@ class ShopifyDetails extends Component {
   }
 
   get renderPageTitle(): Element {
-    if (this.props.details.originIntegration) {
-      return (
-        <PageTitle title="Shopify Credentials">
-          <PrimaryButton
-            type="button"
-            disabled={!this.isDirty}
-            onClick={this.handleSubmit}>
-            Save
-          </PrimaryButton>
-        </PageTitle>
-      );
-    }
+    return (
+      <PageTitle title="Platform Integrations">
+        <PrimaryButton
+          type="button"
+          disabled={!this.isDirty}
+          onClick={this.handleSubmit}>
+          Save
+        </PrimaryButton>
+      </PageTitle>
+    );
   }
 
 
@@ -118,7 +116,7 @@ class ShopifyDetails extends Component {
     const { originIntegration } = this.props.details;
     const { isFetching, fetchError } = this.props;
 
-    if (!originIntegration) {
+    if (isFetching) {
       return (
         <div styleName="waiting">
           <WaitAnimation />
@@ -143,7 +141,7 @@ class ShopifyDetails extends Component {
         {this.renderPageTitle}
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
-            <ContentBox title="Enter Shopify Data">
+            <ContentBox title="Shopify Credentials">
               <div>
                 <ul>
                   <li styleName="entry">
@@ -171,4 +169,4 @@ class ShopifyDetails extends Component {
   }
 }
 
-export default connect(mapStateToProps, originIntegrationActions)(ShopifyDetails);
+export default connect(mapStateToProps, originIntegrationActions)(IntegrationDetails);

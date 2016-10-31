@@ -19,7 +19,7 @@ import Plugin from 'components/plugins/plugin';
 import MerchantApplicationDetails from 'components/merchant-applications/details';
 import MerchantApplicationsList from 'components/merchant-applications/list';
 
-import ShopifyDetails from 'components/shopify/details';
+import IntegrationDetails from 'components/origin-integrations/details';
 
 import type { JWT } from 'lib/claims';
 
@@ -53,9 +53,9 @@ const getRoutes = (jwt: JWT) => {
       router.read('application-details', { path: ':applicationId', component: MerchantApplicationDetails }),
     ]);
 
-  const shopifyRoutes =
-    router.read('shopify-base', { path: 'shopify' }, [
-      router.read('shopify', { component: ShopifyDetails, isIndex: true }),
+  const integrationRoutes =
+    router.read('integration-base', { path: 'integrations' }, [
+      router.read('integrations', { component: IntegrationDetails, isIndex: true }),
     ]);
 
   return (
@@ -63,7 +63,7 @@ const getRoutes = (jwt: JWT) => {
       {userRoutes}
       {pluginRoutes}
       {applicationsRoutes}
-      {shopifyRoutes}
+      {integrationRoutes}
     </div>
   );
 };
