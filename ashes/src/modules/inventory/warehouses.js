@@ -76,16 +76,16 @@ const _changeItemUnits = createAsyncActions(
 
 export const changeItemUnits = _changeItemUnits.perform;
 
-export function pushStockItemChanges(sku) {
+export function pushStockItemChanges(skuId) {
   return (dispatch, getState) => {
-    const stockItemChanges = _.get(getState(), ['inventory', 'warehouses', 'stockItemChanges', sku]);
+    const stockItemChanges = _.get(getState(), ['inventory', 'warehouses', 'stockItemChanges', skuId]);
 
     if (stockItemChanges) {
-      const promises = _.map(stockItemChanges, (payload: Object, key: string) => {
+      const promises = _.map(stockItemChanges, (payload: Object) => {
         return dispatch(changeItemUnits(payload.id, payload.diff, payload.type));
       });
 
-      dispatch(clearSkuItemsChanges(sku));
+      dispatch(clearSkuItemsChanges(skuId));
 
       return Promise.all(promises);
     }

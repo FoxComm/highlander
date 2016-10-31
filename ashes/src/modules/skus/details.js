@@ -55,9 +55,9 @@ const _updateSku = createAsyncActions(
   'updateSku',
   function(sku: Sku, context: string = defaultContext) {
     const { dispatch, getState } = this;
-    const oldSku = _.get(getState(), ['skus', 'details', 'sku', 'attributes', 'code', 'v']);
-    if (oldSku) {
-      const stockItemsPromise = dispatch(pushStockItemChanges(oldSku));
+    const skuId = _.get(getState(), ['skus', 'details', 'sku', 'id']);
+    if (skuId) {
+      const stockItemsPromise = dispatch(pushStockItemChanges(skuId));
       const updatePromise = Api.patch(`/skus/${context}/${sku.id}`, sku);
       return Promise.all([updatePromise, stockItemsPromise]).then(([updateResponse]) => {
         return updateResponse;
