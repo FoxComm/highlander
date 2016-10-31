@@ -58,6 +58,31 @@ defmodule Marketplace.PermissionManager do
     end
   end
 
+  # find the role named "admin" for the with the scope_id and return role_id
+  def get_admin_role_from_scope_id(conn, scope_id) do
+    HTTPoison.start
+    get_headers = conn.req_headers
+
+    case HTTPoison.get("#{full_perm_path}/roles", get_headers) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        case Poison.decode(body) do
+          {:ok, decoded_body} ->
+            decoded_body
+            |> Map.get("roles")
+            |> Enum.filter(fn x -> Map.get(x, "scope_id") == scope_id end)
+            |> Enum.filter(fn x -> Map.get(x, "name") == "admin" end)
+            |> Enum.map(fn x -> Map.get(x, "id") end)
+            |> Enum.at(0)
+          {:error, _} ->
+            nil
+        end
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        IO.inspect("ERROR FROM HTTP CLIENT!")
+        IO.inspect(reason)
+        nil
+    end
+  end
+
   # grants account with a role over HTTP then returns the role_id
   def grant_account_id_role_id(conn, account_id, role_id) do
     HTTPoison.start
