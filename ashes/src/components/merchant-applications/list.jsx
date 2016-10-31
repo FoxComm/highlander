@@ -64,7 +64,7 @@ class MerchantApplicationsList extends Component {
           columns={columns}
           params={params} />
       );
-    }
+    };
   }
 
   render(): Element {

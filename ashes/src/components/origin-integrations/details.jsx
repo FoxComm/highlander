@@ -157,17 +157,32 @@ class IntegrationDetails extends Component {
                 <ul>
                   <li styleName="entry">
                     <FormField label="Shopify Key" validator="ascii" maxLength={255}>
-                      <div><input type="text" value={this.state.shopify_key} onChange={handleShopifyKey} /></div>
+                      <div>
+                        <input 
+                          type="text"
+                          value={this.state.shopify_key}
+                          onChange={handleShopifyKey} />
+                      </div>
                     </FormField>
                   </li>
                   <li styleName="entry">
                     <FormField label="Shopify Password" validator="ascii" maxLength={255}>
-                      <div><input type="text" value={this.state.shopify_password} onChange={handleShopifyPassword} /></div>
+                      <div>
+                        <input
+                          type="text"
+                          value={this.state.shopify_password}
+                          onChange={handleShopifyPassword} />
+                      </div>
                     </FormField>
                   </li>
                   <li styleName="entry">
                     <FormField label="Shopify Domain" validator="ascii" maxLength={255}>
-                      <div><input type="text" value={this.state.shopify_domain} onChange={handleShopifyDomain} /></div>
+                      <div>
+                        <input
+                          type="text"
+                          value={this.state.shopify_domain}
+                          onChange={handleShopifyDomain} />
+                      </div>
                     </FormField>
                   </li>
                 </ul>

@@ -12,7 +12,7 @@ type State = {
 
 const initialState = {
   originIntegration: null,
-}
+};
 
 const _getOriginIntegration = createAsyncActions(
   'getOriginIntegration',

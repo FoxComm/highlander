@@ -14,7 +14,7 @@ type State = {
 
 const initialState = {
   application: null,
-}
+};
 
 const _getApplication = createAsyncActions(
   'getApplication',

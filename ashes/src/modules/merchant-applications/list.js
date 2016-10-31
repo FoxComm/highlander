@@ -12,7 +12,7 @@ type State = {
 
 const initialState = {
   applications: [],
-}
+};
 
 const _getApplications = createAsyncActions(
   'getApplications',
