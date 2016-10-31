@@ -32,6 +32,7 @@ type Props = {
   isFetching: boolean,
   fetchError: ?Object,
   fetchOriginIntegration: Function,
+  createOriginIntegration: Function,
   updateOriginIntegration: Function,
 };
 
@@ -46,6 +47,10 @@ const mapStateToProps = (state) => {
     details: state.originIntegrations.details,
     isFetching: _.get(state.asyncActions, 'getOriginIntegration.inProgress', true),
     fetchError: _.get(state.asyncActions, 'getOriginIntegration.err', null),
+    isCreating: _.get(state.asyncActions, 'createOriginIntegration.inProgress', false),
+    createError: _.get(state.asyncActions, 'createOriginIntegration.err', null),
+    isUpdating: _.get(state.asyncActions, 'updateOriginIntegration.inProgress', false),
+    updateError: _.get(state.asyncActions, 'updateOriginIntegration.err', null),
   };
 };
 
@@ -71,21 +76,26 @@ class IntegrationDetails extends Component {
 
   get isDirty(): Element {
     const { originIntegration } = this.props.details;
-    if (!originIntegration) {
-      return false;
-    }
+    const key = _.get(originIntegration, 'shopify_key', '');
+    const password = _.get(originIntegration, 'shopify_password', '');
+    const domain = _.get(originIntegration, 'shopify_domain', '');
 
-    return this.state.shopify_key !== originIntegration.shopify_key ||
-      this.state.shopify_password !== originIntegration.shopify_password ||
-      this.state.shopify_domain !== originIntegration.shopify_domain;
+    return this.state.shopify_key !== key ||
+      this.state.shopify_password !== password ||
+      this.state.shopify_domain !== domain;
   }
 
   get renderPageTitle(): Element {
+    const { isCreating, isUpdating } = this.props;
+    const isLoading = isCreating || isUpdating;
+    const disabled = isLoading || !this.isDirty;
+
     return (
       <PageTitle title="Platform Integrations">
         <PrimaryButton
           type="button"
-          disabled={!this.isDirty}
+          disabled={disabled}
+          isLoading={isLoading}
           onClick={this.handleSubmit}>
           Save
         </PrimaryButton>
@@ -96,19 +106,20 @@ class IntegrationDetails extends Component {
 
   @autobind
   handleSubmit() {
+    const userId = getUserId();
+    const origin_integration = {
+      origin_integration: {
+        shopify_key: this.state.shopify_key,
+        shopify_password: this.state.shopify_password,
+        shopify_domain: this.state.shopify_domain,
+      },
+    };
+
     const { originIntegration } = this.props.details;
     if (originIntegration) {
-      // :( The Elixir app has camel cased JSON.
-      const origin_integration = {
-        origin_integration: {
-          shopify_key: this.state.shopify_key,
-          shopify_password: this.state.shopify_password,
-          shopify_domain: this.state.shopify_domain,
-        },
-      };
-
-      const userId = getUserId();
       this.props.updateOriginIntegration(userId, origin_integration);
+    } else {
+      this.props.createOriginIntegration(userId, origin_integration);
     }
   }
 

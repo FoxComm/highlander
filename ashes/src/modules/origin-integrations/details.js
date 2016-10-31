@@ -19,12 +19,18 @@ const _getOriginIntegration = createAsyncActions(
   (id: number) => Api.get(`/mkt/users/${id}/origin_integrations`)
 );
 
+const _createOriginIntegration = createAsyncActions(
+  'createOriginIntegrtion',
+  (id: number, data: OriginIntegration) => Api.post(`/mkt/users/${id}/origin_integrations`, data)
+);
+
 const _updateOriginIntegration = createAsyncActions(
   'updateOriginIntegration',
   (id: number, data: OriginIntegration) => Api.patch(`/mkt/users/${id}/origin_integrations`, data)
 );
 
 export const fetchOriginIntegration = _getOriginIntegration.perform;
+export const createOriginIntegration = _createOriginIntegration.perform;
 export const updateOriginIntegration = _updateOriginIntegration.perform;
 
 function originIntegrationSucceeded(state: State, payload: Object): State {
@@ -34,6 +40,7 @@ function originIntegrationSucceeded(state: State, payload: Object): State {
 
 const reducer = createReducer({
   [_getOriginIntegration.succeeded]: originIntegrationSucceeded,
+  [_createOriginIntegration.succeeded]: originIntegrationSucceeded,
   [_updateOriginIntegration.succeeded]: originIntegrationSucceeded,
 }, initialState);
 

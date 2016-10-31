@@ -31,6 +31,8 @@ defmodule Marketplace.Router do
     post "/merchants/:merchant_id/admin_accounts", MerchantAccountController, :create_admin
 
     get "/users/:user_id/origin_integrations", OriginIntegrationController, :show
+    post "/users/:user_id/origin_integrations", OriginIntegrationController, :create
+    patch "/users/:user_id/origin_integrations", OriginIntegrationController, :update
     
     resources "/merchants", MerchantController do 
       post "/social_profile", MerchantSocialProfileController, :create, as: :social_profile
