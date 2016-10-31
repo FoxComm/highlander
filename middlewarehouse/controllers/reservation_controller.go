@@ -19,7 +19,7 @@ func NewReservationController(service services.IInventoryService) IController {
 }
 
 func (controller *reservationController) SetUp(router gin.IRouter) {
-    router.Use(FetchJWT)
+	router.Use(FetchJWT)
 	router.POST("hold", controller.Hold())
 	router.DELETE("hold/:refNum", controller.Unhold())
 }
