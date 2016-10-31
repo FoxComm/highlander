@@ -1,140 +1,112 @@
 [
   {
-    "id": 1,
     "type": "title",
     "content": "SHIPPING POLICY"
   },
   {
-    "id": 2,
     "type": "paragraph",
     "content": "Shipping food items so that they arrive to you in perfect condition takes careful preparation."
   },
   {
-    "id": 3,
     "type": "paragraph",
     "content": "First, your order is placed in a Styrofoam cooler box, and then packed inside a heavy corrugated shipper. We ship our items frozen and packed with dry ice to ensure that your order will arrive safe and intact."
   },
   {
-    "id": 4,
     "type": "paragraph",
     "content": "It is important that you remove your items and place in your freezer as soon as you receive them."
   },
   {
-    "id": 5,
     "type": "paragraph",
     "content": "Shipping food items so that they arrive to you in perfect condition takes careful preparation."
   },
   {
-    "id": 6,
     "type": "paragraph",
     "content": "The Perfect Gourmet uses a flat shipping rate regardless of the size of your order. Take advantage of our flat rates and stock up."
   },
   {
-    "id": 7,
     "type": "paragraph",
     "content": "Orders are shipped Monday - Wednesday. We do not ship on weekends or holidays. It may take 5-7 days from the day you place your order for you to receive your items."
   },
   {
-    "id": 8,
     "type": "paragraph",
     "content": "We strive for 100% customer satisfaction. However, The Perfect Gourmet cannot be held responsible for package delay, resulting in spoilage, when incomplete or incorrect addresses are provided or if items are delivered when no one is there to receive them within the delivery period.  If find that your shipment is damaged or compromised, please contact us immediately so we can file a claim on your behalf."
   },
   {
-    "id": 9,
     "type": "paragraph",
     "content": "Shipping is automatically calculated prior to submitting your payment information."
   },
   {
-    "id": 10,
     "type": "paragraph-title",
     "content": "FedEx 2-Day Ground - $9.95 flat fee"
   },
   {
-    "id": 11,
     "type": "paragraph",
     "content": "Only available for the following states:<br />CT, DE, FL, IL, IN, MA, MD, ME, MI, NC, NH, NJ, NY, OH, PA, RI, VA, VT, and WV<br />Available Monday through Wednesday.<br />Cost: $9.95 flat fee."
   },
   {
-    "id": 15,
     "type": "paragraph-title",
     "content": "FedEx 2-day Air"
   },
   {
-    "id": 16,
     "type": "paragraph",
     "content": "2-day air shipping for all other states (we do not ship internationally).<br />Available Monday through Wednesday.<br />Cost: $30 flat fee."
   },
   {
-    "id": 19,
     "type": "paragraph",
     "content": "Please note: We do not ship on weekends or holidays. It may take 5 - 7 days from the day you place your order, to receive your items."
   },
   {
-    "id": 20,
     "type": "title",
     "content": "HOLIDAY SHIPPING"
   },
   {
-    "id": 21,
     "type": "paragraph",
     "content": "For orders to arrive by Christmas, please place your order by December 17."
   },
   {
-    "id": 22,
     "type": "paragraph",
     "content": "For all other holidays, orders should be placed 10 days in advance."
   },
   {
-    "id": 23,
     "type": "title",
     "content": "RETURNS POLICY"
   },
   {
-    "id": 24,
     "type": "paragraph",
     "content": "Due to the perishable nature of food, we cannot accept returns.  However, if you have a problem with your order, please contact us immediately (within 24 - 72 hours) so that we can make it right."
   },
   {
-    "id": 25,
     "type": "paragraph",
     "content": "We value each one of our customers and are committed to excellent service, so if a refund is necessary, you will be credited on your original form of payment or with a Perfect Gourmet digital gift card. Refunds typically appear on your credit card statement 1-­3 business days after the refund is initiated."
   },
   {
-    "id": 26,
     "type": "well",
     "content": [
       {
-        "id": 27,
         "type": "title",
         "content": "CUSTOMER CARE"
       },
       {
-        "id": 28,
         "type": "paragraph-title",
         "content": "Email"
       },
       {
-        "id": 29,
         "type": "email",
         "content": "info@theperfectgourmet.com"
       },
       {
-        "id": 30,
         "type": "paragraph-title",
         "content": "Phone"
       },
       {
-        "id": 31,
         "type": "phone",
         "content": "(866) 461 - 4183"
       },
       {
-        "id": 32,
         "type": "paragraph",
         "content": "Mon - Fri: 10am - 5pm"
       },
       {
-        "id": 33,
         "type": "paragraph",
         "content": "Sat - Sun: 12pm - 4pM"
       }
