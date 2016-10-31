@@ -71,7 +71,7 @@ object DiscountManager {
     val formAndShadow = FormAndShadow.fromPayload(Discount.kind, payload.attributes)
 
     for {
-      scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      scope ← * <~ Scope.resolveOverride(payload.scope)
       ins   ← * <~ ObjectUtils.insert(formAndShadow.form, formAndShadow.shadow, payload.schema)
       discount ← * <~ Discounts.create(
                     Discount(scope = scope,

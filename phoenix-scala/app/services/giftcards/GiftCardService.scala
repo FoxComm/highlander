@@ -57,7 +57,7 @@ object GiftCardService {
       payload: GiftCardCreateByCsr)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Root] =
     for {
       _     ← * <~ payload.validate
-      scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      scope ← * <~ Scope.resolveOverride(payload.scope)
       _     ← * <~ Reasons.mustFindById400(payload.reasonId)
       // If `subTypeId` is absent, don't query. Check for model existence otherwise.
       subtype ← * <~ payload.subTypeId.fold(DbResultT.none[GiftCardSubtype]) { subId ⇒
@@ -80,7 +80,7 @@ object GiftCardService {
       au: AU): DbResultT[Seq[ItemResult]] =
     for {
       _     ← * <~ payload.validate
-      scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      scope ← * <~ Scope.resolveOverride(payload.scope)
       gcCreatePayload = GiftCardCreateByCsr(balance = payload.balance,
                                             reasonId = payload.reasonId,
                                             currency = payload.currency,

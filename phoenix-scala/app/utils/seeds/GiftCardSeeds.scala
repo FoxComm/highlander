@@ -18,7 +18,7 @@ trait GiftCardSeeds {
 
   def createGiftCards(implicit au: AU): DbResultT[Unit] =
     for {
-      scope  ← * <~ Scope.getScopeOrSubscope()
+      scope  ← * <~ Scope.resolveOverride()
       _      ← * <~ GiftCardSubtypes.createAll(giftCardSubTypes)
       origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = 1, reasonId = 1))
       gc1    ← * <~ GiftCards.create(giftCard.copy(originId = origin.id))

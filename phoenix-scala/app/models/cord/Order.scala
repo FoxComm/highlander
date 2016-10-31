@@ -142,7 +142,7 @@ object Orders
                      contextId: Int,
                      subScope: Option[String])(implicit ec: EC, db: DB, au: AU): DbResultT[Order] =
     for {
-      scope ← * <~ Scope.getScopeOrSubscope(subScope)
+      scope ← * <~ Scope.resolveOverride(subScope)
       order ← * <~ Orders.create(
                  Order(referenceNumber = cart.referenceNumber,
                        accountId = cart.accountId,

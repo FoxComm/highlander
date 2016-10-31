@@ -1,7 +1,13 @@
 package failures
 
 object ScopeFailures {
-  case object ImproperScope extends Failure {
-    override def description = "The scope specified is invalid"
+
+  object EmptyScope extends Failure {
+    override def description = "Specified scope is empty!"
+  }
+
+  case class InvalidSubscope(scope: String, subscope: String) extends Failure {
+    override def description =
+      s"""Subscope "$subscope" is not a valid subscope of scope "$scope""""
   }
 }

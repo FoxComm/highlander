@@ -69,7 +69,7 @@ object StoreCreditService {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       _        ← * <~ Reasons.findById(payload.reasonId).extract.mustFindOneOr(reason400)
       _        ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.CsrAppeasement)
-      scope    ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      scope    ← * <~ Scope.resolveOverride(payload.scope)
       manual = StoreCreditManual(adminId = admin.accountId,
                                  reasonId = payload.reasonId,
                                  subReasonId = payload.subReasonId)
@@ -95,7 +95,7 @@ object StoreCreditService {
       au: AU): DbResultT[Root] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      scope    ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      scope    ← * <~ Scope.resolveOverride(payload.scope)
       _        ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.Custom)
       custom = StoreCreditCustom(adminId = admin.accountId, metadata = payload.metadata)
       origin ← * <~ StoreCreditCustoms.create(custom)

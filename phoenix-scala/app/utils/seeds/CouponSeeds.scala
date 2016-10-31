@@ -45,7 +45,7 @@ trait CouponSeeds {
       au: AU): DbResultT[(BaseCoupon, Seq[CouponCode])] =
     for {
       // Create coupon
-      scope  ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      scope  ← * <~ Scope.resolveOverride(payload.scope)
       form   ← * <~ ObjectForm(kind = Coupon.kind, attributes = payload.form.attributes)
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow, None)

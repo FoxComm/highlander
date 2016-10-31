@@ -45,7 +45,7 @@ trait DiscountSeeds {
       implicit db: DB,
       au: AU): DbResultT[BaseDiscount] =
     for {
-      scope  ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      scope  ← * <~ Scope.resolveOverride(payload.scope)
       form   ← * <~ ObjectForm(kind = Discount.kind, attributes = payload.form.attributes)
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow, schema = None)

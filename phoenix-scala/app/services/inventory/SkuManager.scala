@@ -88,7 +88,7 @@ object SkuManager {
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
-      scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      scope ← * <~ Scope.resolveOverride(payload.scope)
       code  ← * <~ mustGetSkuCode(payload)
       ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       sku ← * <~ Skus.create(

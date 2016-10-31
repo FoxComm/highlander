@@ -22,7 +22,7 @@ trait GiftCardGenerator {
   def generateGiftCardAppeasement(implicit db: DB, au: AU): DbResultT[GiftCard] =
     for {
       origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = 1, reasonId = 1))
-      scope  ← * <~ Scope.getScopeOrSubscope()
+      scope  ← * <~ Scope.resolveOverride()
       gc ← * <~ GiftCards.create(
               GiftCard.buildAppeasement(GiftCardCreateByCsr(balance = nextGcBalance, reasonId = 1),
                                         originId = origin.id,

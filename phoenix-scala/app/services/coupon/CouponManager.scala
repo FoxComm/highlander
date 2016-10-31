@@ -28,7 +28,7 @@ object CouponManager {
     val formAndShadow = FormAndShadow.fromPayload(Coupon.kind, payload.attributes)
 
     for {
-      scope ← * <~ Scope.getScopeOrSubscope(payload.scope)
+      scope ← * <~ Scope.resolveOverride(payload.scope)
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
