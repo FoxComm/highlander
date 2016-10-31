@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Packer Twostack Frontend
+- name: Provision Packer Tinyprod Frontend
   hosts: all
   tags:
       - packer-tinyprod-frontend
@@ -21,6 +21,10 @@
 
   roles:
     - { role: base/ssh_keys }
+    - { role: base/scala }
     - { role: base/mesos_worker }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/balancer, sudo: yes }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

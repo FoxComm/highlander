@@ -12,3 +12,4 @@
   roles:
     - { role: base/docker }
     - { role: base/mesos }
+    - { role: base/consul_agent }

@@ -1,0 +1,91 @@
+---
+
+- name: Bootstrap Tinyprod
+  hosts: '{{hostname}}'
+  tags:
+    - backend
+  vars:
+    user: '{{ansible_ssh_user}}'
+    seeds_cmd: utils.seeds.Seeds seed --seedAdmins
+    updating_mwh: true
+    middlewarehouse_src: "{{gopath}}/src/github.com/FoxComm/highlander/middlewarehouse"
+    docker_db_host: db.service.consul
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a backend to provision"
+      default: "vanilla-backend"
+      private: no
+    - name: "gopath"
+      prompt: "Enter your GOPATH value"
+      default: "/Users/ejik/golang"
+      private: no
+
+  roles:
+    - { role: dev/kafka }
+    - { role: dev/elasticsearch }
+    - { role: dev/db }
+    - { role: dev/isaac }
+    - { role: dev/greenriver }
+    - { role: dev/middlewarehouse }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
+
+- name: Bootstrap Frontend
+  hosts: '{{hostname}}'
+  tags:
+    - frontend
+  vars:
+    user: '{{ansible_ssh_user}}'
+    api_server: balancer.service.consul
+    ashes_server: ashes.service.consul:4000
+    isaac_server: isaac.service.consul:9190
+    middlewarehouse_server: middlewarehouse.service.consul:9292
+    phoenix_server: phoenix.service.consul:9090
+    search_server_http: elasticsearch.service.consul:9200
+    search_server: elasticsearch.service.consul:9300
+    schema_server: schema-regisstry.service.consul:8081
+    firebrand_default_language: en
+    firebrand_fixed_language: false
+    docker_db_host: db.service.consul
+    phoenix_service_requires: ""
+    middlewarehouse_service_requires: ""
+    greenriver_service_requires: ""
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a frontend to provision"
+      default: "vanilla-frontend"
+      private: no
+    - name: "ashes_server_name"
+      prompt: "Enter a Ashes server domain name"
+      default: "admin.vanilla.foxcommerce.com"
+      private: no
+    - name: "storefront_server_name"
+      prompt: "Enter a Firebrand server domain name"
+      default: "vanilla.foxcommerce.com"
+      private: no
+    - name: "docker_registry"
+      prompt: "Enter host of docker registry"
+      default: "docker.foxcommerce.com"
+      private: no
+
+    - name: "marathon_server"
+      prompt: "Enter host of marathon"
+      default: "amigo.foxcommerce.com"
+      private: no
+
+  roles:
+    - { role: base/phoenix }
+    - { role: base/greenriver }
+    - { role: dev/greenriver }
+    - { role: dev/phoenix }
+    - { role: dev/isaac }
+    - { role: dev/solomon }
+    - { role: dev/middlewarehouse }
+    - { role: dev/ashes }
+    - { role: dev/messaging, retailer_name: 'FoxCommerce' }
+    - { role: dev/firebrand }
+    - { role: dev/balancer, sudo: yes }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
