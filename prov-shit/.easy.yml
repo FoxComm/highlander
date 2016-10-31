@@ -78,32 +78,6 @@ shortcuts:
     alias: vanilla_vpn.yml
     target: ansible/bootstrap_vanilla_vpn.yml
 
-  # Hotfix playbooks
-  - name: Hotfix Balancer
-    alias: balancer.yml
-    target: ansible/hotfix_balancer.yml
-  - name: Hotfix Database
-    alias: db.yml
-    target: ansible/hotfix_db.yml
-  - name: Hotfix Docker Registry
-    alias: docker_registry.yml
-    target: ansible/hotfix_docker_registry.yml
-  - name: Hotfix Mesos
-    alias: mesos.yml
-    target: ansible/hotfix_mesos.yml
-  - name: Hotfix Mesos Worker
-    alias: mesos_worker.yml
-    target: ansible/hotfix_mesos_worker.yml
-  - name: Hotfix Stage Consul
-    alias: stage_consul.yml
-    target: ansible/hotfix_stage_consul.yml
-  - name: Hotfix Stage Database
-    alias: stage_db.yml
-    target: ansible/hotfix_stage_db.yml
-  - name: Hotfix Zookeeper
-    alias: openvpn_key.yml
-    target: ansible/hotfix_zk.yml
-
 # Packer shortcuts
 - type: snowflake
   process: packer build
