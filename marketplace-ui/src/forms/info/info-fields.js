@@ -130,17 +130,6 @@ export const fields: Array<FormField> = [
     validation: 'required',
   },
   {
-    name: 'address1',
-    type: 'text',
-    placeholder: 'Legal Entity Address: Address 1',
-    validation: 'required',
-  },
-  {
-    name: 'address2',
-    type: 'text',
-    placeholder: 'Legal Entity Address: Address 2',
-  },
-  {
     name: 'zip',
     type: 'text',
     placeholder: 'Business: ZIP Code',

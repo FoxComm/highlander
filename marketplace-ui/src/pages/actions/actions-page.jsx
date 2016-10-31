@@ -41,7 +41,7 @@ class ActionsPage extends Component {
           description={`Integrate your eCommerce store with Goldfish with Marketplace apps or via API to use your
           exising tools to import products and receive orders.`}
           button="Select"
-          onSelect={() => window.location.replace(window.__ASHES_URL__)}
+          onSelect={() => this.props.push(`/application/${this.props.params.ref}/integration`)}
         />
       </div>
     );
