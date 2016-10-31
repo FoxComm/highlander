@@ -36,7 +36,7 @@ resource "google_compute_instance" "amigo" {
 
     provisioner "remote-exec" {
         inline = [
-          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${module.nanostack.consul_address} ${var.join_type}",
+          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.amigo.network_interface.0.address} ${var.join_type}",
         ]
     }
 }
@@ -65,7 +65,7 @@ resource "google_compute_instance" "storage" {
 
     provisioner "remote-exec" {
         inline = [
-          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${module.nanostack.consul_address} ${var.join_type}"
+          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.amigo.network_interface.0.address} ${var.join_type}"
         ]
     }
 }
@@ -98,7 +98,7 @@ resource "google_compute_instance" "worker" {
 
     provisioner "remote-exec" {
         inline = [
-          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${module.nanostack.consul_address} ${var.join_type}"
+          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.amigo.network_interface.0.address} ${var.join_type}"
         ]
     }
 }
@@ -106,7 +106,7 @@ resource "google_compute_instance" "worker" {
 resource "dnsimple_record" "dns_record" {
     domain = "foxcommerce.com"
     name = "${var.subdomain}"
-    value = "${module.nanostack.consul_address}"
+    value = "${google_compute_instance.amigo.network_interface.0.address}"
     type = "A"
     ttl = 3600
 }
