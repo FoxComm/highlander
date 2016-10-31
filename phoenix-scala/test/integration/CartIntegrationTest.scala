@@ -85,16 +85,16 @@ class CartIntegrationTest
         .mustFailWith400(SkuWithNoProductAdded(cart.refNum, simpleSku.code))
     }
 
-      "adding a SKU that's associated through a variant should succeed" in new ProductAndVariants_Baked
-          with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-                val (_, _, skus) = productWithVariants
-                val code         = skus.head.code
+    "adding a SKU that's associated through a variant should succeed" in new ProductAndVariants_Baked
+    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+      val (_, _, skus) = productWithVariants
+      val code         = skus.head.code
 
-                    val testPayload = Seq(UpdateLineItemsPayload(code, 1))
-                val root        = cartsApi(cart.refNum).lineItems.add(testPayload).asTheResult[CartResponse]
-                val liSkus      = root.lineItems.skus
-                liSkus must have size 1
-      }
+      val testPayload = Seq(UpdateLineItemsPayload(code, 1))
+      val root        = cartsApi(cart.refNum).lineItems.add(testPayload).asTheResult[CartResponse]
+      val liSkus      = root.lineItems.skus
+      liSkus must have size 1
+    }
 
     "should respond with 404 if cart is not found" in {
       cartsApi("NOPE").lineItems.add(payload).mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
@@ -115,6 +115,13 @@ class CartIntegrationTest
       skus must have size 1
       skus.map(_.sku).headOption.value must === ("SKU-YAX")
       skus.map(_.quantity).headOption.value must === (4)
+
+      val root2 = cartsApi(cart.refNum).lineItems.update(addPayload).asTheResult[CartResponse]
+      val skus2 = root2.lineItems.skus
+      skus2 must have size 1
+      skus2.map(_.sku).headOption.value must === ("SKU-YAX")
+      skus2.map(_.quantity).headOption.value must === (6)
+
     }
 
     "should successfully add a gift card line item" in new OrderShippingMethodFixture
@@ -228,7 +235,6 @@ class CartIntegrationTest
       cartsApi(cart.refNum).unlock().mustFailWith400(NotLockedFailure(Cart, cart.refNum))
     }
   }
-
 
   "PATCH /v1/orders/:refNum/shipping-address/:id" - {
 

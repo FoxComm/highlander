@@ -103,50 +103,46 @@ export default class Cart {
    * @method updateQuantities(itemQuantities: ItemQuantities): Promise<FullOrder>
    */
   updateQuantities(itemQuantities) {
-    const updateSkusPayload = _.map(itemQuantities, (quantity, sku, properties) => {
+    const updateSkusPayload = _.map(itemQuantities, (quantity, sku) => {
       return {
         sku,
-        quantity,
-        properties
+        quantity
       };
     });
+
     return this.api.post(endpoints.cartLineItems, updateSkusPayload).then(normalizeResponse);
   }
 
-    /**
-     * Get LineItem Json object to be used as payload
-     * @param sku
-     * @param quantity
-     * @param properties
-     * @returns {{properties: *}}
-     */
-  lineItemPayload(sku, quantity, properties){
-      return  {
-          sku:sku,
-          quantity: quantity,
-          properties: properties
-      }
+  /**
+   * @method updateQty(sku: String, qty: Number): Promise<FullOrder>
+   * Updates quantity for selected item in the cart
+   */
+  updateQty(sku, qty) {
+    return this.updateQuantities({
+      [sku]: qty
+    });
   }
 
   /**
    * @method addSku(sku: String, quantity: Number): Promise<FullOrder>
    * Adds sku by defined quantity in the cart.
    */
-  addSku(sku, quantity, properties) {
-      updateSkusPayload = lineItemPayload(sku,quantity,properties)
-      return this.api.patch(endpoints.cartLineItems, updateSkusPayload).then(normalizeResponse);
+  addSku(sku, quantity) {
+    return this.get().then(cart => {
+      const skuData = _.find(_.get(cart, 'lineItems.skus', []), { sku });
+      const existsQuantity = skuData ? skuData.quantity : 0;
+
+      return this.updateQty(sku, existsQuantity + quantity);
+    });
   }
 
   /**
    * @method removeSku(sku: String): Promise<FullOrder>
    * Removes selected sku from the cart.
    */
-  removeSku(sku, properties) {
-    updateSkusPayload = lineItemPayload(sku,0,properties);
-    return this.api.post(endpoints.cartLineItems, updateSkusPayload).then(normalizeResponse);
-
+  removeSku(sku) {
+    return this.updateQty(sku, 0);
   }
-
 
   /**
    * @method addCreditCard(creditCardId: Number): Promise<FullOrder>

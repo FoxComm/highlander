@@ -96,7 +96,7 @@ object LineItemUpdater {
 
     for {
       cart     ← * <~ finder
-      _        ← * <~ addQuantities(cart, payload)
+      a        ← * <~ addQuantities(cart, payload)
       response ← * <~ runUpdates(cart, logActivity)
     } yield response
   }
@@ -113,6 +113,7 @@ object LineItemUpdater {
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
       li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
+      size  ← * <~ CartLineItems.byCordRef(cart.refNum).length.result
       _     ← * <~ logAct(res, li)
     } yield TheResponse.validated(res, valid)
 
@@ -150,9 +151,10 @@ object LineItemUpdater {
   private def addLineItems(skuId: Int, quantity: Int, cordRef: String, attributes: Option[Json])(
       implicit ec: EC) = {
     require(quantity > 0)
-    List
-      .fill(quantity)(CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes))
-      .map(CartLineItems.create(_))
+    DbResultT.sequence(
+        List
+          .fill(quantity)(CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes))
+          .map(CartLineItems.create(_)))
   }
 
   private def addQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload])(
@@ -169,7 +171,7 @@ object LineItemUpdater {
                               addLineItems(sku.id,
                                            lineItem.quantity,
                                            cart.refNum,
-                                           lineItem.attributes)
+                                           lineItem.attributes).meh
                             else
                               removeLineItems(sku.id,
                                               -lineItem.quantity,
@@ -210,10 +212,9 @@ object LineItemUpdater {
       .filter(_.skuId === skuId)
       .result
       .flatMap { lineItems ⇒
-        val itemsWithSameAttributes =
-            filterLineItemsByAttributes(lineItems, attributes).map(_.id)
-        val totalToDelete = Math.min(delta, itemsWithSameAttributes.length)
-        val idsToDelete   = itemsWithSameAttributes.take(totalToDelete)
+        val itemsWithSameAttributes = filterLineItemsByAttributes(lineItems, attributes).map(_.id)
+        val totalToDelete           = Math.min(delta, itemsWithSameAttributes.length)
+        val idsToDelete             = itemsWithSameAttributes.take(totalToDelete)
         CartLineItems.filter(_.id inSet idsToDelete).delete
       }
       .dbresult
@@ -221,7 +222,7 @@ object LineItemUpdater {
   }
 
   private def filterLineItemsByAttributes(lineItems: Seq[CartLineItem],
-                                               presentAttributes: Option[Json]) = {
+                                          presentAttributes: Option[Json]) = {
     lineItems.filter { li ⇒
       (presentAttributes, li.attributes) match {
         case (Some(p), Some(a))          ⇒ p.equals(a)
