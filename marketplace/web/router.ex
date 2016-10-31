@@ -41,9 +41,7 @@ defmodule Marketplace.Router do
       post "/business_profile", MerchantBusinessProfileController, :create, as: :business_profile
       get "/business_profile", MerchantBusinessProfileController, :show, as: :business_profile
       patch "/business_profile", MerchantBusinessProfileController, :update, as: :business_profile
-      post "/legal_profile", MerchantLegalProfileController, :create, as: :legal_profile
-      get "/legal_profile", MerchantLegalProfileController, :show, as: :legal_profile
-      patch "/legal_profile", MerchantLegalProfileController, :update, as: :legal_profile
+      post "/legal_profile", MerchantStripeController, :create, as: :legal_profile
       resources "/addresses", MerchantAddressController
       resources "/accounts", MerchantAccountController, as: :account
       get "/accounts/by_solomon_id/:solomon_id", MerchantAccountController, :show_by_solomon_id, as: :account
