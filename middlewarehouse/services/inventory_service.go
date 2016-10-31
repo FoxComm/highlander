@@ -108,9 +108,9 @@ func (service *inventoryService) HoldItems(refNum string, skus map[uint]int) err
 	}
 
 	// grab found SKU list from repo
-	skusListRepo := []string{}
+	skusListRepo := []uint{}
 	for _, item := range items {
-		skusListRepo = append(skusListRepo, item.SKU)
+		skusListRepo = append(skusListRepo, item.SkuID)
 	}
 
 	// compare expectations with reality

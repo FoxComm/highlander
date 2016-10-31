@@ -21,8 +21,7 @@ type ISummaryService interface {
 	CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) error
 
 	GetSummary() ([]*models.StockItemSummary, error)
-	GetSummaryBySkuCode(skuCode string) ([]*models.StockItemSummary, error)
-	GetSummaryBySkuID(skuId uint) ([]*models.StockItemSummary, error)
+	GetSummaryBySKU(skuId uint) ([]*models.StockItemSummary, error)
 }
 
 func NewSummaryService(summaryRepo repositories.ISummaryRepository, stockItemRepo repositories.IStockItemRepository) ISummaryService {
@@ -33,12 +32,8 @@ func (service *summaryService) GetSummary() ([]*models.StockItemSummary, error) 
 	return service.summaryRepo.GetSummary()
 }
 
-func (service *summaryService) GetSummaryBySkuCode(skuCode string) ([]*models.StockItemSummary, error) {
-	return service.summaryRepo.GetSummaryBySkuCode(skuCode)
-}
-
-func (service *summaryService) GetSummaryBySkuID(skuId uint) ([]*models.StockItemSummary, error) {
-	return service.summaryRepo.GetSummaryBySkuID(skuId)
+func (service *summaryService) GetSummaryBySKU(skuId uint) ([]*models.StockItemSummary, error) {
+	return service.summaryRepo.GetSummaryBySKU(skuId)
 }
 
 func (service *summaryService) CreateStockItemSummary(stockItemId uint) error {

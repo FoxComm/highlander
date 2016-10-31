@@ -143,7 +143,7 @@ func (suite *summaryServiceTestSuite) Test_GetSummary() {
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU() {
-	summary, err := suite.service.GetSummaryBySkuCode(suite.si.SkuCode)
+	summary, err := suite.service.GetSummaryBySKU(suite.si.SkuID)
 	suite.Nil(err)
 
 	suite.NotNil(summary)
@@ -151,14 +151,14 @@ func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU() {
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU_NotFoundSKU() {
-	_, err := suite.service.GetSummaryBySkuCode("NO-SKU")
+	_, err := suite.service.GetSummaryBySKU(32)
 	suite.NotNil(err, "There should be an error as entity should not be found")
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU_NonZero() {
 	suite.Nil(suite.service.UpdateStockItemSummary(suite.si.ID, models.Sellable, 5, models.StatusChange{To: models.StatusOnHand}))
 
-	summary, err := suite.service.GetSummaryBySkuCode(suite.si.SkuCode)
+	summary, err := suite.service.GetSummaryBySKU(suite.si.SkuID)
 	suite.Nil(err)
 	suite.Equal(suite.onHand + 5, summary[0].OnHand)
 }

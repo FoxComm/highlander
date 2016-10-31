@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -51,35 +50,33 @@ func (suite *summaryControllerTestSuite) Test_GetSummary() {
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *summaryControllerTestSuite) Test_GetSummaryBySkuCode() {
-	sku := "TEST-SKU"
-	suite.service.On("GetSummaryBySkuCode", sku).Return([]*models.StockItemSummary{{
+func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
+	suite.service.On("GetSummaryBySKU", uint(1)).Return([]*models.StockItemSummary{{
 		StockItemID: 1,
-		StockItem:   models.StockItem{SkuCode: sku},
+		StockItem:   models.StockItem{},
 		Type:        models.Sellable,
 	}}, nil).Once()
 
-	res := suite.Get(fmt.Sprintf("/summary/skuCode/%s", sku))
+	res := suite.Get("/summary/1")
 
 	suite.Equal(http.StatusOK, res.Code)
-	suite.Contains(res.Body.String(), sku)
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *summaryControllerTestSuite) Test_GetSummaryBySkuCodeNoSKU() {
-	suite.service.On("GetSummaryBySkuCode", "NO-SKU").Return(nil, gorm.ErrRecordNotFound).Once()
+func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUNoSKU() {
+	suite.service.On("GetSummaryBySKU", uint(32)).Return(nil, gorm.ErrRecordNotFound).Once()
 
-	res := suite.Get("/summary/skuCode/NO-SKU")
+	res := suite.Get("/summary/32")
 
 	suite.Equal(http.StatusNotFound, res.Code)
 	suite.Contains(res.Body.String(), "errors")
 	suite.service.AssertExpectations(suite.T())
 }
 
-func (suite *summaryControllerTestSuite) Test_GetSummaryBySkuCodeServerError() {
-	suite.service.On("GetSummaryBySkuCode", "NO-SKU").Return(nil, gorm.ErrUnaddressable).Once()
+func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUServerError() {
+	suite.service.On("GetSummaryBySKU", uint(32)).Return(nil, gorm.ErrUnaddressable).Once()
 
-	res := suite.Get("/summary/skuCode/NO-SKU")
+	res := suite.Get("/summary/32")
 
 	suite.Equal(http.StatusBadRequest, res.Code)
 	suite.Contains(res.Body.String(), "errors")
