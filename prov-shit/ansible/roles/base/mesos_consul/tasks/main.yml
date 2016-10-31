@@ -42,4 +42,3 @@
 - name: Copy Consul Service File
   template: src=mesos_consul.json dest="/etc/consul.d/mesos_consul.json"
   sudo: true
-  notify: reload consul
