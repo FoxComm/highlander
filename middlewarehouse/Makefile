@@ -4,13 +4,14 @@ FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/
 DB=middlewarehouse_development
 DB_TEST=middlewarehouse_test
 DB_USER=middlewarehouse
-GOPATH=/tmp/go
+GOPATH=$(HOME)/tmpgo
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
 HIGHLANDER_PATH=$(CURDIR)/..
 
 prep:
 	rm -rf $(BUILD_ROOT_PATH)
+	mkdir -p $(GOPATH)/src/github.com/FoxComm
 	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH)
 
 glide: prep
