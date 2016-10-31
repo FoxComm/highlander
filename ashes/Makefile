@@ -41,7 +41,7 @@ build: setup
 docker:
 	docker build -t ashes .
 
-docker-push: docker
+docker-push:
 	docker tag ashes docker-stage.foxcommerce.com:5000/ashes:master
 	docker push docker-stage.foxcommerce.com:5000/ashes:master
 
