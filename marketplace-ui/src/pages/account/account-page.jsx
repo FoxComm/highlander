@@ -12,7 +12,8 @@ import Form from '../../components/form/form';
 import { getApplication, getAccounts, getAccountSubmitInProgress, getAccountSubmitFailed } from '../../core/modules';
 
 import { submitAccount as submit } from '../../core/modules/merchant-account';
-import { fields } from '../../forms/account/account-fields';
+import { fields as accountFields } from '../../forms/account/account-fields';
+import { fields as infoFields } from '../../forms/info/info-fields';
 
 import type { HTMLElement } from '../../core/types';
 import type { Application } from '../../core/modules/merchant-application';
@@ -61,7 +62,7 @@ class MerchantAccountPage extends Component {
         />
         <Form
           form="account"
-          fields={fields}
+          fields={accountFields.concat(infoFields)}
           onSubmit={this.submit}
           inProgress={inProgress}
           failed={submitFailed}
