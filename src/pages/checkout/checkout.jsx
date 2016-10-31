@@ -1,8 +1,8 @@
 /* @flow */
 
+// libs
 import _ from 'lodash';
 import React, { Component } from 'react';
-import styles from './checkout.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
@@ -14,11 +14,16 @@ import Billing from './03-billing/billing';
 import OrderSummary from './summary/order-summary';
 import Header from './header';
 
-import type { Promise as PromiseType } from 'types/promise';
+// styles
+import styles from './checkout.css';
 
+// types
+import type { Promise as PromiseType } from 'types/promise';
+import type { CheckoutState, EditStage } from 'modules/checkout';
+
+// actions
 import * as actions from 'modules/checkout';
 import { EditStages } from 'modules/checkout';
-import type { CheckoutState, EditStage } from 'modules/checkout';
 import { fetch as fetchCart, hideCart } from 'modules/cart';
 
 type Props = CheckoutState & {
@@ -33,6 +38,8 @@ type Props = CheckoutState & {
   addresses: Array<any>,
   fetchAddresses: Function,
   updateAddress: Function,
+  fetchShippingMethods: Function,
+  shippingMethods: Object,
   cart: Object,
   isAddressLoaded: boolean,
 };
@@ -97,10 +104,15 @@ class Checkout extends Component {
   }
 
   @autobind
-  setDeliveryStage(id) {
+  setDeliveryStage() {
+    this.props.setEditStage(EditStages.DELIVERY);
+  }
+
+  @autobind
+  saveShippingAddress(id) {
     this.performStageTransition('shippingInProgress', () => {
       return this.props.saveShippingAddress(id).then(() => {
-        this.props.setEditStage(EditStages.DELIVERY);
+        this.setDeliveryStage();
       });
     });
   }
@@ -139,9 +151,18 @@ class Checkout extends Component {
   render() {
     const props = this.props;
 
+    const setStates = {
+      setShippingStage: this.setShippingStage,
+      setDeliveryStage: this.setDeliveryStage,
+      setBillingState: this.setBillingState,
+    };
+
     return (
       <section styleName="checkout">
-        <Header isScrolled={this.state.isScrolled}/>
+        <Header
+          isScrolled={this.state.isScrolled}
+          {...setStates}
+        />
 
         <div styleName="content">
           <div styleName="summary">
@@ -154,7 +175,7 @@ class Checkout extends Component {
               collapsed={props.editStage < EditStages.SHIPPING}
               editAction={this.setShippingStage}
               inProgress={this.state.shippingInProgress}
-              continueAction={this.setDeliveryStage}
+              continueAction={this.saveShippingAddress}
               error={this.errorsFor(EditStages.SHIPPING)}
               addresses={this.props.addresses}
               fetchAddresses={this.props.fetchAddresses}
@@ -167,6 +188,9 @@ class Checkout extends Component {
               editAllowed={props.editStage >= EditStages.DELIVERY}
               collapsed={!props.isDeliveryDirty && props.editStage < EditStages.DELIVERY}
               editAction={this.setDeliveryStage}
+              shippingMethods={props.shippingMethods}
+              selectedShippingMethod={props.cart.shippingMethod}
+              fetchShippingMethods={props.fetchShippingMethods}
               inProgress={this.state.deliveryInProgress}
               continueAction={this.setBillingState}
               error={this.errorsFor(EditStages.DELIVERY)}

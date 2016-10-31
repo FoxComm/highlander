@@ -8,7 +8,7 @@ function apiCall(): Promise {
     {id: 1, name: 'APPETIZERS', description: 'Dinner in 30 minutes'},
     {id: 2, name: 'ENTRÉES', description: 'Dinner in 30 minutes'},
     {id: 3, name: 'BEST SELLERS', description: 'Dinner in 30 minutes'},
-    {id: 4, name: 'GIFTS', description: 'Dinner in 30 minutes'},
+    {id: 4, name: 'GIFT CARDS', description: 'Gift cards will be here'},
   ];
   return Promise.resolve(result);
 }
