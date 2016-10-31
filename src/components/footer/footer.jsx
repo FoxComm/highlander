@@ -8,6 +8,7 @@ import styles from './footer.css';
 import Icon from 'ui/icon';
 import Button from 'ui/buttons';
 import { TextInput } from 'ui/inputs';
+import { Link } from 'react-router';
 
 const Footer = () : HTMLElement => {
   return (
@@ -28,7 +29,7 @@ const Footer = () : HTMLElement => {
           <li><a href="#">STORES</a></li>
           <li><a href="#">GIFT CARDS</a></li>
           <li><a href="#">FAQ</a></li>
-          <li><a href="#">SHIPPING & RETURNS</a></li>
+          <li><Link to="shipping-and-returns">SHIPPING & RETURNS</Link></li>
         </ul>
 
         <div styleName="social-links">
