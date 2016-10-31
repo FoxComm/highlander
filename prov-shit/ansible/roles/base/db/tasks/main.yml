@@ -5,7 +5,7 @@
   sudo: true
 
 - name: Install Postgres Packages
-  apt: name={{ item }} state=latest force=yes
+  apt: name={{item}} state=latest force=yes
   sudo: true
   with_items:
     - python-dev
@@ -13,6 +13,8 @@
     - postgresql-9.5
     - postgresql-client-9.5
     - postgresql-contrib-9.5
+    - libpq-dev
+    - python-psycopg2
 
 - name: Install pgcli
   pip: name=pgcli state=present
@@ -33,13 +35,6 @@
 - name: Restart Postgresql
   service: name=postgresql state=restarted sleep=5
   sudo: true
-
-- name: Install Prerequisites for Postgresql Ansible Module
-  sudo: true
-  apt: name={{item}} state=latest
-  with_items:
-    - libpq-dev
-    - python-psycopg2
 
 - name: Copy Consul Service File
   template: src=db.json dest="/etc/consul.d/db.json"
