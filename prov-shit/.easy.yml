@@ -142,9 +142,20 @@ shortcuts:
   - name: Base Node Image
     alias: base_node.json
     target: packer/base/base_node.json
-  - name: Base Nano Image
-    alias: base_nano.json
-    target: packer/base/base_nano.json
+
+  # Nanostack
+  - name: Base Nanostack Image
+    alias: nano_base.json
+    target: packer/nanostack/base.json
+  - name: Base Nanostack Amigo Image
+    alias: nano_amigo.json
+    target: packer/nanostack/amigo.json
+  - name: Base Nanostack Storage Image
+    alias: nano_storage.json
+    target: packer/nanostack/storage.json
+  - name: Base Nanostack Worker Image
+    alias: nano_worker.json
+    target: packer/nanostack/worker.json
 
   # Vanilla
   - name: Vanilla Amigo

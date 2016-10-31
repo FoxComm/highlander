@@ -1,0 +1,6 @@
+account_file                = "foxcomm-vanilla.json"
+gce_project                 = "foxcommerce-production-shared"
+network                     = "tpg"
+bucket_location             = "us"
+region                      = "us-central1"
+zone                        = "us-central1-a"

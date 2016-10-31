@@ -8,19 +8,20 @@
             "source_image": "{{user `base_nano_image`}}",
             "network": "{{user `network`}}",
             "zone": "us-central1-a",
-            "image_name": "nanostack-amigo-{{timestamp}}",
-            "image_description": "Base Nanostack Amigo Image",
-            "instance_name": "packer-nanostack-amigo-{{uuid}}",
+            "image_name": "nanostack-storage-{{timestamp}}",
+            "image_description": "Base Nanostack Storage Image",
+            "instance_name": "packer-nanostack-storage-{{uuid}}",
             "machine_type": "n1-standard-2",
             "tags": ["ssh", "no-ip"],
             "use_internal_ip": true,
-            "ssh_username" : "{{user `ssh_username`}}"
+            "ssh_username" : "{{user `ssh_username`}}",
+            "disk_size": 20
         }
     ],
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_nanostack_amigo.yml",
+            "playbook_file" : "ansible/packer_nanostack_storage.yml",
             "extra_arguments": ["-vvvv"]
         }
     ]
