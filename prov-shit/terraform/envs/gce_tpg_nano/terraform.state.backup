@@ -1,7 +1,7 @@
 {
     "version": 3,
     "terraform_version": "0.7.4",
-    "serial": 0,
+    "serial": 3,
     "lineage": "dfde73bc-af2e-4d88-a0ee-e2880565445b",
     "modules": [
         {
@@ -52,6 +52,21 @@
         {
             "path": [
                 "root",
+                "tpg_nano_production"
+            ],
+            "outputs": {
+                "consul_address": {
+                    "sensitive": false,
+                    "type": "string",
+                    "value": "10.0.0.20"
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
                 "tpg_nano_staging"
             ],
             "outputs": {
@@ -97,7 +112,7 @@
                             "disk.0.auto_delete": "true",
                             "disk.0.device_name": "",
                             "disk.0.disk": "",
-                            "disk.0.image": "nanostack-amigo-1477907784",
+                            "disk.0.image": "nanostack-amigo-1477915939",
                             "disk.0.scratch": "false",
                             "disk.0.size": "10",
                             "disk.0.type": "pd-ssd",
@@ -145,7 +160,7 @@
                             "disk.0.auto_delete": "true",
                             "disk.0.device_name": "",
                             "disk.0.disk": "",
-                            "disk.0.image": "nanostack-storage-1477905775",
+                            "disk.0.image": "nanostack-storage-1477915950",
                             "disk.0.scratch": "false",
                             "disk.0.size": "30",
                             "disk.0.type": "pd-ssd",
@@ -157,7 +172,7 @@
                             "network.#": "0",
                             "network_interface.#": "1",
                             "network_interface.0.access_config.#": "0",
-                            "network_interface.0.address": "10.0.0.19",
+                            "network_interface.0.address": "10.0.0.18",
                             "network_interface.0.name": "nic0",
                             "network_interface.0.network": "tpg",
                             "network_interface.0.subnetwork": "",
@@ -191,7 +206,7 @@
                             "disk.0.auto_delete": "true",
                             "disk.0.device_name": "",
                             "disk.0.disk": "",
-                            "disk.0.image": "nanostack-worker-1477904373",
+                            "disk.0.image": "nanostack-worker-1477918896",
                             "disk.0.scratch": "false",
                             "disk.0.size": "100",
                             "disk.0.type": "pd-ssd",
@@ -203,7 +218,7 @@
                             "network.#": "0",
                             "network_interface.#": "1",
                             "network_interface.0.access_config.#": "0",
-                            "network_interface.0.address": "10.0.0.18",
+                            "network_interface.0.address": "10.0.0.19",
                             "network_interface.0.name": "nic0",
                             "network_interface.0.network": "tpg",
                             "network_interface.0.subnetwork": "",

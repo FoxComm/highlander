@@ -61,18 +61,18 @@ module "tpg_nano_staging" {
 ##############################################
 # Production
 ##############################################
-# module "tpg_nano_production" {
-#     source = "../../modules/gce/nanostack"
-#     ssh_user = "${var.ssh_user}"
-#     ssh_private_key = "${var.ssh_private_key}"
+module "tpg_nano_production" {
+    source = "../../modules/gce/nanostack"
+    ssh_user = "${var.ssh_user}"
+    ssh_private_key = "${var.ssh_private_key}"
 
-#     nano_amigo_image = "${var.nano_amigo_image}"
-#     nano_storage_image = "${var.nano_storage_image}"
-#     nano_worker_image = "${var.nano_worker_image}"
+    nano_amigo_image = "${var.nano_amigo_image}"
+    nano_storage_image = "${var.nano_storage_image}"
+    nano_worker_image = "${var.nano_worker_image}"
 
-#     network = "${var.network}"
-#     zone = "${var.zone}"
-#     datacenter = "tpg-nano-prod"
-#     subdomain = "tpg"
-#     join_type = "join-wan"
-# }
+    network = "${var.network}"
+    zone = "${var.zone}"
+    datacenter = "tpg-nano-prod"
+    subdomain = "tpg"
+    join_type = "join"
+}
