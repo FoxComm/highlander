@@ -59,11 +59,6 @@ func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 		order.ReferenceNumber,
 	)
 
-	log.Printf(
-		"Order content is: %v",
-		order,
-	)
-
 	b, err := json.Marshal(&order)
 	if err != nil {
 		return err
