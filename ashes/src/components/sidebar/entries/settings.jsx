@@ -19,6 +19,7 @@ type Props = {
 
 const userClaims = readAction(frn.settings.user);
 const pluginClaims = readAction(frn.settings.plugin);
+const applicationClaims = readAction(frn.settings.application);
 
 export default class SettingsEntry extends Component {
   props: Props;
@@ -28,7 +29,26 @@ export default class SettingsEntry extends Component {
     const allClaims = { ...userClaims, ...pluginClaims };
 
     if (!anyPermitted(allClaims, claims)) {
-      return <div></div>;
+      return (
+        <li>
+          <NavigationItem
+            to="integrations"
+            icon="icon-settings"
+            title="Settings"
+            isIndex={true}
+            isExpandable={true}
+            routes={routes}
+            collapsed={collapsed}
+            status={status}
+            toggleMenuItem={toggleMenuItem}>
+            <IndexLink
+              to="integrations"
+              className="fc-navigation-item__sublink">
+              Integrations
+            </IndexLink>
+          </NavigationItem>
+        </li>
+      );
     }
 
     return (
@@ -56,6 +76,13 @@ export default class SettingsEntry extends Component {
             actualClaims={claims}
             expectedClaims={pluginClaims}>
             Plugins
+          </Link>
+          <Link
+            to="applications"
+            className="fc-navigation-item__sublink"
+            actualClaims={claims}
+            expectedClaims={applicationClaims}>
+            Applications
           </Link>
         </NavigationItem>
       </li>

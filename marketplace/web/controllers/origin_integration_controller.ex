@@ -2,16 +2,16 @@ defmodule Marketplace.OriginIntegrationController do
   use Marketplace.Web, :controller
   alias Ecto.Multi
   alias Marketplace.Repo
+  alias Marketplace.MerchantAccount
   alias Marketplace.OriginIntegration
   alias Marketplace.MerchantOriginIntegration
   alias Marketplace.OriginIntegrationView
 
-  def create(conn, %{"origin_integration" => origin_integration_params, "merchant_id" => merchant_id}) do
-    case Repo.transaction(insert_and_relate(origin_integration_params, merchant_id)) do
+  def create(conn, %{"origin_integration" => origin_integration_params, "user_id" => user_id}) do
+    case Repo.transaction(insert_and_relate(origin_integration_params, user_id)) do
       {:ok, %{origin_integration: origin_integration, merchant_origin_integration: m_oi}} ->
         conn
         |> put_status(:created)
-        |> put_resp_header("location", merchant_origin_integration_path(conn, :show, merchant_id))
         |> render(OriginIntegrationView, "origin_integration.json", origin_integration: origin_integration)
       {:error, failed_operation, failed_value, changes_completed} ->
         conn
@@ -20,20 +20,40 @@ defmodule Marketplace.OriginIntegrationController do
     end
   end
 
-  def show(conn, %{"merchant_id" => m_id}) do
-    m_oi = Repo.get_by!(MerchantOriginIntegration, merchant_id: m_id)
+  def show(conn, %{"user_id" => s_id}) do
+    ma = Repo.get_by!(MerchantAccount, solomon_id: s_id)
+    m_oi = Repo.get_by!(MerchantOriginIntegration, merchant_id: ma.merchant_id)
     |> Repo.preload(:origin_integration)
 
     conn
     |> render(OriginIntegrationView, "show.json", origin_integration: m_oi.origin_integration)
   end
 
-  defp insert_and_relate(origin_integration_params, merchant_id) do
+  def update(conn, %{"user_id" => user_id, "origin_integration" => origin_integration_params}) do
+    ma = Repo.get_by!(MerchantAccount, solomon_id: user_id)
+    m_oi = Repo.get_by!(MerchantOriginIntegration, merchant_id: ma.merchant_id)
+    |> Repo.preload(:origin_integration)
+
+    changeset = OriginIntegration.update_changeset(m_oi.origin_integration, origin_integration_params)
+    case Repo.update(changeset) do
+      {:ok, origin_integration} ->
+        conn
+        |> render(OriginIntegrationView, "origin_integration.json", origin_integration: origin_integration)
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Marketplace.ChangesetView, "errors.json", changeset: changeset)
+    end
+  end
+
+  defp insert_and_relate(origin_integration_params, user_id) do
+    ma = Repo.get_by!(MerchantAccount, solomon_id: user_id)
+
     oi_cs = OriginIntegration.changeset(%OriginIntegration{}, origin_integration_params)
     Multi.new
     |> Multi.insert(:origin_integration, oi_cs)
     |> Multi.run(:merchant_origin_integration, fn %{origin_integration: origin_integration} ->
-      map_origin_integration_to_merchant(origin_integration, merchant_id) end
+      map_origin_integration_to_merchant(origin_integration, ma.merchant_id) end
     )
   end
 

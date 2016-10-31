@@ -35,7 +35,7 @@ config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
 config :marketplace, Marketplace.Repo,
-  adapter: Ecto.Adapters.Postgres, 
+  adapter: Ecto.Adapters.Postgres,
   username: System.get_env("DB_USER"),
   password: System.get_env("DB_PASSWORD"),
   database: System.get_env("DB_NAME"),
