@@ -7,6 +7,7 @@ type ShippingMethod struct {
 	Carrier Carrier `json:"carrier"`
 	Name    string  `json:"name"`
 	Code    string  `json:"code"`
+	Scope   string  `json:"scope"`
 }
 
 func NewShippingMethodFromModel(shippingMethod *models.ShippingMethod) *ShippingMethod {
@@ -15,5 +16,6 @@ func NewShippingMethodFromModel(shippingMethod *models.ShippingMethod) *Shipping
 		Carrier: *NewCarrierFromModel(&shippingMethod.Carrier),
 		Name:    shippingMethod.Name,
 		Code:    shippingMethod.Code,
+		Scope:   shippingMethod.Scope,
 	}
 }

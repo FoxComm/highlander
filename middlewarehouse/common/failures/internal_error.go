@@ -10,12 +10,12 @@ type internalError struct {
 	err error
 }
 
-func (f internalError) Status() int {
+func (failure internalError) Status() int {
 	return http.StatusInternalServerError
 }
 
-func (f internalError) ToJSON() responses.Error {
-	return toJSON(f.err)
+func (failure internalError) ToJSON() responses.Error {
+	return toJSON(failure.err)
 }
 
 func NewInternalError(err error) internalError {
