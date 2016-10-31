@@ -35,8 +35,8 @@ const renderBlock = (block) => {
       );
     case fieldTypes.PARAGRAPH_TITLE:
       return (
-        <p>
-          <strong styleName="paragraph-title" key={generateKey()}>{block.content}</strong>
+        <p key={generateKey()}>
+          <strong styleName="paragraph-title">{block.content}</strong>
         </p>
       );
     case fieldTypes.WELL:
