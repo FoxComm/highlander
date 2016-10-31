@@ -23,7 +23,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/solomon",
+      "image": "{{docker_registry}}:5000/solomon:{{docker_branch}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

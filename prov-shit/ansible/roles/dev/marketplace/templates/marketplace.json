@@ -27,7 +27,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/marketplace",
+      "image": "{{docker_registry}}:5000/marketplace:{{docker_branch}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

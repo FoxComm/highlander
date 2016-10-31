@@ -9,7 +9,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/stock-items-consumer",
+      "image": "{{docker_registry}}:5000/stock-items-consumer:{{docker_branch}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

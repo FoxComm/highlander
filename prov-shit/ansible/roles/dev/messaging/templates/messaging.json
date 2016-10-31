@@ -9,7 +9,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/messaging",
+      "image": "{{docker_registry}}:5000/messaging:{{docker_branch}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

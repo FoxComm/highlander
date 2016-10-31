@@ -35,6 +35,7 @@
     middlewarehouse_server: middlewarehouse.service.consul:9292
     marathon_server: marathon.service.consul:8080
     docker_db_host: db.service.consul
+    docker_branch: master
     updating_mwh: true
   tags:
     - frontend
