@@ -143,16 +143,16 @@ object LineItemUpdater {
                  SkuNotFoundForContext(lineItem.sku, contextId)
              )
       _            ← * <~ mustFindProductIdForSku(sku, cart.refNum)
-      updateResult ← * <~ addLineItems(sku.id, cart.refNum, lineItem.quantity, lineItem.attributes)
+      updateResult ← * <~ addLineItems(sku.id, lineItem.quantity, cart.refNum, lineItem.attributes)
     } yield updateResult
   }
 
   private def addLineItems(skuId: Int, quantity: Int, cordRef: String, attributes: Option[Json])(
       implicit ec: EC) = {
-      require(quantity > 0)
-      List
-          .fill(quantity)(CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes))
-          .map(CartLineItems.create(_))
+    require(quantity > 0)
+    List
+      .fill(quantity)(CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes))
+      .map(CartLineItems.create(_))
   }
 
   private def addQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload])(
@@ -167,17 +167,19 @@ object LineItemUpdater {
         _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
         actionsList ← * <~ (if (lineItem.quantity > 0)
                               addLineItems(sku.id,
-                                  lineItem.quantity,
-                                  cart.refNum,
-                                  lineItem.attributes)
+                                           lineItem.quantity,
+                                           cart.refNum,
+                                           lineItem.attributes)
                             else
                               removeLineItems(sku.id,
-                                                -lineItem.quantity,
-                                                cart.refNum,
-                                                lineItem.attributes))
+                                              -lineItem.quantity,
+                                              cart.refNum,
+                                              lineItem.attributes))
       } yield actionsList
     }
-    DbResultT.sequence(lineItemUpdActions)
+    DbResultT.sequence(lineItemUpdActions).map { actions ⇒
+      actions.map(_ ⇒ ())
+    }
   }
 
   private def mustFindProductIdForSku(sku: Sku, refNum: String)(implicit ec: EC, oc: OC) = {
@@ -217,9 +219,9 @@ object LineItemUpdater {
       .flatMap { lineItems ⇒
         val itemsWithSameAttributes =
           lineItemJsonAttributesComparison(lineItems, attributes).map(_.id)
-          val totalToDelete = Math.min(delta, itemsWithSameAttributes.length)
-        val idsToDelete = itemsWithSameAttributes.take(totalToDelete)
-          CartLineItems.filter(_.id inSet idsToDelete ).delete
+        val totalToDelete = Math.min(delta, itemsWithSameAttributes.length)
+        val idsToDelete   = itemsWithSameAttributes.take(totalToDelete)
+        CartLineItems.filter(_.id inSet idsToDelete).delete
       }
       .dbresult
       .meh

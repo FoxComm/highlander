@@ -16,7 +16,8 @@ case class CartLineItemProductData(sku: Sku,
                                    productForm: ObjectForm,
                                    productShadow: ObjectShadow,
                                    image: Option[String],
-                                   lineItem: CartLineItem)
+                                   lineItem: CartLineItem,
+                                   attributes: Option[Json] = None)
     extends LineItemProductData[CartLineItem] {
 
   def lineItemReferenceNumber = lineItem.referenceNumber

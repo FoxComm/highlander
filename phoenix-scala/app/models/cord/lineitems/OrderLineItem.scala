@@ -24,7 +24,7 @@ trait LineItemProductData[LI] {
   def productShadow: ObjectShadow
   def image: Option[String]
   def lineItem: LI
-
+  def attributes: Option[Json]
   def lineItemReferenceNumber: String
   def lineItemState: OrderLineItem.State
 }
@@ -35,7 +35,8 @@ case class OrderLineItemProductData(sku: Sku,
                                     productForm: ObjectForm,
                                     productShadow: ObjectShadow,
                                     image: Option[String],
-                                    lineItem: OrderLineItem)
+                                    lineItem: OrderLineItem,
+                                    attributes: Option[Json] = None)
     extends LineItemProductData[OrderLineItem] {
   def lineItemReferenceNumber = lineItem.referenceNumber
   def lineItemState           = lineItem.state

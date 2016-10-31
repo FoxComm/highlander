@@ -139,7 +139,8 @@ object CordResponseLineItems {
                          externalId = externalId,
                          productFormId = data.productForm.id,
                          totalPrice = price,
-                         quantity = quantity)
+                         quantity = quantity,
+                         attributes = data.attributes)
   }
 }
 
