@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/product-index/search-row"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/shared/golang/api"
 	"github.com/FoxComm/metamorphosis"
@@ -63,7 +64,7 @@ func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
 	}
 
 	visualVariants := []string{"Color", "Fabric"}
-	partialProducts, err := MakePartialProducts(prod.Product, visualVariants)
+	partialProducts, err := searchrow.MakePartialProducts(prod.Product, visualVariants)
 	if err != nil {
 		return fmt.Errorf("Error creating partial products with error: %s", err.Error())
 	}

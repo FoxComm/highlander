@@ -1,6 +1,6 @@
-package main
+package utils
 
-func getIntersection(arr1 []string, arr2 []string) []string {
+func GetIntersection(arr1 []string, arr2 []string) []string {
 	inter := []string{}
 	for _, a1 := range arr1 {
 		for _, a2 := range arr2 {

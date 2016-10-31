@@ -1,8 +1,9 @@
-package main
+package searchrow
 
 import (
 	"errors"
 
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/product-index/utils"
 	"github.com/FoxComm/highlander/shared/golang/api"
 )
 
@@ -61,7 +62,7 @@ func makeProducts(variants []api.Variant, state PartialProduct, visualVariants [
 		if len(state.AvailableSKUs) == 0 {
 			nas = value.SKUCodes
 		} else {
-			nas = getIntersection(state.AvailableSKUs, value.SKUCodes)
+			nas = utils.GetIntersection(state.AvailableSKUs, value.SKUCodes)
 		}
 
 		newVariants := map[string]string{variantName: value.Name}
@@ -92,5 +93,5 @@ func isVisual(name string, variants []string) bool {
 	}
 
 	nameArr := []string{name}
-	return len(getIntersection(nameArr, variants)) != 0
+	return len(utils.GetIntersection(nameArr, variants)) != 0
 }

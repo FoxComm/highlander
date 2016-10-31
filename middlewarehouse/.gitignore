@@ -25,3 +25,4 @@ capture-consumer
 
 # other binaries
 seeder
+consumers/product-index/product-index-consumer
