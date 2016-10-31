@@ -203,13 +203,6 @@ object LineItemUpdater {
     } yield link
   }
 
-  private def increaseLineItems(skuId: Int, delta: Int, cordRef: String, attributes: Option[Json])(
-      implicit ec: EC): DbResultT[Unit] = {
-    val itemsToInsert: List[CartLineItem] =
-      List.fill(delta)(CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes))
-    CartLineItems.createAll(itemsToInsert).meh
-  }
-
   private def removeLineItems(skuId: Int, delta: Int, cordRef: String, attributes: Option[Json])(
       implicit ec: EC): DbResultT[Unit] = {
     CartLineItems
@@ -218,7 +211,7 @@ object LineItemUpdater {
       .result
       .flatMap { lineItems ⇒
         val itemsWithSameAttributes =
-          lineItemJsonAttributesComparison(lineItems, attributes).map(_.id)
+            filterLineItemsByAttributes(lineItems, attributes).map(_.id)
         val totalToDelete = Math.min(delta, itemsWithSameAttributes.length)
         val idsToDelete   = itemsWithSameAttributes.take(totalToDelete)
         CartLineItems.filter(_.id inSet idsToDelete).delete
@@ -227,11 +220,11 @@ object LineItemUpdater {
       .meh
   }
 
-  private def lineItemJsonAttributesComparison(lineItems: Seq[CartLineItem],
+  private def filterLineItemsByAttributes(lineItems: Seq[CartLineItem],
                                                presentAttributes: Option[Json]) = {
     lineItems.filter { li ⇒
       (presentAttributes, li.attributes) match {
-        case (Some(p), Some(a))          ⇒ p == a
+        case (Some(p), Some(a))          ⇒ p.equals(a)
         case (None, Some(a: JNull.type)) ⇒ true
         case (None, None)                ⇒ true
         case _                           ⇒ false

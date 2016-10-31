@@ -85,6 +85,17 @@ class CartIntegrationTest
         .mustFailWith400(SkuWithNoProductAdded(cart.refNum, simpleSku.code))
     }
 
+      "adding a SKU that's associated through a variant should succeed" in new ProductAndVariants_Baked
+          with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+                val (_, _, skus) = productWithVariants
+                val code         = skus.head.code
+
+                    val testPayload = Seq(UpdateLineItemsPayload(code, 1))
+                val root        = cartsApi(cart.refNum).lineItems.add(testPayload).asTheResult[CartResponse]
+                val liSkus      = root.lineItems.skus
+                liSkus must have size 1
+      }
+
     "should respond with 404 if cart is not found" in {
       cartsApi("NOPE").lineItems.add(payload).mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
     }
@@ -218,87 +229,6 @@ class CartIntegrationTest
     }
   }
 
-  /*
-    "handles credit cards" - {
-      val today = new DateTime
-      val customerStub = Customer(email = "yax@yax.com", password = "password", firstName = "Yax", lastName = "Fuentes")
-      val payload = CreateCreditCard(holderName = "Jax", number = StripeSupport.successfulCard, cvv = "123",
-        expYear = today.getYear + 1, expMonth = today.getMonthOfYear, isDefault = true)
-
-      "fails if the cart is not found" in {
-        val response = POST(
-          s"v1/orders/5/payment-methods/credit-card",
-          payload)
-
-        response.status must === (StatusCodes.NotFound)
-      }
-
-      "fails if the payload is invalid" in {
-        val cart = Orders.save(Factories.cart.copy(customerId = 1)).gimme
-        val response = POST(
-          s"v1/orders/${cart.refNum}/payment-methods/credit-card",
-          payload.copy(cvv = "", holderName = ""))
-
-        val errors = parse(response.bodyText).extract[Errors]
-
-        errors must === (Map("errors" → Seq("holderName must not be empty", "cvv must match regular expression " +
-          "'[0-9]{3,4}'")))
-        response.status must === (StatusCodes.BadRequest)
-      }
-
-      "fails if the card is invalid according to Stripe" ignore {
-        val cart = Orders.save(Factories.cart.copy(customerId = 1)).gimme
-        val customerId = db.run(Customers.returningId += customerStub).futureValue
-        val response = POST(
-          s"v1/orders/${cart.refNum}/payment-methods/credit-card",
-          payload.copy(number = StripeSupport.declinedCard))
-
-        val body = response.bodyText
-        val errors = parse(body).extract[Errors]
-
-        errors must === (Map("errors" → Seq("Your card was declined.")))
-        response.status must === (StatusCodes.BadRequest)
-      }
-
-      /*
-      "successfully creates records" ignore {
-        val cart = Orders.save(Factories.cart.copy(customerId = 1)).gimme
-        val customerId = db.run(Customers.returningId += customerStub).futureValue
-        val customer = customerStub.copy(id = customerId)
-        val addressPayload = CreateAddressPayload(name = "Home", stateId = 46, state = "VA".some, street1 = "500 Blah",
-          city = "Richmond", zip = "50000")
-        val payloadWithAddress = payload.copy(address = addressPayload.some)
-
-        val response = POST(
-          s"v1/orders/${cart.refNum}/payment-methods/credit-card",
-          payloadWithAddress)
-
-        val body = response.bodyText
-
-        val cc = CreditCards.findById(1).futureValue.get
-        val payment = OrderPayments.findAllByOrderId(cart.refNum).futureValue.head
-        val (address, billingAddress) = BillingAddresses.findByPaymentId(payment.id).futureValue.get
-
-        val respOrder = parse(body).extract[fullCart.Root]
-
-        cc.customerId must === (customerId)
-        cc.lastFour must === (payload.lastFour)
-        cc.expMonth must === (payload.expMonth)
-        cc.expYear must === (payload.expYear)
-        cc.isDefault must === (true)
-
-        payment.appliedAmount must === (0)
-        payment.cordRef must === (cart.refNum)
-        payment.status must === ("auth")
-
-        response.status must === (StatusCodes.OK)
-
-        address.stateId must === (addressPayload.stateId)
-        address.customerId must === (customerId)
-      }
-   */
-    }
-   */
 
   "PATCH /v1/orders/:refNum/shipping-address/:id" - {
 
