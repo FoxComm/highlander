@@ -16,6 +16,7 @@ export type Account = {
   description?: string;
   email_address?: string;
   password?: string;
+  stripe_account_id?: string;
 }
 
 export type Accounts = Array<Account>;

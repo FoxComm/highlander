@@ -33,15 +33,15 @@ defmodule Marketplace.Router do
     get "/users/:user_id/origin_integrations", OriginIntegrationController, :show
     post "/users/:user_id/origin_integrations", OriginIntegrationController, :create
     patch "/users/:user_id/origin_integrations", OriginIntegrationController, :update
-    
-    resources "/merchants", MerchantController do 
+
+    resources "/merchants", MerchantController do
       post "/social_profile", MerchantSocialProfileController, :create, as: :social_profile
       get "/social_profile", MerchantSocialProfileController, :show, as: :social_profile
       patch "/social_profile", MerchantSocialProfileController, :update, as: :social_profile
       post "/business_profile", MerchantBusinessProfileController, :create, as: :business_profile
       get "/business_profile", MerchantBusinessProfileController, :show, as: :business_profile
       patch "/business_profile", MerchantBusinessProfileController, :update, as: :business_profile
-      post "/legal_profile", MerchantStripeController, :create, as: :legal_profile
+      post "/legal_profile", MerchantSqtripeController, :create, as: :legal_profile
       resources "/addresses", MerchantAddressController
       resources "/accounts", MerchantAccountController, as: :account
       get "/accounts/by_solomon_id/:solomon_id", MerchantAccountController, :show_by_solomon_id, as: :account
