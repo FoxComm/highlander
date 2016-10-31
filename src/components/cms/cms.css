@@ -16,16 +16,20 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin-bottom: 80px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .divider {
-  margin-bottom: 80px;
   width: 66px;
   border: 1px solid #212121;
 }
 
 .page-content {
   lost-column: 1/1;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .title {
@@ -40,7 +44,7 @@
 .paragraph-title {
   font-weight: 400;
   font-size: 16px;
-  letter-spacing: 0px;
+  letter-spacing: 0;
   line-height: 33px;
 }
 
@@ -72,6 +76,14 @@
 @media (--medium) {
   .page-title {
     font-size: 41px;
+  }
+
+  .page-content {
+    padding: 0;
+  }
+
+  .title-block {
+    padding: 0;
   }
 }
 
