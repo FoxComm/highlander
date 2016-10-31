@@ -1,0 +1,52 @@
+@import "colors.css";
+@import "variables.css";
+
+.add-to-cart-btn {
+  white-space: nowrap;
+  max-width: 40px;
+  overflow: hidden;
+  cursor: pointer;
+
+  &.expanded, &:hover {
+    max-width: 100%;
+    background-color: #3D2228;
+    color: white;
+    cursor: pointer;
+
+    & .add-btn-title {
+      opacity: 1;
+    }
+  }
+
+  &.expanded .add-icon {
+    border: none;
+    line-height: 40px;
+  }
+
+  &.expanded:hover {
+    background-color: #594B4D;
+  }
+}
+
+.add-icon {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #3D2228;
+  font-weight: bold;
+  font-size: 30px;
+  text-align: center;
+  display: inline-block;
+}
+
+.add-btn-title {
+  display: inline-block;
+  padding-left: 10px;
+  padding-right: 10px;
+  line-height: 40px;
+  vertical-align: top;
+  font-family: var(--font-main);
+  font-size: 12px;
+  font-weight: normal;
+
+  opacity: 0;
+}
