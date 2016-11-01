@@ -17,6 +17,8 @@ variable "datacenter" {
 }
 variable "network" {
 }
+variable "inventory" {
+}
 variable "bucket_location" {
 }
 
@@ -46,6 +48,7 @@ module "master_cluster" {
     zone            = "${var.zone}"
     datacenter      = "${var.datacenter}"
     network         = "${var.network}"
+    inventory       = "${var.inventory}"
     image           = "${var.master_image}"
     count           = "${var.masters_count}"
     ssh_user        = "${var.ssh_user}"
@@ -53,13 +56,15 @@ module "master_cluster" {
 }
 
 module "worker_cluster" {
-    source          = "../../modules/gce/swarm/worker"
-    zone            = "${var.zone}"
-    datacenter      = "${var.datacenter}"
-    network         = "${var.network}"
-    image           = "${var.worker_image}"
-    count           = "${var.workers_count}"
-    ssh_user        = "${var.ssh_user}"
-    ssh_private_key = "${var.ssh_private_key}"
+    source                 = "../../modules/gce/swarm/worker"
+    zone                   = "${var.zone}"
+    datacenter             = "${var.datacenter}"
+    network                = "${var.network}"
+    inventory              = "${var.inventory}"
+    docker_registry_bucket = "${google_storage_bucket.docker-registry.name}"
+    image                  = "${var.worker_image}"
+    count                  = "${var.workers_count}"
+    ssh_user               = "${var.ssh_user}"
+    ssh_private_key        = "${var.ssh_private_key}"
 }
 
