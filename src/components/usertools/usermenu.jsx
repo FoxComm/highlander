@@ -16,6 +16,7 @@ type Props = {
   toggleUserMenu: Function,
   logout: Function,
   fetchCart: Function,
+  t: Function,
 };
 
 class UserMenu extends Component {

@@ -81,7 +81,6 @@ class Login extends Component {
       if (_.isEmpty(lineItems)) {
         this.props.fetchCart();
       } else {
-        console.log('some present');
         this.props.saveLineItems();
       }
       browserHistory.push(this.props.getPath());
@@ -121,8 +120,6 @@ class Login extends Component {
         {t('Sign Up')}
       </Link>
     );
-
-    console.log(this.props.cart);
 
     return (
       <div>
