@@ -73,7 +73,7 @@
                    {:body (json/write-str
                             {:email @phoenix-email
                              :password @phoenix-password
-                             :kind "admin"})
+                             :org "tenant"})
                     :headers {"Content-Type" "application/json"}
                     :insecure? true})
       :headers

@@ -1,7 +1,7 @@
 build:
 	lein uberjar
 	
-docker:
+docker: build
 	docker build -t messaging .
 
 docker-push: docker
