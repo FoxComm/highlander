@@ -112,13 +112,13 @@ shortcuts:
   # Tinystack
   - name: Tinystack Amigo
     alias: tiny_amigo.json
-    target: packer/tinystack/amigo.json
+    target: packer/base/tinystack_amigo.json
   - name: Tinystack Backend
     alias: tiny_backend.json
-    target: packer/tinystack/backend.json
+    target: packer/base/tinystack_backend.json
   - name: Tinystack Frontend
     alias: tiny_frontend.json
-    target: packer/tinystack/frontend.json
+    target: packer/base/tinystack_frontend.json
 
 # Terraform shortcuts
 - type: monolith
