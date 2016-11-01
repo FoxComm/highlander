@@ -36,12 +36,13 @@ case class OrderResponse(referenceNumber: String,
 
 object OrderResponse {
 
-  def fromOrder(order: Order)(implicit db: DB, ec: EC): DbResultT[OrderResponse] =
+  def fromOrder(order: Order, grouped: Boolean)(implicit db: DB,
+                                                ec: EC): DbResultT[OrderResponse] =
     for {
       context      ← * <~ ObjectContexts.mustFindById400(order.contextId)
       payState     ← * <~ OrderQueries.getPaymentState(order.refNum)
       lineItemAdj  ← * <~ CordResponseLineItemAdjustments.fetch(order.refNum)
-      lineItems    ← * <~ CordResponseLineItems.fetch(order.refNum, lineItemAdj)
+      lineItems    ← * <~ CordResponseLineItems.fetch(order.refNum, lineItemAdj, grouped)
       promo        ← * <~ CordResponsePromotions.fetch(order.refNum)(db, ec, context)
       customer     ← * <~ Users.findOneByAccountId(order.accountId)
       customerData ← * <~ CustomersData.findOneByAccountId(order.accountId)
