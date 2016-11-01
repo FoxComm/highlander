@@ -9,6 +9,12 @@
   pre_tasks:
     - name: Wait for SSH accessible
       wait_for: port={{ssh_port}} delay=5 timeout=10
+    - name: Get Zookeeper URI
+      shell: /bin/echo "{{zookeepers_ips|map("regex_replace","(.*)","\\1:port")|join(",")}}" | sed 's/port/{{zookeeper_port}}/g'
+      register: zookeepers_object
+    - name: Set Zookeeper URI fact
+      set_fact:
+        zookeepers: "zk://{{zookeepers_object.stdout}}"
 
   sudo: true
   roles:
