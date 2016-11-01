@@ -1,0 +1,106 @@
+@import "colors.css";
+@import "variables.css";
+@import "media-queries.css";
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  background-color: #FBFBFB;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 50px;
+}
+
+.image {
+  width: 100%;
+  height: 300px;
+  border-radius: 10px;
+  background-color: #3E3436;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  font-size: 40px;
+  font-family: var(--font-playfair);
+}
+
+.card-form {
+  flex: 0 0 100%;
+  height: auto;
+  text-align: center;
+}
+
+.card-form-wrap {
+  padding: 0 50px;
+}
+
+.title {
+  composes: title from 'pages/catalog/pdp.css';
+}
+
+.description {
+  composes: description from 'pages/catalog/pdp.css';
+}
+
+.form {
+  margin-top: 40px;
+}
+
+.price-selector {
+  margin: 15px 0;
+}
+
+.input-field {
+  composes: text-input from "ui/css/input.css";
+  width: 100%;
+  border: 1px solid #3E3436;
+  margin-bottom: 15px;
+}
+
+.input-field::placeholder {
+  text-transform: uppercase;
+}
+
+.message-field {
+  composes: input-field;
+  height: 100px;
+  padding: 10px;
+}
+
+.add-to-cart-btn {
+  width: 100%;
+  margin-bottom: 70px;
+}
+
+@media (--large) {
+  .card-image {
+    width: 602px;
+    height: 578px;
+    flex: none;
+    padding: 150px 50px;
+  }
+
+  .image {
+  }
+
+  .card-form {
+    flex: 1;
+  }
+
+  .form {
+    width: 500px;
+    margin: 0 auto;
+  }
+
+  .input-field {
+    /*width: 500px;*/
+  }
+}

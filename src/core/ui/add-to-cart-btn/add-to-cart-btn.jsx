@@ -9,12 +9,13 @@ import styles from './add-to-cart-btn.css';
 
 type Props = {
   expanded?: bool,
-  onClick: Function,
+  onClick?: Function,
+  className?: string,
 };
 
 const AddToCartBtn = (props: Props) => {
-  const { expanded = false, onClick, ...restProps } = props;
-  const cls = cx(styles['add-to-cart-btn'], {
+  const { expanded = false, onClick, className, ...restProps } = props;
+  const cls = cx(className, styles['add-to-cart-btn'], {
     [styles.expanded]: expanded,
   });
 

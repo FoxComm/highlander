@@ -74,7 +74,7 @@ class Header extends React.Component {
             <Icon styleName="logo" name="fc-logo"/>
           </Link>
           <div styleName="navigation">
-            <Navigation onClick={this.changeCategoryCallback}/>
+            <Navigation onClick={this.changeCategoryCallback} hasAllLink />
           </div>
           <div styleName="tools">
             <UserTools path={this.props.path} query={this.props.query}/>
