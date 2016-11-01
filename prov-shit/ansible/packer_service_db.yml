@@ -18,4 +18,5 @@
     - { role: base/rsyslog, sudo: yes }
     - { role: base/consul_agent }
     - { role: base/db }
+    - { role: base/bottledwater }
     - { role: base/isaac }

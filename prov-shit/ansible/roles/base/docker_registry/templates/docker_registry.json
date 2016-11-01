@@ -1,7 +1,7 @@
 {
     "service" : {
-        "name": "docker_registry",
-        "tags": ["docker_registry"],
+        "name": "docker-registry",
+        "tags": ["docker-registry"],
         "port": 5000,
         "checks": [
             {

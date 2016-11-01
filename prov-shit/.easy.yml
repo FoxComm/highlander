@@ -56,9 +56,6 @@ shortcuts:
   - name: Bootstrap Messaging Plugin
     alias: messaging_plugin.yml
     target: ansible/bootstrap_messaging_plugin.yml
-  - name: Bootstrap Mesos Consul
-    alias: mesos_consul.yml
-    target: ansible/bootstrap_mesos_consul.yml
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
@@ -80,32 +77,6 @@ shortcuts:
   - name: Bootstrap Vanilla VPN
     alias: vanilla_vpn.yml
     target: ansible/bootstrap_vanilla_vpn.yml
-
-  # Hotfix playbooks
-  - name: Hotfix Balancer
-    alias: balancer.yml
-    target: ansible/hotfix_balancer.yml
-  - name: Hotfix Database
-    alias: db.yml
-    target: ansible/hotfix_db.yml
-  - name: Hotfix Docker Registry
-    alias: docker_registry.yml
-    target: ansible/hotfix_docker_registry.yml
-  - name: Hotfix Mesos
-    alias: mesos.yml
-    target: ansible/hotfix_mesos.yml
-  - name: Hotfix Mesos Worker
-    alias: mesos_worker.yml
-    target: ansible/hotfix_mesos_worker.yml
-  - name: Hotfix Stage Consul
-    alias: stage_consul.yml
-    target: ansible/hotfix_stage_consul.yml
-  - name: Hotfix Stage Database
-    alias: stage_db.yml
-    target: ansible/hotfix_stage_db.yml
-  - name: Hotfix Zookeeper
-    alias: openvpn_key.yml
-    target: ansible/hotfix_zk.yml
 
 # Packer shortcuts
 - type: snowflake
@@ -243,8 +214,8 @@ shortcuts:
     alias: topdrawer
     target: terraform/base/gce_topdrawer
   - name: The Perfect Gourmet
-    alias: staging
+    alias: tpg
     target: terraform/base/gce_tpg
   - name: Vanilla
-    alias: staging
+    alias: vanilla
     target: terraform/base/gce_vanilla

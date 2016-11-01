@@ -9,7 +9,7 @@
   sudo: true
 
 - name: Copy Zookeeper Service Files
-  copy: src=zookeeper.service dest={{dest_services}}/
+  copy: src=zookeeper.service dest={{dest_services}}/zookeeper.service
   sudo: true
 
 - name: Reload Systemd for Kafka Related Services
