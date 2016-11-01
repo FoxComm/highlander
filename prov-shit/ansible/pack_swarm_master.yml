@@ -2,8 +2,6 @@
 
 - name: Packing Swarm Master Image
   hosts: all
-  tags:
-    - packer
   vars:
     user: ubuntu
 

@@ -36,8 +36,8 @@ provider "google" {
     region      = "${var.region}"
 }
 
-resource "google_storage_bucket" "test-registry" {
-    name     = "${var.datacenter}-test-docker"
+resource "google_storage_bucket" "docker-registry" {
+    name     = "${var.datacenter}-docker"
     location = "${var.bucket_location}"
 }
 
