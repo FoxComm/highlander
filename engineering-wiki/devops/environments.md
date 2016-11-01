@@ -10,7 +10,7 @@ Navigation:
 * Platform: [Google Compute Engine](https://console.cloud.google.com/compute/instances?project=foxcomm-staging&authuser=1)
 * VPN IP: `146.148.43.48`
 * Consul - http://dev.consul.foxcommerce.com:8500/ui
-* Docker Registry: https://docker.stage.foxcommerce.com:5000 (uses `stage-docker` storage bucket)
+* Docker Registry: https://docker.stage.foxcommerce.com:5000
 
 #### Development
 
