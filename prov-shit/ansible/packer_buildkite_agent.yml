@@ -2,8 +2,6 @@
 
 - name: Pack Buildkite Agent image
   hosts: all
-  tags:
-    - packer
   vars:
     user: '{{ansible_ssh_user}}'
 

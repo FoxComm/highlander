@@ -2,8 +2,6 @@
 
 - name: Provision Packer Stage Backend
   hosts: all
-  tags:
-      - packer-tinystack-backend
   vars:
     zookeeper_server: "zookeeper.service.consul:2181"
     zookeepers: zk://zookeeper.service.consul:2181
@@ -24,6 +22,3 @@
     - { role: base/bottledwater }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml

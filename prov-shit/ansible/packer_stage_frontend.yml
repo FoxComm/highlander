@@ -2,8 +2,6 @@
 
 - name: Provision Packer Twostack Frontend
   hosts: all
-  tags:
-      - packer-tinystack-frontend
   vars:
     user: ubuntu
     packing: true
@@ -40,6 +38,3 @@
     - { role: base/phoenix }
     - { role: base/greenriver }
     - { role: base/balancer, sudo: yes }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
