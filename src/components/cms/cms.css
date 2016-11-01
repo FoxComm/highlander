@@ -42,10 +42,14 @@
 }
 
 .paragraph-title {
-  font-weight: 400;
-  font-size: 16px;
-  letter-spacing: 0;
   line-height: 33px;
+  font-family: 'Playfair Display';
+  font-weight: 400;
+  font-size: 20px;
+  color: #212121;
+  letter-spacing: 2.26px;
+  margin-top: 40px;
+  margin-bottom: 20px;
 }
 
 .paragraph {
@@ -64,12 +68,14 @@
 }
 
 .link {
+  font-weight: 400;
+  font-size: 16px;
   color: #8D757A;
-  text-decoration: none;
-  font-weight: 500;
+  line-height: 33px;
+  text-decoration: underline;
 
   &:hover {
-    color: #3E3436;
+    color: var(--bunker);
   }
 }
 
