@@ -39,9 +39,6 @@ shortcuts:
   - name: Bootstrap Backend
     alias: backend.yml
     target: ansible/bootstrap_backend.yml
-  - name: Bootstrap Build Agents
-    alias: build_agents.yml
-    target: ansible/bootstrap_build_agents.yml
   - name: Bootstrap Build Agents Keys
     alias: build_agent_keys.yml
     target: ansible/bootstrap_build_agent_keys.yml
