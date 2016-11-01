@@ -1,6 +1,8 @@
 package searchrow
 
 import (
+	"strings"
+
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/product-index/utils"
 	"github.com/FoxComm/highlander/shared/golang/api"
 )
@@ -78,6 +80,6 @@ func isVisual(name string, variants []string) bool {
 		return true
 	}
 
-	nameArr := []string{name}
+	nameArr := []string{strings.ToLower(name)}
 	return len(utils.GetIntersection(nameArr, variants)) != 0
 }

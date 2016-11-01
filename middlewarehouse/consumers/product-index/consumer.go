@@ -43,8 +43,6 @@ type ConsumerProduct struct {
 }
 
 func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
-	log.Printf("Received message %s", string(m.Bytes()))
-
 	activity, err := activities.NewActivityFromAvro(m)
 	if err != nil {
 		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
@@ -64,7 +62,7 @@ func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
 		return fmt.Errorf("Error unmarshalling activity data into product with error: %s", err.Error())
 	}
 
-	visualVariants := []string{"Color", "Fabric", "Pattern"}
+	visualVariants := []string{"color", "material", "style", "pattern"}
 	partialProducts, err := searchrow.MakePartialProducts(prod.Product, visualVariants)
 	if err != nil {
 		return fmt.Errorf("Error creating partial products with error: %s", err.Error())

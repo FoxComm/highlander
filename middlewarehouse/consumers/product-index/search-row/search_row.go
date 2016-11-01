@@ -36,11 +36,6 @@ func NewSearchRow(p *api.Product, pp PartialProduct) (*SearchRow, error) {
 		row.Variants = append(row.Variants, value)
 	}
 
-	log.Printf("888888888888888888888888888888888888888888888888888")
-	log.Printf("Tags: %v", row.Tags)
-	log.Printf("Variants: %v", row.Variants)
-	log.Printf("888888888888888888888888888888888888888888888888888")
-
 	// Use the first SKU for any SKU-specific values
 	code := pp.AvailableSKUs[0]
 	var sku api.SKU
@@ -82,6 +77,18 @@ func NewSearchRow(p *api.Product, pp PartialProduct) (*SearchRow, error) {
 
 	row.SalePrice = price.Value
 	row.Currency = price.Currency
+
+	log.Printf("Creating search row")
+	log.Printf("ProductID: %d", row.ProductID)
+	log.Printf("Context: %s", row.Context)
+	log.Printf("SKUs: %q", row.SKUs)
+	log.Printf("Variants: %q", row.Variants)
+	log.Printf("Title: %s", row.Title)
+	log.Printf("Description: %s", row.Description)
+	log.Printf("Image: %s", row.Image)
+	log.Printf("SalePrice: %d", row.SalePrice)
+	log.Printf("Currency: %s", row.Currency)
+	log.Printf("Tags: %q", row.Tags)
 
 	return row, nil
 }
