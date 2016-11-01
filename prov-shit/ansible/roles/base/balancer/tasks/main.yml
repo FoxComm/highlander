@@ -2,12 +2,14 @@
 
 - name: Add nginx apt key
   apt_key: url=http://nginx.org/packages/keys/nginx_signing.key
+  sudo: true
 
 - name: Add nginx apt repository
   apt_repository: repo='{{ item }}' state=present update_cache=yes
   with_items:
     - deb http://nginx.org/packages/mainline/ubuntu/ vivid nginx
     - deb-src http://nginx.org/packages/mainline/ubuntu/ vivid nginx
+  sudo: true
 
 - name: Install nginx dependencies
   apt: name={{ item }} force=yes state=latest
@@ -16,8 +18,8 @@
     - lua-cjson
     - lua-cjson-dev
     - nginx-extras
+  sudo: true
 
 - name: Copy Consul Service File
   template: src=balancer.json dest="/etc/consul.d/balancer.json"
   sudo: true
-  notify: reload consul

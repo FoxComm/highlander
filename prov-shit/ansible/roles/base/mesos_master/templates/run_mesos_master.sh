@@ -1,9 +1,17 @@
 #!/bin/bash
 
-export MESOS_WEBUI_DIR=/usr/local/share/mesos/webui
+set -ue
+
 WORK_DIR=/var/lib/mesos
 IP=`hostname -I | awk '{print $1}'`
 QUORUM={{mesos_quorum}}
+CLUSTER_NAME={{mesos_cluster_name}}
 
-mesos-master --hostname=$IP --quorum=$QUORUM --ip=$IP --work_dir=$WORK_DIR --zk={{zookeepers}}/mesos --cluster=fox
+export MESOS_WEBUI_DIR=/usr/share/mesos/webui
 
+mesos-master --ip=$IP \
+    --hostname=$IP \
+    --zk={{zookeepers}}/mesos \
+    --quorum=$QUORUM \
+    --work_dir=$WORK_DIR \
+    --cluster=$CLUSTER_NAME

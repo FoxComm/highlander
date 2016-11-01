@@ -1,0 +1,8 @@
+account_file       = "foxcomm-vanilla.json"
+gce_project        = "foxcommerce-production-shared"
+network            = "tpg"
+region             = "us-central1"
+zone               = "us-central1-a"
+nano_amigo_image   = "nanostack-amigo-1477915939"
+nano_storage_image = "nanostack-storage-1477915950"
+nano_worker_image  = "nanostack-worker-1477918896"

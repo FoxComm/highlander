@@ -1,0 +1,18 @@
+---
+
+- name: Packing Nanostack Amigo Image
+  hosts: all
+  vars:
+    user: ubuntu
+    packing: true
+  post_tasks:
+    - name: Sweet Dreams
+      pause: seconds=5
+
+  roles:
+    - { role: base/consul_server }
+    - { role: base/zookeeper }
+    - { role: base/docker_registry }
+    - { role: base/mesos_master }
+    - { role: base/mesos_consul }
+    - { role: base/balancer }

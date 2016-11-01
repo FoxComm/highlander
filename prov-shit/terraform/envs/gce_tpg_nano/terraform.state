@@ -1,0 +1,415 @@
+{
+    "version": 3,
+    "terraform_version": "0.7.4",
+    "serial": 4,
+    "lineage": "dfde73bc-af2e-4d88-a0ee-e2880565445b",
+    "modules": [
+        {
+            "path": [
+                "root"
+            ],
+            "outputs": {},
+            "resources": {
+                "google_storage_bucket.database-backups": {
+                    "type": "google_storage_bucket",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "tpg-nano-db-backups",
+                        "attributes": {
+                            "force_destroy": "false",
+                            "id": "tpg-nano-db-backups",
+                            "location": "us",
+                            "name": "tpg-nano-db-backups",
+                            "self_link": "https://www.googleapis.com/storage/v1/b/tpg-nano-db-backups"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "google_storage_bucket.docker-registry": {
+                    "type": "google_storage_bucket",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "tpg-nano-docker",
+                        "attributes": {
+                            "force_destroy": "false",
+                            "id": "tpg-nano-docker",
+                            "location": "us",
+                            "name": "tpg-nano-docker",
+                            "self_link": "https://www.googleapis.com/storage/v1/b/tpg-nano-docker"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                }
+            },
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "tpg_nano_production"
+            ],
+            "outputs": {
+                "consul_address": {
+                    "sensitive": false,
+                    "type": "string",
+                    "value": "10.0.0.20"
+                }
+            },
+            "resources": {
+                "dnsimple_record.dns_record": {
+                    "type": "dnsimple_record",
+                    "depends_on": [
+                        "google_compute_instance.amigo"
+                    ],
+                    "primary": {
+                        "id": "6619515",
+                        "attributes": {
+                            "domain": "foxcommerce.com",
+                            "domain_id": "123968",
+                            "hostname": "tpg.foxcommerce.com",
+                            "id": "6619515",
+                            "name": "tpg",
+                            "priority": "0",
+                            "ttl": "3600",
+                            "type": "A",
+                            "value": "10.0.0.20"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "google_compute_instance.amigo": {
+                    "type": "google_compute_instance",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "tpg-nano-prod-amigo",
+                        "attributes": {
+                            "can_ip_forward": "false",
+                            "disk.#": "1",
+                            "disk.0.auto_delete": "true",
+                            "disk.0.device_name": "",
+                            "disk.0.disk": "",
+                            "disk.0.image": "nanostack-amigo-1477915939",
+                            "disk.0.scratch": "false",
+                            "disk.0.size": "10",
+                            "disk.0.type": "pd-ssd",
+                            "id": "tpg-nano-prod-amigo",
+                            "machine_type": "n1-standard-2",
+                            "metadata.%": "0",
+                            "metadata_fingerprint": "T7NK9iJnyFA=",
+                            "name": "tpg-nano-prod-amigo",
+                            "network.#": "0",
+                            "network_interface.#": "1",
+                            "network_interface.0.access_config.#": "0",
+                            "network_interface.0.address": "10.0.0.20",
+                            "network_interface.0.name": "nic0",
+                            "network_interface.0.network": "tpg",
+                            "network_interface.0.subnetwork": "",
+                            "self_link": "https://www.googleapis.com/compute/v1/projects/foxcommerce-production-shared/zones/us-central1-a/instances/tpg-nano-prod-amigo",
+                            "service_account.#": "0",
+                            "tags.#": "5",
+                            "tags.1472900357": "no-ip",
+                            "tags.1936433573": "https-server",
+                            "tags.2505412517": "tpg-nano-prod",
+                            "tags.4002270276": "ssh",
+                            "tags.988335155": "http-server",
+                            "tags_fingerprint": "SOTixQe4voc=",
+                            "zone": "us-central1-a"
+                        },
+                        "meta": {
+                            "schema_version": "2"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "google_compute_instance.storage": {
+                    "type": "google_compute_instance",
+                    "depends_on": [
+                        "google_compute_instance.amigo"
+                    ],
+                    "primary": {
+                        "id": "tpg-nano-prod-storage",
+                        "attributes": {
+                            "can_ip_forward": "false",
+                            "disk.#": "1",
+                            "disk.0.auto_delete": "true",
+                            "disk.0.device_name": "",
+                            "disk.0.disk": "",
+                            "disk.0.image": "nanostack-storage-1477915950",
+                            "disk.0.scratch": "false",
+                            "disk.0.size": "30",
+                            "disk.0.type": "pd-ssd",
+                            "id": "tpg-nano-prod-storage",
+                            "machine_type": "n1-highmem-4",
+                            "metadata.%": "0",
+                            "metadata_fingerprint": "T7NK9iJnyFA=",
+                            "name": "tpg-nano-prod-storage",
+                            "network.#": "0",
+                            "network_interface.#": "1",
+                            "network_interface.0.access_config.#": "0",
+                            "network_interface.0.address": "10.0.0.21",
+                            "network_interface.0.name": "nic0",
+                            "network_interface.0.network": "tpg",
+                            "network_interface.0.subnetwork": "",
+                            "self_link": "https://www.googleapis.com/compute/v1/projects/foxcommerce-production-shared/zones/us-central1-a/instances/tpg-nano-prod-storage",
+                            "service_account.#": "0",
+                            "tags.#": "3",
+                            "tags.1472900357": "no-ip",
+                            "tags.2505412517": "tpg-nano-prod",
+                            "tags.4002270276": "ssh",
+                            "tags_fingerprint": "5N4qaWTgNQ0=",
+                            "zone": "us-central1-a"
+                        },
+                        "meta": {
+                            "schema_version": "2"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "google_compute_instance.worker": {
+                    "type": "google_compute_instance",
+                    "depends_on": [
+                        "google_compute_instance.amigo"
+                    ],
+                    "primary": {
+                        "id": "tpg-nano-prod-worker",
+                        "attributes": {
+                            "can_ip_forward": "false",
+                            "disk.#": "1",
+                            "disk.0.auto_delete": "true",
+                            "disk.0.device_name": "",
+                            "disk.0.disk": "",
+                            "disk.0.image": "nanostack-worker-1477918896",
+                            "disk.0.scratch": "false",
+                            "disk.0.size": "100",
+                            "disk.0.type": "pd-ssd",
+                            "id": "tpg-nano-prod-worker",
+                            "machine_type": "n1-highmem-8",
+                            "metadata.%": "0",
+                            "metadata_fingerprint": "T7NK9iJnyFA=",
+                            "name": "tpg-nano-prod-worker",
+                            "network.#": "0",
+                            "network_interface.#": "1",
+                            "network_interface.0.access_config.#": "0",
+                            "network_interface.0.address": "10.0.0.22",
+                            "network_interface.0.name": "nic0",
+                            "network_interface.0.network": "tpg",
+                            "network_interface.0.subnetwork": "",
+                            "self_link": "https://www.googleapis.com/compute/v1/projects/foxcommerce-production-shared/zones/us-central1-a/instances/tpg-nano-prod-worker",
+                            "service_account.#": "1",
+                            "service_account.0.email": "594091449665-compute@developer.gserviceaccount.com",
+                            "service_account.0.scopes.#": "1",
+                            "service_account.0.scopes.1632638332": "https://www.googleapis.com/auth/devstorage.read_only",
+                            "tags.#": "3",
+                            "tags.1472900357": "no-ip",
+                            "tags.2505412517": "tpg-nano-prod",
+                            "tags.4002270276": "ssh",
+                            "tags_fingerprint": "5N4qaWTgNQ0=",
+                            "zone": "us-central1-a"
+                        },
+                        "meta": {
+                            "schema_version": "2"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                }
+            },
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "tpg_nano_staging"
+            ],
+            "outputs": {
+                "consul_address": {
+                    "sensitive": false,
+                    "type": "string",
+                    "value": "10.0.0.17"
+                }
+            },
+            "resources": {
+                "dnsimple_record.dns_record": {
+                    "type": "dnsimple_record",
+                    "depends_on": [
+                        "google_compute_instance.amigo"
+                    ],
+                    "primary": {
+                        "id": "6618848",
+                        "attributes": {
+                            "domain": "foxcommerce.com",
+                            "domain_id": "123968",
+                            "hostname": "tpg-stage.foxcommerce.com",
+                            "id": "6618848",
+                            "name": "tpg-stage",
+                            "priority": "0",
+                            "ttl": "3600",
+                            "type": "A",
+                            "value": "10.0.0.17"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "google_compute_instance.amigo": {
+                    "type": "google_compute_instance",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "tpg-nano-stage-amigo",
+                        "attributes": {
+                            "can_ip_forward": "false",
+                            "disk.#": "1",
+                            "disk.0.auto_delete": "true",
+                            "disk.0.device_name": "",
+                            "disk.0.disk": "",
+                            "disk.0.image": "nanostack-amigo-1477915939",
+                            "disk.0.scratch": "false",
+                            "disk.0.size": "10",
+                            "disk.0.type": "pd-ssd",
+                            "id": "tpg-nano-stage-amigo",
+                            "machine_type": "n1-standard-2",
+                            "metadata.%": "0",
+                            "metadata_fingerprint": "T7NK9iJnyFA=",
+                            "name": "tpg-nano-stage-amigo",
+                            "network.#": "0",
+                            "network_interface.#": "1",
+                            "network_interface.0.access_config.#": "0",
+                            "network_interface.0.address": "10.0.0.17",
+                            "network_interface.0.name": "nic0",
+                            "network_interface.0.network": "tpg",
+                            "network_interface.0.subnetwork": "",
+                            "self_link": "https://www.googleapis.com/compute/v1/projects/foxcommerce-production-shared/zones/us-central1-a/instances/tpg-nano-stage-amigo",
+                            "service_account.#": "0",
+                            "tags.#": "5",
+                            "tags.1472900357": "no-ip",
+                            "tags.176890743": "tpg-nano-stage",
+                            "tags.1936433573": "https-server",
+                            "tags.4002270276": "ssh",
+                            "tags.988335155": "http-server",
+                            "tags_fingerprint": "RRfQNVFI2j0=",
+                            "zone": "us-central1-a"
+                        },
+                        "meta": {
+                            "schema_version": "2"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "google_compute_instance.storage": {
+                    "type": "google_compute_instance",
+                    "depends_on": [
+                        "google_compute_instance.amigo"
+                    ],
+                    "primary": {
+                        "id": "tpg-nano-stage-storage",
+                        "attributes": {
+                            "can_ip_forward": "false",
+                            "disk.#": "1",
+                            "disk.0.auto_delete": "true",
+                            "disk.0.device_name": "",
+                            "disk.0.disk": "",
+                            "disk.0.image": "nanostack-storage-1477915950",
+                            "disk.0.scratch": "false",
+                            "disk.0.size": "30",
+                            "disk.0.type": "pd-ssd",
+                            "id": "tpg-nano-stage-storage",
+                            "machine_type": "n1-highmem-4",
+                            "metadata.%": "0",
+                            "metadata_fingerprint": "T7NK9iJnyFA=",
+                            "name": "tpg-nano-stage-storage",
+                            "network.#": "0",
+                            "network_interface.#": "1",
+                            "network_interface.0.access_config.#": "0",
+                            "network_interface.0.address": "10.0.0.18",
+                            "network_interface.0.name": "nic0",
+                            "network_interface.0.network": "tpg",
+                            "network_interface.0.subnetwork": "",
+                            "self_link": "https://www.googleapis.com/compute/v1/projects/foxcommerce-production-shared/zones/us-central1-a/instances/tpg-nano-stage-storage",
+                            "service_account.#": "0",
+                            "tags.#": "3",
+                            "tags.1472900357": "no-ip",
+                            "tags.176890743": "tpg-nano-stage",
+                            "tags.4002270276": "ssh",
+                            "tags_fingerprint": "yyotq-n4g5A=",
+                            "zone": "us-central1-a"
+                        },
+                        "meta": {
+                            "schema_version": "2"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "google_compute_instance.worker": {
+                    "type": "google_compute_instance",
+                    "depends_on": [
+                        "google_compute_instance.amigo"
+                    ],
+                    "primary": {
+                        "id": "tpg-nano-stage-worker",
+                        "attributes": {
+                            "can_ip_forward": "false",
+                            "disk.#": "1",
+                            "disk.0.auto_delete": "true",
+                            "disk.0.device_name": "",
+                            "disk.0.disk": "",
+                            "disk.0.image": "nanostack-worker-1477918896",
+                            "disk.0.scratch": "false",
+                            "disk.0.size": "100",
+                            "disk.0.type": "pd-ssd",
+                            "id": "tpg-nano-stage-worker",
+                            "machine_type": "n1-highmem-8",
+                            "metadata.%": "0",
+                            "metadata_fingerprint": "T7NK9iJnyFA=",
+                            "name": "tpg-nano-stage-worker",
+                            "network.#": "0",
+                            "network_interface.#": "1",
+                            "network_interface.0.access_config.#": "0",
+                            "network_interface.0.address": "10.0.0.19",
+                            "network_interface.0.name": "nic0",
+                            "network_interface.0.network": "tpg",
+                            "network_interface.0.subnetwork": "",
+                            "self_link": "https://www.googleapis.com/compute/v1/projects/foxcommerce-production-shared/zones/us-central1-a/instances/tpg-nano-stage-worker",
+                            "service_account.#": "1",
+                            "service_account.0.email": "594091449665-compute@developer.gserviceaccount.com",
+                            "service_account.0.scopes.#": "1",
+                            "service_account.0.scopes.1632638332": "https://www.googleapis.com/auth/devstorage.read_only",
+                            "tags.#": "3",
+                            "tags.1472900357": "no-ip",
+                            "tags.176890743": "tpg-nano-stage",
+                            "tags.4002270276": "ssh",
+                            "tags_fingerprint": "yyotq-n4g5A=",
+                            "zone": "us-central1-a"
+                        },
+                        "meta": {
+                            "schema_version": "2"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                }
+            },
+            "depends_on": []
+        }
+    ]
+}

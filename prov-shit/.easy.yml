@@ -56,9 +56,6 @@ shortcuts:
   - name: Bootstrap Messaging Plugin
     alias: messaging_plugin.yml
     target: ansible/bootstrap_messaging_plugin.yml
-  - name: Bootstrap Mesos Consul
-    alias: mesos_consul.yml
-    target: ansible/bootstrap_mesos_consul.yml
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
@@ -81,32 +78,6 @@ shortcuts:
     alias: vanilla_vpn.yml
     target: ansible/bootstrap_vanilla_vpn.yml
 
-  # Hotfix playbooks
-  - name: Hotfix Balancer
-    alias: balancer.yml
-    target: ansible/hotfix_balancer.yml
-  - name: Hotfix Database
-    alias: db.yml
-    target: ansible/hotfix_db.yml
-  - name: Hotfix Docker Registry
-    alias: docker_registry.yml
-    target: ansible/hotfix_docker_registry.yml
-  - name: Hotfix Mesos
-    alias: mesos.yml
-    target: ansible/hotfix_mesos.yml
-  - name: Hotfix Mesos Worker
-    alias: mesos_worker.yml
-    target: ansible/hotfix_mesos_worker.yml
-  - name: Hotfix Stage Consul
-    alias: stage_consul.yml
-    target: ansible/hotfix_stage_consul.yml
-  - name: Hotfix Stage Database
-    alias: stage_db.yml
-    target: ansible/hotfix_stage_db.yml
-  - name: Hotfix Zookeeper
-    alias: openvpn_key.yml
-    target: ansible/hotfix_zk.yml
-
 # Packer shortcuts
 - type: snowflake
   process: packer build
@@ -125,6 +96,7 @@ shortcuts:
       staging: packer/envs/staging/config.json
       topdrawer: packer/envs/topdrawer/config.json
       tpg: packer/envs/tpg/config.json
+      tpg-nano: packer/envs/tpg-nano/config.json
       vanilla: packer/envs/vanilla/config.json
 
   targets:
@@ -141,6 +113,20 @@ shortcuts:
   - name: Base Node Image
     alias: base_node.json
     target: packer/base/base_node.json
+
+  # Nanostack
+  - name: Base Nanostack Image
+    alias: nano_base.json
+    target: packer/nanostack/base.json
+  - name: Base Nanostack Amigo Image
+    alias: nano_amigo.json
+    target: packer/nanostack/amigo.json
+  - name: Base Nanostack Storage Image
+    alias: nano_storage.json
+    target: packer/nanostack/storage.json
+  - name: Base Nanostack Worker Image
+    alias: nano_worker.json
+    target: packer/nanostack/worker.json
 
   # Vanilla
   - name: Vanilla Amigo
@@ -210,6 +196,7 @@ shortcuts:
       target-dev: terraform/envs/aws_target_dev/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
+      tpg-nano: terraform/envs/gce_tpg_nano/terraform.state
       vanilla: terraform/envs/gce_vanilla/terraform.tfstate
   - name: Variable Files
     flag: "-var-file"
@@ -221,6 +208,7 @@ shortcuts:
       target-dev: terraform/envs/aws_target_dev/target.tfvars
       topdrawer: terraform/envs/gce_topdrawer/topdrawer.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
+      tpg-nano: terraform/envs/gce_tpg_nano/tpg.tfvars
       vanilla: terraform/envs/gce_vanilla/vanilla.tfvars
 
   targets:
@@ -243,8 +231,11 @@ shortcuts:
     alias: topdrawer
     target: terraform/base/gce_topdrawer
   - name: The Perfect Gourmet
-    alias: staging
+    alias: tpg
     target: terraform/base/gce_tpg
+  - name: TPG Nanostack
+    alias: tpg-nano
+    target: terraform/base/gce_tpg_nano
   - name: Vanilla
-    alias: staging
+    alias: vanilla
     target: terraform/base/gce_vanilla

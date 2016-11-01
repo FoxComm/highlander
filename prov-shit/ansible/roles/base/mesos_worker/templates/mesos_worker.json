@@ -1,7 +1,7 @@
 {
     "service" : {
-        "name": "mesos_worker",
-        "tags": ["mesos_worker"], 
+        "name": "mesos-worker",
+        "tags": ["mesos-worker"],
         "port": 5050,
         "checks": [
             {
