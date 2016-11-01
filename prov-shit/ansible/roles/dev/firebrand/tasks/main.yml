@@ -4,7 +4,7 @@
   file: path=/marathon/applications state=directory
   sudo: true
 
-- name: Copy Ashes Marathon JSON
+- name: Copy Firebrand Marathon JSON
   template: src=firebrand.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
   sudo: true
 

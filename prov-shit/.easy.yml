@@ -75,9 +75,17 @@ shortcuts:
   - name: Bootstrap Vanilla VPN
     alias: vanilla_vpn.yml
     target: ansible/bootstrap_vanilla_vpn.yml
-  - name: Provigion TPG Staging
+
+  # New goodies
+  - name: Provision TPG Staging
     alias: tpg_staging.yml
     target: ansible/tpg_staging.yml
+  - name: Deploy Mesos Consul
+    alias: mesos_consul.yml
+    target: ansible/hotfix_mesos_consul.yml
+  - name: Deploy Secret Keys
+    alias: secret_keys.yml
+    target: ansible/hotfix_secret_keys.yml
 
 # Packer shortcuts
 - type: snowflake
