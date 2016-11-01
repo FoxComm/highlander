@@ -26,11 +26,13 @@ Navigation:
 
 #### Target
 
-TBD
+* Mesos: http://10.240.0.3:5050/#/
+* Marathon: http://10.240.0.3:8080/ui/#/apps
 
 #### TopDrawer
 
-TBD
+* Mesos: http://10.240.0.26:5050/#/
+* Marathon: http://10.240.0.26:8080/ui/#/apps
 
 ## Production
 
