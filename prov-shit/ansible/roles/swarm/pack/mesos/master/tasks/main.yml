@@ -2,3 +2,6 @@
 
 - name: Install Mesos Master Service Entry
   copy: src=mesos_master.service dest={{dest_services}}/
+
+- name: Reload Systemd for Mesos Master
+  command: systemctl daemon-reload

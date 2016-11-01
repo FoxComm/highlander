@@ -5,3 +5,6 @@
 
 - name: Install Marathon Service Entry
   copy: src=marathon.service dest={{dest_services}}/
+
+- name: Reload Systemd for Marathon
+  command: systemctl daemon-reload

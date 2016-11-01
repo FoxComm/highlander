@@ -6,8 +6,5 @@
 - name: Copy Zookeeper config
   template: src=zookeeper.properties dest=/etc/kafka/
 
-- name: Reload Systemd for Kafka Related Services
-  command: systemctl daemon-reload
-
 - name: Start Zookeeper
   service: name=zookeeper state=started enabled=true

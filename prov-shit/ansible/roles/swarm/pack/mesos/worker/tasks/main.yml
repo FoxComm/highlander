@@ -5,3 +5,6 @@
 
 - name: Install Mesos Worker Service Entry
   copy: src=mesos_worker.service dest={{dest_services}}/
+
+- name: Reload Systemd for Mesos Worker
+  command: systemctl daemon-reload

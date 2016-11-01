@@ -5,3 +5,6 @@
 
 - name: Copy Zookeeper Service Files
   copy: src=zookeeper.service dest={{dest_services}}/
+
+- name: Reload Systemd for Kafka Related Services
+  command: systemctl daemon-reload
