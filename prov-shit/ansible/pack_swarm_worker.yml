@@ -1,0 +1,12 @@
+---
+
+- name: Packing Swarm Worker Image
+  hosts: all
+  tags:
+    - packer
+  vars:
+    user: ubuntu
+
+  sudo: true
+  roles:
+    - { role: swarm/pack/mesos/worker }

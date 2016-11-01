@@ -7,7 +7,7 @@ network         = "vanilla"
 bucket_location = "us"
 
 base_image      = "swarm-base-1478000724"
-master_image    = "swarm-master"
-worker_image    = "swarm-worker"
+master_image    = "swarm-master-1478003329"
+worker_image    = "swarm-worker-1478003522"
 masters_count   = 3
 workers_count   = 2
