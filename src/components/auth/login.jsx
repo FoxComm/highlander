@@ -33,6 +33,7 @@ type Props = Localized & {
   authenticate: Function,
   fetchCart: Function,
   saveLineItems: Function,
+  onGuestCheckout?: Function,
   displayTitle: boolean,
 };
 
@@ -76,7 +77,7 @@ class Login extends Component {
     e.stopPropagation();
     const { email, password } = this.state;
     const kind = 'merchant';
-    this.props.authenticate({email, password, kind}).then(() => {
+    const auth = this.props.authenticate({email, password, kind}).then(() => {
       const lineItems = _.get(this.props, 'cart.lineItems', []);
       if (_.isEmpty(lineItems)) {
         this.props.fetchCart();
@@ -87,6 +88,12 @@ class Login extends Component {
     }, () => {
       this.setState({error: 'Email or password is invalid'});
     });
+
+    if (this.props.onGuestCheckout != null) {
+      auth.then(() => {
+        this.props.onGuestCheckout();
+      });
+    }
   }
 
   @autobind

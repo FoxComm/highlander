@@ -162,6 +162,17 @@ class Checkout extends Component {
     });
   }
 
+  @autobind
+  checkoutAfterSignIn() {
+    this.props.updateAddress().then(() => {
+      return this.saveShippingAddress();
+    }).then(() => {
+      return this.props.saveShippingMethod();
+    }).then(() => {
+      return this.placeOrder();
+    });
+  }
+
   errorsFor(stage) {
     if (this.props.editStage === stage) {
       return this.state.error;
@@ -232,6 +243,7 @@ class Checkout extends Component {
             inProgress={this.state.guestAuthInProgress}
             error={this.errorsFor(EditStages.GUEST_AUTH)}
             continueAction={this.placeOrder}
+            checkoutAfterSignIn={this.checkoutAfterSignIn}
             location={this.props.location}
           />
         </div>

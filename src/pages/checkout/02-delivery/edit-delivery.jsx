@@ -20,7 +20,7 @@ import { selectShippingMethod } from 'modules/cart';
 type Props = {
   continueAction: Function,
   shippingMethods: Array<any>,
-  selectedShippingMethod: Object,
+  selectedShippingMethod: ?Object,
   selectShippingMethod: Function,
   fetchShippingMethods: Function,
   shippingMethodCost: Function,
