@@ -19,6 +19,7 @@
 
   roles:
     - { role: base/ssh_keys }
+    - { role: base/secret_keys }
     - { role: base/mesos_worker }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/balancer, sudo: yes }
