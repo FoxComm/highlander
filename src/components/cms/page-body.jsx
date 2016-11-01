@@ -35,9 +35,9 @@ const renderBlock = (block) => {
       );
     case fieldTypes.PARAGRAPH_TITLE:
       return (
-        <p key={generateKey()}>
-          <strong styleName="paragraph-title">{block.content}</strong>
-        </p>
+        <h2 key={generateKey()} styleName="paragraph-title">
+          {block.content}
+        </h2>
       );
     case fieldTypes.WELL:
       wellContent = renderStatic(block.content); // eslint-disable-line no-use-before-define
