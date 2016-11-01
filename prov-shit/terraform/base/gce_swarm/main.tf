@@ -17,8 +17,6 @@ variable "datacenter" {
 }
 variable "network" {
 }
-variable "inventory" {
-}
 variable "bucket_location" {
 }
 
@@ -48,7 +46,6 @@ module "master_cluster" {
     zone            = "${var.zone}"
     datacenter      = "${var.datacenter}"
     network         = "${var.network}"
-    inventory       = "${var.inventory}"
     master_ips      = "${module.master_cluster.ips}"
     image           = "${var.master_image}"
     count           = "${var.masters_count}"
@@ -61,7 +58,6 @@ module "worker_cluster" {
     zone                   = "${var.zone}"
     datacenter             = "${var.datacenter}"
     network                = "${var.network}"
-    inventory              = "${var.inventory}"
     docker_registry_bucket = "${google_storage_bucket.docker-registry.name}"
     master_ips             = "${module.master_cluster.ips}"
     worker_ips             = "${module.worker_cluster.ips}"
