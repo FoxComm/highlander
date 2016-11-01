@@ -37,7 +37,15 @@ export const ACTION_SUBMIT_BUSINESS = 'merchantAccountBusinessSubmit';
 const { perform: submitAccount, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, (id: number, data: Object) =>
   new Promise((resolve, reject) =>
     api.post(`/merchants/${id}/admin_accounts`, { account: { ...data } })
-      .then((account: Account) => resolve(account))
+      .then((account: Account) =>
+        api.post(`/merchants/${id}/legal_profile`, { legal_profile: { ...data } })
+          .then((profile: Info) =>
+            api.post(`/merchants/${id}/addresses`, { merchant_address: { ...data } })
+              .then(() => resolve({ saved: true }))
+              .catch(err => reject(new SubmissionError(err.response.data.errors)))
+          )
+          .catch(err => reject(new SubmissionError(err.response.data.errors)))
+      )
       .catch(err => reject(new SubmissionError(err.response.data.errors)))
   )
 );

@@ -15,6 +15,8 @@ import { submitAccount as submit } from '../../core/modules/merchant-account';
 import { fields as accountFields } from '../../forms/account/account-fields';
 import { fields as infoFields } from '../../forms/info/info-fields';
 
+import styles from './account-page.css';
+
 import type { HTMLElement } from '../../core/types';
 import type { Application } from '../../core/modules/merchant-application';
 import type { Accounts } from '../../core/modules/merchant-account';
@@ -34,7 +36,7 @@ class MerchantAccountPage extends Component {
 
   componentWillReceiveProps(nextProps: Props) {
     if (this.props.accounts.length !== nextProps.accounts.length) {
-      this.props.replace(`/application/${this.props.params.ref}/info`);
+      this.props.replace(`/application/${this.props.params.ref}/actions`);
     }
   }
 
@@ -55,7 +57,7 @@ class MerchantAccountPage extends Component {
     const { inProgress, submitFailed } = this.props;
 
     return (
-      <div>
+      <div className={styles.info}>
         <Header
           title="Let’s get you started"
           legend="Create an Account to start on the GoldFish marketplace!"
