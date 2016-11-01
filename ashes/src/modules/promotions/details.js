@@ -2,7 +2,7 @@
 import { dissoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
-import { createEmptyPromotion, configurePromotion } from 'paragons/promotion';
+import { createEmptyPromotion } from 'paragons/promotion';
 import createAsyncActions from '../async-utils';
 import Api from 'lib/api';
 
@@ -27,7 +27,7 @@ const _createPromotion = createAsyncActions(
 const _updatePromotion = createAsyncActions(
   'updatePromotion',
   (promotion, context = defaultContext) => {
-    const id = promotion.form.id;
+    const id = promotion.id;
     return Api.patch(`/promotions/${context}/${id}`, promotion);
   }
 );
@@ -72,7 +72,7 @@ export function reset() {
 function updatePromotionInState(state, response) {
   return {
     ...state,
-    promotion: configurePromotion(response)
+    promotion: response
   };
 }
 

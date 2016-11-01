@@ -1,0 +1,14 @@
+---
+
+- name: Deploy Mesos Consul
+  hosts: '{{hostname}}'
+  vars:
+    user: '{{ansible_ssh_user}}'
+    zookeepers: zookeeper.service.consul:2181
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a Amigo server hostname"
+      default: "perfect-gourmet-stage-consul-server"
+      private: no
+  roles:
+    - { role: base/mesos_consul }

@@ -20,14 +20,6 @@ object ObjectManager {
       shadow ← * <~ ObjectShadows.mustFindById404(shadowId)
     } yield ObjectShadowResponse.build(shadow)
 
-  def getIlluminatedObject(formId: Int, shadowId: Int)(
-      implicit ec: EC,
-      db: DB): DbResultT[IlluminatedObjectResponse.Root] =
-    for {
-      form   ← * <~ ObjectForms.mustFindById404(formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(shadowId)
-    } yield IlluminatedObjectResponse.build(IlluminatedObject.illuminate(form, shadow))
-
   def getContextByName(name: String)(implicit ec: EC,
                                      db: DB): DbResultT[ObjectContextResponse.Root] =
     for {

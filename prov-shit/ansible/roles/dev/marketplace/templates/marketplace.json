@@ -1,0 +1,37 @@
+{
+  "id": "/marketplace",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 256,
+  "disk": 0,
+  "instances": 1,
+  "env": {
+    "DB_NAME": "{{marketplace_db_name}}",
+    "PHOENIX_URL": "{{phoenix_host}}",
+    "PHOENIX_PORT": "{{phoenix_port}}",
+    "SOLOMON_URL": "{{solomon_host}}",
+    "DB_HOST": "{{docker_db_host}}",
+    "DB_USER": "{{marketplace_db_user}}",
+    "DB_PASSWORD": "",
+    "SOLOMON_PORT": "{{solomon_port}}"
+  },
+  "portDefinitions": [
+    {
+      "port": 10004,
+      "protocol": "tcp",
+      "name": "4003",
+      "labels": {}
+    }
+  ],
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "{{docker_registry}}:5000/marketplace:{{docker_branch}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  }
+}

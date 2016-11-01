@@ -1,28 +1,4 @@
 
-.coupon-form {
-  lost-flex-container: row;
-}
-
-.coupon-details {
-  margin: 0 1.85%;
-}
-
-.main {
-  lost-column: 8/12;
-
-  & > div {
-    margin-bottom: 20px;
-  }
-}
-
-.aside {
-  lost-column: 4/12;
-
-  & > div {
-    margin-bottom: 20px;
-  }
-}
-
 .field-label {
   font-weight: 600;
   line-height: 24px;

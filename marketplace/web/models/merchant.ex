@@ -39,6 +39,7 @@ defmodule Marketplace.Merchant do
     |> validate_phone_number(:phone_number)
     |> validate_uri(:site_url)
     |> validate_email(:email_address)
+    |> unique_constraint_code(:email_address, name: :merchant_email)
   end
 
   def update_changeset(model, params \\ :empty) do
@@ -49,6 +50,7 @@ defmodule Marketplace.Merchant do
     |> validate_phone_number(:phone_number)
     |> validate_uri(:site_url)
     |> validate_email(:email_address)
+    |> unique_constraint_code(:email_address, name: :merchant_email)
   end
 
 end

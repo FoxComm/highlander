@@ -250,6 +250,7 @@ object Seeds {
   def createBase(implicit db: DB): DbResultT[Int] =
     for {
       context ← * <~ ObjectContexts.create(SimpleContext.create())
+      _       ← * <~ Factories.createObjectSchemas
     } yield context.id
 
   def createAdmins(implicit db: DB, ec: EC, ac: AC): DbResultT[Int] =
@@ -301,6 +302,7 @@ object Seeds {
       with CustomersGroupSeeds
       with DiscountSeeds
       with PromotionSeeds
+      with ObjectSchemaSeeds
       with CouponSeeds
       with SharedSearchSeeds {
 

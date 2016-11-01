@@ -27,6 +27,7 @@ trait LineItemProductData[LI] {
   def attributes: Option[Json]
   def lineItemReferenceNumber: String
   def lineItemState: OrderLineItem.State
+  def withLineItemReferenceNumber(newLineItemRef: String): LineItemProductData[LI]
 }
 
 case class OrderLineItemProductData(sku: Sku,
@@ -40,6 +41,8 @@ case class OrderLineItemProductData(sku: Sku,
     extends LineItemProductData[OrderLineItem] {
   def lineItemReferenceNumber = lineItem.referenceNumber
   def lineItemState           = lineItem.state
+  def withLineItemReferenceNumber(newLineItemRef: String) =
+    this.copy(lineItem = lineItem.copy(referenceNumber = newLineItemRef))
 }
 
 case class OrderLineItem(id: Int = 0,

@@ -1,0 +1,46 @@
+steps:
+  - command: npm install
+    label: NPM
+    agents:
+      - queue=core
+
+  - wait
+
+  - command: bash -c "make package-production && npm run flow && npm test"
+    label: build, flow, test
+    agents:
+      - queue=core
+    env:
+      STRIPE_PUBLISHABLE_KEY: pk_test_r6t0niqmG9OOZhhaSkacUUU1
+    artifact_paths: ashes.tar.bz2
+
+  - wait
+
+  - command: 'buildkite-agent artifact download "ashes.tar.bz2" .
+  
+  '
+    label: dump to stage master
+    agents:
+      - queue=stage_master
+    branches: master
+
+  - wait
+
+  - command: |-
+      curl -X POST "https://api.buildkite.com/v1/organizations/foxcommerce/projects/$PROJECT/builds?access_token=$TOKEN" \
+       -d '{
+          "commit": "HEAD",
+          "branch": "master",
+          "message": "Ashes Updated",
+          "author": {
+            "name": "CI",
+            "email": "ci@foxcommerce.com"
+          }
+        }'
+    label: provision stage
+    agents:
+      - queue=core
+    env:
+      TOKEN: c5e4764e4d0116e34e17c2d4e0b1e7df45aaa468
+      PROJECT: stage-provisioning
+    branches: master

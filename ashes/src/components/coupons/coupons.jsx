@@ -17,7 +17,7 @@ import { ChangeStateModal } from '../bulk-actions/modal';
 import BulkWrapper from '../discounts/bulk';
 
 // redux
-import { actions } from '../../modules/coupons/list';
+import { actions } from 'modules/coupons/list';
 
 // helpers
 import { filterArchived } from 'elastic/archive';

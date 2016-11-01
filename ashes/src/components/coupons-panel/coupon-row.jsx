@@ -32,8 +32,6 @@ const CouponRow = (props: Props): Element => {
   const { item, columns, params, onDelete } = props;
   const checkedParams = params || {checked: false, setChecked: noop };
 
-  const key = `coupon-panel-row-${item.id}`;
-
   const setCellContents = setCellContentsFunctionFactory(onDelete);
 
   return (

@@ -7,7 +7,7 @@
   margin: 200px 0 100px;
 
   @media (--small-viewport) {
-    margin: 160px 0 0;
+    margin: 50px 0 0;
   }
 }
 

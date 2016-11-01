@@ -1,45 +1,26 @@
 /* @flow */
 
-import { assoc } from 'sprout-data';
 import _, { cloneDeep } from 'lodash';
-import { isSatisfied } from 'paragons/object';
 import { getJWT } from 'lib/claims';
+import * as t from 'paragons/object-types';
 
-import type { Sku } from '../modules/skus/details';
+
 import type { JWT } from 'lib/claims';
-
-export const options = {
-  code: { label: 'SKU', required: true },
-  upc: { label: 'UPC' },
-};
-
+import type { Sku } from 'modules/skus/details';
 export function generateSkuCode(): string {
   return Math.random().toString(36).substring(7).toUpperCase();
 }
 
 // should contain all known attributes
 export const skuEmptyAttributes = {
-  code: { t: 'string', v: '' },
-  title: { t: 'string', v: '' },
-  upc: { t: 'string', v: '' },
-  description: { t: 'richText', v: '' },
-  retailPrice: {
-    t: 'price',
-    v: { currency: 'USD', value: 0 },
-  },
-  salePrice: {
-    t: 'price',
-    v: { currency: 'USD', value: 0 },
-  },
-  unitCost: {
-    t: 'price',
-    v: { currency: 'USD', value: 0 },
-  },
+  code: t.string(''),
+  title: t.string(''),
+  upc: t.string(''),
+  description: t.richText(''),
+  retailPrice: t.price({ currency: 'USD', value: 0 }),
+  salePrice: t.price({ currency: 'USD', value: 0 }),
+  unitCost: t.price({ currency: 'USD', value: 0 }),
 };
-
-export function isSkuValid(sku: Sku): boolean {
-  return isSatisfied(sku, options);
-}
 
 // HACK
 function isMerchant(): boolean {
@@ -56,13 +37,13 @@ export function createEmptySku(): Sku {
 
   if (isMerchant()) {
     merchantAttributes = {
-      externalId: {t: 'string', v: ''},
-      mpn: { t: 'string', v: '' },
-      gtin: { t: 'string', v: '' },
-      weight: { t: 'string', v: '' },
-      height: { t: 'string', v: '' },
-      width: { t: 'string', v: '' },
-      depth: { t: 'string', v: '' },
+      externalId: t.string(''),
+      mpn: t.string(''),
+      gtin: t.string(''),
+      weight: t.string(''),
+      height: t.string(''),
+      width: t.string(''),
+      depth: t.string(''),
     };
   }
 
@@ -73,11 +54,4 @@ export function createEmptySku(): Sku {
       name: 'default',
     }
   };
-}
-
-export function updateFieldLabels(sku: Sku): Sku {
-  return assoc(sku,
-    ['attributes', 'code', 'label'], 'SKU',
-    ['attributes', 'upc', 'label'], 'UPC',
-  );
 }

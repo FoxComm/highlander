@@ -12,7 +12,9 @@ object CategoryPayloads {
 
   case class UpdateCategoryShadow(attributes: Json)
 
-  case class CreateFullCategory(form: CreateCategoryForm, shadow: CreateCategoryShadow)
+  case class CreateFullCategory(form: CreateCategoryForm,
+                                shadow: CreateCategoryShadow,
+                                schema: Option[String] = None)
 
   case class UpdateFullCategory(form: UpdateCategoryForm, shadow: UpdateCategoryShadow)
 }

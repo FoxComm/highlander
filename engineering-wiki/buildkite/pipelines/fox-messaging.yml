@@ -1,0 +1,21 @@
+env:
+  BOOT_JVM_OPTIONS: "-client -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xverify:none"
+  ARTIFACT: target/messaging.jar
+  BOOT_EMIT_TARGET: 'no'
+
+steps:
+  - command: boot build
+    label: build
+    agents:
+      - queue=core
+    artifact_paths: target/messaging.jar
+
+  - wait
+
+  - command: |-
+      mkdir -p target/
+      buildkite-agent artifact download "$ARTIFACT" target/
+    label: dump to stage master
+    agents:
+      - queue=stage_master
+    branches: master

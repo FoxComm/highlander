@@ -13,7 +13,6 @@ import WaitAnimation from 'components/common/wait-animation';
 
 import * as PluginsActions from 'modules/plugins';
 import type { UpdateSettingsPayload } from 'modules/plugins';
-import type { Attribute, Attributes } from 'paragons/object';
 
 type Props = {
   fetchSettings: (name: string) => Promise,

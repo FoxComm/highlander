@@ -41,4 +41,10 @@ run-gatling: deploy-gatling
 run-gatling-highlander: deploy-gatling-highlander
 	ansible-playbook -v -i bin/envs/staging ansible/run_gatling_highlander.yml
 
+docker:
+	true
+
+docker-push:
+	true
+
 .PHONY: all build lint test

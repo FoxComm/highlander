@@ -111,7 +111,7 @@ case class Checkout(
       order     ← * <~ Orders.createFromCart(cart)
       _         ← * <~ fraudScore(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)
-      fullOrder ← * <~ OrderResponse.fromOrder(order)
+      fullOrder ← * <~ OrderResponse.fromOrder(order, grouped = true)
       _         ← * <~ LogActivity.orderCheckoutCompleted(fullOrder)
     } yield fullOrder
 

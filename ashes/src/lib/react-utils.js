@@ -29,3 +29,11 @@ export function cloneElement(element, {props, handlers, defaultProps}, children)
   return React.cloneElement(element, newProps, children);
 }
 
+export function addKeys(prefix, elements) {
+  return _.reduce(elements, (acc, element, i) => {
+    if (element) {
+      return [...acc, React.cloneElement(element, {key: `${prefix}-${i}`})];
+    }
+    return acc;
+  }, []);
+}

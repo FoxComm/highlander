@@ -30,9 +30,16 @@ watch_transactions:
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/transactions.apib -o $(BUILD_DIR)/ --server -p $(PORT)
 
 clean:
+	rm -rf ./node_modules
 	rm -rf $(BUILD_DIR)
 
 test:
+	true
+
+docker:
+	true
+
+docker-push:
 	true
 
 .PHONY: install build watch clean test
