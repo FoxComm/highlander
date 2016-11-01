@@ -1,7 +1,10 @@
 ---
 
+- name: Set Zookeeper server id
+  template: src=myid dest=/var/lib/zookeeper/
+
 - name: Copy Zookeeper config
-  template: src=zookeeper.properties dest=/etc/kafka/zookeeper.properties
+  template: src=zookeeper.properties dest=/etc/kafka/
 
 - name: Reload Systemd for Kafka Related Services
   command: systemctl daemon-reload
