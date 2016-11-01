@@ -45,7 +45,8 @@ object LineItemManager {
                               productForm = product.form,
                               productShadow = product.shadow,
                               image = image,
-                              lineItem = cartLineItem)
+                              lineItem = cartLineItem,
+                              attributes = cartLineItem.attributes)
 
   private def getOrderLineItem(orderLineItem: OrderLineItem)(implicit ec: EC, db: DB) =
     for {
@@ -60,7 +61,8 @@ object LineItemManager {
                                productForm = product.form,
                                productShadow = product.shadow,
                                image = image,
-                               lineItem = orderLineItem)
+                               lineItem = orderLineItem,
+                               attributes = orderLineItem.attributes)
 
   private def getProductForSku(sku: Sku)(implicit ec: EC, db: DB) =
     for {

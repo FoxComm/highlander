@@ -13,3 +13,6 @@
 # Keys
 ashes/public_key.pem
 .env.local
+
+# target folder
+target/

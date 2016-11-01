@@ -33,6 +33,11 @@ object GiftCardRoutes {
           mutateOrFailures {
             GiftCardService.createByAdmin(auth.model, payload)
           }
+        } ~
+        (post & pathEnd & entity(as[GiftCardCreatedByCustomer])) { payload ⇒
+          mutateOrFailures {
+            GiftCardService.createByCustomer(auth.model, payload)
+          }
         }
       } ~
       pathPrefix("gift-cards" / giftCardCodeRegex) { code ⇒
