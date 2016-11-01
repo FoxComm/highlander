@@ -1,0 +1,15 @@
+---
+
+- name: Provisioning Swarm Worker
+  hosts: all
+  vars:
+    user: ubuntu
+    ssh_port: 22
+
+  pre_tasks:
+    - name: Wait for SSH accessible
+      wait_for: port={{ssh_port}} delay=5 timeout=10
+
+  sudo: true
+  roles:
+    - { role: swarm/provision/mesos/worker }
