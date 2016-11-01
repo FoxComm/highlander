@@ -24,7 +24,7 @@
     "zipkin_collector": "zipkin.service.consul",
     "search_host": "elasticsearch.service.consul",
     "search_server_http": "elasticsearch.service.consul:9200",
-    "api_server": "127.0.0.1",
+    "api_server": "balancer.foxcommerce.com",
     "ashes_server": "ashes.service.consul:4000",
     "storefront_server": "td-storefront.service.consul:8080",
     "ashes_server_name": "td-prod.foxcommerce.com",

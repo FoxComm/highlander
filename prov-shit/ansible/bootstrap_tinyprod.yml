@@ -6,7 +6,7 @@
     - backend
   vars:
     user: '{{ansible_ssh_user}}'
-    seeds_cmd: utils.seeds.Seeds seed --seedAdmins
+    seeds_cmd: utils.seeds.Seeds seed
     updating_mwh: true
     middlewarehouse_src: "{{gopath}}/src/github.com/FoxComm/highlander/middlewarehouse"
     docker_db_host: db.service.consul
@@ -17,7 +17,6 @@
       private: no
     - name: "gopath"
       prompt: "Enter your GOPATH value"
-      default: "/Users/ejik/golang"
       private: no
 
   roles:
@@ -59,20 +58,20 @@
       private: no
     - name: "ashes_server_name"
       prompt: "Enter a Ashes server domain name"
-      default: "admin.vanilla.foxcommerce.com"
+      default: "local.foxcommerce.com"
       private: no
     - name: "storefront_server_name"
       prompt: "Enter a Firebrand server domain name"
-      default: "vanilla.foxcommerce.com"
+      default: "local.foxcommerce.com"
       private: no
     - name: "docker_registry"
       prompt: "Enter host of docker registry"
-      default: "docker.foxcommerce.com"
+      default: "docker-stage.foxcommerce.com"
       private: no
 
     - name: "marathon_server"
       prompt: "Enter host of marathon"
-      default: "amigo.foxcommerce.com"
+      default: "local.foxcommerce.com"
       private: no
 
   roles:
