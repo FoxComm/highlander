@@ -3,12 +3,6 @@
 - name: Copy Mesos Worker Run Script
   template: src=run_mesos_worker.sh dest=/usr/local/bin/run_mesos_worker.sh mode=750
 
-- name: Setup Mesos Data Dir
-  file: path=/var/lib/sandbox state=directory
-
-- name: Install Mesos Worker Service Entry
-  file: src=mesos_worker.service dest={{dest_services}}/mesos_worker.service
-
 - name: Reload Systemd for Mesos Worker
   command: systemctl daemon-reload
 

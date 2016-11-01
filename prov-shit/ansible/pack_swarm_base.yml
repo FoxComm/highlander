@@ -2,8 +2,6 @@
 
 - name: Packing Base Swarm Image
   hosts: all
-  tags:
-    - packer
   vars:
     user: ubuntu
   gather_facts: no
@@ -20,6 +18,6 @@
 
   sudo: true
   roles:
-    - { role: swarm/base }
-    - { role: swarm/mesos/base }
-    - { role: swarm/docker }
+    - { role: swarm/pack/base }
+    - { role: swarm/pack/mesos/base }
+    - { role: swarm/pack/docker }

@@ -1,13 +1,7 @@
 ---
 
-- name: Setup Zookeeper Dir
-  file: path=/var/lib/zookeeper state=directory
-
 - name: Copy Zookeeper config
   template: src=zookeeper.properties dest=/etc/kafka/zookeeper.properties
-
-- name: Copy Zookeeper Service Files
-  copy: src=zookeeper.service dest={{dest_services}}/zookeeper.service
 
 - name: Reload Systemd for Kafka Related Services
   command: systemctl daemon-reload

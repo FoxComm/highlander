@@ -5,16 +5,16 @@
             "type": "googlecompute",
             "account_file": "{{user `account_file`}}",
             "project_id": "{{user `project_id`}}",
-            "source_image": "{{user `base_ubuntu_image`}}",
+            "source_image": "{{user `base_image`}}",
             "network": "{{user `network`}}",
             "zone": "{{user `zone`}}",
-            "image_name": "swarm-base-{{timestamp}}",
-            "image_description": "Base image used for provisioning",
-            "instance_name": "packer-swarm-base-{{uuid}}",
+            "image_name": "swarm-master-{{timestamp}}",
+            "image_description": "Master image used for provisioning",
+            "instance_name": "packer-swarm-master-{{uuid}}",
             "machine_type": "{{user `instance_type`}}",
             "tags": [
                 "no-ip",
-                "packer-swarm-base"
+                "packer-swarm-master"
             ],
             "use_internal_ip": true,
             "ssh_username": "{{user `ssh_username`}}"
@@ -23,7 +23,7 @@
     "provisioners": [
         {
             "type": "ansible",
-            "playbook_file": "ansible/pack_swarm_base.yml",
+            "playbook_file": "ansible/pack_swarm_master.yml",
             "extra_arguments": [
                 "-vvvv"
             ]
