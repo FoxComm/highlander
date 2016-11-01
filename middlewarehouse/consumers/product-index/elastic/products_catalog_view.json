@@ -22,14 +22,14 @@
     },
     "image": {
       "type": "string",
-      "analyzer": "not_analyzed"
+      "index": "not_analyzed"
     },
     "salePrice": {
       "type": "integer"
     },
     "currency": {
       "type": "string",
-      "analyzer": "not_analyzed"
+      "index": "not_analyzed"
     },
     "tags": {
       "type": "string",
