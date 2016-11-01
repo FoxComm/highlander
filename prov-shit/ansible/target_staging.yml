@@ -27,6 +27,13 @@
     product_search_server: product-search.service.consul:5492
     docker_db_host: db.service.consul
     docker_branch: master
+    docker_registry: docker-stage.foxcommerce.com
+    ashes_server_name: ashes.service.consul:4000
+    kafka_server: kafka.service.consul:9092
+    schema_server: schema-registry.service.consul:8081
+    search_host: elasticsearch.service.consul
+    zookeeper_server: zookeeper.service.consul:2181
+    storefront_server_name: stage-tgt.foxcommerce.com
     updating_mwh: true
   tags:
     - frontend

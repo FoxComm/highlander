@@ -75,6 +75,9 @@ shortcuts:
   - name: Bootstrap Vanilla VPN
     alias: vanilla_vpn.yml
     target: ansible/bootstrap_vanilla_vpn.yml
+  - name: Provigion TPG Staging
+    alias: tpg_staging.yml
+    target: ansible/tpg_staging.yml
 
 # Packer shortcuts
 - type: snowflake
