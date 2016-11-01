@@ -4,4 +4,4 @@
   file: path=/var/lib/sandbox state=directory
 
 - name: Install Mesos Worker Service Entry
-  file: src=mesos_worker.service dest={{dest_services}}/mesos_worker.service
+  copy: src=mesos_worker.service dest={{dest_services}}/mesos_worker.service

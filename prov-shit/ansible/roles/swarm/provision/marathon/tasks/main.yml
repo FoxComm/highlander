@@ -1,4 +1,11 @@
 ---
 
+- name: Copy Marathon Run Script
+  template: src=run_mesos_master.sh dest=/usr/local/bin/run_marathon.sh mode=750
+  when:
+
+- name: Reload Systemd for Marathon
+  command: systemctl daemon-reload
+
 - name: Restart Marathon
   service: name=marathon state=restarted enabled=true

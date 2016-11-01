@@ -4,4 +4,4 @@
   apt: name=marathon state=latest force=yes
 
 - name: Install Marathon Service Entry
-  template: src=marathon.service dest={{dest_services}}/marathon.service
+  copy: src=marathon.service dest={{dest_services}}/marathon.service

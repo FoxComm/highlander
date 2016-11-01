@@ -1,5 +1,5 @@
 [Service]
-ExecStart=marathon --master {{zookeepers}}/mesos --zk {{zookeepers}}/marathon
+ExecStart==/usr/local/bin/run_marathon.sh
 Restart=always
 RestartSec=5
 StandardOutput=syslog
