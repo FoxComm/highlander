@@ -4,6 +4,8 @@ variable "datacenter" {
 }
 variable "network" {
 }
+variable "inventory" {
+}
 variable "image" {
 }
 variable "count" {
@@ -16,7 +18,13 @@ variable "ssh_private_key" {
 resource "google_compute_instance" "swarm_master_server" {
     name         = "${var.datacenter}-swarm-master-server-${count.index}"
     machine_type = "n1-standard-1"
-    tags         = ["ssh", "no-ip", "${var.datacenter}-swarm-master-server-${count.index}", "${var.datacenter}-swarm-master-server", "${var.datacenter}"]
+    tags         = [
+        "ssh",
+        "no-ip",
+        "${var.datacenter}",
+        "${var.datacenter}-swarm-master-server",
+        "${var.datacenter}-swarm-master-server-${count.index}"
+    ]
     zone         = "${var.zone}"
     count        = "${var.count}"
 
@@ -38,5 +46,26 @@ resource "google_compute_instance" "swarm_master_server" {
         type        = "ssh"
         user        = "${var.ssh_user}"
         private_key = "${file(var.ssh_private_key)}"
+    }
+}
+
+resource "null_resource" "swarm_master_server_provision" {
+    depends_on = ["google_compute_instance.swarm_master_server"]
+
+    count        = "${var.count}"
+
+    connection {
+        user = "ubuntu"
+        host = "${element(google_compute_instance.swarm_master_server.*.network_interface.0.address, count.index)}"
+    }
+
+    provisioner "local-exec" {
+        command = <<EOF
+            ansible-playbook -vvvv -i bin/envs/${var.inventory} ansible/bootstrap_swarm_master.yml
+            --extra-vars @terraform/envs/gce_${var.datacenter}}/params.json
+            --extra-vars '{"zookeepers_ips":${jsonencode(google_compute_instance.swarm_master_server.*.network_interface.0.address)}"}'
+            --extra-vars mesos_quorum=${(var.count + (var.count % 2))/2}
+            --extra-vars zookeeper_server_id=${count.index + 1}
+        EOF
     }
 }

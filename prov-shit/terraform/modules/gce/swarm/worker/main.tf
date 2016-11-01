@@ -4,6 +4,10 @@ variable "datacenter" {
 }
 variable "network" {
 }
+variable "inventory" {
+}
+variable "docker_registry_bucket" {
+}
 variable "image" {
 }
 variable "count" {
@@ -16,7 +20,13 @@ variable "ssh_private_key" {
 resource "google_compute_instance" "swarm_worker_server" {
     name         = "${var.datacenter}-swarm-worker-server-${count.index}"
     machine_type = "n1-standard-1"
-    tags         = ["ssh", "no-ip", "${var.datacenter}-swarm-worker-server-${count.index}", "${var.datacenter}-swarm-worker-server", "${var.datacenter}"]
+    tags         = [
+        "ssh",
+        "no-ip",
+        "${var.datacenter}",
+        "${var.datacenter}-swarm-worker-server",
+        "${var.datacenter}-swarm-worker-server-${count.index}"
+    ]
     zone         = "${var.zone}"
     count        = "${var.count}"
 
@@ -38,5 +48,24 @@ resource "google_compute_instance" "swarm_worker_server" {
         type        = "ssh"
         user        = "${var.ssh_user}"
         private_key = "${file(var.ssh_private_key)}"
+    }
+}
+
+resource "null_resource" "swarm_worker_server_provision" {
+    depends_on = ["google_compute_instance.swarm_worker_server"]
+
+    count        = "${var.count}"
+
+    connection {
+        user = "ubuntu"
+        host = "${element(google_compute_instance.swarm_worker_server.*.network_interface.0.address, count.index)}"
+    }
+
+    provisioner "local-exec" {
+        command = <<EOF
+            ansible-playbook -vvvv -i bin/envs/${var.inventory} ansible/bootstrap_swarm_master.yml
+            --extra-vars @terraform/envs/gce_${var.datacenter}}/params.json
+            --extra-vars docker_registry_bucket=${var.docker_registry_bucket}
+        EOF
     }
 }
