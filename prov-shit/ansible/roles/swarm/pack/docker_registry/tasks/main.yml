@@ -7,13 +7,13 @@
   copy: src="{{account_file}}" dest=/etc/docker_registry/service_account.json mode=600
 
 - name: Copy Docker Registry Config
-  template: src=config.yml dest="/etc/docker_registry/config.yml"
+  template: src=config.yml dest=/etc/docker_registry/
 
 - name: Copy Docker Compose Config
-  template: src=docker-compose.yml dest="/etc/docker_registry/docker-compose.yml"
+  template: src=docker-compose.yml dest=/etc/docker_registry/
 
 - name: Copy Service
-  template: src=docker_registry.service dest="{{dest_services}}/docker_registry.service"
+  template: src=docker_registry.service dest={{dest_services}}/
 
 - name: Make Certs Directory
   file: path=/certs state=directory mode=600

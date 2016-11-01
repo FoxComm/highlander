@@ -1,4 +1,4 @@
 ---
 
 - name: Install Mesos Master Service Entry
-  copy: src=mesos_master.service dest={{dest_services}}/mesos_master.service
+  copy: src=mesos_master.service dest={{dest_services}}/
