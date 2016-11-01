@@ -38,13 +38,12 @@ object GiftCardRoutes {
           mutateOrFailures {
             GiftCardService.createByCustomer(auth.model, payload)
           }
-        }
-      } ~
-          (post & pathEnd & entity(as[Seq[GiftCardCreatedByCustomer]])) { payload ⇒
-              mutateOrFailures {
-                  DbResultT.sequence(payload.map(GiftCardService.createByCustomer(auth.model, _)))
-              }
+        } ~
+        (post & pathEnd & entity(as[Seq[GiftCardCreatedByCustomer]])) { payload ⇒
+          mutateOrFailures {
+            DbResultT.sequence(payload.map(GiftCardService.createByCustomer(auth.model, _)))
           }
+        }
     } ~
       pathPrefix("gift-cards" / giftCardCodeRegex) { code ⇒
         (get & pathEnd) {
