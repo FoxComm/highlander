@@ -33,6 +33,7 @@ docker:
 	docker build -t stock-items-consumer consumers/stock-items/
 	docker build -t shipments-consumer consumers/shipments/
 	docker build -t capture-consumer consumers/capture/
+	docker build -t product-index-consumer consumers/product-index/
 	docker build -t middlewarehouse-seeder common/db/seeds/
 
 docker-push:
@@ -45,6 +46,7 @@ docker-push:
 	docker push $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_BRANCH)
 	docker push $(DOCKER_REPO)/shipments-consumer:$(DOCKER_BRANCH)
 	docker push $(DOCKER_REPO)/capture-consumer:$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/product-index-consumer:$(DOCKER_BRANCH)
 	docker push $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_BRANCH)
 
 clean:

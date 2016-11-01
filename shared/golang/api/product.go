@@ -30,3 +30,8 @@ func (p Product) FirstImage() string {
 
 	return p.Albums[0].Images[0].Source
 }
+
+func (p Product) Tags() interface{} {
+	value, _ := p.Attributes.LookupValue("tags")
+	return value
+}

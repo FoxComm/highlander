@@ -2,21 +2,22 @@ package searchrow
 
 import (
 	"errors"
+	"log"
 
 	"github.com/FoxComm/highlander/shared/golang/api"
 )
 
 type SearchRow struct {
-	ProductID   int
-	Context     string
-	SKUs        []string
-	Variants    map[string]string
-	Title       string
-	Description string
-	Image       string
-	SalePrice   int
-	Currency    string
-	Tags        []string
+	ProductID   int         `json:"productId"`
+	Context     string      `json:"context"`
+	SKUs        []string    `json:"skus"`
+	Variants    []string    `json:"variants"`
+	Title       string      `json:"title"`
+	Description string      `json:"description"`
+	Image       string      `json:"image"`
+	SalePrice   int         `json:"salePrice"`
+	Currency    string      `json:"currency"`
+	Tags        interface{} `json:"tags"`
 }
 
 func NewSearchRow(p *api.Product, pp PartialProduct) (*SearchRow, error) {
@@ -28,8 +29,17 @@ func NewSearchRow(p *api.Product, pp PartialProduct) (*SearchRow, error) {
 	row.ProductID = p.ID
 	row.Context = p.Context.Name
 	row.SKUs = pp.AvailableSKUs
-	row.Variants = pp.Variants
 	row.Description = p.Description()
+	row.Tags = p.Tags()
+
+	for _, value := range pp.Variants {
+		row.Variants = append(row.Variants, value)
+	}
+
+	log.Printf("888888888888888888888888888888888888888888888888888")
+	log.Printf("Tags: %v", row.Tags)
+	log.Printf("Variants: %v", row.Variants)
+	log.Printf("888888888888888888888888888888888888888888888888888")
 
 	// Use the first SKU for any SKU-specific values
 	code := pp.AvailableSKUs[0]
