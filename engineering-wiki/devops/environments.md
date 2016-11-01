@@ -14,9 +14,9 @@ Navigation:
 
 | Name       | Link                                                             |
 |:-----------|:-----------------------------------------------------------------|
-| Consul     | [Consul UI](http://10.240.0.10:8500/ui/#/foxcomm-stage/services) |
-| Mesos      | [Mesos UI](http://10.240.0.3:5050/#/)                            |
-| Marathon   | [Marathon UI](http://10.240.0.3:8080/ui/#/apps)                  |
+| Consul     | [Consul UI](http://10.240.0.24:8500/ui/#/foxcomm-stage/services) |
+| Mesos      | [Mesos UI](http://10.240.0.24:5050/#/)                           |
+| Marathon   | [Marathon UI](http://10.240.0.24:8080/ui/#/apps)                 |
 | Storefront | [Storefront](https://stage.foxcommerce.com)                      |
 | Admin UI   | [Admin UI](https://stage.foxcommerce.com/admin)                  |
 
