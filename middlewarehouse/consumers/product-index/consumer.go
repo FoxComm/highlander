@@ -64,7 +64,7 @@ func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
 		return fmt.Errorf("Error unmarshalling activity data into product with error: %s", err.Error())
 	}
 
-	visualVariants := []string{"Color", "Fabric"}
+	visualVariants := []string{"Color", "Fabric", "Pattern"}
 	partialProducts, err := searchrow.MakePartialProducts(prod.Product, visualVariants)
 	if err != nil {
 		return fmt.Errorf("Error creating partial products with error: %s", err.Error())
