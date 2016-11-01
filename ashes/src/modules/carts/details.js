@@ -33,13 +33,13 @@ const _updateLineItemCount = createAsyncActions(
   (refNum: string, payload: Object) => Api.post(`/orders/${refNum}/line-items`, payload)
 );
 
-export function updateLineItemCount(refNum: string, sku: string, quantity: number): Function {
-  const payload = [{ sku, quantity }];
+export function updateLineItemCount(refNum: string, skuId: number, quantity: number): Function {
+  const payload = [{ skuId, quantity }];
   return _updateLineItemCount.perform(refNum, payload);
 }
 
-export function deleteLineItem(refNum: string, sku: string): Function {
-  const payload = [{ sku, quantity: 0 }];
+export function deleteLineItem(refNum: string, skuId: number): Function {
+  const payload = [{ skuId, quantity: 0 }];
   return _updateLineItemCount.perform(refNum, payload);
 }
 

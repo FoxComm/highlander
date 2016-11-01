@@ -11,20 +11,15 @@ import Currency from 'components/common/currency';
 
 import { updateLineItemCount, deleteLineItem } from 'modules/carts/details';
 
+import type { SkuItem } from 'paragons/order';
+
 type Props = {
   updateLineItemCount: Function,
   deleteLineItem: Function,
   cart: {
     referenceNumber: string,
   },
-  item: {
-    imagePath: string,
-    name: string,
-    sku: string,
-    price: number,
-    totalPrice: number,
-    quantity: number,
-  },
+  item: SkuItem,
 };
 
 type Target = {
@@ -65,7 +60,7 @@ export class CartLineItem extends Component {
     if (this.state.quantity == 0) {
       const { cart, item, updateLineItemCount } = this.props;
       this.setState({quantity: 1});
-      updateLineItemCount(cart.referenceNumber, item.sku, 1);
+      updateLineItemCount(cart.referenceNumber, item.skuId, 1);
     }
   }
 
@@ -74,7 +69,7 @@ export class CartLineItem extends Component {
     const { cart, item, deleteLineItem } = this.props;
     this.setState({
       isDeleting: false,
-    }, deleteLineItem(cart.referenceNumber, item.sku));
+    }, deleteLineItem(cart.referenceNumber, item.skuId));
   }
 
   @autobind
@@ -87,7 +82,7 @@ export class CartLineItem extends Component {
     } else {
       const decreased = parseInt(quantity, 10) - 1;
       this.setState({quantity: decreased});
-      updateLineItemCount(cart.referenceNumber, item.sku, decreased);
+      updateLineItemCount(cart.referenceNumber, item.skuId, decreased);
     }
   }
 
@@ -100,7 +95,7 @@ export class CartLineItem extends Component {
 
     this.setState({quantity: increased});
 
-    updateLineItemCount(cart.referenceNumber, item.sku, increased);
+    updateLineItemCount(cart.referenceNumber, item.skuId, increased);
   }
 
   @autobind
@@ -115,7 +110,7 @@ export class CartLineItem extends Component {
       this.startDelete();
     } else {
       const {cart, item, updateLineItemCount} = this.props;
-      updateLineItemCount(cart.referenceNumber, item.sku, quantity);
+      updateLineItemCount(cart.referenceNumber, item.skuId, quantity);
     }
   }
 
@@ -127,11 +122,11 @@ export class CartLineItem extends Component {
       <tr>
         <td><img src={item.imagePath} /></td>
         <td>{item.name}</td>
-        <td>{item.sku}</td>
+        <td>{item.skuCode}</td>
         <td><Currency value={item.price}/></td>
         <td>
           <Counter
-            id={`line-item-quantity-${item.sku}`}
+            id={`line-item-quantity-${item.skuId}`}
             value={quantity}
             min={0}
             max={1000000}
