@@ -119,6 +119,8 @@ solomon_port: 4002
 solomon_server: "{{solomon_host}}:{{solomon_port}}"
 api_server: 127.0.0.1
 log_host: 127.0.0.1
+zookeeper_port: 2181
+zookeeper_port_range: 2888:3888
 
 # JMX ports
 es_jmx_port: 29010
