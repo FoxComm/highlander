@@ -110,14 +110,6 @@ class Cart extends Component {
 
   @autobind
   onCheckout() {
-    if (!this.props.user) {
-      browserHistory.push({
-        pathname: document.location.pathname,
-        query: { auth: 'login' },
-      });
-
-      return;
-    }
     browserHistory.push('/checkout');
   }
 
