@@ -8,7 +8,7 @@
             "source_image": "{{user `base_ubuntu_image`}}",
             "network": "{{user `network`}}",
             "zone": "{{user `zone`}}",
-            "image_name": "swarm-base-{{timestamp}}",
+            "image_name": "swarm-base-{{isotime \"060102-150405\"}}",
             "image_description": "Base image used for provisioning",
             "instance_name": "packer-swarm-base-{{uuid}}",
             "machine_type": "{{user `instance_type`}}",

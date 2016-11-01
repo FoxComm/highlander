@@ -8,7 +8,7 @@
             "source_image": "{{user `base_image`}}",
             "network": "{{user `network`}}",
             "zone": "{{user `zone`}}",
-            "image_name": "swarm-master-{{timestamp}}",
+            "image_name": "swarm-master-{{isotime \"060102-150405\"}}",
             "image_description": "Master image used for provisioning",
             "instance_name": "packer-swarm-master-{{uuid}}",
             "machine_type": "{{user `instance_type`}}",
