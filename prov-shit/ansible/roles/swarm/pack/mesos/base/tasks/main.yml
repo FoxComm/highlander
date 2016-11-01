@@ -4,7 +4,7 @@
   apt_key: keyserver=keyserver.ubuntu.com id=E56151BF state=present
 
 - name: Add Confluent Repository
-  apt_repository: repo='deb http://repos.mesosphere.com/ubuntu xenial main' state=present update_cache=yes
+  apt_repository: repo='deb http://repos.mesosphere.com/{{ansible_lsb.id | lower}} {{ansible_lsb.codename}} main' state=present update_cache=yes
 
 - name: Install Mesos Package
   apt: name=mesos state=latest force=yes
