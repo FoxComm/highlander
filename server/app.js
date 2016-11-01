@@ -1,6 +1,7 @@
 
 import KoaApp from 'koa';
 import serve from 'koa-static';
+import favicon from 'koa-favicon';
 import renderReact from '../src/server';
 import { makeApiProxy } from './routes/api';
 import { makeElasticProxy } from './routes/elastic';
@@ -16,6 +17,7 @@ export default class App extends KoaApp {
     onerror(this);
 
     this.use(serve('public'))
+      .use(favicon('public/favicon.png'))
       .use(makeApiProxy())
       .use(makeElasticProxy())
       .use(zipcodes.routes())
