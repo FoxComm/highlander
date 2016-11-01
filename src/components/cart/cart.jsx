@@ -35,7 +35,7 @@ type Props = {
   toggleCart: Function,
   skus: Array<any>,
   totals: Object,
-  user?: Object,
+  user: ?Object,
   isVisible: boolean,
   t: any,
 };

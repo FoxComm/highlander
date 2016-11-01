@@ -14,7 +14,7 @@ import Button from 'ui/buttons';
 
 import * as actions from 'modules/auth';
 import { authBlockTypes } from 'paragons/auth';
-import { fetch as fetchCart } from 'modules/cart';
+import { fetch as fetchCart, saveLineItems } from 'modules/cart';
 
 import type { HTMLElement } from 'types';
 
@@ -32,6 +32,7 @@ type Props = Localized & {
   isLoading: boolean,
   authenticate: Function,
   fetchCart: Function,
+  saveLineItems: Function,
   displayTitle: boolean,
 };
 
@@ -81,6 +82,7 @@ class Login extends Component {
         this.props.fetchCart();
       } else {
         console.log('some present');
+        this.props.saveLineItems();
       }
       browserHistory.push(this.props.getPath());
     }, () => {
@@ -157,4 +159,5 @@ class Login extends Component {
 export default connect(mapState, {
   ...actions,
   fetchCart,
+  saveLineItems,
 })(localized(Login));

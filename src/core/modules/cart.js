@@ -109,6 +109,16 @@ export function deleteLineItem(id) {
   return updateLineItemQuantity(id, 0);
 }
 
+// push cart to server
+export function saveLineItems() {
+  return (dispatch, getState) => {
+    const state = getState();
+    const lineItems = _.get(state, ['cart', 'skus'], []);
+    const lineItemsToSubmit = collectItemsToSubmit(lineItems);
+    return dispatch(submitChange(lineItemsToSubmit));
+  };
+}
+
 
 function fetchMyCart(user): global.Promise {
   const api = user ? foxApi : foxApi.removeAuth();
