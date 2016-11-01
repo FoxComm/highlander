@@ -6,17 +6,35 @@ import scala.concurrent.Future
 import cats.data.{Validated, Xor, XorT}
 import cats.{Applicative, Functor, Monad}
 import failures._
+import models.account.Account
 import services.Result
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.SQLActionBuilder
 import slick.lifted.Query
-import slick.profile.{SqlAction, SqlStreamingAction}
+import slick.profile.SqlAction
 import utils.aliases._
 import utils.time.JavaTimeSlickMapper
 
 package object db {
 
   type DbResultT[A] = XorT[DBIO, Failures, A]
+
+  // DBIO monad
+  implicit def dbioApplicative(implicit ec: EC): Applicative[DBIO] = new Applicative[DBIO] {
+    def ap[A, B](fa: DBIO[A])(f: DBIO[A ⇒ B]): DBIO[B] =
+      fa.flatMap(a ⇒ f.map(ff ⇒ ff(a)))
+
+    def pure[A](a: A): DBIO[A] = DBIO.successful(a)
+  }
+
+  implicit def dbioMonad(implicit ec: EC) = new Functor[DBIO] with Monad[DBIO] {
+    override def map[A, B](fa: DBIO[A])(f: A ⇒ B): DBIO[B] = fa.map(f)
+
+    override def pure[A](a: A): DBIO[A] = DBIO.successful(a)
+
+    override def flatMap[A, B](fa: DBIO[A])(f: A ⇒ DBIO[B]): DBIO[B] = fa.flatMap(f)
+  }
+
   // Return B whenever A is inserted
   type Returning[A, B] = slick.driver.JdbcActionComponent#ReturningInsertActionComposer[A, B]
 
@@ -111,22 +129,6 @@ package object db {
     def safeGet(implicit ec: EC): DBIO[R] = dbio.map(_.get)
   }
 
-  // DBIO monad
-  implicit def dbioApplicative(implicit ec: EC): Applicative[DBIO] = new Applicative[DBIO] {
-    def ap[A, B](fa: DBIO[A])(f: DBIO[A ⇒ B]): DBIO[B] =
-      fa.flatMap(a ⇒ f.map(ff ⇒ ff(a)))
-
-    def pure[A](a: A): DBIO[A] = DBIO.successful(a)
-  }
-
-  implicit def dbioMonad(implicit ec: EC) = new Functor[DBIO] with Monad[DBIO] {
-    override def map[A, B](fa: DBIO[A])(f: A ⇒ B): DBIO[B] = fa.map(f)
-
-    override def pure[A](a: A): DBIO[A] = DBIO.successful(a)
-
-    override def flatMap[A, B](fa: DBIO[A])(f: A ⇒ DBIO[B]): DBIO[B] = fa.flatMap(f)
-  }
-
   // implicits
   implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {
     def runTxn()(implicit db: DB): Result[A] =
@@ -136,6 +138,9 @@ package object db {
       dbResultT.value.run()
 
     def meh(implicit ec: EC): DbResultT[Unit] = for (_ ← * <~ dbResultT) yield {}
+
+    def withClaims(claims: Account.ClaimSet): ClaimedDbr[A] =
+      ClaimedDbr(dbResultT, claims)
   }
 
   final implicit class EnrichedOption[A](val option: Option[A]) extends AnyVal {

@@ -49,7 +49,7 @@ object OrderRoutes {
         } ~
         pathPrefix("orders" / cordRefNumRegex) { refNum ⇒
           (get & pathEnd) {
-            getOrFailures {
+            claimedGet {
               OrderQueries.findOne(refNum)
             }
           } ~

@@ -19,6 +19,7 @@ case class Account(id: Int = 0,
     extends FoxModel[Account]
 
 object Account {
+  // Should we change List to Set here?
   type Claims = Map[String, List[String]]
   case class ClaimSet(scope: String, roles: Seq[String], claims: Account.Claims)
 

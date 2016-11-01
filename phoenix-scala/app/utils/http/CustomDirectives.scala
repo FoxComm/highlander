@@ -8,13 +8,14 @@ import akka.http.scaladsl.server._
 import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
 
 import cats.data.Xor
+import failures.AuthFailures.AuthFailed
 import failures._
-import models.auth.UserToken
 import models.account._
 import models.activity.ActivityContext
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.SimpleContext
-import services.Result
+import services.Authenticator.AuthData
+import services.{AuthRejections, FailureChallenge, Result}
 import slick.driver.PostgresDriver.api._
 import utils._
 import utils.aliases._
@@ -82,11 +83,8 @@ object CustomDirectives {
   //and multiple options.
   private def getContextByLanguage(lang: String)(implicit db: DB, ec: EC) =
     db.run(ObjectContexts.filterByLanguage(lang).result.headOption).flatMap {
-      case Some(c) ⇒
-        Future {
-          c
-        }
-      case None ⇒ getContextByName(DefaultContextName)
+      case Some(c) ⇒ Future { c }
+      case None    ⇒ getContextByName(DefaultContextName)
     }
 
   def good[A <: AnyRef](a: Future[A])(implicit ec: EC): StandardRoute =
@@ -103,6 +101,34 @@ object CustomDirectives {
 
   def getOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
     complete(a.run().map(renderGoodOrFailures))
+
+  def claimedGet[A <: AnyRef](
+      action: ClaimedDbr[A])(implicit ec: EC, db: DB, au: AU): StandardRoute =
+    claimed(action, getOrFailures[A])
+
+  def claimedMutate[A <: AnyRef](
+      action: ClaimedDbr[A])(implicit ec: EC, db: DB, au: AU): StandardRoute =
+    claimed(action, mutateOrFailures[A])
+
+  def claimedDelete[A <: AnyRef](
+      action: ClaimedDbr[A])(implicit ec: EC, db: DB, au: AU): StandardRoute =
+    claimed(action, deleteOrFailures)
+
+  private def claimed[A <: AnyRef](a: ClaimedDbr[A], continue: DbResultT[A] ⇒ StandardRoute)(
+      implicit ec: EC,
+      db: DB,
+      au: AU): StandardRoute = {
+    val required = a.claims.claims
+    val provided = au.token.claims
+
+    def isAccessGranted(providedFrn: String, providedActions: List[String]): Boolean =
+      required.contains(providedFrn) && required(providedFrn).toSet.subsetOf(providedActions.toSet)
+
+    if (provided.filter { case (frn, actions) ⇒ isAccessGranted(frn, actions) }.keySet == required.keySet)
+      continue(a.dbr)
+    else
+      reject(AuthorizationFailedRejection)
+  }
 
   def mutateOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
     complete(a.runTxn().map(renderGoodOrFailures))

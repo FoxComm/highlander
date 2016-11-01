@@ -1,6 +1,7 @@
 package services.orders
 
 import cats.implicits._
+import models.account.Account.ClaimSet
 import models.cord._
 import models.account.{User, Users}
 import models.payment.PaymentMethod
@@ -32,10 +33,11 @@ object OrderQueries extends CordQueries {
   }
 
   def findOne(
-      refNum: String)(implicit ec: EC, db: DB, ctx: OC): DbResultT[TheResponse[OrderResponse]] =
-    for {
+      refNum: String)(implicit ec: EC, db: DB, ctx: OC): ClaimedDbr[TheResponse[OrderResponse]] =
+    (for {
       order    ← * <~ Orders.mustFindByRefNum(refNum)
       response ← * <~ OrderResponse.fromOrder(order)
-    } yield TheResponse.build(response)
+    } yield TheResponse.build(response)).withClaims(
+        ClaimSet(scope = "1", roles = List("admin"), claims = Map("frn:oms:order:1" → List("r"))))
 
 }
