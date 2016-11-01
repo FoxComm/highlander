@@ -43,7 +43,7 @@ object OrderRoutes {
         pathPrefix("carts" / cordRefNumRegex) { refNum ⇒
           (get & pathEnd) {
             getOrFailures {
-              CartQueries.findOne(refNum, grouped = false)
+              CartQueries.findOne(refNum)
             }
           }
         } ~

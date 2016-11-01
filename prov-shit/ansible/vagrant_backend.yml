@@ -11,10 +11,10 @@
     - { role: base/kafka }
     - { role: base/elasticsearch }
     - { role: base/db }
+    - { role: base/bottledwater }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
     - { role: base/phoenix }
-    - { role: base/isaac }
     - { role: base/greenriver }
     - { role: dev/db }
     - { role: dev/seeder }

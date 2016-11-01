@@ -9,22 +9,19 @@ RUN apt-get install -y cmake libbotan1.10-dev \
     libgoogle-glog-dev \
     make
 
+RUN mkdir /isaac
 ADD . /home/isaac
-
-# make sure keys are exists
-COPY public_key.pem /home/isaac
+ADD run_isaac.sh /isaac
 
 WORKDIR /home/isaac
 
 RUN mkdir build
 WORKDIR /home/isaac/build
 RUN cmake .. && make -j
-RUN cp ./src/isaac/isaac /bin/isaac
+RUN cp ./src/isaac/isaac /isaac/isaac
 
-RUN echo "#!/bin/bash\n/bin/isaac --public_key=/home/isaac/public_key.pem --db=\"host=dbhost dbname=phoenix_development user=phoenix\"" > /bin/isaac.run
-RUN chmod +x /bin/isaac.run
-
-CMD ["/bin/isaac.run"]
-
-# Clean up APT when done.
+# Clean up APT and build dir when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN rm -rf /home/isaac
+
+CMD ["/isaac/run_isaac.sh"]

@@ -1,0 +1,93 @@
+---
+
+- name: Update System Package Cache
+  apt: update_cache=yes
+  sudo: true
+
+- name: Install Bottledwater Packages
+  apt: name={{item}} state=latest force=yes
+  sudo: true
+  with_items:
+    - make
+    - jq
+    - debconf-utils
+    - cmake
+    - build-essential
+    - libpq-dev
+    - libcurl4-openssl-dev
+    - libjansson-dev
+    - pkg-config
+    - librdkafka-dev
+    - libsnappy-dev
+
+- name: Get Avro
+  get_url: url={{avro_url}} dest="{{home}}/{{avro_name}}.tar.gz"
+  sudo: true
+
+- name: Unzip Avro
+  unarchive: src="{{home}}/{{avro_name}}.tar.gz" dest="{{home}}/" copy=no
+  args:
+    creates: "{{avro_dir}}"
+
+- name: Make Avro Build Dir
+  file: path="{{avro_dir}}/build" state=directory
+
+- name: Run CMake for Avro
+  shell: cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=RelWithDebInfo
+  args:
+    chdir: "{{avro_dir}}/build"
+
+- name: Compile and Install Avro
+  shell: make && make test && make install && ldconfig
+  sudo: true
+  args:
+    chdir: "{{avro_dir}}/build"
+
+- name: Setup Libsnappy
+  copy: src=libsnappy.pc dest=/usr/local/lib/pkgconfig/libsnappy.pc
+  sudo: true
+
+- name: Get Bottledwater
+  git: repo={{bottledwater_repo}} dest={{bottledwater_dir}} version={{bottledwater_version}}
+
+- name: Make and Install BottledWater
+  shell: make && make install
+  args:
+    chdir: "{{bottledwater_dir}}"
+  sudo: true
+
+- name: Symlink Bottledwater Executable
+  file: src="{{bottledwater_dir}}/kafka/bottledwater" dest="/usr/local/bin/bottledwater" state=link
+  sudo: true
+
+- name: Copy Bottledwater Run Files
+  template: src=run_bottledwater_{{item}}.sh dest="/usr/local/bin/run_bottledwater_{{item}}.sh" mode="u+x,g+x,o+x"
+  with_items:
+    - phoenix
+    - mwh
+  sudo: true
+
+- name: Copy Bottledwater Services
+  copy: src=bottledwater_{{item}}.service dest="{{dest_services}}/bottledwater_{{item}}.service"
+  with_items:
+    - phoenix
+    - mwh
+  sudo: true
+
+- name: Reload Systemd for Bottledwater
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Start Bottledwater
+  service: name=bottledwater_{{item}} state=started enabled=yes sleep=10
+  with_items:
+    - phoenix
+    - mwh
+  sudo: true
+
+- name: Copy Bottledwater Consul Service
+  template: src=bottledwater_{{item}}.json dest="/etc/consul.d/bottledwater_{{item}}.json"
+  with_items:
+    - phoenix
+    - mwh
+  sudo: true

@@ -1,4 +1,0 @@
-flyway_vers: 4.0.3
-flyway_dir: "/usr/local/share/flyway-{{flyway_vers}}"
-flyway_url: "https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{flyway_vers}}/flyway-commandline-{{flyway_vers}}-linux-x64.tar.gz"
-flyway: "{{flyway_dir}}/flyway -locations=filesystem:sql/ -configFile=sql/flyway.conf"
