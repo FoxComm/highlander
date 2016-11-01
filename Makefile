@@ -8,8 +8,12 @@ build: setup
 	touch $(archive)
 	tar --exclude '$(archive)' -jcf $(archive) ./
 
-docker: build
-	docker build --tag storefront .
+docker:
+	docker build -t tpg-storefront .
+
+docker-push:
+	docker tag tpg-storefront docker-stage.foxcommerce.com:5000/tpg-storefront:master
+	docker push docker-stage.foxcommerce.com:5000/tpg-storefront:master
 
 clean:
 	rm -rf ./node_modules
@@ -17,4 +21,4 @@ clean:
 test:
 	npm test
 
-.PHONY: setup build docker clean test
+.PHONY: setup build docker docker-push clean test
