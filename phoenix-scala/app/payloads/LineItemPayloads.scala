@@ -8,5 +8,5 @@ import utils.Validation._
 
 object LineItemPayloads {
 
-  case class UpdateLineItemsPayload(sku: String, quantity: Int)
+  case class UpdateLineItemsPayload(skuId: Int, quantity: Int)
 }

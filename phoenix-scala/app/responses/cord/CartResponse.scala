@@ -39,7 +39,6 @@ object CartResponse {
                grouped: Boolean)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CartResponse] =
     for {
       lineItemAdj    ← * <~ CordResponseLineItemAdjustments.fetch(cart.refNum)
-      lineItemsSku   ← * <~ CartLineItems.byCordRef(cart.refNum).result
       lineItems      ← * <~ CordResponseLineItems.fetchCart(cart.refNum, lineItemAdj, grouped)
       promo          ← * <~ CordResponsePromotions.fetch(cart.refNum)
       customer       ← * <~ Users.findOneByAccountId(cart.accountId)

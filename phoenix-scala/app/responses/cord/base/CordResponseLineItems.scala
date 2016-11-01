@@ -13,7 +13,8 @@ import utils.db._
 case class CordResponseLineItem(imagePath: String,
                                 referenceNumber: String,
                                 name: Option[String],
-                                sku: String,
+                                skuId: Int,
+                                skuCode: String,
                                 price: Int,
                                 quantity: Int = 1,
                                 totalPrice: Int,
@@ -106,9 +107,9 @@ object CordResponseLineItems {
     val data = lineItemData.head
 
     //only show reference number for line items that have adjustments.
-    //This is because the adjustment list references the line item by the 
+    //This is because the adjustment list references the line item by the
     //reference number. In the future it would be better if each line item
-    //simply had a list of adjustments instead of the list sitting outside 
+    //simply had a list of adjustments instead of the list sitting outside
     //the line item.
     val referenceNumber =
       if (adjMap.contains(data.lineItemReferenceNumber))
@@ -130,7 +131,8 @@ object CordResponseLineItems {
     val externalId = Mvp.externalId(data.skuForm, data.skuShadow)
 
     CordResponseLineItem(imagePath = image,
-                         sku = data.sku.code,
+                         skuId = data.sku.formId,
+                         skuCode = data.sku.code,
                          referenceNumber = data.lineItemReferenceNumber,
                          state = data.lineItemState,
                          name = title,

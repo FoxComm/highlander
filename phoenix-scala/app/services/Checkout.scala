@@ -127,7 +127,7 @@ case class Checkout(
   private def holdInMiddleWarehouse: DbResultT[Unit] =
     for {
       liSkus ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      skus = liSkus.map { case (skuCode, qty) ⇒ SkuInventoryHold(skuCode, qty) }.toSeq
+      skus = liSkus.map { case (skuId, qty) ⇒ SkuInventoryHold(skuId, qty) }.toSeq
       _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skus))
       mutatingResult = externalCalls.middleWarehouseSuccess = true
     } yield {}

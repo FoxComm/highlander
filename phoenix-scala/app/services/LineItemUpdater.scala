@@ -30,7 +30,7 @@ object LineItemUpdater {
       ac: AC,
       ctx: OC): DbResultT[TheResponse[CartResponse]] = {
 
-    val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
+    val logActivity = (cart: CartResponse, oldQtys: Map[Int, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
 
     for {
@@ -47,7 +47,7 @@ object LineItemUpdater {
       ac: AC,
       ctx: OC): DbResultT[TheResponse[CartResponse]] = {
 
-    val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
+    val logActivity = (cart: CartResponse, oldQtys: Map[Int, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
 
     val finder = Carts
@@ -69,7 +69,7 @@ object LineItemUpdater {
       ac: AC,
       ctx: OC): DbResultT[TheResponse[CartResponse]] = {
 
-    val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
+    val logActivity = (cart: CartResponse, oldQtys: Map[Int, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
 
     for {
@@ -86,7 +86,7 @@ object LineItemUpdater {
       ac: AC,
       ctx: OC): DbResultT[TheResponse[CartResponse]] = {
 
-    val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
+    val logActivity = (cart: CartResponse, oldQtys: Map[Int, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
 
     val finder = Carts
@@ -101,8 +101,7 @@ object LineItemUpdater {
     } yield response
   }
 
-  private def runUpdates(cart: Cart,
-                         logAct: (CartResponse, Map[String, Int]) ⇒ DbResultT[Activity])(
+  private def runUpdates(cart: Cart, logAct: (CartResponse, Map[Int, Int]) ⇒ DbResultT[Activity])(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -116,10 +115,10 @@ object LineItemUpdater {
       _     ← * <~ logAct(res, li)
     } yield TheResponse.validated(res, valid)
 
-  def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =
-    payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒
-      val quantity = acc.getOrElse(item.sku, 0)
-      acc.updated(item.sku, quantity + item.quantity)
+  def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[Int, Int] =
+    payload.foldLeft(Map[Int, Int]()) { (acc, item) ⇒
+      val quantity = acc.getOrElse(item.skuId, 0)
+      acc.updated(item.skuId, quantity + item.quantity)
     }
 
   private def updateQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload], contextId: Int)(
@@ -127,12 +126,12 @@ object LineItemUpdater {
       ctx: OC): DbResultT[Seq[CartLineItem]] = {
 
     val lineItemUpdActions = foldQuantityPayload(payload).map {
-      case (skuCode, qty) ⇒
+      case (skuId, qty) ⇒
         for {
           sku ← * <~ Skus
                  .filterByContext(contextId)
-                 .filter(_.code === skuCode)
-                 .mustFindOneOr(SkuNotFoundForContext(skuCode, contextId))
+                 .filter(_.formId === skuId)
+                 .mustFindOneOr(SkuNotFoundForContext(skuId, contextId))
           _   ← * <~ mustFindProductIdForSku(sku, cart.refNum)
           lis ← * <~ doUpdateLineItems(sku.id, qty, cart.refNum)
         } yield lis
@@ -145,12 +144,12 @@ object LineItemUpdater {
       ctx: OC): DbResultT[Seq[Unit]] = {
 
     val lineItemUpdActions = foldQuantityPayload(payload).map {
-      case (skuCode, delta) ⇒
+      case (skuId, delta) ⇒
         for {
           sku ← * <~ Skus
                  .filterByContext(ctx.id)
-                 .filter(_.code === skuCode)
-                 .mustFindOneOr(SkuNotFoundForContext(skuCode, ctx.id))
+                 .filter(_.formId === skuId)
+                 .mustFindOneOr(SkuNotFoundForContext(skuId, ctx.id))
           _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
           lis ← * <~ (if (delta > 0) increaseLineItems(sku.id, delta, cart.refNum)
                       else decreaseLineItems(sku.id, -delta, cart.refNum))
