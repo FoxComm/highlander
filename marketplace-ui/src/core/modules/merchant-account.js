@@ -8,15 +8,17 @@ import createAsyncActions from './async-utils';
 import api from '../lib/api';
 
 export type Account = {
-  id?: number;
-  first_name?: string;
-  last_name?: string;
-  phone_number?: string;
-  business_name?: string;
-  description?: string;
-  email_address?: string;
-  password?: string;
-  stripe_account_id?: string;
+  merchant_account: {
+    id?: number;
+    first_name?: string;
+    last_name?: string;
+    phone_number?: string;
+    business_name?: string;
+    description?: string;
+    email_address?: string;
+    password?: string;
+    stripe_account_id?: string;
+  }
 }
 
 export type Accounts = Array<Account>;

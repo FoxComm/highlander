@@ -126,14 +126,14 @@ class Main extends Component {
       this.replace(`/application/${ref}/account`);
     }
 
-    /** info fetched but empty - info page */
-    if (infoFetched && isEmpty(info)) {
-      this.replace(`/application/${ref}/info`);
-    }
-
-    /** info fetched and not empty - fetching shipping solutions */
-    if (infoFetched && !isEmpty(info) && !shippingFetched) {
-      fetchShipping(get(application, 'merchant.id'));
+    if (accountsFetched && !isEmpty(accounts)) {
+      if (!get(accounts, [0, 'merchant_account', 'stripe_account_id'])) {
+        /** accounts fetched and not empty but no stripe_account_id - business info page */
+        this.replace(`/application/${ref}/info`);
+      } else {
+        /** accounts fetched and not empty and has stripe_account_id - fetching shipping solutions */
+        fetchShipping(get(application, 'merchant.id'));
+      }
     }
 
     /** shipping solutions fetched but empty - shipping solutions page */
@@ -142,7 +142,7 @@ class Main extends Component {
     }
 
     /** shipping solutions fetched and not empty - actions page */
-    if (shippingFetched && !isEmpty(shipping)/* && !feedFetched*/) {
+    if (shippingFetched && !isEmpty(shipping)) {
       this.replace(`/application/${ref}/actions`);
     }
   }

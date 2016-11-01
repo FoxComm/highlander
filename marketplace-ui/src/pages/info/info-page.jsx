@@ -50,10 +50,6 @@ class MerchantInfoPage extends Component {
   }
 
   get form(): HTMLElement {
-    if (this.props.info.saved) {
-      return;
-    }
-
     const { inProgress, failed } = this.props;
 
     return (
@@ -75,7 +71,6 @@ class MerchantInfoPage extends Component {
           legend={'This additional information will help us ensure that we are able to' +
                   'add your business to our system and successfully send you payments.'}
         />
-        {this.loader}
         {this.form}
       </div>
     );

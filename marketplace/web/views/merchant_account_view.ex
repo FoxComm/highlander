@@ -13,7 +13,8 @@ defmodule Marketplace.MerchantAccountView do
       business_name: merchant_account.business_name,
       description: merchant_account.description,
       email_address: merchant_account.email_address,
-      solomon_id: merchant_account.solomon_id # the corresponding account in solomon
+      solomon_id: merchant_account.solomon_id, # the corresponding account in solomon
+      stripe_account_id: merchant_account.stripe_account_id
      }
   end
 
