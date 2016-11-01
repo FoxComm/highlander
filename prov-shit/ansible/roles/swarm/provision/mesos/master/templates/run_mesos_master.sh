@@ -2,7 +2,7 @@
 
 QUORUM={{mesos_quorum}}
 WORK_DIR=/var/lib/mesos
-IP=0.0.0.0
+IP=`hostname -I | awk '{print $1}'`
 
 mesos-master \
     --quorum=$QUORUM \

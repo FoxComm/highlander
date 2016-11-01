@@ -3,7 +3,7 @@
 CONTAINERIZERS=docker,mesos
 WORK_DIR=/var/lib/mesos
 SANDBOX_DIR=/var/lib/sandbox
-IP=0.0.0.0
+IP=`hostname -I | awk '{print $1}'`
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 export MESOS_EXECUTOR_ENVIRONMENT_VARIABLES="{\"LD_LIBRARY_PATH\": \"$LD_LIBRARY_PATH\"}"
