@@ -4,7 +4,8 @@ variable "datacenter" {
 }
 variable "network" {
 }
-variable "inventory" {
+variable "master_ips" {
+    type = "list"
 }
 variable "image" {
 }
@@ -52,7 +53,7 @@ resource "google_compute_instance" "swarm_master_server" {
 resource "null_resource" "swarm_master_server_provision" {
     depends_on = ["google_compute_instance.swarm_master_server"]
 
-    count        = "${var.count}"
+    count      = "${var.count}"
 
     connection {
         user = "ubuntu"
@@ -61,10 +62,10 @@ resource "null_resource" "swarm_master_server_provision" {
 
     provisioner "local-exec" {
         command = <<EOF
-            ansible-playbook -vvvv -i bin/envs/${var.inventory} ansible/bootstrap_swarm_master.yml
-            --extra-vars @terraform/envs/gce_${var.datacenter}}/params.json
-            --extra-vars '{"zookeepers_ips":${jsonencode(google_compute_instance.swarm_master_server.*.network_interface.0.address)}"}'
-            --extra-vars mesos_quorum=${(var.count + (var.count % 2))/2}
+            ansible-playbook -vvvv -i ${join(",",var.master_ips)}, ansible/bootstrap_swarm_master.yml \
+            --extra-vars @terraform/envs/gce_${var.datacenter}/params.json \
+            --extra-vars '{"zookeepers_ips":${jsonencode(var.master_ips)}}' \
+            --extra-vars mesos_quorum=${(var.count + (var.count % 2))/2} \
             --extra-vars zookeeper_server_id=${count.index + 1}
         EOF
     }

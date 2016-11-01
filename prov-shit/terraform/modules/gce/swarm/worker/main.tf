@@ -8,6 +8,12 @@ variable "inventory" {
 }
 variable "docker_registry_bucket" {
 }
+variable "master_ips" {
+    type = "list"
+}
+variable "worker_ips" {
+    type = "list"
+}
 variable "image" {
 }
 variable "count" {
@@ -54,7 +60,7 @@ resource "google_compute_instance" "swarm_worker_server" {
 resource "null_resource" "swarm_worker_server_provision" {
     depends_on = ["google_compute_instance.swarm_worker_server"]
 
-    count        = "${var.count}"
+    count      = "${var.count}"
 
     connection {
         user = "ubuntu"
@@ -63,8 +69,9 @@ resource "null_resource" "swarm_worker_server_provision" {
 
     provisioner "local-exec" {
         command = <<EOF
-            ansible-playbook -vvvv -i bin/envs/${var.inventory} ansible/bootstrap_swarm_master.yml
-            --extra-vars @terraform/envs/gce_${var.datacenter}}/params.json
+            ansible-playbook -vvvv -i ${join(",",var.worker_ips)}, ansible/bootstrap_swarm_worker.yml \
+            --extra-vars @terraform/envs/gce_${var.datacenter}/params.json \
+            --extra-vars '{"zookeepers_ips":${jsonencode(var.master_ips)}}' \
             --extra-vars docker_registry_bucket=${var.docker_registry_bucket}
         EOF
     }
