@@ -1,9 +1,7 @@
 ---
 
-- name: Provision Packer Twostack Frontend
+- name: Provision Packer Tinystack Frontend
   hosts: all
-  tags:
-      - packer-tinystack-frontend
   vars:
     user: ubuntu
     packing: true

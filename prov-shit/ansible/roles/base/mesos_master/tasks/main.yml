@@ -23,7 +23,7 @@
   template:
     src: marathon.service
     dest: "{{dest_services}}/marathon.service"
-      
+
 - name: Reload Systemd for Mesos Master
   sudo: yes
   command: systemctl daemon-reload
@@ -36,7 +36,7 @@
   service: name=marathon state=restarted enabled=true
   sudo: true
 
-- name: Copy Mesos Healthcheck script      
+- name: Copy Mesos Healthcheck script
   copy: src=mesos_master_check.sh dest=/usr/local/bin/mesos_master_check.sh mode="u=rwx,g=rwx,o=rx"
   sudo: true
 
@@ -48,4 +48,3 @@
 - name: Copy Consul Marathon Service File
   template: src=marathon.json dest="/etc/consul.d/marathon.json"
   sudo: true
-  notify: reload consul

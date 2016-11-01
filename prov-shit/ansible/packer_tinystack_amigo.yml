@@ -2,8 +2,6 @@
 
 - name: Packing Tinystack Amigo
   hosts: all
-  tags:
-    - packer
   vars:
     user: ubuntu
     packing: true
@@ -17,6 +15,4 @@
     - { role: base/zookeeper }
     - { role: base/docker_registry }
     - { role: base/mesos_master }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
+    - { role: base/mesos_consul }

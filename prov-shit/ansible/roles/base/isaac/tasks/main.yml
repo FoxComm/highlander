@@ -33,4 +33,3 @@
 - name: Copy Consul Service File
   template: src=isaac.json dest="/etc/consul.d/isaac.json"
   sudo: true
-  notify: reload consul

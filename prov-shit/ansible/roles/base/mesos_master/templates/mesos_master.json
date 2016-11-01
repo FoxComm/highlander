@@ -1,7 +1,7 @@
 {
     "service" : {
-        "name": "mesos_master",
-        "tags": ["mesos_master"], 
+        "name": "mesos-master",
+        "tags": ["mesos-master"],
         "port": 5050,
         "checks": [
             {
