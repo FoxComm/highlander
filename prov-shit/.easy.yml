@@ -18,8 +18,6 @@ shortcuts:
       topdrawer_vpn: bin/envs/topdrawer_vpn
       tpg: bin/envs/tpg
       tpg_vpn: bin/envs/tpg_vpn
-      vanilla: bin/envs/vanilla
-      vanilla_vpn: bin/envs/vanilla_vpn
   - name: Private Key Files
     flag: "--private-key"
     aliases:
@@ -96,7 +94,6 @@ shortcuts:
       staging: packer/envs/staging/config.json
       topdrawer: packer/envs/topdrawer/config.json
       tpg: packer/envs/tpg/config.json
-      vanilla: packer/envs/vanilla/config.json
 
   targets:
   # Base Images
@@ -181,7 +178,6 @@ shortcuts:
       target-dev: terraform/envs/aws_target_dev/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
-      vanilla: terraform/envs/gce_vanilla/terraform.tfstate
   - name: Variable Files
     flag: "-var-file"
     aliases:
@@ -192,7 +188,6 @@ shortcuts:
       target-dev: terraform/envs/aws_target_dev/target.tfvars
       topdrawer: terraform/envs/gce_topdrawer/topdrawer.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
-      vanilla: terraform/envs/gce_vanilla/vanilla.tfvars
 
   targets:
   - name: Staging Legacy
@@ -216,6 +211,3 @@ shortcuts:
   - name: The Perfect Gourmet
     alias: tpg
     target: terraform/base/gce_tpg
-  - name: Vanilla
-    alias: vanilla
-    target: terraform/base/gce_vanilla
