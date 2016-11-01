@@ -15,8 +15,6 @@ import {
   getApplicationFetchFailed,
   getAccounts,
   getAccountsFetched,
-  getInfo,
-  getInfoFetched,
   getFeed,
   getFeedFetched,
   getShipping,
@@ -34,7 +32,6 @@ import type { HTMLElement } from '../../core/types';
 
 import type { Application } from '../../core/modules/merchant-application';
 import type { Accounts } from '../../core/modules/merchant-account';
-import type { Info } from '../../core/modules/merchant-info';
 import type { Shipping } from '../../core/modules/shipping-solution';
 
 import styles from './main.css';
@@ -42,13 +39,11 @@ import styles from './main.css';
 type Props = {
   application: Application;
   accounts: Accounts,
-  info: Info,
   shipping: Shipping,
   applicationApproved: boolean;
   applicationFetched: boolean;
   applicationFetchFailed: boolean;
   accountsFetched: boolean;
-  infoFetched: boolean;
   shippingFetched: boolean;
   fetchApplication: (reference: string) => Promise<*>;
   fetchAccounts: (merchantId: number) => Promise<*>;
@@ -93,8 +88,6 @@ class Main extends Component {
       applicationFetched,
       accounts,
       accountsFetched,
-      info,
-      infoFetched,
       feed,
       feedFetched,
       shipping,
@@ -188,8 +181,6 @@ const mapState = state => ({
   applicationFetchFailed: getApplicationFetchFailed(state),
   accounts: getAccounts(state),
   accountsFetched: getAccountsFetched(state),
-  info: getInfo(state),
-  infoFetched: getInfoFetched(state),
   feed: getFeed(state),
   feedFetched: getFeedFetched(state),
   shipping: getShipping(state),
