@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/product-index/search-row"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/shared/golang/api"
@@ -70,7 +71,23 @@ func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
 	}
 
 	for _, p := range partialProducts {
-		log.Printf("Partial product: %v", p)
+		row, err := searchrow.NewSearchRow(prod.Product, p)
+		if err != nil {
+			log.Printf("Unable to create search row with error: %s", err.Error())
+			return err
+		}
+
+		id := fmt.Sprintf("%d-%s", prod.Product.ID, p.AvailableSKUs[0])
+		url := fmt.Sprintf("http://localhost:9200/public/products_catalog_view/%s", id)
+
+		headers := map[string]string{}
+		_, err = consumers.Put(url, headers, row)
+		if err != nil {
+			log.Printf("Unable to update product_catalog_view with error: %s", err.Error())
+			return err
+		}
+
+		log.Printf("Updated view successfully")
 	}
 
 	return nil

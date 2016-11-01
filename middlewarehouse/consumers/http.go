@@ -19,9 +19,13 @@ func Patch(url string, headers map[string]string, payload interface{}) (*http.Re
 	return request("PATCH", url, headers, payload)
 }
 
+func Put(url string, headers map[string]string, payload interface{}) (*http.Response, error) {
+	return request("PUT", url, headers, payload)
+}
+
 func request(method string, url string, headers map[string]string, payload interface{}) (*http.Response, error) {
-	if method != "POST" && method != "PATCH" && method != "GET" {
-		return nil, fmt.Errorf("Invalid method %s. Only GET, POST and PATCH are currently supported", method)
+	if method != "POST" && method != "PATCH" && method != "GET" && method != "PUT" {
+		return nil, fmt.Errorf("Invalid method %s. Only GET, POST, PATCH, and PUT are currently supported", method)
 	}
 
 	var req *http.Request

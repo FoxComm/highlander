@@ -3,6 +3,7 @@ package api
 import "errors"
 
 type SKU struct {
+	ID         int              `json:"id"`
 	Attributes ObjectAttributes `json:"attributes"`
 	Albums     []Album          `json:"album"`
 }

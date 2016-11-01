@@ -1,8 +1,6 @@
 package searchrow
 
 import (
-	"errors"
-
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/product-index/utils"
 	"github.com/FoxComm/highlander/shared/golang/api"
 )
@@ -10,18 +8,6 @@ import (
 type PartialProduct struct {
 	AvailableSKUs []string
 	Variants      map[string]string
-}
-
-func (p PartialProduct) SearchRow() (SearchRow, error) {
-	row := SearchRow{}
-	if len(p.AvailableSKUs) == 0 {
-		return row, errors.New("SearchRow must have at least one SKU")
-	}
-
-	row.SKUs = p.AvailableSKUs
-	row.Variants = p.Variants
-
-	return row, nil
 }
 
 func MakePartialProducts(product *api.Product, visualVariants []string) ([]PartialProduct, error) {

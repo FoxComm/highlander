@@ -19,7 +19,7 @@ type SearchRow struct {
 	Tags        []string
 }
 
-func NewSearchRow(p api.Product, pp PartialProduct) (*SearchRow, error) {
+func NewSearchRow(p *api.Product, pp PartialProduct) (*SearchRow, error) {
 	if len(pp.AvailableSKUs) == 0 {
 		return nil, errors.New("SearchRow must have at least one SKU")
 	}
