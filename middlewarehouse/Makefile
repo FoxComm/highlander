@@ -38,6 +38,10 @@ docker-push:
 	docker tag stock-items-consumer docker-stage.foxcommerce.com:5000/stock-items-consumer:master
 	docker tag shipments-consumer docker-stage.foxcommerce.com:5000/shipments-consumer:master
 	docker tag capture-consumer docker-stage.foxcommerce.com:5000/capture-consumer:master
+	docker push docker-stage.foxcommerce.com:5000/middlewarehouse:master
+	docker push docker-stage.foxcommerce.com:5000/stock-items-consumer:master
+	docker push docker-stage.foxcommerce.com:5000/shipments-consumer:master
+	docker push docker-stage.foxcommerce.com:5000/capture-consumer:master
 
 clean:
 	rm -rf ./vendor
