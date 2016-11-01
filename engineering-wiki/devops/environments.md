@@ -12,23 +12,23 @@ Navigation:
 * Consul - http://dev.consul.foxcommerce.com:8500/ui
 * Docker Registry: https://docker.stage.foxcommerce.com:5000 (uses `stage-docker` storage bucket)
 
-### Development
+#### Development
 
 * Mesos - http://10.240.0.24:5050/#/
 * Marathon - http://10.240.0.24:8080/ui/#/apps
 * Web UI - https://stage.foxcommerce.com
 
-### The Perfect Gourmet
+#### The Perfect Gourmet
 
 * Mesos - http://10.240.0.25:5050/#/
 * Marathon - http://10.240.0.25:8080/ui/#/apps
 * Web UI - https://stage-tpg.foxcommerce.com
 
-### Target
+#### Target
 
 TBD
 
-### TopDrawer
+#### TopDrawer
 
 TBD
 
