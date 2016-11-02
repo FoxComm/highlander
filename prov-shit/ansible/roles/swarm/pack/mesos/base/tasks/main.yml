@@ -3,7 +3,7 @@
 - name: Add Confluent Key
   apt_key: keyserver=keyserver.ubuntu.com id=E56151BF state=present
 
-- name: Add Confluent Repository
+- name: Add Mesos Repository
   apt_repository: repo='deb http://repos.mesosphere.com/{{ansible_lsb.id | lower}} {{ansible_lsb.codename}} main' state=present update_cache=yes
 
 - name: Install Mesos Package
