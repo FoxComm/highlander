@@ -2,6 +2,7 @@ package searchrow
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/FoxComm/highlander/shared/golang/api"
@@ -10,7 +11,7 @@ import (
 type SearchRow struct {
 	ProductID   int             `json:"productId"`
 	Context     string          `json:"context"`
-	SKUs        []string        `json:"skus"`
+	SKUs        []SearchSKU     `json:"skus"`
 	Variants    []SearchVariant `json:"variants"`
 	Title       string          `json:"title"`
 	Description string          `json:"description"`
@@ -18,6 +19,25 @@ type SearchRow struct {
 	SalePrice   int             `json:"salePrice"`
 	Currency    string          `json:"currency"`
 	Tags        interface{}     `json:"tags"`
+}
+
+type SearchSKU struct {
+	ID   int    `json:"skuId"`
+	Code string `json:"code"`
+}
+
+func createSearchMap(p *api.Product) (map[string]int, error) {
+	sm := map[string]int{}
+	for _, sku := range p.SKUs {
+		code, err := sku.Code()
+		if err != nil {
+			return sm, err
+		}
+
+		sm[code] = sku.ID
+	}
+
+	return sm, nil
 }
 
 func NewSearchRow(p *api.Product, pp PartialProduct) (*SearchRow, error) {
@@ -28,10 +48,27 @@ func NewSearchRow(p *api.Product, pp PartialProduct) (*SearchRow, error) {
 	row := new(SearchRow)
 	row.ProductID = p.ID
 	row.Context = p.Context.Name
-	row.SKUs = pp.AvailableSKUs
 	row.Description = p.Description()
 	row.Tags = p.Tags()
 	row.Variants = pp.Variants
+
+	ss := []SearchSKU{}
+	sm, err := createSearchMap(p)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, code := range pp.AvailableSKUs {
+		id, ok := sm[code]
+		if !ok {
+			return nil, fmt.Errorf("Unable to find ID for SKU %s", code)
+		}
+
+		searchSku := SearchSKU{ID: id, Code: code}
+		ss = append(ss, searchSku)
+	}
+
+	row.SKUs = ss
 
 	// Use the first SKU for any SKU-specific values
 	code := pp.AvailableSKUs[0]
