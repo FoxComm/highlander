@@ -5,10 +5,9 @@ RUN npm install -g n
 RUN npm install -g gulp
 RUN n stable
 
-
 RUN mkdir -p /storefront
 WORKDIR /storefront
 COPY . /storefront
 
-EXPOSE 4041
+EXPOSE 4044
 CMD ["gulp", "server"]
