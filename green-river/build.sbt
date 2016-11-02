@@ -81,18 +81,19 @@ lazy val greenRiver = (project in file(".")).
         |implicit val scalaCache = ScalaCache(LruMapCache(1))
 
         |val config = MainConfig.loadFromConfig
-        |val connInfo = PhoenixConnectionInfo(config.phoenixUri, config.phoenixUser, config.phoenixPass)
+        |val connInfo = PhoenixConnectionInfo(config.phoenixUri, config.phoenixUser, config.phoenixPass, config
+        |.phoenixOrg)
         |val conn = Phoenix(connInfo)
       """.stripMargin,
     assemblyMergeStrategy in assembly := {
         case PathList("org", "joda", xs @ _*) ⇒  MergeStrategy.last
-        case x ⇒ { 
+        case x ⇒ {
             val old = (assemblyMergeStrategy in assembly).value
             old(x)
         }
     },
     scalafmtConfig := Some(file(".scalafmt")),
-    reformatOnCompileSettings // scalafmt    
+    reformatOnCompileSettings // scalafmt
     //test in assembly := {}
 )
 

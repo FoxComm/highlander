@@ -44,7 +44,9 @@ object Workers {
       implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC): Future[Unit] = Future {
     val schemasProcessor = new ObjectSchemaProcessor(uri = conf.elasticSearchUrl,
                                                      cluster = conf.elasticSearchCluster,
-                                                     schemasTopic = conf.objectSchemasTopic)
+                                                     schemasTopic = conf.objectSchemasTopic,
+                                                     schemaRegistryUrl =
+                                                       conf.avroSchemaRegistryUrl)
 
     val avroProcessor = new AvroProcessor(
         schemaRegistryUrl = conf.avroSchemaRegistryUrl, processor = schemasProcessor)
@@ -150,7 +152,9 @@ object Workers {
                                                       cluster = conf.elasticSearchCluster,
                                                       indexName = index,
                                                       topics = Seq(topic),
-                                                      jsonTransformers = Map(topic → transformer))
+                                                      jsonTransformers = Map(topic → transformer),
+                                                      schemaRegistryUrl =
+                                                        conf.avroSchemaRegistryUrl)
 
                   val avroProcessor =
                     new AvroProcessor(schemaRegistryUrl = conf.avroSchemaRegistryUrl,

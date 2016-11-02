@@ -7,12 +7,14 @@ import com.sksamuel.elastic4s.mappings._
 import com.sksamuel.elastic4s.mappings.attributes._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import consumer.{AvroJsonHelper, JsonProcessor}
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.index.IndexNotFoundException
 import org.elasticsearch.transport.RemoteTransportException
 import org.json4s.DefaultFormats
 import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods.parse
+import org.apache.avro.{Schema, SchemaBuilder}
 
 /**
   Optional options for ES for attribute like index, type, different name, etc
@@ -57,12 +59,17 @@ case class EsOptions(typed: Option[String] = None,
   * This is a ObjectSchemaProcessor which processes json with ES schema definition and
   * update mappings in ES
   */
-class ObjectSchemaProcessor(uri: String, cluster: String, schemasTopic: String)(
+class ObjectSchemaProcessor(
+    uri: String, cluster: String, schemasTopic: String, schemaRegistryUrl: String)(
     implicit ec: ExecutionContext)
     extends JsonProcessor {
 
+  import ObjectSchemaProcessor._
+
   val settings = Settings.settingsBuilder().put("cluster.name", cluster).build()
   val client   = ElasticClient.transport(settings, ElasticsearchClientUri(uri))
+
+  val schemaRegistry = new CachedSchemaRegistryClient(schemaRegistryUrl, 100)
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 
@@ -85,6 +92,8 @@ class ObjectSchemaProcessor(uri: String, cluster: String, schemasTopic: String)(
     val schemaAttributes = parse((document \ "schemaAttributes").extract[String])
     val esAttributes     = parse((document \ "attributes").extract[String]).extract[List[String]]
     val esOptions        = extractOptions(document \ "esOptions")
+
+    registerSchemaAttributes(esMappingName, esAttributes)
 
     val fieldsDefinition = makeMappingFromJsonSchema(schemaAttributes, esAttributes, esOptions)
 
@@ -113,10 +122,10 @@ class ObjectSchemaProcessor(uri: String, cluster: String, schemasTopic: String)(
       esAttributes: Seq[String],
       esOptions: Map[String, EsOptions]): Seq[TypedFieldDefinition] = {
 
-    val props = schemaAttributes \ "properties"
+    val schemaProps = schemaAttributes \ "properties"
     esAttributes.map { attributeName ⇒
       val fieldOptions     = esOptions.getOrElse(attributeName, EsOptions())
-      val schemaDefinition = props \ attributeName
+      val schemaDefinition = schemaProps \ attributeName
 
       schemaToEsDefinition(attributeName, schemaDefinition, fieldOptions)
     }
@@ -185,4 +194,23 @@ class ObjectSchemaProcessor(uri: String, cluster: String, schemasTopic: String)(
       case _              ⇒ throw new IllegalArgumentException(s"Not supported schema type $schemaType")
     }
   }
+
+  private def registerSchemaAttributes(esMapping: String, attributes: Seq[String]) = {
+    val avroSchemaName = getSchemaAttributesAvroName(esMapping)
+
+    val fields = SchemaBuilder.record(avroSchemaName).namespace("org.apache.avro.ipc").fields()
+
+    val schema = attributes
+      .foldLeft(fields) {
+        case (schemaBuilder, attr) ⇒
+          schemaBuilder.name(attr).`type`().nullable().stringType().noDefault()
+      }
+      .endRecord()
+    schemaRegistry.register(avroSchemaName, schema)
+  }
+}
+
+object ObjectSchemaProcessor {
+  def getSchemaAttributesAvroName(esMapping: String): String =
+    s"attrs_${esMapping}_test"
 }
