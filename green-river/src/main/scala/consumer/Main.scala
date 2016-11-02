@@ -10,6 +10,7 @@ import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.stream.ActorMaterializer
 
 import consumer.elastic.ElasticSearchProcessor
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 
 /**
   * Program which consumes several bottledwater topics and indexes them in Elastic Search
@@ -78,6 +79,8 @@ object Main {
       .withMaxOpenRequests(conf.maxConnections)
       .withMaxRetries(1)
 
+    implicit val schemaRegistry = new CachedSchemaRegistryClient(conf.avroSchemaRegistryUrl, 100)
+
     conf.indexTopics.foreach {
       case (index, topics) ⇒
         val esProcessor =
@@ -107,6 +110,8 @@ object Main {
       .withMaxConnections(conf.maxConnections)
       .withMaxOpenRequests(conf.maxConnections)
       .withMaxRetries(1)
+
+    implicit val schemaRegistry = new CachedSchemaRegistryClient(conf.avroSchemaRegistryUrl, 100)
 
     Console.out.println(s"Running Green River...")
     Console.out.println(s"ES: ${conf.elasticSearchUrl}")

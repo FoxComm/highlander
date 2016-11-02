@@ -1,7 +1,6 @@
 package consumer.elastic
 
 import consumer.AvroJsonHelper
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.control.NonFatal
@@ -11,10 +10,12 @@ import consumer.PassthroughSource
 import consumer.elastic.mappings._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import com.sksamuel.elastic4s.ElasticDsl._
+import consumer.aliases.SRClient
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.client.transport.NoNodeAvailableException
 import org.elasticsearch.transport.RemoteTransportException
 import org.json4s.JsonAST.JInt
+import org.json4s.jackson.JsonMethods.compact
 
 /**
   * This is a JsonProcessor which processes json and indexs it into elastic search.
@@ -24,12 +25,12 @@ import org.json4s.JsonAST.JInt
   * id and uses it as the _id in elasticsearch for that item. This is important so that
   * we don't duplicate entries in ES.
   */
-class ElasticSearchProcessor(
-    uri: String,
-    cluster: String,
-    indexName: String,
-    topics: Seq[String],
-    jsonTransformers: Map[String, JsonTransformer])(implicit ec: ExecutionContext)
+class ElasticSearchProcessor(uri: String,
+                             cluster: String,
+                             indexName: String,
+                             topics: Seq[String],
+                             jsonTransformers: Map[String, JsonTransformer])(
+    implicit ec: ExecutionContext, schemaRegistry: SRClient)
     extends JsonProcessor {
 
   val settings = Settings.settingsBuilder().put("cluster.name", cluster).build()
@@ -137,8 +138,11 @@ class ElasticSearchProcessor(
     // See if it has an id and use that as _id in elasticsearch.
     Console.out.println(s"Indexing document with ID $id from topic $topic...\r\n$document")
 
+    val json        = ObjectAttributesTransformer.enrichDocument(document, topic)
+    val newDocument = compact(json)
+
     val req = client.execute {
-      index into indexName / topic id id doc PassthroughSource(document)
+      index into indexName / topic id id doc PassthroughSource(newDocument)
     }
 
     req onFailure {

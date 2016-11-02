@@ -6,9 +6,9 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings._
 import com.sksamuel.elastic4s.mappings.attributes._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
+import consumer.aliases.SRClient
 import consumer.{AvroJsonHelper, JsonProcessor}
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
-import org.apache.avro.SchemaBuilder
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.index.IndexNotFoundException
 import org.elasticsearch.transport.RemoteTransportException
@@ -61,15 +61,11 @@ case class EsOptions(typed: Option[String] = None,
   */
 class ObjectSchemaProcessor(
     uri: String, cluster: String, schemasTopic: String, schemaRegistryUrl: String)(
-    implicit ec: ExecutionContext)
+    implicit ec: ExecutionContext, schemaRegistry: SRClient)
     extends JsonProcessor {
-
-  import ObjectSchemaProcessor._
 
   val settings = Settings.settingsBuilder().put("cluster.name", cluster).build()
   val client   = ElasticClient.transport(settings, ElasticsearchClientUri(uri))
-
-  val schemaRegistry = new CachedSchemaRegistryClient(schemaRegistryUrl, 100)
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 
@@ -91,7 +87,7 @@ class ObjectSchemaProcessor(
     val esAttributes     = parse((document \ "attributes").extract[String]).extract[List[String]]
     val esOptions        = extractOptions(document \ "esOptions")
 
-    registerSchemaAttributes(esMappingName, esAttributes)
+    ObjectAttributesTransformer.registerCustomAttributes(esMappingName, esAttributes)
 
     val fieldsDefinition = makeMappingFromJsonSchema(schemaAttributes, esAttributes, esOptions)
 
@@ -192,22 +188,4 @@ class ObjectSchemaProcessor(
       case _              ⇒ throw new IllegalArgumentException(s"Not supported schema type $schemaType")
     }
   }
-
-  private def registerSchemaAttributes(esMapping: String, attributes: Seq[String]) = {
-    val avroSchemaName = getSchemaAttributesAvroName(esMapping)
-    val fields         = SchemaBuilder.record(avroSchemaName).fields()
-
-    val schema = attributes
-      .foldLeft(fields) {
-        case (schemaBuilder, attr) ⇒
-          schemaBuilder.name(attr).`type`().nullable().stringType().noDefault()
-      }
-      .endRecord()
-    schemaRegistry.register(avroSchemaName, schema)
-  }
-}
-
-object ObjectSchemaProcessor {
-  def getSchemaAttributesAvroName(esMapping: String): String =
-    s"attributes_${esMapping}"
 }

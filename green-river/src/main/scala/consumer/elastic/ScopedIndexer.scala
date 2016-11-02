@@ -1,20 +1,16 @@
 package consumer.elastic
 
-import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 import scala.util.control.NonFatal
 
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
+import consumer.aliases.SRClient
 import consumer.{JsonProcessor, PassthroughSource}
-import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import org.elasticsearch.common.settings.Settings
 import org.json4s.DefaultFormats
 import org.json4s.JsonAST._
-import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods.{compact, parse}
-import utils.objects.Illuminated
+import org.json4s.jackson.JsonMethods.compact
 
 /**
   * This is a JsonProcessor which processes json and indexs it into elastic search.
@@ -28,16 +24,12 @@ class ScopedIndexer(uri: String,
                     cluster: String,
                     indexName: String,
                     topics: Seq[String],
-                    jsonTransformers: Map[String, JsonTransformer],
-                    schemaRegistryUrl: String)(implicit ec: ExecutionContext)
+                    jsonTransformers: Map[String, JsonTransformer])(
+    implicit ec: ExecutionContext, schemaRegistry: SRClient)
     extends JsonProcessor {
 
-  val settings                              = Settings.settingsBuilder().put("cluster.name", cluster).build()
-  val client                                = ElasticClient.transport(settings, ElasticsearchClientUri(uri))
-  val schemaRegistry                        = new CachedSchemaRegistryClient(schemaRegistryUrl, 100)
-  implicit val formats: DefaultFormats.type = DefaultFormats
-
-  type Json = JValue
+  val settings = Settings.settingsBuilder().put("cluster.name", cluster).build()
+  val client   = ElasticClient.transport(settings, ElasticsearchClientUri(uri))
 
   def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] = {
     // Find json transformer
@@ -62,7 +54,7 @@ class ScopedIndexer(uri: String,
   //3.  admin_1
   //
   private def save(document: String, topic: String): Future[Unit] = {
-    val json        = enrichDocument(document, topic)
+    val json        = ObjectAttributesTransformer.enrichDocument(document, topic)
     val newDocument = compact(json)
 
     json \ "id" match {
@@ -102,41 +94,6 @@ class ScopedIndexer(uri: String,
 
     req.map { _ ⇒
       ()
-    }
-  }
-
-  private def getAdditionalAttributes(topic: String): Seq[String] = {
-    val avroSchemaName = ObjectSchemaProcessor.getSchemaAttributesAvroName(topic)
-
-    Try {
-      val schemaMeta = schemaRegistry.getLatestSchemaMetadata(avroSchemaName)
-      val schema     = schemaRegistry.getByID(schemaMeta.getId)
-      schema.getFields.asScala.map(_.name).toList
-    }.toOption.getOrElse(List.empty[String])
-  }
-
-  def enrichDocument(document: String, topic: String): JValue = {
-    val originalJson = parse(document)
-    val form         = originalJson \ "form"
-    val shadow       = originalJson \ "shadow"
-
-    val json = originalJson.removeField {
-      case ("form", _)   ⇒ true
-      case ("shadow", _) ⇒ true
-      case _             ⇒ false
-    }
-
-    json match {
-      case jsonObject: JObject ⇒
-        val additionalAttrs = getAdditionalAttributes(topic)
-        val jForm           = parse(form.extract[String])
-        val jShadow         = parse(shadow.extract[String])
-
-        additionalAttrs.foldLeft(jsonObject) {
-          case (j, attr) ⇒
-            j ~ (attr → Illuminated.get(attr, jForm, jShadow))
-        }
-      case _ ⇒ json
     }
   }
 }
