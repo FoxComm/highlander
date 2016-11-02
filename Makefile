@@ -1,12 +1,9 @@
-archive = the-perfect-gourmet.tar.bz2
 
 setup:
 	npm install
 
 build: setup
 	test -f .env && export eval `cat .env` || true && ./node_modules/.bin/gulp build
-	touch $(archive)
-	tar --exclude '$(archive)' -jcf $(archive) ./
 
 docker:
 	docker build -t tpg-storefront .
