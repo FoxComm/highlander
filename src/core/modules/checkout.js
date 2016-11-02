@@ -6,7 +6,6 @@ import { assoc } from 'sprout-data';
 import createAsyncActions from './async-utils';
 import { fetchCountry } from 'modules/countries';
 import { updateCart } from 'modules/cart';
-import { api as foxApi } from '../lib/api';
 
 export const AddressKind = {
   SHIPPING: 0,
@@ -57,15 +56,15 @@ const startLoadingAddress = createAction('START_LOADING_ADDRESS');
 /* eslint-disable quotes, quote-props */
 
 function _fetchShippingMethods() {
-  return foxApi.cart.getShippingMethods();
+  return this.api.cart.getShippingMethods();
 }
 
 function _fetchAddresses() {
-  return foxApi.addresses.list();
+  return this.api.addresses.list();
 }
 
 function _fetchCreditCards() {
-  return foxApi.creditCards.list();
+  return this.api.creditCards.list();
 }
 
 /* eslint-enable quotes, quote-props */
@@ -151,8 +150,8 @@ function addressToPayload(address, countries = []) {
 }
 
 export function saveShippingAddress(id): Function {
-  return (dispatch) => {
-    return foxApi.cart.setShippingAddressById(id)
+  return (dispatch, getState, api) => {
+    return api.cart.setShippingAddressById(id)
       .then(res => {
         dispatch(updateCart(res.result));
       });
@@ -171,10 +170,10 @@ export function saveShippingMethod(): Function {
 }
 
 export function saveGiftCard(code: string): Function {
-  return (dispatch) => {
+  return (dispatch, getState, api) => {
     const payload = { code: code.trim() };
 
-    return foxApi.cart.addGiftCard(payload)
+    return api.cart.addGiftCard(payload)
       .then(res => {
         dispatch(updateCart(res.result));
       });
@@ -182,24 +181,24 @@ export function saveGiftCard(code: string): Function {
 }
 
 export function saveCouponCode(code: string): Function {
-  return (dispatch) => {
-    return foxApi.cart.addCoupon(code)
+  return (dispatch, getState, api) => {
+    return api.cart.addCoupon(code)
       .then(res => {
         dispatch(updateCart(res));
       });
   };
 }
 
-function createOrUpdateAddress(payload, id) {
+function createOrUpdateAddress(payload, id, api) {
   if (id) {
-    return foxApi.addresses.update(id, payload);
+    return api.addresses.update(id, payload);
   }
-  return foxApi.addresses.add(payload);
+  return api.addresses.add(payload);
 }
 
 function setDefaultAddress(id: number): Function {
-  return (dispatch) => {
-    return foxApi.addresses.setAsDefault(id)
+  return (dispatch, getState, api) => {
+    return api.addresses.setAsDefault(id)
       .then(() => {
         dispatch(fetchAddresses());
       });
@@ -207,11 +206,11 @@ function setDefaultAddress(id: number): Function {
 }
 
 export function updateAddress(id?: number): Function {
-  return (dispatch, getState) => {
+  return (dispatch, getState, api) => {
     const shippingAddress = getState().checkout.shippingAddress;
     const payload = addressToPayload(shippingAddress);
 
-    return createOrUpdateAddress(payload, id)
+    return createOrUpdateAddress(payload, id, api)
       .then((address) => {
         dispatch(extendAddressData('shippingAddress', dispatch(emptyAddress())));
 
@@ -225,11 +224,11 @@ export function updateAddress(id?: number): Function {
 }
 
 export function addCreditCard(): Function {
-  return (dispatch, getState) => {
+  return (dispatch, getState, api) => {
     const creditCard = getState().cart.creditCard;
 
     if (creditCard && creditCard.id) {
-      return foxApi.cart.addCreditCard(creditCard.id);
+      return api.cart.addCreditCard(creditCard.id);
     }
 
     let billingAddress;
@@ -244,9 +243,9 @@ export function addCreditCard(): Function {
 
     const address = addressToPayload(billingAddress, getState().countries.list);
 
-    return foxApi.creditCards.create(cardData, address, !getState().checkout.billingAddressIsSame)
+    return api.creditCards.create(cardData, address, !getState().checkout.billingAddressIsSame)
       .then(creditCardRes => {
-        return foxApi.cart.addCreditCard(creditCardRes.id);
+        return api.cart.addCreditCard(creditCardRes.id);
       })
       .then(res => {
         dispatch(updateCart(res.result));
@@ -256,8 +255,8 @@ export function addCreditCard(): Function {
 
 // Place order from cart.
 export function checkout(): Function {
-  return (dispatch) => {
-    return foxApi.cart.checkout().then(res => {
+  return (dispatch, getState, api) => {
+    return api.cart.checkout().then(res => {
       dispatch(orderPlaced(res));
       return dispatch(updateCart(res));
     });
@@ -266,8 +265,8 @@ export function checkout(): Function {
 
 // Update guest account to checkout
 export function saveEmail(email): Function {
-  return () => {
-    return foxApi.account.update({email});
+  return (dispatch, getState, api) => {
+    return api.account.update({email});
   };
 }
 

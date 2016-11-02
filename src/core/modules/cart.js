@@ -110,17 +110,17 @@ export function deleteLineItem(id) {
 }
 
 function fetchMyCart(user): global.Promise {
-  const api = user ? foxApi : foxApi.removeAuth();
+  const api = user ? this.api : foxApi.removeAuth();
   return api.cart.get();
 }
 
 // push cart to server
 export function saveLineItems() {
-  return (dispatch, getState) => {
+  return (dispatch, getState, api) => {
     const state = getState();
     const lineItems = _.get(state, ['cart', 'skus'], []);
     const lineItemsToSubmit = collectItemsToSubmit(lineItems);
-    return fetchMyCart().then((data) => {
+    return api.cart.get().then((data) => {
       const lis = _.get(data, 'lineItems.skus', []);
       const newSkus = _.map(lineItemsToSubmit, li => li.sku);
       const oldPayload = collectItemsToSubmit(lis);
