@@ -44,7 +44,7 @@ object GiftCardRoutes {
             DbResultT.sequence(payload.map(GiftCardService.createByCustomer(auth.model, _)))
           }
         }
-    } ~
+      } ~
       pathPrefix("gift-cards" / giftCardCodeRegex) { code ⇒
         (get & pathEnd) {
           getOrFailures {
