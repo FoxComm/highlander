@@ -33,7 +33,7 @@
     schema_server: schema-registry.service.consul:8081
     search_host: elasticsearch.service.consul
     zookeeper_server: zookeeper.service.consul:2181
-    storefront_server: storefront.service.consul:4041
+    storefront_server: storefront.service.consul:4044
     ashes_server_name: stage-tpg.foxcommerce.com
     storefront_server_name: stage-tpg.foxcommerce.com
     updating_mwh: true
