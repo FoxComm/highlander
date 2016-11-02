@@ -1,13 +1,12 @@
 defmodule Solomon.JWTAuth do
-  import JsonWebToken
-  import JsonWebToken.Algorithm.RsaUtil
+  alias JsonWebToken.Algorithm.RsaUtil
 
   def sign(claims) do
-    sign(claims, sign_opts)
+    JsonWebToken.sign(claims, sign_opts)
   end
 
   def verify(token) do
-    verify(token, verify_opts)
+    JsonWebToken.verify(token, verify_opts)
   end
 
   defp sign_opts, do: opts(:sign)
@@ -20,8 +19,8 @@ defmodule Solomon.JWTAuth do
     private_key = Application.get_env(:solomon, Solomon.JWTAuth)[:private_key]
     public_key = Application.get_env(:solomon, Solomon.JWTAuth)[:public_key]
     key = case action do
-      :sign -> private_key(private_key_path, private_key)
-      :verify -> public_key(public_key_path, public_key)
+      :sign -> RsaUtil.private_key(private_key_path, private_key)
+      :verify -> RsaUtil.public_key(public_key_path, public_key)
     end
     %{alg: alg, key: key}
   end
