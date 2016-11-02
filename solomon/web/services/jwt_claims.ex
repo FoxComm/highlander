@@ -28,7 +28,7 @@ defmodule Solomon.JWTClaims do
 
   defp get_claims_roles_scope(account_id) do
     Repo.all(
-      from ar in Solomon.AccountRole,
+      from ar in AccountRole,
       where: ar.account_id == ^account_id,
       join: r in Role,
       on: ar.role_id == r.id,
@@ -40,7 +40,6 @@ defmodule Solomon.JWTClaims do
     )
     |> Enum.unzip
     |> process_perms_and_roles
-
   end
 
   defp process_perms_and_roles({permissions, role_names}) do
@@ -52,5 +51,4 @@ defmodule Solomon.JWTClaims do
       |> Enum.min
     }
   end
-
 end

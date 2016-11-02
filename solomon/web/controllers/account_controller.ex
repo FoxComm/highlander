@@ -1,9 +1,11 @@
 defmodule Solomon.AccountController do
   use Solomon.Web, :controller
+  import Solomon.JWTAuth
+  import Solomon.JWTClaims
   alias Solomon.Repo
   alias Solomon.Account
 
-  def index(conn, _params) do 
+  def index(conn, _params) do
     accounts = Repo.all(Account)
     render(conn, "index.json", accounts: accounts)
   end
@@ -25,7 +27,7 @@ defmodule Solomon.AccountController do
   end
 
   def show(conn, %{"id" => id}) do
-    account = 
+    account =
       Repo.get!(Account, id)
     render(conn, "show.json", account: account)
   end
@@ -34,15 +36,20 @@ defmodule Solomon.AccountController do
     account = Repo.get!(Account, id)
     changeset = Account.update_changeset(account, account_params)
     case Repo.update(changeset) do
-      {:ok, account} -> 
+      {:ok, account} ->
         conn
         |> render("show.json", account: account)
-      {:error, changeset} -> 
+      {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
         |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
     end
-  end 
+  end
 
+  def sign_in(conn, %{"account_id" => account_id}) do
+    # TODO : make it secure
+    conn
+    |> put_resp_cookie("JWT", sign(token_claim(account_id)))
+    |> send_resp(:ok, "")
+  end
 end
-

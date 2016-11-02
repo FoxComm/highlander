@@ -18,6 +18,7 @@ defmodule Solomon.Router do
     resources "/permissions", PermissionController
     resources "/accounts", AccountController do 
       resources "/granted_roles", AccountRoleController
+      post "/sign_in", AccountController, :sign_in
     end
     resources "/users", UserController
   end

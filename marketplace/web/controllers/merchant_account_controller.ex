@@ -55,6 +55,7 @@ defmodule Marketplace.MerchantAccountController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", merchant_account_path(conn, :show, merchant_id, merchant_account))
+        |> PermissionManager.sign_in_account(solomon_id)
         |> render("merchant_account.json", merchant_account: merchant_account)
       {:error, changeset} -> 
         conn

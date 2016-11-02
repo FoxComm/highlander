@@ -59,3 +59,10 @@ config :logger, level: :info
 # Finally import the config/prod.secret.exs
 # which should be versioned separately.
 import_config "prod.secret.exs"
+
+# configure jwt auth
+config :solomon, Solomon.JWTAuth,
+  private_key_path: System.get_env("private_keys_dest_dir"),
+  public_key_path: System.get_env("public_keys_dest_dir"),
+  private_key: "private_key.pem",
+  public_key: "public_key.pem"
