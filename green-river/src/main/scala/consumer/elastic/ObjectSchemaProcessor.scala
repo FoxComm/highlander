@@ -8,7 +8,6 @@ import com.sksamuel.elastic4s.mappings.attributes._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import consumer.aliases.SRClient
 import consumer.{AvroJsonHelper, JsonProcessor}
-import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.index.IndexNotFoundException
 import org.elasticsearch.transport.RemoteTransportException

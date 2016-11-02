@@ -8,7 +8,6 @@ import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import consumer.aliases.SRClient
 import consumer.{JsonProcessor, PassthroughSource}
 import org.elasticsearch.common.settings.Settings
-import org.json4s.DefaultFormats
 import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods.compact
 

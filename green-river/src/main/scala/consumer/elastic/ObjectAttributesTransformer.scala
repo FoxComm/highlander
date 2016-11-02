@@ -55,15 +55,12 @@ object ObjectAttributesTransformer {
 
   /**
     * Enrich Json document
-    * by getting additional fields  (form / shadow)
+    * by getting additional fields from (form / shadow)
     * using attributes names stored in Schema registry
     * Also removes form and shadow from original document
     */
   def enrichDocument(originalJson: Json, topic: String)(
       implicit schemaRegistryClient: CachedSchemaRegistryClient): Json = {
-    val form   = originalJson \ "form"
-    val shadow = originalJson \ "shadow"
-
     val json = originalJson.removeField {
       case ("form", _)   ⇒ true
       case ("shadow", _) ⇒ true
@@ -73,8 +70,8 @@ object ObjectAttributesTransformer {
     json match {
       case jsonObject: JObject ⇒
         (for {
-          formString   ← form.extractOpt[String]
-          shadowString ← shadow.extractOpt[String]
+          formString   ← (originalJson \ "form").extractOpt[String]
+          shadowString ← (originalJson \ "shadow").extractOpt[String]
           attributes   ← getCustomAttributes(topic)
           form   = parse(formString)
           shadow = parse(shadowString)
