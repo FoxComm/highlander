@@ -13,7 +13,7 @@ import utils.{IlluminateAlgorithm, JsonFormatters}
 
 /**
   * An IlluminatedCoupon is what you get when you combine the coupon shadow and
-  * the form. 
+  * the form.
   */
 case class IlluminatedCoupon(id: Int,
                              context: IlluminatedContext,

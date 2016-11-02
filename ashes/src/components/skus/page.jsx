@@ -5,6 +5,7 @@
 // libs
 import _ from 'lodash';
 import React, { Element } from 'react';
+import { autobind } from 'core-decorators';
 
 // components
 import { Link, IndexLink } from '../link';
@@ -13,9 +14,6 @@ import { connectPage, ObjectPage } from '../object-page/object-page';
 
 // actions
 import * as SkuActions from 'modules/skus/details';
-
-//helpers
-import { isSkuValid } from 'paragons/sku';
 
 // types
 import type { Sku } from 'modules/skus/details';
@@ -28,8 +26,8 @@ type Props = {
     updateSku: (sku: Sku, context?: string) => Promise,
     archiveSku: (code: string, context?: string) => Promise,
   },
-  sku: ?Sku,
   params: { skuCode: string },
+  originalObject: Sku,
   children: Element,
 };
 
@@ -37,7 +35,7 @@ class SkuPage extends ObjectPage {
   props: Props;
 
   get code(): string {
-    return _.get(this.entity, 'attributes.code.v', '');
+    return _.get(this.props.originalObject, 'attributes.code.v', '');
   }
 
   get pageTitle(): string {
@@ -46,15 +44,6 @@ class SkuPage extends ObjectPage {
     }
 
     return this.code.toUpperCase();
-  }
-
-  get preventSave(): boolean {
-    const { entity } = this.state;
-    if (entity) {
-      return !isSkuValid(entity);
-    }
-
-    return true;
   }
 
   get entityIdName(): string {
@@ -74,6 +63,16 @@ class SkuPage extends ObjectPage {
       <Link to="sku-notes" params={params} key="notes">Notes</Link>,
       <Link to="sku-activity-trail" params={params} key="activity-trail">Activity Trail</Link>,
     ];
+  }
+
+  @autobind
+  sanitizeError(error: string): string {
+    if (error.indexOf('duplicate key value violates unique constraint "skus_code_context_id"') != -1) {
+      const code = _.get(this.state, 'entity.attributes.code.v');
+      return `SKU with code ${code} already exists in the system`;
+    }
+
+    return error;
   }
 
   subNav() {

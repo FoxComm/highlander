@@ -9,21 +9,17 @@ import failures.PromotionFailures.PromotionNotFoundForContext
 import models.cord._
 import models.cord.lineitems.CartLineItems
 import models.cord.lineitems.CartLineItems.scope._
-import models.cord.lineitems.OrderLineItems
-import models.cord.lineitems.OrderLineItems.scope._
 import models.coupon._
 import models.account._
-import models.customer._
 import models.objects._
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.promotion._
-import org.json4s.JsonAST.{JBool, JValue}
+import org.json4s.JsonAST._
 import responses.cord.OrderResponse
 import services.coupon.CouponUsageService
 import services.inventory.SkuManager
-import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis._
@@ -115,7 +111,7 @@ case class Checkout(
       order     ← * <~ Orders.createFromCart(cart)
       _         ← * <~ fraudScore(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)
-      fullOrder ← * <~ OrderResponse.fromOrder(order)
+      fullOrder ← * <~ OrderResponse.fromOrder(order, grouped = true)
       _         ← * <~ LogActivity.orderCheckoutCompleted(fullOrder)
     } yield fullOrder
 
@@ -123,45 +119,42 @@ case class Checkout(
       case failures @ Xor.Left(_) ⇒
         if (externalCalls.middleWarehouseSuccess) cancelHoldInMiddleWarehouse
         failures
+
       case result @ Xor.Right(_) ⇒
         result
     }
   }
 
+  private case class InventoryTrackedSku(isInventoryTracked: Boolean, code: String, qty: Int)
   private def holdInMiddleWarehouse(implicit ctx: OC): DbResultT[Unit] =
     for {
-      liSkus ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      skuObjects ← * <~ liSkus.map { liSku ⇒
-                    for {
-                      sku ← * <~ SkuManager.mustFindSkuByContextAndCode(contextId = ctx.id,
-                                                                        liSku._1)
-                      s ← * <~ ObjectShadows.mustFindById400(sku.shadowId)
-                      f ← * <~ ObjectForms.mustFindById400(s.formId)
-                      trackInventory = ObjectUtils.get("trackInventory", f, s) match {
-                        case JBool(trackInv) ⇒ trackInv
-                        case _               ⇒ true
-                      }
-                    } yield (trackInventory, liSku)
+      liSkus               ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
+      inventoryTrackedSkus ← * <~ filterInventoryTrackingSkus(liSkus)
+      skusToHold ← * <~ inventoryTrackedSkus.map { s ⇒
+                    SkuInventoryHold(s.code, s.qty)
                   }
-      skusToHold ← * <~ skuObjects.filter {
-                    case (holdInventory, cordRef, skuAmount)   ⇒ holdInventory
-                  }.map { case (holdInventory, sku, skuAmount) ⇒ (sku, skuAmount) }
-      skus = skusToHold.map { case (skuCode, qty) ⇒ SkuInventoryHold(skuCode, qty) }
-      _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skus.toSeq))
+      _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold.toSeq))
       mutatingResult = externalCalls.middleWarehouseSuccess = true
     } yield {}
 
-
-  private def getSkuObjects(cordRef: String, skuAmount: Int) =
+  private def filterInventoryTrackingSkus(skus: Map[String, Int]) =
     for {
-      sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(contextId = ctx.id, cordRef)
+      skuInventoryData ← * <~ skus.map {
+                          case (skuCode, qty) ⇒ isInventoryTracked(skuCode, qty)
+                        }
+      inventoryTrackedSkus ← * <~ skuInventoryData.filter(_.isInventoryTracked)
+    } yield inventoryTrackedSkus
+
+  private def isInventoryTracked(skuCode: String, qty: Int) =
+    for {
+      sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(contextId = ctx.id, skuCode)
       shadow ← * <~ ObjectShadows.mustFindById400(sku.shadowId)
       form   ← * <~ ObjectForms.mustFindById400(shadow.formId)
       trackInventory = ObjectUtils.get("trackInventory", form, shadow) match {
         case JBool(trackInv) ⇒ trackInv
         case _               ⇒ true
       }
-    } yield (trackInventory, cordRef, skuAmount)
+    } yield InventoryTrackedSku(trackInventory, skuCode, qty)
 
   private def cancelHoldInMiddleWarehouse: Result[Unit] =
     apis.middlwarehouse.cancelHold(cart.referenceNumber)

@@ -1,0 +1,29 @@
+env:
+  GOPATH: "/var/lib/buildkite-agent/go"
+
+steps:
+  - command: |-
+      cp /var/lib/buildkite-agent/account.json ./
+      cp /var/lib/buildkite-agent/.vault_pass ./
+      make test
+    label: make test
+    agents:
+      - queue=stage_master
+
+  - wait
+
+  - command: make run-gatling
+    label: run gatling tests
+    agents:
+      - queue=stage_master
+    branches: master
+    timeout: 300
+
+  - wait
+
+  - command: |-
+      make
+      make deploy-stage
+    agents:
+      - queue=stage_master
+    branches: master

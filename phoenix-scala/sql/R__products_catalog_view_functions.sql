@@ -42,7 +42,8 @@ begin
                inner join object_contexts as context on (p.context_id = context.id)
                left join products_catalog_view as pv on (pv.id = p.id and context.name = pv.context)
                inner join object_forms as f on (f.id = p.form_id)
-               inner join object_shadows as s on (s.id = p.shadow_id)) as q
+               inner join object_shadows as s on (s.id = p.shadow_id)
+                where p.id = any(product_ids)) as q
 ) select
     array_agg(id) filter (where alive = true and catalog_id is not null) as upd_ids,
     array_agg(id) filter (where alive = false and catalog_id is not null) as del_ids,
@@ -110,7 +111,7 @@ begin
                 inner join object_contexts as context on (p.context_id = context.id)
                 inner join object_forms as f on (f.id = p.form_id)
                 inner join object_shadows as s on (s.id = p.shadow_id)
-                inner join product_sku_links_view as sv on (sv.product_id = p.id)--get list of sku codes for the product
+                inner join product_sku_links_view as sv on (sv.product_id = p.id) --get list of sku codes for the product
                 inner join sku_search_view as sku on (sku.context_id = context.id and sku.sku_code = sv.skus->>0)
                 left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
               where p.id = any(update_ids)

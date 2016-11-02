@@ -59,7 +59,6 @@ export default class SkuList extends Component {
     });
 
     let columns = [
-      { field: 'image', text: 'Image' },
       ...variantColumns,
       { field: 'sku', text: 'SKU' },
       { field: 'retailPrice', text: 'Retail Price' },
@@ -142,6 +141,7 @@ export default class SkuList extends Component {
           skuContext={this.productContext}
           columns={columns}
           sku={row}
+          index={index}
           params={params}
           variants={this.props.variants}
           variantsSkusIndex={this.state.variantsSkusIndex}

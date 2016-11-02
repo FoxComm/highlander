@@ -6,6 +6,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/async"
 	commonErrors "github.com/FoxComm/highlander/middlewarehouse/common/errors"
+	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 )
@@ -101,13 +102,25 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 		return err
 	}
 
-	// not all stock items by SKUs found
-	if len(skusList) != len(items) {
-		return errors.New("Wrong SKUs list")
+	// grab found SKU list from repo
+	skusListRepo := []string{}
+	for _, item := range items {
+		skusListRepo = append(skusListRepo, item.SKU)
+	}
+
+	// compare expectations with reality
+	aggregateErr := commonErrors.AggregateError{}
+	diff := utils.DiffSlices(skusList, skusListRepo)
+	if len(diff) > 0 {
+		for _, sku := range diff {
+			msg := fmt.Sprintf("Can't hold items for %s - no stock items found", sku)
+			aggregateErr.Add(errors.New(msg))
+		}
+
+		return aggregateErr
 	}
 
 	// get available units for each stock item
-	aggregateErr := commonErrors.AggregateError{}
 	unitsIds := []uint{}
 	for _, si := range items {
 		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])

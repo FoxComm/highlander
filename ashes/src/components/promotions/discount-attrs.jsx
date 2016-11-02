@@ -48,7 +48,7 @@ type Props = {
 const DiscountAttrs = (props: Props): Element => {
   const discount = props.discount;
 
-  const attrs = _.get(discount, `form.attributes.${props.attr}`, {});
+  const attrs = _.get(discount, `attributes.${props.attr}.v`, {});
   const discountType = Object.keys(attrs)[0];
   const discountParams = attrs[discountType] || {};
 

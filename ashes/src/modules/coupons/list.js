@@ -15,7 +15,7 @@ const searchTerms = [
   {
     title: 'Coupon : Code',
     type: 'string',
-    term: 'code',
+    term: 'codes',
   },
   {
     title: 'Coupon : Date/Time Created',

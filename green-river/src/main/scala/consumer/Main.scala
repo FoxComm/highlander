@@ -78,7 +78,7 @@ object Main {
       .withMaxOpenRequests(conf.maxConnections)
       .withMaxRetries(1)
 
-    conf.indexTopics.map {
+    conf.indexTopics.foreach {
       case (index, topics) ⇒
         val esProcessor =
           new ElasticSearchProcessor(uri = conf.elasticSearchUrl,

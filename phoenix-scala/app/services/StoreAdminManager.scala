@@ -51,6 +51,7 @@ object StoreAdminManager {
              author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreAdminResponse.Root] =
     for {
       admin ← * <~ Users.mustFindByAccountId(accountId)
+      _     ← * <~ Users.updateEmailMustBeUnique(payload.email.some, accountId)
       saved ← * <~ Users.update(admin,
                                 admin.copy(name = Some(payload.name),
                                            phoneNumber = payload.phoneNumber,

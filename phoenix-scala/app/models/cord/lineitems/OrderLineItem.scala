@@ -24,9 +24,10 @@ trait LineItemProductData[LI] {
   def productShadow: ObjectShadow
   def image: Option[String]
   def lineItem: LI
-
+  def attributes: Option[Json]
   def lineItemReferenceNumber: String
   def lineItemState: OrderLineItem.State
+  def withLineItemReferenceNumber(newLineItemRef: String): LineItemProductData[LI]
 }
 
 case class OrderLineItemProductData(sku: Sku,
@@ -35,10 +36,13 @@ case class OrderLineItemProductData(sku: Sku,
                                     productForm: ObjectForm,
                                     productShadow: ObjectShadow,
                                     image: Option[String],
-                                    lineItem: OrderLineItem)
+                                    lineItem: OrderLineItem,
+                                    attributes: Option[Json] = None)
     extends LineItemProductData[OrderLineItem] {
   def lineItemReferenceNumber = lineItem.referenceNumber
   def lineItemState           = lineItem.state
+  def withLineItemReferenceNumber(newLineItemRef: String) =
+    this.copy(lineItem = lineItem.copy(referenceNumber = newLineItemRef))
 }
 
 case class OrderLineItem(id: Int = 0,

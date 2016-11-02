@@ -13,7 +13,7 @@ import utils.{IlluminateAlgorithm, JsonFormatters}
 
 /**
   * An IlluminatedPromotion is what you get when you combine the promotion shadow and
-  * the form. 
+  * the form.
   */
 case class IlluminatedPromotion(id: Int,
                                 context: IlluminatedContext,

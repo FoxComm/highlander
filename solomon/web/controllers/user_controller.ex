@@ -5,6 +5,7 @@ defmodule Solomon.UserController do
   alias Solomon.User
   alias Solomon.Account
   alias Solomon.AccountAccessMethod
+  alias Solomon.Validation
 
   def index(conn, _params) do 
     users = Repo.all(User)
@@ -38,6 +39,7 @@ defmodule Solomon.UserController do
   def update(conn, %{"id" => id, "user" => user_params}) do
     user = Repo.get!(User, id)
     changeset = User.update_changeset(user, user_params)
+                |> check_updated_email(id)
     case Repo.update(changeset) do
       {:ok, user} -> 
         conn
@@ -49,7 +51,7 @@ defmodule Solomon.UserController do
     end
   end 
 
-  def insert_and_relate(user_params) do
+  defp insert_and_relate(user_params) do
     account_cs = Account.changeset(%Account{}, %{
       "ratchet" => 0
     })
@@ -60,6 +62,7 @@ defmodule Solomon.UserController do
       params_with_account = user_params
       |> Map.put("account_id", account.id)
       user_cs = User.changeset(%User{}, params_with_account)
+                |> check_new_email
       Repo.insert(user_cs)
     end) 
     |> Multi.run(:account_access_method, fn %{account: account, user: user} -> 
@@ -72,6 +75,25 @@ defmodule Solomon.UserController do
       })
       Repo.insert(aam_cs)
     end)
+  end
+
+  defp check_new_email(changeset) do
+    if Validation.email_is_taken(changeset.changes.email) do
+      Ecto.Changeset.add_error(changeset, :email, "Email is already taken")
+    else
+      changeset
+    end
+  end
+
+  defp check_updated_email(changeset, id) do
+    if(
+      Map.has_key?(changeset.changes, "email") &&
+      Validation.email_is_taken(changeset.changes.email, id)
+    ) do
+      Ecto.Changeset.add_error(changeset, :email, "Email is already taken")
+    else
+      changeset
+    end
   end
 end
 

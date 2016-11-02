@@ -27,7 +27,7 @@ object OrderStateUpdater {
       _        ← * <~ order.transitionState(newState)
       _        ← * <~ updateQueries(admin, Seq(refNum), newState)
       updated  ← * <~ Orders.mustFindByRefNum(refNum)
-      response ← * <~ OrderResponse.fromOrder(updated)
+      response ← * <~ OrderResponse.fromOrder(updated, grouped = true)
       _        ← * <~ doOrMeh(order.state != newState, orderStateChanged(admin, response, order.state))
     } yield response
 

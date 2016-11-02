@@ -1,12 +1,10 @@
 import akka.http.scaladsl.model.StatusCodes
-import Extensions._
 import cats.implicits._
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures._
 import models.Reason
 import models.account._
 import models.cord.{Cord, Cords}
-import models.customer.Customer
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard._
 import models.payment.storecredit

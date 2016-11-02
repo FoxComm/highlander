@@ -1,28 +1,19 @@
 package payloads
 
 import models.promotion.Promotion.ApplyType
-import payloads.DiscountPayloads.{CreateDiscountForm, CreateDiscountShadow}
+import payloads.DiscountPayloads.CreateDiscount
 import utils.aliases._
 
 object PromotionPayloads {
 
-  case class UpdatePromoDiscountForm(id: Int, attributes: Json)
-
-  case class UpdatePromoDiscountShadow(id: Int, attributes: Json)
-
-  case class CreatePromotionForm(attributes: Json, discounts: Seq[CreateDiscountForm])
-
-  case class CreatePromotionShadow(attributes: Json, discounts: Seq[CreateDiscountShadow])
+  case class UpdatePromoDiscount(id: Int, attributes: Map[String, Json])
 
   case class CreatePromotion(applyType: ApplyType,
-                             form: CreatePromotionForm,
-                             shadow: CreatePromotionShadow)
-
-  case class UpdatePromotionForm(attributes: Json, discounts: Seq[UpdatePromoDiscountForm])
-
-  case class UpdatePromotionShadow(attributes: Json, discounts: Seq[UpdatePromoDiscountShadow])
+                             attributes: Map[String, Json],
+                             discounts: Seq[CreateDiscount],
+                             schema: Option[String] = None)
 
   case class UpdatePromotion(applyType: ApplyType,
-                             form: UpdatePromotionForm,
-                             shadow: UpdatePromotionShadow)
+                             attributes: Map[String, Json],
+                             discounts: Seq[UpdatePromoDiscount])
 }

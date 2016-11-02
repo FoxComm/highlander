@@ -115,6 +115,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
         routes.admin.CategoryRoutes.routes ~
         routes.admin.GenericTreeRoutes.routes ~
         routes.admin.StoreAdminRoutes.routes ~
+        routes.admin.ObjectRoutes.routes ~
         routes.admin.PluginRoutes.routes ~
         routes.admin.TaxonomyRoutes.routes ~
         routes.service.PaymentRoutes.routes //Migrate this to auth with service tokens

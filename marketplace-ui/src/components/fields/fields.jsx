@@ -1,4 +1,4 @@
-import { get, isEmpty, invoke, noop } from 'lodash';
+import { get, isEmpty, invoke, noop, upperFirst } from 'lodash';
 import cx from 'classnames';
 import React from 'react';
 import MultiSelect from 'react-widgets/lib/Multiselect';
@@ -16,11 +16,11 @@ const setValue = (value, def = null) => (!isEmpty(value) ? value : def);
 /**
  * Form field wrapper
  */
-export const FormField = ({ className, meta: { error, touched }, children }) => {
+export const FormField = ({ input: { name }, type, meta: { error, touched }, children }) => {
   const hasError = touched && error;
 
   return (
-    <div className={cx(styles.field, className, { [styles.fieldError]: hasError })}>
+    <div className={cx(styles.field, name, styles[`field${upperFirst(type)}`], { [styles.fieldError]: hasError })}>
       {children}
       <span className={cx(styles.error, { [styles.errorActive]: hasError })}>
         {hasError ? get(messages, error, 'Wrong value') : ''}
@@ -33,7 +33,7 @@ export const FormField = ({ className, meta: { error, touched }, children }) => 
  * Text input field
  */
 const renderInput = ({ input, type, mask, maskChar = ' ', placeholder, meta }) => (
-  <FormField input={input} className={input.name} meta={meta}>
+  <FormField input={input} type={type} meta={meta}>
     <MaskInput {...input} mask={mask} maskChar={maskChar} type={type} placeholder={placeholder} />
   </FormField>
 );
@@ -41,8 +41,8 @@ const renderInput = ({ input, type, mask, maskChar = ' ', placeholder, meta }) =
 /**
  * Textarea field
  */
-const renderTextarea = ({ input, placeholder, meta }) => (
-  <FormField input={input} className={input.name} meta={meta}>
+const renderTextarea = ({ input, type, placeholder, meta }) => (
+  <FormField input={input} type={type} meta={meta}>
     <textarea {...input} placeholder={placeholder} rows="1" />
   </FormField>
 );
@@ -68,12 +68,21 @@ const renderRadios = (field: TFormField) => (
 );
 
 /**
+ * Checkbox field
+ */
+const renderCheckbox = ({ input, type, placeholder, meta }) => (
+  <FormField input={input} type={type} meta={meta}>
+    <label htmlFor={input.name}><input {...input} type="checkbox" id={input.name} />{placeholder}</label>
+  </FormField>
+);
+
+/**
  * Native select field
  */
 const renderOptions = value => <option key={value}>{value}</option>;
 
-const renderSelect = ({ input, values, placeholder, meta }) => (
-  <FormField input={input} className={input.name} meta={meta}>
+const renderSelect = ({ input, values, type, placeholder, meta }) => (
+  <FormField input={input} type={type} meta={meta}>
     {!input.value && <span className={styles.placeholderInline}>{placeholder}</span>}
     <select {...input} value={setValue(input.value, '')}>
       {!input.value && <option disabled />}
@@ -97,11 +106,11 @@ const renderTags = ({ input, values, placeholder, meta }) => (
   </FormField>
 );
 
-const renderFile = ({ input, file, placeholder, meta }) => {
+const renderFile = ({ input, file, type, placeholder, meta }) => {
   const fileName = get(file, '[0].name');
 
   return (
-    <FormField input={input} className={input.name} meta={meta}>
+    <FormField input={input} type={type} meta={meta}>
       <span className={styles.placeholder}>{placeholder}</span>
       <div className={styles.file}>
         <span>Select File</span>
@@ -114,13 +123,14 @@ const renderFile = ({ input, file, placeholder, meta }) => {
 
 const typeRendererMap = {
   select: renderSelect,
+  checkbox: renderCheckbox,
   tags: renderTags,
   textarea: renderTextarea,
   file: renderFile,
 };
 
 export default (field: TFormField, values: string) => {
-  if (!isEmpty(values) && field.showPredicate && !invoke(field, 'showPredicate', values)) {
+  if (field.showPredicate && !invoke(field, 'showPredicate', values)) {
     return;
   }
 

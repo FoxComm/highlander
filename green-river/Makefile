@@ -7,4 +7,10 @@ clean:
 test:
 	sbt test
 
-.PHONY: build test
+docker:
+	true
+
+docker-push:
+	true
+
+.PHONY: build test clean docker docker-push

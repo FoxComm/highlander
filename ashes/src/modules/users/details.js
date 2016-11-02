@@ -1,6 +1,6 @@
 /* @flow weak */
 
-import Api from '../../lib/api';
+import Api from 'lib/api';
 import { createAction, createReducer } from 'redux-act';
 import createAsyncActions from '../async-utils';
 

@@ -18,7 +18,7 @@ type Props = {
   entity: string;
   bulkActions: {
     changeState: (ids: Array<RefId>, isActivation: boolean) => void;
-    updateAttributes: (ids: Array<RefId>, form: FormAttributes, shadow: ShadowAttributes) => void;
+    updateAttributes: (ids: Array<RefId>, attributes: Attributes) => void;
   };
   children: Element;
 };
@@ -51,8 +51,8 @@ const changeStateHandler = function(props: Props, isActivation: boolean): Functi
 const scheduleHandler = (props: Props) => (allChecked, toggledIds) => {
   const {updateAttributes} = props.bulkActions;
 
-  const handleConfirm = (form, shadow) => {
-    updateAttributes(toggledIds, form, shadow);
+  const handleConfirm = (attributes: Attributes) => {
+    updateAttributes(toggledIds, attributes);
   };
 
   return (

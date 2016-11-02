@@ -9,12 +9,14 @@ import utils.aliases._
 object VariantPayloads {
   case class VariantPayload(id: Option[Int] = None,
                             attributes: Map[String, Json],
-                            values: Option[Seq[VariantValuePayload]])
+                            values: Option[Seq[VariantValuePayload]],
+                            schema: Option[String] = None)
 
   case class VariantValuePayload(id: Option[Int] = None,
                                  name: Option[String],
                                  swatch: Option[String],
-                                 skuCodes: Seq[String]) {
+                                 skuCodes: Seq[String],
+                                 schema: Option[String] = None) {
 
     def formAndShadow: FormAndShadow = {
       val jsonBuilder: AttributesBuilder = ObjectPayloads

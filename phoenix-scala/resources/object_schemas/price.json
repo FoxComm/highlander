@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "widget": "price",
+  "properties": {
+    "currency": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 3
+    },
+    "value": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0
+    }
+  }
+}

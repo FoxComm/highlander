@@ -1,0 +1,33 @@
+{
+  "id": "/shipments-consumer",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 64,
+  "disk": 0,
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "{{docker_registry}}:5000/shipments-consumer:{{docker_branch}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": false
+    }
+  },
+  "env": {
+    "TOPIC": "sku_search_view",
+    "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
+    "ZOOKEEPER_URL": "{{zookeeper_server}}",
+    "MWH_URL": "http://{{middlewarehouse_server}}",
+    "PARTITION": "1"
+  },
+  "portDefinitions": [
+    {
+      "port": 10002,
+      "protocol": "tcp",
+      "labels": {}
+    }
+  ]
+}

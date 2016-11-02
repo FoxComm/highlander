@@ -1,7 +1,5 @@
 import akka.http.scaladsl.model.StatusCodes
-
 import cats.implicits._
-import Extensions._
 import failures.CartFailures._
 import failures.LockFailures._
 import failures.ShippingMethodFailures._
@@ -55,25 +53,20 @@ class CartIntegrationTest
 
       implicit val au = storeAdminAuthData
 
-      val imgUrl = "testImgUrl"
-      val title  = "Image Path Product"
-
+      val imgUrl = "testImgUrl";
       (for {
-        product ← * <~ Mvp.insertProduct(
-                     ctx.id,
-                     Factories.products.head.copy(title = title, image = imgUrl))
-        _ ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+        product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
+        _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
       } yield {}).gimme
 
       val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
       fullCart.lineItems.skus.size must === (1)
-      fullCart.lineItems.skus.head.name must === (Some(title))
       fullCart.lineItems.skus.head.imagePath must === (imgUrl)
     }
   }
 
   "POST /v1/orders/:refNum/line-items" - {
-    val payload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, None))
+    val payload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
 
     "should successfully update line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
@@ -86,9 +79,10 @@ class CartIntegrationTest
 
     "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
     with Sku_Raw with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+      val payload = Seq(UpdateLineItemsPayload(simpleSku.code, 1))
       cartsApi(cart.refNum).lineItems
         .add(Seq(UpdateLineItemsPayload(simpleSku.code, 1)))
-        .mustFailWith400(SKUWithNoProductAdded(cart.refNum, simpleSku.code))
+        .mustFailWith400(SkuWithNoProductAdded(cart.refNum, simpleSku.code))
     }
 
     "adding a SKU that's associated through a variant should succeed" in new ProductAndVariants_Baked
@@ -108,82 +102,74 @@ class CartIntegrationTest
   }
 
   "PATCH /v1/orders/:refNum/line-items" - {
-    val addPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, None))
-    val addGiftCardPayload = Seq(
-        UpdateLineItemsPayload(
-            "SKU-YAX",
-            2,
-            attributes = Some(parse(
-                    """{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))))
-    val removeGiftCardPayload = Seq(
-        UpdateLineItemsPayload(
-            "SKU-YAX",
-            -1,
-            attributes = Some(parse(
-                    """{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))))
+    val addPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
+    val attributes = Some(
+        parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
+    val addGiftCardPayload    = Seq(UpdateLineItemsPayload("SKU-YAX", 2, attributes))
+    val removeGiftCardPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1, attributes))
 
     "should successfully add line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
       val root = cartsApi(cart.refNum).lineItems.update(addPayload).asTheResult[CartResponse]
       val skus = root.lineItems.skus
       skus must have size 1
-      skus.map(_.sku).toSet must === (Set("SKU-YAX"))
-      skus.map(_.quantity).toSet must === (Set(4))
+      skus.map(_.sku).headOption.value must === ("SKU-YAX")
+      skus.map(_.quantity).headOption.value must === (4)
+
+      val root2 = cartsApi(cart.refNum).lineItems.update(addPayload).asTheResult[CartResponse]
+      val skus2 = root2.lineItems.skus
+      skus2 must have size 1
+      skus2.map(_.sku).headOption.value must === ("SKU-YAX")
+      skus2.map(_.quantity).headOption.value must === (6)
+
     }
 
     "should successfully add a gift card line item" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val response = PATCH(s"v1/orders/${cart.refNum}/line-items", addGiftCardPayload)
-
-      response.status must === (StatusCodes.OK)
-      val root = response.ignoreFailuresAndGiveMe[CartResponse]
+      val root =
+        cartsApi(cart.refNum).lineItems.update(addGiftCardPayload).asTheResult[CartResponse]
       val skus = root.lineItems.skus
       skus must have size 1
-      skus.map(_.sku).toSet must === (Set("SKU-YAX"))
-      skus.map(_.quantity).toSet must === (Set(4))
+      skus.map(_.sku).headOption.value must === ("SKU-YAX")
+      skus.map(_.quantity).headOption.value must === (4)
     }
 
     "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
     with Sku_Raw with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
       cartsApi(cart.refNum).lineItems
         .update(Seq(UpdateLineItemsPayload(simpleSku.code, 1)))
-        .mustFailWith400(SKUWithNoProductAdded(cart.refNum, simpleSku.code))
+        .mustFailWith400(SkuWithNoProductAdded(cart.refNum, simpleSku.code))
     }
 
     "should successfully remove line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
       val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1))
-      val root = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse]
-      val skus = root.lineItems.skus
+      val root            = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse]
+      val skus            = root.lineItems.skus
       skus must have size 1
-      skus.map(_.sku).toSet must === (Set("SKU-YAX"))
-      skus.map(_.quantity).toSet must === (Set(1))
+      skus.map(_.sku).headOption.value must === ("SKU-YAX")
+      skus.map(_.quantity).headOption.value must === (1)
     }
 
     "should successfully remove gift card line item" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val regResponse = PATCH(s"v1/orders/${cart.refNum}/line-items", addGiftCardPayload)
-      regResponse.status must === (StatusCodes.OK)
-      val regRoot = regResponse.ignoreFailuresAndGiveMe[CartResponse]
+      val regRoot =
+        cartsApi(cart.refNum).lineItems.update(addGiftCardPayload).asTheResult[CartResponse]
       val regSkus = regRoot.lineItems.skus
       regSkus must have size 1
-      regSkus.map(_.sku).toSet must === (Set("SKU-YAX"))
-      regSkus.map(_.quantity).toSet must === (Set(4))
-      println(regResponse)
-
-      val subtractPayload = removeGiftCardPayload
-      val response        = PATCH(s"v1/orders/${cart.refNum}/line-items", subtractPayload)
-
-      response.status must === (StatusCodes.OK)
-      val root = response.ignoreFailuresAndGiveMe[CartResponse]
+      regSkus.map(_.sku).headOption.value must === ("SKU-YAX")
+      regSkus.map(_.quantity).headOption.value must === (4)
+      val root =
+        cartsApi(cart.refNum).lineItems.update(removeGiftCardPayload).asTheResult[CartResponse]
       val skus = root.lineItems.skus
       skus must have size 1
-      skus.map(_.sku).toSet must === (Set("SKU-YAX"))
-      skus.map(_.quantity).toSet must === (Set(3))
+      skus.map(_.sku).headOption.value must === ("SKU-YAX")
+      skus.map(_.quantity).headOption.value must === (3)
     }
 
     "removing too many of an item should remove all of that item" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+      val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -3))
       cartsApi(cart.refNum).lineItems
         .update(Seq(UpdateLineItemsPayload("SKU-YAX", -3)))
         .asTheResult[CartResponse]
@@ -197,8 +183,9 @@ class CartIntegrationTest
 
     "should add line items if productId and skuId are different" in new OrderShippingMethodFixture
     with ProductAndSkus_Baked {
+      val addPayload = Seq(UpdateLineItemsPayload("TEST", 1))
       val skus: Seq[CordResponseLineItem] = cartsApi(cart.refNum).lineItems
-        .add(Seq(UpdateLineItemsPayload("TEST", 1)))
+        .update(Seq(UpdateLineItemsPayload("TEST", 1)))
         .asTheResult[CartResponse]
         .lineItems
         .skus
@@ -248,88 +235,6 @@ class CartIntegrationTest
       cartsApi(cart.refNum).unlock().mustFailWith400(NotLockedFailure(Cart, cart.refNum))
     }
   }
-
-  /*
-  "handles credit cards" - {
-    val today = new DateTime
-    val customerStub = Customer(email = "yax@yax.com", password = "password", firstName = "Yax", lastName = "Fuentes")
-    val payload = CreateCreditCard(holderName = "Jax", number = StripeSupport.successfulCard, cvv = "123",
-      expYear = today.getYear + 1, expMonth = today.getMonthOfYear, isDefault = true)
-
-    "fails if the cart is not found" in {
-      val response = POST(
-        s"v1/orders/5/payment-methods/credit-card",
-        payload)
-
-      response.status must === (StatusCodes.NotFound)
-    }
-
-    "fails if the payload is invalid" in {
-      val cart = Orders.save(Factories.cart.copy(customerId = 1)).gimme
-      val response = POST(
-        s"v1/orders/${cart.refNum}/payment-methods/credit-card",
-        payload.copy(cvv = "", holderName = ""))
-
-      val errors = parse(response.bodyText).extract[Errors]
-
-      errors must === (Map("errors" → Seq("holderName must not be empty", "cvv must match regular expression " +
-        "'[0-9]{3,4}'")))
-      response.status must === (StatusCodes.BadRequest)
-    }
-
-    "fails if the card is invalid according to Stripe" ignore {
-      val cart = Orders.save(Factories.cart.copy(customerId = 1)).gimme
-      val customerId = db.run(Customers.returningId += customerStub).futureValue
-      val response = POST(
-        s"v1/orders/${cart.refNum}/payment-methods/credit-card",
-        payload.copy(number = StripeSupport.declinedCard))
-
-      val body = response.bodyText
-      val errors = parse(body).extract[Errors]
-
-      errors must === (Map("errors" → Seq("Your card was declined.")))
-      response.status must === (StatusCodes.BadRequest)
-    }
-
-    /*
-    "successfully creates records" ignore {
-      val cart = Orders.save(Factories.cart.copy(customerId = 1)).gimme
-      val customerId = db.run(Customers.returningId += customerStub).futureValue
-      val customer = customerStub.copy(id = customerId)
-      val addressPayload = CreateAddressPayload(name = "Home", stateId = 46, state = "VA".some, street1 = "500 Blah",
-        city = "Richmond", zip = "50000")
-      val payloadWithAddress = payload.copy(address = addressPayload.some)
-
-      val response = POST(
-        s"v1/orders/${cart.refNum}/payment-methods/credit-card",
-        payloadWithAddress)
-
-      val body = response.bodyText
-
-      val cc = CreditCards.findById(1).futureValue.get
-      val payment = OrderPayments.findAllByOrderId(cart.refNum).futureValue.head
-      val (address, billingAddress) = BillingAddresses.findByPaymentId(payment.id).futureValue.get
-
-      val respOrder = parse(body).extract[fullCart.Root]
-
-      cc.customerId must === (customerId)
-      cc.lastFour must === (payload.lastFour)
-      cc.expMonth must === (payload.expMonth)
-      cc.expYear must === (payload.expYear)
-      cc.isDefault must === (true)
-
-      payment.appliedAmount must === (0)
-      payment.cordRef must === (cart.refNum)
-      payment.status must === ("auth")
-
-      response.status must === (StatusCodes.OK)
-
-      address.stateId must === (addressPayload.stateId)
-      address.customerId must === (customerId)
-    }
-   */
-  }
-   */
 
   "PATCH /v1/orders/:refNum/shipping-address/:id" - {
 

@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { Component, Element } from 'react';
+import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
@@ -29,9 +29,10 @@ type Column = {
 type Props = {
   columns: Array<Column>,
   sku: Sku,
+  index: number,
   params: Object,
   skuContext: string,
-  updateField: (code: string, field: string, value: string) => void,
+  updateField: (code: string, field: string, value: any) => void,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
   onDeleteClick: (id: string) => void,
   isFetchingSkus: boolean|null,
@@ -44,6 +45,7 @@ type Props = {
 type State = {
   sku: { [key:string]: string },
   isMenuVisible: boolean,
+  codeError?: Object,
 };
 
 function mapLocalStateToProps(state) {
@@ -58,7 +60,15 @@ function stop(event: SyntheticEvent) {
 }
 
 function pickSkuAttrs(searchViewSku: SearchViewSku) {
-  const sku = _.pick(searchViewSku, ['title', 'context', 'salePrice', 'retailPrice']);
+  const sku = _.pick(searchViewSku, ['title', 'context']);
+  sku.salePrice = {
+    value: Number(searchViewSku.salePrice),
+    currency: searchViewSku.salePriceCurrency,
+  };
+  sku.retailPrice = {
+    value: Number(searchViewSku.retailPrice),
+    currency: searchViewSku.retailPriceCurrency,
+  };
   sku.code = searchViewSku.skuCode;
   return sku;
 }
@@ -70,6 +80,41 @@ class EditableSkuRow extends Component {
     sku: {},
     isMenuVisible: false,
   };
+
+  static contextTypes = {
+    validationDispatcher: PropTypes.object,
+  };
+
+  toggleBindToDispatcher(bind) {
+    const { validationDispatcher } = this.context;
+    if (validationDispatcher) {
+      const toggleBind = bind ? validationDispatcher.on : validationDispatcher.removeListener;
+
+      toggleBind.call(validationDispatcher, 'errors', this.handleValidationErrors);
+    }
+  }
+
+  componentDidMount() {
+    this.toggleBindToDispatcher(true);
+  }
+
+  componentWillUnmount() {
+    this.toggleBindToDispatcher(false);
+  }
+
+  @autobind
+  handleValidationErrors(event) {
+    const codeError = _.find(event.errors, error => {
+      return error.path == `skus.${this.props.index}.attributes.code`;
+    });
+    if (codeError) {
+      event.preventSave();
+    }
+
+    this.setState({
+      codeError,
+    });
+  }
 
   componentWillReceiveProps(nextProps: Props) {
     if (this.props.isFetchingSkus && !nextProps.isFetchingSkus) {
@@ -92,11 +137,12 @@ class EditableSkuRow extends Component {
 
   @autobind
   priceCell(sku: Sku, field: string): Element {
-    const value = _.get(this.state.sku, field) || _.get(sku, ['attributes', field, 'v', 'value']);
-    const onChange = (value) => this.handleUpdatePrice(field, value);
+    const value = _.get(this.state.sku, [field, 'value']) || _.get(sku, ['attributes', field, 'v', 'value']);
+    const currency = _.get(sku, ['attributes', field, 'v', 'currency'], 'USD');
+    const onChange = (value) => this.handleUpdatePrice(field, value, currency);
     return (
       <div className="fc-editable-sku-row__price">
-        <CurrencyInput value={value} onChange={onChange} />
+        <CurrencyInput value={value} currency={currency} onChange={onChange} />
       </div>
     );
   }
@@ -187,9 +233,11 @@ class EditableSkuRow extends Component {
   skuCell(sku: Sku): Element {
     const code = _.get(this.props, 'sku.attributes.code.v');
     if (this.props.sku.feCode) {
+      const { codeError } = this.state;
+      const error = codeError ? `SKU Code violates constraint: ${codeError.keyword}` : void 0;
       return (
         <div styleName="sku-cell">
-          <FormField>
+          <FormField error={error} scrollToErrors>
             <LoadingInputWrapper inProgress={this.props.isFetchingSkus}>
               <input
                 className="fc-text-input"
@@ -294,9 +342,12 @@ class EditableSkuRow extends Component {
   }
 
   @autobind
-  handleUpdatePrice(field: string, value: string) {
+  handleUpdatePrice(field: string, value: string, currency: string) {
     this.updateSku({
-      [field]: value,
+      [field]: {
+        currency,
+        value: Number(value),
+      },
     });
   }
 

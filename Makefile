@@ -1,9 +1,11 @@
-vagrantSUBDIRS = $(shell ./projects.sh)
+SUBDIRS = $(shell ./projects.sh)
 $(info $(SUBDIRS))
 UPDATEDIRS = $(SUBDIRS:%=update-%)
 BUILDDIRS = $(SUBDIRS:%=build-%)
 TESTDIRS = $(SUBDIRS:%=test-%)
 CLEANDIRS = $(SUBDIRS:%=clean-%)
+DOCKERDIRS = $(SUBDIRS:%=docker-%)
+DOCKERPUSHDIRS = $(SUBDIRS:%=docker-push-%)
 
 SUBDIRS_ALL = $(shell ./projects.sh -all)
 $(info $(SUBDIRS_ALL))
@@ -43,5 +45,15 @@ $(UPDATEDIRS): REPO = $(@:update-%=%)
 $(UPDATEDIRS): REPOGIT = $(addsuffix .git,$(REPO))
 $(UPDATEDIRS):
 	git subtree pull --prefix $(REPO) git@github.com:FoxComm/$(REPOGIT) master
+
+docker: $(DOCKERDIRS)
+$(DOCKERDIRS): REPO = $(@:docker-%=%)
+$(DOCKERDIRS):
+	$(MAKE) -C $(REPO) docker
+
+docker-push: $(DOCKERPUSHDIRS)
+$(DOCKERPUSHDIRS): REPO = $(@:docker-push-%=%)
+$(DOCKERPUSHDIRS):
+	$(MAKE) -C $(REPO) docker-push
 
 .PHONY: update build $(UPDATEDIRS) $(SUBDIRS) $(BUILDDIRS)

@@ -154,16 +154,17 @@ class SkuContentBox extends Component {
   }
 
   render() {
+    const { props } = this;
     return (
       <ContentBox title="SKUs" actionBlock={ this.actions }>
         <SkuList
           key="sku-list"
-          fullProduct={this.props.fullProduct}
-          updateField={this.props.updateField}
-          updateFields={this.props.updateFields}
-          onDeleteSku={this.props.onDeleteSku}
+          fullProduct={props.fullProduct}
+          updateField={props.updateField}
+          updateFields={props.updateFields}
+          onDeleteSku={props.onDeleteSku}
           skus={this.skus}
-          variants={variantsWithMultipleOptions(this.props.variants)}
+          variants={variantsWithMultipleOptions(props.variants)}
         />
         { this.addSkuDialog }
       </ContentBox>

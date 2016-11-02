@@ -3,118 +3,12 @@
  */
 
 // libs
-import React, { Component, Element, PropTypes } from 'react';
-import { assoc } from 'sprout-data';
-import { autobind } from 'core-decorators';
-import _ from 'lodash';
-import { flow, filter } from 'lodash/fp';
+import React, { Component } from 'react';
 
 // components
-import ObjectForm from '../object-form/object-form';
-import ObjectScheduler from '../object-scheduler/object-scheduler';
-import WaitAnimation from '../common/wait-animation';
+import ObjectDetails from '../object-page/object-details';
+const layout = require('./layout.json');
 
-// paragon
-import { options } from '../../paragons/sku';
-
-// types
-import type { Sku } from '../../modules/skus/details';
-
-type Attribute = { t: string, v: any };
-type Attributes = { [key:string]: Attribute };
-
-type Props = {
-  onUpdateSku: (sku: Sku) => void,
-  sku: ?Sku,
-};
-
-const defaultKeys = {
-  base: ['code', 'title'],
-  general: ['upc', 'description'],
-  pricing: ['retailPrice', 'salePrice', 'unitCost'],
-};
-
-const keysToOmit = ['activeFrom', 'activeTo', 'tags'];
-
-export default class SkuDetails extends Component {
-  props: Props;
-
-  get generalAttrs(): Array<string> {
-    const toOmitArray = [
-      ..._.reduce(defaultKeys, (res, arr) => ([...res, ...arr]), []),
-      ...keysToOmit,
-    ];
-    const attributes = _.get(this.props, 'sku.attributes', {});
-    const filteredAttributes = flow(
-      _.keys,
-      filter((attr: string) => !_.includes(toOmitArray, attr))
-    )(attributes);
-    return [
-      ...defaultKeys.base,
-      ...defaultKeys.general,
-      ...filteredAttributes
-    ];
-  }
-
-  get generalContent(): Element {
-    const sku = _.get(this.props, 'sku');
-    const attributes = _.get(this.props, 'sku.attributes', {});
-
-    return (
-      <ObjectForm
-        canAddProperty={true}
-        title="General"
-        onChange={this.handleChange}
-        fieldsToRender={this.generalAttrs}
-        attributes={attributes}
-        options={options} />
-    );
-  }
-
-  get skuState(): Element {
-    const attributes = _.get(this.props, 'sku.attributes', {});
-
-    return (
-      <ObjectScheduler
-        attributes={attributes}
-        onChange={this.handleChange}
-        title="SKU" />
-    );
-  }
-
-  @autobind
-  handleChange(attributes: Attributes) {
-    const { sku } = this.props;
-
-    if (sku) {
-      const updatedSku = assoc(sku, 'attributes', attributes);
-      this.props.onUpdateSku(updatedSku);
-    }
-  }
-
-  render(): Element {
-    const { sku } = this.props;
-    if (!sku) {
-      return <WaitAnimation />;
-    }
-
-    const attributes = _.get(sku, 'attributes', {});
-
-    return (
-      <div className="fc-product-details fc-grid fc-grid-no-gutter">
-        <div className="fc-col-md-3-5">
-          {this.generalContent}
-          <ObjectForm
-            canAddProperty={false}
-            onChange={this.handleChange}
-            fieldsToRender={defaultKeys.pricing}
-            attributes={attributes}
-            title="Pricing" />
-        </div>
-        <div className="fc-col-md-2-5">
-          {this.skuState}
-        </div>
-      </div>
-    );
-  }
+export default class SkuDetails extends ObjectDetails {
+  layout = layout;
 }

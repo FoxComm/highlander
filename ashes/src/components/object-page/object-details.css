@@ -1,0 +1,40 @@
+
+.object-details {
+  lost-flex-container: row;
+
+  & :global(.fc-confirmation-dialog) {
+    margin-bottom: 0;
+
+    & :global(.fc-alert) {
+      margin-bottom: 20px;
+    }
+  }
+}
+
+.main {
+  lost-column: 8/12;
+
+  & > div {
+    margin-bottom: 20px;
+  }
+}
+
+.aside {
+  lost-column: 4/12;
+
+  & > div {
+    margin-bottom: 20px;
+  }
+}
+
+.sub-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #484848;
+
+  margin: 1em 0 0.5em 0;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}

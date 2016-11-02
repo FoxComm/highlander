@@ -146,10 +146,10 @@ object GiftCard {
     )
   }
 
-  def buildAppeasementByCustomer(payload: GiftCardCreatedByCustomer, originId: Int): GiftCard = {
+  def buildByCustomerPurchase(payload: GiftCardCreatedByCustomer, originId: Int): GiftCard = {
     GiftCard(
         originId = originId,
-        originType = GiftCard.CsrAppeasement,
+        originType = GiftCard.CustomerPurchase,
         subTypeId = payload.subTypeId,
         state = GiftCard.Active,
         currency = payload.currency,

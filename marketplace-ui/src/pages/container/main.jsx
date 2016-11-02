@@ -25,7 +25,6 @@ import {
 
 import { fetch as fetchApplication } from '../../core/modules/merchant-application';
 import { fetch as fetchAccounts } from '../../core/modules/merchant-account';
-import { fetch as fetchInfo } from '../../core/modules/merchant-info';
 import { fetch as fetchFeed } from '../../core/modules/products-feed';
 import { fetch as fetchShipping } from '../../core/modules/shipping-solution';
 
@@ -36,6 +35,7 @@ import type { HTMLElement } from '../../core/types';
 import type { Application } from '../../core/modules/merchant-application';
 import type { Accounts } from '../../core/modules/merchant-account';
 import type { Info } from '../../core/modules/merchant-info';
+import type { Shipping } from '../../core/modules/shipping-solution';
 
 import styles from './main.css';
 
@@ -43,14 +43,15 @@ type Props = {
   application: Application;
   accounts: Accounts,
   info: Info,
+  shipping: Shipping,
   applicationApproved: boolean;
   applicationFetched: boolean;
   applicationFetchFailed: boolean;
   accountsFetched: boolean;
   infoFetched: boolean;
+  shippingFetched: boolean;
   fetchApplication: (reference: string) => Promise<*>;
   fetchAccounts: (merchantId: number) => Promise<*>;
-  fetchInfo: (merchantId: number) => Promise<*>;
   fetchFeed: (merchantId: number) => Promise<*>;
   fetchShipping: (merchantId: number) => Promise<*>;
 
@@ -77,7 +78,7 @@ const steps = (pathname) => [
   },
   {
     key: STEP_INFO,
-    active: /\/info|actions|feed|shipping\/?$/.test(pathname),
+    active: /\/info|actions|feed|shipping|integration\/?$/.test(pathname),
     title: 'More Info',
   },
 ];
@@ -100,7 +101,6 @@ class Main extends Component {
       shippingFetched,
       fetchApplication,
       fetchAccounts,
-      fetchInfo,
       fetchFeed,
       fetchShipping,
       params: { ref },
@@ -126,31 +126,25 @@ class Main extends Component {
       this.replace(`/application/${ref}/account`);
     }
 
-    /** accounts fetched and not empty - fetching info */
-    if (accountsFetched && !isEmpty(accounts) && !infoFetched) {
-      fetchInfo(get(application, 'merchant.id'));
-    }
-
     /** info fetched but empty - info page */
     if (infoFetched && isEmpty(info)) {
       this.replace(`/application/${ref}/info`);
     }
 
-    /** accounts fetched and not empty - fetching info */
-    if (infoFetched && !isEmpty(info) /*&& !feedFetched*/) {
-      // fetchFeed(get(application, 'merchant.id'));
-      this.replace(`/application/${ref}/actions`);
+    /** info fetched and not empty - fetching shipping solutions */
+    if (infoFetched && !isEmpty(info) && !shippingFetched) {
+      fetchShipping(get(application, 'merchant.id'));
     }
 
-    /** info fetched and not empty - actions page */
-    // if (feedFetched && isEmpty(feed)) {
-    //   this.replace(`/application/${ref}/actions`);
-    // }
+    /** shipping solutions fetched but empty - shipping solutions page */
+    if (shippingFetched && isEmpty(shipping)) {
+      this.replace(`/application/${ref}/shipping`);
+    }
 
-    /** feed fetched and not empty - shipping page */
-    // if (feedFetched && !isEmpty(feed)) {
-    //   this.replace(`/application/${ref}/shipping`);
-    // }
+    /** shipping solutions fetched and not empty - actions page */
+    if (shippingFetched && !isEmpty(shipping)/* && !feedFetched*/) {
+      this.replace(`/application/${ref}/actions`);
+    }
   }
 
   replace(path: string) {
@@ -202,6 +196,6 @@ const mapState = state => ({
   shippingFetched: getShippingFetched(state),
 });
 
-const mapActions = { fetchApplication, fetchAccounts, fetchInfo, fetchFeed, fetchShipping, replace };
+const mapActions = { fetchApplication, fetchAccounts, fetchFeed, fetchShipping, replace };
 
 export default connect(mapState, mapActions)(withRouter(Main));

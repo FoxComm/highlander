@@ -34,7 +34,7 @@ object CartFailures {
     override def description = s"order with referenceNumber=$refNum has insufficient funds"
   }
 
-  case class SKUWithNoProductAdded(refNum: String, code: String) extends Failure {
+  case class SkuWithNoProductAdded(refNum: String, code: String) extends Failure {
     override def description =
       s"item could not be added to cart $refNum. SKU $code does not have an " +
         s"associated product"

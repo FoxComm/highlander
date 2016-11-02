@@ -8,7 +8,7 @@ import models.customer.CustomersData
 import models.account._
 import models.objects._
 import models.payment.creditcard._
-import responses.PromotionResponses.IlluminatedPromotionResponse
+import responses.PromotionResponses.PromotionResponse
 import responses._
 import responses.cord.base._
 import services.orders.OrderQueries
@@ -19,7 +19,7 @@ case class OrderResponse(referenceNumber: String,
                          paymentState: CreditCardCharge.State,
                          lineItems: CordResponseLineItems,
                          lineItemAdjustments: Seq[CordResponseLineItemAdjustment] = Seq.empty,
-                         promotion: Option[IlluminatedPromotionResponse.Root] = None,
+                         promotion: Option[PromotionResponse.Root] = None,
                          coupon: Option[CordResponseCouponPair] = None,
                          totals: CordResponseTotals,
                          customer: Option[CustomerResponse.Root] = None,
@@ -36,12 +36,13 @@ case class OrderResponse(referenceNumber: String,
 
 object OrderResponse {
 
-  def fromOrder(order: Order)(implicit db: DB, ec: EC): DbResultT[OrderResponse] =
+  def fromOrder(order: Order, grouped: Boolean)(implicit db: DB,
+                                                ec: EC): DbResultT[OrderResponse] =
     for {
       context      ← * <~ ObjectContexts.mustFindById400(order.contextId)
       payState     ← * <~ OrderQueries.getPaymentState(order.refNum)
       lineItemAdj  ← * <~ CordResponseLineItemAdjustments.fetch(order.refNum)
-      lineItems    ← * <~ CordResponseLineItems.fetch(order.refNum, lineItemAdj)
+      lineItems    ← * <~ CordResponseLineItems.fetch(order.refNum, lineItemAdj, grouped)
       promo        ← * <~ CordResponsePromotions.fetch(order.refNum)(db, ec, context)
       customer     ← * <~ Users.findOneByAccountId(order.accountId)
       customerData ← * <~ CustomersData.findOneByAccountId(order.accountId)

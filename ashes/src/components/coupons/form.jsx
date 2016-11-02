@@ -6,50 +6,35 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
-import { searchCouponPromotions } from '../../elastic/promotions';
+import { searchCouponPromotions } from 'elastic/promotions';
 
 // components
-import FullObjectForm from '../object-form/full-object-form';
-import ContentBox from '../content-box/content-box';
 import DropdownSearch from '../dropdown/dropdown-search';
 import DropdownItem from '../dropdown/dropdownItem';
-import RadioButton from '../forms/radio-button';
 import CouponCodes from './form/coupon-codes';
 import UsageRules from './form/usage-rules';
-import { FormField, Form } from '../forms';
-import FullObjectTags from '../tags/full-object-tags';
-import FullObjectScheduler from '../object-scheduler/full-object-scheduler';
-import Watchers from '../watchers/watchers';
+import ObjectDetails from '../object-page/object-details';
 
-// paragon
-import { options } from '../../paragons/coupons';
+import type { DetailsProps } from '../object-page/object-details';
 
 // styles
 import styles from './form.css';
 
-type Entity = {
-  entityId: number|string,
-};
-
 type CouponFormProps = {
-  promotionError: bool,
-  coupon: Object,
+  promotionError: boolean,
   codeGeneration: Object,
   onUpdateCoupon: Function,
   onGenerateBulkCodes: Function,
   onUpdateCouponCode: Function,
   fetchPromotions: Function,
-  entity: Entity,
   createCoupon: Function,
-};
+}
 
-export default class CouponForm extends Component {
+const layout = require('./layout.json');
 
-  props: CouponFormProps;
-
-  get generalAttrs() {
-    return ['name', 'storefrontName', 'description', 'details'];
-  }
+export default class CouponForm extends ObjectDetails {
+  props: CouponFormProps & DetailsProps;
+  layout = layout;
 
   handlePromotionSearch(token: string) {
     return searchCouponPromotions(token).then((result) => {
@@ -70,7 +55,7 @@ export default class CouponForm extends Component {
   }
 
   get promotionSelector() {
-    const id = _.get(this.props, 'coupon.promotion');
+    const id = _.get(this.props, 'object.promotion');
     return (
       <div>
         <div styleName="field-label">
@@ -102,91 +87,40 @@ export default class CouponForm extends Component {
   }
 
   @autobind
-  handleChange(form, shadow) {
-    const newCoupon = assoc(this.props.coupon,
-      ['form', 'attributes'], form,
-      ['shadow', 'attributes'], shadow
-    );
-
-    this.props.onUpdateCoupon(newCoupon);
-  }
-
-  @autobind
   handlePromotionChange(value) {
-    const coupon = assoc(this.props.coupon, 'promotion', value);
-    this.props.onUpdateCoupon(coupon);
+    const coupon = assoc(this.props.object, 'promotion', value);
+    this.props.onUpdateObject(coupon);
   }
 
   @autobind
   handleUsageRulesChange(field, value) {
-    const newCoupon = assoc(this.props.coupon, ['form', 'attributes', 'usageRules', field], value);
-    this.props.onUpdateCoupon(newCoupon);
-  }
-
-  get isNew() {
-    return this.props.entity.entityId === 'new';
+    const newCoupon = assoc(this.props.object, ['attributes', 'usageRules', 'v', field], value);
+    this.props.onUpdateObject(newCoupon);
   }
 
   get usageRules() {
-    return _.get(this.props, 'coupon.form.attributes.usageRules', {});
+    return _.get(this.props, 'object.attributes.usageRules.v', {});
   }
 
-  get watchersBlock(): ?Element {
-    const { coupon } = this.props;
-
-    if (coupon.form.id) {
-      return <Watchers entity={{entityId: coupon.form.id, entityType: 'coupons'}} />;
-    }
+  renderPromotionsSelector() {
+    return this.promotionSelector;
   }
 
-  checkValidity(): boolean {
-    return this.refs.form.checkValidity();
-  }
-
-  render() {
-    const formAttributes = _.get(this.props, 'coupon.form.attributes', []);
-    const shadowAttributes = _.get(this.props, 'coupon.shadow.attributes', []);
-
+  renderCouponCodes() {
     return (
-      <Form ref="form" styleName="coupon-form">
-        <div styleName="main">
-          <ContentBox title="General">
-            <FullObjectForm
-              onChange={this.handleChange}
-              fieldsToRender={this.generalAttrs}
-              form={formAttributes}
-              shadow={shadowAttributes}
-              options={options}
-            />
-            {this.promotionSelector}
-          </ContentBox>
-          <CouponCodes
-            createCoupon={this.props.createCoupon}
-            codeGeneration={this.props.codeGeneration}
-            isNew={this.isNew}
-          />
-          <UsageRules {...(this.usageRules)} onChange={this.handleUsageRulesChange}/>
-        </div>
-        <div styleName="aside">
-          <FullObjectTags
-            parent="Coupons"
-            form={formAttributes}
-            shadow={shadowAttributes}
-            onChange={this.handleChange}
-          />
-          <FullObjectScheduler
-            parent="Coupons"
-            form={formAttributes}
-            shadow={shadowAttributes}
-            onChange={this.handleChange}
-            title="Coupon"
-          />
-          {this.watchersBlock}
-        </div>
-      </Form>
+      <CouponCodes
+        createCoupon={this.props.createCoupon}
+        codeGeneration={this.props.codeGeneration}
+        isNew={this.props.isNew}
+      />
     );
   }
 
+  renderUsageRules() {
+    return (
+      <UsageRules {...(this.usageRules)} onChange={this.handleUsageRulesChange} />
+    );
+  }
 };
 
 

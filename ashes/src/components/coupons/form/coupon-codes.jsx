@@ -20,7 +20,7 @@ import CodeCreationModal from './code-creation-modal';
 import styles from './styles.css';
 
 // redux
-import * as actions from '../../../modules/coupons/details';
+import * as actions from 'modules/coupons/details';
 
 type Props = {
   isNew: boolean,

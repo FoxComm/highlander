@@ -19,70 +19,37 @@ object PromotionResponses {
       Root(id = f.id, attributes = f.attributes, createdAt = f.createdAt)
   }
 
-  object PromotionAndDiscountFormResponse {
-
-    case class Root(id: Int,
-                    attributes: Json,
-                    discounts: Seq[DiscountFormResponse.Root],
-                    createdAt: Instant)
-        extends ResponseItem
-
-    def build(f: ObjectForm, discounts: Seq[ObjectForm]): Root =
-      Root(id = f.id,
-           attributes = f.attributes,
-           discounts = discounts.map(d ⇒ DiscountFormResponse.build(d)),
-           createdAt = f.createdAt)
-  }
-
-  object PromotionShadowResponse {
-
-    case class Root(id: Int,
-                    formId: Int,
-                    attributes: Json,
-                    discounts: Seq[DiscountShadowResponse.Root],
-                    createdAt: Instant)
-        extends ResponseItem
-
-    def build(s: ObjectShadow, discounts: Seq[ObjectShadow]): Root =
-      Root(id = s.id,
-           formId = s.formId,
-           attributes = s.attributes,
-           discounts = discounts.map(d ⇒ DiscountShadowResponse.build(d)),
-           createdAt = s.createdAt)
-  }
-
   object PromotionResponse {
-    case class Root(applyType: Promotion.ApplyType,
-                    archivedAt: Option[Instant],
-                    form: PromotionAndDiscountFormResponse.Root,
-                    shadow: PromotionShadowResponse.Root)
-        extends ResponseItem
-
-    def build(promotion: Promotion,
-              f: ObjectForm,
-              s: ObjectShadow,
-              discountForms: Seq[ObjectForm],
-              discountShadows: Seq[ObjectShadow]): Root =
-      Root(applyType = promotion.applyType,
-           archivedAt = promotion.archivedAt,
-           form = PromotionAndDiscountFormResponse.build(f, discountForms),
-           shadow = PromotionShadowResponse.build(s, discountShadows))
-  }
-
-  object IlluminatedPromotionResponse {
 
     case class Root(id: Int,
                     context: ObjectContextResponse.Root,
                     applyType: Promotion.ApplyType,
                     attributes: Json,
-                    discounts: Seq[IlluminatedDiscountResponse.Root])
+                    discounts: Seq[IlluminatedDiscountResponse.Root],
+                    archivedAt: Option[Instant])
         extends ResponseItem
 
-    def build(promotion: IlluminatedPromotion, discounts: Seq[IlluminatedDiscount]): Root =
+    def build(promotion: IlluminatedPromotion,
+              discounts: Seq[IlluminatedDiscount],
+              promo: Promotion): Root =
       Root(id = promotion.id,
            context = ObjectContextResponse.build(promotion.context),
            applyType = promotion.applyType,
            attributes = promotion.attributes,
-           discounts = discounts.map(d ⇒ IlluminatedDiscountResponse.build(d)))
+           discounts = discounts.map(d ⇒ IlluminatedDiscountResponse.build(d)),
+           archivedAt = promo.archivedAt)
+
+    def build(context: ObjectContext,
+              promotion: Promotion,
+              form: ObjectForm,
+              shadow: ObjectShadow,
+              discounts: Seq[(ObjectForm, ObjectShadow)]): Root = {
+      val promoIlluminated = IlluminatedPromotion.illuminate(context, promotion, form, shadow)
+      build(promotion = promoIlluminated, discounts = discounts.map {
+        case (f, s) ⇒
+          IlluminatedDiscount.illuminate(form = f, shadow = s)
+      }, promo = promotion)
+    }
+
   }
 }

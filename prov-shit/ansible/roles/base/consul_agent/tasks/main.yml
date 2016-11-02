@@ -16,7 +16,7 @@
   sudo: yes
   command: systemctl daemon-reload
 
-- name: Restart Consul Server
+- name: Restart Consul Agent
   service: name=consul_agent state=restarted enabled=yes
   sudo: true
 

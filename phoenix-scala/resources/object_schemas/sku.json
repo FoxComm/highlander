@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Sku",
+  "type": "object",
+  "properties": {
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "title": "SKU",
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "upc": {
+          "title": "UPC",
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "widget": "richText"
+        },
+        "retailPrice": {
+          "$ref": "#/definitions/price"
+        },
+        "salePrice": {
+          "$ref": "#/definitions/price"
+        },
+        "unitCost": {
+          "$ref": "#/definitions/price"
+        },
+        "activeFrom": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "activeTo": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        }
+      },
+      "required": ["code", "title"]
+    }
+  }
+}
