@@ -18,5 +18,5 @@ export function isGuest(user: Object): boolean {
 
 export function emailIsSet(user: Object): boolean {
   const email = _.get(user, 'email', '');
-  return _.isEmpty(email);
+  return !_.isEmpty(email);
 }

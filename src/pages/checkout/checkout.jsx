@@ -152,14 +152,14 @@ class Checkout extends Component {
   checkAuthAndplaceOrder() {
     const user = _.get(this.props, ['auth', 'user'], null);
     if (emailIsSet(user)) {
-      return this.placeOrder();
-    }
-
-    this.performStageTransition('guestAuthInProgress', () => {
-      return new Promise(() => {
-        return this.props.setEditStage(EditStages.GUEST_AUTH);
+      this.placeOrder();
+    } else {
+      this.performStageTransition('guestAuthInProgress', () => {
+        return Promise.resolve().then(() => {
+          return this.props.setEditStage(EditStages.GUEST_AUTH);
+        });
       });
-    });
+    }
   }
 
   @autobind

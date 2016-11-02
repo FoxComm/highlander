@@ -54,8 +54,9 @@ class Cart extends Component {
   componentDidMount() {
     if (this.props.user) {
       this.props.fetch(this.props.user);
+    } else {
+      this.props.fetch();
     }
-    this.props.fetch();
   }
 
   @autobind

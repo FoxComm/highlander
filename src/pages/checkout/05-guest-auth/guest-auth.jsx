@@ -47,7 +47,11 @@ class GuestAuth extends Component {
           <header styleName="header">SIGN IN & CHECKOUT</header>
           <div styleName="form">
             <div styleName="form-content">
-              <Login getPath={this.getPath} displayTitle={false} onGuestCheckout={this.onCheckoutAfterAuth} />
+              <Login
+                getPath={this.getPath}
+                displayTitle={false}
+                onGuestCheckout={this.onCheckoutAfterAuth}
+              />
             </div>
           </div>
         </div>
