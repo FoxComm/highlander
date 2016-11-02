@@ -23,14 +23,14 @@ object ObjectAttributesTransformer {
   private def getAvroName(esTopic: String): String = s"attributes_${esTopic}"
 
   private def getCustomAttributes(topic: String)(
-      implicit schemaRegistry: CachedSchemaRegistryClient): Seq[String] = {
+      implicit schemaRegistry: CachedSchemaRegistryClient): Option[List[String]] = {
     val avroSchemaName = getAvroName(topic)
 
     Try {
       val schemaMeta = schemaRegistry.getLatestSchemaMetadata(avroSchemaName)
       val schema     = schemaRegistry.getByID(schemaMeta.getId)
       schema.getFields.asScala.map(_.name).toList
-    }.toOption.getOrElse(List.empty[String])
+    }.toOption
   }
 
   def registerCustomAttributes(esMapping: String, attributes: Seq[String])(
@@ -72,14 +72,17 @@ object ObjectAttributesTransformer {
 
     json match {
       case jsonObject: JObject ⇒
-        val additionalAttrs = getCustomAttributes(topic)
-        val jForm           = parse(form.extract[String])
-        val jShadow         = parse(shadow.extract[String])
-
-        additionalAttrs.foldLeft(jsonObject) {
-          case (j, attr) ⇒
-            j ~ (attr → Illuminated.get(attr, jForm, jShadow))
-        }
+        (for {
+          formString   ← form.extractOpt[String]
+          shadowString ← shadow.extractOpt[String]
+          attributes   ← getCustomAttributes(topic)
+          form   = parse(formString)
+          shadow = parse(shadowString)
+        } yield
+          attributes.foldLeft(jsonObject) {
+            case (j, attr) ⇒
+              j ~ (attr → Illuminated.get(attr, form, shadow))
+          }).getOrElse(json)
       case _ ⇒ json
     }
   }
