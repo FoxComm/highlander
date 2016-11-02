@@ -1,9 +1,20 @@
+BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
+BUILD_PATH=$(BUILD_ROOT_PATH)/integrations/shipstation
+HIGHLANDER_PATH=$(CURDIR)/../..
 
-build:
-	go build -o shipstation main.go
+prep:
+	rm -rf $(BUILD_ROOT_PATH)
+	mkdir -p $(GOPATH)/src/github.com/FoxComm
+	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH)
 
-build-linux:
-	GOOS=linux $(MAKE) build
+glide: prep
+	cd $(BUILD_PATH) && glide install
+
+build: glide
+	cd $(BUILD_PATH) && go build -o shipstation main.go
+
+build-linux: glide
+	cd $(BUILD_PATH) && GOOS=linux $(MAKE) build
 
 docker:
 	docker build -t shipstation-consumer .
