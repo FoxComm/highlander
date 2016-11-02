@@ -2,8 +2,6 @@
 
 - name: Packing Base Image
   hosts: all
-  tags:
-    - packer
   vars:
     user: ubuntu
     packing: true
@@ -21,3 +19,8 @@
     - { role: base/common }
     - { role: base/secret_keys }
     - { role: base/consul }
+    - { role: base/docker }
+    - { role: base/mesos }
+    - { role: base/scala }
+    - { role: base/node }
+    - { role: base/consul_agent }

@@ -39,9 +39,6 @@ shortcuts:
   - name: Bootstrap Backend
     alias: backend.yml
     target: ansible/bootstrap_backend.yml
-  - name: Bootstrap Build Agents
-    alias: build_agents.yml
-    target: ansible/bootstrap_build_agents.yml
   - name: Bootstrap Build Agents Keys
     alias: build_agent_keys.yml
     target: ansible/bootstrap_build_agent_keys.yml
@@ -111,64 +108,17 @@ shortcuts:
   - name: Base Image
     alias: base.json
     target: packer/base/base.json
-  - name: Base Mesos Image
-    alias: base_mesos.json
-    target: packer/base/base_mesos.json
-  - name: Base JVM Image
-    alias: base_jvm.json
-    target: packer/base/base_jvm.json
-  - name: Base Node Image
-    alias: base_node.json
-    target: packer/base/base_node.json
-
-  # Vanilla
-  - name: Vanilla Amigo
-    alias: amigo.json
-    target: packer/vanilla/amigo.json
-  - name: Vanilla Backend
-    alias: db.json
-    target: packer/vanilla/db.json
-  - name: Vanilla Elasticsearch
-    alias: es.json
-    target: packer/vanilla/es.json
-  - name: Vanilla ES Log
-    alias: es_log.json
-    target: packer/vanilla/es_log.json
-  - name: Vanilla Front Worker
-    alias: front_worker.json
-    target: packer/vanilla/front_worker.json
-  - name: Vanilla Green River
-    alias: greenriver.json
-    target: packer/vanilla/greenriver.json
-  - name: Vanilla Kafka
-    alias: kafka.json
-    target: packer/vanilla/kafka.json
-  - name: Vanilla Phoenix
-    alias: phoenix.json
-    target: packer/vanilla/phoenix.json
-  - name: Vanilla Service Worker
-    alias: service_worker.json
-    target: packer/vanilla/service_worker.json
-  - name: Vanilla Stage Amigo
-    alias: stage_amigo.json
-    target: packer/vanilla/stage_amigo.json
-  - name: Vanilla Stage Backend
-    alias: stage_backend.json
-    target: packer/vanilla/stage_backend.json
-  - name: Vanilla Stage Frontend
-    alias: stage_frontend.json
-    target: packer/vanilla/stage_frontend.json
 
   # Tinystack
   - name: Tinystack Amigo
     alias: tiny_amigo.json
-    target: packer/tinystack/amigo.json
+    target: packer/base/tinystack_amigo.json
   - name: Tinystack Backend
     alias: tiny_backend.json
-    target: packer/tinystack/backend.json
+    target: packer/base/tinystack_backend.json
   - name: Tinystack Frontend
     alias: tiny_frontend.json
-    target: packer/tinystack/frontend.json
+    target: packer/base/tinystack_frontend.json
 
 # Terraform shortcuts
 - type: monolith
