@@ -30,3 +30,10 @@ config :solomon, Solomon.Repo,
   database: System.get_env("DB_NAME"),
   hostname: System.get_env("DB_HOST"),
   pool_size: 10
+
+# configure jwt auth
+config :solomon, Solomon.JWTAuth,
+  private_key_path: System.get_env("private_keys_dest_dir"),
+  public_key_path: System.get_env("public_keys_dest_dir"),
+  private_key: "private_key.pem",
+  public_key: "public_key.pem"
