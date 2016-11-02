@@ -55,7 +55,7 @@ object Workers {
                                           broker = conf.kafkaBroker,
                                           groupId = s"${conf.kafkaGroupId}_schemas",
                                           processor = avroProcessor,
-                                          startFromBeginning = true)
+                                          startFromBeginning = conf.startFromBeginning)
     Console.out.println(s"Reading schemas changes from broker ${conf.kafkaBroker}")
     consumer.readForever()
   }

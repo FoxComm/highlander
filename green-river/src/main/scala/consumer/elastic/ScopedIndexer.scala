@@ -14,6 +14,7 @@ import org.json4s.DefaultFormats
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods.{compact, parse}
+import utils.objects.Illuminated
 
 /**
   * This is a JsonProcessor which processes json and indexs it into elastic search.
@@ -106,6 +107,7 @@ class ScopedIndexer(uri: String,
 
   private def getAdditionalAttributes(topic: String): Seq[String] = {
     val avroSchemaName = ObjectSchemaProcessor.getSchemaAttributesAvroName(topic)
+
     Try {
       val schemaMeta = schemaRegistry.getLatestSchemaMetadata(avroSchemaName)
       val schema     = schemaRegistry.getByID(schemaMeta.getId)
@@ -132,16 +134,9 @@ class ScopedIndexer(uri: String,
 
         additionalAttrs.foldLeft(jsonObject) {
           case (j, attr) ⇒
-            j ~ (attr → getFormAttr(attr, jForm, jShadow))
+            j ~ (attr → Illuminated.get(attr, jForm, jShadow))
         }
-      case _ ⇒
-        json
+      case _ ⇒ json
     }
   }
-
-  private def getFormAttr(attr: String, form: Json, shadow: Json): Json =
-    shadow \ attr \ "ref" match {
-      case JString(key) ⇒ form \ key
-      case _            ⇒ JNothing
-    }
 }

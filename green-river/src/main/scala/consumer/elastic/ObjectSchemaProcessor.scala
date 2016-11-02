@@ -8,13 +8,13 @@ import com.sksamuel.elastic4s.mappings.attributes._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import consumer.{AvroJsonHelper, JsonProcessor}
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
+import org.apache.avro.SchemaBuilder
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.index.IndexNotFoundException
 import org.elasticsearch.transport.RemoteTransportException
 import org.json4s.DefaultFormats
 import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods.parse
-import org.apache.avro.{Schema, SchemaBuilder}
 
 /**
   Optional options for ES for attribute like index, type, different name, etc
@@ -86,8 +86,6 @@ class ObjectSchemaProcessor(
   def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] = {
     val document = AvroJsonHelper.transformJsonRaw(inputJson)
 
-//    Console.out.println(s"SCHEMAS: parsed = ${AvroJsonHelper.transformJson(inputJson)}")
-
     val esMappingName    = (document \ "esMapping").extract[String]
     val schemaAttributes = parse((document \ "schemaAttributes").extract[String])
     val esAttributes     = parse((document \ "attributes").extract[String]).extract[List[String]]
@@ -101,7 +99,7 @@ class ObjectSchemaProcessor(
 
     val esFutures = scopes.map { scope ⇒
       val index = s"${indexPrefix}_$scope"
-      Console.out.println(s"SCHEMAS: UPDATE MAPPING $index with $fieldsDefinition")
+      Console.out.println(s"SCHEMAS: Update mapping $index with $fieldsDefinition")
       client.execute {
         put mapping index / esMappingName fields fieldsDefinition
       }.recover {
@@ -179,7 +177,7 @@ class ObjectSchemaProcessor(
         case "number"  ⇒ "float"
         case "object"  ⇒ "object"
         case "string"  ⇒ "string"
-        case x         ⇒ throw new IllegalArgumentException(s"Unkown schema type $x")
+        case x         ⇒ throw new IllegalArgumentException(s"Unknown schema type $x")
       }
     }
     schemaType match {
@@ -197,8 +195,7 @@ class ObjectSchemaProcessor(
 
   private def registerSchemaAttributes(esMapping: String, attributes: Seq[String]) = {
     val avroSchemaName = getSchemaAttributesAvroName(esMapping)
-
-    val fields = SchemaBuilder.record(avroSchemaName).namespace("org.apache.avro.ipc").fields()
+    val fields         = SchemaBuilder.record(avroSchemaName).fields()
 
     val schema = attributes
       .foldLeft(fields) {
@@ -212,5 +209,5 @@ class ObjectSchemaProcessor(
 
 object ObjectSchemaProcessor {
   def getSchemaAttributesAvroName(esMapping: String): String =
-    s"attrs_${esMapping}_test"
+    s"attributes_${esMapping}"
 }
