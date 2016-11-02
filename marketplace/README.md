@@ -7,9 +7,8 @@ To get started, please follow the below instructions:
   * Get Erlang: `brew install erlang` or go [the site](http://www.erlang.org)
   * Get Elixir: `brew install elixir` or go [the site](http://www.elixir-lang.org)
   * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
-  * Seed the database with: `mix run priv/repo/seeds.exs`
-  * Start Phoenix endpoint with `mix phoenix.server`
+  * Create and migrate your database with `source .env && mix ecto.create && mix ecto.migrate`
+  * Seed the database with: `source .env && mix run priv/repo/seeds.exs`
   * To start Phoenix with env variables from .env and .env.local run `source .env && mix phoenix.server`
 
 Now you can visit [`localhost:4003`](http://localhost:4003) from your browser.
