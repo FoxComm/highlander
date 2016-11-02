@@ -19,7 +19,8 @@ type PhoenixClient interface {
 	IsAuthenticated() bool
 	UpdateOrder(refNum, shipmentState, orderState string) error
 	GiftCardCapturePayment(capturePayload *CapturePayload) error
-	CreateGiftCard(balance uint, details payloads.GiftCard, refNum string) (*http.Response, error)
+	CreateGiftCard(CreateGiftCardPayload) (*http.Response, error)
+	CreateGitCards(giftCards []CreateGiftCardPayload)(*http.Response, error)
 }
 
 func NewPhoenixClient(baseURL, email, password string) *phoenixClient {
@@ -184,12 +185,6 @@ func (c *phoenixClient) CreateGiftCard(balance uint, details payloads.GiftCard, 
 	url := fmt.Sprintf("%s/v1/gift-cards/", c.baseURL)
 	headers := map[string]string{
 		"JWT": c.jwt,
-	}
-
-	giftCardPayload := payloads.CreateGiftCardPayload{
-		Balance: balance,
-		Details: details,
-		CordRef: refNum,
 	}
 
 	rawOrderResp, err := consumers.Post(url, headers, &giftCardPayload)
