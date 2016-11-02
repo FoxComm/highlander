@@ -9,7 +9,14 @@ import (
 
 type PartialProduct struct {
 	AvailableSKUs []string
-	Variants      map[string]string
+	Variants      []SearchVariant
+}
+
+type SearchVariant struct {
+	VariantID        int    `json:"variantId"`
+	VariantName      string `json:"variantName"`
+	VariantValueID   int    `json:"variantValueId"`
+	VariantValueName string `json:"variantValueName"`
 }
 
 func MakePartialProducts(product *api.Product, visualVariants []string) ([]PartialProduct, error) {
@@ -53,11 +60,14 @@ func makeProducts(variants []api.Variant, state PartialProduct, visualVariants [
 			nas = utils.GetIntersection(state.AvailableSKUs, value.SKUCodes)
 		}
 
-		newVariants := map[string]string{variantName: value.Name}
-		for k, v := range state.Variants {
-			newVariants[k] = v
+		sv := SearchVariant{
+			VariantID:        variants[0].ID,
+			VariantName:      variantName,
+			VariantValueID:   value.ID,
+			VariantValueName: value.Name,
 		}
 
+		newVariants := append(state.Variants, sv)
 		mapping := PartialProduct{AvailableSKUs: nas, Variants: newVariants}
 
 		if len(tail) == 0 {

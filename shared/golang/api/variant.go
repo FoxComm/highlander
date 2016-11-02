@@ -1,6 +1,7 @@
 package api
 
 type Variant struct {
+	ID         int              `json:"id"`
 	Attributes ObjectAttributes `json:"attributes"`
 	Values     []VariantValue   `json:"values"`
 }

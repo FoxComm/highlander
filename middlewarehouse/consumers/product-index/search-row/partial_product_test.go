@@ -17,7 +17,7 @@ func TestSingleVisualVariant(t *testing.T) {
 		return
 	}
 
-	visualVariants := []string{"Color"}
+	visualVariants := []string{"color"}
 	partialProducts, err := MakePartialProducts(product, visualVariants)
 	if err != nil {
 		t.Errorf("Error creating partial products with error: %s", err.Error())
@@ -30,7 +30,7 @@ func TestSingleVisualVariant(t *testing.T) {
 	}
 
 	for _, prod := range partialProducts {
-		row, err := NewSearchRow(*product, prod)
+		row, err := NewSearchRow(product, prod)
 		if err != nil {
 			t.Errorf("Error creating search row with error: %s", err.Error())
 			return
@@ -57,7 +57,7 @@ func TestMultipleVisualVariants(t *testing.T) {
 		return
 	}
 
-	visualVariants := []string{"Color", "Fabric"}
+	visualVariants := []string{"color", "fabric"}
 	partialProducts, err := MakePartialProducts(product, visualVariants)
 	if err != nil {
 		t.Errorf("Error creating partial products with error: %s", err.Error())
@@ -70,7 +70,7 @@ func TestMultipleVisualVariants(t *testing.T) {
 	}
 
 	for _, prod := range partialProducts {
-		row, err := NewSearchRow(*product, prod)
+		row, err := NewSearchRow(product, prod)
 		if err != nil {
 			t.Errorf("Error creating search row with error: %s", err.Error())
 			return
@@ -92,7 +92,7 @@ func TestNoVariants(t *testing.T) {
 		return
 	}
 
-	visualVariants := []string{"Color", "Fabric"}
+	visualVariants := []string{"color", "fabric"}
 	partialProducts, err := MakePartialProducts(product, visualVariants)
 	if err != nil {
 		t.Errorf("Error creating partial products with error: %s", err.Error())
@@ -105,7 +105,7 @@ func TestNoVariants(t *testing.T) {
 	}
 
 	for _, prod := range partialProducts {
-		row, err := NewSearchRow(*product, prod)
+		row, err := NewSearchRow(product, prod)
 		if err != nil {
 			t.Errorf("Error creating search row with error: %s", err.Error())
 			return

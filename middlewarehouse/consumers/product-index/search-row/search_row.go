@@ -8,16 +8,16 @@ import (
 )
 
 type SearchRow struct {
-	ProductID   int         `json:"productId"`
-	Context     string      `json:"context"`
-	SKUs        []string    `json:"skus"`
-	Variants    []string    `json:"variants"`
-	Title       string      `json:"title"`
-	Description string      `json:"description"`
-	Image       string      `json:"image"`
-	SalePrice   int         `json:"salePrice"`
-	Currency    string      `json:"currency"`
-	Tags        interface{} `json:"tags"`
+	ProductID   int             `json:"productId"`
+	Context     string          `json:"context"`
+	SKUs        []string        `json:"skus"`
+	Variants    []SearchVariant `json:"variants"`
+	Title       string          `json:"title"`
+	Description string          `json:"description"`
+	Image       string          `json:"image"`
+	SalePrice   int             `json:"salePrice"`
+	Currency    string          `json:"currency"`
+	Tags        interface{}     `json:"tags"`
 }
 
 func NewSearchRow(p *api.Product, pp PartialProduct) (*SearchRow, error) {
@@ -31,10 +31,7 @@ func NewSearchRow(p *api.Product, pp PartialProduct) (*SearchRow, error) {
 	row.SKUs = pp.AvailableSKUs
 	row.Description = p.Description()
 	row.Tags = p.Tags()
-
-	for _, value := range pp.Variants {
-		row.Variants = append(row.Variants, value)
-	}
+	row.Variants = pp.Variants
 
 	// Use the first SKU for any SKU-specific values
 	code := pp.AvailableSKUs[0]
@@ -82,7 +79,7 @@ func NewSearchRow(p *api.Product, pp PartialProduct) (*SearchRow, error) {
 	log.Printf("ProductID: %d", row.ProductID)
 	log.Printf("Context: %s", row.Context)
 	log.Printf("SKUs: %q", row.SKUs)
-	log.Printf("Variants: %q", row.Variants)
+	log.Printf("Search Variants: %q", row.Variants)
 	log.Printf("Title: %s", row.Title)
 	log.Printf("Description: %s", row.Description)
 	log.Printf("Image: %s", row.Image)

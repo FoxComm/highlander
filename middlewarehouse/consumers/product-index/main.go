@@ -9,7 +9,7 @@ import (
 func main() {
 	config, err := consumers.MakeConsumerConfig()
 	if err != nil {
-		log.Fatalf("Unable to initialize consumer wiht error %s", err.Error())
+		log.Fatalf("Unable to initialize consumer with error %s", err.Error())
 	}
 
 	zookeeper := config.ZookeeperURL

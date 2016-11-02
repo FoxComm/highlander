@@ -5,7 +5,7 @@ import "errors"
 type SKU struct {
 	ID         int              `json:"id"`
 	Attributes ObjectAttributes `json:"attributes"`
-	Albums     []Album          `json:"album"`
+	Albums     []Album          `json:"albums"`
 }
 
 func (s SKU) Code() (string, error) {

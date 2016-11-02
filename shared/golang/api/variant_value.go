@@ -1,6 +1,8 @@
 package api
 
 type VariantValue struct {
-	Name     string   `json:"name"`
-	SKUCodes []string `json:"skuCodes"`
+	ID        int      `json:"id"`
+	Name      string   `json:"name"`
+	SKUCodes  []string `json:"skuCodes"`
+	VariantID int
 }
