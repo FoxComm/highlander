@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 )
@@ -16,9 +18,11 @@ type PhoenixClient interface {
 	CapturePayment(activities.ISiteActivity) error
 	IsAuthenticated() bool
 	UpdateOrder(refNum, shipmentState, orderState string) error
+	GiftCardCapturePayment(capturePayload *CapturePayload) error
+	CreateGiftCard(balance uint, details payloads.GiftCard, refNum string) (*http.Response, error)
 }
 
-func NewPhoenixClient(baseURL, email, password string) PhoenixClient {
+func NewPhoenixClient(baseURL, email, password string) *phoenixClient {
 	return &phoenixClient{
 		baseURL:  baseURL,
 		email:    email,
@@ -87,6 +91,39 @@ func (c *phoenixClient) CapturePayment(activity activities.ISiteActivity) error 
 	return nil
 }
 
+func (c *phoenixClient) GiftCardCapturePayment(capturePayload *CapturePayload) error {
+	if err := c.ensureAuthentication(); err != nil {
+		return err
+	}
+
+	url := fmt.Sprintf("%s/v1/service/capture", c.baseURL)
+	headers := map[string]string{
+		"JWT": c.jwt,
+	}
+
+	rawCaptureResp, err := consumers.Post(url, headers, &capturePayload)
+	if err != nil {
+		return err
+	}
+
+	defer rawCaptureResp.Body.Close()
+	captureResp := new(map[string]interface{})
+	if err := json.NewDecoder(rawCaptureResp.Body).Decode(captureResp); err != nil {
+		log.Printf("Unable to read capture response from Phoenix with error: %s", err.Error())
+		return err
+	}
+
+	log.Printf("Successfully captured from Phoenix with response: %v", captureResp)
+	log.Printf("Updating order state")
+
+	if err := c.UpdateOrder(capturePayload.ReferenceNumber, "shipped", "shipped"); err != nil {
+		log.Printf("Enable to update order with error %s", err.Error())
+		return err
+	}
+
+	return nil
+}
+
 func (c *phoenixClient) IsAuthenticated() bool {
 	if c.jwt == "" {
 		return false
@@ -104,7 +141,7 @@ func (c *phoenixClient) Authenticate() error {
 	payload := LoginPayload{
 		Email:    c.email,
 		Password: c.password,
-		Org:     "tenant",
+		Org:      "tenant",
 	}
 
 	url := fmt.Sprintf("%s/v1/public/login", c.baseURL)
@@ -138,6 +175,28 @@ func (c *phoenixClient) Authenticate() error {
 	c.jwtExpiration = loginResp.Expiration
 
 	return nil
+}
+
+func (c *phoenixClient) CreateGiftCard(balance uint, details payloads.GiftCard, refNum string) (*http.Response, error) {
+	if err := c.ensureAuthentication(); err != nil {
+		return nil, err
+	}
+	url := fmt.Sprintf("%s/v1/gift-cards/", c.baseURL)
+	headers := map[string]string{
+		"JWT": c.jwt,
+	}
+
+	giftCardPayload := payloads.CreateGiftCardPayload{
+		Balance: balance,
+		Details: details,
+		CordRef: refNum,
+	}
+
+	rawOrderResp, err := consumers.Post(url, headers, &giftCardPayload)
+	if err != nil {
+		return nil, err
+	}
+	return rawOrderResp, nil
 }
 
 func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) error {
