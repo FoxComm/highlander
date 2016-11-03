@@ -38,7 +38,7 @@ func MakeConsumerConfig() (ConsumerConfig, error) {
 		return config, errors.New("Unable to find API_KEY in env")
 	}
 
-	config.ApiKey = os.Getenv("API_SECRET")
+	config.ApiSecret = os.Getenv("API_SECRET")
 	if config.Topic == "" {
 		return config, errors.New("Unable to find API_SECRET in env")
 	}
