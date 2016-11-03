@@ -4,7 +4,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
-
+import failures.AuthFailures.ChangePasswordFailed
 import failures.CustomerFailures._
 import failures.NotFoundFailure404
 import models.account._
@@ -13,7 +13,6 @@ import models.cord.{OrderShippingAddresses, Orders}
 import models.customer.{CustomerData, CustomersData}
 import models.customer.CustomersData.scope._
 import models.customer._
-
 import models.location.Addresses
 import models.shipping.Shipments
 import payloads.CustomerPayloads._
@@ -22,6 +21,7 @@ import services._
 import services.account._
 import services.account._
 import failures.CustomerFailures._
+import failures.UserFailures.AccessMethodNotFound
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -118,6 +118,24 @@ object CustomerManager {
       _        ← * <~ CustomersData.update(custData, updatedCustUser(custData, payload))
       _        ← * <~ LogActivity.customerUpdated(customer, updated, admin)
     } yield build(updated, custData)
+
+  def changePassword(
+      accountId: Int,
+      payload: ChangeCustomerPasswordPayload)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
+    for {
+      _       ← * <~ payload.validate
+      user    ← * <~ Users.mustFindByAccountId(accountId)
+      account ← * <~ Accounts.mustFindById404(accountId)
+      accessMethod ← * <~ AccountAccessMethods
+                      .findOneByAccountIdAndName(account.id, "login")
+                      .mustFindOr(AccessMethodNotFound("login"))
+
+      _ ← * <~ failIf(!accessMethod.checkPassword(payload.oldPassword), ChangePasswordFailed)
+
+      updatedAccess ← * <~ AccountAccessMethods
+                       .update(accessMethod, accessMethod.updatePassword(payload.newPassword))
+      _ ← * <~ LogActivity.userPasswordReset(user)
+    } yield {}
 
   def updatedUser(customer: User, payload: UpdateCustomerPayload): User = {
     customer.copy(name = payload.name.fold(customer.name)(Some(_)),
