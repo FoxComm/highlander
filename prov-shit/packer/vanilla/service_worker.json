@@ -8,7 +8,7 @@
             "source_image": "{{user `base_mesos`}}",
             "network": "{{user `network`}}",
             "zone": "{{user `zone`}}",
-            "image_name": "{{user `image_prefix`}}-service-worker-{{timestamp}}",
+            "image_name": "{{user `image_prefix`}}-service-worker-{{isotime \"060102-150405\"}}",
             "image_description": "{{user `image_title`}} Service Worker Image",
             "instance_name": "packer-service-worker-{{uuid}}",
             "machine_type": "n1-standard-2",
@@ -23,7 +23,7 @@
             "source_ami": "{{user `base_mesos_ami`}}",
             "instance_type": "{{user `instance_type`}}",
             "region": "{{user `region`}}",
-            "ami_name": "{{user `image_prefix`}}-service-worker-{{timestamp}}",
+            "ami_name": "{{user `image_prefix`}}-service-worker-{{isotime \"060102-150405\"}}",
             "ami_description": "{{user `image_title`}} Service Worker Image",
             "associate_public_ip_address": true,
             "ssh_username" : "{{user `ssh_username`}}",
@@ -41,7 +41,7 @@
                 "delete_on_termination": true
             }],
             "tags": {
-                "Name": "{{user `image_prefix`}}-service-worker-{{timestamp}}"
+                "Name": "{{user `image_prefix`}}-service-worker-{{isotime \"060102-150405\"}}"
             }
         }
     ],

@@ -8,7 +8,7 @@
             "source_image": "{{user `base_jvm_image`}}",
             "network": "{{user `network`}}",
             "zone": "{{user `zone`}}",
-            "image_name": "{{user `image_prefix`}}-backend-{{timestamp}}",
+            "image_name": "{{user `image_prefix`}}-backend-{{isotime \"060102-150405\"}}",
             "image_description": "{{user `image_title`}} Backend Image",
             "instance_name": "packer-{{user `image_prefix`}}-backend-{{uuid}}",
             "machine_type": "n1-standard-2",
