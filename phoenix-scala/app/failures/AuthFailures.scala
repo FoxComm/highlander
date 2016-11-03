@@ -10,6 +10,6 @@ object AuthFailures {
   }
 
   case object ChangePasswordFailed extends Failure {
-    override def description: String = "Old password invalid"
+    override def description: String = "Old password is invalid"
   }
 }

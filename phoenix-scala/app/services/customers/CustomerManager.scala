@@ -135,8 +135,7 @@ object CustomerManager {
       updatedAccess ← * <~ AccountAccessMethods
                        .update(accessMethod, accessMethod.updatePassword(payload.newPassword))
       _ ← * <~ LogActivity.userPasswordReset(user)
-
-    } yield None
+    } yield {}
 
   def updatedUser(customer: User, payload: UpdateCustomerPayload): User = {
     customer.copy(name = payload.name.fold(customer.name)(Some(_)),
