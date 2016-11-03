@@ -1,0 +1,14 @@
+{
+    "service": {
+        "name": "bottledwater_{{item}}",
+        "tags": ["bottledwater_{{item}}"],
+        "checks": [
+            {
+                "name": "Bottledwater {{item}}",
+                "script": "systemctl status bottledwater_{{item}}",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

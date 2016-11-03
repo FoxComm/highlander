@@ -1,10 +1,10 @@
 [Service]
 WorkingDirectory=/usr/local
-ExecStart=/bin/bash /usr/local/bin/run_bottledwater_phoenix.sh
+ExecStart=/bin/bash /usr/local/bin/run_bottledwater_{{item}}.sh
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=bottledwater_phoenix
+SyslogIdentifier=bottledwater_{{item}}
 TimeoutStartSec=30
 RestartSec=30
 
