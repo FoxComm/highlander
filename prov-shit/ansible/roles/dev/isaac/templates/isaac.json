@@ -1,10 +1,10 @@
 {
   "id": "/isaac",
   "cmd": null,
-  "cpus": 1,
+  "cpus": 0.25,
   "mem": 64,
   "disk": 0,
-  "instances": 0.25,
+  "instances": 1,
   "env": {
     "PUBLIC_KEY": "/certs/public_key.pem",
     "DB_HOST": "{{docker_db_host}}",
