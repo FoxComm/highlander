@@ -2,15 +2,15 @@ defmodule Marketplace.MerchantStripeController do
   use Marketplace.Web, :controller
   alias Ecto.Multi
   alias Marketplace.Repo
-  alias Marketplace.Merchant
+  alias Marketplace.MerchantAccount
   alias Marketplace.Stripe
 
   def create(conn, %{"legal_profile" => legal_profile_params, "merchant_id" => merchant_id}) do
-    merchant = Repo.get(Merchant, merchant_id)
+    ma = Repo.get_by!(MerchantAccount, merchant_id: merchant_id)
 
-    case Stripe.create_account(legal_profile_params) do
+    case Stripe.create_account(ma, legal_profile_params) do
       {:ok, stripe_account_id} ->
-        relate_stripe_account_id(conn, merchant, stripe_account_id)
+        relate_stripe_account_id(conn, ma, stripe_account_id)
       {:error, error} ->
         conn
           |> put_status(:unprocessable_entity)
@@ -21,13 +21,13 @@ defmodule Marketplace.MerchantStripeController do
 
   end
 
-  defp relate_stripe_account_id(conn, merchant, stripe_account_id) do
-    changeset = Merchant.update_changeset(merchant, %{stripe_account_id: stripe_account_id})
+  defp relate_stripe_account_id(conn, ma, stripe_account_id) do
+    changeset = MerchantAccount.update_changeset(ma, %{stripe_account_id: stripe_account_id})
         case Repo.update(changeset) do
-          {:ok, merchant} ->
+          {:ok, merchant_account} ->
             conn
             |> put_status(:created)
-            |> render(Marketplace.MerchantView, "merchant.json", merchant: merchant)
+            |> render(Marketplace.MerchantAccountView, "merchant_account.json", merchant_account: merchant_account)
           {:error, changeset} ->
             conn
             |> put_status(:unprocessable_entity)
