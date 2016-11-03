@@ -62,12 +62,14 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 	if order.OrderState == orderStateFulfillmentStarted || order.OrderState == orderStateShipped {
 		lineItems := order.LineItems
 		skus := lineItems.SKUs
+		giftcardPayloads := make([]payloads.CreateGiftCardPayload, 1)
 		if order.OrderState == orderStateFulfillmentStarted && justGiftCards(skus) {
 			for i := 0; i < len(skus); i++ {
-				_, err := gfHandle.client.CreateGiftCard(skus[i].Price, skus[i].Attributes.GiftCard, order.ReferenceNumber)
-				if err != nil {
-					return fmt.Errorf("Unable to create the Giftcard for order  %s with error %s", order.ReferenceNumber, err.Error())
-				}
+				giftcardPayloads = append(giftcardPayloads, payloads.CreateGiftCardPayload{Balance: skus[i].Price, Details: skus[i].Attributes.GiftCard, CordRef: order.ReferenceNumber})
+			}
+			_, err := gfHandle.client.CreateGiftCards(giftcardPayloads)
+			if err != nil {
+				return fmt.Errorf("Unable to create the Giftcard for order  %s with error %s", order.ReferenceNumber, err.Error())
 			}
 			capturePayload, err := lib.NewGiftCardCapturePayload(order.ReferenceNumber, order.LineItems.SKUs)
 			if err != nil {
@@ -79,11 +81,12 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 			y := 0
 			for i := 0; i < len(skus); i++ {
 				if skus[i].Attributes != nil {
-					_, err := gfHandle.client.CreateGiftCard(skus[i].Price, skus[i].Attributes.GiftCard, order.ReferenceNumber)
-					if err != nil {
-						return fmt.Errorf("Unable to create the Giftcard for order  %s with error %s", order.ReferenceNumber, err.Error())
-					}
+					giftcardPayloads = append(giftcardPayloads, payloads.CreateGiftCardPayload{Balance: skus[i].Price, Details: skus[i].Attributes.GiftCard, CordRef: order.ReferenceNumber})
 					lineItemsToCapture[y] = skus[i]
+				}
+				_, err := gfHandle.client.CreateGiftCards(giftcardPayloads)
+				if err != nil {
+					return fmt.Errorf("Unable to create the Giftcard for order number  %s with error %s", order.ReferenceNumber, err.Error())
 				}
 			}
 			capturePayload, err := lib.NewGiftCardCapturePayload(order.ReferenceNumber, lineItemsToCapture)
