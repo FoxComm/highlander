@@ -1,21 +1,13 @@
 ---
 
+- include: bootstrap_swarm_wait_ssh.yml
+
 - name: Provisioning Swarm Worker
   hosts: all
   vars:
     user: ubuntu
-    ssh_port: 22
-
-  pre_tasks:
-    - name: Wait for SSH accessible
-      wait_for: port={{ssh_port}} delay=10 timeout=120
-    - name: Get Zookeeper URI
-      shell: /bin/echo "{{zookeepers_ips|map("regex_replace","(.*)","\\1:port")|join(",")}}" | sed 's/port/{{zookeeper_port}}/g'
-      register: zookeepers_object
-    - name: Set Zookeeper URI fact
-      set_fact:
-        zookeepers: "zk://{{zookeepers_object.stdout}}"
 
   sudo: true
   roles:
+    - { role: swarm/provision/setup }
     - { role: swarm/provision/mesos/worker }
