@@ -9,6 +9,9 @@
 - name: Install Mesos Package
   apt: name=mesos state=latest force=yes
 
+- name: Install Mesos Cleanup Script
+  template: src=run_mesos_cleanup.sh dest={{usr_local_bin}}/ mode=750
+
 - name: Install Mesos Cleanup Service Entry
   template: src=mesos_cleanup.service dest={{dest_services}}/
 

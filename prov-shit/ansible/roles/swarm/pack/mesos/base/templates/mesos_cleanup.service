@@ -1,6 +1,6 @@
 [Service]
 Type=simple
-ExecStart=rm -rf {{mesos_work_dir}}
+ExecStart={{usr_local_bin}}/run_mesos_cleanup.sh
 StandardOutput=syslog
 StandardError=syslog
 
