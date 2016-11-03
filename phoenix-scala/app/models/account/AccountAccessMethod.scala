@@ -7,7 +7,7 @@ import cats.implicits._
 import failures._
 import shapeless._
 import slick.driver.PostgresDriver.api._
-import utils.Passwords._
+import utils.Passwords.{checkPassword ⇒ scryptCheckPassword, hashPassword}
 import utils.Validation
 import utils.aliases._
 import utils.db._
@@ -24,6 +24,14 @@ case class AccountAccessMethod(id: Int = 0,
 
   def updatePassword(newPassword: String): AccountAccessMethod = {
     this.copy(hashedPassword = hashPassword(newPassword))
+  }
+
+  def checkPassword(password: String): Boolean = {
+    algorithm match {
+      case 0 ⇒ scryptCheckPassword(password, hashedPassword)
+      case 1 ⇒ password == hashedPassword //TODO remove , only fo demo.
+      case _ ⇒ false
+    }
   }
 }
 

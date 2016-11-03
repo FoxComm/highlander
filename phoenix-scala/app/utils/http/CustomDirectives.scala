@@ -110,6 +110,9 @@ object CustomDirectives {
   def deleteOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
     complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
 
+  def doOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
+    complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
+
   def entityOr[T](um: FromRequestUnmarshaller[T], failure: failures.Failure): Directive1[T] =
     extractRequestContext.flatMap[Tuple1[T]] { ctx ⇒
       import ctx.{executionContext, materializer}
