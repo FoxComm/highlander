@@ -8,4 +8,3 @@ WORKDIR /capture-consumer
 COPY capture-consumer /capture-consumer
 
 CMD ["/capture-consumer/capture-consumer"] 
-
