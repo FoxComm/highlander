@@ -50,7 +50,6 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
     } catch {
       case e: SerializationException ⇒
         Future { Console.err.println(s"Error serializing avro message $e") }
-      case NonFatal(e) ⇒ Future { Console.err.println(s"Error processing avro message $e") }
     }
   }
 
