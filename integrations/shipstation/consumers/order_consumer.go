@@ -32,7 +32,8 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 
 	order, err := phoenix.NewOrderFromAvro(message)
 	if err != nil {
-		log.Panicf("Unable to decode Avro message with error %s", err.Error())
+		log.Printf("Unable to decode Avro message with error %s", err.Error())
+		return nil
 	}
 
 	if order.State == "fulfillmentStarted" {
@@ -40,12 +41,14 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 
 		ssOrder, err := utils.ToShipStationOrder(order)
 		if err != nil {
-			log.Panicf("Unable to create ShipStation order with error %s", err.Error())
+			log.Printf("Unable to create ShipStation order with error %s", err.Error())
+			return nil
 		}
 
 		_, err = c.client.CreateOrder(ssOrder)
 		if err != nil {
 			log.Panicf("Unable to create order in ShipStation with error %s", err.Error())
+			return nil
 		}
 	}
 
