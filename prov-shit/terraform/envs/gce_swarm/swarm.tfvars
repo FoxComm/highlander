@@ -6,8 +6,9 @@ datacenter      = "swarm"
 network         = "default"
 bucket_location = "us"
 
-base_image      = "swarm-base-161103-124257"
-master_image    = "swarm-master-161103-125825"
-worker_image    = "swarm-worker-161103-125935"
+base_image      = "swarm-base-161103-143023"
+master_image    = "swarm-master-161103-143828"
+worker_image    = "swarm-worker-161103-143835"
+
 masters_count   = "3"
 workers_count   = "2"
