@@ -1,6 +1,6 @@
 
 import KoaApp from 'koa';
-import serve from 'koa-static';
+import serve from 'koa-better-static';
 import favicon from 'koa-favicon';
 import renderReact from '../src/server';
 import { makeApiProxy } from './routes/api';
