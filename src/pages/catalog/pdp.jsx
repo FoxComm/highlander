@@ -22,13 +22,11 @@ import type { HTMLElement } from 'types';
 import type { ProductResponse } from 'modules/product-details';
 
 // components
-import Currency from 'ui/currency';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
-import AddToCartBtn from 'ui/add-to-cart-btn';
-import Autocomplete from 'ui/autocomplete';
-import Icon from 'ui/icon';
+import ProductDetails from './product-details';
+import GiftCardForm from 'components/gift-card-form';
 
 // styles
 import styles from './pdp.css';
@@ -74,7 +72,7 @@ type Product = {
   servingSize: string,
 };
 
-const QUANTITY_ITEMS = _.range(1, 1 + 10, 1);
+const giftCardProductId = 248;
 
 const mapStateToProps = state => {
   const product = state.productDetails.product;
@@ -135,6 +133,7 @@ class Pdp extends Component {
   state: State = {
     quantity: 1,
     currentAdditionalTitle: 'Prep',
+    currentSku: null,
   };
 
   componentWillMount() {
@@ -153,6 +152,7 @@ class Pdp extends Component {
   componentWillUpdate(nextProps) {
     const id = this.getId(nextProps);
     if (this.productId !== id) {
+      this.props.actions.resetProduct();
       this.props.actions.fetch(id);
     }
   }
@@ -162,16 +162,19 @@ class Pdp extends Component {
   }
 
   getId(props): number {
-    return parseInt(props.params.productId, 10);
+    return this.isGiftCard(props) ?
+      giftCardProductId :
+      parseInt(props.params.productId, 10);
   }
 
-  get firstSku(): Object {
-    return _.get(this.props, ['product', 'skus', 0], {});
+  get currentSku () {
+    return this.state.currentSku ||
+      _.get(this.props, ['product', 'skus', 0], {});
   }
 
   get product(): Product {
     const attributes = _.get(this.props.product, 'attributes', {});
-    const price = _.get(this.firstSku, 'attributes.salePrice.v', {});
+    const price = _.get(this.currentSku, 'attributes.salePrice.v', {});
     const images = _.get(this.props.product, ['albums', 0, 'images'], []);
     const imageUrls = images.map(image => image.src);
 
@@ -186,6 +189,10 @@ class Pdp extends Component {
     };
   }
 
+  isGiftCard (props = this.props) {
+    return props.route.name === 'gift-cards';
+  }
+
   @autobind
   changeQuantity(quantity: number): void {
     this.setState({ quantity });
@@ -196,7 +203,7 @@ class Pdp extends Component {
     const { actions } = this.props;
 
     const { quantity } = this.state;
-    const skuId = _.get(this.firstSku, 'attributes.code.v', '');
+    const skuId = _.get(this.currentSku, 'attributes.code.v', '');
     actions.addLineItem(skuId, quantity)
       .then(() => {
         actions.toggleCart();
@@ -234,16 +241,7 @@ class Pdp extends Component {
       return <p styleName="not-found">{t('Product not found')}</p>;
     }
 
-    const product = this.product;
-    const {
-      title,
-      description,
-      images,
-      currency,
-      price,
-      amountOfServings,
-      servingSize,
-    } = product;
+    const { images } = this.product;
 
     const attributeTitles = additionalInfoAttributesMap.map(({ title: attrTitle }) => {
       const cls = classNames(styles['item-title'], {
@@ -265,61 +263,31 @@ class Pdp extends Component {
         </div>
         <div styleName="details">
           <div styleName="details-wrap">
-            <h1 styleName="title">{title}</h1>
-            <div styleName="price">
-              <Currency value={price} currency={currency} />
-            </div>
-
-            <div styleName="cart-actions">
-              <div styleName="quantity">
-                <Autocomplete
-                  inputProps={{
-                    type: 'number',
-                  }}
-                  getItemValue={_.identity}
-                  items={QUANTITY_ITEMS}
-                  onSelect={this.changeQuantity}
-                  selectedItem={this.state.quantity}
-                  sortItems={false}
-                />
-              </div>
-
-              <div styleName="add-to-cart-btn">
-                <AddToCartBtn expanded onClick={this.addToCart} />
-              </div>
-            </div>
-
-            <div
-              styleName="description"
-              dangerouslySetInnerHTML={{__html: description}}
-            />
-
-            <div styleName="servings">
-              <div>{amountOfServings}</div>
-              <div>{servingSize}</div>
-            </div>
-
-            <div styleName="social-sharing">
-              <Icon name="fc-instagram" styleName="social-icon"/>
-              <Icon name="fc-facebook" styleName="social-icon"/>
-              <Icon name="fc-twitter" styleName="social-icon" />
-              <Icon name="fc-pinterest" styleName="social-icon"/>
-            </div>
+            {this.isGiftCard() ?
+              <GiftCardForm /> :
+              <ProductDetails
+                product={this.product}
+                quantity={this.state.quantity}
+                onQuantityChange={this.changeQuantity}
+                addToCart={this.addToCart}
+              />}
 
             <ErrorAlerts error={this.state.error} />
           </div>
         </div>
-        <div styleName="additional-info">
-          <div>
-            <div styleName="items-title-wrap">
-              {attributeTitles}
-            </div>
 
-            <div styleName="info-block">
-              {this.renderAttributes()}
+        {!this.isGiftCard() &&
+          <div styleName="additional-info">
+            <div>
+              <div styleName="items-title-wrap">
+                {attributeTitles}
+              </div>
+
+              <div styleName="info-block">
+                {this.renderAttributes()}
+              </div>
             </div>
-          </div>
-        </div>
+          </div>}
       </div>
     );
   }

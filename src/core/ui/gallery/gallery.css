@@ -3,10 +3,14 @@
 
 .gallery {
   display: flex;
+  align-items: center;
+  height: 100%;
 }
 
 .image {
-  display: inline-block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   & img {
     width: 100%;
