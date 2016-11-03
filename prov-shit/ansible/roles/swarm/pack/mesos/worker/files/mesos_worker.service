@@ -8,3 +8,6 @@ SyslogIdentifier=mesos_worker
 
 [Install]
 WantedBy=multi-user.target
+
+[Unit]
+OnFailure=mesos_cleanup.service

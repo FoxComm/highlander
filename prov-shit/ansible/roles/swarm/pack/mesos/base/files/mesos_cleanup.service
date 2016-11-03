@@ -1,0 +1,8 @@
+[Service]
+Type=simple
+ExecStart=rm -rf {{mesos_workdir}}
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
