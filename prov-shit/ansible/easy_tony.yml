@@ -28,7 +28,7 @@
     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Tony Stage Frontend
-  hosts: foxcomm-tony-backend
+  hosts: foxcomm-tony-frontend
   vars:
     user: '{{ansible_ssh_user}}'
     middlewarehouse_server: middlewarehouse.service.consul:9292
@@ -63,3 +63,6 @@
     - { role: dev/solomon }
     - { role: dev/balancer, sudo: yes }
     - { role: dev/seeder }
+
+  handlers:
+    - include: roles/base/consul_agent/handlers/main.yml
