@@ -10,6 +10,8 @@ import { toggleUserMenu } from 'modules/usermenu';
 import { authBlockTypes } from 'paragons/auth';
 import { merge } from 'sprout-data';
 
+import { isGuest } from 'paragons/auth';
+
 import localized from 'lib/i18n';
 
 import styles from './usertools.css';
@@ -35,7 +37,7 @@ class UserTools extends Component {
     const { t } = this.props;
     const user = _.get(this.props, ['auth', 'user'], null);
     const query = merge(this.props.query, {auth: authBlockTypes.LOGIN});
-    return _.isEmpty(user) ? (
+    return _.isEmpty(user) || isGuest(user) ? (
       <Link styleName="login-link" to={{pathname: this.props.path, query}}>
         {t('LOG IN')}
       </Link>

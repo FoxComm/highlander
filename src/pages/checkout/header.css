@@ -27,9 +27,27 @@
   transition: height .3s;
 }
 
+.logo-icon {
+  background: var(--whitish);
+  color: #212121;
+}
+
 .navigation {
   background: var(--additional-color);
   color: var(--whitish);
+}
+
+.navigation-checkout {
+  display: flex;
+  justify-content: center;
+  background: var(--whitish);
+  height: 60px;
+  box-shadow: 0 1px var(--border-color);
+  margin-top: 1px;
+}
+
+.checkout-title {
+  line-height: 60px;
 }
 
 .nav-list {

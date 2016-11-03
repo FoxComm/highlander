@@ -11,6 +11,7 @@ import { browserHistory } from 'react-router';
 import Shipping from './01-shipping/shipping';
 import Delivery from './02-delivery/delivery';
 import Billing from './03-billing/billing';
+import GuestAuth from './05-guest-auth/guest-auth';
 import OrderSummary from './summary/order-summary';
 import Header from './header';
 
@@ -25,6 +26,9 @@ import type { CheckoutState, EditStage } from 'modules/checkout';
 import * as actions from 'modules/checkout';
 import { EditStages } from 'modules/checkout';
 import { fetch as fetchCart, hideCart } from 'modules/cart';
+
+// paragons
+import { emailIsSet } from 'paragons/auth';
 
 type Props = CheckoutState & {
   setEditStage: (stage: EditStage) => Object,
@@ -42,6 +46,7 @@ type Props = CheckoutState & {
   shippingMethods: Object,
   cart: Object,
   isAddressLoaded: boolean,
+  location: Object,
 };
 
 class Checkout extends Component {
@@ -51,6 +56,7 @@ class Checkout extends Component {
     isPerformingCheckout: false,
     deliveryInProgress: false,
     shippingInProgress: false,
+    guestAuthInProgress: false,
     error: null,
     isScrolled: false,
   };
@@ -142,6 +148,31 @@ class Checkout extends Component {
     });
   }
 
+  @autobind
+  checkAuthAndplaceOrder() {
+    const user = _.get(this.props, ['auth', 'user'], null);
+    if (emailIsSet(user)) {
+      this.placeOrder();
+    } else {
+      this.performStageTransition('guestAuthInProgress', () => {
+        return Promise.resolve().then(() => {
+          return this.props.setEditStage(EditStages.GUEST_AUTH);
+        });
+      });
+    }
+  }
+
+  @autobind
+  checkoutAfterSignIn() {
+    this.props.updateAddress().then(() => {
+      return this.saveShippingAddress();
+    }).then(() => {
+      return this.props.saveShippingMethod();
+    }).then(() => {
+      return this.placeOrder();
+    });
+  }
+
   errorsFor(stage) {
     if (this.props.editStage === stage) {
       return this.state.error;
@@ -161,6 +192,7 @@ class Checkout extends Component {
       <section styleName="checkout">
         <Header
           isScrolled={this.state.isScrolled}
+          isGuestAuth={props.editStage == EditStages.GUEST_AUTH}
           {...setStates}
         />
 
@@ -201,10 +233,19 @@ class Checkout extends Component {
               collapsed={!props.isBillingDirty && props.editStage < EditStages.BILLING}
               editAction={this.setBillingState}
               inProgress={this.state.isPerformingCheckout}
-              continueAction={this.placeOrder}
+              continueAction={this.checkAuthAndplaceOrder}
               error={this.errorsFor(EditStages.BILLING)}
             />
           </div>
+
+          <GuestAuth
+            isEditing={props.editStage == EditStages.GUEST_AUTH}
+            inProgress={this.state.guestAuthInProgress}
+            error={this.errorsFor(EditStages.GUEST_AUTH)}
+            continueAction={this.placeOrder}
+            checkoutAfterSignIn={this.checkoutAfterSignIn}
+            location={this.props.location}
+          />
         </div>
       </section>
     );
@@ -223,6 +264,7 @@ function mapStateToProps(state) {
   return {
     ...state.checkout,
     cart: state.cart,
+    auth: state.auth,
     isBillingDirty: isBillingDirty(state),
     isDeliveryDirty: isDeliveryDirty(state),
   };

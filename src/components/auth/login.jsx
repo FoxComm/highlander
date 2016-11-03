@@ -14,7 +14,7 @@ import Button from 'ui/buttons';
 
 import * as actions from 'modules/auth';
 import { authBlockTypes } from 'paragons/auth';
-import { fetch as fetchCart } from 'modules/cart';
+import { fetch as fetchCart, saveLineItems } from 'modules/cart';
 
 import type { HTMLElement } from 'types';
 
@@ -32,9 +32,13 @@ type Props = Localized & {
   isLoading: boolean,
   authenticate: Function,
   fetchCart: Function,
+  saveLineItems: Function,
+  onGuestCheckout?: Function,
+  displayTitle: boolean,
 };
 
 const mapState = state => ({
+  cart: state.cart,
   isLoading: _.get(state.asyncActions, ['auth-login', 'inProgress'], false),
 });
 
@@ -45,6 +49,10 @@ class Login extends Component {
     email: '',
     password: '',
     error: null,
+  };
+
+  static defaultProps = {
+    displayTitle: true,
   };
 
   @autobind
@@ -69,12 +77,23 @@ class Login extends Component {
     e.stopPropagation();
     const { email, password } = this.state;
     const kind = 'merchant';
-    this.props.authenticate({email, password, kind}).then(() => {
-      this.props.fetchCart();
+    const auth = this.props.authenticate({email, password, kind}).then(() => {
+      const lineItems = _.get(this.props, 'cart.lineItems', []);
+      if (_.isEmpty(lineItems)) {
+        this.props.fetchCart();
+      } else {
+        this.props.saveLineItems();
+      }
       browserHistory.push(this.props.getPath());
     }, () => {
       this.setState({error: 'Email or password is invalid'});
     });
+
+    if (this.props.onGuestCheckout != null) {
+      auth.then(() => {
+        this.props.onGuestCheckout();
+      });
+    }
   }
 
   @autobind
@@ -86,26 +105,32 @@ class Login extends Component {
     });
   }
 
+  get title() {
+    const { t } = this.props;
+    return this.props.displayTitle
+      ? <div styleName="title">{t('SIGN IN')}</div>
+      : null;
+  }
+
   render(): HTMLElement {
     const { password, email } = this.state;
-    const props = this.props;
-    const { t } = props;
+    const { t, getPath } = this.props;
 
     const restoreLink = (
-      <Link to={props.getPath(authBlockTypes.RESTORE_PASSWORD)} styleName="restore-link">
+      <Link to={getPath(authBlockTypes.RESTORE_PASSWORD)} styleName="restore-link">
         {t('forgot?')}
       </Link>
     );
 
     const signupLink = (
-      <Link to={props.getPath(authBlockTypes.SIGNUP)} styleName="link">
+      <Link to={getPath(authBlockTypes.SIGNUP)} styleName="link">
         {t('Sign Up')}
       </Link>
     );
 
     return (
       <div>
-        <div styleName="title">{t('SIGN IN')}</div>
+        {this.title}
         <form>
           <FormField key="email" styleName="form-field" error={this.state.error}>
             <TextInput placeholder={t('EMAIL')} value={email} type="email" onChange={this.onChangeEmail} />
@@ -121,7 +146,7 @@ class Login extends Component {
           </FormField>
           <Button
             styleName="primary-button"
-            isLoading={props.isLoading}
+            isLoading={this.props.isLoading}
             onClick={this.authenticate}
           >
             {t('SIGN IN')}
@@ -138,4 +163,5 @@ class Login extends Component {
 export default connect(mapState, {
   ...actions,
   fetchCart,
+  saveLineItems,
 })(localized(Login));

@@ -50,7 +50,7 @@ class Auth extends Component {
   render(): HTMLElement {
     return (
       <div styleName="auth-block">
-        <Link to="/">
+        <Link to={ this.props.path }>
           <Icon styleName="logo" name="fc-logo" />
         </Link>
         {this.renderContent()}

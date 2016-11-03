@@ -9,6 +9,8 @@ import { logout } from 'modules/auth';
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
+import { isGuest } from 'paragons/auth';
+
 import styles from './sidebar.css';
 
 import Icon from 'ui/icon';
@@ -44,7 +46,7 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
     props.logout();
   };
 
-  const renderSessionLink = props.user ? (
+  const renderSessionLink = props.user && !isGuest(props.user) ? (
     <a styleName="session-link" onClick={handleLogout}>
       {t('LOG OUT')}
     </a>
