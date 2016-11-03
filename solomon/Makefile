@@ -1,3 +1,6 @@
+DOCKER_TAG ?= solomon
+DOCKER_BRANCH ?= master
+
 build:
 	true
 
@@ -5,10 +8,10 @@ test:
 	true
 
 docker:
-	docker build -t solomon .
+	docker build -t $(DOCKER_TAG) .
 
 docker-push:
-	docker tag solomon docker-stage.foxcommerce.com:5000/solomon:master
-	docker push docker-stage.foxcommerce.com:5000/solomon:master
+	docker tag $(DOCKER_TAG) docker-stage.foxcommerce.com:5000/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker push docker-stage.foxcommerce.com:5000/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
 .PHONY: build test
