@@ -10,7 +10,7 @@
   apt: name=mesos state=latest force=yes
 
 - name: Install Mesos Cleanup Service Entry
-  copy: src=mesos_cleanup.service dest={{dest_services}}/
+  template: src=mesos_cleanup.service dest={{dest_services}}/
 
 - name: Reload Systemd for Mesos Cleanup
   command: systemctl daemon-reload
