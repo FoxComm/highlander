@@ -72,6 +72,7 @@
 
 - name: Copy JAR
   copy: src={{phoenix_jar_src}} dest={{phoenix_jar}} mode="u+x,g+x,o+x"
+  when: upload_phoenix_jar
   sudo: true
 
 - name: Setup Update Materialzied Views SQL

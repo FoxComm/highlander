@@ -4,7 +4,6 @@
   hosts: new-foxcomm-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
-    updating_mwh: true
     zookeeper_server: zookeeper.service.consul:2181
   tags:
     - backend
@@ -35,7 +34,6 @@
     zookeeper_server: zookeeper.service.consul:2181
     ashes_server_name: stage.foxcommerce.com
     storefront_server_name: stage.foxcommerce.com
-    updating_mwh: true
   tags:
     - frontend
   roles:

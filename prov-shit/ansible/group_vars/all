@@ -154,20 +154,21 @@ packing: false
 # Should we upload Phoenix JAR?
 upload_phoenix_jar: true
 
-# Are we updating MWH manually?
-updating_mwh: false
+# Should we upload Green River JAR?
+upload_greenriver_jar: true
 
 # Test Stripe api key
 stripe_api_key: sk_test_13rnEgvA4DGHgv4f2GMCDtes
 stripe_publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
 
+# Certificates path
 cert_path: stage
 
 # Mesos
 mesos_quorum: 2
 
 # Use seeder service or not?
-with_seeder: true
+with_seeder: false
 
 # Marketplace
 marketplace_db_name: marketplace_development

@@ -4,7 +4,6 @@
   hosts: foxcomm-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
-    updating_mwh: true
     zookeeper_server: zookeeper.service.consul:2181
   tags:
     - backend
@@ -21,7 +20,6 @@
   vars:
     user: '{{ansible_ssh_user}}'
     middlewarehouse_server: middlewarehouse.service.consul:9292
-    updating_mwh: true
   tags:
     - frontend
   roles:
