@@ -3,7 +3,7 @@ defmodule Marketplace.Stripe do
 
   # This function will create a new managed account in Stripe Connect and
   # return the account ID for the new account, if successful.
-  def create_account(merchant_account, legal_profile_params) do
+  def create_account(legal_profile_params) do
     HTTPoison.start
     post_headers = [{'Authorization',  "Basic #{stripe_key()}"}]
     post_url = 'https://api.stripe.com/v1/accounts'
@@ -25,8 +25,8 @@ defmodule Marketplace.Stripe do
       'legal_entity[dob][month]': String.to_integer(legal_profile_params["business_founded_month"]),
       'legal_entity[dob][year]': String.to_integer(legal_profile_params["business_founded_year"]),
 
-      'legal_entity[first_name]': merchant_account.first_name,
-      'legal_entity[last_name]': merchant_account.last_name,
+      'legal_entity[first_name]': legal_profile_params["first_name"],
+      'legal_entity[last_name]': legal_profile_params["last_name"],
       'legal_entity[business_name]': legal_profile_params["legal_entity_name"],
       'legal_entity[type]': 'company',
       'legal_entity[ssn_last_4]': legal_profile_params["representative_ssn_trailing_four"],

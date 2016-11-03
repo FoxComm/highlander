@@ -15,7 +15,8 @@ defmodule Marketplace.MerchantView do
       site_url: merchant.site_url,
       state: merchant.state,
       scope_id: merchant.scope_id,
-      organization_id: merchant.organization_id
+      organization_id: merchant.organization_id,
+      stripe_account_id: merchant.stripe_account_id
     }
   end
 
