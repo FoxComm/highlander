@@ -38,6 +38,7 @@ phoenix_tracing: "false"
 phoenix_token_ttl: 525600
 
 # Middlewarehouse
+middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_env: staging
 middlewarehouse_dir: /middlewarehouse
 middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"

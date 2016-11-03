@@ -1,7 +1,10 @@
 package services
 
 import (
+	"time"
+
 	"github.com/FoxComm/highlander/middlewarehouse/common/async"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/utils"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
@@ -98,13 +101,13 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 		return nil, err
 	}
 
-	shipment, err = shipmentRepo.UpdateShipment(shipment)
+	err = service.handleStatusChange(txn, source, shipment)
 	if err != nil {
 		txn.Rollback()
 		return nil, err
 	}
 
-	err = service.handleStatusChange(txn, source, shipment)
+	shipment, err = shipmentRepo.UpdateShipment(shipment)
 	if err != nil {
 		txn.Rollback()
 		return nil, err
@@ -199,7 +202,11 @@ func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, new
 		_, err = unitRepo.UnsetUnitsInOrder(newShipment.OrderRefNum)
 
 	case models.ShipmentStateShipped:
-		// TODO: Bring capture back when we move to the capture consumer
+		futureDays := time.Hour * 24 * time.Duration(oldShipment.ShippingMethod.ShippingDays)
+		expectedDate := time.Now().Add(futureDays).Format("Jan 02 2006")
+
+		newShipment.EstimatedArrival = utils.MakeSqlNullString(&expectedDate)
+
 		unitIDs := []uint{}
 		for _, lineItem := range newShipment.ShipmentLineItems {
 			unitIDs = append(unitIDs, lineItem.StockItemUnitID)

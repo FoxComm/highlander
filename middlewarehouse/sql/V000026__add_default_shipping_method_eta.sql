@@ -1,0 +1,1 @@
+alter table shipping_methods add column expected_num_ship_days integer not null;

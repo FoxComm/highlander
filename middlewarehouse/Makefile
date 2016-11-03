@@ -24,6 +24,7 @@ build: glide
 	cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
 	cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
 	cd $(BUILD_PATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
+	cd $(BUILD_PATH) && go build -o seeder common/db/seeds/main.go
 
 docker: glide
 	cd $(BUILD_PATH) && GOOS=linux go build -o middlewarehouse main.go
