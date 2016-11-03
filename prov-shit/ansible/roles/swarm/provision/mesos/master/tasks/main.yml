@@ -1,7 +1,7 @@
 ---
 
 - name: Copy Mesos Master Run Script
-  template: src=run_mesos_master.sh dest=/usr/local/bin/ mode=750
+  template: src=run_mesos_master.sh dest={{usr_local_bin}}/ mode=750
   when:
 
 - name: Restart Mesos Master

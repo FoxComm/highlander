@@ -1,13 +1,11 @@
 #!/bin/bash
 
-QUORUM={{mesos_quorum}}
-WORK_DIR=/var/lib/mesos
 IP=`hostname -I | awk '{print $1}'`
 
 mesos-master \
-    --quorum=$QUORUM \
+    --quorum={{mesos_quorum}} \
     --zk={{zookeepers}}/mesos \
-    --work_dir=$WORK_DIR \
+    --work_dir={{mesos_work_dir}} \
     --cluster=fox \
     --ip=$IP \
     --hostname=$IP

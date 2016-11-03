@@ -1,5 +1,5 @@
 [Service]
-ExecStart=/usr/local/bin/run_mesos_master.sh
+ExecStart={{usr_local_bin}}/run_mesos_master.sh
 Restart=always
 RestartSec=5
 StandardOutput=syslog

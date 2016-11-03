@@ -3,7 +3,7 @@ home: /home/{{ user }}
 self_host: 127.0.0.1
 dest_services: /etc/systemd/system
 usr_local: /usr/local/
-usr_local_bin: /usr/local/bin/
+usr_local_bin: /usr/local/bin
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 db_host: localhost

@@ -1,7 +1,7 @@
 ---
 
 - name: Setup Zookeeper Dir
-  file: path=/var/lib/zookeeper state=directory
+  file: path={{zookeeper_data_dir}} state=directory
 
 - name: Copy Zookeeper Service Files
   copy: src=zookeeper.service dest={{dest_services}}/

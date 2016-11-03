@@ -1,7 +1,7 @@
 ---
 
-- name: Setup Mesos Data Dir
-  file: path=/var/lib/sandbox state=directory
+- name: Setup Mesos Sandbox Dir
+  file: path={{mesos_sandbox_dir}} state=directory
 
 - name: Install Mesos Worker Service Entry
   copy: src=mesos_worker.service dest={{dest_services}}/

@@ -1,7 +1,7 @@
 ---
 
 - name: Copy Marathon Run Script
-  template: src=run_marathon.sh dest=/usr/local/bin/ mode=750
+  template: src=run_marathon.sh dest={{usr_local_bin}}/ mode=750
   when:
 
 - name: Restart Marathon
