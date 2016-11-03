@@ -8,7 +8,7 @@
             "source_image": "{{user `base_jvm_image`}}",
             "network": "{{user `network`}}",
             "zone": "{{user `zone`}}",
-            "image_name": "{{user `image_prefix`}}-phoenix-{{timestamp}}",
+            "image_name": "{{user `image_prefix`}}-phoenix-{{isotime \"060102-150405\"}}",
             "image_description": "{{user `image_title`}} Phoenix Image",
             "instance_name": "packer-{{user `image_prefix`}}-phoenix-{{uuid}}",
             "machine_type": "n1-standard-1",
@@ -22,7 +22,7 @@
             "source_ami": "{{user `base_jvm_ami`}}",
             "instance_type": "{{user `instance_type`}}",
             "region": "{{user `region`}}",
-            "ami_name": "{{user `image_prefix`}}-phoenix-{{timestamp}}",
+            "ami_name": "{{user `image_prefix`}}-phoenix-{{isotime \"060102-150405\"}}",
             "ami_description": "{{user `image_title`}} Phoenix Image",
             "associate_public_ip_address": true,
             "ssh_username" : "{{user `ssh_username`}}",
@@ -30,7 +30,7 @@
             "security_group_id": "{{user `security_group_id`}}",
             "subnet_id": "{{user `subnet_id`}}",
             "tags": {
-                "Name": "{{user `image_prefix`}}-phoenix-{{timestamp}}"
+                "Name": "{{user `image_prefix`}}-phoenix-{{isotime \"060102-150405\"}}"
             }
         }
     ],

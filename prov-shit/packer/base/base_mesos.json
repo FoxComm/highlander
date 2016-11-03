@@ -8,7 +8,7 @@
             "source_image": "{{user `base_image`}}",
             "network": "{{user `network`}}",
             "zone": "us-central1-a",
-            "image_name": "base-mesos-{{timestamp}}",
+            "image_name": "base-mesos-{{isotime \"060102-150405\"}}",
             "image_description": "Base Mesos image used for provisioning",
             "instance_name": "packer-base-mesos-{{uuid}}",
             "machine_type": "n1-standard-2",
@@ -22,7 +22,7 @@
             "source_ami": "{{user `base_ami`}}",
             "instance_type": "{{user `instance_type`}}",
             "region": "{{user `region`}}",
-            "ami_name": "base-mesos-{{timestamp}}",
+            "ami_name": "base-mesos-{{isotime \"060102-150405\"}}",
             "ami_description": "Base Mesos image used for provisioning",
             "associate_public_ip_address": true,
             "ssh_username" : "{{user `ssh_username`}}",
@@ -40,7 +40,7 @@
                 "delete_on_termination": true
             }],
             "tags": {
-                "Name": "base-mesos-{{timestamp}}"
+                "Name": "base-mesos-{{isotime \"060102-150405\"}}"
             }
         }
     ],

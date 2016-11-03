@@ -8,7 +8,7 @@
             "source_image": "{{user `base_mesos`}}",
             "network": "{{user `network`}}",
             "zone": "{{user `zone`}}",
-            "image_name": "{{user `image_prefix`}}-amigo-{{timestamp}}",
+            "image_name": "{{user `image_prefix`}}-amigo-{{isotime \"060102-150405\"}}",
             "image_description": "{{user `image_title`}} Amigo Image",
             "instance_name": "packer-{{user `image_prefix`}}-amigo-{{uuid}}",
             "machine_type": "n1-standard-2",
