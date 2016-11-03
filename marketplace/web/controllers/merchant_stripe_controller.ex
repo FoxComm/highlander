@@ -2,7 +2,7 @@ defmodule Marketplace.MerchantStripeController do
   use Marketplace.Web, :controller
   alias Ecto.Multi
   alias Marketplace.Repo
-  alias Marketplace.MerchantAccount
+  alias Marketplace.Merchant
   alias Marketplace.Stripe
 
   def create(conn, %{"legal_profile" => legal_profile_params, "merchant_id" => merchant_id}) do
