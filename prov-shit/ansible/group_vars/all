@@ -3,6 +3,7 @@ home: /home/{{ user }}
 self_host: 127.0.0.1
 dest_services: /etc/systemd/system
 usr_local: /usr/local/
+usr_local_bin: /usr/local/bin/
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 db_host: localhost
@@ -119,6 +120,7 @@ solomon_port: 4002
 solomon_server: "{{solomon_host}}:{{solomon_port}}"
 api_server: 127.0.0.1
 log_host: 127.0.0.1
+zookeeper_datadir: /var/lib/zookeeper
 zookeeper_port: 2181
 zookeeper_port_range: 2888:3888
 
@@ -181,6 +183,8 @@ cert_path: stage
 
 # Mesos
 mesos_quorum: 2
+mesos_workdir: /var/lib/mesos
+mesos_sandboxdir: /var/lib/sandbox
 
 # Use seeder service or not?
 with_seeder: false
