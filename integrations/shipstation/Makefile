@@ -5,12 +5,7 @@ HIGHLANDER_PATH=$(CURDIR)/../..
 DOCKER_TAG ?= shipstation-consumer
 DOCKER_BRANCH ?= master
 
-prep:
-	rm -rf $(BUILD_ROOT_PATH)
-	mkdir -p $(GOPATH)/src/github.com/FoxComm
-	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH)
-
-glide: prep
+glide:
 	cd $(BUILD_PATH) && glide install
 
 build: glide
