@@ -10,13 +10,15 @@ export const authBlockTypes = {
   SIGNUP: 'SIGNUP',
 };
 
-export function isGuest(user: Object): boolean {
+const emptyEmail = 'None';
+
+export function isGuest(user: ?Object): boolean {
   const email = _.get(user, 'email', '');
   const name = _.get(user, 'name', '');
-  return _.isEmpty(email) || _.isEmpty(name);
+  return (_.isEmpty(email) || email === emptyEmail) || _.isEmpty(name);
 }
 
-export function emailIsSet(user: Object): boolean {
+export function emailIsSet(user: ?Object): boolean {
   const email = _.get(user, 'email', '');
-  return !_.isEmpty(email);
+  return !_.isEmpty(email) && email !== emptyEmail;
 }
