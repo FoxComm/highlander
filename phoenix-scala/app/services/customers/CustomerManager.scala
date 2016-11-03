@@ -81,7 +81,9 @@ object CustomerManager {
 
   def create(payload: CreateCustomerPayload,
              admin: Option[User] = None,
-             context: AccountCreateContext)(implicit ec: EC, db: DB, ac: AC): DbResultT[Route] =
+             context: AccountCreateContext)(implicit ec: EC,
+                                            db: DB,
+                                            ac: AC): DbResultT[(Root, AuthPayload)] =
     for {
       user ← * <~ AccountManager.createUser(name = payload.name,
                                             email = payload.email.toLowerCase.some,
@@ -93,17 +95,15 @@ object CustomerManager {
                     CustomerData(accountId = user.accountId,
                                  userId = user.id,
                                  isGuest = payload.isGuest.getOrElse(false)))
-      payload = build(user, custData)
-      _        ← * <~ LogActivity.customerCreated(payload, admin)
+      result = build(user, custData)
+      _        ← * <~ LogActivity.customerCreated(result, admin)
       account  ← * <~ Accounts.mustFindById400(user.accountId)
       claimSet ← * <~ AccountManager.getClaims(account.id, context.scopeId)
       token    ← * <~ UserToken.fromUserAccount(user, account, claimSet)
       auth     ← * <~ AuthPayload(token)
-    } yield
-      respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
-        complete(
-            HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, write(payload))))
-      }
+      _        ← * <~ DbResultT.good(println(auth))
+      _        ← * <~ DbResultT.good(println(token))
+    } yield (result, auth)
 
   def createGuest(context: AccountCreateContext)(implicit ec: EC,
                                                  db: DB): DbResultT[(User, CustomerData)] =

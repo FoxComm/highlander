@@ -1,7 +1,10 @@
 package routes
 
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
+import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.server.Directives._
-
+import akka.http.scaladsl.server.directives.CookieDirectives.{setCookie ⇒ _, _}
+import akka.http.scaladsl.server.directives.RespondWithDirectives.{respondWithHeader ⇒ _, _}
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models.Reason.reasonTypeRegex
 import payloads.CustomerPayloads.CreateCustomerPayload
@@ -10,9 +13,11 @@ import services.account.AccountCreateContext
 import services.customers.CustomerManager
 import services.giftcards.GiftCardService
 import services.product.ProductManager
-import services.{ReasonService, StoreCreditService}
-import utils.aliases._
+import services.{JwtCookie, ReasonService, StoreCreditService}
 import utils.http.CustomDirectives._
+import utils.aliases._
+import utils.db._
+import org.json4s.jackson.Serialization.{write ⇒ json}
 
 object Public {
   def routes(customerCreateContext: AccountCreateContext)(implicit ec: EC, db: DB, es: ES) = {
@@ -23,9 +28,24 @@ object Public {
       pathPrefix("public") {
         pathPrefix("registrations") {
           (post & path("new") & pathEnd & entity(as[CreateCustomerPayload])) { payload ⇒
-            mutateOrFailures {
-              CustomerManager.create(payload = payload, context = customerCreateContext)
-            }
+            complete(
+                CustomerManager
+                  .create(payload = payload, context = customerCreateContext)
+                  .runTxn
+                  .map { result ⇒
+                    result.fold(renderFailure(_), resp ⇒ {
+                      val (body, auth) = resp
+                      println(auth.jwt.toString)
+                      println(JwtCookie(auth).toString)
+                      respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
+                        complete(
+                            HttpResponse(entity =
+                                  HttpEntity(ContentTypes.`application/json`, json(body)))
+                        )
+                      }
+                    })
+                  }
+            )
           }
         } ~
         pathPrefix("products") {
