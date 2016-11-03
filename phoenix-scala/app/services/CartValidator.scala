@@ -90,7 +90,26 @@ case class CartValidator(cart: Cart)(implicit ec: EC) extends CartValidation {
 
         authorizedStoreCreditPayments.unionAll(authorizedGiftCardPayments).sum.result
       } else {
-        DBIO.successful(Some(payments.flatMap(_.amount).sum))
+        def forType(typeFilter: OrderPayment ⇒ Boolean) =
+          payments.filter(typeFilter).map(_.paymentMethodId).toSet
+
+        val availableStoreCredits = for {
+          (_, op) ← StoreCredits
+                     .findActive()
+                     .filter(_.id.inSet(forType(_.isStoreCredit)))
+                     .join(OrderPayments)
+                     .on(_.id === _.paymentMethodId)
+        } yield op.amount
+
+        val availableGiftCards = for {
+          (_, op) ← GiftCards
+                     .findActive()
+                     .filter(_.id.inSet(forType(_.isGiftCard)))
+                     .join(OrderPayments)
+                     .on(_.id === _.paymentMethodId)
+        } yield op.amount
+
+        availableStoreCredits.unionAll(availableGiftCards).sum.result
       }
     }
 
