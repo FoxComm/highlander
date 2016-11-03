@@ -53,6 +53,7 @@ capture_consumer_bin: "{{middlewarehouse_consumers_dir}}/capture-consumer"
 
 middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
+middlewarehouse_seeder_bin_src: "{{middlewarehouse_src}}/seeder"
 
 stock_items_consumer_src: "{{middlewarehouse_src}}/consumers/stock-items"
 stock_items_consumer_bin_src: "{{stock_items_consumer_src}}/stock-items-consumer"
