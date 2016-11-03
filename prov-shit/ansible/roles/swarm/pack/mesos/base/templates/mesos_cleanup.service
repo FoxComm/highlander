@@ -1,6 +1,6 @@
 [Service]
 Type=simple
-ExecStart=rm -rf {{mesos_workdir}}
+ExecStart=rm -rf {{mesos_work_dir}}
 StandardOutput=syslog
 StandardError=syslog
 
