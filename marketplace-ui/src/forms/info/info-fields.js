@@ -144,13 +144,13 @@ export const fields: Array<FormField> = [
   {
     name: 'address1',
     type: 'text',
-    placeholder: 'Address 1',
+    placeholder: 'Business Address 1',
     validation: 'required',
   },
   {
     name: 'address2',
     type: 'text',
-    placeholder: 'Address 2',
+    placeholder: 'Business Address 2',
   },
   {
     name: 'city',
