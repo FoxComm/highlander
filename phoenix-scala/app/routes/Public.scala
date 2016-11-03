@@ -36,10 +36,10 @@ object Public {
               }, { resp ⇒
                 {
                   val (body, auth) = resp
-                  respondWithHeader(RawHeader("JWT", auth.jwt)) {
-                    complete(
-                        jsonEntity(body)
-                    )
+                  respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
+                    complete(HttpResponse(
+                            entity = HttpEntity(ContentTypes.`application/json`, json(body))
+                        ))
                   }
                 }
               })
