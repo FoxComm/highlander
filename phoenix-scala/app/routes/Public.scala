@@ -1,7 +1,5 @@
 package routes
 
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
-import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.directives.CookieDirectives.{setCookie ⇒ _, _}
 import akka.http.scaladsl.server.directives.RespondWithDirectives.{respondWithHeader ⇒ _, _}
@@ -13,11 +11,9 @@ import services.account.AccountCreateContext
 import services.customers.CustomerManager
 import services.giftcards.GiftCardService
 import services.product.ProductManager
-import services.{JwtCookie, ReasonService, StoreCreditService}
+import services.{ReasonService, StoreCreditService}
 import utils.http.CustomDirectives._
 import utils.aliases._
-import utils.db._
-import org.json4s.jackson.Serialization.{write ⇒ json}
 import utils.http.Http._
 
 object Public {
@@ -27,23 +23,9 @@ object Public {
       pathPrefix("public") {
         pathPrefix("registrations") {
           (post & path("new") & pathEnd & entity(as[CreateCustomerPayload])) { payload ⇒
-            onSuccess(CustomerManager
-                  .create(payload = payload, context = customerCreateContext)
-                  .runTxn) { result ⇒
-              result.fold({ f ⇒
-                complete(renderFailure(f))
-              }, { resp ⇒
-                {
-                  val (body, auth) = resp
-                  respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
-                    complete(HttpResponse(
-                            entity = HttpEntity(ContentTypes.`application/json`, json(body))
-                        ))
-                  }
-                }
-              })
+            mutateWithNewTokenOrFailures {
+              CustomerManager.create(payload = payload, context = customerCreateContext)
             }
-
           }
         } ~
         pathPrefix("products") {

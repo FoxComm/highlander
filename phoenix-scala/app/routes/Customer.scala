@@ -170,21 +170,9 @@ object Customer {
                 }
               } ~
               (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
-                onSuccess(CustomerManager.update(auth.account.id, payload).runTxn) { result ⇒
-                  result.fold({ f ⇒
-                    complete(renderFailure(f))
-                  }, { resp ⇒
-                    {
-                      val (body, auth) = resp
-                      respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
-                        complete(HttpResponse(
-                                entity = HttpEntity(ContentTypes.`application/json`, json(body))
-                            ))
-                      }
-                    }
-                  })
+                mutateWithNewTokenOrFailures {
+                  CustomerManager.update(auth.account.id, payload)
                 }
-
               }
             } ~
             pathPrefix("orders" / cordRefNumRegex) { refNum ⇒
