@@ -1,7 +1,8 @@
 package utils.seeds
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import models.cord.{Cord, Cords}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import models.payment.giftcard.GiftCard.{buildAppeasement ⇒ build}
 import models.payment.giftcard._
 import models.{Note, Notes}
@@ -11,6 +12,11 @@ import utils.db._
 trait GiftCardSeeds {
 
   def giftCard: GiftCard = build(payload(balance = 5000, reasonId = 1), originId = 1)
+
+  def insertCords: DbResultT[Unit] =
+    for {
+      _ ← * <~ Cords.create(Cord(1, "referenceNumber", true))
+    } yield {}
 
   def createGiftCards: DbResultT[Unit] =
     for {

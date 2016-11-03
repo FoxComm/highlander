@@ -9,7 +9,7 @@ import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
 import models.payment.giftcard.GiftCard
 import payloads.AddressPayloads._
-import payloads.CustomerPayloads.UpdateCustomerPayload
+import payloads.CustomerPayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
@@ -48,6 +48,7 @@ object Customer {
                 reqItems ⇒
                   mutateOrFailures {
                     LineItemUpdater.updateQuantitiesOnCustomersCart(auth.model, reqItems)
+
                   }
               } ~
               (patch & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
@@ -161,6 +162,12 @@ object Customer {
               (get & pathEnd) {
                 getOrFailures {
                   CustomerManager.getByAccountId(auth.account.id)
+                }
+              } ~
+              (pathPrefix("change-password") & pathEnd & post & entity(
+                      as[ChangeCustomerPasswordPayload])) { payload ⇒
+                doOrFailures {
+                  CustomerManager.changePassword(auth.account.id, payload)
                 }
               } ~
               (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒

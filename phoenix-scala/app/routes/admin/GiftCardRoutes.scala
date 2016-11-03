@@ -1,7 +1,6 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
@@ -10,6 +9,7 @@ import services.CustomerCreditConverter
 import services.giftcards._
 import services.Authenticator.AuthData
 import utils.aliases._
+import utils.db.DbResultT
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
@@ -32,6 +32,16 @@ object GiftCardRoutes {
         (post & pathEnd & entity(as[GiftCardCreateByCsr])) { payload ⇒
           mutateOrFailures {
             GiftCardService.createByAdmin(auth.model, payload)
+          }
+        } ~
+        (post & pathEnd & entity(as[GiftCardCreatedByCustomer])) { payload ⇒
+          mutateOrFailures {
+            GiftCardService.createByCustomer(auth.model, payload)
+          }
+        } ~
+        (post & pathEnd & entity(as[Seq[GiftCardCreatedByCustomer]])) { payload ⇒
+          mutateOrFailures {
+            DbResultT.sequence(payload.map(GiftCardService.createByCustomer(auth.model, _)))
           }
         }
       } ~

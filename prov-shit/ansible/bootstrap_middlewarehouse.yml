@@ -3,7 +3,6 @@
 - name: Bootstrap Middlewarehouse
   hosts: '{{hostname}}'
   vars:
-    updating_mwh: true
     user: '{{ansible_ssh_user}}'
     flyway_vers: 4.0.3
     flyway_dir: "/usr/local/share/flyway-{{flyway_vers}}"

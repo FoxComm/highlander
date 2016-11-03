@@ -4,5 +4,4 @@ RUN apt update
 RUN apt install -y ca-certificates
 
 ADD shipstation /
-ADD .env /
 CMD ["/shipstation"]

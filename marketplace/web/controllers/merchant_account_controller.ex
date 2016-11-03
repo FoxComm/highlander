@@ -1,10 +1,9 @@
-defmodule Marketplace.MerchantAccountController do 
+defmodule Marketplace.MerchantAccountController do
   use Marketplace.Web, :controller
   alias Marketplace.Repo
   alias Marketplace.MerchantAccount
   alias Marketplace.Merchant
   alias Marketplace.PermissionManager
-  alias Marketplace.Stripe
 
   def index(conn, %{"merchant_id" => merchant_id}) do
     merchant_accounts = Repo.all(merchant_accounts(merchant_id))
@@ -21,13 +20,13 @@ defmodule Marketplace.MerchantAccountController do
     account = %MerchantAccount{merchant_id: String.to_integer(merchant_id), solomon_id: solomon_id}
     changeset = MerchantAccount.changeset(account, merchant_account_params)
 
-    case Repo.insert(changeset) do 
-      {:ok, merchant_account} -> 
+    case Repo.insert(changeset) do
+      {:ok, merchant_account} ->
         conn
         |> put_status(:created)
         |> put_resp_header("location", merchant_account_path(conn, :show, merchant_id, merchant_account))
         |> render("merchant_account.json", merchant_account: merchant_account)
-      {:error, changeset} -> 
+      {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
         |> render(Marketplace.ChangesetView, "errors.json", changeset: changeset)
@@ -48,15 +47,15 @@ defmodule Marketplace.MerchantAccountController do
     changeset = MerchantAccount.changeset(%MerchantAccount{merchant_id: String.to_integer(merchant_id), solomon_id: solomon_id}, merchant_account_params)
                 |> validate_scope_id(scope_id)
 
-    case Repo.insert(changeset) do 
-      {:ok, merchant_account} -> 
+    case Repo.insert(changeset) do
+      {:ok, merchant_account} ->
         role_id = PermissionManager.create_admin_role_from_scope_id(scope_id)
         PermissionManager.grant_account_id_role_id(solomon_id, role_id)
         conn
         |> put_status(:created)
         |> put_resp_header("location", merchant_account_path(conn, :show, merchant_id, merchant_account))
         |> render("merchant_account.json", merchant_account: merchant_account)
-      {:error, changeset} -> 
+      {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
         |> render(Marketplace.ChangesetView, "errors.json", changeset: changeset)

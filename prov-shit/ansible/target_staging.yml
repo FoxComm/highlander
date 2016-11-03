@@ -4,7 +4,6 @@
   hosts: new-target-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
-    updating_mwh: true
     zookeeper_server: zookeeper.service.consul:2181
   tags:
     - backend
@@ -23,6 +22,9 @@
   vars:
     user: '{{ansible_ssh_user}}'
     middlewarehouse_server: middlewarehouse.service.consul:9292
+    isaac_server: isaac.service.consul:9190
+    solomon_server: solomon.service.consul:4002
+    ashes_server: ashes.service.consul:4000
     marathon_server: marathon.service.consul:8080
     product_search_server: product-search.service.consul:5492
     docker_db_host: db.service.consul
@@ -35,7 +37,6 @@
     zookeeper_server: zookeeper.service.consul:2181
     ashes_server_name: stage-tgt.foxcommerce.com
     storefront_server_name: stage-tgt.foxcommerce.com
-    updating_mwh: true
   tags:
     - frontend
   roles:

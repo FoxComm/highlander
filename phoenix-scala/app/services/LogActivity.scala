@@ -186,6 +186,9 @@ object LogActivity {
   def userPasswordReset(user: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(UserPasswordReset(user = buildUser(user)))
 
+  def userPasswordChanged(user: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(UserPasswordChanged(user = buildUser(user)))
+
   /* User Addresses */
   def addressCreated(originator: User, user: User, address: AddressResponse)(
       implicit ec: EC,

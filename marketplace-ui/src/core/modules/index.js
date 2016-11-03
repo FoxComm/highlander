@@ -1,4 +1,3 @@
-import { get } from 'lodash';
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 import { reducer as formReducer } from 'redux-form';
@@ -13,7 +12,6 @@ import {
 
 import * as application from './merchant-application';
 import * as account from './merchant-account';
-import * as info from './merchant-info';
 import * as feed from './products-feed';
 import * as shipping from './shipping-solution';
 import * as shopify from './shopify-integration';
@@ -24,7 +22,6 @@ const reducer = combineReducers({
   form: formReducer,
   application: application.default,
   accounts: account.default,
-  info: info.default,
   feed: feed.default,
   shipping: shipping.default,
   shopify: shopify.default,
@@ -37,7 +34,6 @@ export default reducer;
 export const getApplication = state => application.getApplication(state.application);
 export const getApplicationApproved = state => application.getApplicationApproved(state.application);
 export const getAccounts = state => account.getAccounts(state.accounts);
-export const getInfo = state => info.getInfo(state.info);
 export const getFeed = state => feed.getFeed(state.feed);
 export const getShipping = state => shipping.getShipping(state.shipping);
 export const getShopify = state => shopify.getShopify(state.shopify);
@@ -48,8 +44,7 @@ const applicationFetchSelector = asyncSelector(application.ACTION_FETCH);
 const applicationSubmitSelector = asyncSelector(application.ACTION_SUBMIT);
 const accountFetchSelector = asyncSelector(account.ACTION_FETCH);
 const accountSubmitSelector = asyncSelector(account.ACTION_SUBMIT);
-const infoFetchSelector = asyncSelector(info.ACTION_FETCH);
-const infoSubmitSelector = asyncSelector(info.ACTION_SUBMIT);
+const businessSubmitSelector = asyncSelector(account.ACTION_SUBMIT_BUSINESS);
 const feedFetchSelector = asyncSelector(feed.ACTION_FETCH);
 const feedSubmitSelector = asyncSelector(feed.ACTION_SUBMIT);
 const feedUploadSelector = asyncSelector(feed.ACTION_UPLOAD);
@@ -66,10 +61,9 @@ export const getAccountsFetched = accountFetchSelector(fetchedSelector);
 export const getAccountSubmitInProgress = accountSubmitSelector(inProgressSelector);
 export const getAccountSubmitFailed = accountSubmitSelector(failedSelector);
 
-export const getInfoFetched = infoFetchSelector(fetchedSelector);
-export const getInfoSubmitInProgress = infoSubmitSelector(inProgressSelector);
-export const getInfoSubmitFailed = infoSubmitSelector(failedSelector);
-export const getInfoSubmitSucceeded = infoSubmitSelector(succeededSelector);
+export const getBusinessSubmitInProgress = businessSubmitSelector(inProgressSelector);
+export const getBusinessSubmitFailed = businessSubmitSelector(failedSelector);
+export const getBusinessSubmitSucceeded = businessSubmitSelector(succeededSelector);
 
 export const getFeedFetched = feedFetchSelector(fetchedSelector);
 export const getFeedSubmitInProgress = feedSubmitSelector(inProgressSelector);

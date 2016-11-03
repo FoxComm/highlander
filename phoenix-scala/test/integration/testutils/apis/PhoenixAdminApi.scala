@@ -151,6 +151,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def create(payload: GiftCardCreateByCsr): HttpResponse =
       POST(giftCardsPrefix, payload)
 
+    def createFromCustomer(payload: GiftCardCreatedByCustomer): HttpResponse =
+      POST(giftCardsPrefix, payload)
+
     def createBulk(payload: GiftCardBulkCreateByCsr): HttpResponse =
       POST(giftCardsPrefix, payload)
 

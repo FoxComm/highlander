@@ -16,15 +16,7 @@ type State = Info;
 export const ACTION_SUBMIT = 'merchantInfoSubmit';
 
 const { perform: submit, ...actionsSubmit } = createAsyncActions(ACTION_SUBMIT, (id, data) =>
-  new Promise((resolve, reject) =>
-    api.post(`/merchants/${id}/legal_profile`, { legal_profile: { ...data } })
-      .then((profile: Info) =>
-        api.post(`/merchants/${id}/addresses`, { merchant_address: { ...data } })
-          .then(() => resolve({ saved: true }))
-          .catch(err => reject(new SubmissionError(err.response.data.errors)))
-      )
-      .catch(err => reject(new SubmissionError(err.response.data.errors)))
-  )
+
 );
 
 const initialState: State = {};

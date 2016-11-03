@@ -6,17 +6,17 @@ import models.cord._
 import models.cord.lineitems.OrderLineItems.scope._
 import models.cord.lineitems._
 import CartLineItems.scope._
-import failures.CartFailures.SKUWithNoProductAdded
-import failures.GeneralFailure
+import failures.CartFailures._
 import models.account._
 import models.inventory.{Sku, Skus}
 import models.objects.{ProductSkuLinks, ProductVariantLinks, VariantValueLinks}
-import models.payment.giftcard._
 import models.product.VariantValueSkuLinks
+import org.json4s.JsonAST.JNull
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.carts.{CartPromotionUpdater, CartTotaler}
+import slick.dbio.DBIOAction
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -96,7 +96,7 @@ object LineItemUpdater {
 
     for {
       cart     ← * <~ finder
-      _        ← * <~ addQuantities(cart, payload)
+      a        ← * <~ addQuantities(cart, payload)
       response ← * <~ runUpdates(cart, logActivity)
     } yield response
   }
@@ -112,6 +112,7 @@ object LineItemUpdater {
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
       li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
+      size  ← * <~ CartLineItems.byCordRef(cart.refNum).length.result
       _     ← * <~ logAct(res, li)
     } yield TheResponse.validated(res, valid)
 
@@ -120,42 +121,67 @@ object LineItemUpdater {
       val quantity = acc.getOrElse(item.skuId, 0)
       acc.updated(item.skuId, quantity + item.quantity)
     }
-
   private def updateQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload], contextId: Int)(
       implicit ec: EC,
       ctx: OC): DbResultT[Seq[CartLineItem]] = {
+    for {
+      _ ← * <~ CartLineItems
+           .byCordRef(cart.referenceNumber)
+           .deleteAll(DbResultT.unit, DbResultT.unit)
+      updateResult ← * <~ payload.filter(_.quantity > 0).map(updateLineItems(cart, _, contextId))
+    } yield updateResult.flatten
+  }
 
-    val lineItemUpdActions = foldQuantityPayload(payload).map {
-      case (skuId, qty) ⇒
-        for {
-          sku ← * <~ Skus
-                 .filterByContext(contextId)
-                 .filter(_.formId === skuId)
-                 .mustFindOneOr(SkuNotFoundForContext(skuId, contextId))
-          _   ← * <~ mustFindProductIdForSku(sku, cart.refNum)
-          lis ← * <~ doUpdateLineItems(sku.id, qty, cart.refNum)
-        } yield lis
-    }
-    DbResultT.sequence(lineItemUpdActions).map(_.flatten.toSeq)
+  private def updateLineItems(cart: Cart, lineItem: UpdateLineItemsPayload, contextId: Int)(
+      implicit ec: EC,
+      ctx: OC) = {
+    for {
+      sku ← * <~ Skus
+             .filterByContext(contextId)
+             .filter(_.formId === lineItem.skuId)
+             .mustFindOneOr(
+                 SkuNotFoundForContext(lineItem.skuId, contextId)
+             )
+      _            ← * <~ mustFindProductIdForSku(sku, cart.refNum)
+      updateResult ← * <~ addLineItems(sku.form, lineItem.quantity, cart.refNum, lineItem.attributes)
+    } yield updateResult
+  }
+
+  private def addLineItems(skuId: Int, quantity: Int, cordRef: String, attributes: Option[Json])(
+      implicit ec: EC) = {
+    require(quantity > 0)
+    DbResultT.sequence(
+        List
+          .fill(quantity)(CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes))
+          .map(CartLineItems.create(_)))
   }
 
   private def addQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
       ctx: OC): DbResultT[Seq[Unit]] = {
 
-    val lineItemUpdActions = foldQuantityPayload(payload).map {
-      case (skuId, delta) ⇒
-        for {
-          sku ← * <~ Skus
-                 .filterByContext(ctx.id)
-                 .filter(_.formId === skuId)
-                 .mustFindOneOr(SkuNotFoundForContext(skuId, ctx.id))
-          _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
-          lis ← * <~ (if (delta > 0) increaseLineItems(sku.id, delta, cart.refNum)
-                      else decreaseLineItems(sku.id, -delta, cart.refNum))
-        } yield lis
+    val lineItemUpdActions = payload.map { lineItem ⇒
+      for {
+        sku ← * <~ Skus
+               .filterByContext(ctx.id)
+               .filter(_.formId === lineItem.skuId)
+               .mustFindOneOr(SkuNotFoundForContext(lineItem.skuId, ctx.id))
+        _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
+        actionsList ← * <~ (if (lineItem.quantity > 0)
+                              addLineItems(sku.id,
+                                           lineItem.quantity,
+                                           cart.refNum,
+                                           lineItem.attributes).meh
+                            else
+                              removeLineItems(sku.id,
+                                              -lineItem.quantity,
+                                              cart.refNum,
+                                              lineItem.attributes))
+      } yield actionsList
     }
-    DbResultT.sequence(lineItemUpdActions).map(_.toSeq)
+    DbResultT.sequence(lineItemUpdActions).map { actions ⇒
+      actions.map(_ ⇒ ())
+    }
   }
 
   private def mustFindProductIdForSku(sku: Sku, refNum: String)(implicit ec: EC, oc: OC) = {
@@ -167,40 +193,43 @@ object LineItemUpdater {
                 for {
                   valueLink ← * <~ VariantValueSkuLinks
                                .filter(_.rightId === sku.id)
-                               .mustFindOneOr(SKUWithNoProductAdded(refNum, sku.code))
+                               .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
                   variantLink ← * <~ VariantValueLinks
                                  .filter(_.rightId === valueLink.leftId)
-                                 .mustFindOneOr(SKUWithNoProductAdded(refNum, sku.code))
+                                 .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
                   productLink ← * <~ ProductVariantLinks
                                  .filter(_.rightId === variantLink.leftId)
-                                 .mustFindOneOr(SKUWithNoProductAdded(refNum, sku.code))
+                                 .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
                 } yield productLink.leftId
             }
     } yield link
   }
 
-  private def doUpdateLineItems(skuId: Int, newQuantity: Int, cordRef: String)(
-      implicit ec: EC): DbResultT[Seq[CartLineItem]] =
-    for {
-      current ← * <~ CartLineItems.byCordRef(cordRef).filter(_.skuId === skuId).size.result
-      _ ← * <~ (if (newQuantity > current)
-                  increaseLineItems(skuId, newQuantity - current, cordRef)
-                else decreaseLineItems(skuId, current - newQuantity, cordRef))
-      lineItems ← * <~ CartLineItems.byCordRef(cordRef).result
-    } yield lineItems
-
-  private def increaseLineItems(skuId: Int, delta: Int, cordRef: String)(
+  private def removeLineItems(skuId: Int, delta: Int, cordRef: String, attributes: Option[Json])(
       implicit ec: EC): DbResultT[Unit] = {
-
-    val itemsToInsert: List[CartLineItem] =
-      List.fill(delta)(CartLineItem(cordRef = cordRef, skuId = skuId))
-    CartLineItems.createAll(itemsToInsert).meh
+    CartLineItems
+      .byCordRef(cordRef)
+      .filter(_.skuId === skuId)
+      .result
+      .flatMap { lineItems ⇒
+        val itemsWithSameAttributes = filterLineItemsByAttributes(lineItems, attributes).map(_.id)
+        val totalToDelete           = Math.min(delta, itemsWithSameAttributes.length)
+        val idsToDelete             = itemsWithSameAttributes.take(totalToDelete)
+        CartLineItems.filter(_.id inSet idsToDelete).delete
+      }
+      .dbresult
+      .meh
   }
 
-  private def decreaseLineItems(skuId: Int, delta: Int, cordRef: String)(
-      implicit ec: EC): DbResultT[Unit] = {
-
-    val items = CartLineItems.byCordRef(cordRef).filter(_.skuId === skuId)
-    items.filter(_.id in items.take(delta).map(_.id)).deleteAll(DbResultT.unit, DbResultT.unit)
+  private def filterLineItemsByAttributes(lineItems: Seq[CartLineItem],
+                                          presentAttributes: Option[Json]) = {
+    lineItems.filter { li ⇒
+      (presentAttributes, li.attributes) match {
+        case (Some(p), Some(a))          ⇒ p.equals(a)
+        case (None, Some(a: JNull.type)) ⇒ true
+        case (None, None)                ⇒ true
+        case _                           ⇒ false
+      }
+    }
   }
 }

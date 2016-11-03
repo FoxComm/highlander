@@ -80,6 +80,9 @@ shortcuts:
   - name: Provision TPG Staging
     alias: tpg_staging.yml
     target: ansible/tpg_staging.yml
+  - name: Provision Tony Staging
+    alias: easy_tony.yml
+    target: ansible/easy_tony.yml
   - name: Deploy Mesos Consul
     alias: mesos_consul.yml
     target: ansible/hotfix_mesos_consul.yml

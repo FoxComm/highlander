@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/FoxComm/highlander/integrations/shipstation/consumers"
 	"github.com/FoxComm/metamorphosis"
-	"github.com/FoxComm/shipstation/consumers"
 )
 
 const (

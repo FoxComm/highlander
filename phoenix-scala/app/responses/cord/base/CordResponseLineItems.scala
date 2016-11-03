@@ -20,7 +20,8 @@ case class CordResponseLineItem(imagePath: String,
                                 totalPrice: Int,
                                 productFormId: Int,
                                 externalId: Option[String],
-                                state: OrderLineItem.State)
+                                state: OrderLineItem.State,
+                                attributes: Option[Json] = None)
     extends ResponseItem
 
 case class CordResponseLineItems(skus: Seq[CordResponseLineItem] = Seq.empty) extends ResponseItem
@@ -158,7 +159,8 @@ object CordResponseLineItems {
                          externalId = externalId,
                          productFormId = data.productForm.id,
                          totalPrice = price,
-                         quantity = quantity)
+                         quantity = quantity,
+                         attributes = data.attributes)
   }
 }
 

@@ -1,7 +1,7 @@
 {
   "id": "/solomon",
   "cmd": null,
-  "cpus": 1,
+  "cpus": 0.5,
   "mem": 256,
   "disk": 0,
   "instances": 1,
