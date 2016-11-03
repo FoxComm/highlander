@@ -5,6 +5,7 @@ import java.util.Collection
 import scala.collection.JavaConversions._
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.util.{Try, Success, Failure}
 
 import consumer.aliases._
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord}
@@ -103,9 +104,16 @@ class MultiTopicConsumer(topics: Seq[String],
             }
         }
 
-        Await.result(f, 120 seconds)
-        Sync.commit(consumer)
-        Console.err.println(s"Offset ${r.offset} for ${r.topic} synced")
+        val result = Try {
+          Await.result(f, 120 seconds)
+        }
+        result match {
+          case _: Success[Unit] ⇒
+            Sync.commit(consumer)
+            Console.err.println(s"Offset ${r.offset} for ${r.topic} synced")
+          case _ ⇒
+            Console.err.println(s"Failure during processing offset ${r.offset}")
+        }
       }
     }
   }
