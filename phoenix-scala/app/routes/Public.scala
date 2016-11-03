@@ -28,24 +28,23 @@ object Public {
       pathPrefix("public") {
         pathPrefix("registrations") {
           (post & path("new") & pathEnd & entity(as[CreateCustomerPayload])) { payload ⇒
-            complete(
-                CustomerManager
+            onSuccess(CustomerManager
                   .create(payload = payload, context = customerCreateContext)
-                  .runTxn
-                  .map { result ⇒
-                    result.fold(renderFailure(_), resp ⇒ {
-                      val (body, auth) = resp
-                      println(auth.jwt.toString)
-                      println(JwtCookie(auth).toString)
-                      respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
-                        complete(
-                            HttpResponse(entity =
-                                  HttpEntity(ContentTypes.`application/json`, json(body)))
-                        )
-                      }
-                    })
+                  .runTxn) { result ⇒
+              result.fold({ f ⇒
+                complete(renderFailure(f))
+              }, { resp ⇒
+                {
+                  val (body, auth) = resp
+                  respondWithHeader(RawHeader("JWT", auth.jwt)) {
+                    complete(
+                        jsonEntity(body)
+                    )
                   }
-            )
+                }
+              })
+            }
+
           }
         } ~
         pathPrefix("products") {
