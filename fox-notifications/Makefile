@@ -1,12 +1,15 @@
+DOCKER_TAG ?= messaging
+DOCKER_BRANCH ?= master
+
 build:
 	lein uberjar
-	
+
 docker: build
-	docker build -t messaging .
+	docker build -t $(DOCKER_TAG) .
 
 docker-push: docker
-	docker tag messaging docker-stage.foxcommerce.com:5000/messaging:master
-	docker push docker-stage.foxcommerce.com:5000/messaging:master
+	docker tag $(DOCKER_TAG) docker-stage.foxcommerce.com:5000/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker push docker-stage.foxcommerce.com:5000/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
 test:
 	true
