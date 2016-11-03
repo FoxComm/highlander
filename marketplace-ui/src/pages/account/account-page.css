@@ -1,15 +1,18 @@
-.info {
+.account {
   & .thanksOrNot {
     margin-top: 50px;
   }
 
   & :global(.first_name),
-  & :global(.last_name) {
+  & :global(.last_name),
+  & :global(.email_address),
+  & :global(.password) {
     display: inline-block;
     width: 47%;
     margin-left: 6%;
   }
-  & :global(.first_name) {
+  & :global(.first_name),
+  & :global(.email_address) {
     margin-left: 0;
   }
 
@@ -19,15 +22,26 @@
     display: inline-block;
     margin-left: 5%;
   }
-  & :global(.state) {
-    width: 20%;
+
+  & :global(.email_address),
+  & :global(.password),
+  & :global(.business_founded_day),
+  & :global(.business_founded_month),
+  & :global(.business_founded_year) {
+    margin-bottom: 50px;
   }
-  & :global(.zip) {
-    width: 30%;
-  }
+
   & :global(.city) {
-    width: 40%;
+    width: 35%;
     margin-left: 0;
+  }
+
+  & :global(.state) {
+    width: 35%;
+  }
+
+  & :global(.zip) {
+    width: 20%;
   }
 
   & :global(.business_founded_day),
@@ -36,6 +50,11 @@
     display: inline-block;
     width: 30%;
     margin-left: 5%;
+
+    & select {
+      height: 50px;
+      background-position: calc(100% - 10px) 25px, calc(100% - 5px) 25px;
+    }
   }
   & :global(.business_founded_day) {
     margin-left: 0;

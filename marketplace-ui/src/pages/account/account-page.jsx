@@ -9,7 +9,12 @@ import { replace } from 'react-router-redux';
 import Header from '../../components/header/header';
 import Form from '../../components/form/form';
 
-import { getApplication, getAccounts, getAccountSubmitInProgress, getAccountSubmitFailed } from '../../core/modules';
+import {
+  getApplication,
+  getAccounts,
+  getAccountSubmitInProgress,
+  getAccountSubmitFailed
+} from '../../core/modules';
 
 import { submitAccount as submit } from '../../core/modules/merchant-account';
 import { fields as accountFields } from '../../forms/account/account-fields';
@@ -31,12 +36,14 @@ type Props = {
   replace: (path: string) => void;
 }
 
+const fields = [...accountFields, ...infoFields];
+
 class MerchantAccountPage extends Component {
   props: Props;
 
   componentWillReceiveProps(nextProps: Props) {
     if (this.props.accounts.length !== nextProps.accounts.length) {
-      this.props.replace(`/application/${this.props.params.ref}/actions`);
+      this.props.replace(`/application/${this.props.params.ref}/shipping`);
     }
   }
 
@@ -57,14 +64,14 @@ class MerchantAccountPage extends Component {
     const { inProgress, submitFailed } = this.props;
 
     return (
-      <div className={styles.info}>
+      <div className={styles.account}>
         <Header
           title="Let’s get you started"
           legend="Create an Account to start on the GoldFish marketplace!"
         />
         <Form
           form="account"
-          fields={accountFields.concat(infoFields)}
+          fields={fields}
           onSubmit={this.submit}
           inProgress={inProgress}
           failed={submitFailed}
