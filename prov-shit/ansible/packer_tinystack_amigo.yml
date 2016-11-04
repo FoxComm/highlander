@@ -5,7 +5,7 @@
   vars:
     user: ubuntu
     packing: true
-    join_type: join-wan
+    join_type: join
     mesos_quorum: 1
     consul_expect: 1
     zookeeper_server: "localhost:2181"
