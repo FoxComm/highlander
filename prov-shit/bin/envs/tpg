@@ -1,3 +1,8 @@
-#!/bin/bash
+[tpg-amigo]
+10.0.0.3
 
-bin/inventory --env tpg "$@"
+[tpg-backend]
+10.0.0.4
+
+[tpg-frontend]
+10.0.0.5
