@@ -4,7 +4,7 @@ FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/
 DB=middlewarehouse_development
 DB_TEST=middlewarehouse_test
 DB_USER=middlewarehouse
-GOPATH=$(HOME)/tmpgo
+GOPATH ?= $(HOME)/tmpgo
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
 HIGHLANDER_PATH=$(CURDIR)/..
