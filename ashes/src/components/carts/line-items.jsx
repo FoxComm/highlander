@@ -68,7 +68,7 @@ class CartLineItems extends Component {
     const editAction = isCheckingOut ? null : () => {
       trackEvent('Orders', 'edit_line_items');
       this.props.lockCart(cart.referenceNumber).then(() => {
-        this.setState({ isEditing: true })
+        this.setState({ isEditing: true });
       });
     };
 
