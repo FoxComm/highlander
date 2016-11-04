@@ -60,7 +60,7 @@ module "dev" {
 }
 
 module "dev_provision" {
-    source       = "../../modules/gce/swarm/dev"
+    source       = "../../modules/gce/swarm/dev_provision3"
     // resources variables
     host_address = "${element(module.dev.ips, 0)}"
     // user variables
