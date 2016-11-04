@@ -1,7 +1,7 @@
 ---
 
 - name: Download Lein Installer
-  command: wget https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
+  command: wget {{lein_installer_url}}
 
 - name: Make Installer Executable
   command: chown +x lein
