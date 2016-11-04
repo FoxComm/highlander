@@ -3,14 +3,19 @@ package services.customers
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
+import org.json4s.native.Serialization._
+import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers.RawHeader
+import akka.http.scaladsl.server.Directives.complete
+import akka.http.scaladsl.server._
+import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
+import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHeader
 import cats.implicits._
 import failures.AuthFailures.ChangePasswordFailed
 import failures.CustomerFailures._
-import failures.NotFoundFailure404
+import failures.{NotFoundFailure400, NotFoundFailure404}
 import models.account._
-import models.account.{User, Users}
 import models.cord.{OrderShippingAddresses, Orders}
-import models.customer.{CustomerData, CustomersData}
 import models.customer.CustomersData.scope._
 import models.customer._
 import models.location.Addresses
@@ -18,15 +23,17 @@ import models.shipping.Shipments
 import payloads.CustomerPayloads._
 import responses.CustomerResponse._
 import services._
-import services.account._
-import services.account._
-import failures.CustomerFailures._
 import failures.UserFailures.AccessMethodNotFound
+import models.auth.UserToken
+import services.account._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
+import utils.JsonFormatters._
 
 object CustomerManager {
+
+  implicit val formatters = phoenixFormats
 
   private def resolvePhoneNumber(accountId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
     def resolveFromShipments(accountId: Int) =
@@ -74,7 +81,9 @@ object CustomerManager {
 
   def create(payload: CreateCustomerPayload,
              admin: Option[User] = None,
-             context: AccountCreateContext)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+             context: AccountCreateContext)(implicit ec: EC,
+                                            db: DB,
+                                            ac: AC): DbResultT[(Root, AuthPayload)] =
     for {
       user ← * <~ AccountManager.createUser(name = payload.name,
                                             email = payload.email.toLowerCase.some,
@@ -86,9 +95,13 @@ object CustomerManager {
                     CustomerData(accountId = user.accountId,
                                  userId = user.id,
                                  isGuest = payload.isGuest.getOrElse(false)))
-      response = build(user, custData)
-      _ ← * <~ LogActivity.customerCreated(response, admin)
-    } yield response
+      result = build(user, custData)
+      _        ← * <~ LogActivity.customerCreated(result, admin)
+      account  ← * <~ Accounts.mustFindById400(user.accountId)
+      claimSet ← * <~ AccountManager.getClaims(account.id, context.scopeId)
+      token    ← * <~ UserToken.fromUserAccount(user, account, claimSet)
+      auth     ← * <~ AuthPayload(token)
+    } yield (result, auth)
 
   def createGuest(context: AccountCreateContext)(implicit ec: EC,
                                                  db: DB): DbResultT[(User, CustomerData)] =
@@ -108,7 +121,7 @@ object CustomerManager {
   def update(accountId: Int, payload: UpdateCustomerPayload, admin: Option[User] = None)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[Root] =
+      ac: AC): DbResultT[(Root, AuthPayload)] =
     for {
       _        ← * <~ payload.validate
       customer ← * <~ Users.mustFindByAccountId(accountId)
@@ -117,7 +130,15 @@ object CustomerManager {
       custData ← * <~ CustomersData.mustFindByAccountId(accountId)
       _        ← * <~ CustomersData.update(custData, updatedCustUser(custData, payload))
       _        ← * <~ LogActivity.customerUpdated(customer, updated, admin)
-    } yield build(updated, custData)
+      account  ← * <~ Accounts.mustFindById400(updated.accountId)
+      ao ← * <~ AccountOrganizations
+            .findByAccountId(account.id)
+            .mustFindOneOr(NotFoundFailure400(AccountOrganizations, account.id))
+      org      ← * <~ Organizations.mustFindById400(ao.organizationId)
+      claimSet ← * <~ AccountManager.getClaims(account.id, org.id)
+      token    ← * <~ UserToken.fromUserAccount(updated, account, claimSet)
+      auth     ← * <~ AuthPayload(token)
+    } yield (build(updated, custData), auth)
 
   def changePassword(
       accountId: Int,

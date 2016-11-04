@@ -21,6 +21,16 @@ const _fetchCustomerCart = createAsyncActions(
   (customerId: number) => Api.get(`/customers/${customerId}/cart`)
 );
 
+const _lockCart = createAsyncActions('lockCart', (refNum) => {
+  return Api.post(`/orders/${refNum}/lock`);
+});
+
+const _unlockCart = createAsyncActions('unlockCart', (refNum) => {
+  return Api.post(`/orders/${refNum}/unlock`);
+});
+
+export const lockCart = _lockCart.perform;
+export const unlockCart = _unlockCart.perform;
 export const fetchCart = _fetchCart.perform;
 export const fetchCustomerCart = _fetchCustomerCart.perform;
 export const clearFetchCartErrors = _fetchCart.clearErrors;
@@ -192,6 +202,7 @@ function parseMessages(messages, state) {
 
 const initialState = {
   isCheckingOut: false,
+  isLocked: false,
   cart: {},
   validations: {
     errors: [],
@@ -290,6 +301,8 @@ const reducer = createReducer({
   [_deleteStoreCreditPayment.succeeded]: receiveCart,
   [_checkout.succeeded]: receiveCart,
   [_checkout.failed]: cartError,
+  [_lockCart.succeeded]: state => assoc(state, 'isLocked', true),
+  [_unlockCart.succeeded]: state => assoc(state, 'isLocked', false),
 }, initialState);
 
 export default reducer;

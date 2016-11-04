@@ -1,3 +1,4 @@
+DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
 DOCKER_TAG ?= ashes
 DOCKER_BRANCH ?= master
 
@@ -41,11 +42,11 @@ build: setup
 	./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true ./node_modules/.bin/gulp build
 
-docker: build
+docker:
 	docker build -t $(DOCKER_TAG) .
 
 docker-push:
-	docker tag $(DOCKER_TAG) docker-stage.foxcommerce.com:5000/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push docker-stage.foxcommerce.com:5000/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
 .PHONY: build test test-cov tag docker docker-push

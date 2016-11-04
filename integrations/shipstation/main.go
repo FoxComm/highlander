@@ -2,30 +2,28 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/FoxComm/highlander/integrations/shipstation/consumers"
 	"github.com/FoxComm/metamorphosis"
 )
 
-const (
-	topic     = "orders_search_view"
-	partition = 1
-)
-
+// This listens to  "orders_search_view"
 func main() {
-	zookeeper := os.Getenv("ZOOKEEPER")
-	schemaRepo := os.Getenv("SCHEMA_REGISTRY")
+    config, err := consumers.MakeConsumerConfig()
 
-	consumer, err := metamorphosis.NewConsumer(zookeeper, schemaRepo)
+    if err != nil {
+		log.Fatalf("Unable to initialize consumer with error: %s", err.Error())
+	}
+
+	consumer, err := metamorphosis.NewConsumer(config.ZookeeperURL, config.SchemaRegistryURL)
 	if err != nil {
 		log.Fatalf("Unable to connect to Kafka with error %s", err.Error())
 	}
 
-	oc, err := consumers.NewOrderConsumer(topic)
+	oc, err := consumers.NewOrderConsumer(config.Topic, config.ApiKey, config.ApiSecret)
 	if err != nil {
 		log.Fatalf("Unable to initialize ShipStation order consumer with error %s", err.Error())
 	}
 
-	consumer.RunTopic(topic, partition, oc.Handler)
+	consumer.RunTopic(config.Topic, config.Partition, oc.Handler)
 }
