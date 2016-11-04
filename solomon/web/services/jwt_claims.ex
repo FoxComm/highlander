@@ -7,6 +7,7 @@ defmodule Solomon.JWTClaims do
   alias Solomon.RolePermission
   alias Solomon.Permission
   alias Solomon.User
+  alias Solomon.ScopeService
 
   def token_claim(account_id) do
     account = Repo.get!(Account, account_id)
@@ -17,7 +18,7 @@ defmodule Solomon.JWTClaims do
       "email" => user.email,
       "ratchet" => account.ratchet,
       "id" => account_id,
-      "scope" => scope, # TODO : this should be scope_path
+      "scope" => ScopeService.get_scope_path_by_id!(scope),
       "roles" => roles,
       "name" => user.name,
       "claims" => claims,

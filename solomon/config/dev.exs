@@ -29,7 +29,10 @@ config :solomon, Solomon.Repo,
   password: System.get_env("DB_PASSWORD"),
   database: System.get_env("DB_NAME"),
   hostname: System.get_env("DB_HOST"),
-  pool_size: 10
+  pool_size: 10,
+  extensions: [
+    {Solomon.LTree, :copy}
+  ]
 
 # configure jwt auth
 config :solomon, Solomon.JWTAuth,

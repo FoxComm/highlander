@@ -7,6 +7,7 @@ defmodule Solomon.PermissionClaimService do
   alias Solomon.Permission
   alias Solomon.Repo
   alias Solomon.Resource
+  alias Solomon.ScopeService
   alias Solomon.System
 
   def insert_permission(params) do
@@ -50,7 +51,9 @@ defmodule Solomon.PermissionClaimService do
   defp construct_frn(fp) do
     case fp do 
       fp when is_nil fp -> :error
-      fp ->  {:ok, "frn:#{fp.system_name}:#{fp.resource_name}:#{fp.scope_id}"}
+      fp -> 
+        scope_path = ScopeService.get_scope_path_by_id!(fp.scope_id)
+        {:ok, "frn:#{fp.system_name}:#{fp.resource_name}:#{scope_path}"}
     end
   end
 end
