@@ -9,7 +9,7 @@ BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
 HIGHLANDER_PATH=$(CURDIR)/..
 
-DOCKER_HOST ?= docker-stage.foxcommerce.com:5000
+DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
 DOCKER_TAG ?= middlewarehouse
 DOCKER_BRANCH ?= master
 
@@ -38,14 +38,14 @@ docker: glide
 	docker build -t capture-consumer consumers/capture/
 
 docker-push:
-	docker tag $(DOCKER_TAG) $(DOCKER_HOST)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker tag stock-items-consumer $(DOCKER_HOST)/stock-items-consumer:master
-	docker tag shipments-consumer $(DOCKER_HOST)/shipments-consumer:master
-	docker tag capture-consumer $(DOCKER_HOST)/capture-consumer:master
-	docker push $(DOCKER_HOST)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push $(DOCKER_HOST)/stock-items-consumer:master
-	docker push $(DOCKER_HOST)/shipments-consumer:master
-	docker push $(DOCKER_HOST)/capture-consumer:master
+	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker tag stock-items-consumer $(DOCKER_REPO)/stock-items-consumer:master
+	docker tag shipments-consumer $(DOCKER_REPO)/shipments-consumer:master
+	docker tag capture-consumer $(DOCKER_REPO)/capture-consumer:master
+	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/stock-items-consumer:master
+	docker push $(DOCKER_REPO)/shipments-consumer:master
+	docker push $(DOCKER_REPO)/capture-consumer:master
 
 
 clean:
