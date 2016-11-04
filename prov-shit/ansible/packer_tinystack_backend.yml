@@ -10,8 +10,6 @@
     zookeeper_server: zookeeper.service.consul:2181
 
   roles:
-    - { role: base/secret_keys, install_public_keys: true }
-    - { role: base/ssh_keys }
     - { role: base/mesos_worker }
     - { role: base/confluence }
     - { role: base/kafka }

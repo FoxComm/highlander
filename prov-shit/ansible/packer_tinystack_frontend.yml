@@ -15,8 +15,6 @@
     middlewarehouse_server: middlewarehouse.service.consul:9292
 
   roles:
-    - { role: base/secret_keys, install_public_keys: true }
-    - { role: base/ssh_keys }
     - { role: base/mesos_worker }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/balancer, sudo: yes }
