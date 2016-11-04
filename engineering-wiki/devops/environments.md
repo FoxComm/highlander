@@ -46,6 +46,7 @@ Navigation:
 * Docker Registry: https://docker-tpg.foxcommerce.com:5000
 * Mesos: http://10.0.0.3:5050/#/
 * Marathon: http://10.0.0.3:8080/ui/#/apps
+* Web UI: https://tpg.foxcommerce.com
 
 ## Target
 
