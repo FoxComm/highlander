@@ -1,0 +1,40 @@
+@import "colors.css";
+
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin: 0;
+  height: 50px;
+  font-weight: 300;
+
+  &:after {
+    content: "▲";
+    transform: scaleY(.7);
+  }
+}
+
+.content {
+  overflow: hidden;
+  max-height: 500px;
+  padding-bottom: 30px;
+  transition: all .3s;
+}
+
+.accordion {
+  border-bottom: 1px solid var(--border-color);
+
+  &._collapsed {
+    & .content {
+      max-height: 0;
+      padding-bottom: 0;
+    }
+
+    & .title {
+      &:after {
+        content: "▼";
+      }
+    }
+  }
+}

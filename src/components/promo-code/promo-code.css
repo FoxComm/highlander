@@ -1,7 +1,7 @@
 @import 'media-queries.css';
 @import 'colors.css';
 
-.coupon {
+.fieldset {
   display: flex;
 }
 
@@ -23,6 +23,8 @@
   color: #FFFFFF;
   background-color: #8D757A;
   text-transform: uppercase;
+  min-width: 9em;
+  height: 36px;
 
   &:hover {
     background: var(--additional-color);
@@ -40,5 +42,6 @@
   .submit {
     padding: 0 30px;
     font-size: 14px;
+    height: 46px;
   }
 }

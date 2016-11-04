@@ -1,44 +1,45 @@
+/* @flow weak */
+
+// libs
 import React from 'react';
 
-import Icon from 'ui/icon';
-import Checkbox from 'ui/checkbox/checkbox';
+// components
+import Radiobutton from 'ui/radiobutton/radiobutton';
+import ViewBilling from './view-billing';
 
-import styles from '../checkout.css';
+// types
+import type { CreditCardType } from '../types';
 
-type CreditCardType = {
-  id: number,
-  brand: string,
-  lastFour: string,
-  expMonth: number,
-  expYear: number,
-};
+// styles
+import styles from './credit-card.css';
+
 
 type Props = {
   creditCard: CreditCardType,
   selected: boolean,
   onSelect: (cc: CreditCardType) => void,
+  editCard: Function,
+  deleteCard: Function,
 };
 
 const CreditCard = (props: Props) => {
-  const { creditCard, selected, onSelect } = props;
-  const { id, brand, lastFour, expMonth, expYear } = creditCard;
+  const { creditCard, selected, onSelect, editCard, deleteCard } = props;
+  const { id } = creditCard;
 
   return (
     <div key={id} styleName="credit-card">
-      <Checkbox
+      <Radiobutton
         name="credit-card"
         checked={selected}
         onChange={() => onSelect(creditCard)}
         id={`credit-card-${id}`}
       >
-        <span>
-          <span>•••• {lastFour}</span>
-          <span styleName="credit-card-valid">
-            {expMonth}/{expYear.toString().slice(-2)}
-          </span>
-        </span>
-      </Checkbox>
-      <Icon styleName="payment-icon" name={`fc-payment-${brand.toLowerCase()}`} />
+        <ViewBilling billingData={creditCard} />
+      </Radiobutton>
+      <div styleName="actions">
+        <span styleName="action" onClick={() => editCard(creditCard)}>Edit</span>
+        <span styleName="action" onClick={() => deleteCard(id)}>Delete</span>
+      </div>
     </div>
   );
 };

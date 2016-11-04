@@ -1,36 +1,41 @@
+/* @flow weak */
+
+// libs
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import React, { Component } from 'react';
-
-import styles from '../checkout.css';
-
 import localized from 'lib/i18n';
 
+// styles
+import styles from '../checkout.css';
+
+// components
 import Loader from 'ui/loader';
 import CreditCard from './credit-card';
 
+// actions
 import { fetchCreditCards } from 'modules/checkout';
+import type { CreditCardType } from '../types';
 
-function mapStateToProps(state) {
-  return {
-    isLoading: _.get(state.asyncActions, ['creditCards', 'inProgress'], true),
-    creditCards: state.checkout.creditCards,
-    selectedCreditCard: state.cart.creditCard,
-  };
-}
+type Props = {
+  fetchCreditCards: Function,
+  creditCards: Array<CreditCardType>,
+  selectedCreditCard: Object,
+  selectCreditCard: Function,
+  editCard: Function,
+  deleteCard: Function,
+  isLoading: boolean,
+};
 
-/* ::`*/
-@connect(mapStateToProps, { fetchCreditCards })
-@localized
-  /* ::`*/
 class CreditCards extends Component {
+  props: Props;
 
   componentWillMount() {
     this.props.fetchCreditCards();
   }
 
   get creditCards() {
-    const { creditCards, selectedCreditCard, selectCreditCard } = this.props;
+    const { creditCards, selectedCreditCard, selectCreditCard, editCard, deleteCard } = this.props;
 
     return creditCards.map(creditCard => {
       return (
@@ -39,21 +44,19 @@ class CreditCards extends Component {
           selected={!!selectedCreditCard && selectedCreditCard.id === creditCard.id}
           onSelect={selectCreditCard}
           key={creditCard.id}
+          editCard={editCard}
+          deleteCard={deleteCard}
         />
       );
     });
   }
 
   render() {
-    const { isLoading, creditCards, t } = this.props;
+    const { isLoading, creditCards } = this.props;
 
-    if (isLoading) {
-      return <Loader size="m" />;
-    }
+    if (isLoading) return <Loader size="m" />;
 
-    if (_.isEmpty(creditCards)) {
-      return <div styleName="credit-cards-empty">{t('No credit cards yet')}</div>;
-    }
+    if (_.isEmpty(creditCards)) return null;
 
     return (
       <div>
@@ -63,4 +66,12 @@ class CreditCards extends Component {
   }
 }
 
-export default localized(CreditCards);
+function mapStateToProps(state) {
+  return {
+    isLoading: _.get(state.asyncActions, ['creditCards', 'inProgress'], true),
+    creditCards: state.checkout.creditCards,
+    selectedCreditCard: state.cart.creditCard,
+  };
+}
+
+export default connect(mapStateToProps, { fetchCreditCards })(localized(CreditCards));

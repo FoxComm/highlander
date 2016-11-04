@@ -3,8 +3,6 @@
 // libs
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
-import { saveCouponCode } from 'modules/checkout';
-import { connect } from 'react-redux';
 
 // localization
 import localized from 'lib/i18n';
@@ -15,10 +13,11 @@ import Button from 'ui/buttons';
 import { FormField } from 'ui/forms';
 
 // styles
-import styles from './coupon-code.css';
+import styles from './promo-code.css';
 
 type Props = {
-  saveCouponCode: Function,
+  saveCode: Function,
+  buttonLabel?: ?string,
   t: any,
 };
 
@@ -27,13 +26,17 @@ type State = {
   error: any,
 };
 
-class CouponCode extends Component {
+class PromoCode extends Component {
   props: Props;
 
   state: State = {
     code: '',
     error: false,
   };
+
+  get buttonLabel() {
+    return this.props.buttonLabel || 'Apply';
+  }
 
   @autobind
   changeCode({target}) {
@@ -49,10 +52,10 @@ class CouponCode extends Component {
 
     const code = this.state.code.replace(/\s+/g, '');
 
-    this.props.saveCouponCode(code).then(() => {
+    this.props.saveCode(code).then(() => {
       this.setState({code: ''});
     }).catch(() => {
-      this.setState({code: '', error: t('Please enter a valid coupon code and try again.')});
+      this.setState({code: '', error: t('Please enter a valid code and try again.')});
     });
   }
 
@@ -60,7 +63,7 @@ class CouponCode extends Component {
     const { t } = this.props;
 
     return (
-      <div styleName="coupon">
+      <div styleName="fieldset">
         <FormField styleName="code-field" error={this.state.error}>
           <TextInput
             styleName="code"
@@ -69,12 +72,12 @@ class CouponCode extends Component {
             onChange={this.changeCode}
           />
         </FormField>
-        <Button styleName="submit" onClick={this.save}>
-          {t('apply')}
+        <Button styleName="submit" onClick={this.save} type="button">
+          {this.buttonLabel}
         </Button>
       </div>
     );
   }
 }
 
-export default connect(null, { saveCouponCode })(localized(CouponCode));
+export default localized(PromoCode);

@@ -20,6 +20,12 @@ body {
   padding: 0;
 }
 
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
 input, textarea, keygen, select, button {
   font-family: Roboto, 'Open Sans', sans-serif;
 }

@@ -21,7 +21,7 @@ type EditableProps = Localized & {
 
 const EditableBlock = (props: EditableProps) => {
   const editLink = !props.isEditing && !props.collapsed && props.editAllowed
-    ? <div onClick={props.editAction} styleName="edit">{props.t('EDIT')}</div>
+    ? <div onClick={props.editAction} styleName="action">{props.t('EDIT')}</div>
     : null;
 
   const content = !props.collapsed ? props.content : null;

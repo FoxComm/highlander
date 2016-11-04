@@ -17,6 +17,7 @@ type Props = {
   submit: Function,
   action?: ?Object,
   children?: any,
+  buttonLabel?: ?string,
 };
 
 class CheckoutForm extends Component {
@@ -32,6 +33,10 @@ class CheckoutForm extends Component {
     }
   }
 
+  get buttonLabel(): string {
+    return this.props.buttonLabel || 'Continue';
+  }
+
   render() {
     return (
       <Form onSubmit={this.props.submit}>
@@ -44,7 +49,7 @@ class CheckoutForm extends Component {
 
         <ErrorAlerts error={this.props.error} />
         <div styleName="button-wrap">
-          <Button styleName="checkout-submit" type="submit">Continue</Button>
+          <Button styleName="checkout-submit" type="submit">{this.buttonLabel}</Button>
         </div>
       </Form>
     );

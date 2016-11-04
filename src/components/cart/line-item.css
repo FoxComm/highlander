@@ -89,7 +89,6 @@
   .details {
     display: flex;
     flex-direction: row;
-    margin-bottom: 6px;
     min-height: 42px;
   }
 

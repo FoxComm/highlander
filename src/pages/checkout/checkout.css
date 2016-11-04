@@ -3,10 +3,6 @@
 @import "colors.css";
 @import "variables.css";
 
-.content {
-  position: relative;
-}
-
 .checkout {
   width: 100%;
   counter-reset: item;
@@ -14,6 +10,7 @@
 
 .summary {
   position: relative;
+  z-index: 2;
 }
 
 .checkout-block {
@@ -86,9 +83,11 @@
 @media (--medium) {
   .checkout-block {
     & > header {
+      position: relative;
+
       & > h3 + div {
         position: absolute;
-        right: 20px;
+        right: 0;
       }
     }
   }
@@ -119,32 +118,6 @@
   }
 }
 
-.union-fields {
-  display: flex;
-
-  & > div {
-    width: 50%;
-  }
-}
-
-.checkout-form {
-  & > .union-fields {
-    margin: 10px 0;
-
-    & > .text-field {
-      margin: 0;
-
-      &:first-child {
-        margin-right: 10px;
-      }
-    }
-  }
-}
-
-.checkbox-field {
-  margin-bottom: 15px;
-}
-
 .text-field {
   margin: 10px 0;
 
@@ -161,89 +134,4 @@
       background: var(--whitish);
     }
   }
-}
-.credit-cards-title {
-  display: flex;
-  justify-content: space-between;
-}
-
-.credit-card-add {
-  color: #9E9E9E;
-  text-align: right;
-  cursor: pointer;
-}
-
-.credit-cards-empty {
-  line-height: 53px;
-  margin-bottom: 40px;
-}
-
-.credit-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 20px 0;
-
-  & .payment-icon {
-    margin-right: 0;
-  }
-}
-
-.credit-card-valid {
-  font-size: 14px;
-  color: #666;
-  margin-left: 15px;
-}
-
-.payment-icon {
-  vertical-align: middle;
-  width: 44px;
-  height: 30px;
-  margin-top: -3px;
-  margin-right: 4px;
-}
-
-.payment-input {
-  padding-right: 64px;
-}
-
-.payment-card-info {
-  padding-left: 0.5em;
-  display: inline-block;
-  vertical-align: middle;
-}
-
-.payment-last-four {
-  margin-right: 0.7em;
-}
-
-.billing-address {
-  margin-top: 1em;
-}
-
-.gift-card-content {
-  display: flex;
-}
-
-.gift-card-code-field {
-  flex-grow: 1;
-}
-
-.gift-card-code {
-  composes: text-input from "ui/css/input.css";
-  width: 100%;
-  height: 55px;
-  border: 1px solid var(--whitish);
-}
-
-.gift-card-submit {
-  composes: button from "ui/css/buttons.css";
-  width: 100px;
-  height: 55px;
-  background: var(--whitish);
-  border: 1px solid var(--blackish);
-  font-size: 14px;
-  color: var(--blackish);
-  line-height: 17px;
-  text-transform: uppercase;
 }

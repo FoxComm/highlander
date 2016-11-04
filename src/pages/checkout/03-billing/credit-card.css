@@ -1,0 +1,53 @@
+@import "colors.css";
+
+.credit-card {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.action {
+  composes: action from "ui/editable-block/editable-block.css";
+}
+
+.view-billing {
+  font-weight: 300;
+
+  & li {
+    line-height: 1.4;
+  }
+}
+
+.payment-icon {
+  vertical-align: middle;
+  width: 44px;
+  height: 30px;
+  margin-top: -3px;
+  margin-bottom: 5px;
+}
+
+.payment-name {
+  font-weight: 500;
+}
+
+.payment-last-four {
+  &:before {
+    content: "XXXX-XXXX-XXXX-";
+  }
+}
+
+.payment-input {
+  padding-right: 64px;
+}
+
+.payment-card-info {
+  padding-left: 0.5em;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.payment-last-four {
+  margin-right: 0.7em;
+}

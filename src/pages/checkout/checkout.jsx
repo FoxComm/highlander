@@ -21,6 +21,7 @@ import styles from './checkout.css';
 // types
 import type { Promise as PromiseType } from 'types/promise';
 import type { CheckoutState, EditStage } from 'modules/checkout';
+import type { CheckoutActions } from './types';
 
 // actions
 import * as actions from 'modules/checkout';
@@ -30,19 +31,11 @@ import { fetch as fetchCart, hideCart } from 'modules/cart';
 // paragons
 import { emailIsSet } from 'paragons/auth';
 
-type Props = CheckoutState & {
+type Props = CheckoutState & CheckoutActions & {
   setEditStage: (stage: EditStage) => Object,
-  saveShippingAddress: () => PromiseType,
-  saveShippingMethod: () => PromiseType,
-  setDefaultAddress: () => PromiseType,
-  fetchCart: () => PromiseType,
-  addCreditCard: () => PromiseType,
-  checkout: () => PromiseType,
   hideCart: () => PromiseType,
+  fetchCart: () => PromiseType,
   addresses: Array<any>,
-  fetchAddresses: Function,
-  updateAddress: Function,
-  fetchShippingMethods: Function,
   shippingMethods: Object,
   cart: Object,
   isAddressLoaded: boolean,
@@ -135,7 +128,7 @@ class Checkout extends Component {
   @autobind
   placeOrder() {
     this.performStageTransition('isPerformingCheckout', () => {
-      return this.props.addCreditCard()
+      return this.props.chooseCreditCard()
         .then(() => {
           return this.props.setEditStage(EditStages.FINISHED);
         })
@@ -235,6 +228,7 @@ class Checkout extends Component {
               inProgress={this.state.isPerformingCheckout}
               continueAction={this.checkAuthAndplaceOrder}
               error={this.errorsFor(EditStages.BILLING)}
+              isAddressLoaded={this.props.isAddressLoaded}
             />
           </div>
 

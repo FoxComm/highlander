@@ -18,13 +18,14 @@ import Button from 'ui/buttons';
 import Icon from 'ui/icon';
 import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 import { parseError } from 'api-js';
-import CouponCode from '../coupon-code/coupon-code';
+import CouponCode from '../promo-code/promo-code';
 
 // styles
 import styles from './cart.css';
 
 // actions
 import * as actions from 'modules/cart';
+import { saveCouponCode } from 'modules/checkout';
 
 const mapStateToProps = state => ({ ...state.cart, ...state.auth });
 
@@ -33,9 +34,10 @@ type Props = {
   deleteLineItem: Function,
   updateLineItemQuantity: Function,
   toggleCart: Function,
+  saveCouponCode: Function,
   skus: Array<any>,
   totals: Object,
-  user: ?Object,
+  user?: ?Object,
   isVisible: boolean,
   t: any,
 };
@@ -138,7 +140,7 @@ class Cart extends Component {
               {this.lineItems}
             </div>
             <div styleName="coupon">
-              <CouponCode />
+              <CouponCode saveCode={this.props.saveCouponCode}/>
             </div>
             <div styleName="cart-subtotal">
               <div styleName="subtotal-title">{t('SUBTOTAL')}</div>
@@ -160,4 +162,4 @@ class Cart extends Component {
   }
 }
 
-export default connect(mapStateToProps, actions)(localized(Cart));
+export default connect(mapStateToProps, { ...actions, saveCouponCode })(localized(Cart));

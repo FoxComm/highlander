@@ -14,10 +14,19 @@
   font-size: 1em;
 }
 
-.edit {
+.action {
   color: #8D757A;
   font-size: 13px;
   font-weight: 400;
   text-align: right;
+  text-transform: uppercase;
   cursor: pointer;
+
+  & + .action {
+    margin-left: 10px;
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
 }

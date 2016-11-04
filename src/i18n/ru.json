@@ -312,9 +312,9 @@
           "Введите корректный номер подарочной карты и попробуйте еще раз"
         ]
       },
-      "Please enter a valid coupon code and try again.": {
+      "Please enter a valid code and try again.": {
         "msgstr": [
-          "Введите корректный код купона и попробуйте еще раз"
+          "Введите корректный код и попробуйте еще раз"
         ]
       },
       "CODE": {

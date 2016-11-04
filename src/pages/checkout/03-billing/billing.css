@@ -1,0 +1,75 @@
+@import "media-queries.css";
+@import "colors.css";
+
+.billing {
+  composes: checkout-block from '../checkout.css';
+}
+
+.billing-summary {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.fieldset {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.fieldset-cards {
+  composes: fieldset;
+  padding-bottom: 40px;
+}
+
+.fieldset-coupon {
+  composes: fieldset;
+}
+
+.fieldset-gift {
+  composes: fieldset;
+}
+
+.add-card-button {
+  composes: button-secondary from "ui/css/buttons.css";
+}
+
+.union-fields {
+  display: flex;
+
+  & > div {
+    width: 50%;
+  }
+}
+
+.text-field {
+  composes: text-field from "../checkout.css";
+}
+
+.same-address-checkbox {
+  margin-top: 30px;
+
+  & + div {
+    margin-top: 30px;
+  }
+}
+
+.edit-card-form {
+  & > .union-fields {
+    margin: 10px 0;
+
+    & > .text-field {
+      margin: 0;
+
+      &:first-child {
+        margin-right: 10px;
+      }
+    }
+  }
+}
+
+.billing-address {
+  margin-top: 1em;
+}
+
+.credit-cards-empty {
+  line-height: 53px;
+  margin-bottom: 40px;
+}

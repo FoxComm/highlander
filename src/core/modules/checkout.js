@@ -26,26 +26,19 @@ export const EditStages = {
 export type EditStage = number;
 
 export type ShippingAddress = {
-  city?: string;
-}
-
-export type CheckoutState = {
-  editStage: EditStage;
-  shippingAddress: ShippingAddress;
-  billingAddress: ShippingAddress;
+  city?: string,
 };
 
-export type BillingData = {
-  holderName?: string;
-  number?: string|number;
-  brand?: string;
-  expMonth?: string|number;
-  expYear?: string|number;
-  lastFour?: string|number;
-}
+export type CheckoutState = {
+  editStage: EditStage,
+  shippingAddress: ShippingAddress,
+  billingAddress: ShippingAddress,
+};
 
 export const setEditStage = createAction('CHECKOUT_SET_EDIT_STAGE');
 export const setBillingData = createAction('CHECKOUT_SET_BILLING_DATA', (key, value) => [key, value]);
+export const resetBillingData = createAction('CHECKOUT_RESET_BILLING_DATA');
+export const loadBillingData = createAction('CHECKOUT_LOAD_BILLING_DATA');
 
 export const setAddressData = createAction('CHECKOUT_SET_ADDRESS_DATA', (kind, key, value) => [kind, key, value]);
 export const extendAddressData = createAction('CHECKOUT_EXTEND_ADDRESS_DATA', (kind, props) => [kind, props]);
@@ -77,7 +70,6 @@ const addressesActions = createAsyncActions('addresses', _fetchAddresses);
 export const fetchShippingMethods = shippingMethodsActions.fetch;
 export const fetchCreditCards = creditCardsActions.fetch;
 export const fetchAddresses = addressesActions.fetch;
-export const toggleSeparateBillingAddress = createAction('CHECKOUT_TOGGLE_BILLING_ADDRESS');
 
 function emptyAddress() {
   return (dispatch, getState) => {
@@ -107,7 +99,7 @@ export function initAddressData(kind: AddressKindType, savedAddress): Function {
 
     let uiAddressData;
 
-    const validAddress = kind == AddressKind.SHIPPING && !_.isEmpty(savedAddress) && savedAddress.region;
+    const validAddress = !_.isEmpty(savedAddress) && savedAddress.region;
 
     if (validAddress) {
       dispatch(fetchCountry(savedAddress.region.countryId)).then(() => {
@@ -137,7 +129,16 @@ export function initAddressData(kind: AddressKindType, savedAddress): Function {
 }
 
 function addressToPayload(address, countries = []) {
-  const payload = _.pick(address, ['name', 'address1', 'address2', 'city', 'zip', 'phoneNumber', 'isDefault']);
+  const payload = _.pick(address, [
+    'name',
+    'address1',
+    'address2',
+    'city',
+    'zip',
+    'phoneNumber',
+    'isDefault',
+    'id',
+  ]);
   payload.phoneNumber = String(payload.phoneNumber);
   payload.regionId = _.get(address, 'region.id', _.get(address, 'state.id', ''));
 
@@ -224,33 +225,50 @@ export function updateAddress(id?: number): Function {
   };
 }
 
-export function addCreditCard(): Function {
+function getUpdatedBllingAddress(getState, billingAddressIsSame) {
+  return billingAddressIsSame
+    ? getState().cart.shippingAddress
+    : getState().checkout.billingAddress;
+}
+
+export function addCreditCard(billingAddressIsSame: boolean): Function {
+  return (dispatch, getState) => {
+    const billingData = getState().checkout.billingData;
+    const cardData = _.pick(billingData, ['holderName', 'number', 'cvc', 'expMonth', 'expYear']);
+    const billingAddress = getUpdatedBllingAddress(getState, billingAddressIsSame);
+    const countries = getState().countries.list;
+    const address = addressToPayload(billingAddress, countries, billingAddressIsSame);
+
+    return foxApi.creditCards.create(cardData, address, !billingAddressIsSame);
+  };
+}
+
+export function chooseCreditCard(): Function {
   return (dispatch, getState) => {
     const creditCard = getState().cart.creditCard;
 
-    if (creditCard && creditCard.id) {
-      return foxApi.cart.addCreditCard(creditCard.id);
-    }
-
-    let billingAddress;
-
-    const cardData = _.pick(getState().checkout.billingData, ['holderName', 'number', 'cvc', 'expMonth', 'expYear']);
-
-    if (getState().checkout.billingAddressIsSame) {
-      billingAddress = getState().cart.shippingAddress;
-    } else {
-      billingAddress = getState().checkout.billingAddress;
-    }
-
-    const address = addressToPayload(billingAddress, getState().countries.list);
-
-    return foxApi.creditCards.create(cardData, address, !getState().checkout.billingAddressIsSame)
-      .then(creditCardRes => {
-        return foxApi.cart.addCreditCard(creditCardRes.id);
-      })
+    return foxApi.cart.addCreditCard(creditCard.id)
       .then(res => {
         dispatch(updateCart(res.result));
       });
+  };
+}
+
+export function updateCreditCard(id, billingAddressIsSame: boolean): Function {
+  return (dispatch, getState) => {
+    const creditCard = getState().checkout.billingData;
+    const billingAddress = getUpdatedBllingAddress(getState, billingAddressIsSame);
+    const address = addressToPayload(billingAddress, getState().countries.list);
+    const updatedCard = assoc(creditCard, 'address', address);
+
+    return foxApi.creditCards.update(id, updatedCard);
+  };
+}
+
+export function deleteCreditCard(id): Function {
+  return (dispatch) => {
+    return foxApi.creditCards.delete(id)
+      .then(() => dispatch(fetchCreditCards()));
   };
 }
 
@@ -271,12 +289,21 @@ export function saveEmail(email): Function {
   };
 }
 
+function setEmptyCard() {
+  return {
+    holderName: '',
+    number: '',
+    cvc: '',
+    expMonth: '',
+    expYear: '',
+  };
+}
+
 const initialState: CheckoutState = {
   editStage: EditStages.SHIPPING,
   shippingAddress: {},
   billingAddress: {},
   billingData: {},
-  billingAddressIsSame: true,
   shippingMethods: [],
   creditCards: [],
   addresses: [],
@@ -319,6 +346,18 @@ const reducer = createReducer({
       ['billingData', key], value
     );
   },
+  [resetBillingData]: (state) => {
+    return {
+      ...state,
+      billingData: setEmptyCard(),
+    };
+  },
+  [loadBillingData]: (state, billingData) => {
+    return {
+      ...state,
+      billingData,
+    };
+  },
   [shippingMethodsActions.succeeded]: (state, list) => {
     return {
       ...state,
@@ -336,11 +375,6 @@ const reducer = createReducer({
       ...state,
       addresses: list,
     };
-  },
-  [toggleSeparateBillingAddress]: state => {
-    return assoc(state,
-      ['billingAddressIsSame'], !state.billingAddressIsSame
-    );
   },
   [resetCheckout]: () => {
     return initialState;
