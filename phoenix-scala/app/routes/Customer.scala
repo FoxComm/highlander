@@ -1,10 +1,8 @@
 package routes
 
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
+import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.server.Directives._
-
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.account._
-import models.auth.UserToken
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
 import models.payment.giftcard.GiftCard
@@ -15,13 +13,15 @@ import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
 import services.Authenticator.{UserAuthenticator, requireCustomerAuth}
 import services._
-import services.account._
 import services.carts._
 import services.customers.CustomerManager
 import services.product.ProductManager
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
+import org.json4s.jackson.Serialization.{write ⇒ json}
+import utils.db._
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import utils.http.Http._
 
 object Customer {
@@ -48,7 +48,6 @@ object Customer {
                 reqItems ⇒
                   mutateOrFailures {
                     LineItemUpdater.updateQuantitiesOnCustomersCart(auth.model, reqItems)
-
                   }
               } ~
               (patch & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
@@ -171,7 +170,7 @@ object Customer {
                 }
               } ~
               (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
-                mutateOrFailures {
+                mutateWithNewTokenOrFailures {
                   CustomerManager.update(auth.account.id, payload)
                 }
               }
