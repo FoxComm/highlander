@@ -51,11 +51,11 @@ shortcuts:
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
-  - name: Bootstrap Vanilla
-    alias: vanilla.yml
-    target: ansible/bootstrap_vanilla.yml
+  - name: Bootstrap Store Admin User
+    alias: store_admin.yml
+    target: ansible/bootstrap_store_admin.yml
 
-  # New goodies
+  # New environments
   - name: Provision TPG Staging
     alias: tpg_staging.yml
     target: ansible/tpg_staging.yml
@@ -65,12 +65,6 @@ shortcuts:
   - name: Provision Tony Staging
     alias: easy_tony.yml
     target: ansible/easy_tony.yml
-  - name: Deploy Mesos Consul
-    alias: mesos_consul.yml
-    target: ansible/hotfix_mesos_consul.yml
-  - name: Deploy Secret Keys
-    alias: secret_keys.yml
-    target: ansible/hotfix_secret_keys.yml
 
 # Packer shortcuts
 - type: snowflake
@@ -93,21 +87,9 @@ shortcuts:
 
   targets:
   # Base Images
-  - name: Base Image
-    alias: base.json
-    target: packer/base/base.json
   - name: Base United Image
     alias: base_united.json
     target: packer/base/base_united.json
-  - name: Base Mesos Image
-    alias: base_mesos.json
-    target: packer/base/base_mesos.json
-  - name: Base JVM Image
-    alias: base_jvm.json
-    target: packer/base/base_jvm.json
-  - name: Base Node Image
-    alias: base_node.json
-    target: packer/base/base_node.json
 
   # Tinystack
   - name: Tinystack Amigo

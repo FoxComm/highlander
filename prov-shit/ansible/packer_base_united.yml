@@ -7,6 +7,12 @@
   vars:
     user: ubuntu
     packing: true
+  gather_facts: no
+  pre_tasks:
+    - name: Install Python 2 and Boto
+      raw: sudo apt-get -y install python2.7 python-boto
+    - name: Gather Facts
+      setup:
   post_tasks:
     - name: Take a nap for a while
       pause: seconds=5
