@@ -4,7 +4,7 @@
   hosts: foxcomm-tony-consul-server
   vars:
     user: '{{ansible_ssh_user}}'
-    zookeepers: zookeeper.service.consul:2181
+    zookeepers: zk://zookeeper.service.consul:2181
   tags:
     - amigo
   roles:

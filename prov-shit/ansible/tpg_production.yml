@@ -13,11 +13,11 @@
   tags:
     - backend
   roles:
-    - { role: dev/kafka }
-    - { role: dev/elasticsearch }
-    - { role: dev/db }
-    - { role: dev/phoenix }
-    - { role: dev/greenriver }
+    # - { role: dev/kafka }
+    # - { role: dev/elasticsearch }
+    # - { role: dev/db }
+    # - { role: dev/phoenix }
+    # - { role: dev/greenriver }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
@@ -45,13 +45,13 @@
   tags:
     - frontend
   roles:
-    - { role: base/ssh_keys }
-    - { role: dev/ashes }
-    - { role: ext/tpg/storefront }
-    - { role: dev/middlewarehouse }
-    - { role: dev/messaging }
-    - { role: dev/isaac }
-    - { role: dev/solomon }
-    - { role: dev/shipstation }
+    # - { role: base/ssh_keys }
+    # - { role: dev/ashes }
+    # - { role: ext/tpg/storefront }
+    # - { role: dev/middlewarehouse }
+    # - { role: dev/messaging }
+    # - { role: dev/isaac }
+    # - { role: dev/solomon }
+    # - { role: dev/shipstation }
     - { role: dev/balancer, sudo: yes }
     - { role: dev/seeder }
