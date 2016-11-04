@@ -96,12 +96,11 @@ module "tpg_production" {
     source          = "../../modules/gce/tinyproduction"
     ssh_user        = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
-
     network         = "${google_compute_network.tpg.name}"
     datacenter      = "tpg"
     amigo_image     = "base-amigo-161104-095319"
-    backend_image   = ""
-    frontend_image  = ""
+    backend_image   = "base-backend-161104-105155"
+    frontend_image  = "base-frontend-161104-105130"
 }
 
 ##############################################
@@ -114,8 +113,16 @@ provider "dnsimple" {
 
 resource "dnsimple_record" "docker-registry-dns-record" {
     domain = "foxcommerce.com"
-    name = "docker-tpg"
-    value = "${module.tpg_production.amigo_leader}"
-    type = "A"
-    ttl = 3600
+    name   = "docker-tpg"
+    value  = "${module.tpg_production.amigo_address}"
+    type   = "A"
+    ttl    = 3600
+}
+
+resource "dnsimple_record" "frontend-dns-record" {
+    domain = "foxcommerce.com"
+    name   = "tpg"
+    value  = "${module.tpg_production.frontend_address}"
+    type   = "A"
+    ttl    = 3600
 }

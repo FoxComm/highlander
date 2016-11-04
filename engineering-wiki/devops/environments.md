@@ -38,7 +38,14 @@ Navigation:
 
 * Platform: [Google Compute Engine](https://console.cloud.google.com/compute/instances?project=foxcommerce-production-shared&authuser=1)
 
-TBD
+#### The Perfect Gourmet
+
+* SRE: [@kpashka](https://github.com/kpashka)
+* VPN IP: `104.198.210.70`
+* Consul: http://10.0.0.3:8500/ui/
+* Docker Registry: https://docker-tpg.foxcommerce.com:5000
+* Mesos: http://10.0.0.3:5050/#/
+* Marathon: http://10.0.0.3:8080/ui/#/apps
 
 ## Target
 

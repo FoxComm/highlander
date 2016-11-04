@@ -1,6 +1,6 @@
 ---
 
-- include_vars: "{{ item }}"
+- include_vars: "{{item}}"
   with_first_found:
     - aws.yml
     - stripe.yml
@@ -28,7 +28,7 @@
 - name: Create directory for Gatling results
   file: path="{{phoenix_dir}}/gatling-results" state=directory owner="{{user}}" mode="0777"
 
-- name: Copy Jar
+- name: Copy JAR
   copy: src={{phoenix_jar_src}} dest={{phoenix_jar}} mode="u+x,g+x,o+x"
   sudo: true
 

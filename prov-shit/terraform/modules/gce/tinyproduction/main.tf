@@ -106,68 +106,76 @@ resource "google_compute_instance" "tinyprod-amigo" {
     }
 }
 
-# ##############################################
-# # Backend Worker
-# ##############################################
-# resource "google_compute_instance" "tinyprod-backend" {
-#     name = "${var.datacenter}-backend"
-#     machine_type = "${var.backend_machine_type}"
-#     zone = "${var.zone}"
-#     tags = ["no-ip"]
+##############################################
+# Backend Worker
+##############################################
+resource "google_compute_instance" "tinyprod-backend" {
+    name = "${var.datacenter}-backend"
+    machine_type = "${var.backend_machine_type}"
+    zone = "${var.zone}"
+    tags = ["no-ip"]
 
-#     disk {
-#         image = "${var.backend_image}"
-#         size = "${var.backend_disk_size}"
-#         type = "pd-ssd"
-#     }
+    disk {
+        image = "${var.backend_image}"
+        size = "${var.backend_disk_size}"
+        type = "pd-ssd"
+    }
 
-#     network_interface {
-#         network = "${var.network}"
-#     }
+    network_interface {
+        network = "${var.network}"
+    }
 
-#     connection {
-#         type = "ssh"
-#         user = "${var.ssh_user}"
-#         private_key = "${file(var.ssh_private_key)}"
-#     }
+    service_account {
+        scopes = ["storage-rw"]
+    }
 
-#     provisioner "remote-exec" {
-#         inline = [
-#           "/usr/local/bin/bootstrap.sh",
-#           "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.tinyprod-amigo.network_interface.0.address}"
-#         ]
-#     }
-# }
+    connection {
+        type = "ssh"
+        user = "${var.ssh_user}"
+        private_key = "${file(var.ssh_private_key)}"
+    }
 
-# ##############################################
-# # Frontend Worker
-# ##############################################
-# resource "google_compute_instance" "tinyprod-frontend" {
-#     name = "${var.datacenter}-frontend"
-#     machine_type = "${var.frontend_machine_type}"
-#     zone = "${var.zone}"
-#     tags = ["no-ip", "http-server", "https-server"]
+    provisioner "remote-exec" {
+        inline = [
+          "/usr/local/bin/bootstrap.sh",
+          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.tinyprod-amigo.network_interface.0.address}"
+        ]
+    }
+}
 
-#     disk {
-#         image = "${var.frontend_image}"
-#         size = "${var.frontend_disk_size}"
-#         type = "pd-ssd"
-#     }
+##############################################
+# Frontend Worker
+##############################################
+resource "google_compute_instance" "tinyprod-frontend" {
+    name = "${var.datacenter}-frontend"
+    machine_type = "${var.frontend_machine_type}"
+    zone = "${var.zone}"
+    tags = ["no-ip", "http-server", "https-server"]
 
-#     network_interface {
-#         network = "${var.network}"
-#     }
+    disk {
+        image = "${var.frontend_image}"
+        size = "${var.frontend_disk_size}"
+        type = "pd-ssd"
+    }
 
-#     connection {
-#         type = "ssh"
-#         user = "${var.ssh_user}"
-#         private_key = "${file(var.ssh_private_key)}"
-#     }
+    network_interface {
+        network = "${var.network}"
+    }
 
-#     provisioner "remote-exec" {
-#         inline = [
-#           "/usr/local/bin/bootstrap.sh",
-#           "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.tinyprod-amigo.network_interface.0.address}"
-#         ]
-#     }
-# }
+    service_account {
+        scopes = ["storage-rw"]
+    }
+
+    connection {
+        type = "ssh"
+        user = "${var.ssh_user}"
+        private_key = "${file(var.ssh_private_key)}"
+    }
+
+    provisioner "remote-exec" {
+        inline = [
+          "/usr/local/bin/bootstrap.sh",
+          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.tinyprod-amigo.network_interface.0.address}"
+        ]
+    }
+}

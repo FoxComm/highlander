@@ -1,3 +1,0 @@
----
-dependencies:
-  - { role: base/secret_keys, install_public_keys: true, install_private_keys: true }
