@@ -1,6 +1,6 @@
 ---
 
-- name: Bootstrap Vanilla VPN
+- name: Bootstrap OpenVPN
   hosts: '{{hostname}}'
   vars:
     vpn_server_ip: 10.0.0.2

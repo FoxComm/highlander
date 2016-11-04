@@ -36,12 +36,6 @@ shortcuts:
   - name: Bootstrap Annabelle
     alias: annabelle.yml
     target: ansible/bootstrap_annabelle.yml
-  - name: Bootstrap Backend
-    alias: backend.yml
-    target: ansible/bootstrap_backend.yml
-  - name: Bootstrap Build Agents
-    alias: build_agents.yml
-    target: ansible/bootstrap_build_agents.yml
   - name: Bootstrap Build Agents Keys
     alias: build_agent_keys.yml
     target: ansible/bootstrap_build_agent_keys.yml
@@ -51,30 +45,15 @@ shortcuts:
   - name: Bootstrap Database Backup
     alias: db_backup.yml
     target: ansible/bootstrap_db_backup.yml
-  - name: Bootstrap Messaging Plugin
-    alias: messaging_plugin.yml
-    target: ansible/bootstrap_messaging_plugin.yml
+  - name: Bootstrap OpenVPN
+    alias: openvpn.yml
+    target: ansible/bootstrap_openvpn.yml
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
-  - name: Bootstrap Phoenix DB
-    alias: db_phoenix.yml
-    target: ansible/bootstrap_db_phoenix.yml
-  - name: Bootstrap Tinystack
-    alias: tinystack.yml
-    target: ansible/bootstrap_tinystack.yml
   - name: Bootstrap Vanilla
     alias: vanilla.yml
     target: ansible/bootstrap_vanilla.yml
-  - name: Bootstrap Vanilla DB
-    alias: vanilla_db.yml
-    target: ansible/bootstrap_vanilla_db.yml
-  - name: Bootstrap Vanilla Seeder
-    alias: vanilla_seed.yml
-    target: ansible/bootstrap_vanilla_seed.yml
-  - name: Bootstrap Vanilla VPN
-    alias: vanilla_vpn.yml
-    target: ansible/bootstrap_vanilla_vpn.yml
 
   # New goodies
   - name: Provision TPG Staging
@@ -123,44 +102,6 @@ shortcuts:
   - name: Base Node Image
     alias: base_node.json
     target: packer/base/base_node.json
-
-  # Vanilla
-  - name: Vanilla Amigo
-    alias: amigo.json
-    target: packer/vanilla/amigo.json
-  - name: Vanilla Backend
-    alias: db.json
-    target: packer/vanilla/db.json
-  - name: Vanilla Elasticsearch
-    alias: es.json
-    target: packer/vanilla/es.json
-  - name: Vanilla ES Log
-    alias: es_log.json
-    target: packer/vanilla/es_log.json
-  - name: Vanilla Front Worker
-    alias: front_worker.json
-    target: packer/vanilla/front_worker.json
-  - name: Vanilla Green River
-    alias: greenriver.json
-    target: packer/vanilla/greenriver.json
-  - name: Vanilla Kafka
-    alias: kafka.json
-    target: packer/vanilla/kafka.json
-  - name: Vanilla Phoenix
-    alias: phoenix.json
-    target: packer/vanilla/phoenix.json
-  - name: Vanilla Service Worker
-    alias: service_worker.json
-    target: packer/vanilla/service_worker.json
-  - name: Vanilla Stage Amigo
-    alias: stage_amigo.json
-    target: packer/vanilla/stage_amigo.json
-  - name: Vanilla Stage Backend
-    alias: stage_backend.json
-    target: packer/vanilla/stage_backend.json
-  - name: Vanilla Stage Frontend
-    alias: stage_frontend.json
-    target: packer/vanilla/stage_frontend.json
 
   # Tinystack
   - name: Tinystack Amigo
