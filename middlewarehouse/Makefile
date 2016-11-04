@@ -9,6 +9,7 @@ BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
 HIGHLANDER_PATH=$(CURDIR)/..
 
+DOCKER_HOST ?= docker-stage.foxcommerce.com:5000
 DOCKER_TAG ?= middlewarehouse
 DOCKER_BRANCH ?= master
 
@@ -37,11 +38,11 @@ docker: glide
 	docker build -t capture-consumer consumers/capture/
 
 docker-push:
-	docker tag $(DOCKER_TAG) docker-stage.foxcommerce.com:5000/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker tag $(DOCKER_TAG) $(DOCKER_HOST)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 	docker tag stock-items-consumer docker-stage.foxcommerce.com:5000/stock-items-consumer:master
 	docker tag shipments-consumer docker-stage.foxcommerce.com:5000/shipments-consumer:master
 	docker tag capture-consumer docker-stage.foxcommerce.com:5000/capture-consumer:master
-	docker push docker-stage.foxcommerce.com:5000/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker push $(DOCKER_HOST)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 	docker push docker-stage.foxcommerce.com:5000/stock-items-consumer:master
 	docker push docker-stage.foxcommerce.com:5000/shipments-consumer:master
 	docker push docker-stage.foxcommerce.com:5000/capture-consumer:master
