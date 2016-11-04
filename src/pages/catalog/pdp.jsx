@@ -6,14 +6,13 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import classNames from 'classnames';
 
 // i18n
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
 // modules
-import { fetch as fetchProducts } from 'modules/products';
+import { searchGiftCards } from 'modules/products';
 import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
 
@@ -26,7 +25,8 @@ import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 import ProductDetails from './product-details';
-import GiftCardForm from 'components/gift-card-form';
+import GiftCardForm from '../../components/gift-card-form';
+import ProductAttributes from './product-attributes';
 
 // styles
 import styles from './pdp.css';
@@ -37,7 +37,6 @@ type Params = {
 };
 
 type Actions = {
-  fetchProducts: Function,
   fetch: (id: number) => any,
   getNextId: Function,
   getPreviousId: Function,
@@ -50,7 +49,6 @@ type Props = Localized & {
   actions: Actions,
   params: Params,
   product: ?ProductResponse,
-  auth: any,
   isLoading: boolean,
   isCartLoading: boolean,
   notFound: boolean,
@@ -59,7 +57,8 @@ type Props = Localized & {
 type State = {
   quantity: number,
   error?: any,
-  currentAdditionalTitle: string,
+  currentSku?: any,
+  attributes?: Object,
 };
 
 type Product = {
@@ -72,14 +71,11 @@ type Product = {
   servingSize: string,
 };
 
-const giftCardProductId = 248;
-
 const mapStateToProps = state => {
   const product = state.productDetails.product;
 
   return {
     product,
-    auth: state.auth,
     notFound: !product && _.get(state.asyncActions, ['pdp', 'err', 'status']) == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
     isCartLoading: _.get(state.asyncActions, ['cartChange', 'inProgress'], false),
@@ -94,55 +90,23 @@ const mapDispatchToProps = dispatch => ({
     resetProduct,
     addLineItem,
     toggleCart,
-    fetchProducts,
   }, dispatch),
 });
-
-const renderAttributes = (product, attributeNames = []) => {
-  return (
-    <div>
-      {attributeNames.map(attr =>
-        <div className="attribute-line" key={attr}>
-          <div styleName="attribute-title">{attr}</div>
-          <div styleName="attribute-description">
-            {_.get(product, `attributes.${attr}.v`)}
-          </div>
-        </div>)}
-    </div>
-  );
-};
-
-const additionalInfoAttributesMap = [
-  {
-    title: 'Prep',
-    attributes: ['Conventional Oven', 'Microwave'],
-  },
-  {
-    title: 'Ingredients',
-    attributes: ['Ingredients', 'Allergy Alerts'],
-  },
-  {
-    title: 'Nutrition',
-    attributes: ['Nutritional Information'],
-  },
-];
 
 class Pdp extends Component {
   props: Props;
 
   state: State = {
     quantity: 1,
-    currentAdditionalTitle: 'Prep',
     currentSku: null,
     attributes: {},
   };
 
   componentWillMount() {
-    const {product, actions} = this.props;
+    const { product } = this.props;
 
-    actions.fetchProducts();
-    if (!product) {
-      actions.fetch(this.productId);
+    if (_.isEmpty(product)) {
+      this.fetchProduct();
     }
   }
 
@@ -152,9 +116,24 @@ class Pdp extends Component {
 
   componentWillUpdate(nextProps) {
     const id = this.getId(nextProps);
+
     if (this.productId !== id) {
       this.props.actions.resetProduct();
-      this.props.actions.fetch(id);
+      this.fetchProduct(nextProps, id);
+    }
+  }
+
+  fetchProduct(_props, _productId) {
+    const props = _props || this.props;
+    const productId = _productId || this.productId;
+
+    if (this.isGiftCard(props)) {
+      searchGiftCards().then(({ result = [] }) => {
+        const giftCard = result[0] || {};
+        this.props.actions.fetch(giftCard.productId);
+      });
+    } else {
+      this.props.actions.fetch(productId);
     }
   }
 
@@ -163,34 +142,33 @@ class Pdp extends Component {
   }
 
   getId(props): number {
-    return this.isGiftCard(props) ?
-      giftCardProductId :
-      parseInt(props.params.productId, 10);
+    return parseInt(props.params.productId, 10) || -1; // prevent NaN
   }
 
-  get currentSku () {
+  get currentSku() {
     return this.state.currentSku || this.sortedSkus[0];
   }
 
-  get sortedSkus () {
+  get sortedSkus() {
     return _.sortBy(
-      this.props.product.skus, 'attributes.salePrice.v.value');
+      _.get(this.props, 'product.skus', []),
+      'attributes.salePrice.v.value'
+    );
   }
 
   @autobind
-  setCurrentSku (currentSku) {
+  setCurrentSku(currentSku) {
     this.setState({ currentSku });
   }
 
   @autobind
-  setAttributeFromField (attributeKey) {
-    return e =>
-      this.setState({
-        attributes: {
-          ...this.state.attributes,
-          [attributeKey]: e.target.value,
-        },
-      });
+  setAttributeFromField({ target: { name, value } }) {
+    this.setState({
+      attributes: {
+        ...this.state.attributes,
+        [name]: value,
+      },
+    });
   }
 
   get product(): Product {
@@ -211,8 +189,8 @@ class Pdp extends Component {
     };
   }
 
-  isGiftCard (props = this.props) {
-    return props.route.name === 'gift-cards';
+  isGiftCard(props) {
+    return (props || this.props).route.name === 'gift-cards';
   }
 
   @autobind
@@ -223,33 +201,22 @@ class Pdp extends Component {
   @autobind
   addToCart(): void {
     const { actions } = this.props;
-
     const { quantity } = this.state;
     const skuId = _.get(this.currentSku, 'attributes.code.v', '');
     actions.addLineItem(skuId, quantity, this.state.attributes)
       .then(() => {
         actions.toggleCart();
-        this.setState({quantity: 1});
+        this.setState({
+          quantity: 1,
+          attributes: {},
+          currentSku: null,
+        });
       })
       .catch(ex => {
         this.setState({
           error: ex,
         });
       });
-  }
-
-  @autobind
-  setCurrentAdditionalAttr (currentAdditionalTitle) {
-    this.setState({ currentAdditionalTitle });
-  }
-
-  @autobind
-  renderAttributes () {
-    const { attributes } =
-      _.find(additionalInfoAttributesMap,
-        attr => attr.title == this.state.currentAdditionalTitle) || {};
-
-    return renderAttributes(this.props.product, attributes);
   }
 
   render(): HTMLElement {
@@ -265,19 +232,6 @@ class Pdp extends Component {
 
     const product = this.product;
     const { images } = product;
-
-    const attributeTitles = additionalInfoAttributesMap.map(({ title: attrTitle }) => {
-      const cls = classNames(styles['item-title'], {
-        [styles.active]: attrTitle === this.state.currentAdditionalTitle,
-      });
-      const onClick = this.setCurrentAdditionalAttr.bind(this, attrTitle);
-
-      return (
-        <div className={cls} onClick={onClick} key={attrTitle}>
-          {attrTitle}
-        </div>
-      );
-    });
 
     return (
       <div styleName="container">
@@ -307,17 +261,7 @@ class Pdp extends Component {
         </div>
 
         {!this.isGiftCard() &&
-          <div styleName="additional-info">
-            <div>
-              <div styleName="items-title-wrap">
-                {attributeTitles}
-              </div>
-
-              <div styleName="info-block">
-                {this.renderAttributes()}
-              </div>
-            </div>
-          </div>}
+          <ProductAttributes product={this.props.product} />}
       </div>
     );
   }
