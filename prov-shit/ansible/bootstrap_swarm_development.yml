@@ -1,0 +1,16 @@
+---
+
+- include: bootstrap_swarm_wait_ssh.yml
+
+- name: Provisioning Swarm Master
+  hosts: all
+  vars:
+    user: ubuntu
+
+  sudo: true
+  roles:
+    - { role: swarm/provision/setup }
+    - { role: swarm/provision/zookeeper }
+    - { role: swarm/provision/mesos/master }
+    - { role: swarm/provision/marathon }
+    - { role: swarm/provision/mesos/worker }

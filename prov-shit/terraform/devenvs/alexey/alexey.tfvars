@@ -1,0 +1,10 @@
+owner           = "alexey"
+account_file    = "foxcomm-staging.json"
+gce_project     = "foxcomm-staging"
+region          = "us-central1"
+zone            = "us-central1-a"
+datacenter      = "swarm"
+network         = "default"
+bucket_location = "us"
+
+image           = "swarm-development-161104-120724"
