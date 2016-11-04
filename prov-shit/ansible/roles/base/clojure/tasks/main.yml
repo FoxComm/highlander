@@ -1,0 +1,15 @@
+---
+
+- name: Download Lein Installer
+  command: wget https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
+
+- name: Make Installer Executable
+  command: chown +x lein
+
+- name: Copy to Binaries Directory
+  command: mv lein /usr/local/bin
+  sudo: yes
+
+- name: Trigger Installation Process
+  command: lein -v
+  sudo: yes

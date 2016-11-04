@@ -19,5 +19,6 @@
     - { role: base/docker }
     - { role: base/mesos }
     - { role: base/scala }
+    - { role: base/clojure }
     - { role: base/node }
     - { role: base/consul_agent }
