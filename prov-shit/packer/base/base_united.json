@@ -5,12 +5,12 @@
             "type": "googlecompute",
             "account_file": "{{user `account_file`}}",
             "project_id" : "{{user `project_id`}}",
-            "source_image": "{{user `base_united_image`}}",
+            "source_image": "{{user `base_ubuntu_image`}}",
             "network": "{{user `network`}}",
-            "zone": "{{user `zone`}}",
-            "image_name": "base-frontend-{{isotime \"060102-150405\"}}",
-            "image_description": "Base Frontend Image",
-            "instance_name": "packer-base-frontend-{{uuid}}",
+            "zone": "us-central1-a",
+            "image_name": "base-{{isotime \"060102-150405\"}}",
+            "image_description": "Base United Image",
+            "instance_name": "packer-base-{{uuid}}",
             "machine_type": "n1-standard-2",
             "tags": ["ssh", "no-ip"],
             "use_internal_ip": true,
@@ -20,11 +20,8 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_tinystack_frontend.yml",
-            "extra_arguments": [
-                "-vvvv",
-                "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"
-            ]
+            "playbook_file" : "ansible/packer_base_united.yml",
+            "extra_arguments": ["-vvvv"]
         }
     ]
 }

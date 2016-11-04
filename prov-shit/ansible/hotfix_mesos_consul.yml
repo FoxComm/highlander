@@ -4,7 +4,7 @@
   hosts: '{{hostname}}'
   vars:
     user: '{{ansible_ssh_user}}'
-    zookeepers: zookeeper.service.consul:2181
+    zookeepers: zk://zookeeper.service.consul:2181
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a Amigo server hostname"

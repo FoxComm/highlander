@@ -19,6 +19,9 @@ resource "google_compute_instance" "vpn" {
 
     network_interface {
         network = "${var.network}"
+
+        access_config {
+        }
     }
 }
 

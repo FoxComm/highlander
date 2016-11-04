@@ -80,6 +80,9 @@ shortcuts:
   - name: Provision TPG Staging
     alias: tpg_staging.yml
     target: ansible/tpg_staging.yml
+  - name: Provision TPG Production
+    alias: tpg_production.yml
+    target: ansible/tpg_production.yml
   - name: Provision Tony Staging
     alias: easy_tony.yml
     target: ansible/easy_tony.yml
@@ -107,13 +110,16 @@ shortcuts:
       target: packer/envs/aws_target/config.json
       staging: packer/envs/staging/config.json
       topdrawer: packer/envs/topdrawer/config.json
-      tpg: packer/envs/tpg/config.json
+      tpg-prod: packer/envs/tpg-prod/config.json
 
   targets:
   # Base Images
   - name: Base Image
     alias: base.json
     target: packer/base/base.json
+  - name: Base United Image
+    alias: base_united.json
+    target: packer/base/base_united.json
   - name: Base Mesos Image
     alias: base_mesos.json
     target: packer/base/base_mesos.json
