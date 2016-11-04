@@ -30,16 +30,13 @@ variable "ssh_private_key" {
 }
 
 resource "google_compute_instance" "swarm_server" {
-    name         = "${join("-", compact(list(var.datacenter, "swarm", var.machine_role, var.owner)))}"
-    machine_type = "${var.machine_type}"
-    tags         = [
-        "ssh",
-        "no-ip",
-        "${var.datacenter}",
-        "${var.datacenter}-swarm-${var.machine_role}",
-        "${var.datacenter}-swarm-${var.machine_role}-${count.index}"
-    ]
+    name         = "${join("-", compact(list(var.datacenter, "swarm", var.machine_role, var.owner, lookup(map("1",""), format("%s", var.count), format("%d", count.index)))))}"
+
+    count        = "${var.count}"
+
     zone         = "${var.zone}"
+
+    machine_type = "${var.machine_type}"
 
     disk {
         image = "${var.image}"
@@ -60,4 +57,12 @@ resource "google_compute_instance" "swarm_server" {
         user        = "${var.ssh_user}"
         private_key = "${file(var.ssh_private_key)}"
     }
+
+    tags         = [
+        "ssh",
+        "no-ip",
+        "${var.datacenter}",
+        "${var.datacenter}-swarm-${var.machine_role}",
+        "${var.datacenter}-swarm-${var.machine_role}-${count.index}"
+    ]
 }
