@@ -108,12 +108,16 @@ shortcuts:
       staging: packer/envs/staging/config.json
       topdrawer: packer/envs/topdrawer/config.json
       tpg: packer/envs/tpg/config.json
+      tpg-prod: packer/envs/tpg-prod/config.json
 
   targets:
   # Base Images
   - name: Base Image
     alias: base.json
     target: packer/base/base.json
+  - name: Base United Image
+    alias: base_united.json
+    target: packer/base/base_united.json
   - name: Base Mesos Image
     alias: base_mesos.json
     target: packer/base/base_mesos.json
