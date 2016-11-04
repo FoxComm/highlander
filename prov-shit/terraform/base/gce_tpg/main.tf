@@ -1,105 +1,121 @@
 variable "ssh_user" {}
 variable "ssh_private_key" {}
 
+variable "dnsimple_email" {}
+variable "dnsimple_token" {}
+
 variable "account_file" {}
 variable "gce_project" {}
 variable "region" {}
-variable "network" {}
-variable "bucket_location" {}
 variable "zone" {}
 variable "vpn_image" {}
-variable "amigo_server_image" {}
-variable "kafka_image" {}
-variable "db_image" {}
-variable "es_image" {}
-variable "log_image" {}
-variable "phoenix_image" {}
-variable "service_worker_image" {}
-variable "service_workers" {}
-variable "greenriver_image" {}
-variable "front_image" {}
-variable "front_workers" {}
+variable "network" {}
 
-variable "stage_backend_image" {}
-variable "stage_frontend_image" {}
-variable "stage_amigo_server_image" {}
-
-provider "google"
-{
+provider "google" {
     credentials = "${file(var.account_file)}"
-    project = "${var.gce_project}"
-    region = "${var.region}"
+    project     = "${var.gce_project}"
+    region      = "${var.region}"
 }
 
 ##############################################
 # Network
 ##############################################
-
 resource "google_compute_network" "tpg" {
-  name       = "${var.network}"
-  ipv4_range = "10.0.0.0/16"
+    name       = "${var.network}"
+    ipv4_range = "10.0.0.0/16"
 }
 
 resource "google_compute_firewall" "tpg_web" {
-  name    = "${var.network}-web"
-  network = "${var.network}"
+    name    = "${var.network}-web"
+    network = "${var.network}"
 
-  allow {
-    protocol = "icmp"
-  }
+    allow {
+        protocol = "icmp"
+    }
 
-  allow {
-    protocol = "tcp"
-    ports    = ["80", "443"]
-  }
+    allow {
+        protocol = "tcp"
+        ports    = ["80", "443"]
+    }
 
-  source_ranges = ["0.0.0.0/0"]
-  target_tags = ["http-server", "https-server"]
+    source_ranges = ["0.0.0.0/0"]
+    target_tags   = ["http-server", "https-server"]
 }
 
 resource "google_compute_firewall" "tpg_ssh" {
-  name    = "${var.network}-ssh"
-  network = "${var.network}"
+    name    = "${var.network}-ssh"
+    network = "${var.network}"
 
-  allow {
-    protocol = "icmp"
-  }
+    allow {
+        protocol = "icmp"
+    }
 
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
+    allow {
+        protocol = "tcp"
+        ports    = ["22"]
+    }
 
-  source_ranges = ["0.0.0.0/0"]
-  target_tags = ["ssh"]
+    source_ranges = ["0.0.0.0/0"]
+    target_tags   = ["ssh"]
 }
 
 resource "google_compute_firewall" "tpg_internal" {
-  name    = "${var.network}-internal"
-  network = "${var.network}"
+    name    = "${var.network}-internal"
+    network = "${var.network}"
 
-  allow {
-    protocol = "icmp"
-  }
+    allow {
+        protocol = "icmp"
+    }
 
-  allow {
-    protocol = "tcp"
-    ports    = ["1-65535"]
-  }
+    allow {
+        protocol = "tcp"
+        ports    = ["1-65535"]
+    }
 
-  allow {
-    protocol = "udp"
-    ports    = ["1-65535"]
-  }
+    allow {
+        protocol = "udp"
+        ports    = ["1-65535"]
+    }
 
-  source_ranges = ["10.0.0.0/16"]
+    source_ranges = ["10.0.0.0/16"]
 }
 
 ##############################################
-# Vpn
+# VPN
 ##############################################
 module "tpg_vpn" {
-    source = "../../modules/gce/vpn"
-    image = "${var.vpn_image}"
+    source  = "../../modules/gce/vpn"
+    image   = "${var.vpn_image}"
     network = "${google_compute_network.tpg.name}"
+}
+
+##############################################
+# Production Cluster
+##############################################
+module "tpg_production" {
+    source          = "../../modules/gce/tinyproduction"
+    ssh_user        = "${var.ssh_user}"
+    ssh_private_key = "${var.ssh_private_key}"
+
+    network         = "${google_compute_network.tpg.name}"
+    datacenter      = "tpg"
+    amigo_image     = "base-amigo-161104-095319"
+    backend_image   = ""
+    frontend_image  = ""
+}
+
+##############################################
+# DNS Records
+##############################################
+provider "dnsimple" {
+    token = "${var.dnsimple_token}"
+    email = "${var.dnsimple_email}"
+}
+
+resource "dnsimple_record" "docker-registry-dns-record" {
+    domain = "foxcommerce.com"
+    name = "docker-tpg"
+    value = "${module.tpg_production.amigo_leader}"
+    type = "A"
+    ttl = 3600
 }
