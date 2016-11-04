@@ -134,6 +134,7 @@ class Pdp extends Component {
     quantity: 1,
     currentAdditionalTitle: 'Prep',
     currentSku: null,
+    attributes: {},
   };
 
   componentWillMount() {
@@ -168,8 +169,28 @@ class Pdp extends Component {
   }
 
   get currentSku () {
-    return this.state.currentSku ||
-      _.get(this.props, ['product', 'skus', 0], {});
+    return this.state.currentSku || this.sortedSkus[0];
+  }
+
+  get sortedSkus () {
+    return _.sortBy(
+      this.props.product.skus, 'attributes.salePrice.v.value');
+  }
+
+  @autobind
+  setCurrentSku (currentSku) {
+    this.setState({ currentSku });
+  }
+
+  @autobind
+  setAttributeFromField (attributeKey) {
+    return e =>
+      this.setState({
+        attributes: {
+          ...this.state.attributes,
+          [attributeKey]: e.target.value,
+        },
+      });
   }
 
   get product(): Product {
@@ -186,6 +207,7 @@ class Pdp extends Component {
       price: _.get(price, 'value', 0),
       amountOfServings: _.get(attributes, 'Amount of Servings.v', ''),
       servingSize: _.get(attributes, 'Serving Size.v', ''),
+      skus: this.sortedSkus,
     };
   }
 
@@ -204,7 +226,7 @@ class Pdp extends Component {
 
     const { quantity } = this.state;
     const skuId = _.get(this.currentSku, 'attributes.code.v', '');
-    actions.addLineItem(skuId, quantity)
+    actions.addLineItem(skuId, quantity, this.state.attributes)
       .then(() => {
         actions.toggleCart();
         this.setState({quantity: 1});
@@ -241,7 +263,8 @@ class Pdp extends Component {
       return <p styleName="not-found">{t('Product not found')}</p>;
     }
 
-    const { images } = this.product;
+    const product = this.product;
+    const { images } = product;
 
     const attributeTitles = additionalInfoAttributesMap.map(({ title: attrTitle }) => {
       const cls = classNames(styles['item-title'], {
@@ -264,9 +287,16 @@ class Pdp extends Component {
         <div styleName="details">
           <div styleName="details-wrap">
             {this.isGiftCard() ?
-              <GiftCardForm /> :
+              <GiftCardForm
+                product={product}
+                addToCart={this.addToCart}
+                onSkuChange={this.setCurrentSku}
+                selectedSku={this.currentSku}
+                attributes={this.state.attributes}
+                onAttributeChange={this.setAttributeFromField}
+              /> :
               <ProductDetails
-                product={this.product}
+                product={product}
                 quantity={this.state.quantity}
                 onQuantityChange={this.changeQuantity}
                 addToCart={this.addToCart}
