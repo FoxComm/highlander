@@ -68,6 +68,8 @@ capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
 # Shipstation consumer
 shipstation_api_key: ""
 shipstation_api_secret: ""
+shipstation_topic: "orders_search_view"
+shipstation_partition: 1
 
 # Ashes
 ashes_env: production
