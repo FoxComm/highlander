@@ -46,3 +46,18 @@
   service: name=seeder state=restarted enabled=yes
   sudo: true
   when: with_seeder
+
+- name: Copy Middlewarehouse Seeder
+  copy: src={{middlewarehouse_seeder_bin_src}} dest={{middlewarehouse_dir}}/seeder mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Copy Middlewarehouse .env
+  template: src=middlewarehouse.env dest={{middlewarehouse_dir}}/.env.seeder
+  sudo: true
+
+- name: Seed Middlewarehouse Database
+  shell: GOENV=seeder ./seeder
+  sudo: true
+  args:
+    chdir: "{{middlewarehouse_dir}}"
+
