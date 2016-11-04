@@ -39,13 +39,13 @@ docker: glide
 
 docker-push:
 	docker tag $(DOCKER_TAG) $(DOCKER_HOST)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker tag stock-items-consumer docker-stage.foxcommerce.com:5000/stock-items-consumer:master
-	docker tag shipments-consumer docker-stage.foxcommerce.com:5000/shipments-consumer:master
-	docker tag capture-consumer docker-stage.foxcommerce.com:5000/capture-consumer:master
+	docker tag stock-items-consumer $(DOCKER_HOST)/stock-items-consumer:master
+	docker tag shipments-consumer $(DOCKER_HOST)/shipments-consumer:master
+	docker tag capture-consumer $(DOCKER_HOST)/capture-consumer:master
 	docker push $(DOCKER_HOST)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push docker-stage.foxcommerce.com:5000/stock-items-consumer:master
-	docker push docker-stage.foxcommerce.com:5000/shipments-consumer:master
-	docker push docker-stage.foxcommerce.com:5000/capture-consumer:master
+	docker push $(DOCKER_HOST)/stock-items-consumer:master
+	docker push $(DOCKER_HOST)/shipments-consumer:master
+	docker push $(DOCKER_HOST)/capture-consumer:master
 
 
 clean:
