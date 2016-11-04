@@ -20,6 +20,7 @@ variable "count" {
 
 # user variables
 variable "owner" {
+    default = ""
 }
 
 # provisioner variables
@@ -29,7 +30,7 @@ variable "ssh_private_key" {
 }
 
 resource "google_compute_instance" "swarm_server" {
-    name         = "${var.datacenter}-swarm-${var.machine_role}-${var.owner}"
+    name         = "${join("-", compact(list(var.datacenter, "swarm", var.machine_role, var.owner)))}"
     machine_type = "${var.machine_type}"
     tags         = [
         "ssh",

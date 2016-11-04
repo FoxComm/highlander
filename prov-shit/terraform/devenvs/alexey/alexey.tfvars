@@ -9,7 +9,7 @@ datacenter      = "swarm"
 network         = "default"
 bucket_location = "us"
 
-// instance variables
+# resources variables
 machine_type    = "n1-standard-2"
 image           = "swarm-development-161104-120724"
 disk_size       = "30"
