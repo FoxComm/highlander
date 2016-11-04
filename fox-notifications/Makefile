@@ -5,10 +5,10 @@ DOCKER_BRANCH ?= master
 build:
 	lein uberjar
 
-docker: build
+docker:
 	docker build -t $(DOCKER_TAG) .
 
-docker-push: docker
+docker-push:
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
