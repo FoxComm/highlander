@@ -41,7 +41,7 @@ build: setup
 	./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true ./node_modules/.bin/gulp build
 
-docker: build
+docker:
 	docker build -t $(DOCKER_TAG) .
 
 docker-push:
