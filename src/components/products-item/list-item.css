@@ -62,6 +62,8 @@
 }
 
 .title {
+  composes: title-devider from 'ui/css/layout.css';
+
   margin-top: 20px;
   font-family: var(--font-playfair);
   font-weight: 400;
@@ -72,15 +74,6 @@
   text-overflow: ellipsis;
   overflow: hidden;
   line-height: 30px;
-
-  &:after {
-    content: "";
-    display: block;
-    width: 48px;
-    height: 2px;
-    background-color: #3D2228;
-    margin-top: 20px;
-  }
 }
 
 .description {

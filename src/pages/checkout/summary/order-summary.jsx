@@ -31,6 +31,9 @@ type Props = {
   paymentMethods?: Object,
   t: any,
   isScrolled: boolean,
+  isCollapsed: boolean,
+  header?: any,
+  className?: string,
 };
 
 type State = {
@@ -40,12 +43,13 @@ type State = {
 class OrderSummary extends Component {
   props: Props;
 
-  state: State = {
+  static defaultProps = {
+    paymentMethods: {},
     isCollapsed: true,
   };
 
-  static defaultProps = {
-    paymentMethods: {},
+  state: State = {
+    isCollapsed: this.props.isCollapsed,
   };
 
   renderGiftCard(amount) {
@@ -99,14 +103,19 @@ class OrderSummary extends Component {
     const style = classNames({
       [styles.collapsed]: this.state.isCollapsed,
       [styles.scrolled]: this.props.isScrolled,
-    });
+    }, props.className);
+
+    const header = (
+      <header styleName="header" onClick={this.toggleCollapsed}>
+        <div styleName="title">{t('ORDER TOTAL')}</div>
+        <Currency styleName="price" value={grandTotalResult} />
+      </header>
+    );
 
     return (
       <section styleName="order-summary" className={style}>
-        <header styleName="header" onClick={this.toggleCollapsed}>
-          <div styleName="title">{t('ORDER TOTAL')}</div>
-          <Currency styleName="price" value={grandTotalResult} />
-        </header>
+        { this.props.header ? this.props.header : header }
+
         <div styleName="content">
           <ProductTable skus={props.skus} />
 

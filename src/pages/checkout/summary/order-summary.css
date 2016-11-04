@@ -73,8 +73,6 @@
   }
 
   .order-summary {
-    position: fixed;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, .1);
     overflow-y: auto;
     max-height: calc(100% - 146px);
 

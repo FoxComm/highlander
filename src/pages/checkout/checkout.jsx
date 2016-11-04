@@ -193,7 +193,10 @@ class Checkout extends Component {
 
         <div styleName="content">
           <div styleName="summary">
-            <OrderSummary isScrolled={this.state.isScrolled} />
+            <OrderSummary
+              isScrolled={this.state.isScrolled}
+              styleName="summary-content"
+            />
           </div>
 
           <div styleName="forms">
