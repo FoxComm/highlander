@@ -2,7 +2,6 @@ package consumers
 
 import (
 	"log"
-	"os"
 
 	"github.com/FoxComm/highlander/integrations/shipstation/lib/phoenix"
 	"github.com/FoxComm/highlander/integrations/shipstation/lib/shipstation"
@@ -15,10 +14,7 @@ type OrderConsumer struct {
 	client *shipstation.Client
 }
 
-func NewOrderConsumer(topic string) (*OrderConsumer, error) {
-	key := os.Getenv("API_KEY")
-	secret := os.Getenv("API_SECRET")
-
+func NewOrderConsumer(topic string, key string, secret string) (*OrderConsumer, error) {
 	client, err := shipstation.NewClient(key, secret)
 	if err != nil {
 		return nil, err
