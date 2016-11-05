@@ -10,6 +10,10 @@
 
   lost-column: 3/11;
   lost-offset: -4/11;
+
+  & :global(.fc-errors) {
+    margin-bottom: 10px;
+  }
 }
 
 .logo {
