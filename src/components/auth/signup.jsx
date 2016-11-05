@@ -78,7 +78,6 @@ class Signup extends Component {
     const {email, password, username: name} = this.state;
     const paylaod: SignUpPayload = {email, password, name};
     this.props.signUp(paylaod).then(() => {
-      // browserHistory.push(this.props.getPath(authBlockTypes.LOGIN));
       browserHistory.push(this.props.getPath());
     }).catch(err => {
       const errors = get(err, ['responseJson', 'errors'], []);
