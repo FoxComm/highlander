@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import { each, get } from 'lodash';
+import { get, reduce } from 'lodash';
 import React, { Component } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
@@ -15,6 +15,7 @@ import { TextInput } from 'ui/inputs';
 import ShowHidePassword from 'ui/forms/show-hide-password';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
+import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 
 import * as actions from 'modules/auth';
 import { authBlockTypes } from 'paragons/auth';
@@ -28,6 +29,7 @@ type AuthState = {
   username: string,
   usernameError: bool|string,
   emailError: bool|string,
+  generalErrors: Array<string>,
 };
 
 type Props = Localized & {
@@ -48,6 +50,7 @@ class Signup extends Component {
     username: '',
     usernameError: false,
     emailError: false,
+    generalErrors: [],
   };
 
   @autobind
@@ -78,20 +81,29 @@ class Signup extends Component {
     const {email, password, username: name} = this.state;
     const paylaod: SignUpPayload = {email, password, name};
     this.props.signUp(paylaod).then(() => {
-      browserHistory.push(this.props.getPath(authBlockTypes.LOGIN));
+      browserHistory.push(this.props.getPath());
     }).catch(err => {
-      const errors = get(err, ['responseJson', 'errors'], []);
+      const errors = get(err, ['responseJson', 'errors'], [err.toString()]);
       let emailError = false;
       let usernameError = false;
-      each(errors, error => {
+
+      const restErrors = reduce(errors, (acc, error) => {
         if (error.indexOf('email') >= 0) {
           emailError = error;
-        }
-        if (error.indexOf('name') >= 0) {
+        } else if (error.indexOf('name') >= 0) {
           usernameError = error;
+        } else {
+          return [...acc, error];
         }
+
+        return acc;
+      }, []);
+
+      this.setState({
+        emailError,
+        usernameError,
+        generalErrors: restErrors,
       });
-      this.setState({emailError, usernameError});
     });
   }
 
@@ -138,6 +150,7 @@ class Signup extends Component {
               onChange={this.onChangePassword}
             />
           </FormField>
+          <ErrorAlerts errors={this.state.generalErrors} />
           <Button
             styleName="primary-button"
             isLoading={isLoading}

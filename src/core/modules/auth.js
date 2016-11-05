@@ -27,7 +27,11 @@ export const setJwt = createAction('AUTH_SET_JWT');
 
 export const signUp = createAsyncActions('auth-signup', function signUp(payload: SignUpPayload): Promise {
   const {email, name, password} = payload;
-  return api.auth.signup(email, name, password);
+  return api.auth.signup(email, name, password)
+    .then(({jwt, user}) => {
+      this.dispatch(setJwt(jwt));
+      this.dispatch(setUser(user));
+    });
 }).perform;
 
 export const authenticate = createAsyncActions('auth-login', function authenticate(payload: LoginPayload): Promise {
