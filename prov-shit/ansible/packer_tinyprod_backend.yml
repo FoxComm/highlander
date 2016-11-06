@@ -1,0 +1,30 @@
+---
+
+- name: Provision Packer Tinyprod Backend
+  hosts: all
+  tags:
+      - packer-tinyprod-backend
+  vars:
+    user: ubuntu
+    packing: true
+    middlewarehouse_src: "{{ lookup('env', 'GOPATH') }}/src/github.com/FoxComm/highlander/middlewarehouse"
+    kafka_server: kafka.service.consul:9092
+    schema_server: schema-registry.service.consul:8081
+    zookeeper_server: zookeeper.service.consul:2181
+  post_tasks:
+    - name: Sweet Dreams
+      pause: seconds=5
+
+  roles:
+    - { role: base/scala }
+    - { role: base/ssh_keys }
+    - { role: base/mesos_worker }
+    - { role: base/confluence }
+    - { role: base/kafka }
+    - { role: base/schema-registry }
+    - { role: base/elasticsearch }
+    - { role: base/db }
+    - { role: base/rsyslog, sudo: yes }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
