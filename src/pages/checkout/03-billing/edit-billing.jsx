@@ -166,15 +166,15 @@ class EditBilling extends Component {
 
   @autobind
   updateCreditCard() {
-    const { id } = this.props.billingData;
-    const { billingAddressIsSame} = this.state;
+    const id = _.get(this.props, 'billingData.id');
+    const { billingAddressIsSame } = this.state;
 
     if (id) {
       return this.props.updateCreditCard(id, billingAddressIsSame)
         .then(() => this.setState({ addingNew: false }));
     }
 
-    this.props.addCreditCard(billingAddressIsSame)
+    return this.props.addCreditCard(billingAddressIsSame)
       .then(() => this.setState({ addingNew: false }));
   }
 

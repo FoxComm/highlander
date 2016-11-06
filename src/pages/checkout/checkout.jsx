@@ -142,8 +142,9 @@ class Checkout extends Component {
   }
 
   @autobind
-  checkAuthAndplaceOrder() {
+  checkAuthAndPlaceOrder() {
     const user = _.get(this.props, ['auth', 'user'], null);
+    console.log(user);
     if (emailIsSet(user)) {
       this.placeOrder();
     } else {
@@ -226,7 +227,7 @@ class Checkout extends Component {
               collapsed={!props.isBillingDirty && props.editStage < EditStages.BILLING}
               editAction={this.setBillingState}
               inProgress={this.state.isPerformingCheckout}
-              continueAction={this.checkAuthAndplaceOrder}
+              continueAction={this.checkAuthAndPlaceOrder}
               error={this.errorsFor(EditStages.BILLING)}
               isAddressLoaded={this.props.isAddressLoaded}
             />
