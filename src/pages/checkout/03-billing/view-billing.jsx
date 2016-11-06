@@ -15,7 +15,7 @@ import styles from './credit-card.css';
 import type { BillingData } from '../types';
 
 type Props = {
-  billingData: BillingData,
+  billingData: ?BillingData,
 };
 
 const ViewBilling = (props: Props) => {
