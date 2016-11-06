@@ -41,6 +41,10 @@ object UserFailures {
     def apply(name: String, scope: String) = NotFoundFailure404(Organization, s"$name+$scope")
   }
 
+  object OrganizationNotFoundWithDomain {
+    def apply(domain: String) = NotFoundFailure404(Organization, s"$domain")
+  }
+
   object RoleNotFound {
     def apply(name: String, scope: String) = NotFoundFailure404(Role, s"$name+$scope")
   }
