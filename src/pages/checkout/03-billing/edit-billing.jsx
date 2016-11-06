@@ -38,7 +38,7 @@ import type { CreditCardType, CheckoutActions } from '../types';
 type Props = CheckoutActions & {
   error: Array<any>,
   data: CreditCardType,
-  billingData: CreditCardType,
+  billingData: ?CreditCardType,
   continueAction: Function,
   t: any,
   inProgress: boolean,
