@@ -51,6 +51,9 @@ shortcuts:
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
+  - name: Bootstrap Phoenix JAR
+    alias: phoenix.yml
+    target: ansible/bootstrap_phoenix.yml
   - name: Bootstrap Store Admin User
     alias: store_admin.yml
     target: ansible/bootstrap_store_admin.yml
