@@ -48,8 +48,28 @@ class AddressList extends Component {
       this.addAddress();
     }
 
-    if (this.props.addresses.length == 1) {
-      this.changeAddressOption(this.props.addresses[0].id);
+    if (this.props.addresses.length >= 1) {
+      const defaultAddress = _.find(this.props.addresses, { isDefault: true });
+      const selected = defaultAddress ? defaultAddress.id : this.props.addresses[0].id;
+      this.changeAddressOption(selected);
+    }
+  }
+
+  componentWillUpdate(nextProps: Props, nextState: State) {
+    if (this.state.isEditFormActive == nextState.isEditFormActive &&
+        this.props.addresses !== nextProps.addresses &&
+        nextProps.addresses.length > 0) {
+      this.setState({
+        addressToEdit: {},
+        isEditFormActive: false,
+      });
+    }
+
+    const selectedAddress = _.find(nextProps.addresses, { id: nextState.activeAddress });
+    if (!nextState.isEditFormActive && nextProps.addresses.length > 0 && !selectedAddress) {
+      const defaultAddress = _.find(nextProps.addresses, { isDefault: true });
+      const selected = defaultAddress ? defaultAddress.id : nextProps.addresses[0].id;
+      this.changeAddressOption(selected);
     }
   }
 

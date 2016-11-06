@@ -34,7 +34,7 @@ class Shipping extends Component {
   content() {
     const savedAddress = this.props.shippingAddress;
 
-    if (!_.isEmpty(savedAddress) && !this.props.isEditing) {
+    if ((!_.isEmpty(savedAddress) && !this.props.isEditing)) {
       return (
         <ViewAddress { ...savedAddress } styleName="savedAddress"/>
       );

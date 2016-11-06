@@ -144,7 +144,6 @@ class Checkout extends Component {
   @autobind
   checkAuthAndPlaceOrder() {
     const user = _.get(this.props, ['auth', 'user'], null);
-    console.log(user);
     if (emailIsSet(user)) {
       this.placeOrder();
     } else {
