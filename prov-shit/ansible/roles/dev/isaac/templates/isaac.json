@@ -1,7 +1,7 @@
 {
   "id": "/isaac",
   "cmd": null,
-  "cpus": 1,
+  "cpus": 0.25,
   "mem": 64,
   "disk": 0,
   "instances": 1,
@@ -29,7 +29,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/isaac",
+      "image": "{{docker_registry}}:5000/isaac:{{docker_branch}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

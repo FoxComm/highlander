@@ -1,5 +1,3 @@
-[![Build status](https://badge.buildkite.com/20bc913b3e06b49544cd4354c92f675bdfd0cf93f5a4640d3e.svg)](https://buildkite.com/foxcommerce/phoenix-scala)
-
 # Phoenix
 
 <p align="center">
@@ -51,7 +49,7 @@ Phoenix can be run in development by running either running the application nati
     brew install sbt scala flyway postgresql
     ```
 
-### Useful Commands  
+### Useful Commands
 
 - `sbt '~re-start'`: reloads the application automatically on code changes
 - `sbt seed`: execute the seeds

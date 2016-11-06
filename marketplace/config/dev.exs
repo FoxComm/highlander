@@ -10,9 +10,7 @@ config :marketplace, Marketplace.Endpoint,
   http: [port: 4003],
   debug_errors: true,
   code_reloader: true,
-  check_origin: false,
-  watchers: [node: ["node_modules/brunch/bin/brunch", "watch", "--stdin",
-                    cd: Path.expand("../", __DIR__)]]
+  check_origin: false
 
 
 # Watch static and templates for browser reloading.
@@ -35,15 +33,16 @@ config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
 config :marketplace, Marketplace.Repo,
-  adapter: Ecto.Adapters.Postgres, 
+  adapter: Ecto.Adapters.Postgres,
   username: System.get_env("DB_USER"),
   password: System.get_env("DB_PASSWORD"),
   database: System.get_env("DB_NAME"),
   hostname: System.get_env("DB_HOST"),
   pool_size: 10
 
-config :marketplace, Marketplace.MerchantAccount, 
+config :marketplace, Marketplace.MerchantAccount,
   phoenix_url: System.get_env("PHOENIX_URL"),
   phoenix_port: System.get_env("PHOENIX_PORT"),
   solomon_url: System.get_env("SOLOMON_URL"),
-  solomon_port: System.get_env("SOLOMON_PORT")
+  solomon_port: System.get_env("SOLOMON_PORT"),
+  stripe_private_key: System.get_env("STRIPE_PRIVATE_KEY")

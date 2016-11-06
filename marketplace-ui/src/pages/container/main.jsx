@@ -15,8 +15,6 @@ import {
   getApplicationFetchFailed,
   getAccounts,
   getAccountsFetched,
-  getInfo,
-  getInfoFetched,
   getFeed,
   getFeedFetched,
   getShipping,
@@ -25,7 +23,6 @@ import {
 
 import { fetch as fetchApplication } from '../../core/modules/merchant-application';
 import { fetch as fetchAccounts } from '../../core/modules/merchant-account';
-import { fetch as fetchInfo } from '../../core/modules/merchant-info';
 import { fetch as fetchFeed } from '../../core/modules/products-feed';
 import { fetch as fetchShipping } from '../../core/modules/shipping-solution';
 
@@ -35,7 +32,6 @@ import type { HTMLElement } from '../../core/types';
 
 import type { Application } from '../../core/modules/merchant-application';
 import type { Accounts } from '../../core/modules/merchant-account';
-import type { Info } from '../../core/modules/merchant-info';
 import type { Shipping } from '../../core/modules/shipping-solution';
 
 import styles from './main.css';
@@ -43,17 +39,14 @@ import styles from './main.css';
 type Props = {
   application: Application;
   accounts: Accounts,
-  info: Info,
   shipping: Shipping,
   applicationApproved: boolean;
   applicationFetched: boolean;
   applicationFetchFailed: boolean;
   accountsFetched: boolean;
-  infoFetched: boolean;
   shippingFetched: boolean;
   fetchApplication: (reference: string) => Promise<*>;
   fetchAccounts: (merchantId: number) => Promise<*>;
-  fetchInfo: (merchantId: number) => Promise<*>;
   fetchFeed: (merchantId: number) => Promise<*>;
   fetchShipping: (merchantId: number) => Promise<*>;
 
@@ -95,15 +88,12 @@ class Main extends Component {
       applicationFetched,
       accounts,
       accountsFetched,
-      info,
-      infoFetched,
       feed,
       feedFetched,
       shipping,
       shippingFetched,
       fetchApplication,
       fetchAccounts,
-      fetchInfo,
       fetchFeed,
       fetchShipping,
       params: { ref },
@@ -129,19 +119,14 @@ class Main extends Component {
       this.replace(`/application/${ref}/account`);
     }
 
-    /** accounts fetched and not empty - fetching info */
-    if (accountsFetched && !isEmpty(accounts) && !infoFetched) {
-      fetchInfo(get(application, 'merchant.id'));
-    }
-
-    /** info fetched but empty - info page */
-    if (infoFetched && isEmpty(info)) {
-      this.replace(`/application/${ref}/info`);
-    }
-
-    /** info fetched and not empty - fetching shipping solutions */
-    if (infoFetched && !isEmpty(info) && !shippingFetched) {
-      fetchShipping(get(application, 'merchant.id'));
+    if (accountsFetched && !isEmpty(accounts)) {
+      if (!get(accounts, [0, 'merchant_account', 'stripe_account_id'])) {
+        /** accounts fetched and not empty but no stripe_account_id - business info page */
+        this.replace(`/application/${ref}/info`);
+      } else {
+        /** accounts fetched and not empty and has stripe_account_id - fetching shipping solutions */
+        fetchShipping(get(application, 'merchant.id'));
+      }
     }
 
     /** shipping solutions fetched but empty - shipping solutions page */
@@ -150,7 +135,7 @@ class Main extends Component {
     }
 
     /** shipping solutions fetched and not empty - actions page */
-    if (shippingFetched && !isEmpty(shipping)/* && !feedFetched*/) {
+    if (shippingFetched && !isEmpty(shipping)) {
       this.replace(`/application/${ref}/actions`);
     }
   }
@@ -196,14 +181,12 @@ const mapState = state => ({
   applicationFetchFailed: getApplicationFetchFailed(state),
   accounts: getAccounts(state),
   accountsFetched: getAccountsFetched(state),
-  info: getInfo(state),
-  infoFetched: getInfoFetched(state),
   feed: getFeed(state),
   feedFetched: getFeedFetched(state),
   shipping: getShipping(state),
   shippingFetched: getShippingFetched(state),
 });
 
-const mapActions = { fetchApplication, fetchAccounts, fetchInfo, fetchFeed, fetchShipping, replace };
+const mapActions = { fetchApplication, fetchAccounts, fetchFeed, fetchShipping, replace };
 
 export default connect(mapState, mapActions)(withRouter(Main));

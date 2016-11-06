@@ -31,11 +31,13 @@ object OrderQueries extends CordQueries {
     } yield TheResponse.build(response)
   }
 
-  def findOne(
-      refNum: String)(implicit ec: EC, db: DB, ctx: OC): DbResultT[TheResponse[OrderResponse]] =
+  def findOne(refNum: String, grouped: Boolean = true)(
+      implicit ec: EC,
+      db: DB,
+      ctx: OC): DbResultT[TheResponse[OrderResponse]] =
     for {
       order    ← * <~ Orders.mustFindByRefNum(refNum)
-      response ← * <~ OrderResponse.fromOrder(order)
+      response ← * <~ OrderResponse.fromOrder(order, grouped)
     } yield TheResponse.build(response)
 
 }

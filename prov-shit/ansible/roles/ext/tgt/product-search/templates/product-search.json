@@ -6,8 +6,8 @@
   "disk": 0,
   "instances": 1,
   "env": {
-    "PHOENIX_URL": "https://tgt4.foxcommerce.com",
-    "ELASTIC_URL": "https://tgt4.foxcommerce.com"
+    "PHOENIX_URL": "https://{{storefront_server_name}}",
+    "ELASTIC_URL": "https://{{storefront_server_name}}"
   },
   "portDefinitions": [
     {
@@ -20,7 +20,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "{{docker_registry}}:5000/product-search",
+      "image": "{{docker_registry}}:5000/product-search:{{docker_branch}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

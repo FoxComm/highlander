@@ -1,14 +1,19 @@
+DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
+DOCKER_TAG ?= firebrand
+DOCKER_BRANCH ?= master
 
 setup:
 	npm install
 
 build: setup
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
-	touch firebrand.tar.bz2
-	tar --exclude 'firebrand.tar.bz2' -jcf firebrand.tar.bz2 ./
 
-docker: build
-	docker build -t firebrand .
+docker:
+	docker build -t $(DOCKER_TAG) .
+
+docker-push:
+	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
 clean:
 	rm -rf ./node_modules
@@ -16,4 +21,4 @@ clean:
 test: setup
 	npm test
 
-.PHONY: setup build package test docker
+.PHONY: setup build test docker

@@ -11,7 +11,7 @@ import Form from '../../components/form/form';
 
 import { getApplication, getAccounts, getAccountSubmitInProgress, getAccountSubmitFailed } from '../../core/modules';
 
-import { submit } from '../../core/modules/merchant-account';
+import { submitAccount as submit } from '../../core/modules/merchant-account';
 import { fields } from '../../forms/account/account-fields';
 
 import type { HTMLElement } from '../../core/types';

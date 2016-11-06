@@ -77,6 +77,7 @@ class ShopifyPage extends Component {
 
     return (
       <ThanksOrNot
+        className={styles.thanksOrNot}
         title="You're done!"
         message="You're being redirected to admin page now"
       >

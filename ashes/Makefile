@@ -1,3 +1,7 @@
+DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
+DOCKER_TAG ?= ashes
+DOCKER_BRANCH ?= master
+
 default: test
 NODE_ENV = test
 CFLAGS = -c -g -D $(NODE_ENV)
@@ -30,27 +34,19 @@ run-staging: setup stop
 run-production: setup stop
 	export NODE_ENV=production; nohup ./node_modules/.bin/gulp server 2>&1 &
 
-pre-build: setup
+build-dev: setup
 	./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && ON_SERVER=true ./node_modules/.bin/gulp build
 
-pre-build-production: setup
+build: setup
 	./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true ./node_modules/.bin/gulp build
 
-build: pre-build
-	touch ashes.tar.bz2
-	tar --exclude 'ashes.tar.bz2' --exclude '.git' --exclude '.gitignore' --exclude '.gitattributes' -jcf ashes.tar.bz2 ./
+docker:
+	docker build -t $(DOCKER_TAG) .
 
-build-production: pre-build-production
-	touch ashes.tar.bz2
-	tar --exclude 'ashes.tar.bz2' --exclude '.git' --exclude '.gitignore' --exclude '.gitattributes' -jcf ashes.tar.bz2 ./
+docker-push:
+	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
-docker: pre-build-production
-	docker build -t ashes .
-
-package-production: build-production
-	touch ashes.tar.bz2
-	tar --exclude 'ashes.tar.bz2' --exclude '.git' --exclude '.gitignore' --exclude '.gitattributes' -jcf ashes.tar.bz2 ./
-
-.PHONY: test test-cov tag build build-production package package-production docker
+.PHONY: build test test-cov tag docker docker-push

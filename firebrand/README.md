@@ -1,7 +1,5 @@
 # Firebrand
 
-[![Build status](https://badge.buildkite.com/e9143615d9d894b2cfc2d23dbf3bdcd8b217e10e56710564a7.svg)](https://buildkite.com/foxcommerce/firebrand)
-
 Demo storefront implementation of a FoxCommerce-powered store. Isomorphic React app powered by FoxComm's backend API.
 
 ## Local Development

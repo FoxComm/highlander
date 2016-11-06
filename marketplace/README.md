@@ -7,9 +7,9 @@ To get started, please follow the below instructions:
   * Get Erlang: `brew install erlang` or go [the site](http://www.erlang.org)
   * Get Elixir: `brew install elixir` or go [the site](http://www.elixir-lang.org)
   * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
-  * Seed the database with: `mix run priv/repo/seeds.exs`
-  * Start Phoenix endpoint with `mix phoenix.server`
+  * Create and migrate your database with `source .env && mix ecto.create && mix ecto.migrate`
+  * Seed the database with: `source .env && mix run priv/repo/seeds.exs`
+  * To start Phoenix with env variables from .env and .env.local run `source .env && mix phoenix.server`
 
 Now you can visit [`localhost:4003`](http://localhost:4003) from your browser.
 
@@ -27,3 +27,15 @@ variables must be set:
 
 For your convenience, there is already a .env file in the root of this directory that is set with the default of those applications.
 You can simply run `source .env` and then `mix phoenix.server`
+
+## Stripe integration
+In order business account to work you should provide stripe private key via STRIPE_PRIVATE_KEY env variable. You can add it to `.env.local` file which would be
+imported on `.env.local` import
+
+```
+export STRIPE_PRIVATE_KEY=sp_key
+```
+It should be a key from Stripe Managed Account
+### Testing Stripe
+To create new business account you should use test account and routing numbers for stripe.
+https://stripe.com/docs/testing#routing-numbers

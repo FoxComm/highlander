@@ -4,69 +4,20 @@
   apt: update_cache=yes
   sudo: true
 
-- name: Install Packages
-  apt: name={{ item }} state=latest force=yes
+- name: Install PostgreSQL Packages
+  apt: name={{item}} state=latest force=yes
   sudo: true
   with_items:
-    - make
-    - jq
-    - debconf-utils
-    - cmake
-    - build-essential
     - libpq-dev
-    - libcurl4-openssl-dev
-    - libjansson-dev
-    - pkg-config
-    - librdkafka-dev
-    - libsnappy-dev
+    - python-psycopg2
     - python-dev
     - postgresql-server-dev-9.5
     - postgresql-9.5
     - postgresql-client-9.5
     - postgresql-contrib-9.5
-    
+
 - name: Install pgcli
-  pip: name=pgcli state=present    
-
-- name: Get Avro
-  get_url: url={{avro_url}} dest="{{home}}/{{avro_name}}.tar.gz"
-  sudo: true
-
-- name: Unzip Avro
-  unarchive: src="{{home}}/{{avro_name}}.tar.gz" dest="{{home}}/" copy=no
-  args:
-    creates: "{{avro_dir}}"
-
-- name: Make Avro Build Dir
-  file: path="{{avro_dir}}/build" state=directory
-
-- name: Run CMake for Avro
-  shell: cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=RelWithDebInfo
-  args:
-    chdir: "{{avro_dir}}/build"
-
-- name: Compile and Install Avro
-  shell: make && make test && make install && ldconfig
-  sudo: true
-  args:
-    chdir: "{{avro_dir}}/build"
-
-- name: Setup Libsnappy
-  copy: src=libsnappy.pc dest=/usr/local/lib/pkgconfig/libsnappy.pc
-  sudo: true
-
-- name: Get Bottledwater
-  git: repo={{bottledwater_repo}} dest={{bottledwater_dir}} version={{bottledwater_version}}
-
-- name: Make and Install BottledWater
-  shell: make && make install
-  args:
-    chdir: "{{bottledwater_dir}}"
-  sudo: true
-
-- name: Symlink Bottledwater Executable
-  file: src="{{bottledwater_dir}}/kafka/bottledwater" dest="/usr/local/bin/bottledwater" state=link
-  sudo: true
+  pip: name=pgcli state=present
 
 - include: flyway_install.yml
 
@@ -85,49 +36,6 @@
   service: name=postgresql state=restarted sleep=5
   sudo: true
 
-- name: Install Prerequisites for Postgresql Ansible Module
-  sudo: true
-  apt: name={{item}} state=latest
-  with_items:
-    - libpq-dev
-    - python-psycopg2
-
-- name: Copy Bottledwater For Phoenix Run File
-  template: src=run_bottledwater_phoenix.sh dest="/usr/local/bin/run_bottledwater_phoenix.sh" mode="u+x,g+x,o+x"
-  sudo: true
-
-- name: Copy Bottledwater For Middlewarehouse Run File
-  template: src=run_bottledwater_middlewarehouse.sh dest="/usr/local/bin/run_bottledwater_middlewarehouse.sh" mode="u+x,g+x,o+x"
-  sudo: true
-
-- name: Copy Bottledwater For Phoenix Service
-  copy: src=bottledwater_phoenix.service dest="{{dest_services}}/bottledwater_phoenix.service"
-  sudo: true
-
-- name: Copy Bottledwater For Middlewarehouse Service
-  copy: src=bottledwater_middlewarehouse.service dest="{{dest_services}}/bottledwater_middlewarehouse.service"
-  sudo: true
-
-- name: Reload Systemd for Bottledwater
-  sudo: yes
-  command: systemctl daemon-reload
-
-- name: Start Bottledwater For Phoenix
-  service: name=bottledwater_phoenix state=started enabled=yes sleep=10
-  sudo: true
-
-- name: Start Bottledwater For Middlewarehouse
-  service: name=bottledwater_middlewarehouse state=started enabled=yes sleep=10
-  sudo: true
-
 - name: Copy Consul Service File
   template: src=db.json dest="/etc/consul.d/db.json"
-  sudo: true
-
-- name: Copy Bottledwater Phoenix Consul Health Checks
-  template: src=bottledwater_phoenix.json dest="/etc/consul.d/bottledwater_phoenix.json"
-  sudo: true
-
-- name: Copy Bottledwater Middlewarehouse Consul Health Checks
-  template: src=bottledwater_middlewarehouse.json dest="/etc/consul.d/bottledwater_middlewarehouse.json"
   sudo: true

@@ -1,54 +1,57 @@
 ---
 
-- name: Provision Mesos Service Discovery
-  hosts: new-perfect-gourmet-stage-consul-server
-  vars:
-    user: '{{ansible_ssh_user}}'
-    zookeepers: zookeeper.service.consul:2181
-  tags:
-    - consul
-  roles:
-    - { role: dev/mesos_consul }
-  handlers:
-    - include: roles/base/consul_agent/handlers/main.yml
-
 - name: Provision TPG Stage Backend
-  hosts: new-perfect-gourmet-stage-backend
+  hosts: perfect-gourmet-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
-    updating_mwh: true
     zookeeper_server: zookeeper.service.consul:2181
+    upload_phoenix_jar: false
   tags:
     - backend
   roles:
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
-    # TODO: Move to packer
-    - { role: base/marketplace }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision TPG Stage Frontend
-  hosts: new-perfect-gourmet-stage-frontend
+  hosts: perfect-gourmet-stage-frontend
   vars:
     user: '{{ansible_ssh_user}}'
     middlewarehouse_server: middlewarehouse.service.consul:9292
+    isaac_server: isaac.service.consul:9190
+    solomon_server: solomon.service.consul:4002
+    ashes_server: ashes.service.consul:4000
     marathon_server: marathon.service.consul:8080
     docker_db_host: db.service.consul
-    updating_mwh: true
+    docker_branch: master
+    docker_registry: docker-stage.foxcommerce.com
+    db_host: db.service.consul
+    kafka_server: kafka.service.consul:9092
+    schema_server: schema-registry.service.consul:8081
+    search_host: elasticsearch.service.consul
+    zookeeper_server: zookeeper.service.consul:2181
+    storefront_server: storefront.service.consul:4044
+    phoenix_server: phoenix.service.consul:9090
+    api_server: stage-tpg.foxcommerce.com
+    self_host: stage-tpg.foxcommerce.com
+    ashes_server_name: stage-tpg.foxcommerce.com
+    storefront_server_name: stage-tpg.foxcommerce.com
+    upload_greenriver_jar: false
   tags:
     - frontend
   roles:
     - { role: base/ssh_keys }
     - { role: dev/phoenix }
-    - { role: dev/messaging }
-    - { role: dev/middlewarehouse }
     - { role: dev/greenriver }
+    - { role: dev/ashes }
+    - { role: ext/tpg/storefront }
+    - { role: dev/middlewarehouse }
+    - { role: dev/messaging }
     - { role: dev/isaac }
     - { role: dev/solomon }
-    - { role: dev/marketplace }
-    - { role: dev/ashes }
+    - { role: dev/shipstation }
     - { role: dev/balancer, sudo: yes }
     - { role: dev/seeder }

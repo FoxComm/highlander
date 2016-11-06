@@ -264,6 +264,9 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
       .filter(_.state === (Active: State))
       .filter(_.availableBalance > 0)
 
+  def findActive(): QuerySeq =
+    filter(_.state === (Active: State)).filter(_.availableBalance > 0)
+
   def findByIdAndAccountId(id: Int, accountId: Int): DBIO[Option[StoreCredit]] =
     filter(_.accountId === accountId).filter(_.id === id).one
 

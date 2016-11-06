@@ -1,20 +1,21 @@
 package utils.http
 
+import akka.http.scaladsl.model.headers.RawHeader
+
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
-
 import cats.data.Xor
 import failures._
-import models.auth.UserToken
 import models.account._
 import models.activity.ActivityContext
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.SimpleContext
-import services.Result
+import org.json4s.jackson.Serialization.{write ⇒ json}
+import services.{AuthPayload, JwtCookie, Result}
 import slick.driver.PostgresDriver.api._
 import utils._
 import utils.aliases._
@@ -107,7 +108,29 @@ object CustomDirectives {
   def mutateOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
     complete(a.runTxn().map(renderGoodOrFailures))
 
+  def mutateWithNewTokenOrFailures[A <: AnyRef](a: DbResultT[(A, AuthPayload)])(implicit ec: EC,
+                                                                                db: DB): Route = {
+    onSuccess(a.runTxn()) { result ⇒
+      result.fold({ f ⇒
+        complete(renderFailure(f))
+      }, { resp ⇒
+        {
+          val (body, auth) = resp
+          respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
+            complete(
+                HttpResponse(
+                    entity = HttpEntity(ContentTypes.`application/json`, json(body))
+                ))
+          }
+        }
+      })
+    }
+  }
+
   def deleteOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
+    complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
+
+  def doOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
     complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
 
   def entityOr[T](um: FromRequestUnmarshaller[T], failure: failures.Failure): Directive1[T] =

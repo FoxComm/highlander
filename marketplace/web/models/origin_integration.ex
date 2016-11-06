@@ -9,12 +9,20 @@ defmodule Marketplace.OriginIntegration do
     timestamps()
   end
 
-  @doc """
-  Builds a changeset based on the `struct` and `params`.
-  """
-  def changeset(struct, params \\ %{}) do
-    struct
-    |> cast(params, [:shopify_key, :shopify_password, :shopify_domain])
-    |> validate_required([:shopify_key, :shopify_password, :shopify_domain])
+  @required_fields ~w()a
+  @optional_fields ~w(shopify_key shopify_password shopify_domain)a
+
+  def changeset(model, params \\ :empty) do
+    model
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required_code(@required_fields)
+    |> validate_uri(:shopify_domain)
+  end
+
+  def update_changeset(model, params \\ :empty) do
+    model
+    |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required_code(@required_fields)
+    |> validate_uri(:shopify_domain)
   end
 end

@@ -5,7 +5,6 @@ RUN npm install -g n
 RUN npm install -g gulp
 RUN n stable
 
-
 RUN mkdir -p /ashes
 WORKDIR /ashes
 COPY . /ashes
