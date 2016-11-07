@@ -3,7 +3,7 @@ package payloads
 import (
 	"fmt"
 
-	"github.com/FoxComm/middlewarehouse/consumers/shipstation/phoenix"
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
 )
 
 const awaitingShipmentStatus = "awaiting_shipment"

@@ -4,10 +4,10 @@ import (
 	"log"
 	"os"
 
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api"
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
 	"github.com/FoxComm/metamorphosis"
-	"github.com/FoxComm/middlewarehouse/consumers/shipstation/api"
-	"github.com/FoxComm/middlewarehouse/consumers/shipstation/api/payloads"
-	"github.com/FoxComm/middlewarehouse/consumers/shipstation/phoenix"
 )
 
 type OrderConsumer struct {

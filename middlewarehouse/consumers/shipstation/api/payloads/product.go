@@ -1,6 +1,6 @@
 package payloads
 
-import "github.com/FoxComm/middlewarehouse/consumers/shipstation/api/responses"
+import "github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api/responses"
 
 // Product is the payload taking by the update product endpoint.
 type Product struct {

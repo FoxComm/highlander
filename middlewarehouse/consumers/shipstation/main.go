@@ -4,8 +4,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/utils"
 	"github.com/FoxComm/metamorphosis"
-	"github.com/FoxComm/middlewarehouse/consumers/shipstation/utils"
 )
 
 const (

@@ -1,6 +1,6 @@
 package payloads
 
-import "github.com/FoxComm/middlewarehouse/consumers/shipstation/phoenix"
+import "github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
 
 // OrderItem is a single line item in an order.
 type OrderItem struct {

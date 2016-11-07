@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/FoxComm/middlewarehouse/consumers/shipstation/api"
-	"github.com/FoxComm/middlewarehouse/consumers/shipstation/utils"
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api"
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/utils"
 )
 
 const mwhShipmentsURI = "/v1/public/shipments"

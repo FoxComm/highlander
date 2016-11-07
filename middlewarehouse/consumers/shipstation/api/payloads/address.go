@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/FoxComm/middlewarehouse/consumers/shipstation/phoenix"
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
 )
 
 // Address is a payload for creating and updating addresses.

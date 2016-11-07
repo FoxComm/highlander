@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/FoxComm/middlewarehouse/consumers/shipstation/api/payloads"
-	"github.com/FoxComm/middlewarehouse/consumers/shipstation/api/responses"
-	"github.com/FoxComm/middlewarehouse/consumers/shipstation/utils"
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/utils"
 )
 
 const baseURL = "https://ssapi.shipstation.com"
