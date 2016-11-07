@@ -196,6 +196,7 @@ class Checkout extends Component {
             <OrderSummary
               isScrolled={this.state.isScrolled}
               styleName="summary-content"
+              { ...props.cart }
             />
           </div>
 

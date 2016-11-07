@@ -46,6 +46,7 @@ class OrderSummary extends Component {
   static defaultProps = {
     paymentMethods: {},
     isCollapsed: true,
+    isScrolled: false,
   };
 
   state: State = {
@@ -151,6 +152,4 @@ class OrderSummary extends Component {
   }
 }
 
-const mapStateToProps = state => state.cart;
-
-export default connect(mapStateToProps, {})(localized(OrderSummary));
+export default connect(null, {})(localized(OrderSummary));
