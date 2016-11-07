@@ -17,7 +17,7 @@ resource "null_resource" "swarm_dev_server_provision" {
         command = <<EOF
             ansible-playbook -vvvv -i ${var.host_address}, ansible/bootstrap_swarm_development.yml \
             --extra-vars @terraform/devenvs/${var.owner}/params.json \
-            --extra-vars '{"zookeepers_ips":["127.0.0.1"]}' \
+            --extra-vars '{"zookeepers_ips":["${var.host_address}"]}' \
             --extra-vars mesos_quorum=1 \
             --extra-vars zookeeper_server_id=1
         EOF
