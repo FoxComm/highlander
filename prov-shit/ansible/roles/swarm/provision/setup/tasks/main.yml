@@ -1,7 +1,7 @@
 ---
 
 - name: Get Zookeeper URI
-  shell: /bin/echo "{{zookeepers_ips|map("regex_replace","(.*)","\\1:port")|join(",")}}" | sed 's/port/{{zookeeper_port}}/g'
+  shell: /bin/echo "{{masters_ips|map("regex_replace","(.*)","\\1:port")|join(",")}}" | sed 's/port/{{zookeeper_port}}/g'
   register: zookeepers_object
 - name: Set Zookeeper URI fact
   set_fact:
