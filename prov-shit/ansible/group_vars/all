@@ -154,7 +154,9 @@ swap_size_mb: 2000
 rsync_opts: ssh -l {{user}}
 
 # Consul variables
+consul_config_dir: /etc/consul.d
 consul_data_dir: /var/consul
+consul_web_ui_dir: /usr/local/share/consul
 
 # Used to prefix service names in consul
 namespace: setme

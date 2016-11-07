@@ -1,0 +1,10 @@
+---
+
+- name: Copy Consul Bin
+  copy: src=consul dest={{usr_local_bin}}/consul mode=750
+
+- name: Create Config Directory
+  file: path={{consul_config_dir} state=directory
+
+- name: Create Data Directory
+  file: path={{consul_data_dir}} state=directory
