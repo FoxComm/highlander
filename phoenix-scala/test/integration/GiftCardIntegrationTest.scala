@@ -4,7 +4,7 @@ import failures.GiftCardFailures.GiftCardConvertFailure
 import failures._
 import models.Reason
 import models.account._
-import models.cord.{Cord, Cords}
+import models.cord.{Carts, Cord, Cords}
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard._
 import models.payment.storecredit
@@ -21,6 +21,7 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.Money._
 import utils.db._
+import utils.seeds.Seeds.Factories
 
 class GiftCardIntegrationTest
     extends IntegrationTestBase
@@ -43,20 +44,6 @@ class GiftCardIntegrationTest
         val manual: GiftCardManual = GiftCardManuals.findOneById(giftCard.originId).gimme.value
         manual.reasonId must === (1)
         manual.adminId must === (storeAdmin.accountId)
-      }
-
-      "successfully creates gift card as a custumer from payload" in new Reason_Baked {
-        val cordInsert = Cords.create(Cord(1, "1", true)).gimme
-        val attributes = Some(
-            parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
-        val root = giftCardsApi
-          .createFromCustomer(GiftCardCreatedByCustomer(balance = 555,
-                                                        details = attributes,
-                                                        cordRef = cordInsert.referenceNumber))
-          .as[GiftCardResponse.Root]
-        root.currency must === (Currency.USD)
-        root.availableBalance must === (555)
-
       }
 
       "create two gift cards with unique codes" in new Reason_Baked {
@@ -91,6 +78,40 @@ class GiftCardIntegrationTest
         giftCardsApi
           .create(GiftCardCreateByCsr(balance = 555, reasonId = 999))
           .mustFailWith400(NotFoundFailure404(Reason, 999))
+      }
+    }
+
+    "POST /v1/customer-gift-cards" - {
+      "successfully creates gift card as a custumer from payload" in new Reason_Baked {
+        val cordInsert = Carts.create(Factories.cart).gimme
+        val attributes = Some(
+            parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
+        val root = giftCardsApi
+          .createFromCustomer(GiftCardCreatedByCustomer(balance = 555,
+                                                        details = attributes,
+                                                        cordRef = cordInsert.referenceNumber))
+          .as[GiftCardResponse.Root]
+        root.currency must === (Currency.USD)
+        root.availableBalance must === (555)
+      }
+
+      "successfully creates gift cards  as a custumer from payload" in new Reason_Baked {
+        val cordInsert = Carts.create(Factories.cart).gimme
+        val attributes = Some(
+            parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
+        val root = giftCardsApi
+          .createMultipleFromCustomer(
+              Seq(GiftCardCreatedByCustomer(balance = 555,
+                                            details = attributes,
+                                            cordRef = cordInsert.referenceNumber),
+                  GiftCardCreatedByCustomer(balance = 100,
+                                            details = attributes,
+                                            cordRef = cordInsert.referenceNumber)))
+          .as[Seq[GiftCardResponse.Root]]
+        root.head.currency must === (Currency.USD)
+        root.head.availableBalance must === (555)
+        root.tail.head.currency must === (Currency.USD)
+        root.tail.head.availableBalance must === (100)
       }
     }
 

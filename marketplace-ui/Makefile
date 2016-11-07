@@ -1,3 +1,6 @@
+DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
+DOCKER_TAG ?= marketplace-ui
+DOCKER_BRANCH ?= master
 
 setup:
 	npm install
@@ -17,10 +20,10 @@ package-production: build-production
 	tar --exclude 'marketplace-ui.tar.bz2' -jcf marketplace-ui.tar.bz2 ./
 
 docker:
-	docker build -t marketplace-ui .
+	docker build -t $(DOCKER_TAG) .
 
 docker-push:
-	docker tag marketplace-ui docker-stage.foxcommerce.com:5000/marketplace-ui:master
-	docker push docker-stage.foxcommerce.com:5000/marketplace-ui:master
+	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
 .PHONY: setup build package docker docker-push

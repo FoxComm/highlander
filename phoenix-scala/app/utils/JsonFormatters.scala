@@ -18,6 +18,7 @@ import models.sharedsearch.SharedSearch
 import models.shipping.Shipment
 import models.{Assignment, Note, Reason}
 import models.admin.AdminData
+import payloads.AuthPayload
 import org.json4s.jackson
 import responses.PublicResponses.CountryWithRegions
 
@@ -40,5 +41,6 @@ object JsonFormatters {
       CreditCardCharge.State.jsonFormat + CountryWithRegions.jsonFormat +
       QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
       PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +
-      IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat
+      IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +
+      AuthPayload.JwtClaimsSerializer
 }

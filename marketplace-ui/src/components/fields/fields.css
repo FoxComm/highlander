@@ -212,7 +212,6 @@ input:-webkit-autofill {
 
     & :global(.rw-tag-btn) {
       position: relative;
-      top: 1px;
       margin-left: 5px;
     }
   }

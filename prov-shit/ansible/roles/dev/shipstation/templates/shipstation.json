@@ -1,0 +1,34 @@
+{
+  "id": "/shipstation",
+  "cmd": null,
+  "cpus": 0.25,
+  "mem": 64,
+  "disk": 0,
+  "instances": 0,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "{{docker_registry}}:5000/shipstation-consumer:{{docker_branch}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "env": {
+    "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",
+    "ZOOKEEPER_URL": "{{zookeeper_server}}",
+    "API_KEY": "{{shipstation_api_key}}",
+    "API_SECRET": "{{shipstation_api_secret}}",
+    "TOPIC": "{{shipstation_topic}}",
+    "PARTITION": "{{shipstation_partition}}"
+  },
+  "portDefinitions": [
+    {
+      "port": 10000,
+      "protocol": "tcp",
+      "labels": {}
+    }
+  ]
+}

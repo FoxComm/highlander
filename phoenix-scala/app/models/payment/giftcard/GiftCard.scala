@@ -302,6 +302,9 @@ object GiftCards
   def findActiveByCode(code: String): QuerySeq =
     findByCode(code).filter(_.state === (GiftCard.Active: GiftCard.State))
 
+  def findActive(): QuerySeq =
+    filter(_.state === (GiftCard.Active: GiftCard.State))
+
   private def adjust(giftCard: GiftCard,
                      orderPaymentId: Option[Int],
                      debit: Int = 0,

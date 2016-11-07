@@ -147,6 +147,7 @@ export const fields: Array<FormField> = [
     placeholder: 'Business Rep DOB: Day',
     values: LIST_DAYS,
     parse: toString,
+    validation: 'required',
   },
   {
     name: 'business_founded_month',
@@ -156,6 +157,7 @@ export const fields: Array<FormField> = [
     values: LIST_MONTHS,
     normalize: flow(indexOf(_, LIST_MONTHS), add(1), toString),
     format: flow(subtract(_, 1), get(_, LIST_MONTHS)),
+    validation: 'required',
   },
   {
     name: 'business_founded_year',
@@ -164,11 +166,12 @@ export const fields: Array<FormField> = [
     placeholder: 'Business Rep DOB: Year',
     values: LIST_YEARS,
     parse: toString,
+    validation: 'required',
   },
   {
     name: 'representative_ssn_trailing_four',
     type: 'text',
     placeholder: 'Business Rep: Last Four of SSN',
-    validation: 'format.SSN_last_four',
+    validation: 'required format.SSN_last_four',
   },
 ];

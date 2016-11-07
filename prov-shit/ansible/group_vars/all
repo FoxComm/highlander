@@ -1,5 +1,6 @@
 # Common variables
 home: /home/{{ user }}
+self_host: 127.0.0.1
 dest_services: /etc/systemd/system
 usr_local: /usr/local/
 public_keys_dest_dir: /etc/keys
@@ -13,6 +14,7 @@ scala_version: scala-2.11
 # Bottled Water
 bottledwater_slot_phoenix: bottledwater_phoenix
 bottledwater_slot_middlewarehouse: bottledwater_middlewarehouse
+bottledwater_slot_marketplace: bottledwater_marketplace
 
 # Green River
 greenriver_version: 1.0
@@ -30,8 +32,10 @@ phoenix_jar_src: "{{phoenix_src}}/gatling/target/{{scala_version}}/phoenix-scala
 phoenix_dir: /phoenix
 phoenix_jar: "{{phoenix_dir}}/phoenix.jar"
 phoenix_db_name: phoenix_development
+phoenix_db_user: phoenix
 phoenix_test_db_name: phoenix_test
 phoenix_tracing: "false"
+phoenix_db_connection_string: "postgresql://{{phoenix_db_user}}@{{db_host}}/{{phoenix_db_name}}"
 
 # Do not use this in production
 # This is a ttl of 1 year
@@ -39,11 +43,13 @@ phoenix_token_ttl: 525600
 
 # Middlewarehouse
 middlewarehouse_env: staging
+middlewarehouse_host: "{{self_host}}"
+middlewarehouse_port: 9292
 middlewarehouse_dir: /middlewarehouse
 middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
 middlewarehouse_db_name: middlewarehouse_development
 middlewarehouse_db_user: middlewarehouse
-middlewarehouse_db_connection_string: "postgresql://{{db_host}}/{{middlewarehouse_db_name}}?user={{middlewarehouse_db_user}}"
+middlewarehouse_db_connection_string: "postgresql://{{middlewarehouse_db_user}}@{{db_host}}/{{middlewarehouse_db_name}}"
 middlewarehouse_test_db_name: middlewarehouse_test
 
 middlewarehouse_consumers_dir: "{{middlewarehouse_dir}}/consumers"
@@ -53,6 +59,7 @@ capture_consumer_bin: "{{middlewarehouse_consumers_dir}}/capture-consumer"
 
 middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
+middlewarehouse_seeder_bin_src: "{{middlewarehouse_src}}/seeder"
 
 stock_items_consumer_src: "{{middlewarehouse_src}}/consumers/stock-items"
 stock_items_consumer_bin_src: "{{stock_items_consumer_src}}/stock-items-consumer"
@@ -60,6 +67,12 @@ shipments_consumer_src: "{{middlewarehouse_src}}/consumers/shipments"
 shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
 capture_consumer_src: "{{middlewarehouse_src}}/consumers/capture"
 capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
+
+# Shipstation consumer
+shipstation_api_key: ""
+shipstation_api_secret: ""
+shipstation_topic: "orders_search_view"
+shipstation_partition: 1
 
 # Ashes
 ashes_env: production
@@ -84,7 +97,6 @@ plugins_api_user_email: ""
 plugins_api_user_password: ""
 
 # Lies & BS
-self_host: 127.0.0.1
 phoenix_api_version: v1
 phoenix_host: 127.0.0.1
 phoenix_port: 9090
@@ -99,7 +111,7 @@ kafka_host: 127.0.0.1
 kafka_server: 127.0.0.1:9092
 zookeeper_server: 127.0.0.1:2181
 schema_server: 127.0.0.1:8081
-middlewarehouse_server: 127.0.0.1:9292
+middlewarehouse_server: "{{middlewarehouse_host}}:{{middlewarehouse_port}}"
 solomon_host: 127.0.0.1
 solomon_port: 4002
 solomon_server: "{{solomon_host}}:{{solomon_port}}"
@@ -150,21 +162,25 @@ packing: false
 # Should we upload Phoenix JAR?
 upload_phoenix_jar: true
 
-# Are we updating MWH manually?
-updating_mwh: false
+# Should we upload Green River JAR?
+
+# Deploy marketplace?
+with_marketplace: false
 
 # Test Stripe api key
 stripe_api_key: sk_test_13rnEgvA4DGHgv4f2GMCDtes
 stripe_publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
 
+# Certificates path
 cert_path: stage
 
 # Mesos
 mesos_quorum: 2
 
 # Use seeder service or not?
-with_seeder: true
+with_seeder: false
 
 # Marketplace
 marketplace_db_name: marketplace_development
 marketplace_db_user: marketplace
+marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_host}}/{{marketplace_db_name}}"

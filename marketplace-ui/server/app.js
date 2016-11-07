@@ -1,5 +1,5 @@
 import KoaApp from 'koa';
-import serve from 'koa-static';
+import serve from 'koa-better-static';
 import onerror from 'koa-onerror';
 
 import renderReact from '../src/server';

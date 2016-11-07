@@ -6,6 +6,7 @@
   "disk": 0,
   "instances": 1,
   "env": {
+    "API_URL": "https://{{storefront_server_name}}",
     "NODE_ENV": "production",
     "PORT": "4044",
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",

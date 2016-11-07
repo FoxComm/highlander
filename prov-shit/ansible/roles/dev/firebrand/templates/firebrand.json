@@ -1,11 +1,12 @@
 {
-  "id": "/firebrand",
+  "id": "/storefront",
   "cmd": null,
   "cpus": 1,
   "mem": 4096,
   "disk": 0,
   "instances": 1,
   "env": {
+    "API_URL": "https://{{storefront_server_name}}",
     "NODE_ENV": "production",
     "PORT": "4041",
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
