@@ -30,10 +30,10 @@ resource "null_resource" "swarm_worker_server_provision" {
         command = <<EOF
             ansible-playbook -vvvv -i ${element(var.worker_ips, count.index)}, ansible/bootstrap_swarm_worker.yml \
             --extra-vars @terraform/envs/gce_${var.datacenter}_${var.setup}/params.json \
-            --extra-vars datacenter=${var.datacenter} \
-            --extra-vars consul_leader=${var.leader_ip} \
+            --extra-vars datacenter="${var.datacenter}" \
+            --extra-vars consul_leader="${var.leader_ip}" \
             --extra-vars '{"masters_ips":${jsonencode(var.masters_ips)}}' \
-            --extra-vars docker_registry_bucket=${var.docker_registry_bucket}
+            --extra-vars docker_registry_bucket="${var.docker_registry_bucket}"
         EOF
     }
 }

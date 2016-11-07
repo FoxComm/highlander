@@ -26,8 +26,8 @@ resource "null_resource" "swarm_master_server_provision" {
             ansible-playbook -vvvv -i ${element(var.masters_ips, count.index)}, ansible/bootstrap_swarm_master.yml \
             --extra-vars @terraform/envs/gce_${var.datacenter}_${var.setup}/params.json \
             --extra-vars '{"masters_ips":${jsonencode(var.masters_ips)}}' \
-            --extra-vars datacenter=${var.datacenter} \
-            --extra-vars consul_leader=${var.leader_ip} \
+            --extra-vars datacenter="${var.datacenter}" \
+            --extra-vars consul_leader="${var.leader_ip}" \
             --extra-vars mesos_quorum=${(var.count + (var.count % 2))/2} \
             --extra-vars zookeeper_server_id=${count.index + 1}
         EOF
