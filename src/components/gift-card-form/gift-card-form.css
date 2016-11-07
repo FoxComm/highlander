@@ -3,11 +3,11 @@
 @import "media-queries.css";
 
 .title {
-  composes: title from 'pages/catalog/pdp.css';
+  composes: title from '../../pages/catalog/pdp.css';
 }
 
 .description {
-  composes: description from 'pages/catalog/pdp.css';
+  composes: description from '../../pages/catalog/pdp.css';
 }
 
 .form {
