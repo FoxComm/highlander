@@ -26,3 +26,15 @@
 
 - name: Add Swap to Fstab
   lineinfile: dest=/etc/fstab line="/swap none swap sw 0 0"
+
+- name: Install Packages
+  apt: name={{ item }} state=latest force=yes
+  with_items:
+    - curl
+    - debconf-utils
+    - jq
+    - make
+    - vim
+    - nmap
+    - htop
+    - unzip
