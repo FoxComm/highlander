@@ -23,7 +23,6 @@ type Category = {
 type Props = {
   list: Array<any>,
   fetch: Function,
-  onClick: Function,
   hasAllLink: boolean,
   t: any,
 };
@@ -34,7 +33,6 @@ class Navigation extends Component {
   props: Props;
 
   static defaultProps = {
-    onClick: _.noop,
     hasAllLink: false,
   };
 
@@ -78,7 +76,7 @@ class Navigation extends Component {
 
       return (
         <li styleName="item" key={key}>
-          <Link styleName="item-link" to={url} onClick={() => this.props.onClick(item)}>
+          <Link styleName="item-link" to={url}>
             {t(item.name.toUpperCase())}
           </Link>
         </li>
