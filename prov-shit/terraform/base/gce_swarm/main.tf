@@ -72,13 +72,14 @@ module "master_cluster" {
 }
 
 module "master_cluster_provision" {
-    source     = "../../modules/gce/swarm/master_provision"
+    source      = "../../modules/gce/swarm/master_provision"
     // generic variables
-    datacenter = "${var.datacenter}"
-    setup      = "${var.setup}"
+    datacenter  = "${var.datacenter}"
+    setup       = "${var.setup}"
     // resources variables
-    master_ips = "${module.master_cluster.ips}"
-    count      = "${var.masters_count}"
+    masters_ips = "${module.master_cluster.ips}"
+    leader_ip   = "${module.master_cluster.leader_ip}"
+    count       = "${var.masters_count}"
 }
 
 module "worker_cluster" {
@@ -105,7 +106,8 @@ module "worker_cluster_provision" {
     datacenter             = "${var.datacenter}"
     setup                  = "${var.setup}"
     // resources variables
-    master_ips             = "${module.master_cluster.ips}"
+    masters_ips            = "${module.master_cluster.ips}"
+    leader_ip              = "${module.master_cluster.leader_ip}"
     worker_ips             = "${module.worker_cluster.ips}"
     docker_registry_bucket = "${google_storage_bucket.docker-registry.name}"
     count                  = "${var.workers_count}"

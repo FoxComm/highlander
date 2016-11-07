@@ -1,4 +1,4 @@
-output "leader" {
+output "leader_ip" {
     value = "${google_compute_instance.swarm_server.0.network_interface.0.address}"
 }
 

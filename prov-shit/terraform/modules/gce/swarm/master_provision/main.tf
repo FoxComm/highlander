@@ -5,8 +5,10 @@ variable "setup" {
 }
 
 # resources variables
-variable "master_ips" {
+variable "masters_ips" {
     type = "list"
+}
+variable "leader_ip" {
 }
 variable "count" {
 }
@@ -16,14 +18,16 @@ resource "null_resource" "swarm_master_server_provision" {
 
     connection {
         user = "ubuntu"
-        host = "${element(var.master_ips, count.index)}"
+        host = "${element(var.masters_ips, count.index)}"
     }
 
     provisioner "local-exec" {
         command = <<EOF
-            ansible-playbook -vvvv -i ${element(var.master_ips, count.index)}, ansible/bootstrap_swarm_master.yml \
+            ansible-playbook -vvvv -i ${element(var.masters_ips, count.index)}, ansible/bootstrap_swarm_master.yml \
             --extra-vars @terraform/envs/gce_${var.datacenter}_${var.setup}/params.json \
-            --extra-vars '{"zookeepers_ips":${jsonencode(var.master_ips)}}' \
+            --extra-vars '{"masters_ips":${jsonencode(var.masters_ips)}}' \
+            --extra-vars datacenter=${var.datacenter} \
+            --extra-vars consul_leader=${var.leader_ip} \
             --extra-vars mesos_quorum=${(var.count + (var.count % 2))/2} \
             --extra-vars zookeeper_server_id=${count.index + 1}
         EOF
