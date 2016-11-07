@@ -4,6 +4,7 @@ self_host: 127.0.0.1
 dest_services: /etc/systemd/system
 usr_local: /usr/local/
 usr_local_bin: /usr/local/bin
+usr_local_share: /usr/local/share
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 db_host: localhost
@@ -156,7 +157,7 @@ rsync_opts: ssh -l {{user}}
 # Consul variables
 consul_config_dir: /etc/consul.d
 consul_data_dir: /var/consul
-consul_web_ui_dir: /usr/local/share/consul
+consul_web_ui_dir: {{usr_local_share}}/consul
 
 # Used to prefix service names in consul
 namespace: setme
