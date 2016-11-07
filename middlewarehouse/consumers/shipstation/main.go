@@ -8,11 +8,6 @@ import (
 	"github.com/FoxComm/metamorphosis"
 )
 
-const (
-	topic     = "activities"
-	partition = 1
-)
-
 func main() {
     config, err := utils.MakeConfig()
 

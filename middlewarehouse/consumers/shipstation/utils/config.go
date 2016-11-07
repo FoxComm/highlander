@@ -27,6 +27,7 @@ func MakeConfig() (Config, error) {
 	config := Config{}
 
 	config.PollingInterval, err = time.ParseDuration(os.Getenv("POLLING_INTERVAL"))
+    fmt.Printf("INTERVAL: %v\n",config.PollingInterval)
 	if err != nil {
 		return config, fmt.Errorf("Unable to parse POLLING_INTERVAL with error %s", err.Error())
 	}
