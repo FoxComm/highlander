@@ -15,12 +15,14 @@ function thunkMiddleware({dispatch, getState}) {
     return function (action) {
       if (typeof action === 'function') {
         const jwt = _.get(getState(), 'auth.jwt');
-        const headers = {JWT: jwt};
+        api.addAuth(jwt);
         const {authHeader} = getState();
         if (authHeader) {
-          headers.Authorization = authHeader;
+          api.addHeaders({
+            Authorization: authHeader,
+          });
         }
-        return action(dispatch, getState, api.addHeaders(headers));
+        return action(dispatch, getState, api);
       }
       return next(action);
     };

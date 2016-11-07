@@ -16,6 +16,16 @@ const countryActions = createAsyncActions('country', apiFetchCountry);
 
 export const fetchCountry = countryActions.fetch;
 
+export function loadCountry(id) {
+  return (dispatch, getState) => {
+    const countryDetails = getState().countries.details;
+    if (!countryDetails[id]) {
+      return dispatch(fetchCountry(id));
+    }
+    return Promise.resolve(countryDetails[id]);
+  };
+}
+
 const initialState = {
   list: [
     {id: 234, name: 'UNITED STATES', alpha3: 'USA'},

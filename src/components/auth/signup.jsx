@@ -143,7 +143,6 @@ class Signup extends Component {
           <FormField key="passwd" styleName="form-field">
             <ShowHidePassword
               className={styles['form-field-input']}
-              linkClassName={styles['restore-link']}
               placeholder={t('CREATE PASSWORD')}
               name="password"
               value={password}

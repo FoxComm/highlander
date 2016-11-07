@@ -1,0 +1,142 @@
+
+@import "colors.css";
+@import "media-queries.css";
+@import "variables.css";
+
+.profile {
+  composes: inner-wrap from "ui/css/layout.css";
+}
+
+.link-button {
+  composes: button from "ui/css/buttons.css";
+  border: 1px solid #8D757A;
+  background-color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 300;
+  color: #212121;
+
+  &:hover {
+    border: 1px solid #3E3436;
+    color: var(--whitish)
+  }
+}
+
+.link {
+  display: inline-block;
+  cursor: pointer;
+  font-family: var(--font-main);
+  font-weight: 400;
+  font-size: 13px;
+  color: #8D757A;
+  line-height: 20px;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+    color: #3E3436;
+  }
+}
+
+.subtitle {
+  font-family: var(--font-main);
+  font-weight: 500;
+  font-size: 14px;
+  color: #212121;
+  line-height: 20px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.value {
+  font-family: var(--font-main);
+  font-weight: 300;
+  font-size: 13px;
+  color: #212121;
+  line-height: 20px;
+}
+
+.line {
+  display: flex;
+  justify-content: space-between;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.buttons-footer {
+  margin: 30px 0 10px;
+  display: flex;
+  align-items: center;
+
+  & > .link, & > button {
+    &:not(:first-child) {
+      margin-left: 30px;
+    }
+  }
+}
+
+.save-button {
+  text-transform: uppercase;
+  width: 100px;
+}
+
+.text-input {
+  composes: text-input from "ui/css/input.css";
+  background-color: #f4f4f4;
+  color: var(--text-color-dark);
+  width: 100%;
+}
+
+.form-field {
+  margin-bottom: 10px;
+}
+
+.simple-table {
+  border-collapse: collapse;
+  font-family: var(--font-main);
+  font-size: 15px;
+  color: #212121;
+  line-height: 20px;
+
+  & > thead {
+    border-bottom: 1px solid #f4f4f4;
+  }
+  & th {
+    padding-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  & > tbody {
+    & td {
+      padding: 20px 0;
+      vertical-align: top;
+    }
+
+    & th {
+      padding-top: 20px;
+    }
+
+    & > tr {
+      border-bottom: 1px solid #f4f4f4;
+    }
+  }
+}
+
+.payment-icon {
+  compose: payment-icon from '../../pages/checkout/checkout.css';
+}
+
+.payment-method {
+  margin-bottom: 20px;
+}
+
+.order-service {
+  & tr:first-child {
+    border-bottom: 0 none;
+  }
+}
+
+.delivery-name {
+  padding-bottom: 10px;
+}

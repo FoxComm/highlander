@@ -90,12 +90,4 @@ const icon = <Icon name="fc-google" />;
 
 ```
 
-## Expand diffs for src/node_modules files in GitHub
-
-GitHub [doesn't allow](https://github.com/github/linguist/issues/2206#issuecomment-103383178) overriding config
-for vendor files in terms of diff suppression.
-So, for you convenience, you can install [userscript](./unsuppressor.user.js) that expands diffs for you automatically.
-You can install this userscript via [tampermonkey](http://tampermonkey.net) for chrome or
-via [greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) for firefox.
-
 ![Firebird and Phoenix](http://i.imgur.com/7Cyj5q8.jpg "Firebird and Phoenix")

@@ -2,7 +2,7 @@
 
 import { createAction, createReducer } from 'redux-act';
 import createAsyncActions from './async-utils';
-import { dissoc } from 'sprout-data';
+import { dissoc, merge, update } from 'sprout-data';
 import { api } from 'lib/api';
 
 import type { asyncAction } from 'types';
@@ -21,9 +21,10 @@ type LoginPayload = {
   kind: string,
 };
 
-export const setUser = createAction('USER_SET');
+export const setUser = createAction('AUTH_SET_USER');
 export const logoutAction = createAction('AUTH_LOGOUT');
 export const setJwt = createAction('AUTH_SET_JWT');
+export const updateUser = createAction('AUTH_UPDATE_USER');
 
 export const signUp = createAsyncActions('auth-signup', function signUp(payload: SignUpPayload): Promise {
   const {email, name, password} = payload;
@@ -88,6 +89,11 @@ const reducer = createReducer({
       ...state,
       user,
     };
+  },
+  [updateUser]: (state, data) => {
+    return update(state,
+      'user', user => merge(user, data)
+    );
   },
   [logoutAction]: (state) => {
     return dissoc(state, 'user', 'jwt');

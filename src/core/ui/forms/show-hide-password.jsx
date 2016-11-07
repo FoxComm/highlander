@@ -2,6 +2,8 @@
 
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
+import styles from './show-hide-password.css';
+import classNames from 'classnames';
 
 import localized from 'lib/i18n';
 
@@ -31,15 +33,18 @@ class ShowHidePassword extends Component {
   get showLink() {
     const { t, linkClassName } = this.props;
     const message = this.state.isShown ? t('HIDE') : t('SHOW');
+    const linkClass = classNames(styles['toggle-link'], linkClassName);
     return (
-      <a href="#" className={linkClassName} onClick={this.toggleState}>
+      <span className={linkClass} onClick={this.toggleState}>
         {message}
-      </a>
+      </span>
     );
   }
 
   @autobind
-  toggleState() {
+  toggleState(event) {
+    event.preventDefault();
+    event.stopPropagation();
     this.setState({
       isShown: !this.state.isShown,
     });

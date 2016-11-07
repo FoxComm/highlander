@@ -3,8 +3,13 @@
 
 .wrap {
   height: 100%;
-  display: flex;
-  align-items: center;
+}
+
+@media (--medium) {
+  .wrap {
+    display: flex;
+    align-items: center;
+  }
 }
 
 @media (--small-only), (--medium-only) {
