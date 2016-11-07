@@ -22,3 +22,4 @@
     - { role: swarm/pack/java }
     - { role: swarm/pack/mesos/base }
     - { role: swarm/pack/docker }
+    - { role: swarm/pack/consul/base }

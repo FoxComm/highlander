@@ -13,3 +13,4 @@
     - { role: swarm/provision/zookeeper }
     - { role: swarm/provision/mesos/master }
     - { role: swarm/provision/marathon }
+    - { role: swarm/provision/consul/server }

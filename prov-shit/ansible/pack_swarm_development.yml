@@ -23,10 +23,13 @@
     - { role: swarm/pack/java }
     - { role: swarm/pack/mesos/base }
     - { role: swarm/pack/docker }
+    - { role: swarm/pack/consul/base }
     # master roles
     - { role: swarm/pack/confluence }
     - { role: swarm/pack/mesos/master }
     - { role: swarm/pack/zookeeper }
     - { role: swarm/pack/marathon }
+    - { role: swarm/pack/consul/server }
     # worker roles
     - { role: swarm/pack/mesos/worker }
+    - { role: swarm/pack/consul/agent }

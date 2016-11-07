@@ -11,3 +11,4 @@
   roles:
     - { role: swarm/provision/setup }
     - { role: swarm/provision/mesos/worker }
+    - { role: swarm/provision/consul/agent }
