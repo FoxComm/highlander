@@ -6,7 +6,6 @@ import {
   reducer as asyncReducer,
   inProgressSelector,
   failedSelector,
-  succeededSelector,
   fetchedSelector,
 } from './async-utils';
 
@@ -44,7 +43,6 @@ const applicationFetchSelector = asyncSelector(application.ACTION_FETCH);
 const applicationSubmitSelector = asyncSelector(application.ACTION_SUBMIT);
 const accountFetchSelector = asyncSelector(account.ACTION_FETCH);
 const accountSubmitSelector = asyncSelector(account.ACTION_SUBMIT);
-const businessSubmitSelector = asyncSelector(account.ACTION_SUBMIT_BUSINESS);
 const feedFetchSelector = asyncSelector(feed.ACTION_FETCH);
 const feedSubmitSelector = asyncSelector(feed.ACTION_SUBMIT);
 const feedUploadSelector = asyncSelector(feed.ACTION_UPLOAD);
@@ -60,10 +58,6 @@ export const getApplicationSubmitFailed = applicationSubmitSelector(failedSelect
 export const getAccountsFetched = accountFetchSelector(fetchedSelector);
 export const getAccountSubmitInProgress = accountSubmitSelector(inProgressSelector);
 export const getAccountSubmitFailed = accountSubmitSelector(failedSelector);
-
-export const getBusinessSubmitInProgress = businessSubmitSelector(inProgressSelector);
-export const getBusinessSubmitFailed = businessSubmitSelector(failedSelector);
-export const getBusinessSubmitSucceeded = businessSubmitSelector(succeededSelector);
 
 export const getFeedFetched = feedFetchSelector(fetchedSelector);
 export const getFeedSubmitInProgress = feedSubmitSelector(inProgressSelector);
