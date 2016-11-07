@@ -4,7 +4,7 @@ import failures.GiftCardFailures.GiftCardConvertFailure
 import failures._
 import models.Reason
 import models.account._
-import models.cord.{Cord, Cords}
+import models.cord.{Carts, Cord, Cords}
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard._
 import models.payment.storecredit
@@ -21,6 +21,7 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.Money._
 import utils.db._
+import utils.seeds.Seeds.Factories
 
 class GiftCardIntegrationTest
     extends IntegrationTestBase
@@ -82,7 +83,7 @@ class GiftCardIntegrationTest
 
     "POST /v1/customer-gift-cards" - {
       "successfully creates gift card as a custumer from payload" in new Reason_Baked {
-        val cordInsert = Cords.create(Cord(1, "1", true)).gimme
+        val cordInsert = Carts.create(Factories.cart).gimme
         val attributes = Some(
             parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
         val root = giftCardsApi
@@ -92,11 +93,10 @@ class GiftCardIntegrationTest
           .as[GiftCardResponse.Root]
         root.currency must === (Currency.USD)
         root.availableBalance must === (555)
-
       }
 
       "successfully creates gift cards  as a custumer from payload" in new Reason_Baked {
-        val cordInsert = Cords.create(Cord(1, "1", true)).gimme
+        val cordInsert = Carts.create(Factories.cart).gimme
         val attributes = Some(
             parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
         val root = giftCardsApi
