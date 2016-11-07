@@ -8,6 +8,8 @@ import failures.PromotionFailures._
 import failures._
 import models.objects._
 import models.promotion.Promotion._
+import org.json4s.JsonAST.JNothing
+import org.json4s.JsonDSL._
 import utils.aliases._
 import utils.{IlluminateAlgorithm, JsonFormatters}
 
@@ -53,5 +55,14 @@ object IlluminatedPromotion {
         applyType = promotion.applyType,
         context = IlluminatedContext(context.name, context.attributes),
         attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes))
+  }
+
+  def validatePromotion(applyType: ApplyType, promotion: FormAndShadow): FormAndShadow = {
+    (applyType, promotion.getAttribute("activeFrom")) match {
+      case (Promotion.Coupon, JNothing) ⇒
+        promotion.setAttribute("activeFrom", "date", Instant.now.toString)
+      case _ ⇒
+        promotion
+    }
   }
 }
