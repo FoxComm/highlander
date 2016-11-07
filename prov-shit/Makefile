@@ -47,4 +47,72 @@ docker:
 docker-push:
 	true
 
+# temp terraform commands
+get-cluster-modules:
+	terraform get terraform/base/gce_swarm
+
+get-dev-modules:
+	terraform get terraform/base/gce_swarm_dev
+
+# production
+plan-prod: get-cluster-modules
+	terraform plan -state=terraform/envs/gce_swarm_production/terraform.tfstate -var-file=terraform/envs/gce_swarm_production/env.tfvars terraform/base/gce_swarm
+
+plan-prod-destroy: get-cluster-modules
+	terraform plan -destroy -state=terraform/envs/gce_swarm_production/terraform.tfstate -var-file=terraform/envs/gce_swarm_production/env.tfvars terraform/base/gce_swarm
+
+apply-prod: get-cluster-modules
+	terraform apply -state=terraform/envs/gce_swarm_production/terraform.tfstate -var-file=terraform/envs/gce_swarm_production/env.tfvars terraform/base/gce_swarm
+
+destroy-prod: get-cluster-modules
+	terraform destroy -state=terraform/envs/gce_swarm_production/terraform.tfstate -var-file=terraform/envs/gce_swarm_production/env.tfvars terraform/base/gce_swarm
+
+# staging
+plan-stage: get-cluster-modules
+	terraform plan -state=terraform/envs/gce_swarm_staging/terraform.tfstate -var-file=terraform/envs/gce_swarm_staging/env.tfvars terraform/base/gce_swarm
+
+plan-stage-destroy: get-cluster-modules
+	terraform plan -destroy -state=terraform/envs/gce_swarm_staging/terraform.tfstate -var-file=terraform/envs/gce_swarm_staging/env.tfvars terraform/base/gce_swarm
+
+apply-stage: get-cluster-modules
+	terraform apply -state=terraform/envs/gce_swarm_staging/terraform.tfstate -var-file=terraform/envs/gce_swarm_staging/env.tfvars terraform/base/gce_swarm
+
+destroy-stage: get-cluster-modules
+	terraform destroy -state=terraform/envs/gce_swarm_staging/terraform.tfstate -var-file=terraform/envs/gce_swarm_staging/env.tfvars terraform/base/gce_swarm
+
+# dev
+plan-dev: get-dev-modules
+	terraform plan -state=terraform/devenvs/alexey/terraform.tfstate -var-file=terraform/devenvs/alexey/env.tfvars terraform/base/gce_swarm_dev
+
+plan-dev-destroy: get-dev-modules
+	terraform plan -destroy -state=terraform/devenvs/alexey/terraform.tfstate -var-file=terraform/devenvs/alexey/env.tfvars terraform/base/gce_swarm_dev
+
+apply-dev: get-dev-modules
+	terraform apply -state=terraform/devenvs/alexey/terraform.tfstate -var-file=terraform/devenvs/alexey/env.tfvars terraform/base/gce_swarm_dev
+
+destroy-dev: get-dev-modules
+	terraform destroy -state=terraform/devenvs/alexey/terraform.tfstate -var-file=terraform/devenvs/alexey/env.tfvars terraform/base/gce_swarm_dev
+
+# all
+plan-all: plan-prod plan-stage plan-dev
+
+plan-all-destroy: plan-prod-destroy plan-stage-destroy plan-dev-destroy
+
+apply-all: apply-prod apply-stage apply-dev
+
+destroy-all: destroy-prod destroy-stage destroy-dev
+
+# packer
+pack-base:
+	packer build -only=google -var-file=packer/envs/swarm/config.json packer/swarm/base.json
+
+pack-master:
+	packer build -only=google -var-file=packer/envs/swarm/config.json packer/swarm/master.json
+
+pack-worker:
+	packer build -only=google -var-file=packer/envs/swarm/config.json packer/swarm/worker.json
+
+pack-dev:
+	packer build -only=google -var-file=packer/envs/swarm/config.json packer/swarm/development.json
+
 .PHONY: all build lint test
