@@ -22,4 +22,4 @@
     creates: "{{consul_web_ui_dir}}/static"
 
 - name: Drop Consul Web UI archive
-  file: src={{home}}/consul_0.7.0_web_ui.zip state=absent
+  file: path={{home}}/consul_0.7.0_web_ui.zip state=absent

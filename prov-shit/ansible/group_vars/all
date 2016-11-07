@@ -157,7 +157,7 @@ rsync_opts: ssh -l {{user}}
 # Consul variables
 consul_config_dir: /etc/consul.d
 consul_data_dir: /var/consul
-consul_web_ui_dir: {{usr_local_share}}/consul
+consul_web_ui_dir: "{{usr_local_share}}/consul"
 consul_encryption_key: NPtpFss71wVwn23dHiBJCA==
 
 # Used to prefix service names in consul
