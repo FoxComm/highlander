@@ -31,7 +31,7 @@ type Props = {
   categoryName: ?string,
   productType: ?string,
   isLoading: ?boolean,
-}
+};
 
 const mapStateToProps = state => ({
   categories: state.categories.list,
