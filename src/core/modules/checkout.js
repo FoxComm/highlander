@@ -282,13 +282,6 @@ export function checkout(): Function {
   };
 }
 
-// Update guest account to checkout
-export function saveEmail(email): Function {
-  return () => {
-    return foxApi.account.update({email});
-  };
-}
-
 function setEmptyCard() {
   return {
     holderName: '',

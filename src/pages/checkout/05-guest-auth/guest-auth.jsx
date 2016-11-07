@@ -8,14 +8,15 @@ import { connect } from 'react-redux';
 import Guest from '../../../components/auth/guest';
 import Login from '../../../components/auth/login';
 
-import * as actions from 'modules/checkout';
+import * as checkoutActions from 'modules/checkout';
+import * as authActions from 'modules/auth';
 
 import localized from 'lib/i18n';
 
 import styles from './guest-auth.css';
 
 @localized
-@connect(null, actions)
+@connect(null, {...checkoutActions, ...authActions})
 class GuestAuth extends Component {
 
   @autobind
