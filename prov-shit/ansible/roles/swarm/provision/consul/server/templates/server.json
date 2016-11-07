@@ -5,7 +5,7 @@
     ],
     "datacenter": "{{datacenter}}",
     "bind_addr": "{{inventory_hostname}}",
-    "bootstrap_expect": {{master_ips|length}},
+    "bootstrap_expect": {{masters_ips|length}},
     "data_dir": "{{consul_data_dir}}",
     "encrypt": "{{consul_encryption_key}}",
     "client_addr": "0.0.0.0"
