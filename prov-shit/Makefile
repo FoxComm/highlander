@@ -58,7 +58,7 @@ get-dev-modules:
 plan-prod: get-cluster-modules
 	terraform plan -state=terraform/envs/gce_swarm_production/terraform.tfstate -var-file=terraform/envs/gce_swarm_production/env.tfvars terraform/base/gce_swarm
 
-plan-prod-destroy: get-cluster-modules
+plan-destroy-prod: get-cluster-modules
 	terraform plan -destroy -state=terraform/envs/gce_swarm_production/terraform.tfstate -var-file=terraform/envs/gce_swarm_production/env.tfvars terraform/base/gce_swarm
 
 apply-prod: get-cluster-modules
@@ -71,7 +71,7 @@ destroy-prod: get-cluster-modules
 plan-stage: get-cluster-modules
 	terraform plan -state=terraform/envs/gce_swarm_staging/terraform.tfstate -var-file=terraform/envs/gce_swarm_staging/env.tfvars terraform/base/gce_swarm
 
-plan-stage-destroy: get-cluster-modules
+plan-destroy-stage: get-cluster-modules
 	terraform plan -destroy -state=terraform/envs/gce_swarm_staging/terraform.tfstate -var-file=terraform/envs/gce_swarm_staging/env.tfvars terraform/base/gce_swarm
 
 apply-stage: get-cluster-modules
@@ -84,7 +84,7 @@ destroy-stage: get-cluster-modules
 plan-dev: get-dev-modules
 	terraform plan -state=terraform/devenvs/alexey/terraform.tfstate -var-file=terraform/devenvs/alexey/env.tfvars terraform/base/gce_swarm_dev
 
-plan-dev-destroy: get-dev-modules
+plan-destroy-dev: get-dev-modules
 	terraform plan -destroy -state=terraform/devenvs/alexey/terraform.tfstate -var-file=terraform/devenvs/alexey/env.tfvars terraform/base/gce_swarm_dev
 
 apply-dev: get-dev-modules
@@ -96,7 +96,7 @@ destroy-dev: get-dev-modules
 # all
 plan-all: plan-prod plan-stage plan-dev
 
-plan-all-destroy: plan-prod-destroy plan-stage-destroy plan-dev-destroy
+plan-destroy-all: plan-prod-destroy plan-stage-destroy plan-dev-destroy
 
 apply-all: apply-prod apply-stage apply-dev
 
