@@ -2,10 +2,6 @@
 @import "variables.css";
 @import "media-queries.css";
 
-.card-form-wrap {
-  /*padding: 0 50px;*/
-}
-
 .title {
   composes: title from 'pages/catalog/pdp.css';
 }

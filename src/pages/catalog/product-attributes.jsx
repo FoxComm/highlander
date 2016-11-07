@@ -1,3 +1,5 @@
+/* @flow */
+
 // libs
 import _ from 'lodash';
 import React from 'react';
@@ -6,6 +8,10 @@ import cx from 'classnames';
 
 // styles
 import styles from './pdp.css';
+
+type State = {
+  currentAdditionalTitle: string,
+};
 
 const renderAttributes = (product, attributeNames = []) => {
   return (
@@ -41,12 +47,12 @@ export default class ProductAttributes extends React.Component {
     product: any,
   };
 
-  state = {
+  state: State = {
     currentAdditionalTitle: 'Prep',
   };
 
   @autobind
-  renderAttributes () {
+  renderAttributes() {
     const { attributes } =
       _.find(additionalInfoAttributesMap,
         attr => attr.title == this.state.currentAdditionalTitle) || {};
@@ -55,12 +61,12 @@ export default class ProductAttributes extends React.Component {
   }
 
   @autobind
-  setCurrentAdditionalAttr (currentAdditionalTitle) {
+  setCurrentAdditionalAttr(currentAdditionalTitle: string) {
     this.setState({ currentAdditionalTitle });
   }
 
   @autobind
-  renderAttributesTitles () {
+  renderAttributesTitles() {
     return additionalInfoAttributesMap.map(({ title }) => {
       const cls = cx(styles['item-title'], {
         [styles.active]: title === this.state.currentAdditionalTitle,
