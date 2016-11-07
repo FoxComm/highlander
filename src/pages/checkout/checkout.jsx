@@ -27,6 +27,7 @@ import type { CheckoutActions } from './types';
 import * as actions from 'modules/checkout';
 import { EditStages } from 'modules/checkout';
 import { fetch as fetchCart, hideCart } from 'modules/cart';
+import { fetchUser } from 'modules/auth';
 
 // paragons
 import { emailIsSet } from 'paragons/auth';
@@ -60,6 +61,10 @@ class Checkout extends Component {
 
     this.checkScroll();
     window.addEventListener('scroll', this.checkScroll);
+
+    if (!this.isEmailSetForCheckout()) {
+      this.props.fetchUser();
+    }
   }
 
   componentWillUnmount() {
@@ -142,17 +147,14 @@ class Checkout extends Component {
   }
 
   @autobind
-  checkAuthAndPlaceOrder() {
+  startShipping() {
+    return this.props.setEditStage(EditStages.SHIPPING);
+  }
+
+  @autobind
+  isEmailSetForCheckout() {
     const user = _.get(this.props, ['auth', 'user'], null);
-    if (emailIsSet(user)) {
-      this.placeOrder();
-    } else {
-      this.performStageTransition('guestAuthInProgress', () => {
-        return Promise.resolve().then(() => {
-          return this.props.setEditStage(EditStages.GUEST_AUTH);
-        });
-      });
-    }
+    return emailIsSet(user);
   }
 
   @autobind
@@ -226,18 +228,18 @@ class Checkout extends Component {
               collapsed={!props.isBillingDirty && props.editStage < EditStages.BILLING}
               editAction={this.setBillingState}
               inProgress={this.state.isPerformingCheckout}
-              continueAction={this.checkAuthAndPlaceOrder}
+              continueAction={this.placeOrder}
               error={this.errorsFor(EditStages.BILLING)}
               isAddressLoaded={this.props.isAddressLoaded}
             />
           </div>
 
           <GuestAuth
-            isEditing={props.editStage == EditStages.GUEST_AUTH}
+            isEditing={!this.isEmailSetForCheckout()}
             inProgress={this.state.guestAuthInProgress}
             error={this.errorsFor(EditStages.GUEST_AUTH)}
-            continueAction={this.placeOrder}
-            checkoutAfterSignIn={this.checkoutAfterSignIn}
+            continueAction={this.startShipping}
+            checkoutAfterSignIn={this.startShipping}
             location={this.props.location}
           />
         </div>
@@ -264,4 +266,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { ...actions, fetchCart, hideCart })(Checkout);
+export default connect(mapStateToProps, { ...actions, fetchCart, hideCart, fetchUser })(Checkout);
