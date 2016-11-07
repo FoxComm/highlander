@@ -146,13 +146,17 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   object giftCardsApi {
-    val giftCardsPrefix = s"$rootPrefix/gift-cards"
+    val giftCardsPrefix   = s"$rootPrefix/gift-cards"
+    val customerGiftCards = s"$rootPrefix/customer-gift-cards"
 
     def create(payload: GiftCardCreateByCsr): HttpResponse =
       POST(giftCardsPrefix, payload)
 
     def createFromCustomer(payload: GiftCardCreatedByCustomer): HttpResponse =
-      POST(giftCardsPrefix, payload)
+      POST(customerGiftCards, payload)
+
+    def createMultipleFromCustomer(payload: Seq[GiftCardCreatedByCustomer]): HttpResponse =
+      POST(customerGiftCards, payload)
 
     def createBulk(payload: GiftCardBulkCreateByCsr): HttpResponse =
       POST(giftCardsPrefix, payload)
