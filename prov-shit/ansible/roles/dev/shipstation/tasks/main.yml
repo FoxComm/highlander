@@ -13,3 +13,4 @@
 
 - name: Restart Shipstation Consumer in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/shipstation/restart'
+  wait_for: host={{middlewarehouse_host}} port={{middlewarehouse_port}}

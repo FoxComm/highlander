@@ -10,7 +10,7 @@
 		{
 			"name": "Vendor - Index",
 			"request": {
-				"url": "localhost:4000/merchants",
+				"url": "localhost:4003/merchants",
 				"method": "GET",
 				"header": [],
 				"body": {
@@ -24,7 +24,7 @@
 		{
 			"name": "Vendor - Create ",
 			"request": {
-				"url": "localhost:4000/vendors",
+				"url": "localhost:4003/vendors",
 				"method": "POST",
 				"header": [
 					{
@@ -44,7 +44,7 @@
 		{
 			"name": "Vendor - Update",
 			"request": {
-				"url": "localhost:4000/vendors/4",
+				"url": "localhost:4003/vendors/4",
 				"method": "PATCH",
 				"header": [
 					{
@@ -64,7 +64,7 @@
 		{
 			"name": "Merchant - Index",
 			"request": {
-				"url": "localhost:4000/merchants",
+				"url": "localhost:4003/merchants",
 				"method": "GET",
 				"header": [],
 				"body": {
@@ -78,7 +78,7 @@
 		{
 			"name": "Merchant - Create",
 			"request": {
-				"url": "localhost:4000/merchants",
+				"url": "localhost:4003/merchants",
 				"method": "POST",
 				"header": [
 					{
@@ -98,7 +98,7 @@
 		{
 			"name": "Merchant - Update",
 			"request": {
-				"url": "localhost:4000/merchants/2",
+				"url": "localhost:4003/merchants/2",
 				"method": "PATCH",
 				"header": [
 					{
@@ -118,7 +118,7 @@
 		{
 			"name": "Merchant - Activate Application",
 			"request": {
-				"url": "localhost:4000/merchants/activate_application/6",
+				"url": "localhost:4003/merchants/activate_application/6",
 				"method": "POST",
 				"header": [
 					{
@@ -138,7 +138,7 @@
 		{
 			"name": "Merchant/Address Index",
 			"request": {
-				"url": "localhost:4000/merchants/1/addresses",
+				"url": "localhost:4003/merchants/1/addresses",
 				"method": "GET",
 				"header": [],
 				"body": {
@@ -152,7 +152,7 @@
 		{
 			"name": "Merchant/Address Create",
 			"request": {
-				"url": "localhost:4000/merchants/1/addresses",
+				"url": "localhost:4003/merchants/1/addresses",
 				"method": "POST",
 				"header": [
 					{
@@ -172,7 +172,7 @@
 		{
 			"name": "Merchant/Account Index",
 			"request": {
-				"url": "localhost:4000/merchants/1/accounts",
+				"url": "localhost:4003/merchants/1/accounts",
 				"method": "GET",
 				"header": [],
 				"body": {
@@ -186,7 +186,7 @@
 		{
 			"name": "Merchant/Account Create",
 			"request": {
-				"url": "localhost:4000/merchants/1/accounts",
+				"url": "localhost:4003/merchants/1/accounts",
 				"method": "POST",
 				"header": [
 					{
@@ -206,7 +206,7 @@
 		{
 			"name": "Merchant/BusinessProfile - Show",
 			"request": {
-				"url": "localhost:4000/merchants/1/business_profile",
+				"url": "localhost:4003/merchants/1/business_profile",
 				"method": "GET",
 				"header": [
 					{
@@ -226,7 +226,7 @@
 		{
 			"name": "Merchant/BusinessProfile - Create",
 			"request": {
-				"url": "localhost:4000/merchants/1/business_profile",
+				"url": "localhost:4003/merchants/1/business_profile",
 				"method": "POST",
 				"header": [
 					{
@@ -246,7 +246,7 @@
 		{
 			"name": "Merchant/BusinessProfile - Update",
 			"request": {
-				"url": "localhost:4000/merchants/1/business_profile",
+				"url": "localhost:4003/merchants/1/business_profile",
 				"method": "PATCH",
 				"header": [
 					{
@@ -266,7 +266,7 @@
 		{
 			"name": "Merchant/SocialProfile - Show",
 			"request": {
-				"url": "localhost:4000/merchants/1/social_profile",
+				"url": "localhost:4003/merchants/1/social_profile",
 				"method": "GET",
 				"header": [
 					{
@@ -286,7 +286,7 @@
 		{
 			"name": "Merchant/SocialProfile - Create",
 			"request": {
-				"url": "localhost:4000/merchants/1/social_profile",
+				"url": "localhost:4003/merchants/1/social_profile",
 				"method": "POST",
 				"header": [
 					{
@@ -306,7 +306,7 @@
 		{
 			"name": "Merchant/SocialProfile - Update",
 			"request": {
-				"url": "localhost:4000/merchants/3/social_profile",
+				"url": "localhost:4003/merchants/3/social_profile",
 				"method": "PATCH",
 				"header": [
 					{
@@ -326,7 +326,7 @@
 		{
 			"name": "MerchantApplication - Index",
 			"request": {
-				"url": "localhost:4000/merchant_applications",
+				"url": "localhost:4003/merchant_applications",
 				"method": "GET",
 				"header": [
 					{
@@ -346,7 +346,7 @@
 		{
 			"name": "MerchantApplication - Show",
 			"request": {
-				"url": "localhost:4000/merchant_applications/4",
+				"url": "localhost:4003/merchant_applications/4",
 				"method": "GET",
 				"header": [
 					{
@@ -366,7 +366,7 @@
 		{
 			"name": "MerchantApplication - Create",
 			"request": {
-				"url": "localhost:4000/merchant_applications",
+				"url": "localhost:4003/merchant_applications",
 				"method": "POST",
 				"header": [
 					{
@@ -386,7 +386,7 @@
 		{
 			"name": "MerchantApplication - Update",
 			"request": {
-				"url": "localhost:4000/merchant_applications/4",
+				"url": "localhost:4003/merchant_applications/4",
 				"method": "PATCH",
 				"header": [
 					{
@@ -406,7 +406,7 @@
 		{
 			"name": "MerchantApplication/SocialProfile - Create",
 			"request": {
-				"url": "localhost:4000/merchant_applications/1/social_profile",
+				"url": "localhost:4003/merchant_applications/1/social_profile",
 				"method": "POST",
 				"header": [
 					{
@@ -426,7 +426,7 @@
 		{
 			"name": "MerchantApplication/SocialProfile - Show",
 			"request": {
-				"url": "localhost:4000/merchant_applications/1/social_profile",
+				"url": "localhost:4003/merchant_applications/1/social_profile",
 				"method": "GET",
 				"header": [
 					{
@@ -446,7 +446,7 @@
 		{
 			"name": "MerchantApplication/SocialProfile - Update",
 			"request": {
-				"url": "localhost:4000/merchant_applications/1/social_profile",
+				"url": "localhost:4003/merchant_applications/1/social_profile",
 				"method": "PATCH",
 				"header": [
 					{
@@ -466,7 +466,7 @@
 		{
 			"name": "MerchantApplication/BusinessProfile - Show",
 			"request": {
-				"url": "localhost:4000/merchant_applications/1/business_profile",
+				"url": "localhost:4003/merchant_applications/1/business_profile",
 				"method": "GET",
 				"header": [
 					{
@@ -486,7 +486,7 @@
 		{
 			"name": "MerchantApplication/BusinessProfile - Create",
 			"request": {
-				"url": "localhost:4000/merchant_applications/1/business_profile",
+				"url": "localhost:4003/merchant_applications/1/business_profile",
 				"method": "POST",
 				"header": [
 					{
@@ -506,7 +506,7 @@
 		{
 			"name": "MerchantApplication/BusinessProfile - Update",
 			"request": {
-				"url": "localhost:4000/merchant_applications/1/business_profile",
+				"url": "localhost:4003/merchant_applications/1/business_profile",
 				"method": "PATCH",
 				"header": [
 					{

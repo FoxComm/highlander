@@ -8,4 +8,3 @@ WORKDIR /stock-items-consumer
 COPY stock-items-consumer /stock-items-consumer
 
 CMD ["/stock-items-consumer/stock-items-consumer"] 
-

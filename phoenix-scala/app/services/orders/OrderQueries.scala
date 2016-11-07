@@ -1,16 +1,12 @@
 package services.orders
 
 import cats.implicits._
-import models.cord._
+import failures.NotFoundFailure404
 import models.account.{User, Users}
-import models.payment.PaymentMethod
-import models.payment.creditcard._
-import models.payment.giftcard._
-import models.payment.storecredit._
+import models.cord._
 import responses.TheResponse
 import responses.cord.{AllOrders, OrderResponse}
 import services.CordQueries
-import slick.dbio.DBIO
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -37,6 +33,17 @@ object OrderQueries extends CordQueries {
       ctx: OC): DbResultT[TheResponse[OrderResponse]] =
     for {
       order    ← * <~ Orders.mustFindByRefNum(refNum)
+      response ← * <~ OrderResponse.fromOrder(order, grouped)
+    } yield TheResponse.build(response)
+
+  def findOneByUser(refNum: String, customer: User, grouped: Boolean = true)(
+      implicit ec: EC,
+      db: DB,
+      ctx: OC): DbResultT[TheResponse[OrderResponse]] =
+    for {
+      order ← * <~ Orders
+               .findByRefNumAndAccountId(refNum, customer.accountId)
+               .mustFindOneOr(NotFoundFailure404(Orders, refNum))
       response ← * <~ OrderResponse.fromOrder(order, grouped)
     } yield TheResponse.build(response)
 

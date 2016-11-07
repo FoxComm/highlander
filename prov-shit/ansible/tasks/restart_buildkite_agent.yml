@@ -1,5 +1,0 @@
----
-
-- name: Restart Buildkite Agent
-  service: name=buildkite-agent state=restarted enabled=yes
-  sudo: true

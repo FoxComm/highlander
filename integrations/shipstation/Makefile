@@ -2,12 +2,11 @@ BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/integrations/shipstation
 HIGHLANDER_PATH=$(CURDIR)/../..
 
-prep:
-	rm -rf $(BUILD_ROOT_PATH)
-	mkdir -p $(GOPATH)/src/github.com/FoxComm
-	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH)
+DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
+DOCKER_TAG ?= shipstation-consumer
+DOCKER_BRANCH ?= master
 
-glide: prep
+glide:
 	cd $(BUILD_PATH) && glide install
 
 build: glide
@@ -17,10 +16,10 @@ build-linux: glide
 	cd $(BUILD_PATH) && GOOS=linux $(MAKE) build
 
 docker:
-	docker build -t shipstation-consumer .
+	docker build -t $(DOCKER_TAG) .
 
 docker-push:
-	docker tag shipstation-consumer docker-stage.foxcommerce.com:5000/shipstation-consumer:master
-	docker push docker-stage.foxcommerce.com:5000/shipstation-consumer:master
+	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
 .PHONY: build

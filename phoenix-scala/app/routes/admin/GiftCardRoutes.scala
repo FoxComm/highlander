@@ -18,6 +18,18 @@ object GiftCardRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
     activityContext(auth.model) { implicit ac ⇒
+      path("customer-gift-cards") {
+        (post & pathEnd & entity(as[GiftCardCreatedByCustomer])) { payload ⇒
+          mutateOrFailures {
+            GiftCardService.createByCustomer(auth.model, payload)
+          }
+        } ~
+        (post & pathEnd & entity(as[Seq[GiftCardCreatedByCustomer]])) { payload ⇒
+          mutateOrFailures {
+            DbResultT.sequence(payload.map(GiftCardService.createByCustomer(auth.model, _)))
+          }
+        }
+      } ~
       pathPrefix("gift-cards") {
         (patch & pathEnd & entity(as[GiftCardBulkUpdateStateByCsr])) { payload ⇒
           mutateOrFailures {
@@ -33,18 +45,8 @@ object GiftCardRoutes {
           mutateOrFailures {
             GiftCardService.createByAdmin(auth.model, payload)
           }
-        } ~
-        (post & pathEnd & entity(as[GiftCardCreatedByCustomer])) { payload ⇒
-          mutateOrFailures {
-            GiftCardService.createByCustomer(auth.model, payload)
-          }
-        } ~
-        (post & pathEnd & entity(as[Seq[GiftCardCreatedByCustomer]])) { payload ⇒
-          mutateOrFailures {
-            DbResultT.sequence(payload.map(GiftCardService.createByCustomer(auth.model, _)))
-          }
         }
-    } ~
+      } ~
       pathPrefix("gift-cards" / giftCardCodeRegex) { code ⇒
         (get & pathEnd) {
           getOrFailures {

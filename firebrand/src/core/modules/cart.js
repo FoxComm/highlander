@@ -53,8 +53,7 @@ function collectLineItems(skus) {
 // get line items from response
 function getLineItems(payload) {
   const skus = _.get(payload, ['lineItems', 'skus'], []);
-  const reducedSkus = collectLineItems(skus);
-  return reducedSkus;
+  return collectLineItems(skus);
 }
 
 // collect items for submit

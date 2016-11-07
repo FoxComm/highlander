@@ -8,4 +8,3 @@ WORKDIR /shipments-consumer
 COPY shipments-consumer /shipments-consumer
 
 CMD ["/shipments-consumer/shipments-consumer"] 
-

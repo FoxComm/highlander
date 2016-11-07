@@ -18,7 +18,7 @@
   },
   "env": {
     "DB_SSLMODE": "disable",
-    "SCHEMA_REGISTRY_URL": "{{schema_server}}",
+    "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",
     "DB_NAME": "{{middlewarehouse_db_name}}",
     "PHOENIX_URL": "http://{{phoenix_server}}",
     "ZOOKEEPER_URL": "{{zookeeper_server}}",

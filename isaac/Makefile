@@ -1,3 +1,6 @@
+DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
+DOCKER_TAG ?= isaac
+DOCKER_BRANCH ?= master
 
 build:
 	mkdir -p build
@@ -10,10 +13,10 @@ test:
 	true
 
 docker:
-	docker build -t isaac .
+	docker build -t $(DOCKER_TAG) .
 
 docker-push:
-	docker tag isaac docker-stage.foxcommerce.com:5000/isaac:master
-	docker push docker-stage.foxcommerce.com:5000/isaac:master
+	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
 .PHONY: build test
