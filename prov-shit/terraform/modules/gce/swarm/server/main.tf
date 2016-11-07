@@ -3,6 +3,8 @@ variable "zone" {
 }
 variable "datacenter" {
 }
+variable "setup" {
+}
 variable "network" {
 }
 
@@ -30,7 +32,7 @@ variable "ssh_private_key" {
 }
 
 resource "google_compute_instance" "swarm_server" {
-    name         = "${join("-", compact(list(var.datacenter, "swarm", var.machine_role, var.owner, lookup(map("1",""), format("%s", var.count), format("%d", count.index)))))}"
+    name         = "${join("-", compact(list(var.datacenter, var.setup, var.machine_role, var.owner, lookup(map("1",""), format("%s", var.count), format("%d", count.index)))))}"
 
     count        = "${var.count}"
 
@@ -61,8 +63,8 @@ resource "google_compute_instance" "swarm_server" {
     tags         = [
         "ssh",
         "no-ip",
-        "${var.datacenter}",
-        "${var.datacenter}-swarm-${var.machine_role}",
-        "${var.datacenter}-swarm-${var.machine_role}-${count.index}"
+        "${var.datacenter}-${var.setup}",
+        "${var.datacenter}-${var.setup}-${var.machine_role}",
+        "${var.datacenter}-${var.setup}-${var.machine_role}-${count.index}"
     ]
 }

@@ -11,6 +11,8 @@ variable "zone" {
 }
 variable "datacenter" {
 }
+variable "setup" {
+}
 variable "network" {
 }
 variable "bucket_location" {
@@ -47,7 +49,7 @@ provider "google" {
 }
 
 resource "google_storage_bucket" "docker-registry" {
-    name     = "${var.datacenter}-docker"
+    name     = "${var.datacenter}-${var.setup}-docker"
     location = "${var.bucket_location}"
 }
 
@@ -56,6 +58,7 @@ module "master_cluster" {
     // generic variables
     zone            = "${var.zone}"
     datacenter      = "${var.datacenter}"
+    setup           = "${var.setup}"
     network         = "${var.network}"
     // resources variables
     machine_role    = "master-server"
@@ -72,6 +75,7 @@ module "master_cluster_provision" {
     source     = "../../modules/gce/swarm/master_provision"
     // generic variables
     datacenter = "${var.datacenter}"
+    setup      = "${var.setup}"
     // resources variables
     master_ips = "${module.master_cluster.ips}"
     count      = "${var.masters_count}"
@@ -82,6 +86,7 @@ module "worker_cluster" {
     // generic variables
     zone            = "${var.zone}"
     datacenter      = "${var.datacenter}"
+    setup           = "${var.setup}"
     network         = "${var.network}"
     // resources variables
     machine_role    = "worker-server"
@@ -98,6 +103,7 @@ module "worker_cluster_provision" {
     source                 = "../../modules/gce/swarm/worker_provision"
     // generic variables
     datacenter             = "${var.datacenter}"
+    setup                  = "${var.setup}"
     // resources variables
     master_ips             = "${module.master_cluster.ips}"
     worker_ips             = "${module.worker_cluster.ips}"

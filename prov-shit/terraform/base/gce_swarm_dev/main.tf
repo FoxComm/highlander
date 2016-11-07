@@ -45,6 +45,7 @@ module "dev" {
     // generic variables
     zone            = "${var.zone}"
     datacenter      = "${var.datacenter}"
+    setup           = "dev"
     network         = "${var.network}"
     // resources variables
     machine_role    = "dev-server"
