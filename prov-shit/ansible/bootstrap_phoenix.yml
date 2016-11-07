@@ -5,6 +5,7 @@
   vars:
     user: '{{ansible_ssh_user}}'
     upload_phoenix_jar: true
+    upload_greenriver_jar: false
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname where to upload Phoenix"
@@ -13,3 +14,4 @@
 
   roles:
       - { role: dev/phoenix }
+      - { role: dev/greenriver }
