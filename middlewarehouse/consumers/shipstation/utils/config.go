@@ -5,38 +5,66 @@ import (
 	"fmt"
 	"os"
 	"time"
+    "strconv"
+
 )
 
-var Config SiteConfig
 
-type SiteConfig struct {
+type Config struct {
 	ZookeeperURL       string
 	SchemaRegistryURL  string
+	Topic               string
 	MiddlewarehouseURL string
 	PollingInterval    time.Duration
+	ApiKey              string
+	ApiSecret           string
+	Partition           int
 }
 
-func InitializeConfig() error {
-	zookeeperURL := os.Getenv("ZOOKEEPER_URL")
-	if zookeeperURL == "" {
-		return errors.New("ZOOKEEPER_URL is not set")
-	}
+func MakeConfig() (Config, error) {
 
-	schemaRegistryURL := os.Getenv("SCHEMA_REGISTRY_URL")
-	if schemaRegistryURL == "" {
-		return errors.New("SCHEMA_REGISTRY_URL is not set")
-	}
+	var err error
+	config := Config{}
 
-	middlewarehouseURL := os.Getenv("MIDDLEWAREHOUSE_URL")
-	if middlewarehouseURL == "" {
-		return errors.New("MIDDLEWAREHOUSE_URL is not set")
-	}
-
-	pollingInterval, err := time.ParseDuration(os.Getenv("POLLING_INTERVAL"))
+	config.PollingInterval, err = time.ParseDuration(os.Getenv("POLLING_INTERVAL"))
 	if err != nil {
-		return fmt.Errorf("Unable to parse POLLING_INTERVAL with error %s", err.Error())
+		return config, fmt.Errorf("Unable to parse POLLING_INTERVAL with error %s", err.Error())
 	}
 
-	Config = SiteConfig{zookeeperURL, schemaRegistryURL, middlewarehouseURL, pollingInterval}
-	return nil
+	config.SchemaRegistryURL = os.Getenv("SCHEMA_REGISTRY_URL")
+	if config.SchemaRegistryURL == "" {
+		return config, errors.New("Unable to find SCHEMA_REGISTRY_URL in env")
+	}
+
+	config.ZookeeperURL = os.Getenv("ZOOKEEPER_URL")
+	if config.ZookeeperURL == "" {
+		return config, errors.New("Unable to find ZOOKEEPER_URL in env")
+	}
+
+	config.Topic = os.Getenv("TOPIC")
+	if config.Topic == "" {
+		return config, errors.New("Unable to find TOPIC in env")
+	}
+
+    config.MiddlewarehouseURL = os.Getenv("MIDDLEWAREHOUSE_URL")
+    if config.MiddlewarehouseURL == "" {
+        return config, errors.New("MIDDLEWAREHOUSE_URL is not set")
+    }
+
+	config.ApiKey = os.Getenv("API_KEY")
+	if config.ApiKey == "" {
+		return config, errors.New("Unable to find API_KEY in env")
+	}
+
+	config.ApiSecret = os.Getenv("API_SECRET")
+	if config.ApiSecret == "" {
+		return config, errors.New("Unable to find API_SECRET in env")
+	}
+
+	config.Partition, err = strconv.Atoi(os.Getenv("PARTITION"))
+	if err != nil {
+		return config, errors.New("Unable to parse valid PARTITION in env")
+	}
+
+    return config, nil
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/utils"
@@ -13,6 +12,7 @@ const mwhShipmentsURI = "/v1/public/shipments"
 
 type PollingAgent struct {
 	client *api.Client
+    middleWarehouseUrl string
 }
 
 type S struct {
@@ -22,16 +22,14 @@ type S struct {
 	TrackingNumber  string `json:"trackingNumber"`
 }
 
-func NewPollingAgent() (*PollingAgent, error) {
-	key := os.Getenv("API_KEY")
-	secret := os.Getenv("API_SECRET")
+func NewPollingAgent(key string, secret string, middleWarehouseUrl string) (*PollingAgent, error) {
 
 	client, err := api.NewClient(key, secret)
 	if err != nil {
 		return nil, err
 	}
 
-	return &PollingAgent{client}, nil
+	return &PollingAgent{client, middleWarehouseUrl}, nil
 }
 
 func (c PollingAgent) GetShipments() error {
@@ -52,7 +50,7 @@ func (c PollingAgent) GetShipments() error {
 			TrackingNumber:  shipment.TrackingNumber,
 		}
 
-		url := fmt.Sprintf("%s/%s/%s", utils.Config.MiddlewarehouseURL, mwhShipmentsURI, s.ReferenceNumber)
+		url := fmt.Sprintf("%s/%s/%s", c.middleWarehouseUrl, mwhShipmentsURI, s.ReferenceNumber)
 		resp := new(S)
 
 		err := httpClient.Patch(url, s, resp)

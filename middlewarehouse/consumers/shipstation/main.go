@@ -14,29 +14,28 @@ const (
 )
 
 func main() {
-	if err := utils.InitializeConfig(); err != nil {
+    config, err := utils.MakeConfig()
+
+	if err != nil {
 		log.Fatalf("Unable to initialize ShipStation with error: %s", err.Error())
 	}
 
-	zookeeper := utils.Config.ZookeeperURL
-	schemaRegistry := utils.Config.SchemaRegistryURL
-
-	consumer, err := metamorphosis.NewConsumer(zookeeper, schemaRegistry)
+	consumer, err := metamorphosis.NewConsumer(config.ZookeeperURL, config.SchemaRegistryURL)
 	if err != nil {
 		log.Fatalf("Unable to connect to Kafka with error %s", err.Error())
 	}
 
-	oc, err := NewOrderConsumer(topic)
+	oc, err := NewOrderConsumer(config.Topic, config.ApiKey, config.ApiSecret)
 	if err != nil {
 		log.Fatalf("Unable to initialize ShipStation order consumer with error %s", err.Error())
 	}
 
-	pollingAgent, err := NewPollingAgent()
+	pollingAgent, err := NewPollingAgent(config.ApiKey, config.ApiSecret, config.MiddlewarehouseURL)
 	if err != nil {
 		log.Fatalf("Unable to initialize ShipStation API client with error %s", err.Error())
 	}
 
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(config.PollingInterval * time.Second)
 	go func() {
 		for {
 			select {
@@ -50,5 +49,5 @@ func main() {
 		}
 	}()
 
-	consumer.RunTopic(topic, partition, oc.Handler)
+	consumer.RunTopic(config.Topic, config.Partition, oc.Handler)
 }
