@@ -1,5 +1,5 @@
 {
-    "ui-dir": "{{consul_web_ui_dir}}",
+    "ui_dir": "{{consul_web_ui_dir}}",
     "start_join_wan": [
         "{{consul_leader}}"
     ],
