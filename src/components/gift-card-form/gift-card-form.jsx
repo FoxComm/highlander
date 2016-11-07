@@ -8,9 +8,10 @@ import styles from './gift-card-form.css';
 
 // components
 import { TextInput } from 'ui/inputs';
-import { FormField } from 'ui/forms';
+import { Form, FormField } from 'ui/forms';
 import AddToCartBtn from 'ui/add-to-cart-btn';
 import Autocomplete from 'ui/autocomplete';
+
 
 type Props = {
   product: any,
@@ -43,7 +44,7 @@ const GiftCardForm = (props: Props) => {
         To email immediately, select today.
       </div>
 
-      <FormField styleName="form">
+      <Form styleName="form" onSubmit={props.addToCart}>
         <div styleName="price-selector">
           <Autocomplete
             inputProps={{
@@ -56,42 +57,55 @@ const GiftCardForm = (props: Props) => {
             sortItems={false}
           />
         </div>
-        <TextInput
-          styleName="input-field"
-          value={props.attributes.recepientName || ''}
-          placeholder="Recipient name"
-          onChange={props.onAttributeChange('recepientName')}
-        />
-        <TextInput
-          styleName="input-field"
-          value={props.attributes.recepientEmail || ''}
-          placeholder="Recipient email"
-          onChange={props.onAttributeChange('recepientEmail')}
-        />
+        <FormField label="Recipient name" required>
+          <TextInput
+            styleName="input-field"
+            value={props.attributes.recipientName || ''}
+            placeholder="Recipient name"
+            onChange={props.onAttributeChange}
+            name="recipientName"
+          />
+        </FormField>
+        <FormField label="Recipient email" required>
+          <TextInput
+            styleName="input-field"
+            value={props.attributes.recipientEmail || ''}
+            placeholder="Recipient email"
+            onChange={props.onAttributeChange}
+            name="recipientEmail"
+          />
+        </FormField>
         <textarea
           styleName="message-field"
           placeholder="Your message"
           value={props.attributes.message || ''}
-          onChange={props.onAttributeChange('message')}
+          onChange={props.onAttributeChange}
+          name="message"
         />
-        <TextInput
-          styleName="input-field"
-          value={props.attributes.senderName}
-          placeholder="Sender name"
-          onChange={props.onAttributeChange('senderName')}
-        />
-        <TextInput
-          styleName="input-field"
-          value={props.attributes.deliviryDate || ''}
-          placeholder="Deliviry date"
-          onChange={props.onAttributeChange('deliviryDate')}
-        />
+        <FormField label="Sender name" required>
+          <TextInput
+            styleName="input-field"
+            value={props.attributes.senderName || ''}
+            placeholder="Sender name"
+            onChange={props.onAttributeChange}
+            name="senderName"
+          />
+        </FormField>
+        <FormField name="Delivery date" required>
+          <TextInput
+            styleName="input-field"
+            value={props.attributes.deliveryDate || ''}
+            placeholder="Delivery date"
+            onChange={props.onAttributeChange}
+            name="deliveryDate"
+          />
+        </FormField>
         <AddToCartBtn
           styleName="add-to-cart-btn"
+          type="submit"
           expanded
-          onClick={props.addToCart}
         />
-      </FormField>
+      </Form>
     </div>
   );
 };

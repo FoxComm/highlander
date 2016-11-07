@@ -15,12 +15,12 @@ type Props = {
 
 const AddToCartBtn = (props: Props) => {
   const { expanded = false, onClick, className, ...restProps } = props;
-  const cls = cx(className, styles['add-to-cart-btn'], {
+  const classNames = cx(className, styles['add-to-cart-btn'], {
     [styles.expanded]: expanded,
   });
 
   return (
-    <button className={cls} onClick={onClick} {...restProps}>
+    <button className={classNames} onClick={onClick} {...restProps}>
       <span styleName="add-icon">+</span>
       <span styleName="add-btn-title">ADD TO CART</span>
     </button>
