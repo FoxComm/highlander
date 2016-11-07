@@ -4,12 +4,13 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import type { HTMLElement } from 'types';
-import { toggleUserMenu } from 'modules/usermenu';
-import { logout } from 'modules/auth';
 import localized from 'lib/i18n';
-
 import styles from './usertools.css';
 
+import { Link } from 'react-router';
+
+import { toggleUserMenu } from 'modules/usermenu';
+import { logout } from 'modules/auth';
 import { fetch as fetchCart } from 'modules/cart';
 
 type Props = {
@@ -45,12 +46,18 @@ class UserMenu extends Component {
     return (
       <ul styleName="menu">
         <li>
+          <Link to="/profile" styleName="menu-link">
+            {t('PROFILE')}
+          </Link>
+        </li>
+        <li>
           <a
             styleName="menu-link"
             href="/logout"
             onClick={this.handleLogout}
           >{t('LOG OUT')}</a>
         </li>
+
       </ul>
     );
   }
