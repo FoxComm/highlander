@@ -1,5 +1,15 @@
 ---
 
+- name: Copy Execution File
+  template: src=run_consul_server.sh dest={{usr_local_bin}}/run_consul_server.sh mode=750
+
+- name: Copy Service
+  template: src=consul_server.service dest={{dest_services}}/consul_server.service
+
+- name: Reload Systemd for Consul Server
+  command: systemctl daemon-reload
+
+
 - name: Create Web Ui Directory
   file: path={{consul_web_ui_dir}} state=directory
 
@@ -13,27 +23,3 @@
 
 - name: Drop Consul Web UI archive
   file: src={{home}}/consul_0.7.0_web_ui.zip state=absent
-
-
-- name: Copy Execution File
-  template: src=run_consul_server.sh dest={{usr_local_bin}}/run_consul_server.sh mode=750
-
-- name: Copy Service
-  template: src=consul_server.service dest={{dest_services}}/consul_server.service
-
-- name: Reload Systemd for Consul Server
-  command: systemctl daemon-reload
-
-
-- name: Install Dnsmasq
-  apt: name=dnsmasq state=latest force=yes
-
-- name: Touch Dnsmasq Config
-  file: path=/etc/dnsmasq.d/10-consul state=touch
-
-- name: Add Consul to Dnsmasq Config
-  lineinfile: dest="/etc/dnsmasq.d/10-consul" line="server=/consul/127.0.0.1#8600"
-
-- name: Restart Dnsmasq
-  service: name=dnsmasq state=restarted enabled=yes
-
