@@ -67,6 +67,11 @@
   .content {
     margin-top: 150px;
   }
+
+  .summary-content {
+    position: fixed;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, .1);
+  }
 }
 
 @media (--medium-only) {

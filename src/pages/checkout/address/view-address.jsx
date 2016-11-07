@@ -1,5 +1,4 @@
-
-/* @flow weak */
+/* @flow */
 
 import React from 'react';
 import type { Address } from 'types/address';
@@ -19,10 +18,6 @@ const ViewAddress = (props: Props) => {
       {props.phoneNumber && <li>{props.phoneNumber}</li>}
     </ul>
   );
-};
-
-ViewAddress.defaultProps = {
-  hideName: false,
 };
 
 export default ViewAddress;

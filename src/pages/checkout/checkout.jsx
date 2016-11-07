@@ -12,7 +12,7 @@ import Shipping from './01-shipping/shipping';
 import Delivery from './02-delivery/delivery';
 import Billing from './03-billing/billing';
 import GuestAuth from './05-guest-auth/guest-auth';
-import OrderSummary from './summary/order-summary';
+import OrderSummary from '../../components/order-summary/order-summary';
 import Header from './header';
 
 // styles
@@ -193,7 +193,11 @@ class Checkout extends Component {
 
         <div styleName="content">
           <div styleName="summary">
-            <OrderSummary isScrolled={this.state.isScrolled} />
+            <OrderSummary
+              isScrolled={this.state.isScrolled}
+              styleName="summary-content"
+              { ...props.cart }
+            />
           </div>
 
           <div styleName="forms">
