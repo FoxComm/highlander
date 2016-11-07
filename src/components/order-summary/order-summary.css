@@ -3,7 +3,6 @@
 
 .order-summary {
   width: 100%;
-  margin: 0;
   padding: 0;
   background: #FFFFFF;
   color: #212121;
@@ -132,6 +131,11 @@
   .order-summary {
     padding: 0 20px;
     border: 2px solid var(--border-color);
+  }
+
+  .embedded {
+    padding: 0;
+    border: 0 none;
   }
 }
 

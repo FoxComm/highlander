@@ -11,6 +11,7 @@ import Loader from 'ui/loader';
 import AddressDetails from 'ui/address/address-details';
 import Currency from 'ui/currency';
 import Icon from 'ui/icon';
+import OrderSummary from '../../order-summary/order-summary';
 
 import * as actions from 'modules/orders';
 
@@ -140,6 +141,15 @@ class Order extends Component {
             </tr>
           </tbody>
         </table>
+        <OrderSummary
+          isCollapsed={false}
+          header={null}
+          totalTitle="ORDER TOTAL"
+          embedded
+          styleName="order-summary"
+          { ...order }
+          skus={order.lineItems.skus}
+        />
       </Block>
     );
   }
