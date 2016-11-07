@@ -15,8 +15,9 @@ import models.activity.ActivityContext
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.SimpleContext
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import services.{AuthPayload, JwtCookie, Result}
+import services.{JwtCookie, Result}
 import slick.driver.PostgresDriver.api._
+import payloads.AuthPayload
 import utils._
 import utils.aliases._
 import utils.db._
