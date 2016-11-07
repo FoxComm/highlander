@@ -1,7 +1,5 @@
 defmodule Solomon.AccountController do
   use Solomon.Web, :controller
-  import Solomon.JWTAuth
-  import Solomon.JWTClaims
   alias Solomon.Repo
   alias Solomon.Account
 
@@ -44,12 +42,5 @@ defmodule Solomon.AccountController do
         |> put_status(:unprocessable_entity)
         |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
     end
-  end
-
-  def sign_in(conn, %{"account_id" => account_id}) do
-    # TODO : make it secure
-    conn
-    |> put_resp_cookie("JWT", sign(token_claim(account_id)))
-    |> send_resp(:ok, "")
   end
 end

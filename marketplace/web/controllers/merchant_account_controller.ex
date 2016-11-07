@@ -40,6 +40,8 @@ defmodule Marketplace.MerchantAccountController do
   end
 
   def create_admin(conn, %{"merchant_id" => merchant_id, "account" => merchant_account_params}) do
+    email = Map.fetch!(merchant_account_params, "email_address")
+    passwd = Map.fetch!(merchant_account_params, "password")
     solomon_id = PermissionManager.create_user_from_merchant_account(merchant_account_params)
     scope_id = Repo.one(from merchant in Merchant,
                         where: merchant.id == ^merchant_id,
@@ -54,7 +56,7 @@ defmodule Marketplace.MerchantAccountController do
         conn
         |> put_status(:created)
         |> put_resp_header("location", merchant_account_path(conn, :show, merchant_id, merchant_account))
-        |> PermissionManager.sign_in_account(solomon_id)
+        |> PermissionManager.sign_in_user(email, passwd)
         |> render("merchant_account.json", merchant_account: merchant_account)
       {:error, changeset} ->
         conn

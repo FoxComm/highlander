@@ -150,13 +150,18 @@ defmodule Marketplace.PermissionManager do
     end
   end
 
-  def sign_in_account(conn, solomon_id) do
+  def sign_in_user(conn, email, passwd) do
     HTTPoison.start
-    post_body = %{}
+    post_body = %{
+      "user" => %{
+        "email" => email,
+        "password" => passwd
+      }
+    }
     |> Poison.encode!
     post_headers = [{'content-type', 'application/json'}]
 
-    case HTTPoison.post("#{full_perm_path}/accounts/#{solomon_id}/sign_in", post_body, post_headers) do
+    case HTTPoison.post("#{full_perm_path}/sign_in", post_body, post_headers) do
       {:ok, %HTTPoison.Response{status_code: 200, headers: headers}} ->
         {key, cookie} = Enum.find(headers, fn {x, y} -> x == "set-cookie" end)
         Plug.Conn.put_resp_header(conn, key, cookie)
