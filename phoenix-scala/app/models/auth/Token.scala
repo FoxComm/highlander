@@ -157,8 +157,7 @@ object Token {
         val consumer  = builder.build()
         val jwtClaims = consumer.processToClaims(rawToken)
         val jValue    = parse(jwtClaims.toJson)
-        val r = Extraction.extract[UserToken](jValue)
-        r
+        Extraction.extract[UserToken](jValue)
       } match {
         case Success(token) ⇒ Xor.right(token)
         case Failure(e) ⇒
