@@ -189,6 +189,9 @@ object Orders
   def findOneByRefNumAndAccount(refNum: String, account: Account): QuerySeq =
     filter(_.referenceNumber === refNum).filter(_.accountId === account.id)
 
+  def findByRefNumAndAccountId(refNum: String, accountId: Int): QuerySeq =
+    filter(_.referenceNumber === refNum).filter(_.accountId === accountId)
+
   type Ret       = (Int, String, Option[Instant])
   type PackedRet = (Rep[Int], Rep[String], Rep[Option[Instant]])
   private val rootLens = lens[Order]
