@@ -32,7 +32,7 @@ resource "null_resource" "swarm_worker_server_provision" {
             --extra-vars @terraform/envs/gce_${var.datacenter}_${var.setup}/params.json \
             --extra-vars datacenter=${var.datacenter} \
             --extra-vars consul_leader=${var.leader_ip} \
-            --extra-vars '{"zookeepers_ips":${jsonencode(var.masters_ips)}}' \
+            --extra-vars '{"masters_ips":${jsonencode(var.masters_ips)}}' \
             --extra-vars docker_registry_bucket=${var.docker_registry_bucket}
         EOF
     }
