@@ -7,5 +7,5 @@
 
   sudo: true
   roles:
-    - { role: swarm/pack/mesos/worker }
     - { role: swarm/pack/consul/agent }
+    - { role: swarm/pack/mesos/worker }

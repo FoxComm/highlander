@@ -7,8 +7,8 @@
 
   sudo: true
   roles:
+    - { role: swarm/pack/consul/server }
     - { role: swarm/pack/confluence }
     - { role: swarm/pack/mesos/master }
     - { role: swarm/pack/zookeeper }
     - { role: swarm/pack/marathon }
-    - { role: swarm/pack/consul/server }

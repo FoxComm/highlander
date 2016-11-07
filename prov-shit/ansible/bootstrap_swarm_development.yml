@@ -10,9 +10,10 @@
   sudo: true
   roles:
     - { role: swarm/provision/setup }
+    # master roles
+    - { role: swarm/provision/consul/server }
     - { role: swarm/provision/zookeeper }
     - { role: swarm/provision/mesos/master }
     - { role: swarm/provision/marathon }
+    # worker roles
     - { role: swarm/provision/mesos/worker }
-    - { role: swarm/provision/consul/server }
-    - { role: swarm/provision/consul/agent }
