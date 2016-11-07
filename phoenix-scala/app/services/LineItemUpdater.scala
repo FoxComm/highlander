@@ -96,7 +96,7 @@ object LineItemUpdater {
 
     for {
       cart     ← * <~ finder
-      a        ← * <~ addQuantities(cart, payload)
+      _        ← * <~ addQuantities(cart, payload)
       response ← * <~ runUpdates(cart, logActivity)
     } yield response
   }
@@ -112,7 +112,6 @@ object LineItemUpdater {
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
       li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      size  ← * <~ CartLineItems.byCordRef(cart.refNum).length.result
       _     ← * <~ logAct(res, li)
     } yield TheResponse.validated(res, valid)
 
@@ -139,11 +138,9 @@ object LineItemUpdater {
       sku ← * <~ Skus
              .filterByContext(contextId)
              .filter(_.formId === lineItem.skuId)
-             .mustFindOneOr(
-                 SkuNotFoundForContext(lineItem.skuId, contextId)
-             )
+             .mustFindOneOr(SkuNotFoundForContext(lineItem.skuId, contextId))
       _            ← * <~ mustFindProductIdForSku(sku, cart.refNum)
-      updateResult ← * <~ addLineItems(sku.form, lineItem.quantity, cart.refNum, lineItem.attributes)
+      updateResult ← * <~ addLineItems(sku.id, lineItem.quantity, cart.refNum, lineItem.attributes)
     } yield updateResult
   }
 
@@ -153,7 +150,8 @@ object LineItemUpdater {
     DbResultT.sequence(
         List
           .fill(quantity)(CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes))
-          .map(CartLineItems.create(_)))
+          .map(CartLineItems.create)
+    )
   }
 
   private def addQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload])(
