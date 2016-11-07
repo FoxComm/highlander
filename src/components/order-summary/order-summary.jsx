@@ -34,6 +34,8 @@ type Props = {
   isCollapsed: boolean,
   header?: any,
   className?: string,
+  embedded?: boolean,
+  totalTitle?: string,
 };
 
 type State = {
@@ -104,6 +106,7 @@ class OrderSummary extends Component {
     const style = classNames({
       [styles.collapsed]: this.state.isCollapsed,
       [styles.scrolled]: this.props.isScrolled,
+      [styles.embedded]: this.props.embedded,
     }, props.className);
 
     const header = (
@@ -115,7 +118,7 @@ class OrderSummary extends Component {
 
     return (
       <section styleName="order-summary" className={style}>
-        { this.props.header ? this.props.header : header }
+        { this.props.header !== void 0 ? this.props.header : header }
 
         <div styleName="content">
           <ProductTable skus={props.skus} />
@@ -143,7 +146,7 @@ class OrderSummary extends Component {
             {couponBlock}
           </ul>
           <TermValueLine styleName="grand-total">
-            <span>{t('GRAND TOTAL')}</span>
+            <span>{this.props.totalTitle || t('GRAND TOTAL')}</span>
             <Currency value={grandTotalResult} />
           </TermValueLine>
         </div>
