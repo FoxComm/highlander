@@ -10,6 +10,7 @@ import akka.http.scaladsl.server.Directives.complete
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
 import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHeader
+
 import cats.implicits._
 import failures.AuthFailures.ChangePasswordFailed
 import failures.CustomerFailures._
@@ -25,6 +26,7 @@ import responses.CustomerResponse._
 import services._
 import failures.UserFailures.AccessMethodNotFound
 import models.auth.UserToken
+import payloads.AuthPayload
 import services.account._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
