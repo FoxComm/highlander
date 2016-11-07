@@ -35,7 +35,7 @@ func main() {
 		log.Fatalf("Unable to initialize ShipStation API client with error %s", err.Error())
 	}
 
-	ticker := time.NewTicker(config.PollingInterval * time.Second)
+	ticker := time.NewTicker(config.PollingInterval)
 	go func() {
 		for {
 			select {
