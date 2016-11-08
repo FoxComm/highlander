@@ -45,4 +45,5 @@ const reducer = createReducer({
 export {
   reducer as default,
   fetch,
+  apiCall as searchProductsByTag,
 };
