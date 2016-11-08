@@ -40,13 +40,7 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
       val keyJson = deserializeAvro(key)
       val json    = deserializeAvro(message)
 
-      val f = processor.process(offset, topic, keyJson, json)
-
-      f onFailure {
-        case e ⇒ Console.err.println(s"Error processing avro message $e")
-      }
-
-      f
+      processor.process(offset, topic, keyJson, json)
     } catch {
       case e: SerializationException ⇒
         Future.failed {

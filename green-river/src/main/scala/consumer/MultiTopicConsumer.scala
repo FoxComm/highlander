@@ -8,12 +8,11 @@ import scala.concurrent.duration._
 import scala.util.{Try, Success, Failure}
 
 import consumer.aliases._
-import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord}
+import org.apache.kafka.clients.consumer._
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.KafkaException
-import org.apache.kafka.clients.consumer.CommitFailedException
 
 import scala.language.postfixOps
 
@@ -21,6 +20,16 @@ private object Sync {
   def commit[A, B](consumer: KafkaConsumer[A, B]): Unit = {
     try {
       consumer.commitSync()
+    } catch {
+      case e: CommitFailedException ⇒ Console.err.println(s"Failed to commit: $e")
+      case e: KafkaException        ⇒ Console.err.println(s"Unexpectedly to commit: $e")
+    }
+  }
+
+  def commit[A, B](
+      consumer: KafkaConsumer[A, B], offsets: Map[TopicPartition, OffsetAndMetadata]): Unit = {
+    try {
+      consumer.commitSync(offsets)
     } catch {
       case e: CommitFailedException ⇒ Console.err.println(s"Failed to commit: $e")
       case e: KafkaException        ⇒ Console.err.println(s"Unexpectedly to commit: $e")
@@ -95,26 +104,33 @@ class MultiTopicConsumer(topics: Seq[String],
     while (true) {
       val records = consumer.poll(timeout)
 
-      records.map { r ⇒
-        Console.err.println(s"Processing ${r.topic} offset ${r.offset}")
-        val f = processor.process(r.offset, r.topic, r.key, r.value)
+      val (_, lastOffset) =
+        records.foldLeft((false, Map.empty[TopicPartition, OffsetAndMetadata])) {
+          case ((true, offsets), _) ⇒
+            (true, offsets)
+          case ((false, offsets), r) ⇒
+            Console.err.println(s"\nProcessing ${r.topic} offset ${r.offset}")
 
-        f onComplete {
-          case Success(_) ⇒
-            Console.err.println(s"Processed: ${r.topic} offset: ${r.offset}")
-          case _ ⇒ {}
+            val result = Try {
+              val f = processor.process(r.offset, r.topic, r.key, r.value)
+              Await.result(f, 120 seconds)
+            }
+            result match {
+              case Success(_) ⇒
+                Console.err.println(s"Processed: ${r.topic} offset: ${r.offset}")
+                val tp  = new TopicPartition(r.topic, r.partition)
+                val off = new OffsetAndMetadata(r.offset + 1)
+                (false, offsets + (tp → off))
+              case Failure(e) ⇒
+                Console.err.println(s"Not processed: ${r.topic} offset: ${r.offset}")
+                Console.err.println(s"Failure during processing ${r.topic} offset ${r.offset}: $e")
+                (true, offsets)
+            }
         }
 
-        val result = Try {
-          Await.result(f, 120 seconds)
-        }
-        result match {
-          case _: Success[Unit] ⇒
-            Sync.commit(consumer)
-            Console.err.println(s"Offset ${r.offset} for ${r.topic} synced")
-          case _ ⇒
-            Console.err.println(s"Failure during processing offset ${r.offset}")
-        }
+      if (lastOffset.nonEmpty) {
+        Sync.commit(consumer, lastOffset)
+        Console.err.println(s"Synced offset: ${lastOffset}\n")
       }
     }
   }

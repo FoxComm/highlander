@@ -38,7 +38,7 @@ class ScopedIndexer(uri: String,
     // Find json transformer
     jsonTransformers get topic match {
       case Some(t) ⇒
-        t.transform(inputJson).map { outJson ⇒
+        t.transform(inputJson).flatMap { outJson ⇒
           save(outJson, topic)
         }
       case None ⇒
@@ -89,11 +89,7 @@ class ScopedIndexer(uri: String,
       index into scopedIndexName / topic id documentId doc PassthroughSource(document)
     }
 
-    req onFailure {
-      case NonFatal(e) ⇒ Console.err.println(s"Error while indexing: $e")
-    }
-
-    req.map { r ⇒
+    req.map { _ ⇒
       ()
     }
   }
