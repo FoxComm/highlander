@@ -95,13 +95,14 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 	txn := service.db.Begin()
 
 	shipmentRepo := repositories.NewShipmentRepository(txn)
-	source, err := shipmentRepo.GetShipmentByRef(shipment.ReferenceNumber)
+    source, err := shipmentRepo.GetShipmentByID(shipment.ID)
 	if err != nil {
 		txn.Rollback()
 		return nil, err
 	}
 
-    return service.updateShipmentHelper(txn, shipmentRepo, source)
+    shipment.ID = source.ID
+    return service.updateShipmentHelper(txn, shipmentRepo, shipment, source)
 }
 
 func (service *shipmentService) UpdateShipmentForOrder(shipment *models.Shipment) (*models.Shipment, error) { 
@@ -122,12 +123,15 @@ func (service *shipmentService) UpdateShipmentForOrder(shipment *models.Shipment
 
     source := sources[0]
 
-    return service.updateShipmentHelper(txn, shipmentRepo, source)
+    return service.updateShipmentHelper(txn, shipmentRepo, shipment, source)
 }
 
-func (service *shipmentService) updateShipmentHelper(txn *gorm.DB, shipmentRepo repositories.IShipmentRepository, source *models.Shipment) (*models.Shipment, error) { 
+func (service *shipmentService) updateShipmentHelper(txn *gorm.DB, shipmentRepo repositories.IShipmentRepository, shipment *models.Shipment, source *models.Shipment) (*models.Shipment, error) { 
 
-    shipment, err := shipmentRepo.UpdateShipment(source)
+    shipment.ID = source.ID
+
+    var err error
+    shipment, err = shipmentRepo.UpdateShipment(shipment)
 	if err != nil {
 		txn.Rollback()
 		return nil, err

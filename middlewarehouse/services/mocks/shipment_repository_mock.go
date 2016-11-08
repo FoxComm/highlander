@@ -20,8 +20,8 @@ func (service *ShipmentRepositoryMock) GetShipmentsByOrder(referenceNumber strin
 	return nil, args.Error(1)
 }
 
-func (service *ShipmentRepositoryMock) GetShipmentByRef(ref string) (*models.Shipment, error) {
-	args := service.Called(string)
+func (service *ShipmentRepositoryMock) GetShipmentByID(id uint) (*models.Shipment, error) {
+	args := service.Called(id)
 
 	if model, ok := args.Get(0).(*models.Shipment); ok {
 		return model, nil
