@@ -115,4 +115,44 @@ pack-worker:
 pack-dev:
 	packer build -only=google -var-file=packer/envs/swarm/config.json packer/swarm/development.json
 
+# reprovision
+provision-prod:
+	ansible-playbook -v -i $(m1), ansible/bootstrap_swarm_master.yml \
+	--extra-vars @terraform/envs/gce_swarm_production/params.json \
+	--extra-vars '{"masters_ips":["$(m1)","$(m2)","$(m3)"]}' \
+	--extra-vars datacenter="swarm" \
+	--extra-vars consul_leader="$(m1)" \
+	--extra-vars mesos_quorum=2 \
+	--extra-vars zookeeper_server_id=1
+
+	ansible-playbook -v -i $(m2), ansible/bootstrap_swarm_master.yml \
+	--extra-vars @terraform/envs/gce_swarm_production/params.json \
+	--extra-vars '{"masters_ips":["$(m1)","$(m2)","$(m3)"]}' \
+	--extra-vars datacenter="swarm" \
+	--extra-vars consul_leader="$(m1)" \
+	--extra-vars mesos_quorum=2 \
+	--extra-vars zookeeper_server_id=2
+
+	ansible-playbook -v -i $(m3), ansible/bootstrap_swarm_master.yml \
+	--extra-vars @terraform/envs/gce_swarm_production/params.json \
+	--extra-vars '{"masters_ips":["$(m1)","$(m2)","$(m3)"]}' \
+	--extra-vars datacenter="swarm" \
+	--extra-vars consul_leader="$(m1)" \
+	--extra-vars mesos_quorum=2 \
+	--extra-vars zookeeper_server_id=3
+
+	ansible-playbook -vvvv -i $(w1), ansible/bootstrap_swarm_worker.yml \
+	--extra-vars @terraform/envs/gce_swarm_production/params.json \
+	--extra-vars '{"masters_ips":["$(m1)","$(m2)","$(m3)"]}' \
+	--extra-vars datacenter="swarm" \
+	--extra-vars consul_leader="$(m1)" \
+	--extra-vars docker_registry_bucket="https://docker-swarm-production.foxcommerce.com"
+
+	ansible-playbook -vvvv -i $(w2), ansible/bootstrap_swarm_worker.yml \
+	--extra-vars @terraform/envs/gce_swarm_production/params.json \
+	--extra-vars '{"masters_ips":["$(m1)","$(m2)","$(m3)"]}' \
+	--extra-vars datacenter="swarm" \
+	--extra-vars consul_leader="$(m1)" \
+	--extra-vars docker_registry_bucket="https://docker-swarm-production.foxcommerce.com"
+
 .PHONY: all build lint test
