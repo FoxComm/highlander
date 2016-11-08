@@ -174,11 +174,10 @@ class EditBilling extends Component {
     const { billingAddressIsSame } = this.state;
 
     this.props.performStageTransition('isProceedingCard', () => {
-      return id
+      const operation = id
         ? this.props.updateCreditCard(id, billingAddressIsSame)
-          .then(() => this.setState({ addingNew: false }))
-        : this.props.addCreditCard(billingAddressIsSame)
-          .then(() => this.setState({ addingNew: false }));
+        : this.props.addCreditCard(billingAddressIsSame);
+      return operation.then(() => this.setState({ addingNew: false }));
     });
   }
 
