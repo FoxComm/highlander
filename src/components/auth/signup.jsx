@@ -19,6 +19,7 @@ import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 
 import * as actions from 'modules/auth';
 import { authBlockTypes } from 'paragons/auth';
+import { fetch as fetchCart, saveLineItems } from 'modules/cart';
 
 import type { HTMLElement } from 'types';
 import type { SignUpPayload } from 'modules/auth';
@@ -38,6 +39,7 @@ type Props = Localized & {
 };
 
 const mapState = state => ({
+  cart: state.cart,
   isLoading: _.get(state.asyncActions, ['auth-signup', 'inProgress'], false),
 });
 
@@ -81,6 +83,12 @@ class Signup extends Component {
     const {email, password, username: name} = this.state;
     const paylaod: SignUpPayload = {email, password, name};
     this.props.signUp(paylaod).then(() => {
+      const lineItems = _.get(this.props, 'cart.lineItems', []);
+      if (_.isEmpty(lineItems)) {
+        this.props.fetchCart();
+      } else {
+        this.props.saveLineItems();
+      }
       browserHistory.push(this.props.getPath());
     }).catch(err => {
       const errors = get(err, ['responseJson', 'errors'], [err.toString()]);
@@ -166,4 +174,8 @@ class Signup extends Component {
   }
 }
 
-export default connect(mapState, actions)(localized(Signup));
+export default connect(mapState, {
+  ...actions,
+  fetchCart,
+  saveLineItems,
+})(localized(Signup));
