@@ -1,6 +1,8 @@
 package services
 
 import (
+    "errors" 
+
 	"github.com/FoxComm/highlander/middlewarehouse/common/async"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
@@ -20,6 +22,7 @@ type IShipmentService interface {
 	GetShipmentsByOrder(orderRefNum string) ([]*models.Shipment, error)
 	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
+	UpdateShipmentForOrder(shipment *models.Shipment) (*models.Shipment, error)
 }
 
 func NewShipmentService(db *gorm.DB, summaryService ISummaryService, activityLogger IActivityLogger) IShipmentService {
@@ -92,13 +95,39 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 	txn := service.db.Begin()
 
 	shipmentRepo := repositories.NewShipmentRepository(txn)
-	source, err := shipmentRepo.GetShipmentByID(shipment.ID)
+	source, err := shipmentRepo.GetShipmentByRef(shipment.ReferenceNumber)
 	if err != nil {
 		txn.Rollback()
 		return nil, err
 	}
 
-	shipment, err = shipmentRepo.UpdateShipment(shipment)
+    return service.updateShipmentHelper(txn, shipmentRepo, source)
+}
+
+func (service *shipmentService) UpdateShipmentForOrder(shipment *models.Shipment) (*models.Shipment, error) { 
+
+	txn := service.db.Begin()
+
+	shipmentRepo := repositories.NewShipmentRepository(txn)
+	sources, err := shipmentRepo.GetShipmentsByOrder(shipment.OrderRefNum)
+	if err != nil {
+		txn.Rollback()
+		return nil, err
+	}
+
+    if len(sources) != 1 { 
+        txn.Rollback()
+        return nil, errors.New("The order requires exactly one shipment. Multiple shipments is not supported yet.")
+    }
+
+    source := sources[0]
+
+    return service.updateShipmentHelper(txn, shipmentRepo, source)
+}
+
+func (service *shipmentService) updateShipmentHelper(txn *gorm.DB, shipmentRepo repositories.IShipmentRepository, source *models.Shipment) (*models.Shipment, error) { 
+
+    shipment, err := shipmentRepo.UpdateShipment(source)
 	if err != nil {
 		txn.Rollback()
 		return nil, err
@@ -150,7 +179,9 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 	}
 
 	return shipment, nil
+
 }
+
 
 func (service *shipmentService) updateSummariesToReserved(stockItemsMap map[uint]int) error {
 	statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusReserved}

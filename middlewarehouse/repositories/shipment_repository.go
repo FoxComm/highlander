@@ -9,12 +9,12 @@ import (
 )
 
 const (
-	ErrorShipmentNotFound = "Shipment with id=%d not found"
+	ErrorShipmentNotFound = "Shipment with id=%s not found"
 )
 
 type IShipmentRepository interface {
 	GetShipmentsByOrder(orderRefNum string) ([]*models.Shipment, error)
-	GetShipmentByID(id uint) (*models.Shipment, error)
+	GetShipmentByRef(ref string) (*models.Shipment, error)
 	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	DeleteShipment(id uint) error
@@ -44,7 +44,7 @@ func (repository *shipmentRepository) GetShipmentsByOrder(orderRefNum string) ([
 	return shipments, err
 }
 
-func (repository *shipmentRepository) GetShipmentByID(id uint) (*models.Shipment, error) {
+func (repository *shipmentRepository) GetShipmentByRef(ref string) (*models.Shipment, error) {
 	var shipment models.Shipment
 
 	err := repository.db.
@@ -55,12 +55,13 @@ func (repository *shipmentRepository) GetShipmentByID(id uint) (*models.Shipment
 		Preload("Address.Region.Country").
 		Preload("ShipmentLineItems").
 		Preload("ShipmentLineItems.StockItemUnit").
-		First(&shipment, id).
-		Error
+		Where("reference_number = ?", ref).
+		First(&shipment).
+        Error
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, fmt.Errorf(ErrorShipmentNotFound, id)
+			return nil, fmt.Errorf(ErrorShipmentNotFound, ref)
 		}
 
 		return nil, err
@@ -76,7 +77,7 @@ func (repository *shipmentRepository) CreateShipment(shipment *models.Shipment) 
 		return nil, err
 	}
 
-	return repository.GetShipmentByID(shipment.ID)
+	return shipment, nil
 }
 
 func (repository *shipmentRepository) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
@@ -100,7 +101,7 @@ func (repository *shipmentRepository) UpdateShipment(shipment *models.Shipment) 
 		return nil, fmt.Errorf(ErrorShipmentNotFound, shipment.ID)
 	}
 
-	return repository.GetShipmentByID(shipment.ID)
+	return shipment, nil
 }
 
 func (repository *shipmentRepository) DeleteShipment(id uint) error {

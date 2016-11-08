@@ -79,21 +79,13 @@ func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentsByOrderRefNum_Found_R
 	suite.Equal(shipment2, shipments[1])
 }
 
-func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_NotFound_ReturnsNotFoundError() {
-	//act
-	_, err := suite.repository.GetShipmentByID(1)
-
-	//assert
-	suite.Equal(fmt.Errorf(ErrorShipmentNotFound, 1), err)
-}
-
-func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_Found_ReturnsShipmentModel() {
+func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByRef_Found_ReturnsShipmentModel() {
 	//arrange
 	shipment1 := fixtures.GetShipment(1, "BR10005", suite.shippingMethod.Code, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{})
 	suite.Nil(suite.db.Create(shipment1).Error)
 
 	//act
-	shipment, err := suite.repository.GetShipmentByID(shipment1.ID)
+	shipment, err := suite.repository.GetShipmentByRef(shipment1.ReferenceNumber)
 
 	//assert
 	suite.Nil(err)

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+    "errors"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
@@ -22,15 +23,15 @@ func NewShipmentController(
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
-	router.GET(":referenceNumber", controller.getShipmentsByOrder())
+	router.GET(":orderRef", controller.getShipmentsByOrder())
 	router.POST("", controller.createShipment())
-	router.PATCH(":id", controller.updateShipment())
+	router.PATCH("for-order/:orderRef", controller.updateShipmentForOrder())
 	router.POST("from-order", controller.createShipmentFromOrder())
 }
 
 func (controller *shipmentController) getShipmentsByOrder() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		referenceNumber := context.Params.ByName("referenceNumber")
+		referenceNumber := context.Params.ByName("orderRef")
 		shipments, err := controller.shipmentService.GetShipmentsByOrder(referenceNumber)
 		if err != nil {
 			handleServiceError(context, err)
@@ -63,24 +64,26 @@ func (controller *shipmentController) createShipment() gin.HandlerFunc {
 	}
 }
 
-func (controller *shipmentController) updateShipment() gin.HandlerFunc {
+func (controller *shipmentController) updateShipmentForOrder() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		payload := &payloads.UpdateShipment{}
 		if parse(context, payload) != nil {
 			return
 		}
 
-		id, failure := paramUint(context, "id")
-		if failure != nil {
+        orderRef := context.Params.ByName("orderRef")
+		if orderRef == "" {
+            err := errors.New("Order Reference not specified")
+			handleServiceError(context, err)
 			return
 		}
 
 		model := models.NewShipmentFromUpdatePayload(payload)
-		model.ID = id
+		model.OrderRefNum = orderRef
 		for i, _ := range model.ShipmentLineItems {
 			model.ShipmentLineItems[i].ShipmentID = model.ID
 		}
-		shipment, err := controller.shipmentService.UpdateShipment(model)
+		shipment, err := controller.shipmentService.UpdateShipmentForOrder(model)
 
 		if err != nil {
 			handleServiceError(context, err)
