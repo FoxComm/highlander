@@ -37,7 +37,7 @@ const viewColumns = [
 ];
 
 
-export default class UnshippedItems extends Component<void, Props, void> {
+export default class UnshippedItems extends Component {
   props: Props;
 
   @autobind
@@ -61,17 +61,14 @@ export default class UnshippedItems extends Component<void, Props, void> {
 
   get content(): Element {
     const { items } = this.props;
-    const length = _.get(items, 'length', 0);
-
-    if (length == 0) {
-      return <div styleName="empty">All Items have shipped!</div>;
-    }
 
     return (
       <TableView
         columns={viewColumns}
         data={{rows: items}}
         renderRow={this.renderRow}
+        emptyMessage="There are no unshipped items."
+        renderHeadIfEmpty={false}
       />
     );
   }
