@@ -30,7 +30,7 @@ trait CustomerSeeds {
 
     for {
       response ← * <~ CustomerManager.createFromAdmin(payload = payload, context = createContext)
-      user ← * <~ Users.mustFindByAccountId(response.id)
+      user     ← * <~ Users.mustFindByAccountId(response.id)
     } yield user
   }
 
