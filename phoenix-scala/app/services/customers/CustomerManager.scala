@@ -172,11 +172,12 @@ object CustomerManager {
     for {
       _        ← * <~ payload.validate
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      _        ← * <~ Users.updateEmailMustBeUnique(payload.email.map(_.toLowerCase), accountId)
       updated  ← * <~ Users.update(customer, updatedUser(customer, payload))
       custData ← * <~ CustomersData.mustFindByAccountId(accountId)
-      _        ← * <~ CustomersData.update(custData, updatedCustUser(custData, payload))
-      _        ← * <~ LogActivity.customerUpdated(customer, updated, admin)
+      _ ← * <~ (if (custData.isGuest) DbResultT.unit
+                else Users.updateEmailMustBeUnique(payload.email.map(_.toLowerCase), accountId))
+      _ ← * <~ CustomersData.update(custData, updatedCustUser(custData, payload))
+      _ ← * <~ LogActivity.customerUpdated(customer, updated, admin)
     } yield (updated, custData)
 
   def changePassword(
