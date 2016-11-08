@@ -8,3 +8,6 @@
 
 - name: Reload Systemd for Marathon
   command: systemctl daemon-reload
+
+- name: Copy Marathon service definition for Consul
+  template: src=marathon.json dest={{consul_config_dir}}/marathon.json

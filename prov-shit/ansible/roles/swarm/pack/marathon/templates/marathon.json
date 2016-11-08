@@ -1,0 +1,17 @@
+{
+    "service": {
+        "name": "marathon",
+        "tags": [
+            "marathon"
+        ],
+        "port": {{marathon_port}},
+        "checks": [
+            {
+                "name": "HTTP API on port {{marathon_port}}",
+                "http": "http://localhost:{{marathon_port}}",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

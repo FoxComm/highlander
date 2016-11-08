@@ -189,6 +189,10 @@ cert_path: stage
 mesos_quorum: 2
 mesos_work_dir: /var/lib/mesos
 mesos_sandbox_dir: /var/lib/sandbox
+mesos_port: 5050
+
+# Marathon
+marathon_port: 8080
 
 # Use seeder service or not?
 with_seeder: false

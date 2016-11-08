@@ -8,3 +8,6 @@
 
 - name: Reload Systemd for Mesos Worker
   command: systemctl daemon-reload
+
+- name: Copy Mesos Worker service definition for Consul
+  template: src=mesos_worker.json dest={{consul_config_dir}}/mesos_worker.json
