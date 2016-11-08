@@ -56,14 +56,15 @@ defmodule Solomon.UserController do
 
   def sign_in(conn, %{"user" => user_params}) do
     email = Map.fetch!(user_params, "email")
+            |> String.downcase
     pass = Map.fetch!(user_params, "password")
-    user = Repo.get_by!(User, email: email)
+    user = Repo.all(User)
+           |> Enum.find(fn u -> String.downcase(u.email) == email end)
     account_id = user.account_id
     hash = Repo.get_by!(AccountAccessMethod, account_id: account_id)
     |> Map.fetch!(:hashed_password)
-    # TODO : make it secure
-    # case Scrypt.match(pass, hash) do
-    case {:ok, pass == hash} do
+
+    case Scrypt.check(pass, hash) do
       {:ok, true} ->
         conn
         |> put_resp_cookie("JWT", sign(token_claim(account_id)))
