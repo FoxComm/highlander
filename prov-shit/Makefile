@@ -141,14 +141,14 @@ provision-prod:
 	--extra-vars mesos_quorum=2 \
 	--extra-vars zookeeper_server_id=3
 
-	ansible-playbook -vvvv -i $(w1), ansible/bootstrap_swarm_worker.yml \
+	ansible-playbook -v -i $(w1), ansible/bootstrap_swarm_worker.yml \
 	--extra-vars @terraform/envs/gce_swarm_production/params.json \
 	--extra-vars '{"masters_ips":["$(m1)","$(m2)","$(m3)"]}' \
 	--extra-vars datacenter="swarm" \
 	--extra-vars consul_leader="$(m1)" \
 	--extra-vars docker_registry_bucket="https://docker-swarm-production.foxcommerce.com"
 
-	ansible-playbook -vvvv -i $(w2), ansible/bootstrap_swarm_worker.yml \
+	ansible-playbook -v -i $(w2), ansible/bootstrap_swarm_worker.yml \
 	--extra-vars @terraform/envs/gce_swarm_production/params.json \
 	--extra-vars '{"masters_ips":["$(m1)","$(m2)","$(m3)"]}' \
 	--extra-vars datacenter="swarm" \
