@@ -218,6 +218,7 @@ class Checkout extends Component {
               shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
               updateAddress={this.props.updateAddress}
               isAddressLoaded={this.props.isAddressLoaded}
+              auth={this.props.auth}
             />
             <Delivery
               isEditing={props.editStage == EditStages.DELIVERY}

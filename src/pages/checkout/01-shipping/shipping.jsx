@@ -31,6 +31,12 @@ class Shipping extends Component {
     this.props.fetchAddresses();
   }
 
+  componentWillUpdate(nextProps, nextState) {
+    if (nextProps.auth !== this.props.auth) {
+      this.props.fetchAddresses();
+    }
+  }
+
   content() {
     const savedAddress = this.props.shippingAddress;
 
