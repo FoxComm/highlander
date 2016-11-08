@@ -8,3 +8,6 @@
 
 - name: Reload Systemd for Kafka Related Services
   command: systemctl daemon-reload
+
+- name: Copy Zookeeper service definition for Consul
+  template: src=zookeeper.json dest={{consul_config_dir}}/zookeeper.json
