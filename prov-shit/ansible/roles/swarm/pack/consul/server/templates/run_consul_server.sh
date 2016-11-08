@@ -1,3 +1,3 @@
 #!/bin/bash
 
-/usr/local/bin/consul agent -server -config-dir={{consul_config_dir}}
+/usr/local/bin/consul agent -config-dir={{consul_config_dir}}

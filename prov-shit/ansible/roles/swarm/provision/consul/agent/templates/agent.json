@@ -1,10 +1,10 @@
 {
-    "start_join_wan": [
+    "start_join": [
         "{{consul_leader}}"
     ],
-    "datacenter": "{{datacenter}}",
     "bind_addr": "{{inventory_hostname}}",
+    "datacenter": "{{datacenter}}",
     "client_addr": "0.0.0.0",
-    "data_dir": "{{consul_data_dir}}",
-    "encrypt": "{{consul_encryption_key}}"
+    "encrypt": "{{consul_encryption_key}}",
+    "data_dir": "{{consul_data_dir}}"
 }
