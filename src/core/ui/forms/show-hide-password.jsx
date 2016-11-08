@@ -16,12 +16,12 @@ type State = {
 type Props = {
   name: string,
   value: string,
-  className?: string,
+  className: ?string,
   onChange: Function,
-  placeholder?: string,
-  linkClassName?: string,
+  placeholder: ?string,
+  linkClassName: ?string,
   t: Function,
-  minLength?: number,
+  minLength: ?number,
 };
 
 class ShowHidePassword extends Component {
