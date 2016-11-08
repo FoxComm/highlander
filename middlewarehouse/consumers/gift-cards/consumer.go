@@ -79,6 +79,10 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 				return fmt.Errorf("Unable to create Capture payload for  %s with error %s", order.ReferenceNumber, err.Error())
 			}
 			gfHandle.client.GiftCardCapturePayment(capturePayload)
+			error := gfHandle.client.UpdateOrder(order.ReferenceNumber, orderStateFulfillmentStarted, orderStateShipped)
+			if error != nil {
+				return fmt.Errorf("Unable to updated state to order  %s with error %s", order.ReferenceNumber, err.Error())
+			}
 		} else if order.OrderState == orderStateShipped {
 			var lineItemsToCapture []payloads.OrderLineItem
 			y := 0
