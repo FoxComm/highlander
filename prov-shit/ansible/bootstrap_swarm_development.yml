@@ -17,3 +17,5 @@
     - { role: swarm/provision/marathon }
     # worker roles
     - { role: swarm/provision/mesos/worker }
+    # reload consul
+    - { role: swarm/provision/consul/reload }

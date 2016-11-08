@@ -15,3 +15,5 @@
     - { role: swarm/provision/zookeeper }
     - { role: swarm/provision/mesos/master }
     - { role: swarm/provision/marathon }
+    # reload consul
+    - { role: swarm/provision/consul/reload }
