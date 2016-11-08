@@ -1,0 +1,21 @@
+---
+
+- name: Bootstrap Marathon Alerts
+  hosts: '{{hostname}}'
+  vars:
+    user: '{{ansible_ssh_user}}'
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname where to install Consul Alerts"
+      default: "tpg-amigo"
+      private: no
+    - name: "slack_hook_url"
+      prompt: "Enter Slack hook URL"
+      default: "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+      private: no
+
+  roles:
+      - { role: dev/marathon_alerts }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

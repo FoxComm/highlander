@@ -1,0 +1,2 @@
+marathon_alerts_base_url: https://github.com/ashwanthkumar/marathon-alerts
+marathon_alerts_url: "{{marathon_alerts_base_url}}/releases/download/v0.3.5/marathon-alerts-linux-amd64"
