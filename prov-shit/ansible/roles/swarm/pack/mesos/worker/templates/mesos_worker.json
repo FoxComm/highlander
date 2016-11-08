@@ -7,8 +7,8 @@
         "port": {{mesos_port}},
         "checks": [
             {
-                "name": "HTTP API on port {{mesos_port}}",
-                "http": "http://localhost:{{mesos_port}}",
+                "name": "Check Mesos Worker is running",
+                "script": "systemctl status mesos_worker",
                 "interval": "30s",
                 "status": "passing"
             }
