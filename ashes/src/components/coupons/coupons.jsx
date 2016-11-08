@@ -45,7 +45,7 @@ const mapDispatchToProps = (dispatch: Function) => {
 const tableColumns: Array<Object> = [
   {field: 'name', text: 'Name'},
   {field: 'storefrontName', text: 'Storefront Name'},
-  {field: 'code', text: 'Code'},
+  {field: 'codes', text: 'Codes'},
   {field: 'totalUsed', text: 'Total Uses'},
   {field: 'currentCarts', text: 'Current Carts'},
   {field: 'createdAt', text: 'Date/Time Created', type: 'datetime'},

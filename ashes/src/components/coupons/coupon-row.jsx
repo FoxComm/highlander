@@ -5,6 +5,7 @@
 //libs
 import React, { Element } from 'react';
 import _ from 'lodash';
+import styles from './form.css';
 
 // helpers
 import { activeStatus, isArchived } from 'paragons/common';
@@ -25,12 +26,17 @@ const setCellContents = (coupon: Object, field: string) => {
     case 'totalUsed':
     case 'currentCarts':
       return _.get(coupon, field, 0);
+    case 'codes':
+      const codes = _.get(coupon, field, []);
+      const firstCode = codes[0];
+      return coupon.codes.length === 1 ? firstCode :
+        <span>{firstCode} <span styleName="text-gray">+{codes.length - 1}</span></span>;
     case 'state':
       return <RoundedPill text={activeStatus(coupon)} />;
     default:
       return _.get(coupon, field);
   }
-};
+}
 
 const CouponRow = (props: CouponRowProps) => {
   const { coupon, columns, params } = props;
