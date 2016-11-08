@@ -9,6 +9,7 @@ type OrderLineItem struct {
 	ReferenceNumber string      `json:"referenceNumber" binding:"required"`
 	ImagePath       string      `json:"image_path" binding:"required"`
 	Attributes      *Attributes `json:"attributes"`
+	Quantity        int         `json:"quantity"`
 }
 
 type OrderLineItems struct {

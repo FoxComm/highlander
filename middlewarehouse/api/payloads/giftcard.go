@@ -9,7 +9,7 @@ type GiftCard struct {
 }
 
 type CreateGiftCardPayload struct {
-	Balance uint
-	Details GiftCard
-	CordRef string
+	Balance uint     `json:"balance"`
+	Details GiftCard `json:"details"`
+	CordRef string   `json:"cordRef"`
 }

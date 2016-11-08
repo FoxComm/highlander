@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
@@ -62,14 +63,16 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 	if order.OrderState == orderStateFulfillmentStarted || order.OrderState == orderStateShipped {
 		lineItems := order.LineItems
 		skus := lineItems.SKUs
-		giftcardPayloads := make([]payloads.CreateGiftCardPayload, 1)
+		giftcardPayloads := make([]payloads.CreateGiftCardPayload, 0)
 		if order.OrderState == orderStateFulfillmentStarted && justGiftCards(skus) {
 			for i := 0; i < len(skus); i++ {
-				giftcardPayloads = append(giftcardPayloads, payloads.CreateGiftCardPayload{Balance: skus[i].Price, Details: skus[i].Attributes.GiftCard, CordRef: order.ReferenceNumber})
+				for j := 0; j < skus[i].Quantity; j++ {
+					giftcardPayloads = append(giftcardPayloads, payloads.CreateGiftCardPayload{Balance: skus[i].Price, Details: skus[i].Attributes.GiftCard, CordRef: order.ReferenceNumber})
+				}
 			}
 			_, err := gfHandle.client.CreateGiftCards(giftcardPayloads)
 			if err != nil {
-				return fmt.Errorf("Unable to create the Giftcard for order  %s with error %s", order.ReferenceNumber, err.Error())
+				return fmt.Errorf("Unable to create the Giftcards for order  %s with error %s", order.ReferenceNumber, err.Error())
 			}
 			capturePayload, err := lib.NewGiftCardCapturePayload(order.ReferenceNumber, order.LineItems.SKUs)
 			if err != nil {
@@ -97,5 +100,6 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 
 		}
 	}
+	log.Printf("Gift cards created succesfully for order %s", order.ReferenceNumber)
 	return nil
 }

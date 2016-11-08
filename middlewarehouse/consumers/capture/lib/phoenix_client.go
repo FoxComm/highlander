@@ -181,11 +181,12 @@ func (c *phoenixClient) CreateGiftCards(giftCards []payloads.CreateGiftCardPaylo
 	if err := c.ensureAuthentication(); err != nil {
 		return nil, err
 	}
-	url := fmt.Sprintf("%s/v1/gift-cards", c.baseURL)
+	url := fmt.Sprintf("%s/v1/customer-gift-cards", c.baseURL)
 	headers := map[string]string{
 		"JWT": c.jwt,
 	}
 
+	fmt.Printf("%v+\n", giftCards)
 	rawOrderResp, err := consumers.Post(url, headers, &giftCards)
 	if err != nil {
 		return rawOrderResp, err
