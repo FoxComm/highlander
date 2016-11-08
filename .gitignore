@@ -10,7 +10,7 @@ logs
 
 # Users Environment Variables & settings
 .lock-wscript
-/.env
+.env
 /.gulprc
 
 .DS_Store
