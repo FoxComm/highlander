@@ -11,7 +11,7 @@ bucket_location = "us"
 
 # resources variables
 machine_type    = "n1-standard-2"
-image           = "swarm-development-161108-132456"
+image           = "swarm-development-161108-152041"
 disk_size       = "30"
 
 // user variables
