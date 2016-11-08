@@ -1,9 +1,11 @@
 defmodule Marketplace.MerchantAccountController do
   use Marketplace.Web, :controller
+  alias Ecto.Multi
   alias Marketplace.Repo
   alias Marketplace.MerchantAccount
   alias Marketplace.Merchant
   alias Marketplace.PermissionManager
+  alias Marketplace.Stripe
 
   def index(conn, %{"merchant_id" => merchant_id}) do
     merchant_accounts = Repo.all(merchant_accounts(merchant_id))
@@ -47,15 +49,22 @@ defmodule Marketplace.MerchantAccountController do
     changeset = MerchantAccount.changeset(%MerchantAccount{merchant_id: String.to_integer(merchant_id), solomon_id: solomon_id}, merchant_account_params)
                 |> validate_scope_id(scope_id)
 
-    case Repo.insert(changeset) do
-      {:ok, merchant_account} ->
+    txn = Multi.new
+          |> Multi.insert(:merchant_account, changeset)
+          |> Multi.run(:stripe_account_id, fn %{merchant_account: merchant_account} ->
+            Stripe.create_account(merchant_account, merchant_account_params) end)
+          |> Multi.run(:ma_with_stripe, fn %{merchant_account: ma, stripe_account_id: stripe} ->
+            relate_stripe_account_id(ma, stripe) end)
+
+    case Repo.transaction(txn) do
+      {:ok, %{ma_with_stripe: merchant_account}} ->
         role_id = PermissionManager.create_admin_role_from_scope_id(scope_id)
         PermissionManager.grant_account_id_role_id(solomon_id, role_id)
         conn
         |> put_status(:created)
         |> put_resp_header("location", merchant_account_path(conn, :show, merchant_id, merchant_account))
         |> render("merchant_account.json", merchant_account: merchant_account)
-      {:error, changeset} ->
+      {:error, _, changeset, _} ->
         conn
         |> put_status(:unprocessable_entity)
         |> render(Marketplace.ChangesetView, "errors.json", changeset: changeset)
@@ -65,7 +74,12 @@ defmodule Marketplace.MerchantAccountController do
   defp validate_scope_id(changeset, scope_id) do
     case scope_id do
       nil -> Ecto.Changeset.add_error(changeset, :scope_id, "validate.required")
-      scope_id -> changeset
+      _ -> changeset
     end
+  end
+
+  defp relate_stripe_account_id(ma, stripe_account_id) do
+    changeset = MerchantAccount.update_changeset(ma, %{stripe_account_id: stripe_account_id})
+    Repo.update(changeset)
   end
 end

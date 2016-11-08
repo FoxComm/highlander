@@ -19,7 +19,8 @@
   hosts: foxcomm-stage-frontend
   vars:
     user: '{{ansible_ssh_user}}'
-    middlewarehouse_server: middlewarehouse.service.consul:9292
+    middlewarehouse_host: middlewarehouse.service.consul
+    middlewarehouse_port: 9292
   tags:
     - frontend
   roles:

@@ -3,6 +3,7 @@ package routes
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.server.Directives._
+
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
 import models.payment.giftcard.GiftCard
@@ -22,6 +23,7 @@ import utils.http.CustomDirectives._
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import utils.db._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import services.orders.OrderQueries
 import utils.http.Http._
 
 object Customer {
@@ -178,7 +180,7 @@ object Customer {
             pathPrefix("orders" / cordRefNumRegex) { refNum ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  CartQueries.findOneByUser(refNum, auth.model)
+                  OrderQueries.findOneByUser(refNum, auth.model)
                 }
               }
             } ~

@@ -39,7 +39,8 @@
     api_server: balancer.service.consul
     ashes_server: ashes.service.consul:4000
     isaac_server: isaac.service.consul:9190
-    middlewarehouse_server: middlewarehouse.service.consul:9292
+    middlewarehouse_host: middlewarehouse.service.consul
+    middlewarehouse_port: 9292
     phoenix_server: phoenix.service.consul:9090
     search_server_http: elasticsearch.service.consul:9200
     search_server: elasticsearch.service.consul:9300

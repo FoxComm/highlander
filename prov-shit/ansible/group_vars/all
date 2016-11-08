@@ -1,5 +1,6 @@
 # Common variables
 home: /home/{{ user }}
+self_host: 127.0.0.1
 dest_services: /etc/systemd/system
 usr_local: /usr/local/
 public_keys_dest_dir: /etc/keys
@@ -42,6 +43,8 @@ phoenix_token_ttl: 525600
 
 # Middlewarehouse
 middlewarehouse_env: staging
+middlewarehouse_host: "{{self_host}}"
+middlewarehouse_port: 9292
 middlewarehouse_dir: /middlewarehouse
 middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
 middlewarehouse_db_name: middlewarehouse_development
@@ -94,7 +97,6 @@ plugins_api_user_email: ""
 plugins_api_user_password: ""
 
 # Lies & BS
-self_host: 127.0.0.1
 phoenix_api_version: v1
 phoenix_host: 127.0.0.1
 phoenix_port: 9090
@@ -109,7 +111,7 @@ kafka_host: 127.0.0.1
 kafka_server: 127.0.0.1:9092
 zookeeper_server: 127.0.0.1:2181
 schema_server: 127.0.0.1:8081
-middlewarehouse_server: 127.0.0.1:9292
+middlewarehouse_server: "{{middlewarehouse_host}}:{{middlewarehouse_port}}"
 solomon_host: 127.0.0.1
 solomon_port: 4002
 solomon_server: "{{solomon_host}}:{{solomon_port}}"
@@ -161,6 +163,7 @@ packing: false
 upload_phoenix_jar: true
 
 # Should we upload Green River JAR?
+upload_greenriver_jar: true
 
 # Deploy marketplace?
 with_marketplace: false

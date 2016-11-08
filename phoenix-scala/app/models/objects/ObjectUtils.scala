@@ -7,6 +7,7 @@ import cats.implicits._
 import failures.Failure
 import org.json4s.JsonAST.{JField, JNothing, JObject, JString}
 import org.json4s.JsonDSL._
+import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import utils.IlluminateAlgorithm
 import services.objects.ObjectSchemasManager
@@ -18,6 +19,8 @@ object ObjectUtils {
   implicit class FormShadowTuple(pair: (ObjectForm, ObjectShadow)) extends FormAndShadow {
     override def form: ObjectForm     = pair._1
     override def shadow: ObjectShadow = pair._2
+
+    override def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow = (form, shadow)
   }
 
   def get(attr: String, form: ObjectForm, shadow: ObjectShadow): Json = {
@@ -93,7 +96,10 @@ object ObjectUtils {
   }
 
   case class InsertResult(form: ObjectForm, shadow: ObjectShadow, commit: ObjectCommit)
-      extends FormAndShadow
+      extends FormAndShadow {
+    override def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow =
+      copy(form = form, shadow = shadow)
+  }
 
   def insert(formAndShadow: FormAndShadow)(implicit ec: EC): DbResultT[InsertResult] =
     insert(formAndShadow, None)
@@ -136,7 +142,10 @@ object ObjectUtils {
     } yield FullObject[H](head, insert.form, insert.shadow)
 
   case class UpdateResult(form: ObjectForm, shadow: ObjectShadow, updated: Boolean)
-      extends FormAndShadow
+      extends FormAndShadow {
+    override def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow =
+      copy(form = form, shadow = shadow)
+  }
 
   def commitUpdate[T <: ObjectHead[T]](
       fullObject: FullObject[T],
@@ -161,7 +170,7 @@ object ObjectUtils {
       oldFormAndShadow: FormAndShadow,
       formAttributes: Json,
       shadowAttributes: Json,
-      force: Boolean = false)(implicit db: DB, ec: EC): DbResultT[UpdateResult] = {
+      force: Boolean = false)(implicit ec: EC, db: DB): DbResultT[UpdateResult] = {
     for {
       newAttributes ← * <~ ObjectUtils.updateFormAndShadow(oldFormAndShadow.form.attributes,
                                                            formAttributes,
