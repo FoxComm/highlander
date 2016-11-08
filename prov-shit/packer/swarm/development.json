@@ -5,7 +5,7 @@
             "type": "googlecompute",
             "account_file": "{{user `account_file`}}",
             "project_id": "{{user `project_id`}}",
-            "source_image": "{{user `base_ubuntu_image`}}",
+            "source_image": "{{user `base_image`}}",
             "network": "{{user `network`}}",
             "zone": "{{user `zone`}}",
             "image_name": "swarm-development-{{isotime \"060102-150405\"}}",

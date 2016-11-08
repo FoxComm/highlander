@@ -4,26 +4,9 @@
   hosts: all
   vars:
     user: ubuntu
-  gather_facts: no
-
-  pre_tasks:
-    - name: Install Python 2 and Boto
-      apt: name={{item}} state=latest force=yes
-      sudo: true
-      with_items:
-        - python2.7
-        - python-boto
-    - name: Gather Facts
-      setup:
 
   sudo: true
   roles:
-    # base roles
-    - { role: swarm/pack/base }
-    - { role: swarm/pack/consul/base }
-    - { role: swarm/pack/java }
-    - { role: swarm/pack/mesos/base }
-    - { role: swarm/pack/docker }
     # master roles
     - { role: swarm/pack/consul/server }
     - { role: swarm/pack/confluence }
