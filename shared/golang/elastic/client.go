@@ -37,7 +37,7 @@ func (c Client) ExecuteSearch(query CompiledQuery) (*Result, error) {
 
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 && resp.StatusCode > 299 {
-		return nil, errors.New("Error querying ElasticSearch")
+		return resp, errors.New("Error querying ElasticSearch")
 	}
 
 	bytes, err := ioutil.ReadAll(resp.Body)
