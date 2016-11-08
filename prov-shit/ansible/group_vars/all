@@ -123,6 +123,7 @@ api_server: 127.0.0.1
 log_host: 127.0.0.1
 zookeeper_data_dir: /var/lib/zookeeper
 zookeeper_port: 2181
+zookeeper_service_consul: zookeeper.service.consul:{{zookeeper_port}}
 zookeeper_port_range: 2888:3888
 
 # JMX ports

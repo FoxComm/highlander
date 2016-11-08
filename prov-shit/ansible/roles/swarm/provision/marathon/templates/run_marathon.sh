@@ -1,3 +1,4 @@
 #!/bin/bash
 
-marathon --master {{zookeepers}}/mesos --zk {{zookeepers}}/marathon
+marathon --master {{zookeeper_service_consul}}/mesos \
+         --zk {{zookeeper_service_consul}}/marathon

@@ -1,11 +1,9 @@
 #!/bin/bash
 
-IP=`hostname -I | awk '{print $1}'`
-
 mesos-master \
     --quorum={{mesos_quorum}} \
-    --zk={{zookeepers}}/mesos \
+    --zk={{zookeeper_service_consul}}/mesos \
     --work_dir={{mesos_work_dir}} \
     --cluster=fox \
-    --ip=$IP \
-    --hostname=$IP
+    --ip={{inventory_hostname}} \
+    --hostname={{inventory_hostname}}
