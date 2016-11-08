@@ -31,17 +31,25 @@ class CreditCards extends Component {
   props: Props;
 
   componentWillMount() {
-    this.props.fetchCreditCards();
+    this.props.fetchCreditCards()
+      .then(() => {
+        const { creditCards, selectCreditCard } = this.props;
+        if (creditCards.length === 1) {
+          selectCreditCard(creditCards[0]);
+        }
+      });
   }
 
   get creditCards() {
     const { creditCards, selectedCreditCard, selectCreditCard, editCard, deleteCard } = this.props;
 
     return creditCards.map(creditCard => {
+      const selected = !!selectedCreditCard && selectedCreditCard.id === creditCard.id;
+
       return (
         <CreditCard
           creditCard={creditCard}
-          selected={!!selectedCreditCard && selectedCreditCard.id === creditCard.id}
+          selected={selected}
           onSelect={selectCreditCard}
           key={creditCard.id}
           editCard={editCard}
@@ -70,7 +78,7 @@ function mapStateToProps(state) {
   return {
     isLoading: _.get(state.asyncActions, ['creditCards', 'inProgress'], true),
     creditCards: state.checkout.creditCards,
-    selectedCreditCard: state.cart.creditCard,
+    selectedCreditCard: _.get(state.cart, 'creditCard', {}),
   };
 }
 

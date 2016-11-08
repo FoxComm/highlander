@@ -6,8 +6,14 @@
 }
 
 .billing-summary {
-  text-align: center;
-  padding: 20px 0;
+  & ul {
+    text-align: center;
+    padding: 15px 0;
+  }
+
+  & ul + ul {
+    border-top: 1px solid var(--border-color);
+  }
 }
 
 .fieldset {

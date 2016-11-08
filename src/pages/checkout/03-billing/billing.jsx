@@ -1,7 +1,8 @@
 /* @flow weak */
 
 // libs
-import React from 'react';
+import _ from 'lodash';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import localized from 'lib/i18n';
 
@@ -9,35 +10,65 @@ import localized from 'lib/i18n';
 import EditableBlock from 'ui/editable-block';
 import EditBilling from './edit-billing';
 import ViewBilling from './view-billing';
+import ViewGiftCards from './view-gift-cards';
 
 // styles
 import styles from './billing.css';
 
 // types
-import type { CheckoutBlockProps } from '../types';
+import type { CheckoutBlockProps, BillingData } from '../types';
 
-const Billing = (props: CheckoutBlockProps) => {
-  const { t } = props;
+type Props = CheckoutBlockProps & {
+  paymentMethods: Array<any>,
+  creditCard: BillingData,
+  billingData: BillingData,
+};
 
-  let content = <EditBilling {...props} />;
+class Billing extends Component {
+  props: Props;
 
-  if (!props.isEditing) {
-    content = (
-      <div styleName="billing-summary">
-        <ViewBilling billingData={props.creditCard} />
-      </div>
+  get giftCards() {
+    return _.filter(this.props.paymentMethods, {type: 'giftCard'});
+  }
+
+  get editBilling() {
+    return (
+      <EditBilling
+        {...this.props}
+        giftCards={this.giftCards}
+      />
     );
   }
 
-  return (
-    <EditableBlock
-      {...props}
-      styleName="billing"
-      title={t('BILLING')}
-      content={content}
-    />
-  );
-};
+  get viewBilling() {
+    const hasPaymentMethods = !_.isEmpty(this.props.creditCard) || !_.isEmpty(this.giftCards);
+    return (hasPaymentMethods) ? (
+      <div styleName="billing-summary">
+        <ViewBilling billingData={this.props.creditCard} />
+        <ViewGiftCards paymentMethods={this.giftCards} />
+      </div>
+    ) : null;
+  }
+
+  renderContent() {
+    return (this.props.isEditing) ? this.editBilling : this.viewBilling;
+  }
+
+  render() {
+    const { t } = this.props;
+
+    return (
+      <EditableBlock
+        isEditing={this.props.isEditing}
+        editAction={this.props.editAction}
+        editAllowed={this.props.editAllowed}
+        styleName="billing"
+        title={t('BILLING')}
+        content={this.renderContent()}
+      />
+    );
+  }
+}
 
 export default connect(state => ({
   billingData: state.checkout.billingData,

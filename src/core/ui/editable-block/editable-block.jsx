@@ -14,10 +14,11 @@ type EditableProps = Localized & {
   collapsed?: boolean,
   editAllowed?: boolean,
   className?: string,
-  content?: HTMLElement,
+  content?: ?HTMLElement,
   children?: HTMLElement,
   editAction?: () => any,
   title: string,
+  t: any,
 };
 
 const EditableBlock = (props: EditableProps) => {

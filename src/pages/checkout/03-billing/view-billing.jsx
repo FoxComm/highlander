@@ -9,7 +9,7 @@ import Icon from 'ui/icon';
 import ViewAddress from '../address/view-address';
 
 // styles
-import styles from './credit-card.css';
+import styles from './view-billing.css';
 
 // types
 import type { BillingData } from '../types';

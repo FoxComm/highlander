@@ -49,6 +49,8 @@ class OrderSummary extends Component {
     paymentMethods: {},
     isCollapsed: true,
     isScrolled: false,
+    embedded: false,
+    totalTitle: 'GRAND TOTAL',
   };
 
   state: State = {
@@ -146,7 +148,7 @@ class OrderSummary extends Component {
             {couponBlock}
           </ul>
           <TermValueLine styleName="grand-total">
-            <span>{this.props.totalTitle || t('GRAND TOTAL')}</span>
+            <span>{this.props.totalTitle}</span>
             <Currency value={grandTotalResult} />
           </TermValueLine>
         </div>

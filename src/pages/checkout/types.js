@@ -3,6 +3,7 @@ import type { Address } from 'types/address';
 export type CheckoutBlockProps = {
   isEditing: boolean,
   inProgress?: boolean,
+  editAllowed: boolean,
   collapsed: boolean,
   continueAction: Function,
   editAction: Function,
