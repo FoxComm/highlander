@@ -60,8 +60,8 @@ shortcuts:
 
   # New environments
   - name: Provision TPG Staging
-    alias: tpg_staging.yml
-    target: ansible/tpg_staging.yml
+    alias: tpg_stage.yml
+    target: ansible/tpg_stage.yml
   - name: Provision TPG Production
     alias: tpg_production.yml
     target: ansible/tpg_production.yml

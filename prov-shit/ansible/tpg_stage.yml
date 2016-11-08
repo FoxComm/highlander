@@ -1,7 +1,7 @@
 ---
 
-- name: Provision TPG Production Backend
-  hosts: tpg-backend
+- name: Provision TPG Staging Backend
+  hosts: tpg-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
     middlewarehouse_server: middlewarehouse.service.consul:9292
@@ -22,8 +22,8 @@
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
 
-- name: Provision TPG Production Frontend
-  hosts: tpg-frontend
+- name: Provision TPG Staging Frontend
+  hosts: tpg-stage-frontend
   vars:
     user: '{{ansible_ssh_user}}'
     upload_phoenix_jar: true
@@ -43,10 +43,10 @@
     zookeeper_server: zookeeper.service.consul:2181
     storefront_server: storefront.service.consul:4044
     phoenix_server: phoenix.service.consul:9090
-    api_server: tpg.foxcommerce.com
-    self_host: tpg.foxcommerce.com
-    ashes_server_name: tpg.foxcommerce.com
-    storefront_server_name: tpg.foxcommerce.com
+    api_server: stage-tpg.foxcommerce.com
+    self_host: stage-tpg.foxcommerce.com
+    ashes_server_name: stage-tpg.foxcommerce.com
+    storefront_server_name: stage-tpg.foxcommerce.com
   tags:
     - frontend
   roles:
@@ -60,8 +60,8 @@
     - { role: dev/shipstation }
     - { role: dev/balancer, sudo: yes }
 
-- name: Run Seeder on TPG Production Backend
-  hosts: tpg-backend
+- name: Run Seeder on TPG Staging Backend
+  hosts: tpg-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
     db_host: db.service.consul

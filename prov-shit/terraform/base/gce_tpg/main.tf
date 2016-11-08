@@ -90,6 +90,20 @@ module "tpg_vpn" {
 }
 
 ##############################################
+# Staging Cluster
+##############################################
+module "tpg_staging" {
+    source          = "../../modules/gce/tinyproduction"
+    ssh_user        = "${var.ssh_user}"
+    ssh_private_key = "${var.ssh_private_key}"
+    network         = "${google_compute_network.tpg.name}"
+    datacenter      = "tpg-stage"
+    amigo_image     = "base-amigo-161104-095319"
+    backend_image   = "base-backend-161104-105155"
+    frontend_image  = "base-frontend-161104-105130"
+}
+
+##############################################
 # Production Cluster
 ##############################################
 module "tpg_production" {
@@ -115,6 +129,14 @@ resource "dnsimple_record" "docker-registry-dns-record" {
     domain = "foxcommerce.com"
     name   = "docker-tpg"
     value  = "${module.tpg_production.amigo_address}"
+    type   = "A"
+    ttl    = 3600
+}
+
+resource "dnsimple_record" "frontend-stage-dns-record" {
+    domain = "foxcommerce.com"
+    name   = "stage-tpg"
+    value  = "${module.tpg_staging.frontend_address}"
     type   = "A"
     ttl    = 3600
 }
