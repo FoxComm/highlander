@@ -1,3 +1,4 @@
+/* @flow */
 
 // libs
 import _ from 'lodash';
@@ -22,6 +23,7 @@ type Props = {
   isEditing: boolean,
   t: any,
   shippingAddress: Object,
+  auth: ?Object,
 };
 
 class Shipping extends Component {
@@ -29,6 +31,12 @@ class Shipping extends Component {
 
   componentWillMount() {
     this.props.fetchAddresses();
+  }
+
+  componentWillUpdate(nextProps : Props) {
+    if (nextProps.auth !== this.props.auth) {
+      this.props.fetchAddresses();
+    }
   }
 
   content() {
