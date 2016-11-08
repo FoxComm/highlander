@@ -109,6 +109,6 @@ module "worker_cluster_provision" {
     masters_ips            = "${module.master_cluster.ips}"
     leader_ip              = "${module.master_cluster.leader_ip}"
     worker_ips             = "${module.worker_cluster.ips}"
-    docker_registry_bucket = "${google_storage_bucket.docker-registry.name}"
+    docker_registry_bucket = "${var.datacenter}-${var.setup}-docker"
     count                  = "${var.workers_count}"
 }
