@@ -70,6 +70,9 @@ class ElasticSearchProcessor(
       delete id id from indexName / topic
     }
 
+    req onFailure {
+      case NonFatal(e) ⇒ Console.err.println(s"Error while deleting: $id")
+    }
     req.map { r ⇒
       ()
     }
@@ -129,6 +132,10 @@ class ElasticSearchProcessor(
 
     val req = client.execute {
       index into indexName / topic id id doc PassthroughSource(document)
+    }
+
+    req onFailure {
+      case NonFatal(e) ⇒ Console.err.println(s"Error while indexing: $e")
     }
 
     req.map { _ ⇒

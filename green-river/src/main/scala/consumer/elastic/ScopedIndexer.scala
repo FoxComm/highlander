@@ -89,6 +89,10 @@ class ScopedIndexer(uri: String,
       index into scopedIndexName / topic id documentId doc PassthroughSource(document)
     }
 
+    req onFailure {
+      case NonFatal(e) ⇒ Console.err.println(s"Error while indexing: $e")
+    }
+
     req.map { _ ⇒
       ()
     }
