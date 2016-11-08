@@ -42,7 +42,7 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
-class Shipments extends Component<void, Props, void> {
+class Shipments extends Component {
   props: Props;
 
   componentDidMount(): void {
@@ -54,7 +54,7 @@ class Shipments extends Component<void, Props, void> {
   }
 
   get data() {
-    const { shipments, fetchShipments, unshippedItems} = this.props;
+    const { fetchShipments, unshippedItems } = this.props;
 
     if (fetchShipments.isRunning) {
       return <WaitAnimation />;

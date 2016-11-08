@@ -62,6 +62,14 @@ object TaxonomyRoutes {
                   deleteOrFailures {
                     TaxonomyManager.archiveTaxonByContextAndId(taxonFormId)
                   }
+                } ~
+                pathPrefix("product" / IntNumber) { productFormId ⇒
+                  (patch & pathEnd) {
+                    mutateOrFailures(TaxonomyManager.assignProduct(taxonFormId, productFormId))
+                  } ~
+                  (delete & pathEnd) {
+                    mutateOrFailures(TaxonomyManager.unassignProduct(taxonFormId, productFormId))
+                  }
                 }
               }
             }

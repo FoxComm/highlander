@@ -28,8 +28,9 @@
 - name: Restart Middlewarehouse in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/middlewarehouse/restart'
 
-- name: Wait for Middlewarehouse bocome available
+- name: Wait for Middlewarehouse become available
   wait_for: host={{middlewarehouse_host}} port={{middlewarehouse_port}}
+  ignore_errors: true
 
 - name: Restart Stock Items Consumer in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/stock-items-consumer/restart'

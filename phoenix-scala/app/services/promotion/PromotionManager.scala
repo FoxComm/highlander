@@ -32,7 +32,9 @@ object PromotionManager {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
-      (form, shadow) = IlluminatedPromotion.validatePromotion(payload.applyType, formAndShadow).tupled
+      (form, shadow) = IlluminatedPromotion
+        .validatePromotion(payload.applyType, formAndShadow)
+        .tupled
       ins ← * <~ ObjectUtils.insert((form, shadow), payload.schema)
       promotion ← * <~ Promotions.create(
                      Promotion(scope = LTree(au.token.scope),
@@ -92,7 +94,8 @@ object PromotionManager {
       promotion ← * <~ Promotions
                    .filterByContextAndFormId(context.id, id)
                    .mustFindOneOr(PromotionNotFoundForContext(id, contextName))
-      validated = IlluminatedPromotion.validatePromotion(payload.applyType, (formAndShadow.form, formAndShadow.shadow))
+      validated = IlluminatedPromotion
+        .validatePromotion(payload.applyType, (formAndShadow.form, formAndShadow.shadow))
 
       updated ← * <~ ObjectUtils.update(promotion.formId,
                                         promotion.shadowId,

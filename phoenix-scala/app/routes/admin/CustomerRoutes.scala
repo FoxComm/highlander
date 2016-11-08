@@ -33,7 +33,7 @@ object CustomerRoutes {
             val scopeId  = config.getInt(s"user.customer.scope_id")
 
             val context = AccountCreateContext(List(roleName), orgName, scopeId)
-            CustomerManager.create(payload, Some(auth.model), context)
+            CustomerManager.createFromAdmin(payload, Some(auth.model), context)
           }
         }
       } ~
@@ -52,7 +52,7 @@ object CustomerRoutes {
         } ~
         (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
           mutateOrFailures {
-            CustomerManager.update(accountId, payload, Some(auth.model))
+            CustomerManager.updateFromAdmin(accountId, payload, Some(auth.model))
           }
         } ~
         (post & path("activate") & pathEnd & entity(as[ActivateCustomerPayload])) { payload ⇒

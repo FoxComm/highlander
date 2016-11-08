@@ -8,8 +8,8 @@
     kafka_server: kafka.service.consul:9092
     schema_server: schema-registry.service.consul:8081
     zookeeper_server: zookeeper.service.consul:2181
-    upload_phoenix_jar: false
-    upload_greenriver_jar: false
+    upload_phoenix_jar: true
+    upload_greenriver_jar: true
   tags:
     - backend
   roles:
@@ -26,6 +26,7 @@
   hosts: tpg-frontend
   vars:
     user: '{{ansible_ssh_user}}'
+    upload_phoenix_jar: true
     middlewarehouse_host: middlewarehouse.service.consul
     middlewarehouse_port: 9292
     isaac_server: isaac.service.consul:9190
@@ -58,4 +59,15 @@
     - { role: dev/solomon }
     - { role: dev/shipstation }
     - { role: dev/balancer, sudo: yes }
+
+- name: Run Seeder on TPG Production Backend
+  hosts: tpg-backend
+  vars:
+    user: '{{ansible_ssh_user}}'
+    db_host: db.service.consul
+    docker_branch: master
+    docker_registry: docker-tpg.foxcommerce.com
+  tags:
+    - frontend
+  roles:
     - { role: dev/seeder }

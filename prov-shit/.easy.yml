@@ -60,14 +60,19 @@ shortcuts:
 
   # New environments
   - name: Provision TPG Staging
-    alias: tpg_staging.yml
-    target: ansible/tpg_staging.yml
+    alias: tpg_stage.yml
+    target: ansible/tpg_stage.yml
   - name: Provision TPG Production
     alias: tpg_production.yml
     target: ansible/tpg_production.yml
   - name: Provision Tony Staging
     alias: easy_tony.yml
     target: ansible/easy_tony.yml
+
+  # Temporary
+  - name: Bootstrap Docker GC
+    alias: docker_gc.yml
+    target: ansible/tmp_docker_gc.yml
 
 # Packer shortcuts
 - type: snowflake
@@ -119,6 +124,7 @@ shortcuts:
     aliases:
       dev: terraform/envs/gce_dev/terraform.tfstate
       staging: terraform/envs/gce_staging/terraform.tfstate
+      stable: terraform/envs/gce_staging_stable/terraform.tfstate
       gatling: terraform/envs/gce_gatling/terraform.tfstate
       target: terraform/envs/aws_target/terraform.tfstate
       target-dev: terraform/envs/aws_target_dev/terraform.tfstate
@@ -129,6 +135,7 @@ shortcuts:
     aliases:
       dev: terraform/envs/gce_dev/dev.tfvars
       staging: terraform/envs/gce_staging/staging.tfvars
+      stable: terraform/envs/gce_staging_stable/staging.tfvars
       gatling: terraform/envs/gce_gatling/gatling.tfvars
       target: terraform/envs/aws_target/target.tfvars
       target-dev: terraform/envs/aws_target_dev/target.tfvars
@@ -142,6 +149,9 @@ shortcuts:
   - name: Staging Highlander
     alias: staging
     target: terraform/base/gce_staging
+  - name: Staging Stable
+    alias: stable
+    target: terraform/base/gce_staging_stable
   - name: Staging Gatling
     alias: gatling
     target: terraform/base/gce_gatling
