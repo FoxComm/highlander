@@ -2,6 +2,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 import cats.implicits._
 import failures.TaxonomyFailures._
+import models.objects.ObjectForm
 import models.taxonomy._
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -9,6 +10,7 @@ import payloads.TaxonomyPayloads._
 import responses.TaxonomyResponses._
 import utils.db.ExPostgresDriver.api._
 import testutils._
+import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 
 class TaxonomyIntegrationTest
@@ -16,7 +18,8 @@ class TaxonomyIntegrationTest
     with HttpSupport
     with AutomaticAuth
     with BakedFixtures
-    with TaxonomySeeds {
+    with TaxonomySeeds
+    with PhoenixAdminApi {
 
   def findTermById(terms: TaxonList, id: Int): Option[TaxonResponse] =
     terms
@@ -221,6 +224,23 @@ class TaxonomyIntegrationTest
       resp.status must === (StatusCodes.BadRequest)
       resp.error must === (CannotArchiveParentTaxon(taxonToArchive.formId).description)
     }
+  }
+
+  "Taxon is assigned to a product" in new ProductAndSkus_Baked with FlatTaxonsFixture {
+    private val taxonToBeAssigned: ObjectForm#Id = taxons.head.formId
+    taxonomyApi.assignProduct(taxonToBeAssigned, simpleProduct.formId).mustBeOk
+
+    val productTaxons = productsApi(simpleProduct.formId).taxons.get.as[TaxonList]
+    productTaxons.map(_.id) must contain only taxonToBeAssigned
+  }
+
+  "Taxon is unassigned to a product" in new ProductAndSkus_Baked with FlatTaxonsFixture {
+    private val taxonToBeAssigned: ObjectForm#Id = taxons.head.formId
+    taxonomyApi.assignProduct(taxonToBeAssigned, simpleProduct.formId).mustBeOk()
+    taxonomyApi.unassignProduct(taxonToBeAssigned, simpleProduct.formId).mustBeOk()
+
+    val productTaxons = productsApi(simpleProduct.formId).taxons.get.as[TaxonList]
+    productTaxons.map(_.id) mustBe empty
   }
 
   trait FlatTaxonsFixture extends StoreAdmin_Seed with FlatTaxons_Baked {

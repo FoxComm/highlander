@@ -10,6 +10,10 @@ import org.json4s.jackson.{compactJson, parseJson}
 case class AuthPayload(claims: JwtClaims, jwt: String)
 
 object AuthPayload {
+
+  /**
+    * Requires valid PHOENIX_PRIVATE_KEY for encode JwtClaims
+    */
   def apply(token: Token): Failures Xor AuthPayload = {
     val claims = Token.getJWTClaims(token)
     Token.encodeJWTClaims(claims).map { encoded ⇒

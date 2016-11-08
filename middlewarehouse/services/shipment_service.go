@@ -66,22 +66,25 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		return nil, err
 	}
 
-	if err := txn.Commit().Error; err != nil {
-		txn.Rollback()
-		return nil, err
-	}
-
 	err = service.updateSummariesToReserved(stockItemCounts)
 	if err != nil {
+		txn.Rollback()
 		return nil, err
 	}
 
 	activity, err := activities.NewShipmentCreated(result, result.CreatedAt)
 	if err != nil {
+		txn.Rollback()
 		return nil, err
 	}
 
 	if err := service.activityLogger.Log(activity); err != nil {
+		txn.Rollback()
+		return nil, err
+	}
+
+	if err := txn.Commit().Error; err != nil {
+		txn.Rollback()
 		return nil, err
 	}
 

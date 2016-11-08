@@ -52,6 +52,7 @@ export type Props = {
   showLoadingOnMount?: boolean;
   wrapToTbody: boolean;
   columns: Array<Column>;
+  renderHeadIfEmpty: boolean;
 }
 
 type State = {
@@ -79,6 +80,7 @@ export default class Table extends Component {
     emptyMessage: 'No data found.',
     predicate: entity => entity.id,
     processRows: _.identity,
+    renderHeadIfEmpty: true,
     detectNewRows: false,
     wrapToTbody: true,
   };
@@ -153,17 +155,16 @@ export default class Table extends Component {
     return props.processRows(rows, props.columns);
   }
 
-  get message(): ?Element {
+  message(isEmpty: boolean): ?Element {
     const { props } = this;
 
     const showLoading = props.showLoadingOnMount && props.isLoading === null || props.isLoading;
-    const rows = this.tableRows;
 
     if (showLoading) {
       return tableMessage(<WaitAnimation />, this.loadingInline);
     } else if (props.failed && props.errorMessage) {
       return tableMessage(props.errorMessage);
-    } else if (_.isEmpty(rows) && props.emptyMessage) {
+    } else if (isEmpty && props.emptyMessage) {
       return tableMessage(props.emptyMessage);
     }
   }
@@ -195,16 +196,26 @@ export default class Table extends Component {
     }
   }
 
+  tableHead(isEmpty: boolean): ?Element {
+    if (this.props.renderHeadIfEmpty || !isEmpty) {
+      const { data, setState, className, ...rest } = this.props;
+      return (
+        <TableHead {...rest} ref="tableHead" sortBy={data.sortBy} setState={setState} />
+      );
+    }
+  }
+
   render() {
-    const { data, setState, className, ...rest } = this.props;
+    const { className } = this.props;
+    const isEmpty = _.isEmpty(this.tableRows);
 
     return (
       <div className="fc-table-wrap">
         <table className={classNames('fc-table', className)}>
-          <TableHead {...rest} ref="tableHead" sortBy={data.sortBy} setState={setState} />
+          {this.tableHead(isEmpty)}
           {this.body}
         </table>
-        {this.message}
+        {this.message(isEmpty)}
       </div>
     );
   }

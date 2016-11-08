@@ -1,0 +1,15 @@
+---
+
+- name: Install Docker GC
+  hosts:
+    - tpg-amigo
+    - tpg-backend
+    - tpg-frontend
+    - tpg-stage-amigo
+    - tpg-stage-backend
+    - tpg-stage-frontend
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+    - { role: base/docker_gc }

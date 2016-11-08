@@ -163,6 +163,7 @@ packing: false
 upload_phoenix_jar: true
 
 # Should we upload Green River JAR?
+upload_greenriver_jar: true
 
 # Deploy marketplace?
 with_marketplace: false

@@ -150,7 +150,7 @@ resource "google_compute_instance" "tinyprod-frontend" {
     name = "${var.datacenter}-frontend"
     machine_type = "${var.frontend_machine_type}"
     zone = "${var.zone}"
-    tags = ["no-ip", "http-server", "https-server"]
+    tags = ["http-server", "https-server"]
 
     disk {
         image = "${var.frontend_image}"

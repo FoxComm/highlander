@@ -37,7 +37,8 @@ trait OauthService[M] {
   this: Oauth ⇒
 
   def getScopeId: Int
-  def createByUserInfo(info: UserInfo): DbResultT[M]
+  def createCustomerByUserInfo(info: UserInfo): DbResultT[M]
+  def createAdminByUserInfo(info: UserInfo): DbResultT[M]
   def findByEmail(email: String): DBIO[Option[M]]
   def createToken(user: M, account: Account, scopeId: Int): DbResultT[Token]
   def findAccount(user: M): DbResultT[Account]
@@ -63,8 +64,10 @@ trait OauthService[M] {
     } yield info
   }
 
-  def findOrCreateUserFromInfo(userInfo: UserInfo)(implicit ec: EC,
-                                                   db: DB): DbResultT[(M, Account)] =
+  def findOrCreateUserFromInfo(userInfo: UserInfo, createByUserInfo: (UserInfo) ⇒ DbResultT[M])(
+      implicit ec: EC,
+      db: DB,
+      ac: AC): DbResultT[(M, Account)] =
     for {
       result ← * <~ findByEmail(userInfo.email).findOrCreateExtended(createByUserInfo(userInfo))
       (user, foundOrCreated) = result
@@ -77,17 +80,30 @@ trait OauthService[M] {
     3. FindOrCreate<UserModel>
     4. respondWithToken
    */
-  def oauthCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC,
-                                                          db: DB): DbResultT[Token] =
+  def oauthCallback(oauthResponse: OauthCallbackResponse,
+                    createByUserInfo: (UserInfo) ⇒ DbResultT[M])(implicit ec: EC,
+                                                                 db: DB,
+                                                                 ac: AC): DbResultT[Token] =
     for {
       info        ← * <~ fetchUserInfoFromCode(oauthResponse)
-      userAccount ← * <~ findOrCreateUserFromInfo(info)
+      userAccount ← * <~ findOrCreateUserFromInfo(info, createByUserInfo)
       (user, account) = userAccount
       token ← * <~ createToken(user, account, getScopeId)
     } yield token
 
-  def akkaCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB): Route = {
-    onSuccess(oauthCallback(oauthResponse).run()) { tokenOrFailure ⇒
+  def customerCallback(
+      oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route = {
+    onSuccess(oauthCallback(oauthResponse, createCustomerByUserInfo).run()) { tokenOrFailure ⇒
+      tokenOrFailure
+        .flatMap(Authenticator.oauthTokenLoginResponse)
+        .fold({ f ⇒
+          complete(renderFailure(f))
+        }, identity _)
+    }
+  }
+
+  def adminCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route = {
+    onSuccess(oauthCallback(oauthResponse, createAdminByUserInfo).run()) { tokenOrFailure ⇒
       tokenOrFailure
         .flatMap(Authenticator.oauthTokenLoginResponse)
         .fold({ f ⇒

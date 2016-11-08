@@ -6,3 +6,12 @@
 
 [tpg-frontend]
 10.0.0.5
+
+[tpg-stage-amigo]
+10.0.0.6
+
+[tpg-stage-backend]
+10.0.0.8
+
+[tpg-stage-frontend]
+10.0.0.7
