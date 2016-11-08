@@ -12,10 +12,6 @@
   template: src=run_marathon_alerts.sh dest=/usr/local/bin/run_marathon_alerts.sh mode="u+x,g+x,o+x"
   sudo: true
 
-- name: Copy Configuration File
-  template: src=alerts_config.json dest={{home}}/alerts_config.json mode="u+x,g+x,o+x"
-  sudo: true
-
 - name: Copy Service
   template: src=marathon_alerts.service dest="{{dest_services}}/marathon_alerts.service"
   sudo: true
