@@ -29,9 +29,8 @@ trait CustomerSeeds {
       AccountCreateContext(roles = List("customer"), org = "merchant", scopeId = scopeId)
 
     for {
-      response ← * <~ CustomerManager.create(payload = payload, context = createContext)
-      (custResp, _) = response
-      user ← * <~ Users.mustFindByAccountId(custResp.id)
+      response ← * <~ CustomerManager.createFromAdmin(payload = payload, context = createContext)
+      user ← * <~ Users.mustFindByAccountId(response.id)
     } yield user
   }
 
