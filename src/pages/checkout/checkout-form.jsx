@@ -13,7 +13,7 @@ import styles from './checkout-form.css';
 
 type Props = {
   title: string,
-  error: ?Array<any>,
+  error: ?Array<any>|Object,
   submit: Function,
   action?: ?Object,
   children?: any,

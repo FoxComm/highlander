@@ -50,6 +50,8 @@ class Checkout extends Component {
     isPerformingCheckout: false,
     deliveryInProgress: false,
     shippingInProgress: false,
+    billingInProgress: false,
+    isProceedingCard: false,
     guestAuthInProgress: false,
     error: null,
     isScrolled: false,
@@ -79,6 +81,7 @@ class Checkout extends Component {
     this.setState({isScrolled});
   };
 
+  @autobind
   performStageTransition(name: string, perform: () => PromiseType): PromiseType {
     return new Promise(resolve => {
       this.setState({
@@ -104,12 +107,14 @@ class Checkout extends Component {
 
   @autobind
   setShippingStage() {
+    this.setState({error: null});
     this.props.setEditStage(EditStages.SHIPPING);
   }
 
   @autobind
   setDeliveryStage() {
-    this.props.setEditStage(EditStages.DELIVERY);
+    this.setState({error: null});
+    return this.props.setEditStage(EditStages.DELIVERY);
   }
 
   @autobind
@@ -147,6 +152,18 @@ class Checkout extends Component {
         .then(() => {
           this.props.setEditStage(EditStages.FINISHED);
           browserHistory.push('/checkout/done');
+        });
+    });
+  }
+
+  @autobind
+  proceedCreditCard(billingAddressIsSame, id) {
+    return this.performStageTransition('isProceedingCard', () => {
+      return id
+        ? this.props.updateCreditCard(id, billingAddressIsSame)
+        : this.props.addCreditCard(billingAddressIsSame)
+        .then(() => {
+          this.props.setEditStage(EditStages.BILLING);
         });
     });
   }
@@ -242,6 +259,8 @@ class Checkout extends Component {
               error={this.errorsFor(EditStages.BILLING)}
               isAddressLoaded={props.isAddressLoaded}
               paymentMethods={_.get(props.cart, 'paymentMethods', [])}
+              proceedCreditCard={this.proceedCreditCard}
+              performStageTransition={this.performStageTransition}
             />
           </div>
 

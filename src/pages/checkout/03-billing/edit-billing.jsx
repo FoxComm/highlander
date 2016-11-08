@@ -41,6 +41,7 @@ type Props = CheckoutActions & {
   data: CreditCardType,
   billingData: ?CreditCardType,
   continueAction: Function,
+  performStageTransition: Function,
   t: any,
   inProgress: boolean,
 };
@@ -156,7 +157,9 @@ class EditBilling extends Component {
 
   @autobind
   cancelEditing() {
-    this.setState({ addingNew: false });
+    this.props.performStageTransition('billingInProgress', () => {
+      this.setState({ addingNew: false });
+    });
   }
 
   @autobind
@@ -170,13 +173,12 @@ class EditBilling extends Component {
     const id = _.get(this.props, 'billingData.id');
     const { billingAddressIsSame } = this.state;
 
-    if (id) {
-      return this.props.updateCreditCard(id, billingAddressIsSame)
-        .then(() => this.setState({ addingNew: false }));
-    }
-
-    return this.props.addCreditCard(billingAddressIsSame)
-      .then(() => this.setState({ addingNew: false }));
+    this.props.performStageTransition('isProceedingCard', () => {
+      const operation = id
+        ? this.props.updateCreditCard(id, billingAddressIsSame)
+        : this.props.addCreditCard(billingAddressIsSame);
+      return operation.then(() => this.setState({ addingNew: false }));
+    });
   }
 
   @autobind
