@@ -6,5 +6,8 @@
 - name: Reload Systemd for Mesos Master
   command: systemctl daemon-reload
 
+- name: Copy Mesos Master healthcheck script
+  copy: src=check_mesos_master.sh dest={{usr_local_bin}}/check_mesos_master.sh mode=750
+
 - name: Copy Mesos Master service definition for Consul
   template: src=mesos_master.json dest={{consul_config_dir}}/mesos_master.json
