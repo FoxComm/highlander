@@ -136,7 +136,7 @@ resource "dnsimple_record" "docker-registry-dns-record" {
 resource "dnsimple_record" "frontend-stage-dns-record" {
     domain = "foxcommerce.com"
     name   = "stage-tpg"
-    value  = "${module.tpg_staging.frontend_address}"
+    value  = "${module.tpg_staging.frontend_public_address}"
     type   = "A"
     ttl    = 3600
 }

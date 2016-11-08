@@ -160,6 +160,9 @@ resource "google_compute_instance" "tinyprod-frontend" {
 
     network_interface {
         network = "${var.network}"
+
+        access_config {
+        }
     }
 
     service_account {

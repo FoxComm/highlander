@@ -9,3 +9,7 @@ output "backend_address" {
 output "frontend_address" {
     value = "${google_compute_instance.tinyprod-frontend.network_interface.0.address}"
 }
+
+output "frontend_public_address" {
+    value = "${google_compute_instance.tinyprod-frontend.network_interface.0.access_config.0.assigned_nat_ip}"
+}
