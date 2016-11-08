@@ -20,9 +20,6 @@ object AuthRoutes {
 
   def routes(implicit ec: EC, db: DB) = {
 
-    lazy val customerGoogleOauth = oauthServiceFromConfig("customer")
-    lazy val adminGoogleOauth    = oauthServiceFromConfig("admin")
-
     pathPrefix("public") {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒
         onSuccess(Authenticator.authenticate(payload)) { result ⇒
@@ -48,19 +45,24 @@ object AuthRoutes {
           redirect(Uri("/"), StatusCodes.Found)
         }
       } ~
-      (path("oauth2callback" / "google" / "admin") & get & oauthResponse) {
-        adminGoogleOauth.akkaCallback
-      } ~
-      (path("oauth2callback" / "google" / "customer") & get & oauthResponse) {
-        customerGoogleOauth.akkaCallback
-      } ~
-      (path("signin" / "google" / "admin") & get) {
-        val url = adminGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
-        complete(Map("url" → url))
-      } ~
-      (path("signin" / "google" / "customer") & get) {
-        val url = customerGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
-        complete(Map("url" → url))
+      activityContext() { implicit ac ⇒
+        lazy val customerGoogleOauth = oauthServiceFromConfig("customer")
+        lazy val adminGoogleOauth    = oauthServiceFromConfig("admin")
+
+        (path("oauth2callback" / "google" / "admin") & get & oauthResponse) {
+          adminGoogleOauth.adminCallback
+        } ~
+        (path("oauth2callback" / "google" / "customer") & get & oauthResponse) {
+          customerGoogleOauth.customerCallback
+        } ~
+        (path("signin" / "google" / "admin") & get) {
+          val url = adminGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
+          complete(Map("url" → url))
+        } ~
+        (path("signin" / "google" / "customer") & get) {
+          val url = customerGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
+          complete(Map("url" → url))
+        }
       }
     }
   }

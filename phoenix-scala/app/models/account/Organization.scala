@@ -45,6 +45,10 @@ object Organizations
     filter(_.name === name).one
   }
 
+  def findByScopeId(scopeId: Int): DBIO[Option[Organization]] = {
+    filter(_.scopeId === scopeId).one
+  }
+
   def findByNameInScope(name: String, scopeId: Int): DBIO[Option[Organization]] = {
     filter(_.name === name).filter(_.scopeId === scopeId).one
   }
