@@ -96,7 +96,7 @@ destroy-dev: get-dev-modules
 # all
 plan-all: plan-prod plan-stage plan-dev
 
-plan-destroy-all: plan-prod-destroy plan-stage-destroy plan-dev-destroy
+plan-destroy-all: plan-destroy-prod plan-destroy-stage plan-destroy-dev
 
 apply-all: apply-prod apply-stage apply-dev
 
