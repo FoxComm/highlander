@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	ErrorNotEnoughStockItemUnits = "Not enough %s units for stock item %d of type %v."
+	ErrorNotEnoughStockItemUnits = "Not enough units of status %s for stock item %d of type %v."
 )
 
 type stockItemUnitRepository struct {
