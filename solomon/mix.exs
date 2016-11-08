@@ -36,7 +36,8 @@ defmodule Solomon.Mixfile do
      {:postgrex, ">= 0.0.0"},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
-     {:json_web_token, "~> 0.2"}]
+     {:json_web_token, "~> 0.2"},
+     {:scrypt, github: "kittee/erlang-scrypt"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
