@@ -8,7 +8,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/utils"
 )
 
-const mwhShipmentsURI = "/v1/public/shipments"
+const mwhShipmentsURI = "v1/public/shipments/for-order"
 
 type PollingAgent struct {
 	client *api.Client
@@ -35,6 +35,7 @@ func NewPollingAgent(key string, secret string, middleWarehouseUrl string) (*Pol
 func (c PollingAgent) GetShipments() error {
 	shipments, err := c.client.Shipments()
 	if err != nil {
+        log.Printf("Error Getting Shipments: %v", err)
 		return err
 	}
 
@@ -55,7 +56,7 @@ func (c PollingAgent) GetShipments() error {
 
 		err := httpClient.Patch(url, s, resp)
 		if err != nil {
-			log.Printf("Failed with error: %s", err.Error())
+			log.Printf("Failed %s with error: %s", url, err.Error())
 		}
 	}
 
