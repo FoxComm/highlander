@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	ErrorNotEnoughStockItemUnits = "Not enough %s units for stock item %d of type %v. Expected %d, got %d"
+	ErrorNotEnoughStockItemUnits = "Not enough units of status %s for stock item %d of type %v."
 )
 
 type stockItemUnitRepository struct {
@@ -67,7 +67,7 @@ func (repository *stockItemUnitRepository) GetStockItemUnitIDs(stockItemID uint,
 	}
 
 	if len(ids) < count {
-		err := fmt.Errorf(ErrorNotEnoughStockItemUnits, unitStatus, stockItemID, unitType, count, len(ids))
+		err := fmt.Errorf(ErrorNotEnoughStockItemUnits, unitStatus, stockItemID, unitType)
 
 		return ids, err
 	}
