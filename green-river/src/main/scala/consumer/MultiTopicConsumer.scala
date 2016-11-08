@@ -98,10 +98,11 @@ class MultiTopicConsumer(topics: Seq[String],
       records.map { r ⇒
         Console.err.println(s"Processing ${r.topic} offset ${r.offset}")
         val f = processor.process(r.offset, r.topic, r.key, r.value)
-        f onSuccess {
-          case result ⇒ {
-              Console.err.println(s"Processed: ${r.topic} offset: ${r.offset}")
-            }
+
+        f onComplete {
+          case Success(_) ⇒
+            Console.err.println(s"Processed: ${r.topic} offset: ${r.offset}")
+          case _ ⇒ {}
         }
 
         val result = Try {
