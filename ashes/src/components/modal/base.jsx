@@ -4,10 +4,24 @@ import Transition from 'react-addons-css-transition-group';
 const ModalContainer = props => {
   let content;
 
+  const handleEscKeyPress = (event) => {
+    var cancelFunc = null;
+    if (props.onCancel) {
+      cancelFunc = props.onCancel;
+    } else if (props.cancelAction) {
+      cancelFunc = props.cancelAction;
+    }
+
+    if (cancelFunc && event.keyCode === 27 /*esc*/) {
+      event.preventDefault();
+      cancelFunc();
+    }
+  };
+
   if (props.isVisible) {
     content = (
       <div className="fc-modal">
-        <div className="fc-modal-container">
+        <div className="fc-modal-container" onKeyDown={handleEscKeyPress}>
           {props.children}
         </div>
       </div>

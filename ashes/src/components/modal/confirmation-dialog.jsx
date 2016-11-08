@@ -3,9 +3,9 @@
 
 import React, { Element } from 'react';
 
-import { ModalContainer } from './base';
 import ContentBox from '../content-box/content-box';
 import { PrimaryButton } from '../common/buttons';
+import wrapModal from '../modal/wrapper';
 
 type Props = {
   body: string|Element,
@@ -38,25 +38,31 @@ const ConfirmationDialog = (props: Props): Element => {
     </a>
   );
 
+  const handleKeyPress = (event) => {
+    if (event.keyCode === 13 /*enter*/) {
+      event.preventDefault();
+      props.confirmAction();
+    }
+  };
+
   return (
-    <ModalContainer {...props}>
-      <ContentBox title={title} className="fc-confirmation-dialog" actionBlock={actionBlock}>
-        <div className='fc-modal-body'>
-          {props.body}
-        </div>
-        <div className='fc-modal-footer'>
-          <a tabIndex="2" className='fc-modal-close' onClick={() => props.cancelAction()}>
-            {props.cancel}
-          </a>
-          <PrimaryButton tabIndex="1" autoFocus={true}
-                         onClick={() => props.confirmAction()}
-                         onKeyUp={({keyCode}) => keyCode === 27 && props.cancelAction()}>
-            {props.confirm}
-          </PrimaryButton>
-        </div>
-      </ContentBox>
-    </ModalContainer>
+      <div onKeyDown={handleKeyPress}>
+        <ContentBox title={title} className="fc-confirmation-dialog" actionBlock={actionBlock}>
+          <div className='fc-modal-body'>
+            {props.body}
+          </div>
+          <div className='fc-modal-footer'>
+            <a tabIndex="2" className='fc-modal-close' onClick={() => props.cancelAction()}>
+              {props.cancel}
+            </a>
+            <PrimaryButton tabIndex="1" autoFocus={true}
+                           onClick={() => props.confirmAction()}>
+              {props.confirm}
+            </PrimaryButton>
+          </div>
+        </ContentBox>
+      </div>
   );
 };
 
-export default ConfirmationDialog;
+export default wrapModal(ConfirmationDialog);
