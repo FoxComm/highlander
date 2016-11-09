@@ -20,6 +20,18 @@
       "labels": {}
     }
   ],
+  "healthChecks": [
+    {
+      "path": "/",
+      "protocol": "HTTP",
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false,
+      "port": 4041
+    }
+  ],
   "container": {
     "type": "DOCKER",
     "volumes": [
