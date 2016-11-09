@@ -1,7 +1,7 @@
 registry:
   image: registry:2
   ports:
-    - 127.0.0.1:{{docker_registry_port}}:{{docker_registry_port}}
+    - {{inventory_hostname}}:{{docker_registry_port}}:{{docker_registry_port}}
   volumes:
     - /var/run/docker.sock:/tmp/docker.sock
     - {{docker_registry_config_dir}}/config.yml:/etc/docker/registry/config.yml

@@ -1,5 +1,8 @@
 ---
 
+- name: Copy Docker Compose config
+  template: src=docker-compose.yml dest={{docker_registry_config_dir}}/
+
 - name: Copy Docker Registry config
   template: src=config.yml dest={{docker_registry_config_dir}}/
 

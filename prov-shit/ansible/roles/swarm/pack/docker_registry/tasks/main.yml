@@ -3,14 +3,11 @@
 - name: Create Docker Registry config folder
   file: path={{docker_registry_config_dir}} state=directory
 
-- name: Copy Docker Compose config
-  template: src=docker-compose.yml dest={{docker_registry_config_dir}}/
+- name: Create Certs directory
+  file: path=/certs state=directory mode=600
 
 - name: Copy Service
   template: src=docker_registry.service dest={{dest_services}}/
-
-- name: Create Certs directory
-  file: path=/certs state=directory mode=600
 
 - name: Reload Systemd for Docker Registry
   command: systemctl daemon-reload
