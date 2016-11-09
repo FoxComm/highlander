@@ -14,3 +14,6 @@
 
 - name: Reload Systemd for Docker Registry
   command: systemctl daemon-reload
+
+- name: Copy Marathon service definition for Consul
+  template: src=docker_registry.json dest={{consul_config_dir}}/docker_registry.json
