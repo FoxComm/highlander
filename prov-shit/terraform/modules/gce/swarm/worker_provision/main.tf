@@ -13,8 +13,6 @@ variable "leader_ip" {
 variable "worker_ips" {
     type = "list"
 }
-variable "docker_registry_bucket" {
-}
 variable "count" {
 }
 
@@ -32,8 +30,7 @@ resource "null_resource" "swarm_worker_server_provision" {
             --extra-vars @terraform/envs/gce_${var.datacenter}_${var.setup}/params.json \
             --extra-vars '{"masters_ips":${jsonencode(var.masters_ips)}}' \
             --extra-vars datacenter="${var.datacenter}" \
-            --extra-vars consul_leader="${var.leader_ip}" \
-            --extra-vars docker_registry_bucket="${var.docker_registry_bucket}"
+            --extra-vars consul_leader="${var.leader_ip}"
         EOF
     }
 }

@@ -13,6 +13,8 @@ variable "masters_ips" {
 }
 variable "leader_ip" {
 }
+variable "docker_registry_bucket" {
+}
 variable "count" {
 }
 
@@ -33,7 +35,8 @@ resource "null_resource" "swarm_master_server_provision" {
             --extra-vars consul_leader="${var.leader_ip}" \
             --extra-vars mesos_quorum=${(var.count + (var.count % 2))/2} \
             --extra-vars zookeeper_server_id=${count.index + 1} \
-            --extra-vars account_file=${var.account_file}
+            --extra-vars account_file=${var.account_file} \
+            --extra-vars docker_registry_bucket="${var.docker_registry_bucket}"
         EOF
     }
 }
