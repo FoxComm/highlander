@@ -7,7 +7,7 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname where to install Consul Alerts"
-      default: "tpg-amigo"
+      default: "stage-amigo"
       private: no
     - name: "slack_hook_url"
       prompt: "Enter Slack hook URL"
@@ -15,7 +15,7 @@
       private: no
 
   roles:
-      - { role: dev/marathon_alerts }
+      - { role: dev/marathon_alerts, sudo: true }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
