@@ -33,7 +33,7 @@ import utils.db._
 // TODO: Investigate 2-factor Authentication
 
 object FailureChallenge {
-  def apply(realm: String, failures: Failures, scheme: String = "Basic"): HttpChallenge =
+  def apply(realm: String, failures: Failures, scheme: String = "xBasic"): HttpChallenge =
     HttpChallenge(scheme = scheme,
                   realm = realm,
                   params = Map("error" → failures.flatten.mkString))

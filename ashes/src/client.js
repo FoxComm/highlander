@@ -1,8 +1,9 @@
+import get from 'lodash/get';
 import React from 'react';
 import { render } from 'react-dom';
 import { Router } from 'react-router';
 import { Provider } from 'react-redux';
-import { syncHistoryWithStore } from 'react-router-redux';
+import { syncHistoryWithStore, push } from 'react-router-redux';
 
 import { createHistory } from 'history';
 import { useRouterHistory } from 'react-router';
@@ -34,6 +35,10 @@ export function start() {
     // reset title in order to have default title if page will not set own one
     document.title = 'FoxCommerce';
     trackPageView(location.pathname);
+
+    if (!get(store.getState(), 'user.current') && location.pathname !== '/login') {
+      store.dispatch(push('/login'));
+    }
   });
 
   render(
