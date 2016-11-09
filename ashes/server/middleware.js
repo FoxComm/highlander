@@ -33,12 +33,20 @@ module.exports = function(app) {
   const publicKey = loadPublicKey(config);
 
   function getToken(ctx) {
-    const token = ctx.cookies.get(config.api.auth.cookieName);
-    if (!token) {
+    const jwtToken = ctx.cookies.get(config.api.auth.cookieName);
+    if (!jwtToken) {
       return null;
     }
     try {
-      return jwt.verify(token, publicKey, {issuer: 'FC', audience: 'user', algorithms: ['RS256', 'RS384', 'RS512']});
+      const token = jwt.verify(jwtToken, publicKey, {
+        issuer: 'FC',
+        audience: 'user',
+        algorithms: ['RS256', 'RS384', 'RS512']
+      });
+      if (!_.includes(token.roles, 'admin')) {
+        return null; // only admins allowed to proceed
+      }
+      return token;
     }
     catch(err) {
       console.warn(`Can't decode token: ${err}`);
@@ -49,7 +57,7 @@ module.exports = function(app) {
     const authFreeUrls = /\/(login|signup)$/;
     if (!this.request.path.match(authFreeUrls)) {
       const token = getToken(this);
-      // TODO: When we read tokens, validate that we have a claim to theadmin UI.
+      // TODO: When we read tokens, validate that we have a claim to the admin UI.
       if (!token) {
         this.redirect(config.api.auth.loginUri);
       }
