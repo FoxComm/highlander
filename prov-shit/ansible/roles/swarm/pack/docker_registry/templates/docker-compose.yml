@@ -1,5 +1,4 @@
 registry:
-  name: docker-registry
   image: registry:2
   ports:
     - 127.0.0.1:{{docker_registry_port}}:{{docker_registry_port}}
