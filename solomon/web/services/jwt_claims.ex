@@ -23,7 +23,8 @@ defmodule Solomon.JWTClaims do
       "name" => user.name,
       "claims" => claims,
       "iss" => "FC",
-      "exp" => 0 # TODO : get an exp
+      # TODO : per access method TTL
+      "exp" => exp_from_ttl_days(2)
     }
   end
 
@@ -51,5 +52,21 @@ defmodule Solomon.JWTClaims do
       Enum.map(permissions, fn p -> p.scope_id end)
       |> Enum.min
     }
+  end
+
+  defp exp_from_ttl_days(days) do
+    exp_from_ttl_hours(days * 24)
+  end
+  
+  defp exp_from_ttl_hours(hours) do
+    exp_from_ttl_mins(hours * 60)
+  end
+  
+  defp exp_from_ttl_mins(mins) do
+    exp_from_ttl_secs(mins * 60)
+  end
+
+  defp exp_from_ttl_secs(secs) do
+    Kernel.trunc(:os.system_time / 1000000000) + secs
   end
 end
