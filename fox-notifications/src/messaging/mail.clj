@@ -63,7 +63,7 @@
   [activity]
   (let [data (:data activity)
         email (get-in data ["order" "customer" "email"])
-        customer-name (get-in data ["order" "customer" "name"])
+        customer-name (get-in data ["order" "customer" "name"] "")
         order-ref (get-in data ["order" "referenceNumber"])
         msg (gen-msg {:email email :name customer-name}
                      {:message (format (settings/get :order_checkout_text) order-ref)
@@ -75,7 +75,7 @@
   [activity]
   (let [data (:data activity)
         email (get-in data ["order" "customer" "email"])
-        customer-name (get-in data ["order" "customer" "name"])
+        customer-name (get-in data ["order" "customer" "name"] "")
         order-ref (get-in data ["order" "referenceNumber"])
         new-state (get-in data ["order" "orderState"])]
    (when (= "canceled" new-state)
@@ -88,7 +88,7 @@
 (defmethod handle-activity :send_simple_mail
   [activity]
   (let [email (get-in activity [:data "email"])
-        customer-name (get-in activity [:data "name"])
+        customer-name (get-in activity [:data "name"] "")
         msg (gen-msg {:email email :name customer-name}
                      {}
                      (merge {:text (get-in activity [:data "text"])
@@ -101,7 +101,7 @@
 (defn handle-new-customer 
   [activity]
   (let [email (get-in activity [:data "customer" "email"])
-        customer-name (get-in activity [:data "customer" "name"])
+        customer-name (get-in activity [:data "customer" "name"] "")
         customer-id (get-in activity [:data "customer" "id"])
         reset-password-link (str "http://" @admin_server_name "/reset-password/" customer-id)]
     (when (settings/add-new-customers-to-mailchimp?)
