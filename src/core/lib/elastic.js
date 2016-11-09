@@ -46,9 +46,9 @@ export function defaultSearch(context: string): BoolFilter {
   };
 }
 
-export function addTermFilter(
-  _filter: BoolFilter, term?: ?TermFilter, { must, mustNot } = {}): BoolFilter {
+export function addTermFilter(_filter: BoolFilter, term?: ?TermFilter, mustFilters: any = {}): BoolFilter {
   let filter = _filter;
+  const { must, mustNot } = mustFilters;
   const existingFilters = filter.query.bool.filter;
 
   if (term) {
