@@ -187,7 +187,7 @@ class DataTable extends Table {
               {this.body}
             </table>
           </div>
-          {this.message}
+          {this.message(_.isEmpty(this.tableRows))}
         </div>
       </div>
     );

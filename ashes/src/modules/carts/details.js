@@ -32,6 +32,7 @@ const _unlockCart = createAsyncActions('unlockCart', (refNum) => {
 export const lockCart = _lockCart.perform;
 export const unlockCart = _unlockCart.perform;
 export const fetchCart = _fetchCart.perform;
+export const fetchCartSucceeded = _fetchCart.succeeded;
 export const fetchCustomerCart = _fetchCustomerCart.perform;
 export const clearFetchCartErrors = _fetchCart.clearErrors;
 
