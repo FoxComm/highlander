@@ -27,6 +27,9 @@
 - name: Add Swap to Fstab
   lineinfile: dest=/etc/fstab line="/swap none swap sw 0 0"
 
+- name: Update System Package Cache
+  apt: update_cache=yes
+
 - name: Install Packages
   apt: name={{ item }} state=latest force=yes
   with_items:
