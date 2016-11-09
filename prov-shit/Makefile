@@ -123,7 +123,9 @@ provision-prod:
 	--extra-vars datacenter="swarm" \
 	--extra-vars consul_leader="$(m1)" \
 	--extra-vars mesos_quorum=2 \
-	--extra-vars zookeeper_server_id=1
+	--extra-vars zookeeper_server_id=1 \
+	--extra-vars account_file="foxcomm-staging.json" \
+	--extra-vars docker_registry_bucket="swarm-production-docker"
 
 	ansible-playbook -v -i $(m2), ansible/bootstrap_swarm_master.yml \
 	--extra-vars @terraform/envs/gce_swarm_production/params.json \
@@ -131,7 +133,9 @@ provision-prod:
 	--extra-vars datacenter="swarm" \
 	--extra-vars consul_leader="$(m1)" \
 	--extra-vars mesos_quorum=2 \
-	--extra-vars zookeeper_server_id=2
+	--extra-vars zookeeper_server_id=2 \
+	--extra-vars account_file="foxcomm-staging.json" \
+	--extra-vars docker_registry_bucket="swarm-production-docker"
 
 	ansible-playbook -v -i $(m3), ansible/bootstrap_swarm_master.yml \
 	--extra-vars @terraform/envs/gce_swarm_production/params.json \
@@ -139,20 +143,43 @@ provision-prod:
 	--extra-vars datacenter="swarm" \
 	--extra-vars consul_leader="$(m1)" \
 	--extra-vars mesos_quorum=2 \
-	--extra-vars zookeeper_server_id=3
+	--extra-vars zookeeper_server_id=3 \
+	--extra-vars account_file="foxcomm-staging.json" \
+	--extra-vars docker_registry_bucket="swarm-production-docker"
 
 	ansible-playbook -v -i $(w1), ansible/bootstrap_swarm_worker.yml \
 	--extra-vars @terraform/envs/gce_swarm_production/params.json \
 	--extra-vars '{"masters_ips":["$(m1)","$(m2)","$(m3)"]}' \
 	--extra-vars datacenter="swarm" \
-	--extra-vars consul_leader="$(m1)" \
-	--extra-vars docker_registry_bucket="https://docker-swarm-production.foxcommerce.com"
+	--extra-vars consul_leader="$(m1)"
 
 	ansible-playbook -v -i $(w2), ansible/bootstrap_swarm_worker.yml \
 	--extra-vars @terraform/envs/gce_swarm_production/params.json \
 	--extra-vars '{"masters_ips":["$(m1)","$(m2)","$(m3)"]}' \
 	--extra-vars datacenter="swarm" \
+	--extra-vars consul_leader="$(m1)"
+
+provision-stage:
+	ansible-playbook -v -i $(m1), ansible/bootstrap_swarm_master.yml \
+	--extra-vars @terraform/envs/gce_swarm_staging/params.json \
+	--extra-vars '{"masters_ips":["$(m1)"]}' \
+	--extra-vars datacenter="swarm" \
 	--extra-vars consul_leader="$(m1)" \
-	--extra-vars docker_registry_bucket="https://docker-swarm-production.foxcommerce.com"
+	--extra-vars mesos_quorum=1 \
+	--extra-vars zookeeper_server_id=1 \
+	--extra-vars account_file="foxcomm-staging.json" \
+	--extra-vars docker_registry_bucket="swarm-staging-docker"
+
+	ansible-playbook -v -i $(w1), ansible/bootstrap_swarm_worker.yml \
+	--extra-vars @terraform/envs/gce_swarm_staging/params.json \
+	--extra-vars '{"masters_ips":["$(m1)"]}' \
+	--extra-vars datacenter="swarm" \
+	--extra-vars consul_leader="$(m1)" \
+
+	ansible-playbook -v -i $(w2), ansible/bootstrap_swarm_worker.yml \
+	--extra-vars @terraform/envs/gce_swarm_staging/params.json \
+	--extra-vars '{"masters_ips":["$(m1)"]}' \
+	--extra-vars datacenter="swarm" \
+	--extra-vars consul_leader="$(m1)"
 
 .PHONY: all build lint test
