@@ -3,8 +3,10 @@
 - name: Copy Docker Registry config
   template: src=config.yml dest={{docker_registry_config_dir}}/
 
+# Note: it's expected, that account file is just file name and, as far as it's usually in project folder,
+# this will resolve from ansible subfolder to project folder. Absolute path to account_file won't work here
 - name: Copy service account file
-  copy: src={{account_file}} dest={{docker_registry_config_dir}}/service_account.json mode=600
+  copy: src=../{{account_file}} dest={{docker_registry_config_dir}}/service_account.json mode=600
 
 - name: Copy Cert
   copyv: src={{playbook_dir}}/roles/base/secret_keys/files/certs/{{datacenter}}/docker/domain.crt dest=/certs/domain.crt
