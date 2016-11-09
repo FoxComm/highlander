@@ -31,5 +31,5 @@
   service: name=consul_alerts state=restarted enabled=yes
 
 - name: Copy Consul Service File
-  template: src=consul_alerts.json dest="/etc/consul.d/consul_alerts.json"
+  template: src=consul_alerts.json dest=/etc/consul.d/consul_alerts.json
   notify: reload consul

@@ -19,5 +19,5 @@
   service: name=marathon_alerts state=restarted enabled=yes
 
 - name: Copy Marathon Service File
-  template: src=marathon_alerts.json dest="/etc/consul.d/marathon_alerts.json"
+  template: src=marathon_alerts.json dest=/etc/consul.d/marathon_alerts.json
   notify: reload consul
