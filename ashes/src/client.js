@@ -14,8 +14,20 @@ import makeRoutes from './routes';
 import { setHistory } from 'browserHistory';
 import { trackPageView, initTracker } from './lib/analytics';
 import { getJWT } from 'lib/claims';
+import { isPathRequiredAuth } from './route-rules';
 
 const createBrowserHistory = useNamedRoutes(useRouterHistory(createHistory));
+
+// get jwt provided by server and writes it to localStorage
+export function syncJWTFromServer() {
+  if (JWTString) {
+    localStorage.setItem('jwt', JWTString);
+  } else {
+    localStorage.removeItem('jwt');
+  }
+}
+
+syncJWTFromServer();
 
 export function start() {
   const routes = makeRoutes();
@@ -36,7 +48,7 @@ export function start() {
     document.title = 'FoxCommerce';
     trackPageView(location.pathname);
 
-    if (!get(store.getState(), 'user.current') && location.pathname !== '/login') {
+    if (!get(store.getState(), 'user.current') && isPathRequiredAuth(location.pathname)) {
       store.dispatch(push('/login'));
     }
   });

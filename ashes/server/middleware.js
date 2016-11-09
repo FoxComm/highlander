@@ -7,6 +7,8 @@ require('babel-polyfill');
 const htmlescape = require('htmlescape');
 const errors = require('./errors');
 
+import { isPathRequiredAuth } from '../src/route-rules';
+
 function loadPublicKey(config) {
   try {
     return fs.readFileSync(config.api.auth.publicKey);
@@ -37,6 +39,7 @@ module.exports = function(app) {
     if (!jwtToken) {
       return null;
     }
+    ctx.state.jwt = jwtToken;
     try {
       const token = jwt.verify(jwtToken, publicKey, {
         issuer: 'FC',
@@ -54,8 +57,7 @@ module.exports = function(app) {
   }
 
   app.requireAdmin = function *(next) {
-    const authFreeUrls = /\/(login|signup)$/;
-    if (!this.request.path.match(authFreeUrls)) {
+    if (isPathRequiredAuth(this.request.path)) {
       const token = getToken(this);
       // TODO: When we read tokens, validate that we have a claim to the admin UI.
       if (!token) {
@@ -96,6 +98,7 @@ module.exports = function(app) {
       appStart: `App.start(${htmlescape(bootstrap)});`,
       // use GA_LOCAL=1 gulp dev command for enable tracking events in google analytics from localhost
       gaEnableLocal: 'GA_LOCAL' in process.env,
+      JWT: JSON.stringify(this.state.jwt || null),
     }, config.layout.pageConstants);
 
     this.body = layout(layoutData);
