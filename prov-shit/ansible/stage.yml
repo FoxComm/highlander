@@ -8,7 +8,7 @@
   tags:
     - backend
   roles:
-    - { role:  stage}
+    - { role: stage_mesos}
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
