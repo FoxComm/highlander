@@ -9,23 +9,19 @@ import TableView from 'components/table/tableview';
 import styles from './coupons-panel.css';
 
 type Props = {
-  coupons: Array<Object>,
+  coupons: Array<Object>;
+  columns: Array<Object>;
+  onDelete?: () => Promise;
 };
 
-const columns = [
-  { field: 'name', text: 'Name' },
-  { field: 'storefrontName', text: 'Storefront Name' },
-  { field: 'code', text: 'Code' },
-];
-
 const CouponsPanel = (props: Props): Element => {
-  const renderFn = (row: Object, index: number, isNew: boolean) => {
+  const renderFn = (row: Object) => {
     return (
       <CouponRow
         key={`coupon-row-${row.id}`}
         item={row}
-        columns={columns}
-        onDelete={() => {}} />
+        columns={props.columns}
+        onDelete={props.onDelete} />
     );
   };
 
@@ -40,10 +36,12 @@ const CouponsPanel = (props: Props): Element => {
 
   return (
     <TableView
-      columns={columns}
+      styleName="coupons-panel"
+      columns={props.columns}
       data={data}
       emptyMessage="No coupons applied."
-      renderRow={renderFn} />
+      renderRow={renderFn}
+    />
   );
 };
 

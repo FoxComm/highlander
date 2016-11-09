@@ -9,9 +9,7 @@ import { trackEvent } from 'lib/analytics';
 import CouponsPanel from 'components/coupons-panel/coupons-panel';
 import EditableContentBox from 'components/content-box/editable-content-box';
 import PanelHeader from 'components/panel-header/panel-header';
-import CouponRow from 'components/coupons-panel/coupon-row';
-import TableView from '../table/tableview';
-import { Button, EditButton } from '../common/buttons';
+import { Button } from '../common/buttons';
 import AppendInput from '../forms/append-input';
 
 import * as CouponActions from 'modules/carts/coupons';
@@ -35,13 +33,13 @@ type Props = CouponModuleActions & {
 };
 
 const viewColumns = [
-  {field: 'name', text: 'Name'},
-  {field: 'storefrontName', text: 'Storefront Name'},
-  {field: 'code', text: 'Code'},
+  { field: 'name', text: 'Name' },
+  { field: 'storefrontName', text: 'Storefront Name' },
+  { field: 'code', text: 'Code' },
 ];
 
 const editColumns = viewColumns.concat([
-  {field: 'edit', text: ''},
+  { field: 'edit', text: '' },
 ]);
 
 const bindStateToProps = (state) => ({
@@ -82,8 +80,8 @@ class CartCoupons extends Component {
       <Button styleName="add-coupon-button" onClick={this.onAddClick}>Apply</Button>
     );
     const errorMessage = this.props.coupons.error && (
-      <div className="fc-form-field-error">{this.fancyErrorMessage}</div>
-    );
+        <div className="fc-form-field-error">{this.fancyErrorMessage}</div>
+      );
     return (
       <div styleName="add-coupon-block">
         <div styleName="add-coupon-label">
@@ -127,21 +125,6 @@ class CartCoupons extends Component {
     this.props.orderCouponCodeChange(event.target.value);
   }
 
-  renderRow(isEditing: bool): Function {
-    const columns = isEditing ? editColumns : viewColumns;
-    const renderFn = (row: Object, index: number, isNew: boolean) => {
-      return (
-        <CouponRow
-          key={`order-coupon-row-${row.id}`}
-          item={row}
-          columns={columns}
-          onDelete={() => this.props.removeCoupon(this.orderReferenceNumber)}
-        />
-      );
-    };
-    return renderFn;
-  }
-
   @autobind
   handleEditAction() {
     trackEvent('Orders', 'edit_order_coupons');
@@ -154,15 +137,25 @@ class CartCoupons extends Component {
     this.props.orderCouponsStopEdit();
   }
 
-  render(): Element {
-    const content = <CouponsPanel coupons={this.coupons} />;
+  get content() {
+    const columns = this.isEditing ? editColumns : viewColumns;
 
+    return (
+      <CouponsPanel
+        coupons={this.coupons}
+        columns={columns}
+        onDelete={() => this.props.removeCoupon(this.orderReferenceNumber)}
+      />
+    );
+  }
+
+  render(): Element {
     return (
       <EditableContentBox
         title={this.title}
         indentContent={false}
-        viewContent={content}
-        editContent={content}
+        viewContent={this.content}
+        editContent={this.content}
         editFooter={this.editFooter}
         isEditing={this.isEditing}
         editAction={this.handleEditAction}
