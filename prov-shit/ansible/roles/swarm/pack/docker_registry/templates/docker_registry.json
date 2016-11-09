@@ -1,0 +1,17 @@
+{
+    "service": {
+        "name": "docker-registry",
+        "tags": [
+            "docker-registry"
+        ],
+        "port": {{docker_registry_port}},
+        "checks": [
+            {
+                "name": "HTTPS on port {{docker_registry_port}}",
+                "script": "curl -XGET https://localhost:{{docker_registry_port}}/v2/ --insecure",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

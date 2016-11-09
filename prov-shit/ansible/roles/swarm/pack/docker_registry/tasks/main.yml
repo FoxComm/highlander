@@ -12,11 +12,5 @@
 - name: Create Certs directory
   file: path=/certs state=directory mode=600
 
-- name: Copy Cert
-  copyv: src={{playbook_dir}}/roles/base/secret_keys/files/certs/{{datacenter}}/docker/domain.crt dest=/certs/domain.crt
-
-- name: Copy Key
-  copyv: src={{playbook_dir}}/roles/base/secret_keys/files/certs/{{datacenter}}/docker/domain.key dest=/certs/domain.key
-
 - name: Reload Systemd for Docker Registry
   command: systemctl daemon-reload

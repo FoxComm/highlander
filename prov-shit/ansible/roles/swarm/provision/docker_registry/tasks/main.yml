@@ -6,5 +6,11 @@
 - name: Copy service account file
   copy: src={{account_file}} dest={{docker_registry_config_dir}}/service_account.json mode=600
 
+- name: Copy Cert
+  copyv: src={{playbook_dir}}/roles/base/secret_keys/files/certs/{{datacenter}}/docker/domain.crt dest=/certs/domain.crt
+
+- name: Copy Key
+  copyv: src={{playbook_dir}}/roles/base/secret_keys/files/certs/{{datacenter}}/docker/domain.key dest=/certs/domain.key
+
 - name: Restart Docker Registry Server
   service: name=docker_registry state=restarted enabled=true
