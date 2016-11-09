@@ -1,14 +1,18 @@
 /* @flow */
 
+// libs
+import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
+// components
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import Counter from 'components/forms/counter';
 import { DeleteButton } from 'components/common/buttons';
 import Currency from 'components/common/currency';
 
+// actions
 import { updateLineItemCount, deleteLineItem } from 'modules/carts/details';
 
 type Props = {
@@ -78,6 +82,19 @@ export class CartLineItem extends Component {
   }
 
   @autobind
+  updateCartPayload(sku, qtt) {
+    const { skus } = this.props.cart.lineItems;
+
+    return _.map(skus, (item) => {
+      const quantity = sku === item.sku ? qtt : item.quantity;
+      return {
+        sku: item.sku,
+        quantity,
+      };
+    });
+  }
+
+  @autobind
   decreaseCount() {
     const { cart, item, updateLineItemCount } = this.props;
     const { quantity } = this.state;
@@ -87,7 +104,10 @@ export class CartLineItem extends Component {
     } else {
       const decreased = parseInt(quantity, 10) - 1;
       this.setState({quantity: decreased});
-      updateLineItemCount(cart.referenceNumber, item.sku, decreased);
+
+      const payload = this.updateCartPayload(item.sku, decreased);
+
+      updateLineItemCount(cart.referenceNumber, payload);
     }
   }
 
@@ -100,7 +120,9 @@ export class CartLineItem extends Component {
 
     this.setState({quantity: increased});
 
-    updateLineItemCount(cart.referenceNumber, item.sku, increased);
+    const payload = this.updateCartPayload(item.sku, increased);
+
+    updateLineItemCount(cart.referenceNumber, payload);
   }
 
   @autobind

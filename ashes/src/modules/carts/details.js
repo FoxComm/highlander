@@ -44,8 +44,7 @@ const _updateLineItemCount = createAsyncActions(
   (refNum: string, payload: Object) => Api.post(`/orders/${refNum}/line-items`, payload)
 );
 
-export function updateLineItemCount(refNum: string, sku: string, quantity: number): Function {
-  const payload = [{ sku, quantity }];
+export function updateLineItemCount(refNum: string, payload): Function {
   return _updateLineItemCount.perform(refNum, payload);
 }
 
