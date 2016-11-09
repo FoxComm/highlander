@@ -13,7 +13,7 @@ type Props = {
   cancel: string,
   confirm: string,
   icon?: string,
-  cancelAction: Function,
+  onCancel: Function,
   confirmAction: Function,
 };
 
@@ -33,7 +33,7 @@ const ConfirmationDialog = (props: Props): Element => {
   );
 
   const actionBlock = (
-    <a className='fc-modal-close' onClick={() => props.cancelAction()}>
+    <a className='fc-modal-close' onClick={() => props.onCancel()}>
       <i className='icon-close'></i>
     </a>
   );
@@ -52,7 +52,7 @@ const ConfirmationDialog = (props: Props): Element => {
             {props.body}
           </div>
           <div className='fc-modal-footer'>
-            <a tabIndex="2" className='fc-modal-close' onClick={() => props.cancelAction()}>
+            <a tabIndex="2" className='fc-modal-close' onClick={() => props.onCancel()}>
               {props.cancel}
             </a>
             <PrimaryButton tabIndex="1" autoFocus={true}
