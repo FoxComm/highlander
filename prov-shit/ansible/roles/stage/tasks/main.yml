@@ -4,20 +4,12 @@
   hostname: name={{appliance_hostname}}
   sudo: true
 
-- name: Copy Mesos Master Run Script
-  template: src=run_mesos_master.sh dest=/usr/local/bin/run_mesos_master.sh mode="u+x,g+x,o+x"
-  sudo: true
-
 - name: Copy Mesos Worker Run Script
   template: src=run_mesos_worker.sh dest=/usr/local/bin/run_mesos_worker.sh mode="u+x,g+x,o+x"
   sudo: true
 
 - name: Copy Mesos Resources Config
   template: src=resources.json dest=/var/lib/mesos/resources.json mode="u+r,g+r,o+r"
-  sudo: true
-
-- name: Restart Mesos Master
-  service: name=mesos_master state=restarted enabled=true
   sudo: true
 
 - name: Restart Mesos Worker
