@@ -232,28 +232,24 @@ class EditableSkuRow extends Component {
 
   skuCell(sku: Sku): Element {
     const code = _.get(this.props, 'sku.attributes.code.v');
-    if (this.props.sku.feCode) {
-      const { codeError } = this.state;
-      const error = codeError ? `SKU Code violates constraint: ${codeError.keyword}` : void 0;
-      return (
-        <div styleName="sku-cell">
-          <FormField error={error} scrollToErrors>
-            <LoadingInputWrapper inProgress={this.props.isFetchingSkus}>
-              <input
-                className="fc-text-input"
-                type="text"
-                value={this.skuCodeValue}
-                onChange={this.handleUpdateCode}
-                placeholder="SKU"
-              />
-            </LoadingInputWrapper>
-          </FormField>
-          {this.skusMenu}
-        </div>
-      );
-    }
-
-    return <div>{code}</div>;
+    const { codeError } = this.state;
+    const error = codeError ? `SKU Code violates constraint: ${codeError.keyword}` : void 0;
+    return (
+      <div styleName="sku-cell">
+        <FormField error={error} scrollToErrors>
+          <LoadingInputWrapper inProgress={this.props.isFetchingSkus}>
+            <input
+              className="fc-text-input"
+              type="text"
+              value={this.skuCodeValue}
+              onChange={this.handleUpdateCode}
+              placeholder="SKU"
+            />
+          </LoadingInputWrapper>
+        </FormField>
+        {this.skusMenu}
+      </div>
+    );
   }
 
   imageCell(sku: Sku): Element {
@@ -292,9 +288,15 @@ class EditableSkuRow extends Component {
     );
   }
 
-  actionsCell(sku: Sku): Element {
+  actionsCell(sku: Sku): ?Element {
     const skuCode = sku.feCode || _.get(sku.attributes, 'code.v');
-    return <DeleteButton onClick={() => this.props.onDeleteClick(skuCode)}/>;
+    const skuValue = this.skuCodeValue;
+
+    if (!_.isEmpty(this.props.variants) || skuValue) {
+      return (
+        <DeleteButton onClick={() => this.props.onDeleteClick(skuCode)}/>
+      );
+    }
   }
 
   @autobind
