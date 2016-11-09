@@ -30,7 +30,7 @@ function apiCall(
   });
 
   if (ignoreGiftCards) {
-    const giftCardTerm = termFilter('tags', 'GIFT-CARD');
+    const giftCardTerm = termFilter('tags', GIFT_CARD_TAG);
     payload = addTermFilter(payload, null, { mustNot: giftCardTerm });
   }
 

@@ -77,13 +77,15 @@ const GiftCardForm = (props: Props) => {
             name="recipientEmail"
           />
         </FormField>
-        <textarea
-          styleName="message-field"
-          placeholder="Your message"
-          value={props.attributes.message || ''}
-          onChange={props.onAttributeChange}
-          name="message"
-        />
+        <FormField>
+          <textarea
+            styleName="message-field"
+            placeholder="Your message"
+            value={props.attributes.message || ''}
+            onChange={props.onAttributeChange}
+            name="message"
+          />
+        </FormField>
         <FormField label="Sender name" required>
           <TextInput
             styleName="input-field"
@@ -91,15 +93,6 @@ const GiftCardForm = (props: Props) => {
             placeholder="Sender name"
             onChange={props.onAttributeChange}
             name="senderName"
-          />
-        </FormField>
-        <FormField name="Delivery date" required>
-          <TextInput
-            styleName="input-field"
-            value={props.attributes.deliveryDate || ''}
-            placeholder="Delivery date"
-            onChange={props.onAttributeChange}
-            name="deliveryDate"
           />
         </FormField>
         <AddToCartBtn
