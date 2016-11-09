@@ -54,7 +54,7 @@ function enableProduct(enabled, product) {
 }
 
 function getProduct(product) {
-  const price = getPrice(product["SKU price"]);
+  const price = getPrice(product["Price"]);
 
   const sale = product["SKU Sale Price (optional)"];
   const salePrice = !!sale ? getPrice(sale) : price;
@@ -85,7 +85,7 @@ function getProduct(product) {
         title,
         "code": {
           "t": "string",
-          "v": sku || `SKU-${product.id}`
+          "v": sku || `PG-SKU-${product.id}`
         },
         "retailPrice": {
           "t": "price",
@@ -112,13 +112,14 @@ function getProduct(product) {
 
 function save() {
   fs.readFile(__dirname + '/data/products_new.json', function (err, data) {
-    // const products = JSON.parse(data).slice(8, 9);
+    // const products = JSON.parse(data).slice(0, 3);
     const products = JSON.parse(data);
 
     products.map((product) => {
       const productPayload = getProduct(product);
 
       // console.log(productPayload.skus[0].attributes.salePrice.v);
+      // console.log(productPayload.skus[0].attributes.code.v);
 
       if (product.productId) {
         Api.patch(`/products/default/${product.productId}`, productPayload)
