@@ -16,7 +16,7 @@ export type Product = {
 
 const MAX_RESULTS = 1000;
 const context = process.env.FIREBIRD_CONTEXT || 'default';
-const GIFT_CARD_TAG = 'gift-card';
+const GIFT_CARD_TAG = 'GIFT-CARD';
 
 function apiCall(
   categoryName: ?string, productType: ?string, { ignoreGiftCards = true } = {}): global.Promise {

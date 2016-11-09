@@ -24,6 +24,7 @@ type Props = {
   list: Array<any>,
   fetch: Function,
   hasAllLink: boolean,
+  onClick?: Function,
   t: any,
 };
 
@@ -46,7 +47,7 @@ class Navigation extends Component {
     if (this.props.hasAllLink) {
       return (
         <li styleName="item" key="category-all">
-          <Link to="/" styleName="item-link">{t('ALL')}</Link>
+          <Link to="/" styleName="item-link" onClick={this.props.onClick}>{t('ALL')}</Link>
         </li>
       );
     }
@@ -76,7 +77,7 @@ class Navigation extends Component {
 
       return (
         <li styleName="item" key={key}>
-          <Link styleName="item-link" to={url}>
+          <Link styleName="item-link" to={url} onClick={this.props.onClick}>
             {t(item.name.toUpperCase())}
           </Link>
         </li>
