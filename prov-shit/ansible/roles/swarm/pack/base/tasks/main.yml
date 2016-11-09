@@ -41,3 +41,4 @@
     - nmap
     - htop
     - unzip
+    - python-pip
