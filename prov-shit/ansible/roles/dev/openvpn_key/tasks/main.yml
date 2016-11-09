@@ -11,6 +11,3 @@
 
 - name: Cleanup
   command: rm -rf /tmp/{{username}}.tar.gz {{home}}/keygen.sh
-
-# - name: Restart OpenVPN
-#   service: name=openvpn state=restarted enabled=yes
