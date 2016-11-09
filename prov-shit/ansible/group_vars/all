@@ -5,6 +5,7 @@ dest_services: /etc/systemd/system
 usr_local: /usr/local/
 usr_local_bin: /usr/local/bin
 usr_local_share: /usr/local/share
+etc_profile: /etc/profile
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 db_host: localhost
@@ -199,6 +200,12 @@ marathon_port: 8080
 # Docker
 docker_registry_config_dir: /etc/docker_registry.d
 docker_registry_port: 5000
+
+# Flyway
+flyway_version: 4.0.3
+flyway_download_url: https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{flyway_vers}}/flyway-commandline-{{flyway_vers}}-linux-x64.tar.gz
+flyway_dir: "{{usr_local_share}}/flyway-{{flyway_version}}"
+flyway_exec: "{{flyway_dir}}/flyway -locations=filesystem:sql/ -configFile=sql/flyway.conf"
 
 # Use seeder service or not?
 with_seeder: false

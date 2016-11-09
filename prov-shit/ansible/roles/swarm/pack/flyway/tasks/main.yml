@@ -1,0 +1,16 @@
+- name: Get Flyway
+  get_url: url={{flyway_download_url}} dest={{home}}/flyway-{{flyway_version}}.tar.gz
+
+- name: Unzip Flyway
+  unarchive: src={{home}}/flyway-{{flyway_version}}.tar.gz dest={{usr_local_share}} copy=no
+  args:
+      creates: "{{usr_local_share}}/flyway-{{flyway_version}}"
+
+- name: Make Flyway Executable
+  file: path={{flyway_dir}}/flyway mode=750
+
+- name: Add FLYWAY_HOME environment variable
+  lineinfile: dest={{etc_profile}} line="FLYWAY_HOME={{flyway_dir}}"
+
+- name: Add FLYWAY_HOME to PATH
+  lineinfile: dest={{etc_profile}} line="PATH=$PATH:$FLYWAY_HOME" insertafter="^FLYWAY"
