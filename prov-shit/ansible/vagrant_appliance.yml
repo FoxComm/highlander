@@ -13,8 +13,11 @@
     marathon_server: 127.0.0.1:8080
     docker_db_host: 172.17.0.1
     docker_branch: master
+    install_public_keys: true
+    install_private_keys: true
 
   roles:
+    - { role: base/secret_keys }
     - { role: base/bottledwater }
     - { role: dev/consul_agent }
     - { role: base/phoenix }
