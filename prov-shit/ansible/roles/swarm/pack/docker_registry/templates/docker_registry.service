@@ -4,9 +4,10 @@ Requires=docker.service
 
 [Service]
 TimeoutStartSec=0
+RestartSec=5
 Restart=always
-ExecStartPre=/usr/bin/docker-compose -f /etc/docker_registry/docker-compose.yml down
-ExecStart=/usr/bin/docker-compose -f /etc/docker_registry/docker-compose.yml up
+ExecStop=/usr/bin/docker-compose -f {{docker_registry_config_dir}}/docker-compose.yml stop
+ExecStart=/usr/bin/docker-compose -f {{docker_registry_config_dir}}/docker-compose.yml up --force-recreate
 SyslogIdentifier=docker_registry
 
 [Install]
