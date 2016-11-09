@@ -12,7 +12,7 @@ final case class TaxonomiesSearchView()(implicit ec: EC) extends AvroTransformer
       field("taxonomyId", IntegerType),
       field("name", StringType).analyzer("autocomplete"),
       field("context", StringType).index("not_analyzed"),
-      field("scope", StringType).analyzer("not_analyzed"),
+      field("scope", StringType).index("not_analyzed"),
       field("type", StringType).index("not_analyzed"),
       field("valuesCount", IntegerType),
       field("activeFrom", DateType).format(dateFormat),
