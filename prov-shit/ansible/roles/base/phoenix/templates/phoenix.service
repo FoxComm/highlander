@@ -9,26 +9,26 @@ StandardError=syslog
 SyslogIdentifier=phoenix
 TimeoutStartSec=5m
 RestartSec=5
-Environment=PHOENIX_PUBLIC_KEY={{ public_keys_dest_dir }}/public_key.der
-Environment=PHOENIX_PRIVATE_KEY={{ private_keys_dest_dir }}/private_key.der
+Environment=PHOENIX_PUBLIC_KEY={{public_keys_dest_dir}}/public_key.der
+Environment=PHOENIX_PRIVATE_KEY={{private_keys_dest_dir}}/private_key.der
 # remove this ASAP when https will be available
 Environment=PHOENIX_COOKIE_SECURE=off
 Environment=PHOENIX_AUTH_METHOD=jwt
 
-Environment=GOOGLE_OAUTH_ADMIN_CLIENT_ID={{ google_oauth_admin_client_id }}
-Environment=GOOGLE_OAUTH_ADMIN_CLIENT_SECRET={{ google_oauth_admin_secret }}
-Environment=GOOGLE_OAUTH_ADMIN_REDIRECT_URI={{ google_oauth_admin_redirect_uri }}
-Environment=GOOGLE_OAUTH_ADMIN_HOSTED_DOMAIN={{ google_oauth_admin_hosted_domain }}
+Environment=GOOGLE_OAUTH_ADMIN_CLIENT_ID={{google_oauth_admin_client_id}}
+Environment=GOOGLE_OAUTH_ADMIN_CLIENT_SECRET={{google_oauth_admin_secret}}
+Environment=GOOGLE_OAUTH_ADMIN_REDIRECT_URI={{google_oauth_admin_redirect_uri}}
+Environment=GOOGLE_OAUTH_ADMIN_HOSTED_DOMAIN={{google_oauth_admin_hosted_domain}}
 
-Environment=GOOGLE_OAUTH_CUSTOMER_CLIENT_ID={{ google_oauth_frontend_client_id }}
-Environment=GOOGLE_OAUTH_CUSTOMER_CLIENT_SECRET={{ google_oauth_frontend_secret }}
-Environment=GOOGLE_OAUTH_CUSTOMER_REDIRECT_URI={{ google_oauth_frontend_redirect_uri }}
+Environment=GOOGLE_OAUTH_CUSTOMER_CLIENT_ID={{google_oauth_frontend_client_id}}
+Environment=GOOGLE_OAUTH_CUSTOMER_CLIENT_SECRET={{google_oauth_frontend_secret}}
+Environment=GOOGLE_OAUTH_CUSTOMER_REDIRECT_URI={{google_oauth_frontend_redirect_uri}}
 
-Environment=AWS_ACCESS_KEY={{ secret_key }}
-Environment=AWS_SECRET_KEY={{ secret_access_key }}
-Environment=S3_BUCKET={{ s3_bucket }}
-Environment=S3_REGION={{ s3_region }}
-Environment=STRIPE_API_KEY={{ stripe_api_key }}
+Environment=AWS_ACCESS_KEY={{secret_key}}
+Environment=AWS_SECRET_KEY={{secret_access_key}}
+Environment=S3_BUCKET={{s3_bucket}}
+Environment=S3_REGION={{s3_region}}
+Environment=STRIPE_API_KEY={{stripe_api_key}}
 
 [Install]
 WantedBy=multi-user.target

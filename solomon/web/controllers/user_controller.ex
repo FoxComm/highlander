@@ -6,6 +6,7 @@ defmodule Solomon.UserController do
   alias Solomon.Account
   alias Solomon.AccountAccessMethod
   alias Solomon.Validation
+  alias Solomon.Scrypt
 
   def index(conn, _params) do 
     users = Repo.all(User)
@@ -69,8 +70,9 @@ defmodule Solomon.UserController do
       aam_cs = AccountAccessMethod.changeset(%AccountAccessMethod{}, %{
         "name" => "login",
         "hashed_password" => user_params
-        |> Map.fetch!("password"),
-        "algorithm" => 1,
+        |> Map.fetch!("password")
+        |> Scrypt.scrypt,
+        "algorithm" => 0,
         "account_id" => account.id
       })
       Repo.insert(aam_cs)

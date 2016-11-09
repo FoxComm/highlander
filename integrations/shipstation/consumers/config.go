@@ -20,7 +20,7 @@ func MakeConsumerConfig() (ConsumerConfig, error) {
 
 	config.SchemaRegistryURL = os.Getenv("SCHEMA_REGISTRY_URL")
 	if config.SchemaRegistryURL == "" {
-		return config, errors.New("Unable to find SCHEMA_REPOSITORY_URL in env")
+		return config, errors.New("Unable to find SCHEMA_REGISTRY_URL in env")
 	}
 
 	config.ZookeeperURL = os.Getenv("ZOOKEEPER_URL")

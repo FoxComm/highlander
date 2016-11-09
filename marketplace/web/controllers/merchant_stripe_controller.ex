@@ -13,25 +13,23 @@ defmodule Marketplace.MerchantStripeController do
         relate_stripe_account_id(conn, ma, stripe_account_id)
       {:error, error} ->
         conn
-          |> put_status(:unprocessable_entity)
-          |> render(Marketplace.ErrorView, "error.json", %{errors: %{stripe: error}})
+        |> put_status(:unprocessable_entity)
+        |> render(Marketplace.ErrorView, "error.json", %{errors: %{stripe: error}})
     end
-
-
-
   end
 
   defp relate_stripe_account_id(conn, ma, stripe_account_id) do
     changeset = MerchantAccount.update_changeset(ma, %{stripe_account_id: stripe_account_id})
-        case Repo.update(changeset) do
-          {:ok, merchant_account} ->
-            conn
-            |> put_status(:created)
-            |> render(Marketplace.MerchantAccountView, "merchant_account.json", merchant_account: merchant_account)
-          {:error, changeset} ->
-            conn
-            |> put_status(:unprocessable_entity)
-            |> render(Marketplace.ChangesetView, "errors.json", changeset: changeset)
-        end
+
+    case Repo.update(changeset) do
+      {:ok, merchant_account} ->
+        conn
+        |> put_status(:created)
+        |> render(Marketplace.MerchantAccountView, "merchant_account.json", merchant_account: merchant_account)
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Marketplace.ChangesetView, "errors.json", changeset: changeset)
+    end
   end
 end

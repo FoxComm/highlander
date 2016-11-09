@@ -12,6 +12,7 @@ object Versions {
   val gatling   = "2.2.1"
   val scalatest = "2.2.6"
   val dispatch  = "0.11.3"
+  val fasterxml = "2.8.2"
 }
 
 object Dependencies {
@@ -28,6 +29,10 @@ object Dependencies {
   val slick = Seq(
     "com.typesafe.slick" %% "slick"          % Versions.slick,
     "com.typesafe.slick" %% "slick-hikaricp" % Versions.slick
+  )
+
+  val fasterxml = Seq(
+    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-smile" % Versions.fasterxml
   )
 
   val json4s = Seq(

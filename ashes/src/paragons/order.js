@@ -12,6 +12,7 @@ export type Order = {
   promotion: Object,
   coupon: Object,
   paymentMethods: Array<PaymentMethod>,
+  orderState: string,
 };
 
 export type ShippingMethod = {

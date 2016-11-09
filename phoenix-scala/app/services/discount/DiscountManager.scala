@@ -64,7 +64,10 @@ object DiscountManager {
                                   commit: ObjectCommit,
                                   form: ObjectForm,
                                   shadow: ObjectShadow)
-      extends FormAndShadow
+      extends FormAndShadow {
+    override def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow =
+      copy(form = form, shadow = shadow)
+  }
 
   def createInternal(payload: CreateDiscount, context: ObjectContext)(
       implicit ec: EC,

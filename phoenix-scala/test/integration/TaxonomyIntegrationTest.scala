@@ -1,14 +1,19 @@
+import java.time.Instant
+
 import akka.http.scaladsl.model.StatusCodes
 
 import cats.implicits._
 import failures.TaxonomyFailures._
+import models.objects.ObjectForm
 import models.taxonomy._
 import org.json4s.JsonDSL._
 import org.json4s._
 import payloads.TaxonomyPayloads._
 import responses.TaxonomyResponses._
 import utils.db.ExPostgresDriver.api._
+import slick.jdbc.GetResult
 import testutils._
+import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 
 class TaxonomyIntegrationTest
@@ -16,7 +21,8 @@ class TaxonomyIntegrationTest
     with HttpSupport
     with AutomaticAuth
     with BakedFixtures
-    with TaxonomySeeds {
+    with TaxonomySeeds
+    with PhoenixAdminApi {
 
   def findTermById(terms: TaxonList, id: Int): Option[TaxonResponse] =
     terms
@@ -221,6 +227,94 @@ class TaxonomyIntegrationTest
       resp.status must === (StatusCodes.BadRequest)
       resp.error must === (CannotArchiveParentTaxon(taxonToArchive.formId).description)
     }
+  }
+
+  "Taxonomy_search_view" - {
+    case class TaxonomiesSearchViewItem(id: Int,
+      taxonomyId: Int,
+      name: String,
+      context: String,
+      `type`: String,
+      valuesCount: Int,
+      activeFrom: Option[String],
+      activeTo: Option[String],
+      archivedAt: Option[String])
+    implicit val getTaxonomiesSearchViewResult = GetResult(
+      r ⇒
+        TaxonomiesSearchViewItem(r.nextInt,
+          r.nextInt,
+          r.nextString,
+          r.nextString,
+          r.nextString,
+          r.nextInt,
+          r.nextStringOption(),
+          r.nextStringOption(),
+          r.nextStringOption()))
+
+    def selectByTaxonId(taxonomy_id: Int) =
+      sql"""select * from taxonomies_search_view where taxonomy_id = ${taxonomy_id}"""
+        .as[TaxonomiesSearchViewItem]
+        .gimme
+
+    "should insert data on taxonomy creation" in new HierarchyTaxonsFixture {
+      val taxonomies = selectByTaxonId(taxonomy.id)
+
+      taxonomies.size must === (1)
+      val item = taxonomies.head
+      item must === (
+        item.copy(taxonomyId = taxonomy.id,
+          context = ctx.name,
+          `type` = "hierarchical",
+          valuesCount = taxons.size,
+          archivedAt = None))
+    }
+
+    "should update data on taxon removal" in new HierarchyTaxonsFixture {
+      TaxonomyTaxonLinks.update(links.head, links.head.copy(archivedAt = Some(Instant.now))).gimme
+
+      val taxonomies = selectByTaxonId(taxonomy.id)
+
+      taxonomies.size must === (1)
+      val item = taxonomies.head
+      item must === (
+        item.copy(taxonomyId = taxonomy.id,
+          context = ctx.name,
+          `type` = "hierarchical",
+          valuesCount = taxons.size - 1,
+          archivedAt = None))
+    }
+
+    "should update taxonomy name" in new HierarchyTaxonsFixture {
+      val newName       = "new name"
+      val newAttributes = taxonomyAttributes + ("name" → (("t" → "string") ~ ("v" → newName)))
+
+      val payload = UpdateTaxonomyPayload(newAttributes)
+      val resp    = PATCH(s"v1/taxonomy/${ctx.name}/${taxonomy.formId}", payload)
+      resp.status must === (StatusCodes.OK)
+
+      val taxonomies = selectByTaxonId(taxonomy.id)
+
+      taxonomies.size must === (1)
+      val item = taxonomies.head
+      item.name must === (newName)
+    }
+  }
+
+  "Taxon is assigned to a product" in new ProductAndSkus_Baked with FlatTaxonsFixture {
+    private val taxonToBeAssigned: ObjectForm#Id = taxons.head.formId
+    taxonomyApi.assignProduct(taxonToBeAssigned, simpleProduct.formId).mustBeOk
+
+    val productTaxons = productsApi(simpleProduct.formId).taxons.get.as[TaxonList]
+    productTaxons.map(_.id) must contain only taxonToBeAssigned
+  }
+
+  "Taxon is unassigned to a product" in new ProductAndSkus_Baked with FlatTaxonsFixture {
+    private val taxonToBeAssigned: ObjectForm#Id = taxons.head.formId
+    taxonomyApi.assignProduct(taxonToBeAssigned, simpleProduct.formId).mustBeOk()
+    taxonomyApi.unassignProduct(taxonToBeAssigned, simpleProduct.formId).mustBeOk()
+
+    val productTaxons = productsApi(simpleProduct.formId).taxons.get.as[TaxonList]
+    productTaxons.map(_.id) mustBe empty
   }
 
   trait FlatTaxonsFixture extends StoreAdmin_Seed with FlatTaxons_Baked {

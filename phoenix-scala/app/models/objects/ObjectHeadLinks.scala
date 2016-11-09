@@ -82,6 +82,12 @@ object ObjectHeadLinks {
            }
       } yield {}
 
+    def createIfNotExist(left: L, right: R)(implicit ec: EC, db: DB): DbResultT[Unit] =
+      for {
+        linkExists ← * <~ filterLeft(left).filter(_.rightId === right.id).exists.result
+        _          ← * <~ doOrMeh(!linkExists, create(build(left, right)))
+      } yield {}
+
     def build(left: L, right: R): M
   }
 }

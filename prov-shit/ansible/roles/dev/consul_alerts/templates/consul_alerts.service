@@ -1,5 +1,5 @@
 [Service]
-WorkingDirectory=/usr/share
+WorkingDirectory=/usr/local/share
 ExecStart=/usr/local/bin/run_consul_alerts.sh
 Restart=always
 StandardOutput=syslog

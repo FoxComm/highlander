@@ -10,6 +10,7 @@ import akka.http.scaladsl.server.Directives.complete
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
 import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHeader
+
 import cats.implicits._
 import failures.AuthFailures.ChangePasswordFailed
 import failures.CustomerFailures._
@@ -25,6 +26,7 @@ import responses.CustomerResponse._
 import services._
 import failures.UserFailures.AccessMethodNotFound
 import models.auth.UserToken
+import payloads.AuthPayload
 import services.account._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -85,6 +87,31 @@ object CustomerManager {
                                             db: DB,
                                             ac: AC): DbResultT[(Root, AuthPayload)] =
     for {
+      customer ← * <~ createCustomer(payload, admin, context)
+      (user, custData) = customer
+      result           = build(user, custData)
+      _        ← * <~ LogActivity.customerCreated(result, admin)
+      account  ← * <~ Accounts.mustFindById400(user.accountId)
+      claimSet ← * <~ AccountManager.getClaims(account.id, context.scopeId)
+      token    ← * <~ UserToken.fromUserAccount(user, account, claimSet)
+      auth     ← * <~ AuthPayload(token)
+    } yield (result, auth)
+
+  def createFromAdmin(
+      payload: CreateCustomerPayload,
+      admin: Option[User] = None,
+      context: AccountCreateContext)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+    for {
+      result ← * <~ createCustomer(payload, admin, context)
+    } yield build(result._1, result._2)
+
+  private def createCustomer(payload: CreateCustomerPayload,
+                             admin: Option[User] = None,
+                             context: AccountCreateContext)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC): DbResultT[(User, CustomerData)] =
+    for {
       user ← * <~ AccountManager.createUser(name = payload.name,
                                             email = payload.email.toLowerCase.some,
                                             password = payload.password,
@@ -95,13 +122,7 @@ object CustomerManager {
                     CustomerData(accountId = user.accountId,
                                  userId = user.id,
                                  isGuest = payload.isGuest.getOrElse(false)))
-      result = build(user, custData)
-      _        ← * <~ LogActivity.customerCreated(result, admin)
-      account  ← * <~ Accounts.mustFindById400(user.accountId)
-      claimSet ← * <~ AccountManager.getClaims(account.id, context.scopeId)
-      token    ← * <~ UserToken.fromUserAccount(user, account, claimSet)
-      auth     ← * <~ AuthPayload(token)
-    } yield (result, auth)
+    } yield (user, custData)
 
   def createGuest(context: AccountCreateContext)(implicit ec: EC,
                                                  db: DB): DbResultT[(User, CustomerData)] =
@@ -123,14 +144,9 @@ object CustomerManager {
       db: DB,
       ac: AC): DbResultT[(Root, AuthPayload)] =
     for {
-      _        ← * <~ payload.validate
-      customer ← * <~ Users.mustFindByAccountId(accountId)
-      _        ← * <~ Users.updateEmailMustBeUnique(payload.email.map(_.toLowerCase), accountId)
-      updated  ← * <~ Users.update(customer, updatedUser(customer, payload))
-      custData ← * <~ CustomersData.mustFindByAccountId(accountId)
-      _        ← * <~ CustomersData.update(custData, updatedCustUser(custData, payload))
-      _        ← * <~ LogActivity.customerUpdated(customer, updated, admin)
-      account  ← * <~ Accounts.mustFindById400(updated.accountId)
+      result ← * <~ updateCustomer(accountId, payload, admin)
+      (updated, custData) = result
+      account ← * <~ Accounts.mustFindById400(updated.accountId)
       ao ← * <~ AccountOrganizations
             .findByAccountId(account.id)
             .mustFindOneOr(NotFoundFailure400(AccountOrganizations, account.id))
@@ -139,6 +155,30 @@ object CustomerManager {
       token    ← * <~ UserToken.fromUserAccount(updated, account, claimSet)
       auth     ← * <~ AuthPayload(token)
     } yield (build(updated, custData), auth)
+
+  def updateFromAdmin(accountId: Int, payload: UpdateCustomerPayload, admin: Option[User] = None)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC): DbResultT[Root] =
+    for {
+      result ← * <~ updateCustomer(accountId, payload, admin)
+    } yield build(result._1, result._2)
+
+  private def updateCustomer(accountId: Int,
+                             payload: UpdateCustomerPayload,
+                             admin: Option[User] = None)(implicit ec: EC,
+                                                         db: DB,
+                                                         ac: AC): DbResultT[(User, CustomerData)] =
+    for {
+      _        ← * <~ payload.validate
+      customer ← * <~ Users.mustFindByAccountId(accountId)
+      updated  ← * <~ Users.update(customer, updatedUser(customer, payload))
+      custData ← * <~ CustomersData.mustFindByAccountId(accountId)
+      _ ← * <~ (if (custData.isGuest) DbResultT.unit
+                else Users.updateEmailMustBeUnique(payload.email.map(_.toLowerCase), accountId))
+      _ ← * <~ CustomersData.update(custData, updatedCustUser(custData, payload))
+      _ ← * <~ LogActivity.customerUpdated(customer, updated, admin)
+    } yield (updated, custData)
 
   def changePassword(
       accountId: Int,

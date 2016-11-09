@@ -36,6 +36,9 @@
     schema_server: schema-registry.service.consul:8081
     search_host: elasticsearch.service.consul
     zookeeper_server: zookeeper.service.consul:2181
+    phoenix_server: phoenix.service.consul:9090
+    api_server: stage-tgt.foxcommerce.com
+    self_host: stage-tgt.foxcommerce.com
     ashes_server_name: stage-tgt.foxcommerce.com
     storefront_server_name: stage-tgt.foxcommerce.com
   tags:

@@ -79,21 +79,18 @@ export function request(method, uri, data, options = {}) {
   const abort = _.bind(result.abort, result);
 
   const promise = result
-    .then(response => {
-      if (response.status == 401) {
-        unauthorizedHandler(response);
-      }
-      if (response.status < 200 || response.status >= 300) {
-        error = new Error(response.text);
-        error.response = response;
-      }
+    .then(
+      response => response.body,
+      err => {
+        if (err.status == 401) {
+          unauthorizedHandler(err.response);
+        }
 
-      if (error) {
+        error = new Error(err.response.text);
+        error.response = err.response;
+
         throw error;
-      }
-
-      return response.body;
-    });
+      });
 
   // pass through abort method
   promise.abort = abort;

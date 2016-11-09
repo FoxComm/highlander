@@ -21,6 +21,18 @@
       "labels": {}
     }
   ],
+  "healthChecks": [
+    {
+      "path": "/admin/login",
+      "protocol": "HTTP",
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false,
+      "port": 4000
+    }
+  ],
   "container": {
     "type": "DOCKER",
     "volumes": [

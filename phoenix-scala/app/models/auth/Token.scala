@@ -1,6 +1,6 @@
 package models.auth
 
-import java.io.FileInputStream
+import java.io.{FileInputStream, InputStream}
 import java.security.spec.{PKCS8EncodedKeySpec, X509EncodedKeySpec}
 import java.security.{KeyFactory, PrivateKey, PublicKey}
 
@@ -24,9 +24,18 @@ object Keys {
 
   case class KeyLoadException(cause: Throwable) extends Exception
 
+  private def loadKeyAsStream(fileName: String): InputStream = {
+    config.getOptString("auth.keysLocation") match {
+      case Some("jar") ⇒
+        getClass.getResourceAsStream(fileName)
+      case _ ⇒
+        new FileInputStream(fileName)
+    }
+  }
+
   def loadPrivateKey: Try[PrivateKey] = Try {
     val fileName = config.getOptString("auth.privateKey").getOrElse("")
-    val is       = new FileInputStream(fileName)
+    val is       = loadKeyAsStream(fileName)
     val keyBytes = Array.ofDim[Byte](is.available)
     is.read(keyBytes)
     is.close()
@@ -38,7 +47,7 @@ object Keys {
   def loadPublicKey: Try[PublicKey] =
     Try {
       val fileName = config.getOptString("auth.publicKey").getOrElse("")
-      val is       = new FileInputStream(fileName)
+      val is       = loadKeyAsStream(fileName)
       val keyBytes = Array.ofDim[Byte](is.available)
       is.read(keyBytes)
       is.close()
@@ -50,9 +59,9 @@ object Keys {
     }
 
   private[auth] lazy val authPrivateKey: Failures Xor PrivateKey =
-    loadPrivateKey.toOption.toXor(GeneralFailure("Server error: can't private load key").single)
+    loadPrivateKey.toOption.toXor(GeneralFailure("Server error: can't load private key").single)
   private[auth] lazy val authPublicKey: Failures Xor PublicKey =
-    loadPublicKey.toOption.toXor(GeneralFailure("Server error: can't public load key").single)
+    loadPublicKey.toOption.toXor(GeneralFailure("Server error: can't load public key").single)
 }
 
 sealed trait Token extends Product {
@@ -149,7 +158,6 @@ object Token {
         val jwtClaims = consumer.processToClaims(rawToken)
         val jValue    = parse(jwtClaims.toJson)
         Extraction.extract[UserToken](jValue)
-
       } match {
         case Success(token) ⇒ Xor.right(token)
         case Failure(e) ⇒

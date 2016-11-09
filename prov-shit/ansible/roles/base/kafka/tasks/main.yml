@@ -4,7 +4,7 @@
   sudo: true
 
 - name: Copy Kafka Service Files
-  copy: src=kafka.service dest={{dest_services}}/
+  copy: src=kafka.service dest={{dest_services}}/kafka.service
   sudo: true
 
 - name: Reload Systemd for Kafka Related Services

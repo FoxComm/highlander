@@ -1,7 +1,7 @@
 {
     "service" : {
-        "name": "consul_alerts",
-        "tags": ["consul_alerts"],
+        "name": "consul-alerts",
+        "tags": ["consul-alerts"],
         "port": 24476,
         "checks": [
             {

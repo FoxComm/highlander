@@ -36,59 +36,46 @@ shortcuts:
   - name: Bootstrap Annabelle
     alias: annabelle.yml
     target: ansible/bootstrap_annabelle.yml
-  - name: Bootstrap Backend
-    alias: backend.yml
-    target: ansible/bootstrap_backend.yml
-  - name: Bootstrap Build Agents
-    alias: build_agents.yml
-    target: ansible/bootstrap_build_agents.yml
   - name: Bootstrap Build Agents Keys
     alias: build_agent_keys.yml
     target: ansible/bootstrap_build_agent_keys.yml
   - name: Bootstrap Consul Alerts
     alias: consul_alerts.yml
     target: ansible/bootstrap_consul_alerts.yml
+  - name: Bootstrap Marathon Alerts
+    alias: marathon_alerts.yml
+    target: ansible/bootstrap_marathon_alerts.yml
   - name: Bootstrap Database Backup
     alias: db_backup.yml
     target: ansible/bootstrap_db_backup.yml
-  - name: Bootstrap Messaging Plugin
-    alias: messaging_plugin.yml
-    target: ansible/bootstrap_messaging_plugin.yml
+  - name: Bootstrap OpenVPN
+    alias: openvpn.yml
+    target: ansible/bootstrap_openvpn.yml
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
-  - name: Bootstrap Phoenix DB
-    alias: db_phoenix.yml
-    target: ansible/bootstrap_db_phoenix.yml
-  - name: Bootstrap Tinystack
-    alias: tinystack.yml
-    target: ansible/bootstrap_tinystack.yml
-  - name: Bootstrap Vanilla
-    alias: vanilla.yml
-    target: ansible/bootstrap_vanilla.yml
-  - name: Bootstrap Vanilla DB
-    alias: vanilla_db.yml
-    target: ansible/bootstrap_vanilla_db.yml
-  - name: Bootstrap Vanilla Seeder
-    alias: vanilla_seed.yml
-    target: ansible/bootstrap_vanilla_seed.yml
-  - name: Bootstrap Vanilla VPN
-    alias: vanilla_vpn.yml
-    target: ansible/bootstrap_vanilla_vpn.yml
+  - name: Bootstrap Phoenix JAR
+    alias: phoenix.yml
+    target: ansible/bootstrap_phoenix.yml
+  - name: Bootstrap Store Admin User
+    alias: store_admin.yml
+    target: ansible/bootstrap_store_admin.yml
 
-  # New goodies
+  # New environments
   - name: Provision TPG Staging
-    alias: tpg_staging.yml
-    target: ansible/tpg_staging.yml
+    alias: tpg_stage.yml
+    target: ansible/tpg_stage.yml
+  - name: Provision TPG Production
+    alias: tpg_production.yml
+    target: ansible/tpg_production.yml
   - name: Provision Tony Staging
     alias: easy_tony.yml
     target: ansible/easy_tony.yml
-  - name: Deploy Mesos Consul
-    alias: mesos_consul.yml
-    target: ansible/hotfix_mesos_consul.yml
-  - name: Deploy Secret Keys
-    alias: secret_keys.yml
-    target: ansible/hotfix_secret_keys.yml
+
+  # Temporary
+  - name: Bootstrap Docker GC
+    alias: docker_gc.yml
+    target: ansible/tmp_docker_gc.yml
 
 # Packer shortcuts
 - type: snowflake
@@ -107,60 +94,13 @@ shortcuts:
       target: packer/envs/aws_target/config.json
       staging: packer/envs/staging/config.json
       topdrawer: packer/envs/topdrawer/config.json
-      tpg: packer/envs/tpg/config.json
+      tpg-prod: packer/envs/tpg-prod/config.json
 
   targets:
   # Base Images
-  - name: Base Image
-    alias: base.json
-    target: packer/base/base.json
-  - name: Base Mesos Image
-    alias: base_mesos.json
-    target: packer/base/base_mesos.json
-  - name: Base JVM Image
-    alias: base_jvm.json
-    target: packer/base/base_jvm.json
-  - name: Base Node Image
-    alias: base_node.json
-    target: packer/base/base_node.json
-
-  # Vanilla
-  - name: Vanilla Amigo
-    alias: amigo.json
-    target: packer/vanilla/amigo.json
-  - name: Vanilla Backend
-    alias: db.json
-    target: packer/vanilla/db.json
-  - name: Vanilla Elasticsearch
-    alias: es.json
-    target: packer/vanilla/es.json
-  - name: Vanilla ES Log
-    alias: es_log.json
-    target: packer/vanilla/es_log.json
-  - name: Vanilla Front Worker
-    alias: front_worker.json
-    target: packer/vanilla/front_worker.json
-  - name: Vanilla Green River
-    alias: greenriver.json
-    target: packer/vanilla/greenriver.json
-  - name: Vanilla Kafka
-    alias: kafka.json
-    target: packer/vanilla/kafka.json
-  - name: Vanilla Phoenix
-    alias: phoenix.json
-    target: packer/vanilla/phoenix.json
-  - name: Vanilla Service Worker
-    alias: service_worker.json
-    target: packer/vanilla/service_worker.json
-  - name: Vanilla Stage Amigo
-    alias: stage_amigo.json
-    target: packer/vanilla/stage_amigo.json
-  - name: Vanilla Stage Backend
-    alias: stage_backend.json
-    target: packer/vanilla/stage_backend.json
-  - name: Vanilla Stage Frontend
-    alias: stage_frontend.json
-    target: packer/vanilla/stage_frontend.json
+  - name: Base United Image
+    alias: base_united.json
+    target: packer/base/base_united.json
 
   # Tinystack
   - name: Tinystack Amigo
@@ -187,6 +127,7 @@ shortcuts:
     aliases:
       dev: terraform/envs/gce_dev/terraform.tfstate
       staging: terraform/envs/gce_staging/terraform.tfstate
+      stable: terraform/envs/gce_staging_stable/terraform.tfstate
       gatling: terraform/envs/gce_gatling/terraform.tfstate
       target: terraform/envs/aws_target/terraform.tfstate
       target-dev: terraform/envs/aws_target_dev/terraform.tfstate
@@ -197,6 +138,7 @@ shortcuts:
     aliases:
       dev: terraform/envs/gce_dev/dev.tfvars
       staging: terraform/envs/gce_staging/staging.tfvars
+      stable: terraform/envs/gce_staging_stable/staging.tfvars
       gatling: terraform/envs/gce_gatling/gatling.tfvars
       target: terraform/envs/aws_target/target.tfvars
       target-dev: terraform/envs/aws_target_dev/target.tfvars
@@ -210,6 +152,9 @@ shortcuts:
   - name: Staging Highlander
     alias: staging
     target: terraform/base/gce_staging
+  - name: Staging Stable
+    alias: stable
+    target: terraform/base/gce_staging_stable
   - name: Staging Gatling
     alias: gatling
     target: terraform/base/gce_gatling

@@ -2,6 +2,7 @@ package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
 
+import models.objects.ObjectForm
 import payloads.ActivityTrailPayloads._
 import payloads.AddressPayloads._
 import payloads.AssignmentPayloads._
@@ -146,13 +147,17 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   object giftCardsApi {
-    val giftCardsPrefix = s"$rootPrefix/gift-cards"
+    val giftCardsPrefix   = s"$rootPrefix/gift-cards"
+    val customerGiftCards = s"$rootPrefix/customer-gift-cards"
 
     def create(payload: GiftCardCreateByCsr): HttpResponse =
       POST(giftCardsPrefix, payload)
 
     def createFromCustomer(payload: GiftCardCreatedByCustomer): HttpResponse =
-      POST(giftCardsPrefix, payload)
+      POST(customerGiftCards, payload)
+
+    def createMultipleFromCustomer(payload: Seq[GiftCardCreatedByCustomer]): HttpResponse =
+      POST(customerGiftCards, payload)
 
     def createBulk(payload: GiftCardBulkCreateByCsr): HttpResponse =
       POST(giftCardsPrefix, payload)
@@ -443,6 +448,11 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       def updatePosition(payload: UpdateAlbumPositionPayload): HttpResponse =
         POST(s"$albumsPrefix/position", payload)
     }
+
+    object taxons {
+      def get: HttpResponse =
+        GET(s"$productPath/taxons")
+    }
   }
 
   object storeAdminsApi {
@@ -661,5 +671,20 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def updateLastSeen(activityId: Int): HttpResponse =
       POST(s"$notificationsPrefix/last-seen/$activityId")
+  }
+
+  object taxonomyApi {
+    def taxonomyPrefix(implicit ctx: OC)            = s"$rootPrefix/taxonomy/${ctx.name}"
+    def taxonPrefix(taxonId: Int)(implicit ctx: OC) = s"$taxonomyPrefix/taxon/$taxonId"
+    def taxonProductPrefix(taxonId: Int, productId: Int)(implicit ctx: OC) =
+      s"${taxonPrefix(taxonId)}/product/$productId"
+
+    def assignProduct(taxonFormId: ObjectForm#Id, productFormId: ObjectForm#Id)(
+        implicit ctx: OC): HttpResponse =
+      PATCH(taxonProductPrefix(taxonFormId, productFormId))
+
+    def unassignProduct(taxonFormId: ObjectForm#Id, productFormId: ObjectForm#Id)(
+        implicit ctx: OC): HttpResponse =
+      DELETE(taxonProductPrefix(taxonFormId, productFormId))
   }
 }

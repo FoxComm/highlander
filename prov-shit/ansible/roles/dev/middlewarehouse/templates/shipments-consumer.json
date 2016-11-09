@@ -17,7 +17,7 @@
     }
   },
   "env": {
-    "TOPIC": "sku_search_view",
+    "TOPIC": "activities",
     "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
     "ZOOKEEPER_URL": "{{zookeeper_server}}",
     "MWH_URL": "http://{{middlewarehouse_server}}",
@@ -28,6 +28,18 @@
       "port": 10002,
       "protocol": "tcp",
       "labels": {}
+    }
+  ],
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "ps -ef | grep \"[s]hipments-consumer\""
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3
     }
   ]
 }

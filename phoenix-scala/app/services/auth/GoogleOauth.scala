@@ -1,6 +1,11 @@
 package services.auth
 
 import services.account._
+import services.customers.CustomerManager
+import payloads.CustomerPayloads._
+import payloads.StoreAdminPayloads._
+import responses.CustomerResponse._
+import services.StoreAdminManager
 import cats.implicits._
 import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, UserInfo}
 import models.auth.{UserToken, Token}
@@ -10,34 +15,51 @@ import utils.FoxConfig._
 import utils.aliases._
 import utils.db._
 
-class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB)
+class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: AC)
     extends Oauth(options)
     with OauthService[User]
     with GoogleProvider {
 
   def getScopeId: Int = options.scopeId
 
-  def createByUserInfo(userInfo: UserInfo): DbResultT[User] = {
+  def createCustomerByUserInfo(userInfo: UserInfo): DbResultT[User] = {
+    val context = AccountCreateContext(roles = List(options.roleName),
+                                       org = options.orgName,
+                                       scopeId = options.scopeId)
+
+    val payload = CreateCustomerPayload(email = userInfo.email, name = userInfo.name.some)
 
     for {
-      scope ← * <~ Scopes.mustFindById404(options.scopeId)
+      result ← * <~ CustomerManager.create(payload, admin = None, context = context)
+      (response, auth) = result
+      user ← * <~ Users.mustFindByAccountId(response.id)
+    } yield user
+  }
+
+  def createAdminByUserInfo(userInfo: UserInfo): DbResultT[User] = {
+
+    val userAtDomain = userInfo.email.split("@")
+    val domain       = if (userAtDomain.size == 2) userAtDomain(1) else ""
+
+    for {
+
+      //We must determine the org based on the domain of the user email
+      scopeDomain ← * <~ ScopeDomains
+                     .findByDomain(domain)
+                     .mustFindOneOr(OrganizationNotFoundWithDomain(domain))
+      scope ← * <~ Scopes.mustFindById404(scopeDomain.scopeId)
       organization ← * <~ Organizations
-                      .findByNameInScope(options.orgName, scope.id)
-                      .mustFindOr(OrganizationNotFound(options.orgName, scope.path))
-      role ← * <~ Roles
-              .findByNameInScope(options.roleName, scope.id)
-              .mustFindOr(RoleNotFound(options.roleName, scope.path))
+                      .findByScopeId(scopeDomain.scopeId)
+                      .mustFindOr(OrganizationNotFound(domain, scope.path))
 
-      account ← * <~ Accounts.create(Account())
-      user ← * <~ Users.create(
-                User(accountId = account.id,
-                     email = Some(userInfo.email),
-                     name = Some(userInfo.name)))
+      payload = CreateStoreAdminPayload(email = userInfo.email,
+                                        name = userInfo.name,
+                                        password = None,
+                                        roles = List(options.roleName),
+                                        org = organization.name)
+      response ← * <~ StoreAdminManager.create(payload, author = None)
+      user     ← * <~ Users.mustFindByAccountId(response.id)
 
-      _ ← * <~ AccountOrganizations.create(
-             AccountOrganization(accountId = account.id, organizationId = organization.id))
-
-      _ ← * <~ AccountRoles.create(AccountRole(accountId = account.id, roleId = role.id))
     } yield user
   }
 
@@ -54,7 +76,7 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB)
 
 object GoogleOauth {
 
-  def oauthServiceFromConfig(configPrefix: String)(implicit ec: EC, db: DB) = {
+  def oauthServiceFromConfig(configPrefix: String)(implicit ec: EC, db: DB, ac: AC) = {
 
     val opts = GoogleOauthOptions(
         roleName = config.getString(s"user.$configPrefix.role"),

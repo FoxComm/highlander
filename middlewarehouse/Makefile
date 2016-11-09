@@ -15,7 +15,7 @@ DOCKER_BRANCH ?= master
 
 prep:
 	mkdir -p $(GOPATH)/src/github.com/FoxComm
-	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH)
+	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
 
 glide: prep
 	cd $(BUILD_PATH) && glide install
@@ -25,24 +25,26 @@ build: glide
 	cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
 	cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
 	cd $(BUILD_PATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
-	cd $(BUILD_PATH) && go build -o seeder common/db/seeds/main.go
+	cd $(BUILD_PATH) && go build -o common/db/seeds/seeder common/db/seeds/main.go
 
 docker:
 	docker build -t $(DOCKER_TAG) .
 	docker build -t stock-items-consumer consumers/stock-items/
 	docker build -t shipments-consumer consumers/shipments/
 	docker build -t capture-consumer consumers/capture/
+	docker build -t middlewarehouse-seeder common/db/seeds/
 
 docker-push:
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker tag stock-items-consumer $(DOCKER_REPO)/stock-items-consumer:master
-	docker tag shipments-consumer $(DOCKER_REPO)/shipments-consumer:master
-	docker tag capture-consumer $(DOCKER_REPO)/capture-consumer:master
+	docker tag stock-items-consumer $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_BRANCH)
+	docker tag shipments-consumer $(DOCKER_REPO)/shipments-consumer:$(DOCKER_BRANCH)
+	docker tag capture-consumer $(DOCKER_REPO)/capture-consumer:$(DOCKER_BRANCH)
+	docker tag middlewarehouse-seeder $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_BRANCH)
 	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/stock-items-consumer:master
-	docker push $(DOCKER_REPO)/shipments-consumer:master
-	docker push $(DOCKER_REPO)/capture-consumer:master
-
+	docker push $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/shipments-consumer:$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/capture-consumer:$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_BRANCH)
 
 clean:
 	rm -rf ./vendor

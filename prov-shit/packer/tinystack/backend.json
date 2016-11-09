@@ -5,14 +5,14 @@
             "type": "googlecompute",
             "account_file": "{{user `account_file`}}",
             "project_id" : "{{user `project_id`}}",
-            "source_image": "{{user `base_jvm_image`}}",
+            "source_image": "{{user `base_united_image`}}",
             "network": "{{user `network`}}",
             "zone": "{{user `zone`}}",
-            "image_name": "{{user `image_prefix`}}-backend-{{isotime \"060102-150405\"}}",
-            "image_description": "{{user `image_title`}} Backend Image",
-            "instance_name": "packer-{{user `image_prefix`}}-backend-{{uuid}}",
+            "image_name": "base-backend-{{isotime \"060102-150405\"}}",
+            "image_description": "Base Backend Image",
+            "instance_name": "packer-base-backend-{{uuid}}",
             "machine_type": "n1-standard-2",
-            "tags": ["ssh", "no-ip", "{{user `image_prefix`}}", "backend"],
+            "tags": ["ssh", "no-ip"],
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}",
             "disk_size": 20
@@ -21,7 +21,7 @@
     "provisioners" : [
         {
             "type": "ansible",
-            "playbook_file" : "ansible/packer_stage_backend.yml",
+            "playbook_file" : "ansible/packer_tinystack_backend.yml",
             "extra_arguments": [
                 "-vvvv",
                 "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"
