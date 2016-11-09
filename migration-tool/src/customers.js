@@ -20,7 +20,7 @@ function getCustomerInfo(customer) {
 }
 
 function getAddress(address) {
-  return {
+  const addressPayload = {
     "name": getName(address),
     // "countryId": 234,            //TODO: region!
     "regionId": 4156,            //TODO: region!
@@ -28,9 +28,13 @@ function getAddress(address) {
     "address2": address.Address2 || "",
     "city": address.City,
     "zip": address.PostalCode,
-    "isDefault": false,
-    "phoneNumber": getPhone(_.get(address, "Phone", ""))
+    "isDefault": false
   };
+
+  const phone = getPhone(_.get(address, "Phone", ""));
+  if (phone && phone.length == 10) addressPayload.phoneNumber = phone;
+
+  return addressPayload;
 }
 
 function addAddress(id, address, shipping = false) {
@@ -64,6 +68,8 @@ function save() {
       const shippingAddress = getAddress(customer.ShippingAddress);
       const billingAddress = getAddress(customer.BillingAddress);
 
+      // console.log(shippingAddress);
+
       Api.post('/customers', customerInfo)
         .then(
           data => {
@@ -76,8 +82,16 @@ function save() {
               addAddress(data.id, billingAddress);
             }
           },
-          err => console.log(`${err.response.error.status}: ${err.response.error.text} ${customer.EmailAddress}`)
+          err => {
+            const {status, text} = err.response.error;
+            console.log(`${status}: ${text} ${customer.EmailAddress}`);
+
+            // if (text.indexOf('The email address you entered is already in use"') != -1) {
+            //   console.log('update customer by id');
+            // }
+          }
         );
+
 
     });
   });
