@@ -46,3 +46,8 @@ config :marketplace, Marketplace.MerchantAccount,
   solomon_url: System.get_env("SOLOMON_URL"),
   solomon_port: System.get_env("SOLOMON_PORT"),
   stripe_private_key: System.get_env("STRIPE_PRIVATE_KEY")
+
+# configure jwt auth
+config :marketplace, Marketplace.JWTAuth,
+  public_key_path: System.get_env("public_keys_dest_dir"),
+  public_key: "public_key.pem"

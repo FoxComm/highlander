@@ -68,13 +68,15 @@ defmodule Solomon.UserController do
       {:ok, true} ->
         conn
         |> put_resp_cookie("JWT", sign(token_claim(account_id)))
-        |> send_resp(:ok, "sign in successful")
+        |> send_resp(:ok, "")
       {:ok, false} ->
         conn
-        |> send_resp(:unauthorized, "incorrect password")
-      {:error, reason} ->
+        |> put_status(:unauthorized)
+        |> render(Solomon.ErrorView, "error.json", %{errors: %{password: "incorrect"}})
+      {:error, errors} ->
         conn
-        |> send_resp(:bad_request, reason)
+        |> put_status(:bad_request)
+        |> render(Solomon.ErrorView, "errors.json", errors)
     end
   end
 

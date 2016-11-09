@@ -35,6 +35,11 @@ config :marketplace, Marketplace.MerchantAccount,
   solomon_port: System.get_env("SOLOMON_PORT"),
   stripe_private_key: System.get_env("STRIPE_PRIVATE_KEY")
 
+# configure jwt auth
+config :marketplace, Marketplace.JWTAuth,
+  public_key_path: System.get_env("public_keys_dest_dir"),
+  public_key: "public_key.pem"
+
 # Finally import the config/prod.secret.exs
 # which should be versioned separately.
 # import_config "prod.secret.exs"

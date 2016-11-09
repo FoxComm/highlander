@@ -39,3 +39,11 @@ It should be a key from Stripe Managed Account
 ### Testing Stripe
 To create new business account you should use test account and routing numbers for stripe.
 https://stripe.com/docs/testing#routing-numbers
+
+## JWT signing and verifying
+
+The application looks for environment variable
+`public_keys_dest_dir` which should be the directory containing
+`public_key.pem`.
+
+You can set this variable in `.env.local` before running `source .env`.

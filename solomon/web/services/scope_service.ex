@@ -79,4 +79,9 @@ defmodule Solomon.ScopeService do
       parent_path -> parent_path <> "." <> to_string(scope.id)
     end
   end
+
+  def super_scope_regex(scope_path) do
+    "^" <> Regex.escape(scope_path)
+    |> Regex.compile!
+  end
 end
