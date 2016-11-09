@@ -10,7 +10,6 @@ export type Product = {
   context: string,
   title: string;
   description: string,
-  // images: ?Array<string>,
   image: string,
 }
 
