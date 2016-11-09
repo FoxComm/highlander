@@ -27,6 +27,7 @@ variable "master_disk_size" {
 }
 variable "masters_count" {
 }
+
 variable "worker_machine_type" {
 }
 variable "worker_image" {
@@ -34,6 +35,13 @@ variable "worker_image" {
 variable "worker_disk_size" {
 }
 variable "workers_count" {
+}
+
+variable "storage_machine_type" {
+}
+variable "storage_image" {
+}
+variable "storage_disk_size" {
 }
 
 # provisioner variables
@@ -113,4 +121,22 @@ module "worker_cluster_provision" {
     leader_ip   = "${module.master_cluster.leader_ip}"
     worker_ips  = "${module.worker_cluster.ips}"
     count       = "${var.workers_count}"
+}
+
+module "storage" {
+    source          = "../../modules/gce/swarm/server"
+    // generic variables
+    zone            = "${var.zone}"
+    datacenter      = "${var.datacenter}"
+    setup           = "${var.setup}"
+    network         = "${var.network}"
+    // resources variables
+    machine_role    = "storage-server"
+    machine_type    = "${var.storage_machine_type}"
+    image           = "${var.storage_image}"
+    disk_size       = "${var.storage_disk_size}"
+    count           = 1
+    // provisioner variables
+    ssh_user        = "${var.ssh_user}"
+    ssh_private_key = "${var.ssh_private_key}"
 }
