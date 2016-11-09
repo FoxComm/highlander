@@ -1,0 +1,30 @@
+---
+
+- name: Install PostgreSQL Packages
+  apt: name={{item}} state=latest force=yes
+  with_items:
+    - libpq-dev
+    - python-psycopg2
+    - python-dev
+    - postgresql-server-dev-9.5
+    - postgresql-9.5
+    - postgresql-client-9.5
+    - postgresql-contrib-9.5
+
+- name: Install pgcli
+  pip: name=pgcli state=present
+
+- name: Copy Postgres Configuration
+  template: src={{item}} dest=/etc/postgresql/9.5/main/{{item}} mode=644
+  with_items:
+      - postgresql.conf
+      - pg_hba.conf
+
+- name: Reload Systemd for Postgresql
+  command: systemctl daemon-reload
+
+- name: Restart Postgresql
+  service: name=postgresql state=restarted sleep=5
+
+- name: Copy Consul Service File
+  template: src=db.json dest={{consul_config_dir}}/

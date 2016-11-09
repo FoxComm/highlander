@@ -1,0 +1,11 @@
+---
+
+- name: Packing Base Swarm Image
+  hosts: all
+  vars:
+    user: ubuntu
+
+  sudo: true
+  roles:
+    # storage roles
+    - { role: swarm/pack/db }

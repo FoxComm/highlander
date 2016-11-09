@@ -8,6 +8,7 @@ usr_local_share: /usr/local/share
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 db_host: localhost
+db_port: 5432
 db_user: phoenix
 db_name: phoenix_development
 db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_user}}"
