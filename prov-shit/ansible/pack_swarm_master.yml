@@ -7,8 +7,10 @@
 
   sudo: true
   roles:
+    # master roles
     - { role: swarm/pack/consul/server }
     - { role: swarm/pack/confluence }
     - { role: swarm/pack/mesos/master }
     - { role: swarm/pack/zookeeper }
     - { role: swarm/pack/marathon }
+    - { role: swarm/pack/docker_registry }

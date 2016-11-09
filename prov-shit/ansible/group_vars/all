@@ -195,6 +195,10 @@ mesos_port: 5050
 # Marathon
 marathon_port: 8080
 
+# Docker
+docker_registry_config_dir: /etc/docker_registry.d
+docker_registry_port: 5000
+
 # Use seeder service or not?
 with_seeder: false
 with_gatling_seeder: true

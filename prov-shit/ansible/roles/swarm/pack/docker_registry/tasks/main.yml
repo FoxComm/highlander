@@ -1,31 +1,22 @@
 ---
 
 - name: Create Docker Registry config folder
-  file: path="/etc/docker_registry/" state=directory
+  file: path={{docker_registry_config_dir}} state=directory
 
-- name: Copy service account file
-  copy: src="{{account_file}}" dest=/etc/docker_registry/service_account.json mode=600
-
-- name: Copy Docker Registry Config
-  template: src=config.yml dest=/etc/docker_registry/
-
-- name: Copy Docker Compose Config
-  template: src=docker-compose.yml dest=/etc/docker_registry/
+- name: Copy Docker Compose config
+  template: src=docker-compose.yml dest={{docker_registry_config_dir}}/
 
 - name: Copy Service
   template: src=docker_registry.service dest={{dest_services}}/
 
-- name: Make Certs Directory
+- name: Create Certs directory
   file: path=/certs state=directory mode=600
 
 - name: Copy Cert
-  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.crt" dest=/certs/domain.crt
+  copyv: src={{playbook_dir}}/roles/base/secret_keys/files/certs/{{datacenter}}/docker/domain.crt dest=/certs/domain.crt
 
 - name: Copy Key
-  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.key" dest=/certs/domain.key
+  copyv: src={{playbook_dir}}/roles/base/secret_keys/files/certs/{{datacenter}}/docker/domain.key dest=/certs/domain.key
 
 - name: Reload Systemd for Docker Registry
   command: systemctl daemon-reload
-
-- name: Restart Docker Registry Server
-  service: name=docker_registry state=restarted enabled=true

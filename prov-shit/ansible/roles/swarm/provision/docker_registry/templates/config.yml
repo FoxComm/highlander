@@ -5,7 +5,7 @@ storage:
     keyfile: /etc/docker/registry/service_account.json
     rootdirectory: /
 http:
-    addr: 0.0.0.0:5000
+    addr: 0.0.0.0:{{docker_registry_port}}
     tls:
         certificate: /certs/domain.crt
         key: /certs/domain.key

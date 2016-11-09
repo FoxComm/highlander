@@ -1,0 +1,10 @@
+---
+
+- name: Copy Docker Registry config
+  template: src=config.yml dest={{docker_registry_config_dir}}/
+
+- name: Copy service account file
+  copy: src={{account_file}} dest={{docker_registry_config_dir}}/service_account.json mode=600
+
+- name: Restart Docker Registry Server
+  service: name=docker_registry state=restarted enabled=true
