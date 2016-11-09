@@ -42,6 +42,9 @@ shortcuts:
   - name: Bootstrap Consul Alerts
     alias: consul_alerts.yml
     target: ansible/bootstrap_consul_alerts.yml
+  - name: Bootstrap Marathon Alerts
+    alias: marathon_alerts.yml
+    target: ansible/bootstrap_marathon_alerts.yml
   - name: Bootstrap Database Backup
     alias: db_backup.yml
     target: ansible/bootstrap_db_backup.yml

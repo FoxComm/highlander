@@ -29,5 +29,17 @@
       "protocol": "tcp",
       "labels": {}
     }
+  ],
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "ps -ef | grep \"[s]hipments-consumer\""
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3
+    }
   ]
 }

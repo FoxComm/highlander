@@ -1,10 +1,10 @@
 [Service]
 WorkingDirectory=/usr/local/share
-ExecStart=/usr/local/bin/run_consul_alerts.sh
+ExecStart=/usr/local/bin/run_marathon_alerts.sh
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=consul_alerts
+SyslogIdentifier=marathon_alerts
 TimeoutStartSec=5m
 RestartSec=10
 
