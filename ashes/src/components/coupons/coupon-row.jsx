@@ -36,7 +36,7 @@ const setCellContents = (coupon: Object, field: string) => {
     default:
       return _.get(coupon, field);
   }
-}
+};
 
 const CouponRow = (props: CouponRowProps) => {
   const { coupon, columns, params } = props;
