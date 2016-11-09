@@ -4,12 +4,13 @@ const moment = require('moment');
 const _ = require('lodash');
 
 /* TODO:
-   - we need external IDs
-   - enabled
    - meta information
    - images ?
-   - should we add and archive all old products/ old skus ?
 */
+
+function now() {
+  return moment().utc().format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
+}
 
 function getPrice(price) {
   return {
@@ -42,13 +43,11 @@ function addCustomFields(product, productPayload) {
   });
 }
 
-function enableProduct(enabled, product) {
+function enableProduct(product, enabled = true) {
   if (enabled) {
-    const now = moment().utc().format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
-
     product.attributes.activeFrom = {
       t: "datetime",
-      v: now,
+      v: now(),
     };
   }
 }
@@ -63,8 +62,6 @@ function getProduct(product) {
     "t": "string",
     "v": product.Name
   };
-
-  const now = moment().utc().format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
 
   const sku = _.get(product, "SKU code");
 
@@ -97,20 +94,46 @@ function getProduct(product) {
         },
         "activeFrom": {
           "t": "datetime",
-          "v": now,
+          "v": now(),
         },
       }
     }],
     "context": {"name": "default"}
   };
 
-  enableProduct(true, productPayload);
+  enableProduct(productPayload);
   addCustomFields(product, productPayload);
 
   return productPayload;
 }
 
-function save() {
+function save(productPayload, id) {
+  if (id) {
+    Api.patch(`/products/default/${id}`, productPayload)
+      .then(
+        data => {
+          console.log(`${data.id} ${data.attributes.title.v}`);
+        },
+        err => {
+          console.log(err);
+          //console.log(`${product.Name} ${err.response.error.status}: ${err.response.error.text}`)
+        }
+      );
+  } else {
+    Api.post('/products/default', productPayload)
+      .then(
+        data => {
+          console.log(`${data.id} ${data.attributes.title.v}`);
+        },
+        err => {
+          console.log(err);
+          //console.log(`${product.Name} ${err.response.error.status}: ${err.response.error.text}`)
+        }
+      );
+  }
+}
+
+function saveProducts() {
   fs.readFile(__dirname + '/data/products_new.json', function (err, data) {
     // const products = JSON.parse(data).slice(8, 9);
     const products = JSON.parse(data);
@@ -120,32 +143,28 @@ function save() {
 
       // console.log(productPayload.skus[0].attributes.salePrice.v);
 
-      if (product.productId) {
-        Api.patch(`/products/default/${product.productId}`, productPayload)
-          .then(
-            data => {
-              console.log(`${data.id} ${data.attributes.title.v}`);
-            },
-            err => {
-              console.log(err);
-              //console.log(`${product.Name} ${err.response.error.status}: ${err.response.error.text}`)
-            }
-          );
-      } else {
-        Api.post('/products/default', productPayload)
-          .then(
-            data => {
-              console.log(`${data.id} ${data.attributes.title.v}`);
-            },
-            err => {
-              console.log(err);
-              //console.log(`${product.Name} ${err.response.error.status}: ${err.response.error.text}`)
-            }
-          );
-      }
+      const id = _.get(product, 'productId');
 
+      save(productPayload, id)
     });
   });
 }
 
-save();
+function saveGiftCard() {
+  fs.readFile(__dirname + '/data/gift_card.json', function (err, data) {
+    const giftCard = JSON.parse(data);
+
+    enableProduct(giftCard);
+
+    giftCard.skus.map((sku, i) => {
+      enableProduct(giftCard.skus[i]);
+    });
+
+    //console.log(giftCard.skus[0].attributes);
+
+    save(giftCard);
+  });
+}
+
+saveGiftCard();
+saveProducts();
