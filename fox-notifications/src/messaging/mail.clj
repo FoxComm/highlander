@@ -15,7 +15,7 @@
 (def admin_server_name (delay (:admin_server_name env)))
 
 ;; mandrill client
-(def client (delay 
+(def client (delay
               (client/create (settings/get :mandrill_key))))
 ;; mailchimp client
 (def mclient (delay
@@ -98,7 +98,7 @@
                             (get-in activity [:data "opts"])))]
     (messages/send @client {:message msg})))
 
-(defn handle-new-customer 
+(defn handle-new-customer
   [activity]
   (let [email (get-in activity [:data "customer" "email"])
         customer-name (get-in activity [:data "customer" "name"] "")
@@ -121,8 +121,8 @@
                             {:reset_password_link reset-password-link
                              :customer_name customer-name
                              :rewards ""}
-                            {:subject (settings/get :customer_invintation_subject)})))
-  )
+                            {:subject (settings/get :customer_invintation_subject)}))))
+
 
 (defmethod handle-activity :customer_registered
   [activity]

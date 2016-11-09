@@ -34,10 +34,10 @@
 
 (defn decode-embed-json
   [^String s]
-  (if (nil? s) s 
-  (-> s
-      (string/replace #"\\" "")
-      json/read-str)))
+  (if (nil? s) s
+   (-> s
+       (string/replace #"\\" "")
+       json/read-str)))
 
 (defn transform-date
   [d]

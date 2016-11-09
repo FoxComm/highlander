@@ -92,9 +92,9 @@
     {:name "order_confirmation_template"
      :title "Order Confirmation Mandrill Template"
      :type "string"
-     :default "order-confirmation"}
+     :default "order-confirmation"}])
 
-    ])
+
 
 (def store (atom {}))
 
