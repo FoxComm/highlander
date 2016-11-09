@@ -131,7 +131,7 @@ export default class ChooseShippingAddress extends Component {
         isVisible={this.state.isFormVisible}
         address={this.state.address}
         submitAction={this.handleFormSubmit}
-        closeAction={this.handleCloseAddressForm}
+        onCancel={this.handleCloseAddressForm}
         customerId={this.customerId}
         saveTitle={saveTitle} />
     );
@@ -176,7 +176,7 @@ export default class ChooseShippingAddress extends Component {
         body={text}
         cancel='Cancel'
         confirm='Yes, Delete'
-        cancelAction={this.handleStopDeletingAddress}
+        onCancel={this.handleStopDeletingAddress}
         confirmAction={deleteAction} />
     );
   }

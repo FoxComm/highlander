@@ -109,7 +109,7 @@ class SkuContentBox extends Component {
         body={body}
         cancel="Cancel"
         confirm="Add"
-        cancelAction={() => this.closeAction()}
+        onCancel={() => this.closeAction()}
         confirmAction={() => this.addNewSkus()}
       />
     );
