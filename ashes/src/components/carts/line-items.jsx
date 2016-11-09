@@ -4,15 +4,12 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 import { trackEvent } from 'lib/analytics';
-import { connect } from 'react-redux';
 
 import EditableContentBox from 'components/content-box/editable-content-box';
 import CartLineItem from './line-item';
 import CartLineItemsFooter from './line-items-footer';
 import PanelHeader from 'components/panel-header/panel-header';
 import SkuLineItems from 'components/sku-line-items/sku-line-items';
-
-import { lockCart, unlockCart } from 'modules/carts/details';
 
 import type { SkuItem } from 'paragons/order';
 
@@ -33,15 +30,13 @@ type Props = {
     isCheckingOut: boolean,
   },
   status: string,
-  lockCart: (referenceNumber: string) => Promise,
-  unlockCart: (referenceNumber: string) => Promise,
 };
 
 type State = {
   isEditing: boolean,
 };
 
-class CartLineItems extends Component {
+export default class CartLineItems extends Component {
   props: Props;
   state: State = { isEditing: false };
 
@@ -67,15 +62,12 @@ class CartLineItems extends Component {
     const isCheckingOut = cart.isCheckingOut;
     const editAction = isCheckingOut ? null : () => {
       trackEvent('Orders', 'edit_line_items');
-      this.props.lockCart(cart.referenceNumber).then(() => {
-        this.setState({ isEditing: true });
-      });
+      this.setState({ isEditing: true });
     };
 
     const doneAction = () => {
       trackEvent('Orders', 'edit_line_items_done');
       this.setState({ isEditing: false });
-      this.props.unlockCart(cart.referenceNumber);
     };
 
     const editFooter = <CartLineItemsFooter cart={cart} />;
@@ -95,5 +87,3 @@ class CartLineItems extends Component {
     );
   }
 }
-
-export default connect(void 0, { lockCart, unlockCart })(CartLineItems);
