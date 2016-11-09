@@ -9,5 +9,6 @@ create table taxonomies_search_view (
   active_to    json_timestamp,
   archived_at  json_timestamp
 );
+
 create unique index taxonomies_search_view_idx
   on taxonomies_search_view (id, lower(context));
