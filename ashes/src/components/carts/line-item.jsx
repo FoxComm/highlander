@@ -13,13 +13,15 @@ import { DeleteButton } from 'components/common/buttons';
 import Currency from 'components/common/currency';
 
 // actions
-import { updateLineItemCount, deleteLineItem } from 'modules/carts/details';
+import { updateLineItemCount } from 'modules/carts/details';
 
 type Props = {
   updateLineItemCount: Function,
-  deleteLineItem: Function,
   cart: {
     referenceNumber: string,
+    lineItems: {
+      skus: Array<any>,
+    },
   },
   item: {
     imagePath: string,
@@ -42,7 +44,6 @@ type State = {
 
 type DefaultProps = {
   updateLineItemCount: Function,
-  deleteLineItem: Function,
 };
 
 export class CartLineItem extends Component {
@@ -55,7 +56,6 @@ export class CartLineItem extends Component {
 
   defaultProps: DefaultProps = {
     updateLineItemCount: () => {},
-    deleteLineItem: () => {},
   };
 
   @autobind
@@ -64,25 +64,7 @@ export class CartLineItem extends Component {
   }
 
   @autobind
-  cancelDelete() {
-    this.setState({ isDeleting: false });
-    if (this.state.quantity == 0) {
-      const { cart, item, updateLineItemCount } = this.props;
-      this.setState({quantity: 1});
-      updateLineItemCount(cart.referenceNumber, item.sku, 1);
-    }
-  }
-
-  @autobind
-  confirmDelete() {
-    const { cart, item, deleteLineItem } = this.props;
-    this.setState({
-      isDeleting: false,
-    }, deleteLineItem(cart.referenceNumber, item.sku));
-  }
-
-  @autobind
-  updateCartPayload(sku, qtt) {
+  updateCartPayload(sku: string, qtt: number) {
     const { skus } = this.props.cart.lineItems;
 
     return _.map(skus, (item) => {
@@ -95,8 +77,33 @@ export class CartLineItem extends Component {
   }
 
   @autobind
+  updateLineItemCount(referenceNumber: string, sku: string, qtt: number) {
+    const payload = this.updateCartPayload(sku, qtt);
+    this.props.updateLineItemCount(referenceNumber, payload);
+  }
+
+  @autobind
+  cancelDelete() {
+    this.setState({ isDeleting: false });
+    if (this.state.quantity == 0) {
+      const { cart, item } = this.props;
+      this.setState({quantity: 1});
+      this.updateLineItemCount(cart.referenceNumber, item.sku, 1);
+    }
+  }
+
+  @autobind
+  confirmDelete() {
+    const { cart, item } = this.props;
+
+    this.setState({
+      isDeleting: false,
+    }, this.updateLineItemCount(cart.referenceNumber, item.sku, 0));
+  }
+
+  @autobind
   decreaseCount() {
-    const { cart, item, updateLineItemCount } = this.props;
+    const { cart, item } = this.props;
     const { quantity } = this.state;
 
     if (quantity == 1 || !quantity) {
@@ -105,24 +112,20 @@ export class CartLineItem extends Component {
       const decreased = parseInt(quantity, 10) - 1;
       this.setState({quantity: decreased});
 
-      const payload = this.updateCartPayload(item.sku, decreased);
-
-      updateLineItemCount(cart.referenceNumber, payload);
+      this.updateLineItemCount(cart.referenceNumber, item.sku, decreased);
     }
   }
 
   @autobind
   increaseCount() {
-    const { cart, item, updateLineItemCount } = this.props;
+    const { cart, item } = this.props;
     const { quantity } = this.state;
 
     const increased = quantity ? item.quantity + 1 : 1;
 
     this.setState({quantity: increased});
 
-    const payload = this.updateCartPayload(item.sku, increased);
-
-    updateLineItemCount(cart.referenceNumber, payload);
+    this.updateLineItemCount(cart.referenceNumber, item.sku, increased);
   }
 
   @autobind
@@ -136,8 +139,8 @@ export class CartLineItem extends Component {
     if (quantity == 0) {
       this.startDelete();
     } else {
-      const {cart, item, updateLineItemCount} = this.props;
-      updateLineItemCount(cart.referenceNumber, item.sku, quantity);
+      const { cart, item } = this.props;
+      this.updateLineItemCount(cart.referenceNumber, item.sku, quantity);
     }
   }
 
@@ -179,4 +182,4 @@ export class CartLineItem extends Component {
   }
 };
 
-export default connect(null, { updateLineItemCount, deleteLineItem })(CartLineItem);
+export default connect(null, { updateLineItemCount })(CartLineItem);
