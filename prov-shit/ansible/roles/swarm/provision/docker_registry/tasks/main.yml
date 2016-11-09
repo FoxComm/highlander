@@ -19,3 +19,6 @@
 
 - name: Restart Docker Registry Server
   service: name=docker_registry state=restarted enabled=true
+
+- name: Copy Marathon service definition for Consul
+  template: src=docker_registry.json dest={{consul_config_dir}}/docker_registry.json

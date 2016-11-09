@@ -8,7 +8,7 @@
         "checks": [
             {
                 "name": "HTTPS on port {{docker_registry_port}}",
-                "script": "curl -XGET https://localhost:{{docker_registry_port}}/v2/ --insecure",
+                "script": "curl -XGET https://{{inventory_hostname}}:{{docker_registry_port}}/v2/ --insecure",
                 "interval": "30s",
                 "status": "passing"
             }
