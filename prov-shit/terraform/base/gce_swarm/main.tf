@@ -72,14 +72,16 @@ module "master_cluster" {
 }
 
 module "master_cluster_provision" {
-    source      = "../../modules/gce/swarm/master_provision"
+    source       = "../../modules/gce/swarm/master_provision"
+    # provider variables
+    account_file = "${var.account_file}"
     // generic variables
-    datacenter  = "${var.datacenter}"
-    setup       = "${var.setup}"
+    datacenter   = "${var.datacenter}"
+    setup        = "${var.setup}"
     // resources variables
-    masters_ips = "${module.master_cluster.ips}"
-    leader_ip   = "${module.master_cluster.leader_ip}"
-    count       = "${var.masters_count}"
+    masters_ips  = "${module.master_cluster.ips}"
+    leader_ip    = "${module.master_cluster.leader_ip}"
+    count        = "${var.masters_count}"
 }
 
 module "worker_cluster" {

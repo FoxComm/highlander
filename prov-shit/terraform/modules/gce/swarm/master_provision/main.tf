@@ -1,3 +1,6 @@
+# provider variables
+variable "account_file" {
+}
 # generic variables
 variable "datacenter" {
 }
@@ -29,7 +32,8 @@ resource "null_resource" "swarm_master_server_provision" {
             --extra-vars datacenter="${var.datacenter}" \
             --extra-vars consul_leader="${var.leader_ip}" \
             --extra-vars mesos_quorum=${(var.count + (var.count % 2))/2} \
-            --extra-vars zookeeper_server_id=${count.index + 1}
+            --extra-vars zookeeper_server_id=${count.index + 1} \
+            --extra-vars account_file=${var.account_file}
         EOF
     }
 }
