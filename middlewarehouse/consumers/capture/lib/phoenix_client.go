@@ -10,15 +10,13 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
-	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 )
 
 type PhoenixClient interface {
 	Authenticate() error
-	CapturePayment(activities.ISiteActivity) error
+	CapturePayment(capturePayload *CapturePayload) error
 	IsAuthenticated() bool
 	UpdateOrder(refNum, shipmentState, orderState string) error
-	GiftCardCapturePayment(capturePayload *CapturePayload) error
 	CreateGiftCards(giftCards []payloads.CreateGiftCardPayload) (*http.Response, error)
 }
 
@@ -53,45 +51,7 @@ func (c *phoenixClient) ensureAuthentication() error {
 	return nil
 }
 
-func (c *phoenixClient) CapturePayment(activity activities.ISiteActivity) error {
-	if err := c.ensureAuthentication(); err != nil {
-		return err
-	}
-
-	capture, err := NewCapturePayload(activity)
-	if err != nil {
-		return err
-	}
-
-	url := fmt.Sprintf("%s/v1/service/capture", c.baseURL)
-	headers := map[string]string{
-		"JWT": c.jwt,
-	}
-
-	rawCaptureResp, err := consumers.Post(url, headers, &capture)
-	if err != nil {
-		return err
-	}
-
-	defer rawCaptureResp.Body.Close()
-	captureResp := new(map[string]interface{})
-	if err := json.NewDecoder(rawCaptureResp.Body).Decode(captureResp); err != nil {
-		log.Printf("Unable to read capture response from Phoenix with error: %s", err.Error())
-		return err
-	}
-
-	log.Printf("Successfully captured from Phoenix with response: %v", captureResp)
-	log.Printf("Updating order state")
-
-	if err := c.UpdateOrder(capture.ReferenceNumber, "shipped", "shipped"); err != nil {
-		log.Printf("Enable to update order with error %s", err.Error())
-		return err
-	}
-
-	return nil
-}
-
-func (c *phoenixClient) GiftCardCapturePayment(capturePayload *CapturePayload) error {
+func (c *phoenixClient) CapturePayment(capturePayload *CapturePayload) error {
 	if err := c.ensureAuthentication(); err != nil {
 		return err
 	}
@@ -185,8 +145,6 @@ func (c *phoenixClient) CreateGiftCards(giftCards []payloads.CreateGiftCardPaylo
 	headers := map[string]string{
 		"JWT": c.jwt,
 	}
-
-	fmt.Printf("%v+\n", giftCards)
 	rawOrderResp, err := consumers.Post(url, headers, &giftCards)
 	if err != nil {
 		return rawOrderResp, err

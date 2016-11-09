@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	topic     = "activities"
-	partition = 1
+	clientID = "gift-cards"
+	groupID  = "mwh-gift-cards-consumers"
 )
 
 func main() {
@@ -35,7 +35,10 @@ func main() {
 		log.Fatalf("Unable to authenticate with Phoenix with error %s", err.Error())
 	}
 
-	oh, err := NewGiftCardConsumer(config.MiddlewarehouseURL, client)
+	consumer.SetGroupID(groupID)
+	consumer.SetClientID(clientID)
+
+	oh, err := NewGiftCardConsumer(client)
 	if err != nil {
 		log.Fatalf("Can't create handler for orders with error %s", err.Error())
 	}
