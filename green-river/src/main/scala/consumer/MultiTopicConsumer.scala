@@ -108,8 +108,6 @@ class MultiTopicConsumer(topics: Seq[String],
       val records = consumer.poll(timeout)
 
       val resultOffsets = records.foldLeft(ProcessedOffsets()) {
-        case (offsets, r) if offsets.errorTopicAndOffset.nonEmpty ⇒
-          offsets
         case (offsets, r) ⇒
           Console.err.println(s"\nProcessing ${r.topic} offset ${r.offset}")
 
@@ -127,7 +125,11 @@ class MultiTopicConsumer(topics: Seq[String],
             case Failure(e) ⇒
               Console.err.println(s"Not processed: ${r.topic} offset: ${r.offset}")
               Console.err.println(s"Failure during processing ${r.topic} offset ${r.offset}: $e")
-              offsets.copy(errorTopicAndOffset = Some((tp, r.offset)))
+              offsets.errorTopicAndOffset match {
+                case None ⇒
+                  offsets.copy(errorTopicAndOffset = Some((tp, r.offset)))
+                case _ ⇒ offsets
+              }
           }
       }
 
