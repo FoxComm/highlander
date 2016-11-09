@@ -12,7 +12,7 @@ bucket_location     = "us"
 
 // resources variables
 master_machine_type = "n1-standard-1"
-master_image        = "swarm-master-161108-152045"
+master_image        = "swarm-master-161109-112007"
 master_disk_size    = "30"
 masters_count       = "1"
 worker_machine_type = "n1-standard-1"
