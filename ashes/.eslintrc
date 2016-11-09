@@ -15,7 +15,8 @@
     "mocha": true
   },
   "globals": {
-    "expect": false
+    "expect": false,
+    "JWTString": true
   },
   "rules": {
     "semi": 2,
