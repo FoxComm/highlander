@@ -1,7 +1,7 @@
 ---
 
 - name: Provision Stage Backend
-  hosts: new-foxcomm-stage-backend
+  hosts: foxcomm-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
     zookeeper_server: zookeeper.service.consul:2181
@@ -16,7 +16,7 @@
     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Stage Frontend
-  hosts: new-foxcomm-stage-frontend
+  hosts: foxcomm-stage-frontend
   vars:
     user: '{{ansible_ssh_user}}'
     middlewarehouse_server: middlewarehouse.service.consul:9292
