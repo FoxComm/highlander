@@ -85,18 +85,10 @@ func NewSearchRow(p *api.Product, pp PartialProduct) (*SearchRow, error) {
 		}
 	}
 
-	title, err := sku.Title()
+	row.Title, err = p.Title()
 	if err != nil {
 		return nil, err
 	}
-
-	if title == "" {
-		title, err = p.Title()
-		if err != nil {
-			return nil, err
-		}
-	}
-	row.Title = title
 
 	image := sku.FirstImage()
 	if image == "" {

@@ -1,11 +1,9 @@
 package searchrow
 
 import (
-	"encoding/json"
 	"testing"
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/product-index/utils"
-	"github.com/FoxComm/highlander/shared/golang/api"
 )
 
 func TestSingleVisualVariant(t *testing.T) {
@@ -43,14 +41,7 @@ func TestSingleVisualVariant(t *testing.T) {
 }
 
 func TestMultipleVisualVariants(t *testing.T) {
-	productByte := []byte(utils.ProductMultipleVisualVariants)
-	product := new(api.Product)
-
-	if err := json.Unmarshal(productByte, product); err != nil {
-		t.Errorf("Error unmarshalling product with error: %s", err.Error())
-		return
-	}
-
+	product := utils.NewProductWithMultipleVisualVariants()
 	visualVariants := []string{"color", "fabric"}
 	partialProducts, err := MakePartialProducts(product, visualVariants)
 	if err != nil {
