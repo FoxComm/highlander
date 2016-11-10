@@ -112,6 +112,9 @@ pack-master:
 pack-worker:
 	packer build -only=google -var-file=packer/envs/swarm/config.json packer/swarm/worker.json
 
+pack-storage:
+	packer build -only=google -var-file=packer/envs/swarm/config.json packer/swarm/storage.json
+
 pack-dev:
 	packer build -only=google -var-file=packer/envs/swarm/config.json packer/swarm/development.json
 
