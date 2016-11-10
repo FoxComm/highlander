@@ -15,7 +15,7 @@ glide: prep
 	cd $(BUILD_PATH) && glide install
 
 build: glide
-	cd $(BUILD_PATH) && go build -o product-index *.go
+	cd $(BUILD_PATH) && go build -o product-index-consumer *.go
 
 docker:
 	docker build -t $(DOCKER_TAG) .

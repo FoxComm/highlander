@@ -23,6 +23,7 @@ PROJECTS=(
     'api-docs'
     'api-js'
     'ashes'
+    'consumers'
     'engineering-wiki'
     'firebrand'
     'fox-notifications'
