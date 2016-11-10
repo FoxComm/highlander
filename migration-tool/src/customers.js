@@ -94,9 +94,10 @@ function save() {
           const shippingAddress = getAddress(customer.ShippingAddress, countryId, statesIdMap);
           const billingAddress = getAddress(customer.BillingAddress, countryId, statesIdMap);
 
-          Api.post('/customers', customerInfo)
+          Api.post('/migration/customers/new', customerInfo)
             .then(
               data => {
+                console.log(data);
                 console.log(`${data.id}: ${data.name} is created`);
 
                 if (_.isEqual(shippingAddress, billingAddress)) {
