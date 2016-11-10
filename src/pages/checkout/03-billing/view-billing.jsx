@@ -6,7 +6,7 @@ import React from 'react';
 
 // components
 import Icon from 'ui/icon';
-import ViewAddress from '../address/view-address';
+import { AddressDetails } from 'ui/address';
 
 // styles
 import styles from './view-billing.css';
@@ -31,7 +31,7 @@ const ViewBilling = (props: Props) => {
   const monthYear = expMonth || expYear ?
     <li>{ expMonth }/{ lastTwoYear }</li> : null;
   const addressInfo = !_.isEmpty(billingAddress) ?
-    <li><ViewAddress styleName="billing-address" {...billingAddress} /></li> : null;
+    <li><AddressDetails styleName="billing-address" address={billingAddress} /></li> : null;
   const paymentIcon = paymentType ?
     <li><Icon styleName="payment-icon" name={`fc-payment-${paymentType}`} /></li> : null;
 

@@ -46,3 +46,9 @@
     font-weight: 400;
   }
 }
+
+.billing-address {
+  & li:first-child {
+    font-weight: bold;
+  }
+}

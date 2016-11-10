@@ -7,7 +7,7 @@ import localized from 'lib/i18n';
 
 // components
 import EditableBlock from 'ui/editable-block';
-import ViewAddress from '../address/view-address';
+import { AddressDetails } from 'ui/address';
 import AddressList from './address-list';
 
 // styles
@@ -44,7 +44,7 @@ class Shipping extends Component {
 
     if ((!_.isEmpty(savedAddress) && !this.props.isEditing)) {
       return (
-        <ViewAddress { ...savedAddress } styleName="savedAddress"/>
+        <AddressDetails address={savedAddress} styleName="savedAddress" />
       );
     }
 

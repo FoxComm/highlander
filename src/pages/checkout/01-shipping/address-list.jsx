@@ -9,8 +9,8 @@ import localized from 'lib/i18n';
 import EditableBlock from 'ui/editable-block';
 import EditAddress from '../address/edit-address';
 import CheckoutForm from '../checkout-form';
-import ViewAddress from '../address/view-address';
 import RadioButton from 'ui/radiobutton/radiobutton';
+import { AddressDetails } from 'ui/address';
 
 import { AddressKind } from 'modules/checkout';
 
@@ -119,7 +119,7 @@ class AddressList extends Component {
 
   renderAddresses() {
     const items = _.map(this.props.addresses, (address, key) => {
-      const content = <ViewAddress { ...address } hideName />;
+      const content = <AddressDetails address={address} hideName />;
       const checked = address.id === this.state.activeAddress;
 
       return (
