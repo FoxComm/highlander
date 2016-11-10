@@ -99,6 +99,7 @@ module.exports = function(app) {
       // use GA_LOCAL=1 gulp dev command for enable tracking events in google analytics from localhost
       gaEnableLocal: 'GA_LOCAL' in process.env,
       JWT: JSON.stringify(this.state.jwt || null),
+      stripeApiKey: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY || null),
     }, config.layout.pageConstants);
 
     this.body = layout(layoutData);
