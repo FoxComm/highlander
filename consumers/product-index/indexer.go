@@ -41,6 +41,11 @@ func (i Indexer) Run(activity activities.ISiteActivity) error {
 		return fmt.Errorf("Error unmarshalling activity data into product with error: %s", err.Error())
 	}
 
+	existingRows, err := i.existingSearchRows(prod.Product.ID)
+	if err != nil {
+		return err
+	}
+
 	partialProducts, err := search.MakePartialProducts(prod.Product, i.visualVariants)
 	if err != nil {
 		return fmt.Errorf("Error creating partial products with error: %s", err.Error())
@@ -58,8 +63,37 @@ func (i Indexer) Run(activity activities.ISiteActivity) error {
 			return err
 		}
 
-		log.Printf("Updated view successfully")
+		delete(existingRows, row.Identifier())
+		log.Printf("Successfully updated view for _id %s", row.Identifier())
 	}
 
 	return nil
+}
+
+func (i Indexer) existingSearchRows(productID int) (map[string]search.SearchRow, error) {
+	filters := []elastic.TermFilter{
+		elastic.TermFilter{Field: "productId", Value: productID},
+	}
+
+	query, err := elastic.NewCompiledTermFilter(filters)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := i.esClient.ExecuteSearch(query)
+	if err != nil {
+		return nil, err
+	}
+
+	rows := map[string]search.SearchRow{}
+	for _, hit := range result.ExtractHits() {
+		row := search.SearchRow{}
+		if err := hit.Extract(&row); err != nil {
+			return nil, err
+		}
+
+		rows[hit.ID] = row
+	}
+
+	return rows, nil
 }

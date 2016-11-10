@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/FoxComm/highlander/middlewarehouse/consumers"
+	"github.com/FoxComm/highlander/shared/golang/http"
 )
 
 type Client struct {
@@ -30,7 +30,7 @@ func (c Client) ExecuteSearch(query CompiledQuery) (*Result, error) {
 	headers := map[string]string{}
 	url := c.searchURL()
 
-	resp, err := consumers.Post(url, headers, &query)
+	resp, err := http.Post(url, headers, &query)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (c Client) ExecuteSearch(query CompiledQuery) (*Result, error) {
 func (c Client) UpdateDocument(id string, payload interface{}) error {
 	url := fmt.Sprintf("%s/%s", c.url, id)
 	headers := map[string]string{}
-	_, err := consumers.Put(url, headers, payload)
+	_, err := http.Put(url, headers, payload)
 	return err
 }
 

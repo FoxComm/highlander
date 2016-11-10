@@ -4,7 +4,7 @@ import "errors"
 
 type TermFilter struct {
 	Field string
-	Value string
+	Value interface{}
 }
 
 func (t TermFilter) Validate() error {
@@ -15,7 +15,7 @@ func (t TermFilter) Validate() error {
 	return nil
 }
 
-func NewCompileTermFilter(filters []TermFilter) (CompiledQuery, error) {
+func NewCompiledTermFilter(filters []TermFilter) (CompiledQuery, error) {
 	if len(filters) == 0 {
 		return nil, errors.New("Must have at least one term filter")
 	}
@@ -27,8 +27,8 @@ func NewCompileTermFilter(filters []TermFilter) (CompiledQuery, error) {
 		}
 
 		innerFilter := map[string]interface{}{
-			filter.Field: map[string]interface{}{
-				"field": filter.Value,
+			"term": map[string]interface{}{
+				filter.Field: filter.Value,
 			},
 		}
 

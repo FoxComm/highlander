@@ -7,8 +7,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/highlander/shared/golang/http"
 )
 
 type PhoenixClient interface {
@@ -64,7 +64,7 @@ func (c *phoenixClient) CapturePayment(activity activities.ISiteActivity) error 
 		"JWT": c.jwt,
 	}
 
-	rawCaptureResp, err := consumers.Post(url, headers, &capture)
+	rawCaptureResp, err := http.Post(url, headers, &capture)
 	if err != nil {
 		return err
 	}
@@ -104,13 +104,13 @@ func (c *phoenixClient) Authenticate() error {
 	payload := LoginPayload{
 		Email:    c.email,
 		Password: c.password,
-		Org:     "tenant",
+		Org:      "tenant",
 	}
 
 	url := fmt.Sprintf("%s/v1/public/login", c.baseURL)
 	headers := map[string]string{}
 
-	resp, err := consumers.Post(url, headers, &payload)
+	resp, err := http.Post(url, headers, &payload)
 	if err != nil {
 		return fmt.Errorf("Unable to login: %s", err.Error())
 	}
@@ -155,7 +155,7 @@ func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) er
 		"JWT": c.jwt,
 	}
 
-	rawOrderResp, err := consumers.Patch(url, headers, &payload)
+	rawOrderResp, err := http.Patch(url, headers, &payload)
 	if err != nil {
 		return err
 	}

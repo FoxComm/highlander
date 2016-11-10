@@ -1,7 +1,7 @@
 package elastic
 
 type Hits struct {
-	Total    int   `json:"total"`
-	MaxScore int   `json:"max_score"`
-	Hits     []Hit `json:"hits"`
+	Total    int     `json:"total"`
+	MaxScore float64 `json:"max_score"`
+	Hits     []Hit   `json:"hits"`
 }

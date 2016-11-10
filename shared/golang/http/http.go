@@ -1,4 +1,4 @@
-package consumers
+package http
 
 import (
 	"bytes"
@@ -6,6 +6,10 @@ import (
 	"fmt"
 	"net/http"
 )
+
+func Delete(url string, headers map[string]string, payload interface{}) (*http.Response, error) {
+	return request("DELETE", url, headers, payload)
+}
 
 func Get(url string, headers map[string]string) (*http.Response, error) {
 	return request("GET", url, headers, nil)
@@ -24,10 +28,6 @@ func Put(url string, headers map[string]string, payload interface{}) (*http.Resp
 }
 
 func request(method string, url string, headers map[string]string, payload interface{}) (*http.Response, error) {
-	if method != "POST" && method != "PATCH" && method != "GET" && method != "PUT" {
-		return nil, fmt.Errorf("Invalid method %s. Only GET, POST, PATCH, and PUT are currently supported", method)
-	}
-
 	var req *http.Request
 	var err error
 	if method == "GET" {
