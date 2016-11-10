@@ -231,25 +231,25 @@ class TaxonomyIntegrationTest
 
   "Taxonomy_search_view" - {
     case class TaxonomiesSearchViewItem(id: Int,
-      taxonomyId: Int,
-      name: String,
-      context: String,
-      `type`: String,
-      valuesCount: Int,
-      activeFrom: Option[String],
-      activeTo: Option[String],
-      archivedAt: Option[String])
+                                        taxonomyId: Int,
+                                        name: String,
+                                        context: String,
+                                        `type`: String,
+                                        valuesCount: Int,
+                                        activeFrom: Option[String],
+                                        activeTo: Option[String],
+                                        archivedAt: Option[String])
     implicit val getTaxonomiesSearchViewResult = GetResult(
-      r ⇒
-        TaxonomiesSearchViewItem(r.nextInt,
-          r.nextInt,
-          r.nextString,
-          r.nextString,
-          r.nextString,
-          r.nextInt,
-          r.nextStringOption(),
-          r.nextStringOption(),
-          r.nextStringOption()))
+        r ⇒
+          TaxonomiesSearchViewItem(r.nextInt,
+                                   r.nextInt,
+                                   r.nextString,
+                                   r.nextString,
+                                   r.nextString,
+                                   r.nextInt,
+                                   r.nextStringOption(),
+                                   r.nextStringOption(),
+                                   r.nextStringOption()))
 
     def selectByTaxonId(taxonomy_id: Int) =
       sql"""select * from taxonomies_search_view where taxonomy_id = ${taxonomy_id}"""
@@ -262,11 +262,11 @@ class TaxonomyIntegrationTest
       taxonomies.size must === (1)
       val item = taxonomies.head
       item must === (
-        item.copy(taxonomyId = taxonomy.id,
-          context = ctx.name,
-          `type` = "hierarchical",
-          valuesCount = taxons.size,
-          archivedAt = None))
+          item.copy(taxonomyId = taxonomy.id,
+                    context = ctx.name,
+                    `type` = "hierarchical",
+                    valuesCount = taxons.size,
+                    archivedAt = None))
     }
 
     "should update data on taxon removal" in new HierarchyTaxonsFixture {
@@ -277,11 +277,11 @@ class TaxonomyIntegrationTest
       taxonomies.size must === (1)
       val item = taxonomies.head
       item must === (
-        item.copy(taxonomyId = taxonomy.id,
-          context = ctx.name,
-          `type` = "hierarchical",
-          valuesCount = taxons.size - 1,
-          archivedAt = None))
+          item.copy(taxonomyId = taxonomy.id,
+                    context = ctx.name,
+                    `type` = "hierarchical",
+                    valuesCount = taxons.size - 1,
+                    archivedAt = None))
     }
 
     "should update taxonomy name" in new HierarchyTaxonsFixture {
