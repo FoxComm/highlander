@@ -4,7 +4,7 @@
   "attributes": {
     "title": {
       "t": "string",
-      "v": "GiftCard_FOR_TEST"
+      "v": "GiftCard"
     },
     "tags": {
       "t": "tags",

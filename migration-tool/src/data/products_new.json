@@ -1,7 +1,7 @@
 [
   {
     "Name": " Asian Barbeque Pork Potstickers",
-    "Description ": "You don't need your passport to get delicious, authentic Chinese potstickers. We fill thin wonton wrappers with tender pork, marinated in soy, hoisin, and oyster sauce, for a subtly sweet potsticker packed full of bold flavors. Perfect for a quick and easy meal or as a finger food at your next party.",
+    "Description": "You don't need your passport to get delicious, authentic Chinese potstickers. We fill thin wonton wrappers with tender pork, marinated in soy, hoisin, and oyster sauce, for a subtly sweet potsticker packed full of bold flavors. Perfect for a quick and easy meal or as a finger food at your next party.",
     "Amount of Servings": "35 count",
     "Serving Size": "5 pieces",
     "Conventional Oven": "",
@@ -15,12 +15,11 @@
     "Price": "$27.00",
     "Tags": "Appetizers, Entreés, Best-Sellers, Asian, Potstickers",
     "Link on current site": "http://theperfectgourmet.com/Asian-BBQ-Pork-Potstickers.aspx",
-    "id": 0,
-    "productId": 276
+    "id": 0
   },
   {
     "Name": "Edamame Potsticker ",
-    "Description ": "You don't need your passport to get delicious, authentic Chinese potstickers. This version of our best-selling potstickers features edamame, cabbage, and carrots inside delicious, thin wonton wrappers. Perfect for a quick and easy meal or as a finger food at your next party.",
+    "Description": "You don't need your passport to get delicious, authentic Chinese potstickers. This version of our best-selling potstickers features edamame, cabbage, and carrots inside delicious, thin wonton wrappers. Perfect for a quick and easy meal or as a finger food at your next party.",
     "Amount of Servings": "45 count",
     "Serving Size": "5 pieces",
     "Conventional Oven": "",
@@ -34,12 +33,11 @@
     "Price": "$27.00",
     "Tags": "Appetizers, Entreés, Best-Sellers, Asian, Potstickers",
     "Link on current site": "http://theperfectgourmet.com/Edamame-Potstickers.aspx",
-    "id": 1,
-    "productId": 277
+    "id": 1
   },
   {
     "Name": "Almond Encrusted Flounder",
-    "Description ": "We know that fish can often be hard to dress up, but this one will make you see seafood differently. Moist flounder filets are coated in a savory, seasoned breadcrumb and almond mixture, giving the fish a welcome crunch and added layer of flavor. ",
+    "Description": "We know that fish can often be hard to dress up, but this one will make you see seafood differently. Moist flounder filets are coated in a savory, seasoned breadcrumb and almond mixture, giving the fish a welcome crunch and added layer of flavor. ",
     "Amount of Servings": "10 count",
     "Serving Size": "4.5 oz each",
     "Conventional Oven": "Cook from frozen. Preheat oven to 400. Heat for 18 to 20 minutes. Oven temperatures vary, adjust accordingly. ",
@@ -53,12 +51,11 @@
     "Price": "$43.00",
     "Tags": "Entreés, Seafood, Flounder",
     "Link on current site": "http://theperfectgourmet.com/almond-encrusted-flounder.aspx",
-    "id": 2,
-    "productId": 275
+    "id": 2
   },
   {
     "Name": "Almond Stuffed Dates Wrapped in Bacon",
-    "Description ": "Elegant enough to serve at a cocktail party, these little appetizers are too tasty not to also keep on hand for yourself. The savory, smoky flavors of bacon are balanced with the sweet flavors of caramelized dates, creating the perfect combination of flavors and texture in each bite. ",
+    "Description": "Elegant enough to serve at a cocktail party, these little appetizers are too tasty not to also keep on hand for yourself. The savory, smoky flavors of bacon are balanced with the sweet flavors of caramelized dates, creating the perfect combination of flavors and texture in each bite. ",
     "Amount of Servings": "25 count",
     "Serving Size": "",
     "Conventional Oven": "Do not defrost. Preheat oven to 425. Bake for 10 to 12 minutes until golden brown and internal temperature reaches 160. Oven temperatures vary, adjust accordingly. ",
@@ -76,7 +73,7 @@
   },
   {
     "Name": "Antipasto Skewers ",
-    "Description ": "Simple, quality ingredients often create the best dishes, and this classic Italian dish is the perfect example. We pair fresh mozzarella cheese, artichoke hearts, roasted red peppers, kalamata olives, and sundried tomatoes to create the perfect handheld appetizer that you can simply thaw and serve. ",
+    "Description": "Simple, quality ingredients often create the best dishes, and this classic Italian dish is the perfect example. We pair fresh mozzarella cheese, artichoke hearts, roasted red peppers, kalamata olives, and sundried tomatoes to create the perfect handheld appetizer that you can simply thaw and serve. ",
     "Amount of Servings": "25 count",
     "Serving Size": "",
     "Conventional Oven": "(no cooking required) Remove skewers from box while still frozen and arrange on serving tray. Defrost in refrigerator for approximately 3 hours before serving.",
@@ -94,7 +91,7 @@
   },
   {
     "Name": "Artichoke & Goat Cheese Mini Quiche",
-    "Description ": "These little bite-sized quiches are always a hit at any gathering. Handcrafted pastry shells house a creamy artichoke mixture and a rich, velvety, goat cheese center that melts in your mouth. Why waste time shopping  and prepping, when you can just pop these in the oven and have a delicious starter ready in twelve minutes? ",
+    "Description": "These little bite-sized quiches are always a hit at any gathering. Handcrafted pastry shells house a creamy artichoke mixture and a rich, velvety, goat cheese center that melts in your mouth. Why waste time shopping  and prepping, when you can just pop these in the oven and have a delicious starter ready in twelve minutes? ",
     "Amount of Servings": "24 count",
     "Serving Size": "",
     "Conventional Oven": "Do not defrost. Preheat oven to 375. Place on a lightly sprayed baking sheet. Bake for 12 - 14 minutes. Oven temperatures vary; adjust accordingly.",
@@ -112,7 +109,7 @@
   },
   {
     "Name": "Beef Short Ribs with Asian Inspired Sauce",
-    "Description ": "These tender, boneless Beef Short Ribs are slow-cooked in an Asian inspired sauce made from hoisin, soy, and a blend of spices. The complexity and boldness of the sauce perfectly complement the tender, juicy short ribs, for a delicious and hearty entrée that is sure to satisfy.",
+    "Description": "These tender, boneless Beef Short Ribs are slow-cooked in an Asian inspired sauce made from hoisin, soy, and a blend of spices. The complexity and boldness of the sauce perfectly complement the tender, juicy short ribs, for a delicious and hearty entrée that is sure to satisfy.",
     "Amount of Servings": "2",
     "Serving Size": "10.75 oz each",
     "Conventional Oven": "Preheat oven to 350. Remove product from plastic pouch and place in an oven safe dish. Discard plastic pouch. Bake for 70 minutes from frozen and 50 minutes from thawed. Equipment varies, adjust cooking times accordingly. ",
@@ -130,7 +127,7 @@
   },
   {
     "Name": "Basil Pesto Tilapia",
-    "Description ": "A simple but flavorful basil pesto marinates our tilapia filets, for a light but satisfying entrée. Serve it with your favorite pasta and enjoy a delicious Italian meal in mere minutes. If you have friends that claim not to like seafood, serve this and you'll be surprised how quickly they change their minds.",
+    "Description": "A simple but flavorful basil pesto marinates our tilapia filets, for a light but satisfying entrée. Serve it with your favorite pasta and enjoy a delicious Italian meal in mere minutes. If you have friends that claim not to like seafood, serve this and you'll be surprised how quickly they change their minds.",
     "Amount of Servings": "6 count",
     "Serving Size": "3.25 oz",
     "Conventional Oven": "Preheat oven to 425 F. From frozen: bake at 425  for 15-17 minutes. From thawed: bake at 425 for 12-14 minutes. Oven temperatures vary, adjust accordingly. ",
@@ -148,7 +145,7 @@
   },
   {
     "Name": "Beef Provencal",
-    "Description ": "Slow cooked for hours in the European sous-vide style to lock in moisture and flavor, this Beef Provencal is light, but with a surprising depth of flavors. The beef is enveloped by a sweet and savory sauce made with honey, balsamic vinegar, sun-dried tomatoes, and a blend of spices.",
+    "Description": "Slow cooked for hours in the European sous-vide style to lock in moisture and flavor, this Beef Provencal is light, but with a surprising depth of flavors. The beef is enveloped by a sweet and savory sauce made with honey, balsamic vinegar, sun-dried tomatoes, and a blend of spices.",
     "Amount of Servings": "1",
     "Serving Size": "2 lb bag",
     "Conventional Oven": "Preheat oven to 375. Remove product from plastic pouch and place in an oven safe dish. Discard plastic pouch. Bake for 50 to 60 minutes if reheated from frozen. Bake for 18 to 22 minutes if reheated from thawed. Equipment varies, adjust cooking times accordingly. ",
@@ -166,7 +163,7 @@
   },
   {
     "Name": "Beef Tagine",
-    "Description ": "Morocco is a food lover's paradise, so we've taken one of its best dishes and made it easy and accessible to you. Our Beef Tagine has tender pieces of beef, diced tomatoes, carrots, and garbanzo beans, all smothered in a flavorful and tantalizing sauce.",
+    "Description": "Morocco is a food lover's paradise, so we've taken one of its best dishes and made it easy and accessible to you. Our Beef Tagine has tender pieces of beef, diced tomatoes, carrots, and garbanzo beans, all smothered in a flavorful and tantalizing sauce.",
     "Amount of Servings": "4",
     "Serving Size": "4.25 oz each",
     "Conventional Oven": "Preheat oven to 350. Remove from plastic pouch and place in oven safe dish. Discard pouch. Bake for 38 to 43 minutes from frozen. Bake for 20 to 24 minutes at 350 F from thawed. ",
@@ -184,7 +181,7 @@
   },
   {
     "Name": "Bourbon Salmon",
-    "Description ": "We start our Bourbon Salmon with a savory dry rub. Then we bring together honey, brown sugar, and bourbon to create a caramelized sweet and smoky glaze. Ready in about twenty minutes, this salmon, served with some spinach and rice, is perfect for an irresistibly fast and healthy dinner. ",
+    "Description": "We start our Bourbon Salmon with a savory dry rub. Then we bring together honey, brown sugar, and bourbon to create a caramelized sweet and smoky glaze. Ready in about twenty minutes, this salmon, served with some spinach and rice, is perfect for an irresistibly fast and healthy dinner. ",
     "Amount of Servings": "8",
     "Serving Size": "5.5 oz each",
     "Conventional Oven": "Preheat oven to 375 F. Place fillets on a lightly oiled baking pan. From frozen: bake  for 20 - 25 minutes or until fish reaches internal temperature of 165. Oven temperatures vary, adjust accordingly.",
@@ -202,7 +199,7 @@
   },
   {
     "Name": "Broccoli, Rice, & Cheese Casserole",
-    "Description ": "This classic casserole with a gourmet twist combines broccoli florets and long grain rice in a flavorful cheese sauce. It's a delicious accompaniment to any entrée, and it sneaks in a serving of your daily veggies! ",
+    "Description": "This classic casserole with a gourmet twist combines broccoli florets and long grain rice in a flavorful cheese sauce. It's a delicious accompaniment to any entrée, and it sneaks in a serving of your daily veggies! ",
     "Amount of Servings": "1",
     "Serving Size": "2 lb tray",
     "Conventional Oven": "Preheat oven to 400 degrees. Remove lid and place on the oven rack. Bake from frozen 65-75 minutes and from thawed 35-45 minutes. Watch casserole and cover loosely with foil while baking if browning too much during baking. Caution: Casserole will be very hot when removed after baking! Equipment varies, adjust cook times accordingly.",
@@ -220,7 +217,7 @@
   },
   {
     "Name": "Buffalo Chicken Potsticker",
-    "Description ": "East meets West in the newest addition to our potsticker family. An enticing combination of chicken, celery, ranch dressing, and hot sauce are housed inside our classic Asian wonton wrappers. Serve them as a meal, at parties, or anytime you just need a quick, simple snack. ",
+    "Description": "East meets West in the newest addition to our potsticker family. An enticing combination of chicken, celery, ranch dressing, and hot sauce are housed inside our classic Asian wonton wrappers. Serve them as a meal, at parties, or anytime you just need a quick, simple snack. ",
     "Amount of Servings": "35 count",
     "Serving Size": "5 potstickers",
     "Conventional Oven": "Boiling: Boil a pot of water. Place the frozen potstickers in the boiling water. Stir to prevent them from sticking to the bottom of the pot. Boil over high heat until the potstickers float to the surface. Turn to medium heat and cook for another 4-5 minutes until done. Deep frying: Preheat oil to 350 F, then place 10 potstickers in heated oil and cook for 4-5 minutes until potstickers turn golden brown. ",
@@ -238,7 +235,7 @@
   },
   {
     "Name": "Buffalo Chicken Spring Roll",
-    "Description ": "Inspired by the growing trend of fusion cuisine, we created these Buffalo Chicken Spring Rolls. Enjoy the classic combination of chicken wings, hot sauce, blue cheese, and celery wrapped up inside a crispy spring roll, for a unique and easy to eat snack. ",
+    "Description": "Inspired by the growing trend of fusion cuisine, we created these Buffalo Chicken Spring Rolls. Enjoy the classic combination of chicken wings, hot sauce, blue cheese, and celery wrapped up inside a crispy spring roll, for a unique and easy to eat snack. ",
     "Amount of Servings": "20 count",
     "Serving Size": "4 pieces",
     "Conventional Oven": "Preheat oven to 375 F. Place on cooking sheet, lightly brushed with oil. Bake for 14-17 minutes from frozen until internal temperature reaches 160 degrees. Equipment varies, adjust cooking times accordingly.",
@@ -256,7 +253,7 @@
   },
   {
     "Name": "Buttermilk Shrimp",
-    "Description ": "Enjoy fried shrimp without the mess! Each succulent shrimp is bathed in buttermilk, and dipped in bread crumbs seasoned with garlic and black pepper. They're then lightly par fried them for a crisp bite every time they come out of the oven. Perfect as a starter, snack, or with pasta for a quick, complete meal. ",
+    "Description": "Enjoy fried shrimp without the mess! Each succulent shrimp is bathed in buttermilk, and dipped in bread crumbs seasoned with garlic and black pepper. They're then lightly par fried them for a crisp bite every time they come out of the oven. Perfect as a starter, snack, or with pasta for a quick, complete meal. ",
     "Amount of Servings": "60 shrimp",
     "Serving Size": "",
     "Conventional Oven": "Do not defrost. Preheat oven to 425 F. Place frozen shrimp in a single layer on a baking sheet, so shrimp are not touching. Place baking sheet on center rack. Bake for 18 to 20 minutes. Or until shrimp are golden brown. For best results, turn shrimp over after 5 minutes.  Oven temperatures vary, adjust accordingly. ",
@@ -274,7 +271,7 @@
   },
   {
     "Name": "Cheddar Cheese Bundles",
-    "Description ": "These little stuffed pastries pack surprisingly intense flavors. Cheddar cheese is seasoned with a complimentary blend of spices and housed inside delicate puff pastry bundles that go from freezer to table in only ten minutes. ",
+    "Description": "These little stuffed pastries pack surprisingly intense flavors. Cheddar cheese is seasoned with a complimentary blend of spices and housed inside delicate puff pastry bundles that go from freezer to table in only ten minutes. ",
     "Amount of Servings": "25 pieces",
     "Serving Size": "",
     "Conventional Oven": "Do not defrost. Preheat oven to 425. Bake for 10 to 12 minutes on a cookie sheet until golden brown and internal temperature reaches 160. Allow room for bundles to expand slightly as the puff pastry will expand as it heats. Oven",
@@ -292,7 +289,7 @@
   },
   {
     "Name": "Chicken Marsala",
-    "Description ": "Juicy, seared chicken breasts are slowly cooked in a traditional European sous-vide style of cooking to ensure tenderness, and infused with a reduction of Marsala wine, mushrooms, and herbs. It will taste like you spent hours in the kitchen, but no one has to find out how easy it was to prepare.",
+    "Description": "Juicy, seared chicken breasts are slowly cooked in a traditional European sous-vide style of cooking to ensure tenderness, and infused with a reduction of Marsala wine, mushrooms, and herbs. It will taste like you spent hours in the kitchen, but no one has to find out how easy it was to prepare.",
     "Amount of Servings": "6",
     "Serving Size": "6 oz each",
     "Conventional Oven": "Preheat oven to 375. Remove product from plastic pouch and place in an oven safe dish. Discard plastic pouch. Bake for 28 to 31 minutes if reheated from frozen. Bake for 18 to 21 minutes if reheated from thawed. Equipment varies. Adjust cooking times accordingly.",
@@ -310,7 +307,7 @@
   },
   {
     "Name": "Chicken Osso Buco ",
-    "Description ": "This chicken version of the classic veal Osso Buco is painstakingly slow cooked to tender perfection, and bathed in an irresistible sauce featuring tomatoes, Sauvignon Blanc, parmesan cheese and spices.  Perfect if you're in the mood for a hearty comfort food that's a little lightened up. ",
+    "Description": "This chicken version of the classic veal Osso Buco is painstakingly slow cooked to tender perfection, and bathed in an irresistible sauce featuring tomatoes, Sauvignon Blanc, parmesan cheese and spices.  Perfect if you're in the mood for a hearty comfort food that's a little lightened up. ",
     "Amount of Servings": "2",
     "Serving Size": "11 oz each",
     "Conventional Oven": "Preheat oven to 375. Remove product from plastic pouch and place chicken in a small baking dish. Bake for 50-60 minutes from frozen. Bake 30-40 minutes from thawed. Oven temperatures vary, adjust cooking time accordingly. ",
@@ -328,7 +325,7 @@
   },
   {
     "Name": "Chicken Romesco",
-    "Description ": "At the heart of this beloved dish is succulent chicken that's slow cooked in a traditional European style with red peppers, onions, tomatoes, Andouille sausage, and boldly seasoned smoked paprika, cumin, and cayenne pepper. The flavors come together in perfect harmony for a dish that tastes out of this world, and is ridiculously simple to prepare. ",
+    "Description": "At the heart of this beloved dish is succulent chicken that's slow cooked in a traditional European style with red peppers, onions, tomatoes, Andouille sausage, and boldly seasoned smoked paprika, cumin, and cayenne pepper. The flavors come together in perfect harmony for a dish that tastes out of this world, and is ridiculously simple to prepare. ",
     "Amount of Servings": "4",
     "Serving Size": "4.25 oz each",
     "Conventional Oven": "Cook from frozen. Preheat oven to 355. Peel open pouch and place the chicken breast seared side up, into a small baking pan. Use a spoon to scoop out the remaining sauce from the pouch and place it on the chicken. Bake for 36 - 38 minutes from frozen. Carefully take the baking pan out of the oven and serve. Oven temperatures vary adjust accordingly.",
@@ -346,7 +343,7 @@
   },
   {
     "Name": "Chicken Roulade Florentine",
-    "Description ": "This mouth-watering Chicken Roulade is stuffed with spinach, feta, parmesan and mozzarella cheeses, all seasoned to perfection. It impresses not only in presentation, but with its unbeatable flavors. We did all the prep work for you, so you can enjoy a delicious, effortless dinner for four in under an hour. ",
+    "Description": "This mouth-watering Chicken Roulade is stuffed with spinach, feta, parmesan and mozzarella cheeses, all seasoned to perfection. It impresses not only in presentation, but with its unbeatable flavors. We did all the prep work for you, so you can enjoy a delicious, effortless dinner for four in under an hour. ",
     "Amount of Servings": "1",
     "Serving Size": "2.7 lb",
     "Conventional Oven": "Preheat oven to 375. Remove product from plastic pouch and place in an oven safe dish. Discard plastic pouch. Bake for 60 to65 minutes if reheated from frozen. Bake for 40 to 45 minutes if reheated from thawed.",
@@ -364,7 +361,7 @@
   },
   {
     "Name": "Chicken Roulade Stuffed with Asparagus and Prosciutto",
-    "Description ": "This Chicken Roulade is perfect for an easy, effortless dinner for four in under an hour, and a wonderful solution to last minute holiday meal preparations. Juicy chicken breast meat surrounds a blend of prosciutto, asparagus, fontina cheese, cream cheese, red and yellow peppers and pine nuts. It's great as a holiday gift, but don't forget to get an extra one for yourself.",
+    "Description": "This Chicken Roulade is perfect for an easy, effortless dinner for four in under an hour, and a wonderful solution to last minute holiday meal preparations. Juicy chicken breast meat surrounds a blend of prosciutto, asparagus, fontina cheese, cream cheese, red and yellow peppers and pine nuts. It's great as a holiday gift, but don't forget to get an extra one for yourself.",
     "Amount of Servings": "1",
     "Serving Size": "2.53 lb ",
     "Conventional Oven": "Preheat oven to 375. Remove product from plastic pouch and place in an oven safe dish. Discard plastic pouch. Bake for 60 to65 minutes if reheated from frozen. Bake for 40 to 45 minutes if reheated from thawed.",
@@ -382,7 +379,7 @@
   },
   {
     "Name": "Coconut Encrusted Tilapia",
-    "Description ": "Mild, flaky tilapia fillets are lightly coated in a blend of rice flour, coconut and seasonings, for a subtly sweet, fresh, tropical flavor. Skip the mess that comes with preparing this on your own-- we've done it all for you. Just stick it in the oven, and in minutes you will have a delicious dinner that your whole family will love. ",
+    "Description": "Mild, flaky tilapia fillets are lightly coated in a blend of rice flour, coconut and seasonings, for a subtly sweet, fresh, tropical flavor. Skip the mess that comes with preparing this on your own-- we've done it all for you. Just stick it in the oven, and in minutes you will have a delicious dinner that your whole family will love. ",
     "Amount of Servings": "10",
     "Serving Size": "3.25 oz each",
     "Conventional Oven": "Preheat oven to 400 F. Place fillets on a lightly oiled baking pan. From frozen: bake  for 12 - 15 minutes or until fish reaches internal temperature of 165. Oven temperatures vary, adjust accordingly.",
@@ -400,7 +397,7 @@
   },
   {
     "Name": "Colossal Shrimp Scampi",
-    "Description ": "These colossal shell-on shrimp are bathed in a buttery scampi sauce infused with garlic and white wine that rivals any restaurant's. This dish is quick and easy to prepare, but guaranteed to impress your guests and delight every palate. It's even more satisfying when served with bread, to soak up the flavorful broth from the shrimp.",
+    "Description": "These colossal shell-on shrimp are bathed in a buttery scampi sauce infused with garlic and white wine that rivals any restaurant's. This dish is quick and easy to prepare, but guaranteed to impress your guests and delight every palate. It's even more satisfying when served with bread, to soak up the flavorful broth from the shrimp.",
     "Amount of Servings": "2 lbs (~15 shrimp)",
     "Serving Size": "4 oz",
     "Conventional Oven": "Place frozen shrimp in a single layer in oven safe casserole dish. Bake in a preheated 375 oven for 14-18 minutes. Turn frequently and baste with sauce during cooking.",
@@ -418,7 +415,7 @@
   },
   {
     "Name": "Corn and Edamame Quesadilla",
-    "Description ": "These quesadillas are the perfect vegetarian appetizer, and are as pleasing to the eye as they are to the palate. We fill flour tortillas with corn, edamame, American and pepper jack cheese, poblano peppers, and a savory blend of spices; then we cut them into small slices--ready for you to pop into your mouth or serve on a platter. ",
+    "Description": "These quesadillas are the perfect vegetarian appetizer, and are as pleasing to the eye as they are to the palate. We fill flour tortillas with corn, edamame, American and pepper jack cheese, poblano peppers, and a savory blend of spices; then we cut them into small slices--ready for you to pop into your mouth or serve on a platter. ",
     "Amount of Servings": "22 count",
     "Serving Size": "",
     "Conventional Oven": "Do not defrost. Preheat oven to 375. Bake for 10 to 12 minutes. Oven temperatures vary; adjust accordingly. ",
@@ -436,7 +433,7 @@
   },
   {
     "Name": "Corn Souffle",
-    "Description ": "This decadent dish is made with whole kernel corn that is blended with cornmeal, buttermilk, sour cream, and eggs to achieve a subtly sweet bite that melts in your mouth. This two pound tray serves 6-8 people, but can easily be stored and eaten with dinner the next few nights! It's a perfect accompaniment for a dinner party or holiday meal!",
+    "Description": "This decadent dish is made with whole kernel corn that is blended with cornmeal, buttermilk, sour cream, and eggs to achieve a subtly sweet bite that melts in your mouth. This two pound tray serves 6-8 people, but can easily be stored and eaten with dinner the next few nights! It's a perfect accompaniment for a dinner party or holiday meal!",
     "Amount of Servings": "1",
     "Serving Size": "2 lb tray",
     "Conventional Oven": "Preheat oven to 400 degrees. Remove lid and place tray on the oven rack. Bake 65-75 minutes from frozen 35-45 minutes from thawed. Watch casserole and cover loosely with foil while baking, if browning too much during baking. Caution: Casserole will be very hot!",
@@ -454,7 +451,7 @@
   },
   {
     "Name": "Dijon Tilapia",
-    "Description ": "Tilapia fillets are lightly coated in a mixture of Dijon mustard, honey, brown sugar, turmeric, tamarind, and a hint of garlic, for a familiar taste with a unique twist. You get 10 filets for only $35, so you'll have plenty in the freezer for those long days and busy nights when you need a fast, tasty dinner.",
+    "Description": "Tilapia fillets are lightly coated in a mixture of Dijon mustard, honey, brown sugar, turmeric, tamarind, and a hint of garlic, for a familiar taste with a unique twist. You get 10 filets for only $35, so you'll have plenty in the freezer for those long days and busy nights when you need a fast, tasty dinner.",
     "Amount of Servings": "10",
     "Serving Size": "3.25 oz each",
     "Conventional Oven": "Preheat oven to 400 F. Place frozen filets on a baking sheet. Bake for 25 - 30 minutes or until fish reaches internal temperature of 165. Oven temperatures vary - adjust accordingly.",
@@ -472,7 +469,7 @@
   },
   {
     "Name": "Fig & Mascarpone Purses ",
-    "Description ": "These Fig and Mascarpone Purses are a sophisticated combination of sweet figs and tart, creamy mascarpone cheese, nestled inside a delicate phyllo purse. They're super easy to prepare, and go from freezer to oven to table in six minutes, so you'll always be ready for unexpected guests. ",
+    "Description": "These Fig and Mascarpone Purses are a sophisticated combination of sweet figs and tart, creamy mascarpone cheese, nestled inside a delicate phyllo purse. They're super easy to prepare, and go from freezer to oven to table in six minutes, so you'll always be ready for unexpected guests. ",
     "Amount of Servings": "20 count",
     "Serving Size": "0.8 oz each",
     "Conventional Oven": "Do not defrost. Bake in preheated 400 F oven for 5 to 6 minutes, until internal temperature reaches a minimum of 160 F. Oven temperatures vary.. Adjust accordingly. Refrigerate or discard unused cooked portion.",
@@ -490,7 +487,7 @@
   },
   {
     "Name": "Salmon Cakes",
-    "Description ": "These salmon cakes are made with wild-caught Alaskan salmon, combined with fresh basil, sun-dried tomatoes, and cream cheese. Each is individually wrapped, and ready to grill, sauté, or bake to perfection. They can be eaten alone like a crab cake or with all the fixings like a burger--either way, you're going to love them.",
+    "Description": "These salmon cakes are made with wild-caught Alaskan salmon, combined with fresh basil, sun-dried tomatoes, and cream cheese. Each is individually wrapped, and ready to grill, sauté, or bake to perfection. They can be eaten alone like a crab cake or with all the fixings like a burger--either way, you're going to love them.",
     "Amount of Servings": "6",
     "Serving Size": "3.5 oz each",
     "Conventional Oven": "Set oven temperature to 375F. Lightly grease oven safe tray and evenly place salmon burgers. Place tray in the center of the oven and cook for approximately 5 minutes or until desired.",
@@ -508,7 +505,7 @@
   },
   {
     "Name": "Indian Flatbread",
-    "Description ": "This flavorful flatbread is piled high with six different vegetables, feta cheese, and a rich, Jalfrezi sauce. It's perfect as an appetizer or vegetarian entreé, and is a welcome change from those heavier restaurant flatbreads. ",
+    "Description": "This flavorful flatbread is piled high with six different vegetables, feta cheese, and a rich, Jalfrezi sauce. It's perfect as an appetizer or vegetarian entreé, and is a welcome change from those heavier restaurant flatbreads. ",
     "Amount of Servings": "1",
     "Serving Size": "1 lb",
     "Conventional Oven": "Bake at 375 F for 15-18 minutes. Cook from frozen to golden brown in color. Oven temperatures vary, adjust accordingly. ",
@@ -526,7 +523,7 @@
   },
   {
     "Name": "Jumbo Lump Crab Cakes",
-    "Description ": "There's no funny business here-- these cakes are loaded with crab meat and hardly any filler. Each is individually wrapped, and contains sweet, succulent jumbo lump crab, mixed with mayonnaise and seasoning. Enjoy on its own or in between a soft, fresh roll for the best tasting sandwich you'll ever have. These crabcakes also make a great holiday gift that are guaranteed to impress. ",
+    "Description": "There's no funny business here-- these cakes are loaded with crab meat and hardly any filler. Each is individually wrapped, and contains sweet, succulent jumbo lump crab, mixed with mayonnaise and seasoning. Enjoy on its own or in between a soft, fresh roll for the best tasting sandwich you'll ever have. These crabcakes also make a great holiday gift that are guaranteed to impress. ",
     "Amount of Servings": "8",
     "Serving Size": "3 oz. each",
     "Conventional Oven": "For best results, thaw crab cakes overnight. Preheat oven to 350 degrees and spray cookie sheet with nonstick spray.  Brush with either melted butter or mayonnaise and cook for approximately 25 minutes or until golden brown.*",
@@ -544,7 +541,7 @@
   },
   {
     "Name": "Lemon Caper Colossal Shrimp",
-    "Description ": "Colossal succulent shrimp are bathed in a mouthwatering sauce that combines the tartness of lemon, the saltiness of capers, and the richness of butter. Serve it atop linguine or your favorite pasta, and wow your guests with a simple but elegant dinner. **serve in bowl with bread --APPETIZER* have the napkins ready... listed under apps",
+    "Description": "Colossal succulent shrimp are bathed in a mouthwatering sauce that combines the tartness of lemon, the saltiness of capers, and the richness of butter. Serve it atop linguine or your favorite pasta, and wow your guests with a simple but elegant dinner. **serve in bowl with bread --APPETIZER* have the napkins ready... listed under apps",
     "Amount of Servings": "2 lbs (~15 shrimp)",
     "Serving Size": "2 shrimp",
     "Conventional Oven": "",
@@ -562,7 +559,7 @@
   },
   {
     "Name": "Lemon Caper Tilapia",
-    "Description ": "Fresh lemon is the perfect compliment to the salty tang of capers, and moist tilapia filets are the perfect vehicle for these flavors. This fish, served with your favorite pasta, is the perfect solution for nights when you find yourself short on time, but still wanting something healthy and delicious.",
+    "Description": "Fresh lemon is the perfect compliment to the salty tang of capers, and moist tilapia filets are the perfect vehicle for these flavors. This fish, served with your favorite pasta, is the perfect solution for nights when you find yourself short on time, but still wanting something healthy and delicious.",
     "Amount of Servings": "10",
     "Serving Size": "3.4 oz each",
     "Conventional Oven": "From frozen: Preheat oven to 375. Remove fish from package and place in oven safe casserole dish. Bake for 20 - 25 minutes. Let rest prior to serving. Oven temperatures vary, adjust accordingly.",
@@ -580,7 +577,7 @@
   },
   {
     "Name": "Lobster Mac & Cheese",
-    "Description ": "This decadent version of a classic family favorite combines macaroni shells with succulent lobster, and a cheese sauce made from Gruyere, cream, sherry, and the perfect blend of spices. Even those who claim not to like lobster will find themselves unable to resist this rich and creamy dish.",
+    "Description": "This decadent version of a classic family favorite combines macaroni shells with succulent lobster, and a cheese sauce made from Gruyere, cream, sherry, and the perfect blend of spices. Even those who claim not to like lobster will find themselves unable to resist this rich and creamy dish.",
     "Amount of Servings": "1",
     "Serving Size": "1.5 lb tray",
     "Conventional Oven": "Cook from frozen. Remove plastic wrap from tray. Preheat oven to 375. Place tray on sheet pan. Bake for 25 minutes. Stir and continue to cook for an additional 10 minutes.",
@@ -598,7 +595,7 @@
   },
   {
     "Name": "Mac & Cheese Bites with Bacon",
-    "Description ": "For this new twist on an old classic, we take five different cheeses and smokey bacon, add in macaroni, form into bite size balls and roll them in panko for a perfect crunch every time they come out of the oven. No sauces, dips, or sides necessary--these bites are pure snack perfection. ",
+    "Description": "For this new twist on an old classic, we take five different cheeses and smokey bacon, add in macaroni, form into bite size balls and roll them in panko for a perfect crunch every time they come out of the oven. No sauces, dips, or sides necessary--these bites are pure snack perfection. ",
     "Amount of Servings": "50 count",
     "Serving Size": "3 pieces",
     "Conventional Oven": "Do not defrost. Preheat oven to 4375. Bake for 11-12 minutes until golden brown and internal temperature reaches 165. Oven temperatures vary; adjust accordingly.",
@@ -616,7 +613,7 @@
   },
   {
     "Name": "Mac & Cheese",
-    "Description ": "Our version of this beloved classic features high quality cheddar cheese with all the right seasonings. It's hard to find something that this Mac & Cheese will not go well with. Your guests might even think it’s homemade... but not to worry-- your secret is safe with us.",
+    "Description": "Our version of this beloved classic features high quality cheddar cheese with all the right seasonings. It's hard to find something that this Mac & Cheese will not go well with. Your guests might even think it’s homemade... but not to worry-- your secret is safe with us.",
     "Amount of Servings": "1",
     "Serving Size": "2 lb tray",
     "Conventional Oven": "Thaw overnight or up to 48 hours in refrigerator. Preheat oven to 400 degrees. Remove lid. Bake casserole for 35 to 45 minutes. Watch casserole if top begins to brown too much, cover loosely with foil and continue cooking until done. From Frozen: Preheat oven to 400 degrees. Remove lid. Bake casserole for 65 to 75 minutes. Watch casserole if top begins to brown too much, cover loosely with foil and continue cooking until done. Equipment varies, adjust cook times accordingly.",
@@ -634,7 +631,7 @@
   },
   {
     "Name": "Maple Cedar Salmon",
-    "Description ": "The flavor of salmon subtle sweetness from maple and brown sugar, and a tantalizing smokiness that gives it that fresh off the grill taste. Salmon is also loaded with vitamins, protein, and healthy fats, so you can satisfy your nutritional needs and your taste buds. ",
+    "Description": "The flavor of salmon subtle sweetness from maple and brown sugar, and a tantalizing smokiness that gives it that fresh off the grill taste. Salmon is also loaded with vitamins, protein, and healthy fats, so you can satisfy your nutritional needs and your taste buds. ",
     "Amount of Servings": "5",
     "Serving Size": "4 oz each",
     "Conventional Oven": "From Thawed: Preheat oven to 400 F. Place fillets on a lightly oiled sheet pan and bake for 16-18 minutes. Flip halfway through cooking. From Frozen: Preheat oven to 425. Place frozen filets on a lightly oiled sheet pan and bake for 16-18 minutes. Flip halfway through cooking.",
@@ -652,7 +649,7 @@
   },
   {
     "Name": "Mediterranean Bundle",
-    "Description ": "This hearty entrée packs in six delicious vegetables, Monterey Jack, Gouda, and couscous—all bundled inside a crispy spring roll package. It's a favorite among meat eaters, vegetarians, and everyone in between, and perfect for nights you don't have time to cook, but want to impress. ",
+    "Description": "This hearty entrée packs in six delicious vegetables, Monterey Jack, Gouda, and couscous—all bundled inside a crispy spring roll package. It's a favorite among meat eaters, vegetarians, and everyone in between, and perfect for nights you don't have time to cook, but want to impress. ",
     "Amount of Servings": "4 count",
     "Serving Size": "",
     "Conventional Oven": "Preheat oven to 375 F. Place bundles on baking tray and cook for 25 - 35 minutes or until pastry is golden brown. Oven temperatures vary, adjust cooking time accordingly.",
@@ -670,7 +667,7 @@
   },
   {
     "Name": "Mini Beef Wellington",
-    "Description ": "We've turned this extravagant entrée into a bite-sized appetizer. Mushroom duxelle, made with heavy cream, shallots, and sherry, join tender bites of filet mignon that finish off medium rare after baking. This sumptuous creation is housed in buttery, flaky puff pastry, for the perfect dinner party finger food. Don't let your busy schedule and long to-do lists get in the way of throwing a fabulous party.",
+    "Description": "We've turned this extravagant entrée into a bite-sized appetizer. Mushroom duxelle, made with heavy cream, shallots, and sherry, join tender bites of filet mignon that finish off medium rare after baking. This sumptuous creation is housed in buttery, flaky puff pastry, for the perfect dinner party finger food. Don't let your busy schedule and long to-do lists get in the way of throwing a fabulous party.",
     "Amount of Servings": "24 count",
     "Serving Size": "4 pieces",
     "Conventional Oven": "Do not defrost. Preheat oven to 425. Place wellingtons on a lightly sprayed baking sheet. Bake for 12 - 18 minutes. Oven temperatures vary; adjust accordingly.",
@@ -688,7 +685,7 @@
   },
   {
     "Name": "Mini Spinach Quiche",
-    "Description ": "Good food is always somehow better in a mini version. Inspired by the traditional brunch favorite, we filled bite-size buttery, pastry shells with a delectable combination of spinach, Swiss cheese, and spices. Perfect for parties or brunches, and always a hit with every age group. ",
+    "Description": "Good food is always somehow better in a mini version. Inspired by the traditional brunch favorite, we filled bite-size buttery, pastry shells with a delectable combination of spinach, Swiss cheese, and spices. Perfect for parties or brunches, and always a hit with every age group. ",
     "Amount of Servings": "24 count",
     "Serving Size": "3 pieces",
     "Conventional Oven": "Do not defrost. Preheat oven to 400 F. Place on a lightly sprayed baking sheet. Bake for 8-10 minutes, or until internal temperature reaches 165 F. Oven temperatures vary; adjust accordingly. Allow to cool before serving.",
@@ -706,7 +703,7 @@
   },
   {
     "Name": "Mushroom Arancini",
-    "Description ": "\"Arancini\" means \"little orange\" in Italian, because in Sicily, they were traditionally about the size of oranges! Our Mushroom Arancini combines the savory decadence of mushrooms, risotto, mascarpone and cheddar cheeses, and white wine. They're lightly coated with panko crumbs for a delightful, crispy exterior, housing a rich, creamy center.  ",
+    "Description": "\"Arancini\" means \"little orange\" in Italian, because in Sicily, they were traditionally about the size of oranges! Our Mushroom Arancini combines the savory decadence of mushrooms, risotto, mascarpone and cheddar cheeses, and white wine. They're lightly coated with panko crumbs for a delightful, crispy exterior, housing a rich, creamy center.  ",
     "Amount of Servings": "20 count",
     "Serving Size": "4 pieces",
     "Conventional Oven": "Do not defrost. Preheat oven to 400. Bake for 8 to 12 minutes or until internal temperature reaches 160. Oven temperatures vary; adjust accordingly.",
@@ -724,7 +721,7 @@
   },
   {
     "Name": "Osso Buco",
-    "Description ": "This Milanese specialty features veal shank that's cooked for 18 hours to tender perfection, then braised in white wine, mirepoix stock, and vegetables. Preparation could not be easier-- just microwave or bake, and serve over rice or pasta for a dish that will satisfy the most discerning of palates. ",
+    "Description": "This Milanese specialty features veal shank that's cooked for 18 hours to tender perfection, then braised in white wine, mirepoix stock, and vegetables. Preparation could not be easier-- just microwave or bake, and serve over rice or pasta for a dish that will satisfy the most discerning of palates. ",
     "Amount of Servings": "2",
     "Serving Size": "15.5 oz packages",
     "Conventional Oven": "Preheat oven to 375. Remove product from plastic pouch and place in oven safe dish. Bake for 30-37 minutes from thawed. Bake for 52-55 minutes from frozen.",
@@ -742,7 +739,7 @@
   },
   {
     "Name": "Parisian Lamb Shank",
-    "Description ": "Our chic but classic Parisian lamb is prepared in a traditional demi-glace sauce with a hint of rosemary and mint. Transport yourself to Paris, while you enjoy this easy but elegant dinner in the comfort of your own home. ",
+    "Description": "Our chic but classic Parisian lamb is prepared in a traditional demi-glace sauce with a hint of rosemary and mint. Transport yourself to Paris, while you enjoy this easy but elegant dinner in the comfort of your own home. ",
     "Amount of Servings": "2",
     "Serving Size": "13.5 oz packages",
     "Conventional Oven": "Preheat oven to 375. Remove product from plastic pouch and place in oven safe dish. Bake for 18-21 minutes from thawed. Bake for 40-43 minutes from frozen.",
@@ -760,7 +757,7 @@
   },
   {
     "Name": "Philly Style Cheesesteak Spring Roll",
-    "Description ": "We captured everything you love about a Philly Cheesesteak and transformed it into snack-sized spring rolls. Have as many or as few as you want, then just keep the rest in the freezer until next time! This is the ultimate snack or party food, and brings together the best of both worlds! ",
+    "Description": "We captured everything you love about a Philly Cheesesteak and transformed it into snack-sized spring rolls. Have as many or as few as you want, then just keep the rest in the freezer until next time! This is the ultimate snack or party food, and brings together the best of both worlds! ",
     "Amount of Servings": "20 count",
     "Serving Size": "",
     "Conventional Oven": "Preheat oven to 375 F. Place on cooking sheet, lightly brush with oil. Bake for 14-17 minutes from frozen until internal temperature reaches 160 degrees. *Equipment varies, adjust cooking times accordingly.",
@@ -778,7 +775,7 @@
   },
   {
     "Name": "Pork Potstickers",
-    "Description ": "This version of our beloved potstickers is loaded with a tasty mixture of pork, vegetables and Asian flavorings. Steam, boil, pan fry, or microwave, for the perfect snack or meal that's ready in a matter of minutes. ",
+    "Description": "This version of our beloved potstickers is loaded with a tasty mixture of pork, vegetables and Asian flavorings. Steam, boil, pan fry, or microwave, for the perfect snack or meal that's ready in a matter of minutes. ",
     "Amount of Servings": "100 count",
     "Serving Size": "5 pieces",
     "Conventional Oven": "",
@@ -796,7 +793,7 @@
   },
   {
     "Name": "Risotto Primavera",
-    "Description ": "Our rich, creamy Risotto Primavera is made with Arborio rice, white wine, parmesan cheese, herbs, and vegetables. Great either on its own or as an accompaniment, this colorful dish will impress even the most discriminating of palates.",
+    "Description": "Our rich, creamy Risotto Primavera is made with Arborio rice, white wine, parmesan cheese, herbs, and vegetables. Great either on its own or as an accompaniment, this colorful dish will impress even the most discriminating of palates.",
     "Amount of Servings": "1",
     "Serving Size": "2 lb tray",
     "Conventional Oven": "Thaw under refrigeration for 24-36 hours. Preheat oven to 350. Remove film from tray. Bake for 45-55 minutes, until light brown on top. Oven temperatures vary, adjust accordingly.",
@@ -814,7 +811,7 @@
   },
   {
     "Name": "Roasted Duck Breast",
-    "Description ": "We use a traditional European slow cooking sous-vide method to enhance the rich flavors of duck, which are then highlighted by a subtly sweet sauce of honey, garlic, and soy. Cook according to package instructions for a duck breast that comes out a perfect medium rare. This dish is ready in less time than it would take to order at a restaurant, so you can enjoy a luxurious dinner at home any day of the week. ",
+    "Description": "We use a traditional European slow cooking sous-vide method to enhance the rich flavors of duck, which are then highlighted by a subtly sweet sauce of honey, garlic, and soy. Cook according to package instructions for a duck breast that comes out a perfect medium rare. This dish is ready in less time than it would take to order at a restaurant, so you can enjoy a luxurious dinner at home any day of the week. ",
     "Amount of Servings": "4",
     "Serving Size": "6 oz each",
     "Conventional Oven": "Preheat oven to 375. Remove product from plastic pouch and place in oven safe dish. Bake for 28-31 minutes from frozen. Bake for 15-20 minutes from thawed",
@@ -832,7 +829,7 @@
   },
   {
     "Name": "Salmon Florentine",
-    "Description ": "Delicate salmon fillets are topped with a spinach and parmesan mixture and garnished with a shrimp. Great with a side of asparagus and rice, this Salmon Florentine is exquisite in both presentation and taste. ",
+    "Description": "Delicate salmon fillets are topped with a spinach and parmesan mixture and garnished with a shrimp. Great with a side of asparagus and rice, this Salmon Florentine is exquisite in both presentation and taste. ",
     "Amount of Servings": "8",
     "Serving Size": "5.5 oz each",
     "Conventional Oven": "Cook from frozen. Preheat oven to 400. Place salmon on a non stick , vegetable sprayed baking tray. Bake for 22 - 28 minutes or until internal temperature reaches 165.",
@@ -850,7 +847,7 @@
   },
   {
     "Name": "Shrimp Alfredo with Orzo",
-    "Description ": "Comfort meets elegance in this aromatic and enticing Shrimp Alfredo. Plump, juicy shrimp and orzo pasta are coated in a creamy butter and parmesan sauce. This dish is a complete and satisfying meal in itself, so there's no need to prepare any sides or starches-- just heat and eat! ",
+    "Description": "Comfort meets elegance in this aromatic and enticing Shrimp Alfredo. Plump, juicy shrimp and orzo pasta are coated in a creamy butter and parmesan sauce. This dish is a complete and satisfying meal in itself, so there's no need to prepare any sides or starches-- just heat and eat! ",
     "Amount of Servings": "1",
     "Serving Size": "3 lbs package",
     "Conventional Oven": "Cook from frozen. Preheat oven to 375. Remove from packaging and place frozen shrimp and orzo in oven safe casserole dish, place on center rack of oven and cook 20 minutes, stir and cook an additional 15 minutes or until cooked thoroughly. Let rest prior to serving.",
@@ -868,7 +865,7 @@
   },
   {
     "Name": "Shrimp Mini Quiche",
-    "Description ": "Shrimp are blended with eggs, cream, and herbs, and piped into petite, buttery pastry shells, to produce a delightful symphony of flavors in a bite-sized snack perfect for brunch or gatherings. ",
+    "Description": "Shrimp are blended with eggs, cream, and herbs, and piped into petite, buttery pastry shells, to produce a delightful symphony of flavors in a bite-sized snack perfect for brunch or gatherings. ",
     "Amount of Servings": "24 count",
     "Serving Size": "",
     "Conventional Oven": "Do not defrost. Preheat oven to 375 F. Place on a lightly sprayed baking sheet. Bake for 12-14 minutes. Oven temperatures may vary, adjust accordingly. Allow to cool before serving.",
@@ -886,7 +883,7 @@
   },
   {
     "Name": "Shrimp Scampi",
-    "Description ": "We start with a sauce that's infused with garlic, butter, parmesan, and white wine. To this we add a generous portion of shrimp, which soak up all the flavors, while leaving enough sauce remaining to enjoy with some crusty bread. Use the time you save in prep work to boil a pot of pasta or rice, and soon you'll have a mouthwatering meal that's deceivingly simple. ",
+    "Description": "We start with a sauce that's infused with garlic, butter, parmesan, and white wine. To this we add a generous portion of shrimp, which soak up all the flavors, while leaving enough sauce remaining to enjoy with some crusty bread. Use the time you save in prep work to boil a pot of pasta or rice, and soon you'll have a mouthwatering meal that's deceivingly simple. ",
     "Amount of Servings": "1",
     "Serving Size": "2 lb package",
     "Conventional Oven": "",
@@ -904,7 +901,7 @@
   },
   {
     "Name": "Smoked Salmon in Fillo",
-    "Description ": "Treat yourself to the irresistible combination of smoked salmon and cream cheese, surrounded by delicate phyllo pastry cups. These small but flavor-packed treats are everything you want in an appetizer, and are the perfect addition to any holiday party, big or small. ",
+    "Description": "Treat yourself to the irresistible combination of smoked salmon and cream cheese, surrounded by delicate phyllo pastry cups. These small but flavor-packed treats are everything you want in an appetizer, and are the perfect addition to any holiday party, big or small. ",
     "Amount of Servings": "24 count",
     "Serving Size": "6 pieces",
     "Conventional Oven": "Do not defrost. Cook from frozen. Preheat oven to 400 F. Place on a lightly sprayed baking sheet. Bake for 8-12 minutes. Oven temperatures vary; adjust accordingly. Allow to cool before serving.",
@@ -922,7 +919,7 @@
   },
   {
     "Name": "Southwest Tilapia ",
-    "Description ": "Moist, flaky tilapia is surrounded by a crispy layer of colorful, crushed tortilla chips, and layered with the fresh flavor of lime and bold smoky chipotle pepper. It cooks from frozen in less than twenty minutes, so you can enjoy a unique and delicious dinner, even when short on time.",
+    "Description": "Moist, flaky tilapia is surrounded by a crispy layer of colorful, crushed tortilla chips, and layered with the fresh flavor of lime and bold smoky chipotle pepper. It cooks from frozen in less than twenty minutes, so you can enjoy a unique and delicious dinner, even when short on time.",
     "Amount of Servings": "8",
     "Serving Size": "3.25 oz each",
     "Conventional Oven": "Place frozen fillets on a slightly greased pan, preheat oven to 400, Bake for 16-18 minutes from frozen or 12-14 minutes from thawed. Oven temperatures vary, adjust accordingly.",
@@ -940,7 +937,7 @@
   },
   {
     "Name": "Spanakopita",
-    "Description ": "Experience the delicious flavors of Greece in this tasty and satisfying appetizer. A savory, seasoned mixture of tangy feta cheese, spinach, and onions, is nestled inside layers of delicate phyllo dough--ready for you to bake to crispy, golden perfection in just eight minutes. ",
+    "Description": "Experience the delicious flavors of Greece in this tasty and satisfying appetizer. A savory, seasoned mixture of tangy feta cheese, spinach, and onions, is nestled inside layers of delicate phyllo dough--ready for you to bake to crispy, golden perfection in just eight minutes. ",
     "Amount of Servings": "20 count",
     "Serving Size": "",
     "Conventional Oven": "Do not defrost. Preheat oven to 425 F. Bake for 7-9 minutes until golden brown and internal temperature reaches 160. Oven temperatures vary; adjust accordingly.",
@@ -958,7 +955,7 @@
   },
   {
     "Name": "Spanish Chicken",
-    "Description ": "Send your taste buds on a voyage with this mouthwatering Spanish Chicken that is sure to create your next truly memorable meal. Pieces of succulent chicken thigh are joined by roasted red peppers, chicken Andouille sausage, diced tomatoes, collard greens, and a rich white wine sauce that will delight and transport you. Served over rice, this dish is the ultimate cold weather cure. ",
+    "Description": "Send your taste buds on a voyage with this mouthwatering Spanish Chicken that is sure to create your next truly memorable meal. Pieces of succulent chicken thigh are joined by roasted red peppers, chicken Andouille sausage, diced tomatoes, collard greens, and a rich white wine sauce that will delight and transport you. Served over rice, this dish is the ultimate cold weather cure. ",
     "Amount of Servings": "4 count",
     "Serving Size": "9.5 oz each",
     "Conventional Oven": "Preheat oven to 350 F. Remove product from plastic pouch and place in oven safe dish. Discard pouch. Bake for 28-30 minutes from frozen. Bake for 11 to 13 minutes at 250 F from thawed.",
@@ -976,7 +973,7 @@
   },
   {
     "Name": "Spinach and Artichoke Bite",
-    "Description ": "These little bites are comprised of a light panko shell filled with Gruyere, parmesan, onions, and cream cheese. Pop as many as you need into the oven, and in a few minutes you'll have a hot and tasty appetizer ready to go. And with forty to a unit, you'll have plenty to go around. ",
+    "Description": "These little bites are comprised of a light panko shell filled with Gruyere, parmesan, onions, and cream cheese. Pop as many as you need into the oven, and in a few minutes you'll have a hot and tasty appetizer ready to go. And with forty to a unit, you'll have plenty to go around. ",
     "Amount of Servings": "40 count",
     "Serving Size": "",
     "Conventional Oven": "Preheat oven to 375. Place on baking tray. Bake for 11-12 minutes until shell is golden brown and internal temperature reaches 165 F as measured by a food thermometer. Oven temperatures vary, please adjust accordingly. ",
@@ -994,7 +991,7 @@
   },
   {
     "Name": "Stuffed Mushroom Caps ",
-    "Description ": "A seasoned blend of spinach, eggs, and Romano cheese is stuffed inside juicy, bite-sized mushroom caps to create the perfect mix of simplicity and sophistication. If you're looking for an easy but satisfying appetizer to serve at your next dinner party, look no further than this. ",
+    "Description": "A seasoned blend of spinach, eggs, and Romano cheese is stuffed inside juicy, bite-sized mushroom caps to create the perfect mix of simplicity and sophistication. If you're looking for an easy but satisfying appetizer to serve at your next dinner party, look no further than this. ",
     "Amount of Servings": "24 count",
     "Serving Size": "2 pieces",
     "Conventional Oven": "Do not defrost. Preheat oven to 400 F. Place on a lightly sprayed baking sheet. Bake for 10-15 minutes. Oven temperatures may vary, adjust accordingly. Allow to cool before serving.",
@@ -1012,7 +1009,7 @@
   },
   {
     "Name": "Stuffed Turkey Roast",
-    "Description ": "An elegant turkey dinner can be yours stress-free-- all the hard work has been done for you. Tender, moist turkey surrounds a sweet and savory stuffing of french bread croutons, apples, raisins, almonds and a savory blend of spices, for a dish that's visually stunning, yet virtually effortless to prepare. ",
+    "Description": "An elegant turkey dinner can be yours stress-free-- all the hard work has been done for you. Tender, moist turkey surrounds a sweet and savory stuffing of french bread croutons, apples, raisins, almonds and a savory blend of spices, for a dish that's visually stunning, yet virtually effortless to prepare. ",
     "Amount of Servings": "1",
     "Serving Size": "2.7 lb roulade",
     "Conventional Oven": "Preheat oven to 350. Remove product from plastic pouch and place in an oven safe dish, discard plastic pouch. Bake for 60 to 70 minutes if heated from frozen. Bake 40 to 50 minutes if heated from thawed. Oven temperatures vary, adjust cooking time accordingly.",
@@ -1030,7 +1027,7 @@
   },
   {
     "Name": "Tangy BBQ Shrimp",
-    "Description ": "The bold flavors of Southern cooking are the star of this shrimp, which is combined with corn, red and green bell peppers, and onions. We kick it up a notch with a red sauce made of butter, sugar, molasses, wine, and a tangy blend of spices. Serve over rice for a hearty, satisfying dish that's easily prepared and ready in minutes.",
+    "Description": "The bold flavors of Southern cooking are the star of this shrimp, which is combined with corn, red and green bell peppers, and onions. We kick it up a notch with a red sauce made of butter, sugar, molasses, wine, and a tangy blend of spices. Serve over rice for a hearty, satisfying dish that's easily prepared and ready in minutes.",
     "Amount of Servings": "2",
     "Serving Size": "1.5 lb bags",
     "Conventional Oven": "Preheat oven to 375. Remove shrimp and vegetables from package and place in oven safe casserole dish. Place dish on center rack of oven and cook for 20 minutes, stir and cook an additional 15 minutes. Let rest prior to serving. *Equipment varies. Adjust cooking times accordingly.",
@@ -1048,7 +1045,7 @@
   },
   {
     "Name": "Thai Chicken",
-    "Description ": "Chicken breasts are coated in an authentic Thai sauce made with red curry, coconut milk, edamame, and shiitake mushrooms. The result is rich, complex flavors that have little kick of spice, without too much heat. Just boil some rice, and easily enjoy one of your favorite restaurant dishes in the comfort of your own home. ",
+    "Description": "Chicken breasts are coated in an authentic Thai sauce made with red curry, coconut milk, edamame, and shiitake mushrooms. The result is rich, complex flavors that have little kick of spice, without too much heat. Just boil some rice, and easily enjoy one of your favorite restaurant dishes in the comfort of your own home. ",
     "Amount of Servings": "4 count",
     "Serving Size": "7.5 oz packages",
     "Conventional Oven": "Cook from frozen. Preheat oven to 375. Peel open pouch and place the chicken breast seared side up, into a small baking pan. Use a spoon to scoop out the remaining sauce from the pouch and place it on the chicken. Bake for 50-60 minutes from frozen or bake for 30-40 minutes from thawed. Carefully take the baking pan out of the oven and serve. Oven temperatures vary adjust accordingly.",
@@ -1066,7 +1063,7 @@
   },
   {
     "Name": "Tilapia with Scampi Sauce",
-    "Description ": "We start with a rich, classic scampi sauce, made with butter, parmesan, wine, and garlic, then infuse it into tilapia filets. Serve over rice or pasta, and in minutes you will be enjoying a surprisingly simple but exceptionally flavorful Italian dinner. ",
+    "Description": "We start with a rich, classic scampi sauce, made with butter, parmesan, wine, and garlic, then infuse it into tilapia filets. Serve over rice or pasta, and in minutes you will be enjoying a surprisingly simple but exceptionally flavorful Italian dinner. ",
     "Amount of Servings": "10",
     "Serving Size": "3.4 oz each",
     "Conventional Oven": "From frozen: Preheat oven to 375. Remove fish from package and place in oven safe casserole dish. Bake for 20 - 25 minutes. Let rest prior to serving. Oven temperatures vary, adjust accordingly.",
@@ -1084,7 +1081,7 @@
   },
   {
     "Name": "Turkey Roulade with Sausage and Apples",
-    "Description ": "Perfect for a casual gathering or holiday celebration, this Turkey Roulade brings a new sophistication to an old classic, with a subtle cajun kick. Tender turkey meat is wrapped around a sweet and savory stuffing made with croutons, Italian sausage, green apples, carrots, and onions. You will never want to go back to your old roast again.  ",
+    "Description": "Perfect for a casual gathering or holiday celebration, this Turkey Roulade brings a new sophistication to an old classic, with a subtle cajun kick. Tender turkey meat is wrapped around a sweet and savory stuffing made with croutons, Italian sausage, green apples, carrots, and onions. You will never want to go back to your old roast again.  ",
     "Amount of Servings": "1",
     "Serving Size": "2.7 lb roulade",
     "Conventional Oven": "Preheat oven to 350. Remove product from plastic pouch and place in an oven safe dish, discard plastic pouch. Bake for 60 to 70 minutes if heated from frozen. Bake 40 to 50 minutes if heated from thawed. Oven temperatures vary, adjust cooking time accordingly.",
@@ -1102,7 +1099,7 @@
   },
   {
     "Name": "Wild Mushroom and Apple Tartlets",
-    "Description ": "We combine the earthy richness of shiitake mushrooms with sweet but tart green apples in a bite-sized treat. Walnuts, cream and a splash of brandy add another dimension of flavor to these unique and sophisticated tartlets that are perfect for any size gathering. ",
+    "Description": "We combine the earthy richness of shiitake mushrooms with sweet but tart green apples in a bite-sized treat. Walnuts, cream and a splash of brandy add another dimension of flavor to these unique and sophisticated tartlets that are perfect for any size gathering. ",
     "Amount of Servings": "25 count",
     "Serving Size": "",
     "Conventional Oven": "Do not defrost. Preheat oven to 375 F. Bake for 10 to 12 minutes until golden brown and internal temperature reaches 160. Oven temperatures vary; adjust accordingly.",
