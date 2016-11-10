@@ -12,77 +12,67 @@ type PartialProduct struct {
 	Variants      []SearchVariant
 }
 
-type SearchVariant struct {
-	VariantID        int    `json:"variantId"`
-	VariantName      string `json:"variantName"`
-	VariantValueID   int    `json:"variantValueId"`
-	VariantValueName string `json:"variantValueName"`
-}
-
 func MakePartialProducts(product *api.Product, visualVariants []string) ([]PartialProduct, error) {
-	variants := product.Variants
-	if len(variants) == 0 {
-		code, err := product.SKUs[0].Code()
+	baseProduct := PartialProduct{}
+	for _, sku := range product.SKUs {
+		code, err := sku.Code()
 		if err != nil {
-			return []PartialProduct{}, err
+			return nil, err
 		}
 
-		return []PartialProduct{
-			PartialProduct{AvailableSKUs: []string{code}},
-		}, nil
+		baseProduct.AvailableSKUs = append(baseProduct.AvailableSKUs, code)
 	}
 
-	return makeProducts(variants, PartialProduct{}, visualVariants)
+	return makeProducts(product.Variants, baseProduct, visualVariants)
 }
 
-func makeProducts(variants []api.Variant, state PartialProduct, visualVariants []string) ([]PartialProduct, error) {
-	mappings := []PartialProduct{}
+// makeProducts is a recursive function that iterates through a list of variants
+// and returns a slice of PartialProduct. If no visual variants are defined, the
+// PartialProduct is the product.
+func makeProducts(variants []api.Variant, current PartialProduct, visualVariants []string) ([]PartialProduct, error) {
+	// If there are no variants to process, we're in the terminal state.
 	if len(variants) == 0 {
-		return []PartialProduct{state}, nil
+		return []PartialProduct{current}, nil
 	}
 
+	// Pop-off the first variant and analyze it if it's a visual variant.
+	head := variants[0]
 	tail := variants[1:]
 
-	variantName, err := variants[0].Name()
+	variantName, err := head.Name()
 	if err != nil {
-		return mappings, err
+		return nil, err
 	}
 
 	if !isVisual(variantName, visualVariants) {
-		return makeProducts(tail, state, visualVariants)
+		return makeProducts(tail, current, visualVariants)
 	}
 
+	// Process each VariantValue on the head and create PartialProducts with the
+	// Value's SKUs that intersect with the current PartialProduct.
+	partialProducts := []PartialProduct{}
 	for _, value := range variants[0].Values {
-		var nas []string
-		if len(state.AvailableSKUs) == 0 {
-			nas = value.SKUCodes
-		} else {
-			nas = utils.GetIntersection(state.AvailableSKUs, value.SKUCodes)
-		}
-
-		sv := SearchVariant{
+		variant := SearchVariant{
 			VariantID:        variants[0].ID,
 			VariantName:      variantName,
 			VariantValueID:   value.ID,
 			VariantValueName: value.Name,
 		}
 
-		newVariants := append(state.Variants, sv)
-		mapping := PartialProduct{AvailableSKUs: nas, Variants: newVariants}
-
-		if len(tail) == 0 {
-			mappings = append(mappings, mapping)
-		} else {
-			newMappings, err := makeProducts(tail, mapping, visualVariants)
-			if err != nil {
-				return mappings, err
-			}
-
-			mappings = append(mappings, newMappings...)
+		partialProduct := PartialProduct{
+			AvailableSKUs: utils.GetIntersection(current.AvailableSKUs, value.SKUCodes),
+			Variants:      append(current.Variants, variant),
 		}
+
+		newProducts, err := makeProducts(tail, partialProduct, visualVariants)
+		if err != nil {
+			return nil, err
+		}
+
+		partialProducts = append(partialProducts, newProducts...)
 	}
 
-	return mappings, nil
+	return partialProducts, nil
 }
 
 func isVisual(name string, variants []string) bool {
