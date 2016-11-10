@@ -30,6 +30,7 @@ const _archiveProduct = createAsyncActions(
   }
 );
 export const archiveProduct = _archiveProduct.perform;
+export const clearArchiveErrors = _archiveProduct.clearErrors;
 
 export function sanitizeError(error: string): string {
   if (error.indexOf('sku_code violates check constraint "sku_code_check"') != -1) {

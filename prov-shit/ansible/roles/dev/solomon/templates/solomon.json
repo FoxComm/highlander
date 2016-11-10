@@ -34,7 +34,7 @@
     {
       "protocol": "COMMAND",
       "command": {
-        "value": "ps -ef | grep \"[p]hoenix.server\""
+        "value": "ps -ef | grep -v grep | grep phoenix.server"
       },
       "gracePeriodSeconds": 300,
       "intervalSeconds": 60,

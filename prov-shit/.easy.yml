@@ -60,6 +60,9 @@ shortcuts:
   - name: Bootstrap Store Admin User
     alias: store_admin.yml
     target: ansible/bootstrap_store_admin.yml
+  - name: Bootstrap Tinystack
+    alias: tinystack.yml
+    target: ansible/bootstrap_tinystack.yml
 
   # New environments
   - name: Provision TPG Staging
@@ -68,14 +71,12 @@ shortcuts:
   - name: Provision TPG Production
     alias: tpg_production.yml
     target: ansible/tpg_production.yml
+  - name: Provision TPG Shipping Methods
+    alias: tpg_shipping.yml
+    target: ansible/tpg_shipping.yml
   - name: Provision Tony Staging
     alias: easy_tony.yml
     target: ansible/easy_tony.yml
-
-  # Temporary
-  - name: Bootstrap Docker GC
-    alias: docker_gc.yml
-    target: ansible/tmp_docker_gc.yml
 
 # Packer shortcuts
 - type: snowflake

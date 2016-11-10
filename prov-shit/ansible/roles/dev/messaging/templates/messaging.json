@@ -30,7 +30,7 @@
     {
       "protocol": "COMMAND",
       "command": {
-        "value": "ps -ef | grep \"[m]essaging.jar\""
+        "value": "ps -ef | grep -v grep | grep messaging.jar"
       },
       "gracePeriodSeconds": 300,
       "intervalSeconds": 60,
