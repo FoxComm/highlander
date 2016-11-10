@@ -16,15 +16,12 @@ import akka.stream.ActorMaterializer
 import com.stripe.Stripe
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
-import models.account.User
 import org.json4s._
 import org.json4s.jackson._
-import services.account.AccountCreateContext
 import services.Authenticator
-import services.Authenticator.UserAuthenticator
-import services.Authenticator.requireAdminAuth
+import services.Authenticator.{UserAuthenticator, requireAdminAuth, requireCustomerAuth}
+import services.account.AccountCreateContext
 import services.actors._
-
 import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{Development, Staging}
 import utils.apis._
@@ -57,6 +54,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
               dbOverride: Option[Database] = None,
               apisOverride: Option[Apis] = None,
               esOverride: Option[ElasticsearchApi] = None,
+              authOverride: Option[UserAuthenticator] = None,
               addRoutes: immutable.Seq[Route] = immutable.Seq.empty)(
     implicit val env: FoxConfig.Environment) {
 
@@ -87,14 +85,21 @@ class Service(systemOverride: Option[ActorSystem] = None,
   val orgName  = config.getString(s"user.customer.org")
   val scopeId  = config.getInt(s"user.customer.scope_id")
 
-  val customerCreateContext                = AccountCreateContext(List(roleName), orgName, scopeId)
-  implicit val userAuth: UserAuthenticator = Authenticator.forUser(customerCreateContext)
+  val customerCreateContext = AccountCreateContext(List(roleName), orgName, scopeId)
+  implicit val userAuth: UserAuthenticator =
+    authOverride.getOrElse(Authenticator.forUser(customerCreateContext))
 
-  val defaultRoutes = {
-    pathPrefix("v1") {
+  val defaultRoutes: Route = pathPrefix("v1") {
+    pathPrefix("public") {
       routes.AuthRoutes.routes ~
-      routes.Public.routes(customerCreateContext) ~
-      routes.Customer.routes ~
+      routes.Public.routes(customerCreateContext)
+    } ~
+    pathPrefix("my") {
+      requireCustomerAuth(userAuth) { implicit auth ⇒
+        routes.Customer.routes
+      }
+    } ~
+    pathPrefix("admin") {
       requireAdminAuth(userAuth) { implicit auth ⇒
         routes.admin.AdminRoutes.routes ~
         routes.admin.NotificationRoutes.routes ~
@@ -118,21 +123,22 @@ class Service(systemOverride: Option[ActorSystem] = None,
         routes.admin.ObjectRoutes.routes ~
         routes.admin.PluginRoutes.routes ~
         routes.admin.TaxonomyRoutes.routes ~
-        routes.service.PaymentRoutes.routes //Migrate this to auth with service tokens
-      //once we have them
+        routes.service.PaymentRoutes.routes
       }
     }
   }
 
-  lazy val devRoutes = {
+  lazy val devRoutes: Route = {
     pathPrefix("v1") {
-      requireAdminAuth(userAuth) { implicit auth ⇒
-        routes.admin.DevRoutes.routes
+      pathPrefix("dev") {
+        requireAdminAuth(userAuth) { implicit auth ⇒
+          routes.admin.DevRoutes.routes
+        }
       }
     }
   }
 
-  val allRoutes = {
+  val allRoutes: Route = {
     val routes = FoxConfig.environment match {
       case Development | Staging ⇒
         logger.info("Activating dev routes")
