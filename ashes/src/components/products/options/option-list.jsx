@@ -253,7 +253,7 @@ class OptionList extends Component {
         body={confirmation}
         cancel="Cancel"
         confirm="Yes, Remove"
-        cancelAction={() => this.closeDeleteDialog()}
+        onCancel={() => this.closeDeleteDialog()}
         confirmAction={() => this.confirmDeletion()}
       />
     );

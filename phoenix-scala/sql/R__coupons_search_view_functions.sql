@@ -70,10 +70,11 @@ begin
       codes = q.codes
       from (select
               cp.form_id,
-              jsonb_agg(c.code) filter (where c.code is not null) over (partition by cp.form_id)  as codes
+              jsonb_agg(c.code) as codes
             from coupons as cp
             left join coupon_codes as c on (cp.form_id = c.coupon_form_id)
-            where c.id = new.id) as q
+            where cp.form_id = (select coupon_form_id from coupon_codes c where c.id = new.id)
+            group by cp.form_id) as q
     where coupons_search_view.id = q.form_id;
 
     return null;

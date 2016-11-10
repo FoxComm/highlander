@@ -13,6 +13,12 @@ type Props = {
   },
 };
 
+const columns = [
+  { field: 'name', text: 'Name' },
+  { field: 'storefrontName', text: 'Storefront Name' },
+  { field: 'code', text: 'Code' },
+];
+
 export default class OrderCoupons extends Component {
   props: Props;
 
@@ -26,7 +32,7 @@ export default class OrderCoupons extends Component {
 
   render(): Element {
     const title = <PanelHeader showStatus={false} isOptional={true} text="Coupons" />;
-    const content = <CouponsPanel coupons={this.coupons} />;
+    const content = <CouponsPanel coupons={this.coupons} columns={columns} />;
     return (
       <ContentBox
         title={title}

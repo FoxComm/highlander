@@ -10,10 +10,13 @@ import models.objects._
 import models.product._
 import org.json4s.JsonDSL._
 import org.json4s._
+import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.OrderPayloads.CreateCart
 import payloads.ProductPayloads._
 import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 import responses.ProductResponses.ProductResponse.Root
+import responses.cord.CartResponse
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -358,6 +361,16 @@ class ProductIntegrationTest
       activeFrom must === (None)
     }
 
+    "Returns error if product is present in carts" in new Fixture {
+      val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
+
+      cartsApi(cart.referenceNumber).lineItems.add(Seq(UpdateLineItemsPayload(skuRedSmallCode, 1)))
+
+      productsApi(product.formId)
+        .archive()
+        .mustFailWith400(ProductIsPresentInCarts(product.formId))
+    }
+
     "SKUs must be unlinked" in new VariantFixture {
       productsApi(product.formId).archive().as[Root].skus mustBe empty
     }
@@ -438,7 +451,7 @@ class ProductIntegrationTest
                                                              (skuGreenSmallCode, "green", "small"),
                                                              (skuGreenLargeCode, "green", "large"))
 
-    val (product, skus, variants) = ({
+    val (product, skus, variants) = {
 
       implicit val au = storeAdminAuthData
       val scope       = LTree(au.token.scope)
@@ -478,7 +491,7 @@ class ProductIntegrationTest
                     } yield (colorLink, sizeLink)
                 }
       } yield (product, skus, variantsAndValues)
-    }).gimme
+    }.gimme
   }
 
   trait VariantFixture extends Fixture {

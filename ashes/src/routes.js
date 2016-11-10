@@ -1,8 +1,6 @@
 import React from 'react';
 import { Route, IndexRoute, IndexRedirect } from 'react-router';
 
-import FoxRouter from 'lib/fox-router';
-
 import Site from './components/site/site';
 import Home from './components/home/home';
 

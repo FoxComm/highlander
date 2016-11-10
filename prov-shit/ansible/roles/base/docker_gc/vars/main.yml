@@ -1,3 +1,0 @@
-docker_gc_repo: https://github.com/spotify/docker-gc.git
-docker_gc_deb: docker-gc_0.1.0_all.deb
-docker_gc_dir: "{{home}}/docker-gc"

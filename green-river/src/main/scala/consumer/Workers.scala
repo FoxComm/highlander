@@ -184,6 +184,7 @@ object Workers {
       "store_admins_search_view"           → StoreAdminsSearchView(),
       "store_credit_transactions_view"     → StoreCreditTransactionsSearchView(),
       "store_credits_search_view"          → StoreCreditsSearchView(),
-      "activity_connections_view"          → ActivityConnectionTransformer(connectionInfo)
+      "activity_connections_view"          → ActivityConnectionTransformer(connectionInfo),
+      "taxonomies_search_view"             → TaxonomiesSearchView()
   )
 }

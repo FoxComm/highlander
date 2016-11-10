@@ -4,7 +4,7 @@
 import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
 import _ from 'lodash';
-// import { orderSuccess } from './details.js';
+import { fetchCartSucceeded } from './details.js';
 
 export type CouponModuleProps = {
   isEditing: boolean,
@@ -41,7 +41,7 @@ export function addCoupon(orderRefNum: string) {
       .then(
         order => {
           dispatch(orderCouponsStopEdit());
-          // dispatch(orderSuccess(order));
+          dispatch(fetchCartSucceeded(order));
         },
         err => {
           dispatch(orderCouponApplyError(err));
@@ -55,7 +55,7 @@ export function removeCoupon(orderRefNum: string) {
     return Api.delete(`${basePath(orderRefNum)}`)
       .then(
         order => {
-          // dispatch(orderSuccess(order));
+          dispatch(fetchCartSucceeded(order));
         },
         err => console.log(err)
       );
