@@ -12,7 +12,7 @@ function getPhone(phone) {
 
 function getCustomerInfo(customer) {
   return {
-    "email": _.lowerCase(customer.EmailAddress),
+    "email": _.toLower(customer.EmailAddress),
     "name": getName(customer.BillingAddress),
     "password": "password",
     "isGuest": false
@@ -30,10 +30,10 @@ function getUSACode() {
 function getStates(countryId) {
   console.log('Fetching states');
   const states = require('./data/states.json');
-  const namesAbbrs = _.map(states, state => ({ name: _.lowerCase(state.name), abbr: state.abbreviation }));
+  const namesAbbrs = _.map(states, state => ({ name: _.toLower(state.name), abbr: state.abbreviation }));
   return Api.get(`/public/countries/${countryId}`).then(data => {
     const abbrIds = _.map(data.regions, item => {
-      const abbrItem = _.find(namesAbbrs, { name: _.lowerCase(item.name) });
+      const abbrItem = _.find(namesAbbrs, { name: _.toLower(item.name) });
       return { abbreviation: abbrItem.abbr, id: item.id };
     });
     return abbrIds;
@@ -81,7 +81,6 @@ function addAddress(id, address, shipping = false) {
 
 function save() {
   fs.readFile(__dirname + '/data/customers.json', function(err, data) {
-    // const customers = JSON.parse(data).slice(0, 2);
     const customers = JSON.parse(data);
 
     let countryId = null;
@@ -95,29 +94,23 @@ function save() {
           const shippingAddress = getAddress(customer.ShippingAddress, countryId, statesIdMap);
           const billingAddress = getAddress(customer.BillingAddress, countryId, statesIdMap);
 
-          // console.log(shippingAddress);
+          Api.post('/customers', customerInfo)
+            .then(
+              data => {
+                console.log(`${data.id}: ${data.name} is created`);
 
-            Api.post('/customers', customerInfo)
-              .then(
-                data => {
-                  console.log(`${data.id}: ${data.name} is created`);
-
-                  if (_.isEqual(shippingAddress, billingAddress)) {
-                    addAddress(data.id, shippingAddress, true);
-                  } else {
-                    addAddress(data.id, shippingAddress, true);
-                    addAddress(data.id, billingAddress);
-                  }
-                },
-                err => {
-                  const {status, text} = err.response.error;
-                  console.log(`${status}: ${text} ${customer.EmailAddress}`);
-
-                  // if (text.indexOf('The email address you entered is already in use"') != -1) {
-                  //   console.log('update customer by id');
-                  // }
+                if (_.isEqual(shippingAddress, billingAddress)) {
+                  addAddress(data.id, shippingAddress, true);
+                } else {
+                  addAddress(data.id, shippingAddress, true);
+                  addAddress(data.id, billingAddress);
                 }
-              );
+              },
+              err => {
+                const {status, text} = err.response.error;
+                console.log(`${status}: ${text} ${_.toLower(customer.EmailAddress)}`);
+              }
+            );
 
 
         });
