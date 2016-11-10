@@ -37,7 +37,7 @@
     {
       "protocol": "COMMAND",
       "command": {
-        "value": "ps -ef | grep \"[s]hipstation-consumer\""
+        "value": "ps -ef | grep -v grep | grep shipstation-consumer"
       },
       "gracePeriodSeconds": 300,
       "intervalSeconds": 60,
