@@ -41,7 +41,7 @@ export const clearFetchCartErrors = _fetchCart.clearErrors;
 
 const _updateLineItemCount = createAsyncActions(
   'updateLineItemCount',
-  (refNum: string, payload: Object) => Api.post(`/orders/${refNum}/line-items`, payload)
+  (refNum: string, payload: Object) => Api.patch(`/orders/${refNum}/line-items`, payload)
 );
 
 export function updateLineItemCount(refNum: string, sku: string, quantity: number): Function {
@@ -49,8 +49,8 @@ export function updateLineItemCount(refNum: string, sku: string, quantity: numbe
   return _updateLineItemCount.perform(refNum, payload);
 }
 
-export function deleteLineItem(refNum: string, sku: string): Function {
-  const payload = [{ sku, quantity: 0 }];
+export function deleteLineItem(refNum: string, sku: string, quantity: number): Function {
+  const payload = [{ sku, quantity: -quantity }];
   return _updateLineItemCount.perform(refNum, payload);
 }
 
