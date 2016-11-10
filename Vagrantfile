@@ -124,6 +124,7 @@ Vagrant.configure("2") do |config|
       ansible.extra_vars = {
         user: user,
         appliance_hostname: $nginx_ip,
+        mesos_ip: $nginx_ip,
       }
     end
   end
