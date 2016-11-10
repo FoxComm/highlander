@@ -169,7 +169,7 @@ export default class Album extends Component {
                           body={body}
                           cancel='Cancel'
                           confirm='Yes, Archive'
-                          cancelAction={this.handleCancelArchiveAlbum}
+                          onCancel={this.handleCancelArchiveAlbum}
                           confirmAction={this.handleConfirmArchiveAlbum}
       />
     );

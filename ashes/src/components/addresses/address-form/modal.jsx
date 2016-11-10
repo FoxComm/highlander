@@ -5,7 +5,7 @@ import AddressForm from './address-form';
 import ContentBox from '../../content-box/content-box';
 
 const AddressFormWrapper = props => {
-  const actionBlock = <i onClick={props.closeAction} className="fc-btn-close icon-close" title="Close"></i>;
+  const actionBlock = <i onClick={props.onCancel} className="fc-btn-close icon-close" title="Close"/>;
 
   return (
     <ContentBox title="Address Book" className="fc-address-form-modal" actionBlock={ actionBlock }>
@@ -15,7 +15,7 @@ const AddressFormWrapper = props => {
 };
 
 AddressFormWrapper.propTypes = {
-  closeAction: PropTypes.func.isRequired
+  onCancel: PropTypes.func.isRequired
 };
 
 const ModalAddressForm = modalWrapper(AddressFormWrapper);

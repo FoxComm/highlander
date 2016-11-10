@@ -38,7 +38,7 @@ class ArchiveConfirmation extends Component {
         body={confirmation}
         cancel="Cancel"
         confirm={`Archive ${this.props.type}`}
-        cancelAction={this.props.closeConfirmation}
+        onCancel={this.props.closeConfirmation}
         confirmAction={this.props.archive}
       />
     );
