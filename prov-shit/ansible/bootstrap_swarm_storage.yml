@@ -1,0 +1,14 @@
+---
+
+- include: bootstrap_swarm_wait_ssh.yml
+
+- name: Provisioning Swarm Storage
+  hosts: all
+  vars:
+    user: ubuntu
+
+  sudo: true
+  roles:
+    # storage roles
+    # reload consul
+    - { role: swarm/provision/consul/reload }
