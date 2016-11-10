@@ -203,7 +203,7 @@ docker_registry_port: 5000
 
 # Flyway
 flyway_version: 4.0.3
-flyway_download_url: https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{flyway_vers}}/flyway-commandline-{{flyway_vers}}-linux-x64.tar.gz
+flyway_download_url: https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{flyway_version}}/flyway-commandline-{{flyway_version}}-linux-x64.tar.gz
 flyway_dir: "{{usr_local_share}}/flyway-{{flyway_version}}"
 flyway_exec: "{{flyway_dir}}/flyway -locations=filesystem:sql/ -configFile=sql/flyway.conf"
 
