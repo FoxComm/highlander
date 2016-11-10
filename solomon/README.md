@@ -10,8 +10,10 @@ Now you can visit [`localhost:4002`](http://localhost:4002) from your browser.
 
 ## JWT signing and verifying
 
-The application looks for environment variables `private_keys_dest_dir` and
-`public_keys_dest_dir` which should be the directories containing
-`private_key.pem` and `public_key.pem`, respectively.
+The application looks for the following environment variables
+
+  * `private_key` : the full name of the private key
+  * `public_key` : the full name of the public key
+  * `tokenTTL` : a default number of days before a token should expire
 
 You can set these variables in `.env.local` before running `source .env`.

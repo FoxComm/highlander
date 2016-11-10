@@ -73,10 +73,14 @@ defmodule Solomon.ScopeService do
   end
 
   def get_scope_path(scope) do
-    case scope.parent_path do
-      nil -> to_string(scope.id)
-      "" -> to_string(scope.id)
-      parent_path -> parent_path <> "." <> to_string(scope.id)
+    if(is_integer(scope.id)) do
+      case scope.parent_path do
+        nil -> to_string(scope.id)
+        "" -> to_string(scope.id)
+        parent_path -> parent_path <> "." <> to_string(scope.id)
+      end
+    else
+      {:error, "invalid scope"}
     end
   end
 

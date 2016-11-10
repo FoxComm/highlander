@@ -49,5 +49,4 @@ config :marketplace, Marketplace.MerchantAccount,
 
 # configure jwt auth
 config :marketplace, Marketplace.JWTAuth,
-  public_key_path: System.get_env("public_keys_dest_dir"),
-  public_key: "public_key.pem"
+  public_key: System.get_env("public_key")

@@ -14,13 +14,11 @@ defmodule Solomon.JWTAuth do
 
   defp opts(action) do
     alg = "RS256"
-    private_key_path = Application.get_env(:solomon, Solomon.JWTAuth)[:private_key_path]
-    public_key_path = Application.get_env(:solomon, Solomon.JWTAuth)[:public_key_path]
     private_key = Application.get_env(:solomon, Solomon.JWTAuth)[:private_key]
     public_key = Application.get_env(:solomon, Solomon.JWTAuth)[:public_key]
     key = case action do
-      :sign -> RsaUtil.private_key(private_key_path, private_key)
-      :verify -> RsaUtil.public_key(public_key_path, public_key)
+      :sign -> RsaUtil.private_key(private_key, "")
+      :verify -> RsaUtil.public_key(public_key, "")
     end
     %{alg: alg, key: key}
   end

@@ -150,10 +150,11 @@ defmodule Marketplace.PermissionManager do
     end
   end
 
-  def sign_in_user(conn, email, passwd) do
+  def sign_in_user(conn, org, email, passwd) do
     HTTPoison.start
     post_body = %{
       "user" => %{
+        "org" => org,
         "email" => email,
         "password" => passwd
       }
