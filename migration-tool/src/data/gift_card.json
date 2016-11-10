@@ -4,7 +4,7 @@
   "attributes": {
     "title": {
       "t": "string",
-      "v": "GiftCard_test_1_inventory"
+      "v": "GiftCard"
     },
     "tags": {
       "t": "tags",
@@ -18,7 +18,7 @@
       "attributes": {
         "code": {
           "t": "string",
-          "v": "GFT-010_test_1"
+          "v": "GFT-010"
         },
         "title": {
           "t": "string",
@@ -47,7 +47,7 @@
       "attributes": {
         "code": {
           "t": "string",
-          "v": "GFT-025_test_1"
+          "v": "GFT-025"
         },
         "title": {
           "t": "string",
@@ -76,7 +76,7 @@
       "attributes": {
         "code": {
           "t": "string",
-          "v": "GFT-050_test_1"
+          "v": "GFT-050"
         },
         "title": {
           "t": "string",
@@ -105,7 +105,7 @@
       "attributes": {
         "code": {
           "t": "string",
-          "v": "GFT-100_test_1"
+          "v": "GFT-100"
         },
         "title": {
           "t": "string",
@@ -152,7 +152,7 @@
           "swatch": "",
           "image": "",
           "skuCodes": [
-            "GFT-010_test_1"
+            "GFT-010"
           ]
         },
         {
@@ -160,7 +160,7 @@
           "swatch": "",
           "image": "",
           "skuCodes": [
-            "GFT-025_test_1"
+            "GFT-025"
           ]
         },
         {
@@ -168,7 +168,7 @@
           "swatch": "",
           "image": "",
           "skuCodes": [
-            "GFT-050_test_1"
+            "GFT-050"
           ]
         },
         {
@@ -176,7 +176,7 @@
           "swatch": "",
           "image": "",
           "skuCodes": [
-            "GFT-100_test_1"
+            "GFT-100"
           ]
         }
       ]
