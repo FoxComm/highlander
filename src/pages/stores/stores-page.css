@@ -1,0 +1,16 @@
+
+.header-wrap {
+  composes: header-wrap from '../../components/products-list/products-list.css'
+}
+
+.text-wrap {
+  composes: text-wrap from '../../components/products-list/products-list.css'
+}
+
+.description {
+  composes: description from '../../components/products-list/products-list.css'
+}
+
+.title {
+  composes: title from '../../components/products-list/products-list.css'
+}
