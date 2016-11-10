@@ -38,13 +38,6 @@ export class CartLineItemsFooter extends Component {
   props: Props;
 
   @autobind
-  currentQuantityForSku(sku: string): number {
-    const skus = _.get(this.props, 'cart.lineItems.skus', []);
-    const matched = _.find(skus, { skuCode: sku });
-    return _.isEmpty(matched) ? 0 : matched.quantity;
-  }
-
-  @autobind
   skuSelected(item: Sku) {
     const { cart: { referenceNumber }, updateLineItemCount } = this.props;
 

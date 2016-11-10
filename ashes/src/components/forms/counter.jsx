@@ -19,7 +19,7 @@ type Props = {
 };
 
 const Counter = (props: Props) => {
-  const {decreaseAction, increaseAction, disabled, value, min, max, ...rest} = props;
+  const { decreaseAction, increaseAction, disabled, value, min, max, ...rest } = props;
 
   return (
     <div className="fc-input-group fc-counter">

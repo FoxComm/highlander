@@ -78,51 +78,34 @@ export class CartLineItem extends Component {
   @autobind
   cancelDelete() {
     this.setState({ isDeleting: false });
-
-    if (this.state.quantity == 0) {
-      this.setState({ quantity: 1 });
-      this.performUpdate();
-    }
   }
 
   @autobind
   confirmDelete() {
     this.setState({
       isDeleting: false,
+      quantity: 0,
     }, this.performUpdate());
   }
 
   @autobind
-  decreaseCount() {
-    const quantity = this.state.quantity - 1;
+  handleButtonClick(diff) {
+    const quantity = this.state.quantity + diff;
 
     if (quantity > 0) {
-      this.setState({ quantity });
-      this.performUpdate();
+      this.setState({ quantity }, this.performUpdate);
     }
   }
 
   @autobind
-  increaseCount() {
-    this.setState({ quantity: this.state.quantity + 1 });
+  handleInputChange({ target: { value } }: {target: Target}) {
+    const quantity = value ? parseInt(value, 10) : null;
 
-    this.performUpdate();
-  }
-
-  @autobind
-  changeCount({ target: { value } }: {target: Target}) {
-    const quantity = value ? parseInt(value, 10) : '';
-
-    this.setState({ quantity });
-
-    if (quantity === '') return;
-
-    if (quantity == 0) {
-      this.startDelete();
-    } else {
-      const { cart, item } = this.props;
-      this.performUpdate(cart.referenceNumber, item.sku, quantity);
+    if (!quantity || quantity < 1) {
+      return;
     }
+
+    this.setState({ quantity }, this.performUpdate);
   }
 
   render() {
@@ -142,9 +125,10 @@ export class CartLineItem extends Component {
             min={1}
             max={1000000}
             step={1}
-            onChange={this.changeCount}
-            decreaseAction={this.decreaseCount}
-            increaseAction={this.increaseCount} />
+            onChange={this.handleInputChange}
+            decreaseAction={() => this.handleButtonClick(-1)}
+            increaseAction={() => this.handleButtonClick(1)}
+          />
         </td>
         <td><Currency value={item.totalPrice} /></td>
         <td>
