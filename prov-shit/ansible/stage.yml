@@ -4,7 +4,8 @@
   hosts: foxcomm-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
-    zookeepers: zookeeper.service.consul:2181
+    zookeeper_server: zookeeper.service.consul:2181
+    zookeepers: zk://zookeeper.service.consul:2181
     docker_registry: docker-stage.foxcommerce.com
   tags:
     - backend
