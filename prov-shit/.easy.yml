@@ -60,6 +60,9 @@ shortcuts:
   - name: Bootstrap Store Admin User
     alias: store_admin.yml
     target: ansible/bootstrap_store_admin.yml
+  - name: Bootstrap Tinystack
+    alias: tinystack.yml
+    target: ansible/bootstrap_tinystack.yml
 
   # New environments
   - name: Provision TPG Staging
