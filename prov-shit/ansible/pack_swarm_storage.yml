@@ -8,5 +8,6 @@
   sudo: true
   roles:
     # storage roles
+    - { role: swarm/pack/consul/agent }
     - { role: swarm/pack/db }
     - { role: swarm/pack/flyway }
