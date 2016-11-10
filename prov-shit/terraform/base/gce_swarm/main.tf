@@ -140,3 +140,13 @@ module "storage" {
     ssh_user        = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }
+
+module "storage_provision" {
+    source     = "../../modules/gce/swarm/storage_provision"
+    // generic variables
+    datacenter = "${var.datacenter}"
+    setup      = "${var.setup}"
+    // resources variables
+    storage_ip = "${module.storage.leader_ip}"
+    leader_ip  = "${module.master_cluster.leader_ip}"
+}
