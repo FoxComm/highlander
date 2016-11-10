@@ -128,7 +128,7 @@ export default class CustomerAccountStatus extends React.Component {
             const customer = this.props.customer;
             this.props.toggleDisableStatus(customer.id, !customer.disabled);
           }}
-          cancelAction={this.props.stopDisablingCustomer}/>
+          onCancel={this.props.stopDisablingCustomer}/>
         <ConfirmationDialog
           {...this.blacklistedOptions}
           isVisible={this.props.isBlacklistedStarted}
@@ -136,7 +136,7 @@ export default class CustomerAccountStatus extends React.Component {
             const customer = this.props.customer;
             this.props.toggleBlacklisted(customer.id, !customer.isBlacklisted);
           }}
-          cancelAction={this.props.stopBlacklistCustomer}/>
+          onCancel={this.props.stopBlacklistCustomer}/>
       </ContentBox>
     </div>
     );

@@ -34,7 +34,7 @@
     {
       "protocol": "COMMAND",
       "command": {
-        "value": "ps -ef | grep \"[s]hipments-consumer\""
+        "value": "ps -ef | grep -v grep | grep shipments-consumer"
       },
       "gracePeriodSeconds": 300,
       "intervalSeconds": 60,

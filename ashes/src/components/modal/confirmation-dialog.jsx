@@ -1,11 +1,13 @@
 
 /* @flow */
 
+import _ from 'lodash';
 import React, { Element } from 'react';
 
-import { ModalContainer } from './base';
 import ContentBox from '../content-box/content-box';
 import { PrimaryButton } from '../common/buttons';
+import wrapModal from '../modal/wrapper';
+import ErrorAlerts from '../alerts/error-alerts';
 
 type Props = {
   body: string|Element,
@@ -13,8 +15,9 @@ type Props = {
   cancel: string,
   confirm: string,
   icon?: string,
-  cancelAction: Function,
+  onCancel: Function,
   confirmAction: Function,
+  asyncState?: AsyncStatus,
 };
 
 const ConfirmationDialog = (props: Props): Element => {
@@ -33,30 +36,38 @@ const ConfirmationDialog = (props: Props): Element => {
   );
 
   const actionBlock = (
-    <a className='fc-modal-close' onClick={() => props.cancelAction()}>
-      <i className='icon-close'></i>
+    <a className='fc-modal-close' onClick={() => props.onCancel()}>
+      <i className='icon-close' />
     </a>
   );
 
+  const handleKeyPress = (event) => {
+    if (event.keyCode === 13 /*enter*/) {
+      event.preventDefault();
+      props.confirmAction();
+    }
+  };
+
   return (
-    <ModalContainer {...props}>
+    <div onKeyDown={handleKeyPress}>
       <ContentBox title={title} className="fc-confirmation-dialog" actionBlock={actionBlock}>
         <div className='fc-modal-body'>
+          <ErrorAlerts error={_.get(props.asyncState, 'err', null)} />
           {props.body}
         </div>
         <div className='fc-modal-footer'>
-          <a tabIndex="2" className='fc-modal-close' onClick={() => props.cancelAction()}>
+          <a tabIndex="2" className='fc-modal-close' onClick={() => props.onCancel()}>
             {props.cancel}
           </a>
           <PrimaryButton tabIndex="1" autoFocus={true}
-                         onClick={() => props.confirmAction()}
-                         onKeyUp={({keyCode}) => keyCode === 27 && props.cancelAction()}>
+                         isLoading={_.get(props.asyncState, 'inProgress', false)}
+                         onClick={() => props.confirmAction()}>
             {props.confirm}
           </PrimaryButton>
         </div>
       </ContentBox>
-    </ModalContainer>
+    </div>
   );
 };
 
-export default ConfirmationDialog;
+export default wrapModal(ConfirmationDialog);

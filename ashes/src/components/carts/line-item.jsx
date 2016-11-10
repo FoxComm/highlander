@@ -174,7 +174,7 @@ export class CartLineItem extends Component {
             body="Are you sure you want to delete this item?"
             cancel="Cancel"
             confirm="Yes, Delete"
-            cancelAction={this.cancelDelete}
+            onCancel={this.cancelDelete}
             confirmAction={this.confirmDelete} />
         </td>
       </tr>

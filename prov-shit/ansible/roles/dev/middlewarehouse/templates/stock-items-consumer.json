@@ -34,7 +34,7 @@
     {
       "protocol": "COMMAND",
       "command": {
-        "value": "ps -ef | grep \"[s]tock-items-consumer\""
+        "value": "ps -ef | grep -v grep | grep stock-items-consumer"
       },
       "gracePeriodSeconds": 300,
       "intervalSeconds": 60,
