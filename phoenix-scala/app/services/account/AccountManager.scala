@@ -96,7 +96,8 @@ object AccountManager {
                  email: Option[String],
                  password: Option[String],
                  context: AccountCreateContext,
-                 checkEmail: Boolean = true)(implicit ec: EC, db: DB): DbResultT[User] = {
+                 checkEmail: Boolean = true,
+                 isMigrated: Boolean = false)(implicit ec: EC, db: DB): DbResultT[User] = {
 
     for {
       scope ← * <~ Scopes.mustFindById404(context.scopeId)
@@ -124,7 +125,8 @@ object AccountManager {
                }
              })
 
-      user ← * <~ Users.create(User(accountId = account.id, email = email, name = name))
+      user ← * <~ Users.create(
+                User(accountId = account.id, email = email, name = name, isMigrated = isMigrated))
 
       _ ← * <~ AccountOrganizations.create(
              AccountOrganization(accountId = account.id, organizationId = organization.id))
