@@ -56,5 +56,5 @@
   sudo: true
 
 - name: Run Middlewarehouse Seeder docker container
-  command: docker run --env-file "{{middlewarehouse_dir}}/seeder/.env" "{{docker_registry}}:5000/middlewarehouse-seeder:{{docker_branch}}"
+  command: docker run --env-file "{{middlewarehouse_dir}}/seeder/.env" --network host "{{docker_registry}}:5000/middlewarehouse-seeder:{{docker_branch}}"
   sudo: true
