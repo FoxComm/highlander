@@ -17,7 +17,6 @@ shortcuts:
       topdrawer: bin/envs/topdrawer
       topdrawer_vpn: bin/envs/topdrawer_vpn
       tpg: bin/envs/tpg
-      tpg_vpn: bin/envs/tpg_vpn
   - name: Private Key Files
     flag: "--private-key"
     aliases:
