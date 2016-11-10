@@ -72,9 +72,11 @@ export class CartLineItem extends Component {
   @autobind
   confirmDelete() {
     const { cart, item, deleteLineItem } = this.props;
+    const { quantity } = this.state;
+    
     this.setState({
       isDeleting: false,
-    }, deleteLineItem(cart.referenceNumber, item.sku));
+    }, deleteLineItem(cart.referenceNumber, item.sku, quantity));
   }
 
   @autobind
@@ -87,7 +89,7 @@ export class CartLineItem extends Component {
     } else {
       const decreased = parseInt(quantity, 10) - 1;
       this.setState({quantity: decreased});
-      updateLineItemCount(cart.referenceNumber, item.sku, decreased);
+      updateLineItemCount(cart.referenceNumber, item.sku, -1);
     }
   }
 
@@ -100,7 +102,7 @@ export class CartLineItem extends Component {
 
     this.setState({quantity: increased});
 
-    updateLineItemCount(cart.referenceNumber, item.sku, increased);
+    updateLineItemCount(cart.referenceNumber, item.sku, 1);
   }
 
   @autobind
@@ -109,13 +111,17 @@ export class CartLineItem extends Component {
 
     this.setState({quantity});
 
-    if (quantity === '') return;
+    const newQuantity = quantity;
 
-    if (quantity == 0) {
+    if (newQuantity === '') return;
+
+    if (newQuantity == 0) {
       this.startDelete();
     } else {
+      const { quantity } = this.state;
+      const change = parseInt(newQuantity) - parseInt(quantity)
       const {cart, item, updateLineItemCount} = this.props;
-      updateLineItemCount(cart.referenceNumber, item.sku, quantity);
+      updateLineItemCount(cart.referenceNumber, item.sku, change);
     }
   }
 
