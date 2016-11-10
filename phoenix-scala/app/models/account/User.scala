@@ -23,7 +23,8 @@ case class User(id: Int = 0,
                 blacklistedBy: Option[Int] = None,
                 createdAt: Instant = Instant.now,
                 updatedAt: Instant = Instant.now,
-                deletedAt: Option[Instant] = None)
+                deletedAt: Option[Instant] = None,
+                isMigrated: Boolean = false)
     extends FoxModel[User]
     with Validation[User] {
 
@@ -36,6 +37,11 @@ case class User(id: Int = 0,
 
   def mustNotBeBlacklisted: Failures Xor User = {
     if (isBlacklisted) Xor.Left(UserIsBlacklisted(id).single)
+    else Xor.Right(this)
+  }
+
+  def mustNotBeMigrated: Failures Xor User = {
+    if (isMigrated) Xor.Left(UserIsMigrated(id).single)
     else Xor.Right(this)
   }
 
@@ -82,6 +88,7 @@ class Users(tag: Tag) extends FoxTable[User](tag, "users") {
   def createdAt     = column[Instant]("created_at")
   def updatedAt     = column[Instant]("updated_at")
   def deletedAt     = column[Option[Instant]]("deleted_at")
+  def isMigrated    = column[Boolean]("is_migrated")
 
   def * =
     (id,
@@ -95,7 +102,8 @@ class Users(tag: Tag) extends FoxTable[User](tag, "users") {
      blacklistedBy,
      createdAt,
      updatedAt,
-     deletedAt) <> ((User.apply _).tupled, User.unapply)
+     deletedAt,
+     isMigrated) <> ((User.apply _).tupled, User.unapply)
 
   def account = foreignKey(Accounts.tableName, accountId, Accounts)(_.id)
 }
