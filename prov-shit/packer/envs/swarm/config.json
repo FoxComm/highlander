@@ -6,5 +6,5 @@
     "zone": "us-central1-a",
     "ssh_username": "ubuntu",
     "base_ubuntu_image": "ubuntu-1604-xenial-v20161020",
-    "base_image": "swarm-base-161109-131905"
+    "base_image": "swarm-base-161110-202050"
 }
