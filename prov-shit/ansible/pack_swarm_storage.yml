@@ -9,3 +9,4 @@
   roles:
     # storage roles
     - { role: swarm/pack/db }
+    - { role: swarm/pack/flyway }
