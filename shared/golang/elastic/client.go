@@ -37,7 +37,7 @@ func (c Client) ExecuteSearch(query CompiledQuery) (*Result, error) {
 
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 && resp.StatusCode > 299 {
-		return resp, errors.New("Error querying ElasticSearch")
+		return nil, errors.New("Error querying ElasticSearch")
 	}
 
 	bytes, err := ioutil.ReadAll(resp.Body)
@@ -51,6 +51,13 @@ func (c Client) ExecuteSearch(query CompiledQuery) (*Result, error) {
 	}
 
 	return result, nil
+}
+
+func (c Client) UpdateDocument(id string, payload interface{}) error {
+	url := fmt.Sprintf("%s/%s", c.url, id)
+	headers := map[string]string{}
+	_, err := consumers.Put(url, headers, payload)
+	return err
 }
 
 func (c Client) searchURL() string {

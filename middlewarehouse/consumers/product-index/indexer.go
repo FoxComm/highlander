@@ -2,33 +2,29 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 
-	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 	searchrow "github.com/FoxComm/highlander/middlewarehouse/consumers/product-index/search-row"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/highlander/shared/golang/elastic"
 )
 
 const productCreatedActivity = "full_product_created"
 const productUpdatedActivity = "full_product_updated"
 
 type Indexer struct {
-	esURL          string
+	esClient       *elastic.Client
 	visualVariants []string
 }
 
 func NewIndexer(esURL string, esIndex string, esMapping string, visualVariants []string) (*Indexer, error) {
-	if esURL == "" {
-		return nil, errors.New("Indexer requires an ElasticSearch URL")
-	} else if esIndex == "" {
-		return nil, errors.New("Indexer requires an index in ElasticSearch")
-	} else if esMapping == "" {
-		return nil, errors.New("Indexer requires a mapping in ElasticSearch")
+	esClient, err := elastic.NewClient(esURL, esIndex, esMapping)
+	if err != nil {
+		return nil, err
 	}
 
-	return &Indexer{fmt.Sprintf("%s/%s/%s", esURL, esIndex, esMapping), visualVariants}, nil
+	return &Indexer{esClient, visualVariants}, nil
 }
 
 func (i Indexer) Run(activity activities.ISiteActivity) error {
@@ -57,13 +53,8 @@ func (i Indexer) Run(activity activities.ISiteActivity) error {
 			return err
 		}
 
-		id := fmt.Sprintf("%d-%d", prod.Product.ID, row.SKUs[0].ID)
-		url := fmt.Sprintf("%s/%s", i.esURL, id)
-
-		headers := map[string]string{}
-		_, err = consumers.Put(url, headers, row)
-		if err != nil {
-			log.Printf("Unable to update product_catalog_view with error: %s", err.Error())
+		if err := i.esClient.UpdateDocument(row.Identifier(), row); err != nil {
+			log.Printf("Unable to update document with error: %s", err.Error())
 			return err
 		}
 

@@ -1,5 +1,7 @@
 package elastic
 
+import "errors"
+
 type TermFilter struct {
 	Field string
 	Value string
@@ -21,12 +23,16 @@ func NewCompileTermFilter(filters []TermFilter) (CompiledQuery, error) {
 	innerFilters := []map[string]interface{}{}
 	for _, filter := range filters {
 		if err := filter.Validate(); err != nil {
-			return err
+			return nil, err
 		}
 
-		innerFilters[filter.Field} = map[string]string{
-			"field": filter.Value,
+		innerFilter := map[string]interface{}{
+			filter.Field: map[string]interface{}{
+				"field": filter.Value,
+			},
 		}
+
+		innerFilters = append(innerFilters, innerFilter)
 	}
 
 	return CompiledQuery{
@@ -35,5 +41,5 @@ func NewCompileTermFilter(filters []TermFilter) (CompiledQuery, error) {
 				"filter": innerFilters,
 			},
 		},
-	}
+	}, nil
 }

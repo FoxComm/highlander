@@ -21,6 +21,14 @@ type SearchRow struct {
 	Tags        interface{}     `json:"tags"`
 }
 
+func (s SearchRow) Identifier() string {
+	if len(s.SKUs) > 0 {
+		return fmt.Sprintf("%d-%d", s.ProductID, s.SKUs[0].ID)
+	}
+
+	return fmt.Sprintf("%d", s.ProductID)
+}
+
 type SearchSKU struct {
 	ID   int    `json:"skuId"`
 	Code string `json:"code"`

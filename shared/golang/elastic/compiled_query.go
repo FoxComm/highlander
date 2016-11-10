@@ -1,3 +1,3 @@
 package elastic
 
-type CompileQuery map[string]interface{}
+type CompiledQuery map[string]interface{}
