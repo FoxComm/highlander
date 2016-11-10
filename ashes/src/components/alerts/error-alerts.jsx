@@ -37,7 +37,7 @@ const ErrorAlerts = props => {
     );
   }
 
-  return <div></div>;
+  return null;
 };
 
 ErrorAlerts.propTypes = {
