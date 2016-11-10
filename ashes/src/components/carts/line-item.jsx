@@ -89,7 +89,7 @@ export class CartLineItem extends Component {
   }
 
   @autobind
-  handleButtonClick(diff) {
+  handleButtonClick(diff: number) {
     const quantity = this.state.quantity + diff;
 
     if (quantity > 0) {
