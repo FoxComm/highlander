@@ -164,8 +164,8 @@ function save(productPayload, id) {
 
 function saveProducts() {
   fs.readFile(__dirname + '/data/products_new.json', function (err, data) {
-    const products = JSON.parse(data).slice(1, 2);
-    // const products = JSON.parse(data);
+    // const products = JSON.parse(data).slice(4, 5);
+    const products = JSON.parse(data);
 
     products.map((product) => {
       const productPayload = getProduct(product);
@@ -178,7 +178,10 @@ function saveProducts() {
       save(productPayload, id).then(
         (data) => {
           const code = data.skus[0].attributes.code.v;
-          updateInventory(code);
+
+          setTimeout(() => {
+            updateInventory(code);
+          }, 3000);
         }
       );
     });
@@ -197,14 +200,16 @@ function saveGiftCard() {
 
     save(giftCard).then(
       (data) => {
-        _.map(data.skus, sku => {
-          const code = sku.attributes.code.v;
-          updateInventory(code);
-        });
+        setTimeout(() => {
+          _.map(data.skus, sku => {
+            const code = sku.attributes.code.v;
+            updateInventory(code);
+          });
+        }, 3000);
       }
     );
   });
 }
 
-// saveGiftCard();
+saveGiftCard();
 saveProducts();
