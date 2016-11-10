@@ -1,9 +1,5 @@
 ---
 
-- name: Set Hostname
-  hostname: name={{appliance_hostname}}
-  sudo: true
-
 - name: Copy Mesos Worker Run Script
   template: src=run_mesos_worker.sh dest=/usr/local/bin/run_mesos_worker.sh mode="u+x,g+x,o+x"
   sudo: true
