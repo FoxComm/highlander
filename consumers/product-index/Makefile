@@ -27,5 +27,5 @@ docker-push:
 clean:
 	rm -rf ./vendor
 
-test: glide
+test:
 	cd $(BUILD_PATH) && GOENV=test go test `glide nv`

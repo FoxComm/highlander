@@ -3,7 +3,7 @@ package search
 import (
 	"testing"
 
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/product-index/utils"
+	"github.com/FoxComm/highlander/consumers/product-index/utils"
 )
 
 func TestSingleVisualVariant(t *testing.T) {
