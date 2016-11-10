@@ -63,6 +63,7 @@ resource "google_compute_instance" "swarm_server" {
     tags         = [
         "ssh",
         "no-ip",
+        "${var.datacenter}",
         "${var.datacenter}-${var.setup}",
         "${var.datacenter}-${var.setup}-${var.machine_role}",
         "${var.datacenter}-${var.setup}-${var.machine_role}-${count.index}"
