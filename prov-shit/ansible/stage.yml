@@ -8,13 +8,12 @@
   tags:
     - backend
   roles:
+    - { role: dev/stage_mesos}
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
-
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
-
 - name: Provision Stage Frontend
   hosts: foxcomm-stage-frontend
   vars:
@@ -40,6 +39,7 @@
   tags:
     - frontend
   roles:
+    - { role: dev/stage_mesos}
     - { role: base/ssh_keys }
     - { role: dev/phoenix }
     - { role: dev/greenriver }
