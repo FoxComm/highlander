@@ -22,7 +22,8 @@
   hosts: new-target-stage-frontend
   vars:
     user: '{{ansible_ssh_user}}'
-    middlewarehouse_server: middlewarehouse.service.consul:9292
+    middlewarehouse_host: middlewarehouse.service.consul
+    middlewarehouse_port: 9292
     isaac_server: isaac.service.consul:9190
     solomon_server: solomon.service.consul:4002
     ashes_server: ashes.service.consul:4000
