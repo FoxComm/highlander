@@ -1,4 +1,4 @@
-package searchrow
+package search
 
 type SearchVariant struct {
 	VariantID        int    `json:"variantId"`

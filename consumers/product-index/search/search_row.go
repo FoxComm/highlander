@@ -1,4 +1,4 @@
-package searchrow
+package search
 
 import (
 	"errors"
