@@ -9,13 +9,7 @@ import (
 )
 
 func TestSingleVisualVariant(t *testing.T) {
-	productByte := []byte(utils.ProductWithOneVisualVariant)
-	product := new(api.Product)
-
-	if err := json.Unmarshal(productByte, product); err != nil {
-		t.Errorf("Error unmarshalling product with error: %s", err.Error())
-		return
-	}
+	product := utils.NewProductWithOneVisualVariant()
 
 	visualVariants := []string{"color"}
 	partialProducts, err := MakePartialProducts(product, visualVariants)
