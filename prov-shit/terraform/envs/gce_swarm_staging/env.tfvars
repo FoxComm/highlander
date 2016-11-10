@@ -22,5 +22,5 @@ worker_disk_size     = "30"
 workers_count        = "2"
 
 storage_machine_type = "n1-standard-1"
-storage_image        = "swarm-storage-161110-204929"
+storage_image        = "swarm-storage-161110-210911"
 storage_disk_size    = "60"

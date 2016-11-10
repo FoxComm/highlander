@@ -1,4 +1,7 @@
 ---
 
+- name: Wait to ensure consul is running
+  wait_for: host=localhost port=8400 state=started #consul CLI RPC port
+
 - name: Reload consul
   shell: consul reload
