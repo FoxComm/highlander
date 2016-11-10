@@ -46,7 +46,7 @@ export default class CustomerAddressBook extends React.Component {
           className="fc-address is-editing">
           <AddressForm
             customerId={props.customerId}
-            closeAction={() => props.stopAddingAddress()}
+            onCancel={() => props.stopAddingAddress()}
             showFormTitle={ false }
             submitAction={this.handleSubmitAddress}
           />
@@ -81,7 +81,7 @@ export default class CustomerAddressBook extends React.Component {
           <AddressForm
             address={address}
             customerId={props.customerId}
-            closeAction={() => props.stopEditingAddress(address.id)}
+            onCancel={() => props.stopEditingAddress(address.id)}
             showFormTitle={ false }
             submitAction={this.handleSubmitAddress}
           />

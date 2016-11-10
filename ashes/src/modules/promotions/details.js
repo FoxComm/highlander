@@ -56,6 +56,7 @@ const _archivePromotion = createAsyncActions(
   }
 );
 
+export const clearArchiveErrors = _archivePromotion.clearErrors;
 export const archivePromotion = _archivePromotion.perform;
 export const createPromotion = _createPromotion.perform;
 export const updatePromotion = _updatePromotion.perform;

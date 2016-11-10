@@ -56,6 +56,7 @@ export function connectPage(namespace, actions) {
       fetchError: _.get(state.asyncActions, `${actionNames.fetch}.err`, null),
       createError: _.get(state.asyncActions, `${actionNames.create}.err`, null),
       updateError: _.get(state.asyncActions, `${actionNames.update}.err`, null),
+      archiveState: _.get(state.asyncActions, actionNames.archive, {}),
       isSaving: (
         _.get(state.asyncActions, `${actionNames.create}.inProgress`, false)
         || _.get(state.asyncActions, `${actionNames.update}.inProgress`, false)
@@ -140,6 +141,7 @@ export class ObjectPage extends Component {
       const requiredActions = [
         'reset',
         'clearSubmitErrors',
+        'clearArchiveErrors',
         'clearFetchErrors',
         ..._.values(this.props.actionNames),
       ];
@@ -218,7 +220,6 @@ export class ObjectPage extends Component {
   componentWillUnmount() {
     this.props.actions.reset();
   }
-
 
   get pageTitle(): string {
     if (this.isNew) {
@@ -348,6 +349,8 @@ export class ObjectPage extends Component {
         type={this.props.capitalized}
         title={this.pageTitle}
         archive={this.archiveEntity}
+        archiveState={this.props.archiveState}
+        clearArchiveErrors={this.props.actions.clearArchiveErrors}
       />
     );
   }

@@ -103,7 +103,9 @@ object CustomerManager {
       context: AccountCreateContext)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
       result ← * <~ createCustomer(payload, admin, context)
-    } yield build(result._1, result._2)
+      resp = build(result._1, result._2)
+      _ ← * <~ LogActivity.customerCreated(resp, admin)
+    } yield resp
 
   private def createCustomer(payload: CreateCustomerPayload,
                              admin: Option[User] = None,
