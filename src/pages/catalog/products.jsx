@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import type { HTMLElement } from 'types';
-import type { Product } from 'modules/products';
+// import type { Product } from 'modules/products';
 import { connect } from 'react-redux';
 
 import ProductsList from '../../components/products-list/products-list';
@@ -18,7 +18,7 @@ type Params = {
 
 type Props = {
   params: Params,
-  list: Array<Product>,
+  list: Array<Object>,
   isLoading: boolean,
   fetch: Function,
   location: any,

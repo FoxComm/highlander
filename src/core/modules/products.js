@@ -12,6 +12,13 @@ export type Product = {
   title: string;
   description: string,
   images: ?Array<string>,
+  currency: string,
+  productId: number,
+  salePrice: string,
+  scope: string,
+  skus: Array<string>,
+  tags: Array<string>,
+  albums: ?Array<Object> | Object,
 }
 
 const MAX_RESULTS = 1000;
