@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 WORK_DIR=/var/lib/mesos
 IP=`hostname -I | awk '{print $1}'`
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
