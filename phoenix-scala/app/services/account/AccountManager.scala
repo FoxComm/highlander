@@ -77,6 +77,7 @@ object AccountManager {
       accessMethod ← * <~ AccountAccessMethods
                       .findOneByAccountIdAndName(account.id, "login")
                       .mustFindOr(AccessMethodNotFound("login"))
+      _ <- * <~ Users.update(user, user.copy(isMigrated = false))
       _ ← * <~ UserPasswordResets.update(remind,
                                          remind.copy(state = UserPasswordReset.PasswordRestored,
                                                      activatedAt = Instant.now.some))
