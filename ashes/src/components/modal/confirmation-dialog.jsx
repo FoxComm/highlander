@@ -1,11 +1,13 @@
 
 /* @flow */
 
+import _ from 'lodash';
 import React, { Element } from 'react';
 
 import ContentBox from '../content-box/content-box';
 import { PrimaryButton } from '../common/buttons';
 import wrapModal from '../modal/wrapper';
+import ErrorAlerts from '../alerts/error-alerts';
 
 type Props = {
   body: string|Element,
@@ -15,6 +17,7 @@ type Props = {
   icon?: string,
   onCancel: Function,
   confirmAction: Function,
+  asyncState?: AsyncStatus,
 };
 
 const ConfirmationDialog = (props: Props): Element => {
@@ -34,7 +37,7 @@ const ConfirmationDialog = (props: Props): Element => {
 
   const actionBlock = (
     <a className='fc-modal-close' onClick={() => props.onCancel()}>
-      <i className='icon-close'></i>
+      <i className='icon-close' />
     </a>
   );
 
@@ -46,22 +49,24 @@ const ConfirmationDialog = (props: Props): Element => {
   };
 
   return (
-      <div onKeyDown={handleKeyPress}>
-        <ContentBox title={title} className="fc-confirmation-dialog" actionBlock={actionBlock}>
-          <div className='fc-modal-body'>
-            {props.body}
-          </div>
-          <div className='fc-modal-footer'>
-            <a tabIndex="2" className='fc-modal-close' onClick={() => props.onCancel()}>
-              {props.cancel}
-            </a>
-            <PrimaryButton tabIndex="1" autoFocus={true}
-                           onClick={() => props.confirmAction()}>
-              {props.confirm}
-            </PrimaryButton>
-          </div>
-        </ContentBox>
-      </div>
+    <div onKeyDown={handleKeyPress}>
+      <ContentBox title={title} className="fc-confirmation-dialog" actionBlock={actionBlock}>
+        <div className='fc-modal-body'>
+          <ErrorAlerts error={_.get(props.asyncState, 'err', null)} />
+          {props.body}
+        </div>
+        <div className='fc-modal-footer'>
+          <a tabIndex="2" className='fc-modal-close' onClick={() => props.onCancel()}>
+            {props.cancel}
+          </a>
+          <PrimaryButton tabIndex="1" autoFocus={true}
+                         isLoading={_.get(props.asyncState, 'inProgress', false)}
+                         onClick={() => props.confirmAction()}>
+            {props.confirm}
+          </PrimaryButton>
+        </div>
+      </ContentBox>
+    </div>
   );
 };
 
