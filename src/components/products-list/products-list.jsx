@@ -52,7 +52,7 @@ class ProductsList extends Component {
 
   renderHeader() {
     const props = this.props;
-    const { categoryName, productType } = props;
+    const { categoryName } = props;
 
     if (!categoryName ||
         (categoryName.toLowerCase() === defaultProductType.toLowerCase())) {
@@ -64,20 +64,14 @@ class ProductsList extends Component {
       ? <p styleName="description">{categoryInfo.description}</p>
       : '';
 
-    let className = `header-${categoryName}`;
-    let title = categoryName;
-
-    if (productType) {
-      className = `${className}-${productType}`;
-      title = `${productType}'s ${title}`;
-    }
+    const className = `header-${categoryName}`;
 
     return (
       <header styleName={className}>
         <div styleName="header-wrap">
           <div styleName="text-wrap">
             <span styleName="description">{description}</span>
-            <h1 styleName="title">{title}</h1>
+            <h1 styleName="title">{categoryName}</h1>
           </div>
         </div>
       </header>
