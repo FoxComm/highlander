@@ -175,9 +175,7 @@ function saveProducts() {
 
       const id = _.get(product, 'productId');
 
-      const request = save(productPayload, id);
-
-      request.then(
+      save(productPayload, id).then(
         (data) => {
           const code = data.skus[0].attributes.code.v;
           updateInventory(code);
@@ -197,9 +195,14 @@ function saveGiftCard() {
       enableProduct(giftCard.skus[i]);
     });
 
-    //console.log(giftCard.skus[0].attributes);
-
-    save(giftCard);
+    save(giftCard).then(
+      (data) => {
+        _.map(data.skus, sku => {
+          const code = sku.attributes.code.v;
+          updateInventory(code);
+        });
+      }
+    );
   });
 }
 
