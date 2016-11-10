@@ -68,6 +68,23 @@ func NewProductWithOneVisualVariant() *api.Product {
 	}
 }
 
+func NewProductWithNoVariants() *api.Product {
+	return &api.Product{
+		ID:         1,
+		Context:    MakeContext(),
+		Attributes: makeProductAttributes(),
+		SKUs: []api.SKU{
+			makeSKU(
+				2,
+				"FREE-FLYKNIT-ORANGE-90",
+				"Nike Free Flyknit",
+				13000,
+				"https://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/231/free-orange-flyknit.jpeg",
+			),
+		},
+	}
+}
+
 func makeProductAttributes() api.ObjectAttributes {
 	return api.ObjectAttributes{
 		"title":       api.ObjectAttribute{Type: "string", Value: "Nike Free Flyknit"},

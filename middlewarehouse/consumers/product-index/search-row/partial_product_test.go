@@ -78,14 +78,7 @@ func TestMultipleVisualVariants(t *testing.T) {
 }
 
 func TestNoVariants(t *testing.T) {
-	productByte := []byte(utils.ProductNoVariants)
-	product := new(api.Product)
-
-	if err := json.Unmarshal(productByte, product); err != nil {
-		t.Errorf("Error unmarshalling product with error: %s", err.Error())
-		return
-	}
-
+	product := utils.NewProductWithNoVariants()
 	visualVariants := []string{"color", "fabric"}
 	partialProducts, err := MakePartialProducts(product, visualVariants)
 	if err != nil {
@@ -105,8 +98,8 @@ func TestNoVariants(t *testing.T) {
 			return
 		}
 
-		if row.Title != "Duckling" {
-			t.Errorf("Expected title to be Duckling, got %s", row.Title)
+		if row.Title != "Nike Free Flyknit" {
+			t.Errorf("Expected title to be Nike Free Flyknit, got %s", row.Title)
 			return
 		}
 	}
