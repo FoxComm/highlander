@@ -37,6 +37,7 @@ const { fetch, ...searchActions } = createAsyncActions('search', searchApiCall);
 export const setTerm = createAction('SET_TERM');
 export const resetTerm = createAction('RESET_TERM');
 export const toggleActive = createAction('TOGGLE_ACTIVE');
+export const resetSearchResults = createAction('RESET_SEARCH_RESULTS');
 export { fetch };
 
 const reducer = createReducer({
@@ -56,6 +57,12 @@ const reducer = createReducer({
     return {
       ...state,
       term: '',
+    };
+  },
+  [resetSearchResults]: (state) => {
+    return {
+      ...state,
+      results: [],
     };
   },
   [toggleActive]: (state) => {

@@ -5,7 +5,6 @@ import type { HTMLElement } from 'types';
 import type { Product } from 'modules/products';
 import { connect } from 'react-redux';
 
-import Loader from 'ui/loader';
 import ProductsList from '../../components/products-list/products-list';
 
 import styles from './products.css';
@@ -60,13 +59,14 @@ class Products extends Component {
   }
 
   render(): HTMLElement {
-    return this.props.isLoading
-      ? <Loader/>
-      : <ProductsList
+    return (
+      <ProductsList
         list={this.props.list}
         categoryName={this.props.params.categoryName}
         productType={this.props.params.productType}
-      />;
+        isLoading={this.props.isLoading}
+      />
+    );
   }
 }
 

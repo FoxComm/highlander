@@ -4,6 +4,7 @@ import { createReducer } from 'redux-act';
 import createAsyncActions from './async-utils';
 import { addTermFilter, defaultSearch, termFilter } from 'lib/elastic';
 import _ from 'lodash';
+import { api } from 'lib/api';
 
 export type Product = {
   id: number;
@@ -15,8 +16,10 @@ export type Product = {
 
 const MAX_RESULTS = 1000;
 const context = process.env.FIREBIRD_CONTEXT || 'default';
+const GIFT_CARD_TAG = 'GIFT-CARD';
 
-function apiCall(categoryName: ?string, productType: ?string): global.Promise {
+function apiCall(
+  categoryName: ?string, productType: ?string, { ignoreGiftCards = true } = {}): global.Promise {
   let payload = defaultSearch(context);
 
   [categoryName, productType].forEach(tag => {
@@ -26,8 +29,17 @@ function apiCall(categoryName: ?string, productType: ?string): global.Promise {
     }
   });
 
+  if (ignoreGiftCards) {
+    const giftCardTerm = termFilter('tags', GIFT_CARD_TAG);
+    payload = addTermFilter(payload, null, { mustNot: giftCardTerm });
+  }
+
   return this.api.post(
     `/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
+}
+
+function searchGiftCards() {
+  return apiCall.call({ api }, GIFT_CARD_TAG, null, { ignoreGiftCards: false });
 }
 
 const {fetch, ...actions} = createAsyncActions('products', apiCall);
@@ -45,4 +57,5 @@ const reducer = createReducer({
 export {
   reducer as default,
   fetch,
+  searchGiftCards,
 };

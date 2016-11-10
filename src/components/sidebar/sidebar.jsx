@@ -70,7 +70,7 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
             <Search onSearch={props.toggleSidebar} isActive/>
           </div>
           <div styleName="controls-categories">
-            <Categories onClick={changeCategoryCallback} />
+            <Categories onClick={changeCategoryCallback} hasAllLink />
           </div>
           <div styleName="controls-session">
             {renderSessionLink}

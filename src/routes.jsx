@@ -38,8 +38,9 @@ const routes = (
       <Route path="/terms-of-use" component={TermsOfUse} name="terms-of-use" />
       <Route path="/checkout/done" component={OrderPlaced} />
       <Route path="/products/:productId" component={Pdp} name="product" />
-      <Route path=":categoryName(/:productType)" component={Products} name="category" />
+      <Route path="/gift-cards" component={Pdp} name="gift-cards" />
       <Route path="/search/:term" component={Search} name="search" />
+      <Route path=":categoryName(/:productType)" component={Products} name="category" />
     </Route>
   </Route>
 );

@@ -60,15 +60,15 @@ function getLineItems(payload) {
 
 // collect items for submit
 function collectItemsToSubmit(items) {
-  return _.map(items, (item) => ({
-    sku: item.sku,
-    quantity: item.quantity,
-  }));
+  return _.map(items,
+    ({ sku, quantity, attributes }) => (
+      { sku, quantity, attributes }
+    ));
 }
 
 // collect line items to submit change
-function addToLineItems(items, id, quantity) {
-  const toCollect = items.concat([{sku: id, quantity}]);
+function addToLineItems(items, sku, quantity, attributes) {
+  const toCollect = items.concat([{ sku, quantity, attributes }]);
   return collectItemsToSubmit(toCollect);
 }
 
@@ -79,24 +79,24 @@ function changeCart(payload) {
 const { fetch: submitChange, ...changeCartActions } = createAsyncActions('cartChange', changeCart);
 
 // add line item to cart
-export function addLineItem(id, quantity) {
+export function addLineItem(sku, quantity, attributes = {}) {
   return (dispatch, getState) => {
     const state = getState();
     const lineItems = _.get(state, ['cart', 'skus'], []);
-    const newLineItems = addToLineItems(lineItems, id, quantity);
+    const newLineItems = addToLineItems(lineItems, sku, quantity, attributes);
     return dispatch(submitChange(newLineItems));
   };
 }
 
 // update line item quantity
-export function updateLineItemQuantity(id, qtt) {
+export function updateLineItemQuantity(sku, qtt) {
   return (dispatch, getState) => {
     const state = getState();
     const lineItems = _.get(state, ['cart', 'skus'], []);
     const newLineItems = _.map(lineItems, (item) => {
-      const quantity = item.sku === id ? parseInt(qtt, 10) : item.quantity;
+      const quantity = item.sku === sku ? parseInt(qtt, 10) : item.quantity;
       return {
-        sku: item.sku,
+        ...item,
         quantity,
       };
     });
@@ -105,8 +105,8 @@ export function updateLineItemQuantity(id, qtt) {
 }
 
 // remove item from cart
-export function deleteLineItem(id) {
-  return updateLineItemQuantity(id, 0);
+export function deleteLineItem(sku) {
+  return updateLineItemQuantity(sku, 0);
 }
 
 function fetchMyCart(user): global.Promise {

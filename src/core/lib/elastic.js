@@ -22,7 +22,8 @@ export type BoolFilter = {
   query: {
     bool: {
       filter: Array<TermFilter>,
-      must?: Array<MatchQuery>,
+      must?: ?Array<MatchQuery | TermFilter>,
+      must_not?: ?Array<MatchQuery | TermFilter>,
     },
   },
 };
@@ -45,9 +46,24 @@ export function defaultSearch(context: string): BoolFilter {
   };
 }
 
-export function addTermFilter(filter: BoolFilter, term: TermFilter): BoolFilter {
+export function addTermFilter(initialFilter: BoolFilter, term?: ?TermFilter, mustFilters: any = {}): BoolFilter {
+  let filter = initialFilter;
+  const { must, mustNot } = mustFilters;
   const existingFilters = filter.query.bool.filter;
-  return assoc(filter, ['query', 'bool', 'filter'], [...existingFilters, term]);
+
+  if (term) {
+    filter = assoc(filter, ['query', 'bool', 'filter'], [...existingFilters, term]);
+  }
+
+  if (must) {
+    filter = assoc(filter, ['query', 'bool', 'must'], [...filter.query.bool.must || [], must]);
+  }
+
+  if (mustNot) {
+    filter = assoc(filter, ['query', 'bool', 'must_not'], [...filter.query.bool.must_not || [], mustNot]);
+  }
+
+  return filter;
 }
 
 export function addMatchQuery(filter: BoolFilter, searchString: string): BoolFilter {

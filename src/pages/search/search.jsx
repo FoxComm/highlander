@@ -12,7 +12,7 @@ import type { Localized } from 'lib/i18n';
 
 import ProductsList from '../../components/products-list/products-list';
 
-import { setTerm, fetch } from 'modules/search';
+import { setTerm, fetch, resetSearchResults } from 'modules/search';
 
 type SearchParams = {
   term: string,
@@ -31,6 +31,7 @@ type Props = Localized & {
   params: SearchParams,
   setTerm: Function,
   fetch: Function,
+  isLoading?: boolean,
 };
 
 class Search extends Component {
@@ -44,8 +45,9 @@ class Search extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps) {
     if (this.props.term !== nextProps.term) {
+      this.props.resetSearchResults();
       this.props.fetch(nextProps.term);
     }
   }
@@ -59,16 +61,26 @@ class Search extends Component {
         <p styleName="search-title">
           <span styleName="search-title__uppercase">{t('Search results for')}</span> "{term}"
         </p>
-        <ProductsList list={result}/>
+        <ProductsList
+          list={result}
+          isLoading={this.props.isLoading}
+        />
       </div>
     );
   }
 }
 
-function mapState({ search }: any): Object {
+function mapState(state): Object {
+  const async = state.asyncActions.search;
+
   return {
-    ...search,
+    ...state.search,
+    isLoading: !!async ? async.inProgress : true,
   };
 }
 
-export default connect(mapState, { setTerm, fetch })(localized(Search));
+export default connect(mapState, {
+  setTerm,
+  fetch,
+  resetSearchResults,
+})(localized(Search));

@@ -85,7 +85,10 @@ class ListItem extends React.Component {
             <div styleName="preview">
               <img src={previewImageUrl} styleName="preview-image" />
               <div styleName="hover-info">
-                <h2 styleName="additional-description">{description}</h2>
+                <h2
+                  styleName="additional-description"
+                  dangerouslySetInnerHTML={{__html: description}}
+                />
               </div>
             </div>
           </Link>}

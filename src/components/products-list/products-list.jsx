@@ -13,6 +13,7 @@ import styles from './products-list.css';
 // components
 import ListItem from '../products-item/list-item';
 import ProductTypeSelector from 'ui/product-type-selector';
+import Loader from 'ui/loader';
 
 // types
 import type { HTMLElement } from 'types';
@@ -25,11 +26,12 @@ type Category = {
 };
 
 type Props = {
-  list: ?Array<Product>;
-  categories: ?Array<Category>;
-  categoryName: ?string;
-  productType: ?string;
-}
+  list: ?Array<Product>,
+  categories: ?Array<Category>,
+  categoryName: ?string,
+  productType: ?string,
+  isLoading: ?boolean,
+};
 
 const mapStateToProps = state => ({
   categories: state.categories.list,
@@ -107,7 +109,7 @@ class ProductsList extends Component {
 
   render() : HTMLElement {
     const props = this.props;
-    const { productType } = props;
+    const { productType, isLoading } = props;
     const items = props.list && props.list.length > 0
       ? this.getItemList()
       : <div styleName="not-found">No products found.</div>;
@@ -126,9 +128,12 @@ class ProductsList extends Component {
             onItemClick={this.onDropDownItemClick}
           />
         </div>
-        <div styleName="list">
-          {items}
-        </div>
+
+        {isLoading ?
+          <Loader /> :
+          <div styleName="list">
+            {items}
+          </div>}
       </section>
     );
   }

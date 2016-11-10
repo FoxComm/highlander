@@ -5,7 +5,7 @@ import type { HTMLElement } from 'types';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { browserHistory } from 'react-router';
+import { Link } from 'react-router';
 
 import localized from 'lib/i18n';
 
@@ -17,13 +17,14 @@ type Category = {
   name: string,
   id: number,
   description: string,
+  url?: string,
 };
 
 type Props = {
   list: Array<any>,
   fetch: Function,
-  onClick: Function,
   hasAllLink: boolean,
+  onClick?: Function,
   t: any,
 };
 
@@ -33,7 +34,6 @@ class Navigation extends Component {
   props: Props;
 
   static defaultProps = {
-    onClick: _.noop,
     hasAllLink: false,
   };
 
@@ -47,21 +47,24 @@ class Navigation extends Component {
     if (this.props.hasAllLink) {
       return (
         <li styleName="item" key="category-all">
-          <a onClick={() => this.onClick()} styleName="item-link">{t('ALL')}</a>
+          <Link to="/" styleName="item-link" onClick={this.props.onClick}>{t('ALL')}</Link>
         </li>
       );
     }
   }
 
   @autobind
-  onClick(category : ?Category) {
-    this.props.onClick(category);
+  getNavUrl(category : ?Category) {
+    let url;
+
     if (category == undefined) {
-      browserHistory.push('/');
+      url = '/';
     } else {
       const dashedName = category.name.replace(/\s/g, '-');
-      browserHistory.push(`/${dashedName}`);
+      url = `/${dashedName}`;
     }
+
+    return url;
   }
 
   render(): HTMLElement {
@@ -70,11 +73,13 @@ class Navigation extends Component {
     const categoryItems = _.map(this.props.list, (item) => {
       const dashedName = item.name.replace(/\s/g, '-');
       const key = `category-${dashedName}`;
+      const url = this.getNavUrl(item);
+
       return (
         <li styleName="item" key={key}>
-          <a styleName="item-link" onClick={() => this.onClick(item)}>
+          <Link styleName="item-link" to={url} onClick={this.props.onClick}>
             {t(item.name.toUpperCase())}
-          </a>
+          </Link>
         </li>
       );
     });
