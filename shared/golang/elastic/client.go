@@ -54,10 +54,19 @@ func (c Client) ExecuteSearch(query CompiledQuery) (*Result, error) {
 }
 
 func (c Client) UpdateDocument(id string, payload interface{}) error {
-	url := fmt.Sprintf("%s/%s", c.url, id)
 	headers := map[string]string{}
-	_, err := http.Put(url, headers, payload)
+	_, err := http.Put(c.documentURL(id), headers, payload)
 	return err
+}
+
+func (c Client) RemoveDocument(id string) error {
+	headers := map[string]string{}
+	_, err := http.Delete(c.documentURL(id), headers)
+	return err
+}
+
+func (c Client) documentURL(id string) string {
+	return fmt.Sprintf("%s/%s", c.url, id)
 }
 
 func (c Client) searchURL() string {

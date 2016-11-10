@@ -67,6 +67,12 @@ func (i Indexer) Run(activity activities.ISiteActivity) error {
 		log.Printf("Successfully updated view for _id %s", row.Identifier())
 	}
 
+	for id, _ := range existingRows {
+		if err := i.esClient.RemoveDocument(id); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

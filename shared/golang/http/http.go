@@ -7,8 +7,8 @@ import (
 	"net/http"
 )
 
-func Delete(url string, headers map[string]string, payload interface{}) (*http.Response, error) {
-	return request("DELETE", url, headers, payload)
+func Delete(url string, headers map[string]string) (*http.Response, error) {
+	return request("DELETE", url, headers, nil)
 }
 
 func Get(url string, headers map[string]string) (*http.Response, error) {
@@ -30,7 +30,7 @@ func Put(url string, headers map[string]string, payload interface{}) (*http.Resp
 func request(method string, url string, headers map[string]string, payload interface{}) (*http.Response, error) {
 	var req *http.Request
 	var err error
-	if method == "GET" {
+	if method == "GET" || method == "DELETE" {
 		req, err = http.NewRequest(method, url, nil)
 	} else {
 		payloadBytes := []byte{}
