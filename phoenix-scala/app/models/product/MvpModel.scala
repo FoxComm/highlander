@@ -192,7 +192,7 @@ case class SimpleProductData(productId: Int = 0,
                              title: String,
                              description: String,
                              image: String,
-                             code: String,
+                             skuCode: String,
                              price: Int,
                              currency: Currency = Currency.USD,
                              active: Boolean = false,
@@ -242,7 +242,7 @@ object Mvp {
 
       sku ← * <~ Skus.filter(_.id === link.rightId).mustFindOneOr(SkuNotFound(link.rightId))
 
-      simpleSku  ← * <~ SimpleSku(p.code, p.title, p.price, p.currency, p.active, p.tags)
+      simpleSku  ← * <~ SimpleSku(p.skuCode, p.title, p.price, p.currency, p.active, p.tags)
       oldSkuForm ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuForm    ← * <~ ObjectForms.update(oldSkuForm, simpleSku.update(oldSkuForm))
 
@@ -273,7 +273,7 @@ object Mvp {
     for {
       simpleProduct ← * <~ SimpleProduct(p.title, p.description, p.active, p.tags)
       productForm   ← * <~ ObjectForms.create(simpleProduct.create)
-      simpleSku     ← * <~ SimpleSku(p.code, p.title, p.price, p.currency, p.active, p.tags)
+      simpleSku     ← * <~ SimpleSku(p.skuCode, p.title, p.price, p.currency, p.active, p.tags)
       skuForm       ← * <~ ObjectForms.create(simpleSku.create)
       simpleAlbum   ← * <~ new SimpleAlbum(p.title, p.image)
       albumForm     ← * <~ ObjectForms.create(simpleAlbum.create)
@@ -459,7 +459,7 @@ object Mvp {
       sku ← * <~ Skus.create(
                Sku(scope = LTree(au.token.scope),
                    contextId = contextId,
-                   code = p.code,
+                   code = p.skuCode,
                    formId = skuForm.id,
                    shadowId = skuShadow.id,
                    commitId = skuCommit.id))

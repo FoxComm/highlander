@@ -286,7 +286,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
       cheapProduct ← * <~ Mvp.insertProduct(productContext.id,
                                             Factories.products.head.copy(title = "Cheap Donkey",
                                                                          price = 10,
-                                                                         code = "SKU-CHP"))
+                                                                         skuCode = "SKU-CHP"))
       _ ← * <~ CartLineItems.create(
              CartLineItem(cordRef = cheapCart.refNum, skuId = cheapProduct.skuId))
 
@@ -306,7 +306,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
                                                 Factories.products.head.copy(title =
                                                                                "Expensive Donkey",
                                                                              price = 100,
-                                                                             code = "SKU-EXP"))
+                                                                             skuCode = "SKU-EXP"))
       _ ← * <~ CartLineItems.create(
              CartLineItem(cordRef = expensiveCart.refNum, skuId = expensiveProduct.skuId))
       expensiveAddress ← * <~ Addresses.create(

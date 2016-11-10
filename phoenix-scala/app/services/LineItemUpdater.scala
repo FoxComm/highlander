@@ -117,8 +117,8 @@ object LineItemUpdater {
 
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[Int, Int] =
     payload.foldLeft(Map[Int, Int]()) { (acc, item) ⇒
-      val quantity = acc.getOrElse(item.skuId, 0)
-      acc.updated(item.skuId, quantity + item.quantity)
+      val quantity = acc.getOrElse(item.skuFormId, 0)
+      acc.updated(item.skuFormId, quantity + item.quantity)
     }
   private def updateQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload], contextId: Int)(
       implicit ec: EC,
@@ -137,8 +137,8 @@ object LineItemUpdater {
     for {
       sku ← * <~ Skus
              .filterByContext(contextId)
-             .filter(_.formId === lineItem.skuId)
-             .mustFindOneOr(SkuNotFoundForContext(lineItem.skuId, contextId))
+             .filter(_.formId === lineItem.skuFormId)
+             .mustFindOneOr(SkuNotFoundForContext(lineItem.skuFormId, contextId))
       _            ← * <~ mustFindProductIdForSku(sku, cart.refNum)
       updateResult ← * <~ addLineItems(sku.id, lineItem.quantity, cart.refNum, lineItem.attributes)
     } yield updateResult
@@ -162,8 +162,8 @@ object LineItemUpdater {
       for {
         sku ← * <~ Skus
                .filterByContext(ctx.id)
-               .filter(_.formId === lineItem.skuId)
-               .mustFindOneOr(SkuNotFoundForContext(lineItem.skuId, ctx.id))
+               .filter(_.formId === lineItem.skuFormId)
+               .mustFindOneOr(SkuNotFoundForContext(lineItem.skuFormId, ctx.id))
         _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
         actionsList ← * <~ (if (lineItem.quantity > 0)
                               addLineItems(sku.id,

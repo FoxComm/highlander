@@ -410,7 +410,7 @@ class ProductIntegrationTest
       CreateProductPayload(attributes = attrMap, skus = Seq(skuPayload), variants = None)
 
     val simpleProd = SimpleProductData(title = "Test Product",
-                                       code = "TEST",
+                                       skuCode = "TEST",
                                        description = "Test product description",
                                        image = "image.png",
                                        price = 5999)

@@ -44,9 +44,9 @@ class SkuIntegrationTest
     }
   }
 
-  "GET v1/skus/:context/:code" - {
+  "GET v1/skus/:context/:id" - {
     "Get a created SKU successfully" in new Fixture {
-      val skuResponse = skusApi(sku.code).get().as[SkuResponse.Root]
+      val skuResponse = skusApi(sku.formId).get().as[SkuResponse.Root]
       val code        = skuResponse.attributes \ "code" \ "v"
       code.extract[String] must === (sku.code)
 
@@ -54,16 +54,16 @@ class SkuIntegrationTest
       salePrice.extract[Int] must === (9999)
     }
 
-    "Throws a 404 if given an invalid code" in new Fixture {
-      val response = skusApi("INVALID-CODE").get()
+    "Throws a 404 if given an invalid sku form id" in new Fixture {
+      val response = skusApi(666).get()
       response.status must === (StatusCodes.NotFound)
     }
   }
 
-  "PATCH v1/skus/:context/:code" - {
+  "PATCH v1/skus/:context/:id" - {
     "Adds a new attribute to the SKU" in new Fixture {
       val payload     = SkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))))
-      val skuResponse = skusApi(sku.code).update(payload).as[SkuResponse.Root]
+      val skuResponse = skusApi(sku.formId).update(payload).as[SkuResponse.Root]
 
       (skuResponse.attributes \ "code" \ "v").extract[String] must === (sku.code)
       (skuResponse.attributes \ "name" \ "v").extract[String] must === ("Test")
@@ -72,9 +72,9 @@ class SkuIntegrationTest
 
     "Updates the SKU's code" in new Fixture {
       val payload = SkuPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))))
-      skusApi(sku.code).update(payload).mustBeOk()
+      skusApi(sku.formId).update(payload).mustBeOk()
 
-      val skuResponse = skusApi("upcode").get().as[SkuResponse.Root]
+      val skuResponse = skusApi(sku.formId).get().as[SkuResponse.Root]
       (skuResponse.attributes \ "code" \ "v").extract[String] must === ("UPCODE")
 
       (skuResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)
@@ -83,7 +83,7 @@ class SkuIntegrationTest
 
   "DELETE v1/products/:context/:id" - {
     "Archives SKU successfully" in new Fixture {
-      val result = skusApi(sku.code).archive().as[SkuResponse.Root]
+      val result = skusApi(sku.formId).archive().as[SkuResponse.Root]
 
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow mustBe true
@@ -91,17 +91,17 @@ class SkuIntegrationTest
     }
 
     "SKU Albums must be unlinked" in new Fixture {
-      skusApi(sku.code).archive().as[SkuResponse.Root].albums mustBe empty
+      skusApi(sku.formId).archive().as[SkuResponse.Root].albums mustBe empty
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong code" in new Fixture {
-      skusApi("666").archive().mustFailWith404(SkuNotFoundForContext("666", ctx.id))
+      skusApi(666).archive().mustFailWith404(SkuNotFoundForContext(666, ctx.id))
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong context" in new Fixture {
       implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
 
-      skusApi(sku.code)(donkeyContext)
+      skusApi(sku.formId)(donkeyContext)
         .archive()
         .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }

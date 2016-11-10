@@ -92,7 +92,7 @@ class CheckoutIntegrationTest
         cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
       val _cartApi = cartsApi(refNum)
 
-      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 2))).mustBeOk()
+      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.formId, 2))).mustBeOk()
 
       _cartApi.shippingAddress.updateFromAddress(address.id).mustBeOk()
 
