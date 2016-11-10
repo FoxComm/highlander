@@ -17,7 +17,7 @@ import Loader from 'ui/loader';
 
 // types
 import type { HTMLElement } from 'types';
-import type { Product } from 'modules/products';
+// import type { Product } from 'modules/products';
 
 type Category = {
   name: string;
@@ -26,7 +26,7 @@ type Category = {
 };
 
 type Props = {
-  list: ?Array<Product>,
+  list: ?Array<Object>,
   categories: ?Array<Category>,
   categoryName: ?string,
   productType: ?string,

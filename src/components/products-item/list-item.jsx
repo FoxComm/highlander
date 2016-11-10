@@ -29,7 +29,7 @@ type Product = {
   productId: number,
   context: string,
   title: string,
-  description: string,
+  description: ?string,
   salePrice: string,
   currency: string,
   albums: ?Array<Album> | Object,

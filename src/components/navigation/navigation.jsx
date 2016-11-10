@@ -24,7 +24,7 @@ type Props = {
   list: Array<any>,
   fetch: Function,
   hasAllLink: boolean,
-  onClick?: Function,
+  onClick?: ?Function,
   t: any,
 };
 
