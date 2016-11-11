@@ -1,4 +1,4 @@
-GOPATH = /tmp/go
+GOPATH ?= /tmp/go
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/consumers/product-index
 HIGHLANDER_PATH=$(CURDIR)/../..
