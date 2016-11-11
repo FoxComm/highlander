@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 
 import AddToCartBtn from 'ui/add-to-cart-btn';
 import Currency from 'ui/currency';
+import ImagePlaceholder from './image-placeholder';
 
 type Image = {
   alt?: string,
@@ -71,7 +72,7 @@ class ListItem extends React.Component {
 
     return previewImageUrl
       ? <img src={previewImageUrl} styleName="preview-image"/>
-      : <div styleName="image-placeholder"><span>Image coming soon!</span></div>;
+      : <ImagePlaceholder/>;
   }
 
   render(): HTMLElement {

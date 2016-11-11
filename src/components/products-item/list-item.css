@@ -57,19 +57,6 @@
   height: auto;
 }
 
-.image-placeholder {
-  position: relative;
-  width: 50%;
-  padding: 48.5% 50%;
-  box-sizing: border-box;
-  background: var(--border-color);
-
-  & > span {
-    position: absolute;
-    transform: translateX(-50%) translatey(-50%);
-  }
-}
-
 .text-block {
   text-align: left;
 }
