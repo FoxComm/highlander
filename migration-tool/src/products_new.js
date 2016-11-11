@@ -107,12 +107,40 @@ function getProduct(product) {
   return productPayload;
 }
 
+function updateInventory(code) {
+  Api.get(`inventory/summary/${code}`)
+    .then(
+      data => {
+        const sellable = _.find(data.summary, 'type', 'Sellable');
+        const {id} = sellable.stockItem;
+        const sellableUpdate = {
+          "qty": 1000,
+          "type": "Sellable",
+          "status": "onHand"
+        };
+
+        Api.patch(`inventory/stock-items/${id}/increment`, sellableUpdate)
+          .then(
+            () => {
+              console.log(`Sellable items amount for ${code} is updated to 1000`);
+            },
+            err => {
+              console.log(err);
+            }
+          );
+      },
+      err => {
+        console.log(err);
+      });
+}
+
 function save(productPayload, id) {
   if (id) {
-    Api.patch(`/products/default/${id}`, productPayload)
+    return Api.patch(`/products/default/${id}`, productPayload)
       .then(
         data => {
           console.log(`${data.id} ${data.attributes.title.v}`);
+          return data;
         },
         err => {
           console.log(err);
@@ -120,10 +148,11 @@ function save(productPayload, id) {
         }
       );
   } else {
-    Api.post('/products/default', productPayload)
+    return Api.post('/products/default', productPayload)
       .then(
         data => {
           console.log(`${data.id} ${data.attributes.title.v}`);
+          return data;
         },
         err => {
           console.log(err);
@@ -135,7 +164,7 @@ function save(productPayload, id) {
 
 function saveProducts() {
   fs.readFile(__dirname + '/data/products_new.json', function (err, data) {
-    // const products = JSON.parse(data).slice(0, 3);
+    // const products = JSON.parse(data).slice(4, 5);
     const products = JSON.parse(data);
 
     products.map((product) => {
@@ -146,7 +175,15 @@ function saveProducts() {
 
       const id = _.get(product, 'productId');
 
-      save(productPayload, id)
+      save(productPayload, id).then(
+        (data) => {
+          const code = data.skus[0].attributes.code.v;
+
+          setTimeout(() => {
+            updateInventory(code);
+          }, 3000);
+        }
+      );
     });
   });
 }
@@ -161,9 +198,16 @@ function saveGiftCard() {
       enableProduct(giftCard.skus[i]);
     });
 
-    //console.log(giftCard.skus[0].attributes);
-
-    save(giftCard);
+    save(giftCard).then(
+      (data) => {
+        setTimeout(() => {
+          _.map(data.skus, sku => {
+            const code = sku.attributes.code.v;
+            updateInventory(code);
+          });
+        }, 3000);
+      }
+    );
   });
 }
 
