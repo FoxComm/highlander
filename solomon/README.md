@@ -17,3 +17,10 @@ The application looks for the following environment variables
   * `tokenTTL` : a default number of days before a token should expire
 
 You can set these variables in `.env.local` before running `source .env`.
+
+## How-to generate RSA keys:
+
+```bash
+openssl genrsa -out private_key.pem 4096
+openssl rsa -in private_key.pem -pubout -outform PEM -out public_key.pem
+```
