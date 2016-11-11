@@ -140,7 +140,14 @@ export function saveLineItems(merge: boolean = false) {
           return item;
         });
 
-        const otherPart = _.difference(lineItemsToSubmit, onePart);
+        const onePartSkus = _.map(onePart, li => li.sku);
+        const otherPart = _.reduce(lineItemsToSubmit, (acc, item) => {
+          if (onePartSkus.indexOf(item.sku) >= 0) {
+            return acc;
+          }
+
+          acc.concat(item);
+        }, []);
 
         newCartItems = onePart.concat(otherPart);
       } else {
