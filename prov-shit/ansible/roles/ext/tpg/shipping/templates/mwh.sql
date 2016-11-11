@@ -6,3 +6,6 @@ SELECT max(id), 'FedEx 2-Day Ground', 'FEDEX_GROUND' from carriers;
 
 INSERT INTO shipping_methods ("carrier_id", "name", "code")
 SELECT max(id), 'FedEx 2-Day Air', 'FEDEX_AIR' from carriers;
+
+INSERT INTO shipping_methods ("carrier_id", "name", "code")
+SELECT max(id), 'FedEx 2-Day Ground FREE', 'FEDEX_GROUND_FREE' from carriers;

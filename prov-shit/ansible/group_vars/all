@@ -181,6 +181,7 @@ mesos_quorum: 2
 
 # Use seeder service or not?
 with_seeder: false
+with_gatling_seeder: true
 
 # Marketplace
 marketplace_db_name: marketplace_development
