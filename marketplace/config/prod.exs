@@ -37,7 +37,7 @@ config :marketplace, Marketplace.MerchantAccount,
 
 # configure jwt auth
 config :marketplace, Marketplace.JWTAuth,
-  public_key: System.get_env("public_key")
+  public_key: System.get_env("PUBLIC_KEY")
 
 # Finally import the config/prod.secret.exs
 # which should be versioned separately.

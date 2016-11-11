@@ -62,8 +62,8 @@ import_config "prod.secret.exs"
 
 # configure jwt auth
 config :solomon, Solomon.JWTAuth,
-  private_key: System.get_env("private_key"),
-  public_key: System.get_env("public_key")
+  private_key: System.get_env("PRIVATE_KEY"),
+  public_key: System.get_env("PUBLIC_KEY")
 
 # configure jwt claims
 config :solomon, Solomon.JWTClaims,
