@@ -27,6 +27,7 @@ import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 import ProductDetails from './product-details';
 import GiftCardForm from '../../components/gift-card-form';
 import ProductAttributes from './product-attributes';
+import ImagePlaceholder from '../../components/products-item/image-placeholder';
 
 // styles
 import styles from './pdp.css';
@@ -219,6 +220,14 @@ class Pdp extends Component {
       });
   }
 
+  renderGallery() {
+    const { images } = this.product;
+
+    return !_.isEmpty(images)
+      ? <Gallery images={images} />
+      : <ImagePlaceholder largeScreenOnly />;
+  }
+
   render(): HTMLElement {
     const { t, isLoading, notFound } = this.props;
 
@@ -231,12 +240,11 @@ class Pdp extends Component {
     }
 
     const product = this.product;
-    const { images } = product;
 
     return (
       <div styleName="container">
         <div styleName="gallery">
-          <Gallery images={images} />
+          {this.renderGallery()}
         </div>
         <div styleName="details">
           <div styleName="details-wrap">
