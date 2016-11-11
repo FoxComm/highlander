@@ -36,7 +36,6 @@ export const loadBillingData = createAction('CHECKOUT_LOAD_BILLING_DATA');
 
 export const resetCheckout = createAction('CHECKOUT_RESET');
 const orderPlaced = createAction('CHECKOUT_ORDER_PLACED');
-const resetShippingAddres = createAction('CHECKOUT_RESET_SHIPPING_ADDRESS');
 
 /* eslint-disable quotes, quote-props */
 
@@ -147,9 +146,9 @@ export function updateAddress(address: Address, id?: number): Function {
     const payload = addressToPayload(address);
 
     return createOrUpdateAddress(payload, id)
-      .then((address) => {
+      .then((addressResponse) => {
         if (payload.isDefault) {
-          dispatch(setDefaultAddress(address.id));
+          dispatch(setDefaultAddress(addressResponse.id));
         } else {
           dispatch(fetchAddresses());
         }

@@ -20,7 +20,7 @@ import styles from './address.css';
 
 import type { Address } from 'types/address';
 // actions
-import { initAddressData }  from 'modules/edit-address';
+import { initAddressData } from 'modules/edit-address';
 
 type EditShippingProps = Localized & {
   onUpdate: (address: Address) => void,
