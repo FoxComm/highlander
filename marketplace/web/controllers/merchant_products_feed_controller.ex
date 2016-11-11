@@ -6,7 +6,8 @@ defmodule Marketplace.MerchantProductsFeedController do
   alias Marketplace.ProductsFeedView
   alias Marketplace.MerchantProductsFeed
 
-  def index(conn, %{"merchant_id" => merchant_id}) do
+  def index(conn, params), do: secured_route(conn, params, &index/3)
+  defp index(conn, %{"merchant_id" => merchant_id}, claims) do
     products_feeds = Repo.all(from pf in ProductsFeed,
                               join: mpf in MerchantProductsFeed,
                               where: pf.id == mpf.products_feed_id
@@ -15,7 +16,8 @@ defmodule Marketplace.MerchantProductsFeedController do
     render(conn, ProductsFeedView, "index.json", products_feeds: products_feeds)
   end
 
-  def create(conn, %{"products_feed" => products_feed_params, "merchant_id" => merchant_id}) do
+  def create(conn, params), do: secured_route(conn, params, &create/3)
+  defp create(conn, %{"products_feed" => products_feed_params, "merchant_id" => merchant_id}, claims) do
     case Repo.transaction(insert_and_relate(products_feed_params, merchant_id)) do
       {:ok, %{products_feed: products_feed, merchant_products_feed: m_pf}} ->
         conn
@@ -29,14 +31,16 @@ defmodule Marketplace.MerchantProductsFeedController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
+  def show(conn, params), do: secured_route(conn, params, &show/3)
+  defp show(conn, %{"id" => id}, claims) do
     products_feed = Repo.get_by!(ProductsFeed, id: id)
 
     conn
     |> render(ProductsFeedView, "show.json", products_feed: products_feed)
   end
 
-  def update(conn, %{"id" => id, "products_feed" => products_feed_params}) do
+  def update(conn, params), do: secured_route(conn, params, &update_/3)
+  defp update_(conn, %{"id" => id, "products_feed" => products_feed_params}, claims) do
     products_feed = Repo.get_by!(ProductsFeed, id: id)
     changeset = ProductsFeed.update_changeset(products_feed, products_feed_params)
     case Repo.update(changeset) do

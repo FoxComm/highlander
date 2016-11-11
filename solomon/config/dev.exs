@@ -27,4 +27,16 @@ config :solomon, Solomon.Repo,
   password: System.get_env("DB_PASSWORD"),
   database: System.get_env("DB_NAME"),
   hostname: System.get_env("DB_HOST"),
-  pool_size: 10
+  pool_size: 10,
+  extensions: [
+    {Solomon.LTree, :copy}
+  ]
+
+# configure jwt auth
+config :solomon, Solomon.JWTAuth,
+  private_key: System.get_env("PRIVATE_KEY"),
+  public_key: System.get_env("PUBLIC_KEY")
+
+# configure jwt claims
+config :solomon, Solomon.JWTClaims,
+  tokenTTL: System.get_env("TOKEN_TTL")

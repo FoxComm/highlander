@@ -37,6 +37,7 @@ defmodule Marketplace.Web do
 
       import Marketplace.Router.Helpers
       import Marketplace.Gettext
+      import Marketplace.JWTClaims
     end
   end
 
