@@ -65,8 +65,6 @@
     docker_registry: docker-tpg.foxcommerce.com
     with_seeder: false
     with_gatling_seeder: true
-    execute_phoenix_sql: true
-    execute_mwh_sql: false
   roles:
     - { role: dev/seeder }
     - { role: ext/tpg/shipping }
