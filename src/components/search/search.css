@@ -69,11 +69,11 @@
 
 .search-expanded {
   & .head-icon {
-    color: rgba(255,255,255,.3);
-  }
+    color: rgba(255, 255, 255, .3);
 
-  & .search-input:focus + .head-icon {
-    color: var(--whitish);
+    &:hover {
+      color: #fff;
+    }
   }
 }
 
@@ -128,6 +128,7 @@
       right: 0;
       left: auto;
       margin-right: 8.5325%;
+      z-index: 1;
     }
 
     &:global(._scrolled) {
