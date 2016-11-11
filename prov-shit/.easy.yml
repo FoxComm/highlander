@@ -17,7 +17,6 @@ shortcuts:
       topdrawer: bin/envs/topdrawer
       topdrawer_vpn: bin/envs/topdrawer_vpn
       tpg: bin/envs/tpg
-      tpg_vpn: bin/envs/tpg_vpn
   - name: Private Key Files
     flag: "--private-key"
     aliases:
@@ -42,6 +41,9 @@ shortcuts:
   - name: Bootstrap Consul Alerts
     alias: consul_alerts.yml
     target: ansible/bootstrap_consul_alerts.yml
+  - name: Bootstrap Marathon Alerts
+    alias: marathon_alerts.yml
+    target: ansible/bootstrap_marathon_alerts.yml
   - name: Bootstrap Database Backup
     alias: db_backup.yml
     target: ansible/bootstrap_db_backup.yml
@@ -57,6 +59,9 @@ shortcuts:
   - name: Bootstrap Store Admin User
     alias: store_admin.yml
     target: ansible/bootstrap_store_admin.yml
+  - name: Bootstrap Tinystack
+    alias: tinystack.yml
+    target: ansible/bootstrap_tinystack.yml
 
   # New environments
   - name: Provision TPG Staging
@@ -65,14 +70,12 @@ shortcuts:
   - name: Provision TPG Production
     alias: tpg_production.yml
     target: ansible/tpg_production.yml
+  - name: Provision TPG Shipping Methods
+    alias: tpg_shipping.yml
+    target: ansible/tpg_shipping.yml
   - name: Provision Tony Staging
     alias: easy_tony.yml
     target: ansible/easy_tony.yml
-
-  # Temporary
-  - name: Bootstrap Docker GC
-    alias: docker_gc.yml
-    target: ansible/tmp_docker_gc.yml
 
 # Packer shortcuts
 - type: snowflake
@@ -127,7 +130,6 @@ shortcuts:
       stable: terraform/envs/gce_staging_stable/terraform.tfstate
       gatling: terraform/envs/gce_gatling/terraform.tfstate
       target: terraform/envs/aws_target/terraform.tfstate
-      target-dev: terraform/envs/aws_target_dev/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
   - name: Variable Files
@@ -138,7 +140,6 @@ shortcuts:
       stable: terraform/envs/gce_staging_stable/staging.tfvars
       gatling: terraform/envs/gce_gatling/gatling.tfvars
       target: terraform/envs/aws_target/target.tfvars
-      target-dev: terraform/envs/aws_target_dev/target.tfvars
       topdrawer: terraform/envs/gce_topdrawer/topdrawer.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
 
@@ -158,9 +159,6 @@ shortcuts:
   - name: Target AWS Networking
     alias: target
     target: terraform/base/aws_target
-  - name: Target AWS Cluster
-    alias: target-dev
-    target: terraform/base/aws_target_dev
   - name: TopDrawer
     alias: topdrawer
     target: terraform/base/gce_topdrawer

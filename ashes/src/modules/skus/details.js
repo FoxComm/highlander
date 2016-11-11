@@ -36,6 +36,7 @@ const _archiveSku = createAsyncActions(
 );
 
 export const archiveSku = _archiveSku.perform;
+export const clearArchiveErrors = _archiveSku.clearErrors;
 
 const _fetchSku = createAsyncActions(
   'fetchSku',

@@ -1,0 +1,23 @@
+---
+
+- name: Get Marathon Alerts
+  get_url: url={{marathon_alerts_url}} dest=/usr/local/bin/marathon-alerts
+
+- name: Make Consul Alerts Executable
+  file: path=/usr/local/bin/marathon-alerts mode=750
+
+- name: Copy Execution File
+  template: src=run_marathon_alerts.sh dest=/usr/local/bin/run_marathon_alerts.sh mode=750
+
+- name: Copy Service
+  template: src=marathon_alerts.service dest="{{dest_services}}/marathon_alerts.service"
+
+- name: Reload Systemd for Marathon Alerts
+  command: systemctl daemon-reload
+
+- name: Restart Marathon Alerts
+  service: name=marathon_alerts state=restarted enabled=yes
+
+- name: Copy Marathon Service File
+  template: src=marathon_alerts.json dest=/etc/consul.d/marathon_alerts.json
+  notify: reload consul

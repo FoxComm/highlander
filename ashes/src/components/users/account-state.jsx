@@ -60,12 +60,13 @@ class AccountState extends Component {
 
   render(): Element {
     const text = `Are you sure you want to change account state to ${this.state.newState} ?`;
+    const strongText = 'You won\'t be able to change it back!';
     let confirmation;
     if (this.state.newState === 'archived') {
       confirmation = (
         <div>
           <p>{text}</p>
-          <strong>You won't be able to change it back!</strong>
+          <strong>{strongText}</strong>
         </div>
       );
     } else {
@@ -88,7 +89,7 @@ class AccountState extends Component {
           body={confirmation}
           cancel="Cancel"
           confirm="Yes, Change"
-          cancelAction={this.restoreState}
+          onCancel={this.restoreState}
           confirmAction={this.confirmStateChange}
         />
       </div>

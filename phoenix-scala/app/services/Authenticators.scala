@@ -33,7 +33,7 @@ import utils.db._
 // TODO: Investigate 2-factor Authentication
 
 object FailureChallenge {
-  def apply(realm: String, failures: Failures, scheme: String = "Basic"): HttpChallenge =
+  def apply(realm: String, failures: Failures, scheme: String = "xBasic"): HttpChallenge =
     HttpChallenge(scheme = scheme,
                   realm = realm,
                   params = Map("error" → failures.flatten.mkString))
@@ -234,6 +234,7 @@ object Authenticator {
     val tokenResult = (for {
       organization ← * <~ Organizations.findByName(payload.org).mustFindOr(LoginFailed)
       user         ← * <~ Users.findByEmail(payload.email.toLowerCase).mustFindOneOr(LoginFailed)
+      _            ← * <~ user.mustNotBeMigrated
       accessMethod ← * <~ AccountAccessMethods
                       .findOneByAccountIdAndName(user.accountId, "login")
                       .mustFindOr(LoginFailed)

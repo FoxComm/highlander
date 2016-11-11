@@ -7,6 +7,8 @@ require('babel-polyfill');
 const htmlescape = require('htmlescape');
 const errors = require('./errors');
 
+import { isPathRequiredAuth } from '../src/route-rules';
+
 function loadPublicKey(config) {
   try {
     return fs.readFileSync(config.api.auth.publicKey);
@@ -33,12 +35,21 @@ module.exports = function(app) {
   const publicKey = loadPublicKey(config);
 
   function getToken(ctx) {
-    const token = ctx.cookies.get(config.api.auth.cookieName);
-    if (!token) {
+    const jwtToken = ctx.cookies.get(config.api.auth.cookieName);
+    if (!jwtToken) {
       return null;
     }
+    ctx.state.jwt = jwtToken;
     try {
-      return jwt.verify(token, publicKey, {issuer: 'FC', audience: 'user', algorithms: ['RS256', 'RS384', 'RS512']});
+      const token = jwt.verify(jwtToken, publicKey, {
+        issuer: 'FC',
+        audience: 'user',
+        algorithms: ['RS256', 'RS384', 'RS512']
+      });
+      if (!_.includes(token.roles, 'admin')) {
+        return null; // only admins allowed to proceed
+      }
+      return token;
     }
     catch(err) {
       console.warn(`Can't decode token: ${err}`);
@@ -46,10 +57,9 @@ module.exports = function(app) {
   }
 
   app.requireAdmin = function *(next) {
-    const authFreeUrls = /\/(login|signup)$/;
-    if (!this.request.path.match(authFreeUrls)) {
+    if (isPathRequiredAuth(this.request.path)) {
       const token = getToken(this);
-      // TODO: When we read tokens, validate that we have a claim to theadmin UI.
+      // TODO: When we read tokens, validate that we have a claim to the admin UI.
       if (!token) {
         this.redirect(config.api.auth.loginUri);
       }
@@ -88,6 +98,8 @@ module.exports = function(app) {
       appStart: `App.start(${htmlescape(bootstrap)});`,
       // use GA_LOCAL=1 gulp dev command for enable tracking events in google analytics from localhost
       gaEnableLocal: 'GA_LOCAL' in process.env,
+      JWT: JSON.stringify(this.state.jwt || null),
+      stripeApiKey: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY || null),
     }, config.layout.pageConstants);
 
     this.body = layout(layoutData);

@@ -1,7 +1,3 @@
-upstream storefront {
-  server {{storefront_server}} fail_timeout=10s max_fails=360;
-}
-
 server {
   listen 80 default_server;
   listen [::]:80 default_server;
