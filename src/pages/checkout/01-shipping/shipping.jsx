@@ -48,10 +48,10 @@ class Shipping extends Component {
       );
     }
 
-    const activeAddress = _.get(savedAddress, 'id', '');
+    const activeAddressId = _.get(savedAddress, 'id', '');
 
     return (
-      <AddressList { ...this.props } activeAddress={activeAddress}/>
+      <AddressList { ...this.props } activeAddressId={activeAddressId}/>
     );
   }
 

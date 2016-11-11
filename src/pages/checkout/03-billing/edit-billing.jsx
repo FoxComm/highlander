@@ -16,7 +16,7 @@ import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import Checkbox from 'ui/checkbox/checkbox';
 import Autocomplete from 'ui/autocomplete';
 import InputMask from 'react-input-mask';
-import EditAddress from '../address/edit-address';
+import EditAddress from 'ui/address/edit-address';
 import CreditCards from './credit-cards';
 import ViewGiftCards from './view-gift-cards';
 import Icon from 'ui/icon';

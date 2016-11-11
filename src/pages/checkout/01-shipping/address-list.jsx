@@ -7,31 +7,28 @@ import localized from 'lib/i18n';
 
 // components
 import EditableBlock from 'ui/editable-block';
-import EditAddress from '../address/edit-address';
+import EditAddress from 'ui/address/edit-address';
 import CheckoutForm from '../checkout-form';
 import RadioButton from 'ui/radiobutton/radiobutton';
 import { AddressDetails } from 'ui/address';
-
-import { AddressKind } from 'modules/checkout';
 
 // styles
 import styles from './address-list.css';
 
 type Props = {
-  activeAddress?: number|string,
+  activeAddressId?: number|string,
   addresses: Array<any>,
   collapsed: boolean,
   continueAction: Function,
   editAction: Function,
   updateAddress: Function,
-  inProgress: boolean,
   t: any,
 };
 
 type State = {
   addressToEdit: Object,
   isEditFormActive: boolean,
-  activeAddress?: number|string,
+  activeAddressId?: number|string,
 };
 
 class AddressList extends Component {
@@ -39,7 +36,7 @@ class AddressList extends Component {
 
   state: State = {
     addressToEdit: {},
-    activeAddress: this.props.activeAddress,
+    activeAddressId: this.props.activeAddressId,
     isEditFormActive: false,
   };
 
@@ -65,7 +62,7 @@ class AddressList extends Component {
       });
     }
 
-    const selectedAddress = _.find(nextProps.addresses, { id: nextState.activeAddress });
+    const selectedAddress = _.find(nextProps.addresses, { id: nextState.activeAddressId });
     if (!nextState.isEditFormActive && nextProps.addresses.length > 0 && !selectedAddress) {
       const defaultAddress = _.find(nextProps.addresses, { isDefault: true });
       const selected = defaultAddress ? defaultAddress.id : nextProps.addresses[0].id;
@@ -108,19 +105,19 @@ class AddressList extends Component {
   @autobind
   changeAddressOption(id) {
     this.setState({
-      activeAddress: id,
+      activeAddressId: id,
     });
   }
 
   @autobind
   saveAndContinue() {
-    this.props.continueAction(this.state.activeAddress);
+    this.props.continueAction(this.state.activeAddressId);
   }
 
   renderAddresses() {
     const items = _.map(this.props.addresses, (address, key) => {
       const content = <AddressDetails address={address} hideName />;
-      const checked = address.id === this.state.activeAddress;
+      const checked = address.id === this.state.activeAddressId;
 
       return (
         <li styleName="item" key={`address-radio-${key}`}>
@@ -175,7 +172,7 @@ class AddressList extends Component {
         action={action}
         error={this.state.error}
       >
-        <EditAddress {...this.props} address={address} addressKind={AddressKind.SHIPPING} />
+        <EditAddress {...this.props} address={address} />
       </CheckoutForm>
     );
   }

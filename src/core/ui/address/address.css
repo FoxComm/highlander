@@ -4,3 +4,7 @@
   margin: 0;
   padding: 0;
 }
+
+.text-field {
+  composes: text-field from "ui/common.css";
+}

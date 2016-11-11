@@ -9,68 +9,109 @@ import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
 // components
-import { TextInput } from 'ui/inputs';
+import { TextInput } from '../inputs';
 import { FormField } from 'ui/forms';
 import Autocomplete from 'ui/autocomplete';
-import Checkbox from 'ui/checkbox/checkbox';
-import Loader from 'ui/loader';
+import Checkbox from '../checkbox/checkbox';
+import Loader from '../loader';
 
 // styles
-import styles from '../checkout.css';
+import styles from './address.css';
 
+import type { Address } from 'types/address';
 // actions
-import * as checkoutActions from 'modules/checkout';
-import { AddressKind } from 'modules/checkout';
+import { initAddressData }  from 'modules/edit-address';
 
 type EditShippingProps = Localized & {
-  setAddressData: Function,
-  selectedCountry: Object,
-  state: Object,
-};
+  onUpdate: (address: Address) => void,
+  initAddressData: (address: Address) => Promise,
+}
 
-function mapStateToProps(state, props) {
-  const { addressKind } = props;
-  const addressData = addressKind == AddressKind.SHIPPING
-    ? state.checkout.shippingAddress
-    : state.checkout.billingAddress;
-
-  const countries = state.countries.list;
-  const selectedCountry = _.find(countries, {alpha3: _.get(addressData.country, 'alpha3', 'USA')});
-  const countryDetails = state.countries.details[selectedCountry && selectedCountry.id] || {
-    regions: [],
-  };
-
+function mapStateToProps(state) {
   return {
-    countries: state.countries.list,
-    selectedCountry: countryDetails,
-    state: _.get(addressData, 'state', countryDetails.regions[0]) || {},
-    data: addressData,
+    countries: state.countries,
   };
 }
 
+type UIAddressState = {
+  name: string,
+  address1: string,
+  address2: string,
+  city: string,
+  zip: string,
+  phoneNumber: string,
+  isDefault: boolean,
+  country: Object,
+  state: Object
+}
+
+type State = {
+  address: UIAddressState|{},
+}
+
 /* ::`*/
-@connect(mapStateToProps, checkoutActions)
+@connect(mapStateToProps, { initAddressData })
 @localized
 /* ::`*/
 export default class EditAddress extends Component {
   props: EditShippingProps;
   lookupXhr: ?XMLHttpRequest;
 
+  state: State = {
+    address: {},
+  };
+
   componentDidMount() {
-    const { initAddressData, addressKind, address } = this.props;
-    initAddressData(addressKind, address);
+    const { address } = this.props;
+    this.updateAddress(address);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.address != this.state.lastSyncedAddress) {
+      this.updateAddress(nextProps.address);
+    }
+  }
+
+  updateAddress(address) {
+    this.props.initAddressData(address).then(uiAddressData => {
+      this.setState({
+        address: uiAddressData,
+        lastSyncedAddress: address,
+      });
+    });
+  }
+
+  get selectedCountry() {
+    const { countries } = this.props;
+    const { address } = this.state;
+    const selectedCountry = _.find(countries.list, {alpha3: _.get(address.country, 'alpha3', 'USA')});
+    return countries.details[selectedCountry && selectedCountry.id] || {
+      regions: [],
+    };
+  }
+
+  get addressState() {
+    const { address } = this.state;
+    return _.get(address, 'state', this.selectedCountry.regions[0]) || {};
   }
 
   setAddressData(key, value) {
-    const { setAddressData, addressKind } = this.props;
+    const newAddress = {
+      ...this.state.address,
+      [key]: value,
+    };
 
-    setAddressData(addressKind, key, value);
+    this.setState({
+      address: newAddress,
+    });
+
+    this.props.onUpdate(newAddress);
   }
 
   @debounce(200)
   tryAutopopulateFromZip(zip) {
     // $FlowFixMe: decorators are not supported
-    const { selectedCountry } = this.props;
+    const selectedCountry = this.selectedCountry;
 
     if (zip && selectedCountry.alpha3 == 'USA') {
       if (this.lookupXhr) {
@@ -121,14 +162,15 @@ export default class EditAddress extends Component {
     if (!this.props.isAddressLoaded) return <Loader size="m"/>;
 
     const props: EditShippingProps = this.props;
-    const { selectedCountry, data, t } = props;
+    const { t } = props;
+    const selectedCountry = this.selectedCountry;
+    const data = this.state.address;
 
     const checked = _.get(data, 'isDefault', false);
 
     return (
-      <div styleName="checkout-form">
+      <div>
         <Checkbox
-          styleName="checkbox-field"
           name="isDefault"
           checked={checked}
           onChange={({target}) => this.changeDefault(target.checked)}
@@ -168,7 +210,7 @@ export default class EditAddress extends Component {
             getItemValue={item => item.name}
             items={selectedCountry.regions}
             onSelect={this.changeState}
-            selectedItem={props.state}
+            selectedItem={this.addressState}
           />
         </FormField>
         <FormField label={t('Phone Number')} styleName="text-field" validator="phoneNumber">
