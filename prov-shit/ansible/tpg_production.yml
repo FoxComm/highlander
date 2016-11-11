@@ -62,9 +62,11 @@
     db_host: db.service.consul
     docker_db_host: db.service.consul
     docker_branch: master
+    docker_frontend_branch: production
     docker_registry: docker-tpg.foxcommerce.com
     with_seeder: false
     with_gatling_seeder: false
+    seeds_cmd: utils.seeds.Seeds seed --seedAdmins
   roles:
     - { role: dev/seeder }
     - { role: ext/tpg/shipping }

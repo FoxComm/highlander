@@ -183,6 +183,10 @@ mesos_quorum: 2
 with_seeder: false
 with_gatling_seeder: true
 
+# Docker Defaults
+docker_branch: master
+docker_frontend_branch: master
+
 # Marketplace
 marketplace_db_name: marketplace_development
 marketplace_db_user: marketplace

@@ -8,8 +8,8 @@
     kafka_server: kafka.service.consul:9092
     schema_server: schema-registry.service.consul:8081
     zookeeper_server: zookeeper.service.consul:2181
-    upload_phoenix_jar: true
-    upload_greenriver_jar: true
+    upload_phoenix_jar: false
+    upload_greenriver_jar: false
   roles:
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
@@ -62,9 +62,11 @@
     db_host: db.service.consul
     docker_db_host: db.service.consul
     docker_branch: master
+    docker_frontend_branch: master
     docker_registry: docker-tpg.foxcommerce.com
     with_seeder: false
-    with_gatling_seeder: true
+    with_gatling_seeder: false
+    seeds_cmd: utils.seeds.Seeds seed --seedAdmins
   roles:
     - { role: dev/seeder }
     - { role: ext/tpg/shipping }
