@@ -196,8 +196,6 @@ function saveProducts() {
         }
       );
     });
-
-    console.log(products.length);
   });
 }
 
@@ -224,5 +222,5 @@ function saveGiftCard() {
   });
 }
 
-// saveGiftCard();
+saveGiftCard();
 saveProducts();
