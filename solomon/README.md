@@ -12,9 +12,9 @@ Now you can visit [`localhost:4002`](http://localhost:4002) from your browser.
 
 The application looks for the following environment variables
 
-  * `private_key` : the full name of the private key
-  * `public_key` : the full name of the public key
-  * `tokenTTL` : a default number of days before a token should expire
+  * `PRIVATE_KEY` : the full name of the private key
+  * `PUBLIC_KEY` : the full name of the public key
+  * `TOKEN_TTL` : a default number of days before a token should expire
 
 You can set these variables in `.env.local` before running `source .env`.
 

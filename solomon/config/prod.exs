@@ -67,4 +67,4 @@ config :solomon, Solomon.JWTAuth,
 
 # configure jwt claims
 config :solomon, Solomon.JWTClaims,
-  tokenTTL: System.get_env("tokenTTL")
+  tokenTTL: System.get_env("TOKEN_TTL")
