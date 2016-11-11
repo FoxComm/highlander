@@ -9,23 +9,23 @@ variable "network" {
 }
 
 # resources variables
-variable "security_groups" {
-    type = "list"
-}
-
-variable "count" {
-}
 variable "image" {
 }
-variable "instance_type" {
-}
-variable "key_name" {
+variable "machine_type" {
 }
 variable "machine_role" {
 }
-variable "public_ip" {
-}
 variable "disk_size" {
+}
+variable "count" {
+}
+variable "key_name" {
+}
+variable "security_groups" {
+    type = "list"
+}
+variable "public_ip" {
+    default = "false"
 }
 
 # provisioner variables
@@ -43,7 +43,7 @@ resource "aws_instance" "server" {
     }
 
     ami                         = "${var.image}"
-    instance_type               = "${var.instance_type}"
+    instance_type               = "${var.machine_type}"
     count                       = "${var.count}"
 
     key_name                    = "${var.key_name}"
