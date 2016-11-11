@@ -15,7 +15,7 @@ import type { Props as ImagesProps } from '../images/images';
 import type { Sku } from 'modules/skus/details';
 
 type Params = {
-  skuCode: number,
+  skuId: number,
 };
 
 type Props = ImagesProps & {
