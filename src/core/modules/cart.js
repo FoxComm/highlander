@@ -115,27 +115,58 @@ function fetchMyCart(user): global.Promise {
 }
 
 // push cart to server
-export function saveLineItems() {
+export function saveLineItems(merge: boolean = false) {
   return (dispatch, getState) => {
     const state = getState();
     const lineItems = _.get(state, ['cart', 'skus'], []);
     const lineItemsToSubmit = collectItemsToSubmit(lineItems);
     return fetchMyCart().then((data) => {
-      const lis = _.get(data, 'lineItems.skus', []);
-      const newSkus = _.map(lineItemsToSubmit, li => li.sku);
-      const oldPayload = collectItemsToSubmit(lis);
-      const oldSkus = _.map(oldPayload, li => li.sku);
+      let newCartItems = [];
 
-      const toDelete = _.difference(oldSkus, newSkus);
+      if (merge) {
+        const savedLineItems = _.get(data, 'lineItems.skus', []);
+        const savedPayload = collectItemsToSubmit(savedLineItems);
 
-      const itemsToDelete = _.map(toDelete, sku => {
-        return {
-          sku,
-          quantity: 0,
-        };
-      });
+        const onePart = _.map(savedPayload, item => {
+          const itemInOtherPart = _.find(lineItemsToSubmit, { sku: item.sku });
 
-      const newCartItems = lineItemsToSubmit.concat(itemsToDelete);
+          if (itemInOtherPart) {
+            const itemQuantity = item.quantity;
+            const otherQuantity = itemInOtherPart.quantity;
+            const sum = itemQuantity + otherQuantity;
+            return { sku: item.sku, quantity: sum };
+          }
+
+          return item;
+        });
+
+        const onePartSkus = _.map(onePart, li => li.sku);
+        const otherPart = _.reduce(lineItemsToSubmit, (acc, item) => {
+          if (onePartSkus.indexOf(item.sku) >= 0) {
+            return acc;
+          }
+
+          return acc.concat(item);
+        }, []);
+
+        newCartItems = onePart.concat(otherPart);
+      } else {
+        const lis = _.get(data, 'lineItems.skus', []);
+        const newSkus = _.map(lineItemsToSubmit, li => li.sku);
+        const oldPayload = collectItemsToSubmit(lis);
+        const oldSkus = _.map(oldPayload, li => li.sku);
+
+        const toDelete = _.difference(oldSkus, newSkus);
+
+        const itemsToDelete = _.map(toDelete, sku => {
+          return {
+            sku,
+            quantity: 0,
+          };
+        });
+
+        newCartItems = lineItemsToSubmit.concat(itemsToDelete);
+      }
 
       return newCartItems;
     }).then((newCartItems) => {
