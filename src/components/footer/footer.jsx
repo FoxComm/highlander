@@ -26,8 +26,8 @@ const Footer = () : HTMLElement => {
 
         <ul styleName="links">
           <li><a href="#">ABOUT US</a></li>
-          <li><a href="#">STORES</a></li>
-          <li><a href="#">GIFT CARDS</a></li>
+          <li><a href="/stores">STORES</a></li>
+          <li><a href="/gift-cards">GIFT CARDS</a></li>
           <li><a href="#">FAQ</a></li>
           <li><Link to="shipping-and-returns">SHIPPING & RETURNS</Link></li>
         </ul>
