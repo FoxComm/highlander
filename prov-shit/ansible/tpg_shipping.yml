@@ -8,7 +8,7 @@
     phoenix_db_name: phoenix_development
     middlewarehouse_db_user: middlewarehouse
     middlewarehouse_db_name: middlewarehouse_development
-    execute_phoenix_sql: false
+    execute_phoenix_sql: true
     execute_mwh_sql: true
   vars_prompt:
     - name: "hostname"
