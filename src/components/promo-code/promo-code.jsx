@@ -11,6 +11,7 @@ import localized from 'lib/i18n';
 import { TextInput } from 'ui/inputs';
 import Button from 'ui/buttons';
 import { FormField } from 'ui/forms';
+import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 
 // styles
 import styles from './promo-code.css';
@@ -52,11 +53,15 @@ class PromoCode extends Component {
 
     const code = this.state.code.replace(/\s+/g, '');
 
-    this.props.saveCode(code).then(() => {
-      this.setState({code: ''});
-    }).catch(() => {
-      this.setState({code: '', error: t('Please enter a valid code and try again.')});
-    });
+    this.props.saveCode(code)
+      .then(
+        data => {
+          this.setState({code: ''});
+        },
+        err => {
+          console.log(err);
+          this.setState({code: '', error: err});
+        })
   }
 
   render() {
@@ -64,7 +69,7 @@ class PromoCode extends Component {
 
     return (
       <div styleName="fieldset">
-        <FormField styleName="code-field" error={this.state.error}>
+        <FormField styleName="code-field">
           <TextInput
             styleName="code"
             placeholder={t('CODE')}
@@ -75,6 +80,7 @@ class PromoCode extends Component {
         <Button styleName="submit" onClick={this.save} type="button">
           {this.buttonLabel}
         </Button>
+        <ErrorAlerts error={this.state.error} />
       </div>
     );
   }

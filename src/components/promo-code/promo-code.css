@@ -3,6 +3,7 @@
 
 .fieldset {
   display: flex;
+  flex-wrap: wrap;
 }
 
 .code-field {
@@ -30,6 +31,10 @@
     background: var(--additional-color);
     color: #FFFFFF;
   }
+}
+
+:global(.fc-errors) {
+  margin-top: 10px;
 }
 
 @media (--small-only) {
