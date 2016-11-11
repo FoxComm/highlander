@@ -4,7 +4,7 @@ const moment = require('moment');
 const _ = require('lodash');
 
 function getPrice(price) {
-  return price.replace(/\D/g, '');
+  return parseInt(price.replace(/\D/g, ''));
 }
 
 function getCategoryName(id) {
@@ -156,7 +156,10 @@ function save() {
           data => {
             console.log(`${data.id} ${data.attributes.title.v}`);
           },
-          err => console.log(`${product.$.ProductId} ${err.response.error.status}: ${err.response.error.text}`)
+          err => {
+            console.log(err);
+            console.log(`${product.$.ProductId} ${err.response.error.status}: ${err.response.error.text}`);
+          }
         );
 
     });
