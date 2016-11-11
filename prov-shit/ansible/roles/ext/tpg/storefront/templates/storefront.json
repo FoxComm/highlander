@@ -8,7 +8,7 @@
   "env": {
     "API_URL": "https://{{storefront_server_name}}",
     "NODE_ENV": "production",
-    "PORT": "4044",
+    "LISTEN_PORT": "4041",
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
     "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}"
   },
@@ -16,7 +16,7 @@
     {
       "port": 10008,
       "protocol": "tcp",
-      "name": "4044",
+      "name": "4041",
       "labels": {}
     }
   ],
@@ -29,7 +29,7 @@
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false,
-      "port": 4044
+      "port": 4041
     }
   ],
   "container": {
