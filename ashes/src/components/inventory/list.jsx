@@ -17,7 +17,7 @@ const mapDispatchToProps = dispatch => {
 };
 
 const tableColumns = [
-  { field: 'sku', text: 'SKU' },
+  { field: 'skuCode', text: 'SKU' },
   { field: 'type', text: 'SKU Type' },
   { field: 'stockLocation.name', text: 'Warehouse' },
   { field: 'onHand', text: 'On Hand' },

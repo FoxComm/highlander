@@ -42,13 +42,13 @@ export class CartLineItemsFooter extends Component {
     const { cart: { referenceNumber }, updateLineItemCount } = this.props;
 
     const skus = _.get(this.props, 'cart.lineItems.skus', []);
-    const matched = _.find(skus, { skuCode: item.skuId });
+    const matched = _.find(skus, { skuId: item.skuId });
 
     if (!_.isEmpty(matched)) {
       return;
     }
 
-    updateLineItemCount(referenceNumber, item.skuCode, 1);
+    updateLineItemCount(referenceNumber, item.skuId, 1);
   }
 
   @autobind

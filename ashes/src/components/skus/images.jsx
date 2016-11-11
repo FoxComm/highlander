@@ -27,18 +27,16 @@ class SkuImages extends Component {
   props: Props;
 
   componentDidMount(): void {
-    const { skuCode } = this.props.params;
-    const context = this.props.object.context.name;
+    const { params: { skuId }, object: { context } } = this.props;
 
-    this.props.fetchAlbums(context, skuCode);
+    this.props.fetchAlbums(context.name, skuId);
   }
 
   render(): Element {
-    const { params: { skuCode }, ...rest } = this.props;
-    const context = this.props.object.context.name;
+    const { params: { skuId }, object: { context }, ...rest } = this.props;
 
     return (
-      <Images {...rest} entityId={skuCode} context={context} />
+      <Images {...rest} entityId={skuId} context={context.name} />
     );
   }
 

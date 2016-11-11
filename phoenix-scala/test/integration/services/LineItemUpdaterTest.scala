@@ -42,8 +42,8 @@ class LineItemUpdaterTest
       val skuId        = skuFormId(context.id)
 
       val payload = Seq[Payload](
-          Payload(skuFormId = skuId("1"), quantity = 3),
-          Payload(skuFormId = skuId("2"), quantity = 0)
+          Payload(skuId = skuId("1"), quantity = 3),
+          Payload(skuId = skuId("2"), quantity = 0)
       )
 
       val root =
@@ -75,9 +75,9 @@ class LineItemUpdaterTest
       CartLineItems.createAll(seedItems).gimme
 
       val payload = Seq[Payload](
-          Payload(skuFormId = skuId("1"), quantity = 3),
-          Payload(skuFormId = skuId("2"), quantity = 0),
-          Payload(skuFormId = skuId("3"), quantity = 1)
+          Payload(skuId = skuId("1"), quantity = 3),
+          Payload(skuId = skuId("2"), quantity = 0),
+          Payload(skuId = skuId("3"), quantity = 1)
       )
 
       val root =
