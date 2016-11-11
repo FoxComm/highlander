@@ -78,12 +78,8 @@ class Login extends Component {
     const { email, password } = this.state;
     const kind = 'merchant';
     const auth = this.props.authenticate({email, password, kind}).then(() => {
-      const lineItems = _.get(this.props, 'cart.lineItems', []);
-      if (_.isEmpty(lineItems)) {
-        this.props.fetchCart();
-      } else {
-        this.props.saveLineItems();
-      }
+      const merge = this.props.onGuestCheckout == null;
+      this.props.saveLineItems(merge);
       browserHistory.push(this.props.getPath());
     }, () => {
       this.setState({error: 'Email or password is invalid'});
