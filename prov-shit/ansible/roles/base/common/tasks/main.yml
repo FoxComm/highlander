@@ -7,6 +7,12 @@
   failed_when: kill_result.rc > 1
   changed_when: kill_result.rc == 0
 
+- name: Remove Unattended Upgrades
+  apt:
+    name: unattended-upgrades
+    state: absent
+  sudo: true
+
 - name: Add Oracle Java Repository
   apt_repository: repo='ppa:webupd8team/java' update_cache=yes
   sudo: true
@@ -73,10 +79,6 @@
 
 - name: Make Swap File
   shell: "sudo mkswap {{ swap_file }} || true"
-  sudo: true
-
-- name: Mount Swap
-  shell: "swapon {{ swap_file }} || true"
   sudo: true
 
 - name: Add Swap to Fstab
