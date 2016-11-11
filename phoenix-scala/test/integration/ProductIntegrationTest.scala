@@ -364,7 +364,9 @@ class ProductIntegrationTest
     "Returns error if product is present in carts" in new Fixture {
       val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
 
-      cartsApi(cart.referenceNumber).lineItems.add(Seq(UpdateLineItemsPayload(skuRedSmallCode, 1)))
+      cartsApi(cart.referenceNumber).lineItems
+        .add(Seq(UpdateLineItemsPayload(skuRedSmallCode, 1)))
+        .mustBeOk()
 
       productsApi(product.formId)
         .archive()
