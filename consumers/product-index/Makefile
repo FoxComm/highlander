@@ -1,4 +1,4 @@
-GOPATH ?= /tmp/go
+GOPATH = /tmp/go
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/consumers/product-index
 HIGHLANDER_PATH=$(CURDIR)/../..
@@ -8,10 +8,12 @@ DOCKER_TAG ?= product-index-consumer
 DOCKER_BRANCH ?= master
 
 prep:
+	rm -rf $(GOPATH)
 	mkdir -p $(GOPATH)/src/github.com/FoxComm
 	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
 
 glide: prep
+	cd $(BUILD_PATH) && go get github.com/FoxComm/metamorphosis
 	cd $(BUILD_PATH) && glide install
 
 build: glide
