@@ -44,13 +44,14 @@ package object testutils {
     def error(implicit line: SL, file: SF): String =
       errors.headOption.value.withClue("Expected at least one error, got none!")
 
-    def mustHaveStatus(expected: StatusCode*)(implicit line: SL, file: SF): Unit =
+    def mustHaveStatus(expected: StatusCode*)(implicit line: SL, file: SF): Unit = {
       withClue("Unexpected response status!") {
         expected.toList match {
           case only :: Nil ⇒ response.status must === (only)
           case _           ⇒ expected must contain(response.status)
         }
       }
+    } withClue originalSourceClue
 
     def mustBeOk()(implicit line: SL, file: SF): Unit =
       mustHaveStatus(StatusCodes.OK).withClue(s"\nErrors: $extractErrors!")

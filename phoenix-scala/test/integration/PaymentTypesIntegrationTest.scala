@@ -11,6 +11,7 @@ import utils.seeds.Seeds.Factories
 class PaymentTypesIntegrationTest
     extends IntegrationTestBase
     with PhoenixPublicApi
+    with AutomaticAuth
     with BakedFixtures {
 
   "GiftCard Types" - {

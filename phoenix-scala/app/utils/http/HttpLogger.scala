@@ -35,7 +35,12 @@ object HttpLogger {
               logError(request, response)
           }
         case Rejected(rejections) ⇒
-          Future.successful(LogEntry(s"${rejections.mkString(", ")}", marker, errorLevel).some)
+          val rejectionStr =
+            if (rejections.isEmpty) "<empty> (implied 404)"
+            else rejections.mkString(",")
+          val message =
+            s"Invalid request! ${request.method.name} ${request.uri}. Rejections: $rejectionStr"
+          Future.successful(LogEntry(message, marker, errorLevel).some)
       }
       entry.foreach(_.foreach(_.logTo(logger)))
     }

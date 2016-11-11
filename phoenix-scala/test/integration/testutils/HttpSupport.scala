@@ -20,6 +20,7 @@ import akka.stream.testkit.TestSubscriber.Probe
 import akka.stream.testkit.scaladsl.TestSink
 import akka.util.ByteString
 
+import cats.implicits._
 import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
 import de.heikoseeberger.akkasse.ServerSentEvent
@@ -82,10 +83,12 @@ trait HttpSupport
 
   override protected def afterAll: Unit = {
     super.afterAll
+    // akkaConfigured = false
+    // system.terminate()
     Await.result(for {
-      _ ← Http().shutdownAllConnectionPools()
+      // _ ← Http().shutdownAllConnectionPools()
       _ ← service.close()
-    } yield {}, 1.minute)
+    } yield {}, 5.seconds)
   }
 
   private def actorSystemConfig =
@@ -95,24 +98,19 @@ trait HttpSupport
       |}
     """.stripMargin).withFallback(ConfigFactory.load())
 
-  val adminUser    = Factories.storeAdmin.copy(id = 1, accountId = 1)
-  val customerData = Factories.customer.copy(id = 2, accountId = 2)
-
-  def overrideUserAuth: UserAuthenticator =
-    AuthAs(adminUser, customerData)
+  def overrideUserAuth: UserAuthenticator
 
   implicit val env = FoxConfig.Test
 
   def apisOverride: Apis
 
-  private def makeService: Service =
+  private def makeService: Service = {
     new Service(dbOverride = Some(db),
                 systemOverride = Some(system),
                 apisOverride = Some(apisOverride),
-                addRoutes = additionalRoutes) {
-
-      override val userAuth: UserAuthenticator = overrideUserAuth
-    }
+                authOverride = Some(overrideUserAuth),
+                addRoutes = additionalRoutes)
+  }
 
   def POST(path: String, rawBody: String): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.POST,

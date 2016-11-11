@@ -64,7 +64,8 @@ object CustomHandlers {
       case NonFatal(e) ⇒
       ctx ⇒
         {
-          val errMsg = if (isProduction) "There was an internal server error." else e.getMessage
+          val errMsg: String =
+            if (isProduction) "There was an internal server error." else e.printStackTrace.toString
           ctx.log.warning("Error {} during processing of request {}", e, ctx.request)
           ctx.complete(HttpResponse(InternalServerError, entity = errorsJsonEntity(errMsg)))
         }
