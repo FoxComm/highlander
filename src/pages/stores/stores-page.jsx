@@ -23,7 +23,6 @@ export default class StoresPage extends React.Component {
     const map = new google.maps.Map(this.refs.map, mapOptions);
     const marker = new google.maps.Marker({
       position: new google.maps.LatLng(39.4106519, -76.6452035),
-      title: 'Snazzy!',
     });
 
     marker.setMap(map);
