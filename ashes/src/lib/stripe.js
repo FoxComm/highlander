@@ -79,4 +79,4 @@ function creditCardFromStripePayload(stripeResponse, billingAddress, addressIsNe
   };
 }
 
-export default new StripeApi(process.env.STRIPE_PUBLISHABLE_KEY);
+export default new StripeApi(isServer ? process.env.STRIPE_PUBLISHABLE_KEY : STRIPE_PUBLISHABLE_KEY);

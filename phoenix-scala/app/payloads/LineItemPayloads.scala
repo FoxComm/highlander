@@ -10,5 +10,5 @@ import utils.aliases.Json
 
 object LineItemPayloads {
 
-  case class UpdateLineItemsPayload(skuFormId: Int, quantity: Int, attributes: Option[Json] = None)
+  case class UpdateLineItemsPayload(skuId: Int, quantity: Int, attributes: Option[Json] = None)
 }

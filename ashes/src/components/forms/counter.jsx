@@ -19,20 +19,31 @@ type Props = {
 };
 
 const Counter = (props: Props) => {
-  const {decreaseAction, increaseAction, disabled, ...rest} = props;
+  const { decreaseAction, increaseAction, disabled, value, min, max, ...rest } = props;
 
   return (
     <div className="fc-input-group fc-counter">
       <div className="fc-input-prepend">
-        <DecrementButton type="button" disabled={disabled} onClick={decreaseAction} className="fc-btn-counter" />
+        <DecrementButton
+          type="button"
+          disabled={disabled || value === min}
+          onClick={decreaseAction}
+          className="fc-btn-counter"
+        />
       </div>
       <input
         type="number"
+        value={value}
         className={classNames('fc-counter__input', props.className, {disabled})}
         disabled={disabled}
         {...rest} />
       <div className="fc-input-append">
-        <IncrementButton type="button" disabled={disabled} onClick={increaseAction} className="fc-btn-counter" />
+        <IncrementButton
+          type="button"
+          disabled={disabled || value === max}
+          onClick={increaseAction}
+          className="fc-btn-counter"
+        />
       </div>
     </div>
   );

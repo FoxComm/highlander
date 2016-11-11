@@ -11,6 +11,11 @@ import createAsyncActions from 'modules/async-utils';
 ////////////////////////////////////////////////////////////////////////////////
 // Cart Manipulation Actions
 
+type UpdateLineItemPayload = {
+  skuId: number;
+  quantity: number;
+}
+
 const _fetchCart = createAsyncActions(
   'fetchCart',
   (refNum: string) => Api.get(`/carts/${refNum}`)
@@ -41,17 +46,12 @@ export const clearFetchCartErrors = _fetchCart.clearErrors;
 
 const _updateLineItemCount = createAsyncActions(
   'updateLineItemCount',
-  (refNum: string, payload: Object) => Api.post(`/orders/${refNum}/line-items`, payload)
+  (refNum: string, payload: Array<UpdateLineItemPayload>) => Api.patch(`/orders/${refNum}/line-items`, payload)
 );
 
-export function updateLineItemCount(refNum: string, skuId: number, quantity: number): Function {
-  const payload = [{ skuId, quantity }];
-  return _updateLineItemCount.perform(refNum, payload);
-}
 
-export function deleteLineItem(refNum: string, skuId: number): Function {
-  const payload = [{ skuId, quantity: 0 }];
-  return _updateLineItemCount.perform(refNum, payload);
+export function updateLineItemCount(refNum: string, skuId: number, quantityDiff: number): Function {
+  return _updateLineItemCount.perform(refNum, [{ skuId, quantity: quantityDiff }]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -168,12 +168,12 @@ const _checkout = createAsyncActions(
 );
 
 export function checkout(refNum: string): Function {
-  return dispatch => dispatch(_checkout.perform(refNum)).then(({payload}) => {
+  return dispatch => dispatch(_checkout.perform(refNum)).then(({ payload }) => {
     const errors = _.get(payload, 'errors', []);
     const warnings = _.get(payload, 'warnings', []);
 
     if (!errors.length && !warnings.length) {
-      transitionTo('order', {order: refNum});
+      transitionTo('order', { order: refNum });
     }
   });
 }

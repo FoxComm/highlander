@@ -41,7 +41,7 @@
           "format": "date-time"
         }
       },
-      "required": ["code", "title"]
+      "required": ["code"]
     }
   }
 }
