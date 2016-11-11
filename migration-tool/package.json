@@ -5,8 +5,7 @@
   "main": "tool.js",
   "scripts": {
     "customers": "babel-node src/customers.js",
-    "products": "babel-node src/products.js",
-    "products_new": "babel-node src/products_new.js",
+    "products": "babel-node src/products_new.js",
     "orders": "babel-node src/orders.js",
     "parse": "babel-node src/parseData.js"
   },
