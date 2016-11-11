@@ -11,7 +11,7 @@
  [& args]
  (start-phoenix)
  (register-plugin)
- (let [react-app (start-react-app)]
+ (let [react-app nil]
     ;; Clean up on a SIGTERM or Ctrl-C
    (println "react app started")
 
@@ -20,3 +20,4 @@
                                  (stop-phoenix)
                                  (stop-app))))
    (<!! (thread (start-app react-app)))))
+

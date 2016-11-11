@@ -31,7 +31,7 @@
 
 (def plugin-info
   (delay {:name "fox-notifications"
-          :description "Sends mail,slack notifications on events to customers/storeAdmins"
+          :description "Sends mail, slack notifications on events to customers/storeAdmins"
           :apiHost @api-host
           :version "1.0"
           :apiPort @api-port

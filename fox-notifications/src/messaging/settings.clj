@@ -89,6 +89,11 @@
      :type "string"
      :default "order-canceled"}
 
+    {:name "update_customer_profile_link"
+     :title "Link to customer profile"
+     :default ""
+     :type "string"}
+
     {:name "order_confirmation_template"
      :title "Order Confirmation Mandrill Template"
      :type "string"

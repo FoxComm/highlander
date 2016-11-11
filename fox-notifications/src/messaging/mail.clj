@@ -9,19 +9,25 @@
     [clojchimp.client :as mailchimp]
     [gws.mandrill.client :as client]
     [gws.mandrill.api.messages :as messages]
-    [gws.mandrill.api.templates :as templates]))
-
+    [gws.mandrill.api.templates :as templates]
+    [helpers.activities-transforms :as at]))
 
 (def admin_server_name (delay (:admin_server_name env)))
 
-;; mandrill client
-(def client (delay
-              (client/create (settings/get :mandrill_key))))
-;; mailchimp client
-(def mclient (delay
-              (mailchimp/create-client "fox-messaging"
-                                       (settings/get :mailchimp_key))))
 
+;; mandrill client
+(defn client []
+  (let [mkey (settings/get :mandrill_key)]
+    (when (empty? mkey)
+      (throw (ex-info "Mandrill key is not defined" {})))
+    (client/create mkey)))
+
+;; mailchimp client
+(defn mclient []
+  (let [mkey (settings/get :mailchimp_key)]
+    (when (empty? mkey)
+      (throw (ex-info "Mailchimp key is not defined" {})))
+    (mailchimp/create-client "fox-messaging" mkey)))
 
 
 (defn make-tpl-vars
@@ -34,10 +40,14 @@
 
 (defn gen-msg
   [{customer-email :email customer-name :name :as rcpt} vars {:keys [subject text html] :as opts}]
-  (let [base-vars {:fc_domain @admin_server_name}]
+  (let [base-vars {:fc_domain @admin_server_name
+                   :email_subject subject
+                   :update_profile_link (settings/get :update_customer_profile_link)
+                   :customer_name customer-name}]
    (merge opts {:to
                 [rcpt]
                 :global_merge_vars (make-tpl-vars (merge base-vars vars))
+                :merge_language "handlebars"
 
                 :from_email (settings/get :from_email)
                 :subject subject
@@ -45,7 +55,7 @@
 
 (defn send-template!
   [slug template]
-  (messages/send-template @client
+  (messages/send-template (client)
                           {:template_name slug
                            :template_content []
                            :message template}))
@@ -62,14 +72,21 @@
 (defmethod handle-activity :order_checkout_completed
   [activity]
   (let [data (:data activity)
-        email (get-in data ["order" "customer" "email"])
-        customer-name (get-in data ["order" "customer" "name"] "")
-        order-ref (get-in data ["order" "referenceNumber"])
+        order (get data "order")
+        email (get-in order ["customer" "email"])
+        customer-name (get-in order ["customer" "name"] "")
+        order-ref (get order "referenceNumber")
         msg (gen-msg {:email email :name customer-name}
-                     {:message (format (settings/get :order_checkout_text) order-ref)
-                      :rewards ""}
+                     {:items (let [skus (get-in order ["lineItems" "skus"])]
+                               (map at/sku->item skus))
+                      :totals (at/format-prices (get order "totals"))
+                      :placed_at (at/date-simple-format (get order "placedAt"))
+                      :shipping_method (get-in order ["shippingMethod" "name"])
+                      :shipping_address (get order "shippingAddress")
+                      :order_ref order-ref}
+
                      {:subject (settings/get :order_checkout_subject)})]
-    (send-template! (settings/get :order_confirmation_template) msg)))
+      (send-template! (settings/get :order_confirmation_template) msg)))
 
 (defmethod handle-activity :order_state_changed
   [activity]
@@ -78,6 +95,7 @@
         customer-name (get-in data ["order" "customer" "name"] "")
         order-ref (get-in data ["order" "referenceNumber"])
         new-state (get-in data ["order" "orderState"])]
+
    (when (= "canceled" new-state)
      (send-template! (settings/get :order_canceled_template)
                      (gen-msg {:email email :name customer-name}
@@ -96,7 +114,7 @@
                              :subject (get-in activity [:data "subject"])}
 
                             (get-in activity [:data "opts"])))]
-    (messages/send @client {:message msg})))
+    (messages/send (client) {:message msg})))
 
 (defn handle-new-customer
   [activity]
@@ -107,7 +125,7 @@
     (when (settings/add-new-customers-to-mailchimp?)
       (try
         (mailchimp/create-member-for-list
-          @mclient
+          (mclient)
           (settings/get :mailchimp_customers_list_id)
          {:email_type "html"
           :email_address email
