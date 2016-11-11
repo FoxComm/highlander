@@ -146,7 +146,7 @@ export function saveLineItems(merge: boolean = false) {
             return acc;
           }
 
-          acc.concat(item);
+          return acc.concat(item);
         }, []);
 
         newCartItems = onePart.concat(otherPart);
