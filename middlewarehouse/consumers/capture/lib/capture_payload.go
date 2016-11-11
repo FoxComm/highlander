@@ -58,15 +58,17 @@ func NewGiftCardCapturePayload(referenceNumber string, lineItems []payloads.Orde
 			Total:    0,
 			Currency: "USD",
 		},
+		Items: make([]CaptureLineItem, 0),
 	}
 
 	for _, lineItem := range lineItems {
-		cLineItem := CaptureLineItem{
-			ReferenceNumber: lineItem.ReferenceNumber,
-			SKU:             lineItem.SKU,
+		for i := 0; i < lineItem.Quantity; i++ {
+			cLineItem := CaptureLineItem{
+				ReferenceNumber: referenceNumber,
+				SKU:             lineItem.SKU,
+			}
+			capture.Items = append(capture.Items, cLineItem)
 		}
-
-		capture.Items = append(capture.Items, cLineItem)
 	}
 
 	return &capture, nil

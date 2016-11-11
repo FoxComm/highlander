@@ -73,7 +73,7 @@ func (c *phoenixClient) CapturePayment(capturePayload *CapturePayload) error {
 		return err
 	}
 
-	log.Printf("Successfully captured from Phoenix with response: %v", captureResp)
+	log.Printf("\n Successfully captured from Phoenix with response: %v", captureResp)
 	log.Printf("Updating order state")
 
 	if err := c.UpdateOrder(capturePayload.ReferenceNumber, "shipped", "shipped"); err != nil {
@@ -179,7 +179,7 @@ func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) er
 		return err
 	}
 
-	log.Printf("Successfully updated orders in Phoenix with error: %v", orderResp)
+	log.Printf("Successfully updated orders in Phoenix  %v", orderResp)
 
 	return nil
 }
