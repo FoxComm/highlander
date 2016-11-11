@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/stretchr/testify/suite"
@@ -68,7 +69,8 @@ func (suite *PhoenixClientTestSuite) TestCapture() {
 	activity, err := activities.NewShipmentShipped(shipment, time.Now())
 
 	client := NewPhoenixClient(ts.URL, username, password)
-	err = client.CapturePayment(activity)
+	payload := lib.NewCapturePayload(activity)
+	err = client.CapturePayment(payload)
 	suite.Nil(err)
 
 	suite.True(fp.LoginCalled)
