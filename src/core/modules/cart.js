@@ -121,11 +121,13 @@ export function saveLineItems(merge: boolean = false) {
     const lineItems = _.get(state, ['cart', 'skus'], []);
     const lineItemsToSubmit = collectItemsToSubmit(lineItems);
     return fetchMyCart().then((data) => {
+      let newCartItems = [];
+
       if (merge) {
         const savedLineItems = _.get(data, 'lineItems.skus', []);
         const savedPayload = collectItemsToSubmit(savedLineItems);
 
-        const onePart = _.map(savedLineItems, item => {
+        const onePart = _.map(savedPayload, item => {
           const itemInOtherPart = _.find(lineItemsToSubmit, { sku: item.sku });
 
           if (itemInOtherPart) {
@@ -140,9 +142,7 @@ export function saveLineItems(merge: boolean = false) {
 
         const otherPart = _.difference(lineItemsToSubmit, onePart);
 
-        const newCartItems = onePart.concat(otherPart);
-
-        return newCartItems;
+        newCartItems = onePart.concat(otherPart);
       } else {
         const lis = _.get(data, 'lineItems.skus', []);
         const newSkus = _.map(lineItemsToSubmit, li => li.sku);
@@ -158,10 +158,10 @@ export function saveLineItems(merge: boolean = false) {
           };
         });
 
-        const newCartItems = lineItemsToSubmit.concat(itemsToDelete);
-
-        return newCartItems;
+        newCartItems = lineItemsToSubmit.concat(itemsToDelete);
       }
+
+      return newCartItems;
     }).then((newCartItems) => {
       return dispatch(submitChange(newCartItems));
     });
