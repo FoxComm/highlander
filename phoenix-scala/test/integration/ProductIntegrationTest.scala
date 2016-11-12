@@ -4,6 +4,7 @@ import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures._
 import failures.NotFoundFailure404
+import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures._
 import models.inventory.Skus
 import models.objects._
@@ -201,7 +202,7 @@ class ProductIntegrationTest
   }
 
   "PATCH v1/products/:context/:id" - {
-    def doQuery(formId: Int, productPayload: UpdateProductPayload) = {
+    def doQuery(formId: Int, productPayload: UpdateProductPayload)(implicit sl: SL, sf: SF) = {
       productsApi(formId).update(productPayload).as[Root]
     }
 
@@ -217,7 +218,7 @@ class ProductIntegrationTest
       description.extract[String] must === ("Test product description")
     }
 
-    "Updates and replaces a SKU on the product" in new Fixture with Product_Raw {
+    "Updates and replaces a SKU on the product" in new FixtureWithSkusInCart with Product_Raw {
       val updateSkuPayload = makeSkuPayload("SKU-UPDATE-TEST", skuAttrMap)
       val newAttrMap       = Map("name" → (("t" → "string") ~ ("v" → "Some new product name")))
       val payload = UpdateProductPayload(attributes = newAttrMap,
@@ -239,7 +240,29 @@ class ProductIntegrationTest
       name.extract[String] must === ("Some new product name")
     }
 
-    "Updates the SKUs on a product if variants are Some(Seq.empty)" in new Fixture {
+    "Removes SKUs from product" in new Fixture {
+      productsApi(product.formId)
+        .update(UpdateProductPayload(attributes = attrMap,
+                                     skus = Seq.empty.some,
+                                     variants = Seq.empty.some))
+        .as[Root]
+        .skus mustBe empty
+    }
+
+    "Removes some SKUs from product" in new RemovingSkusFixture {
+      productsApi(product.formId).get.as[Root].skus must have size 4
+
+      val remainingSkus: Seq[String] = productsApi(product.formId)
+        .update(twoSkuProductPayload)
+        .as[Root]
+        .skus
+        .map(sku ⇒ (sku.attributes \ "code" \ "v").extract[String])
+
+      remainingSkus must have size 2
+      remainingSkus must contain theSameElementsAs Seq(skuRedLargeCode, skuGreenSmallCode)
+    }
+
+    "Updates the SKUs on a product if variants are Some(Seq.empty)" in new FixtureWithSkusInCart {
 
       ProductSkuLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
       ProductVariantLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
@@ -256,7 +279,7 @@ class ProductIntegrationTest
       description.extract[String] must === ("Test product description")
     }
 
-    "Multiple calls with same params create single SKU link" in new Fixture {
+    "Multiple calls with same params create single SKU link" in new FixtureWithSkusInCart {
 
       ProductSkuLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
       ProductVariantLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
@@ -330,7 +353,7 @@ class ProductIntegrationTest
 
         productsApi(product.formId)
           .update(upPayload)
-          .mustFailWithMessage("number of SKUs got 5, expected 4 or less")
+          .mustFailWithMessage("number of SKUs for given variants got 5, expected 4 or less")
       }
 
       "trying to update a product with archived SKU" in new ArchivedSkuFixture {
@@ -339,6 +362,19 @@ class ProductIntegrationTest
                                        skus = archivedSkuProductPayload.skus.some,
                                        variants = archivedSkuProductPayload.variants))
           .mustFailWith400(LinkArchivedSkuFailure(Product, product.id, archivedSkuCode))
+      }
+
+      "trying to unassociate a SKU that is in cart" in new RemovingSkusFixture {
+        val cartRefNum =
+          cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse].referenceNumber
+
+        cartsApi(cartRefNum).lineItems
+          .add(Seq(UpdateLineItemsPayload(skuGreenSmallCode, 1)))
+          .mustBeOk()
+
+        productsApi(product.formId)
+          .update(twoSkuProductPayload)
+          .mustFailWith400(SkuIsPresentInCarts(skuGreenSmallCode))
       }
     }
   }
@@ -390,11 +426,10 @@ class ProductIntegrationTest
     }
 
     "Responds with NOT FOUND when wrong context is requested" in new VariantFixture {
-      pending
       implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
       productsApi(product.formId)(donkeyContext)
         .archive()
-        .mustFailWith404(NotFoundFailure404(ObjectContext, "donkeyContext"))
+        .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }
   }
 
@@ -555,5 +590,41 @@ class ProductIntegrationTest
 
     val archivedSkuCode           = "SKU-RED-SMALL"
     val archivedSkuProductPayload = productPayload.copy(skus = Seq(smallRedSkuPayload))
+  }
+
+  trait RemovingSkusFixture extends VariantFixture {
+
+    val twoSkuVariantPayload: Seq[VariantPayload] = Seq(
+        makeVariantPayload("Size",
+                           Seq(redValuePayload.copy(skuCodes = Seq(skuRedLargeCode)),
+                               greenValuePayload.copy(skuCodes = Seq(skuGreenSmallCode)))),
+        makeVariantPayload("Color",
+                           Seq(smallValuePayload.copy(skuCodes = Seq(skuGreenSmallCode)),
+                               largeValuePayload.copy(skuCodes = Seq(skuRedLargeCode)))))
+
+    val twoSkuPayload: Seq[SkuPayload] = Seq(
+        makeSkuPayload(skuRedLargeCode, "A large, red item"),
+        makeSkuPayload(skuGreenSmallCode, "A small, green item"))
+
+    val twoSkuProductPayload: UpdateProductPayload = UpdateProductPayload(
+        attributes = attrMap,
+        variants = twoSkuVariantPayload.some,
+        skus = twoSkuPayload.some)
+  }
+
+  // I decided to add all SKUs to cart to avoid regressions related to changed that prohibit to archive or
+  // unassociate a SKU from product. SKU is allowed to be updated even if it's in cart.
+  // -- @anna
+  trait FixtureWithSkusInCart extends Fixture {
+    val cartRefNum =
+      cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse].referenceNumber
+
+    cartsApi(cartRefNum).lineItems
+      .add(
+          Seq(UpdateLineItemsPayload(skuGreenSmallCode, 1),
+              UpdateLineItemsPayload(skuGreenLargeCode, 1),
+              UpdateLineItemsPayload(skuRedSmallCode, 1),
+              UpdateLineItemsPayload(skuRedLargeCode, 1)))
+      .mustBeOk()
   }
 }
