@@ -81,7 +81,18 @@ class Login extends Component {
       const merge = this.props.onGuestCheckout == null;
       this.props.saveLineItems(merge);
       browserHistory.push(this.props.getPath());
-    }, () => {
+    }, (err) => {
+      const errors = _.get(err, ['responseJson', 'errors'], [err.toString()]);
+
+      const migratedErrorPresent = _.find(errors, (error) => {
+        return error.indexOf('is migrated and has to reset password') >= 0;
+      });
+
+      if (migratedErrorPresent) {
+        browserHistory.push(this.props.getPath(authBlockTypes.FORCE_RESTORE_PASSWORD));
+        return;
+      }
+
       this.setState({error: 'Email or password is invalid'});
     });
 

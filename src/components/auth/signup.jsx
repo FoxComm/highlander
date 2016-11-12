@@ -95,14 +95,6 @@ class Signup extends Component {
       let emailError = false;
       let usernameError = false;
 
-      const migratedErrorPresent = _.find(errors, (error) => {
-        return error.indexOf('is migrated and has to reset password') >= 0;
-      });
-
-      if (migratedErrorPresent) {
-        browserHistory.push(this.props.getPath(authBlockTypes.FORCE_RESTORE_PASSWORD));
-      }
-
       const restErrors = reduce(errors, (acc, error) => {
         if (error.indexOf('email') >= 0) {
           emailError = error;
