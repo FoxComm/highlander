@@ -12,9 +12,9 @@ export const states = {
 
 export const stateTitles = {
   [states.cart]: 'Cart',
-  [states.remorseHold]: 'Remorse Hold',
-  [states.manualHold]: 'Manual Hold',
-  [states.fraudHold]: 'Fraud Hold',
+  [states.remorseHold]: 'Processing',
+  [states.manualHold]: 'Processing',
+  [states.fraudHold]: 'Processing',
   [states.fulfillmentStarted]: 'Fulfillment Started',
   [states.canceled]: 'Canceled',
   [states.partiallyShipped]: 'Partially Shipped',
