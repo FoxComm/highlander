@@ -4,16 +4,19 @@ import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
 import models.account._
 import models.cord._
-import models.cord.lineitems.CartLineItems
+import models.cord.lineitems._
 import models.inventory.Sku
 import models.location.Region
+import models.objects._
 import models.rules.{Condition, QueryStatement}
 import models.shipping.{ShippingMethod, ShippingMethods}
 import services.carts.getCartByOriginator
-import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
+
+import slick.driver.PostgresDriver.api._
+import org.json4s.JsonAST._
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
@@ -23,7 +26,7 @@ object ShippingManager {
                           cartSubTotal: Int,
                           shippingAddress: Option[OrderShippingAddress] = None,
                           shippingRegion: Option[Region] = None,
-                          skus: Seq[Sku])
+                          lineItems: Seq[CartLineItemProductData])
 
   def getShippingMethodsForCart(originator: User)(
       implicit ec: EC,
@@ -63,9 +66,9 @@ object ShippingManager {
     case _ ⇒ Carts.mustFindByRefNum(refNum)
   }
 
-  def evaluateShippingMethodForCart(shippingMethod: ShippingMethod, cart: Cart)(
-      implicit ec: EC): DbResultT[Unit] = {
-    getShippingData(cart).dbresult.flatMap { shippingData ⇒
+  def evaluateShippingMethodForCart(shippingMethod: ShippingMethod,
+                                    cart: Cart)(implicit ec: EC, db: DB): DbResultT[Unit] = {
+    getShippingData(cart).flatMap { shippingData ⇒
       val failure = ShippingMethodNotApplicableToCart(shippingMethod.id, cart.refNum)
       if (QueryStatement.evaluate(shippingMethod.conditions, shippingData, evaluateCondition)) {
         val hasRestrictions =
@@ -77,28 +80,27 @@ object ShippingManager {
     }
   }
 
-  private def getShippingData(cart: Cart)(implicit ec: EC): DBIO[ShippingData] =
+  private def getShippingData(cart: Cart)(implicit ec: EC, db: DB): DbResultT[ShippingData] =
     for {
-      orderShippingAddress ← OrderShippingAddresses
+      orderShippingAddress ← * <~ OrderShippingAddresses
                               .findByOrderRefWithRegions(cart.refNum)
                               .result
                               .headOption
-      skus ← (for {
-              liSku ← CartLineItems.byCordRef(cart.refNum)
-              sku   ← liSku.sku
-            } yield sku).result
+
+      lineItems ← * <~ LineItemManager.getCartLineItems(cart.refNum)
     } yield
       ShippingData(cart = cart,
                    cartTotal = cart.grandTotal,
                    cartSubTotal = cart.subTotal,
                    shippingAddress = orderShippingAddress.map(_._1),
                    shippingRegion = orderShippingAddress.map(_._2),
-                   skus = skus)
+                   lineItems = lineItems)
 
   private def evaluateCondition(cond: Condition, shippingData: ShippingData): Boolean = {
     cond.rootObject match {
       case "Order"           ⇒ evaluateOrderCondition(shippingData, cond)
       case "ShippingAddress" ⇒ evaluateShippingAddressCondition(shippingData, cond)
+      case "LineItems"       ⇒ evaluateLineItemsCondition(shippingData, cond)
       case _                 ⇒ false
     }
   }
@@ -137,4 +139,41 @@ object ShippingManager {
       }
     }
   }
+
+  private val COUNT_TAG         = "countTag-"
+  private val COUNT_WITHOUT_TAG = "countWithoutTag-"
+
+  private def evaluateLineItemsCondition(shippingData: ShippingData,
+                                         condition: Condition): Boolean =
+    condition.field match {
+      case "count" ⇒ Condition.matches(shippingData.lineItems.size, condition)
+      case t if t startsWith COUNT_TAG ⇒ {
+        val tag = t.substring(COUNT_TAG.length)
+        Condition.matches(lineItemsWithTag(shippingData, tag), condition)
+      }
+      case t if t startsWith COUNT_WITHOUT_TAG ⇒ {
+        val tag = t.substring(COUNT_WITHOUT_TAG.length)
+        Condition
+          .matches(shippingData.lineItems.size - lineItemsWithTag(shippingData, tag), condition)
+      }
+      case _ ⇒ false
+    }
+
+  private def lineItemsWithTag(shippingData: ShippingData, tag: String): Int =
+    shippingData.lineItems.count { l ⇒
+      hasTag(l, tag)
+    }
+
+  private def hasTag(lineItem: CartLineItemProductData, tag: String): Boolean =
+    ObjectUtils.get("tags", lineItem.productForm, lineItem.productShadow) match {
+      case JArray(tags) ⇒
+        tags.foldLeft(false) { (res, jtag) ⇒
+          jtag match {
+            case JString(t) ⇒ res || t.contains(tag)
+            case _          ⇒ res
+          }
+        }
+      case _ ⇒ false
+    }
+
 }

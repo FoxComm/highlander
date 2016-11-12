@@ -20,7 +20,7 @@ trait CartValidation {
 case class CartValidatorResponse(alerts: Option[Failures] = None,
                                  warnings: Option[Failures] = None) {}
 
-case class CartValidator(cart: Cart)(implicit ec: EC) extends CartValidation {
+case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValidation {
 
   def validate(isCheckout: Boolean = false,
                fatalWarnings: Boolean = false): DbResultT[CartValidatorResponse] = {
@@ -59,7 +59,8 @@ case class CartValidator(cart: Cart)(implicit ec: EC) extends CartValidation {
     }
   }
 
-  private def validShipMethod(response: CartValidatorResponse): DBIO[CartValidatorResponse] =
+  private def validShipMethod(response: CartValidatorResponse)(
+      implicit db: DB): DBIO[CartValidatorResponse] =
     (for {
       osm ← OrderShippingMethods.findByOrderRef(cart.refNum)
       sm  ← osm.shippingMethod
