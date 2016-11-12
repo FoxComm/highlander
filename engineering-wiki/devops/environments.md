@@ -12,6 +12,7 @@ Navigation:
 * VPN IP: `146.148.43.48`
 * Consul: http://dev.consul.foxcommerce.com:8500/ui
 * Docker Registry: https://docker-stage.foxcommerce.com:5000
+* API Manager: https://console.developers.google.com/apis/credentials?project=foxcomm-staging&authuser=1
 
 ### Development
 
