@@ -62,6 +62,10 @@ export const fetchShippingMethods = shippingMethodsActions.fetch;
 export const fetchCreditCards = creditCardsActions.fetch;
 export const fetchAddresses = addressesActions.fetch;
 
+function stripPhoneNumber(phoneNumber) {
+  return phoneNumber.replace(/[^\d]/g, '');
+}
+
 
 function addressToPayload(address) {
   const payload = _.pick(address, [
@@ -74,7 +78,7 @@ function addressToPayload(address) {
     'isDefault',
     'id',
   ]);
-  payload.phoneNumber = String(payload.phoneNumber);
+  payload.phoneNumber = stripPhoneNumber(payload.phoneNumber);
   payload.regionId = _.get(address, 'region.id', _.get(address, 'state.id', ''));
 
   return payload;

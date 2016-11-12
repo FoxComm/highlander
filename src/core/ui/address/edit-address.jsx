@@ -5,10 +5,11 @@ import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
 
 // localization
-import localized from 'lib/i18n';
+import localized, { phoneMask } from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
 // components
+import InputMask from 'react-input-mask';
 import { TextInput } from '../inputs';
 import { FormField } from 'ui/forms';
 import Autocomplete from 'ui/autocomplete';
@@ -78,6 +79,48 @@ export default class EditAddress extends Component {
     return countries.details[selectedCountry && selectedCountry.id] || {
       regions: [],
     };
+  }
+
+  get countryCode() {
+    const { address } = this.state;
+    return _.get(address.country, 'alpha3', 'USA');
+  }
+
+  @autobind
+  handlePhoneChange(value) {
+    this.setAddressData('phoneNumber', value);
+  }
+
+  get phoneInput() {
+    const { address } = this.state;
+    const { t } = this.props;
+
+    const inputAttributes = {
+      type: 'tel',
+      name: 'phoneNumber',
+      placeholder: t('PHONE'),
+      value: address.phoneNumber,
+      required: true,
+    };
+
+    let input;
+
+    if (this.countryCode === 'USA') {
+      const onChange = ({ target: { value }}) => this.handlePhoneChange(value);
+      input = (
+        <InputMask
+          {...inputAttributes}
+          onChange={onChange}
+          mask={phoneMask(this.countryCode)}
+          styleName="text-input"
+        />
+      );
+    } else {
+      const onChange = value => this.handlePhoneChange(value);
+      input = <TextInput {...inputAttributes} onChange={onChange} maxLength="15"/>;
+    }
+
+    return input;
   }
 
   get addressState() {
@@ -210,14 +253,7 @@ export default class EditAddress extends Component {
           />
         </FormField>
         <FormField label={t('Phone Number')} styleName="text-field" validator="phoneNumber">
-          <TextInput
-            required
-            name="phoneNumber"
-            type="tel"
-            placeholder={t('PHONE')}
-            onChange={this.changeFormData}
-            value={data.phoneNumber}
-          />
+          {this.phoneInput}
         </FormField>
       </div>
     );

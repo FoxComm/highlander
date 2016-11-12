@@ -8,3 +8,7 @@
 .text-field {
   composes: text-field from "ui/common.css";
 }
+
+.text-input {
+  composes: text-input from "ui/css/input.css";
+}
