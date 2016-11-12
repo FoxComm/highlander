@@ -12,7 +12,6 @@
   tags:
     - backend
   roles:
-    - { role: dev/stage_mesos}
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
@@ -38,7 +37,9 @@
     search_host: elasticsearch.service.consul
     zookeeper_server: zookeeper.service.consul:2181
     zookeepers: zk://zookeeper.service.consul:2181
+    phoenix_host: phoenix.service.consul
     phoenix_server: phoenix.service.consul:9090
+    storefront_server: storefront.service.consul
     api_server: test-topdrawer.foxcommerce.com
     self_host: test-topdrawer.foxcommerce.com
     ashes_server_name: test-topdrawer.foxcommerce.com
@@ -46,7 +47,6 @@
   tags:
     - frontend
   roles:
-    - { role: dev/stage_mesos}
     - { role: base/ssh_keys }
     - { role: dev/phoenix }
     - { role: dev/greenriver }
