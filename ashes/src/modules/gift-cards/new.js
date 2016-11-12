@@ -1,5 +1,5 @@
 
-/* @flow */
+/* @flow weak */
 
 // state for gift card adding form
 
