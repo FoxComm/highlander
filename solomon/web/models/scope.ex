@@ -3,6 +3,7 @@ defmodule Solomon.Scope do
 
   schema "scopes" do 
     field :source, :string
+    field :parent_path, :string
     
     #Implementing without ltree for now.  Custom relation will be needed
     belongs_to :parent, Solomon.Scope

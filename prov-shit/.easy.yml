@@ -130,7 +130,6 @@ shortcuts:
       stable: terraform/envs/gce_staging_stable/terraform.tfstate
       gatling: terraform/envs/gce_gatling/terraform.tfstate
       target: terraform/envs/aws_target/terraform.tfstate
-      target-dev: terraform/envs/aws_target_dev/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
   - name: Variable Files
@@ -141,7 +140,6 @@ shortcuts:
       stable: terraform/envs/gce_staging_stable/staging.tfvars
       gatling: terraform/envs/gce_gatling/gatling.tfvars
       target: terraform/envs/aws_target/target.tfvars
-      target-dev: terraform/envs/aws_target_dev/target.tfvars
       topdrawer: terraform/envs/gce_topdrawer/topdrawer.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
 
@@ -161,9 +159,6 @@ shortcuts:
   - name: Target AWS Networking
     alias: target
     target: terraform/base/aws_target
-  - name: Target AWS Cluster
-    alias: target-dev
-    target: terraform/base/aws_target_dev
   - name: TopDrawer
     alias: topdrawer
     target: terraform/base/gce_topdrawer

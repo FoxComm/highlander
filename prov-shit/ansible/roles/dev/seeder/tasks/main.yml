@@ -31,6 +31,7 @@
   sudo: true
   args:
     chdir: "{{phoenix_dir}}"
+  when: with_gatling_seeder
 
 - name: Copy Service
   template: src=seeder.service dest="{{dest_services}}/seeder.service"
