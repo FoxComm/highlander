@@ -80,6 +80,7 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
       const apiContext = {
         api,
         dispatch,
+        getState,
       };
       const handleError = err => {
         const httpStatus = _.get(err, 'response.status');

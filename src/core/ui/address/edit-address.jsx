@@ -33,20 +33,10 @@ function mapStateToProps(state) {
   };
 }
 
-type UIAddressState = {
-  name: string,
-  address1: string,
-  address2: string,
-  city: string,
-  zip: string,
-  phoneNumber: string,
-  isDefault: boolean,
-  country: Object,
-  state: Object
-}
 
 type State = {
-  address: UIAddressState|{},
+  address: Address|{},
+  lastSyncedAddress: ?Address,
 }
 
 /* ::`*/
@@ -63,16 +53,16 @@ export default class EditAddress extends Component {
 
   componentDidMount() {
     const { address } = this.props;
-    this.updateAddress(address);
+    this.resolveCountry(address);
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.address != this.state.lastSyncedAddress) {
-      this.updateAddress(nextProps.address);
+      this.resolveCountry(nextProps.address);
     }
   }
 
-  updateAddress(address) {
+  resolveCountry(address) {
     this.props.initAddressData(address).then(uiAddressData => {
       this.setState({
         address: uiAddressData,
@@ -158,8 +148,14 @@ export default class EditAddress extends Component {
     this.setAddressData('isDefault', value);
   }
 
+  get isAddressLoaded(): boolean {
+    const { address } = this.state;
+
+    return !!_.get(address, 'state.name', false);
+  }
+
   render() {
-    if (!this.props.isAddressLoaded) return <Loader size="m"/>;
+    if (!this.isAddressLoaded) return <Loader size="m"/>;
 
     const props: EditShippingProps = this.props;
     const { t } = props;

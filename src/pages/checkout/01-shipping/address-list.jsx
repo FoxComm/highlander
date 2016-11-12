@@ -27,6 +27,7 @@ type Props = {
 
 type State = {
   addressToEdit: Object,
+  newAddress: Object,
   isEditFormActive: boolean,
   activeAddressId?: number|string,
 };
@@ -36,6 +37,7 @@ class AddressList extends Component {
 
   state: State = {
     addressToEdit: {},
+    newAddress: {},
     activeAddressId: this.props.activeAddressId,
     isEditFormActive: false,
   };
@@ -87,7 +89,7 @@ class AddressList extends Component {
 
   @autobind
   finishEditingAddress(id) {
-    this.props.updateAddress(id)
+    this.props.updateAddress(this.state.newAddress, id)
       .then(() => {
         this.setState({
           addressToEdit: {},
@@ -157,6 +159,13 @@ class AddressList extends Component {
     });
   }
 
+  @autobind
+  setNewAddress(address) {
+    this.setState({
+      newAddress: address,
+    });
+  }
+
   renderEditingForm(address) {
     const id = _.get(address, 'id');
     const title = _.isEmpty(this.state.addressToEdit) ? 'Add Address' : 'Edit Address';
@@ -172,7 +181,7 @@ class AddressList extends Component {
         action={action}
         error={this.state.error}
       >
-        <EditAddress {...this.props} address={address} />
+        <EditAddress address={address} onUpdate={this.setNewAddress} />
       </CheckoutForm>
     );
   }

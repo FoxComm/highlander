@@ -112,6 +112,7 @@ class EditBilling extends Component {
       <EditAddress
         {...this.props}
         address={this.props.data.address}
+        onUpdate={this.props.setBillingAddress}
       />
     );
   }
