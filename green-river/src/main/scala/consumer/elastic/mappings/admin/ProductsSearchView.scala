@@ -19,6 +19,7 @@ final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
       field("description", StringType).analyzer("autocomplete"),
       field("skus", StringType).analyzer("upper_cased"),
       field("tags", StringType).index("not_analyzed"),
+      field("taxons", IntegerType),
       field("activeFrom", DateType).format(dateFormat),
       field("activeTo", DateType).format(dateFormat),
       field("archivedAt", DateType).format(dateFormat),
