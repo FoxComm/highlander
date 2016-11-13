@@ -38,6 +38,11 @@ object ProductTestExtensions {
   }
 }
 
+// To whoever will be rewriting this: possible room for regressions includes incorrect handling of SKUs or variants
+// added to carts. I can't put some guards in here against that because I'll have to rewrite almost all tests in this
+// file. If you add a new test, consider adding one where gets added to cart before update/archive just to make sure.
+// -- Anna
+
 class ProductIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
@@ -218,7 +223,7 @@ class ProductIntegrationTest
       description.extract[String] must === ("Test product description")
     }
 
-    "Updates and replaces a SKU on the product" in new FixtureWithSkusInCart with Product_Raw {
+    "Updates and replaces a SKU on the product" in new Fixture with Product_Raw {
       val updateSkuPayload = makeSkuPayload("SKU-UPDATE-TEST", skuAttrMap)
       val newAttrMap       = Map("name" → (("t" → "string") ~ ("v" → "Some new product name")))
       val payload = UpdateProductPayload(attributes = newAttrMap,
@@ -262,7 +267,7 @@ class ProductIntegrationTest
       remainingSkus must contain theSameElementsAs Seq(skuRedLargeCode, skuGreenSmallCode)
     }
 
-    "Updates the SKUs on a product if variants are Some(Seq.empty)" in new FixtureWithSkusInCart {
+    "Updates the SKUs on a product if variants are Some(Seq.empty)" in new Fixture {
 
       ProductSkuLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
       ProductVariantLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
@@ -279,7 +284,7 @@ class ProductIntegrationTest
       description.extract[String] must === ("Test product description")
     }
 
-    "Multiple calls with same params create single SKU link" in new FixtureWithSkusInCart {
+    "Multiple calls with same params create single SKU link" in new Fixture {
 
       ProductSkuLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
       ProductVariantLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
@@ -610,21 +615,5 @@ class ProductIntegrationTest
         attributes = attrMap,
         variants = twoSkuVariantPayload.some,
         skus = twoSkuPayload.some)
-  }
-
-  // I decided to add all SKUs to cart to avoid regressions related to changed that prohibit to archive or
-  // unassociate a SKU from product. SKU is allowed to be updated even if it's in cart.
-  // -- @anna
-  trait FixtureWithSkusInCart extends Fixture {
-    val cartRefNum =
-      cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse].referenceNumber
-
-    cartsApi(cartRefNum).lineItems
-      .add(
-          Seq(UpdateLineItemsPayload(skuGreenSmallCode, 1),
-              UpdateLineItemsPayload(skuGreenLargeCode, 1),
-              UpdateLineItemsPayload(skuRedSmallCode, 1),
-              UpdateLineItemsPayload(skuRedLargeCode, 1)))
-      .mustBeOk()
   }
 }

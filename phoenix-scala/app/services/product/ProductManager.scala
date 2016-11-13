@@ -347,7 +347,24 @@ object ProductManager {
       productId: Int,
       payloadSkus: Seq[SkuPayload])(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
-      skuIdsForProduct   ← * <~ ProductSkuLinks.filter(_.leftId === productId).map(_.rightId).result
+      skuIdsForProduct ← * <~ ProductSkuLinks.filter(_.leftId === productId).result.flatMap {
+                          case links @ Seq(_) ⇒
+                            lift(links.map(_.rightId))
+                          case _ ⇒
+                            (for {
+                              valueLinks ← VariantValueSkuLinks
+                                            .filter(_.leftId === productId)
+                                            .result
+                              variantLinks ← VariantValueLinks
+                                              .filter(_.leftId === productId)
+                                              .result
+                              productLinks ← ProductVariantLinks
+                                              .filter(_.leftId === productId)
+                                              .result
+                            } yield
+                              valueLinks.map(_.rightId) ++ variantLinks
+                                .map(_.rightId) ++ productLinks.map(_.rightId))
+                        }
       skuCodesForProduct ← * <~ Skus.filter(_.id.inSet(skuIdsForProduct)).map(_.code).result
       skuCodesToBeGone = skuCodesForProduct.diff(
           payloadSkus.map(ps ⇒ SkuManager.getSkuCode(ps.attributes)).filter(_.nonEmpty))
