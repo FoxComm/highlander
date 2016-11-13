@@ -53,7 +53,8 @@ class Navigation extends Component {
   }
 
   render(): HTMLElement {
-    const { t, path } = this.props;
+    const { t } = this.props;
+    const path = decodeURIComponent(this.props.path);
 
     const categoryItems = _.map(this.props.list, (item) => {
       const dashedName = item.name.replace(/\s/g, '-');
