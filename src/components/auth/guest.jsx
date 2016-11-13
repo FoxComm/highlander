@@ -6,7 +6,7 @@ import { autobind } from 'core-decorators';
 
 import Button from 'ui/buttons';
 import { TextInput } from 'ui/inputs';
-import { FormField } from 'ui/forms';
+import { FormField, Form } from 'ui/forms';
 
 import styles from './auth.css';
 
@@ -37,18 +37,18 @@ class Guest extends Component {
 
   render() {
     return (
-      <form>
+      <Form onSubmit={this.onClick}>
         <FormField key="email" styleName="form-field">
           <TextInput placeholder="EMAIL" type="email" value={this.state.email} onChange={this.onEmailChange}/>
         </FormField>
         <Button
           type="button"
           styleName="primary-button"
-          onClick={this.onClick}
+          type="submit"
         >
           CHECKOUT
         </Button>
-      </form>
+      </Form>
     );
   }
 }
