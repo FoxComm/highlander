@@ -16,7 +16,7 @@ import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import Checkbox from 'ui/checkbox/checkbox';
 import Autocomplete from 'ui/autocomplete';
 import InputMask from 'react-input-mask';
-import EditAddress from '../address/edit-address';
+import EditAddress from 'ui/address/edit-address';
 import CreditCards from './credit-cards';
 import ViewGiftCards from './view-gift-cards';
 import Icon from 'ui/icon';
@@ -31,7 +31,6 @@ import styles from './billing.css';
 // actions
 import * as cartActions from 'modules/cart';
 import * as checkoutActions from 'modules/checkout';
-import { AddressKind } from 'modules/checkout';
 
 // types
 import type { CreditCardType, CheckoutActions } from '../types';
@@ -112,8 +111,8 @@ class EditBilling extends Component {
     return (
       <EditAddress
         {...this.props}
-        addressKind={AddressKind.BILLING}
         address={this.props.data.address}
+        onUpdate={this.props.setBillingAddress}
       />
     );
   }

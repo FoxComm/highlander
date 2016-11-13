@@ -16,6 +16,8 @@ const countryActions = createAsyncActions('country', apiFetchCountry);
 
 export const fetchCountry = countryActions.fetch;
 
+export const usaDetails = require('./mock/usa-details.json');
+
 export function loadCountry(id) {
   return (dispatch, getState) => {
     const countryDetails = getState().countries.details;
@@ -32,7 +34,7 @@ const initialState = {
     {id: 39, name: 'CANADA', alpha3: 'CAN'},
   ],
   details: {
-    234: require('./mock/usa-details.json'),
+    234: usaDetails,
     39: require('./mock/can-details.json'),
   },
 };

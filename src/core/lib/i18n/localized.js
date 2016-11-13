@@ -1,7 +1,8 @@
+
 import React, { Component, PropTypes } from 'react';
 import Gettext from 'node-gettext';
 import { autobind } from 'core-decorators';
-
+import hoistNonReactStatics from 'hoist-non-react-statics';
 
 type LocalizedProps = {
   text: string;
@@ -13,12 +14,13 @@ type LocalizedContext = {
   translator: Gettext;
 };
 
+function getDisplayName(WrappedComponent) {
+  return WrappedComponent.displayName || WrappedComponent.name || 'Component';
+}
 
 export default function localized(WrappedComponent) {
-  return class Localized extends Component {
-
+  const Localized = class extends Component {
     props: LocalizedProps;
-
     context: LocalizedContext;
 
     static contextTypes = {
@@ -38,6 +40,9 @@ export default function localized(WrappedComponent) {
     render() {
       return React.createElement(WrappedComponent, { t: this.t, ...this.props });
     }
-
   };
+
+  Localized.displayName = `Localized(${getDisplayName(WrappedComponent)})`;
+
+  return hoistNonReactStatics(Localized, WrappedComponent);
 }
