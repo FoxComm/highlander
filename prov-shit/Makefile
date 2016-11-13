@@ -26,6 +26,9 @@ deploy-stage-highlander:
 deploy-td-test:
 	ansible-playbook -v -i bin/envs/staging ansible/td_test.yml
 
+deploy-tpg-test:
+	ansible-playbook -v -i bin/envs/staging ansible/tpg_test.yml
+
 deploy-gatling:
 	ansible-playbook -v -i bin/envs/staging ansible/gatling.yml
 
