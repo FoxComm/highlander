@@ -2,17 +2,17 @@ package models.inventory
 
 import java.time.Instant
 
-import failures.{Failure, Failures, GeneralFailure}
 import cats.data.Xor
-import failures.ArchiveFailures.LinkArchivedSkuFailure
+import failures.ArchiveFailures.{LinkArchivedSkuFailure, SkuIsPresentInCarts}
+import failures.Failures
 import models.objects._
 import shapeless._
 import utils.JsonFormatters
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-
 import com.github.tminglei.slickpg._
+import models.cord.lineitems.CartLineItems
 
 object Sku {
   val kind         = "sku"
@@ -45,6 +45,13 @@ case class Sku(id: Int = 0,
     if (archivedAt.isEmpty) Xor.right(this)
     else Xor.left(LinkArchivedSkuFailure(target, targetId, code).single)
   }
+
+  def mustNotBePresentInCarts(implicit ec: EC, db: DB): DbResultT[Unit] =
+    for {
+      inCartCount ← * <~ CartLineItems.filter(_.skuId === id).size.result
+      _           ← * <~ failIf(inCartCount > 0, SkuIsPresentInCarts(code))
+    } yield {}
+
 }
 
 class Skus(tag: Tag) extends ObjectHeads[Sku](tag, "skus") {

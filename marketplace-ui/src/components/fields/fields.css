@@ -84,7 +84,8 @@ select {
   }
 }
 
-input[type="radio"] {
+input[type="radio"],
+input[type="checkbox"] {
   display: inline-block;
   position: relative;
   top: -1px;
@@ -93,6 +94,12 @@ input[type="radio"] {
   margin-left: 15px;
 
   appearance: radio;
+}
+
+input[type="checkbox"] {
+  margin: 0 10px 0 15px;
+
+  appearance: checkbox;
 }
 
 .radioGroup {
@@ -150,6 +157,25 @@ input[type="file"] {
 label {
   font-weight: 300;
   font-size: 16px;
+  line-height: 37px;
+}
+
+.fieldCheckbox {
+}
+
+.fieldCurrency {
+  &::before {
+    content: "$";
+    display: inline-block;
+    position: absolute;
+    left: 15px;
+    top: 9px;
+    color: #ccc;
+  }
+
+  & input {
+    padding-left: 30px;
+  }
 }
 
 ::-webkit-input-placeholder,
@@ -186,7 +212,6 @@ input:-webkit-autofill {
 
     & :global(.rw-tag-btn) {
       position: relative;
-      top: 1px;
       margin-left: 5px;
     }
   }

@@ -7,8 +7,21 @@ import models.payment.giftcard.GiftCard
 import utils.Money._
 import utils.Validation
 import utils.Validation._
+import utils.aliases.Json
 
 object GiftCardPayloads {
+
+  case class GiftCardCreatedByCustomer(balance: Int,
+                                       currency: Currency = Currency.USD,
+                                       subTypeId: Option[Int] = None,
+                                       details: Option[Json] = None,
+                                       cordRef: String,
+                                       scope: Option[String] = None)
+      extends Validation[GiftCardCreatedByCustomer] {
+
+    def validate: ValidatedNel[Failure, GiftCardCreatedByCustomer] =
+      greaterThan(balance, 0, "Balance").map(_ ⇒ this)
+  }
 
   case class GiftCardCreateByCsr(balance: Int,
                                  reasonId: Int,

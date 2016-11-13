@@ -1,0 +1,45 @@
+{
+  "id": "/solomon",
+  "cmd": null,
+  "cpus": 0.5,
+  "mem": 256,
+  "disk": 0,
+  "instances": 1,
+  "env": {
+    "DB_USER": "{{db_user}}",
+    "DB_HOST": "{{docker_db_host}}",
+    "DB_NAME": "{{phoenix_db_name}}",
+    "DB_PASSWORD": ""
+  },
+  "portDefinitions": [
+    {
+      "port": 10006,
+      "protocol": "tcp",
+      "name": "4002",
+      "labels": {}
+    }
+  ],
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "{{docker_registry}}:5000/solomon:{{docker_branch}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "ps -ef | grep -v grep | grep phoenix.server"
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3
+    }
+  ]
+}

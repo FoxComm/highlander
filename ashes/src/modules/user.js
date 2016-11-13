@@ -113,7 +113,6 @@ export function logout(): ActionDispatch {
   };
 }
 
-
 const initialState = {
   message: null,
 };
@@ -129,7 +128,7 @@ function saveUser(state: UserState, user: TUser) {
 const reducer = createReducer({
   [setUser]: saveUser,
   [removeUser]: (state: UserState, user: TUser) => {
-    return dissoc(state, 'user');
+    return dissoc(state, 'current');
   },
   [_authenticate.started]: (state: UserState) => {
     return {

@@ -82,9 +82,7 @@ class Login extends Component {
   googleAuthenticate(e: any) {
     e.preventDefault();
     e.stopPropagation();
-    this.props.googleSignin().then(() => {
-      this.props.fetchCart();
-    });
+    this.props.googleSignin();
   }
 
   render(): HTMLElement {

@@ -1,6 +1,4 @@
 defmodule Marketplace.Stripe do
-  import Ecto
-  import Ecto.Query
   import HTTPoison
 
   # This function will create a new managed account in Stripe Connect and
@@ -52,10 +50,20 @@ defmodule Marketplace.Stripe do
           account_id = Map.fetch!(decoded_body, "id")
           IO.inspect("Received account from stripe")
           IO.inspect(account_id)
-          account_id
+          {:ok, account_id}
         {:error} ->
           nil
         end
+      {:ok, %HTTPoison.Response{status_code: 400, body: body}} ->
+        case Poison.decode(body) do
+        {:ok, decoded_body} ->
+            error = Map.fetch!(decoded_body, "error") |> Map.fetch!("message")
+            IO.inspect "ERROR FROM HTTP CLIENT CONNECTING TO STRIPE! #{error}"
+            {:error, error}
+        {:error} ->
+          {:error, "Server Error"}
+        end
+
       {:error, %HTTPoison.Error{reason: reason}} ->
         IO.inspect("ERROR FROM HTTP CLIENT CONNECTING TO STRIPE!")
         IO.inspect(reason)

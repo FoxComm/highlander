@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/FoxComm/metamorphosis"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/metamorphosis"
 )
 
 const activityShipmentShipped = "shipment_shipped"

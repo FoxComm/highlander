@@ -1,6 +1,6 @@
 /* @flow */
 
-import get from 'lodash/get';
+import { get, isEmpty } from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -9,19 +9,25 @@ import { replace } from 'react-router-redux';
 import Header from '../../components/header/header';
 import Form from '../../components/form/form';
 
-import { getApplication, getInfo, getInfoSubmitInProgress, getInfoSubmitFailed } from '../../core/modules';
-import { submit } from '../../core/modules/merchant-info';
+import {
+  getApplication,
+  getAccounts,
+  getBusinessSubmitInProgress,
+  getBusinessSubmitFailed
+} from '../../core/modules';
+
+import { submitBusiness as submit } from '../../core/modules/merchant-account';
 import { fields } from '../../forms/info/info-fields';
 
 import styles from './info-page.css';
 
 import type { HTMLElement } from '../../core/types';
 import type { Application } from '../../core/modules/merchant-application';
-import type { Info } from '../../core/modules/merchant-info';
+import type { Accounts } from '../../core/modules/merchant-account';
 
 type Props = {
   application: Application;
-  info: Info;
+  accounts: Accounts;
   submit: Function;
   inProgress: boolean;
   failed: boolean;
@@ -33,8 +39,8 @@ class MerchantInfoPage extends Component {
   props: Props;
 
   componentWillReceiveProps(nextProps: Props): void {
-    if (nextProps.info.id) {
-      this.props.replace(`/application/${this.props.params.ref}/actions`);
+    if (!isEmpty(nextProps.accounts) && get(nextProps.accounts, [0, 'merchant_account', 'stripe_account_id'])) {
+      this.props.replace(`/application/${this.props.params.ref}/shipping`);
     }
   }
 
@@ -50,10 +56,6 @@ class MerchantInfoPage extends Component {
   }
 
   get form(): HTMLElement {
-    if (this.props.info.saved) {
-      return;
-    }
-
     const { inProgress, failed } = this.props;
 
     return (
@@ -75,7 +77,6 @@ class MerchantInfoPage extends Component {
           legend={'This additional information will help us ensure that we are able to' +
                   'add your business to our system and successfully send you payments.'}
         />
-        {this.loader}
         {this.form}
       </div>
     );
@@ -84,9 +85,9 @@ class MerchantInfoPage extends Component {
 
 const mapState = state => ({
   application: getApplication(state),
-  info: getInfo(state),
-  inProgress: getInfoSubmitInProgress(state),
-  failed: getInfoSubmitFailed(state),
+  accounts: getAccounts(state),
+  inProgress: getBusinessSubmitInProgress(state),
+  failed: getBusinessSubmitFailed(state),
 });
 
 export default connect(mapState, { submit, replace })(MerchantInfoPage);

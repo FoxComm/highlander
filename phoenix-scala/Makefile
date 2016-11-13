@@ -1,4 +1,4 @@
-build: clean
+build:
 	sbt assembly
 
 clean:
@@ -6,5 +6,11 @@ clean:
 
 test:
 	sbt test
+
+docker:
+	true
+
+docker-push:
+	true
 
 .PHONY: build test

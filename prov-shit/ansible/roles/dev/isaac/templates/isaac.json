@@ -1,0 +1,51 @@
+{
+  "id": "/isaac",
+  "cmd": null,
+  "cpus": 0.25,
+  "mem": 64,
+  "disk": 0,
+  "instances": 1,
+  "env": {
+    "PUBLIC_KEY": "/certs/public_key.pem",
+    "DB_HOST": "{{docker_db_host}}",
+    "DB_NAME": "{{phoenix_db_name}}",
+    "DB_USER": "{{db_user}}"
+  },
+  "portDefinitions": [
+    {
+      "port": 10005,
+      "protocol": "tcp",
+      "name": "9190",
+      "labels": {}
+    }
+  ],
+  "container": {
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "/certs",
+        "hostPath": "/etc/keys",
+        "mode": "RO"
+      }
+    ],
+    "docker": {
+      "image": "{{docker_registry}}:5000/isaac:{{docker_branch}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "healthChecks": [
+    {
+      "path": "/ping",
+      "protocol": "HTTP",
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false,
+      "port": 9190
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 import java.time.Instant
 
+import akka.http.scaladsl.model.StatusCodes
+
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures._
@@ -11,14 +13,16 @@ import models.objects._
 import models.product._
 import org.json4s.JsonDSL._
 import org.json4s._
+import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.OrderPayloads.CreateCart
 import payloads.ProductPayloads._
 import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 import responses.ProductResponses.ProductResponse.Root
+import responses.cord.CartResponse
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import testutils.PayloadHelpers._
 import utils.JsonFormatters
 import utils.Money.Currency
 import utils.aliases._
@@ -186,6 +190,20 @@ class ProductIntegrationTest
         productsApi
           .create(archivedSkuProductPayload)
           .mustFailWith400(LinkArchivedSkuFailure(Product, 2, archivedSkuCode))
+      }
+
+      "trying to create a product with string price" in new Fixture {
+        val price: Json = ("t" → "price") ~ ("v" → (("currency"
+                        → "USD") ~ ("value" → "1000")))
+        val skuAttributes: Map[String, Json] = skuPayload.attributes + ("salePrice" → price)
+        val productToCreate =
+          productPayload.copy(skus = Seq(skuPayload.copy(attributes = skuAttributes)))
+        val createResponse = productsApi.create(productToCreate)
+
+        createResponse.mustHaveStatus(StatusCodes.BadRequest)
+        val errorPattern =
+          "Object sku with id=\\d+ doesn't pass validation: \\$.salePrice.value: string found, number expected"
+        createResponse.error must fullyMatch regex errorPattern.r
       }
     }
 
@@ -357,6 +375,18 @@ class ProductIntegrationTest
 
       activeTo must === (None)
       activeFrom must === (None)
+    }
+
+    "Returns error if product is present in carts" in new Fixture {
+      val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
+
+      cartsApi(cart.referenceNumber).lineItems
+        .add(Seq(UpdateLineItemsPayload(skuRedSmallCode, 1)))
+        .mustBeOk()
+
+      productsApi(product.formId)
+        .archive()
+        .mustFailWith400(ProductIsPresentInCarts(product.formId))
     }
 
     "SKUs must be unlinked" in new VariantFixture {

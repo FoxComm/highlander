@@ -162,27 +162,28 @@ object Orders
   def prepareOrderLineItemsFromCart(cart: Cart, contextId: Int)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[OrderLineItem]] = {
-    val countBySku = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
-      case (sku, q) ⇒ sku → q.length
+    val uniqueSkuCodesInCart = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
+      case (sku, q) ⇒ sku
     }
 
-    val orderLineItemSkusQuery = for {
-      countBySku ← countBySku
-      (skuId, count) = countBySku
-      sku ← Skus if sku.id === skuId
-    } yield (sku, count)
+    val skusInCart = for {
+      skuCode ← uniqueSkuCodesInCart
+      sku     ← Skus if sku.id === skuCode
+    } yield (skuCode, sku)
 
     for {
-      skuItems ← * <~ orderLineItemSkusQuery.result
-      lineItems ← * <~ skuItems.flatMap {
-                   case (sku, count) ⇒
-                     List.fill(count)(
-                         OrderLineItem(cordRef = cart.referenceNumber,
-                                       skuId = sku.id,
-                                       skuShadowId = sku.shadowId,
-                                       state = OrderLineItem.Pending))
-                 }
-    } yield lineItems
+      skus      ← * <~ skusInCart.result
+      skuMaps   ← * <~ skus.toMap
+      lineItems ← * <~ CartLineItems.byCordRef(cart.referenceNumber).result
+      orderLineItems ← * <~ lineItems.map { cli ⇒
+                        val sku = skuMaps.get(cli.skuId).get
+                        OrderLineItem(cordRef = cart.referenceNumber,
+                                      skuId = sku.id,
+                                      skuShadowId = sku.shadowId,
+                                      state = OrderLineItem.Pending,
+                                      attributes = cli.attributes)
+                      }
+    } yield orderLineItems
   }
 
   def findByAccount(cust: Account): QuerySeq =
@@ -199,6 +200,9 @@ object Orders
 
   def findOneByRefNumAndAccount(refNum: String, account: Account): QuerySeq =
     filter(_.referenceNumber === refNum).filter(_.accountId === account.id)
+
+  def findByRefNumAndAccountId(refNum: String, accountId: Int): QuerySeq =
+    filter(_.referenceNumber === refNum).filter(_.accountId === accountId)
 
   type Ret       = (Int, String, Option[Instant])
   type PackedRet = (Rep[Int], Rep[String], Rep[Option[Instant]])

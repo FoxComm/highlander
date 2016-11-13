@@ -112,8 +112,8 @@ Vagrant.configure("2") do |config|
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.define :appliance, primary: true do |app|
-    app.vm.box = "base_appliance_16.04_20161016"
-    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base_appliance_16.04_20160921.box"
+    app.vm.box = "base_appliance_16.04_20161111"
+    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base_appliance_16.04_20161111.box"
 
     app.vm.network :private_network, ip: $nginx_ip
     expose_ports(app)
@@ -124,6 +124,7 @@ Vagrant.configure("2") do |config|
       ansible.extra_vars = {
         user: user,
         appliance_hostname: $nginx_ip,
+        mesos_ip: $nginx_ip,
       }
     end
   end

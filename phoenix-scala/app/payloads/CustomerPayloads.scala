@@ -26,6 +26,12 @@ object CustomerPayloads {
     }
   }
 
+  case class ChangeCustomerPasswordPayload(oldPassword: String, newPassword: String)
+      extends Validation[ChangeCustomerPasswordPayload] {
+    def validate: ValidatedNel[Failure, ChangeCustomerPasswordPayload] =
+      notEmpty(newPassword, "new password").map { case _ ⇒ this }
+  }
+
   case class ActivateCustomerPayload(name: String) extends Validation[ActivateCustomerPayload] {
 
     def validate: ValidatedNel[Failure, ActivateCustomerPayload] =

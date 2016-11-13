@@ -6,12 +6,14 @@ import {autobind} from 'core-decorators';
 
 // components
 import { Button } from '../common/buttons';
-import ArchveConfirmation from './archive-confirmation';
+import ArchiveConfirmation from './archive-confirmation';
 
 type Props = {
   title: string,
   type: string,
   archive: Function,
+  archiveState: AsyncStatus,
+  clearArchiveErrors: () => Promise,
 };
 
 type State = {
@@ -25,6 +27,10 @@ class ArchiveActions extends Component {
     archiveConfirmation: false,
   };
 
+  componentDidMount() {
+    this.props.clearArchiveErrors();
+  }
+
   @autobind
   showArchiveConfirmation() {
     this.setState({
@@ -34,9 +40,16 @@ class ArchiveActions extends Component {
 
   @autobind
   closeConfirmation() {
+    this.props.clearArchiveErrors();
     this.setState({
       archiveConfirmation: false,
     });
+  }
+
+  @autobind
+  archive() {
+    this.props.clearArchiveErrors();
+    this.props.archive();
   }
 
   render():Element {
@@ -47,10 +60,12 @@ class ArchiveActions extends Component {
           onClick={this.showArchiveConfirmation}>
           Archive {this.props.type}
         </Button>
-        <ArchveConfirmation
+        <ArchiveConfirmation
           isVisible={this.state.archiveConfirmation}
           closeConfirmation={this.closeConfirmation}
-          { ...this.props } />
+          { ...this.props }
+          archive={this.archive}
+        />
       </div>
     );
   }

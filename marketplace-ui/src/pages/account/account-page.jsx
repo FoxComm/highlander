@@ -9,10 +9,18 @@ import { replace } from 'react-router-redux';
 import Header from '../../components/header/header';
 import Form from '../../components/form/form';
 
-import { getApplication, getAccounts, getAccountSubmitInProgress, getAccountSubmitFailed } from '../../core/modules';
+import {
+  getApplication,
+  getAccounts,
+  getAccountSubmitInProgress,
+  getAccountSubmitFailed
+} from '../../core/modules';
 
-import { submit } from '../../core/modules/merchant-account';
-import { fields } from '../../forms/account/account-fields';
+import { submitAccount as submit } from '../../core/modules/merchant-account';
+import { fields as accountFields } from '../../forms/account/account-fields';
+import { fields as infoFields } from '../../forms/info/info-fields';
+
+import styles from './account-page.css';
 
 import type { HTMLElement } from '../../core/types';
 import type { Application } from '../../core/modules/merchant-application';
@@ -28,12 +36,14 @@ type Props = {
   replace: (path: string) => void;
 }
 
+const fields = [...accountFields, ...infoFields];
+
 class MerchantAccountPage extends Component {
   props: Props;
 
   componentWillReceiveProps(nextProps: Props) {
     if (this.props.accounts.length !== nextProps.accounts.length) {
-      this.props.replace(`/application/${this.props.params.ref}/info`);
+      this.props.replace(`/application/${this.props.params.ref}/shipping`);
     }
   }
 
@@ -54,7 +64,7 @@ class MerchantAccountPage extends Component {
     const { inProgress, submitFailed } = this.props;
 
     return (
-      <div>
+      <div className={styles.account}>
         <Header
           title="Let’s get you started"
           legend="Create an Account to start on the GoldFish marketplace!"

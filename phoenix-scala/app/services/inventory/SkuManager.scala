@@ -58,6 +58,7 @@ object SkuManager {
     for {
       fullSku ← * <~ ObjectManager.getFullObject(
                    SkuManager.mustFindSkuByContextAndCode(oc.id, code))
+      _ ← * <~ fullSku.model.mustNotBePresentInCarts
       archivedSku ← * <~ Skus.update(fullSku.model,
                                      fullSku.model.copy(archivedAt = Some(Instant.now)))
       albumLinks ← * <~ SkuAlbumLinks.filter(_.leftId === archivedSku.id).result

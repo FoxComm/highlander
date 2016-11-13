@@ -1,9 +1,9 @@
 /* @flow */
 // libs
-import Api, { request } from '../../lib/api';
+import Api from 'lib/api';
 
 // helpers
-import createStore from '../../lib/store-creator';
+import createStore from 'lib/store-creator';
 
 // types
 import type { TShipment, TUnshippedLineItem } from 'paragons/shipment';

@@ -29,8 +29,12 @@ defmodule Marketplace.Router do
     post "/merchant_applications_full", MerchantApplicationController, :merchant_application_full
     post "/merchants/activate_application/:application_id", MerchantController, :activate_application
     post "/merchants/:merchant_id/admin_accounts", MerchantAccountController, :create_admin
-    
-    resources "/merchants", MerchantController do 
+
+    get "/users/:user_id/origin_integrations", OriginIntegrationController, :show
+    post "/users/:user_id/origin_integrations", OriginIntegrationController, :create
+    patch "/users/:user_id/origin_integrations", OriginIntegrationController, :update
+
+    resources "/merchants", MerchantController do
       post "/social_profile", MerchantSocialProfileController, :create, as: :social_profile
       get "/social_profile", MerchantSocialProfileController, :show, as: :social_profile
       patch "/social_profile", MerchantSocialProfileController, :update, as: :social_profile
@@ -49,9 +53,14 @@ defmodule Marketplace.Router do
       get "/products_upload", MerchantProductsUploadController, :index, as: :products_upload
       get "/products_upload/:id", MerchantProductsUploadController, :show, as: :products_upload
       patch "/products_upload/:id", MerchantProductsUploadController, :update, as: :products_upload
+      get "/shipping_solutions", MerchantShippingSolutionController, :index, as: :shipping_solutions
+      post "/shipping_solutions", MerchantShippingSolutionController, :create, as: :shipping_solutions
+      post "/origin_integrations", MerchantOriginIntegrationController, :create, as: :origin_integration
+      get "/origin_integrations", MerchantOriginIntegrationController, :show, as: :origin_integration
     end
 
     get "/", PageController, :index
+    get "/ping", Ping, :ping
   end
 
   # Other scopes may use custom stacks.

@@ -3,10 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/FoxComm/metamorphosis"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
-
-	_ "github.com/jpfuentes2/go-env/autoload"
+	"github.com/FoxComm/metamorphosis"
 )
 
 const (

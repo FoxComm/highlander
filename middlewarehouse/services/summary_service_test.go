@@ -78,9 +78,9 @@ func (suite *summaryServiceTestSuite) Test_Increment_OnHand() {
 
 	summary := models.StockItemSummary{}
 	suite.Nil(suite.db.First(&summary, suite.si.ID).Error)
-	suite.Equal(suite.onHand + 5, summary.OnHand)
-	suite.Equal(suite.onHand + 5, summary.AFS)
-	suite.Equal((suite.onHand + 5) * suite.unitCost, summary.AFSCost)
+	suite.Equal(suite.onHand+5, summary.OnHand)
+	suite.Equal(suite.onHand+5, summary.AFS)
+	suite.Equal((suite.onHand+5)*suite.unitCost, summary.AFSCost)
 }
 
 func (suite *summaryServiceTestSuite) Test_Increment_OnHold() {
@@ -110,7 +110,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 	suite.Equal(5, summary.OnHold)
 	suite.Equal(0, summary.Reserved)
 	suite.Equal(5, summary.AFS)
-	suite.Equal(5 * suite.unitCost, summary.AFSCost)
+	suite.Equal(5*suite.unitCost, summary.AFSCost)
 
 	suite.Nil(suite.service.UpdateStockItemSummary(suite.si.ID, models.Sellable, 2, models.StatusChange{From: models.StatusOnHold, To: models.StatusReserved}))
 
@@ -119,7 +119,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 	suite.Equal(3, summary.OnHold)
 	suite.Equal(2, summary.Reserved)
 	suite.Equal(5, summary.AFS)
-	suite.Equal(5 * suite.unitCost, summary.AFSCost)
+	suite.Equal(5*suite.unitCost, summary.AFSCost)
 
 	suite.Nil(suite.service.UpdateStockItemSummary(suite.si.ID, models.Sellable, 1, models.StatusChange{From: models.StatusReserved, To: models.StatusOnHand}))
 
@@ -128,7 +128,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 	suite.Equal(3, summary.OnHold)
 	suite.Equal(1, summary.Reserved)
 	suite.Equal(6, summary.AFS)
-	suite.Equal(6 * suite.unitCost, summary.AFSCost)
+	suite.Equal(6*suite.unitCost, summary.AFSCost)
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummary() {
@@ -160,5 +160,5 @@ func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU_NonZero() {
 
 	summary, err := suite.service.GetSummaryBySKU(suite.si.SKU)
 	suite.Nil(err)
-	suite.Equal(suite.onHand + 5, summary[0].OnHand)
+	suite.Equal(suite.onHand+5, summary[0].OnHand)
 }

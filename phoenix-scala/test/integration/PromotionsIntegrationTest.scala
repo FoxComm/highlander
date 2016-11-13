@@ -2,33 +2,30 @@ import java.time.Instant
 
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
-import models.objects.ObjectContext
+import models.objects.{ObjectContext, ObjectUtils}
+import models.promotion.Promotion.{Auto, Coupon}
 import models.promotion._
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods._
-import payloads.CouponPayloads._
-import payloads.DiscountPayloads._
 import payloads.PromotionPayloads._
 import responses.CouponResponses.CouponResponse
 import responses.PromotionResponses.PromotionResponse
-import services.coupon.CouponManager
 import services.promotion.PromotionManager
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import testutils.fixtures.BakedFixtures
-import testutils.PayloadHelpers._
-import utils.db.ExPostgresDriver.api._
+import testutils.fixtures.{BakedFixtures, PromotionFixtures}
+import utils.IlluminateAlgorithm
+import utils.aliases._
 import utils.db._
 import utils.time.RichInstant
-import utils.aliases._
 
 class PromotionsIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with AutomaticAuth
     with TestActivityContext.AdminAC
-    with BakedFixtures {
+    with BakedFixtures
+    with PromotionFixtures {
 
   "DELETE /v1/promotions/:context/:id" - {
     "archive existing promotion with attached coupons" in new Fixture {
@@ -71,47 +68,43 @@ class PromotionsIntegrationTest
     }
   }
 
-  trait Fixture extends StoreAdmin_Seed {
-    def makeDiscountAttrs(qualifier: String, qualifierValue: JObject): Map[String, Json] = {
-      Map[String, Any](
-          "title"       → s"Get $percentOff% off when you spend $totalAmount dollars",
-          "description" → s"$percentOff% off when you spend over $totalAmount dollars",
-          "tags"        → tv(JArray(List.empty[JString]), "tags"),
-          "qualifier"   → JObject(qualifier → qualifierValue).asShadowVal(t = "qualifier"),
-          "offer" → JObject(
-              "orderPercentOff" → JObject(
-                  "discount" → JInt(percentOff)
-              )
-          ).asShadowVal("offer")
-      ).asShadow
+  "promotion with 'coupon' apply type should be active on" - {
+
+    "creation" in new StoreAdmin_Seed with Promotion_Seed {
+
+      ObjectUtils
+        .getFullObject(DbResultT.pure(promotion))
+        .gimme
+        .getAttribute("activeFrom") must !==(JNothing)
     }
 
-    val percentOff  = 10
-    val totalAmount = 0
-    val discountAttributes =
-      makeDiscountAttrs("orderTotalAmount", "totalAmount" → JInt(totalAmount * 100))
+    "updating" in new AutoApplyPromotionSeed {
 
-    val promoAttributes = Map[String, Json]("name" → tv("donkey promo"))
+      var fullPromotion = ObjectUtils.getFullObject(DbResultT.pure(promotion)).gimme
+      fullPromotion.getAttribute("activeFrom") must === (JNothing)
 
-    val promoPayload = CreatePromotion(applyType = Promotion.Coupon,
-                                       attributes = promoAttributes,
-                                       discounts =
-                                         Seq(CreateDiscount(attributes = discountAttributes)))
+      val attributes: List[(String, JValue)] =
+        IlluminateAlgorithm.projectAttributes(fullPromotion.form.attributes,
+                                              fullPromotion.shadow.attributes) match {
+          case JObject(f) ⇒ f
+          case _          ⇒ List()
+        }
 
-    val couponAttributes = Map[String, Json]("name" → tv("donkey coupon"))
+      PromotionManager
+        .update(promotion.formId, UpdatePromotion(Coupon, attributes.toMap, Seq()), ctx.name)
+        .gimme
 
-    def couponPayload(promoId: Int): CreateCoupon =
-      CreateCoupon(attributes = couponAttributes, promoId)
-
-    val (promotion, coupon, promoRoot) = (for {
-      promoRoot ← * <~ PromotionManager.create(promoPayload, ctx.name)
-      promotion ← * <~ Promotions
-                   .filter(_.contextId === ctx.id)
-                   .filter(_.formId === promoRoot.id)
-                   .mustFindOneOr(NotFoundFailure404(Promotion, "test"))
-
-      coupon ← * <~ CouponManager.create(couponPayload(promoRoot.id), ctx.name, None)
-    } yield (promotion, coupon, promoRoot)).gimme
+      fullPromotion =
+        ObjectUtils.getFullObject(Promotions.mustFindById400(fullPromotion.model.id)).gimme
+      fullPromotion.getAttribute("activeFrom") must !==(JNothing)
+    }
   }
 
+  trait Fixture extends StoreAdmin_Seed with Promotion_Seed with Coupon_Raw
+
+  trait AutoApplyPromotionSeed extends StoreAdmin_Seed with Promotion_Seed {
+
+    override def createPromotionFromPayload(payload: CreatePromotion) =
+      super.createPromotionFromPayload(payload.copy(applyType = Auto))
+  }
 }

@@ -76,40 +76,6 @@ class ProductsCatalogViewIntegrationTest
     }
   }
 
-  "album-related views should be updated on" - {
-    "album created" in new Fixture {
-      val payload = CreateAlbumPayload(name = "test", images = Seq(ImagePayload(src = "url")).some)
-      productsApi(product.formId).albums.create(payload).mustBeOk()
-
-      val albums = ProductAlbumsFromDatabase(product).getAndCompareAllViews
-
-      val expectedAlbums: Seq[ViewAlbum] =
-        Seq(new ViewAlbum(defaultAlbumPayload), new ViewAlbum(payload))
-      albums must contain theSameElementsAs expectedAlbums
-    }
-
-    "album updated" in new Fixture {
-      val moreImages = Seq(imagePayload, ImagePayload(src = "http://test.it/test.png"))
-      val payload    = UpdateAlbumPayload(images = moreImages.some)
-
-      albumsApi(album.formId).update(payload).mustBeOk()
-
-      val albums = ProductAlbumsFromDatabase(product).getAndCompareAllViews
-      albums.size must === (1)
-
-      val dbAlbum = albums.head
-      dbAlbum.images.get.size must === (payload.images.get.size)
-      dbAlbum.images.get.map(_.src) must === (payload.images.get.map(_.src))
-    }
-
-    "album archived" in new Fixture {
-      albumsApi(album.formId).delete().mustBeOk()
-
-      val albums = ProductAlbumsFromDatabase(product).getAndCompareAllViews
-      albums.size must === (0)
-    }
-  }
-
   trait Fixture extends StoreAdmin_Seed {
     val imagePayload        = ImagePayload(None, "http://lorem.png", "lorem.png".some, "Lorem Ipsum".some)
     val defaultAlbumPayload = CreateAlbumPayload("Sample Album", Some(Seq(imagePayload)))

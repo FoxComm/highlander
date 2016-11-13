@@ -31,6 +31,7 @@
   sudo: true
   args:
     chdir: "{{phoenix_dir}}"
+  when: with_gatling_seeder
 
 - name: Copy Service
   template: src=seeder.service dest="{{dest_services}}/seeder.service"
@@ -46,3 +47,15 @@
   service: name=seeder state=restarted enabled=yes
   sudo: true
   when: with_seeder
+
+- name: Create Middlewarehouse Seeder directory
+  file: path={{middlewarehouse_dir}}/seeder state=directory
+  sudo: true
+
+- name: Copy Middlewarehouse Seeder .env
+  template: src=middlewarehouse.env dest={{middlewarehouse_dir}}/seeder/.env
+  sudo: true
+
+- name: Run Middlewarehouse Seeder docker container
+  command: docker run --env-file "{{middlewarehouse_dir}}/seeder/.env" --network host "{{docker_registry}}:5000/middlewarehouse-seeder:{{docker_branch}}"
+  sudo: true

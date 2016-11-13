@@ -36,7 +36,7 @@ type State = {
   isEditing: boolean,
 };
 
-export default class CartLineItems extends React.Component {
+export default class CartLineItems extends Component {
   props: Props;
   state: State = { isEditing: false };
 
@@ -56,8 +56,6 @@ export default class CartLineItems extends React.Component {
   }
 
   render() {
-    const props = this.props;
-
     const { cart, status } = this.props;
 
     const title = <PanelHeader showStatus={true} status={status} text="Items" />;

@@ -2,12 +2,14 @@ package services.promotion
 
 import java.time.Instant
 
+import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import failures.PromotionFailures._
 import models.coupon.Coupons
 import models.account._
 import models.discount._
+import models.objects.ObjectUtils._
 import models.objects._
 import models.promotion._
 import payloads.DiscountPayloads._
@@ -32,7 +34,10 @@ object PromotionManager {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
-      ins ← * <~ ObjectUtils.insert(formAndShadow, payload.schema)
+      (form, shadow) = IlluminatedPromotion
+        .validatePromotion(payload.applyType, formAndShadow)
+        .tupled
+      ins ← * <~ ObjectUtils.insert((form, shadow), payload.schema)
       promotion ← * <~ Promotions.create(
                      Promotion(scope = scope,
                                contextId = context.id,
@@ -91,10 +96,13 @@ object PromotionManager {
       promotion ← * <~ Promotions
                    .filterByContextAndFormId(context.id, id)
                    .mustFindOneOr(PromotionNotFoundForContext(id, contextName))
+      validated = IlluminatedPromotion
+        .validatePromotion(payload.applyType, (formAndShadow.form, formAndShadow.shadow))
+
       updated ← * <~ ObjectUtils.update(promotion.formId,
                                         promotion.shadowId,
-                                        formAndShadow.form.attributes,
-                                        formAndShadow.shadow.attributes)
+                                        validated.form.attributes,
+                                        validated.shadow.attributes)
       discount  ← * <~ updateDiscounts(context, payload)
       commit    ← * <~ ObjectUtils.commit(updated)
       promotion ← * <~ updateHead(promotion, payload, updated.shadow, commit)

@@ -126,7 +126,7 @@ export default class SkuList extends Component {
         body={confirmation}
         cancel="Cancel"
         confirm="Yes, Remove"
-        cancelAction={() => this.closeDeleteConfirmation()}
+        onCancel={() => this.closeDeleteConfirmation()}
         confirmAction={() => this.deleteSku()}
       />
     );

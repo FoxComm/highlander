@@ -4,13 +4,18 @@ FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/
 DB=middlewarehouse_development
 DB_TEST=middlewarehouse_test
 DB_USER=middlewarehouse
+GOPATH ?= $(HOME)/tmpgo
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
+HIGHLANDER_PATH=$(CURDIR)/..
+
+DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
+DOCKER_TAG ?= middlewarehouse
+DOCKER_BRANCH ?= master
 
 prep:
-	rm -rf $(BUILD_ROOT_PATH)
-	mkdir -p $(BUILD_ROOT_PATH)
-	ln -s ${CURDIR} $(BUILD_PATH)
+	mkdir -p $(GOPATH)/src/github.com/FoxComm
+	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
 
 glide: prep
 	cd $(BUILD_PATH) && glide install
@@ -20,6 +25,30 @@ build: glide
 	cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
 	cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
 	cd $(BUILD_PATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
+	cd $(BUILD_PATH) && go build -o consumers/shipstation/shipstation-consumer consumers/shipstation/*.go
+	cd $(BUILD_PATH) && go build -o common/db/seeds/seeder common/db/seeds/main.go
+
+docker:
+	docker build -t $(DOCKER_TAG) .
+	docker build -t stock-items-consumer consumers/stock-items/
+	docker build -t shipments-consumer consumers/shipments/
+	docker build -t capture-consumer consumers/capture/
+	docker build -t shipstation-consumer consumers/shipstation/
+	docker build -t middlewarehouse-seeder common/db/seeds/
+
+docker-push:
+	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker tag stock-items-consumer $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_BRANCH)
+	docker tag shipments-consumer $(DOCKER_REPO)/shipments-consumer:$(DOCKER_BRANCH)
+	docker tag capture-consumer $(DOCKER_REPO)/capture-consumer:$(DOCKER_BRANCH)
+	docker tag shipstation-consumer $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_BRANCH)
+	docker tag middlewarehouse-seeder $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/shipments-consumer:$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/capture-consumer:$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_BRANCH)
 
 clean:
 	rm -rf ./vendor
@@ -55,5 +84,5 @@ create-user:
 	createuser -s $(DB_USER)
 
 test: glide reset-test
-    # -p=1 serves to run tests sequentially, as it is required for non-isolated database tests
+	# -p 1 serves to run tests sequentially, as it is required for non-isolated database tests
 	cd $(BUILD_PATH) && GOENV=test go test -p 1 `glide nv`

@@ -104,7 +104,7 @@ class ScopedIndexer(uri: String,
       case NonFatal(e) ⇒ Console.err.println(s"Error while indexing: $e")
     }
 
-    req.map { r ⇒
+    req.map { _ ⇒
       ()
     }
   }

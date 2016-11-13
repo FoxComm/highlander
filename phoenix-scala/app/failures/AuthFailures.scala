@@ -8,4 +8,8 @@ object AuthFailures {
   case class AuthFailed(reason: String) extends Failure {
     override def description = reason
   }
+
+  case object ChangePasswordFailed extends Failure {
+    override def description: String = "Old password is invalid"
+  }
 }

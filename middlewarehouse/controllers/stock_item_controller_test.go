@@ -6,9 +6,10 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 
 	"errors"
-	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"

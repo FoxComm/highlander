@@ -36,8 +36,8 @@ object CouponUsageService {
       db: DB): DbResultT[Unit] =
     for {
       count ← * <~ couponUsageCount(couponFormId, accountId)
-      _ ← * <~ failIf(count < usesAvailable,
-                      (CouponCodeCannotBeUsedByCustomerAnymore(code, accountId)))
+      _ ← * <~ failIf(usesAvailable <= count,
+                      CouponCodeCannotBeUsedByCustomerAnymore(code, accountId))
     } yield {}
 
   def mustBeUsableByCustomer(couponFormId: Int,

@@ -10,9 +10,10 @@ import models.objects._
 import models.product._
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils._
+import utils.aliases._
 import utils.db._
 
 trait LineItemProductData[LI] {
@@ -23,9 +24,10 @@ trait LineItemProductData[LI] {
   def productShadow: ObjectShadow
   def image: Option[String]
   def lineItem: LI
-
+  def attributes: Option[Json]
   def lineItemReferenceNumber: String
   def lineItemState: OrderLineItem.State
+  def withLineItemReferenceNumber(newLineItemRef: String): LineItemProductData[LI]
 }
 
 case class OrderLineItemProductData(sku: Sku,
@@ -34,10 +36,13 @@ case class OrderLineItemProductData(sku: Sku,
                                     productForm: ObjectForm,
                                     productShadow: ObjectShadow,
                                     image: Option[String],
-                                    lineItem: OrderLineItem)
+                                    lineItem: OrderLineItem,
+                                    attributes: Option[Json] = None)
     extends LineItemProductData[OrderLineItem] {
   def lineItemReferenceNumber = lineItem.referenceNumber
   def lineItemState           = lineItem.state
+  def withLineItemReferenceNumber(newLineItemRef: String) =
+    this.copy(lineItem = lineItem.copy(referenceNumber = newLineItemRef))
 }
 
 case class OrderLineItem(id: Int = 0,
@@ -45,7 +50,8 @@ case class OrderLineItem(id: Int = 0,
                          cordRef: String,
                          skuId: Int,
                          skuShadowId: Int,
-                         state: OLI.State = OLI.Cart)
+                         state: OLI.State = OLI.Cart,
+                         attributes: Option[Json] = None)
     extends FoxModel[OrderLineItem]
     with FSM[OrderLineItem.State, OrderLineItem] {
 
@@ -91,8 +97,9 @@ class OrderLineItems(tag: Tag) extends FoxTable[OrderLineItem](tag, "order_line_
   def skuId           = column[Int]("sku_id")
   def skuShadowId     = column[Int]("sku_shadow_id")
   def state           = column[OrderLineItem.State]("state")
+  def attributes      = column[Option[Json]]("attributes")
   def * =
-    (id, referenceNumber, cordRef, skuId, skuShadowId, state) <>
+    (id, referenceNumber, cordRef, skuId, skuShadowId, state, attributes) <>
       ((OrderLineItem.apply _).tupled, OrderLineItem.unapply)
 
   def sku    = foreignKey(Skus.tableName, skuId, Skus)(_.id)

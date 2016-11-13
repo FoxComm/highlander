@@ -7,11 +7,7 @@
   sudo: true
 
 - name: Extract and install Kibana
-  unarchive: >
-    src=/usr/local/src/{{kibana_name}}.zip
-    dest={{kibana_dir}}
-    copy=no
-    creates={{kibana_dir}}/{{kibana_name}}
+  shell: unzip /usr/local/src/{{kibana_name}}.zip -d {{kibana_dir}}
   sudo: true
 
 - name: Copy Kibana service

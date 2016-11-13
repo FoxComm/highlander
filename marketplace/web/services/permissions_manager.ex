@@ -150,6 +150,29 @@ defmodule Marketplace.PermissionManager do
     end
   end
 
+  def sign_in_user(conn, org, email, passwd) do
+    HTTPoison.start
+    post_body = %{
+      "user" => %{
+        "org" => org,
+        "email" => email,
+        "password" => passwd
+      }
+    }
+    |> Poison.encode!
+    post_headers = [{'content-type', 'application/json'}]
+
+    case HTTPoison.post("#{full_perm_path}/sign_in", post_body, post_headers) do
+      {:ok, %HTTPoison.Response{status_code: 200, headers: headers}} ->
+        {key, cookie} = Enum.find(headers, fn {x, y} -> x == "set-cookie" end)
+        Plug.Conn.put_resp_header(conn, key, cookie)
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        IO.inspect("ERROR FROM HTTP CLIENT!")
+        IO.inspect(reason)
+        nil
+    end
+  end
+
   defp full_perm_path() do
     solomon_url = Application.get_env(:marketplace, Marketplace.MerchantAccount)[:solomon_url]
     solomon_port = Application.get_env(:marketplace, Marketplace.MerchantAccount)[:solomon_port]

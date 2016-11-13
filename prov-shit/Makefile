@@ -17,12 +17,6 @@ test:
 	go get github.com/stretchr/testify
 	$(GO) test -v ./inventory/
 
-bootstrap-staging-backend:
-	ansible-playbook -v -i bin/envs/staging ansible/playbook/bootstrap/tinystack.yml --tags=backend
-
-bootstrap-staging-frontend:
-	ansible-playbook -v -i bin/envs/staging ansible/playbook/bootstrap/tinystack.yml --tags=frontend
-
 deploy-stage:
 	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
 
@@ -40,5 +34,11 @@ run-gatling: deploy-gatling
 
 run-gatling-highlander: deploy-gatling-highlander
 	ansible-playbook -v -i bin/envs/staging ansible/run_gatling_highlander.yml
+
+docker:
+	true
+
+docker-push:
+	true
 
 .PHONY: all build lint test

@@ -1,0 +1,14 @@
+{
+    "service" : {
+        "name": "marathon-alerts",
+        "tags": ["marathon-alerts"],
+        "checks": [
+            {
+                "name": "Check Marathon Alerts Running",
+                "script": "systemctl status marathon_alerts",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

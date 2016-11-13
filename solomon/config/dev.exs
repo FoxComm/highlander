@@ -10,9 +10,7 @@ config :solomon, Solomon.Endpoint,
   http: [port: 4002],
   debug_errors: true,
   code_reloader: true,
-  check_origin: false,
-  watchers: [node: ["node_modules/brunch/bin/brunch", "watch", "--stdin",
-                    cd: Path.expand("../", __DIR__)]]
+  check_origin: false
 
 
 # Do not include metadata nor timestamps in development logs
@@ -25,8 +23,20 @@ config :phoenix, :stacktrace_depth, 20
 # Configure your database
 config :solomon, Solomon.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "phoenix",
-  password: "",
-  database: "phoenix_development",
-  hostname: "localhost",
-  pool_size: 10
+  username: System.get_env("DB_USER"),
+  password: System.get_env("DB_PASSWORD"),
+  database: System.get_env("DB_NAME"),
+  hostname: System.get_env("DB_HOST"),
+  pool_size: 10,
+  extensions: [
+    {Solomon.LTree, :copy}
+  ]
+
+# configure jwt auth
+config :solomon, Solomon.JWTAuth,
+  private_key: System.get_env("PRIVATE_KEY"),
+  public_key: System.get_env("PUBLIC_KEY")
+
+# configure jwt claims
+config :solomon, Solomon.JWTClaims,
+  tokenTTL: System.get_env("TOKEN_TTL")

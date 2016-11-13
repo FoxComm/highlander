@@ -85,6 +85,12 @@ const LIST_STATES = {
 
 export const fields: Array<FormField> = [
   {
+    name: 'legal_entity_name',
+    type: 'text',
+    placeholder: 'Business: Name',
+    validation: 'required',
+  },
+  {
     name: 'bank_account_number',
     type: 'text',
     placeholder: 'Bank Account Number',
@@ -97,54 +103,10 @@ export const fields: Array<FormField> = [
     validation: 'required format.routing_number',
   },
   {
-    name: 'legal_entity_name',
+    name: 'representative_ssn_trailing_four',
     type: 'text',
-    placeholder: 'Business: Name',
-    validation: 'required',
-  },
-  {
-    name: 'address1',
-    type: 'text',
-    placeholder: 'Business: Address 1',
-    validation: 'required',
-  },
-  {
-    name: 'address2',
-    type: 'text',
-    placeholder: 'Business: Address 2',
-  },
-  {
-    name: 'city',
-    type: 'text',
-    placeholder: 'Business: City',
-    validation: 'required',
-  },
-  {
-    name: 'state',
-    type: 'select',
-    multi: false,
-    placeholder: 'Business: State',
-    values: Object.keys(LIST_STATES),
-    format: get(_, invert(LIST_STATES)),
-    normalize: getOr(null, _, LIST_STATES),
-    validation: 'required',
-  },
-  {
-    name: 'address1',
-    type: 'text',
-    placeholder: 'Legal Entity Address: Address 1',
-    validation: 'required',
-  },
-  {
-    name: 'address2',
-    type: 'text',
-    placeholder: 'Legal Entity Address: Address 2',
-  },
-  {
-    name: 'zip',
-    type: 'text',
-    placeholder: 'Business: ZIP Code',
-    validation: 'required format.zip',
+    placeholder: 'Business Rep: Last Four of SSN',
+    validation: 'required format.SSN_last_four',
   },
   {
     name: 'legal_entity_tax_id',
@@ -158,6 +120,7 @@ export const fields: Array<FormField> = [
     placeholder: 'Business Rep DOB: Day',
     values: LIST_DAYS,
     parse: toString,
+    validation: 'required',
   },
   {
     name: 'business_founded_month',
@@ -167,6 +130,7 @@ export const fields: Array<FormField> = [
     values: LIST_MONTHS,
     normalize: flow(indexOf(_, LIST_MONTHS), add(1), toString),
     format: flow(subtract(_, 1), get(_, LIST_MONTHS)),
+    validation: 'required',
   },
   {
     name: 'business_founded_year',
@@ -175,11 +139,39 @@ export const fields: Array<FormField> = [
     placeholder: 'Business Rep DOB: Year',
     values: LIST_YEARS,
     parse: toString,
+    validation: 'required',
   },
   {
-    name: 'representative_ssn_trailing_four',
+    name: 'address1',
     type: 'text',
-    placeholder: 'Business Rep: Last Four of SSN',
-    validation: 'format.SSN_last_four',
+    placeholder: 'Business Address 1',
+    validation: 'required',
+  },
+  {
+    name: 'address2',
+    type: 'text',
+    placeholder: 'Business Address 2',
+  },
+  {
+    name: 'city',
+    type: 'text',
+    placeholder: 'City',
+    validation: 'required',
+  },
+  {
+    name: 'state',
+    type: 'select',
+    multi: false,
+    placeholder: 'State',
+    values: Object.keys(LIST_STATES),
+    format: get(_, invert(LIST_STATES)),
+    normalize: getOr(null, _, LIST_STATES),
+    validation: 'required',
+  },
+  {
+    name: 'zip',
+    type: 'text',
+    placeholder: 'ZIP Code',
+    validation: 'required format.zip',
   },
 ];

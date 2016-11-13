@@ -28,6 +28,8 @@ object UserTailored {
 
   case class UserPasswordReset(user: UserResponse.Root) extends ActivityBase[UserPasswordReset]
 
+  case class UserPasswordChanged(user: UserResponse.Root) extends ActivityBase[UserPasswordChanged]
+
   case class UserUpdated(oldInfo: UserResponse.Root,
                          newInfo: UserResponse.Root,
                          admin: Option[UserResponse.Root] = None)

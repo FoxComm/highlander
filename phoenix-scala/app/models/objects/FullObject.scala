@@ -1,5 +1,6 @@
 package models.objects
 
+import org.json4s.JsonDSL._
 import utils.IlluminateAlgorithm
 import utils.aliases.Json
 import FormAndShadow._
@@ -23,10 +24,32 @@ trait FormAndShadow {
     val newShadow = this.shadow.copy(attributes = this.shadow.attributes.merge(newShadowAttrs))
     FormAndShadowSimple(form = this.form, shadow = newShadow)
   }
+
+  def getAttribute(attr: String) =
+    IlluminateAlgorithm.get(attr, form.attributes, shadow.attributes)
+
+  def setAttribute(attr: String, attrType: String, value: Json): FormAndShadow = {
+    val (keyMap, newForm) = ObjectUtils.createForm(attr → value)
+
+    assert(keyMap.size == 1)
+    assert(keyMap.head._1 == attr)
+
+    val (_, key) = keyMap.head
+
+    val newAttribute: Json        = attr → (("type" → attrType) ~ ("ref" → key))
+    val newShadowAttributes: Json = shadow.attributes.merge(newAttribute)
+    update(form.copy(attributes = form.attributes.merge(newForm)),
+           shadow.copy(attributes = newShadowAttributes))
+  }
+
+  def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow
 }
 
 object FormAndShadow {
-  case class FormAndShadowSimple(form: ObjectForm, shadow: ObjectShadow) extends FormAndShadow
+  case class FormAndShadowSimple(form: ObjectForm, shadow: ObjectShadow) extends FormAndShadow {
+    override def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow =
+      copy(form = form, shadow = shadow)
+  }
 
   def fromPayload(kind: String, attributes: Map[String, Json]): FormAndShadow = {
     FormAndShadowSimple(form = ObjectForm.fromPayload(kind, attributes),
@@ -34,4 +57,7 @@ object FormAndShadow {
   }
 }
 
-case class FullObject[A](model: A, form: ObjectForm, shadow: ObjectShadow) extends FormAndShadow
+case class FullObject[A](model: A, form: ObjectForm, shadow: ObjectShadow) extends FormAndShadow {
+  override def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow =
+    copy(form = form, shadow = shadow)
+}

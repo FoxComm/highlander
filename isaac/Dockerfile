@@ -1,30 +1,20 @@
-FROM narma/proxygen:1.0
+FROM ubuntu:16.04
 
-RUN apt-get update
-RUN apt-get install -y cmake libbotan1.10-dev \
-    g++ \
-    libboost-all-dev \
-    libbotan1.10-dev \
-    libpqxx-dev \
-    libgoogle-glog-dev \
-    make
+RUN apt-get update --fix-missing
+RUN apt-get install -y  \
+    libpq-dev \
+    postgresql-client-9.5 \
+    libgoogle-glog0v5 \ 
+    libbotan-1.10-1 \
+    libpqxx-4.0
 
-ADD . /home/isaac
+RUN mkdir /isaac
+RUN mkdir /certs
+ADD run_isaac.sh /isaac/
+ADD build/src/isaac/isaac /isaac/
+ADD public_key.pem /certs/
 
-# make sure keys are exists
-COPY public_key.pem /home/isaac
+WORKDIR /isaac
 
-WORKDIR /home/isaac
 
-RUN mkdir build
-WORKDIR /home/isaac/build
-RUN cmake .. && make -j
-RUN cp ./src/isaac/isaac /bin/isaac
-
-RUN echo "#!/bin/bash\n/bin/isaac --public_key=/home/isaac/public_key.pem --db=\"host=dbhost dbname=phoenix_development user=phoenix\"" > /bin/isaac.run
-RUN chmod +x /bin/isaac.run
-
-CMD ["/bin/isaac.run"]
-
-# Clean up APT when done.
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+CMD ["/isaac/run_isaac.sh"]

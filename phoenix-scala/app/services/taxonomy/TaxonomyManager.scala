@@ -7,8 +7,10 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import failures.TaxonomyFailures._
 import failures.{Failure, TaxonomyFailures}
+import models.objects.ObjectHeadLinks.ObjectHeadLinkQueries
 import models.objects._
 import models.account._
+import models.product.Products
 import models.taxonomy.TaxonomyTaxonLinks.scope._
 import models.taxonomy.{TaxonLocation ⇒ _, _}
 import payloads.TaxonomyPayloads._
@@ -253,4 +255,40 @@ object TaxonomyManager {
                       TaxonomyFailures.CannotArchiveParentTaxon(taxonFormId))
       _ ← * <~ links.map(TaxonomyTaxonLinks.archive)
     } yield {}
+
+  def assignProduct(
+      taxonFormId: ObjectForm#Id,
+      productFormId: ObjectForm#Id)(implicit ec: EC, oc: OC, db: DB): DbResultT[TaxonList] =
+    for {
+      taxon    ← * <~ Taxons.mustFindByFormId404(taxonFormId)
+      product  ← * <~ Products.mustFindByFormId404(productFormId)
+      _        ← * <~ ProductTaxonLinks.createIfNotExist(product, taxon)
+      assigned ← * <~ getAssignedTaxons(product)
+    } yield assigned
+
+  def unassignProduct(
+      taxonFormId: ObjectForm#Id,
+      productFormId: ObjectForm#Id)(implicit ec: EC, oc: OC, db: DB): DbResultT[TaxonList] =
+    for {
+      taxon   ← * <~ Taxons.mustFindByFormId404(taxonFormId)
+      product ← * <~ Products.mustFindByFormId404(productFormId)
+      r ← * <~ ProductTaxonLinks
+           .filterLeft(product)
+           .filter(_.rightId === taxon.id)
+           .deleteAll(DbResultT.none,
+                      DbResultT.failure(
+                          TaxonomyFailures.CannotUnassignProduct(taxon.formId, product.formId)))
+      assigned ← * <~ getAssignedTaxons(product)
+    } yield assigned
+
+  def getAssignedTaxons(
+      productFormId: ObjectForm#Id)(implicit ec: EC, oc: OC, db: DB): DbResultT[TaxonList] =
+    for {
+      product  ← * <~ Products.mustFindByFormId404(productFormId)
+      assigned ← * <~ getAssignedTaxons(product)
+    } yield assigned
+
+  def getAssignedTaxons(
+      product: models.product.Product)(implicit ec: EC, oc: OC, db: DB): DbResultT[TaxonList] =
+    ProductTaxonLinks.queryRightByLeft(product).map(_.map(TaxonResponse.build))
 }

@@ -67,7 +67,7 @@ export default class AddressForm extends React.Component {
     saveTitle: PropTypes.node,
     showFormTitle: PropTypes.bool,
 
-    closeAction: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
     fetchCountry: PropTypes.func.isRequired,
     submitAction: PropTypes.func.isRequired,
   };
@@ -91,6 +91,11 @@ export default class AddressForm extends React.Component {
   }
 
   componentDidMount() {
+    const initialFieldInput = this.refs.name;
+    if (initialFieldInput) {
+      initialFieldInput.focus();
+    }
+
     this.props.fetchCountry(this.state.countryId);
   }
 
@@ -221,7 +226,7 @@ export default class AddressForm extends React.Component {
   }
 
   render() {
-    const { address, closeAction, saveTitle } = this.props;
+    const { address, onCancel, saveTitle } = this.props;
     const countryCode = this.countryCode;
     const regionId = _.get(address, 'region.id');
 
@@ -235,7 +240,7 @@ export default class AddressForm extends React.Component {
               {this.formTitle}
               <li>
                 <FormField label="Name" validator="ascii" maxLength={255}>
-                  <input name="name" type="text" defaultValue={address.name} required />
+                  <input name="name" ref="name" type="text" defaultValue={address.name} required />
                 </FormField>
               </li>
               <li>
@@ -284,7 +289,7 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li className="fc-address-form-controls">
-                <SaveCancel onCancel={closeAction}
+                <SaveCancel onCancel={onCancel}
                             saveText={saveTitle}/>
               </li>
             </ul>

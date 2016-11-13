@@ -11,6 +11,11 @@ import createAsyncActions from 'modules/async-utils';
 ////////////////////////////////////////////////////////////////////////////////
 // Cart Manipulation Actions
 
+type UpdateLineItemPayload = {
+  sku: string;
+  quantity: number;
+}
+
 const _fetchCart = createAsyncActions(
   'fetchCart',
   (refNum: string) => Api.get(`/carts/${refNum}`)
@@ -21,7 +26,18 @@ const _fetchCustomerCart = createAsyncActions(
   (customerId: number) => Api.get(`/customers/${customerId}/cart`)
 );
 
+const _lockCart = createAsyncActions('lockCart', (refNum) => {
+  return Api.post(`/orders/${refNum}/lock`);
+});
+
+const _unlockCart = createAsyncActions('unlockCart', (refNum) => {
+  return Api.post(`/orders/${refNum}/unlock`);
+});
+
+export const lockCart = _lockCart.perform;
+export const unlockCart = _unlockCart.perform;
 export const fetchCart = _fetchCart.perform;
+export const fetchCartSucceeded = _fetchCart.succeeded;
 export const fetchCustomerCart = _fetchCustomerCart.perform;
 export const clearFetchCartErrors = _fetchCart.clearErrors;
 
@@ -30,17 +46,11 @@ export const clearFetchCartErrors = _fetchCart.clearErrors;
 
 const _updateLineItemCount = createAsyncActions(
   'updateLineItemCount',
-  (refNum: string, payload: Object) => Api.post(`/orders/${refNum}/line-items`, payload)
+  (refNum: string, payload: Array<UpdateLineItemPayload>) => Api.patch(`/orders/${refNum}/line-items`, payload)
 );
 
-export function updateLineItemCount(refNum: string, sku: string, quantity: number): Function {
-  const payload = [{ sku, quantity }];
-  return _updateLineItemCount.perform(refNum, payload);
-}
-
-export function deleteLineItem(refNum: string, sku: string): Function {
-  const payload = [{ sku, quantity: 0 }];
-  return _updateLineItemCount.perform(refNum, payload);
+export function updateLineItemCount(refNum: string, skuCode: string, quantityDiff: number): Function {
+  return _updateLineItemCount.perform(refNum, [{ sku: skuCode, quantity: quantityDiff }]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -157,12 +167,12 @@ const _checkout = createAsyncActions(
 );
 
 export function checkout(refNum: string): Function {
-  return dispatch => dispatch(_checkout.perform(refNum)).then(({payload}) => {
+  return dispatch => dispatch(_checkout.perform(refNum)).then(({ payload }) => {
     const errors = _.get(payload, 'errors', []);
     const warnings = _.get(payload, 'warnings', []);
 
     if (!errors.length && !warnings.length) {
-      transitionTo('order', {order: refNum});
+      transitionTo('order', { order: refNum });
     }
   });
 }
@@ -192,6 +202,7 @@ function parseMessages(messages, state) {
 
 const initialState = {
   isCheckingOut: false,
+  isLocked: false,
   cart: {},
   validations: {
     errors: [],
@@ -290,6 +301,8 @@ const reducer = createReducer({
   [_deleteStoreCreditPayment.succeeded]: receiveCart,
   [_checkout.succeeded]: receiveCart,
   [_checkout.failed]: cartError,
+  [_lockCart.succeeded]: state => assoc(state, 'isLocked', true),
+  [_unlockCart.succeeded]: state => assoc(state, 'isLocked', false),
 }, initialState);
 
 export default reducer;

@@ -235,8 +235,9 @@ object ReturnResponse {
     val orderQ: DbResultT[Option[OrderResponse]] = for {
       maybeOrder ← * <~ Orders.findByRefNum(rma.orderRef).one
       fullOrder ← * <~ ((maybeOrder, withOrder) match {
-                       case (Some(order), true) ⇒ OrderResponse.fromOrder(order).map(Some(_))
-                       case _                   ⇒ DbResultT.none[OrderResponse]
+                       case (Some(order), true) ⇒
+                         OrderResponse.fromOrder(order, grouped = true).map(Some(_))
+                       case _ ⇒ DbResultT.none[OrderResponse]
                      })
     } yield fullOrder
 

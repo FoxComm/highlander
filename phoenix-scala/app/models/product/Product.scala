@@ -42,7 +42,7 @@ case class Product(id: Int = 0,
 
   def mustNotBePresentInCarts(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
-      skus        ← * <~ ProductSkuLinks.filter(_.leftId === formId).result
+      skus        ← * <~ ProductSkuLinks.filter(_.leftId === id).result
       inCartCount ← * <~ CartLineItems.filter(_.skuId.inSetBind(skus.map(_.rightId))).size.result
       _           ← * <~ failIf(inCartCount > 0, ProductIsPresentInCarts(formId))
     } yield {}
@@ -55,7 +55,7 @@ class Products(tag: Tag) extends ObjectHeads[Product](tag, "products") {
 }
 
 object Products
-    extends FoxTableQuery[Product, Products](new Products(_))
+    extends ObjectHeadsQueries[Product, Products](new Products(_))
     with ReturningId[Product, Products] {
 
   val returningLens: Lens[Product, Int] = lens[Product].id

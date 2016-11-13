@@ -21,6 +21,10 @@ object UserFailures {
     override def description = s"User with id = $accountId is blacklisted"
   }
 
+  case class UserIsMigrated(accountId: Int) extends Failure {
+    override def description = s"User with id = $accountId is migrated and has to reset password"
+  }
+
   case class UserHasNoEmail(accountId: Int) extends Failure {
     override def description = s"User $accountId has no email"
   }
@@ -39,6 +43,10 @@ object UserFailures {
 
   object OrganizationNotFound {
     def apply(name: String, scope: String) = NotFoundFailure404(Organization, s"$name+$scope")
+  }
+
+  object OrganizationNotFoundWithDomain {
+    def apply(domain: String) = NotFoundFailure404(Organization, s"$domain")
   }
 
   object RoleNotFound {

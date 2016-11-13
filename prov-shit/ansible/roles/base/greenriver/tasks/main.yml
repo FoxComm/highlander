@@ -23,4 +23,3 @@
 - name: Copy Greenriver Consul Health Checks
   template: src=greenriver.json dest="/etc/consul.d/greenriver.json"
   sudo: true
-  notify: reload consul

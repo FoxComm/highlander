@@ -71,6 +71,7 @@ class CheckoutIntegrationTest
       doCheckout(customer, sku, address, shipMethod, reason)
         .as[OrderResponse]
         .orderState must === (RemorseHold)
+
     }
 
     "errors 404 if no cart found by reference number" in {

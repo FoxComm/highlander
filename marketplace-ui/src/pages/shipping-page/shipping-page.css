@@ -1,4 +1,23 @@
 @import "media-queries.css";
 
-.shipping {
+.form {
+  & > [class*="Checkbox"] {
+    display: inline-block;
+    width: 55%;
+
+    @media (--small-viewport) {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  & > [class*="Price"] {
+    display: inline-block;
+    width: 45%;
+
+    @media (--small-viewport) {
+      display: block;
+      width: 100%;
+    }
+  }
 }

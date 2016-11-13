@@ -15,6 +15,7 @@ case class Scope(id: Int = 0, source: String, parentPath: Option[String]) extend
     case Some(pp) ⇒ if (pp.isEmpty) id.toString else s"$pp.$id"
     case None     ⇒ id.toString
   }
+  lazy val ltree: LTree = LTree(path)
 }
 
 object Scope {

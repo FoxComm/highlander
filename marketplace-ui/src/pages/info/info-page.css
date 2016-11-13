@@ -9,6 +9,12 @@
     display: inline-block;
     width: 30%;
     margin-left: 5%;
+
+    & select {
+      height: 50px;
+
+      background-position: calc(100% - 10px) 25px, calc(100% - 5px) 25px;
+    }
   }
   & :global(.business_founded_day) {
     margin-left: 0;

@@ -18,7 +18,7 @@ import models.account._
 import models.admin._
 import models.auth._
 import org.jose4j.jwt.JwtClaims
-import payloads.LoginPayload
+import payloads.{AuthPayload, LoginPayload}
 import services.account._
 import services.customers.CustomerManager
 import slick.driver.PostgresDriver.api._
@@ -32,19 +32,8 @@ import utils.db._
 // TODO: Add Roles and Permissions.  Check those before taking on an action
 // TODO: Investigate 2-factor Authentication
 
-case class AuthPayload(claims: JwtClaims, jwt: String)
-
-object AuthPayload {
-  def apply(token: Token): Failures Xor AuthPayload = {
-    val claims = Token.getJWTClaims(token)
-    Token.encodeJWTClaims(claims).map { encoded ⇒
-      AuthPayload(claims = claims, jwt = encoded)
-    }
-  }
-}
-
 object FailureChallenge {
-  def apply(realm: String, failures: Failures, scheme: String = "Basic"): HttpChallenge =
+  def apply(realm: String, failures: Failures, scheme: String = "xBasic"): HttpChallenge =
     HttpChallenge(scheme = scheme,
                   realm = realm,
                   params = Map("error" → failures.flatten.mkString))
@@ -245,6 +234,7 @@ object Authenticator {
     val tokenResult = (for {
       organization ← * <~ Organizations.findByName(payload.org).mustFindOr(LoginFailed)
       user         ← * <~ Users.findByEmail(payload.email.toLowerCase).mustFindOneOr(LoginFailed)
+      _            ← * <~ user.mustNotBeMigrated
       accessMethod ← * <~ AccountAccessMethods
                       .findOneByAccountIdAndName(user.accountId, "login")
                       .mustFindOr(LoginFailed)

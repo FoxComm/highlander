@@ -47,6 +47,7 @@ object Seeds {
   case class CliConfig(
       migrateDb: Boolean = true,
       seedBase: Boolean = true,
+      seedShippingRules: Boolean = false,
       seedAdmins: Boolean = false,
       seedAdmin: Boolean = false,
       seedRandom: Int = 0,
@@ -74,6 +75,9 @@ object Seeds {
             opt[Unit]("skipBase")
               .action((x, c) ⇒ c.copy(seedBase = false))
               .text("Skip seed base seeds."),
+            opt[Unit]("seedShippingRules")
+              .action((_, c) ⇒ c.copy(seedShippingRules = true))
+              .text("Create predefined admins"),
             opt[Unit]("seedAdmins")
               .action((_, c) ⇒ c.copy(seedAdmins = true))
               .text("Create predefined admins"),
@@ -130,6 +134,7 @@ object Seeds {
         }
 
         if (cfg.seedBase) createBaseSeeds
+        if (cfg.seedShippingRules) createShippingRulesSeeds
         if (cfg.seedAdmins) createStageAdminsSeeds
         if (cfg.seedRandom > 0)
           createRandomSeeds(cfg.seedRandom, cfg.customersScaleMultiplier)
@@ -158,6 +163,12 @@ object Seeds {
     Console.err.println("Inserting Base Seeds")
     val result: Failures Xor Int = Await.result(createBase.runTxn(), 4.minutes)
     validateResults("base", result)
+  }
+
+  def createShippingRulesSeeds(implicit db: DB): Int = {
+    Console.err.println("Inserting Shipping Seeds")
+    val result: Failures Xor Int = Await.result(createShipmentRules.runTxn(), 4.minutes)
+    validateResults("shipping", result)
   }
 
   def getFirstAdmin(implicit db: DB): DbResultT[User] =
@@ -253,6 +264,11 @@ object Seeds {
       _       ← * <~ Factories.createObjectSchemas
     } yield context.id
 
+  def createShipmentRules(implicit db: DB): DbResultT[Int] =
+    for {
+      _ ← * <~ Factories.createShipmentRules
+    } yield 0
+
   def createAdmins(implicit db: DB, ec: EC, ac: AC): DbResultT[Int] =
     Factories.createStoreAdmins
 
@@ -270,15 +286,15 @@ object Seeds {
              context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
              ruContext ← * <~ ObjectContexts.create(
                             SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
-             customers   ← * <~ Factories.createCustomers(organization.scopeId)
-             _           ← * <~ Factories.createAddresses(customers)
-             _           ← * <~ Factories.createCreditCards(customers)
-             products    ← * <~ Factories.createProducts
-             ruProducts  ← * <~ Factories.createRuProducts(products)
-             shipMethods ← * <~ Factories.createShipmentRules
-             _           ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = adminId)))
-             _           ← * <~ Factories.createGiftCards
-             _           ← * <~ Factories.createStoreCredits(adminId, customers._1, customers._3)
+             customers  ← * <~ Factories.createCustomers(organization.scopeId)
+             _          ← * <~ Factories.createAddresses(customers)
+             _          ← * <~ Factories.createCreditCards(customers)
+             products   ← * <~ Factories.createProducts
+             ruProducts ← * <~ Factories.createRuProducts(products)
+             _          ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = adminId)))
+             _          ← * <~ Factories.createGiftCards
+             _          ← * <~ Factories.createStoreCredits(adminId, customers._1, customers._3)
+             _          ← * <~ Factories.createShipmentRules
              // Promotions
              search     ← * <~ Factories.createSharedSearches(adminId)
              discounts  ← * <~ Factories.createDiscounts(search)

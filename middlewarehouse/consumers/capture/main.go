@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/FoxComm/metamorphosis"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
+	"github.com/FoxComm/metamorphosis"
 
 	_ "github.com/jpfuentes2/go-env/autoload"
 )
