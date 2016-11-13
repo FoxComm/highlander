@@ -1,31 +1,34 @@
 ---
 
-- name: Provision Gatling Backend
-  hosts: foxcomm-gatling-backend
+- name: Provision The Perfect Gourmet Test Backend
+  hosts: perfect-gourmet-test-backend
   vars:
     user: '{{ansible_ssh_user}}'
     zookeeper_server: zookeeper.service.consul:2181
     zookeepers: zk://zookeeper.service.consul:2181
     docker_registry: docker-stage.foxcommerce.com
+    upload_phoenix_jar: true
+    upload_greenriver_jar: true
   tags:
     - backend
   roles:
-    - { role: dev/stage_mesos}
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
+    - { role: dev/db_phoenix }
+
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
 
-- name: Provision Gatling Frontend
-  hosts: foxcomm-gatling-frontend
+- name: Provision The Perfect Gourmet Test Frontend
+  hosts: perfect-gourmet-test-frontend
   vars:
     user: '{{ansible_ssh_user}}'
+    middlewarehouse_host: middlewarehouse.service.consul
     middlewarehouse_server: middlewarehouse.service.consul:9292
     isaac_server: isaac.service.consul:9190
     solomon_server: solomon.service.consul:4002
     ashes_server: ashes.service.consul:4000
-    storefront_server: firebrand.service.consul:4041
     marathon_server: marathon.service.consul:8080
     docker_db_host: db.service.consul
     docker_branch: master
@@ -38,32 +41,23 @@
     zookeepers: zk://zookeeper.service.consul:2181
     phoenix_host: phoenix.service.consul
     phoenix_server: phoenix.service.consul:9090
-    api_server: gatling.foxcommerce.com
-    self_host: gatling.foxcommerce.com
-    ashes_server_name: gatling.foxcommerce.com
-    storefront_server_name: gatling.foxcommerce.com
+    storefront_server: storefront.service.consul
+    api_server: test-perfectgourmet.foxcommerce.com
+    self_host: test-perfectgourmet.foxcommerce.com
+    ashes_server_name: test-perfectgourmet.foxcommerce.com
+    storefront_server_name: test-perfectgourmet.foxcommerce.com
+    seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedStage --skipMigrate
   tags:
     - frontend
   roles:
-    - { role: dev/stage_mesos}
     - { role: base/ssh_keys }
     - { role: dev/phoenix }
     - { role: dev/greenriver }
     - { role: dev/ashes }
-    - { role: dev/firebrand }
+    - { role: ext/tpg/storefront }
     - { role: dev/middlewarehouse }
     - { role: dev/messaging }
     - { role: dev/isaac }
     - { role: dev/solomon }
     - { role: dev/balancer, sudo: yes }
     - { role: dev/seeder }
-
-- name: Provision Gatling Gun
-  hosts: gatling-gun
-  tags:
-      - gatling
-  vars:
-    user: '{{ansible_ssh_user}}'
-
-  roles:
-    - { role: test/gatling }
