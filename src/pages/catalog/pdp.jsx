@@ -5,7 +5,6 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { push } from 'react-router-redux';
 import { autobind } from 'core-decorators';
 
 // i18n
@@ -92,7 +91,6 @@ const mapDispatchToProps = dispatch => ({
     resetProduct,
     addLineItem,
     toggleCart,
-    push,
   }, dispatch),
 });
 
@@ -108,23 +106,11 @@ class Pdp extends Component {
   componentWillMount() {
     if (_.isEmpty(this.props.product)) {
       this.fetchProduct();
-    } else {
-      this.handleArchivedState(this.props);
     }
   }
 
   componentWillUnmount() {
     this.props.actions.resetProduct();
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.handleArchivedState(nextProps);
-  }
-
-  handleArchivedState(props) {
-    if (_.get(props, ['product', 'archivedAt'])) {
-      this.props.actions.push('/');
-    }
   }
 
   componentWillUpdate(nextProps) {
@@ -152,6 +138,10 @@ class Pdp extends Component {
 
   get productId(): number {
     return this.getId(this.props);
+  }
+
+  get isArchived(): boolean {
+    return !!_.get(this.props, ['product', 'archivedAt']);
   }
 
   getId(props): number {
@@ -247,7 +237,7 @@ class Pdp extends Component {
       return <Loader />;
     }
 
-    if (notFound) {
+    if (notFound || this.isArchived) {
       return <p styleName="not-found">{t('Product not found')}</p>;
     }
 
