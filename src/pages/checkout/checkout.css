@@ -100,13 +100,20 @@
 
 @media (--large) {
   .content {
+    margin-top: 355px;
+    display: flex;
+    flex-direction: column;
     lost-column: 10/12;
     lost-offset: -1/12;
-    margin-top: 375px;
+  }
+
+  .body {
+    margin-top: 20px;
     display: flex;
     flex-direction: row-reverse;
     justify-content: space-between;
   }
+
 
   .summary {
     lost-column: 4/10;
@@ -124,5 +131,7 @@
 }
 
 .text-field {
+  margin: 10px 0;
+
   composes: text-field from "ui/common.css";
 }

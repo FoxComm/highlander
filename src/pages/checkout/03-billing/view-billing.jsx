@@ -23,10 +23,11 @@ const ViewBilling = (props: Props) => {
 
   if (!billingData || _.isEmpty(billingData)) return null;
 
-  const { brand, expMonth, expYear, billingAddress, holderName, lastFour } = billingData;
-
+  const { brand, expMonth, expYear, billingAddress, holderName, lastFour, isDefault } = billingData;
+  
   const paymentType = brand ? _.kebabCase(brand) : '';
 
+  const defaultText = isDefault ? <li><div styleName="default-card">Default Card</div></li> : null;
   const lastTwoYear = expYear && expYear.toString().slice(-2);
   const monthYear = expMonth || expYear ?
     <li>{ expMonth }/{ lastTwoYear }</li> : null;
@@ -38,6 +39,7 @@ const ViewBilling = (props: Props) => {
   return (
     <ul styleName="view-billing">
       {paymentIcon}
+      {defaultText}
       <li styleName="payment-name">{ holderName }</li>
       <li styleName="payment-last-four">{ lastFour }</li>
       {monthYear}

@@ -52,3 +52,9 @@
     font-weight: bold;
   }
 }
+
+.default-card {
+  font-weight: bold; 
+  color: var(--greenish);
+}
+

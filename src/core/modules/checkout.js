@@ -163,11 +163,15 @@ function getUpdatedBillingAddress(getState, billingAddressIsSame) {
 export function addCreditCard(billingAddressIsSame: boolean): Function {
   return (dispatch, getState) => {
     const billingData = getState().checkout.billingData;
-    const cardData = _.pick(billingData, ['holderName', 'number', 'cvc', 'expMonth', 'expYear']);
+    const cardData = _.pick(billingData, ['holderName', 'number', 'cvc', 'expMonth', 'expYear', 'isDefault']);
     const billingAddress = getUpdatedBillingAddress(getState, billingAddressIsSame);
     const address = addressToPayload(billingAddress);
 
-    return foxApi.creditCards.create(cardData, address, !billingAddressIsSame);
+    return foxApi.creditCards.create(cardData, address, !billingAddressIsSame).then((newCard) => {
+      if (cardData.isDefault === true) { 
+        dispatch(setDefaultCard(newCard.id, cardData.isDefault)) 
+      }
+    });
   };
 }
 
@@ -217,6 +221,12 @@ function setEmptyCard() {
     cvc: '',
     expMonth: '',
     expYear: '',
+  };
+}
+
+function setDefaultCard(id: number, isDefault: boolean): Function {
+  return () => {
+    return foxApi.creditCards.setAsDefault(id, isDefault);
   };
 }
 
