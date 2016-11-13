@@ -8,6 +8,7 @@ import { autobind } from 'core-decorators';
 import { Link } from 'react-router';
 
 import localized from 'lib/i18n';
+import cx from 'classnames';
 
 import * as actions from 'modules/categories';
 
@@ -23,9 +24,9 @@ type Category = {
 type Props = {
   list: Array<any>,
   fetch: Function,
-  hasAllLink: boolean,
   onClick?: ?Function,
   t: any,
+  path: string,
 };
 
 const getState = state => ({...state.categories});
@@ -33,31 +34,15 @@ const getState = state => ({...state.categories});
 class Navigation extends Component {
   props: Props;
 
-  static defaultProps = {
-    hasAllLink: false,
-  };
-
   componentWillMount() {
     this.props.fetch();
-  }
-
-  get allLink() {
-    const { t } = this.props;
-
-    if (this.props.hasAllLink) {
-      return (
-        <li styleName="item" key="category-all">
-          <Link to="/" styleName="item-link" onClick={this.props.onClick}>{t('ALL')}</Link>
-        </li>
-      );
-    }
   }
 
   @autobind
   getNavUrl(category : ?Category) {
     let url;
 
-    if (category == undefined) {
+    if (category == undefined || category.name === 'ALL') {
       url = '/';
     } else {
       const dashedName = category.name.replace(/\s/g, '-');
@@ -68,16 +53,23 @@ class Navigation extends Component {
   }
 
   render(): HTMLElement {
-    const { t } = this.props;
+    const { t, path } = this.props;
 
     const categoryItems = _.map(this.props.list, (item) => {
       const dashedName = item.name.replace(/\s/g, '-');
       const key = `category-${dashedName}`;
       const url = this.getNavUrl(item);
+      const isActive =
+        path.match(new RegExp(dashedName, 'i')) ||
+        path === '/' && dashedName === 'ALL';
+
+      const linkClasses = cx(styles['item-link'], {
+        [styles.active]: isActive,
+      });
 
       return (
         <li styleName="item" key={key}>
-          <Link styleName="item-link" to={url} onClick={this.props.onClick}>
+          <Link className={linkClasses} to={url} onClick={this.props.onClick}>
             {t(item.name.toUpperCase())}
           </Link>
         </li>
@@ -86,7 +78,6 @@ class Navigation extends Component {
 
     return (
       <ul styleName="list">
-        {this.allLink}
         {categoryItems}
       </ul>
     );

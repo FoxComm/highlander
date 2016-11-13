@@ -2,6 +2,7 @@
 
 // libs
 import React from 'react';
+import cx from 'classnames';
 
 // styles
 import styles from './header.css';
@@ -16,17 +17,34 @@ type Props = {
   setDeliveryStage: Function,
   setBillingState: Function,
   isGuestAuth: boolean,
+  currentStage: number,
 };
 
 const Header = (props: Props) => {
   const headerStyle = props.isScrolled ? 'header-scrolled' : 'header';
 
+  const navItems = [
+    ['Shipping', props.setShippingStage],
+    ['Delivery', props.setDeliveryStage],
+    ['Billing', props.setBillingState],
+  ];
+
+  const navList = navItems.map(([title, callback], i) => {
+    const className = cx(styles['nav-item'], {
+      [styles.active]: i === props.currentStage,
+    });
+
+    return (
+      <li className={className} key={title}>
+        <a onClick={callback}>{title}</a>
+      </li>
+    );
+  });
+
   const nav = (
     <nav styleName="navigation">
       <ol styleName="nav-list">
-        <li styleName="nav-item"><a onClick={props.setShippingStage}>Shipping</a></li>
-        <li styleName="nav-item"><a onClick={props.setDeliveryStage}>Delivery</a></li>
-        <li styleName="nav-item"><a onClick={props.setBillingState}>Billing</a></li>
+        {navList}
       </ol>
     </nav>
   );

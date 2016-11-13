@@ -210,6 +210,7 @@ class Checkout extends Component {
         <Header
           isScrolled={this.state.isScrolled}
           isGuestAuth={props.editStage == EditStages.GUEST_AUTH}
+          currentStage={props.editStage}
           {...setStates}
         />
 
