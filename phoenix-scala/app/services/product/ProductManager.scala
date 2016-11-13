@@ -351,19 +351,19 @@ object ProductManager {
                           case links @ Seq(_) ⇒
                             lift(links.map(_.rightId))
                           case _ ⇒
-                            (for {
-                              valueLinks ← VariantValueSkuLinks
-                                            .filter(_.leftId === productId)
+                            for {
+                              variantLinks ← ProductVariantLinks
+                                              .filter(_.leftId === productId)
+                                              .result
+                              variantIds = variantLinks.map(_.rightId)
+                              valueLinks ← VariantValueLinks
+                                            .filter(_.leftId.inSet(variantIds))
                                             .result
-                              variantLinks ← VariantValueLinks
-                                              .filter(_.leftId === productId)
-                                              .result
-                              productLinks ← ProductVariantLinks
-                                              .filter(_.leftId === productId)
-                                              .result
-                            } yield
-                              valueLinks.map(_.rightId) ++ variantLinks
-                                .map(_.rightId) ++ productLinks.map(_.rightId))
+                              valueIds = valueLinks.map(_.rightId)
+                              skuLinks ← VariantValueSkuLinks
+                                          .filter(_.leftId.inSet(valueIds))
+                                          .result
+                            } yield skuLinks.map(_.rightId)
                         }
       skuCodesForProduct ← * <~ Skus.filter(_.id.inSet(skuIdsForProduct)).map(_.code).result
       skuCodesToBeGone = skuCodesForProduct.diff(
