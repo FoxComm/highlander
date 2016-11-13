@@ -8,7 +8,7 @@ import { autobind } from 'core-decorators';
 import { Link } from 'react-router';
 
 import localized from 'lib/i18n';
-import cx from 'classnames';
+import classNames from 'classnames';
 
 import * as actions from 'modules/categories';
 
@@ -63,7 +63,7 @@ class Navigation extends Component {
         path.match(new RegExp(dashedName, 'i')) ||
         path === '/' && dashedName === 'ALL';
 
-      const linkClasses = cx(styles['item-link'], {
+      const linkClasses = classNames(styles['item-link'], {
         [styles.active]: isActive,
       });
 

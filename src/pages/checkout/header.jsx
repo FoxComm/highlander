@@ -2,7 +2,7 @@
 
 // libs
 import React from 'react';
-import cx from 'classnames';
+import classNames from 'classnames';
 
 // styles
 import styles from './header.css';
@@ -30,7 +30,7 @@ const Header = (props: Props) => {
   ];
 
   const navList = navItems.map(([title, callback], i) => {
-    const className = cx(styles['nav-item'], {
+    const className = classNames(styles['nav-item'], {
       [styles.active]: i === props.currentStage,
     });
 
