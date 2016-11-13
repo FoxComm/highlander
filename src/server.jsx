@@ -21,7 +21,7 @@ export default function *renderReact() {
   const initialState = auth ? {auth} : {};
   if (authHeader) initialState.authHeader = authHeader;
 
-  const store = makeStore(history, initialState);
+  const store = makeStore(history, initialState, this);
 
   const [redirectLocation, renderProps] = yield match.bind(null, { routes, location: this.url, history });
 

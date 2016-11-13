@@ -5,6 +5,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { push } from 'react-router-redux';
 import { autobind } from 'core-decorators';
 
 // i18n
@@ -91,6 +92,7 @@ const mapDispatchToProps = dispatch => ({
     resetProduct,
     addLineItem,
     toggleCart,
+    push,
   }, dispatch),
 });
 
@@ -104,15 +106,25 @@ class Pdp extends Component {
   };
 
   componentWillMount() {
-    const { product } = this.props;
-
-    if (_.isEmpty(product)) {
+    if (_.isEmpty(this.props.product)) {
       this.fetchProduct();
+    } else {
+      this.handleArchivedState(this.props);
     }
   }
 
   componentWillUnmount() {
     this.props.actions.resetProduct();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.handleArchivedState(nextProps);
+  }
+
+  handleArchivedState(props) {
+    if (_.get(props, ['product', 'archivedAt'])) {
+      this.props.actions.push('/');
+    }
   }
 
   componentWillUpdate(nextProps) {
@@ -232,7 +244,7 @@ class Pdp extends Component {
     const { t, isLoading, notFound } = this.props;
 
     if (isLoading) {
-      return <Loader/>;
+      return <Loader />;
     }
 
     if (notFound) {
@@ -268,8 +280,7 @@ class Pdp extends Component {
           </div>
         </div>
 
-        {!this.isGiftCard() &&
-          <ProductAttributes product={this.props.product} />}
+        {!this.isGiftCard() && <ProductAttributes product={this.props.product} />}
       </div>
     );
   }

@@ -6,6 +6,7 @@ import { syncHistory } from 'react-router-redux';
 import { default as serverApplyMiddleware } from 'redux-isomorphic-render';
 import logger from 'redux-diff-logger';
 import rootReducer from 'modules/index';
+import redirectMiddleware from 'middlewares/redirect';
 import { api } from 'lib/api';
 
 const isServer = typeof self == 'undefined';
@@ -29,8 +30,7 @@ function thunkMiddleware({dispatch, getState}) {
   };
 }
 
-
-export default function makeStore(history, initialState = void 0) {
+export default function makeStore(history, initialState = void 0, app = void 0) {
   const reduxRouterMiddleware = syncHistory(history);
   const applyMiddleware = isServer ? serverApplyMiddleware : clientApplyMiddleware;
 
@@ -39,6 +39,7 @@ export default function makeStore(history, initialState = void 0) {
     initialState,
     _.flow(..._.compact([
       !isServer ? applyMiddleware(logger) : null,
+      isServer ? applyMiddleware(redirectMiddleware(app)) : null,
       applyMiddleware(reduxRouterMiddleware),
       applyMiddleware(thunkMiddleware),
     ]))

@@ -42,7 +42,7 @@ const productTypes = [
   'Poultry',
   'Seafood',
   'Beef',
-  'Vegitarian',
+  'Vegetarian',
 ];
 
 const defaultProductType = productTypes[0];
