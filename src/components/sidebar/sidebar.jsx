@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import classNames from 'classnames';
 import { logout } from 'modules/auth';
+import { fetch as fetchCart } from 'modules/cart';
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
@@ -43,7 +44,10 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
   const handleLogout = e => {
     e.stopPropagation();
     e.preventDefault();
-    props.logout();
+    props.toggleSidebar();
+    props.logout().then(() => {
+      props.fetchCart();
+    });
   };
 
   const renderSessionLink = props.user && !isGuest(props.user) ? (
@@ -51,7 +55,11 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
       {t('LOG OUT')}
     </a>
   ) : (
-    <Link styleName="session-link" to={{pathname: props.path, query: {auth: 'LOGIN'}}}>
+    <Link
+      styleName="session-link"
+      to={{pathname: props.path, query: {auth: 'LOGIN'}}}
+      onClick={props.toggleSidebar}
+    >
       {t('LOG IN')}
     </Link>
   );
@@ -70,7 +78,10 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
             <Search onSearch={props.toggleSidebar} isActive/>
           </div>
           <div styleName="controls-categories">
-            <Categories onClick={changeCategoryCallback} hasAllLink />
+            <Categories
+              onClick={changeCategoryCallback}
+              path={props.path}
+            />
           </div>
           <div styleName="controls-session">
             {renderSessionLink}
@@ -90,4 +101,5 @@ export default connect(mapStates, {
   ...actions,
   resetTerm,
   logout,
+  fetchCart,
 })(localized(Sidebar));
