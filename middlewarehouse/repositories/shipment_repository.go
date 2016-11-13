@@ -14,7 +14,7 @@ const (
 
 type IShipmentRepository interface {
 	GetShipmentsByOrder(orderRefNum string) ([]*models.Shipment, error)
-	GetShipmentByID(id uint) (*models.Shipment, error)
+	GetShipmentByID(ref uint) (*models.Shipment, error)
 	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	DeleteShipment(id uint) error

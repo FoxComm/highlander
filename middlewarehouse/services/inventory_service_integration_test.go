@@ -5,11 +5,12 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
+	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
-	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 
 	"fmt"
+
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 )

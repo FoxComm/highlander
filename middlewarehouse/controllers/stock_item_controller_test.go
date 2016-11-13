@@ -8,6 +8,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"

@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/json"
 
-	"github.com/FoxComm/metamorphosis"
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+	"github.com/FoxComm/metamorphosis"
 )
 
 type SKU struct {

@@ -120,13 +120,8 @@ class Main extends Component {
     }
 
     if (accountsFetched && !isEmpty(accounts)) {
-      if (!get(accounts, [0, 'merchant_account', 'stripe_account_id'])) {
-        /** accounts fetched and not empty but no stripe_account_id - business info page */
-        this.replace(`/application/${ref}/info`);
-      } else {
-        /** accounts fetched and not empty and has stripe_account_id - fetching shipping solutions */
-        fetchShipping(get(application, 'merchant.id'));
-      }
+      /** accounts fetched and not empty - fetching shipping solutions */
+      fetchShipping(get(application, 'merchant.id'));
     }
 
     /** shipping solutions fetched but empty - shipping solutions page */

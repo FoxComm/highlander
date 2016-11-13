@@ -6,5 +6,5 @@ cd {{easy_rsa_dir}}
 source ./vars
 KEY_CN="" ./build-key --batch {{username}}
 tar -czf {{username}}.tar.gz keys/ca.crt keys/{{username}}.crt keys/{{username}}.key
-cp {{username}}.tar.gz /tmp/{{username}}.tar.gz
+mv {{username}}.tar.gz /tmp/{{username}}.tar.gz
 rm -rf keys/{{username}}.crt keys/{{username}}.csr keys/{{username}}.key keys/{{username}}.tar.gz

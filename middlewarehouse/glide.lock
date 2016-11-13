@@ -1,5 +1,5 @@
-hash: 7547e8e11bea3733042658eac0fde4686b03ab4345ad5531bbfb36dbd78fbea1
-updated: 2016-09-08T13:45:53.191392335+07:00
+hash: ed26a33fce45881735d3504aaaab441d71bcaa058a21bb2b8529218eb22a6f73
+updated: 2016-11-07T15:04:51.305267423-08:00
 imports:
 - name: github.com/cihub/seelog
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
@@ -28,7 +28,7 @@ imports:
 - name: github.com/elodina/siesta-producer
   version: a374fc36c515243efb438aed41c536af55d8b19b
 - name: github.com/FoxComm/metamorphosis
-  version: 13386198c4fd57672dacafc1b5a094c54ff2ca97
+  version: 530d7e205c9221ab2d7cb928bb8ba227ee938e8e
   repo: git@github.com:FoxComm/metamorphosis.git
   vcs: git
 - name: github.com/gin-gonic/gin
@@ -75,10 +75,10 @@ imports:
 - name: github.com/stretchr/testify
   version: f390dcf405f7b83c997eac1b06768bb9f44dec18
   subpackages:
-  - assert
-  - mock
-  - require
   - suite
+  - mock
+  - assert
+  - require
 - name: github.com/yanzay/cfg
   version: 3b647091f880406fdb14edcb309ce750a38d3e85
 - name: golang.org/x/net
