@@ -40,7 +40,7 @@ trait TestSeeds extends TestFixtureBase {
                      model = storeAdmin,
                      account = storeAdminAccount)
 
-    private val (_storeAdminAccount, _storeAdmin, _storeAdminUser, _storeAdminClaims) = (for {
+    private val (_storeAdminAccount, _storeAdmin, _storeAdminUser, _storeAdminClaims) = db.run((for {
       maybeAdmin ← * <~ Users
                     .findByEmail(Factories.storeAdmin.email.getOrElse(""))
                     .result
@@ -62,7 +62,7 @@ trait TestSeeds extends TestFixtureBase {
                       .findByName(TENANT)
                       .mustFindOr(OrganizationNotFoundByName(TENANT))
       claims ← * <~ AccountManager.getClaims(ac.id, organization.scopeId)
-    } yield (ac, ad, adu, claims)).gimme
+    } yield (ac, ad, adu, claims)).value).futureValue.rightVal
 
   }
 
