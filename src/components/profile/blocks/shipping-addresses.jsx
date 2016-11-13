@@ -64,13 +64,13 @@ class MyShippingAddresses extends Component {
   }
 
   @autobind
-  editAddress(address) {
-    console.log('TODO');
+  editAddress() {
+    // TODO
   }
 
   @autobind
   addAddress() {
-    console.log('TODO');
+    // TODO
   }
 
   @autobind

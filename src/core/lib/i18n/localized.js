@@ -44,5 +44,5 @@ export default function localized(WrappedComponent) {
 
   Localized.displayName = `Localized(${getDisplayName(WrappedComponent)})`;
 
-  return hoistNonReactStatics(Localized, WrappedComponent)
+  return hoistNonReactStatics(Localized, WrappedComponent);
 }
