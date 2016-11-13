@@ -66,7 +66,6 @@ function stripPhoneNumber(phoneNumber) {
   return phoneNumber.replace(/[^\d]/g, '');
 }
 
-
 function addressToPayload(address) {
   const payload = _.pick(address, [
     'name',
