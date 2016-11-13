@@ -1,9 +1,49 @@
-package utils
+package payloads
 
 import (
 	"fmt"
 	"strings"
+
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
 )
+
+// Address is a payload for creating and updating addresses.
+type Address struct {
+	Name        string
+	Company     *string
+	Street1     string
+	Street2     *string
+	Street3     *string
+	City        string
+	State       string
+	PostalCode  string
+	Country     string
+	Phone       *string
+	Residential bool
+}
+
+func NewAddressFromPhoenix(name string, address phoenix.Address) (*Address, error) {
+	state, err := convertRegionFromPhoenix(address.Region.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	if address.Region.CountryID != 234 {
+		err := fmt.Errorf("Attempted to create address with country ID = %d. Only the US (234) is supported", address.Region.CountryID)
+		return nil, err
+	}
+
+	return &Address{
+		Name:        name,
+		Street1:     address.Address1,
+		Street2:     address.Address2,
+		City:        address.City,
+		State:       state,
+		PostalCode:  address.Zip,
+		Country:     "US",
+		Residential: true,
+	}, nil
+}
 
 var regionMap = map[string]string{
 	"alabama":              "AL",
@@ -74,13 +114,4 @@ func convertRegionFromPhoenix(region string) (string, error) {
 		return "", fmt.Errorf("Abbreviation not found for %s", region)
 	}
 	return ssRegion, nil
-}
-
-func convertCountryFromPhoenix(country string) (string, error) {
-	key := strings.ToLower(country)
-	ssCountry, ok := countryMap[key]
-	if !ok {
-		return "", fmt.Errorf("Abbreviation not found for %s", country)
-	}
-	return ssCountry, nil
 }

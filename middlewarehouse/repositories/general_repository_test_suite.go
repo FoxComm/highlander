@@ -7,5 +7,5 @@ import (
 
 type GeneralRepositoryTestSuite struct {
 	suite.Suite
-	db   *gorm.DB
+	db *gorm.DB
 }
