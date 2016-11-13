@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/highlander/shared/golang/activities"
 	"github.com/FoxComm/highlander/shared/golang/api"
 	"github.com/FoxComm/metamorphosis"
 )
@@ -46,9 +44,9 @@ type ConsumerProduct struct {
 }
 
 func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
-	activity, err := activities.NewActivityFromAvro(m)
+	activity, err := activities.CreateActivity(m)
 	if err != nil {
-		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
+		return err
 	}
 
 	return consumer.i.Run(activity)

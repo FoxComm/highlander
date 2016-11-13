@@ -9,13 +9,13 @@ import (
 
 // SiteActivity is as action that occurs within the system that should be
 // written to the activity log.
-type ISiteActivity interface {
+type SiteActivity interface {
 	Type() string
 	Data() string
 	CreatedAt() string
 }
 
-func NewActivityFromAvro(message metamorphosis.AvroMessage) (ISiteActivity, error) {
+func NewActivityFromAvro(message metamorphosis.AvroMessage) (SiteActivity, error) {
 	a := new(defaultSiteActivity)
 	err := json.Unmarshal(message.Bytes(), a)
 	return a, err

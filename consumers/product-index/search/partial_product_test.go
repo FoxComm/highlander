@@ -3,11 +3,11 @@ package search
 import (
 	"testing"
 
-	"github.com/FoxComm/highlander/consumers/product-index/utils"
+	"github.com/FoxComm/highlander/consumers/product-index/fixtures"
 )
 
 func TestSingleVisualVariant(t *testing.T) {
-	product := utils.NewProductWithOneVisualVariant()
+	product := fixtures.NewProductWithOneVisualVariant()
 
 	visualVariants := []string{"color"}
 	partialProducts, err := MakePartialProducts(product, visualVariants)
@@ -41,7 +41,7 @@ func TestSingleVisualVariant(t *testing.T) {
 }
 
 func TestMultipleVisualVariants(t *testing.T) {
-	product := utils.NewProductWithMultipleVisualVariants()
+	product := fixtures.NewProductWithMultipleVisualVariants()
 	visualVariants := []string{"color", "fabric"}
 	partialProducts, err := MakePartialProducts(product, visualVariants)
 	if err != nil {
@@ -69,7 +69,7 @@ func TestMultipleVisualVariants(t *testing.T) {
 }
 
 func TestNoVariants(t *testing.T) {
-	product := utils.NewProductWithNoVariants()
+	product := fixtures.NewProductWithNoVariants()
 	visualVariants := []string{"color", "fabric"}
 	partialProducts, err := MakePartialProducts(product, visualVariants)
 	if err != nil {

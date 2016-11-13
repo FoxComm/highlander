@@ -9,8 +9,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/FoxComm/highlander/shared/golang/activities"
 	"github.com/FoxComm/metamorphosis"
-	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 )
 
 const (

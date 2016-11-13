@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
-	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/highlander/shared/golang/activities"
 )
 
 type CapturePayload struct {
@@ -24,7 +24,7 @@ type CaptureShippingCost struct {
 	Currency string `json:"currency"`
 }
 
-func NewCapturePayload(activity activities.ISiteActivity) (*CapturePayload, error) {
+func NewCapturePayload(activity activities.SiteActivity) (*CapturePayload, error) {
 	shipment := new(responses.Shipment)
 	if err := json.Unmarshal([]byte(activity.Data()), shipment); err != nil {
 		return nil, fmt.Errorf("Unable to marshal activity into shipment with %s", err.Error())

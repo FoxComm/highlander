@@ -1,4 +1,4 @@
-package utils
+package fixtures
 
 import "github.com/FoxComm/highlander/shared/golang/api"
 

@@ -1,17 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 
 	"github.com/FoxComm/highlander/consumers/product-index/search"
-	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/highlander/shared/golang/activities"
 	"github.com/FoxComm/highlander/shared/golang/elastic"
 )
-
-const productCreatedActivity = "full_product_created"
-const productUpdatedActivity = "full_product_updated"
 
 type Indexer struct {
 	esClient       *elastic.Client
@@ -27,32 +23,32 @@ func NewIndexer(esURL string, esIndex string, esMapping string, visualVariants [
 	return &Indexer{esClient, visualVariants}, nil
 }
 
-func (i Indexer) Run(activity activities.ISiteActivity) error {
-	if activity.Type() != productCreatedActivity && activity.Type() != productUpdatedActivity {
-		return nil
+func (i Indexer) Run(activity activities.SiteActivity) error {
+	switch activity.Type() {
+	case activities.ProductCreated:
+	case activities.ProductUpdated:
+		fullProduct := activity.(activities.FullProduct)
+		return i.indexProductActivity(fullProduct)
 	}
 
-	log.Printf("Processing: %s", activity.Data())
+	return nil
+}
 
-	bt := []byte(activity.Data())
-	prod := new(ConsumerProduct)
+func (i Indexer) indexProductActivity(activity activities.FullProduct) error {
+	product := activity.Product()
 
-	if err := json.Unmarshal(bt, prod); err != nil {
-		return fmt.Errorf("Error unmarshalling activity data into product with error: %s", err.Error())
-	}
-
-	existingRows, err := i.existingSearchRows(prod.Product.ID)
+	existingRows, err := i.existingSearchRows(product.ID)
 	if err != nil {
 		return err
 	}
 
-	partialProducts, err := search.MakePartialProducts(prod.Product, i.visualVariants)
+	partialProducts, err := search.MakePartialProducts(product, i.visualVariants)
 	if err != nil {
 		return fmt.Errorf("Error creating partial products with error: %s", err.Error())
 	}
 
 	for _, p := range partialProducts {
-		row, err := search.NewSearchRow(prod.Product, p)
+		row, err := search.NewSearchRow(product, p)
 		if err != nil {
 			log.Printf("Unable to create search row with error: %s", err.Error())
 			return err

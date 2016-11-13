@@ -7,13 +7,13 @@ import (
 	"log"
 	"time"
 
-	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/highlander/shared/golang/activities"
 	"github.com/FoxComm/highlander/shared/golang/http"
 )
 
 type PhoenixClient interface {
 	Authenticate() error
-	CapturePayment(activities.ISiteActivity) error
+	CapturePayment(activities.SiteActivity) error
 	IsAuthenticated() bool
 	UpdateOrder(refNum, shipmentState, orderState string) error
 }
@@ -49,7 +49,7 @@ func (c *phoenixClient) ensureAuthentication() error {
 	return nil
 }
 
-func (c *phoenixClient) CapturePayment(activity activities.ISiteActivity) error {
+func (c *phoenixClient) CapturePayment(activity activities.SiteActivity) error {
 	if err := c.ensureAuthentication(); err != nil {
 		return err
 	}

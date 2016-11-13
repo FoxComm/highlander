@@ -3,8 +3,8 @@ package services
 import (
 	"github.com/FoxComm/highlander/middlewarehouse/common/async"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
-	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
+	"github.com/FoxComm/highlander/shared/golang/activities"
 
 	"github.com/jinzhu/gorm"
 )
@@ -118,7 +118,7 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 		return nil, err
 	}
 
-	var activity activities.ISiteActivity
+	var activity activities.SiteActivity
 	if source.State != shipment.State && shipment.State == models.ShipmentStateShipped {
 		stockItemCounts := make(map[uint]int)
 		for _, lineItem := range source.ShipmentLineItems {

@@ -8,7 +8,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 )
 
-func newShipmentActivity(aType string, shipment *models.Shipment, createdAt time.Time) (ISiteActivity, error) {
+func newShipmentActivity(aType string, shipment *models.Shipment, createdAt time.Time) (SiteActivity, error) {
 	resp := responses.NewShipmentFromModel(shipment)
 	shipBytes, err := json.Marshal(resp)
 	if err != nil {
