@@ -293,14 +293,14 @@ class EditBilling extends Component {
   renderGiftCard() {
     const { giftCards } = this.props;
 
-    return (giftCards)
-    ? <ViewGiftCards paymentMethods={giftCards} />
-    : (
-      <PromoCode
-        saveCode={this.props.saveGiftCard}
-        buttonLabel="Reedem"
-      />
-    );
+    return (giftCards && !_.isEmpty(giftCards))
+      ? <ViewGiftCards paymentMethods={giftCards} />
+      : (
+        <PromoCode
+          saveCode={this.props.saveGiftCard}
+          buttonLabel="Reedem"
+        />
+      );
   }
 
   render() {
