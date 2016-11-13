@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	"errors"
 	"net/http"
-    "errors"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
@@ -71,18 +71,15 @@ func (controller *shipmentController) updateShipmentForOrder() gin.HandlerFunc {
 			return
 		}
 
-        orderRef := context.Params.ByName("orderRef")
+		orderRef := context.Params.ByName("orderRef")
 		if orderRef == "" {
-            err := errors.New("Order Reference not specified")
+			err := errors.New("Order Reference not specified")
 			handleServiceError(context, err)
 			return
 		}
 
 		model := models.NewShipmentFromUpdatePayload(payload)
 		model.OrderRefNum = orderRef
-		for i, _ := range model.ShipmentLineItems {
-			model.ShipmentLineItems[i].ShipmentID = model.ID
-		}
 		shipment, err := controller.shipmentService.UpdateShipmentForOrder(model)
 
 		if err != nil {

@@ -2,7 +2,8 @@ package responses
 
 import (
 	"time"
-    "github.com/FoxComm/highlander/middlewarehouse/models"
+
+	"github.com/FoxComm/highlander/middlewarehouse/models"
 )
 
 type stockItemSummary struct {

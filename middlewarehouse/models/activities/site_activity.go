@@ -23,7 +23,7 @@ func NewActivityFromAvro(message metamorphosis.AvroMessage) (ISiteActivity, erro
 }
 
 type defaultSiteActivity struct {
-    ActivityId int `json:"id"`
+	ActivityId   int    `json:"id"`
 	ActivityData string `json:"data"`
 	ActivityType string `json:"activity_type" binding:"required"`
 	createdAt    time.Time

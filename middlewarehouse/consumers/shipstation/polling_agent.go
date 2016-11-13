@@ -11,8 +11,8 @@ import (
 const mwhShipmentsURI = "v1/public/shipments/for-order"
 
 type PollingAgent struct {
-	client *api.Client
-    middleWarehouseUrl string
+	client             *api.Client
+	middleWarehouseUrl string
 }
 
 type S struct {
@@ -35,7 +35,7 @@ func NewPollingAgent(key string, secret string, middleWarehouseUrl string) (*Pol
 func (c PollingAgent) GetShipments() error {
 	shipments, err := c.client.Shipments()
 	if err != nil {
-        log.Printf("Error Getting Shipments: %v", err)
+		log.Printf("Error Getting Shipments: %v", err)
 		return err
 	}
 

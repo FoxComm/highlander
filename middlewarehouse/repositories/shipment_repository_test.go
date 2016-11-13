@@ -5,9 +5,9 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
+	"github.com/FoxComm/highlander/middlewarehouse/common/tests"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
-	"github.com/FoxComm/highlander/middlewarehouse/common/tests"
 
 	"fmt"
 
@@ -85,7 +85,7 @@ func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_Found_ReturnsShip
 	suite.Nil(suite.db.Create(shipment1).Error)
 
 	//act
-    shipment, err := suite.repository.GetShipmentByID(shipment1.ID)
+	shipment, err := suite.repository.GetShipmentByID(shipment1.ID)
 
 	//assert
 	suite.Nil(err)

@@ -54,7 +54,7 @@ func NewOrderFromPhoenix(order phoenix.Order) (*Order, error) {
 	for _, paymentMethod := range order.PaymentMethods {
 		if paymentMethod.Type == "creditCard" {
 			if paymentMethod.Address != nil {
-                name := pickName(&order, &(paymentMethod.Address.Name))
+				name := pickName(&order, &(paymentMethod.Address.Name))
 				billingAddress, _ = NewAddressFromPhoenix(*name, *paymentMethod.Address)
 			} else {
 				return nil, fmt.Errorf("Order %s has credit card payment without an address", order.ReferenceNumber)
@@ -66,7 +66,7 @@ func NewOrderFromPhoenix(order phoenix.Order) (*Order, error) {
 		billingAddress = shippingAddress
 	}
 
-    name := pickName(&order, &(billingAddress.Name))
+	name := pickName(&order, &(billingAddress.Name))
 
 	ssOrder := Order{
 		OrderNumber:      order.ReferenceNumber,
@@ -86,14 +86,14 @@ func NewOrderFromPhoenix(order phoenix.Order) (*Order, error) {
 	return &ssOrder, nil
 }
 
-func pickName(order *phoenix.Order, addressName *string) *string { 
-    var name *string
-    if len(order.Customer.Name) > 0 {
-        name = &(order.Customer.Name)
-    } else if  len(*addressName) > 0  {
-        name = addressName
-    } else { 
-        name = &(order.ShippingAddress.Name)
-    }
-    return name
+func pickName(order *phoenix.Order, addressName *string) *string {
+	var name *string
+	if len(order.Customer.Name) > 0 {
+		name = &(order.Customer.Name)
+	} else if len(*addressName) > 0 {
+		name = addressName
+	} else {
+		name = &(order.ShippingAddress.Name)
+	}
+	return name
 }

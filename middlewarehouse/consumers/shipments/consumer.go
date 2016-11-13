@@ -9,8 +9,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/FoxComm/metamorphosis"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/metamorphosis"
 )
 
 const (

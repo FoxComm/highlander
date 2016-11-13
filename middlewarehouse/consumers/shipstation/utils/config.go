@@ -4,21 +4,19 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
-    "strconv"
-
 )
-
 
 type Config struct {
 	ZookeeperURL       string
 	SchemaRegistryURL  string
-	Topic               string
+	Topic              string
 	MiddlewarehouseURL string
 	PollingInterval    time.Duration
-	ApiKey              string
-	ApiSecret           string
-	Partition           int
+	ApiKey             string
+	ApiSecret          string
+	Partition          int
 }
 
 func MakeConfig() (Config, error) {
@@ -27,7 +25,7 @@ func MakeConfig() (Config, error) {
 	config := Config{}
 
 	config.PollingInterval, err = time.ParseDuration(os.Getenv("POLLING_INTERVAL"))
-    fmt.Printf("INTERVAL: %v\n",config.PollingInterval)
+	fmt.Printf("INTERVAL: %v\n", config.PollingInterval)
 	if err != nil {
 		return config, fmt.Errorf("Unable to parse POLLING_INTERVAL with error %s", err.Error())
 	}
@@ -47,10 +45,10 @@ func MakeConfig() (Config, error) {
 		return config, errors.New("Unable to find TOPIC in env")
 	}
 
-    config.MiddlewarehouseURL = os.Getenv("MIDDLEWAREHOUSE_URL")
-    if config.MiddlewarehouseURL == "" {
-        return config, errors.New("MIDDLEWAREHOUSE_URL is not set")
-    }
+	config.MiddlewarehouseURL = os.Getenv("MIDDLEWAREHOUSE_URL")
+	if config.MiddlewarehouseURL == "" {
+		return config, errors.New("MIDDLEWAREHOUSE_URL is not set")
+	}
 
 	config.ApiKey = os.Getenv("API_KEY")
 	if config.ApiKey == "" {
@@ -67,5 +65,5 @@ func MakeConfig() (Config, error) {
 		return config, errors.New("Unable to parse valid PARTITION in env")
 	}
 
-    return config, nil
+	return config, nil
 }

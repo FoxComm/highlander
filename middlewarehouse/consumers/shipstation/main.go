@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-    config, err := utils.MakeConfig()
+	config, err := utils.MakeConfig()
 
 	if err != nil {
 		log.Fatalf("Unable to initialize ShipStation with error: %s", err.Error())
