@@ -29,6 +29,8 @@ func (es *ElasticServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		es.handleSearch(w, r)
 	} else if method == "PUT" && strings.HasPrefix(url, es.updateURL()) {
 		es.handleUpdate(w, r)
+	} else if method == "DELETE" && strings.HasPrefix(url, es.updateURL()) {
+		es.handleDelete(w, r)
 	} else {
 		log.Printf("Unexpected URL %s with method %s", url, method)
 		es.handleNotFound(w, r)
@@ -87,6 +89,11 @@ func (es *ElasticServer) handleUpdate(w http.ResponseWriter, r *http.Request) {
 	es.Rows[idx] = *row
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (es *ElasticServer) handleDelete(w http.ResponseWriter, r *http.Request) {
+	idx := r.URL.Path[len(es.updateURL())+1:]
+	delete(es.Rows, idx)
 }
 
 func (es *ElasticServer) handleNotFound(w http.ResponseWriter, r *http.Request) {

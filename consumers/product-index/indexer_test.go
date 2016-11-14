@@ -13,6 +13,9 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+const index = "public"
+const mapping = "products_catalog_view"
+
 type IndexerTestSuite struct {
 	suite.Suite
 }
@@ -28,8 +31,6 @@ func (suite *IndexerTestSuite) TestCreateProductNoVariants() {
 	fullProduct, err := activities.NewFullProduct(nil, product, activities.ProductCreated)
 	suite.Nil(err)
 
-	index := "public"
-	mapping := "products_catalog_view"
 	visualVariants := []string{"color"}
 	rows := map[string]search.SearchRow{}
 
@@ -50,7 +51,67 @@ func (suite *IndexerTestSuite) TestCreateProductNoVariants() {
 }
 
 func (suite *IndexerTestSuite) TestUpdateProductNoVariants() {
-	return
+	product := fixtures.NewProductWithNoVariants()
+	prodIdx := fmt.Sprintf("%d-%d", product.ID, product.SKUs[0].ID)
+
+	fullProduct, err := activities.NewFullProduct(nil, product, activities.ProductUpdated)
+	suite.Nil(err)
+
+	visualVariants := []string{"color"}
+	row := makeSearchRowNoVariants(1, 2, "TEST-SKU")
+	rows := map[string]search.SearchRow{"1-2": row}
+
+	es := mocks.NewElasticServer(index, mapping, rows)
+	ts := httptest.NewServer(http.HandlerFunc(es.ServeHTTP))
+	defer ts.Close()
+
+	indexer, err := NewIndexer(ts.URL, index, mapping, visualVariants)
+	suite.Nil(err)
+
+	err = indexer.Run(fullProduct)
+	suite.Nil(err)
+
+	suite.Len(es.Rows, 1)
+
+	updatedRow, ok := es.Rows[prodIdx]
+	suite.True(ok)
+
+	expectedSalePrice, err := product.SKUs[0].SalePrice()
+	suite.Nil(err)
+
+	suite.Equal(expectedSalePrice.Value, updatedRow.SalePrice)
+}
+
+func (suite *IndexerTestSuite) TestUpdateProduceNoVariantsReplaceSKU() {
+	product := fixtures.NewProductWithNoVariants()
+	prodIdx := fmt.Sprintf("%d-%d", product.ID, product.SKUs[0].ID)
+
+	fullProduct, err := activities.NewFullProduct(nil, product, activities.ProductUpdated)
+	suite.Nil(err)
+
+	visualVariants := []string{"color"}
+	row := makeSearchRowNoVariants(1, 3, "ANOTHER-SKU")
+	rows := map[string]search.SearchRow{"1-3": row}
+
+	es := mocks.NewElasticServer(index, mapping, rows)
+	ts := httptest.NewServer(http.HandlerFunc(es.ServeHTTP))
+	defer ts.Close()
+
+	indexer, err := NewIndexer(ts.URL, index, mapping, visualVariants)
+	suite.Nil(err)
+
+	err = indexer.Run(fullProduct)
+	suite.Nil(err)
+
+	suite.Len(es.Rows, 1)
+
+	updatedRow, ok := es.Rows[prodIdx]
+	suite.True(ok)
+
+	expectedSalePrice, err := product.SKUs[0].SalePrice()
+	suite.Nil(err)
+
+	suite.Equal(expectedSalePrice.Value, updatedRow.SalePrice)
 }
 
 func (suite *IndexerTestSuite) TestCreateProductOneVisualVariant() {
@@ -75,4 +136,23 @@ func (suite *IndexerTestSuite) TestCreateProductMultipleVisualVariants() {
 
 func (suite *IndexerTestSuite) TestUpdateProductMultipleVisualVariants() {
 	return
+}
+
+//
+// Some fixtures to make testing easier.
+//
+func makeSearchRowNoVariants(productID int, skuID int, code string) search.SearchRow {
+	return search.SearchRow{
+		ProductID: productID,
+		Context:   "default",
+		SKUs: []search.SearchSKU{
+			search.SearchSKU{ID: skuID, Code: code},
+		},
+		Title:       "A test SKU",
+		Description: "<p>Some test SKU</p>",
+		Image:       "http://lorempixel.com/400/200",
+		SalePrice:   999,
+		Currency:    "USD",
+		Tags:        []string{"Sample"},
+	}
 }
