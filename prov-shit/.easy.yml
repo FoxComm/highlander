@@ -64,6 +64,9 @@ shortcuts:
   - name: Provision TPG Staging
     alias: tpg_stage.yml
     target: ansible/tpg_stage.yml
+  - name: Provision TPG Production Backend
+    alias: tpg_backend.yml
+    target: ansible/tpg_backend.yml
   - name: Provision TPG Production
     alias: tpg_production.yml
     target: ansible/tpg_production.yml
