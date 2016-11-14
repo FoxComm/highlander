@@ -38,8 +38,10 @@ class CreditCards extends Component {
         if (creditCards.length === 1 || cardAdded) {
           selectCreditCard(creditCards[0]);
         } else {
-           const defaultCard = _.filter(creditCards, { isDefault: true });
-          selectCreditCard(defaultCard[0]);
+          const defaultCard = _.filter(creditCards, { isDefault: true });
+          if (defaultCard.length === 1) {
+            selectCreditCard(defaultCard[0]);
+          }
         }
       });
   }
