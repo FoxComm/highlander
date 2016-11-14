@@ -45,7 +45,7 @@ func (suite *IndexerTestSuite) TestUpdateProductNoVariants() {
 	suite.Nil(err)
 
 	visualVariants := []string{"color"}
-	row := makeSearchRowNoVariants(1, 2, "TEST-SKU")
+	row := makeSearchRowNoVariants(1, "Test Product", 2, "TEST-SKU")
 	rows := map[string]search.SearchRow{"1-2": row}
 
 	suite.testProductIndexer(fullProduct, rows, prodIndicies, visualVariants)
@@ -59,7 +59,7 @@ func (suite *IndexerTestSuite) TestUpdateProduceNoVariantsReplaceSKU() {
 	suite.Nil(err)
 
 	visualVariants := []string{"color"}
-	row := makeSearchRowNoVariants(1, 3, "ANOTHER-SKU")
+	row := makeSearchRowNoVariants(1, "Another Product", 3, "ANOTHER-SKU")
 	rows := map[string]search.SearchRow{"1-3": row}
 
 	suite.testProductIndexer(fullProduct, rows, prodIndicies, visualVariants)
@@ -76,6 +76,56 @@ func (suite *IndexerTestSuite) TestCreateProductOneVisualVariant() {
 	rows := map[string]search.SearchRow{}
 
 	suite.testProductIndexer(fullProduct, rows, prodIndicies, visualVariants)
+}
+
+func (suite *IndexerTestSuite) TestUpdateProductOneVisualVariant() {
+	product := fixtures.NewProductWithOneVisualVariant()
+	prodIndicies := []string{"1-2", "1-4"}
+
+	fullProduct, err := activities.NewFullProduct(nil, product, activities.ProductCreated)
+	suite.Nil(err)
+
+	visualVariants := []string{"color"}
+
+	rows := map[string]search.SearchRow{
+		"1-2": makeSearchRowNoVariants(1, "Orange Stuff", 2, "TEST-ORANGE"),
+		"1-4": makeSearchRowNoVariants(1, "White Stuff", 4, "TEST-WHITE"),
+	}
+
+	suite.testProductIndexer(fullProduct, rows, prodIndicies, visualVariants)
+}
+
+func (suite *IndexerTestSuite) TestUpdateProductOneVisualVariantNewVariants() {
+	product := fixtures.NewProductWithOneVisualVariant()
+	prodIndicies := []string{"1-2", "1-4"}
+
+	fullProduct, err := activities.NewFullProduct(nil, product, activities.ProductCreated)
+	suite.Nil(err)
+
+	visualVariants := []string{"color"}
+
+	rows := map[string]search.SearchRow{
+		"1-9":  makeSearchRowNoVariants(1, "Orange Stuff", 9, "TEST-ORANGE"),
+		"1-10": makeSearchRowNoVariants(1, "White Stuff", 10, "TEST-WHITE"),
+	}
+
+	suite.testProductIndexer(fullProduct, rows, prodIndicies, visualVariants)
+}
+
+func (suite *IndexerTestSuite) TestCreateProductMultipleVisualOneNonVisualVariant() {
+	return
+}
+
+func (suite *IndexerTestSuite) TestUpdateProductMultipleVisualOneNonVisualVariant() {
+	return
+}
+
+func (suite *IndexerTestSuite) TestCreateProductMultipleVisualVariants() {
+	return
+}
+
+func (suite *IndexerTestSuite) TestUpdateProductMultipleVisualVariants() {
+	return
 }
 
 func (suite *IndexerTestSuite) testProductIndexer(
@@ -110,37 +160,17 @@ func (suite *IndexerTestSuite) testProductIndexer(
 	}
 }
 
-func (suite *IndexerTestSuite) TestUpdateProductOneVisualVariant() {
-	return
-}
-
-func (suite *IndexerTestSuite) TestCreateProductMultipleVisualOneNonVisualVariant() {
-	return
-}
-
-func (suite *IndexerTestSuite) TestUpdateProductMultipleVisualOneNonVisualVariant() {
-	return
-}
-
-func (suite *IndexerTestSuite) TestCreateProductMultipleVisualVariants() {
-	return
-}
-
-func (suite *IndexerTestSuite) TestUpdateProductMultipleVisualVariants() {
-	return
-}
-
 //
 // Some fixtures to make testing easier.
 //
-func makeSearchRowNoVariants(productID int, skuID int, code string) search.SearchRow {
+func makeSearchRowNoVariants(productID int, title string, skuID int, code string) search.SearchRow {
 	return search.SearchRow{
 		ProductID: productID,
 		Context:   "default",
 		SKUs: []search.SearchSKU{
 			search.SearchSKU{ID: skuID, Code: code},
 		},
-		Title:       "A test SKU",
+		Title:       title,
 		Description: "<p>Some test SKU</p>",
 		Image:       "http://lorempixel.com/400/200",
 		SalePrice:   999,
