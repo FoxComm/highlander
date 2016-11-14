@@ -1,17 +1,19 @@
 @import "media-queries.css";
 @import "variables.css";
+@import "colors.css";
 
 .container {
   width: 100%;
   display: flex;
   min-height: 100vh;
   flex-direction: column;
-  background: var(--background-color);
 }
 
 .content-container {
   flex: 1;
   margin-top: 222px;
+  background: var(--background-color);
+  z-index: 0;
 }
 
 .categories {
