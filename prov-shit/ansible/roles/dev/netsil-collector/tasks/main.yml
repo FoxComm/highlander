@@ -1,9 +1,3 @@
-- name: install python-pip
-  apt: name=python-pip state=present
-
-- name: install docker deps
-  command: pip install docker-py
-
 - name: pull an Netsil collector image
   docker_container:
     name: netsil-collector
@@ -20,3 +14,4 @@
       NETSIL_SP_HOST: "{{netsil_aoc_master}}"
       NETSIL_TRAFFIC_PORT: 2003
       NETSIL_INFRA_PORT: 2001
+      
