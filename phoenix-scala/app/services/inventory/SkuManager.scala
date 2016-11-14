@@ -147,7 +147,7 @@ object SkuManager {
       case None       ⇒ Xor.left(GeneralFailure("SKU code not found in payload").single)
     }
 
-  private def getSkuCode(attributes: Map[String, Json]): Option[String] =
+  def getSkuCode(attributes: Map[String, Json]): Option[String] =
     attributes.get("code").flatMap(json ⇒ (json \ "v").extractOpt[String])
 
   def mustFindSkuByContextAndCode(contextId: Int, code: String)(implicit ec: EC): DbResultT[Sku] =
