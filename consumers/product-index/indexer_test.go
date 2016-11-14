@@ -26,7 +26,7 @@ func TestIndexerSuite(t *testing.T) {
 
 func (suite *IndexerTestSuite) TestCreateProductNoVariants() {
 	product := fixtures.NewProductWithNoVariants()
-	prodIdx := fmt.Sprintf("%d-%d", product.ID, product.SKUs[0].ID)
+	prodIndicies := []string{fmt.Sprintf("%d-%d", product.ID, product.SKUs[0].ID)}
 
 	fullProduct, err := activities.NewFullProduct(nil, product, activities.ProductCreated)
 	suite.Nil(err)
@@ -34,25 +34,12 @@ func (suite *IndexerTestSuite) TestCreateProductNoVariants() {
 	visualVariants := []string{"color"}
 	rows := map[string]search.SearchRow{}
 
-	es := mocks.NewElasticServer(index, mapping, rows)
-	ts := httptest.NewServer(http.HandlerFunc(es.ServeHTTP))
-	defer ts.Close()
-
-	indexer, err := NewIndexer(ts.URL, index, mapping, visualVariants)
-	suite.Nil(err)
-
-	err = indexer.Run(fullProduct)
-	suite.Nil(err)
-
-	suite.Len(es.Rows, 1)
-
-	_, ok := es.Rows[prodIdx]
-	suite.True(ok)
+	suite.testProductIndexer(fullProduct, rows, prodIndicies, visualVariants)
 }
 
 func (suite *IndexerTestSuite) TestUpdateProductNoVariants() {
 	product := fixtures.NewProductWithNoVariants()
-	prodIdx := fmt.Sprintf("%d-%d", product.ID, product.SKUs[0].ID)
+	prodIndicies := []string{fmt.Sprintf("%d-%d", product.ID, product.SKUs[0].ID)}
 
 	fullProduct, err := activities.NewFullProduct(nil, product, activities.ProductUpdated)
 	suite.Nil(err)
@@ -61,30 +48,12 @@ func (suite *IndexerTestSuite) TestUpdateProductNoVariants() {
 	row := makeSearchRowNoVariants(1, 2, "TEST-SKU")
 	rows := map[string]search.SearchRow{"1-2": row}
 
-	es := mocks.NewElasticServer(index, mapping, rows)
-	ts := httptest.NewServer(http.HandlerFunc(es.ServeHTTP))
-	defer ts.Close()
-
-	indexer, err := NewIndexer(ts.URL, index, mapping, visualVariants)
-	suite.Nil(err)
-
-	err = indexer.Run(fullProduct)
-	suite.Nil(err)
-
-	suite.Len(es.Rows, 1)
-
-	updatedRow, ok := es.Rows[prodIdx]
-	suite.True(ok)
-
-	expectedSalePrice, err := product.SKUs[0].SalePrice()
-	suite.Nil(err)
-
-	suite.Equal(expectedSalePrice.Value, updatedRow.SalePrice)
+	suite.testProductIndexer(fullProduct, rows, prodIndicies, visualVariants)
 }
 
 func (suite *IndexerTestSuite) TestUpdateProduceNoVariantsReplaceSKU() {
 	product := fixtures.NewProductWithNoVariants()
-	prodIdx := fmt.Sprintf("%d-%d", product.ID, product.SKUs[0].ID)
+	prodIndicies := []string{fmt.Sprintf("%d-%d", product.ID, product.SKUs[0].ID)}
 
 	fullProduct, err := activities.NewFullProduct(nil, product, activities.ProductUpdated)
 	suite.Nil(err)
@@ -93,6 +62,29 @@ func (suite *IndexerTestSuite) TestUpdateProduceNoVariantsReplaceSKU() {
 	row := makeSearchRowNoVariants(1, 3, "ANOTHER-SKU")
 	rows := map[string]search.SearchRow{"1-3": row}
 
+	suite.testProductIndexer(fullProduct, rows, prodIndicies, visualVariants)
+}
+
+func (suite *IndexerTestSuite) TestCreateProductOneVisualVariant() {
+	product := fixtures.NewProductWithOneVisualVariant()
+	prodIndicies := []string{"1-2", "1-4"}
+
+	fullProduct, err := activities.NewFullProduct(nil, product, activities.ProductCreated)
+	suite.Nil(err)
+
+	visualVariants := []string{"color"}
+	rows := map[string]search.SearchRow{}
+
+	suite.testProductIndexer(fullProduct, rows, prodIndicies, visualVariants)
+}
+
+func (suite *IndexerTestSuite) testProductIndexer(
+	activity activities.FullProduct,
+	rows map[string]search.SearchRow,
+	prodIndicies []string,
+	visualVariants []string) {
+
+	product := activity.Product()
 	es := mocks.NewElasticServer(index, mapping, rows)
 	ts := httptest.NewServer(http.HandlerFunc(es.ServeHTTP))
 	defer ts.Close()
@@ -100,22 +92,22 @@ func (suite *IndexerTestSuite) TestUpdateProduceNoVariantsReplaceSKU() {
 	indexer, err := NewIndexer(ts.URL, index, mapping, visualVariants)
 	suite.Nil(err)
 
-	err = indexer.Run(fullProduct)
+	err = indexer.Run(activity)
 	suite.Nil(err)
 
-	suite.Len(es.Rows, 1)
+	suite.Len(es.Rows, len(prodIndicies))
+	for _, prodIdx := range prodIndicies {
+		updatedRow, ok := es.Rows[prodIdx]
+		suite.True(ok)
 
-	updatedRow, ok := es.Rows[prodIdx]
-	suite.True(ok)
+		expectedSalePrice, err := product.SKUs[0].SalePrice()
+		suite.Nil(err)
+		suite.Equal(expectedSalePrice.Value, updatedRow.SalePrice)
 
-	expectedSalePrice, err := product.SKUs[0].SalePrice()
-	suite.Nil(err)
-
-	suite.Equal(expectedSalePrice.Value, updatedRow.SalePrice)
-}
-
-func (suite *IndexerTestSuite) TestCreateProductOneVisualVariant() {
-	return
+		expectedTitle, err := product.Title()
+		suite.Nil(err)
+		suite.Equal(expectedTitle, updatedRow.Title)
+	}
 }
 
 func (suite *IndexerTestSuite) TestUpdateProductOneVisualVariant() {
