@@ -123,6 +123,12 @@ export function saveCouponCode(code: string): Function {
   };
 }
 
+function setDefaultCard(id: number, isDefault: boolean): Function {
+  return () => {
+    return foxApi.creditCards.setAsDefault(id, isDefault);
+  };
+}
+
 function createOrUpdateAddress(payload, id) {
   if (id) {
     return foxApi.addresses.update(id, payload);
@@ -163,11 +169,15 @@ function getUpdatedBillingAddress(getState, billingAddressIsSame) {
 export function addCreditCard(billingAddressIsSame: boolean): Function {
   return (dispatch, getState) => {
     const billingData = getState().checkout.billingData;
-    const cardData = _.pick(billingData, ['holderName', 'number', 'cvc', 'expMonth', 'expYear']);
+    const cardData = _.pick(billingData, ['holderName', 'number', 'cvc', 'expMonth', 'expYear', 'isDefault']);
     const billingAddress = getUpdatedBillingAddress(getState, billingAddressIsSame);
     const address = addressToPayload(billingAddress);
 
-    return foxApi.creditCards.create(cardData, address, !billingAddressIsSame);
+    return foxApi.creditCards.create(cardData, address, !billingAddressIsSame).then((newCard) => {
+      if (cardData.isDefault === true) {
+        dispatch(setDefaultCard(newCard.id, cardData.isDefault));
+      }
+    });
   };
 }
 

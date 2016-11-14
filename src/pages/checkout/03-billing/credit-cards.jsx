@@ -25,6 +25,7 @@ type Props = {
   editCard: Function,
   deleteCard: Function,
   isLoading: boolean,
+  cardAdded: boolean,
 };
 
 class CreditCards extends Component {
@@ -33,9 +34,14 @@ class CreditCards extends Component {
   componentWillMount() {
     this.props.fetchCreditCards()
       .then(() => {
-        const { creditCards, selectCreditCard } = this.props;
-        if (creditCards.length === 1) {
+        const { creditCards, selectCreditCard, cardAdded } = this.props;
+        if (creditCards.length === 1 || cardAdded) {
           selectCreditCard(creditCards[0]);
+        } else {
+          const defaultCard = _.filter(creditCards, { isDefault: true });
+          if (defaultCard.length === 1) {
+            selectCreditCard(defaultCard[0]);
+          }
         }
       });
   }
