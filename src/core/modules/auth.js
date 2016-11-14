@@ -78,10 +78,10 @@ export const restorePassword = createAsyncActions('restore-password', function r
   return api.auth.restorePassword(email);
 }).perform;
 
-export const resetPassword = createAsyncActions('restore-password',
-  function resetPassword(code: string, password: string): Promise {
+export const resetPassword =
+  createAsyncActions('restore-password', function resetPassword(code: string, password: string): Promise {
     return api.auth.resetPassword(code, password);
-}).perform;
+  }).perform;
 
 const initialState = {
 };

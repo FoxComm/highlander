@@ -65,7 +65,7 @@ export default class ResetPassword extends Component {
         isReseted: true,
         error: null,
       });
-    }).catch((err) => {
+    }).catch(() => {
       return this.setState({
         error: this.props.t('Passwords does not match or security code is invalid.'),
       });
