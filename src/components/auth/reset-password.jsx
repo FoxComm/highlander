@@ -13,6 +13,8 @@ import ShowHidePassword from 'ui/forms/show-hide-password';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 
+import { resetPassword } from 'modules/auth';
+
 import type { HTMLElement } from 'types';
 
 type ResetState = {
@@ -23,7 +25,7 @@ type ResetState = {
 };
 
 /* ::`*/
-@connect()
+@connect(null, { resetPassword })
 @localized
 /* ::`*/
 export default class ResetPassword extends Component {
@@ -52,12 +54,22 @@ export default class ResetPassword extends Component {
       this.setState({
         error: this.props.t('Passwords must match'),
       });
-    } else {
+
+      return Promise.reject({
+        password: 'Passwords must match',
+      });
+    }
+
+    return this.props.resetPassword('', passwd1).then(() => {
       this.setState({
         isReseted: true,
         error: null,
       });
-    }
+    }).catch((err) => {
+      return this.setState({
+        error: this.props.t('Passwords does not match or security code is invalid.'),
+      });
+    });
   }
 
   get topMessage(): HTMLElement {
