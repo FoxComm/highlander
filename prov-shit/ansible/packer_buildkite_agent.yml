@@ -10,6 +10,7 @@
   roles:
     - { role: base/common }
     - { role: base/ssh_keys }
+    - { role: base/docker }
     - { role: base/scala }
     - { role: base/clojure }
     - { role: base/node }
