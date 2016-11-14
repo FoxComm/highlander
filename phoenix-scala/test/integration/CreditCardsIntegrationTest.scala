@@ -11,6 +11,7 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mock.MockitoSugar
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.PaymentPayloads.CreateCreditCardFromTokenPayload
+import responses.CreditCardsResponse
 import responses.CreditCardsResponse.Root
 import services.Result
 import slick.driver.PostgresDriver.api._
@@ -211,6 +212,19 @@ class CreditCardsIntegrationTest
         .delete()
         .mustFailWith404(NotFoundFailure404(CreditCard, 666))
     }
+  }
+
+  "GET /v1/my/payment-methods/credit-cards" - {
+    "returns valid phone number" in new StoreAdmin_Seed with Customer_Seed {
+      val testPhoneNumber = "1234567890"
+      val payloadWithPhoneNumber = thePayload.copy(
+          billingAddress = thePayload.billingAddress.copy(phoneNumber = testPhoneNumber.some))
+      POST("v1/my/payment-methods/credit-cards", payloadWithPhoneNumber).mustBeOk()
+
+      val ccs = GET("v1/my/payment-methods/credit-cards").as[Seq[CreditCardsResponse.Root]]
+      ccs.head.address.phoneNumber must === (testPhoneNumber.some)
+    }
+
   }
 
   "POST /v1/my/payment-methods/credit-cards (customer auth)" - {

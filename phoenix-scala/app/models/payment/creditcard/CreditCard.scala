@@ -38,7 +38,8 @@ case class CreditCard(id: Int = 0,
                       address2: Option[String] = None,
                       city: String,
                       zip: String,
-                      brand: String)
+                      brand: String,
+                      phoneNumber: Option[String] = None)
     extends PaymentMethod
     with FoxModel[CreditCard]
     with Addressable[CreditCard]
@@ -48,7 +49,6 @@ case class CreditCard(id: Int = 0,
 
   // must be implemented for Addressable
   def name: String                      = addressName
-  def phoneNumber: Option[String]       = None
   def zipLens: Lens[CreditCard, String] = lens[CreditCard].zip
 
   override def validate: ValidatedNel[Failure, CreditCard] = {
@@ -99,7 +99,8 @@ object CreditCard {
                address1 = address.address1,
                address2 = address.address2,
                zip = address.zip,
-               city = address.city)
+               city = address.city,
+               phoneNumber = address.phoneNumber)
 
   @deprecated(message = "Use `buildFromToken` instead", "Until we are PCI compliant")
   def buildFromSource(accountId: Int,
@@ -123,7 +124,8 @@ object CreditCard {
                address2 = a.address2,
                city = a.city,
                zip = a.zip,
-               brand = card.getBrand)
+               brand = card.getBrand,
+               phoneNumber = a.phoneNumber)
   }
 }
 
@@ -151,6 +153,7 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
   def address2    = column[Option[String]]("address2")
   def city        = column[String]("city")
   def zip         = column[String]("zip")
+  def phoneNumber = column[Option[String]]("phone_number")
 
   def * =
     (id,
@@ -173,7 +176,8 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
      address2,
      city,
      zip,
-     brand) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
+     brand,
+     phoneNumber) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
 
   def account = foreignKey(Accounts.tableName, accountId, Accounts)(_.id)
   def region  = foreignKey(Regions.tableName, regionId, Regions)(_.id)

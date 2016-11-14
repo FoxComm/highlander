@@ -70,7 +70,8 @@ object Address {
             address1 = cc.address1,
             address2 = cc.address2,
             city = cc.city,
-            zip = cc.zip)
+            zip = cc.zip,
+            phoneNumber = cc.phoneNumber)
 }
 
 class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
