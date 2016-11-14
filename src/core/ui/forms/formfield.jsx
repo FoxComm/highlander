@@ -14,6 +14,7 @@ import type { HTMLElement} from 'types';
 
 type FormFieldProps = Localized & {
   validator: ?string|?(value: any) => string,
+  validateOnBlur?: boolean;
   children: HTMLElement,
   required: ?any,
   maxLength: ?number,
@@ -28,6 +29,7 @@ type FormFieldProps = Localized & {
 class FormField extends Component {
   props: FormFieldProps;
   beforeValue: any;
+  _willUnmount: boolean = false;
 
   static contextTypes = {
     formDispatcher: PropTypes.object,
@@ -36,6 +38,7 @@ class FormField extends Component {
   static defaultProps = {
     target: 'input,textarea,select',
     getTargetValue: node => node.type == 'checkbox' ? node.checked : node.value,
+    validateOnBlur: false,
   };
 
   state = {
@@ -93,6 +96,8 @@ class FormField extends Component {
   componentWillUnmount() {
     this.toggleBindToDispatcher(false);
     this.toggleBindToTarget(false);
+
+    this._willUnmount = true;
   }
 
   @autobind
@@ -170,7 +175,9 @@ class FormField extends Component {
 
   @autobind
   handleBlur({target}) {
-    this.fullValidate(target);
+    if (this.props.validateOnBlur) {
+      this.fullValidate(target);
+    }
 
     this.setState({
       touched: true,
@@ -228,9 +235,9 @@ class FormField extends Component {
   @autobind
   @debounce(200)
   handleChange({target}) {
-    // validate only if field had touched once (or we have error for this field)
+    // validate only if we have error for this field
     // so we don't produce error if user start typing for example
-    if (this.state.touched || this.hasError) {
+    if (!this._willUnmount && this.hasError) {
       this.fullValidate(target);
     }
   }
