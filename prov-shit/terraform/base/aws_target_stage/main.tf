@@ -13,9 +13,13 @@ variable "datacenter" {
 }
 variable "setup" {
 }
+variable "key_name" {
+}
 variable "policy_file" {
 }
-variable "key_name" {
+
+# network variables
+variable "vpc_cidr_block" {
 }
 
 # resources variables
@@ -42,6 +46,14 @@ provider "aws" {
     access_key = "${var.access_key}"
     secret_key = "${var.secret_key}"
     region     = "${var.region}"
+}
+
+module "network" {
+    source         = "../../modules/aws/net"
+    // generic variables
+    datacenter     = "${var.datacenter}"
+    setup          = "${var.setup}"
+    vpc_cidr_block = "${var.vpc_cidr_block}"
 }
 
 resource "aws_s3_bucket" "docker_registry_bucket" {

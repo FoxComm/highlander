@@ -10,6 +10,9 @@ setup                 = "stage"
 key_name              = "tgt"
 policy_file           = "terraform/policy/stage.json"
 
+# network variables
+vpc_cidr_block        = "10.0.0.0/24"
+
 # resources variables
 amigo_image           = "___"
 amigo_machine_type    = "t2.medium"
