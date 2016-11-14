@@ -36,6 +36,14 @@ object OrderQueries extends CordQueries {
       response ← * <~ OrderResponse.fromOrder(order, grouped)
     } yield TheResponse.build(response)
 
+  def findAllByUser(customer: User, grouped: Boolean = true)(
+      implicit ec: EC,
+      db: DB,
+      ctx: OC): DbResultT[TheResponse[Seq[AllOrders.Root]]] =
+    for {
+      response ← * <~ findAllByQuery(Orders.findByAccountId(customer.accountId))
+    } yield response
+
   def findOneByUser(refNum: String, customer: User, grouped: Boolean = true)(
       implicit ec: EC,
       db: DB,
@@ -47,4 +55,10 @@ object OrderQueries extends CordQueries {
       response ← * <~ OrderResponse.fromOrder(order, grouped)
     } yield TheResponse.build(response)
 
+  private def buildResponse(order: Order, grouped: Boolean)(implicit ec: EC,
+                                                            db: DB,
+                                                            ctx: OC): DbResultT[OrderResponse] =
+    for {
+      response ← * <~ OrderResponse.fromOrder(order, grouped)
+    } yield response
 }
