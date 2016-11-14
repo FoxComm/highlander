@@ -30,7 +30,8 @@ function apiCall(
   let payload = defaultSearch(context);
 
   [categoryName, productType].forEach(tag => {
-    if (tag) {
+    // products do not have 'ALL' tag
+    if (tag && tag.toUpperCase() !== 'ALL') {
       const tagTerm = termFilter('tags', tag.toUpperCase());
       payload = addTermFilter(payload, tagTerm);
     }
