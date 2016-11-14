@@ -1,5 +1,6 @@
 @import "media-queries.css";
 @import "variables.css";
+@import "colors.css";
 
 .container {
   width: 100%;
@@ -11,6 +12,8 @@
 .content-container {
   flex: 1;
   margin-top: 222px;
+  background: var(--background-color);
+  z-index: 0;
 }
 
 .categories {

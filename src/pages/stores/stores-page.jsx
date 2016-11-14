@@ -35,7 +35,7 @@ export default class StoresPage extends React.Component {
           <div styleName="header-wrap">
             <div styleName="text-wrap">
               <span styleName="description">
-                Live in the freater baltimore area?
+                Live in the greater baltimore area?
               </span>
               <h1 styleName="title">COME VISIT US!</h1>
             </div>
@@ -44,7 +44,7 @@ export default class StoresPage extends React.Component {
         <div styleName="main-block">
           <div styleName="main-block-wrapper">
             <h2 styleName="subtitle">
-              Find as at Riderwood Village
+              Find us at Riderwood Village
             </h2>
             <div styleName="central-container">
               <div styleName="address-info-block">
