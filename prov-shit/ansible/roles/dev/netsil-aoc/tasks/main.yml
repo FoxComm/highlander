@@ -1,15 +1,3 @@
-- name: install python-pip
-  apt: name=python-pip state=present
-
-- name: install docker deps
-  command: pip install docker-py
-
-- name: install docker compose via pip
-  command: pip install docker-compose
-
-- name: be sure docker is running
-  service: name=docker state=started
-
 - name: Run Netsil AOC with compose
   docker_service:
     project_name: netsil
