@@ -1,12 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/FoxComm/highlander/consumers/product-index/fixtures"
-	"github.com/FoxComm/highlander/consumers/product-index/utils"
+	"github.com/FoxComm/highlander/consumers/product-index/mocks"
+	"github.com/FoxComm/highlander/consumers/product-index/search"
 	"github.com/FoxComm/highlander/shared/golang/activities"
 	"github.com/stretchr/testify/suite"
 )
@@ -21,19 +23,30 @@ func TestIndexerSuite(t *testing.T) {
 
 func (suite *IndexerTestSuite) TestCreateProductNoVariants() {
 	product := fixtures.NewProductWithNoVariants()
+	prodIdx := fmt.Sprintf("%d-%d", product.ID, product.SKUs[0].ID)
+
 	fullProduct, err := activities.NewFullProduct(nil, product, activities.ProductCreated)
 	suite.Nil(err)
 
-	es := utils.ElasticServer{}
+	index := "public"
+	mapping := "products_catalog_view"
+	visualVariants := []string{"color"}
+	rows := map[string]search.SearchRow{}
+
+	es := mocks.NewElasticServer(index, mapping, rows)
 	ts := httptest.NewServer(http.HandlerFunc(es.ServeHTTP))
 	defer ts.Close()
 
-	idx, err := NewIndexer(ts.URL, "public", "products_catalog_view", []string{"color"})
+	indexer, err := NewIndexer(ts.URL, index, mapping, visualVariants)
 	suite.Nil(err)
 
-	err = idx.Run(fullProduct)
+	err = indexer.Run(fullProduct)
 	suite.Nil(err)
 
+	suite.Len(es.Rows, 1)
+
+	_, ok := es.Rows[prodIdx]
+	suite.True(ok)
 }
 
 func (suite *IndexerTestSuite) TestUpdateProductNoVariants() {
