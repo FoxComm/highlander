@@ -22,9 +22,32 @@ type fullProduct struct {
 	activity SiteActivity
 }
 
-// NewFullProduct creates a FullProduct activity from an existing SiteActivity.
-// Throws an error if unmashalling to the activity fails.
-func NewFullProduct(activity SiteActivity) (FullProduct, error) {
+// NewFullProduct initializes a FullProduct with the base set of data.
+func NewFullProduct(admin interface{}, product *api.Product, activityType string) (FullProduct, error) {
+	fp := fullProductData{
+		Admin:   admin,
+		Product: product,
+	}
+
+	fpBytes, err := json.Marshal(&fp)
+	if err != nil {
+		return nil, err
+	}
+
+	defaultActivity := defaultSiteActivity{
+		ActivityType: activityType,
+		ActivityData: string(fpBytes),
+	}
+
+	return &fullProduct{
+		product:  product,
+		activity: defaultActivity,
+	}, nil
+}
+
+// NewFullProductFromActivity creates a FullProduct activity from an existing
+// SiteActivity. Throws an error if unmashalling to the activity fails.
+func NewFullProductFromActivity(activity SiteActivity) (FullProduct, error) {
 	if activity.Type() != ProductCreated && activity.Type() != ProductUpdated {
 		return nil, fmt.Errorf(
 			"Expected activity %s or %s, but got %s",

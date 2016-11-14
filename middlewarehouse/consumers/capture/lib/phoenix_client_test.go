@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
-	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/highlander/shared/golang/activities"
 	"github.com/stretchr/testify/suite"
 )
 

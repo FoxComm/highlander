@@ -24,9 +24,8 @@ func NewIndexer(esURL string, esIndex string, esMapping string, visualVariants [
 }
 
 func (i Indexer) Run(activity activities.SiteActivity) error {
-	switch activity.Type() {
-	case activities.ProductCreated:
-	case activities.ProductUpdated:
+	aType := activity.Type()
+	if aType == activities.ProductCreated || aType == activities.ProductUpdated {
 		fullProduct := activity.(activities.FullProduct)
 		return i.indexProductActivity(fullProduct)
 	}

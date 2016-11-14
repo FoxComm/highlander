@@ -1,8 +1,13 @@
 package main
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
+	"github.com/FoxComm/highlander/consumers/product-index/fixtures"
+	"github.com/FoxComm/highlander/consumers/product-index/utils"
+	"github.com/FoxComm/highlander/shared/golang/activities"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -15,7 +20,20 @@ func TestIndexerSuite(t *testing.T) {
 }
 
 func (suite *IndexerTestSuite) TestCreateProductNoVariants() {
-	return
+	product := fixtures.NewProductWithNoVariants()
+	fullProduct, err := activities.NewFullProduct(nil, product, activities.ProductCreated)
+	suite.Nil(err)
+
+	es := utils.ElasticServer{}
+	ts := httptest.NewServer(http.HandlerFunc(es.ServeHTTP))
+	defer ts.Close()
+
+	idx, err := NewIndexer(ts.URL, "public", "products_catalog_view", []string{"color"})
+	suite.Nil(err)
+
+	err = idx.Run(fullProduct)
+	suite.Nil(err)
+
 }
 
 func (suite *IndexerTestSuite) TestUpdateProductNoVariants() {

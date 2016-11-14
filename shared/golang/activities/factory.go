@@ -16,7 +16,7 @@ func CreateActivity(m metamorphosis.AvroMessage) (SiteActivity, error) {
 	switch plainActivity.Type() {
 	case ProductCreated:
 	case ProductUpdated:
-		return NewFullProduct(plainActivity)
+		return NewFullProductFromActivity(plainActivity)
 	case SKUCreated:
 	case SKUUpdated:
 		return NewFullSKU(plainActivity)
