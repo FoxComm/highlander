@@ -199,7 +199,7 @@ export default class ObjectScheduler extends Component {
 
   get activeDropdown(): Element {
     const activeState = this.isActive ? 'active' : 'inactive';
-    const isDisabled = this.state.showActiveFromPicker;
+    const isDisabled = !this.isActive && this.state.showActiveFromPicker;
 
     return (
       <Dropdown
