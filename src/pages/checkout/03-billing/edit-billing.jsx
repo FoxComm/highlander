@@ -31,7 +31,6 @@ import styles from './billing.css';
 // actions
 import * as cartActions from 'modules/cart';
 import * as checkoutActions from 'modules/checkout';
-import { AddressKind } from 'modules/checkout';
 
 // types
 import type { CreditCardType, CheckoutActions } from '../types';
@@ -119,8 +118,8 @@ class EditBilling extends Component {
     return (
       <EditAddress
         {...this.props}
-        addressKind={AddressKind.BILLING}
         address={this.props.data.address}
+        onUpdate={this.props.setBillingAddress}
       />
     );
   }
@@ -219,11 +218,11 @@ class EditBilling extends Component {
     return (
       <div styleName="edit-card-form">
         <Checkbox
-            styleName="checkbox-field"
-            name="isDefault"
-            checked={checkedDefaultCard}
-            onChange={({target}) => this.changeDefault(target.checked)}
-            id="set-default-card"
+          styleName="checkbox-field"
+          name="isDefault"
+          checked={checkedDefaultCard}
+          onChange={({target}) => this.changeDefault(target.checked)}
+          id="set-default-card"
         >
           Make this card my default
         </Checkbox>

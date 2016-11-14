@@ -24,7 +24,6 @@ const ViewBilling = (props: Props) => {
   if (!billingData || _.isEmpty(billingData)) return null;
 
   const { brand, expMonth, expYear, billingAddress, holderName, lastFour, isDefault } = billingData;
-  
   const paymentType = brand ? _.kebabCase(brand) : '';
 
   const defaultText = isDefault ? <li><div styleName="default-card">Default Card</div></li> : null;

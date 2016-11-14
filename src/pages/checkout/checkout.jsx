@@ -95,6 +95,22 @@ class Checkout extends Component {
     this.setState({isScrolled});
   };
 
+  sanitizeError(error) {
+    if (!error) return null;
+
+    const err = _.get(error, 'responseJson.errors', [error.toString()]);
+
+    if (err[0].startsWith('Not enough onHand units')) {
+      return {
+        responseJson: {
+          errors: ['Unable to checkout - item is out of stock'],
+        },
+      };
+    }
+
+    return error;
+  }
+
   @autobind
   performStageTransition(name: string, perform: () => PromiseType): PromiseType {
     const errorName = `${name}Error`;
@@ -238,7 +254,7 @@ class Checkout extends Component {
         />
 
         <div styleName="content">
-          <ErrorAlerts error={sanitizeError(this.state.isPerformingCheckoutError)} />
+          <ErrorAlerts error={this.sanitizeError(this.state.isPerformingCheckoutError)} />
           <div styleName="body">
             <div styleName="summary">
               <OrderSummary
@@ -313,21 +329,6 @@ function isBillingDirty(state) {
   return !_.isEmpty(state.checkout.billingData) || !_.isEmpty(state.checkout.billingAddress);
 }
 
-function sanitizeError(error) {
-  if (!error) return null;
-
-  const err = _.get(error, 'responseJson.errors', [error.toString()]);
-  
-  if (err[0].startsWith('Not enough onHand units')) {
-    return {
-      responseJson: {
-        errors: ['Unable to checkout - item is out of stock'],
-      },
-    };
-  } 
-
-  return error;
-}
 
 function mapStateToProps(state) {
   return {
