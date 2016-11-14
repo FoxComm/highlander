@@ -27,6 +27,7 @@ class Auth extends Component {
   renderContent() {
     const authProps = {
       getPath: this.getPath,
+      path: this.props.path,
     };
 
     switch (this.props.authBlockType) {
