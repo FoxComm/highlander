@@ -18,7 +18,6 @@
     - { role: base/db }
     - { role: base/bottledwater }
     - { role: base/rsyslog, sudo: yes }
-    - { role: base/kibana, sudo: yes }
     - { role: base/node }
     - { role: base/balancer, sudo: yes }
     - { role: base/builder }

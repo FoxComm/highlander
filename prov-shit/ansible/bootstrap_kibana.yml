@@ -1,0 +1,24 @@
+---
+
+- name: Provision Kibana
+  hosts: '{{hostname}}'
+  vars:
+    user: '{{ansible_ssh_user}}'
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname to install Kibana"
+      default: "tpg-stage-amigo"
+      private: no
+    - name: "kibana_cfg_server_name"
+      prompt: "Enter Kibana server name"
+      default: "FoxCommerce"
+      private: no
+    - name: "kibana_cfg_es_url"
+      prompt: "Enter Elasticsearch URl"
+      default: "http://elasticsearch.service.consul:9200"
+      private: no
+  roles:
+    - { role: dev/kibana, sudo: yes }
+
+  handlers:
+    - include: roles/base/consul_agent/handlers/main.yml

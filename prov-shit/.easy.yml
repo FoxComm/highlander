@@ -47,6 +47,9 @@ shortcuts:
   - name: Bootstrap Database Backup
     alias: db_backup.yml
     target: ansible/bootstrap_db_backup.yml
+  - name: Provision Kibana
+    alias: bootstrap_kibana.yml
+    target: ansible/bootstrap_kibana.yml
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
@@ -61,9 +64,6 @@ shortcuts:
     target: ansible/bootstrap_tinystack.yml
 
   # TPG
-  - name: Provision TPG Kibana
-    alias: tpg_kibana.yml
-    target: ansible/tpg_kibana.yml
   - name: Provision TPG Staging
     alias: tpg_stage.yml
     target: ansible/tpg_stage.yml
@@ -73,9 +73,6 @@ shortcuts:
   - name: Provision TPG Production
     alias: tpg_production.yml
     target: ansible/tpg_production.yml
-  - name: Provision TPG Shipping Methods
-    alias: tpg_shipping.yml
-    target: ansible/tpg_shipping.yml
   - name: Provision Tony Staging
     alias: easy_tony.yml
     target: ansible/easy_tony.yml
