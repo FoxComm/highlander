@@ -14,6 +14,7 @@ import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import com.sksamuel.elastic4s.ElasticDsl._
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.client.transport.NoNodeAvailableException
+import org.elasticsearch.indices.IndexAlreadyExistsException
 import org.elasticsearch.transport.RemoteTransportException
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods.parse
@@ -69,6 +70,10 @@ class ScopeProcessor(uri: String,
             create index scopedIndexName mappings (jsonMappings: _*) analysis (autocompleteAnalyzer, lowerCasedAnalyzer, upperCasedAnalyzer)
           }.map { _ ⇒
             ()
+          }.recover {
+            case e: RemoteTransportException
+                if e.getCause.isInstanceOf[IndexAlreadyExistsException] ⇒
+              Console.out.println(s"Index $scopedIndexName already exists, skip")
           }
         }
     }
