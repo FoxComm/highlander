@@ -22,5 +22,6 @@ export function setUserId(userId) {
 }
 
 export function initTracker(userId) {
+  ga('require', 'ec');
   setUserId(userId);
 }
