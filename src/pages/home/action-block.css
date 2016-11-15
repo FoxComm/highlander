@@ -41,6 +41,7 @@
   letter-spacing: 1.19px;
   line-height: 40px;
   margin: 0;
+  position: relative;
 
   &:after {
     content: '';
@@ -52,6 +53,7 @@
     transform: translateX(-50%);
     margin-top: 10px;
     background-color: white;
+    opacity: 0.7;
   }
 }
 
@@ -59,11 +61,63 @@
   font-family: var(--font-main);
   font-weight: 500;
   font-size: 14px;
+  text-align: center;
   color: #3E3436;
   background: white;
   text-decoration: none;
   padding: 22px 0;
   width: 200px;
   display: inline-block;
-  margin-top: 50px;
+  margin-top: 70px;
+}
+
+@media (--medium), (--large) {
+  .description {
+    font-size: 19px;
+  }
+
+  .title {
+    font-weight: 600;
+    font-size: 72px;
+    letter-spacing: 4.04px;
+    line-height: 90px;
+
+    &:after {
+      width: 93px;
+    }
+  }
+}
+
+@media (--large) {
+  .header {
+    height: 680px;
+
+    &:nth-child(odd) {
+      text-align: left;
+
+      & .title:after {
+        left: 0;
+        transform: none;
+      }
+
+      & .text-wrap {
+        padding-left: 10%;
+        width: 70%;
+      }
+    }
+
+    &:nth-child(even) {
+      text-align: right;
+
+      & .title:after {
+        left: auto;
+        right: 0;
+        transform: none;
+      }
+
+      & .text-wrap {
+        padding-right: 10%;
+      }
+    }
+  }
 }

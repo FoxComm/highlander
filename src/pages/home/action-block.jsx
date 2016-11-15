@@ -13,7 +13,6 @@ type Props = {
     title: string,
     link: string,
   },
-  align: 'left' | 'right',
 };
 
 

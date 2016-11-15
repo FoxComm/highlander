@@ -15,22 +15,27 @@ const mainBlocks = [
     description: 'We’ve got you covered',
     title: 'Entertaining for the holidays?',
     action: { title: 'Shop holiday picks', link: '/holiday' },
-    align: 'left',
   },
   {
     imageUrl: '/images/home-page/Home_Page_Favorites_2x.jpg',
     description: 'We’re got you covered with dinners ready in less than 30 minutes',
     title: 'Pressed for time?',
     action: { title: 'Shop our favorites', link: '/favorites' },
-    align: 'right',
   },
   {
     imageUrl: '/images/home-page/Home_Page_Best_Sellers_2x.jpg',
     description: 'Our tried and true favorites you keep coming back for',
     title: 'Best sellers',
     action: { title: 'Shop best sellers', link: '/best-sellers' },
-    align: 'left',
   },
+];
+
+const instagramLinks = [
+  'https://www.instagram.com/p/BKn_-8wh1mw',
+  'https://www.instagram.com/p/BHvPmVLBDaP',
+  'https://www.instagram.com/p/BJI5BhJhGpO',
+  'https://www.instagram.com/p/BFhPd-ZkamN',
+  'https://www.instagram.com/p/BGzWL8gEaqM',
 ];
 
 const HomePage = () => {
@@ -45,9 +50,11 @@ const HomePage = () => {
         style={{ backgroundImage: `url(/images/home-page/Instagram_Feed_${i}_2x.jpg)`}}
         key={i}
       >
-        <div styleName="instagram-image-hover">
-          <Icon name="fc-instagram" styleName="instagram-icon"/>
-        </div>
+        <a href={instagramLinks[i - 1]} target="_blank">
+          <div styleName="instagram-image-hover">
+            <Icon name="fc-instagram" styleName="instagram-icon"/>
+          </div>
+        </a>
       </div>
     );
   });
@@ -60,8 +67,7 @@ const HomePage = () => {
         <div styleName="hashtag-image" />
         <div styleName="instagram-description">
           Love The Perfect Gourmet? Let us know!
-          Share the love using #mygourmet for a chance to be featured here.
-          Every month’s top 3 Instagram posts win a gift card!
+          Share the love using #mygourmet for a chance to be featured here!
         </div>
       </div>
       <div styleName="instagram-gallery">
