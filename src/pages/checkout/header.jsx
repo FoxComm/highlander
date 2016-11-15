@@ -11,6 +11,8 @@ import styles from './header.css';
 import { Link } from 'react-router';
 import Icon from 'ui/icon';
 
+import { EditStages } from 'modules/checkout';
+
 type Props = {
   isScrolled: boolean,
   setShippingStage: Function,
@@ -24,19 +26,25 @@ const Header = (props: Props) => {
   const headerStyle = props.isScrolled ? 'header-scrolled' : 'header';
 
   const navItems = [
-    ['Shipping', props.setShippingStage],
-    ['Delivery', props.setDeliveryStage],
-    ['Billing', props.setBillingState],
+    ['Shipping', props.setShippingStage, EditStages.SHIPPING],
+    ['Delivery', props.setDeliveryStage, EditStages.DELIVERY],
+    ['Billing', props.setBillingState, EditStages.BILLING],
   ];
 
-  const navList = navItems.map(([title, callback], i) => {
+  const navList = navItems.map(([title, callback, stage], i) => {
     const className = classNames(styles['nav-item'], {
       [styles.active]: i === props.currentStage,
     });
 
+    const checkedCallback = () => {
+      if (props.currentStage >= stage) {
+        callback();
+      }
+    };
+
     return (
       <li className={className} key={title}>
-        <a onClick={callback}>{title}</a>
+        <a onClick={checkedCallback}>{title}</a>
       </li>
     );
   });
