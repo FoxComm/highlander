@@ -64,7 +64,7 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
         val response = CartCreator.createCart(storeAdmin, payload).gimme
         for {
             cart ← * <~ {
-                Carts.mustFindByRefNum(response.referenceNumber).gimme
+                Carts.mustFindByRefNum(response.referenceNumber)
             }
             account ← * <~ Accounts.mustFindById404(cart.accountId)
             organization ← * <~ Organizations
