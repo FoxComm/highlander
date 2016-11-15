@@ -58,8 +58,9 @@ export default function makeSearches(namespace, dataActions, searchTerms, scope,
   const addSearchFilters = (filters, initial = false) => {
     return dispatch => {
       dispatch(submitFilters(filters, initial));
+      dispatch(dataActions.updateState({ from: 0 }));
       if (isExistsQueryContext(filters)) {
-        dispatch(dataActions.updateState({sortBy: null}));
+        dispatch(dataActions.updateState({ sortBy: null }));
       }
       if (!initial || !skipInitialFetch) {
         dispatch(dataActions.fetch());
@@ -70,7 +71,7 @@ export default function makeSearches(namespace, dataActions, searchTerms, scope,
   const addSearchPhrase = phrase => {
     return dispatch => {
       // in case of phrase search drop sorting in order to pass sorting to server
-      dispatch(dataActions.updateState({sortBy: null}));
+      dispatch(dataActions.updateState({ from: 0, sortBy: null }));
       dispatch(submitPhrase(phrase));
       dispatch(dataActions.fetch());
     };
@@ -295,21 +296,21 @@ function _fetchSearchesSuccess(state, searches) {
   const mappedSearches = searches.map(search => ({ ...emptyState, ...search }));
 
   let updatedSearches = state.savedSearches.map(oldSearch => {
-      /** left dirty searches untouched */
-      if (oldSearch.isDirty || oldSearch.id === void 0) {
-        return oldSearch;
-      }
+    /** left dirty searches untouched */
+    if (oldSearch.isDirty || oldSearch.id === void 0) {
+      return oldSearch;
+    }
 
-      for (const newSearch of mappedSearches) {
-        /** update old search with new one from the server */
-        if (newSearch.id === oldSearch.id) {
-          return newSearch;
-        }
+    for (const newSearch of mappedSearches) {
+      /** update old search with new one from the server */
+      if (newSearch.id === oldSearch.id) {
+        return newSearch;
       }
+    }
 
-      /** old search not found in server response, delete it later */
-      return void 0;
-    })
+    /** old search not found in server response, delete it later */
+    return void 0;
+  })
     .filter(search => search !== void 0);
 
   const ids = updatedSearches.map(search => search.id);
