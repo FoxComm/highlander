@@ -14,8 +14,21 @@
         head.appendChild(s);
       }
     </script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC8Oy__ZhQZwQK4BHZPEP8Cv-L_QoIqCHg"
-    type="text/javascript"></script>
+    <script type="text/javascript">
+      if (!window.Promise) {
+        var head = document.getElementsByTagName('head')[0];
+        var s = document.createElement('script');
+        s.type = 'text/javascript';
+        s.src = 'https://www.promisejs.org/polyfills/promise-7.0.4.min.js';
+        head.appendChild(s);
+      }
+    </script>
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC8Oy__ZhQZwQK4BHZPEP8Cv-L_QoIqCHg"
+      type="text/javascript">
+    </script>
   </head>
   <body>
     {{#def.fcSprite}}
