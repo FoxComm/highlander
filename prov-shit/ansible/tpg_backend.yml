@@ -13,7 +13,7 @@
     download_flyway: false
   vars_prompt:
     - name: "hostname"
-      prompt: "Enter a hostname with backend to update"
+      prompt: "Enter a hostname to update backend"
       default: "tpg-stage-backend"
       private: no
   roles:

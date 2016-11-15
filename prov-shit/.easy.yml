@@ -60,7 +60,10 @@ shortcuts:
     alias: tinystack.yml
     target: ansible/bootstrap_tinystack.yml
 
-  # New environments
+  # TPG
+  - name: Provision TPG Kibana
+    alias: tpg_kibana.yml
+    target: ansible/tpg_kibana.yml
   - name: Provision TPG Staging
     alias: tpg_stage.yml
     target: ansible/tpg_stage.yml
