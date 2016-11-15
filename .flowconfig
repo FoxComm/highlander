@@ -6,6 +6,7 @@
 .*/node_modules/json5/.*
 .*/node_modules/systemjs-builder/.*
 .*/node_modules/.tmp/.*
+.*/node_modules/invariant/*
 
 [include]
 src
