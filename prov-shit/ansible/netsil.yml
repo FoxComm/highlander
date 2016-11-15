@@ -4,6 +4,7 @@
   tags: netsil-aoc
   roles:
     - { role: dev/netsil-aoc }
+
 # Install Netsil collector (agent)
 - hosts: netsil-collectors
   tags: netsil-collector
