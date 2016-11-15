@@ -12,9 +12,12 @@ object TaxonomyPayloads {
 
   case class UpdateTaxonomyPayload(attributes: AttributesMap)
 
-  case class TaxonLocation(parent: Option[Int], position: Int) extends Validation[TaxonLocation] {
+  case class TaxonLocation(parent: Option[Int], position: Option[Int])
+      extends Validation[TaxonLocation] {
     override def validate: ValidatedNel[Failure, TaxonLocation] =
-      Validation.greaterThanOrEqual(position, 0, "location.position").map(_ ⇒ this)
+      position
+        .fold(Validation.ok)(Validation.greaterThanOrEqual(_, 0, "location.position"))
+        .map(_ ⇒ this)
   }
 
   case class CreateTaxonPayload(attributes: AttributesMap, location: Option[TaxonLocation])

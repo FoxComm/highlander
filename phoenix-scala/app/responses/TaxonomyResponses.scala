@@ -34,14 +34,22 @@ object TaxonomyResponses {
     }
   }
 
+  case class SingleTaxonResponse(taxonomyId: Int,
+                                 taxon: TaxonResponse,
+                                 parentTaxonId: Option[Integer])
+  object SingleTaxonResponse {
+    def build(taxonomyId: Integer, taxon: FullObject[Taxon], parentTaxonId: Option[Integer]) =
+      SingleTaxonResponse(taxonomyId, TaxonResponse.build(taxon), parentTaxonId)
+  }
+
   case class TaxonResponse(id: Int, attributes: Json, children: TaxonList)
 
   object TaxonResponse {
 
-    def build(term: FullObject[Taxon]): TaxonResponse = {
+    def build(taxon: FullObject[Taxon]): TaxonResponse = {
       TaxonResponse(
-          term.model.formId,
-          IlluminateAlgorithm.projectAttributes(term.form.attributes, term.shadow.attributes),
+          taxon.model.formId,
+          IlluminateAlgorithm.projectAttributes(taxon.form.attributes, taxon.shadow.attributes),
           Seq())
     }
 
