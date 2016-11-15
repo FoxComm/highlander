@@ -1,13 +1,12 @@
 [Service]
 ExecStart={{kibana_bin}}
-SuccessExitStatus=143
+WorkingDirectory={{kibana_dir}}
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
-
-[Unit]
-Requires=network.target
-After=network.target
+SyslogIdentifier=kibana
+TimeoutStartSec=5m
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
