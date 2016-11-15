@@ -33,7 +33,7 @@ defmodule Solomon.PermissionController do
     case permission do
       {:error, changeset} ->
         conn
-        |> put_status(:forbidden)
+        |> put_status(:unauthorized)
         |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
       _ ->
         permission_full =

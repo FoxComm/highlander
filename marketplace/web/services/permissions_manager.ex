@@ -2,6 +2,7 @@ defmodule Marketplace.PermissionManager do
   import Ecto
   import Ecto.Query
   import HTTPoison
+  import Plug.Conn
 
   # This function will create a scope and return an ID if it has been created successfully.
   # It will return nil if nothing has been created.
@@ -14,8 +15,12 @@ defmodule Marketplace.PermissionManager do
       }}
     |> Poison.encode!
     post_headers = conn.req_headers
+    post_cookies = cookies(conn)
 
-    case HTTPoison.post("#{full_perm_path}/scopes", post_body, post_headers) do
+    case HTTPoison.post("#{full_perm_path}/scopes",
+                        post_body,
+                        post_headers,
+                        hackney: [cookie: [post_cookies]]) do
       {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
         case Poison.decode(body) do
         {:ok, decoded_body} ->
@@ -39,8 +44,12 @@ defmodule Marketplace.PermissionManager do
     post_body = %{}
     |> Poison.encode!
     post_headers = conn.req_headers
+    post_cookies = cookies(conn)
 
-    case HTTPoison.post("#{full_perm_path}/scopes/#{scope_id}/admin_role", post_body, post_headers) do
+    case HTTPoison.post("#{full_perm_path}/scopes/#{scope_id}/admin_role",
+                        post_body,
+                        post_headers,
+                        hackney: [cookie: [post_cookies]]) do
       {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
         case Poison.decode(body) do
         {:ok, decoded_body} ->
@@ -62,8 +71,11 @@ defmodule Marketplace.PermissionManager do
   def get_admin_role_from_scope_id(conn, scope_id) do
     HTTPoison.start
     get_headers = conn.req_headers
+    get_cookies = cookies(conn)
 
-    case HTTPoison.get("#{full_perm_path}/roles", get_headers) do
+    case HTTPoison.get("#{full_perm_path}/roles",
+                       get_headers,
+                       hackney: [cookie: [get_cookies]]) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         case Poison.decode(body) do
           {:ok, decoded_body} ->
@@ -93,8 +105,12 @@ defmodule Marketplace.PermissionManager do
     }
     |> Poison.encode!
     post_headers = conn.req_headers
+    post_cookies = cookies(conn)
 
-    case HTTPoison.post("#{full_perm_path}/accounts/#{account_id}/granted_roles", post_body, post_headers) do
+    case HTTPoison.post("#{full_perm_path}/accounts/#{account_id}/granted_roles",
+                        post_body,
+                        post_headers,
+                        hackney: [cookie: [post_cookies]]) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         case Poison.decode(body) do
         {:ok, decoded_body} ->
@@ -129,8 +145,12 @@ defmodule Marketplace.PermissionManager do
       }}
     |> Poison.encode!
     post_headers = conn.req_headers
+    post_cookies = cookies(conn)
 
-    case HTTPoison.post("#{full_perm_path}/users", post_body, post_headers) do
+    case HTTPoison.post("#{full_perm_path}/users",
+                        post_body,
+                        post_headers,
+                        hackney: [cookie: [post_cookies]]) do
       {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
         case Poison.decode(body) do
         {:ok, decoded_body} ->
@@ -158,8 +178,12 @@ defmodule Marketplace.PermissionManager do
       }}
     |> Poison.encode!
     post_headers = conn.req_headers
+    post_cookies = cookies(conn)
 
-    case HTTPoison.post("#{full_perm_path}/organizations", post_body, post_headers) do
+    case HTTPoison.post("#{full_perm_path}/organizations",
+                        post_body,
+                        post_headers,
+                        hackney: [cookie: [post_cookies]]) do
       {:ok, %HTTPoison.Response{status_code: 201, body: body}} ->
         case Poison.decode(body) do
         {:ok, decoded_body} ->
@@ -187,7 +211,9 @@ defmodule Marketplace.PermissionManager do
     |> Poison.encode!
     post_headers = [{'content-type', 'application/json'}]
 
-    case HTTPoison.post("#{full_perm_path}/sign_in", post_body, post_headers) do
+    case HTTPoison.post("#{full_perm_path}/sign_in",
+                        post_body,
+                        post_headers) do
       {:ok, %HTTPoison.Response{status_code: 200, headers: headers}} ->
         {key, cookie} = Enum.find(headers, fn {x, y} -> x == "set-cookie" end)
         Plug.Conn.put_resp_header(conn, key, cookie)
@@ -196,6 +222,13 @@ defmodule Marketplace.PermissionManager do
         IO.inspect(reason)
         nil
     end
+  end
+
+  defp cookies(conn) do
+    fetch_cookies(conn).cookies
+    |> Map.to_list
+    |> Enum.map(fn {k, v} -> k <> "=" <> v end)
+    |> Enum.reduce("orig=marketplace", fn (c1, c2) -> c1 <> "; " <> c2 end)
   end
 
   defp full_perm_path() do

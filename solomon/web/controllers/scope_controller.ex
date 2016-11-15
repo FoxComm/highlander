@@ -4,6 +4,7 @@ defmodule Solomon.ScopeController do
   alias Solomon.Scope
   alias Solomon.Role
   alias Solomon.ScopeService
+  alias Solomon.PermissionClaimService
 
   @admin_resources ~w(cart order product sku album coupon user org)s
 
@@ -35,7 +36,7 @@ defmodule Solomon.ScopeController do
     case scope do
       {:error, changeset} ->
         conn
-        |> put_status(:forbidden)
+        |> put_status(:unauthorized)
         |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
       _ ->
         render(conn, "show.json", scope: scope)
@@ -63,7 +64,7 @@ defmodule Solomon.ScopeController do
 
   def create_admin_role(conn, %{"id" => id}) do
     role_cs = Role.changeset(%Role{}, %{name: "admin", scope_id: id})
-    case ScopeService.create_role_with_permissions(role_cs, @admin_resources) do
+    case PermissionClaimService.create_role_with_permissions(role_cs, @admin_resources) do
       {:ok, role} ->
         conn
         |> put_status(:created)
