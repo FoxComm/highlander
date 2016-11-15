@@ -12,9 +12,11 @@ import utils.db._
 
 object CartCreator {
 
-  def createCart(
-      admin: User,
-      payload: CreateCart)(implicit db: DB, ec: EC, ac: AC, ctx: OC): DbResultT[CartResponse] = {
+  def createCart(admin: User, payload: CreateCart)(implicit db: DB,
+                                                   ec: EC,
+                                                   ac: AC,
+                                                   ctx: OC,
+                                                   au: AU): DbResultT[CartResponse] = {
 
     def existingCustomerOrNewGuest: DbResultT[CartResponse] =
       (payload.customerId, payload.email) match {

@@ -2,8 +2,10 @@ package testutils.fixtures
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import failures.UserFailures.OrganizationNotFoundByName
 import models._
 import models.account._
+import models.auth.UserToken
 import models.cord._
 import models.inventory.Sku
 import models.location._
@@ -11,11 +13,14 @@ import models.payment.giftcard.GiftCard
 import models.product._
 import payloads.OrderPayloads
 import payloads.PaymentPayloads.GiftCardPayment
+import services.Authenticator.AuthData
+import services.account.AccountManager
 import services.carts._
 import testutils._
 import testutils.fixtures.raw._
 import utils.Money.Currency
-import utils.db._
+import utils.aliases._
+import utils.db.{*, _}
 import utils.seeds.Seeds.Factories
 
 /**
@@ -47,14 +52,26 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   trait EmptyCart_Raw {
     def customer: User
     def storeAdmin: User
+    def cart: Cart                       = _cart
+    def account: Account                 = _account
+    def customerClaims: Account.ClaimSet = _customerClaims
+    def customerAuthData: AuthData[User] =
+      AuthData[User](token = UserToken.fromUserAccount(customer, account, customerClaims),
+                     model = customer,
+                     account = account)
+    private val (_cart, _account, _customerClaims) = for {
+      c ← * <~ {
+           val payload  = OrderPayloads.CreateCart(customerId = customer.accountId.some)
+           val response = CartCreator.createCart(storeAdmin, payload).gimme
+           Carts.mustFindByRefNum(response.referenceNumber).gimme
+         }
+      a ← * <~ Accounts.mustFindById404(c.accountId)
+      organization ← * <~ Organizations
+                      .findByName(TENANT)
+                      .mustFindOr(OrganizationNotFoundByName(TENANT))
+      claims ← * <~ AccountManager.getClaims(c.accountId, organization.scopeId)
 
-    def cart: Cart = _cart
-
-    private val _cart: Cart = {
-      val payload  = OrderPayloads.CreateCart(customerId = customer.accountId.some)
-      val response = CartCreator.createCart(storeAdmin, payload).gimme
-      Carts.mustFindByRefNum(response.referenceNumber).gimme
-    }
+    } yield (c, a, claims)
   }
 
   trait CartWithShipAddress_Raw {
