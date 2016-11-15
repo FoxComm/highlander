@@ -12,6 +12,6 @@
     upload_greenriver_jar: true
     download_flyway: false
   roles:
-    # - { role: dev/phoenix }
-    # - { role: dev/greenriver }
+    - { role: dev/phoenix }
+    - { role: dev/greenriver }
     - { role: prod/db_migrate }
