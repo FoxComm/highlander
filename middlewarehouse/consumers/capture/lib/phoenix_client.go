@@ -20,7 +20,7 @@ type PhoenixClient interface {
 	CreateGiftCards(giftCards []payloads.CreateGiftCardPayload) (*http.Response, error)
 }
 
-func NewPhoenixClient(baseURL, email, password string) *phoenixClient {
+func NewPhoenixClient(baseURL, email, password string) PhoenixClient {
 	return &phoenixClient{
 		baseURL:  baseURL,
 		email:    email,
@@ -73,7 +73,7 @@ func (c *phoenixClient) CapturePayment(capturePayload *CapturePayload) error {
 		return err
 	}
 
-	log.Printf("\n Successfully captured from Phoenix with response: %v", captureResp)
+	log.Printf("Successfully captured from Phoenix with response: %v", captureResp)
 	log.Printf("Updating order state")
 
 	if err := c.UpdateOrder(capturePayload.ReferenceNumber, "shipped", "shipped"); err != nil {
@@ -145,11 +145,7 @@ func (c *phoenixClient) CreateGiftCards(giftCards []payloads.CreateGiftCardPaylo
 	headers := map[string]string{
 		"JWT": c.jwt,
 	}
-	rawOrderResp, err := consumers.Post(url, headers, &giftCards)
-	if err != nil {
-		return rawOrderResp, err
-	}
-	return rawOrderResp, nil
+	return consumers.Post(url, headers, &giftCards)
 }
 
 func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) error {
