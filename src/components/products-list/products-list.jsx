@@ -5,7 +5,8 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { browserHistory } from 'react-router';
-import { autobind } from 'core-decorators';
+import { autobind, debounce } from 'core-decorators';
+import { isElementInViewport } from 'lib/dom-utils';
 
 // styles
 import styles from './products-list.css';
@@ -47,8 +48,32 @@ const productTypes = [
 
 const defaultProductType = productTypes[0];
 
+type State = {
+  shownProducts: {[productId: string]: number},
+}
+
 class ProductsList extends Component {
   props: Props;
+  state: State = {
+    shownProducts: {},
+  };
+  _willUnmount: boolean = false;
+
+  componentDidMount() {
+    window.addEventListener('scroll', this.handleScroll);
+  }
+
+  componentWillUnmount() {
+    this._willUnmount = true;
+    window.removeEventListener('scroll', this.handleScroll);
+  }
+
+  @autobind
+  @debounce(100)
+  handleScroll() {
+    if (this._willUnmount) return;
+    this.trackProductView();
+  }
 
   renderHeader() {
     const props = this.props;
@@ -87,7 +112,7 @@ class ProductsList extends Component {
     );
   }
 
-  getItemList() {
+  renderProducts() {
     return _.map(this.props.list, (item, index) => {
       return (
         <ListItem
@@ -98,6 +123,58 @@ class ProductsList extends Component {
         />
       );
     });
+  }
+
+  trackProductView() {
+    const visibleProducts = this.getNewVisibleProducts();
+    const shownProducts = {};
+    _.each(visibleProducts, item => {
+      const skuId = item.skus[0];
+      shownProducts[item.id] = 1;
+      ga('ec:addImpression', {
+        id: skuId,
+        name: item.title,
+        category: _.get(item, 'tags.0'),
+        list: 'Product List',
+        position: item.index,
+      });
+    });
+    ga('send', 'event', 'UX', 'impression', 'Product List');
+    this.setState({
+      shownProducts: {
+        ...this.state.shownProducts,
+        ...shownProducts,
+      },
+    });
+  }
+
+  getNewVisibleProducts() {
+    const { props } = this;
+    let visibleProducts = [];
+    const { shownProducts } = this.state;
+
+    const products = _.get(props, 'list', []);
+
+    for (let i = 0; i < products.length; i++) {
+      const item = products[i];
+      if (item.id in shownProducts) continue;
+
+      const node = this.refs[`product-${item.id}`].getWrappedInstance().getImageNode();
+      if (node) {
+        if (isElementInViewport(node)) {
+          visibleProducts = [...visibleProducts, {...item, index: i}];
+        }
+      }
+    }
+
+    return visibleProducts;
+  }
+
+  @autobind
+  handleListRendered() {
+    setTimeout(() => {
+      if (!this._willUnmount) this.trackProductView();
+    }, 250);
   }
 
   @autobind
@@ -115,7 +192,7 @@ class ProductsList extends Component {
     const props = this.props;
     const { productType, isLoading } = props;
     const items = props.list && props.list.length > 0
-      ? this.getItemList()
+      ? this.renderProducts()
       : <div styleName="not-found">No products found.</div>;
 
     const type = (productType && !_.isEmpty(productType))
@@ -135,7 +212,7 @@ class ProductsList extends Component {
 
         {isLoading ?
           <Loader /> :
-          <div styleName="list">
+          <div styleName="list" ref={this.handleListRendered}>
             {items}
           </div>}
       </section>

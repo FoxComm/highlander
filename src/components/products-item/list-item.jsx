@@ -36,7 +36,7 @@ type Product = {
   currency: string,
   albums: ?Array<Album> | Object,
   skus: Array<string>,
-  tags: Array<string>,
+  tags?: Array<string>,
   addLineItem: Function,
   toggleCart: Function,
 };
@@ -73,8 +73,12 @@ class ListItem extends React.Component {
     const previewImageUrl = _.get(this.props.albums, [0, 'images', 0, 'src']);
 
     return previewImageUrl
-      ? <img src={previewImageUrl} styleName="preview-image"/>
-      : <ImagePlaceholder/>;
+      ? <img src={previewImageUrl} styleName="preview-image" ref="image" />
+      : <ImagePlaceholder ref="image" />;
+  }
+
+  getImageNode() {
+    return this.refs.image;
   }
 
   @autobind
@@ -85,7 +89,7 @@ class ListItem extends React.Component {
     ga('ec:addProduct', {
       id: skuId,
       name: props.title,
-      category: props.tags[0],
+      category: _.get(props, 'tags.0'),
       position: props.index,
     });
     ga('ec:setAction', 'click', {list: 'Product List'});
@@ -138,4 +142,4 @@ class ListItem extends React.Component {
 export default connect(null, {
   addLineItem,
   toggleCart,
-})(ListItem);
+}, void 0, { withRef: true })(ListItem);
