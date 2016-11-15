@@ -16,8 +16,10 @@ variable "machine_type" {
 variable "machine_role" {
 }
 variable "disk_size" {
+    default = 20
 }
 variable "count" {
+    default = 1
 }
 variable "key_name" {
 }
