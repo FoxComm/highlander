@@ -12,7 +12,7 @@ import SaveCancel from 'components/common/save-cancel';
 import WaitAnimation from 'components/common/wait-animation';
 
 import * as PluginsActions from 'modules/plugins';
-import type { UpdateSettingsPayload } from 'modules/plugins';
+import type { UpdateSettingsPayload, SettingDef } from 'modules/plugins';
 
 type Props = {
   fetchSettings: (name: string) => Promise,
@@ -21,6 +21,7 @@ type Props = {
     name: string,
   },
   settings: Object,
+  schema: Object,
   isFetching: boolean,
 }
 
@@ -41,12 +42,16 @@ function guessType(value) {
   }
 }
 
-function attributesFromSettings(settings: Object): Attributes {
-  return _.reduce(settings, (acc:Attributes, value: any, key: string) => {
-    acc[key] = {
-      t: guessType(value),
-      v: value
-    };
+function attributesFromSettings(settingsWithSchema: Object): Attributes {
+  const settings: Object = settingsWithSchema.settings;
+  const schema: Object = settingsWithSchema.schema;
+
+  return _.reduce(schema, (acc:Attributes, property: SettingDef) => {
+      const value = settings[property.name];
+      acc[property.name] = {
+        t: guessType(value),
+        v: value
+      };
     return acc;
   }, {});
 }
@@ -61,6 +66,7 @@ function settingsFromAttributes(attributes: Attributes): Object {
 function mapStateToProps(state) {
   return {
     settings: state.plugins.settings,
+    schema: state.plugins.schema,
     isFetching: _.get(state.asyncActions, 'fetchPluginSettings.inProgress', null),
   };
 }
@@ -74,6 +80,7 @@ class Plugin extends Component {
 
   state: State = {
     settings: {},
+    schema: {},
   };
 
   componentDidMount() {
@@ -84,9 +91,10 @@ class Plugin extends Component {
     if (pluginName(nextProps) != this.pluginName) {
       this.props.fetchSettings(pluginName(nextProps));
     }
-    if (!_.isEqual(nextProps.settings, this.state.settings)) {
+    if (!_.isEqual(nextProps.settings, this.state.settings) || !_.isEqual(nextProps.schema, this.state.schema)) {
       this.setState({
         settings: nextProps.settings,
+        schema: nextProps.schema
       });
     }
   }
@@ -96,7 +104,7 @@ class Plugin extends Component {
   }
 
   get attributes(): Attributes {
-    return attributesFromSettings(this.state.settings);
+    return attributesFromSettings(this.state);
   }
 
   @autobind

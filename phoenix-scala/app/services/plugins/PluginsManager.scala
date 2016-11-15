@@ -116,4 +116,11 @@ object PluginsManager extends LazyLogging {
     } yield plugin.settings
   }
 
+  def getSettingsWithSchema(
+      name: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[PluginSettingsResponse] = {
+    for {
+      plugin ← * <~ Plugins.findByName(name).mustFindOr(NotFoundFailure404(Plugin, name))
+    } yield PluginSettingsResponse.fromPlugin(plugin)
+  }
+
 }
