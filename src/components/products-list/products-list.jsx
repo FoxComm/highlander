@@ -88,10 +88,11 @@ class ProductsList extends Component {
   }
 
   getItemList() {
-    return _.map(this.props.list, (item) => {
+    return _.map(this.props.list, (item, index) => {
       return (
         <ListItem
           {...item}
+          index={index}
           key={`product-${item.id}`}
           ref={`product-${item.id}`}
         />

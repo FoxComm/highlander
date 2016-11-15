@@ -27,6 +27,7 @@ type Album = {
 
 type Product = {
   id: number,
+  index: number,
   productId: number,
   context: string,
   title: string,
@@ -35,6 +36,7 @@ type Product = {
   currency: string,
   albums: ?Array<Album> | Object,
   skus: Array<string>,
+  tags: Array<string>,
   addLineItem: Function,
   toggleCart: Function,
 };
@@ -52,7 +54,7 @@ class ListItem extends React.Component {
   };
 
   @autobind
-  addToCart () {
+  addToCart() {
     const skuId = this.props.skus[0];
     const quantity = 1;
 
@@ -75,6 +77,23 @@ class ListItem extends React.Component {
       : <ImagePlaceholder/>;
   }
 
+  @autobind
+  handleClick() {
+    const { props } = this;
+    const skuId = props.skus[0];
+
+    ga('ec:addProduct', {
+      id: skuId,
+      name: props.title,
+      category: props.tags[0],
+      position: props.index,
+    });
+    ga('ec:setAction', 'click', {list: 'Product List'});
+
+    // Send click with an event, then send user to product page.
+    ga('send', 'event', 'UX', 'click', 'Product List');
+  }
+
   render(): HTMLElement {
     const {
       productId,
@@ -86,7 +105,7 @@ class ListItem extends React.Component {
 
     return (
       <div styleName="list-item">
-        <Link to={`/products/${productId}`}>
+        <Link onClick={this.handleClick} to={`/products/${productId}`}>
           <div styleName="preview">
             {this.image}
             <div styleName="hover-info">
