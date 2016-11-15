@@ -1,7 +1,7 @@
 ---
 
-- name: Provision TPG Production Backend
-  hosts: tpg-backend
+- name: Provision TPG Backend
+  hosts: '{{hostname}}'
   vars:
     user: '{{ansible_ssh_user}}'
     middlewarehouse_server: middlewarehouse.service.consul:9292
@@ -11,6 +11,11 @@
     upload_phoenix_jar: true
     upload_greenriver_jar: true
     download_flyway: false
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with backend to update"
+      default: "tpg-stage-backend"
+      private: no
   roles:
     - { role: dev/phoenix }
     - { role: dev/greenriver }
