@@ -10,6 +10,8 @@
             [byte-streams :as bs]
             [environ.core :refer [env]]))
 
+(def description "Provides messaging integration with Mailchimp/Mandrill")
+
 (defn parse-int [s]
   (if (integer? s)
     s
@@ -26,16 +28,7 @@
 
 
 (def http-pool (delay (http/connection-pool
-                        {:connection-options {:insecure? true}})))
-
-
-(def plugin-info
-  (delay {:name "fox-notifications"
-          :description "Sends mail, slack notifications on events to customers/storeAdmins"
-          :apiHost @api-host
-          :version "1.0"
-          :apiPort @api-port
-          :schemaSettings settings/schema}))
+                        {:connection-options {:insecure? true}}))) 
 
 
 (def api-server (delay (:api-server env)))
@@ -84,19 +77,25 @@
 
 
 (defn register-plugin
-  []
+  [schema]
   (if @api-server
     (try
-      (let [resp (-> (http/post
-                       (str @api-server "/api/v1/plugins/register")
-                       {:pool @http-pool
-                        :body (json/write-str @plugin-info)
-                        :content-type :json
-                        :headers {"JWT" (authenticate)}})
+      (let [plugin-info {:name "fox-notifications"
+                         :description description
+                         :apiHost @api-host
+                         :version "1.0"
+                         :apiPort @api-port
+                         :schemaSettings schema}
+            resp (-> (http/post
+                           (str @api-server "/api/v1/plugins/register")
+                           {:pool @http-pool
+                            :body (json/write-str plugin-info)
+                            :content-type :json
+                            :headers {"JWT" (authenticate)}})
                      deref
-                     :body
-                     bs/to-string
-                     json/read-str)]
+                         :body
+                         bs/to-string
+                         json/read-str)]
         (settings/update-settings (get resp "settings")))
       (catch Exception e (println "Can't register plugin at phoenix" e)))
     (println "Phoenix address not set, can't register myself into phoenix :(")))

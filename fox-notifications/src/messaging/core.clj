@@ -27,7 +27,6 @@
 
 (def topics ["activities"])
 
-(def admin_server_name (delay (:admin_server_name env)))
 (def kafka-broker (delay (:kafka-broker env)))
 (def schema-registry-url (delay (:schema-registry-url env)))
 
@@ -88,7 +87,7 @@
     (some->>
       (some-> text
           (string/replace #"(<(?!(a\s|/a)).+?>)" " ")
-          (string/replace #"<a\s.+?href=\"(.*?)\".+?>(.+?)</a>" (str "<" @admin_server_name "$1|$2>"))
+          (string/replace #"<a\s.+?href=\"(.*?)\".+?>(.+?)</a>" (str "<" (settings/get :admin_base_url) "$1|$2>"))
           (string/replace #"\p{Zs}" " ")
           (string/split #"\s"))
       (map string/trim)
@@ -120,10 +119,12 @@
         (let [cr (poll! c)]
           (doseq [record cr :let [msg (decode record)]]
             (prn msg)
+            (commit-offsets-async! c {(select-keys record [:topic :partition])
+                                      {:offset (:offset record) :metadata ""}})
             (try
               (mail/handle-activity msg)
-              (commit-offsets-async! c {(select-keys record [:topic :partition])
-                                        {:offset (:offset record) :metadata ""}})
+              ; (commit-offsets-async! c {(select-keys record [:topic :partition])
+              ;                           {:offset (:offset record) :metadata ""}})
               (catch Exception e (println "Caught exception: " e)))))
 
 ;; temporary disabled

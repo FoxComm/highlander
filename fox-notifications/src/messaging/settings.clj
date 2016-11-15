@@ -19,20 +19,10 @@
      :type "string"
      :default ""}
 
-    {:name "order_checkout_text"
-     :title "Order checkout mail text template"
-     :type "string"
-     :default "Your order %s just placed"}
-
     {:name "order_checkout_subject"
      :title "Order Checkout mail subject"
      :type "string"
      :default "Order placed"}
-
-    {:name "order_canceled_text"
-     :title "Order checkout mail text template"
-     :type "string"
-     :default "Your order %s has been canceled"}
 
     {:name "order_canceled_subject"
      :title "Order canceled mail subject"
@@ -47,7 +37,7 @@
     {:name "customer_invintation_subject"
      :title "Customer invintation mail subject"
      :type "string"
-     :default "Registration"} ;; fixme
+     :default ""}
 
     {:name "mandrill_key"
      :title "Mandrill API key"
@@ -59,8 +49,13 @@
      :type "string"
      :default ""}
 
-    {:name "admin_server_name"
-     :title "Admin domain"
+    {:name "admin_base_url"
+     :title "Base URL to admin"
+     :type "string"
+     :default ""}
+
+    {:name "shop_base_url"
+     :title "Base URL to customer site"
      :type "string"
      :default ""}
 
@@ -69,10 +64,10 @@
      :type "string"
      :default ""}
 
-    {:name "slack_webhook_url"
-     :title "Slack webhook url"
-     :type "string"
-     :default ""}
+    ; {:name "slack_webhook_url"
+    ;  :title "Slack webhook url"
+    ;  :type "string"
+    ;  :default ""}
 
     {:name "user_invitation_template"
      :title "User Invitation Mandrill Template"
@@ -101,7 +96,7 @@
 
 
 
-(def store (atom {}))
+(defonce store (atom {}))
 
 (defn update-settings
   [new-settings]

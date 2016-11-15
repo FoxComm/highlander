@@ -12,8 +12,6 @@
     [gws.mandrill.api.templates :as templates]
     [helpers.activities-transforms :as at]))
 
-(def admin_server_name (delay (:admin_server_name env)))
-
 
 ;; mandrill client
 (defn client []
@@ -40,7 +38,7 @@
 
 (defn gen-msg
   [{customer-email :email customer-name :name :as rcpt} vars {:keys [subject text html] :as opts}]
-  (let [base-vars {:fc_domain @admin_server_name
+  (let [base-vars {:main_public_domain (settings/get :main_public_domain)
                    :email_subject subject
                    :update_profile_link (settings/get :update_customer_profile_link)
                    :customer_name customer-name}]
@@ -48,10 +46,10 @@
                 [rcpt]
                 :global_merge_vars (make-tpl-vars (merge base-vars vars))
                 :merge_language "handlebars"
+                :auto_text true
 
                 :from_email (settings/get :from_email)
-                :subject subject
-                :text text})))
+                :subject subject})))
 
 (defn send-template!
   [slug template]
@@ -83,6 +81,7 @@
                       :placed_at (at/date-simple-format (get order "placedAt"))
                       :shipping_method (get-in order ["shippingMethod" "name"])
                       :shipping_address (get order "shippingAddress")
+                      :billing_address (get order "billingAddress")
                       :order_ref order-ref}
 
                      {:subject (settings/get :order_checkout_subject)})]
@@ -99,8 +98,7 @@
    (when (= "canceled" new-state)
      (send-template! (settings/get :order_canceled_template)
                      (gen-msg {:email email :name customer-name}
-                              {:message (format (settings/get :order_canceled_text) order-ref)
-                               :rewards ""}
+                              {:rewards ""}
                               {:subject (settings/get :order_canceled_subject)})))))
 
 (defmethod handle-activity :send_simple_mail
@@ -121,7 +119,7 @@
   (let [email (get-in activity [:data "customer" "email"])
         customer-name (get-in activity [:data "customer" "name"] "")
         customer-id (get-in activity [:data "customer" "id"])
-        reset-password-link (str "http://" @admin_server_name "/reset-password/" customer-id)]
+        reset-password-link (str (settings/get :admin_base_url) "/reset-password/" customer-id)]
     (when (settings/add-new-customers-to-mailchimp?)
       (try
         (mailchimp/create-member-for-list
