@@ -26,6 +26,7 @@ begin
                     sku_form.attributes->>(sku_shadow.attributes->'title'->>'ref'),
                     sku_form.attributes->>(sku_shadow.attributes->'externalId'->>'ref'),
                     sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value',
+                    sku.scope,
                     oli.attributes)::export_line_items)
                     ::jsonb
           end as items
@@ -75,6 +76,7 @@ begin
                     sku_form.attributes->>(sku_shadow.attributes->'title'->>'ref'),
                     sku_form.attributes->>(sku_shadow.attributes->'externalId'->>'ref'),
                     sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value',
+                    sku.scope,
                     cli_skus.attributes)::export_line_items)
                     ::jsonb
           end as items
