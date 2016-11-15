@@ -16,6 +16,7 @@ import EditEmail from './components/profile/blocks/edit-email';
 import ChangePassword from './components/profile/blocks/change-password';
 import Order from './components/profile/blocks/order';
 import StoresPage from './pages/stores/stores-page';
+import HomePage from './pages/home/home-page';
 
 import Checkout from './pages/checkout/checkout';
 import OrderPlaced from './pages/checkout/04-order-placed/order-placed';
@@ -24,7 +25,7 @@ const routes = (
   <Route path="/" component={Site}>
     <Route path="/checkout" component={Checkout} />
     <Route component={StoreFront}>
-      <IndexRoute component={Products} />
+      <IndexRoute component={HomePage} />
       <Route path="/profile" component={Page}>
         <IndexRoute component={Profile} />
         <Route component={ProfileUnit}>
