@@ -7,5 +7,14 @@ prep:
 	mkdir -p $(BUILD_ROOT_PATH)
 	ln -s ${CURDIR}/../.. $(HIGHLANDER_ROOT_PATH)
 
+clean:
+	true
+
 build: prep
 	cd $(BUILD_PATH) && go build -o product-search main.go update_payload.go
+
+docker:
+	true
+
+docker-push:
+	true

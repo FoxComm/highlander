@@ -1,0 +1,18 @@
+---
+# Install Netsil AOC (master)
+- hosts: netsil-aocs
+  tags: netsil-aoc
+  roles:
+    - { role: dev/netsil-aoc }
+
+# Install Netsil collector (agent)
+- hosts: netsil-collectors
+  tags: netsil-collector
+  vars_prompt:
+    - name: "netsil_aoc_master"
+      prompt: "Enter Netsil AOC master hostname:"
+      default: "netsil-master"
+      private: no
+  roles:
+    - { role: dev/netsil-collector }
+    
