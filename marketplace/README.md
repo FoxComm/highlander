@@ -29,11 +29,11 @@ For your convenience, there is already a .env file in the root of this directory
 You can simply run `source .env` and then `mix phoenix.server`
 
 ## Stripe integration
-In order business account to work you should provide stripe private key via STRIPE_PRIVATE_KEY env variable. You can add it to `.env.local` file which would be
+In order business account to work you should provide stripe private key via STRIPE_API_KEY env variable. You can add it to `.env.local` file which would be
 imported on `.env.local` import
 
 ```
-export STRIPE_PRIVATE_KEY=sp_key
+export STRIPE_API_KEY=sp_key
 ```
 It should be a key from Stripe Managed Account
 ### Testing Stripe
