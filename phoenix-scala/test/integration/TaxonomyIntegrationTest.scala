@@ -86,35 +86,35 @@ class TaxonomyIntegrationTest
   "GET v1/taxonomy/:contextName/taxon/:taxonFormId" - {
     "gets taxon" in new FlatTaxonsFixture {
       private val taxonToQuery: Taxon = taxons.head
-      val response                    = taxonApi(taxonToQuery.formId).get.as[SingleTaxonResponse]
-      val responseTaxon               = response.taxon
+      val taxonToQueryName            = taxonNames.head
+
+      val response      = taxonApi(taxonToQuery.formId).get.as[SingleTaxonResponse]
+      val responseTaxon = response.taxon
 
       responseTaxon.id must === (taxonToQuery.formId)
-      responseTaxon.attributes must === (JObject(taxonAttributes.head.toList: _*))
+      responseTaxon.name must === (taxonToQueryName)
     }
   }
 
   "POST v1/taxonomy/:contextName/:taxonomyFormId" - {
     "creates taxon" in new TaxonomyFixture {
-      val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
+      private val taxonName: String = "name"
       val response = taxonomyApi(taxonomy.formId)
-        .createTaxon(CreateTaxonPayload(attributes, None))
+        .createTaxon(CreateTaxonPayload(taxonName, None))
         .as[SingleTaxonResponse]
       val createdTaxon = response.taxon
-      createdTaxon.attributes must === (JObject(attributes.toList: _*))
+      createdTaxon.name must === (taxonName)
 
       val taxons = queryGetTaxonomy(taxonomy.formId).taxons
       taxons.size must === (1)
       taxons.head.id must === (createdTaxon.id)
-      taxons.head.attributes must === (createdTaxon.attributes)
+      taxons.head.name must === (createdTaxon.name)
     }
 
     "creates taxon at position" in new FlatTaxonsFixture {
-      val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
-
       val response = taxonomyApi(taxonomy.formId)
         .createTaxon(
-            CreateTaxonPayload(attributes = attributes,
+            CreateTaxonPayload("name",
                                location = TaxonLocation(parent = None, position = 1.some).some))
         .as[SingleTaxonResponse]
 
@@ -126,11 +126,9 @@ class TaxonomyIntegrationTest
     }
 
     "creates taxon at last position" in new FlatTaxonsFixture {
-      val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
-
       val response = taxonomyApi(taxonomy.formId)
         .createTaxon(
-            CreateTaxonPayload(attributes = attributes,
+            CreateTaxonPayload("name",
                                location = TaxonLocation(parent = None, position = None).some))
         .as[SingleTaxonResponse]
 
@@ -142,8 +140,6 @@ class TaxonomyIntegrationTest
     }
 
     "creates child taxon" in new HierarchyTaxonsFixture {
-      val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
-
       val sibling  = links.filter(_.parentIndex.isDefined).head
       val parent   = links.filter(_.index == sibling.parentIndex.get).head
       val children = links.filter(link ⇒ link.parentIndex.contains(parent.index))
@@ -152,8 +148,7 @@ class TaxonomyIntegrationTest
       val parentFormId  = Taxons.mustFindById404(parent.taxonId).gimme.formId
 
       val response = taxonomyApi(taxonomy.formId)
-        .createTaxon(
-            CreateTaxonPayload(attributes, TaxonLocation(parentFormId.some, Some(0)).some))
+        .createTaxon(CreateTaxonPayload("name", TaxonLocation(parentFormId.some, Some(0)).some))
         .as[SingleTaxonResponse]
       val createdTerm = response.taxon
 
@@ -164,15 +159,13 @@ class TaxonomyIntegrationTest
     }
 
     "fails if position is invalid" in new HierarchyTaxonsFixture {
-      val attributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
-
       val sibling = links.filter(_.parentIndex.isDefined).head
       val parent  = links.filter(_.index == sibling.parentIndex.get).head
 
       val parentFormId = Taxons.mustFindById404(parent.taxonId).gimme.formId
 
       val resp = taxonomyApi(taxonomy.formId).createTaxon(
-          CreateTaxonPayload(attributes,
+          CreateTaxonPayload("name",
                              Some(TaxonLocation(Some(parentFormId), Some(Integer.MAX_VALUE)))))
 
       resp.status must === (StatusCodes.BadRequest)

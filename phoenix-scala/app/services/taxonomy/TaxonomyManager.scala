@@ -117,9 +117,7 @@ object TaxonomyManager {
       implicit ec: EC,
       oc: OC,
       au: AU): DbResultT[SingleTaxonResponse] = {
-    val form   = ObjectForm.fromPayload(Taxon.kind, payload.attributes)
-    val shadow = ObjectShadow.fromPayload(payload.attributes)
-
+    val (form, shadow) = payload.formAndShadow.tupled
     for {
       _        ← * <~ payload.validate
       taxonomy ← * <~ Taxonomies.mustFindByFormId404(taxonFormId)
@@ -178,13 +176,10 @@ object TaxonomyManager {
       oc: OC,
       db: DB): DbResultT[SingleTaxonResponse] = {
     for {
-      _     ← * <~ payload.validate
-      taxon ← * <~ Taxons.mustFindByFormId404(taxonId)
-      _     ← * <~ failIf(taxon.archivedAt.isDefined, TaxonIsArchived(taxonId))
-      newTaxon ← * <~ (payload.attributes match {
-                      case Some(attributes) ⇒ updateTaxonAttributes(taxon, attributes)
-                      case _                ⇒ DbResultT.good(taxon)
-                    })
+      _        ← * <~ payload.validate
+      taxon    ← * <~ Taxons.mustFindByFormId404(taxonId)
+      _        ← * <~ failIf(taxon.archivedAt.isDefined, TaxonIsArchived(taxonId))
+      newTaxon ← * <~ updateTaxonAttributes(taxon, payload)
       _ ← * <~ payload.location.fold(DbResultT.unit)(location ⇒
                updateTaxonomyHierarchy(taxon, location).meh)
       taxonFull ← * <~ ObjectManager.getFullObject(DbResultT.good(newTaxon))
@@ -242,12 +237,11 @@ object TaxonomyManager {
 
     } yield {}
 
-  private def updateTaxonAttributes(taxon: Taxon, newAttributes: Map[String, Json])(
-      implicit ec: EC,
-      db: DB,
-      oc: OC): DbResultT[Taxon] = {
-    val form   = ObjectForm.fromPayload(Taxon.kind, newAttributes)
-    val shadow = ObjectShadow.fromPayload(newAttributes)
+  private def updateTaxonAttributes(
+      taxon: Taxon,
+      payload: UpdateTaxonPayload)(implicit ec: EC, db: DB, oc: OC): DbResultT[Taxon] = {
+
+    val (form, shadow) = payload.formAndShadow.tupled
 
     for {
       fullTaxon ← * <~ ObjectUtils.getFullObject(DbResultT.good(taxon))

@@ -2,6 +2,10 @@ package payloads
 
 import cats.data.ValidatedNel
 import failures.Failure
+import models.objects.ObjectUtils._
+import models.objects.{FormAndShadow, ObjectForm, ObjectShadow}
+import models.taxonomy.Taxon
+import payloads.ObjectPayloads.{AttributesBuilder, StringField}
 import utils.Validation
 import utils.aliases._
 
@@ -20,15 +24,32 @@ object TaxonomyPayloads {
         .map(_ ⇒ this)
   }
 
-  case class CreateTaxonPayload(attributes: AttributesMap, location: Option[TaxonLocation])
+  case class CreateTaxonPayload(name: String, location: Option[TaxonLocation])
       extends Validation[CreateTaxonPayload] {
     override def validate: ValidatedNel[Failure, CreateTaxonPayload] =
       location.map(_.validate).getOrElse(Validation.ok).map(_ ⇒ this)
+
+    def formAndShadow: FormAndShadow = {
+
+      val jsonBuilder: AttributesBuilder =
+        ObjectPayloads.AttributesBuilder(StringField("name", name))
+
+      (ObjectForm(kind = Taxon.kind, attributes = jsonBuilder.objectForm),
+       ObjectShadow(attributes = jsonBuilder.objectShadow))
+    }
   }
 
-  case class UpdateTaxonPayload(attributes: Option[AttributesMap], location: Option[TaxonLocation])
+  case class UpdateTaxonPayload(name: Option[String], location: Option[TaxonLocation])
       extends Validation[UpdateTaxonPayload] {
     override def validate: ValidatedNel[Failure, UpdateTaxonPayload] =
       location.map(_.validate).getOrElse(Validation.ok).map(_ ⇒ this)
+
+    def formAndShadow: FormAndShadow = {
+      val jsonBuilder: AttributesBuilder =
+        ObjectPayloads.optionalAttributes(name.map(StringField("name", _)))
+
+      (ObjectForm(kind = Taxon.kind, attributes = jsonBuilder.objectForm),
+       ObjectShadow(attributes = jsonBuilder.objectShadow))
+    }
   }
 }

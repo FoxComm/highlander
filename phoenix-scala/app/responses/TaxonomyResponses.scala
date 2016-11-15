@@ -3,7 +3,7 @@ package responses
 import com.github.tminglei.slickpg.LTree
 import models.objects.FullObject
 import models.taxonomy._
-import utils.IlluminateAlgorithm
+import utils.{IlluminateAlgorithm, JsonFormatters}
 import utils.aliases.Json
 
 object TaxonomyResponses {
@@ -42,15 +42,17 @@ object TaxonomyResponses {
       SingleTaxonResponse(taxonomyId, TaxonResponse.build(taxon), parentTaxonId)
   }
 
-  case class TaxonResponse(id: Int, attributes: Json, children: TaxonList)
+  case class TaxonResponse(id: Int, name: String, children: TaxonList)
 
   object TaxonResponse {
+    implicit val formats = JsonFormatters.phoenixFormats
 
     def build(taxon: FullObject[Taxon]): TaxonResponse = {
-      TaxonResponse(
-          taxon.model.formId,
-          IlluminateAlgorithm.projectAttributes(taxon.form.attributes, taxon.shadow.attributes),
-          Seq())
+      TaxonResponse(taxon.model.formId,
+                    IlluminateAlgorithm
+                      .get("name", taxon.form.attributes, taxon.shadow.attributes)
+                      .extract[String],
+                    Seq())
     }
 
     def buildTree(nodes: Seq[LinkedTerm]): TaxonList =
@@ -60,13 +62,14 @@ object TaxonomyResponses {
       val (heads, tail)   = nodesSorted.span { case (_, link) ⇒ link.path.level == level }
       val headsByPosition = heads.sortBy { case (_, link)     ⇒ link.position }
       headsByPosition.map {
-        case (term, link) ⇒
-          TaxonResponse(
-              term.model.formId,
-              IlluminateAlgorithm.projectAttributes(term.form.attributes, term.shadow.attributes),
-              buildTree(level + 1, tail.filter {
-                case (_, lnk) ⇒ lnk.parentIndex.contains(link.index)
-              }))
+        case (taxon, link) ⇒
+          TaxonResponse(taxon.model.formId,
+                        IlluminateAlgorithm
+                          .get("name", taxon.form.attributes, taxon.shadow.attributes)
+                          .extract[String],
+                        buildTree(level + 1, tail.filter {
+                          case (_, lnk) ⇒ lnk.parentIndex.contains(link.index)
+                        }))
       }
     }
   }
