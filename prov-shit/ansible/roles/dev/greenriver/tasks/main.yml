@@ -1,5 +1,9 @@
 ---
 
+- name: Copy Mapping Command
+  template: src=create_es_mappings.sh dest=/usr/local/bin/create_es_mappings.sh mode="u+x,g+x,o+x"
+  sudo: true
+
 - name: Create ES Mappings
   sudo: yes
   command: /usr/local/bin/create_es_mappings.sh
