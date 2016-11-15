@@ -8,9 +8,9 @@
   sudo: true
   roles:
     # master roles
-    - { role: swarm/pack/consul/server }
-    - { role: swarm/pack/confluence }
-    - { role: swarm/pack/mesos/master }
-    - { role: swarm/pack/zookeeper }
-    - { role: swarm/pack/marathon }
-    - { role: swarm/pack/docker_registry }
+    - { role: swarm/pack/vendor/consul/server }
+    - { role: swarm/pack/vendor/confluence }
+    - { role: swarm/pack/vendor/mesos/master }
+    - { role: swarm/pack/vendor/zookeeper }
+    - { role: swarm/pack/vendor/marathon }
+    - { role: swarm/pack/vendor/docker_registry }

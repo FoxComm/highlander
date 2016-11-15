@@ -18,8 +18,8 @@
 
   sudo: true
   roles:
-    - { role: swarm/pack/base }
-    - { role: swarm/pack/consul/base }
-    - { role: swarm/pack/java }
-    - { role: swarm/pack/mesos/base }
-    - { role: swarm/pack/docker }
+    - { role: swarm/pack/vendor/base }
+    - { role: swarm/pack/vendor/consul/base }
+    - { role: swarm/pack/vendor/java }
+    - { role: swarm/pack/vendor/mesos/base }
+    - { role: swarm/pack/vendor/docker }

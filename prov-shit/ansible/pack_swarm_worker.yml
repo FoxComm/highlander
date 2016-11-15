@@ -8,5 +8,5 @@
   sudo: true
   roles:
     # worker roles
-    - { role: swarm/pack/consul/agent }
-    - { role: swarm/pack/mesos/worker }
+    - { role: swarm/pack/vendor/consul/agent }
+    - { role: swarm/pack/vendor/mesos/worker }

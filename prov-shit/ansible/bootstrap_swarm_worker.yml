@@ -10,7 +10,7 @@
   sudo: true
   roles:
     # worker roles
-    - { role: swarm/provision/consul/agent }
-    - { role: swarm/provision/mesos/worker }
+    - { role: swarm/provision/vendor/consul/agent }
+    - { role: swarm/provision/vendor/mesos/worker }
     # reload consul
-    - { role: swarm/provision/consul/reload }
+    - { role: swarm/provision/vendor/consul/reload }

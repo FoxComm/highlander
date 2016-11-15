@@ -10,6 +10,6 @@
   sudo: true
   roles:
     # storage roles
-    - { role: swarm/provision/consul/agent }
+    - { role: swarm/provision/vendor/consul/agent }
     # reload consul
-    - { role: swarm/provision/consul/reload }
+    - { role: swarm/provision/vendor/consul/reload }

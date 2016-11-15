@@ -8,10 +8,10 @@
   sudo: true
   roles:
     # master roles
-    - { role: swarm/pack/consul/server }
-    - { role: swarm/pack/confluence }
-    - { role: swarm/pack/mesos/master }
-    - { role: swarm/pack/zookeeper }
-    - { role: swarm/pack/marathon }
+    - { role: swarm/pack/vendor/consul/server }
+    - { role: swarm/pack/vendor/confluence }
+    - { role: swarm/pack/vendor/mesos/master }
+    - { role: swarm/pack/vendor/zookeeper }
+    - { role: swarm/pack/vendor/marathon }
     # worker roles
-    - { role: swarm/pack/mesos/worker }
+    - { role: swarm/pack/vendor/mesos/worker }
