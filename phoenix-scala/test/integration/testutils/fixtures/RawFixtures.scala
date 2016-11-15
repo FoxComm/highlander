@@ -20,7 +20,7 @@ import testutils._
 import testutils.fixtures.raw._
 import utils.Money.Currency
 import utils.aliases._
-import utils.db.{*, _}
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 /**
@@ -59,19 +59,20 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
       AuthData[User](token = UserToken.fromUserAccount(customer, account, customerClaims),
                      model = customer,
                      account = account)
-    private val (_cart, _account, _customerClaims) = for {
-      c ← * <~ {
-           val payload  = OrderPayloads.CreateCart(customerId = customer.accountId.some)
-           val response = CartCreator.createCart(storeAdmin, payload).gimme
-           Carts.mustFindByRefNum(response.referenceNumber).gimme
-         }
-      a ← * <~ Accounts.mustFindById404(c.accountId)
-      organization ← * <~ Organizations
-                      .findByName(TENANT)
-                      .mustFindOr(OrganizationNotFoundByName(TENANT))
-      claims ← * <~ AccountManager.getClaims(c.accountId, organization.scopeId)
-
-    } yield (c, a, claims)
+    private val (_cart, _account, _customerClaims) = {
+        val payload  = OrderPayloads.CreateCart(customerId = customer.accountId.some)
+        val response = CartCreator.createCart(storeAdmin, payload).gimme
+        for {
+            cart ← * <~ {
+                Carts.mustFindByRefNum(response.referenceNumber).gimme
+            }
+            account ← * <~ Accounts.mustFindById404(cart.accountId)
+            organization ← * <~ Organizations
+                .findByName(TENANT)
+                .mustFindOr(OrganizationNotFoundByName(TENANT))
+            claims ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
+        } yield (cart, account, claims)
+    }
   }
 
   trait CartWithShipAddress_Raw {

@@ -75,12 +75,11 @@ object CartQueries extends CordQueries {
       (cart, foundOrCreated) = result
       fullOrder ← * <~ CartResponse.fromCart(cart, grouped)
       _         ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)
-      fullOrderReadjusted ← * <~ {
-                             if (au.isGuest) {
+      fullOrderReadjusted = {
+                             if (au.isGuest)
                                fullOrder.copy(paymentMethods = Seq())
-                             } else {
+                             else
                                fullOrder
-                             }
                            }
     } yield fullOrderReadjusted
 
