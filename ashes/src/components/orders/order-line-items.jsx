@@ -24,7 +24,7 @@ const OrderLineItems = (props: Props): Element => {
 
   const renderRow = (row: SkuItem, index: number) => {
     return (
-      <TableRow key={`${index}`}>
+      <TableRow key={row.sku}>
         <TableCell><img src={row.imagePath} /></TableCell>
         <TableCell>{row.name}</TableCell>
         <TableCell><Link to="sku-details" params={{skuCode: row.sku}}>{row.sku}</Link></TableCell>
