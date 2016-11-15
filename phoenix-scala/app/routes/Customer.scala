@@ -177,10 +177,17 @@ object Customer {
                 }
               }
             } ~
-            pathPrefix("orders" / cordRefNumRegex) { refNum ⇒
+            pathPrefix("orders") {
               (get & pathEnd) {
                 getOrFailures {
-                  OrderQueries.findOneByUser(refNum, auth.model)
+                  OrderQueries.findAllByUser(auth.model)
+                }
+              } ~
+              (get & pathPrefix(cordRefNumRegex) & pathEnd) { refNum ⇒
+                (get & pathEnd) {
+                  getOrFailures {
+                    OrderQueries.findOneByUser(refNum, auth.model)
+                  }
                 }
               }
             } ~

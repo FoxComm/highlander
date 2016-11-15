@@ -58,10 +58,6 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 	order := fullOrder.Order
 	lineItems := order.LineItems
 	skus := lineItems.SKUs
-
-	log.Printf("before condition")
-	log.Printf("%t", !((order.OrderState == orderStateFulfillmentStarted && justGiftCards(skus)) ||
-		(order.OrderState == orderStateShipped && !justGiftCards(skus))))
 	if !((order.OrderState == orderStateFulfillmentStarted && justGiftCards(skus)) ||
 		(order.OrderState == orderStateShipped && !justGiftCards(skus))) {
 		return nil

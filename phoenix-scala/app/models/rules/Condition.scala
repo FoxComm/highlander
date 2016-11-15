@@ -27,6 +27,8 @@ object Condition {
   case object Contains    extends Operator
   case object NotContains extends Operator
   case object StartsWith  extends Operator
+  case object InArray     extends Operator
+  case object NotInArray  extends Operator
 
   object Operator extends ADT[Operator] {
     def types = sealerate.values[Operator]
@@ -60,6 +62,8 @@ object Condition {
           case Contains    ⇒ comp.contains(v)
           case NotContains ⇒ !comp.contains(v)
           case StartsWith  ⇒ comp.startsWith(v)
+          case InArray     ⇒ v.split(", ").contains(comp)
+          case NotInArray  ⇒ !v.split(", ").contains(comp)
           case _           ⇒ false
         }
       }

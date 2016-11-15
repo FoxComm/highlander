@@ -9,10 +9,8 @@ RUN apt-get install -y  \
     libpqxx-4.0
 
 RUN mkdir /isaac
-RUN mkdir /certs
 ADD run_isaac.sh /isaac/
 ADD build/src/isaac/isaac /isaac/
-ADD public_key.pem /certs/
 
 WORKDIR /isaac
 

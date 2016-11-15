@@ -19,6 +19,8 @@ defmodule Solomon.Router do
     resources "/accounts", AccountController do 
       resources "/granted_roles", AccountRoleController
     end
+    post "/sign_in", UserController, :sign_in
     resources "/users", UserController
+    get "/ping", Ping, :ping
   end
 end
