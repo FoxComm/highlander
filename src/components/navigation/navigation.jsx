@@ -42,7 +42,7 @@ class Navigation extends Component {
   getNavUrl(category : ?Category) {
     let url;
 
-    if (category == undefined || category.name === 'ALL') {
+    if (category == undefined) {
       url = '/';
     } else {
       const dashedName = category.name.replace(/\s/g, '-');
@@ -60,10 +60,7 @@ class Navigation extends Component {
       const dashedName = item.name.replace(/\s/g, '-');
       const key = `category-${dashedName}`;
       const url = this.getNavUrl(item);
-      const isActive =
-        path.match(new RegExp(dashedName, 'i')) ||
-        path === '/' && dashedName === 'ALL';
-
+      const isActive = path.match(new RegExp(dashedName, 'i'));
       const linkClasses = classNames(styles['item-link'], {
         [styles.active]: isActive,
       });

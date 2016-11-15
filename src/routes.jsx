@@ -25,8 +25,7 @@ const routes = (
   <Route path="/" component={Site}>
     <Route path="/checkout" component={Checkout} />
     <Route component={StoreFront}>
-      <IndexRoute component={Products} />
-      <Route path="/home" component={HomePage} name="home" />
+      <IndexRoute component={HomePage} />
       <Route path="/profile" component={Page}>
         <IndexRoute component={Profile} />
         <Route component={ProfileUnit}>
