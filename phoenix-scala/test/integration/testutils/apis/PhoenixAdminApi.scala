@@ -642,16 +642,16 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   case class taxonApi(taxonId: Int)(implicit ctx: OC) {
-    def get = GET(s"v1/taxonomy/${ctx.name}/taxon/$taxonId")
+    def get = GET(s"v1/taxon/${ctx.name}/$taxonId")
     def update(payload: UpdateTaxonPayload) =
-      PATCH(s"v1/taxonomy/${ctx.name}/taxon/$taxonId", payload)
-    def delete = DELETE(s"v1/taxonomy/${ctx.name}/taxon/$taxonId")
+      PATCH(s"v1/taxon/${ctx.name}/$taxonId", payload)
+    def delete = DELETE(s"v1/taxon/${ctx.name}/$taxonId")
 
     def assignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC): HttpResponse =
-      PATCH(s"v1/taxonomy/${ctx.name}/taxon/$taxonId/product/$productFormId")
+      PATCH(s"v1/taxon/${ctx.name}/$taxonId/product/$productFormId")
 
     def unassignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC): HttpResponse =
-      DELETE(s"v1/taxonomy/${ctx.name}/taxon/$taxonId/product/$productFormId")
+      DELETE(s"v1/taxon/${ctx.name}/$taxonId/product/$productFormId")
   }
 
   object notesApi {
