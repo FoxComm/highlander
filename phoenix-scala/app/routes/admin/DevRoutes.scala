@@ -53,7 +53,7 @@ object DevRoutes {
     val stream      = getClass.getResourceAsStream("/version")
     val versionFile = scala.io.Source.fromInputStream(stream)
     try {
-      versionFile.getLines().toSeq.mkString("\n")
+      versionFile.getLines.toSeq.mkString("\n")
     } catch {
       case _: Throwable ⇒ "No version file found!"
     }
