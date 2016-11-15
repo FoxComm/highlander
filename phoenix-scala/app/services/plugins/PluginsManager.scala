@@ -22,15 +22,12 @@ object PluginsManager extends LazyLogging {
   private def fetchSchemaSettings(
       plugin: Plugin,
       payload: RegisterPluginPayload,
-      foundOrCreated: FoundOrCreated)(implicit ec: EC): DbResultT[SettingsSchema] = {
-    if (payload.schemaSettings.isEmpty &&
-        ((plugin.version != payload.version) || foundOrCreated == Created)) {
+      foundOrCreated: FoundOrCreated)(implicit ec: EC): DbResultT[SettingsSchema] =
+    payload.schemaSettings.fold {
       implicit val formats = JsonFormatters.phoenixFormats
       val req              = host(plugin.apiHost, plugin.apiPort) / "_settings" / "schema"
       DbResultT.fromDbio(DBIO.from(Http(req OK as.json4s.Json).map(_.extract[SettingsSchema])))
-    } else
-      DbResultT.good(plugin.schemaSettings)
-  }
+    }(DbResultT.good(_))
 
   def uploadNewSettingsToPlugin(plugin: Plugin)(implicit ec: EC): Future[String] = {
     val rawReq = host(plugin.apiHost, plugin.apiPort) / "_settings" / "upload"
