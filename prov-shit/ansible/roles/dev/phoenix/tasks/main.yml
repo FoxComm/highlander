@@ -1,9 +1,7 @@
 ---
 
-- include_vars: "{{item}}"
-  with_first_found:
-    - aws.yml
-    - stripe.yml
+- include_vars: aws.yml
+- include_vars: stripe.yml
 
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
