@@ -48,25 +48,23 @@ provider "aws" {
     region     = "${var.region}"
 }
 
-module "network" {
-    source         = "../../modules/aws/net"
+module "bastion" {
+    source          = "../../modules/aws/server"
     // generic variables
-    datacenter     = "${var.datacenter}"
-    setup          = "${var.setup}"
-    vpc_cidr_block = "${var.vpc_cidr_block}"
-}
-
-resource "aws_s3_bucket" "docker_registry_bucket" {
-    bucket = "${var.datacenter}-${var.setup}-docker"
-    acl    = "private"
-
-    tags {
-        Name        = "${var.datacenter}-${var.setup}-docker"
-        Datacenter  = "${var.datacenter}"
-        Environment = "${var.setup}"
-    }
-
-    policy = "${file(var.policy_file)}"
+    zone            = "${var.zone}"
+    datacenter      = "${var.datacenter}"
+    setup           = "${var.setup}"
+    network         = "subnet-ba2c3ede"
+    // resources variables
+    image           = "ami-a9d276c9" # ubuntu 16.04 lts
+    machine_type    = "t2.small"
+    machine_role    = "bastion-server"
+    key_name        = "${var.key_name}"
+    security_groups = ["sg-8b0472f2"]
+    public_ip       = true
+    // provisioner variables
+    ssh_user        = "${var.ssh_user}"
+    ssh_private_key = "${var.ssh_private_key}"
 }
 
 //module "amigo" {
