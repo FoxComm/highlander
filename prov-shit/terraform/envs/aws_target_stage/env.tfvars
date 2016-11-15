@@ -1,6 +1,8 @@
 # provider variables
-access_key            = "AKIAIOVFZKMXSV4TNGSQ"
-secret_key            = "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"
+#access_key            = "AKIAIOVFZKMXSV4TNGSQ" # Pavel
+access_key            = "AKIAJFK434BFCPTJC54A" # Max
+#secret_key            = "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" # Pavel
+secret_key            = "fbxVsvZMQGZ3u5jCCvVFIiufPo8iIIhhLap07f/e" # Max
 region                = "us-west-2"
 
 # generic variables
