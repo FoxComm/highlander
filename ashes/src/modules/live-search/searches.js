@@ -57,11 +57,12 @@ export default function makeSearches(namespace, dataActions, searchTerms, scope,
 
   const addSearchFilters = (filters, initial = false) => {
     return dispatch => {
-      dispatch(submitFilters(filters, initial));
-      dispatch(dataActions.updateState({ from: 0 }));
+      const searchState = { from: 0 };
       if (isExistsQueryContext(filters)) {
-        dispatch(dataActions.updateState({ sortBy: null }));
+        searchState.sortBy = null;
       }
+      dispatch(submitFilters(filters, initial));
+      dispatch(dataActions.updateState(searchState));
       if (!initial || !skipInitialFetch) {
         dispatch(dataActions.fetch());
       }
