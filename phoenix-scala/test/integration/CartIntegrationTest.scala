@@ -51,9 +51,6 @@ class CartIntegrationTest
     }
 
     "returns correct image path" in new Fixture {
-
-      implicit val au = storeAdminAuthData
-
       val imgUrl = "testImgUrl";
       (for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
@@ -463,9 +460,6 @@ class CartIntegrationTest
       .copy(adminDisplayName = "High", conditions = highConditions.some, code = "LOW")
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = ({
-
-      implicit val au = storeAdminAuthData
-
       for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
         _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))

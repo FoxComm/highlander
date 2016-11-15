@@ -128,8 +128,6 @@ class SkuIntegrationTest
       SkuPayload(attrMap + ("code" → codeJson))
     }
 
-    implicit val au = storeAdminAuthData
-
     val (sku, skuForm, skuShadow) = (for {
       simpleSku       ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
       skuForm         ← * <~ ObjectForms.create(simpleSku.create)

@@ -509,9 +509,7 @@ class ProductIntegrationTest
                                                              (skuGreenLargeCode, "green", "large"))
 
     val (product, skus, variants) = {
-
-      implicit val au = storeAdminAuthData
-      val scope       = LTree(au.token.scope)
+      val scope = LTree(au.token.scope)
 
       for {
         // Create the SKUs.

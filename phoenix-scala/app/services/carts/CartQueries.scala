@@ -75,13 +75,7 @@ object CartQueries extends CordQueries {
       (cart, foundOrCreated) = result
       fullOrder ← * <~ CartResponse.fromCart(cart, grouped)
       _         ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)
-      fullOrderReadjusted = {
-                             if (au.isGuest)
-                               fullOrder.copy(paymentMethods = Seq())
-                             else
-                               fullOrder
-                           }
-    } yield fullOrderReadjusted
+    } yield if (au.isGuest) fullOrder.copy(paymentMethods = Seq()) else fullOrder
 
   private def logCartCreation(foundOrCreated: FoundOrCreated,
                               cart: CartResponse,

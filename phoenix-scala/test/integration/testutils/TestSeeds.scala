@@ -40,6 +40,8 @@ trait TestSeeds extends TestFixtureBase {
                      model = storeAdmin,
                      account = storeAdminAccount)
 
+    implicit def au: AuthData[User] = storeAdminAuthData
+
     private val (_storeAdminAccount, _storeAdmin, _storeAdminUser, _storeAdminClaims) = (for {
       maybeAdmin ← * <~ Users
                     .findByEmail(Factories.storeAdmin.email.getOrElse(""))

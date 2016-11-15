@@ -317,15 +317,9 @@ class TaxonomyIntegrationTest
     productTaxons.map(_.id) mustBe empty
   }
 
-  trait FlatTaxonsFixture extends StoreAdmin_Seed with FlatTaxons_Baked {
-    def au = storeAdminAuthData
-  }
+  trait FlatTaxonsFixture extends StoreAdmin_Seed with FlatTaxons_Baked
 
-  trait HierarchyTaxonsFixture extends StoreAdmin_Seed with HierarchyTaxons_Baked {
-    def au = storeAdminAuthData
-  }
+  trait HierarchyTaxonsFixture extends StoreAdmin_Seed with HierarchyTaxons_Baked
 
-  trait TaxonomyFixture extends StoreAdmin_Seed with Taxonomy_Raw {
-    def au = storeAdminAuthData
-  }
+  trait TaxonomyFixture extends StoreAdmin_Seed with Taxonomy_Raw
 }

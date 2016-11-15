@@ -78,9 +78,6 @@ class SaveForLaterIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed with Customer_Seed {
-
-    implicit val au = storeAdminAuthData
-
     val (product, productContext) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       product        ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)

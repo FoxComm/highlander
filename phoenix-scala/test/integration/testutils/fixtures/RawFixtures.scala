@@ -12,6 +12,7 @@ import models.location._
 import models.payment.giftcard.GiftCard
 import models.product._
 import payloads.OrderPayloads
+import payloads.OrderPayloads.CreateCart
 import payloads.PaymentPayloads.GiftCardPayment
 import services.Authenticator.AuthData
 import services.account.AccountManager
@@ -52,27 +53,14 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   trait EmptyCart_Raw {
     def customer: User
     def storeAdmin: User
-    def cart: Cart                       = _cart
-    def account: Account                 = _account
-    def customerClaims: Account.ClaimSet = _customerClaims
-    def customerAuthData: AuthData[User] =
-      AuthData[User](token = UserToken.fromUserAccount(customer, account, customerClaims),
-                     model = customer,
-                     account = account)
-    private val (_cart, _account, _customerClaims) = {
-        val payload  = OrderPayloads.CreateCart(customerId = customer.accountId.some)
-        val response = CartCreator.createCart(storeAdmin, payload).gimme
-        for {
-            cart ← * <~ {
-                Carts.mustFindByRefNum(response.referenceNumber)
-            }
-            account ← * <~ Accounts.mustFindById404(cart.accountId)
-            organization ← * <~ Organizations
-                .findByName(TENANT)
-                .mustFindOr(OrganizationNotFoundByName(TENANT))
-            claims ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
-        } yield (cart, account, claims)
-    }
+    implicit def au: AU
+
+    def cart: Cart = _cart
+
+    private val _cart = (for {
+      response ← * <~ CartCreator.createCart(storeAdmin, CreateCart(customer.accountId.some))
+      cart     ← * <~ Carts.mustFindByRefNum(response.referenceNumber)
+    } yield cart).gimme
   }
 
   trait CartWithShipAddress_Raw {
@@ -127,9 +115,6 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   trait Product_Raw extends StoreAdmin_Seed {
 
     val simpleProduct: Product = {
-
-      implicit val au = storeAdminAuthData
-
       for {
         spd ← * <~ Mvp.insertProduct(ctx.id,
                                      SimpleProductData(title = "Test Product",
@@ -156,8 +141,7 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
     def simpleProduct: Product
 
     val productWithVariants: (Product, SimpleCompleteVariantData, Seq[Sku]) = {
-      implicit val au = storeAdminAuthData
-      val scope       = LTree(au.token.scope)
+      val scope = LTree(au.token.scope)
 
       val testSkus = Seq(SimpleSku("SKU-TST", "SKU test", 1000, Currency.USD, active = true),
                          SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, active = true))

@@ -34,7 +34,6 @@ class CartCreatorIntegrationTest
       }
 
       "returns current cart if customer already has one" in new Fixture {
-        implicit val au = storeAdminAuthData
         CartCreator.createCart(storeAdmin, CreateCart(customerId = customer.accountId.some)).gimme
 
         cartsApi
