@@ -7,19 +7,11 @@
 }
 
 .header-wrap {
-  background: url('/images/categories/Cat_Placeholder.jpg') center no-repeat;
+  background: url('/images/categories/Cat_Placeholder_2x.jpg') center no-repeat;
   text-align: center;
   display: table;
   width: 100%;
   background-size: cover;
-}
-
-@media (-webkit-min-device-pixel-ratio: 2),
-  (min-resolution: 192dpi) {
-  .header-wrap {
-    background: url('/images/categories/Cat_Placeholder_2x.jpg') center no-repeat;
-    background-size: cover;
-  }
 }
 
 .text-wrap {

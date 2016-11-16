@@ -13,7 +13,7 @@ import styles from './home-page.css';
 
 const mainBlocks = [
   {
-    imageUrl: '/images/home-page/Home_Page_Holidays_2x.jpg',
+    imageUrl: '/images/home-page/Home_Page_Holidays_NEW_2x.jpg',
     description: 'We’ve got you covered',
     title: 'Entertaining for the holidays?',
     action: { title: 'Shop holiday picks', link: '/holiday' },
@@ -25,7 +25,7 @@ const mainBlocks = [
     action: { title: 'Shop our favorites', link: '/favorites' },
   },
   {
-    imageUrl: '/images/home-page/Home_Page_Best_Sellers_2x.jpg',
+    imageUrl: '/images/home-page/Home_Page_Best_Sellers_NEW_2x.jpg',
     description: 'Our tried and true favorites you keep coming back for',
     title: 'Best sellers',
     action: { title: 'Shop best sellers', link: '/best-sellers' },
