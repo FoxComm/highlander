@@ -5,6 +5,6 @@ RUN apt-get clean
 
 RUN mkdir -p /gift-card-consumer
 WORKDIR /gift-card-consumer
-COPY gift-cards /gift-card-consumer
+COPY gift-card-consumer /gift-card-consumer
 
 CMD ["/gift-card-consumer/gift-cards"] 
