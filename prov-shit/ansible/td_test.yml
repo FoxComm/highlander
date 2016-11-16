@@ -40,7 +40,7 @@
     zookeepers: zk://zookeeper.service.consul:2181
     phoenix_host: phoenix.service.consul
     phoenix_server: phoenix.service.consul:9090
-    storefront_server: storefront.service.consul
+    storefront_server: storefront.service.consul:4041
     api_server: test-topdrawer.foxcommerce.com
     self_host: test-topdrawer.foxcommerce.com
     ashes_server_name: test-topdrawer.foxcommerce.com
