@@ -159,15 +159,14 @@
   (handle-new-customer activity))
 
 (defmethod handle-activity :store_admin_created
-  ;; TODO: change type of activity when phoenix will be updated
   [activity]
   (let [data (:data activity)
         email (get-in data ["storeAdmin" "email"])
         new-admin-name (get-in data ["storeAdmin" "name"])
-        store-admin-name (get-in data ["admin" "admin" "name"])
+        store-admin-name (get-in data ["admin" "name"])
         msg (gen-msg {:email email :name new-admin-name}
                      {:user_being_invited new-admin-name
-                      :name_of_retailer (settings/get :retailer_name) ;; move to settings
+                      :name_of_retailer (settings/get :retailer_name)
                       :user_that_invited_you store-admin-name}
 
                      {:subject (settings/get :admin_invintation_subject)})]

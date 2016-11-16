@@ -119,12 +119,10 @@
         (let [cr (poll! c)]
           (doseq [record cr :let [msg (decode record)]]
             (prn msg)
-            (commit-offsets-async! c {(select-keys record [:topic :partition])
-                                      {:offset (:offset record) :metadata ""}})
             (try
               (mail/handle-activity msg)
-              ; (commit-offsets-async! c {(select-keys record [:topic :partition])
-              ;                           {:offset (:offset record) :metadata ""}})
+              (commit-offsets-async! c {(select-keys record [:topic :partition])
+                                        {:offset (:offset record) :metadata ""}})
               (catch Exception e (println "Caught exception: " e)))))
 
 ;; temporary disabled

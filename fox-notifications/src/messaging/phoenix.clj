@@ -1,6 +1,5 @@
 (ns messaging.phoenix
   (:require [aleph.http :as http]
-            [clj-http.client :as hclient]
             [compojure.core :refer :all]
             [compojure.route :as route]
             [messaging.settings :as settings]
