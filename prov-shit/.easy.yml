@@ -41,6 +41,9 @@ shortcuts:
   - name: Bootstrap Consul Alerts
     alias: consul_alerts.yml
     target: ansible/bootstrap_consul_alerts.yml
+  - name: Bootstrap Docker Clean
+    alias: docker_clean.yml
+    target: ansible/bootstrap_docker_clean.yml
   - name: Bootstrap Marathon Alerts
     alias: marathon_alerts.yml
     target: ansible/bootstrap_marathon_alerts.yml
@@ -150,9 +153,6 @@ shortcuts:
   - name: Staging Highlander
     alias: staging
     target: terraform/base/gce_staging
-  - name: Staging Stable
-    alias: stable
-    target: terraform/base/gce_staging_stable
   - name: Staging Gatling
     alias: gatling
     target: terraform/base/gce_gatling
