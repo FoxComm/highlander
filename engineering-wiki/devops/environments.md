@@ -33,6 +33,7 @@ Navigation:
 #### Staging
 
 * Consul: http://10.0.0.6:8500/ui/
+* Kibana: http://10.0.0.6:5601
 * Mesos: http://10.0.0.6:5050/#/
 * Marathon: http://10.0.0.6:8080/ui/#/apps
 * Web UI: https://stage-tpg.foxcommerce.com
@@ -40,6 +41,7 @@ Navigation:
 #### Production
 
 * Consul: http://docker-tpg.foxcommerce.com:8500/ui/
+* Kibana: http://docker-tpg.foxcommerce.com:5601
 * Mesos: http://docker-tpg.foxcommerce.com:5050/#/
 * Marathon: http://docker-tpg.foxcommerce.com:8080/ui/#/apps
 * Web UI: https://tpg.foxcommerce.com
