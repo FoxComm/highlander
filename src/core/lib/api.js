@@ -18,7 +18,7 @@ class FoxApi extends Api {
   foxRequest(method, uri, data, options = {}) {
     const patchedHeaders = {
       ...(options.headers),
-      'Cache-control': 'no-cache, no-store',
+      'Cache-control': 'no-cache',
       Pragma: 'no-cache',
       Expires: 0,
     };
