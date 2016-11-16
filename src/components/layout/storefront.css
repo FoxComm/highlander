@@ -10,10 +10,11 @@
 }
 
 .content-container {
-  flex: 1;
+  flex: 1 1 auto;
   margin-top: 222px;
   background: var(--background-color);
   z-index: 0;
+  overflow: auto;
 }
 
 .categories {

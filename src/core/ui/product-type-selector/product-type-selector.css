@@ -108,7 +108,7 @@
   text-align: center;
   margin-right: 20px;
   cursor: pointer;
-  flex: 1;
+  flex: 1 1 auto;
   display: inline-block;
 
   &.active {
