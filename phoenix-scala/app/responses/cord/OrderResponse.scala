@@ -25,6 +25,7 @@ case class OrderResponse(referenceNumber: String,
                          customer: Option[CustomerResponse.Root] = None,
                          shippingMethod: ShippingMethodsResponse.Root,
                          shippingAddress: AddressResponse,
+                         billingAddress: Option[AddressResponse] = None,
                          paymentMethods: Seq[_ <: CordResponsePayments] = Seq.empty,
                          // Order-specific
                          orderState: Order.State,
@@ -35,6 +36,13 @@ case class OrderResponse(referenceNumber: String,
     extends ResponseItem
 
 object OrderResponse {
+
+  private def getBillingAddress(
+      paymentMethods: Seq[_ <: CordResponsePayments]): Option[AddressResponse] = {
+    paymentMethods.collectFirst {
+      case ccPayment: CordResponseCreditCardPayment ⇒ ccPayment.address
+    }
+  }
 
   def fromOrder(order: Order, grouped: Boolean)(implicit db: DB,
                                                 ec: EC): DbResultT[OrderResponse] =
@@ -66,6 +74,7 @@ object OrderResponse {
           } yield CustomerResponse.build(c, cu),
           shippingMethod = shippingMethod,
           shippingAddress = shippingAddress,
+          billingAddress = getBillingAddress(paymentMethods),
           paymentMethods = paymentMethods,
           orderState = order.state,
           shippingState = order.getShippingState,

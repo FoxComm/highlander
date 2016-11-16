@@ -13,7 +13,7 @@
                  [com.fasterxml.jackson.core/jackson-core "2.7.3"]
                  [com.fasterxml.jackson.core/jackson-databind "2.7.3"]
                  ;; http stack
-                 [aleph "0.4.1-beta7"]
+                 [aleph "0.4.2-alpha8"]
                  [compojure "1.5.1"]
                  [ring/ring-core "1.5.0"]
                  ;; email
@@ -24,7 +24,7 @@
                  [pjson "0.3.2"]
                  [com.taoensso/nippy "2.11.1"]
                  [environ "1.0.2"]
-                 [manifold "0.1.4"]
+                 [manifold "0.1.5"]
                  [boot-environ "1.0.2"]
                  [com.taoensso/nippy "2.11.1"]
                  [org.danielsz/system "0.3.0-SNAPSHOT"]
@@ -33,14 +33,13 @@
                  [org.clojure/core.async "0.2.374"]])
 
 (task-options!
- pom {:project 'foxcomm_messaging
-      :version "0.1.0"}
+  pom {:project 'foxcomm_messaging
+       :version "0.1.0"}
 
-; aot {:namespace #{'messaging.main}}
-     aot {:all true}
- jar {:main 'messaging.main
-      :file "messaging.jar"}
- target {:dir #{"target"}})
+  aot {:all true}
+  jar {:main 'messaging.main
+       :file "messaging.jar"}
+  target {:dir #{"target"}})
 
 (set! *warn-on-reflection* true)
 
