@@ -5,17 +5,19 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
-	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 )
 
 type PhoenixClient interface {
 	Authenticate() error
-	CapturePayment(activities.ISiteActivity) error
+	CapturePayment(capturePayload *CapturePayload) error
 	IsAuthenticated() bool
 	UpdateOrder(refNum, shipmentState, orderState string) error
+	CreateGiftCards(giftCards []payloads.CreateGiftCardPayload) (*http.Response, error)
 }
 
 func NewPhoenixClient(baseURL, email, password string) PhoenixClient {
@@ -49,13 +51,8 @@ func (c *phoenixClient) ensureAuthentication() error {
 	return nil
 }
 
-func (c *phoenixClient) CapturePayment(activity activities.ISiteActivity) error {
+func (c *phoenixClient) CapturePayment(capturePayload *CapturePayload) error {
 	if err := c.ensureAuthentication(); err != nil {
-		return err
-	}
-
-	capture, err := NewCapturePayload(activity)
-	if err != nil {
 		return err
 	}
 
@@ -64,7 +61,7 @@ func (c *phoenixClient) CapturePayment(activity activities.ISiteActivity) error 
 		"JWT": c.jwt,
 	}
 
-	rawCaptureResp, err := consumers.Post(url, headers, &capture)
+	rawCaptureResp, err := consumers.Post(url, headers, &capturePayload)
 	if err != nil {
 		return err
 	}
@@ -79,7 +76,7 @@ func (c *phoenixClient) CapturePayment(activity activities.ISiteActivity) error 
 	log.Printf("Successfully captured from Phoenix with response: %v", captureResp)
 	log.Printf("Updating order state")
 
-	if err := c.UpdateOrder(capture.ReferenceNumber, "shipped", "shipped"); err != nil {
+	if err := c.UpdateOrder(capturePayload.ReferenceNumber, "shipped", "shipped"); err != nil {
 		log.Printf("Enable to update order with error %s", err.Error())
 		return err
 	}
@@ -140,6 +137,17 @@ func (c *phoenixClient) Authenticate() error {
 	return nil
 }
 
+func (c *phoenixClient) CreateGiftCards(giftCards []payloads.CreateGiftCardPayload) (*http.Response, error) {
+	if err := c.ensureAuthentication(); err != nil {
+		return nil, err
+	}
+	url := fmt.Sprintf("%s/v1/customer-gift-cards", c.baseURL)
+	headers := map[string]string{
+		"JWT": c.jwt,
+	}
+	return consumers.Post(url, headers, &giftCards)
+}
+
 func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) error {
 	if err := c.ensureAuthentication(); err != nil {
 		return err
@@ -167,7 +175,7 @@ func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) er
 		return err
 	}
 
-	log.Printf("Successfully updated orders in Phoenix with error: %v", orderResp)
+	log.Printf("Successfully updated orders in Phoenix  %v", orderResp)
 
 	return nil
 }

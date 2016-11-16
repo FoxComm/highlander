@@ -19,3 +19,4 @@
 
 - name: Wait for Phoenix to become available
   wait_for: host={{phoenix_host}} port={{phoenix_port}}
+  ignore_errors: true

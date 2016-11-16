@@ -40,6 +40,7 @@
     self_host: stage.foxcommerce.com
     ashes_server_name: stage.foxcommerce.com
     storefront_server_name: stage.foxcommerce.com
+    with_base_seeds: true
   tags:
     - frontend
   roles:

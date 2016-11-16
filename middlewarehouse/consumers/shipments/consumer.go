@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/highlander/middlewarehouse/shared"
 	"github.com/FoxComm/metamorphosis"
 )
 
@@ -44,7 +45,7 @@ func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 		return nil
 	}
 
-	fullOrder, err := NewFullOrderFromActivity(activity)
+	fullOrder, err := shared.NewFullOrderFromActivity(activity)
 	if err != nil {
 		return fmt.Errorf("Unable to decode order from activity with error %s", err.Error())
 	}

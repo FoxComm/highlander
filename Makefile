@@ -53,6 +53,11 @@ $(DOCKERDIRS): REPO = $(@:docker-%=%)
 $(DOCKERDIRS):
 	$(MAKE) -C $(REPO) docker
 
+docker-push: $(DOCKERPUSHDIRS)
+$(DOCKERPUSHDIRS): REPO = $(@:docker-push-%=%)
+$(DOCKERPUSHDIRS):
+	$(MAKE) -C $(REPO) docker-push
+
 docker-all: $(DOCKERDIRS_ALL)
 $(DOCKERDIRS_ALL): REPO = $(@:docker-all-%=%)
 $(DOCKERDIRS_ALL):
