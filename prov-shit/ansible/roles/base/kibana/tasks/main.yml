@@ -1,21 +1,35 @@
 ---
 
 - name: Download Kibana
-  get_url: >
-    url=https://download.elasticsearch.org/kibana/kibana/{{kibana_name}}.zip
-    dest=/usr/local/src/{{kibana_name}}.zip
-  sudo: true
+  get_url: url={{kibana_download_url}} dest={{home}}/{{kibana_archive}}
 
-- name: Extract and install Kibana
-  shell: unzip /usr/local/src/{{kibana_name}}.zip -d {{kibana_dir}}
-  sudo: true
+- name: Unzip Kibana
+  unarchive: src={{home}}/{{kibana_archive}} dest={{home}} copy=no
+
+- name: Make Kibana Working Directory
+  file: path={{kibana_dir}} state=directory
+
+- name: Copy Kibana to Working Directory
+  shell: mv {{home}}/{{kibana_name}}/* {{kibana_dir}}/
+
+- name: Remove Kibana Download Directory
+  file: path={{home}}/{{kibana_name}} state=absent
+
+- name: Remove Kibana Archive
+  file: path={{home}}/{{kibana_archive}} state=absent
+
+- name: Copy Kibana Config
+  template: src=kibana.yml dest={{kibana_dir}}/config/kibana.yml
 
 - name: Copy Kibana service
   template: src=kibana.service.j2 dest={{dest_services}}/kibana.service
 
 - name: Reload Systemd for Kibana
-  sudo: yes
   command: systemctl daemon-reload
 
 - name: Restart Kibana
   service: name=kibana state=restarted
+
+- name: Copy Consul Service File
+  template: src=kibana.json dest="/etc/consul.d/kibana.json"
+  notify: reload consul

@@ -2,7 +2,8 @@ package responses.plugins
 
 import models.plugins.Plugin
 import java.time.Instant
-import models.plugins.PluginSettings.SettingsValues
+
+import models.plugins.PluginSettings.{SettingsSchema, SettingsValues}
 import utils.db
 import utils.aliases._
 
@@ -25,6 +26,12 @@ object PluginCommonResponses {
                  version = plugin.version,
                  createdAt = plugin.createdAt)
     }
+  }
+
+  case class PluginSettingsResponse(settings: SettingsValues, schema: SettingsSchema)
+  object PluginSettingsResponse {
+    def fromPlugin(plugin: Plugin): PluginSettingsResponse =
+      PluginSettingsResponse(plugin.settings, plugin.schemaSettings)
   }
 
   type ListPluginsAnswer = Seq[PluginInfo]

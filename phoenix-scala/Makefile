@@ -1,5 +1,5 @@
 DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
-DOCKER_TAG ?= phoenix 
+DOCKER_TAG ?= phoenix
 DOCKER_BRANCH ?= master
 
 build:
