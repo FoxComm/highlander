@@ -11,7 +11,7 @@
       default: "tpg-stage-amigo"
       private: no
   roles:
-    - { role: dev/kibana, sudo: yes }
+    - { role: base/kibana, sudo: yes }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
