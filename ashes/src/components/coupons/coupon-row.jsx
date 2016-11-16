@@ -27,10 +27,13 @@ const setCellContents = (coupon: Object, field: string) => {
     case 'currentCarts':
       return _.get(coupon, field, 0);
     case 'codes':
-      const codes = _.get(coupon, field, []);
-      const firstCode = codes[0];
-      return coupon.codes.length === 1 ? firstCode :
-        <span>{firstCode} <span styleName="text-gray">+{codes.length - 1}</span></span>;
+      const codes = _.get(coupon, field) || [];
+      if (codes.length > 1) {
+        return (
+          <span>{codes[0]} <span styleName="text-gray">+{codes.length - 1}</span></span>
+        );
+      }
+      return codes[0];
     case 'state':
       return <RoundedPill text={activeStatus(coupon)} />;
     default:
