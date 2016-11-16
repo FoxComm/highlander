@@ -4,22 +4,6 @@
   synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
   sudo: true
 
-- name: Delete Phoenix Gatling Resources
-  file: path="{{phoenix_dir}}/gatling-classes" state=absent
-  sudo: true
-
-- name: Delete Phoenix Gatling Results
-  file: path="{{phoenix_dir}}/gatling-results" state=absent
-  sudo: true
-
-- name: Synchronize Phoenix Gatling Resources
-  synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes
-  sudo: true
-
-- name: Create Directory for Gatling results
-  file: path="{{phoenix_dir}}/gatling-results" state=directory owner="{{user}}" mode="0777"
-  sudo: true
-
 - name: Seed Phoenix Database
   shell: docker run --network host -t {{docker_registry}}:5000/phoenix:{{docker_branch}} java -Dphoenix.env={{phoenix_env}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp {{phoenix_jar}} {{seeds_cmd}}
   sudo: true
