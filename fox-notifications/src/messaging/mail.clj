@@ -116,9 +116,9 @@
 
 (defn handle-new-customer
   [activity]
-  (let [email (get-in activity [:data "customer" "email"])
-        customer-name (get-in activity [:data "customer" "name"] "")
-        customer-id (get-in activity [:data "customer" "id"])
+  (let [email (get-in activity [:data "user" "email"])
+        customer-name (get-in activity [:data "user" "name"] "")
+        customer-id (get-in activity [:data "user" "id"])
         reset-password-link (str (settings/get :admin_base_url) "/reset-password/" customer-id)]
     (when (settings/add-new-customers-to-mailchimp?)
       (try
@@ -134,10 +134,8 @@
 
    (send-template! (settings/get :customer_created_template)
                    (gen-msg {:email email :name customer-name}
-                            {:reset_password_link reset-password-link
-                             :customer_name customer-name
-                             :rewards ""}
-                            {:subject (settings/get :customer_invintation_subject)}))))
+                            {}
+                            {:subject (settings/get :customer_registration_subject)}))))
 
 
 (defmethod handle-activity :customer_registered

@@ -34,8 +34,8 @@
      :type "string"
      :default "Invintation"}
 
-    {:name "customer_invintation_subject"
-     :title "Customer invintation mail subject"
+    {:name "customer_registration_subject"
+     :title "Customer registration mail subject"
      :type "string"
      :default ""}
 

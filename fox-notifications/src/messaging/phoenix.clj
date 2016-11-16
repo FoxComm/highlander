@@ -28,7 +28,7 @@
 
 
 (def http-pool (delay (http/connection-pool
-                        {:connection-options {:insecure? true}}))) 
+                        {:connection-options {:insecure? true}})))
 
 
 (def api-server (delay (:api-server env)))
