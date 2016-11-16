@@ -15,7 +15,7 @@
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
-    - { role: dev/phoenix_db }
+    - { role: dev/db_phoenix }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
