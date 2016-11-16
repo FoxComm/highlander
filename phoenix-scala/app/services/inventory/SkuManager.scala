@@ -65,14 +65,16 @@ object SkuManager {
 
   def archiveById(skuId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
     for {
-      fullSku     ← * <~ ObjectManager.getFullObject(SkuManager.mustFindSkuByContextAndId(oc.id, skuId))
-      _           ← * <~ fullSku.model.mustNotBePresentInCarts
-      archivedSku ← * <~ Skus.update(fullSku.model, fullSku.model.copy(archivedAt = Some(Instant.now)))
-      albumLinks  ← * <~ SkuAlbumLinks.filter(_.leftId === archivedSku.id).result
-      _           ← * <~ albumLinks.map { link ⇒
-                             SkuAlbumLinks.deleteById(link.id,
-                                                      DbResultT.unit,
-                                                      id ⇒ NotFoundFailure400(SkuAlbumLinks, id))
+      fullSku ← * <~ ObjectManager.getFullObject(
+                   SkuManager.mustFindSkuByContextAndId(oc.id, skuId))
+      _ ← * <~ fullSku.model.mustNotBePresentInCarts
+      archivedSku ← * <~ Skus.update(fullSku.model,
+                                     fullSku.model.copy(archivedAt = Some(Instant.now)))
+      albumLinks ← * <~ SkuAlbumLinks.filter(_.leftId === archivedSku.id).result
+      _ ← * <~ albumLinks.map { link ⇒
+           SkuAlbumLinks.deleteById(link.id,
+                                    DbResultT.unit,
+                                    id ⇒ NotFoundFailure400(SkuAlbumLinks, id))
          }
       albums       ← * <~ ImageManager.getAlbumsForSkuInner(archivedSku.formId, oc)
       productLinks ← * <~ ProductSkuLinks.filter(_.rightId === archivedSku.id).result

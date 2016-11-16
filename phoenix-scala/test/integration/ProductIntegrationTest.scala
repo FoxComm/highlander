@@ -389,7 +389,8 @@ class ProductIntegrationTest
           cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse].referenceNumber
 
         cartsApi(cartRefNum).lineItems
-          .add(Seq(UpdateLineItemsPayload(skuGreenSmallCode, 1)))
+          .add(
+              Seq(UpdateLineItemsPayload(skus.filter(_.code == skuGreenSmallCode).head.formId, 1)))
           .mustBeOk()
 
         productsApi(product.formId)

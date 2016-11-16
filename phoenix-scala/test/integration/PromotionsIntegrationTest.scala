@@ -3,6 +3,7 @@ import java.time.Instant
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import models.objects.{ObjectContext, ObjectUtils}
+import models.inventory.{Sku}
 import models.promotion.Promotion.{Auto, Coupon}
 import models.promotion._
 import org.json4s.JsonAST._
@@ -16,6 +17,8 @@ import payloads.PromotionPayloads._
 import responses.CouponResponses.CouponResponse
 import responses.PromotionResponses.PromotionResponse
 import responses.cord.CartResponse
+import services.inventory.SkuManager
+import services.product.ProductManager
 import services.promotion.PromotionManager
 import testutils.PayloadHelpers.tv
 import testutils._
@@ -110,6 +113,15 @@ class PromotionsIntegrationTest
 
   "Should apply order percent off promo+coupon to cart" - {
 
+    def getSkuByProduct(contextId: Int, productId: Int): Sku =
+      ({
+        for {
+          product  ← * <~ ProductManager.getProduct(productId)
+          firstSku ← * <~ product.skus.head
+          fullSku  ← * <~ SkuManager.mustFindSkuByContextAndId(contextId, firstSku.id)
+        } yield fullSku
+      }).gimme
+
     implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(1.0)
 
     // Yields coupon code
@@ -160,12 +172,13 @@ class PromotionsIntegrationTest
     "from admin UI" in new StoreAdmin_Seed with Customer_Seed with ProductAndSkus_Baked {
 
       private val couponCode = setupPromoAndCoupon()
+      val sku                = getSkuByProduct(simpleProduct.contextId, simpleProduct.formId)
 
       private val cartRefNum =
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
 
       private val cartTotal = cartsApi(cartRefNum).lineItems
-        .add(Seq(UpdateLineItemsPayload("TEST", 1)))
+        .add(Seq(UpdateLineItemsPayload(sku.formId, 1)))
         .asTheResult[CartResponse]
         .totals
         .total
@@ -183,11 +196,11 @@ class PromotionsIntegrationTest
     "from storefront UI" in new StoreAdmin_Seed with Customer_Seed with ProductAndSkus_Baked {
 
       private val couponCode = setupPromoAndCoupon()
+      val sku                = getSkuByProduct(simpleProduct.contextId, simpleProduct.formId)
 
-      private val cartTotal = POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload("TEST", 1)))
-        .asTheResult[CartResponse]
-        .totals
-        .total
+      private val cartTotal = POST(
+          "v1/my/cart/line-items",
+          Seq(UpdateLineItemsPayload(sku.formId, 1))).asTheResult[CartResponse].totals.total
 
       private val cartWithCoupon = POST(s"v1/my/cart/coupon/$couponCode").asTheResult[CartResponse]
 

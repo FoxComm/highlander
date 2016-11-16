@@ -160,18 +160,18 @@ class CartIntegrationTest
 
     "should successfully remove line items with empty attributes" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val refreshedCart = cartsApi(cart.refNum).lineItems
-        .add(Seq(UpdateLineItemsPayload("SKU-YAX", 2, Some(JObject()))))
-        .asTheResult[CartResponse]
+      val sku             = Mvp.getProductTuple(product).gimme.sku
+      val addPayload      = Seq(UpdateLineItemsPayload(sku.formId, 2, Some(JObject())))
+      val subtractPayload = Seq(UpdateLineItemsPayload(sku.formId, -1))
+      val refreshedCart   = cartsApi(cart.refNum).lineItems.add(addPayload).asTheResult[CartResponse]
 
-      val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1))
       val skus = cartsApi(cart.refNum).lineItems
         .update(subtractPayload)
         .asTheResult[CartResponse]
         .lineItems
         .skus
       skus must have size 1
-      skus.map(_.sku).headOption.value must === ("SKU-YAX")
+      skus.map(_.skuCode).headOption.value must === ("SKU-YAX")
       skus.map(_.quantity).headOption.value must === (1)
     }
 

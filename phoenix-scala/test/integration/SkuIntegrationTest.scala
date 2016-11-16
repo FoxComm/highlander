@@ -115,10 +115,10 @@ class SkuIntegrationTest
       val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
 
       cartsApi(cart.referenceNumber).lineItems
-        .add(Seq(UpdateLineItemsPayload(sku.code, 1)))
+        .add(Seq(UpdateLineItemsPayload(sku.formId, 1)))
         .mustBeOk()
 
-      skusApi(sku.code).archive().mustFailWith400(SkuIsPresentInCarts(sku.code))
+      skusApi(sku.formId).archive().mustFailWith400(SkuIsPresentInCarts(sku.code))
     }
   }
 
@@ -149,7 +149,7 @@ class SkuIntegrationTest
 
   trait FixtureWithProduct extends Fixture {
     private val simpleProd = SimpleProductData(title = "Test Product",
-                                               code = "TEST",
+                                               skuCode = "TEST",
                                                description = "Test product description",
                                                image = "image.png",
                                                price = 5999)
