@@ -1,14 +1,12 @@
 package failures
 
-import utils.friendlyClassName
-
 import models.payment.creditcard._
 
 object CaptureFailures {
 
-  case class SkuNotFoundInOrder(sku: String, refNum: String) extends Failure {
+  case class SkuNotFoundInOrder(skuCode: String, skuId: Int, refNum: String) extends Failure {
     override def description =
-      s"line item with sku=$sku not found in order with referenceNumber=$refNum"
+      s"line item with sku=$skuCode(id=$skuId) not found in order with referenceNumber=$refNum"
   }
 
   case class SkuMissingPrice(sku: String) extends Failure {
