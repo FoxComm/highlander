@@ -25,7 +25,7 @@
   sudo: true
   args:
     chdir: "{{phoenix_dir}}"
-  when: with_base_seeds
+  when: with_base_seeds is defined and with_base_seeds
 
 - name: Gatling Seed Db
   shell: docker run --network host -t {{docker_registry}}:5000/phoenix:{{docker_branch}} java -Dphoenix.env={{phoenix_env}} -Dapp.baseUrl=http://{{phoenix_server}} -Dhttp.interface={{phoenix_host}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp {{phoenix_jar}} {{gatling_oneshot_seeds_cmd}}
