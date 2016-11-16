@@ -41,7 +41,8 @@ resource "aws_instance" "server" {
     subnet_id                   = "${var.network}"
 
     tags                        = {
-        Name = "${join("-", compact(list(var.datacenter, var.setup, var.machine_role, lookup(map("1",""), format("%s", var.count), format("%d", count.index)))))}"
+        Name = "${var.datacenter}-${var.setup}-${var.machine_role}-${var.count}-${count.index}"
+        owner = "fox"
     }
 
     ami                         = "${var.image}"
