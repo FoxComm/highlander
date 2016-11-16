@@ -73,6 +73,7 @@ function mapStateToProps(state) {
 
 type State = {
   settings: Object,
+  schema: Object,
 }
 
 class Plugin extends Component {
