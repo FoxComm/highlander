@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
+import * as tracking from 'lib/analythics';
 
 // components
 import Shipping from './01-shipping/shipping';
@@ -72,7 +73,9 @@ class Checkout extends Component {
   };
 
   componentDidMount() {
-    this.props.fetchCart();
+    this.props.fetchCart().then(() => {
+      tracking.checkoutStart(this.props.cart.lineItems);
+    });
     this.props.hideCart();
 
     this.checkScroll();
