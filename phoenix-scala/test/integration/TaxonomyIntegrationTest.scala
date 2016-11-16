@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import failures.TaxonomyFailures._
 import models.objects.ObjectForm
-import models.taxonomy._
+import models.taxonomy.{Taxon ⇒ ModelTaxon, _}
 import org.json4s.JsonDSL._
 import org.json4s._
 import payloads.TaxonomyPayloads._
@@ -24,11 +24,11 @@ class TaxonomyIntegrationTest
     with TaxonomySeeds
     with PhoenixAdminApi {
 
-  def findTaxonsById(taxons: TaxonList, id: Int): Option[TaxonResponse] =
+  def findTaxonsById(taxons: TaxonList, id: Int): Option[TaxonTreeResponse] =
     taxons
-      .find(_.id == id)
+      .find(_.taxon.id == id)
       .orElse(
-          taxons.map(t ⇒ findTaxonsById(t.children, id)).find(_.isDefined).flatten
+          taxons.map(t ⇒ findTaxonsById(t.children.toList, id)).find(_.isDefined).flatten
       )
 
   def queryGetTaxonomy(formId: Int): TaxonomyResponse =
@@ -78,15 +78,15 @@ class TaxonomyIntegrationTest
       val allLinks: Seq[TaxonomyTaxonLink] =
         TaxonomyTaxonLinks.filter(_.id.inSet(links.map(_.id))).result.gimme
       allLinks.map(_.archivedAt).filter(_.isEmpty) mustBe empty
-      val allTaxons: Seq[Taxon] = Taxons.filter(_.id.inSet(taxons.map(_.id))).result.gimme
+      val allTaxons: Seq[ModelTaxon] = Taxons.filter(_.id.inSet(taxons.map(_.id))).result.gimme
       allTaxons.map(_.archivedAt).filter(_.isEmpty) mustBe empty
     }
   }
 
   "GET v1/taxonomy/:contextName/taxon/:taxonFormId" - {
     "gets taxon" in new FlatTaxonsFixture {
-      private val taxonToQuery: Taxon = taxons.head
-      val taxonToQueryName            = taxonNames.head
+      private val taxonToQuery: ModelTaxon = taxons.head
+      val taxonToQueryName                 = taxonNames.head
 
       val response      = taxonApi(taxonToQuery.formId).get.as[SingleTaxonResponse]
       val responseTaxon = response.taxon
@@ -107,8 +107,8 @@ class TaxonomyIntegrationTest
 
       val taxons = queryGetTaxonomy(taxonomy.formId).taxons
       taxons.size must === (1)
-      taxons.head.id must === (createdTaxon.id)
-      taxons.head.name must === (createdTaxon.name)
+      taxons.head.taxon.id must === (createdTaxon.id)
+      taxons.head.taxon.name must === (createdTaxon.name)
     }
 
     "creates taxon at position" in new FlatTaxonsFixture {
@@ -120,9 +120,9 @@ class TaxonomyIntegrationTest
 
       val newTaxons = queryGetTaxonomy(taxonomy.formId).taxons
 
-      newTaxons.map(_.id) must contain theSameElementsInOrderAs Seq(taxons.head.formId,
-                                                                    response.taxon.id,
-                                                                    taxons(1).formId)
+      newTaxons.map(_.taxon.id) must contain theSameElementsInOrderAs Seq(taxons.head.formId,
+                                                                          response.taxon.id,
+                                                                          taxons(1).formId)
     }
 
     "creates taxon at last position" in new FlatTaxonsFixture {
@@ -134,9 +134,9 @@ class TaxonomyIntegrationTest
 
       val newTaxons = queryGetTaxonomy(taxonomy.formId).taxons
 
-      newTaxons.map(_.id) must contain theSameElementsInOrderAs Seq(taxons.head.formId,
-                                                                    taxons(1).formId,
-                                                                    response.taxon.id)
+      newTaxons.map(_.taxon.id) must contain theSameElementsInOrderAs Seq(taxons.head.formId,
+                                                                          taxons(1).formId,
+                                                                          response.taxon.id)
     }
 
     "creates child taxon" in new HierarchyTaxonsFixture {
@@ -150,12 +150,12 @@ class TaxonomyIntegrationTest
       val response = taxonomyApi(taxonomy.formId)
         .createTaxon(CreateTaxonPayload("name", TaxonLocation(parentFormId.some, Some(0)).some))
         .as[SingleTaxonResponse]
-      val createdTerm = response.taxon
+      val createdTaxon = response.taxon
 
       val newTaxons      = queryGetTaxonomy(taxonomy.formId).taxons
       val responseParent = findTaxonsById(newTaxons, parentFormId).get
       responseParent.children.size must === (children.size + 1)
-      responseParent.children.map(_.id) must contain(createdTerm.id)
+      responseParent.children.map(_.taxon.id) must contain(createdTaxon.id)
     }
 
     "fails if position is invalid" in new HierarchyTaxonsFixture {
@@ -178,8 +178,8 @@ class TaxonomyIntegrationTest
       val taxonsBefore = queryGetTaxonomy(taxonomy.formId).taxons
 
       val List(left, right) = taxonsBefore.take(2)
-      val taxonToMoveId     = left.children.head.id
-      val newParentId       = right.id
+      val taxonToMoveId     = left.children.head.taxon.id
+      val newParentId       = right.taxon.id
 
       val resp = taxonApi(taxonToMoveId).update(
           UpdateTaxonPayload(None, TaxonLocation(newParentId.some, Some(0)).some))
@@ -190,7 +190,7 @@ class TaxonomyIntegrationTest
       val List(leftAfter, rightAfter) = taxonsAfter.take(2)
       leftAfter.children.size must === (left.children.size - 1)
       rightAfter.children.size must === (right.children.size + 1)
-      rightAfter.children.map(_.id) must contain(taxonToMoveId)
+      rightAfter.children.map(_.taxon.id) must contain(taxonToMoveId)
     }
 
     "fails to move taxon to children" in new HierarchyTaxonsFixture {
@@ -198,8 +198,8 @@ class TaxonomyIntegrationTest
 
       val List(left, right) = taxonsBefore.take(2)
 
-      val newParentId   = left.children.head.id
-      val taxonToMoveId = left.id
+      val newParentId   = left.children.head.taxon.id
+      val taxonToMoveId = left.taxon.id
 
       val resp = taxonApi(taxonToMoveId).update(
           UpdateTaxonPayload(None, TaxonLocation(newParentId.some, Some(0)).some))
