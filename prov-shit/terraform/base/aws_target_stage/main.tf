@@ -1,7 +1,5 @@
 # provider variables
-variable "access_key" {
-}
-variable "secret_key" {
+variable "account_file" {
 }
 variable "region" {
 }
@@ -43,9 +41,8 @@ variable "ssh_private_key" {
 }
 
 provider "aws" {
-    access_key = "${var.access_key}"
-    secret_key = "${var.secret_key}"
-    region     = "${var.region}"
+    shared_credentials_file = "${var.account_file}"
+    region                  = "${var.region}"
 }
 
 module "bastion" {

@@ -53,6 +53,8 @@ resource "aws_instance" "server" {
     vpc_security_group_ids      = "${var.security_groups}"
     associate_public_ip_address = "${var.public_ip}"
 
+    iam_instance_profile        = "arn:aws:iam::539124908826:instance-profile/fc-stage-instance"
+
     root_block_device {
         volume_type = "standard"
         volume_size = "${var.disk_size}"

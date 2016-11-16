@@ -1,4 +1,5 @@
 # provider variables
+account_file          = "aws_target_stage"
 region                = "us-west-2"
 
 # generic variables

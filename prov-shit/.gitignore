@@ -1,15 +1,28 @@
-.vagrant
-bin/inventory
-vagrant.local.rb
+# secrets
 .vault_pass
-ansible/*.retry
-*.pyc
-foxcomm-vanilla.json
-foxcomm-staging.json
-.env.local
 
-account.json
-*.DS_Store
+# account files
+# GCE
+/foxcomm-vanilla.json
+/foxcomm-staging.json
+/account.json
+
+# AWS
+/aws_*
+
+# local settings
+.env.local
 .terraform
 terraform.tfvars
+
+# inventory binary
+bin/inventory
+
+# vendor artifacts and other garbage
+.vagrant
+vagrant.local.rb
+ansible/*.retry
+*.pyc
+*.DS_Store
 *.orig
+
