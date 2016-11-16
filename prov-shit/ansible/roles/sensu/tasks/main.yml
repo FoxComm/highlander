@@ -41,6 +41,7 @@
   - include: client.yml
     tags: client
 
+# TODO: decide deployment strategy
 #  - include: plugins.yml
 #    tags: plugins
 #    when: sensu_include_plugins
