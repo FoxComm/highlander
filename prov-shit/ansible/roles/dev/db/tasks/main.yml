@@ -59,21 +59,6 @@
   synchronize: src="{{middlewarehouse_src}}/sql" dest="{{middlewarehouse_dir}}" delete=yes recursive=yes
   sudo: true
 
-- name: Delete Phoenix Gatling Resources
-  file: path="{{phoenix_dir}}/gatling-classes" state=absent
-  sudo: true
-
-- name: Delete Phoenix Gatling Results
-  file: path="{{phoenix_dir}}/gatling-results" state=absent
-  sudo: true
-
-- name: Synchronize Phoenix Gatling Resources
-  synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes
-  become: false
-
-- name: Create Directory for Gatling results
-  file: path="{{phoenix_dir}}/gatling-results" state=directory owner="{{user}}" mode="0777"
-
 - name: Delete Phoenix Log Directory
   file: path="{{phoenix_dir}}/log" state=absent
 

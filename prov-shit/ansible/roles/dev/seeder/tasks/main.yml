@@ -1,23 +1,7 @@
 ---
 
-- name: Synchronize Phoenix SQL
-  synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
-  sudo: true
-
-- name: Delete Phoenix Gatling Resources
-  file: path="{{phoenix_dir}}/gatling-classes" state=absent
-  sudo: true
-
-- name: Delete Phoenix Gatling Results
-  file: path="{{phoenix_dir}}/gatling-results" state=absent
-  sudo: true
-
-- name: Synchronize Phoenix Gatling Resources
-  synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes
-  sudo: true
-
-- name: Create Directory for Gatling results
-  file: path="{{phoenix_dir}}/gatling-results" state=directory owner="{{user}}" mode="0777"
+- name: Get Latest Phoenix Image
+  shell: docker pull {{docker_registry}}:5000/phoenix:{{docker_branch}}
   sudo: true
 
 - name: Seed Phoenix Database
@@ -57,6 +41,10 @@
   template: src=middlewarehouse.env dest={{middlewarehouse_dir}}/seeder/.env
   sudo: true
 
+- name: Get Latest Middlewarehouse Image
+  shell: docker pull {{docker_registry}}:5000/middlewarehouse-seeder:{{docker_branch}}
+  sudo: true
+
 - name: Run Middlewarehouse Seeder docker container
-  command: docker run --env-file "{{middlewarehouse_dir}}/seeder/.env" --network host "{{docker_registry}}:5000/middlewarehouse-seeder:{{docker_branch}}"
+  command: docker run --env-file "{{middlewarehouse_dir}}/seeder/.env" --network host {{docker_registry}}:5000/middlewarehouse-seeder:{{docker_branch}}
   sudo: true
