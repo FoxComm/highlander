@@ -1,6 +1,11 @@
 package payloads
 
-import "github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
+import (
+	"strconv"
+
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
+	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
+)
 
 // OrderItem is a single line item in an order.
 type OrderItem struct {
@@ -22,7 +27,7 @@ type OrderItem struct {
 }
 
 func NewOrderItemsFromPhoenix(items []phoenix.OrderLineItem) []OrderItem {
-	condensedItems := make(map[string]OrderItem)
+	condensedItems := make(map[uint]OrderItem)
 
 	for _, item := range items {
 		ci, ok := condensedItems[item.SkuID]
@@ -45,7 +50,7 @@ func NewOrderItemsFromPhoenix(items []phoenix.OrderLineItem) []OrderItem {
 func NewOrderItemFromPhoenix(item phoenix.OrderLineItem) OrderItem {
 	return OrderItem{
 		LineItemKey:    item.ReferenceNumber,
-		FulfillmentSKU: item.SkuID,
+		FulfillmentSKU: utils.ToStringPtr(strconv.Itoa(int(item.SkuID))),
 		SKU:            item.SkuCode,
 		Name:           item.Name,
 		UnitPrice:      float64(item.Price) / 100.0,

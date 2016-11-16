@@ -44,7 +44,7 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 
 	log.Printf(
 		"Found order %s in fulfillmentStarted. Order data: %s. Add to ShipStation!",
-		activity.Data(),
+		activity.Data,
 		fullOrder.Order.ReferenceNumber,
 	)
 

@@ -8,7 +8,7 @@ type Reservation struct {
 }
 
 type ItemReservation struct {
-	SkuId uint `json:"skuId" binding:"required"`
+	SkuID uint `json:"skuId" binding:"required"`
 	Qty   uint `json:"qty" binding:"required"`
 }
 

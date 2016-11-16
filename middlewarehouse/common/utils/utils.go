@@ -26,3 +26,6 @@ func DiffSlices(needles []uint, haystack []uint) []uint {
 
 	return diff
 }
+func ToStringPtr(str string) *string {
+	return &str
+}

@@ -16,7 +16,7 @@ func GetShipmentLineItem(id uint, shipmentID uint, stockItemUnitId uint) *models
 		ShipmentID:      shipmentID,
 		ReferenceNumber: "e1a56545-8ada-4132-8d8c-b8aceda68bbe",
 		StockItemUnitID: stockItemUnitId,
-		SkuId:           1,
+		SkuID:           1,
 		SkuCode:         "SKU-TEST1",
 		Name:            "Some shit",
 		Price:           uint(3999),
@@ -28,7 +28,7 @@ func ToShipmentLineItemPayload(shipmentLineItem *models.ShipmentLineItem) *paylo
 	return &payloads.ShipmentLineItem{
 		ID:              shipmentLineItem.ID,
 		ReferenceNumber: shipmentLineItem.ReferenceNumber,
-		SkuID:           shipmentLineItem.SkuId,
+		SkuID:           shipmentLineItem.SkuID,
 		SkuCode:         shipmentLineItem.SkuCode,
 		Name:            shipmentLineItem.Name,
 		Price:           shipmentLineItem.Price,
@@ -43,7 +43,7 @@ func GetShipmentLineItemColumns() []string {
 
 func GetShipmentLineItemRow(shipmentLineItem *models.ShipmentLineItem) []driver.Value {
 	return []driver.Value{shipmentLineItem.ID, shipmentLineItem.ShipmentID, shipmentLineItem.StockItemUnitID,
-		shipmentLineItem.Name, shipmentLineItem.ReferenceNumber, shipmentLineItem.SkuId, shipmentLineItem.SkuCode,
+		shipmentLineItem.Name, shipmentLineItem.ReferenceNumber, shipmentLineItem.SkuID, shipmentLineItem.SkuCode,
 		shipmentLineItem.Price, shipmentLineItem.ImagePath, shipmentLineItem.CreatedAt, shipmentLineItem.UpdatedAt,
 		shipmentLineItem.DeletedAt}
 }

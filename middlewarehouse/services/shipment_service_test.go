@@ -89,7 +89,7 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	stockLocation := fixtures.GetStockLocation()
 	suite.Nil(suite.db.Create(stockLocation).Error)
 
-	stockItem := fixtures.GetStockItem(stockLocation.ID, shipment1.ShipmentLineItems[0].SkuId, shipment1.ShipmentLineItems[0].SkuCode)
+	stockItem := fixtures.GetStockItem(stockLocation.ID, shipment1.ShipmentLineItems[0].SkuID, shipment1.ShipmentLineItems[0].SkuCode)
 	suite.Nil(suite.db.Create(stockItem).Error)
 
 	stockItemUnit1 := fixtures.GetStockItemUnit(stockItem)
