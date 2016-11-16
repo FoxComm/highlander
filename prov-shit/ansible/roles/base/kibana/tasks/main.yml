@@ -19,7 +19,7 @@
   file: path={{home}}/{{kibana_archive}} state=absent
 
 - name: Copy Kibana Config
-  template: src=kibana.yml.j2 dest={{kibana_dir}}/config/kibana.yml
+  template: src=kibana.yml dest={{kibana_dir}}/config/kibana.yml
 
 - name: Copy Kibana service
   template: src=kibana.service.j2 dest={{dest_services}}/kibana.service
