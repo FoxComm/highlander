@@ -1,3 +1,0 @@
-phoenix_service_requires: postgresql.service
-phoenix_service_after: postgresql.service
-
