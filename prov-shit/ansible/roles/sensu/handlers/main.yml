@@ -1,0 +1,35 @@
+---
+# handlers file for sensu
+
+  - name: restart RabbitMQ service
+    service:
+      name: rabbitmq-server
+      state: restarted
+
+  - name: restart Redis service
+    service:
+      name: redis-server
+      state: restarted
+
+  - name: restart Uchiwa service
+    service:
+      name: uchiwa
+      state: restarted
+
+  - name: restart Sensu Server service
+    service:
+      name: sensu-server
+      state: restarted
+    delegate_to: "{{ sensu_api_host }}"
+
+  - name: restart Sensu API service
+    service:
+      name: sensu-api
+      state: restarted
+    delegate_to: "{{ sensu_api_host }}"
+
+  - name: restart Sensu Client service
+    service:
+      name: sensu-client
+      state: restarted
+

@@ -1,0 +1,46 @@
+---
+# tasks file for sensu
+
+# Install and configure Sensu Core with all Services
+
+  - name: Add Sensu Core repo key
+    apt_key:
+      url: "{{ sensu_core_repo_key }}"
+      state: present
+
+  - name: Add Sensu Core repo
+    apt_repository:
+      repo: "{{ sensu_core_repo }}"
+      state: present
+      update_cache: true
+
+  - name: Install Sensu Core
+    apt:
+      name: sensu
+      state: present
+
+  - include: redis.yml
+    tags: redis
+    when: redis_server and sensu_deploy_redis
+
+  - include: ssl.yml
+    tags: ssl
+
+  - include: rabbit.yml
+    tags: rabbitmq
+    when: rabbitmq_server and sensu_deploy_rabbitmq
+
+  - include: server.yml
+    tags: server
+    when: sensu_master
+
+  - include: dashboard.yml
+    tags: dashboard
+    when: sensu_include_dashboard
+
+  - include: client.yml
+    tags: client
+
+#  - include: plugins.yml
+#    tags: plugins
+#    when: sensu_include_plugins

@@ -1,0 +1,6 @@
+---
+# Install and Configure Sensu
+
+  - hosts: sensu-masters
+    roles:
+      - { role: sensu, sensu_master: true, sensu_include_dashboard: true  }

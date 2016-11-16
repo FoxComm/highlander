@@ -1,0 +1,30 @@
+---
+# Deploy Redis (Sensu Data Store)
+
+  - name: Add Redis repo
+    apt_repository:
+      repo: "{{ redis_repo }}"
+      state: present
+      update_cache: true
+
+  - name: Install Redis
+    apt:
+      name: redis-server
+      state: present
+      update_cache: true
+
+  - name: Create Redis default config
+    copy:
+      src: redis.conf
+      dest: /etc/redis/redis.conf
+
+  - name: Create Redis systemd service
+    copy:
+      src: redis_systemd.service
+      dest: /etc/systemd/system/redis.service
+
+  - name: Start Redis
+    service: 
+      name: redis-server
+      state: started
+      enabled: true

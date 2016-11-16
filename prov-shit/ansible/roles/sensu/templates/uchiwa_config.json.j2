@@ -1,0 +1,17 @@
+{
+ "sensu": [
+   {
+       "name": "{{ uchiwa_dc_name }}",
+       "host": "{{ sensu_api_host }}",
+       "port": {{ sensu_api_port }},
+       "user": "{{ sensu_api_user_name }}",
+       "pass": "{{ sensu_api_password }}",
+       "timeout": {{ sensu_api_timeout }}
+   }
+ ],
+ "uchiwa": {
+   "users": {{ uchiwa_users | to_nice_json }},
+   "port": {{ uchiwa_port }},
+   "refresh": {{ uchiwa_refresh }}
+  }
+}

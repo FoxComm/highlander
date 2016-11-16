@@ -1,0 +1,38 @@
+---
+# Install Sensu Server and API
+
+  - name: Check Sensu config directory
+    file:
+      dest: "{{ sensu_config_path }}/conf.d"
+      state: directory
+      recurse: true
+      owner: "{{ sensu_user_name }}"
+      group: "{{ sensu_group_name }}"
+
+  - name: Configure Sensu API
+    template:
+      dest: "{{ sensu_config_path }}/conf.d/api.json"
+      owner: "{{ sensu_user_name }}"
+      group: "{{ sensu_group_name }}"
+      src: sensu-api.json.j2
+    notify: restart sensu-api service
+
+  - name: Configure Sensu for Redis
+    template:
+      dest: "{{ sensu_config_path }}/conf.d/redis.json"
+      owner: "{{ sensu_user_name }}"
+      group: "{{ sensu_group_name }}"
+      src: sensu-redis.json.j2
+    notify: restart sensu-api service
+
+  - name: Start Sensu server
+    service: 
+      name: sensu-server
+      state: started
+      enabled: yes
+
+  - name: Start Sensu API
+    service: 
+      name: sensu-api
+      state: started
+      enabled: yes
