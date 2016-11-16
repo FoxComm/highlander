@@ -35,7 +35,7 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 
 	fullOrder, err := phoenix.NewFullOrderFromActivity(activity)
 	if err != nil {
-		log.Panicf("Unable to decode order from activity")
+		log.Panicf("Unable to decode order from activity with error %s", err.Error())
 	}
 
 	if fullOrder.Order.OrderState != "fulfillmentStarted" {
@@ -43,7 +43,8 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 	}
 
 	log.Printf(
-		"Found order %s in fulfillmentStarted. Add to ShipStation!",
+		"Found order %s in fulfillmentStarted. Order data: %s. Add to ShipStation!",
+		activity.Data(),
 		fullOrder.Order.ReferenceNumber,
 	)
 
