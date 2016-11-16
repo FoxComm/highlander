@@ -2,7 +2,6 @@
 
 - name: Download docker-clean Installer
   get_url: url={{docker_clean_url}} dest=/usr/local/bin/docker-clean mode=0555
-  when: install_docker_clean
 
 - name: Install Docker Clean to cron.daily
   copy: src=docker-clean.sh dest=/etc/cron.daily/docker-clean.sh mode=0555

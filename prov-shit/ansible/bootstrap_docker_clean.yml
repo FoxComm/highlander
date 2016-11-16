@@ -12,7 +12,6 @@
     - buildkite-agent-7
   vars:
     user: '{{ansible_ssh_user}}'
-    install_docker_clean: false
 
   roles:
     - { role: base/docker_clean, sudo: true }
