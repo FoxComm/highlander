@@ -159,7 +159,11 @@ class CartIntegrationTest
         .asTheResult[CartResponse]
 
       val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1))
-      val skus            = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse].lineItems.skus
+      val skus = cartsApi(cart.refNum).lineItems
+        .update(subtractPayload)
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
       skus must have size 1
       skus.map(_.sku).headOption.value must === ("SKU-YAX")
       skus.map(_.quantity).headOption.value must === (1)

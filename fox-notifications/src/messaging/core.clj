@@ -27,17 +27,15 @@
 
 (def topics ["activities"])
 
-(def admin_server_name (delay (:admin_server_name env)))
 (def kafka-broker (delay (:kafka-broker env)))
 (def schema-registry-url (delay (:schema-registry-url env)))
 
 
 (defn decode-embed-json
   [^String s]
-  (if (nil? s) s 
-  (-> s
-      (string/replace #"\\" "")
-      json/read-str)))
+  (some-> s
+          (string/replace #"\\" "")
+          json/read-str))
 
 (defn transform-date
   [d]
@@ -89,7 +87,7 @@
     (some->>
       (some-> text
           (string/replace #"(<(?!(a\s|/a)).+?>)" " ")
-          (string/replace #"<a\s.+?href=\"(.*?)\".+?>(.+?)</a>" (str "<" @admin_server_name "$1|$2>"))
+          (string/replace #"<a\s.+?href=\"(.*?)\".+?>(.+?)</a>" (str "<" (settings/get :admin_base_url) "$1|$2>"))
           (string/replace #"\p{Zs}" " ")
           (string/split #"\s"))
       (map string/trim)
@@ -106,33 +104,34 @@
 
 (defn start-app
   [react-app]
+  (reset! stop false)
   (let [cc {:bootstrap.servers       [@kafka-broker]
             :group.id                "fc-messaging"
             :auto.offset.reset       :earliest
             :key.deserializer        "org.apache.kafka.common.serialization.ByteArrayDeserializer"
             :schema.registry.url     @schema-registry-url
             :value.deserializer      "io.confluent.kafka.serializers.KafkaAvroDeserializer"
-            :enable.auto.commit      true
-            :auto.commit.interval.ms 1000}
-        xf (map decode)]
-
+            :enable.auto.commit      false}]
     (with-open [c (consumer/make-consumer cc)]
       (subscribe-to-partitions! c topics)
       (println "Partitions subscribed to:" (partition-subscriptions c))
       (loop []
-       (let [cr (poll! c)]
-        (let [msgs (into [] xf cr)]
-          (when-not (empty? msgs)
-            (doseq [msg msgs]
-              (prn msg)
-              (mail/handle-activity msg)))))
+        (let [cr (poll! c)]
+          (doseq [record cr :let [msg (decode record)]]
+            (prn msg)
+            (try
+              (mail/handle-activity msg)
+              (commit-offsets-async! c {(select-keys record [:topic :partition])
+                                        {:offset (:offset record) :metadata ""}})
+              (catch Exception e (println "Caught exception: " e)))))
+
 ;; temporary disabled
 ;;               (when-let [string-msg (render-react-activity react-app msg)]
 ;;                 (send-to-slack string-msg))))))
 
        (when-not @stop
-         (recur)))))
- (println "exit"))
+        (recur))))
+    (println "exit")))
 
 (defn stop-app []
   (reset! stop true))

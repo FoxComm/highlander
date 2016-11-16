@@ -1,9 +1,0 @@
----
-
-- name: Create ES Mappings
-  command: /usr/local/bin/create_es_mappings.sh
-  sudo: true
-
-- name: Restart Greenriver
-  service: name=greenriver state=restarted enabled=yes
-  sudo: true

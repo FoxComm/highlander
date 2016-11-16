@@ -1,26 +1,22 @@
 ---
 
-- name: Synchronize Phoenix SQL
-  synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
+- include_vars: aws.yml
+- include_vars: stripe.yml
+
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
   sudo: true
 
-- name: Delete Phoenix Gatling Resources
-  file: path="{{phoenix_dir}}/gatling-classes" state=absent
+- name: Copy Phoenix Marathon JSON
+  template: src=phoenix.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
   sudo: true
 
-- name: Synchronize Phoenix Gatling Resources
-  synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes
-  sudo: true
+- name: Update Phoenix in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/phoenix.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/phoenix'
 
-- name: Create Directory for Gatling Results
-  file: path="{{phoenix_dir}}/gatling-results" state=directory owner="{{user}}" mode="0777"
-  sudo: true
+- name: Restart Phoenix in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/phoenix/restart'
 
-- name: Copy JAR
-  copy: src={{phoenix_jar_src}} dest={{phoenix_jar}} mode="u+x,g+x,o+x"
-  sudo: true
-  when: upload_phoenix_jar
-
-- name: Restart Phoenix
-  service: name=phoenix state=restarted enabled=yes
-  sudo: true
+- name: Wait for Phoenix to become available
+  wait_for: host={{phoenix_host}} port={{phoenix_port}}
+  ignore_errors: true

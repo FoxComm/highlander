@@ -40,6 +40,7 @@ phoenix_db_connection_string: "postgresql://{{phoenix_db_user}}@{{db_host}}/{{ph
 # Do not use this in production
 # This is a ttl of 1 year
 phoenix_token_ttl: 525600
+solomon_token_ttl: 365
 
 # Middlewarehouse
 middlewarehouse_env: staging
@@ -121,7 +122,7 @@ log_host: 127.0.0.1
 
 # JMX ports
 es_jmx_port: 29010
-phoenix_jmx_port: 39010
+phoenix_jmx_port: 39014
 greenriver_jmx_port: 39011
 messaging_jmx_port: 39012
 loyalty_jmx_port: 39013
@@ -191,3 +192,6 @@ docker_frontend_branch: master
 marketplace_db_name: marketplace_development
 marketplace_db_user: marketplace
 marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_host}}/{{marketplace_db_name}}"
+
+#Set this to true for first run deployments
+first_run: false

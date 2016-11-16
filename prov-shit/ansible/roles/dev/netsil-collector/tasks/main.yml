@@ -1,0 +1,17 @@
+- name: pull an Netsil collector image
+  docker_container:
+    name: netsil-collector
+    image: netsil/collectors:{{netsil_collector_version}}
+    state: started
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    capabilities:
+      - NET_RAW
+      - NET_ADMIN
+    env:
+      NETSIL_SP_HOST: "{{netsil_aoc_master}}"
+      NETSIL_TRAFFIC_PORT: 2003
+      NETSIL_INFRA_PORT: 2001
+      

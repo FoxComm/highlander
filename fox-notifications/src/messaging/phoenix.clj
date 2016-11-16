@@ -1,6 +1,5 @@
 (ns messaging.phoenix
   (:require [aleph.http :as http]
-            [clj-http.client :as client]
             [compojure.core :refer :all]
             [compojure.route :as route]
             [messaging.settings :as settings]
@@ -9,6 +8,8 @@
             [pjson.core :as json]
             [byte-streams :as bs]
             [environ.core :refer [env]]))
+
+(def description "Provides messaging integration with Mailchimp/Mandrill")
 
 (defn parse-int [s]
   (if (integer? s)
@@ -25,14 +26,8 @@
 (def phoenix-password (delay (:phoenix-password env)))
 
 
-
-(def plugin-info
-  (delay {:name "fox-notifications"
-          :description "Sends mail,slack notifications on events to customers/storeAdmins"
-          :apiHost @api-host
-          :version "1.0"
-          :apiPort @api-port
-          :schemaSettings settings/schema}))
+(def http-pool (delay (http/connection-pool
+                        {:connection-options {:insecure? true}})))
 
 
 (def api-server (delay (:api-server env)))
@@ -46,7 +41,6 @@
         (response {:ok "updated"}))
 
   (route/not-found (response {:error {:code 404 :text "Not found"}})))
-
 
 
 ;; start-stop
@@ -69,32 +63,39 @@
 
 (defn authenticate
   []
-  (-> (client/post (str @api-server "/api/v1/public/login")
-                   {:body (json/write-str
-                            {:email @phoenix-email
-                             :password @phoenix-password
-                             :org "tenant"})
-                    :headers {"Content-Type" "application/json"}
-                    :insecure? true})
-      :headers
-      (get "jwt")))
-
+  (-> (http/post (str @api-server "/api/v1/public/login")
+                 {:pool @http-pool
+                  :body (json/write-str
+                          {:email @phoenix-email
+                           :password @phoenix-password
+                           :org "tenant"})
+                  :content-type :json})
+   deref
+   :headers
+   (get "jwt")))
 
 
 (defn register-plugin
-  []
+  [schema]
   (if @api-server
     (try
-      (let [resp (-> (client/post
-                         (str @api-server "/api/v1/plugins/register")
-                         {:body (json/write-str @plugin-info)
-                          :headers {"JWT" (authenticate)
-                                    "Content-Type" "application/json"} 
-                          :insecure? true})
-                       :body
-                       bs/to-string
-                       json/read-str)]
+      (let [plugin-info {:name "fox-notifications"
+                         :description description
+                         :apiHost @api-host
+                         :version "1.0"
+                         :apiPort @api-port
+                         :schemaSettings schema}
+            resp (-> (http/post
+                           (str @api-server "/api/v1/plugins/register")
+                           {:pool @http-pool
+                            :body (json/write-str plugin-info)
+                            :content-type :json
+                            :headers {"JWT" (authenticate)}})
+                     deref
+                         :body
+                         bs/to-string
+                         json/read-str)]
         (settings/update-settings (get resp "settings")))
-     (catch Exception e (println "Can't register plugin at phoenix" e)))
+      (catch Exception e (println "Can't register plugin at phoenix" e)))
     (println "Phoenix address not set, can't register myself into phoenix :(")))
 
