@@ -30,7 +30,7 @@ export function initTracker(userId) {
 
 function baseProductData(product) {
   return {
-    id: product.skus[0],
+    id: _.get(product, 'sku', product.skus[0]),
     name: product.title,
     category: _.get(product, 'tags.0'),
   };
@@ -70,6 +70,15 @@ export function addToCart(product, quantity) {
   });
   ga('ec:setAction', 'add');
   ga('send', 'event', 'UX', 'click', 'add to cart');
+}
+
+export function removeFromCart(product, quantity) {
+  addProduct(product, {
+    price: _.get(product, 'price', product.salePrice),
+    quantity,
+  });
+  ga('ec:setAction', 'remove');
+  ga('send', 'event', 'UX', 'click', 'remove from cart');
 }
 
 export function clickPdp(product, position, list = 'Product List') {

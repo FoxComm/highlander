@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { browserHistory } from 'react-router';
 import { autobind } from 'core-decorators';
+import * as tracking from 'lib/analythics';
 
 // localization
 import localized from 'lib/i18n';
@@ -62,8 +63,9 @@ class Cart extends Component {
   }
 
   @autobind
-  deleteLineItem(id) {
-    this.props.deleteLineItem(id).catch(ex => {
+  deleteLineItem(sku) {
+    tracking.removeFromCart(sku, sku.quantity);
+    this.props.deleteLineItem(sku.sku).catch(ex => {
       this.setState({
         errors: parseError(ex),
       });
@@ -71,8 +73,14 @@ class Cart extends Component {
   }
 
   @autobind
-  updateLineItemQuantity(id, quantity) {
-    this.props.updateLineItemQuantity(id, quantity).catch(ex => {
+  updateLineItemQuantity(sku, quantity) {
+    const diff = quantity - sku.quantity;
+    if (diff > 0) {
+      tracking.addToCart(sku, diff);
+    } else if (diff < 0) {
+      tracking.removeFromCart(sku, -diff);
+    }
+    this.props.updateLineItemQuantity(sku.sku, quantity).catch(ex => {
       this.setState({
         errors: parseError(ex),
       });
@@ -84,8 +92,8 @@ class Cart extends Component {
       return (
         <LineItem
           {...sku}
-          deleteLineItem={this.deleteLineItem}
-          updateLineItemQuantity={this.updateLineItemQuantity}
+          deleteLineItem={() => this.deleteLineItem(sku)}
+          updateLineItemQuantity={(id, quantity) => this.updateLineItemQuantity(sku, quantity)}
           key={sku.sku}
         />
       );
