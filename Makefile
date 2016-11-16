@@ -54,7 +54,7 @@ $(DOCKERDIRS):
 	$(MAKE) -C $(REPO) docker
 
 docker-push: $(DOCKERPUSHDIRS)
-$(DOCKERPUSHDIRS): REPO = $(@:docker-%=%)
+$(DOCKERPUSHDIRS): REPO = $(@:docker-push-%=%)
 $(DOCKERPUSHDIRS):
 	$(MAKE) -C $(REPO) docker-push
 
