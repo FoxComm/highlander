@@ -42,7 +42,6 @@ class Guest extends Component {
           <TextInput placeholder="EMAIL" type="email" value={this.state.email} onChange={this.onEmailChange}/>
         </FormField>
         <Button
-          type="button"
           styleName="primary-button"
           type="submit"
         >

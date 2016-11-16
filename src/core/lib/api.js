@@ -16,7 +16,13 @@ const _unauthorizedHandler = () => {
 
 class FoxApi extends Api {
   foxRequest(method, uri, data, options = {}) {
-    const requestOpts = { ...options, unauthorizedHandler: _unauthorizedHandler };
+    const patchedHeaders = {
+      ...(options.headers),
+      'Cache-control': 'no-cache',
+      Pragma: 'no-cache',
+      Expires: 0,
+    };
+    const requestOpts = { ...options, headers: patchedHeaders, unauthorizedHandler: _unauthorizedHandler };
     return this.request(method, uri, data, requestOpts);
   }
 
