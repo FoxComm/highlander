@@ -2,6 +2,7 @@ package responses
 
 import (
 	"time"
+
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 )
 

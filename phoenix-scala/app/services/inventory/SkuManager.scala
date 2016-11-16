@@ -65,15 +65,14 @@ object SkuManager {
 
   def archiveById(skuId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
     for {
-      fullSku ← * <~ ObjectManager.getFullObject(
-                   SkuManager.mustFindSkuByContextAndId(oc.id, skuId))
-      archivedSku ← * <~ Skus.update(fullSku.model,
-                                     fullSku.model.copy(archivedAt = Some(Instant.now)))
-      albumLinks ← * <~ SkuAlbumLinks.filter(_.leftId === archivedSku.id).result
-      _ ← * <~ albumLinks.map { link ⇒
-           SkuAlbumLinks.deleteById(link.id,
-                                    DbResultT.unit,
-                                    id ⇒ NotFoundFailure400(SkuAlbumLinks, id))
+      fullSku     ← * <~ ObjectManager.getFullObject(SkuManager.mustFindSkuByContextAndId(oc.id, skuId))
+      _           ← * <~ fullSku.model.mustNotBePresentInCarts
+      archivedSku ← * <~ Skus.update(fullSku.model, fullSku.model.copy(archivedAt = Some(Instant.now)))
+      albumLinks  ← * <~ SkuAlbumLinks.filter(_.leftId === archivedSku.id).result
+      _           ← * <~ albumLinks.map { link ⇒
+                             SkuAlbumLinks.deleteById(link.id,
+                                                      DbResultT.unit,
+                                                      id ⇒ NotFoundFailure400(SkuAlbumLinks, id))
          }
       albums       ← * <~ ImageManager.getAlbumsForSkuInner(archivedSku.formId, oc)
       productLinks ← * <~ ProductSkuLinks.filter(_.rightId === archivedSku.id).result
@@ -154,7 +153,7 @@ object SkuManager {
       case None       ⇒ Xor.left(GeneralFailure("SKU code not found in payload").single)
     }
 
-  private def getSkuCode(attributes: Map[String, Json]): Option[String] =
+  def getSkuCode(attributes: Map[String, Json]): Option[String] =
     attributes.get("code").flatMap(json ⇒ (json \ "v").extractOpt[String])
 
   def mustFindSkuByContextAndId(contextId: Int, id: Int)(implicit ec: EC): DbResultT[Sku] =

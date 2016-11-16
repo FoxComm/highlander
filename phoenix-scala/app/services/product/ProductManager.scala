@@ -6,6 +6,7 @@ import com.github.tminglei.slickpg.LTree
 import cats.data._
 import cats.implicits._
 import cats.data.ValidatedNel
+import cats.std.map
 import failures._
 import failures.ArchiveFailures._
 import failures.ProductFailures._
@@ -113,6 +114,8 @@ object ProductManager {
     for {
       oldProduct ← * <~ mustFindFullProductByFormId(productId)
 
+      _ ← * <~ skusToBeUnassociatedMustNotBePresentInCarts(oldProduct.model.id, payloadSkus)
+
       mergedAttrs = oldProduct.shadow.attributes.merge(formAndShadow.shadow.attributes)
       updated ← * <~ ObjectUtils.update(oldProduct.form.id,
                                         oldProduct.shadow.id,
@@ -131,8 +134,7 @@ object ProductManager {
       updatedSkus ← * <~ findOrCreateSkusForProduct(oldProduct.model, payloadSkus, !hasVariants)
 
       variants ← * <~ updateAssociatedVariants(updatedHead, payload.variants)
-      fullProduct = FullObject(updatedHead, updated.form, updated.shadow)
-      _ ← * <~ validateUpdate(updatedSkus, variants)
+      _        ← * <~ validateUpdate(updatedSkus, variants)
 
       variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
@@ -242,7 +244,7 @@ object ProductManager {
     : ValidatedNel[Failure, Unit] = {
     val maxSkus = variants.map { case (_, values) ⇒ values.length.max(1) }.product
 
-    lesserThanOrEqual(skus.length, maxSkus, "number of SKUs").map {
+    lesserThanOrEqual(skus.length, maxSkus, "number of SKUs for given variants").map {
       case _ ⇒ Unit
     }
   }
@@ -285,7 +287,6 @@ object ProductManager {
               if (foundSku.archivedAt.isEmpty) {
                 for {
                   existingSku ← * <~ SkuManager.updateSkuInner(foundSku, payload)
-                  link = ProductSkuLink(leftId = product.id, rightId = existingSku.model.id)
                   _ ← * <~ ProductSkuLinks.syncLinks(product,
                                                      if (createLinks) Seq(existingSku.model)
                                                      else Seq.empty)
@@ -340,4 +341,38 @@ object ProductManager {
   def mustFindFullProductById(productId: Int)(implicit ec: EC,
                                               db: DB): DbResultT[FullObject[Product]] =
     ObjectManager.getFullObject(Products.mustFindById404(productId))
+
+  // This is an inefficient intensely quering method that does the trick
+  private def skusToBeUnassociatedMustNotBePresentInCarts(
+      productId: Int,
+      payloadSkus: Seq[SkuPayload])(implicit ec: EC, db: DB): DbResultT[Unit] =
+    for {
+      skuIdsForProduct ← * <~ ProductSkuLinks.filter(_.leftId === productId).result.flatMap {
+                          case links @ Seq(_) ⇒
+                            lift(links.map(_.rightId))
+                          case _ ⇒
+                            for {
+                              variantLinks ← ProductVariantLinks
+                                              .filter(_.leftId === productId)
+                                              .result
+                              variantIds = variantLinks.map(_.rightId)
+                              valueLinks ← VariantValueLinks
+                                            .filter(_.leftId.inSet(variantIds))
+                                            .result
+                              valueIds = valueLinks.map(_.rightId)
+                              skuLinks ← VariantValueSkuLinks
+                                          .filter(_.leftId.inSet(valueIds))
+                                          .result
+                            } yield skuLinks.map(_.rightId)
+                        }
+      skuCodesForProduct ← * <~ Skus.filter(_.id.inSet(skuIdsForProduct)).map(_.code).result
+      skuCodesToBeGone = skuCodesForProduct.diff(
+          payloadSkus.map(ps ⇒ SkuManager.getSkuCode(ps.attributes)).filter(_.nonEmpty))
+      _ ← * <~ (skuCodesToBeGone.map { codeToUnassociate ⇒
+               for {
+                 skuToUnassociate ← * <~ Skus.mustFindByCode(codeToUnassociate)
+                 _                ← * <~ skuToUnassociate.mustNotBePresentInCarts
+               } yield {}
+             })
+    } yield {}
 }

@@ -1,0 +1,22 @@
+---
+
+- name: Provision TPG Backend
+  hosts: '{{hostname}}'
+  vars:
+    user: '{{ansible_ssh_user}}'
+    middlewarehouse_server: middlewarehouse.service.consul:9292
+    kafka_server: kafka.service.consul:9092
+    schema_server: schema-registry.service.consul:8081
+    zookeeper_server: zookeeper.service.consul:2181
+    upload_phoenix_jar: true
+    upload_greenriver_jar: false
+    download_flyway: false
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with backend to update"
+      default: "tpg-stage-backend"
+      private: no
+  roles:
+    - { role: dev/phoenix }
+    - { role: dev/greenriver }
+    - { role: prod/db_migrate }

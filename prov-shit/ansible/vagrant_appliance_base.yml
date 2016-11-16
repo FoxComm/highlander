@@ -22,6 +22,7 @@
     - { role: base/mesos }
     - { role: base/mesos_master }
     - { role: base/mesos_worker }
+    - { role: base/mesos_consul }
     - { role: base/confluence }
     - { role: base/zookeeper }
     - { role: base/kafka }

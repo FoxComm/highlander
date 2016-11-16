@@ -3,7 +3,7 @@ import _ from 'lodash';
 import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import transitionTo from 'browserHistory';
+import { transitionTo } from 'browserHistory';
 
 // redux
 import * as CustomersActions from 'modules/customers/new';
@@ -51,8 +51,8 @@ class NewCustomer extends Component {
       name: this.state.name,
       email: this.state.email,
     };
-    this.props.createCustomer(payload).then(data => {
-      transitionTo('customer', { customerId: data.id });
+    this.props.createCustomer(payload).then(({ payload: { id } }) => {
+      transitionTo('customer', { customerId: id });
     });
   }
 

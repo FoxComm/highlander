@@ -44,7 +44,10 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
     } catch {
       case e: SerializationException ⇒
         Future.failed {
-          Console.err.println(s"Error serializing avro message $e")
+          val readableKey     = new String(key, "UTF-8")
+          val readableMessage = new String(message, "UTF-8")
+          Console.err.println(
+              s"Error serializing avro message with key $readableKey: error $e\n\t$readableMessage")
           e
         }
       case e: Throwable ⇒ Future.failed(e)

@@ -18,7 +18,7 @@ import payloads.NotePayloads._
 import payloads.OrderPayloads._
 import payloads.PaymentPayloads._
 import payloads.ProductPayloads._
-import payloads.PromotionPayloads.UpdatePromotion
+import payloads.PromotionPayloads.{CreatePromotion, UpdatePromotion}
 import payloads.SharedSearchPayloads._
 import payloads.SkuPayloads._
 import payloads.StoreAdminPayloads._
@@ -334,6 +334,12 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def get(): HttpResponse =
       GET(couponPath)
+
+    object codes {
+
+      def generate(code: String): HttpResponse =
+        POST(s"$rootPrefix/coupons/codes/generate/$formId/$code")
+    }
   }
 
   object customerGroupsApi {
@@ -578,6 +584,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
   object promotionsApi {
     def promotionsPrefix(implicit ctx: OC) = s"$rootPrefix/promotions/${ctx.name}"
+
+    def create(payload: CreatePromotion)(implicit ctx: OC): HttpResponse =
+      POST(promotionsPrefix, payload)
   }
 
   case class promotionsApi(formId: Int)(implicit ctx: OC) {

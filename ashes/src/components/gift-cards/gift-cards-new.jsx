@@ -94,6 +94,12 @@ export default class NewGiftCard extends React.Component {
     }
   }
 
+  componentWillUpdate(nextProps) {
+    if (this.props.creationReasons != nextProps.creationReasons) {
+      this.setReason();
+    }
+  }
+
   get suggestedCustomers() {
     return _.get(this.props, 'suggestedCustomers.results.rows', []);
   }

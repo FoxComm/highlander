@@ -3,8 +3,8 @@ package services
 import (
 	"log"
 
-	"github.com/FoxComm/metamorphosis"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/metamorphosis"
 	avro "github.com/elodina/go-avro"
 )
 

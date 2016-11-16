@@ -40,6 +40,7 @@ phoenix_db_connection_string: "postgresql://{{phoenix_db_user}}@{{db_host}}/{{ph
 # Do not use this in production
 # This is a ttl of 1 year
 phoenix_token_ttl: 525600
+solomon_token_ttl: 365
 
 # Middlewarehouse
 middlewarehouse_env: staging
@@ -181,8 +182,16 @@ mesos_quorum: 2
 
 # Use seeder service or not?
 with_seeder: false
+with_gatling_seeder: true
+
+# Docker Defaults
+docker_branch: master
+docker_frontend_branch: master
 
 # Marketplace
 marketplace_db_name: marketplace_development
 marketplace_db_user: marketplace
 marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_host}}/{{marketplace_db_name}}"
+
+#Set this to true for first run deployments
+first_run: false

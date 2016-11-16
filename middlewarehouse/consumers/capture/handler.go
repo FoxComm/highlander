@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/FoxComm/metamorphosis"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/metamorphosis"
 )
 
 const activityShipmentShipped = "shipment_shipped"
@@ -38,8 +38,11 @@ func (h ShipmentHandler) Handler(message metamorphosis.AvroMessage) error {
 	if activity.Type() != activityShipmentShipped {
 		return nil
 	}
-
-	if err := h.client.CapturePayment(activity); err != nil {
+	capture, err := lib.NewCapturePayload(activity)
+	if err != nil {
+		return err
+	}
+	if err := h.client.CapturePayment(capture); err != nil {
 		log.Printf("Unable to capture payment with error: %s", err.Error())
 		return err
 	}

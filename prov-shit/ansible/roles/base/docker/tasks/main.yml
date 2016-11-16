@@ -9,8 +9,8 @@
   sudo: true
 
 - name: Download docker-clean Installer
-  command: curl -s {{docker_clean_url}} | tee /usr/local/bin/docker-clean > /dev/null
-
-- name: Make docker-clean executable
-  command: chmod +x /usr/local/bin/docker-clean
+  get_url: 
+    url: "{{docker_clean_url}}"
+    dest: /usr/local/bin/docker-clean
+    mode: 0555
   sudo: true

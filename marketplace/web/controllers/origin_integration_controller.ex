@@ -7,7 +7,8 @@ defmodule Marketplace.OriginIntegrationController do
   alias Marketplace.MerchantOriginIntegration
   alias Marketplace.OriginIntegrationView
 
-  def create(conn, %{"origin_integration" => origin_integration_params, "user_id" => user_id}) do
+  def create(conn, params), do: secured_route(conn, params, &create/3)
+  defp create(conn, %{"origin_integration" => origin_integration_params, "user_id" => user_id}, claims) do
     case Repo.transaction(insert_and_relate(origin_integration_params, user_id)) do
       {:ok, %{origin_integration: origin_integration, merchant_origin_integration: m_oi}} ->
         conn
@@ -20,7 +21,8 @@ defmodule Marketplace.OriginIntegrationController do
     end
   end
 
-  def show(conn, %{"user_id" => s_id}) do
+  def show(conn, params), do: secured_route(conn, params, &show/3)
+  defp show(conn, %{"user_id" => s_id}, claims) do
     ma = Repo.get_by!(MerchantAccount, solomon_id: s_id)
     m_oi = Repo.get_by!(MerchantOriginIntegration, merchant_id: ma.merchant_id)
     |> Repo.preload(:origin_integration)
@@ -29,7 +31,8 @@ defmodule Marketplace.OriginIntegrationController do
     |> render(OriginIntegrationView, "show.json", origin_integration: m_oi.origin_integration)
   end
 
-  def update(conn, %{"user_id" => user_id, "origin_integration" => origin_integration_params}) do
+  def update(conn, params), do: secured_route(conn, params, &update_/3)
+  defp update_(conn, %{"user_id" => user_id, "origin_integration" => origin_integration_params}, claims) do
     ma = Repo.get_by!(MerchantAccount, solomon_id: user_id)
     m_oi = Repo.get_by!(MerchantOriginIntegration, merchant_id: ma.merchant_id)
     |> Repo.preload(:origin_integration)

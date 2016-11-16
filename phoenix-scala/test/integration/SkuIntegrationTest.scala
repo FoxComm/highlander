@@ -2,7 +2,9 @@ import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
 
+import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import failures.ArchiveFailures.SkuIsPresentInCarts
 import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures.SkuNotFoundForContext
 import models.inventory._
@@ -10,8 +12,11 @@ import models.objects._
 import models.product._
 import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
+import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.OrderPayloads.CreateCart
 import payloads.SkuPayloads.SkuPayload
 import responses.SkuResponses.SkuResponse
+import responses.cord.CartResponse
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -105,6 +110,16 @@ class SkuIntegrationTest
         .archive()
         .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }
+
+    "Returns error if SKU is present in carts" in new FixtureWithProduct {
+      val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
+
+      cartsApi(cart.referenceNumber).lineItems
+        .add(Seq(UpdateLineItemsPayload(sku.code, 1)))
+        .mustBeOk()
+
+      skusApi(sku.code).archive().mustFailWith400(SkuIsPresentInCarts(sku.code))
+    }
   }
 
   trait Fixture extends StoreAdmin_Seed {
@@ -130,5 +145,16 @@ class SkuIntegrationTest
                    shadowId = skuShadow.id,
                    commitId = skuCommit.id))
     } yield (sku, skuForm, skuShadow)).gimme
+  }
+
+  trait FixtureWithProduct extends Fixture {
+    private val simpleProd = SimpleProductData(title = "Test Product",
+                                               code = "TEST",
+                                               description = "Test product description",
+                                               image = "image.png",
+                                               price = 5999)
+
+    val product =
+      Mvp.insertProductWithExistingSkus(LTree(au.token.scope), ctx.id, simpleProd, Seq(sku)).gimme
   }
 }

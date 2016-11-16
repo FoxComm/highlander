@@ -14,7 +14,7 @@ defmodule Solomon.Scrypt do
         salt = decode64!(enc_salt)
         {:ok, hash == scrypt(passwd, salt, n, r, p, 32)}
       _ ->
-        {:error, "invalid hash"}
+        {:error, %{errors: %{hashed_password: "invalid"}}}
     end
   end
 

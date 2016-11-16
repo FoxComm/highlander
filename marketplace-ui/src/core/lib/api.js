@@ -1,4 +1,16 @@
+import localStorage from 'localStorage';
+
 import request from './request';
+
+export function addAuthHeaders(headers) {
+  const token = localStorage.getItem('jwt');
+
+  if (token) {
+    return { ...headers, JWT: token };
+  }
+
+  return headers;
+}
 
 export class Api {
   defaultHeaders = {
@@ -14,10 +26,12 @@ export class Api {
   request(method, url, data, options = {}) {
     const clearUrl = url.replace(/^\//, '');
 
+    const headers = addAuthHeaders(options && options.headers || {});
+
     return request(method, `${this.baseUrl}/${clearUrl}`, data, {
       headers: {
         ...this.defaultHeaders,
-        ...(options && options.headers || {}),
+        ...headers,
       },
     });
   }

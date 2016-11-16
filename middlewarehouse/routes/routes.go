@@ -3,11 +3,11 @@ package routes
 import (
 	"log"
 
-	"github.com/FoxComm/metamorphosis"
 	"github.com/FoxComm/highlander/middlewarehouse/common/config"
 	"github.com/FoxComm/highlander/middlewarehouse/controllers"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
+	"github.com/FoxComm/metamorphosis"
 
 	"github.com/jinzhu/gorm"
 )

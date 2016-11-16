@@ -8,10 +8,11 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
+	"fmt"
+
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 	"github.com/stretchr/testify/suite"
-	"fmt"
 )
 
 type InventoryServiceTestSuite struct {

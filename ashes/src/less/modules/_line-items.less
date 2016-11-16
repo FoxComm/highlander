@@ -38,8 +38,6 @@
   }
 
   .fc-table {
-    table-layout: fixed;
-
     .fc-table-th {
       width: calc(100% / 6);
     }
@@ -48,7 +46,7 @@
   &.is-editing {
     .fc-table-th {
       &:nth-last-child(2) {
-        width: calc(~"-100% / 6 - 70px");
+        width: calc(~"100% / 6 - 70px");
       }
 
       &:last-child {

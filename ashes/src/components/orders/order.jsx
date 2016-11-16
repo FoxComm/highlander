@@ -175,8 +175,8 @@ export default class Order extends React.Component {
     const order = this.order;
 
     if (order.orderState === 'canceled' ||
-        order.orderState === 'fulfillmentStarted' ||
-        order.orderState === 'shipped') {
+      order.orderState === 'fulfillmentStarted' ||
+      order.orderState === 'shipped') {
       return <State value={order.shippingState} model="order" />;
     }
 
@@ -261,15 +261,10 @@ export default class Order extends React.Component {
 
   get body() {
     if (this.props.isFetching !== false) {
-      return <WaitAnimation/>;
+      return <WaitAnimation />;
     }
-    if (_.isEmpty(this.order)) {
-      return (
-        <Error
-          err={this.props.fetchError}
-          notFound={`There is no order with reference number ${this.orderRefNum}`}
-        />
-      );
+    if (this.props.fetchError) {
+      return <Error notFound={`There is no order with reference number ${this.orderRefNum}`} />;
     }
     return this.contents;
   }

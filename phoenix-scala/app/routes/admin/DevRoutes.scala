@@ -1,18 +1,14 @@
 package routes.admin
 
-import scala.io.Source
 import akka.http.scaladsl.server.Directives._
-
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-
 import models.account.User
 import models.location.Address
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.OrderPayloads.OrderTimeMachine
 import services.Authenticator.AuthData
 import services.orders.TimeMachine
-import utils.TestStripeSupport
-
+import utils._
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
@@ -54,9 +50,10 @@ object DevRoutes {
   }
 
   lazy val version: String = {
-    val source = Source.fromFile("version")
+    val stream      = getClass.getResourceAsStream("/version")
+    val versionFile = scala.io.Source.fromInputStream(stream)
     try {
-      source.getLines.toSeq.mkString("\n")
+      versionFile.getLines.toSeq.mkString("\n")
     } catch {
       case _: Throwable ⇒ "No version file found!"
     }

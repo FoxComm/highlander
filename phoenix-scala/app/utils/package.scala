@@ -1,5 +1,4 @@
 import scala.language.implicitConversions
-
 import utils.Strings._
 
 package object utils {

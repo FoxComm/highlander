@@ -3,7 +3,7 @@ defmodule Solomon.AccountController do
   alias Solomon.Repo
   alias Solomon.Account
 
-  def index(conn, _params) do 
+  def index(conn, _params) do
     accounts = Repo.all(Account)
     render(conn, "index.json", accounts: accounts)
   end
@@ -25,7 +25,7 @@ defmodule Solomon.AccountController do
   end
 
   def show(conn, %{"id" => id}) do
-    account = 
+    account =
       Repo.get!(Account, id)
     render(conn, "show.json", account: account)
   end
@@ -34,15 +34,13 @@ defmodule Solomon.AccountController do
     account = Repo.get!(Account, id)
     changeset = Account.update_changeset(account, account_params)
     case Repo.update(changeset) do
-      {:ok, account} -> 
+      {:ok, account} ->
         conn
         |> render("show.json", account: account)
-      {:error, changeset} -> 
+      {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
         |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
     end
-  end 
-
+  end
 end
-

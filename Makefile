@@ -11,6 +11,8 @@ SUBDIRS_ALL = $(shell ./projects.sh -all)
 $(info $(SUBDIRS_ALL))
 BUILDDIRS_ALL = $(SUBDIRS_ALL:%=build-all-%)
 TESTDIRS_ALL = $(SUBDIRS_ALL:%=test-all-%)
+DOCKERDIRS_ALL = $(SUBDIRS_ALL:%=docker-all-%)
+DOCKERPUSHDIRS_ALL = $(SUBDIRS_ALL:%=docker-push-all-%)
 
 clean: $(CLEANDIRS)
 $(CLEANDIRS): REPO = $(@:clean-%=%)
@@ -54,6 +56,16 @@ $(DOCKERDIRS):
 docker-push: $(DOCKERPUSHDIRS)
 $(DOCKERPUSHDIRS): REPO = $(@:docker-push-%=%)
 $(DOCKERPUSHDIRS):
+	$(MAKE) -C $(REPO) docker-push
+
+docker-all: $(DOCKERDIRS_ALL)
+$(DOCKERDIRS_ALL): REPO = $(@:docker-all-%=%)
+$(DOCKERDIRS_ALL):
+	$(MAKE) -C $(REPO) docker
+
+docker-push-all: $(DOCKERPUSHDIRS_ALL)
+$(DOCKERPUSHDIRS_ALL): REPO = $(@:docker-push-all-%=%)
+$(DOCKERPUSHDIRS_ALL):
 	$(MAKE) -C $(REPO) docker-push
 
 .PHONY: update build $(UPDATEDIRS) $(SUBDIRS) $(BUILDDIRS)

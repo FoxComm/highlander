@@ -47,9 +47,6 @@ shortcuts:
   - name: Bootstrap Database Backup
     alias: db_backup.yml
     target: ansible/bootstrap_db_backup.yml
-  - name: Bootstrap OpenVPN
-    alias: openvpn.yml
-    target: ansible/bootstrap_openvpn.yml
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
@@ -67,6 +64,9 @@ shortcuts:
   - name: Provision TPG Staging
     alias: tpg_stage.yml
     target: ansible/tpg_stage.yml
+  - name: Provision TPG Production Backend
+    alias: tpg_backend.yml
+    target: ansible/tpg_backend.yml
   - name: Provision TPG Production
     alias: tpg_production.yml
     target: ansible/tpg_production.yml
@@ -130,7 +130,6 @@ shortcuts:
       stable: terraform/envs/gce_staging_stable/terraform.tfstate
       gatling: terraform/envs/gce_gatling/terraform.tfstate
       target: terraform/envs/aws_target/terraform.tfstate
-      target-dev: terraform/envs/aws_target_dev/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
   - name: Variable Files
@@ -141,7 +140,6 @@ shortcuts:
       stable: terraform/envs/gce_staging_stable/staging.tfvars
       gatling: terraform/envs/gce_gatling/gatling.tfvars
       target: terraform/envs/aws_target/target.tfvars
-      target-dev: terraform/envs/aws_target_dev/target.tfvars
       topdrawer: terraform/envs/gce_topdrawer/topdrawer.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
 
@@ -161,9 +159,6 @@ shortcuts:
   - name: Target AWS Networking
     alias: target
     target: terraform/base/aws_target
-  - name: Target AWS Cluster
-    alias: target-dev
-    target: terraform/base/aws_target_dev
   - name: TopDrawer
     alias: topdrawer
     target: terraform/base/gce_topdrawer

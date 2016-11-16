@@ -72,6 +72,7 @@
     "koa-favicon": "^1.2.0",
     "koa-onerror": "^2.0.0",
     "koa-proxy": "^0.6.0",
+    "localStorage": "^1.0.3",
     "lodash": "^4.16.2",
     "react": "^15.2.0",
     "react-addons-css-transition-group": "^15.3.1",

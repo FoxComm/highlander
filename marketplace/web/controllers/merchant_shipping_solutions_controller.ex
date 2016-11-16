@@ -6,7 +6,8 @@ defmodule Marketplace.MerchantShippingSolutionController do
   alias Marketplace.MerchantShippingSolution
   alias Marketplace.ShippingSolutionView
 
-  def index(conn, %{"merchant_id" => merchant_id}) do
+  def index(conn, params), do: secured_route(conn, params, &index/3)
+  defp index(conn, %{"merchant_id" => merchant_id}, claims) do
     shipping_solutions = Repo.all(from ss in ShippingSolution,
                               join: mss in MerchantShippingSolution,
                               where: ss.id == mss.shipping_solution_id
@@ -15,7 +16,8 @@ defmodule Marketplace.MerchantShippingSolutionController do
     render(conn, ShippingSolutionView, "index.json", shipping_solutions: shipping_solutions)
   end
 
-  def show(conn, %{"merchant_id" => m_id}) do
+  def show(conn, params), do: secured_route(conn, params, &show/3)
+  defp show(conn, %{"merchant_id" => m_id}, claims) do
     m_ss = Repo.get_by!(MerchantShippingSolution, merchant_id: m_id)
     |> Repo.preload(:shipping_solution)
 
@@ -23,7 +25,8 @@ defmodule Marketplace.MerchantShippingSolutionController do
     |> render(ShippingSolutionView, "show.json", shipping_solution: m_ss.shipping_solution)
   end
   
-  def create(conn, %{"shipping_solutions" => shipping_solutions_params, "merchant_id" => merchant_id}) do
+  def create(conn, params), do: secured_route(conn, params, &create/3)
+  defp create(conn, %{"shipping_solutions" => shipping_solutions_params, "merchant_id" => merchant_id}, claims) do
     case insert_and_relate(shipping_solutions_params, merchant_id) do
       {:ok, results_maps} ->
         shipping_solutions = Enum.map(results_maps, fn m -> Map.get(m, :shipping_solution) end)

@@ -126,6 +126,10 @@ export function deleteVariantCombination(product: Product, code: string): Produc
     });
   });
 
+  if (!newVariants.length && !newSkus.length) {
+    newSkus.push(createEmptySku());
+  }
+
   return assoc(product,
     'skus', newSkus,
     'variants', newVariants

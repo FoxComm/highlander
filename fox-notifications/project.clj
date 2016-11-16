@@ -34,4 +34,5 @@
   ["src" "resources"]
   :jar-name "messaging-no-dependencies.jar"
   :uberjar-name "messaging.jar"
-  :main messaging.main)
+  :main messaging.main
+  :aot [messaging.main])

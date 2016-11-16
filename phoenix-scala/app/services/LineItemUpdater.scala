@@ -1,22 +1,20 @@
 package services
 
+import failures.CartFailures._
 import failures.ProductFailures.SkuNotFoundForContext
+import models.account._
 import models.activity.Activity
 import models.cord._
-import models.cord.lineitems.OrderLineItems.scope._
+import models.cord.lineitems.CartLineItems.scope._
 import models.cord.lineitems._
-import CartLineItems.scope._
-import failures.CartFailures._
-import models.account._
 import models.inventory.{Sku, Skus}
 import models.objects.{ProductSkuLinks, ProductVariantLinks, VariantValueLinks}
 import models.product.VariantValueSkuLinks
-import org.json4s.JsonAST.JNull
+import org.json4s.JsonAST.{JNull, JObject}
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.carts.{CartPromotionUpdater, CartTotaler}
-import slick.dbio.DBIOAction
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -223,10 +221,11 @@ object LineItemUpdater {
                                           presentAttributes: Option[Json]) = {
     lineItems.filter { li ⇒
       (presentAttributes, li.attributes) match {
-        case (Some(p), Some(a))          ⇒ p.equals(a)
-        case (None, Some(a: JNull.type)) ⇒ true
-        case (None, None)                ⇒ true
-        case _                           ⇒ false
+        case (Some(p), Some(a))            ⇒ p.equals(a)
+        case (None, Some(a: JNull.type))   ⇒ true
+        case (None, Some(JObject(fields))) ⇒ fields.isEmpty
+        case (None, None)                  ⇒ true
+        case _                             ⇒ false
       }
     }
   }

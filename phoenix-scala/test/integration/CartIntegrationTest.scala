@@ -1,4 +1,5 @@
 import akka.http.scaladsl.model.StatusCodes
+
 import cats.implicits._
 import failures.CartFailures._
 import failures.LockFailures._
@@ -11,6 +12,7 @@ import models.payment.creditcard._
 import models.product.{Mvp}
 import models.rules.QueryStatement
 import models.shipping._
+import org.json4s.JsonAST.JObject
 import org.json4s.jackson.JsonMethods._
 import payloads.AddressPayloads.UpdateAddressPayload
 import payloads.LineItemPayloads.UpdateLineItemsPayload
@@ -27,7 +29,6 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
-import org.json4s.jackson.JsonMethods._
 
 class CartIntegrationTest
     extends IntegrationTestBase
@@ -157,6 +158,23 @@ class CartIntegrationTest
       skus.map(_.quantity).headOption.value must === (1)
     }
 
+    "should successfully remove line items with empty attributes" in new OrderShippingMethodFixture
+    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
+      val refreshedCart = cartsApi(cart.refNum).lineItems
+        .add(Seq(UpdateLineItemsPayload("SKU-YAX", 2, Some(JObject()))))
+        .asTheResult[CartResponse]
+
+      val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1))
+      val skus = cartsApi(cart.refNum).lineItems
+        .update(subtractPayload)
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+      skus must have size 1
+      skus.map(_.sku).headOption.value must === ("SKU-YAX")
+      skus.map(_.quantity).headOption.value must === (1)
+    }
+
     "should successfully remove gift card line item" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
       val sku                   = Mvp.getProductTuple(product).gimme.sku
@@ -181,7 +199,7 @@ class CartIntegrationTest
       val sku             = Mvp.getProductTuple(product).gimme.sku
       val subtractPayload = Seq(UpdateLineItemsPayload(sku.formId, -3))
       cartsApi(cart.refNum).lineItems
-        .update(Seq(UpdateLineItemsPayload(sku.formId, -3)))
+        .update(subtractPayload)
         .asTheResult[CartResponse]
         .lineItems
         .skus mustBe empty

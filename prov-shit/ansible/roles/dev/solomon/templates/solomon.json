@@ -9,7 +9,10 @@
     "DB_USER": "{{db_user}}",
     "DB_HOST": "{{docker_db_host}}",
     "DB_NAME": "{{phoenix_db_name}}",
-    "DB_PASSWORD": ""
+    "DB_PASSWORD": "",
+    "PRIVATE_KEY": "{{private_keys_dest_dir}}/private_key.pem",
+    "PUBLIC_KEY": "{{public_keys_dest_dir}}/public_key.pem",
+    "TOKEN_TTL": "{{solomon_token_ttl}}"
   },
   "portDefinitions": [
     {
@@ -21,7 +24,18 @@
   ],
   "container": {
     "type": "DOCKER",
-    "volumes": [],
+    "volumes": [
+      {
+        "containerPath": "{{private_keys_dest_dir}}",
+        "hostPath": "{{private_keys_dest_dir}}",
+        "mode": "RO"
+      },
+      {
+        "containerPath": "{{public_keys_dest_dir}}",
+        "hostPath": "{{public_keys_dest_dir}}",
+        "mode": "RO"
+      }
+    ],
     "docker": {
       "image": "{{docker_registry}}:5000/solomon:{{docker_branch}}",
       "network": "HOST",
@@ -32,14 +46,14 @@
   },
   "healthChecks": [
     {
-      "protocol": "COMMAND",
-      "command": {
-        "value": "ps -ef | grep -v grep | grep phoenix.server"
-      },
+      "path": "/ping",
+      "protocol": "HTTP",
       "gracePeriodSeconds": 300,
       "intervalSeconds": 60,
       "timeoutSeconds": 20,
-      "maxConsecutiveFailures": 3
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false,
+      "port": 4002
     }
   ]
 }
