@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { browserHistory } from 'react-router';
 import { autobind, debounce } from 'core-decorators';
 import { isElementInViewport } from 'lib/dom-utils';
+import * as tracking from 'lib/analythics';
 
 // styles
 import styles from './products-list.css';
@@ -129,16 +130,10 @@ class ProductsList extends Component {
     const visibleProducts = this.getNewVisibleProducts();
     const shownProducts = {};
     _.each(visibleProducts, item => {
-      const skuId = item.skus[0];
       shownProducts[item.id] = 1;
-      ga('ec:addImpression', {
-        id: skuId,
-        name: item.title,
-        category: _.get(item, 'tags.0'),
-        list: 'Product List',
-        position: item.index,
-      });
+      tracking.addImpression(item, item.index);
     });
+    tracking.sendImpressions();
     ga('send', 'event', 'UX', 'impression', 'Product List');
     this.setState({
       shownProducts: {

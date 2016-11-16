@@ -8,6 +8,7 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { addLineItem, toggleCart } from 'modules/cart';
 import { connect } from 'react-redux';
+import * as tracking from 'lib/analythics';
 
 import AddToCartBtn from 'ui/add-to-cart-btn';
 import Currency from 'ui/currency';
@@ -58,6 +59,7 @@ class ListItem extends React.Component {
     const skuId = this.props.skus[0];
     const quantity = 1;
 
+    tracking.addToCart(this.props, quantity);
     this.props.addLineItem(skuId, quantity)
       .then(() => {
         this.props.toggleCart();
@@ -84,18 +86,8 @@ class ListItem extends React.Component {
   @autobind
   handleClick() {
     const { props } = this;
-    const skuId = props.skus[0];
 
-    ga('ec:addProduct', {
-      id: skuId,
-      name: props.title,
-      category: _.get(props, 'tags.0'),
-      position: props.index,
-    });
-    ga('ec:setAction', 'click', {list: 'Product List'});
-
-    // Send click with an event, then send user to product page.
-    ga('send', 'event', 'UX', 'click', 'Product List');
+    tracking.clickPdp(props, props.index);
   }
 
   render(): HTMLElement {

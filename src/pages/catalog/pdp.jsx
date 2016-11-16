@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import * as tracking from 'lib/analythics';
 
 // i18n
 import localized from 'lib/i18n';
@@ -206,6 +207,7 @@ class Pdp extends Component {
     const { actions } = this.props;
     const { quantity } = this.state;
     const skuId = _.get(this.currentSku, 'attributes.code.v', '');
+    tracking.addToCart(this.product, quantity);
     actions.addLineItem(skuId, quantity, this.state.attributes)
       .then(() => {
         actions.toggleCart();
@@ -264,6 +266,7 @@ class Pdp extends Component {
                 quantity={this.state.quantity}
                 onQuantityChange={this.changeQuantity}
                 addToCart={this.addToCart}
+                ref={() => tracking.viewDetails(this.product)}
               />}
 
             <ErrorAlerts error={this.state.error} />
