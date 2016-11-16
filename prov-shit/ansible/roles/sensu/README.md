@@ -20,7 +20,8 @@ Ubuntu 16.04
 
 Example Playbook
 ----------------
-
+```
   - hosts: sensu-masters
     roles:
       - { role: sensu, sensu_master: true, sensu_include_dashboard: true  }
+```
