@@ -7,7 +7,7 @@ sensu_deploy_redis: false
 
 # Redis config
 redis_server: false
-redis_host: "{{ groups['redis_servers'][0] }}"
+redis_host: "{{ groups['redis-servers'][0] }}"
 redis_repo: 'ppa:chris-lea/redis-server'
 redis_port: 6379
 
@@ -17,7 +17,7 @@ rabbitmq_repo_key: 'https://www.rabbitmq.com/rabbitmq-release-signing-key.asc'
 rabbitmq_repo: 'deb http://www.rabbitmq.com/debian/ testing main'
 rabbitmq_config_path: /etc/rabbitmq
 rabbitmq_config_template: rabbitmq.config.j2
-rabbitmq_host: "{{ groups['rabbitmq_servers'][0] }}"
+rabbitmq_host: "{{ groups['rabbitmq-servers'][0] }}"
 rabbitmq_port: 5671
 rabbitmq_sensu_user_name: sensu
 rabbitmq_sensu_password: sensu
@@ -29,9 +29,9 @@ sensu_master: false
 sensu_include_dashboard: false
 #sensu_include_plugins: true
 sensu_transport: rabbitmq
-#
-static_data_store: /Users/vshyian/Projects/GoVale/ansible/data/static
-dynamic_data_store: /Users/vshyian/Projects/GoVale/ansible/data/dynamic
+# TODO
+#static_data_store: 
+#dynamic_data_store: 
 #
 sensu_core_repo_key: 'https://sensu.global.ssl.fastly.net/apt/pubkey.gpg'
 sensu_core_repo: 'deb https://sensu.global.ssl.fastly.net/apt sensu main'
