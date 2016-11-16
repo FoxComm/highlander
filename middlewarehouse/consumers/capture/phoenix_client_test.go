@@ -1,4 +1,4 @@
-package lib
+package main
 
 import (
 	"encoding/json"
@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/stretchr/testify/suite"
@@ -33,7 +34,7 @@ func (suite *PhoenixClientTestSuite) TestAuthenticate() {
 	ts := httptest.NewServer(http.HandlerFunc(fp.ServeHTTP))
 	defer ts.Close()
 
-	client := NewPhoenixClient(ts.URL, username, password)
+	client := lib.NewPhoenixClient(ts.URL, username, password)
 	err := client.Authenticate()
 	suite.Nil(err)
 	suite.True(client.IsAuthenticated())
@@ -46,14 +47,14 @@ func (suite *PhoenixClientTestSuite) TestNotAuthedWithOldExpiration() {
 	ts := httptest.NewServer(http.HandlerFunc(fp.ServeHTTP))
 	defer ts.Close()
 
-	client := NewPhoenixClient(ts.URL, username, password)
+	client := lib.NewPhoenixClient(ts.URL, username, password)
 	err := client.Authenticate()
 	suite.Nil(err)
 	suite.False(client.IsAuthenticated())
 }
 
 func (suite *PhoenixClientTestSuite) TestNotAuthedOnInit() {
-	client := NewPhoenixClient("http://test.com", "", "")
+	client := lib.NewPhoenixClient("http://test.com", "", "")
 	suite.False(client.IsAuthenticated())
 }
 
@@ -67,8 +68,9 @@ func (suite *PhoenixClientTestSuite) TestCapture() {
 
 	activity, err := activities.NewShipmentShipped(shipment, time.Now())
 
-	client := NewPhoenixClient(ts.URL, username, password)
-	err = client.CapturePayment(activity)
+	client := lib.NewPhoenixClient(ts.URL, username, password)
+	payload, _ := lib.NewCapturePayload(activity)
+	err = client.CapturePayment(payload)
 	suite.Nil(err)
 
 	suite.True(fp.LoginCalled)
@@ -118,7 +120,7 @@ func (fp *fakePhoenix) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (fp *fakePhoenix) handleCapture(w http.ResponseWriter, r *http.Request) {
 	fp.CaptureCalled = true
 
-	payload := new(CapturePayload)
+	payload := new(lib.CapturePayload)
 
 	defer r.Body.Close()
 	err := json.NewDecoder(r.Body).Decode(payload)
@@ -134,7 +136,7 @@ func (fp *fakePhoenix) handleCapture(w http.ResponseWriter, r *http.Request) {
 func (fp *fakePhoenix) handleLogin(w http.ResponseWriter, r *http.Request) {
 	fp.LoginCalled = true
 
-	payload := new(LoginPayload)
+	payload := new(lib.LoginPayload)
 
 	defer r.Body.Close()
 	err := json.NewDecoder(r.Body).Decode(payload)
@@ -146,7 +148,7 @@ func (fp *fakePhoenix) handleLogin(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("JWT", "FAKEJWT")
 
-	resp := LoginResponse{
+	resp := lib.LoginResponse{
 		ID:         1,
 		Email:      "admin@admin.com",
 		Ratchet:    0,
@@ -164,7 +166,7 @@ func (fp *fakePhoenix) handleLogin(w http.ResponseWriter, r *http.Request) {
 func (fp *fakePhoenix) handleUpdateOrder(w http.ResponseWriter, r *http.Request) {
 	fp.UpdateOrderCalled = true
 
-	payload := new(UpdateOrderPayload)
+	payload := new(lib.UpdateOrderPayload)
 
 	defer r.Body.Close()
 	err := json.NewDecoder(r.Body).Decode(payload)
