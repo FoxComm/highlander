@@ -101,6 +101,19 @@
                               {:rewards ""}
                               {:subject (settings/get :order_canceled_subject)})))))
 
+(defmethod handle-activity :user_remind_password
+  [activity]
+  (let [email (get-in activity [:data "user" "email"])
+              reset-code (get-in activity [:data "code"])
+              reset-pw-link (format (settings/get :reset_password_link_format) reset-code)
+              full-reset-password-link (format "%s/%s" (settings/get :shop_base_url) reset-pw-link)
+              customer-name (get-in activity [:data "user" "name"])]
+       (send-template! (settings/get :customer_remind_password_template)
+           (gen-msg {:email email :name customer-name}
+               {:reset_password_link full-reset-password-link
+                :reset_code reset-code}
+               {:subject (settings/get :customer_remind_password_subject)}))))
+
 (defmethod handle-activity :send_simple_mail
   [activity]
   (let [email (get-in activity [:data "email"])
@@ -118,8 +131,7 @@
   [activity]
   (let [email (get-in activity [:data "user" "email"])
         customer-name (get-in activity [:data "user" "name"] "")
-        customer-id (get-in activity [:data "user" "id"])
-        reset-password-link (str (settings/get :admin_base_url) "/reset-password/" customer-id)]
+        customer-id (get-in activity [:data "user" "id"])]
     (when (settings/add-new-customers-to-mailchimp?)
       (try
         (mailchimp/create-member-for-list
@@ -160,4 +172,4 @@
 
                      {:subject (settings/get :admin_invintation_subject)})]
 
-    (send-template! (settings/get :user_invitation_template) msg)))
+    (send-template! (settings/get :admin_invitation_template) msg)))
