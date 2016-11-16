@@ -1,0 +1,8 @@
+---
+
+- name: Copy Jar
+  copy: src={{greenriver_jar_src}} dest={{greenriver_jar}} mode="u+x,g+x,o+x"
+  when: upload_greenriver_jar
+
+- name: Restart Greenriver
+  service: name=greenriver state=restarted enabled=yes

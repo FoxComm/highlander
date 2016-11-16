@@ -14,8 +14,8 @@
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
-    - { role: dev/phoenix }
-    - { role: dev/greenriver }
+    - { role: archive/phoenix, sudo: true }
+    - { role: archive/greenriver, sudo: true }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
