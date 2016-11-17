@@ -79,7 +79,7 @@
   [schema]
   (if @api-server
     (try
-      (let [plugin-info {:name "fox-notifications"
+      (let [plugin-info {:name "messaging"
                          :description description
                          :apiHost @api-host
                          :version "1.0"
