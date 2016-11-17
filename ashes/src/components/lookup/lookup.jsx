@@ -178,7 +178,7 @@ export default class Lookup extends Component {
   }
 
   indexIsValid(index) {
-    return 0 <= index && index <= this.items.length - 1;
+    return 0 <= index && index <= _.size(this.items) - 1;
   }
 
   filter(data, query) {
