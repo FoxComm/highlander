@@ -80,7 +80,7 @@
     :default ""}
 
    {:name "admin_invintation_subject"
-    :title "Admin invintation mail subject"
+    :title "Admin invitation mail subject"
     :type "string"
     :default ""}
 ; --
