@@ -118,7 +118,20 @@ export function saveCouponCode(code: string): Function {
   return (dispatch) => {
     return foxApi.cart.addCoupon(code)
       .then(res => {
-        dispatch(updateCart(res));
+        dispatch(updateCart(res.result));
+      });
+  };
+}
+
+export function removeCouponCode() {
+  return (dispatch) => {
+    return foxApi.cart.removeCoupon()
+      .then(res => {
+        dispatch(updateCart({
+          ...res.result,
+          coupon: null,
+          promotion: null,
+        }));
       });
   };
 }

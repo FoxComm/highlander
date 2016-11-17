@@ -41,6 +41,12 @@ function apiCall(): Promise {
       description: '',
       imageUrl: '',
     },
+    {
+      id: 5,
+      name: 'HOLIDAY',
+      description: '',
+      imageUrl: '',
+    },
   ];
   return Promise.resolve(result);
 }

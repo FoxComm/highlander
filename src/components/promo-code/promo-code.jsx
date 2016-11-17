@@ -49,19 +49,12 @@ class PromoCode extends Component {
 
   @autobind
   save() {
-    const { t } = this.props;
-
     const code = this.state.code.replace(/\s+/g, '');
 
     this.props.saveCode(code)
-      .then(
-        data => {
-          this.setState({code: ''});
-        },
-        err => {
-          console.log(err);
-          this.setState({code: '', error: err});
-        })
+      .catch(err => {
+        this.setState({ code: '', error: err });
+      });
   }
 
   render() {
