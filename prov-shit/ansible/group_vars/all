@@ -40,6 +40,9 @@ phoenix_db_connection_string: "postgresql://{{phoenix_db_user}}@{{db_host}}/{{ph
 phoenix_api_user: "api@foxcommerce.com"
 phoenix_api_password: "api$pass7!"
 
+phoenix_tax_rule_region: ""
+phoenix_tax_rule_rate: ""
+
 # Do not use this in production
 # This is a ttl of 1 year
 phoenix_token_ttl: 525600
