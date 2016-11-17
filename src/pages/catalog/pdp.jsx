@@ -141,9 +141,8 @@ class Pdp extends Component {
         const giftCard = result[0] || {};
         return this.props.actions.fetch(giftCard.productId);
       });
-    } else {
-      return this.props.actions.fetch(productId);
     }
+    return this.props.actions.fetch(productId);
   }
 
   get productId(): number {

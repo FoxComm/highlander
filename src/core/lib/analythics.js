@@ -98,8 +98,8 @@ export function addLineItems(lineItems) {
 
 export function checkoutStart(lineItems) {
   addLineItems(lineItems);
-  ga("ec:setAction", "checkout", {
-    "step": 1
+  ga('ec:setAction', 'checkout', {
+    step: 1,
   });
   ga('send', 'event', 'Checkout', 'Start');
 }
@@ -107,8 +107,8 @@ export function checkoutStart(lineItems) {
 
 export function chooseShippingMethod(method) {
   ga('ec:setAction', 'checkout_option', {
-    'step': 2,
-    'option': method
+    step: 2,
+    option: method,
   });
   ga('send', 'event', 'Checkout', 'Option');
 }
