@@ -48,7 +48,7 @@
     seeds_cmd: utils.seeds.Seeds seed --seedAdmins --skipMigrate
     with_base_seeds: true
     phoenix_tax_rule_region: 4129
-    phoenix_tax_rate: 7.5
+    phoenix_tax_rule_rate: 7.5
   tags:
     - frontend
   roles:

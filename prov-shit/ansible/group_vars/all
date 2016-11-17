@@ -41,7 +41,7 @@ phoenix_api_user: "api@foxcommerce.com"
 phoenix_api_password: "api$pass7!"
 
 phoenix_tax_rule_region: ""
-phoenix_tax_rate: ""
+phoenix_tax_rule_rate: ""
 
 # Do not use this in production
 # This is a ttl of 1 year
