@@ -97,6 +97,7 @@ const mapDispatchToProps = dispatch => ({
 
 class Pdp extends Component {
   props: Props;
+  productPromise: Promise;
 
   state: State = {
     quantity: 1,
@@ -106,8 +107,16 @@ class Pdp extends Component {
 
   componentWillMount() {
     if (_.isEmpty(this.props.product)) {
-      this.fetchProduct();
+      this.productPromise = this.fetchProduct();
+    } else {
+      this.productPromise = Promise.resolve();
     }
+  }
+
+  componentDidMount() {
+    this.productPromise.then(() => {
+      tracking.viewDetails(this.product);
+    });
   }
 
   componentWillUnmount() {
@@ -128,12 +137,12 @@ class Pdp extends Component {
     const productId = _productId || this.productId;
 
     if (this.isGiftCard(props)) {
-      searchGiftCards().then(({ result = [] }) => {
+      return searchGiftCards().then(({ result = [] }) => {
         const giftCard = result[0] || {};
-        this.props.actions.fetch(giftCard.productId);
+        return this.props.actions.fetch(giftCard.productId);
       });
     } else {
-      this.props.actions.fetch(productId);
+      return this.props.actions.fetch(productId);
     }
   }
 
@@ -266,7 +275,6 @@ class Pdp extends Component {
                 quantity={this.state.quantity}
                 onQuantityChange={this.changeQuantity}
                 addToCart={this.addToCart}
-                ref={() => tracking.viewDetails(this.product)}
               />}
 
             <ErrorAlerts error={this.state.error} />
