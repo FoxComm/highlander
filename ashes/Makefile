@@ -22,9 +22,9 @@ tag:
 	git push --tags origin master
 
 setup:
-	if ! type "yarn" > /dev/null; then npm install -g yarn; fi
-	yarn
-	yarn build
+	if ! type "./node_modules/.bin/yarn" > /dev/null; then npm install yarn; fi
+	./node_modules/.bin/yarn
+	./node_modules/.bin/yarn build
 
 stop:
 	if [ `ps aux | awk '{print $2 " " $11}' | grep [m]-ashes | awk '{print $1}'` ]; then npm stop; fi
