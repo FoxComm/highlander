@@ -1,6 +1,6 @@
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
-import ShallowTestUtils from 'react-shallow-testutils';
+import ReactTestUtils from 'react-addons-test-utils';
+import * as ShallowTestUtils from 'react-shallow-testutils';
 
 describe('Currency', function() {
   const Currency = requireComponent('common/currency.jsx');
