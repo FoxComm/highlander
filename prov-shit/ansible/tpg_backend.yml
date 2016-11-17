@@ -35,4 +35,5 @@
     - { role: archive/greenriver, sudo: true }
     - { role: prod/db_migrate }
     - { role: archive/seeder }
+    - { role: ext/tpg/db_hotfix }
     - { role: ext/tpg/shipping }

@@ -69,4 +69,5 @@
     seeds_cmd: utils.seeds.Seeds seed --seedAdmins
   roles:
     - { role: archive/seeder }
+    - { role: ext/tpg/db_hotfix }
     - { role: ext/tpg/shipping }
