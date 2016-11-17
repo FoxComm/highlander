@@ -14,8 +14,8 @@ function apiCall(): Promise {
     {
       id: 1,
       name: 'APPETIZERS',
-      description: 'Dinner in 30 minutes',
-      imageUrl: '',
+      description: 'Starters in 10 Minutes',
+      imageUrl: '/images/categories/Cat_Appetizers_2x.jpg',
     },
     {
       id: 2,
