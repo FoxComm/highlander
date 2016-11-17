@@ -31,29 +31,10 @@ object ImagePayloads {
     }
   }
 
-  case class CreateAlbumPayload(name: String, images: Images = None, position: Option[Int] = None)
-      extends Validation[CreateAlbumPayload] {
-
-    def formAndShadow: FormAndShadow = {
-      val jsonBuilder: AttributesBuilder = AttributesBuilder(StringField("name", name))
-
-      (ObjectForm(kind = Album.kind, attributes = jsonBuilder.objectForm),
-       ObjectShadow(attributes = jsonBuilder.objectShadow))
-    }
-
-    override def validate: ValidatedNel[Failure, CreateAlbumPayload] = images match {
-      case Some(imgList) ⇒
-        val withId = imgList.filter(_.id.isDefined)
-        validExpr(withId.isEmpty, s"Image id should be empty").map(_ ⇒ this)
-      case None ⇒
-        Validated.valid(this)
-    }
-  }
-
-  case class UpdateAlbumPayload(name: Option[String] = None,
-                                images: Images = None,
-                                position: Option[Int] = None)
-      extends Validation[UpdateAlbumPayload] {
+  case class AlbumPayload(name: Option[String] = None,
+                          images: Images = None,
+                          position: Option[Int] = None)
+      extends Validation[AlbumPayload] {
 
     def formAndShadow: FormAndShadow = {
       val jsonBuilder: AttributesBuilder =
@@ -63,7 +44,7 @@ object ImagePayloads {
        ObjectShadow(attributes = jsonBuilder.objectShadow))
     }
 
-    override def validate: ValidatedNel[Failure, UpdateAlbumPayload] =
+    override def validate: ValidatedNel[Failure, AlbumPayload] =
       validateIdsUnique(images).map(_ ⇒ this)
   }
 

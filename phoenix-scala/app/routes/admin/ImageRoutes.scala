@@ -18,7 +18,7 @@ object ImageRoutes {
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("albums") {
         pathPrefix(Segment) { context ⇒
-          (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒
+          (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
             mutateOrFailures {
               ImageManager.createAlbum(payload, context)
             }
@@ -29,7 +29,7 @@ object ImageRoutes {
                 ImageManager.getAlbum(albumId, context)
               }
             } ~
-            (patch & pathEnd & entity(as[UpdateAlbumPayload])) { payload ⇒
+            (patch & pathEnd & entity(as[AlbumPayload])) { payload ⇒
               mutateOrFailures {
                 ImageManager.updateAlbum(albumId, payload, context)
               }

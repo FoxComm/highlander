@@ -80,7 +80,7 @@ object ImageManager {
               }
     } yield result
 
-  def createAlbum(album: CreateAlbumPayload,
+  def createAlbum(album: AlbumPayload,
                   contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[AlbumRoot] =
     for {
       context        ← * <~ ObjectManager.mustFindByName404(contextName)
@@ -89,7 +89,7 @@ object ImageManager {
     } yield AlbumResponse.build(album, images)
 
   def createAlbumInner(
-      createPayload: CreateAlbumPayload,
+      createPayload: AlbumPayload,
       context: ObjectContext)(implicit ec: EC, db: DB, au: AU): DbResultT[FullAlbumWithImages] =
     for {
       payload ← * <~ createPayload.validate
@@ -180,7 +180,7 @@ object ImageManager {
   def createAlbumForProduct(
       admin: User,
       productId: Int,
-      payload: CreateAlbumPayload,
+      payload: AlbumPayload,
       contextName: String)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[AlbumRoot] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
@@ -190,7 +190,7 @@ object ImageManager {
       link ← * <~ ProductAlbumLinks.createLast(product, fullAlbum.model)
     } yield AlbumResponse.build(fullAlbum, images)
 
-  def createAlbumForSku(admin: User, code: String, payload: CreateAlbumPayload)(
+  def createAlbumForSku(admin: User, code: String, payload: AlbumPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
@@ -203,16 +203,15 @@ object ImageManager {
       link ← * <~ SkuAlbumLinks.createLast(sku, fullAlbum.model)
     } yield AlbumResponse.build(fullAlbum, images)
 
-  def updateAlbum(id: ObjectForm#Id, payload: UpdateAlbumPayload, contextName: String)(
-      implicit ec: EC,
-      db: DB,
-      au: AU): DbResultT[AlbumRoot] =
+  def updateAlbum(id: ObjectForm#Id,
+                  payload: AlbumPayload,
+                  contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[AlbumRoot] =
     for {
       context  ← * <~ ObjectManager.mustFindByName404(contextName)
       response ← * <~ updateAlbumInner(id, payload, contextName)
     } yield response
 
-  def updateAlbumInner(id: ObjectForm#Id, updatePayload: UpdateAlbumPayload, contextName: String)(
+  def updateAlbumInner(id: ObjectForm#Id, updatePayload: AlbumPayload, contextName: String)(
       implicit ec: EC,
       db: DB,
       au: AU): DbResultT[AlbumRoot] =
