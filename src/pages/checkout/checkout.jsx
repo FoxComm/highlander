@@ -179,11 +179,14 @@ class Checkout extends Component {
 
   @autobind
   placeOrder() {
-    if (this.props.cart.creditCard) {
+    const { creditCard } = this.props.cart;
+    if (creditCard) {
+      tracking.chooseBillingMethod(creditCard.brand);
       return this.props.chooseCreditCard()
         .then(() => this.checkout());
     }
 
+    tracking.chooseBillingMethod('GiftCard?')
     return this.checkout();
   }
 

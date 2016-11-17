@@ -112,3 +112,11 @@ export function chooseShippingMethod(method) {
   });
   ga('send', 'event', 'Checkout', 'Option');
 }
+
+export function chooseBillingMethod(method) {
+  ga('ec:setAction', 'checkout_option', {
+    step: 3,
+    option: method,
+  });
+  ga('send', 'event', 'Checkout', 'Option');
+}
