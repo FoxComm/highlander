@@ -3,6 +3,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
+import { zipCode } from 'ui/forms/validators';
 
 // localization
 import localized, { phoneMask } from 'lib/i18n';
@@ -235,7 +236,7 @@ export default class EditAddress extends Component {
             onChange={this.changeFormData}
           />
         </FormField>
-        <FormField styleName="text-field" validator="zipCode">
+        <FormField styleName="text-field" validator={zipCode}>
           <TextInput required placeholder={t('ZIP')} onChange={this.handleZipChange} value={data.zip} />
         </FormField>
         <FormField styleName="text-field">

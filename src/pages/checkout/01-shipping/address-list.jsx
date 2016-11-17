@@ -96,7 +96,16 @@ class AddressList extends Component {
           isEditFormActive: false,
         });
       })
-      .catch((error) => {
+      .catch((err) => {
+        let error = err;
+        const messages = _.get(err, ['responseJson', 'errors'], [err.toString()]);
+        const zipErrorPresent = _.find(messages,
+          (msg) => { return msg.indexOf('zip') >= 0; });
+
+        if (zipErrorPresent) {
+          error = new Error(messages);
+          error.responseJson = { errors: ['Zip code is invalid']};
+        }
         this.setState({
           error,
         });
