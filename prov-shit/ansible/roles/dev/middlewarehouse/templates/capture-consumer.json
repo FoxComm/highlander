@@ -1,5 +1,5 @@
 {
-  "id": "/shipments-consumer",
+  "id": "/capture-consumer",
   "cmd": null,
   "cpus": 0.25,
   "mem": 64,
@@ -9,7 +9,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/shipments-consumer:{{docker_branch}}",
+      "image": "{{docker_registry}}/capture-consumer:master",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -21,25 +21,29 @@
     "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
     "ZOOKEEPER_URL": "{{zookeeper_server}}",
     "MWH_URL": "http://{{middlewarehouse_server}}",
+    "PHOENIX_URL": "http://{{phoenix_server}}",
+    "PHOENIX_USER": "{{phoenix_api_user}}",
+    "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
     "PARTITION": "1"
   },
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "ps -ef | grep -v grep | grep capture-consumer"
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false
+    }
+  ],
   "portDefinitions": [
     {
       "port": 10002,
       "protocol": "tcp",
       "labels": {}
-    }
-  ],
-  "healthChecks": [
-    {
-      "protocol": "COMMAND",
-      "command": {
-        "value": "ps -ef | grep -v grep | grep shipments-consumer"
-      },
-      "gracePeriodSeconds": 300,
-      "intervalSeconds": 60,
-      "timeoutSeconds": 20,
-      "maxConsecutiveFailures": 3
     }
   ]
 }
