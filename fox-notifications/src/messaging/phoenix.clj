@@ -96,6 +96,12 @@
                          bs/to-string
                          json/read-str)]
         (settings/update-settings (get resp "settings")))
-      (catch Exception e (println "Can't register plugin at phoenix" e)))
+      (catch Exception e
+        (try
+          (let [error-body (-> (ex-data e) :body bs/to-string)]
+            (println "Can't register plugin at phoenix" error-body))
+          (catch Exception einner
+            (println "Can't register plugin at phoenix" e)))
+        (throw e)))
     (println "Phoenix address not set, can't register myself into phoenix :(")))
 
