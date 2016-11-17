@@ -90,16 +90,24 @@
 (defmethod handle-activity :order_state_changed
   [activity]
   (let [data (:data activity)
-        email (get-in data ["order" "customer" "email"])
-        customer-name (get-in data ["order" "customer" "name"] "")
-        order-ref (get-in data ["order" "referenceNumber"])
-        new-state (get-in data ["order" "orderState"])]
+        order (get data "order")
+        email (get-in order ["customer" "email"])
+        customer-name (get-in order ["customer" "name"] "")
+        order-ref (get-in order ["referenceNumber"])
+        new-state (get-in order ["orderState"])
+        msg (gen-msg {:email email :name customer-name}
+                    {:items (let [skus (get-in order ["lineItems" "skus"])]
+                              (map at/sku->item skus))
+                      :totals (at/format-prices (get order "totals"))
+                      :placed_at (at/date-simple-format (get order "placedAt"))
+                      :shipping_method (get-in order ["shippingMethod" "name"])
+                      :shipping_address (get order "shippingAddress")
+                      :billing_address (get order "billingAddress")
+                      :order_ref order-ref}
 
-   (when (= "canceled" new-state)
-     (send-template! (settings/get :order_canceled_template)
-                     (gen-msg {:email email :name customer-name}
-                              {:rewards ""}
-                              {:subject (settings/get :order_canceled_subject)})))))
+                    {:subject (settings/get :order_canceled_subject)})]
+    (when (= "canceled" new-state)
+      (send-template! (settings/get :order_canceled_template) msg))))
 
 (defmethod handle-activity :user_remind_password
   [activity]
