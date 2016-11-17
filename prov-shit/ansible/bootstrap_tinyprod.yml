@@ -9,7 +9,6 @@
     seeds_cmd: utils.seeds.Seeds seed
     updating_mwh: true
     middlewarehouse_src: "{{gopath}}/src/github.com/FoxComm/highlander/middlewarehouse"
-    docker_db_host: db.service.consul
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a backend to provision"
@@ -36,19 +35,8 @@
     - frontend
   vars:
     user: '{{ansible_ssh_user}}'
-    api_server: balancer.service.consul
-    ashes_server: ashes.service.consul:4000
-    isaac_server: isaac.service.consul:9190
-    middlewarehouse_host: middlewarehouse.service.consul
-    middlewarehouse_port: 9292
-    phoenix_server: phoenix.service.consul:9090
-    search_server_http: elasticsearch.service.consul:9200
-    search_server: elasticsearch.service.consul:9300
-    schema_server: schema-registry.service.consul:8081
-    zookeeper_server: zookeeper.service.consul:2181
     firebrand_default_language: en
     firebrand_fixed_language: false
-    docker_db_host: db.service.consul
     phoenix_service_requires: ""
     middlewarehouse_service_requires: ""
     greenriver_service_requires: ""

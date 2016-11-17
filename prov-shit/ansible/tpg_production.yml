@@ -4,10 +4,6 @@
   hosts: tpg-backend
   vars:
     user: '{{ansible_ssh_user}}'
-    middlewarehouse_server: middlewarehouse.service.consul:9292
-    kafka_server: kafka.service.consul:9092
-    schema_server: schema-registry.service.consul:8081
-    zookeeper_server: zookeeper.service.consul:2181
     upload_phoenix_jar: true
     upload_greenriver_jar: true
   roles:
@@ -25,22 +21,8 @@
   vars:
     user: '{{ansible_ssh_user}}'
     upload_phoenix_jar: true
-    middlewarehouse_host: middlewarehouse.service.consul
-    middlewarehouse_port: 9292
-    isaac_server: isaac.service.consul:9190
-    solomon_server: solomon.service.consul:4002
-    ashes_server: ashes.service.consul:4000
-    marathon_server: marathon.service.consul:8080
-    docker_db_host: db.service.consul
     docker_branch: master
     docker_registry: docker-tpg.foxcommerce.com
-    db_host: db.service.consul
-    kafka_server: kafka.service.consul:9092
-    schema_server: schema-registry.service.consul:8081
-    search_host: elasticsearch.service.consul
-    zookeeper_server: zookeeper.service.consul:2181
-    storefront_server: storefront.service.consul:4044
-    phoenix_server: phoenix.service.consul:9090
     api_server: tpg.foxcommerce.com
     self_host: tpg.foxcommerce.com
     ashes_server_name: tpg.foxcommerce.com
@@ -60,7 +42,6 @@
   vars:
     user: '{{ansible_ssh_user}}'
     db_host: db.service.consul
-    docker_db_host: db.service.consul
     docker_branch: master
     docker_frontend_branch: production
     docker_registry: docker-tpg.foxcommerce.com

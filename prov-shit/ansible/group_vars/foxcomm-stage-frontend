@@ -1,9 +1,3 @@
-phoenix_server: "phoenix.service.consul:9090"
-isaac_server: "isaac.service.consul:9190"
-search_host:  elasticsearch.service.consul
-log_host:  elasticsearch.service.consul
-ashes_server: 127.0.0.1:4000
-api_server: 127.0.0.1
-ashes_server_name: stage.foxcommerce.com
-storefront_server_name: "stage.foxcommerce.com"
-db_host: db.service.consul
+demo_domain: stage.foxcommerce.com
+ashes_server_name: {{demo_domain}}
+storefront_server_name: {{demo_domain}}
