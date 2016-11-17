@@ -12,8 +12,9 @@ import type { HTMLElement } from 'types';
 import Icon from 'ui/icon';
 import Login from './login';
 import Signup from './signup';
-import ResetPassword from './reset-password.jsx';
-import RestorePassword from './restore-password.jsx';
+import ResetPassword from './reset-password';
+import RestorePassword from './restore-password';
+import ForceRestorePassword from './force-restore-password';
 
 type Props = {
   authBlockType: string,
@@ -26,6 +27,7 @@ class Auth extends Component {
   renderContent() {
     const authProps = {
       getPath: this.getPath,
+      path: this.props.path,
     };
 
     switch (this.props.authBlockType) {
@@ -35,6 +37,8 @@ class Auth extends Component {
         return <Signup {...authProps} />;
       case authBlockTypes.RESET_PASSWORD:
         return <ResetPassword {...authProps} />;
+      case authBlockTypes.FORCE_RESTORE_PASSWORD:
+        return <ForceRestorePassword {...authProps} />;
       case authBlockTypes.RESTORE_PASSWORD:
         return <RestorePassword {...authProps} />;
       default:

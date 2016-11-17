@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 
 import AddToCartBtn from 'ui/add-to-cart-btn';
 import Currency from 'ui/currency';
+import ImagePlaceholder from './image-placeholder';
 
 type Image = {
   alt?: string,
@@ -66,36 +67,40 @@ class ListItem extends React.Component {
       });
   }
 
+  get image() {
+    const previewImageUrl = _.get(this.props.albums, [0, 'images', 0, 'src']);
+
+    return previewImageUrl
+      ? <img src={previewImageUrl} styleName="preview-image"/>
+      : <ImagePlaceholder/>;
+  }
+
   render(): HTMLElement {
     const {
       productId,
       title,
       description,
-      albums,
       salePrice,
       currency,
     } = this.props;
 
-    const previewImageUrl = _.get(albums, [0, 'images', 0, 'src']);
-
     return (
       <div styleName="list-item">
-        {previewImageUrl &&
-          <Link to={`/products/${productId}`}>
-            <div styleName="preview">
-              <img src={previewImageUrl} styleName="preview-image" />
-              <div styleName="hover-info">
-                <h2
-                  styleName="additional-description"
-                  dangerouslySetInnerHTML={{__html: description}}
-                />
-              </div>
+        <Link to={`/products/${productId}`}>
+          <div styleName="preview">
+            {this.image}
+            <div styleName="hover-info">
+              <h2
+                styleName="additional-description"
+                dangerouslySetInnerHTML={{__html: description}}
+              />
             </div>
-          </Link>}
+          </div>
+        </Link>
 
         <div styleName="text-block">
           <h1 styleName="title" alt={title}>
-            {title}
+            <Link to={`/products/${productId}`}>{title}</Link>
           </h1>
           <h2 styleName="description">{/* serving size */}</h2>
           <div styleName="price-line">
@@ -103,7 +108,7 @@ class ListItem extends React.Component {
               <Currency value={salePrice} currency={currency} />
             </div>
 
-            <AddToCartBtn onClick={this.addToCart} />
+            <AddToCartBtn onClick={this.addToCart} expanded />
           </div>
         </div>
       </div>

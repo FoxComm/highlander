@@ -15,6 +15,8 @@ import EditName from './components/profile/blocks/edit-name';
 import EditEmail from './components/profile/blocks/edit-email';
 import ChangePassword from './components/profile/blocks/change-password';
 import Order from './components/profile/blocks/order';
+import StoresPage from './pages/stores/stores-page';
+import HomePage from './pages/home/home-page';
 
 import Checkout from './pages/checkout/checkout';
 import OrderPlaced from './pages/checkout/04-order-placed/order-placed';
@@ -23,7 +25,7 @@ const routes = (
   <Route path="/" component={Site}>
     <Route path="/checkout" component={Checkout} />
     <Route component={StoreFront}>
-      <IndexRoute component={Products} />
+      <IndexRoute component={HomePage} />
       <Route path="/profile" component={Page}>
         <IndexRoute component={Profile} />
         <Route component={ProfileUnit}>
@@ -36,6 +38,7 @@ const routes = (
       <Route path="/shipping-and-returns" component={ShippingAndReturns} name="shipping-and-returns" />
       <Route path="/privacy-policy" component={PrivacyPolicy} name="privacy-policy" />
       <Route path="/terms-of-use" component={TermsOfUse} name="terms-of-use" />
+      <Route path="/stores" component={StoresPage} name="stores" />
       <Route path="/checkout/done" component={OrderPlaced} />
       <Route path="/products/:productId" component={Pdp} name="product" />
       <Route path="/gift-cards" component={Pdp} name="gift-cards" />

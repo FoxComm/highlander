@@ -4,6 +4,10 @@
 .item-link {
   line-height: 40px;
   text-decoration: none;
+
+  &.active {
+    box-shadow: 0 2px rgba(255, 255, 255, 0.70);
+  }
 }
 
 @media (--small-only), (--medium-only) {
@@ -35,6 +39,10 @@
 
     &:hover {
       opacity: .7;
+    }
+
+    &.active {
+      box-shadow: 0 2px #3E3436;
     }
   }
 }

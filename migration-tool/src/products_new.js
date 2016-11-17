@@ -167,7 +167,7 @@ function saveProducts() {
     // const products = JSON.parse(data).slice(4, 5);
     const products = JSON.parse(data);
 
-    products.map((product) => {
+    products.map((product, i) => {
       const productPayload = getProduct(product);
 
       // console.log(productPayload.skus[0].attributes.salePrice.v);
@@ -178,10 +178,21 @@ function saveProducts() {
       save(productPayload, id).then(
         (data) => {
           const code = data.skus[0].attributes.code.v;
+          products[i].productId = data.id;
+
+          if (i == products.length - 1) {
+            fs.writeFile(__dirname + '/data/products_new.json', JSON.stringify(products, null, 2), function(err) {
+              if(err) {
+                return console.log(err);
+              }
+
+              console.log("Products IDs were added to json, you can update them now!");
+            });
+          }
 
           setTimeout(() => {
             updateInventory(code);
-          }, 3000);
+          }, 10000);
         }
       );
     });
@@ -205,7 +216,7 @@ function saveGiftCard() {
             const code = sku.attributes.code.v;
             updateInventory(code);
           });
-        }, 3000);
+        }, 10000);
       }
     );
   });

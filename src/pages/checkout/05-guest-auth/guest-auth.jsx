@@ -4,9 +4,11 @@ import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc, dissoc } from 'sprout-data';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 
 import Guest from '../../../components/auth/guest';
 import Login from '../../../components/auth/login';
+import Icon from 'ui/icon';
 
 import * as checkoutActions from 'modules/checkout';
 import * as authActions from 'modules/auth';
@@ -44,25 +46,32 @@ class GuestAuth extends Component {
 
     return (
       <article styleName="guest-auth">
-        <div styleName="auth-block">
-          <header styleName="header">SIGN IN & CHECKOUT</header>
-          <div styleName="form">
-            <div styleName="form-content">
-              <Login
-                getPath={this.getPath}
-                displayTitle={false}
-                onGuestCheckout={this.onCheckoutAfterAuth}
-              />
-            </div>
-          </div>
+        <div styleName="home">
+          <Link to="/">
+             <Icon styleName="logo" name="fc-logo" />
+          </Link>
         </div>
-        <div styleName="auth-block">
-          <header styleName="header">CHECKOUT AS GUEST</header>
-          <div styleName="form">
-            <div styleName="form-content">
-              <Guest onGuestCheckout={this.onGuestCheckout}/>
+        <div styleName="forms">
+          <div styleName="auth-block">
+            <header styleName="header">SIGN IN & CHECKOUT</header>
+            <div styleName="form">
+              <div styleName="form-content">
+                <Login
+                  getPath={this.getPath}
+                  displayTitle={false}
+                  onGuestCheckout={this.onCheckoutAfterAuth}
+                />
+              </div>
             </div>
           </div>
+          <div styleName="auth-block">
+            <header styleName="header">CHECKOUT AS GUEST</header>
+            <div styleName="form">
+              <div styleName="form-content">
+                <Guest onGuestCheckout={this.onGuestCheckout}/>
+              </div>
+            </div>
+        </div>
         </div>
       </article>
     );

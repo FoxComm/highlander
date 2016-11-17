@@ -8,7 +8,7 @@
   height: 86px;
   font-weight: 400;
   font-size: 15px;
-  background: var(--whitish);
+  background: var(--background-color);
   color: #212121;
   box-shadow: 0 1px var(--border-color);
 }
@@ -22,11 +22,13 @@
   composes: wrap from "ui/css/layout.css";
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .navigation {
   display: none;
   transition: all 300ms;
+  background: var(--background-color);
 }
 
 .tools {
@@ -78,7 +80,6 @@
       top: 136px;
       width: 100%;
       left: 0;
-      background: #fff;
       height: 86px;
       display: flex;
       justify-content: center;

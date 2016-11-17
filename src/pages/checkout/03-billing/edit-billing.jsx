@@ -16,7 +16,7 @@ import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import Checkbox from 'ui/checkbox/checkbox';
 import Autocomplete from 'ui/autocomplete';
 import InputMask from 'react-input-mask';
-import EditAddress from '../address/edit-address';
+import EditAddress from 'ui/address/edit-address';
 import CreditCards from './credit-cards';
 import ViewGiftCards from './view-gift-cards';
 import Icon from 'ui/icon';
@@ -31,7 +31,6 @@ import styles from './billing.css';
 // actions
 import * as cartActions from 'modules/cart';
 import * as checkoutActions from 'modules/checkout';
-import { AddressKind } from 'modules/checkout';
 
 // types
 import type { CreditCardType, CheckoutActions } from '../types';
@@ -49,6 +48,7 @@ type Props = CheckoutActions & {
 type State = {
   addingNew: boolean,
   billingAddressIsSame: boolean,
+  cardAdded: boolean,
 };
 
 class EditBilling extends Component {
@@ -57,6 +57,7 @@ class EditBilling extends Component {
   state: State = {
     addingNew: false,
     billingAddressIsSame: true,
+    cardAdded: false,
   };
 
   componentWillMount() {
@@ -102,6 +103,11 @@ class EditBilling extends Component {
     this.props.setBillingData('expYear', year);
   }
 
+  @autobind
+  changeDefault(value) {
+    this.props.setBillingData('isDefault', value);
+  }
+
   get billingAddress() {
     const { billingAddressIsSame } = this.state;
 
@@ -112,8 +118,8 @@ class EditBilling extends Component {
     return (
       <EditAddress
         {...this.props}
-        addressKind={AddressKind.BILLING}
         address={this.props.data.address}
+        onUpdate={this.props.setBillingAddress}
       />
     );
   }
@@ -158,7 +164,7 @@ class EditBilling extends Component {
   @autobind
   cancelEditing() {
     this.props.performStageTransition('billingInProgress', () => {
-      this.setState({ addingNew: false });
+      this.setState({ addingNew: false, cardAdded: false });
     });
   }
 
@@ -177,7 +183,7 @@ class EditBilling extends Component {
       const operation = id
         ? this.props.updateCreditCard(id, billingAddressIsSame)
         : this.props.addCreditCard(billingAddressIsSame);
-      return operation.then(() => this.setState({ addingNew: false }));
+      return operation.then(() => this.setState({ addingNew: false, cardAdded: (id === undefined) }));
     });
   }
 
@@ -207,8 +213,19 @@ class EditBilling extends Component {
     const currentYear = new Date().getFullYear();
     const years = _.range(currentYear, currentYear + 10, 1).map(x => x.toString());
 
+    const checkedDefaultCard = _.get(data, 'isDefault', false);
+
     return (
       <div styleName="edit-card-form">
+        <Checkbox
+          styleName="checkbox-field"
+          name="isDefault"
+          checked={checkedDefaultCard}
+          onChange={({target}) => this.changeDefault(target.checked)}
+          id="set-default-card"
+        >
+          Make this card my default
+        </Checkbox>
          <FormField styleName="text-field">
             <TextInput
               required
@@ -294,14 +311,14 @@ class EditBilling extends Component {
   renderGiftCard() {
     const { giftCards } = this.props;
 
-    return (giftCards)
-    ? <ViewGiftCards paymentMethods={giftCards} />
-    : (
-      <PromoCode
-        saveCode={this.props.saveGiftCard}
-        buttonLabel="Reedem"
-      />
-    );
+    return (giftCards && !_.isEmpty(giftCards))
+      ? <ViewGiftCards paymentMethods={giftCards} />
+      : (
+        <PromoCode
+          saveCode={this.props.saveGiftCard}
+          buttonLabel="Reedem"
+        />
+      );
   }
 
   render() {
@@ -340,6 +357,7 @@ class EditBilling extends Component {
             selectCreditCard={this.selectCreditCard}
             editCard={this.editCard}
             deleteCard={this.deleteCreditCard}
+            cardAdded={this.state.cardAdded}
           />
           <button onClick={this.addNew} type="button" styleName="add-card-button">Add Card</button>
         </fieldset>

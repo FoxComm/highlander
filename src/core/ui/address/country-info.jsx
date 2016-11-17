@@ -22,9 +22,9 @@ class CountryInfo extends Component {
 
   render() {
     if (this.country) {
-      return <div>{ this.props.display(this.country) } </div>;
+      return <span>{ this.props.display(this.country) } </span>;
     }
-    return <div></div>;
+    return <span></span>;
   }
 }
 

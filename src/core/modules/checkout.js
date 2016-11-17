@@ -4,16 +4,10 @@ import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';
 import createAsyncActions from './async-utils';
-import { fetchCountry } from 'modules/countries';
 import { updateCart } from 'modules/cart';
 import { api as foxApi } from '../lib/api';
 
-export const AddressKind = {
-  SHIPPING: 0,
-  BILLING: 1,
-};
-
-export type AddressKindType = number;
+import type { Address } from 'types/address';
 
 export const EditStages = {
   SHIPPING: 0,
@@ -39,13 +33,10 @@ export const setEditStage = createAction('CHECKOUT_SET_EDIT_STAGE');
 export const setBillingData = createAction('CHECKOUT_SET_BILLING_DATA', (key, value) => [key, value]);
 export const resetBillingData = createAction('CHECKOUT_RESET_BILLING_DATA');
 export const loadBillingData = createAction('CHECKOUT_LOAD_BILLING_DATA');
+export const setBillingAddress = createAction('CHECKOUT_SET_BILLING_ADDRESS');
 
-export const setAddressData = createAction('CHECKOUT_SET_ADDRESS_DATA', (kind, key, value) => [kind, key, value]);
-export const extendAddressData = createAction('CHECKOUT_EXTEND_ADDRESS_DATA', (kind, props) => [kind, props]);
 export const resetCheckout = createAction('CHECKOUT_RESET');
 const orderPlaced = createAction('CHECKOUT_ORDER_PLACED');
-const finishLoadingAddress = createAction('FINISH_LOADING_ADDRESS');
-const startLoadingAddress = createAction('START_LOADING_ADDRESS');
 
 /* eslint-disable quotes, quote-props */
 
@@ -71,64 +62,11 @@ export const fetchShippingMethods = shippingMethodsActions.fetch;
 export const fetchCreditCards = creditCardsActions.fetch;
 export const fetchAddresses = addressesActions.fetch;
 
-function emptyAddress() {
-  return (dispatch, getState) => {
-    const state = getState();
-
-    const countries = state.countries.list;
-
-    const usaCountry = _.find(countries, { alpha3: 'USA' });
-    const countryDetails = state.countries.details[usaCountry && usaCountry.id] || { regions: [] };
-
-    return {
-      name: '',
-      address1: '',
-      address2: '',
-      city: '',
-      zip: '',
-      phoneNumber: '',
-      isDefault: false,
-      country: usaCountry,
-      state: countryDetails.regions[0],
-    };
-  };
-}
-export function initAddressData(kind: AddressKindType, savedAddress): Function {
-  return (dispatch, getState) => {
-    dispatch(startLoadingAddress());
-
-    let uiAddressData;
-
-    const validAddress = !_.isEmpty(savedAddress) && savedAddress.region;
-
-    if (validAddress) {
-      dispatch(fetchCountry(savedAddress.region.countryId)).then(() => {
-        const countryInfo = getState().countries.details[savedAddress.region.countryId];
-
-        uiAddressData = _.pick(savedAddress, [
-          'name',
-          'address1',
-          'address2',
-          'city',
-          'zip',
-          'phoneNumber',
-          'isDefault',
-        ]);
-        uiAddressData.country = countryInfo;
-        uiAddressData.state = _.find(countryInfo.regions, { id: savedAddress.region.id });
-
-        dispatch(extendAddressData(kind, uiAddressData));
-        dispatch(finishLoadingAddress());
-      });
-    } else {
-      uiAddressData = dispatch(emptyAddress());
-      dispatch(extendAddressData(kind, uiAddressData));
-      dispatch(finishLoadingAddress());
-    }
-  };
+function stripPhoneNumber(phoneNumber) {
+  return phoneNumber.replace(/[^\d]/g, '');
 }
 
-function addressToPayload(address, countries = []) {
+function addressToPayload(address) {
   const payload = _.pick(address, [
     'name',
     'address1',
@@ -139,14 +77,8 @@ function addressToPayload(address, countries = []) {
     'isDefault',
     'id',
   ]);
-  payload.phoneNumber = String(payload.phoneNumber);
+  payload.phoneNumber = stripPhoneNumber(payload.phoneNumber);
   payload.regionId = _.get(address, 'region.id', _.get(address, 'state.id', ''));
-
-  if (!_.isEmpty(countries)) {
-    const countryId = _.get(address, 'region.countryId', _.get(address, 'state.countryId', ''));
-    payload.state = _.get(address, 'region.name', _.get(address, 'state.name', ''));
-    payload.country = _.get(countries.filter(country => country.id === countryId), '[0].name', '');
-  }
 
   return payload;
 }
@@ -191,6 +123,12 @@ export function saveCouponCode(code: string): Function {
   };
 }
 
+function setDefaultCard(id: number, isDefault: boolean): Function {
+  return () => {
+    return foxApi.creditCards.setAsDefault(id, isDefault);
+  };
+}
+
 function createOrUpdateAddress(payload, id) {
   if (id) {
     return foxApi.addresses.update(id, payload);
@@ -207,17 +145,14 @@ function setDefaultAddress(id: number): Function {
   };
 }
 
-export function updateAddress(id?: number): Function {
-  return (dispatch, getState) => {
-    const shippingAddress = getState().checkout.shippingAddress;
-    const payload = addressToPayload(shippingAddress);
+export function updateAddress(address: Address, id?: number): Function {
+  return dispatch => {
+    const payload = addressToPayload(address);
 
     return createOrUpdateAddress(payload, id)
-      .then((address) => {
-        dispatch(extendAddressData('shippingAddress', dispatch(emptyAddress())));
-
+      .then((addressResponse) => {
         if (payload.isDefault) {
-          dispatch(setDefaultAddress(address.id));
+          dispatch(setDefaultAddress(addressResponse.id));
         } else {
           dispatch(fetchAddresses());
         }
@@ -225,7 +160,7 @@ export function updateAddress(id?: number): Function {
   };
 }
 
-function getUpdatedBllingAddress(getState, billingAddressIsSame) {
+function getUpdatedBillingAddress(getState, billingAddressIsSame) {
   return billingAddressIsSame
     ? getState().cart.shippingAddress
     : getState().checkout.billingAddress;
@@ -234,12 +169,15 @@ function getUpdatedBllingAddress(getState, billingAddressIsSame) {
 export function addCreditCard(billingAddressIsSame: boolean): Function {
   return (dispatch, getState) => {
     const billingData = getState().checkout.billingData;
-    const cardData = _.pick(billingData, ['holderName', 'number', 'cvc', 'expMonth', 'expYear']);
-    const billingAddress = getUpdatedBllingAddress(getState, billingAddressIsSame);
-    const countries = getState().countries.list;
-    const address = addressToPayload(billingAddress, countries, billingAddressIsSame);
+    const cardData = _.pick(billingData, ['holderName', 'number', 'cvc', 'expMonth', 'expYear', 'isDefault']);
+    const billingAddress = getUpdatedBillingAddress(getState, billingAddressIsSame);
+    const address = addressToPayload(billingAddress);
 
-    return foxApi.creditCards.create(cardData, address, !billingAddressIsSame);
+    return foxApi.creditCards.create(cardData, address, !billingAddressIsSame).then((newCard) => {
+      if (cardData.isDefault === true) {
+        dispatch(setDefaultCard(newCard.id, cardData.isDefault));
+      }
+    });
   };
 }
 
@@ -257,8 +195,8 @@ export function chooseCreditCard(): Function {
 export function updateCreditCard(id, billingAddressIsSame: boolean): Function {
   return (dispatch, getState) => {
     const creditCard = getState().checkout.billingData;
-    const billingAddress = getUpdatedBllingAddress(getState, billingAddressIsSame);
-    const address = addressToPayload(billingAddress, getState().countries.list);
+    const billingAddress = getUpdatedBillingAddress(getState, billingAddressIsSame);
+    const address = addressToPayload(billingAddress);
     const updatedCard = assoc(creditCard, 'address', address);
 
     return foxApi.creditCards.update(id, updatedCard);
@@ -310,33 +248,14 @@ const reducer = createReducer({
       editStage,
     };
   },
-  [setAddressData]: (state, [kind, key, value]) => {
-    const ns = kind == AddressKind.SHIPPING ? 'shippingAddress' : 'billingAddress';
-    return assoc(state,
-      [ns, key], value
-    );
-  },
-  [extendAddressData]: (state, [kind, props]) => {
-    const ns = kind == AddressKind.SHIPPING ? 'shippingAddress' : 'billingAddress';
-    return assoc(state,
-      [ns], props
-    );
-  },
-  [startLoadingAddress]: (state) => {
-    return {
-      ...state,
-      isAddressLoaded: false,
-    };
-  },
-  [finishLoadingAddress]: (state) => {
-    return {
-      ...state,
-      isAddressLoaded: true,
-    };
-  },
   [setBillingData]: (state, [key, value]) => {
     return assoc(state,
       ['billingData', key], value
+    );
+  },
+  [setBillingAddress]: (state, address) => {
+    return assoc(state,
+      'billingAddress', address
     );
   },
   [resetBillingData]: (state) => {

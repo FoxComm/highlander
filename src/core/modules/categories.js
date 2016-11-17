@@ -5,10 +5,42 @@ import createAsyncActions from './async-utils';
 
 function apiCall(): Promise {
   const result = [
-    {id: 1, name: 'APPETIZERS', description: 'Dinner in 30 minutes'},
-    {id: 2, name: 'ENTRÉES', description: 'Dinner in 30 minutes'},
-    {id: 3, name: 'BEST SELLERS', description: 'Dinner in 30 minutes'},
-    {id: 4, name: 'GIFT CARDS', description: 'Gift cards will be here'},
+    {
+      id: 0,
+      name: 'ALL',
+      description: '',
+      imageUrl: '',
+    },
+    {
+      id: 1,
+      name: 'APPETIZERS',
+      description: 'Starters in 10 Minutes',
+      imageUrl: '/images/categories/Cat_Appetizers_2x.jpg',
+    },
+    {
+      id: 2,
+      name: 'ENTRÉES',
+      description: 'Dinner in 30 minutes',
+      imageUrl: '/images/categories/Cat_Entrees_2x.jpg',
+    },
+    {
+      id: 3,
+      name: 'BEST SELLERS',
+      description: 'Dinner in 30 minutes',
+      imageUrl: '/images/categories/Cat_Best_Sellers_2x.jpg',
+    },
+    {
+      id: 4,
+      name: 'GIFT CARDS',
+      description: 'Gift cards will be here',
+      imageUrl: '',
+    },
+    {
+      id: 5,
+      name: 'FAVORITES',
+      description: '',
+      imageUrl: '',
+    },
   ];
   return Promise.resolve(result);
 }

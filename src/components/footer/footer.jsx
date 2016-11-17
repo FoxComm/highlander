@@ -26,10 +26,10 @@ const Footer = () : HTMLElement => {
 
         <ul styleName="links">
           <li><a href="#">ABOUT US</a></li>
-          <li><a href="#">STORES</a></li>
-          <li><a href="#">GIFT CARDS</a></li>
+          <li><Link to="/stores">STORES</Link></li>
+          <li><Link to="/gift-cards">GIFT CARDS</Link></li>
           <li><a href="#">FAQ</a></li>
-          <li><Link to="shipping-and-returns">SHIPPING & RETURNS</Link></li>
+          <li><Link to="/shipping-and-returns">SHIPPING & RETURNS</Link></li>
         </ul>
 
         <div styleName="social-links">

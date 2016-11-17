@@ -14,6 +14,10 @@
   & .title {
     display: none;
   }
+
+  & .nav-item.active:after {
+    top: 80%;
+  }
 }
 
 .logo {
@@ -67,6 +71,17 @@
   margin-right: 0 !important;
   margin-left: 0 !important;
   border-bottom: 2px solid transparent;
+  height: 100%;
+
+  &.active:after {
+    content: '';
+    background: rgba(255, 255, 255, 0.70);
+    width: 20%;
+    height: 2px;
+    position: absolute;
+    top: 92%;
+    transform: translateX(-50%);
+  }
 
   &.current {
     border-color: #D2D2D2;
@@ -98,6 +113,10 @@
 @media (--medium-only) {
   .nav-item {
     lost-column: 2/12;
+
+    &.active:after {
+      width: 15%;
+    }
   }
 }
 

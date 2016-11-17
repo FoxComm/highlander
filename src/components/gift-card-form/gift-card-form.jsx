@@ -42,8 +42,7 @@ const GiftCardForm = (props: Props) => {
       <h1 styleName="title">Digital Gift Card</h1>
       <div styleName="description">
         Give the gift of delicious food!
-        To email the gift card on a specific date, select it below.
-        To email immediately, select today.
+        Email a gift card today!
       </div>
 
       <Form styleName="form" onSubmit={props.addToCart}>

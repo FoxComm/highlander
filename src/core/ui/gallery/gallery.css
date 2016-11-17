@@ -6,9 +6,6 @@
 }
 
 .image {
-  position: relative;
-  top: 50%;
-
   & img {
     width: 100%;
     height: auto;
@@ -48,11 +45,5 @@
 
   & img:not(:last-child) {
     margin-bottom: 10px;
-  }
-}
-
-@media (--large) {
-  .image {
-    transform: translateY(-50%);
   }
 }

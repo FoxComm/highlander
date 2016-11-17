@@ -1,0 +1,87 @@
+@import "variables";
+@import "media-queries";
+@import "colors";
+
+
+.instagram-info {
+  text-align: center;
+  padding: 70px 30px;
+}
+
+.instagram-title {
+  font-family: var(--font-main);
+  font-weight: 400;
+  font-size: 18px;
+  color: #212121;
+  letter-spacing: 2.04px;
+}
+
+.instagram-description {
+  font-family: var(--font-main);
+  font-weight: 300;
+  font-size: 16px;
+  color: #212121;
+  line-height: 33px;
+  margin-top: 30px;
+}
+
+.hashtag-image {
+  background: url('/images/home-page/MyGourmet-hashtag.svg') center no-repeat;
+  height: 152px;
+  background-size: 100% 100%;
+}
+
+.instagram-gallery {
+  margin-bottom: 120px;
+}
+
+.gallery-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.instagram-image {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 145px;
+  height: 145px;
+  margin-right: 10px;
+  margin-bottom: 20px;
+  position: relative;
+
+  &:hover .instagram-image-hover {
+    opacity: 0.9;
+  }
+}
+
+.instagram-image-hover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #3E3436;
+  opacity: 0;
+  transition: opacity .3s ease-out;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.instagram-icon {
+  opacity: 0.87;
+  color: white;
+  width: 18px;
+  height: 18px;
+  stroke: none;
+}
+
+@media (--medium), (--large) {
+  .instagram-image {
+    width: 209px;
+    height: 209px;
+  }
+}

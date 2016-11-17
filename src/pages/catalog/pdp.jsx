@@ -27,6 +27,7 @@ import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 import ProductDetails from './product-details';
 import GiftCardForm from '../../components/gift-card-form';
 import ProductAttributes from './product-attributes';
+import ImagePlaceholder from '../../components/products-item/image-placeholder';
 
 // styles
 import styles from './pdp.css';
@@ -103,9 +104,7 @@ class Pdp extends Component {
   };
 
   componentWillMount() {
-    const { product } = this.props;
-
-    if (_.isEmpty(product)) {
+    if (_.isEmpty(this.props.product)) {
       this.fetchProduct();
     }
   }
@@ -139,6 +138,10 @@ class Pdp extends Component {
 
   get productId(): number {
     return this.getId(this.props);
+  }
+
+  get isArchived(): boolean {
+    return !!_.get(this.props, ['product', 'archivedAt']);
   }
 
   getId(props): number {
@@ -219,24 +222,31 @@ class Pdp extends Component {
       });
   }
 
+  renderGallery() {
+    const { images } = this.product;
+
+    return !_.isEmpty(images)
+      ? <Gallery images={images} />
+      : <ImagePlaceholder largeScreenOnly />;
+  }
+
   render(): HTMLElement {
     const { t, isLoading, notFound } = this.props;
 
     if (isLoading) {
-      return <Loader/>;
+      return <Loader />;
     }
 
-    if (notFound) {
+    if (notFound || this.isArchived) {
       return <p styleName="not-found">{t('Product not found')}</p>;
     }
 
     const product = this.product;
-    const { images } = product;
 
     return (
       <div styleName="container">
         <div styleName="gallery">
-          <Gallery images={images} />
+          {this.renderGallery()}
         </div>
         <div styleName="details">
           <div styleName="details-wrap">
@@ -260,8 +270,7 @@ class Pdp extends Component {
           </div>
         </div>
 
-        {!this.isGiftCard() &&
-          <ProductAttributes product={this.props.product} />}
+        {!this.isGiftCard() && <ProductAttributes product={this.props.product} />}
       </div>
     );
   }

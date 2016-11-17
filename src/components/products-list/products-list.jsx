@@ -42,7 +42,7 @@ const productTypes = [
   'Poultry',
   'Seafood',
   'Beef',
-  'Vegitarian',
+  'Vegetarian',
 ];
 
 const defaultProductType = productTypes[0];
@@ -52,26 +52,35 @@ class ProductsList extends Component {
 
   renderHeader() {
     const props = this.props;
-    const { categoryName } = props;
+    const { categoryName, categories } = props;
 
-    if (!categoryName ||
+    const realCategoryName =
+      decodeURIComponent(categoryName || '').toUpperCase().replace(/-/g, ' ');
+
+    const category = _.find(categories, {
+      name: realCategoryName,
+    });
+
+    if (!category || !categoryName ||
         (categoryName.toLowerCase() === defaultProductType.toLowerCase())) {
       return;
     }
 
-    const categoryInfo = _.find(props.categories, {name: categoryName});
-    const description = (categoryInfo && categoryInfo.description)
-      ? <p styleName="description">{categoryInfo.description}</p>
+
+    const description = (category && category.description)
+      ? <p styleName="description">{category.description}</p>
       : '';
+    const bgImageStyle = category.imageUrl ?
+      { backgroundImage: `url(${category.imageUrl})` } : {};
 
     const className = `header-${categoryName}`;
 
     return (
       <header styleName={className}>
-        <div styleName="header-wrap">
+        <div styleName="header-wrap" style={bgImageStyle}>
           <div styleName="text-wrap">
             <span styleName="description">{description}</span>
-            <h1 styleName="title">{categoryName}</h1>
+            <h1 styleName="title">{category.name}</h1>
           </div>
         </div>
       </header>

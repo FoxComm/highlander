@@ -29,7 +29,6 @@ function thunkMiddleware({dispatch, getState}) {
   };
 }
 
-
 export default function makeStore(history, initialState = void 0) {
   const reduxRouterMiddleware = syncHistory(history);
   const applyMiddleware = isServer ? serverApplyMiddleware : clientApplyMiddleware;

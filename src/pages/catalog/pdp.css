@@ -7,7 +7,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  background-color: #FBFBFB;
+  background-color: #EBEAEA;
 }
 
 .gallery {
@@ -126,7 +126,6 @@
   justify-content: center;
 }
 
-
 .item-title {
   font-family: var(--font-main);
   text-transform: uppercase;
@@ -160,7 +159,6 @@
   text-transform: uppercase;
   margin-top: 40px;
 }
-
 
 .attribute-description {
   font-size: 13px;
@@ -216,4 +214,8 @@
   .info-block {
     padding: 0 60px;
   }
+}
+
+.not-found {
+  composes: not-found from '../../components/products-list/products-list.css';
 }

@@ -2,6 +2,7 @@
 
 // libs
 import React from 'react';
+import classNames from 'classnames';
 
 // styles
 import styles from './header.css';
@@ -10,23 +11,48 @@ import styles from './header.css';
 import { Link } from 'react-router';
 import Icon from 'ui/icon';
 
+import { EditStages } from 'modules/checkout';
+
 type Props = {
   isScrolled: boolean,
   setShippingStage: Function,
   setDeliveryStage: Function,
   setBillingState: Function,
   isGuestAuth: boolean,
+  currentStage: number,
 };
 
 const Header = (props: Props) => {
   const headerStyle = props.isScrolled ? 'header-scrolled' : 'header';
 
+  const navItems = [
+    ['Shipping', props.setShippingStage, EditStages.SHIPPING],
+    ['Delivery', props.setDeliveryStage, EditStages.DELIVERY],
+    ['Billing', props.setBillingState, EditStages.BILLING],
+  ];
+
+  const navList = navItems.map(([title, callback, stage], i) => {
+    const className = classNames(styles['nav-item'], {
+      [styles.active]: i === props.currentStage,
+    });
+
+    const checkedCallback = () => {
+      if (props.currentStage >= stage) {
+        callback();
+      }
+    };
+
+    return (
+      <li className={className} key={title}>
+        <a onClick={checkedCallback}>{title}</a>
+      </li>
+    );
+  });
+
   const nav = (
     <nav styleName="navigation">
       <ol styleName="nav-list">
-        <li styleName="nav-item"><a onClick={props.setShippingStage}>Shipping</a></li>
-        <li styleName="nav-item"><a onClick={props.setDeliveryStage}>Delivery</a></li>
-        <li styleName="nav-item"><a onClick={props.setBillingState}>Billing</a></li>
+        {navList}
       </ol>
     </nav>
   );
