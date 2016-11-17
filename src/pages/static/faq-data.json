@@ -1,0 +1,85 @@
+[
+  {
+    "type": "faq-section",
+    "content":
+    {
+      "title": "About the Perfect Gourmet",
+      "faqs": [
+        {
+          "question": "Do I have to prepare the ingredients for the meals myself?",
+          "answer": "Nope! Meals from The Perfect Gourmet have already been prepared by our chefs and are ready to cook whenever you want, so you don’t have to spend time washing and chopping veggies yourself!"
+        },
+        {
+          "question": "How can I find nutritional information for your meals?",
+          "answer": "Nutritional information can be found on each of our product pages on our website, under the nutrition tab below the product image. Ingredient and nutrition information can also be found on our packaging."
+        },
+        {
+          "question": "How can I find the ingredient information for your meals?",
+          "answer": "A full list of ingredients can be found on each of our product pages on our website, under the ingredients tab below the product image. Ingredient and nutrition information can also be found on our packaging."
+        },
+        {
+          "question": "I have food allergies (e.g. nuts), where can I find allergen information for your products?",
+          "answer": "We provide allergen information on each of our product pages on our website, under the ingredients tab below the product image."
+        },
+        {
+          "question": "What is the freezer life of your products?",
+          "answer": "We recommend that seafood items be used no more than six months after receiving. Other items may be stored in the freezer for up to twelve months. All items must remain frozen in an airtight container."
+        }
+      ]
+    }
+  },
+  {
+    "type": "faq-section",
+    "content":
+    {
+      "title": "Orders and Delivery",
+      "faqs": [
+        {
+          "question": "Where do you deliver?",
+          "answer": "We deliver to all 50 states."
+        },
+        {
+          "question": "How long does it take for my order to arrive?",
+          "answer": "For orders placed Monday - Wednesday by 12 pm, we offer UPS 2-Day Ground shipping for a flat rate of $14.95 for the following states:<br />CT, DE, FL, IL, IN, MA, MD, ME, MI, NC, NH, NJ, NY, OH, PA, RI, VA, VT, and WV<br />For other states, we offer UPS 2-Day Air shipping for a flat rate of $30.00.<br />Orders placed between Wednesday after 12pm and Sunday will be processed the following Monday."
+        },
+        {
+          "question": "How does my food stay cold during delivery?",
+          "answer": "Your order is placed in a styrofoam cooler and packed inside a heavy corrugated shipper. We ship our items frozen and packed with dry ice to ensure that your order will arrive safe and intact. It is important that you remove your items and place them in your freezer as soon as you receive them."
+        }
+      ]
+    }
+  },
+  {
+    "type": "well",
+    "content": [
+      {
+        "type": "title",
+        "content": "CUSTOMER CARE"
+      },
+      {
+        "type": "paragraph-title",
+        "content": "Email"
+      },
+      {
+        "type": "email",
+        "content": "info@theperfectgourmet.com"
+      },
+      {
+        "type": "paragraph-title",
+        "content": "Phone"
+      },
+      {
+        "type": "phone",
+        "content": "(866) 461 - 4183"
+      },
+      {
+        "type": "paragraph",
+        "content": "Mon - Fri: 10am - 5pm"
+      },
+      {
+        "type": "paragraph",
+        "content": "Sat - Sun: 12pm - 4pm"
+      }
+    ]
+  }
+]

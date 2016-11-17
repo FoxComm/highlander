@@ -4,6 +4,8 @@
 import React from 'react';
 import _ from 'lodash';
 
+import FAQSection from '../faqs/faq-section';
+
 // paragons
 import { fieldTypes } from 'paragons/cms';
 
@@ -57,6 +59,14 @@ const renderBlock = (block) => {
         <a href={`tel:${block.content}`} styleName="link" key={generateKey()}>
           {block.content}
         </a>
+      );
+    case fieldTypes.FAQSECTION:
+      return (
+        <FAQSection
+          title={block.content.title}
+          faqs={block.content.faqs}
+          key={generateKey()}
+        />
       );
     default:
       return block.content;

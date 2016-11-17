@@ -7,4 +7,5 @@ export const fieldTypes = {
   WELL: 'well',
   EMAIL: 'email',
   PHONE: 'phone',
+  FAQSECTION: 'faq-section',
 };
