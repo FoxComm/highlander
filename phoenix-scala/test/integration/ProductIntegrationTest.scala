@@ -226,6 +226,20 @@ class ProductIntegrationTest
       productsApi(formId).update(productPayload).as[Root]
     }
 
+    "Doesn't complain if you do update w/o any changes" in new Customer_Seed with Fixture {
+      private val cartRef =
+        cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+
+      cartsApi(cartRef).lineItems.add(allSkus.map(sku ⇒ UpdateLineItemsPayload(sku, 1))).mustBeOk()
+
+      productsApi(product.formId)
+        .update(
+            UpdateProductPayload(attributes = attrMap,
+                                 skus = allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap)).some,
+                                 variants = None))
+        .mustBeOk()
+    }
+
     "Updates the SKUs on a product successfully" in new Fixture {
       val payload =
         UpdateProductPayload(attributes = Map.empty, skus = Some(Seq(skuPayload)), variants = None)
@@ -389,12 +403,12 @@ class ProductIntegrationTest
           cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse].referenceNumber
 
         cartsApi(cartRefNum).lineItems
-          .add(Seq(UpdateLineItemsPayload(skuGreenSmallCode, 1)))
+          .add(Seq(UpdateLineItemsPayload(skuGreenLargeCode, 1)))
           .mustBeOk()
 
         productsApi(product.formId)
           .update(twoSkuProductPayload)
-          .mustFailWith400(SkuIsPresentInCarts(skuGreenSmallCode))
+          .mustFailWith400(SkuIsPresentInCarts(skuGreenLargeCode))
       }
     }
   }
@@ -489,6 +503,9 @@ class ProductIntegrationTest
     val skuRedLargeCode: String   = "SKU-RED-LARGE"
     val skuGreenSmallCode: String = "SKU-GREEN-SMALL"
     val skuGreenLargeCode: String = "SKU-GREEN-LARGE"
+
+    val allSkus: Seq[String] =
+      Seq(skuRedSmallCode, skuRedLargeCode, skuGreenSmallCode, skuGreenLargeCode)
 
     val simpleSkus = Seq(SimpleSku(skuRedSmallCode, "A small, red item", 9999, Currency.USD),
                          SimpleSku(skuRedLargeCode, "A large, red item", 9999, Currency.USD),
