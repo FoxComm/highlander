@@ -96,8 +96,6 @@ loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
 loyalty_jar: /usr/local/bin/loyalty.jar
 
 # Messaging
-messaging_jar: /usr/local/bin/messaging.jar
-messaging_jar_src: ../../fox-notifications/target/messaging.jar
 plugins_api_user_email: ""
 plugins_api_user_password: ""
 
