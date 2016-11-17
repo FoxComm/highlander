@@ -4,6 +4,7 @@
 
 .catalog {
   background-color: #EBEAEA;
+  overflow: auto;
 }
 
 .header-wrap {
