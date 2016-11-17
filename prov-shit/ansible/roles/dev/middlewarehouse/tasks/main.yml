@@ -25,6 +25,12 @@
 - name: Update Shipments Consumer in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/shipments-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/shipments-consumer'
 
+- name: Update Capture Consumer in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/capture-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/capture-consumer'
+
+- name: Update Gift Card Consumer in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/gift-card-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/gift-card-consumer'
+
 - name: Restart Middlewarehouse in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/middlewarehouse/restart'
 

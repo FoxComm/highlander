@@ -37,6 +37,9 @@ phoenix_test_db_name: phoenix_test
 phoenix_tracing: "false"
 phoenix_db_connection_string: "postgresql://{{phoenix_db_user}}@{{db_host}}/{{phoenix_db_name}}"
 
+phoenix_api_user: "api@foxcommerce.com"
+phoenix_api_password: "api$pass7!"
+
 # Do not use this in production
 # This is a ttl of 1 year
 phoenix_token_ttl: 525600

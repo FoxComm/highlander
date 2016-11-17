@@ -13,7 +13,7 @@
       "network": "HOST",
       "privileged": false,
       "parameters": [],
-      "forcePullImage": false
+      "forcePullImage": true
     }
   },
   "env": {
