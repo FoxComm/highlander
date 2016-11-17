@@ -68,5 +68,5 @@
     with_gatling_seeder: false
     seeds_cmd: utils.seeds.Seeds seed --seedAdmins
   roles:
-    - { role: dev/seeder }
+    - { role: archive/seeder }
     - { role: ext/tpg/shipping }
