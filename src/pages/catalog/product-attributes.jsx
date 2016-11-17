@@ -17,7 +17,7 @@ const renderAttributes = (product, attributeNames = []) => {
   return (
     <div>
       {attributeNames.map(attr =>
-        <div className="attribute-line" key={attr}>
+        <div styleName="attribute-line" key={attr}>
           <div styleName="attribute-title">{attr}</div>
           <div styleName="attribute-description">
             {_.get(product, `attributes.${attr}.v`)}
