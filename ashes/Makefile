@@ -22,7 +22,7 @@ tag:
 	git push --tags origin master
 
 setup:
-	npm install
+	yarn
 	npm build
 
 stop:
