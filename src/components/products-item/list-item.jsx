@@ -108,7 +108,7 @@ class ListItem extends React.Component {
               <Currency value={salePrice} currency={currency} />
             </div>
 
-            <AddToCartBtn onClick={this.addToCart} />
+            <AddToCartBtn onClick={this.addToCart} expanded={true} />
           </div>
         </div>
       </div>
