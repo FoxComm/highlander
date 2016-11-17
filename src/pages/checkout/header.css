@@ -14,6 +14,10 @@
   & .title {
     display: none;
   }
+
+  & .nav-item.active:after {
+    top: 80%;
+  }
 }
 
 .logo {
@@ -67,6 +71,7 @@
   margin-right: 0 !important;
   margin-left: 0 !important;
   border-bottom: 2px solid transparent;
+  height: 100%;
 
   &.active:after {
     content: '';
