@@ -1,0 +1,23 @@
+---
+
+- name: Copy Consul Bin
+  copy: src=consul dest={{usr_local_bin}}/consul mode=750
+
+- name: Create Config Directory
+  file: path={{consul_config_dir}} state=directory
+
+- name: Create Data Directory
+  file: path={{consul_data_dir}} state=directory
+
+
+- name: Install Dnsmasq
+  apt: name=dnsmasq state=latest force=yes
+
+- name: Touch Dnsmasq Config
+  file: path=/etc/dnsmasq.d/10-consul state=touch
+
+- name: Add Consul to Dnsmasq Config
+  lineinfile: dest="/etc/dnsmasq.d/10-consul" line="server=/consul/127.0.0.1#8600"
+
+- name: Restart Dnsmasq
+  service: name=dnsmasq state=restarted enabled=yes

@@ -1,0 +1,12 @@
+[Service]
+WorkingDirectory={{usr_local_share}}
+ExecStart={{usr_local_bin}}/run_consul_agent.sh
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=consul_agent
+TimeoutStartSec=5m
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

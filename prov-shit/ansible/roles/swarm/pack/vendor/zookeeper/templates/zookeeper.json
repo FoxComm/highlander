@@ -1,0 +1,18 @@
+{
+    "service": {
+        "name": "zookeeper",
+        "tags": [
+            "zookeeper"
+        ],
+        "port": {{zookeeper_port}},
+        "checks": [
+            {
+                "name": "SSH TCP on port {{zookeeper_port}}",
+                "tcp": "localhost:{{zookeeper_port}}",
+                "interval": "30s",
+                "timeout": "2s",
+                "status": "passing"
+            }
+        ]
+    }
+}

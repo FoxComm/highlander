@@ -1,0 +1,19 @@
+---
+
+- include: bootstrap_swarm_wait_ssh.yml
+
+- name: Provisioning Swarm Master
+  hosts: all
+  vars:
+    user: ubuntu
+
+  sudo: true
+  roles:
+    # master roles
+    - { role: swarm/provision/vendor/consul/server }
+    - { role: swarm/provision/vendor/zookeeper }
+    - { role: swarm/provision/vendor/mesos/master }
+    - { role: swarm/provision/vendor/marathon }
+    - { role: swarm/provision/vendor/docker_registry }
+    # reload consul
+    - { role: swarm/provision/vendor/consul/reload }

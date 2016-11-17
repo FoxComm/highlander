@@ -1,0 +1,13 @@
+{
+    "server": true,
+    "bootstrap_expect": {{masters_ips|length}},
+    "start_join": [
+        "{{consul_leader}}"
+    ],
+    "datacenter": "{{datacenter}}",
+    "bind_addr": "{{inventory_hostname}}",
+    "client_addr": "0.0.0.0",
+    "encrypt": "{{consul_encryption_key}}",
+    "data_dir": "{{consul_data_dir}}",
+    "ui_dir": "{{consul_web_ui_dir}}"
+}

@@ -1,0 +1,12 @@
+---
+
+- name: Wait for SSH accessible
+  hosts: all
+  connection: local
+  gather_facts: no
+  vars:
+    ssh_port: 22
+
+  tasks:
+    - name: Wait for SSH accessible
+      wait_for: host={{inventory_hostname}} port={{ssh_port}} timeout=120 state=started

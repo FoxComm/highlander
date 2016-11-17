@@ -1,0 +1,7 @@
+---
+
+- name: Print all available vars
+  hosts: all
+
+  tasks:
+    - debug: var="{{hostvars}}"

@@ -1,0 +1,10 @@
+{
+    "start_join": [
+        "{{consul_leader}}"
+    ],
+    "bind_addr": "{{inventory_hostname}}",
+    "datacenter": "{{datacenter}}",
+    "client_addr": "0.0.0.0",
+    "encrypt": "{{consul_encryption_key}}",
+    "data_dir": "{{consul_data_dir}}"
+}

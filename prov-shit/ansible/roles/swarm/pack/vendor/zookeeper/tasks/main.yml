@@ -1,0 +1,13 @@
+---
+
+- name: Setup Zookeeper Dir
+  file: path={{zookeeper_data_dir}} state=directory
+
+- name: Copy Zookeeper Service Files
+  copy: src=zookeeper.service dest={{dest_services}}/
+
+- name: Reload Systemd for Kafka Related Services
+  command: systemctl daemon-reload
+
+- name: Copy Zookeeper service definition for Consul
+  template: src=zookeeper.json dest={{consul_config_dir}}/zookeeper.json

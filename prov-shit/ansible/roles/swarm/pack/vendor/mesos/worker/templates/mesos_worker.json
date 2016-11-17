@@ -1,0 +1,17 @@
+{
+    "service": {
+        "name": "mesos-worker",
+        "tags": [
+            "mesos-worker"
+        ],
+        "port": {{mesos_port}},
+        "checks": [
+            {
+                "name": "Check Mesos Worker is running",
+                "script": "systemctl status mesos_worker",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

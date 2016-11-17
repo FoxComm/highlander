@@ -1,0 +1,13 @@
+[Service]
+ExecStart={{usr_local_bin}}/run_mesos_master.sh
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=mesos_master
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+OnFailure=mesos_cleanup.service

@@ -25,3 +25,11 @@ ansible/*.retry
 *.pyc
 *.DS_Store
 *.orig
+
+# temporary ignore tfstate and tfstate.backup for swarm, as useless
+terraform/envs/gce_swarm_production/terraform.tfstate
+terraform/envs/gce_swarm_production/terraform.tfstate.backup
+terraform/envs/gce_swarm_staging/terraform.tfstate
+terraform/envs/gce_swarm_staging/terraform.tfstate.backup
+terraform/devenvs/alexey/terraform.tfstate
+terraform/devenvs/alexey/terraform.tfstate.backup

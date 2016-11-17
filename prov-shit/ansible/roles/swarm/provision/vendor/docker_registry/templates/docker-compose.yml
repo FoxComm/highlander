@@ -1,0 +1,9 @@
+registry:
+  image: registry:2
+  ports:
+    - {{inventory_hostname}}:{{docker_registry_port}}:{{docker_registry_port}}
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock
+    - {{docker_registry_config_dir}}/config.yml:/etc/docker/registry/config.yml
+    - {{docker_registry_config_dir}}/service_account.json:/etc/docker/registry/service_account.json
+    - /certs:/certs

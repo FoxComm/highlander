@@ -1,0 +1,25 @@
+---
+
+- name: Packing Base Swarm Image
+  hosts: all
+  vars:
+    user: ubuntu
+  gather_facts: no
+
+  pre_tasks:
+    - name: Install Python 2 and Boto
+      apt: name={{item}} state=latest force=yes
+      sudo: true
+      with_items:
+        - python2.7
+        - python-boto
+    - name: Gather Facts
+      setup:
+
+  sudo: true
+  roles:
+    - { role: swarm/pack/vendor/base }
+    - { role: swarm/pack/vendor/consul/base }
+    - { role: swarm/pack/vendor/java }
+    - { role: swarm/pack/vendor/mesos/base }
+    - { role: swarm/pack/vendor/docker }

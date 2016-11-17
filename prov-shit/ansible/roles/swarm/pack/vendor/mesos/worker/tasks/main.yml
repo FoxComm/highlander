@@ -1,0 +1,13 @@
+---
+
+- name: Setup Mesos Sandbox Dir
+  file: path={{mesos_sandbox_dir}} state=directory
+
+- name: Install Mesos Worker Service Entry
+  template: src=mesos_worker.service dest={{dest_services}}/
+
+- name: Reload Systemd for Mesos Worker
+  command: systemctl daemon-reload
+
+- name: Copy Mesos Worker service definition for Consul
+  template: src=mesos_worker.json dest={{consul_config_dir}}/mesos_worker.json

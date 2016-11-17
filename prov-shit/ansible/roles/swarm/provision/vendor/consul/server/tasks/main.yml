@@ -1,0 +1,7 @@
+---
+
+- name: Copy Consul Server config
+  template: src=server.json dest={{consul_config_dir}}/server.json
+
+- name: Restart Consul Server
+  service: name=consul_server state=restarted enabled=yes

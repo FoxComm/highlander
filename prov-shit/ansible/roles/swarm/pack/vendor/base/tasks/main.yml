@@ -1,0 +1,44 @@
+---
+
+- name: Kill Auto Update Script If Present
+  command: pkill --full /usr/bin/unattended-upgrade
+  become: true
+  register: kill_result
+  failed_when: kill_result.rc > 1
+  changed_when: kill_result.rc == 0
+
+- name: Setup Unprivileged
+  command: /usr/sbin/usermod -a -G systemd-journal {{user}}
+
+- name: Create Swap File
+  shell: "dd if=/dev/zero of={{swap_file}} bs=1048576 count={{swap_size_mb}}"
+  args:
+      creates: "{{swap_file}}"
+
+- name: Change Swap File Permissions
+  file: path="{{swap_file}}" owner=root group=root mode=0600
+
+- name: Make Swap File
+  shell: "sudo mkswap {{swap_file}} || true"
+
+- name: Mount Swap
+  shell: "swapon {{swap_file}} || true"
+
+- name: Add Swap to Fstab
+  lineinfile: dest=/etc/fstab line="/swap none swap sw 0 0"
+
+- name: Update System Package Cache
+  apt: update_cache=yes
+
+- name: Install Packages
+  apt: name={{ item }} state=latest force=yes
+  with_items:
+    - curl
+    - debconf-utils
+    - jq
+    - make
+    - vim
+    - nmap
+    - htop
+    - unzip
+    - python-pip

@@ -1,0 +1,14 @@
+Description=Registrator Container
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+RestartSec=5
+Restart=always
+ExecStop=/usr/bin/docker-compose -f {{docker_registry_config_dir}}/docker-compose.yml stop
+ExecStart=/usr/bin/docker-compose -f {{docker_registry_config_dir}}/docker-compose.yml up --force-recreate
+SyslogIdentifier=docker_registry
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,13 @@
+---
+
+- name: Install Docker
+  shell: curl -sSL https://get.docker.com/ | sudo sh
+
+- name: Install Docker Compose
+  apt: name={{ item }} state=latest force=yes
+  with_items:
+    - python-ipaddress # is required at xenial for docker-compose to work: https://github.com/docker/compose/issues/3525
+    - docker-compose
+
+- name: Add User to Docker Group
+  user: name={{user}} groups=docker append=yes

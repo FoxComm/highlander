@@ -1,0 +1,24 @@
+---
+
+- name: Copy Docker Compose config
+  template: src=docker-compose.yml dest={{docker_registry_config_dir}}/
+
+- name: Copy Docker Registry config
+  template: src=config.yml dest={{docker_registry_config_dir}}/
+
+# Note: it's expected, that account file is just file name and, as far as it's usually in project folder,
+# this will resolve from ansible subfolder to project folder. Absolute path to account_file won't work here
+- name: Copy service account file
+  copy: src=../{{account_file}} dest={{docker_registry_config_dir}}/service_account.json mode=600
+
+- name: Copy Cert
+  copyv: src={{playbook_dir}}/roles/base/secret_keys/files/certs/{{datacenter}}/docker/domain.crt dest=/certs/domain.crt
+
+- name: Copy Key
+  copyv: src={{playbook_dir}}/roles/base/secret_keys/files/certs/{{datacenter}}/docker/domain.key dest=/certs/domain.key
+
+- name: Restart Docker Registry Server
+  service: name=docker_registry state=restarted enabled=true
+
+- name: Copy Marathon service definition for Consul
+  template: src=docker_registry.json dest={{consul_config_dir}}/docker_registry.json

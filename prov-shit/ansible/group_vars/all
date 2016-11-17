@@ -3,9 +3,13 @@ home: /home/{{ user }}
 self_host: 127.0.0.1
 dest_services: /etc/systemd/system
 usr_local: /usr/local/
+usr_local_bin: /usr/local/bin
+usr_local_share: /usr/local/share
+etc_profile: /etc/profile
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 db_host: localhost
+db_port: 5432
 db_user: phoenix
 db_name: phoenix_development
 db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_user}}"
@@ -120,6 +124,10 @@ solomon_port: 4002
 solomon_server: "{{solomon_host}}:{{solomon_port}}"
 api_server: 127.0.0.1
 log_host: 127.0.0.1
+zookeeper_data_dir: /var/lib/zookeeper
+zookeeper_port: 2181
+zookeeper_service_consul: zk://zookeeper.service.consul:{{zookeeper_port}}
+zookeeper_port_range: 2888:3888
 
 # JMX ports
 es_jmx_port: 29010
@@ -151,7 +159,10 @@ swap_size_mb: 2000
 rsync_opts: ssh -l {{user}}
 
 # Consul variables
-consul_data_dir: /var/consul
+consul_config_dir: /etc/consul.d
+consul_data_dir: /var/lib/consul
+consul_web_ui_dir: "{{usr_local_share}}/consul"
+consul_encryption_key: NPtpFss71wVwn23dHiBJCA==
 
 # Used to prefix service names in consul
 namespace: setme
@@ -180,6 +191,22 @@ cert_path: stage
 
 # Mesos
 mesos_quorum: 2
+mesos_work_dir: /var/lib/mesos
+mesos_sandbox_dir: /var/lib/sandbox
+mesos_port: 5050
+
+# Marathon
+marathon_port: 8080
+
+# Docker
+docker_registry_config_dir: /etc/docker_registry.d
+docker_registry_port: 5000
+
+# Flyway
+flyway_version: 4.0.3
+flyway_download_url: https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{flyway_version}}/flyway-commandline-{{flyway_version}}-linux-x64.tar.gz
+flyway_dir: "{{usr_local_share}}/flyway-{{flyway_version}}"
+flyway_exec: "{{flyway_dir}}/flyway -locations=filesystem:sql/ -configFile=sql/flyway.conf"
 
 # Use seeder service or not?
 with_seeder: false

@@ -1,0 +1,17 @@
+{
+    "service": {
+        "name": "mesos-master",
+        "tags": [
+            "mesos-master"
+        ],
+        "port": {{mesos_port}},
+        "checks": [
+            {
+                "name": "HTTP API on port {{mesos_port}}",
+                "script": "{{usr_local_bin}}/check_mesos_master.sh",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

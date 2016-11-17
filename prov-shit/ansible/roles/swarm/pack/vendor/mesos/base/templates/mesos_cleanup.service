@@ -1,0 +1,8 @@
+[Service]
+Type=simple
+ExecStart={{usr_local_bin}}/run_mesos_cleanup.sh
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

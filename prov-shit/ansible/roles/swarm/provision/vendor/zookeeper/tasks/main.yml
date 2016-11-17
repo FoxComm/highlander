@@ -1,0 +1,10 @@
+---
+
+- name: Set Zookeeper server id
+  template: src=myid dest={{zookeeper_data_dir}}/
+
+- name: Copy Zookeeper config
+  template: src=zookeeper.properties dest=/etc/kafka/
+
+- name: Start Zookeeper
+  service: name=zookeeper state=started enabled=true

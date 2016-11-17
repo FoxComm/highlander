@@ -1,0 +1,17 @@
+---
+
+- name: Packing Swarm Development Image
+  hosts: all
+  vars:
+    user: ubuntu
+
+  sudo: true
+  roles:
+    # master roles
+    - { role: swarm/pack/vendor/consul/server }
+    - { role: swarm/pack/vendor/confluence }
+    - { role: swarm/pack/vendor/mesos/master }
+    - { role: swarm/pack/vendor/zookeeper }
+    - { role: swarm/pack/vendor/marathon }
+    # worker roles
+    - { role: swarm/pack/vendor/mesos/worker }

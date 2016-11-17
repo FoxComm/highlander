@@ -1,0 +1,19 @@
+---
+
+- name: Add Confluent Key
+  apt_key: keyserver=keyserver.ubuntu.com id=E56151BF state=present
+
+- name: Add Mesos Repository
+  apt_repository: repo='deb http://repos.mesosphere.com/{{ansible_lsb.id | lower}} {{ansible_lsb.codename}} main' state=present update_cache=yes
+
+- name: Install Mesos Package
+  apt: name=mesos state=latest force=yes
+
+- name: Install Mesos Cleanup Script
+  template: src=run_mesos_cleanup.sh dest={{usr_local_bin}}/ mode=750
+
+- name: Install Mesos Cleanup Service Entry
+  template: src=mesos_cleanup.service dest={{dest_services}}/
+
+- name: Reload Systemd for Mesos Cleanup
+  command: systemctl daemon-reload

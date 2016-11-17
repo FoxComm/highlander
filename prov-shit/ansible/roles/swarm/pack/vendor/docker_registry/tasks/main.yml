@@ -1,0 +1,13 @@
+---
+
+- name: Create Docker Registry config folder
+  file: path={{docker_registry_config_dir}} state=directory
+
+- name: Create Certs directory
+  file: path=/certs state=directory mode=600
+
+- name: Copy Service
+  template: src=docker_registry.service dest={{dest_services}}/
+
+- name: Reload Systemd for Docker Registry
+  command: systemctl daemon-reload

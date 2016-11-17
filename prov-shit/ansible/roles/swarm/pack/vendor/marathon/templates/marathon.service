@@ -1,0 +1,10 @@
+[Service]
+ExecStart={{usr_local_bin}}/run_marathon.sh
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=marathon
+
+[Install]
+WantedBy=multi-user.target

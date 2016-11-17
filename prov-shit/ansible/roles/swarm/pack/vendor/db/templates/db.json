@@ -1,0 +1,17 @@
+{
+    "service": {
+        "name": "db",
+        "tags": [
+            "db"
+        ],
+        "port": {{db_port}},
+        "checks": [
+            {
+                "name": "SSH TCP on port {{db_port}}",
+                "tcp": "localhost:{{db_port}}",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}
