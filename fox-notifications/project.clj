@@ -4,8 +4,9 @@
   :plugins [[lein-environ "1.1.0"]]
 
   :profiles {:dev
-             {:source-paths ["dev"]
-               :env {:phoenix-password "password"
+             {:source-paths ["src" "dev"]
+              :dependencies [[org.clojure/tools.namespace "0.3.0-alpha3"]]
+              :env {:phoenix-password "password"
                      :phoenix-email "admin@admin.com"
                      :api-server "https://admin.foxcommerce.local"
                      :api-host "127.0.0.1"
@@ -43,4 +44,4 @@
   :jar-name "messaging-no-dependencies.jar"
   :uberjar-name "messaging.jar"
   :main messaging.main
-  :aot [messaging.main])
+  :aot :all)
