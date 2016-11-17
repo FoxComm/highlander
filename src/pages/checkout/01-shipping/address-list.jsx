@@ -100,7 +100,7 @@ class AddressList extends Component {
         let error = err;
         const messages = _.get(err, ['responseJson', 'errors'], [err.toString()]);
         const zipErrorPresent = _.find(messages,
-          (msg) => { return msg.indexOf('zip must fully match regular expression') >= 0; });
+          (msg) => { return msg.indexOf('zip') >= 0; });
 
         if (zipErrorPresent) {
           error = new Error(messages);
