@@ -79,7 +79,7 @@
     :type "string"
     :default ""}
 
-   {:name "admin_invintation_subject"
+   {:name "admin_invitation_subject"
     :title "Admin invitation mail subject"
     :type "string"
     :default ""}
