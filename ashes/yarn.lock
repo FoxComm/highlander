@@ -1694,11 +1694,11 @@ color-diff@0.1.7:
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/color-diff/-/color-diff-0.1.7.tgz#6db78cd9482a8e459d40821eaf4b503283dcb8e2"
 
-color-name@1.0.x:
+color-name@1.0.x, color-name@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.0.1.tgz#6b34b2b29b7716013972b0b9d5bedcfbb6718df8"
 
-color-name@^1.0.0, color-name@^1.1.1:
+color-name@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.1.tgz#4b1415304cf50028ea81643643bd82ea05803689"
 
@@ -1986,9 +1986,9 @@ css-modules-loader-core@^1.0.0:
     postcss-modules-scope "1.0.2"
     postcss-modules-values "1.2.2"
 
-css-modulesify@anru/css-modulesify#update-me-to-0-23-version-later:
-  version "0.22.0"
-  resolved "https://codeload.github.com/anru/css-modulesify/tar.gz/65d73d616b5f193b67344bfd32617bf10dbae37b"
+css-modulesify@0.25.1:
+  version "0.25.1"
+  resolved "https://registry.yarnpkg.com/css-modulesify/-/css-modulesify-0.25.1.tgz#b820fdd607a97b2533214c4b94e636cd2d155d2d"
   dependencies:
     css-modules-loader-core "^1.0.0"
     dependency-graph "^0.4.1"
@@ -1996,7 +1996,7 @@ css-modulesify@anru/css-modulesify#update-me-to-0-23-version-later:
     promise-polyfill "^2.1.0"
     resolve "^1.1.7"
     string-hash "^1.1.0"
-    through "^2.3.7"
+    through2 "^2.0.1"
 
 css-parse@*:
   version "2.0.0"
@@ -7631,7 +7631,7 @@ through2@^0.6.0, through2@^0.6.1, through2@~0.6.2, through2@~0.6.3:
     readable-stream ">=1.0.33-1 <1.1.0-0"
     xtend ">=4.0.0 <4.1.0-0"
 
-"through@>=2.2.7 <3", through@^2.3.4, through@^2.3.6, through@^2.3.7, through@~2.3.4:
+"through@>=2.2.7 <3", through@^2.3.4, through@^2.3.6, through@~2.3.4:
   version "2.3.8"
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
 
@@ -8158,17 +8158,13 @@ window-size@^0.2.0:
     postinstall-build "^0.2.1"
     react "^15.2.0"
 
-wordwrap@0.0.2:
+wordwrap@0.0.2, wordwrap@~0.0.2:
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/wordwrap/-/wordwrap-0.0.2.tgz#b79669bb42ecb409f83d583cad52ca17eaa1643f"
 
 wordwrap@^1.0.0, wordwrap@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/wordwrap/-/wordwrap-1.0.0.tgz#27584810891456a4171c8d0226441ade90cbcaeb"
-
-wordwrap@~0.0.2:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/wordwrap/-/wordwrap-0.0.3.tgz#a3d5da6cd5c0bc0008d37234bbaf1bed63059107"
 
 wrap-ansi@^2.0.0:
   version "2.0.0"

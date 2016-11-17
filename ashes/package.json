@@ -119,7 +119,7 @@
     "canvas": "^1.4.0",
     "chai": "^3.0.0",
     "co-mocha": "^1.1.2",
-    "css-modulesify": "anru/css-modulesify#update-me-to-0-23-version-later",
+    "css-modulesify": "0.25.1",
     "cssnano": "^3.7.3",
     "envify": "^3.4.0",
     "eslint": "^3.4.0",
