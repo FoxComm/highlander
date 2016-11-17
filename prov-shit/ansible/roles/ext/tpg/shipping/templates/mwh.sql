@@ -6,6 +6,3 @@ INSERT INTO shipping_methods ("carrier_id", "name", "code")
 
 INSERT INTO shipping_methods ("carrier_id", "name", "code")
     SELECT max(id), 'UPS 2-Day Air', 'UPS_AIR' from carriers;
-
-INSERT INTO shipping_methods ("carrier_id", "name", "code")
-    SELECT max(id), 'Email', 'EMAIL' from carriers;
