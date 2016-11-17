@@ -180,6 +180,7 @@ cert_path: stage
 
 # Mesos
 mesos_quorum: 2
+mesos_ip: 0.0.0.0
 
 # Use seeder service or not?
 with_seeder: false
