@@ -22,6 +22,7 @@ tag:
 	git push --tags origin master
 
 setup:
+	if ! type "yarn" > /dev/null; then npm install yarn; fi
 	yarn
 	npm build
 
