@@ -22,8 +22,6 @@ tag:
 	git push --tags origin master
 
 setup:
-	if [ "$(uname)" == "Darwin" ] && ! type "yarn" > /dev/null; then npm install -g yarn; fi
-	if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ] && ! type "yarn" > /dev/null; then sudo npm install -g yarn; fi
 	yarn --pure-lockfile
 	yarn build
 
