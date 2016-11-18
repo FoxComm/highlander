@@ -12,9 +12,9 @@
               :dependencies [[org.clojure/tools.namespace "0.2.11"]
                              [com.taoensso/nippy "2.11.1"]]
 
-              :env {:phoenix-password "password"
-                     :phoenix-user "admin@admin.com"
-                     :phoenix-url "https://admin.foxcommerce.local/api"
+              :env {:phoenix-password "api$pass7!"
+                     :phoenix-user "api@foxcommerce.com"
+                     :phoenix-url "http://localhost:9090"
                      :api-host "127.0.0.1"
                      :kafka-broker "127.0.0.1:9092"
                      :schema-registry-url "http://127.0.0.1:8081"}}}
