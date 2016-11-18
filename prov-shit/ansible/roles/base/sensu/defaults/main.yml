@@ -28,6 +28,9 @@ sensu_version: "0.26"
 sensu_master: false
 sensu_include_dashboard: false
 sensu_include_plugins: true
+#sensu_handlers_default: 
+#  - slack
+#sensu_default_plugins: ['cpu-checks', 'disk-checks', 'memory-checks']
 sensu_remote_plugins:
   - cpu-checks
   - disk-checks
@@ -63,7 +66,7 @@ sensu_ssl_server_cacert: "{{ sensu_ssl_tool_base_path }}/sensu_ca/cacert.pem"
 sensu_ssl_server_cert: "{{ sensu_ssl_tool_base_path }}/server/cert.pem"
 sensu_ssl_server_key: "{{ sensu_ssl_tool_base_path }}/server/key.pem"
 # Dachboard (Uchiwa) config
-uchiwa_dc_name: 'FoxCommerce Test'
+uchiwa_dc_name: 'Stage'
 uchiwa_users:
   - username: admin
     password: admin

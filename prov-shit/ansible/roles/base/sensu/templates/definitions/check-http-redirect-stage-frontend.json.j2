@@ -1,9 +1,0 @@
-{
-  "checks": {
-    "check-http-redirect-stage-frontend": {
-      "command": "check-http.rb -u http://foxcomm-stage-frontend --response-code 301 -r",
-      "interval": 60,
-      "subscribers": {{ group_names | to_nice_json }}
-    }
-  }
-}
