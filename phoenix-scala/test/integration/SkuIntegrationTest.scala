@@ -12,6 +12,7 @@ import models.objects._
 import models.product._
 import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
+import payloads.ImagePayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.CreateCart
 import payloads.SkuPayloads.SkuPayload
@@ -37,7 +38,7 @@ class SkuIntegrationTest
       val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
       val attrMap    = Map("price" → priceJson)
 
-      skusApi.create(makeSkuPayload("SKU-NEW-TEST", attrMap)).mustBeOk()
+      skusApi.create(makeSkuPayload("SKU-NEW-TEST", attrMap, None)).mustBeOk()
     }
 
     "Tries to create a SKU with no code" in new Fixture {
@@ -45,7 +46,9 @@ class SkuIntegrationTest
       val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
       val attrMap    = Map("price" → priceJson)
 
-      skusApi.create(SkuPayload(attrMap)).mustFailWithMessage("SKU code not found in payload")
+      skusApi
+        .create(SkuPayload(attributes = attrMap, albums = None))
+        .mustFailWithMessage("SKU code not found in payload")
     }
   }
 
@@ -67,7 +70,8 @@ class SkuIntegrationTest
 
   "PATCH v1/skus/:context/:code" - {
     "Adds a new attribute to the SKU" in new Fixture {
-      val payload     = SkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))))
+      val payload =
+        SkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))), albums = None)
       val skuResponse = skusApi(sku.code).update(payload).as[SkuResponse.Root]
 
       (skuResponse.attributes \ "code" \ "v").extract[String] must === (sku.code)
@@ -76,7 +80,8 @@ class SkuIntegrationTest
     }
 
     "Updates the SKU's code" in new Fixture {
-      val payload = SkuPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))))
+      val payload =
+        SkuPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))), albums = None)
       skusApi(sku.code).update(payload).mustBeOk()
 
       val skuResponse = skusApi("upcode").get().as[SkuResponse.Root]
@@ -123,9 +128,12 @@ class SkuIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed {
-    def makeSkuPayload(code: String, attrMap: Map[String, Json]) = {
-      val codeJson = ("t" → "string") ~ ("v" → code)
-      SkuPayload(attrMap + ("code" → codeJson))
+    def makeSkuPayload(code: String,
+                       attrMap: Map[String, Json],
+                       albums: Option[Seq[AlbumPayload]]) = {
+      val codeJson   = ("t"              → "string") ~ ("v" → code)
+      val attributes = attrMap + ("code" → codeJson)
+      SkuPayload(attributes = attributes, albums = albums)
     }
 
     val (sku, skuForm, skuShadow) = (for {
