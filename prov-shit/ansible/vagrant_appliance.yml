@@ -15,6 +15,7 @@
     docker_branch: master
     install_public_keys: true
     install_private_keys: true
+    with_base_seeds: true
 
   roles:
     - { role: dev/appliance }
