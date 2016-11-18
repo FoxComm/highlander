@@ -61,7 +61,7 @@
  #     group: "{{ sensu_group_name }}"
  #   notify: restart sensu-client service
 
-  - name: Deploy checks/handlers/filters/mutators/definitions to the master
+  - name: Deploy definitions to the master
     template:
       src: "{{ item }}"
       dest: "{{ sensu_config_path }}/conf.d/{{ item | basename | regex_replace('.j2', '')}}"
@@ -69,7 +69,7 @@
       group: "{{ sensu_group_name }}"
     when: sensu_master
     with_fileglob:
-      - definitions/*
+      - "{{ sensu_definitions_store }}/*"
     notify:
       - restart sensu-server service
       - restart sensu-api service

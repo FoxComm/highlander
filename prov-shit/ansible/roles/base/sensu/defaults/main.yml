@@ -42,7 +42,7 @@ sensu_remote_plugins:
   - nginx
   - http
 sensu_transport: rabbitmq
-#static_data_store: "{{ role_path }}/files/data/static"
+sensu_definitions_store: "{{ role_path }}/templates/definitions"
 dynamic_data_store: "{{ role_path }}/files/data/dynamic"
 sensu_core_repo_key: 'https://sensu.global.ssl.fastly.net/apt/pubkey.gpg'
 sensu_core_repo: 'deb https://sensu.global.ssl.fastly.net/apt sensu main'
