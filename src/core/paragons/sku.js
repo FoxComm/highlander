@@ -3,5 +3,9 @@ import _ from 'lodash';
 const giftCardAttrs = ['message', 'senderName', 'recipientName', 'recipientEmail'];
 
 export function isGiftCard(sku) {
-  return _.every(giftCardAttrs, name => name in sku.attributes);
+  const attrs = sku.attributes;
+  if (!attrs) {
+    return false;
+  }
+  return _.every(giftCardAttrs, name => name in attrs);
 }
