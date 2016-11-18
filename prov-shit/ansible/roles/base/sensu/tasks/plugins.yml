@@ -1,16 +1,7 @@
 ---
 # Deploy available checks/plugins/handlers/filters/mutators
 
-  - name: Create run-time data store structure
-    file:
-      dest: "{{ static_data_store }}/{{ item }}"
-      state: directory
-    with_items:
-      - checks
-      - definitions
-      - filters
-      - handlers
-      - mutators
+# FIX DEFINITIONS -> FROM TEMPLATES !!!
 
   - name: Check Sensu plugin directory
     file:

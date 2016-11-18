@@ -3,4 +3,4 @@
 
   - hosts: all
     roles:
-      - role: sensu
+      - { role: base/sensu }
