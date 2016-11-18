@@ -16,10 +16,12 @@ import models.objects._
 import models.product._
 import models.account._
 import models.cord.lineitems.CartLineItems
-import payloads.ImagePayloads.UpdateAlbumPositionPayload
+import payloads.ImagePayloads.{AlbumPayload, UpdateAlbumPositionPayload}
 import payloads.ProductPayloads._
 import payloads.SkuPayloads._
 import payloads.VariantPayloads._
+import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
+import responses.AlbumResponses._
 import responses.ImageResponses.ImageResponse
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
@@ -38,6 +40,7 @@ import org.json4s._
 import org.json4s.JsonDSL._
 import services.LogActivity
 import services.taxonomy.TaxonomyManager
+import services.image.ImageManager.FullAlbumWithImages
 
 object ProductManager {
 
@@ -52,6 +55,7 @@ object ProductManager {
     val shadow          = ObjectShadow.fromPayload(payload.attributes)
     val variantPayloads = payload.variants.getOrElse(Seq.empty)
     val hasVariants     = variantPayloads.nonEmpty
+    val albumPayloads   = payload.albums.getOrElse(Seq.empty)
 
     for {
       _   ← * <~ validateCreate(payload)
@@ -63,17 +67,16 @@ object ProductManager {
                            shadowId = ins.shadow.id,
                            commitId = ins.commit.id))
 
+      albums         ← * <~ findOrCreateAlbumsForProduct(product, albumPayloads)
       productSkus    ← * <~ findOrCreateSkusForProduct(product, payload.skus, !hasVariants)
       variants       ← * <~ findOrCreateVariantsForProduct(product, variantPayloads)
       variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(product)
-      response = ProductResponse.build(
-          IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow),
-          Seq.empty,
-          if (hasVariants) variantSkus else productSkus,
-          variantResponses,
-          taxons)
+      response = ProductResponse
+        .build(IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow), albums.map {
+          case (album, images) ⇒ AlbumResponse.build(album, images)
+        }, if (hasVariants) variantSkus else productSkus, variantResponses, taxons)
       _ ← * <~ LogActivity
            .fullProductCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
@@ -327,6 +330,18 @@ object ProductManager {
            case (variant, values) ⇒ variant.model
          })
     } yield variants
+
+  private def findOrCreateAlbumsForProduct(product: Product, payload: Seq[AlbumPayload])(
+      implicit ec: EC,
+      db: DB,
+      oc: OC,
+      au: AU): DbResultT[Seq[FullAlbumWithImages]] =
+    for {
+      albums ← * <~ payload.map(ImageManager.updateOrCreateAlbum)
+      _ ← * <~ ProductAlbumLinks.syncLinks(product, albums.map {
+           case (fullAlbum, fullImages) ⇒ fullAlbum.model
+         })
+    } yield albums
 
   def mustFindProductByContextAndFormId404(contextId: Int, formId: Int)(
       implicit ec: EC,

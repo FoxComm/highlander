@@ -48,7 +48,7 @@ object ImageManager {
       result  ← * <~ getAlbumsForProductInner(product)
     } yield result
 
-  private def getAlbumsForProductInner(
+  def getAlbumsForProductInner(
       product: Product)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
     for {
       albums ← * <~ ProductAlbumLinks.queryRightByLeft(product)
@@ -208,16 +208,15 @@ object ImageManager {
                   contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[AlbumRoot] =
     for {
       context  ← * <~ ObjectManager.mustFindByName404(contextName)
-      response ← * <~ updateAlbumInner(id, payload, contextName)
-    } yield response
+      response ← * <~ updateAlbumInner(id, payload, context)
+    } yield AlbumResponse.build(response._1, response._2)
 
-  def updateAlbumInner(id: ObjectForm#Id, updatePayload: AlbumPayload, contextName: String)(
+  def updateAlbumInner(id: ObjectForm#Id, updatePayload: AlbumPayload, context: ObjectContext)(
       implicit ec: EC,
       db: DB,
-      au: AU): DbResultT[AlbumRoot] =
+      au: AU): DbResultT[FullAlbumWithImages] =
     for {
       payload ← * <~ updatePayload.validate
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
       album   ← * <~ mustFindFullAlbumByFormIdAndContext404(id, context)
       oldShadow                    = album.shadow
       (payloadForm, payloadShadow) = payload.formAndShadow.tupled
@@ -231,7 +230,7 @@ object ImageManager {
                                             payload.images.getOrElse(Seq.empty),
                                             context)
       images ← * <~ AlbumImageLinks.queryRightByLeft(album.model)
-    } yield AlbumResponse.build(album, images)
+    } yield (album, images)
 
   def updateProductAlbumPosition(
       albumFormId: ObjectForm#Id,
@@ -243,6 +242,16 @@ object ImageManager {
       updatedLink ← * <~ ProductAlbumLinks.updatePosition(product, album, position)
       albums      ← * <~ getAlbumsForProductInner(product)
     } yield albums
+
+  def updateOrCreateAlbum(payload: AlbumPayload)(implicit ec: EC,
+                                                 db: DB,
+                                                 oc: OC,
+                                                 au: AU): DbResultT[FullAlbumWithImages] = {
+    payload.id match {
+      case Some(id) ⇒ updateAlbumInner(id, payload, oc)
+      case None     ⇒ createAlbumInner(payload, oc)
+    }
+  }
 
   def archiveByContextAndId(id: Int, contextName: String)(implicit ec: EC, db: DB) =
     for {

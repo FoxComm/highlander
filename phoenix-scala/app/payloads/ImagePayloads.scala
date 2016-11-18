@@ -31,7 +31,8 @@ object ImagePayloads {
     }
   }
 
-  case class AlbumPayload(name: Option[String] = None,
+  case class AlbumPayload(id: Option[Int] = None,
+                          name: Option[String] = None,
                           images: Images = None,
                           position: Option[Int] = None)
       extends Validation[AlbumPayload] {
