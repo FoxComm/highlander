@@ -24,7 +24,7 @@
     "API_SECRET": "{{shipstation_api_secret}}",
     "TOPIC": "{{shipstation_topic}}",
     "PARTITION": "{{shipstation_partition}}",
-    "POLLING_INTERVAL": "shipstation_interval"
+    "POLLING_INTERVAL": "{{shipstation_interval}}"
   },
   "portDefinitions": [
     {
