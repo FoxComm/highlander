@@ -1,19 +1,19 @@
 ---
+
 - name: Install node Packages
-  apt: name={{ item }} state=latest force=yes
-  sudo: true
+  apt: name={{item}} state=latest force=yes
   with_items:
     - nodejs
     - npm
 
 - name: Upgrade NPM
   shell: npm update -g npm
-  sudo: true
 
 - name: Install n
   shell: npm install -g n
-  sudo: true
 
 - name: Install node
   shell: n {{node_version}}
-  sudo: true
+
+- name: Install Yarn
+  shell: npm install -g yarn
