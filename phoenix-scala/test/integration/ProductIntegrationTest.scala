@@ -189,6 +189,13 @@ class ProductIntegrationTest
         val productResponse = doQuery(newProductPayload)
         productResponse.skus.length must === (1)
         productResponse.skus.head.albums.length must === (1)
+
+        val getProductResponse = productsApi(productResponse.id).get().as[Root]
+        getProductResponse.skus.length must === (1)
+
+        val album :: Nil = getProductResponse.skus.head.albums
+        album.images.length must === (1)
+        album.images.head.src must === (src)
       }
     }
 
@@ -298,6 +305,57 @@ class ProductIntegrationTest
 
       val description = response.attributes \ "description" \ "v"
       description.extract[String] must === ("Test product description")
+    }
+
+    "Updates a SKU with an album successfully" in new Fixture with Product_Raw {
+      val src           = "http://lorempixel/test.png"
+      val imagePayload  = ImagePayload(src = src)
+      val albumPayload  = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
+      val albumsPayload = Seq(albumPayload).some
+
+      val updateSkuPayload = makeSkuPayload("SKU-UPDATE-TEST", skuAttrMap, albumsPayload)
+      val newAttrMap       = Map("name" → (("t" → "string") ~ ("v" → "Some new product name")))
+      val payload = UpdateProductPayload(attributes = newAttrMap,
+                                         skus = Some(Seq(updateSkuPayload)),
+                                         albums = None,
+                                         variants = Some(Seq.empty))
+
+      val response = doQuery(simpleProduct.formId, payload)
+      response.skus.length must === (1)
+
+      val getProductResponse = productsApi(response.id).get().as[Root]
+      getProductResponse.skus.length must === (1)
+
+      val sku :: Nil = getProductResponse.skus
+      sku.albums.length must === (1)
+
+      val album :: Nil = sku.albums
+      album.images.length must === (1)
+      album.images.head.src must === (src)
+    }
+
+    "Updates an album on a product" in new Fixture {
+      val src          = "http://lorempixel/test.png"
+      val imagePayload = ImagePayload(src = src)
+      val albumPayload = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
+
+      val newSkuPayload = productPayload.skus.head.copy(albums = Seq(albumPayload).some)
+
+      val payload = UpdateProductPayload(attributes = Map.empty,
+                                         skus = Seq(newSkuPayload).some,
+                                         variants = Seq.empty.some,
+                                         albums = Seq(albumPayload).some)
+
+      val productResponse = productsApi(product.formId).update(payload).as[Root]
+      productResponse.albums.length must === (1)
+
+      val getProductResponse = productsApi(productResponse.id).get().as[Root]
+      getProductResponse.albums.length must === (1)
+
+      val album :: Nil = getProductResponse.albums
+      album.images.length must === (1)
+      album.images.head.src must === (src)
+
     }
 
     "Updates and replaces a SKU on the product" in new Fixture with Product_Raw {
