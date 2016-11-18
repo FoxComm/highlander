@@ -11,7 +11,7 @@
     - { role: base/common }
     - { role: base/ssh_keys }
     - { role: base/scala }
-    - { role: base/node }
+    - { role: base/node, sudo: yes }
     - { role: test/db }
     - { role: test/selenium }
     - { role: base/builder }
