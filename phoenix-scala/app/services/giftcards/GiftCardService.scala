@@ -76,9 +76,8 @@ object GiftCardService {
                                                                         db: DB,
                                                                         ac: AC): DbResultT[Root] =
     for {
-      _ ← * <~ payload.validate
-      origin ← * <~ GiftCardOrders.create(
-                  GiftCardOrder(cordRef = payload.cordRef, details = payload.details))
+      _      ← * <~ payload.validate
+      origin ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = payload.cordRef))
       adminResp = UserResponse.build(admin).some
       giftCard ← * <~ GiftCards.create(GiftCard.buildByCustomerPurchase(payload, origin.id))
       _        ← * <~ LogActivity.gcCreated(admin, giftCard)

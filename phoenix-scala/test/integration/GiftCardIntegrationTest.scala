@@ -84,8 +84,9 @@ class GiftCardIntegrationTest
     "POST /v1/customer-gift-cards" - {
       "successfully creates gift card as a custumer from payload" in new Reason_Baked {
         val cordInsert = Carts.create(Factories.cart).gimme
-        val attributes = Some(
-            parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
+        val attributes = Some(parse("""{"attributes":{"giftCard":{"senderName":"senderName",
+                 "recipientName":"recipientName",
+                 "recipientEmail":"example@example.com"}}}""".stripMargin))
         val root = giftCardsApi
           .createFromCustomer(GiftCardCreatedByCustomer(balance = 555,
                                                         details = attributes,
@@ -93,6 +94,10 @@ class GiftCardIntegrationTest
           .as[GiftCardResponse.Root]
         root.currency must === (Currency.USD)
         root.availableBalance must === (555)
+        root.details.get.toString ==
+          """{"attributes":{"giftCard":{"senderName":"senderName",
+            "recipientName":"recipientName",
+            "recipientEmail":"example@example.com"}}}""".stripMargin
       }
 
       "successfully creates gift cards  as a custumer from payload" in new Reason_Baked {

@@ -16,7 +16,7 @@ import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments 
 import payloads.GiftCardPayloads.{GiftCardCreateByCsr, GiftCardCreatedByCustomer}
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Money._
 import utils.Validation._
@@ -38,7 +38,8 @@ case class GiftCard(id: Int = 0,
                     canceledReason: Option[Int] = None,
                     reloadable: Boolean = false,
                     accountId: Option[Int] = None,
-                    createdAt: Instant = Instant.now())
+                    createdAt: Instant = Instant.now(),
+                    details: Option[Json] = None)
     extends PaymentMethod
     with FoxModel[GiftCard]
     with FSM[GiftCard.State, GiftCard]
@@ -155,7 +156,8 @@ object GiftCard {
         currency = payload.currency,
         originalBalance = payload.balance,
         availableBalance = payload.balance,
-        currentBalance = payload.balance
+        currentBalance = payload.balance,
+        details = payload.details
     )
   }
 
@@ -224,6 +226,7 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
   def reloadable       = column[Boolean]("reloadable")
   def accountId        = column[Option[Int]]("account_id")
   def createdAt        = column[Instant]("created_at")
+  def details          = column[Option[Json]]("details")
 
   def * =
     (id,
@@ -240,7 +243,8 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
      canceledReason,
      reloadable,
      accountId,
-     createdAt) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
+     createdAt,
+     details) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
 }
 
 object GiftCards

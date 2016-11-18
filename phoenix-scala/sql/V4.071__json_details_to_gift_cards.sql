@@ -1,1 +1,1 @@
-alter table gift_card_orders add column details  jsonb;
+alter table gift_cards add column details  jsonb;

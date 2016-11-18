@@ -4,6 +4,7 @@ import java.time.Instant
 
 import models.payment.giftcard._
 import utils.Money._
+import utils.aliases.Json
 
 object GiftCardResponse {
 
@@ -24,7 +25,8 @@ object GiftCardResponse {
                   canceledReason: Option[Int],
                   customer: Option[CustomerResponse.Root],
                   storeAdmin: Option[UserResponse.Root],
-                  message: String)
+                  message: String,
+                  details: Option[Json] = None)
       extends ResponseItem
 
   def build(gc: GiftCard,
@@ -46,6 +48,7 @@ object GiftCardResponse {
         canceledReason = gc.canceledReason,
         customer = customer,
         storeAdmin = admin,
-        message = mockMessage
+        message = mockMessage,
+        details = gc.details
     )
 }
