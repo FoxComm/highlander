@@ -35,6 +35,7 @@
 
 (defroutes app
   (GET "/_settings/schema" [] (response settings/schema))
+  (GET "/_ping" [] (response {:ok "pong"}))
   (POST "/_set-log-level" {body :body}
     (let [level (some-> body
                   (get "level")
@@ -63,6 +64,7 @@
 
 (defn start-phoenix
   []
+  (log/info (str "Start HTTP API at :" @api-port))
   (let [server (http/start-server (-> app
                                    wrap-json-body
                                    wrap-json-response)
