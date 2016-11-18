@@ -6,17 +6,8 @@
     cert_path: stage
     ashes_server_name: local.foxcommerce.com
     storefront_server_name: local.foxcommerce.com
-    docker_registry: 127.0.0.1
-    marathon_server: 127.0.0.1:8080
-    marketplace_server: 127.0.0.1:4003
-    marketplace_ui_server: 127.0.0.1:4042
-    product_search_server: 127.0.0.1:5492
-    zookeepers: "zk://127.0.0.1:2181"
-    mesos_quorum: 1
-    marathon_server: 127.0.0.1:8080
     with_marketplace: true
     mesos_ip: "`hostname -I | awk '{print $1}'`"
-
     docker_db_host: 172.17.0.1
   roles:
     - { role: base/phoenix }

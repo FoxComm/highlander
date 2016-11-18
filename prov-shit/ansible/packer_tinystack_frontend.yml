@@ -5,10 +5,6 @@
   vars:
     user: ubuntu
     packing: true
-    log_host: elasticsearch.service.consul
-    search_host: elasticsearch.service.consul
-    zookeeper_server: zookeeper.service.consul:2181
-    zookeepers: zk://zookeeper.service.consul:2181
 
   roles:
     - { role: base/mesos_worker }
