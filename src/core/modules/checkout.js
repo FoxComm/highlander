@@ -114,9 +114,9 @@ export function saveGiftCard(code: string): Function {
   };
 }
 
-export function removeGiftCard(): Function {
+export function removeGiftCard(code: string): Function {
   return (dispatch) => {
-    return foxApi.cart.removeGiftCards()
+    return foxApi.cart.removeGiftCard(code)
       .then(res => {
         dispatch(updateCart(res.result));
       });

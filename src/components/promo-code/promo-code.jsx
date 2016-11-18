@@ -75,7 +75,9 @@ class PromoCode extends Component {
 
   @autobind
   removeCode() {
-    this.props.removeCode()
+    const { code } = (this.props.giftCard || {});
+
+    this.props.removeCode(code)
       .then(() => this.setState({ code: '' }))
       .catch(error => {
         this.setState({ error });
