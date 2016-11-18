@@ -40,6 +40,7 @@ sensu_remote_plugins:
   - uptime-checks
   - openvpn
   - nginx
+  - http
 sensu_transport: rabbitmq
 #static_data_store: "{{ role_path }}/files/data/static"
 dynamic_data_store: "{{ role_path }}/files/data/dynamic"
