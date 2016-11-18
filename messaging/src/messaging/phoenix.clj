@@ -23,14 +23,15 @@
                          15054))))
 
 (def api-host (delay (:api-host env)))
-(def phoenix-email (delay (:phoenix-email env)))
+
+(def phoenix-url (delay (:phoenix-url env)))
+(def phoenix-user (delay (:phoenix-user env)))
 (def phoenix-password (delay (:phoenix-password env)))
 
 
 (def http-pool (delay (http/connection-pool
                         {:connection-options {:insecure? true}})))
 
-(def api-server (delay (:api-server env)))
 
 (defroutes app
   (GET "/_settings/schema" [] (response settings/schema))
@@ -76,10 +77,10 @@
 
 (defn authenticate
   []
-  (-> (http/post (str @api-server "/v1/public/login")
+  (-> (http/post (str @phoenix-url "/v1/public/login")
                  {:pool @http-pool
                   :body (json/write-str
-                          {:email @phoenix-email
+                          {:email @phoenix-user
                            :password @phoenix-password
                            :org "tenant"})
                   :content-type :json})
@@ -90,9 +91,9 @@
 
 (defn register-plugin
   [schema]
-  (if @api-server
+  (if @phoenix-url
     (try
-      (log/info "Register plugin at phoenix" @api-server)
+      (log/info "Register plugin at phoenix" @phoenix-url)
       (let [plugin-info {:name "messaging"
                          :description description
                          :apiHost @api-host
@@ -100,7 +101,7 @@
                          :apiPort @api-port
                          :schemaSettings schema}
             resp (-> (http/post
-                           (str @api-server "/v1/plugins/register")
+                           (str @phoenix-url "/v1/plugins/register")
                            {:pool @http-pool
                             :body (json/write-str plugin-info)
                             :content-type :json
