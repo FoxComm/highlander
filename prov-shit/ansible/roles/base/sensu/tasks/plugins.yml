@@ -1,65 +1,21 @@
 ---
 # Deploy available checks/plugins/handlers/filters/mutators
 
-# FIX DEFINITIONS -> FROM TEMPLATES !!!
-
-#  - name: Check Sensu plugin directory
-#    file:
-#      dest: "{{ sensu_config_path }}/plugins"
-#      state: directory
-#      owner: "{{ sensu_user_name }}"
-#      group: "{{ sensu_group_name }}"
-
   - name: Install remote plugins
     shell: sensu-install -p {{ item }}
     with_items: "{{ sensu_remote_plugins }}"
     changed_when: false
     when: sensu_remote_plugins > 0
 
-#  - name: Register available checks
-#    local_action: command ls {{ static_data_store }}/checks
-#    register: sensu_available_checks
-#    changed_when: false
-#    become: false
+#  TODO:
 
 #  - name: Deploy checks
-#    copy:
-#      src: "{{ static_data_store }}/checks/{{ item }}/"
-#      dest: "{{ sensu_config_path }}/plugins/"
-#      mode: 0755
-#      owner: "{{ sensu_user_name }}"
-#      group: "{{ sensu_group_name }}"
-#    when: "'{{ item }}' in sensu_available_checks.stdout_lines"
-#    with_flattened:
-#      - "{{ group_names }}"
-#    notify: restart sensu-client service
 
- # - name: Deploy handlers
- #   copy:
- #     src: "{{ static_data_store }}/handlers/"
- #     dest: "{{ sensu_config_path }}/plugins/"
- #     mode: 0755
- #     owner: "{{ sensu_user_name }}"
- #     group: "{{ sensu_group_name }}"
- #   notify: restart sensu-client service
+#  - name: Deploy handlers
 
- # - name: Deploy filters
- #   copy:
- #     src: "{{ static_data_store }}/filters/"
- #     dest: "{{ sensu_config_path }}/plugins/"
- #     mode: 0755
- #     owner: "{{ sensu_user_name }}"
- #     group: "{{ sensu_group_name }}"
- #   notify: restart sensu-client service
+#  - name: Deploy filters
 
- # - name: Deploy mutators
- #   copy:
- #     src: "{{ static_data_store }}/mutators/"
- #     dest: "{{ sensu_config_path }}/plugins/"
- #     mode: 0755
- #     owner: "{{ sensu_user_name }}"
- #     group: "{{ sensu_group_name }}"
- #   notify: restart sensu-client service
+#  - name: Deploy mutators
 
   - name: Deploy definitions to the master
     template:
