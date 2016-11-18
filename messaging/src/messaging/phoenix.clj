@@ -7,6 +7,7 @@
             [utils.ring-json :refer [wrap-json-response wrap-json-body]]
             [pjson.core :as json]
             [byte-streams :as bs]
+            [taoensso.timbre :as log]
             [environ.core :refer [env]]))
 
 (def description "Provides messaging integration with Mailchimp/Mandrill")
@@ -29,16 +30,28 @@
 (def http-pool (delay (http/connection-pool
                         {:connection-options {:insecure? true}})))
 
-
 (def api-server (delay (:api-server env)))
-
 
 (defroutes app
   (GET "/_settings/schema" [] (response settings/schema))
+  (POST "/_set-log-level" {body :body}
+    (let [level (some-> body
+                  (get "level")
+                  keyword)]
+      (if (log/valid-level? level)
+        (do
+          (log/info "Set log level to" level)
+          (log/set-level! level)
+          (response {:result "ok"}))
+        (do
+          (log/error "Can't set log level to invalid level" level)
+          {:status 400
+           :headers {}
+           :body {:result (str "invalid log level: " level)}}))))
   (POST "/_settings/upload" {body :body}
-        (println "Updating Settings: " body)
-        (settings/update-settings body)
-        (response {:ok "updated"}))
+      (log/info "Updating Settings: " body)
+      (settings/update-settings body)
+      (response {:ok "updated"}))
 
   (route/not-found (response {:error {:code 404 :text "Not found"}})))
 
@@ -79,6 +92,7 @@
   [schema]
   (if @api-server
     (try
+      (log/info "Register plugin at phoenix" @api-server)
       (let [plugin-info {:name "messaging"
                          :description description
                          :apiHost @api-host
@@ -95,13 +109,14 @@
                          :body
                          bs/to-string
                          json/read-str)]
+        (log/info "Plugin registered at phoenix, resp" resp) 
         (settings/update-settings (get resp "settings")))
       (catch Exception e
         (try
           (let [error-body (-> (ex-data e) :body bs/to-string)]
-            (println "Can't register plugin at phoenix" error-body))
+            (log/error "Can't register plugin at phoenix" error-body))
           (catch Exception einner
-            (println "Can't register plugin at phoenix" e)))
+            (log/error "Can't register plugin at phoenix" e)))
         (throw e)))
-    (println "Phoenix address not set, can't register myself into phoenix :(")))
+    (log/error "Phoenix address not set, can't register myself into phoenix :(")))
 
