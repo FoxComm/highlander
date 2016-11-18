@@ -12,6 +12,7 @@
                  [io.confluent/kafka-avro-serializer "2.0.1"]
                  [com.fasterxml.jackson.core/jackson-core "2.7.3"]
                  [com.fasterxml.jackson.core/jackson-databind "2.7.3"]
+                 [com.taoensso/timbre "4.7.4"]
                  ;; http stack
                  [aleph "0.4.2-alpha8"]
                  [compojure "1.5.1"]
@@ -22,7 +23,6 @@
                  [byte-streams "0.2.0"]
                  [com.damballa/abracad "0.4.13"]
                  [pjson "0.3.2"]
-                 [com.taoensso/nippy "2.11.1"]
                  [environ "1.0.2"]
                  [manifold "0.1.5"]
                  [boot-environ "1.0.2"]

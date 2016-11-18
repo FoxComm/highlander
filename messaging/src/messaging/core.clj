@@ -6,6 +6,8 @@
     :refer [<!! chan thread go]]
    [clojure.java.io :as io]
    [clojure.string :as string]
+   ;; log
+   [taoensso.timbre :as log]
    ;; internal
    [messaging.mail :as mail]
    [messaging.settings :as settings]
@@ -19,10 +21,7 @@
    [environ.core :refer [env]]
    [aleph.http :as http]
    [byte-streams :as bs]
-   [franzy.clients.consumer.callbacks :as callbacks])
-
-
- (:import [javax.script ScriptEngineManager]))
+   [franzy.clients.consumer.callbacks :as callbacks]))
 
 
 (def topics ["activities"])
@@ -60,8 +59,6 @@
        :data (decode-embed-json (:data $))
        :context (decode-embed-json (:context $)))))
 
-
-
 (defn decode
   [message]
   (-> message
@@ -71,36 +68,6 @@
       decode-activity-json))
 
 (def stop (atom false))
-
-(defn render-react-activity
-  [react-app activity]
-  (let [props (assoc activity
-                :isRead false
-                :kind (:activity_type activity))
-        html (try
-               (.eval react-app (str "renderNotificationItem(" (json/write-str props) ")"))
-               (catch Exception e (println "Can't render activity" activity "\n" e)))
-        text (some->> html
-                      (re-seq #"(<div class=\"fc-activity-notification-item__text\".+?</div>)")
-                      ffirst)]
-
-    (some->>
-      (some-> text
-          (string/replace #"(<(?!(a\s|/a)).+?>)" " ")
-          (string/replace #"<a\s.+?href=\"(.*?)\".+?>(.+?)</a>" (str "<" (settings/get :admin_base_url) "$1|$2>"))
-          (string/replace #"\p{Zs}" " ")
-          (string/split #"\s"))
-      (map string/trim)
-      (remove empty?)
-      (string/join " "))))
-
-
-(defn send-to-slack
-  [^String msg]
-  (http/post (settings/get :slack_webhook_url)
-             {:body (json/write-str {:text msg})
-              :content-type "application/json"
-              :accept ["application/json"]}))
 
 (defn start-app
   [react-app]
@@ -114,31 +81,20 @@
             :enable.auto.commit      false}]
     (with-open [c (consumer/make-consumer cc)]
       (subscribe-to-partitions! c topics)
-      (println "Partitions subscribed to:" (partition-subscriptions c))
+      (log/info "Partitions subscribed to:" (partition-subscriptions c))
       (loop []
         (let [cr (poll! c)]
           (doseq [record cr :let [msg (decode record)]]
-            (prn msg)
+            (log/debug msg)
             (try
               (mail/handle-activity msg)
               (commit-offsets-async! c {(select-keys record [:topic :partition])
                                         {:offset (:offset record) :metadata ""}})
-              (catch Exception e (println "Caught exception: " e)))))
-
-;; temporary disabled
-;;               (when-let [string-msg (render-react-activity react-app msg)]
-;;                 (send-to-slack string-msg))))))
+              (catch Exception e (log/error "Caught exception: " e)))))
 
        (when-not @stop
         (recur))))
-    (println "exit")))
+    (log/info "stop polling kafka activities")))
 
 (defn stop-app []
   (reset! stop true))
-
-(defn start-react-app
-  []
-  (let [nashorn (.getEngineByName (ScriptEngineManager.) "nashorn")]
-    (.eval nashorn (slurp (io/resource "polyfill.js")))
-    (.eval nashorn (slurp (io/resource "admin-dbg.js")))
-    nashorn))
