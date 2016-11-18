@@ -5,6 +5,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
+	"github.com/FoxComm/highlander/middlewarehouse/shared"
 	"github.com/FoxComm/metamorphosis"
 
 	_ "github.com/jpfuentes2/go-env/autoload"
@@ -21,7 +22,7 @@ func main() {
 		log.Fatalf("Unable to initialize consumer with error: %s", err.Error())
 	}
 
-	capConf, err := MakeCaptureConsumerConfig()
+	capConf, err := shared.MakeCaptureConsumerConfig()
 	if err != nil {
 		log.Fatalf("Unable to initialize consumer with error: %s", err.Error())
 	}

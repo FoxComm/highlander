@@ -13,9 +13,7 @@ shortcuts:
       api_docs: bin/envs/api_docs
       stage_vpn: bin/envs/stage_vpn
       staging: bin/envs/staging
-      target_aws: bin/envs/target_aws
       topdrawer: bin/envs/topdrawer
-      topdrawer_vpn: bin/envs/topdrawer_vpn
       tpg: bin/envs/tpg
   - name: Private Key Files
     flag: "--private-key"
@@ -41,12 +39,18 @@ shortcuts:
   - name: Bootstrap Consul Alerts
     alias: consul_alerts.yml
     target: ansible/bootstrap_consul_alerts.yml
+  - name: Bootstrap Docker Clean
+    alias: docker_clean.yml
+    target: ansible/bootstrap_docker_clean.yml
   - name: Bootstrap Marathon Alerts
     alias: marathon_alerts.yml
     target: ansible/bootstrap_marathon_alerts.yml
   - name: Bootstrap Database Backup
     alias: db_backup.yml
     target: ansible/bootstrap_db_backup.yml
+  - name: Provision Kibana
+    alias: bootstrap_kibana.yml
+    target: ansible/bootstrap_kibana.yml
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
@@ -60,16 +64,16 @@ shortcuts:
     alias: tinystack.yml
     target: ansible/bootstrap_tinystack.yml
 
-  # New environments
+  # TPG
   - name: Provision TPG Staging
     alias: tpg_stage.yml
     target: ansible/tpg_stage.yml
+  - name: Provision TPG Production Backend
+    alias: tpg_backend.yml
+    target: ansible/tpg_backend.yml
   - name: Provision TPG Production
     alias: tpg_production.yml
     target: ansible/tpg_production.yml
-  - name: Provision TPG Shipping Methods
-    alias: tpg_shipping.yml
-    target: ansible/tpg_shipping.yml
   - name: Provision Tony Staging
     alias: easy_tony.yml
     target: ansible/easy_tony.yml
@@ -147,9 +151,6 @@ shortcuts:
   - name: Staging Highlander
     alias: staging
     target: terraform/base/gce_staging
-  - name: Staging Stable
-    alias: stable
-    target: terraform/base/gce_staging_stable
   - name: Staging Gatling
     alias: gatling
     target: terraform/base/gce_gatling

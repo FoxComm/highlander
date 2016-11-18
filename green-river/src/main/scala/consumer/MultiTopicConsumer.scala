@@ -104,29 +104,26 @@ class MultiTopicConsumer(topics: Seq[String],
     while (true) {
       val records = consumer.poll(timeout)
 
-      val (_, lastOffset) =
-        records.foldLeft((false, Map.empty[TopicPartition, OffsetAndMetadata])) {
-          case ((true, offsets), _) ⇒
-            (true, offsets)
-          case ((false, offsets), r) ⇒
-            Console.err.println(s"\nProcessing ${r.topic} offset ${r.offset}")
+      val lastOffset = records.foldLeft(Map.empty[TopicPartition, OffsetAndMetadata]) {
+        case (offsets, r) ⇒
+          Console.err.println(s"\nProcessing ${r.topic} offset ${r.offset}")
 
-            val result = Try {
-              val f = processor.process(r.offset, r.topic, r.key, r.value)
-              Await.result(f, 120 seconds)
-            }
-            result match {
-              case Success(_) ⇒
-                Console.err.println(s"Processed: ${r.topic} offset: ${r.offset}")
-                val tp  = new TopicPartition(r.topic, r.partition)
-                val off = new OffsetAndMetadata(r.offset + 1)
-                (false, offsets + (tp → off))
-              case Failure(e) ⇒
-                Console.err.println(s"Not processed: ${r.topic} offset: ${r.offset}")
-                Console.err.println(s"Failure during processing ${r.topic} offset ${r.offset}: $e")
-                (true, offsets)
-            }
-        }
+          val result = Try {
+            val f = processor.process(r.offset, r.topic, r.key, r.value)
+            Await.result(f, 120 seconds)
+          }
+          result match {
+            case Success(_) ⇒
+              Console.err.println(s"Processed: ${r.topic} offset: ${r.offset}")
+              val tp  = new TopicPartition(r.topic, r.partition)
+              val off = new OffsetAndMetadata(r.offset + 1)
+              offsets + (tp → off)
+            case Failure(e) ⇒
+              Console.err.println(s"Not processed: ${r.topic} offset: ${r.offset}")
+              Console.err.println(s"Failure during processing ${r.topic} offset ${r.offset}: $e")
+              offsets
+          }
+      }
 
       if (lastOffset.nonEmpty) {
         Sync.commit(consumer, lastOffset)

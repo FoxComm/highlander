@@ -22,10 +22,10 @@ const getBody = ({component, query, items, activeIndex, onSelect, notFound}) => 
     return <li className={prefixed('item-not-found')}>{notFound}</li>;
   }
 
-  return items.map((item, index) => (
+  return _.map(items, (item, index) => (
     <li key={`lookup-${index}`}
         className={classNames(prefixed('item'), {'_active': index === activeIndex})}
-        onMouseDown={() => onSelect(index)}>
+        onMouseDown={() => onSelect(parseInt(index))}>
       {React.createElement(component, {
         query,
         model: item

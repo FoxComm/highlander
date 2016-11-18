@@ -1,7 +1,9 @@
 ---
 
 - include_vars: ../../../base/db/vars/main.yml
+
 - include: ../../../base/db/tasks/flyway_install.yml
+  when: download_flyway
 
 - name: Synchronize Phoenix SQL
   synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes

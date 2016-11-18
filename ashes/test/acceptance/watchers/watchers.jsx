@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
-import ShallowTestUtils from 'react-shallow-testutils';
+import * as ShallowTestUtils from 'react-shallow-testutils';
 import { groups } from '../../../src/paragons/watcher';
 
 describe('Watchers', function () {

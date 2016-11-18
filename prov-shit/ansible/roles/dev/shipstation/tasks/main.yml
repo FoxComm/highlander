@@ -13,6 +13,7 @@
 
 - name: Wait for Middlewarehouse become available
   wait_for: host={{middlewarehouse_host}} port={{middlewarehouse_port}}
+  ignore_errors: true
 
 - name: Restart Shipstation Consumer in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/shipstation/restart'

@@ -10,7 +10,7 @@
   tags:
     - backend
   roles:
-    - { role: dev/stage_mesos}
+    - { role: dev/stage_mesos, when: first_run}
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
@@ -40,10 +40,11 @@
     self_host: stage.foxcommerce.com
     ashes_server_name: stage.foxcommerce.com
     storefront_server_name: stage.foxcommerce.com
+    with_base_seeds: true
   tags:
     - frontend
   roles:
-    - { role: dev/stage_mesos}
+    - { role: dev/stage_mesos, when: first_run}
     - { role: base/ssh_keys }
     - { role: dev/phoenix }
     - { role: dev/greenriver }

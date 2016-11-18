@@ -37,9 +37,16 @@ phoenix_test_db_name: phoenix_test
 phoenix_tracing: "false"
 phoenix_db_connection_string: "postgresql://{{phoenix_db_user}}@{{db_host}}/{{phoenix_db_name}}"
 
+phoenix_api_user: "api@foxcommerce.com"
+phoenix_api_password: "api$pass7!"
+
+phoenix_tax_rule_region: ""
+phoenix_tax_rule_rate: ""
+
 # Do not use this in production
 # This is a ttl of 1 year
 phoenix_token_ttl: 525600
+solomon_token_ttl: 365
 
 # Middlewarehouse
 middlewarehouse_env: staging
@@ -92,8 +99,6 @@ loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
 loyalty_jar: /usr/local/bin/loyalty.jar
 
 # Messaging
-messaging_jar: /usr/local/bin/messaging.jar
-messaging_jar_src: ../../fox-notifications/target/messaging.jar
 plugins_api_user_email: ""
 plugins_api_user_password: ""
 
@@ -121,7 +126,7 @@ log_host: 127.0.0.1
 
 # JMX ports
 es_jmx_port: 29010
-phoenix_jmx_port: 39010
+phoenix_jmx_port: 39014
 greenriver_jmx_port: 39011
 messaging_jmx_port: 39012
 loyalty_jmx_port: 39013
@@ -178,6 +183,7 @@ cert_path: stage
 
 # Mesos
 mesos_quorum: 2
+mesos_ip: 0.0.0.0
 
 # Use seeder service or not?
 with_seeder: false
@@ -191,3 +197,6 @@ docker_frontend_branch: master
 marketplace_db_name: marketplace_development
 marketplace_db_user: marketplace
 marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_host}}/{{marketplace_db_name}}"
+
+#Set this to true for first run deployments
+first_run: false

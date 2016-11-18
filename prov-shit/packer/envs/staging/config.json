@@ -12,5 +12,6 @@
     "base_node_image": "base-node-1470785359",
     "base_jvm_image": "base-jvm-1470785305",
     "ssh_username": "ubuntu",
-    "base_mesos": "base-mesos-1470781743"
+    "base_mesos": "base-mesos-1470781743",
+    "base_united_image": "base-161111-180429"
 }

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import ReactTestUtils from 'react-addons-test-utils';
 
 describe('FormField', function() {
   const Dropdown = requireComponent('dropdown/dropdown.jsx');

@@ -1,7 +1,7 @@
 
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
-import ShallowTestUtils from 'react-shallow-testutils';
+import ReactTestUtils from 'react-addons-test-utils';
+import * as ShallowTestUtils from 'react-shallow-testutils';
 
 describe('Title', function() {
   const Title = requireComponent('section-title/title.jsx');
