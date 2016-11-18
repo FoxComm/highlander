@@ -115,9 +115,6 @@ class VariantIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed {
-
-    implicit val au = storeAdminAuthData
-
     val scope = LTree(au.token.scope)
 
     val createVariantPayload = VariantPayload(attributes =

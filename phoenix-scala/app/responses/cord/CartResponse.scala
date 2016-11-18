@@ -35,8 +35,10 @@ object CartResponse {
   def buildRefreshed(cart: Cart)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CartResponse] =
     Carts.refresh(cart).dbresult.flatMap(c ⇒ fromCart(c, grouped = true))
 
-  def fromCart(cart: Cart,
-               grouped: Boolean)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CartResponse] =
+  def fromCart(cart: Cart, grouped: Boolean, isGuest: Boolean = false)(
+      implicit db: DB,
+      ec: EC,
+      ctx: OC): DbResultT[CartResponse] =
     for {
       lineItemAdj    ← * <~ CordResponseLineItemAdjustments.fetch(cart.refNum)
       lineItemsSku   ← * <~ CartLineItems.byCordRef(cart.refNum).result
@@ -48,9 +50,12 @@ object CartResponse {
       shippingAddress ← * <~ CordResponseShipping
                          .shippingAddress(cart.refNum)
                          .fold(_ ⇒ None, good ⇒ good.some)
-      paymentMethods ← * <~ CordResponsePayments.fetchAll(cart.refNum)
-      paymentState   ← * <~ CartQueries.getPaymentState(cart.refNum)
-      lockedBy       ← * <~ currentLock(cart)
+      paymentMethods ← * <~ {
+                        if (isGuest) DBIO.successful(Seq())
+                        else CordResponsePayments.fetchAll(cart.refNum)
+                      }
+      paymentState ← * <~ CartQueries.getPaymentState(cart.refNum)
+      lockedBy     ← * <~ currentLock(cart)
     } yield
       CartResponse(
           referenceNumber = cart.refNum,

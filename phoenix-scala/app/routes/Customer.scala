@@ -30,7 +30,7 @@ object Customer {
   def routes(implicit ec: EC, es: ES, db: DB, auth: UserAuthenticator, apis: Apis) = {
 
     pathPrefix("my") {
-      requireCustomerAuth(auth) { auth ⇒
+      requireCustomerAuth(auth) { implicit auth ⇒
         activityContext(auth.model) { implicit ac ⇒
           determineObjectContext(db, ec) { implicit ctx ⇒
             pathPrefix("products" / IntNumber / "baked") { productId ⇒

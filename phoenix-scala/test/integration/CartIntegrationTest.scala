@@ -1,5 +1,4 @@
 import akka.http.scaladsl.model.StatusCodes
-
 import cats.implicits._
 import failures.CartFailures._
 import failures.LockFailures._
@@ -15,14 +14,17 @@ import models.rules.QueryStatement
 import models.shipping._
 import org.json4s.JsonAST.JObject
 import org.json4s.jackson.JsonMethods._
+import payloads.AddressPayloads.UpdateAddressPayload
+import payloads.CustomerPayloads.CreateCustomerPayload
 import payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.CreateCart
 import payloads.ProductPayloads.CreateProductPayload
 import payloads.SkuPayloads.SkuPayload
 import payloads.UpdateShippingMethod
-import responses.TheResponse
+import responses.{CustomerResponse, TheResponse}
 import responses.cord.CartResponse
+import responses.CustomerResponse.Root
 import responses.cord.base.{CordResponseLineItem, CordResponseTotals}
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
@@ -69,9 +71,6 @@ class CartIntegrationTest
     }
 
     "returns correct image path" in new Fixture {
-
-      implicit val au = storeAdminAuthData
-
       val imgUrl = "testImgUrl";
       (for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
@@ -81,6 +80,14 @@ class CartIntegrationTest
       val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
       fullCart.lineItems.skus.size must === (1)
       fullCart.lineItems.skus.head.imagePath must === (imgUrl)
+    }
+
+    "empty paymenth methods having a guest customer" in new Fixture {
+      val guestCustomer = customersApi
+        .create(CreateCustomerPayload(email = "foo@bar.com", isGuest = Some(true)))
+        .as[CustomerResponse.Root]
+      val fullCart = customersApi(guestCustomer.id).cart().as[CartResponse]
+      fullCart.paymentMethods.size must === (0)
     }
   }
 
@@ -481,9 +488,6 @@ class CartIntegrationTest
       .copy(adminDisplayName = "High", conditions = highConditions.some, code = "LOW")
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = ({
-
-      implicit val au = storeAdminAuthData
-
       for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
         _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))

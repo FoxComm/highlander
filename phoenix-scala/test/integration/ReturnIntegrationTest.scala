@@ -448,7 +448,6 @@ class ReturnIntegrationTest
   }
 
   trait Fixture extends Order_Baked with Reason_Baked {
-    implicit val au = storeAdminAuthData
     val rma = Returns
       .create(Factories.rma.copy(orderRef = order.refNum, accountId = customer.accountId))
       .gimme
