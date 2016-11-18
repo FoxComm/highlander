@@ -76,7 +76,7 @@
 
 (defn authenticate
   []
-  (-> (http/post (str @api-server "/api/v1/public/login")
+  (-> (http/post (str @api-server "/v1/public/login")
                  {:pool @http-pool
                   :body (json/write-str
                           {:email @phoenix-email
@@ -100,7 +100,7 @@
                          :apiPort @api-port
                          :schemaSettings schema}
             resp (-> (http/post
-                           (str @api-server "/api/v1/plugins/register")
+                           (str @api-server "/v1/plugins/register")
                            {:pool @http-pool
                             :body (json/write-str plugin-info)
                             :content-type :json

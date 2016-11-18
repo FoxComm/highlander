@@ -14,7 +14,7 @@
 
               :env {:phoenix-password "password"
                      :phoenix-email "admin@admin.com"
-                     :api-server "https://admin.foxcommerce.local"
+                     :api-server "https://admin.foxcommerce.local/api"
                      :api-host "127.0.0.1"
                      :kafka-broker "127.0.0.1:9092"
                      :schema-registry-url "http://127.0.0.1:8081"}}}
