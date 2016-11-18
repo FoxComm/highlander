@@ -8,7 +8,7 @@ type OrderLineItem struct {
 	Price           uint        `json:"price" binding:"required"`
 	State           string      `json:"state" binding:"required"`
 	ReferenceNumber string      `json:"referenceNumber" binding:"required"`
-	ImagePath       string 	    `json:"image_path" binding:"required"`
+	ImagePath       string      `json:"imagePath" binding:"required"`
 	Attributes      *Attributes `json:"attributes"`
 	Quantity        int         `json:"quantity"`
 }

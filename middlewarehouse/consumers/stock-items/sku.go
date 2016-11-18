@@ -23,7 +23,7 @@ func NewSKUFromAvro(message metamorphosis.AvroMessage) (*SKU, error) {
 
 func (s SKU) StockItem(stockLocationID uint) payloads.StockItem {
 	return payloads.StockItem{
-		SkuID: 	         s.ID,
+		SkuID:           s.ID,
 		SkuCode:         s.Code,
 		StockLocationID: stockLocationID,
 		DefaultUnitCost: 0,

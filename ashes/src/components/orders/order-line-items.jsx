@@ -24,10 +24,10 @@ const OrderLineItems = (props: Props): Element => {
 
   const renderRow = (row: SkuItem, index: number) => {
     return (
-      <TableRow key={row.sku}>
+      <TableRow key={row.skuId}>
         <TableCell><img src={row.imagePath} /></TableCell>
         <TableCell>{row.name}</TableCell>
-        <TableCell><Link to="sku-details" params={{skuCode: row.sku}}>{row.sku}</Link></TableCell>
+        <TableCell><Link to="sku-details" params={{skuId: row.skuId}}>{row.skuCode}</Link></TableCell>
         <TableCell><Currency value={row.price} /></TableCell>
         <TableCell>{row.quantity}</TableCell>
         <TableCell><Currency value={row.totalPrice} /></TableCell>

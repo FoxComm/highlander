@@ -57,8 +57,8 @@ func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 
 	log.Printf(
 		"Found order %s in fulfillmentStarted. Order data: %s. Add to middlewarehouse!",
-		activity.Data(),
 		order.ReferenceNumber,
+		activity.Data(),
 	)
 
 	b, err := json.Marshal(&order)
