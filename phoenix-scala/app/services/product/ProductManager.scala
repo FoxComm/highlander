@@ -134,7 +134,7 @@ object ProductManager {
       commit      ← * <~ ObjectUtils.commit(updated)
       updatedHead ← * <~ updateHead(oldProduct.model, updated.shadow, commit)
 
-      albums ← * <~ ImageManager.getAlbumsForProduct(updated.form.id)
+      albums ← * <~ updateAssociatedAlbums(updatedHead, payload.albums)
 
       variantLinks ← * <~ ProductVariantLinks.filterLeft(oldProduct.model).result
 
@@ -276,6 +276,20 @@ object ProductManager {
           variants     ← * <~ ProductVariantLinks.queryRightByLeft(product)
           fullVariants ← * <~ variants.map(VariantManager.zipVariantWithValues)
         } yield fullVariants
+    }
+
+  private def updateAssociatedAlbums(product: Product, albumsPayload: Option[Seq[AlbumPayload]])(
+      implicit ec: EC,
+      db: DB,
+      oc: OC,
+      au: AU): DbResultT[Seq[AlbumRoot]] =
+    albumsPayload match {
+      case Some(payloads) ⇒
+        for {
+          albums ← * <~ findOrCreateAlbumsForProduct(product, payloads)
+        } yield albums.map { case (album, images) ⇒ AlbumResponse.build(album, images) }
+      case None ⇒
+        ImageManager.getAlbumsForProductInner(product)
     }
 
   private def updateHead(product: Product,
