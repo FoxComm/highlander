@@ -1,19 +1,23 @@
 package services.inventory
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
+import com.github.tminglei.slickpg.LTree
 import cats.data._
 import failures.ProductFailures._
 import failures.{Failures, GeneralFailure, NotFoundFailure400}
 import models.account._
 import models.inventory._
 import models.objects._
+import payloads.ImagePayloads.AlbumPayload
 import payloads.SkuPayloads._
+import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
+import responses.AlbumResponses._
 import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses._
 import services.LogActivity
 import services.image.ImageManager
+import services.image.ImageManager.FullAlbumWithImages
 import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
@@ -27,13 +31,17 @@ object SkuManager {
                                                   db: DB,
                                                   ac: AC,
                                                   oc: OC,
-                                                  au: AU): DbResultT[SkuResponse.Root] =
+                                                  au: AU): DbResultT[SkuResponse.Root] = {
+    val skuPayloads = payload.albums.getOrElse(Seq.empty)
+
     for {
       sku    ← * <~ createSkuInner(oc, payload)
+      albums ← * <~ findOrCreateAlbumsForSku(sku.model, skuPayloads)
       albums ← * <~ ImageManager.getAlbumsForSkuInner(sku.model.code, oc)
       response = SkuResponse.build(IlluminatedSku.illuminate(oc, sku), albums)
       _ ← * <~ LogActivity.fullSkuCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
+  }
 
   def getSku(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
     for {
@@ -43,14 +51,16 @@ object SkuManager {
       albums ← * <~ ImageManager.getAlbumsForSkuInner(sku.code, oc)
     } yield SkuResponse.build(IlluminatedSku.illuminate(oc, FullObject(sku, form, shadow)), albums)
 
-  def updateSku(
-      admin: User,
-      code: String,
-      payload: SkuPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC): DbResultT[SkuResponse.Root] =
+  def updateSku(admin: User, code: String, payload: SkuPayload)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      oc: OC,
+      au: AU): DbResultT[SkuResponse.Root] =
     for {
       sku        ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, code)
       updatedSku ← * <~ updateSkuInner(sku, payload)
-      albums     ← * <~ ImageManager.getAlbumsForSkuInner(updatedSku.model.code, oc)
+      albums     ← * <~ updateAssociatedAlbums(updatedSku.model, payload.albums)
       response = SkuResponse.build(IlluminatedSku.illuminate(oc, updatedSku), albums)
       _ ← * <~ LogActivity.fullSkuUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
@@ -149,6 +159,32 @@ object SkuManager {
 
   def getSkuCode(attributes: Map[String, Json]): Option[String] =
     attributes.get("code").flatMap(json ⇒ (json \ "v").extractOpt[String])
+
+  private def findOrCreateAlbumsForSku(sku: Sku, payload: Seq[AlbumPayload])(
+      implicit ec: EC,
+      db: DB,
+      oc: OC,
+      au: AU): DbResultT[Seq[FullAlbumWithImages]] =
+    for {
+      albums ← * <~ payload.map(ImageManager.updateOrCreateAlbum)
+      _ ← * <~ SkuAlbumLinks.syncLinks(sku, albums.map {
+           case (fullAlbum, fullImages) ⇒ fullAlbum.model
+         })
+    } yield albums
+
+  private def updateAssociatedAlbums(sku: Sku, albumsPayload: Option[Seq[AlbumPayload]])(
+      implicit ec: EC,
+      db: DB,
+      oc: OC,
+      au: AU): DbResultT[Seq[AlbumRoot]] =
+    albumsPayload match {
+      case Some(payloads) ⇒
+        for {
+          albums ← * <~ findOrCreateAlbumsForSku(sku, payloads)
+        } yield albums.map { case (album, images) ⇒ AlbumResponse.build(album, images) }
+      case None ⇒
+        ImageManager.getAlbumsForSkuInner(sku.code, oc)
+    }
 
   def mustFindSkuByContextAndCode(contextId: Int, code: String)(implicit ec: EC): DbResultT[Sku] =
     for {
