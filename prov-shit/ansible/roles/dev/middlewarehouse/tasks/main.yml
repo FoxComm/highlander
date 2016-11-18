@@ -43,3 +43,9 @@
 
 - name: Restart Shipments Consumer in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/shipments-consumer/restart'
+
+- name: Restart Capture Consumer in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/capture-consumer/restart'
+
+- name: Restart Gift Card Consumer in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/gift-card-consumer/restart'
