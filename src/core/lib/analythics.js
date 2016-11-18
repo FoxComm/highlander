@@ -120,3 +120,29 @@ export function chooseBillingMethod(method) {
   });
   ga('send', 'event', 'Checkout', 'Option');
 }
+
+function moneyToString(value) {
+  return (value / 100).toFixed(2);
+}
+
+export function purchase(cart) {
+  addLineItems(cart.lineItems);
+  const giftCardAmount = _.get(_.find(cart.paymentMethods, {type: 'giftCard'}), 'amount', 0);
+  const grandTotal = cart.totals.total - giftCardAmount;
+  const appliedCoupon = _.get(cart, 'coupon.coupon.attributes.name.v');
+
+  const data = {
+    id: cart.referenceNumber,
+    // affiliation: 'Google Store - Online',
+    revenue: moneyToString(grandTotal),
+    tax: moneyToString(cart.totals.taxes),
+    shipping: moneyToString(cart.totals.shipping),
+  };
+
+  if (appliedCoupon) {
+    data.coupon = appliedCoupon;
+  }
+
+  ga('ec:setAction', 'purchase', data);
+  ga('send', 'event', 'Checkout', 'Purchase');
+}

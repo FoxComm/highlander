@@ -6,6 +6,7 @@ import { assoc } from 'sprout-data';
 import createAsyncActions from './async-utils';
 import { updateCart, resetCreditCard } from 'modules/cart';
 import { api as foxApi } from '../lib/api';
+import * as tracking from 'lib/analythics';
 
 import type { Address } from 'types/address';
 
@@ -216,8 +217,13 @@ export function deleteCreditCard(id): Function {
 
 // Place order from cart.
 export function checkout(): Function {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    const cartState = getState().cart;
     return foxApi.cart.checkout().then(res => {
+      tracking.purchase({
+        ...cartState,
+        referenceNumber: res.referenceNumber,
+      });
       dispatch(orderPlaced(res));
       return dispatch(updateCart(res));
     });
