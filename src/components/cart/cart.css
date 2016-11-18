@@ -142,27 +142,6 @@
   flex-grow: 1;
 }
 
-.coupon-description {
-  composes: cart-subtotal;
-  padding: 30px 0;
-}
-
-.coupon-description-wrapper {
-  flex-grow: 1;
-  line-height: 19px;
-}
-
-.delete-coupon-btn {
-  composes: delete-button from './line-item.css';
-  line-height: 15px;
-  padding-left: 10px;
-}
-
-.delete-coupon-icon {
-  composes: delete-icon from './line-item.css';
-}
-
-
 @media (--small-only) {
   .cart-box {
     lost-column: 10/12;

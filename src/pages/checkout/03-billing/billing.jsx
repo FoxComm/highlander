@@ -10,7 +10,7 @@ import localized from 'lib/i18n';
 import EditableBlock from 'ui/editable-block';
 import EditBilling from './edit-billing';
 import ViewBilling from './view-billing';
-import ViewGiftCards from './view-gift-cards';
+import PromoCode from '../../../components/promo-code/promo-code';
 
 // styles
 import styles from './billing.css';
@@ -42,10 +42,26 @@ class Billing extends Component {
 
   get viewBilling() {
     const hasPaymentMethods = !_.isEmpty(this.props.creditCard) || !_.isEmpty(this.giftCards);
+    const giftCard = this.giftCards[0];
+    const { coupon, promotion, totals, creditCard } = this.props;
+
     return (hasPaymentMethods) ? (
       <div styleName="billing-summary">
-        <ViewBilling billingData={this.props.creditCard} />
-        <ViewGiftCards paymentMethods={this.giftCards} />
+        <ViewBilling billingData={creditCard} />
+        {giftCard &&
+          <div styleName="promo-line">
+            <PromoCode giftCard={giftCard} allowDelete={false} />
+          </div>}
+
+        {coupon &&
+          <div styleName="promo-line">
+            <PromoCode
+              coupon={coupon}
+              promotion={promotion}
+              discountValue={totals.adjustments}
+              allowDelete={false}
+            />
+          </div>}
       </div>
     ) : null;
   }
@@ -73,4 +89,5 @@ class Billing extends Component {
 export default connect(state => ({
   billingData: state.checkout.billingData,
   creditCard: state.cart.creditCard,
+  ...state.cart,
 }))(localized(Billing));

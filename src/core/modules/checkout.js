@@ -114,6 +114,15 @@ export function saveGiftCard(code: string): Function {
   };
 }
 
+export function removeGiftCard(): Function {
+  return (dispatch) => {
+    return foxApi.cart.removeGiftCards()
+      .then(res => {
+        dispatch(updateCart(res.result));
+      });
+  };
+}
+
 export function saveCouponCode(code: string): Function {
   return (dispatch) => {
     return foxApi.cart.addCoupon(code)

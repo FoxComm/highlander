@@ -128,9 +128,6 @@ class Cart extends Component {
     });
 
     const checkoutDisabled = _.size(props.skus) < 1;
-    const couponCode = _.get(this.props, 'coupon.code');
-    const couponPromotionName = _.get(this.props, 'promotion.attributes.name.v');
-    const couponDiscountValue = this.props.totals.adjustments;
 
     return (
       <div styleName={cartClass}>
@@ -146,25 +143,15 @@ class Cart extends Component {
               {this.lineItems}
             </div>
 
-            {!this.props.promotion &&
-              <div styleName="coupon">
-                <CouponCode saveCode={this.props.saveCouponCode}/>
-              </div>}
-
-            {this.props.promotion &&
-              <div styleName="coupon-description">
-                <div styleName="coupon-description-wrapper">
-                  <div>Coupon discount:</div>
-                  <div styleName="coupon-code">{couponCode}</div>
-                  <div styleName="promotion-name">{couponPromotionName}</div>
-                </div>
-                <div styleName="subtotal-price">
-                  <span>- &nbsp;<Currency value={couponDiscountValue} /></span>
-                </div>
-                <a styleName="delete-coupon-btn" onClick={this.props.removeCouponCode}>
-                  <Icon name="fc-close" styleName="delete-coupon-icon" />
-                </a>
-              </div>}
+            <div styleName="coupon">
+              <CouponCode
+                coupon={this.props.coupon}
+                promotion={this.props.promotion}
+                discountValue={this.props.totals.adjustments}
+                saveCode={this.props.saveCouponCode}
+                removeCode={this.props.removeCouponCode}
+              />
+            </div>
 
             <div styleName="cart-subtotal">
               <div styleName="subtotal-title">{t('SUBTOTAL')}</div>
