@@ -9,6 +9,7 @@ import models.product._
 import responses.AlbumResponses._
 import responses.ObjectResponses._
 import responses.SkuResponses._
+import responses.TaxonomyResponses.SingleTaxonResponse
 import responses.VariantResponses._
 import utils.aliases._
 
@@ -100,19 +101,22 @@ object ProductResponses {
                     albums: Seq[AlbumResponse.Root],
                     skus: Seq[SkuResponse.Root],
                     variants: Seq[IlluminatedVariantResponse.Root],
-                    archivedAt: Option[Instant])
+                    archivedAt: Option[Instant],
+                    taxons: Seq[SingleTaxonResponse])
         extends ResponseItem
 
     def build(product: IlluminatedProduct,
               albums: Seq[AlbumResponse.Root],
               skus: Seq[SkuResponse.Root],
-              variants: Seq[IlluminatedVariantResponse.Root]): Root =
+              variants: Seq[IlluminatedVariantResponse.Root],
+              taxons: Seq[SingleTaxonResponse]): Root =
       Root(id = product.id,
            attributes = product.attributes,
            context = ObjectContextResponse.build(product.context),
            albums = albums,
            skus = skus,
            variants = variants,
-           archivedAt = product.archivedAt)
+           archivedAt = product.archivedAt,
+           taxons = taxons)
   }
 }
