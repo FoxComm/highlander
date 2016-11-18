@@ -181,7 +181,7 @@
   }
 
   .info-block {
-    padding: 0 180px;
+    /* padding: 0 180px; */
     margin-top: 70px;
     height: auto;
   }
@@ -210,7 +210,7 @@
   }
 
   .info-block {
-    padding: 0 60px;
+    /* padding: 0 60px; */
   }
 }
 

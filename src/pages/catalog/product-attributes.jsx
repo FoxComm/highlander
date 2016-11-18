@@ -13,16 +13,27 @@ type State = {
   currentAdditionalTitle: string,
 };
 
+const displayAttribute = (product, attributeName) => {
+  const attributeValue = _.get(product, `attributes.${attributeName}.v`);
+
+  if (attributeValue === undefined || _.isEmpty(attributeValue)) {
+    return null;
+  }
+
+  return (
+    <div className="attribute-line" key={attributeName}>
+      <div styleName="attribute-title">{attributeName}</div>
+      <div styleName="attribute-description">
+        {attributeValue}
+      </div>
+    </div>
+  );
+};
+
 const renderAttributes = (product, attributeNames = []) => {
   return (
     <div>
-      {attributeNames.map(attr =>
-        <div styleName="attribute-line" key={attr}>
-          <div styleName="attribute-title">{attr}</div>
-          <div styleName="attribute-description">
-            {_.get(product, `attributes.${attr}.v`)}
-          </div>
-        </div>)}
+      {attributeNames.map((attributeName) => displayAttribute(product, attributeName))}
     </div>
   );
 };
@@ -30,15 +41,15 @@ const renderAttributes = (product, attributeNames = []) => {
 const additionalInfoAttributesMap = [
   {
     title: 'Prep',
-    attributes: ['Conventional Oven', 'Microwave'],
+    attributes: ['Conventional Oven', 'Microwave', 'Pan Fry', 'Steam', 'Grill', 'Defrost'],
   },
   {
     title: 'Ingredients',
-    attributes: ['Ingredients', 'Allergy Alerts'],
+    attributes: ['Ingredients', 'Allergy Alerts', 'Allergies'],
   },
   {
     title: 'Nutrition',
-    attributes: ['Nutritional Information'],
+    attributes: ['Nutritional Information', 'Nutrition'],
   },
 ];
 
