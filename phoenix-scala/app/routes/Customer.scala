@@ -296,9 +296,6 @@ object Customer {
                   }
                 }
               }
-            } ~
-            complete {
-              notFoundResponse
             }
           }
         }
