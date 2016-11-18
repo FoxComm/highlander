@@ -4,6 +4,15 @@
 .fieldset {
   display: flex;
   flex-wrap: wrap;
+
+  & :global(.fc-errors) {
+    width: 100%;
+  }
+
+  & :global(.fc-alert) {
+    border-radius: 0;
+    margin-top: 0;
+  }
 }
 
 .code-field {
