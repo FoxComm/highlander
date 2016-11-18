@@ -50,6 +50,24 @@ class SkuIntegrationTest
         .create(SkuPayload(attributes = attrMap, albums = None))
         .mustFailWithMessage("SKU code not found in payload")
     }
+
+    "Creates a SKU with an album" in new Fixture {
+      val code       = "SKU-NEW-TEST"
+      val priceValue = ("currency" → "USD") ~ ("value" → 9999)
+      val priceJson  = ("t" → "price") ~ ("v" → priceValue)
+      val attrMap    = Map("price" → priceJson)
+
+      val src          = "http://lorempixel/test.png"
+      val imagePayload = ImagePayload(src = src)
+      val albumPayload = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
+
+      skusApi.create(makeSkuPayload(code, attrMap, Seq(albumPayload).some)).mustBeOk()
+
+      val getResponse = skusApi(code).get().as[SkuResponse.Root]
+      getResponse.albums.length must === (1)
+      getResponse.albums.head.images.length must === (1)
+      getResponse.albums.head.images.head.src must === (src)
+    }
   }
 
   "GET v1/skus/:context/:code" - {

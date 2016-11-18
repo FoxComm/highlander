@@ -32,13 +32,13 @@ object SkuManager {
                                                   ac: AC,
                                                   oc: OC,
                                                   au: AU): DbResultT[SkuResponse.Root] = {
-    val skuPayloads = payload.albums.getOrElse(Seq.empty)
+    val albumPayloads = payload.albums.getOrElse(Seq.empty)
 
     for {
       sku    ← * <~ createSkuInner(oc, payload)
-      albums ← * <~ findOrCreateAlbumsForSku(sku.model, skuPayloads)
-      albums ← * <~ ImageManager.getAlbumsForSkuInner(sku.model.code, oc)
-      response = SkuResponse.build(IlluminatedSku.illuminate(oc, sku), albums)
+      albums ← * <~ findOrCreateAlbumsForSku(sku.model, albumPayloads)
+      albumResponse = albums.map { case (album, images) ⇒ AlbumResponse.build(album, images) }
+      response      = SkuResponse.build(IlluminatedSku.illuminate(oc, sku), albumResponse)
       _ ← * <~ LogActivity.fullSkuCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
   }
@@ -160,7 +160,7 @@ object SkuManager {
   def getSkuCode(attributes: Map[String, Json]): Option[String] =
     attributes.get("code").flatMap(json ⇒ (json \ "v").extractOpt[String])
 
-  private def findOrCreateAlbumsForSku(sku: Sku, payload: Seq[AlbumPayload])(
+  def findOrCreateAlbumsForSku(sku: Sku, payload: Seq[AlbumPayload])(
       implicit ec: EC,
       db: DB,
       oc: OC,

@@ -161,6 +161,35 @@ class ProductIntegrationTest
         response.variants.head.values.head.skuCodes.length must === (0)
         response.skus.length must === (0)
       }
+
+      "an album successfully" in new Fixture {
+        val src          = "http://lorempixel/test.png"
+        val imagePayload = ImagePayload(src = src)
+        val albumPayload = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
+
+        val productResponse = doQuery(productPayload.copy(albums = Seq(albumPayload).some))
+        productResponse.albums.length must === (1)
+        productResponse.albums.head.images.length must === (1)
+        productResponse.albums.head.images.head.src must === (src)
+
+        val getProductResponse = productsApi(productResponse.id).get().as[Root]
+        getProductResponse.albums.length must === (1)
+        getProductResponse.albums.head.images.length must === (1)
+        getProductResponse.albums.head.images.head.src must === (src)
+      }
+
+      "a SKU with an album successfully" in new Fixture {
+        val src          = "http://lorempixel/test.png"
+        val imagePayload = ImagePayload(src = src)
+        val albumPayload = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
+
+        val newSkuPayload     = productPayload.skus.head.copy(albums = Seq(albumPayload).some)
+        val newProductPayload = productPayload.copy(skus = Seq(newSkuPayload))
+
+        val productResponse = doQuery(newProductPayload)
+        productResponse.skus.length must === (1)
+        productResponse.skus.head.albums.length must === (1)
+      }
     }
 
     "Throws an error if" - {

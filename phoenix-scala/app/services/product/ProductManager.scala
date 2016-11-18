@@ -307,6 +307,8 @@ object ProductManager {
       skuPayloads: Seq[SkuPayload],
       createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC, au: AU) =
     skuPayloads.map { payload ⇒
+      val albumPayloads = payload.albums.getOrElse(Seq.empty)
+
       for {
         code ← * <~ SkuManager.mustGetSkuCode(payload)
         sku  ← * <~ Skus.filterByContextAndCode(oc.id, code).one.dbresult
@@ -314,6 +316,7 @@ object ProductManager {
               if (foundSku.archivedAt.isEmpty) {
                 for {
                   existingSku ← * <~ SkuManager.updateSkuInner(foundSku, payload)
+                  _           ← * <~ SkuManager.findOrCreateAlbumsForSku(existingSku.model, albumPayloads)
                   _ ← * <~ ProductSkuLinks.syncLinks(product,
                                                      if (createLinks) Seq(existingSku.model)
                                                      else Seq.empty)
@@ -324,6 +327,7 @@ object ProductManager {
             }.getOrElse {
               for {
                 newSku ← * <~ SkuManager.createSkuInner(oc, payload)
+                _      ← * <~ SkuManager.findOrCreateAlbumsForSku(newSku.model, albumPayloads)
                 _ ← * <~ ProductSkuLinks.syncLinks(product,
                                                    if (createLinks) Seq(newSku.model)
                                                    else Seq.empty)
