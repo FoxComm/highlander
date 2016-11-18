@@ -1,17 +1,14 @@
 ---
 
 - name: Add Docker Clean to cron.daily on Agents
-  hosts:
-    - buildkite-agent-0
-    - buildkite-agent-1
-    - buildkite-agent-2
-    - buildkite-agent-3
-    - buildkite-agent-4
-    - buildkite-agent-5
-    - buildkite-agent-6
-    - buildkite-agent-7
+  hosts: '{{hostname}}'
   vars:
     user: '{{ansible_ssh_user}}'
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname to install Docker Clean"
+      default: "foxcomm-stage-backend"
+      private: no
 
   roles:
     - { role: base/docker_clean, sudo: true }
