@@ -17,14 +17,14 @@ import Icon from 'ui/icon';
 import styles from './promo-code.css';
 
 type Props = {
-  saveCode: ?Function,
-  removeCode: ?Function,
+  saveCode: Function,
+  removeCode: Function,
   buttonLabel?: ?string,
-  coupon: ?Object,
-  giftCard: ?Object,
-  promotion: ?Object,
-  discountValue: ?number,
-  allowDelete: ?boolean,
+  coupon?: ?Object,
+  giftCard?: ?Object,
+  promotion?: ?Object,
+  discountValue?: ?number,
+  allowDelete?: ?boolean,
 };
 
 type State = {
@@ -37,6 +37,8 @@ class PromoCode extends Component {
 
   static defaultProps = {
     allowDelete: true,
+    saveCode: _.noop,
+    removeCode: _.noop,
   };
 
   state: State = {
@@ -44,12 +46,12 @@ class PromoCode extends Component {
     error: false,
   };
 
-  get buttonLabel() {
+  get buttonLabel(): string {
     return this.props.buttonLabel || 'Apply';
   }
 
   @autobind
-  changeCode({target}) {
+  changeCode({ target }: Object) {
     this.setState({
       code: target.value,
       error: false,
@@ -57,7 +59,7 @@ class PromoCode extends Component {
   }
 
   @autobind
-  onKeyPress(e) {
+  onKeyPress(e: Object) {
     if (e.key === 'Enter') {
       this.saveCode();
     }

@@ -41,13 +41,13 @@ class Billing extends Component {
   }
 
   get viewBilling() {
-    const hasPaymentMethods = !_.isEmpty(this.props.creditCard) || !_.isEmpty(this.giftCards);
     const giftCard = this.giftCards[0];
     const { coupon, promotion, totals, creditCard } = this.props;
 
-    return (hasPaymentMethods) ? (
+    return (
       <div styleName="billing-summary">
         <ViewBilling billingData={creditCard} />
+
         {giftCard &&
           <div styleName="promo-line">
             <PromoCode giftCard={giftCard} allowDelete={false} />
@@ -63,7 +63,7 @@ class Billing extends Component {
             />
           </div>}
       </div>
-    ) : null;
+    );
   }
 
   renderContent() {
