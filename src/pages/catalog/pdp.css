@@ -112,10 +112,8 @@
 }
 
 .additional-info {
-  height: 560px;
   background-color: #3E3436;
   width: 100%;
-  margin-bottom: 20px;
   color: white;
   display: flex;
   justify-content: center;
