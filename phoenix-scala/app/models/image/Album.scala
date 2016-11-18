@@ -45,7 +45,9 @@ class Albums(tag: Tag) extends ObjectHeads[Album](tag, "albums") {
     (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Album.apply _).tupled, Album.unapply)
 }
 
-object Albums extends FoxTableQuery[Album, Albums](new Albums(_)) with ReturningId[Album, Albums] {
+object Albums
+    extends ObjectHeadsQueries[Album, Albums](new Albums(_))
+    with ReturningId[Album, Albums] {
 
   val returningLens: Lens[Album, Int] = lens[Album].id
 

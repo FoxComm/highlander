@@ -4,6 +4,7 @@ import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
+import models.objects.{ProductTaxonLinks, SkuTaxonLinks}
 import payloads.TaxonomyPayloads._
 import services.Authenticator.AuthData
 import services.taxonomy.TaxonomyManager
@@ -65,10 +66,25 @@ object TaxonomyRoutes {
                 } ~
                 pathPrefix("product" / IntNumber) { productFormId ⇒
                   (patch & pathEnd) {
-                    mutateOrFailures(TaxonomyManager.assignProduct(taxonFormId, productFormId))
+                    mutateOrFailures(TaxonomyManager.assignTaxonTo(productFormId,
+                                                                   taxonFormId,
+                                                                   ProductTaxonLinks))
                   } ~
                   (delete & pathEnd) {
-                    mutateOrFailures(TaxonomyManager.unassignProduct(taxonFormId, productFormId))
+                    mutateOrFailures(TaxonomyManager.unassignTaxonFrom(productFormId,
+                                                                       taxonFormId,
+                                                                       ProductTaxonLinks))
+                  }
+                } ~
+                pathPrefix("sku" / IntNumber) { skuFormId ⇒
+                  (patch & pathEnd) {
+                    mutateOrFailures(
+                        TaxonomyManager.assignTaxonTo(skuFormId, taxonFormId, SkuTaxonLinks))
+                  } ~
+                  (delete & pathEnd) {
+                    mutateOrFailures(
+                        TaxonomyManager.unassignTaxonFrom(skuFormId, taxonFormId, SkuTaxonLinks)
+                    )
                   }
                 }
               }

@@ -52,7 +52,7 @@ class Discounts(tag: Tag) extends ObjectHeads[Discount](tag, "discounts") {
 }
 
 object Discounts
-    extends FoxTableQuery[Discount, Discounts](new Discounts(_))
+    extends ObjectHeadsQueries[Discount, Discounts](new Discounts(_))
     with ReturningId[Discount, Discounts] {
 
   val returningLens: Lens[Discount, Int] = lens[Discount].id

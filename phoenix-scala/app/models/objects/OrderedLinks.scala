@@ -20,9 +20,10 @@ abstract class OrderedObjectHeadLinks[M <: OrderedObjectHeadLink[M]](tag: Tag, t
 abstract class OrderedObjectHeadLinkQueries[M <: OrderedObjectHeadLink[M],
                                             T <: OrderedObjectHeadLinks[M],
                                             L <: ObjectHead[L],
-                                            R <: ObjectHead[R]](construct: Tag ⇒ T,
-                                                                leftQuery: FoxTableQuery[L, _],
-                                                                rightQuery: FoxTableQuery[R, _])
+                                            R <: ObjectHead[R]](
+    construct: Tag ⇒ T,
+    leftQuery: ObjectHeadsQueries[L, _],
+    rightQuery: ObjectHeadsQueries[R, _])
     extends ObjectHeadLinkQueries[M, T, L, R](construct, leftQuery, rightQuery) {
 
   override def filterLeftId(leftId: Int): QuerySeq = super.filterLeftId(leftId).sortBy(_.position)

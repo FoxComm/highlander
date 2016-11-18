@@ -28,9 +28,10 @@ object ObjectHeadLinks {
   abstract class ObjectHeadLinkQueries[M <: ObjectHeadLink[M],
                                        T <: ObjectHeadLinks[M],
                                        L <: ObjectHead[L],
-                                       R <: ObjectHead[R]](construct: Tag ⇒ T,
-                                                           leftQuery: FoxTableQuery[L, _],
-                                                           rightQuery: FoxTableQuery[R, _])
+                                       R <: ObjectHead[R]](
+      construct: Tag ⇒ T,
+      val leftQuery: ObjectHeadsQueries[L, _],
+      val rightQuery: ObjectHeadsQueries[R, _])
       extends FoxTableQuery[M, T](construct) {
 
     def filterLeft(left: L): QuerySeq = filterLeftId(left.id)
@@ -87,6 +88,34 @@ object ObjectHeadLinks {
         linkExists ← * <~ filterLeft(left).filter(_.rightId === right.id).exists.result
         _          ← * <~ doOrMeh(!linkExists, create(build(left, right)))
       } yield {}
+
+    def createIfNotExistUsingFormIds(
+        left: ObjectForm#Id,
+        right: ObjectForm#Id)(implicit ec: EC, db: DB, oc: OC): DbResultT[Unit] =
+      for {
+        leftObject  ← * <~ leftQuery.mustFindByFormId404(left)
+        rightObject ← * <~ rightQuery.mustFindByFormId404(right)
+        result      ← * <~ createIfNotExist(leftObject, rightObject)
+      } yield result
+
+    def deleteUsingFormIds(left: ObjectForm#Id, right: ObjectForm#Id, onFailure: DbResultT[Unit])(
+        implicit ec: EC,
+        db: DB,
+        oc: OC): DbResultT[Unit] =
+      for {
+        leftObject  ← * <~ leftQuery.mustFindByFormId404(left)
+        rightObject ← * <~ rightQuery.mustFindByFormId404(right)
+        result ← * <~ filterLeft(leftObject)
+                  .filter(_.rightId === rightObject.id)
+                  .deleteAll(DbResultT.unit, onFailure)
+      } yield result
+
+    def queryRightByLeftFormId(
+        leftId: ObjectForm#Id)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[FullObject[R]]] =
+      for {
+        leftObject ← * <~ leftQuery.mustFindByFormId404(leftId)
+        result     ← * <~ queryRightByLeft(leftObject)
+      } yield result
 
     def build(left: L, right: R): M
   }

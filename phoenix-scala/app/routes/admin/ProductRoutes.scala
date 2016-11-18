@@ -4,6 +4,7 @@ import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
+import models.objects.ProductTaxonLinks
 import payloads.ContextPayloads._
 import payloads.ImagePayloads.{CreateAlbumPayload, UpdateAlbumPositionPayload}
 import payloads.ProductPayloads._
@@ -47,7 +48,7 @@ object ProductRoutes {
               } ~
               (pathPrefix("taxons") & get & pathEnd) {
                 getOrFailures {
-                  TaxonomyManager.getAssignedTaxons(productId)
+                  TaxonomyManager.getAssignedTaxons(productId, ProductTaxonLinks)
                 }
               }
             } ~

@@ -40,9 +40,10 @@ object TaxonomyFailures {
     override def description: String = "cannot move parent taxon under itself or one of its child"
   }
 
-  case class CannotUnassignProduct(taxonId: Int, productId: Int) extends Failure {
+  case class CannotUnassignTaxon(taxonId: Int, productId: Int, objectType: String)
+      extends Failure {
     override def description: String =
-      s"Cannot delete taxon-product link. TaxonId:$taxonId, productId: $productId"
+      s"Cannot delete taxon-object link. TaxonId:$taxonId, objectId: $productId, objectType: $objectType"
   }
 
   case class NoTaxonAtPosition(parent: Option[ObjectForm#Id], position: Int) extends Failure {

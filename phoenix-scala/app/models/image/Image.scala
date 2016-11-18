@@ -37,7 +37,9 @@ class Images(tag: Tag) extends ObjectHeads[Image](tag, "images") {
     (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Image.apply _).tupled, Image.unapply)
 }
 
-object Images extends FoxTableQuery[Image, Images](new Images(_)) with ReturningId[Image, Images] {
+object Images
+    extends ObjectHeadsQueries[Image, Images](new Images(_))
+    with ReturningId[Image, Images] {
   val returningLens: Lens[Image, Int] = lens[Image].id
 
   implicit val formats = JsonFormatters.phoenixFormats

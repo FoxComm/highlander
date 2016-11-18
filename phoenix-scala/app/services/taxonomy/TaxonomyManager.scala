@@ -7,9 +7,10 @@ import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.TaxonomyFailures._
 import failures.{Failure, TaxonomyFailures}
+import models.inventory.Sku
 import models.objects.ObjectHeadLinks.ObjectHeadLinkQueries
-import models.objects._
-import models.product.Products
+import models.objects.{ObjectHead, _}
+import models.product.{Product, Products}
 import models.taxonomy.TaxonomyTaxonLinks.scope._
 import models.taxonomy.{TaxonLocation ⇒ _, _}
 import payloads.TaxonomyPayloads._
@@ -253,39 +254,36 @@ object TaxonomyManager {
       _ ← * <~ links.map(TaxonomyTaxonLinks.archive)
     } yield {}
 
-  def assignProduct(
-      taxonFormId: ObjectForm#Id,
-      productFormId: ObjectForm#Id)(implicit ec: EC, oc: OC, db: DB): DbResultT[TaxonList] =
+  def assignTaxonTo[T <: ObjectHead[T]](objectFormId: ObjectForm#Id,
+                                        taxonFormId: ObjectForm#Id,
+                                        query: ObjectHeadLinkQueries[_, _, T, Taxon])(
+      implicit ec: EC,
+      oc: OC,
+      db: DB): DbResultT[TaxonList] =
     for {
-      taxon    ← * <~ Taxons.mustFindByFormId404(taxonFormId)
-      product  ← * <~ Products.mustFindByFormId404(productFormId)
-      _        ← * <~ ProductTaxonLinks.createIfNotExist(product, taxon)
-      assigned ← * <~ getAssignedTaxons(product)
-    } yield assigned
+      _ ← * <~ query.createIfNotExistUsingFormIds(objectFormId, taxonFormId)
+      a ← * <~ query.queryRightByLeftFormId(objectFormId)
+    } yield a.map(TaxonResponse.build)
 
-  def unassignProduct(
-      taxonFormId: ObjectForm#Id,
-      productFormId: ObjectForm#Id)(implicit ec: EC, oc: OC, db: DB): DbResultT[TaxonList] =
+  def unassignTaxonFrom[T <: ObjectHead[T]](objectFormId: ObjectForm#Id,
+                                            taxonFormId: ObjectForm#Id,
+                                            query: ObjectHeadLinkQueries[_, _, T, Taxon])(
+      implicit ec: EC,
+      oc: OC,
+      db: DB): DbResultT[TaxonList] =
     for {
-      taxon   ← * <~ Taxons.mustFindByFormId404(taxonFormId)
-      product ← * <~ Products.mustFindByFormId404(productFormId)
-      r ← * <~ ProductTaxonLinks
-           .filterLeft(product)
-           .filter(_.rightId === taxon.id)
-           .deleteAll(DbResultT.none,
-                      DbResultT.failure(
-                          TaxonomyFailures.CannotUnassignProduct(taxon.formId, product.formId)))
-      assigned ← * <~ getAssignedTaxons(product)
-    } yield assigned
+      r ← * <~ query.deleteUsingFormIds(
+             objectFormId,
+             taxonFormId,
+             DbResultT.failure[Unit](TaxonomyFailures
+                   .CannotUnassignTaxon(taxonFormId, objectFormId, query.leftQuery.tableName)))
+      a ← * <~ query.queryRightByLeftFormId(objectFormId)
+    } yield a.map(TaxonResponse.build)
 
-  def getAssignedTaxons(
-      productFormId: ObjectForm#Id)(implicit ec: EC, oc: OC, db: DB): DbResultT[TaxonList] =
-    for {
-      product  ← * <~ Products.mustFindByFormId404(productFormId)
-      assigned ← * <~ getAssignedTaxons(product)
-    } yield assigned
-
-  def getAssignedTaxons(
-      product: models.product.Product)(implicit ec: EC, oc: OC, db: DB): DbResultT[TaxonList] =
-    ProductTaxonLinks.queryRightByLeft(product).map(_.map(TaxonResponse.build))
+  def getAssignedTaxons[T <: ObjectHead[T]](objectId: ObjectForm#Id,
+                                            query: ObjectHeadLinkQueries[_, _, T, Taxon])(
+      implicit ec: EC,
+      oc: OC,
+      db: DB): DbResultT[TaxonList] =
+    query.queryRightByLeftFormId(objectId).map(_.map(TaxonResponse.build))
 }

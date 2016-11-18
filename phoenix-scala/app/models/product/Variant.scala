@@ -43,7 +43,7 @@ class Variants(tag: Tag) extends ObjectHeads[Variant](tag, "variants") {
 }
 
 object Variants
-    extends FoxTableQuery[Variant, Variants](new Variants(_))
+    extends ObjectHeadsQueries[Variant, Variants](new Variants(_))
     with ReturningId[Variant, Variants] {
 
   val returningLens: Lens[Variant, Int] = lens[Variant].id
