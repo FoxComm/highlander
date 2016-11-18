@@ -1,0 +1,7 @@
+---
+
+- name: Copy Hotfix Query Files
+  template: src=hotfix.sql dest="{{home}}/hotfix.sql"
+
+- name: Execute Hotfix SQL Queries
+  command: psql -U {{phoenix_db_user}} -d {{phoenix_db_name}} -a -f hotfix.sql

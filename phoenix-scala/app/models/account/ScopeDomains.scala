@@ -13,7 +13,7 @@ import utils.db._
 
 case class ScopeDomain(id: Int = 0, scopeId: Int, domain: String) extends FoxModel[ScopeDomain]
 
-class ScopeDomains(tag: Tag) extends FoxTable[ScopeDomain](tag, "role_permissions") {
+class ScopeDomains(tag: Tag) extends FoxTable[ScopeDomain](tag, "scope_domains") {
   def id      = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def scopeId = column[Int]("scope_id")
   def domain  = column[String]("domain")

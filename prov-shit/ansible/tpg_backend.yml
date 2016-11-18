@@ -1,17 +1,39 @@
 ---
 
-- name: Provision TPG Production Backend
-  hosts: tpg-backend
+- name: Provision TPG Backend
+  hosts: '{{hostname}}'
   vars:
     user: '{{ansible_ssh_user}}'
     middlewarehouse_server: middlewarehouse.service.consul:9292
     kafka_server: kafka.service.consul:9092
     schema_server: schema-registry.service.consul:8081
     zookeeper_server: zookeeper.service.consul:2181
+    search_host: elasticsearch.service.consul
+    phoenix_server: phoenix.service.consul:9090
+    docker_db_host: db.service.consul
+    docker_branch: master
+    docker_registry: docker-tpg.foxcommerce.com
+    db_host: db.service.consul
     upload_phoenix_jar: true
     upload_greenriver_jar: true
+    update_es_mappings: true
     download_flyway: false
+    seeds_cmd: utils.seeds.Seeds seed --seedAdmins
+    with_seeder: false
+    with_mwh_seeder: false
+    with_gatling_seeder: false
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname to update backend"
+      default: "tpg-stage-backend"
+      private: no
   roles:
-    - { role: dev/phoenix }
-    - { role: dev/greenriver }
+    - { role: dev/kafka }
+    - { role: dev/elasticsearch }
+    - { role: dev/db }
+    - { role: archive/phoenix, sudo: true }
+    - { role: archive/greenriver, sudo: true }
     - { role: prod/db_migrate }
+    - { role: archive/seeder }
+    - { role: ext/tpg/db_hotfix }
+    - { role: ext/tpg/shipping }

@@ -15,11 +15,11 @@
     docker_branch: master
     install_public_keys: true
     install_private_keys: true
+    with_base_seeds: true
 
   roles:
     - { role: dev/appliance }
     - { role: base/secret_keys }
-    - { role: base/bottledwater }
     - { role: dev/consul_agent }
     - { role: base/phoenix }
     - { role: base/greenriver }
@@ -27,6 +27,7 @@
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/isaac }
+    - { role: base/bottledwater }
     - { role: dev/db }
     - { role: dev/phoenix }
     - { role: dev/solomon }

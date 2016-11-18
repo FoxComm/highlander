@@ -1,15 +1,24 @@
 ---
 
-- name: Copy Jar
-  copy: src={{greenriver_jar_src}} dest={{greenriver_jar}} mode="u+x,g+x,o+x"
+- name: Copy Mapping Command
+  template: src=create_es_mappings.sh dest=/usr/local/bin/create_es_mappings.sh mode="u+x,g+x,o+x"
   sudo: true
-  when: upload_greenriver_jar
 
 - name: Create ES Mappings
   sudo: yes
   command: /usr/local/bin/create_es_mappings.sh
   when: upload_greenriver_jar
 
-- name: Restart Greenriver
-  service: name=greenriver state=restarted enabled=yes
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
   sudo: true
+
+- name: Copy Green River Marathon JSON
+  template: src=greenriver.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+  sudo: true
+
+- name: Update Green River in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/greenriver.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/greenriver'
+
+- name: Restart Green River in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/greenriver/restart'

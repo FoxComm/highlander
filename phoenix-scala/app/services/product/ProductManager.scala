@@ -366,8 +366,8 @@ object ProductManager {
                             } yield skuLinks.map(_.rightId)
                         }
       skuCodesForProduct ← * <~ Skus.filter(_.id.inSet(skuIdsForProduct)).map(_.code).result
-      skuCodesToBeGone = skuCodesForProduct.diff(
-          payloadSkus.map(ps ⇒ SkuManager.getSkuCode(ps.attributes)).filter(_.nonEmpty))
+      skuCodesFromPayload = payloadSkus.map(ps ⇒ SkuManager.getSkuCode(ps.attributes)).flatten
+      skuCodesToBeGone    = skuCodesForProduct.diff(skuCodesFromPayload)
       _ ← * <~ (skuCodesToBeGone.map { codeToUnassociate ⇒
                for {
                  skuToUnassociate ← * <~ Skus.mustFindByCode(codeToUnassociate)

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import ReactTestUtils from 'react-addons-test-utils';
 
 describe('FormField', function() {
   const FormField = requireComponent('forms/formfield.jsx');
@@ -72,7 +72,7 @@ describe('FormField', function() {
       true
     );
 
-    const inputNode = TestUtils.findRenderedDOMComponentWithTag(formfield, 'input');
+    const inputNode = ReactTestUtils.findRenderedDOMComponentWithTag(formfield, 'input');
 
     expect(inputNode).to.equal(formfield.findTargetNode());
   });

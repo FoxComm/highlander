@@ -14,8 +14,8 @@
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
-    - { role: dev/phoenix }
-    - { role: dev/greenriver }
+    - { role: archive/phoenix, sudo: true }
+    - { role: archive/greenriver, sudo: true }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
@@ -68,5 +68,6 @@
     with_gatling_seeder: false
     seeds_cmd: utils.seeds.Seeds seed --seedAdmins
   roles:
-    - { role: dev/seeder }
+    - { role: archive/seeder }
+    - { role: ext/tpg/db_hotfix }
     - { role: ext/tpg/shipping }

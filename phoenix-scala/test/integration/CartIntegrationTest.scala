@@ -4,9 +4,10 @@ import failures.CartFailures._
 import failures.LockFailures._
 import failures.ShippingMethodFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
+import faker.Lorem
 import models.cord._
 import models.cord.lineitems._
-import models.location.{Address, Addresses, Regions}
+import models.location._
 import models.payment.creditcard._
 import models.product.Mvp
 import models.rules.QueryStatement
@@ -15,19 +16,26 @@ import org.json4s.JsonAST.JObject
 import org.json4s.jackson.JsonMethods._
 import payloads.AddressPayloads.UpdateAddressPayload
 import payloads.CustomerPayloads.CreateCustomerPayload
+import payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
 import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.OrderPayloads.CreateCart
+import payloads.ProductPayloads.CreateProductPayload
+import payloads.SkuPayloads.SkuPayload
 import payloads.UpdateShippingMethod
 import responses.{CustomerResponse, TheResponse}
 import responses.cord.CartResponse
 import responses.CustomerResponse.Root
-import responses.cord.base.CordResponseLineItem
+import responses.cord.base.{CordResponseLineItem, CordResponseTotals}
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
+import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
+import utils.seeds.ShipmentSeeds
+import org.json4s.JsonDSL._
 
 class CartIntegrationTest
     extends IntegrationTestBase
@@ -48,6 +56,17 @@ class CartIntegrationTest
 
         val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
         fullCart.paymentState must === (CreditCardCharge.Auth)
+      }
+    }
+
+    "calculates taxes" - {
+      "default" in new TaxesFixture(regionId = Region.californiaId - 1) {
+        totals.taxes must === (0)
+      }
+
+      "configured" in new TaxesFixture(regionId = Region.californiaId) {
+        // test section in application.conf is configured for California and 7.5% rate
+        totals.taxes must === (((totals.subTotal + totals.shipping) * 0.075).toInt)
       }
     }
 
@@ -504,5 +523,45 @@ class CartIntegrationTest
       ccc ← * <~ CreditCardCharges.create(
                Factories.creditCardCharge.copy(creditCardId = cc.id, orderPaymentId = op.id))
     } yield (cc, op, ccc)).gimme
+  }
+
+  class TaxesFixture(regionId: Int) extends ShipmentSeeds {
+    // Product + SKU
+    val skuCode = "foo"
+
+    private val skuPayload = SkuPayload(
+        Map("code"        → tv(skuCode),
+            "title"       → tv("Foo"),
+            "salePrice"   → tv(("currency" → "USD") ~ ("value" → 10000), "price"),
+            "retailPrice" → tv(("currency" → "USD") ~ ("value" → 10000), "price")))
+
+    private val productPayload = CreateProductPayload(
+        attributes = Map("name" → tv("foo_p"), "title" → tv("foo_p")),
+        skus = Seq(skuPayload),
+        variants = None)
+
+    productsApi.create(productPayload).mustBeOk()
+
+    // Shipping method
+    val shipMethodId = ShippingMethods.create(shippingMethods(2)).gimme.id
+
+    // Cart
+    val cartRef =
+      cartsApi.create(CreateCart(email = "foo@bar.com".some)).as[CartResponse].referenceNumber
+
+    cartsApi(cartRef).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
+
+    private val randomAddress = CreateAddressPayload(regionId = regionId,
+                                                     name = Lorem.letterify("???"),
+                                                     address1 = Lorem.letterify("???"),
+                                                     city = Lorem.letterify("???"),
+                                                     zip = Lorem.numerify("#####"))
+
+    cartsApi(cartRef).shippingAddress.create(randomAddress).mustBeOk()
+
+    val totals = cartsApi(cartRef).shippingMethod
+      .update(UpdateShippingMethod(shipMethodId))
+      .asTheResult[CartResponse]
+      .totals
   }
 }

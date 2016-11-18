@@ -1,7 +1,7 @@
 /* @flow */
 
 // libs
-import noop from 'lodash/noop';
+import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
@@ -53,13 +53,13 @@ export default class UserForm extends Component {
   }
 
   renderUserImage() {
-    const name = this.props.user.attributes.firstAndLastName.v || 'New User';
+    const name = _.get(this.props.user, 'form.attributes.firstAndLastName.v') || 'New User';
 
     return (
       <FormField
         className="fc-object-form__field"
         label='Image'
-        getTargetValue={noop}
+        getTargetValue={_.noop}
         key={`object-form-attribute-firstAndLastName`} >
         <UserInitials name={name} />
       </FormField>

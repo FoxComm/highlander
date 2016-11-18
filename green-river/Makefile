@@ -1,3 +1,7 @@
+DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
+DOCKER_TAG ?= greenriver
+DOCKER_BRANCH ?= master
+
 build:
 	sbt assembly
 
@@ -8,9 +12,10 @@ test:
 	sbt test
 
 docker:
-	true
+	docker build -t $(DOCKER_TAG) .
 
 docker-push:
-	true
+	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
 .PHONY: build test clean docker docker-push

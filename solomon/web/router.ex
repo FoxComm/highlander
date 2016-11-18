@@ -3,6 +3,7 @@ defmodule Solomon.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug Solomon.Plug.JWTScope
   end
 
   scope "/", Solomon do
