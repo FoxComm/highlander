@@ -6,14 +6,14 @@ import models.account._
 import models.activity.Activity
 import models.cord._
 import models.cord.lineitems.CartLineItems.scope._
-import models.cord.lineitems._
+import models.cord.lineitems.{OrderLineItems, _}
 import models.inventory.{Sku, Skus}
 import models.objects.{ProductSkuLinks, ProductVariantLinks, VariantValueLinks}
 import models.product.VariantValueSkuLinks
 import org.json4s.JsonAST.{JNull, JObject}
-import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.LineItemPayloads.{UpdateLineItemsPayload, UpdateOrderLineItemsPayload}
 import responses.TheResponse
-import responses.cord.CartResponse
+import responses.cord.{CartResponse, OrderResponse}
 import services.carts.{CartPromotionUpdater, CartTotaler}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -37,6 +37,30 @@ object LineItemUpdater {
       response ← * <~ runUpdates(cart, logActivity)
     } yield response
   }
+
+  def updateOrderLineItems(admin: User, payload: Seq[UpdateOrderLineItemsPayload])(
+      implicit ec: EC,
+      es: ES,
+      db: DB,
+      ac: AC,
+      ctx: OC): DbResultT[OrderResponse] =
+    for {
+      updateOrderLi ← * <~ runOrderLineItemUpdates(payload)
+      orderUpdated  ← * <~ Orders.mustFindByRefNum(payload.head.referenceNumber)
+      orderResponse ← * <~ OrderResponse.fromOrder(orderUpdated, false)
+    } yield orderResponse
+
+  def runOrderLineItemUpdates(payload: Seq[UpdateOrderLineItemsPayload])(implicit ec: EC,
+                                                                         es: ES,
+                                                                         db: DB,
+                                                                         ac: AC,
+                                                                         ctx: OC) =
+    DbResultT.sequence(payload.map(updatePayload ⇒ {
+      for {
+        orderLineItem ← * <~ OrderLineItems.mustFindById400(updatePayload.id)
+        updateResult ← * <~ OrderLineItems.update(orderLineItem.copy(attributes = updatePayload.attributes,state = updatePayload.state))
+      } yield updateResult
+    }))
 
   def updateQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
@@ -231,4 +255,5 @@ object LineItemUpdater {
       }
     }
   }
+
 }
