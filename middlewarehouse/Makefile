@@ -14,7 +14,7 @@ DOCKER_TAG ?= middlewarehouse
 DOCKER_BRANCH ?= master
 
 prep:
-	rm -rf $(GOPATH)
+	rm $(BUILD_ROOT_PATH) || true
 	mkdir -p $(GOPATH)/src/github.com/FoxComm
 	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
 
