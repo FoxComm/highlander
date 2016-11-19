@@ -39,7 +39,10 @@ case class GiftCard(id: Int = 0,
                     reloadable: Boolean = false,
                     accountId: Option[Int] = None,
                     createdAt: Instant = Instant.now(),
-                    details: Option[Json] = None)
+                    senderName: Option[String] = None,
+                    recipientName: Option[String] = None,
+                    recipientEmail: Option[String] = None,
+                    message: Option[String] = None)
     extends PaymentMethod
     with FoxModel[GiftCard]
     with FSM[GiftCard.State, GiftCard]
@@ -157,7 +160,10 @@ object GiftCard {
         originalBalance = payload.balance,
         availableBalance = payload.balance,
         currentBalance = payload.balance,
-        details = payload.details
+        senderName = Some(payload.senderName),
+        recipientName = Some(payload.recipientName),
+        recipientEmail = Some(payload.recipientEmail),
+        message = Some(payload.message)
     )
   }
 
@@ -226,7 +232,10 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
   def reloadable       = column[Boolean]("reloadable")
   def accountId        = column[Option[Int]]("account_id")
   def createdAt        = column[Instant]("created_at")
-  def details          = column[Option[Json]]("details")
+  def senderName       = column[Option[String]]("sender_name")
+  def recipientName    = column[Option[String]]("recipient_name")
+  def recipientEmail   = column[Option[String]]("recipient_email")
+  def message          = column[Option[String]]("message")
 
   def * =
     (id,
@@ -244,7 +253,10 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
      reloadable,
      accountId,
      createdAt,
-     details) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
+     senderName,
+     recipientEmail,
+     recipientName,
+     message) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
 }
 
 object GiftCards

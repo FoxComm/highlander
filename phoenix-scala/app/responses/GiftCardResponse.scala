@@ -25,8 +25,10 @@ object GiftCardResponse {
                   canceledReason: Option[Int],
                   customer: Option[CustomerResponse.Root],
                   storeAdmin: Option[UserResponse.Root],
-                  message: String,
-                  details: Option[Json] = None)
+                  senderName: Option[String] = None,
+                  recipientName: Option[String] = None,
+                  recipientEmail: Option[String] = None,
+                  message: Option[String] = None)
       extends ResponseItem
 
   def build(gc: GiftCard,
@@ -48,7 +50,9 @@ object GiftCardResponse {
         canceledReason = gc.canceledReason,
         customer = customer,
         storeAdmin = admin,
-        message = mockMessage,
-        details = gc.details
+        senderName = gc.senderName,
+        recipientName = gc.recipientName,
+        recipientEmail = gc.recipientEmail,
+        message = (gc.message)
     )
 }
