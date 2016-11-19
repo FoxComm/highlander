@@ -209,7 +209,7 @@ object ImageManager {
     for {
       context  ← * <~ ObjectManager.mustFindByName404(contextName)
       response ← * <~ updateAlbumInner(id, payload, context)
-    } yield AlbumResponse.build(response._1, response._2)
+    } yield AlbumResponse.build(response)
 
   def updateAlbumInner(id: ObjectForm#Id, updatePayload: AlbumPayload, context: ObjectContext)(
       implicit ec: EC,

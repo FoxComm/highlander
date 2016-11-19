@@ -167,9 +167,7 @@ object SkuManager {
       au: AU): DbResultT[Seq[FullAlbumWithImages]] =
     for {
       albums ← * <~ payload.map(ImageManager.updateOrCreateAlbum)
-      _ ← * <~ SkuAlbumLinks.syncLinks(sku, albums.map {
-           case (fullAlbum, fullImages) ⇒ fullAlbum.model
-         })
+      _      ← * <~ SkuAlbumLinks.syncLinks(sku, albums.map { case (fullAlbum, _) ⇒ fullAlbum.model })
     } yield albums
 
   private def updateAssociatedAlbums(sku: Sku, albumsPayload: Option[Seq[AlbumPayload]])(
@@ -179,9 +177,7 @@ object SkuManager {
       au: AU): DbResultT[Seq[AlbumRoot]] =
     albumsPayload match {
       case Some(payloads) ⇒
-        for {
-          albums ← * <~ findOrCreateAlbumsForSku(sku, payloads)
-        } yield albums.map { case (album, images) ⇒ AlbumResponse.build(album, images) }
+        findOrCreateAlbumsForSku(sku, payloads).map(_.map(AlbumResponse.build))
       case None ⇒
         ImageManager.getAlbumsForSkuInner(sku.code, oc)
     }

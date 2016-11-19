@@ -73,10 +73,12 @@ object ProductManager {
       variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(product)
-      response = ProductResponse
-        .build(IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow), albums.map {
-          case (album, images) ⇒ AlbumResponse.build(album, images)
-        }, if (hasVariants) variantSkus else productSkus, variantResponses, taxons)
+      response = ProductResponse.build(
+          IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow),
+          albums.map(AlbumResponse.build),
+          if (hasVariants) variantSkus else productSkus,
+          variantResponses,
+          taxons)
       _ ← * <~ LogActivity
            .fullProductCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
@@ -357,7 +359,7 @@ object ProductManager {
     for {
       albums ← * <~ payload.map(ImageManager.updateOrCreateAlbum)
       _ ← * <~ ProductAlbumLinks.syncLinks(product, albums.map {
-           case (fullAlbum, fullImages) ⇒ fullAlbum.model
+           case (fullAlbum, _) ⇒ fullAlbum.model
          })
     } yield albums
 
