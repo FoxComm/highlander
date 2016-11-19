@@ -15,6 +15,7 @@ import models.inventory._
 import models.objects._
 import models.product._
 import models.account._
+import models.cord.Carts
 import models.cord.lineitems.CartLineItems
 import payloads.ImagePayloads.{AlbumPayload, UpdateAlbumPositionPayload}
 import payloads.ProductPayloads._
@@ -40,6 +41,7 @@ import org.json4s._
 import org.json4s.JsonDSL._
 import services.LogActivity
 import services.taxonomy.TaxonomyManager
+import utils.{IlluminateAlgorithm, JsonFormatters}
 import services.image.ImageManager.FullAlbumWithImages
 
 object ProductManager {
@@ -111,6 +113,22 @@ object ProductManager {
           variantResponses,
           taxons)
 
+  def validateProductActivityPeriod(productId: Int, attributes: Map[String, Json], contextId: Int)(
+      implicit ec: EC,
+      db: DB) = {
+
+    val changesToInactive = !IlluminateAlgorithm.isActive(attributes)
+
+    doOrMeh(changesToInactive, for {
+      cartLineItemsExists ← * <~ CartLineItems
+                             .filterByProductId(productId, contextId)
+                             .exists
+                             .result
+      _ ← * <~ failIf(cartLineItemsExists,
+                      ProductFailures.CannotSetInactiveWhileProductInCart(productId))
+    } yield {})
+  }
+
   def updateProduct(admin: User, productId: Int, payload: UpdateProductPayload)(
       implicit ec: EC,
       db: DB,
@@ -124,6 +142,9 @@ object ProductManager {
 
     for {
       oldProduct ← * <~ mustFindFullProductByFormId(productId)
+      _ ← * <~ validateProductActivityPeriod(productId,
+                                             payload.attributes,
+                                             oldProduct.model.contextId)
 
       _ ← * <~ skusToBeUnassociatedMustNotBePresentInCarts(oldProduct.model.id, payloadSkus)
 

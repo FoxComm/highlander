@@ -53,6 +53,22 @@ object CartLineItems
 
   def byCordRef(cordRef: String): QuerySeq = filter(_.cordRef === cordRef)
 
+  def filterByProductId(productFormId: Int, contextId: Int): QuerySeq = {
+    val productIds =
+      Products.filter(p ⇒ p.formId === productFormId && p.contextId === contextId).map(_.id)
+    val skuIds =
+      ProductSkuLinks.join(productIds).on((link, productId) ⇒ link.leftId === productId).map {
+        case (link, _) ⇒ link.rightId
+      }
+
+    join(skuIds).on((item, skuId) ⇒ item.skuId === skuId).map { case (item, _) ⇒ item }
+  }
+
+  def filterBySkuId(skuFormId: Int, contextId: Int): QuerySeq = {
+    val skuIds = Skus.filter(_.formId === skuFormId).map(_.id)
+    join(skuIds).on((item, skuId) ⇒ item.skuId === skuId).map { case (item, _) ⇒ item }
+  }
+
   object scope {
     implicit class ExtractLineItems(q: QuerySeq) {
       // Map [SKU code → quantity in cart/order]

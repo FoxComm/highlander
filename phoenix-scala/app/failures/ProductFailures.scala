@@ -89,4 +89,14 @@ object ProductFailures {
   case class NoProductFoundForSku(id: Int) extends Failure {
     override def description = s"No product for SKU $id found"
   }
+
+  case class CannotSetInactiveWhileProductInCart(productId: Int) extends Failure {
+    override def description: String =
+      s"Cannot change the State to 'Inactive' as the product is present in a customer cart. Product id = $productId"
+  }
+
+  case class CannotSetInactiveWhileSkuInCart(skuId: Int) extends Failure {
+    override def description: String =
+      s"Cannot change the State to 'Inactive' as the SKU is present in a customer cart. SKU id = $skuId"
+  }
 }

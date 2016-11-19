@@ -18,6 +18,19 @@ import com.networknt.schema.JsonSchemaFactory
 import org.json4s.jackson.JsonMethods.asJsonNode
 
 object IlluminateAlgorithm extends LazyLogging {
+
+  def isActive(attributes: Map[String, Json]) = {
+    implicit val formats = JsonFormatters.phoenixFormats
+
+    def extractInstant(json: Json) = (json \ "v").extractOpt[Instant]
+    def beforeNow(time: Instant)   = time.isBefore(Instant.now)
+
+    val activeFrom = attributes.get("activeFrom").flatMap(extractInstant)
+    val activeTo   = attributes.get("activeTo").flatMap(extractInstant)
+
+    activeFrom.exists(beforeNow) && !activeTo.exists(beforeNow)
+  }
+
   implicit val formats = JsonFormatters.phoenixFormats
 
   def get(attr: String, form: Json, shadow: Json): Json = shadow \ attr \ "ref" match {
