@@ -136,7 +136,11 @@ class ProductIntegrationTest
       "an existing, but modified SKU successfully" in new Fixture {
         val redPriceJson  = ("t" → "price") ~ ("v" → (("currency" → "USD") ~ ("value" → 7999)))
         val redSkuAttrMap = Map("salePrice" → redPriceJson)
-        val redSkuPayload = makeSkuPayload(skuRedLargeCode, redSkuAttrMap, None)
+        val src           = "http://lorempixel/test.png"
+        val imagePayload  = ImagePayload(src = src)
+        val albumPayload  = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
+
+        val redSkuPayload = makeSkuPayload(skuRedLargeCode, redSkuAttrMap, Seq(albumPayload).some)
         val payload       = productPayload.copy(skus = Seq(redSkuPayload))
 
         val productResponse = doQuery(payload)
