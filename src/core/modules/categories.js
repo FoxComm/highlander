@@ -21,7 +21,7 @@ function apiCall(): Promise {
       id: 2,
       name: 'SIDES',
       description: '',
-      imageUrl: '',
+      imageUrl: '/images/categories/Cat_Sides_2x.jpg',
     },
     {
       id: 3,
@@ -33,12 +33,6 @@ function apiCall(): Promise {
       id: 4,
       name: 'GIFT CARDS',
       description: 'Gift cards will be here',
-      imageUrl: '',
-    },
-    {
-      id: 5,
-      name: 'FAVORITES',
-      description: '',
       imageUrl: '',
     },
   ];
