@@ -23,7 +23,8 @@
           "widget": "richText"
         },
         "retailPrice": {
-          "type":"price",
+          "type":"object",
+          "widget": "price",
           "properties": {
             "currency": {
               "type": "string",
@@ -38,7 +39,8 @@
           }
         },
         "salePrice": {
-          "type":"price",
+          "type":"object",
+          "widget": "price",
           "properties": {
             "currency": {
               "type": "string",
@@ -53,7 +55,8 @@
           }
         },
         "unitCost": {
-          "type":"price",
+          "type":"object",
+          "widget": "price",
           "properties": {
             "currency": {
               "type": "string",
