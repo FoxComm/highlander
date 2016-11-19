@@ -11,14 +11,6 @@
     "DB_NAME": "{{phoenix_db_name}}",
     "DB_USER": "{{db_user}}"
   },
-  "portDefinitions": [
-    {
-      "port": 10005,
-      "protocol": "tcp",
-      "name": "9190",
-      "labels": {}
-    }
-  ],
   "container": {
     "type": "DOCKER",
     "volumes": [
@@ -45,7 +37,7 @@
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false,
-      "port": 9190
+      "portIndex": 0
     }
   ]
 }

@@ -12,14 +12,6 @@
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
     "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}"
   },
-  "portDefinitions": [
-    {
-      "port": 10008,
-      "protocol": "tcp",
-      "name": "4041",
-      "labels": {}
-    }
-  ],
   "healthChecks": [
     {
       "path": "/",

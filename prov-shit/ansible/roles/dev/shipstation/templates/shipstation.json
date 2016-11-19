@@ -26,13 +26,6 @@
     "PARTITION": "{{shipstation_partition}}",
     "POLLING_INTERVAL": "{{shipstation_interval}}"
   },
-  "portDefinitions": [
-    {
-      "port": 10000,
-      "protocol": "tcp",
-      "labels": {}
-    }
-  ],
   "healthChecks": [
     {
       "protocol": "COMMAND",

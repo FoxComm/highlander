@@ -23,13 +23,6 @@
     "MWH_URL": "http://{{middlewarehouse_server}}",
     "PARTITION": "1"
   },
-  "portDefinitions": [
-    {
-      "port": 10001,
-      "protocol": "tcp",
-      "labels": {}
-    }
-  ],
   "healthChecks": [
     {
       "protocol": "COMMAND",

@@ -12,14 +12,6 @@
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
     "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}"
   },
-  "portDefinitions": [
-    {
-      "port": 10008,
-      "protocol": "tcp",
-      "name": "4041",
-      "labels": {}
-    }
-  ],
   "healthChecks": [
     {
       "path": "/",
@@ -29,7 +21,7 @@
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false,
-      "port": 4041
+      "portIndex": 0
     }
   ],
   "container": {

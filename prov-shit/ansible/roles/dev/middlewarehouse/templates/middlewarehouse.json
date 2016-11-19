@@ -16,6 +16,7 @@
       "forcePullImage": true
     }
   },
+  "hostPort": 9292
   "env": {
     "DB_SSLMODE": "disable",
     "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",
@@ -36,15 +37,7 @@
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false,
-      "port": 9292
-    }
-  ],
-  "portDefinitions": [
-    {
-      "port": 10000,
-      "protocol": "tcp",
-      "name": "9292",
-      "labels": {}
+      "portIndex": 0
     }
   ]
 }

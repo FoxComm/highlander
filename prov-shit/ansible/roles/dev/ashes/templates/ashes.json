@@ -7,20 +7,11 @@
   "instances": 1,
   "env": {
     "NODE_ENV": "production",
-    "PORT": "4000",
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
     "ON_SERVER": "true",
     "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}",
     "GA_TRACKING_ID": "{{ashes_ga_tracking_id}}"
   },
-  "portDefinitions": [
-    {
-      "port": 10008,
-      "protocol": "tcp",
-      "name": "4000",
-      "labels": {}
-    }
-  ],
   "healthChecks": [
     {
       "path": "/admin/login",
@@ -30,7 +21,7 @@
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false,
-      "port": 4000
+      "portIndex": 0
     }
   ],
   "container": {
