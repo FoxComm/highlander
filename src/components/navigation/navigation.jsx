@@ -61,13 +61,13 @@ class Navigation extends Component {
       const key = `category-${dashedName}`;
       const url = this.getNavUrl(item);
       const isActive = path.match(new RegExp(dashedName, 'i'));
-      const linkClasses = classNames(styles['item-link'], {
+      const linkClasses = classNames(styles.item, {
         [styles.active]: isActive,
       });
 
       return (
-        <li styleName="item" key={key}>
-          <Link className={linkClasses} to={url} onClick={this.props.onClick}>
+        <li className={linkClasses} key={key}>
+          <Link styleName="item-link" to={url} onClick={this.props.onClick}>
             {t(item.name.toUpperCase())}
           </Link>
         </li>

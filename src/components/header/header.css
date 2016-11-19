@@ -56,7 +56,9 @@
   }
 
   .navigation {
-    display: block;
+    height: 86px;
+    display: flex;
+    justify-content: center;
   }
 
   .hamburger {
@@ -84,9 +86,6 @@
       top: 136px;
       width: 100%;
       left: 0;
-      height: 86px;
-      display: flex;
-      justify-content: center;
       box-shadow: 0 0 0 1px var(--border-color);
     }
   }
