@@ -8,9 +8,7 @@
     user: ubuntu
     packing: true
     join_type: join
-    mesos_quorum: 1
     consul_expect: 1
-    zookeeper_server: "localhost:2181"
 
   roles:
     - { role: base/consul_server }

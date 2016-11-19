@@ -40,7 +40,7 @@ class ImageIntegrationTest
         val albumResponse = albumsApi(album.formId).get().as[AlbumRoot]
 
         albumResponse.images.length must === (1)
-        albumResponse.images.head.get("src") must not be empty
+        albumResponse.images.head.src must not be empty
       }
 
       "404 if wrong context name" in new Fixture {
@@ -413,9 +413,6 @@ class ImageIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed {
-
-    implicit val au = storeAdminAuthData
-
     def createShadowAttr(key: String, attrType: String) =
       key → (("type" → attrType) ~ ("ref" → key))
 

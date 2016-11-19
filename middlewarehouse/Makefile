@@ -36,7 +36,7 @@ docker:
 	docker build -t capture-consumer consumers/capture/
 	docker build -t shipstation-consumer consumers/shipstation/
 	docker build -t middlewarehouse-seeder common/db/seeds/
-	docker build -t gift-card-consumer consumers/gift-cards
+	docker build -t gift-card-consumer consumers/gift-cards/
 
 docker-push:
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)

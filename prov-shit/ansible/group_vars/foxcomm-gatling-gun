@@ -1,7 +1,1 @@
-api_server: balancer.service.consul
-phoenix_server: "phoenix.service.consul:9090"
-isaac_server: "isaac.service.consul:9190"
-search_host:  elasticsearch.service.consul
-log_host:  elasticsearch.service.consul
-ashes_server: "ashes.service.consul:4000"
 gatling_install_dir: "{{home}}/integration-tests"

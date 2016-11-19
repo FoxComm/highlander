@@ -5,13 +5,80 @@ dest_services: /etc/systemd/system
 usr_local: /usr/local/
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
-db_host: localhost
+scala_version: scala-2.11
+
+# Consul Service Discovery
+consul_data_dir: /var/consul
+consul_suffix: service.consul
+
+db_host: "db.{{consul_suffix}}"
+docker_db_host: "db.{{consul_suffix}}"
+api_server: "balancer.{{consul_suffix}}"
+
+phoenix_host: "phoenix.{{consul_suffix}}"
+phoenix_port: 9090
+phoenix_server: "{{phoenix_host}}:{{phoenix_port}}"
+
+isaac_host: "isaac.{{consul_suffix}}"
+isaac_port: 9190
+isaac_server: "{{isaac_host}}:{{isaac_port}}"
+
+search_host: "elasticsearch.{{consul_suffix}}"
+log_host: {{search_host}}
+search_server_http: "{{search_host}}:9200"
+search_server: "{{search_host}}:9300"
+
+ashes_host: "ashes.{{consul_suffix}}"
+ashes_port: 4000
+ashes_server: "{{ashes_host}}:{{ashes_port}}"
+
+storefront_host: "storefront.{{consul_suffix}}"
+storefront_port: 4041
+storefront_server: "{{storefront_host}}:{{storefront_port}}"
+
+kafka_host: "kafka.{{consul_suffix}}"
+kafka_port: 9092
+kafka_server: "{{kafka_host}}:{{kafka_port}}"
+
+zookeeper_host: "zookeeper.{{consul_suffix}}"
+zookeeper_port: 2181
+zookeeper_server: "{{zookeeper_host}}:{{zookeeper_port}}"
+zookeepers: zk://{{zookeeper_server}}
+
+schema_host: "schema-registry.{{consul_suffix}}"
+schema_port: 8081
+schema_server: "{{schema_host}}:{{schema_port}}"
+
+middlewarehouse_host: "middlewarehouse.{{consul_suffix}}"
+middlewarehouse_port: 9292
+middlewarehouse_server: "{{middlewarehouse_host}}:{{middlewarehouse_port}}"
+
+solomon_host: "solomon.{{consul_suffix}}"
+solomon_port: 4002
+solomon_server: "{{solomon_host}}:{{solomon_port}}"
+
+mesos_master: "mesos-master.{{consul_suffix}}"
+
+marathon_host: "marathon.{{consul_suffix}}"
+marathon_port: 8080
+marathon_server: "{{marathon_host}}:{{marathon_port}}"
+
+marketplace_host: "marketplace.{{consul_suffix}}"
+marketplace_port: 4003
+marketplace_server: "{{marketplace_host}}:{{marketplace_port}}"
+
+marketplace_ui_host: "marketplace_ui.{{consul_suffix}}"
+marketplace_ui_port: 4042
+marketplace_ui_server: "{{marketplace_ui_host}}:{{marketplace_ui_port}}"
+
+product_search_host: "product_search.{{consul_suffix}}"
+product_search_port: 5492
+product_search_server: "{{product_search_host}}:{{product_search_port}}"
+
+# Database & bottledwater
 db_user: phoenix
 db_name: phoenix_development
 db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_user}}"
-scala_version: scala-2.11
-
-# Bottled Water
 bottledwater_slot_phoenix: bottledwater_phoenix
 bottledwater_slot_middlewarehouse: bottledwater_middlewarehouse
 bottledwater_slot_marketplace: bottledwater_marketplace
@@ -37,6 +104,13 @@ phoenix_test_db_name: phoenix_test
 phoenix_tracing: "false"
 phoenix_db_connection_string: "postgresql://{{phoenix_db_user}}@{{db_host}}/{{phoenix_db_name}}"
 
+phoenix_api_version: v1
+phoenix_api_user: "api@foxcommerce.com"
+phoenix_api_password: "api$pass7!"
+
+phoenix_tax_rule_region: ""
+phoenix_tax_rule_rate: ""
+
 # Do not use this in production
 # This is a ttl of 1 year
 phoenix_token_ttl: 525600
@@ -44,8 +118,6 @@ solomon_token_ttl: 365
 
 # Middlewarehouse
 middlewarehouse_env: staging
-middlewarehouse_host: "{{self_host}}"
-middlewarehouse_port: 9292
 middlewarehouse_dir: /middlewarehouse
 middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
 middlewarehouse_db_name: middlewarehouse_development
@@ -93,32 +165,8 @@ loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
 loyalty_jar: /usr/local/bin/loyalty.jar
 
 # Messaging
-messaging_jar: /usr/local/bin/messaging.jar
-messaging_jar_src: ../../fox-notifications/target/messaging.jar
 plugins_api_user_email: ""
 plugins_api_user_password: ""
-
-# Lies & BS
-phoenix_api_version: v1
-phoenix_host: 127.0.0.1
-phoenix_port: 9090
-phoenix_server: "{{phoenix_host}}:{{phoenix_port}}"
-isaac_server: 127.0.0.1:9190
-search_host: 127.0.0.1
-search_server_http: "{{search_host}}:9200"
-search_server: "{{search_host}}:9300"
-ashes_server: 127.0.0.1:4000
-storefront_server: 127.0.0.1:4041
-kafka_host: 127.0.0.1
-kafka_server: 127.0.0.1:9092
-zookeeper_server: 127.0.0.1:2181
-schema_server: 127.0.0.1:8081
-middlewarehouse_server: "{{middlewarehouse_host}}:{{middlewarehouse_port}}"
-solomon_host: 127.0.0.1
-solomon_port: 4002
-solomon_server: "{{solomon_host}}:{{solomon_port}}"
-api_server: 127.0.0.1
-log_host: 127.0.0.1
 
 # JMX ports
 es_jmx_port: 29010
@@ -149,9 +197,6 @@ swap_size_mb: 2000
 # Fix Ansible 2 rsync
 rsync_opts: ssh -l {{user}}
 
-# Consul variables
-consul_data_dir: /var/consul
-
 # Used to prefix service names in consul
 namespace: setme
 
@@ -161,11 +206,12 @@ zipkin_collector: localhost
 # Are we running packer?
 packing: false
 
-# Should we upload Phoenix JAR?
+# Should we upload Phoenix / Green River JAR?
+# Should be seed DB, seed via Gatling?
 upload_phoenix_jar: true
-
-# Should we upload Green River JAR?
 upload_greenriver_jar: true
+with_seeder: false
+with_gatling_seeder: true
 
 # Deploy marketplace?
 with_marketplace: false
@@ -179,6 +225,7 @@ cert_path: stage
 
 # Mesos
 mesos_quorum: 2
+mesos_ip: 0.0.0.0
 
 # Use seeder service or not?
 with_seeder: false
@@ -187,11 +234,12 @@ with_gatling_seeder: true
 # Docker Defaults
 docker_branch: master
 docker_frontend_branch: master
+docker_registry: docker-stage.foxcommerce.com
 
 # Marketplace
 marketplace_db_name: marketplace_development
 marketplace_db_user: marketplace
 marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_host}}/{{marketplace_db_name}}"
 
-#Set this to true for first run deployments
+# Set this to true for first run deployments
 first_run: false

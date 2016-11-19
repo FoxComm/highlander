@@ -37,7 +37,6 @@ class LineItemUpdaterTest
         (code: String) ⇒ SkuManager.mustFindSkuByContextAndCode(contextId, code).gimme.formId
 
     "Adds line items when the sku doesn't exist in cart" in new Fixture {
-      implicit val au  = storeAdminAuthData
       val (context, _) = createProducts(2).gimme
       val skuId        = skuFormId(context.id)
 
@@ -62,12 +61,8 @@ class LineItemUpdaterTest
     }
 
     "Updates line items when the Sku already is in cart" in new Fixture {
-
-      implicit val au = storeAdminAuthData
-
       val (context, _) = createProducts(3).gimme
       val skuId        = skuFormId(context.id)
-
       val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId ⇒
         CartLineItem(cordRef = cart.refNum, skuId = skuId)
       }

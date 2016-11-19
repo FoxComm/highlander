@@ -3,7 +3,7 @@
 require('testdom')('<html><body></body></html>');
 
 const React = require('react');
-const TestUtils = require('react-addons-test-utils');
+const ReactTestUtils = require('react-addons-test-utils');
 const ReactDOM = require('react-dom');
 const path = require('path');
 
@@ -50,7 +50,7 @@ describe('Table', function() {
   beforeEach(function() {
     container = document.createElement('div');
     tableComponent = ReactDOM.render(<TestTable />, container);
-    tableNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(tableComponent, 'table'));
+    tableNode = ReactDOM.findDOMNode(ReactTestUtils.findRenderedDOMComponentWithTag(tableComponent, 'table'));
   });
 
   afterEach(function(done) {
@@ -83,24 +83,24 @@ describe('Table', function() {
     // order by id
     let idHeaderNode = tableNode.querySelector('th:nth-child(1)');
     // desc
-    TestUtils.Simulate.click(idHeaderNode);
+    ReactTestUtils.Simulate.click(idHeaderNode);
     expect(tableNode.querySelector('tr:nth-child(1) > td:nth-child(1) > div').innerHTML).to.be.equal('1');
     expect(tableNode.querySelector('tr:nth-child(2) > td:nth-child(1) > div').innerHTML).to.be.equal('2');
     expect(tableNode.querySelector('tr:nth-child(3) > td:nth-child(1) > div').innerHTML).to.be.equal('10');
     // asc
-    TestUtils.Simulate.click(idHeaderNode);
+    ReactTestUtils.Simulate.click(idHeaderNode);
     expect(tableNode.querySelector('tr:nth-child(1) > td:nth-child(1) > div').innerHTML).to.be.equal('10');
     expect(tableNode.querySelector('tr:nth-child(2) > td:nth-child(1) > div').innerHTML).to.be.equal('2');
     expect(tableNode.querySelector('tr:nth-child(3) > td:nth-child(1) > div').innerHTML).to.be.equal('1');
     // order by text
     let textHeaderNode = tableNode.querySelector('th:nth-child(2)');
     // desc
-    TestUtils.Simulate.click(textHeaderNode);
+    ReactTestUtils.Simulate.click(textHeaderNode);
     expect(tableNode.querySelector('tr:nth-child(1) > td:nth-child(2) > div').innerHTML).to.be.equal('bar');
     expect(tableNode.querySelector('tr:nth-child(2) > td:nth-child(2) > div').innerHTML).to.be.equal('buzz');
     expect(tableNode.querySelector('tr:nth-child(3) > td:nth-child(2) > div').innerHTML).to.be.equal('foo');
     // asc
-    TestUtils.Simulate.click(textHeaderNode);
+    ReactTestUtils.Simulate.click(textHeaderNode);
     expect(tableNode.querySelector('tr:nth-child(1) > td:nth-child(2) > div').innerHTML).to.be.equal('foo');
     expect(tableNode.querySelector('tr:nth-child(2) > td:nth-child(2) > div').innerHTML).to.be.equal('buzz');
     expect(tableNode.querySelector('tr:nth-child(3) > td:nth-child(2) > div').innerHTML).to.be.equal('bar');

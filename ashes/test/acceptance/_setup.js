@@ -1,8 +1,9 @@
 require('./_testdom');
 
+const _ = require('lodash');
 const path = require('path');
 const ReactDOM = require('react-dom');
-const TestUtils = require('react-addons-test-utils');
+const ReactTestUtils = require('react-addons-test-utils');
 const ShallowTestUtils = require('react-shallow-testutils');
 
 const unexpectedReactShallow = require('unexpected-react-shallow');
@@ -17,12 +18,12 @@ global.requireComponent = function(componentPath, returnDefault = true) {
 };
 
 global.shallowRender = function(element) {
-  const renderer = TestUtils.createRenderer();
+  const renderer = ReactTestUtils.createRenderer();
   renderer.render(element);
 
   Object.defineProperty(renderer, 'instance', {
     get: function() {
-      return ShallowTestUtils.getMountedInstance(this);
+      return _.get(this, '_instance._instance');
     }
   });
 

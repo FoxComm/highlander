@@ -34,28 +34,46 @@ const SaveCancel = props => {
   const saveClassName = 'fc-save-cancel__save';
 
   const cancelControl = cancelTo
-    ? <Link to={cancelTo}
-            className={classNames('fc-btn-link', cancelClassName)}
-            params={cancelParams}
-            tabIndex={cancelTabIndex}
-            disabled={cancelDisabled}>{cancelText}</Link>
-    : <a onClick={onCancel}
-         className={classNames('fc-btn-link', cancelClassName)}
-         href="javascript:void(0)"
-         tabIndex={saveTabIndex}
-         disabled={cancelDisabled}>{cancelText}</a>;
+    ? (
+        <Link
+          to={cancelTo}
+          className={classNames('fc-btn-link', cancelClassName)}
+          params={cancelParams}
+          tabIndex={cancelTabIndex}
+          disabled={cancelDisabled}>
+          {cancelText}
+        </Link>
+    ) : (
+      <a
+        onClick={onCancel}
+        className={classNames('fc-btn-link', cancelClassName)}
+        href="javascript:void(0)"
+        tabIndex={saveTabIndex}
+        disabled={cancelDisabled}>
+        {cancelText}
+      </a>
+    );
 
   const saveControl = onSave
-    ? <PrimaryButton onClick={onSave}
-                     className={saveClassName}
-                     tabIndex={cancelTabIndex}
-                     isLoading={isLoading}
-                     disabled={saveDisabled}>{saveText}</PrimaryButton>
-    : <PrimaryButton type="submit"
-                     className={saveClassName}
-                     tabIndex={saveTabIndex}
-                     isLoading={isLoading}
-                     disabled={saveDisabled}>{saveText}</PrimaryButton>;
+    ? (
+      <PrimaryButton
+        onClick={onSave}
+        className={saveClassName}
+        tabIndex={cancelTabIndex}
+        isLoading={isLoading}
+        disabled={saveDisabled}>
+        {saveText}
+      </PrimaryButton>
+    ) : (
+      <PrimaryButton
+        type="submit"
+        className={saveClassName}
+        tabIndex={saveTabIndex}
+        isLoading={isLoading}
+        disabled={saveDisabled}>
+        {saveText}
+      </PrimaryButton>
+    );
 
   return (
     <div className={classNames('fc-save-cancel', className)}>

@@ -1,0 +1,12 @@
+---
+
+- name: Copy Jar
+  copy: src={{greenriver_jar_src}} dest={{greenriver_jar}} mode="u+x,g+x,o+x"
+  when: upload_greenriver_jar
+
+- name: Create ES Mappings
+  command: /usr/local/bin/create_es_mappings.sh
+  when: update_es_mappings
+
+- name: Restart Greenriver
+  service: name=greenriver state=restarted enabled=yes

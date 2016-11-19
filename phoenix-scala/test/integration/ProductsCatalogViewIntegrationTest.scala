@@ -76,7 +76,6 @@ class ProductsCatalogViewIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed {
-    implicit val au         = storeAdminAuthData
     val imagePayload        = ImagePayload(None, "http://lorem.png", "lorem.png".some, "Lorem Ipsum".some)
     val defaultAlbumPayload = CreateAlbumPayload("Sample Album", Some(Seq(imagePayload)))
     val scope               = LTree(au.token.scope)

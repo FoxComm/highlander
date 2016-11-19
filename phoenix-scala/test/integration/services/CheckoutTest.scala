@@ -194,9 +194,6 @@ class CheckoutTest
   }
 
   trait PaymentFixture extends CustomerAddress_Baked with StoreAdmin_Seed {
-
-    implicit val au = storeAdminAuthData
-
     val (reason, shipMethod) = (for {
       reason     ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)

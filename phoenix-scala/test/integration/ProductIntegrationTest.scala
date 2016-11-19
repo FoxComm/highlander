@@ -1,13 +1,12 @@
 import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
-
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures._
-import failures.NotFoundFailure404
 import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures._
+import models.account.User
 import models.inventory.Skus
 import models.objects._
 import models.product._
@@ -18,8 +17,10 @@ import payloads.OrderPayloads.CreateCart
 import payloads.ProductPayloads._
 import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
+import responses.ProductResponses.ProductResponse
 import responses.ProductResponses.ProductResponse.Root
 import responses.cord.CartResponse
+import services.Authenticator.AuthData
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -43,13 +44,25 @@ object ProductTestExtensions {
 // added to carts. I can't put some guards in here against that because I'll have to rewrite almost all tests in this
 // file. If you add a new test, consider adding one where gets added to cart before update/archive just to make sure.
 // -- Anna
+// And use SKU's formId instead code
+// -- Tony
 
 class ProductIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with AutomaticAuth
-    with BakedFixtures {
+    with BakedFixtures
+    with TaxonomySeeds {
   import ProductTestExtensions._
+
+  "GET v1/products/:context" - {
+    "returns assigned taxonomies" in new ProductAndSkus_Baked with FlatTaxons_Baked {
+      override def au: AuthData[User] = storeAdminAuthData
+      taxonApi(taxons.head.formId).assignProduct(simpleProduct.formId).mustBeOk()
+      val product = productsApi(simpleProduct.formId).get().as[ProductResponse.Root]
+      product.taxons.map(_.taxon.id) must contain(taxons.head.formId)
+    }
+  }
 
   "POST v1/products/:context" - {
     def doQuery(productPayload: CreateProductPayload) = {
@@ -226,6 +239,22 @@ class ProductIntegrationTest
       productsApi(formId).update(productPayload).as[Root]
     }
 
+    "Doesn't complain if you do update w/o any changes" in new Customer_Seed with Fixture {
+      private val cartRef =
+        cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+
+      cartsApi(cartRef).lineItems
+        .add(skus.map(sku ⇒ UpdateLineItemsPayload(sku.formId, 1)))
+        .mustBeOk()
+
+      productsApi(product.formId)
+        .update(
+            UpdateProductPayload(attributes = attrMap,
+                                 skus = allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap)).some,
+                                 variants = None))
+        .mustBeOk()
+    }
+
     "Updates the SKUs on a product successfully" in new Fixture {
       val payload =
         UpdateProductPayload(attributes = Map.empty, skus = Some(Seq(skuPayload)), variants = None)
@@ -390,12 +419,12 @@ class ProductIntegrationTest
 
         cartsApi(cartRefNum).lineItems
           .add(
-              Seq(UpdateLineItemsPayload(skus.filter(_.code == skuGreenSmallCode).head.formId, 1)))
+              Seq(UpdateLineItemsPayload(skus.filter(_.code == skuGreenLargeCode).head.formId, 1)))
           .mustBeOk()
 
         productsApi(product.formId)
           .update(twoSkuProductPayload)
-          .mustFailWith400(SkuIsPresentInCarts(skuGreenSmallCode))
+          .mustFailWith400(SkuIsPresentInCarts(skuGreenLargeCode))
       }
     }
   }
@@ -491,6 +520,9 @@ class ProductIntegrationTest
     val skuGreenSmallCode: String = "SKU-GREEN-SMALL"
     val skuGreenLargeCode: String = "SKU-GREEN-LARGE"
 
+    val allSkus: Seq[String] =
+      Seq(skuRedSmallCode, skuRedLargeCode, skuGreenSmallCode, skuGreenLargeCode)
+
     val simpleSkus = Seq(SimpleSku(skuRedSmallCode, "A small, red item", 9999, Currency.USD),
                          SimpleSku(skuRedLargeCode, "A large, red item", 9999, Currency.USD),
                          SimpleSku(skuGreenSmallCode, "A small, green item", 9999, Currency.USD),
@@ -510,9 +542,7 @@ class ProductIntegrationTest
                                                              (skuGreenLargeCode, "green", "large"))
 
     val (product, skus, variants) = {
-
-      implicit val au = storeAdminAuthData
-      val scope       = LTree(au.token.scope)
+      val scope = LTree(au.token.scope)
 
       for {
         // Create the SKUs.

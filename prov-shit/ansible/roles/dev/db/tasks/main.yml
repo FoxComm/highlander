@@ -121,4 +121,3 @@
     - marketplace
   when: item != 'marketplace' or with_marketplace
   sudo: true
-
