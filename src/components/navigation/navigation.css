@@ -24,7 +24,7 @@
   }
 
   .item {
-    margin: 0 50px 0 0;
+    margin: 0 36px 0 0;
 
     &:last-child {
       margin-right: 0;
@@ -44,11 +44,5 @@
     &.active {
       box-shadow: 0 2px #3E3436;
     }
-  }
-}
-
-@media (--x-large) {
-  .item {
-    margin-right: 100px;
   }
 }

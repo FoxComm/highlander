@@ -68,8 +68,12 @@
   }
 
   .search {
-    width: 115px;
+    width: 35%;
     height: 48px;
+  }
+
+  .tools {
+    width: 35%;
   }
 
   .header {
@@ -91,6 +95,18 @@
     & :global(.icon--fc-logo) {
       width: 130px;
       height: 62px;
+    }
+
+    & .navigation {
+      margin-left: 20px;
+    }
+
+    & .search{
+      width: 50px;
+    }
+
+    & .tools {
+      width: auto;
     }
   }
 }

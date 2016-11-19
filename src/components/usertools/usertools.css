@@ -9,6 +9,7 @@
 .login {
   margin-right: 15px;
   padding-right: 15px;
+  line-height: 24px;
   border-right: 1px solid #ECECEC;
 }
 
@@ -110,4 +111,8 @@
   .username {
     cursor: default;
   }
+}
+
+@media (--large) {
+
 }
