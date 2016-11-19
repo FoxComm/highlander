@@ -132,7 +132,17 @@ Vagrant.configure("2") do |config|
       $nginx_ip = "0.0.0.0"
     end
 
-    app.vm.provision "ansible" do |ansible|
+    app.vm.provision "base", type: "ansible" do |ansible|
+      ansible.verbose = "vvvv"
+      ansible.playbook = "prov-shit/ansible/vagrant_appliance_base.yml"
+      ansible.extra_vars = {
+        user: user,
+        appliance_hostname: $nginx_ip,
+        mesos_ip: $nginx_ip,
+      }
+    end
+
+    app.vm.provision "application", type: "ansible" do |ansible|
       ansible.verbose = "vvvv"
       ansible.playbook = "prov-shit/ansible/vagrant_appliance.yml"
       ansible.extra_vars = {
