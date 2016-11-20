@@ -54,7 +54,7 @@ resource "aws_instance" "amigo_leader" {
 }
 
 resource "dnsimple_record" "amigo_leader_dns_record" {
-  domain = "foxcommerce"
+  domain = "foxcommerce.com"
   name   = "${var.dns_entry}"
   value  = "${aws_instance.amigo_leader.0.private_ip}"
   type   = "A"
