@@ -108,3 +108,29 @@ module "tgt-wild" {
   frontend_instance_type = "${var.frontend_instance_type}"
   frontend_volume_size   = "${var.frontend_volume_size}"
 }
+
+module "tgt" {
+  source              = "../../modules/aws/tinystack"
+  aws_ssh_user        = "${var.aws_ssh_user}"
+  aws_ssh_private_key = "${var.aws_ssh_private_key}"
+  consul_leader       = "${aws_instance.amigo_leader.0.private_ip}"
+  datacenter          = "tgt"
+  key_name            = "${var.key_name}"
+
+  public_subnet_id        = "${var.public_subnet_id}"
+  private_subnet_id       = "${var.private_subnet_id}"
+  public_security_groups  = "${var.public_security_groups}"
+  private_security_groups = "${var.private_security_groups}"
+
+  amigo_image         = "${var.amigo_image}"
+  amigo_instance_type = "${var.amigo_instance_type}"
+  amigo_volume_size   = "${var.amigo_volume_size}"
+
+  backend_image         = "${var.backend_image}"
+  backend_instance_type = "${var.backend_instance_type}"
+  backend_volume_size   = "${var.backend_volume_size}"
+
+  frontend_image         = "${var.frontend_image}"
+  frontend_instance_type = "${var.frontend_instance_type}"
+  frontend_volume_size   = "${var.frontend_volume_size}"
+}
