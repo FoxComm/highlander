@@ -53,10 +53,13 @@
 - name: Reload Systemd for Nginx 
   command: systemctl daemon-reload
 
-- name: Restart Nginx
-  service: name=nginx state=restarted
-  when: not packing
-
 - name: Restart Consul Template
   service: name=consul_template state=restarted
   when: not packing
+
+- name: Restart Nginx
+  service: name=nginx state=restarted
+  retries: 5
+  delay: 30
+  when: not packing
+

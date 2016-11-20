@@ -6,6 +6,7 @@
   "disk": 0,
   "instances": 1,
   "env": {
+    "PORT":"9090",
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.der",
     "PHOENIX_PRIVATE_KEY": "/keys/private_key.der",
     "PHOENIX_COOKIE_SECURE": "off",
@@ -27,7 +28,7 @@
     "TAX_RULE_RATE": "{{phoenix_tax_rule_rate}}",
     "JAVA_OPTS": "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{phoenix_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dphoenix.env={{phoenix_env}} -Dhttp.interface=0.0.0.0 -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -Dakka.tracing.host={{zipkin_collector}} -Dakka.tracing.enabled={{phoenix_tracing}} -Dauth.tokenTTL={{phoenix_token_ttl}}"
   },
-  "hostPort": 9090,
+  "ports": [9090],
   "healthChecks": [
     {
       "path": "/v1/public/ping",

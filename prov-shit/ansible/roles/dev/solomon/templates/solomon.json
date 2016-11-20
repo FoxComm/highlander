@@ -6,6 +6,7 @@
   "disk": 0,
   "instances": 1,
   "env": {
+    "PORT": "4002",
     "DB_USER": "{{db_user}}",
     "DB_HOST": "{{docker_db_host}}",
     "DB_NAME": "{{phoenix_db_name}}",
@@ -14,7 +15,8 @@
     "PUBLIC_KEY": "{{public_keys_dest_dir}}/public_key.pem",
     "TOKEN_TTL": "{{solomon_token_ttl}}"
   },
-  "hostPort": 4002,
+  "ports": [4002],
+  "constraints": [["hostname", "UNIQUE"]],
   "container": {
     "type": "DOCKER",
     "volumes": [

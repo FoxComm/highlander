@@ -16,8 +16,9 @@
       "forcePullImage": true
     }
   },
-  "hostPort": 9292
+  "ports": [9292],
   "env": {
+    "PORT": "9292",
     "DB_SSLMODE": "disable",
     "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",
     "DB_NAME": "{{middlewarehouse_db_name}}",
@@ -28,6 +29,7 @@
     "KAFKA_BROKER": "{{kafka_server}}",
     "DB_USER": "middlewarehouse"
   },
+  "constraints": [["hostname", "UNIQUE"]],
   "healthChecks": [
     {
       "path": "/v1/public/ping",

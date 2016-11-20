@@ -11,13 +11,14 @@
     install_public_keys: true
     install_private_keys: true
     with_base_seeds: true
+    mesos_quorum: 1
+    docker_frontend_branch: max
+    docker_branch: max
 
   roles:
     - { role: dev/appliance }
     - { role: base/secret_keys }
     - { role: dev/consul_agent }
-    - { role: base/phoenix }
-    - { role: base/greenriver }
     - { role: base/marketplace, when: with_marketplace }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
