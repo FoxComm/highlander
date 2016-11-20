@@ -17,7 +17,7 @@ type Props = {
   name: string,
   value: string,
   className: ?string,
-  onChange: Function,
+  onChange: ?Function,
   placeholder: ?string,
   linkClassName: ?string,
   t: Function,
