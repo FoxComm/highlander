@@ -1,7 +1,7 @@
 {
-    "project_base": "td",
-    "image_prefix": "td",
-    "image_title": "td",
+    "project_base": "td/stage",
+    "image_prefix": "td-stage",
+    "image_title": "td-stage",
     "account_file": "foxcomm-vanilla.json",
     "project_id": "foxcommerce-production-shared",
     "network": "topdrawer",
