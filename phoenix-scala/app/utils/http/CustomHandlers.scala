@@ -11,6 +11,7 @@ import akka.util.ByteString
 
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import utils._
+import utils.db.FoxFailureException
 import utils.http.Http._
 
 object CustomHandlers {
@@ -61,6 +62,10 @@ object CustomHandlers {
           ctx.log.warning("Bad request: {}", ctx.request)
           ctx.complete(HttpResponse(BadRequest, entity = errorsJsonEntity(e.getMessage)))
         }
+      // This is not a part of our control flow, but I'll leave it here just in case of unanticipated DBIO.failed
+      case FoxFailureException(failures) ⇒
+      ctx ⇒
+        ctx.complete(Http.renderFailure(failures))
       case NonFatal(e) ⇒
       ctx ⇒
         {
