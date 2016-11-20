@@ -1,0 +1,13 @@
+version: 0.1
+storage:
+  s3: 
+    accesskey: {{secret_key}}
+    secretkey: {{secret_access_key}}
+    region: {{docker_registry_region}}
+    bucket: {{docker_registry_bucket}}
+    rootdirectory: /
+http:
+    addr: 0.0.0.0:5000
+    tls:
+        certificate: /certs/domain.crt
+        key: /certs/domain.key

@@ -24,6 +24,8 @@ variable "amigo_security_groups" {
   type = "list"
 }
 
+variable "amigo_subnet_id" {}
+
 variable "amigo_volume_size" {}
 
 provider "aws" {
@@ -36,7 +38,7 @@ resource "aws_instance" "amigo_leader" {
   ami                    = "${var.amigo_leader_image}"
   instance_type          = "${var.amigo_instance_type}"
   key_name               = "${var.key_name}"
-  subnet_id              = "${var.subnet_id}"
+  subnet_id              = "${var.amigo_subnet_id}"
   vpc_security_group_ids = "${var.amigo_security_groups}"
 
   associate_public_ip_address = false
@@ -47,7 +49,7 @@ resource "aws_instance" "amigo_leader" {
   }
 
   tags = {
-    Name = "${var.amigo_leader_datacenter} amigo leader"
+    Name = "${var.amigo_leader_datacenter}-amigo-leader"
   }
 
   connection {
@@ -63,4 +65,19 @@ resource "aws_instance" "amigo_leader" {
       "sudo rm -rf /var/consul/* && sudo systemctl restart consul_server.service"
     ]
   }
+}
+
+module "tgt-wild" {
+  source = "../../modules/aws/tinystack"
+  aws_ssh_user = "${var.aws_ssh_user}"
+  aws_ssh_private_key = "${var.aws_ssh_private_key}"
+  consul_leader = "${aws_instance.amigo_leader.0.private_ip}"
+  datacenter = "tgt-wild"
+  key_name = "${var.key_name}"
+  subnet_id = "${var.amigo_subnet_id}"
+
+  amigo_image = "${var.amigo_image}"
+  amigo_instance_type = "${var.amigo_instance_type}"
+  amigo_security_groups = "${var.amigo_security_groups}"
+  amigo_volume_size = "${var.amigo_volume_size}"
 }

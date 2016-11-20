@@ -1,11 +1,20 @@
 ---
 
+- include_vars: "{{role_path}}/../secret_keys/files/aws/aws.yml"
+  when: docker_registry_provider == "aws"
+
 - name: Setup docker_registry config
   file: path=/etc/docker_registry/ state=directory
   sudo: true
 
-- name: Copy Docker Registry Config
-  template: src=config.yml dest="/etc/docker_registry/config.yml"
+- name: Copy GCE Docker Registry Config
+  template: src=config_gce.yml dest="/etc/docker_registry/config.yml"
+  when: docker_registry_provider == "gce"
+  sudo: true
+
+- name: Copy AWS Docker Registry Config
+  template: src=config_aws.yml dest="/etc/docker_registry/config.yml"
+  when: docker_registry_provider == "aws"
   sudo: true
 
 - name: Copy Service
