@@ -2,10 +2,12 @@ package utils
 
 import scala.concurrent.Future
 
+import cats.implicits._
 import cats.data.{Xor, XorT}
 import cats.{Applicative, Functor, Monad}
 import failures._
 import services.Result
+import slick.dbio.DBIOAction
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.SQLActionBuilder
 import slick.lifted.Query
@@ -34,8 +36,17 @@ package object db {
 
   // implicits
   implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {
-    def runTxn()(implicit db: DB): Result[A] =
-      dbResultT.value.transactionally.run()
+    def runTxn()(implicit ec: EC, db: DB): Result[A] =
+      dbResultT
+      // turn `left` into `DBIO.failed` to force transaction rollback
+        .fold(failures ⇒ DBIO.failed(FoxFailureException(failures)), good ⇒ DBIO.successful(good))
+        .flatMap(a ⇒ a) // flatten...
+        .transactionally
+        .dbresult // just a DBIO ⇒ DbResultT wrapper
+        .run()    // throws a FoxFailureException :/
+        .recover { // don't actually want an exception thrown, so wrap it back
+          case e: FoxFailureException ⇒ Xor.left(e.failures)
+        }
 
     def run()(implicit db: DB): Result[A] =
       dbResultT.value.run()
