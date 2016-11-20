@@ -17,7 +17,7 @@
     - { role: base/zookeeper }
     - { role: base/docker_registry }
     - { role: base/mesos_master }
-    - { role: dev/mesos_consul }
+    - { role: base/mesos_consul }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
