@@ -44,10 +44,19 @@ variable "frontend_instance_type" {}
 
 variable "frontend_volume_size" {}
 
+variable "dnsimple_token" {}
+
+variable "dnsimple_email" {}
+
 provider "aws" {
   access_key = "${var.aws_access_key}"
   secret_key = "${var.aws_secret_key}"
   region     = "${var.region}"
+}
+
+provider "dnsimple" {
+  token = "${var.dnsimple_token}"
+  email = "${var.dnsimple_email}"
 }
 
 module "dev" {
@@ -55,6 +64,7 @@ module "dev" {
   aws_ssh_user        = "${var.aws_ssh_user}"
   aws_ssh_private_key = "${var.aws_ssh_private_key}"
   datacenter          = "dev"
+  dns_entry           = "consul.aws-dev"
   key_name            = "${var.key_name}"
 
   subnet_id       = "${var.private_subnet_id}"

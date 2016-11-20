@@ -6,6 +6,8 @@ variable key_name {}
 
 variable datacenter {}
 
+variable dns_entry {}
+
 variable subnet_id {}
 
 variable security_groups {
@@ -49,4 +51,12 @@ resource "aws_instance" "amigo_leader" {
       "sudo rm -rf /var/consul/* && sudo systemctl restart consul_server.service",
     ]
   }
+}
+
+resource "dnsimple_record" "amigo_leader_dns_record" {
+  domain = "foxcommerce"
+  name   = "${var.dns_entry}"
+  value  = "${aws_instance.amigo_leader.0.private_ip}"
+  type   = "A"
+  ttl    = 3600
 }
