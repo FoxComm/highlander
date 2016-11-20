@@ -4,7 +4,7 @@ set -ue
 
 DIR=ansible/roles/base/secret_keys/files/secret_keys/$1
 if [[ ! -d $DIR ]]; then
-  mkdir $DIR
+  mkdir -p $DIR
 fi
 
 openssl genrsa -out $DIR/private_key.pem 4096
