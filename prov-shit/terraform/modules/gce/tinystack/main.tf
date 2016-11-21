@@ -22,7 +22,7 @@ resource "google_compute_instance" "tiny-consul" {
     disk {
         image = "${var.consul_server_image}"
         type = "pd-ssd"
-        size = "10"
+        size = "20"
     }
 
     network_interface {
