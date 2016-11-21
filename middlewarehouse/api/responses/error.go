@@ -1,5 +1,5 @@
 package responses
 
 type Error struct {
-	Errors []string `json:"errors"`
+	Errors []interface{} `json:"errors"`
 }

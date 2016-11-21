@@ -2,16 +2,18 @@ package failures
 
 import (
 	"net/http"
+
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 )
 
-func NewNotFound(error error) failure {
-	return newFailure(error, http.StatusNotFound)
+func NewNotFound(exception exceptions.IException) failure {
+	return newFailure(exception, http.StatusNotFound)
 }
 
-func NewBadRequest(error error) failure {
-	return newFailure(error, http.StatusBadRequest)
+func NewBadRequest(exception exceptions.IException) failure {
+	return newFailure(exception, http.StatusBadRequest)
 }
 
-func NewInternalError(error error) failure {
-	return newFailure(error, http.StatusInternalServerError)
+func NewInternalError(exception exceptions.IException) failure {
+	return newFailure(exception, http.StatusInternalServerError)
 }
