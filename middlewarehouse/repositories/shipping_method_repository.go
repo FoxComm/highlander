@@ -43,7 +43,7 @@ func (repository *shippingMethodRepository) GetShippingMethodByID(id uint) (*mod
 
 	if err := repository.db.First(shippingMethod, id).Related(&shippingMethod.Carrier).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, NewEntityNotFound(shippingMethodEntity, string(id), fmt.Errorf(ErrorShippingMethodNotFound, id))
+			return nil, NewEntityNotFoundException(shippingMethodEntity, string(id), fmt.Errorf(ErrorShippingMethodNotFound, id))
 		}
 
 		return nil, NewDatabaseException(err)
@@ -70,7 +70,7 @@ func (repository *shippingMethodRepository) UpdateShippingMethod(shippingMethod 
 	}
 
 	if result.RowsAffected == 0 {
-		return nil, NewEntityNotFound(shippingMethodEntity, string(shippingMethod.ID), fmt.Errorf(ErrorShippingMethodNotFound, shippingMethod.ID))
+		return nil, NewEntityNotFoundException(shippingMethodEntity, string(shippingMethod.ID), fmt.Errorf(ErrorShippingMethodNotFound, shippingMethod.ID))
 	}
 
 	return repository.GetShippingMethodByID(shippingMethod.ID)
@@ -84,7 +84,7 @@ func (repository *shippingMethodRepository) DeleteShippingMethod(id uint) except
 	}
 
 	if res.RowsAffected == 0 {
-		return NewEntityNotFound(shippingMethodEntity, string(id), fmt.Errorf(ErrorShippingMethodNotFound, id))
+		return NewEntityNotFoundException(shippingMethodEntity, string(id), fmt.Errorf(ErrorShippingMethodNotFound, id))
 	}
 
 	return nil

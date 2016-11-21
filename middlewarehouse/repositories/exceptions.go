@@ -45,7 +45,7 @@ func (exception entityNotFoundException) ToJSON() interface{} {
 	return exception
 }
 
-func NewEntityNotFound(entity string, entityId string, error error) exceptions.IException {
+func NewEntityNotFoundException(entity string, entityId string, error error) exceptions.IException {
 	if error == nil {
 		return nil
 	}
