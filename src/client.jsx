@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React from 'react';
 import { Router, browserHistory, applyRouterMiddleware } from 'react-router';
 import useScroll from 'react-router-scroll';
@@ -6,15 +7,24 @@ import { render } from 'react-dom';
 import makeStore from './store';
 import routes from './routes';
 import I18nProvider from 'lib/i18n/provider';
+import { initTracker, trackPageView } from 'lib/analytics';
 
 const DEBUG = true;
 
 export function renderApp() {
-  const store = makeStore(browserHistory, window.__data);
+  const history = browserHistory;
+  const store = makeStore(history, window.__data);
 
   if (DEBUG) {
     window.store = store;
   }
+
+  const userId = _.get(store.getState(), 'state.auth.user.id');
+  initTracker(userId);
+
+  history.listen(location => {
+    trackPageView(location.pathname);
+  });
 
   const {language, translation} = window.__i18n;
 

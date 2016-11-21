@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
+import * as tracking from 'lib/analytics';
 
 // components
 import Shipping from './01-shipping/shipping';
@@ -72,7 +73,9 @@ class Checkout extends Component {
   };
 
   componentDidMount() {
-    this.props.fetchCart();
+    this.props.fetchCart().then(() => {
+      tracking.checkoutStart(this.props.cart.lineItems);
+    });
     this.props.hideCart();
 
     this.checkScroll();
@@ -176,9 +179,19 @@ class Checkout extends Component {
 
   @autobind
   placeOrder() {
-    if (this.props.cart.creditCard) {
+    const { creditCard, paymentMethods } = this.props.cart;
+    if (creditCard) {
+      tracking.chooseBillingMethod(creditCard.brand);
       return this.props.chooseCreditCard()
         .then(() => this.checkout());
+    }
+
+    const giftCardPresent = _.some(paymentMethods, paymentMethod => {
+      return paymentMethod.type == 'giftCard';
+    });
+
+    if (giftCardPresent) {
+      tracking.chooseBillingMethod('GiftCard');
     }
 
     return this.checkout();

@@ -25,3 +25,5 @@ type Thenable = {
 
 declare function makeXhr(url: string): XMLHttpRequest & Thenable;
 
+declare function ga(...args: Array<any>): void;
+
