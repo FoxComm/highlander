@@ -1,11 +1,13 @@
 package repositories
 
-import ("github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
+import (
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 )
 
 // Generic database exception
 type databaseException struct {
-	error    error
+	cls   string
+	error error
 }
 
 func (exception databaseException) ToString() string {
@@ -22,12 +24,14 @@ func NewDatabaseException(error error) exceptions.IException {
 	}
 
 	return databaseException{
-		error:    error,
+		cls:   "database",
+		error: error,
 	}
 }
 
 // Entity was not found exception
 type entityNotFoundException struct {
+	cls      string
 	entity   string
 	entityId string
 	error    error
@@ -47,6 +51,7 @@ func NewEntityNotFound(entity string, entityId string, error error) exceptions.I
 	}
 
 	return entityNotFoundException{
+		cls:      "entityNotFound",
 		entity:   entity,
 		entityId: entityId,
 		error:    error,

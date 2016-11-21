@@ -119,7 +119,7 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_UpdateShipmentLineItem_No
 	_, err := suite.repository.UpdateShipmentLineItem(shipmentLineItem1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorShipmentLineItemNotFound, shipmentLineItem1.ID), err)
+	suite.Equal(fmt.Errorf(ErrorShipmentLineItemNotFound, shipmentLineItem1.ID).Error(), err.ToString())
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_UpdateShipmentLineItem_Found_ReturnsUpdatedRecord() {
@@ -142,7 +142,7 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_DeleteShipmentLineItem_No
 	err := suite.repository.DeleteShipmentLineItem(1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorShipmentLineItemNotFound, 1), err)
+	suite.Equal(fmt.Errorf(ErrorShipmentLineItemNotFound, 1).Error(), err.ToString())
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_DeleteShipmentLineItem_Found_ReturnsNoError() {
