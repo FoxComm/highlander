@@ -7,17 +7,14 @@ import Button from 'ui/buttons';
 import { TextInput } from 'ui/inputs';
 import { FormField } from 'ui/forms';
 
+import { email as validateEmail } from 'ui/forms/validators';
+
 import styles from './form.css';
 
 type State = {
   email: string,
   error: ?string,
 };
-
-function validateEmail(email) {
-  const re = /(\w+)\@(\w+)\.[a-zA-Z]/g;
-  return re.test(email);
-}
 
 export default class SubscriptionForm extends Component {
 

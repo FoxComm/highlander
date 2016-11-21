@@ -11,3 +11,8 @@ export function phoneNumber(value) {
     ? null
     : this.t('Please enter a valid phone number');
 }
+
+export function email(address) {
+  const re = /(\w+)\@(\w+)\.[a-zA-Z]/g;
+  return re.test(address);
+}
