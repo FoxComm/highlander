@@ -21,23 +21,7 @@
   width: 0;
 }
 
-.search-input::-webkit-input-placeholder { /* WebKit, Blink, Edge */
-  color: var(--search-placeholder);
-}
-
-.search-input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-  color: var(--search-placeholder);
-}
-
-.search-input::-moz-placeholder { /* Mozilla Firefox 19+ */
-  color: var(--search-placeholder);
-}
-
-.search-input:-ms-input-placeholder { /* Internet Explorer 10-11 */
-  color: var(--search-placeholder);
-}
-
-.search-input:placeholder-shown { /* Standard (https://drafts.csswg.org/selectors-4/#placeholder) */
+.search-input::placeholder {
   color: var(--search-placeholder);
 }
 

@@ -40,10 +40,6 @@ class Search extends Component {
     isScrolled: false,
   };
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({ term: nextProps.term });
-  }
-
   @autobind
   onKeyDown({ keyCode }: any): void {
     if (keyCode === 13) {
@@ -67,6 +63,8 @@ class Search extends Component {
     if (term.length) {
       this.props.onSearch();
       this.props.setTerm(term);
+      this.props.toggleActive();
+      this.setState({ term: '' });
 
       browserHistory.push(`/search/${term}`);
     }
