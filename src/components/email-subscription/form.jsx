@@ -36,7 +36,7 @@ export default class SubscriptionForm extends Component {
       e.stopPropagation();
       this.setState({ error: 'Email format is invalid.' });
     } else {
-      setTimeout(() => this.setState({ email: '', error: '' }), 1000);
+      setTimeout(() => this.setState({ email: '', error: null }), 1000);
     }
   }
 
