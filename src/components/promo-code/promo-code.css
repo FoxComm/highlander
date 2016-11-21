@@ -7,6 +7,7 @@
 
   & :global(.fc-errors) {
     width: 100%;
+    margin-top: 10px;
   }
 
   & :global(.fc-alert) {
@@ -40,10 +41,6 @@
     background: var(--additional-color);
     color: #FFFFFF;
   }
-}
-
-:global(.fc-errors) {
-  margin-top: 10px;
 }
 
 .promo-title {
