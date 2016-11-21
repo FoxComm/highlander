@@ -31,9 +31,18 @@
   copy: src={{service_key_file}} dest=/etc/keys/gce_backup_service_key.json mode="0600" owner={{user}}
   sudo: true
 
-- name: Setup Database Backup Cron
-  cron: name="db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh /mnt/backups/{{ansible_hostname}}_{{db_name}}_$(date +%F_%H_%M) {{db_name}}"
+- name: Setup Phoenix Database Backup Cron
+  cron: name="phoenix db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh /mnt/backups/{{ansible_hostname}}_{{db_name}}_$(date +%F_%H_%M) {{db_name}}"
   sudo: true
+
+- name: Setup Middlewarehouse Database Backup Cron
+  cron: name="middlewarehouse db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh /mnt/backups/{{ansible_hostname}}_{{middlewarehouse_db_name}}_$(date +%F_%H_%M) {{middlewarehouse_db_name}}"
+  sudo: true
+
+- name: Setup Marketplace Database Backup Cron
+  cron: name="marketplace db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh /mnt/backups/{{ansible_hostname}}_{{middlewarehouse_db_name}}_$(date +%F_%H_%M) {{middlewarehouse_db_name}}"
+  sudo: true
+  when: with_marketplace
 
 - name: Reload Systemd for Postgresql
   sudo: yes
