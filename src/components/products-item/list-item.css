@@ -26,29 +26,7 @@
 }
 
 .hover-info {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #332A2C;
-  opacity: 0;
-  transition: opacity .3s ease-out;
-  display: flex;
-  padding: 12px;
-
-  & .additional-description {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    text-align: center;
-    justify-content: center;
-    font-family: var(--font-main);
-    font-weight: 300;
-    font-size: 16px;
-    color: white;
-    line-height: 33px;
-  }
+  display: none;
 }
 
 .preview-image {
@@ -127,6 +105,31 @@
     letter-spacing: 0.7px;
   }
 
+  .hover-info {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #332A2C;
+    opacity: 0;
+    transition: opacity .3s ease-out;
+    display: flex;
+    padding: 12px;
+
+    & .additional-description {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      text-align: center;
+      justify-content: center;
+      font-family: var(--font-main);
+      font-weight: 300;
+      font-size: 16px;
+      color: white;
+      line-height: 33px;
+    }
+  }
 }
 
 @media (--large), (--x-large) {
