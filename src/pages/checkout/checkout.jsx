@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
-import * as tracking from 'lib/analythics';
+import * as tracking from 'lib/analytics';
 
 // components
 import Shipping from './01-shipping/shipping';

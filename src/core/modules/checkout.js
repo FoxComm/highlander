@@ -6,7 +6,7 @@ import { assoc } from 'sprout-data';
 import createAsyncActions from './async-utils';
 import { updateCart, resetCreditCard } from 'modules/cart';
 import { api as foxApi } from '../lib/api';
-import * as tracking from 'lib/analythics';
+import * as tracking from 'lib/analytics';
 
 import type { Address } from 'types/address';
 

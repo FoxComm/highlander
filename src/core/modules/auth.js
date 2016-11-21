@@ -4,7 +4,7 @@ import { createAction, createReducer } from 'redux-act';
 import createAsyncActions from './async-utils';
 import { dissoc, merge, update } from 'sprout-data';
 import { api } from 'lib/api';
-import { setUserId } from 'lib/analythics';
+import { setUserId } from 'lib/analytics';
 
 import type { asyncAction } from 'types';
 

@@ -5,7 +5,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import * as tracking from 'lib/analythics';
+import * as tracking from 'lib/analytics';
 
 // components
 import Radiobutton from 'ui/radiobutton/radiobutton';

@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { addLineItem, toggleCart } from 'modules/cart';
 import { connect } from 'react-redux';
-import * as tracking from 'lib/analythics';
+import * as tracking from 'lib/analytics';
 
 import AddToCartBtn from 'ui/add-to-cart-btn';
 import Currency from 'ui/currency';

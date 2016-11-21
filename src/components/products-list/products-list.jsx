@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { browserHistory } from 'react-router';
 import { autobind, debounce } from 'core-decorators';
 import { isElementInViewport } from 'lib/dom-utils';
-import * as tracking from 'lib/analythics';
+import * as tracking from 'lib/analytics';
 
 // styles
 import styles from './products-list.css';

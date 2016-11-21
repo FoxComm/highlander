@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { browserHistory } from 'react-router';
 import { autobind } from 'core-decorators';
-import * as tracking from 'lib/analythics';
+import * as tracking from 'lib/analytics';
 
 // localization
 import localized from 'lib/i18n';
