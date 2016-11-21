@@ -16,4 +16,4 @@
       private: no
 
   roles:
-      - { role: prod/db_migrate }
+      - { role: prod/migrate_phoenix_db }
