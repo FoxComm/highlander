@@ -25,6 +25,7 @@ type Props = {
   promotion?: ?Object,
   discountValue?: ?number,
   allowDelete?: ?boolean,
+  disabled?: boolean,
 };
 
 type State = {
@@ -39,6 +40,7 @@ class PromoCode extends Component {
     allowDelete: true,
     saveCode: _.noop,
     removeCode: _.noop,
+    disabled: false,
   };
 
   state: State = {
@@ -98,7 +100,12 @@ class PromoCode extends Component {
             onKeyPress={this.onKeyPress}
           />
         </FormField>
-        <Button styleName="submit" onClick={this.saveCode} type="button">
+        <Button
+          type="button"
+          styleName="submit"
+          onClick={this.saveCode}
+          disabled={this.props.disabled}
+        >
           {this.buttonLabel}
         </Button>
         <ErrorAlerts error={this.state.error} />

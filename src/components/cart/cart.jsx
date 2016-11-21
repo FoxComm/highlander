@@ -158,6 +158,7 @@ class Cart extends Component {
                 discountValue={this.props.totals.adjustments}
                 saveCode={this.props.saveCouponCode}
                 removeCode={this.props.removeCouponCode}
+                disabled={checkoutDisabled}
               />
             </div>
 
