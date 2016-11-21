@@ -77,13 +77,13 @@ class ChangePassword extends Component {
 
     if (newPassword1 != newPassword2) {
       return Promise.reject({
-        newPassword2: 'Passwords must match',
+        newPassword2: 'Your passwords must match.',
       });
     }
 
     if (currentPassword == newPassword1) {
       return Promise.reject({
-        newPassword1: 'New password could not be the same as old password',
+        newPassword1: 'Your new password must be different than your old password.',
       });
     }
 
