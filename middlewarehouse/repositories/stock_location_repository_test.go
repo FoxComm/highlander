@@ -63,7 +63,7 @@ func (suite *stockLocationRepositoryTestSuite) Test_GetLocationById_NotFound() {
 	location, err := suite.repository.GetLocationByID(suite.location.ID + 1)
 
 	suite.Nil(location)
-	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, suite.location.ID+1), err)
+	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, suite.location.ID+1).Error(), err.ToString())
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_CreateLocation() {
@@ -103,7 +103,7 @@ func (suite *stockLocationRepositoryTestSuite) Test_UpdateLocation_NotFound() {
 	location, err := suite.repository.UpdateLocation(model)
 
 	suite.Nil(location)
-	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, 100), err)
+	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, 100).Error(), err.ToString())
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation() {
@@ -115,5 +115,5 @@ func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation() {
 func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation_NotFound() {
 	err := suite.repository.DeleteLocation(100)
 
-	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, 100), err)
+	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, 100).Error(), err.ToString())
 }
