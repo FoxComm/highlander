@@ -3,6 +3,7 @@ package services
 import (
 	"log"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/metamorphosis"
 	avro "github.com/elodina/go-avro"
@@ -52,7 +53,7 @@ const (
 // IActivityLogger is the service responsible for saving activities that are
 // part of the activity trail to Kafka.
 type IActivityLogger interface {
-	Log(activity activities.ISiteActivity) error
+	Log(activity activities.ISiteActivity) exceptions.IException
 }
 
 // NewActivityLogger creates a new instance on an activity logger with the
@@ -65,13 +66,13 @@ type activityLogger struct {
 	producer metamorphosis.Producer
 }
 
-func (a *activityLogger) Log(activity activities.ISiteActivity) error {
+func (a *activityLogger) Log(activity activities.ISiteActivity) exceptions.IException {
 	rec, err := newRecord(activity)
 	if err != nil {
 		return err
 	}
 
-	return a.producer.Emit(topic, rec)
+	return NewActivityLoggerException(a.producer.Emit(topic, rec))
 }
 
 type record struct {
@@ -85,7 +86,7 @@ type record struct {
 	Context       string
 }
 
-func newRecord(activity activities.ISiteActivity) (*record, error) {
+func newRecord(activity activities.ISiteActivity) (*record, exceptions.IException) {
 	return &record{
 		schema:        avroSchema,
 		Id:            1,
@@ -98,4 +99,20 @@ func newRecord(activity activities.ISiteActivity) (*record, error) {
 
 func (a *record) Schema() avro.Schema {
 	return a.schema
+}
+
+type activityLoggerException struct {
+	cls string `json:"type"`
+	exceptions.Exception
+}
+
+func NewActivityLoggerException(error error) exceptions.IException {
+	if error == nil {
+		return nil
+	}
+
+	return activityLoggerException{
+		cls:       "activityLogger",
+		Exception: exceptions.Exception{error},
+	}
 }
