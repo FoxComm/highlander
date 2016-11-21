@@ -5,7 +5,7 @@ import (
 )
 
 // Generic database exception
-type databaseException struct {
+type DatabaseException struct {
 	cls string `json:"type"`
 	exceptions.Exception
 }
@@ -15,14 +15,14 @@ func NewDatabaseException(error error) exceptions.IException {
 		return nil
 	}
 
-	return databaseException{
+	return DatabaseException{
 		cls: "database",
 		Exception: exceptions.Exception{error},
 	}
 }
 
 // Entity was not found exception
-type entityNotFoundException struct {
+type EntityNotFoundException struct {
 	cls      string `json:"type"`
 	entity   string
 	entityId string
@@ -34,7 +34,7 @@ func NewEntityNotFoundException(entity string, entityId string, error error) exc
 		return nil
 	}
 
-	return entityNotFoundException{
+	return EntityNotFoundException{
 		cls:       "entityNotFound",
 		entity:    entity,
 		entityId:  entityId,

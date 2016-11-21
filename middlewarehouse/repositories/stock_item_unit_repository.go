@@ -153,7 +153,6 @@ func (repository *stockItemUnitRepository) GetReleaseQtyByRefNum(refNum string) 
 	return res, NewDatabaseException(err)
 }
 
-// Entity was not found exception
 type outOfStockException struct {
 	cls        string `json:"type"`
 	sku        string
