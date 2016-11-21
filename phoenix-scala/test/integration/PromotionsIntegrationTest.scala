@@ -12,7 +12,9 @@ import payloads.CouponPayloads.CreateCoupon
 import payloads.DiscountPayloads.CreateDiscount
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.CreateCart
+import payloads.ProductPayloads.UpdateProductPayload
 import payloads.PromotionPayloads._
+import payloads.SkuPayloads.SkuPayload
 import responses.CouponResponses.CouponResponse
 import responses.PromotionResponses.PromotionResponse
 import responses.cord.CartResponse
@@ -194,6 +196,34 @@ class PromotionsIntegrationTest
 
       cartWithCoupon.totals.adjustments.toDouble must === (cartTotal * 0.4)
       cartWithCoupon.totals.total.toDouble must === (cartTotal * 0.6)
+    }
+
+    "should update coupon discount when cart becomes clean" in new Fixture
+    with ProductAndSkus_Baked {
+      def makeSkuPayload(code: String, attrMap: Map[String, Json]) = {
+        val codeJson = ("t" → "string") ~ ("v" → code)
+        SkuPayload(attrMap + ("code" → codeJson))
+      }
+
+      private val couponCode = setupPromoAndCoupon()
+
+      productsApi(simpleProduct.formId).update(
+          UpdateProductPayload(Map(),
+                               skus = Some(Seq(makeSkuPayload(simpleSku.code, Map()))),
+                               variants = None))
+
+      POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(simpleSku.code, 1))).mustBeOk()
+
+      POST(s"v1/my/cart/coupon/$couponCode").mustBeOk()
+
+      private val lineItemsPayloads: Seq[UpdateLineItemsPayload] = Seq[UpdateLineItemsPayload](
+          UpdateLineItemsPayload(simpleSku.code, quantity = 0)
+      )
+      private val emptyCartWithCoupon =
+        POST(s"v1/my/cart/line-items", lineItemsPayloads).asTheResult[CartResponse]
+
+      emptyCartWithCoupon.totals.adjustments must === (0)
+      emptyCartWithCoupon.totals.total must === (0)
     }
   }
 
