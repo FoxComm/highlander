@@ -18,8 +18,7 @@ type ShippingMethod struct {
 	Name         string
 	Code         string
 	ShippingType int
-	ExpectedCost uint
-	ActualCost   uint
+	Cost         uint
 }
 
 func (shippingMethod *ShippingMethod) Identifier() uint {
@@ -28,10 +27,10 @@ func (shippingMethod *ShippingMethod) Identifier() uint {
 
 func NewShippingMethodFromPayload(payload *payloads.ShippingMethod) (*ShippingMethod, error) {
 	sm := &ShippingMethod{
-		CarrierID:    payload.CarrierID,
-		Name:         payload.Name,
-		Code:         payload.Code,
-		ExpectedCost: payload.ExpectedCost,
+		CarrierID: payload.CarrierID,
+		Name:      payload.Name,
+		Code:      payload.Code,
+		Cost:      payload.Cost,
 	}
 
 	switch payload.ShippingType {

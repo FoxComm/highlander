@@ -21,7 +21,7 @@ func NewShippingMethodFromModel(shippingMethod *models.ShippingMethod) (*Shippin
 		Carrier: *NewCarrierFromModel(&shippingMethod.Carrier),
 		Name:    shippingMethod.Name,
 		Code:    shippingMethod.Code,
-		Cost:    shippingMethod.ExpectedCost,
+		Cost:    shippingMethod.Cost,
 	}
 
 	if shippingMethod.ShippingType == models.ShippingTypeFlat {

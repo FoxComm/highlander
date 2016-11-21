@@ -5,5 +5,5 @@ type ShippingMethod struct {
 	Name         string `json:"name" binding:"required"`
 	Code         string `json:"code" binding:"required"`
 	ShippingType string `json:"type" binding:"required"`
-	ExpectedCost uint   `json:"expectedCost"`
+	Cost         uint   `json:"cost"`
 }
