@@ -40,7 +40,13 @@ func (controller *shipmentController) getShipmentsByOrder() gin.HandlerFunc {
 
 		response := &responses.Shipments{}
 		for _, shipment := range shipments {
-			response.Shipments = append(response.Shipments, *responses.NewShipmentFromModel(shipment))
+			resp, err := responses.NewShipmentFromModel(shipment)
+			if err != nil {
+				handleServiceError(context, err)
+				return
+			}
+
+			response.Shipments = append(response.Shipments, *resp)
 		}
 
 		context.JSON(http.StatusOK, response)
@@ -60,7 +66,13 @@ func (controller *shipmentController) createShipment() gin.HandlerFunc {
 			return
 		}
 
-		context.JSON(http.StatusCreated, responses.NewShipmentFromModel(shipment))
+		response, err := responses.NewShipmentFromModel(shipment)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		context.JSON(http.StatusCreated, response)
 	}
 }
 
@@ -80,14 +92,20 @@ func (controller *shipmentController) updateShipmentForOrder() gin.HandlerFunc {
 
 		model := models.NewShipmentFromUpdatePayload(payload)
 		model.OrderRefNum = orderRef
-		shipment, err := controller.shipmentService.UpdateShipmentForOrder(model)
 
+		shipment, err := controller.shipmentService.UpdateShipmentForOrder(model)
 		if err != nil {
 			handleServiceError(context, err)
 			return
 		}
 
-		context.JSON(http.StatusOK, responses.NewShipmentFromModel(shipment))
+		response, err := responses.NewShipmentFromModel(shipment)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		context.JSON(http.StatusOK, response)
 	}
 }
 
@@ -104,6 +122,12 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 			return
 		}
 
-		context.JSON(http.StatusCreated, responses.NewShipmentFromModel(shipment))
+		response, err := responses.NewShipmentFromModel(shipment)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		context.JSON(http.StatusCreated, response)
 	}
 }
