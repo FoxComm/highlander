@@ -11,7 +11,7 @@ import (
 
 const (
 	ErrorStockLocationNotFound = "Stock location with id=%d not found"
-	stockLocationEntity        = "stockLocation"
+	StockLocationEntity        = "stockLocation"
 )
 
 type stockLocationRepository struct {
@@ -43,7 +43,7 @@ func (repository *stockLocationRepository) GetLocationByID(id uint) (*models.Sto
 
 	if err := repository.db.First(location, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, NewEntityNotFoundException(stockLocationEntity, string(id), fmt.Errorf(ErrorStockLocationNotFound, id))
+			return nil, NewEntityNotFoundException(StockLocationEntity, string(id), fmt.Errorf(ErrorStockLocationNotFound, id))
 		}
 
 		return nil, NewDatabaseException(err)
@@ -70,7 +70,7 @@ func (repository *stockLocationRepository) UpdateLocation(location *models.Stock
 	}
 
 	if res.RowsAffected == 0 {
-		return nil, NewEntityNotFoundException(stockLocationEntity, string(location.ID), fmt.Errorf(ErrorStockLocationNotFound, location.ID))
+		return nil, NewEntityNotFoundException(StockLocationEntity, string(location.ID), fmt.Errorf(ErrorStockLocationNotFound, location.ID))
 	}
 
 	return repository.GetLocationByID(location.ID)
@@ -84,7 +84,7 @@ func (repository *stockLocationRepository) DeleteLocation(id uint) exceptions.IE
 	}
 
 	if res.RowsAffected == 0 {
-		return NewEntityNotFoundException(stockLocationEntity, string(id), fmt.Errorf(ErrorStockLocationNotFound, id))
+		return NewEntityNotFoundException(StockLocationEntity, string(id), fmt.Errorf(ErrorStockLocationNotFound, id))
 	}
 
 	return nil

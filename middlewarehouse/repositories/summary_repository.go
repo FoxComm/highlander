@@ -13,7 +13,7 @@ const (
 	ErrorSummaryNotFound              = "Summary with id=%d not found"
 	ErrorSummaryForSKUNotFound        = "Summary for sku=%s not found"
 	ErrorSummaryForItemByTypeNotFound = "Summary for stock item with id=%d and type=%s not found"
-	summaryEntity                     = "summary"
+	SummaryEntity                     = "summary"
 )
 
 type summaryRepository struct {
@@ -105,7 +105,7 @@ func (repository *summaryRepository) UpdateStockItemSummary(summary *models.Stoc
 	err := repository.db.Save(summary).Error
 
 	if err == gorm.ErrRecordNotFound {
-		return NewEntityNotFoundException(summaryEntity, string(summary.ID), fmt.Errorf(ErrorSummaryNotFound, summary.ID))
+		return NewEntityNotFoundException(SummaryEntity, string(summary.ID), fmt.Errorf(ErrorSummaryNotFound, summary.ID))
 	}
 
 	return NewDatabaseException(err)

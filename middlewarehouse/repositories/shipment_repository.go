@@ -5,13 +5,13 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
-	"github.com/jinzhu/gorm"
 	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
+	"github.com/jinzhu/gorm"
 )
 
 const (
 	ErrorShipmentNotFound = "Shipment with id=%d not found"
-	shipmentEntity = "shipment"
+	ShipmentEntity        = "shipment"
 )
 
 type IShipmentRepository interface {
@@ -62,7 +62,7 @@ func (repository *shipmentRepository) GetShipmentByID(id uint) (*models.Shipment
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, NewEntityNotFoundException(shipmentEntity, string(id), fmt.Errorf(ErrorShipmentNotFound, id))
+			return nil, NewEntityNotFoundException(ShipmentEntity, string(id), fmt.Errorf(ErrorShipmentNotFound, id))
 		}
 
 		return nil, NewDatabaseException(err)
@@ -99,7 +99,7 @@ func (repository *shipmentRepository) UpdateShipment(shipment *models.Shipment) 
 	}
 
 	if result.RowsAffected == 0 {
-		return nil, NewEntityNotFoundException(shipmentEntity, string(shipment.ID), fmt.Errorf(ErrorShipmentNotFound, shipment.ID))
+		return nil, NewEntityNotFoundException(ShipmentEntity, string(shipment.ID), fmt.Errorf(ErrorShipmentNotFound, shipment.ID))
 	}
 
 	return repository.GetShipmentByID(shipment.ID)
@@ -113,7 +113,7 @@ func (repository *shipmentRepository) DeleteShipment(id uint) exceptions.IExcept
 	}
 
 	if res.RowsAffected == 0 {
-		return NewEntityNotFoundException(shipmentEntity, string(id), fmt.Errorf(ErrorShipmentNotFound, id))
+		return NewEntityNotFoundException(ShipmentEntity, string(id), fmt.Errorf(ErrorShipmentNotFound, id))
 	}
 
 	return nil
