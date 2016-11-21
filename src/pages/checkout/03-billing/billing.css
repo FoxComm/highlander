@@ -16,6 +16,14 @@
   }
 }
 
+.promo-line {
+  padding: 20px 0;
+}
+
+.promo-line:not(:last-child) {
+  border-bottom: 1px solid rgba(33, 33, 33, 0.10);
+}
+
 .fieldset {
   border-bottom: 1px solid var(--border-color);
 }

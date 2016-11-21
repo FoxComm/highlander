@@ -18,7 +18,6 @@ import Autocomplete from 'ui/autocomplete';
 import InputMask from 'react-input-mask';
 import EditAddress from 'ui/address/edit-address';
 import CreditCards from './credit-cards';
-import ViewGiftCards from './view-gift-cards';
 import Icon from 'ui/icon';
 import CvcHelp from './cvc-help';
 import PromoCode from '../../../components/promo-code/promo-code';
@@ -43,6 +42,11 @@ type Props = CheckoutActions & {
   performStageTransition: Function,
   t: any,
   inProgress: boolean,
+  saveCouponCode: Function,
+  removeCouponCode: Function,
+  coupon: ?Object,
+  promotion: ?Object,
+  totals: Object,
 };
 
 type State = {
@@ -315,15 +319,16 @@ class EditBilling extends Component {
 
   renderGiftCard() {
     const { giftCards } = this.props;
+    const giftCard = _.find(giftCards, { type: 'giftCard' });
 
-    return (giftCards && !_.isEmpty(giftCards))
-      ? <ViewGiftCards paymentMethods={giftCards} />
-      : (
-        <PromoCode
-          saveCode={this.props.saveGiftCard}
-          buttonLabel="Reedem"
-        />
-      );
+    return (
+      <PromoCode
+        buttonLabel="Redeem"
+        giftCard={giftCard}
+        saveCode={this.props.saveGiftCard}
+        removeCode={this.props.removeGiftCard}
+      />
+    );
   }
 
   render() {
@@ -368,7 +373,13 @@ class EditBilling extends Component {
         </fieldset>
 
         <Accordion title="PROMO CODE?">
-          <PromoCode saveCode={this.props.saveCouponCode} />
+          <PromoCode
+            coupon={this.props.coupon}
+            promotion={this.props.promotion}
+            discountValue={this.props.totals.adjustments}
+            saveCode={this.props.saveCouponCode}
+            removeCode={this.props.removeCouponCode}
+          />
         </Accordion>
 
         <Accordion title="GIFT CARD?">
@@ -383,6 +394,7 @@ class EditBilling extends Component {
 function mapStateToProps(state) {
   return {
     data: state.checkout.billingData,
+    ...state.cart,
   };
 }
 

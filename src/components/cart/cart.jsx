@@ -26,7 +26,7 @@ import styles from './cart.css';
 
 // actions
 import * as actions from 'modules/cart';
-import { saveCouponCode } from 'modules/checkout';
+import { saveCouponCode, removeCouponCode } from 'modules/checkout';
 
 const mapStateToProps = state => ({ ...state.cart, ...state.auth });
 
@@ -36,7 +36,10 @@ type Props = {
   updateLineItemQuantity: Function,
   toggleCart: Function,
   saveCouponCode: Function,
+  removeCouponCode: Function,
   skus: Array<any>,
+  coupon: ?Object,
+  promotion: ?Object,
   totals: Object,
   user?: ?Object,
   isVisible: boolean,
@@ -147,15 +150,25 @@ class Cart extends Component {
             <div styleName="line-items">
               {this.lineItems}
             </div>
+
             <div styleName="coupon">
-              <CouponCode saveCode={this.props.saveCouponCode}/>
+              <CouponCode
+                coupon={this.props.coupon}
+                promotion={this.props.promotion}
+                discountValue={this.props.totals.adjustments}
+                saveCode={this.props.saveCouponCode}
+                removeCode={this.props.removeCouponCode}
+                disabled={checkoutDisabled}
+              />
             </div>
+
             <div styleName="cart-subtotal">
               <div styleName="subtotal-title">{t('SUBTOTAL')}</div>
               <div styleName="subtotal-price">
-                <Currency value={props.totals.subTotal} />
+                <Currency value={props.totals.total} />
               </div>
             </div>
+
             {this.errorsLine}
           </div>
 
@@ -170,4 +183,8 @@ class Cart extends Component {
   }
 }
 
-export default connect(mapStateToProps, { ...actions, saveCouponCode })(localized(Cart));
+export default connect(mapStateToProps, {
+  ...actions,
+  saveCouponCode,
+  removeCouponCode,
+})(localized(Cart));

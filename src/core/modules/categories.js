@@ -35,6 +35,18 @@ function apiCall(): Promise {
       description: 'Gift cards will be here',
       imageUrl: '',
     },
+    {
+      id: 5,
+      name: 'FAVORITES',
+      description: '',
+      imageUrl: '',
+    },
+    {
+      id: 6,
+      name: 'HOLIDAY',
+      description: '',
+      imageUrl: '',
+    },
   ];
   return Promise.resolve(result);
 }

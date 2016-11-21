@@ -115,11 +115,33 @@ export function saveGiftCard(code: string): Function {
   };
 }
 
+export function removeGiftCard(code: string): Function {
+  return (dispatch) => {
+    return foxApi.cart.removeGiftCard(code)
+      .then(res => {
+        dispatch(updateCart(res.result));
+      });
+  };
+}
+
 export function saveCouponCode(code: string): Function {
   return (dispatch) => {
     return foxApi.cart.addCoupon(code)
       .then(res => {
-        dispatch(updateCart(res));
+        dispatch(updateCart(res.result));
+      });
+  };
+}
+
+export function removeCouponCode() {
+  return (dispatch) => {
+    return foxApi.cart.removeCoupon()
+      .then(res => {
+        dispatch(updateCart({
+          ...res.result,
+          coupon: null,
+          promotion: null,
+        }));
       });
   };
 }
@@ -225,7 +247,11 @@ export function checkout(): Function {
         referenceNumber: res.referenceNumber,
       });
       dispatch(orderPlaced(res));
-      return dispatch(updateCart(res));
+      return dispatch(updateCart({
+        ...res,
+        coupon: null,
+        promotion: null,
+      }));
     });
   };
 }

@@ -3,6 +3,17 @@
 
 .fieldset {
   display: flex;
+  flex-wrap: wrap;
+
+  & :global(.fc-errors) {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  & :global(.fc-alert) {
+    border-radius: 0;
+    margin-top: 0;
+  }
 }
 
 .code-field {
@@ -30,6 +41,32 @@
     background: var(--additional-color);
     color: #FFFFFF;
   }
+}
+
+.promo-title {
+  text-transform: uppercase;
+}
+
+.promo-description {
+  display: flex;
+  align-items: center;
+  color: #212121;
+}
+
+.promo-description-wrapper {
+  flex-grow: 1;
+  line-height: 23px;
+  font-weight: 300;
+}
+
+.delete-promo-btn {
+  composes: delete-button from '../../components/cart/line-item.css';
+  line-height: 15px;
+  padding-left: 10px;
+}
+
+.delete-promo-icon {
+  composes: delete-icon from '../../components/cart/line-item.css';
 }
 
 @media (--small-only) {
