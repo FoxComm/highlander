@@ -63,19 +63,24 @@ class ProductsList extends Component {
   }
 
   trackProductView() {
+    if (this.props.isLoading) return;
+
     const visibleProducts = this.getNewVisibleProducts();
     const shownProducts = {};
-    _.each(visibleProducts, item => {
-      shownProducts[item.id] = 1;
-      tracking.addImpression(item, item.index);
-    });
-    tracking.sendImpressions();
-    this.setState({
-      shownProducts: {
-        ...this.state.shownProducts,
-        ...shownProducts,
-      },
-    });
+
+    if (visibleProducts.length > 0) {
+      _.each(visibleProducts, item => {
+        shownProducts[item.id] = 1;
+        tracking.addImpression(item, item.index);
+      });
+      tracking.sendImpressions();
+      this.setState({
+        shownProducts: {
+          ...this.state.shownProducts,
+          ...shownProducts,
+        },
+      });
+    }
   }
 
   getNewVisibleProducts() {
