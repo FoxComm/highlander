@@ -5,10 +5,11 @@ import (
 	"time"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 )
 
-func newShipmentActivity(aType string, shipment *models.Shipment, createdAt time.Time) (ISiteActivity, error) {
+func newShipmentActivity(aType string, shipment *models.Shipment, createdAt time.Time) (ISiteActivity, exceptions.IException) {
 	resp, err := responses.NewShipmentFromModel(shipment)
 	if err != nil {
 		return nil, err
@@ -16,7 +17,7 @@ func newShipmentActivity(aType string, shipment *models.Shipment, createdAt time
 
 	shipBytes, err := json.Marshal(resp)
 	if err != nil {
-		return nil, err
+		return nil, NewActivityException(err)
 	}
 
 	return &defaultSiteActivity{
