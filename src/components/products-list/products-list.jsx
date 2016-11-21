@@ -3,8 +3,6 @@
 // libs
 import _ from 'lodash';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { browserHistory } from 'react-router';
 import { autobind, debounce } from 'core-decorators';
 import { isElementInViewport } from 'lib/dom-utils';
 import * as tracking from 'lib/analytics';
@@ -24,6 +22,10 @@ type Props = {
   isLoading: ?boolean,
 };
 
+type State = {
+  shownProducts: {[productId: string]: number},
+}
+
 class ProductsList extends Component {
   props: Props;
   state: State = {
@@ -32,8 +34,8 @@ class ProductsList extends Component {
   _willUnmount: boolean = false;
 
  componentDidMount() {
-    window.addEventListener('scroll', this.handleScroll);
-  }
+   window.addEventListener('scroll', this.handleScroll);
+ }
 
   componentWillUnmount() {
     this._willUnmount = true;
@@ -123,4 +125,3 @@ class ProductsList extends Component {
 }
 
 export default ProductsList;
-
