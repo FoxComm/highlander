@@ -8,11 +8,11 @@ type AggregateException struct {
 	exceptions []IException
 }
 
-func (ex *AggregateException) Add(exception IException) {
+func (ex AggregateException) Add(exception IException) {
 	ex.exceptions = append(ex.exceptions, exception)
 }
 
-func (ex *AggregateException) Length() int {
+func (ex AggregateException) Length() int {
 	return len(ex.exceptions)
 }
 
@@ -26,7 +26,7 @@ func (ex AggregateException) ToString() string {
 	return strings.Join(result, ", ")
 }
 
-func (ex *AggregateException) ToJSON() interface{} {
+func (ex AggregateException) ToJSON() interface{} {
 	result := []interface{}{}
 
 	for _, exception := range ex.exceptions {
