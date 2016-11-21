@@ -59,7 +59,7 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_NotFound_ReturnsNot
 	_, err := suite.repository.GetCarrierByID(1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, 1), err)
+	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, 1).Error(), err.ToString())
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_Found_ReturnsCarrierModel() {
@@ -95,7 +95,7 @@ func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotF
 	_, err := suite.repository.UpdateCarrier(carrier1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, carrier1.ID), err)
+	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, carrier1.ID).Error(), err.ToString())
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRecord() {
@@ -116,7 +116,7 @@ func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotF
 	err := suite.repository.DeleteCarrier(1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, 1), err)
+	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, 1).Error(), err.ToString())
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_Found_ReturnsNoError() {
