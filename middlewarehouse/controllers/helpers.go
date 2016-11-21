@@ -10,6 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 )
 
 func parse(c *gin.Context, model interface{}) failures.Failure {
@@ -49,20 +51,20 @@ func paramUint(c *gin.Context, key string) (uint, failures.Failure) {
 	return uint(id), nil
 }
 
-func handleServiceError(c *gin.Context, err error) {
-	fail := getFailure(err)
+func handleServiceError(c *gin.Context, exception exceptions.IException) {
+	fail := getFailure(exception)
 
 	logFailure(fail)
 
 	failures.Abort(c, fail)
 }
 
-func getFailure(err error) failures.Failure {
-	if err == gorm.ErrRecordNotFound {
-		return failures.NewNotFound(err)
+func getFailure(exception exceptions.IException) failures.Failure {
+	if _, ok := exception.(repositories.EntityNotFoundException); ok {
+		return failures.NewNotFound(exception)
 	}
 
-	return failures.NewBadRequest(err)
+	return failures.NewBadRequest(exception)
 }
 
 func logFailure(fail failures.Failure) {
