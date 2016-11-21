@@ -7,6 +7,7 @@ import (
 	"log"
 	"reflect"
 	"strings"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 )
 
 type summaryService struct {
@@ -15,28 +16,28 @@ type summaryService struct {
 }
 
 type ISummaryService interface {
-	CreateStockItemSummary(stockItemId uint) error
-	UpdateStockItemSummary(stockItemId uint, unitType models.UnitType, qty int, status models.StatusChange) error
+	CreateStockItemSummary(stockItemId uint) exceptions.IException
+	UpdateStockItemSummary(stockItemId uint, unitType models.UnitType, qty int, status models.StatusChange) exceptions.IException
 
-	CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) error
+	CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) exceptions.IException
 
-	GetSummary() ([]*models.StockItemSummary, error)
-	GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error)
+	GetSummary() ([]*models.StockItemSummary, exceptions.IException)
+	GetSummaryBySKU(sku string) ([]*models.StockItemSummary, exceptions.IException)
 }
 
 func NewSummaryService(summaryRepo repositories.ISummaryRepository, stockItemRepo repositories.IStockItemRepository) ISummaryService {
 	return &summaryService{summaryRepo, stockItemRepo}
 }
 
-func (service *summaryService) GetSummary() ([]*models.StockItemSummary, error) {
+func (service *summaryService) GetSummary() ([]*models.StockItemSummary, exceptions.IException) {
 	return service.summaryRepo.GetSummary()
 }
 
-func (service *summaryService) GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error) {
+func (service *summaryService) GetSummaryBySKU(sku string) ([]*models.StockItemSummary, exceptions.IException) {
 	return service.summaryRepo.GetSummaryBySKU(sku)
 }
 
-func (service *summaryService) CreateStockItemSummary(stockItemId uint) error {
+func (service *summaryService) CreateStockItemSummary(stockItemId uint) exceptions.IException {
 	summary := []*models.StockItemSummary{
 		{StockItemID: stockItemId, Type: models.Sellable},
 		{StockItemID: stockItemId, Type: models.NonSellable},
@@ -47,7 +48,7 @@ func (service *summaryService) CreateStockItemSummary(stockItemId uint) error {
 	return service.summaryRepo.CreateStockItemSummary(summary)
 }
 
-func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType models.UnitType, qty int, status models.StatusChange) error {
+func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType models.UnitType, qty int, status models.StatusChange) exceptions.IException {
 	stockItem, err := service.stockItemRepo.GetStockItemById(stockItemId)
 	if err != nil {
 		return err
@@ -74,14 +75,14 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 
 	// update stock item summary values
 	if err := service.summaryRepo.UpdateStockItemSummary(summary); err != nil {
-		log.Printf("Error updating stock_item_summaries with error: %s", err.Error())
+		log.Printf("Error updating stock_item_summaries with exceptions.IException: %s", err.ToString())
 	}
 
 	// create related stock item transaction
 	return service.CreateStockItemTransaction(summary, status.To, qty)
 }
 
-func (service *summaryService) CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) error {
+func (service *summaryService) CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) exceptions.IException {
 	transaction := &models.StockItemTransaction{
 		StockItemId:    summary.StockItemID,
 		Type:           summary.Type,
@@ -92,7 +93,7 @@ func (service *summaryService) CreateStockItemTransaction(summary *models.StockI
 	}
 
 	if err := service.summaryRepo.CreateStockItemTransaction(transaction); err != nil {
-		log.Printf("Error creating stock_item_transactions with error: %s", err.Error())
+		log.Printf("Error creating stock_item_transactions with exceptions.IException: %s", err.ToString())
 	}
 
 	return nil

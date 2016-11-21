@@ -1,14 +1,19 @@
 package services
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/async"
-	commonErrors "github.com/FoxComm/highlander/middlewarehouse/common/errors"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
+)
+
+const (
+	ErrorNoStockItemsForSKU               = "Can't hold items for %s - no stock items found"
+	ErrorNoStockItemsAssociatedWithRefNum = "No stock item units associated with %s"
+	ErrorUpdatingStockItemSummary         = "Error updating stock item summary"
 )
 
 type inventoryService struct {
@@ -19,18 +24,18 @@ type inventoryService struct {
 }
 
 type IInventoryService interface {
-	GetStockItems() ([]*models.StockItem, error)
-	GetStockItemById(id uint) (*models.StockItem, error)
-	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error)
-	GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error)
-	GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error)
+	GetStockItems() ([]*models.StockItem, exceptions.IException)
+	GetStockItemById(id uint) (*models.StockItem, exceptions.IException)
+	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, exceptions.IException)
+	GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, exceptions.IException)
+	GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, exceptions.IException)
 
-	IncrementStockItemUnits(id uint, unitType models.UnitType, units []*models.StockItemUnit) error
-	DecrementStockItemUnits(id uint, unitType models.UnitType, qty int) error
+	IncrementStockItemUnits(id uint, unitType models.UnitType, units []*models.StockItemUnit) exceptions.IException
+	DecrementStockItemUnits(id uint, unitType models.UnitType, qty int) exceptions.IException
 
-	HoldItems(refNum string, skus map[string]int) error
-	ReserveItems(refNum string) error
-	ReleaseItems(refNum string) error
+	HoldItems(refNum string, skus map[string]int) exceptions.IException
+	ReserveItems(refNum string) exceptions.IException
+	ReleaseItems(refNum string) exceptions.IException
 }
 
 func NewInventoryService(stockItemRepo repositories.IStockItemRepository, unitRepo repositories.IStockItemUnitRepository,
@@ -39,15 +44,15 @@ func NewInventoryService(stockItemRepo repositories.IStockItemRepository, unitRe
 	return &inventoryService{stockItemRepo, unitRepo, summaryService, true}
 }
 
-func (service *inventoryService) GetStockItems() ([]*models.StockItem, error) {
+func (service *inventoryService) GetStockItems() ([]*models.StockItem, exceptions.IException) {
 	return service.stockItemRepo.GetStockItems()
 }
 
-func (service *inventoryService) GetStockItemById(id uint) (*models.StockItem, error) {
+func (service *inventoryService) GetStockItemById(id uint) (*models.StockItem, exceptions.IException) {
 	return service.stockItemRepo.GetStockItemById(id)
 }
 
-func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error) {
+func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, exceptions.IException) {
 	if err := service.stockItemRepo.UpsertStockItem(stockItem); err != nil {
 		return nil, err
 	}
@@ -60,15 +65,15 @@ func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*
 	return stockItem, nil
 }
 
-func (service *inventoryService) GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error) {
+func (service *inventoryService) GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, exceptions.IException) {
 	return service.stockItemRepo.GetAFSByID(id, unitType)
 }
 
-func (service *inventoryService) GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error) {
+func (service *inventoryService) GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, exceptions.IException) {
 	return service.stockItemRepo.GetAFSBySKU(sku, unitType)
 }
 
-func (service *inventoryService) IncrementStockItemUnits(stockItemId uint, unitType models.UnitType, units []*models.StockItemUnit) error {
+func (service *inventoryService) IncrementStockItemUnits(stockItemId uint, unitType models.UnitType, units []*models.StockItemUnit) exceptions.IException {
 	if err := service.unitRepo.CreateUnits(units); err != nil {
 		return err
 	}
@@ -76,7 +81,7 @@ func (service *inventoryService) IncrementStockItemUnits(stockItemId uint, unitT
 	return service.updateStockItemSummary(stockItemId, unitType, len(units), models.StatusChange{To: models.StatusOnHand})
 }
 
-func (service *inventoryService) DecrementStockItemUnits(stockItemID uint, unitType models.UnitType, qty int) error {
+func (service *inventoryService) DecrementStockItemUnits(stockItemID uint, unitType models.UnitType, qty int) exceptions.IException {
 	unitsIDs, err := service.unitRepo.GetStockItemUnitIDs(stockItemID, models.StatusOnHand, unitType, qty)
 	if err != nil {
 		return err
@@ -89,7 +94,7 @@ func (service *inventoryService) DecrementStockItemUnits(stockItemID uint, unitT
 	return service.updateStockItemSummary(stockItemID, unitType, -1*qty, models.StatusChange{To: models.StatusOnHand})
 }
 
-func (service *inventoryService) HoldItems(refNum string, skus map[string]int) error {
+func (service *inventoryService) HoldItems(refNum string, skus map[string]int) exceptions.IException {
 	// map [sku]qty to list of SKUs
 	skusList := []string{}
 	for code := range skus {
@@ -109,15 +114,14 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 	}
 
 	// compare expectations with reality
-	aggregateErr := commonErrors.AggregateError{}
+	aggregateException := exceptions.AggregateException{}
 	diff := utils.DiffSlices(skusList, skusListRepo)
 	if len(diff) > 0 {
 		for _, sku := range diff {
-			msg := fmt.Sprintf("Can't hold items for %s - no stock items found", sku)
-			aggregateErr.Add(errors.New(msg))
+			aggregateException.Add(NewNoStockItemsForSKUException(sku, fmt.Errorf(ErrorNoStockItemsForSKU, sku)))
 		}
 
-		return aggregateErr
+		return aggregateException
 	}
 
 	// get available units for each stock item
@@ -125,14 +129,14 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 	for _, si := range items {
 		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
 		if err != nil {
-			aggregateErr.Add(err)
+			aggregateException.Add(err)
 		}
 
 		unitsIds = append(unitsIds, ids...)
 	}
 
-	if aggregateErr.Length() > 0 {
-		return aggregateErr
+	if aggregateException.Length() > 0 {
+		return aggregateException
 	}
 
 	// updated units with refNum and appropriate status
@@ -142,7 +146,7 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 	}
 
 	if count == 0 {
-		return fmt.Errorf(`No stock item units associated with "%s"`, refNum)
+		return NewNoStockItemsAssociatedWithRefNumException(refNum, fmt.Errorf(ErrorNoStockItemsAssociatedWithRefNum, refNum))
 	}
 
 	// update summary
@@ -154,7 +158,7 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)
 }
 
-func (service *inventoryService) ReserveItems(refNum string) error {
+func (service *inventoryService) ReserveItems(refNum string) exceptions.IException {
 	//get order units
 	stockItemUnits, err := service.unitRepo.GetUnitsInOrder(refNum)
 
@@ -175,7 +179,7 @@ func (service *inventoryService) ReserveItems(refNum string) error {
 	}
 
 	if count == 0 {
-		return fmt.Errorf(`No stock item units associated with "%s"`, refNum)
+		return NewNoStockItemsAssociatedWithRefNumException(refNum, fmt.Errorf(ErrorNoStockItemsAssociatedWithRefNum, refNum))
 	}
 
 	// updated summary
@@ -183,7 +187,7 @@ func (service *inventoryService) ReserveItems(refNum string) error {
 	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)
 }
 
-func (service *inventoryService) ReleaseItems(refNum string) error {
+func (service *inventoryService) ReleaseItems(refNum string) exceptions.IException {
 	// extract stock item ids/qty by refNum
 	unitsQty, err := service.unitRepo.GetReleaseQtyByRefNum(refNum)
 	if err != nil {
@@ -196,7 +200,7 @@ func (service *inventoryService) ReleaseItems(refNum string) error {
 	}
 
 	if count == 0 {
-		return fmt.Errorf(`No stock item units associated with "%s"`, refNum)
+		return NewNoStockItemsAssociatedWithRefNumException(refNum, fmt.Errorf(ErrorNoStockItemsAssociatedWithRefNum, refNum))
 	}
 
 	stockItemsMap := make(map[uint]int)
@@ -207,16 +211,16 @@ func (service *inventoryService) ReleaseItems(refNum string) error {
 	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)
 }
 
-func (service *inventoryService) updateStockItemSummary(stockItemID uint, unitType models.UnitType, unitCount int, change models.StatusChange) error {
-	fn := func() error {
+func (service *inventoryService) updateStockItemSummary(stockItemID uint, unitType models.UnitType, unitCount int, change models.StatusChange) exceptions.IException {
+	fn := func() exceptions.IException {
 		return service.summaryService.UpdateStockItemSummary(stockItemID, unitType, unitCount, change)
 	}
 
-	return async.MaybeExecAsync(fn, service.updateSummaryAsync, "Error updating stock item summary")
+	return async.MaybeExecAsync(fn, service.updateSummaryAsync, ErrorUpdatingStockItemSummary)
 }
 
-func (service *inventoryService) updateSummary(stockItemsMap map[uint]int, unitType models.UnitType, statusShift models.StatusChange) error {
-	fn := func() error {
+func (service *inventoryService) updateSummary(stockItemsMap map[uint]int, unitType models.UnitType, statusShift models.StatusChange) exceptions.IException {
+	fn := func() exceptions.IException {
 		for id, qty := range stockItemsMap {
 			if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
 				return err
@@ -226,5 +230,41 @@ func (service *inventoryService) updateSummary(stockItemsMap map[uint]int, unitT
 		return nil
 	}
 
-	return async.MaybeExecAsync(fn, service.updateSummaryAsync, "Error updating stock item summary")
+	return async.MaybeExecAsync(fn, service.updateSummaryAsync, ErrorUpdatingStockItemSummary)
+}
+
+type noStockItemsForSKUException struct {
+	cls string `json:"type"`
+	sku string
+	exceptions.Exception
+}
+
+func NewNoStockItemsForSKUException(sku string, error error) exceptions.IException {
+	if error == nil {
+		return nil
+	}
+
+	return noStockItemsForSKUException{
+		cls:       "noStockItemsForSKU",
+		sku:       sku,
+		Exception: exceptions.Exception{error},
+	}
+}
+
+type noStockItemsAssociatedWithRefNumException struct {
+	cls    string `json:"type"`
+	refNum string
+	exceptions.Exception
+}
+
+func NewNoStockItemsAssociatedWithRefNumException(refNum string, error error) exceptions.IException {
+	if error == nil {
+		return nil
+	}
+
+	return noStockItemsAssociatedWithRefNumException{
+		cls:       "noStockItemsAssociatedWithRefNum",
+		refNum:    refNum,
+		Exception: exceptions.Exception{error},
+	}
 }

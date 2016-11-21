@@ -11,7 +11,6 @@ import (
 
 	"fmt"
 
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -197,7 +196,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID_NotFound() {
 
 	afs, err := suite.service.GetAFSByID(uint(222), models.Sellable)
 
-	suite.Equal(fmt.Errorf(repositories.ErrorStockItemNotFound, 222), err)
+	suite.Equal(repositories.NewAFSNotFoundByIDException(222, fmt.Errorf(repositories.ErrorAFSNotFoundByID, 222)), err)
 	suite.Nil(afs)
 }
 
@@ -220,6 +219,6 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU_NotFound() {
 
 	afs, err := suite.service.GetAFSBySKU("BLA-BLA-SKU", models.Sellable)
 
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(repositories.NewAFSNotFoundBySKUException("BLA-BLA-SKU", fmt.Errorf(repositories.ErrorAFSNotFoundBySKU, "BLA-BLA-SKU")), err)
 	suite.Nil(afs)
 }
