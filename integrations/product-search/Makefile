@@ -1,11 +1,17 @@
+GOPATH=/tmp/go
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm
 HIGHLANDER_ROOT_PATH=$(BUILD_ROOT_PATH)/highlander
 BUILD_PATH=$(HIGHLANDER_ROOT_PATH)/integrations/product-search
 
+DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
+DOCKER_TAG ?= product-search
+DOCKER_BRANCH ?= master
+
 prep:
-	rm -rf $(HIGHLANDER_ROOT_PATH)
+	rm $(HIGHLANDER_ROOT_PATH) || true
 	mkdir -p $(BUILD_ROOT_PATH)
 	ln -s ${CURDIR}/../.. $(HIGHLANDER_ROOT_PATH)
+	go get github.com/gin-gonic/gin
 
 clean:
 	true
@@ -14,7 +20,8 @@ build: prep
 	cd $(BUILD_PATH) && go build -o product-search main.go update_payload.go
 
 docker:
-	true
+	docker build -t $(DOCKER_TAG) .
 
 docker-push:
-	true
+	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)

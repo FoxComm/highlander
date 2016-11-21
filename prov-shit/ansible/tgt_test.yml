@@ -1,7 +1,7 @@
 ---
 
 - name: Provision Target Test Backend
-  hosts: tgt-wild-backend
+  hosts: tgt-test-backend
   vars:
     user: '{{ansible_ssh_user}}'
     upload_phoenix_jar: true
@@ -18,7 +18,7 @@
     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Target Test Frontend
-  hosts: tgt-wild-frontend
+  hosts: tgt-test-frontend
   vars:
     user: '{{ansible_ssh_user}}'
     docker_registry: docker-tgt.foxcommerce.com
@@ -37,10 +37,17 @@
     - { role: dev/phoenix }
     - { role: dev/greenriver }
     - { role: dev/ashes }
-    - { role: ext/td/storefront }
     - { role: dev/middlewarehouse }
-    - { role: dev/messaging }
+    - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/isaac }
     - { role: dev/solomon }
+    - { role: dev/marketplace }
     - { role: dev/balancer, sudo: yes }
+    - { role: ext/tgt/marketplace-ui }
+    - { role: ext/tgt/product-search }
+    - { role: ext/tgt/balancer, sudo: true }
     - { role: dev/seeder }
+    - { role: dev/seeder }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

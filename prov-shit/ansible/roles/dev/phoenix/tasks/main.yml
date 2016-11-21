@@ -1,6 +1,6 @@
 ---
 
-- include_vars: "{{role_path}}/../secret_keys/files/aws/aws.yml"
+- include_vars: "{{role_path}}/../../base/secret_keys/files/aws/aws.yml"
 - include_vars: stripe.yml
 
 - name: Creates Marathon JSON directory
