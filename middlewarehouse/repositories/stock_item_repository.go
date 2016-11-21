@@ -7,6 +7,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/jinzhu/gorm"
+	"strconv"
 )
 
 const (
@@ -47,7 +48,7 @@ func (repository *stockItemRepository) GetStockItemById(id uint) (*models.StockI
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, NewEntityNotFoundException(StockItemEntity, string(id), fmt.Errorf(ErrorStockItemNotFound, id))
+			return nil, NewEntityNotFoundException(StockItemEntity, strconv.Itoa(int(id)), fmt.Errorf(ErrorStockItemNotFound, id))
 		}
 
 		return nil, NewDatabaseException(err)
@@ -68,7 +69,7 @@ func (repository *stockItemRepository) GetAFSByID(id uint, unitType models.UnitT
 
 	if err := repository.getAFSQuery(unitType).Where("si.id = ?", id).Find(afs).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, NewEntityNotFoundException(StockItemEntity, string(id), fmt.Errorf(ErrorStockItemNotFound, id))
+			return nil, NewEntityNotFoundException(StockItemEntity, strconv.Itoa(int(id)), fmt.Errorf(ErrorStockItemNotFound, id))
 		}
 
 		return nil, NewDatabaseException(err)
@@ -103,7 +104,7 @@ func (repository *stockItemRepository) DeleteStockItem(stockItemId uint) excepti
 	}
 
 	if result.RowsAffected == 0 {
-		return NewEntityNotFoundException(StockItemEntity, string(stockItemId), fmt.Errorf(ErrorStockItemNotFound, stockItemId))
+		return NewEntityNotFoundException(StockItemEntity, strconv.Itoa(int(stockItemId)), fmt.Errorf(ErrorStockItemNotFound, stockItemId))
 	}
 
 	return nil

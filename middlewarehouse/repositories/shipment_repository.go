@@ -7,6 +7,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/jinzhu/gorm"
+	"strconv"
 )
 
 const (
@@ -62,7 +63,7 @@ func (repository *shipmentRepository) GetShipmentByID(id uint) (*models.Shipment
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, NewEntityNotFoundException(ShipmentEntity, string(id), fmt.Errorf(ErrorShipmentNotFound, id))
+			return nil, NewEntityNotFoundException(ShipmentEntity, strconv.Itoa(int(id)), fmt.Errorf(ErrorShipmentNotFound, id))
 		}
 
 		return nil, NewDatabaseException(err)
@@ -99,7 +100,7 @@ func (repository *shipmentRepository) UpdateShipment(shipment *models.Shipment) 
 	}
 
 	if result.RowsAffected == 0 {
-		return nil, NewEntityNotFoundException(ShipmentEntity, string(shipment.ID), fmt.Errorf(ErrorShipmentNotFound, shipment.ID))
+		return nil, NewEntityNotFoundException(ShipmentEntity, strconv.Itoa(int(shipment.ID)), fmt.Errorf(ErrorShipmentNotFound, shipment.ID))
 	}
 
 	return repository.GetShipmentByID(shipment.ID)
@@ -113,7 +114,7 @@ func (repository *shipmentRepository) DeleteShipment(id uint) exceptions.IExcept
 	}
 
 	if res.RowsAffected == 0 {
-		return NewEntityNotFoundException(ShipmentEntity, string(id), fmt.Errorf(ErrorShipmentNotFound, id))
+		return NewEntityNotFoundException(ShipmentEntity, strconv.Itoa(int(id)), fmt.Errorf(ErrorShipmentNotFound, id))
 	}
 
 	return nil

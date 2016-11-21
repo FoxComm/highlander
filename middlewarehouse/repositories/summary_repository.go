@@ -7,6 +7,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/jinzhu/gorm"
+	"strconv"
 )
 
 const (
@@ -105,7 +106,7 @@ func (repository *summaryRepository) UpdateStockItemSummary(summary *models.Stoc
 	err := repository.db.Save(summary).Error
 
 	if err == gorm.ErrRecordNotFound {
-		return NewEntityNotFoundException(SummaryEntity, string(summary.ID), fmt.Errorf(ErrorSummaryNotFound, summary.ID))
+		return NewEntityNotFoundException(SummaryEntity, strconv.Itoa(int(summary.ID)), fmt.Errorf(ErrorSummaryNotFound, summary.ID))
 	}
 
 	return NewDatabaseException(err)

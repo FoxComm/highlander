@@ -7,6 +7,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/jinzhu/gorm"
+	"strconv"
 )
 
 const (
@@ -43,7 +44,7 @@ func (repository *carrierRepository) GetCarrierByID(id uint) (*models.Carrier, e
 
 	if err := repository.db.First(carrier, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, NewEntityNotFoundException(CarrierEntity, string(id), fmt.Errorf(ErrorCarrierNotFound, id))
+			return nil, NewEntityNotFoundException(CarrierEntity, strconv.Itoa(int(id)), fmt.Errorf(ErrorCarrierNotFound, id))
 		}
 
 		return nil, NewDatabaseException(err)
@@ -70,7 +71,7 @@ func (repository *carrierRepository) UpdateCarrier(carrier *models.Carrier) (*mo
 	}
 
 	if result.RowsAffected == 0 {
-		return nil, NewEntityNotFoundException(CarrierEntity, string(carrier.ID), fmt.Errorf(ErrorCarrierNotFound, carrier.ID))
+		return nil, NewEntityNotFoundException(CarrierEntity, strconv.Itoa(int(carrier.ID)), fmt.Errorf(ErrorCarrierNotFound, carrier.ID))
 	}
 
 	return repository.GetCarrierByID(carrier.ID)
@@ -84,7 +85,7 @@ func (repository *carrierRepository) DeleteCarrier(id uint) exceptions.IExceptio
 	}
 
 	if res.RowsAffected == 0 {
-		return NewEntityNotFoundException(CarrierEntity, string(id), fmt.Errorf(ErrorCarrierNotFound, id))
+		return NewEntityNotFoundException(CarrierEntity, strconv.Itoa(int(id)), fmt.Errorf(ErrorCarrierNotFound, id))
 	}
 
 	return nil
