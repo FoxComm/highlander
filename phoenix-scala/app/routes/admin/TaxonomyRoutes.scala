@@ -44,32 +44,36 @@ object TaxonomyRoutes {
                 mutateOrFailures {
                   TaxonomyManager.createTaxon(taxonFormId, payload)
                 }
-            } ~
-            pathPrefix("taxon") {
+            }
+          }
+        }
+      } ~
+      pathPrefix("taxon") {
 
-              pathPrefix(IntNumber) { taxonFormId ⇒
-                (get & pathEnd) {
-                  getOrFailures {
-                    TaxonomyManager.getTaxon(taxonFormId)
-                  }
-                } ~
-                (patch & pathEnd & entity(as[UpdateTaxonPayload])) { payload ⇒
-                  mutateOrFailures {
-                    TaxonomyManager.updateTaxon(taxonFormId, payload)
-                  }
+        pathPrefix(Segment) { contextName ⇒
+          adminObjectContext(contextName) { implicit context ⇒
+            pathPrefix(IntNumber) { taxonFormId ⇒
+              (get & pathEnd) {
+                getOrFailures {
+                  TaxonomyManager.getTaxon(taxonFormId)
+                }
+              } ~
+              (patch & pathEnd & entity(as[UpdateTaxonPayload])) { payload ⇒
+                mutateOrFailures {
+                  TaxonomyManager.updateTaxon(taxonFormId, payload)
+                }
+              } ~
+              (delete & pathEnd) {
+                deleteOrFailures {
+                  TaxonomyManager.archiveTaxonByContextAndId(taxonFormId)
+                }
+              } ~
+              pathPrefix("product" / IntNumber) { productFormId ⇒
+                (patch & pathEnd) {
+                  mutateOrFailures(TaxonomyManager.assignProduct(taxonFormId, productFormId))
                 } ~
                 (delete & pathEnd) {
-                  deleteOrFailures {
-                    TaxonomyManager.archiveTaxonByContextAndId(taxonFormId)
-                  }
-                } ~
-                pathPrefix("product" / IntNumber) { productFormId ⇒
-                  (patch & pathEnd) {
-                    mutateOrFailures(TaxonomyManager.assignProduct(taxonFormId, productFormId))
-                  } ~
-                  (delete & pathEnd) {
-                    mutateOrFailures(TaxonomyManager.unassignProduct(taxonFormId, productFormId))
-                  }
+                  mutateOrFailures(TaxonomyManager.unassignProduct(taxonFormId, productFormId))
                 }
               }
             }

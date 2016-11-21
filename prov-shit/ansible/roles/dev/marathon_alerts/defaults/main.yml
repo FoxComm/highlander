@@ -1,1 +1,0 @@
-marathon_server: marathon.service.consul:8080

@@ -5,6 +5,8 @@ import Settings._
 import Tasks._
 import sbtassembly.AssemblyKeys
 
+scalaVersion in ThisBuild := Versions.scala
+
 lazy val phoenixScala = (project in file("."))
   .settings(commonSettings)
   .configs(IT, ET)

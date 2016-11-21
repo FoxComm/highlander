@@ -7,15 +7,6 @@
   vars:
     user: ubuntu
     packing: true
-    phoenix_server: phoenix.service.consul:9090
-    search_host: elasticsearch.service.consul
-    log_host: es-log.service.consul
-    search_server_http: "{{search_host}}:9200"
-    ashes_server: 127.0.0.1:4000
-    storefront_server: storefront.service.consul:8080
-    isaac_server: isaac.service.consul:9190
-    middlewarehouse_host: middlewarehouse.service.consul
-    middlewarehouse_port: 9292
   post_tasks:
     - name: Sweet Dreams
       pause: seconds=5

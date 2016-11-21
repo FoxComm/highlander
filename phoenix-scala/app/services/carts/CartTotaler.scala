@@ -5,7 +5,7 @@ import models.cord._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import models.location.Region._
+import utils.FoxConfig._
 
 // TODO: Use utils.Money
 object CartTotaler {
@@ -24,7 +24,6 @@ object CartTotaler {
     def empty: Totals = Totals(0, 0, 0, 0, 0)
   }
 
-  val caTaxRate      = 0.075
   val defaultTaxRate = 0.0
 
   def subTotal(cart: Cart)(implicit ec: EC): DBIO[Int] =
@@ -59,10 +58,12 @@ object CartTotaler {
       implicit ec: EC): DbResultT[Int] =
     for {
       maybeAddress ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).one
-      taxRate = maybeAddress.map { address ⇒
-        if (address.regionId == californiaId) caTaxRate
-        else defaultTaxRate
-      }.getOrElse(defaultTaxRate)
+      optionalCustomRate = for {
+        address        ← maybeAddress
+        cfgTaxRegionId ← config.getOptInt("tax_rules.region_id")
+        cfgTaxRate     ← config.getOptDouble("tax_rules.rate")
+      } yield if (address.regionId == cfgTaxRegionId) cfgTaxRate / 100 else defaultTaxRate
+      taxRate = optionalCustomRate.getOrElse(defaultTaxRate)
     } yield ((subTotal - adjustments + shipping) * taxRate).toInt
 
   def totals(cart: Cart)(implicit ec: EC): DbResultT[Totals] =

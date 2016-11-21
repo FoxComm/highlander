@@ -4,7 +4,7 @@ FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/
 DB=middlewarehouse_development
 DB_TEST=middlewarehouse_test
 DB_USER=middlewarehouse
-GOPATH ?= $(HOME)/tmpgo
+GOPATH = /tmp/go
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
 HIGHLANDER_PATH=$(CURDIR)/..
@@ -14,6 +14,7 @@ DOCKER_TAG ?= middlewarehouse
 DOCKER_BRANCH ?= master
 
 prep:
+	rm $(BUILD_ROOT_PATH) || true
 	mkdir -p $(GOPATH)/src/github.com/FoxComm
 	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
 
@@ -36,7 +37,7 @@ docker:
 	docker build -t capture-consumer consumers/capture/
 	docker build -t shipstation-consumer consumers/shipstation/
 	docker build -t middlewarehouse-seeder common/db/seeds/
-	docker build -t gift-card-consumer consumers/gift-cards
+	docker build -t gift-card-consumer consumers/gift-cards/
 
 docker-push:
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)

@@ -118,6 +118,20 @@ Vagrant.configure("2") do |config|
     app.vm.network :private_network, ip: $nginx_ip
     expose_ports(app)
 
+    # Workaround for mitchellh/vagrant#1867
+    if ARGV[1] and \
+       (ARGV[1].split('=')[0] == "--provider" or ARGV[2])
+      provider = (ARGV[1].split('=')[1] || ARGV[2])
+    else
+      provider = (ENV['VAGRANT_DEFAULT_PROVIDER'] || :virtualbox).to_sym
+    end
+    puts "Detected #{provider} provider"
+
+    if provider == "google"
+      puts 'Overriding Google-specific variables'
+      $nginx_ip = "0.0.0.0"
+    end
+
     app.vm.provision "ansible" do |ansible|
       ansible.verbose = "vvvv"
       ansible.playbook = "prov-shit/ansible/vagrant_appliance.yml"

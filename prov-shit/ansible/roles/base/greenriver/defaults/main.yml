@@ -1,2 +1,0 @@
-greenriver_service_requires: kafka.service elasticsearch.service phoenix.service
-greenriver_service_after: kafka.service elasticsearch.service phoenix.service

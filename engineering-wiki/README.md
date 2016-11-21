@@ -2,12 +2,6 @@
 
 Welcome to the FoxCommerce Engineering Wiki. Here you can find information about the overall engineering team, as well as the individual projects. Look below to find your way around.
 
-## DevOps
-
-* [Build and Deploy for Infrastructure](devops/build_and_deploy.md)
-* [Production Environment From Scratch](devops/production.md)
-* [FoxCommerce Project Environments](devops/environments.md)
-
 ## Design Documents
 
 * [System Architecture](design/architecture)

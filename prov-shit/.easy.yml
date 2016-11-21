@@ -13,9 +13,7 @@ shortcuts:
       api_docs: bin/envs/api_docs
       stage_vpn: bin/envs/stage_vpn
       staging: bin/envs/staging
-      target_aws: bin/envs/target_aws
       topdrawer: bin/envs/topdrawer
-      topdrawer_vpn: bin/envs/topdrawer_vpn
       tpg: bin/envs/tpg
   - name: Private Key Files
     flag: "--private-key"

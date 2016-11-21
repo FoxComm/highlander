@@ -103,9 +103,7 @@ class ShippingMethodsIntegrationTest
     }
   }
 
-  trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed {
-    implicit val au = storeAdminAuthData
-  }
+  trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed
 
   trait ShippingMethodsFixture extends Fixture {
     val californiaId = 4129

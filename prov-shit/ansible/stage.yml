@@ -4,9 +4,6 @@
   hosts: foxcomm-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
-    zookeeper_server: zookeeper.service.consul:2181
-    zookeepers: zk://zookeeper.service.consul:2181
-    docker_registry: docker-stage.foxcommerce.com
   tags:
     - backend
   roles:
@@ -20,22 +17,6 @@
   hosts: foxcomm-stage-frontend
   vars:
     user: '{{ansible_ssh_user}}'
-    middlewarehouse_server: middlewarehouse.service.consul:9292
-    isaac_server: isaac.service.consul:9190
-    solomon_server: solomon.service.consul:4002
-    ashes_server: ashes.service.consul:4000
-    storefront_server: firebrand.service.consul:4041
-    marathon_server: marathon.service.consul:8080
-    docker_db_host: db.service.consul
-    docker_branch: master
-    docker_registry: docker-stage.foxcommerce.com
-    db_host: db.service.consul
-    kafka_server: kafka.service.consul:9092
-    schema_server: schema-registry.service.consul:8081
-    search_host: elasticsearch.service.consul
-    zookeeper_server: zookeeper.service.consul:2181
-    zookeepers: zk://zookeeper.service.consul:2181
-    phoenix_server: phoenix.service.consul:9090
     api_server: stage.foxcommerce.com
     self_host: stage.foxcommerce.com
     ashes_server_name: stage.foxcommerce.com
@@ -44,7 +25,7 @@
   tags:
     - frontend
   roles:
-    - { role: dev/stage_mesos, when: first_run}
+    - { role: dev/stage_mesos, when: first_run }
     - { role: base/ssh_keys }
     - { role: dev/phoenix }
     - { role: dev/greenriver }

@@ -16,7 +16,7 @@ import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments 
 import payloads.GiftCardPayloads.{GiftCardCreateByCsr, GiftCardCreatedByCustomer}
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Money._
 import utils.Validation._
@@ -38,7 +38,11 @@ case class GiftCard(id: Int = 0,
                     canceledReason: Option[Int] = None,
                     reloadable: Boolean = false,
                     accountId: Option[Int] = None,
-                    createdAt: Instant = Instant.now())
+                    createdAt: Instant = Instant.now(),
+                    senderName: Option[String] = None,
+                    recipientName: Option[String] = None,
+                    recipientEmail: Option[String] = None,
+                    message: Option[String] = None)
     extends PaymentMethod
     with FoxModel[GiftCard]
     with FSM[GiftCard.State, GiftCard]
@@ -155,7 +159,11 @@ object GiftCard {
         currency = payload.currency,
         originalBalance = payload.balance,
         availableBalance = payload.balance,
-        currentBalance = payload.balance
+        currentBalance = payload.balance,
+        senderName = Some(payload.senderName),
+        recipientName = Some(payload.recipientName),
+        recipientEmail = Some(payload.recipientEmail),
+        message = Some(payload.message)
     )
   }
 
@@ -224,6 +232,10 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
   def reloadable       = column[Boolean]("reloadable")
   def accountId        = column[Option[Int]]("account_id")
   def createdAt        = column[Instant]("created_at")
+  def senderName       = column[Option[String]]("sender_name")
+  def recipientName    = column[Option[String]]("recipient_name")
+  def recipientEmail   = column[Option[String]]("recipient_email")
+  def message          = column[Option[String]]("message")
 
   def * =
     (id,
@@ -240,7 +252,11 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
      canceledReason,
      reloadable,
      accountId,
-     createdAt) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
+     createdAt,
+     senderName,
+     recipientEmail,
+     recipientName,
+     message) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
 }
 
 object GiftCards
