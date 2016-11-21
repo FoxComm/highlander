@@ -17,3 +17,10 @@
   text-align: center;
   width: 100%;
 }
+
+@media (--small-only) {
+  .list {
+    lost-column: 11/12;
+    lost-offset: -0.5/12;
+  }
+}
