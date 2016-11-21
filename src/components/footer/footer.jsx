@@ -6,8 +6,6 @@ import type { HTMLElement } from 'types';
 import styles from './footer.css';
 
 import Icon from 'ui/icon';
-import Button from 'ui/buttons';
-import { TextInput } from 'ui/inputs';
 import { Link } from 'react-router';
 import SubscriptionForm from '../email-subscription/form';
 

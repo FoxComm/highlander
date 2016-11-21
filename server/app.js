@@ -25,7 +25,7 @@ export default class App extends KoaApp {
     onerror(this);
 
     if (process.env.MAILCHIMP_API_KEY === void 0) {
-      throw new Error(`Can't load MAILCHIMP_API_KEY from environment.`);
+      throw new Error('Can\'t load MAILCHIMP_API_KEY from environment.');
     }
 
     this.use(serve('public'))
