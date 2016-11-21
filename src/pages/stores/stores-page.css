@@ -2,7 +2,7 @@
 @import "media-queries.css";
 
 .header-wrap {
-  composes: header-wrap from '../../components/products-list/products-list.css';
+  composes: header-wrap from '../catalog/products.css';
   background: url('/images/stores-page/Stores_Hero_1x.jpg') center no-repeat;
   background-size: cover;
 }
@@ -16,15 +16,15 @@
 }
 
 .text-wrap {
-  composes: text-wrap from '../../components/products-list/products-list.css';
+  composes: text-wrap from '../catalog/products.css';
 }
 
 .description {
-  composes: description from '../../components/products-list/products-list.css';
+  composes: description from '../catalog/products.css';
 }
 
 .title {
-  composes: title from '../../components/products-list/products-list.css';
+  composes: title from '../catalog/products.css';
 }
 
 .main-block {
@@ -38,7 +38,7 @@
 }
 
 .subtitle {
-  composes: title from '../../components/products-list/products-list.css';
+  composes: title from '../catalog/products.css';
   color: black;
   font-size: 20px;
   text-align: center;
