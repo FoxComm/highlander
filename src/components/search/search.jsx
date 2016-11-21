@@ -63,6 +63,8 @@ class Search extends Component {
     if (term.length) {
       this.props.onSearch();
       this.props.setTerm(term);
+      this.props.toggleActive();
+      this.setState({ term: '' });
 
       browserHistory.push(`/search/${term}`);
     }
