@@ -15,7 +15,7 @@ table {
 }
 
 body {
-  font-family: Roboto, 'Open Sans', sans-serif;
+  font-family: Roboto, Helvetica, sans-serif;
   margin: 0;
   padding: 0;
 }
@@ -27,7 +27,7 @@ fieldset {
 }
 
 input, textarea, keygen, select, button {
-  font-family: Roboto, 'Open Sans', sans-serif;
+  font-family: Roboto, Helvetica, sans-serif;
 }
 
 hr {

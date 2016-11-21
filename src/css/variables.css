@@ -7,7 +7,7 @@
   --cart-header-height: 60px;
   --cart-gap: 20px;
   --font-playfair: 'Playfair Display', 'Times New Roman', serif;
-  --font-main: Roboto, 'Open Sans', sans-serif;
+  --font-main: Roboto, Helvetica, sans-serif;
 }
 
 @media (--small-only) {
