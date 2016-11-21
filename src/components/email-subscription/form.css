@@ -34,6 +34,10 @@
   background: #fff;
 }
 
+.form-field {
+  width: 100%;
+}
+
 @media (--medium-only) {
   .email {
     lost-column: 8/10;
