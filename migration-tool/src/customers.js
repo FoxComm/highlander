@@ -12,18 +12,40 @@ function getPhone(phone) {
 
 function getCustomerInfo(customer) {
   return {
-    "email": customer.EmailAddress,
+    "email": _.toLower(customer.EmailAddress),
     "name": getName(customer.BillingAddress),
     "password": "password",
     "isGuest": false
   };
 }
 
-function getAddress(address) {
+function getUSACode() {
+  console.log('Fetching countries');
+  return Api.get('/public/countries').then(data => {
+    const usa = _.find(data, { alpha2: 'US' });
+    return usa.id;
+  });
+}
+
+function getStates(countryId) {
+  console.log('Fetching states');
+  const states = require('./data/states.json');
+  const namesAbbrs = _.map(states, state => ({ name: _.toLower(state.name), abbr: state.abbreviation }));
+  return Api.get(`/public/countries/${countryId}`).then(data => {
+    const abbrIds = _.map(data.regions, item => {
+      const abbrItem = _.find(namesAbbrs, { name: _.toLower(item.name) });
+      return { abbreviation: abbrItem.abbr, id: item.id };
+    });
+    return abbrIds;
+  });
+}
+
+function getAddress(address, countryId, stateMap) {
+  const region = _.find(stateMap, { abbreviation: address.StateProvince });
   const addressPayload = {
     "name": getName(address),
-    // "countryId": 234,            //TODO: region!
-    "regionId": 4156,            //TODO: region!
+    "countryId": countryId,
+    "regionId": region.id,
     "address1": address.Address1,
     "address2": address.Address2 || "",
     "city": address.City,
@@ -59,40 +81,40 @@ function addAddress(id, address, shipping = false) {
 
 function save() {
   fs.readFile(__dirname + '/data/customers.json', function(err, data) {
-    // const customers = JSON.parse(data).slice(0, 2);
     const customers = JSON.parse(data);
 
-    customers.map((customer) => {
+    let countryId = null;
+    getUSACode().then(usaId => {
+        countryId = usaId;
+        return getStates(usaId);
+      }).then(statesIdMap => {
+        customers.map((customer) => {
 
-      const customerInfo = getCustomerInfo(customer);
-      const shippingAddress = getAddress(customer.ShippingAddress);
-      const billingAddress = getAddress(customer.BillingAddress);
+          const customerInfo = getCustomerInfo(customer);
+          const shippingAddress = getAddress(customer.ShippingAddress, countryId, statesIdMap);
+          const billingAddress = getAddress(customer.BillingAddress, countryId, statesIdMap);
 
-      // console.log(shippingAddress);
+          Api.post('/migration/customers/new', customerInfo)
+            .then(
+              data => {
+                console.log(data);
+                console.log(`${data.id}: ${data.name} is created`);
 
-      Api.post('/customers', customerInfo)
-        .then(
-          data => {
-            console.log(`${data.id}: ${data.name} is created`);
-
-            if (_.isEqual(shippingAddress, billingAddress)) {
-              addAddress(data.id, shippingAddress, true);
-            } else {
-              addAddress(data.id, shippingAddress, true);
-              addAddress(data.id, billingAddress);
-            }
-          },
-          err => {
-            const {status, text} = err.response.error;
-            console.log(`${status}: ${text} ${customer.EmailAddress}`);
-
-            // if (text.indexOf('The email address you entered is already in use"') != -1) {
-            //   console.log('update customer by id');
-            // }
-          }
-        );
+                if (_.isEqual(shippingAddress, billingAddress)) {
+                  addAddress(data.id, shippingAddress, true);
+                } else {
+                  addAddress(data.id, shippingAddress, true);
+                  addAddress(data.id, billingAddress);
+                }
+              },
+              err => {
+                const {status, text} = err.response.error;
+                console.log(`${status}: ${text} ${_.toLower(customer.EmailAddress)}`);
+              }
+            );
 
 
+        });
     });
   });
 }

@@ -5,13 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="/favicon.png" />
     <link rel="stylesheet" href="/app.css" />
-    <script type="text/javascript">
+    <script>
       if (!window.Intl) {
         var head = document.getElementsByTagName('head')[0];
         var s = document.createElement('script');
         s.type = 'text/javascript';
         s.src = 'https://cdn.polyfill.io/v2/polyfill.min.js?features=Intl.~locale.en';
         head.appendChild(s);
+      }
+
+      {{##def.gaSnippet:
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        const gaOpts = {{#def.gaEnableLocal ? "{'cookieDomain': 'none'}" : "'auto'" }};
+
+        ga('create', '{{#def.gaTrackingId}}', gaOpts);
+        ga('send', 'pageview');
+      #}}
+
+      {{##def.stubGa:
+        ga = function() {};
+      #}}
+
+      {{#def.gaTrackingId && def.gaSnippet || def.stubGa }}
+
+      function logError(message, fatal) {
+        ga('send', 'exception', {
+          exDescription: message,
+          exFatal: fatal || false
+        });
+        ga('send', 'event', 'js_error', message);
+      }
+
+      window.onerror = function(errorMsg, url, lineNumber) {
+        var msg = "Error: " + errorMsg + "\nurl: " + url + "\nlineNumber: " + lineNumber;
+        logError(msg, true);
+      };
+      window.onunhandledrejection = function(event) {
+        logError('Unhandled rejection - ' + event.reason);
+      };
+
+      var getHMTime = window.performance && performance.now ? function() {
+        return performance.now()
+      } : function() { return new Date().getTime(); };
+      var headEndTime = getHMTime();
+
+      if (window.performance) {
+        window.onload = function() {
+          /* see https://www.w3.org/TR/navigation-timing/#sec-window.performance-attribute */
+          setTimeout(function() {
+            var timing = performance.timing;
+            ga('send', 'timing', 'Full page load', 'load_time', timing.loadEventEnd - timing.navigationStart);
+            ga('send', 'timing', 'Dom processing', 'load_time', timing.loadEventStart - timing.domLoading);
+          }, 0);
+        }
       }
     </script>
     <script type="text/javascript">

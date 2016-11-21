@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import * as tracking from 'lib/analytics';
 
 // i18n
 import localized from 'lib/i18n';
@@ -96,6 +97,7 @@ const mapDispatchToProps = dispatch => ({
 
 class Pdp extends Component {
   props: Props;
+  productPromise: Promise;
 
   state: State = {
     quantity: 1,
@@ -105,8 +107,16 @@ class Pdp extends Component {
 
   componentWillMount() {
     if (_.isEmpty(this.props.product)) {
-      this.fetchProduct();
+      this.productPromise = this.fetchProduct();
+    } else {
+      this.productPromise = Promise.resolve();
     }
+  }
+
+  componentDidMount() {
+    this.productPromise.then(() => {
+      tracking.viewDetails(this.product);
+    });
   }
 
   componentWillUnmount() {
@@ -127,13 +137,12 @@ class Pdp extends Component {
     const productId = _productId || this.productId;
 
     if (this.isGiftCard(props)) {
-      searchGiftCards().then(({ result = [] }) => {
+      return searchGiftCards().then(({ result = [] }) => {
         const giftCard = result[0] || {};
-        this.props.actions.fetch(giftCard.productId);
+        return this.props.actions.fetch(giftCard.productId);
       });
-    } else {
-      this.props.actions.fetch(productId);
     }
+    return this.props.actions.fetch(productId);
   }
 
   get productId(): number {
@@ -206,6 +215,7 @@ class Pdp extends Component {
     const { actions } = this.props;
     const { quantity } = this.state;
     const skuId = _.get(this.currentSku, 'attributes.code.v', '');
+    tracking.addToCart(this.product, quantity);
     actions.addLineItem(skuId, quantity, this.state.attributes)
       .then(() => {
         actions.toggleCart();
