@@ -9,6 +9,7 @@ import Icon from 'ui/icon';
 import Button from 'ui/buttons';
 import { TextInput } from 'ui/inputs';
 import { Link } from 'react-router';
+import SubscriptionForm from '../email-subscription/form';
 
 const Footer = () : HTMLElement => {
   return (
@@ -19,10 +20,7 @@ const Footer = () : HTMLElement => {
       </header>
 
       <div styleName="wrap">
-        <form styleName="email">
-          <TextInput placeholder="Email" />
-          <Button styleName="button" type="button">Join</Button>
-        </form>
+        <SubscriptionForm />
 
         <ul styleName="links">
           <li><a href="#">ABOUT US</a></li>
