@@ -14,7 +14,10 @@ object GiftCardPayloads {
   case class GiftCardCreatedByCustomer(balance: Int,
                                        currency: Currency = Currency.USD,
                                        subTypeId: Option[Int] = None,
-                                       details: Option[Json] = None,
+                                       senderName: String,
+                                       recipientName: String,
+                                       recipientEmail: String,
+                                       message: String,
                                        cordRef: String)
       extends Validation[GiftCardCreatedByCustomer] {
 
