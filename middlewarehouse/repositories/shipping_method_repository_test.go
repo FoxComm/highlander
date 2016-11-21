@@ -70,7 +70,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_NotFo
 	_, err := suite.repository.GetShippingMethodByID(1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorShippingMethodNotFound, 1), err)
+	suite.Equal(fmt.Errorf(ErrorShippingMethodNotFound, 1).Error(), err.ToString())
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_Found_ReturnsShippingMethodModel() {
@@ -106,7 +106,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_NotFou
 	_, err := suite.repository.UpdateShippingMethod(shippingMethod1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorShippingMethodNotFound, shippingMethod1.ID), err)
+	suite.Equal(fmt.Errorf(ErrorShippingMethodNotFound, shippingMethod1.ID).Error(), err.ToString())
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_Found_ReturnsUpdatedRecord() {
@@ -128,7 +128,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_DeleteShippingMethod_NotFou
 	err := suite.repository.DeleteShippingMethod(1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorShippingMethodNotFound, 1), err)
+	suite.Equal(fmt.Errorf(ErrorShippingMethodNotFound, 1).Error(), err.ToString())
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_DeleteShippingMethod_Found_ReturnsNoError() {
