@@ -69,7 +69,7 @@ func (repository *stockItemRepository) GetAFSByID(id uint, unitType models.UnitT
 
 	if err := repository.getAFSQuery(unitType).Where("si.id = ?", id).Find(afs).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, NewEntityNotFoundException(StockItemEntity, strconv.Itoa(int(id)), fmt.Errorf(ErrorStockItemNotFound, id))
+			return nil, NewAFSNotFoundByIDException(id, fmt.Errorf(ErrorStockItemNotFound, id))
 		}
 
 		return nil, NewDatabaseException(err)
@@ -82,6 +82,10 @@ func (repository *stockItemRepository) GetAFSBySKU(sku string, unitType models.U
 	afs := &models.AFS{}
 
 	if err := repository.getAFSQuery(unitType).Where("si.sku = ?", sku).Find(afs).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, NewAFSNotFoundBySKUException(sku, fmt.Errorf(ErrorStockItemNotFound, sku))
+		}
+
 		return nil, NewDatabaseException(err)
 	}
 
@@ -129,4 +133,40 @@ func (repository *stockItemRepository) getAFSQuery(unitType models.UnitType) *go
 		Select("si.id as stock_item_id, si.sku, s.afs").
 		Joins("left join stock_item_summaries s ON s.stock_item_id=si.id").
 		Where("s.type = ?", unitType)
+}
+
+type AFSNotFoundByIDException struct {
+	cls string `json:"type"`
+	id  uint
+	exceptions.Exception
+}
+
+func NewAFSNotFoundByIDException(id uint, error error) exceptions.IException {
+	if error == nil {
+		return nil
+	}
+
+	return AFSNotFoundByIDException{
+		cls:       "afsNotFoundByID",
+		id:        id,
+		Exception: exceptions.Exception{error},
+	}
+}
+
+type AFSNotFoundBySKUException struct {
+	cls string `json:"type"`
+	sku string
+	exceptions.Exception
+}
+
+func NewAFSNotFoundBySKUException(sku string, error error) exceptions.IException {
+	if error == nil {
+		return nil
+	}
+
+	return AFSNotFoundBySKUException{
+		cls:       "afsNotFoundBySKU",
+		sku:       sku,
+		Exception: exceptions.Exception{error},
+	}
 }
