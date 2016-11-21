@@ -72,12 +72,19 @@ func (controller *shippingMethodController) createShippingMethod() gin.HandlerFu
 		}
 
 		//try create
-		shippingMethod, err := controller.service.CreateShippingMethod(models.NewShippingMethodFromPayload(payload))
-		if err == nil {
-			context.JSON(http.StatusCreated, responses.NewShippingMethodFromModel(shippingMethod))
-		} else {
+		model, err := models.NewShippingMethodFromPayload(payload)
+		if err != nil {
 			handleServiceError(context, err)
+			return
 		}
+
+		shippingMethod, err := controller.service.CreateShippingMethod(model)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		context.JSON(http.StatusCreated, responses.NewShippingMethodFromModel(shippingMethod))
 	}
 }
 
@@ -96,7 +103,12 @@ func (controller *shippingMethodController) updateShippingMethod() gin.HandlerFu
 		}
 
 		//try update
-		model := models.NewShippingMethodFromPayload(payload)
+		model, err := models.NewShippingMethodFromPayload(payload)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
 		model.ID = id
 		shippingMethod, err := controller.service.UpdateShippingMethod(model)
 
