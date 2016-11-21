@@ -44,32 +44,33 @@ type Props = CheckoutState & CheckoutActions & {
   cart: Object,
   isAddressLoaded: boolean,
   location: Object,
-
-  deliveryInProgressError: boolean,
-  shippingInProgressError: boolean,
-  guestAuthInProgressError: boolean,
-  isPerformingCheckoutError: boolean,
 };
+
+type State = {
+  isPerformingCheckout: boolean,
+  deliveryInProgress: boolean,
+  shippingInProgress: boolean,
+  billingInProgress: boolean,
+  isProceedingCard: boolean,
+  guestAuthInProgress: boolean,
+  isScrolled: boolean,
+  errors: {
+    [stageName: string]: boolean,
+  },
+}
 
 class Checkout extends Component {
   props: Props;
 
-  state = {
+  state: State = {
     isPerformingCheckout: false,
     deliveryInProgress: false,
     shippingInProgress: false,
     billingInProgress: false,
     isProceedingCard: false,
     guestAuthInProgress: false,
-    error: null,
-
-    deliveryInProgressError: null,
-    shippingInProgressError: null,
-    guestAuthInProgressError: null,
-    isProceedingCardError: null,
-    isPerformingCheckoutError: null,
-
     isScrolled: false,
+    errors: {},
   };
 
   componentDidMount() {
@@ -116,18 +117,9 @@ class Checkout extends Component {
 
   @autobind
   performStageTransition(name: string, perform: () => PromiseType): PromiseType {
-    const errorName = `${name}Error`;
-    const clearError = {
-      deliveryInProgressError: null,
-      shippingInProgressError: null,
-      guestAuthInProgressError: null,
-      isProceedingCardError: null,
-      isPerformingCheckoutError: null,
-    };
-
     return new Promise(resolve => {
       this.setState({
-        ...clearError,
+        errors: {},
         [name]: true,
       }, () => {
         perform().then(
@@ -139,7 +131,9 @@ class Checkout extends Component {
           err => {
             this.setState({
               [name]: false,
-              [errorName]: err,
+              errors: {
+                [name]: err,
+              },
             }, resolve);
           }
         );
@@ -149,13 +143,11 @@ class Checkout extends Component {
 
   @autobind
   setShippingStage() {
-    this.setState({error: null});
     this.props.setEditStage(EditStages.SHIPPING);
   }
 
   @autobind
   setDeliveryStage() {
-    this.setState({error: null});
     return this.props.setEditStage(EditStages.DELIVERY);
   }
 
@@ -242,13 +234,6 @@ class Checkout extends Component {
     });
   }
 
-  errorsFor(stage) {
-    if (this.props.editStage === stage) {
-      const name = `${name}Error`;
-      return _.get(this.state, name);
-    }
-  }
-
   render() {
     const props = this.props;
 
@@ -268,7 +253,7 @@ class Checkout extends Component {
         />
 
         <div styleName="content">
-          <ErrorAlerts error={this.sanitizeError(this.state.isPerformingCheckoutError)} />
+          <ErrorAlerts error={this.sanitizeError(_.get(this.state.errors, 'isPerformingCheckout'))} />
           <div styleName="body">
             <div styleName="summary">
               <OrderSummary
@@ -285,7 +270,7 @@ class Checkout extends Component {
                 editAction={this.setShippingStage}
                 inProgress={this.state.shippingInProgress}
                 continueAction={this.saveShippingAddress}
-                error={this.state.shippingInProgressError}
+                error={_.get(this.state.errors, 'shippingInProgress')}
                 addresses={this.props.addresses}
                 fetchAddresses={this.props.fetchAddresses}
                 shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
@@ -303,7 +288,7 @@ class Checkout extends Component {
                 fetchShippingMethods={props.fetchShippingMethods}
                 inProgress={this.state.deliveryInProgress}
                 continueAction={this.setBillingState}
-                error={this.state.deliveryInProgressError}
+                error={_.get(this.state.errors, 'deliveryInProgress')}
               />
               <Billing
                 isEditing={props.editStage == EditStages.BILLING}
@@ -312,7 +297,7 @@ class Checkout extends Component {
                 editAction={this.setBillingState}
                 inProgress={this.state.isPerformingCheckout}
                 continueAction={this.placeOrder}
-                error={this.state.isProceedingCardError}
+                error={_.get(this.state.errors, 'isProceedingCard')}
                 isAddressLoaded={props.isAddressLoaded}
                 paymentMethods={_.get(props.cart, 'paymentMethods', [])}
                 proceedCreditCard={this.proceedCreditCard}
@@ -323,7 +308,7 @@ class Checkout extends Component {
             <GuestAuth
               isEditing={!this.isEmailSetForCheckout()}
               inProgress={this.state.guestAuthInProgress}
-              error={this.state.guestAuthInProgressError}
+              error={_.get(this.state.errors, 'guestAuthInProgress')}
               continueAction={this.startShipping}
               checkoutAfterSignIn={this.startShipping}
               location={this.props.location}
