@@ -247,7 +247,11 @@ export function checkout(): Function {
         referenceNumber: res.referenceNumber,
       });
       dispatch(orderPlaced(res));
-      return dispatch(updateCart(res));
+      return dispatch(updateCart({
+        ...res,
+        coupon: null,
+        promotion: null,
+      }));
     });
   };
 }
