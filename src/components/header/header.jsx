@@ -43,6 +43,12 @@ class Header extends React.Component {
     window.removeEventListener('scroll', this.checkScroll);
   }
 
+  componentWillUpdate(nextProps) {
+    if (this.props.path !== nextProps.path && this.props.isSearchActive) {
+      this.props.toggleSearch();
+    }
+  }
+
   checkScroll = () => {
     const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
     const isScrolled = scrollTop > 136;
