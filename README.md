@@ -57,6 +57,14 @@ then run
 npm run dev
 ```
 
+1.  Be sure to add a Google Analytics ID via the environment variable `GA_TRACKING_ID`
+
+For example, you might set a customer test/staging ID:
+
+```
+export GA_TRACKING_ID=UA-74320XXX-X
+npm run dev
+```
 
 ## Push hooks
 
