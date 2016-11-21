@@ -12,6 +12,8 @@ import (
 
 const (
 	ErrorStockItemNotFound = "Stock item with id=%d not found"
+	ErrorAFSNotFoundByID = "AFS with id=%d not found"
+	ErrorAFSNotFoundBySKU = "AFS for sku=%s not found"
 	StockItemEntity        = "stockItem"
 )
 
@@ -69,7 +71,7 @@ func (repository *stockItemRepository) GetAFSByID(id uint, unitType models.UnitT
 
 	if err := repository.getAFSQuery(unitType).Where("si.id = ?", id).Find(afs).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, NewAFSNotFoundByIDException(id, fmt.Errorf(ErrorStockItemNotFound, id))
+			return nil, NewAFSNotFoundByIDException(id, fmt.Errorf(ErrorAFSNotFoundByID, id))
 		}
 
 		return nil, NewDatabaseException(err)
@@ -83,7 +85,7 @@ func (repository *stockItemRepository) GetAFSBySKU(sku string, unitType models.U
 
 	if err := repository.getAFSQuery(unitType).Where("si.sku = ?", sku).Find(afs).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, NewAFSNotFoundBySKUException(sku, fmt.Errorf(ErrorStockItemNotFound, sku))
+			return nil, NewAFSNotFoundBySKUException(sku, fmt.Errorf(ErrorAFSNotFoundBySKU, sku))
 		}
 
 		return nil, NewDatabaseException(err)
