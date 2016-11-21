@@ -1,17 +1,23 @@
-  /* @flow */
+/* @flow */
 
+// libs
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import type { HTMLElement } from 'types';
-import type { Product } from 'modules/products';
-import styles from './search.css';
-
 import localized from 'lib/i18n';
-import type { Localized } from 'lib/i18n';
 
+// components
 import ProductsList from '../../components/products-list/products-list';
 
+// styles
+import styles from './search.css';
+
+// types
+import type { HTMLElement } from 'types';
+import type { Product } from 'modules/products';
+import type { Localized } from 'lib/i18n';
+
+// actions
 import { setTerm, fetch, resetSearchResults } from 'modules/search';
 
 type SearchParams = {
@@ -58,9 +64,10 @@ class Search extends Component {
 
     return (
       <div styleName="search">
-        <p styleName="search-title">
-          <span styleName="search-title__uppercase">{t('Search results for')}</span> "{term}"
-        </p>
+        <h1 styleName="search-title">
+          <span styleName="label">{t('Search results for')}</span>
+          <strong styleName="term">"{term}"</strong>
+        </h1>
         <ProductsList
           list={result}
           isLoading={this.props.isLoading}

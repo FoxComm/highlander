@@ -1,18 +1,22 @@
 // @flow
+
+// libs
 import _ from 'lodash';
 import React, { Component } from 'react';
-import styles from '../profile.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
 
+// components
 import { Link } from 'react-router';
 import Block from '../common/block';
 import Button from 'ui/buttons';
-import { TextInput } from 'ui/inputs';
 import ShowHidePassword from 'ui/forms/show-hide-password';
 import { Form, FormField } from 'ui/forms';
 import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
+
+// styles
+import styles from '../profile.css';
 
 import * as actions from 'modules/profile';
 
@@ -31,21 +35,21 @@ type Account = {
   email: string,
   isGuest: boolean,
   id: number,
-}
+};
 
 type ChangePasswordProps = {
   account: Account|{},
   fetchAccount: () => PromiseType,
   changePassword: (oldPassword: string, newPassword: string) => PromiseType,
   changeState: AsyncStatus,
-}
+};
 
 type State = {
   currentPassword: string,
   newPassword1: string,
   newPassword2: string,
   error: any,
-}
+};
 
 class ChangePassword extends Component {
   static title = 'Change password';
@@ -73,7 +77,13 @@ class ChangePassword extends Component {
 
     if (newPassword1 != newPassword2) {
       return Promise.reject({
-        newPassword2: 'Passwords must match',
+        newPassword2: 'Your passwords must match.',
+      });
+    }
+
+    if (currentPassword == newPassword1) {
+      return Promise.reject({
+        newPassword1: 'Your new password must be different than your old password.',
       });
     }
 
@@ -93,7 +103,7 @@ class ChangePassword extends Component {
         <div styleName="section">Use this form to change your password.</div>
         <Form onChange={this.handleFormChange} onSubmit={this.handleSave}>
           <FormField name="currentPassword" styleName="form-field" required>
-            <TextInput
+            <ShowHidePassword
               placeholder="CURRENT PASSWORD"
               styleName="text-input"
               value={this.state.currentPassword}
@@ -106,6 +116,7 @@ class ChangePassword extends Component {
               styleName="text-input"
               value={this.state.newPassword1}
               name="newPassword1"
+              minLength={8}
             />
           </FormField>
           <FormField name="newPassword2" styleName="form-field" required>
@@ -114,6 +125,7 @@ class ChangePassword extends Component {
               styleName="text-input"
               value={this.state.newPassword2}
               name="newPassword2"
+              minLength={8}
             />
           </FormField>
           <ErrorAlerts error={this.state.error} />

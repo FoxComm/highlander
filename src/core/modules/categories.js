@@ -7,21 +7,21 @@ function apiCall(): Promise {
   const result = [
     {
       id: 0,
-      name: 'ALL',
-      description: '',
-      imageUrl: '',
-    },
-    {
-      id: 1,
       name: 'APPETIZERS',
       description: 'Starters in 10 Minutes',
       imageUrl: '/images/categories/Cat_Appetizers_2x.jpg',
     },
     {
-      id: 2,
+      id: 1,
       name: 'ENTRÉES',
       description: 'Dinner in 30 minutes',
       imageUrl: '/images/categories/Cat_Entrees_2x.jpg',
+    },
+    {
+      id: 2,
+      name: 'SIDES',
+      description: '',
+      imageUrl: '/images/categories/Cat_Sides_2x.jpg',
     },
     {
       id: 3,
@@ -42,7 +42,7 @@ function apiCall(): Promise {
       imageUrl: '',
     },
     {
-      id: 5,
+      id: 6,
       name: 'HOLIDAY',
       description: '',
       imageUrl: '',

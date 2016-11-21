@@ -56,7 +56,9 @@
   }
 
   .navigation {
-    display: block;
+    height: 86px;
+    display: flex;
+    justify-content: center;
   }
 
   .hamburger {
@@ -68,8 +70,12 @@
   }
 
   .search {
-    width: 115px;
+    width: 35%;
     height: 48px;
+  }
+
+  .tools {
+    width: 35%;
   }
 
   .header {
@@ -80,9 +86,6 @@
       top: 136px;
       width: 100%;
       left: 0;
-      height: 86px;
-      display: flex;
-      justify-content: center;
       box-shadow: 0 0 0 1px var(--border-color);
     }
   }
@@ -91,6 +94,18 @@
     & :global(.icon--fc-logo) {
       width: 130px;
       height: 62px;
+    }
+
+    & .navigation {
+      margin-left: 20px;
+    }
+
+    & .search{
+      width: 50px;
+    }
+
+    & .tools {
+      width: auto;
     }
   }
 }

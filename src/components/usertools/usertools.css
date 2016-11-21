@@ -111,3 +111,7 @@
     cursor: default;
   }
 }
+
+@media (--large) {
+
+}
