@@ -42,36 +42,6 @@
   letter-spacing: 1.69px;
 }
 
-.email {
-  display: flex;
-  margin-bottom: 40px;
-
-  & input {
-    width: 100%;
-    padding-left: 12px;
-    border: none;
-    font-size: 15px;
-    font-weight: 400;
-    background-color: rgba(255, 255, 255, .13);
-    color: #fff;
-
-    &:focus {
-      background: rgba(255, 255, 255, .5);
-      color: var(--additional-color);
-    }
-  }
-
-  & .button {
-    padding: 0 1.6em;
-    text-transform: uppercase;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--additional-color);
-    background: #fff;
-    border: none;
-  }
-}
-
 .links {
   margin-bottom: 40px;
   font-size: 15px;
@@ -151,11 +121,6 @@
     letter-spacing: 1.69px;
   }
 
-  .email {
-    lost-column: 8/10;
-    lost-offset: -1/10;
-  }
-
   .social-links {
     lost-column: 6/10;
     lost-offset: -2/10;
@@ -178,10 +143,6 @@
 
   .subtitle {
     margin-bottom: 12px;
-  }
-
-  .email {
-    margin-bottom: 70px;
   }
 
   .links {
@@ -237,18 +198,6 @@
   .subtitle {
     font-size: 16px;
     letter-spacing: 1.81px;
-  }
-
-  .email {
-    & input {
-      padding-left: 20px;
-    }
-
-    & .button {
-      &:hover {
-        opacity: .7;
-      }
-    }
   }
 
   .social-links {
