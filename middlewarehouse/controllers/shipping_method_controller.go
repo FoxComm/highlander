@@ -39,7 +39,13 @@ func (controller *shippingMethodController) getShippingMethods() gin.HandlerFunc
 		//convert to responses slice
 		response := make([]*responses.ShippingMethod, len(shippingMethods))
 		for i := range shippingMethods {
-			response[i] = responses.NewShippingMethodFromModel(shippingMethods[i])
+			resp, err := responses.NewShippingMethodFromModel(shippingMethods[i])
+			if err != nil {
+				handleServiceError(context, err)
+				return
+			}
+
+			response[i] = resp
 		}
 		context.JSON(http.StatusOK, response)
 	}
@@ -55,11 +61,18 @@ func (controller *shippingMethodController) getShippingMethodByID() gin.HandlerF
 
 		//get shippingMethod by id
 		shippingMethod, err := controller.service.GetShippingMethodByID(id)
-		if err == nil {
-			context.JSON(http.StatusOK, responses.NewShippingMethodFromModel(shippingMethod))
-		} else {
+		if err != nil {
 			handleServiceError(context, err)
+			return
 		}
+
+		resp, err := responses.NewShippingMethodFromModel(shippingMethod)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		context.JSON(http.StatusOK, resp)
 	}
 }
 
@@ -84,7 +97,13 @@ func (controller *shippingMethodController) createShippingMethod() gin.HandlerFu
 			return
 		}
 
-		context.JSON(http.StatusCreated, responses.NewShippingMethodFromModel(shippingMethod))
+		resp, err := responses.NewShippingMethodFromModel(shippingMethod)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		context.JSON(http.StatusCreated, resp)
 	}
 }
 
@@ -111,12 +130,18 @@ func (controller *shippingMethodController) updateShippingMethod() gin.HandlerFu
 
 		model.ID = id
 		shippingMethod, err := controller.service.UpdateShippingMethod(model)
-
-		if err == nil {
-			context.JSON(http.StatusOK, responses.NewShippingMethodFromModel(shippingMethod))
-		} else {
+		if err != nil {
 			handleServiceError(context, err)
+			return
 		}
+
+		resp, err := responses.NewShippingMethodFromModel(shippingMethod)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		context.JSON(http.StatusOK, resp)
 	}
 }
 
