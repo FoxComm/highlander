@@ -13,6 +13,4 @@ openssl rsa -in $DIR/private_key.pem -pubout -outform DER -out $DIR/public_key.d
 openssl rsa -in $DIR/private_key.pem -pubout -outform PEM -out $DIR/public_key.pem
 
 ansible-vault encrypt $DIR/private_key.pem
-ansible-vault encrypt $DIR/public_key.pem
 ansible-vault encrypt $DIR/private_key.der
-ansible-vault encrypt $DIR/public_key.der
