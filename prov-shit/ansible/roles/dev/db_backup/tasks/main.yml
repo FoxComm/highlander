@@ -40,7 +40,7 @@
   sudo: true
 
 - name: Setup Marketplace Database Backup Cron
-  cron: name="marketplace db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh /mnt/backups/{{ansible_hostname}}_{{middlewarehouse_db_name}}_$(date +%F_%H_%M) {{marketplace_db_name}}"
+  cron: name="marketplace db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh /mnt/backups/{{ansible_hostname}}_{{marketplace_db_name}}_$(date +%F_%H_%M) {{marketplace_db_name}}"
   sudo: true
   when: with_marketplace
 
