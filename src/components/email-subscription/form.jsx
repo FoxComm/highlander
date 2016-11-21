@@ -5,7 +5,7 @@ import { autobind } from 'core-decorators';
 
 import Button from 'ui/buttons';
 import { TextInput } from 'ui/inputs';
-import { Form, FormField } from 'ui/forms';
+import { FormField } from 'ui/forms';
 
 import styles from './form.css';
 
@@ -24,7 +24,7 @@ export default class SubscriptionForm extends Component {
   state: State = {
     email: '',
     error: null,
-  }
+  };
 
   @autobind
   onEmailChange(value: string) {
@@ -32,7 +32,7 @@ export default class SubscriptionForm extends Component {
   }
 
   @autobind
-  validateAndSubmit(e) {
+  validateAndSubmit(e: Object) {
     const { email } = this.state;
     if (!validateEmail(email)) {
       e.preventDefault();

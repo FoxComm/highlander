@@ -11,8 +11,6 @@ import verifyJwt from './verify-jwt';
 import onerror from 'koa-onerror';
 import moment from 'moment';
 import chalk from 'chalk';
-import bodyParser from 'koa-bodyparser';
-import mandrillRouter from './routes/mandrill';
 
 function timestamp() {
   return moment().format('D MMM H:mm:ss');
@@ -24,18 +22,12 @@ export default class App extends KoaApp {
     super(...args);
     onerror(this);
 
-    if (process.env.MAILCHIMP_API_KEY === void 0) {
-      throw new Error('Can\'t load MAILCHIMP_API_KEY from environment.');
-    }
-
     this.use(serve('public'))
       .use(favicon('public/favicon.png'))
       .use(makeApiProxy())
       .use(makeElasticProxy())
-      .use(bodyParser())
       .use(zipcodes.routes())
       .use(zipcodes.allowedMethods())
-      .use(mandrillRouter(process.env.MAILCHIMP_API_KEY))
       .use(verifyJwt)
       .use(loadI18n)
       .use(renderReact);
