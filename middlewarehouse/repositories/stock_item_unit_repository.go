@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	ErrorNotEnoughStockItemUnits = "Not enough units of status %s for stock item %d of type %v."
+	ErrorNotEnoughStockItemUnits = "Oops! Looks like SKU %s is out of stock. Please remove it from the cart to complete checkout."
 )
 
 type stockItemUnitRepository struct {
@@ -68,9 +68,11 @@ func (repository *stockItemUnitRepository) GetStockItemUnitIDs(stockItemID uint,
 	}
 
 	if len(ids) < count {
-		err := fmt.Errorf(ErrorNotEnoughStockItemUnits, unitStatus, stockItemID, unitType)
+		stockItem := &models.StockItem{}
+		repository.db.First(stockItem, stockItemID)
+		err := fmt.Errorf(ErrorNotEnoughStockItemUnits, stockItem.SKU)
 
-		return ids, NewDatabaseException(err)
+		return ids, NewOutOfStockException(stockItem.SKU, count, len(ids), unitStatus, unitType, err)
 	}
 
 	return ids, nil
@@ -151,13 +153,15 @@ func (repository *stockItemUnitRepository) GetReleaseQtyByRefNum(refNum string) 
 	return res, NewDatabaseException(err)
 }
 
-
 // Entity was not found exception
 type outOfStockException struct {
-	cls      string
-	entity   string
-	entityId string
-	error    error
+	cls        string `json:"type"`
+	sku        string
+	wanted     uint
+	have       uint
+	unitStatus models.UnitStatus
+	unitType   models.UnitType
+	error      error
 }
 
 func (exception outOfStockException) ToString() string {
@@ -168,15 +172,18 @@ func (exception outOfStockException) ToJSON() interface{} {
 	return exception
 }
 
-func NewOutOfStockException(entity string, entityId string, error error) exceptions.IException {
+func NewOutOfStockException(sku string, wanted uint, have uint, unitStatus models.UnitStatus, unitType models.UnitType, error error) exceptions.IException {
 	if error == nil {
 		return nil
 	}
 
 	return outOfStockException{
-		cls:      "outOfStock",
-		entity:   entity,
-		entityId: entityId,
-		error:    error,
+		cls:        "outOfStock",
+		sku:        sku,
+		wanted:     wanted,
+		have:       have,
+		unitStatus: unitStatus,
+		unitType:   unitType,
+		error:      error,
 	}
 }

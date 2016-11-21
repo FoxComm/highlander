@@ -6,7 +6,7 @@ import (
 
 // Generic database exception
 type databaseException struct {
-	cls   string
+	cls      string `json:"type"`
 	error error
 }
 
@@ -31,7 +31,7 @@ func NewDatabaseException(error error) exceptions.IException {
 
 // Entity was not found exception
 type entityNotFoundException struct {
-	cls      string
+	cls      string `json:"type"`
 	entity   string
 	entityId string
 	error    error
