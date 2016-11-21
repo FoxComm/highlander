@@ -6,16 +6,8 @@ import (
 
 // Generic database exception
 type databaseException struct {
-	cls      string `json:"type"`
-	error error
-}
-
-func (exception databaseException) ToString() string {
-	return exception.error.Error()
-}
-
-func (exception databaseException) ToJSON() interface{} {
-	return exception
+	cls string `json:"type"`
+	exceptions.Exception
 }
 
 func NewDatabaseException(error error) exceptions.IException {
@@ -24,8 +16,8 @@ func NewDatabaseException(error error) exceptions.IException {
 	}
 
 	return databaseException{
-		cls:   "database",
-		error: error,
+		cls: "database",
+		Exception: exceptions.Exception{error},
 	}
 }
 
@@ -34,15 +26,7 @@ type entityNotFoundException struct {
 	cls      string `json:"type"`
 	entity   string
 	entityId string
-	error    error
-}
-
-func (exception entityNotFoundException) ToString() string {
-	return exception.error.Error()
-}
-
-func (exception entityNotFoundException) ToJSON() interface{} {
-	return exception
+	exceptions.Exception
 }
 
 func NewEntityNotFoundException(entity string, entityId string, error error) exceptions.IException {
@@ -51,9 +35,9 @@ func NewEntityNotFoundException(entity string, entityId string, error error) exc
 	}
 
 	return entityNotFoundException{
-		cls:      "entityNotFound",
-		entity:   entity,
-		entityId: entityId,
-		error:    error,
+		cls:       "entityNotFound",
+		entity:    entity,
+		entityId:  entityId,
+		Exception: exceptions.Exception{error},
 	}
 }
