@@ -114,7 +114,7 @@ func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_NotFound_ReturnsNo
 	_, err := suite.repository.UpdateShipment(shipment1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorShipmentNotFound, shipment1.ID), err)
+	suite.Equal(fmt.Errorf(ErrorShipmentNotFound, shipment1.ID).Error(), err.ToString())
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_Found_ReturnsUpdatedRecord() {
@@ -137,7 +137,7 @@ func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_NotFound_ReturnsNo
 	err := suite.repository.DeleteShipment(1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorShipmentNotFound, 1), err)
+	suite.Equal(fmt.Errorf(ErrorShipmentNotFound, 1).Error(), err.ToString())
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_Found_ReturnsNoError() {

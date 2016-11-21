@@ -11,7 +11,7 @@ import (
 
 const (
 	ErrorShipmentLineItemNotFound = "Shipment line item with id=%d not found"
-	shipmentLineItemEntity = "shipmentLineItemEntity"
+	shipmentLineItemEntity = "shipmentLineItem"
 )
 
 type IShipmentLineItemRepository interface {
