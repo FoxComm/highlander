@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/jinzhu/gorm"
@@ -18,40 +19,40 @@ type stockItemUnitRepository struct {
 }
 
 type IStockItemUnitRepository interface {
-	GetStockItemUnitIDs(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error)
-	GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, error)
-	HoldUnitsInOrder(refNum string, ids []uint) (int, error)
-	ReserveUnitsInOrder(refNum string) (int, error)
-	UnsetUnitsInOrder(refNum string) (int, error)
-	GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, error)
+	GetStockItemUnitIDs(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, exceptions.IException)
+	GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, exceptions.IException)
+	HoldUnitsInOrder(refNum string, ids []uint) (int, exceptions.IException)
+	ReserveUnitsInOrder(refNum string) (int, exceptions.IException)
+	UnsetUnitsInOrder(refNum string) (int, exceptions.IException)
+	GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, exceptions.IException)
 
-	GetReleaseQtyByRefNum(refNum string) ([]*models.Release, error)
+	GetReleaseQtyByRefNum(refNum string) ([]*models.Release, exceptions.IException)
 
-	CreateUnits(units []*models.StockItemUnit) error
-	DeleteUnits(ids []uint) error
+	CreateUnits(units []*models.StockItemUnit) exceptions.IException
+	DeleteUnits(ids []uint) exceptions.IException
 }
 
 func NewStockItemUnitRepository(db *gorm.DB) IStockItemUnitRepository {
 	return &stockItemUnitRepository{db}
 }
 
-func (repository *stockItemUnitRepository) CreateUnits(units []*models.StockItemUnit) error {
+func (repository *stockItemUnitRepository) CreateUnits(units []*models.StockItemUnit) exceptions.IException {
 	txn := repository.db.Begin()
 	for _, v := range units {
 		if err := txn.Create(v).Error; err != nil {
 			txn.Rollback()
-			return err
+			return NewDatabaseException(err)
 		}
 	}
 
-	return txn.Commit().Error
+	return NewDatabaseException(txn.Commit().Error)
 }
 
-func (repository *stockItemUnitRepository) DeleteUnits(ids []uint) error {
-	return repository.db.Delete(models.StockItemUnit{}, "id in (?)", ids).Error
+func (repository *stockItemUnitRepository) DeleteUnits(ids []uint) exceptions.IException {
+	return NewDatabaseException(repository.db.Delete(models.StockItemUnit{}, "id in (?)", ids).Error)
 }
 
-func (repository *stockItemUnitRepository) GetStockItemUnitIDs(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error) {
+func (repository *stockItemUnitRepository) GetStockItemUnitIDs(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, exceptions.IException) {
 	var ids []uint
 	err := repository.db.Model(&models.StockItemUnit{}).
 		Limit(count).
@@ -63,19 +64,19 @@ func (repository *stockItemUnitRepository) GetStockItemUnitIDs(stockItemID uint,
 		Error
 
 	if err != nil {
-		return ids, err
+		return ids, NewDatabaseException(err)
 	}
 
 	if len(ids) < count {
 		err := fmt.Errorf(ErrorNotEnoughStockItemUnits, unitStatus, stockItemID, unitType)
 
-		return ids, err
+		return ids, NewDatabaseException(err)
 	}
 
 	return ids, nil
 }
 
-func (repository *stockItemUnitRepository) GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, error) {
+func (repository *stockItemUnitRepository) GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, exceptions.IException) {
 	var units []*models.StockItemUnit
 	err := repository.db.
 		Preload("StockItem").
@@ -84,13 +85,13 @@ func (repository *stockItemUnitRepository) GetUnitsInOrder(refNum string) ([]*mo
 		Error
 
 	if err != nil {
-		return nil, err
+		return nil, NewDatabaseException(err)
 	}
 
 	return units, nil
 }
 
-func (repository *stockItemUnitRepository) GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, error) {
+func (repository *stockItemUnitRepository) GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, exceptions.IException) {
 	unit := new(models.StockItemUnit)
 	err := repository.db.
 		Joins("JOIN stock_items ON stock_items.id = stock_item_units.stock_item_id").
@@ -100,10 +101,10 @@ func (repository *stockItemUnitRepository) GetUnitForLineItem(refNum string, sku
 		First(unit).
 		Error
 
-	return unit, err
+	return unit, NewDatabaseException(err)
 }
 
-func (repository *stockItemUnitRepository) HoldUnitsInOrder(refNum string, ids []uint) (int, error) {
+func (repository *stockItemUnitRepository) HoldUnitsInOrder(refNum string, ids []uint) (int, exceptions.IException) {
 	updateWith := models.StockItemUnit{
 		RefNum: sql.NullString{String: refNum, Valid: true},
 		Status: models.StatusOnHold,
@@ -111,20 +112,20 @@ func (repository *stockItemUnitRepository) HoldUnitsInOrder(refNum string, ids [
 
 	result := repository.db.Model(&models.StockItemUnit{}).Where("id in (?)", ids).Updates(updateWith)
 
-	return int(result.RowsAffected), result.Error
+	return int(result.RowsAffected), NewDatabaseException(result.Error)
 }
 
-func (repository *stockItemUnitRepository) ReserveUnitsInOrder(refNum string) (int, error) {
+func (repository *stockItemUnitRepository) ReserveUnitsInOrder(refNum string) (int, exceptions.IException) {
 	updateWith := models.StockItemUnit{
 		Status: models.StatusReserved,
 	}
 
 	result := repository.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)
 
-	return int(result.RowsAffected), result.Error
+	return int(result.RowsAffected), NewDatabaseException(result.Error)
 }
 
-func (repository *stockItemUnitRepository) UnsetUnitsInOrder(refNum string) (int, error) {
+func (repository *stockItemUnitRepository) UnsetUnitsInOrder(refNum string) (int, exceptions.IException) {
 	// gorm does not update empty fields when updating with struct, so use map here
 	updateWith := map[string]interface{}{
 		"ref_num": sql.NullString{String: "", Valid: false},
@@ -133,10 +134,10 @@ func (repository *stockItemUnitRepository) UnsetUnitsInOrder(refNum string) (int
 
 	result := repository.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)
 
-	return int(result.RowsAffected), result.Error
+	return int(result.RowsAffected), NewDatabaseException(result.Error)
 }
 
-func (repository *stockItemUnitRepository) GetReleaseQtyByRefNum(refNum string) ([]*models.Release, error) {
+func (repository *stockItemUnitRepository) GetReleaseQtyByRefNum(refNum string) ([]*models.Release, exceptions.IException) {
 	res := []*models.Release{}
 
 	err := repository.db.Table("stock_item_units u").
@@ -147,5 +148,35 @@ func (repository *stockItemUnitRepository) GetReleaseQtyByRefNum(refNum string) 
 		Find(&res).
 		Error
 
-	return res, err
+	return res, NewDatabaseException(err)
+}
+
+
+// Entity was not found exception
+type outOfStockException struct {
+	cls      string
+	entity   string
+	entityId string
+	error    error
+}
+
+func (exception outOfStockException) ToString() string {
+	return exception.error.Error()
+}
+
+func (exception outOfStockException) ToJSON() interface{} {
+	return exception
+}
+
+func NewOutOfStockException(entity string, entityId string, error error) exceptions.IException {
+	if error == nil {
+		return nil
+	}
+
+	return outOfStockException{
+		cls:      "outOfStock",
+		entity:   entity,
+		entityId: entityId,
+		error:    error,
+	}
 }
