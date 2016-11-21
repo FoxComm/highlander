@@ -51,6 +51,10 @@ type State = {
   cardAdded: boolean,
 };
 
+function numbersComparator(value1, value2) {
+  return Number(value1) === Number(value2);
+}
+
 class EditBilling extends Component {
   props: Props;
 
@@ -274,7 +278,7 @@ class EditBilling extends Component {
                   placeholder: t('MONTH'),
                   type: 'text',
                 }}
-                compareValues={(value1, value2) => Number(value1) == Number(value2)}
+                compareValues={numbersComparator}
                 getItemValue={item => item}
                 items={months}
                 onSelect={this.changeMonth}
@@ -285,8 +289,9 @@ class EditBilling extends Component {
               <Autocomplete
                 inputProps={{
                   placeholder: t('YEAR'),
-                  type: 'number',
+                  type: 'text',
                 }}
+                compareValues={numbersComparator}
                 allowCustomValues
                 getItemValue={item => item}
                 items={years}
