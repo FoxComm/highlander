@@ -157,22 +157,14 @@ func (repository *stockItemUnitRepository) GetReleaseQtyByRefNum(refNum string) 
 type outOfStockException struct {
 	cls        string `json:"type"`
 	sku        string
-	wanted     uint
-	have       uint
+	wanted     int
+	have       int
 	unitStatus models.UnitStatus
 	unitType   models.UnitType
-	error      error
+	exceptions.Exception
 }
 
-func (exception outOfStockException) ToString() string {
-	return exception.error.Error()
-}
-
-func (exception outOfStockException) ToJSON() interface{} {
-	return exception
-}
-
-func NewOutOfStockException(sku string, wanted uint, have uint, unitStatus models.UnitStatus, unitType models.UnitType, error error) exceptions.IException {
+func NewOutOfStockException(sku string, wanted int, have int, unitStatus models.UnitStatus, unitType models.UnitType, error error) exceptions.IException {
 	if error == nil {
 		return nil
 	}
@@ -184,6 +176,6 @@ func NewOutOfStockException(sku string, wanted uint, have uint, unitStatus model
 		have:       have,
 		unitStatus: unitStatus,
 		unitType:   unitType,
-		error:      error,
+		Exception:  exceptions.Exception{error},
 	}
 }
