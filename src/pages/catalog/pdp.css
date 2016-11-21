@@ -112,10 +112,8 @@
 }
 
 .additional-info {
-  height: 560px;
   background-color: #3E3436;
   width: 100%;
-  margin-bottom: 20px;
   color: white;
   display: flex;
   justify-content: center;
@@ -183,7 +181,7 @@
   }
 
   .info-block {
-    padding: 0 180px;
+    /* padding: 0 180px; */
     margin-top: 70px;
     height: auto;
   }
@@ -212,7 +210,7 @@
   }
 
   .info-block {
-    padding: 0 60px;
+    /* padding: 0 60px; */
   }
 }
 

@@ -17,6 +17,7 @@ import ChangePassword from './components/profile/blocks/change-password';
 import Order from './components/profile/blocks/order';
 import StoresPage from './pages/stores/stores-page';
 import HomePage from './pages/home/home-page';
+import FAQPage from './pages/static/faqs-page';
 
 import Checkout from './pages/checkout/checkout';
 import OrderPlaced from './pages/checkout/04-order-placed/order-placed';
@@ -38,6 +39,7 @@ const routes = (
       <Route path="/shipping-and-returns" component={ShippingAndReturns} name="shipping-and-returns" />
       <Route path="/privacy-policy" component={PrivacyPolicy} name="privacy-policy" />
       <Route path="/terms-of-use" component={TermsOfUse} name="terms-of-use" />
+      <Route path="/frequently-asked-questions" component={FAQPage} name="frequently-asked-questions" />
       <Route path="/stores" component={StoresPage} name="stores" />
       <Route path="/checkout/done" component={OrderPlaced} />
       <Route path="/products/:productId" component={Pdp} name="product" />

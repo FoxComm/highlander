@@ -4,8 +4,9 @@ import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';
 import createAsyncActions from './async-utils';
-import { updateCart } from 'modules/cart';
+import { updateCart, resetCreditCard } from 'modules/cart';
 import { api as foxApi } from '../lib/api';
+import * as tracking from 'lib/analytics';
 
 import type { Address } from 'types/address';
 
@@ -226,7 +227,11 @@ export function updateCreditCard(id, billingAddressIsSame: boolean): Function {
 }
 
 export function deleteCreditCard(id): Function {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    const cartState = getState().cart;
+    if (_.get(cartState, 'creditCard.id') == id) {
+      dispatch(resetCreditCard());
+    }
     return foxApi.creditCards.delete(id)
       .then(() => dispatch(fetchCreditCards()));
   };
@@ -234,8 +239,13 @@ export function deleteCreditCard(id): Function {
 
 // Place order from cart.
 export function checkout(): Function {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    const cartState = getState().cart;
     return foxApi.cart.checkout().then(res => {
+      tracking.purchase({
+        ...cartState,
+        referenceNumber: res.referenceNumber,
+      });
       dispatch(orderPlaced(res));
       return dispatch(updateCart(res));
     });

@@ -5,6 +5,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import * as tracking from 'lib/analytics';
 
 // components
 import Radiobutton from 'ui/radiobutton/radiobutton';
@@ -39,6 +40,7 @@ class EditDelivery extends Component {
   handleSubmit() {
     const { selectedShippingMethod: selectedMethod } = this.props;
     if (selectedMethod) {
+      tracking.chooseShippingMethod(selectedMethod.code || selectedMethod.name);
       this.props.continueAction();
     }
   }

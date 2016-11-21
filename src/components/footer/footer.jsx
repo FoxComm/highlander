@@ -28,7 +28,7 @@ const Footer = () : HTMLElement => {
           <li><a href="#">ABOUT US</a></li>
           <li><Link to="/stores">STORES</Link></li>
           <li><Link to="/gift-cards">GIFT CARDS</Link></li>
-          <li><a href="#">FAQ</a></li>
+          <li><Link to="/frequently-asked-questions">FAQ</Link></li>
           <li><Link to="/shipping-and-returns">SHIPPING & RETURNS</Link></li>
         </ul>
 

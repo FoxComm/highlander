@@ -8,6 +8,7 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { addLineItem, toggleCart } from 'modules/cart';
 import { connect } from 'react-redux';
+import * as tracking from 'lib/analytics';
 
 import AddToCartBtn from 'ui/add-to-cart-btn';
 import Currency from 'ui/currency';
@@ -27,6 +28,7 @@ type Album = {
 
 type Product = {
   id: number,
+  index: number,
   productId: number,
   context: string,
   title: string,
@@ -35,6 +37,7 @@ type Product = {
   currency: string,
   albums: ?Array<Album> | Object,
   skus: Array<string>,
+  tags?: Array<string>,
   addLineItem: Function,
   toggleCart: Function,
 };
@@ -52,10 +55,11 @@ class ListItem extends React.Component {
   };
 
   @autobind
-  addToCart () {
+  addToCart() {
     const skuId = this.props.skus[0];
     const quantity = 1;
 
+    tracking.addToCart(this.props, quantity);
     this.props.addLineItem(skuId, quantity)
       .then(() => {
         this.props.toggleCart();
@@ -71,8 +75,19 @@ class ListItem extends React.Component {
     const previewImageUrl = _.get(this.props.albums, [0, 'images', 0, 'src']);
 
     return previewImageUrl
-      ? <img src={previewImageUrl} styleName="preview-image"/>
-      : <ImagePlaceholder/>;
+      ? <img src={previewImageUrl} styleName="preview-image" ref="image" />
+      : <ImagePlaceholder ref="image" />;
+  }
+
+  getImageNode() {
+    return this.refs.image;
+  }
+
+  @autobind
+  handleClick() {
+    const { props } = this;
+
+    tracking.clickPdp(props, props.index);
   }
 
   render(): HTMLElement {
@@ -86,7 +101,7 @@ class ListItem extends React.Component {
 
     return (
       <div styleName="list-item">
-        <Link to={`/products/${productId}`}>
+        <Link onClick={this.handleClick} to={`/products/${productId}`}>
           <div styleName="preview">
             {this.image}
             <div styleName="hover-info">
@@ -119,4 +134,4 @@ class ListItem extends React.Component {
 export default connect(null, {
   addLineItem,
   toggleCart,
-})(ListItem);
+}, void 0, { withRef: true })(ListItem);
