@@ -8,25 +8,23 @@ import { connect } from 'react-redux';
 import * as tracking from 'lib/analytics';
 
 // components
-import Radiobutton from 'ui/radiobutton/radiobutton';
+import RadioButton from 'ui/radiobutton/radiobutton';
 import Loader from 'ui/loader';
 import CheckoutForm from '../checkout-form';
 
 // styles
 import styles from './delivery.css';
 
-// actions
-import { selectShippingMethod } from 'modules/cart';
 
 type Props = {
   continueAction: Function,
   shippingMethods: Array<any>,
-  selectedShippingMethod: ?Object,
-  selectShippingMethod: Function,
+  cart: Object,
   fetchShippingMethods: Function,
   shippingMethodCost: Function,
   isLoading: boolean,
   error: ?Array<any>,
+  onUpdateCart: (cart: Object) => void,
 };
 
 class EditDelivery extends Component {
@@ -38,30 +36,37 @@ class EditDelivery extends Component {
 
   @autobind
   handleSubmit() {
-    const { selectedShippingMethod: selectedMethod } = this.props;
+    const selectedMethod = this.props.cart.shippingMethod;
     if (selectedMethod) {
       tracking.chooseShippingMethod(selectedMethod.code || selectedMethod.name);
       this.props.continueAction();
     }
   }
 
+  setShippingMethod(shippingMethod) {
+    this.props.onUpdateCart({
+      ...this.props.cart,
+      shippingMethod,
+    });
+  }
+
   get shippingMethods() {
-    const { shippingMethods, selectedShippingMethod: selectedMethod } = this.props;
+    const { shippingMethods, cart } = this.props;
 
     return shippingMethods.map(shippingMethod => {
       const cost = this.props.shippingMethodCost(shippingMethod.price);
-      const checked = selectedMethod && selectedMethod.id == shippingMethod.id;
+      const checked = cart.shippingMethod && cart.shippingMethod.id == shippingMethod.id;
 
       return (
         <div key={shippingMethod.id} styleName="shipping-method">
-          <Radiobutton
+          <RadioButton
             name="delivery"
             checked={checked || false}
-            onChange={() => this.props.selectShippingMethod(shippingMethod)}
+            onChange={() => this.setShippingMethod(shippingMethod)}
             id={`delivery${shippingMethod.id}`}
           >
             {shippingMethod.name}
-          </Radiobutton>
+          </RadioButton>
           <div styleName="price">{cost}</div>
         </div>
       );
@@ -93,4 +98,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { selectShippingMethod })(EditDelivery);
+export default connect(mapStateToProps)(EditDelivery);
