@@ -83,6 +83,7 @@
     align-self: flex-start;
     margin: 0 auto;
     margin-top: -10px;
+    z-index: -1;
   }
 }
 

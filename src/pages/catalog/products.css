@@ -3,7 +3,6 @@
 @import "colors";
 
 .catalog {
-  background-color: #EBEAEA;
   overflow: auto;
 }
 
