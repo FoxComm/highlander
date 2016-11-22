@@ -31,20 +31,20 @@ function apiCall(): Promise {
     },
     {
       id: 4,
-      name: 'GIFT CARDS',
-      description: 'Gift cards will be here',
-      imageUrl: '',
-    },
-    {
-      id: 5,
       name: 'FAVORITES',
       description: '',
       imageUrl: '',
     },
     {
-      id: 6,
+      id: 5,
       name: 'HOLIDAY',
       description: '',
+      imageUrl: '',
+    },
+    {
+      id: 6,
+      name: 'GIFT CARDS',
+      description: 'Gift cards will be here',
       imageUrl: '',
     },
   ];
