@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
@@ -23,7 +24,7 @@ type GiftCardHandler struct {
 }
 
 //NewGiftCardConsumer creates a new consumer for gifcards
-func NewGiftCardConsumer(client lib.PhoenixClient) (*GiftCardHandler, error) {
+func NewGiftCardConsumer(client lib.PhoenixClient) (*GiftCardHandler, exceptions.IException) {
 	return &GiftCardHandler{client}, nil
 }
 
@@ -43,7 +44,7 @@ func justGiftCards(oli []payloads.OrderLineItem) bool {
 func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error {
 	activity, err := activities.NewActivityFromAvro(message)
 	if err != nil {
-		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
+		return fmt.Errorf("Unable to decode Avro message with error %s", err.ToString())
 	}
 
 	if activity.Type() != activityOrderStateChanged {
@@ -52,7 +53,7 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 
 	fullOrder, err := shared.NewFullOrderFromActivity(activity)
 	if err != nil {
-		return fmt.Errorf("Unable to decode order from activity with error %s", err.Error())
+		return fmt.Errorf("Unable to decode order from activity with error %s", err.ToString())
 	}
 
 	order := fullOrder.Order
@@ -95,4 +96,20 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 	}
 
 	return nil
+}
+
+type giftCardsConsumerException struct {
+	cls string `json:"type"`
+	exceptions.Exception
+}
+
+func NewGiftCardsConsumerException(error error) exceptions.IException {
+	if error == nil {
+		return nil
+	}
+
+	return giftCardsConsumerException{
+		cls:       "giftCardConsumer",
+		Exception: exceptions.Exception{error},
+	}
 }
