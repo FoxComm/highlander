@@ -19,6 +19,7 @@ import payloads.ProductPayloads.UpdateProductPayload
 import payloads.SkuPayloads.SkuPayload
 import responses.SkuResponses.SkuResponse
 import responses.cord.CartResponse
+import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -111,9 +112,8 @@ class SkuIntegrationTest
 
     "fails to set sku inactive while it is in cart" in new FixtureWithProduct {
       val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-      val priceJson  = ("t"        → "price") ~ ("v"   → priceValue)
-      def dateJson(name: String, value: Instant) = "name" → (("t" → "date") ~ ("v" → s"$value"))
-      val attrMap = Map("price" → priceJson)
+      val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
+      val attrMap    = Map("price" → priceJson)
 
       val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
 
@@ -127,16 +127,15 @@ class SkuIntegrationTest
 
       skusApi(sku.code)
         .update(makeSkuPayload(sku.code,
-                               attrMap +
-                                 dateJson("activeFrom", Instant.now().plusMinutes(100))))
+                               attrMap + ("activeFrom" → tv(Instant.now().plusMinutes(100)))))
         .mustFailWith400(CannotSetInactiveWhileSkuInCart(sku.formId))
 
       skusApi(sku.code)
         .update(
             makeSkuPayload(sku.code,
                            attrMap +
-                             dateJson("activeFrom", Instant.now().plusMinutes(100)) +
-                             dateJson("activeTo", Instant.now().plusMinutes(1))))
+                             ("activeFrom" → tv(Instant.now().plusMinutes(100))) +
+                             ("activeTo"   → tv(Instant.now().plusMinutes(1)))))
         .mustFailWith400(CannotSetInactiveWhileSkuInCart(sku.formId))
     }
   }

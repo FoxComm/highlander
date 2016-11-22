@@ -24,6 +24,7 @@ import responses.ProductResponses.ProductResponse
 import responses.ProductResponses.ProductResponse.Root
 import responses.cord.CartResponse
 import services.Authenticator.AuthData
+import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -551,25 +552,23 @@ class ProductIntegrationTest
 
         private val productApi: productsApi = productsApi(product.formId)
 
-        def dateJson(name: String, value: Instant) = "name" → (("t" → "date") ~ ("v" → s"$value"))
-
         productApi
           .update(UpdateProductPayload(attributes = Map(), skus = skuPayloads, variants = None))
           .mustFailWith400(expectedFailure)
 
         productApi
           .update(
-              UpdateProductPayload(attributes = Map() +
-                                       dateJson("activeFrom", Instant.now().plusMinutes(100)),
+              UpdateProductPayload(attributes =
+                                     Map("activeFrom" → tv(Instant.now().plusMinutes(100))),
                                    skus = skuPayloads,
                                    variants = None))
           .mustFailWith400(expectedFailure)
 
         productApi
           .update(
-              UpdateProductPayload(attributes = Map() +
-                                       dateJson("activeFrom", Instant.now().plusMinutes(100)) +
-                                       dateJson("activeTo", Instant.now().plusMinutes(1)),
+              UpdateProductPayload(attributes =
+                                     Map("activeFrom" → tv(Instant.now().plusMinutes(100)),
+                                         "activeTo"   → tv(Instant.now().plusMinutes(1))),
                                    skus = skuPayloads,
                                    variants = None))
           .mustFailWith400(expectedFailure)
