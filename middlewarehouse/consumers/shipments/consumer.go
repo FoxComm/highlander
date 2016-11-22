@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
 	"github.com/FoxComm/metamorphosis"
@@ -23,9 +24,9 @@ type OrderHandler struct {
 	mwhURL string
 }
 
-func NewOrderHandler(mwhURL string) (*OrderHandler, error) {
+func NewOrderHandler(mwhURL string) (*OrderHandler, exceptions.IException) {
 	if mwhURL == "" {
-		return nil, errors.New("middlewarehouse URL must be set")
+		return nil, NewShipmentsConsumerException(errors.New("middlewarehouse URL must be set"))
 	}
 
 	return &OrderHandler{mwhURL}, nil
@@ -36,18 +37,18 @@ func NewOrderHandler(mwhURL string) (*OrderHandler, error) {
 // fulfillment started. If it finds one, it sends to middlewarehouse to create
 // a shipment. Returning an error will cause a panic.
 func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
-	activity, err := activities.NewActivityFromAvro(message)
-	if err != nil {
-		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
+	activity, exception := activities.NewActivityFromAvro(message)
+	if exception != nil {
+		return fmt.Errorf("Unable to decode Avro message with error %s", exception.ToString())
 	}
 
 	if activity.Type() != activityOrderStateChanged {
 		return nil
 	}
 
-	fullOrder, err := shared.NewFullOrderFromActivity(activity)
-	if err != nil {
-		return fmt.Errorf("Unable to decode order from activity with error %s", err.Error())
+	fullOrder, exception := shared.NewFullOrderFromActivity(activity)
+	if exception != nil {
+		return fmt.Errorf("Unable to decode order from activity with error %s", exception.ToString())
 	}
 
 	order := fullOrder.Order
@@ -97,4 +98,20 @@ func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 
 	log.Printf("Created shipment(s) for order %s", order.ReferenceNumber)
 	return nil
+}
+
+type shipmentsConsumerException struct {
+	cls string `json:"type"`
+	exceptions.Exception
+}
+
+func NewShipmentsConsumerException(error error) exceptions.IException {
+	if error == nil {
+		return nil
+	}
+
+	return shipmentsConsumerException{
+		cls:       "shipmentsConsumerConsumer",
+		Exception: exceptions.Exception{error},
+	}
 }
