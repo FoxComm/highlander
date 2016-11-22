@@ -19,6 +19,7 @@ case class CordResponseLineItem(imagePath: String,
                                 totalPrice: Int,
                                 productFormId: Int,
                                 externalId: Option[String],
+                                trackInventory: Boolean,
                                 state: OrderLineItem.State,
                                 attributes: Option[Json] = None)
     extends ResponseItem
@@ -145,8 +146,9 @@ object CordResponseLineItems {
     val title = Mvp.title(data.productForm, data.productShadow)
     val image = data.image.getOrElse(NO_IMAGE)
 
-    val price      = Mvp.priceAsInt(data.skuForm, data.skuShadow)
-    val externalId = Mvp.externalId(data.skuForm, data.skuShadow)
+    val price          = Mvp.priceAsInt(data.skuForm, data.skuShadow)
+    val externalId     = Mvp.externalId(data.skuForm, data.skuShadow)
+    val trackInventory = Mvp.trackInventory(data.skuForm, data.skuShadow)
 
     CordResponseLineItem(imagePath = image,
                          sku = data.sku.code,
@@ -155,6 +157,7 @@ object CordResponseLineItems {
                          name = title,
                          price = price,
                          externalId = externalId,
+                         trackInventory = trackInventory,
                          productFormId = data.productForm.id,
                          totalPrice = price,
                          quantity = quantity,

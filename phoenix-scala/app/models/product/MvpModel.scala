@@ -559,4 +559,11 @@ object Mvp {
       case _                   ⇒ None
     }
   }
+
+  def trackInventory(f: ObjectForm, s: ObjectShadow): Boolean = {
+    ObjectUtils.get("trackInventory", f, s) match {
+      case JBool(trackInventory) ⇒ trackInventory
+      case _                     ⇒ true
+    }
+  }
 }
