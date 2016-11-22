@@ -13,7 +13,7 @@ const defaultColumns = [
   {field: 'sku', text: 'SKU'},
   {field: 'price', text: 'Price', type: 'currency'},
   {field: 'quantity', text: 'Qty'},
-  {field: 'totalPrice', text: 'Total', type: 'currency'}
+  {field: 'totalPrice', text: 'Total', type: 'currency'},
 ];
 
 type Column = {
