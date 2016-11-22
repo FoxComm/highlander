@@ -93,9 +93,9 @@ export function saveShippingAddress(id): Function {
   };
 }
 
-export function saveShippingMethod(): Function {
+export function saveShippingMethod(shippingMethod): Function {
   return (dispatch, getState, api) => {
-    const methodId = getState().cart.shippingMethod.id;
+    const methodId = shippingMethod.id;
 
     return api.cart.chooseShippingMethod(methodId)
       .then(res => {

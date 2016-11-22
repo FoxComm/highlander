@@ -8,7 +8,6 @@ import { api as foxApi } from 'lib/api';
 export const toggleCart = createAction('TOGGLE_CART');
 export const hideCart = createAction('HIDE_CART');
 export const updateCart = createAction('UPDATE_CART');
-export const selectShippingMethod = createAction('CART_SET_SHIPPING_METHOD');
 export const selectCreditCard = createAction('CART_SET_CREDIT_CARD');
 export const resetCreditCard = createAction('CART_RESET_CREDIT_CARD');
 export const resetCart = createAction('RESET_CART');
@@ -237,12 +236,6 @@ const reducer = createReducer({
   },
   [actions.succeeded]: updateCartState,
   [updateCart]: updateCartState,
-  [selectShippingMethod]: (state, shippingMethod) => {
-    return {
-      ...state,
-      shippingMethod,
-    };
-  },
   [selectCreditCard]: (state, creditCard) => {
     return {
       ...state,
