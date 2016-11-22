@@ -11,16 +11,20 @@ type Props = {
   largeScreenOnly?: boolean,
 };
 
-const ImagePlaceholder = (props: Props) => {
-  const classNames = classnames({
-    [styles.largeScreenOnly]: props.largeScreenOnly,
-  });
+class ImagePlaceholder extends React.Component {
+  props: Props;
 
-  return (
-    <div styleName="image-placeholder" className={classNames}>
-      <span>Image coming soon!</span>
-    </div>
-  );
-};
+  render() {
+    const classNames = classnames({
+      [styles.largeScreenOnly]: this.props.largeScreenOnly,
+    });
+
+    return (
+      <div styleName="image-placeholder" className={classNames}>
+        <span>Image coming soon!</span>
+      </div>
+    );
+  }
+}
 
 export default ImagePlaceholder;
