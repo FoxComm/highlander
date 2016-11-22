@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/metamorphosis"
@@ -17,9 +18,9 @@ type ShipmentHandler struct {
 	client lib.PhoenixClient
 }
 
-func NewShipmentHandler(mwhURL string, client lib.PhoenixClient) (*ShipmentHandler, error) {
+func NewShipmentHandler(mwhURL string, client lib.PhoenixClient) (*ShipmentHandler, exceptions.IException) {
 	if mwhURL == "" {
-		return nil, errors.New("middlewarehouse URL must be set")
+		return nil, exceptions.NewBadConfigurationException(errors.New("middlewarehouse URL must be set"))
 	}
 
 	return &ShipmentHandler{mwhURL, client}, nil
@@ -32,7 +33,7 @@ func NewShipmentHandler(mwhURL string, client lib.PhoenixClient) (*ShipmentHandl
 func (h ShipmentHandler) Handler(message metamorphosis.AvroMessage) error {
 	activity, err := activities.NewActivityFromAvro(message)
 	if err != nil {
-		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
+		return fmt.Errorf("Unable to decode Avro message with error %s", err.ToString())
 	}
 
 	if activity.Type() != activityShipmentShipped {
@@ -40,11 +41,11 @@ func (h ShipmentHandler) Handler(message metamorphosis.AvroMessage) error {
 	}
 	capture, err := lib.NewCapturePayload(activity)
 	if err != nil {
-		return err
+		return errors.New(err.ToString())
 	}
 	if err := h.client.CapturePayment(capture); err != nil {
-		log.Printf("Unable to capture payment with error: %s", err.Error())
-		return err
+		log.Printf("Unable to capture payment with error: %s", err.ToString())
+		return errors.New(err.ToString())
 	}
 
 	return nil

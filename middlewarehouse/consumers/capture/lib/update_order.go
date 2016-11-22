@@ -1,6 +1,9 @@
 package lib
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
+)
 
 const (
 	orderStateOrdered            = "ordered"
@@ -16,7 +19,7 @@ type UpdateOrderPayload struct {
 	State string `json:"state"`
 }
 
-func NewUpdateOrderPayload(state string) (*UpdateOrderPayload, error) {
+func NewUpdateOrderPayload(state string) (*UpdateOrderPayload, exceptions.IException) {
 	switch state {
 	case orderStateOrdered:
 	case orderStateFraudHold:
@@ -28,5 +31,5 @@ func NewUpdateOrderPayload(state string) (*UpdateOrderPayload, error) {
 		return &UpdateOrderPayload{state}, nil
 	}
 
-	return nil, fmt.Errorf("Order state %s is not valid", state)
+	return nil, NewCaptureClientException(fmt.Errorf("Order state %s is not valid", state))
 }

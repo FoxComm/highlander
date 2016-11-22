@@ -6,6 +6,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 )
 
@@ -25,10 +26,10 @@ type CaptureShippingCost struct {
 	Currency string `json:"currency"`
 }
 
-func NewCapturePayload(activity activities.ISiteActivity) (*CapturePayload, error) {
+func NewCapturePayload(activity activities.ISiteActivity) (*CapturePayload, exceptions.IException) {
 	shipment := new(responses.Shipment)
 	if err := json.Unmarshal([]byte(activity.Data()), shipment); err != nil {
-		return nil, fmt.Errorf("Unable to marshal activity into shipment with %s", err.Error())
+		return nil, activities.NewActivityException(fmt.Errorf("Unable to marshal activity into shipment with %s", err.Error()))
 	}
 
 	capture := CapturePayload{
@@ -51,7 +52,7 @@ func NewCapturePayload(activity activities.ISiteActivity) (*CapturePayload, erro
 	return &capture, nil
 }
 
-func NewGiftCardCapturePayload(referenceNumber string, lineItems []payloads.OrderLineItem) (*CapturePayload, error) {
+func NewGiftCardCapturePayload(referenceNumber string, lineItems []payloads.OrderLineItem) (*CapturePayload, exceptions.IException) {
 	capture := CapturePayload{
 		ReferenceNumber: referenceNumber,
 		Shipping: CaptureShippingCost{
