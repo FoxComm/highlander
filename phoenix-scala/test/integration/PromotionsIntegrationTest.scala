@@ -12,9 +12,7 @@ import payloads.CouponPayloads.CreateCoupon
 import payloads.DiscountPayloads.CreateDiscount
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.CreateCart
-import payloads.ProductPayloads.UpdateProductPayload
 import payloads.PromotionPayloads._
-import payloads.SkuPayloads.SkuPayload
 import responses.CouponResponses.CouponResponse
 import responses.PromotionResponses.PromotionResponse
 import responses.cord.CartResponse
@@ -22,6 +20,7 @@ import services.promotion.PromotionManager
 import testutils.PayloadHelpers.tv
 import testutils._
 import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.api.ApiFixtures
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
 import utils.IlluminateAlgorithm
 import utils.aliases._
@@ -34,6 +33,7 @@ class PromotionsIntegrationTest
     with AutomaticAuth
     with TestActivityContext.AdminAC
     with BakedFixtures
+    with ApiFixtures
     with PromotionFixtures {
 
   "DELETE /v1/promotions/:context/:id" - {
@@ -199,23 +199,16 @@ class PromotionsIntegrationTest
     }
 
     "should update coupon discount when cart becomes clean" in new Fixture
-    with ProductAndSkus_Baked {
+    with ProductSku_ApiFixture {
       private val couponCode = setupPromoAndCoupon()
 
-      productsApi(simpleProduct.formId).update(
-          UpdateProductPayload(Map(),
-                               skus = Some(Seq(SkuPayload(Map("code" → tv(simpleSku.code))))),
-                               variants = None)).mustBeOk()
-
-      POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(simpleSku.code, 1))).mustBeOk()
+      POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
 
       POST(s"v1/my/cart/coupon/$couponCode").mustBeOk()
 
-      private val lineItemsPayloads: Seq[UpdateLineItemsPayload] = Seq[UpdateLineItemsPayload](
-          UpdateLineItemsPayload(simpleSku.code, quantity = 0)
-      )
       private val emptyCartWithCoupon =
-        POST(s"v1/my/cart/line-items", lineItemsPayloads).asTheResult[CartResponse]
+        POST(s"v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 0)))
+          .asTheResult[CartResponse]
 
       emptyCartWithCoupon.totals.adjustments must === (0)
       emptyCartWithCoupon.totals.total must === (0)
