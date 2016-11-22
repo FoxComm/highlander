@@ -3,7 +3,7 @@
     "name": "{{ ansible_hostname }}",
     "address": "{{ ansible_default_ipv4['address'] }}",
       "subscriptions": [
-	    "all"
+	    "{{ consul_dc }}"
       ]
   }
 }

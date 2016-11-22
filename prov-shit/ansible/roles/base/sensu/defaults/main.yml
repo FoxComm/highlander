@@ -28,9 +28,8 @@ sensu_version: "0.26"
 sensu_master: false
 sensu_include_dashboard: false
 sensu_include_plugins: true
-#sensu_handlers_default: 
-#  - slack
-#sensu_default_plugins: ['cpu-checks', 'disk-checks', 'memory-checks']
+#sensu_subscribers_default: ["all"]
+sensu_slack_url: "https://hooks.slack.com/services/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"
 sensu_remote_plugins:
   - cpu-checks
   - disk-checks
@@ -44,6 +43,11 @@ sensu_remote_plugins:
   - openvpn
   - nginx
   - http
+  - docker
+  - consul
+  - mesos
+  - zookeeper
+  - elasticsearch
 sensu_transport: rabbitmq
 sensu_definitions_store: "{{ role_path }}/templates/definitions"
 dynamic_data_store: "{{ role_path }}/files/data/dynamic"
