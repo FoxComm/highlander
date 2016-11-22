@@ -1,0 +1,24 @@
+---
+
+- include_vars: ../../../base/db/vars/main.yml
+
+- include: ../../../base/db/tasks/flyway_install.yml
+  when: download_flyway
+
+- name: Synchronize Middlewarehouse SQL
+  synchronize: src="{{middlewarehouse_src}}/sql" dest="{{middlewarehouse_dir}}" delete=yes recursive=yes
+  sudo: true
+
+- name: Synchronize Middlewarehouse SQL
+  synchronize: src="{{middlewarehouse_src}}/sql" dest="{{middlewarehouse_dir}}" delete=yes recursive=yes
+  sudo: true
+
+- name: Repair Flyway Schema
+  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} repair
+  args:
+    chdir: "{{middlewarehouse_dir}}"
+
+- name: Migrate Database
+  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  args:
+    chdir: "{{middlewarehouse_dir}}"

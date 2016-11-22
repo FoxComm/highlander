@@ -4,11 +4,16 @@
   hosts: '{{hostname}}'
   vars:
     user: '{{ansible_ssh_user}}'
+    download_flyway: false
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to migrate"
       default: "vanilla-db"
       private: no
+    - name: "phoenix_db_name"
+      prompt: "Enter name of phoenix db to migrate"
+      default: "phoenix"
+      private: no
 
   roles:
-      - { role: prod/db_migrate }
+      - { role: prod/migrate_phoenix_db }
