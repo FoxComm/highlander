@@ -1,5 +1,6 @@
 @import "colors.css";
 @import "variables.css";
+@import "media-queries";
 
 .add-to-cart-btn {
   white-space: nowrap;
@@ -9,7 +10,7 @@
 
   &.expanded, &:hover {
     max-width: 100%;
-    background-color: #3D2228;
+    background-color: #3E3436;
     color: white;
     cursor: pointer;
 
@@ -31,7 +32,7 @@
 .add-icon {
   width: 40px;
   height: 40px;
-  border: 1px solid #3D2228;
+  border: 1px solid #3E3436;
   font-weight: bold;
   font-size: 30px;
   text-align: center;
@@ -49,4 +50,10 @@
   font-weight: normal;
 
   opacity: 0;
+}
+
+@media (--small-only) {
+  .add-btn-title {
+    display: none;
+  }
 }
