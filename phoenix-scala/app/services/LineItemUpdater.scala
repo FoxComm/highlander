@@ -1,7 +1,7 @@
 package services
 
 import failures.CartFailures._
-import failures.OrderFailures.SkuNotFoundInOrder
+import failures.OrderFailures.{OrderLineItemNotFound, SkuNotFoundInOrder}
 import failures.ProductFailures.SkuNotFoundForContext
 import models.account._
 import models.activity.Activity
@@ -58,19 +58,13 @@ object LineItemUpdater {
                                                                                  ctx: OC) =
     DbResultT.sequence(payload.map(updatePayload ⇒ {
       for {
-        orderLineItems ← * <~ OrderLineItems
-                          .filter(_.referenceNumber === updatePayload.referenceNumber)
-                          .result
-        idsToDelete ← * <~ orderLineItems.map(_.id)
-        _           ← * <~ OrderLineItems.filter(_.id inSet idsToDelete).delete
-        createResult ← * <~ orderLineItems.map(oli ⇒
-                            OrderLineItems.create(oli.copy(attributes = updatePayload.attributes,
-                                                           state = updatePayload.state)))
-        orderLineItems2 ← * <~ OrderLineItems
-                           .filter(_.referenceNumber === updatePayload.referenceNumber)
-                           .result
-        _ ← * <~ orderLineItems2
-      } yield createResult
+        orderLineItem ← * <~ OrderLineItems
+                         .filter(_.referenceNumber === updatePayload.referenceNumber)
+                         .mustFindOneOr(OrderLineItemNotFound(updatePayload.referenceNumber))
+        patch = orderLineItem.copy(state = updatePayload.state,
+                                   attributes = updatePayload.attributes)
+        updatedItem ← * <~ OrderLineItems.update(orderLineItem, patch)
+      } yield updatedItem
     }))
 
   def updateQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
