@@ -26,13 +26,15 @@ type Props = {
   editAction: Function,
   updateAddress: Function,
   t: any,
+  error: any,
 };
 
 type State = {
   addressToEdit: Object,
   newAddress: Object|null,
   isEditFormActive: boolean,
-  activeAddressId?: number|string,
+  activeAddressId: number|null,
+  error?: any,
 };
 
 class AddressList extends Component {
@@ -142,6 +144,7 @@ class AddressList extends Component {
 
         if (zipErrorPresent) {
           error = new Error(messages);
+          // $FlowFixMe: no such field
           error.responseJson = { errors: ['Zip code is invalid']};
         }
         this.setState({
