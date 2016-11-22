@@ -7,6 +7,7 @@
             [utils.ring-json :refer [wrap-json-response wrap-json-body]]
             [pjson.core :as json]
             [byte-streams :as bs]
+            [taoensso.timbre :as log]
             [environ.core :refer [env]]))
 
 (def description "Provides messaging integration with Mailchimp/Mandrill")
@@ -22,7 +23,9 @@
                          15054))))
 
 (def api-host (delay (:api-host env)))
-(def phoenix-email (delay (:phoenix-email env)))
+
+(def phoenix-url (delay (:phoenix-url env)))
+(def phoenix-user (delay (:phoenix-user env)))
 (def phoenix-password (delay (:phoenix-password env)))
 
 
@@ -30,15 +33,27 @@
                         {:connection-options {:insecure? true}})))
 
 
-(def api-server (delay (:api-server env)))
-
-
 (defroutes app
   (GET "/_settings/schema" [] (response settings/schema))
+  (GET "/_ping" [] (response {:ok "pong"}))
+  (POST "/_set-log-level" {body :body}
+    (let [level (some-> body
+                  (get "level")
+                  keyword)]
+      (if (log/valid-level? level)
+        (do
+          (log/info "Set log level to" level)
+          (log/set-level! level)
+          (response {:result "ok"}))
+        (do
+          (log/error "Can't set log level to invalid level" level)
+          {:status 400
+           :headers {}
+           :body {:result (str "invalid log level: " level)}}))))
   (POST "/_settings/upload" {body :body}
-        (println "Updating Settings: " body)
-        (settings/update-settings body)
-        (response {:ok "updated"}))
+      (log/info "Updating Settings: " body)
+      (settings/update-settings body)
+      (response {:ok "updated"}))
 
   (route/not-found (response {:error {:code 404 :text "Not found"}})))
 
@@ -49,6 +64,7 @@
 
 (defn start-phoenix
   []
+  (log/info (str "Start HTTP API at :" @api-port))
   (let [server (http/start-server (-> app
                                    wrap-json-body
                                    wrap-json-response)
@@ -63,10 +79,10 @@
 
 (defn authenticate
   []
-  (-> (http/post (str @api-server "/api/v1/public/login")
+  (-> (http/post (str @phoenix-url "/v1/public/login")
                  {:pool @http-pool
                   :body (json/write-str
-                          {:email @phoenix-email
+                          {:email @phoenix-user
                            :password @phoenix-password
                            :org "tenant"})
                   :content-type :json})
@@ -77,8 +93,9 @@
 
 (defn register-plugin
   [schema]
-  (if @api-server
+  (if @phoenix-url
     (try
+      (log/info "Register plugin at phoenix" @phoenix-url)
       (let [plugin-info {:name "messaging"
                          :description description
                          :apiHost @api-host
@@ -86,7 +103,7 @@
                          :apiPort @api-port
                          :schemaSettings schema}
             resp (-> (http/post
-                           (str @api-server "/api/v1/plugins/register")
+                           (str @phoenix-url "/v1/plugins/register")
                            {:pool @http-pool
                             :body (json/write-str plugin-info)
                             :content-type :json
@@ -95,13 +112,14 @@
                          :body
                          bs/to-string
                          json/read-str)]
+        (log/info "Plugin registered at phoenix, resp" resp) 
         (settings/update-settings (get resp "settings")))
       (catch Exception e
         (try
           (let [error-body (-> (ex-data e) :body bs/to-string)]
-            (println "Can't register plugin at phoenix" error-body))
+            (log/error "Can't register plugin at phoenix" error-body))
           (catch Exception einner
-            (println "Can't register plugin at phoenix" e)))
+            (log/error "Can't register plugin at phoenix" e)))
         (throw e)))
-    (println "Phoenix address not set, can't register myself into phoenix :(")))
+    (log/error "Phoenix address not set, can't register myself into phoenix :(")))
 

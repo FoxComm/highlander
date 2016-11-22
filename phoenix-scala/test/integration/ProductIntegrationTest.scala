@@ -5,9 +5,9 @@ import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures._
-import failures.NotFoundFailure404
 import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures._
+import models.account.User
 import models.inventory.Skus
 import models.objects._
 import models.product._
@@ -18,8 +18,10 @@ import payloads.OrderPayloads.CreateCart
 import payloads.ProductPayloads._
 import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
+import responses.ProductResponses.ProductResponse
 import responses.ProductResponses.ProductResponse.Root
 import responses.cord.CartResponse
+import services.Authenticator.AuthData
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -48,8 +50,18 @@ class ProductIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with AutomaticAuth
-    with BakedFixtures {
+    with BakedFixtures
+    with TaxonomySeeds {
   import ProductTestExtensions._
+
+  "GET v1/products/:context" - {
+    "returns assigned taxonomies" in new ProductAndSkus_Baked with FlatTaxons_Baked {
+      override def au: AuthData[User] = storeAdminAuthData
+      taxonApi(taxons.head.formId).assignProduct(simpleProduct.formId).mustBeOk()
+      val product = productsApi(simpleProduct.formId).get().as[ProductResponse.Root]
+      product.taxons.map(_.taxon.id) must contain(taxons.head.formId)
+    }
+  }
 
   "POST v1/products/:context" - {
     def doQuery(productPayload: CreateProductPayload) = {
@@ -526,9 +538,7 @@ class ProductIntegrationTest
                                                              (skuGreenLargeCode, "green", "large"))
 
     val (product, skus, variants) = {
-
-      implicit val au = storeAdminAuthData
-      val scope       = LTree(au.token.scope)
+      val scope = LTree(au.token.scope)
 
       for {
         // Create the SKUs.

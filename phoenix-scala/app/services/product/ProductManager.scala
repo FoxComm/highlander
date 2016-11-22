@@ -37,6 +37,7 @@ import utils.db._
 import org.json4s._
 import org.json4s.JsonDSL._
 import services.LogActivity
+import services.taxonomy.TaxonomyManager
 
 object ProductManager {
 
@@ -66,11 +67,13 @@ object ProductManager {
       variants       ← * <~ findOrCreateVariantsForProduct(product, variantPayloads)
       variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
+      taxons ← * <~ TaxonomyManager.getAssignedTaxons(product)
       response = ProductResponse.build(
           IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow),
           Seq.empty,
           if (hasVariants) variantSkus else productSkus,
-          variantResponses)
+          variantResponses,
+          taxons)
       _ ← * <~ LogActivity
            .fullProductCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
@@ -93,12 +96,15 @@ object ProductManager {
 
       variantAndSkus ← * <~ getVariantsWithRelatedSkus(fullVariants)
       (variantSkus, variantResponses) = variantAndSkus
+
+      taxons ← * <~ TaxonomyManager.getAssignedTaxons(oldProduct.model)
     } yield
       ProductResponse.build(
           IlluminatedProduct.illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow),
           albums,
           if (hasVariants) variantSkus else productSkus,
-          variantResponses)
+          variantResponses,
+          taxons)
 
   def updateProduct(admin: User, productId: Int, payload: UpdateProductPayload)(
       implicit ec: EC,
@@ -138,11 +144,13 @@ object ProductManager {
 
       variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
+      taxons ← * <~ TaxonomyManager.getAssignedTaxons(oldProduct.model)
       response = ProductResponse.build(
           IlluminatedProduct.illuminate(oc, updatedHead, updated.form, updated.shadow),
           albums,
           if (hasVariants) variantSkus else updatedSkus,
-          variantResponses)
+          variantResponses,
+          taxons)
       _ ← * <~ LogActivity
            .fullProductUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
@@ -197,13 +205,15 @@ object ProductManager {
       variants        ← * <~ updatedVariants.map(VariantManager.zipVariantWithValues)
       variantAndSkus  ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
+      taxons ← * <~ TaxonomyManager.getAssignedTaxons(productObject.model)
     } yield
       ProductResponse.build(
           product =
             IlluminatedProduct.illuminate(oc, archiveResult, inactive.form, inactive.shadow),
           albums = albums,
           if (variantLinks.nonEmpty) variantSkus else skus,
-          variantResponses
+          variantResponses,
+          taxons
       )
   }
 

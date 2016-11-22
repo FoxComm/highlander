@@ -177,6 +177,6 @@
                       :name_of_retailer (settings/get :retailer_name)
                       :user_that_invited_you store-admin-name}
 
-                     {:subject (settings/get :admin_invintation_subject)})]
+                     {:subject (settings/get :admin_invitation_subject)})]
 
     (send-template! (settings/get :admin_invitation_template) msg)))

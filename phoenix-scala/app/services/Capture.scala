@@ -6,10 +6,10 @@ import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
 import failures.GeneralFailure
 import failures.CaptureFailures
 import failures.PromotionFailures.PromotionNotFoundForContext
+import models.account.{User, Users}
 import models.cord._
 import models.cord.lineitems._
 import models.coupon._
-import models.account.{User, Users}
 import models.inventory.{Sku, Skus}
 import models.objects._
 import models.payment.creditcard._
@@ -19,6 +19,7 @@ import models.product.Mvp
 import models.shipping.{ShippingMethod, ShippingMethods}
 import payloads.CapturePayloads
 import responses.CaptureResponse
+import services.orders.OrderQueries
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 import utils.aliases._
@@ -48,8 +49,9 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       //OrderLineItems to get all the relevant data for the order line item.
       //The function returns a tuple so we will convert it to a case class for
       //convenience.
-      order ← * <~ Orders.mustFindByRefNum(payload.order)
-      _     ← * <~ validateOrder(order)
+      order    ← * <~ Orders.mustFindByRefNum(payload.order)
+      payState ← * <~ OrderQueries.getPaymentState(order.refNum)
+      _        ← * <~ validateOrder(order, payState)
 
       customer     ← * <~ Users.mustFindByAccountId(order.accountId)
       lineItemData ← * <~ LineItemManager.getOrderLineItems(payload.order)
@@ -291,15 +293,16 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       _     ← * <~ mustHavePositiveShippingCost(payload.shipping)
     } yield Unit
 
-  private def validateOrder(order: Order): DbResultT[Unit] =
+  private def validateOrder(order: Order, paymentState: CreditCardCharge.State): DbResultT[Unit] =
     for {
-      _ ← * <~ mustBeInFullfillmentStarted(order)
+      _ ← * <~ paymentStateMustBeInAuth(order, paymentState)
       //Future validation goes here.
     } yield Unit
 
-  private def mustBeInFullfillmentStarted(order: Order): DbResultT[Unit] =
-    if (order.state != Order.FulfillmentStarted)
-      DbResultT.failure(CaptureFailures.OrderMustBeInFullfillmentStarted(order.refNum))
+  private def paymentStateMustBeInAuth(order: Order,
+                                       paymentState: CreditCardCharge.State): DbResultT[Unit] =
+    if (paymentState != CreditCardCharge.Auth)
+      DbResultT.failure(CaptureFailures.OrderMustBeInAuthState(order.refNum))
     else DbResultT.pure(Unit)
 
   private def mustHavePositiveShippingCost(

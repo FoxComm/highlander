@@ -10,4 +10,4 @@
   fetch: src=/tmp/{{username}}.tar.gz dest={{destination}}/{{username}}.tar.gz flat=yes
 
 - name: Cleanup
-  command: rm -rf /tmp/{{username}}.tar.gz {{home}}/keygen.sh
+  file: path="/tmp/{{username}}.tar.gz" state=absent
