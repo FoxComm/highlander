@@ -27,7 +27,7 @@ const _updateOrder = createAsyncActions(
 
 const _updateShipments = createAsyncActions(
   'updateShipments',
-  (refNum: string) => Api.patch(`/inventory/shipments/from-order/${refNum}`, { state: 'shipped' })
+  (refNum: string) => Api.patch(`/inventory/shipments/for-order/${refNum}`, { state: 'shipped' })
 );
 
 export const fetchOrder = _getOrder.perform;
