@@ -6,6 +6,7 @@
     [environ.core :refer [env]]
     [clojure.string :as string]
     [messaging.settings :as settings]
+    [messaging.phoenix :as phoenix]
     [clojchimp.client :as mailchimp]
     [gws.mandrill.client :as client]
     [gws.mandrill.api.messages :as messages]
@@ -93,6 +94,31 @@
 
                      {:subject (settings/get :order_checkout_subject)})]
       (send-template! (settings/get :order_confirmation_template) msg)))
+
+(defmethod handle-activity :shipment_shipped
+  [activity]
+  (let [data (:data activity)
+        order-ref (get data "orderRefNum")
+        order (get (phoenix/get-order-info order-ref) "result")
+        email (get-in order ["customer" "email"])
+        customer-name (get-in order ["customer" "name"] "")
+        tracking-number (get data "trackingNumber")
+        tracking-template (get-in data ["shippingMethod" "carrier" "trackingTemplate"])
+        msg (gen-msg {:email email :name customer-name}
+                     {:items (let [skus (get-in order ["lineItems" "skus"])]
+                               (map at/sku->item skus))
+                      :totals (at/format-prices (get order "totals"))
+                      :placed_at (at/date-simple-format (get order "placedAt"))
+                      :shipping_method (get-in order ["shippingMethod" "name"])
+                      :shipping_address (get order "shippingAddress")
+                      :billing_address (get order "billingAddress")
+                      :tracking_number tracking-number
+                      :tracking_url (str tracking-template tracking-number)
+                      :estimated_arrival (get data "estimatedArrival")
+                      :order_ref order-ref}
+
+                     {:subject (settings/get :order_shipped_subject)})]
+      (send-template! (settings/get :order_shipped_template) msg)))
 
 (defmethod handle-activity :order_state_changed
   [activity]

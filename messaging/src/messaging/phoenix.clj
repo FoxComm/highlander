@@ -90,6 +90,21 @@
    :headers
    (get "jwt")))
 
+(defn get-order-info
+  [order-ref]
+  (let [jwt (authenticate)
+        request (http/get (str @phoenix-url "/v1/orders/" order-ref)
+                  {:pool @http-pool
+                   :headers {"JWT" jwt}
+                   :content-type :json})
+        resp (-> request
+                 deref
+                 :body
+                 bs/to-string
+                 json/parse-string)]
+    resp))
+
+
 
 (defn register-plugin
   [schema]
