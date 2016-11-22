@@ -7,7 +7,7 @@ import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
 import failures.UserFailures._
 import models.account._
-import models.cord.Order.RemorseHold
+import models.cord.Order.{Canceled, RemorseHold}
 import models.cord._
 import models.customer._
 import models.inventory._
@@ -18,7 +18,7 @@ import models.shipping._
 import models.{Reason, Reasons}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.OrderPayloads.CreateCart
+import payloads.OrderPayloads.{CreateCart, UpdateOrderPayload}
 import payloads.PaymentPayloads.GiftCardPayment
 import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
@@ -35,6 +35,35 @@ class CheckoutIntegrationTest
     with PhoenixAdminApi
     with AutomaticAuth
     with BakedFixtures {
+
+  def doCheckout(customer: User,
+                 sku: Sku,
+                 address: Address,
+                 shipMethod: ShippingMethod,
+                 reason: Reason): HttpResponse = {
+    val refNum =
+      cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
+    val _cartApi = cartsApi(refNum)
+
+    _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 2))).mustBeOk()
+
+    _cartApi.shippingAddress.updateFromAddress(address.id).mustBeOk()
+
+    val grandTotal = _cartApi.shippingMethod
+      .update(UpdateShippingMethod(shipMethod.id))
+      .asTheResult[CartResponse]
+      .totals
+      .total
+
+    val gcCode = giftCardsApi
+      .create(GiftCardCreateByCsr(grandTotal, reason.id))
+      .as[GiftCardResponse.Root]
+      .code
+
+    _cartApi.payments.giftCard.add(GiftCardPayment(gcCode, grandTotal.some)).mustBeOk()
+
+    _cartApi.checkout()
+  }
 
   "POST v1/orders/:refNum/checkout" - {
 
@@ -83,34 +112,12 @@ class CheckoutIntegrationTest
           UserIsBlacklisted(customer.accountId))
     }
 
-    def doCheckout(customer: User,
-                   sku: Sku,
-                   address: Address,
-                   shipMethod: ShippingMethod,
-                   reason: Reason): HttpResponse = {
-      val refNum =
-        cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
-      val _cartApi = cartsApi(refNum)
+  }
 
-      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 2))).mustBeOk()
-
-      _cartApi.shippingAddress.updateFromAddress(address.id).mustBeOk()
-
-      val grandTotal = _cartApi.shippingMethod
-        .update(UpdateShippingMethod(shipMethod.id))
-        .asTheResult[CartResponse]
-        .totals
-        .total
-
-      val gcCode = giftCardsApi
-        .create(GiftCardCreateByCsr(grandTotal, reason.id))
-        .as[GiftCardResponse.Root]
-        .code
-
-      _cartApi.payments.giftCard.add(GiftCardPayment(gcCode, grandTotal.some)).mustBeOk()
-
-      _cartApi.checkout()
-    }
+  "cancels MWH on order cancel" in new Fixture {
+    val orderResponse = doCheckout(customer, sku, address, shipMethod, reason).as[OrderResponse]
+    ordersApi(orderResponse.referenceNumber).update(UpdateOrderPayload(Canceled))
+    middlewarehouseApiMockCancels must contain only orderResponse.referenceNumber
   }
 
   trait FullCartWithGcPayment
