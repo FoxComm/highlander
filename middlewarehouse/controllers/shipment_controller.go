@@ -127,7 +127,7 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 		hasTrackedInventory := false
 		for _, lineItem := range payload.LineItems.SKUs {
 			// We only care about the line items if we're tracking inventory.
-			if !lineItem.TrackInventory {
+			if lineItem.TrackInventory {
 				hasTrackedInventory = true
 				break
 			}
