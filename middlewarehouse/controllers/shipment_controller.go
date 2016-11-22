@@ -110,45 +110,45 @@ func (controller *shipmentController) updateShipmentForOrder() gin.HandlerFunc {
 }
 
 func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		payload := &payloads.Order{}
-		if parse(context, payload) != nil {
-			return
-		}
+    return func(context *gin.Context) {
+        payload := &payloads.Order{}
+        if parse(context, payload) != nil {
+            return
+        }
 
-		shipment, err := controller.shipmentService.CreateShipment(models.NewShipmentFromOrderPayload(payload))
-		if err != nil {
-			handleServiceError(context, err)
-			return
-		}
+        shipment, err := controller.shipmentService.CreateShipment(models.NewShipmentFromOrderPayload(payload))
+        if err != nil {
+            handleServiceError(context, err)
+            return
+        }
 
-    //We are assuming here that, if the shipment has no line items, then it can be automatically shipped.
-    //Most useful in the case of gift cards.
-    var hasTrackedInventory = false
-    for _, lineItem := range payload.LineItems.SKUs {
-      // We only care about the line items if we're tracking inventory.
-      if !lineItem.TrackInventory {
-        hasTrackedInventory = true
-        break
-      }
+        //We are assuming here that, if the shipment has no line items, then it can be automatically shipped.
+        //Most useful in the case of gift cards.
+        var hasTrackedInventory = false
+        for _, lineItem := range payload.LineItems.SKUs {
+            // We only care about the line items if we're tracking inventory.
+            if !lineItem.TrackInventory {
+                hasTrackedInventory = true
+                break
+            }
+        }
+
+        //This means that it's only digital items (eg. gift cards)
+        if hasTrackedInventory == false {
+            shipment.State = models.ShipmentStateShipped
+            shipment, err = controller.shipmentService.UpdateShipment(shipment)
+            if err != nil { 
+                handleServiceError(context, err)
+                return
+            }
+        }
+
+        response, err := responses.NewShipmentFromModel(shipment)
+        if err != nil {
+            handleServiceError(context, err)
+            return
+        }
+
+        context.JSON(http.StatusCreated, response)
     }
-
-    //This means that it's only digital items (eg. gift cards)
-    if hasTrackedInventory == false {
-      shipment.State = ShipmentStateShipped
-      shipment, err := controller.shipmentService.UpdateShipment(shipment)
-      if err != nil { 
-        handleServiceError(context, err)
-        return
-      }
-    }
-
-		response, err := responses.NewShipmentFromModel(shipment)
-		if err != nil {
-			handleServiceError(context, err)
-			return
-		}
-
-		context.JSON(http.StatusCreated, response)
-	}
 }
