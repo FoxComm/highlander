@@ -221,7 +221,13 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   case class cartsApi(refNum: String) {
-    val cartPath = s"${cartsApi.cartsPrefix}/$refNum"
+
+    val cartPath      = s"${cartsApi.cartsPrefix}/$refNum"
+    val updateOrderLI = s"$cartPath/order-line-items"
+
+    def updateorderLineItem(payload: Seq[UpdateOrderLineItemsPayload]): HttpResponse = {
+      PATCH(updateOrderLI, payload)
+    }
 
     // TODO @anna: update this to `cartPath` when routes are fixed
     def get(): HttpResponse =
