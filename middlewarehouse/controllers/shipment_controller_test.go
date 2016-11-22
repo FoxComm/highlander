@@ -89,7 +89,9 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 
 	//assert
 	suite.Equal(http.StatusCreated, response.Code)
-	suite.Equal(responses.NewShipmentFromModel(shipment1), shipment)
+	expectedResp, err := responses.NewShipmentFromModel(shipment1)
+	suite.Nil(err)
+	suite.Equal(expectedResp, shipment)
 }
 
 // TODO: Re-enable

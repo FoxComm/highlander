@@ -9,7 +9,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}/capture-consumer:master",
+      "image": "{{docker_registry}}:5000/capture-consumer:{{docker_branch}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

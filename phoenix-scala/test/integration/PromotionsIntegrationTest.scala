@@ -78,8 +78,6 @@ class PromotionsIntegrationTest
   "promotion with 'coupon' apply type should be active on" - {
 
     "creation" in new StoreAdmin_Seed with Promotion_Seed {
-      def au: AU = storeAdminAuthData
-
       ObjectUtils
         .getFullObject(DbResultT.pure(promotion))
         .gimme
@@ -199,13 +197,9 @@ class PromotionsIntegrationTest
     }
   }
 
-  trait Fixture extends StoreAdmin_Seed with Promotion_Seed with Coupon_Raw {
-    def au: AU = storeAdminAuthData
-  }
+  trait Fixture extends StoreAdmin_Seed with Promotion_Seed with Coupon_Raw
 
   trait AutoApplyPromotionSeed extends StoreAdmin_Seed with Promotion_Seed {
-    def au: AU = storeAdminAuthData
-
     override def createPromotionFromPayload(payload: CreatePromotion) =
       super.createPromotionFromPayload(payload.copy(applyType = Auto))
   }

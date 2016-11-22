@@ -10,6 +10,7 @@ import models.payment.giftcard.GiftCardAdjustment.{Auth ⇒ gcAuth}
 import models.payment.storecredit.StoreCreditAdjustment.{Auth ⇒ scAuth}
 import responses.TheResponse
 import responses.cord.CartResponse
+import services.Authenticator.UserAuthenticator
 import services.{CartValidator, CordQueries, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -44,7 +45,8 @@ object CartQueries extends CordQueries {
                                 admin: Option[User] = None)(implicit ec: EC,
                                                             db: DB,
                                                             ac: AC,
-                                                            ctx: OC): DbResultT[CartResponse] =
+                                                            ctx: OC,
+                                                            au: AU): DbResultT[CartResponse] =
     findOrCreateCartByAccountInner(customer, admin)
 
   def findOrCreateCartByAccountId(accountId: Int,
@@ -52,7 +54,8 @@ object CartQueries extends CordQueries {
                                   admin: Option[User] = None)(implicit ec: EC,
                                                               db: DB,
                                                               ac: AC,
-                                                              ctx: OC): DbResultT[CartResponse] =
+                                                              ctx: OC,
+                                                              au: AU): DbResultT[CartResponse] =
     for {
       customer  ← * <~ Users.mustFindByAccountId(accountId)
       fullOrder ← * <~ findOrCreateCartByAccountInner(customer, admin)
@@ -62,6 +65,7 @@ object CartQueries extends CordQueries {
       implicit db: DB,
       ec: EC,
       ac: AC,
+      au: AU,
       ctx: OC): DbResultT[CartResponse] =
     for {
       result ← * <~ Carts
@@ -69,7 +73,7 @@ object CartQueries extends CordQueries {
                 .one
                 .findOrCreateExtended(Carts.create(Cart(accountId = customer.accountId)))
       (cart, foundOrCreated) = result
-      fullOrder ← * <~ CartResponse.fromCart(cart, grouped)
+      fullOrder ← * <~ CartResponse.fromCart(cart, grouped, au.isGuest)
       _         ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)
     } yield fullOrder
 

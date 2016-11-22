@@ -19,8 +19,15 @@ import ConfirmationDialog from '../modal/confirmation-dialog';
 import WaitAnimation from '../common/wait-animation';
 import Error from 'components/errors/error';
 
+// helpers
+import { getClaims, isPermitted } from 'lib/claims';
+import { frn, readAction } from 'lib/frn';
+
 // redux
 import * as orderActions from 'modules/orders/details';
+
+const shippingClaims = readAction(frn.mdl.shipment);
+const fraudClaims = readAction(frn.oms.fraud);
 
 const orderRefNum = props => {
   return props.params.order;
@@ -47,6 +54,7 @@ export default class Order extends React.Component {
     }),
     children: PropTypes.node,
     updateOrder: PropTypes.func,
+    updateShipments: PropTypes.func,
     fetchOrder: PropTypes.func,
     clearFetchErrors: PropTypes.func,
     increaseRemorsePeriod: PropTypes.func
@@ -161,6 +169,11 @@ export default class Order extends React.Component {
     this.setState({
       newOrderState: null
     });
+
+    if (this.state.newOrderState == 'shipped') {
+      this.props.updateShipments(this.orderRefNum);
+    }
+
     this.props.updateOrder(this.orderRefNum, { state: this.state.newOrderState });
   }
 
@@ -173,18 +186,22 @@ export default class Order extends React.Component {
 
   get orderStateDropdown() {
     const order = this.order;
+    const claims = getClaims();
 
     if (order.orderState === 'canceled' ||
-      order.orderState === 'fulfillmentStarted' ||
-      order.orderState === 'shipped') {
+        order.orderState === 'shipped') {
       return <State value={order.shippingState} model="order" />;
     }
 
+    let holdStates = ['manualHold'];
+    if (isPermitted(fraudClaims, claims)) {
+      holdStates = [...holdStates, 'fraudHold'];
+    }
+
     const visibleAndSortedOrderStates = [
-      'manualHold',
-      'fraudHold',
-      'remorseHold',
+      ...holdStates,
       'fulfillmentStarted',
+      'shipped',
       'canceled',
     ].filter(state => {
       return order.orderState in allowedStateTransitions &&
@@ -211,6 +228,13 @@ export default class Order extends React.Component {
 
   get statusHeader() {
     const order = this.order;
+    const claims = getClaims();
+    const shippingState = isPermitted(shippingClaims, claims)
+      ? (
+          <PanelListItem title="Shipping State">
+            <State value={order.shippingState} model="shipment" />
+          </PanelListItem>
+        ) : null;
 
     return (
       <div className="fc-grid fc-grid-gutter">
@@ -219,9 +243,7 @@ export default class Order extends React.Component {
             <PanelListItem title="Order State">
               {this.orderStateDropdown}
             </PanelListItem>
-            <PanelListItem title="Shipping State">
-              <State value={order.shippingState} model="shipment" />
-            </PanelListItem>
+            {shippingState}
             <PanelListItem title="Payment State">
               <State value={order.paymentState} model="payment" />
             </PanelListItem>

@@ -10,12 +10,7 @@
     cert_path: stage
     ashes_server_name: local.foxcommerce.com
     storefront_server_name: local.foxcommerce.com
-    mesos_master: 127.0.0.1
-    mesos_quorum: 1
     join_type: join
-    zookeeper_server: "localhost:2181"
-    zookeepers: "zk://127.0.0.1:2181"
-    docker_registry: "https://localhost"
   roles:
     - { role: base/common }
     - { role: base/consul }
@@ -34,7 +29,7 @@
     - { role: base/bottledwater }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
-    - { role: base/node }
+    - { role: base/node, sudo: yes }
     - { role: base/balancer, sudo: yes }
 
   handlers:

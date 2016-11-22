@@ -4,16 +4,8 @@
   hosts: '{{hostname}}'
   vars:
     user: '{{ansible_ssh_user}}'
-    middlewarehouse_server: middlewarehouse.service.consul:9292
-    kafka_server: kafka.service.consul:9092
-    schema_server: schema-registry.service.consul:8081
-    zookeeper_server: zookeeper.service.consul:2181
-    search_host: elasticsearch.service.consul
-    phoenix_server: phoenix.service.consul:9090
-    docker_db_host: db.service.consul
     docker_branch: master
     docker_registry: docker-tpg.foxcommerce.com
-    db_host: db.service.consul
     upload_phoenix_jar: true
     upload_greenriver_jar: true
     update_es_mappings: true

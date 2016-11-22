@@ -23,6 +23,7 @@ import payloads.SharedSearchPayloads._
 import payloads.SkuPayloads._
 import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads._
+import payloads.TaxonomyPayloads.{CreateTaxonPayload, CreateTaxonomyPayload, UpdateTaxonPayload, UpdateTaxonomyPayload}
 import payloads.UserPayloads._
 import payloads.VariantPayloads._
 import payloads._
@@ -633,6 +634,33 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
   }
 
+  case object taxonomyApi {
+    def create(payload: CreateTaxonomyPayload)(implicit ctx: OC) =
+      POST(s"v1/taxonomy/${ctx.name}", payload)
+  }
+
+  case class taxonomyApi(taxonomyId: Int)(implicit ctx: OC) {
+    def update(payload: UpdateTaxonomyPayload) =
+      PATCH(s"v1/taxonomy/${ctx.name}/$taxonomyId", payload)
+    def delete = DELETE(s"v1/taxonomy/${ctx.name}/$taxonomyId")
+    def get    = GET(s"v1/taxonomy/${ctx.name}/$taxonomyId")
+    def createTaxon(payload: CreateTaxonPayload) =
+      POST(s"v1/taxonomy/${ctx.name}/$taxonomyId", payload)
+  }
+
+  case class taxonApi(taxonId: Int)(implicit ctx: OC) {
+    def get = GET(s"v1/taxon/${ctx.name}/$taxonId")
+    def update(payload: UpdateTaxonPayload) =
+      PATCH(s"v1/taxon/${ctx.name}/$taxonId", payload)
+    def delete = DELETE(s"v1/taxon/${ctx.name}/$taxonId")
+
+    def assignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC): HttpResponse =
+      PATCH(s"v1/taxon/${ctx.name}/$taxonId/product/$productFormId")
+
+    def unassignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC): HttpResponse =
+      DELETE(s"v1/taxon/${ctx.name}/$taxonId/product/$productFormId")
+  }
+
   object notesApi {
     val notesPrefix = s"$rootPrefix/notes"
 
@@ -687,20 +715,5 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def updateLastSeen(activityId: Int): HttpResponse =
       POST(s"$notificationsPrefix/last-seen/$activityId")
-  }
-
-  object taxonomyApi {
-    def taxonomyPrefix(implicit ctx: OC)            = s"$rootPrefix/taxonomy/${ctx.name}"
-    def taxonPrefix(taxonId: Int)(implicit ctx: OC) = s"$taxonomyPrefix/taxon/$taxonId"
-    def taxonProductPrefix(taxonId: Int, productId: Int)(implicit ctx: OC) =
-      s"${taxonPrefix(taxonId)}/product/$productId"
-
-    def assignProduct(taxonFormId: ObjectForm#Id, productFormId: ObjectForm#Id)(
-        implicit ctx: OC): HttpResponse =
-      PATCH(taxonProductPrefix(taxonFormId, productFormId))
-
-    def unassignProduct(taxonFormId: ObjectForm#Id, productFormId: ObjectForm#Id)(
-        implicit ctx: OC): HttpResponse =
-      DELETE(taxonProductPrefix(taxonFormId, productFormId))
   }
 }

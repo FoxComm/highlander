@@ -105,7 +105,10 @@ object PluginsManager extends LazyLogging {
     } yield updated
 
     updated.map { p ⇒
-      uploadNewSettingsToPlugin(p) // TODO: check failures here?
+      uploadNewSettingsToPlugin(p) onFailure {
+        case e ⇒
+          logger.error(s"Can't upload new settings to Plugin $name: ${e.getMessage}")
+      }
       SettingsUpdated(p.settings)
     }
   }

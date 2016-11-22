@@ -9,7 +9,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}/gift-card-consumer:master",
+      "image": "{{docker_registry}}:5000/gift-card-consumer:{{docker_branch}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

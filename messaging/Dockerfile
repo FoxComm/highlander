@@ -9,4 +9,6 @@ WORKDIR /messaging
 RUN mv /build/target/messaging.jar /messaging
 RUN rm  -rf /build
 
+EXPOSE 15054
+
 CMD java $JAVA_OPTS -jar messaging.jar

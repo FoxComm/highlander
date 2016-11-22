@@ -1,10 +1,11 @@
 package responses.cord
 
+import cats.data.Xor
 import cats.implicits._
 import models.account.User
 import models.cord._
 import models.cord.lineitems.CartLineItems
-import models.customer.{CustomersData, CustomerData}
+import models.customer.{CustomerData, CustomersData}
 import models.account._
 import models.payment.creditcard._
 import responses.PromotionResponses.PromotionResponse
@@ -14,6 +15,7 @@ import services.carts.CartQueries
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
+import scala.util.{Success, Failure}
 
 case class CartResponse(referenceNumber: String,
                         paymentState: CreditCardCharge.State,
@@ -35,8 +37,10 @@ object CartResponse {
   def buildRefreshed(cart: Cart)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CartResponse] =
     Carts.refresh(cart).dbresult.flatMap(c ⇒ fromCart(c, grouped = true))
 
-  def fromCart(cart: Cart,
-               grouped: Boolean)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CartResponse] =
+  def fromCart(cart: Cart, grouped: Boolean, isGuest: Boolean = false)(
+      implicit db: DB,
+      ec: EC,
+      ctx: OC): DbResultT[CartResponse] =
     for {
       lineItemAdj    ← * <~ CordResponseLineItemAdjustments.fetch(cart.refNum)
       lineItemsSku   ← * <~ CartLineItems.byCordRef(cart.refNum).result
@@ -48,9 +52,10 @@ object CartResponse {
       shippingAddress ← * <~ CordResponseShipping
                          .shippingAddress(cart.refNum)
                          .fold(_ ⇒ None, good ⇒ good.some)
-      paymentMethods ← * <~ CordResponsePayments.fetchAll(cart.refNum)
-      paymentState   ← * <~ CartQueries.getPaymentState(cart.refNum)
-      lockedBy       ← * <~ currentLock(cart)
+      paymentMethods ← * <~ (if (isGuest) DBIO.successful(Seq())
+                             else CordResponsePayments.fetchAll(cart.refNum))
+      paymentState ← * <~ CartQueries.getPaymentState(cart.refNum)
+      lockedBy     ← * <~ currentLock(cart)
     } yield
       CartResponse(
           referenceNumber = cart.refNum,
