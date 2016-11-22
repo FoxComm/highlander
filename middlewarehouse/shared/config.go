@@ -2,6 +2,7 @@ package shared
 
 import (
 	"fmt"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"os"
 )
 
@@ -15,22 +16,22 @@ type CaptureConsumerConfig struct {
 
 const consumerErrorMsg = "%s not found in env"
 
-func MakeCaptureConsumerConfig() (CaptureConsumerConfig, error) {
+func MakeCaptureConsumerConfig() (CaptureConsumerConfig, exceptions.IException) {
 	config := CaptureConsumerConfig{}
 
 	config.PhoenixURL = os.Getenv("PHOENIX_URL")
 	if config.PhoenixURL == "" {
-		return config, fmt.Errorf(consumerErrorMsg, "PHOENIX_URL")
+		return config, exceptions.NewBadConfigurationException(fmt.Errorf(consumerErrorMsg, "PHOENIX_URL"))
 	}
 
 	config.PhoenixUser = os.Getenv("PHOENIX_USER")
 	if config.PhoenixUser == "" {
-		return config, fmt.Errorf(consumerErrorMsg, "PHOENIX_USER")
+		return config, exceptions.NewBadConfigurationException(fmt.Errorf(consumerErrorMsg, "PHOENIX_USER"))
 	}
 
 	config.PhoenixPassword = os.Getenv("PHOENIX_PASSWORD")
 	if config.PhoenixPassword == "" {
-		return config, fmt.Errorf(consumerErrorMsg, "PHOENIX_PASSWORD")
+		return config, exceptions.NewBadConfigurationException(fmt.Errorf(consumerErrorMsg, "PHOENIX_PASSWORD"))
 	}
 
 	return config, nil
