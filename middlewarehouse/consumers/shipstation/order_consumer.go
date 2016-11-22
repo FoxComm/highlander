@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
@@ -14,7 +15,7 @@ type OrderConsumer struct {
 	client *api.Client
 }
 
-func NewOrderConsumer(topic string, key string, secret string) (*OrderConsumer, error) {
+func NewOrderConsumer(topic string, key string, secret string) (*OrderConsumer, exceptions.IException) {
 	client, err := api.NewClient(key, secret)
 	if err != nil {
 		return nil, err
@@ -24,17 +25,17 @@ func NewOrderConsumer(topic string, key string, secret string) (*OrderConsumer, 
 }
 
 func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
-	activity, err := phoenix.NewActivityFromAvro(message)
-	if err != nil {
-		log.Panicf("Unable to decode Avro message with error %s", err.Error())
+	activity, exception := phoenix.NewActivityFromAvro(message)
+	if exception != nil {
+		log.Panicf("Unable to decode Avro message with error %s", exception.ToString())
 	}
 
 	if activity.Type != "order_state_changed" {
 		return nil
 	}
 
-	fullOrder, err := phoenix.NewFullOrderFromActivity(activity)
-	if err != nil {
+	fullOrder, exception := phoenix.NewFullOrderFromActivity(activity)
+	if exception != nil {
 		log.Panicf("Unable to decode order from activity")
 	}
 
@@ -47,14 +48,14 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 		fullOrder.Order.ReferenceNumber,
 	)
 
-	ssOrder, err := payloads.NewOrderFromPhoenix(fullOrder.Order)
-	if err != nil {
-		log.Panicf("Unable to create ShipStation order with error %s", err.Error())
+	ssOrder, exception := payloads.NewOrderFromPhoenix(fullOrder.Order)
+	if exception != nil {
+		log.Panicf("Unable to create ShipStation order with error %s", exception.ToString())
 	}
 
-	_, err = c.client.CreateOrder(ssOrder)
-	if err != nil {
-		log.Panicf("Unable to create order in ShipStation with error %s", err.Error())
+	_, exception = c.client.CreateOrder(ssOrder)
+	if exception != nil {
+		log.Panicf("Unable to create order in ShipStation with error %s", exception.ToString())
 	}
 
 	return nil

@@ -3,6 +3,7 @@ package payloads
 import (
 	"fmt"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
 )
 
@@ -43,11 +44,11 @@ type Order struct {
 	TagIDs                   []int `json:"tagIds"`
 }
 
-func NewOrderFromPhoenix(order phoenix.Order) (*Order, error) {
+func NewOrderFromPhoenix(order phoenix.Order) (*Order, exceptions.IException) {
 
-	shippingAddress, err := NewAddressFromPhoenix(order.ShippingAddress.Name, order.ShippingAddress)
-	if err != nil {
-		return nil, err
+	shippingAddress, exception := NewAddressFromPhoenix(order.ShippingAddress.Name, order.ShippingAddress)
+	if exception != nil {
+		return nil, exception
 	}
 
 	var billingAddress *Address
@@ -57,7 +58,7 @@ func NewOrderFromPhoenix(order phoenix.Order) (*Order, error) {
 				name := pickName(&order, &(paymentMethod.Address.Name))
 				billingAddress, _ = NewAddressFromPhoenix(*name, *paymentMethod.Address)
 			} else {
-				return nil, fmt.Errorf("Order %s has credit card payment without an address", order.ReferenceNumber)
+				return nil, exceptions.NewValidationException(fmt.Errorf("Order %s has credit card payment without an address", order.ReferenceNumber))
 			}
 		}
 	}
