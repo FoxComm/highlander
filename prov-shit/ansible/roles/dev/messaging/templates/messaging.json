@@ -17,7 +17,7 @@
     }
   },
   "env": {
-    "JAVA_OPTS": "-Dphoenix-user={{plugins_api_user_email}} -Dphoenix-password={{plugins_api_user_password}} -Dphoenix-url=http://{{phoenix_server}} -Dapi-host={{self_host}} -Dkafka-broker={{kafka_server}} -Dschema-registry-url=http://{{schema_server}} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{messaging_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+    "JAVA_OPTS": "-Dphoenix-user={{plugins_api_user_email}} -Dphoenix-password={{plugins_api_user_password}} -Dphoenix-url=http://{{phoenix_server}} -Dapi-host={{messaging_host}} -Dkafka-broker={{kafka_server}} -Dschema-registry-url=http://{{schema_server}} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{messaging_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
   },
   "portDefinitions": [
     {
