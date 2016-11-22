@@ -58,27 +58,19 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 	order := fullOrder.Order
 	lineItems := order.LineItems
 	skus := lineItems.SKUs
-	if !((order.OrderState == orderStateFulfillmentStarted && justGiftCards(skus)) ||
-		(order.OrderState == orderStateShipped && !justGiftCards(skus))) {
+
+	//We now only need to deal with orders that have been shipped.
+	//Once they are shipped and captured, we will create the giftcards here.
+	if order.OrderState != orderStateShipped {
 		return nil
 	}
 
 	giftcardPayloads := make([]payloads.CreateGiftCardPayload, 0)
-	if order.OrderState == orderStateFulfillmentStarted && justGiftCards(skus) {
-		log.Printf("state fulfillment started and  just giftcards")
-		for _, sku := range skus {
-			for j := 0; j < sku.Quantity; j++ {
-				giftcardPayloads = append(giftcardPayloads, payloads.CreateGiftCardPayload{
-					Balance: sku.Price,
-					Details: sku.Attributes.GiftCard,
-					CordRef: order.ReferenceNumber})
-			}
-		}
 
-	} else if justGiftCards(skus) == false {
-		log.Printf("state shipped and not just giftcards")
-		for _, sku := range skus {
-			if sku.Attributes != nil {
+	log.Printf("Creating giftcards for all gift-card-line-items in order")
+	for _, sku := range skus {
+		if sku.Attributes != nil {
+			for j := 0; j < sku.Quantity; j++ {
 				giftcardPayloads = append(giftcardPayloads, payloads.CreateGiftCardPayload{
 					Balance: sku.Price,
 					Details: sku.Attributes.GiftCard,
@@ -89,26 +81,15 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 	}
 
 	log.Printf("\n about to call createGiftCards service")
-	_, err = gfHandle.client.CreateGiftCards(giftcardPayloads)
-	if err != nil {
-		return fmt.Errorf("Unable to create the Giftcards for order  %s with error %s",
-			order.ReferenceNumber, err.Error())
+
+	if len(giftcardPayloads) > 0 {
+		_, err = gfHandle.client.CreateGiftCards(giftcardPayloads)
+		if err != nil {
+			return fmt.Errorf("Unable to create gift cards for order %s with error %s",
+				order.ReferenceNumber, err.Error())
+		}
+		log.Printf("Gift cards created successfully for order %s", order.ReferenceNumber)
 	}
 
-	log.Printf("\n about to create capture payload")
-	capturePayload, err := lib.NewGiftCardCapturePayload(order.ReferenceNumber, skus)
-	if err != nil {
-		return fmt.Errorf("\nUnable to create Capture payload for  %s with error %s",
-			order.ReferenceNumber, err.Error())
-	}
-
-	log.Printf("\n about to capture")
-	err = gfHandle.client.CapturePayment(capturePayload)
-	if err != nil {
-		return fmt.Errorf("Unable to capture the payment for  %s with error %s",
-			order.ReferenceNumber, err.Error())
-	}
-
-	log.Printf("Gift cards created successfully for order %s", order.ReferenceNumber)
 	return nil
 }
