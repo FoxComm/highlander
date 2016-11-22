@@ -25,9 +25,6 @@ class OrderIntegrationTest
         .update(UpdateOrderPayload(FraudHold))
         .as[OrderResponse]
         .orderState must === (FraudHold)
-
-      println(order.)
-
     }
 
     "fails if transition to destination status is not allowed" in new Fixture {

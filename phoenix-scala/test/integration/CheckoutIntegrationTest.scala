@@ -1,7 +1,6 @@
 import java.time.Instant
 
 import akka.http.scaladsl.model.HttpResponse
-
 import cats.implicits._
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
@@ -16,8 +15,10 @@ import models.payment.giftcard._
 import models.product.Mvp
 import models.shipping._
 import models.{Reason, Reasons}
+import org.json4s.JsonAST._
+import org.json4s.jackson.JsonMethods._
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.LineItemPayloads.{UpdateLineItemsPayload, UpdateOrderLineItemsPayload}
 import payloads.OrderPayloads.CreateCart
 import payloads.PaymentPayloads.GiftCardPayment
 import payloads.UpdateShippingMethod
@@ -27,6 +28,7 @@ import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
+import utils.aliases.Json
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -35,6 +37,70 @@ class CheckoutIntegrationTest
     with PhoenixAdminApi
     with AutomaticAuth
     with BakedFixtures {
+
+  "POST /v1/orders/order-line-items" - {
+    val attributes = Some(
+        parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
+    val addGiftCardPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, attributes))
+    "should update attributes of order-line-items succesfully" in new Fixture {
+      val orderResponse    = doCheckout(customer, sku, address, shipMethod, reason).as[OrderResponse]
+      val lineItemToUpdate = orderResponse.lineItems.skus.head
+      val root = cartsApi
+        .updateorderLineItem(
+            Seq(
+                UpdateOrderLineItemsPayload(None,
+                                            lineItemToUpdate.state,
+                                            attributes,
+                                            orderResponse.referenceNumber,
+                                            lineItemToUpdate.sku)))
+        .as[OrderResponse]
+      val itemsToCheck = root.lineItems.skus.filter(oli ⇒
+            oli.sku == lineItemToUpdate.sku && compareAttributes(lineItemToUpdate.attributes,
+                                                                 oli.attributes))
+      itemsToCheck
+        .forall(oli ⇒ oli.attributes.get.toString == attributes.get.toString()) mustBe true
+    }
+
+    def compareAttributes(a: Option[Json], b: Option[Json]): Boolean = {
+      (a, b) match {
+        case (Some(p), Some(a))            ⇒ p.equals(a)
+        case (None, Some(a: JNull.type))   ⇒ true
+        case (Some(a: JNull.type), None)   ⇒ true
+        case (None, Some(JObject(fields))) ⇒ fields.isEmpty
+        case (None, None)                  ⇒ true
+        case _                             ⇒ false
+      }
+    }
+
+    def doCheckout(customer: User,
+                   sku: Sku,
+                   address: Address,
+                   shipMethod: ShippingMethod,
+                   reason: Reason): HttpResponse = {
+      val refNum =
+        cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
+      val _cartApi = cartsApi(refNum)
+
+      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 2))).mustBeOk()
+
+      _cartApi.shippingAddress.updateFromAddress(address.id).mustBeOk()
+
+      val grandTotal = _cartApi.shippingMethod
+        .update(UpdateShippingMethod(shipMethod.id))
+        .asTheResult[CartResponse]
+        .totals
+        .total
+
+      val gcCode = giftCardsApi
+        .create(GiftCardCreateByCsr(grandTotal, reason.id))
+        .as[GiftCardResponse.Root]
+        .code
+
+      _cartApi.payments.giftCard.add(GiftCardPayment(gcCode, grandTotal.some)).mustBeOk()
+
+      _cartApi.checkout()
+    }
+  }
 
   "POST v1/orders/:refNum/checkout" - {
 

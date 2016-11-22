@@ -1,6 +1,7 @@
 package services
 
 import failures.CartFailures._
+import failures.OrderFailures.SkuNotFoundInOrder
 import failures.ProductFailures.SkuNotFoundForContext
 import models.account._
 import models.activity.Activity
@@ -47,19 +48,32 @@ object LineItemUpdater {
     for {
       updateOrderLi ← * <~ runOrderLineItemUpdates(payload)
       orderUpdated  ← * <~ Orders.mustFindByRefNum(payload.head.referenceNumber)
-      orderResponse ← * <~ OrderResponse.fromOrder(orderUpdated, false)
+      orderResponse ← * <~ OrderResponse.fromOrder(orderUpdated, grouped = false)
     } yield orderResponse
 
-  def runOrderLineItemUpdates(payload: Seq[UpdateOrderLineItemsPayload])(implicit ec: EC,
-                                                                         es: ES,
-                                                                         db: DB,
-                                                                         ac: AC,
-                                                                         ctx: OC) =
+  private def runOrderLineItemUpdates(payload: Seq[UpdateOrderLineItemsPayload])(implicit ec: EC,
+                                                                                 es: ES,
+                                                                                 db: DB,
+                                                                                 ac: AC,
+                                                                                 ctx: OC) =
     DbResultT.sequence(payload.map(updatePayload ⇒ {
       for {
-        orderLineItem ← * <~ OrderLineItems.mustFindById400(updatePayload.id)
-        updateResult ← * <~ OrderLineItems.update(orderLineItem.copy(attributes = updatePayload.attributes,state = updatePayload.state))
-      } yield updateResult
+        sku ← * <~ Skus
+               .findOneByCode(updatePayload.sku)
+               .mustFindOr(SkuNotFoundInOrder(updatePayload.sku, updatePayload.referenceNumber))
+        orderLineItems ← * <~ OrderLineItems
+                          .findByOrderRef(updatePayload.referenceNumber)
+                          .filter(_.skuId === sku.id)
+                          .result
+        orderLineItemsToUpdate ← * <~ orderLineItems.filter(oli ⇒
+                                      compareAttributes(oli.attributes,
+                                                        updatePayload.previousAttributes))
+        idsToDelete ← * <~ orderLineItemsToUpdate.map(_.id)
+        _           ← * <~ OrderLineItems.filter(_.id inSet idsToDelete).delete
+        createResult ← * <~ orderLineItemsToUpdate.map(oli ⇒
+                            OrderLineItems.create(oli.copy(attributes = updatePayload.attributes,
+                                                           state = updatePayload.state)))
+      } yield createResult
     }))
 
   def updateQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
@@ -246,13 +260,18 @@ object LineItemUpdater {
   private def filterLineItemsByAttributes(lineItems: Seq[CartLineItem],
                                           presentAttributes: Option[Json]) = {
     lineItems.filter { li ⇒
-      (presentAttributes, li.attributes) match {
-        case (Some(p), Some(a))            ⇒ p.equals(a)
-        case (None, Some(a: JNull.type))   ⇒ true
-        case (None, Some(JObject(fields))) ⇒ fields.isEmpty
-        case (None, None)                  ⇒ true
-        case _                             ⇒ false
-      }
+      compareAttributes(presentAttributes, li.attributes)
+    }
+  }
+
+  private def compareAttributes(a: Option[Json], b: Option[Json]): Boolean = {
+    (a, b) match {
+      case (Some(p), Some(a))            ⇒ p.equals(a)
+      case (None, Some(a: JNull.type))   ⇒ true
+      case (Some(a: JNull.type), None)   ⇒ true
+      case (None, Some(JObject(fields))) ⇒ fields.isEmpty
+      case (None, None)                  ⇒ true
+      case _                             ⇒ false
     }
   }
 

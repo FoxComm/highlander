@@ -38,6 +38,12 @@ object OrderRoutes {
             mutateOrFailures {
               OrderStateUpdater.updateStates(auth.model, payload.referenceNumbers, payload.state)
             }
+          } ~
+          (post & path("order-line-items") & pathEnd & entity(
+                  as[Seq[UpdateOrderLineItemsPayload]])) { reqItems ⇒
+            mutateOrFailures {
+              LineItemUpdater.updateOrderLineItems(auth.model, reqItems)
+            }
           }
         } ~
         pathPrefix("carts" / cordRefNumRegex) { refNum ⇒
@@ -109,17 +115,6 @@ object OrderRoutes {
               mutateOrFailures {
                 LineItemUpdater.addQuantitiesOnCart(auth.model, refNum, reqItems)
               }
-          } ~
-          (post & path("order-line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) {
-            reqItems ⇒
-              mutateOrFailures {
-                LineItemUpdater.updateQuantitiesOnCart(auth.model, refNum, reqItems)
-              }
-          } ~ (post & path("order-line-items") & pathEnd & entity(
-                  as[Seq[UpdateOrderLineItemsPayload]])) { reqItems ⇒
-            mutateOrFailures {
-              LineItemUpdater.updateOrderLineItems(auth.model, reqItems)
-            }
           } ~
           pathPrefix("payment-methods" / "credit-cards") {
             (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
