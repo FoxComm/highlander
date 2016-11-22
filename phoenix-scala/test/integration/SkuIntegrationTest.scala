@@ -14,6 +14,7 @@ import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.CreateCart
+import payloads.ProductPayloads.UpdateProductPayload
 import payloads.SkuPayloads.SkuPayload
 import responses.SkuResponses.SkuResponse
 import responses.cord.CartResponse
@@ -88,6 +89,20 @@ class SkuIntegrationTest
 
   "DELETE v1/products/:context/:id" - {
     "Archives SKU successfully" in new Fixture {
+      val result = skusApi(sku.code).archive().as[SkuResponse.Root]
+
+      withClue(result.archivedAt.value → Instant.now) {
+        result.archivedAt.value.isBeforeNow mustBe true
+      }
+    }
+
+    "Successfully archives SKU which is linked to a product" in new FixtureWithProduct {
+      private val updateProductPayload: UpdateProductPayload =
+        UpdateProductPayload(attributes = Map(),
+                             skus = Some(List(makeSkuPayload(sku.code, Map()))),
+                             variants = None)
+      productsApi(product.formId).update(updateProductPayload).mustBeOk
+
       val result = skusApi(sku.code).archive().as[SkuResponse.Root]
 
       withClue(result.archivedAt.value → Instant.now) {

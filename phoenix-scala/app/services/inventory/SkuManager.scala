@@ -71,9 +71,9 @@ object SkuManager {
       albums       ← * <~ ImageManager.getAlbumsForSkuInner(archivedSku.code, oc)
       productLinks ← * <~ ProductSkuLinks.filter(_.rightId === archivedSku.id).result
       _ ← * <~ productLinks.map { link ⇒
-           SkuAlbumLinks.deleteById(link.id,
-                                    DbResultT.unit,
-                                    id ⇒ NotFoundFailure400(SkuAlbumLinks, id))
+           ProductSkuLinks.deleteById(link.id,
+                                      DbResultT.unit,
+                                      id ⇒ NotFoundFailure400(ProductSkuLinks, id))
          }
     } yield
       SkuResponse.build(
