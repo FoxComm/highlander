@@ -1,7 +1,7 @@
 (ns messaging.mail
   (:require
     [aleph.http :as http]
-    [pjson.core :as json]
+    [cheshire.core :as json]
     [byte-streams :as bs]
     [environ.core :refer [env]]
     [clojure.string :as string]
@@ -38,13 +38,20 @@
 
 (defn gen-msg
   [{customer-email :email customer-name :name :as rcpt} vars {:keys [subject text html] :as opts}]
-  (let [base-vars {:main_public_domain (settings/get :main_public_domain)
+  (let [additional-vars (some->
+                          (settings/get :additional_merge_vars)
+                          (json/parse-string true))
+        base-vars {:shop_base_url (settings/get :shop_base_url)
+                   :company_name (settings/get :retailer_name)
                    :email_subject subject
                    :update_profile_link (settings/get :update_customer_profile_link)
-                   :customer_name customer-name}]
+                   :customer_name customer-name}
+        base-merge-vars (if additional-vars
+                           (merge base-vars additional-vars)
+                          base-vars)]
    (merge opts {:to
                 [rcpt]
-                :global_merge_vars (make-tpl-vars (merge base-vars vars))
+                :global_merge_vars (make-tpl-vars (merge base-merge-vars vars))
                 :merge_language "handlebars"
                 :auto_text true
 

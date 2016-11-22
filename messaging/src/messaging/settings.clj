@@ -45,6 +45,11 @@
     :title "Retailer name"
     :type "string"
     :default ""}
+
+   {:name "additional_merge_vars"
+    :title "Merge vars"
+    :type "string"
+    :default ""}
 ; ----
 
 ; ---- Templates settings
