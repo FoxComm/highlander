@@ -6,6 +6,12 @@
 .checkout {
   width: 100%;
   counter-reset: item;
+
+  & :global(.fc-errors) > div:first-child {
+    /* 96px - height of sticky header */
+    padding-top: 96px;
+    margin-top: -96px;
+  }
 }
 
 .summary {
