@@ -15,6 +15,16 @@ import Currency from 'components/common/currency';
 // actions
 import { updateLineItemCount } from 'modules/carts/details';
 
+export type LineItemProps = {
+  imagePath: string,
+  name: string,
+  sku: string,
+  price: number,
+  totalPrice: number,
+  quantity: number,
+  attributes: ?Object,
+}
+
 type Props = {
   updateLineItemCount: Function,
   cart: {
@@ -23,15 +33,7 @@ type Props = {
       skus: Array<any>,
     },
   },
-  item: {
-    imagePath: string,
-    name: string,
-    sku: string,
-    price: number,
-    totalPrice: number,
-    quantity: number,
-    attributes: ?Object,
-  },
+  item: LineItemProps,
 };
 
 type Target = {
@@ -109,12 +111,12 @@ export class CartLineItem extends Component {
     this.setState({ quantity }, this.performUpdate);
   }
 
-  render() {
+  get item() {
     const { item } = this.props;
     const { isDeleting, quantity } = this.state;
 
     return (
-      <tr>
+      <tr className="line-item">
         <td><img src={item.imagePath} /></td>
         <td>{item.name}</td>
         <td>{item.sku}</td>
@@ -146,7 +148,10 @@ export class CartLineItem extends Component {
       </tr>
     );
   }
+
+  render() {
+    return this.item
+  }
 }
-;
 
 export default connect(null, { updateLineItemCount })(CartLineItem);

@@ -83,4 +83,30 @@
     border-top: none;
     background-color: @color-decor12;
   }
+
+  .line-item {
+    td {
+      position: relative;
+      background: #fff;
+      z-index: 1;
+      box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.3);
+
+      &:last-child {
+        box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.3);
+      }
+    }
+  }
+
+  .line-item__more {
+    .line-item__more-content {
+      padding: 0;
+
+      th {
+        padding: 20px 15px;
+        height: auto;
+        background: #e4e6ea;
+        box-shadow: none;
+      }
+    }
+  }
 }
