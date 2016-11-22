@@ -62,17 +62,6 @@ class CheckoutIntegrationTest
 
     }
 
-    def compareAttributes(a: Option[Json], b: Option[Json]): Boolean = {
-      (a, b) match {
-        case (Some(p), Some(a))            ⇒ p.equals(a)
-        case (None, Some(a: JNull.type))   ⇒ true
-        case (Some(a: JNull.type), None)   ⇒ true
-        case (None, Some(JObject(fields))) ⇒ fields.isEmpty
-        case (None, None)                  ⇒ true
-        case _                             ⇒ false
-      }
-    }
-
     def doCheckout(customer: User,
                    sku: Sku,
                    address: Address,
