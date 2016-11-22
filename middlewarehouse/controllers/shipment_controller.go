@@ -124,7 +124,17 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 
     //We are assuming here that, if the shipment has no line items, then it can be automatically shipped.
     //Most useful in the case of gift cards.
-    if len(shipment.ShipmentLineItems) == 0 {
+    var hasTrackedInventory = false
+    for _, lineItem := range payload.LineItems.SKUs {
+      // We only care about the line items if we're tracking inventory.
+      if !lineItem.TrackInventory {
+        hasTrackedInventory = true
+        break
+      }
+    }
+
+    //This means that it's only digital items (eg. gift cards)
+    if hasTrackedInventory == false {
       shipment.State = ShipmentStateShipped
       shipment, err := controller.shipmentService.UpdateShipment(shipment)
       if err != nil { 
