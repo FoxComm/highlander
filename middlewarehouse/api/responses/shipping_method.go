@@ -3,6 +3,7 @@ package responses
 import (
 	"errors"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 )
 
@@ -15,7 +16,7 @@ type ShippingMethod struct {
 	Cost         uint    `json:"cost"`
 }
 
-func NewShippingMethodFromModel(shippingMethod *models.ShippingMethod) (*ShippingMethod, error) {
+func NewShippingMethodFromModel(shippingMethod *models.ShippingMethod) (*ShippingMethod, exceptions.IException) {
 	sm := &ShippingMethod{
 		ID:      shippingMethod.ID,
 		Carrier: *NewCarrierFromModel(&shippingMethod.Carrier),
@@ -29,7 +30,7 @@ func NewShippingMethodFromModel(shippingMethod *models.ShippingMethod) (*Shippin
 	} else if shippingMethod.ShippingType == models.ShippingTypeVariable {
 		sm.ShippingType = "variable"
 	} else {
-		return nil, errors.New("Unexpected shipping type")
+		return nil, exceptions.NewValidationException(errors.New("Unexpected shipping type"))
 	}
 
 	return sm, nil

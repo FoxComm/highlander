@@ -1,6 +1,9 @@
 package payloads
 
-import "errors"
+import (
+	"errors"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
+)
 
 type Reservation struct {
 	RefNum string            `json:"refNum" binding:"required"`
@@ -12,9 +15,9 @@ type ItemReservation struct {
 	Qty uint   `json:"qty" binding:"required"`
 }
 
-func (r Reservation) Validate() error {
+func (r Reservation) Validate() exceptions.IException {
 	if len(r.Items) == 0 {
-		return errors.New("Reservation must have at least one SKU")
+		return exceptions.NewValidationException(errors.New("Reservation must have at least one SKU"))
 	}
 
 	return nil

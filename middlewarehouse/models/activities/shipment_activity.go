@@ -10,9 +10,9 @@ import (
 )
 
 func newShipmentActivity(aType string, shipment *models.Shipment, createdAt time.Time) (ISiteActivity, exceptions.IException) {
-	resp, err := responses.NewShipmentFromModel(shipment)
-	if err != nil {
-		return nil, err
+	resp, exception := responses.NewShipmentFromModel(shipment)
+	if exception != nil {
+		return nil, exception
 	}
 
 	shipBytes, err := json.Marshal(resp)
