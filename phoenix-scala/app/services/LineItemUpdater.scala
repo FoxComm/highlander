@@ -46,7 +46,7 @@ object LineItemUpdater {
       ac: AC,
       ctx: OC): DbResultT[OrderResponse] =
     for {
-      updateOrderLi ← * <~ runOrderLineItemUpdates(payload)
+      _             ← * <~ runOrderLineItemUpdates(payload)
       orderUpdated  ← * <~ Orders.mustFindByRefNum(refNum)
       orderResponse ← * <~ OrderResponse.fromOrder(orderUpdated, grouped = false)
     } yield orderResponse
@@ -61,13 +61,16 @@ object LineItemUpdater {
         orderLineItems ← * <~ OrderLineItems
                           .filter(_.referenceNumber === updatePayload.referenceNumber)
                           .result
-        _           ← * <~ println(orderLineItems)
         idsToDelete ← * <~ orderLineItems.map(_.id)
         _           ← * <~ OrderLineItems.filter(_.id inSet idsToDelete).delete
         createResult ← * <~ orderLineItems.map(oli ⇒
                             OrderLineItems.create(oli.copy(attributes = updatePayload.attributes,
                                                            state = updatePayload.state)))
-      } yield orderLineItems
+        orderLineItems2 ← * <~ OrderLineItems
+                           .filter(_.referenceNumber === updatePayload.referenceNumber)
+                           .result
+        _ ← * <~ orderLineItems2
+      } yield createResult
     }))
 
   def updateQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(

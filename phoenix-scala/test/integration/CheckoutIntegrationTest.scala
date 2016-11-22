@@ -48,15 +48,15 @@ class CheckoutIntegrationTest
       val orderResponse =
         doCheckout(customer, sku, address, shipMethod, reason, refNum).as[OrderResponse]
       val lineItemToUpdate = orderResponse.lineItems.skus.head
-      val root = cartsApi(orderResponse.referenceNumber.head)
-        .updateorderLineItem(Seq(UpdateOrderLineItemsPayload(lineItemToUpdate.state,
-                                                             attributes,
-                                                             lineItemToUpdate.referenceNumber)))
+      val root = cartsApi(orderResponse.referenceNumber)
+        .updateorderLineItem(
+            Seq(UpdateOrderLineItemsPayload(lineItemToUpdate.state,
+                                            attributes,
+                                            lineItemToUpdate.referenceNumbers.headOption.get)))
         .as[OrderResponse]
       val itemsToCheck = root.lineItems.skus.filter(oli ⇒
-            oli.sku == lineItemToUpdate.sku && compareAttributes(lineItemToUpdate.attributes,
-                                                                 oli.attributes))
-      println(itemsToCheck)
+            oli.referenceNumbers.headOption.get == lineItemToUpdate.referenceNumbers.headOption.get)
+      itemsToCheck.size mustBe 1
       itemsToCheck
         .forall(oli ⇒ oli.attributes.get.toString == attributes.get.toString()) mustBe true
 
