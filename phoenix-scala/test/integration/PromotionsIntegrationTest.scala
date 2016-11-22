@@ -200,17 +200,12 @@ class PromotionsIntegrationTest
 
     "should update coupon discount when cart becomes clean" in new Fixture
     with ProductAndSkus_Baked {
-      def makeSkuPayload(code: String, attrMap: Map[String, Json]) = {
-        val codeJson = ("t" → "string") ~ ("v" → code)
-        SkuPayload(attrMap + ("code" → codeJson))
-      }
-
       private val couponCode = setupPromoAndCoupon()
 
       productsApi(simpleProduct.formId).update(
           UpdateProductPayload(Map(),
-                               skus = Some(Seq(makeSkuPayload(simpleSku.code, Map()))),
-                               variants = None))
+                               skus = Some(Seq(SkuPayload(Map("code" → tv(simpleSku.code))))),
+                               variants = None)).mustBeOk()
 
       POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(simpleSku.code, 1))).mustBeOk()
 
