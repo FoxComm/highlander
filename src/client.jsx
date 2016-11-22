@@ -11,6 +11,16 @@ import { initTracker, trackPageView } from 'lib/analytics';
 
 const DEBUG = true;
 
+
+function scrollHandler(prevRouterProps, { params }) {
+  // do not scroll page to top if product type was selected in dropdown menu
+  if (params.categoryName && params.productType) {
+    return false;
+  }
+
+  return true;
+}
+
 export function renderApp() {
   const history = browserHistory;
   const store = makeStore(history, window.__data);
@@ -31,7 +41,7 @@ export function renderApp() {
   render((
     <I18nProvider locale={language} translation={translation}>
       <Provider store={store} key="provider">
-        <Router history={browserHistory} render={applyRouterMiddleware(useScroll())}>
+        <Router history={browserHistory} render={applyRouterMiddleware(useScroll(scrollHandler))}>
           {routes}
         </Router>
       </Provider>
