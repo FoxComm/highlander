@@ -39,7 +39,7 @@ object LineItemUpdater {
     } yield response
   }
 
-  def updateOrderLineItems(admin: User, payload: Seq[UpdateOrderLineItemsPayload])(
+  def updateOrderLineItems(admin: User, payload: Seq[UpdateOrderLineItemsPayload], refNum: String)(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -47,7 +47,7 @@ object LineItemUpdater {
       ctx: OC): DbResultT[OrderResponse] =
     for {
       updateOrderLi ← * <~ runOrderLineItemUpdates(payload)
-      orderUpdated  ← * <~ Orders.mustFindByRefNum(payload.head.referenceNumber)
+      orderUpdated  ← * <~ Orders.mustFindByRefNum(refNum)
       orderResponse ← * <~ OrderResponse.fromOrder(orderUpdated, grouped = false)
     } yield orderResponse
 
@@ -58,22 +58,16 @@ object LineItemUpdater {
                                                                                  ctx: OC) =
     DbResultT.sequence(payload.map(updatePayload ⇒ {
       for {
-        sku ← * <~ Skus
-               .findOneByCode(updatePayload.sku)
-               .mustFindOr(SkuNotFoundInOrder(updatePayload.sku, updatePayload.referenceNumber))
         orderLineItems ← * <~ OrderLineItems
-                          .findByOrderRef(updatePayload.referenceNumber)
-                          .filter(_.skuId === sku.id)
+                          .filter(_.referenceNumber === updatePayload.referenceNumber)
                           .result
-        orderLineItemsToUpdate ← * <~ orderLineItems.filter(oli ⇒
-                                      compareAttributes(oli.attributes,
-                                                        updatePayload.previousAttributes))
-        idsToDelete ← * <~ orderLineItemsToUpdate.map(_.id)
+        _           ← * <~ println(orderLineItems)
+        idsToDelete ← * <~ orderLineItems.map(_.id)
         _           ← * <~ OrderLineItems.filter(_.id inSet idsToDelete).delete
-        createResult ← * <~ orderLineItemsToUpdate.map(oli ⇒
+        createResult ← * <~ orderLineItems.map(oli ⇒
                             OrderLineItems.create(oli.copy(attributes = updatePayload.attributes,
                                                            state = updatePayload.state)))
-      } yield createResult
+      } yield orderLineItems
     }))
 
   def updateQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(

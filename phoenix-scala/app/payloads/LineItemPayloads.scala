@@ -12,9 +12,9 @@ import utils.aliases._
 object LineItemPayloads {
 
   case class UpdateLineItemsPayload(sku: String, quantity: Int, attributes: Option[Json] = None)
-  case class UpdateOrderLineItemsPayload(previousAttributes: Option[Json] = None,
-                                         state: OrderLineItem.State,
-                                         attributes: Option[Json],
-                                         referenceNumber: String,
-                                         sku: String)
+  case class UpdateOrderLineItemsPayload(
+      state: OrderLineItem.State,
+      attributes: Option[Json],
+      referenceNumber: String
+  )
 }

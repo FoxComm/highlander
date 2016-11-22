@@ -38,27 +38,28 @@ class CheckoutIntegrationTest
     with AutomaticAuth
     with BakedFixtures {
 
-  "POST /v1/orders/order-line-items" - {
+  "PATCH /v1/orders/:refNum/order-line-items" - {
     val attributes = Some(
         parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
     val addGiftCardPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, attributes))
     "should update attributes of order-line-items succesfully" in new Fixture {
-      val orderResponse    = doCheckout(customer, sku, address, shipMethod, reason).as[OrderResponse]
+      val refNum =
+        cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
+      val orderResponse =
+        doCheckout(customer, sku, address, shipMethod, reason, refNum).as[OrderResponse]
       val lineItemToUpdate = orderResponse.lineItems.skus.head
-      val root = cartsApi
-        .updateorderLineItem(
-            Seq(
-                UpdateOrderLineItemsPayload(None,
-                                            lineItemToUpdate.state,
-                                            attributes,
-                                            orderResponse.referenceNumber,
-                                            lineItemToUpdate.sku)))
+      val root = cartsApi(orderResponse.referenceNumber.head)
+        .updateorderLineItem(Seq(UpdateOrderLineItemsPayload(lineItemToUpdate.state,
+                                                             attributes,
+                                                             lineItemToUpdate.referenceNumber)))
         .as[OrderResponse]
       val itemsToCheck = root.lineItems.skus.filter(oli ⇒
             oli.sku == lineItemToUpdate.sku && compareAttributes(lineItemToUpdate.attributes,
                                                                  oli.attributes))
+      println(itemsToCheck)
       itemsToCheck
         .forall(oli ⇒ oli.attributes.get.toString == attributes.get.toString()) mustBe true
+
     }
 
     def compareAttributes(a: Option[Json], b: Option[Json]): Boolean = {
@@ -76,9 +77,8 @@ class CheckoutIntegrationTest
                    sku: Sku,
                    address: Address,
                    shipMethod: ShippingMethod,
-                   reason: Reason): HttpResponse = {
-      val refNum =
-        cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
+                   reason: Reason,
+                   refNum: String): HttpResponse = {
       val _cartApi = cartsApi(refNum)
 
       _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 2))).mustBeOk()

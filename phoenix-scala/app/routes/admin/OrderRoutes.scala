@@ -38,12 +38,6 @@ object OrderRoutes {
             mutateOrFailures {
               OrderStateUpdater.updateStates(auth.model, payload.referenceNumbers, payload.state)
             }
-          } ~
-          (post & path("order-line-items") & pathEnd & entity(
-                  as[Seq[UpdateOrderLineItemsPayload]])) { reqItems ⇒
-            mutateOrFailures {
-              LineItemUpdater.updateOrderLineItems(auth.model, reqItems)
-            }
           }
         } ~
         pathPrefix("carts" / cordRefNumRegex) { refNum ⇒
@@ -57,6 +51,13 @@ object OrderRoutes {
           (get & pathEnd) {
             getOrFailures {
               OrderQueries.findOne(refNum)
+            }
+          } ~
+          pathPrefix("order-line-items") {
+            (patch & pathEnd & entity(as[Seq[UpdateOrderLineItemsPayload]])) { reqItems ⇒
+              mutateOrFailures {
+                LineItemUpdater.updateOrderLineItems(auth.model, reqItems, refNum)
+              }
             }
           } ~
           (patch & pathEnd & entity(as[UpdateOrderPayload])) { payload ⇒
