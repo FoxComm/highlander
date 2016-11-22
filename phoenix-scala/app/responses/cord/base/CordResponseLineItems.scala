@@ -11,7 +11,7 @@ import utils.aliases._
 import utils.db._
 
 case class CordResponseLineItem(imagePath: String,
-                                referenceNumber: String,
+                                referenceNumbers: Seq[String],
                                 name: Option[String],
                                 sku: String,
                                 price: Int,
@@ -19,6 +19,7 @@ case class CordResponseLineItem(imagePath: String,
                                 totalPrice: Int,
                                 productFormId: Int,
                                 externalId: Option[String],
+                                trackInventory: Boolean,
                                 state: OrderLineItem.State,
                                 attributes: Option[Json] = None)
     extends ResponseItem
@@ -56,7 +57,7 @@ object CordResponseLineItems {
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
       li     ← * <~ LineItemManager.getOrderLineItems(cordRef)
-      result ← * <~ li.map(data ⇒ createResponse(data, 1))
+      result ← * <~ li.map(data ⇒ createResponse(data, Seq(data.lineItemReferenceNumber), 1))
     } yield result
 
   def cordLineItemsGrouped(lineItems: Seq[LineItemProductData[_]],
@@ -94,7 +95,8 @@ object CordResponseLineItems {
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
       lineItems ← * <~ LineItemManager.getCartLineItems(cordRef)
-      result    ← * <~ lineItems.map(data ⇒ createResponse(data, 1))
+      result ← * <~ lineItems.map(data ⇒
+                    createResponse(data, Seq(data.lineItemReferenceNumber), 1))
     } yield result
 
   private val NOT_A_REF = "not_a_ref"
@@ -123,38 +125,32 @@ object CordResponseLineItems {
       implicit ec: EC,
       db: DB): CordResponseLineItem = {
 
-    val data = lineItemData.head
+    val data             = lineItemData.head
+    val referenceNumbers = lineItemData.map(_.lineItemReferenceNumber)
 
-    //only show reference number for line items that have adjustments.
-    //This is because the adjustment list references the line item by the
-    //reference number. In the future it would be better if each line item
-    //simply had a list of adjustments instead of the list sitting outside
-    //the line item.
-    val referenceNumber =
-      if (adjMap.contains(data.lineItemReferenceNumber))
-        data.lineItemReferenceNumber
-      else ""
-
-    createResponse(data.withLineItemReferenceNumber(referenceNumber), lineItemData.length)
+    createResponse(data, referenceNumbers, lineItemData.length)
   }
 
   private def createResponse(data: LineItemProductData[_],
+                             referenceNumbers: Seq[String],
                              quantity: Int)(implicit ec: EC, db: DB): CordResponseLineItem = {
     require(quantity > 0)
 
     val title = Mvp.title(data.productForm, data.productShadow)
     val image = data.image.getOrElse(NO_IMAGE)
 
-    val price      = Mvp.priceAsInt(data.skuForm, data.skuShadow)
-    val externalId = Mvp.externalId(data.skuForm, data.skuShadow)
+    val price          = Mvp.priceAsInt(data.skuForm, data.skuShadow)
+    val externalId     = Mvp.externalId(data.skuForm, data.skuShadow)
+    val trackInventory = Mvp.trackInventory(data.skuForm, data.skuShadow)
 
     CordResponseLineItem(imagePath = image,
                          sku = data.sku.code,
-                         referenceNumber = data.lineItemReferenceNumber,
+                         referenceNumbers = Seq(data.lineItemReferenceNumber),
                          state = data.lineItemState,
                          name = title,
                          price = price,
                          externalId = externalId,
+                         trackInventory = trackInventory,
                          productFormId = data.productForm.id,
                          totalPrice = price,
                          quantity = quantity,

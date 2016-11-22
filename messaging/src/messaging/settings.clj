@@ -45,6 +45,11 @@
     :title "Retailer name"
     :type "string"
     :default ""}
+
+   {:name "additional_merge_vars"
+    :title "Merge vars"
+    :type "string"
+    :default ""}
 ; ----
 
 ; ---- Templates settings
@@ -72,6 +77,17 @@
     :title "Order canceled mail subject"
     :type "string"
     :default  "Order cancellation"}
+; - Order shipped
+   {:name "order_shipped_subject"
+    :title "Order shipped subject"
+    :type "string"
+    :default ""}
+
+   {:name "order_shipped_template"
+    :title "Order shipped template"
+    :type "string"
+    :default ""}
+
 ; ---
 
    {:name "admin_invitation_template"

@@ -16,6 +16,14 @@
     - name: "store_admin_password"
       prompt: "Enter a password for new admin"
       private: no
+    - name: "store_admin_org"
+      prompt: "Enter an organization for new admin"
+      default: "tenant"
+      private: no
+    - name: "store_admin_roles"
+      prompt: "Enter roles for new admin"
+      default: "admin"
+      private: no
 
   roles:
       - { role: prod/bootstrap_store_admin }

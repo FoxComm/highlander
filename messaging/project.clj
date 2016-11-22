@@ -2,8 +2,12 @@
   foxcomm_messaging
   "0.1.0"
   :plugins [[lein-environ "1.1.0"]]
+  :target-path "target/%s/"
+  :compile-path "%s/classy-files"
+  :clean-targets [:target-path :compile-path]
 
-  :profiles {:uberjar {:aot :all}
+  :profiles {:uberjar {:target-path "target/"
+                       :aot :all}
              :dev
              {:source-paths ["dev"]
               :repl-options {:init-ns user
@@ -29,11 +33,12 @@
    [com.taoensso/timbre "4.7.4"]
    [compojure "1.5.1"]
    [ring/ring-core "1.5.0"]
+   [ring/ring-json "0.4.0"]
    [gws/clj-mandrill "0.4.2"]
    [org.clojars.narma/clojchimp "1.0.2"]
    [byte-streams "0.2.0"]
    [com.damballa/abracad "0.4.13"]
-   [pjson "0.3.2"]
+   [cheshire "5.6.3"]
    [environ "1.0.2"]
    [manifold "0.1.5"]
    [org.danielsz/system "0.3.0-20160513.104026-20"]

@@ -57,7 +57,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/phoenix:{{docker_frontend_branch}}",
+      "image": "{{docker_registry}}:5000/phoenix:{{docker_branch}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

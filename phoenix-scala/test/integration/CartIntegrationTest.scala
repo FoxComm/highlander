@@ -1,4 +1,5 @@
 import akka.http.scaladsl.model.StatusCodes
+
 import cats.implicits._
 import failures.CartFailures._
 import failures.LockFailures._
@@ -14,33 +15,29 @@ import models.rules.QueryStatement
 import models.shipping._
 import org.json4s.JsonAST.JObject
 import org.json4s.jackson.JsonMethods._
-import payloads.AddressPayloads.UpdateAddressPayload
-import payloads.CustomerPayloads.CreateCustomerPayload
 import payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
+import payloads.CustomerPayloads.CreateCustomerPayload
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.CreateCart
-import payloads.ProductPayloads.CreateProductPayload
-import payloads.SkuPayloads.SkuPayload
 import payloads.UpdateShippingMethod
-import responses.{CustomerResponse, TheResponse}
 import responses.cord.CartResponse
-import responses.CustomerResponse.Root
-import responses.cord.base.{CordResponseLineItem, CordResponseTotals}
+import responses.cord.base.CordResponseLineItem
+import responses.{CustomerResponse, TheResponse}
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
-import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
+import testutils.fixtures.api.ApiFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.seeds.ShipmentSeeds
-import org.json4s.JsonDSL._
 
 class CartIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with AutomaticAuth
+    with ApiFixtures
     with BakedFixtures {
 
   "GET /v1/carts/:refNum" - {
@@ -525,23 +522,7 @@ class CartIntegrationTest
     } yield (cc, op, ccc)).gimme
   }
 
-  class TaxesFixture(regionId: Int) extends ShipmentSeeds {
-    // Product + SKU
-    val skuCode = "foo"
-
-    private val skuPayload = SkuPayload(
-        Map("code"        → tv(skuCode),
-            "title"       → tv("Foo"),
-            "salePrice"   → tv(("currency" → "USD") ~ ("value" → 10000), "price"),
-            "retailPrice" → tv(("currency" → "USD") ~ ("value" → 10000), "price")))
-
-    private val productPayload = CreateProductPayload(
-        attributes = Map("name" → tv("foo_p"), "title" → tv("foo_p")),
-        skus = Seq(skuPayload),
-        variants = None)
-
-    productsApi.create(productPayload).mustBeOk()
-
+  class TaxesFixture(regionId: Int) extends ShipmentSeeds with ProductSku_ApiFixture {
     // Shipping method
     val shipMethodId = ShippingMethods.create(shippingMethods(2)).gimme.id
 

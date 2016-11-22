@@ -88,7 +88,10 @@ func NewShipmentFromOrderPayload(payload *payloads.Order) *Shipment {
 	}
 
 	for _, lineItem := range payload.LineItems.SKUs {
-		shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *NewShipmentLineItemFromOrderPayload(&lineItem))
+		// We only care about the line items if we're tracking inventory.
+		if lineItem.TrackInventory {
+			shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *NewShipmentLineItemFromOrderPayload(&lineItem))
+		}
 	}
 
 	return shipment

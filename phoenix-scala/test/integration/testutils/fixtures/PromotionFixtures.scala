@@ -69,8 +69,8 @@ trait PromotionFixtures extends TestFixtureBase {
     def promotion: Promotion
     val coupon = CouponManager.create(couponPayload(promotion.formId), ctx.name, None).gimme
 
-    def couponPayload(promoId: Int): CreateCoupon = {
-      CreateCoupon(attributes = Map[String, Json]("name" → tv("donkey coupon")), promoId)
+    def couponPayload(promoId: Int, attributes: Map[String, Json] = Map()): CreateCoupon = {
+      CreateCoupon(attributes = attributes + ("name" → tv("donkey coupon")), promoId)
     }
   }
 

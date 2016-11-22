@@ -25,4 +25,8 @@ object OrderFailures {
   case object OrderAlreadyHasCoupon extends Failure {
     override def description = "Order already has a coupon attached. Remove coupon first."
   }
+
+  case class OrderLineItemNotFound(refNum: String) extends Failure {
+    override def description = s"Order line item with referenceNumber=${refNum} not found"
+  }
 }
