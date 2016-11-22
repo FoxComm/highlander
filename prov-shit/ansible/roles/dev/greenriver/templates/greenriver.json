@@ -17,5 +17,24 @@
       "parameters": [],
       "forcePullImage": true
     }
-  }
+  },
+  "portDefinitions": [
+    {
+      "port": 10003,
+      "protocol": "tcp",
+      "labels": {}
+    }
+  ],
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "ps -ef | grep -v grep | grep greenriver.jar"
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3
+    }
+  ]
 }
