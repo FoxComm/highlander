@@ -16,8 +16,6 @@
     - { role: dev/appliance }
     - { role: base/secret_keys }
     - { role: dev/consul_agent }
-    - { role: base/phoenix }
-    - { role: base/greenriver }
     - { role: base/marketplace, when: with_marketplace }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
