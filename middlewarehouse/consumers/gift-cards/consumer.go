@@ -89,14 +89,16 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 	}
 
 	log.Printf("\n about to call createGiftCards service")
-	_, err = gfHandle.client.CreateGiftCards(giftcardPayloads)
-	if err != nil {
-		return fmt.Errorf("Unable to create the Giftcards for order  %s with error %s",
-			order.ReferenceNumber, err.Error())
+	if len(giftcardPayloads) > 0 {
+		_, err = gfHandle.client.CreateGiftCards(giftcardPayloads)
+		if err != nil {
+			return fmt.Errorf("Unable to create the Giftcards for order  %s with error %s",
+				order.ReferenceNumber, err.Error())
+		}
 	}
 
 	log.Printf("\n about to create capture payload")
-	capturePayload, err := lib.NewGiftCardCapturePayload(order.ReferenceNumber, skus)
+	capturePayload, err := lib.NewCapturePayloadFromOrder(order.ReferenceNumber, skus)
 	if err != nil {
 		return fmt.Errorf("\nUnable to create Capture payload for  %s with error %s",
 			order.ReferenceNumber, err.Error())
@@ -108,7 +110,6 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 		return fmt.Errorf("Unable to capture the payment for  %s with error %s",
 			order.ReferenceNumber, err.Error())
 	}
-
 	log.Printf("Gift cards created successfully for order %s", order.ReferenceNumber)
 	return nil
 }
