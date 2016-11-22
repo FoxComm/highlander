@@ -60,6 +60,9 @@
 }
 
 .cvc-images {
+  display: flex;
+  justify-content: space-between;
+
   & > :global(.icon) {
     width: 160px;
     height: 107px;
