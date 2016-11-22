@@ -115,7 +115,7 @@ object ProductManager {
 
   def validateProductActivityPeriod(productId: Int, attributes: Map[String, Json], contextId: Int)(
       implicit ec: EC,
-      db: DB) = {
+      db: DB): DbResultT[Unit] = {
 
     val changesToInactive = !IlluminateAlgorithm.isActive(attributes)
 

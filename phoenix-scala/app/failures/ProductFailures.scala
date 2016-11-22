@@ -92,11 +92,11 @@ object ProductFailures {
 
   case class CannotSetInactiveWhileProductInCart(productId: Int) extends Failure {
     override def description: String =
-      s"Cannot change the State to 'Inactive' as the product is present in a customer cart. Product id = $productId"
+      s"Cannot change the State to 'Inactive' as the product with id=$productId is present in a customer cart"
   }
 
   case class CannotSetInactiveWhileSkuInCart(skuId: Int) extends Failure {
     override def description: String =
-      s"Cannot change the State to 'Inactive' as the SKU is present in a customer cart. SKU id = $skuId"
+      s"Cannot change the State to 'Inactive' as the SKU with id=$skuId is present in a customer cart"
   }
 }

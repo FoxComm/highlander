@@ -124,11 +124,13 @@ class SkuIntegrationTest
       skusApi(sku.code)
         .update(makeSkuPayload(sku.code, attrMap))
         .mustFailWith400(CannotSetInactiveWhileSkuInCart(sku.formId))
+
       skusApi(sku.code)
         .update(makeSkuPayload(sku.code,
                                attrMap +
                                  dateJson("activeFrom", Instant.now().plusMinutes(100))))
         .mustFailWith400(CannotSetInactiveWhileSkuInCart(sku.formId))
+
       skusApi(sku.code)
         .update(
             makeSkuPayload(sku.code,

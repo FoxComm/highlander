@@ -547,8 +547,7 @@ class ProductIntegrationTest
         private val skuPayloads: Option[Seq[SkuPayload]] =
           allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap)).some
 
-        private val expectedFailure: CannotSetInactiveWhileProductInCart =
-          ProductFailures.CannotSetInactiveWhileProductInCart(product.formId)
+        private val expectedFailure = CannotSetInactiveWhileProductInCart(product.formId)
 
         private val productApi: productsApi = productsApi(product.formId)
 

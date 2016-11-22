@@ -19,7 +19,7 @@ import org.json4s.jackson.JsonMethods.asJsonNode
 
 object IlluminateAlgorithm extends LazyLogging {
 
-  def isActive(attributes: Map[String, Json]) = {
+  def isActive(attributes: Map[String, Json]): Boolean = {
     implicit val formats = JsonFormatters.phoenixFormats
 
     def extractInstant(json: Json) = (json \ "v").extractOpt[Instant]

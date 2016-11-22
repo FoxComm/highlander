@@ -133,7 +133,10 @@ object SkuManager {
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 
-  def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC, db: DB, oc: OC, au: AU) =
+  def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC,
+                                              db: DB,
+                                              oc: OC,
+                                              au: AU): DbResultT[FullObject[Sku]] =
     for {
       code ← * <~ mustGetSkuCode(skuPayload)
       sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.dbresult.flatMap {
@@ -144,7 +147,7 @@ object SkuManager {
 
   def validateSkuActivityPeriod(skuId: Int, attributes: Map[String, Json], contextId: Int)(
       implicit ec: EC,
-      db: DB) = {
+      db: DB): DbResultT[Unit] = {
 
     val changesToInactive = !IlluminateAlgorithm.isActive(attributes)
 
