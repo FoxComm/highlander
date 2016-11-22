@@ -31,6 +31,11 @@ export default class CvcHelp extends Component {
     });
   }
 
+  @autobind
+  togglePopup() {
+    this.setState({ popupVisible: !this.state.popupVisible });
+  }
+
   get popup() {
     if (! this.state.popupVisible) return null;
 
@@ -52,7 +57,12 @@ export default class CvcHelp extends Component {
 
   render() {
     return (
-      <div styleName="cvc-help" onMouseEnter={this.showPopup} onMouseLeave={this.hidePopup}>
+      <div
+        styleName="cvc-help"
+        onMouseEnter={this.showPopup}
+        onMouseLeave={this.hidePopup}
+        onClick={this.togglePopup}
+      >
         ?
         {this.popup}
       </div>
