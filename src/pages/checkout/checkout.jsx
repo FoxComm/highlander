@@ -85,10 +85,6 @@ class Checkout extends Component {
       let editStage = EditStages.SHIPPING;
       if (!_.isEmpty(cart.shippingAddress)) {
         editStage += 1;
-
-        if (!_.isEmpty(cart.shippingMethod)) {
-          editStage += 1;
-        }
       }
 
       this.props.setEditStage(editStage);
