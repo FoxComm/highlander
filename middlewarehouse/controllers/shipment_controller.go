@@ -122,6 +122,17 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 			return
 		}
 
+    //We are assuming here that, if the shipment has no line items, then it can be automatically shipped.
+    //Most useful in the case of gift cards.
+    if len(shipment.ShipmentLineItems) == 0 {
+      shipment.State = ShipmentStateShipped
+      shipment, err := controller.shipmentService.UpdateShipment(shipment)
+      if err != nil { 
+        handleServiceError(context, err)
+        return
+      }
+    }
+
 		response, err := responses.NewShipmentFromModel(shipment)
 		if err != nil {
 			handleServiceError(context, err)
