@@ -59,38 +59,37 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 	lineItems := order.LineItems
 	skus := lineItems.SKUs
 
-  //We now only need to deal with orders that have been shipped.
-  //Once they are shipped and captured, we will create the giftcards here.
-  if (order.OrderState != orderStateShipped) {
-    return nil
-  }
+	//We now only need to deal with orders that have been shipped.
+	//Once they are shipped and captured, we will create the giftcards here.
+	if order.OrderState != orderStateShipped {
+		return nil
+	}
 
 	giftcardPayloads := make([]payloads.CreateGiftCardPayload, 0)
 
-
 	log.Printf("Creating giftcards for all gift-card-line-items in order")
-  for _, sku := range skus {
-			if sku.Attributes != nil {
-  			for j := 0; j < sku.Quantity; j++ {      
-          giftcardPayloads = append(giftcardPayloads, payloads.CreateGiftCardPayload{
-            Balance: sku.Price,
-            Details: sku.Attributes.GiftCard,
-            CordRef: order.ReferenceNumber,
-          })
-        }
+	for _, sku := range skus {
+		if sku.Attributes != nil {
+			for j := 0; j < sku.Quantity; j++ {
+				giftcardPayloads = append(giftcardPayloads, payloads.CreateGiftCardPayload{
+					Balance: sku.Price,
+					Details: sku.Attributes.GiftCard,
+					CordRef: order.ReferenceNumber,
+				})
 			}
 		}
+	}
 
 	log.Printf("\n about to call createGiftCards service")
-	
-  if len(giftcardPayloads) > 0 {
-    _, err = gfHandle.client.CreateGiftCards(giftcardPayloads)
-    if err != nil {
-      return fmt.Errorf("Unable to create the Giftcards for order  %s with error %s",
-        order.ReferenceNumber, err.Error())
-    }
-  	log.Printf("Gift cards created successfully for order %s", order.ReferenceNumber)  
-  }
+
+	if len(giftcardPayloads) > 0 {
+		_, err = gfHandle.client.CreateGiftCards(giftcardPayloads)
+		if err != nil {
+			return fmt.Errorf("Unable to create gift cards for order %s with error %s",
+				order.ReferenceNumber, err.Error())
+		}
+		log.Printf("Gift cards created successfully for order %s", order.ReferenceNumber)
+	}
 
 	return nil
 }
