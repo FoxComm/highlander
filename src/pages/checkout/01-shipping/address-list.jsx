@@ -1,3 +1,4 @@
+// @flow weak
 
 // libs
 import _ from 'lodash';
@@ -15,21 +16,25 @@ import { AddressDetails } from 'ui/address';
 // styles
 import styles from './address-list.css';
 
+import type { Address } from 'types/address';
+
 type Props = {
-  activeAddressId?: number|string,
+  activeAddress?: Address,
   addresses: Array<any>,
   collapsed: boolean,
   continueAction: Function,
   editAction: Function,
   updateAddress: Function,
   t: any,
+  error: any,
 };
 
 type State = {
   addressToEdit: Object,
   newAddress: Object|null,
   isEditFormActive: boolean,
-  activeAddressId?: number|string,
+  activeAddressId: number|null,
+  error?: any,
 };
 
 class AddressList extends Component {
@@ -38,19 +43,53 @@ class AddressList extends Component {
   state: State = {
     addressToEdit: {},
     newAddress: null,
-    activeAddressId: this.props.activeAddressId,
+    activeAddressId: this.lookupAddressId(this.props.activeAddress),
     isEditFormActive: false,
   };
+
+  // IDs in cart.shippingAddress and in addresses DON'T match!
+  lookupAddressId(address: ?Address): null|number {
+    let addressId = null;
+
+    if (address) {
+      const sample = _.omit(address, 'id');
+
+      _.some(this.props.addresses, nextAddress => {
+        if (_.isEqual(_.omit(nextAddress, 'id'), sample)) {
+          addressId = nextAddress.id;
+          return true;
+        }
+      });
+    }
+
+    return addressId;
+  }
 
   componentWillMount() {
     if (_.isEmpty(this.props.addresses)) {
       this.addAddress();
     }
 
-    if (this.props.addresses.length >= 1) {
-      const defaultAddress = _.find(this.props.addresses, { isDefault: true });
-      const selected = defaultAddress ? defaultAddress.id : this.props.addresses[0].id;
-      this.changeAddressOption(selected);
+    this.autoSelectAddress(this.props);
+  }
+
+  autoSelectAddress(props: Props) {
+    if (props.activeAddress) {
+      const addressId = this.lookupAddressId(props.activeAddress);
+      if (addressId != null) {
+        return this.changeAddressOption(addressId);
+      }
+    }
+    if (props.addresses.length >= 1) {
+      const defaultAddress = _.find(props.addresses, { isDefault: true });
+      const activeAddressId = defaultAddress ? defaultAddress.id : props.addresses[0].id;
+      this.changeAddressOption(activeAddressId);
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.activeAddress != this.props.activeAddress) {
+      this.autoSelectAddress(nextProps);
     }
   }
 
@@ -105,6 +144,7 @@ class AddressList extends Component {
 
         if (zipErrorPresent) {
           error = new Error(messages);
+          // $FlowFixMe: no such field
           error.responseJson = { errors: ['Zip code is invalid']};
         }
         this.setState({

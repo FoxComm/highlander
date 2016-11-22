@@ -34,12 +34,14 @@ function apiCall(): Promise {
       name: 'FAVORITES',
       description: '',
       imageUrl: '',
+      hiddenInNavigation: true,
     },
     {
       id: 5,
       name: 'HOLIDAY',
       description: '',
       imageUrl: '',
+      hiddenInNavigation: true,
     },
     {
       id: 6,
