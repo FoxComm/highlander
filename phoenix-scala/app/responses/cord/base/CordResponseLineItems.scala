@@ -66,13 +66,17 @@ object CordResponseLineItems {
       implicit ec: EC,
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
-      result ← * <~ lineItems
+      liItemsToGroup     ← * <~ lineItems.filter(_.attributes.isEmpty)
+      liItemsNotGrouping ← * <~ lineItems.filter(_.attributes.isDefined)
+      notGruopingLiResult ← * <~ liItemsNotGrouping.map(data ⇒
+                                 createResponse(data, Seq(data.lineItemReferenceNumber), 1))
+      result ← * <~ liItemsToGroup
                 .groupBy(lineItem ⇒ groupKey(lineItem, adjustmentMap))
                 .map {
                   case (_, lineItemGroup) ⇒ createResponseGrouped(lineItemGroup, adjustmentMap)
                 }
                 .toSeq
-    } yield result
+    } yield notGruopingLiResult ++ result
 
   def cordLineItemsFromOrderGrouped(cordRef: String, adjustmentMap: AdjustmentMap)(
       implicit ec: EC,
