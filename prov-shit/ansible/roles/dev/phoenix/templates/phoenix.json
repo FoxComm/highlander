@@ -22,7 +22,7 @@
     "S3_BUCKET": "{{s3_bucket}}",
     "S3_REGION": "{{s3_region}}",
     "STRIPE_API_KEY": "{{stripe_api_key}}",
-    "MIDDLEWAREHOUSE_URL": "{{middlewarehouse_server}}",
+    "MIDDLEWAREHOUSE_URL": "http://{{middlewarehouse_server}}",
     "TAX_RULE_REGION": "{{phoenix_tax_rule_region}}",
     "TAX_RULE_RATE": "{{phoenix_tax_rule_rate}}",
     "JAVA_OPTS": "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{phoenix_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dphoenix.env={{phoenix_env}} -Dhttp.interface=0.0.0.0 -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -Dakka.tracing.host={{zipkin_collector}} -Dakka.tracing.enabled={{phoenix_tracing}} -Dauth.tokenTTL={{phoenix_token_ttl}}"
