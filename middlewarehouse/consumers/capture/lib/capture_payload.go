@@ -51,7 +51,7 @@ func NewCapturePayload(activity activities.ISiteActivity) (*CapturePayload, erro
 	return &capture, nil
 }
 
-func NewGiftCardCapturePayload(referenceNumber string, lineItems []payloads.OrderLineItem) (*CapturePayload, error) {
+func NewCapturePayloadFromOrder(referenceNumber string, lineItems []payloads.OrderLineItem) (*CapturePayload, error) {
 	capture := CapturePayload{
 		ReferenceNumber: referenceNumber,
 		Shipping: CaptureShippingCost{
