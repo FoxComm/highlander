@@ -6,7 +6,6 @@ import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures._
 import failures.ObjectFailures.ObjectContextNotFound
-import failures.ProductFailures
 import failures.ProductFailures._
 import models.account.User
 import models.inventory.Skus
@@ -546,7 +545,7 @@ class ProductIntegrationTest
           .mustBeOk()
 
         private val skuPayloads: Option[Seq[SkuPayload]] =
-          allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap)).some
+          allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap, None)).some
 
         private val expectedFailure = CannotSetInactiveWhileProductInCart(product.formId)
 

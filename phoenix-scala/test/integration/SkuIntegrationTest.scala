@@ -122,12 +122,13 @@ class SkuIntegrationTest
         .mustBeOk()
 
       skusApi(sku.code)
-        .update(makeSkuPayload(sku.code, attrMap))
+        .update(makeSkuPayload(sku.code, attrMap, None))
         .mustFailWith400(CannotSetInactiveWhileSkuInCart(sku.formId))
 
       skusApi(sku.code)
         .update(makeSkuPayload(sku.code,
-                               attrMap + ("activeFrom" → tv(Instant.now().plusMinutes(100)))))
+                               attrMap + ("activeFrom" → tv(Instant.now().plusMinutes(100))),
+                               None))
         .mustFailWith400(CannotSetInactiveWhileSkuInCart(sku.formId))
 
       skusApi(sku.code)
@@ -135,7 +136,8 @@ class SkuIntegrationTest
             makeSkuPayload(sku.code,
                            attrMap +
                              ("activeFrom" → tv(Instant.now().plusMinutes(100))) +
-                             ("activeTo"   → tv(Instant.now().plusMinutes(1)))))
+                             ("activeTo"   → tv(Instant.now().plusMinutes(1))),
+                           None))
         .mustFailWith400(CannotSetInactiveWhileSkuInCart(sku.formId))
     }
   }
@@ -152,7 +154,7 @@ class SkuIntegrationTest
     "Successfully archives SKU which is linked to a product" in new FixtureWithProduct {
       private val updateProductPayload: UpdateProductPayload =
         UpdateProductPayload(attributes = Map(),
-                             skus = Some(List(makeSkuPayload(sku.code, Map()))),
+                             skus = Some(List(makeSkuPayload(sku.code, Map(), None))),
                              variants = None)
       productsApi(product.formId).update(updateProductPayload).mustBeOk
 
