@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/metamorphosis"
 )
 
@@ -20,10 +21,10 @@ const (
 	groupID  = "mwh-stock-items-consumers"
 )
 
-func NewConsumer(zookeeper string, schemaRepo string, mwhURL string) (*Consumer, error) {
+func NewConsumer(zookeeper string, schemaRepo string, mwhURL string) (*Consumer, exceptions.IException) {
 	consumer, err := metamorphosis.NewConsumer(zookeeper, schemaRepo)
 	if err != nil {
-		return nil, err
+		return nil, NewStockItemsConsumerException(err)
 	}
 
 	consumer.SetGroupID(groupID)
@@ -39,9 +40,9 @@ func (consumer *Consumer) Run(topic string, partition int) {
 func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
 	log.Printf("Received SKU %s", string(m.Bytes()))
 
-	sku, err := NewSKUFromAvro(m)
-	if err != nil {
-		log.Panicf("Error unmarshaling from Avro with error: %s", err.Error())
+	sku, exception := NewSKUFromAvro(m)
+	if exception != nil {
+		log.Panicf("Error unmarshaling from Avro with error: %s", exception.ToString())
 	}
 
 	stockItem := sku.StockItem(1)

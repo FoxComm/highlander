@@ -111,7 +111,7 @@ func NewShipmentsConsumerException(error error) exceptions.IException {
 	}
 
 	return shipmentsConsumerException{
-		cls:       "shipmentsConsumerConsumer",
+		cls:       "shipmentsConsumer",
 		Exception: exceptions.Exception{error},
 	}
 }
