@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"os"
 )
 
@@ -15,15 +16,19 @@ type SiteConfig struct {
 // Config stores all site level configurations for the application.
 var Config *SiteConfig
 
-func InitializeSiteConfig() error {
+func InitializeSiteConfig() exceptions.IException {
 	kafkaBroker := os.Getenv("KAFKA_BROKER")
 	if kafkaBroker == "" {
-		return errors.New("KAFKA_BROKER not found in the environment")
+		return exceptions.NewBadConfigurationException(
+			errors.New("KAFKA_BROKER not found in the environment"),
+		)
 	}
 
 	schemaRegistryURL := os.Getenv("SCHEMA_REGISTRY_URL")
 	if schemaRegistryURL == "" {
-		return errors.New("SCHEMA_REGISTRY_URL not found in the environment")
+		return exceptions.NewBadConfigurationException(
+			errors.New("SCHEMA_REGISTRY_URL not found in the environment"),
+		)
 	}
 
 	Config = &SiteConfig{kafkaBroker, schemaRegistryURL}

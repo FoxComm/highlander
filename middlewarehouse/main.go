@@ -6,14 +6,15 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/common/config"
 	dbConfig "github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/routes"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 
 	"github.com/gin-gonic/gin"
 )
 
-func engine() (*gin.Engine, error) {
-	db, err := dbConfig.DefaultConnection()
-	if err != nil {
-		return nil, err
+func engine() (*gin.Engine, exceptions.IException) {
+	db, exception := dbConfig.DefaultConnection()
+	if exception != nil {
+		return nil, exception
 	}
 
 	configuration := routes.RouterConfiguration{
@@ -25,13 +26,13 @@ func engine() (*gin.Engine, error) {
 }
 
 func main() {
-	if err := config.InitializeSiteConfig(); err != nil {
-		log.Panicf("Failed to initialize middlewarehouse config with error %s", err.Error())
+	if exception := config.InitializeSiteConfig(); exception != nil {
+		log.Panicf("Failed to initialize middlewarehouse config with error %s", exception.ToString())
 	}
 
-	engine, err := engine()
-	if err != nil {
-		log.Panicf("Failed to start middlewarehouse with error %s", err.Error())
+	engine, exception := engine()
+	if exception != nil {
+		log.Panicf("Failed to start middlewarehouse with error %s", exception.ToString())
 	}
 
 	engine.Run(":9292")

@@ -6,24 +6,26 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
+
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/jinzhu/gorm"
 )
 
 func main() {
-	db, err := config.DefaultConnection()
-	if err != nil {
-		log.Fatalf("Unable to connect to DB with error %s", err.Error())
+	db, exception := config.DefaultConnection()
+	if exception != nil {
+		log.Fatalf("Unable to connect to DB with error %s", exception.ToString())
 	}
 
 	log.Printf("Started to seed database...")
-	if err := createShippingMethods(db); err != nil {
-		log.Fatalf("Unable to seed shipping methods with error %s", err.Error())
+	if exception := createShippingMethods(db); exception != nil {
+		log.Fatalf("Unable to seed shipping methods with error %s", exception.ToString())
 	}
 
 	log.Printf("Seeding complete")
 }
 
-func createShippingMethods(db *gorm.DB) error {
+func createShippingMethods(db *gorm.DB) exceptions.IException {
 	log.Printf("Seeding carriers...")
 	carrierRepo := repositories.NewCarrierRepository(db)
 
@@ -38,11 +40,11 @@ func createShippingMethods(db *gorm.DB) error {
 		},
 	}
 
-	var err error
+	var exception exceptions.IException
 	for idx, carrier := range carriers {
-		carriers[idx], err = carrierRepo.CreateCarrier(carrier)
-		if err != nil {
-			return err
+		carriers[idx], exception = carrierRepo.CreateCarrier(carrier)
+		if exception != nil {
+			return exception
 		}
 	}
 
@@ -81,8 +83,8 @@ func createShippingMethods(db *gorm.DB) error {
 	}
 
 	for _, shippingMethod := range shippingMethods {
-		if _, err = shippingRepo.CreateShippingMethod(shippingMethod); err != nil {
-			return err
+		if _, exception = shippingRepo.CreateShippingMethod(shippingMethod); exception != nil {
+			return exception
 		}
 	}
 

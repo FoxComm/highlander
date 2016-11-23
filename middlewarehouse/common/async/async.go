@@ -14,8 +14,8 @@ type AsyncFn func() exceptions.IException
 func MaybeExecAsync(fn AsyncFn, isAsync bool, logMsg string) exceptions.IException {
 	if isAsync {
 		go func() {
-			if err := fn(); err != nil {
-				log.Printf("%s: %s", logMsg, err.ToString())
+			if exception := fn(); exception != nil {
+				log.Printf("%s: %s", logMsg, exception.ToString())
 			}
 		}()
 		return nil

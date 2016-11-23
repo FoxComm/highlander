@@ -21,9 +21,9 @@ type Shipment struct {
 }
 
 func NewShipmentFromModel(model *models.Shipment) (*Shipment, exceptions.IException) {
-	shippingMethod, err := NewShippingMethodFromModel(&model.ShippingMethod)
-	if err != nil {
-		return nil, err
+	shippingMethod, exception := NewShippingMethodFromModel(&model.ShippingMethod)
+	if exception != nil {
+		return nil, exception
 	}
 
 	shipment := &Shipment{

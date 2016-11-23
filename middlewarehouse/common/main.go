@@ -6,6 +6,7 @@ import (
 	"os"
 	"regexp"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	env "github.com/jpfuentes2/go-env"
 )
 
@@ -54,21 +55,21 @@ func AppDir() string {
 func MustLoadEnv() {
 	basePath := AppDir()
 	envFile := fmt.Sprintf("%s/.env.%s", basePath, Env())
-	if err := fileExists(envFile); err != nil {
+	if exception := fileExists(envFile); exception != nil {
 		if Env() == "development" {
 			envFile = fmt.Sprintf("%s/.env", basePath)
-			if err = fileExists(envFile); err != nil {
-				panic(err.Error())
+			if exception = fileExists(envFile); exception != nil {
+				panic(exception.ToString())
 			}
 		} else {
-			panic(err.Error())
+			panic(exception.ToString())
 		}
 	}
 
 	env.ReadEnv(envFile)
 }
 
-func fileExists(path string) error {
+func fileExists(path string) exceptions.IException {
 	_, err := os.Stat(path)
 
 	if err != nil {
@@ -76,7 +77,7 @@ func fileExists(path string) error {
 		if !os.IsNotExist(err) {
 			msg = fmt.Sprintf("%s - %s", msg, err.Error())
 		}
-		return errors.New(msg)
+		return exceptions.NewBadConfigurationException(errors.New(msg))
 	}
 
 	return nil
