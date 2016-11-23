@@ -90,6 +90,18 @@
 
 ; ---
 
+    ; - Gift card by customer
+   {:name "gift_card_customer_template"
+    :title "Gift card template"
+    :type "string"
+    :default ""}
+
+   {:name "gift_card_customer_subject"
+    :title "Gift card email subject"
+    :type "string"
+    :default ""}
+
+    ; - Admin invintation
    {:name "admin_invitation_template"
     :title "Admin Invitation Mandrill Template"
     :type "string"

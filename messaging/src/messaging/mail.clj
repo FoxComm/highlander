@@ -155,6 +155,28 @@
                 :reset_code reset-code}
                {:subject (settings/get :customer_remind_password_subject)}))))
 
+
+(defmethod handle-activity :gift_card_created
+  [activity]
+  (let [data (:data activity)
+        message (get-in data ["giftCard" "message"])
+        giftCard (get data "giftCard")
+        recipientEmail (get-in data ["giftCard" "recipientEmail"])
+        recipientName (get-in data ["giftCard" "recipientName"])
+        senderName (get-in data ["giftCard" "senderName"])
+        giftCardCode (get-in data ["giftCard" "code"])]
+
+   (when (every? seq [message recipientEmail recipientName senderName giftCardCode])
+     (send-template! (settings/get :gift_card_customer_template)
+          (gen-msg {:email recipientEmail :name recipientName}
+              {:balance (at/format-price-int (get giftCard "availableBalance"))
+               :message message
+               :sender_name senderName
+               :recipient_name recipientName
+               :gift_card_number giftCardCode}
+              {:subject (settings/get :gift_card_customer_subject)})))))
+
+
 (defmethod handle-activity :send_simple_mail
   [activity]
   (let [email (get-in activity [:data "email"])
