@@ -1,4 +1,0 @@
-sensu_master: true
-sensu_include_dashboard: true
-redis_server: false
-rabbitmq_server: false

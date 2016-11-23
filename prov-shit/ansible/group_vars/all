@@ -196,7 +196,3 @@ marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_hos
 #Set this to true for first run deployments
 first_run: false
 
-# Sensu monitoring
-sensu_api_host: sensu-master
-redis_host: "{{ sensu_api_host }}"
-rabbitmq_host: "{{ sensu_api_host }}"
