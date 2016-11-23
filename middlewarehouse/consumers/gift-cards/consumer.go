@@ -90,7 +90,7 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 		_, err = gfHandle.client.CreateGiftCards(giftcardPayloads)
 		if err != nil {
 			return fmt.Errorf("Unable to create gift cards for order %s with error %s",
-				order.ReferenceNumber, err.Error())
+				order.ReferenceNumber, err.ToString())
 		}
 		log.Printf("Gift cards created successfully for order %s", order.ReferenceNumber)
 	}
