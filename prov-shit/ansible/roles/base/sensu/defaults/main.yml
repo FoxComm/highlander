@@ -20,6 +20,7 @@ rabbitmq_sensu_user: "sensu"
 rabbitmq_sensu_password: "sensu"
 rabbitmq_sensu_vhost: "/sensu"
 # Sensu Core config
+sensu_version = "0.26"
 sensu_slack_url: "https://hooks.slack.com/services/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"
 sensu_remote_plugins:
   - cpu-checks
