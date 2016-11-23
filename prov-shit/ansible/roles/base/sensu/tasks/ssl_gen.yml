@@ -2,23 +2,15 @@
 # Create SSL and deployment data store for clients
 
   - name: Check Sensu SSL directory
-    file:
-      dest: "{{ sensu_config_path }}/ssl"
-      state: directory
-      owner: "{{ sensu_user_name }}"
-      group: "{{ sensu_group_name }}"
+    file: dest="{{ sensu_config_path }}/ssl" state=directory owner=root group=root
 
   - name: Check Sensu SSL gen directory
-    file:
-      dest: "{{ sensu_config_path }}/ssl_generation"
-      state: directory
-      owner: "{{ sensu_user_name }}"
-      group: "{{ sensu_group_name }}"
+    file: dest="{{ sensu_config_path }}/ssl_generation" state=directory owner=root group=root
     when: sensu_master
 
   - block:
 
-    - name: Unpack SSL certs from sensuapp.org
+    - name: Unpack SSL tool from sensuapp.org
       unarchive:
       args:
         src: https://sensuapp.org/docs/{{ sensu_version }}/files/sensu_ssl_tool.tar
@@ -35,13 +27,11 @@
     when: sensu_master|bool
 
   - name: Store Sensu SSL certs
-    fetch:
-      src: "{{ sensu_config_path }}/ssl_generation/sensu_ssl_tool/{{ item }}"
-      dest: "{{ dynamic_data_store }}"
-    when: sensu_master
+    fetch: src="{{ sensu_config_path }}/ssl_generation/sensu_ssl_tool/{{ item }}" dest={{ dynamic_data_store }}
     with_items:
       - sensu_ca/cacert.pem
       - server/cert.pem
       - server/key.pem
       - client/cert.pem
       - client/key.pem
+    when: sensu_master

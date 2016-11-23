@@ -2,18 +2,11 @@
 # Install Sensu Dashboard (Uchiwa)
 
   - name: Install Uchiwa from Sensu repo
-    apt:
-      name: uchiwa
-      state: present
+    apt: name=uchiwa state=present
 
   - name: Create Uchiwa config
-    template:
-      src: uchiwa_config.json.j2
-      dest: "{{ sensu_config_path }}/uchiwa.json"
+    template: src=uchiwa_config.json dest="{{ sensu_config_path }}/conf.d/uchiwa.json"
     notify: restart uchiwa service
   
   - name: Start Uchiwa service
-    service: 
-      name: uchiwa
-      state: started
-      enabled: yes
+    service: name=uchiwa state=started enabled=yes

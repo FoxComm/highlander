@@ -3,4 +3,4 @@
 
   - hosts: all
     roles:
-      - { role: base/sensu }
+      - { role: base/sensu, deploy_rabbitmq: true, deploy_redis: true, sensu_master: true}

@@ -2,8 +2,9 @@
   "client": {
     "name": "{{ ansible_hostname }}",
     "address": "{{ ansible_default_ipv4['address'] }}",
+	"datacenter": "test",
       "subscriptions": [
-	    "{{ consul_dc }}"
+	    "{{ ansible_hostname }}"
       ]
   }
 }

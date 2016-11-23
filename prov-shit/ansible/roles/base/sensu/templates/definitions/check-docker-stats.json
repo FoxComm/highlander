@@ -1,0 +1,13 @@
+{
+  "checks": {
+    "docker-stats": {
+      "command": "metrics-docker-stats.rb -p unix -H /var/run/docker.sock",
+      "interval": 60,
+      "subscribers": [
+                "foxcomm-tony-backend",
+                "foxcomm-tony-frontend",
+                "foxcomm-tony-consul-server"
+	  ]
+	}
+  }
+}

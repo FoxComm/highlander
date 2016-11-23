@@ -1,0 +1,8 @@
+{
+  "handlers": {
+    "default": {
+      "type": "set",
+      "handlers": ["slack"]
+    }
+  }
+}

@@ -7,20 +7,11 @@
     changed_when: false
     when: sensu_remote_plugins > 0
 
-#  TODO:
-
-#  - name: Deploy checks
-
-#  - name: Deploy handlers
-
-#  - name: Deploy filters
-
-#  - name: Deploy mutators
-
   - name: Deploy definitions to the master
     template:
       src: "{{ item }}"
-      dest: "{{ sensu_config_path }}/conf.d/{{ item | basename | regex_replace('.j2', '')}}"
+#      dest: "{{ sensu_config_path }}/conf.d/{{ item | basename | regex_replace('.j2', '')}}"
+      dest: "{{ sensu_config_path }}/conf.d/{{ item | basename }}"
       owner: "{{ sensu_user_name }}"
       group: "{{ sensu_group_name }}"
     when: sensu_master

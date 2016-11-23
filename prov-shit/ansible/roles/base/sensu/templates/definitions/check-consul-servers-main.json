@@ -1,0 +1,11 @@
+{
+  "checks": {
+    "consul-servers-main": {
+      "command": "check-consul-servers.rb -s 10.240.0.10 -e 3",
+      "interval": 60,
+      "subscribers": [
+		"foxcomm-tony-consul-server"
+	  ]
+	}
+  }
+}
