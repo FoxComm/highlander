@@ -7,7 +7,7 @@
     "host": "{{ rabbitmq_host }}",
     "port": {{ rabbitmq_port }},
     "vhost": "{{ rabbitmq_sensu_vhost }}",
-    "user": "{{ rabbitmq_sensu_user_name }}",
+    "user": "{{ rabbitmq_sensu_user }}",
     "password": "{{ rabbitmq_sensu_password }}"
   }
 }
