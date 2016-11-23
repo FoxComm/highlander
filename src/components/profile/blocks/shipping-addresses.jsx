@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import localized from 'lib/i18n';
 import { connect } from 'react-redux';
+import { browserHistory } from 'react-router';
 
 // components
 import EditableBlock from 'ui/editable-block';
@@ -70,7 +71,7 @@ class MyShippingAddresses extends Component {
 
   @autobind
   addAddress() {
-    // TODO
+    browserHistory.push('/profile/addresses/new');
   }
 
   @autobind

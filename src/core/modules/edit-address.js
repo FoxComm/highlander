@@ -1,6 +1,6 @@
 
 import _ from 'lodash';
-import createAsyncActions from './async-utils';
+import { createAsyncActions } from 'wings';
 import { loadCountry, usaDetails } from 'modules/countries';
 
 const addressFields = [

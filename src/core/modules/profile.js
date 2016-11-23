@@ -1,6 +1,6 @@
 
 import { createReducer } from 'redux-act';
-import createAsyncActions from './async-utils';
+import { createAsyncActions } from 'wings';
 
 import { updateUser } from './auth';
 
