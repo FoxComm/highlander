@@ -1,5 +1,6 @@
 @import "media-queries.css";
 @import "colors.css";
+@import "icons.css";
 
 .billing {
   composes: checkout-block from '../checkout.css';

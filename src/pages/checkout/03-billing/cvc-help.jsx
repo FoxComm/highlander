@@ -7,6 +7,8 @@ import { autobind } from 'core-decorators';
 // styles
 import styles from './cvc-help.css';
 
+import Icon from 'ui/icon';
+
 type State = {
   popupVisible: boolean,
 };
@@ -48,8 +50,8 @@ export default class CvcHelp extends Component {
           For American Express (right), the 4 digits on the front of the card.
         </p>
         <div styleName="cvc-images">
-          <img src="/images/CVV_Visa.png" />
-          <img src="/images/CVV_American_Express.png" />
+          <Icon name="fc-cvv-visa" styleName="card-icon" />
+          <Icon name="fc-cvv-amex" styleName="card-icon" />
         </div>
       </div>
     );

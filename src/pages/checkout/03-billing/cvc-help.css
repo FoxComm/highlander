@@ -63,12 +63,8 @@
   display: flex;
   justify-content: space-between;
 
-  & > :global(.icon) {
+  & .card-icon {
     width: 160px;
     height: 107px;
-
-    &:first-child {
-      margin-right: 20px;
-    }
   }
 }
