@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
 	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/common/logging"
-	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq" // Needed by gorm.
 )
@@ -59,8 +59,8 @@ func Connect(config *PGConfig) (*gorm.DB, exceptions.IException) {
 		conn = fmt.Sprintf("host=%s %s", config.Host, conn)
 	}
 
-	db, err := gorm.Open("postgres", conn)
-	return db, repositories.NewDatabaseException(err)
+	database, err := gorm.Open("postgres", conn)
+	return database, db.NewDatabaseException(err)
 }
 
 // DefaultConnection returns the defaultConnection var if it's been set; otherwise, it
