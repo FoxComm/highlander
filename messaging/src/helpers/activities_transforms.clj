@@ -3,9 +3,16 @@
            [java.time Instant LocalDateTime ZoneId]))
 
 
-(defn format-price [price]
+(defn format-price
+  [price]
   (let [float-price (/ price 100.0)]
     (String/format Locale/US "%.2f" (to-array [float-price]))))
+
+(defn format-price-int
+  "Format price without fraction with floor"
+  [price]
+  (let [float-price (Math/floor (/ price 100.0))]
+    (String/format Locale/US "%.0f" (to-array [float-price]))))
 
 (defn parse-date
   [^String d]
