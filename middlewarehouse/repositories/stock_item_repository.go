@@ -2,18 +2,19 @@ package repositories
 
 import (
 	"fmt"
+	"strconv"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
-	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/jinzhu/gorm"
-	"strconv"
 )
 
 const (
 	ErrorStockItemNotFound = "Stock item with id=%d not found"
-	ErrorAFSNotFoundByID = "AFS with id=%d not found"
-	ErrorAFSNotFoundBySKU = "AFS for sku=%s not found"
+	ErrorAFSNotFoundByID   = "AFS with id=%d not found"
+	ErrorAFSNotFoundBySKU  = "AFS for sku=%s not found"
 	StockItemEntity        = "stockItem"
 )
 
@@ -41,7 +42,7 @@ func (repository *stockItemRepository) GetStockItems() ([]*models.StockItem, exc
 	items := []*models.StockItem{}
 	err := repository.db.Find(&items).Error
 
-	return items, NewDatabaseException(err)
+	return items, db.NewDatabaseException(err)
 }
 
 func (repository *stockItemRepository) GetStockItemById(id uint) (*models.StockItem, exceptions.IException) {
@@ -53,7 +54,7 @@ func (repository *stockItemRepository) GetStockItemById(id uint) (*models.StockI
 			return nil, NewEntityNotFoundException(StockItemEntity, strconv.Itoa(int(id)), fmt.Errorf(ErrorStockItemNotFound, id))
 		}
 
-		return nil, NewDatabaseException(err)
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return si, nil
@@ -63,7 +64,7 @@ func (repository *stockItemRepository) GetStockItemsBySKUs(skus []string) ([]*mo
 	items := []*models.StockItem{}
 	err := repository.db.Where("sku in (?)", skus).Find(&items).Error
 
-	return items, NewDatabaseException(err)
+	return items, db.NewDatabaseException(err)
 }
 
 func (repository *stockItemRepository) GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, exceptions.IException) {
@@ -74,7 +75,7 @@ func (repository *stockItemRepository) GetAFSByID(id uint, unitType models.UnitT
 			return nil, NewAFSNotFoundByIDException(id, fmt.Errorf(ErrorAFSNotFoundByID, id))
 		}
 
-		return nil, NewDatabaseException(err)
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return afs, nil
@@ -88,7 +89,7 @@ func (repository *stockItemRepository) GetAFSBySKU(sku string, unitType models.U
 			return nil, NewAFSNotFoundBySKUException(sku, fmt.Errorf(ErrorAFSNotFoundBySKU, sku))
 		}
 
-		return nil, NewDatabaseException(err)
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return afs, nil
@@ -96,7 +97,7 @@ func (repository *stockItemRepository) GetAFSBySKU(sku string, unitType models.U
 
 func (repository *stockItemRepository) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, exceptions.IException) {
 	if err := repository.db.Create(stockItem).Error; err != nil {
-		return nil, NewDatabaseException(err)
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return repository.GetStockItemById(stockItem.ID)
@@ -106,7 +107,7 @@ func (repository *stockItemRepository) DeleteStockItem(stockItemId uint) excepti
 	result := repository.db.Delete(&models.StockItem{}, stockItemId)
 
 	if result.Error != nil {
-		return NewDatabaseException(result.Error)
+		return db.NewDatabaseException(result.Error)
 	}
 
 	if result.RowsAffected == 0 {
@@ -123,7 +124,7 @@ func (repository *stockItemRepository) UpsertStockItem(item *models.StockItem) e
 	)
 
 	if err := repository.db.Set("gorm:insert_option", onConflict).Create(item).Error; err != nil {
-		return NewDatabaseException(err)
+		return db.NewDatabaseException(err)
 	}
 
 	return nil

@@ -2,12 +2,13 @@ package repositories
 
 import (
 	"fmt"
+	"strconv"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
-	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/jinzhu/gorm"
-	"strconv"
 )
 
 const (
@@ -36,7 +37,7 @@ func (repository *carrierRepository) GetCarriers() ([]*models.Carrier, exception
 
 	err := repository.db.Find(&carriers).Error
 
-	return carriers, NewDatabaseException(err)
+	return carriers, db.NewDatabaseException(err)
 }
 
 func (repository *carrierRepository) GetCarrierByID(id uint) (*models.Carrier, exceptions.IException) {
@@ -47,7 +48,7 @@ func (repository *carrierRepository) GetCarrierByID(id uint) (*models.Carrier, e
 			return nil, NewEntityNotFoundException(CarrierEntity, strconv.Itoa(int(id)), fmt.Errorf(ErrorCarrierNotFound, id))
 		}
 
-		return nil, NewDatabaseException(err)
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return carrier, nil
@@ -57,7 +58,7 @@ func (repository *carrierRepository) CreateCarrier(carrier *models.Carrier) (*mo
 	err := repository.db.Create(carrier).Error
 
 	if err != nil {
-		return nil, NewDatabaseException(err)
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return repository.GetCarrierByID(carrier.ID)
@@ -67,7 +68,7 @@ func (repository *carrierRepository) UpdateCarrier(carrier *models.Carrier) (*mo
 	result := repository.db.Model(&carrier).Updates(carrier)
 
 	if result.Error != nil {
-		return nil, NewDatabaseException(result.Error)
+		return nil, db.NewDatabaseException(result.Error)
 	}
 
 	if result.RowsAffected == 0 {
@@ -81,7 +82,7 @@ func (repository *carrierRepository) DeleteCarrier(id uint) exceptions.IExceptio
 	res := repository.db.Delete(&models.Carrier{}, id)
 
 	if res.Error != nil {
-		return NewDatabaseException(res.Error)
+		return db.NewDatabaseException(res.Error)
 	}
 
 	if res.RowsAffected == 0 {

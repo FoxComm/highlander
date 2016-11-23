@@ -2,12 +2,13 @@ package repositories
 
 import (
 	"fmt"
+	"strconv"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
-	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/jinzhu/gorm"
-	"strconv"
 )
 
 const (
@@ -44,7 +45,7 @@ func (repository *shipmentRepository) GetShipmentsByOrder(orderRefNum string) ([
 		Where("order_ref_num = ?", orderRefNum).
 		Find(&shipments).Error
 
-	return shipments, NewDatabaseException(err)
+	return shipments, db.NewDatabaseException(err)
 }
 
 func (repository *shipmentRepository) GetShipmentByID(id uint) (*models.Shipment, exceptions.IException) {
@@ -66,7 +67,7 @@ func (repository *shipmentRepository) GetShipmentByID(id uint) (*models.Shipment
 			return nil, NewEntityNotFoundException(ShipmentEntity, strconv.Itoa(int(id)), fmt.Errorf(ErrorShipmentNotFound, id))
 		}
 
-		return nil, NewDatabaseException(err)
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return &shipment, nil
@@ -76,7 +77,7 @@ func (repository *shipmentRepository) CreateShipment(shipment *models.Shipment) 
 	err := repository.db.Create(shipment).Error
 
 	if err != nil {
-		return nil, NewDatabaseException(err)
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return repository.GetShipmentByID(shipment.ID)
@@ -96,7 +97,7 @@ func (repository *shipmentRepository) UpdateShipment(shipment *models.Shipment) 
 		Save(shipment)
 
 	if result.Error != nil {
-		return nil, NewDatabaseException(result.Error)
+		return nil, db.NewDatabaseException(result.Error)
 	}
 
 	if result.RowsAffected == 0 {
@@ -110,7 +111,7 @@ func (repository *shipmentRepository) DeleteShipment(id uint) exceptions.IExcept
 	res := repository.db.Delete(&models.Shipment{}, id)
 
 	if res.Error != nil {
-		return NewDatabaseException(res.Error)
+		return db.NewDatabaseException(res.Error)
 	}
 
 	if res.RowsAffected == 0 {

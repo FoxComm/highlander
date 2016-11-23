@@ -2,12 +2,13 @@ package repositories
 
 import (
 	"fmt"
+	"strconv"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
-	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/jinzhu/gorm"
-	"strconv"
 )
 
 const (
@@ -36,7 +37,7 @@ func (repository *shippingMethodRepository) GetShippingMethods() ([]*models.Ship
 
 	err := repository.db.Preload("Carrier").Find(&shippingMethods).Error
 
-	return shippingMethods, NewDatabaseException(err)
+	return shippingMethods, db.NewDatabaseException(err)
 }
 
 func (repository *shippingMethodRepository) GetShippingMethodByID(id uint) (*models.ShippingMethod, exceptions.IException) {
@@ -47,7 +48,7 @@ func (repository *shippingMethodRepository) GetShippingMethodByID(id uint) (*mod
 			return nil, NewEntityNotFoundException(ShippingMethodEntity, strconv.Itoa(int(id)), fmt.Errorf(ErrorShippingMethodNotFound, id))
 		}
 
-		return nil, NewDatabaseException(err)
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return shippingMethod, nil
@@ -57,7 +58,7 @@ func (repository *shippingMethodRepository) CreateShippingMethod(shippingMethod 
 	err := repository.db.Set("gorm:save_associations", false).Save(shippingMethod).Error
 
 	if err != nil {
-		return nil, NewDatabaseException(err)
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return repository.GetShippingMethodByID(shippingMethod.ID)
@@ -67,7 +68,7 @@ func (repository *shippingMethodRepository) UpdateShippingMethod(shippingMethod 
 	result := repository.db.Set("gorm:save_associations", false).Save(shippingMethod)
 
 	if result.Error != nil {
-		return nil, NewDatabaseException(result.Error)
+		return nil, db.NewDatabaseException(result.Error)
 	}
 
 	if result.RowsAffected == 0 {
@@ -81,7 +82,7 @@ func (repository *shippingMethodRepository) DeleteShippingMethod(id uint) except
 	res := repository.db.Delete(&models.ShippingMethod{}, id)
 
 	if res.Error != nil {
-		return NewDatabaseException(res.Error)
+		return db.NewDatabaseException(res.Error)
 	}
 
 	if res.RowsAffected == 0 {

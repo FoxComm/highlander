@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
 	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
@@ -41,15 +42,15 @@ func (repository *stockItemUnitRepository) CreateUnits(units []*models.StockItem
 	for _, v := range units {
 		if err := txn.Create(v).Error; err != nil {
 			txn.Rollback()
-			return NewDatabaseException(err)
+			return db.NewDatabaseException(err)
 		}
 	}
 
-	return NewDatabaseException(txn.Commit().Error)
+	return db.NewDatabaseException(txn.Commit().Error)
 }
 
 func (repository *stockItemUnitRepository) DeleteUnits(ids []uint) exceptions.IException {
-	return NewDatabaseException(repository.db.Delete(models.StockItemUnit{}, "id in (?)", ids).Error)
+	return db.NewDatabaseException(repository.db.Delete(models.StockItemUnit{}, "id in (?)", ids).Error)
 }
 
 func (repository *stockItemUnitRepository) GetStockItemUnitIDs(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, exceptions.IException) {
@@ -64,7 +65,7 @@ func (repository *stockItemUnitRepository) GetStockItemUnitIDs(stockItemID uint,
 		Error
 
 	if err != nil {
-		return ids, NewDatabaseException(err)
+		return ids, db.NewDatabaseException(err)
 	}
 
 	if len(ids) < count {
@@ -87,7 +88,7 @@ func (repository *stockItemUnitRepository) GetUnitsInOrder(refNum string) ([]*mo
 		Error
 
 	if err != nil {
-		return nil, NewDatabaseException(err)
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return units, nil
@@ -103,7 +104,7 @@ func (repository *stockItemUnitRepository) GetUnitForLineItem(refNum string, sku
 		First(unit).
 		Error
 
-	return unit, NewDatabaseException(err)
+	return unit, db.NewDatabaseException(err)
 }
 
 func (repository *stockItemUnitRepository) HoldUnitsInOrder(refNum string, ids []uint) (int, exceptions.IException) {
@@ -114,7 +115,7 @@ func (repository *stockItemUnitRepository) HoldUnitsInOrder(refNum string, ids [
 
 	result := repository.db.Model(&models.StockItemUnit{}).Where("id in (?)", ids).Updates(updateWith)
 
-	return int(result.RowsAffected), NewDatabaseException(result.Error)
+	return int(result.RowsAffected), db.NewDatabaseException(result.Error)
 }
 
 func (repository *stockItemUnitRepository) ReserveUnitsInOrder(refNum string) (int, exceptions.IException) {
@@ -124,7 +125,7 @@ func (repository *stockItemUnitRepository) ReserveUnitsInOrder(refNum string) (i
 
 	result := repository.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)
 
-	return int(result.RowsAffected), NewDatabaseException(result.Error)
+	return int(result.RowsAffected), db.NewDatabaseException(result.Error)
 }
 
 func (repository *stockItemUnitRepository) UnsetUnitsInOrder(refNum string) (int, exceptions.IException) {
@@ -136,7 +137,7 @@ func (repository *stockItemUnitRepository) UnsetUnitsInOrder(refNum string) (int
 
 	result := repository.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)
 
-	return int(result.RowsAffected), NewDatabaseException(result.Error)
+	return int(result.RowsAffected), db.NewDatabaseException(result.Error)
 }
 
 func (repository *stockItemUnitRepository) GetReleaseQtyByRefNum(refNum string) ([]*models.Release, exceptions.IException) {
@@ -150,7 +151,7 @@ func (repository *stockItemUnitRepository) GetReleaseQtyByRefNum(refNum string) 
 		Find(&res).
 		Error
 
-	return res, NewDatabaseException(err)
+	return res, db.NewDatabaseException(err)
 }
 
 type outOfStockException struct {

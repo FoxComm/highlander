@@ -2,12 +2,13 @@ package repositories
 
 import (
 	"fmt"
+	"strconv"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
-	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/jinzhu/gorm"
-	"strconv"
 )
 
 const (
@@ -46,7 +47,7 @@ func (repository *summaryRepository) GetSummary() ([]*models.StockItemSummary, e
 		Find(&summary).
 		Error
 
-	return summary, NewDatabaseException(err)
+	return summary, db.NewDatabaseException(err)
 }
 
 func (repository *summaryRepository) GetSummaryBySKU(sku string) ([]*models.StockItemSummary, exceptions.IException) {
@@ -64,7 +65,7 @@ func (repository *summaryRepository) GetSummaryBySKU(sku string) ([]*models.Stoc
 		return nil, NewSummaryForSKUNotFoundException(sku, fmt.Errorf(ErrorSummaryForSKUNotFound, sku))
 	}
 
-	return summary, NewDatabaseException(err)
+	return summary, db.NewDatabaseException(err)
 }
 
 func (repository *summaryRepository) GetSummaryItemByType(stockItemId uint, unitType models.UnitType) (*models.StockItemSummary, exceptions.IException) {
@@ -76,7 +77,7 @@ func (repository *summaryRepository) GetSummaryItemByType(stockItemId uint, unit
 			return nil, NewSummaryForItemByTypeNotFoundException(stockItemId, unitType, fmt.Errorf(ErrorSummaryForItemByTypeNotFound, stockItemId, unitType))
 		}
 
-		return nil, NewDatabaseException(result.Error)
+		return nil, db.NewDatabaseException(result.Error)
 	}
 
 	return summary, nil
@@ -95,11 +96,11 @@ func (repository *summaryRepository) CreateStockItemSummary(summary []*models.St
 
 		if err := txn.Set("gorm:insert_option", onConflict).Create(item).Error; err != nil {
 			txn.Rollback()
-			return NewDatabaseException(err)
+			return db.NewDatabaseException(err)
 		}
 	}
 
-	return NewDatabaseException(txn.Commit().Error)
+	return db.NewDatabaseException(txn.Commit().Error)
 }
 
 func (repository *summaryRepository) UpdateStockItemSummary(summary *models.StockItemSummary) exceptions.IException {
@@ -109,11 +110,11 @@ func (repository *summaryRepository) UpdateStockItemSummary(summary *models.Stoc
 		return NewEntityNotFoundException(SummaryEntity, strconv.Itoa(int(summary.ID)), fmt.Errorf(ErrorSummaryNotFound, summary.ID))
 	}
 
-	return NewDatabaseException(err)
+	return db.NewDatabaseException(err)
 }
 
 func (repository *summaryRepository) CreateStockItemTransaction(transaction *models.StockItemTransaction) exceptions.IException {
-	return NewDatabaseException(repository.db.Create(transaction).Error)
+	return db.NewDatabaseException(repository.db.Create(transaction).Error)
 }
 
 type summaryForSkuNotFoundException struct {

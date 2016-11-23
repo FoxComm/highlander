@@ -68,10 +68,10 @@ func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentsByID_Found_ReturnsShi
 	suite.Nil(suite.db.Create(shipment2).Error)
 
 	//act
-	shipments, err := suite.repository.GetShipmentsByOrder(shipment1.OrderRefNum)
+	shipments, exception := suite.repository.GetShipmentsByOrder(shipment1.OrderRefNum)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(2, len(shipments))
 	tests.SyncDates(shipment1, shipment2, shipments[0], shipments[1],
 		&shipment1.Address, &shipment2.Address, &shipments[0].Address, &shipments[1].Address)
@@ -85,10 +85,10 @@ func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_Found_ReturnsShip
 	suite.Nil(suite.db.Create(shipment1).Error)
 
 	//act
-	shipment, err := suite.repository.GetShipmentByID(shipment1.ID)
+	shipment, exception := suite.repository.GetShipmentByID(shipment1.ID)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	tests.SyncDates(shipment1, shipment, &shipment1.Address, &shipment.Address)
 	suite.Equal(shipment1, shipment)
 }
@@ -98,10 +98,10 @@ func (suite *ShipmentRepositoryTestSuite) Test_CreateShipment_ReturnsCreatedReco
 	shipment1 := fixtures.GetShipment(1, "BR10005", suite.shippingMethod.Code, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{})
 
 	//act
-	shipment, err := suite.repository.CreateShipment(fixtures.GetShipment(0, "BR10005", suite.shippingMethod.Code, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{}))
+	shipment, exception := suite.repository.CreateShipment(fixtures.GetShipment(0, "BR10005", suite.shippingMethod.Code, suite.shippingMethod, suite.address.ID, suite.address, []models.ShipmentLineItem{}))
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	tests.SyncDates(shipment1, shipment, &shipment1.Address, &shipment.Address)
 	suite.Equal(shipment1, shipment)
 }
@@ -111,10 +111,10 @@ func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_NotFound_ReturnsNo
 	shipment1 := fixtures.GetShipmentShort(1)
 
 	//act
-	_, err := suite.repository.UpdateShipment(shipment1)
+	_, exception := suite.repository.UpdateShipment(shipment1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorShipmentNotFound, shipment1.ID).Error(), err.ToString())
+	suite.Equal(fmt.Errorf(ErrorShipmentNotFound, shipment1.ID).Error(), exception.ToString())
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_Found_ReturnsUpdatedRecord() {
@@ -124,20 +124,20 @@ func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_Found_ReturnsUpdat
 	shipment1.State = models.ShipmentStateDelivered
 
 	//act
-	shipment, err := suite.repository.UpdateShipment(shipment1)
+	shipment, exception := suite.repository.UpdateShipment(shipment1)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	tests.SyncDates(shipment1, shipment, &shipment1.Address, &shipment.Address)
 	suite.Equal(shipment1, shipment)
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_NotFound_ReturnsNotFoundError() {
 	//act
-	err := suite.repository.DeleteShipment(1)
+	exception := suite.repository.DeleteShipment(1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorShipmentNotFound, 1).Error(), err.ToString())
+	suite.Equal(fmt.Errorf(ErrorShipmentNotFound, 1).Error(), exception.ToString())
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_Found_ReturnsNoError() {
@@ -146,8 +146,8 @@ func (suite *ShipmentRepositoryTestSuite) Test_DeleteShipment_Found_ReturnsNoErr
 	suite.Nil(suite.db.Create(shipment1).Error)
 
 	//act
-	err := suite.repository.DeleteShipment(shipment1.ID)
+	exception := suite.repository.DeleteShipment(shipment1.ID)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 }

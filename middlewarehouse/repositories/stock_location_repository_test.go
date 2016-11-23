@@ -46,24 +46,24 @@ func (suite *stockLocationRepositoryTestSuite) TearDownSuite() {
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_GetLocations() {
-	locations, err := suite.repository.GetLocations()
+	locations, exception := suite.repository.GetLocations()
 
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(1, len(locations))
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_GetLocationById() {
-	location, err := suite.repository.GetLocationByID(suite.location.ID)
+	location, exception := suite.repository.GetLocationByID(suite.location.ID)
 
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(suite.location.Name, location.Name)
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_GetLocationById_NotFound() {
-	location, err := suite.repository.GetLocationByID(suite.location.ID + 1)
+	location, exception := suite.repository.GetLocationByID(suite.location.ID + 1)
 
 	suite.Nil(location)
-	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, suite.location.ID+1).Error(), err.ToString())
+	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, suite.location.ID+1).Error(), exception.ToString())
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_CreateLocation() {
@@ -73,10 +73,10 @@ func (suite *stockLocationRepositoryTestSuite) Test_CreateLocation() {
 		Address: &models.Address{Name: "Warehouse Address"},
 	}
 
-	location, err := suite.repository.CreateLocation(model)
+	location, exception := suite.repository.CreateLocation(model)
 
 	suite.NotNil(location)
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.NotNil(location.ID)
 }
 
@@ -84,10 +84,10 @@ func (suite *stockLocationRepositoryTestSuite) Test_UpdateLocation() {
 	model := *suite.location
 	model.Name = "Updated Name"
 
-	location, err := suite.repository.UpdateLocation(&model)
+	location, exception := suite.repository.UpdateLocation(&model)
 
 	suite.NotNil(location)
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(model.Name, location.Name)
 	suite.NotEqual(suite.location.Name, location.Name)
 }
@@ -100,20 +100,20 @@ func (suite *stockLocationRepositoryTestSuite) Test_UpdateLocation_NotFound() {
 	}
 	model.ID = 100
 
-	location, err := suite.repository.UpdateLocation(model)
+	location, exception := suite.repository.UpdateLocation(model)
 
 	suite.Nil(location)
-	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, 100).Error(), err.ToString())
+	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, 100).Error(), exception.ToString())
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation() {
-	err := suite.repository.DeleteLocation(suite.location.ID)
+	exception := suite.repository.DeleteLocation(suite.location.ID)
 
-	suite.Nil(err)
+	suite.Nil(exception)
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation_NotFound() {
-	err := suite.repository.DeleteLocation(100)
+	exception := suite.repository.DeleteLocation(100)
 
-	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, 100).Error(), err.ToString())
+	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, 100).Error(), exception.ToString())
 }

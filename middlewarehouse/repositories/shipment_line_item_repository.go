@@ -2,12 +2,13 @@ package repositories
 
 import (
 	"fmt"
+	"strconv"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
-	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/jinzhu/gorm"
-	"strconv"
 )
 
 const (
@@ -35,14 +36,14 @@ func (repository *shipmentLineItemRepository) GetShipmentLineItemsByShipmentID(i
 
 	err := repository.db.Where("shipment_id = ?", id).Find(&shipmentLineItems).Error
 
-	return shipmentLineItems, NewDatabaseException(err)
+	return shipmentLineItems, db.NewDatabaseException(err)
 }
 
 func (repository *shipmentLineItemRepository) CreateShipmentLineItem(shipmentLineItem *models.ShipmentLineItem) (*models.ShipmentLineItem, exceptions.IException) {
 	err := repository.db.Create(shipmentLineItem).Error
 
 	if err != nil {
-		return nil, NewDatabaseException(err)
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return repository.getShipmentLineItemByID(shipmentLineItem.ID)
@@ -52,7 +53,7 @@ func (repository *shipmentLineItemRepository) UpdateShipmentLineItem(shipmentLin
 	result := repository.db.Model(&shipmentLineItem).Updates(shipmentLineItem)
 
 	if result.Error != nil {
-		return nil, NewDatabaseException(result.Error)
+		return nil, db.NewDatabaseException(result.Error)
 	}
 
 	if result.RowsAffected == 0 {
@@ -66,7 +67,7 @@ func (repository *shipmentLineItemRepository) DeleteShipmentLineItem(id uint) ex
 	res := repository.db.Delete(&models.ShipmentLineItem{}, id)
 
 	if res.Error != nil {
-		return NewDatabaseException(res.Error)
+		return db.NewDatabaseException(res.Error)
 	}
 
 	if res.RowsAffected == 0 {
@@ -84,7 +85,7 @@ func (repository *shipmentLineItemRepository) getShipmentLineItemByID(id uint) (
 			return nil, NewEntityNotFoundException(ShipmentLineItemEntity, strconv.Itoa(int(id)), fmt.Errorf(ErrorShipmentLineItemNotFound, id))
 		}
 
-		return nil, NewDatabaseException(err)
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return &shipmentLineItem, nil

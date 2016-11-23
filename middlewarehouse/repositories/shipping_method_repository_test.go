@@ -55,10 +55,10 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethods_ReturnsS
 	suite.Nil(suite.db.Create(shippingMethod2).Error)
 
 	//act
-	shippingMethods, err := suite.repository.GetShippingMethods()
+	shippingMethods, exception := suite.repository.GetShippingMethods()
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 
 	suite.Equal(2, len(shippingMethods))
 	suite.Equal(shippingMethod1, shippingMethods[0])
@@ -67,10 +67,10 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethods_ReturnsS
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_NotFound_ReturnsNotFoundError() {
 	//act
-	_, err := suite.repository.GetShippingMethodByID(1)
+	_, exception := suite.repository.GetShippingMethodByID(1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorShippingMethodNotFound, 1).Error(), err.ToString())
+	suite.Equal(fmt.Errorf(ErrorShippingMethodNotFound, 1).Error(), exception.ToString())
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_Found_ReturnsShippingMethodModel() {
@@ -79,10 +79,10 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_Found
 	suite.Nil(suite.db.Create(shippingMethod1).Error)
 
 	//act
-	shippingMethod, err := suite.repository.GetShippingMethodByID(shippingMethod1.ID)
+	shippingMethod, exception := suite.repository.GetShippingMethodByID(shippingMethod1.ID)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(shippingMethod1, shippingMethod)
 }
 
@@ -91,10 +91,10 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_CreateShippingMethod_Return
 	shippingMethod1 := fixtures.GetShippingMethod(1, suite.carrier1.ID, suite.carrier1)
 
 	//act
-	shippingMethod, err := suite.repository.CreateShippingMethod(fixtures.GetShippingMethod(0, suite.carrier1.ID, suite.carrier1))
+	shippingMethod, exception := suite.repository.CreateShippingMethod(fixtures.GetShippingMethod(0, suite.carrier1.ID, suite.carrier1))
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(shippingMethod1, shippingMethod)
 }
 
@@ -103,10 +103,10 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_NotFou
 	shippingMethod1 := fixtures.GetShippingMethod(1, suite.carrier1.ID, suite.carrier1)
 
 	//act
-	_, err := suite.repository.UpdateShippingMethod(shippingMethod1)
+	_, exception := suite.repository.UpdateShippingMethod(shippingMethod1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorShippingMethodNotFound, shippingMethod1.ID).Error(), err.ToString())
+	suite.Equal(fmt.Errorf(ErrorShippingMethodNotFound, shippingMethod1.ID).Error(), exception.ToString())
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_Found_ReturnsUpdatedRecord() {
@@ -116,19 +116,19 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_Found_
 	shippingMethod1.Name = "Other"
 
 	//act
-	shippingMethod, err := suite.repository.UpdateShippingMethod(shippingMethod1)
+	shippingMethod, exception := suite.repository.UpdateShippingMethod(shippingMethod1)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(shippingMethod1, shippingMethod)
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_DeleteShippingMethod_NotFound_ReturnsNotFoundError() {
 	//act
-	err := suite.repository.DeleteShippingMethod(1)
+	exception := suite.repository.DeleteShippingMethod(1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorShippingMethodNotFound, 1).Error(), err.ToString())
+	suite.Equal(fmt.Errorf(ErrorShippingMethodNotFound, 1).Error(), exception.ToString())
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_DeleteShippingMethod_Found_ReturnsNoError() {
@@ -137,8 +137,8 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_DeleteShippingMethod_Found_
 	suite.Nil(suite.db.Create(shippingMethod1).Error)
 
 	//act
-	err := suite.repository.DeleteShippingMethod(shippingMethod1.ID)
+	exception := suite.repository.DeleteShippingMethod(shippingMethod1.ID)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 }

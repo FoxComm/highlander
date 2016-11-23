@@ -2,12 +2,13 @@ package repositories
 
 import (
 	"fmt"
+	"strconv"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
 	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/jinzhu/gorm"
-	"strconv"
 )
 
 const (
@@ -36,7 +37,7 @@ func (repository *stockLocationRepository) GetLocations() ([]*models.StockLocati
 
 	err := repository.db.Find(&locations).Error
 
-	return locations, NewDatabaseException(err)
+	return locations, db.NewDatabaseException(err)
 }
 
 func (repository *stockLocationRepository) GetLocationByID(id uint) (*models.StockLocation, exceptions.IException) {
@@ -47,7 +48,7 @@ func (repository *stockLocationRepository) GetLocationByID(id uint) (*models.Sto
 			return nil, NewEntityNotFoundException(StockLocationEntity, strconv.Itoa(int(id)), fmt.Errorf(ErrorStockLocationNotFound, id))
 		}
 
-		return nil, NewDatabaseException(err)
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return location, nil
@@ -57,7 +58,7 @@ func (repository *stockLocationRepository) CreateLocation(location *models.Stock
 	err := repository.db.Create(location).Error
 
 	if err != nil {
-		return nil, NewDatabaseException(err)
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return repository.GetLocationByID(location.ID)
@@ -67,7 +68,7 @@ func (repository *stockLocationRepository) UpdateLocation(location *models.Stock
 	res := repository.db.Model(&location).Updates(location)
 
 	if res.Error != nil {
-		return nil, NewDatabaseException(res.Error)
+		return nil, db.NewDatabaseException(res.Error)
 	}
 
 	if res.RowsAffected == 0 {
@@ -81,7 +82,7 @@ func (repository *stockLocationRepository) DeleteLocation(id uint) exceptions.IE
 	res := repository.db.Delete(&models.StockLocation{}, id)
 
 	if res.Error != nil {
-		return NewDatabaseException(res.Error)
+		return db.NewDatabaseException(res.Error)
 	}
 
 	if res.RowsAffected == 0 {
