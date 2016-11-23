@@ -28,8 +28,8 @@ func (suite *ShippingMethodModelTestSuite) Test_NewShippingMethodFromPayload_Ret
 	payload := &payloads.ShippingMethod{carrierID, name, code, shippingType, cost}
 
 	//act
-	model, err := NewShippingMethodFromPayload(payload)
-	suite.assert.Nil(err)
+	model, exception := NewShippingMethodFromPayload(payload)
+	suite.assert.Nil(exception)
 
 	//assert
 	suite.assert.Equal(carrierID, model.CarrierID)
