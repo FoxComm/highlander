@@ -64,8 +64,8 @@
       private: no
 
   roles:
-    - { role: base/phoenix }
     - { role: base/greenriver }
+    - { role: dev/phoenix }
     - { role: dev/greenriver }
     - { role: dev/phoenix }
     - { role: dev/isaac }
