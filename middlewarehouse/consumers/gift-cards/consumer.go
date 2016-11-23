@@ -69,7 +69,7 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 
 	log.Printf("Creating giftcards for all gift-card-line-items in order")
 	for _, sku := range skus {
-		if sku.Attributes != nil {
+		if sku.Attributes != nil && sku.Attributes.GiftCard != (payloads.GiftCard{}) {
 			for j := 0; j < sku.Quantity; j++ {
 				giftcardPayloads = append(giftcardPayloads, payloads.CreateGiftCardPayload{
 					Balance:        sku.Price,
