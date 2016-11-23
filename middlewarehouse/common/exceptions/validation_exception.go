@@ -1,8 +1,12 @@
 package exceptions
 
 type ValidationException struct {
-	cls string `json:"type"`
+	Type string `json:"type"`
 	Exception
+}
+
+func (exception ValidationException) ToJSON() interface{} {
+	return exception
 }
 
 func NewValidationException(error error) IException {
@@ -11,7 +15,7 @@ func NewValidationException(error error) IException {
 	}
 
 	return NotImplementedException{
-		cls:       "validation",
-		Exception: Exception{error},
+		Type:      "validation",
+		Exception: Exception{error.Error()},
 	}
 }

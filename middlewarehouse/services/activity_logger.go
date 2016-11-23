@@ -102,8 +102,12 @@ func (a *record) Schema() avro.Schema {
 }
 
 type activityLoggerException struct {
-	cls string `json:"type"`
+	Type string `json:"type"`
 	exceptions.Exception
+}
+
+func (exception activityLoggerException) ToJSON() interface{} {
+	return exception
 }
 
 func NewActivityLoggerException(error error) exceptions.IException {
@@ -112,7 +116,7 @@ func NewActivityLoggerException(error error) exceptions.IException {
 	}
 
 	return activityLoggerException{
-		cls:       "activityLogger",
-		Exception: exceptions.Exception{error},
+		Type:      "activityLogger",
+		Exception: exceptions.Exception{error.Error()},
 	}
 }

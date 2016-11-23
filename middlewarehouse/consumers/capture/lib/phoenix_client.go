@@ -182,8 +182,12 @@ func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) ex
 }
 
 type captureClientException struct {
-	cls string `json:"type"`
+	Type string `json:"type"`
 	exceptions.Exception
+}
+
+func (exception captureClientException) ToJSON() interface{} {
+	return exception
 }
 
 func NewCaptureClientException(error error) exceptions.IException {
@@ -192,7 +196,7 @@ func NewCaptureClientException(error error) exceptions.IException {
 	}
 
 	return captureClientException{
-		cls:       "captureClient",
-		Exception: exceptions.Exception{error},
+		Type:      "captureClient",
+		Exception: exceptions.Exception{error.Error()},
 	}
 }

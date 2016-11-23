@@ -118,9 +118,13 @@ func (repository *summaryRepository) CreateStockItemTransaction(transaction *mod
 }
 
 type summaryForSkuNotFoundException struct {
-	cls string `json:"type"`
-	sku string
+	Type string `json:"type"`
+	SKU  string `json:"sku"`
 	exceptions.Exception
+}
+
+func (exception summaryForSkuNotFoundException) ToJSON() interface{} {
+	return exception
 }
 
 func NewSummaryForSKUNotFoundException(sku string, error error) exceptions.IException {
@@ -129,17 +133,21 @@ func NewSummaryForSKUNotFoundException(sku string, error error) exceptions.IExce
 	}
 
 	return summaryForSkuNotFoundException{
-		cls:       "summaryForSkuNotFound",
-		sku:       sku,
-		Exception: exceptions.Exception{error},
+		Type:      "summaryForSkuNotFound",
+		SKU:       sku,
+		Exception: exceptions.Exception{error.Error()},
 	}
 }
 
 type summaryForItemByTypeNotFoundException struct {
-	cls      string `json:"type"`
-	item     uint
+	Type     string `json:"type"`
+	Item     uint   `json:"item"`
 	unitType models.UnitType
 	exceptions.Exception
+}
+
+func (exception summaryForItemByTypeNotFoundException) ToJSON() interface{} {
+	return exception
 }
 
 func NewSummaryForItemByTypeNotFoundException(item uint, unitType models.UnitType, error error) exceptions.IException {
@@ -148,9 +156,9 @@ func NewSummaryForItemByTypeNotFoundException(item uint, unitType models.UnitTyp
 	}
 
 	return summaryForItemByTypeNotFoundException{
-		cls:       "summaryForSkuNotFound",
-		item:      item,
+		Type:      "summaryForSkuNotFound",
+		Item:      item,
 		unitType:  unitType,
-		Exception: exceptions.Exception{error},
+		Exception: exceptions.Exception{error.Error()},
 	}
 }

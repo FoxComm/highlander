@@ -101,8 +101,12 @@ func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 }
 
 type shipmentsConsumerException struct {
-	cls string `json:"type"`
+	Type string `json:"type"`
 	exceptions.Exception
+}
+
+func (exception shipmentsConsumerException) ToJSON() interface{} {
+	return exception
 }
 
 func NewShipmentsConsumerException(error error) exceptions.IException {
@@ -111,7 +115,7 @@ func NewShipmentsConsumerException(error error) exceptions.IException {
 	}
 
 	return shipmentsConsumerException{
-		cls:       "shipmentsConsumer",
-		Exception: exceptions.Exception{error},
+		Type:       "shipmentsConsumer",
+		Exception: exceptions.Exception{error.Error()},
 	}
 }

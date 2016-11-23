@@ -74,8 +74,12 @@ func request(method string, url string, headers map[string]string, payload inter
 }
 
 type httpException struct {
-	cls string `json:"type"`
+	Type string `json:"type"`
 	exceptions.Exception
+}
+
+func (exception httpException) ToJSON() interface{} {
+	return exception
 }
 
 func NewHttpException(error error) exceptions.IException {
@@ -84,7 +88,7 @@ func NewHttpException(error error) exceptions.IException {
 	}
 
 	return httpException{
-		cls:       "http",
-		Exception: exceptions.Exception{error},
+		Type:      "http",
+		Exception: exceptions.Exception{error.Error()},
 	}
 }

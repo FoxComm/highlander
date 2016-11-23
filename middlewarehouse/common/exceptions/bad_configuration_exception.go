@@ -1,9 +1,12 @@
 package exceptions
 
-
 type BadConfigurationException struct {
-	cls string `json:"type"`
+	Type string `json:"type"`
 	Exception
+}
+
+func (exception BadConfigurationException) ToJSON() interface{} {
+	return exception
 }
 
 func NewBadConfigurationException(error error) IException {
@@ -11,8 +14,8 @@ func NewBadConfigurationException(error error) IException {
 		return nil
 	}
 
-	return NotImplementedException{
-		cls:       "badConfiguration",
-		Exception: Exception{error},
+	return BadConfigurationException{
+		Type:      "badConfiguration",
+		Exception: Exception{error.Error()},
 	}
 }

@@ -234,9 +234,13 @@ func (service *inventoryService) updateSummary(stockItemsMap map[uint]int, unitT
 }
 
 type noStockItemsForSKUException struct {
-	cls string `json:"type"`
-	sku string
+	Type string `json:"type"`
+	SKU  string `json:"sku"`
 	exceptions.Exception
+}
+
+func (exception noStockItemsForSKUException) ToJSON() interface{} {
+	return exception
 }
 
 func NewNoStockItemsForSKUException(sku string, error error) exceptions.IException {
@@ -245,16 +249,20 @@ func NewNoStockItemsForSKUException(sku string, error error) exceptions.IExcepti
 	}
 
 	return noStockItemsForSKUException{
-		cls:       "noStockItemsForSKU",
-		sku:       sku,
-		Exception: exceptions.Exception{error},
+		Type:      "noStockItemsForSKU",
+		SKU:       sku,
+		Exception: exceptions.Exception{error.Error()},
 	}
 }
 
 type noStockItemsAssociatedWithRefNumException struct {
-	cls    string `json:"type"`
-	refNum string
+	Type   string `json:"type"`
+	RefNum string `json:"refNum"`
 	exceptions.Exception
+}
+
+func (exception noStockItemsAssociatedWithRefNumException) ToJSON() interface{} {
+	return exception
 }
 
 func NewNoStockItemsAssociatedWithRefNumException(refNum string, error error) exceptions.IException {
@@ -263,8 +271,8 @@ func NewNoStockItemsAssociatedWithRefNumException(refNum string, error error) ex
 	}
 
 	return noStockItemsAssociatedWithRefNumException{
-		cls:       "noStockItemsAssociatedWithRefNum",
-		refNum:    refNum,
-		Exception: exceptions.Exception{error},
+		Type:      "noStockItemsAssociatedWithRefNum",
+		RefNum:    refNum,
+		Exception: exceptions.Exception{error.Error()},
 	}
 }

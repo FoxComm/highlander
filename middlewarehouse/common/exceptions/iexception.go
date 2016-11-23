@@ -6,13 +6,9 @@ type IException interface {
 }
 
 type Exception struct {
-	Error error
+	Message string `json:"message"`
 }
 
 func (exception Exception) ToString() string {
-	return exception.Error.Error()
-}
-
-func (exception Exception) ToJSON() interface{} {
-	return exception
+	return exception.Message
 }

@@ -99,8 +99,12 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 }
 
 type giftCardsConsumerException struct {
-	cls string `json:"type"`
+	Type string `json:"type"`
 	exceptions.Exception
+}
+
+func (exception giftCardsConsumerException) ToJSON() interface{} {
+	return exception
 }
 
 func NewGiftCardsConsumerException(error error) exceptions.IException {
@@ -109,7 +113,7 @@ func NewGiftCardsConsumerException(error error) exceptions.IException {
 	}
 
 	return giftCardsConsumerException{
-		cls:       "giftCardConsumer",
-		Exception: exceptions.Exception{error},
+		Type:      "giftCardConsumer",
+		Exception: exceptions.Exception{error.Error()},
 	}
 }

@@ -26,8 +26,12 @@ func main() {
 }
 
 type stockItemsConsumerException struct {
-	cls string `json:"type"`
+	Type string `json:"type"`
 	exceptions.Exception
+}
+
+func (exception stockItemsConsumerException) ToJSON() interface{} {
+	return exception
 }
 
 func NewStockItemsConsumerException(error error) exceptions.IException {
@@ -36,7 +40,7 @@ func NewStockItemsConsumerException(error error) exceptions.IException {
 	}
 
 	return stockItemsConsumerException{
-		cls:       "stockItemsConsumer",
-		Exception: exceptions.Exception{error},
+		Type:      "stockItemsConsumer",
+		Exception: exceptions.Exception{error.Error()},
 	}
 }

@@ -5,8 +5,12 @@ import (
 )
 
 type activityException struct {
-	cls string `json:"type"`
+	Type string `json:"type"`
 	exceptions.Exception
+}
+
+func (exception activityException) ToJSON() interface{} {
+	return exception
 }
 
 func NewActivityException(error error) exceptions.IException {
@@ -15,7 +19,7 @@ func NewActivityException(error error) exceptions.IException {
 	}
 
 	return activityException{
-		cls:       "activity",
-		Exception: exceptions.Exception{error},
+		Type:      "activity",
+		Exception: exceptions.Exception{error.Error()},
 	}
 }

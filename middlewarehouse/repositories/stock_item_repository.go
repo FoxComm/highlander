@@ -139,9 +139,13 @@ func (repository *stockItemRepository) getAFSQuery(unitType models.UnitType) *go
 }
 
 type AFSNotFoundByIDException struct {
-	cls string `json:"type"`
-	id  uint
+	Type string `json:"type"`
+	ID   uint   `json:"id"`
 	exceptions.Exception
+}
+
+func (exception AFSNotFoundByIDException) ToJSON() interface{} {
+	return exception
 }
 
 func NewAFSNotFoundByIDException(id uint, error error) exceptions.IException {
@@ -150,16 +154,20 @@ func NewAFSNotFoundByIDException(id uint, error error) exceptions.IException {
 	}
 
 	return AFSNotFoundByIDException{
-		cls:       "afsNotFoundByID",
-		id:        id,
-		Exception: exceptions.Exception{error},
+		Type:      "afsNotFoundByID",
+		ID:        id,
+		Exception: exceptions.Exception{error.Error()},
 	}
 }
 
 type AFSNotFoundBySKUException struct {
-	cls string `json:"type"`
-	sku string
+	Type string `json:"type"`
+	SKU  string `json:"sku"`
 	exceptions.Exception
+}
+
+func (exception AFSNotFoundBySKUException) ToJSON() interface{} {
+	return exception
 }
 
 func NewAFSNotFoundBySKUException(sku string, error error) exceptions.IException {
@@ -168,8 +176,8 @@ func NewAFSNotFoundBySKUException(sku string, error error) exceptions.IException
 	}
 
 	return AFSNotFoundBySKUException{
-		cls:       "afsNotFoundBySKU",
-		sku:       sku,
-		Exception: exceptions.Exception{error},
+		Type:      "afsNotFoundBySKU",
+		SKU:       sku,
+		Exception: exceptions.Exception{error.Error()},
 	}
 }

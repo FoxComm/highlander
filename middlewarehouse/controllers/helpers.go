@@ -10,6 +10,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 )
 
@@ -66,10 +67,11 @@ func getFailure(exception exceptions.IException) failures.Failure {
 	return failures.NewBadRequest(exception)
 }
 
-func logFailure(fail failures.Failure) {
+func logFailure(failure failures.Failure) {
 	messages := []string{}
-	for _, err := range fail.ToJSON().Errors {
-		messages = append(messages, fmt.Sprintf("ServiceError: %s", err))
+	for _, err := range failure.ToJSON().Errors {
+		formattedError, _ := json.MarshalIndent(err, "", "    ")
+		messages = append(messages, fmt.Sprintf("ServiceError: %s", formattedError))
 	}
 
 	log.Println(strings.Join(messages, "\n"))

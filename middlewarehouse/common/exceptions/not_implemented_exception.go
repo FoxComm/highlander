@@ -1,8 +1,12 @@
 package exceptions
 
 type NotImplementedException struct {
-	cls string `json:"type"`
+	Type string `json:"type"`
 	Exception
+}
+
+func (exception NotImplementedException) ToJSON() interface{} {
+	return exception
 }
 
 func NewNotImplementedException(error error) IException {
@@ -11,7 +15,7 @@ func NewNotImplementedException(error error) IException {
 	}
 
 	return NotImplementedException{
-		cls:       "notImplemented",
-		Exception: Exception{error},
+		Type:      "notImplemented",
+		Exception: Exception{error.Error()},
 	}
 }

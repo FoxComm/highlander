@@ -6,10 +6,14 @@ import (
 
 // Entity was not found exception
 type EntityNotFoundException struct {
-	cls      string `json:"type"`
-	entity   string
-	entityId string
+	Type     string `json:"type"`
+	Entity   string `json:"entity"`
+	EntityID string `json:"entityId"`
 	exceptions.Exception
+}
+
+func (exception EntityNotFoundException) ToJSON() interface{} {
+	return exception
 }
 
 func NewEntityNotFoundException(entity string, entityId string, error error) exceptions.IException {
@@ -18,9 +22,9 @@ func NewEntityNotFoundException(entity string, entityId string, error error) exc
 	}
 
 	return EntityNotFoundException{
-		cls:       "entityNotFound",
-		entity:    entity,
-		entityId:  entityId,
-		Exception: exceptions.Exception{error},
+		Type:      "entityNotFound",
+		Entity:    entity,
+		EntityID:  entityId,
+		Exception: exceptions.Exception{error.Error()},
 	}
 }

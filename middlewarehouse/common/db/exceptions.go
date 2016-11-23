@@ -6,8 +6,12 @@ import (
 
 // Generic database exception
 type DatabaseException struct {
-	cls string `json:"type"`
+	Type string `json:"type"`
 	exceptions.Exception
+}
+
+func (exception DatabaseException) ToJSON() interface{} {
+	return exception
 }
 
 func NewDatabaseException(error error) exceptions.IException {
@@ -16,7 +20,7 @@ func NewDatabaseException(error error) exceptions.IException {
 	}
 
 	return DatabaseException{
-		cls:       "database",
-		Exception: exceptions.Exception{error},
+		Type:      "database",
+		Exception: exceptions.Exception{error.Error()},
 	}
 }
