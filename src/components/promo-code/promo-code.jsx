@@ -63,6 +63,8 @@ class PromoCode extends Component {
   @autobind
   onKeyPress(e: Object) {
     if (e.key === 'Enter') {
+      e.preventDefault();
+
       this.saveCode();
     }
   }
