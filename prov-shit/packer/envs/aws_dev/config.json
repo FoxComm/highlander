@@ -8,7 +8,7 @@
   "security_group_id": "sg-60051106",
   "subnet_id": "subnet-9794cdf3",
 
-  "base_united_ami": "ami-80a408e0",
+  "base_united_ami": "ami-8a77dbea",
   "amigo_instance_type": "m4.large",
   "backend_instance_type": "m4.xlarge",
   "frontend_instance_type": "m4.large"
