@@ -72,9 +72,12 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 		if sku.Attributes != nil {
 			for j := 0; j < sku.Quantity; j++ {
 				giftcardPayloads = append(giftcardPayloads, payloads.CreateGiftCardPayload{
-					Balance: sku.Price,
-					Details: sku.Attributes.GiftCard,
-					CordRef: order.ReferenceNumber,
+					Balance:        sku.Price,
+					SenderName:     sku.Attributes.GiftCard.SenderName,
+					RecipientName:  sku.Attributes.GiftCard.RecipientName,
+					RecipientEmail: sku.Attributes.GiftCard.RecipientEmail,
+					Message:        sku.Attributes.GiftCard.Message,
+					CordRef:        order.ReferenceNumber,
 				})
 			}
 		}
