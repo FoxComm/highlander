@@ -7,23 +7,3 @@
 	}
   }
 }
-
-
-
-
-
- "ansible_default_ipv4": {
-            "address": "10.240.0.54"
-			
-			
-"ansible_hostname": "foxcomm-stage-sensu-master"
-
-
-
-{{ hostvars['consul-server']['ansible_default_ipv4'] }}
-
-{% if 'webserver' in group_names %}
-   # some part of a configuration file that only applies to webservers
-{% endif %}
-
-"subscriptions": {{ group_names | to_nice_json }}
