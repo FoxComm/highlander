@@ -37,6 +37,9 @@
 
 .text-block {
   text-align: left;
+  min-height: 149px;
+  max-height: 149px;
+  position: relative;
 }
 
 .title {
@@ -48,8 +51,7 @@
   font-size: 26px;
   color: var(--text-color-main);
   letter-spacing: 0.7px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  white-space: pre-line;
   overflow: hidden;
   line-height: 30px;
 
@@ -91,6 +93,8 @@
     font-size: 15px;
     color: #212121;
     letter-spacing: 0.52px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .description {
@@ -141,5 +145,13 @@
   .description {
     font-size: 15px;
     letter-spacing: 0px;
+  }
+}
+
+@media (--medium), (--large), (--x-large) {
+  .add-to-cart-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
   }
 }
