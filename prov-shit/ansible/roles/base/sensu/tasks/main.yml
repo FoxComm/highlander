@@ -3,10 +3,6 @@
 
 # Install and configure Sensu Core with all Services
 
-# REDIS BIND
-# RESTART REDIS & RABBIT
-# SLACK SCRIPT!
-
   - name: Install build tools
     apt: name=build-essential state=present
 

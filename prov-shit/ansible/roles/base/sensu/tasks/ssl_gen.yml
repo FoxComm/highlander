@@ -2,10 +2,10 @@
 # Create SSL and deployment data store for clients
 
   - name: Check Sensu SSL directory
-    file: dest="{{ sensu_config_path }}/ssl" state=directory owner=root group=root
+    file: dest="{{ sensu_config_path }}/ssl" state=directory
 
   - name: Check Sensu SSL gen directory
-    file: dest="{{ sensu_config_path }}/ssl_generation" state=directory owner=root group=root
+    file: dest="{{ sensu_config_path }}/ssl_generation" state=directory
     when: sensu_master
 
   - block:

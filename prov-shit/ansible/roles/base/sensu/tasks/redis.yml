@@ -9,6 +9,7 @@
 
   - name: Update Redis conf
     lineinfile: "dest=/etc/redis/redis.conf regexp='^bind' line='bind 0.0.0.0'"
+    notify: restart redis service
 
   - name: Start Redis
     service: name=redis-server state=started enabled=true

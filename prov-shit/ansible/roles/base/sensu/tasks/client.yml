@@ -2,10 +2,10 @@
 # Deploy client configs for Sensu
 
   - name: Check Sensu config directory
-    file: dest="{{ sensu_config_path }}/conf.d" state=directory recurse=true owner=root group=root
+    file: dest="{{ sensu_config_path }}/conf.d" state=directory recurse=true
 
   - name: Create Sensu client RabbitMQ transport config
-    template: dest="{{ sensu_config_path }}/conf.d/rabbitmq.json" owner=root group=root src=rabbitmq.json
+    template: dest="{{ sensu_config_path }}/conf.d/rabbitmq.json" src=rabbitmq.json
     when: sensu_transport == "rabbitmq"
 
   - name: Create Sensu client Redis transport config
@@ -13,11 +13,11 @@
     when: sensu_transport == "redis"
 
   - name: Create Sensu client transport config
-    template: dest="{{ sensu_config_path }}/conf.d/transport.json" owner=root group=root src=transport.json
+    template: dest="{{ sensu_config_path }}/conf.d/transport.json" src=transport.json
     notify: restart sensu-client service
 
   - name: Create Sensu client main config
-    template: dest="{{ sensu_config_path }}/conf.d/client.json" owner=root group=root src=client.json
+    template: dest="{{ sensu_config_path }}/conf.d/client.json" src=client.json
     notify: restart sensu-client service
 
   - name: Start Sensu client

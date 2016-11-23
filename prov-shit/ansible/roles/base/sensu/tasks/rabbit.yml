@@ -25,7 +25,7 @@
       - restart sensu-server service
 
   - name: Create RabbitMQ config
-    template: dest="{{ rabbitmq_config_path }}/rabbitmq.config" src=rabbitmq.config owner=root group=root
+    template: dest="{{ rabbitmq_config_path }}/rabbitmq.config" src=rabbitmq.config
     notify: restart rabbitmq service
 
   - name: Start RabbitMQ

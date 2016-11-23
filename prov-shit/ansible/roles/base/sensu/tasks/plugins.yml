@@ -8,10 +8,7 @@
     when: sensu_remote_plugins > 0
 
   - name: Deploy definitions to the master
-    template:
-      src: "{{ item }}"
-#      dest: "{{ sensu_config_path }}/conf.d/{{ item | basename | regex_replace('.j2', '')}}"
-      dest: "{{ sensu_config_path }}/conf.d/{{ item | basename }}"
+    template: src="{{ item }}" dest="{{ sensu_config_path }}/conf.d/{{ item | basename }}"
     when: sensu_master
     with_fileglob:
       - "{{ sensu_definitions_store }}/*"
