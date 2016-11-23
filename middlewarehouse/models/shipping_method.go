@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 )
 
 const (
@@ -25,7 +26,7 @@ func (shippingMethod *ShippingMethod) Identifier() uint {
 	return shippingMethod.ID
 }
 
-func NewShippingMethodFromPayload(payload *payloads.ShippingMethod) (*ShippingMethod, error) {
+func NewShippingMethodFromPayload(payload *payloads.ShippingMethod) (*ShippingMethod, exceptions.IException) {
 	sm := &ShippingMethod{
 		CarrierID: payload.CarrierID,
 		Name:      payload.Name,
@@ -39,7 +40,9 @@ func NewShippingMethodFromPayload(payload *payloads.ShippingMethod) (*ShippingMe
 	case "variable":
 		sm.ShippingType = ShippingTypeVariable
 	default:
-		return nil, fmt.Errorf("Expected shipping type flat or variable, got: %s", payload.ShippingType)
+		return nil, exceptions.NewValidationException(
+			fmt.Errorf("Expected shipping type flat or variable, got: %s", payload.ShippingType),
+		)
 	}
 
 	return sm, nil
