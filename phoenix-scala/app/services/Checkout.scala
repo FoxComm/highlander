@@ -134,10 +134,10 @@ case class Checkout(
       skusToHold ← * <~ inventoryTrackedSkus.map { s ⇒
                     SkuInventoryHold(s.code, s.qty)
                   }.toSeq
-      _ ← * <~ (if (skusToHold.size > 0)
-                  apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold))
-                else
-                  DbResultT.unit)
+      _ ← * <~ doOrMeh(skusToHold.size > 0,
+                       DbResultT(
+                           DBIO.from(apis.middlwarehouse.hold(
+                                   OrderInventoryHold(cart.referenceNumber, skusToHold)))))
       mutating = externalCalls.middleWarehouseSuccess = skusToHold.size > 0
     } yield {}
 
@@ -146,7 +146,7 @@ case class Checkout(
       skuInventoryData ← * <~ skus.map {
                           case (skuCode, qty) ⇒ isInventoryTracked(skuCode, qty)
                         }
-      // TODO: Add this back, but for gift cards we will track inventory.
+      // TODO: Add this back, but for gift cards we will track inventory (in the super short term).
       // inventoryTrackedSkus ← * <~ skuInventoryData.filter(_.isInventoryTracked)
     } yield skuInventoryData
 
