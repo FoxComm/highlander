@@ -8,7 +8,7 @@ import classnames from 'classnames';
 import styles from './image-placeholder.css';
 
 type Props = {
-  largeScreenOnly?: boolean,
+  largeScreenOnly?: ?boolean,
 };
 
 class ImagePlaceholder extends React.Component {

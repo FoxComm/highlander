@@ -1,6 +1,7 @@
 /* @flow */
 
 import React from 'react';
+import { findDOMNode } from 'react-dom';
 import type { HTMLElement } from 'types';
 import styles from './list-item.css';
 import { Link } from 'react-router';
@@ -80,7 +81,7 @@ class ListItem extends React.Component {
   }
 
   getImageNode() {
-    return this.refs.image;
+    return findDOMNode(this.refs.image);
   }
 
   @autobind
