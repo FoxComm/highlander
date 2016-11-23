@@ -30,8 +30,8 @@ func (controller *reservationController) Hold() gin.HandlerFunc {
 			return
 		}
 
-		if err := payload.Validate(); err != nil {
-			fail := failures.NewBadRequest(err)
+		if exception := payload.Validate(); exception != nil {
+			fail := failures.NewBadRequest(exception)
 			failures.Abort(context, fail)
 			return
 		}
@@ -41,8 +41,8 @@ func (controller *reservationController) Hold() gin.HandlerFunc {
 			skuMap[sku.SKU] = int(sku.Qty)
 		}
 
-		if err := controller.service.HoldItems(payload.RefNum, skuMap); err != nil {
-			handleServiceError(context, err)
+		if exception := controller.service.HoldItems(payload.RefNum, skuMap); exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
@@ -54,8 +54,8 @@ func (controller *reservationController) Unhold() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		refNum := context.Params.ByName("refNum")
 
-		if err := controller.service.ReleaseItems(refNum); err != nil {
-			handleServiceError(context, err)
+		if exception := controller.service.ReleaseItems(refNum); exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 

@@ -64,10 +64,10 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethods_NonEmpty
 	//act
 	shippingMethods := []*responses.ShippingMethod{}
 	response := suite.Get("/shipping-methods", &shippingMethods)
-	expectedResp1, err := responses.NewShippingMethodFromModel(shippingMethod1)
-	suite.Nil(err)
-	expectedResp2, err := responses.NewShippingMethodFromModel(shippingMethod2)
-	suite.Nil(err)
+	expectedResp1, exception := responses.NewShippingMethodFromModel(shippingMethod1)
+	suite.Nil(exception)
+	expectedResp2, exception := responses.NewShippingMethodFromModel(shippingMethod2)
+	suite.Nil(exception)
 
 	//assert
 	suite.Equal(http.StatusOK, response.Code)
@@ -101,8 +101,8 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_Found
 
 	//assert
 	suite.Equal(http.StatusOK, response.Code)
-	expectedResp, err := responses.NewShippingMethodFromModel(shippingMethod1)
-	suite.Nil(err)
+	expectedResp, exception := responses.NewShippingMethodFromModel(shippingMethod1)
+	suite.Nil(exception)
 	suite.Equal(expectedResp, shippingMethod)
 }
 
@@ -110,8 +110,8 @@ func (suite *shippingMethodControllerTestSuite) Test_CreateShippingMethod_Return
 	//arrange
 	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), fixtures.GetCarrier(uint(1)))
 	payload := fixtures.ToShippingMethodPayload(shippingMethod1)
-	model, err := models.NewShippingMethodFromPayload(payload)
-	suite.Nil(err)
+	model, exception := models.NewShippingMethodFromPayload(payload)
+	suite.Nil(exception)
 
 	suite.service.On("CreateShippingMethod", model).Return(shippingMethod1, nil).Once()
 
@@ -121,8 +121,8 @@ func (suite *shippingMethodControllerTestSuite) Test_CreateShippingMethod_Return
 
 	//assert
 	suite.Equal(http.StatusCreated, response.Code)
-	expectedResp, err := responses.NewShippingMethodFromModel(shippingMethod1)
-	suite.Nil(err)
+	expectedResp, exception := responses.NewShippingMethodFromModel(shippingMethod1)
+	suite.Nil(exception)
 	suite.Equal(expectedResp, shippingMethod)
 }
 
@@ -152,8 +152,8 @@ func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_Found_
 
 	//assert
 	suite.Equal(http.StatusOK, response.Code)
-	expectedResp, err := responses.NewShippingMethodFromModel(shippingMethod1)
-	suite.Nil(err)
+	expectedResp, exception := responses.NewShippingMethodFromModel(shippingMethod1)
+	suite.Nil(exception)
 	suite.Equal(expectedResp, shippingMethod)
 }
 

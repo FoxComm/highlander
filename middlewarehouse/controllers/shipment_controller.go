@@ -33,17 +33,17 @@ func (controller *shipmentController) SetUp(router gin.IRouter) {
 func (controller *shipmentController) getShipmentsByOrder() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		referenceNumber := context.Params.ByName("orderRef")
-		shipments, err := controller.shipmentService.GetShipmentsByOrder(referenceNumber)
-		if err != nil {
-			handleServiceError(context, err)
+		shipments, exception := controller.shipmentService.GetShipmentsByOrder(referenceNumber)
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
 		response := &responses.Shipments{}
 		for _, shipment := range shipments {
-			resp, err := responses.NewShipmentFromModel(shipment)
-			if err != nil {
-				handleServiceError(context, err)
+			resp, exception := responses.NewShipmentFromModel(shipment)
+			if exception != nil {
+				handleServiceError(context, exception)
 				return
 			}
 
@@ -61,15 +61,15 @@ func (controller *shipmentController) createShipment() gin.HandlerFunc {
 			return
 		}
 
-		shipment, err := controller.shipmentService.CreateShipment(models.NewShipmentFromPayload(payload))
-		if err != nil {
-			handleServiceError(context, err)
+		shipment, exception := controller.shipmentService.CreateShipment(models.NewShipmentFromPayload(payload))
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
-		response, err := responses.NewShipmentFromModel(shipment)
-		if err != nil {
-			handleServiceError(context, err)
+		response, exception := responses.NewShipmentFromModel(shipment)
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
@@ -93,15 +93,15 @@ func (controller *shipmentController) updateShipmentForOrder() gin.HandlerFunc {
 		model := models.NewShipmentFromUpdatePayload(payload)
 		model.OrderRefNum = orderRef
 
-		shipment, err := controller.shipmentService.UpdateShipmentForOrder(model)
-		if err != nil {
-			handleServiceError(context, err)
+		shipment, exception := controller.shipmentService.UpdateShipmentForOrder(model)
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
-		response, err := responses.NewShipmentFromModel(shipment)
-		if err != nil {
-			handleServiceError(context, err)
+		response, exception := responses.NewShipmentFromModel(shipment)
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
@@ -116,9 +116,9 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 			return
 		}
 
-		shipment, err := controller.shipmentService.CreateShipment(models.NewShipmentFromOrderPayload(payload))
-		if err != nil {
-			handleServiceError(context, err)
+		shipment, exception := controller.shipmentService.CreateShipment(models.NewShipmentFromOrderPayload(payload))
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
@@ -136,16 +136,16 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 		//This means that it's only digital items (eg. gift cards)
 		if !hasTrackedInventory {
 			shipment.State = models.ShipmentStateShipped
-			shipment, err = controller.shipmentService.UpdateShipment(shipment)
-			if err != nil {
-				handleServiceError(context, err)
+			shipment, exception = controller.shipmentService.UpdateShipment(shipment)
+			if exception != nil {
+				handleServiceError(context, exception)
 				return
 			}
 		}
 
-		response, err := responses.NewShipmentFromModel(shipment)
-		if err != nil {
-			handleServiceError(context, err)
+		response, exception := responses.NewShipmentFromModel(shipment)
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
