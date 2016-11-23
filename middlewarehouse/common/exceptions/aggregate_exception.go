@@ -8,11 +8,11 @@ type AggregateException struct {
 	exceptions []IException
 }
 
-func (ex AggregateException) Add(exception IException) {
+func (ex *AggregateException) Add(exception IException) {
 	ex.exceptions = append(ex.exceptions, exception)
 }
 
-func (ex AggregateException) Length() int {
+func (ex *AggregateException) Length() int {
 	return len(ex.exceptions)
 }
 
