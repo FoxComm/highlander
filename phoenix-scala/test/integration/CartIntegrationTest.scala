@@ -152,9 +152,9 @@ class CartIntegrationTest
       val root =
         cartsApi(cart.refNum).lineItems.update(addGiftCardPayload).asTheResult[CartResponse]
       val skus = root.lineItems.skus
-      skus must have size 1
+      skus must have size 3
       skus.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus.map(_.quantity).headOption.value must === (4)
+      skus.map(_.quantity).headOption.value must === (1)
     }
 
     "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
@@ -196,15 +196,15 @@ class CartIntegrationTest
       val regRoot =
         cartsApi(cart.refNum).lineItems.update(addGiftCardPayload).asTheResult[CartResponse]
       val regSkus = regRoot.lineItems.skus
-      regSkus must have size 1
+      regSkus must have size 3
       regSkus.map(_.sku).headOption.value must === ("SKU-YAX")
-      regSkus.map(_.quantity).headOption.value must === (4)
+      regSkus.map(_.quantity).headOption.value must === (1)
       val root =
         cartsApi(cart.refNum).lineItems.update(removeGiftCardPayload).asTheResult[CartResponse]
       val skus = root.lineItems.skus
-      skus must have size 1
+      skus must have size 2
       skus.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus.map(_.quantity).headOption.value must === (3)
+      skus.map(_.quantity).headOption.value must === (1)
     }
 
     "removing too many of an item should remove all of that item" in new OrderShippingMethodFixture

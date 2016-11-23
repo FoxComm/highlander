@@ -3,6 +3,7 @@ package responses.cord.base
 import models.cord.lineitems.CartLineItems.scope._
 import models.cord.lineitems._
 import models.product.Mvp
+import org.json4s.JsonAST.JNull
 import responses.ResponseItem
 import services.LineItemManager
 import services.product.ProductManager
@@ -66,8 +67,10 @@ object CordResponseLineItems {
       implicit ec: EC,
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
-      liItemsToGroup     ← * <~ lineItems.filter(_.attributes.isEmpty)
-      liItemsNotGrouping ← * <~ lineItems.filter(_.attributes.isDefined)
+      liItemsToGroup ← * <~ lineItems.filter(li ⇒
+                            li.attributes.isEmpty || isJsNull(li.attributes))
+      liItemsNotGrouping ← * <~ lineItems.filter(li ⇒
+                                li.attributes.isDefined && li.attributes.get != JNull)
       notGruopingLiResult ← * <~ liItemsNotGrouping.map(data ⇒
                                  createResponse(data, Seq(data.lineItemReferenceNumber), 1))
       result ← * <~ liItemsToGroup
@@ -77,6 +80,13 @@ object CordResponseLineItems {
                 }
                 .toSeq
     } yield notGruopingLiResult ++ result
+
+  private def isJsNull(attributes: Option[Json]): Boolean = {
+    attributes match {
+      case Some(a: JNull.type) ⇒ return true
+      case _                   ⇒ false
+    }
+  }
 
   def cordLineItemsFromOrderGrouped(cordRef: String, adjustmentMap: AdjustmentMap)(
       implicit ec: EC,
