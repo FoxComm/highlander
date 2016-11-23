@@ -10,8 +10,9 @@
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
-    - { role: archive/phoenix, sudo: true }
-    - { role: archive/greenriver, sudo: true }
+    - { role: dev/db_phoenix }
+    #- { role: archive/phoenix, sudo: true }
+    #- { role: archive/greenriver, sudo: true }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
@@ -28,6 +29,8 @@
     ashes_server_name: stage-tpg.foxcommerce.com
     storefront_server_name: stage-tpg.foxcommerce.com
   roles:
+    - { role: dev/phoenix }
+    - { role: dev/greenriver }
     - { role: dev/ashes }
     - { role: ext/tpg/storefront }
     - { role: dev/middlewarehouse }
@@ -48,6 +51,6 @@
     with_gatling_seeder: false
     seeds_cmd: utils.seeds.Seeds seed --seedAdmins
   roles:
-    - { role: archive/seeder }
+    - { role: dev/seeder }
     - { role: ext/tpg/db_hotfix }
     - { role: ext/tpg/shipping }

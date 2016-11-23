@@ -87,9 +87,11 @@ func NewShipmentFromOrderPayload(payload *payloads.Order) *Shipment {
 		ShippingPrice:      payload.ShippingMethod.Price,
 	}
 
-	for _, lineItem := range payload.LineItems.SKUs {
-    shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *NewShipmentLineItemFromOrderPayload(&lineItem))
-	}
+    for _, lineItem := range payload.LineItems.SKUs {
+        for i := 0 ; i < lineItem.Quantity; i++ {
+            shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *NewShipmentLineItemFromOrderPayload(&lineItem))
+        }
+    }
 
 	return shipment
 }

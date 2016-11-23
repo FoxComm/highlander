@@ -299,10 +299,11 @@ export default class ObjectFormInner extends Component {
 
   guessRenderName(schema: ?AttrSchema, attribute: ?Attribute): string {
     let name = null;
+
     if (attribute) {
       name = attribute.t;
     }
-    if (schema) {
+    if (name == null && schema) {
       name = schema.widget || schema.type;
     }
     if (name == 'integer') {
