@@ -67,9 +67,9 @@ type activityLogger struct {
 }
 
 func (a *activityLogger) Log(activity activities.ISiteActivity) exceptions.IException {
-	rec, err := newRecord(activity)
-	if err != nil {
-		return err
+	rec, exception := newRecord(activity)
+	if exception != nil {
+		return exception
 	}
 
 	return NewActivityLoggerException(a.producer.Emit(topic, rec))

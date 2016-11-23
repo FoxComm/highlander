@@ -49,14 +49,14 @@ func (service *summaryService) CreateStockItemSummary(stockItemId uint) exceptio
 }
 
 func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType models.UnitType, qty int, status models.StatusChange) exceptions.IException {
-	stockItem, err := service.stockItemRepo.GetStockItemById(stockItemId)
-	if err != nil {
-		return err
+	stockItem, exception := service.stockItemRepo.GetStockItemById(stockItemId)
+	if exception != nil {
+		return exception
 	}
 
-	summary, err := service.summaryRepo.GetSummaryItemByType(stockItemId, unitType)
-	if err != nil {
-		return err
+	summary, exception := service.summaryRepo.GetSummaryItemByType(stockItemId, unitType)
+	if exception != nil {
+		return exception
 	}
 
 	// changing status from onHand does not affect onHand count, so skip it
@@ -74,8 +74,8 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 	summary = updateAfsCost(summary, stockItem)
 
 	// update stock item summary values
-	if err := service.summaryRepo.UpdateStockItemSummary(summary); err != nil {
-		log.Printf("Error updating stock_item_summaries with exceptions.IException: %s", err.ToString())
+	if exception := service.summaryRepo.UpdateStockItemSummary(summary); exception != nil {
+		log.Printf("Error updating stock_item_summaries with exceptions.IException: %s", exception.ToString())
 	}
 
 	// create related stock item transaction
@@ -92,8 +92,8 @@ func (service *summaryService) CreateStockItemTransaction(summary *models.StockI
 		AFSNew:         uint(summary.AFS),
 	}
 
-	if err := service.summaryRepo.CreateStockItemTransaction(transaction); err != nil {
-		log.Printf("Error creating stock_item_transactions with exceptions.IException: %s", err.ToString())
+	if exception := service.summaryRepo.CreateStockItemTransaction(transaction); exception != nil {
+		log.Printf("Error creating stock_item_transactions with exceptions.IException: %s", exception.ToString())
 	}
 
 	return nil

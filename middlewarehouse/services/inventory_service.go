@@ -53,13 +53,13 @@ func (service *inventoryService) GetStockItemById(id uint) (*models.StockItem, e
 }
 
 func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, exceptions.IException) {
-	if err := service.stockItemRepo.UpsertStockItem(stockItem); err != nil {
-		return nil, err
+	if exception := service.stockItemRepo.UpsertStockItem(stockItem); exception != nil {
+		return nil, exception
 	}
 
-	err := service.summaryService.CreateStockItemSummary(stockItem.ID)
-	if err != nil {
-		return nil, err
+	exception := service.summaryService.CreateStockItemSummary(stockItem.ID)
+	if exception != nil {
+		return nil, exception
 	}
 
 	return stockItem, nil
@@ -74,21 +74,21 @@ func (service *inventoryService) GetAFSBySKU(sku string, unitType models.UnitTyp
 }
 
 func (service *inventoryService) IncrementStockItemUnits(stockItemId uint, unitType models.UnitType, units []*models.StockItemUnit) exceptions.IException {
-	if err := service.unitRepo.CreateUnits(units); err != nil {
-		return err
+	if exception := service.unitRepo.CreateUnits(units); exception != nil {
+		return exception
 	}
 
 	return service.updateStockItemSummary(stockItemId, unitType, len(units), models.StatusChange{To: models.StatusOnHand})
 }
 
 func (service *inventoryService) DecrementStockItemUnits(stockItemID uint, unitType models.UnitType, qty int) exceptions.IException {
-	unitsIDs, err := service.unitRepo.GetStockItemUnitIDs(stockItemID, models.StatusOnHand, unitType, qty)
-	if err != nil {
-		return err
+	unitsIDs, exception := service.unitRepo.GetStockItemUnitIDs(stockItemID, models.StatusOnHand, unitType, qty)
+	if exception != nil {
+		return exception
 	}
 
-	if err := service.unitRepo.DeleteUnits(unitsIDs); err != nil {
-		return err
+	if exception := service.unitRepo.DeleteUnits(unitsIDs); exception != nil {
+		return exception
 	}
 
 	return service.updateStockItemSummary(stockItemID, unitType, -1*qty, models.StatusChange{To: models.StatusOnHand})
@@ -102,9 +102,9 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 	}
 
 	// get stock items associated with SKUs
-	items, err := service.stockItemRepo.GetStockItemsBySKUs(skusList)
-	if err != nil {
-		return err
+	items, exception := service.stockItemRepo.GetStockItemsBySKUs(skusList)
+	if exception != nil {
+		return exception
 	}
 
 	// grab found SKU list from repo
@@ -127,9 +127,9 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 	// get available units for each stock item
 	unitsIds := []uint{}
 	for _, si := range items {
-		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
-		if err != nil {
-			aggregateException.Add(err)
+		ids, exception := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
+		if exception != nil {
+			aggregateException.Add(exception)
 		}
 
 		unitsIds = append(unitsIds, ids...)
@@ -140,9 +140,9 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 	}
 
 	// updated units with refNum and appropriate status
-	count, err := service.unitRepo.HoldUnitsInOrder(refNum, unitsIds)
-	if err != nil {
-		return err
+	count, exception := service.unitRepo.HoldUnitsInOrder(refNum, unitsIds)
+	if exception != nil {
+		return exception
 	}
 
 	if count == 0 {
@@ -160,7 +160,7 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 
 func (service *inventoryService) ReserveItems(refNum string) exceptions.IException {
 	//get order units
-	stockItemUnits, err := service.unitRepo.GetUnitsInOrder(refNum)
+	stockItemUnits, exception := service.unitRepo.GetUnitsInOrder(refNum)
 
 	// map stockItemUnits to map[stockItem]int
 	stockItemsMap := make(map[uint]int)
@@ -173,9 +173,9 @@ func (service *inventoryService) ReserveItems(refNum string) exceptions.IExcepti
 	}
 
 	// updated units with refNum and appropriate status
-	count, err := service.unitRepo.ReserveUnitsInOrder(refNum)
-	if err != nil {
-		return err
+	count, exception := service.unitRepo.ReserveUnitsInOrder(refNum)
+	if exception != nil {
+		return exception
 	}
 
 	if count == 0 {
@@ -189,14 +189,14 @@ func (service *inventoryService) ReserveItems(refNum string) exceptions.IExcepti
 
 func (service *inventoryService) ReleaseItems(refNum string) exceptions.IException {
 	// extract stock item ids/qty by refNum
-	unitsQty, err := service.unitRepo.GetReleaseQtyByRefNum(refNum)
-	if err != nil {
-		return err
+	unitsQty, exception := service.unitRepo.GetReleaseQtyByRefNum(refNum)
+	if exception != nil {
+		return exception
 	}
 
-	count, err := service.unitRepo.UnsetUnitsInOrder(refNum)
-	if err != nil {
-		return err
+	count, exception := service.unitRepo.UnsetUnitsInOrder(refNum)
+	if exception != nil {
+		return exception
 	}
 
 	if count == 0 {
@@ -222,8 +222,8 @@ func (service *inventoryService) updateStockItemSummary(stockItemID uint, unitTy
 func (service *inventoryService) updateSummary(stockItemsMap map[uint]int, unitType models.UnitType, statusShift models.StatusChange) exceptions.IException {
 	fn := func() exceptions.IException {
 		for id, qty := range stockItemsMap {
-			if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
-				return err
+			if exception := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); exception != nil {
+				return exception
 			}
 		}
 
