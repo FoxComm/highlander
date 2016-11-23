@@ -67,19 +67,15 @@ object CordResponseLineItems {
       implicit ec: EC,
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
-      liItemsToGroup ← * <~ lineItems.filter(li ⇒
-                            li.attributes.isEmpty || isJsNull(li.attributes))
-      liItemsNotGrouping ← * <~ lineItems.filter(li ⇒
-                                li.attributes.isDefined && li.attributes.get != JNull)
-      notGruopingLiResult ← * <~ liItemsNotGrouping.map(data ⇒
-                                 createResponse(data, Seq(data.lineItemReferenceNumber), 1))
-      result ← * <~ liItemsToGroup
-                .groupBy(lineItem ⇒ groupKey(lineItem, adjustmentMap))
+      lineItemsResult ← * <~ lineItems.map(data ⇒
+                             createResponse(data, Seq(data.lineItemReferenceNumber), 1))
+      result ← * <~ lineItems
+                .groupBy(lineItem ⇒ groupKey(lineItem, adjustmentMap, lineItem.attributes))
                 .map {
                   case (_, lineItemGroup) ⇒ createResponseGrouped(lineItemGroup, adjustmentMap)
                 }
                 .toSeq
-    } yield notGruopingLiResult ++ result
+    } yield result
 
   private def isJsNull(attributes: Option[Json]): Boolean = {
     attributes match {
@@ -123,12 +119,21 @@ object CordResponseLineItems {
   val NOT_ADJUSTED = "na"
 
   private def groupKey(data: LineItemProductData[_],
-                       adjMap: Map[String, CordResponseLineItemAdjustment]): String = {
-    val prefix = data.sku.id
+                       adjMap: Map[String, CordResponseLineItemAdjustment],
+                       attributes: Option[Json] = None): String = {
+    val prefix = data.sku.id + getAttributesHash(attributes)
     val suffix =
       if (adjMap.contains(data.lineItemReferenceNumber)) data.lineItemReferenceNumber
       else NOT_ADJUSTED
     s"$prefix,$suffix"
+  }
+
+  private def getAttributesHash(attributes: Option[Json]): String = {
+    attributes match {
+      case Some(empty: JNull.type) ⇒ ""
+      case Some(value)             ⇒ value.toString.hashCode + ""
+      case _                       ⇒ ""
+    }
   }
 
   private val NO_IMAGE =
