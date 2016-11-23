@@ -45,16 +45,32 @@
   composes: button-secondary from "ui/css/buttons.css";
 }
 
+.text-field {
+  composes: text-field from "../checkout.css";
+}
+
 .union-fields {
   display: flex;
 
-  & > div {
+  & .text-field {
     width: 50%;
+  }
+
+  & .card-number-field {
+    width: 75%;
+  }
+
+  & .cvc-field {
+    width: 25%;
   }
 }
 
-.text-field {
-  composes: text-field from "../checkout.css";
+.card-number-field {
+  composes: text-field;
+}
+
+.cvc-field {
+  composes: text-field;
 }
 
 .same-address-checkbox {
