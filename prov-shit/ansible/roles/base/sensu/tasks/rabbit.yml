@@ -1,6 +1,6 @@
 ---
 # Install RabbitMQ (Sensu Transport)
-  
+
   - name: Add RabbitMQ repo key
     apt_key: url="{{ rabbitmq_repo_key }}" state=present
 
@@ -36,9 +36,9 @@
 
   - name: Create Sensu RabbitMQ user
     rabbitmq_user: user="{{ rabbitmq_sensu_user }}"
-      password: "{{ rabbitmq_sensu_password }}"
-      vhost: "{{ rabbitmq_sensu_vhost }}"
-      configure_priv: .*
-      read_priv: .*
-      write_priv: .*
-      state: present
+                   password="{{ rabbitmq_sensu_password }}"
+                   vhost="{{ rabbitmq_sensu_vhost }}"
+                   configure_priv=.*
+                   read_priv=.*
+                   write_priv=.*
+                   state=present
