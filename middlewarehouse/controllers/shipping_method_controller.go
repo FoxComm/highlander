@@ -32,7 +32,7 @@ func (controller *shippingMethodController) getShippingMethods() gin.HandlerFunc
 		shippingMethods, err := controller.service.GetShippingMethods()
 		//ensure fetched successfully
 		if err != nil {
-			context.AbortWithError(http.StatusInternalServerError, err)
+			handleServiceError(context, err)
 			return
 		}
 

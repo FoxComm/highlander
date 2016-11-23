@@ -10,6 +10,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 )
 
 type shipmentController struct {
@@ -85,8 +86,7 @@ func (controller *shipmentController) updateShipmentForOrder() gin.HandlerFunc {
 
 		orderRef := context.Params.ByName("orderRef")
 		if orderRef == "" {
-			err := errors.New("Order Reference not specified")
-			handleServiceError(context, err)
+			handleServiceError(context, exceptions.NewValidationException(errors.New("Order Reference not specified")))
 			return
 		}
 

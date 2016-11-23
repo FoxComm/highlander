@@ -9,6 +9,8 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
+	"fmt"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
@@ -74,7 +76,8 @@ func (suite *carrierControllerTestSuite) Test_GetCarriers_NonEmptyData_ReturnsRe
 
 func (suite *carrierControllerTestSuite) Test_GetCarrierByID_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.service.On("GetCarrierByID", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.CarrierEntity, "1", fmt.Errorf(repositories.ErrorCarrierNotFound, 1))
+	suite.service.On("GetCarrierByID", uint(1)).Return(nil, ex).Once()
 
 	//act
 	errors := &responses.Error{}
@@ -83,7 +86,7 @@ func (suite *carrierControllerTestSuite) Test_GetCarrierByID_NotFound_ReturnsNot
 	//assert
 	suite.Equal(http.StatusNotFound, response.Code)
 	suite.Equal(1, len(errors.Errors))
-	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(ex.ToJSON(), errors.Errors[0])
 }
 
 func (suite *carrierControllerTestSuite) Test_GetCarrierByID_Found_ReturnsRecord() {

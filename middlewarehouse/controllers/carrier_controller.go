@@ -32,7 +32,7 @@ func (controller *carrierController) getCarriers() gin.HandlerFunc {
 		carriers, err := controller.service.GetCarriers()
 		//ensure fetched successfully
 		if err != nil {
-			context.AbortWithError(http.StatusInternalServerError, err)
+			handleServiceError(context, err)
 			return
 		}
 

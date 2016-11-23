@@ -10,6 +10,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -150,21 +151,22 @@ func (controller *stockItemController) GetAFS() gin.HandlerFunc {
 		idOrSKU, err := strconv.Atoi(idOrSKUStr)
 
 		afs := &models.AFS{}
+		var exception exceptions.IException
 		if err == nil {
 			// if successfully converted to int try to find by ID
-			afs, err = controller.service.GetAFSByID(uint(idOrSKU), models.UnitType(unitType))
+			afs, exception = controller.service.GetAFSByID(uint(idOrSKU), models.UnitType(unitType))
 		} else {
 			// trying find by sku code otherwise
-			afs, err = controller.service.GetAFSBySKU(idOrSKUStr, models.UnitType(unitType))
+			afs, exception = controller.service.GetAFSBySKU(idOrSKUStr, models.UnitType(unitType))
 		}
 
-		if err != nil {
-			handleServiceError(context, err)
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
-		resp := responses.NewAFSFromModel(afs)
+		response := responses.NewAFSFromModel(afs)
 
-		context.JSON(200, resp)
+		context.JSON(200, response)
 	}
 }
