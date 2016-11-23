@@ -57,6 +57,10 @@ class Navigation extends Component {
     const path = decodeURIComponent(this.props.path);
 
     const categoryItems = _.map(this.props.list, (item) => {
+      if (item.hiddenInNavigation) {
+        return null;
+      }
+
       const dashedName = item.name.replace(/\s/g, '-');
       const key = `category-${dashedName}`;
       const url = this.getNavUrl(item);

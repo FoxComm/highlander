@@ -31,6 +31,20 @@ function apiCall(): Promise {
     },
     {
       id: 4,
+      name: 'FAVORITES',
+      description: '',
+      imageUrl: '',
+      hiddenInNavigation: true,
+    },
+    {
+      id: 5,
+      name: 'HOLIDAY',
+      description: '',
+      imageUrl: '',
+      hiddenInNavigation: true,
+    },
+    {
+      id: 6,
       name: 'GIFT CARDS',
       description: 'Gift cards will be here',
       imageUrl: '',
