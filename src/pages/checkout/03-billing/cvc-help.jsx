@@ -1,8 +1,10 @@
 /* @flow */
 
+// libs
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
+// styles
 import styles from './cvc-help.css';
 
 import Icon from 'ui/icon';
@@ -31,6 +33,11 @@ export default class CvcHelp extends Component {
     });
   }
 
+  @autobind
+  togglePopup() {
+    this.setState({ popupVisible: !this.state.popupVisible });
+  }
+
   get popup() {
     if (! this.state.popupVisible) return null;
 
@@ -43,8 +50,8 @@ export default class CvcHelp extends Component {
           For American Express (right), the 4 digits on the front of the card.
         </p>
         <div styleName="cvc-images">
-          <Icon name="fc-cvc-visa" />
-          <Icon name="fc-cvc-amex" />
+          <Icon name="fc-cvv-visa" styleName="card-icon" />
+          <Icon name="fc-cvv-amex" styleName="card-icon" />
         </div>
       </div>
     );
@@ -52,7 +59,12 @@ export default class CvcHelp extends Component {
 
   render() {
     return (
-      <div styleName="cvc-help" onMouseEnter={this.showPopup} onMouseLeave={this.hidePopup}>
+      <div
+        styleName="cvc-help"
+        onMouseEnter={this.showPopup}
+        onMouseLeave={this.hidePopup}
+        onClick={this.togglePopup}
+      >
         ?
         {this.popup}
       </div>

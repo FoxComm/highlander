@@ -31,7 +31,7 @@
   position: absolute;
   top: 26px;
   right: 20px;
-  z-index: 3;
+  z-index: 20;
 
   &:hover .close-icon {
     color: var(--blackish);

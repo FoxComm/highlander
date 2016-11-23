@@ -244,7 +244,7 @@ class EditBilling extends Component {
             />
           </FormField>
           <div styleName="union-fields">
-            <FormField styleName="text-field" validator={this.validateCardNumber}>
+            <FormField styleName="card-number-field" validator={this.validateCardNumber}>
               <TextInputWithLabel
                 label={this.paymentIcon}
               >
@@ -263,7 +263,7 @@ class EditBilling extends Component {
                 />
               </TextInputWithLabel>
             </FormField>
-            <FormField styleName="text-field" validator={this.validateCvcNumber}>
+            <FormField styleName="cvc-field" validator={this.validateCvcNumber}>
               <TextInputWithLabel
                 required
                 label={<CvcHelp />}
