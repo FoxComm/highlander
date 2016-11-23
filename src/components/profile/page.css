@@ -8,7 +8,8 @@
   color: #212121;
   letter-spacing: 2.7px;
   text-align: center;
-  margin: 60px auto;
+  margin: 0 auto;
+  padding: 60px 0;
 
   &::after {
     content: "";
@@ -22,4 +23,8 @@
 
 .content {
   composes: wrap from "ui/css/layout.css";
+}
+
+.profile {
+  background: #fff;
 }
