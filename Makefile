@@ -6,7 +6,7 @@ setup:
 	npm install
 
 build: setup
-	test -f .env && export eval `cat .env` || true && ./node_modules/.bin/gulp build
+	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
 
 docker:
 	docker build -t $(DOCKER_TAG) .

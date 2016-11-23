@@ -9,6 +9,7 @@ import rootReducer from 'modules/index';
 import { api } from 'lib/api';
 
 const isServer = typeof self == 'undefined';
+const isDebug = process.env.NODE_ENV != 'production';
 
 function thunkMiddleware({dispatch, getState}) {
   return function (next) {
@@ -37,7 +38,7 @@ export default function makeStore(history, initialState = void 0) {
     rootReducer,
     initialState,
     _.flow(..._.compact([
-      !isServer ? applyMiddleware(logger) : null,
+      !isServer && isDebug ? applyMiddleware(logger) : null,
       applyMiddleware(reduxRouterMiddleware),
       applyMiddleware(thunkMiddleware),
     ]))
