@@ -9,8 +9,10 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
+	"fmt"
+	"github.com/FoxComm/highlander/middlewarehouse/common/tests"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -78,7 +80,8 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethods_NonEmpty
 
 func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.service.On("GetShippingMethodByID", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.ShippingMethodEntity, "1", fmt.Errorf(repositories.ErrorShippingMethodNotFound, 1))
+	suite.service.On("GetShippingMethodByID", uint(1)).Return(nil, ex).Once()
 
 	//act
 	errors := &responses.Error{}
@@ -87,7 +90,7 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_NotFo
 	//assert
 	suite.Equal(http.StatusNotFound, response.Code)
 	suite.Equal(1, len(errors.Errors))
-	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(tests.ToString(ex), tests.ToString(errors.Errors[0]))
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_Found_ReturnsRecord() {
@@ -129,7 +132,8 @@ func (suite *shippingMethodControllerTestSuite) Test_CreateShippingMethod_Return
 func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_NotFound_ReturnsNotFoundError() {
 	//arrange
 	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), fixtures.GetCarrier(uint(1)))
-	suite.service.On("UpdateShippingMethod", fixtures.GetShippingMethod(uint(1), uint(1), &models.Carrier{})).Return(nil, gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.ShippingMethodEntity, "1", fmt.Errorf(repositories.ErrorShippingMethodNotFound, 1))
+	suite.service.On("UpdateShippingMethod", fixtures.GetShippingMethod(uint(1), uint(1), &models.Carrier{})).Return(nil, ex).Once()
 
 	//act
 	errors := &responses.Error{}
@@ -138,7 +142,7 @@ func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_NotFou
 	//assert
 	suite.Equal(http.StatusNotFound, response.Code)
 	suite.Equal(1, len(errors.Errors))
-	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(tests.ToString(ex), tests.ToString(errors.Errors[0]))
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_Found_ReturnsRecord() {
@@ -159,7 +163,8 @@ func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_Found_
 
 func (suite *shippingMethodControllerTestSuite) Test_DeleteShippingMethod_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.service.On("DeleteShippingMethod", uint(1)).Return(gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.ShippingMethodEntity, "1", fmt.Errorf(repositories.ErrorShippingMethodNotFound, 1))
+	suite.service.On("DeleteShippingMethod", uint(1)).Return(ex).Once()
 
 	//act
 	errors := responses.Error{}
@@ -168,7 +173,7 @@ func (suite *shippingMethodControllerTestSuite) Test_DeleteShippingMethod_NotFou
 	//assert
 	suite.Equal(http.StatusNotFound, response.Code)
 	suite.Equal(1, len(errors.Errors))
-	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(tests.ToString(ex), tests.ToString(errors.Errors[0]))
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_DeleteShippingMethod_Found() {

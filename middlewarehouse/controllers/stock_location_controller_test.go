@@ -8,13 +8,14 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
-	"errors"
 	"fmt"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	"errors"
 )
 
 type stockLocationControllerTestSuite struct {
@@ -70,7 +71,8 @@ func (suite *stockLocationControllerTestSuite) Test_GetLocations_Empty() {
 }
 
 func (suite *stockLocationControllerTestSuite) Test_GetLocations_Error() {
-	suite.service.On("GetLocations").Return(nil, errors.New("Error")).Once()
+	ex := db.NewDatabaseException(errors.New("Some error"))
+	suite.service.On("GetLocations").Return(nil, ex).Once()
 
 	response := suite.Get("/stock-locations")
 
@@ -92,7 +94,8 @@ func (suite *stockLocationControllerTestSuite) Test_GetLocationByID() {
 }
 
 func (suite *stockLocationControllerTestSuite) Test_GetLocationByID_NotFound() {
-	suite.service.On("GetLocationByID", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.StockItemEntity, "1", fmt.Errorf(repositories.ErrorStockItemNotFound, 1))
+	suite.service.On("GetLocationByID", uint(1)).Return(nil, ex).Once()
 
 	response := suite.Get("/stock-locations/1")
 
@@ -101,7 +104,8 @@ func (suite *stockLocationControllerTestSuite) Test_GetLocationByID_NotFound() {
 }
 
 func (suite *stockLocationControllerTestSuite) Test_GetLocationByID_Error() {
-	suite.service.On("GetLocationByID", uint(1)).Return(nil, errors.New("Error")).Once()
+	ex := db.NewDatabaseException(errors.New("Some error"))
+	suite.service.On("GetLocationByID", uint(1)).Return(nil, ex).Once()
 
 	response := suite.Get("/stock-locations/1")
 
@@ -124,7 +128,8 @@ func (suite *stockLocationControllerTestSuite) Test_CreateLocation() {
 
 func (suite *stockLocationControllerTestSuite) Test_CreateLocation_Error() {
 	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
-	suite.service.On("CreateLocation", model).Return(nil, errors.New("Error")).Once()
+	ex := db.NewDatabaseException(errors.New("Some error"))
+	suite.service.On("CreateLocation", model).Return(nil, ex).Once()
 
 	jsonStr := fmt.Sprintf(`{"name":"%s","type":"%s"}`, model.Name, model.Type)
 	response := suite.Post("/stock-locations", jsonStr)
@@ -148,7 +153,8 @@ func (suite *stockLocationControllerTestSuite) Test_UpdateLocation() {
 
 func (suite *stockLocationControllerTestSuite) Test_UpdateLocation_NotFound() {
 	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
-	suite.service.On("UpdateLocation", model).Return(nil, gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.StockItemEntity, "1", fmt.Errorf(repositories.ErrorStockItemNotFound, 1))
+	suite.service.On("UpdateLocation", model).Return(nil, ex).Once()
 
 	jsonStr := fmt.Sprintf(`{"name":"%s","type":"%s"}`, model.Name, model.Type)
 	response := suite.Put("/stock-locations/0", jsonStr)
@@ -167,7 +173,8 @@ func (suite *stockLocationControllerTestSuite) Test_DeleteLocation() {
 }
 
 func (suite *stockLocationControllerTestSuite) Test_DeleteLocation_NotFound() {
-	suite.service.On("DeleteLocation", uint(1)).Return(gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.StockItemEntity, "1", fmt.Errorf(repositories.ErrorStockItemNotFound, 1))
+	suite.service.On("DeleteLocation", uint(1)).Return(ex).Once()
 
 	response := suite.Delete("/stock-locations/1")
 

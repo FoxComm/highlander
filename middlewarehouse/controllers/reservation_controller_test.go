@@ -6,8 +6,9 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
 
+	"fmt"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -48,7 +49,8 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems() {
 }
 
 func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {
-	suite.service.On("HoldItems", "BR10001", map[string]int{"SKU": 2}).Return(gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.StockItemEntity, "1", fmt.Errorf(repositories.ErrorStockItemNotFound, 1))
+	suite.service.On("HoldItems", "BR10001", map[string]int{"SKU": 2}).Return(ex).Once()
 
 	jsonStr := `{"refNum": "BR10001","items": [{ "sku": "SKU", "qty": 2 }]}`
 
@@ -80,7 +82,8 @@ func (suite *reservationControllerTestSuite) Test_ReleaseItems() {
 }
 
 func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongRefNum() {
-	suite.service.On("ReleaseItems", "BR10001").Return(gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.StockItemEntity, "1", fmt.Errorf(repositories.ErrorStockItemNotFound, 1))
+	suite.service.On("ReleaseItems", "BR10001").Return(ex).Once()
 
 	res := suite.Delete("/reservations/hold/BR10001")
 
