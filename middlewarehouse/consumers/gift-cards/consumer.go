@@ -42,18 +42,18 @@ func justGiftCards(oli []payloads.OrderLineItem) bool {
 // fulfillment started and shipped states. If it finds one, He will retrieve
 // the order, manage the creation of the existent cards and make the capture. Returning an error will cause a panic.
 func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error {
-	activity, err := activities.NewActivityFromAvro(message)
-	if err != nil {
-		return fmt.Errorf("Unable to decode Avro message with error %s", err.ToString())
+	activity, exception := activities.NewActivityFromAvro(message)
+	if exception != nil {
+		return fmt.Errorf("Unable to decode Avro message with error %s", exception.ToString())
 	}
 
 	if activity.Type() != activityOrderStateChanged {
 		return nil
 	}
 
-	fullOrder, err := shared.NewFullOrderFromActivity(activity)
-	if err != nil {
-		return fmt.Errorf("Unable to decode order from activity with error %s", err.ToString())
+	fullOrder, exception := shared.NewFullOrderFromActivity(activity)
+	if exception != nil {
+		return fmt.Errorf("Unable to decode order from activity with error %s", exception.ToString())
 	}
 
 	order := fullOrder.Order
@@ -87,10 +87,10 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 	log.Printf("\n about to call createGiftCards service")
 
 	if len(giftcardPayloads) > 0 {
-		_, err = gfHandle.client.CreateGiftCards(giftcardPayloads)
-		if err != nil {
+		_, exception = gfHandle.client.CreateGiftCards(giftcardPayloads)
+		if exception != nil {
 			return fmt.Errorf("Unable to create gift cards for order %s with error %s",
-				order.ReferenceNumber, err.ToString())
+				order.ReferenceNumber, exception.ToString())
 		}
 		log.Printf("Gift cards created successfully for order %s", order.ReferenceNumber)
 	}

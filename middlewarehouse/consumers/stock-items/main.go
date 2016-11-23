@@ -19,7 +19,7 @@ func main() {
 
 	consumer, exception := NewConsumer(zookeeper, schemaRepo, middlewarehouseURL)
 	if exception != nil {
-		log.Panicf("Unable to start consumer with err: %s", exception.ToString())
+		log.Panicf("Unable to start consumer with exception: %s", exception.ToString())
 	}
 
 	consumer.Run(config.Topic, config.Partition)

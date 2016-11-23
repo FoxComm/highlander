@@ -41,37 +41,37 @@ func NewClient(key, secret string) (*Client, exceptions.IException) {
 func (c *Client) CreateOrder(payload *payloads.Order) (*payloads.Order, exceptions.IException) {
 	order := new(payloads.Order)
 	url := fmt.Sprintf("%s/%s", baseURL, "orders/createOrder")
-	err := c.httpClient.Post(url, payload, order)
-	return order, err
+	exception := c.httpClient.Post(url, payload, order)
+	return order, exception
 }
 
 // Products retreives a paginated list of all products in ShipStation.
 func (c *Client) Products() (*responses.ProductCollection, exceptions.IException) {
 	collection := new(responses.ProductCollection)
 	url := fmt.Sprintf("%s/%s", baseURL, "products")
-	err := c.httpClient.Get(url, collection)
-	return collection, err
+	exception := c.httpClient.Get(url, collection)
+	return collection, exception
 }
 
 // Product retreives a product from ShipStation.
 func (c *Client) Product(id int) (*responses.Product, exceptions.IException) {
 	product := new(responses.Product)
 	url := fmt.Sprintf("%s/%d", baseURL, id)
-	err := c.httpClient.Get(url, product)
-	return product, err
+	exception := c.httpClient.Get(url, product)
+	return product, exception
 }
 
 // UpdateProduct updates an existing ShipStation product.
 func (c *Client) UpdateProduct(payload *payloads.Product) (*responses.Product, exceptions.IException) {
 	product := new(responses.Product)
 	url := fmt.Sprintf("%s/%d", baseURL, payload.ID)
-	err := c.httpClient.Put(url, payload, product)
-	return product, err
+	exception := c.httpClient.Put(url, payload, product)
+	return product, exception
 }
 
 func (c *Client) Shipments() (*responses.ShipmentCollection, exceptions.IException) {
 	collection := new(responses.ShipmentCollection)
 	url := fmt.Sprintf("%s/%s", baseURL, "shipments")
-	err := c.httpClient.Get(url, collection)
-	return collection, err
+	exception := c.httpClient.Get(url, collection)
+	return collection, exception
 }

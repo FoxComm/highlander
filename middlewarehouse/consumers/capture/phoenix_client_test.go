@@ -35,8 +35,8 @@ func (suite *PhoenixClientTestSuite) TestAuthenticate() {
 	defer ts.Close()
 
 	client := lib.NewPhoenixClient(ts.URL, username, password)
-	err := client.Authenticate()
-	suite.Nil(err)
+	exception := client.Authenticate()
+	suite.Nil(exception)
 	suite.True(client.IsAuthenticated())
 }
 
@@ -48,8 +48,8 @@ func (suite *PhoenixClientTestSuite) TestNotAuthedWithOldExpiration() {
 	defer ts.Close()
 
 	client := lib.NewPhoenixClient(ts.URL, username, password)
-	err := client.Authenticate()
-	suite.Nil(err)
+	exception := client.Authenticate()
+	suite.Nil(exception)
 	suite.False(client.IsAuthenticated())
 }
 
@@ -66,12 +66,12 @@ func (suite *PhoenixClientTestSuite) TestCapture() {
 	ts := httptest.NewServer(http.HandlerFunc(fp.ServeHTTP))
 	defer ts.Close()
 
-	activity, err := activities.NewShipmentShipped(shipment, time.Now())
+	activity, exception := activities.NewShipmentShipped(shipment, time.Now())
 
 	client := lib.NewPhoenixClient(ts.URL, username, password)
 	payload, _ := lib.NewCapturePayload(activity)
-	err = client.CapturePayment(payload)
-	suite.Nil(err)
+	exception = client.CapturePayment(payload)
+	suite.Nil(exception)
 
 	suite.True(fp.LoginCalled)
 	suite.True(fp.CaptureCalled)

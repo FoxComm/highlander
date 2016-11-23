@@ -25,9 +25,9 @@ type S struct {
 
 func NewPollingAgent(key string, secret string, middleWarehouseUrl string) (*PollingAgent, exceptions.IException) {
 
-	client, err := api.NewClient(key, secret)
-	if err != nil {
-		return nil, err
+	client, exception := api.NewClient(key, secret)
+	if exception != nil {
+		return nil, exception
 	}
 
 	return &PollingAgent{client, middleWarehouseUrl}, nil

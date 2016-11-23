@@ -31,21 +31,21 @@ func NewShipmentHandler(mwhURL string, client lib.PhoenixClient) (*ShipmentHandl
 // fulfillment started. If it finds one, it sends to middlewarehouse to create
 // a shipment. Returning an error will cause a panic.
 func (h ShipmentHandler) Handler(message metamorphosis.AvroMessage) error {
-	activity, err := activities.NewActivityFromAvro(message)
-	if err != nil {
-		return fmt.Errorf("Unable to decode Avro message with error %s", err.ToString())
+	activity, exception := activities.NewActivityFromAvro(message)
+	if exception != nil {
+		return fmt.Errorf("Unable to decode Avro message with error %s", exception.ToString())
 	}
 
 	if activity.Type() != activityShipmentShipped {
 		return nil
 	}
-	capture, err := lib.NewCapturePayload(activity)
-	if err != nil {
-		return errors.New(err.ToString())
+	capture, exception := lib.NewCapturePayload(activity)
+	if exception != nil {
+		return errors.New(exception.ToString())
 	}
-	if err := h.client.CapturePayment(capture); err != nil {
-		log.Printf("Unable to capture payment with error: %s", err.ToString())
-		return errors.New(err.ToString())
+	if exception := h.client.CapturePayment(capture); exception != nil {
+		log.Printf("Unable to capture payment with error: %s", exception.ToString())
+		return errors.New(exception.ToString())
 	}
 
 	return nil

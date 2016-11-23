@@ -24,9 +24,9 @@ type Address struct {
 }
 
 func NewAddressFromPhoenix(name string, address phoenix.Address) (*Address, exceptions.IException) {
-	state, err := convertRegionFromPhoenix(address.Region.Name)
-	if err != nil {
-		return nil, err
+	state, exception := convertRegionFromPhoenix(address.Region.Name)
+	if exception != nil {
+		return nil, exception
 	}
 
 	if address.Region.CountryID != 234 {

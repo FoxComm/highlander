@@ -16,9 +16,9 @@ type OrderConsumer struct {
 }
 
 func NewOrderConsumer(topic string, key string, secret string) (*OrderConsumer, exceptions.IException) {
-	client, err := api.NewClient(key, secret)
-	if err != nil {
-		return nil, err
+	client, exception := api.NewClient(key, secret)
+	if exception != nil {
+		return nil, exception
 	}
 
 	return &OrderConsumer{topic, client}, nil

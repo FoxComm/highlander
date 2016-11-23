@@ -42,10 +42,10 @@ func (c *phoenixClient) ensureAuthentication() exceptions.IException {
 		return nil
 	}
 
-	if err := c.Authenticate(); err != nil {
+	if exception := c.Authenticate(); exception != nil {
 		return NewCaptureClientException(fmt.Errorf(
 			"Unable to authenticate with %s - cannot proceed with capture",
-			err.ToString(),
+			exception.ToString(),
 		))
 	}
 
@@ -53,8 +53,8 @@ func (c *phoenixClient) ensureAuthentication() exceptions.IException {
 }
 
 func (c *phoenixClient) CapturePayment(capturePayload *CapturePayload) exceptions.IException {
-	if err := c.ensureAuthentication(); err != nil {
-		return err
+	if exception := c.ensureAuthentication(); exception != nil {
+		return exception
 	}
 
 	url := fmt.Sprintf("%s/v1/service/capture", c.baseURL)
@@ -62,9 +62,9 @@ func (c *phoenixClient) CapturePayment(capturePayload *CapturePayload) exception
 		"JWT": c.jwt,
 	}
 
-	rawCaptureResp, err := consumers.Post(url, headers, &capturePayload)
-	if err != nil {
-		return err
+	rawCaptureResp, exception := consumers.Post(url, headers, &capturePayload)
+	if exception != nil {
+		return exception
 	}
 
 	defer rawCaptureResp.Body.Close()
@@ -77,9 +77,9 @@ func (c *phoenixClient) CapturePayment(capturePayload *CapturePayload) exception
 	log.Printf("Successfully captured from Phoenix with response: %v", captureResp)
 	log.Printf("Updating order state")
 
-	if err := c.UpdateOrder(capturePayload.ReferenceNumber, "shipped", "shipped"); err != nil {
-		log.Printf("Enable to update order with error %s", err.ToString())
-		return err
+	if exception := c.UpdateOrder(capturePayload.ReferenceNumber, "shipped", "shipped"); exception != nil {
+		log.Printf("Enable to update order with error %s", exception.ToString())
+		return exception
 	}
 
 	return nil
@@ -108,9 +108,9 @@ func (c *phoenixClient) Authenticate() exceptions.IException {
 	url := fmt.Sprintf("%s/v1/public/login", c.baseURL)
 	headers := map[string]string{}
 
-	resp, err := consumers.Post(url, headers, &payload)
-	if err != nil {
-		return NewCaptureClientException(fmt.Errorf("Unable to login: %s", err.ToString()))
+	resp, exception := consumers.Post(url, headers, &payload)
+	if exception != nil {
+		return NewCaptureClientException(fmt.Errorf("Unable to login: %s", exception.ToString()))
 	}
 
 	jwt, ok := resp.Header["Jwt"]
@@ -139,8 +139,8 @@ func (c *phoenixClient) Authenticate() exceptions.IException {
 }
 
 func (c *phoenixClient) CreateGiftCards(giftCards []payloads.CreateGiftCardPayload) (*http.Response, exceptions.IException) {
-	if err := c.ensureAuthentication(); err != nil {
-		return nil, err
+	if exception := c.ensureAuthentication(); exception != nil {
+		return nil, exception
 	}
 	url := fmt.Sprintf("%s/v1/customer-gift-cards", c.baseURL)
 	headers := map[string]string{
@@ -150,13 +150,13 @@ func (c *phoenixClient) CreateGiftCards(giftCards []payloads.CreateGiftCardPaylo
 }
 
 func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) exceptions.IException {
-	if err := c.ensureAuthentication(); err != nil {
-		return err
+	if exception := c.ensureAuthentication(); exception != nil {
+		return exception
 	}
 
-	payload, err := NewUpdateOrderPayload(orderState)
-	if err != nil {
-		return err
+	payload, exception := NewUpdateOrderPayload(orderState)
+	if exception != nil {
+		return exception
 	}
 
 	url := fmt.Sprintf("%s/v1/orders/%s", c.baseURL, refNum)
@@ -164,9 +164,9 @@ func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) ex
 		"JWT": c.jwt,
 	}
 
-	rawOrderResp, err := consumers.Patch(url, headers, &payload)
-	if err != nil {
-		return err
+	rawOrderResp, exception := consumers.Patch(url, headers, &payload)
+	if exception != nil {
+		return exception
 	}
 
 	defer rawOrderResp.Body.Close()
