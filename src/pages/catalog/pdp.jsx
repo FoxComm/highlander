@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import { assoc } from 'sprout-data';
 import * as tracking from 'lib/analytics';
 
 // i18n
@@ -175,12 +176,8 @@ class Pdp extends Component {
 
   @autobind
   setAttributeFromField({ target: { name, value } }) {
-    this.setState({
-      attributes: {
-        ...this.state.attributes,
-        [name]: value,
-      },
-    });
+    const namePath = ['attributes', ...name.split('.')];
+    this.setState(assoc(this.state, namePath, value));
   }
 
   get product(): Product {

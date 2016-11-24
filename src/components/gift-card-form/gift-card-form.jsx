@@ -37,6 +37,11 @@ const GiftCardForm = (props: Props) => {
     skus,
   } = props.product;
 
+  const recipientName = _.get(props.attributes, 'giftCard.recipientName', '');
+  const recipientEmail = _.get(props.attributes, 'giftCard.recipientEmail', '');
+  const message = _.get(props.attributes, 'giftCard.message', '');
+  const senderName = _.get(props.attributes, 'giftCard.senderName', '');
+
   return (
     <div styleName="card-form-wrap">
       <h1 styleName="title">Digital Gift Card</h1>
@@ -61,37 +66,37 @@ const GiftCardForm = (props: Props) => {
         <FormField label="Recipient name" required>
           <TextInput
             styleName="input-field"
-            value={props.attributes.recipientName || ''}
+            value={recipientName}
             placeholder="Recipient name"
             onChange={props.onAttributeChange}
-            name="recipientName"
+            name="giftCard.recipientName"
           />
         </FormField>
         <FormField label="Recipient email" required>
           <TextInput
             styleName="input-field"
-            value={props.attributes.recipientEmail || ''}
+            value={recipientEmail}
             placeholder="Recipient email"
             onChange={props.onAttributeChange}
-            name="recipientEmail"
+            name="giftCard.recipientEmail"
           />
         </FormField>
         <FormField>
           <textarea
             styleName="message-field"
             placeholder="Your message"
-            value={props.attributes.message || ''}
+            value={message}
             onChange={props.onAttributeChange}
-            name="message"
+            name="giftCard.message"
           />
         </FormField>
         <FormField label="Sender name" required>
           <TextInput
             styleName="input-field"
-            value={props.attributes.senderName || ''}
+            value={senderName}
             placeholder="Sender name"
             onChange={props.onAttributeChange}
-            name="senderName"
+            name="giftCard.senderName"
           />
         </FormField>
         <AddToCartBtn
