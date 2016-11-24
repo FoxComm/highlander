@@ -90,6 +90,7 @@
                       :shipping_method (get-in order ["shippingMethod" "name"])
                       :shipping_address (get order "shippingAddress")
                       :billing_address (get order "billingAddress")
+                      :billing_info (get order "billingCreditCardInfo")
                       :order_ref order-ref}
 
                      {:subject (settings/get :order_checkout_subject)})]
@@ -136,6 +137,7 @@
                       :shipping_method (get-in order ["shippingMethod" "name"])
                       :shipping_address (get order "shippingAddress")
                       :billing_address (get order "billingAddress")
+                      :billing_info (get order "billingCreditCardInfo")
                       :order_ref order-ref}
 
                     {:subject (settings/get :order_canceled_subject)})]
