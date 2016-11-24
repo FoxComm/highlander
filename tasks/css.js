@@ -8,6 +8,8 @@ module.exports = function(gulp, $) {
     'src/css/inputs.css',
     'node_modules/wings/lib/bundle.css',
     'build/bundle.css',
+    'node_modules/slick-carousel/slick/slick.css',
+    'node_modules/slick-carousel/slick/slick-theme.css',
   ];
 
   gulp.task('css', function() {

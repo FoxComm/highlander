@@ -19,7 +19,7 @@ for (const task of fs.readdirSync('./tasks')) {
 }
 
 gulp.task('build', function(cb) {
-  runSequence('templates', 'browserify', 'css', 'images', cb);
+  runSequence('templates', 'browserify', 'css', 'images', 'fonts', cb);
 });
 
 gulp.task('dev', function(cb) {
