@@ -3,7 +3,7 @@
  */
 
 import Api from 'lib/api';
-import { assoc, dissoc } from 'sprout-data';
+import { dissoc, assoc, update, merge } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import createAsyncActions from '../async-utils';
 import _ from 'lodash';
@@ -27,6 +27,7 @@ const defaultContext = 'default';
 
 export const skuNew = createAction('SKU_NEW');
 const skuClear = createAction('SKU_CLEAR');
+export const syncSku = createAction('SKU_SYNC')
 
 const _archiveSku = createAsyncActions(
   'archiveSku',
@@ -112,6 +113,9 @@ const reducer = createReducer({
   },
   [skuClear]: state => {
     return dissoc(state, 'sku');
+  },
+  [syncSku]: (state, data) => {
+    return update(state, 'sku', merge, data);
   },
   [_createSku.succeeded]: updateSkuInState,
   [_updateSku.succeeded]: updateSkuInState,

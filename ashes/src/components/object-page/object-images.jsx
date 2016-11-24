@@ -25,23 +25,26 @@ export function connectImages(namespace, actions) {
   };
 }
 
-
 export default class ImagesPage extends Component {
 
-  get entityIdName(): string {
-    return `${this.props.namespace}Id`;
-  }
-
   get entityId(): string {
-    return this.props.params[this.entityIdName];
+    return this.props.entity.entityId;
   }
 
   get contextName(): string {
-    return this.props.params.context;
+    return this.props.contextName
   }
 
   componentDidMount(): void {
     this.props.fetchAlbums(this.contextName, this.entityId);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.albums != this.props.albums) {
+      this.props.syncEntity({
+        albums: nextProps.albums,
+      });
+    }
   }
 
   render(): Element {
