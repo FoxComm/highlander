@@ -108,33 +108,34 @@
 
 (defn register-plugin
   [schema]
-  (if @phoenix-url
-    (try
-      (log/info "Register plugin at phoenix" @phoenix-url)
-      (let [plugin-info {:name "messaging"
-                         :description description
-                         :apiHost @api-host
-                         :version "1.0"
-                         :apiPort @api-port
-                         :schemaSettings schema}
-            resp (-> (http/post
-                           (str @phoenix-url "/v1/plugins/register")
-                           {:pool @http-pool
-                            :body (json/generate-string plugin-info)
-                            :content-type :json
-                            :headers {"JWT" (authenticate)}})
-                     deref
-                         :body
-                         bs/to-string
-                         json/parse-string)]
-        (log/info "Plugin registered at phoenix, resp" resp)
-        (settings/update-settings (get resp "settings")))
-      (catch Exception e
-        (try
-          (let [error-body (-> (ex-data e) :body bs/to-string)]
-            (log/error "Can't register plugin at phoenix" error-body))
-          (catch Exception einner
-            (log/error "Can't register plugin at phoenix" e)))
-        (throw e)))
-    (log/error "Phoenix address not set, can't register myself into phoenix :(")))
+  (when (empty? @phoenix-url)
+    (log/error "Phoenix address not set, can't register myself into phoenix :(")
+    (throw (ex-info "$PHOENIX_URL is empty" {})))
+  (try
+    (log/info "Register plugin at phoenix" @phoenix-url)
+    (let [plugin-info {:name "messaging"
+                       :description description
+                       :apiHost @api-host
+                       :version "1.0"
+                       :apiPort @api-port
+                       :schemaSettings schema}
+          resp (-> (http/post
+                         (str @phoenix-url "/v1/plugins/register")
+                         {:pool @http-pool
+                          :body (json/generate-string plugin-info)
+                          :content-type :json
+                          :headers {"JWT" (authenticate)}})
+                   deref
+                       :body
+                       bs/to-string
+                       json/parse-string)]
+      (log/info "Plugin registered at phoenix, resp" resp)
+      (settings/update-settings (get resp "settings")))
+    (catch Exception e
+      (try
+        (let [error-body (-> (ex-data e) :body bs/to-string)]
+          (log/error "Can't register plugin at phoenix" error-body))
+        (catch Exception einner
+          (log/error "Can't register plugin at phoenix" e)))
+      (throw e))))
 
