@@ -3,7 +3,7 @@
 - name: Provision All The Things
   hosts: all
   vars:
-    cert_path: stage
+    cert_path: test/fox
     ashes_server_name: local.foxcommerce.com
     storefront_server_name: local.foxcommerce.com
     join_type: join
