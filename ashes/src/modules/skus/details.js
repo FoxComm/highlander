@@ -27,7 +27,7 @@ const defaultContext = 'default';
 
 export const skuNew = createAction('SKU_NEW');
 const skuClear = createAction('SKU_CLEAR');
-export const syncSku = createAction('SKU_SYNC')
+export const syncSku = createAction('SKU_SYNC');
 
 const _archiveSku = createAsyncActions(
   'archiveSku',

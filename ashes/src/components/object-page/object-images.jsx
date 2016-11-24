@@ -32,7 +32,7 @@ export default class ImagesPage extends Component {
   }
 
   get contextName(): string {
-    return this.props.contextName
+    return this.props.contextName;
   }
 
   componentDidMount(): void {
