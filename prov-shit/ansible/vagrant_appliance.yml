@@ -11,6 +11,7 @@
     install_public_keys: true
     install_private_keys: true
     with_base_seeds: true
+    mesos_quorum: 1
 
   roles:
     - { role: dev/appliance }
