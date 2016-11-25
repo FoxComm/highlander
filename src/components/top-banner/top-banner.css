@@ -4,14 +4,32 @@
 .banner {
   position: fixed;
   width: 100%;
-  text-align: center;
   background: var(--additional-color);
   color: var(--whitish);
   height: 66px;
   font-weight: 400;
   font-size: 15px;
-  line-height: 60px;
+  line-height: 66px;
   z-index: 10;
+  display: flex;
+}
+
+.content {
+  flex-grow: 1;
+  margin-left: 38px;
+  text-align: center;
+}
+
+.button {
+  width: 18px;
+  margin-right: 20px;
+}
+
+.close {
+  color: var(--whitish);
+  width: 18px;
+  height: 18px;
+  line-height: 35px;
 }
 
 .strong {
