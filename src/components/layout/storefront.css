@@ -11,9 +11,13 @@
 
 .content-container {
   flex: 1 1 auto;
-  margin-top: 222px;
+  margin-top: 288px;
   background: #EBEAEA;
   z-index: 0;
+
+  &._without_banner {
+    margin-top: 222px;
+  }
 }
 
 .categories {

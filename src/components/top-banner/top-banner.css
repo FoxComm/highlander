@@ -6,12 +6,16 @@
   width: 100%;
   background: var(--additional-color);
   color: var(--whitish);
-  height: 66px;
+  min-height: 66px;
   font-weight: 400;
   font-size: 15px;
   line-height: 66px;
   z-index: 10;
   display: flex;
+
+  &._hidden {
+    display: none;
+  }
 }
 
 .content {

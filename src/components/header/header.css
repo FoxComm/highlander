@@ -89,9 +89,17 @@
       left: 0;
       box-shadow: 0 0 0 1px var(--border-color);
     }
+
+    &._without-banner {
+      top: 0;
+    }
   }
 
   .header-scrolled {
+    &._without-banner {
+      top: 0;
+    }
+
     & :global(.icon--fc-logo) {
       width: 130px;
       height: 62px;
