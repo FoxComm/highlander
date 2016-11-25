@@ -15,5 +15,5 @@ export function phoneNumber(value) {
 export function email(address) {
   return /(\w+)\@(\w+)\.[a-zA-Z]/g.test(address)
     ? null
-    : this.t('Invalid email address');
+    : 'Invalid email';
 }
