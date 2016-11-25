@@ -12,3 +12,12 @@
 .text-input {
   composes: text-input from "ui/css/input.css";
 }
+
+.theme-white-bg {
+  & .text-input, & input[type=text] {
+    &::placeholder {
+      color: #a5a5a5;
+    }
+    background: #f4f4f4;
+  }
+}

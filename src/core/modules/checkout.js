@@ -168,9 +168,11 @@ function setDefaultAddress(id: number): Function {
   };
 }
 
-export function updateAddress(address: Address, id?: number): Function {
-  return dispatch => {
+const _updateAddress = createAsyncActions(
+  'updateAddress',
+  function(address: Address, id?: number) {
     const payload = addressToPayload(address);
+    const { dispatch } = this;
 
     return createOrUpdateAddress(payload, id)
       .then((addressResponse) => {
@@ -179,9 +181,12 @@ export function updateAddress(address: Address, id?: number): Function {
         } else {
           dispatch(fetchAddresses());
         }
+        return addressResponse;
       });
-  };
-}
+  }
+);
+
+export const updateAddress = _updateAddress.perform;
 
 function getUpdatedBillingAddress(getState, billingAddressIsSame) {
   return billingAddressIsSame

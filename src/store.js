@@ -4,14 +4,14 @@ import { createStore, applyMiddleware as clientApplyMiddleware } from 'redux';
 import { syncHistory } from 'react-router-redux';
 // @TODO: drop redux-isomorphic-render from client bundle
 import { default as serverApplyMiddleware } from 'redux-isomorphic-render';
-import logger from 'redux-diff-logger';
+import createLogger from 'redux-logger';
 import rootReducer from 'modules/index';
 import { api } from 'lib/api';
 
 const isServer = typeof self == 'undefined';
 const isDebug = process.env.NODE_ENV != 'production';
 
-function thunkMiddleware({dispatch, getState}) {
+export function thunkMiddleware({dispatch, getState}) {
   return function (next) {
     return function (action) {
       if (typeof action === 'function') {
@@ -33,6 +33,11 @@ function thunkMiddleware({dispatch, getState}) {
 export default function makeStore(history, initialState = void 0) {
   const reduxRouterMiddleware = syncHistory(history);
   const applyMiddleware = isServer ? serverApplyMiddleware : clientApplyMiddleware;
+
+  const logger = createLogger({
+    duration: true,
+    collapsed: true,
+  });
 
   const store = createStore(
     rootReducer,

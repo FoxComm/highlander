@@ -65,8 +65,8 @@ class MyShippingAddresses extends Component {
   }
 
   @autobind
-  editAddress() {
-    // TODO
+  editAddress(address) {
+    browserHistory.push(`/profile/addresses/${address.id}`);
   }
 
   @autobind

@@ -47,7 +47,6 @@ export default function makeRoutes(store) {
             <Route path="email" component={EditEmail} />
             <Route path="password" component={ChangePassword} />
             <Route path="orders/:referenceNumber" component={Order} />
-            <Route path="addresses/new" component={AddressForm} />
             <Route path="addresses/:addressId" component={AddressForm} />
           </Route>
         </Route>
