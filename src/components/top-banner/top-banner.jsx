@@ -13,8 +13,8 @@ type Props = {
 };
 
 const TopBanner = (props: Props) => {
-  const bannerClass = classNames(styles['banner'], {
-    [styles['_hidden']]: !props.isVisible,
+  const bannerClass = classNames(styles.banner, {
+    [styles._hidden]: !props.isVisible,
   });
 
   return (

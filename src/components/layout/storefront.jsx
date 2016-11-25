@@ -29,7 +29,7 @@ const mapState = state => ({
 
 const StoreFront = (props: Props) => {
   const bodyClass = classNames(styles['content-container'], {
-    [styles['_without_banner']]: !props.banner.isVisible,
+    [styles['_without-banner']]: !props.banner.isVisible,
   });
 
   return (

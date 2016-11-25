@@ -1,6 +1,5 @@
 /* @flow */
 
-import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 
 type FormData = {
@@ -15,7 +14,6 @@ const initialState : FormData = {
 
 const reducer = createReducer({
   [closeBanner]: state => {
-    const currentState = _.get(state, 'isVisible', false);
     return {
       ...state,
       isVisible: false,

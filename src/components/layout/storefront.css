@@ -15,7 +15,7 @@
   background: #EBEAEA;
   z-index: 0;
 
-  &._without_banner {
+  &._without-banner {
     margin-top: 222px;
   }
 }
