@@ -7,7 +7,7 @@
     "google_oauth_frontend_secret": "Ed_hMJkHbxSjLrH5GwUDsaLn",
     "google_oauth_frontend_redirect_uri": "http://stage.foxcommerce.com/api/v1/public/oauth2callback/google/customer",
     "zookeepers" : "zk://zookeeper.service.consul:2181",
-    "cert_path": "stage",
+    "cert_path": "test/fox",
     "docker_registry_bucket": "stage-docker",
     "docker_registry":"https://docker-stage.foxcommerce.com",
     "db_host": "db.service.consul",

@@ -22,6 +22,7 @@ middlewarehouse.exe
 stock-items-consumer
 shipments-consumer
 capture-consumer
+gift-card-consumer
 
 # other binaries
 seeder

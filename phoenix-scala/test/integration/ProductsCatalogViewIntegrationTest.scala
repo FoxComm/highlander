@@ -21,8 +21,8 @@ object ProductsCatalogViewIntegrationTest {
   case class ViewImage(alt: Option[String], src: String, title: Option[String]) {
     def this(payload: ImagePayload) = this(payload.alt, payload.src, payload.title)
   }
-  case class ViewAlbum(name: String, images: Option[Seq[ViewImage]]) {
-    def this(payload: CreateAlbumPayload) =
+  case class ViewAlbum(name: Option[String], images: Option[Seq[ViewImage]]) {
+    def this(payload: AlbumPayload) =
       this(payload.name, payload.images.map(images ⇒ images.map(new ViewImage(_))))
   }
 }
@@ -60,7 +60,7 @@ class ProductsCatalogViewIntegrationTest
       columnValues.map {
         case (name, images) ⇒
           val parsedImages: Option[List[ViewImage]] = images.map(parse(_).extract[List[ViewImage]])
-          ViewAlbum(name = name, images = parsedImages)
+          ViewAlbum(name = name.some, images = parsedImages)
       }.toList
     }
 
@@ -77,7 +77,7 @@ class ProductsCatalogViewIntegrationTest
 
   trait Fixture extends StoreAdmin_Seed {
     val imagePayload        = ImagePayload(None, "http://lorem.png", "lorem.png".some, "Lorem Ipsum".some)
-    val defaultAlbumPayload = CreateAlbumPayload("Sample Album", Some(Seq(imagePayload)))
+    val defaultAlbumPayload = AlbumPayload(None, "Sample Album".some, Some(Seq(imagePayload)))
     val scope               = LTree(au.token.scope)
 
     val (album, albumImages, product, sku) = (for {

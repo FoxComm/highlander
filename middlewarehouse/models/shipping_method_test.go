@@ -24,11 +24,12 @@ func (suite *ShippingMethodModelTestSuite) SetupSuite() {
 
 func (suite *ShippingMethodModelTestSuite) Test_NewShippingMethodFromPayload_ReturnsValidModel() {
 	//arrange
-	carrierID, name, code := uint(1), "UPS 2 days ground", "GROUND"
-	payload := &payloads.ShippingMethod{carrierID, name, code}
+	carrierID, name, code, shippingType, cost := uint(1), "UPS 2 days ground", "GROUND", "flat", uint(599)
+	payload := &payloads.ShippingMethod{carrierID, name, code, shippingType, cost}
 
 	//act
-	model := NewShippingMethodFromPayload(payload)
+	model, err := NewShippingMethodFromPayload(payload)
+	suite.assert.Nil(err)
 
 	//assert
 	suite.assert.Equal(carrierID, model.CarrierID)

@@ -15,14 +15,14 @@ resource "google_compute_instance" "tiny-consul" {
     tags = ["no-ip", "${var.datacenter}-consul-server", "${var.datacenter}"]
     zone = "us-central1-a"
 
-    metadata {
-        consul_dc = "${var.datacenter}"
+    service_account {
+        scopes = ["storage-rw"]
     }
 
     disk {
         image = "${var.consul_server_image}"
         type = "pd-ssd"
-        size = "10"
+        size = "20"
     }
 
     network_interface {
