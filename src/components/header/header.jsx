@@ -13,6 +13,7 @@ import Icon from 'ui/icon';
 import Search from '../search/search';
 import UserTools from '../usertools/usertools';
 import Navigation from '../navigation/navigation';
+import TopBanner from '../top-banner/top-banner';
 
 type Props = {
   toggleSidebar: Function,
@@ -60,22 +61,25 @@ class Header extends React.Component {
     const headerStyle = this.state.isScrolled ? 'header-scrolled' : 'header';
 
     return (
-      <div styleName={headerStyle}>
-        <div styleName="wrap">
-          <div styleName="hamburger" onClick={this.props.toggleSidebar}>
-            <Icon name="fc-hamburger" styleName="head-icon"/>
-          </div>
-          <div styleName="search">
-            <Search onSearch={this.props.toggleSearch} isScrolled={this.state.isScrolled}/>
-          </div>
-          <Link to="/" styleName="logo-link">
-            <Icon styleName="logo" name="fc-logo"/>
-          </Link>
-          <div styleName="navigation">
-            <Navigation path={this.props.path} />
-          </div>
-          <div styleName="tools">
-            <UserTools path={this.props.path} query={this.props.query}/>
+      <div>
+        <TopBanner />
+        <div styleName={headerStyle}>
+          <div styleName="wrap">
+            <div styleName="hamburger" onClick={this.props.toggleSidebar}>
+              <Icon name="fc-hamburger" styleName="head-icon"/>
+            </div>
+            <div styleName="search">
+              <Search onSearch={this.props.toggleSearch} isScrolled={this.state.isScrolled}/>
+            </div>
+            <Link to="/" styleName="logo-link">
+              <Icon styleName="logo" name="fc-logo"/>
+            </Link>
+            <div styleName="navigation">
+              <Navigation path={this.props.path} />
+            </div>
+            <div styleName="tools">
+              <UserTools path={this.props.path} query={this.props.query}/>
+            </div>
           </div>
         </div>
       </div>
