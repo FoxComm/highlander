@@ -1,5 +1,6 @@
 
 @import "colors.css";
+@import "media-queries.css";
 
 .banner {
   position: fixed;
@@ -9,7 +10,6 @@
   min-height: 66px;
   font-weight: 400;
   font-size: 15px;
-  line-height: 66px;
   z-index: 10;
   display: flex;
 
@@ -22,11 +22,17 @@
   flex-grow: 1;
   margin-left: 38px;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .button {
   width: 18px;
   margin-right: 20px;
+  display: flex;
+  align-items: flex-start;
+  margin-top: 20px;
 }
 
 .close {
@@ -38,4 +44,29 @@
 
 .strong {
   font-weight: 600;
+}
+
+@media (--medium-only) {
+  .banner {
+    height: 70px;
+    padding-left: 38px;
+  }
+
+  .content {
+    align-items: flex-start;
+    margin-top: 25px;
+  }
+}
+
+@media (--small-only) {
+  .banner {
+    height: 105px;
+    padding-left: 38px;
+  }
+
+  .content {
+    max-width: 220px;
+    margin: 25px auto 0;
+    align-items: flex-start;
+  }
 }

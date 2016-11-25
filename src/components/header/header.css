@@ -50,6 +50,42 @@
   }
 }
 
+@media (--small-only) {
+  .header {
+    top: 105px;
+
+    &._without-banner {
+      top: 0;
+    }
+  }
+
+  .header-scrolled {
+    top: 105px;
+
+    &._without-banner {
+      top: 0;
+    }
+  }
+}
+
+@media (--medium-only) {
+  .header {
+    top: 70px;
+
+    &._without-banner {
+      top: 0;
+    }
+  }
+
+  .header-scrolled {
+    top: 70px;
+
+    &._without-banner {
+      top: 0;
+    }
+  }
+}
+
 @media (--large) {
   .wrap {
     lost-column: 10/12;

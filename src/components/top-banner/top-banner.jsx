@@ -20,9 +20,11 @@ const TopBanner = (props: Props) => {
   return (
     <div className={bannerClass}>
       <div styleName="content">
-        To celebrate the launch of our new site, use code
-        <strong styleName="strong"> PERFECT20 </strong>
-        and enjoy 20% off sitewide!
+        <span>
+          To celebrate the launch of our new site, use code
+          <strong styleName="strong"> PERFECT20 </strong>
+          and enjoy 20% off sitewide!
+        </span>
       </div>
       <div styleName="button">
         <a styleName="close" onClick={props.onClose}>

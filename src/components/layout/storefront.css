@@ -32,11 +32,27 @@
   display: none;
 }
 
-@media (--small-only), (--medium-only) {
+@media (--small-only) {
   .content-container {
-    margin-top: 80px;
-  }
+    margin-top: 190px;
 
+    &._without-banner {
+      margin-top: 85px;
+    }
+  }
+}
+
+@media (--medium-only) {
+  .content-container {
+    margin-top: 155px;
+
+    &._without-banner {
+      margin-top: 85px;
+    }
+  }
+}
+
+@media (--small-only), (--medium-only) {
   .mobile-sidebar {
     display: block;
     z-index: 10;
