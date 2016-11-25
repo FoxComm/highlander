@@ -1,3 +1,6 @@
+@import "variables.css";
+@import "media-queries.css";
+
 .slider-wrapper {
   background: #f4f4f4;
   text-align: center;

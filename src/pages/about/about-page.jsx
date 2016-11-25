@@ -10,6 +10,8 @@ import styles from './about-page.css';
 // components
 import IntroSLider from './intro-slider';
 import MentionsSlider from './mentions-slider';
+import CookingBlock from './cooking-block';
+
 
 export default class AboutPage extends React.Component {
   render() {
@@ -50,6 +52,8 @@ export default class AboutPage extends React.Component {
           </div>
           <MentionsSlider />
         </div>
+
+        <CookingBlock />
       </div>
     );
   }
