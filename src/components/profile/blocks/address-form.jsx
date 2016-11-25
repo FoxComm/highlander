@@ -26,7 +26,7 @@ function mapStateToProps(state) {
 function globalActions(dispatch) {
   return {
     checkoutActions: bindActionCreators(checkoutActions, dispatch),
-  }
+  };
 }
 
 class AddressForm extends Component {
@@ -44,7 +44,7 @@ class AddressForm extends Component {
   fetchAddress(props) {
     const addressId = this.addressId(props);
     if (addressId != 'new') {
-     this.props.fetchAddress(addressId).then(() => {
+      this.props.fetchAddress(addressId).then(() => {
         this.setState({
           initialAddress: this.props.address,
         });
@@ -99,7 +99,7 @@ class AddressForm extends Component {
           <Link styleName="link" to="/profile">Cancel</Link>
         </div>
       </Block>
-    )
+    );
   }
 }
 
@@ -108,4 +108,3 @@ export default _.flowRight(
   makeLocalStore(addressReducer),
   connect(state => state, addressActions)
 )(AddressForm);
-
