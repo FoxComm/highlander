@@ -26,6 +26,7 @@ case class OrderResponse(referenceNumber: String,
                          shippingMethod: ShippingMethodsResponse.Root,
                          shippingAddress: AddressResponse,
                          billingAddress: Option[AddressResponse] = None,
+                         billingCreditCardInfo: Option[CordResponseCreditCardPayment] = None,
                          paymentMethods: Seq[_ <: CordResponsePayments] = Seq.empty,
                          // Order-specific
                          orderState: Order.State,
@@ -37,10 +38,10 @@ case class OrderResponse(referenceNumber: String,
 
 object OrderResponse {
 
-  private def getBillingAddress(
-      paymentMethods: Seq[_ <: CordResponsePayments]): Option[AddressResponse] = {
+  private def getCreditCardResponse(
+      paymentMethods: Seq[_ <: CordResponsePayments]): Option[CordResponseCreditCardPayment] = {
     paymentMethods.collectFirst {
-      case ccPayment: CordResponseCreditCardPayment ⇒ ccPayment.address
+      case ccPayment: CordResponseCreditCardPayment ⇒ ccPayment
     }
   }
 
@@ -59,6 +60,7 @@ object OrderResponse {
                         .mustFindOr(ShippingMethodNotFoundInOrder(order.refNum))
       shippingAddress ← * <~ CordResponseShipping.shippingAddress(order.refNum)
       paymentMethods  ← * <~ CordResponsePayments.fetchAll(order.refNum)
+      ccResponse = getCreditCardResponse(paymentMethods)
     } yield
       OrderResponse(
           referenceNumber = order.refNum,
@@ -74,7 +76,8 @@ object OrderResponse {
           } yield CustomerResponse.build(c, cu),
           shippingMethod = shippingMethod,
           shippingAddress = shippingAddress,
-          billingAddress = getBillingAddress(paymentMethods),
+          billingCreditCardInfo = ccResponse,
+          billingAddress = ccResponse.map(_.address),
           paymentMethods = paymentMethods,
           orderState = order.state,
           shippingState = order.getShippingState,
