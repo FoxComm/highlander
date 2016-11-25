@@ -235,7 +235,7 @@ export default function createImagesModule(entity: string): Module {
   };
 
   /** Reducers */
-  const asyncReducer = createReducer({
+  const reducer = createReducer({
     [_fetchAlbums.succeeded]: (state: State, response: Array<Album>) => {
       return assoc(state, ['albums'], response);
     },
@@ -281,7 +281,7 @@ export default function createImagesModule(entity: string): Module {
   }, initialState);
 
   return {
-    reducer: asyncReducer,
+    reducer,
     actions: {
       uploadImages,
       editImage,

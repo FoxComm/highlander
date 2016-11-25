@@ -16,6 +16,14 @@
   template: src=shipments-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
   sudo: true
 
+- name: Copy Capture Consumer Marathon JSON
+  template: src=capture-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+  sudo: true
+
+- name: Copy Gift Card Consumer Marathon JSON
+  template: src=gift-card-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+  sudo: true
+
 - name: Update Middlewarehouse in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/middlewarehouse.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/middlewarehouse'
 

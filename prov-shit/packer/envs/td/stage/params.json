@@ -31,6 +31,6 @@
     "storefront_server_name": "td-prod.foxcommerce.com",
     "zookeepers" : "zk://zookeeper.service.consul:2181",
     "docker_registry_bucket": "td-docker",
-    "cert_path": "stage",
+    "cert_path": "stage/top-drawer",
     "docker_registry":"https://td-docker.foxcommerce.com"
 }

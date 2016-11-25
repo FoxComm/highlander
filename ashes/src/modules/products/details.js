@@ -8,7 +8,7 @@ import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
 import { createEmptyProduct, configureProduct } from 'paragons/product';
 import createAsyncActions from '../async-utils';
-import { dissoc, assoc } from 'sprout-data';
+import { dissoc, assoc, update, merge } from 'sprout-data';
 
 // types
 import type { Product } from 'paragons/product';
@@ -22,6 +22,9 @@ const defaultContext = 'default';
 
 export const productNew = createAction('PRODUCTS_NEW');
 const clearProduct = createAction('PRODUCT_CLEAR');
+// synchronizes product in case if we have actions which immediately changes product
+// without our request for saving
+export const syncProduct = createAction('PRODUCT_SYNC');
 
 const _archiveProduct = createAsyncActions(
   'archiveProduct',
@@ -149,6 +152,9 @@ const reducer = createReducer({
   },
   [clearProduct]: (state: ProductDetailsState) => {
     return dissoc(state, 'product');
+  },
+  [syncProduct]: (state: ProductDetailsState, data) => {
+    return update(state, 'product', merge, data);
   },
   [_fetchProduct.succeeded]: updateProductInState,
   [_updateProduct.succeeded]: updateProductInState,

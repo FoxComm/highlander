@@ -48,7 +48,7 @@ object LineItemUpdater {
     for {
       _             ← * <~ runOrderLineItemUpdates(payload)
       orderUpdated  ← * <~ Orders.mustFindByRefNum(refNum)
-      orderResponse ← * <~ OrderResponse.fromOrder(orderUpdated, grouped = false)
+      orderResponse ← * <~ OrderResponse.fromOrder(orderUpdated, grouped = true)
     } yield orderResponse
 
   private def runOrderLineItemUpdates(payload: Seq[UpdateOrderLineItemsPayload])(implicit ec: EC,

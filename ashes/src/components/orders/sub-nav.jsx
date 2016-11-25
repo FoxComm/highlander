@@ -20,7 +20,9 @@ const SubNav = props => {
       <IndexLink to="order-details" params={params}>Details</IndexLink>
       <Link to="order-shipments" params={params} expectedClaims={shippingClaims} actualClaims={claims}>Shipments</Link>
       <Link to="order-notes" expectedClaims={notesClaims} actualClaims={claims} params={params}>Notes</Link>
-      <Link to="order-activity-trail" expectedClaims={activityClaims} actualClaims={claims} params={params}>Activity Trail</Link>
+      <Link to="order-activity-trail" expectedClaims={activityClaims} actualClaims={claims} params={params}>
+        Activity Trail
+      </Link>
     </LocalNav>
   );
 };
