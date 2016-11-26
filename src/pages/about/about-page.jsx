@@ -19,9 +19,7 @@ export default class AboutPage extends React.Component {
       <div>
         <div styleName="top-header-wrap">
           <div styleName="text-wrap">
-            <h1 styleName="top-title">
-              CHEF CRAFTED MEALS DELIVERED TO YOUR DOOR
-            </h1>
+            <h1 styleName="default-sesction-title">CHEF CRAFTED MEALS DELIVERED TO YOUR DOOR</h1>
           </div>
         </div>
         <div styleName="intro-block">
@@ -41,19 +39,44 @@ export default class AboutPage extends React.Component {
           </Link>
         </div>
 
+        <CookingBlock />
+
+        <div styleName="fresh-block">
+          <div styleName="fresh-header-wrap">
+            <div styleName="text-wrap">
+              <div styleName="fresh-description">QUALITY IS OUR PRIORITY</div>
+              <h1 styleName="default-sesction-title">THE NEW FRESH</h1>
+              <div styleName="fresh-text">
+                Our chefs only cook with locally sourced, fresh ingredients.
+                Our meals are then flash frozen, ensuring optimal taste, nutrition
+                and convenience. So you know you never have to sacrifice qualify
+                for convenience.
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div styleName="mentions">
           <div styleName="mentions-header-wrap">
             <div styleName="text-wrap">
               <div styleName="mentions-description">OUR CUSTOMERS ARE SHARING THE LOVE</div>
-              <h1 styleName="mentions-title">
-                WHAT PEOPLE ARE SAYING
-              </h1>
+              <h1 styleName="mentions-title">WHAT PEOPLE ARE SAYING</h1>
             </div>
           </div>
           <MentionsSlider />
         </div>
 
-        <CookingBlock />
+        <div styleName="gifts-block">
+          <div styleName="gifts-header-wrap">
+            <div styleName="gifts-wrap">
+              {/*<div styleName="text-wrap">
+                <div styleName="gifts-description">THE PERFECT GOURMET</div>
+                <h1 styleName="gifts-title">MAKES THE PERFECT GIFT</h1>
+              </div>*/}
+            </div>
+          </div>
+        </div>
+
       </div>
     );
   }

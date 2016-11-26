@@ -2,7 +2,7 @@
 
 export default [
   {
-    mention: "I have bought many items from The Perfect Gourmet over the years and they are top notch--easy to cook for a quick dinner that is way above anything that I can buy in a grocery store.",
+    mention: "I have bought many items from The Perfect Gourmet over the years and they are top notch - easy to cook for a quick dinner that is way above anything that I can buy in a grocery store.",
     author: 'Candace G.',
     location: 'Ahwahnee, CA',
   },
@@ -12,7 +12,7 @@ export default [
     location: 'Winter Park, Florida',
   },
   {
-    mention: "Consistently good food that although is simple to prepare, is far from simple in taste and quality. Well worth stocking a few items in the freezer-- especially the Potstickers!",
+    mention: "Consistently good food that although is simple to prepare, is far from simple in taste and quality. Well worth stocking a few items in the freezer - especially the Potstickers!",
     author: 'Emma C.',
     location: 'Stewartstown, PA',
   },
