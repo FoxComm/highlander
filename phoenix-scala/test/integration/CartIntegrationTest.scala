@@ -128,8 +128,11 @@ class CartIntegrationTest
     val addPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
     val attributes = Some(
         parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
-    val addGiftCardPayload    = Seq(UpdateLineItemsPayload("SKU-YAX", 2, attributes))
-    val removeGiftCardPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1, attributes))
+    val attributes2 = Some(
+        parse("""{"attributes":{"giftCard":{"senderName":"senderName2","recipientName":"recipientName2","recipientEmail":"example2@example.com"}}}"""))
+    val addGiftCardPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, attributes),
+                                 UpdateLineItemsPayload("SKU-YAX", 1, attributes2))
+    val removeGiftCardPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -2, attributes))
 
     "should successfully add line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
@@ -152,9 +155,9 @@ class CartIntegrationTest
       val root =
         cartsApi(cart.refNum).lineItems.update(addGiftCardPayload).asTheResult[CartResponse]
       val skus = root.lineItems.skus
-      skus must have size 1
+      skus must have size 3
       skus.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus.map(_.quantity).headOption.value must === (4)
+      skus.map(_.quantity).tail.headOption.value must === (1)
     }
 
     "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
@@ -196,15 +199,15 @@ class CartIntegrationTest
       val regRoot =
         cartsApi(cart.refNum).lineItems.update(addGiftCardPayload).asTheResult[CartResponse]
       val regSkus = regRoot.lineItems.skus
-      regSkus must have size 1
+      regSkus must have size 3
       regSkus.map(_.sku).headOption.value must === ("SKU-YAX")
-      regSkus.map(_.quantity).headOption.value must === (4)
+      regSkus.map(_.quantity).tail.headOption.value must === (1)
       val root =
         cartsApi(cart.refNum).lineItems.update(removeGiftCardPayload).asTheResult[CartResponse]
       val skus = root.lineItems.skus
-      skus must have size 1
+      skus must have size 2
       skus.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus.map(_.quantity).headOption.value must === (3)
+      skus.map(_.quantity).headOption.value must === (2)
     }
 
     "removing too many of an item should remove all of that item" in new OrderShippingMethodFixture

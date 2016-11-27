@@ -30,7 +30,7 @@
     "storefront_server_name": "topdrawer-stage.foxcommerce.com",
     "zookeepers" : "zk://topdrawer-stage-amigo.node.consul:2181",
     "docker_registry_bucket": "topdrawer-docker",
-    "cert_path": "topdrawer",
+    "cert_path": "stage/top-drawer",
     "docker_registry":"https://docker.topdrawer.foxcommerce.com",
     "join_type" : "join-wan",
     "consul_expect" : "1"

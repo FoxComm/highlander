@@ -4,7 +4,7 @@ PORT ?= 3000
 all: clean install build
 
 install:
-	npm install
+	yarn --pure-lockfile
 
 build: install
 	mkdir -p $(BUILD_DIR)

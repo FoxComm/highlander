@@ -71,6 +71,9 @@
 
 (defn start-app
   [react-app]
+  (log/infof "Start consumer, with kafka=%s schema=%s"
+             @kafka-broker
+             @schema-registry-url)
   (reset! stop false)
   (let [cc {:bootstrap.servers       [@kafka-broker]
             :group.id                "fc-messaging"

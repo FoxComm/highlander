@@ -110,6 +110,8 @@ class MultiTopicConsumer(topics: Seq[String],
     while (true) {
       val records = consumer.poll(timeout)
 
+      consumer.assignment.map(a ⇒ consumer.pause(a));
+
       val result = records.foldLeft(ProcessOffsetsResult()) {
         case (offsets, r) ⇒
           Console.err.println(s"\nProcessing ${r.topic} offset ${r.offset}")
@@ -118,6 +120,9 @@ class MultiTopicConsumer(topics: Seq[String],
             val f = processor.process(r.offset, r.topic, r.key, r.value)
             Await.result(f, 120 seconds)
           }
+
+          consumer.poll(0) //do heartbeat
+
           val tp = new TopicPartition(r.topic, r.partition)
           result match {
             case Success(_) ⇒
@@ -134,6 +139,8 @@ class MultiTopicConsumer(topics: Seq[String],
               }
           }
       }
+
+      consumer.assignment.map(a ⇒ consumer.resume(a));
 
       if (result.ok.nonEmpty) {
         Sync.commit(consumer, result.ok)

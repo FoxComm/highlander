@@ -163,7 +163,7 @@ class SkuIntegrationTest
   trait Fixture extends StoreAdmin_Seed {
     def makeSkuPayload(code: String,
                        attrMap: Map[String, Json],
-                       albums: Option[Seq[AlbumPayload]]) = {
+                       albums: Option[Seq[AlbumPayload]] = None) = {
       val codeJson   = ("t"              → "string") ~ ("v" → code)
       val attributes = attrMap + ("code" → codeJson)
       SkuPayload(attributes = attributes, albums = albums)

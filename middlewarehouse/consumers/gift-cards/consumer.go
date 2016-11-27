@@ -69,12 +69,22 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 
 	log.Printf("Creating giftcards for all gift-card-line-items in order")
 	for _, sku := range skus {
-		if sku.Attributes != nil {
+		if sku.Attributes != nil && sku.Attributes.GiftCard != nil {
+			if sku.Attributes.GiftCard.SenderName == "" ||
+				sku.Attributes.GiftCard.RecipientName == "" ||
+				sku.Attributes.GiftCard.RecipientEmail == "" {
+				return fmt.Errorf("Unable to create gift cards for order %s, giftcard Payload malformed",
+					order.ReferenceNumber)
+			}
+
 			for j := 0; j < sku.Quantity; j++ {
 				giftcardPayloads = append(giftcardPayloads, payloads.CreateGiftCardPayload{
-					Balance: sku.Price,
-					Details: sku.Attributes.GiftCard,
-					CordRef: order.ReferenceNumber,
+					Balance:        sku.Price,
+					SenderName:     sku.Attributes.GiftCard.SenderName,
+					RecipientName:  sku.Attributes.GiftCard.RecipientName,
+					RecipientEmail: sku.Attributes.GiftCard.RecipientEmail,
+					Message:        sku.Attributes.GiftCard.Message,
+					CordRef:        order.ReferenceNumber,
 				})
 			}
 		}
