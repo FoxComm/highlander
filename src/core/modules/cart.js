@@ -71,11 +71,11 @@ function addToLineItems(items, sku, quantity, attributes) {
   return collectItemsToSubmit(toCollect);
 }
 
-function changeCart(payload) {
+function changeCartLineItems(payload) {
   return this.api.post('/v1/my/cart/line-items', payload);
 }
 
-const { fetch: submitChange, ...changeCartActions } = createAsyncActions('cartChange', changeCart);
+const { fetch: submitLineItemChange, ...changeCartActions } = createAsyncActions('cartChange', changeCartLineItems);
 
 // add line item to cart
 export function addLineItem(sku, quantity, attributes = {}) {
@@ -83,7 +83,7 @@ export function addLineItem(sku, quantity, attributes = {}) {
     const state = getState();
     const lineItems = _.get(state, ['cart', 'skus'], []);
     const newLineItems = addToLineItems(lineItems, sku, quantity, attributes);
-    return dispatch(submitChange(newLineItems));
+    return dispatch(submitLineItemChange(newLineItems));
   };
 }
 
@@ -99,7 +99,7 @@ export function updateLineItemQuantity(sku, qtt) {
         quantity,
       };
     });
-    return dispatch(submitChange(newLineItems));
+    return dispatch(submitLineItemChange(newLineItems));
   };
 }
 
@@ -114,44 +114,49 @@ function fetchMyCart(user): global.Promise {
 }
 
 // push cart to server
-export function saveLineItems(merge: boolean = false) {
+export function saveLineItemsAndCoupons(merge: boolean = false) {
   return (dispatch, getState) => {
     const state = getState();
-    const lineItems = _.get(state, ['cart', 'skus'], []);
-    const lineItemsToSubmit = collectItemsToSubmit(lineItems);
+    const guestLineItems = _.get(state, ['cart', 'skus'], []);
+    const guestCouponCode = _.get(state, 'cart.coupon.code', null);
+    const guestLineItemsToSubmit = collectItemsToSubmit(guestLineItems);
     return fetchMyCart().then((data) => {
       let newCartItems = [];
 
+      // We are merging a guest cart what is already persisted for this user (because they are logging in).
       if (merge) {
-        const savedLineItems = _.get(data, 'lineItems.skus', []);
-        const savedPayload = collectItemsToSubmit(savedLineItems);
+        const persistedLineItems = _.get(data, 'lineItems.skus', []);
+        const persistedPayload = collectItemsToSubmit(persistedLineItems);
 
-        const onePart = _.map(savedPayload, item => {
-          const itemInOtherPart = _.find(lineItemsToSubmit, { sku: item.sku });
+        const originalCart = _.map(persistedPayload, item => {
+          const itemInNewCart = _.find(guestLineItemsToSubmit, { sku: item.sku });
 
-          if (itemInOtherPart) {
-            const itemQuantity = item.quantity;
-            const otherQuantity = itemInOtherPart.quantity;
-            const sum = itemQuantity + otherQuantity;
+          if (itemInNewCart) {
+            const originalItemQuantity = item.quantity;
+            const guestItemQuantity = itemInNewCart.quantity;
+            const sum = originalItemQuantity + guestItemQuantity;
             return { sku: item.sku, quantity: sum };
           }
 
           return item;
         });
 
-        const onePartSkus = _.map(onePart, li => li.sku);
-        const otherPart = _.reduce(lineItemsToSubmit, (acc, item) => {
-          if (onePartSkus.indexOf(item.sku) >= 0) {
+        const originalCartSkus = _.map(originalCart, li => li.sku);
+        const guestCartSkus = _.reduce(guestLineItemsToSubmit, (acc, item) => {
+          if (originalCartSkus.indexOf(item.sku) >= 0) {
             return acc;
           }
 
           return acc.concat(item);
         }, []);
 
-        newCartItems = onePart.concat(otherPart);
+        newCartItems = originalCart.concat(guestCartSkus);
+
+      // We are going to only persist the items in the guest cart on the case of signup.
+      // We will delete any items that are persisted, although there should be no persisted items for a freshly signed-up user.
       } else {
         const lis = _.get(data, 'lineItems.skus', []);
-        const newSkus = _.map(lineItemsToSubmit, li => li.sku);
+        const newSkus = _.map(guestLineItemsToSubmit, li => li.sku);
         const oldPayload = collectItemsToSubmit(lis);
         const oldSkus = _.map(oldPayload, li => li.sku);
 
@@ -164,12 +169,19 @@ export function saveLineItems(merge: boolean = false) {
           };
         });
 
-        newCartItems = lineItemsToSubmit.concat(itemsToDelete);
+        newCartItems = guestLineItemsToSubmit.concat(itemsToDelete);
       }
 
       return newCartItems;
     }).then((newCartItems) => {
-      return dispatch(submitChange(newCartItems));
+      return dispatch(submitLineItemChange(newCartItems));
+    }).then(() => {
+      if (!_.isNil(guestCouponCode)) {
+        foxApi.cart.addCoupon(guestCouponCode)
+          .then(res => {
+            dispatch(updateCart(res.result));
+          });
+      }
     });
   };
 }

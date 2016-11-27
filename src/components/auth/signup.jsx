@@ -19,7 +19,7 @@ import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
 
 import * as actions from 'modules/auth';
 import { authBlockTypes } from 'paragons/auth';
-import { fetch as fetchCart, saveLineItems } from 'modules/cart';
+import { fetch as fetchCart, saveLineItemsAndCoupons } from 'modules/cart';
 
 import type { HTMLElement } from 'types';
 import type { SignUpPayload } from 'modules/auth';
@@ -36,6 +36,8 @@ type AuthState = {
 type Props = Localized & {
   getPath: Function,
   isLoading: boolean,
+  fetchCart: Function,
+  saveLineItemsAndCoupons: Function,
 };
 
 const mapState = state => ({
@@ -81,13 +83,14 @@ class Signup extends Component {
   @autobind
   submitUser() {
     const {email, password, username: name} = this.state;
-    const paylaod: SignUpPayload = {email, password, name};
-    this.props.signUp(paylaod).then(() => {
+    const payload: SignUpPayload = {email, password, name};
+    this.props.signUp(payload).then(() => {
       const lineItems = _.get(this.props, 'cart.lineItems', []);
-      if (_.isEmpty(lineItems)) {
+      const couponCode = _.get(this.props, 'cart.coupon.code', null);
+      if (_.isEmpty(lineItems) && _.isNil(couponCode)) {
         this.props.fetchCart();
       } else {
-        this.props.saveLineItems();
+        this.props.saveLineItemsAndCoupons();
       }
       browserHistory.push(this.props.getPath());
     }).catch(err => {
@@ -177,5 +180,5 @@ class Signup extends Component {
 export default connect(mapState, {
   ...actions,
   fetchCart,
-  saveLineItems,
+  saveLineItemsAndCoupons,
 })(localized(Signup));
