@@ -10,6 +10,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,10 +34,10 @@ func (controller *stockItemController) SetUp(router gin.IRouter) {
 
 func (controller *stockItemController) GetStockItems() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		stockItems, err := controller.service.GetStockItems()
+		stockItems, exception := controller.service.GetStockItems()
 
-		if err != nil {
-			fail := failures.NewInternalError(err)
+		if exception != nil {
+			fail := failures.NewInternalError(exception)
 			failures.Abort(context, fail)
 			return
 		}
@@ -57,9 +58,9 @@ func (controller *stockItemController) GetStockItemById() gin.HandlerFunc {
 			return
 		}
 
-		stockItem, err := controller.service.GetStockItemById(uint(id))
-		if err != nil {
-			handleServiceError(context, err)
+		stockItem, exception := controller.service.GetStockItemById(uint(id))
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
@@ -78,9 +79,9 @@ func (controller *stockItemController) CreateStockItem() gin.HandlerFunc {
 
 		stockItem := models.NewStockItemFromPayload(&payload)
 
-		stockItem, err := controller.service.CreateStockItem(stockItem)
-		if err != nil {
-			handleServiceError(context, err)
+		stockItem, exception := controller.service.CreateStockItem(stockItem)
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
@@ -100,15 +101,15 @@ func (controller *stockItemController) IncrementStockItemUnits() gin.HandlerFunc
 			return
 		}
 
-		if err := payload.Validate(); err != nil {
-			failures.Abort(context, failures.NewBadRequest(err))
+		if exception := payload.Validate(); exception != nil {
+			failures.Abort(context, failures.NewBadRequest(exception))
 			return
 		}
 
 		units := models.NewStockItemUnitsFromPayload(uint(id), &payload)
 
-		if err := controller.service.IncrementStockItemUnits(uint(id), models.UnitType(payload.Type), units); err != nil {
-			handleServiceError(context, err)
+		if exception := controller.service.IncrementStockItemUnits(uint(id), models.UnitType(payload.Type), units); exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
@@ -128,12 +129,12 @@ func (controller *stockItemController) DecrementStockItemUnits() gin.HandlerFunc
 			return
 		}
 
-		if err := payload.Validate(); err != nil {
-			failures.Abort(context, failures.NewBadRequest(err))
+		if exception := payload.Validate(); exception != nil {
+			failures.Abort(context, failures.NewBadRequest(exception))
 			return
 		}
-		if err := controller.service.DecrementStockItemUnits(uint(id), models.UnitType(payload.Type), payload.Qty); err != nil {
-			handleServiceError(context, err)
+		if exception := controller.service.DecrementStockItemUnits(uint(id), models.UnitType(payload.Type), payload.Qty); exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
@@ -150,21 +151,22 @@ func (controller *stockItemController) GetAFS() gin.HandlerFunc {
 		idOrSKU, err := strconv.Atoi(idOrSKUStr)
 
 		afs := &models.AFS{}
+		var exception exceptions.IException
 		if err == nil {
 			// if successfully converted to int try to find by ID
-			afs, err = controller.service.GetAFSByID(uint(idOrSKU), models.UnitType(unitType))
+			afs, exception = controller.service.GetAFSByID(uint(idOrSKU), models.UnitType(unitType))
 		} else {
 			// trying find by sku code otherwise
-			afs, err = controller.service.GetAFSBySKU(idOrSKUStr, models.UnitType(unitType))
+			afs, exception = controller.service.GetAFSBySKU(idOrSKUStr, models.UnitType(unitType))
 		}
 
-		if err != nil {
-			handleServiceError(context, err)
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
-		resp := responses.NewAFSFromModel(afs)
+		response := responses.NewAFSFromModel(afs)
 
-		context.JSON(200, resp)
+		context.JSON(200, response)
 	}
 }

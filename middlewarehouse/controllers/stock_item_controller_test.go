@@ -9,6 +9,9 @@ import (
 
 	"errors"
 
+	"fmt"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
@@ -56,7 +59,7 @@ func (suite *stockItemControllerTestSuite) Test_GetStockItems() {
 
 func (suite *stockItemControllerTestSuite) Test_GetStockItems_Error() {
 	errText := "Some error"
-	suite.service.On("GetStockItems").Return(nil, errors.New(errText)).Once()
+	suite.service.On("GetStockItems").Return(nil, db.NewDatabaseException(errors.New(errText))).Once()
 
 	res := suite.Get("/stock-items")
 
@@ -80,7 +83,8 @@ func (suite *stockItemControllerTestSuite) Test_GetStockItemById() {
 }
 
 func (suite *stockItemControllerTestSuite) Test_GetStockItemById_NotFound() {
-	suite.service.On("GetStockItemById", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.StockItemEntity, "1", fmt.Errorf(repositories.ErrorStockItemNotFound, 1))
+	suite.service.On("GetStockItemById", uint(1)).Return(nil, ex).Once()
 
 	res := suite.Get("/stock-items/1")
 
@@ -113,7 +117,8 @@ func (suite *stockItemControllerTestSuite) Test_CreateStockItem() {
 func (suite *stockItemControllerTestSuite) Test_CreateStockItem_Error() {
 	stockItem := &models.StockItem{SKU: "SKU", StockLocationID: 1, DefaultUnitCost: 1000}
 
-	suite.service.On("CreateStockItem", stockItem).Return(nil, gorm.ErrInvalidTransaction).Once()
+	ex := db.NewDatabaseException(gorm.ErrInvalidTransaction)
+	suite.service.On("CreateStockItem", stockItem).Return(nil, ex).Once()
 
 	jsonStr := `{"sku":"SKU","stockLocationID":1,"defaultUnitCost":1000}`
 	res := suite.Post("/stock-items", jsonStr)

@@ -1,20 +1,13 @@
 package controllers
 
 import (
-	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
-
 	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
-	"github.com/gin-gonic/gin"
-)
 
-const (
-	outOfStockPrefix = "Not enough units"
-	outOfStockError  = "Oops! Looks like one of your items is out of stock. Please remove it from the cart to complete checkout"
+	"github.com/gin-gonic/gin"
 )
 
 type reservationController struct {
@@ -37,8 +30,8 @@ func (controller *reservationController) Hold() gin.HandlerFunc {
 			return
 		}
 
-		if err := payload.Validate(); err != nil {
-			fail := failures.NewBadRequest(err)
+		if exception := payload.Validate(); exception != nil {
+			fail := failures.NewBadRequest(exception)
 			failures.Abort(context, fail)
 			return
 		}
@@ -48,13 +41,8 @@ func (controller *reservationController) Hold() gin.HandlerFunc {
 			skuMap[sku.SKU] = int(sku.Qty)
 		}
 
-		if err := controller.service.HoldItems(payload.RefNum, skuMap); err != nil {
-			// This is ugly - let's spike into error messages in MWH in the future.
-			if strings.HasPrefix(err.Error(), outOfStockPrefix) {
-				handleServiceError(context, errors.New(outOfStockError))
-			} else {
-				handleServiceError(context, err)
-			}
+		if exception := controller.service.HoldItems(payload.RefNum, skuMap); exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
@@ -66,8 +54,8 @@ func (controller *reservationController) Unhold() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		refNum := context.Params.ByName("refNum")
 
-		if err := controller.service.ReleaseItems(refNum); err != nil {
-			handleServiceError(context, err)
+		if exception := controller.service.ReleaseItems(refNum); exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 

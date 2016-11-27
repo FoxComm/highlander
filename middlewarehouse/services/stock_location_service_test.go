@@ -7,6 +7,9 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 
+	"fmt"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -39,9 +42,9 @@ func (suite *StockLocationServiceTestSuite) Test_GetLocations() {
 	}
 	suite.repository.On("GetLocations").Return(models, nil).Once()
 
-	locations, err := suite.service.GetLocations()
+	locations, exception := suite.service.GetLocations()
 
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(models, locations)
 	suite.repository.AssertExpectations(suite.T())
 }
@@ -50,19 +53,20 @@ func (suite *StockLocationServiceTestSuite) Test_GetLocationByID() {
 	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
 	suite.repository.On("GetLocationByID", uint(1)).Return(model, nil).Once()
 
-	location, err := suite.service.GetLocationByID(1)
+	location, exception := suite.service.GetLocationByID(1)
 
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(model, location)
 	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *StockLocationServiceTestSuite) Test_GetLocationByID_NotFound() {
-	suite.repository.On("GetLocationByID", uint(1)).Return(nil, errors.New("Error")).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.StockLocationEntity, "1", fmt.Errorf(repositories.ErrorStockLocationNotFound, 1))
+	suite.repository.On("GetLocationByID", uint(1)).Return(nil, ex).Once()
 
-	location, err := suite.service.GetLocationByID(1)
+	location, exception := suite.service.GetLocationByID(1)
 
-	suite.NotNil(err)
+	suite.Equal(ex, exception)
 	suite.Nil(location)
 	suite.repository.AssertExpectations(suite.T())
 }
@@ -71,20 +75,21 @@ func (suite *StockLocationServiceTestSuite) Test_CreateLocation() {
 	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
 	suite.repository.On("CreateLocation", model).Return(model, nil).Once()
 
-	location, err := suite.service.CreateLocation(model)
+	location, exception := suite.service.CreateLocation(model)
 
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(model, location)
 	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *StockLocationServiceTestSuite) Test_CreateLocation_Error() {
 	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
-	suite.repository.On("CreateLocation", model).Return(nil, errors.New("Error")).Once()
+	ex := db.NewDatabaseException(errors.New("Failure"))
+	suite.repository.On("CreateLocation", model).Return(nil, ex).Once()
 
-	location, err := suite.service.CreateLocation(model)
+	location, exception := suite.service.CreateLocation(model)
 
-	suite.NotNil(err)
+	suite.Equal(ex, exception)
 	suite.Nil(location)
 	suite.repository.AssertExpectations(suite.T())
 }
@@ -93,20 +98,21 @@ func (suite *StockLocationServiceTestSuite) Test_UpdateLocation() {
 	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
 	suite.repository.On("UpdateLocation", model).Return(model, nil).Once()
 
-	location, err := suite.service.UpdateLocation(model)
+	location, exception := suite.service.UpdateLocation(model)
 
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(model, location)
 	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *StockLocationServiceTestSuite) Test_UpdateLocation_Error() {
 	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
-	suite.repository.On("CreateLocation", model).Return(nil, errors.New("Error")).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.StockLocationEntity, "1", fmt.Errorf(repositories.ErrorStockLocationNotFound, 1))
+	suite.repository.On("CreateLocation", model).Return(nil, ex).Once()
 
-	location, err := suite.service.CreateLocation(model)
+	location, exception := suite.service.CreateLocation(model)
 
-	suite.NotNil(err)
+	suite.Equal(ex, exception)
 	suite.Nil(location)
 	suite.repository.AssertExpectations(suite.T())
 }
@@ -114,15 +120,16 @@ func (suite *StockLocationServiceTestSuite) Test_UpdateLocation_Error() {
 func (suite *StockLocationServiceTestSuite) Test_DeleteLocation() {
 	suite.repository.On("DeleteLocation", uint(1)).Return(nil).Once()
 
-	err := suite.service.DeleteLocation(1)
+	exception := suite.service.DeleteLocation(1)
 
-	suite.Nil(err)
+	suite.Nil(exception)
 }
 
 func (suite *StockLocationServiceTestSuite) Test_DeleteLocation_Error() {
-	suite.repository.On("DeleteLocation", uint(1)).Return(errors.New("Error")).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.StockLocationEntity, "1", fmt.Errorf(repositories.ErrorStockLocationNotFound, 1))
+	suite.repository.On("DeleteLocation", uint(1)).Return(ex).Once()
 
-	err := suite.service.DeleteLocation(1)
+	exception := suite.service.DeleteLocation(1)
 
-	suite.NotNil(err)
+	suite.Equal(ex, exception)
 }

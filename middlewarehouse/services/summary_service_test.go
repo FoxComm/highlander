@@ -134,8 +134,8 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 func (suite *summaryServiceTestSuite) Test_GetSummary() {
 	suite.Nil(suite.service.UpdateStockItemSummary(suite.si.ID, models.Sellable, 5, models.StatusChange{To: models.StatusOnHand}))
 
-	summary, err := suite.service.GetSummary()
-	suite.Nil(err)
+	summary, exception := suite.service.GetSummary()
+	suite.Nil(exception)
 
 	suite.NotNil(summary)
 	suite.Equal(4, len(summary))
@@ -143,22 +143,22 @@ func (suite *summaryServiceTestSuite) Test_GetSummary() {
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU() {
-	summary, err := suite.service.GetSummaryBySKU(suite.si.SKU)
-	suite.Nil(err)
+	summary, exception := suite.service.GetSummaryBySKU(suite.si.SKU)
+	suite.Nil(exception)
 
 	suite.NotNil(summary)
 	suite.Equal(suite.onHand, summary[0].OnHand)
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU_NotFoundSKU() {
-	_, err := suite.service.GetSummaryBySKU("NO-SKU")
-	suite.NotNil(err, "There should be an error as entity should not be found")
+	_, exception := suite.service.GetSummaryBySKU("NO-SKU")
+	suite.NotNil(exception, "There should be an error as entity should not be found")
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummaryBySKU_NonZero() {
 	suite.Nil(suite.service.UpdateStockItemSummary(suite.si.ID, models.Sellable, 5, models.StatusChange{To: models.StatusOnHand}))
 
-	summary, err := suite.service.GetSummaryBySKU(suite.si.SKU)
-	suite.Nil(err)
+	summary, exception := suite.service.GetSummaryBySKU(suite.si.SKU)
+	suite.Nil(exception)
 	suite.Equal(suite.onHand+5, summary[0].OnHand)
 }

@@ -7,10 +7,12 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
 
+	"errors"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
+	"github.com/FoxComm/highlander/middlewarehouse/common/tests"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -40,18 +42,19 @@ func (suite *shipmentControllerTestSuite) TearDownTest() {
 	suite.shipmentService.Calls = []mock.Call{}
 }
 
-func (suite *shipmentControllerTestSuite) Test_GetShipmentsByOrder_NotFound_ReturnsNotFoundError() {
+func (suite *shipmentControllerTestSuite) Test_GetShipmentsByOrder_Exception_IsReturned() {
 	//arrange
-	suite.shipmentService.On("GetShipmentsByOrder", "BR1005").Return(nil, gorm.ErrRecordNotFound).Once()
+	ex := db.NewDatabaseException(errors.New("Something has gone wrong"))
+	suite.shipmentService.On("GetShipmentsByOrder", "BR1005").Return(nil, ex).Once()
 
 	//act
 	errors := responses.Error{}
 	response := suite.Get("/shipments/BR1005", &errors)
 
 	//assert
-	suite.Equal(http.StatusNotFound, response.Code)
+	suite.Equal(http.StatusBadRequest, response.Code)
 	suite.Equal(1, len(errors.Errors))
-	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(tests.ToString(ex), tests.ToString(errors.Errors[0]))
 }
 
 // TODO: Re-enable later
@@ -89,8 +92,8 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 
 	//assert
 	suite.Equal(http.StatusCreated, response.Code)
-	expectedResp, err := responses.NewShipmentFromModel(shipment1)
-	suite.Nil(err)
+	expectedResp, exception := responses.NewShipmentFromModel(shipment1)
+	suite.Nil(exception)
 	suite.Equal(expectedResp, shipment)
 }
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/utils"
 )
@@ -22,21 +23,21 @@ type S struct {
 	TrackingNumber  string `json:"trackingNumber"`
 }
 
-func NewPollingAgent(key string, secret string, middleWarehouseUrl string) (*PollingAgent, error) {
+func NewPollingAgent(key string, secret string, middleWarehouseUrl string) (*PollingAgent, exceptions.IException) {
 
-	client, err := api.NewClient(key, secret)
-	if err != nil {
-		return nil, err
+	client, exception := api.NewClient(key, secret)
+	if exception != nil {
+		return nil, exception
 	}
 
 	return &PollingAgent{client, middleWarehouseUrl}, nil
 }
 
-func (c PollingAgent) GetShipments() error {
-	shipments, err := c.client.Shipments()
-	if err != nil {
-		log.Printf("Error Getting Shipments: %v", err)
-		return err
+func (c PollingAgent) GetShipments() exceptions.IException {
+	shipments, exception := c.client.Shipments()
+	if exception != nil {
+		log.Printf("Error Getting Shipments: %v", exception)
+		return exception
 	}
 
 	httpClient := utils.NewHTTPClient()
@@ -54,9 +55,9 @@ func (c PollingAgent) GetShipments() error {
 		url := fmt.Sprintf("%s/%s/%s", c.middleWarehouseUrl, mwhShipmentsURI, s.ReferenceNumber)
 		resp := new(S)
 
-		err := httpClient.Patch(url, s, resp)
-		if err != nil {
-			log.Printf("Failed %s with error: %s", url, err.Error())
+		exception := httpClient.Patch(url, s, resp)
+		if exception != nil {
+			log.Printf("Failed %s with error: %s", url, exception.ToString())
 		}
 	}
 

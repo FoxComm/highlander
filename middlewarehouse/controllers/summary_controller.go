@@ -22,9 +22,9 @@ func (controller *summaryController) SetUp(router gin.IRouter) {
 
 func (controller *summaryController) GetSummary() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		summary, err := controller.service.GetSummary()
-		if err != nil {
-			handleServiceError(context, err)
+		summary, exception := controller.service.GetSummary()
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
@@ -37,9 +37,9 @@ func (controller *summaryController) GetSummary() gin.HandlerFunc {
 func (controller *summaryController) GetSummaryBySKU() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		skuCode := context.Params.ByName("code")
-		summary, err := controller.service.GetSummaryBySKU(skuCode)
-		if err != nil {
-			handleServiceError(context, err)
+		summary, exception := controller.service.GetSummaryBySKU(skuCode)
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 

@@ -30,9 +30,9 @@ func (controller *stockLocationController) SetUp(router gin.IRouter) {
 
 func (controller *stockLocationController) GetLocations() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		locations, err := controller.service.GetLocations()
-		if err != nil {
-			fail := failures.NewInternalError(err)
+		locations, exception := controller.service.GetLocations()
+		if exception != nil {
+			fail := failures.NewInternalError(exception)
 			failures.Abort(context, fail)
 			return
 		}
@@ -48,9 +48,9 @@ func (controller *stockLocationController) GetLocationByID() gin.HandlerFunc {
 			return
 		}
 
-		location, err := controller.service.GetLocationByID(id)
-		if err != nil {
-			handleServiceError(context, err)
+		location, exception := controller.service.GetLocationByID(id)
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
@@ -66,9 +66,9 @@ func (controller *stockLocationController) CreateLocation() gin.HandlerFunc {
 		}
 
 		model := models.NewStockLocationFromPayload(payload)
-		location, err := controller.service.CreateLocation(model)
-		if err != nil {
-			handleServiceError(context, err)
+		location, exception := controller.service.CreateLocation(model)
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
@@ -91,9 +91,9 @@ func (controller *stockLocationController) UpdateLocation() gin.HandlerFunc {
 		model := models.NewStockLocationFromPayload(payload)
 		model.ID = id
 
-		location, err := controller.service.UpdateLocation(model)
-		if err != nil {
-			handleServiceError(context, err)
+		location, exception := controller.service.UpdateLocation(model)
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
@@ -108,8 +108,8 @@ func (controller *stockLocationController) DeleteLocation() gin.HandlerFunc {
 			return
 		}
 
-		if err := controller.service.DeleteLocation(id); err != nil {
-			handleServiceError(context, err)
+		if exception := controller.service.DeleteLocation(id); exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 

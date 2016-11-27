@@ -7,9 +7,10 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	"fmt"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 )
 
 type ShippingMethodServiceTestSuite struct {
@@ -43,10 +44,10 @@ func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethods_ReturnsShip
 	suite.repository.On("GetShippingMethods").Return([]*models.ShippingMethod{shippingMethod1, shippingMethod2}, nil).Once()
 
 	//act
-	shippingMethods, err := suite.service.GetShippingMethods()
+	shippingMethods, exception := suite.service.GetShippingMethods()
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 
 	suite.Equal(2, len(shippingMethods))
 	suite.Equal(shippingMethod1, shippingMethods[0])
@@ -55,13 +56,14 @@ func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethods_ReturnsShip
 
 func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethodByID_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.repository.On("GetShippingMethodByID", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.ShippingMethodEntity, "1", fmt.Errorf(repositories.ErrorShippingMethodNotFound, 1))
+	suite.repository.On("GetShippingMethodByID", uint(1)).Return(nil, ex).Once()
 
 	//act
-	_, err := suite.service.GetShippingMethodByID(uint(1))
+	_, exception := suite.service.GetShippingMethodByID(uint(1))
 
 	//assert
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(ex, exception)
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethodByID_Found_ReturnsShippingMethodModel() {
@@ -70,10 +72,10 @@ func (suite *ShippingMethodServiceTestSuite) Test_GetShippingMethodByID_Found_Re
 	suite.repository.On("GetShippingMethodByID", shippingMethod1.ID).Return(shippingMethod1, nil).Once()
 
 	//act
-	shippingMethod, err := suite.service.GetShippingMethodByID(shippingMethod1.ID)
+	shippingMethod, exception := suite.service.GetShippingMethodByID(shippingMethod1.ID)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(shippingMethod1, shippingMethod)
 }
 
@@ -83,23 +85,24 @@ func (suite *ShippingMethodServiceTestSuite) Test_CreateShippingMethod_ReturnsCr
 	suite.repository.On("CreateShippingMethod", shippingMethod1).Return(shippingMethod1, nil).Once()
 
 	//act
-	shippingMethod, err := suite.service.CreateShippingMethod(shippingMethod1)
+	shippingMethod, exception := suite.service.CreateShippingMethod(shippingMethod1)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(shippingMethod1, shippingMethod)
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_UpdateShippingMethod_NotFound_ReturnsNotFoundError() {
 	//arrange
 	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), fixtures.GetCarrier(uint(1)))
-	suite.repository.On("UpdateShippingMethod", shippingMethod1).Return(nil, gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.ShippingMethodEntity, "1", fmt.Errorf(repositories.ErrorShippingMethodNotFound, 1))
+	suite.repository.On("UpdateShippingMethod", shippingMethod1).Return(nil, ex).Once()
 
 	//act
-	_, err := suite.service.UpdateShippingMethod(shippingMethod1)
+	_, exception := suite.service.UpdateShippingMethod(shippingMethod1)
 
 	//assert
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(ex, exception)
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_UpdateShippingMethod_Found_ReturnsUpdatedRecord() {
@@ -108,22 +111,23 @@ func (suite *ShippingMethodServiceTestSuite) Test_UpdateShippingMethod_Found_Ret
 	suite.repository.On("UpdateShippingMethod", shippingMethod1).Return(shippingMethod1, nil).Once()
 
 	//act
-	shippingMethod, err := suite.service.UpdateShippingMethod(shippingMethod1)
+	shippingMethod, exception := suite.service.UpdateShippingMethod(shippingMethod1)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(shippingMethod1, shippingMethod)
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.repository.On("DeleteShippingMethod", uint(1)).Return(gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.ShippingMethodEntity, "1", fmt.Errorf(repositories.ErrorShippingMethodNotFound, 1))
+	suite.repository.On("DeleteShippingMethod", uint(1)).Return(ex).Once()
 
 	//act
-	err := suite.service.DeleteShippingMethod(uint(1))
+	exception := suite.service.DeleteShippingMethod(uint(1))
 
 	//assert
-	suite.Equal(gorm.ErrRecordNotFound, err)
+	suite.Equal(ex, exception)
 }
 
 func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_Found_ReturnsNoError() {
@@ -131,8 +135,8 @@ func (suite *ShippingMethodServiceTestSuite) Test_DeleteShippingMethod_Found_Ret
 	suite.repository.On("DeleteShippingMethod", uint(1)).Return(nil).Once()
 
 	//act
-	err := suite.service.DeleteShippingMethod(uint(1))
+	exception := suite.service.DeleteShippingMethod(uint(1))
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 }

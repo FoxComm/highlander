@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/metamorphosis"
 )
 
@@ -16,10 +17,10 @@ type ISiteActivity interface {
 	CreatedAt() string
 }
 
-func NewActivityFromAvro(message metamorphosis.AvroMessage) (ISiteActivity, error) {
+func NewActivityFromAvro(message metamorphosis.AvroMessage) (ISiteActivity, exceptions.IException) {
 	a := new(defaultSiteActivity)
 	err := json.Unmarshal(message.Bytes(), a)
-	return a, err
+	return a, NewActivityException(err)
 }
 
 type defaultSiteActivity struct {

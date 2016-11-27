@@ -44,10 +44,10 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarriers_ReturnsCarrierModels()
 	suite.Nil(suite.db.Create(carrier2).Error)
 
 	//act
-	carriers, err := suite.repository.GetCarriers()
+	carriers, exception := suite.repository.GetCarriers()
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 
 	suite.Equal(2, len(carriers))
 	suite.Equal(carrier1, carriers[0])
@@ -56,10 +56,10 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarriers_ReturnsCarrierModels()
 
 func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_NotFound_ReturnsNotFoundError() {
 	//act
-	_, err := suite.repository.GetCarrierByID(1)
+	_, exception := suite.repository.GetCarrierByID(1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, 1), err)
+	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, 1).Error(), exception.ToString())
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_Found_ReturnsCarrierModel() {
@@ -68,10 +68,10 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_Found_ReturnsCarrie
 	suite.Nil(suite.db.Create(carrier1).Error)
 
 	//act
-	carrier, err := suite.repository.GetCarrierByID(carrier1.ID)
+	carrier, exception := suite.repository.GetCarrierByID(carrier1.ID)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(carrier1, carrier)
 }
 
@@ -80,10 +80,10 @@ func (suite *CarrierRepositoryTestSuite) Test_CreateCarrier_ReturnsCreatedRecord
 	carrier1 := fixtures.GetCarrier(1)
 
 	//act
-	carrier, err := suite.repository.CreateCarrier(fixtures.GetCarrier(0))
+	carrier, exception := suite.repository.CreateCarrier(fixtures.GetCarrier(0))
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(carrier1, carrier)
 }
 
@@ -92,10 +92,10 @@ func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotF
 	carrier1 := fixtures.GetCarrier(1)
 
 	//act
-	_, err := suite.repository.UpdateCarrier(carrier1)
+	_, exception := suite.repository.UpdateCarrier(carrier1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, carrier1.ID), err)
+	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, carrier1.ID).Error(), exception.ToString())
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRecord() {
@@ -104,19 +104,19 @@ func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_Found_ReturnsUpdated
 	suite.Nil(suite.db.Create(carrier1).Error)
 
 	//act
-	carrier, err := suite.repository.UpdateCarrier(carrier1)
+	carrier, exception := suite.repository.UpdateCarrier(carrier1)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(carrier1, carrier)
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoundError() {
 	//act
-	err := suite.repository.DeleteCarrier(1)
+	exception := suite.repository.DeleteCarrier(1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, 1), err)
+	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, 1).Error(), exception.ToString())
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_Found_ReturnsNoError() {
@@ -125,8 +125,8 @@ func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_Found_ReturnsNoError
 	suite.Nil(suite.db.Create(carrier1).Error)
 
 	//act
-	err := suite.repository.DeleteCarrier(carrier1.ID)
+	exception := suite.repository.DeleteCarrier(carrier1.ID)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 }

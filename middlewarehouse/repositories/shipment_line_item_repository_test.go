@@ -88,10 +88,10 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_GetShipmentLineItemsByShi
 	suite.Nil(suite.db.Create(shipmentLineItem2).Error)
 
 	//act
-	shipmentLineItems, err := suite.repository.GetShipmentLineItemsByShipmentID(shipmentLineItem1.ShipmentID)
+	shipmentLineItems, exception := suite.repository.GetShipmentLineItemsByShipmentID(shipmentLineItem1.ShipmentID)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(2, len(shipmentLineItems))
 	tests.SyncDates(shipmentLineItem1, shipmentLineItem2, shipmentLineItems[0], shipmentLineItems[1])
 	suite.Equal(shipmentLineItem1, shipmentLineItems[0])
@@ -103,10 +103,10 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_CreateShipmentLineItem_Re
 	shipmentLineItem1 := fixtures.GetShipmentLineItem(1, suite.shipment1.ID, suite.stockItemUnit1.ID)
 
 	//act
-	shipmentLineItem, err := suite.repository.CreateShipmentLineItem(fixtures.GetShipmentLineItem(0, suite.shipment1.ID, suite.stockItemUnit1.ID))
+	shipmentLineItem, exception := suite.repository.CreateShipmentLineItem(fixtures.GetShipmentLineItem(0, suite.shipment1.ID, suite.stockItemUnit1.ID))
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	tests.SyncDates(shipmentLineItem1, shipmentLineItem)
 	suite.Equal(shipmentLineItem1, shipmentLineItem)
 }
@@ -116,10 +116,10 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_UpdateShipmentLineItem_No
 	shipmentLineItem1 := fixtures.GetShipmentLineItem(1, suite.shipment1.ID, suite.stockItemUnit1.ID)
 
 	//act
-	_, err := suite.repository.UpdateShipmentLineItem(shipmentLineItem1)
+	_, exception := suite.repository.UpdateShipmentLineItem(shipmentLineItem1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorShipmentLineItemNotFound, shipmentLineItem1.ID), err)
+	suite.Equal(fmt.Errorf(ErrorShipmentLineItemNotFound, shipmentLineItem1.ID).Error(), exception.ToString())
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_UpdateShipmentLineItem_Found_ReturnsUpdatedRecord() {
@@ -129,20 +129,20 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_UpdateShipmentLineItem_Fo
 	shipmentLineItem1.Price = 4900
 
 	//act
-	shipmentLineItem, err := suite.repository.UpdateShipmentLineItem(shipmentLineItem1)
+	shipmentLineItem, exception := suite.repository.UpdateShipmentLineItem(shipmentLineItem1)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	tests.SyncDates(shipmentLineItem1, shipmentLineItem)
 	suite.Equal(shipmentLineItem1, shipmentLineItem)
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_DeleteShipmentLineItem_NotFound_ReturnsNotFoundError() {
 	//act
-	err := suite.repository.DeleteShipmentLineItem(1)
+	exception := suite.repository.DeleteShipmentLineItem(1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorShipmentLineItemNotFound, 1), err)
+	suite.Equal(fmt.Errorf(ErrorShipmentLineItemNotFound, 1).Error(), exception.ToString())
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_DeleteShipmentLineItem_Found_ReturnsNoError() {
@@ -151,8 +151,8 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_DeleteShipmentLineItem_Fo
 	suite.Nil(suite.db.Create(shipmentLineItem1).Error)
 
 	//act
-	err := suite.repository.DeleteShipmentLineItem(shipmentLineItem1.ID)
+	exception := suite.repository.DeleteShipmentLineItem(shipmentLineItem1.ID)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 }

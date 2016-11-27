@@ -13,9 +13,9 @@ const (
 )
 
 func main() {
-	config, err := consumers.MakeConsumerConfig()
-	if err != nil {
-		log.Fatalf("Unable to initialize consumer with error %s", err.Error())
+	config, exception := consumers.MakeConsumerConfig()
+	if exception != nil {
+		log.Fatalf("Unable to initialize consumer with error %s", exception.ToString())
 	}
 
 	consumer, err := metamorphosis.NewConsumer(config.ZookeeperURL, config.SchemaRepositoryURL)
@@ -26,9 +26,9 @@ func main() {
 	consumer.SetGroupID(groupID)
 	consumer.SetClientID(clientID)
 
-	oh, err := NewOrderHandler(config.MiddlewarehouseURL)
-	if err != nil {
-		log.Fatalf("Can't create handler for orders with error %s", err.Error())
+	oh, exception := NewOrderHandler(config.MiddlewarehouseURL)
+	if exception != nil {
+		log.Fatalf("Can't create handler for orders with error %s", exception.ToString())
 	}
 
 	consumer.RunTopic(config.Topic, config.Partition, oh.Handler)

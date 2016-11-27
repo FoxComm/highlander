@@ -64,10 +64,10 @@ func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByOrderRefNum_ReturnsShi
 	suite.Nil(suite.db.Set("gorm:save_associations", false).Create(shipment2).Error)
 
 	//act
-	shipments, err := suite.service.GetShipmentsByOrder(shipment1.OrderRefNum)
+	shipments, exception := suite.service.GetShipmentsByOrder(shipment1.OrderRefNum)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(2, len(shipments))
 	suite.Equal(shipment1.ID, shipments[0].ID)
 	suite.Equal(shipment2.ID, shipments[1].ID)
@@ -102,10 +102,10 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	suite.Nil(suite.db.Create(stockItemUnit2).Error)
 
 	//act
-	shipment, err := suite.service.CreateShipment(shipment1)
+	shipment, exception := suite.service.CreateShipment(shipment1)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(shipment1.ShippingMethodCode, shipment.ShippingMethodCode)
 	suite.Equal(shipment1.OrderRefNum, shipment.OrderRefNum)
 	suite.Equal(shipment1.State, shipment.State)
@@ -126,10 +126,10 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdate
 	updateShipment.ID = shipment.ID
 
 	//act
-	updated, err := suite.service.UpdateShipment(updateShipment)
+	updated, exception := suite.service.UpdateShipment(updateShipment)
 
 	//assert
-	suite.Nil(err)
+	suite.Nil(exception)
 	suite.Equal(shipment.ID, updated.ID)
 	suite.Equal(shipment.OrderRefNum, updated.OrderRefNum)
 	suite.Equal(models.ShipmentStateShipped, updated.State)

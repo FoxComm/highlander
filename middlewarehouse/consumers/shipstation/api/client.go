@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api/responses"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/utils"
@@ -18,11 +19,11 @@ type Client struct {
 }
 
 // NewClient initializes the Client with an API key and secret.
-func NewClient(key, secret string) (*Client, error) {
+func NewClient(key, secret string) (*Client, exceptions.IException) {
 	if key == "" {
-		return nil, errors.New("API key must be specified")
+		return nil, exceptions.NewBadConfigurationException(errors.New("API key must be specified"))
 	} else if secret == "" {
-		return nil, errors.New("API secret must be specifid")
+		return nil, exceptions.NewBadConfigurationException(errors.New("API secret must be specifid"))
 	}
 
 	authStr := fmt.Sprintf("%s:%s", key, secret)
@@ -37,40 +38,40 @@ func NewClient(key, secret string) (*Client, error) {
 }
 
 // CreateOrder creates a new order in ShipStation.
-func (c *Client) CreateOrder(payload *payloads.Order) (*payloads.Order, error) {
+func (c *Client) CreateOrder(payload *payloads.Order) (*payloads.Order, exceptions.IException) {
 	order := new(payloads.Order)
 	url := fmt.Sprintf("%s/%s", baseURL, "orders/createOrder")
-	err := c.httpClient.Post(url, payload, order)
-	return order, err
+	exception := c.httpClient.Post(url, payload, order)
+	return order, exception
 }
 
 // Products retreives a paginated list of all products in ShipStation.
-func (c *Client) Products() (*responses.ProductCollection, error) {
+func (c *Client) Products() (*responses.ProductCollection, exceptions.IException) {
 	collection := new(responses.ProductCollection)
 	url := fmt.Sprintf("%s/%s", baseURL, "products")
-	err := c.httpClient.Get(url, collection)
-	return collection, err
+	exception := c.httpClient.Get(url, collection)
+	return collection, exception
 }
 
 // Product retreives a product from ShipStation.
-func (c *Client) Product(id int) (*responses.Product, error) {
+func (c *Client) Product(id int) (*responses.Product, exceptions.IException) {
 	product := new(responses.Product)
 	url := fmt.Sprintf("%s/%d", baseURL, id)
-	err := c.httpClient.Get(url, product)
-	return product, err
+	exception := c.httpClient.Get(url, product)
+	return product, exception
 }
 
 // UpdateProduct updates an existing ShipStation product.
-func (c *Client) UpdateProduct(payload *payloads.Product) (*responses.Product, error) {
+func (c *Client) UpdateProduct(payload *payloads.Product) (*responses.Product, exceptions.IException) {
 	product := new(responses.Product)
 	url := fmt.Sprintf("%s/%d", baseURL, payload.ID)
-	err := c.httpClient.Put(url, payload, product)
-	return product, err
+	exception := c.httpClient.Put(url, payload, product)
+	return product, exception
 }
 
-func (c *Client) Shipments() (*responses.ShipmentCollection, error) {
+func (c *Client) Shipments() (*responses.ShipmentCollection, exceptions.IException) {
 	collection := new(responses.ShipmentCollection)
 	url := fmt.Sprintf("%s/%s", baseURL, "shipments")
-	err := c.httpClient.Get(url, collection)
-	return collection, err
+	exception := c.httpClient.Get(url, collection)
+	return collection, exception
 }

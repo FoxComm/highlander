@@ -29,10 +29,10 @@ func (controller *carrierController) SetUp(router gin.IRouter) {
 
 func (controller *carrierController) getCarriers() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		carriers, err := controller.service.GetCarriers()
+		carriers, exception := controller.service.GetCarriers()
 		//ensure fetched successfully
-		if err != nil {
-			context.AbortWithError(http.StatusInternalServerError, err)
+		if exception != nil {
+			handleServiceError(context, exception)
 			return
 		}
 
@@ -54,11 +54,11 @@ func (controller *carrierController) getCarrierByID() gin.HandlerFunc {
 		}
 
 		//get carrier by id
-		carrier, err := controller.service.GetCarrierByID(id)
-		if err == nil {
+		carrier, exception := controller.service.GetCarrierByID(id)
+		if exception == nil {
 			context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
 		} else {
-			handleServiceError(context, err)
+			handleServiceError(context, exception)
 		}
 	}
 }
@@ -72,11 +72,11 @@ func (controller *carrierController) createCarrier() gin.HandlerFunc {
 		}
 
 		//try create
-		carrier, err := controller.service.CreateCarrier(models.NewCarrierFromPayload(payload))
-		if err == nil {
+		carrier, exception := controller.service.CreateCarrier(models.NewCarrierFromPayload(payload))
+		if exception == nil {
 			context.JSON(http.StatusCreated, responses.NewCarrierFromModel(carrier))
 		} else {
-			handleServiceError(context, err)
+			handleServiceError(context, exception)
 		}
 	}
 }
@@ -98,12 +98,12 @@ func (controller *carrierController) updateCarrier() gin.HandlerFunc {
 		//try update
 		model := models.NewCarrierFromPayload(payload)
 		model.ID = id
-		carrier, err := controller.service.UpdateCarrier(model)
+		carrier, exception := controller.service.UpdateCarrier(model)
 
-		if err == nil {
+		if exception == nil {
 			context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
 		} else {
-			handleServiceError(context, err)
+			handleServiceError(context, exception)
 		}
 	}
 }
@@ -115,10 +115,10 @@ func (controller *carrierController) deleteCarrier() gin.HandlerFunc {
 			return
 		}
 
-		if err := controller.service.DeleteCarrier(id); err == nil {
+		if exception := controller.service.DeleteCarrier(id); exception == nil {
 			context.Status(http.StatusNoContent)
 		} else {
-			handleServiceError(context, err)
+			handleServiceError(context, exception)
 		}
 	}
 }

@@ -6,6 +6,8 @@ import (
 	"os"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/common/logging"
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq" // Needed by gorm.
@@ -44,7 +46,7 @@ func NewPGConfig() *PGConfig {
 }
 
 // Connect initializes the connection with Postgres based on a configuration.
-func Connect(config *PGConfig) (*gorm.DB, error) {
+func Connect(config *PGConfig) (*gorm.DB, exceptions.IException) {
 	conn := fmt.Sprintf("dbname=%s sslmode=%s", config.DatabaseName, config.SSLMode)
 
 	if config.User != "" {
@@ -57,8 +59,8 @@ func Connect(config *PGConfig) (*gorm.DB, error) {
 		conn = fmt.Sprintf("host=%s %s", config.Host, conn)
 	}
 
-	db, err := gorm.Open("postgres", conn)
-	return db, err
+	database, err := gorm.Open("postgres", conn)
+	return database, db.NewDatabaseException(err)
 }
 
 // DefaultConnection returns the defaultConnection var if it's been set; otherwise, it
@@ -79,22 +81,22 @@ func Connect(config *PGConfig) (*gorm.DB, error) {
 //  - http://go-database-sql.org/connection-pool.html
 //  - https://github.com/jinzhu/gorm/blob/ef4299b39879ad31b5511acecc12ef4457276d40/main.go#L39-L79
 //  - https://github.com/golang/go/blob/master/src/database/sql/sql.go#L200-L211
-func DefaultConnection() (*gorm.DB, error) {
-	var err error
+func DefaultConnection() (*gorm.DB, exceptions.IException) {
+	var exception exceptions.IException
 
 	if defaultConnection == nil {
-		defaultConnection, err = Connect(NewPGConfig())
+		defaultConnection, exception = Connect(NewPGConfig())
 		defaultConnection.SetLogger(logging.NewGormLogger(logging.Log))
 	}
 
-	return defaultConnection, err
+	return defaultConnection, exception
 }
 
 func TestConnection() *gorm.DB {
-	db, err := Connect(NewPGConfig())
+	db, exception := Connect(NewPGConfig())
 
-	if err != nil {
-		log.Panicf("Failed to connect to test db with %s", err.Error())
+	if exception != nil {
+		log.Panicf("Failed to connect to test db with %s", exception.ToString())
 	}
 
 	return db

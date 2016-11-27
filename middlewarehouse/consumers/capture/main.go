@@ -17,14 +17,14 @@ const (
 )
 
 func main() {
-	config, err := consumers.MakeConsumerConfig()
-	if err != nil {
-		log.Fatalf("Unable to initialize consumer with error: %s", err.Error())
+	config, exception := consumers.MakeConsumerConfig()
+	if exception != nil {
+		log.Fatalf("Unable to initialize consumer with error: %s", exception.ToString())
 	}
 
-	capConf, err := shared.MakeCaptureConsumerConfig()
-	if err != nil {
-		log.Fatalf("Unable to initialize consumer with error: %s", err.Error())
+	capConf, exception := shared.MakeCaptureConsumerConfig()
+	if exception != nil {
+		log.Fatalf("Unable to initialize consumer with error: %s", exception.ToString())
 	}
 
 	consumer, err := metamorphosis.NewConsumer(config.ZookeeperURL, config.SchemaRepositoryURL)
@@ -36,13 +36,13 @@ func main() {
 	consumer.SetClientID(clientID)
 
 	client := lib.NewPhoenixClient(capConf.PhoenixURL, capConf.PhoenixUser, capConf.PhoenixPassword)
-	if err := client.Authenticate(); err != nil {
-		log.Fatalf("Unable to authenticate with Phoenix with error %s", err.Error())
+	if exception := client.Authenticate(); exception != nil {
+		log.Fatalf("Unable to authenticate with Phoenix with error %s", exception.ToString())
 	}
 
-	oh, err := NewShipmentHandler(config.MiddlewarehouseURL, client)
-	if err != nil {
-		log.Fatalf("Can't create handler for orders with error %s", err.Error())
+	oh, exception := NewShipmentHandler(config.MiddlewarehouseURL, client)
+	if exception != nil {
+		log.Fatalf("Can't create handler for orders with error %s", exception.ToString())
 	}
 
 	consumer.RunTopic(config.Topic, config.Partition, oh.Handler)

@@ -42,9 +42,9 @@ func (suite *ConsumerTestSuite) TestMessageHander() {
 	}))
 	defer ts.Close()
 
-	consumer, err := NewConsumer("localhost:2181", "http://localhost:8081", ts.URL)
-	suite.Nil(err)
+	consumer, exception := NewConsumer("localhost:2181", "http://localhost:8081", ts.URL)
+	suite.Nil(exception)
 
-	err = consumer.handler(msg)
+	err := consumer.handler(msg)
 	suite.Nil(err)
 }

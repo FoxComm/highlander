@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
@@ -23,7 +24,7 @@ type GiftCardHandler struct {
 }
 
 //NewGiftCardConsumer creates a new consumer for gifcards
-func NewGiftCardConsumer(client lib.PhoenixClient) (*GiftCardHandler, error) {
+func NewGiftCardConsumer(client lib.PhoenixClient) (*GiftCardHandler, exceptions.IException) {
 	return &GiftCardHandler{client}, nil
 }
 
@@ -41,18 +42,18 @@ func justGiftCards(oli []payloads.OrderLineItem) bool {
 // fulfillment started and shipped states. If it finds one, He will retrieve
 // the order, manage the creation of the existent cards and make the capture. Returning an error will cause a panic.
 func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error {
-	activity, err := activities.NewActivityFromAvro(message)
-	if err != nil {
-		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
+	activity, exception := activities.NewActivityFromAvro(message)
+	if exception != nil {
+		return fmt.Errorf("Unable to decode Avro message with error %s", exception.ToString())
 	}
 
 	if activity.Type() != activityOrderStateChanged {
 		return nil
 	}
 
-	fullOrder, err := shared.NewFullOrderFromActivity(activity)
-	if err != nil {
-		return fmt.Errorf("Unable to decode order from activity with error %s", err.Error())
+	fullOrder, exception := shared.NewFullOrderFromActivity(activity)
+	if exception != nil {
+		return fmt.Errorf("Unable to decode order from activity with error %s", exception.ToString())
 	}
 
 	order := fullOrder.Order
@@ -93,13 +94,33 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 	log.Printf("\n about to call createGiftCards service")
 
 	if len(giftcardPayloads) > 0 {
-		_, err = gfHandle.client.CreateGiftCards(giftcardPayloads)
-		if err != nil {
+		_, exception = gfHandle.client.CreateGiftCards(giftcardPayloads)
+		if exception != nil {
 			return fmt.Errorf("Unable to create gift cards for order %s with error %s",
-				order.ReferenceNumber, err.Error())
+				order.ReferenceNumber, exception.ToString())
 		}
 		log.Printf("Gift cards created successfully for order %s", order.ReferenceNumber)
 	}
 
 	return nil
+}
+
+type giftCardsConsumerException struct {
+	Type string `json:"type"`
+	exceptions.Exception
+}
+
+func (exception giftCardsConsumerException) ToJSON() interface{} {
+	return exception
+}
+
+func NewGiftCardsConsumerException(error error) exceptions.IException {
+	if error == nil {
+		return nil
+	}
+
+	return giftCardsConsumerException{
+		Type:      "giftCardConsumer",
+		Exception: exceptions.Exception{error.Error()},
+	}
 }

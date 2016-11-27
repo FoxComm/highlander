@@ -1,6 +1,9 @@
 package responses
 
-import "github.com/FoxComm/highlander/middlewarehouse/models"
+import (
+	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
+)
 
 type Shipment struct {
 	ID                uint               `json:"id"`
@@ -17,10 +20,10 @@ type Shipment struct {
 	ShippingPrice     int                `json:"shippingPrice"`
 }
 
-func NewShipmentFromModel(model *models.Shipment) (*Shipment, error) {
-	shippingMethod, err := NewShippingMethodFromModel(&model.ShippingMethod)
-	if err != nil {
-		return nil, err
+func NewShipmentFromModel(model *models.Shipment) (*Shipment, exceptions.IException) {
+	shippingMethod, exception := NewShippingMethodFromModel(&model.ShippingMethod)
+	if exception != nil {
+		return nil, exception
 	}
 
 	shipment := &Shipment{

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -8,9 +9,10 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/tests"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -74,7 +76,8 @@ func (suite *carrierControllerTestSuite) Test_GetCarriers_NonEmptyData_ReturnsRe
 
 func (suite *carrierControllerTestSuite) Test_GetCarrierByID_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.service.On("GetCarrierByID", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.CarrierEntity, "1", fmt.Errorf(repositories.ErrorCarrierNotFound, 1))
+	suite.service.On("GetCarrierByID", uint(1)).Return(nil, ex).Once()
 
 	//act
 	errors := &responses.Error{}
@@ -83,7 +86,7 @@ func (suite *carrierControllerTestSuite) Test_GetCarrierByID_NotFound_ReturnsNot
 	//assert
 	suite.Equal(http.StatusNotFound, response.Code)
 	suite.Equal(1, len(errors.Errors))
-	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(tests.ToString(ex), tests.ToString(errors.Errors[0]))
 }
 
 func (suite *carrierControllerTestSuite) Test_GetCarrierByID_Found_ReturnsRecord() {
@@ -118,7 +121,8 @@ func (suite *carrierControllerTestSuite) Test_CreateCarrier_ReturnsRecord() {
 func (suite *carrierControllerTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotFoundError() {
 	//arrange
 	carrier1 := fixtures.GetCarrier(uint(1))
-	suite.service.On("UpdateCarrier", carrier1).Return(nil, gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.CarrierEntity, "1", fmt.Errorf(repositories.ErrorCarrierNotFound, 1))
+	suite.service.On("UpdateCarrier", carrier1).Return(nil, ex).Once()
 
 	//act
 	errors := &responses.Error{}
@@ -127,7 +131,7 @@ func (suite *carrierControllerTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotF
 	//assert
 	suite.Equal(http.StatusNotFound, response.Code)
 	suite.Equal(1, len(errors.Errors))
-	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(tests.ToString(ex), tests.ToString(errors.Errors[0]))
 }
 
 func (suite *carrierControllerTestSuite) Test_UpdateCarrier_Found_ReturnsRecord() {
@@ -146,7 +150,8 @@ func (suite *carrierControllerTestSuite) Test_UpdateCarrier_Found_ReturnsRecord(
 
 func (suite *carrierControllerTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoundError() {
 	//arrange
-	suite.service.On("DeleteCarrier", uint(1)).Return(gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.CarrierEntity, "1", fmt.Errorf(repositories.ErrorCarrierNotFound, 1))
+	suite.service.On("DeleteCarrier", uint(1)).Return(ex).Once()
 
 	//act
 	errors := &responses.Error{}
@@ -155,7 +160,7 @@ func (suite *carrierControllerTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotF
 	//assert
 	suite.Equal(http.StatusNotFound, response.Code)
 	suite.Equal(1, len(errors.Errors))
-	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(tests.ToString(ex), tests.ToString(errors.Errors[0]))
 }
 
 func (suite *carrierControllerTestSuite) Test_DeleteCarrier_Found() {

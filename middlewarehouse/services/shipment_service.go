@@ -4,11 +4,13 @@ import (
 	"errors"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/async"
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
 	"github.com/jinzhu/gorm"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
 )
 
 type shipmentService struct {
@@ -19,36 +21,36 @@ type shipmentService struct {
 }
 
 type IShipmentService interface {
-	GetShipmentsByOrder(orderRefNum string) ([]*models.Shipment, error)
-	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
-	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
-	UpdateShipmentForOrder(shipment *models.Shipment) (*models.Shipment, error)
+	GetShipmentsByOrder(orderRefNum string) ([]*models.Shipment, exceptions.IException)
+	CreateShipment(shipment *models.Shipment) (*models.Shipment, exceptions.IException)
+	UpdateShipment(shipment *models.Shipment) (*models.Shipment, exceptions.IException)
+	UpdateShipmentForOrder(shipment *models.Shipment) (*models.Shipment, exceptions.IException)
 }
 
 func NewShipmentService(db *gorm.DB, summaryService ISummaryService, activityLogger IActivityLogger) IShipmentService {
 	return &shipmentService{db, summaryService, activityLogger, true}
 }
 
-func (service *shipmentService) GetShipmentsByOrder(referenceNumber string) ([]*models.Shipment, error) {
+func (service *shipmentService) GetShipmentsByOrder(referenceNumber string) ([]*models.Shipment, exceptions.IException) {
 	repo := repositories.NewShipmentRepository(service.db)
 	return repo.GetShipmentsByOrder(referenceNumber)
 }
 
-func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
+func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, exceptions.IException) {
 	txn := service.db.Begin()
 
 	stockItemCounts := make(map[uint]int)
 	unitRepo := repositories.NewStockItemUnitRepository(txn)
 	for i, lineItem := range shipment.ShipmentLineItems {
-		siu, err := unitRepo.GetUnitForLineItem(shipment.OrderRefNum, lineItem.SKU)
-		if err != nil {
+		siu, exception := unitRepo.GetUnitForLineItem(shipment.OrderRefNum, lineItem.SKU)
+		if exception != nil {
 			txn.Rollback()
-			return nil, err
+			return nil, exception
 		}
 
 		if err := txn.Model(siu).Update("status", "reserved").Error; err != nil {
 			txn.Rollback()
-			return nil, err
+			return nil, db.NewDatabaseException(err)
 		}
 
 		shipment.ShipmentLineItems[i].StockItemUnitID = siu.ID
@@ -63,65 +65,65 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 	}
 
 	shipmentRepo := repositories.NewShipmentRepository(txn)
-	result, err := shipmentRepo.CreateShipment(shipment)
-	if err != nil {
+	result, exception := shipmentRepo.CreateShipment(shipment)
+	if exception != nil {
 		txn.Rollback()
-		return nil, err
+		return nil, exception
 	}
 
-	err = service.updateSummariesToReserved(stockItemCounts)
-	if err != nil {
+	exception = service.updateSummariesToReserved(stockItemCounts)
+	if exception != nil {
 		txn.Rollback()
-		return nil, err
+		return nil, exception
 	}
 
-	activity, err := activities.NewShipmentCreated(result, result.CreatedAt)
-	if err != nil {
+	activity, exception := activities.NewShipmentCreated(result, result.CreatedAt)
+	if exception != nil {
 		txn.Rollback()
-		return nil, err
+		return nil, exception
 	}
 
-	if err := service.activityLogger.Log(activity); err != nil {
+	if exception := service.activityLogger.Log(activity); exception != nil {
 		txn.Rollback()
-		return nil, err
+		return nil, exception
 	}
 
 	if err := txn.Commit().Error; err != nil {
 		txn.Rollback()
-		return nil, err
+		return nil, db.NewDatabaseException(err)
 	}
 
 	return result, nil
 }
 
-func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
+func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, exceptions.IException) {
 	txn := service.db.Begin()
 
 	shipmentRepo := repositories.NewShipmentRepository(txn)
-	source, err := shipmentRepo.GetShipmentByID(shipment.ID)
-	if err != nil {
+	source, exception := shipmentRepo.GetShipmentByID(shipment.ID)
+	if exception != nil {
 		txn.Rollback()
-		return nil, err
+		return nil, exception
 	}
 
 	shipment.ID = source.ID
 	return service.updateShipmentHelper(txn, shipmentRepo, shipment, source)
 }
 
-func (service *shipmentService) UpdateShipmentForOrder(shipment *models.Shipment) (*models.Shipment, error) {
+func (service *shipmentService) UpdateShipmentForOrder(shipment *models.Shipment) (*models.Shipment, exceptions.IException) {
 
 	txn := service.db.Begin()
 
 	shipmentRepo := repositories.NewShipmentRepository(txn)
-	sources, err := shipmentRepo.GetShipmentsByOrder(shipment.OrderRefNum)
-	if err != nil {
+	sources, exception := shipmentRepo.GetShipmentsByOrder(shipment.OrderRefNum)
+	if exception != nil {
 		txn.Rollback()
-		return nil, err
+		return nil, exception
 	}
 
 	if len(sources) != 1 {
 		txn.Rollback()
-		return nil, errors.New("The order requires exactly one shipment. Multiple shipments is not supported yet.")
+		return nil, exceptions.NewNotImplementedException(errors.New("The order requires exactly one shipment. Multiple shipments is not supported yet."))
 	}
 
 	source := sources[0]
@@ -129,26 +131,26 @@ func (service *shipmentService) UpdateShipmentForOrder(shipment *models.Shipment
 	return service.updateShipmentHelper(txn, shipmentRepo, shipment, source)
 }
 
-func (service *shipmentService) updateShipmentHelper(txn *gorm.DB, shipmentRepo repositories.IShipmentRepository, shipment *models.Shipment, source *models.Shipment) (*models.Shipment, error) {
+func (service *shipmentService) updateShipmentHelper(txn *gorm.DB, shipmentRepo repositories.IShipmentRepository, shipment *models.Shipment, source *models.Shipment) (*models.Shipment, exceptions.IException) {
 
 	shipment.ID = source.ID
 
-	var err error
-	shipment, err = shipmentRepo.UpdateShipment(shipment)
-	if err != nil {
+	var exception exceptions.IException
+	shipment, exception = shipmentRepo.UpdateShipment(shipment)
+	if exception != nil {
 		txn.Rollback()
-		return nil, err
+		return nil, exception
 	}
 
-	err = service.handleStatusChange(txn, source, shipment)
-	if err != nil {
+	exception = service.handleStatusChange(txn, source, shipment)
+	if exception != nil {
 		txn.Rollback()
-		return nil, err
+		return nil, exception
 	}
 
-	if err = txn.Commit().Error; err != nil {
+	if err := txn.Commit().Error; err != nil {
 		txn.Rollback()
-		return nil, err
+		return nil, db.NewDatabaseException(err)
 	}
 
 	var activity activities.ISiteActivity
@@ -166,37 +168,37 @@ func (service *shipmentService) updateShipmentHelper(txn *gorm.DB, shipmentRepo 
 			}
 		}
 
-		if err = service.updateSummariesToShipped(stockItemCounts); err != nil {
-			return nil, err
+		if exception = service.updateSummariesToShipped(stockItemCounts); exception != nil {
+			return nil, exception
 		}
 
-		activity, err = activities.NewShipmentShipped(shipment, shipment.UpdatedAt)
-		if err != nil {
-			return nil, err
+		activity, exception = activities.NewShipmentShipped(shipment, shipment.UpdatedAt)
+		if exception != nil {
+			return nil, exception
 		}
 	} else {
-		activity, err = activities.NewShipmentUpdated(shipment, shipment.UpdatedAt)
-		if err != nil {
-			return nil, err
+		activity, exception = activities.NewShipmentUpdated(shipment, shipment.UpdatedAt)
+		if exception != nil {
+			return nil, exception
 		}
 	}
 
-	if err := service.activityLogger.Log(activity); err != nil {
-		return nil, err
+	if exception = service.activityLogger.Log(activity); exception != nil {
+		return nil, exception
 	}
 
 	return shipment, nil
 
 }
 
-func (service *shipmentService) updateSummariesToReserved(stockItemsMap map[uint]int) error {
+func (service *shipmentService) updateSummariesToReserved(stockItemsMap map[uint]int) exceptions.IException {
 	statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusReserved}
 	unitType := models.Sellable
 
-	fn := func() error {
+	fn := func() exceptions.IException {
 		for id, qty := range stockItemsMap {
-			if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
-				return err
+			if exception := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); exception != nil {
+				return exception
 			}
 		}
 
@@ -206,14 +208,14 @@ func (service *shipmentService) updateSummariesToReserved(stockItemsMap map[uint
 	return async.MaybeExecAsync(fn, service.updateSummaryAsync, "Error updating stock item summary creating shipment")
 }
 
-func (service *shipmentService) updateSummariesToShipped(stockItemsMap map[uint]int) error {
+func (service *shipmentService) updateSummariesToShipped(stockItemsMap map[uint]int) exceptions.IException {
 	statusShift := models.StatusChange{From: models.StatusReserved, To: models.StatusShipped}
 	unitType := models.Sellable
 
-	fn := func() error {
+	fn := func() exceptions.IException {
 		for id, qty := range stockItemsMap {
-			if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
-				return err
+			if exception := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); exception != nil {
+				return exception
 			}
 		}
 
@@ -223,17 +225,17 @@ func (service *shipmentService) updateSummariesToShipped(stockItemsMap map[uint]
 	return async.MaybeExecAsync(fn, service.updateSummaryAsync, "Error updating stock item summary after shipment")
 }
 
-func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, newShipment *models.Shipment) error {
+func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, newShipment *models.Shipment) exceptions.IException {
 	if oldShipment.State == newShipment.State {
 		return nil
 	}
 
 	unitRepo := repositories.NewStockItemUnitRepository(db)
-	var err error
+	var exception exceptions.IException
 
 	switch newShipment.State {
 	case models.ShipmentStateCancelled:
-		_, err = unitRepo.UnsetUnitsInOrder(newShipment.OrderRefNum)
+		_, exception = unitRepo.UnsetUnitsInOrder(newShipment.OrderRefNum)
 
 	case models.ShipmentStateShipped:
 		// TODO: Bring capture back when we move to the capture consumer
@@ -241,8 +243,8 @@ func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, new
 		for _, lineItem := range newShipment.ShipmentLineItems {
 			unitIDs = append(unitIDs, lineItem.StockItemUnitID)
 		}
-		err = unitRepo.DeleteUnits(unitIDs)
+		exception = unitRepo.DeleteUnits(unitIDs)
 	}
 
-	return err
+	return exception
 }

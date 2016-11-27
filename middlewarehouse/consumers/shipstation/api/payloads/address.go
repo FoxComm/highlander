@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/exceptions"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
 )
 
@@ -22,15 +23,15 @@ type Address struct {
 	Residential bool
 }
 
-func NewAddressFromPhoenix(name string, address phoenix.Address) (*Address, error) {
-	state, err := convertRegionFromPhoenix(address.Region.Name)
-	if err != nil {
-		return nil, err
+func NewAddressFromPhoenix(name string, address phoenix.Address) (*Address, exceptions.IException) {
+	state, exception := convertRegionFromPhoenix(address.Region.Name)
+	if exception != nil {
+		return nil, exception
 	}
 
 	if address.Region.CountryID != 234 {
 		err := fmt.Errorf("Attempted to create address with country ID = %d. Only the US (234) is supported", address.Region.CountryID)
-		return nil, err
+		return nil, exceptions.NewNotImplementedException(err)
 	}
 
 	return &Address{
@@ -107,11 +108,11 @@ var countryMap = map[string]string{
 	"united states": "US",
 }
 
-func convertRegionFromPhoenix(region string) (string, error) {
+func convertRegionFromPhoenix(region string) (string, exceptions.IException) {
 	key := strings.ToLower(region)
 	ssRegion, ok := regionMap[key]
 	if !ok {
-		return "", fmt.Errorf("Abbreviation not found for %s", region)
+		return "", exceptions.NewValidationException(fmt.Errorf("Abbreviation not found for %s", region))
 	}
 	return ssRegion, nil
 }

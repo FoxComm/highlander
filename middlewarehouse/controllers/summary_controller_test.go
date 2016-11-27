@@ -8,10 +8,12 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db"
+	"errors"
 )
 
 type summaryControllerTestSuite struct {
@@ -67,7 +69,8 @@ func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
 }
 
 func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUNoSKU() {
-	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, gorm.ErrRecordNotFound).Once()
+	ex := repositories.NewEntityNotFoundException(repositories.StockItemEntity, "1", fmt.Errorf(repositories.ErrorStockItemNotFound, 1))
+	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, ex).Once()
 
 	res := suite.Get("/summary/NO-SKU")
 
@@ -77,7 +80,8 @@ func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUNoSKU() {
 }
 
 func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUServerError() {
-	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, gorm.ErrUnaddressable).Once()
+	ex := db.NewDatabaseException(errors.New("Some shit here"))
+	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, ex).Once()
 
 	res := suite.Get("/summary/NO-SKU")
 
