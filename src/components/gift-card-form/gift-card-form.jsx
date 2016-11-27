@@ -4,6 +4,7 @@
 import React from 'react';
 import _ from 'lodash';
 import formatCurrency from 'lib/format-currency';
+import { email } from 'ui/forms/validators';
 
 // styles
 import styles from './gift-card-form.css';
@@ -72,7 +73,7 @@ const GiftCardForm = (props: Props) => {
             name="giftCard.recipientName"
           />
         </FormField>
-        <FormField label="Recipient email" required>
+        <FormField label="Recipient email" validator={email} required>
           <TextInput
             styleName="input-field"
             value={recipientEmail}
