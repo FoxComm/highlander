@@ -81,9 +81,12 @@ class ElasticSearchProcessor(
   private val idFields = List("id")
 
   private def getDocumentId(keyJson: String, dataJson: String): Option[BigInt] = {
-    getIntKey(keyJson) match {
-      case None   ⇒ getIntKey(dataJson)
-      case someId ⇒ someId
+    if (keyJson.isEmpty) getIntKey(dataJson)
+    else {
+      getIntKey(keyJson) match {
+        case None   ⇒ getIntKey(dataJson)
+        case someId ⇒ someId
+      }
     }
   }
 
