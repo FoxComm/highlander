@@ -77,11 +77,8 @@ object ProductRoutes {
                 ProductManager.createProduct(auth.model, payload)
               }
             } ~
-            pathPrefix(IntNumber) { productId ⇒
-              productRoutes(ProductReference(productId))
-            } ~
-            pathPrefix(Segment) { productSlug ⇒
-              productRoutes(ProductReference(productSlug))
+            pathPrefix(ProductRef) { productId ⇒
+              productRoutes(productId)
             }
           }
         } ~

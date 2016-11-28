@@ -28,28 +28,17 @@ import utils.http.Http._
 
 object Customer {
 
-  def productRoutes(productId: ProductReference)(implicit ec: EC,
-                                                 db: DB,
-                                                 oc: OC,
-                                                 ac: AC,
-                                                 auth: AuthData[User]): Route = (get & pathEnd) {
-    getOrFailures {
-      ProductManager.getProduct(productId)
-    }
-  }
-
   def routes(implicit ec: EC, es: ES, db: DB, auth: UserAuthenticator, apis: Apis) = {
 
     pathPrefix("my") {
       requireCustomerAuth(auth) { implicit auth ⇒
         activityContext(auth.model) { implicit ac ⇒
           determineObjectContext(db, ec) { implicit ctx ⇒
-            pathPrefix("products") {
-              pathPrefix(IntNumber / "baked") { productId ⇒
-                productRoutes(ProductReference(productId))
-              } ~
-              pathPrefix(Segment / "baked") { slug ⇒
-                productRoutes(ProductReference(slug))
+            pathPrefix("products" / ProductRef / "baked") { productId ⇒
+              (get & pathEnd) {
+                getOrFailures {
+                  ProductManager.getProduct(productId)
+                }
               }
             } ~
             pathPrefix("cart") {

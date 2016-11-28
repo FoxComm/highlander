@@ -1,13 +1,11 @@
 package routes
 
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.CookieDirectives.{setCookie ⇒ _}
 import akka.http.scaladsl.server.directives.RespondWithDirectives.{respondWithHeader ⇒ _}
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.Reason.reasonTypeRegex
-import models.product.ProductReference
 import payloads.CustomerPayloads.CreateCustomerPayload
 import services.PublicService._
 import services.account.AccountCreateContext
@@ -20,15 +18,6 @@ import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object Public {
-
-  def productRoutes(productId: ProductReference)(implicit ec: EC,
-                                                 db: DB,
-                                                 oc: OC,
-                                                 ac: AC): Route = (get & pathEnd) {
-    getOrFailures {
-      ProductManager.getProduct(productId)
-    }
-  }
 
   def routes(customerCreateContext: AccountCreateContext)(implicit ec: EC, db: DB, es: ES) = {
 
@@ -43,11 +32,12 @@ object Public {
         } ~
         pathPrefix("products") {
           determineObjectContext(db, ec) { implicit productContext ⇒
-            pathPrefix(IntNumber) { productId ⇒
-              productRoutes(ProductReference(productId))
-            } ~
-            pathPrefix(Segment) { slug ⇒
-              productRoutes(ProductReference(slug))
+            pathPrefix(ProductRef) { productId ⇒
+              (get & pathEnd) {
+                getOrFailures {
+                  ProductManager.getProduct(productId)
+                }
+              }
             }
           }
         } ~
