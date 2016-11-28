@@ -65,17 +65,21 @@ class ProductIntegrationTest
     }
 
     "queries product by slug" in new ProductAndSkus_Baked with FlatTaxons_Baked {
-      private val slug             = "simple-product"
-      private val updated: Product = simpleProduct.copy(slug = Some(slug))
+      val slug    = "simple-product"
+      val updated = simpleProduct.copy(slug = Some(slug))
+
       Products.update(simpleProduct, updated).gimme
+
       val queryProduct = GET(s"${productsApi.productsPrefix}/$slug").as[ProductResponse.Root]
       queryProduct.id must === (updated.formId)
     }
 
     "queries product by slug ignoring case" in new ProductAndSkus_Baked with FlatTaxons_Baked {
-      private val slug             = "Simple-Product"
-      private val updated: Product = simpleProduct.copy(slug = Some(slug.toLowerCase))
+      val slug    = "Simple-Product"
+      val updated = simpleProduct.copy(slug = Some(slug.toLowerCase))
+
       Products.update(simpleProduct, updated).gimme
+
       val queryProduct = GET(s"${productsApi.productsPrefix}/$slug").as[ProductResponse.Root]
       queryProduct.id must === (updated.formId)
     }
@@ -93,6 +97,7 @@ class ProductIntegrationTest
         val slug = "simple-product"
 
         val productResponse = doQuery(productPayload.copy(slug = slug.some))
+
         productResponse.slug must === (slug.some)
       }
 
@@ -100,6 +105,7 @@ class ProductIntegrationTest
         val slug = "Simple-Product"
 
         val productResponse = doQuery(productPayload.copy(slug = slug.some))
+
         productResponse.slug must === (slug.toLowerCase.some)
       }
 
@@ -308,11 +314,10 @@ class ProductIntegrationTest
       }
 
       "slug is duplicated" in new Fixture {
-        val slug     = "simple-product"
-        val product1 = productsApi.create(productPayload.copy(slug = Some(slug))).as[Root]
-        productsApi
-          .create(productPayload.copy(slug = Some(slug)))
-          .mustHaveStatus(StatusCodes.BadRequest)
+        val slug    = "simple-product"
+        val payload = productPayload.copy(slug = Some(slug))
+        productsApi.create(payload).mustBeOk()
+        productsApi.create(payload).mustHaveStatus(StatusCodes.BadRequest)
       }
     }
 
@@ -639,9 +644,14 @@ class ProductIntegrationTest
       "slug is duplicated" in new Fixture {
         val slug = "simple-product"
 
-        val product1 = productsApi.create(productPayload.copy(slug = Some(slug))).as[Root]
-        productsApi
-          .create(productPayload.copy(slug = Some(slug)))
+        productsApi.create(productPayload.copy(slug = Some(slug))).mustBeOk()
+        val product2 = productsApi.create(productPayload).as[Root]
+
+        productsApi(product2.id)
+          .update(UpdateProductPayload(attributes = productPayload.attributes,
+                                       slug = Some(slug),
+                                       skus = None,
+                                       variants = None))
           .mustHaveStatus(StatusCodes.BadRequest)
       }
     }

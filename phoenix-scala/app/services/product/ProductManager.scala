@@ -327,7 +327,7 @@ object ProductManager {
         Products.update(product, newProduct.copy(shadowId = shadow.id, commitId = commit.id))
       case (None, Some(_)) ⇒
         Products.update(product, newProduct)
-      case (None, None) ⇒
+      case _ ⇒
         DbResultT.good(product)
     }
   }

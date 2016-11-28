@@ -20,46 +20,46 @@ import utils.http.Http._
 
 object ProductRoutes {
 
-  def productRoutes(productId: ProductReference)(implicit ec: EC,
-                                                 db: DB,
-                                                 oc: OC,
-                                                 ac: AC,
-                                                 auth: AuthData[User]): Route = {
+  def productRoutes(productRef: ProductReference)(implicit ec: EC,
+                                                  db: DB,
+                                                  oc: OC,
+                                                  ac: AC,
+                                                  auth: AuthData[User]): Route = {
     (get & pathEnd) {
       getOrFailures {
-        ProductManager.getProduct(productId)
+        ProductManager.getProduct(productRef)
       }
     } ~
     (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
       mutateOrFailures {
-        ProductManager.updateProduct(auth.model, productId, payload)
+        ProductManager.updateProduct(auth.model, productRef, payload)
       }
     } ~
     (delete & pathEnd) {
       mutateOrFailures {
-        ProductManager.archiveByContextAndId(productId)
+        ProductManager.archiveByContextAndId(productRef)
       }
     } ~
     (pathPrefix("taxons") & get & pathEnd) {
       getOrFailures {
-        TaxonomyManager.getAssignedTaxons(productId)
+        TaxonomyManager.getAssignedTaxons(productRef)
       }
     } ~
     pathPrefix("albums") {
       (get & pathEnd) {
         getOrFailures {
-          ImageManager.getAlbumsForProduct(productId)
+          ImageManager.getAlbumsForProduct(productRef)
         }
       } ~
       (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
         mutateOrFailures {
-          ImageManager.createAlbumForProduct(auth.model, productId, payload)
+          ImageManager.createAlbumForProduct(auth.model, productRef, payload)
         }
       } ~
       pathPrefix("position") {
         (post & pathEnd & entity(as[UpdateAlbumPositionPayload])) { payload ⇒
           mutateOrFailures {
-            ImageManager.updateProductAlbumPosition(payload.albumId, productId, payload.position)
+            ImageManager.updateProductAlbumPosition(payload.albumId, productRef, payload.position)
           }
         }
       }
