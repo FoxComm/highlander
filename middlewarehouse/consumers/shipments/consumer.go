@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	activityOrderStateChanged    = "order_state_changed"
-	orderStateFulfillmentStarted = "fulfillmentStarted"
+	activityOrderStateChanged     = "order_state_changed"
+	activityOrderBulkStateChanged = "order_bulk_state_changed"
+	orderStateFulfillmentStarted  = "fulfillmentStarted"
 )
 
 type OrderHandler struct {
@@ -41,15 +42,24 @@ func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
 	}
 
-	if activity.Type() != activityOrderStateChanged {
+	switch activity.Type() {
+	case activityOrderStateChanged:
+		fullOrder, err := shared.NewFullOrderFromActivity(activity)
+		if err != nil {
+			return fmt.Errorf("Unable to decode order from activity with error %s", err.Error())
+		}
+
+		return o.handlerInner(fullOrder)
+	case activityOrderBulkStateChanged:
+		// TODO: Request Phoenix for each order here
+		return nil
+	default:
 		return nil
 	}
+}
 
-	fullOrder, err := shared.NewFullOrderFromActivity(activity)
-	if err != nil {
-		return fmt.Errorf("Unable to decode order from activity with error %s", err.Error())
-	}
-
+// Handle activity for single order
+func (o OrderHandler) handlerInner(fullOrder *shared.FullOrder) error {
 	order := fullOrder.Order
 	if order.OrderState != orderStateFulfillmentStarted {
 		return nil
