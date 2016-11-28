@@ -37,7 +37,11 @@ export default class GiftCard extends React.Component {
   static propTypes = {
     card: PropTypes.shape({
       code: PropTypes.string,
-      state: PropTypes.string
+      state: PropTypes.string,
+      senderName: PropTypes.string,
+      recipientName: PropTypes.string,
+      recipientEmail: PropTypes.string,
+      recipientCell: PropTypes.string,
     }),
     children: PropTypes.node,
     editGiftCard: PropTypes.func,
@@ -241,14 +245,14 @@ export default class GiftCard extends React.Component {
               <div className="fc-col-md-1-3">
                 <p>
                   <strong>Created By</strong><br />
-                  {card.storeAdmin ? `${card.storeAdmin.name}` : 'None'}
+                  {card.senderName ? `${card.senderName}` : 'None'}
                 </p>
 
-                <p><strong>Recipient</strong><br />None</p>
+                <p><strong>Recipient</strong><br />{card.recipientName ? `${card.recipientName}` : 'None'}</p>
 
-                <p><strong>Recipient Email</strong><br />None</p>
+                <p><strong>Recipient Email</strong><br />{card.recipientEmail ? `${card.recipientEmail}` : 'None'}</p>
 
-                <p><strong>Recipient Cell (Optional)</strong><br />None</p>
+                <p><strong>Recipient Cell (Optional)</strong><br />{card.recipientCell ? `${card.recipientCell}` : 'None'}</p>
               </div>
               <div className="fc-col-md-2-3">
                 <p><strong>Message (optional)</strong></p>
