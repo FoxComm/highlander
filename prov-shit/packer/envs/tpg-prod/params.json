@@ -1,5 +1,5 @@
 {
-    "cert_path": "tpg",
+    "cert_path": "prod/perfect-gourmet",
     "consul_expect": 1,
     "join_type": "join",
     "docker_registry_bucket": "tpg-docker",

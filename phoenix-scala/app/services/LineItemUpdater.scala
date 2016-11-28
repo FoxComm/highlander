@@ -1,22 +1,21 @@
 package services
 
+import failures.CartFailures._
+import failures.OrderFailures.{OrderLineItemNotFound, SkuNotFoundInOrder}
 import failures.ProductFailures.SkuNotFoundForContext
+import models.account._
 import models.activity.Activity
 import models.cord._
-import models.cord.lineitems.OrderLineItems.scope._
-import models.cord.lineitems._
-import CartLineItems.scope._
-import failures.CartFailures._
-import models.account._
+import models.cord.lineitems.CartLineItems.scope._
+import models.cord.lineitems.{OrderLineItems, _}
 import models.inventory.{Sku, Skus}
 import models.objects.{ProductSkuLinks, ProductVariantLinks, VariantValueLinks}
 import models.product.VariantValueSkuLinks
-import org.json4s.JsonAST.JNull
-import payloads.LineItemPayloads.UpdateLineItemsPayload
+import org.json4s.JsonAST.{JNull, JObject}
+import payloads.LineItemPayloads.{UpdateLineItemsPayload, UpdateOrderLineItemsPayload}
 import responses.TheResponse
-import responses.cord.CartResponse
+import responses.cord.{CartResponse, OrderResponse}
 import services.carts.{CartPromotionUpdater, CartTotaler}
-import slick.dbio.DBIOAction
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -39,6 +38,34 @@ object LineItemUpdater {
       response ← * <~ runUpdates(cart, logActivity)
     } yield response
   }
+
+  def updateOrderLineItems(admin: User, payload: Seq[UpdateOrderLineItemsPayload], refNum: String)(
+      implicit ec: EC,
+      es: ES,
+      db: DB,
+      ac: AC,
+      ctx: OC): DbResultT[OrderResponse] =
+    for {
+      _             ← * <~ runOrderLineItemUpdates(payload)
+      orderUpdated  ← * <~ Orders.mustFindByRefNum(refNum)
+      orderResponse ← * <~ OrderResponse.fromOrder(orderUpdated, grouped = true)
+    } yield orderResponse
+
+  private def runOrderLineItemUpdates(payload: Seq[UpdateOrderLineItemsPayload])(implicit ec: EC,
+                                                                                 es: ES,
+                                                                                 db: DB,
+                                                                                 ac: AC,
+                                                                                 ctx: OC) =
+    DbResultT.sequence(payload.map(updatePayload ⇒ {
+      for {
+        orderLineItem ← * <~ OrderLineItems
+                         .filter(_.referenceNumber === updatePayload.referenceNumber)
+                         .mustFindOneOr(OrderLineItemNotFound(updatePayload.referenceNumber))
+        patch = orderLineItem.copy(state = updatePayload.state,
+                                   attributes = updatePayload.attributes)
+        updatedItem ← * <~ OrderLineItems.update(orderLineItem, patch)
+      } yield updatedItem
+    }))
 
   def updateQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
@@ -224,12 +251,19 @@ object LineItemUpdater {
   private def filterLineItemsByAttributes(lineItems: Seq[CartLineItem],
                                           presentAttributes: Option[Json]) = {
     lineItems.filter { li ⇒
-      (presentAttributes, li.attributes) match {
-        case (Some(p), Some(a))          ⇒ p.equals(a)
-        case (None, Some(a: JNull.type)) ⇒ true
-        case (None, None)                ⇒ true
-        case _                           ⇒ false
-      }
+      compareAttributes(presentAttributes, li.attributes)
     }
   }
+
+  private def compareAttributes(a: Option[Json], b: Option[Json]): Boolean = {
+    (a, b) match {
+      case (Some(p), Some(a))            ⇒ p.equals(a)
+      case (None, Some(a: JNull.type))   ⇒ true
+      case (Some(a: JNull.type), None)   ⇒ true
+      case (None, Some(JObject(fields))) ⇒ fields.isEmpty
+      case (None, None)                  ⇒ true
+      case _                             ⇒ false
+    }
+  }
+
 }

@@ -1,0 +1,67 @@
+{
+  "id": "/phoenix",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 4096,
+  "disk": 0,
+  "instances": 1,
+  "env": {
+    "PHOENIX_PUBLIC_KEY": "/keys/public_key.der",
+    "PHOENIX_PRIVATE_KEY": "/keys/private_key.der",
+    "PHOENIX_COOKIE_SECURE": "off",
+    "PHOENIX_AUTH_METHOD": "jwt",
+    "GOOGLE_OAUTH_ADMIN_CLIENT_ID": "{{google_oauth_admin_client_id}}",
+    "GOOGLE_OAUTH_ADMIN_CLIENT_SECRET": "{{google_oauth_admin_secret}}",
+    "GOOGLE_OAUTH_ADMIN_REDIRECT_URI": "{{google_oauth_admin_redirect_uri}}",
+    "GOOGLE_OAUTH_ADMIN_HOSTED_DOMAIN": "{{google_oauth_admin_hosted_domain}}",
+    "GOOGLE_OAUTH_CUSTOMER_CLIENT_ID": "{{google_oauth_frontend_client_id}}",
+    "GOOGLE_OAUTH_CUSTOMER_CLIENT_SECRET": "{{google_oauth_frontend_secret}}",
+    "GOOGLE_OAUTH_CUSTOMER_REDIRECT_URI": "{{google_oauth_frontend_redirect_uri}}",
+    "AWS_ACCESS_KEY": "{{secret_key}}",
+    "AWS_SECRET_KEY": "{{secret_access_key}}",
+    "S3_BUCKET": "{{s3_bucket}}",
+    "S3_REGION": "{{s3_region}}",
+    "STRIPE_API_KEY": "{{stripe_api_key}}",
+    "MIDDLEWAREHOUSE_URL": "http://{{middlewarehouse_server}}",
+    "TAX_RULE_REGION": "{{phoenix_tax_rule_region}}",
+    "TAX_RULE_RATE": "{{phoenix_tax_rule_rate}}",
+    "JAVA_OPTS": "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{phoenix_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dphoenix.env={{phoenix_env}} -Dhttp.interface=0.0.0.0 -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -Dakka.tracing.host={{zipkin_collector}} -Dakka.tracing.enabled={{phoenix_tracing}} -Dauth.tokenTTL={{phoenix_token_ttl}}"
+  },
+  "portDefinitions": [
+    {
+      "port": 10008,
+      "protocol": "tcp",
+      "name": "9090",
+      "labels": {}
+    }
+  ],
+  "healthChecks": [
+    {
+      "path": "/v1/public/ping",
+      "protocol": "HTTP",
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false,
+      "port": 9090
+    }
+  ],
+  "container": {
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "/keys",
+        "hostPath": "{{public_keys_dest_dir}}",
+        "mode": "RO"
+      }
+    ],
+    "docker": {
+      "image": "{{docker_registry}}:5000/phoenix:{{docker_branch}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  }
+}

@@ -39,6 +39,7 @@ defmodule Marketplace.Mixfile do
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:ecto_state_machine, "~> 0.1.0"},
+     {:json_web_token, "~> 0.2"},
      {:httpoison, "~> 0.9.0"}]
   end
 

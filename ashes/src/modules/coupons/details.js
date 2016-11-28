@@ -77,6 +77,7 @@ export function clearSubmitErrors() {
 export const createCoupon = _createCoupon.perform;
 export const updateCoupon = _updateCoupon.perform;
 export const archiveCoupon = _archiveCoupon.perform;
+export const clearArchiveErrors = _archiveCoupon.clearErrors;
 
 function updateCouponInState(state, response) {
   return {

@@ -1,3 +1,6 @@
+
+/* @flow weak */
+
 // state for gift card adding form
 
 import _ from 'lodash';
@@ -112,11 +115,12 @@ const giftCardReducer = createReducer({
   [setTypes]: (state, types) => {
     // allow only csrAppeasement type
     const filteredTypes = _.filter(types, type => type.originType === 'csrAppeasement');
+    const subTypeId = _.get(filteredTypes, [0, 'subTypes', 0, 'id']);
     return {
       ...state,
       types: filteredTypes,
       originType: 'csrAppeasement',
-      subTypeId: filteredTypes[0].subTypes[0].id
+      subTypeId,
     };
   },
   [setError]: (state, err) => {

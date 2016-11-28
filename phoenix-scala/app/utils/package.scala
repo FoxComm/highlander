@@ -1,5 +1,4 @@
 import scala.language.implicitConversions
-
 import utils.Strings._
 
 package object utils {
@@ -15,11 +14,6 @@ package object utils {
     "[A-Z\\d]".r.replaceAllIn(name, { m ⇒
       "_" + m.group(0).toLowerCase
     })
-
-  implicit def caseClassToMap(cc: Product): Map[String, Any] = {
-    val values = cc.productIterator
-    cc.getClass.getDeclaredFields.map(_.getName → values.next).toMap
-  }
 
   implicit class OptionError[A](val o: Option[A]) extends AnyVal {
     def getOrError(text: String): A = o.getOrElse {

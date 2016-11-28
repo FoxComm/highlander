@@ -56,7 +56,6 @@ module.exports = function(gulp, opts, $) {
       NODE_ENV: process.env.NODE_ENV,
       DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN,
       API_URL: process.env.API_URL,
-      STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
       ON_SERVER: process.env.ON_SERVER,
     }));
 

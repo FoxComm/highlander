@@ -1,3 +1,6 @@
+upstream storefront {
+  server {{storefront_server}} fail_timeout=10s max_fails=360;
+}
 
 upstream search {
     server {{search_server_http}} fail_timeout=30s;

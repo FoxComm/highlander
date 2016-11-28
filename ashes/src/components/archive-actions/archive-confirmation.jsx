@@ -14,35 +14,33 @@ type Props = {
   type: string,
   archive: Function,
   closeConfirmation: Function,
+  archiveState: AsyncStatus,
 };
 
-class ArchiveConfirmation extends Component {
-  props:Props;
+const ArchiveConfirmation = (props: Props): Element => {
+  const confirmation = (
+    <div>
+      <Alert type="warning">
+        Warning! This action cannot be undone
+      </Alert>
+      <p>
+        Are you sure you want to archive <strong>{props.title}</strong> ?
+      </p>
+    </div>
+  );
 
-  render():Element {
-    const confirmation = (
-      <div>
-        <Alert type="warning">
-          Warning! This action cannot be undone
-        </Alert>
-        <p>
-          Are you sure you want to archive <strong>{this.props.title}</strong> ?
-        </p>
-      </div>
-    );
-
-    return (
-      <ConfirmationDialog
-        isVisible={this.props.isVisible}
-        header={`Archive ${this.props.type} ?`}
-        body={confirmation}
-        cancel="Cancel"
-        confirm={`Archive ${this.props.type}`}
-        cancelAction={this.props.closeConfirmation}
-        confirmAction={this.props.archive}
-      />
-    );
-  }
-}
+  return (
+    <ConfirmationDialog
+      isVisible={props.isVisible}
+      header={`Archive ${props.type} ?`}
+      body={confirmation}
+      cancel="Cancel"
+      confirm={`Archive ${props.type}`}
+      onCancel={props.closeConfirmation}
+      confirmAction={props.archive}
+      asyncState={props.archiveState}
+    />
+  );
+};
 
 export default ArchiveConfirmation;

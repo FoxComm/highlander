@@ -53,6 +53,13 @@ object OrderRoutes {
               OrderQueries.findOne(refNum)
             }
           } ~
+          pathPrefix("order-line-items") {
+            (patch & pathEnd & entity(as[Seq[UpdateOrderLineItemsPayload]])) { reqItems ⇒
+              mutateOrFailures {
+                LineItemUpdater.updateOrderLineItems(auth.model, reqItems, refNum)
+              }
+            }
+          } ~
           (patch & pathEnd & entity(as[UpdateOrderPayload])) { payload ⇒
             mutateOrFailures {
               OrderStateUpdater.updateState(auth.model, refNum, payload.state)

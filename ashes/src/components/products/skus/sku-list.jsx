@@ -6,6 +6,7 @@
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
+import styles from './sku-list.css';
 
 // components
 import EditableSkuRow from './editable-sku-row';
@@ -58,18 +59,13 @@ export default class SkuList extends Component {
       };
     });
 
-    let columns = [
+    return [
       ...variantColumns,
       { field: 'sku', text: 'SKU' },
       { field: 'retailPrice', text: 'Retail Price' },
       { field: 'salePrice', text: 'Sale Price' },
+      { field: 'actions', text: '' },
     ];
-
-    if (!_.isEmpty(variants) && this.props.skus.length > 1) {
-      columns.push({ field: 'actions', text: '' });
-    }
-
-    return columns;
   }
 
   get emptyContent(): Element {
@@ -88,7 +84,7 @@ export default class SkuList extends Component {
   }
 
   get hasVariants(): boolean {
-    return _.isEmpty(this.props.variants);
+    return !_.isEmpty(this.props.variants);
   }
 
   @autobind
@@ -126,7 +122,7 @@ export default class SkuList extends Component {
         body={confirmation}
         cancel="Cancel"
         confirm="Yes, Remove"
-        cancelAction={() => this.closeDeleteConfirmation()}
+        onCancel={() => this.closeDeleteConfirmation()}
         confirmAction={() => this.deleteSku()}
       />
     );
@@ -156,6 +152,7 @@ export default class SkuList extends Component {
     return (
       <div className="fc-sku-list">
         <MultiSelectTable
+          styleName="sku-list"
           columns={this.tableColumns()}
           dataTable={false}
           data={{ rows: skus }}

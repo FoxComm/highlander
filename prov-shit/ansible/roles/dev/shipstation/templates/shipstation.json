@@ -19,10 +19,12 @@
   "env": {
     "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",
     "ZOOKEEPER_URL": "{{zookeeper_server}}",
+    "MIDDLEWAREHOUSE_URL": "http://{{middlewarehouse_server}}",
     "API_KEY": "{{shipstation_api_key}}",
     "API_SECRET": "{{shipstation_api_secret}}",
     "TOPIC": "{{shipstation_topic}}",
-    "PARTITION": "{{shipstation_partition}}"
+    "PARTITION": "{{shipstation_partition}}",
+    "POLLING_INTERVAL": "{{shipstation_interval}}"
   },
   "portDefinitions": [
     {
@@ -35,7 +37,7 @@
     {
       "protocol": "COMMAND",
       "command": {
-        "value": "ps -ef | grep \"[s]hipstation-consumer\""
+        "value": "ps -ef | grep -v grep | grep shipstation-consumer"
       },
       "gracePeriodSeconds": 300,
       "intervalSeconds": 60,

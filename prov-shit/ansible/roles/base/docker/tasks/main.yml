@@ -7,10 +7,3 @@
 - name: Add User to Docker Group
   user: name={{user}} groups=docker append=yes
   sudo: true
-
-- name: Download docker-clean Installer
-  command: curl -s {{docker_clean_url}} | tee /usr/local/bin/docker-clean > /dev/null
-
-- name: Make docker-clean executable
-  command: chmod +x /usr/local/bin/docker-clean
-  sudo: true

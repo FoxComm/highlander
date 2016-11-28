@@ -1,6 +1,7 @@
 import sbt._
 
 object Versions {
+  val scala = "2.11.8"
   // This is a patched version found here:
   // https://github.com/kwark/slick/blob/3.1-deadlock/README.md
   // Fixes a critical deadlock in slick.

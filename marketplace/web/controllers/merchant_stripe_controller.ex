@@ -5,7 +5,8 @@ defmodule Marketplace.MerchantStripeController do
   alias Marketplace.MerchantAccount
   alias Marketplace.Stripe
 
-  def create(conn, %{"legal_profile" => legal_profile_params, "merchant_id" => merchant_id}) do
+  def create(conn, params), do: secured_route(conn, params, &create/3)
+  defp create(conn, %{"legal_profile" => legal_profile_params, "merchant_id" => merchant_id}, claims) do
     ma = Repo.get_by!(MerchantAccount, merchant_id: merchant_id)
 
     case Stripe.create_account(ma, legal_profile_params) do

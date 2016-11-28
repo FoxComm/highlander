@@ -1,23 +1,31 @@
 import java.time.Instant
 
+import akka.http.scaladsl.model.StatusCodes
+
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures._
-import failures.NotFoundFailure404
+import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures._
+import models.account.User
 import models.inventory.Skus
 import models.objects._
 import models.product._
 import org.json4s.JsonDSL._
 import org.json4s._
+import payloads.ImagePayloads._
+import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.OrderPayloads.CreateCart
 import payloads.ProductPayloads._
 import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
+import responses.ProductResponses.ProductResponse
 import responses.ProductResponses.ProductResponse.Root
+import responses.cord.CartResponse
+import services.Authenticator.AuthData
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import testutils.PayloadHelpers._
 import utils.JsonFormatters
 import utils.Money.Currency
 import utils.aliases._
@@ -34,12 +42,27 @@ object ProductTestExtensions {
   }
 }
 
+// To whoever will be rewriting this: possible room for regressions includes incorrect handling of SKUs or variants
+// added to carts. I can't put some guards in here against that because I'll have to rewrite almost all tests in this
+// file. If you add a new test, consider adding one where gets added to cart before update/archive just to make sure.
+// -- Anna
+
 class ProductIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with AutomaticAuth
-    with BakedFixtures {
+    with BakedFixtures
+    with TaxonomySeeds {
   import ProductTestExtensions._
+
+  "GET v1/products/:context" - {
+    "returns assigned taxonomies" in new ProductAndSkus_Baked with FlatTaxons_Baked {
+      override def au: AuthData[User] = storeAdminAuthData
+      taxonApi(taxons.head.formId).assignProduct(simpleProduct.formId).mustBeOk()
+      val product = productsApi(simpleProduct.formId).get().as[ProductResponse.Root]
+      product.taxons.map(_.taxon.id) must contain(taxons.head.formId)
+    }
+  }
 
   "POST v1/products/:context" - {
     def doQuery(productPayload: CreateProductPayload) = {
@@ -73,7 +96,7 @@ class ProductIntegrationTest
       }
 
       "Gets an associated SKU after creating a product with a SKU" in new Fixture {
-        val redSkuPayload = makeSkuPayload("SKU-RED-SMALL", skuAttrMap)
+        val redSkuPayload = makeSkuPayload("SKU-RED-SMALL", skuAttrMap, None)
         val payload       = productPayload.copy(skus = Seq(redSkuPayload))
 
         val productResponse    = productsApi.create(payload).as[Root]
@@ -86,7 +109,7 @@ class ProductIntegrationTest
       }
 
       "an existing SKU successfully" in new Fixture {
-        val redSkuPayload = makeSkuPayload(skuRedSmallCode, skuAttrMap)
+        val redSkuPayload = makeSkuPayload(skuRedSmallCode, skuAttrMap, None)
         val payload       = productPayload.copy(skus = Seq(redSkuPayload))
 
         val productResponse = doQuery(payload)
@@ -113,7 +136,11 @@ class ProductIntegrationTest
       "an existing, but modified SKU successfully" in new Fixture {
         val redPriceJson  = ("t" → "price") ~ ("v" → (("currency" → "USD") ~ ("value" → 7999)))
         val redSkuAttrMap = Map("salePrice" → redPriceJson)
-        val redSkuPayload = makeSkuPayload(skuRedLargeCode, redSkuAttrMap)
+        val src           = "http://lorempixel/test.png"
+        val imagePayload  = ImagePayload(src = src)
+        val albumPayload  = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
+
+        val redSkuPayload = makeSkuPayload(skuRedLargeCode, redSkuAttrMap, Seq(albumPayload).some)
         val payload       = productPayload.copy(skus = Seq(redSkuPayload))
 
         val productResponse = doQuery(payload)
@@ -123,7 +150,7 @@ class ProductIntegrationTest
       }
 
       "empty variant successfully" in new Fixture {
-        val redSkuPayload = makeSkuPayload(skuRedSmallCode, skuAttrMap)
+        val redSkuPayload = makeSkuPayload(skuRedSmallCode, skuAttrMap, None)
         val values =
           Seq(VariantValuePayload(name = Some("value"), swatch = None, skuCodes = Seq.empty))
         val variantPayload =
@@ -137,6 +164,42 @@ class ProductIntegrationTest
         response.variants.head.values.length must === (1)
         response.variants.head.values.head.skuCodes.length must === (0)
         response.skus.length must === (0)
+      }
+
+      "an album successfully" in new Fixture {
+        val src          = "http://lorempixel/test.png"
+        val imagePayload = ImagePayload(src = src)
+        val albumPayload = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
+
+        val productResponse = doQuery(productPayload.copy(albums = Seq(albumPayload).some))
+        productResponse.albums.length must === (1)
+        productResponse.albums.head.images.length must === (1)
+        productResponse.albums.head.images.head.src must === (src)
+
+        val getProductResponse = productsApi(productResponse.id).get().as[Root]
+        getProductResponse.albums.length must === (1)
+        getProductResponse.albums.head.images.length must === (1)
+        getProductResponse.albums.head.images.head.src must === (src)
+      }
+
+      "a SKU with an album successfully" in new Fixture {
+        val src          = "http://lorempixel/test.png"
+        val imagePayload = ImagePayload(src = src)
+        val albumPayload = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
+
+        val newSkuPayload     = productPayload.skus.head.copy(albums = Seq(albumPayload).some)
+        val newProductPayload = productPayload.copy(skus = Seq(newSkuPayload))
+
+        val productResponse = doQuery(newProductPayload)
+        productResponse.skus.length must === (1)
+        productResponse.skus.head.albums.length must === (1)
+
+        val getProductResponse = productsApi(productResponse.id).get().as[Root]
+        getProductResponse.skus.length must === (1)
+
+        val album :: Nil = getProductResponse.skus.head.albums
+        album.images.length must === (1)
+        album.images.head.src must === (src)
       }
     }
 
@@ -159,21 +222,23 @@ class ProductIntegrationTest
       }
 
       "there is more than one SKU and no variants" in new Fixture {
-        val sku1    = makeSkuPayload("SKU-TEST-NUM1", attrMap)
-        val sku2    = makeSkuPayload("SKU-TEST-NUM2", attrMap)
+        val sku1    = makeSkuPayload("SKU-TEST-NUM1", attrMap, None)
+        val sku2    = makeSkuPayload("SKU-TEST-NUM2", attrMap, None)
         val payload = productPayload.copy(skus = Seq(sku1, sku2), variants = Some(Seq.empty))
 
         productsApi.create(payload).mustFailWithMessage("number of SKUs got 2, expected 1 or less")
       }
 
       "trying to create a product and SKU with no code" in new Fixture {
-        val newProductPayload = productPayload.copy(skus = Seq(SkuPayload(skuAttrMap)))
+        val newProductPayload =
+          productPayload.copy(skus = Seq(SkuPayload(attributes = skuAttrMap, albums = None)))
 
         productsApi.create(newProductPayload).mustFailWithMessage("SKU code not found in payload")
       }
 
       "trying to create a product and SKU with empty code" in new Fixture {
-        val newProductPayload = productPayload.copy(skus = Seq(makeSkuPayload("", skuAttrMap)))
+        val newProductPayload =
+          productPayload.copy(skus = Seq(makeSkuPayload("", skuAttrMap, None)))
 
         productsApi
           .create(newProductPayload)
@@ -185,6 +250,20 @@ class ProductIntegrationTest
         productsApi
           .create(archivedSkuProductPayload)
           .mustFailWith400(LinkArchivedSkuFailure(Product, 2, archivedSkuCode))
+      }
+
+      "trying to create a product with string price" in new Fixture {
+        val price: Json = ("t" → "price") ~ ("v" → (("currency"
+                        → "USD") ~ ("value" → "1000")))
+        val skuAttributes: Map[String, Json] = skuPayload.attributes + ("salePrice" → price)
+        val productToCreate =
+          productPayload.copy(skus = Seq(skuPayload.copy(attributes = skuAttributes)))
+        val createResponse = productsApi.create(productToCreate)
+
+        createResponse.mustHaveStatus(StatusCodes.BadRequest)
+        val errorPattern =
+          "Object sku with id=\\d+ doesn't pass validation: \\$.salePrice.value: string found, number expected"
+        createResponse.error must fullyMatch regex errorPattern.r
       }
     }
 
@@ -198,13 +277,31 @@ class ProductIntegrationTest
   }
 
   "PATCH v1/products/:context/:id" - {
-    def doQuery(formId: Int, productPayload: UpdateProductPayload) = {
+    def doQuery(formId: Int, productPayload: UpdateProductPayload)(implicit sl: SL, sf: SF) = {
       productsApi(formId).update(productPayload).as[Root]
     }
 
+    "Doesn't complain if you do update w/o any changes" in new Customer_Seed with Fixture {
+      private val cartRef =
+        cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+
+      cartsApi(cartRef).lineItems.add(allSkus.map(sku ⇒ UpdateLineItemsPayload(sku, 1))).mustBeOk()
+
+      productsApi(product.formId)
+        .update(
+            UpdateProductPayload(attributes = attrMap,
+                                 skus =
+                                   allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap, None)).some,
+                                 albums = None,
+                                 variants = None))
+        .mustBeOk()
+    }
+
     "Updates the SKUs on a product successfully" in new Fixture {
-      val payload =
-        UpdateProductPayload(attributes = Map.empty, skus = Some(Seq(skuPayload)), variants = None)
+      val payload = UpdateProductPayload(attributes = Map.empty,
+                                         skus = Some(Seq(skuPayload)),
+                                         variants = None,
+                                         albums = None)
 
       val response = doQuery(product.formId, payload)
       response.skus.length must === (4)
@@ -214,11 +311,63 @@ class ProductIntegrationTest
       description.extract[String] must === ("Test product description")
     }
 
-    "Updates and replaces a SKU on the product" in new Fixture with Product_Raw {
-      val updateSkuPayload = makeSkuPayload("SKU-UPDATE-TEST", skuAttrMap)
+    "Updates a SKU with an album successfully" in new Fixture with Product_Raw {
+      val src           = "http://lorempixel/test.png"
+      val imagePayload  = ImagePayload(src = src)
+      val albumPayload  = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
+      val albumsPayload = Seq(albumPayload).some
+
+      val updateSkuPayload = makeSkuPayload("SKU-UPDATE-TEST", skuAttrMap, albumsPayload)
       val newAttrMap       = Map("name" → (("t" → "string") ~ ("v" → "Some new product name")))
       val payload = UpdateProductPayload(attributes = newAttrMap,
                                          skus = Some(Seq(updateSkuPayload)),
+                                         albums = None,
+                                         variants = Some(Seq.empty))
+
+      val response = doQuery(simpleProduct.formId, payload)
+      response.skus.length must === (1)
+
+      val getProductResponse = productsApi(response.id).get().as[Root]
+      getProductResponse.skus.length must === (1)
+
+      val sku :: Nil = getProductResponse.skus
+      sku.albums.length must === (1)
+
+      val album :: Nil = sku.albums
+      album.images.length must === (1)
+      album.images.head.src must === (src)
+    }
+
+    "Updates an album on a product" in new Fixture {
+      val src          = "http://lorempixel/test.png"
+      val imagePayload = ImagePayload(src = src)
+      val albumPayload = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
+
+      val newSkuPayload = productPayload.skus.head.copy(albums = Seq(albumPayload).some)
+
+      val payload = UpdateProductPayload(attributes = Map.empty,
+                                         skus = Seq(newSkuPayload).some,
+                                         variants = Seq.empty.some,
+                                         albums = Seq(albumPayload).some)
+
+      val productResponse = productsApi(product.formId).update(payload).as[Root]
+      productResponse.albums.length must === (1)
+
+      val getProductResponse = productsApi(productResponse.id).get().as[Root]
+      getProductResponse.albums.length must === (1)
+
+      val album :: Nil = getProductResponse.albums
+      album.images.length must === (1)
+      album.images.head.src must === (src)
+
+    }
+
+    "Updates and replaces a SKU on the product" in new Fixture with Product_Raw {
+      val updateSkuPayload = makeSkuPayload("SKU-UPDATE-TEST", skuAttrMap, None)
+      val newAttrMap       = Map("name" → (("t" → "string") ~ ("v" → "Some new product name")))
+      val payload = UpdateProductPayload(attributes = newAttrMap,
+                                         skus = Some(Seq(updateSkuPayload)),
+                                         albums = None,
                                          variants = Some(Seq.empty))
 
       val response = doQuery(simpleProduct.formId, payload)
@@ -236,6 +385,30 @@ class ProductIntegrationTest
       name.extract[String] must === ("Some new product name")
     }
 
+    "Removes SKUs from product" in new Fixture {
+      productsApi(product.formId)
+        .update(
+            UpdateProductPayload(attributes = attrMap,
+                                 skus = Seq.empty.some,
+                                 albums = None,
+                                 variants = Seq.empty.some))
+        .as[Root]
+        .skus mustBe empty
+    }
+
+    "Removes some SKUs from product" in new RemovingSkusFixture {
+      productsApi(product.formId).get.as[Root].skus must have size 4
+
+      val remainingSkus: Seq[String] = productsApi(product.formId)
+        .update(twoSkuProductPayload)
+        .as[Root]
+        .skus
+        .map(sku ⇒ (sku.attributes \ "code" \ "v").extract[String])
+
+      remainingSkus must have size 2
+      remainingSkus must contain theSameElementsAs Seq(skuRedLargeCode, skuGreenSmallCode)
+    }
+
     "Updates the SKUs on a product if variants are Some(Seq.empty)" in new Fixture {
 
       ProductSkuLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
@@ -243,6 +416,7 @@ class ProductIntegrationTest
 
       val payload = UpdateProductPayload(attributes = Map.empty,
                                          skus = Some(Seq(skuPayload)),
+                                         albums = None,
                                          variants = Some(Seq.empty))
 
       val response = doQuery(product.formId, payload)
@@ -258,8 +432,10 @@ class ProductIntegrationTest
       ProductSkuLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
       ProductVariantLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
 
-      val payload =
-        UpdateProductPayload(attributes = Map.empty, skus = Some(Seq(skuPayload)), variants = None)
+      val payload = UpdateProductPayload(attributes = Map.empty,
+                                         skus = Some(Seq(skuPayload)),
+                                         variants = None,
+                                         albums = None)
 
       var response = doQuery(product.formId, payload)
       response.skus.length must === (1)
@@ -272,7 +448,8 @@ class ProductIntegrationTest
 
     "Updates the properties on a product successfully" in new Fixture {
       val newAttrMap = Map("name" → (("t" → "string") ~ ("v" → "Some new product name")))
-      val payload    = UpdateProductPayload(attributes = newAttrMap, skus = None, variants = None)
+      val payload =
+        UpdateProductPayload(attributes = newAttrMap, skus = None, variants = None, albums = None)
 
       val response = doQuery(product.formId, payload)
       response.skus.length must === (4)
@@ -281,8 +458,10 @@ class ProductIntegrationTest
 
     "Updates the variants" - {
       "Remove all variants successfully" in new Fixture {
-        val payload =
-          UpdateProductPayload(attributes = Map.empty, skus = None, variants = Some(Seq()))
+        val payload = UpdateProductPayload(attributes = Map.empty,
+                                           skus = None,
+                                           variants = Some(Seq()),
+                                           albums = None)
 
         val response = doQuery(product.formId, payload)
         response.skus.length must === (0)
@@ -291,7 +470,7 @@ class ProductIntegrationTest
 
       "Add new variant with new SKU successfully" in new VariantFixture {
         private val newSkuCode: ActivityType = "SKU-NEW-TEST"
-        val newSkuPayload                    = makeSkuPayload(newSkuCode, skuAttrMap)
+        val newSkuPayload                    = makeSkuPayload(newSkuCode, skuAttrMap, None)
 
         val goldValuePayload =
           VariantValuePayload(name = Some("Gold"), swatch = None, skuCodes = Seq(newSkuCode))
@@ -302,6 +481,7 @@ class ProductIntegrationTest
 
         val payload = UpdateProductPayload(attributes = Map.empty,
                                            skus = Some(Seq(newSkuPayload)),
+                                           albums = None,
                                            variants =
                                              Some(colorSizeVariants.+:(metalVariantPayload)))
 
@@ -322,20 +502,35 @@ class ProductIntegrationTest
                     smallGreenSkuPayload,
                     largeRedSkuPayload,
                     largeGreenSkuPayload)),
-            variants = None
+            variants = None,
+            albums = None
         )
 
         productsApi(product.formId)
           .update(upPayload)
-          .mustFailWithMessage("number of SKUs got 5, expected 4 or less")
+          .mustFailWithMessage("number of SKUs for given variants got 5, expected 4 or less")
       }
 
       "trying to update a product with archived SKU" in new ArchivedSkuFixture {
         productsApi(product.formId)
           .update(UpdateProductPayload(attributes = archivedSkuProductPayload.attributes,
                                        skus = archivedSkuProductPayload.skus.some,
+                                       albums = None,
                                        variants = archivedSkuProductPayload.variants))
           .mustFailWith400(LinkArchivedSkuFailure(Product, product.id, archivedSkuCode))
+      }
+
+      "trying to unassociate a SKU that is in cart" in new RemovingSkusFixture {
+        val cartRefNum =
+          cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse].referenceNumber
+
+        cartsApi(cartRefNum).lineItems
+          .add(Seq(UpdateLineItemsPayload(skuGreenLargeCode, 1)))
+          .mustBeOk()
+
+        productsApi(product.formId)
+          .update(twoSkuProductPayload)
+          .mustFailWith400(SkuIsPresentInCarts(skuGreenLargeCode))
       }
     }
   }
@@ -358,6 +553,18 @@ class ProductIntegrationTest
       activeFrom must === (None)
     }
 
+    "Returns error if product is present in carts" in new Fixture {
+      val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
+
+      cartsApi(cart.referenceNumber).lineItems
+        .add(Seq(UpdateLineItemsPayload(skuRedSmallCode, 1)))
+        .mustBeOk()
+
+      productsApi(product.formId)
+        .archive()
+        .mustFailWith400(ProductIsPresentInCarts(product.formId))
+    }
+
     "SKUs must be unlinked" in new VariantFixture {
       productsApi(product.formId).archive().as[Root].skus mustBe empty
     }
@@ -375,39 +582,43 @@ class ProductIntegrationTest
     }
 
     "Responds with NOT FOUND when wrong context is requested" in new VariantFixture {
-      pending
       implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
       productsApi(product.formId)(donkeyContext)
         .archive()
-        .mustFailWith404(NotFoundFailure404(ObjectContext, "donkeyContext"))
+        .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }
   }
 
   trait Fixture extends StoreAdmin_Seed with Schemas_Seed {
 
-    def makeSkuPayload(code: String, name: String): SkuPayload = {
+    def makeSkuPayload(code: String, name: String, albums: Option[Seq[AlbumPayload]]): SkuPayload = {
       val attrMap = Map("title" → (("t" → "string") ~ ("v" → name)),
                         "name" → (("t" → "string") ~ ("v" → name)),
                         "code" → (("t" → "string") ~ ("v" → code)))
 
-      SkuPayload(attrMap)
+      SkuPayload(attributes = attrMap, albums = albums)
     }
 
-    def makeSkuPayload(code: String, attrMap: Map[String, Json]) = {
-      val codeJson  = ("t" → "string") ~ ("v" → code)
-      val titleJson = ("t" → "string") ~ ("v" → ("title_" + code))
-      SkuPayload((attrMap + ("code" → codeJson)) + ("title" → titleJson))
+    def makeSkuPayload(code: String,
+                       attrMap: Map[String, Json],
+                       albums: Option[Seq[AlbumPayload]]) = {
+      val codeJson   = ("t"               → "string") ~ ("v"      → code)
+      val titleJson  = ("t"               → "string") ~ ("v"      → ("title_" + code))
+      val attributes = (attrMap + ("code" → codeJson)) + ("title" → titleJson)
+      SkuPayload(attributes = attributes, albums = albums)
     }
 
     val priceValue = ("currency" → "USD") ~ ("value" → 9999)
     val priceJson  = ("t" → "price") ~ ("v" → priceValue)
     val skuAttrMap = Map("price" → priceJson)
-    val skuPayload = makeSkuPayload("SKU-NEW-TEST", skuAttrMap)
+    val skuPayload = makeSkuPayload("SKU-NEW-TEST", skuAttrMap, None)
 
     val nameJson = ("t"       → "string") ~ ("v"  → "Product name")
     val attrMap  = Map("name" → nameJson, "title" → nameJson)
-    val productPayload =
-      CreateProductPayload(attributes = attrMap, skus = Seq(skuPayload), variants = None)
+    val productPayload = CreateProductPayload(attributes = attrMap,
+                                              skus = Seq(skuPayload),
+                                              variants = None,
+                                              albums = None)
 
     val simpleProd = SimpleProductData(title = "Test Product",
                                        code = "TEST",
@@ -419,6 +630,9 @@ class ProductIntegrationTest
     val skuRedLargeCode: String   = "SKU-RED-LARGE"
     val skuGreenSmallCode: String = "SKU-GREEN-SMALL"
     val skuGreenLargeCode: String = "SKU-GREEN-LARGE"
+
+    val allSkus: Seq[String] =
+      Seq(skuRedSmallCode, skuRedLargeCode, skuGreenSmallCode, skuGreenLargeCode)
 
     val simpleSkus = Seq(SimpleSku(skuRedSmallCode, "A small, red item", 9999, Currency.USD),
                          SimpleSku(skuRedLargeCode, "A large, red item", 9999, Currency.USD),
@@ -438,10 +652,8 @@ class ProductIntegrationTest
                                                              (skuGreenSmallCode, "green", "small"),
                                                              (skuGreenLargeCode, "green", "large"))
 
-    val (product, skus, variants) = ({
-
-      implicit val au = storeAdminAuthData
-      val scope       = LTree(au.token.scope)
+    val (product, skus, variants) = {
+      val scope = LTree(au.token.scope)
 
       for {
         // Create the SKUs.
@@ -478,7 +690,7 @@ class ProductIntegrationTest
                     } yield (colorLink, sizeLink)
                 }
       } yield (product, skus, variantsAndValues)
-    }).gimme
+    }.gimme
   }
 
   trait VariantFixture extends Fixture {
@@ -524,10 +736,10 @@ class ProductIntegrationTest
 
     val colorSizeVariants = Seq(colorVariantPayload, sizeVariantPayload)
 
-    val smallRedSkuPayload   = makeSkuPayload(skuRedSmallCode, "A small, red item")
-    val smallGreenSkuPayload = makeSkuPayload(skuGreenSmallCode, "A small, green item")
-    val largeRedSkuPayload   = makeSkuPayload(skuRedLargeCode, "A small, green item")
-    val largeGreenSkuPayload = makeSkuPayload(skuGreenLargeCode, "A large, green item")
+    val smallRedSkuPayload   = makeSkuPayload(skuRedSmallCode, "A small, red item", None)
+    val smallGreenSkuPayload = makeSkuPayload(skuGreenSmallCode, "A small, green item", None)
+    val largeRedSkuPayload   = makeSkuPayload(skuRedLargeCode, "A small, green item", None)
+    val largeGreenSkuPayload = makeSkuPayload(skuGreenLargeCode, "A large, green item", None)
   }
 
   trait ArchivedSkuFixture extends VariantFixture {
@@ -540,5 +752,26 @@ class ProductIntegrationTest
 
     val archivedSkuCode           = "SKU-RED-SMALL"
     val archivedSkuProductPayload = productPayload.copy(skus = Seq(smallRedSkuPayload))
+  }
+
+  trait RemovingSkusFixture extends VariantFixture {
+
+    val twoSkuVariantPayload: Seq[VariantPayload] = Seq(
+        makeVariantPayload("Size",
+                           Seq(redValuePayload.copy(skuCodes = Seq(skuRedLargeCode)),
+                               greenValuePayload.copy(skuCodes = Seq(skuGreenSmallCode)))),
+        makeVariantPayload("Color",
+                           Seq(smallValuePayload.copy(skuCodes = Seq(skuGreenSmallCode)),
+                               largeValuePayload.copy(skuCodes = Seq(skuRedLargeCode)))))
+
+    val twoSkuPayload: Seq[SkuPayload] = Seq(
+        makeSkuPayload(skuRedLargeCode, "A large, red item", None),
+        makeSkuPayload(skuGreenSmallCode, "A small, green item", None))
+
+    val twoSkuProductPayload: UpdateProductPayload = UpdateProductPayload(
+        attributes = attrMap,
+        variants = twoSkuVariantPayload.some,
+        albums = None,
+        skus = twoSkuPayload.some)
   }
 }

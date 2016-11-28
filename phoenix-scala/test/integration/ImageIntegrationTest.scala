@@ -40,7 +40,7 @@ class ImageIntegrationTest
         val albumResponse = albumsApi(album.formId).get().as[AlbumRoot]
 
         albumResponse.images.length must === (1)
-        albumResponse.images.head.get("src") must not be empty
+        albumResponse.images.head.src must not be empty
       }
 
       "404 if wrong context name" in new Fixture {
@@ -54,7 +54,7 @@ class ImageIntegrationTest
 
       "Retrieves a correct version of an album after an update" in new Fixture {
         albumsApi(album.formId)
-          .update(UpdateAlbumPayload(name = "Name 2.0".some))
+          .update(AlbumPayload(name = "Name 2.0".some))
           .as[AlbumRoot]
           .name must === ("Name 2.0")
 
@@ -65,8 +65,8 @@ class ImageIntegrationTest
         val imageSources = Seq("1", "2")
 
         albumsApi(album.formId)
-          .update(UpdateAlbumPayload(name = "Name 2.0".some,
-                                     images = imageSources.map(u ⇒ ImagePayload(src = u)).some))
+          .update(AlbumPayload(name = "Name 2.0".some,
+                               images = imageSources.map(u ⇒ ImagePayload(src = u)).some))
           .mustBeOk()
 
         albumsApi(album.formId).get().as[AlbumRoot].images.map(_.src) must === (imageSources)
@@ -77,15 +77,15 @@ class ImageIntegrationTest
       "Creates an album with" - {
         "no images" in new Fixture {
           albumsApi
-            .create(CreateAlbumPayload(name = "Empty album", position = Some(1)))
+            .create(AlbumPayload(name = Some("Empty album"), position = Some(1)))
             .as[AlbumRoot]
             .images mustBe empty
         }
 
         "one image" in new Fixture {
           albumsApi
-            .create(CreateAlbumPayload(name = "Non-empty album",
-                                       images = Seq(ImagePayload(src = "url")).some))
+            .create(AlbumPayload(name = Some("Non-empty album"),
+                                 images = Seq(ImagePayload(src = "url")).some))
             .as[AlbumRoot]
             .images
             .length must === (1)
@@ -93,8 +93,8 @@ class ImageIntegrationTest
 
         "multiple images" in new Fixture {
           val sources = Seq("url", "url2")
-          val payload = CreateAlbumPayload(name = "Non-empty album",
-                                           images = sources.map(s ⇒ ImagePayload(src = s)).some)
+          val payload = AlbumPayload(name = Some("Non-empty album"),
+                                     images = sources.map(s ⇒ ImagePayload(src = s)).some)
 
           val ordered = albumsApi.create(payload).as[AlbumRoot]
           ordered.images.map(_.src) must === (sources)
@@ -103,13 +103,6 @@ class ImageIntegrationTest
             albumsApi.create(payload.copy(images = payload.images.map(_.reverse))).as[AlbumRoot]
           reversed.images.map(_.src) must === (sources.reverse)
         }
-      }
-
-      "Fails if id  for image is specified" in new Fixture {
-        private val payload =
-          CreateAlbumPayload(name = "Non-empty album",
-                             images = Seq(ImagePayload(id = Some(1), src = "url")).some)
-        albumsApi.create(payload).mustFailWithMessage("Image id should be empty")
       }
     }
 
@@ -135,7 +128,7 @@ class ImageIntegrationTest
 
     "PATCH v1/albums/:context/:id" - {
       "Update the album to have another image" in new Fixture {
-        val payload = UpdateAlbumPayload(images = Seq(testPayload, ImagePayload(src = "foo")).some)
+        val payload = AlbumPayload(images = Seq(testPayload, ImagePayload(src = "foo")).some)
 
         val albumResponse = albumsApi(album.formId).update(payload).as[AlbumRoot]
 
@@ -146,7 +139,7 @@ class ImageIntegrationTest
       "Saves image order" in new Fixture {
         val newImageSrc = "http://test.it/test.png"
         val moreImages  = Seq(testPayload, ImagePayload(src = newImageSrc))
-        val payload     = UpdateAlbumPayload(images = moreImages.some)
+        val payload     = AlbumPayload(images = moreImages.some)
 
         val ordered = albumsApi(album.formId).update(payload).as[AlbumRoot]
         ordered.images.map(_.src) must === (Seq(testPayload.src, newImageSrc))
@@ -160,7 +153,7 @@ class ImageIntegrationTest
       "Update the album fails on image id duplications" in new Fixture {
         val moreImages = Seq(testPayload, ImagePayload(src = "foo")).map(_.copy(id = Some(1)))
         albumsApi(album.formId)
-          .update(UpdateAlbumPayload(images = moreImages.some))
+          .update(AlbumPayload(images = moreImages.some))
           .mustFailWithMessage("Image ID is duplicated 1")
       }
 
@@ -174,7 +167,7 @@ class ImageIntegrationTest
           image.title.value must === ("lorem.png")
         }
 
-        val payload = UpdateAlbumPayload(name = "Name 2.0".some, images = Seq(testPayload).some)
+        val payload = AlbumPayload(name = "Name 2.0".some, images = Seq(testPayload).some)
         checkAlbum(albumsApi(album.formId).update(payload).as[AlbumRoot])
         checkAlbum(albumsApi(album.formId).get().as[AlbumRoot])
       }
@@ -183,7 +176,7 @@ class ImageIntegrationTest
     "POST v1/products/:context/:id/albums" - {
       "Creates a new album on an existing product" in new ProductFixture {
         val payload =
-          CreateAlbumPayload(name = testAlbumName, images = Seq(ImagePayload(src = "url")).some)
+          AlbumPayload(name = Some(testAlbumName), images = Seq(ImagePayload(src = "url")).some)
         val albumResponse = productsApi(prodForm.id).albums.create(payload).as[AlbumRoot]
 
         albumResponse.name must === (testAlbumName)
@@ -192,9 +185,9 @@ class ImageIntegrationTest
       }
 
       "Puts new album at the end" in new ProductFixture {
-        val payload = CreateAlbumPayload(name = "0", images = Seq(ImagePayload(src = "url")).some)
-        productsApi(prodForm.id).albums.create(payload.copy(name = "1")).mustBeOk()
-        productsApi(prodForm.id).albums.create(payload.copy(name = "2")).mustBeOk()
+        val payload = AlbumPayload(name = Some("0"), images = Seq(ImagePayload(src = "url")).some)
+        productsApi(prodForm.id).albums.create(payload.copy(name = Some("1"))).mustBeOk()
+        productsApi(prodForm.id).albums.create(payload.copy(name = Some("2"))).mustBeOk()
 
         val albums = productsApi(prodForm.id).albums.get().as[Seq[AlbumRoot]]
         albums.map(_.name) must === (Seq(testAlbumName, "1", "2"))
@@ -207,7 +200,7 @@ class ImageIntegrationTest
 
         val imagePayload = Seq(ImagePayload(src = "url")).some
         Seq("1", "2").foreach { name ⇒
-          val payload = CreateAlbumPayload(name = name, images = imagePayload)
+          val payload = AlbumPayload(name = Some(name), images = imagePayload)
           _albumsApi.create(payload).mustBeOk()
         }
 
@@ -237,7 +230,7 @@ class ImageIntegrationTest
       }
 
       "Retrieves a correct version of an album after an update" in new ProductFixture {
-        albumsApi(album.formId).update(UpdateAlbumPayload(name = "Name 2.0".some)).mustBeOk()
+        albumsApi(album.formId).update(AlbumPayload(name = "Name 2.0".some)).mustBeOk()
 
         val response = productsApi(prodForm.id).albums.get().as[Seq[AlbumRoot]]
         response.headOption.value.name must === ("Name 2.0")
@@ -300,7 +293,7 @@ class ImageIntegrationTest
     "POST v1/skus/:context/:id/albums" - {
       "Creates a new album on an existing SKU" in new ProductFixture {
         val payload =
-          CreateAlbumPayload(name = "Sku Album", images = Seq(ImagePayload(src = "url")).some)
+          AlbumPayload(name = Some("Sku Album"), images = Seq(ImagePayload(src = "url")).some)
         val albumResponse = skusApi(sku.code).albums.create(payload).as[AlbumRoot]
 
         albumResponse.name must === ("Sku Album")
@@ -319,7 +312,7 @@ class ImageIntegrationTest
       }
 
       "Retrieves a correct version of an album after an update" in new ProductFixture {
-        val response = albumsApi(album.formId).update(UpdateAlbumPayload(name = "Name 2.0".some))
+        val response = albumsApi(album.formId).update(AlbumPayload(name = "Name 2.0".some))
         response.as[AlbumRoot].name must === ("Name 2.0")
 
         val response2 = skusApi(sku.code).albums.get()
@@ -413,9 +406,6 @@ class ImageIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed {
-
-    implicit val au = storeAdminAuthData
-
     def createShadowAttr(key: String, attrType: String) =
       key → (("type" → attrType) ~ ("ref" → key))
 

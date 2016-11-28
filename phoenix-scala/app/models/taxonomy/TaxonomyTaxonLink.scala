@@ -93,19 +93,28 @@ object TaxonomyTaxonLinks
            and archived_at is null"""
   }
 
+  def parentOf(taxonLink: TaxonomyTaxonLink)(implicit ec: EC): DBIO[Option[TaxonomyTaxonLink]] =
+    filter(link ⇒ link.leftId === taxonLink.leftId && link.index === taxonLink.parentIndex).one
+
   def moveTaxonAfter(link: TaxonomyTaxonLink, after: TaxonomyTaxonLink)(
       implicit ec: EC): DbResultT[TaxonomyTaxonLink] =
     for {
-      prepared ← * <~ preparePosition(link, after.position + 1)
+      prepared ← * <~ preparePosition(link, Some(after.position + 1))
       newLink  ← * <~ TaxonomyTaxonLinks.update(link, prepared)
     } yield newLink
 
-  def preparePosition(link: TaxonomyTaxonLink, newPosition: Int)(
+  def preparePosition(link: TaxonomyTaxonLink, position: Option[Int])(
       implicit ec: EC): DbResultT[TaxonomyTaxonLink] = {
-    require(newPosition >= 0)
+    require(position.fold(true)(_ >= 0))
 
     for {
-      _ ← * <~ shiftPositions(link.taxonomyId, link.path, newPosition)
+      newPosition ← * <~ position
+                     .fold(getNextPosition(link.taxonomyId, link.path).result.dbresult) {
+                       newPosition ⇒
+                         for {
+                           _ ← * <~ shiftPositions(link.taxonomyId, link.path, newPosition)
+                         } yield newPosition
+                     }
       newLink = link.copy(position = newPosition)
       _       = assert(newLink.id == link.id && newLink.position == newPosition)
     } yield newLink
@@ -136,7 +145,7 @@ object TaxonomyTaxonLinks
   import scope._
 
   def getNextPosition(taxonomyId: Int, path: LTree): Rep[Int] =
-    filter(link ⇒ link.taxonomyId === taxonomyId && (link.path ~ path.toString())).nonArchived
+    filter(link ⇒ link.taxonomyId === taxonomyId && (link.path === path)).nonArchived
       .map(_.position)
       .max
       .map(_ + 1)

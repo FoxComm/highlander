@@ -5,9 +5,9 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
+	"github.com/FoxComm/highlander/middlewarehouse/common/tests"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
-	"github.com/FoxComm/highlander/middlewarehouse/common/tests"
 
 	"fmt"
 
@@ -58,7 +58,7 @@ func (suite *ShipmentRepositoryTestSuite) TearDownSuite() {
 	suite.db.Close()
 }
 
-func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentsByOrderRefNum_Found_ReturnsShipmentModels() {
+func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentsByID_Found_ReturnsShipmentModels() {
 	//arrange
 	shipment1 := fixtures.GetShipment(1, "BR10005", suite.shippingMethod.Code, suite.shippingMethod, suite.address.ID, suite.address, nil)
 	shipment1.ReferenceNumber = "FS10002"
@@ -77,14 +77,6 @@ func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentsByOrderRefNum_Found_R
 		&shipment1.Address, &shipment2.Address, &shipments[0].Address, &shipments[1].Address)
 	suite.Equal(shipment1, shipments[0])
 	suite.Equal(shipment2, shipments[1])
-}
-
-func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_NotFound_ReturnsNotFoundError() {
-	//act
-	_, err := suite.repository.GetShipmentByID(1)
-
-	//assert
-	suite.Equal(fmt.Errorf(ErrorShipmentNotFound, 1), err)
 }
 
 func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_Found_ReturnsShipmentModel() {

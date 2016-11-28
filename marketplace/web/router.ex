@@ -60,6 +60,7 @@ defmodule Marketplace.Router do
     end
 
     get "/", PageController, :index
+    get "/ping", Ping, :ping
   end
 
   # Other scopes may use custom stacks.

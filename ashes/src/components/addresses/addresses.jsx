@@ -21,7 +21,7 @@ const Addresses = props => {
         body='Are you sure you want to delete this address?'
         cancel='Cancel'
         confirm='Yes, Delete'
-        cancelAction={() => props.stopDeletingAddress(props.customerId) }
+        onCancel={() => props.stopDeletingAddress(props.customerId) }
         confirmAction={() => {
             props.stopDeletingAddress();
             props.deleteAddress(props.customerId, props.deletingId)

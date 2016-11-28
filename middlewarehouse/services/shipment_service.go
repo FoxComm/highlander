@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/FoxComm/highlander/middlewarehouse/common/async"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
@@ -20,6 +22,7 @@ type IShipmentService interface {
 	GetShipmentsByOrder(orderRefNum string) ([]*models.Shipment, error)
 	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
+	UpdateShipmentForOrder(shipment *models.Shipment) (*models.Shipment, error)
 }
 
 func NewShipmentService(db *gorm.DB, summaryService ISummaryService, activityLogger IActivityLogger) IShipmentService {
@@ -101,6 +104,36 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 		return nil, err
 	}
 
+	shipment.ID = source.ID
+	return service.updateShipmentHelper(txn, shipmentRepo, shipment, source)
+}
+
+func (service *shipmentService) UpdateShipmentForOrder(shipment *models.Shipment) (*models.Shipment, error) {
+
+	txn := service.db.Begin()
+
+	shipmentRepo := repositories.NewShipmentRepository(txn)
+	sources, err := shipmentRepo.GetShipmentsByOrder(shipment.OrderRefNum)
+	if err != nil {
+		txn.Rollback()
+		return nil, err
+	}
+
+	if len(sources) != 1 {
+		txn.Rollback()
+		return nil, errors.New("The order requires exactly one shipment. Multiple shipments is not supported yet.")
+	}
+
+	source := sources[0]
+
+	return service.updateShipmentHelper(txn, shipmentRepo, shipment, source)
+}
+
+func (service *shipmentService) updateShipmentHelper(txn *gorm.DB, shipmentRepo repositories.IShipmentRepository, shipment *models.Shipment, source *models.Shipment) (*models.Shipment, error) {
+
+	shipment.ID = source.ID
+
+	var err error
 	shipment, err = shipmentRepo.UpdateShipment(shipment)
 	if err != nil {
 		txn.Rollback()
@@ -118,10 +151,25 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 		return nil, err
 	}
 
+	if err := service.logActivity(source, shipment); err != nil {
+		return nil, err
+	}
+
+	return shipment, nil
+
+}
+
+func (service *shipmentService) logActivity(original *models.Shipment, updated *models.Shipment) error {
+	if !updated.IsUpdated(original) {
+		return nil
+	}
+
 	var activity activities.ISiteActivity
-	if source.State != shipment.State && shipment.State == models.ShipmentStateShipped {
+	var err error
+
+	if original.State != updated.State && updated.State == models.ShipmentStateShipped {
 		stockItemCounts := make(map[uint]int)
-		for _, lineItem := range source.ShipmentLineItems {
+		for _, lineItem := range original.ShipmentLineItems {
 			siu := lineItem.StockItemUnit
 
 			// Aggregate which stock items, and how many, have been updated, so that we
@@ -133,26 +181,20 @@ func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*mode
 			}
 		}
 
-		if err = service.updateSummariesToShipped(stockItemCounts); err != nil {
-			return nil, err
+		if err := service.updateSummariesToShipped(stockItemCounts); err != nil {
+			return err
 		}
 
-		activity, err = activities.NewShipmentShipped(shipment, shipment.UpdatedAt)
-		if err != nil {
-			return nil, err
-		}
+		activity, err = activities.NewShipmentShipped(updated, updated.UpdatedAt)
 	} else {
-		activity, err = activities.NewShipmentUpdated(shipment, shipment.UpdatedAt)
-		if err != nil {
-			return nil, err
-		}
+		activity, err = activities.NewShipmentUpdated(updated, updated.UpdatedAt)
 	}
 
-	if err := service.activityLogger.Log(activity); err != nil {
-		return nil, err
+	if err != nil {
+		return err
 	}
 
-	return shipment, nil
+	return service.activityLogger.Log(activity)
 }
 
 func (service *shipmentService) updateSummariesToReserved(stockItemsMap map[uint]int) error {

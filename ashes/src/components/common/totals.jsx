@@ -18,7 +18,7 @@ const TotalsFooter = props => {
 };
 
 const discounts = totals => {
-  const subTotalWithDiscounts = totals.subTotal + totals.adjustments;
+  const subTotalWithDiscounts = totals.subTotal - totals.adjustments;
 
   return (
     <div>

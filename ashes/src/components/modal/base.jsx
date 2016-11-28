@@ -1,13 +1,28 @@
+/* @flow */
+
 import React, { PropTypes } from 'react';
 import Transition from 'react-addons-css-transition-group';
 
-const ModalContainer = props => {
+type Props = {
+  isVisible: boolean,
+  onCancel: () => void,
+  children: Element|Array<Element>
+};
+
+const ModalContainer = (props: Props) => {
   let content;
+
+  const handleEscKeyPress = (event) => {
+    if (event.keyCode === 27 /*esc*/) {
+      event.preventDefault();
+      props.onCancel();
+    }
+  };
 
   if (props.isVisible) {
     content = (
       <div className="fc-modal">
-        <div className="fc-modal-container">
+        <div className="fc-modal-container" onKeyDown={handleEscKeyPress}>
           {props.children}
         </div>
       </div>
@@ -29,7 +44,8 @@ const ModalContainer = props => {
 
 ModalContainer.propTypes = {
   isVisible: PropTypes.bool.isRequired,
-  children: PropTypes.node
+  children: PropTypes.node,
+  onCancel: PropTypes.func
 };
 
 export {

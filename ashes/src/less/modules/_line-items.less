@@ -37,6 +37,24 @@
     margin-top: 20px;
   }
 
+  .fc-table {
+    .fc-table-th {
+      width: calc(100% / 6);
+    }
+  }
+
+  &.is-editing {
+    .fc-table-th {
+      &:nth-last-child(2) {
+        width: calc(~"100% / 6 - 70px");
+      }
+
+      &:last-child {
+        width: 70px;
+      }
+    }
+  }
+
   tbody tr td {
     padding: 15px;
     vertical-align: top;

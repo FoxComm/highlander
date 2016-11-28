@@ -85,7 +85,7 @@ export default class Image extends Component<void, Props, State> {
           body={'Are you sure you want to delete this image?'}
           cancel='Cancel'
           confirm='Yes, Delete'
-          cancelAction={this.handleCancelDeleteImage}
+          onCancel={this.handleCancelDeleteImage}
           confirmAction={this.handleConfirmDeleteImage}
         />
       </BodyPortal>

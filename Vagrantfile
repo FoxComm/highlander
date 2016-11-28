@@ -112,11 +112,25 @@ Vagrant.configure("2") do |config|
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.define :appliance, primary: true do |app|
-    app.vm.box = "base_appliance_16.04_20161030"
-    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base_appliance_16.04_20161030.box"
+    app.vm.box = "base_appliance_16.04_20161111"
+    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base_appliance_16.04_20161111.box"
 
     app.vm.network :private_network, ip: $nginx_ip
     expose_ports(app)
+
+    # Workaround for mitchellh/vagrant#1867
+    if ARGV[1] and \
+       (ARGV[1].split('=')[0] == "--provider" or ARGV[2])
+      provider = (ARGV[1].split('=')[1] || ARGV[2])
+    else
+      provider = (ENV['VAGRANT_DEFAULT_PROVIDER'] || :virtualbox).to_sym
+    end
+    puts "Detected #{provider} provider"
+
+    if provider == "google"
+      puts 'Overriding Google-specific variables'
+      $nginx_ip = "0.0.0.0"
+    end
 
     app.vm.provision "ansible" do |ansible|
       ansible.verbose = "vvvv"
@@ -124,6 +138,7 @@ Vagrant.configure("2") do |config|
       ansible.extra_vars = {
         user: user,
         appliance_hostname: $nginx_ip,
+        mesos_ip: $nginx_ip,
       }
     end
   end

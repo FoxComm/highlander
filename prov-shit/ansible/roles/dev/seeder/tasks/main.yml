@@ -1,36 +1,22 @@
 ---
 
-- name: Synchronize Phoenix SQL
-  synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
-  sudo: true
-
-- name: Delete Phoenix Gatling Resources
-  file: path="{{phoenix_dir}}/gatling-classes" state=absent
-  sudo: true
-
-- name: Delete Phoenix Gatling Results
-  file: path="{{phoenix_dir}}/gatling-results" state=absent
-  sudo: true
-
-- name: Synchronize Phoenix Gatling Resources
-  synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes
-  sudo: true
-
-- name: Create Directory for Gatling results
-  file: path="{{phoenix_dir}}/gatling-results" state=directory owner="{{user}}" mode="0777"
+- name: Get Latest Phoenix Image
+  shell: docker pull {{docker_registry}}:5000/phoenix:{{docker_branch}}
   sudo: true
 
 - name: Seed Phoenix Database
-  shell: java -Dphoenix.env={{phoenix_env}} -Ddb.host={{db_host}} -Ddb.url="jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}}" -Ddb.name={{db_name}} -cp {{phoenix_jar}} {{seeds_cmd}}
+  shell: docker run --network host -t {{docker_registry}}:5000/phoenix:{{docker_branch}} java -Dphoenix.env={{phoenix_env}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp {{phoenix_jar}} {{seeds_cmd}}
   sudo: true
   args:
     chdir: "{{phoenix_dir}}"
+  when: with_base_seeds is defined and with_base_seeds
 
 - name: Gatling Seed Db
-  shell: java -Dphoenix.env={{phoenix_env}} -Ddb.host={{db_host}} -Ddb.url="jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}}" -Ddb.name={{db_name}} -cp {{phoenix_jar}} {{gatling_oneshot_seeds_cmd}}
+  shell: docker run --network host -t {{docker_registry}}:5000/phoenix:{{docker_branch}} java -Dphoenix.env={{phoenix_env}} -Dapp.baseUrl=http://{{phoenix_server}} -Dhttp.interface={{phoenix_host}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp {{phoenix_jar}} {{gatling_oneshot_seeds_cmd}}
   sudo: true
   args:
     chdir: "{{phoenix_dir}}"
+  when: with_gatling_seeder
 
 - name: Copy Service
   template: src=seeder.service dest="{{dest_services}}/seeder.service"
@@ -55,6 +41,10 @@
   template: src=middlewarehouse.env dest={{middlewarehouse_dir}}/seeder/.env
   sudo: true
 
+- name: Get Latest Middlewarehouse Image
+  shell: docker pull {{docker_registry}}:5000/middlewarehouse-seeder:{{docker_branch}}
+  sudo: true
+
 - name: Run Middlewarehouse Seeder docker container
-  command: docker run --env-file "{{middlewarehouse_dir}}/seeder/.env" "{{docker_registry}}:5000/middlewarehouse-seeder:{{docker_branch}}"
+  command: docker run --env-file "{{middlewarehouse_dir}}/seeder/.env" --network host {{docker_registry}}:5000/middlewarehouse-seeder:{{docker_branch}}
   sudo: true

@@ -21,6 +21,10 @@ object UserFailures {
     override def description = s"User with id = $accountId is blacklisted"
   }
 
+  case class UserIsMigrated(accountId: Int) extends Failure {
+    override def description = s"User with id = $accountId is migrated and has to reset password"
+  }
+
   case class UserHasNoEmail(accountId: Int) extends Failure {
     override def description = s"User $accountId has no email"
   }

@@ -4,7 +4,6 @@
   hosts: foxcomm-tony-consul-server
   vars:
     user: '{{ansible_ssh_user}}'
-    zookeepers: zk://zookeeper.service.consul:2181
   tags:
     - amigo
   roles:
@@ -14,7 +13,6 @@
   hosts: foxcomm-tony-backend
   vars:
     user: '{{ansible_ssh_user}}'
-    zookeeper_server: zookeeper.service.consul:2181
   tags:
     - backend
   roles:
@@ -30,26 +28,11 @@
   hosts: foxcomm-tony-frontend
   vars:
     user: '{{ansible_ssh_user}}'
-    middlewarehouse_host: middlewarehouse.service.consul
-    middlewarehouse_port: 9292
-    isaac_server: isaac.service.consul:9190
-    solomon_server: solomon.service.consul:4002
-    ashes_server: ashes.service.consul:4000
-    marathon_server: marathon.service.consul:8080
-    docker_db_host: db.service.consul
-    docker_branch: master
-    docker_registry: docker-stage.foxcommerce.com
-    db_host: db.service.consul
-    kafka_server: kafka.service.consul:9092
-    schema_server: schema-registry.service.consul:8081
-    search_host: elasticsearch.service.consul
-    zookeeper_server: zookeeper.service.consul:2181
-    storefront_server: storefront.service.consul:4041
-    phoenix_server: phoenix.service.consul:9090
     api_server: stage-tony.foxcommerce.com
     self_host: stage-tony.foxcommerce.com
     ashes_server_name: stage-tony.foxcommerce.com
     storefront_server_name: stage-tony.foxcommerce.com
+    cert_path: "test/fox"
   tags:
     - frontend
   roles:

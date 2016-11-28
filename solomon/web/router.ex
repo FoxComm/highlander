@@ -3,6 +3,7 @@ defmodule Solomon.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug Solomon.Plug.JWTScope
   end
 
   scope "/", Solomon do
@@ -19,6 +20,8 @@ defmodule Solomon.Router do
     resources "/accounts", AccountController do 
       resources "/granted_roles", AccountRoleController
     end
+    post "/sign_in", UserController, :sign_in
     resources "/users", UserController
+    get "/ping", Ping, :ping
   end
 end

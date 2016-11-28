@@ -37,7 +37,7 @@ const { perform: submitAccount, ...actionsSubmit } = createAsyncActions(
   ACTION_SUBMIT, (id: number, data: Object) =>
     new Promise((resolve, reject) =>
       api.post(`/merchants/${id}/admin_accounts`, { account: { ...data } })
-        .then(() =>
+        .then((account: Account) =>
           api.post(`/merchants/${id}/addresses`, { merchant_address: { ...data } })
             .then(() => resolve(account))
             .catch(err => reject(new SubmissionError(err.response.data.errors)))

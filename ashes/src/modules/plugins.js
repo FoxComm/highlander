@@ -14,6 +14,13 @@ export type PluginInfo = {
   version: string,
 }
 
+export type SettingDef = {
+  name: string,
+  title: string,
+  type: string,
+  "default": any,
+}
+
 const _fetchPlugins = createAsyncActions(
   'fetchPlugins',
   () => Api.get('/plugins')
@@ -22,7 +29,7 @@ export const fetchPlugins = _fetchPlugins.perform;
 
 const _fetchSettings = createAsyncActions(
   'fetchPluginSettings',
-  (name: string) => Api.get(`plugins/settings/${name}`)
+  (name: string) => Api.get(`plugins/settings/${name}/detailed`)
 );
 export const fetchSettings =  _fetchSettings.perform;
 
@@ -50,10 +57,11 @@ const reducer = createReducer({
       settings: {},
     };
   },
-  [_fetchSettings.succeeded]: (state, settings) => {
+  [_fetchSettings.succeeded]: (state, {settings, schema}) => {
     return {
       ...state,
       settings,
+      schema,
     };
   }
 }, initialState);

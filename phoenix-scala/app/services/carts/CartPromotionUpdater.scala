@@ -6,10 +6,10 @@ import failures.DiscountCompilerFailures._
 import failures.Failures
 import failures.OrderFailures._
 import failures.PromotionFailures._
+import models.account.User
 import models.cord.OrderPromotions.scope._
 import models.cord._
 import models.cord.lineitems._
-import CartLineItems.scope._
 import models.coupon._
 import models.discount.DiscountHelpers._
 import models.discount._
@@ -19,7 +19,6 @@ import models.objects._
 import models.promotion.Promotions.scope._
 import models.promotion._
 import models.shipping
-import models.account.User
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.discount.compilers._
@@ -139,7 +138,10 @@ object CartPromotionUpdater {
     for {
       lineItems      ← * <~ LineItemManager.getCartLineItems(cart.refNum)
       shippingMethod ← * <~ shipping.ShippingMethods.forCordRef(cart.refNum).one
-      input = DiscountInput(promo, cart, lineItems, shippingMethod)
+      subTotal       ← * <~ CartTotaler.subTotal(cart)
+      shipTotal      ← * <~ CartTotaler.shippingTotal(cart)
+      cartWithTotalsUpdated = cart.copy(subTotal = subTotal, shippingTotal = shipTotal)
+      input                 = DiscountInput(promo, cartWithTotalsUpdated, lineItems, shippingMethod)
       _           ← * <~ qualifier.check(input)
       adjustments ← * <~ offer.adjust(input)
     } yield adjustments

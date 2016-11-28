@@ -16,5 +16,8 @@ ashes/public_key.pem
 
 # target folder
 target/
+
+# Consumers
 consumers/product-index/product-index-consumer
 consumers/product-index/vendor/
+middlewarehouse/consumers/shipstation/shipstation-consumer

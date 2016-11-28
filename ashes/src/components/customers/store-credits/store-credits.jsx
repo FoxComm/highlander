@@ -176,7 +176,7 @@ export default class StoreCredits extends React.Component {
         body={message}
         cancel="Cancel"
         confirm="Yes, Change State"
-        cancelAction={ () => this.props.stateActions.cancelChange(this.customerId) }
+        onCancel={ () => this.props.stateActions.cancelChange(this.customerId) }
         confirmAction={ () => this.props.stateActions.saveStateChange(this.customerId) } />
     );
   }
@@ -221,7 +221,7 @@ export default class StoreCredits extends React.Component {
         body={ body }
         cancel="Cancel"
         confirm="Yes, Cancel"
-        cancelAction={ () => props.stateActions.cancelChange(this.customerId) }
+        onCancel={ () => props.stateActions.cancelChange(this.customerId) }
         confirmAction={ () => props.stateActions.saveStateChange(this.customerId) } />
     );
   }

@@ -1,5 +1,7 @@
 defmodule Solomon.UserController do
   use Solomon.Web, :controller
+  import Solomon.JWTAuth
+  import Solomon.JWTClaims
   alias Ecto.Multi
   alias Solomon.Repo
   alias Solomon.User
@@ -8,7 +10,7 @@ defmodule Solomon.UserController do
   alias Solomon.Validation
   alias Solomon.Scrypt
 
-  def index(conn, _params) do 
+  def index(conn, _params) do
     users = Repo.all(User)
     render(conn, "index.json", users: users)
   end
@@ -17,7 +19,7 @@ defmodule Solomon.UserController do
     #changeset = User.changeset(%User{}, user_params)
 
     case Repo.transaction(insert_and_relate(user_params)) do
-      {:ok, %{account: account, user: user, account_access_method: aam}} -> 
+      {:ok, %{account: account, user: user, account_access_method: aam}} ->
         user_with_account_id = user
         |> Map.put(:account_id, account.id)
         conn
@@ -42,15 +44,48 @@ defmodule Solomon.UserController do
     changeset = User.update_changeset(user, user_params)
                 |> check_updated_email(id)
     case Repo.update(changeset) do
-      {:ok, user} -> 
+      {:ok, user} ->
         conn
         |> render("show.json", user: user)
-      {:error, changeset} -> 
+      {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
         |> render(Solomon.ChangesetView, "errors.json", changeset: changeset)
     end
-  end 
+  end
+
+  def sign_in(conn, %{"user" => user_params}) do
+    org = Map.fetch!(user_params, "org")
+    scope_id = Repo.get_by(Solomon.Organization, name: org)
+               |> Map.fetch!(:scope_id)
+    email = Map.fetch!(user_params, "email")
+            |> String.downcase
+    pass = Map.fetch!(user_params, "password")
+    user = Repo.all(User)
+           |> Enum.find(fn u -> String.downcase(u.email) == email end)
+    account_id = user.account_id
+    hash = Repo.one!(
+      from aam in AccountAccessMethod,
+      where: aam.account_id == ^account_id,
+      where: aam.name == "login"
+    )
+    |> Map.fetch!(:hashed_password)
+
+    case Scrypt.check(pass, hash) do
+      {:ok, true} ->
+        conn
+        |> put_resp_cookie("JWT", sign(token_claim(account_id, scope_id)))
+        |> send_resp(:ok, "")
+      {:ok, false} ->
+        conn
+        |> put_status(:unauthorized)
+        |> render(Solomon.ErrorView, "error.json", %{errors: %{password: "incorrect"}})
+      {:error, errors} ->
+        conn
+        |> put_status(:bad_request)
+        |> render(Solomon.ErrorView, "errors.json", errors)
+    end
+  end
 
   defp insert_and_relate(user_params) do
     account_cs = Account.changeset(%Account{}, %{
@@ -65,8 +100,8 @@ defmodule Solomon.UserController do
       user_cs = User.changeset(%User{}, params_with_account)
                 |> check_new_email
       Repo.insert(user_cs)
-    end) 
-    |> Multi.run(:account_access_method, fn %{account: account, user: user} -> 
+    end)
+    |> Multi.run(:account_access_method, fn %{account: account, user: user} ->
       aam_cs = AccountAccessMethod.changeset(%AccountAccessMethod{}, %{
         "name" => "login",
         "hashed_password" => user_params
@@ -98,4 +133,3 @@ defmodule Solomon.UserController do
     end
   end
 end
-

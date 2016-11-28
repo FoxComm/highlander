@@ -134,31 +134,3 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdate
 	suite.Equal(shipment.OrderRefNum, updated.OrderRefNum)
 	suite.Equal(models.ShipmentStateShipped, updated.State)
 }
-
-//func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_NotFound_ReturnsNotFoundError() {
-//	//arrange
-//	shipment1 := fixtures.GetShipmentShort(uint(1))
-//
-//	suite.shipmentRepository.On("GetShipmentByID", shipment1.ID).Return(nil, gorm.ErrRecordNotFound).Once()
-//
-//	//act
-//	_, err := suite.service.UpdateShipment(shipment1)
-//
-//	//assert
-//	suite.Equal(gorm.ErrRecordNotFound, err)
-//}
-//
-//func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Found_ReturnsUpdatedRecord() {
-//	//arrange
-//	shipment1 := fixtures.GetShipmentShort(uint(1))
-//
-//	suite.shipmentRepository.On("GetShipmentByID", shipment1.ID).Return(shipment1, nil).Once()
-//	suite.shipmentRepository.On("UpdateShipment", shipment1).Return(shipment1, nil).Once()
-//
-//	//act
-//	shipment, err := suite.service.UpdateShipment(shipment1)
-//
-//	//assert
-//	suite.Nil(err)
-//	suite.Equal(shipment1, shipment)
-//}

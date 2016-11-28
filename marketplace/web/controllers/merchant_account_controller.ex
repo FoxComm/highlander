@@ -18,7 +18,7 @@ defmodule Marketplace.MerchantAccountController do
   end
 
   def create(conn, %{"merchant_id" => merchant_id, "account" => merchant_account_params}) do
-    solomon_id = PermissionManager.create_user_from_merchant_account(merchant_account_params)
+    solomon_id = PermissionManager.create_user_from_merchant_account(conn, merchant_account_params)
     account = %MerchantAccount{merchant_id: String.to_integer(merchant_id), solomon_id: solomon_id}
     changeset = MerchantAccount.changeset(account, merchant_account_params)
 
@@ -42,11 +42,15 @@ defmodule Marketplace.MerchantAccountController do
   end
 
   def create_admin(conn, %{"merchant_id" => merchant_id, "account" => merchant_account_params}) do
-    solomon_id = PermissionManager.create_user_from_merchant_account(merchant_account_params)
+    org = Repo.get!(Merchant, merchant_id)
+          |> Map.fetch!(:business_name)
+    email = Map.fetch!(merchant_account_params, "email_address")
+    passwd = Map.fetch!(merchant_account_params, "password")
     scope_id = Repo.one(from merchant in Merchant,
                         where: merchant.id == ^merchant_id,
                         select: merchant.scope_id)
-    changeset = MerchantAccount.changeset(%MerchantAccount{merchant_id: String.to_integer(merchant_id), solomon_id: solomon_id}, merchant_account_params)
+    ma = %MerchantAccount{merchant_id: String.to_integer(merchant_id)}
+    changeset = MerchantAccount.changeset(ma, merchant_account_params)
                 |> validate_scope_id(scope_id)
 
     txn = Multi.new
@@ -55,14 +59,18 @@ defmodule Marketplace.MerchantAccountController do
             Stripe.create_account(merchant_account, merchant_account_params) end)
           |> Multi.run(:ma_with_stripe, fn %{merchant_account: ma, stripe_account_id: stripe} ->
             relate_stripe_account_id(ma, stripe) end)
+          |> Multi.run(:full_ma, fn %{ma_with_stripe: ma} ->
+            solomon_id = PermissionManager.create_user_from_merchant_account(conn, merchant_account_params)
+            relate_solomon_id(ma, solomon_id) end)
 
     case Repo.transaction(txn) do
-      {:ok, %{ma_with_stripe: merchant_account}} ->
-        role_id = PermissionManager.create_admin_role_from_scope_id(scope_id)
-        PermissionManager.grant_account_id_role_id(solomon_id, role_id)
+      {:ok, %{full_ma: merchant_account}} ->
+        role_id = PermissionManager.create_admin_role_from_scope_id(conn, scope_id)
+        PermissionManager.grant_account_id_role_id(conn, merchant_account.solomon_id, role_id)
         conn
         |> put_status(:created)
         |> put_resp_header("location", merchant_account_path(conn, :show, merchant_id, merchant_account))
+        |> PermissionManager.sign_in_user(org, email, passwd)
         |> render("merchant_account.json", merchant_account: merchant_account)
       {:error, _, changeset, _} ->
         conn
@@ -80,6 +88,11 @@ defmodule Marketplace.MerchantAccountController do
 
   defp relate_stripe_account_id(ma, stripe_account_id) do
     changeset = MerchantAccount.update_changeset(ma, %{stripe_account_id: stripe_account_id})
+    Repo.update(changeset)
+  end
+
+  defp relate_solomon_id(ma, solomon_id) do
+    changeset = MerchantAccount.update_changeset(ma, %{solomon_id: solomon_id})
     Repo.update(changeset)
   end
 end

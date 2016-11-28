@@ -30,7 +30,6 @@ class LineItemUpdaterTest
   "LineItemUpdater" - {
 
     "Adds line items when the sku doesn't exist in cart" in new Fixture {
-      implicit val au         = storeAdminAuthData
       val (context, products) = createProducts(2).gimme
 
       val payload = Seq[Payload](
@@ -54,9 +53,6 @@ class LineItemUpdaterTest
     }
 
     "Updates line items when the Sku already is in cart" in new Fixture {
-
-      implicit val au = storeAdminAuthData
-
       val (context, products) = createProducts(3).gimme
       val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId ⇒
         CartLineItem(cordRef = cart.refNum, skuId = skuId)

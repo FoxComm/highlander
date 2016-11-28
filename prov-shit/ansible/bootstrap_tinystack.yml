@@ -1,0 +1,34 @@
+---
+
+- name: Bootstrap Backend
+  hosts: '{{hostname}}'
+  vars:
+    user: '{{ansible_ssh_user}}'
+    upload_phoenix_jar: true
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a backend hostname"
+      default: "foxcomm-tony-backend"
+      private: no
+
+  roles:
+      - { role: dev/kafka }
+      - { role: dev/elasticsearch }
+      - { role: dev/db }
+
+- name: Bootstrap Frontend
+  hosts: '{{hostname}}'
+  vars:
+    user: '{{ansible_ssh_user}}'
+    upload_phoenix_jar: true
+    upload_greenriver_jar: true
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a frontend hostname"
+      default: "foxcomm-tony-frontend"
+      private: no
+
+  roles:
+      - { role: dev/phoenix }
+      - { role: dev/greenriver }
+      - { role: dev/seeder }

@@ -22,15 +22,12 @@ object PluginsManager extends LazyLogging {
   private def fetchSchemaSettings(
       plugin: Plugin,
       payload: RegisterPluginPayload,
-      foundOrCreated: FoundOrCreated)(implicit ec: EC): DbResultT[SettingsSchema] = {
-    if (payload.schemaSettings.isEmpty &&
-        ((plugin.version != payload.version) || foundOrCreated == Created)) {
+      foundOrCreated: FoundOrCreated)(implicit ec: EC): DbResultT[SettingsSchema] =
+    payload.schemaSettings.fold {
       implicit val formats = JsonFormatters.phoenixFormats
       val req              = host(plugin.apiHost, plugin.apiPort) / "_settings" / "schema"
       DbResultT.fromDbio(DBIO.from(Http(req OK as.json4s.Json).map(_.extract[SettingsSchema])))
-    } else
-      DbResultT.good(plugin.schemaSettings)
-  }
+    }(DbResultT.good(_))
 
   def uploadNewSettingsToPlugin(plugin: Plugin)(implicit ec: EC): Future[String] = {
     val rawReq = host(plugin.apiHost, plugin.apiPort) / "_settings" / "upload"
@@ -108,7 +105,10 @@ object PluginsManager extends LazyLogging {
     } yield updated
 
     updated.map { p ⇒
-      uploadNewSettingsToPlugin(p) // TODO: check failures here?
+      uploadNewSettingsToPlugin(p) onFailure {
+        case e ⇒
+          logger.error(s"Can't upload new settings to Plugin $name: ${e.getMessage}")
+      }
       SettingsUpdated(p.settings)
     }
   }
@@ -117,6 +117,13 @@ object PluginsManager extends LazyLogging {
     for {
       plugin ← * <~ Plugins.findByName(name).mustFindOr(NotFoundFailure404(Plugin, name))
     } yield plugin.settings
+  }
+
+  def getSettingsWithSchema(
+      name: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[PluginSettingsResponse] = {
+    for {
+      plugin ← * <~ Plugins.findByName(name).mustFindOr(NotFoundFailure404(Plugin, name))
+    } yield PluginSettingsResponse.fromPlugin(plugin)
   }
 
 }

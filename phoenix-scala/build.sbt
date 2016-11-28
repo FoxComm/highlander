@@ -5,6 +5,8 @@ import Settings._
 import Tasks._
 import sbtassembly.AssemblyKeys
 
+scalaVersion in ThisBuild := Versions.scala
+
 lazy val phoenixScala = (project in file("."))
   .settings(commonSettings)
   .configs(IT, ET)
@@ -39,6 +41,7 @@ lazy val phoenixScala = (project in file("."))
     initialCommands in console := fromFile("project/console_init").getLines.mkString("\n"),
     initialCommands in (Compile, consoleQuick) := "",
     writeVersion <<= sh.toTask(fromFile("project/write_version").getLines.mkString).triggeredBy(compile in Compile),
+    unmanagedResources in Compile += file("version"),
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC", "-Dphoenix.env=test"),
     parallelExecution in Test := true,

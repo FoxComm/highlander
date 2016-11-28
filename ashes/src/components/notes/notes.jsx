@@ -172,7 +172,7 @@ export default class Notes extends React.Component {
           {...Notes.deleteOptions}
           isVisible={this.props.noteIdToDelete != null}
           confirmAction={() => this.props.deleteNote(this.props.noteIdToDelete)}
-          cancelAction={() => this.props.stopDeletingNote(this.props.noteIdToDelete)}
+          onCancel={() => this.props.stopDeletingNote(this.props.noteIdToDelete)}
         />
       </div>
     );

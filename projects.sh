@@ -26,16 +26,16 @@ PROJECTS=(
     'consumers'
     'engineering-wiki'
     'firebrand'
-    'fox-notifications'
     'green-river'
     'integration-tests'
     'isaac'
     'marketplace'
     'marketplace-ui'
+    'messaging'
     'middlewarehouse'
-    'solomon'
     'phoenix-scala'
     'prov-shit'
+    'solomon'
 )
 
 # fetch origin

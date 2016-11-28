@@ -2,7 +2,9 @@ import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
 
+import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import failures.ArchiveFailures.SkuIsPresentInCarts
 import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures.SkuNotFoundForContext
 import models.inventory._
@@ -10,8 +12,13 @@ import models.objects._
 import models.product._
 import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
+import payloads.ImagePayloads._
+import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.OrderPayloads.CreateCart
+import payloads.ProductPayloads.UpdateProductPayload
 import payloads.SkuPayloads.SkuPayload
 import responses.SkuResponses.SkuResponse
+import responses.cord.CartResponse
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -32,7 +39,7 @@ class SkuIntegrationTest
       val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
       val attrMap    = Map("price" → priceJson)
 
-      skusApi.create(makeSkuPayload("SKU-NEW-TEST", attrMap)).mustBeOk()
+      skusApi.create(makeSkuPayload("SKU-NEW-TEST", attrMap, None)).mustBeOk()
     }
 
     "Tries to create a SKU with no code" in new Fixture {
@@ -40,7 +47,27 @@ class SkuIntegrationTest
       val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
       val attrMap    = Map("price" → priceJson)
 
-      skusApi.create(SkuPayload(attrMap)).mustFailWithMessage("SKU code not found in payload")
+      skusApi
+        .create(SkuPayload(attributes = attrMap, albums = None))
+        .mustFailWithMessage("SKU code not found in payload")
+    }
+
+    "Creates a SKU with an album" in new Fixture {
+      val code       = "SKU-NEW-TEST"
+      val priceValue = ("currency" → "USD") ~ ("value" → 9999)
+      val priceJson  = ("t" → "price") ~ ("v" → priceValue)
+      val attrMap    = Map("price" → priceJson)
+
+      val src          = "http://lorempixel/test.png"
+      val imagePayload = ImagePayload(src = src)
+      val albumPayload = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
+
+      skusApi.create(makeSkuPayload(code, attrMap, Seq(albumPayload).some)).mustBeOk()
+
+      val getResponse = skusApi(code).get().as[SkuResponse.Root]
+      getResponse.albums.length must === (1)
+      getResponse.albums.head.images.length must === (1)
+      getResponse.albums.head.images.head.src must === (src)
     }
   }
 
@@ -62,7 +89,8 @@ class SkuIntegrationTest
 
   "PATCH v1/skus/:context/:code" - {
     "Adds a new attribute to the SKU" in new Fixture {
-      val payload     = SkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))))
+      val payload =
+        SkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))), albums = None)
       val skuResponse = skusApi(sku.code).update(payload).as[SkuResponse.Root]
 
       (skuResponse.attributes \ "code" \ "v").extract[String] must === (sku.code)
@@ -71,7 +99,8 @@ class SkuIntegrationTest
     }
 
     "Updates the SKU's code" in new Fixture {
-      val payload = SkuPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))))
+      val payload =
+        SkuPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))), albums = None)
       skusApi(sku.code).update(payload).mustBeOk()
 
       val skuResponse = skusApi("upcode").get().as[SkuResponse.Root]
@@ -83,6 +112,20 @@ class SkuIntegrationTest
 
   "DELETE v1/products/:context/:id" - {
     "Archives SKU successfully" in new Fixture {
+      val result = skusApi(sku.code).archive().as[SkuResponse.Root]
+
+      withClue(result.archivedAt.value → Instant.now) {
+        result.archivedAt.value.isBeforeNow mustBe true
+      }
+    }
+
+    "Successfully archives SKU which is linked to a product" in new FixtureWithProduct {
+      private val updateProductPayload: UpdateProductPayload =
+        UpdateProductPayload(attributes = Map(),
+                             skus = Some(List(makeSkuPayload(sku.code, Map()))),
+                             variants = None)
+      productsApi(product.formId).update(updateProductPayload).mustBeOk
+
       val result = skusApi(sku.code).archive().as[SkuResponse.Root]
 
       withClue(result.archivedAt.value → Instant.now) {
@@ -105,15 +148,26 @@ class SkuIntegrationTest
         .archive()
         .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }
+
+    "Returns error if SKU is present in carts" in new FixtureWithProduct {
+      val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
+
+      cartsApi(cart.referenceNumber).lineItems
+        .add(Seq(UpdateLineItemsPayload(sku.code, 1)))
+        .mustBeOk()
+
+      skusApi(sku.code).archive().mustFailWith400(SkuIsPresentInCarts(sku.code))
+    }
   }
 
   trait Fixture extends StoreAdmin_Seed {
-    def makeSkuPayload(code: String, attrMap: Map[String, Json]) = {
-      val codeJson = ("t" → "string") ~ ("v" → code)
-      SkuPayload(attrMap + ("code" → codeJson))
+    def makeSkuPayload(code: String,
+                       attrMap: Map[String, Json],
+                       albums: Option[Seq[AlbumPayload]] = None) = {
+      val codeJson   = ("t"              → "string") ~ ("v" → code)
+      val attributes = attrMap + ("code" → codeJson)
+      SkuPayload(attributes = attributes, albums = albums)
     }
-
-    implicit val au = storeAdminAuthData
 
     val (sku, skuForm, skuShadow) = (for {
       simpleSku       ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
@@ -130,5 +184,16 @@ class SkuIntegrationTest
                    shadowId = skuShadow.id,
                    commitId = skuCommit.id))
     } yield (sku, skuForm, skuShadow)).gimme
+  }
+
+  trait FixtureWithProduct extends Fixture {
+    private val simpleProd = SimpleProductData(title = "Test Product",
+                                               code = "TEST",
+                                               description = "Test product description",
+                                               image = "image.png",
+                                               price = 5999)
+
+    val product =
+      Mvp.insertProductWithExistingSkus(LTree(au.token.scope), ctx.id, simpleProd, Seq(sku)).gimme
   }
 }

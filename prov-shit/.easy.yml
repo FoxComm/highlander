@@ -13,11 +13,8 @@ shortcuts:
       api_docs: bin/envs/api_docs
       stage_vpn: bin/envs/stage_vpn
       staging: bin/envs/staging
-      target_aws: bin/envs/target_aws
       topdrawer: bin/envs/topdrawer
-      topdrawer_vpn: bin/envs/topdrawer_vpn
       tpg: bin/envs/tpg
-      tpg_vpn: bin/envs/tpg_vpn
   - name: Private Key Files
     flag: "--private-key"
     aliases:
@@ -42,15 +39,18 @@ shortcuts:
   - name: Bootstrap Consul Alerts
     alias: consul_alerts.yml
     target: ansible/bootstrap_consul_alerts.yml
+  - name: Bootstrap Docker Clean
+    alias: docker_clean.yml
+    target: ansible/bootstrap_docker_clean.yml
   - name: Bootstrap Marathon Alerts
     alias: marathon_alerts.yml
     target: ansible/bootstrap_marathon_alerts.yml
   - name: Bootstrap Database Backup
     alias: db_backup.yml
     target: ansible/bootstrap_db_backup.yml
-  - name: Bootstrap OpenVPN
-    alias: openvpn.yml
-    target: ansible/bootstrap_openvpn.yml
+  - name: Provision Kibana
+    alias: bootstrap_kibana.yml
+    target: ansible/bootstrap_kibana.yml
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
@@ -60,22 +60,23 @@ shortcuts:
   - name: Bootstrap Store Admin User
     alias: store_admin.yml
     target: ansible/bootstrap_store_admin.yml
+  - name: Bootstrap Tinystack
+    alias: tinystack.yml
+    target: ansible/bootstrap_tinystack.yml
 
-  # New environments
+  # TPG
   - name: Provision TPG Staging
     alias: tpg_stage.yml
     target: ansible/tpg_stage.yml
+  - name: Provision TPG Production Backend
+    alias: tpg_backend.yml
+    target: ansible/tpg_backend.yml
   - name: Provision TPG Production
     alias: tpg_production.yml
     target: ansible/tpg_production.yml
   - name: Provision Tony Staging
     alias: easy_tony.yml
     target: ansible/easy_tony.yml
-
-  # Temporary
-  - name: Bootstrap Docker GC
-    alias: docker_gc.yml
-    target: ansible/tmp_docker_gc.yml
 
 # Packer shortcuts
 - type: snowflake
@@ -130,7 +131,6 @@ shortcuts:
       stable: terraform/envs/gce_staging_stable/terraform.tfstate
       gatling: terraform/envs/gce_gatling/terraform.tfstate
       target: terraform/envs/aws_target/terraform.tfstate
-      target-dev: terraform/envs/aws_target_dev/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
   - name: Variable Files
@@ -141,7 +141,6 @@ shortcuts:
       stable: terraform/envs/gce_staging_stable/staging.tfvars
       gatling: terraform/envs/gce_gatling/gatling.tfvars
       target: terraform/envs/aws_target/target.tfvars
-      target-dev: terraform/envs/aws_target_dev/target.tfvars
       topdrawer: terraform/envs/gce_topdrawer/topdrawer.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
 
@@ -152,18 +151,12 @@ shortcuts:
   - name: Staging Highlander
     alias: staging
     target: terraform/base/gce_staging
-  - name: Staging Stable
-    alias: stable
-    target: terraform/base/gce_staging_stable
   - name: Staging Gatling
     alias: gatling
     target: terraform/base/gce_gatling
   - name: Target AWS Networking
     alias: target
     target: terraform/base/aws_target
-  - name: Target AWS Cluster
-    alias: target-dev
-    target: terraform/base/aws_target_dev
   - name: TopDrawer
     alias: topdrawer
     target: terraform/base/gce_topdrawer

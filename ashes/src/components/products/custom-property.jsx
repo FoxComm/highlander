@@ -44,12 +44,23 @@ class CustomProperty extends Component<void, Props, State> {
     };
   }
 
+  componentDidMount() {
+    const fieldLabelInput = this.refs.field;
+    if (fieldLabelInput) {
+      fieldLabelInput.focus();
+    }
+  }
+
   get closeAction(): Element {
     return <a onClick={this.props.onCancel}>&times;</a>;
   }
 
   get propertyTypes(): Array<Element> {
     return _.map(propertyTypes, (type, key) => [key, type]);
+  }
+
+  get saveDisabled(): boolean {
+    return _.isEmpty(this.state.fieldLabel) || _.isEmpty(this.state.propertyType);
   }
 
   @autobind
@@ -68,11 +79,18 @@ class CustomProperty extends Component<void, Props, State> {
     this.props.onSave(this.state);
   }
 
+  @autobind
+  handleKeyPress(event){
+    if (!this.saveDisabled && event.keyCode === 13 /*enter*/) {
+      event.preventDefault();
+      this.props.onSave(this.state);
+    }
+  };
+
   render(): Element {
-    const saveDisabled = _.isEmpty(this.state.fieldLabel) || _.isEmpty(this.state.propertyType);
     return (
       <div className="fc-product-details__custom-property">
-        <div className="fc-modal-container">
+        <div className="fc-modal-container" onKeyDown={this.handleKeyPress}>
           <ContentBox title="New Custom Property" actionBlock={this.closeAction}>
             <FormField
               className="fc-product-details__field"
@@ -80,6 +98,7 @@ class CustomProperty extends Component<void, Props, State> {
               labelClassName="fc-product-details__field-label">
               <input
                 type="text"
+                ref="field"
                 className="fc-product-details__field-value"
                 name="field"
                 value={this.state.fieldLabel}
@@ -99,7 +118,7 @@ class CustomProperty extends Component<void, Props, State> {
             <SaveCancel
               onCancel={this.props.onCancel}
               onSave={this.handleSave}
-              saveDisabled={saveDisabled}
+              saveDisabled={this.saveDisabled}
               saveText="Save and Apply" />
           </ContentBox>
         </div>

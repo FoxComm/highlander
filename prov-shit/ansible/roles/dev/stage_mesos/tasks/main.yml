@@ -1,0 +1,13 @@
+---
+
+- name: Copy Mesos Worker Run Script
+  template: src=run_mesos_worker.sh dest=/usr/local/bin/run_mesos_worker.sh mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Copy Mesos Resources Config
+  template: src=resources.json dest=/var/lib/mesos/resources.json mode="u+r,g+r,o+r"
+  sudo: true
+
+- name: Restart Mesos Worker
+  service: name=mesos_worker state=restarted enabled=true
+  sudo: true

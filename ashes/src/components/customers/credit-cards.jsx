@@ -171,7 +171,7 @@ export default class CustomerCreditCards extends React.Component {
           body='Are you sure you want to delete this credit card?'
           cancel='Cancel'
           confirm='Yes, Delete'
-          cancelAction={ this.onDeleteCancel }
+          onCancel={ this.onDeleteCancel }
           confirmAction={ this.onDeleteConfirm } />
       </ContentBox>
     );

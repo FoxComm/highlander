@@ -29,12 +29,13 @@ begin
          q.catalog_id
        from (select
                p.id,
-               ((p.archived_at is null or (p.archived_at) :: timestamp > current_timestamp) and
+               ((p.archived_at is null or (p.archived_at) :: timestamp > statement_timestamp()) and
+               ((f.attributes ->> (s.attributes -> 'activeFrom' ->> 'ref')) = '') is false and
                 (f.attributes ->> (s.attributes -> 'activeFrom' ->> 'ref')) :: timestamp <
-                current_timestamp and
+                statement_timestamp() and
                 (((f.attributes ->> (s.attributes -> 'activeTo' ->> 'ref')) = '') is not false or
                  ((f.attributes ->> (s.attributes -> 'activeTo' ->> 'ref')) :: timestamp >=
-                  current_timestamp)))
+                  statement_timestamp())))
                  as alive,
                 pv.id as catalog_id
 
@@ -100,10 +101,11 @@ begin
                 sku.sale_price_currency as currency,
                 f.attributes->>(s.attributes->'tags'->>'ref') as tags,
                 albumLink.albums as albums,
-                ((p.archived_at is null or (p.archived_at)::timestamp > current_timestamp) and
-                    (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp < current_timestamp and
+                ((p.archived_at is null or (p.archived_at)::timestamp > statement_timestamp()) and
+                    ((f.attributes ->> (s.attributes -> 'activeFrom' ->> 'ref')) = '') is false and
+                    (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp < statement_timestamp() and
                     (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') is not false or
-                    ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp >= current_timestamp)))
+                    ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp >= statement_timestamp())))
                 as alive,
                 p.scope as scope,
                 sv.skus as skus

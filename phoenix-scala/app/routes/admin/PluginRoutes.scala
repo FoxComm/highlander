@@ -28,17 +28,21 @@ object PluginRoutes {
             }
           }
         } ~
-        pathPrefix("settings") {
-          (get & pathPrefix(Segment) & pathEnd) { name ⇒
+        (pathPrefix("settings") & pathPrefix(Segment)) { pluginName ⇒
+          (get & pathEnd) {
             getOrFailures {
-              listSettings(name)
+              listSettings(pluginName)
             }
           } ~
-          (post & pathPrefix(Segment) & pathEnd & entity(as[UpdateSettingsPayload])) {
-            (name, payload) ⇒
-              mutateOrFailures {
-                updateSettings(name, payload)
-              }
+          (get & path("detailed")) {
+            getOrFailures {
+              getSettingsWithSchema(pluginName)
+            }
+          } ~
+          (post & pathEnd & entity(as[UpdateSettingsPayload])) { payload ⇒
+            mutateOrFailures {
+              updateSettings(pluginName, payload)
+            }
           }
         }
       }

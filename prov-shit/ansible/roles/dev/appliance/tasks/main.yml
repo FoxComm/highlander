@@ -1,5 +1,9 @@
 ---
 
+- name: Remove Daily Apt
+  file: path=/etc/cron.daily/apt-compat state=absent
+  sudo: true
+
 - name: Set Hostname
   hostname: name={{appliance_hostname}}
   sudo: true

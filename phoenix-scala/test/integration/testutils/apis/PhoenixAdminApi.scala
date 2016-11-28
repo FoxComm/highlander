@@ -18,11 +18,12 @@ import payloads.NotePayloads._
 import payloads.OrderPayloads._
 import payloads.PaymentPayloads._
 import payloads.ProductPayloads._
-import payloads.PromotionPayloads.UpdatePromotion
+import payloads.PromotionPayloads.{CreatePromotion, UpdatePromotion}
 import payloads.SharedSearchPayloads._
 import payloads.SkuPayloads._
 import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads._
+import payloads.TaxonomyPayloads.{CreateTaxonPayload, CreateTaxonomyPayload, UpdateTaxonPayload, UpdateTaxonomyPayload}
 import payloads.UserPayloads._
 import payloads.VariantPayloads._
 import payloads._
@@ -220,7 +221,13 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   case class cartsApi(refNum: String) {
-    val cartPath = s"${cartsApi.cartsPrefix}/$refNum"
+
+    val cartPath      = s"${cartsApi.cartsPrefix}/$refNum"
+    val updateOrderLI = s"$cartPath/order-line-items"
+
+    def updateorderLineItem(payload: Seq[UpdateOrderLineItemsPayload]): HttpResponse = {
+      PATCH(updateOrderLI, payload)
+    }
 
     // TODO @anna: update this to `cartPath` when routes are fixed
     def get(): HttpResponse =
@@ -334,6 +341,12 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def get(): HttpResponse =
       GET(couponPath)
+
+    object codes {
+
+      def generate(code: String): HttpResponse =
+        POST(s"$rootPrefix/coupons/codes/generate/$formId/$code")
+    }
   }
 
   object customerGroupsApi {
@@ -408,10 +421,10 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       def get(): HttpResponse =
         GET(albumsPrefix)
 
-      def create(payload: CreateAlbumPayload): HttpResponse =
+      def create(payload: AlbumPayload): HttpResponse =
         POST(albumsPrefix, payload)
 
-      def update(payload: UpdateAlbumPayload): HttpResponse =
+      def update(payload: AlbumPayload): HttpResponse =
         PATCH(albumsPrefix, payload)
     }
   }
@@ -441,7 +454,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       def get(): HttpResponse =
         GET(albumsPrefix)
 
-      def create(payload: CreateAlbumPayload): HttpResponse =
+      def create(payload: AlbumPayload): HttpResponse =
         POST(albumsPrefix, payload)
 
       // Why not PATCH?
@@ -501,7 +514,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   object albumsApi {
     def albumsPrefix()(implicit ctx: OC) = s"$rootPrefix/albums/${ctx.name}"
 
-    def create(payload: CreateAlbumPayload)(implicit ctx: OC): HttpResponse =
+    def create(payload: AlbumPayload)(implicit ctx: OC): HttpResponse =
       POST(albumsPrefix, payload)
   }
 
@@ -511,7 +524,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def get(): HttpResponse =
       GET(albumPath)
 
-    def update(payload: UpdateAlbumPayload): HttpResponse =
+    def update(payload: AlbumPayload): HttpResponse =
       PATCH(albumPath, payload)
 
     def delete(): HttpResponse =
@@ -578,6 +591,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
   object promotionsApi {
     def promotionsPrefix(implicit ctx: OC) = s"$rootPrefix/promotions/${ctx.name}"
+
+    def create(payload: CreatePromotion)(implicit ctx: OC): HttpResponse =
+      POST(promotionsPrefix, payload)
   }
 
   case class promotionsApi(formId: Int)(implicit ctx: OC) {
@@ -615,6 +631,33 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def baked(): HttpResponse =
       GET(s"$categoryPath/baked")
 
+  }
+
+  case object taxonomyApi {
+    def create(payload: CreateTaxonomyPayload)(implicit ctx: OC) =
+      POST(s"v1/taxonomy/${ctx.name}", payload)
+  }
+
+  case class taxonomyApi(taxonomyId: Int)(implicit ctx: OC) {
+    def update(payload: UpdateTaxonomyPayload) =
+      PATCH(s"v1/taxonomy/${ctx.name}/$taxonomyId", payload)
+    def delete = DELETE(s"v1/taxonomy/${ctx.name}/$taxonomyId")
+    def get    = GET(s"v1/taxonomy/${ctx.name}/$taxonomyId")
+    def createTaxon(payload: CreateTaxonPayload) =
+      POST(s"v1/taxonomy/${ctx.name}/$taxonomyId", payload)
+  }
+
+  case class taxonApi(taxonId: Int)(implicit ctx: OC) {
+    def get = GET(s"v1/taxon/${ctx.name}/$taxonId")
+    def update(payload: UpdateTaxonPayload) =
+      PATCH(s"v1/taxon/${ctx.name}/$taxonId", payload)
+    def delete = DELETE(s"v1/taxon/${ctx.name}/$taxonId")
+
+    def assignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC): HttpResponse =
+      PATCH(s"v1/taxon/${ctx.name}/$taxonId/product/$productFormId")
+
+    def unassignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC): HttpResponse =
+      DELETE(s"v1/taxon/${ctx.name}/$taxonId/product/$productFormId")
   }
 
   object notesApi {
@@ -671,20 +714,5 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def updateLastSeen(activityId: Int): HttpResponse =
       POST(s"$notificationsPrefix/last-seen/$activityId")
-  }
-
-  object taxonomyApi {
-    def taxonomyPrefix(implicit ctx: OC)            = s"$rootPrefix/taxonomy/${ctx.name}"
-    def taxonPrefix(taxonId: Int)(implicit ctx: OC) = s"$taxonomyPrefix/taxon/$taxonId"
-    def taxonProductPrefix(taxonId: Int, productId: Int)(implicit ctx: OC) =
-      s"${taxonPrefix(taxonId)}/product/$productId"
-
-    def assignProduct(taxonFormId: ObjectForm#Id, productFormId: ObjectForm#Id)(
-        implicit ctx: OC): HttpResponse =
-      PATCH(taxonProductPrefix(taxonFormId, productFormId))
-
-    def unassignProduct(taxonFormId: ObjectForm#Id, productFormId: ObjectForm#Id)(
-        implicit ctx: OC): HttpResponse =
-      DELETE(taxonProductPrefix(taxonFormId, productFormId))
   }
 }

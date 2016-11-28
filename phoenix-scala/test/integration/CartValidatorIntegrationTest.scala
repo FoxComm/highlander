@@ -124,8 +124,6 @@ class CartValidatorIntegrationTest
       with EmptyCustomerCart_Baked
       with StoreAdmin_Seed {
 
-    implicit val au = storeAdminAuthData
-
     val (refNum, couponCode) = (for {
       search     ← * <~ Factories.createSharedSearches(storeAdmin.accountId)
       discounts  ← * <~ Factories.createDiscounts(search)
@@ -136,9 +134,6 @@ class CartValidatorIntegrationTest
   }
 
   trait LineItemFixture extends EmptyCustomerCart_Baked {
-
-    implicit val au = storeAdminAuthData
-
     val (sku) = (for {
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
@@ -147,8 +142,6 @@ class CartValidatorIntegrationTest
   }
 
   trait ShippingMethodFixture extends EmptyCustomerCart_Baked {
-
-    implicit val au = storeAdminAuthData
 
     val (shipMethod) = (for {
       address ← * <~ Addresses.create(
@@ -202,9 +195,6 @@ class CartValidatorIntegrationTest
   }
 
   trait LineItemAndFundsFixture extends Reason_Baked with Customer_Seed {
-
-    implicit val au = storeAdminAuthData
-
     val (refNum, sku, creditCard, giftCard) = (for {
       _          ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
       cc         ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))

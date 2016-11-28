@@ -59,13 +59,12 @@ export default class ProductForm extends ObjectDetails {
   updateAttributes(attributes: Attributes) {
     // If the product only has at least one SKU, ensure that a few fields are fields are
     // kept in sync:
-    // * Title
     // * Active To
     // * Active From
     const newObject = super.updateAttributes(attributes);
     let skus = this.props.object.skus;
     if (skus.length) {
-      const syncFields = ['title', 'activeTo', 'activeFrom'];
+      const syncFields = ['activeTo', 'activeFrom'];
       const updateArgs =_.flatMap(syncFields, field => {
         const originalValue = _.get(this.props.object, ['attributes', field]);
         return [

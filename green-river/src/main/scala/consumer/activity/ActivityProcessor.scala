@@ -66,21 +66,26 @@ class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityCon
 
     Console.err.println()
     Console.err.println(s"Got Activity ${activity.activityType} with ID ${activity.id}")
+    if (activity.context == null) {
+      Console.err.println(
+          s"Warning, got Activity ${activity.activityType} with ID ${activity.id} without a context, skipping...")
+      Future { () }
+    } else {
+      val result = connectors.map { connector ⇒
+        for {
+          connections ← connector.process(offset, activity)
+          responses   ← process(connections)
+        } yield responses
+      }
 
-    val result = connectors.map { connector ⇒
-      for {
-        connections ← connector.process(offset, activity)
-        responses   ← process(connections)
-      } yield responses
-    }
+      val responses = Future.sequence(result).map(_.flatten)
 
-    val responses = Future.sequence(result).map(_.flatten)
-
-    //TODO check errors
-    responses.map { r ⇒
-      if (r.length == 0)
-        System.out.println(s"MISSING CONNECTOR: ${activity.activityType}")
-      ()
+      //TODO check errors
+      responses.map { r ⇒
+        if (r.length == 0)
+          System.err.println(s"Warning, MISSING CONNECTOR: ${activity.activityType}")
+        ()
+      }
     }
   }
 

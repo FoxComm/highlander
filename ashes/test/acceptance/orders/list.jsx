@@ -1,6 +1,6 @@
 
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import ReactTestUtils from 'react-addons-test-utils';
 
 describe('Orders List', function() {
 

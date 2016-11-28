@@ -1,0 +1,17 @@
+---
+
+- name: Copy Phoenix Query Files
+  template: src=phoenix.sql dest="{{home}}/phoenix.sql"
+  when: execute_phoenix_sql
+
+- name: Copy MWH Query Files
+  template: src=mwh.sql dest="{{home}}/mwh.sql"
+  when: execute_mwh_sql
+
+- name: Execute Phoenix SQL Queries
+  command: psql -U {{phoenix_db_user}} -d {{phoenix_db_name}} -a -f phoenix.sql
+  when: execute_phoenix_sql
+
+- name: Execute MWH SQL Queries
+  command: psql -U {{middlewarehouse_db_user}} -d {{middlewarehouse_db_name}} -a -f mwh.sql
+  when: execute_mwh_sql

@@ -40,14 +40,17 @@ export function connectPage(namespace, actions) {
     create: `create${capitalized}`, // createPromotion
     update: `update${capitalized}`, // updatePromotion
     archive: `archive${capitalized}`,
+    sync: `sync${capitalized}`,
   };
+
+  const requiredActions = _.values(_.omit(actionNames, 'sync'));
 
   function mapStateToProps(state) {
     return {
       namespace,
       plural,
       capitalized,
-      actionNames,
+      requiredActions,
       schema: _.get(state.objectSchemas, namespace),
       details: state[plural].details,
       originalObject: _.get(state, [plural, 'details', namespace], {}),
@@ -56,6 +59,7 @@ export function connectPage(namespace, actions) {
       fetchError: _.get(state.asyncActions, `${actionNames.fetch}.err`, null),
       createError: _.get(state.asyncActions, `${actionNames.create}.err`, null),
       updateError: _.get(state.asyncActions, `${actionNames.update}.err`, null),
+      archiveState: _.get(state.asyncActions, actionNames.archive, {}),
       isSaving: (
         _.get(state.asyncActions, `${actionNames.create}.inProgress`, false)
         || _.get(state.asyncActions, `${actionNames.update}.inProgress`, false)
@@ -123,6 +127,10 @@ export class ObjectPage extends Component {
     return this.props.params[this.entityIdName];
   }
 
+  get contextName(): string {
+    return this.props.params.context;
+  }
+
   get isNew(): boolean {
     return this.entityId === 'new';
   }
@@ -140,8 +148,9 @@ export class ObjectPage extends Component {
       const requiredActions = [
         'reset',
         'clearSubmitErrors',
+        'clearArchiveErrors',
         'clearFetchErrors',
-        ..._.values(this.props.actionNames),
+        ...this.props.requiredActions,
       ];
       _.each(requiredActions, name => {
         invariant(
@@ -218,7 +227,6 @@ export class ObjectPage extends Component {
   componentWillUnmount() {
     this.props.actions.reset();
   }
-
 
   get pageTitle(): string {
     if (this.isNew) {
@@ -348,6 +356,8 @@ export class ObjectPage extends Component {
         type={this.props.capitalized}
         title={this.pageTitle}
         archive={this.archiveEntity}
+        archiveState={this.props.archiveState}
+        clearArchiveErrors={this.props.actions.clearArchiveErrors}
       />
     );
   }
@@ -388,6 +398,8 @@ export class ObjectPage extends Component {
       isNew: this.isNew,
       schema,
       onUpdateObject: this.handleUpdateObject,
+      contextName: this.contextName,
+      syncEntity: props.actions.syncEntity,
       entity: { entityId: this.entityId, entityType: namespace },
     };
   }

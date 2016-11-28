@@ -43,7 +43,7 @@ class ElasticSearchProcessor(
   private val futureUnit: Future[Unit] = Future { () }
 
   def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] =
-    getIntKey(key).fold {
+    getDocumentId(key, inputJson).fold {
       Console.err.println(
           s"Can't find ID for document $inputJson and key $key for topic $topic, offset = $offset")
       futureUnit
@@ -79,6 +79,16 @@ class ElasticSearchProcessor(
   }
 
   private val idFields = List("id")
+
+  private def getDocumentId(keyJson: String, dataJson: String): Option[BigInt] = {
+    if (keyJson.isEmpty) getIntKey(dataJson)
+    else {
+      getIntKey(keyJson) match {
+        case None   ⇒ getIntKey(dataJson)
+        case someId ⇒ someId
+      }
+    }
+  }
 
   private def getIntKey(rawJson: String): Option[BigInt] = {
     val idJson = AvroJsonHelper.transformJsonRaw(rawJson, idFields)

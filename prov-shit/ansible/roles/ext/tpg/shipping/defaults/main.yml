@@ -1,0 +1,2 @@
+execute_phoenix_sql: true
+execute_mwh_sql: true

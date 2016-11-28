@@ -12,8 +12,7 @@
           "minLength": 1
         },
         "title": {
-          "type": "string",
-          "minLength": 1
+          "type": ["string", "null"]
         },
         "upc": {
           "title": "UPC",
@@ -24,13 +23,52 @@
           "widget": "richText"
         },
         "retailPrice": {
-          "$ref": "#/definitions/price"
+          "type":"object",
+          "widget": "price",
+          "properties": {
+            "currency": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3
+            },
+            "value": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0
+            }
+          }
         },
         "salePrice": {
-          "$ref": "#/definitions/price"
+          "type":"object",
+          "widget": "price",
+          "properties": {
+            "currency": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3
+            },
+            "value": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0
+            }
+          }
         },
         "unitCost": {
-          "$ref": "#/definitions/price"
+          "type":"object",
+          "widget": "price",
+          "properties": {
+            "currency": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3
+            },
+            "value": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0
+            }
+          }
         },
         "activeFrom": {
           "type": ["string", "null"],
@@ -41,7 +79,7 @@
           "format": "date-time"
         }
       },
-      "required": ["code", "title"]
+      "required": ["code"]
     }
   }
 }

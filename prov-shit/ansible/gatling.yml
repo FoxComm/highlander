@@ -1,41 +1,42 @@
 ---
 
 - name: Provision Gatling Backend
-  hosts: gatling-backend
-  tags:
-      - backend
+  hosts: foxcomm-gatling-backend
   vars:
     user: '{{ansible_ssh_user}}'
-
+  tags:
+    - backend
   roles:
+    - { role: dev/stage_mesos}
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
-    - { role: dev/phoenix }
-    - { role: dev/isaac }
-    - { role: dev/middlewarehouse }
-    - { role: dev/greenriver }
-    - { role: dev/loyalty }
-    - { role: dev/messaging }
-
   handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
+    - include: roles/base/consul_agent/handlers/main.yml
 
-- name: Provision Gatling Ashes
-  hosts: gatling-frontend
-  tags:
-      - ashes
+- name: Provision Gatling Frontend
+  hosts: foxcomm-gatling-frontend
   vars:
     user: '{{ansible_ssh_user}}'
-
+    api_server: gatling.foxcommerce.com
+    self_host: gatling.foxcommerce.com
+    ashes_server_name: gatling.foxcommerce.com
+    storefront_server_name: gatling.foxcommerce.com
+  tags:
+    - frontend
   roles:
+    - { role: dev/stage_mesos}
     - { role: base/ssh_keys }
+    - { role: dev/phoenix }
+    - { role: dev/greenriver }
     - { role: dev/ashes }
     - { role: dev/firebrand }
+    - { role: dev/middlewarehouse }
+    - { role: dev/messaging }
+    - { role: dev/isaac }
+    - { role: dev/solomon }
     - { role: dev/balancer, sudo: yes }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
+    - { role: dev/seeder }
 
 - name: Provision Gatling Gun
   hosts: gatling-gun
