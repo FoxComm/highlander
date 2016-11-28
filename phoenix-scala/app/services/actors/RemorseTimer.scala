@@ -5,7 +5,6 @@ import java.time.Instant
 import scala.util.Success
 
 import akka.actor.{Actor, ActorLogging}
-import faker.Lorem.letterify
 import models.activity.ActivityContext
 import models.cord.Order._
 import models.cord.{Order, Orders}
@@ -21,8 +20,7 @@ case object Tick
 case class RemorseTimerResponse(updatedQuantity: Result[Int])
 
 class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
-  implicit val ac =
-    ActivityContext(userId = 1, userType = "admin", transactionId = letterify("?" * 5))
+  implicit val ac = ActivityContext.build(userId = 1, userType = "admin")
 
   override def receive = {
     case Tick ⇒ sender() ! tick
