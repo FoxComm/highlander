@@ -72,6 +72,10 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       adjustedPrices     ← * <~ adjust(linePrices, lineItemAdjustments)
       totalLineItemPrice ← * <~ aggregatePrices(adjustedPrices)
 
+      orderAdjustmentCost = adjustments
+        .filter(_.adjustmentType == OrderLineItemAdjustment.OrderAdjustment)
+        .foldLeft(0)(_ + _.subtract)
+
       //find the shipping method used for the order, take the minimum between 
       //shipping method and what shipping cost was passed in payload because
       //we don't want to charge more than estimated. Finally adjust shipping cost
@@ -93,6 +97,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       //than the estimated grand total.
       total = computeTotal(totalLineItemPrice,
                            adjustedShippingCost,
+                           orderAdjustmentCost,
                            order.taxesTotal,
                            order.grandTotal)
 
@@ -205,14 +210,16 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
 
   private def computeTotal(lineItemTotal: Int,
                            shippingCost: Int,
+                           orderAdjustmentCost: Int,
                            taxes: Int,
                            originalGrandTotal: Int): Int = {
     require(lineItemTotal >= 0)
     require(shippingCost >= 0)
     require(taxes >= 0)
     require(originalGrandTotal >= 0)
+    require(orderAdjustmentCost >= 0)
 
-    lineItemTotal + shippingCost + taxes
+    lineItemTotal + shippingCost + taxes - orderAdjustmentCost
   } ensuring (t ⇒ t <= originalGrandTotal && t >= 0)
 
   private def adjustShippingCost(shippingMethod: ShippingMethod,
