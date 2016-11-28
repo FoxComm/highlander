@@ -69,10 +69,15 @@ export default class AboutPage extends React.Component {
         <div styleName="gifts-block">
           <div styleName="gifts-header-wrap">
             <div styleName="gifts-wrap">
-              {/*<div styleName="text-wrap">
-                <div styleName="gifts-description">THE PERFECT GOURMET</div>
-                <h1 styleName="gifts-title">MAKES THE PERFECT GIFT</h1>
-              </div>*/}
+              <div styleName="gifts-description">THE PERFECT GOURMET</div>
+              <h1 styleName="gifts-title">MAKES THE PERFECT GIFT</h1>
+              <div styleName="gifts-text">
+                Give the gift of delicious food for any occasion
+                with The Perfect Gourmet digital gift cards.
+              </div>
+              <Link to="/gift-cards" styleName="action-link">
+                Shop gift cards
+              </Link>
             </div>
           </div>
         </div>

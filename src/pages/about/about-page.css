@@ -120,6 +120,8 @@
   composes: header-wrap from '../catalog/products.css';
   background: url('/images/about-page/About_Us_Table.jpg') center no-repeat;
   background-size: cover;
+  height: 508px;
+  padding: 30px 20px;
 }
 
 @media (-webkit-min-device-pixel-ratio: 2),
@@ -133,6 +135,7 @@
 .gifts-description {
   composes: description from '../catalog/products.css';
   color: #212121;
+  padding-top: 30px;
 }
 
 .gifts-title {
@@ -140,5 +143,17 @@
 }
 
 .gifts-wrap {
+  background: white;
+  height: 100%;
+  padding: 0 20px;
+}
 
+.gifts-text {
+  font-family: var(--font-main);
+  font-weight: 300;
+  font-size: 16px;
+  color: #212121;
+  letter-spacing: 1.81px;
+  line-height: 40px;
+  margin-top: 50px;
 }
