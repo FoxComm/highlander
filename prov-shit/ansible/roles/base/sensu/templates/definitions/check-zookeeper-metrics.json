@@ -4,7 +4,7 @@
       "command": "metrics-zookeeper.rb",
       "interval": 60,
       "subscribers": [
-		"foxcomm-tony-consul-server"
+{{ ansible_hostname | to_nice_json }}
 	  ]
 	}
   }

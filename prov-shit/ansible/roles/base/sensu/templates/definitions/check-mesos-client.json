@@ -4,9 +4,7 @@
       "command": "check-mesos.rb -m slave -s 0.0.0.0 -p 5051",
       "interval": 60,
       "subscribers": [
-	  	"foxcomm-tony-backend",
-		"foxcomm-tony-frontend",
-		"foxcomm-tony-consul-server"
+{{ ansible_hostname | to_nice_json }}
 	  ]
 	}
   }

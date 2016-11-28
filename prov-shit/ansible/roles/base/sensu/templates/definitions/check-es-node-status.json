@@ -4,7 +4,7 @@
       "command": "check-es-node-status.rb",
       "interval": 60,
       "subscribers": [
-		"foxcomm-tony-backend"
+{{ ansible_hostname | to_nice_json }}
 	  ]
 	}
   }

@@ -2,8 +2,8 @@
 # Default vars file for sensu
 
 # Options for Standalone installation
-deploy_rabbitmq: true
-deploy_redis: true
+deploy_rabbitmq: false
+deploy_redis: false
 sensu_master: false
 sensu_include_dashboard: false
 # Redis config
