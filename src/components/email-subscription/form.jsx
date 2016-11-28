@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
+import _ from 'lodash';
 
 import Button from 'ui/buttons';
 import { TextInput } from 'ui/inputs';
@@ -31,7 +32,8 @@ export default class SubscriptionForm extends Component {
   @autobind
   validateAndSubmit(e: Object) {
     const { email } = this.state;
-    if (!validateEmail(email)) {
+    const validationResult = validateEmail(email);
+    if (_.isString(validationResult) && !_.isEmpty(validationResult)) {
       e.preventDefault();
       e.stopPropagation();
       this.setState({ error: 'Email format is invalid.' });
