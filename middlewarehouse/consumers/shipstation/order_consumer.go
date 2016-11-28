@@ -9,6 +9,12 @@ import (
 	"github.com/FoxComm/metamorphosis"
 )
 
+const (
+	activityOrderStateChanged     = "order_state_changed"
+	activityOrderBulkStateChanged = "order_bulk_state_changed"
+	orderStateFullfillmentStarted = "fulfillmentStarted"
+)
+
 type OrderConsumer struct {
 	topic  string
 	client *api.Client
@@ -29,16 +35,25 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 		log.Panicf("Unable to decode Avro message with error %s", err.Error())
 	}
 
-	if activity.Type != "order_state_changed" {
+	switch activity.Type {
+	case activityOrderStateChanged:
+		fullOrder, err := phoenix.NewFullOrderFromActivity(activity)
+		if err != nil {
+			log.Panicf("Unable to decode order from activity")
+		}
+
+		return c.handlerInner(fullOrder)
+	case activityOrderBulkStateChanged:
+		// TODO: Request Phoenix for each order here
+		return nil
+	default:
 		return nil
 	}
+}
 
-	fullOrder, err := phoenix.NewFullOrderFromActivity(activity)
-	if err != nil {
-		log.Panicf("Unable to decode order from activity")
-	}
-
-	if fullOrder.Order.OrderState != "fulfillmentStarted" {
+// Handle activity for single order
+func (c OrderConsumer) handlerInner(fullOrder *phoenix.FullOrder) error {
+	if fullOrder.Order.OrderState != orderStateFullfillmentStarted {
 		return nil
 	}
 
