@@ -94,19 +94,11 @@ class ProductIntegrationTest
       val skuName = "SKU-NEW-TEST"
 
       "slug successfully" in new Fixture {
-        val slug = "simple-product"
-
-        val productResponse = doQuery(productPayload.copy(slug = slug.some))
-
-        productResponse.slug must === (slug.some)
-      }
-
-      "uppercase slug successfully" in new Fixture {
-        val slug = "Simple-Product"
-
-        val productResponse = doQuery(productPayload.copy(slug = slug.some))
-
-        productResponse.slug must === (slug.toLowerCase.some)
+        val possibleSlug = List("simple-product", "1-Product", "1-", "_", "-")
+        for (slug ← possibleSlug) {
+          val productResponse = doQuery(productPayload.copy(slug = slug.some))
+          productResponse.slug must === (slug.some).withClue(s"slug: $slug")
+        }
       }
 
       "a new SKU successfully" in new Fixture {
@@ -304,7 +296,7 @@ class ProductIntegrationTest
       }
 
       "slug is invalid" in new Fixture {
-        val invalidSlugValues = Seq("1", "-1", "+1", "-a", "-")
+        val invalidSlugValues = Seq("1", "-1", "+1")
         for (slug ← invalidSlugValues) {
           productsApi
             .create(productPayload.copy(slug = Some(slug)))
@@ -318,6 +310,14 @@ class ProductIntegrationTest
         val payload = productPayload.copy(slug = Some(slug))
         productsApi.create(payload).mustBeOk()
         productsApi.create(payload).mustHaveStatus(StatusCodes.BadRequest)
+      }
+
+      "slugs deffers only by case" in new Fixture {
+        val slug = "simple-product"
+        productsApi.create(productPayload.copy(slug = Some(slug))).mustBeOk()
+        productsApi
+          .create(productPayload.copy(slug = Some(slug.toUpperCase())))
+          .mustHaveStatus(StatusCodes.BadRequest)
       }
     }
 
@@ -374,7 +374,7 @@ class ProductIntegrationTest
                                          albums = None)
 
       val response = doQuery(product.formId, payload)
-      response.slug must === (slug.toLowerCase.some)
+      response.slug must === (slug.some)
     }
 
     "Erases slug successfully" in new Fixture {
@@ -629,7 +629,7 @@ class ProductIntegrationTest
       "slug is invalid" in new Fixture {
         val createdProduct = productsApi.create(productPayload).as[Root]
 
-        val invalidSlugValues = Seq("1", "-1", "+1", "-a", "-")
+        val invalidSlugValues = Seq("1", "-1", "+1")
         for (slug ← invalidSlugValues) {
           productsApi(createdProduct.id)
             .update(UpdateProductPayload(attributes = productPayload.attributes,

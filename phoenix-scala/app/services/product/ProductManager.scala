@@ -2,6 +2,8 @@ package services.product
 
 import java.time.Instant
 
+import scala.util.Try
+
 import com.github.tminglei.slickpg.LTree
 import cats.data._
 import cats.implicits._
@@ -62,7 +64,7 @@ object ProductManager {
       ins ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       product ← * <~ Products.create(
                    Product(scope = LTree(au.token.scope),
-                           slug = payload.slug.filter(!_.isEmpty).map(_.toLowerCase),
+                           slug = payload.slug.filter(!_.isEmpty),
                            contextId = oc.id,
                            formId = ins.form.id,
                            shadowId = ins.shadow.id,
@@ -265,7 +267,7 @@ object ProductManager {
     validateSlug(payload.slug).map { case _ ⇒ payload }
 
   private def validateSlug(slug: Option[String]): ValidatedNel[Failure, Unit] = {
-    def slugValid(slug: String) = slug.isEmpty || slug.head.isLetter
+    def slugValid(slug: String) = slug.isEmpty || Try(slug.toInt).isFailure
 
     slug match {
       case Some(value) ⇒
@@ -319,8 +321,8 @@ object ProductManager {
                          shadow: ObjectShadow,
                          maybeCommit: Option[ObjectCommit],
                          newSlug: Option[String])(implicit ec: EC): DbResultT[Product] = {
-    val newProduct = newSlug.fold(product)(value ⇒
-          product.copy(slug = if (value.isEmpty) None else value.toLowerCase.some))
+    val newProduct =
+      newSlug.fold(product)(value ⇒ product.copy(slug = if (value.isEmpty) None else value.some))
 
     (maybeCommit, newSlug) match {
       case (Some(commit), _) ⇒

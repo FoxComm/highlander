@@ -98,7 +98,7 @@ object Products
     reference match {
       case ProductId(id) ⇒ mustFindProductByContextAndFormId404(oc.id, id)
       case ProductSlug(slug) ⇒
-        filter(p ⇒ p.contextId === oc.id && p.slug === slug.toLowerCase())
+        filter(p ⇒ p.contextId === oc.id && p.slug.toLowerCase === slug.toLowerCase())
           .mustFindOneOr(ProductFailures.ProductNotFoundForContext(slug, oc.id))
     }
   }
