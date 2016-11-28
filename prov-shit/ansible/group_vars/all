@@ -223,7 +223,7 @@ stripe_api_key: sk_test_13rnEgvA4DGHgv4f2GMCDtes
 stripe_publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
 
 # Certificates path
-cert_path: stage
+cert_path: test/fox
 
 # Mesos
 mesos_quorum: 2
