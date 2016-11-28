@@ -22,12 +22,12 @@ class RemorseTimer(implicit db: DB) extends Actor {
   }
 
   private def tick(implicit db: DB): RemorseTimerResponse = {
-    val orderFilter = Orders.filter(_.state === (RemorseHold: State)).filter(_.remorsePeriodEnd.map(_ < Instant.now))
+    val orders = Orders.filter(_.state === (RemorseHold: State)).filter(_.remorsePeriodEnd.map(_ < Instant.now))
 
     val query = for {
-      cordRefs ← orderFilter.result
-      count ← orderFilter.map(_.state).update(Order.FulfillmentStarted)
-      _ ← LogActivity.orderBulkStateChanged(admin, Order.FulfillmentStarted, cordRefs.map(_.referenceNumber))
+      cordRefs ← orders.result
+      count    ← orders.map(_.state).update(Order.FulfillmentStarted)
+      _        ← LogActivity.orderBulkStateChanged(Order.FulfillmentStarted, cordRefs.map(_.referenceNumber))
     } yield count
 
     RemorseTimerResponse(db.run(query))

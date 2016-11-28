@@ -293,10 +293,10 @@ object LogActivity {
       ac: AC): DbResultT[Activity] =
     Activities.log(OrderStateChanged(buildUser(admin), order, oldState))
 
-  def orderBulkStateChanged(admin: User, newState: Order.State, cordRefNums: Seq[String])(
+  def orderBulkStateChanged(newState: Order.State, cordRefNums: Seq[String], admin: Option[User] = None)(
       implicit ec: EC,
       ac: AC): DbResultT[Activity] =
-    Activities.log(OrderBulkStateChanged(buildUser(admin), cordRefNums, newState))
+    Activities.log(OrderBulkStateChanged(admin.map(buildUser), cordRefNums, newState))
 
   def orderRemorsePeriodIncreased(
       admin: User,
