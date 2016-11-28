@@ -5,9 +5,9 @@ import java.time.Instant
 import scala.concurrent.Future
 import scala.util.Success
 import akka.actor.{Actor, ActorLogging}
-
 import models.cord.Order._
 import models.cord.{Order, Orders}
+import services.LogActivity
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db.javaTimeSlickMapper
@@ -22,13 +22,15 @@ class RemorseTimer(implicit db: DB) extends Actor {
   }
 
   private def tick(implicit db: DB): RemorseTimerResponse = {
-    val advance = Orders
-      .filter(_.state === (RemorseHold: State))
-      .filter(_.remorsePeriodEnd.map(_ < Instant.now))
-      .map(_.state)
-      .update(Order.FulfillmentStarted)
+    val orderFilter = Orders.filter(_.state === (RemorseHold: State)).filter(_.remorsePeriodEnd.map(_ < Instant.now))
 
-    RemorseTimerResponse(db.run(advance))
+    val query = for {
+      cordRefs ← orderFilter.result
+      count ← orderFilter.map(_.state).update(Order.FulfillmentStarted)
+      _ ← LogActivity.orderBulkStateChanged(admin, Order.FulfillmentStarted, cordRefs.map(_.referenceNumber))
+    } yield count
+
+    RemorseTimerResponse(db.run(query))
   }
 }
 
