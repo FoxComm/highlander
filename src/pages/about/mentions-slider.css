@@ -8,25 +8,7 @@
 }
 
 .quotes-background {
-  &:before {
-    content: '';
-    display: block;
-    background: url('/images/about-page/Quotes_Start.svg') no-repeat;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-position: -17px 10px;
-  }
 
-  &:after {
-    content: '';
-    display: block;
-    background: url('/images/about-page/Quotes_End.svg') no-repeat;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-position: 106% 32%;
-  }
 }
 
 .slider-controls {
@@ -71,6 +53,10 @@
   }
 }
 
+.content-wrapper {
+  padding-top: 60px;
+}
+
 .mention-text {
   font-family: var(--font-main);
   font-weight: 300;
@@ -80,6 +66,29 @@
   line-height: 40px;
   text-align: center;
   padding: 0 15px;
+  position: relative;
+
+  &:before {
+    content: '';
+    display: block;
+    background: url('/images/about-page/Quotes_Start.svg') no-repeat;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: -61px;
+    left: 5px;
+  }
+
+  &:after {
+    content: '';
+    display: block;
+    background: url('/images/about-page/Quotes_End.svg') no-repeat;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 64%;
+    left: calc(100% - 138px);
+  }
 }
 
 .mention-description {
@@ -92,4 +101,31 @@
   margin-top: 80px;
   padding-bottom: 25px;
   text-transform: uppercase;
+}
+
+@media (--medium) {
+  .slider-wrapper {
+    padding-top: 70px;
+  }
+
+  .slider {
+
+  }
+
+  .content-wrapper {
+    width: 75%;
+    margin: 0 auto;
+  }
+
+  .mention-text {
+    &:before {
+      top: -61px;
+      left: -46px;
+    }
+
+    &:after {
+      top: 45%;
+      left: 87%;
+    }
+  }
 }

@@ -14,6 +14,10 @@
   padding: 30px 20px;
 }
 
+.header-text-wrap {
+  composes: text-wrap from '../catalog/products.css';
+}
+
 .cooking-description {
   composes: description from '../catalog/products.css';
   font-weight: 400;
@@ -63,5 +67,30 @@
     font-size: 18px;
     line-height: 33px;
     margin-top: 20px;
+  }
+}
+
+@media (--medium) {
+  .cooking-block {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .cooking-header-wrap {
+    width: 50%;
+  }
+
+  .cooking-title:after {
+    width: 93px;
+  }
+
+  .cooking-sections {
+    display: flex;
+    justify-content: center;
+  }
+
+  .content-wrapper {
+    width: 40%;
   }
 }

@@ -40,12 +40,14 @@ const cookingSections = cookingData.map(({ imgUrl, title, description }, i) => (
 const CookingBlock = () => (
   <div styleName="cooking-block">
     <div styleName="cooking-header-wrap">
-      <div styleName="text-wrap">
+      <div styleName="header-text-wrap">
         <div styleName="cooking-description">STRESS FREE GOURMET</div>
         <h1 styleName="cooking-title">DELICIOUSLY CONVIENT</h1>
       </div>
     </div>
-    {cookingSections}
+    <div styleName="cooking-sections">
+      <div styleName="content-wrapper">{cookingSections}</div>
+    </div>
   </div>
 );
 

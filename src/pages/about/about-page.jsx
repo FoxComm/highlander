@@ -23,34 +23,38 @@ export default class AboutPage extends React.Component {
           </div>
         </div>
         <div styleName="intro-block">
-          <div styleName="intro-title">THE PERFECT GOURMET IS PERFECT FOR</div>
-          <IntroSLider />
-          <div styleName="intro-text">
-            At The Perfect Gourmet, we believe food should be as
-            delicious, healthy, and convenient as possible without
-            requiring a membership. Whether you are planning a dinner
-            party, entertaining last minute guests, or just want to
-            treat yourself to a fabulous meal, we make gourmet dining
-            easy and delicious.
-          </div>
+          <div styleName="content-wrapper">
+            <div styleName="intro-title">THE PERFECT GOURMET IS PERFECT FOR</div>
+            <IntroSLider />
+            <div styleName="intro-text">
+              At The Perfect Gourmet, we believe food should be as
+              delicious, healthy, and convenient as possible without
+              requiring a membership. Whether you are planning a dinner
+              party, entertaining last minute guests, or just want to
+              treat yourself to a fabulous meal, we make gourmet dining
+              easy and delicious.
+            </div>
 
-          <Link to="/best-sellers" styleName="action-link">
-            Shop best sellers
-          </Link>
+            <Link to="/best-sellers" styleName="shop-best-sellers-link">
+              Shop best sellers
+            </Link>
+          </div>
         </div>
 
         <CookingBlock />
 
         <div styleName="fresh-block">
           <div styleName="fresh-header-wrap">
-            <div styleName="text-wrap">
-              <div styleName="fresh-description">QUALITY IS OUR PRIORITY</div>
-              <h1 styleName="default-sesction-title">THE NEW FRESH</h1>
-              <div styleName="fresh-text">
-                Our chefs only cook with locally sourced, fresh ingredients.
-                Our meals are then flash frozen, ensuring optimal taste, nutrition
-                and convenience. So you know you never have to sacrifice qualify
-                for convenience.
+            <div styleName="content-wrapper">
+              <div styleName="text-wrap">
+                <div styleName="fresh-description">QUALITY IS OUR PRIORITY</div>
+                <h1 styleName="default-sesction-title">THE NEW FRESH</h1>
+                <div styleName="fresh-text">
+                  Our chefs only cook with locally sourced, fresh ingredients.
+                  Our meals are then flash frozen, ensuring optimal taste, nutrition
+                  and convenience. So you know you never have to sacrifice qualify
+                  for convenience.
+                </div>
               </div>
             </div>
           </div>
@@ -58,7 +62,7 @@ export default class AboutPage extends React.Component {
 
         <div styleName="mentions">
           <div styleName="mentions-header-wrap">
-            <div styleName="text-wrap">
+            <div styleName="mentions-text-wrap">
               <div styleName="mentions-description">OUR CUSTOMERS ARE SHARING THE LOVE</div>
               <h1 styleName="mentions-title">WHAT PEOPLE ARE SAYING</h1>
             </div>

@@ -21,10 +21,14 @@ const mentionsSliderSettings = {
 const mentionsSlides = mentions.map(({ mention, author, location }, i) => {
   return (
     <div key={i}>
-      <div styleName="mention-text">{mention}</div>
-      <div styleName="mention-description">
-        <div>{author}</div>
-        <div>{location}</div>
+      <div styleName="content-wrapper">
+        <div styleName="mention-text">
+          {mention}
+        </div>
+        <div styleName="mention-description">
+          <div>{author}</div>
+          <div>{location}</div>
+        </div>
       </div>
     </div>
   );
@@ -53,8 +57,6 @@ export default class MentionsSlider extends React.Component {
             <img src="/images/about-page/Arrow_Right.svg" />
           </div>
         </div>
-
-        <div styleName="quotes-background" />
 
         <Slider {...mentionsSliderSettings} ref="mentionsSlider" styleName="slider">
           {mentionsSlides}
