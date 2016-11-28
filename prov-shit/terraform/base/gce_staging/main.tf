@@ -103,4 +103,5 @@ module "tony-staging" {
     ssh_private_key = "${var.ssh_private_key}"
     consul_leader = "10.240.0.10"
     consul_server_image = "tinystack-amigo-1476574475"
+    frontend_disk_size = "40"
 }
