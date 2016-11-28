@@ -10,12 +10,25 @@ import utils.db._
 import utils.{JsonFormatters, Validation}
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.ProductIsPresentInCarts
+import failures.ProductFailures
+import failures.ProductFailures.ProductFormNotFoundForContext
 import models.cord.lineitems.CartLineItems
+import services.objects.ObjectManager
 import utils.aliases._
 
 object Product {
   val kind = "product"
 }
+
+object ProductReference {
+  def apply(formId: Int): ProductReference  = ProductId(formId)
+  def apply(slug: String): ProductReference = ProductSlug(slug)
+}
+
+trait ProductReference
+
+case class ProductId(formId: ObjectForm#Id) extends ProductReference
+case class ProductSlug(slug: String)        extends ProductReference
 
 /**
   * A Product represents something sellable in our system and has a set of
@@ -25,6 +38,7 @@ object Product {
   * and shadow system where it has attributes controlled by the customer.
   */
 case class Product(id: Int = 0,
+                   slug: Option[String] = None,
                    scope: LTree,
                    contextId: Int,
                    shadowId: Int,
@@ -46,12 +60,16 @@ case class Product(id: Int = 0,
       inCartCount ← * <~ CartLineItems.filter(_.skuId.inSetBind(skus.map(_.rightId))).size.result
       _           ← * <~ failIf(inCartCount > 0, ProductIsPresentInCarts(formId))
     } yield {}
+
+  def reference: ProductReference = ProductId(formId)
 }
 
 class Products(tag: Tag) extends ObjectHeads[Product](tag, "products") {
 
+  def slug = column[Option[String]]("slug")
+
   def * =
-    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Product.apply _).tupled, Product.unapply)
+    (id, slug, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Product.apply _).tupled, Product.unapply)
 }
 
 object Products
@@ -67,4 +85,25 @@ object Products
 
   def filterByFormId(formId: Int): QuerySeq =
     filter(_.formId === formId)
+
+  def mustFindProductByContextAndFormId404(contextId: Int, formId: Int)(
+      implicit ec: EC): DbResultT[Product] =
+    Products
+      .filter(_.contextId === contextId)
+      .filter(_.formId === formId)
+      .mustFindOneOr(ProductFormNotFoundForContext(formId, contextId))
+
+  def mustFindByReference(reference: ProductReference)(implicit oc: OC,
+                                                       ec: EC): DbResultT[Product] = {
+    reference match {
+      case ProductId(id) ⇒ mustFindProductByContextAndFormId404(oc.id, id)
+      case ProductSlug(slug) ⇒
+        filter(p ⇒ p.contextId === oc.id && p.slug === slug.toLowerCase())
+          .mustFindOneOr(ProductFailures.ProductNotFoundForContext(slug, oc.id))
+    }
+  }
+
+  def mustFindFullByReference(
+      ref: ProductReference)(implicit oc: OC, ec: EC, db: DB): DbResultT[FullObject[Product]] =
+    ObjectManager.getFullObject(mustFindByReference(ref: ProductReference))
 }

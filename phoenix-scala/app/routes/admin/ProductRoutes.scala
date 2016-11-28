@@ -1,9 +1,11 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
+import models.product.ProductReference
 import payloads.ContextPayloads._
 import payloads.ImagePayloads.{AlbumPayload, UpdateAlbumPositionPayload}
 import payloads.ProductPayloads._
@@ -18,6 +20,52 @@ import utils.http.Http._
 
 object ProductRoutes {
 
+  def productRoutes(productId: ProductReference)(implicit ec: EC,
+                                                 db: DB,
+                                                 oc: OC,
+                                                 ac: AC,
+                                                 auth: AuthData[User]): Route = {
+    (get & pathEnd) {
+      getOrFailures {
+        ProductManager.getProduct(productId)
+      }
+    } ~
+    (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
+      mutateOrFailures {
+        ProductManager.updateProduct(auth.model, productId, payload)
+      }
+    } ~
+    (delete & pathEnd) {
+      mutateOrFailures {
+        ProductManager.archiveByContextAndId(productId)
+      }
+    } ~
+    (pathPrefix("taxons") & get & pathEnd) {
+      getOrFailures {
+        TaxonomyManager.getAssignedTaxons(productId)
+      }
+    } ~
+    pathPrefix("albums") {
+      (get & pathEnd) {
+        getOrFailures {
+          ImageManager.getAlbumsForProduct(productId)
+        }
+      } ~
+      (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+        mutateOrFailures {
+          ImageManager.createAlbumForProduct(auth.model, productId, payload)
+        }
+      } ~
+      pathPrefix("position") {
+        (post & pathEnd & entity(as[UpdateAlbumPositionPayload])) { payload ⇒
+          mutateOrFailures {
+            ImageManager.updateProductAlbumPosition(payload.albumId, productId, payload.position)
+          }
+        }
+      }
+    }
+  }
+
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
     activityContext(auth.model) { implicit ac ⇒
@@ -30,47 +78,10 @@ object ProductRoutes {
               }
             } ~
             pathPrefix(IntNumber) { productId ⇒
-              (get & pathEnd) {
-                getOrFailures {
-                  ProductManager.getProduct(productId)
-                }
-              } ~
-              (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
-                mutateOrFailures {
-                  ProductManager.updateProduct(auth.model, productId, payload)
-                }
-              } ~
-              (delete & pathEnd) {
-                mutateOrFailures {
-                  ProductManager.archiveByContextAndId(productId)
-                }
-              } ~
-              (pathPrefix("taxons") & get & pathEnd) {
-                getOrFailures {
-                  TaxonomyManager.getAssignedTaxons(productId)
-                }
-              }
+              productRoutes(ProductReference(productId))
             } ~
-            pathPrefix(IntNumber / "albums") { productId ⇒
-              (get & pathEnd) {
-                getOrFailures {
-                  ImageManager.getAlbumsForProduct(productId)
-                }
-              } ~
-              (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
-                mutateOrFailures {
-                  ImageManager.createAlbumForProduct(auth.model, productId, payload, contextName)
-                }
-              } ~
-              pathPrefix("position") {
-                (post & pathEnd & entity(as[UpdateAlbumPositionPayload])) { payload ⇒
-                  mutateOrFailures {
-                    ImageManager.updateProductAlbumPosition(payload.albumId,
-                                                            productId,
-                                                            payload.position)
-                  }
-                }
-              }
+            pathPrefix(Segment) { productSlug ⇒
+              productRoutes(ProductReference(productSlug))
             }
           }
         } ~

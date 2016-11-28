@@ -62,6 +62,7 @@ object ProductManager {
       ins ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       product ← * <~ Products.create(
                    Product(scope = LTree(au.token.scope),
+                           slug = payload.slug.filter(!_.isEmpty).map(_.toLowerCase),
                            contextId = oc.id,
                            formId = ins.form.id,
                            shadowId = ins.shadow.id,
@@ -85,11 +86,12 @@ object ProductManager {
 
   }
 
-  def getProduct(
-      productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] =
+  def getProduct(productId: ProductReference)(implicit ec: EC,
+                                              db: DB,
+                                              oc: OC): DbResultT[ProductResponse.Root] =
     for {
-      oldProduct ← * <~ mustFindFullProductByFormId(productId)
-      albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.form.id)
+      oldProduct ← * <~ Products.mustFindFullByReference(productId)
+      albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
       fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
       productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
@@ -111,7 +113,7 @@ object ProductManager {
           variantResponses,
           taxons)
 
-  def updateProduct(admin: User, productId: Int, payload: UpdateProductPayload)(
+  def updateProduct(admin: User, productId: ProductReference, payload: UpdateProductPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
@@ -123,7 +125,8 @@ object ProductManager {
     val payloadSkus = payload.skus.getOrElse(Seq.empty)
 
     for {
-      oldProduct ← * <~ mustFindFullProductByFormId(productId)
+      _          ← * <~ validateUpdate(payload)
+      oldProduct ← * <~ Products.mustFindFullByReference(productId)
 
       _ ← * <~ skusToBeUnassociatedMustNotBePresentInCarts(oldProduct.model.id, payloadSkus)
 
@@ -134,7 +137,7 @@ object ProductManager {
                                         mergedAttrs,
                                         force = true)
       commit      ← * <~ ObjectUtils.commit(updated)
-      updatedHead ← * <~ updateHead(oldProduct.model, updated.shadow, commit)
+      updatedHead ← * <~ updateHead(oldProduct.model, updated.shadow, commit, payload.slug)
 
       albums ← * <~ updateAssociatedAlbums(updatedHead, payload.albums)
 
@@ -145,7 +148,7 @@ object ProductManager {
       updatedSkus ← * <~ findOrCreateSkusForProduct(oldProduct.model, payloadSkus, !hasVariants)
 
       variants ← * <~ updateAssociatedVariants(updatedHead, payload.variants)
-      _        ← * <~ validateUpdate(updatedSkus, variants)
+      _        ← * <~ validateSkuMatchesVariants(updatedSkus, variants)
 
       variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
@@ -162,8 +165,10 @@ object ProductManager {
 
   }
 
-  def archiveByContextAndId(
-      productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] = {
+  def archiveByContextAndId(productId: ProductReference)(
+      implicit ec: EC,
+      db: DB,
+      oc: OC): DbResultT[ProductResponse.Root] = {
     val payload = Map("activeFrom" → (("v" → JNull) ~ ("type" → JString("datetime"))),
                       "activeTo" → (("v" → JNull) ~ ("type" → JString("datetime"))))
 
@@ -171,7 +176,7 @@ object ProductManager {
     val newShadowAttrs = ObjectShadow.fromPayload(payload).attributes
 
     for {
-      productObject ← * <~ mustFindFullProductByFormId(productId)
+      productObject ← * <~ Products.mustFindFullByReference(productId)
       _             ← * <~ productObject.model.mustNotBePresentInCarts
       mergedAttrs = productObject.shadow.attributes.merge(newShadowAttrs)
       inactive ← * <~ ObjectUtils.update(productObject.form.id,
@@ -180,7 +185,7 @@ object ProductManager {
                                          mergedAttrs,
                                          force = true)
       commit      ← * <~ ObjectUtils.commit(inactive)
-      updatedHead ← * <~ updateHead(productObject.model, inactive.shadow, commit)
+      updatedHead ← * <~ updateHead(productObject.model, inactive.shadow, commit, None)
 
       archiveResult ← * <~ Products.update(updatedHead,
                                            updatedHead.copy(archivedAt = Some(Instant.now)))
@@ -191,7 +196,7 @@ object ProductManager {
                                         DbResultT.unit,
                                         id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
          }
-      albums   ← * <~ ImageManager.getAlbumsForProduct(inactive.form.id)
+      albums   ← * <~ ImageManager.getAlbumsForProduct(ProductReference(inactive.form.id))
       skuLinks ← * <~ ProductSkuLinks.filter(_.leftId === archiveResult.id).result
       _ ← * <~ skuLinks.map { link ⇒
            ProductSkuLinks.deleteById(link.id,
@@ -249,13 +254,29 @@ object ProductManager {
 
     (notEmpty(payload.skus, "SKUs") |@| lesserThanOrEqual(payload.skus.length,
                                                           maxSkus,
-                                                          "number of SKUs")).map {
+                                                          "number of SKUs") |@|
+          validateSlug(payload.slug)).map {
       case _ ⇒ payload
     }
   }
 
-  private def validateUpdate(skus: Seq[SkuResponse.Root],
-                             variants: Seq[(FullObject[Variant], Seq[FullObject[VariantValue]])])
+  private def validateUpdate(
+      payload: UpdateProductPayload): ValidatedNel[Failure, UpdateProductPayload] =
+    validateSlug(payload.slug).map { case _ ⇒ payload }
+
+  private def validateSlug(slug: Option[String]): ValidatedNel[Failure, Unit] = {
+    def slugValid(slug: String) = slug.isEmpty || slug.head.isLetter
+
+    slug match {
+      case Some(value) ⇒
+        invalidExpr(!slugValid(value), ProductFailures.InvalidSlug(value))
+      case None ⇒ ok
+    }
+  }
+
+  private def validateSkuMatchesVariants(
+      skus: Seq[SkuResponse.Root],
+      variants: Seq[(FullObject[Variant], Seq[FullObject[VariantValue]])])
     : ValidatedNel[Failure, Unit] = {
     val maxSkus = variants.map { case (_, values) ⇒ values.length.max(1) }.product
 
@@ -296,13 +317,20 @@ object ProductManager {
 
   private def updateHead(product: Product,
                          shadow: ObjectShadow,
-                         maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Product] =
-    maybeCommit match {
-      case Some(commit) ⇒
-        Products.update(product, product.copy(shadowId = shadow.id, commitId = commit.id))
-      case None ⇒
+                         maybeCommit: Option[ObjectCommit],
+                         newSlug: Option[String])(implicit ec: EC): DbResultT[Product] = {
+    val newProduct = newSlug.fold(product)(value ⇒
+          product.copy(slug = if (value.isEmpty) None else value.toLowerCase.some))
+
+    (maybeCommit, newSlug) match {
+      case (Some(commit), _) ⇒
+        Products.update(product, newProduct.copy(shadowId = shadow.id, commitId = commit.id))
+      case (None, Some(_)) ⇒
+        Products.update(product, newProduct)
+      case (None, None) ⇒
         DbResultT.good(product)
     }
+  }
 
   private def findOrCreateSkusForProduct(
       product: Product,

@@ -1,11 +1,12 @@
 import java.time.Instant
 
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures._
 import failures.ObjectFailures.ObjectContextNotFound
+import failures.ProductFailures
 import failures.ProductFailures._
 import models.account.User
 import models.inventory.Skus
@@ -62,6 +63,22 @@ class ProductIntegrationTest
       val product = productsApi(simpleProduct.formId).get().as[ProductResponse.Root]
       product.taxons.map(_.taxon.id) must contain(taxons.head.formId)
     }
+
+    "queries product by slug" in new ProductAndSkus_Baked with FlatTaxons_Baked {
+      private val slug             = "simple-product"
+      private val updated: Product = simpleProduct.copy(slug = Some(slug))
+      Products.update(simpleProduct, updated).gimme
+      val queryProduct = GET(s"${productsApi.productsPrefix}/$slug").as[ProductResponse.Root]
+      queryProduct.id must === (updated.formId)
+    }
+
+    "queries product by slug ignoring case" in new ProductAndSkus_Baked with FlatTaxons_Baked {
+      private val slug             = "Simple-Product"
+      private val updated: Product = simpleProduct.copy(slug = Some(slug.toLowerCase))
+      Products.update(simpleProduct, updated).gimme
+      val queryProduct = GET(s"${productsApi.productsPrefix}/$slug").as[ProductResponse.Root]
+      queryProduct.id must === (updated.formId)
+    }
   }
 
   "POST v1/products/:context" - {
@@ -71,6 +88,20 @@ class ProductIntegrationTest
 
     "Creates a product with" - {
       val skuName = "SKU-NEW-TEST"
+
+      "slug successfully" in new Fixture {
+        val slug = "simple-product"
+
+        val productResponse = doQuery(productPayload.copy(slug = slug.some))
+        productResponse.slug must === (slug.some)
+      }
+
+      "uppercase slug successfully" in new Fixture {
+        val slug = "Simple-Product"
+
+        val productResponse = doQuery(productPayload.copy(slug = slug.some))
+        productResponse.slug must === (slug.toLowerCase.some)
+      }
 
       "a new SKU successfully" in new Fixture {
         val productResponse = doQuery(productPayload)
@@ -265,6 +296,24 @@ class ProductIntegrationTest
           "Object sku with id=\\d+ doesn't pass validation: \\$.salePrice.value: string found, number expected"
         createResponse.error must fullyMatch regex errorPattern.r
       }
+
+      "slug is invalid" in new Fixture {
+        val invalidSlugValues = Seq("1", "-1", "+1", "-a", "-")
+        for (slug ← invalidSlugValues) {
+          productsApi
+            .create(productPayload.copy(slug = Some(slug)))
+            .mustFailWith400(ProductFailures.InvalidSlug(slug))
+            .withClue(s" slug = $slug")
+        }
+      }
+
+      "slug is duplicated" in new Fixture {
+        val slug     = "simple-product"
+        val product1 = productsApi.create(productPayload.copy(slug = Some(slug))).as[Root]
+        productsApi
+          .create(productPayload.copy(slug = Some(slug)))
+          .mustHaveStatus(StatusCodes.BadRequest)
+      }
     }
 
     "Creates a product then requests is successfully" in new Fixture {
@@ -295,6 +344,45 @@ class ProductIntegrationTest
                                  albums = None,
                                  variants = None))
         .mustBeOk()
+    }
+
+    "Updates slug successfully" in new Fixture {
+      val slug = "simple-product"
+
+      val payload = UpdateProductPayload(attributes = Map.empty,
+                                         slug = slug.some,
+                                         skus = Some(Seq(skuPayload)),
+                                         variants = None,
+                                         albums = None)
+
+      val response = doQuery(product.formId, payload)
+      response.slug must === (slug.some)
+    }
+
+    "Updates uppercase slug successfully" in new Fixture {
+      val slug = "Simple-Product"
+
+      val payload = UpdateProductPayload(attributes = Map.empty,
+                                         slug = slug.some,
+                                         skus = Some(Seq(skuPayload)),
+                                         variants = None,
+                                         albums = None)
+
+      val response = doQuery(product.formId, payload)
+      response.slug must === (slug.toLowerCase.some)
+    }
+
+    "Erases slug successfully" in new Fixture {
+      val slug = ""
+
+      val payload = UpdateProductPayload(attributes = Map.empty,
+                                         slug = slug.some,
+                                         skus = Some(Seq(skuPayload)),
+                                         variants = None,
+                                         albums = None)
+
+      val response = doQuery(product.formId, payload)
+      response.slug must === (None)
     }
 
     "Updates the SKUs on a product successfully" in new Fixture {
@@ -532,6 +620,30 @@ class ProductIntegrationTest
           .update(twoSkuProductPayload)
           .mustFailWith400(SkuIsPresentInCarts(skuGreenLargeCode))
       }
+
+      "slug is invalid" in new Fixture {
+        val createdProduct = productsApi.create(productPayload).as[Root]
+
+        val invalidSlugValues = Seq("1", "-1", "+1", "-a", "-")
+        for (slug ← invalidSlugValues) {
+          productsApi(createdProduct.id)
+            .update(UpdateProductPayload(attributes = productPayload.attributes,
+                                         slug = Some(slug),
+                                         skus = None,
+                                         variants = None))
+            .mustFailWith400(ProductFailures.InvalidSlug(slug))
+            .withClue(s" slug = $slug")
+        }
+      }
+
+      "slug is duplicated" in new Fixture {
+        val slug = "simple-product"
+
+        val product1 = productsApi.create(productPayload.copy(slug = Some(slug))).as[Root]
+        productsApi
+          .create(productPayload.copy(slug = Some(slug)))
+          .mustHaveStatus(StatusCodes.BadRequest)
+      }
     }
   }
 
@@ -578,7 +690,8 @@ class ProductIntegrationTest
     }
 
     "Responds with NOT FOUND when wrong product is requested" in new VariantFixture {
-      productsApi(666).archive().mustFailWith404(ProductFormNotFoundForContext(666, ctx.id))
+      private val response: HttpResponse = productsApi(666).archive()
+      response.mustFailWith404(ProductFormNotFoundForContext(666, ctx.id))
     }
 
     "Responds with NOT FOUND when wrong context is requested" in new VariantFixture {

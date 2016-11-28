@@ -18,7 +18,6 @@ import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
 import services.inventory.SkuManager
 import services.objects.ObjectManager
-import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -41,10 +40,11 @@ object ImageManager {
       images ← * <~ AlbumImageLinks.queryRightByLeft(album.model)
     } yield AlbumResponse.build(album, images)
 
-  def getAlbumsForProduct(
-      productFormId: ObjectForm#Id)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
+  def getAlbumsForProduct(productReference: ProductReference)(implicit ec: EC,
+                                                              db: DB,
+                                                              oc: OC): DbResultT[Seq[AlbumRoot]] =
     for {
-      product ← * <~ ProductManager.mustFindProductByContextAndFormId404(oc.id, productFormId)
+      product ← * <~ Products.mustFindByReference(productReference)
       result  ← * <~ getAlbumsForProductInner(product)
     } yield result
 
@@ -177,15 +177,15 @@ object ImageManager {
              }
     } yield images
 
-  def createAlbumForProduct(
-      admin: User,
-      productId: Int,
-      payload: AlbumPayload,
-      contextName: String)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[AlbumRoot] =
+  def createAlbumForProduct(admin: User, productId: ProductReference, payload: AlbumPayload)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      au: AU,
+      oc: OC): DbResultT[AlbumRoot] =
     for {
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
-      product ← * <~ ProductManager.mustFindProductByContextAndFormId404(context.id, productId)
-      created ← * <~ createAlbumInner(payload, context)
+      product ← * <~ Products.mustFindByReference(productId)
+      created ← * <~ createAlbumInner(payload, oc)
       (fullAlbum, images) = created
       link ← * <~ ProductAlbumLinks.createLast(product, fullAlbum.model)
     } yield AlbumResponse.build(fullAlbum, images)
@@ -234,10 +234,10 @@ object ImageManager {
 
   def updateProductAlbumPosition(
       albumFormId: ObjectForm#Id,
-      productFormId: ObjectForm#Id,
+      productRef: ProductReference,
       position: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
     for {
-      product     ← * <~ ProductManager.mustFindProductByContextAndFormId404(oc.id, productFormId)
+      product     ← * <~ Products.mustFindByReference(productRef)
       album       ← * <~ ImageManager.mustFindAlbumByFormIdAndContext404(albumFormId, oc)
       updatedLink ← * <~ ProductAlbumLinks.updatePosition(product, album, position)
       albums      ← * <~ getAlbumsForProductInner(product)

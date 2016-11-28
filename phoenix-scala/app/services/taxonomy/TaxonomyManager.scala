@@ -9,7 +9,7 @@ import failures.TaxonomyFailures._
 import failures.{Failure, TaxonomyFailures}
 import models.objects.ObjectHeadLinks.ObjectHeadLinkQueries
 import models.objects._
-import models.product.Products
+import models.product.{ProductReference, Products}
 import models.taxonomy.TaxonomyTaxonLinks.scope._
 import models.taxonomy.{TaxonLocation ⇒ _, _}
 import payloads.TaxonomyPayloads._
@@ -292,12 +292,12 @@ object TaxonomyManager {
       assigned ← * <~ getAssignedTaxons(product)
     } yield assigned
 
-  def getAssignedTaxons(productFormId: ObjectForm#Id)(
+  def getAssignedTaxons(productRef: ProductReference)(
       implicit ec: EC,
       oc: OC,
       db: DB): DbResultT[Seq[SingleTaxonResponse]] =
     for {
-      product  ← * <~ Products.mustFindByFormId404(productFormId)
+      product  ← * <~ Products.mustFindByReference(productRef)
       assigned ← * <~ getAssignedTaxons(product)
     } yield assigned
 

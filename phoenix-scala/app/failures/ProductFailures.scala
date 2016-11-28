@@ -49,6 +49,10 @@ object ProductFailures {
     def apply(productId: Int, productContextId: Int) =
       NotFoundFailure404(
           s"Product with id=$productId with product context $productContextId cannot be found")
+
+    def apply(slug: String, productContextId: Int) =
+      NotFoundFailure404(
+          s"Product with slug=$slug with product context $productContextId cannot be found")
   }
 
   object ProductFormNotFoundForContext {
@@ -88,5 +92,14 @@ object ProductFailures {
 
   case class NoProductFoundForSku(id: Int) extends Failure {
     override def description = s"No product for SKU $id found"
+  }
+
+  case class InvalidSlug(slugValue: String) extends Failure {
+    override def description: String = s" '$slugValue' is not valid value for product slug"
+  }
+
+  case class SlugDuplicates(slugValue: String) extends Failure {
+    override def description: String =
+      s"Product slug is already defined for other product: $slugValue"
   }
 }
