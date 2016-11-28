@@ -18,5 +18,4 @@
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/phoenix/restart'
 
 - name: Wait for Phoenix to become available
-  wait_for: host={{phoenix_host}} port={{phoenix_port}}
-  ignore_errors: true
+  wait_for: host={{phoenix_host}} port={{phoenix_port}} timeout=1200

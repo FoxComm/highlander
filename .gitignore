@@ -15,5 +15,4 @@ ashes/public_key.pem
 .env.local
 
 # target folder
-target/
 middlewarehouse/consumers/shipstation/shipstation-consumer

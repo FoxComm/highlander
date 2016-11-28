@@ -6,7 +6,7 @@
   "disk": 0,
   "instances": 1,
   "env": {
-    "PORT": "4002",
+    "PORT": "{{solomon_port}}",
     "DB_USER": "{{db_user}}",
     "DB_HOST": "{{docker_db_host}}",
     "DB_NAME": "{{phoenix_db_name}}",
@@ -15,7 +15,7 @@
     "PUBLIC_KEY": "{{public_keys_dest_dir}}/public_key.pem",
     "TOKEN_TTL": "{{solomon_token_ttl}}"
   },
-  "ports": [4002],
+  "ports": [{{solomon_port}}],
   "constraints": [["hostname", "UNIQUE"]],
   "container": {
     "type": "DOCKER",
@@ -44,11 +44,11 @@
       "path": "/ping",
       "protocol": "HTTP",
       "gracePeriodSeconds": 300,
-      "intervalSeconds": 60,
+      "intervalSeconds": 30,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false,
-      "portIndex": 0
+      "port": {{solomon_port}}
     }
   ]
 }

@@ -16,9 +16,9 @@
       "forcePullImage": true
     }
   },
-  "ports": [9292],
+  "ports": [{{middlewarehouse_port}}],
   "env": {
-    "PORT": "9292",
+    "PORT": "{{middlewarehouse_port}}",
     "DB_SSLMODE": "disable",
     "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",
     "DB_NAME": "{{middlewarehouse_db_name}}",
@@ -35,11 +35,11 @@
       "path": "/v1/public/ping",
       "protocol": "HTTP",
       "gracePeriodSeconds": 300,
-      "intervalSeconds": 60,
+      "intervalSeconds": 30,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false,
-      "portIndex": 0
+      "port": {{middlewarehouse_port}}
     }
   ]
 }

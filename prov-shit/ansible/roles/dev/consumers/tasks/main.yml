@@ -1,0 +1,78 @@
+
+---
+
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
+  sudo: true
+
+- name: Copy Stock Items Consumer Marathon JSON
+  template: src=stock-items-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+  sudo: true
+
+- name: Copy Shipments Consumer Marathon JSON
+  template: src=shipments-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+  sudo: true
+
+- name: Copy Capture Consumer Marathon JSON
+  template: src=capture-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+  sudo: true
+
+- name: Copy Gift Card Consumer Marathon JSON
+  template: src=gift-card-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+  sudo: true
+
+- name: Update Stock Items Consumer in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/stock-items-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/stock-items-consumer'
+
+- name: Restart Stock Items Consumer in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/stock-items-consumer/restart'
+
+- name: Wait For Deployments to Finish
+  shell: "curl -X GET http://{{marathon_server}}/v2/deployments | jq 'length'"
+  register: wt
+  until: wt.stdout == '0'
+  retries: 30
+  delay: 20
+  when: vagrant
+
+- name: Update Shipments Consumer in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/shipments-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/shipments-consumer'
+
+- name: Restart Shipments Consumer in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/shipments-consumer/restart'
+
+- name: Wait For Deployments to Finish
+  shell: "curl -X GET http://{{marathon_server}}/v2/deployments | jq 'length'"
+  register: wt
+  until: wt.stdout == '0'
+  retries: 30
+  delay: 20
+  when: vagrant
+
+- name: Update Capture Consumer in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/capture-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/capture-consumer'
+
+- name: Restart Capture Consumer in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/capture-consumer/restart'
+
+- name: Wait For Deployments to Finish
+  shell: "curl -X GET http://{{marathon_server}}/v2/deployments | jq 'length'"
+  register: wt
+  until: wt.stdout == '0'
+  retries: 30
+  delay: 20
+  when: vagrant
+
+- name: Update Gift Card Consumer in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/gift-card-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/gift-card-consumer'
+
+- name: Restart Gift Card Consumer in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/gift-card-consumer/restart'
+
+- name: Wait For Deployments to Finish
+  shell: "curl -X GET http://{{marathon_server}}/v2/deployments | jq 'length'"
+  register: wt
+  until: wt.stdout == '0'
+  retries: 30
+  delay: 20
+  when: vagrant

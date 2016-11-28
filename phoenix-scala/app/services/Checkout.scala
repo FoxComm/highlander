@@ -126,15 +126,19 @@ case class Checkout(
   }
 
   private case class InventoryTrackedSku(isInventoryTracked: Boolean, code: String, qty: Int)
+
   private def holdInMiddleWarehouse(implicit ctx: OC): DbResultT[Unit] =
     for {
       liSkus               ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       inventoryTrackedSkus ← * <~ filterInventoryTrackingSkus(liSkus)
       skusToHold ← * <~ inventoryTrackedSkus.map { s ⇒
                     SkuInventoryHold(s.code, s.qty)
-                  }
-      _ ← * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold.toSeq))
-      mutatingResult = externalCalls.middleWarehouseSuccess = true
+                  }.toSeq
+      _ ← * <~ doOrMeh(skusToHold.size > 0,
+                       DbResultT(
+                           DBIO.from(apis.middlwarehouse.hold(
+                                   OrderInventoryHold(cart.referenceNumber, skusToHold)))))
+      mutating = externalCalls.middleWarehouseSuccess = skusToHold.size > 0
     } yield {}
 
   private def filterInventoryTrackingSkus(skus: Map[String, Int]) =
@@ -142,8 +146,9 @@ case class Checkout(
       skuInventoryData ← * <~ skus.map {
                           case (skuCode, qty) ⇒ isInventoryTracked(skuCode, qty)
                         }
-      inventoryTrackedSkus ← * <~ skuInventoryData.filter(_.isInventoryTracked)
-    } yield inventoryTrackedSkus
+      // TODO: Add this back, but for gift cards we will track inventory (in the super short term).
+      // inventoryTrackedSkus ← * <~ skuInventoryData.filter(_.isInventoryTracked)
+    } yield skuInventoryData
 
   private def isInventoryTracked(skuCode: String, qty: Int) =
     for {

@@ -1,0 +1,38 @@
+{
+  "id": "/shipments-consumer",
+  "cmd": null,
+  "cpus": 0.25,
+  "mem": 64,
+  "disk": 0,
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "{{docker_registry}}:5000/shipments-consumer:{{docker_branch}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "env": {
+    "TOPIC": "activities",
+    "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
+    "ZOOKEEPER_URL": "{{zookeeper_server}}",
+    "MWH_URL": "http://{{middlewarehouse_server}}",
+    "PARTITION": "1"
+  },
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "ps -ef | grep -v grep | grep shipments-consumer"
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 30,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3
+    }
+  ]
+}

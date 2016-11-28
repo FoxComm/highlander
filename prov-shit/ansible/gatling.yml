@@ -36,6 +36,7 @@
     - { role: dev/isaac }
     - { role: dev/solomon }
     - { role: dev/balancer, sudo: yes }
+    - { role: dev/consumers }
     - { role: dev/seeder }
 
 - name: Provision Gatling Gun

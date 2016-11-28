@@ -29,7 +29,7 @@
     "zookeeper_2": "10.0.0.4",
     "zookeeper_3": "10.0.0.5",
     "zookeepers" : "zk://10.0.0.3:2181,10.0.0.4:2181,10.0.0.5:2181",    
-    "cert_path": "target",
+    "cert_path": "prod/target",
     "docker_registry_bucket": "target-docker",
     "docker_registry":"https://docker.target.foxcommerce.com"
 }

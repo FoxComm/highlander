@@ -89,7 +89,9 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 
 	//assert
 	suite.Equal(http.StatusCreated, response.Code)
-	suite.Equal(responses.NewShipmentFromModel(shipment1), shipment)
+	expectedResp, err := responses.NewShipmentFromModel(shipment1)
+	suite.Nil(err)
+	suite.Equal(expectedResp, shipment)
 }
 
 // TODO: Re-enable
@@ -114,12 +116,10 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 func (suite *shipmentControllerTestSuite) Test_UpdateShipment_Found_ReturnsRecord() {
 	//arrange
 	shipment1 := fixtures.GetShipmentShort(uint(1))
-	shipmentLineItem1 := *fixtures.GetShipmentLineItem(uint(1), 0, 0)
-	shipmentLineItem2 := *fixtures.GetShipmentLineItem(uint(2), 0, 0)
 
 	updateShipment := fixtures.GetShipment(
 		uint(0), "", shipment1.ShippingMethodCode, &models.ShippingMethod{},
-		shipment1.AddressID, &shipment1.Address, []models.ShipmentLineItem{shipmentLineItem1, shipmentLineItem2})
+		shipment1.AddressID, &shipment1.Address, nil)
 	updateShipment.ReferenceNumber = ""
 	updateShipment.OrderRefNum = "BR10001"
 

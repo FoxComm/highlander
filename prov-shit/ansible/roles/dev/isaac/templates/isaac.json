@@ -33,7 +33,7 @@
       "path": "/ping",
       "protocol": "HTTP",
       "gracePeriodSeconds": 300,
-      "intervalSeconds": 60,
+      "intervalSeconds": 30,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false,

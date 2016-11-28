@@ -33,7 +33,7 @@
         "value": "ps -ef | grep -v grep | grep shipstation-consumer"
       },
       "gracePeriodSeconds": 300,
-      "intervalSeconds": 60,
+      "intervalSeconds": 30,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3
     }

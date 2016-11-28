@@ -13,3 +13,7 @@
   
 - name: Restart solomon in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/solomon/restart'
+
+- name: Wait for Solomon become available
+  wait_for: host={{solomon_host}} port={{solomon_port}} timeout=1200
+

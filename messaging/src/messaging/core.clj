@@ -17,7 +17,7 @@
    [franzy.clients.consumer.defaults :as cd]
    [franzy.serialization.deserializers :as deserializers]
    [franzy.common.models.types :as mt]
-   [pjson.core :as json]
+   [cheshire.core :as json]
    [environ.core :refer [env]]
    [aleph.http :as http]
    [byte-streams :as bs]
@@ -34,7 +34,7 @@
   [^String s]
   (some-> s
           (string/replace #"\\" "")
-          json/read-str))
+          json/parse-string))
 
 (defn transform-date
   [d]
@@ -64,13 +64,16 @@
   (-> message
       :value
       str
-      json/read-str
+      json/parse-string
       decode-activity-json))
 
 (def stop (atom false))
 
 (defn start-app
   [react-app]
+  (log/infof "Start consumer, with kafka=%s schema=%s"
+             @kafka-broker
+             @schema-registry-url)
   (reset! stop false)
   (let [cc {:bootstrap.servers       [@kafka-broker]
             :group.id                "fc-messaging"

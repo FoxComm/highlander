@@ -1,0 +1,19 @@
+---
+
+- name: Migrate DB
+  hosts: '{{hostname}}'
+  vars:
+    user: '{{ansible_ssh_user}}'
+    download_flyway: false
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a database to migrate"
+      default: "vanilla-db"
+      private: no
+    - name: "middlewarehouse_db_name"
+      prompt: "Enter name of middlewarehouse db to migrate"
+      default: "middlewarehouse"
+      private: no
+
+  roles:
+      - { role: prod/migrate_middlewarehouse_db }

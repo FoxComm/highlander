@@ -4,8 +4,8 @@
             [compojure.route :as route]
             [messaging.settings :as settings]
             [ring.util.response :refer [response]]
-            [utils.ring-json :refer [wrap-json-response wrap-json-body]]
-            [pjson.core :as json]
+            [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
+            [cheshire.core :as json]
             [byte-streams :as bs]
             [taoensso.timbre :as log]
             [environ.core :refer [env]]))
@@ -81,7 +81,7 @@
   []
   (-> (http/post (str @phoenix-url "/v1/public/login")
                  {:pool @http-pool
-                  :body (json/write-str
+                  :body (json/generate-string
                           {:email @phoenix-user
                            :password @phoenix-password
                            :org "tenant"})
@@ -90,36 +90,52 @@
    :headers
    (get "jwt")))
 
+(defn get-order-info
+  [order-ref]
+  (let [jwt (authenticate)
+        request (http/get (str @phoenix-url "/v1/orders/" order-ref)
+                  {:pool @http-pool
+                   :headers {"JWT" jwt}
+                   :content-type :json})
+        resp (-> request
+                 deref
+                 :body
+                 bs/to-string
+                 json/parse-string)]
+    resp))
+
+
 
 (defn register-plugin
   [schema]
-  (if @phoenix-url
-    (try
-      (log/info "Register plugin at phoenix" @phoenix-url)
-      (let [plugin-info {:name "messaging"
-                         :description description
-                         :apiHost @api-host
-                         :version "1.0"
-                         :apiPort @api-port
-                         :schemaSettings schema}
-            resp (-> (http/post
-                           (str @phoenix-url "/v1/plugins/register")
-                           {:pool @http-pool
-                            :body (json/write-str plugin-info)
-                            :content-type :json
-                            :headers {"JWT" (authenticate)}})
-                     deref
-                         :body
-                         bs/to-string
-                         json/read-str)]
-        (log/info "Plugin registered at phoenix, resp" resp) 
-        (settings/update-settings (get resp "settings")))
-      (catch Exception e
-        (try
-          (let [error-body (-> (ex-data e) :body bs/to-string)]
-            (log/error "Can't register plugin at phoenix" error-body))
-          (catch Exception einner
-            (log/error "Can't register plugin at phoenix" e)))
-        (throw e)))
-    (log/error "Phoenix address not set, can't register myself into phoenix :(")))
+  (when (empty? @phoenix-url)
+    (log/error "Phoenix address not set, can't register myself into phoenix :(")
+    (throw (ex-info "$PHOENIX_URL is empty" {})))
+  (try
+    (log/info "Register plugin at phoenix" @phoenix-url)
+    (let [plugin-info {:name "messaging"
+                       :description description
+                       :apiHost @api-host
+                       :version "1.0"
+                       :apiPort @api-port
+                       :schemaSettings schema}
+          resp (-> (http/post
+                         (str @phoenix-url "/v1/plugins/register")
+                         {:pool @http-pool
+                          :body (json/generate-string plugin-info)
+                          :content-type :json
+                          :headers {"JWT" (authenticate)}})
+                   deref
+                       :body
+                       bs/to-string
+                       json/parse-string)]
+      (log/info "Plugin registered at phoenix, resp" resp)
+      (settings/update-settings (get resp "settings")))
+    (catch Exception e
+      (try
+        (let [error-body (-> (ex-data e) :body bs/to-string)]
+          (log/error "Can't register plugin at phoenix" error-body))
+        (catch Exception einner
+          (log/error "Can't register plugin at phoenix" e)))
+      (throw e))))
 
