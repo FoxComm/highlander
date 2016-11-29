@@ -1,3 +1,6 @@
+include ../../makelib
+header = $(call baseheader, $(1), product-search)
+
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm
 HIGHLANDER_ROOT_PATH=$(BUILD_ROOT_PATH)/highlander
 BUILD_PATH=$(HIGHLANDER_ROOT_PATH)/integrations/product-search
@@ -11,20 +14,20 @@ clean:
 	true
 
 build:
-	@echo "--- Building \033[33mproduct-search\033[0m"
+	$(call header, Building)
 	make prep
 	cd $(BUILD_PATH) && go build -o product-search main.go update_payload.go
 
 docker:
-	@echo "--- Dockerizing \033[33mproduct-search\033[0m"
+	$(call header, Dockerizing)
 	true
 
 docker-push:
-	@echo "--- Registering \033[33mproduct-search\033[0m"
+	$(call header, Registering)
 	true
 
 test:
-	@echo "--- Testing \033[33mproduct-search\033[0m"
+	$(call header, Testing)
 	true
 
 .PHONY: build test clean docker docker-push

@@ -1,4 +1,7 @@
-DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
+include ../makelib
+header = $(call baseheader, $(1), marketplace-ui)
+
+DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_TAG ?= marketplace-ui
 DOCKER_BRANCH ?= master
 
@@ -6,7 +9,7 @@ setup:
 	npm install
 
 build:
-	@echo "--- Building \033[33mmarketplace-ui\033[0m"
+	$(call header, Building)
 	make setup
 	test -f .env && source .env || true && ./node_modules/.bin/gulp build
 
@@ -22,15 +25,15 @@ package-production: build-production
 	tar --exclude 'marketplace-ui.tar.bz2' -jcf marketplace-ui.tar.bz2 ./
 
 test:
-	@echo "--- Testing \033[33mmarketplace-ui\033[0m"
+	$(call header, Testing)
 	true
 
 docker:
-	@echo "--- Dockerizing \033[33mmarketplace-ui\033[0m"
+	$(call header, Dockerizing)
 	docker build -t $(DOCKER_TAG) .
 
 docker-push:
-	@echo "--- Registering \033[33mmarketplace-ui\033[0m"
+	$(call header, Registering)
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
