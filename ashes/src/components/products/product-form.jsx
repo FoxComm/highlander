@@ -13,6 +13,8 @@ import ObjectDetails from '../object-page/object-details';
 import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
 
+import { renderFormField } from 'components/object-form/object-form-inner';
+
 import { autoAssignVariants, deleteVariantCombination, addSkusForVariants } from 'paragons/variants';
 
 // types
@@ -103,5 +105,31 @@ export default class ProductForm extends ObjectDetails {
     this.props.onUpdateObject(
       addSkusForVariants(this.props.object, variantValues)
     );
+  }
+
+  @autobind
+  renderSlug() {
+    return this.slugField;
+  }
+
+  @autobind
+  onSlugChange(value) {
+    console.log(value);
+    const coupon = assoc(this.props.object, 'slug', value);
+    this.props.onUpdateObject(coupon);
+  }
+
+  get slugField() {
+    const value = _.get(this.props, 'object.slug', '');
+    const slugField = (
+      <input
+        type="text"
+        name="slug"
+        value={value}
+        onChange={({target}) => this.onSlugChange(target.value)}
+      />
+    );
+
+    return renderFormField('SLUG', slugField, {label: 'Slug'});
   }
 }
