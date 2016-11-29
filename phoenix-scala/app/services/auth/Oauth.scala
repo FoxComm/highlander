@@ -2,6 +2,7 @@ package services.auth
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
+import akka.http.scaladsl.model.Uri
 
 import cats.data.{Xor, XorT}
 import cats.implicits._
@@ -95,20 +96,20 @@ trait OauthService[M] {
       oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route = {
     onSuccess(oauthCallback(oauthResponse, createCustomerByUserInfo).run()) { tokenOrFailure ⇒
       tokenOrFailure
-        .flatMap(Authenticator.oauthTokenLoginResponse)
+        .flatMap(Authenticator.oauthTokenLoginResponse(Uri./))
         .fold({ f ⇒
           complete(renderFailure(f))
-        }, identity _)
+        }, identity)
     }
   }
 
   def adminCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route = {
     onSuccess(oauthCallback(oauthResponse, createAdminByUserInfo).run()) { tokenOrFailure ⇒
       tokenOrFailure
-        .flatMap(Authenticator.oauthTokenLoginResponse)
+        .flatMap(Authenticator.oauthTokenLoginResponse(Uri("/admin")))
         .fold({ f ⇒
           complete(renderFailure(f))
-        }, identity _)
+        }, identity)
     }
   }
 }
