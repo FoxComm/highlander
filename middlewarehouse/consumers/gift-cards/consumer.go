@@ -107,9 +107,7 @@ func (gfHandle GiftCardHandler) handlerInner(fullOrder *shared.FullOrder) error 
 	log.Printf("Creating giftcards for all gift-card-line-items in order")
 	for _, sku := range skus {
 		if sku.Attributes != nil && sku.Attributes.GiftCard != nil {
-			if sku.Attributes.GiftCard.SenderName == "" ||
-				sku.Attributes.GiftCard.RecipientName == "" ||
-				sku.Attributes.GiftCard.RecipientEmail == "" {
+			if !validAttributes(sku) {
 				return fmt.Errorf("Unable to create gift cards for order %s, giftcard Payload malformed",
 					order.ReferenceNumber)
 			}
@@ -127,34 +125,46 @@ func (gfHandle GiftCardHandler) handlerInner(fullOrder *shared.FullOrder) error 
 			}
 		}
 	}
-
 	log.Printf("\n about to call createGiftCards service")
-
 	if len(giftcardPayloads) > 0 {
-		giftCardResponse, err := gfHandle.client.CreateGiftCards(giftcardPayloads)
-
-		if err != nil {
-			return fmt.Errorf("Unable to create gift cards for order %s with error %s",
-				order.ReferenceNumber, err.Error())
-		}
-
-		defer giftCardResponse.Body.Close()
-		codes := make([]payloads.GiftCardResponse, 0)
-		giftCardsCodesError := json.NewDecoder(giftCardResponse.Body).Decode(&codes)
-		if giftCardsCodesError != nil {
-			return fmt.Errorf("Unable to create gift cards for order %s with error %s",
-				order.ReferenceNumber, giftCardsCodesError.Error())
-		}
-		updateOrderLineItemsPayloads := make([]payloads.UpdateOrderLineItem, 0)
-		for i, sku := range skusToUpdate {
-			sku.Attributes.GiftCardId = codes[i].Code
-			updateOrderLineItemsPayloads = updateOrderLineItemsPayloads.append(updateOrderLineItemsPayloads, payloads.UpdateOrderLineItem{
-				State:           sku.State,
-				Attributes:      sku.Attributes,
-				ReferenceNumber: sku.ReferenceNumber,
-			})
-		}
-		log.Printf("Gift cards created successfully for order %s", order.ReferenceNumber)
+		manageGiftCards(giftcardPayloads, skusToUpdate, order, gfHandle)
 	}
 	return nil
+}
+
+func manageGiftCards(giftcardPayloads []payloads.CreateGiftCardPayload,
+	skusToUpdate []payloads.OrderLineItem,
+	order payloads.Order,
+	gfHandle GiftCardHandler) error {
+	giftCardResponse, err := gfHandle.client.CreateGiftCards(giftcardPayloads)
+	if err != nil {
+		return fmt.Errorf("Unable to create gift cards for order %s with error %s",
+			order.ReferenceNumber, err.Error())
+	}
+
+	defer giftCardResponse.Body.Close()
+	codes := make([]payloads.GiftCardResponse, 0)
+	giftCardsCodesError := json.NewDecoder(giftCardResponse.Body).Decode(&codes)
+	if giftCardsCodesError != nil {
+		return fmt.Errorf("Unable to create gift cards for order %s with error %s",
+			order.ReferenceNumber, giftCardsCodesError.Error())
+	}
+	updateOrderLineItemsPayloads := make([]payloads.UpdateOrderLineItem, 0)
+	for i, sku := range skusToUpdate {
+		sku.Attributes.GiftCardId = codes[i].Code
+		updateOrderLineItemsPayloads = append(updateOrderLineItemsPayloads, payloads.UpdateOrderLineItem{
+			State:           sku.State,
+			Attributes:      sku.Attributes,
+			ReferenceNumber: sku.ReferenceNumber,
+		})
+	}
+	log.Printf("Gift cards created successfully for order %s", order.ReferenceNumber)
+
+	return nil
+}
+
+func validAttributes(sku payloads.OrderLineItem) bool {
+	return sku.Attributes.GiftCard.SenderName == "" ||
+		sku.Attributes.GiftCard.RecipientName == "" ||
+		sku.Attributes.GiftCard.RecipientEmail == ""
 }
