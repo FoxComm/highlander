@@ -1,12 +1,12 @@
 @import "variables.css";
 @import "media-queries.css";
 
-.cooking-block {
+.block {
   background: #3E3436;
   padding-bottom: 90px;
 }
 
-.cooking-header-wrap {
+.header-wrap {
   composes: header-wrap from '../catalog/products.css';
   background: #3E3436;
   color: white;
@@ -18,7 +18,7 @@
   composes: text-wrap from '../catalog/products.css';
 }
 
-.cooking-description {
+.description {
   composes: description from '../catalog/products.css';
   font-weight: 400;
   font-size: 16px;
@@ -27,7 +27,7 @@
   margin-top: 50px;
 }
 
-.cooking-title {
+.title {
   composes: title from '../catalog/products.css';
   font-size: 46px;
   color: white;
@@ -39,51 +39,51 @@
   }
 }
 
-.cooking-section {
+.section {
   display: flex;
   color: white;
   flex-wrap: wrap;
   justify-content: center;
   text-align: center;
   padding: 34px;
-
-  & .img {
-    width: 100%;
-    margin-top: 20px;
-  }
-
-  & .title {
-    font-family: var(--font-main);
-    font-weight: 400;
-    font-size: 15px;
-    letter-spacing: 1.7px;
-    margin-top: 30px;
-
-  }
-
-  & .description {
-    font-family: var(--font-main);
-    font-weight: 300;
-    font-size: 18px;
-    line-height: 33px;
-    margin-top: 20px;
-  }
 }
 
-.cooking-sections {
+.section-img {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.section-title {
+  font-family: var(--font-main);
+  font-weight: 400;
+  font-size: 15px;
+  letter-spacing: 1.7px;
+  margin-top: 30px;
+
+}
+
+.section-description {
+  font-family: var(--font-main);
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 33px;
+  margin-top: 20px;
+}
+
+.sections {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 @media (--medium) {
-  .cooking-block {
+  .block {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
   }
 
-  .cooking-title {
+  .title {
     width: 50%;
     margin: 0 auto;
 
@@ -92,17 +92,17 @@
     }
   }
 
-  .cooking-sections {
+  .sections {
     width: 40%;
   }
 }
 
 @media (--large) {
-  .cooking-title {
+  .title {
     width: 100%;
   }
 
-  .cooking-sections {
+  .sections {
     flex-wrap: nowrap;
     width: 96%;
     margin-top: 40px;

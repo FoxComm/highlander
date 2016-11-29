@@ -32,22 +32,22 @@ const cookingData = [
 ];
 
 const cookingSections = cookingData.map(({ imgUrl, title, description }, i) => (
-  <div styleName="cooking-section" key={i}>
-    <img styleName="img" src={imgUrl} />
-    <div styleName="title">{title}</div>
-    <div styleName="description">{description}</div>
+  <div styleName="section" key={i}>
+    <img styleName="section-img" src={imgUrl} />
+    <div styleName="section-title">{title}</div>
+    <div styleName="section-description">{description}</div>
   </div>
 ));
 
 const CookingBlock = () => (
-  <div styleName="cooking-block">
-    <div styleName="cooking-header-wrap">
+  <div styleName="block">
+    <div styleName="header-wrap">
       <div styleName="header-text-wrap">
-        <div styleName="cooking-description">STRESS FREE GOURMET</div>
-        <h1 styleName="cooking-title">DELICIOUSLY CONVIENT</h1>
+        <div styleName="description">STRESS FREE GOURMET</div>
+        <h1 styleName="title">DELICIOUSLY CONVIENT</h1>
       </div>
     </div>
-    <div styleName="cooking-sections">
+    <div styleName="sections">
       {cookingSections}
     </div>
   </div>

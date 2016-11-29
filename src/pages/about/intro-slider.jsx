@@ -16,14 +16,16 @@ const introSliderSettings = {
   arrows: false,
 };
 
-const introSliderImages = [
+const imageNames = [
   'Busy_Families',
   'Couples',
   'Entertaining',
   'Everyone',
   'Holidays',
   'Singles',
-].map(img =>
+];
+
+const introSliderImages = imageNames.map(img =>
   <div key={img}>
     <div styleName="img-wrap">
       <img styleName="img" src={`/images/about-page/${img}.svg`} />

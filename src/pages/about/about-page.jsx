@@ -29,7 +29,7 @@ export default class AboutPage extends React.Component {
         <div styleName="top-header-wrap">
           <div styleName="logo-white" />
           <div styleName="text-wrap">
-            <h1 styleName="default-sesction-title">CHEF CRAFTED MEALS DELIVERED TO YOUR DOOR</h1>
+            <h1 styleName="title">CHEF CRAFTED MEALS DELIVERED TO YOUR DOOR</h1>
           </div>
           <div styleName="scroll-arrow" onClick={this.scrollToIntroBlock} />
         </div>
@@ -47,7 +47,7 @@ export default class AboutPage extends React.Component {
               easy and delicious.
             </div>
 
-            <Link to="/best-sellers" styleName="shop-best-sellers-link">
+            <Link to="/best-sellers" styleName="action-link">
               Shop best sellers
             </Link>
           </div>
@@ -55,18 +55,16 @@ export default class AboutPage extends React.Component {
 
         <CookingBlock />
 
-        <div styleName="fresh-block">
-          <div styleName="fresh-header-wrap">
-            <div styleName="content-wrapper">
-              <div styleName="text-wrap">
-                <div styleName="fresh-description">QUALITY IS OUR PRIORITY</div>
-                <h1 styleName="default-sesction-title">THE NEW FRESH</h1>
-                <div styleName="fresh-text">
-                  Our chefs only cook with locally sourced, fresh ingredients.
-                  Our meals are then flash frozen, ensuring optimal taste, nutrition
-                  and convenience. So you know you never have to sacrifice qualify
-                  for convenience.
-                </div>
+        <div styleName="fresh-header-wrap">
+          <div styleName="content-wrapper">
+            <div styleName="text-wrap">
+              <div styleName="fresh-description">QUALITY IS OUR PRIORITY</div>
+              <h1 styleName="title">THE NEW FRESH</h1>
+              <div styleName="fresh-text">
+                Our chefs only cook with locally sourced, fresh ingredients.
+                Our meals are then flash frozen, ensuring optimal taste, nutrition
+                and convenience. So you know you never have to sacrifice qualify
+                for convenience.
               </div>
             </div>
           </div>
