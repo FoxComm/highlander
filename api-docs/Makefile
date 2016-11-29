@@ -1,3 +1,6 @@
+include ../makelib
+header = $(call baseheader, $(1), api-docs)
+
 BUILD_DIR ?= ./build
 PORT ?= 3000
 
@@ -7,7 +10,7 @@ install:
 	yarn --pure-lockfile
 
 build:
-	@echo "--- Building \033[33mapi-docs\033[0m"
+	$(call header, Building)
 	make install
 	mkdir -p $(BUILD_DIR)
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/public.apib -o $(BUILD_DIR)/public.html
@@ -36,15 +39,15 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 test:
-	@echo "--- Testing \033[33mapi-docs\033[0m"
+	$(call header, Testing)
 	true
 
 docker:
-	@echo "--- Dockerizing \033[33mapi-docs\033[0m"
+	$(call header, Dockerizing)
 	true
 
 docker-push:
-	@echo "--- Registering \033[33mapi-docs\033[0m"
+	$(call header, Registering)
 	true
 
 .PHONY: install build watch clean test
