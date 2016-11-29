@@ -20,6 +20,7 @@ type PhoenixClient interface {
 	CreateGiftCards(giftCards []payloads.CreateGiftCardPayload) (*http.Response, error)
 	GetOrder(refNum string) (*payloads.OrderResult, error)
 	GetOrderForShipstation(refNum string) (*http.Response, error)
+	UpdateOrderLineItems(updatePayload []payloads.UpdateOrderLineItem, refNum string) error
 	GetJwt() string
 }
 
@@ -40,7 +41,7 @@ type phoenixClient struct {
 }
 
 func (c *phoenixClient) GetJwt() string {
-    return c.jwt
+	return c.jwt
 }
 
 func (c *phoenixClient) ensureAuthentication() error {
@@ -229,6 +230,31 @@ func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) er
 	}
 
 	log.Printf("Successfully updated orders in Phoenix %v", orderResp)
+
+	return nil
+}
+
+func (c *phoenixClient) UpdateOrderLineItems(updatePayload []payloads.UpdateOrderLineItem, refNum string) error {
+	if err := c.ensureAuthentication(); err != nil {
+		return err
+	}
+
+	url := fmt.Sprintf("%s/v1/orders/%s/order-line-items", c.baseURL, refNum)
+	headers := map[string]string{
+		"JWT": c.jwt,
+	}
+
+	rawOrderResp, err := consumers.Patch(url, headers, &updatePayload)
+	if err != nil {
+		return err
+	}
+
+	defer rawOrderResp.Body.Close()
+	orderResp := new(map[string]interface{})
+	if err := json.NewDecoder(rawOrderResp.Body).Decode(orderResp); err != nil {
+		log.Printf("Unable to read order response from Phoenix with error: %s", err.Error())
+		return err
+	}
 
 	return nil
 }

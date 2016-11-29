@@ -7,14 +7,14 @@ import (
 
 type ShipmentLineItem struct {
 	gormfox.Base
-	ShipmentID      uint
-	ReferenceNumber string
-	StockItemUnitID uint
-	StockItemUnit   StockItemUnit
-	SKU             string
-	Name            string
-	Price           uint
-	ImagePath       string
+	ShipmentID       uint
+	ReferenceNumbers []string
+	StockItemUnitID  uint
+	StockItemUnit    StockItemUnit
+	SKU              string
+	Name             string
+	Price            uint
+	ImagePath        string
 }
 
 func NewShipmentLineItemFromPayload(payload *payloads.ShipmentLineItem) *ShipmentLineItem {
@@ -22,20 +22,20 @@ func NewShipmentLineItemFromPayload(payload *payloads.ShipmentLineItem) *Shipmen
 		Base: gormfox.Base{
 			ID: payload.ID,
 		},
-		ReferenceNumber: payload.ReferenceNumber,
-		SKU:             payload.SKU,
-		Name:            payload.Name,
-		Price:           payload.Price,
-		ImagePath:       payload.ImagePath,
+		ReferenceNumbers: payload.ReferenceNumbers,
+		SKU:              payload.SKU,
+		Name:             payload.Name,
+		Price:            payload.Price,
+		ImagePath:        payload.ImagePath,
 	}
 }
 
 func NewShipmentLineItemFromOrderPayload(payload *payloads.OrderLineItem) *ShipmentLineItem {
 	return &ShipmentLineItem{
-		ReferenceNumber: payload.ReferenceNumber,
-		SKU:             payload.SKU,
-		Name:            payload.Name,
-		Price:           payload.Price,
-		ImagePath:       payload.ImagePath,
+		ReferenceNumbers: payload.ReferenceNumbers,
+		SKU:              payload.SKU,
+		Name:             payload.Name,
+		Price:            payload.Price,
+		ImagePath:        payload.ImagePath,
 	}
 }
