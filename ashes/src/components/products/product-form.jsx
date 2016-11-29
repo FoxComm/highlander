@@ -114,7 +114,6 @@ export default class ProductForm extends ObjectDetails {
 
   @autobind
   onSlugChange(value) {
-    console.log(value);
     const coupon = assoc(this.props.object, 'slug', value);
     this.props.onUpdateObject(coupon);
   }
@@ -129,7 +128,12 @@ export default class ProductForm extends ObjectDetails {
         onChange={({target}) => this.onSlugChange(target.value)}
       />
     );
+    const opts = {
+      label: 'Slug',
+      required: false,
+      isDefined: (value) => _.isEmpty(value),
+    };
 
-    return renderFormField('SLUG', slugField, {label: 'Slug'});
+    return renderFormField('SLUG', slugField, opts);
   }
 }
