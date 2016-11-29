@@ -1,7 +1,7 @@
 include ../makelib
 header = $(call baseheader, $(1), phoenix-scala)
 
-DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
+DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_TAG ?= phoenix
 DOCKER_BRANCH ?= master
 

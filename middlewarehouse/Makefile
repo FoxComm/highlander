@@ -12,7 +12,7 @@ BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
 HIGHLANDER_PATH=$(CURDIR)/..
 
-DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
+DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_TAG ?= middlewarehouse
 DOCKER_BRANCH ?= master
 

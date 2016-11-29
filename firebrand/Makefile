@@ -1,7 +1,7 @@
 include ../makelib
 header = $(call baseheader, $(1), firebrand)
 
-DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
+DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_TAG ?= firebrand
 DOCKER_BRANCH ?= master
 

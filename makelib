@@ -1,4 +1,4 @@
-DOCKER_DEFAULT_REPO=docker-stage.foxcommerce.com:5000
+DOCKER_STAGE_REPO=docker-stage.foxcommerce.com:5000
 
 # colors
 RED = \033[33m

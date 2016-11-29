@@ -1,7 +1,7 @@
 include ../makelib
 header = $(call baseheader, $(1), marketplace-ui)
 
-DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
+DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_TAG ?= marketplace-ui
 DOCKER_BRANCH ?= master
 
