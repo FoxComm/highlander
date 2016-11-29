@@ -20,7 +20,3 @@ type CreateGiftCardPayload struct {
 type GiftCardResponse struct {
 	Code string `json:"code" binding:"required"`
 }
-
-type BulkGiftCardResponse struct {
-	Codes []GiftCardResponse
-}

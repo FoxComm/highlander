@@ -137,8 +137,8 @@ func (gfHandle GiftCardHandler) handlerInner(fullOrder *shared.FullOrder) error 
 		}
 
 		defer giftCardResponse.Body.Close()
-		codes := new(payloads.BulkGiftCardResponse)
-		giftCardsCodesError := json.NewDecoder(giftCardResponse.Body).Decode(codes)
+		var codes = make([]payloads.GiftCardResponse, 0)
+		giftCardsCodesError := json.NewDecoder(giftCardResponse.Body).Decode(&codes)
 		if giftCardsCodesError != nil {
 			return fmt.Errorf("Unable to create gift cards for order %s with error %s",
 				order.ReferenceNumber, giftCardsCodesError.Error())
