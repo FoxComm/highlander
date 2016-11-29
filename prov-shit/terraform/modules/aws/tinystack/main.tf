@@ -6,6 +6,8 @@ variable "consul_leader" {}
 
 variable "datacenter" {}
 
+variable "dns_entry" {}
+
 variable "amigo_image" {}
 
 variable "amigo_instance_type" {}
@@ -133,4 +135,20 @@ resource "aws_instance" "tiny_frontend" {
       "sudo su -c 'echo 1 > /var/lib/zookeeper/myid'",
     ]
   }
+}
+
+resource "dnsimple_record" "amigo_dns_record" {
+  domain = "foxcommerce.com"
+  name   = "amigo.${var.dns_entry}"
+  value  = "${aws_instance.tiny_consul.0.private_ip}"
+  type   = "A"
+  ttl    = 3600
+}
+
+resource "dnsimple_record" "frontend_dns_record" {
+  domain = "foxcommerce.com"
+  name   = "${var.dns_entry}"
+  value  = "${aws_instance.tiny_frontend.0.public_ip}"
+  type   = "A"
+  ttl    = 3600
 }

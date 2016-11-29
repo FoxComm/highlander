@@ -81,6 +81,7 @@ module "tgt-wild" {
   aws_ssh_private_key = "${var.aws_ssh_private_key}"
   consul_leader       = "${module.dev.leader}"
   datacenter          = "tgt-wild"
+  dns_entry           = "tgt-wild2"
   key_name            = "${var.key_name}"
 
   public_subnet_id        = "${var.public_subnet_id}"
@@ -107,6 +108,7 @@ module "tgt" {
   aws_ssh_private_key = "${var.aws_ssh_private_key}"
   consul_leader       = "${module.dev.leader}"
   datacenter          = "tgt"
+  dns_entry           = "tgt2"
   key_name            = "${var.key_name}"
 
   public_subnet_id        = "${var.public_subnet_id}"
