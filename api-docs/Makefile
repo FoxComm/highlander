@@ -1,3 +1,5 @@
+include ../makelib
+
 BUILD_DIR ?= ./build
 PORT ?= 3000
 
@@ -36,7 +38,7 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 test:
-	@echo "--- Testing \033[33mapi-docs\033[0m"
+	$(call header, Testing, api-docs)
 	true
 
 docker:

@@ -1,0 +1,8 @@
+# colors
+
+DOCKER_DEFAULT_REPO=docker-stage.foxcommerce.com:5000
+
+RED = \033[33m
+NO_COLOR = \033[0m
+
+header = @echo "--- $(1) $(RED)$(2)$(NO_COLOR)"
