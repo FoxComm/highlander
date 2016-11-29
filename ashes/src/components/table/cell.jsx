@@ -40,7 +40,7 @@ function getCell(column, children, row) {
     case 'change':
       return <Change value={children} />;
     case 'raw':
-      return <div dangerouslySetInnerHTML={children} />;
+      return <div dangerouslySetInnerHTML={{ __html: children }} />;
     default:
       if (column && column.render) {
         return column.render(children, row);
