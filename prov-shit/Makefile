@@ -5,6 +5,7 @@ GOPATH := $(CURDIR)/_vendor:$(GOPATH)
 all: build
 
 build:
+	@echo "--- Building \033[33mprov-shit\033[0m"
 	$(GO) build -o bin/inventory inventory/inventory.go
 
 clean:
@@ -14,6 +15,7 @@ lint:
 	ansible-lint -x ANSIBLE0007,ANSIBLE0004 ansible/*.yml
 
 test:
+	@echo "--- Testing \033[33mprov-shit\033[0m"
 	go get github.com/stretchr/testify
 	$(GO) test -v ./inventory/
 
@@ -42,9 +44,11 @@ run-gatling-highlander: deploy-gatling-highlander
 	ansible-playbook -v -i bin/envs/staging ansible/run_gatling_highlander.yml
 
 docker:
+	@echo "--- Dockerizing \033[33mprov-shit\033[0m"
 	true
 
 docker-push:
+	@echo "--- Registering \033[33mprov-shit\033[0m"
 	true
 
-.PHONY: all build lint test
+.PHONY: all build lint test docker docker-push
