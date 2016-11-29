@@ -103,12 +103,16 @@
         "content": "(866) 461 - 4183"
       },
       {
-        "type": "paragraph",
-        "content": "Mon - Fri: 10am - 5pm"
+        "type": "paragraph-title",
+        "content": "Address"
       },
       {
         "type": "paragraph",
-        "content": "Sat - Sun: 12pm - 4pm"
+        "content": "8012 Bellona Ave Suite B"
+      },
+      {
+        "type": "paragraph",
+        "content": "Towson, MD 21204"
       }
     ]
   }
