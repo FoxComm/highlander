@@ -7,7 +7,7 @@ import cats.implicits._
 import failures._
 import shapeless._
 import slick.driver.PostgresDriver.api._
-import utils.Passwords.{checkPassword ⇒ scryptCheckPassword, hashPassword}
+import utils.Passwords.{hashPassword, checkPassword ⇒ scryptCheckPassword}
 import utils.Validation
 import utils.aliases._
 import utils.db._
@@ -41,6 +41,14 @@ object AccountAccessMethod {
     AccountAccessMethod(accountId = accountId,
                         name = name,
                         hashedPassword = hashPassword(password))
+
+  def buildInitial(accountId: Int,
+                   name: String = "login",
+                   algorithm: Int = 0): AccountAccessMethod =
+    AccountAccessMethod(name = name,
+                        accountId = accountId,
+                        hashedPassword = "",
+                        algorithm = algorithm)
 }
 
 class AccountAccessMethods(tag: Tag)

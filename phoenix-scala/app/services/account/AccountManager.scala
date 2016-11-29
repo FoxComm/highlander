@@ -76,7 +76,8 @@ object AccountManager {
       account ← * <~ Accounts.mustFindById404(user.accountId)
       accessMethod ← * <~ AccountAccessMethods
                       .findOneByAccountIdAndName(account.id, "login")
-                      .mustFindOr(AccessMethodNotFound("login"))
+                      .findOrCreate(AccountAccessMethods.create(
+                              AccountAccessMethod.buildInitial(account.id)))
       _ ← * <~ Users.update(user, user.copy(isMigrated = false))
       _ ← * <~ UserPasswordResets.update(remind,
                                          remind.copy(state = UserPasswordReset.PasswordRestored,
