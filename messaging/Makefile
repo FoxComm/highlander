@@ -7,16 +7,16 @@ build:
 	lein uberjar
 
 docker:
-	@echo "--- Testing \033[33mmessaging\033[0m"
+	@echo "--- Dockerizing \033[33mmessaging\033[0m"
 	docker build -t $(DOCKER_TAG) .
 
 docker-push:
-	@echo "--- Dockerizing \033[33mmessaging\033[0m"
+	@echo "--- Registering \033[33mmessaging\033[0m"
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
 test:
-	@echo "--- Registering \033[33mmessaging\033[0m"
+	@echo "--- Testing \033[33mmessaging\033[0m"
 	true
 
 .PHONY: build test docker docker-push
