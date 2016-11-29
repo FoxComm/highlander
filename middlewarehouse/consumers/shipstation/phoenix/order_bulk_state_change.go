@@ -21,12 +21,16 @@ func NewOrderBulkStateChangeFromActivity(activity *Activity) (*OrderBulkStateCha
 func (ac *OrderBulkStateChange) GetRelatedOrders(client lib.PhoenixClient) ([]*FullOrder, error) {
 	orders := []*FullOrder{}
 	for _, refNum := range ac.CordRefNums {
-		payload, err := client.GetOrder(refNum)
+		response, err := client.GetOrderForShipstation(refNum)
 		if err != nil {
 			return orders, err
 		}
 
-		fullOrder := NewFullOrderFromPayload(payload)
+		fullOrder, err := NewFullOrderFromHttpResponse(response)
+		if err != nil {
+			return orders, err
+		}
+
 		orders = append(orders, fullOrder)
 	}
 

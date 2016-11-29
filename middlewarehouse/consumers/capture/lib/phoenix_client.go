@@ -19,6 +19,7 @@ type PhoenixClient interface {
 	UpdateOrder(refNum, shipmentState, orderState string) error
 	CreateGiftCards(giftCards []payloads.CreateGiftCardPayload) (*http.Response, error)
 	GetOrder(refNum string) (*payloads.Order, error)
+	GetOrderForShipstation(refNum string) (*http.Response, error)
 }
 
 func NewPhoenixClient(baseURL, email, password string) PhoenixClient {
@@ -180,6 +181,20 @@ func (c *phoenixClient) GetOrder(refNum string) (*payloads.Order, error) {
 	return orderResp, nil
 }
 
+// GetOrderForShipstation - ugly workaround for split codebase for now
+func (c *phoenixClient) GetOrderForShipstation(refNum string) (*http.Response, error) {
+	if err := c.ensureAuthentication(); err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf("%s/v1/orders/%s", c.baseURL, refNum)
+	headers := map[string]string{
+		"JWT": c.jwt,
+	}
+
+	return consumers.Get(url, headers)
+}
+
 // UpdateOrder
 func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) error {
 	if err := c.ensureAuthentication(); err != nil {
@@ -208,7 +223,7 @@ func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) er
 		return err
 	}
 
-	log.Printf("Successfully updated orders in Phoenix  %v", orderResp)
+	log.Printf("Successfully updated orders in Phoenix %v", orderResp)
 
 	return nil
 }

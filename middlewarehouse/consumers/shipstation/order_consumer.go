@@ -51,7 +51,7 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 			log.Panicf("Unable to decode bulk state change activity")
 		}
 
-		if bulkStateChange.NewState != orderStateFulfillmentStarted {
+		if bulkStateChange.NewState != orderStateFullfillmentStarted {
 			return nil
 		}
 

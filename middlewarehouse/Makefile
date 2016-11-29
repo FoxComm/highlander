@@ -21,7 +21,7 @@ prep:
 glide: prep
 	cd $(BUILD_PATH) && glide install
 
-build: glide
+build: prep
 	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
 	cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
 	cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
