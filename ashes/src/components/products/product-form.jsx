@@ -12,6 +12,7 @@ import _ from 'lodash';
 import ObjectDetails from '../object-page/object-details';
 import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
+import InputMask from 'react-input-mask';
 
 import { renderFormField } from 'components/object-form/object-form-inner';
 
@@ -114,16 +115,26 @@ export default class ProductForm extends ObjectDetails {
 
   @autobind
   onSlugChange(value) {
-    const coupon = assoc(this.props.object, 'slug', value);
+    const realSlug = value.replace(/^\/products\//, '');
+    const coupon = assoc(this.props.object, 'slug', realSlug);
     this.props.onUpdateObject(coupon);
+  }
+
+  get slugMask() {
+    const slugValue = _.get(this.props, 'object.slug', '');
+    const maskLength = _.size(slugValue) + 1;
+    return `/products/${'*'.repeat(maskLength)}`
   }
 
   get slugField() {
     const value = _.get(this.props, 'object.slug', '');
     const slugField = (
-      <input
+      <InputMask
         type="text"
         name="slug"
+        mask={this.slugMask}
+        maskChar=""
+        alwaysShowMask={true}
         value={value}
         onChange={({target}) => this.onSlugChange(target.value)}
       />
