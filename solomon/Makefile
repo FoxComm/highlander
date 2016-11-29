@@ -1,21 +1,24 @@
+include ../makelib
+header = $(call baseheader, $(1), solomon)
+
 DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
 DOCKER_TAG ?= solomon
 DOCKER_BRANCH ?= master
 
 build:
-	@echo "--- Building \033[33msolomon\033[0m"
+	$(call header, Building)
 	true
 
 test:
-	@echo "--- Testing \033[33msolomon\033[0m"
+	$(call header, Testing)
 	true
 
 docker:
-	@echo "--- Dockerizing \033[33msolomon\033[0m"
+	$(call header, Dockerizing)
 	docker build -t $(DOCKER_TAG) .
 
 docker-push:
-	@echo "--- Registering \033[33msolomon\033[0m"
+	$(call header, Registering)
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 

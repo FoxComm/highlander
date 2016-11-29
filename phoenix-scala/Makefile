@@ -1,24 +1,27 @@
+include ../makelib
+header = $(call baseheader, $(1), phoenix-scala)
+
 DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
 DOCKER_TAG ?= phoenix
 DOCKER_BRANCH ?= master
 
 build:
-	@echo "--- Building \033[33mphoenix-scala\033[0m"
+	$(call header, Building)
 	sbt assembly
 
 clean:
 	sbt clean
 
 test:
-	@echo "--- Testing \033[33mphoenix-scala\033[0m"
+	$(call header, Testing)
 	sbt test
 
 docker:
-	@echo "--- Dockerizing \033[33mphoenix-scala\033[0m"
+	$(call header, Dockerizing)
 	docker build -t $(DOCKER_TAG) .
 
 docker-push:
-	@echo "--- Registering \033[33mphoenix-scala\033[0m"
+	$(call header, Registering)
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 

@@ -1,3 +1,6 @@
+include ../makelib
+header = $(call baseheader, $(1), middlewarehouse)
+
 FLYWAY=flyway -configFile=sql/flyway.conf -locations=filesystem:sql/
 FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/
 
@@ -22,7 +25,7 @@ glide: prep
 	cd $(BUILD_PATH) && glide install
 
 build:
-	@echo "--- Building \033[33mmiddlewarehouse\033[0m"
+	$(call header, Building)
 	make glide
 	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
 	cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
@@ -33,7 +36,7 @@ build:
 	cd $(BUILD_PATH) && go build -o common/db/seeds/seeder common/db/seeds/main.go
 
 docker:
-	@echo "--- Dockerizing \033[33mmiddlewarehouse\033[0m"
+	$(call header, Dockerizing)
 	docker build -t $(DOCKER_TAG) .
 	docker build -t stock-items-consumer consumers/stock-items/
 	docker build -t shipments-consumer consumers/shipments/
@@ -43,7 +46,7 @@ docker:
 	docker build -t gift-card-consumer consumers/gift-cards/
 
 docker-push:
-	@echo "--- Registering \033[33mmiddlewarehouse\033[0m"
+	$(call header, Registering)
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 	docker tag stock-items-consumer $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_BRANCH)
 	docker tag gift-card-consumer $(DOCKER_REPO)/gift-card-consumer:$(DOCKER_BRANCH)
@@ -93,7 +96,7 @@ create-user:
 	createuser -s $(DB_USER)
 
 test:
-	@echo "--- Testing \033[33mmiddlewarehouse\033[0m"
+	$(call header, Testing)
 	make glide
 	make reset-test
 	# -p 1 serves to run tests sequentially, as it is required for non-isolated database tests

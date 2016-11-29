@@ -1,20 +1,23 @@
+include ../makelib
+header = $(call baseheader, $(1), integration-tests)
+
 clean:
 	sbt clean
 
 build:
-	@echo "--- Building \033[33mintegration-tests\033[0m"
+	$(call header, Building)
 	sbt gatling:compile
 
 test:
-	@echo "--- Testing \033[33mintegration-tests\033[0m"
+	$(call header, Testing)
 	true
 
 docker:
-	@echo "--- Dockerizing \033[33mintegration-tests\033[0m"
+	$(call header, Dockerizing)
 	true
 
 docker-push:
-	@echo "--- Registering \033[33mintegration-tests\033[0m"
+	$(call header, Registering)
 	true
 
 .PHONY: build clean test docker docker-push
