@@ -97,17 +97,28 @@
         }
       }
     }
+
+    .fc-btn-remove {
+      float: right;
+    }
   }
 
-  .line-item__more {
-    .line-item__more-content {
+  .line-item__attributes {
+    & > td {
       padding: 0;
 
-      th {
+      .fc-table-th {
         padding: 20px 15px;
         height: auto;
         background: #e4e6ea;
         box-shadow: none;
+      }
+
+      td {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 200px;
       }
     }
   }

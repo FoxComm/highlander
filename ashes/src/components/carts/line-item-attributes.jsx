@@ -12,8 +12,8 @@ type Props = {
 }
 
 export default (props: Props) => (
-  <tr className="line-item__more">
-    <td className="line-item__more-content" colSpan={props.spanNumber}>
+  <tr className="line-item__attributes">
+    <td colSpan={props.spanNumber}>
       <Table
         columns={props.columns}
         data={props.data}
