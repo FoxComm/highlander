@@ -3,6 +3,8 @@
 // libs
 import React from 'react';
 import { Link } from 'react-router';
+import scrollTo from 'lib/scroll-to';
+import { autobind } from 'core-decorators';
 
 // styles
 import styles from './about-page.css';
@@ -12,8 +14,15 @@ import IntroSLider from './intro-slider';
 import MentionsSlider from './mentions-slider';
 import CookingBlock from './cooking-block';
 
+const headerOffset = 86;
 
 export default class AboutPage extends React.Component {
+
+  @autobind
+  scrollToIntroBlock() {
+    scrollTo(this.refs.introBlock, 1000, headerOffset);
+  }
+
   render() {
     return (
       <div>
@@ -22,10 +31,10 @@ export default class AboutPage extends React.Component {
           <div styleName="text-wrap">
             <h1 styleName="default-sesction-title">CHEF CRAFTED MEALS DELIVERED TO YOUR DOOR</h1>
           </div>
-          <div styleName="scroll-arrow" />
+          <div styleName="scroll-arrow" onClick={this.scrollToIntroBlock} />
         </div>
 
-        <div styleName="intro-block">
+        <div styleName="intro-block" ref="introBlock">
           <div styleName="content-wrapper">
             <div styleName="intro-title">THE PERFECT GOURMET IS PERFECT FOR</div>
             <IntroSLider />
