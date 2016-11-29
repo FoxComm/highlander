@@ -9,7 +9,7 @@
   sudo: true
 
 - name: Update Firebrand in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/firebrand.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/storefront'
+  shell: 'curl -X PUT -d@/marathon/applications/firebrand.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/firebrand'
 
 - name: Restart Firebrand in Marathon
-  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/storefront/restart'
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/firebrand/restart'
