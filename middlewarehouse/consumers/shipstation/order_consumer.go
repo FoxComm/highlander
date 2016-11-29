@@ -13,7 +13,7 @@ import (
 const (
 	activityOrderStateChanged     = "order_state_changed"
 	activityOrderBulkStateChanged = "order_bulk_state_changed"
-	orderStateFullfillmentStarted = "fulfillmentStarted"
+	orderStateFulfillmentStarted  = "fulfillmentStarted"
 )
 
 type OrderConsumer struct {
@@ -51,7 +51,7 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 			log.Panicf("Unable to decode bulk state change activity")
 		}
 
-		if bulkStateChange.NewState != orderStateFullfillmentStarted {
+		if bulkStateChange.NewState != orderStateFulfillmentStarted {
 			return nil
 		}
 
@@ -74,7 +74,7 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 
 // Handle activity for single order
 func (c OrderConsumer) handlerInner(fullOrder *phoenix.FullOrder) error {
-	if fullOrder.Order.OrderState != orderStateFullfillmentStarted {
+	if fullOrder.Order.OrderState != orderStateFulfillmentStarted {
 		return nil
 	}
 
