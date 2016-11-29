@@ -1,21 +1,27 @@
 ---
-# Install Sensu Server and API
 
-  - name: Check Sensu config directory
-    file: dest="{{ sensu_config_path }}/conf.d" state=directory recurse=true
-#      owner: "{{ sensu_user_name }}"
-#      group: "{{ sensu_group_name }}"
+  - name: create api config
+    template: src=api.json dest={{ sensu_config_path }}
 
-  - name: Configure Sensu API
-    template: dest="{{ sensu_config_path }}/conf.d/api.json" src=sensu-api.json
-    notify: restart sensu-api service
-
-  - name: Configure Sensu for Redis
-    template: dest="{{ sensu_config_path }}/conf.d/redis.json" src=sensu-redis.json
-    notify: restart sensu-api service
-
-  - name: Start Sensu server
+  - name: start sensu server
     service: name=sensu-server state=started enabled=yes
 
-  - name: Start Sensu API
+  - name: start sensu api
     service: name=sensu-api state=started enabled=yes
+
+  - name: install uchiwa
+    apt: name=uchiwa state=latest
+
+  - name: create uchiwa config
+    template: src=uchiwa.json dest=/etc/sensu
+
+  - name: start uchiwa service
+    service: name=uchiwa state=started enabled=yes
+
+  - name: deploy definitions to the master
+    template: src={{ item }} dest="{{ sensu_config_path }}/{{ item | basename }}"
+    with_fileglob: "{{ sensu_definitions }}/*"
+
+  - name: restart sensu core
+    command: echo "restart sensu core services"
+    notify: "restart sensu core"

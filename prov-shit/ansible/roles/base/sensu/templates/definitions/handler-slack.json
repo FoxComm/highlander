@@ -4,9 +4,9 @@
            "type": "pipe",
            "command": "handler-slack.rb",
            "severites": ["warning", "critical"]
-	}
+	    }
     },
     "slack": {
-    	"webhook_url": "https://hooks.slack.com/services/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"
+    	"webhook_url": "{{ sensu_slack_url }}"
     }
 }

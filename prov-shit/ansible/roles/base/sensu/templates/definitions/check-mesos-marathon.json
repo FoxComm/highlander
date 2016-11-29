@@ -4,8 +4,8 @@
       "command": "check-marathon.rb",
       "interval": 60,
       "subscribers": [
-{{ ansible_hostname | to_nice_json }}
-	  ]
-	}
+        {{ ansible_hostname | to_nice_json }}
+      ]
+    }
   }
 }

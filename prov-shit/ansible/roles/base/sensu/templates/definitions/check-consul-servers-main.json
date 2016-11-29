@@ -4,8 +4,8 @@
       "command": "check-consul-servers.rb -s 10.240.0.10 -e 3",
       "interval": 60,
       "subscribers": [
-		{{ ansible_hostname | to_nice_json }}
-	  ]
-	}
+        {{ ansible_hostname | to_nice_json }}
+      ]
+    }
   }
 }

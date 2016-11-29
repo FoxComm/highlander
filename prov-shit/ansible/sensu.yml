@@ -1,6 +1,0 @@
----
-# Install and Configure Sensu Stack
-
-  - hosts: all
-    roles:
-      - { role: base/sensu }
