@@ -2,6 +2,7 @@
 
 // libs
 import _ from 'lodash';
+import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -34,6 +35,7 @@ type Props = {
     },
   },
   item: LineItemProps,
+  className?: string,
 };
 
 type Target = {
@@ -112,11 +114,11 @@ export class CartLineItem extends Component {
   }
 
   get item() {
-    const { item } = this.props;
+    const { item, className } = this.props;
     const { isDeleting, quantity } = this.state;
 
     return (
-      <tr className="line-item">
+      <tr className={classNames('line-item', className)}>
         <td><img src={item.imagePath} /></td>
         <td>{item.name}</td>
         <td>{item.sku}</td>
@@ -150,7 +152,7 @@ export class CartLineItem extends Component {
   }
 
   render() {
-    return this.item
+    return this.item;
   }
 }
 
