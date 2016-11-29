@@ -85,14 +85,16 @@
   }
 
   .line-item {
-    td {
-      position: relative;
-      background: #fff;
-      z-index: 1;
-      box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.3);
+    &._with-attributes {
+      td {
+        position: relative;
+        background: #fff;
+        z-index: 1;
+        box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.3);
 
-      &:last-child {
-        box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.3);
+        &:last-child {
+          box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.3);
+        }
       }
     }
   }

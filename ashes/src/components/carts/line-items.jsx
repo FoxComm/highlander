@@ -1,13 +1,14 @@
 /* @flow */
 
 import _ from 'lodash';
+import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 import { trackEvent } from 'lib/analytics';
 
 import EditableContentBox from 'components/content-box/editable-content-box';
 import CartLineItem from './line-item';
-import CartLineItemMore from './line-item-more';
+import CartLineItemAttributes from './line-item-attributes';
 import CartLineItemsFooter from './line-items-footer';
 import PanelHeader from 'components/panel-header/panel-header';
 import SkuLineItems from 'components/sku-line-items/sku-line-items';
@@ -37,13 +38,15 @@ type State = {
   isEditing: boolean,
 };
 
-const giftCardColumns = [
-    { field: 'code', text: 'Gift Card Number' },
+const attributesColumns = {
+  'giftCard': [
+    { field: 'code', text: 'Gift Card Number', render: code => !_.isEmpty() ? code : 'N/A' },
     { field: 'recipientName', text: 'Recipient Name' },
     { field: 'recipientEmail', text: 'Recipient Email' },
     { field: 'senderName', text: 'Sender Name' },
-    { field: 'recipientEmail', text: 'Message' },
-];
+    { field: 'message', text: 'Message', type: 'html' },
+  ],
+};
 
 export default class CartLineItems extends Component {
   props: Props;
@@ -64,6 +67,23 @@ export default class CartLineItems extends Component {
     return _.get(this.props, 'cart.lineItems.skus', []);
   }
 
+  lineItemAttributes(item: Object): Array<Element> {
+    const attributes = _.get(item, 'attributes', {});
+
+    if (!_.isEmpty(attributes)) {
+      return Object.keys(attributes).map((name: string) => (
+        _.get(attributesColumns, name) ?
+          <CartLineItemAttributes
+            spanNumber={columns.length}
+            columns={attributesColumns[name]}
+            data={{rows: [attributes[name]]}}
+          /> : null
+      ));
+    }
+
+    return [];
+  }
+
   render() {
     const { cart, status } = this.props;
 
@@ -81,10 +101,13 @@ export default class CartLineItems extends Component {
 
     const renderRow = (item: SkuItem) => {
       const key = `sku-line-item-${item.sku}`;
+      const attributes = _.get(item, 'attributes');
+      const cls = classNames({ '_with-attributes': !_.isEmpty(attributes) });
+
       return [
-        <CartLineItem key={key} item={item} cart={cart} />,
-        <CartLineItemMore spanNumber={columns.length} columns={giftCardColumns} data={[]} />
-      ]
+        <CartLineItem className={cls} key={key} item={item} cart={cart} />,
+        ...this.lineItemAttributes(item),
+      ];
     };
 
     const editFooter = <CartLineItemsFooter cart={cart} />;

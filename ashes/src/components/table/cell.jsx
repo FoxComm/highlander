@@ -39,6 +39,8 @@ function getCell(column, children, row) {
       return <Time value={children} />;
     case 'change':
       return <Change value={children} />;
+    case 'raw':
+      return <div dangerouslySetInnerHTML={children} />;
     default:
       if (column && column.render) {
         return column.render(children, row);

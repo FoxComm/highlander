@@ -3,8 +3,6 @@
 // libs
 import React, { Component, Element } from 'react';
 
-import ExpandableRow from 'components/table/expandable-row';
-
 import Table from 'components/table/table';
 
 type Props = {
