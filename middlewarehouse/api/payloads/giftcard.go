@@ -16,3 +16,11 @@ type CreateGiftCardPayload struct {
 	Message        string `json:"message"`
 	CordRef        string `json:"cordRef"`
 }
+
+type GiftCardResponse struct {
+	Code string `json:"code" binding:"required"`
+}
+
+type BulkGiftCardResponse struct {
+	Codes []GiftCardResponse
+}

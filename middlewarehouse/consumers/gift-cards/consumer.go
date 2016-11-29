@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -128,13 +129,22 @@ func (gfHandle GiftCardHandler) handlerInner(fullOrder *shared.FullOrder) error 
 	log.Printf("\n about to call createGiftCards service")
 
 	if len(giftcardPayloads) > 0 {
-		_, err := gfHandle.client.CreateGiftCards(giftcardPayloads)
+		giftCardResponse, err := gfHandle.client.CreateGiftCards(giftcardPayloads)
+
 		if err != nil {
 			return fmt.Errorf("Unable to create gift cards for order %s with error %s",
 				order.ReferenceNumber, err.Error())
 		}
+
+		defer giftCardResponse.Body.Close()
+		codes := new(payloads.BulkGiftCardResponse)
+		giftCardsCodesError := json.NewDecoder(giftCardResponse.Body).Decode(codes)
+		if giftCardsCodesError != nil {
+			return fmt.Errorf("Unable to create gift cards for order %s with error %s",
+				order.ReferenceNumber, giftCardsCodesError.Error())
+		}
+		log.Printf("codes %s", codes)
 		log.Printf("Gift cards created successfully for order %s", order.ReferenceNumber)
 	}
-
 	return nil
 }
