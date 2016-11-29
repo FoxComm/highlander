@@ -40,7 +40,11 @@ type State = {
 
 const attributesColumns = {
   'giftCard': [
-    { field: 'code', text: 'Gift Card Number', render: code => !_.isEmpty() ? code : 'N/A' },
+    {
+      field: 'code',
+      text: 'Gift Card Number',
+      render: code => !_.isEmpty() ? <Link to="giftcard" params={{ giftCard: code }}>{code}</Link> : 'N/A'
+    },
     { field: 'recipientName', text: 'Recipient Name' },
     { field: 'recipientEmail', text: 'Recipient Email' },
     { field: 'senderName', text: 'Sender Name' },
