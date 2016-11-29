@@ -18,6 +18,7 @@ import Order from './components/profile/blocks/order';
 import StoresPage from './pages/stores/stores-page';
 import HomePage from './pages/home/home-page';
 import FAQPage from './pages/static/faqs-page';
+import AboutPage from './pages/about/about-page';
 
 import Checkout from './pages/checkout/checkout';
 import OrderPlaced from './pages/checkout/04-order-placed/order-placed';
@@ -41,6 +42,7 @@ const routes = (
       <Route path="/terms-of-use" component={TermsOfUse} name="terms-of-use" />
       <Route path="/frequently-asked-questions" component={FAQPage} name="frequently-asked-questions" />
       <Route path="/stores" component={StoresPage} name="stores" />
+      <Route path="/about" component={AboutPage} name="about" />
       <Route path="/checkout/done" component={OrderPlaced} />
       <Route path="/products/:productId" component={Pdp} name="product" />
       <Route path="/gift-cards" component={Pdp} name="gift-cards" />

@@ -102,6 +102,7 @@
     "react-router": "^2.7.0",
     "react-router-redux": "^3.0.0",
     "react-router-scroll": "^0.2.0",
+    "react-slick": "^0.14.5",
     "recast": "^0.11.4",
     "reduce-reducers": "^0.1.2",
     "redux": "^3.3.1",
@@ -109,6 +110,7 @@
     "redux-diff-logger": "0.0.9",
     "redux-isomorphic-render": "^1.0.0",
     "reselect": "^2.1.0",
+    "slick-carousel": "^1.6.0",
     "sprout-data": "^0.2.3",
     "wings": "git+ssh://git@github.com/FoxComm/wings.git#v1.2.1",
     "zipcodes": "^2.0.0"

@@ -1,0 +1,139 @@
+@import "variables.css";
+@import "media-queries.css";
+
+.slider-wrapper {
+  background: #f4f4f4;
+  text-align: center;
+  padding-bottom: 100px;
+}
+
+.quotes-background {
+
+}
+
+.slider-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arrow-control {
+  width: 74px;
+  height: 74px;
+  color: #3E3436;
+  border: 1px solid #8D757A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:first-child, &:first-child:hover {
+    border-right: none;
+  }
+
+  &:hover {
+    background: rgba(255,255,255,0.80);
+    border: 1px solid #3E3436;
+  }
+}
+
+.slider {
+  margin-top: 70px;
+}
+
+.slider-dots {
+  &:global(.slick-dots) li {
+    & button {
+      border-radius: 100%;
+      background: white;
+
+      &:before {
+        display: none;
+      }
+    }
+
+    &:global(.slick-active) button {
+      border: 1px solid #8D757A;
+    }
+  }
+}
+
+.content-wrapper {
+  padding-top: 60px;
+}
+
+.mention-text {
+  font-family: var(--font-main);
+  font-weight: 300;
+  font-size: 16px;
+  color: #212121;
+  letter-spacing: 1.81px;
+  line-height: 40px;
+  text-align: center;
+  padding: 0 15px;
+  position: relative;
+  height: 150px;
+
+  &:before {
+    content: '';
+    display: block;
+    background: url('/images/about-page/Quotes_Start.svg') no-repeat;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: -61px;
+    left: 5px;
+  }
+
+  &:after {
+    content: '';
+    display: block;
+    background: url('/images/about-page/Quotes_End.svg') no-repeat;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 64%;
+    left: calc(100% - 138px);
+  }
+}
+
+.mention-description {
+  font-family: var(--font-main);
+  font-weight: 400;
+  font-size: 13px;
+  color: #212121;
+  letter-spacing: 1.47px;
+  line-height: 27px;
+  margin-top: 80px;
+  padding-bottom: 25px;
+  text-transform: uppercase;
+}
+
+@media (--medium) {
+  .slider-wrapper {
+    padding-top: 70px;
+  }
+
+  .content-wrapper {
+    width: 75%;
+    margin: 0 auto;
+  }
+
+  .mention-text {
+    &:before {
+      top: -61px;
+      left: -46px;
+    }
+
+    &:after {
+      top: 45%;
+      left: 87%;
+    }
+  }
+}
+
+@media (--large) {
+  .content-wrapper {
+    width: 50%;
+  }
+}

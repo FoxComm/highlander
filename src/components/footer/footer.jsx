@@ -21,7 +21,7 @@ const Footer = () : HTMLElement => {
         <SubscriptionForm />
 
         <ul styleName="links">
-          <li><a href="#">ABOUT US</a></li>
+          <li><Link to="/about">ABOUT US</Link></li>
           <li><Link to="/stores">STORES</Link></li>
           <li><Link to="/gift-cards">GIFT CARDS</Link></li>
           <li><Link to="/frequently-asked-questions">FAQ</Link></li>

@@ -1,0 +1,110 @@
+@import "variables.css";
+@import "media-queries.css";
+
+.block {
+  background: #3E3436;
+  padding-bottom: 90px;
+}
+
+.header-wrap {
+  composes: header-wrap from '../catalog/products.css';
+  background: #3E3436;
+  color: white;
+  height: 100%;
+  padding: 30px 20px;
+}
+
+.header-text-wrap {
+  composes: text-wrap from '../catalog/products.css';
+}
+
+.description {
+  composes: description from '../catalog/products.css';
+  font-weight: 400;
+  font-size: 16px;
+  color: white;
+  letter-spacing: 1.81px;
+  margin-top: 50px;
+}
+
+.title {
+  composes: title from '../catalog/products.css';
+  font-size: 46px;
+  color: white;
+  letter-spacing: 5.22px;
+  font-weight: 600;
+
+  &:after {
+    width: 48px;
+  }
+}
+
+.section {
+  display: flex;
+  color: white;
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align: center;
+  padding: 34px;
+}
+
+.section-img {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.section-title {
+  font-family: var(--font-main);
+  font-weight: 400;
+  font-size: 15px;
+  letter-spacing: 1.7px;
+  margin-top: 30px;
+
+}
+
+.section-description {
+  font-family: var(--font-main);
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 33px;
+  margin-top: 20px;
+}
+
+.sections {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (--medium) {
+  .block {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .title {
+    width: 50%;
+    margin: 0 auto;
+
+    &:after {
+      width: 93px;
+    }
+  }
+
+  .sections {
+    width: 40%;
+  }
+}
+
+@media (--large) {
+  .title {
+    width: 100%;
+  }
+
+  .sections {
+    flex-wrap: nowrap;
+    width: 96%;
+    margin-top: 40px;
+  }
+}
