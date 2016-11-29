@@ -106,7 +106,7 @@ export class CartLineItem extends Component {
     this.setState({ quantity }, this.performUpdate);
   }
 
-  get item() {
+  render() {
     const { item, className } = this.props;
     const { isDeleting, quantity } = this.state;
 
@@ -142,10 +142,6 @@ export class CartLineItem extends Component {
         </td>
       </tr>
     );
-  }
-
-  render() {
-    return this.item;
   }
 }
 
