@@ -17,7 +17,7 @@ lint:
 test:
 	@echo "--- Testing \033[33mprov-shit\033[0m"
 	go get github.com/stretchr/testify
-	$(GO) test -v ./inventory/
+	$(GO) test ./inventory/
 
 deploy-stage:
 	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
