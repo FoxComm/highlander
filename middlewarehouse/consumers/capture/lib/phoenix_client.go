@@ -18,6 +18,7 @@ type PhoenixClient interface {
 	IsAuthenticated() bool
 	UpdateOrder(refNum, shipmentState, orderState string) error
 	CreateGiftCards(giftCards []payloads.CreateGiftCardPayload) (*http.Response, error)
+	GetOrder(refNum string) (*payloads.Order, error)
 }
 
 func NewPhoenixClient(baseURL, email, password string) PhoenixClient {

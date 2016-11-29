@@ -1,10 +1,9 @@
-package shared
+package phoenix
 
 import (
 	"encoding/json"
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
-	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 )
 
 type OrderBulkStateChange struct {
@@ -12,8 +11,8 @@ type OrderBulkStateChange struct {
 	NewState    string   `json:"newState" binding:"required"`
 }
 
-func NewOrderBulkStateChangeFromActivity(activity activities.ISiteActivity) (*OrderBulkStateChange, error) {
-	bt := []byte(activity.Data())
+func NewOrderBulkStateChangeFromActivity(activity *Activity) (*OrderBulkStateChange, error) {
+	bt := []byte(activity.Data)
 	fo := new(OrderBulkStateChange)
 	err := json.Unmarshal(bt, fo)
 	return fo, err

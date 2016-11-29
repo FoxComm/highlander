@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
 	"github.com/FoxComm/metamorphosis"
@@ -21,15 +22,16 @@ const (
 )
 
 type OrderHandler struct {
+	client lib.PhoenixClient
 	mwhURL string
 }
 
-func NewOrderHandler(mwhURL string) (*OrderHandler, error) {
+func NewOrderHandler(client lib.PhoenixClient, mwhURL string) (*OrderHandler, error) {
 	if mwhURL == "" {
 		return nil, errors.New("middlewarehouse URL must be set")
 	}
 
-	return &OrderHandler{mwhURL}, nil
+	return &OrderHandler{client, mwhURL}, nil
 }
 
 // Handler accepts an Avro encoded message from Kafka and takes
@@ -51,7 +53,29 @@ func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 
 		return o.handlerInner(fullOrder)
 	case activityOrderBulkStateChanged:
-		// TODO: Request Phoenix for each order here
+		bulkStateChange, err := shared.NewOrderBulkStateChangeFromActivity(activity)
+		if err != nil {
+			return fmt.Errorf("Unable to decode bulk state change activity with error %s", err.Error())
+		}
+
+		if bulkStateChange.NewState != orderStateFulfillmentStarted {
+			return nil
+		}
+
+		// Get orders from Phoenix
+		orders, err := bulkStateChange.GetRelatedOrders(o.client)
+		if err != nil {
+			return err
+		}
+
+		// Handle each order
+		for _, fullOrder := range orders {
+			err := o.handlerInner(fullOrder)
+			if err != nil {
+				return err
+			}
+		}
+
 		return nil
 	default:
 		return nil

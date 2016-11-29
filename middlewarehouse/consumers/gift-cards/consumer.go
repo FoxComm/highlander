@@ -65,15 +65,9 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 		}
 
 		// Get orders from Phoenix
-		orders := []*shared.FullOrder{}
-		for _, refNum := range bulkStateChange.CordRefNums {
-			payload, err := gfHandle.client.GetOrder(refNum)
-			if err != nil {
-				return fmt.Errorf("Unable to fetch order %s with error %s", refNum, err.Error())
-			}
-
-			fullOrder := shared.NewFullOrderFromPayload(payload)
-			orders = append(orders, fullOrder)
+		orders, err := bulkStateChange.GetRelatedOrders(gfHandle.client)
+		if err != nil {
+			return err
 		}
 
 		// Handle each order
