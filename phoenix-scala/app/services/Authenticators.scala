@@ -240,17 +240,15 @@ object Authenticator {
                       .mustFindOr(LoginFailed)
       account ← * <~ Accounts.mustFindById404(user.accountId)
 
-      validatedUser ← * <~ validatePassword(user,
-                                            accessMethod.hashedPassword,
-                                            payload.password,
-                                            accessMethod.algorithm)
+      _ ← * <~ failIf(!accessMethod.checkPassword(payload.password), LoginFailed)
+
       //TODO Add this back after demo
       //adminUsers    ← * <~ AdminsData.filter(_.accountId === user.accountId).one
       //_             ← * <~ adminUsers.map(aus ⇒ checkState(aus))
 
       claimSet     ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
       _            ← * <~ validateClaimSet(claimSet)
-      checkedToken ← * <~ UserToken.fromUserAccount(validatedUser, account, claimSet)
+      checkedToken ← * <~ UserToken.fromUserAccount(user, account, claimSet)
     } yield checkedToken).run()
 
     tokenResult.map(_.flatMap { token ⇒
@@ -265,23 +263,6 @@ object Authenticator {
       Xor.left(AuthFailed(reason = "User has no roles in the organization").single)
     else
       Xor.right(Unit)
-
-  private def validatePassword[User](user: User,
-                                     hashedPassword: String,
-                                     password: String,
-                                     algorithm: Int): Failures Xor User = {
-
-    val passwordsMatch = algorithm match {
-
-      case 0 ⇒ checkPassword(password, hashedPassword)
-      case 1 ⇒ password == hashedPassword //TODO remove , only fo demo.
-    }
-
-    if (passwordsMatch)
-      Xor.right(user)
-    else
-      Xor.left(LoginFailed.single)
-  }
 
   private def checkState(adminData: AdminData): Failures Xor AdminData = {
     if (adminData.canLogin) Xor.right(adminData)

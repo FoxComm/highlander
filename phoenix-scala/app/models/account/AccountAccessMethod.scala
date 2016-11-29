@@ -11,12 +11,15 @@ import utils.Passwords.{hashPassword, checkPassword ⇒ scryptCheckPassword}
 import utils.Validation
 import utils.aliases._
 import utils.db._
+import AccountAccessMethod._
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
 
 case class AccountAccessMethod(id: Int = 0,
                                accountId: Int,
                                name: String,
                                hashedPassword: String,
-                               algorithm: Int = 0, //0 means scrypt, rest are reserved for future
+                               algorithm: HashAlgorithm = Scrypt,
                                createdAt: Instant = Instant.now,
                                updatedAt: Instant = Instant.now,
                                deletedAt: Option[Instant] = None)
@@ -28,14 +31,34 @@ case class AccountAccessMethod(id: Int = 0,
 
   def checkPassword(password: String): Boolean = {
     algorithm match {
-      case 0 ⇒ scryptCheckPassword(password, hashedPassword)
-      case 1 ⇒ password == hashedPassword //TODO remove , only fo demo.
-      case _ ⇒ false
+      case Scrypt    ⇒ scryptCheckPassword(password, hashedPassword)
+      case PlainText ⇒ password == hashedPassword //TODO remove , only fo demo.
+      case _         ⇒ false
     }
   }
 }
 
 object AccountAccessMethod {
+
+  sealed trait HashAlgorithm {
+    val code: Int
+  }
+  case object Scrypt extends HashAlgorithm {
+    val code: Int = 0
+  }
+  case object PlainText extends HashAlgorithm {
+    val code: Int = 1
+  }
+
+  case class UnknownAlgorithm(code: Int) extends HashAlgorithm
+
+  implicit val PasswordAlgorithmColumn: JdbcType[HashAlgorithm] with BaseTypedType[HashAlgorithm] = {
+    MappedColumnType.base[HashAlgorithm, Int](c ⇒ c.code, {
+      case 0 ⇒ Scrypt
+      case 1 ⇒ PlainText
+      case j ⇒ UnknownAlgorithm(j)
+    })
+  }
 
   def build(accountId: Int, name: String, password: String): AccountAccessMethod =
     AccountAccessMethod(accountId = accountId,
@@ -44,9 +67,9 @@ object AccountAccessMethod {
 
   def buildInitial(accountId: Int,
                    name: String = "login",
-                   algorithm: Int = 0): AccountAccessMethod =
-    AccountAccessMethod(name = name,
-                        accountId = accountId,
+                   algorithm: HashAlgorithm = Scrypt): AccountAccessMethod =
+    AccountAccessMethod(accountId = accountId,
+                        name = name,
                         hashedPassword = "",
                         algorithm = algorithm)
 }
@@ -57,7 +80,7 @@ class AccountAccessMethods(tag: Tag)
   def accountId      = column[Int]("account_id")
   def name           = column[String]("name")
   def hashedPassword = column[String]("hashed_password")
-  def algorithm      = column[Int]("algorithm")
+  def algorithm      = column[HashAlgorithm]("algorithm")
   def createdAt      = column[Instant]("created_at")
   def updatedAt      = column[Instant]("updated_at")
   def deletedAt      = column[Option[Instant]]("deleted_at")
