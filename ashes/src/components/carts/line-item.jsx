@@ -12,6 +12,7 @@ import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import Counter from 'components/forms/counter';
 import { DeleteButton } from 'components/common/buttons';
 import Currency from 'components/common/currency';
+import Link from 'components/link/link';
 
 // actions
 import { updateLineItemCount } from 'modules/carts/details';
@@ -120,7 +121,7 @@ export class CartLineItem extends Component {
       <tr className={classNames('line-item', className)}>
         <td><img src={item.imagePath} /></td>
         <td>{item.name}</td>
-        <td>{item.sku}</td>
+        <td><Link to="sku-details" params={{ skuCode: item.sku }}>{item.sku}</Link></td>
         <td><Currency value={item.price} /></td>
         <td>
           <Counter
