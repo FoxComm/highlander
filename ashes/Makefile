@@ -14,9 +14,8 @@ clean:
 
 test:
 	@echo "--- Testing \033[33mashes\033[0m"
-	setup
-	@NODE_ENV=$(NODE_ENV) \
-		./node_modules/.bin/gulp test
+	make setup
+	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp test
 
 tag:
 	git push
@@ -42,7 +41,7 @@ build-dev: setup
 
 build:
 	@echo "--- Building \033[33mashes\033[0m"
-	setup
+	make setup
 	./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true ./node_modules/.bin/gulp build
 
