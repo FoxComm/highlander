@@ -35,7 +35,7 @@ export default class StoresPage extends React.Component {
           <div styleName="header-wrap">
             <div styleName="text-wrap">
               <span styleName="description">
-                Live in the greater baltimore area?
+                Live in the Greater Baltimore area?
               </span>
               <h1 styleName="title">COME VISIT US!</h1>
             </div>
