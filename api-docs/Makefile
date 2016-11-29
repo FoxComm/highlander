@@ -6,7 +6,9 @@ all: clean install build
 install:
 	yarn --pure-lockfile
 
-build: install
+build:
+	@echo "--- Building \033[33mapi-docs\033[0m"
+	install
 	mkdir -p $(BUILD_DIR)
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/public.apib -o $(BUILD_DIR)/public.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/customer.apib -o $(BUILD_DIR)/storefront.html
@@ -34,12 +36,15 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 test:
+	@echo "--- Testing \033[33mapi-docs\033[0m"
 	true
 
 docker:
+	@echo "--- Dockerizing \033[33mapi-docs\033[0m"
 	true
 
 docker-push:
+	@echo "--- Registering \033[33mapi-docs\033[0m"
 	true
 
 .PHONY: install build watch clean test

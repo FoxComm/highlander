@@ -12,7 +12,9 @@ version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('pa
 clean:
 	rm -rf ./node_modules
 
-test: setup
+test:
+	@echo "--- Testing \033[33mashes\033[0m"
+	setup
 	@NODE_ENV=$(NODE_ENV) \
 		./node_modules/.bin/gulp test
 
@@ -38,14 +40,18 @@ build-dev: setup
 	./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && ON_SERVER=true ./node_modules/.bin/gulp build
 
-build: setup
+build:
+	@echo "--- Building \033[33mashes\033[0m"
+	setup
 	./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true ./node_modules/.bin/gulp build
 
 docker:
+	@echo "--- Dockerizing \033[33mashes\033[0m"
 	docker build -t $(DOCKER_TAG) .
 
 docker-push:
+	@echo "--- Registering \033[33mashes\033[0m"
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
