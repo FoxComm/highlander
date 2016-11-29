@@ -27,6 +27,7 @@ import services.Authenticator.AuthData
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
+import testutils.fixtures.api.ApiFixtures
 import utils.JsonFormatters
 import utils.Money.Currency
 import utils.aliases._
@@ -53,6 +54,7 @@ class ProductIntegrationTest
     with PhoenixAdminApi
     with AutomaticAuth
     with BakedFixtures
+    with ApiFixtures
     with TaxonomySeeds {
   import ProductTestExtensions._
 
@@ -64,19 +66,22 @@ class ProductIntegrationTest
       product.taxons.map(_.taxon.id) must contain(taxons.head.formId)
     }
 
-    "queries product by slug" in new ProductAndSkus_Baked with FlatTaxons_Baked {
-      val slug    = "simple-product"
+    "queries product by slug" in new ProductSku_ApiFixture {
+      val slug          = "simple-product"
+      val simpleProduct = Products.mustFindById404(product.id).gimme
+
       val updated = simpleProduct.copy(slug = Some(slug))
 
       Products.update(simpleProduct, updated).gimme
 
-      val queryProduct = GET(s"${productsApi.productsPrefix}/$slug").as[ProductResponse.Root]
+      val queryProduct = productsApi(slug).get.as[ProductResponse.Root]
       queryProduct.id must === (updated.formId)
     }
 
-    "queries product by slug ignoring case" in new ProductAndSkus_Baked with FlatTaxons_Baked {
-      val slug    = "Simple-Product"
-      val updated = simpleProduct.copy(slug = Some(slug.toLowerCase))
+    "queries product by slug ignoring case" in new ProductSku_ApiFixture {
+      val slug          = "Simple-Product"
+      val simpleProduct = Products.mustFindById404(product.id).gimme
+      val updated       = simpleProduct.copy(slug = Some(slug.toLowerCase))
 
       Products.update(simpleProduct, updated).gimme
 
@@ -300,7 +305,7 @@ class ProductIntegrationTest
         for (slug ← invalidSlugValues) {
           productsApi
             .create(productPayload.copy(slug = Some(slug)))
-            .mustFailWith400(ProductFailures.InvalidSlug(slug))
+            .mustFailWith400(ProductFailures.SlugCannotBeInteger(slug))
             .withClue(s" slug = $slug")
         }
       }
@@ -309,15 +314,20 @@ class ProductIntegrationTest
         val slug    = "simple-product"
         val payload = productPayload.copy(slug = Some(slug))
         productsApi.create(payload).mustBeOk()
-        productsApi.create(payload).mustHaveStatus(StatusCodes.BadRequest)
+        private val createResponse: HttpResponse = productsApi.create(payload)
+        createResponse.mustHaveStatus(StatusCodes.BadRequest)
+        createResponse.error must startWith(
+            "ERROR: duplicate key value violates unique constraint")
       }
 
-      "slugs deffers only by case" in new Fixture {
+      "slugs differs only by case" in new Fixture {
         val slug = "simple-product"
         productsApi.create(productPayload.copy(slug = Some(slug))).mustBeOk()
-        productsApi
-          .create(productPayload.copy(slug = Some(slug.toUpperCase())))
-          .mustHaveStatus(StatusCodes.BadRequest)
+        private val createResponse: HttpResponse =
+          productsApi.create(productPayload.copy(slug = Some(slug.toUpperCase())))
+        createResponse.mustHaveStatus(StatusCodes.BadRequest)
+        createResponse.error must startWith(
+            "ERROR: duplicate key value violates unique constraint")
       }
     }
 
@@ -636,7 +646,7 @@ class ProductIntegrationTest
                                          slug = Some(slug),
                                          skus = None,
                                          variants = None))
-            .mustFailWith400(ProductFailures.InvalidSlug(slug))
+            .mustFailWith400(ProductFailures.SlugCannotBeInteger(slug))
             .withClue(s" slug = $slug")
         }
       }
@@ -647,12 +657,16 @@ class ProductIntegrationTest
         productsApi.create(productPayload.copy(slug = Some(slug))).mustBeOk()
         val product2 = productsApi.create(productPayload).as[Root]
 
-        productsApi(product2.id)
-          .update(UpdateProductPayload(attributes = productPayload.attributes,
-                                       slug = Some(slug),
-                                       skus = None,
-                                       variants = None))
-          .mustHaveStatus(StatusCodes.BadRequest)
+        private val updateResponse: HttpResponse = productsApi(product2.id).update(
+            UpdateProductPayload(attributes = productPayload.attributes,
+                                 slug = Some(slug),
+                                 skus = None,
+                                 variants = None))
+
+        updateResponse.mustHaveStatus(StatusCodes.BadRequest)
+        updateResponse.error must startWith(
+            "ERROR: duplicate key value violates unique constraint")
+
       }
     }
   }

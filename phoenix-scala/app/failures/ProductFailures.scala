@@ -94,12 +94,12 @@ object ProductFailures {
     override def description = s"No product for SKU $id found"
   }
 
-  case class InvalidSlug(slugValue: String) extends Failure {
-    override def description: String = s" '$slugValue' is not valid value for product slug"
+  case class SlugCannotBeInteger(slugValue: String) extends Failure {
+    override def description: String = s"Slug cannot be integer: '$slugValue'"
   }
 
   case class SlugDuplicates(slugValue: String) extends Failure {
     override def description: String =
-      s"Product slug is already defined for other product: $slugValue"
+      s"Product slug '$slugValue' is already defined for other product"
   }
 }

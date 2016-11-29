@@ -51,6 +51,13 @@ case class Product(id: Int = 0,
     with Validation[Product]
     with ObjectHead[Product] {
 
+  override def sanitize: Product = {
+    val sanitized: Product = super.sanitize
+
+    if (sanitized.slug.contains("")) sanitized.copy(slug = None)
+    else sanitized
+  }
+
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Product =
     this.copy(shadowId = shadowId, commitId = commitId)
 
@@ -96,7 +103,8 @@ object Products
   def mustFindByReference(reference: ProductReference)(implicit oc: OC,
                                                        ec: EC): DbResultT[Product] = {
     reference match {
-      case ProductId(id) ⇒ mustFindProductByContextAndFormId404(oc.id, id)
+      case ProductId(id) ⇒
+        mustFindProductByContextAndFormId404(oc.id, id)
       case ProductSlug(slug) ⇒
         filter(p ⇒ p.contextId === oc.id && p.slug.toLowerCase === slug.toLowerCase())
           .mustFindOneOr(ProductFailures.ProductNotFoundForContext(slug, oc.id))

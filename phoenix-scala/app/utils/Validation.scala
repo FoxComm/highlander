@@ -28,10 +28,6 @@ object Validation {
     if (expression) invalidNel(GeneralFailure(message))
     else valid({})
 
-  def invalidExpr(expression: Boolean, failure: Failure): ValidatedNel[Failure, Unit] =
-    if (expression) invalidNel(failure)
-    else valid({})
-
   def notEmpty[A <: AnyRef <% HasEmpty](a: A, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new NotEmpty[A].apply(a))
 

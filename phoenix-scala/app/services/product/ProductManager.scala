@@ -115,7 +115,7 @@ object ProductManager {
           variantResponses,
           taxons)
 
-  def updateProduct(admin: User, productId: ProductReference, payload: UpdateProductPayload)(
+  def updateProduct(productId: ProductReference, payload: UpdateProductPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
@@ -162,7 +162,7 @@ object ProductManager {
           variantResponses,
           taxons)
       _ ← * <~ LogActivity
-           .fullProductUpdated(Some(admin), response, ObjectContextResponse.build(oc))
+           .fullProductUpdated(Some(au.model), response, ObjectContextResponse.build(oc))
     } yield response
 
   }
@@ -267,12 +267,10 @@ object ProductManager {
     validateSlug(payload.slug).map { case _ ⇒ payload }
 
   private def validateSlug(slug: Option[String]): ValidatedNel[Failure, Unit] = {
-    def slugValid(slug: String) = slug.isEmpty || Try(slug.toInt).isFailure
-
     slug match {
-      case Some(value) ⇒
-        invalidExpr(!slugValid(value), ProductFailures.InvalidSlug(value))
-      case None ⇒ ok
+      case Some(value) if Try(value.toInt).isSuccess ⇒
+        Validated.invalidNel(ProductFailures.SlugCannotBeInteger(value))
+      case _ ⇒ ok
     }
   }
 
@@ -321,17 +319,17 @@ object ProductManager {
                          shadow: ObjectShadow,
                          maybeCommit: Option[ObjectCommit],
                          newSlug: Option[String])(implicit ec: EC): DbResultT[Product] = {
-    val newProduct =
-      newSlug.fold(product)(value ⇒ product.copy(slug = if (value.isEmpty) None else value.some))
 
-    (maybeCommit, newSlug) match {
-      case (Some(commit), _) ⇒
-        Products.update(product, newProduct.copy(shadowId = shadow.id, commitId = commit.id))
-      case (None, Some(_)) ⇒
-        Products.update(product, newProduct)
-      case _ ⇒
-        DbResultT.good(product)
-    }
+    def withNewSlug = (product: Product) ⇒ newSlug.fold(product)(_ ⇒ product.copy(slug = newSlug))
+    def withCommit =
+      (product: Product) ⇒
+        maybeCommit.fold(product)(commit ⇒
+              product.copy(shadowId = shadow.id, commitId = commit.id))
+
+    val newProduct = withNewSlug.andThen(withCommit)(product)
+
+    if (newProduct != product) Products.update(product, newProduct)
+    else DbResultT.good(product)
   }
 
   private def findOrCreateSkusForProduct(

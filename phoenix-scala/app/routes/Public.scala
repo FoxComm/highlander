@@ -1,8 +1,6 @@
 package routes
 
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.directives.CookieDirectives.{setCookie ⇒ _}
-import akka.http.scaladsl.server.directives.RespondWithDirectives.{respondWithHeader ⇒ _}
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.Reason.reasonTypeRegex

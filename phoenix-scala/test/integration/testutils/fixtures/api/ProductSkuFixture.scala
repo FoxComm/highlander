@@ -7,6 +7,7 @@ import org.json4s.JsonDSL._
 import org.scalatest.SuiteMixin
 import payloads.ProductPayloads.CreateProductPayload
 import payloads.SkuPayloads.SkuPayload
+import responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
 import testutils.PayloadHelpers.tv
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -31,7 +32,7 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
           skus = Seq(skuPayload),
           variants = None)
 
-    productsApi.create(productPayload).mustBeOk()
+    val product = productsApi.create(productPayload).as[ProductRoot]
   }
 
 }

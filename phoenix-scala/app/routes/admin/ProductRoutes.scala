@@ -20,11 +20,8 @@ import utils.http.Http._
 
 object ProductRoutes {
 
-  def productRoutes(productRef: ProductReference)(implicit ec: EC,
-                                                  db: DB,
-                                                  oc: OC,
-                                                  ac: AC,
-                                                  auth: AuthData[User]): Route = {
+  def productRoutes(
+      productRef: ProductReference)(implicit ec: EC, db: DB, oc: OC, ac: AC, auth: AU): Route = {
     (get & pathEnd) {
       getOrFailures {
         ProductManager.getProduct(productRef)
@@ -32,7 +29,7 @@ object ProductRoutes {
     } ~
     (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
       mutateOrFailures {
-        ProductManager.updateProduct(auth.model, productRef, payload)
+        ProductManager.updateProduct(productRef, payload)
       }
     } ~
     (delete & pathEnd) {
