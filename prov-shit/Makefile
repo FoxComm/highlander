@@ -47,4 +47,22 @@ docker:
 docker-push:
 	true
 
+
+# aws target stage
+
+get-modules:
+	terraform get terraform/base/aws_target_stage
+
+plan: get-modules
+	terraform plan -state=terraform/envs/aws_target_stage/terraform.tfstate -var-file=terraform/envs/aws_target_stage/env.tfvars terraform/base/aws_target_stage
+
+plan-destroy: get-modules
+	terraform plan -destroy -state=terraform/envs/aws_target_stage/terraform.tfstate -var-file=terraform/envs/aws_target_stage/env.tfvars terraform/base/aws_target_stage
+
+apply: get-modules
+	terraform apply -state=terraform/envs/aws_target_stage/terraform.tfstate -var-file=terraform/envs/aws_target_stage/env.tfvars terraform/base/aws_target_stage
+
+destroy: get-modules
+	terraform destroy -state=terraform/envs/aws_target_stage/terraform.tfstate -var-file=terraform/envs/aws_target_stage/env.tfvars terraform/base/aws_target_stage
+
 .PHONY: all build lint test
