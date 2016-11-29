@@ -70,6 +70,12 @@
   }
 }
 
+.cooking-sections {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 @media (--medium) {
   .cooking-block {
     display: flex;
@@ -77,20 +83,28 @@
     justify-content: center;
   }
 
-  .cooking-header-wrap {
+  .cooking-title {
     width: 50%;
-  }
+    margin: 0 auto;
 
-  .cooking-title:after {
-    width: 93px;
+    &:after {
+      width: 93px;
+    }
   }
 
   .cooking-sections {
-    display: flex;
-    justify-content: center;
+    width: 40%;
+  }
+}
+
+@media (--large) {
+  .cooking-title {
+    width: 100%;
   }
 
-  .content-wrapper {
-    width: 40%;
+  .cooking-sections {
+    flex-wrap: nowrap;
+    width: 96%;
+    margin-top: 40px;
   }
 }

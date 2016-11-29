@@ -5,6 +5,11 @@
   composes: header-wrap from '../catalog/products.css';
   background: url('/images/about-page/About_Us_Hero.jpg') center no-repeat;
   background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 40px 35px;
 }
 
 @media (-webkit-min-device-pixel-ratio: 2),
@@ -13,6 +18,21 @@
     background: url('/images/about-page/About_Us_Hero_2x.jpg') center no-repeat;
     background-size: cover;
   }
+}
+
+.logo-white {
+  display: none;
+  background: url('/images/about-page/TPG_Logo_White.svg') center no-repeat;
+  width: 300px;
+  height: 102px;
+}
+
+.scroll-arrow {
+  background: url('/images/about-page/Hero_Arrow.svg') center no-repeat;
+  width: 20px;
+  height: 30px;
+  cursor: pointer;
+  background-size: 100%;
 }
 
 .text-wrap {
@@ -162,7 +182,7 @@
 .gifts-wrap {
   background: white;
   height: 100%;
-  padding: 0 20px;
+  padding: 20px 30px;
 }
 
 .gifts-text {
@@ -175,9 +195,19 @@
   margin-top: 50px;
 }
 
+.shop-gift-cards-link {
+  composes: action-link;
+  margin-top: 20px;
+}
+
 @media (--medium) {
   .top-header-wrap {
     height: 680px;
+    padding: 100px 35px;
+  }
+
+  .logo-white {
+    display: block;
   }
 
   .default-sesction-title {
@@ -226,9 +256,29 @@
 
   .gifts-wrap {
     height: 483px;
+    padding: 20px 60px;
+    width: 75%;
   }
 
   .gifts-text {
     padding: 0 50px;
+  }
+}
+
+@media (--large) {
+  .top-header-wrap {
+    padding: 100px 20%;
+  }
+
+  .content-wrapper {
+    width: 50%;
+  }
+
+  .gifts-wrap {
+    width: 50%;
+  }
+
+  .shop-gift-cards-link {
+    margin-top: 40px;
   }
 }

@@ -18,10 +18,13 @@ export default class AboutPage extends React.Component {
     return (
       <div>
         <div styleName="top-header-wrap">
+          <div styleName="logo-white" />
           <div styleName="text-wrap">
             <h1 styleName="default-sesction-title">CHEF CRAFTED MEALS DELIVERED TO YOUR DOOR</h1>
           </div>
+          <div styleName="scroll-arrow" />
         </div>
+
         <div styleName="intro-block">
           <div styleName="content-wrapper">
             <div styleName="intro-title">THE PERFECT GOURMET IS PERFECT FOR</div>
@@ -79,7 +82,7 @@ export default class AboutPage extends React.Component {
                 Give the gift of delicious food for any occasion
                 with The Perfect Gourmet digital gift cards.
               </div>
-              <Link to="/gift-cards" styleName="action-link">
+              <Link to="/gift-cards" styleName="shop-gift-cards-link">
                 Shop gift cards
               </Link>
             </div>

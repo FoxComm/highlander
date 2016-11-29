@@ -46,7 +46,7 @@ const CookingBlock = () => (
       </div>
     </div>
     <div styleName="cooking-sections">
-      <div styleName="content-wrapper">{cookingSections}</div>
+      {cookingSections}
     </div>
   </div>
 );
