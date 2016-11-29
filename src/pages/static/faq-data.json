@@ -7,7 +7,7 @@
       "faqs": [
         {
           "question": "Do I have to prepare the ingredients for the meals myself?",
-          "answer": "Nope! Meals from The Perfect Gourmet have already been prepared by our chefs and are ready to cook whenever you want, so you don’t have to spend time washing and chopping veggies yourself!"
+          "answer": "Meals from The Perfect Gourmet have already been prepared by our chefs and are ready to cook whenever you want, so you don’t have to spend time washing and chopping veggies yourself!"
         },
         {
           "question": "How can I find nutritional information for your meals?",
@@ -154,12 +154,16 @@
         "content": "(866) 461 - 4183"
       },
       {
-        "type": "paragraph",
-        "content": "Mon - Fri: 10am - 5pm"
+        "type": "paragraph-title",
+        "content": "Address"
       },
       {
         "type": "paragraph",
-        "content": "Sat - Sun: 12pm - 4pm"
+        "content": "8012 Bellona Ave Suite B"
+      },
+      {
+        "type": "paragraph",
+        "content": "Towson, MD 21204"
       }
     ]
   }
