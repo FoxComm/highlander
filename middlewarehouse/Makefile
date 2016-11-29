@@ -22,13 +22,13 @@ glide: prep
 	cd $(BUILD_PATH) && glide install
 
 build: glide
-	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
-	cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
-	cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
+	# cd $(BUILD_PATH) && go build -o middlewarehouse main.go
+	# cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
+	# cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
 	cd $(BUILD_PATH) && go build -o consumers/gift-cards/gift-card-consumer consumers/gift-cards/*.go
-	cd $(BUILD_PATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
-	cd $(BUILD_PATH) && go build -o consumers/shipstation/shipstation-consumer consumers/shipstation/*.go
-	cd $(BUILD_PATH) && go build -o common/db/seeds/seeder common/db/seeds/main.go
+	# cd $(BUILD_PATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
+	# cd $(BUILD_PATH) && go build -o consumers/shipstation/shipstation-consumer consumers/shipstation/*.go
+	# cd $(BUILD_PATH) && go build -o common/db/seeds/seeder common/db/seeds/main.go
 
 docker:
 	docker build -t $(DOCKER_TAG) .

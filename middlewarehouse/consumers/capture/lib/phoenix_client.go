@@ -51,6 +51,7 @@ func (c *phoenixClient) ensureAuthentication() error {
 	return nil
 }
 
+// CapturePayment
 func (c *phoenixClient) CapturePayment(capturePayload *CapturePayload) error {
 	if err := c.ensureAuthentication(); err != nil {
 		return err
@@ -84,6 +85,7 @@ func (c *phoenixClient) CapturePayment(capturePayload *CapturePayload) error {
 	return nil
 }
 
+// IsAuthenticated
 func (c *phoenixClient) IsAuthenticated() bool {
 	if c.jwt == "" {
 		return false
@@ -97,6 +99,7 @@ func (c *phoenixClient) IsAuthenticated() bool {
 	return true
 }
 
+// Authenticate
 func (c *phoenixClient) Authenticate() error {
 	payload := LoginPayload{
 		Email:    c.email,
@@ -137,6 +140,7 @@ func (c *phoenixClient) Authenticate() error {
 	return nil
 }
 
+// CreateGiftCards
 func (c *phoenixClient) CreateGiftCards(giftCards []payloads.CreateGiftCardPayload) (*http.Response, error) {
 	if err := c.ensureAuthentication(); err != nil {
 		return nil, err
@@ -148,6 +152,34 @@ func (c *phoenixClient) CreateGiftCards(giftCards []payloads.CreateGiftCardPaylo
 	return consumers.Post(url, headers, &giftCards)
 }
 
+// GetOrder
+func (c *phoenixClient) GetOrder(refNum string) (*payloads.Order, error) {
+	if err := c.ensureAuthentication(); err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf("%s/v1/orders/%s", c.baseURL, refNum)
+	headers := map[string]string{
+		"JWT": c.jwt,
+	}
+
+	rawOrderResp, err := consumers.Get(url, headers)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rawOrderResp.Body.Close()
+	orderResp := new(payloads.Order)
+	if err := json.NewDecoder(rawOrderResp.Body).Decode(orderResp); err != nil {
+		log.Printf("Unable to read order response from Phoenix with error: %s", err.Error())
+		return nil, err
+	}
+
+	log.Printf("Successfully fetched order %s from Phoenix", refNum)
+	return orderResp, nil
+}
+
+// UpdateOrder
 func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) error {
 	if err := c.ensureAuthentication(); err != nil {
 		return err

@@ -55,7 +55,35 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 
 		return gfHandle.handlerInner(fullOrder)
 	case activityOrderBulkStateChanged:
-		// TODO: Request Phoenix for each order here
+		bulkStateChange, err := shared.NewOrderBulkStateChangeFromActivity(activity)
+		if err != nil {
+			return fmt.Errorf("Unable to decode bulk state change activity with error %s", err.Error())
+		}
+
+		if bulkStateChange.NewState != orderStateShipped {
+			return nil
+		}
+
+		// Get orders from Phoenix
+		orders := []*shared.FullOrder{}
+		for _, refNum := range bulkStateChange.CordRefNums {
+			payload, err := gfHandle.client.GetOrder(refNum)
+			if err != nil {
+				return fmt.Errorf("Unable to fetch order %s with error %s", refNum, err.Error())
+			}
+
+			fullOrder := shared.NewFullOrderFromPayload(payload)
+			orders = append(orders, fullOrder)
+		}
+
+		// Handle each order
+		for _, fullOrder := range orders {
+			err := gfHandle.handlerInner(fullOrder)
+			if err != nil {
+				return err
+			}
+		}
+
 		return nil
 	default:
 		return nil

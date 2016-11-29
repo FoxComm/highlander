@@ -17,3 +17,9 @@ func NewFullOrderFromActivity(activity activities.ISiteActivity) (*FullOrder, er
 	err := json.Unmarshal(bt, fo)
 	return fo, err
 }
+
+func NewFullOrderFromPayload(payload *payloads.Order) *FullOrder {
+	fo := new(FullOrder)
+	fo.Order = *payload
+	return fo
+}
