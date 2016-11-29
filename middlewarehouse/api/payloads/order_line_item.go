@@ -16,3 +16,9 @@ type OrderLineItem struct {
 type OrderLineItems struct {
 	SKUs []OrderLineItem `json:"skus" binding:"required"`
 }
+
+type UpdateOrderLineItem struct {
+	State           string
+	Attributes      *Attributes
+	ReferenceNumber string
+}
