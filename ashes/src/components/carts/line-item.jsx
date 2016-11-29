@@ -17,15 +17,7 @@ import Link from 'components/link/link';
 // actions
 import { updateLineItemCount } from 'modules/carts/details';
 
-export type LineItemProps = {
-  imagePath: string,
-  name: string,
-  sku: string,
-  price: number,
-  totalPrice: number,
-  quantity: number,
-  attributes: ?Object,
-}
+import type { SkuItem } from 'paragons/order';
 
 type Props = {
   updateLineItemCount: Function,
@@ -35,7 +27,7 @@ type Props = {
       skus: Array<any>,
     },
   },
-  item: LineItemProps,
+  item: SkuItem,
   className?: string,
 };
 

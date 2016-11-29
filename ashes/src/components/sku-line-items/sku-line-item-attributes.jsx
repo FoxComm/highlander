@@ -7,7 +7,7 @@ import Table from 'components/table/table';
 
 type Props = {
   columns: Array<Object>;
-  data: Array<Object>;
+  data: Object;
   spanNumber: number;
 }
 

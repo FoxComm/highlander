@@ -8,13 +8,16 @@ import TableView from 'components/table/tableview';
 import Link from 'components/link/link';
 import SkuLineItemAttributes from '../sku-line-items/sku-line-item-attributes';
 
-
 import type { SkuItem } from 'paragons/order';
 
 export const defaultColumns = [
   { field: 'imagePath', text: 'Image', type: 'image' },
   { field: 'name', text: 'Name' },
-  { field: 'sku', text: 'SKU', render: code => <Link to="sku-details" params={{ skuCode: code }}>{code}</Link> },
+  {
+    field: 'sku',
+    text: 'SKU',
+    render: (code: string) => <Link to="sku-details" params={{ skuCode: code }}>{code}</Link>
+  },
   { field: 'price', text: 'Price', type: 'currency' },
   { field: 'quantity', text: 'Qty' },
   { field: 'totalPrice', text: 'Total', type: 'currency' },
@@ -48,7 +51,7 @@ type Props = {
   className?: string,
 };
 
-const lineItemAttributes = (item: Object, columns: Array<Object>): Array<Element> => {
+const lineItemAttributes = (item: SkuItem, columns: Array<Column>): Array<?Element> => {
   const attributes = _.get(item, 'attributes', {});
 
   if (!_.isEmpty(attributes)) {
