@@ -11,6 +11,8 @@
     ashes_server_name: local.foxcommerce.com
     storefront_server_name: local.foxcommerce.com
     join_type: join
+    consul_expect: 1
+    mesos_quorum: 1
   roles:
     - { role: base/common }
     - { role: base/consul }
@@ -20,6 +22,7 @@
     - { role: base/mesos }
     - { role: base/mesos_master }
     - { role: base/mesos_worker }
+    - { role: base/mesos_consul }
     - { role: base/confluence }
     - { role: base/zookeeper }
     - { role: base/kafka }
