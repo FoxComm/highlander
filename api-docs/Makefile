@@ -8,7 +8,7 @@ install:
 
 build:
 	@echo "--- Building \033[33mapi-docs\033[0m"
-	install
+	make install
 	mkdir -p $(BUILD_DIR)
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/public.apib -o $(BUILD_DIR)/public.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/customer.apib -o $(BUILD_DIR)/storefront.html

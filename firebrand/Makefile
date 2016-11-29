@@ -7,7 +7,7 @@ setup:
 
 build:
 	@echo "--- Building \033[33mfirebrand\033[0m"
-	setup
+	make setup
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
 
 docker:
@@ -24,7 +24,7 @@ clean:
 
 test:
 	@echo "--- Testing \033[33mfirebrand\033[0m"
-	setup
+	make setup
 	npm test
 
 .PHONY: setup build test docker

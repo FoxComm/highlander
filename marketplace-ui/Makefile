@@ -7,7 +7,7 @@ setup:
 
 build:
 	@echo "--- Building \033[33mmarketplace-ui\033[0m"
-	setup
+	make setup
 	test -f .env && source .env || true && ./node_modules/.bin/gulp build
 
 build-production:

@@ -23,7 +23,7 @@ glide: prep
 
 build:
 	@echo "--- Building \033[33mmiddlewarehouse\033[0m"
-	glide
+	make glide
 	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
 	cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
 	cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
@@ -94,7 +94,7 @@ create-user:
 
 test:
 	@echo "--- Testing \033[33mmiddlewarehouse\033[0m"
-	glide
-	reset-test
+	make glide
+	make reset-test
 	# -p 1 serves to run tests sequentially, as it is required for non-isolated database tests
 	cd $(BUILD_PATH) && GOENV=test go test -p 1 `glide nv`
