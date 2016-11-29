@@ -166,10 +166,6 @@ storefront_fixed_language: false
 loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
 loyalty_jar: /usr/local/bin/loyalty.jar
 
-# Messaging
-plugins_api_user_email: ""
-plugins_api_user_password: ""
-
 # JMX ports
 es_jmx_port: 29010
 phoenix_jmx_port: 39014
