@@ -20,7 +20,7 @@ object OrderTailored {
                                          oldPeriodEnd: Option[Instant])
       extends ActivityBase[OrderRemorsePeriodIncreased]
 
-  case class OrderBulkStateChanged(admin: UserResponse.Root,
+  case class OrderBulkStateChanged(admin: Option[UserResponse.Root],
                                    cordRefNums: Seq[String],
                                    newState: Order.State)
       extends ActivityBase[OrderBulkStateChanged]

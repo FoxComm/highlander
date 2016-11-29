@@ -96,6 +96,15 @@ class CouponsIntegrationTest
         response.coupon.value.code must === (fromToCode)
         response.promotion mustBe 'defined
       }
+
+      "when casing of code is different than what's stored in DB" in new OrderCouponFixture {
+        val response =
+          cartsApi(cart.refNum).coupon.add(fromToCode.toUpperCase).asTheResult[CartResponse]
+
+        response.referenceNumber must === (cart.refNum)
+        response.coupon.value.code must === (fromToCode)
+        response.promotion mustBe 'defined
+      }
     }
 
     "fails to attach coupon" - {

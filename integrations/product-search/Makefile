@@ -10,11 +10,21 @@ prep:
 clean:
 	true
 
-build: prep
+build:
+	@echo "--- Building \033[33mproduct-search\033[0m"
+	make prep
 	cd $(BUILD_PATH) && go build -o product-search main.go update_payload.go
 
 docker:
+	@echo "--- Dockerizing \033[33mproduct-search\033[0m"
 	true
 
 docker-push:
+	@echo "--- Registering \033[33mproduct-search\033[0m"
 	true
+
+test:
+	@echo "--- Testing \033[33mproduct-search\033[0m"
+	true
+
+.PHONY: build test clean docker docker-push
