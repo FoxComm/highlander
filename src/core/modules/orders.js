@@ -9,10 +9,6 @@ const _fetchOrders = createAsyncActions(
   'fetchOrders',
   function() {
     return this.api.orders.list();
-  },
-  void 0,
-  {
-    passthrowError: false,
   }
 );
 
