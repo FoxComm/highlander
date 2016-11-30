@@ -91,10 +91,10 @@ object Products
   implicit val formats = JsonFormatters.phoenixFormats
 
   override def create(unsaved: Product)(implicit ec: EC): DbResultT[Product] =
-    super.create(unsaved).resolveFailures(ErrorResolver.slugErrorResolverFn(unsaved))
+    super.create(unsaved).resolveFailures(ErrorResolver.resolveSlugError(unsaved))
 
   override def update(oldModel: Product, newModel: Product)(implicit ec: EC): DbResultT[Product] =
-    super.update(oldModel, newModel).resolveFailures(ErrorResolver.slugErrorResolverFn(newModel))
+    super.update(oldModel, newModel).resolveFailures(ErrorResolver.resolveSlugError(newModel))
 
   def filterByContext(contextId: Int): QuerySeq =
     filter(_.contextId === contextId)
@@ -125,11 +125,11 @@ object Products
     ObjectManager.getFullObject(mustFindByReference(ref: ProductReference))
 
   private object ErrorResolver {
-    val regexp: Regex =
+    val slugDuplicatedRegex: Regex =
       "ERROR: duplicate key value violates unique constraint \"product_slug_idx\".*".r
 
-    def slugErrorResolverFn(product: Product): PartialFunction[Failure, Failure] = {
-      case DatabaseFailure(message) if regexp.findFirstIn(message).isDefined ⇒
+    def resolveSlugError(product: Product): PartialFunction[Failure, Failure] = {
+      case DatabaseFailure(message) if slugDuplicatedRegex.findFirstIn(message).isDefined ⇒
         SlugDuplicates(product.slug.getOrElse(""))
     }
   }
