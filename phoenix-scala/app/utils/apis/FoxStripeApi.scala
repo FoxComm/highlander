@@ -28,6 +28,7 @@ trait FoxStripeApi {
 
   def authorizeAmount(customerId: String,
                       creditCardId: String,
+                      orderRef: String,
                       amount: Int,
                       currency: Currency): Result[StripeCharge]
 
