@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	clientID = "gift-cards"
-	groupID  = "mwh-gift-cards-consumers"
+	clientID = "gift-cards-tony"
+	groupID  = "mwh-gift-cards-consumers-tony"
 )
 
 func main() {
@@ -31,9 +31,6 @@ func main() {
 	}
 
 	client := lib.NewPhoenixClient(capConf.PhoenixURL, capConf.PhoenixUser, capConf.PhoenixPassword)
-	if err := client.Authenticate(); err != nil {
-		log.Fatalf("Unable to authenticate with Phoenix with error %s", err.Error())
-	}
 
 	consumer.SetGroupID(groupID)
 	consumer.SetClientID(clientID)

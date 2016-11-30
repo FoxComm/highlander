@@ -22,3 +22,11 @@ type UpdateOrderLineItem struct {
 	Attributes      *Attributes `json:"attributes"`
 	ReferenceNumber string      `json:"referenceNumber"`
 }
+
+func NewUpdateOrderLineItem(lineItem OrderLineItem, refNum string) *UpdateOrderLineItem {
+	return &UpdateOrderLineItem{
+		State:           lineItem.State,
+		Attributes:      lineItem.Attributes,
+		ReferenceNumber: refNum,
+	}
+}

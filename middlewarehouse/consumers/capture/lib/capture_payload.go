@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 )
@@ -49,29 +48,6 @@ func NewCapturePayload(activity activities.ISiteActivity) (*CapturePayload, erro
 			capture.Items = append(capture.Items, cLineItem)
 		}
 
-	}
-
-	return &capture, nil
-}
-
-func NewGiftCardCapturePayload(referenceNumber string, lineItems []payloads.OrderLineItem) (*CapturePayload, error) {
-	capture := CapturePayload{
-		ReferenceNumber: referenceNumber,
-		Shipping: CaptureShippingCost{
-			Total:    0,
-			Currency: "USD",
-		},
-		Items: make([]CaptureLineItem, 0),
-	}
-
-	for _, lineItem := range lineItems {
-		for i := 0; i < lineItem.Quantity; i++ {
-			cLineItem := CaptureLineItem{
-				ReferenceNumber: referenceNumber,
-				SKU:             lineItem.SKU,
-			}
-			capture.Items = append(capture.Items, cLineItem)
-		}
 	}
 
 	return &capture, nil

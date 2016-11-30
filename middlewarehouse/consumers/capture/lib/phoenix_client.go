@@ -50,10 +50,7 @@ func (c *phoenixClient) ensureAuthentication() error {
 	}
 
 	if err := c.Authenticate(); err != nil {
-		return fmt.Errorf(
-			"Unable to authenticate with %s - cannot proceed with capture",
-			err.Error(),
-		)
+		return fmt.Errorf("Unable to authenticate with Phoenix with error %s", err.Error())
 	}
 
 	return nil
