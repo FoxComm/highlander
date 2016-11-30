@@ -2,13 +2,10 @@ package services.product
 
 import java.time.Instant
 
-import scala.util.Try
-
 import com.github.tminglei.slickpg.LTree
 import cats.data._
 import cats.implicits._
 import cats.data.ValidatedNel
-import cats.std.map
 import failures._
 import failures.ArchiveFailures._
 import failures.ProductFailures._
@@ -17,14 +14,12 @@ import models.inventory._
 import models.objects._
 import models.product._
 import models.account._
-import models.cord.lineitems.CartLineItems
-import payloads.ImagePayloads.{AlbumPayload, UpdateAlbumPositionPayload}
+import payloads.ImagePayloads.AlbumPayload
 import payloads.ProductPayloads._
 import payloads.SkuPayloads._
 import payloads.VariantPayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
-import responses.ImageResponses.ImageResponse
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
 import responses.SkuResponses._
@@ -268,9 +263,12 @@ object ProductManager {
 
   private def validateSlug(slug: Option[String]): ValidatedNel[Failure, Unit] = {
     slug match {
-      case Some(value) if Try(value.toInt).isSuccess ⇒
-        Validated.invalidNel(ProductFailures.SlugCannotBeInteger(value))
-      case _ ⇒ ok
+      case Some("") ⇒
+        ok
+      case Some(value) if !value.exists(_.isLetter) ⇒
+        Validated.invalidNel(ProductFailures.SlugShouldHaveLetters(value))
+      case _ ⇒
+        ok
     }
   }
 

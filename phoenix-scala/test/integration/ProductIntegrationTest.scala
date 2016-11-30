@@ -99,7 +99,7 @@ class ProductIntegrationTest
       val skuName = "SKU-NEW-TEST"
 
       "slug successfully" in new Fixture {
-        val possibleSlug = List("simple-product", "1-Product", "1-", "_", "-")
+        val possibleSlug = List("simple-product", "1-Product", "p")
         for (slug ← possibleSlug) {
           val productResponse = doQuery(productPayload.copy(slug = slug.some))
           productResponse.slug must === (slug.some).withClue(s"slug: $slug")
@@ -301,11 +301,11 @@ class ProductIntegrationTest
       }
 
       "slug is invalid" in new Fixture {
-        val invalidSlugValues = Seq("1", "-1", "+1")
+        val invalidSlugValues = Seq("1", "-1", "+1", "-", "_-")
         for (slug ← invalidSlugValues) {
           productsApi
             .create(productPayload.copy(slug = Some(slug)))
-            .mustFailWith400(ProductFailures.SlugCannotBeInteger(slug))
+            .mustFailWith400(ProductFailures.SlugShouldHaveLetters(slug))
             .withClue(s" slug = $slug")
         }
       }
@@ -639,14 +639,14 @@ class ProductIntegrationTest
       "slug is invalid" in new Fixture {
         val createdProduct = productsApi.create(productPayload).as[Root]
 
-        val invalidSlugValues = Seq("1", "-1", "+1")
+        val invalidSlugValues = Seq("1", "-1", "+1", "_", "-")
         for (slug ← invalidSlugValues) {
           productsApi(createdProduct.id)
             .update(UpdateProductPayload(attributes = productPayload.attributes,
                                          slug = Some(slug),
                                          skus = None,
                                          variants = None))
-            .mustFailWith400(ProductFailures.SlugCannotBeInteger(slug))
+            .mustFailWith400(ProductFailures.SlugShouldHaveLetters(slug))
             .withClue(s" slug = $slug")
         }
       }

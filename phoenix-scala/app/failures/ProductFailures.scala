@@ -94,8 +94,8 @@ object ProductFailures {
     override def description = s"No product for SKU $id found"
   }
 
-  case class SlugCannotBeInteger(slugValue: String) extends Failure {
-    override def description: String = s"Slug cannot be integer: '$slugValue'"
+  case class SlugShouldHaveLetters(slugValue: String) extends Failure {
+    override def description: String = s"Slug should have at least one letter: '$slugValue'"
   }
 
   case class SlugDuplicates(slugValue: String) extends Failure {
