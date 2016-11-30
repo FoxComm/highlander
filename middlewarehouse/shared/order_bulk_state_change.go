@@ -2,6 +2,7 @@ package shared
 
 import (
 	"encoding/json"
+	"log"
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
@@ -25,6 +26,10 @@ func (ac *OrderBulkStateChange) GetRelatedOrders(client lib.PhoenixClient) ([]*F
 		payload, err := client.GetOrder(refNum)
 		if err != nil {
 			return orders, err
+		}
+
+		if payload == nil {
+			log.Printf("Received nil payload for order %s", refNum)
 		}
 
 		fullOrder := NewFullOrderFromPayload(payload)
