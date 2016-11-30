@@ -1,17 +1,20 @@
+include ../makelib
+header = $(call baseheader, $(1), engineering-wiki)
+
 build:
-	@echo "--- Building \033[33mengineering-wiki\033[0m"
+	$(call header, Building)
 	true
 
 test:
-	@echo "--- Testing \033[33mengineering-wiki\033[0m"
+	$(call header, Testing)
 	true
 
 docker:
-	@echo "--- Dockerizing \033[33mengineering-wiki\033[0m"
+	$(call header, Dockerizing)
 	true
 
 docker-push:
-	@echo "--- Registering \033[33mengineering-wiki\033[0m"
+	$(call header, Registering)
 	true
 
 .PHONY: build test docker docker-push

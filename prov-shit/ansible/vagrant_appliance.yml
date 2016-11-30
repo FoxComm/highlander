@@ -7,6 +7,7 @@
     cert_path: test/fox
     ashes_server_name: local.foxcommerce.com
     storefront_server_name: local.foxcommerce.com
+    storefront_host: firebrand.service.consul
     docker_db_host: 172.17.0.1
     install_public_keys: true
     install_private_keys: true

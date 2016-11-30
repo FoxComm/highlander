@@ -8,6 +8,7 @@ public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
 vagrant: false
+local_vagrant: false
 
 # Consul Service Discovery
 consul_data_dir: /var/consul
@@ -167,10 +168,6 @@ storefront_fixed_language: false
 # Loyalty
 loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
 loyalty_jar: /usr/local/bin/loyalty.jar
-
-# Messaging
-plugins_api_user_email: ""
-plugins_api_user_password: ""
 
 # JMX ports
 es_jmx_port: 29010
