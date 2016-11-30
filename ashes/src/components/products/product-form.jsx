@@ -123,7 +123,7 @@ export default class ProductForm extends ObjectDetails {
   get slugMask() {
     const slugValue = _.get(this.props, 'object.slug', '');
     const maskLength = _.size(slugValue) + 1;
-    return `/products/${'*'.repeat(maskLength)}`
+    return `/products/${'*'.repeat(maskLength)}`;
   }
 
   get slugField() {
