@@ -17,11 +17,16 @@ type Shipment struct {
 	ShippingPrice     int                `json:"shippingPrice"`
 }
 
-func NewShipmentFromModel(model *models.Shipment) *Shipment {
+func NewShipmentFromModel(model *models.Shipment) (*Shipment, error) {
+	shippingMethod, err := NewShippingMethodFromModel(&model.ShippingMethod)
+	if err != nil {
+		return nil, err
+	}
+
 	shipment := &Shipment{
 		ID:                model.ID,
 		ReferenceNumber:   model.ReferenceNumber,
-		ShippingMethod:    *NewShippingMethodFromModel(&model.ShippingMethod),
+		ShippingMethod:    *shippingMethod,
 		OrderRefNum:       model.OrderRefNum,
 		State:             string(model.State),
 		ShipmentDate:      NewStringFromSqlNullString(model.ShipmentDate),
@@ -39,5 +44,5 @@ func NewShipmentFromModel(model *models.Shipment) *Shipment {
 		shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *lineItem)
 	}
 
-	return shipment
+	return shipment, nil
 }

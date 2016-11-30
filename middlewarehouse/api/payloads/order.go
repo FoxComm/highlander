@@ -16,3 +16,8 @@ type Order struct {
 	ShippingAddress Address             `json:"shippingAddress" binding:"required"`
 	RemorseHoldEnd  *string             `json:"remorseHoldEnd"`
 }
+
+// Order wrapped in Phoenix response
+type OrderResult struct {
+	Order Order `json:"result" binding:"required"`
+}

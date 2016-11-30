@@ -221,7 +221,13 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   case class cartsApi(refNum: String) {
-    val cartPath = s"${cartsApi.cartsPrefix}/$refNum"
+
+    val cartPath      = s"${cartsApi.cartsPrefix}/$refNum"
+    val updateOrderLI = s"$cartPath/order-line-items"
+
+    def updateorderLineItem(payload: Seq[UpdateOrderLineItemsPayload]): HttpResponse = {
+      PATCH(updateOrderLI, payload)
+    }
 
     // TODO @anna: update this to `cartPath` when routes are fixed
     def get(): HttpResponse =
@@ -415,10 +421,10 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       def get(): HttpResponse =
         GET(albumsPrefix)
 
-      def create(payload: CreateAlbumPayload): HttpResponse =
+      def create(payload: AlbumPayload): HttpResponse =
         POST(albumsPrefix, payload)
 
-      def update(payload: UpdateAlbumPayload): HttpResponse =
+      def update(payload: AlbumPayload): HttpResponse =
         PATCH(albumsPrefix, payload)
     }
   }
@@ -448,7 +454,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       def get(): HttpResponse =
         GET(albumsPrefix)
 
-      def create(payload: CreateAlbumPayload): HttpResponse =
+      def create(payload: AlbumPayload): HttpResponse =
         POST(albumsPrefix, payload)
 
       // Why not PATCH?
@@ -508,7 +514,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   object albumsApi {
     def albumsPrefix()(implicit ctx: OC) = s"$rootPrefix/albums/${ctx.name}"
 
-    def create(payload: CreateAlbumPayload)(implicit ctx: OC): HttpResponse =
+    def create(payload: AlbumPayload)(implicit ctx: OC): HttpResponse =
       POST(albumsPrefix, payload)
   }
 
@@ -518,7 +524,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def get(): HttpResponse =
       GET(albumPath)
 
-    def update(payload: UpdateAlbumPayload): HttpResponse =
+    def update(payload: AlbumPayload): HttpResponse =
       PATCH(albumPath, payload)
 
     def delete(): HttpResponse =

@@ -20,8 +20,6 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: 
     with OauthService[User]
     with GoogleProvider {
 
-  def getScopeId: Int = options.scopeId
-
   def createCustomerByUserInfo(userInfo: UserInfo): DbResultT[User] = {
     val context = AccountCreateContext(roles = List(options.roleName),
                                        org = options.orgName,
@@ -36,10 +34,13 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: 
     } yield user
   }
 
-  def createAdminByUserInfo(userInfo: UserInfo): DbResultT[User] = {
-
+  private def extractUserDomain(userInfo: UserInfo): String = {
     val userAtDomain = userInfo.email.split("@")
-    val domain       = if (userAtDomain.size == 2) userAtDomain(1) else ""
+    if (userAtDomain.size == 2) userAtDomain(1) else ""
+  }
+
+  def createAdminByUserInfo(userInfo: UserInfo): DbResultT[User] = {
+    val domain = extractUserDomain(userInfo)
 
     for {
 
@@ -65,10 +66,16 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: 
 
   def findByEmail(email: String) = Users.findByEmail(email).one
 
-  def createToken(user: User, account: Account, scopeId: Int): DbResultT[Token] =
+  def createToken(user: User, account: Account, userInfo: UserInfo): DbResultT[Token] =
     for {
-      claims ← * <~ AccountManager.getClaims(account.id, scopeId)
-      token  ← * <~ UserToken.fromUserAccount(user, account, claims)
+      domain         ← * <~ extractUserDomain(userInfo)
+      scopeDomainOpt ← * <~ ScopeDomains.findByDomain(domain).one
+      scope ← * <~ scopeDomainOpt.map { scopeDomain ⇒
+               Scopes.mustFindById404(scopeDomain.scopeId)
+             }
+      claims ← * <~ AccountManager.getClaims(account.id,
+                                             scope.map(_.id).getOrElse(options.scopeId))
+      token ← * <~ UserToken.fromUserAccount(user, account, claims)
     } yield token
 
   def findAccount(user: User): DbResultT[Account] = Accounts.mustFindById404(user.accountId)

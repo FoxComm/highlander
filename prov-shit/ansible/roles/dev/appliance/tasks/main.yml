@@ -7,6 +7,7 @@
 - name: Set Hostname
   hostname: name={{appliance_hostname}}
   sudo: true
+  when: local_vagrant
 
 - name: Copy Mesos Master Run Script
   template: src=run_mesos_master.sh dest=/usr/local/bin/run_mesos_master.sh mode="u+x,g+x,o+x"

@@ -8,9 +8,12 @@ variable "network" {}
 variable "bucket_location" {}
 variable "zone" {}
 variable "vpn_image" {}
-variable "amigo_server_image" {}
-variable "backend_image" {}
-variable "frontend_image" {}
+variable "stage_amigo_server_image" {}
+variable "stage_backend_image" {}
+variable "stage_frontend_image" {}
+variable "prod_amigo_server_image" {}
+variable "prod_backend_image" {}
+variable "prod_frontend_image" {}
 
 provider "google"
 {
@@ -20,15 +23,29 @@ provider "google"
 }
 
 ##############################################
-# Small Production Stack
+# We decided td-prod is actually td-stage
 ##############################################
 module "td-prod" {
     source = "../../modules/gce/tinyprod"
     network = "${var.network}"
     datacenter = "td-prod"
-    backend_image = "${var.backend_image}"
-    frontend_image = "${var.frontend_image}"
-    amigo_server_image = "${var.amigo_server_image}"
+    backend_image = "${var.stage_backend_image}"
+    frontend_image = "${var.stage_frontend_image}"
+    amigo_server_image = "${var.stage_amigo_server_image}"
+    ssh_user = "${var.ssh_user}"
+    ssh_private_key = "${var.ssh_private_key}"
+}
+
+##############################################
+# Real production
+##############################################
+module "td-production" {
+    source = "../../modules/gce/tinyprod"
+    network = "${var.network}"
+    datacenter = "td-production"
+    backend_image = "${var.prod_backend_image}"
+    frontend_image = "${var.prod_frontend_image}"
+    amigo_server_image = "${var.prod_amigo_server_image}"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }

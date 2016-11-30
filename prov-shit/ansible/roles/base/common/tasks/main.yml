@@ -13,15 +13,7 @@
     state: absent
   sudo: true
 
-- name: Add Oracle Java Repository
-  apt_repository: repo='ppa:webupd8team/java' update_cache=yes
-  sudo: true
-
-- name: Automatically select the Oracle License
-  sudo: true
-  shell: echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
-
-- name: Install Packages
+- name: Install Packages 1
   apt: name={{ item }} state=latest force=yes
   sudo: true
   with_items:
@@ -30,22 +22,37 @@
     - golang-go
     - jq
     - make
+
+- name: Install Packages 2
+  apt: name={{ item }} state=latest force=yes
+  sudo: true
+  with_items:
     - python-httplib2
     - python-pip
     - python-software-properties
     - software-properties-common
     - tmux
+
+- name: Install Packages 3
+  apt: name={{ item }} state=latest force=yes
+  sudo: true
+  with_items:
     - vim
     - nmap
     - htop
     - unzip
     - tree
+    - build-essential
+    - g++
+
+- name: Install Packages 4
+  apt: name={{ item }} state=latest force=yes
+  sudo: true
+  with_items:
     - libcairo2-dev
     - libjpeg8-dev
     - libpango1.0-dev
     - libgif-dev
-    - build-essential
-    - g++
 
 - name: Create /etc/profile.d Directory
   file: path=/etc/profile.d state=directory
@@ -54,6 +61,15 @@
 - name: Set GOPATH for all users
   copy: src=go-path.sh dest=/etc/profile.d
   sudo: true
+
+- name: Add Oracle Java Repository
+  apt_repository: repo='ppa:webupd8team/java' update_cache=yes
+  sudo: true
+
+- name: Automatically select the Oracle License
+  sudo: true
+  shell: echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
+
 
 - name: Install Java Packages
   apt: name={{ item }} state=latest force=yes

@@ -30,6 +30,7 @@ begin
        from (select
                p.id,
                ((p.archived_at is null or (p.archived_at) :: timestamp > statement_timestamp()) and
+               ((f.attributes ->> (s.attributes -> 'activeFrom' ->> 'ref')) = '') is false and
                 (f.attributes ->> (s.attributes -> 'activeFrom' ->> 'ref')) :: timestamp <
                 statement_timestamp() and
                 (((f.attributes ->> (s.attributes -> 'activeTo' ->> 'ref')) = '') is not false or
@@ -101,6 +102,7 @@ begin
                 f.attributes->>(s.attributes->'tags'->>'ref') as tags,
                 albumLink.albums as albums,
                 ((p.archived_at is null or (p.archived_at)::timestamp > statement_timestamp()) and
+                    ((f.attributes ->> (s.attributes -> 'activeFrom' ->> 'ref')) = '') is false and
                     (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp < statement_timestamp() and
                     (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') is not false or
                     ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp >= statement_timestamp())))

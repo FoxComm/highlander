@@ -1,11 +1,12 @@
 (ns messaging.mail
   (:require
     [aleph.http :as http]
-    [pjson.core :as json]
+    [cheshire.core :as json]
     [byte-streams :as bs]
     [environ.core :refer [env]]
     [clojure.string :as string]
     [messaging.settings :as settings]
+    [messaging.phoenix :as phoenix]
     [clojchimp.client :as mailchimp]
     [gws.mandrill.client :as client]
     [gws.mandrill.api.messages :as messages]
@@ -38,13 +39,20 @@
 
 (defn gen-msg
   [{customer-email :email customer-name :name :as rcpt} vars {:keys [subject text html] :as opts}]
-  (let [base-vars {:main_public_domain (settings/get :main_public_domain)
+  (let [additional-vars (some->
+                          (settings/get :additional_merge_vars)
+                          (json/parse-string true))
+        base-vars {:shop_base_url (settings/get :shop_base_url)
+                   :company_name (settings/get :retailer_name)
                    :email_subject subject
                    :update_profile_link (settings/get :update_customer_profile_link)
-                   :customer_name customer-name}]
+                   :customer_name customer-name}
+        base-merge-vars (if additional-vars
+                           (merge base-vars additional-vars)
+                          base-vars)]
    (merge opts {:to
                 [rcpt]
-                :global_merge_vars (make-tpl-vars (merge base-vars vars))
+                :global_merge_vars (make-tpl-vars (merge base-merge-vars vars))
                 :merge_language "handlebars"
                 :auto_text true
 
@@ -82,10 +90,36 @@
                       :shipping_method (get-in order ["shippingMethod" "name"])
                       :shipping_address (get order "shippingAddress")
                       :billing_address (get order "billingAddress")
+                      :billing_info (get order "billingCreditCardInfo")
                       :order_ref order-ref}
 
                      {:subject (settings/get :order_checkout_subject)})]
       (send-template! (settings/get :order_confirmation_template) msg)))
+
+(defmethod handle-activity :shipment_shipped
+  [activity]
+  (let [data (:data activity)
+        order-ref (get data "orderRefNum")
+        order (get (phoenix/get-order-info order-ref) "result")
+        email (get-in order ["customer" "email"])
+        customer-name (get-in order ["customer" "name"] "")
+        tracking-number (get data "trackingNumber")
+        tracking-template (get-in data ["shippingMethod" "carrier" "trackingTemplate"])
+        msg (gen-msg {:email email :name customer-name}
+                     {:items (let [skus (get-in order ["lineItems" "skus"])]
+                               (map at/sku->item skus))
+                      :totals (at/format-prices (get order "totals"))
+                      :placed_at (at/date-simple-format (get order "placedAt"))
+                      :shipping_method (get-in order ["shippingMethod" "name"])
+                      :shipping_address (get order "shippingAddress")
+                      :billing_address (get order "billingAddress")
+                      :tracking_number tracking-number
+                      :tracking_url (str tracking-template tracking-number)
+                      :estimated_arrival (get data "estimatedArrival")
+                      :order_ref order-ref}
+
+                     {:subject (settings/get :order_shipped_subject)})]
+      (send-template! (settings/get :order_shipped_template) msg)))
 
 (defmethod handle-activity :order_state_changed
   [activity]
@@ -103,6 +137,7 @@
                       :shipping_method (get-in order ["shippingMethod" "name"])
                       :shipping_address (get order "shippingAddress")
                       :billing_address (get order "billingAddress")
+                      :billing_info (get order "billingCreditCardInfo")
                       :order_ref order-ref}
 
                     {:subject (settings/get :order_canceled_subject)})]
@@ -121,6 +156,28 @@
                {:reset_password_link full-reset-password-link
                 :reset_code reset-code}
                {:subject (settings/get :customer_remind_password_subject)}))))
+
+
+(defmethod handle-activity :gift_card_created
+  [activity]
+  (let [data (:data activity)
+        message (get-in data ["giftCard" "message"])
+        giftCard (get data "giftCard")
+        recipientEmail (get-in data ["giftCard" "recipientEmail"])
+        recipientName (get-in data ["giftCard" "recipientName"] "")
+        senderName (get-in data ["giftCard" "senderName"] "")
+        giftCardCode (get-in data ["giftCard" "code"])]
+
+   (when (every? seq [recipientEmail giftCardCode])
+     (send-template! (settings/get :gift_card_customer_template)
+          (gen-msg {:email recipientEmail :name recipientName}
+              {:balance (at/format-price-int (get giftCard "availableBalance"))
+               :message message
+               :sender_name senderName
+               :recipient_name recipientName
+               :gift_card_number giftCardCode}
+              {:subject (settings/get :gift_card_customer_subject)})))))
+
 
 (defmethod handle-activity :send_simple_mail
   [activity]

@@ -1,3 +1,6 @@
+include ../makelib
+header = $(call baseheader, $(1), prov-shit)
+
 GO ?= go
 GOPATH := $(CURDIR)/_vendor:$(GOPATH)
 
@@ -5,6 +8,7 @@ GOPATH := $(CURDIR)/_vendor:$(GOPATH)
 all: build
 
 build:
+	$(call header, Building)
 	$(GO) build -o bin/inventory inventory/inventory.go
 
 clean:
@@ -14,8 +18,9 @@ lint:
 	ansible-lint -x ANSIBLE0007,ANSIBLE0004 ansible/*.yml
 
 test:
+	$(call header, Testing)
 	go get github.com/stretchr/testify
-	$(GO) test -v ./inventory/
+	$(GO) test ./inventory/
 
 deploy-stage:
 	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
@@ -42,9 +47,11 @@ run-gatling-highlander: deploy-gatling-highlander
 	ansible-playbook -v -i bin/envs/staging ansible/run_gatling_highlander.yml
 
 docker:
+	$(call header, Dockerizing)
 	true
 
 docker-push:
+	$(call header, Registering)
 	true
 
-.PHONY: all build lint test
+.PHONY: all build lint test docker docker-push

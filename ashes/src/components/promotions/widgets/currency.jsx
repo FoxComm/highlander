@@ -15,7 +15,7 @@ const Currency = (props: Props) => {
   const value = props.context.params[props.name];
   const onChange = value => {
     props.context.setParams({
-      [props.name]: value
+      [props.name]: Number(value)
     });
   };
 

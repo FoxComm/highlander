@@ -5,8 +5,13 @@ variable "ssh_user" {}
 variable "ssh_private_key" {}
 variable "consul_leader" {}
 variable "consul_server_image" {}
+
 variable "frontend_machine_type" {
     default = "n1-highcpu-8"
+}
+
+variable "frontend_disk_size" {
+    default = "30"
 }
 
 resource "google_compute_instance" "tiny-consul" {
@@ -15,14 +20,14 @@ resource "google_compute_instance" "tiny-consul" {
     tags = ["no-ip", "${var.datacenter}-consul-server", "${var.datacenter}"]
     zone = "us-central1-a"
 
-    metadata {
-        consul_dc = "${var.datacenter}"
+    service_account {
+        scopes = ["storage-rw"]
     }
 
     disk {
         image = "${var.consul_server_image}"
         type = "pd-ssd"
-        size = "10"
+        size = "20"
     }
 
     network_interface {
@@ -54,7 +59,7 @@ resource "google_compute_instance" "tiny-frontend" {
     disk {
         image = "${var.frontend_image}"
         type = "pd-ssd"
-        size = "30"
+        size = "${var.frontend_disk_size}"
     }
 
     network_interface {

@@ -6,6 +6,7 @@ usr_local: /usr/local/
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
+local_vagrant: false
 
 # Consul Service Discovery
 consul_data_dir: /var/consul
@@ -74,6 +75,8 @@ marketplace_ui_server: "{{marketplace_ui_host}}:{{marketplace_ui_port}}"
 product_search_host: "product_search.{{consul_suffix}}"
 product_search_port: 5492
 product_search_server: "{{product_search_host}}:{{product_search_port}}"
+
+messaging_host: "messaging.{{consul_suffix}}"
 
 # Database & bottledwater
 db_user: phoenix
@@ -164,10 +167,6 @@ storefront_fixed_language: false
 loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
 loyalty_jar: /usr/local/bin/loyalty.jar
 
-# Messaging
-plugins_api_user_email: ""
-plugins_api_user_password: ""
-
 # JMX ports
 es_jmx_port: 29010
 phoenix_jmx_port: 39014
@@ -221,7 +220,7 @@ stripe_api_key: sk_test_13rnEgvA4DGHgv4f2GMCDtes
 stripe_publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
 
 # Certificates path
-cert_path: stage
+cert_path: test/fox
 
 # Mesos
 mesos_quorum: 2
