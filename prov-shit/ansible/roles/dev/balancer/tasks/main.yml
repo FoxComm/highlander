@@ -38,11 +38,11 @@
 - name: Enable Service Upstreams
   file: src=/etc/nginx/sites-available/services dest=/etc/nginx/sites-enabled/services owner=root group=root state=link force=true
 
-- name: Install Web UI Hosts
-  template: src=web-ui.j2 dest=/etc/nginx/sites-available/web-ui
+#- name: Install Web UI Hosts
+  #template: src=web-ui.j2 dest=/etc/nginx/sites-available/web-ui
 
-- name: Enable Web UI Hosts
-  file: src=/etc/nginx/sites-available/web-ui dest=/etc/nginx/sites-enabled/web-ui owner=root group=root state=link force=true
+#- name: Enable Web UI Hosts
+  #file: src=/etc/nginx/sites-available/web-ui dest=/etc/nginx/sites-enabled/web-ui owner=root group=root state=link force=true
 
 - name: Reload Systemd for Nginx
   sudo: yes

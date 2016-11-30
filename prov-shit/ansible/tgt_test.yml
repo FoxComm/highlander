@@ -9,6 +9,7 @@
   tags:
     - backend
   roles:
+    - { role: dev/stage_mesos, when: first_run}
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
@@ -33,6 +34,7 @@
   tags:
     - frontend
   roles:
+    - { role: dev/stage_mesos, when: first_run}
     - { role: base/ssh_keys }
     - { role: dev/phoenix }
     - { role: dev/greenriver }
