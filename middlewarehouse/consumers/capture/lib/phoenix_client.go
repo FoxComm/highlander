@@ -178,8 +178,6 @@ func (c *phoenixClient) GetOrder(refNum string) (*payloads.OrderResult, error) {
 	}
 
 	log.Printf("Successfully fetched order %s from Phoenix", refNum)
-	log.Printf("\n\n Order data: %v", orderResp)
-
 	return orderResp, nil
 }
 

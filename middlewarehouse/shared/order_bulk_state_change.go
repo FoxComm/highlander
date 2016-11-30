@@ -28,10 +28,6 @@ func (ac *OrderBulkStateChange) GetRelatedOrders(client lib.PhoenixClient) ([]*F
 			return orders, err
 		}
 
-		if payload == nil {
-			log.Printf("Received nil payload for order %s", refNum)
-		}
-
 		fullOrder := NewFullOrderFromPayload(payload)
 		orders = append(orders, fullOrder)
 	}

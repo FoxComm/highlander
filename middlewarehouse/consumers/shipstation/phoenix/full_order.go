@@ -18,16 +18,15 @@ func NewFullOrderFromActivity(activity *Activity) (*FullOrder, error) {
 }
 
 func NewFullOrderFromHttpResponse(response *http.Response) (*FullOrder, error) {
-	fo := new(FullOrder)
-
 	defer response.Body.Close()
 
-	orderResp := new(Order)
+	orderResult := new(OrderResult)
 	if err := json.NewDecoder(response.Body).Decode(orderResp); err != nil {
 		log.Printf("Unable to read order response from Phoenix with error: %s", err.Error())
 		return nil, err
 	}
 
-	fo.Order = *orderResp
+	fo := new(FullOrder)
+	fo.Order = orderResult.Order
 	return fo, nil
 }

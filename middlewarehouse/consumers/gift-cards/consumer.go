@@ -94,8 +94,8 @@ func (gfHandle GiftCardHandler) handlerInner(fullOrder *shared.FullOrder) error 
 	lineItems := order.LineItems
 	skus := lineItems.SKUs
 
-	//We now only need to deal with orders that have been shipped.
-	//Once they are shipped and captured, we will create the giftcards here.
+	// We now only need to deal with orders that have been shipped.
+	// Once they are shipped and captured, we will create the giftcards here.
 	if order.OrderState != orderStateShipped {
 		return nil
 	}
