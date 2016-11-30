@@ -9,6 +9,7 @@ package object lineitems {
 
   case class GiftCardLineItemAttributes(senderName: String,
                                         recipientName: String,
-                                        recipientEmail: String)
+                                        recipientEmail: String,
+                                        message: String)
 
 }
