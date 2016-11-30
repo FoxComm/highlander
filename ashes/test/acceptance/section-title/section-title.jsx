@@ -1,6 +1,6 @@
 
 import React from 'react';
-import ShallowTestUtils from 'react-shallow-testutils';
+import * as ShallowTestUtils from 'react-shallow-testutils';
 
 describe('SectionTitle', function() {
   const SectionTitle = requireComponent('section-title/section-title.jsx');

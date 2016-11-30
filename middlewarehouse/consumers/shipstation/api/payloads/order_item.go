@@ -25,13 +25,12 @@ func NewOrderItemsFromPhoenix(items []phoenix.OrderLineItem) []OrderItem {
 	condensedItems := make(map[string]OrderItem)
 
 	for _, item := range items {
+		newItem := NewOrderItemFromPhoenix(item)
 		ci, ok := condensedItems[item.SKU]
 		if ok {
-			ci.Quantity++
-			condensedItems[item.SKU] = ci
-		} else {
-			condensedItems[item.SKU] = NewOrderItemFromPhoenix(item)
+			newItem.Quantity += ci.Quantity
 		}
+		condensedItems[item.SKU] = newItem
 	}
 
 	orderItems := []OrderItem{}
@@ -48,7 +47,7 @@ func NewOrderItemFromPhoenix(item phoenix.OrderLineItem) OrderItem {
 		SKU:         item.SKU,
 		Name:        item.Name,
 		UnitPrice:   float64(item.Price) / 100.0,
-		Quantity:    1,
+		Quantity:    item.Quantity,
 		Weight:      Weight{Value: 1, Units: "ounces"},
 	}
 }

@@ -39,7 +39,7 @@ object CouponCodes
   }
 
   def findByCode(code: String): QuerySeq =
-    filter(_.code === code)
+    filter(_.code.toLowerCase === code.toLowerCase)
 
   def findOneByCode(code: String): DBIO[Option[CouponCode]] =
     findByCode(code).one

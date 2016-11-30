@@ -2,19 +2,25 @@ package testutils.fixtures
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import failures.UserFailures.OrganizationNotFoundByName
 import models._
 import models.account._
+import models.auth.UserToken
 import models.cord._
 import models.inventory.Sku
 import models.location._
 import models.payment.giftcard.GiftCard
 import models.product._
 import payloads.OrderPayloads
+import payloads.OrderPayloads.CreateCart
 import payloads.PaymentPayloads.GiftCardPayment
+import services.Authenticator.AuthData
+import services.account.AccountManager
 import services.carts._
 import testutils._
 import testutils.fixtures.raw._
 import utils.Money.Currency
+import utils.aliases._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -46,14 +52,15 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   // Cart
   trait EmptyCart_Raw extends StoreAdmin_Seed {
     def customer: User
+    def storeAdmin: User
+    implicit def au: AU
 
     def cart: Cart = _cart
 
-    private val _cart: Cart = {
-      val payload  = OrderPayloads.CreateCart(customerId = customer.accountId.some)
-      val response = CartCreator.createCart(storeAdmin, payload).gimme
-      Carts.mustFindByRefNum(response.referenceNumber).gimme
-    }
+    private val _cart = (for {
+      response ← * <~ CartCreator.createCart(storeAdmin, CreateCart(customer.accountId.some))
+      cart     ← * <~ Carts.mustFindByRefNum(response.referenceNumber)
+    } yield cart).gimme
   }
 
   trait CartWithShipAddress_Raw {
@@ -134,8 +141,7 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
     def simpleProduct: Product
 
     val productWithVariants: (Product, SimpleCompleteVariantData, Seq[Sku]) = {
-      implicit val au = storeAdminAuthData
-      val scope       = LTree(au.token.scope)
+      val scope = LTree(au.token.scope)
 
       val testSkus = Seq(SimpleSku("SKU-TST", "SKU test", 1000, Currency.USD, active = true),
                          SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, active = true))

@@ -20,6 +20,7 @@ import services.promotion.PromotionManager
 import testutils.PayloadHelpers.tv
 import testutils._
 import testutils.apis.PhoenixAdminApi
+import testutils.fixtures.api.ApiFixtures
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
 import utils.IlluminateAlgorithm
 import utils.aliases._
@@ -32,6 +33,7 @@ class PromotionsIntegrationTest
     with AutomaticAuth
     with TestActivityContext.AdminAC
     with BakedFixtures
+    with ApiFixtures
     with PromotionFixtures {
 
   "DELETE /v1/promotions/:context/:id" - {
@@ -78,7 +80,6 @@ class PromotionsIntegrationTest
   "promotion with 'coupon' apply type should be active on" - {
 
     "creation" in new StoreAdmin_Seed with Promotion_Seed {
-
       ObjectUtils
         .getFullObject(DbResultT.pure(promotion))
         .gimme
@@ -196,12 +197,27 @@ class PromotionsIntegrationTest
       cartWithCoupon.totals.adjustments.toDouble must === (cartTotal * 0.4)
       cartWithCoupon.totals.total.toDouble must === (cartTotal * 0.6)
     }
+
+    "should update coupon discount when cart becomes clean" in new Fixture
+    with ProductSku_ApiFixture {
+      private val couponCode = setupPromoAndCoupon()
+
+      POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
+
+      POST(s"v1/my/cart/coupon/$couponCode").mustBeOk()
+
+      private val emptyCartWithCoupon =
+        POST(s"v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 0)))
+          .asTheResult[CartResponse]
+
+      emptyCartWithCoupon.totals.adjustments must === (0)
+      emptyCartWithCoupon.totals.total must === (0)
+    }
   }
 
   trait Fixture extends StoreAdmin_Seed with Promotion_Seed with Coupon_Raw
 
   trait AutoApplyPromotionSeed extends StoreAdmin_Seed with Promotion_Seed {
-
     override def createPromotionFromPayload(payload: CreatePromotion) =
       super.createPromotionFromPayload(payload.copy(applyType = Auto))
   }

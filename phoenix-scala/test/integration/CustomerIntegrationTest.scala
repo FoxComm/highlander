@@ -254,9 +254,13 @@ class CustomerIntegrationTest
         .create(CreateCustomerPayload(email = "test@example.com", name = "test".some))
         .as[Root]
 
+      require(customersApi(newCustomer.id).get().as[Root].email != customer.email)
+
       customersApi(newCustomer.id)
         .update(UpdateCustomerPayload(email = customer.email))
         .mustFailWith400(CustomerEmailNotUnique)
+
+      customersApi(newCustomer.id).get().as[Root].email must not equal customer.email
     }
   }
 

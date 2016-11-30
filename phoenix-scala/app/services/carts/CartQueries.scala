@@ -10,6 +10,7 @@ import models.payment.giftcard.GiftCardAdjustment.{Auth ⇒ gcAuth}
 import models.payment.storecredit.StoreCreditAdjustment.{Auth ⇒ scAuth}
 import responses.TheResponse
 import responses.cord.CartResponse
+import services.Authenticator.UserAuthenticator
 import services.{CartValidator, CordQueries, LogActivity}
 import utils.aliases._
 import utils.db._
@@ -63,8 +64,8 @@ object CartQueries extends CordQueries {
       implicit db: DB,
       ec: EC,
       ac: AC,
-      ctx: OC,
-      au: AU): DbResultT[CartResponse] =
+      au: AU,
+      ctx: OC): DbResultT[CartResponse] =
     for {
       result ← * <~ Carts
                 .findByAccountId(customer.accountId)
@@ -72,7 +73,7 @@ object CartQueries extends CordQueries {
                 .findOrCreateExtended(
                     Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)))
       (cart, foundOrCreated) = result
-      fullOrder ← * <~ CartResponse.fromCart(cart, grouped)
+      fullOrder ← * <~ CartResponse.fromCart(cart, grouped, au.isGuest)
       _         ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)
     } yield fullOrder
 

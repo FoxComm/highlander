@@ -7,7 +7,7 @@ object Settings {
 
   lazy val commonSettings = Seq(
     version := "1.0",
-    scalaVersion := "2.11.8",
+    scalaVersion := Versions.scala,
     updateOptions := updateOptions.value.withCachedResolution(true),
     scalacOptions ++= List(
       "-encoding",

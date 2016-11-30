@@ -44,8 +44,7 @@ trait TaxonomySeeds extends TestFixtureBase {
   }
 
   trait TaxonSeedBase {
-    implicit def au: AuthData[User]
-    val taxonAttributesBase = Map("name" → (("t" → "string") ~ ("v" → "term")))
+    def au: AuthData[User]
 
     def createTaxon(attributes: Map[String, Json]) = {
       val form   = ObjectForm.fromPayload(Taxon.kind, attributes)
@@ -67,8 +66,8 @@ trait TaxonomySeeds extends TestFixtureBase {
   trait FlatTaxons_Raw extends TaxonSeedBase {
     def taxonomy: Taxonomy
 
-    val taxonAttributes =
-      (1 to 2).map(i ⇒ taxonAttributesBase + ("testIdx" → (("t" → "number") ~ ("v" → i.toString))))
+    val taxonNames         = (1 to 2).map("taxon" + _.toString)
+    val taxonAttributes    = taxonNames.map(name ⇒ Map("name" → (("t" → "string") ~ ("v" → name))))
     val taxons: Seq[Taxon] = createTaxons(taxonAttributes)
 
     val links: Seq[TaxonomyTaxonLink] = {
@@ -88,10 +87,9 @@ trait TaxonomySeeds extends TestFixtureBase {
   trait HierarchicalTaxons_Raw extends TaxonSeedBase {
     def taxonomy: Taxonomy
 
+    val taxonNames = (1 to 6).map("taxon" + _.toString)
     val taxons: Seq[Taxon] = createTaxons(
-        (1 to 6).map(i ⇒
-              taxonAttributesBase + ("testIdx" → (("t" → "number") ~ ("v" →
-                            i.toString)))))
+        taxonNames.map(name ⇒ Map("name" → (("t" → "string") ~ ("v" → name)))))
 
     val links: Seq[TaxonomyTaxonLink] = {
       require(taxonomy.hierarchical)

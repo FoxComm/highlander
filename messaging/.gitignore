@@ -1,0 +1,8 @@
+target/*
+.lein-env
+.lein-repl-history
+
+# repl stuff
+.nrepl-history
+.nrepl-port
+/dev/my.clj

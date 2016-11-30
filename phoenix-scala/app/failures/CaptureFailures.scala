@@ -31,9 +31,9 @@ object CaptureFailures {
       s"Stripe charge for order $refNum is not found."
   }
 
-  case class OrderMustBeInFullfillmentStarted(refNum: String) extends Failure {
+  case class OrderMustBeInAuthState(refNum: String) extends Failure {
     override def description =
-      s"Order $refNum is not in Fullfillment Started state."
+      s"Order $refNum is not in Auth state."
   }
 
   case class ChargeNotInAuth(charge: CreditCardCharge) extends Failure {

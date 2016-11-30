@@ -3,18 +3,10 @@ package services.customers
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.server.Directives.complete
-import akka.http.scaladsl.server._
-import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
-import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHeader
-
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.AuthFailures.ChangePasswordFailed
 import failures.CustomerFailures._
-import failures.NotFoundFailure404
 import failures.UserFailures.AccessMethodNotFound
 import failures.{NotFoundFailure400, NotFoundFailure404}
 import models.account._
@@ -181,12 +173,12 @@ object CustomerManager {
     for {
       _        ← * <~ payload.validate
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      updated  ← * <~ Users.update(customer, updatedUser(customer, payload))
       custData ← * <~ CustomersData.mustFindByAccountId(accountId)
       _ ← * <~ (if (custData.isGuest) DbResultT.unit
                 else Users.updateEmailMustBeUnique(payload.email.map(_.toLowerCase), accountId))
-      _ ← * <~ CustomersData.update(custData, updatedCustUser(custData, payload))
-      _ ← * <~ LogActivity.customerUpdated(customer, updated, admin)
+      updated ← * <~ Users.update(customer, updatedUser(customer, payload))
+      _       ← * <~ CustomersData.update(custData, updatedCustUser(custData, payload))
+      _       ← * <~ LogActivity.customerUpdated(customer, updated, admin)
     } yield (updated, custData)
 
   def changePassword(

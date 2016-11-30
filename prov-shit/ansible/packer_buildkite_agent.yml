@@ -11,9 +11,10 @@
     - { role: base/common }
     - { role: base/ssh_keys }
     - { role: base/docker }
+    - { role: base/docker_clean }
     - { role: base/scala }
     - { role: base/clojure }
-    - { role: base/node }
+    - { role: base/node, sudo: yes }
     - { role: base/builder }
     - { role: test/db }
     - { role: test/selenium }

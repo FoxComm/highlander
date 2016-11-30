@@ -3,6 +3,7 @@ package models.activity
 import java.time.Instant
 
 import com.typesafe.scalalogging.LazyLogging
+import faker.Lorem.letterify
 import org.json4s.Extraction
 import org.json4s.jackson.Serialization.writePretty
 import shapeless._
@@ -26,6 +27,9 @@ object ActivityContext {
         j ⇒ j.extract[ActivityContext]
     )
   }
+
+  def build(userId: Int, userType: String): ActivityContext =
+    ActivityContext(userId = userId, userType = userType, transactionId = letterify("?" * 5))
 }
 
 /**

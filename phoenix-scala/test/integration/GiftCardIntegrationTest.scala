@@ -116,15 +116,23 @@ class GiftCardIntegrationTest
     "POST /v1/customer-gift-cards" - {
       "successfully creates gift card as a custumer from payload" in new Reason_Baked {
         val cordInsert = Carts.create(Factories.cart(LTree("1"))).gimme
-        val attributes = Some(
-            parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
+        val attributes = Some(parse("""{"attributes":{"giftCard":{"senderName":"senderName",
+                 "recipientName":"recipientName",
+                 "recipientEmail":"example@example.com"}}}""".stripMargin))
         val root = giftCardsApi
-          .createFromCustomer(GiftCardCreatedByCustomer(balance = 555,
-                                                        details = attributes,
-                                                        cordRef = cordInsert.referenceNumber))
+          .createFromCustomer(
+              GiftCardCreatedByCustomer(balance = 555,
+                                        senderName = "senderName",
+                                        recipientName = "recipienName",
+                                        recipientEmail = "recipientEmail@mail.com",
+                                        message = "test message",
+                                        cordRef = cordInsert.referenceNumber))
           .as[GiftCardResponse.Root]
         root.currency must === (Currency.USD)
         root.availableBalance must === (555)
+        root.message.get must === ("test message")
+        root.senderName.get must === ("senderName")
+        root.recipientEmail.get must === ("recipientEmail@mail.com")
       }
 
       "successfully creates gift cards  as a custumer from payload" in new Reason_Baked {
@@ -134,16 +142,25 @@ class GiftCardIntegrationTest
         val root = giftCardsApi
           .createMultipleFromCustomer(
               Seq(GiftCardCreatedByCustomer(balance = 555,
-                                            details = attributes,
+                                            senderName = "senderName",
+                                            recipientName = "recipienName",
+                                            recipientEmail = "recipientEmail@mail.com",
+                                            message = "test message",
                                             cordRef = cordInsert.referenceNumber),
                   GiftCardCreatedByCustomer(balance = 100,
-                                            details = attributes,
+                                            senderName = "senderName2",
+                                            recipientName = "recipienName2",
+                                            recipientEmail = "recipientEmail@mail.com2",
+                                            message = "test message2",
                                             cordRef = cordInsert.referenceNumber)))
           .as[Seq[GiftCardResponse.Root]]
         root.head.currency must === (Currency.USD)
         root.head.availableBalance must === (555)
         root.tail.head.currency must === (Currency.USD)
         root.tail.head.availableBalance must === (100)
+        root.head.message.get must === ("test message")
+        root.head.senderName.get must === ("senderName")
+        root.tail.head.recipientEmail.get must === ("recipientEmail@mail.com2")
       }
     }
 

@@ -42,6 +42,8 @@ trait TestSeeds extends TestFixtureBase {
                      account = storeAdminAccount)
     implicit lazy val au: AU = storeAdminAuthData
 
+    implicit def au: AuthData[User] = storeAdminAuthData
+
     private val (_storeAdminAccount, _storeAdmin, _storeAdminUser, _storeAdminClaims) = (for {
       maybeAdmin ← * <~ Users
                     .findByEmail(Factories.storeAdmin.email.getOrElse(""))
@@ -73,14 +75,13 @@ trait TestSeeds extends TestFixtureBase {
     def customer: User                    = _customer
     def customerData: CustomerData        = _customerData
     def accessMethod: AccountAccessMethod = _accessMethod
-    def customerClaims: Account.ClaimSet  = _claims
-
+    def customerClaims: Account.ClaimSet  = _customerClaims
     def customerAuthData: AuthData[User] =
       AuthData[User](token = UserToken.fromUserAccount(customer, account, customerClaims),
                      model = customer,
                      account = account)
 
-    private val (_account, _customer, _customerData, _accessMethod, _claims) = (for {
+    private val (_account, _customer, _customerData, _accessMethod, _customerClaims) = (for {
       c ← * <~ Factories.createCustomer(user = Factories.customer,
                                         isGuest = false,
                                         scopeId = 2,
@@ -93,8 +94,8 @@ trait TestSeeds extends TestFixtureBase {
       organization ← * <~ Organizations
                       .findByName(TENANT)
                       .mustFindOr(OrganizationNotFoundByName(TENANT))
-      cl ← * <~ AccountManager.getClaims(a.id, organization.scopeId)
-    } yield (a, c, cu, am, cl)).gimme
+      claims ← * <~ AccountManager.getClaims(a.id, organization.scopeId)
+    } yield (a, c, cu, am, claims)).gimme
 
   }
 

@@ -11,12 +11,15 @@ import utils.aliases.Json
 
 object GiftCardPayloads {
 
-  case class GiftCardCreatedByCustomer(balance: Int,
+  case class GiftCardCreatedByCustomer(scope: Option[String] = None,
+                                       balance: Int,
                                        currency: Currency = Currency.USD,
                                        subTypeId: Option[Int] = None,
-                                       details: Option[Json] = None,
-                                       cordRef: String,
-                                       scope: Option[String] = None)
+                                       senderName: String,
+                                       recipientName: String,
+                                       recipientEmail: String,
+                                       message: String,
+                                       cordRef: String)
       extends Validation[GiftCardCreatedByCustomer] {
 
     def validate: ValidatedNel[Failure, GiftCardCreatedByCustomer] =

@@ -2,11 +2,11 @@
   "name": "api-docs",
   "description": "Phoenix API documentation in API Blueprint format",
   "repository": {
-  	"type": "git",
-  	"url": "https://github.com/FoxComm/api-docs"
+    "type": "git",
+    "url": "https://github.com/FoxComm/api-docs"
   },
   "dependencies": {
     "aglio-theme-olio": "1.6.3",
-    "aglio": "2.2.1"
+    "aglio": "2.3.0"
   }
 }

@@ -9,25 +9,29 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/highlander/middlewarehouse/shared"
 	"github.com/FoxComm/metamorphosis"
 )
 
 const (
-	activityOrderStateChanged    = "order_state_changed"
-	orderStateFulfillmentStarted = "fulfillmentStarted"
+	activityOrderStateChanged     = "order_state_changed"
+	activityOrderBulkStateChanged = "order_bulk_state_changed"
+	orderStateFulfillmentStarted  = "fulfillmentStarted"
 )
 
 type OrderHandler struct {
+	client lib.PhoenixClient
 	mwhURL string
 }
 
-func NewOrderHandler(mwhURL string) (*OrderHandler, error) {
+func NewOrderHandler(client lib.PhoenixClient, mwhURL string) (*OrderHandler, error) {
 	if mwhURL == "" {
 		return nil, errors.New("middlewarehouse URL must be set")
 	}
 
-	return &OrderHandler{mwhURL}, nil
+	return &OrderHandler{client, mwhURL}, nil
 }
 
 // Handler accepts an Avro encoded message from Kafka and takes
@@ -40,15 +44,50 @@ func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
 	}
 
-	if activity.Type() != activityOrderStateChanged {
+	switch activity.Type() {
+	case activityOrderStateChanged:
+		fullOrder, err := shared.NewFullOrderFromActivity(activity)
+		if err != nil {
+			return fmt.Errorf("Unable to decode order from activity with error %s", err.Error())
+		}
+
+		return o.handlerInner(fullOrder)
+	case activityOrderBulkStateChanged:
+		bulkStateChange, err := shared.NewOrderBulkStateChangeFromActivity(activity)
+		if err != nil {
+			return fmt.Errorf("Unable to decode bulk state change activity with error %s", err.Error())
+		}
+
+		if bulkStateChange.NewState != orderStateFulfillmentStarted {
+			return nil
+		}
+
+		if len(bulkStateChange.CordRefNums) == 0 {
+			return nil
+		}
+
+		// Get orders from Phoenix
+		orders, err := bulkStateChange.GetRelatedOrders(o.client)
+		if err != nil {
+			return err
+		}
+
+		// Handle each order
+		for _, fullOrder := range orders {
+			err := o.handlerInner(fullOrder)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	default:
 		return nil
 	}
+}
 
-	fullOrder, err := NewFullOrderFromActivity(activity)
-	if err != nil {
-		return fmt.Errorf("Unable to decode order from activity with error %s", err.Error())
-	}
-
+// Handle activity for single order
+func (o OrderHandler) handlerInner(fullOrder *shared.FullOrder) error {
 	order := fullOrder.Order
 	if order.OrderState != orderStateFulfillmentStarted {
 		return nil
