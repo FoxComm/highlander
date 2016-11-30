@@ -14,9 +14,6 @@
 - name: Install uuid4 Lua Lib
   copy: src=uuid4.lua dest=/etc/nginx/uuid4.lua
 
-- name: Install uuid4 Lua Lib
-  copy: src=uuid4.lua dest=/etc/nginx/uuid4.lua
-
 - name: Install basexx Lua Lib
   copy: src=basexx.lua dest=/etc/nginx/basexx.lua
 
