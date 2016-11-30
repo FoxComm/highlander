@@ -42,12 +42,11 @@
     - { role: dev/isaac }
     - { role: dev/solomon }
     - { role: dev/marketplace }
-    - { role: dev/balancer, sudo: yes }
     - { role: ext/tgt/marketplace-ui }
     - { role: ext/tgt/product-search }
     - { role: demo/search }
+    - { role: dev/balancer, sudo: yes }
     - { role: ext/tgt/balancer, sudo: true }
-    - { role: dev/seeder }
     - { role: dev/seeder }
 
   handlers:
