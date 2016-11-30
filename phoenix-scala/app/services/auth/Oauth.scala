@@ -37,11 +37,10 @@ object OauthDirectives {
 trait OauthService[M] {
   this: Oauth ⇒
 
-  def getScopeId: Int
   def createCustomerByUserInfo(info: UserInfo): DbResultT[M]
   def createAdminByUserInfo(info: UserInfo): DbResultT[M]
   def findByEmail(email: String): DBIO[Option[M]]
-  def createToken(user: M, account: Account, scopeId: Int): DbResultT[Token]
+  def createToken(user: M, account: Account, info: UserInfo): DbResultT[Token]
   def findAccount(user: M): DbResultT[Account]
 
   /*
@@ -70,8 +69,7 @@ trait OauthService[M] {
       db: DB,
       ac: AC): DbResultT[(M, Account)] =
     for {
-      result ← * <~ findByEmail(userInfo.email).findOrCreateExtended(createByUserInfo(userInfo))
-      (user, foundOrCreated) = result
+      user    ← * <~ findByEmail(userInfo.email).findOrCreate(createByUserInfo(userInfo))
       account ← * <~ findAccount(user)
     } yield (user, account)
 
@@ -89,7 +87,7 @@ trait OauthService[M] {
       info        ← * <~ fetchUserInfoFromCode(oauthResponse)
       userAccount ← * <~ findOrCreateUserFromInfo(info, createByUserInfo)
       (user, account) = userAccount
-      token ← * <~ createToken(user, account, getScopeId)
+      token ← * <~ createToken(user, account, info)
     } yield token
 
   def customerCallback(

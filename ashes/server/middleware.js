@@ -47,6 +47,7 @@ module.exports = function(app) {
         algorithms: ['RS256', 'RS384', 'RS512']
       });
       if (!_.includes(token.roles, 'admin')) {
+        console.log('token.roles doesn\'t contain admin role', token.roles);
         return null; // only admins allowed to proceed
       }
       return token;
