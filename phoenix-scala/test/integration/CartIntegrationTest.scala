@@ -129,12 +129,14 @@ class CartIntegrationTest
     val attributes = LineItemAttributes(
         GiftCardLineItemAttributes(senderName = "senderName",
                                    recipientName = "recipientName",
-                                   recipientEmail = "example@example.com").some).some
+                                   recipientEmail = "example@example.com",
+                                   message = "message").some).some
 
     val attributes2 = LineItemAttributes(
         GiftCardLineItemAttributes(senderName = "senderName2",
                                    recipientName = "recipientName2",
-                                   recipientEmail = "example2@example.com").some).some
+                                   recipientEmail = "example2@example.com",
+                                   message = "message2").some).some
 
     def addGiftCardPayload(sku: String) =
       Seq(UpdateLineItemsPayload(sku, 2, attributes), UpdateLineItemsPayload(sku, 1, attributes2))

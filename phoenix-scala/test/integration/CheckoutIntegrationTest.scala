@@ -41,7 +41,8 @@ class CheckoutIntegrationTest
     val attributes = LineItemAttributes(
         GiftCardLineItemAttributes(senderName = "senderName",
                                    recipientName = "recipientName",
-                                   recipientEmail = "example@example.com").some).some
+                                   recipientEmail = "example@example.com",
+                                   message = "Boop").some).some
 
     val addGiftCardPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, attributes))
     "should update attributes of order-line-items succesfully" in new Fixture {
