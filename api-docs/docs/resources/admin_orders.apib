@@ -10,12 +10,16 @@
 
 ### List Shipping Methods [GET /v1/orders/{refNum}/shipping-methods]
 
+This route is depreciated in favor of `/v1/carts/`.
+
 + Parameters
     + refNum: `BR1001` (required, string) - Order reference number
 + Response 204
     + Attributes (array[ShippingMethod])
 
 ### Create [POST /v1/orders]
+
+This route is depreciated in favor of `/v1/carts/`.
 
 Creates a cart for an existing customer (or guest account) when `customerId`
 given or creates a cart along with a new guest account when `email` is given.
@@ -26,6 +30,8 @@ given or creates a cart along with a new guest account when `email` is given.
     + Attributes (FullOrder)
 
 ### Checkout [POST /v1/orders/{refNum}/checkout]
+
+This route is depreciated in favor of `/v1/carts/`.
 
 Place order from cart with provided reference number.
 
@@ -43,12 +49,16 @@ Place order from cart with provided reference number.
 
 ### Lock [POST /v1/orders/{refNum}/lock]
 
+This route is depreciated in favor of `/v1/carts/`.
+
 + Parameters
     + refNum: `ABC-123` (required, string) - Order reference number
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
 ### Unlock [POST /v1/orders/{refNum}/unlock]
+
+This route is depreciated in favor of `/v1/carts/`.
 
 + Parameters
     + refNum: `ABC-123` (required, string) - Order reference number
@@ -68,6 +78,8 @@ Order must be in `remorseHold` state.
 
 ### Set SKU Line Items [POST]
 
+This route is depreciated in favor of `/v1/carts/`.
+
 Set the number of line items. Upon completion, cart line items will match the quantities in this payload.
 
 + Parameters
@@ -78,6 +90,8 @@ Set the number of line items. Upon completion, cart line items will match the qu
     + Attributes (FullOrder)
 
 ### Update SKU Line Items [PATCH]
+
+This route is depreciated in favor of `/v1/carts/`.
 
 Add to or remove from the number of line items that are currently stored in your cart.
 
@@ -92,6 +106,8 @@ Add to or remove from the number of line items that are currently stored in your
 
 ### Add [POST /v1/orders/{refNum}/gift-cards]
 
+This route is depreciated in favor of `/v1/carts/`.
+
 + Parameters
     + refNum: `ABC-123` (required, string) - Order referenceNumber.
 + Request (application/json)
@@ -100,6 +116,8 @@ Add to or remove from the number of line items that are currently stored in your
     + Attributes (FullOrder)
 
 ### Edit [PATCH]
+
+This route is depreciated in favor of `/v1/carts/`.
 
 + Parameters
     + refNum: `ABC-123` (required, string) - Order referenceNumber.
@@ -110,6 +128,8 @@ Add to or remove from the number of line items that are currently stored in your
     + Attributes (FullOrder)
 
 ### Delete [DELETE]
+
+This route is depreciated in favor of `/v1/carts/`.
 
 + Parameters
     + refNum: `ABC-123` (required, string) - Order referenceNumber.
@@ -119,10 +139,14 @@ Add to or remove from the number of line items that are currently stored in your
 
 ## Credit Card Payments [/v1/orders/{refNum}/payment-methods/credit-cards]
 
+This route is depreciated in favor of `/v1/carts/`.
+
 + Parameters
     + refNum: `ABC-123` (required, string) - Order reference number
 
 ### Add [POST]
+
+This route is depreciated in favor of `/v1/carts/`.
 
 + Request (application/json)
     + Attributes (CreditCardPaymentPayload)
@@ -131,15 +155,21 @@ Add to or remove from the number of line items that are currently stored in your
 
 ### Delete [DELETE]
 
+This route is depreciated in favor of `/v1/carts/`.
+
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
 ## Gift Card Payments [/v1/orders/{refNum}/payment-methods/gift-cards]
 
+This route is depreciated in favor of `/v1/carts/`.
+
 + Parameters
     + refNum: `ABC-123` (required, string) - Order reference number
 
 ### Add [POST]
+
+This route is depreciated in favor of `/v1/carts/`.
 
 + Request (application/json)
     + Attributes (GiftCardPaymentPayload)
@@ -148,12 +178,16 @@ Add to or remove from the number of line items that are currently stored in your
 
 ### Edit [PATCH]
 
+This route is depreciated in favor of `/v1/carts/`.
+
 + Request (application/json)
     + Attributes (GiftCardPaymentPayload)
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
 ### Delete [DELETE /v1/orders/{refNum}/payment-methods/gift-cards/{code}]
+
+This route is depreciated in favor of `/v1/carts/`.
 
 + Parameters
     + refNum: `ABC-123` (required, string) - Order reference number
@@ -163,10 +197,14 @@ Add to or remove from the number of line items that are currently stored in your
 
 ## Store Credit Payments [/v1/orders/{refNum}/payment-methods/store-credits]
 
+This route is depreciated in favor of `/v1/carts/`.
+
 + Parameters
     + refNum: `ABC-123` (required, string) - Order reference number
 
 ### Add [POST]
+
+This route is depreciated in favor of `/v1/carts/`.
 
 + Request (application/json)
     + Attributes (StoreCreditPaymentPayload)
@@ -175,10 +213,14 @@ Add to or remove from the number of line items that are currently stored in your
 
 ### Delete [DELETE]
 
+This route is depreciated in favor of `/v1/carts/`.
+
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
 ## Shipping Method [/v1/orders/{refNum}/shipping-methods]
+
+This route is depreciated in favor of `/v1/carts/`.
 
 Shipping methods are used to describe the ways that the contents of a cart can
 transported to the customer. All actions that occur against this set of
@@ -186,10 +228,14 @@ endpoints modify which shipping method is used by the cart.
 
 ### List [GET]
 
+This route is depreciated in favor of `/v1/carts/`.
+
 + Response 200 (application/json)
     + Attributes (array[ShippingMethod])
 
 ### Update [PATCH]
+
+This route is depreciated in favor of `/v1/carts/`.
 
 Changes the shipping method to a cart.
 
@@ -202,6 +248,8 @@ Changes the shipping method to a cart.
 
 ### Delete [DELETE]
 
+This route is depreciated in favor of `/v1/carts/`.
+
 Removes the shipping method from the cart.
 
 + Parameters
@@ -210,10 +258,14 @@ Removes the shipping method from the cart.
 
 ## Shipping Address [/v1/orders/{refNum}/shipping-address]
 
+This route is depreciated in favor of `/v1/carts/`.
+
 + Parameters
     + refNum: `ABC-123` (required, string) - Order reference number
 
 ### Add [POST]
+
+This route is depreciated in favor of `/v1/carts/`.
 
 + Request (application/json)
     + Attributes (CreateAddressPayload)
@@ -221,6 +273,8 @@ Removes the shipping method from the cart.
     + Attributes (FullOrder)
 
 ### Add By Address ID [PATCH /v1/orders/{refNum}/shipping-address/{addressId}]
+
+This route is depreciated in favor of `/v1/carts/`.
 
 + Parameters
     + refNum: `ABC-123` (required, string) - Order reference number.
@@ -230,12 +284,16 @@ Removes the shipping method from the cart.
 
 ### Update [PATCH]
 
+This route is depreciated in favor of `/v1/carts/`.
+
 + Request (application/json)
     + Attributes (UpdateAddressPayload)
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
 ### Delete [DELETE]
+
+This route is depreciated in favor of `/v1/carts/`.
 
 + Response 200 (application/json)
     + Attributes (FullOrder)

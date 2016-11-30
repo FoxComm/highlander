@@ -79,7 +79,7 @@ class CouponsIntegrationTest
     }
   }
 
-  "POST /v1/orders/:refNum/coupon/:code" - {
+  "POST /v1/carts/:refNum/coupon/:code" - {
     "attaches coupon successfully" - {
       "when activeFrom is before now" in new OrderCouponFixture {
         val response = cartsApi(cart.refNum).coupon.add(fromCode).asTheResult[CartResponse]
@@ -114,12 +114,6 @@ class CouponsIntegrationTest
 
       "when activeTo is before now" in new OrderCouponFixture {
         cartsApi(cart.refNum).coupon.add(wasActiveCode).mustFailWith400(CouponIsNotActive)
-      }
-
-      "when attaching to order" in new OrderCouponFixture {
-        // TODO @anna: This can be removed once /orders vs /carts pathes are split
-        POST(s"v1/orders/${order.refNum}/coupon/$fromToCode")
-          .mustFailWith400(OrderAlreadyPlaced(order.refNum))
       }
     }
   }

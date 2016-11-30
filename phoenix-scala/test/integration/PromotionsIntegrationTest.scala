@@ -11,7 +11,7 @@ import org.scalactic.TolerantNumerics
 import payloads.CouponPayloads.CreateCoupon
 import payloads.DiscountPayloads.CreateDiscount
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import payloads.PromotionPayloads._
 import responses.CouponResponses.CouponResponse
 import responses.PromotionResponses.PromotionResponse
