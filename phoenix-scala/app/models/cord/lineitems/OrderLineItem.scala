@@ -1,19 +1,20 @@
 package models.cord.lineitems
 
 import cats.data.Xor
+import cats.implicits._
 import com.pellucid.sealerate
 import failures.Failures
-import models.cord.Cart
 import models.cord.lineitems.{OrderLineItem ⇒ OLI}
 import models.inventory.{Sku, Skus}
 import models.objects._
-import models.product._
+import org.json4s.Extraction.decompose
+import org.json4s.Formats
 import shapeless._
 import slick.ast.BaseTypedType
-import utils.db.ExPostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils._
 import utils.aliases._
+import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 trait LineItemProductData[LI] {
@@ -24,7 +25,7 @@ trait LineItemProductData[LI] {
   def productShadow: ObjectShadow
   def image: Option[String]
   def lineItem: LI
-  def attributes: Option[Json]
+  def attributes: Option[LineItemAttributes]
   def lineItemReferenceNumber: String
   def lineItemState: OrderLineItem.State
   def withLineItemReferenceNumber(newLineItemRef: String): LineItemProductData[LI]
@@ -37,7 +38,7 @@ case class OrderLineItemProductData(sku: Sku,
                                     productShadow: ObjectShadow,
                                     image: Option[String],
                                     lineItem: OrderLineItem,
-                                    attributes: Option[Json] = None)
+                                    attributes: Option[LineItemAttributes] = None)
     extends LineItemProductData[OrderLineItem] {
   def lineItemReferenceNumber = lineItem.referenceNumber
   def lineItemState           = lineItem.state
@@ -51,7 +52,7 @@ case class OrderLineItem(id: Int = 0,
                          skuId: Int,
                          skuShadowId: Int,
                          state: OLI.State = OLI.Cart,
-                         attributes: Option[Json] = None)
+                         attributes: Option[LineItemAttributes] = None)
     extends FoxModel[OrderLineItem]
     with FSM[OrderLineItem.State, OrderLineItem] {
 
@@ -98,9 +99,29 @@ class OrderLineItems(tag: Tag) extends FoxTable[OrderLineItem](tag, "order_line_
   def skuShadowId     = column[Int]("sku_shadow_id")
   def state           = column[OrderLineItem.State]("state")
   def attributes      = column[Option[Json]]("attributes")
+
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
+
   def * =
-    (id, referenceNumber, cordRef, skuId, skuShadowId, state, attributes) <>
-      ((OrderLineItem.apply _).tupled, OrderLineItem.unapply)
+    (id, referenceNumber, cordRef, skuId, skuShadowId, state, attributes).shaped <>
+      ({
+        case (id, refNum, cordRef, skuId, skuShadowId, state, attrs) ⇒
+          OrderLineItem(id,
+                        refNum,
+                        cordRef,
+                        skuId,
+                        skuShadowId,
+                        state,
+                        attrs.flatMap(_.extractOpt[LineItemAttributes]))
+      }, { oli: OrderLineItem ⇒
+        (oli.id,
+         oli.referenceNumber,
+         oli.cordRef,
+         oli.skuId,
+         oli.skuShadowId,
+         oli.state,
+         oli.attributes.map(decompose)).some
+      })
 
   def sku    = foreignKey(Skus.tableName, skuId, Skus)(_.id)
   def shadow = foreignKey(ObjectShadows.tableName, skuShadowId, ObjectShadows)(_.id)
@@ -111,8 +132,6 @@ object OrderLineItems
     with ReturningId[OrderLineItem, OrderLineItems] {
 
   val returningLens: Lens[OrderLineItem, Int] = lens[OrderLineItem].id
-
-  import scope._
 
   def findByOrderRef(cordRef: Rep[String]): Query[OrderLineItems, OrderLineItem, Seq] =
     filter(_.cordRef === cordRef)

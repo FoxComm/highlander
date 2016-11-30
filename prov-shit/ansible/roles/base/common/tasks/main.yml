@@ -112,3 +112,9 @@
 - name: Install Consul Bootstrap for AWS
   copy: src=bootstrap_consul_aws.sh dest=/usr/local/bin/bootstrap_consul_aws.sh mode=775
   sudo: true
+
+- name: Remove Unattended Upgrades Again
+  apt:
+    name: unattended-upgrades
+    state: absent
+  sudo: true

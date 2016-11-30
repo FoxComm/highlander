@@ -25,7 +25,7 @@ export const skuEmptyAttributes = {
 // HACK
 function isMerchant(): boolean {
   const jwt = getJWT();
-  if (jwt != null && jwt.email == 'admin@admin.com') {
+  if (jwt != null && jwt.scope == '1') {
     return false;
   }
 

@@ -11,8 +11,6 @@
     - { role: dev/elasticsearch }
     - { role: dev/db }
     - { role: dev/db_phoenix }
-    #- { role: archive/phoenix, sudo: true }
-    #- { role: archive/greenriver, sudo: true }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
@@ -39,6 +37,7 @@
     - { role: dev/solomon }
     - { role: dev/shipstation }
     - { role: dev/balancer, sudo: yes }
+    - { role: dev/consumers }
 
 - name: Run Seeder on TPG Staging Backend
   hosts: tpg-stage-backend

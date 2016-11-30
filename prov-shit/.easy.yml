@@ -74,9 +74,6 @@ shortcuts:
   - name: Provision TPG Production
     alias: tpg_production.yml
     target: ansible/tpg_production.yml
-  - name: Provision Tony Staging
-    alias: easy_tony.yml
-    target: ansible/easy_tony.yml
 
 # Packer shortcuts
 - type: snowflake

@@ -13,11 +13,10 @@ import models.payment.creditcard._
 import models.product.Mvp
 import models.rules.QueryStatement
 import models.shipping._
-import org.json4s.JsonAST.JObject
 import org.json4s.jackson.JsonMethods._
 import payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
 import payloads.CustomerPayloads.CreateCustomerPayload
-import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.LineItemPayloads._
 import payloads.OrderPayloads.CreateCart
 import payloads.UpdateShippingMethod
 import responses.cord.CartResponse
@@ -126,13 +125,23 @@ class CartIntegrationTest
 
   "PATCH /v1/orders/:refNum/line-items" - {
     val addPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
-    val attributes = Some(
-        parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
-    val attributes2 = Some(
-        parse("""{"attributes":{"giftCard":{"senderName":"senderName2","recipientName":"recipientName2","recipientEmail":"example2@example.com"}}}"""))
-    val addGiftCardPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, attributes),
-                                 UpdateLineItemsPayload("SKU-YAX", 1, attributes2))
-    val removeGiftCardPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -2, attributes))
+
+    val attributes = LineItemAttributes(
+        GiftCardLineItemAttributes(senderName = "senderName",
+                                   recipientName = "recipientName",
+                                   recipientEmail = "example@example.com",
+                                   message = "message").some).some
+
+    val attributes2 = LineItemAttributes(
+        GiftCardLineItemAttributes(senderName = "senderName2",
+                                   recipientName = "recipientName2",
+                                   recipientEmail = "example2@example.com",
+                                   message = "message2").some).some
+
+    def addGiftCardPayload(sku: String) =
+      Seq(UpdateLineItemsPayload(sku, 2, attributes), UpdateLineItemsPayload(sku, 1, attributes2))
+
+    def removeGiftCardPayload(sku: String) = Seq(UpdateLineItemsPayload(sku, -2, attributes))
 
     "should successfully add line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
@@ -147,17 +156,21 @@ class CartIntegrationTest
       skus2 must have size 1
       skus2.map(_.sku).headOption.value must === ("SKU-YAX")
       skus2.map(_.quantity).headOption.value must === (6)
-
     }
 
-    "should successfully add a gift card line item" in new OrderShippingMethodFixture
-    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val root =
-        cartsApi(cart.refNum).lineItems.update(addGiftCardPayload).asTheResult[CartResponse]
-      val skus = root.lineItems.skus
-      skus must have size 3
-      skus.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus.map(_.quantity).tail.headOption.value must === (1)
+    "should successfully add a gift card line item" in new Customer_Seed
+    with ProductSku_ApiFixture {
+      val refNum =
+        cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+
+      cartsApi(refNum).lineItems
+        .update(addGiftCardPayload(skuCode))
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+        .map(sku ⇒ (sku.sku, sku.quantity, sku.attributes)) must contain theSameElementsAs Seq(
+          (skuCode, 1, attributes2),
+          (skuCode, 2, attributes))
     }
 
     "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
@@ -177,37 +190,20 @@ class CartIntegrationTest
       skus.map(_.quantity).headOption.value must === (1)
     }
 
-    "should successfully remove line items with empty attributes" in new OrderShippingMethodFixture
-    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val refreshedCart = cartsApi(cart.refNum).lineItems
-        .add(Seq(UpdateLineItemsPayload("SKU-YAX", 2, Some(JObject()))))
-        .asTheResult[CartResponse]
+    "should successfully remove gift card line item" in new Customer_Seed
+    with ProductSku_ApiFixture {
+      val refNum =
+        cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
 
-      val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1))
-      val skus = cartsApi(cart.refNum).lineItems
-        .update(subtractPayload)
-        .asTheResult[CartResponse]
-        .lineItems
-        .skus
-      skus must have size 1
-      skus.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus.map(_.quantity).headOption.value must === (1)
-    }
+      val regSkus = cartsApi(refNum).lineItems.update(addGiftCardPayload(skuCode)).mustBeOk()
 
-    "should successfully remove gift card line item" in new OrderShippingMethodFixture
-    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val regRoot =
-        cartsApi(cart.refNum).lineItems.update(addGiftCardPayload).asTheResult[CartResponse]
-      val regSkus = regRoot.lineItems.skus
-      regSkus must have size 3
-      regSkus.map(_.sku).headOption.value must === ("SKU-YAX")
-      regSkus.map(_.quantity).tail.headOption.value must === (1)
-      val root =
-        cartsApi(cart.refNum).lineItems.update(removeGiftCardPayload).asTheResult[CartResponse]
-      val skus = root.lineItems.skus
-      skus must have size 2
-      skus.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus.map(_.quantity).headOption.value must === (2)
+      val skus = cartsApi(refNum).lineItems
+          .update(removeGiftCardPayload(skuCode))
+          .asTheResult[CartResponse]
+          .lineItems
+          .skus
+          .map(sku ⇒ (sku.sku, sku.quantity, sku.attributes)) must === (
+            Seq((skuCode, 1, attributes2)))
     }
 
     "removing too many of an item should remove all of that item" in new OrderShippingMethodFixture

@@ -36,6 +36,7 @@
     - { role: dev/solomon }
     - { role: dev/shipstation }
     - { role: dev/balancer, sudo: yes }
+    - { role: dev/consumers }
 
 - name: Run Seeder on TPG Production Backend
   hosts: tpg-backend

@@ -33,17 +33,10 @@
         "value": "ps -ef | grep -v grep | grep capture-consumer"
       },
       "gracePeriodSeconds": 300,
-      "intervalSeconds": 60,
+      "intervalSeconds": 30,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false
-    }
-  ],
-  "portDefinitions": [
-    {
-      "port": 10002,
-      "protocol": "tcp",
-      "labels": {}
     }
   ]
 }

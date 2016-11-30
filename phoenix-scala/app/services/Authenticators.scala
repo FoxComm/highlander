@@ -23,7 +23,6 @@ import services.account._
 import services.customers.CustomerManager
 import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{RichConfig, config}
-import utils.Passwords.checkPassword
 import utils.aliases._
 import utils.db._
 
@@ -122,12 +121,13 @@ object Authenticator {
         account ← * <~ Accounts.mustFindById404(user.accountId)
         claims  ← * <~ AccountManager.getClaims(user.accountId, guestCreateContext.scopeId)
       } yield
-        AuthData[User](UserToken.fromUserAccount(user, account, claims), user, account, true))
-        .run()
-        .map {
-          case Xor.Right(data) ⇒ AuthenticationResult.success(data)
-          case Xor.Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
-        }
+        AuthData[User](UserToken.fromUserAccount(user, account, claims),
+                       user,
+                       account,
+                       isGuest = true)).run().map {
+        case Xor.Right(data) ⇒ AuthenticationResult.success(data)
+        case Xor.Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
+      }
     }
   }
 
@@ -223,9 +223,9 @@ object Authenticator {
     })
   }
 
-  def oauthTokenLoginResponse(token: Token): Failures Xor Route = {
-    authTokenBaseResponse(token, { payload ⇒
-      redirect(Uri./, StatusCodes.Found)
+  def oauthTokenLoginResponse(redirectUri: Uri)(token: Token): Failures Xor Route = {
+    authTokenBaseResponse(token, { _ ⇒
+      redirect(redirectUri, StatusCodes.Found)
     })
   }
 
@@ -240,17 +240,17 @@ object Authenticator {
                       .mustFindOr(LoginFailed)
       account ← * <~ Accounts.mustFindById404(user.accountId)
 
-      validatedUser ← * <~ validatePassword(user,
-                                            accessMethod.hashedPassword,
-                                            payload.password,
-                                            accessMethod.algorithm)
-      //TODO Add this back after demo
-      //adminUsers    ← * <~ AdminsData.filter(_.accountId === user.accountId).one
-      //_             ← * <~ adminUsers.map(aus ⇒ checkState(aus))
+      // security checks
+      _ ← * <~ failIfNot(accessMethod.checkPassword(payload.password), LoginFailed)
+
+      adminUsers ← * <~ AdminsData.findOneByAccountId(user.accountId)
+      _ ← * <~ adminUsers.map { adminData ⇒
+           DbResultT.fromXor(checkState(adminData))
+         }
 
       claimSet     ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
       _            ← * <~ validateClaimSet(claimSet)
-      checkedToken ← * <~ UserToken.fromUserAccount(validatedUser, account, claimSet)
+      checkedToken ← * <~ UserToken.fromUserAccount(user, account, claimSet)
     } yield checkedToken).run()
 
     tokenResult.map(_.flatMap { token ⇒
@@ -265,23 +265,6 @@ object Authenticator {
       Xor.left(AuthFailed(reason = "User has no roles in the organization").single)
     else
       Xor.right(Unit)
-
-  private def validatePassword[User](user: User,
-                                     hashedPassword: String,
-                                     password: String,
-                                     algorithm: Int): Failures Xor User = {
-
-    val passwordsMatch = algorithm match {
-
-      case 0 ⇒ checkPassword(password, hashedPassword)
-      case 1 ⇒ password == hashedPassword //TODO remove , only fo demo.
-    }
-
-    if (passwordsMatch)
-      Xor.right(user)
-    else
-      Xor.left(LoginFailed.single)
-  }
 
   private def checkState(adminData: AdminData): Failures Xor AdminData = {
     if (adminData.canLogin) Xor.right(adminData)

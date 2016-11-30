@@ -48,7 +48,7 @@ export function skuId(sku: Sku): string {
 // THIS IS A HAAAAACK.
 function isMerchant(): boolean {
   const jwt = getJWT();
-  if (jwt != null && jwt.email == 'admin@admin.com') {
+  if (jwt != null && jwt.scope == '1') {
     return false;
   }
 

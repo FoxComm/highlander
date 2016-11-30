@@ -9,14 +9,6 @@
     "PHOENIX_URL": "https://{{storefront_server_name}}",
     "ELASTIC_URL": "https://{{storefront_server_name}}"
   },
-  "portDefinitions": [
-    {
-      "port": 10008,
-      "protocol": "tcp",
-      "name": "5492",
-      "labels": {}
-    }
-  ],
   "container": {
     "type": "DOCKER",
     "docker": {

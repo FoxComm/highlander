@@ -7,7 +7,7 @@ variable "network" {}
 
 resource "google_compute_instance" "amigo_server" {
     name = "${var.datacenter}-amigo-server-${count.index}"
-    machine_type = "n1-standard-1"
+    machine_type = "n1-standard-2"
     tags = ["ssh", "no-ip", "${var.datacenter}-amigo-server-${count.index}", "${var.datacenter}-amigo-server", "${var.datacenter}"]
     zone = "us-central1-a"
     count = "${var.servers}"

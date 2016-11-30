@@ -1,3 +1,6 @@
+include ../makelib
+header = $(call baseheader, $(1), middlewarehouse)
+
 FLYWAY=flyway -configFile=sql/flyway.conf -locations=filesystem:sql/
 FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/
 
@@ -9,7 +12,7 @@ BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
 HIGHLANDER_PATH=$(CURDIR)/..
 
-DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
+DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_TAG ?= middlewarehouse
 DOCKER_BRANCH ?= master
 
@@ -21,7 +24,9 @@ prep:
 glide: prep
 	cd $(BUILD_PATH) && glide install
 
-build: glide
+build:
+	$(call header, Building)
+	make glide
 	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
 	cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
 	cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
@@ -31,6 +36,7 @@ build: glide
 	cd $(BUILD_PATH) && go build -o common/db/seeds/seeder common/db/seeds/main.go
 
 docker:
+	$(call header, Dockerizing)
 	docker build -t $(DOCKER_TAG) .
 	docker build -t stock-items-consumer consumers/stock-items/
 	docker build -t shipments-consumer consumers/shipments/
@@ -40,6 +46,7 @@ docker:
 	docker build -t gift-card-consumer consumers/gift-cards/
 
 docker-push:
+	$(call header, Registering)
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 	docker tag stock-items-consumer $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_BRANCH)
 	docker tag gift-card-consumer $(DOCKER_REPO)/gift-card-consumer:$(DOCKER_BRANCH)
@@ -88,6 +95,9 @@ drop-user:
 create-user:
 	createuser -s $(DB_USER)
 
-test: glide reset-test
+test:
+	$(call header, Testing)
+	make glide
+	make reset-test
 	# -p 1 serves to run tests sequentially, as it is required for non-isolated database tests
 	cd $(BUILD_PATH) && GOENV=test go test -p 1 `glide nv`

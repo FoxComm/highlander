@@ -38,7 +38,7 @@ export function getClaims(token: ?JWT = getJWT()): Claims {
     return {};
   }
 
-  return token.email == 'admin@admin.com'
+  return token.scope == '1'
     ? superAdmin()
     : merchant();
 }

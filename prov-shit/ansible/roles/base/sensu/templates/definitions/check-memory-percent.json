@@ -1,0 +1,11 @@
+{
+  "checks": {
+    "cpu-load": {
+      "command": "check-memory-percent.rb -w 90 -c 95",
+      "interval": 60,
+      "subscribers": [
+{{ ansible_hostname | to_nice_json }}
+	  ]
+    }
+  }
+}

@@ -17,6 +17,9 @@ type Config struct {
 	ApiKey             string
 	ApiSecret          string
 	Partition          int
+	PhoenixURL         string
+	PhoenixUser        string
+	PhoenixPassword    string
 }
 
 func MakeConfig() (Config, error) {
@@ -63,6 +66,21 @@ func MakeConfig() (Config, error) {
 	config.Partition, err = strconv.Atoi(os.Getenv("PARTITION"))
 	if err != nil {
 		return config, errors.New("Unable to parse valid PARTITION in env")
+	}
+
+	config.PhoenixURL = os.Getenv("PHOENIX_URL")
+	if config.PhoenixURL == "" {
+		return config, errors.New("Unable to parse valid PHOENIX_URL in env")
+	}
+
+	config.PhoenixUser = os.Getenv("PHOENIX_USER")
+	if config.PhoenixUser == "" {
+		return config, errors.New("Unable to parse valid PHOENIX_USER in env")
+	}
+
+	config.PhoenixPassword = os.Getenv("PHOENIX_PASSWORD")
+	if config.PhoenixPassword == "" {
+		return config, errors.New("Unable to parse valid PHOENIX_PASSWORD in env")
 	}
 
 	return config, nil
