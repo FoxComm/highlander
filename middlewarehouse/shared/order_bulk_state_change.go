@@ -2,7 +2,6 @@ package shared
 
 import (
 	"encoding/json"
-	"log"
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
