@@ -41,4 +41,5 @@
     - { role: dev/marketplace }
     - { role: dev/balancer, sudo: yes }
     - { role: ext/tgt/balancer, sudo: yes }
+    - { role: dev/consumers }
     - { role: dev/seeder }

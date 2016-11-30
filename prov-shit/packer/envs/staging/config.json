@@ -1,7 +1,7 @@
 {
     "project_base": "staging",
-    "image_prefix": "tinystack",
-    "image_title": "Tinystack",
+    "image_prefix": "dev",
+    "image_title": "dev",
     "account_file": "foxcomm-staging.json",
     "project_id": "foxcomm-staging",
     "variables_file": "staging_ansible.json",
@@ -9,9 +9,6 @@
     "zone": "us-central1-a",
     "base_ubuntu_image": "ubuntu-1604-xenial-v20160610",
     "base_image": "base-1470781269",
-    "base_node_image": "base-node-1470785359",
-    "base_jvm_image": "base-jvm-1470785305",
     "ssh_username": "ubuntu",
-    "base_mesos": "base-mesos-1470781743",
     "base_united_image": "base-161111-180429"
 }

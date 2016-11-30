@@ -1,8 +1,6 @@
 FROM ubuntu:16.04
 
-RUN apt-get update --fix-missing
-RUN apt-get install -y  \
-    libpq-dev \
+RUN apt update && apt install -y  \
     postgresql-client-9.5 \
     libgoogle-glog0v5 \ 
     libbotan-1.10-1 \

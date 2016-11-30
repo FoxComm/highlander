@@ -35,8 +35,8 @@ class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
     val query = for {
       cordRefs ← * <~ orders.result
       count    ← * <~ orders.map(_.state).update(newState)
-      refNums  = cordRefs.map(_.referenceNumber)
-      _        ← * <~ doOrMeh(count > 0, LogActivity.orderBulkStateChanged(newState, refNums))
+      refNums = cordRefs.map(_.referenceNumber)
+      _ ← * <~ doOrMeh(count > 0, LogActivity.orderBulkStateChanged(newState, refNums))
     } yield count
 
     RemorseTimerResponse(query.runTxn)

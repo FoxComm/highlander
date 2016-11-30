@@ -16,7 +16,9 @@
       "forcePullImage": true
     }
   },
+  "ports": [{{middlewarehouse_port}}],
   "env": {
+    "PORT": "{{middlewarehouse_port}}",
     "DB_SSLMODE": "disable",
     "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",
     "DB_NAME": "{{middlewarehouse_db_name}}",
@@ -27,24 +29,17 @@
     "KAFKA_BROKER": "{{kafka_server}}",
     "DB_USER": "middlewarehouse"
   },
+  "constraints": [["hostname", "UNIQUE"]],
   "healthChecks": [
     {
       "path": "/v1/public/ping",
       "protocol": "HTTP",
       "gracePeriodSeconds": 300,
-      "intervalSeconds": 60,
+      "intervalSeconds": 30,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false,
-      "port": 9292
-    }
-  ],
-  "portDefinitions": [
-    {
-      "port": 10000,
-      "protocol": "tcp",
-      "name": "9292",
-      "labels": {}
+      "port": {{middlewarehouse_port}}
     }
   ]
 }

@@ -29,6 +29,7 @@
     - { role: ext/tgt/marketplace-ui }
     - { role: ext/tgt/product-search }
     - { role: ext/tgt/balancer, sudo: true }
+    - { role: dev/consumers }
     - { role: dev/seeder }
 
   handlers:

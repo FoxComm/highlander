@@ -32,6 +32,7 @@
     - { role: dev/ashes }
     - { role: dev/firebrand }
     - { role: dev/balancer, sudo: yes }
+    - { role: dev/consumers }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

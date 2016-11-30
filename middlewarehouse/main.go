@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/config"
 	dbConfig "github.com/FoxComm/highlander/middlewarehouse/common/db/config"
@@ -34,5 +35,6 @@ func main() {
 		log.Panicf("Failed to start middlewarehouse with error %s", err.Error())
 	}
 
-	engine.Run(":9292")
+    port:= os.Getenv("PORT")
+	engine.Run(":" + port)
 }
