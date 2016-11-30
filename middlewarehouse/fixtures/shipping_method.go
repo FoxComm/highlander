@@ -21,12 +21,13 @@ func GetShippingMethod(id uint, carrierID uint, carrier *models.Carrier) *models
 }
 
 func ToShippingMethodPayload(shippingMethod *models.ShippingMethod) *payloads.ShippingMethod {
+    scope := payloads.Scopable{shippingMethod.Scope}
 	sm := &payloads.ShippingMethod{
 		CarrierID: shippingMethod.CarrierID,
 		Name:      shippingMethod.Name,
 		Code:      shippingMethod.Code,
 		Cost:      shippingMethod.Cost,
-        Scope:     shippingMethod.Scope,
+        Scopable:     scope,
 	}
 
 	if shippingMethod.ShippingType == models.ShippingTypeFlat {
