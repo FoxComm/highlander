@@ -6,6 +6,7 @@ usr_local: /usr/local/
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
+local_vagrant: false
 
 # Consul Service Discovery
 consul_data_dir: /var/consul
