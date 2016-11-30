@@ -1,0 +1,30 @@
+{
+    "builders" : [
+        {
+            "name": "google",
+            "type": "googlecompute",
+            "account_file": "{{user `account_file`}}",
+            "project_id" : "{{user `project_id`}}",
+            "source_image": "{{user `base_united_image`}}",
+            "network": "{{user `network`}}",
+            "zone": "{{user `zone`}}",
+            "image_name": "{{user `image_prefix`}}-amigo-{{timestamp}}",
+            "image_description": "{{user `image_title`}} Amigo Image",
+            "instance_name": "packer-{{user `image_prefix`}}-amigo-{{uuid}}",
+            "machine_type": "n1-standard-2",
+            "tags": ["ssh", "no-ip", "{{user `image_prefix`}}", "amigo"],
+            "use_internal_ip": true,
+            "ssh_username" : "{{user `ssh_username`}}"
+        }
+    ],
+    "provisioners" : [
+        {
+            "type": "ansible",
+            "playbook_file" : "ansible/packer_tinyprod_amigo.yml",
+            "extra_arguments": [
+                "-vvvv",
+                "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"
+            ]
+        }
+    ]
+}
