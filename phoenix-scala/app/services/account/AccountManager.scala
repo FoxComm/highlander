@@ -1,21 +1,19 @@
 package services.account
 
 import java.time.Instant
-import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
 import failures.NotFoundFailure404
 import failures.UserFailures._
-import models.cord.{OrderShippingAddresses, Orders}
 import models.account._
-import models.location.Addresses
-import models.shipping.Shipments
+import models.customer.CustomersData
 import payloads.UserPayloads._
 import responses.UserResponse._
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
+import failures.AuthFailures._
 
 case class AccountCreateContext(roles: List[String], org: String, scopeId: Int)
 
@@ -49,6 +47,11 @@ object AccountManager {
       user ← * <~ Users
               .activeUserByEmail(Option(email))
               .mustFindOneOr(NotFoundFailure404(User, email))
+
+      isGuestMaybe ← * <~
+                      CustomersData.findOneByAccountId(user.accountId).map(_.map(_.isGuest))
+      _ ← * <~ failIf(isGuestMaybe.getOrElse(false), ResetPasswordsForbiddenForGuests)
+
       resetPwInstance ← * <~ UserPasswordReset
                          .optionFromUser(user)
                          .toXor(UserHasNoEmail(user.id).single)
@@ -107,25 +110,13 @@ object AccountManager {
                       .findByNameInScope(context.org, scope.id)
                       .mustFindOr(OrganizationNotFound(context.org, scope.path))
 
-      _ ← * <~ (if (checkEmail) (email match {
-                  case Some(e) ⇒
-                    for {
-                      _ ← * <~ Users.createEmailMustBeUnique(e)
-                    } yield {}
-                  case None ⇒ DbResultT.unit
-
-                })
-                else DbResultT.unit)
+      _ ← * <~ doOrMeh(checkEmail, email.fold(DbResultT.unit)(Users.createEmailMustBeUnique))
 
       account ← * <~ Accounts.create(Account())
 
-      _ ← * <~ (password match {
-               case Some(p) ⇒
-                 AccountAccessMethods.create(AccountAccessMethod.build(account.id, "login", p))
-               case None ⇒ {
-                 DbResultT.unit
-               }
-             })
+      _ ← * <~ password.map { p ⇒
+           AccountAccessMethods.create(AccountAccessMethod.build(account.id, "login", p))
+         }
 
       user ← * <~ Users.create(
                 User(accountId = account.id, email = email, name = name, isMigrated = isMigrated))

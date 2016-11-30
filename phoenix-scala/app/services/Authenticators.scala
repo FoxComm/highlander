@@ -121,12 +121,13 @@ object Authenticator {
         account ← * <~ Accounts.mustFindById404(user.accountId)
         claims  ← * <~ AccountManager.getClaims(user.accountId, guestCreateContext.scopeId)
       } yield
-        AuthData[User](UserToken.fromUserAccount(user, account, claims), user, account, true))
-        .run()
-        .map {
-          case Xor.Right(data) ⇒ AuthenticationResult.success(data)
-          case Xor.Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
-        }
+        AuthData[User](UserToken.fromUserAccount(user, account, claims),
+                       user,
+                       account,
+                       isGuest = true)).run().map {
+        case Xor.Right(data) ⇒ AuthenticationResult.success(data)
+        case Xor.Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
+      }
     }
   }
 
