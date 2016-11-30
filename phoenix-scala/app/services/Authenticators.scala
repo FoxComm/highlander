@@ -223,9 +223,9 @@ object Authenticator {
     })
   }
 
-  def oauthTokenLoginResponse(token: Token): Failures Xor Route = {
-    authTokenBaseResponse(token, { payload ⇒
-      redirect(Uri./, StatusCodes.Found)
+  def oauthTokenLoginResponse(redirectUri: Uri)(token: Token): Failures Xor Route = {
+    authTokenBaseResponse(token, { _ ⇒
+      redirect(redirectUri, StatusCodes.Found)
     })
   }
 

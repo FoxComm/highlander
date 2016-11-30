@@ -2,6 +2,7 @@ package services.auth
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
+import akka.http.scaladsl.model.Uri
 
 import cats.data.{Xor, XorT}
 import cats.implicits._
@@ -36,11 +37,10 @@ object OauthDirectives {
 trait OauthService[M] {
   this: Oauth ⇒
 
-  def getScopeId: Int
   def createCustomerByUserInfo(info: UserInfo): DbResultT[M]
   def createAdminByUserInfo(info: UserInfo): DbResultT[M]
   def findByEmail(email: String): DBIO[Option[M]]
-  def createToken(user: M, account: Account, scopeId: Int): DbResultT[Token]
+  def createToken(user: M, account: Account, info: UserInfo): DbResultT[Token]
   def findAccount(user: M): DbResultT[Account]
 
   /*
@@ -69,8 +69,7 @@ trait OauthService[M] {
       db: DB,
       ac: AC): DbResultT[(M, Account)] =
     for {
-      result ← * <~ findByEmail(userInfo.email).findOrCreateExtended(createByUserInfo(userInfo))
-      (user, foundOrCreated) = result
+      user    ← * <~ findByEmail(userInfo.email).findOrCreate(createByUserInfo(userInfo))
       account ← * <~ findAccount(user)
     } yield (user, account)
 
@@ -88,27 +87,27 @@ trait OauthService[M] {
       info        ← * <~ fetchUserInfoFromCode(oauthResponse)
       userAccount ← * <~ findOrCreateUserFromInfo(info, createByUserInfo)
       (user, account) = userAccount
-      token ← * <~ createToken(user, account, getScopeId)
+      token ← * <~ createToken(user, account, info)
     } yield token
 
   def customerCallback(
       oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route = {
     onSuccess(oauthCallback(oauthResponse, createCustomerByUserInfo).run()) { tokenOrFailure ⇒
       tokenOrFailure
-        .flatMap(Authenticator.oauthTokenLoginResponse)
+        .flatMap(Authenticator.oauthTokenLoginResponse(Uri./))
         .fold({ f ⇒
           complete(renderFailure(f))
-        }, identity _)
+        }, identity)
     }
   }
 
   def adminCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route = {
     onSuccess(oauthCallback(oauthResponse, createAdminByUserInfo).run()) { tokenOrFailure ⇒
       tokenOrFailure
-        .flatMap(Authenticator.oauthTokenLoginResponse)
+        .flatMap(Authenticator.oauthTokenLoginResponse(Uri("/admin")))
         .fold({ f ⇒
           complete(renderFailure(f))
-        }, identity _)
+        }, identity)
     }
   }
 }
