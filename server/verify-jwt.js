@@ -18,14 +18,19 @@ export default function *verifyJwt(next) {
   let decodedToken;
 
   if (jwt) {
-    try {
-      decodedToken = jsonwebtoken.verify(jwt, publicKey, {
-        issuer: 'FC',
-        audience: 'user',
-        algorithms: ['RS256', 'RS384', 'RS512'],
-      });
-    } catch (err) {
-      console.error("Can't decode token: ", err);
+    if (process.env.DEV_SKIP_JWT_VERIFY) {
+      console.info('DEV_SKIP_JWT_VERIFY is enabled, JWT is not verified');
+      decodedToken = jsonwebtoken.decode(jwt);
+    } else {
+      try {
+        decodedToken = jsonwebtoken.verify(jwt, publicKey, {
+          issuer: 'FC',
+          audience: 'user',
+          algorithms: ['RS256', 'RS384', 'RS512'],
+        });
+      } catch (err) {
+        console.error("Can't decode token: ", err);
+      }
     }
   }
 
