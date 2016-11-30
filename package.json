@@ -112,7 +112,7 @@
     "reselect": "^2.1.0",
     "slick-carousel": "^1.6.0",
     "sprout-data": "^0.2.3",
-    "wings": "git+ssh://git@github.com/FoxComm/wings.git#v1.4.0",
+    "wings": "git+ssh://git@github.com/FoxComm/wings.git#v1.5.0",
     "zipcodes": "^2.0.0"
   }
 }
