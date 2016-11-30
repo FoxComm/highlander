@@ -13,11 +13,3 @@
 
 - name: Restart Isaac in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/isaac/restart'
-
-- name: Wait For Deployments to Finish
-  shell: "curl -X GET http://{{marathon_server}}/v2/deployments | jq 'length'"
-  register: wt
-  until: wt.stdout == '0'
-  retries: 30
-  delay: 20
-  when: vagrant
