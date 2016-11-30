@@ -36,7 +36,7 @@ import styles from './pdp.css';
 
 
 type Params = {
-  productId: string,
+  productSlug: string,
 };
 
 type Actions = {
@@ -155,7 +155,13 @@ class Pdp extends Component {
   }
 
   getId(props): number {
-    return parseInt(props.params.productId, 10) || -1; // prevent NaN
+    const slug = props.params.productSlug;
+
+    if (/^\d+$/.test(slug)) {
+      return parseInt(slug, 10);
+    }
+
+    return slug;
   }
 
   get currentSku() {
