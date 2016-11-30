@@ -42,8 +42,6 @@ trait TestSeeds extends TestFixtureBase {
                      account = storeAdminAccount)
     implicit lazy val au: AU = storeAdminAuthData
 
-    implicit def au: AuthData[User] = storeAdminAuthData
-
     private val (_storeAdminAccount, _storeAdmin, _storeAdminUser, _storeAdminClaims) = (for {
       maybeAdmin ← * <~ Users
                     .findByEmail(Factories.storeAdmin.email.getOrElse(""))

@@ -44,7 +44,7 @@ trait TaxonomySeeds extends TestFixtureBase {
   }
 
   trait TaxonSeedBase {
-    def au: AuthData[User]
+    implicit def au: AuthData[User]
 
     def createTaxon(attributes: Map[String, Json]) = {
       val form   = ObjectForm.fromPayload(Taxon.kind, attributes)

@@ -53,7 +53,6 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   trait EmptyCart_Raw extends StoreAdmin_Seed {
     def customer: User
     def storeAdmin: User
-    implicit def au: AU
 
     def cart: Cart = _cart
 
