@@ -24,9 +24,10 @@ import type { Address } from 'types/address';
 // actions
 import { initAddressData } from 'modules/edit-address';
 
-type EditShippingProps = Localized & {
+type EditAddressProps = Localized & {
   onUpdate: (address: Address) => void,
   initAddressData: (address: Address) => Promise,
+  colorTheme?: string,
 }
 
 function mapStateToProps(state) {
@@ -46,8 +47,12 @@ type State = {
 @localized
 /* ::`*/
 export default class EditAddress extends Component {
-  props: EditShippingProps;
+  props: EditAddressProps;
   lookupXhr: ?XMLHttpRequest;
+
+  static defaultProps = {
+    colorTheme: 'default',
+  };
 
   state: State = {
     address: {},
@@ -201,7 +206,7 @@ export default class EditAddress extends Component {
   render() {
     if (!this.isAddressLoaded) return <Loader size="m"/>;
 
-    const props: EditShippingProps = this.props;
+    const props: EditAddressProps = this.props;
     const { t } = props;
     const selectedCountry = this.selectedCountry;
     const data = this.state.address;
@@ -209,7 +214,7 @@ export default class EditAddress extends Component {
     const checked = _.get(data, 'isDefault', false);
 
     return (
-      <div>
+      <div styleName={`theme-${props.colorTheme}`}>
         <Checkbox
           name="isDefault"
           checked={checked}

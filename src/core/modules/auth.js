@@ -1,7 +1,7 @@
 /* @flow */
 
 import { createAction, createReducer } from 'redux-act';
-import createAsyncActions from './async-utils';
+import { createAsyncActions } from 'wings';
 import { dissoc, merge, update } from 'sprout-data';
 import { api } from 'lib/api';
 import { setUserId } from 'lib/analytics';
@@ -75,14 +75,17 @@ export const fetchUser = createAsyncActions('fetch-user', function fetchUser(): 
     });
 }).perform;
 
-export const restorePassword = createAsyncActions('restore-password', function restorePassword(email: string): Promise {
-  return api.auth.restorePassword(email);
-}).perform;
+export const restorePassword = createAsyncActions('restore-password',
+  function restorePassword(email: string): Promise {
+    return api.auth.restorePassword(email);
+  }
+).perform;
 
-export const resetPassword =
-  createAsyncActions('restore-password', function resetPassword(code: string, password: string): Promise {
+export const resetPassword = createAsyncActions('reset-password',
+  function resetPassword(code: string, password: string): Promise {
     return api.auth.resetPassword(code, password);
-  }).perform;
+  }
+).perform;
 
 const initialState = {
 };

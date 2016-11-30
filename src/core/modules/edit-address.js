@@ -1,7 +1,8 @@
 
 import _ from 'lodash';
-import createAsyncActions from './async-utils';
+import { createAsyncActions } from 'wings';
 import { loadCountry, usaDetails } from 'modules/countries';
+import { createReducer } from 'redux-act';
 
 const addressFields = [
   'name',
@@ -47,3 +48,27 @@ const _initAddressData = createAsyncActions(
 );
 
 export const initAddressData = _initAddressData.perform;
+
+const _fetchAddress = createAsyncActions(
+  'fetchAddress',
+  function(id) {
+    return this.api.addresses.one(id);
+  }
+);
+
+export const fetchAddress = _fetchAddress.perform;
+
+const initialState = {
+  address: void 0,
+};
+
+const reducer = createReducer({
+  [_fetchAddress.succeeded]: (state, address) => {
+    return {
+      ...state,
+      address,
+    };
+  },
+}, initialState);
+
+export default reducer;

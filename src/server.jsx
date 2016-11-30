@@ -6,7 +6,7 @@ import { useQueries } from 'history';
 import { Provider } from 'react-redux';
 
 import makeStore from './store';
-import routes from './routes';
+import makeRoutes from './routes';
 import I18nProvider from 'lib/i18n/provider';
 import renderPage from '../build/main.html';
 
@@ -22,6 +22,7 @@ export default function *renderReact() {
   if (authHeader) initialState.authHeader = authHeader;
 
   const store = makeStore(history, initialState);
+  const routes = makeRoutes(store);
 
   const [redirectLocation, renderProps] = yield match.bind(null, { routes, location: this.url, history });
 
