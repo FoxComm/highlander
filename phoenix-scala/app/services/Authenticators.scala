@@ -23,7 +23,6 @@ import services.account._
 import services.customers.CustomerManager
 import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{RichConfig, config}
-import utils.Passwords.checkPassword
 import utils.aliases._
 import utils.db._
 
@@ -240,11 +239,13 @@ object Authenticator {
                       .mustFindOr(LoginFailed)
       account ← * <~ Accounts.mustFindById404(user.accountId)
 
-      _ ← * <~ failIf(!accessMethod.checkPassword(payload.password), LoginFailed)
+      // security checks
+      _ ← * <~ failIfNot(accessMethod.checkPassword(payload.password), LoginFailed)
 
-      //TODO Add this back after demo
-      //adminUsers    ← * <~ AdminsData.filter(_.accountId === user.accountId).one
-      //_             ← * <~ adminUsers.map(aus ⇒ checkState(aus))
+      adminUsers ← * <~ AdminsData.findOneByAccountId(user.accountId)
+      _ ← * <~ adminUsers.map { adminData ⇒
+           DbResultT.fromXor(checkState(adminData))
+         }
 
       claimSet     ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
       _            ← * <~ validateClaimSet(claimSet)
