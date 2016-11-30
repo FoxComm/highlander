@@ -62,13 +62,19 @@ func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 			return nil
 		}
 
+        if len(bulkStateChange.CordRefNums) == 0 {
+            return nil
+        }
+
 		// Get orders from Phoenix
+        log.Println("Fetching bulk orders from Phoenix...")
 		orders, err := bulkStateChange.GetRelatedOrders(o.client)
 		if err != nil {
 			return err
 		}
 
 		// Handle each order
+        log.Println("Handling each order...")
 		for _, fullOrder := range orders {
 			err := o.handlerInner(fullOrder)
 			if err != nil {
@@ -86,6 +92,12 @@ func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 func (o OrderHandler) handlerInner(fullOrder *shared.FullOrder) error {
 	order := fullOrder.Order
 	if order.OrderState != orderStateFulfillmentStarted {
+		log.Printf(
+			"Order %s is in %s state. Skipping.",
+			order.ReferenceNumber,
+            order.OrderState
+		)
+
 		return nil
 	}
 
