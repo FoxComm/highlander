@@ -15,7 +15,7 @@ const cookingData = [
   },
   {
     imgUrl: '/images/about-page/Icon_Deliciously_Convienient.svg',
-    title: 'DELICIOULSY CONVIENIENT',
+    title: 'DELICIOULSY CONVENIENT',
     description:
       `Instead of chopping vegetables from a meal kit,
       spend your time doing what you love. Our meals
@@ -44,7 +44,7 @@ const CookingBlock = () => (
     <div styleName="header-wrap">
       <div styleName="header-text-wrap">
         <div styleName="description">STRESS FREE GOURMET</div>
-        <h1 styleName="title">DELICIOUSLY CONVIENT</h1>
+        <h1 styleName="title">DELICIOUSLY CONVENIENT</h1>
       </div>
     </div>
     <div styleName="sections">

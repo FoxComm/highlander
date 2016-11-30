@@ -63,7 +63,7 @@ export default class AboutPage extends React.Component {
               <div styleName="fresh-text">
                 Our chefs only cook with locally sourced, fresh ingredients.
                 Our meals are then flash frozen, ensuring optimal taste, nutrition
-                and convenience. So you know you never have to sacrifice qualify
+                and convenience. So you know you never have to sacrifice quality
                 for convenience.
               </div>
             </div>
