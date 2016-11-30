@@ -27,7 +27,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
   implicit val ec: EC
 
   /* tables which should *not* be truncated b/c they're static and seeded by migration */
-  val doNotTruncate = Set("states", "countries", "regions", "schema_version", "object_contexts")
+  val doNotTruncate = Set("states", "countries", "regions", "schema_version")
 
   override protected def beforeAll(): Unit = {
     if (!migrated) {
@@ -40,7 +40,6 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
 
       db4fly.close()
 
-      setupObjectContext()
       migrated = true
     }
   }
@@ -78,7 +77,9 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
         .execute(s"truncate ${tables.mkString(", ")} restart identity cascade;")
     }
 
+    setupObjectContext()
     Seeds.createSingleMerchantSystem.gimme
+
     conn.close()
 
     super.withFixture(test)
