@@ -315,19 +315,16 @@ class ProductIntegrationTest
         val payload = productPayload.copy(slug = Some(slug))
         productsApi.create(payload).mustBeOk()
         private val createResponse: HttpResponse = productsApi.create(payload)
-        createResponse.mustHaveStatus(StatusCodes.BadRequest)
-        createResponse.error must startWith(
-            "ERROR: duplicate key value violates unique constraint")
+        createResponse.mustFailWith400(SlugDuplicates(slug))
       }
 
       "slugs differs only by case" in new Fixture {
         val slug = "simple-product"
         productsApi.create(productPayload.copy(slug = Some(slug))).mustBeOk()
-        private val createResponse: HttpResponse =
-          productsApi.create(productPayload.copy(slug = Some(slug.toUpperCase())))
-        createResponse.mustHaveStatus(StatusCodes.BadRequest)
-        createResponse.error must startWith(
-            "ERROR: duplicate key value violates unique constraint")
+        val duplicatedSlug: String = slug.toUpperCase()
+        val createResponse: HttpResponse =
+          productsApi.create(productPayload.copy(slug = Some(duplicatedSlug)))
+        createResponse.mustFailWith400(SlugDuplicates(duplicatedSlug))
       }
     }
 
@@ -663,10 +660,7 @@ class ProductIntegrationTest
                                  skus = None,
                                  variants = None))
 
-        updateResponse.mustHaveStatus(StatusCodes.BadRequest)
-        updateResponse.error must startWith(
-            "ERROR: duplicate key value violates unique constraint")
-
+        updateResponse.mustFailWith400(SlugDuplicates(slug))
       }
     }
   }

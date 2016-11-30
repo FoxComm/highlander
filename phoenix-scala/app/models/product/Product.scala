@@ -2,19 +2,22 @@ package models.product
 
 import java.time.Instant
 
-import models.objects._
-import shapeless._
-import utils.db.ExPostgresDriver.api._
-import slick.lifted.Tag
-import utils.db._
-import utils.{JsonFormatters, Validation}
+import scala.util.matching.Regex
+
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.ProductIsPresentInCarts
-import failures.ProductFailures
-import failures.ProductFailures.ProductFormNotFoundForContext
+import failures.ProductFailures.{ProductFormNotFoundForContext, SlugDuplicates}
+import failures._
 import models.cord.lineitems.CartLineItems
+import models.objects._
 import services.objects.ObjectManager
+import shapeless._
+import slick.lifted.Tag
+import sun.misc.Regexp
 import utils.aliases._
+import utils.db.ExPostgresDriver.api._
+import utils.db._
+import utils.{JsonFormatters, Validation}
 
 object Product {
   val kind = "product"
@@ -87,6 +90,12 @@ object Products
 
   implicit val formats = JsonFormatters.phoenixFormats
 
+  override def create(unsaved: Product)(implicit ec: EC): DbResultT[Product] =
+    super.create(unsaved).resolveFailures(ErrorResolver.slugErrorResolverFn(unsaved))
+
+  override def update(oldModel: Product, newModel: Product)(implicit ec: EC): DbResultT[Product] =
+    super.update(oldModel, newModel).resolveFailures(ErrorResolver.slugErrorResolverFn(newModel))
+
   def filterByContext(contextId: Int): QuerySeq =
     filter(_.contextId === contextId)
 
@@ -114,4 +123,14 @@ object Products
   def mustFindFullByReference(
       ref: ProductReference)(implicit oc: OC, ec: EC, db: DB): DbResultT[FullObject[Product]] =
     ObjectManager.getFullObject(mustFindByReference(ref: ProductReference))
+
+  private object ErrorResolver {
+    val regexp: Regex =
+      "ERROR: duplicate key value violates unique constraint \"product_slug_idx\".*".r
+
+    def slugErrorResolverFn(product: Product): PartialFunction[Failure, Failure] = {
+      case DatabaseFailure(message) if regexp.findFirstIn(message).isDefined ⇒
+        SlugDuplicates(product.slug.getOrElse(""))
+    }
+  }
 }
