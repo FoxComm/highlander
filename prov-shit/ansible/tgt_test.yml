@@ -45,6 +45,7 @@
     - { role: dev/balancer, sudo: yes }
     - { role: ext/tgt/marketplace-ui }
     - { role: ext/tgt/product-search }
+    - { role: demo/search }
     - { role: ext/tgt/balancer, sudo: true }
     - { role: dev/seeder }
     - { role: dev/seeder }

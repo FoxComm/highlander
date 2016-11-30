@@ -1,0 +1,26 @@
+{
+  "id": "/demo-search",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 1024,
+  "disk": 0,
+  "instances": 1,
+  "portDefinitions": [
+    {
+      "port": 10008,
+      "protocol": "tcp",
+      "name": "4041",
+      "labels": {}
+    }
+  ],
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "{{docker_registry}}:5000/demo-search:{{docker_branch}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  }
+}
