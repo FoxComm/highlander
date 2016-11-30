@@ -18,8 +18,8 @@ func NewFullOrderFromActivity(activity activities.ISiteActivity) (*FullOrder, er
 	return fo, err
 }
 
-func NewFullOrderFromPayload(payload *payloads.Order) *FullOrder {
+func NewFullOrderFromPayload(payload *payloads.OrderResult) *FullOrder {
 	fo := new(FullOrder)
-	fo.Order = *payload
+	fo.Order = payload.Order
 	return fo
 }
