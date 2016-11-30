@@ -1,5 +1,5 @@
 {
-  "id": "/stock-items-consumer",
+  "id": "/shipments-consumer",
   "cmd": null,
   "cpus": 0.25,
   "mem": 64,
@@ -9,7 +9,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/stock-items-consumer:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/shipments-consumer:{{docker_branch}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -17,27 +17,23 @@
     }
   },
   "env": {
-    "TOPIC": "sku_search_view",
+    "TOPIC": "activities",
     "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
     "ZOOKEEPER_URL": "{{zookeeper_server}}",
     "MWH_URL": "http://{{middlewarehouse_server}}",
+    "PHOENIX_URL": "http://{{phoenix_server}}",
+    "PHOENIX_USER": "{{phoenix_api_user}}",
+    "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
     "PARTITION": "1"
   },
-  "portDefinitions": [
-    {
-      "port": 10001,
-      "protocol": "tcp",
-      "labels": {}
-    }
-  ],
   "healthChecks": [
     {
       "protocol": "COMMAND",
       "command": {
-        "value": "ps -ef | grep -v grep | grep stock-items-consumer"
+        "value": "ps -ef | grep -v grep | grep shipments-consumer"
       },
       "gracePeriodSeconds": 300,
-      "intervalSeconds": 60,
+      "intervalSeconds": 30,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3
     }

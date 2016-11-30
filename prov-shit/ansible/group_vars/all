@@ -1,3 +1,4 @@
+
 # Common variables
 home: /home/{{ user }}
 self_host: 127.0.0.1
@@ -6,6 +7,7 @@ usr_local: /usr/local/
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
+vagrant: false
 local_vagrant: false
 
 # Consul Service Discovery

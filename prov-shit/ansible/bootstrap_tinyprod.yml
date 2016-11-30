@@ -25,6 +25,7 @@
     - { role: dev/isaac }
     - { role: dev/greenriver }
     - { role: dev/middlewarehouse }
+    - { role: dev/consumers }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
@@ -75,6 +76,7 @@
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/firebrand }
     - { role: dev/balancer, sudo: yes }
+    - { role: dev/consumers }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
