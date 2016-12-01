@@ -139,10 +139,10 @@ class Signup extends Component {
 
   render(): HTMLElement {
     const { email, password, username, emailError, usernameError } = this.state;
-    const { t, isLoading, getPath } = this.props;
+    const { t, isLoading, getPath, onLoginClick } = this.props;
 
     const loginLink = (
-      <Link to={getPath(authBlockTypes.LOGIN)} onClick={this.props.onLoginClick} styleName="link">
+      <Link to={getPath(authBlockTypes.LOGIN)} onClick={onLoginClick} styleName="link">
         {t('Log in')}
       </Link>
     );

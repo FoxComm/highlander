@@ -118,7 +118,8 @@ class Login extends Component {
 
   render(): HTMLElement {
     const { password, email } = this.state;
-    const { t, getPath } = this.props;
+    const { props } = this;
+    const { t, getPath } = props;
 
     const restoreLink = (
       <Link to={getPath(authBlockTypes.RESTORE_PASSWORD)} styleName="restore-link">
@@ -127,7 +128,7 @@ class Login extends Component {
     );
 
     const signupLink = (
-      <Link to={getPath(authBlockTypes.SIGNUP)} onClick={this.props.onSignupClick} styleName="link">
+      <Link to={getPath(authBlockTypes.SIGNUP)} onClick={props.onSignupClick} styleName="link">
         {t('Sign Up')}
       </Link>
     );
