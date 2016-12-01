@@ -7989,23 +7989,27 @@ window-size@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/window-size/-/window-size-0.2.0.tgz#b4315bb4214a3d7058ebeee892e13fa24d98b075"
 
-"wings@git+ssh://git@github.com/FoxComm/wings.git#v1.3.0":
-  version "1.3.0"
-  resolved "git+ssh://git@github.com/FoxComm/wings.git#ce3794014708c27af0fd7b6c3e911e176cfd6432"
+"wings@git+ssh://git@github.com/FoxComm/wings.git#v1.4.0":
+  version "1.4.0"
+  resolved "git+ssh://git@github.com/FoxComm/wings.git#2b041166315bbcf4542b24e42641b8552cad8c51"
   dependencies:
     classnames "^2.2.5"
+    hoist-non-react-statics "^1.2.0"
     lodash "^4.13.1"
     postcss "^5.0.21"
     postcss-cli "^2.5.2"
     postcss-cssnext "^2.7.0"
     postinstall-build "^0.2.1"
     react "^15.2.0"
+    reduce-reducers "^0.1.2"
+    redux "^3.6.0"
     redux-act "^1.1.0"
+    redux-thunk "^2.1.0"
     sprout-data "^0.2.3"
 
-"wings@git+ssh://git@github.com/FoxComm/wings.git#v1.4.0":
-  version "1.4.0"
-  resolved "git+ssh://git@github.com/FoxComm/wings.git#2b041166315bbcf4542b24e42641b8552cad8c51"
+"wings@git+ssh://git@github.com/FoxComm/wings.git#v1.5.0":
+  version "1.5.0"
+  resolved "git+ssh://git@github.com/FoxComm/wings.git#a739ae3006fb90c032bda377809345a953bb3d45"
   dependencies:
     classnames "^2.2.5"
     hoist-non-react-statics "^1.2.0"
