@@ -5,10 +5,12 @@ import scala.concurrent.Future
 import cats.data.Xor
 import failures.DiscountFailures.SearchFailure
 import failures._
+import models.account.User
 import models.cord.lineitems.OrderLineItemAdjustment._
 import models.cord.lineitems.{OrderLineItemAdjustment ⇒ Adjustment}
 import models.discount._
 import models.discount.offers.Offer.OfferResult
+import services.Authenticator.AuthData
 import services.Result
 import utils.ElasticsearchApi.Buckets
 import utils.aliases._
@@ -19,7 +21,8 @@ trait Offer extends DiscountBase {
 
   val adjustmentType: AdjustmentType
 
-  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult
+  def adjust(
+      input: DiscountInput)(implicit db: DB, ec: EC, es: ES, auth: AuthData[User]): OfferResult
 
   // Returns single line item adjustment for now
   def build(input: DiscountInput,
@@ -87,8 +90,11 @@ trait ItemsOffer {
 
   def matchXor(input: DiscountInput)(xor: Failures Xor Buckets): Failures Xor Seq[Adjustment]
 
-  def adjustInner(input: DiscountInput)(
-      search: Seq[ProductSearch])(implicit db: DB, ec: EC, es: ES): OfferResult = {
+  def adjustInner(input: DiscountInput)(search: Seq[ProductSearch])(
+      implicit db: DB,
+      ec: EC,
+      es: ES,
+      auth: AuthData[User]): OfferResult = {
     val inAnyOf = search.map(_.query(input).map(matchXor(input)))
 
     Future

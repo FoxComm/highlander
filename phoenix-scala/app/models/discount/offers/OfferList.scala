@@ -5,10 +5,12 @@ import scala.concurrent.Future
 import cats.data.{NonEmptyList, Xor}
 import cats.std.list._
 import failures._
+import models.account.User
 import models.cord.lineitems.OrderLineItemAdjustment
 import models.cord.lineitems.OrderLineItemAdjustment._
 import models.discount.DiscountInput
 import models.discount.offers.Offer.OfferResult
+import services.Authenticator.AuthData
 import utils.aliases._
 
 case class OfferList(offers: Seq[Offer]) extends Offer {
@@ -16,7 +18,8 @@ case class OfferList(offers: Seq[Offer]) extends Offer {
   val offerType: OfferType           = ListCombinator
   val adjustmentType: AdjustmentType = Combinator
 
-  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult = {
+  def adjust(
+      input: DiscountInput)(implicit db: DB, ec: EC, es: ES, auth: AuthData[User]): OfferResult = {
     val adjustmentAttempts = Future.sequence(offers.map(_.adjust(input)))
 
     val adjustments = adjustmentAttempts.map(seq ⇒

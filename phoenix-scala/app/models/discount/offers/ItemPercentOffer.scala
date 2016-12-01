@@ -3,10 +3,12 @@ package models.discount.offers
 import cats.data.Xor
 import cats.implicits._
 import failures._
+import models.account.User
 import models.cord.lineitems.OrderLineItemAdjustment
 import models.cord.lineitems.OrderLineItemAdjustment._
 import models.discount._
 import models.discount.offers.Offer.OfferResult
+import services.Authenticator.AuthData
 import utils.ElasticsearchApi._
 import utils.aliases._
 
@@ -20,7 +22,8 @@ case class ItemPercentOffer(discount: Int, search: Seq[ProductSearch])
   val offerType: OfferType           = ItemPercentOff
   val adjustmentType: AdjustmentType = LineItemAdjustment
 
-  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult =
+  def adjust(
+      input: DiscountInput)(implicit db: DB, ec: EC, es: ES, auth: AuthData[User]): OfferResult =
     if (discount > 0 && discount < 100) adjustInner(input)(search) else pureResult()
 
   def matchXor(input: DiscountInput)(

@@ -6,7 +6,9 @@ import cats.data.Xor
 import failures._
 import failures.DiscountCompilerFailures.QualifierRejectionFailure
 import failures.DiscountFailures.SearchFailure
+import models.account.User
 import models.discount.{DiscountBase, DiscountInput, ProductSearch}
+import services.Authenticator.AuthData
 import services.Result
 import utils.ElasticsearchApi.Buckets
 import utils.aliases._
@@ -15,7 +17,8 @@ trait Qualifier extends DiscountBase {
 
   val qualifierType: QualifierType
 
-  def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Unit]
+  def check(
+      input: DiscountInput)(implicit db: DB, ec: EC, es: ES, auth: AuthData[User]): Result[Unit]
 
   def accept()(implicit ec: EC, es: ES): Result[Unit] = Result.unit
 
@@ -30,8 +33,11 @@ trait ItemsQualifier extends Qualifier {
 
   def matchXor(input: DiscountInput)(xor: Failures Xor Buckets): Failures Xor Unit
 
-  def checkInner(input: DiscountInput)(
-      search: Seq[ProductSearch])(implicit db: DB, ec: EC, es: ES): Result[Unit] = {
+  def checkInner(input: DiscountInput)(search: Seq[ProductSearch])(
+      implicit db: DB,
+      ec: EC,
+      es: ES,
+      auth: AuthData[User]): Result[Unit] = {
     val inAnyOf = search.map(_.query(input).map(matchXor(input)))
 
     Future

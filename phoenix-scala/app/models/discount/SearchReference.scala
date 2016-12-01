@@ -3,33 +3,38 @@ package models.discount
 import scala.concurrent.Future
 
 import cats.data.Xor
+import models.account.User
 import models.discount.SearchReference._
 import models.sharedsearch.SharedSearches
+import services.Authenticator.AuthData
 import services.Result
-import utils.ElasticsearchApi.Buckets
+import utils.ElasticsearchApi.{Buckets, SearchViewReference}
 import utils.aliases._
 
 /**
   * Linking mechanism for qualifiers (also used in offers)
   */
 sealed trait SearchReference[K, T] {
-  val typeName: String
+  val searchView: SearchViewReference
   val fieldName: String
 
   def references(input: DiscountInput): Seq[K]
-  def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[T]
+  def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, auth: AuthData[User]): Result[T]
 }
 
 case class CustomerSearch(customerSearchId: Int) extends SearchReference[Int, Long] {
-  val typeName: String  = customersSearchView
-  val fieldName: String = customersSearchField
+  val searchView: SearchViewReference = customersSearchView
+  val fieldName: String               = customersSearchField
 
   def references(input: DiscountInput): Seq[Int] = Seq(input.cart.accountId)
 
-  def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Long] = {
+  def query(input: DiscountInput)(implicit db: DB,
+                                  ec: EC,
+                                  es: ES,
+                                  auth: AuthData[User]): Result[Long] = {
     SharedSearches.findOneById(customerSearchId).run().flatMap {
       case Some(search) ⇒
-        es.checkMetrics(typeName, search.rawQuery, fieldName, references(input).map(_.toString))
+        es.checkMetrics(searchView, search.rawQuery, fieldName, references(input).map(_.toString))
           .map(result ⇒ Xor.Right(result))
       case _ ⇒
         pureMetrics
@@ -38,16 +43,19 @@ case class CustomerSearch(customerSearchId: Int) extends SearchReference[Int, Lo
 }
 
 case class ProductSearch(productSearchId: Int) extends SearchReference[Int, Buckets] {
-  val typeName: String  = productsSearchView
-  val fieldName: String = productsSearchField
+  val searchView: SearchViewReference = productsSearchView
+  val fieldName: String               = productsSearchField
 
   def references(input: DiscountInput): Seq[Int] =
     input.lineItems.map(_.productForm.id)
 
-  def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Buckets] = {
+  def query(input: DiscountInput)(implicit db: DB,
+                                  ec: EC,
+                                  es: ES,
+                                  auth: AuthData[User]): Result[Buckets] = {
     SharedSearches.findOneById(productSearchId).run().flatMap {
       case Some(search) ⇒
-        es.checkBuckets(typeName, search.rawQuery, fieldName, references(input).map(_.toString))
+        es.checkBuckets(searchView, search.rawQuery, fieldName, references(input).map(_.toString))
           .map(res ⇒ Xor.Right(res))
       case _ ⇒
         pureBuckets
@@ -56,15 +64,18 @@ case class ProductSearch(productSearchId: Int) extends SearchReference[Int, Buck
 }
 
 case class SkuSearch(skuSearchId: Int) extends SearchReference[String, Buckets] {
-  val typeName: String  = skuSearchView
-  val fieldName: String = skuSearchField
+  val searchView: SearchViewReference = skuSearchView
+  val fieldName: String               = skuSearchField
 
   def references(input: DiscountInput): Seq[String] = input.lineItems.map(_.sku.code)
 
-  def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Buckets] = {
+  def query(input: DiscountInput)(implicit db: DB,
+                                  ec: EC,
+                                  es: ES,
+                                  auth: AuthData[User]): Result[Buckets] = {
     SharedSearches.findOneById(skuSearchId).run().flatMap {
       case Some(search) ⇒
-        es.checkBuckets(typeName, search.rawQuery, fieldName, references(input))
+        es.checkBuckets(searchView, search.rawQuery, fieldName, references(input))
           .map(res ⇒ Xor.Right(res))
       case _ ⇒
         pureBuckets
@@ -73,9 +84,11 @@ case class SkuSearch(skuSearchId: Int) extends SearchReference[String, Buckets] 
 }
 
 object SearchReference {
-  def customersSearchView: String = "customers_search_view"
-  def productsSearchView: String  = "products_search_view"
-  def skuSearchView: String       = "sku_search_view"
+  def customersSearchView: SearchViewReference =
+    SearchViewReference("customers_search_view", scoped = false)
+  def productsSearchView: SearchViewReference =
+    SearchViewReference("products_search_view", scoped = true)
+  def skuSearchView: SearchViewReference = SearchViewReference("sku_search_view", scoped = true)
 
   def customersSearchField: String = "id"
   def productsSearchField: String  = "productId"

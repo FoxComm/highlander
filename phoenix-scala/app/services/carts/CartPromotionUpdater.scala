@@ -21,6 +21,7 @@ import models.promotion._
 import models.shipping
 import responses.TheResponse
 import responses.cord.CartResponse
+import services.Authenticator.AuthData
 import services.discount.compilers._
 import services.{CartValidator, LineItemManager, LogActivity}
 import slick.driver.PostgresDriver.api._
@@ -29,7 +30,11 @@ import utils.db._
 
 object CartPromotionUpdater {
 
-  def readjust(cart: Cart)(implicit ec: EC, es: ES, db: DB, ctx: OC): DbResultT[Unit] =
+  def readjust(cart: Cart)(implicit ec: EC,
+                           es: ES,
+                           db: DB,
+                           ctx: OC,
+                           auth: AuthData[User]): DbResultT[Unit] =
     for {
       // Fetch base stuff
       orderPromo ← * <~ OrderPromotions
@@ -65,7 +70,8 @@ object CartPromotionUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] =
+      ctx: OC,
+      auth: AuthData[User]): DbResultT[TheResponse[CartResponse]] =
     for {
       // Fetch base data
       cart ← * <~ getCartByOriginator(originator, refNum)
@@ -134,7 +140,8 @@ object CartPromotionUpdater {
   private def getAdjustments(promo: ObjectShadow, cart: Cart, qualifier: Qualifier, offer: Offer)(
       implicit ec: EC,
       es: ES,
-      db: DB) =
+      db: DB,
+      auth: AuthData[User]) =
     for {
       lineItems      ← * <~ LineItemManager.getCartLineItems(cart.refNum)
       shippingMethod ← * <~ shipping.ShippingMethods.forCordRef(cart.refNum).one
