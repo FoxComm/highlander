@@ -26,7 +26,6 @@ type Props = {
     createProduct: (product: Product) => void,
     fetchProduct: (productId: string, context: string) => Promise,
     productNew: () => void,
-    productDuplicate: () => void,
     updateProduct: (product: Product, context: string) => void,
     archiveProduct: (id: string|number, context: ?string) => Promise,
   },
@@ -163,12 +162,6 @@ class ProductPage extends ObjectPage {
       }, object);
       this.setState({object: newProduct});
     }
-  }
-
-  handleDuplicate() {
-    super.handleDuplicate();
-
-    this.props.actions.productDuplicate();
   }
 
   createEntity(entity) {
