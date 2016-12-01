@@ -3,6 +3,7 @@ package services.discount.compilers
 import cats.data.Xor
 import failures.DiscountCompilerFailures._
 import failures._
+import models.discount.NonEmptySearch
 import models.discount.offers._
 import org.json4s._
 import utils.JsonFormatters
@@ -27,7 +28,12 @@ case class OfferCompiler(offerType: OfferType, attributes: Json) {
 
   private def extract[T <: Offer](json: Json)(implicit m: Manifest[T]): Xor[Failures, Offer] =
     json.extractOpt[T] match {
-      case Some(q) ⇒ Xor.Right(q)
-      case None    ⇒ Xor.Left(OfferAttributesExtractionFailure(offerType).single)
+      case Some(q) ⇒
+        q match {
+          case q: NonEmptySearch if q.search.isEmpty ⇒
+            Xor.Left(OfferSearchIsEmpty(offerType).single)
+          case _ ⇒ Xor.Right(q)
+        }
+      case None ⇒ Xor.Left(OfferAttributesExtractionFailure(offerType).single)
     }
 }

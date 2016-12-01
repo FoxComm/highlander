@@ -8,7 +8,10 @@ import services.Result
 import utils.ElasticsearchApi._
 import utils.aliases._
 
-case class ItemsAnyQualifier(search: Seq[ProductSearch]) extends Qualifier with ItemsQualifier {
+case class ItemsAnyQualifier(search: Seq[ProductSearch])
+    extends Qualifier
+    with NonEmptySearch
+    with ItemsQualifier {
 
   val qualifierType: QualifierType = ItemsAny
 

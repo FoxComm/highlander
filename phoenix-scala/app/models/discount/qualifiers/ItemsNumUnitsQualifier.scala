@@ -10,6 +10,7 @@ import utils.aliases._
 
 case class ItemsNumUnitsQualifier(numUnits: Int, search: Seq[ProductSearch])
     extends Qualifier
+    with NonEmptySearch
     with ItemsQualifier {
 
   val qualifierType: QualifierType = ItemsNumUnits

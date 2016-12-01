@@ -3,6 +3,7 @@ package services.discount.compilers
 import cats.data.Xor
 import failures.DiscountCompilerFailures._
 import failures._
+import models.discount.NonEmptySearch
 import models.discount.qualifiers._
 import org.json4s._
 import utils.JsonFormatters
@@ -27,8 +28,13 @@ case class QualifierCompiler(qualifierType: QualifierType, attributes: Json) {
   private def extract[T <: Qualifier](json: Json)(
       implicit m: Manifest[T]): Xor[Failures, Qualifier] = {
     json.extractOpt[T] match {
-      case Some(q) ⇒ Xor.Right(q)
-      case None    ⇒ Xor.Left(QualifierAttributesExtractionFailure(qualifierType).single)
+      case Some(q) ⇒
+        q match {
+          case q: NonEmptySearch if q.search.isEmpty ⇒
+            Xor.Left(QualifierSearchIsEmpty(qualifierType).single)
+          case _ ⇒ Xor.Right(q)
+        }
+      case None ⇒ Xor.Left(QualifierAttributesExtractionFailure(qualifierType).single)
     }
   }
 }

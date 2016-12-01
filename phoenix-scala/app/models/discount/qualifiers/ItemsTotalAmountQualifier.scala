@@ -10,7 +10,8 @@ import utils.aliases._
 
 case class ItemsTotalAmountQualifier(totalAmount: Int, search: Seq[ProductSearch])
     extends Qualifier
-    with ItemsQualifier {
+    with ItemsQualifier
+    with NonEmptySearch {
 
   val qualifierType: QualifierType = ItemsTotalAmount
 

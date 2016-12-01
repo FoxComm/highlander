@@ -13,6 +13,7 @@ import utils.aliases._
 case class SetPriceOffer(setPrice: Int, numUnits: Int, search: Seq[ProductSearch])
     extends Offer
     with SetOffer
+    with NonEmptySearch
     with ItemsOffer {
 
   val offerType: OfferType           = SetPrice

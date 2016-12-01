@@ -14,6 +14,7 @@ import utils.aliases._
 case class ItemPercentOffer(discount: Int, search: Seq[ProductSearch])
     extends Offer
     with PercentOffer
+    with NonEmptySearch
     with ItemsOffer {
 
   val offerType: OfferType           = ItemPercentOff

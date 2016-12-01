@@ -2,8 +2,7 @@ package models.discount.qualifiers
 
 import scala.concurrent.Future
 
-import cats.data.Xor
-import cats.data.NonEmptyList
+import cats.data.{NonEmptyList, Xor}
 import cats.std.list._
 import models.discount.DiscountInput
 import services.Result
