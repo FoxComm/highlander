@@ -101,7 +101,7 @@ object Dependencies {
     "org.conbere"           % "markov_2.10"             % "0.2.0",
     "io.backchat.inflector" %% "scala-inflector"        % "1.3.5",
     "com.github.tototoshi"  %% "scala-csv"              % "1.3.3",
-    ("org.spire-math"       %% "cats"                   % "0.3.0").excludeAll(noScalaCheck)
+    "org.typelevel"         %% "cats"                   % "0.5.0"
   )
 
   private lazy val noScalaCheck = ExclusionRule(organization = "org.scalacheck")

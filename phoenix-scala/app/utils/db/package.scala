@@ -2,8 +2,8 @@ package utils
 
 import scala.concurrent.Future
 
-import cats.implicits._
 import cats.data.{Xor, XorT}
+import cats.implicits._
 import cats.{Applicative, Functor, Monad}
 import failures._
 import services.Result
@@ -20,7 +20,7 @@ package object db {
   type DbResultT[A] = XorT[DBIO, Failures, A]
   // DBIO monad
   implicit def dbioApplicative(implicit ec: EC): Applicative[DBIO] = new Applicative[DBIO] {
-    def ap[A, B](fa: DBIO[A])(f: DBIO[A ⇒ B]): DBIO[B] =
+    def ap[A, B](f: DBIO[A ⇒ B])(fa: DBIO[A]): DBIO[B] =
       fa.flatMap(a ⇒ f.map(ff ⇒ ff(a)))
 
     def pure[A](a: A): DBIO[A] = DBIO.successful(a)
