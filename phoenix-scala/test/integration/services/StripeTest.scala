@@ -30,6 +30,23 @@ class StripeTest extends RealStripeApis {
   val okExpMonth = today.getMonthValue
   val theAddress = Factories.address
 
+  val token = createToken(cardNumber = successfulCard,
+                          expYear = okExpYear,
+                          expMonth = okExpMonth,
+                          cvv = 123,
+                          address = theAddress).gimme
+
+  val customerEmail = faker.Internet.email
+
+  val (cust, card) = stripe
+    .createCardFromToken(email = customerEmail.some,
+                         token = token.getId,
+                         stripeCustomerId = none,
+                         address = theAddress)
+    .gimme
+
+  val realStripeCustomerId = cust.getId
+
   "Stripe" - {
     "authorizeAmount" - {
       "fails if the customerId doesn't exist" taggedAs External in {
@@ -78,20 +95,6 @@ class StripeTest extends RealStripeApis {
       }
 
       "successfully creates a card and new customer when given no customerId" taggedAs External in {
-        val token = createToken(cardNumber = successfulCard,
-                                expYear = okExpYear,
-                                expMonth = okExpMonth,
-                                cvv = 123,
-                                address = theAddress).gimme
-
-        val customerEmail = faker.Internet.email
-
-        val (cust, card) = stripe
-          .createCardFromToken(email = customerEmail.some,
-                               token = token.getId,
-                               stripeCustomerId = none,
-                               address = theAddress)
-          .gimme
 
         cust.getDescription must === ("FoxCommerce")
         cust.getEmail must === (customerEmail)
