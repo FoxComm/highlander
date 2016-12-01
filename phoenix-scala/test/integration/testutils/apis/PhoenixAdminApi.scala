@@ -223,7 +223,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   case class cartsApi(refNum: String) {
 
     val cartPath     = s"${cartsApi.cartsPrefix}/$refNum"
-    val updateLIAttr = s"$cartPath/line-items-attributes"
+    val updateLIAttr = s"$cartPath/line-items/attributes"
 
     def updateCartLineItem(payload: Seq[UpdateOrderLineItemsPayload]): HttpResponse = {
       PATCH(updateLIAttr, payload)

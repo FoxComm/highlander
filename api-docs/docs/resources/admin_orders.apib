@@ -8,15 +8,6 @@
 + Response 200 (application/json)
   + Attributes (FullOrder)
 
-### List Shipping Methods [GET /v1/orders/{refNum}/shipping-methods]
-
-This route is depreciated in favor of `/v1/carts/`.
-
-+ Parameters
-    + refNum: `BR1001` (required, string) - Order reference number
-+ Response 204
-    + Attributes (array[ShippingMethod])
-
 ### Create [POST /v1/orders]
 
 This route is depreciated in favor of `/v1/carts/`.
@@ -225,13 +216,6 @@ This route is depreciated in favor of `/v1/carts/`.
 Shipping methods are used to describe the ways that the contents of a cart can
 transported to the customer. All actions that occur against this set of
 endpoints modify which shipping method is used by the cart.
-
-### List [GET]
-
-This route is depreciated in favor of `/v1/carts/`.
-
-+ Response 200 (application/json)
-    + Attributes (array[ShippingMethod])
 
 ### Update [PATCH]
 

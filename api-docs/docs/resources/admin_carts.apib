@@ -8,13 +8,6 @@
 + Response 200 (application/json)
   + Attributes (FullOrder)
 
-### List Shipping Methods [GET /v1/carts/{refNum}/shipping-methods]
-
-+ Parameters
-    + refNum: `BR1001` (required, string) - Cart reference number
-+ Response 204
-    + Attributes (array[ShippingMethod])
-
 ### Create [POST /v1/carts]
 
 Creates a cart for an existing customer (or guest account) when `customerId`
@@ -167,11 +160,6 @@ Add to or remove from the number of line items that are currently stored in your
 Shipping methods are used to describe the ways that the contents of a cart can
 transported to the customer. All actions that occur against this set of
 endpoints modify which shipping method is used by the cart.
-
-### List [GET]
-
-+ Response 200 (application/json)
-    + Attributes (array[ShippingMethod])
 
 ### Update [PATCH]
 

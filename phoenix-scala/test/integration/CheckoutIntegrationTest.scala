@@ -37,7 +37,7 @@ class CheckoutIntegrationTest
     with AutomaticAuth
     with BakedFixtures {
 
-  "PATCH /v1/carts/:refNum/line-items-attributes" - {
+  "PATCH /v1/carts/:refNum/line-items/attributes" - {
     val attributes = LineItemAttributes(
         GiftCardLineItemAttributes(senderName = "senderName",
                                    recipientName = "recipientName",
