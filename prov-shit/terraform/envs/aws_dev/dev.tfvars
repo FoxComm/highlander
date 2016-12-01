@@ -10,7 +10,7 @@ amigo_image = "ami-2f862a4f"
 amigo_instance_type = "m4.large"
 amigo_volume_size = "20"
 
-frontend_image = "ami-5f7ad63f"
+frontend_image = "ami-33892053"
 frontend_instance_type = "m4.large"
 frontend_volume_size = "20"
 

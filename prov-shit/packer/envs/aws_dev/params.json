@@ -23,9 +23,9 @@
     "search_server_http": "elasticsearch.service.consul:9200",
     "ashes_server": "ashes.service.consul:4000",
     "zookeepers" : "zk://zookeeper.service.consul:2181",    
-    "cert_path": "target",
+    "cert_path": "stage/target",
     "docker_registry_bucket": "tgt-docker",
-    "docker_registry":"https://docker-target.foxcommerce.com",
+    "docker_registry":"https://docker-tgt.foxcommerce.com",
     "docker_registry_provider": "aws",
     "docker_registry_region": "us-west-2"
 }
