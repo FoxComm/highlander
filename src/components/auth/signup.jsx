@@ -38,6 +38,10 @@ type Props = Localized & {
   isLoading: boolean,
   fetchCart: Function,
   saveLineItemsAndCoupons: Function,
+  onLoginClick: Function,
+  title?: string|Element|null,
+  mergeGuestCart: boolean,
+  onAuthenticated?: Function,
 };
 
 const mapState = state => ({
@@ -55,6 +59,10 @@ class Signup extends Component {
     usernameError: false,
     emailError: false,
     generalErrors: [],
+  };
+
+  static defaultProps = {
+    mergeGuestCart: false,
   };
 
   @autobind
@@ -84,13 +92,13 @@ class Signup extends Component {
   submitUser() {
     const {email, password, username: name} = this.state;
     const payload: SignUpPayload = {email, password, name};
-    this.props.signUp(payload).then(() => {
+    const signUp = this.props.signUp(payload).then(() => {
       const lineItems = _.get(this.props, 'cart.lineItems', []);
       const couponCode = _.get(this.props, 'cart.coupon.code', null);
       if (_.isEmpty(lineItems) && _.isNil(couponCode)) {
         this.props.fetchCart();
       } else {
-        this.props.saveLineItemsAndCoupons();
+        this.props.saveLineItemsAndCoupons(this.props.mergeGuestCart);
       }
       browserHistory.push(this.props.getPath());
     }).catch(err => {
@@ -116,6 +124,17 @@ class Signup extends Component {
         generalErrors: restErrors,
       });
     });
+
+    if (this.props.onAuthenticated) {
+      signUp.then(this.props.onAuthenticated);
+    }
+  }
+
+  get title() {
+    const { t, title } = this.props;
+    return title !== null
+      ? <div styleName="title">{title || t('SIGN UP')}</div>
+      : null;
   }
 
   render(): HTMLElement {
@@ -123,14 +142,14 @@ class Signup extends Component {
     const { t, isLoading, getPath } = this.props;
 
     const loginLink = (
-      <Link to={getPath(authBlockTypes.LOGIN)} styleName="link">
+      <Link to={getPath(authBlockTypes.LOGIN)} onClick={this.props.onLoginClick} styleName="link">
         {t('Log in')}
       </Link>
     );
 
     return (
       <div>
-        <div styleName="title">{t('SIGN UP')}</div>
+        {this.title}
         <Form onSubmit={this.submitUser}>
           <FormField key="username" styleName="form-field" error={usernameError}>
             <TextInput

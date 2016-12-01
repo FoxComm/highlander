@@ -38,6 +38,7 @@ class Guest extends Component {
   render() {
     return (
       <Form onSubmit={this.onClick}>
+        <div styleName="title">CHECKOUT AS GUEST</div>
         <FormField key="email" styleName="form-field">
           <TextInput placeholder="EMAIL" type="email" value={this.state.email} onChange={this.onEmailChange}/>
         </FormField>

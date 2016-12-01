@@ -31,7 +31,7 @@
 }
 
 .auth-block {
-  margin: auto 0;
+  margin: 0;
 }
 
 .auth-block:first-child {
@@ -49,23 +49,4 @@
   height: 255px;
   background: #3E3436;
   position: absolute;
-}
-
-
-.header {
-  text-transform: capitalize;
-  text-align: center;
-}
-
-.form:first-child {
-  border-right: 1px solid #3E3436;
-}
-
-.form {
-  height: 255px;
-}
-
-.form-content {
-  margin-top: 26px;
-  height: 100%;
 }
