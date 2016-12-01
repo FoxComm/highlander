@@ -64,6 +64,7 @@ class GuestAuth extends Component {
               </div>
             </div>
           </div>
+          <div styleName="divider" />
           <div styleName="auth-block">
             <header styleName="header">CHECKOUT AS GUEST</header>
             <div styleName="form">
