@@ -1,0 +1,16 @@
+.slug-field-container {
+  position: relative;
+  width: 100%;
+}
+
+.prefix {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: #9ba3a7;
+}
+
+.slug-field {
+  width: 100%;
+  padding-left: 84px !important; /* our form field style is too specific */
+}

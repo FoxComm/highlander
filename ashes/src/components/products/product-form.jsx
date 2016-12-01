@@ -18,6 +18,8 @@ import { renderFormField } from 'components/object-form/object-form-inner';
 
 import { autoAssignVariants, deleteVariantCombination, addSkusForVariants } from 'paragons/variants';
 
+import styles from './form.css';
+
 // types
 import type { DetailsProps } from '../object-page/object-details';
 import type { Product, Option, OptionValue } from 'paragons/product';
@@ -115,29 +117,31 @@ export default class ProductForm extends ObjectDetails {
 
   @autobind
   onSlugChange(value) {
-    const realSlug = value.replace(/^\/products\//, '');
-    const coupon = assoc(this.props.object, 'slug', realSlug);
-    this.props.onUpdateObject(coupon);
+    const realSlug = _.trim(value);
+    const product = assoc(this.props.object, 'slug', realSlug);
+    this.props.onUpdateObject(product);
   }
 
   get slugMask() {
     const slugValue = _.get(this.props, 'object.slug', '');
     const maskLength = _.size(slugValue) + 1;
-    return `/products/${'*'.repeat(maskLength)}`;
+    return `/products/${('*').repeat(maskLength)}`;
   }
 
   get slugField() {
     const value = _.get(this.props, 'object.slug', '');
+    const fieldClass = `fc-object-form__field-value ${styles['slug-field']}`;
     const slugField = (
-      <InputMask
-        type="text"
-        name="slug"
-        mask={this.slugMask}
-        maskChar=""
-        alwaysShowMask={true}
-        value={value}
-        onChange={({target}) => this.onSlugChange(target.value)}
-      />
+      <div styleName="slug-field-container" >
+        <span styleName="prefix" >/products/</span>
+        <input
+          className={fieldClass}
+          type="text"
+          name="slug"
+          value={value}
+          onChange={({target}) => this.onSlugChange(target.value)}
+        />
+      </div>
     );
     const opts = {
       label: 'Slug',
