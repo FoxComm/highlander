@@ -117,15 +117,9 @@ export default class ProductForm extends ObjectDetails {
 
   @autobind
   onSlugChange(value) {
-    const realSlug = _.trim(value);
+    const realSlug = value.replace(/\W/g, '-');
     const product = assoc(this.props.object, 'slug', realSlug);
     this.props.onUpdateObject(product);
-  }
-
-  get slugMask() {
-    const slugValue = _.get(this.props, 'object.slug', '');
-    const maskLength = _.size(slugValue) + 1;
-    return `/products/${('*').repeat(maskLength)}`;
   }
 
   get slugField() {
@@ -141,6 +135,9 @@ export default class ProductForm extends ObjectDetails {
           value={value}
           onChange={({target}) => this.onSlugChange(target.value)}
         />
+        <div styleName="field-comment">
+          Slug can only contain letters, numbers, dashes, and underscores.
+        </div>
       </div>
     );
     const opts = {
