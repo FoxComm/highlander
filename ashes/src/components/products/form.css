@@ -7,10 +7,16 @@
   position: absolute;
   top: 10px;
   left: 10px;
-  color: #9ba3a7;
+  color: #909090;
 }
 
 .slug-field {
   width: 100%;
   padding-left: 84px !important; /* our form field style is too specific */
+}
+
+.field-comment {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #909090;
 }
