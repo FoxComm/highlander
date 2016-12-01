@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import styles from './auth.css';
 
 import { TextInput, TextInputWithLabel } from 'ui/inputs';
-import { FormField } from 'ui/forms';
+import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 
 import * as actions from 'modules/auth';
@@ -33,8 +33,10 @@ type Props = Localized & {
   authenticate: Function,
   fetchCart: Function,
   saveLineItemsAndCoupons: Function,
-  onGuestCheckout?: Function,
-  displayTitle: boolean,
+  onAuthenticated?: Function,
+  title?: string|Element|null,
+  onSignupClick: Function,
+  mergeGuestCart: boolean,
 };
 
 const mapState = state => ({
@@ -52,7 +54,7 @@ class Login extends Component {
   };
 
   static defaultProps = {
-    displayTitle: true,
+    mergeGuestCart: false,
   };
 
   @autobind
@@ -72,14 +74,11 @@ class Login extends Component {
   }
 
   @autobind
-  authenticate(e: any) {
-    e.preventDefault();
-    e.stopPropagation();
+  authenticate() {
     const { email, password } = this.state;
     const kind = 'merchant';
     const auth = this.props.authenticate({email, password, kind}).then(() => {
-      const merge = this.props.onGuestCheckout == null;
-      this.props.saveLineItemsAndCoupons(merge);
+      this.props.saveLineItemsAndCoupons(this.props.mergeGuestCart);
       browserHistory.push(this.props.getPath());
     }, (err) => {
       const errors = _.get(err, ['responseJson', 'errors'], [err.toString()]);
@@ -96,10 +95,8 @@ class Login extends Component {
       this.setState({error: 'Email or password is invalid'});
     });
 
-    if (this.props.onGuestCheckout != null) {
-      auth.then(() => {
-        this.props.onGuestCheckout();
-      });
+    if (this.props.onAuthenticated) {
+      auth.then(this.props.onAuthenticated);
     }
   }
 
@@ -113,15 +110,16 @@ class Login extends Component {
   }
 
   get title() {
-    const { t } = this.props;
-    return this.props.displayTitle
-      ? <div styleName="title">{t('SIGN IN')}</div>
+    const { t, title } = this.props;
+    return title !== null
+      ? <div styleName="title">{title || t('SIGN IN')}</div>
       : null;
   }
 
   render(): HTMLElement {
     const { password, email } = this.state;
-    const { t, getPath } = this.props;
+    const { props } = this;
+    const { t, getPath } = props;
 
     const restoreLink = (
       <Link to={getPath(authBlockTypes.RESTORE_PASSWORD)} styleName="restore-link">
@@ -130,7 +128,7 @@ class Login extends Component {
     );
 
     const signupLink = (
-      <Link to={getPath(authBlockTypes.SIGNUP)} styleName="link">
+      <Link to={getPath(authBlockTypes.SIGNUP)} onClick={props.onSignupClick} styleName="link">
         {t('Sign Up')}
       </Link>
     );
@@ -138,7 +136,7 @@ class Login extends Component {
     return (
       <div>
         {this.title}
-        <form>
+        <Form onSubmit={this.authenticate}>
           <FormField key="email" styleName="form-field" error={this.state.error}>
             <TextInput placeholder={t('EMAIL')} value={email} type="email" onChange={this.onChangeEmail} />
           </FormField>
@@ -152,13 +150,13 @@ class Login extends Component {
             />
           </FormField>
           <Button
+            type="submit"
             styleName="primary-button"
             isLoading={this.props.isLoading}
-            onClick={this.authenticate}
           >
             {t('SIGN IN')}
           </Button>
-        </form>
+        </Form>
         <div styleName="switch-stage">
           {t('Don’t have an account?')} {signupLink}
         </div>

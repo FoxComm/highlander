@@ -8,6 +8,7 @@ import { Link } from 'react-router';
 
 import Guest from '../../../components/auth/guest';
 import Login from '../../../components/auth/login';
+import Signup from '../../../components/auth/signup';
 import Icon from 'ui/icon';
 
 import * as checkoutActions from 'modules/checkout';
@@ -17,9 +18,16 @@ import localized from 'lib/i18n';
 
 import styles from './guest-auth.css';
 
+type State = {
+  authMode: string,
+}
+
 @localized
 @connect(null, {...checkoutActions, ...authActions})
 class GuestAuth extends Component {
+  state: State = {
+    authMode: 'login',
+  };
 
   @autobind
   onGuestCheckout(email: string) {
@@ -29,7 +37,7 @@ class GuestAuth extends Component {
   }
 
   @autobind
-  onCheckoutAfterAuth() {
+  doCheckoutAfterAuth() {
     this.props.checkoutAfterSignIn();
   }
 
@@ -37,6 +45,39 @@ class GuestAuth extends Component {
   getPath(newType: ?string): Object {
     const { location } = this.props;
     return newType ? assoc(location, ['query', 'auth'], newType) : dissoc(location, ['query', 'auth']);
+  }
+
+  @autobind
+  toggleAuthForm(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.setState({
+      authMode: this.state.authMode === 'login' ? 'signup' : 'login',
+    });
+  }
+
+  get authForm() {
+    if (this.state.authMode == 'login') {
+      return (
+        <Login
+          mergeGuestCart
+          getPath={this.getPath}
+          title="SIGN IN & CHECKOUT"
+          onAuthenticated={this.doCheckoutAfterAuth}
+          onSignupClick={this.toggleAuthForm}
+        />
+      );
+    }
+    return (
+      <Signup
+        mergeGuestCart
+        getPath={this.getPath}
+        title="SIGN UP & CHECKOUT"
+        onGuestCheckout={this.doCheckoutAfterAuth}
+        onLoginClick={this.toggleAuthForm}
+      />
+    );
   }
 
   render() {
@@ -53,24 +94,11 @@ class GuestAuth extends Component {
         </div>
         <div styleName="forms">
           <div styleName="auth-block">
-            <header styleName="header">SIGN IN & CHECKOUT</header>
-            <div styleName="form">
-              <div styleName="form-content">
-                <Login
-                  getPath={this.getPath}
-                  displayTitle={false}
-                  onGuestCheckout={this.onCheckoutAfterAuth}
-                />
-              </div>
-            </div>
+            {this.authForm}
           </div>
+          <div styleName="divider" />
           <div styleName="auth-block">
-            <header styleName="header">CHECKOUT AS GUEST</header>
-            <div styleName="form">
-              <div styleName="form-content">
-                <Guest onGuestCheckout={this.onGuestCheckout}/>
-              </div>
-            </div>
+            <Guest onGuestCheckout={this.onGuestCheckout}/>
         </div>
         </div>
       </article>
