@@ -14,7 +14,7 @@ frontend_image = "ami-33892053"
 frontend_instance_type = "m4.large"
 frontend_volume_size = "20"
 
-backend_image = "ami-c977dba9"
+backend_image = "ami-ee81288e"
 backend_instance_type = "m4.xlarge"
 backend_volume_size = "60"
 
