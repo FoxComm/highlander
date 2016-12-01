@@ -260,7 +260,7 @@ class FormField extends Component {
 
   render() {
     const className = classNames(this.props.className, {
-      [styles['has-error']]: this.errors.length && this.readyToShowErrors,
+      [styles['has-error']]: this.hasError && this.readyToShowErrors,
     });
 
     return (

@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import styles from './auth.css';
 
 import { TextInput, TextInputWithLabel } from 'ui/inputs';
-import { FormField } from 'ui/forms';
+import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 
 import * as actions from 'modules/auth';
@@ -72,9 +72,7 @@ class Login extends Component {
   }
 
   @autobind
-  authenticate(e: any) {
-    e.preventDefault();
-    e.stopPropagation();
+  authenticate() {
     const { email, password } = this.state;
     const kind = 'merchant';
     const auth = this.props.authenticate({email, password, kind}).then(() => {
@@ -138,7 +136,7 @@ class Login extends Component {
     return (
       <div>
         {this.title}
-        <form>
+        <Form onSubmit={this.authenticate}>
           <FormField key="email" styleName="form-field" error={this.state.error}>
             <TextInput placeholder={t('EMAIL')} value={email} type="email" onChange={this.onChangeEmail} />
           </FormField>
@@ -152,13 +150,13 @@ class Login extends Component {
             />
           </FormField>
           <Button
+            type="submit"
             styleName="primary-button"
             isLoading={this.props.isLoading}
-            onClick={this.authenticate}
           >
             {t('SIGN IN')}
           </Button>
-        </form>
+        </Form>
         <div styleName="switch-stage">
           {t('Don’t have an account?')} {signupLink}
         </div>
