@@ -1,6 +1,7 @@
 package routes
 
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.CookieDirectives.{setCookie ⇒ _, _}
 import akka.http.scaladsl.server.directives.RespondWithDirectives.{respondWithHeader ⇒ _, _}
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
@@ -17,7 +18,7 @@ import utils.aliases._
 import utils.http.Http._
 
 object Public {
-  def routes(customerCreateContext: AccountCreateContext)(implicit ec: EC, db: DB, es: ES) = {
+  def routes(customerCreateContext: AccountCreateContext)(implicit ec: EC, db: DB, es: ES): Route = {
 
     activityContext() { implicit ac ⇒
       pathPrefix("public") {

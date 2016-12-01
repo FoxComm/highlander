@@ -1,7 +1,7 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-
+import akka.http.scaladsl.server.Route
 import cats.implicits._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
@@ -24,7 +24,7 @@ import utils.http.Http._
 
 object OrderRoutes {
 
-  def routes(implicit ec: EC, es: ES, db: DB, auth: AuthData[User], apis: Apis) = {
+  def routes(implicit ec: EC, es: ES, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
     activityContext(auth.model) { implicit ac ⇒
       determineObjectContext(db, ec) { implicit ctx ⇒

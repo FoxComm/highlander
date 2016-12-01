@@ -3,7 +3,7 @@ package routes
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.server.Directives._
-
+import akka.http.scaladsl.server.Route
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
 import models.payment.giftcard.GiftCard
@@ -27,7 +27,7 @@ import services.orders.OrderQueries
 import utils.http.Http._
 
 object Customer {
-  def routes(implicit ec: EC, es: ES, db: DB, auth: UserAuthenticator, apis: Apis) = {
+  def routes(implicit ec: EC, es: ES, db: DB, auth: UserAuthenticator, apis: Apis): Route = {
 
     pathPrefix("my") {
       requireCustomerAuth(auth) { implicit auth ⇒
