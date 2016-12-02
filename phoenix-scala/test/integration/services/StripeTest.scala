@@ -156,5 +156,13 @@ class StripeTest extends RealStripeApis {
         capture.getAmountRefunded.toInt must === (25)
       }
     }
+
+    "deleteCustomer" - {
+      "successfully deletes a customer" taggedAs External in {
+        val result = deleteCustomer(cust)
+
+        getCustomer(realStripeCustomerId).value must === (None)
+      }
+    }
   }
 }
