@@ -38,8 +38,6 @@ func (consumer GiftCardConsumer) Handler(message metamorphosis.AvroMessage) erro
 		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
 	}
 
-	log.Printf("New activity %s", activity.Data())
-
 	switch activity.Type() {
 	case activityOrderStateChanged:
 		fullOrder, err := shared.NewFullOrderFromActivity(activity)
