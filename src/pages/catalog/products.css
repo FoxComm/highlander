@@ -26,6 +26,7 @@
   font-family: var(--font-main);
   font-weight: 400;
   color: var(--whitish);
+  text-transform: uppercase;
 }
 
 .title {
