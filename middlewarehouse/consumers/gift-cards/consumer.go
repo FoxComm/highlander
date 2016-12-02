@@ -61,8 +61,7 @@ func (consumer GiftCardConsumer) Handler(message metamorphosis.AvroMessage) erro
 		for _, refNum := range bulkStateChange.CordRefNums {
 			payload, err := consumer.client.GetOrder(refNum)
 			if err != nil {
-				log.Printf("Cannot retrieve order %s with error %s", refNum, err)
-				continue
+				return fmt.Errorf("Cannot retrieve order %s with error %s", refNum, err)
 			}
 
 			fullOrder := shared.NewFullOrderFromPayload(payload)
@@ -88,12 +87,13 @@ func (consumer GiftCardConsumer) processOrder(order payloads.Order) error {
 	giftCardPayloads := make([]payloads.CreateGiftCardPayload, 0)
 	skusToUpdate := make([]payloads.OrderLineItem, 0)
 
-	log.Printf("Creating GCs for all line-items with GC attributes in order %s", order.ReferenceNumber)
+	log.Printf("Started processing order %s", order.ReferenceNumber)
 
 	for _, sku := range order.LineItems.SKUs {
-		if sku.Attributes != nil && sku.Attributes.GiftCard != nil {
+		// Process SKU only if it has `giftCard` attributes but has no code yet
+		if shouldProcessSKU(sku) {
 			if invalidAttributes(sku.Attributes.GiftCard) {
-				log.Printf("Unable to create gift cards for order %s, payload malformed", order.ReferenceNumber)
+				return fmt.Errorf("Unable to create GCs for order %s: Payload malformed", order.ReferenceNumber)
 			}
 
 			skusToUpdate = append(skusToUpdate, sku)
@@ -104,27 +104,28 @@ func (consumer GiftCardConsumer) processOrder(order payloads.Order) error {
 	}
 
 	if len(giftCardPayloads) > 0 {
-		if err := consumer.processGiftCards(giftCardPayloads, skusToUpdate, order); err != nil {
-			log.Printf("Unable to create GCs for order %s, with error %s", order.ReferenceNumber, err.Error())
-		} else {
-			log.Printf("GCs created successfully for order %s", order.ReferenceNumber)
+		if err := consumer.createGiftCards(giftCardPayloads, skusToUpdate, order); err != nil {
+			return fmt.Errorf("Unable to create GCs for order %s: %s", order.ReferenceNumber, err.Error())
 		}
 	}
+
+	log.Printf("Finished processing order %s. %d GC(s) created", order.ReferenceNumber, len(giftCardPayloads))
+
 	return nil
 }
 
-func (consumer GiftCardConsumer) processGiftCards(giftCardPayloads []payloads.CreateGiftCardPayload, skusToUpdate []payloads.OrderLineItem, order payloads.Order) error {
+func (consumer GiftCardConsumer) createGiftCards(giftCardPayloads []payloads.CreateGiftCardPayload, skusToUpdate []payloads.OrderLineItem, order payloads.Order) error {
 	giftCardResponse, err := consumer.client.CreateGiftCards(giftCardPayloads)
 	defer giftCardResponse.Body.Close()
 
 	if err != nil {
-		return fmt.Errorf("Unable to create GCs for order %s with error %s", order.ReferenceNumber, err.Error())
+		return err
 	}
 
 	codes := make([]payloads.GiftCardResponse, 0)
 
 	if err := json.NewDecoder(giftCardResponse.Body).Decode(&codes); err != nil {
-		return fmt.Errorf("Unable to get GCs codes for order %s with error %s", order.ReferenceNumber, err.Error())
+		return err
 	}
 
 	updateOrderLineItemsPayloads := make([]payloads.UpdateOrderLineItem, 0)
@@ -138,10 +139,14 @@ func (consumer GiftCardConsumer) processGiftCards(giftCardPayloads []payloads.Cr
 	}
 
 	if err := consumer.client.UpdateOrderLineItems(updateOrderLineItemsPayloads, order.ReferenceNumber); err != nil {
-		return fmt.Errorf("Unable to update order line items for order %s with error %s", order.ReferenceNumber, err.Error())
+		return err
 	}
 
 	return nil
+}
+
+func shouldProcessSKU(sku payloads.OrderLineItem) bool {
+	return sku.Attributes != nil && sku.Attributes.GiftCard != nil && sku.Attributes.GiftCard.Code == nil
 }
 
 func invalidAttributes(giftCard *payloads.GiftCard) bool {
