@@ -2,7 +2,7 @@
 
 [![Build status](https://badge.buildkite.com/dac897cf8947d04db75c127e62971ac46e1d2211398a302568.svg)](https://buildkite.com/foxcommerce/highlander)
 
-Highlander is the brand-spanking-new FoxCommerce mono-repo.
+Highlander is the FoxCommerce mono-repo.
 
 ## Development Environment
 
