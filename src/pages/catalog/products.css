@@ -4,6 +4,7 @@
 
 .catalog {
   overflow: auto;
+  padding-bottom: 70px;
 }
 
 .header-wrap {
@@ -52,6 +53,10 @@
 }
 
 @media (--small-only) {
+  .catalog {
+    padding-bottom: 30px;
+  }
+
   .header-wrap {
     height: 290px;
   }
