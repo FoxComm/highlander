@@ -1,12 +1,10 @@
 package responses.cord.base
 
-import models.cord.lineitems.CartLineItems.scope._
 import models.cord.lineitems._
 import models.product.Mvp
 import org.json4s.JsonAST.JNull
 import responses.ResponseItem
 import services.LineItemManager
-import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -22,7 +20,7 @@ case class CordResponseLineItem(imagePath: String,
                                 externalId: Option[String],
                                 trackInventory: Boolean,
                                 state: OrderLineItem.State,
-                                attributes: Option[Json] = None)
+                                attributes: Option[LineItemAttributes] = None)
     extends ResponseItem
 
 case class CordResponseLineItems(skus: Seq[CordResponseLineItem] = Seq.empty) extends ResponseItem
@@ -67,8 +65,7 @@ object CordResponseLineItems {
       implicit ec: EC,
       db: DB): DbResultT[Seq[CordResponseLineItem]] =
     for {
-      lineItemsResult ← * <~ lineItems.map(data ⇒
-                             createResponse(data, Seq(data.lineItemReferenceNumber), 1))
+      _ ← * <~ lineItems.map(data ⇒ createResponse(data, Seq(data.lineItemReferenceNumber), 1))
       result ← * <~ lineItems
                 .groupBy(lineItem ⇒ groupKey(lineItem, adjustmentMap, lineItem.attributes))
                 .map {
@@ -120,7 +117,7 @@ object CordResponseLineItems {
 
   private def groupKey(data: LineItemProductData[_],
                        adjMap: Map[String, CordResponseLineItemAdjustment],
-                       attributes: Option[Json] = None): String = {
+                       attributes: Option[LineItemAttributes] = None): String = {
     val prefix = data.sku.id + getAttributesHash(attributes)
     val suffix =
       if (adjMap.contains(data.lineItemReferenceNumber)) data.lineItemReferenceNumber
@@ -128,13 +125,8 @@ object CordResponseLineItems {
     s"$prefix,$suffix"
   }
 
-  private def getAttributesHash(attributes: Option[Json]): String = {
-    attributes match {
-      case Some(empty: JNull.type) ⇒ ""
-      case Some(value)             ⇒ value.toString.hashCode + ""
-      case _                       ⇒ ""
-    }
-  }
+  private def getAttributesHash(attributes: Option[LineItemAttributes]): String =
+    attributes.fold("")(_.toString.hashCode.toString)
 
   private val NO_IMAGE =
     "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg"

@@ -56,7 +56,7 @@
   (reset! stop false)
   (let [cc {:bootstrap.servers       [@kafka-broker]
             :group.id                "fc-messaging"
-            :auto.offset.reset       :earliest
+            :auto.offset.reset       :latest
             :key.deserializer        "org.apache.kafka.common.serialization.ByteArrayDeserializer"
             :schema.registry.url     @schema-registry-url
             :value.deserializer      "io.confluent.kafka.serializers.KafkaAvroDeserializer"

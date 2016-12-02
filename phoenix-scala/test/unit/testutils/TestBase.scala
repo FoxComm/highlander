@@ -22,11 +22,11 @@ trait TestBase
     with CatsHelpers {
 
   override implicit def patienceConfig: PatienceConfig = PatienceConfig(
-      timeout = Span(5, Seconds),
+      timeout = Span(10, Seconds),
       interval = Span(15, Milliseconds)
   )
 
-  implicit val timeout: Timeout = Timeout(5, TimeUnit.SECONDS)
+  implicit val timeout: Timeout = Timeout(10, TimeUnit.SECONDS)
 
   val config = TestBase.config
 

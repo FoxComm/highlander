@@ -8,4 +8,4 @@ avro_dir: "{{home}}/{{avro_c_name}}"
 
 bottledwater_repo: https://github.com/confluentinc/bottledwater-pg.git
 bottledwater_dir: "{{home}}/bottledwater"
-bottledwater_version: 73692fc34aefcb6fcefe78fdf7193da92ba2e14a
+bottledwater_version: e9a53794435f0e6941d7d3646a09942341c0cd9d

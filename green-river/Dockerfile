@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM openjdk:8-alpine
 
 RUN mkdir -p /green-river
 
