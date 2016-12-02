@@ -20,7 +20,7 @@ import { addLineItem, toggleCart } from 'modules/cart';
 
 // types
 import type { HTMLElement } from 'types';
-import type { ProductResponse } from 'modules/product-details';
+import type { ProductResponse, ProductSlug } from 'modules/product-details';
 
 // components
 import Gallery from 'ui/gallery/gallery';
@@ -33,7 +33,6 @@ import ImagePlaceholder from '../../components/products-item/image-placeholder';
 
 // styles
 import styles from './pdp.css';
-
 
 type Params = {
   productSlug: string,
@@ -146,7 +145,7 @@ class Pdp extends Component {
     return this.props.actions.fetch(productId);
   }
 
-  get productId(): number {
+  get productId(): ProductSlug {
     return this.getId(this.props);
   }
 
@@ -154,10 +153,10 @@ class Pdp extends Component {
     return !!_.get(this.props, ['product', 'archivedAt']);
   }
 
-  getId(props): number {
+  getId(props): ProductSlug {
     const slug = props.params.productSlug;
 
-    if (/^\d+$/.test(slug)) {
+    if (/^\d+$/g.test(slug)) {
       return parseInt(slug, 10);
     }
 
