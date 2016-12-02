@@ -3,15 +3,17 @@ package utils
 import java.time.ZonedDateTime
 
 import scala.collection.JavaConversions._
-
-import com.stripe.model.Token
+import com.stripe.model.{DeletedCustomer, Token}
 import faker.Lorem
 import models.location.Address
 import services.Result
+import utils.aliases.stripe.StripeCustomer
 import utils.apis.StripeWrapper
 import utils.seeds.Seeds.Factories
 
 object TestStripeSupport {
+
+  val stripe = new StripeWrapper()
 
   // "fox" suffix is to indicate its ours
   def randomStripeishId: String = Lorem.bothify("?#?#?#?####?#?#???_fox")
@@ -39,7 +41,15 @@ object TestStripeSupport {
                                 "address_city"  → address.city,
                                 "address_zip"   → address.zip)
 
-    new StripeWrapper().inBlockingPool(Token.create(Map("card" → mapAsJavaMap(card))))
+    stripe.inBlockingPool(Token.create(Map("card" → mapAsJavaMap(card))))
+  }
+
+  def getCustomer(id: String): Result[StripeCustomer] = {
+    stripe.findCustomer(id)
+  }
+
+  def deleteCustomer(customer: StripeCustomer): Result[DeletedCustomer] = {
+    stripe.inBlockingPool(customer.delete)
   }
 
   // https://stripe.com/docs/testing#cards
