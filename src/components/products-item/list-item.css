@@ -155,11 +155,3 @@
     letter-spacing: 0px;
   }
 }
-
-@media (--medium), (--large), (--x-large) {
-  .add-to-cart-btn {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-  }
-}
