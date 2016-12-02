@@ -28,7 +28,7 @@ const attributesColumns = {
     {
       field: 'code',
       text: 'Gift Card Number',
-      render: code => !_.isEmpty() ? <Link to="giftcard" params={{ giftCard: code }}>{code}</Link> : 'N/A'
+      render: code => !_.isEmpty(code) ? <Link to="giftcard" params={{ giftCard: code }}>{code}</Link> : 'N/A'
     },
     { field: 'recipientName', text: 'Recipient Name' },
     { field: 'recipientEmail', text: 'Recipient Email' },

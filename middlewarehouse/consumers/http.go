@@ -56,7 +56,7 @@ func request(method string, url string, headers map[string]string, payload inter
 		return nil, fmt.Errorf("Unable to make %s request: %s", method, err.Error())
 	}
 
-	log.Printf("HTTP <--- %s %s. Status: %s", method, url, resp.Status)
+	log.Printf("HTTP <-- %s %s. Status: %s", method, url, resp.Status)
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		respBody := new(map[string]interface{})
