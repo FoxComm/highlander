@@ -57,7 +57,7 @@ case class Product(id: Int = 0,
   override def sanitize: Product = {
     val sanitized: Product = super.sanitize
 
-    if (sanitized.slug.contains("")) sanitized.copy(slug = None)
+    if (sanitized.slug == Some("")) sanitized.copy(slug = None)
     else sanitized
   }
 
