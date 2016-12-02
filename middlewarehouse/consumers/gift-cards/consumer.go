@@ -35,37 +35,37 @@ func NewGiftCardConsumer(client lib.PhoenixClient) (*GiftCardConsumer, error) {
 func (consumer GiftCardConsumer) Handler(message metamorphosis.AvroMessage) error {
 	activity, err := activities.NewActivityFromAvro(message)
 	if err != nil {
-		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
+		log.Panicf("Unable to decode Avro message with error %s", err.Error())
 	}
 
 	switch activity.Type() {
 	case activityOrderStateChanged:
 		fullOrder, err := shared.NewFullOrderFromActivity(activity)
 		if err != nil {
-			return fmt.Errorf("Unable to decode order from activity with error %s", err.Error())
+			log.Panicf("Unable to decode order from activity with error %s", err.Error())
 		}
 
 		return consumer.processOrder(fullOrder.Order)
 	case activityOrderBulkStateChanged:
 		bulkStateChange, err := shared.NewOrderBulkStateChangeFromActivity(activity)
 		if err != nil {
-			return fmt.Errorf("Unable to decode bulk state change activity with error %s", err.Error())
+			log.Panicf("Unable to decode bulk state change activity with error %s", err.Error())
 		}
 
 		if bulkStateChange.NewState != orderStateShipped || len(bulkStateChange.CordRefNums) == 0 {
 			return nil
 		}
 
-		for _, refNum := range bulkStateChange.CordRefNums {
-			payload, err := consumer.client.GetOrder(refNum)
-			if err != nil {
-				return fmt.Errorf("Cannot retrieve order %s with error %s", refNum, err)
-			}
+		// Get orders from Phoenix
+		orders, err := bulkStateChange.GetRelatedOrders(consumer.client)
+		if err != nil {
+			log.Panicf("Error getting orders from Phoenix: %s", err.Error())
+		}
 
-			fullOrder := shared.NewFullOrderFromPayload(payload)
-
-			if err = consumer.processOrder(fullOrder.Order); err != nil {
-				log.Printf("Cannot create GC for order %s with error %s", refNum, err)
+		// Handle each order
+		for _, fullOrder := range orders {
+			if err := consumer.processOrder(fullOrder.Order); err != nil {
+				log.Panicf("Error processing orders: %s", err.Error())
 			}
 		}
 

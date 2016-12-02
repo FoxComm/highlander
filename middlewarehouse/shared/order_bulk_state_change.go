@@ -3,6 +3,7 @@ package shared
 import (
 	"encoding/json"
 
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 )
 
@@ -16,4 +17,19 @@ func NewOrderBulkStateChangeFromActivity(activity activities.ISiteActivity) (*Or
 	fo := new(OrderBulkStateChange)
 	err := json.Unmarshal(bt, fo)
 	return fo, err
+}
+
+func (ac *OrderBulkStateChange) GetRelatedOrders(client lib.PhoenixClient) ([]*FullOrder, error) {
+	orders := []*FullOrder{}
+	for _, refNum := range ac.CordRefNums {
+		payload, err := client.GetOrder(refNum)
+		if err != nil {
+			return orders, err
+		}
+
+		fullOrder := NewFullOrderFromPayload(payload)
+		orders = append(orders, fullOrder)
+	}
+
+	return orders, nil
 }
