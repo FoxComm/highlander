@@ -7,10 +7,10 @@
   template: src=tgt_service_locations.j2 dest=/etc/nginx/tgt_service_locations.conf
 
 - name: Install Service Upstreams
-  template: src=tgt_services.j2 dest=/etc/nginx/sites-available/tgt_services.template
+  template: src=tgt_services.j2 dest=/etc/nginx/tgt_services.template
 
 - name: Enable Service Upstreams
-  file: src=/etc/nginx/sites-available/tgt_services dest=/etc/nginx/sites-enabled/tgt_services owner=root group=root state=link
+  file: src=/etc/nginx/sites-available/tgt_services dest=/etc/nginx/sites-enabled/tgt_services owner=root group=root state=link force=true
 
 - name: Install Web UI Hosts
   template: src=web-ui.j2 dest=/etc/nginx/sites-available/web-ui
