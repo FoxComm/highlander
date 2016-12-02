@@ -1,12 +1,12 @@
 package utils.http
 
-import akka.http.scaladsl.model.headers.RawHeader
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.PathMatcher.{Matched, Matching, Unmatched}
+import akka.http.scaladsl.server.PathMatcher.Matched
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
 
@@ -17,9 +17,9 @@ import models.activity.ActivityContext
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.{ProductReference, SimpleContext}
 import org.json4s.jackson.Serialization.{write ⇒ json}
+import payloads.AuthPayload
 import services.{JwtCookie, Result}
 import slick.driver.PostgresDriver.api._
-import payloads.AuthPayload
 import utils._
 import utils.aliases._
 import utils.db._
@@ -31,22 +31,12 @@ object CustomDirectives {
 
   object ProductRef extends PathMatcher1[ProductReference] {
     def apply(path: Path) = {
-      IntNumber.apply(path) match {
-        case Unmatched ⇒
-          matchSegment(path)
-        case Matched(rest, value) ⇒
-          Matched(rest, Tuple1(ProductReference(value._1)))
-      }
-
-    }
-
-    def matchSegment(path: Path): Matching[Tuple1[ProductReference]] =
       path match {
-        case Path.Segment(segment, tail) ⇒
+        case Path.Segment(segment, tail) if segment.exists(_.isLetter) ⇒
           Matched(tail, Tuple1(ProductReference(segment)))
-        case _ ⇒
-          Unmatched
+        case _ ⇒ IntNumber.apply(path).map { case Tuple1(id) ⇒ Tuple1(ProductReference(id)) }
       }
+    }
   }
 
   def activityContext(user: User): Directive1[ActivityContext] = {

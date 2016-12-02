@@ -99,10 +99,13 @@ class ProductIntegrationTest
       val skuName = "SKU-NEW-TEST"
 
       "slug successfully" in new Fixture {
-        val possibleSlug = List("simple-product", "1-Product", "p")
+        val possibleSlug = List("simple-product", "1-Product", "p", "111something")
         for (slug ← possibleSlug) {
           val productResponse = doQuery(productPayload.copy(slug = slug.some))
           productResponse.slug must === (slug.some).withClue(s"slug: $slug")
+          val getProductResponse = productsApi(slug).get().as[Root]
+          getProductResponse.slug must === (slug.some).withClue(s"slug: $slug")
+          getProductResponse.id must === (productResponse.id).withClue(s"slug: $slug")
         }
       }
 
