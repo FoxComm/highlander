@@ -1,6 +1,6 @@
 package testutils
 
-import java.sql.Connection
+import java.sql.{Connection, PreparedStatement}
 import java.util.Locale
 import javax.sql.DataSource
 
@@ -67,6 +67,9 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
       tables = iterate(Seq()).filterNot { t ⇒
         t.startsWith("pg_") || t.startsWith("sql_") || doNotTruncate.contains(t)
       }
+      val sqlTables = tables.mkString("{", ",", "}")
+      nonEmptyTableStmt =
+        persistConn.prepareStatement(s"select filter_empty_tables('$sqlTables'::text[]) as tables")
 
       migrated = true
     }
@@ -75,23 +78,35 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
   private def setupObjectContext(): ObjectContext =
     ObjectContexts.create(SimpleContext.create()).gimme
 
-  override abstract protected def withFixture(test: NoArgTest): Outcome = {
+  private def filterEmptyTables(): Seq[String] = {
+    val rs = nonEmptyTableStmt.executeQuery()
+    if (rs.next()) {
+      rs.getArray("tables") match {
+        case null  ⇒ Seq.empty[String]
+        case array ⇒ array.getArray.asInstanceOf[scala.Array[String]]
+      }
+    } else
+      Seq.empty[String]
+  }
 
-    if (tables.nonEmpty) {
+  override abstract protected def withFixture(test: NoArgTest): Outcome = {
+    val nonEmptyTables = filterEmptyTables()
+
+    if (nonEmptyTables.nonEmpty) {
       persistConn
         .createStatement()
-        .execute(s"truncate ${tables.mkString(", ")} restart identity cascade;")
+        .execute(s"truncate ${nonEmptyTables.mkString(", ")} restart identity cascade;")
     }
 
     super.withFixture(test)
   }
-
 }
 
 object DbTestSupport {
 
-  @volatile var migrated            = false
-  @volatile var tables: Seq[String] = Seq()
+  @volatile var migrated                             = false
+  @volatile var tables: Seq[String]                  = Seq()
+  @volatile var nonEmptyTableStmt: PreparedStatement = _
 
   lazy val database    = Database.forConfig("db", TestBase.config)
   lazy val dataSource  = jdbcDataSourceFromSlickDB(database)
