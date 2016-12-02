@@ -85,10 +85,10 @@ func (consumer GiftCardConsumer) processOrder(order payloads.Order) error {
 		return nil
 	}
 
-	giftcardPayloads := make([]payloads.CreateGiftCardPayload, 0)
+	giftCardPayloads := make([]payloads.CreateGiftCardPayload, 0)
 	skusToUpdate := make([]payloads.OrderLineItem, 0)
 
-	log.Printf("Creating giftcards for all line-items with GCs in order %s", order.ReferenceNumber)
+	log.Printf("Creating GCs for all line-items with GC attributes in order %s", order.ReferenceNumber)
 
 	for _, sku := range order.LineItems.SKUs {
 		if sku.Attributes != nil && sku.Attributes.GiftCard != nil {
@@ -98,13 +98,13 @@ func (consumer GiftCardConsumer) processOrder(order payloads.Order) error {
 
 			skusToUpdate = append(skusToUpdate, sku)
 			for j := 0; j < sku.Quantity; j++ {
-				giftcardPayloads = append(giftcardPayloads, *payloads.NewCreateGiftCardPayload(sku, order.ReferenceNumber))
+				giftCardPayloads = append(giftCardPayloads, *payloads.NewCreateGiftCardPayload(sku, order.ReferenceNumber))
 			}
 		}
 	}
 
-	if len(giftcardPayloads) > 0 {
-		if err := consumer.processGiftCards(giftcardPayloads, skusToUpdate, order); err != nil {
+	if len(giftCardPayloads) > 0 {
+		if err := consumer.processGiftCards(giftCardPayloads, skusToUpdate, order); err != nil {
 			log.Printf("Unable to create GCs for order %s, with error %s", order.ReferenceNumber, err.Error())
 		} else {
 			log.Printf("GCs created successfully for order %s", order.ReferenceNumber)
@@ -132,10 +132,9 @@ func (consumer GiftCardConsumer) processGiftCards(giftCardPayloads []payloads.Cr
 		sku.Attributes.GiftCard.Code = &codes[i].Code
 
 		for _, refNum := range sku.ReferenceNumbers {
-			updateOrderLineItemsPayloads = append(updateOrderLineItemsPayloads, *payloads.NewUpdateOrderLineItem(sku, refNum))
+			itemPayload := *payloads.NewUpdateOrderLineItem(sku, refNum)
+			updateOrderLineItemsPayloads = append(updateOrderLineItemsPayloads, itemPayload)
 		}
-
-		fmt.Printf("%#v", updateOrderLineItemsPayloads)
 	}
 
 	if err := consumer.client.UpdateOrderLineItems(updateOrderLineItemsPayloads, order.ReferenceNumber); err != nil {
