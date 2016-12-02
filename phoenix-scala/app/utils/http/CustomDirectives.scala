@@ -34,7 +34,8 @@ object CustomDirectives {
       path match {
         case Path.Segment(segment, tail) if segment.exists(_.isLetter) ⇒
           Matched(tail, Tuple1(ProductReference(segment)))
-        case _ ⇒ IntNumber.apply(path).map { case Tuple1(id) ⇒ Tuple1(ProductReference(id)) }
+        case _                                        ⇒
+          IntNumber.apply(path).map { case Tuple1(id) ⇒ Tuple1(ProductReference(id)) }
       }
     }
   }

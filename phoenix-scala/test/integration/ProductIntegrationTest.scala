@@ -72,10 +72,15 @@ class ProductIntegrationTest
 
       val updated = simpleProduct.copy(slug = Some(slug))
 
-      Products.update(simpleProduct, updated).gimme
+      productsApi(product.id)
+        .update(
+            UpdateProductPayload(productPayload.attributes,
+                                 slug = Some(slug),
+                                 skus = None,
+                                 variants = None))
+        .mustBeOk()
 
-      val queryProduct = productsApi(slug).get.as[ProductResponse.Root]
-      queryProduct.id must === (updated.formId)
+      productsApi(slug).get().as[ProductResponse.Root].id must === (updated.formId)
     }
 
     "queries product by slug ignoring case" in new ProductSku_ApiFixture {
@@ -85,8 +90,7 @@ class ProductIntegrationTest
 
       Products.update(simpleProduct, updated).gimme
 
-      val queryProduct = GET(s"${productsApi.productsPrefix}/$slug").as[ProductResponse.Root]
-      queryProduct.id must === (updated.formId)
+      productsApi(slug).get().as[ProductResponse.Root].id must === (updated.formId)
     }
   }
 
@@ -101,11 +105,14 @@ class ProductIntegrationTest
       "slug successfully" in new Fixture {
         val possibleSlug = List("simple-product", "1-Product", "p", "111something")
         for (slug ← possibleSlug) {
+          val slugClue = s"slug: $slug"
+
           val productResponse = doQuery(productPayload.copy(slug = slug.some))
-          productResponse.slug must === (slug.some).withClue(s"slug: $slug")
+          productResponse.slug must === (slug.some).withClue(slugClue)
+
           val getProductResponse = productsApi(slug).get().as[Root]
-          getProductResponse.slug must === (slug.some).withClue(s"slug: $slug")
-          getProductResponse.id must === (productResponse.id).withClue(s"slug: $slug")
+          getProductResponse.slug must === (slug.some).withClue(slugClue)
+          getProductResponse.id must === (productResponse.id).withClue(slugClue)
         }
       }
 
@@ -317,17 +324,17 @@ class ProductIntegrationTest
         val slug    = "simple-product"
         val payload = productPayload.copy(slug = Some(slug))
         productsApi.create(payload).mustBeOk()
-        private val createResponse: HttpResponse = productsApi.create(payload)
-        createResponse.mustFailWith400(SlugDuplicates(slug))
+
+        productsApi.create(payload).mustFailWith400(SlugDuplicates(slug))
       }
 
       "slugs differs only by case" in new Fixture {
         val slug = "simple-product"
         productsApi.create(productPayload.copy(slug = Some(slug))).mustBeOk()
         val duplicatedSlug: String = slug.toUpperCase()
-        val createResponse: HttpResponse =
-          productsApi.create(productPayload.copy(slug = Some(duplicatedSlug)))
-        createResponse.mustFailWith400(SlugDuplicates(duplicatedSlug))
+        productsApi
+          .create(productPayload.copy(slug = Some(duplicatedSlug)))
+          .mustFailWith400(SlugDuplicates(duplicatedSlug))
       }
     }
 
@@ -370,8 +377,7 @@ class ProductIntegrationTest
                                          variants = None,
                                          albums = None)
 
-      val response = doQuery(product.formId, payload)
-      response.slug must === (slug.some)
+      doQuery(product.formId, payload).slug must === (slug.some)
     }
 
     "Updates uppercase slug successfully" in new Fixture {
@@ -383,11 +389,10 @@ class ProductIntegrationTest
                                          variants = None,
                                          albums = None)
 
-      val response = doQuery(product.formId, payload)
-      response.slug must === (slug.some)
+      doQuery(product.formId, payload).slug must === (slug.some)
     }
 
-    "Erases slug successfully" in new Fixture {
+    "Converts empty slug to None" in new Fixture {
       val slug = ""
 
       val payload = UpdateProductPayload(attributes = Map.empty,
@@ -396,8 +401,7 @@ class ProductIntegrationTest
                                          variants = None,
                                          albums = None)
 
-      val response = doQuery(product.formId, payload)
-      response.slug must === (None)
+      doQuery(product.formId, payload).slug must === (None)
     }
 
     "Updates the SKUs on a product successfully" in new Fixture {
@@ -711,8 +715,7 @@ class ProductIntegrationTest
     }
 
     "Responds with NOT FOUND when wrong product is requested" in new VariantFixture {
-      private val response: HttpResponse = productsApi(666).archive()
-      response.mustFailWith404(ProductFormNotFoundForContext(666, ctx.id))
+      productsApi(666).archive().mustFailWith404(ProductFormNotFoundForContext(666, ctx.id))
     }
 
     "Responds with NOT FOUND when wrong context is requested" in new VariantFixture {

@@ -25,7 +25,7 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
             "salePrice"   → tv(("currency" → "USD") ~ ("value" → skuPrice), "price"),
             "retailPrice" → tv(("currency" → "USD") ~ ("value" → skuPrice), "price")))
 
-    private val productPayload =
+    val productPayload =
       CreateProductPayload(
           attributes =
             Map("name" → tv(productCode.capitalize), "title" → tv(productCode.capitalize)),
