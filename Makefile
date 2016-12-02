@@ -68,4 +68,16 @@ $(DOCKERPUSHDIRS_ALL): REPO = $(@:docker-push-all-%=%)
 $(DOCKERPUSHDIRS_ALL):
 	$(MAKE) -C $(REPO) docker-push
 
-.PHONY: update build $(UPDATEDIRS) $(SUBDIRS) $(BUILDDIRS)
+up: 
+	export eval `cat ./.env.local`; vagrant up --provider=google appliance
+
+provision: 
+	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant provision appliance
+
+destroy: 
+	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant destroy appliance
+
+ssh: 
+	vagrant ssh
+
+.PHONY: update build $(UPDATEDIRS) $(SUBDIRS) $(BUILDDIRS) up provision destroy ssh
