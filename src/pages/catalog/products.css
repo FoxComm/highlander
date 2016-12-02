@@ -48,7 +48,7 @@
 }
 
 .dropdown {
-  margin: 80px auto;
+  margin: 0 auto;
 }
 
 @media (--small-only) {
