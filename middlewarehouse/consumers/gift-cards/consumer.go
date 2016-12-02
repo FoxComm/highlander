@@ -85,7 +85,7 @@ func (consumer GiftCardConsumer) processOrder(order payloads.Order) error {
 	giftCardPayloads := make([]payloads.CreateGiftCardPayload, 0)
 	skusToUpdate := make([]payloads.OrderLineItem, 0)
 
-	log.Printf("Started processing order %s", order.ReferenceNumber)
+	log.Printf("Started processing order %s.", order.ReferenceNumber)
 
 	for _, sku := range order.LineItems.SKUs {
 		// Process SKU only if it has `giftCard` attributes but has no code yet
