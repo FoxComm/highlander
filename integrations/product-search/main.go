@@ -79,5 +79,6 @@ func main() {
 		c.JSON(statusCode, respBody)
 	})
 
-	r.Run(":5492")
+    port:= os.Getenv("PORT")
+    r.Run(":" + port)
 }

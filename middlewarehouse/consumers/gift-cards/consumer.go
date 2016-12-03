@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	activityOrderStateChanged    = "order_state_changed"
-	orderStateFulfillmentStarted = "fulfillmentStarted"
-	orderStateShipped            = "shipped"
+	activityOrderStateChanged     = "order_state_changed"
+	activityOrderBulkStateChanged = "order_bulk_state_changed"
+	orderStateShipped             = "shipped"
 )
 
 // GiftCardHandler represents a topic for giftcards
@@ -46,21 +46,56 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
 	}
 
-	if activity.Type() != activityOrderStateChanged {
+	switch activity.Type() {
+	case activityOrderStateChanged:
+		fullOrder, err := shared.NewFullOrderFromActivity(activity)
+		if err != nil {
+			return fmt.Errorf("Unable to decode order from activity with error %s", err.Error())
+		}
+
+		return gfHandle.handlerInner(fullOrder)
+	case activityOrderBulkStateChanged:
+		bulkStateChange, err := shared.NewOrderBulkStateChangeFromActivity(activity)
+		if err != nil {
+			return fmt.Errorf("Unable to decode bulk state change activity with error %s", err.Error())
+		}
+
+		if bulkStateChange.NewState != orderStateShipped {
+			return nil
+		}
+
+		if len(bulkStateChange.CordRefNums) == 0 {
+			return nil
+		}
+
+		// Get orders from Phoenix
+		orders, err := bulkStateChange.GetRelatedOrders(gfHandle.client)
+		if err != nil {
+			return err
+		}
+
+		// Handle each order
+		for _, fullOrder := range orders {
+			err := gfHandle.handlerInner(fullOrder)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	default:
 		return nil
 	}
+}
 
-	fullOrder, err := shared.NewFullOrderFromActivity(activity)
-	if err != nil {
-		return fmt.Errorf("Unable to decode order from activity with error %s", err.Error())
-	}
-
+// Handle activity for single order
+func (gfHandle GiftCardHandler) handlerInner(fullOrder *shared.FullOrder) error {
 	order := fullOrder.Order
 	lineItems := order.LineItems
 	skus := lineItems.SKUs
 
-	//We now only need to deal with orders that have been shipped.
-	//Once they are shipped and captured, we will create the giftcards here.
+	// We now only need to deal with orders that have been shipped.
+	// Once they are shipped and captured, we will create the giftcards here.
 	if order.OrderState != orderStateShipped {
 		return nil
 	}
@@ -93,7 +128,7 @@ func (gfHandle GiftCardHandler) Handler(message metamorphosis.AvroMessage) error
 	log.Printf("\n about to call createGiftCards service")
 
 	if len(giftcardPayloads) > 0 {
-		_, err = gfHandle.client.CreateGiftCards(giftcardPayloads)
+		_, err := gfHandle.client.CreateGiftCards(giftcardPayloads)
 		if err != nil {
 			return fmt.Errorf("Unable to create gift cards for order %s with error %s",
 				order.ReferenceNumber, err.Error())

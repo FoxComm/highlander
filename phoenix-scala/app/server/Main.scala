@@ -3,6 +3,7 @@ package server
 import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
+
 import akka.actor.{ActorSystem, Props}
 import akka.agent.Agent
 import akka.event.Logging
@@ -12,7 +13,6 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.RouteResult._
 import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
-
 import com.stripe.Stripe
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
@@ -24,9 +24,9 @@ import services.Authenticator
 import services.Authenticator.UserAuthenticator
 import services.Authenticator.requireAdminAuth
 import services.actors._
-
 import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{Development, Staging}
+import utils.aliases._
 import utils.apis._
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests

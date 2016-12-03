@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM openjdk:8-alpine
 
 RUN mkdir -p /phoenix/gatling-classes
 RUN mkdir -p /phoenix/sql

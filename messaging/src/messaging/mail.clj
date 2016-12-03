@@ -164,11 +164,11 @@
         message (get-in data ["giftCard" "message"])
         giftCard (get data "giftCard")
         recipientEmail (get-in data ["giftCard" "recipientEmail"])
-        recipientName (get-in data ["giftCard" "recipientName"])
-        senderName (get-in data ["giftCard" "senderName"])
+        recipientName (get-in data ["giftCard" "recipientName"] "")
+        senderName (get-in data ["giftCard" "senderName"] "")
         giftCardCode (get-in data ["giftCard" "code"])]
 
-   (when (every? seq [message recipientEmail recipientName senderName giftCardCode])
+   (when (every? seq [recipientEmail giftCardCode])
      (send-template! (settings/get :gift_card_customer_template)
           (gen-msg {:email recipientEmail :name recipientName}
               {:balance (at/format-price-int (get giftCard "availableBalance"))

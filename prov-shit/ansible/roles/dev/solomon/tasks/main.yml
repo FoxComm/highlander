@@ -13,3 +13,4 @@
   
 - name: Restart solomon in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/solomon/restart'
+
