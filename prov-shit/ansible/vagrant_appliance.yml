@@ -34,9 +34,9 @@
     - { role: dev/ashes }
     - { role: dev/firebrand }
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
+    - { role: dev/consumers }
     - { role: dev/seeder }
     - { role: dev/balancer, sudo: yes }
-    - { role: dev/consumers }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
