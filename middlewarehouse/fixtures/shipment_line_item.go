@@ -13,24 +13,24 @@ func GetShipmentLineItem(id uint, shipmentID uint, stockItemUnitId uint) *models
 		Base: gormfox.Base{
 			ID: id,
 		},
-		ShipmentID:      shipmentID,
-		ReferenceNumber: "e1a56545-8ada-4132-8d8c-b8aceda68bbe",
-		StockItemUnitID: stockItemUnitId,
-		SKU:             "SKU-TEST1",
-		Name:            "Some shit",
-		Price:           uint(3999),
-		ImagePath:       "https://test.com/some-shit.png",
+		ShipmentID:       shipmentID,
+		ReferenceNumbers: []string{"e1a56545-8ada-4132-8d8c-b8aceda68bbe"},
+		StockItemUnitID:  stockItemUnitId,
+		SKU:              "SKU-TEST1",
+		Name:             "Some shit",
+		Price:            uint(3999),
+		ImagePath:        "https://test.com/some-shit.png",
 	}
 }
 
 func ToShipmentLineItemPayload(shipmentLineItem *models.ShipmentLineItem) *payloads.ShipmentLineItem {
 	return &payloads.ShipmentLineItem{
-		ID:              shipmentLineItem.ID,
-		ReferenceNumber: shipmentLineItem.ReferenceNumber,
-		SKU:             shipmentLineItem.SKU,
-		Name:            shipmentLineItem.Name,
-		Price:           shipmentLineItem.Price,
-		ImagePath:       shipmentLineItem.ImagePath,
+		ID:               shipmentLineItem.ID,
+		ReferenceNumbers: shipmentLineItem.ReferenceNumbers,
+		SKU:              shipmentLineItem.SKU,
+		Name:             shipmentLineItem.Name,
+		Price:            shipmentLineItem.Price,
+		ImagePath:        shipmentLineItem.ImagePath,
 	}
 }
 
@@ -41,6 +41,6 @@ func GetShipmentLineItemColumns() []string {
 
 func GetShipmentLineItemRow(shipmentLineItem *models.ShipmentLineItem) []driver.Value {
 	return []driver.Value{shipmentLineItem.ID, shipmentLineItem.ShipmentID, shipmentLineItem.StockItemUnitID,
-		shipmentLineItem.Name, shipmentLineItem.ReferenceNumber, shipmentLineItem.SKU, shipmentLineItem.Price,
+		shipmentLineItem.Name, shipmentLineItem.ReferenceNumbers, shipmentLineItem.SKU, shipmentLineItem.Price,
 		shipmentLineItem.ImagePath, shipmentLineItem.CreatedAt, shipmentLineItem.UpdatedAt, shipmentLineItem.DeletedAt}
 }
