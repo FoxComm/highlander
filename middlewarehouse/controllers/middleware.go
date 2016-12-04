@@ -13,7 +13,7 @@ func FetchJWT(context *gin.Context) {
 
 	//override, if JWT given in cookie
 	if cookieJWT, err := context.Request.Cookie("JWT"); err == nil {
-		rawJWT = cookieJWT.String()
+		rawJWT = cookieJWT.Value
 	}
 
 	if rawJWT == "" {

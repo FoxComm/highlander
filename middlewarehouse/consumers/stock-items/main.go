@@ -28,7 +28,7 @@ func main() {
 		log.Fatalf("Unable to authenticate with Phoenix with error %s", err.Error())
 	}
 
-	consumer, err := NewConsumer(zookeeper, schemaRepo, middlewarehouseURL)
+	consumer, err := NewConsumer(client.GetJwt(), zookeeper, schemaRepo, middlewarehouseURL)
 	if err != nil {
 		log.Panicf("Unable to start consumer with err: %s", err)
 	}
