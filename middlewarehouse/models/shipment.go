@@ -84,6 +84,7 @@ func NewShipmentFromOrderPayload(payload *payloads.Order) *Shipment {
 		State:              ShipmentStatePending,
 		Address:            *NewAddressFromPayload(&payload.ShippingAddress),
 		ShippingPrice:      payload.ShippingMethod.Price,
+		Scope:              payload.Scope,
 	}
 
 	for _, lineItem := range payload.LineItems.SKUs {
@@ -91,8 +92,6 @@ func NewShipmentFromOrderPayload(payload *payloads.Order) *Shipment {
 			shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *NewShipmentLineItemFromOrderPayload(&lineItem))
 		}
 	}
-
-	shipment.Scope = payload.Scope
 
 	return shipment
 }

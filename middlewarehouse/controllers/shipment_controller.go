@@ -121,6 +121,10 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 			return
 		}
 
+		if !setScope(context, payload) {
+			return
+		}
+
 		shipment, err := controller.shipmentService.CreateShipment(models.NewShipmentFromOrderPayload(payload))
 		if err != nil {
 			handleServiceError(context, err)
