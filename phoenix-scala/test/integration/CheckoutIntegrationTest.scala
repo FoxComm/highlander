@@ -53,7 +53,7 @@ class CheckoutIntegrationTest
       val lineItemToUpdate = orderResponse.lineItems.skus.head
       val root = cartsApi(orderResponse.referenceNumber)
         .updateorderLineItem(
-            Seq(UpdateOrderLineItemsPayload("pending",
+            Seq(UpdateOrderLineItemsPayload(lineItemToUpdate.state,
                                             attributes,
                                             lineItemToUpdate.referenceNumbers.headOption.get)))
         .as[OrderResponse]
