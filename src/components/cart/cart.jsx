@@ -91,6 +91,14 @@ class Cart extends Component {
   }
 
   get lineItems() {
+    if (_.isEmpty(this.props.skus)) {
+      return (
+        <div styleName="empty-cart">
+          <p styleName="empty-text">Your cart is empty</p>
+        </div>
+      );
+    }
+
     return _.map(this.props.skus, sku => {
       return (
         <LineItem
