@@ -1,0 +1,887 @@
+{
+    "version": 3,
+    "terraform_version": "0.7.11",
+    "serial": 6,
+    "lineage": "eaf4aefa-ee19-479a-a02a-574b3dd62468",
+    "modules": [
+        {
+            "path": [
+                "root"
+            ],
+            "outputs": {},
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "target_networking"
+            ],
+            "outputs": {
+                "access_from_vpn_sg": {
+                    "sensitive": false,
+                    "type": "string",
+                    "value": "sg-bf3f3bc6"
+                },
+                "bastion_ssh_sg_id": {
+                    "sensitive": false,
+                    "type": "string",
+                    "value": "sg-043f0f7d"
+                },
+                "nat_sg_id": {
+                    "sensitive": false,
+                    "type": "string",
+                    "value": "sg-073f0f7e"
+                },
+                "private_subnet_id": {
+                    "sensitive": false,
+                    "type": "string",
+                    "value": "subnet-8b6e62fd"
+                },
+                "public_subnet_id": {
+                    "sensitive": false,
+                    "type": "string",
+                    "value": "subnet-8a6e62fc"
+                },
+                "ssh_from_bastion_sg_id": {
+                    "sensitive": false,
+                    "type": "string",
+                    "value": "sg-fb3f0f82"
+                },
+                "vpc_id": {
+                    "sensitive": false,
+                    "type": "string",
+                    "value": "vpc-48f73f2f"
+                },
+                "vpn_tcp_udp_sg": {
+                    "sensitive": false,
+                    "type": "string",
+                    "value": "sg-053f0f7c"
+                },
+                "web_access_from_nat_sg_id": {
+                    "sensitive": false,
+                    "type": "string",
+                    "value": "sg-063f0f7f"
+                }
+            },
+            "resources": {
+                "aws_eip.bastion": {
+                    "type": "aws_eip",
+                    "depends_on": [
+                        "aws_instance.bastion"
+                    ],
+                    "primary": {
+                        "id": "eipalloc-46f98021",
+                        "attributes": {
+                            "association_id": "eipassoc-957e1fee",
+                            "domain": "vpc",
+                            "id": "eipalloc-46f98021",
+                            "instance": "i-0d61506b90e7c7243",
+                            "network_interface": "eni-0f5fd54f",
+                            "private_ip": "10.0.9.139",
+                            "public_ip": "35.165.37.246",
+                            "vpc": "true"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_eip.nat": {
+                    "type": "aws_eip",
+                    "depends_on": [
+                        "aws_instance.nat"
+                    ],
+                    "primary": {
+                        "id": "eipalloc-0686ff61",
+                        "attributes": {
+                            "association_id": "eipassoc-2a412051",
+                            "domain": "vpc",
+                            "id": "eipalloc-0686ff61",
+                            "instance": "i-0b54ddc45b391c7d9",
+                            "network_interface": "eni-fb46ccbb",
+                            "private_ip": "10.0.8.111",
+                            "public_ip": "35.165.5.191",
+                            "vpc": "true"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_instance.bastion": {
+                    "type": "aws_instance",
+                    "depends_on": [
+                        "aws_security_group.bastion_ssh_sg",
+                        "aws_subnet.public"
+                    ],
+                    "primary": {
+                        "id": "i-0d61506b90e7c7243",
+                        "attributes": {
+                            "ami": "ami-9abea4fb",
+                            "associate_public_ip_address": "true",
+                            "availability_zone": "us-west-2a",
+                            "disable_api_termination": "false",
+                            "ebs_block_device.#": "0",
+                            "ebs_optimized": "false",
+                            "ephemeral_block_device.#": "0",
+                            "iam_instance_profile": "",
+                            "id": "i-0d61506b90e7c7243",
+                            "instance_state": "running",
+                            "instance_type": "t2.small",
+                            "key_name": "fc",
+                            "monitoring": "false",
+                            "network_interface_id": "eni-0f5fd54f",
+                            "private_dns": "ip-10-0-9-139.us-west-2.compute.internal",
+                            "private_ip": "10.0.9.139",
+                            "public_dns": "ec2-35-165-37-246.us-west-2.compute.amazonaws.com",
+                            "public_ip": "35.165.37.246",
+                            "root_block_device.#": "1",
+                            "root_block_device.0.delete_on_termination": "true",
+                            "root_block_device.0.iops": "100",
+                            "root_block_device.0.volume_size": "8",
+                            "root_block_device.0.volume_type": "gp2",
+                            "security_groups.#": "0",
+                            "source_dest_check": "true",
+                            "subnet_id": "subnet-8a6e62fc",
+                            "tags.%": "1",
+                            "tags.Name": "bastion",
+                            "tenancy": "default",
+                            "vpc_security_group_ids.#": "1",
+                            "vpc_security_group_ids.1729532023": "sg-043f0f7d"
+                        },
+                        "meta": {
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_instance.nat": {
+                    "type": "aws_instance",
+                    "depends_on": [
+                        "aws_security_group.nat",
+                        "aws_subnet.public"
+                    ],
+                    "primary": {
+                        "id": "i-0b54ddc45b391c7d9",
+                        "attributes": {
+                            "ami": "ami-7a2bc21a",
+                            "associate_public_ip_address": "true",
+                            "availability_zone": "us-west-2a",
+                            "disable_api_termination": "false",
+                            "ebs_block_device.#": "0",
+                            "ebs_optimized": "false",
+                            "ephemeral_block_device.#": "0",
+                            "iam_instance_profile": "",
+                            "id": "i-0b54ddc45b391c7d9",
+                            "instance_state": "running",
+                            "instance_type": "t2.small",
+                            "key_name": "fc",
+                            "monitoring": "false",
+                            "network_interface_id": "eni-fb46ccbb",
+                            "private_dns": "ip-10-0-8-111.us-west-2.compute.internal",
+                            "private_ip": "10.0.8.111",
+                            "public_dns": "ec2-35-165-5-191.us-west-2.compute.amazonaws.com",
+                            "public_ip": "35.165.5.191",
+                            "root_block_device.#": "1",
+                            "root_block_device.0.delete_on_termination": "true",
+                            "root_block_device.0.iops": "0",
+                            "root_block_device.0.volume_size": "8",
+                            "root_block_device.0.volume_type": "standard",
+                            "security_groups.#": "0",
+                            "source_dest_check": "false",
+                            "subnet_id": "subnet-8a6e62fc",
+                            "tags.%": "1",
+                            "tags.Name": "nat_instance",
+                            "tenancy": "default",
+                            "vpc_security_group_ids.#": "1",
+                            "vpc_security_group_ids.570014332": "sg-073f0f7e"
+                        },
+                        "meta": {
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_instance.vpn": {
+                    "type": "aws_instance",
+                    "depends_on": [
+                        "aws_security_group.vpn_tcp_udp_sg",
+                        "aws_subnet.public"
+                    ],
+                    "primary": {
+                        "id": "i-055fcc334209eb171",
+                        "attributes": {
+                            "ami": "ami-746aba14",
+                            "associate_public_ip_address": "true",
+                            "availability_zone": "us-west-2a",
+                            "disable_api_termination": "false",
+                            "ebs_block_device.#": "0",
+                            "ebs_optimized": "false",
+                            "ephemeral_block_device.#": "0",
+                            "iam_instance_profile": "",
+                            "id": "i-055fcc334209eb171",
+                            "instance_state": "running",
+                            "instance_type": "t2.small",
+                            "key_name": "fc",
+                            "monitoring": "false",
+                            "network_interface_id": "eni-e15ad0a1",
+                            "private_dns": "ip-10-0-8-86.us-west-2.compute.internal",
+                            "private_ip": "10.0.8.86",
+                            "public_dns": "ec2-54-244-30-166.us-west-2.compute.amazonaws.com",
+                            "public_ip": "54.244.30.166",
+                            "root_block_device.#": "1",
+                            "root_block_device.0.delete_on_termination": "true",
+                            "root_block_device.0.iops": "100",
+                            "root_block_device.0.volume_size": "8",
+                            "root_block_device.0.volume_type": "gp2",
+                            "security_groups.#": "0",
+                            "source_dest_check": "true",
+                            "subnet_id": "subnet-8a6e62fc",
+                            "tags.%": "1",
+                            "tags.Name": "vpn",
+                            "tenancy": "default",
+                            "vpc_security_group_ids.#": "1",
+                            "vpc_security_group_ids.1594166880": "sg-053f0f7c"
+                        },
+                        "meta": {
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_internet_gateway.default": {
+                    "type": "aws_internet_gateway",
+                    "depends_on": [
+                        "aws_vpc.default"
+                    ],
+                    "primary": {
+                        "id": "igw-24305440",
+                        "attributes": {
+                            "id": "igw-24305440",
+                            "tags.%": "1",
+                            "tags.Name": "terraform_igw",
+                            "vpc_id": "vpc-48f73f2f"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_route_table.private": {
+                    "type": "aws_route_table",
+                    "depends_on": [
+                        "aws_instance.nat",
+                        "aws_vpc.default"
+                    ],
+                    "primary": {
+                        "id": "rtb-b5069ad2",
+                        "attributes": {
+                            "id": "rtb-b5069ad2",
+                            "propagating_vgws.#": "0",
+                            "route.#": "1",
+                            "route.2016191508.cidr_block": "0.0.0.0/0",
+                            "route.2016191508.gateway_id": "",
+                            "route.2016191508.instance_id": "i-0b54ddc45b391c7d9",
+                            "route.2016191508.nat_gateway_id": "",
+                            "route.2016191508.network_interface_id": "eni-fb46ccbb",
+                            "route.2016191508.vpc_peering_connection_id": "",
+                            "tags.%": "1",
+                            "tags.Name": "terraform_private_subnet_route_table",
+                            "vpc_id": "vpc-48f73f2f"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_route_table.public": {
+                    "type": "aws_route_table",
+                    "depends_on": [
+                        "aws_internet_gateway.default",
+                        "aws_vpc.default"
+                    ],
+                    "primary": {
+                        "id": "rtb-38069a5f",
+                        "attributes": {
+                            "id": "rtb-38069a5f",
+                            "propagating_vgws.#": "0",
+                            "route.#": "1",
+                            "route.2474889021.cidr_block": "0.0.0.0/0",
+                            "route.2474889021.gateway_id": "igw-24305440",
+                            "route.2474889021.instance_id": "",
+                            "route.2474889021.nat_gateway_id": "",
+                            "route.2474889021.network_interface_id": "",
+                            "route.2474889021.vpc_peering_connection_id": "",
+                            "tags.%": "1",
+                            "tags.Name": "terraform_public_subnet_route_table",
+                            "vpc_id": "vpc-48f73f2f"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_route_table_association.private": {
+                    "type": "aws_route_table_association",
+                    "depends_on": [
+                        "aws_route_table.private",
+                        "aws_subnet.private"
+                    ],
+                    "primary": {
+                        "id": "rtbassoc-65cd1c03",
+                        "attributes": {
+                            "id": "rtbassoc-65cd1c03",
+                            "route_table_id": "rtb-b5069ad2",
+                            "subnet_id": "subnet-8b6e62fd"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_route_table_association.public": {
+                    "type": "aws_route_table_association",
+                    "depends_on": [
+                        "aws_route_table.public",
+                        "aws_subnet.public"
+                    ],
+                    "primary": {
+                        "id": "rtbassoc-11ca1b77",
+                        "attributes": {
+                            "id": "rtbassoc-11ca1b77",
+                            "route_table_id": "rtb-38069a5f",
+                            "subnet_id": "subnet-8a6e62fc"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_security_group.access_from_vpn": {
+                    "type": "aws_security_group",
+                    "depends_on": [
+                        "aws_security_group.vpn_tcp_udp_sg",
+                        "aws_vpc.default"
+                    ],
+                    "primary": {
+                        "id": "sg-bf3f3bc6",
+                        "attributes": {
+                            "description": "Allow access from vpn  ",
+                            "egress.#": "0",
+                            "id": "sg-bf3f3bc6",
+                            "ingress.#": "1",
+                            "ingress.3294152594.cidr_blocks.#": "0",
+                            "ingress.3294152594.from_port": "0",
+                            "ingress.3294152594.protocol": "-1",
+                            "ingress.3294152594.security_groups.#": "1",
+                            "ingress.3294152594.security_groups.1594166880": "sg-053f0f7c",
+                            "ingress.3294152594.self": "false",
+                            "ingress.3294152594.to_port": "0",
+                            "name": "access_from_vpn",
+                            "owner_id": "661658251980",
+                            "tags.%": "1",
+                            "tags.Name": "access_from_vpn",
+                            "vpc_id": "vpc-48f73f2f"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_security_group.bastion_ssh_sg": {
+                    "type": "aws_security_group",
+                    "depends_on": [
+                        "aws_vpc.default"
+                    ],
+                    "primary": {
+                        "id": "sg-043f0f7d",
+                        "attributes": {
+                            "description": "Allow SSH to Bastion host from approved ranges",
+                            "egress.#": "1",
+                            "egress.482069346.cidr_blocks.#": "1",
+                            "egress.482069346.cidr_blocks.0": "0.0.0.0/0",
+                            "egress.482069346.from_port": "0",
+                            "egress.482069346.prefix_list_ids.#": "0",
+                            "egress.482069346.protocol": "-1",
+                            "egress.482069346.security_groups.#": "0",
+                            "egress.482069346.self": "false",
+                            "egress.482069346.to_port": "0",
+                            "id": "sg-043f0f7d",
+                            "ingress.#": "1",
+                            "ingress.2541437006.cidr_blocks.#": "1",
+                            "ingress.2541437006.cidr_blocks.0": "0.0.0.0/0",
+                            "ingress.2541437006.from_port": "22",
+                            "ingress.2541437006.protocol": "tcp",
+                            "ingress.2541437006.security_groups.#": "0",
+                            "ingress.2541437006.self": "false",
+                            "ingress.2541437006.to_port": "22",
+                            "name": "bastion_ssh",
+                            "owner_id": "661658251980",
+                            "tags.%": "1",
+                            "tags.Name": "bastion_ssh",
+                            "vpc_id": "vpc-48f73f2f"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_security_group.nat": {
+                    "type": "aws_security_group",
+                    "depends_on": [
+                        "aws_vpc.default"
+                    ],
+                    "primary": {
+                        "id": "sg-073f0f7e",
+                        "attributes": {
+                            "description": "Allow traffic to pass from the private subnet to the internet",
+                            "egress.#": "1",
+                            "egress.482069346.cidr_blocks.#": "1",
+                            "egress.482069346.cidr_blocks.0": "0.0.0.0/0",
+                            "egress.482069346.from_port": "0",
+                            "egress.482069346.prefix_list_ids.#": "0",
+                            "egress.482069346.protocol": "-1",
+                            "egress.482069346.security_groups.#": "0",
+                            "egress.482069346.self": "false",
+                            "egress.482069346.to_port": "0",
+                            "id": "sg-073f0f7e",
+                            "ingress.#": "3",
+                            "ingress.1122606316.cidr_blocks.#": "1",
+                            "ingress.1122606316.cidr_blocks.0": "10.0.0.0/21",
+                            "ingress.1122606316.from_port": "-1",
+                            "ingress.1122606316.protocol": "icmp",
+                            "ingress.1122606316.security_groups.#": "0",
+                            "ingress.1122606316.self": "false",
+                            "ingress.1122606316.to_port": "-1",
+                            "ingress.3423285057.cidr_blocks.#": "1",
+                            "ingress.3423285057.cidr_blocks.0": "10.0.0.0/21",
+                            "ingress.3423285057.from_port": "80",
+                            "ingress.3423285057.protocol": "tcp",
+                            "ingress.3423285057.security_groups.#": "0",
+                            "ingress.3423285057.self": "false",
+                            "ingress.3423285057.to_port": "80",
+                            "ingress.537534343.cidr_blocks.#": "1",
+                            "ingress.537534343.cidr_blocks.0": "10.0.0.0/21",
+                            "ingress.537534343.from_port": "443",
+                            "ingress.537534343.protocol": "tcp",
+                            "ingress.537534343.security_groups.#": "0",
+                            "ingress.537534343.self": "false",
+                            "ingress.537534343.to_port": "443",
+                            "name": "vpc_nat",
+                            "owner_id": "661658251980",
+                            "tags.%": "1",
+                            "tags.Name": "terraform",
+                            "vpc_id": "vpc-48f73f2f"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_security_group.ssh_from_bastion_sg": {
+                    "type": "aws_security_group",
+                    "depends_on": [
+                        "aws_security_group.bastion_ssh_sg",
+                        "aws_security_group.nat",
+                        "aws_vpc.default"
+                    ],
+                    "primary": {
+                        "id": "sg-fb3f0f82",
+                        "attributes": {
+                            "description": "Allow SSH from Bastion host(s)",
+                            "egress.#": "0",
+                            "id": "sg-fb3f0f82",
+                            "ingress.#": "1",
+                            "ingress.757944017.cidr_blocks.#": "0",
+                            "ingress.757944017.from_port": "22",
+                            "ingress.757944017.protocol": "tcp",
+                            "ingress.757944017.security_groups.#": "2",
+                            "ingress.757944017.security_groups.1729532023": "sg-043f0f7d",
+                            "ingress.757944017.security_groups.570014332": "sg-073f0f7e",
+                            "ingress.757944017.self": "false",
+                            "ingress.757944017.to_port": "22",
+                            "name": "ssh_from_bastion",
+                            "owner_id": "661658251980",
+                            "tags.%": "1",
+                            "tags.Name": "ssh_from_bastion",
+                            "vpc_id": "vpc-48f73f2f"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_security_group.vpn_tcp_udp_sg": {
+                    "type": "aws_security_group",
+                    "depends_on": [
+                        "aws_vpc.default"
+                    ],
+                    "primary": {
+                        "id": "sg-053f0f7c",
+                        "attributes": {
+                            "description": "Allow VPN connections through TCP/UDP to VPN instance from approved ranges",
+                            "egress.#": "1",
+                            "egress.482069346.cidr_blocks.#": "1",
+                            "egress.482069346.cidr_blocks.0": "0.0.0.0/0",
+                            "egress.482069346.from_port": "0",
+                            "egress.482069346.prefix_list_ids.#": "0",
+                            "egress.482069346.protocol": "-1",
+                            "egress.482069346.security_groups.#": "0",
+                            "egress.482069346.self": "false",
+                            "egress.482069346.to_port": "0",
+                            "id": "sg-053f0f7c",
+                            "ingress.#": "4",
+                            "ingress.2541437006.cidr_blocks.#": "1",
+                            "ingress.2541437006.cidr_blocks.0": "0.0.0.0/0",
+                            "ingress.2541437006.from_port": "22",
+                            "ingress.2541437006.protocol": "tcp",
+                            "ingress.2541437006.security_groups.#": "0",
+                            "ingress.2541437006.self": "false",
+                            "ingress.2541437006.to_port": "22",
+                            "ingress.3068409405.cidr_blocks.#": "1",
+                            "ingress.3068409405.cidr_blocks.0": "0.0.0.0/0",
+                            "ingress.3068409405.from_port": "8",
+                            "ingress.3068409405.protocol": "icmp",
+                            "ingress.3068409405.security_groups.#": "0",
+                            "ingress.3068409405.self": "false",
+                            "ingress.3068409405.to_port": "0",
+                            "ingress.3595999332.cidr_blocks.#": "1",
+                            "ingress.3595999332.cidr_blocks.0": "0.0.0.0/0",
+                            "ingress.3595999332.from_port": "1194",
+                            "ingress.3595999332.protocol": "tcp",
+                            "ingress.3595999332.security_groups.#": "0",
+                            "ingress.3595999332.self": "false",
+                            "ingress.3595999332.to_port": "1194",
+                            "ingress.4178520169.cidr_blocks.#": "1",
+                            "ingress.4178520169.cidr_blocks.0": "0.0.0.0/0",
+                            "ingress.4178520169.from_port": "1194",
+                            "ingress.4178520169.protocol": "udp",
+                            "ingress.4178520169.security_groups.#": "0",
+                            "ingress.4178520169.self": "false",
+                            "ingress.4178520169.to_port": "1194",
+                            "name": "vpn_ssh",
+                            "owner_id": "661658251980",
+                            "tags.%": "1",
+                            "tags.Name": "vpn_tcp_udp",
+                            "vpc_id": "vpc-48f73f2f"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_security_group.web_access_from_nat_sg": {
+                    "type": "aws_security_group",
+                    "depends_on": [
+                        "aws_subnet.public",
+                        "aws_vpc.default"
+                    ],
+                    "primary": {
+                        "id": "sg-063f0f7f",
+                        "attributes": {
+                            "description": "Allow web access to the private subnet from the public subnet (via NAT instance)",
+                            "egress.#": "1",
+                            "egress.482069346.cidr_blocks.#": "1",
+                            "egress.482069346.cidr_blocks.0": "0.0.0.0/0",
+                            "egress.482069346.from_port": "0",
+                            "egress.482069346.prefix_list_ids.#": "0",
+                            "egress.482069346.protocol": "-1",
+                            "egress.482069346.security_groups.#": "0",
+                            "egress.482069346.self": "false",
+                            "egress.482069346.to_port": "0",
+                            "id": "sg-063f0f7f",
+                            "ingress.#": "3",
+                            "ingress.1127264265.cidr_blocks.#": "1",
+                            "ingress.1127264265.cidr_blocks.0": "10.0.8.0/23",
+                            "ingress.1127264265.from_port": "-1",
+                            "ingress.1127264265.protocol": "icmp",
+                            "ingress.1127264265.security_groups.#": "0",
+                            "ingress.1127264265.self": "false",
+                            "ingress.1127264265.to_port": "-1",
+                            "ingress.3453092772.cidr_blocks.#": "1",
+                            "ingress.3453092772.cidr_blocks.0": "10.0.8.0/23",
+                            "ingress.3453092772.from_port": "80",
+                            "ingress.3453092772.protocol": "tcp",
+                            "ingress.3453092772.security_groups.#": "0",
+                            "ingress.3453092772.self": "false",
+                            "ingress.3453092772.to_port": "80",
+                            "ingress.567489378.cidr_blocks.#": "1",
+                            "ingress.567489378.cidr_blocks.0": "10.0.8.0/23",
+                            "ingress.567489378.from_port": "443",
+                            "ingress.567489378.protocol": "tcp",
+                            "ingress.567489378.security_groups.#": "0",
+                            "ingress.567489378.self": "false",
+                            "ingress.567489378.to_port": "443",
+                            "name": "private_subnet_web_access",
+                            "owner_id": "661658251980",
+                            "tags.%": "1",
+                            "tags.Name": "terraform",
+                            "vpc_id": "vpc-48f73f2f"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_subnet.private": {
+                    "type": "aws_subnet",
+                    "depends_on": [
+                        "aws_vpc.default"
+                    ],
+                    "primary": {
+                        "id": "subnet-8b6e62fd",
+                        "attributes": {
+                            "availability_zone": "us-west-2a",
+                            "cidr_block": "10.0.0.0/21",
+                            "id": "subnet-8b6e62fd",
+                            "map_public_ip_on_launch": "false",
+                            "tags.%": "1",
+                            "tags.Name": "terraform_private_subnet",
+                            "vpc_id": "vpc-48f73f2f"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_subnet.public": {
+                    "type": "aws_subnet",
+                    "depends_on": [
+                        "aws_vpc.default"
+                    ],
+                    "primary": {
+                        "id": "subnet-8a6e62fc",
+                        "attributes": {
+                            "availability_zone": "us-west-2a",
+                            "cidr_block": "10.0.8.0/23",
+                            "id": "subnet-8a6e62fc",
+                            "map_public_ip_on_launch": "false",
+                            "tags.%": "1",
+                            "tags.Name": "terraform_public_subnet",
+                            "vpc_id": "vpc-48f73f2f"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_vpc.default": {
+                    "type": "aws_vpc",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "vpc-48f73f2f",
+                        "attributes": {
+                            "cidr_block": "10.0.0.0/16",
+                            "default_network_acl_id": "acl-e8e7578f",
+                            "default_route_table_id": "rtb-3a069a5d",
+                            "default_security_group_id": "sg-033f0f7a",
+                            "dhcp_options_id": "dopt-3f96da5b",
+                            "enable_classiclink": "false",
+                            "enable_dns_hostnames": "true",
+                            "enable_dns_support": "true",
+                            "id": "vpc-48f73f2f",
+                            "instance_tenancy": "default",
+                            "main_route_table_id": "rtb-3a069a5d",
+                            "tags.%": "1",
+                            "tags.name": "tgt"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                }
+            },
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "target_stage1"
+            ],
+            "outputs": {
+                "amigo_address": {
+                    "sensitive": false,
+                    "type": "string",
+                    "value": "10.0.8.68"
+                }
+            },
+            "resources": {
+                "aws_instance.tinyprod-amigo": {
+                    "type": "aws_instance",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "i-0a916ff4e971eb9ca",
+                        "attributes": {
+                            "ami": "ami-4b9a332b",
+                            "associate_public_ip_address": "false",
+                            "availability_zone": "us-west-2a",
+                            "disable_api_termination": "false",
+                            "ebs_block_device.#": "0",
+                            "ebs_optimized": "false",
+                            "ephemeral_block_device.#": "0",
+                            "iam_instance_profile": "",
+                            "id": "i-0a916ff4e971eb9ca",
+                            "instance_state": "running",
+                            "instance_type": "t2.medium",
+                            "key_name": "fc",
+                            "monitoring": "false",
+                            "network_interface_id": "eni-acd1adec",
+                            "private_dns": "ip-10-0-8-68.us-west-2.compute.internal",
+                            "private_ip": "10.0.8.68",
+                            "public_dns": "",
+                            "public_ip": "",
+                            "root_block_device.#": "1",
+                            "root_block_device.0.delete_on_termination": "true",
+                            "root_block_device.0.iops": "0",
+                            "root_block_device.0.volume_size": "40",
+                            "root_block_device.0.volume_type": "standard",
+                            "security_groups.#": "0",
+                            "source_dest_check": "true",
+                            "subnet_id": "subnet-8a6e62fc",
+                            "tags.%": "3",
+                            "tags.DC": "stage1",
+                            "tags.Name": "stage1-amigo",
+                            "tags.Owner": "fox",
+                            "tenancy": "default",
+                            "vpc_security_group_ids.#": "2",
+                            "vpc_security_group_ids.2320577512": "sg-bf3f3bc6",
+                            "vpc_security_group_ids.512221298": "sg-063f0f7f"
+                        },
+                        "meta": {
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_instance.tinyprod-backend": {
+                    "type": "aws_instance",
+                    "depends_on": [
+                        "aws_instance.tinyprod-amigo"
+                    ],
+                    "primary": {
+                        "id": "i-05aeb016170c5c0bd",
+                        "attributes": {
+                            "ami": "ami-2b91384b",
+                            "associate_public_ip_address": "false",
+                            "availability_zone": "us-west-2a",
+                            "disable_api_termination": "false",
+                            "ebs_block_device.#": "0",
+                            "ebs_optimized": "false",
+                            "ephemeral_block_device.#": "0",
+                            "iam_instance_profile": "",
+                            "id": "i-05aeb016170c5c0bd",
+                            "instance_state": "running",
+                            "instance_type": "m4.2xlarge",
+                            "key_name": "fc",
+                            "monitoring": "false",
+                            "network_interface_id": "eni-69c9b529",
+                            "private_dns": "ip-10-0-9-152.us-west-2.compute.internal",
+                            "private_ip": "10.0.9.152",
+                            "public_dns": "",
+                            "public_ip": "",
+                            "root_block_device.#": "1",
+                            "root_block_device.0.delete_on_termination": "true",
+                            "root_block_device.0.iops": "0",
+                            "root_block_device.0.volume_size": "500",
+                            "root_block_device.0.volume_type": "standard",
+                            "security_groups.#": "0",
+                            "source_dest_check": "true",
+                            "subnet_id": "subnet-8a6e62fc",
+                            "tags.%": "3",
+                            "tags.DC": "stage1",
+                            "tags.Name": "stage1-backend",
+                            "tags.Owner": "fox",
+                            "tenancy": "default",
+                            "vpc_security_group_ids.#": "2",
+                            "vpc_security_group_ids.2320577512": "sg-bf3f3bc6",
+                            "vpc_security_group_ids.512221298": "sg-063f0f7f"
+                        },
+                        "meta": {
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                },
+                "aws_instance.tinyprod-frontend": {
+                    "type": "aws_instance",
+                    "depends_on": [
+                        "aws_instance.tinyprod-amigo"
+                    ],
+                    "primary": {
+                        "id": "i-0e15f2703181bd693",
+                        "attributes": {
+                            "ami": "ami-d69c35b6",
+                            "associate_public_ip_address": "false",
+                            "availability_zone": "us-west-2a",
+                            "disable_api_termination": "false",
+                            "ebs_block_device.#": "0",
+                            "ebs_optimized": "false",
+                            "ephemeral_block_device.#": "0",
+                            "iam_instance_profile": "",
+                            "id": "i-0e15f2703181bd693",
+                            "instance_state": "running",
+                            "instance_type": "m4.xlarge",
+                            "key_name": "fc",
+                            "monitoring": "false",
+                            "network_interface_id": "eni-a4c0bce4",
+                            "private_dns": "ip-10-0-9-153.us-west-2.compute.internal",
+                            "private_ip": "10.0.9.153",
+                            "public_dns": "",
+                            "public_ip": "",
+                            "root_block_device.#": "1",
+                            "root_block_device.0.delete_on_termination": "true",
+                            "root_block_device.0.iops": "0",
+                            "root_block_device.0.volume_size": "100",
+                            "root_block_device.0.volume_type": "standard",
+                            "security_groups.#": "0",
+                            "source_dest_check": "true",
+                            "subnet_id": "subnet-8a6e62fc",
+                            "tags.%": "3",
+                            "tags.DC": "stage1",
+                            "tags.Name": "stage1-frontend",
+                            "tags.Owner": "fox",
+                            "tenancy": "default",
+                            "vpc_security_group_ids.#": "2",
+                            "vpc_security_group_ids.2320577512": "sg-bf3f3bc6",
+                            "vpc_security_group_ids.512221298": "sg-063f0f7f"
+                        },
+                        "meta": {
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": ""
+                }
+            },
+            "depends_on": []
+        }
+    ]
+}
