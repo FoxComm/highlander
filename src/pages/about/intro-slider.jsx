@@ -25,6 +25,17 @@ const imageNames = [
   'Singles',
 ];
 
+// const imageNames = [
+//   'Busy_Families',
+//   'Entertaining',
+//   'Celebrating',
+//   'Holidays',
+//   'Gift giving',
+//   'Treating yourself',
+//   'New parents',
+//   'Young professionals',
+// ];
+
 const introSliderImages = imageNames.map(img =>
   <div key={img}>
     <div styleName="img-wrap">
