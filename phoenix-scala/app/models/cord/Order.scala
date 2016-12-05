@@ -143,6 +143,12 @@ object Orders
                      subScope: Option[String])(implicit ec: EC, db: DB, au: AU): DbResultT[Order] =
     for {
       scope ← * <~ Scope.resolveOverride(subScope)
+
+      //it is important that line items are grabbed before cart is created
+      //because DB triggers delete the cart and line items after an order
+      //is created.
+      lineItems ← * <~ prepareOrderLineItemsFromCart(cart, contextId)
+
       order ← * <~ Orders.create(
                  Order(referenceNumber = cart.referenceNumber,
                        accountId = cart.accountId,
@@ -155,21 +161,20 @@ object Orders
                        grandTotal = cart.grandTotal,
                        contextId = contextId))
 
-      lineItems ← * <~ prepareOrderLineItemsFromCart(cart, contextId)
-      _         ← * <~ OrderLineItems.createAll(lineItems)
+      _ ← * <~ OrderLineItems.createAll(lineItems)
     } yield order
 
   def prepareOrderLineItemsFromCart(cart: Cart, contextId: Int)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[OrderLineItem]] = {
-    val uniqueSkuCodesInCart = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
-      case (sku, q) ⇒ sku
+    val uniqueSkuIdsInCart = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
+      case (skuId, q) ⇒ skuId
     }
 
     val skusInCart = for {
-      skuCode ← uniqueSkuCodesInCart
-      sku     ← Skus if sku.id === skuCode
-    } yield (skuCode, sku)
+      skuId ← uniqueSkuIdsInCart
+      sku   ← Skus if sku.id === skuId
+    } yield (skuId, sku)
 
     for {
       skus      ← * <~ skusInCart.result
