@@ -48,9 +48,6 @@ shortcuts:
   - name: Bootstrap Database Backup
     alias: db_backup.yml
     target: ansible/bootstrap_db_backup.yml
-  - name: Provision Kibana
-    alias: bootstrap_kibana.yml
-    target: ansible/bootstrap_kibana.yml
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
