@@ -1,6 +1,6 @@
 package testutils
 
-import java.sql.Connection
+import java.sql.{Connection, PreparedStatement}
 import java.util.Locale
 import javax.sql.DataSource
 
@@ -20,27 +20,57 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
 
   import DbTestSupport._
 
-  val api = slick.driver.PostgresDriver.api
-
   implicit lazy val db = database
 
   implicit val ec: EC
 
+  val api = slick.driver.PostgresDriver.api
+
   /* tables which should *not* be truncated b/c they're static and seeded by migration */
-  val doNotTruncate = Set("states", "countries", "regions", "schema_version", "object_contexts")
+  val doNotTruncate = Set("states",
+                          "countries",
+                          "regions",
+                          "schema_version",
+                          "object_contexts",
+                          "systems",
+                          "resources",
+                          "scopes",
+                          "organizations",
+                          "scope_domains",
+                          "roles",
+                          "permissions",
+                          "role_permissions")
 
   override protected def beforeAll(): Unit = {
     if (!migrated) {
       Locale.setDefault(Locale.US)
-      val db4fly = Database.forConfig("db", TestBase.config)
-      val flyway = newFlyway(jdbcDataSourceFromSlickDB(db4fly))
+      val flyway = newFlyway(dataSource)
 
       flyway.clean()
       flyway.migrate()
 
-      db4fly.close()
-
       setupObjectContext()
+      Seeds.createSingleMerchantSystem.gimme
+
+      val allTables =
+        persistConn.getMetaData.getTables(persistConn.getCatalog, "public", "%", Array("TABLE"))
+
+      @tailrec
+      def iterate(in: Seq[String]): Seq[String] = {
+        if (allTables.next()) {
+          iterate(in :+ allTables.getString(3))
+        } else {
+          in
+        }
+      }
+
+      tables = iterate(Seq()).filterNot { t ⇒
+        t.startsWith("pg_") || t.startsWith("sql_") || doNotTruncate.contains(t)
+      }
+      val sqlTables = tables.mkString("{", ",", "}")
+      nonEmptyTableStmt =
+        persistConn.prepareStatement(s"select filter_empty_tables('$sqlTables'::text[]) as tables")
+
       migrated = true
     }
   }
@@ -48,51 +78,43 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
   private def setupObjectContext(): ObjectContext =
     ObjectContexts.create(SimpleContext.create()).gimme
 
-  def isTableEmpty(table: String)(implicit conn: Connection): Boolean = {
-    val stmt = conn.createStatement()
-    val rs   = stmt.executeQuery(s"select true from $table limit 1")
-    !rs.isBeforeFirst
+  private def filterEmptyTables(): Seq[String] = {
+    val rs = nonEmptyTableStmt.executeQuery()
+    if (rs.next()) {
+      rs.getArray("tables") match {
+        case null  ⇒ Seq.empty[String]
+        case array ⇒ array.getArray.asInstanceOf[scala.Array[String]]
+      }
+    } else
+      Seq.empty[String]
   }
 
   override abstract protected def withFixture(test: NoArgTest): Outcome = {
-    implicit val conn = jdbcDataSourceFromSlickDB(db).getConnection
+    val nonEmptyTables = filterEmptyTables()
 
-    val allTables = conn.getMetaData.getTables(conn.getCatalog, "public", "%", Array("TABLE"))
-
-    @tailrec
-    def iterate(in: Seq[String]): Seq[String] = {
-      if (allTables.next()) {
-        iterate(in :+ allTables.getString(3))
-      } else {
-        in
-      }
-    }
-
-    val tables = iterate(Seq()).filterNot { t ⇒
-      t.startsWith("pg_") || doNotTruncate.contains(t) || isTableEmpty(t)
-    }
-
-    if (tables.nonEmpty) {
-      conn
+    if (nonEmptyTables.nonEmpty) {
+      persistConn
         .createStatement()
-        .execute(s"truncate ${tables.mkString(", ")} restart identity cascade;")
+        .execute(s"truncate ${nonEmptyTables.mkString(", ")} restart identity cascade;")
     }
-
-    Seeds.createSingleMerchantSystem.gimme
-    conn.close()
 
     super.withFixture(test)
   }
+}
+
+object DbTestSupport {
+
+  @volatile var migrated                             = false
+  @volatile var tables: Seq[String]                  = Seq()
+  @volatile var nonEmptyTableStmt: PreparedStatement = _
+
+  lazy val database    = Database.forConfig("db", TestBase.config)
+  lazy val dataSource  = jdbcDataSourceFromSlickDB(database)
+  lazy val persistConn = dataSource.getConnection
+  val api              = slick.driver.PostgresDriver.api
 
   def jdbcDataSourceFromSlickDB(db: api.Database): DataSource =
     db.source match {
       case source: HikariCPJdbcDataSource ⇒ source.ds
     }
-}
-
-object DbTestSupport {
-
-  @volatile var migrated = false
-
-  lazy val database = Database.forConfig("db", TestBase.config)
 }

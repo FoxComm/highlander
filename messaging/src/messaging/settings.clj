@@ -1,5 +1,6 @@
 (ns messaging.settings
-  (:refer-clojure :exclude [get]))
+  (:refer-clojure :exclude [get])
+  (:require clojure.walk))
 
 (def schema
   [

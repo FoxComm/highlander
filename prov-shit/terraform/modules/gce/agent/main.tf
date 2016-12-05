@@ -4,6 +4,7 @@ variable "prefix" {}
 variable "ssh_user" {}
 variable "ssh_private_key" {}
 variable "servers" {}
+variable "network" {}
 
 resource "google_compute_instance" "agent" {
     name = "${var.prefix}-${count.index}"
@@ -19,7 +20,7 @@ resource "google_compute_instance" "agent" {
     }
 
     network_interface {
-        network = "default"
+        network = "${var.network}"
     }
 
     connection {

@@ -91,6 +91,9 @@ package object db {
   def failIf(condition: Boolean, failure: Failure)(implicit ec: EC): DbResultT[Unit] =
     if (condition) DbResultT.failure[Unit](failure) else DbResultT.unit
 
+  def failIfNot(condition: Boolean, failure: Failure)(implicit ec: EC): DbResultT[Unit] =
+    failIf(!condition, failure)
+
   implicit class EnrichedSQLActionBuilder(val action: SQLActionBuilder) extends AnyVal {
     def stripMargin: SQLActionBuilder =
       action.copy(action.queryParts.map(_.asInstanceOf[String].stripMargin))

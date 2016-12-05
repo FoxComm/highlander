@@ -7,22 +7,24 @@
     cert_path: test/fox
     ashes_server_name: local.foxcommerce.com
     storefront_server_name: local.foxcommerce.com
+    storefront_host: firebrand.service.consul
     docker_db_host: 172.17.0.1
     install_public_keys: true
     install_private_keys: true
     with_base_seeds: true
     mesos_quorum: 1
+    vagrant: true
 
   roles:
-    - { role: dev/appliance }
+    - { role: dev/appliance, run_once: true}
     - { role: base/secret_keys }
     - { role: dev/consul_agent }
     - { role: base/marketplace, when: with_marketplace }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
-    - { role: dev/isaac }
     - { role: base/bottledwater }
     - { role: dev/db }
+    - { role: dev/isaac }
     - { role: dev/phoenix }
     - { role: dev/solomon }
     - { role: dev/marketplace, when: with_marketplace }
@@ -32,8 +34,9 @@
     - { role: dev/ashes }
     - { role: dev/firebrand }
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
-    - { role: dev/balancer, sudo: yes }
     - { role: dev/seeder }
+    - { role: dev/balancer, sudo: yes }
+    - { role: dev/consumers }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

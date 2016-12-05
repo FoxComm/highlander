@@ -1,0 +1,11 @@
+{
+  "checks": {
+    "es-cluster-status": {
+      "command": "check-es-cluster-status.rb",
+      "interval": 60,
+      "subscribers": [
+{{ ansible_hostname | to_nice_json }}
+	  ]
+	}
+  }
+}

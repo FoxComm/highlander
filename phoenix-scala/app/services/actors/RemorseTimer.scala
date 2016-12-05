@@ -3,7 +3,6 @@ package services.actors
 import java.time.Instant
 
 import scala.util.Success
-
 import akka.actor.{Actor, ActorLogging}
 import models.activity.ActivityContext
 import models.cord.Order._
@@ -36,7 +35,8 @@ class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
     val query = for {
       cordRefs ← * <~ orders.result
       count    ← * <~ orders.map(_.state).update(newState)
-      _        ← * <~ LogActivity.orderBulkStateChanged(newState, cordRefs.map(_.referenceNumber))
+      refNums = cordRefs.map(_.referenceNumber)
+      _ ← * <~ doOrMeh(count > 0, LogActivity.orderBulkStateChanged(newState, refNums))
     } yield count
 
     RemorseTimerResponse(query.runTxn)

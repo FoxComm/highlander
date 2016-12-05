@@ -8,6 +8,7 @@ CONFIG = File.join(File.dirname(__FILE__), "vagrant.local.rb")
 $vb_memory = 1024*8
 $vb_cpu = 4
 $nginx_ip = "192.168.10.111"
+$local = true
 user = "vagrant"
 
 require CONFIG if File.readable?(CONFIG)
@@ -80,8 +81,8 @@ def tune_vm(config, opts = {})
     g.google_json_key_location = ENV['GOOGLE_JSON_KEY_LOCATION']
 
     g.machine_type = "n1-standard-2"
-    g.image = "appliance-base-1474521767"
-    g.disk_size = 20
+    g.image = "appliance-base-161129-185737"
+    g.disk_size = 40
     g.zone = "us-central1-a"
     g.tags = ['vagrant', 'no-ports']
   end
@@ -112,8 +113,8 @@ Vagrant.configure("2") do |config|
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.define :appliance, primary: true do |app|
-    app.vm.box = "base_appliance_16.04_20161111"
-    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base_appliance_16.04_20161111.box"
+    app.vm.box = "base_appliance_16.04_20161129"
+    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base_appliance_16.04_20161129.box"
 
     app.vm.network :private_network, ip: $nginx_ip
     expose_ports(app)
@@ -121,24 +122,26 @@ Vagrant.configure("2") do |config|
     # Workaround for mitchellh/vagrant#1867
     if ARGV[1] and \
        (ARGV[1].split('=')[0] == "--provider" or ARGV[2])
-      provider = (ARGV[1].split('=')[1] || ARGV[2])
+      provider = (ARGV[1].split('=')[1] || ARGV[2]).chomp
     else
-      provider = (ENV['VAGRANT_DEFAULT_PROVIDER'] || :virtualbox).to_sym
+      provider = (ENV['VAGRANT_DEFAULT_PROVIDER'] || "virtualbox").chomp
     end
     puts "Detected #{provider} provider"
-
     if provider == "google"
       puts 'Overriding Google-specific variables'
-      $nginx_ip = "0.0.0.0"
+      $nginx_ip = "`hostname -I | awk '{print $1}'`"
+      $local = false
     end
 
     app.vm.provision "ansible" do |ansible|
+
       ansible.verbose = "vvvv"
       ansible.playbook = "prov-shit/ansible/vagrant_appliance.yml"
       ansible.extra_vars = {
         user: user,
         appliance_hostname: $nginx_ip,
         mesos_ip: $nginx_ip,
+        local_vagrant: $local
       }
     end
   end

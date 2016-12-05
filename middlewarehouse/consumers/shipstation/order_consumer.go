@@ -55,6 +55,10 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 			return nil
 		}
 
+		if len(bulkStateChange.CordRefNums) == 0 {
+			return nil
+		}
+
 		// Get orders from Phoenix
 		orders, err := bulkStateChange.GetRelatedOrders(c.phoenixClient)
 		if err != nil {

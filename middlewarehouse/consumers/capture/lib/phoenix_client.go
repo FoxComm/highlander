@@ -18,7 +18,7 @@ type PhoenixClient interface {
 	IsAuthenticated() bool
 	UpdateOrder(refNum, shipmentState, orderState string) error
 	CreateGiftCards(giftCards []payloads.CreateGiftCardPayload) (*http.Response, error)
-	GetOrder(refNum string) (*payloads.Order, error)
+	GetOrder(refNum string) (*payloads.OrderResult, error)
 	GetOrderForShipstation(refNum string) (*http.Response, error)
 }
 
@@ -155,7 +155,7 @@ func (c *phoenixClient) CreateGiftCards(giftCards []payloads.CreateGiftCardPaylo
 }
 
 // GetOrder
-func (c *phoenixClient) GetOrder(refNum string) (*payloads.Order, error) {
+func (c *phoenixClient) GetOrder(refNum string) (*payloads.OrderResult, error) {
 	if err := c.ensureAuthentication(); err != nil {
 		return nil, err
 	}
@@ -171,7 +171,7 @@ func (c *phoenixClient) GetOrder(refNum string) (*payloads.Order, error) {
 	}
 
 	defer rawOrderResp.Body.Close()
-	orderResp := new(payloads.Order)
+	orderResp := new(payloads.OrderResult)
 	if err := json.NewDecoder(rawOrderResp.Body).Decode(orderResp); err != nil {
 		log.Printf("Unable to read order response from Phoenix with error: %s", err.Error())
 		return nil, err

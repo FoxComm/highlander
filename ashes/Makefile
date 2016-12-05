@@ -26,8 +26,8 @@ tag:
 	git push --tags origin master
 
 setup:
-	npm install
-	npm build
+	yarn --pure-lockfile
+	yarn build
 
 stop:
 	if [ `ps aux | awk '{print $2 " " $11}' | grep [m]-ashes | awk '{print $1}'` ]; then npm stop; fi
