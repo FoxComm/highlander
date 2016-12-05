@@ -91,16 +91,20 @@ class Cart extends Component {
   }
 
   get lineItems() {
-    return _.map(this.props.skus, sku => {
-      return (
-        <LineItem
-          {...sku}
-          deleteLineItem={() => this.deleteLineItem(sku)}
-          updateLineItemQuantity={(id, quantity) => this.updateLineItemQuantity(sku, quantity)}
-          key={sku.sku}
-        />
-      );
-    });
+    return _.isEmpty(this.props.skus) ?
+      <div styleName="empty-cart">
+        <p styleName="empty-text">Your cart is empty</p>
+      </div> :
+      _.map(this.props.skus, sku => {
+        return (
+          <LineItem
+            {...sku}
+            deleteLineItem={() => this.deleteLineItem(sku)}
+            updateLineItemQuantity={(id, quantity) => this.updateLineItemQuantity(sku, quantity)}
+            key={sku.sku}
+          />
+        );
+      });
   }
 
   @autobind

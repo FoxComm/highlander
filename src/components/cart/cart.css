@@ -55,6 +55,20 @@
   cursor: pointer;
 }
 
+.empty-cart {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-text {
+  font-size: 16px;
+  color: #212121;
+  opacity: 0.3;
+  text-transform: uppercase;
+}
+
 .back-icon {
   margin: 0 var(--cart-gap);
   transition: margin 300ms;
@@ -145,6 +159,10 @@
 @media (--small-only) {
   .cart-box {
     lost-column: 10/12;
+  }
+
+  .empty-text {
+    font-size: 13px;
   }
 }
 
