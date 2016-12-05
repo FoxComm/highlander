@@ -96,7 +96,7 @@ class PromoCode extends Component {
         <FormField styleName="code-field">
           <TextInput
             styleName="code"
-            placeholder={'CODE'}
+            placeholder={'COUPON CODE'}
             value={this.state.code}
             onChange={this.changeCode}
             onKeyPress={this.onKeyPress}
