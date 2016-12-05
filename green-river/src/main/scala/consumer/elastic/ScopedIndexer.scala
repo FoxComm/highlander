@@ -37,7 +37,7 @@ class ScopedIndexer(uri: String,
     // Find json transformer
     jsonTransformers get topic match {
       case Some(t) ⇒
-        t.transform(inputJson).map(outJson ⇒ indexJson(outJson, topic))
+        t.transform(inputJson).flatMap(outJson ⇒ indexJson(outJson, topic))
       case None ⇒
         Console.out.println(s"Skipping information from topic $topic")
         Future { () }
