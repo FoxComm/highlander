@@ -220,8 +220,11 @@ class EditBilling extends Component {
     const months = _.range(1, 13, 1).map(x => _.padStart(x.toString(), 2, '0'));
     const currentYear = new Date().getFullYear();
     const years = _.range(currentYear, currentYear + 10, 1).map(x => x.toString());
-
     const checkedDefaultCard = _.get(data, 'isDefault', false);
+    const editingSavedCard = data.id;
+    const cardNumberPlaceholder = editingSavedCard ?
+      (_.repeat('**** ', 3) + data.lastFour) : t('CARD NUMBER');
+    const cvcPlaceholder = editingSavedCard ? '***' : 'CVC';
 
     return (
       <div styleName="edit-card-form">
@@ -250,13 +253,14 @@ class EditBilling extends Component {
               >
                 <InputMask
                   required
+                  disabled={editingSavedCard}
                   styleName="payment-input"
                   className={textStyles['text-input']}
                   maskChar=" "
                   type="text"
                   mask={this.cardMask}
                   name="number"
-                  placeholder={t('CARD NUMBER')}
+                  placeholder={cardNumberPlaceholder}
                   size="20"
                   value={data.number}
                   onChange={this.changeCardNumber}
@@ -266,10 +270,11 @@ class EditBilling extends Component {
             <FormField styleName="cvc-field" validator={this.validateCvcNumber}>
               <TextInputWithLabel
                 required
+                disabled={editingSavedCard}
                 label={<CvcHelp />}
                 type="number"
                 maxLength="4"
-                placeholder={t('CVC')}
+                placeholder={cvcPlaceholder}
                 onChange={this.changeCVC}
                 value={data.cvc}
               />
