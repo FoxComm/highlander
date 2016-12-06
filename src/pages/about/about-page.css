@@ -80,7 +80,11 @@
   background: #3E3436;
   font-weight: 600;
   text-transform: uppercase;
-  margin-top: 40px;
+  margin-top: 90px;
+
+  &:hover {
+    background-color: #594B4D;
+  }
 }
 
 .shop-best-sellers-link {
