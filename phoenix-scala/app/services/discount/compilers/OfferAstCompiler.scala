@@ -1,7 +1,7 @@
 package services.discount.compilers
 
 import cats.data.{NonEmptyList, Xor}
-import cats.std.list._
+import cats.instances.list._
 import failures.DiscountCompilerFailures._
 import failures._
 import models.discount.offers._
@@ -28,7 +28,7 @@ case class OfferAstCompiler(data: Json) {
     }
 
     val failures = offerCompiles.flatMap { o ⇒
-      o.fold(fs ⇒ fs.unwrap, q ⇒ Seq.empty)
+      o.fold(fs ⇒ fs.toList, q ⇒ Seq.empty)
     }
 
     failures match {

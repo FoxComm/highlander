@@ -9,6 +9,7 @@ import failures._
 import services.Result
 import slick.dbio.DBIOAction
 import slick.driver.PostgresDriver.api._
+import cats.FlatMap
 import slick.jdbc.SQLActionBuilder
 import slick.lifted.Query
 import slick.profile.SqlAction
@@ -32,6 +33,9 @@ package object db {
     override def pure[A](a: A): DBIO[A] = DBIO.successful(a)
 
     override def flatMap[A, B](fa: DBIO[A])(f: A ⇒ DBIO[B]): DBIO[B] = fa.flatMap(f)
+
+    override def tailRecM[A, B](a: A)(f: A ⇒ DBIO[Either[A, B]]): DBIO[B] =
+      defaultTailRecM(a)(f)
   }
 
   // implicits
