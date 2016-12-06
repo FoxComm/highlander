@@ -37,7 +37,6 @@ class ElasticSearchProcessor(
 
   def createMappings(): Unit = {
     removeIndex()
-    client.wait(10000)
     createIndex()
   }
 
