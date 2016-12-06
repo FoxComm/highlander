@@ -37,6 +37,7 @@ class ElasticSearchProcessor(
 
   def createMappings(): Unit = {
     removeIndex()
+    client.wait(10000)
     createIndex()
   }
 
@@ -66,16 +67,16 @@ class ElasticSearchProcessor(
 
   private def deleteFromIndex(topic: String, id: BigInt): Future[Unit] = {
     Console.out.println(s"Deleting document with ID $id from topic $topic")
+
     val req = client.execute {
       delete id id from indexName / topic
     }
 
     req onFailure {
-      case NonFatal(e) ⇒ Console.err.println(s"Error while deleting: $id")
+      case NonFatal(_) ⇒ Console.err.println(s"Error while deleting: $id")
     }
-    req.map { r ⇒
-      ()
-    }
+
+    req.map { _ ⇒ () }
   }
 
   private val idFields = List("id")
@@ -101,6 +102,7 @@ class ElasticSearchProcessor(
   private def removeIndex() {
     try {
       Console.out.println(s"""Deleting index "$indexName"...""")
+      client.wait(10)
       client.execute(deleteIndex(indexName)).await
     } catch {
       case e: RemoteTransportException ⇒
