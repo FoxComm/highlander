@@ -6,28 +6,26 @@ import styles from './cooking-block.css';
 
 const cookingData = [
   {
-    imgUrl: '/images/about-page/Icon_Chef_Prepared.svg',
-    title: 'CHEF PREPARED',
+    imgUrl: '/images/about-page/Icon_Deliciously_Convienient.svg',
+    title: 'Delicious',
     description:
-      `Novice in the kitchen? No worries! Our chefs have
-      crafted award-winning, amazing food. Meals arrive at
-      your door prepared and ready to cook.`,
+      `It begins with inspiration. 
+      Looking to new dishes as well as old favorites, we create unique, 
+      original recipes with you in mind.`,
   },
   {
-    imgUrl: '/images/about-page/Icon_Deliciously_Convienient.svg',
-    title: 'DELICIOULSY CONVENIENT',
+    imgUrl: '/images/about-page/Icon_Chef_Prepared.svg',
+    title: 'Quality',
     description:
-      `Instead of chopping vegetables from a meal kit,
-      spend your time doing what you love. Our meals
-      take an average of just 30 minutes to make!`,
+      `We use fresh ingredients to prepare dishes that are flash frozen---ensuring optimal flavor 
+      and nutrition—and designed to be prepared from frozen in a matter of minutes.`,
   },
   {
     imgUrl: '/images/about-page/Icon_Stress_Free.svg',
-    title: 'STRESS FREE',
+    title: 'Time Saving',
     description:
-      `Deciding what to do for dinner just got
-      a lot easier. You’ll have access to delicious
-      meals anytime of the day, anytime of the week.`,
+      `We do all the prep work for you, then deliver your food right to your door. 
+      Spend less time in the kitchen, and more time tending to the rest of your busy life.`,
   },
 ];
 
