@@ -1,13 +1,14 @@
 package models.cord.lineitems
 
-import models.cord.lineitems.OrderLineItems._
+import cats.implicits._
 import models.inventory.{Sku, Skus}
 import models.objects._
-import models.product.Products
-import utils.aliases.Json
+import org.json4s.Extraction.decompose
+import org.json4s.Formats
 import shapeless._
-import utils.db.ExPostgresDriver.api._
+import utils.JsonFormatters
 import utils.aliases._
+import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 case class CartLineItemProductData(sku: Sku,
@@ -17,7 +18,7 @@ case class CartLineItemProductData(sku: Sku,
                                    productShadow: ObjectShadow,
                                    image: Option[String],
                                    lineItem: CartLineItem,
-                                   attributes: Option[Json] = None)
+                                   attributes: Option[LineItemAttributes] = None)
     extends LineItemProductData[CartLineItem] {
 
   def lineItemReferenceNumber = lineItem.referenceNumber
@@ -30,7 +31,7 @@ case class CartLineItem(id: Int = 0,
                         referenceNumber: String = "",
                         cordRef: String,
                         skuId: Int,
-                        attributes: Option[Json] = None)
+                        attributes: Option[LineItemAttributes] = None)
     extends FoxModel[CartLineItem]
 
 class CartLineItems(tag: Tag) extends FoxTable[CartLineItem](tag, "cart_line_items") {
@@ -40,8 +41,17 @@ class CartLineItems(tag: Tag) extends FoxTable[CartLineItem](tag, "cart_line_ite
   def skuId           = column[Int]("sku_id")
   def attributes      = column[Option[Json]]("attributes")
 
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
+
   def * =
-    (id, referenceNumber, cordRef, skuId, attributes) <> ((CartLineItem.apply _).tupled, CartLineItem.unapply)
+    (id, referenceNumber, cordRef, skuId, attributes).shaped <>
+      ({
+        case (id, refNum, cordRef, skuId, attrs) ⇒
+          CartLineItem(id, refNum, cordRef, skuId, attrs.flatMap(_.extractOpt[LineItemAttributes]))
+      }, { cli: CartLineItem ⇒
+        (cli.id, cli.referenceNumber, cli.cordRef, cli.skuId, cli.attributes.map(decompose)).some
+      })
+
   def sku = foreignKey(Skus.tableName, skuId, Skus)(_.id)
 }
 

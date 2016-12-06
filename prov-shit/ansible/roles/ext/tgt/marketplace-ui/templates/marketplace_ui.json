@@ -9,14 +9,6 @@
     "API_URL": "https://{{storefront_server_name}}/api/v1/mkt",
     "ASHES_URL": "https://{{storefront_server_name}}/admin"
   },
-  "portDefinitions": [
-    {
-      "port": 10007,
-      "protocol": "tcp",
-      "name": "4042",
-      "labels": {}
-    }
-  ],
   "container": {
     "type": "DOCKER",
     "volumes": [],

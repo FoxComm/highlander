@@ -1,14 +1,16 @@
 package payloads
 
-import cats.data._
-import cats.implicits._
-import failures.Failure
-import utils.Money._
-import utils.Validation
-import utils.Validation._
-import utils.aliases.Json
+import models.cord.lineitems._
 
 object LineItemPayloads {
 
-  case class UpdateLineItemsPayload(skuId: Int, quantity: Int, attributes: Option[Json] = None)
+  case class UpdateLineItemsPayload(skuId: Int,
+                                    quantity: Int,
+                                    attributes: Option[LineItemAttributes] = None)
+
+  case class UpdateOrderLineItemsPayload(
+      state: OrderLineItem.State,
+      attributes: Option[LineItemAttributes],
+      referenceNumber: String
+  )
 }

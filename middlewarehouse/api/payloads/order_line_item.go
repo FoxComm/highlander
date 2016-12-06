@@ -11,6 +11,7 @@ type OrderLineItem struct {
 	ImagePath       string      `json:"imagePath" binding:"required"`
 	Attributes      *Attributes `json:"attributes"`
 	Quantity        int         `json:"quantity"`
+	TrackInventory  bool        `json:"trackInventory"`
 }
 
 type OrderLineItems struct {

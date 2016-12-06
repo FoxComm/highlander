@@ -25,8 +25,14 @@ const _updateOrder = createAsyncActions(
   (id: number, data: Object) => Api.patch(`/orders/${id}`, data)
 );
 
+const _updateShipments = createAsyncActions(
+  'updateShipments',
+  (refNum: string) => Api.patch(`/inventory/shipments/for-order/${refNum}`, { state: 'shipped' })
+);
+
 export const fetchOrder = _getOrder.perform;
 export const updateOrder = _updateOrder.perform;
+export const updateShipments = _updateShipments.perform;
 export const clearFetchErrors =_getOrder.clearErrors;
 
 function orderSucceeded(state: State, payload: Object): State {
@@ -43,6 +49,7 @@ export function increaseRemorsePeriod(refNum: string) {
 const reducer = createReducer({
   [_getOrder.succeeded]: orderSucceeded,
   [_updateOrder.succeeded]: orderSucceeded,
+  [_updateShipments.succeeded]: (state) => state,
 }, initialState);
 
 export default reducer;

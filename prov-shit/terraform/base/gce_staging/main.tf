@@ -90,17 +90,3 @@ module "target-staging" {
     consul_leader = "${var.consul_leader}"
     consul_server_image = "${var.consul_server_image}"
 }
-
-##############################################
-# Early Easy Cluster
-##############################################
-module "tony-staging" {
-    source = "../../modules/gce/tinystack"
-    datacenter = "foxcomm-tony"
-    backend_image = "tinystack-backend-1477553953"
-    frontend_image = "tinystack-frontend-1477026455"
-    ssh_user = "${var.ssh_user}"
-    ssh_private_key = "${var.ssh_private_key}"
-    consul_leader = "10.240.0.10"
-    consul_server_image = "tinystack-amigo-1476574475"
-}

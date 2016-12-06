@@ -1,0 +1,13 @@
+{
+    "project_base": "td/stage",
+    "image_prefix": "td-stage",
+    "image_title": "td-stage",
+    "account_file": "foxcomm-vanilla.json",
+    "project_id": "foxcommerce-production-shared",
+    "network": "topdrawer",
+    "zone": "us-central1-a",
+    "base_ubuntu_image": "ubuntu-1604-xenial-v20160610",
+    "base_image": "base-1470341233",
+    "base_mesos": "base-mesos-1477903830",
+    "ssh_username": "ubuntu"
+}

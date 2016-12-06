@@ -1,5 +1,6 @@
 (ns messaging.settings
-  (:refer-clojure :exclude [get]))
+  (:refer-clojure :exclude [get])
+  (:require clojure.walk))
 
 (def schema
   [
@@ -45,6 +46,11 @@
     :title "Retailer name"
     :type "string"
     :default ""}
+
+   {:name "additional_merge_vars"
+    :title "Merge vars"
+    :type "string"
+    :default ""}
 ; ----
 
 ; ---- Templates settings
@@ -72,8 +78,31 @@
     :title "Order canceled mail subject"
     :type "string"
     :default  "Order cancellation"}
+; - Order shipped
+   {:name "order_shipped_subject"
+    :title "Order shipped subject"
+    :type "string"
+    :default ""}
+
+   {:name "order_shipped_template"
+    :title "Order shipped template"
+    :type "string"
+    :default ""}
+
 ; ---
 
+    ; - Gift card by customer
+   {:name "gift_card_customer_template"
+    :title "Gift card template"
+    :type "string"
+    :default ""}
+
+   {:name "gift_card_customer_subject"
+    :title "Gift card email subject"
+    :type "string"
+    :default ""}
+
+    ; - Admin invintation
    {:name "admin_invitation_template"
     :title "Admin Invitation Mandrill Template"
     :type "string"

@@ -151,10 +151,25 @@ func (service *shipmentService) updateShipmentHelper(txn *gorm.DB, shipmentRepo 
 		return nil, err
 	}
 
+	if err := service.logActivity(source, shipment); err != nil {
+		return nil, err
+	}
+
+	return shipment, nil
+
+}
+
+func (service *shipmentService) logActivity(original *models.Shipment, updated *models.Shipment) error {
+	if !updated.IsUpdated(original) {
+		return nil
+	}
+
 	var activity activities.ISiteActivity
-	if source.State != shipment.State && shipment.State == models.ShipmentStateShipped {
+	var err error
+
+	if original.State != updated.State && updated.State == models.ShipmentStateShipped {
 		stockItemCounts := make(map[uint]int)
-		for _, lineItem := range source.ShipmentLineItems {
+		for _, lineItem := range original.ShipmentLineItems {
 			siu := lineItem.StockItemUnit
 
 			// Aggregate which stock items, and how many, have been updated, so that we
@@ -166,27 +181,20 @@ func (service *shipmentService) updateShipmentHelper(txn *gorm.DB, shipmentRepo 
 			}
 		}
 
-		if err = service.updateSummariesToShipped(stockItemCounts); err != nil {
-			return nil, err
+		if err := service.updateSummariesToShipped(stockItemCounts); err != nil {
+			return err
 		}
 
-		activity, err = activities.NewShipmentShipped(shipment, shipment.UpdatedAt)
-		if err != nil {
-			return nil, err
-		}
+		activity, err = activities.NewShipmentShipped(updated, updated.UpdatedAt)
 	} else {
-		activity, err = activities.NewShipmentUpdated(shipment, shipment.UpdatedAt)
-		if err != nil {
-			return nil, err
-		}
+		activity, err = activities.NewShipmentUpdated(updated, updated.UpdatedAt)
 	}
 
-	if err := service.activityLogger.Log(activity); err != nil {
-		return nil, err
+	if err != nil {
+		return err
 	}
 
-	return shipment, nil
-
+	return service.activityLogger.Log(activity)
 }
 
 func (service *shipmentService) updateSummariesToReserved(stockItemsMap map[uint]int) error {

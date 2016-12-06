@@ -8,44 +8,8 @@
   template: src=middlewarehouse.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
   sudo: true
 
-- name: Copy Stock Items Consumer Marathon JSON
-  template: src=stock-items-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  sudo: true
-
-- name: Copy Shipments Consumer Marathon JSON
-  template: src=shipments-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  sudo: true
-
 - name: Update Middlewarehouse in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/middlewarehouse.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/middlewarehouse'
 
-- name: Update Stock Items Consumer in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/stock-items-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/stock-items-consumer'
-
-- name: Update Shipments Consumer in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/shipments-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/shipments-consumer'
-
-- name: Update Capture Consumer in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/capture-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/capture-consumer'
-
-- name: Update Gift Card Consumer in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/gift-card-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/gift-card-consumer'
-
 - name: Restart Middlewarehouse in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/middlewarehouse/restart'
-
-- name: Wait for Middlewarehouse become available
-  wait_for: host={{middlewarehouse_host}} port={{middlewarehouse_port}}
-  ignore_errors: true
-
-- name: Restart Stock Items Consumer in Marathon
-  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/stock-items-consumer/restart'
-
-- name: Restart Shipments Consumer in Marathon
-  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/shipments-consumer/restart'
-
-- name: Restart Capture Consumer in Marathon
-  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/capture-consumer/restart'
-
-- name: Restart Gift Card Consumer in Marathon
-  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/gift-card-consumer/restart'

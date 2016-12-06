@@ -73,14 +73,14 @@ case class SimpleProductShadow(p: SimpleProduct) {
     ObjectShadow(attributes = shadow)
 }
 
-case class SimpleAlbum(payload: CreateAlbumPayload) {
+case class SimpleAlbum(payload: AlbumPayload) {
 
   def this(name: String, image: String) =
     this(
-        CreateAlbumPayload(
-            name = name,
-            position = Some(1),
-            images = Seq(ImagePayload(src = image, title = image.some, alt = image.some)).some))
+        AlbumPayload(name = Some(name),
+                     position = Some(1),
+                     images =
+                       Seq(ImagePayload(src = image, title = image.some, alt = image.some)).some))
 
   val (keyMap, form) = ObjectUtils.createForm(payload.formAndShadow.form.attributes)
 
@@ -557,6 +557,13 @@ object Mvp {
     ObjectUtils.get("externalId", f, s) match {
       case JString(externalId) ⇒ externalId.some
       case _                   ⇒ None
+    }
+  }
+
+  def trackInventory(f: ObjectForm, s: ObjectShadow): Boolean = {
+    ObjectUtils.get("trackInventory", f, s) match {
+      case JBool(trackInventory) ⇒ trackInventory
+      case _                     ⇒ true
     }
   }
 }

@@ -6,9 +6,9 @@
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
-import { createEmptyProduct, configureProduct } from 'paragons/product';
+import { createEmptyProduct, configureProduct, duplicateProduct } from 'paragons/product';
 import createAsyncActions from '../async-utils';
-import { dissoc, assoc } from 'sprout-data';
+import { dissoc, assoc, update, merge } from 'sprout-data';
 
 // types
 import type { Product } from 'paragons/product';
@@ -21,7 +21,11 @@ export type ProductDetailsState = {
 const defaultContext = 'default';
 
 export const productNew = createAction('PRODUCTS_NEW');
+export const productDuplicate = createAction('PRODUCT_DUPLICATE');
 const clearProduct = createAction('PRODUCT_CLEAR');
+// synchronizes product in case if we have actions which immediately changes product
+// without our request for saving
+export const syncProduct = createAction('PRODUCT_SYNC');
 
 const _archiveProduct = createAsyncActions(
   'archiveProduct',
@@ -141,15 +145,16 @@ export function reset() {
 }
 
 const reducer = createReducer({
-  [productNew]: (state: ProductDetailsState) => {
-    return {
-      ...initialState,
-      product: createEmptyProduct(),
-    };
-  },
-  [clearProduct]: (state: ProductDetailsState) => {
-    return dissoc(state, 'product');
-  },
+  [productNew]: () => ({
+    ...initialState,
+    product: createEmptyProduct(),
+  }),
+  [productDuplicate]: (state: ProductDetailsState) => ({
+    ...initialState,
+    product: duplicateProduct(_.get(state, 'product', {})),
+  }),
+  [clearProduct]: (state: ProductDetailsState) => dissoc(state, 'product'),
+  [syncProduct]: (state: ProductDetailsState, data) => update(state, 'product', merge, data),
   [_fetchProduct.succeeded]: updateProductInState,
   [_updateProduct.succeeded]: updateProductInState,
   [_createProduct.succeeded]: updateProductInState,

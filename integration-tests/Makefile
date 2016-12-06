@@ -1,15 +1,23 @@
-
-build:
-	sbt gatling:compile
+include ../makelib
+header = $(call baseheader, $(1), integration-tests)
 
 clean:
 	sbt clean
 
+build:
+	$(call header, Building)
+	sbt gatling:compile
+
 test:
+	$(call header, Testing)
 	true
 
-docker: 
+docker:
+	$(call header, Dockerizing)
 	true
 
-docker-push: 
+docker-push:
+	$(call header, Registering)
 	true
+
+.PHONY: build clean test docker docker-push

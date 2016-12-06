@@ -1,0 +1,4 @@
+---
+# vars file for redis
+
+redis_repo: ppa:chris-lea/redis-server

@@ -17,15 +17,14 @@
     }
   },
   "env": {
-    "JAVA_OPTS": "-Dphoenix-email={{plugins_api_user_email}} -Dphoenix-password={{plugins_api_user_password}} -Dapi-server=https://{{api_server}} -Dapi-host={{self_host}} -Dkafka-broker={{kafka_server}} -Dschema-registry-url=http://{{schema_server}} -Dadmin-server-name={{ashes_server_name}} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{messaging_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+    "PHOENIX_USER": "{{phoenix_api_user}}",
+    "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
+    "PHOENIX_URL": "http://{{phoenix_server}}",
+    "API_HOST": "{{messaging_host}}",
+    "KAFKA_BROKER": "{{kafka_server}}",
+    "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",
+    "JAVA_OPTS": "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{messaging_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
   },
-  "portDefinitions": [
-    {
-      "port": 10003,
-      "protocol": "tcp",
-      "labels": {}
-    }
-  ],
   "healthChecks": [
     {
       "protocol": "COMMAND",
@@ -33,7 +32,7 @@
         "value": "ps -ef | grep -v grep | grep messaging.jar"
       },
       "gracePeriodSeconds": 300,
-      "intervalSeconds": 60,
+      "intervalSeconds": 30,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3
     }

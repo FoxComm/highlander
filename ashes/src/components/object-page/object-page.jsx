@@ -40,14 +40,17 @@ export function connectPage(namespace, actions) {
     create: `create${capitalized}`, // createPromotion
     update: `update${capitalized}`, // updatePromotion
     archive: `archive${capitalized}`,
+    sync: `sync${capitalized}`,
   };
+
+  const requiredActions = _.values(_.omit(actionNames, 'sync'));
 
   function mapStateToProps(state) {
     return {
       namespace,
       plural,
       capitalized,
-      actionNames,
+      requiredActions,
       schema: _.get(state.objectSchemas, namespace),
       details: state[plural].details,
       originalObject: _.get(state, [plural, 'details', namespace], {}),
@@ -124,6 +127,10 @@ export class ObjectPage extends Component {
     return this.props.params[this.entityIdName];
   }
 
+  get contextName(): string {
+    return this.props.params.context;
+  }
+
   get isNew(): boolean {
     return this.entityId === 'new';
   }
@@ -143,7 +150,7 @@ export class ObjectPage extends Component {
         'clearSubmitErrors',
         'clearArchiveErrors',
         'clearFetchErrors',
-        ..._.values(this.props.actionNames),
+        ...this.props.requiredActions,
       ];
       _.each(requiredActions, name => {
         invariant(
@@ -322,13 +329,17 @@ export class ObjectPage extends Component {
           actions.newEntity();
           break;
         case SAVE_COMBO.DUPLICATE:
-          this.transitionTo('new');
+          this.handleDuplicate();
           break;
         case SAVE_COMBO.CLOSE:
           this.transitionToList();
           break;
       }
     });
+  }
+
+  handleDuplicate() {
+    this.transitionTo('new');
   }
 
   transitionToList() {
@@ -391,6 +402,8 @@ export class ObjectPage extends Component {
       isNew: this.isNew,
       schema,
       onUpdateObject: this.handleUpdateObject,
+      contextName: this.contextName,
+      syncEntity: props.actions.syncEntity,
       entity: { entityId: this.entityId, entityType: namespace },
     };
   }

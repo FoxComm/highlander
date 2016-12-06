@@ -9,6 +9,7 @@ import failures.UserFailures._
 import models.account._
 import models.cord.Order.RemorseHold
 import models.cord._
+import models.cord.lineitems._
 import models.customer._
 import models.inventory._
 import models.location.{Address, Addresses}
@@ -17,7 +18,7 @@ import models.product.Mvp
 import models.shipping._
 import models.{Reason, Reasons}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.LineItemPayloads._
 import payloads.OrderPayloads.CreateCart
 import payloads.PaymentPayloads.GiftCardPayment
 import payloads.UpdateShippingMethod
@@ -35,6 +36,62 @@ class CheckoutIntegrationTest
     with PhoenixAdminApi
     with AutomaticAuth
     with BakedFixtures {
+
+  "PATCH /v1/orders/:refNum/order-line-items" - {
+    val attributes = LineItemAttributes(
+        GiftCardLineItemAttributes(senderName = "senderName",
+                                   recipientName = "recipientName",
+                                   recipientEmail = "example@example.com",
+                                   message = "Boop").some).some
+
+    "should update attributes of order-line-items succesfully" in new Fixture {
+      val refNum =
+        cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
+      val orderResponse =
+        doCheckout(customer, sku, address, shipMethod, reason, refNum).as[OrderResponse]
+      val lineItemToUpdate = orderResponse.lineItems.skus.head
+      val root = cartsApi(orderResponse.referenceNumber)
+        .updateorderLineItem(
+            Seq(UpdateOrderLineItemsPayload(lineItemToUpdate.state,
+                                            attributes,
+                                            lineItemToUpdate.referenceNumbers.headOption.get)))
+        .as[OrderResponse]
+      val itemsToCheck = root.lineItems.skus.filter(oli ⇒
+            oli.referenceNumbers.headOption.get == lineItemToUpdate.referenceNumbers.headOption.get)
+      itemsToCheck.size mustBe 1
+      itemsToCheck
+        .forall(oli ⇒ oli.attributes.get.toString == attributes.get.toString()) mustBe true
+
+    }
+
+    def doCheckout(customer: User,
+                   sku: Sku,
+                   address: Address,
+                   shipMethod: ShippingMethod,
+                   reason: Reason,
+                   refNum: String): HttpResponse = {
+      val _cartApi = cartsApi(refNum)
+
+      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.formId, 2))).mustBeOk()
+
+      _cartApi.shippingAddress.updateFromAddress(address.id).mustBeOk()
+
+      val grandTotal = _cartApi.shippingMethod
+        .update(UpdateShippingMethod(shipMethod.id))
+        .asTheResult[CartResponse]
+        .totals
+        .total
+
+      val gcCode = giftCardsApi
+        .create(GiftCardCreateByCsr(grandTotal, reason.id))
+        .as[GiftCardResponse.Root]
+        .code
+
+      _cartApi.payments.giftCard.add(GiftCardPayment(gcCode, grandTotal.some)).mustBeOk()
+
+      _cartApi.checkout()
+    }
+  }
 
   "POST v1/orders/:refNum/checkout" - {
 

@@ -1,19 +1,23 @@
 package services.inventory
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
+import com.github.tminglei.slickpg.LTree
 import cats.data._
 import failures.ProductFailures._
 import failures.{Failures, GeneralFailure, NotFoundFailure400}
 import models.account._
 import models.inventory._
 import models.objects._
+import payloads.ImagePayloads.AlbumPayload
 import payloads.SkuPayloads._
+import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
+import responses.AlbumResponses._
 import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses._
 import services.LogActivity
 import services.image.ImageManager
+import services.image.ImageManager.FullAlbumWithImages
 import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
@@ -27,13 +31,17 @@ object SkuManager {
                                                   db: DB,
                                                   ac: AC,
                                                   oc: OC,
-                                                  au: AU): DbResultT[SkuResponse.Root] =
+                                                  au: AU): DbResultT[SkuResponse.Root] = {
+    val albumPayloads = payload.albums.getOrElse(Seq.empty)
+
     for {
       sku    ← * <~ createSkuInner(oc, payload)
-      albums ← * <~ ImageManager.getAlbumsForSkuInner(sku.model.formId, oc)
-      response = SkuResponse.build(IlluminatedSku.illuminate(oc, sku), albums)
+      albums ← * <~ findOrCreateAlbumsForSku(sku.model, albumPayloads)
+      albumResponse = albums.map { case (album, images) ⇒ AlbumResponse.build(album, images) }
+      response      = SkuResponse.build(IlluminatedSku.illuminate(oc, sku), albumResponse)
       _ ← * <~ LogActivity.fullSkuCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
+  }
 
   def getSku(skuId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
     for {
@@ -51,14 +59,16 @@ object SkuManager {
       albums ← * <~ ImageManager.getAlbumsForSkuInner(sku.formId, oc)
     } yield SkuResponse.build(IlluminatedSku.illuminate(oc, FullObject(sku, form, shadow)), albums)
 
-  def updateSku(
-      admin: User,
-      skuId: Int,
-      payload: SkuPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC): DbResultT[SkuResponse.Root] =
+  def updateSku(admin: User, skuId: Int, payload: SkuPayload)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      oc: OC,
+      au: AU): DbResultT[SkuResponse.Root] =
     for {
       sku        ← * <~ SkuManager.mustFindSkuByContextAndId(oc.id, skuId)
       updatedSku ← * <~ updateSkuInner(sku, payload)
-      albums     ← * <~ ImageManager.getAlbumsForSkuInner(updatedSku.model.formId, oc)
+      albums     ← * <~ updateAssociatedAlbums(updatedSku.model, payload.albums)
       response = SkuResponse.build(IlluminatedSku.illuminate(oc, updatedSku), albums)
       _ ← * <~ LogActivity.fullSkuUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
@@ -79,9 +89,9 @@ object SkuManager {
       albums       ← * <~ ImageManager.getAlbumsForSkuInner(archivedSku.formId, oc)
       productLinks ← * <~ ProductSkuLinks.filter(_.rightId === archivedSku.id).result
       _ ← * <~ productLinks.map { link ⇒
-           SkuAlbumLinks.deleteById(link.id,
-                                    DbResultT.unit,
-                                    id ⇒ NotFoundFailure400(SkuAlbumLinks, id))
+           ProductSkuLinks.deleteById(link.id,
+                                      DbResultT.unit,
+                                      id ⇒ NotFoundFailure400(ProductSkuLinks, id))
          }
     } yield
       SkuResponse.build(
@@ -164,6 +174,28 @@ object SkuManager {
              .filterByContextAndId(contextId, id)
              .mustFindOneOr(SkuNotFoundForContext(id, contextId))
     } yield sku
+
+  def findOrCreateAlbumsForSku(sku: Sku, payload: Seq[AlbumPayload])(
+      implicit ec: EC,
+      db: DB,
+      oc: OC,
+      au: AU): DbResultT[Seq[FullAlbumWithImages]] =
+    for {
+      albums ← * <~ payload.map(ImageManager.updateOrCreateAlbum)
+      _      ← * <~ SkuAlbumLinks.syncLinks(sku, albums.map { case (fullAlbum, _) ⇒ fullAlbum.model })
+    } yield albums
+
+  private def updateAssociatedAlbums(sku: Sku, albumsPayload: Option[Seq[AlbumPayload]])(
+      implicit ec: EC,
+      db: DB,
+      oc: OC,
+      au: AU): DbResultT[Seq[AlbumRoot]] =
+    albumsPayload match {
+      case Some(payloads) ⇒
+        findOrCreateAlbumsForSku(sku, payloads).map(_.map(AlbumResponse.build))
+      case None ⇒
+        ImageManager.getAlbumsForSkuInner(sku.formId, oc)
+    }
 
   def mustFindSkuByContextAndCode(contextId: Int, code: String)(implicit ec: EC): DbResultT[Sku] =
     for {

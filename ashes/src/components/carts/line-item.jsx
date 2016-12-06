@@ -1,7 +1,6 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -55,14 +54,14 @@ export class CartLineItem extends Component {
   @autobind
   @debounce(300)
   performUpdate() {
-    const { cart: { referenceNumber }, item: { skuId } } = this.props;
+    const { cart: { referenceNumber }, item: { skuId, attributes } } = this.props;
     const { quantity, lastSyncedQuantity } = this.state;
 
     const quantityDiff = quantity - lastSyncedQuantity;
 
     this.setState({
       lastSyncedQuantity: quantity,
-    }, () => this.props.updateLineItemCount(referenceNumber, skuId, quantityDiff));
+    }, () => this.props.updateLineItemCount(referenceNumber, skuId, quantityDiff, attributes));
 
   }
 
@@ -137,6 +136,5 @@ export class CartLineItem extends Component {
     );
   }
 }
-;
 
 export default connect(null, { updateLineItemCount })(CartLineItem);

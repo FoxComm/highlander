@@ -37,8 +37,16 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
   def process(offset: Long, topic: String, key: Array[Byte], message: Array[Byte]): Future[Unit] = {
     try {
 
-      val keyJson = deserializeAvro(key)
-      val json    = deserializeAvro(message)
+      val keyJson =
+        if (key.isEmpty) {
+          Console.err.println(
+              s"Warning, message has no key for topic ${topic}: ${new String(message, "UTF-8")}")
+          ""
+        } else {
+          deserializeAvro(key)
+        }
+
+      val json = deserializeAvro(message)
 
       processor.process(offset, topic, keyJson, json)
     } catch {
@@ -47,7 +55,7 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
           val readableKey     = new String(key, "UTF-8")
           val readableMessage = new String(message, "UTF-8")
           Console.err.println(
-              s"Error serializing avro message with key $readableKey: error $e\n\t$readableMessage")
+              s"Error deserializing avro message with key $readableKey: error $e\n\t$readableMessage")
           e
         }
       case e: Throwable ⇒ Future.failed(e)

@@ -5,7 +5,8 @@ import java.time.Instant
 import models.image._
 import models.objects._
 import responses.ImageResponses.ImageResponse
-import utils.{JsonFormatters, IlluminateAlgorithm}
+import services.image.ImageManager.FullAlbumWithImages
+import utils.{IlluminateAlgorithm, JsonFormatters}
 
 object AlbumResponses {
   implicit val formats = JsonFormatters.phoenixFormats
@@ -32,6 +33,11 @@ object AlbumResponses {
            createdAt = model.createdAt,
            updatedAt = model.updatedAt,
            archivedAt = model.archivedAt)
+    }
+
+    def build(fullAlbum: FullAlbumWithImages): Root = {
+      val (album, images) = fullAlbum
+      build(album, images)
     }
   }
 }

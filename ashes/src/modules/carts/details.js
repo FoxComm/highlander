@@ -14,6 +14,7 @@ import createAsyncActions from 'modules/async-utils';
 type UpdateLineItemPayload = {
   skuId: number;
   quantity: number;
+  attributes: ?Object;
 }
 
 const _fetchCart = createAsyncActions(
@@ -49,9 +50,8 @@ const _updateLineItemCount = createAsyncActions(
   (refNum: string, payload: Array<UpdateLineItemPayload>) => Api.patch(`/orders/${refNum}/line-items`, payload)
 );
 
-
-export function updateLineItemCount(refNum: string, skuId: number, quantityDiff: number): Function {
-  return _updateLineItemCount.perform(refNum, [{ skuId, quantity: quantityDiff }]);
+export function updateLineItemCount(refNum: string, skuId: number, quantityDiff: number, attributes: ?Object): Function {
+  return _updateLineItemCount.perform(refNum, [{ skuId, quantity: quantityDiff, attributes }]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

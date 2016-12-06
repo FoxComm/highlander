@@ -3,8 +3,8 @@ package payloads
 import (
 	"strconv"
 
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
 	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
 )
 
 // OrderItem is a single line item in an order.
@@ -30,13 +30,12 @@ func NewOrderItemsFromPhoenix(items []phoenix.OrderLineItem) []OrderItem {
 	condensedItems := make(map[uint]OrderItem)
 
 	for _, item := range items {
+		newItem := NewOrderItemFromPhoenix(item)
 		ci, ok := condensedItems[item.SkuID]
 		if ok {
-			ci.Quantity++
-			condensedItems[item.SkuID] = ci
-		} else {
-			condensedItems[item.SkuID] = NewOrderItemFromPhoenix(item)
+			newItem.Quantity += ci.Quantity
 		}
+		condensedItems[item.SkuID] = newItem
 	}
 
 	orderItems := []OrderItem{}

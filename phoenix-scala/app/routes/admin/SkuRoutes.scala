@@ -4,7 +4,7 @@ import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
-import payloads.ImagePayloads.CreateAlbumPayload
+import payloads.ImagePayloads.AlbumPayload
 import payloads.SkuPayloads._
 import services.image.ImageManager
 import services.inventory.SkuManager
@@ -48,7 +48,7 @@ object SkuRoutes {
                     ImageManager.getAlbumsForSku(id)
                   }
                 } ~
-                (post & pathEnd & entity(as[CreateAlbumPayload])) { payload ⇒
+                (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
                   mutateOrFailures {
                     ImageManager.createAlbumForSku(auth.model, id, payload)
                   }
