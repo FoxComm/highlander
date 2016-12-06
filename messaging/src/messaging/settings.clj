@@ -2,7 +2,6 @@
   (:refer-clojure :exclude [get])
   (:require clojure.walk))
 
-
 (def schema
   [
     ;; -- Core mailchimp/Mandrill settings

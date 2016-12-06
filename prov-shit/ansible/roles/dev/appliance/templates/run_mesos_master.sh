@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export MESOS_WEBUI_DIR=/usr/local/share/mesos/webui
+export MESOS_WEBUI_DIR=/usr/share/mesos/webui
 WORK_DIR=/var/lib/mesos
 IP={{mesos_ip}}
 QUORUM={{mesos_quorum}}

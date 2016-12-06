@@ -30,6 +30,7 @@ type Props = {
     price: number,
     totalPrice: number,
     quantity: number,
+    attributes: ?Object,
   },
 };
 
@@ -64,14 +65,14 @@ export class CartLineItem extends Component {
   @autobind
   @debounce(300)
   performUpdate() {
-    const { cart: { referenceNumber }, item: { sku } } = this.props;
+    const { cart: { referenceNumber }, item: { sku, attributes } } = this.props;
     const { quantity, lastSyncedQuantity } = this.state;
 
     const quantityDiff = quantity - lastSyncedQuantity;
 
     this.setState({
       lastSyncedQuantity: quantity,
-    }, () => this.props.updateLineItemCount(referenceNumber, sku, quantityDiff));
+    }, () => this.props.updateLineItemCount(referenceNumber, sku, quantityDiff, attributes));
 
   }
 

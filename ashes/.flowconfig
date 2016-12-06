@@ -22,6 +22,7 @@
 .*/node_modules/react-motion/lib/Types.js.flow
 .*/test/fixtures/*
 .*/node_modules/react/.*
+.*/node_modules/wings/.*
 
 [include]
 
