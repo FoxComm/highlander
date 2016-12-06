@@ -102,7 +102,6 @@ class ElasticSearchProcessor(
   private def removeIndex() {
     try {
       Console.out.println(s"""Deleting index "$indexName"...""")
-      client.wait(10)
       client.execute(deleteIndex(indexName)).await
     } catch {
       case e: RemoteTransportException ⇒
