@@ -12,8 +12,7 @@ final case class GiftCardTransactionsSearchView()(implicit ec: EC) extends AvroT
       field("id", IntegerType),
       field("debit", IntegerType),
       field("credit", IntegerType),
-      field("availableBalance", IntegerType),
-      field("state", StringType).index("not_analyzed"),
+      field("availableBalance", IntegerType), field("state", StringType).index("not_analyzed"),
       field("createdAt", DateType).format(dateFormat),
       // Gift Card
       field("code", StringType).analyzer("upper_cased"),
@@ -22,7 +21,7 @@ final case class GiftCardTransactionsSearchView()(implicit ec: EC) extends AvroT
       field("giftCardCreatedAt", DateType).format(dateFormat),
       // Order Payment
       field("orderPayment").nested(
-          field("orderReferenceNumber", StringType).analyzer("upper_cased"),
+          field("cordReferenceNumber", StringType).analyzer("upper_cased"), 
           field("orderCreatedAt", DateType).format(dateFormat),
           field("orderPaymentCreatedAt", DateType).format(dateFormat)
       ),
