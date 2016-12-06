@@ -41,13 +41,10 @@ module.exports = function(gulp, opts, $) {
   function getBundler() {
     if (bundler) return bundler;
 
-    let entries = path.join(opts.srcDir, 'client.js');
+    let entries = path.resolve('lib', 'client.js');
     bundler = browserify({
       entries: [entries],
       standalone: 'App',
-      transform: [
-        'babelify',
-      ],
       extensions: ['.jsx'],
       debug: true,
       cache: {},
