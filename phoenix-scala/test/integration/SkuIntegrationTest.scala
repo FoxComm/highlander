@@ -6,7 +6,7 @@ import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.SkuIsPresentInCarts
 import failures.ObjectFailures.ObjectContextNotFound
-import failures.ProductFailures.SkuNotFoundForContext
+import failures.ProductFailures.{CannotSetInactiveWhileSkuInCart, SkuNotFoundForContext}
 import models.inventory._
 import models.objects._
 import models.product._
@@ -19,6 +19,7 @@ import payloads.ProductPayloads.UpdateProductPayload
 import payloads.SkuPayloads.SkuPayload
 import responses.SkuResponses.SkuResponse
 import responses.cord.CartResponse
+import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -108,6 +109,37 @@ class SkuIntegrationTest
 
       (skuResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)
     }
+
+    "fails to set sku inactive while it is in cart" in new FixtureWithProduct {
+      val priceValue = ("currency" → "USD") ~ ("value" → 9999)
+      val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
+      val attrMap    = Map("price" → priceJson)
+
+      val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
+
+      cartsApi(cart.referenceNumber).lineItems
+        .add(Seq(UpdateLineItemsPayload(sku.code, 1)))
+        .mustBeOk()
+
+      skusApi(sku.code)
+        .update(makeSkuPayload(sku.code, attrMap, None))
+        .mustFailWith400(CannotSetInactiveWhileSkuInCart(sku.formId))
+
+      skusApi(sku.code)
+        .update(makeSkuPayload(sku.code,
+                               attrMap + ("activeFrom" → tv(Instant.now().plusMinutes(100))),
+                               None))
+        .mustFailWith400(CannotSetInactiveWhileSkuInCart(sku.formId))
+
+      skusApi(sku.code)
+        .update(
+            makeSkuPayload(sku.code,
+                           attrMap +
+                             ("activeFrom" → tv(Instant.now().plusMinutes(100))) +
+                             ("activeTo"   → tv(Instant.now().plusMinutes(1))),
+                           None))
+        .mustFailWith400(CannotSetInactiveWhileSkuInCart(sku.formId))
+    }
   }
 
   "DELETE v1/products/:context/:id" - {
@@ -122,7 +154,7 @@ class SkuIntegrationTest
     "Successfully archives SKU which is linked to a product" in new FixtureWithProduct {
       private val updateProductPayload: UpdateProductPayload =
         UpdateProductPayload(attributes = Map(),
-                             skus = Some(List(makeSkuPayload(sku.code, Map()))),
+                             skus = Some(List(makeSkuPayload(sku.code, Map(), None))),
                              variants = None)
       productsApi(product.formId).update(updateProductPayload).mustBeOk
 

@@ -23,6 +23,7 @@ import responses.ProductResponses.ProductResponse
 import responses.ProductResponses.ProductResponse.Root
 import responses.cord.CartResponse
 import services.Authenticator.AuthData
+import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -287,13 +288,15 @@ class ProductIntegrationTest
 
       cartsApi(cartRef).lineItems.add(allSkus.map(sku ⇒ UpdateLineItemsPayload(sku, 1))).mustBeOk()
 
+      val activeFrom: (String, Json) = "activeFrom" → (("t" → "date") ~ ("v" → s"${Instant.now()}"))
+
       productsApi(product.formId)
         .update(
-            UpdateProductPayload(attributes = attrMap,
-                                 skus =
-                                   allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap, None)).some,
-                                 albums = None,
-                                 variants = None))
+            UpdateProductPayload(
+                attributes = attrMap + activeFrom,
+                skus = allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap + activeFrom, None)).some,
+                albums = None,
+                variants = None))
         .mustBeOk()
     }
 
@@ -532,6 +535,43 @@ class ProductIntegrationTest
           .update(twoSkuProductPayload)
           .mustFailWith400(SkuIsPresentInCarts(skuGreenLargeCode))
       }
+
+      "trying to make inactive product in cart" in new Customer_Seed with Fixture {
+        private val cartRef =
+          cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+
+        cartsApi(cartRef).lineItems
+          .add(allSkus.map(sku ⇒ UpdateLineItemsPayload(sku, 1)))
+          .mustBeOk()
+
+        private val skuPayloads: Option[Seq[SkuPayload]] =
+          allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap, None)).some
+
+        private val expectedFailure = CannotSetInactiveWhileProductInCart(product.formId)
+
+        private val productApi: productsApi = productsApi(product.formId)
+
+        productApi
+          .update(UpdateProductPayload(attributes = Map(), skus = skuPayloads, variants = None))
+          .mustFailWith400(expectedFailure)
+
+        productApi
+          .update(
+              UpdateProductPayload(attributes =
+                                     Map("activeFrom" → tv(Instant.now().plusMinutes(100))),
+                                   skus = skuPayloads,
+                                   variants = None))
+          .mustFailWith400(expectedFailure)
+
+        productApi
+          .update(
+              UpdateProductPayload(attributes =
+                                     Map("activeFrom" → tv(Instant.now().plusMinutes(100)),
+                                         "activeTo"   → tv(Instant.now().plusMinutes(1))),
+                                   skus = skuPayloads,
+                                   variants = None))
+          .mustFailWith400(expectedFailure)
+      }
     }
   }
 
@@ -590,7 +630,7 @@ class ProductIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed with Schemas_Seed {
-
+    val activeFromNowAttribute = "activeFrom" → (("t" → "date") ~ ("v" → s"${Instant.now()}"))
     def makeSkuPayload(code: String, name: String, albums: Option[Seq[AlbumPayload]]): SkuPayload = {
       val attrMap = Map("title" → (("t" → "string") ~ ("v" → name)),
                         "name" → (("t" → "string") ~ ("v" → name)),
@@ -614,7 +654,7 @@ class ProductIntegrationTest
     val skuPayload = makeSkuPayload("SKU-NEW-TEST", skuAttrMap, None)
 
     val nameJson = ("t"       → "string") ~ ("v"  → "Product name")
-    val attrMap  = Map("name" → nameJson, "title" → nameJson)
+    val attrMap  = Map("name" → nameJson, "title" → nameJson) + activeFromNowAttribute
     val productPayload = CreateProductPayload(attributes = attrMap,
                                               skus = Seq(skuPayload),
                                               variants = None,
@@ -755,7 +795,6 @@ class ProductIntegrationTest
   }
 
   trait RemovingSkusFixture extends VariantFixture {
-
     val twoSkuVariantPayload: Seq[VariantPayload] = Seq(
         makeVariantPayload("Size",
                            Seq(redValuePayload.copy(skuCodes = Seq(skuRedLargeCode)),

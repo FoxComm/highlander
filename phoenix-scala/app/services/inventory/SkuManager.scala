@@ -5,8 +5,9 @@ import java.time.Instant
 import com.github.tminglei.slickpg.LTree
 import cats.data._
 import failures.ProductFailures._
-import failures.{Failures, GeneralFailure, NotFoundFailure400}
+import failures.{Failures, GeneralFailure, NotFoundFailure400, ProductFailures}
 import models.account._
+import models.cord.lineitems.CartLineItems
 import models.inventory._
 import models.objects._
 import payloads.ImagePayloads.AlbumPayload
@@ -20,7 +21,7 @@ import services.image.ImageManager
 import services.image.ImageManager.FullAlbumWithImages
 import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
-import utils.JsonFormatters
+import utils.{IlluminateAlgorithm, JsonFormatters}
 import utils.aliases._
 import utils.db._
 
@@ -120,6 +121,7 @@ object SkuManager {
     val code           = getSkuCode(payload.attributes).getOrElse(sku.code)
 
     for {
+      _         ← * <~ validateSkuActivityPeriod(sku.formId, payload.attributes, contextId = sku.contextId)
       oldForm   ← * <~ ObjectForms.mustFindById404(sku.formId)
       oldShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
 
@@ -131,7 +133,10 @@ object SkuManager {
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 
-  def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC, db: DB, oc: OC, au: AU) =
+  def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC,
+                                              db: DB,
+                                              oc: OC,
+                                              au: AU): DbResultT[FullObject[Sku]] =
     for {
       code ← * <~ mustGetSkuCode(skuPayload)
       sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.dbresult.flatMap {
@@ -139,6 +144,18 @@ object SkuManager {
              case None      ⇒ SkuManager.createSkuInner(oc, skuPayload)
            }
     } yield sku
+
+  def validateSkuActivityPeriod(skuId: Int, attributes: Map[String, Json], contextId: Int)(
+      implicit ec: EC,
+      db: DB): DbResultT[Unit] = {
+
+    val changesToInactive = !IlluminateAlgorithm.isActive(attributes)
+
+    doOrMeh(changesToInactive, for {
+      cartLineItemsExists ← * <~ CartLineItems.filterBySkuId(skuId, contextId).exists.result
+      _                   ← * <~ failIf(cartLineItemsExists, ProductFailures.CannotSetInactiveWhileSkuInCart(skuId))
+    } yield {})
+  }
 
   private def updateHead(sku: Sku,
                          code: String,
