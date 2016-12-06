@@ -14,6 +14,7 @@ final case class MainConfig(activityTopic: String,
                             kafkaGroupId: String,
                             indexTopics: MainConfig.IndexTopicMap,
                             scopedIndexTopics: MainConfig.IndexTopicMap,
+                            objectSchemasTopic: String,
                             phoenixPass: String,
                             phoenixUri: String,
                             phoenixUser: String,
@@ -55,7 +56,8 @@ object MainConfig {
         phoenixOrg = conf.getString(s"$env.activity.phoenix.org"),
         maxConnections = conf.getInt(s"$env.max.connections"),
         startFromBeginning = conf.getBoolean(s"$env.consume.restart"),
-        doSetup = conf.getBoolean(s"$env.elastic.setup")
+        doSetup = conf.getBoolean(s"$env.elastic.setup"),
+        objectSchemasTopic = conf.getString("kafka.objectSchemasTopic")
     )
   }
 

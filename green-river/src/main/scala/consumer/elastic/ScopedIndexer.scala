@@ -1,20 +1,15 @@
 package consumer.elastic
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
-import consumer.JsonProcessor
-import consumer.PassthroughSource
-import consumer.elastic.mappings._
-import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
+import consumer.aliases.SRClient
+import consumer.{JsonProcessor, PassthroughSource}
 import org.elasticsearch.common.settings.Settings
-import org.elasticsearch.client.transport.NoNodeAvailableException
-import org.elasticsearch.transport.RemoteTransportException
-import org.json4s.JsonAST.JInt
-import org.json4s.JsonAST.JString
-import org.json4s.jackson.JsonMethods.parse
+import org.json4s.JsonAST._
+import org.json4s.jackson.JsonMethods.compact
 
 /**
   * This is a JsonProcessor which processes json and indexs it into elastic search.
@@ -28,7 +23,8 @@ class ScopedIndexer(uri: String,
                     cluster: String,
                     indexName: String,
                     topics: Seq[String],
-                    jsonTransformers: Map[String, JsonTransformer])(implicit ec: ExecutionContext)
+                    jsonTransformers: Map[String, JsonTransformer])(
+    implicit ec: ExecutionContext, schemaRegistry: SRClient)
     extends JsonProcessor {
 
   val settings = Settings.settingsBuilder().put("cluster.name", cluster).build()
@@ -57,7 +53,9 @@ class ScopedIndexer(uri: String,
   //3.  admin_1
   //
   private def save(document: String, topic: String): Future[Unit] = {
-    val json = parse(document)
+    val json        = ObjectAttributesTransformer.enrichDocument(document, topic)
+    val newDocument = compact(json)
+
     json \ "id" match {
       case JInt(jid) ⇒
         json \ "scope" match {
@@ -67,15 +65,15 @@ class ScopedIndexer(uri: String,
                 .sequence((1 to path.length).map { idx ⇒
                   val partialScope    = path.slice(0, idx).mkString(".")
                   val scopedIndexName = s"${indexName}_${partialScope}"
-                  save(scopedIndexName, jid, document, topic)
+                  save(scopedIndexName, jid, newDocument, topic)
                 })
                 .map(_ ⇒ ())
             }
           //if no scope found, just save the good old way
-          case _ ⇒ save(indexName, jid, document, topic)
+          case _ ⇒ save(indexName, jid, newDocument, topic)
         }
       case _ ⇒
-        Console.out.println(s"Skipping unidentified document from topic $topic...\r\n$document")
+        Console.out.println(s"Skipping unidentified document from topic $topic...\r\n$newDocument")
         Future { () }
     }
   }

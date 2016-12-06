@@ -10,6 +10,7 @@ import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.stream.ActorMaterializer
 
 import consumer.elastic.ElasticSearchProcessor
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 
 /**
   * Program which consumes several bottledwater topics and indexes them in Elastic Search
@@ -78,6 +79,8 @@ object Main {
       .withMaxOpenRequests(conf.maxConnections)
       .withMaxRetries(1)
 
+    implicit val schemaRegistry = new CachedSchemaRegistryClient(conf.avroSchemaRegistryUrl, 100)
+
     conf.indexTopics.foreach {
       case (index, topics) ⇒
         val esProcessor =
@@ -108,6 +111,8 @@ object Main {
       .withMaxOpenRequests(conf.maxConnections)
       .withMaxRetries(1)
 
+    implicit val schemaRegistry = new CachedSchemaRegistryClient(conf.avroSchemaRegistryUrl, 100)
+
     Console.out.println(s"Running Green River...")
     Console.out.println(s"ES: ${conf.elasticSearchUrl}")
     Console.out.println(s"Kafka: ${conf.kafkaBroker}")
@@ -118,6 +123,7 @@ object Main {
     val activityWork            = Workers.activityWorker(conf, connectionInfo)
     val searchViewWorkers       = Workers.searchViewWorkers(conf, connectionInfo)
     val scopedSearchViewWorkers = Workers.scopedSearchViewWorkers(conf, connectionInfo)
+    val objectSchemasWorker     = Workers.objectSchemasWorker(conf, connectionInfo)
 
     activityWork.onFailure {
       case t ⇒
@@ -137,10 +143,17 @@ object Main {
         System.exit(1)
     }
 
+    objectSchemasWorker.onFailure {
+      case t ⇒
+        Console.err.println(s"Error consuming objectSchemas ${t.getMessage}")
+        System.exit(1)
+    }
+
     // These threads will actually never be ready.
     // This is a hedonist bot.
     Await.ready(activityWork, Duration.Inf)
     Await.ready(searchViewWorkers, Duration.Inf)
     Await.ready(scopedSearchViewWorkers, Duration.Inf)
+    Await.ready(objectSchemasWorker, Duration.Inf)
   }
 }

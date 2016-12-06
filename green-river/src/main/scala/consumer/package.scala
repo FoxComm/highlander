@@ -8,16 +8,20 @@ import com.sksamuel.elastic4s.source.DocumentSource
 import scala.concurrent.Future
 import scalacache.ScalaCache
 import scalacache.serialization.InMemoryRepr
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
+import org.json4s.JValue
 
 /**
   * Aliases
   */
 object aliases {
-  type AM = Materializer
-  type AS = ActorSystem
-  type CP = ConnectionPoolSettings
-  type EC = scala.concurrent.ExecutionContext
-  type SC = ScalaCache[InMemoryRepr]
+  type AM       = Materializer
+  type AS       = ActorSystem
+  type CP       = ConnectionPoolSettings
+  type EC       = scala.concurrent.ExecutionContext
+  type SC       = ScalaCache[InMemoryRepr]
+  type Json     = JValue
+  type SRClient = CachedSchemaRegistryClient
 }
 
 /**

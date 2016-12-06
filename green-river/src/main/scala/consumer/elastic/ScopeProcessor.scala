@@ -1,17 +1,14 @@
 package consumer.elastic
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 import scala.collection.mutable.Buffer
-import scala.util.control.NonFatal
+import scala.concurrent.Future
 
-import consumer.{AvroJsonHelper, JsonProcessor}
-import consumer.PassthroughSource
-import consumer.MainConfig.IndexTopicMap
-import consumer.elastic.mappings._
-import consumer.aliases._
-import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
+import consumer.MainConfig.IndexTopicMap
+import consumer.aliases._
+import consumer.elastic.mappings._
+import consumer.{AvroJsonHelper, JsonProcessor}
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.client.transport.NoNodeAvailableException
 import org.elasticsearch.indices.IndexAlreadyExistsException
