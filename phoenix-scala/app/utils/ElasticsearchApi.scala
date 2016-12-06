@@ -7,11 +7,9 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri, IndexAndType, RichSearchResponse}
 import com.typesafe.config.Config
 import org.elasticsearch.common.settings.Settings
-import models.account.User
 import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter
 import org.elasticsearch.search.aggregations.bucket.terms.{StringTerms, Terms}
 import org.json4s.jackson.JsonMethods.{compact, parse, render}
-import services.Authenticator.AuthData
 import utils.ElasticsearchApi._
 import utils.aliases._
 
@@ -22,13 +20,8 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
   val settings        = Settings.settingsBuilder().put("cluster.name", cluster).build()
   val client          = ElasticClient.transport(settings, ElasticsearchClientUri(host))
 
-  private def getIndexAndType(searchView: SearchViewReference)(
-      implicit auth: AuthData[User]): IndexAndType = {
-    val resultIndex = if (searchView.scoped) {
-      s"${index}_${auth.token.scope}"
-    } else {
-      index
-    }
+  private def getIndexAndType(searchView: SearchViewReference)(implicit au: AU): IndexAndType = {
+    val resultIndex = if (searchView.scoped) s"${index}_${au.token.scope}" else index
     IndexAndType(resultIndex, searchView.typeName)
   }
 
@@ -38,7 +31,7 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
   def checkMetrics(searchView: SearchViewReference,
                    query: Json,
                    fieldName: String,
-                   references: Seq[String])(implicit auth: AuthData[User]): Future[Long] = {
+                   references: Seq[String])(implicit au: AU): Future[Long] = {
 
     // Extract metrics data from aggregatino results
     def getDocCount(resp: RichSearchResponse): Long =
@@ -64,7 +57,7 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
   def checkBuckets(searchView: SearchViewReference,
                    query: Json,
                    fieldName: String,
-                   references: Seq[String])(implicit auth: AuthData[User]): Future[Buckets] = {
+                   references: Seq[String])(implicit au: AU): Future[Buckets] = {
 
     def toBucket(bucket: Terms.Bucket): TheBucket =
       TheBucket(key = bucket.getKeyAsString, docCount = bucket.getDocCount)

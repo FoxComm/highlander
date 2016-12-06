@@ -3,10 +3,8 @@ package models.discount
 import scala.concurrent.Future
 
 import cats.data.Xor
-import models.account.User
 import models.discount.SearchReference._
 import models.sharedsearch.SharedSearches
-import services.Authenticator.AuthData
 import services.Result
 import utils.ElasticsearchApi.{Buckets, SearchViewReference}
 import utils.aliases._
@@ -19,7 +17,7 @@ sealed trait SearchReference[K, T] {
   val fieldName: String
 
   def references(input: DiscountInput): Seq[K]
-  def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, auth: AuthData[User]): Result[T]
+  def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): Result[T]
 }
 
 case class CustomerSearch(customerSearchId: Int) extends SearchReference[Int, Long] {
@@ -28,10 +26,7 @@ case class CustomerSearch(customerSearchId: Int) extends SearchReference[Int, Lo
 
   def references(input: DiscountInput): Seq[Int] = Seq(input.cart.accountId)
 
-  def query(input: DiscountInput)(implicit db: DB,
-                                  ec: EC,
-                                  es: ES,
-                                  auth: AuthData[User]): Result[Long] = {
+  def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): Result[Long] = {
     SharedSearches.findOneById(customerSearchId).run().flatMap {
       case Some(search) ⇒
         es.checkMetrics(searchView, search.rawQuery, fieldName, references(input).map(_.toString))
@@ -49,10 +44,7 @@ case class ProductSearch(productSearchId: Int) extends SearchReference[Int, Buck
   def references(input: DiscountInput): Seq[Int] =
     input.lineItems.map(_.productForm.id)
 
-  def query(input: DiscountInput)(implicit db: DB,
-                                  ec: EC,
-                                  es: ES,
-                                  auth: AuthData[User]): Result[Buckets] = {
+  def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): Result[Buckets] = {
     SharedSearches.findOneById(productSearchId).run().flatMap {
       case Some(search) ⇒
         es.checkBuckets(searchView, search.rawQuery, fieldName, references(input).map(_.toString))
@@ -69,10 +61,7 @@ case class SkuSearch(skuSearchId: Int) extends SearchReference[String, Buckets] 
 
   def references(input: DiscountInput): Seq[String] = input.lineItems.map(_.sku.code)
 
-  def query(input: DiscountInput)(implicit db: DB,
-                                  ec: EC,
-                                  es: ES,
-                                  auth: AuthData[User]): Result[Buckets] = {
+  def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): Result[Buckets] = {
     SharedSearches.findOneById(skuSearchId).run().flatMap {
       case Some(search) ⇒
         es.checkBuckets(searchView, search.rawQuery, fieldName, references(input))

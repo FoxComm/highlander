@@ -2,13 +2,12 @@ package services.carts
 
 import cats.implicits._
 import failures.CartFailures.NoShipMethod
+import models.account.User
 import models.cord._
 import models.shipping.{Shipments, ShippingMethods}
-import models.account.User
 import payloads.UpdateShippingMethod
 import responses.TheResponse
 import responses.cord.CartResponse
-import services.Authenticator.AuthData
 import services.{CartValidator, LogActivity, ShippingManager}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -24,7 +23,7 @@ object CartShippingMethodUpdater {
       db: DB,
       ac: AC,
       ctx: OC,
-      auth: AuthData[User]): DbResultT[TheResponse[CartResponse]] =
+      au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
       cart           ← * <~ getCartByOriginator(originator, refNum)
       oldShipMethod  ← * <~ ShippingMethods.forCordRef(cart.refNum).one
@@ -58,7 +57,7 @@ object CartShippingMethodUpdater {
       db: DB,
       ac: AC,
       ctx: OC,
-      auth: AuthData[User]): DbResultT[TheResponse[CartResponse]] =
+      au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
       cart ← * <~ getCartByOriginator(originator, refNum)
       shipMethod ← * <~ ShippingMethods
