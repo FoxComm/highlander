@@ -35,6 +35,7 @@
   font-weight: 600;
 
   &:after {
+    height: 2px;
     width: 48px;
   }
 }
