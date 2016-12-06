@@ -32,3 +32,4 @@ import:
   - package: github.com/golang/snappy
   - package: github.com/Shopify/sarama
   - package: github.com/cihub/seelog
+  - package: github.com/SermoDigital/jose

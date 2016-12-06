@@ -10,12 +10,12 @@ type notFound struct {
 	err error
 }
 
-func (f notFound) Status() int {
+func (failure notFound) Status() int {
 	return http.StatusNotFound
 }
 
-func (f notFound) ToJSON() responses.Error {
-	return toJSON(f.err)
+func (failure notFound) ToJSON() responses.Error {
+	return toJSON(failure.err)
 }
 
 func NewNotFound(err error) notFound {

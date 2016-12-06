@@ -110,6 +110,7 @@ func (o OrderHandler) handlerInner(fullOrder *shared.FullOrder) error {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("JWT", o.client.GetJwt())
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

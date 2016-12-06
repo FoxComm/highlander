@@ -10,7 +10,7 @@ final case class PromotionsSearchView()(implicit ec: EC) extends AvroTransformer
   def mapping() = esMapping("promotions_search_view").fields(
       field("id", IntegerType),
       field("context", StringType).index("not_analyzed"),
-      field("scope", StringType).index("not_analyzed"),
+      field("scope", StringType),
       field("applyType", StringType).index("not_analyzed"),
       field("promotionName", StringType).analyzer("autocomplete"),
       field("storefrontName", StringType).analyzer("autocomplete"),

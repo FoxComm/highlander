@@ -58,10 +58,11 @@ object ProductManager {
     val albumPayloads   = payload.albums.getOrElse(Seq.empty)
 
     for {
-      _   ← * <~ validateCreate(payload)
-      ins ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
+      scope ← * <~ Scope.resolveOverride(payload.scope)
+      _     ← * <~ validateCreate(payload)
+      ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       product ← * <~ Products.create(
-                   Product(scope = LTree(au.token.scope),
+                   Product(scope = scope,
                            contextId = oc.id,
                            formId = ins.form.id,
                            shadowId = ins.shadow.id,

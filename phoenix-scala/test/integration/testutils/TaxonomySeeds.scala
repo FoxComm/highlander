@@ -1,7 +1,7 @@
 package testutils
 
 import com.github.tminglei.slickpg.LTree
-import models.account.User
+import models.account.{Scope, User}
 import models.objects.{ObjectForm, ObjectShadow, ObjectUtils}
 import models.taxonomy._
 import org.json4s.JsonDSL._
@@ -18,7 +18,7 @@ trait TaxonomySeeds extends TestFixtureBase {
   }
 
   trait Taxonomy_Raw {
-    def au: AuthData[User]
+    implicit def au: AuthData[User]
     val taxonomyAttributes: Map[String, Json] = Map("name" → (("t" → "string") ~ ("v" → "taxon")),
                                                     "test" → (("t" → "string") ~ ("v" → "taxon")))
     def taxonomyHierarchical = false
@@ -31,7 +31,7 @@ trait TaxonomySeeds extends TestFixtureBase {
         ins ← * <~ ObjectUtils.insert(form, shadow)
         taxonomy ← * <~ Taxonomies.create(
                       Taxonomy(id = 0,
-                               scope = LTree(au.token.scope),
+                               scope = Scope.current,
                                hierarchical = taxonomyHierarchical,
                                ctx.id,
                                ins.form.id,
@@ -44,7 +44,7 @@ trait TaxonomySeeds extends TestFixtureBase {
   }
 
   trait TaxonSeedBase {
-    def au: AuthData[User]
+    implicit def au: AuthData[User]
 
     def createTaxon(attributes: Map[String, Json]) = {
       val form   = ObjectForm.fromPayload(Taxon.kind, attributes)
@@ -53,12 +53,7 @@ trait TaxonomySeeds extends TestFixtureBase {
       (for {
         ins ← * <~ ObjectUtils.insert(form, shadow)
         term ← * <~ Taxons.create(
-                  Taxon(0,
-                        scope = LTree(au.token.scope),
-                        ctx.id,
-                        ins.shadow.id,
-                        ins.form.id,
-                        ins.commit.id))
+                  Taxon(0, Scope.current, ctx.id, ins.shadow.id, ins.form.id, ins.commit.id))
       } yield term).gimme
     }
 

@@ -20,6 +20,7 @@ type PhoenixClient interface {
 	CreateGiftCards(giftCards []payloads.CreateGiftCardPayload) (*http.Response, error)
 	GetOrder(refNum string) (*payloads.OrderResult, error)
 	GetOrderForShipstation(refNum string) (*http.Response, error)
+	GetJwt() string
 }
 
 func NewPhoenixClient(baseURL, email, password string) PhoenixClient {
@@ -36,6 +37,10 @@ type phoenixClient struct {
 	jwtExpiration int64
 	email         string
 	password      string
+}
+
+func (c *phoenixClient) GetJwt() string {
+    return c.jwt
 }
 
 func (c *phoenixClient) ensureAuthentication() error {

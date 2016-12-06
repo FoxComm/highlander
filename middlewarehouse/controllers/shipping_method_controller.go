@@ -20,6 +20,7 @@ func NewShippingMethodController(service services.IShippingMethodService) IContr
 }
 
 func (controller *shippingMethodController) SetUp(router gin.IRouter) {
+	router.Use(FetchJWT)
 	router.GET("", controller.getShippingMethods())
 	router.GET(":id", controller.getShippingMethodByID())
 	router.POST("", controller.createShippingMethod())
@@ -81,6 +82,10 @@ func (controller *shippingMethodController) createShippingMethod() gin.HandlerFu
 		//try parse payload
 		payload := &payloads.ShippingMethod{}
 		if parse(context, payload) != nil {
+			return
+		}
+
+		if !setScope(context, payload) {
 			return
 		}
 

@@ -12,7 +12,9 @@ import utils.aliases._
 object TaxonomyPayloads {
   type AttributesMap = Map[String, Json]
 
-  case class CreateTaxonomyPayload(attributes: AttributesMap, hierarchical: Boolean)
+  case class CreateTaxonomyPayload(attributes: AttributesMap,
+                                   hierarchical: Boolean,
+                                   scope: Option[String] = None)
 
   case class UpdateTaxonomyPayload(attributes: AttributesMap)
 
@@ -24,7 +26,9 @@ object TaxonomyPayloads {
         .map(_ ⇒ this)
   }
 
-  case class CreateTaxonPayload(name: String, location: Option[TaxonLocation])
+  case class CreateTaxonPayload(name: String,
+                                location: Option[TaxonLocation],
+                                scope: Option[String] = None)
       extends Validation[CreateTaxonPayload] {
     override def validate: ValidatedNel[Failure, CreateTaxonPayload] =
       location.map(_.validate).getOrElse(Validation.ok).map(_ ⇒ this)

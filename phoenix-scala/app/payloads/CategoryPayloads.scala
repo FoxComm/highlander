@@ -14,7 +14,8 @@ object CategoryPayloads {
 
   case class CreateFullCategory(form: CreateCategoryForm,
                                 shadow: CreateCategoryShadow,
-                                schema: Option[String] = None)
+                                schema: Option[String] = None,
+                                scope: Option[String] = None)
 
   case class UpdateFullCategory(form: UpdateCategoryForm, shadow: UpdateCategoryShadow)
 }
