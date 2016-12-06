@@ -73,6 +73,14 @@
   .code {
     height: 36px;
   }
+  .submit {
+    padding-left: 0;
+    padding-right: 0;
+    min-width: 4em;
+  }
+  .fieldset {
+    flex-wrap: nowrap;
+  }
 }
 
 @media (--medium) {
