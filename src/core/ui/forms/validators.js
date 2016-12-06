@@ -13,7 +13,7 @@ export function phoneNumber(value) {
 }
 
 export function email(address) {
-  return /(\w+)\@(\w+)\.[a-zA-Z]/g.test(address)
+  return /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(address)
     ? null
     : 'Invalid email';
 }
