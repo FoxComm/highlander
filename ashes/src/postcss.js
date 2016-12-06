@@ -48,9 +48,8 @@ exports.installHook = function() {
 
   require.extensions['.css'] = function(m, filename) {
     const relativePath = path.relative(process.cwd(), filename);
-    const patchedPath = 'src' + relativePath.substr(3);
 
-    const tokens = map[patchedPath];
+    const tokens = map[relativePath];
     return m._compile(`module.exports = ${JSON.stringify(tokens)}`, filename);
   };
 };

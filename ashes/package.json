@@ -14,10 +14,12 @@
     "test": "make test",
     "start": "node --harmony boot.js",
     "stop": "kill -USR2 $(ps aux | grep '[m]-ashes' | awk '{print $2}')",
-    "build": "./node_modules/.bin/gulp",
-    "dev": "./node_modules/.bin/gulp dev",
-    "flow": "./node_modules/.bin/flow check",
-    "lint": "./node_modules/.bin/gulp lint"
+    "build": "gulp",
+    "dev": "gulp dev",
+    "flow": "flow check",
+    "lint": "gulp lint",
+    "precompile": "babel src -d lib",
+    "watch-precompile": "babel src -d lib -w --skip-initial-build"
   },
   "repository": {
     "type": "git",
