@@ -9,22 +9,22 @@ const cookingData = [
     imgUrl: '/images/about-page/Icon_Deliciously_Convienient.svg',
     title: 'Delicious',
     description:
-      `It begins with inspiration. 
-      Looking to new dishes as well as old favorites, we create unique, 
+      `It begins with inspiration.
+      Looking to new dishes as well as old favorites, we create unique,
       original recipes with you in mind.`,
   },
   {
     imgUrl: '/images/about-page/Icon_Chef_Prepared.svg',
     title: 'Quality',
     description:
-      `We use fresh ingredients to prepare dishes that are flash frozen---ensuring optimal flavor 
+      `We use fresh ingredients to prepare dishes that are flash frozen---ensuring optimal flavor
       and nutrition—and designed to be prepared from frozen in a matter of minutes.`,
   },
   {
     imgUrl: '/images/about-page/Icon_Stress_Free.svg',
     title: 'Time Saving',
     description:
-      `We do all the prep work for you, then deliver your food right to your door. 
+      `We do all the prep work for you, then deliver your food right to your door.
       Spend less time in the kitchen, and more time tending to the rest of your busy life.`,
   },
 ];
