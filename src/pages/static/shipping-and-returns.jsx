@@ -15,7 +15,7 @@ class ShippingAndReturns extends Component {
   render() {
     return (
       <div>
-        <PageTitle title="Shipping & Returns" />
+        <PageTitle title="Shipping and Returns Policies" />
         <PageBody blocks={data} />
       </div>
     );

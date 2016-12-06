@@ -5,7 +5,7 @@
   },
   {
     "type": "paragraph",
-    "content": "Shipping food items so that they arrive to you in perfect condition takes careful preparation.<br />First, your order is placed in a Styrofoam cooler box, and then packed inside a heavy corrugated shipper. We ship our items frozen and packed with dry ice to ensure that your order they will arrive safe and intact."
+    "content": "Shipping food items so that they arrive to you in perfect condition takes careful preparation. Your order is placed in a Styrofoam cooler box and then packed inside a heavy corrugated shipper. We ship our items frozen and packed with dry ice to ensure that they will arrive safely and intact."
   },
   {
     "type": "paragraph",
@@ -21,7 +21,7 @@
   },
   {
     "type": "paragraph",
-    "content": "We strive for 100% customer satisfaction. However, The Perfect Gourmet cannot be held responsible for package delay, resulting in spoilage, when incomplete or incorrect addresses are provided, or if items are delivered when no one is there to receive them within the delivery period. If you find that your shipment is damaged or compromised, please contact us immediately so that we may resolve the problem as quickly as possible."
+    "content": "We strive for 100% customer satisfaction. However, The Perfect Gourmet cannot be held responsible for package delay when incomplete or incorrect addresses are provided, or if items are delivered when no one is there to receive them within the delivery period. If you find that your shipment is damaged or compromised, please contact us immediately so that we may resolve the problem as quickly as possible."
   },
   {
     "type": "paragraph",
@@ -29,19 +29,23 @@
   },
   {
     "type": "paragraph-title",
-    "content": "FedEx 2-Day Ground"
+    "content": "UPS 2-Day Ground - $14.95 flat fee"
   },
   {
     "type": "paragraph",
-    "content": "Only available for the following states:<br />CT, DE, FL, IL, IN, MA, MD, ME, MI, NC, NH, NJ, NY, OH, PA, RI, VA, VT, and WV<br />Available Monday through Wednesday.<br />Cost: $14.95 flat fee"
+    "content": "Only available for the following states:<br />CT, DE, FL, IL, IN, MA, MD, ME, MI, NC, NH, NJ, NY, OH, PA, RI, VA, VT, and WV<br />Available Monday through Wednesday."
   },
   {
     "type": "paragraph-title",
-    "content": "FedEx 2-day Air"
+    "content": "UPS 2-day Air - $30.00 flat fee"
   },
   {
     "type": "paragraph",
-    "content": "2-day air shipping for all other states (we do not ship internationally).<br />Available Monday through Wednesday.<br /> Cost: $30 flat fee"
+    "content": "2-day air shipping for all other states (we do not ship internationally).<br />Available Monday through Wednesday."
+  },
+  {
+    "type": "paragraph",
+    "content": "Please note: We do not ship on weekends or holidays. It may take 5 - 7 days from the day you place your order, to receive your items."
   },
   {
     "type": "title",
@@ -61,7 +65,7 @@
   },
   {
     "type": "paragraph",
-    "content": "Due to the perishable nature of food, we cannot accept returns.  However, if you have a problem with your order, please contact us immediately (within 24 - 72 hours) so that we can make it right."
+    "content": "Due to the perishable nature of food, we cannot accept returns.  However, if you have a problem with your order, please contact us immediately so that we can make it right."
   },
   {
     "type": "paragraph",
@@ -89,18 +93,6 @@
       {
         "type": "phone",
         "content": "(866) 461 - 4183"
-      },
-      {
-        "type": "paragraph-title",
-        "content": "Address"
-      },
-      {
-        "type": "paragraph",
-        "content": "8012 Bellona Ave Suite B"
-      },
-      {
-        "type": "paragraph",
-        "content": "Towson, MD 21204"
       }
     ]
   }
