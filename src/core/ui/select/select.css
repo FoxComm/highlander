@@ -1,0 +1,30 @@
+@import "colors.css";
+@import "media-queries.css";
+
+.select-box {
+  position: relative;
+  border-color: var(--additional-color);
+  border: 1px solid;
+
+  &:hover {
+    border-color: #8D757A;
+  }
+}
+
+.select {
+  background: #fff;
+  height: 46px;
+  width: 100%;
+  font-size: 14px;
+  color: #212121;
+  padding: 0 10px;
+  border-width: 0;
+  -webkit-border-radius: 0;
+}
+
+@media (--small-only) {
+  .select {
+    height: 30px;
+    font-size: 12px;
+  }
+}
