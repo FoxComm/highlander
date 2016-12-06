@@ -39,7 +39,16 @@ export default class AboutPage extends React.Component {
             <div styleName="intro-title">THE PERFECT GOURMET IS PERFECT FOR</div>
             <IntroSLider />
             <div styleName="intro-text">
-              <p>We know that life can be hectic, and time is not always abundant. We want dinner to be an enjoyable end to your busy day, not another reason to stress. The Perfect Gourmet has been delivering delectable frozen entrées and appetizers nationwide since 2006, and ships over 200,000 orders a year. Our goal is to deliver delicious, restaurant quality food to your door, so that you can spend less time preparing and more time enjoying. Whether you’re looking for cocktail party appetizers or a quick and easy dinner, we have a variety of delicious foods to help simplify your busy life, without sacrificing taste and quality. Every dish is prepared with quality ingredients, then flash frozen to lock in flavors and freshness.</p>
+              <p>We know that life can be hectic, and time is not always abundant.
+                We want dinner to be an enjoyable end to your busy day, not another reason to stress.
+                The Perfect Gourmet has been delivering delectable frozen entrées and appetizers nationwide since 2006,
+                and ships over 200,000 orders a year.
+                Our goal is to deliver delicious, restaurant quality food to your door,
+                so that you can spend less time preparing and more time enjoying.
+                Whether you’re looking for cocktail party appetizers or a quick and easy dinner,
+                we have a variety of delicious foods to help simplify your busy life,
+                without sacrificing taste and quality. Every dish is prepared with quality ingredients,
+                then flash frozen to lock in flavors and freshness.</p>
               <p>Let us show you why frozen is the new fresh.</p>
             </div>
 
