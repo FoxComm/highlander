@@ -7,7 +7,7 @@ import React from 'react';
 // components
 import Currency from 'ui/currency';
 import AddToCartBtn from 'ui/add-to-cart-btn';
-import Autocomplete from 'ui/autocomplete';
+import Select from 'ui/select/select';
 import Icon from 'ui/icon';
 
 // styles
@@ -41,7 +41,7 @@ const ProductDetails = (props: Props) => {
 
       <div styleName="cart-actions">
         <div styleName="quantity">
-          <Autocomplete
+          <Select
             inputProps={{
               type: 'number',
             }}

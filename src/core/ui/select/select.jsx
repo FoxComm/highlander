@@ -12,6 +12,7 @@ type Props = {
   selectedItem: any,
   onSelect: Function,
   sortItems: boolean,
+  getItemValue: Function,
 };
 
 class Select extends Component {
@@ -20,7 +21,14 @@ class Select extends Component {
 
   static defaultProps = {
     onSelect() {},
+    sortItems: false,
   };
+
+  @autobind
+  values() { return _.map(this.props.items, this.props.getItemValue); }
+
+  @autobind
+  selectedValue() { return this.props.getItemValue(this.props.selectedItem); }
 
   renderItem(item) {
     return (<option styleName="option" value={item}>{item}</option>);
@@ -28,14 +36,16 @@ class Select extends Component {
 
   @autobind
   handleChange(event) {
-    this.props.onSelect(event.target.value);
+    this.props.onSelect(
+      _.find(this.props.items, item => this.props.getItemValue(item) == event.target.value)
+    );
   }
 
   render() {
     return (
       <div styleName="select-box">
-        <select styleName="select" value={this.props.selectedItem} onChange={this.handleChange}>
-          {_.map(this.props.items, this.renderItem)}
+        <select styleName="select" value={this.selectedValue()} onChange={this.handleChange}>
+          {_.map(this.values(), this.renderItem)}
         </select>
       </div>
     );
