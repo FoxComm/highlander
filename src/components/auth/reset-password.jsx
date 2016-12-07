@@ -80,7 +80,7 @@ export default class ResetPassword extends Component {
       });
     }).catch(() => {
       return this.setState({
-        error: this.props.t('Passwords does not match or security code is invalid.'),
+        error: this.props.t('Passwords do not match or security code is invalid.'),
       });
     });
   }
@@ -100,7 +100,7 @@ export default class ResetPassword extends Component {
     if (isReseted) {
       return (
         <div styleName="top-message-success">
-          {t('Woohoo! Your password was successfully reset.')}
+          {t('Your password was successfully reset.')}
         </div>
       );
     }
