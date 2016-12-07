@@ -59,8 +59,11 @@
   height: 50px;
   width: 100%;
   font-weight: 400;
-  color:  var(--input-text-color);
-  background: #F4F4F4;
+  color:  var(--dark-blackish);
+  background: var(--whitish);
+  border-color: var(--additional-color);
+  -webkit-appearance: none;
+  -webkit-border-radius: 0;
 
   &:focus, &:hover {
     border-color: var(--input-text-color);
@@ -80,8 +83,11 @@
     height: 50px;
     width: 100%;
     font-weight: 400;
-    color:  var(--input-text-color);
-    background: #F4F4F4;
+    color:  var(--dark-blackish);
+    background: var(--whitish);
+    border-color: var(--additional-color);
+    -webkit-appearance: none;
+    -webkit-border-radius: 0;
 
     &:focus, &:hover {
       border-color: var(--input-text-color);
@@ -104,7 +110,7 @@
   font-size: 15px;
   line-height: 18px;
   font-weight: 300;
-  color: #212121;
+  color: var(--dark-blackish);
   text-align: center;
 }
 
@@ -129,7 +135,7 @@
 .restore-link {
   font-weight: 400;
   font-size: 14px;
-  color: #212121;
+  color: var(--dark-blackish);
   opacity: 0.38;
   text-decoration: none;
 
@@ -140,7 +146,7 @@
 
 .link {
   color: #8D757A;
-  text-decoration: none;
+  text-decoration: underline;
   font-weight: 500;
 
   &:hover {

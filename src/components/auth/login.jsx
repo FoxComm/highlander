@@ -112,7 +112,7 @@ class Login extends Component {
   get title() {
     const { t, title } = this.props;
     return title !== null
-      ? <div styleName="title">{title || t('SIGN IN')}</div>
+      ? <div styleName="title">{title || t('LOG IN')}</div>
       : null;
   }
 
@@ -154,7 +154,7 @@ class Login extends Component {
             styleName="primary-button"
             isLoading={this.props.isLoading}
           >
-            {t('SIGN IN')}
+            {t('LOG IN')}
           </Button>
         </Form>
         <div styleName="switch-stage">
