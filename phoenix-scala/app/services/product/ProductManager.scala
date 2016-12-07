@@ -36,7 +36,7 @@ import utils.aliases._
 import utils.db._
 import org.json4s._
 import org.json4s.JsonDSL._
-import services.LogActivity
+import services.{LineItemUpdater, LogActivity}
 import services.taxonomy.TaxonomyManager
 import services.image.ImageManager.FullAlbumWithImages
 
@@ -167,7 +167,10 @@ object ProductManager {
   def archiveByContextAndId(productId: ProductReference)(
       implicit ec: EC,
       db: DB,
-      oc: OC): DbResultT[ProductResponse.Root] = {
+      oc: OC,
+      es: ES,
+      au: AU,
+      ac: AC): DbResultT[ProductResponse.Root] = {
     val payload = Map("activeFrom" → (("v" → JNull) ~ ("type" → JString("datetime"))),
                       "activeTo" → (("v" → JNull) ~ ("type" → JString("datetime"))))
 
@@ -176,6 +179,7 @@ object ProductManager {
 
     for {
       productObject ← * <~ Products.mustFindFullByReference(productId)
+      _             ← * <~ LineItemUpdater.removeProductFromAllCarts(productObject.model)
       _             ← * <~ productObject.model.mustNotBePresentInCarts
       mergedAttrs = productObject.shadow.attributes.merge(newShadowAttrs)
       inactive ← * <~ ObjectUtils.update(productObject.form.id,

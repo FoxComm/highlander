@@ -78,6 +78,12 @@ object CartTotaler {
       tax  ← * <~ taxesTotal(cart = cart, subTotal = sub, shipping = ship, adjustments = adj)
     } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj, taxes = tax)
 
+  def saveTotalsForAll(cartRefs: Seq[String])(implicit ec: EC): DbResultT[Seq[Cart]] =
+    for {
+      carts   ← * <~ Carts.filter(_.referenceNumber inSet cartRefs).result
+      updated ← * <~ carts.map(saveTotals)
+    } yield updated
+
   def saveTotals(cart: Cart)(implicit ec: EC): DbResultT[Cart] =
     for {
       t ← * <~ totals(cart)

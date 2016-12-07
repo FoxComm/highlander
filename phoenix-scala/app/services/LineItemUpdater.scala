@@ -149,6 +149,34 @@ object LineItemUpdater {
       _     ← * <~ logAct(res, li)
     } yield TheResponse.validated(res, valid)
 
+  def removeProductFromAllCarts(product: models.product.Product)(implicit ec: EC,
+                                                                 es: ES,
+                                                                 db: DB,
+                                                                 au: AU,
+                                                                 ac: AC,
+                                                                 ctx: OC): DbResultT[Seq[String]] =
+    for {
+      skuIds ← * <~ ProductSkuLinks.filterLeft(product).map(_.rightId).result
+      result ← * <~ removeSkusFromAllCarts(skuIds)
+    } yield result
+
+  //TODO: inefficient fast implementation
+  def removeSkusFromAllCarts(skuIds: Seq[Int])(implicit ec: EC,
+                                               es: ES,
+                                               db: DB,
+                                               au: AU,
+                                               ac: AC,
+                                               ctx: OC): DbResultT[Seq[String]] = {
+    for {
+      affectedCarts ← * <~ CartLineItems.filter(_.skuId inSet skuIds).map(_.cordRef).result
+      _             ← * <~ CartLineItems.filter(_.skuId inSet skuIds).deleteAll(DbResultT.unit, DbResultT.unit)
+      _             ← * <~ CartPromotionUpdater.readjustAll(affectedCarts).recover { case _ ⇒ Unit }
+      carts         ← * <~ CartTotaler.saveTotalsForAll(affectedCarts)
+      valid         ← * <~ carts.map(CartValidator(_).validate())
+      _             ← * <~ LogActivity.cartLineItemsRemoved(affectedCarts, skuIds, Some(au.model))
+    } yield affectedCarts
+  }
+
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =
     payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒
       val quantity = acc.getOrElse(item.sku, 0)

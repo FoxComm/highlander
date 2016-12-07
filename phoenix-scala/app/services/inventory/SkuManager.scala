@@ -2,7 +2,6 @@ package services.inventory
 
 import java.time.Instant
 
-import com.github.tminglei.slickpg.LTree
 import cats.data._
 import failures.ProductFailures._
 import failures.{Failures, GeneralFailure, NotFoundFailure400}
@@ -15,10 +14,10 @@ import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
 import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses._
-import services.LogActivity
 import services.image.ImageManager
 import services.image.ImageManager.FullAlbumWithImages
 import services.objects.ObjectManager
+import services.{LineItemManager, LineItemUpdater, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import utils.aliases._
@@ -65,10 +64,17 @@ object SkuManager {
       _ ← * <~ LogActivity.fullSkuUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
-  def archiveByCode(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
+  def archiveByCode(code: String)(implicit ec: EC,
+                                  db: DB,
+                                  oc: OC,
+                                  es: ES,
+                                  au: AU,
+                                  ac: AC): DbResultT[SkuResponse.Root] =
     for {
       fullSku ← * <~ ObjectManager.getFullObject(
                    SkuManager.mustFindSkuByContextAndCode(oc.id, code))
+      _ ← * <~ LineItemManager
+      _ ← * <~ LineItemUpdater.removeSkusFromAllCarts(Seq(fullSku.model.id))
       _ ← * <~ fullSku.model.mustNotBePresentInCarts
       archivedSku ← * <~ Skus.update(fullSku.model,
                                      fullSku.model.copy(archivedAt = Some(Instant.now)))

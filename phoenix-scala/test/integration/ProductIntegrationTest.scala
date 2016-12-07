@@ -21,6 +21,7 @@ import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 import responses.ProductResponses.ProductResponse
 import responses.ProductResponses.ProductResponse.Root
+import responses.TheResponse
 import responses.cord.CartResponse
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -697,16 +698,22 @@ class ProductIntegrationTest
       activeFrom must === (None)
     }
 
-    "Returns error if product is present in carts" in new Fixture {
+    "Removes product if it is present in carts" in new Fixture {
       val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
 
       cartsApi(cart.referenceNumber).lineItems
         .add(Seq(UpdateLineItemsPayload(skuRedSmallCode, 1)))
         .mustBeOk()
 
-      productsApi(product.formId)
-        .archive()
-        .mustFailWith400(ProductIsPresentInCarts(product.formId))
+      productsApi(product.formId).archive().mustBeOk()
+
+      cartsApi(cart.referenceNumber)
+        .get()
+        .as[TheResponse[CartResponse]]
+        .result
+        .lineItems
+        .skus
+        .exists(_.sku == skuRedSmallCode) must === (false)
     }
 
     "SKUs must be unlinked" in new VariantFixture {
