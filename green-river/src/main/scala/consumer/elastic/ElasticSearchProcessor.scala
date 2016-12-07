@@ -66,16 +66,16 @@ class ElasticSearchProcessor(
 
   private def deleteFromIndex(topic: String, id: BigInt): Future[Unit] = {
     Console.out.println(s"Deleting document with ID $id from topic $topic")
-
     val req = client.execute {
       delete id id from indexName / topic
     }
 
     req onFailure {
-      case NonFatal(_) ⇒ Console.err.println(s"Error while deleting: $id")
+      case NonFatal(e) ⇒ Console.err.println(s"Error while deleting: $id")
     }
-
-    req.map { _ ⇒ () }
+    req.map { r ⇒
+      ()
+    }
   }
 
   private val idFields = List("id")
