@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	clientID = "gift-cards-tony"
-	groupID  = "mwh-gift-cards-consumers-tony"
+	clientID = "gift-cards"
+	groupID  = "mwh-gift-cards-consumers"
 )
 
 func main() {
