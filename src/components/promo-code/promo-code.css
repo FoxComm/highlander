@@ -41,6 +41,10 @@
     background: var(--additional-color);
     color: #FFFFFF;
   }
+
+  &:disabled {
+    background: #8D757A;
+  }
 }
 
 .promo-title {
