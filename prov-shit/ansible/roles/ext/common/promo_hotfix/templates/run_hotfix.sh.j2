@@ -1,0 +1,6 @@
+#!/bin/sh
+
+export PHOENIX_URL=http://{{phoenix_server}}
+export DB_CONN_STR="dbname='{{phoenix_db_name}}' user='{{phoenix_db_user}}' host='{{db_host}}'"
+
+python promotion_search_save_fix.py

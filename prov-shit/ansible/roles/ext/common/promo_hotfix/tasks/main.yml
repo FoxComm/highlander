@@ -1,0 +1,22 @@
+---
+
+- name: Create Scripts Directory
+  file: path={{scripts_dir}} state=directory owner="{{user}}"
+
+- name: Copy Authorization Script
+  template: src=get_jwt.sh.j2 dest="{{scripts_dir}}/get_jwt.sh" mode="u=rwx,g=rwx,o=r"
+
+- name: Copy Credentials File
+  template: src=credentials.json.j2 dest="{{scripts_dir}}/credentials.json" mode="u=rwx,g=rwx,o=r"
+
+- name: Copy Hotfix Runner Script
+  template: src=run_hotfix.sh.j2 dest="{{scripts_dir}}/run_hotfix.sh" mode="u=rwx,g=rwx,o=r"
+
+- name: Copy Hotfix Python Script
+  copy: src=promotion_search_save_fix.py dest={{scripts_dir}} mode="u+x,g+x,o+x"
+
+# - name: Run Authorization Script
+#   shell: "{{scripts_dir}}/get_jwt.sh"
+
+# - name: Run Hotfix
+#   shell: "{{scripts_dir}}/run_hotfix.sh"
