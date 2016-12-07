@@ -36,9 +36,6 @@ func main() {
 	consumer.SetClientID(clientID)
 
 	client := lib.NewPhoenixClient(capConf.PhoenixURL, capConf.PhoenixUser, capConf.PhoenixPassword)
-	if err := client.Authenticate(); err != nil {
-		log.Fatalf("Unable to authenticate with Phoenix with error %s", err.Error())
-	}
 
 	oh, err := NewShipmentHandler(config.MiddlewarehouseURL, client)
 	if err != nil {

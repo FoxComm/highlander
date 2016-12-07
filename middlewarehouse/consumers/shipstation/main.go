@@ -17,9 +17,6 @@ func main() {
 	}
 
 	client := lib.NewPhoenixClient(config.PhoenixURL, config.PhoenixUser, config.PhoenixPassword)
-	if err := client.Authenticate(); err != nil {
-		log.Fatalf("Unable to authenticate with Phoenix with error %s", err.Error())
-	}
 
 	consumer, err := metamorphosis.NewConsumer(config.ZookeeperURL, config.SchemaRegistryURL)
 	if err != nil {
