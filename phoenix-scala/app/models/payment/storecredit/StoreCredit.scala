@@ -6,7 +6,7 @@ import cats.data.Validated._
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import com.pellucid.sealerate
-import failures.{Failure, Failures, GeneralFailure}
+import failures.{Failure, Failures, GeneralFailure, StoreCreditFailures}
 import models.account._
 import models.cord.OrderPayment
 import models.payment.PaymentMethod
@@ -202,10 +202,10 @@ class StoreCredits(tag: Tag) extends FoxTable[StoreCredit](tag, "store_credits")
 
 object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCredits(_)) {
 
-  def auth(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)(
+  def auth(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0)(
       implicit ec: EC): DbResultT[StoreCreditAdjustment] =
     debit(storeCredit = storeCredit,
-          orderPaymentId = orderPaymentId,
+          orderPaymentId = orderPaymentId.some,
           amount = amount,
           state = Adj.Auth)
 
@@ -214,7 +214,7 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
       pmt: OrderPayment,
       maxPaymentAmount: Option[Int] = None)(implicit ec: EC): DbResultT[StoreCreditAdjustment] =
     auth(storeCredit = storeCredit,
-         orderPaymentId = pmt.id.some,
+         orderPaymentId = pmt.id,
          amount = pmt.getAmount(maxPaymentAmount))
 
   def captureOrderPayment(
@@ -222,15 +222,21 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
       pmt: OrderPayment,
       maxPaymentAmount: Option[Int] = None)(implicit ec: EC): DbResultT[StoreCreditAdjustment] =
     capture(storeCredit = storeCredit,
-            orderPaymentId = pmt.id.some,
+            orderPaymentId = pmt.id,
             amount = pmt.getAmount(maxPaymentAmount))
 
-  def capture(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)(
+  def capture(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int)(
       implicit ec: EC): DbResultT[StoreCreditAdjustment] =
-    debit(storeCredit = storeCredit,
-          orderPaymentId = orderPaymentId,
-          amount = amount,
-          state = Adj.Capture)
+    for {
+      auth ← * <~ StoreCreditAdjustments
+              .authorizedOrderPayment(orderPaymentId)
+              .mustFindOneOr(StoreCreditFailures.StoreCreditAuthAdjustmentNotFound(orderPaymentId))
+      _ ← * <~ (
+             require(amount <= auth.debit)
+         )
+      cap ← * <~ StoreCreditAdjustments.update(auth,
+                                               auth.copy(debit = amount, state = Adj.Capture))
+    } yield cap
 
   def cancelByCsr(storeCredit: StoreCredit, storeAdmin: User)(
       implicit ec: EC): DbResultT[StoreCreditAdjustment] = {
