@@ -89,6 +89,11 @@
   text-align: center;
   border-width: 2px;
   cursor: pointer;
+  background-color: #3E3436;
+
+  &:disabled {
+     background: #3E3436;
+  }
 }
 
 .cart-content {
