@@ -110,8 +110,8 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
                                                            scPayments,
                                                            order.currency)
       internalCaptureTotal = total - externalCaptureTotal
-      _ ← * <~ externalCapture(externalCaptureTotal, order)
       _ ← * <~ internalCapture(internalCaptureTotal, order, customer, gcPayments, scPayments)
+      _ ← * <~ externalCapture(externalCaptureTotal, order)
 
       resp = CaptureResponse(order = order.refNum,
                              captured = total,

@@ -90,6 +90,9 @@ object StoreCreditAdjustments
   def authorizedOrderPayments(orderPaymentIds: Seq[Int]): QuerySeq =
     filter(adj ⇒ adj.orderPaymentId.inSet(orderPaymentIds) && adj.state === (Auth: State))
 
+  def authorizedOrderPayment(orderPaymentId: Int): QuerySeq =
+    filter(adj ⇒ adj.orderPaymentId === orderPaymentId && adj.state === (Auth: State))
+
   object scope {
 
     implicit class SCAQuerySeqAdditions(query: QuerySeq) {

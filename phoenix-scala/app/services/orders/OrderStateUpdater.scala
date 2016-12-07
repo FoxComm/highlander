@@ -50,7 +50,7 @@ object OrderStateUpdater {
       admin: User,
       refNumbers: Seq[String],
       newState: Order.State,
-      skipActivity: Boolean = false)(implicit ec: EC, ac: AC): DbResultT[BatchMetadata] = {
+      skipActivity: Boolean = false)(implicit ec: EC, ac: AC, db: DB): DbResultT[BatchMetadata] = {
 
     val query = Orders.filter(_.referenceNumber.inSet(refNumbers)).result
     appendForUpdate(query).dbresult.flatMap { orders ⇒
@@ -60,67 +60,65 @@ object OrderStateUpdater {
       val possibleRefNums = validTransitions.map(_.referenceNumber)
       val skipActivityMod = skipActivity || possibleRefNums.isEmpty
 
-      updateQueriesWrapper(admin, possibleRefNums, newState, skipActivityMod).dbresult.flatMap {
-        _ ⇒
-          // Failure handling
-          val invalid = invalidTransitions.map(o ⇒
-                (o.refNum, StateTransitionNotAllowed(o.state, newState, o.refNum).description))
-          val notFound = refNumbers
-            .filterNot(refNum ⇒ orders.map(_.referenceNumber).contains(refNum))
-            .map(refNum ⇒ (refNum, NotFoundFailure400(Order, refNum).description))
+      updateQueriesWrapper(admin, possibleRefNums, newState, skipActivityMod).flatMap { _ ⇒
+        // Failure handling
+        val invalid = invalidTransitions.map(o ⇒
+              (o.refNum, StateTransitionNotAllowed(o.state, newState, o.refNum).description))
+        val notFound = refNumbers
+          .filterNot(refNum ⇒ orders.map(_.referenceNumber).contains(refNum))
+          .map(refNum ⇒ (refNum, NotFoundFailure400(Order, refNum).description))
 
-          val batchFailures = (invalid ++ notFound).toMap
-          DbResultT.good(BatchMetadata(BatchMetadataSource(Order, possibleRefNums, batchFailures)))
+        val batchFailures = (invalid ++ notFound).toMap
+        DbResultT.good(BatchMetadata(BatchMetadataSource(Order, possibleRefNums, batchFailures)))
       }
     }
   }
 
-  private def updateQueriesWrapper(admin: User,
-                                   cordRefs: Seq[String],
-                                   newState: State,
-                                   skipActivity: Boolean = false)(implicit ec: EC, ac: AC) = {
+  private def updateQueriesWrapper(
+      admin: User,
+      cordRefs: Seq[String],
+      newState: State,
+      skipActivity: Boolean = false)(implicit ec: EC, ac: AC, db: DB) = {
 
     if (skipActivity)
       updateQueries(admin, cordRefs, newState)
     else
-      orderBulkStateChanged(newState, cordRefs, admin.some).value >>
-      updateQueries(admin, cordRefs, newState)
+      for {
+        _ ← * <~ orderBulkStateChanged(newState, cordRefs, admin.some).value
+        _ ← * <~ updateQueries(admin, cordRefs, newState)
+      } yield ()
   }
 
-  private def updateQueries(admin: User, cordRefs: Seq[String], newState: State)(implicit ec: EC) =
+  private def updateQueries(admin: User, cordRefs: Seq[String], newState: State)(implicit ec: EC,
+                                                                                 db: DB) =
     newState match {
       case Canceled ⇒
         cancelOrders(cordRefs)
       case _ ⇒
-        Orders.filter(_.referenceNumber.inSet(cordRefs)).map(_.state).update(newState)
+        for {
+          _ ← * <~ Orders.filter(_.referenceNumber.inSet(cordRefs)).map(_.state).update(newState)
+        } yield ()
     }
 
-  private def cancelOrders(cordRefs: Seq[String])(implicit ec: EC) = {
-    val updateLineItems = OrderLineItems
-      .filter(_.cordRef.inSetBind(cordRefs))
-      .map(_.state)
-      .update(OrderLineItem.Canceled)
+  private def cancelOrders(cordRefs: Seq[String])(implicit ec: EC, db: DB) =
+    for {
+      updateLineItems ← * <~ OrderLineItems
+                         .filter(_.cordRef.inSetBind(cordRefs))
+                         .map(_.state)
+                         .update(OrderLineItem.Canceled)
 
-    val cancelPayments = for {
-      orderPayments ← OrderPayments.filter(_.cordRef.inSetBind(cordRefs)).result
-      _             ← cancelGiftCards(orderPayments)
-      _             ← cancelStoreCredits(orderPayments)
-      // TODO: add credit card charge return
+      orderPayments ← * <~ OrderPayments.filter(_.cordRef.inSetBind(cordRefs)).result
+      _             ← * <~ cancelGiftCards(orderPayments)
+      _             ← * <~ cancelStoreCredits(orderPayments)
+      _             ← * <~ Orders.filter(_.referenceNumber.inSetBind(cordRefs)).map(_.state).update(Canceled)
     } yield ()
 
-    val updateOrder =
-      Orders.filter(_.referenceNumber.inSetBind(cordRefs)).map(_.state).update(Canceled)
-
-    // (updateLineItems >> updateOrderPayments >> updateOrder).transactionally
-    (updateLineItems >> updateOrder >> cancelPayments).transactionally
-  }
-
-  private def cancelGiftCards(orderPayments: Seq[OrderPayment]) = {
+  private def cancelGiftCards(orderPayments: Seq[OrderPayment])(implicit ec: EC, db: DB) = {
     val paymentIds = orderPayments.map(_.id)
     GiftCardAdjustments.filter(_.orderPaymentId.inSetBind(paymentIds)).cancel()
   }
 
-  private def cancelStoreCredits(orderPayments: Seq[OrderPayment]) = {
+  private def cancelStoreCredits(orderPayments: Seq[OrderPayment])(implicit ec: EC, db: DB) = {
     val paymentIds = orderPayments.map(_.id)
     StoreCreditAdjustments.filter(_.orderPaymentId.inSetBind(paymentIds)).cancel()
   }

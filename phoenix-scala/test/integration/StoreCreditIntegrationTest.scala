@@ -242,7 +242,7 @@ class StoreCreditIntegrationTest
                                                      paymentMethodId = storeCredit.id,
                                                      paymentMethodType = PaymentMethod.StoreCredit,
                                                      amount = Some(storeCredit.availableBalance)))
-      adjustment ← * <~ StoreCredits.auth(storeCredit, Some(payment.id), 10)
+      adjustment ← * <~ StoreCredits.auth(storeCredit, payment.id, 10)
     } yield (storeCredit, adjustment, scSecond, payment, scSubType)).gimme
   }
 }

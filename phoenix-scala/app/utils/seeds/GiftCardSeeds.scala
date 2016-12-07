@@ -23,8 +23,6 @@ trait GiftCardSeeds {
       _      ← * <~ GiftCardSubtypes.createAll(giftCardSubTypes)
       origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = 1, reasonId = 1))
       gc1    ← * <~ GiftCards.create(giftCard.copy(originId = origin.id))
-      _      ← * <~ GiftCards.capture(gc1, debit = 1000, orderPaymentId = None)
-
       gc2 ← * <~ GiftCards.create(
                build(payload(balance = 10000, reasonId = 1), originId = origin.id))
       _ ← * <~ Notes.createAll(giftCardNotes.map(_.copy(referenceId = gc1.id)))
