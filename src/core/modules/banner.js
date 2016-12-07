@@ -9,7 +9,7 @@ type FormData = {
 export const closeBanner = createAction('CLOSE_BANNER');
 
 const initialState : FormData = {
-  isVisible: true,
+  isVisible: false,
 };
 
 const reducer = createReducer({
