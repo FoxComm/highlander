@@ -15,5 +15,3 @@
     - { role: base/rsyslog, sudo: yes }
     - { role: base/db }
     - { role: base/bottledwater }
-    - { role: base/phoenix }
-    - { role: base/greenriver }

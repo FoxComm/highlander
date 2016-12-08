@@ -1,9 +1,9 @@
 ---
 
-- include_vars: "{{item}}"
-  with_first_found:
-    - aws.yml
-    - stripe.yml
+- include_vars: "{{role_path}}/../secret_keys/files/aws/aws.yml"
+  when: docker_registry_provider == "aws"
+
+- include_vars: stripe.yml
 
 - name: Create Phoenix Directory
   file: path={{phoenix_dir}} state=directory owner="{{user}}"

@@ -40,5 +40,6 @@
     - { role: dev/isaac }
     - { role: dev/solomon }
     - { role: dev/balancer, sudo: yes }
+    - { role: demo/balancer, sudo: yes }
     - { role: dev/consumers }
     - { role: dev/seeder }

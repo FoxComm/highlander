@@ -1,6 +1,8 @@
 ---
 
-- include_vars: aws.yml
+- include_vars: "{{role_path}}/../../base/secret_keys/files/aws/aws.yml"
+  when: docker_registry_path == "aws"
+
 - include_vars: stripe.yml
 
 - name: Creates Marathon JSON directory
