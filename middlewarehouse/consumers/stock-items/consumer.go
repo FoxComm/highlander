@@ -7,13 +7,14 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 	"github.com/FoxComm/metamorphosis"
 )
 
 type Consumer struct {
-	c      metamorphosis.Consumer
-	mwhURL string
-	jwt string
+	c             metamorphosis.Consumer
+	phoenixClient phoenix.PhoenixClient
+	mwhURL        string
 }
 
 const (
@@ -21,7 +22,7 @@ const (
 	groupID  = "mwh-stock-items-consumers"
 )
 
-func NewConsumer(jwt string, zookeeper string, schemaRepo string, mwhURL string) (*Consumer, error) {
+func NewConsumer(phoenixClient phoenix.PhoenixClient, zookeeper string, schemaRepo string, mwhURL string) (*Consumer, error) {
 	consumer, err := metamorphosis.NewConsumer(zookeeper, schemaRepo)
 	if err != nil {
 		return nil, err
@@ -30,7 +31,7 @@ func NewConsumer(jwt string, zookeeper string, schemaRepo string, mwhURL string)
 	consumer.SetGroupID(groupID)
 	consumer.SetClientID(clientID)
 
-	return &Consumer{c: consumer, mwhURL: mwhURL, jwt: jwt}, nil
+	return &Consumer{c: consumer, mwhURL: mwhURL, phoenixClient: phoenixClient}, nil
 }
 
 func (consumer *Consumer) Run(topic string, partition int) {
@@ -57,8 +58,10 @@ func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
 		log.Panicf("Error creating POST request to MWH with error: %s", err.Error())
 	}
 
+	consumer.phoenixClient.EnsureAuthentication()
+
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("JWT", consumer.jwt)
+	req.Header.Set("JWT", consumer.phoenixClient.GetJwt())
 
 	client := &http.Client{}
 	if _, err := client.Do(req); err != nil {

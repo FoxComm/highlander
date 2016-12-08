@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
+	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 )
 
 func main() {
@@ -23,12 +23,9 @@ func main() {
 		log.Fatalf("Unable to initialize consumer with error: %s", err.Error())
 	}
 
-	client := lib.NewPhoenixClient(capConf.PhoenixURL, capConf.PhoenixUser, capConf.PhoenixPassword)
-	if err := client.Authenticate(); err != nil {
-		log.Fatalf("Unable to authenticate with Phoenix with error %s", err.Error())
-	}
+	client := phoenix.NewPhoenixClient(capConf.PhoenixURL, capConf.PhoenixUser, capConf.PhoenixPassword)
 
-	consumer, err := NewConsumer(client.GetJwt(), zookeeper, schemaRepo, middlewarehouseURL)
+	consumer, err := NewConsumer(client, zookeeper, schemaRepo, middlewarehouseURL)
 	if err != nil {
 		log.Panicf("Unable to start consumer with err: %s", err)
 	}

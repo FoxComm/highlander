@@ -3,12 +3,12 @@ package main
 import (
 	"log"
 
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api/payloads"
-	"github.com/FoxComm/metamorphosis"
-	"github.com/FoxComm/highlander/middlewarehouse/shared"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/highlander/middlewarehouse/shared"
+	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
+	"github.com/FoxComm/metamorphosis"
 )
 
 const (
@@ -18,12 +18,12 @@ const (
 )
 
 type OrderConsumer struct {
-	phoenixClient lib.PhoenixClient
+	phoenixClient phoenix.PhoenixClient
 	topic         string
 	client        *api.Client
 }
 
-func NewOrderConsumer(phoenixClient lib.PhoenixClient, topic string, key string, secret string) (*OrderConsumer, error) {
+func NewOrderConsumer(phoenixClient phoenix.PhoenixClient, topic string, key string, secret string) (*OrderConsumer, error) {
 	client, err := api.NewClient(key, secret)
 	if err != nil {
 		return nil, err

@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
+	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 	"github.com/FoxComm/metamorphosis"
 
 	_ "github.com/jpfuentes2/go-env/autoload"
@@ -35,7 +35,7 @@ func main() {
 	consumer.SetGroupID(groupID)
 	consumer.SetClientID(clientID)
 
-	client := lib.NewPhoenixClient(capConf.PhoenixURL, capConf.PhoenixUser, capConf.PhoenixPassword)
+	client := phoenix.NewPhoenixClient(capConf.PhoenixURL, capConf.PhoenixUser, capConf.PhoenixPassword)
 	oh, err := NewShipmentHandler(config.MiddlewarehouseURL, client)
 
 	if err != nil {

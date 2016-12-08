@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
+	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 	"github.com/FoxComm/metamorphosis"
 )
 
@@ -30,7 +30,7 @@ func main() {
 		log.Fatalf("Unable to initialize consumer with error: %s", err.Error())
 	}
 
-	client := lib.NewPhoenixClient(capConf.PhoenixURL, capConf.PhoenixUser, capConf.PhoenixPassword)
+	client := phoenix.NewPhoenixClient(capConf.PhoenixURL, capConf.PhoenixUser, capConf.PhoenixPassword)
 
 	consumer.SetGroupID(groupID)
 	consumer.SetClientID(clientID)
