@@ -24,6 +24,9 @@ import CouponCode from '../promo-code/promo-code';
 // styles
 import styles from './cart.css';
 
+// types
+import type { Totals } from 'modules/cart';
+
 // actions
 import * as actions from 'modules/cart';
 import { saveCouponCode, removeCouponCode } from 'modules/checkout';
@@ -40,7 +43,7 @@ type Props = {
   skus: Array<any>,
   coupon: ?Object,
   promotion: ?Object,
-  totals: Object,
+  totals: Totals,
   user?: ?Object,
   isVisible: boolean,
   t: any,
@@ -136,20 +139,20 @@ class Cart extends Component {
   }
 
   render() {
-    const { props } = this;
-    const { t } = props;
+    const { t, totals, coupon, toggleCart, skus, promotion, isVisible } = this.props;
+
     const cartClass = classNames({
-      'cart-hidden': !props.isVisible,
-      'cart-shown': props.isVisible,
+      'cart-hidden': !isVisible,
+      'cart-shown': isVisible,
     });
 
-    const checkoutDisabled = _.size(props.skus) < 1;
+    const checkoutDisabled = _.size(skus) < 1;
 
     return (
       <div styleName={cartClass}>
-        <div styleName="overlay" onClick={props.toggleCart}></div>
+        <div styleName="overlay" onClick={toggleCart}></div>
         <div styleName="cart-box">
-          <div styleName="cart-header" onClick={props.toggleCart}>
+          <div styleName="cart-header" onClick={toggleCart}>
             <Icon name="fc-chevron-left" styleName="back-icon"/>
             <div styleName="header-text">{t('KEEP SHOPPING')}</div>
           </div>
@@ -161,11 +164,11 @@ class Cart extends Component {
 
             <div styleName="coupon">
               <CouponCode
-                coupon={this.props.coupon}
-                promotion={this.props.promotion}
-                discountValue={this.props.totals.adjustments}
-                saveCode={this.props.saveCouponCode}
-                removeCode={this.props.removeCouponCode}
+                coupon={coupon}
+                promotion={promotion}
+                discountValue={totals.adjustments}
+                saveCode={saveCouponCode}
+                removeCode={removeCouponCode}
                 disabled={checkoutDisabled}
               />
             </div>
@@ -173,7 +176,7 @@ class Cart extends Component {
             <div styleName="cart-subtotal">
               <div styleName="subtotal-title">{t('SUBTOTAL')}</div>
               <div styleName="subtotal-price">
-                <Currency value={props.totals.total} />
+                <Currency value={ totals.subTotal } />
               </div>
             </div>
 
