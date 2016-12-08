@@ -24,6 +24,8 @@
     ashes_server_name: stage.foxcommerce.com
     storefront_server_name: stage.foxcommerce.com
     with_base_seeds: true
+    phoenix_tax_rule_region: 4129
+    phoenix_tax_rule_rate: 7.5
   tags:
     - frontend
   roles:
