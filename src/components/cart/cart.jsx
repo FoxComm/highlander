@@ -139,9 +139,7 @@ class Cart extends Component {
   }
 
   render() {
-    const {
-      t, totals, coupon, toggleCart, skus, promotion, saveCouponCode, removeCouponCode, isVisible
-    } = this.props;
+    const { t, totals, coupon, toggleCart, skus, promotion, isVisible } = this.props;
 
     const cartClass = classNames({
       'cart-hidden': !isVisible,
