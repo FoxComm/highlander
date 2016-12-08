@@ -15,11 +15,11 @@
     mesos_quorum: 1
     vagrant: true
   pre_tasks:
-    - name: Sleep before starting
-      pause: minutes=1
+    - name: Ensure no dpkg lock left
+      wait_for: path=/var/lib/dpkg/lock state=absent timeout=5
 
   roles:
-    - { role: dev/appliance, run_once: true}
+    - { role: dev/appliance, run_once: true }
     - { role: base/secret_keys }
     - { role: dev/consul_agent }
     - { role: base/marketplace, when: with_marketplace }
