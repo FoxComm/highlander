@@ -1,4 +1,4 @@
-package phoenix
+package payloads
 
 type ShippingAddress struct {
 	Address

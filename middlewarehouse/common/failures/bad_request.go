@@ -10,12 +10,12 @@ type badRequest struct {
 	err error
 }
 
-func (f badRequest) Status() int {
+func (failure badRequest) Status() int {
 	return http.StatusBadRequest
 }
 
-func (f badRequest) ToJSON() responses.Error {
-	return toJSON(f.err)
+func (failure badRequest) ToJSON() responses.Error {
+	return toJSON(failure.err)
 }
 
 func NewBadRequest(err error) badRequest {

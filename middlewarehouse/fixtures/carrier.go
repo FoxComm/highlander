@@ -12,14 +12,18 @@ func GetCarrier(id uint) *models.Carrier {
 		ID:               id,
 		Name:             "UPS",
 		TrackingTemplate: "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum=$number",
+		Scope:            "1",
 	}
 }
 
 func ToCarrierPayload(carrier *models.Carrier) *payloads.Carrier {
-	return &payloads.Carrier{
+	payload := &payloads.Carrier{
 		Name:             carrier.Name,
 		TrackingTemplate: carrier.TrackingTemplate,
 	}
+	payload.Scope = carrier.Scope
+
+	return payload
 }
 
 func GetCarrierColumns() []string {

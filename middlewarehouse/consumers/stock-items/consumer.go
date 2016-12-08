@@ -13,6 +13,7 @@ import (
 type Consumer struct {
 	c      metamorphosis.Consumer
 	mwhURL string
+	jwt string
 }
 
 const (
@@ -20,7 +21,7 @@ const (
 	groupID  = "mwh-stock-items-consumers"
 )
 
-func NewConsumer(zookeeper string, schemaRepo string, mwhURL string) (*Consumer, error) {
+func NewConsumer(jwt string, zookeeper string, schemaRepo string, mwhURL string) (*Consumer, error) {
 	consumer, err := metamorphosis.NewConsumer(zookeeper, schemaRepo)
 	if err != nil {
 		return nil, err
@@ -29,7 +30,7 @@ func NewConsumer(zookeeper string, schemaRepo string, mwhURL string) (*Consumer,
 	consumer.SetGroupID(groupID)
 	consumer.SetClientID(clientID)
 
-	return &Consumer{c: consumer, mwhURL: mwhURL}, nil
+	return &Consumer{c: consumer, mwhURL: mwhURL, jwt: jwt}, nil
 }
 
 func (consumer *Consumer) Run(topic string, partition int) {
@@ -57,6 +58,7 @@ func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("JWT", consumer.jwt)
 
 	client := &http.Client{}
 	if _, err := client.Do(req); err != nil {

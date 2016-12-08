@@ -7,6 +7,7 @@ import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures._
 import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures._
+import models.account.Scope
 import models.account.User
 import models.inventory.Skus
 import models.objects._
@@ -57,7 +58,6 @@ class ProductIntegrationTest
 
   "GET v1/products/:context" - {
     "returns assigned taxonomies" in new ProductAndSkus_Baked with FlatTaxons_Baked {
-      override def au: AuthData[User] = storeAdminAuthData
       taxonApi(taxons.head.formId).assignProduct(simpleProduct.formId).mustBeOk()
       val product = productsApi(simpleProduct.formId).get().as[ProductResponse.Root]
       product.taxons.map(_.taxon.id) must contain(taxons.head.formId)
@@ -652,8 +652,8 @@ class ProductIntegrationTest
                                                              (skuGreenSmallCode, "green", "small"),
                                                              (skuGreenLargeCode, "green", "large"))
 
-    val (product, skus, variants) = {
-      val scope = LTree(au.token.scope)
+    val (product, skus, variants) = ({
+      val scope = Scope.current
 
       for {
         // Create the SKUs.
@@ -690,7 +690,7 @@ class ProductIntegrationTest
                     } yield (colorLink, sizeLink)
                 }
       } yield (product, skus, variantsAndValues)
-    }.gimme
+    }).gimme
   }
 
   trait VariantFixture extends Fixture {

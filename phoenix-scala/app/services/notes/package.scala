@@ -24,13 +24,14 @@ package object notes {
                     refId: Int,
                     refType: Note.ReferenceType,
                     author: User,
-                    payload: CreateNote)(implicit ec: EC, ac: AC): DbResultT[Note] =
+                    payload: CreateNote)(implicit ec: EC, ac: AC, au: AU): DbResultT[Note] =
     for {
       note ← * <~ Notes.create(
                 Note(storeAdminId = author.id,
                      referenceId = refId,
                      referenceType = refType,
-                     body = payload.body))
+                     body = payload.body,
+                     scope = Scope.current))
       _ ← * <~ LogActivity.noteCreated(author, entity, note)
     } yield note
 

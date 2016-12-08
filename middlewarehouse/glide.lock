@@ -66,6 +66,8 @@ imports:
   version: 218e9c81c0dd8b3b18172b2bbfad92cc7d6db55f
   subpackages:
   - zk
+- name: github.com/SermoDigital/jose
+  version: b10f12c5188d355a3eacc61aba9abd3eb6b3b787
 - name: github.com/Shopify/sarama
   version: 094e483251042a52ce92f76dbcf140ad2bd7cffb
 - name: github.com/Sirupsen/logrus

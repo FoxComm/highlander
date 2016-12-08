@@ -3,7 +3,7 @@ package payloads
 import (
 	"fmt"
 
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
+	mwhPayloads "github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 )
 
 const awaitingShipmentStatus = "awaiting_shipment"
@@ -43,8 +43,7 @@ type Order struct {
 	TagIDs                   []int `json:"tagIds"`
 }
 
-func NewOrderFromPhoenix(order phoenix.Order) (*Order, error) {
-
+func NewOrderFromActivity(order mwhPayloads.Order) (*Order, error) {
 	shippingAddress, err := NewAddressFromPhoenix(order.ShippingAddress.Name, order.ShippingAddress)
 	if err != nil {
 		return nil, err
@@ -86,7 +85,7 @@ func NewOrderFromPhoenix(order phoenix.Order) (*Order, error) {
 	return &ssOrder, nil
 }
 
-func pickName(order *phoenix.Order, addressName *string) *string {
+func pickName(order *mwhPayloads.Order, addressName *string) *string {
 	var name *string
 	if len(order.Customer.Name) > 0 {
 		name = &(order.Customer.Name)

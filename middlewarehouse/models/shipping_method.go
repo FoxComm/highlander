@@ -19,6 +19,7 @@ type ShippingMethod struct {
 	Code         string
 	ShippingType int
 	Cost         uint
+	Scope     string
 }
 
 func (shippingMethod *ShippingMethod) Identifier() uint {
@@ -31,6 +32,7 @@ func NewShippingMethodFromPayload(payload *payloads.ShippingMethod) (*ShippingMe
 		Name:      payload.Name,
 		Code:      payload.Code,
 		Cost:      payload.Cost,
+		Scope:     payload.Scope,
 	}
 
 	switch payload.ShippingType {

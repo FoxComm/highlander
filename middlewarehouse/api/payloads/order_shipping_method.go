@@ -6,4 +6,5 @@ type OrderShippingMethod struct {
 	Code      string `json:"code" binding:"required"`
 	Price     int    `json:"price"`
 	IsEnabled bool   `json:"isEnabled"`
+	Scopable
 }

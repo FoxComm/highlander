@@ -6,7 +6,8 @@ import (
 
 func GetStockLocation() *models.StockLocation {
 	return &models.StockLocation{
-		Type: "Warehouse",
-		Name: "TEST-LOCATION",
+		Type:  "Warehouse",
+		Name:  "TEST-LOCATION",
+		Scope: "1",
 	}
 }

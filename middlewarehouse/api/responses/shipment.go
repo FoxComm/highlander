@@ -15,6 +15,7 @@ type Shipment struct {
 	ShipmentLineItems []ShipmentLineItem `json:"lineItems"`
 	TrackingNumber    *string            `json:"trackingNumber"`
 	ShippingPrice     int                `json:"shippingPrice"`
+	Scope             string             `json:"scope"`
 }
 
 func NewShipmentFromModel(model *models.Shipment) (*Shipment, error) {
@@ -36,6 +37,7 @@ func NewShipmentFromModel(model *models.Shipment) (*Shipment, error) {
 		ShipmentLineItems: make([]ShipmentLineItem, 0),
 		TrackingNumber:    NewStringFromSqlNullString(model.TrackingNumber),
 		ShippingPrice:     model.ShippingPrice,
+		Scope:             model.Scope,
 	}
 
 	for i := range model.ShipmentLineItems {
