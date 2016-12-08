@@ -80,7 +80,7 @@ begin
             p.id,
             get_skus_for_product(p.id) skus
           from products as p
-         where p.id = any(array[1,2,3])
+         where p.id = any(product_ids)
          group by p.id) as subquery
     where subquery.id = product_sku_links_view.product_id;
     return null;
