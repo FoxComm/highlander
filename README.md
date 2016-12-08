@@ -16,37 +16,6 @@ has a lot to do!
 - Install [Vagrant](https://www.vagrantup.com)
 - Install [Ansible 2.2.x](http://docs.ansible.com/ansible/intro_installation.html#installation)
 
-### Build the Application
-
-The easiest way to get the entire application built is to use the Vagrant Build
-environment. This will launch a VM that contains all the dependencies needed to
-build all services.
-
-**Step 1: Build the VM**
-
-```
-$ vagrant up build
-```
-
-**Step 2: Build the Services**
-
-SSH into the build VM
-
-    $ vagrant ssh build
-
-Navigate to the source directory
-
-    $ cd /vagrant
-
-Start all of the build scripts
-
-    $ make build
-
-Grab a cup of coffee... this will take a while.
-
-When everything is completed, all executables needed to build a development VM
-will have been created. You can exit the VM.
-
 ### Launch a VM
 
 The appliance VM (a single VM containing all services) can be run either on your
