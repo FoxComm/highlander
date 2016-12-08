@@ -109,6 +109,7 @@ end
 
 Vagrant.configure("2") do |config|
   user = ENV['GOOGLE_SSH_USERNAME'] || "vagrant"
+  config.vm.synced_folder '.', '/vagrant', disabled: true
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 

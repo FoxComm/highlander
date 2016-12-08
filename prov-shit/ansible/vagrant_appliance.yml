@@ -14,6 +14,9 @@
     with_base_seeds: true
     mesos_quorum: 1
     vagrant: true
+  pre_tasks:
+    - name: Sleep before starting
+      pause: minutes=1
 
   roles:
     - { role: dev/appliance, run_once: true}
