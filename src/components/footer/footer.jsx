@@ -8,6 +8,7 @@ import styles from './footer.css';
 import Icon from 'ui/icon';
 import { Link } from 'react-router';
 import SubscriptionForm from '../email-subscription/form';
+import Copyright from './copyright';
 
 const Footer = () : HTMLElement => {
   return (
@@ -44,15 +45,7 @@ const Footer = () : HTMLElement => {
           </Link>
         </div>
       </div>
-
-      <div styleName="copyright">
-        <p>&copy; COPYRIGHT 2016. THE PERFECT GOURMET</p>
-        <ul>
-          <li><Link to="terms-of-use">Terms</Link></li>
-          <li><Link to="privacy-policy">Privacy</Link></li>
-        </ul>
-        <p><a href="http://foxcommerce.com/" target="_blank">POWERED BY FOXCOMMERCE</a>.</p>
-      </div>
+      <Copyright />
     </section>
   );
 };
