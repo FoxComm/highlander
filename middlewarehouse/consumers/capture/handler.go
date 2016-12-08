@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
+	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/payloads"
 	"github.com/FoxComm/metamorphosis"
 )
 
@@ -14,10 +15,10 @@ const activityShipmentShipped = "shipment_shipped"
 
 type ShipmentHandler struct {
 	mwhURL string
-	client lib.PhoenixClient
+	client phoenix.PhoenixClient
 }
 
-func NewShipmentHandler(mwhURL string, client lib.PhoenixClient) (*ShipmentHandler, error) {
+func NewShipmentHandler(mwhURL string, client phoenix.PhoenixClient) (*ShipmentHandler, error) {
 	if mwhURL == "" {
 		return nil, errors.New("middlewarehouse URL must be set")
 	}
@@ -38,7 +39,7 @@ func (h ShipmentHandler) Handler(message metamorphosis.AvroMessage) error {
 	if activity.Type() != activityShipmentShipped {
 		return nil
 	}
-	capture, err := lib.NewCapturePayload(activity)
+	capture, err := payloads.NewCapturePayload(activity)
 	if err != nil {
 		return err
 	}

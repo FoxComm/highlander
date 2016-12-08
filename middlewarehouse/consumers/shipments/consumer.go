@@ -9,9 +9,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
+	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 	"github.com/FoxComm/metamorphosis"
 )
 
@@ -22,11 +22,11 @@ const (
 )
 
 type OrderHandler struct {
-	client lib.PhoenixClient
+	client phoenix.PhoenixClient
 	mwhURL string
 }
 
-func NewOrderHandler(client lib.PhoenixClient, mwhURL string) (*OrderHandler, error) {
+func NewOrderHandler(client phoenix.PhoenixClient, mwhURL string) (*OrderHandler, error) {
 	if mwhURL == "" {
 		return nil, errors.New("middlewarehouse URL must be set")
 	}
@@ -110,7 +110,7 @@ func (o OrderHandler) handlerInner(fullOrder *shared.FullOrder) error {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-    req.Header.Set("JWT", o.client.GetJwt())
+	req.Header.Set("JWT", o.client.GetJwt())
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

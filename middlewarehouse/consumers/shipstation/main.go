@@ -4,8 +4,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/utils"
+	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 	"github.com/FoxComm/metamorphosis"
 )
 
@@ -16,7 +16,7 @@ func main() {
 		log.Fatalf("Unable to initialize ShipStation with error: %s", err.Error())
 	}
 
-	client := lib.NewPhoenixClient(config.PhoenixURL, config.PhoenixUser, config.PhoenixPassword)
+	client := phoenix.NewPhoenixClient(config.PhoenixURL, config.PhoenixUser, config.PhoenixPassword)
 
 	consumer, err := metamorphosis.NewConsumer(config.ZookeeperURL, config.SchemaRegistryURL)
 	if err != nil {
