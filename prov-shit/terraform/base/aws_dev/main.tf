@@ -1,51 +1,29 @@
 variable "aws_access_key" {}
-
 variable "aws_secret_key" {}
-
 variable "aws_ssh_user" {}
-
 variable "aws_ssh_private_key" {}
-
 variable "key_name" {}
-
 variable "region" {}
-
 variable "public_subnet_id" {}
-
 variable "private_subnet_id" {}
-
 variable "public_security_groups" {
   type = "list"
 }
-
 variable "private_security_groups" {
   type = "list"
 }
-
 variable "amigo_leader_image" {}
-
 variable "amigo_leader_datacenter" {}
-
 variable "amigo_image" {}
-
 variable "amigo_instance_type" {}
-
 variable "amigo_volume_size" {}
-
 variable "backend_image" {}
-
 variable "backend_instance_type" {}
-
 variable "backend_volume_size" {}
-
 variable "frontend_image" {}
-
 variable "frontend_instance_type" {}
-
 variable "frontend_volume_size" {}
-
 variable "dnsimple_token" {}
-
 variable "dnsimple_email" {}
 
 provider "aws" {
