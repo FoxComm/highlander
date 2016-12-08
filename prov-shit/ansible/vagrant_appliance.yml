@@ -14,9 +14,6 @@
     with_base_seeds: true
     mesos_quorum: 1
     vagrant: true
-  pre_tasks:
-    - name: Ensure no dpkg lock left
-      wait_for: path=/var/lib/dpkg/lock state=absent timeout=5
 
   roles:
     - { role: dev/appliance, run_once: true }
