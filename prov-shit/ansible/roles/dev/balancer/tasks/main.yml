@@ -41,9 +41,6 @@
 - name: Install Service Upstreams
   template: src=services.j2 dest=/etc/nginx/services.template
 
-- name: Enable Service Upstreams
-  file: src=/etc/nginx/sites-available/services dest=/etc/nginx/sites-enabled/services owner=root group=root state=link force=true
-
 - name: Reload Systemd for Nginx 
   command: systemctl daemon-reload
 

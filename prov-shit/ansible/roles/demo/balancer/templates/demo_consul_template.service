@@ -1,0 +1,12 @@
+[Service]
+WorkingDirectory=/usr/local/bin
+ExecStart=/usr/local/bin/consul-template -consul 127.0.0.1:8500 -template "/etc/nginx/demo-services.template:/etc/nginx/sites-enabled/demo-services:systemctl reload nginx"
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=demo_consul_template
+TimeoutStartSec=30
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
