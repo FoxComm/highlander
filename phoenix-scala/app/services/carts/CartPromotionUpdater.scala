@@ -31,7 +31,7 @@ import utils.db._
 object CartPromotionUpdater {
 
   def readjustAll(
-    cartRef: Seq[String])(implicit ec: EC, es: ES, db: DB, ctx: OC): DbResultT[Unit] =
+      cartRef: Seq[String])(implicit ec: EC, es: ES, db: DB, ctx: OC, au: AU): DbResultT[Unit] =
     for {
       carts ← * <~ Carts.filter(_.referenceNumber inSet cartRef).result
       _     ← * <~ carts.map(readjust)

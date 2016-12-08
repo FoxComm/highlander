@@ -171,7 +171,7 @@ object LineItemUpdater {
       affectedCarts ← * <~ CartLineItems.filter(_.skuId inSet skuIds).map(_.cordRef).result
       _             ← * <~ CartLineItems.filter(_.skuId inSet skuIds).deleteAll(DbResultT.unit, DbResultT.unit)
       _             ← * <~ CartPromotionUpdater.readjustAll(affectedCarts).recover { case _ ⇒ Unit }
-      carts         ← * <~ CartTotaler.saveTotalsForAll(affectedCarts)
+      carts         ← * <~ CartTotaler.saveTotalsForCarts(affectedCarts)
       valid         ← * <~ carts.map(CartValidator(_).validate())
       _             ← * <~ LogActivity.cartLineItemsRemoved(affectedCarts, skuIds, Some(au.model))
     } yield affectedCarts

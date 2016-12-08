@@ -1,6 +1,6 @@
 package models.discount
 
-import models.discount.DiscountHelpers.{offer, qualifier}
+import models.discount.DiscountHelpers._
 import models.objects._
 import services.discount.compilers.{OfferAstCompiler, QualifierAstCompiler}
 import utils.IlluminateAlgorithm
@@ -17,7 +17,7 @@ object DiscountValidator {
       failures ← * <~ IlluminateAlgorithm.validateAttributes(fs.form.attributes,
                                                              fs.shadow.attributes)
       _ ← * <~ failIfFailures(failures)
-      _ ← * <~ QualifierAstCompiler(qualifier(fs.form, fs.shadow)).compile()
-      _ ← * <~ OfferAstCompiler(offer(fs.form, fs.shadow)).compile()
+      _ ← * <~ QualifierAstCompiler(fs.qualifier).compile()
+      _ ← * <~ OfferAstCompiler(fs.offer).compile()
     } yield None
 }

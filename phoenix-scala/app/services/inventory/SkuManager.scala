@@ -17,7 +17,7 @@ import responses.SkuResponses._
 import services.image.ImageManager
 import services.image.ImageManager.FullAlbumWithImages
 import services.objects.ObjectManager
-import services.{LineItemManager, LineItemUpdater, LogActivity}
+import services.{LineItemUpdater, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import utils.aliases._
@@ -52,6 +52,7 @@ object SkuManager {
 
   def updateSku(admin: User, code: String, payload: SkuPayload)(
       implicit ec: EC,
+      es: ES,
       db: DB,
       ac: AC,
       oc: OC,
@@ -73,7 +74,6 @@ object SkuManager {
     for {
       fullSku ← * <~ ObjectManager.getFullObject(
                    SkuManager.mustFindSkuByContextAndCode(oc.id, code))
-      _ ← * <~ LineItemManager
       _ ← * <~ LineItemUpdater.removeSkusFromAllCarts(Seq(fullSku.model.id))
       _ ← * <~ fullSku.model.mustNotBePresentInCarts
       archivedSku ← * <~ Skus.update(fullSku.model,
@@ -120,32 +120,30 @@ object SkuManager {
   }
 
   def updateSkuInner(sku: Sku, payload: SkuPayload)(implicit ec: EC,
-                                                    db: DB): DbResultT[FullObject[Sku]] = {
+                                                    au: AU,
+                                                    es: ES,
+                                                    db: DB,
+                                                    ac: AC,
+                                                    oc: OC): DbResultT[FullObject[Sku]] = {
 
-    val newFormAttrs   = ObjectForm.fromPayload(Sku.kind, payload.attributes).attributes
-    val newShadowAttrs = ObjectShadow.fromPayload(payload.attributes).attributes
-    val code           = getSkuCode(payload.attributes).getOrElse(sku.code)
+    val newAttributes = FormAndShadowAttributes.fromPayload(payload.attributes)
+    val code          = getSkuCode(payload.attributes).getOrElse(sku.code)
 
     for {
-      oldForm   ← * <~ ObjectForms.mustFindById404(sku.formId)
-      oldShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-
-      mergedAttrs = oldShadow.attributes.merge(newShadowAttrs)
-      updated ← * <~ ObjectUtils
-                 .update(oldForm.id, oldShadow.id, newFormAttrs, mergedAttrs, force = true)
+      oldSkuFull ← * <~ ObjectManager.getFullObject(DbResultT.good(sku))
+      //remove sku from all carts if sku becomes explicitly inactive
+      _ ← * <~ doOrMeh(oldSkuFull.isActive && !newAttributes.isActive,
+                       LineItemUpdater.removeSkusFromAllCarts(Seq(sku.id)))
+      mergedAttrs = oldSkuFull.shadow.attributes.merge(newAttributes.shadowAttributes)
+      updated ← * <~ ObjectUtils.update(sku.formId,
+                                        sku.shadowId,
+                                        newAttributes.formAttributes,
+                                        mergedAttrs,
+                                        force = true)
       commit      ← * <~ ObjectUtils.commit(updated)
       updatedHead ← * <~ updateHead(sku, code, updated.shadow, commit)
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
-
-  def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC, db: DB, oc: OC, au: AU) =
-    for {
-      code ← * <~ mustGetSkuCode(skuPayload)
-      sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.dbresult.flatMap {
-             case Some(sku) ⇒ SkuManager.updateSkuInner(sku, skuPayload)
-             case None      ⇒ SkuManager.createSkuInner(oc, skuPayload)
-           }
-    } yield sku
 
   private def updateHead(sku: Sku,
                          code: String,

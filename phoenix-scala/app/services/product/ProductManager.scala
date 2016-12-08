@@ -44,6 +44,7 @@ object ProductManager {
 
   def createProduct(admin: User, payload: CreateProductPayload)(
       implicit ec: EC,
+      es: ES,
       db: DB,
       ac: AC,
       oc: OC,
@@ -114,6 +115,7 @@ object ProductManager {
 
   def updateProduct(productId: ProductReference, payload: UpdateProductPayload)(
       implicit ec: EC,
+      es: ES,
       db: DB,
       ac: AC,
       oc: OC,
@@ -126,7 +128,8 @@ object ProductManager {
     for {
       _          ← * <~ validateUpdate(payload)
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
-
+      _ ← * <~ doOrMeh(oldProduct.isActive && !formAndShadow.isActive,
+        LineItemUpdater.removeProductFromAllCarts(oldProduct.model))
       _ ← * <~ skusToBeUnassociatedMustNotBePresentInCarts(oldProduct.model.id, payloadSkus)
 
       mergedAttrs = oldProduct.shadow.attributes.merge(formAndShadow.shadow.attributes)
@@ -338,7 +341,7 @@ object ProductManager {
   private def findOrCreateSkusForProduct(
       product: Product,
       skuPayloads: Seq[SkuPayload],
-      createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC, au: AU) =
+      createLinks: Boolean = true)(implicit ec: EC, es: ES, db: DB, oc: OC, au: AU, ac: AC) =
     skuPayloads.map { payload ⇒
       val albumPayloads = payload.albums.getOrElse(Seq.empty)
 

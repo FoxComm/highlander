@@ -607,6 +607,28 @@ class ProductIntegrationTest
       }
     }
 
+    "Removes product from carts if it becomes inactive" in new Fixture {
+      override def simpleProd = super.simpleProd.copy(active = true)
+
+      val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
+
+      cartsApi(cart.referenceNumber).lineItems
+        .add(Seq(UpdateLineItemsPayload(skuRedSmallCode, 1)))
+        .mustBeOk()
+
+      productsApi(product.formId)
+        .update(UpdateProductPayload(attributes = Map.empty, skus = None, variants = None))
+        .mustBeOk()
+
+      cartsApi(cart.referenceNumber)
+        .get()
+        .as[TheResponse[CartResponse]]
+        .result
+        .lineItems
+        .skus
+        .exists(_.sku == skuRedSmallCode) must === (false)
+    }
+
     "Throws an error" - {
       "if updating adds too many SKUs" in new VariantFixture {
         val upPayload = UpdateProductPayload(
@@ -771,11 +793,12 @@ class ProductIntegrationTest
                                               variants = None,
                                               albums = None)
 
-    val simpleProd = SimpleProductData(title = "Test Product",
-                                       code = "TEST",
-                                       description = "Test product description",
-                                       image = "image.png",
-                                       price = 5999)
+    def simpleProd =
+      SimpleProductData(title = "Test Product",
+                        code = "TEST",
+                        description = "Test product description",
+                        image = "image.png",
+                        price = 5999)
 
     val skuRedSmallCode: String   = "SKU-RED-SMALL"
     val skuRedLargeCode: String   = "SKU-RED-LARGE"
@@ -803,7 +826,7 @@ class ProductIntegrationTest
                                                              (skuGreenSmallCode, "green", "small"),
                                                              (skuGreenLargeCode, "green", "large"))
 
-    val (product, skus, variants) = ({
+    val (product, skus, variants) = {
       val scope = Scope.current
 
       for {
@@ -841,7 +864,7 @@ class ProductIntegrationTest
                     } yield (colorLink, sizeLink)
                 }
       } yield (product, skus, variantsAndValues)
-    }).gimme
+    }.gimme
   }
 
   trait VariantFixture extends Fixture {

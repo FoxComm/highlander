@@ -20,6 +20,7 @@ import payloads.SkuPayloads.SkuPayload
 import responses.SkuResponses.SkuResponse
 import responses.TheResponse
 import responses.cord.CartResponse
+import testutils.PayloadHelpers.tv
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -109,6 +110,29 @@ class SkuIntegrationTest
 
       (skuResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)
     }
+
+    "Removes SKU if it is present in cart and becomes inactive" in new FixtureWithProduct {
+      override def simpleSku = super.simpleSku.copy(active = true)
+
+      val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
+
+      cartsApi(cart.referenceNumber).lineItems
+        .add(Seq(UpdateLineItemsPayload(sku.code, 1)))
+        .mustBeOk()
+
+      skusApi(sku.code)
+        .update(SkuPayload(attributes =
+                  Map("code" → tv(sku.code), "activeTo" → tv(Instant.now().minusMillis(1)))))
+        .mustBeOk()
+
+      cartsApi(cart.referenceNumber)
+        .get()
+        .as[TheResponse[CartResponse]]
+        .result
+        .lineItems
+        .skus
+        .exists(_.sku == sku.code) must === (false)
+    }
   }
 
   "DELETE v1/products/:context/:id" - {
@@ -179,7 +203,7 @@ class SkuIntegrationTest
     }
 
     val (sku, skuForm, skuShadow) = (for {
-      simpleSku       ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
+      simpleSku       ← * <~ simpleSku
       skuForm         ← * <~ ObjectForms.create(simpleSku.create)
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.copy(formId = skuForm.id))
@@ -193,6 +217,10 @@ class SkuIntegrationTest
                    shadowId = skuShadow.id,
                    commitId = skuCommit.id))
     } yield (sku, skuForm, skuShadow)).gimme
+
+    def simpleSku: SimpleSku = {
+      SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
+    }
   }
 
   trait FixtureWithProduct extends Fixture {

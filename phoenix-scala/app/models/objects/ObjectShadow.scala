@@ -25,15 +25,16 @@ case class ObjectShadow(id: Int = 0,
     with Validation[ObjectShadow]
 
 object ObjectShadow {
-  def fromPayload(attributes: Map[String, Json]): ObjectShadow = {
-    val attributesJson = attributes.foldLeft(JNothing: JValue) {
+  def fromPayload(attributes: Map[String, Json]): ObjectShadow =
+    ObjectShadow(attributes = attributesFromPayload(attributes))
+
+  def attributesFromPayload(attributes: Map[String, Json]): Json = {
+    attributes.foldLeft(JNothing: JValue) {
       case (acc, (key, value)) ⇒
         // TODO: Clean this up and make a case class to represent the shadow ref.
         val shadowJson: JValue = key → (("type" → (value \ "t")) ~ ("ref" → key))
         acc.merge(shadowJson)
     }
-
-    ObjectShadow(attributes = attributesJson)
   }
 }
 
