@@ -12,7 +12,7 @@ import Currency from 'ui/currency';
 const LineItem = props => {
   const { t } = props;
   const click = () => {
-    props.deleteLineItem(props.sku);
+    props.deleteLineItem(props.skuId);
   };
   return (
     <div styleName="box">

@@ -83,9 +83,9 @@ export function deleteLineItem(id) {
     const state = getState();
     const lineItems = _.get(state, ['cart', 'skus'], []);
     const newLineItems = _.map(lineItems, (item) => {
-      const quantity = item.sku === id ? 0 : item.quantity;
+      const quantity = item.skuId === id ? 0 : item.quantity;
       return {
-        sku: item.sku,
+        skuId: item.skuId,
         quantity,
       };
     });
