@@ -1,0 +1,54 @@
+---
+
+- name: Get ElasticSearch 5.0
+  get_url: url=https://artifacts.elastic.co/downloads/elasticsearch/{{es_zip}} dest={{home}}/{{es_zip}}
+
+# ^^^ should be merged with block below in https://github.com/FoxComm/highlander/pull/569
+
+- name: Unzip ElasticSearch
+  unarchive: src={{home}}/{{es_zip}} dest={{usr_local}} copy=no
+
+- name: Copy Run Script
+  template: src=run_elasticsearch.sh dest={{usr_local}}/run_elasticsearch_5.sh mode="u=rwx,g=rwx,o=rx"
+
+- name: Copy ElasticSearch service
+  template: src=elasticsearch.service dest={{dest_services}}/elasticsearch_5.service
+
+- name: Setting Up Admin User Group
+  group: name=admin state=present
+
+- name: Setting Up Elasticsearch User
+  user: name=elasticsearch groups=admin
+
+- name: Change permissions on package
+  file: path={{es_path}}/config/{{item}} mode="u=rwx,g=rwx,o=rx" state=file
+  with_items:
+    - jvm.options
+    - log4j2.properties
+
+- name: Create Elasticsearch subdirectories
+  file: path={{es_path}}/{{item}} owner=elasticsearch state=directory mode="u=rwx,g=rwx,o=r"
+  with_items:
+    - data
+    - logs
+    - plugins
+    - config/scripts
+
+- name: Copy Elasticsearch Config
+  template: src=elasticsearch.yml dest={{es_path}}/config owner=elasticsearch mode="u=rwx,g=rwx,o=r"
+
+- name: Set the maximum number of open files
+  lineinfile: dest=/etc/security/limits.conf insertbefore='^# End of file' line='elasticsearch - nofile {{es_max_file_descriptors}}'
+
+# Temp. Only for current version of Vagrant appliance base image
+- name: Increase default VM for ES
+  shell: sysctl -w vm.max_map_count=262144
+
+- name: Reload Systemd for Elastic Search
+  command: systemctl daemon-reload
+
+- name: Setup Service
+  service: name=elasticsearch_5 state=restarted enabled=yes
+
+- name: Copy Consul Service File
+  template: src=elastic.json dest="/etc/consul.d/elastic_5.json"
