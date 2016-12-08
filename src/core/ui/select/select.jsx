@@ -8,6 +8,7 @@ import { autobind } from 'core-decorators';
 /* eslint react/sort-comp: 0 */
 
 type Props = {
+  name: string,
   items: Array<any>,
   selectedItem: any,
   onSelect: Function,
@@ -22,6 +23,7 @@ class Select extends Component {
   static defaultProps = {
     onSelect() {},
     sortItems: false,
+    name: null,
   };
 
   @autobind
@@ -41,10 +43,16 @@ class Select extends Component {
     );
   }
 
+  @autobind
+  getSelectBoxStyle() { return this.props.name ? `#${this.props.name}-select-box` : 'select-box'; }
+
+  @autobind
+  getSelectStyle() { return this.props.name ? `#${this.props.name}-select` : 'select'; }
+
   render() {
     return (
-      <div styleName="select-box">
-        <select styleName="select" value={this.selectedValue()} onChange={this.handleChange}>
+      <div styleName={this.getSelectBoxStyle()}>
+        <select styleName={this.getSelectStyle()} value={this.selectedValue()} onChange={this.handleChange}>
           {_.map(this.values(), this.renderItem)}
         </select>
       </div>

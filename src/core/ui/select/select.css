@@ -11,6 +11,11 @@
   }
 }
 
+.state-select-box {
+  composes: select-box;
+  border-color: #f4f4f4;
+}
+
 .select {
   background: #fff;
   height: 46px;
@@ -22,9 +27,19 @@
   -webkit-border-radius: 0;
 }
 
+.state-select {
+  composes: select;
+  background: #f4f4f4;
+}
+
 @media (--small-only) {
   .select {
     height: 30px;
     font-size: 12px;
+  }
+
+  .state-select {
+    height: 46px;
+    font-size: 14px;
   }
 }
