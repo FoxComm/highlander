@@ -1,7 +1,7 @@
 ---
 
 - include_vars: "{{role_path}}/../../base/secret_keys/files/aws/aws.yml"
-  when: docker_registry_path == "aws"
+  when: docker_registry_provider == "aws"
 
 - include_vars: stripe.yml
 
