@@ -13,7 +13,7 @@ import type { Localized } from 'lib/i18n';
 import InputMask from 'react-input-mask';
 import { TextInput } from '../inputs';
 import { FormField } from 'ui/forms';
-import Autocomplete from 'ui/autocomplete';
+import Select from 'ui/select/select';
 import Checkbox from '../checkbox/checkbox';
 import Loader from '../loader';
 
@@ -248,7 +248,8 @@ export default class EditAddress extends Component {
           <TextInput required name="city" placeholder={t('CITY')} onChange={this.changeFormData} value={data.city}/>
         </FormField>
         <FormField styleName="text-field">
-          <Autocomplete
+          <Select
+            name="state"
             inputProps={{
               placeholder: t('STATE'),
             }}

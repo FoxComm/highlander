@@ -13,7 +13,7 @@ import styles from './gift-card-form.css';
 import { TextInput } from 'ui/inputs';
 import { Form, FormField } from 'ui/forms';
 import AddToCartBtn from 'ui/add-to-cart-btn';
-import Autocomplete from 'ui/autocomplete';
+import Select from 'ui/select/select';
 
 
 type Props = {
@@ -53,7 +53,7 @@ const GiftCardForm = (props: Props) => {
 
       <Form styleName="form" onSubmit={props.addToCart}>
         <div styleName="price-selector">
-          <Autocomplete
+          <Select
             inputProps={{
               type: 'text',
             }}
