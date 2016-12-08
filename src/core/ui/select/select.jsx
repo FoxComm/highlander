@@ -44,10 +44,10 @@ class Select extends Component {
   }
 
   @autobind
-  getSelectBoxStyle() { return this.props.name ? `#${this.props.name}-select-box` : 'select-box'; }
+  getSelectBoxStyle() { return this.props.name ? `${this.props.name}-select-box` : 'select-box'; }
 
   @autobind
-  getSelectStyle() { return this.props.name ? `#${this.props.name}-select` : 'select'; }
+  getSelectStyle() { return this.props.name ? `${this.props.name}-select` : 'select'; }
 
   render() {
     return (
