@@ -1,8 +1,8 @@
 import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
-
 import cats.implicits._
+
 import failures.TaxonomyFailures._
 import models.objects.ObjectForm
 import models.taxonomy.{Taxon ⇒ ModelTaxon, _}
@@ -10,11 +10,13 @@ import org.json4s.JsonDSL._
 import org.json4s._
 import payloads.TaxonomyPayloads._
 import responses.TaxonomyResponses._
-import utils.db.ExPostgresDriver.api._
-import slick.jdbc.GetResult
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
+import utils.aliases._
+import utils.db.ExPostgresDriver.api._
+
+import slick.jdbc.GetResult
 
 class TaxonomyIntegrationTest
     extends IntegrationTestBase
@@ -46,7 +48,8 @@ class TaxonomyIntegrationTest
   "POST v1/taxonomy/:contextName" - {
     "creates taxonomy" in {
       val payload = CreateTaxonomyPayload(Map("name" → (("t" → "string") ~ ("v" → "name"))),
-                                          hierarchical = false)
+                                          hierarchical = false,
+                                          scope = None)
       val taxonResp = taxonomyApi.create(payload).as[TaxonomyResponse]
       queryGetTaxonomy(taxonResp.id) must === (taxonResp)
       taxonResp.attributes must === (JObject(payload.attributes.toList: _*))

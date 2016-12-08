@@ -9,6 +9,7 @@ import consumer.elastic.mappings.dateFormat
 final case class CustomerItemsView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("customer_items_view").fields(
       field("id", IntegerType),
+      field("scope", StringType),
       // Customer
       field("customerId", IntegerType),
       field("customerName", StringType).analyzer("autocomplete"),

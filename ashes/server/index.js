@@ -5,7 +5,6 @@ const favicon = require('koa-favicon');
 const serve = require('koa-better-static');
 const Config  = require(path.resolve('config'));
 
-require('babel-register');
 require('babel-polyfill');
 require('../src/postcss').installHook();
 

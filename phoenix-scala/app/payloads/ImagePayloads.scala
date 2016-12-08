@@ -17,7 +17,8 @@ object ImagePayloads {
                           src: String,
                           baseUrl: Option[String] = None,
                           title: Option[String] = None,
-                          alt: Option[String] = None) {
+                          alt: Option[String] = None,
+                          scope: Option[String] = None) {
 
     def formAndShadow: FormAndShadow = {
       val jsonBuilder: AttributesBuilder = ObjectPayloads.optionalAttributes(
@@ -31,7 +32,8 @@ object ImagePayloads {
     }
   }
 
-  case class AlbumPayload(id: Option[Int] = None,
+  case class AlbumPayload(scope: Option[String] = None,
+                          id: Option[Int] = None,
                           name: Option[String] = None,
                           images: Images = None,
                           position: Option[Int] = None)

@@ -3,9 +3,11 @@ package services
 import scala.util.Random
 import cats.data.Xor
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.GeneralFailure
 import failures.PromotionFailures.PromotionNotFoundForContext
+import models.account._
 import models.cord._
 import models.cord.lineitems.CartLineItems
 import models.cord.lineitems.CartLineItems.scope._
@@ -66,7 +68,8 @@ object Checkout {
                                db: DB,
                                apis: Apis,
                                ac: AC,
-                               ctx: OC): DbResultT[OrderResponse] =
+                               ctx: OC,
+                               au: AU): DbResultT[OrderResponse] =
     for {
       cart  ← * <~ Carts.mustFindByRefNum(refNum)
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
@@ -76,12 +79,14 @@ object Checkout {
                                   db: DB,
                                   apis: Apis,
                                   ac: AC,
-                                  ctx: OC): DbResultT[OrderResponse] =
+                                  ctx: OC,
+                                  au: AU): DbResultT[OrderResponse] =
     for {
       result ← * <~ Carts
                 .findByAccountId(customer.accountId)
                 .one
-                .findOrCreateExtended(Carts.create(Cart(accountId = customer.accountId)))
+                .findOrCreateExtended(Carts.create(
+                        Cart(accountId = customer.accountId, scope = LTree(au.token.scope))))
       (cart, _) = result
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order
@@ -94,7 +99,7 @@ class ExternalCalls {
 
 case class Checkout(
     cart: Cart,
-    cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC) {
+    cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC, au: AU) {
 
   var externalCalls = new ExternalCalls()
 
@@ -108,7 +113,7 @@ case class Checkout(
       _         ← * <~ holdInMiddleWarehouse
       _         ← * <~ authPayments(customer)
       _         ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
-      order     ← * <~ Orders.createFromCart(cart)
+      order     ← * <~ Orders.createFromCart(cart, subScope = None)
       _         ← * <~ fraudScore(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)
       fullOrder ← * <~ OrderResponse.fromOrder(order, grouped = true)

@@ -1,0 +1,16 @@
+---
+
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
+  sudo: true
+
+- name: Copy demo-search Marathon JSON
+  template: src=demo-search.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+  sudo: true
+
+- name: Update demo-search in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/demo-search.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/demo-search'
+
+- name: Restart demo-search in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/demo-search/restart'
+

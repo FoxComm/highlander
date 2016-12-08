@@ -6,10 +6,13 @@ import models.payment.giftcard._
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import services.giftcards.GiftCardService
 import testutils.fixtures.TestFixtureBase
+import utils.aliases._
 
 trait RawPaymentFixtures extends TestFixtureBase {
 
   trait GiftCard_Raw {
+    implicit def au: AU
+
     def giftCardBalance: Int
     def storeAdmin: User
     def reason: Reason

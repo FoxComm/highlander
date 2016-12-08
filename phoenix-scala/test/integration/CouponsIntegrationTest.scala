@@ -237,19 +237,26 @@ class CouponsIntegrationTest
                                                  email = Some("first@example.org"),
                                                  name = Some("first")))
       _ ← * <~ CustomersData.create(
-             CustomerData(userId = firstCustomer.id, accountId = firstAccount.id))
+             CustomerData(userId = firstCustomer.id,
+                          accountId = firstAccount.id,
+                          scope = Scope.current))
       otherAccount ← * <~ Accounts.create(Account())
       otherCustomer ← * <~ Users.create(
                          Factories.customer.copy(accountId = otherAccount.id,
                                                  email = Some("second@example.org"),
                                                  name = Some("second")))
       _ ← * <~ CustomersData.create(
-             CustomerData(userId = otherCustomer.id, accountId = otherAccount.id))
-      cart ← * <~ Carts.create(Factories.cart.copy(accountId = firstCustomer.accountId))
+             CustomerData(userId = otherCustomer.id,
+                          accountId = otherAccount.id,
+                          scope = Scope.current))
+      cart ← * <~ Carts.create(
+                Factories.cart(Scope.current).copy(accountId = firstCustomer.accountId))
       cartForOrder ← * <~ Carts.create(
-                        Factories.cart.copy(referenceNumber = "ORDER-123456",
-                                            accountId = otherCustomer.accountId))
-      order ← * <~ Orders.createFromCart(cartForOrder)
+                        Factories
+                          .cart(Scope.current)
+                          .copy(referenceNumber = "ORDER-123456",
+                                accountId = otherCustomer.accountId))
+      order ← * <~ Orders.createFromCart(cartForOrder, None)
     } yield (fromCoupon, fromToCoupon, cart, order)).gimme
   }
 

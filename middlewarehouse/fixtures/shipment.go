@@ -35,6 +35,7 @@ func GetShipment(
 		Address:            *address,
 		ShipmentLineItems:  lineItems,
 		TrackingNumber:     sql.NullString{},
+		Scope:              "1",
 	}
 }
 
@@ -63,6 +64,8 @@ func ToShipmentPayload(model *models.Shipment) *payloads.Shipment {
 	for _, lineItem := range model.ShipmentLineItems {
 		shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *ToShipmentLineItemPayload(&lineItem))
 	}
+
+	shipment.Scope = model.Scope
 
 	return shipment
 }

@@ -69,7 +69,7 @@ end
 $$ LANGUAGE plpgsql;
 
 
-alter table products_catalog_view add column scope text not null;
+alter table products_catalog_view add column scope exts.ltree not null;
 alter table album_search_view add column scope exts.ltree not null;
 alter table coupons_search_view add column scope exts.ltree not null;
 alter table promotions_search_view add column scope exts.ltree not null;

@@ -7,6 +7,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 
 	"errors"
 	"fmt"
@@ -110,7 +111,7 @@ func (suite *stockLocationControllerTestSuite) Test_GetLocationByID_Error() {
 }
 
 func (suite *stockLocationControllerTestSuite) Test_CreateLocation() {
-	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
+	model := fixtures.GetStockLocation()
 	suite.service.On("CreateLocation", model).Return(model, nil).Once()
 
 	result := &responses.StockLocation{}
@@ -123,7 +124,7 @@ func (suite *stockLocationControllerTestSuite) Test_CreateLocation() {
 }
 
 func (suite *stockLocationControllerTestSuite) Test_CreateLocation_Error() {
-	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
+	model := fixtures.GetStockLocation()
 	suite.service.On("CreateLocation", model).Return(nil, errors.New("Error")).Once()
 
 	jsonStr := fmt.Sprintf(`{"name":"%s","type":"%s"}`, model.Name, model.Type)

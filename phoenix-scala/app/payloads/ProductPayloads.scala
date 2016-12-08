@@ -6,7 +6,8 @@ import payloads.VariantPayloads.VariantPayload
 import utils.aliases._
 
 object ProductPayloads {
-  case class CreateProductPayload(attributes: Map[String, Json],
+  case class CreateProductPayload(scope: Option[String] = None,
+                                  attributes: Map[String, Json],
                                   slug: Option[String] = None,
                                   skus: Seq[SkuPayload],
                                   variants: Option[Seq[VariantPayload]],

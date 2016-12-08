@@ -12,7 +12,7 @@ final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
       field("productId", IntegerType),
       field("slug", StringType).index("not_analyzed"),
       field("context", StringType).index("not_analyzed"),
-      field("scope", StringType).index("not_analyzed"),
+      field("scope", StringType),
       field("title", StringType)
         .analyzer("autocomplete")
         .fields(field("raw", StringType).index("not_analyzed")),

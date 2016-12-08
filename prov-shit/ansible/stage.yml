@@ -7,12 +7,14 @@
   tags:
     - backend
   roles:
-    - { role: dev/stage_mesos, when: first_run}
+    - { role: dev/stage_mesos, when: first_run }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
+
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
+
 - name: Provision Stage Frontend
   hosts: foxcomm-stage-frontend
   vars:
@@ -22,6 +24,8 @@
     ashes_server_name: stage.foxcommerce.com
     storefront_server_name: stage.foxcommerce.com
     with_base_seeds: true
+    phoenix_tax_rule_region: 4129
+    phoenix_tax_rule_rate: 7.5
   tags:
     - frontend
   roles:
@@ -36,5 +40,6 @@
     - { role: dev/isaac }
     - { role: dev/solomon }
     - { role: dev/balancer, sudo: yes }
+    - { role: demo/balancer, sudo: yes }
     - { role: dev/consumers }
     - { role: dev/seeder }

@@ -46,6 +46,18 @@
       json/parse-string
       decode-activity-json))
 
+
+(defn- safe-decode-minimal
+  [message]
+  (try
+    (let [msg (-> message :value str)]
+      (try
+        (json/parse-string msg)
+        (catch Exception _ msg)))
+    (catch Exception _
+      message)))
+
+
 (def stop (atom false))
 
 (defn start-app
@@ -66,13 +78,16 @@
       (log/info "Partitions subscribed to:" (partition-subscriptions c))
       (loop []
         (let [cr (poll! c)]
-          (doseq [record cr :let [msg (decode record)]]
-            (log/debug msg)
+          (doseq [record cr]
             (try
-              (mail/handle-activity msg)
-              (commit-offsets-async! c {(select-keys record [:topic :partition])
-                                        {:offset (:offset record) :metadata ""}})
-              (catch Exception e (log/error "Caught exception: " e)))))
+              (let [msg (decode record)]
+                (log/debug msg)
+                (mail/handle-activity msg)
+                (commit-offsets-sync! c {(select-keys record [:topic :partition])
+                                        {:offset (:offset record) :metadata ""}}))
+              (catch Exception e
+                (log/errorf "Caught exception: %s\n\tDuring processing %s" e
+                            (safe-decode-minimal record))))))
 
        (when-not @stop
         (recur))))
