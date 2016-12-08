@@ -3,8 +3,8 @@ package payloads
 import (
 	"strconv"
 
+	mwhPayloads "github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
 )
 
 // OrderItem is a single line item in an order.
@@ -26,7 +26,7 @@ type OrderItem struct {
 	UPC               *string `json:"upc"`
 }
 
-func NewOrderItemsFromPhoenix(items []phoenix.OrderLineItem) []OrderItem {
+func NewOrderItemsFromPhoenix(items []mwhPayloads.OrderLineItem) []OrderItem {
 	condensedItems := make(map[uint]OrderItem)
 
 	for _, item := range items {
@@ -46,14 +46,14 @@ func NewOrderItemsFromPhoenix(items []phoenix.OrderLineItem) []OrderItem {
 	return orderItems
 }
 
-func NewOrderItemFromPhoenix(item phoenix.OrderLineItem) OrderItem {
+func NewOrderItemFromPhoenix(item mwhPayloads.OrderLineItem) OrderItem {
 	return OrderItem{
-		LineItemKey:    item.ReferenceNumber,
+		LineItemKey:    item.ReferenceNumbers[0],
 		FulfillmentSKU: utils.ToStringPtr(strconv.Itoa(int(item.SkuID))),
 		SKU:            item.SkuCode,
 		Name:           item.Name,
 		UnitPrice:      float64(item.Price) / 100.0,
-		Quantity:       1,
+		Quantity:       item.Quantity,
 		Weight:         Weight{Value: 1, Units: "ounces"},
 	}
 }

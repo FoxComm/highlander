@@ -144,18 +144,25 @@ class AssignmentsIntegrationTest
       secondAdmin ← * <~ Users.create(
                        Factories.storeAdmin
                          .copy(accountId = account.id, email = "a@b.c".some, name = "Admin2".some))
-      custData ← * <~ AdminsData.create(AdminData(userId = secondAdmin.id, accountId = account.id))
+      custData ← * <~ AdminsData.create(
+                    AdminData(userId = secondAdmin.id,
+                              accountId = account.id,
+                              scope = Scope.current))
     } yield (assignee, secondAdmin)).gimme
   }
 
   trait BulkAssignmentFixture extends Customer_Seed with StoreAdmin_Seed {
     val (order1, order2) = (for {
       cart ← * <~ Carts.create(
-                Factories.cart.copy(accountId = customer.accountId, referenceNumber = "foo"))
-      order1 ← * <~ Orders.createFromCart(cart)
+                Factories
+                  .cart(Scope.current)
+                  .copy(accountId = customer.accountId, referenceNumber = "foo"))
+      order1 ← * <~ Orders.createFromCart(cart, None)
       cart ← * <~ Carts.create(
-                Factories.cart.copy(accountId = customer.accountId, referenceNumber = "bar"))
-      order2 ← * <~ Orders.createFromCart(cart)
+                Factories
+                  .cart(Scope.current)
+                  .copy(accountId = customer.accountId, referenceNumber = "bar"))
+      order2 ← * <~ Orders.createFromCart(cart, None)
       _ ← * <~ Assignments.create(
              Assignment(referenceType = Assignment.Order,
                         referenceId = order1.id,

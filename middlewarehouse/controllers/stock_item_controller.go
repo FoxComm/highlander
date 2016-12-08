@@ -22,6 +22,7 @@ func NewStockItemController(service services.IInventoryService) IController {
 }
 
 func (controller *stockItemController) SetUp(router gin.IRouter) {
+	router.Use(FetchJWT)
 	router.GET("", controller.GetStockItems())
 	router.GET(":id", controller.GetStockItemById())
 	router.POST("", controller.CreateStockItem())
@@ -71,12 +72,12 @@ func (controller *stockItemController) GetStockItemById() gin.HandlerFunc {
 
 func (controller *stockItemController) CreateStockItem() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		var payload payloads.StockItem
-		if parse(context, &payload) != nil {
+		payload := &payloads.StockItem{}
+		if parse(context, payload) != nil {
 			return
 		}
 
-		stockItem := models.NewStockItemFromPayload(&payload)
+		stockItem := models.NewStockItemFromPayload(payload)
 
 		stockItem, err := controller.service.CreateStockItem(stockItem)
 		if err != nil {
@@ -95,8 +96,12 @@ func (controller *stockItemController) IncrementStockItemUnits() gin.HandlerFunc
 			return
 		}
 
-		var payload payloads.IncrementStockItemUnits
-		if parse(context, &payload) != nil {
+		payload := &payloads.IncrementStockItemUnits{}
+		if parse(context, payload) != nil {
+			return
+		}
+
+		if !setScope(context, payload) {
 			return
 		}
 
@@ -105,7 +110,7 @@ func (controller *stockItemController) IncrementStockItemUnits() gin.HandlerFunc
 			return
 		}
 
-		units := models.NewStockItemUnitsFromPayload(uint(id), &payload)
+		units := models.NewStockItemUnitsFromPayload(uint(id), payload)
 
 		if err := controller.service.IncrementStockItemUnits(uint(id), models.UnitType(payload.Type), units); err != nil {
 			handleServiceError(context, err)
@@ -123,8 +128,12 @@ func (controller *stockItemController) DecrementStockItemUnits() gin.HandlerFunc
 			return
 		}
 
-		var payload payloads.DecrementStockItemUnits
-		if parse(context, &payload) != nil {
+		payload := &payloads.DecrementStockItemUnits{}
+		if parse(context, payload) != nil {
+			return
+		}
+
+		if !setScope(context, payload) {
 			return
 		}
 

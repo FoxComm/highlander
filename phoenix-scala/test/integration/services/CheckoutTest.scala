@@ -4,6 +4,7 @@ import cats.implicits._
 import failures.GeneralFailure
 import faker.Lorem
 import models.Reasons
+import models.account.Scope
 import models.cord._
 import models.inventory.Skus
 import models.objects.ObjectContexts
@@ -148,7 +149,7 @@ class CheckoutTest
             // This is a silly guard to see real errors, not customer_has_only_one_cart constraint.
             _ ← * <~ Carts.deleteAll(DbResultT.unit, DbResultT.unit)
 
-            cart ← * <~ Carts.create(Cart(accountId = customer.accountId))
+            cart ← * <~ Carts.create(Cart(accountId = customer.accountId, scope = Scope.current))
 
             _ ← * <~ LineItemUpdater.updateQuantitiesOnCart(storeAdmin,
                                                             cart.refNum,

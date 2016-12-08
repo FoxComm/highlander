@@ -2,14 +2,16 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import models.account.Scope
 import models.cord.Orders
 import models.returns._
 import models.{Note, Notes}
+import utils.aliases.AU
 import utils.db._
 
 trait ReturnSeeds {
 
-  def createReturns: DbResultT[Unit] =
+  def createReturns(implicit au:AU): DbResultT[Unit] =
     for {
       order ← * <~ Orders.findOneById(1).safeGet
       _     ← * <~ ReturnReasons.createAll(returnReasons)
@@ -47,9 +49,9 @@ trait ReturnSeeds {
                        inventoryDisposition = ReturnLineItem.Putaway)
     )
 
-  def returnNotes: Seq[Note] = {
+  def returnNotes(implicit au:AU): Seq[Note] = {
     def newNote(body: String) =
-      Note(referenceId = 1, referenceType = Note.Return, storeAdminId = 1, body = body)
+      Note(referenceId = 1, referenceType = Note.Return, storeAdminId = 1, body = body, scope = Scope.current)
     Seq(
         newNote("This customer is a donkey."),
         newNote("No, seriously."),

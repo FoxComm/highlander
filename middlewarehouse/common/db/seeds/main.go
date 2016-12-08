@@ -31,10 +31,12 @@ func createShippingMethods(db *gorm.DB) error {
 		&models.Carrier{
 			Name:             "USPS",
 			TrackingTemplate: "http://www.stamps.com/shipstatus/submit/?confirmation=",
+            Scope: "1.2",
 		},
 		&models.Carrier{
 			Name:             "FedEx",
 			TrackingTemplate: "http://www.fedex.com/Tracking?action=track&tracknumbers=",
+            Scope: "1.2",
 		},
 	}
 
@@ -56,6 +58,7 @@ func createShippingMethods(db *gorm.DB) error {
 			Code:         "STANDARD",
 			ShippingType: models.ShippingTypeFlat,
 			Cost:         300,
+            Scope: "1.2",
 		},
 		&models.ShippingMethod{
 			CarrierID:    carriers[0].ID,
@@ -63,6 +66,7 @@ func createShippingMethods(db *gorm.DB) error {
 			Code:         "STANDARD-FREE",
 			ShippingType: models.ShippingTypeFlat,
 			Cost:         0,
+            Scope: "1.2",
 		},
 		&models.ShippingMethod{
 			CarrierID:    carriers[1].ID,
@@ -70,6 +74,7 @@ func createShippingMethods(db *gorm.DB) error {
 			Code:         "EXPRESS",
 			ShippingType: models.ShippingTypeFlat,
 			Cost:         1500,
+            Scope: "1.2",
 		},
 		&models.ShippingMethod{
 			CarrierID:    carriers[1].ID,
@@ -77,6 +82,7 @@ func createShippingMethods(db *gorm.DB) error {
 			Code:         "OVERNIGHT",
 			ShippingType: models.ShippingTypeFlat,
 			Cost:         3000,
+            Scope: "1.2",
 		},
 	}
 

@@ -1,6 +1,7 @@
 /* @flow */
 
 // libs
+import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -10,6 +11,7 @@ import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import Counter from 'components/forms/counter';
 import { DeleteButton } from 'components/common/buttons';
 import Currency from 'components/common/currency';
+import Link from 'components/link/link';
 
 // actions
 import { updateLineItemCount } from 'modules/carts/details';
@@ -25,6 +27,7 @@ type Props = {
     },
   },
   item: SkuItem,
+  className?: string,
 };
 
 type Target = {
@@ -99,14 +102,14 @@ export class CartLineItem extends Component {
   }
 
   render() {
-    const { item } = this.props;
+    const { item, className } = this.props;
     const { isDeleting, quantity } = this.state;
 
     return (
-      <tr>
+      <tr className={classNames('line-item', className)}>
         <td><img src={item.imagePath} /></td>
         <td>{item.name}</td>
-        <td>{item.skuCode}</td>
+        <td><Link to="sku-details" params={{ skuCode: item.skuCode }}>{item.skuCode}</Link></td>
         <td><Currency value={item.price} /></td>
         <td>
           <Counter

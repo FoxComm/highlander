@@ -38,9 +38,7 @@ func main() {
 		for {
 			select {
 			case <-ticker.C:
-				log.Printf("Querying for new shipments")
-				err = pollingAgent.GetShipments()
-				if err != nil {
+				if err := pollingAgent.GetShipments(); err != nil {
 					panic(err)
 				}
 			}

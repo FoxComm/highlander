@@ -42,6 +42,7 @@ export type SkuItem = {
   price: number,
   quantity: number,
   totalPrice: number,
+  attributes: ?Object,
 };
 
 export const states = {

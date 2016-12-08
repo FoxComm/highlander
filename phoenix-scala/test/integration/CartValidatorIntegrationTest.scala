@@ -3,6 +3,7 @@ import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
 import failures.CartFailures._
 import failures.Failure
+import models.account.Scope
 import models.cord._
 import models.inventory.Skus
 import models.location.Addresses
@@ -142,7 +143,6 @@ class CartValidatorIntegrationTest
   }
 
   trait ShippingMethodFixture extends EmptyCustomerCart_Baked {
-
     val (shipMethod) = (for {
       address ← * <~ Addresses.create(
                    Factories.address.copy(accountId = customer.accountId, regionId = 4129))
@@ -199,7 +199,7 @@ class CartValidatorIntegrationTest
       _          ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
       cc         ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
       productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      cart       ← * <~ Carts.create(Factories.cart.copy(accountId = customer.accountId))
+      cart       ← * <~ Carts.create(Factories.cart(Scope.current).copy(accountId = customer.accountId))
       product    ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
       sku        ← * <~ Skus.mustFindById404(product.skuId)
       manual ← * <~ StoreCreditManuals.create(

@@ -42,7 +42,7 @@ func (suite *ConsumerTestSuite) TestMessageHander() {
 	}))
 	defer ts.Close()
 
-	consumer, err := NewConsumer("localhost:2181", "http://localhost:8081", ts.URL)
+	consumer, err := NewConsumer("TEST", "localhost:2181", "http://localhost:8081", ts.URL)
 	suite.Nil(err)
 
 	err = consumer.handler(msg)

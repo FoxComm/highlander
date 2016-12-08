@@ -6,4 +6,5 @@ type ShippingMethod struct {
 	Code         string `json:"code" binding:"required"`
 	ShippingType string `json:"type" binding:"required"`
 	Cost         uint   `json:"cost"`
+	Scopable
 }

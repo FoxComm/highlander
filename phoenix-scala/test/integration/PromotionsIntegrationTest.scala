@@ -234,5 +234,4 @@ class PromotionsIntegrationTest
     override def createPromotionFromPayload(payload: CreatePromotion) =
       super.createPromotionFromPayload(payload.copy(applyType = Auto))
   }
-
 }

@@ -21,6 +21,7 @@ func NewStockLocationController(service services.IStockLocationService) IControl
 }
 
 func (controller *stockLocationController) SetUp(router gin.IRouter) {
+	router.Use(FetchJWT)
 	router.GET("", controller.GetLocations())
 	router.GET(":id", controller.GetLocationByID())
 	router.POST("", controller.CreateLocation())
@@ -62,6 +63,10 @@ func (controller *stockLocationController) CreateLocation() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		payload := &payloads.StockLocation{}
 		if parse(context, payload) != nil {
+			return
+		}
+
+		if !setScope(context, payload) {
 			return
 		}
 

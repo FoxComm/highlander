@@ -9,6 +9,7 @@ import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.AddImagesToArchivedAlbumFailure
 import failures.ImageFailures._
 import failures.ObjectFailures._
+import models.account.Scope
 import models.image._
 import models.inventory._
 import models.objects._
@@ -423,7 +424,7 @@ class ImageIntegrationTest
     val (album, albumImages) = (for {
       ins ← * <~ ObjectUtils.insert(form, shadow)
       album ← * <~ Albums.create(
-                 Album(scope = LTree(au.token.scope),
+                 Album(scope = Scope.current,
                        contextId = ctx.id,
                        shadowId = ins.shadow.id,
                        formId = ins.form.id,
@@ -441,7 +442,7 @@ class ImageIntegrationTest
       skuCommit ← * <~ ObjectCommits.create(
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
       sku ← * <~ Skus.create(
-               Sku(scope = LTree(au.token.scope),
+               Sku(scope = Scope.current,
                    contextId = ctx.id,
                    formId = skuForm.id,
                    shadowId = skuShadow.id,
@@ -457,7 +458,7 @@ class ImageIntegrationTest
       prodCommit ← * <~ ObjectCommits.create(
                       ObjectCommit(formId = prodForm.id, shadowId = prodShadow.id))
       product ← * <~ Products.create(
-                   Product(scope = LTree(au.token.scope),
+                   Product(scope = Scope.current,
                            contextId = ctx.id,
                            formId = prodForm.id,
                            shadowId = prodShadow.id,

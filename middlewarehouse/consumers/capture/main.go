@@ -38,6 +38,7 @@ func main() {
 	client := lib.NewPhoenixClient(capConf.PhoenixURL, capConf.PhoenixUser, capConf.PhoenixPassword)
 
 	oh, err := NewShipmentHandler(config.MiddlewarehouseURL, client)
+
 	if err != nil {
 		log.Fatalf("Can't create handler for orders with error %s", err.Error())
 	}

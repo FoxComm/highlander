@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
+	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"errors"
@@ -97,12 +98,12 @@ func (suite *stockItemControllerTestSuite) Test_GetStockItemById_WrongId() {
 }
 
 func (suite *stockItemControllerTestSuite) Test_CreateStockItem() {
-	stockItem := &models.StockItem{SkuID: 1, SkuCode: "SKU", StockLocationID: 1, DefaultUnitCost: 1000}
+	stockItem := fixtures.GetStockItem(1, 1, "SKU")
 
 	suite.service.On("CreateStockItem", stockItem).Return(stockItem, nil).Once()
 
 	var result models.StockItem
-	jsonStr := `{"skuId":1,"skuCode":"SKU","stockLocationID":1,"defaultUnitCost":1000}`
+	jsonStr := `{"skuId":1,"skuCode":"SKU","stockLocationID":1,"defaultUnitCost":5000}`
 	res := suite.Post("/stock-items", jsonStr, &result)
 
 	suite.Equal(http.StatusCreated, res.Code)
@@ -111,11 +112,11 @@ func (suite *stockItemControllerTestSuite) Test_CreateStockItem() {
 }
 
 func (suite *stockItemControllerTestSuite) Test_CreateStockItem_Error() {
-	stockItem := &models.StockItem{SkuID: 1, SkuCode: "SKU", StockLocationID: 1, DefaultUnitCost: 1000}
+	stockItem := fixtures.GetStockItem(1, 1, "SKU")
 
 	suite.service.On("CreateStockItem", stockItem).Return(nil, gorm.ErrInvalidTransaction).Once()
 
-	jsonStr := `{"skuId":1,"skuCode":"SKU","stockLocationID":1,"defaultUnitCost":1000}`
+	jsonStr := `{"skuId":1,"skuCode":"SKU","stockLocationID":1,"defaultUnitCost":5000}`
 	res := suite.Post("/stock-items", jsonStr)
 
 	suite.Equal(http.StatusBadRequest, res.Code)

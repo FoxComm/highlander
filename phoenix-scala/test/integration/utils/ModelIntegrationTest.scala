@@ -24,8 +24,10 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     "sanitizes model" in {
       val result = (for {
         account  ← * <~ Accounts.create(Account())
+        scope    ← * <~ Scopes.forOrganization(TENANT)
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
-        _        ← * <~ CustomersData.create(CustomerData(userId = customer.id, accountId = account.id))
+        _ ← * <~ CustomersData.create(
+               CustomerData(userId = customer.id, accountId = account.id, scope = scope))
         address ← * <~ Addresses.create(
                      Factories.address.copy(zip = "123-45", accountId = customer.accountId))
       } yield address).gimme
@@ -36,9 +38,11 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val result = (for {
         account  ← * <~ Accounts.create(Account())
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
-        _        ← * <~ CustomersData.create(CustomerData(userId = customer.id, accountId = account.id))
-        _        ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
-        copycat  ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
+        scope    ← * <~ Scopes.forOrganization(TENANT)
+        _ ← * <~ CustomersData.create(
+               CustomerData(userId = customer.id, accountId = account.id, scope = scope))
+        _       ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
+        copycat ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
       } yield copycat).runTxn().futureValue
       result.leftVal must === (
           DatabaseFailure(
@@ -73,14 +77,16 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
   }
 
   "Model update" - {
-    "model decides if it can be updated successfully" in {
-      val origin      = Factories.order
+    "model decides if it can be updated successfully" in new Customer_Seed {
+      implicit val au = customerAuthData
+      val origin      = Factories.order(Scope.current)
       val destination = origin.copy(accountId = 123)
       origin.updateTo(destination).rightVal must === (destination)
     }
 
-    "model refuses to update if FSM check fails" in {
-      val origin      = Factories.order
+    "model refuses to update if FSM check fails" in new Customer_Seed {
+      implicit val au = customerAuthData
+      val origin      = Factories.order(Scope.current)
       val destination = origin.copy(state = Shipped)
       val failure     = leftValue(origin.updateTo(destination))
       failure must === (
@@ -102,8 +108,12 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       Orders.findOneByRefNum(order.refNum).gimme.value must === (order)
     }
 
-    "won't update unsaved model" in {
-      Orders.update(Factories.order, Factories.order).run().futureValue mustBe 'left
+    "won't update unsaved model" in new Customer_Seed {
+      implicit val au = customerAuthData
+      Orders
+        .update(Factories.order(Scope.current), Factories.order(Scope.current))
+        .run()
+        .futureValue mustBe 'left
     }
   }
 

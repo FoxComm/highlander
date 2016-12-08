@@ -6,7 +6,8 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api/payloads"
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
+	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/highlander/middlewarehouse/shared"
 	"github.com/FoxComm/metamorphosis"
 )
 
@@ -32,21 +33,21 @@ func NewOrderConsumer(phoenixClient lib.PhoenixClient, topic string, key string,
 }
 
 func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
-	activity, err := phoenix.NewActivityFromAvro(message)
+	activity, err := activities.NewActivityFromAvro(message)
 	if err != nil {
 		log.Panicf("Unable to decode Avro message with error %s", err.Error())
 	}
 
-	switch activity.Type {
+	switch activity.Type() {
 	case activityOrderStateChanged:
-		fullOrder, err := phoenix.NewFullOrderFromActivity(activity)
+		fullOrder, err := shared.NewFullOrderFromActivity(activity)
 		if err != nil {
 			log.Panicf("Unable to decode order from activity")
 		}
 
 		return c.handlerInner(fullOrder)
 	case activityOrderBulkStateChanged:
-		bulkStateChange, err := phoenix.NewOrderBulkStateChangeFromActivity(activity)
+		bulkStateChange, err := shared.NewOrderBulkStateChangeFromActivity(activity)
 		if err != nil {
 			log.Panicf("Unable to decode bulk state change activity")
 		}
@@ -77,7 +78,7 @@ func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 }
 
 // Handle activity for single order
-func (c OrderConsumer) handlerInner(fullOrder *phoenix.FullOrder) error {
+func (c OrderConsumer) handlerInner(fullOrder *shared.FullOrder) error {
 	if fullOrder.Order.OrderState != orderStateFulfillmentStarted {
 		return nil
 	}
@@ -87,7 +88,7 @@ func (c OrderConsumer) handlerInner(fullOrder *phoenix.FullOrder) error {
 		fullOrder.Order.ReferenceNumber,
 	)
 
-	ssOrder, err := payloads.NewOrderFromPhoenix(fullOrder.Order)
+	ssOrder, err := payloads.NewOrderFromActivity(fullOrder.Order)
 	if err != nil {
 		log.Panicf("Unable to create ShipStation order with error %s", err.Error())
 	}

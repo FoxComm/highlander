@@ -19,10 +19,10 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
     private val skuPrice    = Random.nextInt(20000) + 100
 
     private val skuPayload = SkuPayload(
-        Map("code"        → tv(skuCode),
-            "title"       → tv(skuCode.capitalize),
-            "salePrice"   → tv(("currency" → "USD") ~ ("value" → skuPrice), "price"),
-            "retailPrice" → tv(("currency" → "USD") ~ ("value" → skuPrice), "price")))
+        attributes = Map("code"        → tv(skuCode),
+                         "title"       → tv(skuCode.capitalize),
+                         "salePrice"   → tv(("currency" → "USD") ~ ("value" → skuPrice), "price"),
+                         "retailPrice" → tv(("currency" → "USD") ~ ("value" → skuPrice), "price")))
 
     private val productPayload =
       CreateProductPayload(
