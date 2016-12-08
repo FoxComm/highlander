@@ -2,15 +2,16 @@ create or replace function update_inventory_view_from_summary_insert_fn() return
 declare
     skuId integer;
     skuCode sku_code;
-    stock_item jsonb;
-    stock_location jsonb;
+    stockItem jsonb;
+    stockLocation jsonb;
+    stockLocationScope exts.ltree;
 begin
     select si.sku_id, si.sku_code
     into skuId, skuCode
     from stock_items si
     where si.id = new.stock_item_id;
 
-    stock_item := (
+    stockItem := (
         select json_build_object(
             'id', si.id,
             'skuId', si.sku_id,
@@ -21,25 +22,26 @@ begin
         where (new.stock_item_id = si.id)
     );
 
-    stock_location := (
-        select json_build_object(
+    select
+        json_build_object(
             'id', sl.id,
             'name', sl.name,
             'type', sl.type
-        )::jsonb as stock_location
-        from stock_items as si
-        left join stock_locations sl ON sl.id = si.stock_location_id
-        where (new.stock_item_id = si.id)
-    );
+        ) :: JSONB AS stock_location,
+        sl.scope
+    into stockLocation, stockLocationScope
+    from stock_items AS si
+        inner join stock_locations sl on sl.id = si.stock_location_id
+    where new.stock_item_id = si.id;
 
     insert into inventory_search_view select distinct on (new.id)
         -- summary
         new.id as id,
-        skuCode as sku_code,
+        skuCode,
         -- stock_item object
-        stock_item,
+        stockItem,
         -- stock_locatoin object
-        stock_location,
+        stockLocation,
         new.type as type,
 
         new.on_hand as on_hand,
@@ -51,6 +53,7 @@ begin
         to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
         to_char(new.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as updated_at,
         to_char(new.deleted_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as deleted_at,
+        stockLocationScope                                       AS scope,
         skuId as sku_id;
     return null;
 end;
