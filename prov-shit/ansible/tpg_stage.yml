@@ -37,6 +37,7 @@
     - { role: dev/solomon }
     - { role: dev/shipstation }
     - { role: dev/balancer, sudo: yes }
+    - { role: demo/balancer, sudo: yes }
     - { role: dev/consumers }
 
 - name: Run Seeder on TPG Staging Backend
