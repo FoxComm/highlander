@@ -1,3 +1,7 @@
+
+include makelib
+header = $(call baseheader, $(1), root)
+
 SUBDIRS = $(shell ./projects.sh)
 $(info $(SUBDIRS))
 UPDATEDIRS = $(SUBDIRS:%=update-%)
@@ -69,15 +73,20 @@ $(DOCKERPUSHDIRS_ALL):
 	$(MAKE) -C $(REPO) docker-push
 
 up: 
+	$(call header, Creating GCE Machine)
 	export eval `cat ./.env.local`; vagrant up --provider=google appliance
 
 provision: 
+	$(call header, Provisioning GCE Machine)
 	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant provision appliance
 
 destroy: 
+	$(call header, Destroying GCE Machine)
 	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant destroy appliance
 
 ssh: 
-	vagrant ssh
+	$(call header, Connecting to GCE Machine)
+	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant ssh appliance
+
 
 .PHONY: update build $(UPDATEDIRS) $(SUBDIRS) $(BUILDDIRS) up provision destroy ssh
