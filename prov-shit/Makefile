@@ -45,8 +45,4 @@ docker-push:
 	$(call header, Registering)
 	true
 
-vagrant-google:
-	$(call header, Testing Vagrant)
-	vagrant up --provider=google
-
 .PHONY: all build lint test docker docker-push
