@@ -25,11 +25,11 @@ type SKU struct {
 	WidthUnits                         string
 	RequiresInventoryTracking          bool
 	InventoryWarningLevelIsEnabled     bool
+	InventoryWarningLevelValue         int
 	MaximumQuantityInCartValue         int
 	MaximumQuantityInCartIsEnabled     bool
 	MinimumQuantityInCartValue         int
 	MinimumQuantityInCartIsEnabled     bool
-	InventoryWarningLevelValue         int
 	AllowBackorder                     bool
 	AllowPreorder                      bool
 	RequiresLotTracking                bool
