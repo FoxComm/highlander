@@ -1,5 +1,7 @@
 package responses
 
+import "github.com/FoxComm/highlander/middlewarehouse/models"
+
 type SKU struct {
 	ID    uint   `json:"id"`
 	Code  string `json:"code"`
@@ -31,6 +33,10 @@ type SKU struct {
 	RequiresLotTracking           bool      `json:"requiresLotTracking"`
 	LotExpirationThreshold        Dimension `json:"lotExpirationThreshold"`
 	LotExpirationWarningThreshold Dimension `json:"lotExpirationWarningThreshold"`
+}
+
+func NewSKUFromModel(sku *models.SKU) *SKU {
+	return &SKU{}
 }
 
 type Dimension struct {
