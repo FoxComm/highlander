@@ -1,5 +1,6 @@
 package services.returns
 
+import models.account.Scope
 import models.payment.creditcard.CreditCards
 import models.payment.giftcard._
 import models.payment.storecredit._
@@ -29,7 +30,8 @@ object ReturnPaymentUpdater {
     } yield response
 
   def addGiftCard(refNum: String, payload: ReturnPaymentPayload)(implicit ec: EC,
-                                                                 db: DB): DbResultT[Root] =
+                                                                 db: DB,
+                                                                 au: AU): DbResultT[Root] =
     for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
@@ -44,16 +46,21 @@ object ReturnPaymentUpdater {
     } yield response
 
   def addStoreCredit(refNum: String, payload: ReturnPaymentPayload)(implicit ec: EC,
-                                                                    db: DB): DbResultT[Root] =
+                                                                    db: DB,
+                                                                    au: AU): DbResultT[Root] =
     for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingReturnByRefNum(refNum)
       deleteAll ← * <~ deleteGc(rma.id)
       payment   ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
       origin    ← * <~ StoreCreditRefunds.create(StoreCreditRefund(returnId = rma.id))
-
-      storeCredit = StoreCredit.buildRmaProcess(rma.accountId, origin.id, payment.currency)
-      sc ← * <~ StoreCredits.create(storeCredit)
+      sc ← * <~ StoreCredits.create(
+              StoreCredit(accountId = rma.accountId,
+                          scope = Scope.current,
+                          originId = origin.id,
+                          originType = StoreCredit.RmaProcess,
+                          currency = payment.currency,
+                          originalBalance = 0))
       pmt ← * <~ ReturnPayments.create(
                ReturnPayment.build(sc, rma.id, payload.amount, payment.currency))
       updated  ← * <~ Returns.refresh(rma)

@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/utils"
 	"github.com/FoxComm/metamorphosis"
 )
@@ -15,12 +16,14 @@ func main() {
 		log.Fatalf("Unable to initialize ShipStation with error: %s", err.Error())
 	}
 
+	client := lib.NewPhoenixClient(config.PhoenixURL, config.PhoenixUser, config.PhoenixPassword)
+
 	consumer, err := metamorphosis.NewConsumer(config.ZookeeperURL, config.SchemaRegistryURL)
 	if err != nil {
 		log.Fatalf("Unable to connect to Kafka with error %s", err.Error())
 	}
 
-	oc, err := NewOrderConsumer(config.Topic, config.ApiKey, config.ApiSecret)
+	oc, err := NewOrderConsumer(client, config.Topic, config.ApiKey, config.ApiSecret)
 	if err != nil {
 		log.Fatalf("Unable to initialize ShipStation order consumer with error %s", err.Error())
 	}
@@ -35,9 +38,7 @@ func main() {
 		for {
 			select {
 			case <-ticker.C:
-				log.Printf("Querying for new shipments")
-				err = pollingAgent.GetShipments()
-				if err != nil {
+				if err := pollingAgent.GetShipments(); err != nil {
 					panic(err)
 				}
 			}

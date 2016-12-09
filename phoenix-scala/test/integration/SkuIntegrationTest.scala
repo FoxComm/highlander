@@ -7,6 +7,7 @@ import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.SkuIsPresentInCarts
 import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures.SkuNotFoundForContext
+import models.account.Scope
 import models.inventory._
 import models.objects._
 import models.product._
@@ -177,7 +178,7 @@ class SkuIntegrationTest
       skuCommit ← * <~ ObjectCommits.create(
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
       sku ← * <~ Skus.create(
-               Sku(scope = LTree(au.token.scope),
+               Sku(scope = Scope.current,
                    contextId = ctx.id,
                    code = simpleSku.code,
                    formId = skuForm.id,

@@ -21,6 +21,11 @@ object AuthPayload {
     }
   }
 
+  def jwt(token: Token): String = {
+    val claims = Token.getJWTClaims(token)
+    Token.encodeJWTClaims(claims).fold(f ⇒ "", a ⇒ a)
+  }
+
   class JwtClaimsSerializerImpl
       extends CustomSerializer[JwtClaims](format ⇒
             ({

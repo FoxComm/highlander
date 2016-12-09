@@ -93,7 +93,7 @@ Once downloaded, set the location.
 
 Then run
 
-    $ vagrant up --provider=google
+    $ make up
 
 Test machines are created without a public facing IP address, so you'll need to use the VPN to access it.
 

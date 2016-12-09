@@ -1,6 +1,8 @@
 ---
 
-- include_vars: aws.yml
+- include_vars: "{{role_path}}/../../base/secret_keys/files/aws/aws.yml"
+  when: docker_registry_path == "aws"
+
 - include_vars: stripe.yml
 
 - name: Creates Marathon JSON directory
@@ -16,7 +18,3 @@
 
 - name: Restart Phoenix in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/phoenix/restart'
-
-- name: Wait for Phoenix to become available
-  wait_for: host={{phoenix_host}} port={{phoenix_port}}
-  ignore_errors: true

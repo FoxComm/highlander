@@ -19,7 +19,7 @@
 
 (def api-port (delay (parse-int
                        (or
-                         (:api-port env)
+                         (:port env)
                          15054))))
 
 (def api-host (delay (:api-host env)))

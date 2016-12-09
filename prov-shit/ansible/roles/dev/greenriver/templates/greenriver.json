@@ -29,10 +29,10 @@
     {
       "protocol": "COMMAND",
       "command": {
-        "value": "ps -ef | grep -v grep | grep greenriver.jar"
+        "value": "ps -ef | grep -v grep | grep green-river-assembly-1.0.jar"
       },
       "gracePeriodSeconds": 300,
-      "intervalSeconds": 60,
+      "intervalSeconds": 20,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3
     }

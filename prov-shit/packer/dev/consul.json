@@ -1,0 +1,47 @@
+{
+    "builders" : [
+        {
+            "name": "google",
+            "type": "googlecompute",
+            "account_file": "{{user `account_file`}}",
+            "project_id" : "{{user `project_id`}}",
+            "source_image": "{{user `base_ubuntu_image`}}",
+            "network": "{{user `network`}}",
+            "zone": "{{user `zone`}}",
+            "image_name": "base-dev-consul-{{isotime \"060102-150405\"}}",
+            "image_description": "Base Dev Consul Image",
+            "instance_name": "packer-dev-consul-{{uuid}}",
+            "machine_type": "n1-standard-2",
+            "tags": ["ssh", "no-ip"],
+            "use_internal_ip": true,
+            "ssh_username" : "{{user `ssh_username`}}"
+        },
+        {
+            "name": "amazon",
+            "type": "amazon-ebs",
+            "source_ami": "{{user `source_ami`}}",
+            "instance_type": "{{user `amigo_instance_type`}}",
+            "region": "{{user `region`}}",
+            "ami_name": "base-dev-consul-{{isotime \"060102-150405\"}}",
+            "ami_description": "Base Dev Consul Image",
+            "associate_public_ip_address": true,
+            "ssh_username": "{{user `ssh_username`}}",
+            "vpc_id": "{{user `vpc_id`}}",
+            "security_group_id": "{{user `security_group_id`}}",
+            "subnet_id": "{{user `subnet_id`}}",
+            "tags": {
+                "Name": "base-dev-consul-{{isotime \"060102-150405\"}}"
+            }
+        }
+    ],
+    "provisioners" : [
+        {
+            "type": "ansible",
+            "playbook_file" : "ansible/packer_dev_consul.yml",
+            "extra_arguments": [
+                "-vvvv",
+                "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"
+            ]
+        }
+    ]
+}

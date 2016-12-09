@@ -11,7 +11,8 @@ object PromotionPayloads {
   case class CreatePromotion(applyType: ApplyType,
                              attributes: Map[String, Json],
                              discounts: Seq[CreateDiscount],
-                             schema: Option[String] = None)
+                             schema: Option[String] = None,
+                             scope: Option[String] = None)
 
   case class UpdatePromotion(applyType: ApplyType,
                              attributes: Map[String, Json],

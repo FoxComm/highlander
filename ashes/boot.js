@@ -11,7 +11,7 @@ const path = require('path');
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 process.env.API_URL = process.env.API_URL || 'http://localhost';
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./src')}`;
+process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
 
 let forks = process.env.NODE_ENV === 'production' ? cpus : 1;
 

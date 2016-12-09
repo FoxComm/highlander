@@ -18,6 +18,10 @@ type PhoenixClient interface {
 	IsAuthenticated() bool
 	UpdateOrder(refNum, shipmentState, orderState string) error
 	CreateGiftCards(giftCards []payloads.CreateGiftCardPayload) (*http.Response, error)
+	GetOrder(refNum string) (*payloads.OrderResult, error)
+	GetOrderForShipstation(refNum string) (*http.Response, error)
+	UpdateOrderLineItems(updatePayload []payloads.UpdateOrderLineItem, refNum string) error
+	GetJwt() string
 }
 
 func NewPhoenixClient(baseURL, email, password string) PhoenixClient {
@@ -36,21 +40,23 @@ type phoenixClient struct {
 	password      string
 }
 
+func (c *phoenixClient) GetJwt() string {
+	return c.jwt
+}
+
 func (c *phoenixClient) ensureAuthentication() error {
 	if c.IsAuthenticated() {
 		return nil
 	}
 
 	if err := c.Authenticate(); err != nil {
-		return fmt.Errorf(
-			"Unable to authenticate with %s - cannot proceed with capture",
-			err.Error(),
-		)
+		return fmt.Errorf("Unable to authenticate with Phoenix with error %s", err.Error())
 	}
 
 	return nil
 }
 
+// CapturePayment
 func (c *phoenixClient) CapturePayment(capturePayload *CapturePayload) error {
 	if err := c.ensureAuthentication(); err != nil {
 		return err
@@ -84,6 +90,7 @@ func (c *phoenixClient) CapturePayment(capturePayload *CapturePayload) error {
 	return nil
 }
 
+// IsAuthenticated
 func (c *phoenixClient) IsAuthenticated() bool {
 	if c.jwt == "" {
 		return false
@@ -97,6 +104,7 @@ func (c *phoenixClient) IsAuthenticated() bool {
 	return true
 }
 
+// Authenticate
 func (c *phoenixClient) Authenticate() error {
 	payload := LoginPayload{
 		Email:    c.email,
@@ -137,6 +145,7 @@ func (c *phoenixClient) Authenticate() error {
 	return nil
 }
 
+// CreateGiftCards
 func (c *phoenixClient) CreateGiftCards(giftCards []payloads.CreateGiftCardPayload) (*http.Response, error) {
 	if err := c.ensureAuthentication(); err != nil {
 		return nil, err
@@ -148,6 +157,48 @@ func (c *phoenixClient) CreateGiftCards(giftCards []payloads.CreateGiftCardPaylo
 	return consumers.Post(url, headers, &giftCards)
 }
 
+// GetOrder
+func (c *phoenixClient) GetOrder(refNum string) (*payloads.OrderResult, error) {
+	if err := c.ensureAuthentication(); err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf("%s/v1/orders/%s", c.baseURL, refNum)
+	headers := map[string]string{
+		"JWT": c.jwt,
+	}
+
+	rawOrderResp, err := consumers.Get(url, headers)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rawOrderResp.Body.Close()
+	orderResp := new(payloads.OrderResult)
+	if err := json.NewDecoder(rawOrderResp.Body).Decode(orderResp); err != nil {
+		log.Printf("Unable to read order response from Phoenix with error: %s", err.Error())
+		return nil, err
+	}
+
+	log.Printf("Successfully fetched order %s from Phoenix", refNum)
+	return orderResp, nil
+}
+
+// GetOrderForShipstation - ugly workaround for split codebase for now
+func (c *phoenixClient) GetOrderForShipstation(refNum string) (*http.Response, error) {
+	if err := c.ensureAuthentication(); err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf("%s/v1/orders/%s", c.baseURL, refNum)
+	headers := map[string]string{
+		"JWT": c.jwt,
+	}
+
+	return consumers.Get(url, headers)
+}
+
+// UpdateOrder
 func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) error {
 	if err := c.ensureAuthentication(); err != nil {
 		return err
@@ -175,7 +226,32 @@ func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) er
 		return err
 	}
 
-	log.Printf("Successfully updated orders in Phoenix  %v", orderResp)
+	log.Printf("Successfully updated orders in Phoenix %v", orderResp)
+
+	return nil
+}
+
+func (c *phoenixClient) UpdateOrderLineItems(updatePayload []payloads.UpdateOrderLineItem, refNum string) error {
+	if err := c.ensureAuthentication(); err != nil {
+		return err
+	}
+
+	url := fmt.Sprintf("%s/v1/orders/%s/order-line-items", c.baseURL, refNum)
+	headers := map[string]string{
+		"JWT": c.jwt,
+	}
+
+	rawOrderResp, err := consumers.Patch(url, headers, &updatePayload)
+	if err != nil {
+		return err
+	}
+
+	defer rawOrderResp.Body.Close()
+	orderResp := new(map[string]interface{})
+	if err := json.NewDecoder(rawOrderResp.Body).Decode(orderResp); err != nil {
+		log.Printf("Unable to read order response from Phoenix with error: %s", err.Error())
+		return err
+	}
 
 	return nil
 }

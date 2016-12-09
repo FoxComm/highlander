@@ -3,7 +3,7 @@
 - name: Get Marathon Alerts
   get_url: url={{marathon_alerts_url}} dest=/usr/local/bin/marathon-alerts
 
-- name: Make Consul Alerts Executable
+- name: Make Marathon Alerts Executable
   file: path=/usr/local/bin/marathon-alerts mode=750
 
 - name: Copy Execution File

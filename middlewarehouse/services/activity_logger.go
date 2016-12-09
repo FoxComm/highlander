@@ -92,7 +92,7 @@ func newRecord(activity activities.ISiteActivity) (*record, error) {
 		Activity_type: activity.Type(),
 		Data:          activity.Data(),
 		Created_at:    activity.CreatedAt(),
-		Context:       "",
+        Context:       "{\"userId\":0,\"userType\":\"service\", \"transactionId\":\"mwh\"}",
 	}, nil
 }
 

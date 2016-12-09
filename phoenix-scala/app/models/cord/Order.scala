@@ -2,17 +2,10 @@ package models.cord
 
 import java.time.Instant
 
-import cats.data.Xor
-import cats.data.Xor.{left, right}
-import cats.implicits._
-import com.pellucid.sealerate
 import failures.{Failures, GeneralFailure}
 import models.cord.lineitems.{OrderLineItem, OrderLineItems, CartLineItems}
-import models.account.Account
+import models.account._
 import models.inventory.Skus
-import shapeless._
-import slick.ast.BaseTypedType
-import slick.jdbc.JdbcType
 import utils.Money.Currency
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
@@ -20,7 +13,18 @@ import utils.db._
 import utils.time._
 import utils.{ADT, FSM}
 
+import cats.data.Xor
+import cats.data.Xor.{left, right}
+import cats.implicits._
+import com.pellucid.sealerate
+import shapeless._
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
+
+import com.github.tminglei.slickpg.LTree
+
 case class Order(id: Int = 0,
+                 scope: LTree,
                  referenceNumber: String = "",
                  accountId: Int,
                  currency: Currency = Currency.USD,
@@ -91,6 +95,7 @@ object Order {
 
 class Orders(tag: Tag) extends FoxTable[Order](tag, "orders") {
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def scope            = column[LTree]("scope")
   def referenceNumber  = column[String]("reference_number")
   def accountId        = column[Int]("account_id")
   def currency         = column[Currency]("currency")
@@ -107,6 +112,7 @@ class Orders(tag: Tag) extends FoxTable[Order](tag, "orders") {
 
   def * =
     (id,
+     scope,
      referenceNumber,
      accountId,
      currency,
@@ -127,37 +133,48 @@ object Orders
     with ReturningTableQuery[Order, Orders]
     with SearchByRefNum[Order, Orders] {
 
-  def createFromCart(cart: Cart)(implicit ec: EC, db: DB, ctx: OC): DbResultT[Order] =
-    createFromCart(cart, ctx.id)
+  def createFromCart(
+      cart: Cart,
+      subScope: Option[String])(implicit ec: EC, db: DB, ctx: OC, au: AU): DbResultT[Order] =
+    createFromCart(cart, ctx.id, subScope)
 
-  def createFromCart(cart: Cart, contextId: Int)(implicit ec: EC, db: DB): DbResultT[Order] = {
-    val newOrder = Order(referenceNumber = cart.referenceNumber,
-                         accountId = cart.accountId,
-                         currency = cart.currency,
-                         subTotal = cart.subTotal,
-                         shippingTotal = cart.shippingTotal,
-                         adjustmentsTotal = cart.adjustmentsTotal,
-                         taxesTotal = cart.taxesTotal,
-                         grandTotal = cart.grandTotal,
-                         contextId = contextId)
+  def createFromCart(cart: Cart,
+                     contextId: Int,
+                     subScope: Option[String])(implicit ec: EC, db: DB, au: AU): DbResultT[Order] =
     for {
+      scope ← * <~ Scope.resolveOverride(subScope)
+
+      //it is important that line items are grabbed before cart is created
+      //because DB triggers delete the cart and line items after an order
+      //is created.
       lineItems ← * <~ prepareOrderLineItemsFromCart(cart, contextId)
-      order     ← * <~ Orders.create(newOrder)
-      _         ← * <~ OrderLineItems.createAll(lineItems)
+
+      order ← * <~ Orders.create(
+                 Order(referenceNumber = cart.referenceNumber,
+                       accountId = cart.accountId,
+                       scope = scope,
+                       currency = cart.currency,
+                       subTotal = cart.subTotal,
+                       shippingTotal = cart.shippingTotal,
+                       adjustmentsTotal = cart.adjustmentsTotal,
+                       taxesTotal = cart.taxesTotal,
+                       grandTotal = cart.grandTotal,
+                       contextId = contextId))
+
+      _ ← * <~ OrderLineItems.createAll(lineItems)
     } yield order
-  }
 
   def prepareOrderLineItemsFromCart(cart: Cart, contextId: Int)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[OrderLineItem]] = {
-    val uniqueSkuCodesInCart = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
-      case (sku, q) ⇒ sku
+    val uniqueSkuIdsInCart = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
+      case (skuId, q) ⇒ skuId
     }
 
     val skusInCart = for {
-      skuCode ← uniqueSkuCodesInCart
-      sku     ← Skus if sku.id === skuCode
-    } yield (skuCode, sku)
+      skuId ← uniqueSkuIdsInCart
+      sku   ← Skus if sku.id === skuId
+    } yield (skuId, sku)
 
     for {
       skus      ← * <~ skusInCart.result

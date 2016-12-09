@@ -15,4 +15,16 @@ type Order struct {
 	ReferenceNumber string              `json:"referenceNumber" binding:"required"`
 	ShippingAddress Address             `json:"shippingAddress" binding:"required"`
 	RemorseHoldEnd  *string             `json:"remorseHoldEnd"`
+	Scopable
+}
+
+func (order *Order) SetScope(scope string) {
+	order.Scope = scope
+
+	order.ShippingMethod.SetScope(scope)
+}
+
+// Order wrapped in Phoenix response
+type OrderResult struct {
+	Order Order `json:"result" binding:"required"`
 }

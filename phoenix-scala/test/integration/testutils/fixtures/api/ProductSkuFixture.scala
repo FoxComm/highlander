@@ -14,15 +14,15 @@ import testutils.apis.PhoenixAdminApi
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { self: FoxSuite ⇒
 
   trait ProductSku_ApiFixture {
-    private val productCode = s"p_${Lorem.numerify("####")}}"
-    val skuCode             = s"$productCode-${Lorem.letterify("????")}"
+    private val productCode = s"testprod_${Lorem.numerify("####")}"
+    val skuCode             = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
     private val skuPrice    = Random.nextInt(20000) + 100
 
     private val skuPayload = SkuPayload(
-        Map("code"        → tv(skuCode),
-            "title"       → tv(skuCode.capitalize),
-            "salePrice"   → tv(("currency" → "USD") ~ ("value" → skuPrice), "price"),
-            "retailPrice" → tv(("currency" → "USD") ~ ("value" → skuPrice), "price")))
+        attributes = Map("code"        → tv(skuCode),
+                         "title"       → tv(skuCode.capitalize),
+                         "salePrice"   → tv(("currency" → "USD") ~ ("value" → skuPrice), "price"),
+                         "retailPrice" → tv(("currency" → "USD") ~ ("value" → skuPrice), "price")))
 
     private val productPayload =
       CreateProductPayload(

@@ -23,6 +23,7 @@ type Shipment struct {
 	ShipmentLineItems  []ShipmentLineItem
 	TrackingNumber     sql.NullString
 	ShippingPrice      int
+	Scope              string
 }
 
 func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
@@ -37,6 +38,7 @@ func NewShipmentFromPayload(payload *payloads.Shipment) *Shipment {
 		Address:            *NewAddressFromPayload(&payload.Address),
 		TrackingNumber:     utils.MakeSqlNullString(payload.TrackingNumber),
 		ShippingPrice:      payload.ShippingPrice,
+		Scope:              payload.Scope,
 	}
 
 	for _, lineItem := range payload.ShipmentLineItems {
@@ -71,10 +73,7 @@ func NewShipmentFromUpdatePayload(payload *payloads.UpdateShipment) *Shipment {
 		shipment.Address = *NewAddressFromPayload(payload.Address)
 	}
 
-	for _, lineItem := range payload.ShipmentLineItems {
-		shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *NewShipmentLineItemFromPayload(&lineItem))
-	}
-
+	shipment.Scope = payload.Scope
 	return shipment
 }
 
@@ -85,13 +84,34 @@ func NewShipmentFromOrderPayload(payload *payloads.Order) *Shipment {
 		State:              ShipmentStatePending,
 		Address:            *NewAddressFromPayload(&payload.ShippingAddress),
 		ShippingPrice:      payload.ShippingMethod.Price,
+		Scope:              payload.Scope,
 	}
 
-    for _, lineItem := range payload.LineItems.SKUs {
-        for i := 0 ; i < lineItem.Quantity; i++ {
-            shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *NewShipmentLineItemFromOrderPayload(&lineItem))
-        }
-    }
+	for _, lineItem := range payload.LineItems.SKUs {
+		for i := 0; i < lineItem.Quantity; i++ {
+			shipment.ShipmentLineItems = append(shipment.ShipmentLineItems, *NewShipmentLineItemFromOrderPayload(&lineItem))
+		}
+	}
 
 	return shipment
+}
+
+func (s Shipment) IsUpdated(other *Shipment) bool {
+	address := s.Address
+	otherAddress := other.Address
+
+	return address.Name != otherAddress.Name ||
+		address.RegionID != otherAddress.RegionID ||
+		address.City != otherAddress.City ||
+		address.Zip != otherAddress.Zip ||
+		address.Address1 != otherAddress.Address1 ||
+		!utils.CompareNullStrings(address.Address2, otherAddress.Address2) ||
+		address.PhoneNumber != otherAddress.PhoneNumber ||
+		s.ShippingMethodCode != other.ShippingMethodCode ||
+		s.State != other.State ||
+		!utils.CompareNullStrings(s.ShipmentDate, other.ShipmentDate) ||
+		!utils.CompareNullStrings(s.EstimatedArrival, other.EstimatedArrival) ||
+		!utils.CompareNullStrings(s.DeliveredDate, other.DeliveredDate) ||
+		!utils.CompareNullStrings(s.TrackingNumber, other.TrackingNumber) ||
+		s.ShippingPrice != other.ShippingPrice
 }

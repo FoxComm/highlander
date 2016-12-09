@@ -1,0 +1,11 @@
+{
+  "checks": {
+    "consul-service": {
+      "command": "check-service-consul.rb -a",
+      "interval": 60,
+      "subscribers": [
+        {{ ansible_hostname | to_nice_json }}
+      ]
+    }
+  }
+}
