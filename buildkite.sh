@@ -11,7 +11,7 @@ vagrant destroy appliance --force
 
 echo "--- Final report"
 
-if [ $VAGRANT_UP_EXIT_CODE -ne 0 ]; then
+if [ $VAGRANT_UP_EXIT_CODE -eq 0 ]; then
     echo -e "Developer appliance creation \033[33msuccess\033[0m"
     exit 0
 else
