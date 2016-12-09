@@ -7,6 +7,7 @@ type IncrementStockItemUnits struct {
 	UnitCost int    `json:"unitCost"`
 	Status   string `json:"status"`
 	Type     string `json:"type" binding:"required"`
+	Scopable
 }
 
 func (r IncrementStockItemUnits) Validate() error {

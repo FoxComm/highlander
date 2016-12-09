@@ -80,7 +80,7 @@ def tune_vm(config, opts = {})
     g.google_client_email = ENV['GOOGLE_CLIENT_EMAIL']
     g.google_json_key_location = ENV['GOOGLE_JSON_KEY_LOCATION']
 
-    g.machine_type = "n1-standard-2"
+    g.machine_type = "n1-standard-4"
     g.image = "appliance-base-161129-185737"
     g.disk_size = 40
     g.zone = "us-central1-a"
@@ -141,7 +141,8 @@ Vagrant.configure("2") do |config|
         user: user,
         appliance_hostname: $nginx_ip,
         mesos_ip: $nginx_ip,
-        local_vagrant: $local
+        local_vagrant: $local,
+        first_run: true
       }
     end
   end

@@ -21,7 +21,7 @@
   vars:
     user: '{{ansible_ssh_user}}'
     upload_phoenix_jar: true
-    upload_greenriver_jar: true
+    first_run: true
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a frontend hostname"

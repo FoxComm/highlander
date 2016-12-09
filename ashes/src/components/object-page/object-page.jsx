@@ -329,13 +329,17 @@ export class ObjectPage extends Component {
           actions.newEntity();
           break;
         case SAVE_COMBO.DUPLICATE:
-          this.transitionTo('new');
+          this.handleDuplicate();
           break;
         case SAVE_COMBO.CLOSE:
           this.transitionToList();
           break;
       }
     });
+  }
+
+  handleDuplicate() {
+    this.transitionTo('new');
   }
 
   transitionToList() {

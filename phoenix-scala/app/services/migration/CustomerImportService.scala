@@ -1,7 +1,7 @@
 package services.migration
 
 import cats.implicits._
-import models.account.User
+import models.account._
 import models.customer._
 import payloads.AuthPayload
 import payloads.CustomerPayloads.CreateCustomerPayload
@@ -17,6 +17,7 @@ object CustomerImportService {
              admin: Option[User] = None,
              context: AccountCreateContext)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
+      scope ← * <~ Scopes.mustFindById404(context.scopeId)
       user ← * <~ AccountManager.createUser(name = payload.name,
                                             email = payload.email.toLowerCase.some,
                                             password = payload.password,
@@ -26,6 +27,7 @@ object CustomerImportService {
       custData ← * <~ CustomersData.create(
                     CustomerData(accountId = user.accountId,
                                  userId = user.id,
+                                 scope = scope.ltree,
                                  isGuest = payload.isGuest.getOrElse(false)))
       result = build(user, custData)
       _ ← * <~ LogActivity.customerCreated(result, admin)

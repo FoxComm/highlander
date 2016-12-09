@@ -8,6 +8,7 @@ type Carrier struct {
 	ID               uint
 	Name             string
 	TrackingTemplate string
+	Scope            string
 }
 
 func (carrier *Carrier) Identifier() uint {
@@ -18,5 +19,6 @@ func NewCarrierFromPayload(payload *payloads.Carrier) *Carrier {
 	return &Carrier{
 		Name:             payload.Name,
 		TrackingTemplate: payload.TrackingTemplate,
+		Scope:            payload.Scope,
 	}
 }

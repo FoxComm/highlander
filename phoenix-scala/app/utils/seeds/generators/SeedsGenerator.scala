@@ -4,11 +4,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
 import cats.implicits._
-import faker.{Faker, Lorem}
+import faker.Faker
+import models.account._
 import models.cord._
 import models.coupon._
 import models.customer._
-import models.account._
 import models.inventory._
 import models.location.{Address, Addresses}
 import models.objects.{ObjectContext, ObjectContexts}
@@ -83,7 +83,7 @@ object SeedsGenerator
                    })
       customers ← * <~ Users.filter(_.id.inSet(customerIds)).result
       _ ← * <~ CustomersData.createAll(customers.map { c ⇒
-           CustomerData(accountId = c.accountId, userId = c.id)
+           CustomerData(accountId = c.accountId, userId = c.id, scope = Scope.current)
          })
       _ ← * <~ Addresses.createAll(generateAddresses(customers))
       _ ← * <~ CreditCards.createAll(generateCreditCards(customers))

@@ -4,7 +4,7 @@
 
 // libs
 import _ from 'lodash';
-import { assoc } from 'sprout-data';
+import { assoc, dissoc, update } from 'sprout-data';
 
 // helpers
 import { generateSkuCode } from './sku';
@@ -63,17 +63,17 @@ export function createEmptyProduct(): Product {
       title: t.string(''),
     },
     skus: [],
-    context: {name: 'default'},
+    context: { name: 'default' },
     variants: [],
   };
 
   if (isMerchant()) {
     const merchantAttributes = {
       attributes: {
-        description: {t: 'richText', v: ''},
+        description: { t: 'richText', v: '' },
         shortDescription: { t: 'string', v: '' },
-        externalUrl: {t: 'string', v: ''},
-        externalId: {t: 'string', v: ''},
+        externalUrl: { t: 'string', v: '' },
+        externalId: { t: 'string', v: '' },
         type: { t: 'string', v: '' },
         vendor: { t: 'string', v: '' },
         manufacturer: { t: 'string', v: '' },
@@ -86,10 +86,20 @@ export function createEmptyProduct(): Product {
       },
     };
 
-    product = {...product, ...merchantAttributes };
+    product = { ...product, ...merchantAttributes };
   }
 
   return configureProduct(addEmptySku(product));
+}
+
+export function duplicateProduct(product: Product): Product {
+  const cleared = dissoc(product, 'id');
+
+  return update(cleared, 'albums', _.map, album => {
+    const cleared = dissoc(album, 'id', 'createdAt', 'updatedAt');
+
+    return update(cleared, 'images', _.map, image => dissoc(image, 'id'));
+  });
 }
 
 export function createEmptySku(): Object {

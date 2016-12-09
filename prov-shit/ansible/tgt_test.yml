@@ -1,0 +1,57 @@
+---
+
+- name: Provision Target Test Backend
+  hosts: tgt-test-backend
+  vars:
+    user: '{{ansible_ssh_user}}'
+    upload_phoenix_jar: true
+    docker_registry: docker-tgt.foxcommerce.com
+    download_flyway: false
+  tags:
+    - backend
+  roles:
+    - { role: dev/stage_mesos, when: first_run }
+    - { role: dev/kafka, when: first_run }
+    - { role: dev/elasticsearch, when: first_run }
+    - { role: dev/db, when: first_run }
+    - { role: dev/db_phoenix, when: first_run }
+    - { role: prod/migrate_phoenix_db}
+    - { role: prod/migrate_middlewarehouse_db}
+
+  handlers:
+    - include: roles/base/consul_agent/handlers/main.yml
+
+- name: Provision Target Test Frontend
+  hosts: tgt-test-frontend
+  vars:
+    user: '{{ansible_ssh_user}}'
+    docker_registry: docker-tgt.foxcommerce.com
+    api_server: tgt-wild.foxcommerce.com
+    self_host: tgt-wild.foxcommerce.com
+    ashes_server_name: tgt-wild.foxcommerce.com
+    storefront_server_name: tgt-wild.foxcommerce.com
+    seeds_cmd: utils.seeds.Seeds seed --seedAdmins --skipMigrate
+    with_base_seeds: true
+    phoenix_tax_rule_region: 4129
+    phoenix_tax_rule_rate: 7.5
+  tags:
+    - frontend
+  roles:
+    - { role: dev/stage_mesos, when: first_run }
+    - { role: base/ssh_keys, when: first_run }
+    - { role: dev/phoenix }
+    - { role: dev/greenriver }
+    - { role: dev/ashes }
+    - { role: dev/middlewarehouse }
+    - { role: dev/isaac }
+    - { role: dev/solomon }
+    - { role: dev/marketplace }
+    - { role: ext/tgt/marketplace-ui }
+    - { role: ext/tgt/product-search }
+    - { role: demo/search }
+    - { role: dev/balancer, sudo: yes }
+    - { role: ext/tgt/balancer, sudo: true }
+    - { role: dev/seeder, when: first_run }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

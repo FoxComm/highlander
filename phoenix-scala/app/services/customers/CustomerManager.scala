@@ -4,6 +4,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures.AuthFailures.ChangePasswordFailed
 import failures.CustomerFailures._
 import failures.UserFailures.AccessMethodNotFound
@@ -15,6 +16,7 @@ import models.customer.CustomersData.scope._
 import models.customer._
 import models.location.Addresses
 import models.shipping.Shipments
+import org.json4s.native.Serialization._
 import payloads.AuthPayload
 import payloads.CustomerPayloads._
 import responses.CustomerResponse._
@@ -61,6 +63,7 @@ object CustomerManager {
                        .mustFindOneOr(NotFoundFailure404(CustomerData, accountId))
       (customerData, shipRegion, billRegion, rank) = customerDatas
       maxOrdersDate ← * <~ Orders.filter(_.accountId === accountId).map(_.placedAt).max.result
+      totals ← * <~ StoreCreditService.fetchTotalsForCustomer(accountId)
       phoneOverride ← * <~ doOrGood(customer.phoneNumber.isEmpty,
                                     resolvePhoneNumber(accountId),
                                     None)
@@ -70,6 +73,7 @@ object CustomerManager {
             shipRegion,
             billRegion,
             rank = rank,
+            scTotals  = totals,
             lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)))
   }
 
@@ -112,10 +116,13 @@ object CustomerManager {
                                             context = context,
                                             checkEmail = !payload.isGuest.getOrElse(false))
 
+      contextScope ← * <~ Scopes.mustFindById400(context.scopeId)
+      scope        ← * <~ Scope.overwrite(contextScope.path, payload.scope)
       custData ← * <~ CustomersData.create(
                     CustomerData(accountId = user.accountId,
                                  userId = user.id,
-                                 isGuest = payload.isGuest.getOrElse(false)))
+                                 isGuest = payload.isGuest.getOrElse(false),
+                                 scope = scope))
     } yield (user, custData)
 
   def createGuest(context: AccountCreateContext)(implicit ec: EC,
@@ -127,10 +134,12 @@ object CustomerManager {
                                             password = None,
                                             context = context,
                                             checkEmail = false)
-
+      scope ← * <~ Scopes.mustFindById400(context.scopeId)
       custData ← * <~ CustomersData.create(
-                    CustomerData(accountId = user.accountId, userId = user.id, isGuest = true))
-      response = build(user, custData)
+                    CustomerData(accountId = user.accountId,
+                                 userId = user.id,
+                                 isGuest = true,
+                                 scope = LTree(scope.path)))
     } yield (user, custData)
 
   def update(accountId: Int, payload: UpdateCustomerPayload, admin: Option[User] = None)(

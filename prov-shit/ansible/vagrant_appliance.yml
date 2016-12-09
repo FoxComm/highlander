@@ -36,6 +36,7 @@
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }
     - { role: dev/balancer, sudo: yes }
+    - { role: demo/balancer, sudo: yes }
     - { role: dev/consumers }
 
   handlers:
