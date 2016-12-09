@@ -39,7 +39,6 @@
     - { role: dev/balancer, sudo: true }
     - { role: demo/balancer, sudo: true }
     - { role: dev/consumers }
-    - { role: dev/kibana }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
