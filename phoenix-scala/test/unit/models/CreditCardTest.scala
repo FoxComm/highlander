@@ -45,8 +45,8 @@ class CreditCardTest extends TestBase {
         val zipFailure: NonEmptyList[Failure] = NonEmptyList(
             GeneralFailure(s"zip must fully match regular expression '${Address.zipPatternUs}'"))
 
-        val badZip         = card.copy(zip = "AB+123")
-        val wrongLengthZip = card.copy(zip = "1")
+        val badZip         = card.copy(address = card.address.copy(zip = "AB+123"))
+        val wrongLengthZip = card.copy(address = card.address.copy(zip = "1"))
 
         val cards = Table(
             ("creditCards", "errors"),

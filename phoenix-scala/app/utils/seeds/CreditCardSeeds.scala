@@ -29,12 +29,12 @@ trait CreditCardSeeds extends CreditCardGenerator {
                expMonth = today.getMonthValue,
                expYear = today.getYear + 2,
                isDefault = true,
-               regionId = 4129,
-               addressName = "Old Jeff",
-               address1 = "95 W. 5th Ave.",
-               address2 = Some("Apt. 437"),
-               city = "San Mateo",
-               zip = "94402",
+               address = BillingAddress(regionId = 4129,
+                                        name = "Old Jeff",
+                                        address1 = "95 W. 5th Ave.",
+                                        address2 = Some("Apt. 437"),
+                                        city = "San Mateo",
+                                        zip = "94402"),
                brand = "Visa")
   }
 
@@ -49,12 +49,12 @@ trait CreditCardSeeds extends CreditCardGenerator {
                expMonth = 4,
                expYear = today.getYear + 4,
                isDefault = false,
-               regionId = 4141,
-               addressName = "West Ave",
-               address1 = "3590 West Avenue",
-               address2 = None,
-               city = "Indianapolis",
-               zip = "46201",
+               address = BillingAddress(regionId = 4141,
+                                        name = "West Ave",
+                                        address1 = "3590 West Avenue",
+                                        address2 = None,
+                                        city = "Indianapolis",
+                                        zip = "46201"),
                brand = "Visa")
   }
 
@@ -67,12 +67,12 @@ trait CreditCardSeeds extends CreditCardGenerator {
                expMonth = 7,
                expYear = today.getYear + 3,
                isDefault = true,
-               regionId = 4164,
-               addressName = "Haymond Rocks",
-               address1 = "3564 Haymond Rocks Road",
-               address2 = None,
-               city = "Grants Pass",
-               zip = "97526",
+               address = BillingAddress(regionId = 4164,
+                                        name = "Haymond Rocks",
+                                        address1 = "3564 Haymond Rocks Road",
+                                        address2 = None,
+                                        city = "Grants Pass",
+                                        zip = "97526"),
                brand = "Visa")
   }
 
@@ -85,12 +85,12 @@ trait CreditCardSeeds extends CreditCardGenerator {
                expMonth = 3,
                expYear = today.getYear + 3,
                isDefault = true,
-               regionId = 551,
-               addressName = "Bright Quay",
-               address1 = "1851 Bright Quay",
-               address2 = None,
-               city = "Tonganoxie",
-               zip = "S0R-9U4",
+               address = BillingAddress(regionId = 551,
+                                        name = "Bright Quay",
+                                        address1 = "1851 Bright Quay",
+                                        address2 = None,
+                                        city = "Tonganoxie",
+                                        zip = "S0R-9U4"),
                brand = "Visa")
   }
 
@@ -103,12 +103,12 @@ trait CreditCardSeeds extends CreditCardGenerator {
                expMonth = 11,
                expYear = today.getYear + 1,
                isDefault = true,
-               regionId = 787,
                brand = "Visa",
-               addressName = "Výchozí",
-               address1 = "Rvačov 829",
-               address2 = None,
-               city = "Rvačov 829",
-               zip = "413 01")
+               address = BillingAddress(regionId = 787,
+                                        name = "Výchozí",
+                                        address1 = "Rvačov 829",
+                                        address2 = None,
+                                        city = "Rvačov 829",
+                                        zip = "413 01"))
   }
 }
