@@ -73,6 +73,8 @@ def tune_vm(config, opts = {})
     user = "ubuntu"
 
     override.vm.box = "gce"
+    override.vm.synced_folder '.', '/vagrant', disabled: true
+
     override.ssh.username = ENV['GOOGLE_SSH_USERNAME']
     override.ssh.private_key_path = ENV['GOOGLE_SSH_KEY']
 
@@ -109,7 +111,6 @@ end
 
 Vagrant.configure("2") do |config|
   user = ENV['GOOGLE_SSH_USERNAME'] || "vagrant"
-  config.vm.synced_folder '.', '/vagrant', disabled: true
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
