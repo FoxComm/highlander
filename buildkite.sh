@@ -2,11 +2,11 @@
 export VAGRANT_DEFAULT_PROVIDER=google
 export eval `cat ./.env.local`
 
-echo "--- Start Vagrant Machine"
+echo -e "--- Executing \033[33mvagrant up\033[0m"
 vagrant up --provider=google appliance
 VAGRANT_UP_EXIT_CODE=$?
 
-echo "--- Destroy Vagrant Machine"
+echo -e "--- Executing \033[33mvagrant destroy\033[0m"
 vagrant destroy appliance --force
 
 if [ $VAGRANT_UP_EXIT_CODE -eq 1 ]; then
