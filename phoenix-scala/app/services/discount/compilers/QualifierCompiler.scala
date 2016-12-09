@@ -32,9 +32,11 @@ case class QualifierCompiler(qualifierType: QualifierType, attributes: Json) {
         q match {
           case q: NonEmptySearch if q.search.isEmpty ⇒
             Xor.Left(QualifierSearchIsEmpty(qualifierType).single)
-          case _ ⇒ Xor.Right(q)
+          case _ ⇒
+            Xor.Right(q)
         }
-      case None ⇒ Xor.Left(QualifierAttributesExtractionFailure(qualifierType).single)
+      case None ⇒
+        Xor.Left(QualifierAttributesExtractionFailure(qualifierType).single)
     }
   }
 }

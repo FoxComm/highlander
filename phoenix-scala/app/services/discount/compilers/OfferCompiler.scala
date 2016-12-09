@@ -32,8 +32,10 @@ case class OfferCompiler(offerType: OfferType, attributes: Json) {
         q match {
           case q: NonEmptySearch if q.search.isEmpty ⇒
             Xor.Left(OfferSearchIsEmpty(offerType).single)
-          case _ ⇒ Xor.Right(q)
+          case _ ⇒
+            Xor.Right(q)
         }
-      case None ⇒ Xor.Left(OfferAttributesExtractionFailure(offerType).single)
+      case None ⇒
+        Xor.Left(OfferAttributesExtractionFailure(offerType).single)
     }
 }

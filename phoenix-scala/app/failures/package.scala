@@ -22,9 +22,7 @@ package object failures {
   }
 
   implicit class FailuresOps(val underlying: Failures) extends AnyVal {
-    def toList: List[Failure] = underlying.toList
-
-    def flatten: List[String] = toList.map(_.description)
+    def flatten: List[String] = underlying.toList.map(_.description)
   }
 
   object Util {

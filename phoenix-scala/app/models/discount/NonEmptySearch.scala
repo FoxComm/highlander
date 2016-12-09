@@ -9,7 +9,8 @@ package models.discount
   * Note: json4s create empty Seq in case classes even if field not presented in json
   *
   * TODO: Looks hacky, need to refactor to NonEmptyList for this Seq-s.
-  * Need to add json4s serializer for NonEmptyList // narma 02.12.2016
+  * TODO: Need to add json4s serializer for NonEmptyList // narma 02.12.2016
+  * TODO: Or, it's better - replace json4s with circle with native support of NEL
   */
 trait NonEmptySearch {
   val search: Seq[_]
