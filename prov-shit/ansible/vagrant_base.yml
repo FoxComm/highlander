@@ -17,11 +17,11 @@
     - { role: base/elasticsearch }
     - { role: base/db }
     - { role: base/bottledwater }
-    - { role: base/rsyslog, sudo: yes }
-    - { role: base/kibana, sudo: yes }
-    - { role: base/node, sudo: yes }
-    - { role: base/balancer, sudo: yes }
-    - { role: base/builder }
+    - { role: base/rsyslog, sudo: true }
+    - { role: base/kibana, sudo: true }
+    - { role: base/node, sudo: true }
+    - { role: base/balancer, sudo: true }
+    - { role: base/builder, sudo: true }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
