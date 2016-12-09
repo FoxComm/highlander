@@ -2,7 +2,7 @@ package utils
 
 import scala.concurrent.Future
 
-import cats.data.{Xor, XorT}
+import cats.data.{NonEmptyList, Xor, XorT}
 import cats.implicits._
 import cats.{Applicative, Functor, Monad}
 import failures._
@@ -97,6 +97,14 @@ package object db {
 
   def failIfNot(condition: Boolean, failure: Failure)(implicit ec: EC): DbResultT[Unit] =
     failIf(!condition, failure)
+
+  def failIfFailures(failures: Seq[Failure])(implicit ec: EC): DbResultT[Unit] =
+    failures match {
+      case head :: tail ⇒
+        DbResultT.failures[Unit](NonEmptyList.of(head, tail: _*))
+      case _ ⇒
+        DbResultT.unit
+    }
 
   implicit class EnrichedSQLActionBuilder(val action: SQLActionBuilder) extends AnyVal {
     def stripMargin: SQLActionBuilder =

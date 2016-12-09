@@ -76,8 +76,7 @@ object DiscountManager {
     val fs = FormAndShadow.fromPayload(Discount.kind, payload.attributes)
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
-      _     ← * <~ QualifierAstCompiler(qualifier(fs.form, fs.shadow)).compile()
-      _     ← * <~ OfferAstCompiler(offer(fs.form, fs.shadow)).compile()
+      _     ← * <~ DiscountValidator.validate(fs)
       ins   ← * <~ ObjectUtils.insert(fs.form, fs.shadow, payload.schema)
       discount ← * <~ Discounts.create(
                     Discount(scope = scope,
@@ -115,8 +114,7 @@ object DiscountManager {
                   .filter(_.contextId === context.id)
                   .filter(_.formId === discountId)
                   .mustFindOneOr(DiscountNotFoundForContext(discountId, context.id))
-      _ ← * <~ QualifierAstCompiler(qualifier(fs.form, fs.shadow)).compile()
-      _ ← * <~ OfferAstCompiler(offer(fs.form, fs.shadow)).compile()
+      _ ← * <~ DiscountValidator.validate(fs)
       update ← * <~ ObjectUtils.update(discount.formId,
                                        discount.shadowId,
                                        fs.form.attributes,
