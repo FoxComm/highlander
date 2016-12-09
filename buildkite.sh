@@ -2,14 +2,14 @@
 export VAGRANT_DEFAULT_PROVIDER=google
 export eval `cat ./.env.local`
 
-echo "--- Executing \033[33mvagrant up\033[0m"
+echo "--- Start Vagrant Machine"
 vagrant up --provider=google appliance
-VAGRANT_UP_EXIT_CODE=${PIPESTATUS[0]}
+VAGRANT_UP_EXIT_CODE=$?
 
-echo "--- Executing \033[33mvagrant destroy\033[0m"
+echo "--- Destroy Vagrant Machine"
 vagrant destroy appliance --force
 
-if [ "$VAGRANT_UP_EXIT_CODE" -eq 1 ]; then
+if [ $VAGRANT_UP_EXIT_CODE -eq 1 ]; then
     echo "Failed to setup/provision GCE machine"
     exit 1
 else
