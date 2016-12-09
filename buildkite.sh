@@ -1,7 +1,10 @@
 #!/bin/bash
-make up
+export VAGRANT_DEFAULT_PROVIDER=google
+export eval `cat ./.env.local`
+
+vagrant up --provider=google appliance
 VAGRANT_UP_EXIT_CODE=${PIPESTATUS[0]}
-make destroy
+vagrant destroy appliance --force
 
 set -ue
 
