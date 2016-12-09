@@ -4,6 +4,7 @@
   hosts: foxcomm-stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
+    download_flyway: false
   tags:
     - backend
   roles:
