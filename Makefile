@@ -72,19 +72,19 @@ $(DOCKERPUSHDIRS_ALL): REPO = $(@:docker-push-all-%=%)
 $(DOCKERPUSHDIRS_ALL):
 	$(MAKE) -C $(REPO) docker-push
 
-up: 
+up:
 	$(call header, Creating GCE Machine)
 	export eval `cat ./.env.local`; vagrant up --provider=google appliance
 
-provision: 
+provision:
 	$(call header, Provisioning GCE Machine)
 	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant provision appliance
 
-destroy: 
+destroy:
 	$(call header, Destroying GCE Machine)
-	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant destroy appliance
+	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant destroy appliance --force
 
-ssh: 
+ssh:
 	$(call header, Connecting to GCE Machine)
 	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant ssh appliance
 

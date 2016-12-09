@@ -16,12 +16,13 @@
     vagrant: true
 
   roles:
-    - { role: dev/appliance, run_once: true}
+    - { role: dev/appliance, run_once: true }
     - { role: base/secret_keys }
     - { role: dev/consul_agent }
     - { role: base/marketplace, when: with_marketplace }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
+    - { role: dev/kibana, sudo: true }
     - { role: base/bottledwater }
     - { role: dev/db }
     - { role: dev/isaac }
@@ -30,14 +31,15 @@
     - { role: dev/marketplace, when: with_marketplace }
     - { role: dev/middlewarehouse }
     - { role: dev/greenriver }
-    - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/ashes }
     - { role: dev/firebrand }
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }
-    - { role: dev/balancer, sudo: yes }
-    - { role: demo/balancer, sudo: yes }
+    - { role: dev/messaging, retailer_name: 'FoxCommerce' }
+    - { role: dev/balancer, sudo: true }
+    - { role: demo/balancer, sudo: true }
     - { role: dev/consumers }
+    - { role: dev/healthcheck }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

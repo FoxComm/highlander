@@ -1,5 +1,20 @@
 ---
 
+- name: Bootstrap Amigo
+  hosts: '{{hostname}}'
+  tags:
+    - amigo
+  vars:
+    user: '{{ansible_ssh_user}}'
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a backend to provision"
+      default: "vanilla-amigo"
+      private: no
+
+  roles:
+    - { role: dev/kibana, sudo: true }
+
 - name: Bootstrap Backend
   hosts: '{{hostname}}'
   vars:
