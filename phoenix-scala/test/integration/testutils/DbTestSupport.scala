@@ -68,8 +68,8 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
         t.startsWith("pg_") || t.startsWith("sql_") || doNotTruncate.contains(t)
       }
       val sqlTables = tables.mkString("{", ",", "}")
-      nonEmptyTableStmt =
-        persistConn.prepareStatement(s"select filter_empty_tables('$sqlTables'::text[]) as tables")
+      truncateTablesStmt =
+        persistConn.prepareStatement(s"select truncate_nonempty_tables('$sqlTables'::text[])")
 
       migrated = true
     }
@@ -78,25 +78,8 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
   private def setupObjectContext(): ObjectContext =
     ObjectContexts.create(SimpleContext.create()).gimme
 
-  private def filterEmptyTables(): Seq[String] = {
-    val rs = nonEmptyTableStmt.executeQuery()
-    if (rs.next()) {
-      rs.getArray("tables") match {
-        case null  ⇒ Seq.empty[String]
-        case array ⇒ array.getArray.asInstanceOf[scala.Array[String]]
-      }
-    } else
-      Seq.empty[String]
-  }
-
   override abstract protected def withFixture(test: NoArgTest): Outcome = {
-    val nonEmptyTables = filterEmptyTables()
-
-    if (nonEmptyTables.nonEmpty) {
-      persistConn
-        .createStatement()
-        .execute(s"truncate ${nonEmptyTables.mkString(", ")} restart identity cascade;")
-    }
+    truncateTablesStmt.executeQuery()
 
     super.withFixture(test)
   }
@@ -104,9 +87,9 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
 
 object DbTestSupport {
 
-  @volatile var migrated                             = false
-  @volatile var tables: Seq[String]                  = Seq()
-  @volatile var nonEmptyTableStmt: PreparedStatement = _
+  @volatile var migrated                              = false
+  @volatile var tables: Seq[String]                   = Seq()
+  @volatile var truncateTablesStmt: PreparedStatement = _
 
   lazy val database    = Database.forConfig("db", TestBase.config)
   lazy val dataSource  = jdbcDataSourceFromSlickDB(database)
