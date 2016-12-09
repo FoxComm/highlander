@@ -2,7 +2,7 @@
 
 - name: Copy Jar
   copy: src={{greenriver_jar_src}} dest={{greenriver_jar}} mode="u+x,g+x,o+x"
-  when: upload_greenriver_jar
+  when: first_run
 
 - name: Create ES Mappings
   command: /usr/local/bin/create_es_mappings.sh

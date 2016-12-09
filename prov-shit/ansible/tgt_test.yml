@@ -5,7 +5,6 @@
   vars:
     user: '{{ansible_ssh_user}}'
     upload_phoenix_jar: true
-    upload_greenriver_jar: true
     docker_registry: docker-tgt.foxcommerce.com
     first_run: true
   tags:

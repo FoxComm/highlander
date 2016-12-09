@@ -5,7 +5,6 @@
   vars:
     user: '{{ansible_ssh_user}}'
     upload_phoenix_jar: true
-    upload_greenriver_jar: true
   roles:
     - { role: dev/kafka }
     - { role: dev/elasticsearch }

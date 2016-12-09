@@ -210,7 +210,6 @@ packing: false
 # Should we upload Phoenix / Green River JAR?
 # Should be seed DB, seed via Gatling?
 upload_phoenix_jar: true
-upload_greenriver_jar: true
 with_seeder: false
 with_gatling_seeder: true
 
