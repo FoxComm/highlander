@@ -50,6 +50,7 @@ export default class CustomerDetails extends React.Component {
             <CustomerCreditCards customerId={ customer.id } addresses={ addresses } />
           </div>
         </div>
+        <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-2">
             <CustomerAccountStatus customer={ customer }/>
           </div>
