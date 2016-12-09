@@ -37,6 +37,7 @@ type SKU struct {
 
 func NewSKUFromModel(sku *models.SKU) *SKU {
 	return &SKU{
+		ID:               sku.Base.ID,
 		Code:             sku.Code,
 		UPC:              sku.UPC,
 		Title:            sku.Title,

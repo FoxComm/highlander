@@ -4,7 +4,7 @@ import "github.com/FoxComm/highlander/middlewarehouse/common/gormfox"
 
 type SKU struct {
 	gormfox.Base
-
+	Scope                              string
 	Code                               string
 	UPC                                string
 	Title                              string

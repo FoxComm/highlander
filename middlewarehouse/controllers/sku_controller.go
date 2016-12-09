@@ -4,15 +4,20 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
 )
 
-type skuController struct{}
+type skuController struct {
+	skuService services.SKU
+}
 
-func NewSKUController() IController {
-	return &skuController{}
+func NewSKUController(db *gorm.DB) IController {
+	skuService := services.NewSKU(db)
+	return &skuController{skuService}
 }
 
 func (controller *skuController) SetUp(router gin.IRouter) {
@@ -32,7 +37,17 @@ func (controller *skuController) CreateSKU() gin.HandlerFunc {
 
 func (controller *skuController) GetSKUByID() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		resp := dummyResponse()
+		id, failure := paramUint(context, "id")
+		if failure != nil {
+			return
+		}
+
+		resp, err := controller.skuService.GetByID(id)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
 		context.JSON(http.StatusOK, resp)
 	}
 }

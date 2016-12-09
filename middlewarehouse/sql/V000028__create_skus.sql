@@ -3,6 +3,7 @@ create table skus (
   scope exts.ltree not null,
   code generic_string not null,
   upc generic_string,
+  title generic_string,
   unit_cost integer not null default 0,
   tax_class generic_string not null,
   requires_shipping boolean not null default true,
@@ -31,7 +32,11 @@ create table skus (
   lot_expiration_threshold_value decimal,
   lot_expiration_threshold_units generic_string,
   lot_expiration_warning_threshold_value decimal,
-  lot_expiration_warning_threshold_units generic_string
+  lot_expiration_warning_threshold_units generic_string,
+
+  created_at generic_timestamp_now,
+  updated_at generic_timestamp_now,
+  deleted_at generic_timestamp_null
 );
 
 
