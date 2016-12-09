@@ -31,11 +31,11 @@
     - { role: dev/marketplace, when: with_marketplace }
     - { role: dev/middlewarehouse }
     - { role: dev/greenriver }
-    - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/ashes }
     - { role: dev/firebrand }
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }
+    - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/balancer, sudo: true }
     - { role: demo/balancer, sudo: true }
     - { role: dev/consumers }
