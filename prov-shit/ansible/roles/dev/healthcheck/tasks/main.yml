@@ -1,6 +1,6 @@
 ---
 
-- name: Get consul services in `warning` state
+- name: Get Consul services in `warning` state
   shell: 'curl -sS -XGET http://{{consul_server}}/v1/health/state/warning'
   register: consul_warning_services_output
 
@@ -8,15 +8,15 @@
   fail: msg="Detected Consul services in `warning` state"
   when: consul_warning_services_output.stdout != "[]"
 
-- name: Get consul services in `critical` state
+- name: Get Consul services in `critical` state
   shell: 'curl -sS -XGET http://{{consul_server}}/v1/health/state/critical'
   register: consul_critical_services_output
 
 - name: Ensure there is no services in `critical` state
   fail: msg="Detected Consul services in `critical` state"
-  when: consul_warning_services_output.stdout != "[]"
+  when: consul_critical_services_output.stdout != "[]"
 
-- name: Get marathon services in `unhealthy` state
+- name: Get Marathon services in `unhealthy` state
   shell: 'curl -sS -XGET http://{{marathon_server}}/v2/apps | {{jq_query}}'
   register: marathon_unhealthy_services_output
 

@@ -1,0 +1,10 @@
+---
+
+- name: Test Healthcheck
+  hosts: '{{hostname}}'
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname"
+      private: no
+  roles:
+    - { role: dev/healthcheck }
