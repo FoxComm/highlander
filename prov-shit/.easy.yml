@@ -73,6 +73,11 @@ shortcuts:
     alias: tpg_production.yml
     target: ansible/tpg_production.yml
 
+  # Healthchecks
+  - name: Perform Healthchecks
+    alias: healthchecks.yml
+    target: ansible/healthchecks.yml
+
 # Packer shortcuts
 - type: snowflake
   process: packer build

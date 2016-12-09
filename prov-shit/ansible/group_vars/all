@@ -13,6 +13,8 @@ local_vagrant: false
 # Consul Service Discovery
 consul_data_dir: /var/consul
 consul_suffix: service.consul
+consul_port: 8500
+consul_server: "{{self_host}}:{{consul_port}}"
 
 db_host: "db.{{consul_suffix}}"
 docker_db_host: "db.{{consul_suffix}}"
@@ -210,7 +212,6 @@ packing: false
 # Should we upload Phoenix / Green River JAR?
 # Should be seed DB, seed via Gatling?
 upload_phoenix_jar: true
-upload_greenriver_jar: true
 with_seeder: false
 with_gatling_seeder: true
 

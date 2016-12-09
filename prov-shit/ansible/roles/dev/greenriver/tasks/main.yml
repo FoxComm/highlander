@@ -4,10 +4,14 @@
   template: src=create_es_mappings.sh dest=/usr/local/bin/create_es_mappings.sh mode="u+x,g+x,o+x"
   sudo: true
 
+- name: Stop Running Green River Tasks
+  shell: 'curl -X DELETE http://{{marathon_server}}/v2/apps/greenriver/tasks?scale=true'
+  when: first_run
+
 - name: Create ES Mappings
   sudo: yes
   command: /usr/local/bin/create_es_mappings.sh
-  when: upload_greenriver_jar
+  when: first_run
 
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory

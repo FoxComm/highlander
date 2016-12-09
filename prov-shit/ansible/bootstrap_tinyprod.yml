@@ -1,5 +1,20 @@
 ---
 
+- name: Bootstrap Amigo
+  hosts: '{{hostname}}'
+  tags:
+    - amigo
+  vars:
+    user: '{{ansible_ssh_user}}'
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a backend to provision"
+      default: "vanilla-amigo"
+      private: no
+
+  roles:
+    - { role: dev/kibana, sudo: true }
+
 - name: Bootstrap Tinyprod
   hosts: '{{hostname}}'
   tags:
@@ -75,7 +90,7 @@
     - { role: dev/ashes }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/firebrand }
-    - { role: dev/balancer, sudo: yes }
+    - { role: dev/balancer, sudo: true }
     - { role: dev/consumers }
 
   handlers:

@@ -4,8 +4,7 @@ ALTER TABLE inventory_transactions_search_view ADD COLUMN scope exts.ltree NOT N
 ALTER TABLE shipments ADD COLUMN scope exts.ltree NOT NULL;
 ALTER TABLE shipping_methods ADD COLUMN scope exts.ltree NOT NULL;
 
-DELETE FROM stock_locations;
-ALTER TABLE stock_locations ADD COLUMN scope exts.ltree NOT NULL;
+ALTER TABLE stock_locations ADD COLUMN scope exts.ltree;
 
 
 CREATE OR REPLACE FUNCTION public.update_inventory_transactions_view_from_transactions_insert_fn()
