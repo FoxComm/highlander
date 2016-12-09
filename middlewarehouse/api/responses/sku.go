@@ -15,36 +15,89 @@ type SKU struct {
 	ShippingClass    string `json:"shippingClass"`
 
 	IsReturnable bool      `json:"isReturnable"`
-	ReturnWindow Dimension `json:"returnWindow"`
+	ReturnWindow dimension `json:"returnWindow"`
 
-	Height Dimension `json:"height"`
-	Weight Dimension `json:"weight"`
-	Length Dimension `json:"length"`
-	Width  Dimension `json:"width"`
+	Height dimension `json:"height"`
+	Weight dimension `json:"weight"`
+	Length dimension `json:"length"`
+	Width  dimension `json:"width"`
 
 	RequiresInventoryTracking bool          `json:"requiresInventoryTracking"`
-	InventoryWarningLevel     QuantityLevel `json:"inventoryWarningLevel"`
-	MaximumQuantityInCart     QuantityLevel `json:"maximumQuantityInCart"`
-	MinimumQuantityInCart     QuantityLevel `json:"minimumQuantityInCart"`
+	InventoryWarningLevel     quantityLevel `json:"inventoryWarningLevel"`
+	MaximumQuantityInCart     quantityLevel `json:"maximumQuantityInCart"`
+	MinimumQuantityInCart     quantityLevel `json:"minimumQuantityInCart"`
 
 	AllowBackorder bool `json:"allowBackorder"`
 	AllowPreorder  bool `json:"allowPreorder"`
 
 	RequiresLotTracking           bool      `json:"requiresLotTracking"`
-	LotExpirationThreshold        Dimension `json:"lotExpirationThreshold"`
-	LotExpirationWarningThreshold Dimension `json:"lotExpirationWarningThreshold"`
+	LotExpirationThreshold        dimension `json:"lotExpirationThreshold"`
+	LotExpirationWarningThreshold dimension `json:"lotExpirationWarningThreshold"`
 }
 
 func NewSKUFromModel(sku *models.SKU) *SKU {
-	return &SKU{}
+	return &SKU{
+		Code:             sku.Code,
+		UPC:              sku.UPC,
+		Title:            sku.Title,
+		UnitCost:         sku.UnitCost,
+		TaxClass:         sku.TaxClass,
+		RequiresShipping: sku.RequiresShipping,
+		ShippingClass:    sku.ShippingClass,
+		IsReturnable:     sku.IsReturnable,
+		ReturnWindow: dimension{
+			Value: sku.ReturnWindowValue,
+			Units: sku.ReturnWindowUnits,
+		},
+		Height: dimension{
+			Value: sku.HeightValue,
+			Units: sku.HeightUnits,
+		},
+		Weight: dimension{
+			Value: sku.WeightValue,
+			Units: sku.WeightUnits,
+		},
+		Length: dimension{
+			Value: sku.LengthValue,
+			Units: sku.LengthUnits,
+		},
+		Width: dimension{
+			Value: sku.WidthValue,
+			Units: sku.WidthUnits,
+		},
+		RequiresInventoryTracking: sku.RequiresInventoryTracking,
+		InventoryWarningLevel: quantityLevel{
+			IsEnabled: sku.InventoryWarningLevelIsEnabled,
+			Level:     sku.InventoryWarningLevelValue,
+		},
+		MaximumQuantityInCart: quantityLevel{
+			IsEnabled: sku.MaximumQuantityInCartIsEnabled,
+			Level:     sku.MaximumQuantityInCartValue,
+		},
+		MinimumQuantityInCart: quantityLevel{
+			IsEnabled: sku.MinimumQuantityInCartIsEnabled,
+			Level:     sku.MinimumQuantityInCartValue,
+		},
+		AllowBackorder:      sku.AllowBackorder,
+		AllowPreorder:       sku.AllowPreorder,
+		RequiresLotTracking: sku.RequiresLotTracking,
+		LotExpirationThreshold: dimension{
+			Value: sku.LotExpirationThresholdValue,
+			Units: sku.LotExpirationThresholdUnits,
+		},
+		LotExpirationWarningThreshold: dimension{
+			Value: sku.LotExpirationWarningThresholdValue,
+			Units: sku.LotExpirationWarningThresholdUnits,
+		},
+	}
 }
 
-type Dimension struct {
+type dimension struct {
 	Value float64 `json:"value"`
 	Units string  `json:"units"`
 }
 
-type QuantityLevel struct {
+type quantityLevel struct {
 	IsEnabled bool `json:"isEnabled"`
 	Level     int  `json:"level"`
 }

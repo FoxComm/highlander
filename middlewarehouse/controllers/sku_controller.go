@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
 )
 
 type skuController struct{}
@@ -50,59 +51,40 @@ func (controller *skuController) GetAFS() gin.HandlerFunc {
 	}
 }
 
-func dummyResponse() responses.SKU {
-	return responses.SKU{
-		ID:               1,
-		Code:             "SKU-TEST",
-		UPC:              "12312342131",
-		Title:            "Some test SKU",
-		UnitCost:         299,
-		TaxClass:         "default",
-		RequiresShipping: true,
-		ShippingClass:    "default",
-		IsReturnable:     true,
-		ReturnWindow: responses.Dimension{
-			Value: 30.0,
-			Units: "days",
-		},
-		Height: responses.Dimension{
-			Value: 15.0,
-			Units: "cm",
-		},
-		Length: responses.Dimension{
-			Value: 10.0,
-			Units: "cm",
-		},
-		Width: responses.Dimension{
-			Value: 5.0,
-			Units: "cm",
-		},
-		Weight: responses.Dimension{
-			Value: 50.0,
-			Units: "g",
-		},
-		RequiresInventoryTracking: true,
-		InventoryWarningLevel: responses.QuantityLevel{
-			IsEnabled: true,
-			Level:     3,
-		},
-		MaximumQuantityInCart: responses.QuantityLevel{
-			IsEnabled: true,
-			Level:     6,
-		},
-		MinimumQuantityInCart: responses.QuantityLevel{
-			IsEnabled: false,
-		},
-		AllowPreorder:       false,
-		AllowBackorder:      false,
-		RequiresLotTracking: true,
-		LotExpirationThreshold: responses.Dimension{
-			Value: 3.0,
-			Units: "months",
-		},
-		LotExpirationWarningThreshold: responses.Dimension{
-			Value: 15.0,
-			Units: "days",
-		},
+func dummyResponse() *responses.SKU {
+	model := &models.SKU{
+		Code:                               "SKU-TEST",
+		UPC:                                "12312342131",
+		Title:                              "Some test SKU",
+		UnitCost:                           299,
+		TaxClass:                           "default",
+		RequiresShipping:                   true,
+		ShippingClass:                      "default",
+		IsReturnable:                       true,
+		ReturnWindowValue:                  30.0,
+		ReturnWindowUnits:                  "days",
+		HeightValue:                        15.0,
+		HeightUnits:                        "cm",
+		LengthValue:                        10.0,
+		LengthUnits:                        "cm",
+		WidthValue:                         5.0,
+		WidthUnits:                         "cm",
+		WeightValue:                        50.0,
+		WeightUnits:                        "g",
+		RequiresInventoryTracking:          true,
+		InventoryWarningLevelIsEnabled:     true,
+		InventoryWarningLevelValue:         3,
+		MaximumQuantityInCartIsEnabled:     true,
+		MaximumQuantityInCartValue:         6,
+		MinimumQuantityInCartIsEnabled:     false,
+		AllowPreorder:                      false,
+		AllowBackorder:                     false,
+		RequiresLotTracking:                true,
+		LotExpirationThresholdValue:        3.0,
+		LotExpirationThresholdUnits:        "months",
+		LotExpirationWarningThresholdValue: 15.0,
+		LotExpirationWarningThresholdUnits: "days",
 	}
+
+	return responses.NewSKUFromModel(model)
 }
