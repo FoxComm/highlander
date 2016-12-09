@@ -1,4 +1,9 @@
 ---
+
+- name: Remove DPKG Lock
+  file: path=/var/lib/dpkg/lock state=absent
+  sudo: true
+
 - name: Remove Unattended Upgrades
   apt:
     name: unattended-upgrades

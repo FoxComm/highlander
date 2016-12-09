@@ -14,8 +14,8 @@
     - { role: base/docker_clean }
     - { role: base/scala }
     - { role: base/clojure }
-    - { role: base/node, sudo: yes }
-    - { role: base/builder }
+    - { role: base/node, sudo: true }
+    - { role: base/builder, sudo: true }
     - { role: test/db }
     - { role: test/selenium }
     - { role: dev/ssh_gce }
