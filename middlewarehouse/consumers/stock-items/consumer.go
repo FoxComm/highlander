@@ -58,7 +58,9 @@ func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
 		log.Panicf("Error creating POST request to MWH with error: %s", err.Error())
 	}
 
-	consumer.phoenixClient.EnsureAuthentication()
+	if err := consumer.phoenixClient.EnsureAuthentication(); err != nil {
+		log.Panicf("Error auth in phoenix with error: %s", err.Error())
+	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("JWT", consumer.phoenixClient.GetJwt())
