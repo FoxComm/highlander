@@ -100,15 +100,17 @@ class Watchers extends Component {
     return (
       <Panel className="fc-watchers">
         <div className="fc-watchers__container">
-//          <div className="fc-watchers__title-row">
-//            <div className="fc-watchers__title">
-//              Assignees
-//            </div>
-//            <div className="fc-watchers__controls">
-//              <a className="fc-watchers__link" onClick={e => this.watch(e, groups.assignees)}>take it</a>
-//            </div>
-//          </div>
-//          {renderGroup(props, groups.assignees)}
+{/*
+          <div className="fc-watchers__title-row">
+            <div className="fc-watchers__title">
+              Assignees
+            </div>
+            <div className="fc-watchers__controls">
+              <a className="fc-watchers__link" onClick={e => this.watch(e, groups.assignees)}>take it</a>
+            </div>
+          </div>
+          {renderGroup(props, groups.assignees)}
+*/}
           <div className="fc-watchers__title-row">
             <div className="fc-watchers__title">
               Watchers
