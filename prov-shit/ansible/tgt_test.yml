@@ -6,15 +6,17 @@
     user: '{{ansible_ssh_user}}'
     upload_phoenix_jar: true
     docker_registry: docker-tgt.foxcommerce.com
-    first_run: true
+    download_flyway: false
   tags:
     - backend
   roles:
     - { role: dev/stage_mesos, when: first_run }
-    - { role: dev/kafka }
-    - { role: dev/elasticsearch }
-    - { role: dev/db }
-    - { role: dev/db_phoenix }
+    - { role: dev/kafka, when: first_run }
+    - { role: dev/elasticsearch, when: first_run }
+    - { role: dev/db, when: first_run }
+    - { role: dev/db_phoenix, when: first_run }
+    - { role: prod/migrate_phoenix_db}
+    - { role: prod/migrate_middlewarehouse_db}
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
@@ -36,7 +38,7 @@
     - frontend
   roles:
     - { role: dev/stage_mesos, when: first_run }
-    - { role: base/ssh_keys }
+    - { role: base/ssh_keys, when: first_run }
     - { role: dev/phoenix }
     - { role: dev/greenriver }
     - { role: dev/ashes }
@@ -49,7 +51,7 @@
     - { role: demo/search }
     - { role: dev/balancer, sudo: yes }
     - { role: ext/tgt/balancer, sudo: true }
-    - { role: dev/seeder }
+    - { role: dev/seeder, when: first_run }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
