@@ -15,8 +15,5 @@
 - name: Copy Hotfix Python Script
   copy: src=promotion_search_save_fix.py dest={{scripts_dir}} mode="u+x,g+x,o+x"
 
-# - name: Run Authorization Script
-#   shell: "{{scripts_dir}}/get_jwt.sh"
-
-# - name: Run Hotfix
-#   shell: "{{scripts_dir}}/run_hotfix.sh"
+- name: Run Hotfix
+  shell: "{{scripts_dir}}/run_hotfix.sh"
