@@ -22,6 +22,7 @@
     - { role: base/marketplace, when: with_marketplace }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
+    - { role: dev/kibana, sudo: true }
     - { role: base/bottledwater }
     - { role: dev/db }
     - { role: dev/isaac }
@@ -35,8 +36,8 @@
     - { role: dev/firebrand }
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }
-    - { role: dev/balancer, sudo: yes }
-    - { role: demo/balancer, sudo: yes }
+    - { role: dev/balancer, sudo: true }
+    - { role: demo/balancer, sudo: true }
     - { role: dev/consumers }
 
   handlers:
