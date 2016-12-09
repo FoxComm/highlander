@@ -27,18 +27,18 @@ type Props = {
 export default class SelectProduct extends Component {
   props: Props;
 
-  get references(): Array<ProductSearch> {
+  get search(): Array<ProductSearch> {
     return _.get(this.props.context.params, this.props.name, []);
   }
 
-  updateReferences(references: Array<ProductSearch>): void {
+  updateSearches(searches: Array<ProductSearch>): void {
     this.props.context.setParams({
-      [this.props.name]: references,
+      [this.props.name]: searches,
     });
   }
 
   get selectedProduct(): ?RefId {
-    return _.get(this.references, '0.productSearchId');
+    return _.get(this.search, '0.productSearchId');
   }
 
   handleProductSearch(token: string): Promise {
@@ -59,7 +59,7 @@ export default class SelectProduct extends Component {
 
   @autobind
   handleSelectProduct(value: string) {
-    this.updateReferences([{
+    this.updateSearches([{
       productSearchId: value,
     }]);
   }
