@@ -135,7 +135,6 @@ Vagrant.configure("2") do |config|
       $local = false
     end
 
-<<<<<<< HEAD
     app.vm.provision "base", type: "ansible" do |ansible|
       ansible.verbose = "v"
       ansible.playbook = "prov-shit/ansible/vagrant_appliance_base.yml"
