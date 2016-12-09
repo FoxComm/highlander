@@ -8,9 +8,11 @@
     - backend
   roles:
     - { role: dev/stage_mesos, when: first_run }
-    - { role: dev/kafka }
-    - { role: dev/elasticsearch }
-    - { role: dev/db }
+    - { role: dev/kafka, when: first_run }
+    - { role: dev/elasticsearch, when: first_run }
+    - { role: dev/db, when: first_run}
+    - { role: prod/migrate_phoenix_db}
+    - { role: prod/migrate_middlewarehouse_db}
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
@@ -30,7 +32,7 @@
     - frontend
   roles:
     - { role: dev/stage_mesos, when: first_run }
-    - { role: base/ssh_keys }
+    - { role: base/ssh_keys, when: first_run }
     - { role: dev/phoenix }
     - { role: dev/greenriver }
     - { role: dev/ashes }
@@ -42,4 +44,4 @@
     - { role: dev/balancer, sudo: yes }
     - { role: demo/balancer, sudo: yes }
     - { role: dev/consumers }
-    - { role: dev/seeder }
+    - { role: dev/seeder, when: first_run }
