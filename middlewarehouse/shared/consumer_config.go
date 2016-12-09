@@ -5,9 +5,9 @@ import (
 	"os"
 )
 
-// CaptureConsumerConfig represents configuration for this consumer that must
+// ConsumerConfig represents configuration for consumer that must
 // be present at execution time, but are specific to this consumer.
-type CaptureConsumerConfig struct {
+type ConsumerConfig struct {
 	PhoenixURL      string
 	PhoenixUser     string
 	PhoenixPassword string
@@ -15,8 +15,8 @@ type CaptureConsumerConfig struct {
 
 const consumerErrorMsg = "%s not found in env"
 
-func MakeCaptureConsumerConfig() (CaptureConsumerConfig, error) {
-	config := CaptureConsumerConfig{}
+func MakeConsumerConfig() (ConsumerConfig, error) {
+	config := ConsumerConfig{}
 
 	config.PhoenixURL = os.Getenv("PHOENIX_URL")
 	if config.PhoenixURL == "" {

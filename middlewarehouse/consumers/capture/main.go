@@ -22,7 +22,7 @@ func main() {
 		log.Fatalf("Unable to initialize consumer with error: %s", err.Error())
 	}
 
-	capConf, err := shared.MakeCaptureConsumerConfig()
+	capConf, err := shared.MakeConsumerConfig()
 	if err != nil {
 		log.Fatalf("Unable to initialize consumer with error: %s", err.Error())
 	}
