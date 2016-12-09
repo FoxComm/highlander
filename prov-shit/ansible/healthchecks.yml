@@ -1,6 +1,6 @@
 ---
 
-- name: Test Healthcheck
+- name: Perform Consul and Marathon Healthchecks
   hosts: '{{hostname}}'
   vars_prompt:
     - name: "hostname"
