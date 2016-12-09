@@ -15,7 +15,7 @@ final case class CustomerItemsView()(implicit ec: EC) extends AvroTransformer {
       field("customerName", StringType).analyzer("autocomplete"),
       field("customerEmail", StringType).analyzer("autocomplete"),
       // SKU
-      field("skuCode", StringType).analyzer("autocomplete"),
+      field("skuCode", StringType).analyzer("not_analyzed"),
       field("skuTitle", StringType).analyzer("autocomplete"),
       field("skuPrice", IntegerType),
       // Order
