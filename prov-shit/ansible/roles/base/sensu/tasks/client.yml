@@ -1,10 +1,10 @@
 ---
 
-  - name: create client config
+  - name: Create Client Config
     template: src=client.json dest={{ sensu_config_path }}
     notify: restart sensu-client
     sudo: true
 
-  - name: start client
+  - name: Start Client
     service: name=sensu-client state=started enabled=yes
     sudo: true
