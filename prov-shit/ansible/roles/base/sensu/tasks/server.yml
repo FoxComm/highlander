@@ -24,4 +24,7 @@
 
   - name: restart sensu core
     command: echo "restart sensu core services"
-    notify: "restart sensu core"
+    notify:
+      - restart sensu-server
+      - restart sensu-api
+      - restart uchiwa
