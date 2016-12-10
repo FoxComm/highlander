@@ -31,6 +31,11 @@ object AdminRoutes {
             ShippingManager.getShippingMethods
           }
         } ~
+        (get & path(IntNumber) & pathEnd) { shippingMethodId ⇒
+          getOrFailures {
+            ShippingManager.getShippingMethodById(shippingMethodId)
+          }
+        } ~
         pathPrefix("for-cart") {
           (get & path(cordRefNumRegex) & pathEnd) { refNum ⇒
             getOrFailures {

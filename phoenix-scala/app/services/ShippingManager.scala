@@ -1,7 +1,7 @@
 package services
 
 import failures.NotFoundFailure404
-import failures.ShippingMethodFailures.{ShippingMethodNotApplicableToCart, ShippingMethodNotFoundById}
+import failures.ShippingMethodFailures.{ShippingMethodNotApplicableToCart, ShippingMethodNotFound}
 import models.account._
 import models.cord._
 import models.cord.lineitems._
@@ -37,8 +37,8 @@ object ShippingManager {
       id: Int)(implicit ec: EC, db: DB): DbResultT[responses.AdminShippingMethodsResponse.Root] =
     for {
       shipMethod ← * <~ ShippingMethods
-                     .findActiveById(id)
-                     .mustFindOneOr(ShippingMethodNotFoundById(id))
+                    .findActiveById(id)
+                    .mustFindOneOr(ShippingMethodNotFound(id))
     } yield responses.AdminShippingMethodsResponse.build(shipMethod)
 
   def getShippingMethodsForCart(originator: User)(

@@ -1,3 +1,4 @@
+import failures.ShippingMethodFailures.ShippingMethodNotFound
 import models.cord.OrderShippingAddresses
 import models.cord.lineitems._
 import models.location.Addresses
@@ -21,7 +22,54 @@ class ShippingMethodsIntegrationTest
     with AutomaticAuth
     with BakedFixtures {
 
-  "GET /v1/shipping-methods/:refNum" - {
+  "GET /v1/shipping-methods" - {
+    "Retrieves a list of shipping methods successfully" in new WestCoastShippingMethodsFixture {
+      val resp = shippingMethodsApi.list().as[Seq[responses.AdminShippingMethodsResponse.Root]]
+      resp.size must === (1)
+
+      val methodResp = resp.headOption.value
+      methodResp.id must === (shippingMethod.id)
+      methodResp.adminDisplayName must === (shippingMethod.adminDisplayName)
+    }
+
+    "Only returns active shipping methods" in new WestCoastShippingMethodsFixture {
+      val newShippingMethod = shipping.ShippingMethods
+        .create(shippingMethod.copy(code = "ANOTHER", isActive = false))
+        .gimme
+
+      val resp = shippingMethodsApi.list().as[Seq[responses.AdminShippingMethodsResponse.Root]]
+      resp.size must === (1)
+
+      val methodResp = resp.headOption.value
+      methodResp.id must === (shippingMethod.id)
+      methodResp.adminDisplayName must === (shippingMethod.adminDisplayName)
+    }
+  }
+
+  "GET /v1/shipping-methods/:id" - {
+    "Retrieves a shipping method successfully" in new WestCoastShippingMethodsFixture {
+      val resp =
+        shippingMethodsApi.get(shippingMethod.id).as[responses.AdminShippingMethodsResponse.Root]
+      resp.id must === (shippingMethod.id)
+      resp.adminDisplayName must === (shippingMethod.adminDisplayName)
+    }
+
+    "Returns a 404 when attempting to find a non-existent shipping method" in new ShippingMethodsFixture {
+      shippingMethodsApi.get(999).mustFailWith404(ShippingMethodNotFound(999))
+    }
+
+    "Returns a 404 when attempting to find an inactive shipping method" in new WestCoastShippingMethodsFixture {
+      val newShippingMethod = shipping.ShippingMethods
+        .create(shippingMethod.copy(code = "ANOTHER", isActive = false))
+        .gimme
+
+      shippingMethodsApi
+        .get(newShippingMethod.id)
+        .mustFailWith404(ShippingMethodNotFound(newShippingMethod.id))
+    }
+  }
+
+  "GET /v1/shipping-methods/for-cart/:refNum" - {
 
     "Evaluates shipping rule: order total is greater than $25" - {
 

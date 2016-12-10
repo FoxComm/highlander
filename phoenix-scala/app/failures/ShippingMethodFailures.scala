@@ -10,8 +10,8 @@ object ShippingMethodFailures {
     override def description = s"Shipping method with name: '$name' cannot be found"
   }
 
-  case class ShippingMethodNotFoundById(id: Int) extends Failure {
-    override def description = s"Shipping method with id: $id cannot be found"
+  object ShippingMethodNotFound {
+    def apply(id: Int) = NotFoundFailure404(s"Shipping method with id: $id cannot be found")
   }
 
   case class ShippingMethodIsNotActive(id: Int) extends Failure {
