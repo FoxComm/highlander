@@ -38,7 +38,7 @@
 
 
 (defn gen-msg
-  [{customer-email :email customer-name :name :as rcpt} vars {:keys [subject text html] :as opts}]
+  [{customer-email :email customer-name :name :as rcpt} vars {:keys [subject text html bcc] :as opts}]
   (let [additional-vars (some->
                           (settings/get :additional_merge_vars)
                           (json/parse-string true))
@@ -49,9 +49,12 @@
                    :customer_name customer-name}
         base-merge-vars (if additional-vars
                            (merge base-vars additional-vars)
-                          base-vars)]
+                          base-vars)
+        recipients (if bcc
+                      [rcpt bcc])
+                      [rcpt])
    (merge opts {:to
-                [rcpt]
+                [recipients]
                 :global_merge_vars (make-tpl-vars (merge base-merge-vars vars))
                 :merge_language "handlebars"
                 :auto_text true
@@ -93,7 +96,9 @@
                       :billing_info (get order "billingCreditCardInfo")
                       :order_ref order-ref}
 
-                     {:subject (settings/get :order_checkout_subject)})]
+                      (merge {:bcc {(settings/get :from_email) :email "bcc" :to}
+                              :subject (settings/get :order_checkout_subject)})]
+
       (send-template! (settings/get :order_confirmation_template) msg)))
 
 (defmethod handle-activity :shipment_shipped
