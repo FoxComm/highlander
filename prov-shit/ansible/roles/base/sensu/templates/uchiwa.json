@@ -4,8 +4,6 @@
        "name": "{{ uchiwa_dc_name }}",
        "host": "{{ sensu_api_host }}",
        "port": {{ sensu_api_port }},
-       "user": "{{ sensu_api_user }}",
-       "pass": "{{ sensu_api_password }}",
        "timeout": {{ sensu_api_timeout }}
    }
  ],

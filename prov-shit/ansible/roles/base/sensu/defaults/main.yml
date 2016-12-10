@@ -1,6 +1,19 @@
 sensu_master: false
+sensu_api_host: "{{ ansible_default_ipv4['address'] }}"
+sensu_transport: redis
+sensu_config_path: /etc/sensu/conf.d
 redis_host: "{{ sensu_api_host }}"
 redis_port: 6379
+sensu_definitions: "{{ role_path }}/templates/definitions"
+sensu_core_repo_key: https://sensu.global.ssl.fastly.net/apt/pubkey.gpg
+sensu_core_repo: 'deb https://sensu.global.ssl.fastly.net/apt sensu main'
+sensu_api_port: 4567
+sensu_api_user: admin
+sensu_api_password: admin
+sensu_api_timeout: 5000
+uchiwa_dc_name: FoxCommerce
+uchiwa_port: 3000
+uchiwa_refresh: 5
 sensu_slack_url: https://hooks.slack.com/services/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
 sensu_plugins:
   - slack
@@ -20,17 +33,4 @@ sensu_plugins:
   - consul
   - mesos
   - zookeeper
-  - elasticsearch 
-sensu_transport: redis
-sensu_definitions: "{{ role_path }}/templates/definitions"
-sensu_core_repo_key: https://sensu.global.ssl.fastly.net/apt/pubkey.gpg
-sensu_core_repo: 'deb https://sensu.global.ssl.fastly.net/apt sensu main'
-sensu_api_host: "{{ ansible_default_ipv4['address'] }}"
-sensu_api_port: 4567
-sensu_api_user: admin
-sensu_api_password: admin
-sensu_api_timeout: 5000
-sensu_config_path: /etc/sensu/conf.d
-uchiwa_dc_name: Devel
-uchiwa_port: 3000
-uchiwa_refresh: 5
+  - elasticsearch
