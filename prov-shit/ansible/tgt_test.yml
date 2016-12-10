@@ -34,6 +34,7 @@
     with_base_seeds: true
     phoenix_tax_rule_region: 4129
     phoenix_tax_rule_rate: 7.5
+    demo_search_server: demo-search.service.consul:3000
   tags:
     - frontend
   roles:
