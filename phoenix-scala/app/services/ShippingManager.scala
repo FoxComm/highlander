@@ -1,7 +1,7 @@
 package services
 
 import failures.NotFoundFailure404
-import failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
+import failures.ShippingMethodFailures.{ShippingMethodNotApplicableToCart, ShippingMethodNotFoundById}
 import models.account._
 import models.cord._
 import models.cord.lineitems._
@@ -14,7 +14,6 @@ import services.carts.getCartByOriginator
 import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
-
 import slick.driver.PostgresDriver.api._
 import org.json4s.JsonAST._
 
@@ -27,6 +26,20 @@ object ShippingManager {
                           shippingAddress: Option[OrderShippingAddress] = None,
                           shippingRegion: Option[Region] = None,
                           lineItems: Seq[CartLineItemProductData])
+
+  def getShippingMethods()(implicit ec: EC,
+                           db: DB): DbResultT[Seq[responses.AdminShippingMethodsResponse.Root]] =
+    for {
+      shipMethods ← * <~ ShippingMethods.findActive.result
+    } yield shipMethods.map(responses.AdminShippingMethodsResponse.build)
+
+  def getShippingMethodById(
+      id: Int)(implicit ec: EC, db: DB): DbResultT[responses.AdminShippingMethodsResponse.Root] =
+    for {
+      shipMethod ← * <~ ShippingMethods
+                     .findActiveById(id)
+                     .mustFindOneOr(ShippingMethodNotFoundById(id))
+    } yield responses.AdminShippingMethodsResponse.build(shipMethod)
 
   def getShippingMethodsForCart(originator: User)(
       implicit ec: EC,

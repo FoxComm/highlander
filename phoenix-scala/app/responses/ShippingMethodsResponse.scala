@@ -13,3 +13,20 @@ object ShippingMethodsResponse {
          price = record.price,
          isEnabled = isEnabled)
 }
+
+object AdminShippingMethodsResponse {
+  case class Root(id: Int,
+                  adminDisplayName: String,
+                  storefrontDisplayName: String,
+                  code: String,
+                  price: Int,
+                  isActive: Boolean)
+
+  def build(record: ShippingMethod): Root =
+    Root(id = record.id,
+         adminDisplayName = record.adminDisplayName,
+         storefrontDisplayName = record.storefrontDisplayName,
+         code = record.code,
+         price = record.price,
+         isActive = record.isActive)
+}

@@ -33,8 +33,7 @@ object CustomerResponse {
             numOrders: Option[Int] = None,
             rank: Option[CustomerRank] = None,
             lastOrderDays: Option[Long] = None,
-            scTotals: Option[Totals] = None
-            ): Root = {
+            scTotals: Option[Totals] = None): Root = {
 
     require(customerData.userId == customer.id)
     require(customerData.accountId == customer.accountId)
