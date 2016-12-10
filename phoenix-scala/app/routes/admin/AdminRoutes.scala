@@ -31,9 +31,11 @@ object AdminRoutes {
             ShippingManager.getShippingMethods
           }
         } ~
-        (get & path(cordRefNumRegex) & pathEnd) { refNum ⇒
-          getOrFailures {
-            ShippingManager.getShippingMethodsForCart(refNum)
+        pathPrefix("for-cart") {
+          (get & path(cordRefNumRegex) & pathEnd) { refNum ⇒
+            getOrFailures {
+              ShippingManager.getShippingMethodsForCart(refNum)
+            }
           }
         }
       } ~
