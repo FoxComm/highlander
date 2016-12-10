@@ -96,7 +96,7 @@
                       :billing_info (get order "billingCreditCardInfo")
                       :order_ref order-ref}
 
-                      (merge {:bcc {(settings/get :from_email) :email "bcc" :to}
+                      (merge {:bcc {(settings/get :from_email) :email "bcc" :type}
                               :subject (settings/get :order_checkout_subject)}))]
 
       (send-template! (settings/get :order_confirmation_template) msg)))
