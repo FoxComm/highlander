@@ -1,0 +1,14 @@
+{
+    "project_base": "staging-sensu",
+    "image_prefix": "dev",
+    "image_title": "dev",
+    "account_file": "foxcomm-staging.json",
+    "project_id": "foxcomm-staging",
+    "variables_file": "staging_ansible.json",
+    "network": "default",
+    "zone": "us-central1-a",
+    "base_ubuntu_image": "ubuntu-1604-xenial-v20160610",
+    "base_image": "base-1470781269",
+    "ssh_username": "ubuntu",
+    "base_united_image": "base-161111-180429"
+}

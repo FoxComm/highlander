@@ -1,0 +1,48 @@
+{
+    "builders" : [
+        {
+            "name": "google",
+            "type": "googlecompute",
+            "account_file": "{{user `account_file`}}",
+            "project_id" : "{{user `project_id`}}",
+            "source_image": "{{user `base_united_image`}}",
+            "network": "{{user `network`}}",
+            "zone": "{{user `zone`}}",
+            "image_name": "sensu-base-backend-{{isotime \"060102-150405\"}}",
+            "image_description": "Sensu Base Backend Image",
+            "instance_name": "packer-base-backend-{{uuid}}",
+            "machine_type": "n1-standard-2",
+            "tags": ["ssh", "no-ip"],
+            "use_internal_ip": true,
+            "ssh_username" : "{{user `ssh_username`}}",
+            "disk_size": 20
+        },
+        {
+            "name": "amazon",
+            "type": "amazon-ebs",
+            "source_ami": "{{user `base_united_ami`}}",
+            "instance_type": "{{user `backend_instance_type`}}",
+            "region": "{{user `region`}}",
+            "ami_name": "base-backend-{{isotime \"060102-150405\"}}",
+            "ami_description": "Base Backend Image",
+            "associate_public_ip_address": true,
+            "ssh_username": "{{user `ssh_username`}}",
+            "vpc_id": "{{user `vpc_id`}}",
+            "security_group_id": "{{user `security_group_id`}}",
+            "subnet_id": "{{user `subnet_id`}}",
+            "tags": {
+                "Name": "base-backend-{{isotime \"060102-150405\"}}"
+            }
+        }
+    ],
+    "provisioners" : [
+        {
+            "type": "ansible",
+            "playbook_file" : "ansible/packer_tinystack_backend.yml",
+            "extra_arguments": [
+                "-vvvv",
+                "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"
+            ]
+        }
+    ]
+}
