@@ -51,8 +51,8 @@
                            (merge base-vars additional-vars)
                           base-vars)
         recipients (if bcc
-                      [rcpt bcc])
-                      [rcpt])
+                      [rcpt bcc]
+                      [rcpt])]
    (merge opts {:to
                 [recipients]
                 :global_merge_vars (make-tpl-vars (merge base-merge-vars vars))
@@ -97,7 +97,7 @@
                       :order_ref order-ref}
 
                       (merge {:bcc {(settings/get :from_email) :email "bcc" :to}
-                              :subject (settings/get :order_checkout_subject)})]
+                              :subject (settings/get :order_checkout_subject)}))]
 
       (send-template! (settings/get :order_confirmation_template) msg)))
 
