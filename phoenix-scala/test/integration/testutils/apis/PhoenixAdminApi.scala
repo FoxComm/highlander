@@ -1,7 +1,6 @@
 package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
-
 import models.objects.ObjectForm
 import payloads.ActivityTrailPayloads._
 import payloads.AddressPayloads._
@@ -20,6 +19,7 @@ import payloads.PaymentPayloads._
 import payloads.ProductPayloads._
 import payloads.PromotionPayloads.{CreatePromotion, UpdatePromotion}
 import payloads.SharedSearchPayloads._
+import payloads.ShippingMethodPayloadsPayloads.{CreateShippingMethodPayload, UpdateShippingMethodPayload}
 import payloads.SkuPayloads._
 import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads._
@@ -396,6 +396,12 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def get(id: Int): HttpResponse =
       GET(s"$shippingMethodsPrefix/$id")
+
+    def create(payload: CreateShippingMethodPayload): HttpResponse =
+      POST(shippingMethodsPrefix, payload)
+
+    def update(id: Int, payload: UpdateShippingMethodPayload): HttpResponse =
+      PATCH(s"$shippingMethodsPrefix/$id", payload)
 
     def forCart(refNum: String): HttpResponse =
       GET(s"$shippingMethodsPrefix/for-cart/$refNum")

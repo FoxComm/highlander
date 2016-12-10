@@ -5,6 +5,7 @@ import failures.Failures
 import failures.ShippingMethodFailures.ShippingMethodIsNotActive
 import models.cord.OrderShippingMethods
 import models.rules.QueryStatement
+import payloads.ShippingMethodPayloadsPayloads.{CreateShippingMethodPayload, UpdateShippingMethodPayload}
 import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
@@ -37,6 +38,25 @@ object ShippingMethod {
   val standardShippingFreeCode = "STANDARD-FREE"
   val expressShippingCode      = "EXPRESS"
   val overnightShippingCode    = "OVERNIGHT"
+
+  def buildFromCreatePayload(payload: CreateShippingMethodPayload): ShippingMethod =
+    ShippingMethod(
+        adminDisplayName = payload.adminDisplayName,
+        storefrontDisplayName = payload.storefrontDisplayName,
+        code = payload.code,
+        price = payload.price,
+        isActive = true
+    )
+
+  def buildFromUpdatePayload(original: ShippingMethod,
+                             payload: UpdateShippingMethodPayload): ShippingMethod =
+    original.copy(
+        parentId = Some(original.id),
+        adminDisplayName = payload.adminDisplayName.getOrElse(original.adminDisplayName),
+        storefrontDisplayName =
+          payload.storefrontDisplayName.getOrElse(original.storefrontDisplayName),
+        price = payload.price.getOrElse(original.price)
+    )
 }
 
 class ShippingMethods(tag: Tag) extends FoxTable[ShippingMethod](tag, "shipping_methods") {

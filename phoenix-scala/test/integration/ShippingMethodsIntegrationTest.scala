@@ -8,6 +8,7 @@ import models.rules.QueryStatement
 import models.shipping
 import models.shipping.ShippingMethods
 import org.json4s.jackson.JsonMethods._
+import payloads.ShippingMethodPayloadsPayloads.CreateShippingMethodPayload
 import responses.ShippingMethodsResponse.Root
 import services.carts.CartTotaler
 import testutils._
@@ -66,6 +67,18 @@ class ShippingMethodsIntegrationTest
       shippingMethodsApi
         .get(newShippingMethod.id)
         .mustFailWith404(ShippingMethodNotFound(newShippingMethod.id))
+    }
+  }
+
+  "POST /v1/shipping-methods" - {
+    "Successfully creates a shipping method" in new ShippingMethodsFixture {
+      val payload = CreateShippingMethodPayload(adminDisplayName = "Donkey Shipping Method",
+                                                storefrontDisplayName = "Donkey Ground",
+                                                code = "Donkey",
+                                                price = 199)
+
+      val resp = shippingMethodsApi.create(payload).as[responses.AdminShippingMethodsResponse.Root]
+      resp.adminDisplayName must === (payload.adminDisplayName)
     }
   }
 

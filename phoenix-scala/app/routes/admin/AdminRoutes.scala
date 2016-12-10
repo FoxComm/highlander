@@ -1,7 +1,6 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import failures.SharedSearchFailures.SharedSearchInvalidQueryFailure
 import models.account.User
@@ -12,6 +11,7 @@ import models.returns.Return
 import models.sharedsearch.SharedSearch
 import payloads.NotePayloads._
 import payloads.SharedSearchPayloads._
+import payloads.ShippingMethodPayloadsPayloads.CreateShippingMethodPayload
 import services.notes._
 import services.{SaveForLaterManager, SharedSearchService, ShippingManager}
 import services.Authenticator.AuthData
@@ -34,6 +34,11 @@ object AdminRoutes {
         (get & path(IntNumber) & pathEnd) { shippingMethodId ⇒
           getOrFailures {
             ShippingManager.getShippingMethodById(shippingMethodId)
+          }
+        } ~
+        (post & pathEnd & entity(as[CreateShippingMethodPayload])) { payload ⇒
+          getOrFailures {
+            ShippingManager.createShippingMethod(payload)
           }
         } ~
         pathPrefix("for-cart") {
