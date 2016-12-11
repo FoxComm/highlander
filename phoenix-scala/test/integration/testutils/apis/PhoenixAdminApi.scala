@@ -403,6 +403,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def update(id: Int, payload: UpdateShippingMethodPayload): HttpResponse =
       PATCH(s"$shippingMethodsPrefix/$id", payload)
 
+    def delete(id: Int): HttpResponse =
+      DELETE(s"$shippingMethodsPrefix/$id")
+
     def forCart(refNum: String): HttpResponse =
       GET(s"$shippingMethodsPrefix/for-cart/$refNum")
   }

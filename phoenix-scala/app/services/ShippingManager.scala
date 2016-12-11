@@ -62,6 +62,14 @@ object ShippingManager {
       created       ← * <~ ShippingMethods.create(newShipMethod)
     } yield responses.AdminShippingMethodsResponse.build(created)
 
+  def softDeleteShippingMethod(id: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
+    for {
+      shipMethod ← * <~ ShippingMethods
+                    .findActiveById(id)
+                    .mustFindOneOr(ShippingMethodNotFound(id))
+      _ ← * <~ ShippingMethods.update(shipMethod.copy(isActive = false))
+    } yield {}
+
   def getShippingMethodsForCart(originator: User)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[responses.ShippingMethodsResponse.Root]] =

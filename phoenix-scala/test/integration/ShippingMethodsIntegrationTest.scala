@@ -104,6 +104,15 @@ class ShippingMethodsIntegrationTest
     }
   }
 
+  "DELETE /v1/shipping-methods/:id" - {
+    "Successfully deletes an existing shipping method" in new WestCoastShippingMethodsFixture {
+      shippingMethodsApi.delete(shippingMethod.id).mustHaveStatus(StatusCodes.NoContent)
+
+      val resp = shippingMethodsApi.list().as[Seq[responses.AdminShippingMethodsResponse.Root]]
+      resp.size must === (0)
+    }
+  }
+
   "GET /v1/shipping-methods/for-cart/:refNum" - {
 
     "Evaluates shipping rule: order total is greater than $25" - {

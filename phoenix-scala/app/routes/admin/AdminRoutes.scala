@@ -41,6 +41,18 @@ object AdminRoutes {
             ShippingManager.createShippingMethod(payload)
           }
         } ~
+        pathPrefix(IntNumber) { shippingMethodId ⇒
+          (patch & pathEnd & entity(as[UpdateShippingMethodPayload])) { payload ⇒
+            mutateOrFailures {
+              ShippingManager.updateShippingMethod(shippingMethodId, payload)
+            }
+          } ~
+          (delete & pathEnd) {
+            deleteOrFailures {
+              ShippingManager.softDeleteShippingMethod(shippingMethodId)
+            }
+          }
+        } ~
         (patch & path(IntNumber) & pathEnd & entity(as[UpdateShippingMethodPayload])) {
           (id, payload) ⇒
             mutateOrFailures {
