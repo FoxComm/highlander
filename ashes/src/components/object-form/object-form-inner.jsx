@@ -311,7 +311,7 @@ export default class ObjectFormInner extends Component {
     }
 
     let renderName = `render${_.upperFirst(name)}`;
-    if (!(renderName in this)) {
+    if (!(renderName in this) || !name) {
       renderName = 'renderString';
     }
     return renderName;
