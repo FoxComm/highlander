@@ -3,8 +3,9 @@
  */
 
 // libs
-import _ from 'lodash';
 import React, { Component, Element } from 'react';
+import { autobind } from 'core-decorators';
+import _ from 'lodash';
 
 // actions
 import * as ShippingMethodActions from 'modules/shipping-methods/details';
@@ -38,16 +39,21 @@ class ShippingMethodDetails extends ObjectPage {
     return _.get(this.props.details.shippingMethod, 'attributes.code', '');
   }
 
+  @autobind
   createEntity(entity) {
-    console.log('Creating');
+    // Strip attributes out because server doesn't use them.
+    this.props.actions.createShippingMethod(entity.attributes);
   }
 
+  @autobind
   updateEntity(entity) {
-    console.log('Updating');
+    // Strip attributes out because server doesn't use them.
+    this.props.actions.updateShippingMethod(entity.id, entity.attributes);
   }
 
-  archiveEntity(entity) {
-    console.log('Deleting');
+  @autobind
+  archiveEntity() {
+    this.props.actions.archiveShippingMethod(this.entityId);
   }
 }
 

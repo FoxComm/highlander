@@ -58,7 +58,7 @@ object ShippingManager {
                        .findActiveById(id)
                        .mustFindOneOr(ShippingMethodNotFound(id))
       newShipMethod ← * <~ ShippingMethod.buildFromUpdatePayload(oldShipMethod, payload)
-      _             ← * <~ ShippingMethods.update(oldShipMethod.copy(isActive = false))
+      _             ← * <~ ShippingMethods.update(oldShipMethod, oldShipMethod.copy(isActive = false))
       created       ← * <~ ShippingMethods.create(newShipMethod)
     } yield responses.AdminShippingMethodsResponse.build(created)
 
@@ -67,7 +67,7 @@ object ShippingManager {
       shipMethod ← * <~ ShippingMethods
                     .findActiveById(id)
                     .mustFindOneOr(ShippingMethodNotFound(id))
-      _ ← * <~ ShippingMethods.update(shipMethod.copy(isActive = false))
+      _ ← * <~ ShippingMethods.update(shipMethod, shipMethod.copy(isActive = false))
     } yield {}
 
   def getShippingMethodsForCart(originator: User)(
