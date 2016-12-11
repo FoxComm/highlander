@@ -250,14 +250,21 @@ export default class ObjectFormInner extends Component {
   }
 
   renderOptions(name: string, value: any, options: AttrOptions): Element {
-    const fieldOptions = this.props.fieldsOptions && this.props.fieldsOptions[name];
+    let fieldOptions = this.props.fieldsOptions && this.props.fieldsOptions[name];
+    if (fieldOptions == null) {
+      const items = _.get(this.props.schema, ['properties', name, 'fieldsOptions'], []);
+      fieldOptions = _.map(items, item => {
+        return [item, item, false];
+      });
+    }
+
     if (!fieldOptions) throw new Error('You must define fieldOptions for options fields');
 
     const onChange = v => this.handleChange(name, 'options', v);
     const error = _.get(this.state, ['errors', name]);
 
     return (
-      <div className="fc-object-form_field">
+      <div className="fc-object-form__field">
         <div className="fc-object-form__field-label">{options.label}</div>
         <Dropdown
           value={value}

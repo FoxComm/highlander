@@ -6,9 +6,10 @@
       "fields": {
         "canAddProperty": false,
         "value": [
-          "adminDisplayName",
           "storefrontDisplayName",
-          "price"
+          "price",
+          "eta",
+          "carrier"
         ],
         "includeRest": false
       }

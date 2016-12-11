@@ -7,19 +7,49 @@
       "type": "object",
       "description": "Shipping method attributes",
       "properties": {
-        "adminDisplayName": {
+        "storefrontDisplayName": {
+          "title": "Name",
           "type": "string"
         },
-        "storefrontDisplayName": {
+        "adminDisplayName": {
           "type": "string"
         },
         "code": {
           "type": "string"
         },
         "price": {
-          "type": "number",
-          "minimum": 0,
-          "default": 0
+          "type": "object",
+          "widget": "price",
+          "properties": {
+            "currency": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3
+            },
+            "value": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0
+            }
+          }
+        },
+        "eta": {
+          "type": "options",
+          "title": "Estimated Arrival",
+          "fieldsOptions": [
+            "5-7 Days",
+            "2-3 Days",
+            "Overnight"
+          ]
+        },
+        "carrier": {
+          "type": "options",
+          "title": "Shipping Carrier",
+          "fieldsOptions": [
+            "FedEx",
+            "UPS",
+            "USPS"
+          ]
         }
       },
       "required": ["storefrontDisplayName", "code", "price"]
