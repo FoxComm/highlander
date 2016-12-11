@@ -35,12 +35,7 @@ class ShippingMethodDetails extends ObjectPage {
       return 'New Shipping Method';
     }
 
-    return _.get(this.props.details.shippingMethod, 'code', '');
-  }
-
-  fetchEntity(): Promise {
-    const id = this.props.params.method;
-    return this.props.actions.fetchShippingMethod(id);
+    return _.get(this.props.details.shippingMethod, 'attributes.code', '');
   }
 
   createEntity(entity) {
@@ -53,12 +48,6 @@ class ShippingMethodDetails extends ObjectPage {
 
   archiveEntity(entity) {
     console.log('Deleting');
-  }
-
-  renderHead() {
-    return [
-      this.cancelButton,
-    ];
   }
 }
 

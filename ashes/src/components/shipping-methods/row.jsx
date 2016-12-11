@@ -38,7 +38,7 @@ export default class ShippingMethodRow extends Component {
     return (
       <MultiSelectRow
         { ...commonParams }
-        linkTo="shipping-method-details"
+        linkTo="shippingMethod-details"
         linkParams={{shippingMethodId: shippingMethod.id}} />
     );
 

@@ -14,9 +14,5 @@
       }
     }
   ],
-  "aside": [
-    {
-      "type": "state"
-    }
-  ]
+  "aside": []
 }

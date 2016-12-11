@@ -64,11 +64,16 @@ export function reset() {
 }
 
 const initialState: State = {
-  shippingMethod: null,
+  shippingMethod: {},
 };
 
 function receiveShippingMethod(state: State, shippingMethod: ShippingMethod): State {
-  return { ...state, shippingMethod };
+  const method = { 
+    id: shippingMethod.id,
+    attributes: shippingMethod,
+  };
+
+  return { ...state, shippingMethod: method };
 }
 
 const reducer = createReducer({

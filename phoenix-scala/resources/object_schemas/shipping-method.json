@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "ShippingMethod",
+  "type": "object",
+  "properties": {
+    "attributes": {
+      "type": "object",
+      "description": "Shipping method attributes",
+      "properties": {
+        "adminDisplayName": {
+          "type": "string"
+        },
+        "storefrontDisplayName": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "required": ["storefrontDisplayName", "code", "price"]
+    }
+  }
+}

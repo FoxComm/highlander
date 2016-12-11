@@ -66,7 +66,7 @@ const getRoutes = (jwt: JWT) => {
     router.read('shipping-methods-base', { path: 'methods', frn: frn.oms.order }, [
       router.read('shipping-methods', { component: ShippingMethodList, isIndex: true }),
       router.read('shipping-method', { path: ':shippingMethodId', component: ShippingMethodDetails }, [
-        router.read('shipping-method-details', { component: ShippingMethodForm, isIndex: true }),
+        router.read('shippingMethod-details', { component: ShippingMethodForm, isIndex: true }),
       ]),
     ]);
 
