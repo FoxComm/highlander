@@ -7,7 +7,7 @@ CONFIG = File.join(File.dirname(__FILE__), "vagrant.local.rb")
 
 $vb_memory = 1024*8
 $vb_cpu = 4
-$nginx_ip = "192.168.10.111"
+$nginx_ip = "192.168.11.111"
 $local = true
 user = "vagrant"
 
