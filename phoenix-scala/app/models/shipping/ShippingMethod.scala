@@ -45,7 +45,7 @@ object ShippingMethod {
         adminDisplayName = payload.adminDisplayName,
         storefrontDisplayName = payload.storefrontDisplayName,
         code = payload.code,
-        price = payload.price,
+        price = payload.price.value,
         eta = payload.eta,
         carrier = payload.carrier,
         isActive = true
@@ -58,7 +58,7 @@ object ShippingMethod {
         adminDisplayName = payload.adminDisplayName.getOrElse(original.adminDisplayName),
         storefrontDisplayName =
           payload.storefrontDisplayName.getOrElse(original.storefrontDisplayName),
-        price = payload.price.getOrElse(original.price),
+        price = payload.price.fold(original.price)(_.value),
         eta = payload.eta.fold(original.eta)(_ ⇒ payload.eta),
         carrier = payload.carrier.fold(original.carrier)(_ ⇒ payload.carrier)
     )
