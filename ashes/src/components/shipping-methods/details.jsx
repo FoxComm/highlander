@@ -12,6 +12,7 @@ import * as ShippingMethodActions from 'modules/shipping-methods/details';
 
 // components
 import { connectPage, ObjectPage } from '../object-page/object-page';
+import SubNav from './details-sub-nav';
 
 // type
 import type { ShippingMethod, CreatePayload, UpdatePayload } from 'paragons/shipping-method';
@@ -71,6 +72,14 @@ class ShippingMethodDetails extends ObjectPage {
     this.props.actions.archiveShippingMethod(this.entityId).then(() => {
       this.transitionToList();
     });
+  }
+
+  @autobind
+  subNav() {
+    const { id } = this.props.details.shippingMethod;
+    if (id) {
+      return <SubNav shippingMethodId={id} />;
+    }
   }
 }
 
