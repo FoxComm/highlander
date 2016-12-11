@@ -11,7 +11,7 @@ import models.returns.Return
 import models.sharedsearch.SharedSearch
 import payloads.NotePayloads._
 import payloads.SharedSearchPayloads._
-import payloads.ShippingMethodPayloadsPayloads.CreateShippingMethodPayload
+import payloads.ShippingMethodPayloadsPayloads.{CreateShippingMethodPayload, UpdateShippingMethodPayload}
 import services.notes._
 import services.{SaveForLaterManager, SharedSearchService, ShippingManager}
 import services.Authenticator.AuthData
@@ -37,9 +37,15 @@ object AdminRoutes {
           }
         } ~
         (post & pathEnd & entity(as[CreateShippingMethodPayload])) { payload ⇒
-          getOrFailures {
+          mutateOrFailures {
             ShippingManager.createShippingMethod(payload)
           }
+        } ~
+        (patch & path(IntNumber) & pathEnd & entity(as[UpdateShippingMethodPayload])) {
+          (id, payload) ⇒
+            mutateOrFailures {
+              ShippingManager.updateShippingMethod(id, payload)
+            }
         } ~
         pathPrefix("for-cart") {
           (get & path(cordRefNumRegex) & pathEnd) { refNum ⇒

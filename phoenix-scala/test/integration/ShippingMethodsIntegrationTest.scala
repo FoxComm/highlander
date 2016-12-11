@@ -1,3 +1,4 @@
+import akka.http.scaladsl.model.StatusCodes
 import failures.ShippingMethodFailures.ShippingMethodNotFound
 import models.cord.OrderShippingAddresses
 import models.cord.lineitems._
@@ -8,7 +9,7 @@ import models.rules.QueryStatement
 import models.shipping
 import models.shipping.ShippingMethods
 import org.json4s.jackson.JsonMethods._
-import payloads.ShippingMethodPayloadsPayloads.CreateShippingMethodPayload
+import payloads.ShippingMethodPayloadsPayloads.{CreateShippingMethodPayload, UpdateShippingMethodPayload}
 import responses.ShippingMethodsResponse.Root
 import services.carts.CartTotaler
 import testutils._
@@ -79,6 +80,27 @@ class ShippingMethodsIntegrationTest
 
       val resp = shippingMethodsApi.create(payload).as[responses.AdminShippingMethodsResponse.Root]
       resp.adminDisplayName must === (payload.adminDisplayName)
+    }
+
+    "Returns an error when creating a shipping method with a duplicate code" in new WestCoastShippingMethodsFixture {
+      val payload = CreateShippingMethodPayload(adminDisplayName = "Donkey Shipping Method",
+                                                storefrontDisplayName = "Donkey Ground",
+                                                code = shippingMethod.code,
+                                                price = 199)
+
+      shippingMethodsApi.create(payload).mustHaveStatus(StatusCodes.BadRequest)
+    }
+  }
+
+  "PATCH /v1/shipping-methods/:id" - {
+    "Successfully updates a shipping method" in new WestCoastShippingMethodsFixture {
+      val payload = UpdateShippingMethodPayload(price = Some(215))
+
+      val resp = shippingMethodsApi
+        .update(shippingMethod.id, payload)
+        .as[responses.AdminShippingMethodsResponse.Root]
+      resp.id must !==(shippingMethod.id)
+      resp.price must === (payload.price.value)
     }
   }
 

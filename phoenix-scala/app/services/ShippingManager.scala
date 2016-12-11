@@ -16,7 +16,7 @@ import utils.aliases._
 import utils.db._
 import slick.driver.PostgresDriver.api._
 import org.json4s.JsonAST._
-import payloads.ShippingMethodPayloadsPayloads.CreateShippingMethodPayload
+import payloads.ShippingMethodPayloadsPayloads.{CreateShippingMethodPayload, UpdateShippingMethodPayload}
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
@@ -48,6 +48,18 @@ object ShippingManager {
     for {
       shipMethod ← * <~ ShippingMethod.buildFromCreatePayload(payload)
       created    ← * <~ ShippingMethods.create(shipMethod)
+    } yield responses.AdminShippingMethodsResponse.build(created)
+
+  def updateShippingMethod(id: Int, payload: UpdateShippingMethodPayload)(
+      implicit ec: EC,
+      db: DB): DbResultT[responses.AdminShippingMethodsResponse.Root] =
+    for {
+      oldShipMethod ← * <~ ShippingMethods
+                       .findActiveById(id)
+                       .mustFindOneOr(ShippingMethodNotFound(id))
+      newShipMethod ← * <~ ShippingMethod.buildFromUpdatePayload(oldShipMethod, payload)
+      _             ← * <~ ShippingMethods.update(oldShipMethod.copy(isActive = false))
+      created       ← * <~ ShippingMethods.create(newShipMethod)
     } yield responses.AdminShippingMethodsResponse.build(created)
 
   def getShippingMethodsForCart(originator: User)(
