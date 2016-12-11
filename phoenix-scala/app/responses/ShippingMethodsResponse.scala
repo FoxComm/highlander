@@ -8,7 +8,7 @@ object ShippingMethodsResponse {
 
   def build(record: ShippingMethod, isEnabled: Boolean = true): Root =
     Root(id = record.id,
-         name = record.adminDisplayName,
+         name = record.name,
          code = record.code,
          price = record.price,
          eta = record.eta.getOrElse(""),
@@ -17,8 +17,7 @@ object ShippingMethodsResponse {
 
 object AdminShippingMethodsResponse {
   case class Root(id: Int,
-                  adminDisplayName: String,
-                  storefrontDisplayName: String,
+                  name: String,
                   code: String,
                   price: PriceResponse.Root,
                   eta: String,
@@ -27,8 +26,7 @@ object AdminShippingMethodsResponse {
 
   def build(record: ShippingMethod): Root =
     Root(id = record.id,
-         adminDisplayName = record.adminDisplayName,
-         storefrontDisplayName = record.storefrontDisplayName,
+         name = record.name,
          code = record.code,
          price = PriceResponse.build(record.price),
          eta = record.eta.getOrElse(""),

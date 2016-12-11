@@ -18,7 +18,12 @@ type Props = {
 };
 
 function setCellContents(method, field) {
-  return _.get(method, field);
+  switch (field) {
+    case 'price':
+      return _.get(method, [field, 'value']);
+    default:
+      return _.get(method, field);
+  }
 }
 
 export default class ShippingMethodRow extends Component {

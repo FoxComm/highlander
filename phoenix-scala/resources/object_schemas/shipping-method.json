@@ -7,11 +7,8 @@
       "type": "object",
       "description": "Shipping method attributes",
       "properties": {
-        "storefrontDisplayName": {
+        "name": {
           "title": "Name",
-          "type": "string"
-        },
-        "adminDisplayName": {
           "type": "string"
         },
         "code": {

@@ -9,7 +9,9 @@ import models.rules.QueryStatement
 import models.shipping
 import models.shipping.ShippingMethods
 import org.json4s.jackson.JsonMethods._
+import payloads.PricePayloads.PricePayload
 import payloads.ShippingMethodPayloadsPayloads.{CreateShippingMethodPayload, UpdateShippingMethodPayload}
+import responses.PriceResponse
 import responses.ShippingMethodsResponse.Root
 import services.carts.CartTotaler
 import testutils._
@@ -31,7 +33,7 @@ class ShippingMethodsIntegrationTest
 
       val methodResp = resp.headOption.value
       methodResp.id must === (shippingMethod.id)
-      methodResp.adminDisplayName must === (shippingMethod.adminDisplayName)
+      methodResp.name must === (shippingMethod.name)
     }
 
     "Only returns active shipping methods" in new WestCoastShippingMethodsFixture {
@@ -44,7 +46,7 @@ class ShippingMethodsIntegrationTest
 
       val methodResp = resp.headOption.value
       methodResp.id must === (shippingMethod.id)
-      methodResp.adminDisplayName must === (shippingMethod.adminDisplayName)
+      methodResp.name must === (shippingMethod.name)
     }
   }
 
@@ -53,7 +55,7 @@ class ShippingMethodsIntegrationTest
       val resp =
         shippingMethodsApi.get(shippingMethod.id).as[responses.AdminShippingMethodsResponse.Root]
       resp.id must === (shippingMethod.id)
-      resp.adminDisplayName must === (shippingMethod.adminDisplayName)
+      resp.name must === (shippingMethod.name)
     }
 
     "Returns a 404 when attempting to find a non-existent shipping method" in new ShippingMethodsFixture {
@@ -73,20 +75,18 @@ class ShippingMethodsIntegrationTest
 
   "POST /v1/shipping-methods" - {
     "Successfully creates a shipping method" in new ShippingMethodsFixture {
-      val payload = CreateShippingMethodPayload(adminDisplayName = "Donkey Shipping Method",
-                                                storefrontDisplayName = "Donkey Ground",
+      val payload = CreateShippingMethodPayload(name = "Donkey Ground",
                                                 code = "Donkey",
-                                                price = 199)
+                                                price = PricePayload("USD", 199))
 
       val resp = shippingMethodsApi.create(payload).as[responses.AdminShippingMethodsResponse.Root]
-      resp.adminDisplayName must === (payload.adminDisplayName)
+      resp.name must === (payload.name)
     }
 
     "Returns an error when creating a shipping method with a duplicate code" in new WestCoastShippingMethodsFixture {
-      val payload = CreateShippingMethodPayload(adminDisplayName = "Donkey Shipping Method",
-                                                storefrontDisplayName = "Donkey Ground",
+      val payload = CreateShippingMethodPayload(name = "Donkey Ground",
                                                 code = shippingMethod.code,
-                                                price = 199)
+                                                price = PricePayload("USD", 199))
 
       shippingMethodsApi.create(payload).mustHaveStatus(StatusCodes.BadRequest)
     }
@@ -94,13 +94,13 @@ class ShippingMethodsIntegrationTest
 
   "PATCH /v1/shipping-methods/:id" - {
     "Successfully updates a shipping method" in new WestCoastShippingMethodsFixture {
-      val payload = UpdateShippingMethodPayload(price = Some(215))
+      val payload = UpdateShippingMethodPayload(price = Some(PricePayload("USD", 215)))
 
       val resp = shippingMethodsApi
         .update(shippingMethod.id, payload)
         .as[responses.AdminShippingMethodsResponse.Root]
       resp.id must !==(shippingMethod.id)
-      resp.price must === (payload.price.value)
+      resp.price.value must === (payload.price.value.value)
     }
   }
 
@@ -134,7 +134,7 @@ class ShippingMethodsIntegrationTest
 
         val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Seq[Root]].headOption.value
         methodResponse.id must === (shippingMethod.id)
-        methodResponse.name must === (shippingMethod.adminDisplayName)
+        methodResponse.name must === (shippingMethod.name)
         methodResponse.price must === (shippingMethod.price)
       }
     }
@@ -166,7 +166,7 @@ class ShippingMethodsIntegrationTest
         val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Seq[Root]].headOption.value
 
         methodResponse.id must === (shippingMethod.id)
-        methodResponse.name must === (shippingMethod.adminDisplayName)
+        methodResponse.name must === (shippingMethod.name)
         methodResponse.price must === (shippingMethod.price)
       }
     }
@@ -177,7 +177,7 @@ class ShippingMethodsIntegrationTest
         val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Seq[Root]].headOption.value
 
         methodResponse.id must === (shippingMethod.id)
-        methodResponse.name must === (shippingMethod.adminDisplayName)
+        methodResponse.name must === (shippingMethod.name)
         methodResponse.price must === (shippingMethod.price)
       }
     }
@@ -188,7 +188,7 @@ class ShippingMethodsIntegrationTest
         val methodResponse = shippingMethodsApi.forCart(cart.refNum).as[Seq[Root]].headOption.value
 
         methodResponse.id must === (shippingMethod.id)
-        methodResponse.name must === (shippingMethod.adminDisplayName)
+        methodResponse.name must === (shippingMethod.name)
         methodResponse.price must === (shippingMethod.price)
         methodResponse.isEnabled must === (true)
       }

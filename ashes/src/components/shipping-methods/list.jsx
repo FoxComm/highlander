@@ -42,6 +42,8 @@ const tableColumns = [
   { field: 'code', text: 'Code' },
   { field: 'adminDisplayName', text: 'Name' },
   { field: 'price', text: 'Price', type: 'currency' },
+  { field: 'carrier', text: 'Carrier' },
+  { field: 'eta', text: 'Estimated Arrival' },
 ];
 
 class ShippingMethodsList extends Component {

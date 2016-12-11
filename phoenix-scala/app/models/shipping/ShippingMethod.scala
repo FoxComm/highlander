@@ -12,8 +12,7 @@ import utils.db._
 
 case class ShippingMethod(id: Int = 0,
                           parentId: Option[Int] = None,
-                          adminDisplayName: String,
-                          storefrontDisplayName: String,
+                          name: String,
                           code: String,
                           carrier: Option[String] = None,
                           price: Int,
@@ -28,12 +27,9 @@ case class ShippingMethod(id: Int = 0,
 }
 
 object ShippingMethod {
-  val standardShippingName          = "Standard shipping"
-  val standardShippingNameForAdmin  = "Standard shipping (USPS)"
-  val expressShippingName           = "2-3 day express"
-  val expressShippingNameForAdmin   = "2-3 day express (FedEx)"
-  val overnightShippingName         = "Overnight"
-  val overnightShippingNameForAdmin = "Overnight (FedEx)"
+  val standardShippingName  = "Standard shipping"
+  val expressShippingName   = "2-3 day express"
+  val overnightShippingName = "Overnight"
 
   val standardShippingCode     = "STANDARD"
   val standardShippingFreeCode = "STANDARD-FREE"
@@ -42,8 +38,7 @@ object ShippingMethod {
 
   def buildFromCreatePayload(payload: CreateShippingMethodPayload): ShippingMethod =
     ShippingMethod(
-        adminDisplayName = payload.adminDisplayName,
-        storefrontDisplayName = payload.storefrontDisplayName,
+        name = payload.name,
         code = payload.code,
         price = payload.price.value,
         eta = payload.eta,
@@ -55,9 +50,7 @@ object ShippingMethod {
                              payload: UpdateShippingMethodPayload): ShippingMethod =
     original.copy(
         parentId = Some(original.id),
-        adminDisplayName = payload.adminDisplayName.getOrElse(original.adminDisplayName),
-        storefrontDisplayName =
-          payload.storefrontDisplayName.getOrElse(original.storefrontDisplayName),
+        name = payload.name.getOrElse(original.name),
         price = payload.price.fold(original.price)(_.value),
         eta = payload.eta.fold(original.eta)(_ ⇒ payload.eta),
         carrier = payload.carrier.fold(original.carrier)(_ ⇒ payload.carrier)
@@ -65,30 +58,19 @@ object ShippingMethod {
 }
 
 class ShippingMethods(tag: Tag) extends FoxTable[ShippingMethod](tag, "shipping_methods") {
-  def id                    = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def parentId              = column[Option[Int]]("parent_id")
-  def adminDisplayName      = column[String]("admin_display_name")
-  def storefrontDisplayName = column[String]("storefront_display_name")
-  def code                  = column[String]("code")
-  def carrier               = column[Option[String]]("carrier")
-  def price                 = column[Int]("price")
-  def eta                   = column[Option[String]]("eta")
-  def isActive              = column[Boolean]("is_active")
-  def conditions            = column[Option[QueryStatement]]("conditions")
-  def restrictions          = column[Option[QueryStatement]]("restrictions")
+  def id           = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def parentId     = column[Option[Int]]("parent_id")
+  def name         = column[String]("name")
+  def code         = column[String]("code")
+  def carrier      = column[Option[String]]("carrier")
+  def price        = column[Int]("price")
+  def eta          = column[Option[String]]("eta")
+  def isActive     = column[Boolean]("is_active")
+  def conditions   = column[Option[QueryStatement]]("conditions")
+  def restrictions = column[Option[QueryStatement]]("restrictions")
 
   def * =
-    (id,
-     parentId,
-     adminDisplayName,
-     storefrontDisplayName,
-     code,
-     carrier,
-     price,
-     eta,
-     isActive,
-     conditions,
-     restrictions) <> ((ShippingMethod.apply _).tupled, ShippingMethod.unapply)
+    (id, parentId, name, code, carrier, price, eta, isActive, conditions, restrictions) <> ((ShippingMethod.apply _).tupled, ShippingMethod.unapply)
 }
 
 object ShippingMethods
