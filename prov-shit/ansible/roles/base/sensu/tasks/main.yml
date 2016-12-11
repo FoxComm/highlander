@@ -29,6 +29,7 @@
 
   - name: Add Client Config Updater
     template: src=update-client-cfg.rb dest=/opt/sensu/embedded/bin mode=0755
+    become: true
 
   - name: Install Plugins
     shell: sensu-install -p {{ item }}
