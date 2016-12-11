@@ -28,6 +28,16 @@ type Props = {
   },
 };
 
+function cleanShippingMethod(entity) {
+  const attributes = _.get(entity, 'attributes', entity);
+  return _.reduce(attributes, (res, val, key) => {
+    return {
+      ...res,
+      [key]: _.get(val, 'v', val),
+    };
+  });
+}
+
 class ShippingMethodDetails extends ObjectPage {
   props: Props;
 
@@ -39,21 +49,28 @@ class ShippingMethodDetails extends ObjectPage {
     return _.get(this.props.details.shippingMethod, 'attributes.code', '');
   }
 
+
   @autobind
   createEntity(entity) {
     // Strip attributes out because server doesn't use them.
-    this.props.actions.createShippingMethod(entity.attributes);
+    const cleaned = cleanShippingMethod(entity);
+    this.props.actions.createShippingMethod(cleaned);
   }
 
   @autobind
   updateEntity(entity) {
     // Strip attributes out because server doesn't use them.
-    this.props.actions.updateShippingMethod(entity.id, entity.attributes);
+    const cleaned = cleanShippingMethod(entity);
+    this.props.actions.updateShippingMethod(entity.id, cleaned).then(resp => {
+      this.transitionTo(resp.payload.id);
+    });
   }
 
   @autobind
   archiveEntity() {
-    this.props.actions.archiveShippingMethod(this.entityId);
+    this.props.actions.archiveShippingMethod(this.entityId).then(() => {
+      this.transitionToList();
+    });
   }
 }
 

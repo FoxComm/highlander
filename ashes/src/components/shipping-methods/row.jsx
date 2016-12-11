@@ -33,12 +33,10 @@ export default class ShippingMethodRow extends Component {
       params,
     };
 
-    console.log('Rendering a row ' + shippingMethod.id);
-
     return (
       <MultiSelectRow
         { ...commonParams }
-        linkTo="shippingMethod-details"
+        linkTo="shipping-method-details"
         linkParams={{shippingMethodId: shippingMethod.id}} />
     );
 

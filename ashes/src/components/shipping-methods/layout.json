@@ -10,7 +10,7 @@
           "storefrontDisplayName",
           "price"
         ],
-        "includeRest": true
+        "includeRest": false
       }
     }
   ],

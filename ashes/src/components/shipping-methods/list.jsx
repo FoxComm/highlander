@@ -73,9 +73,6 @@ class ShippingMethodsList extends Component {
       ? { title: 'Shipping Methods' }
       : { title: 'Shipping Methods', subtitle: count };
 
-    console.log('Shipping Methods');
-    console.log(list.shippingMethods);
-
     return (
       <ListPageContainer {...props}>
         <SubNav />
