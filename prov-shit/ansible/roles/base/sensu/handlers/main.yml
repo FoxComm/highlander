@@ -2,16 +2,16 @@
 
   - name: restart sensu-server
     service: name=sensu-server state=restarted
-    sudo: true
+    become: true
 
   - name: restart sensu-api
     service: name=sensu-api state=restarted
-    sudo: true
+    become: true
 
   - name: restart uchiwa
     service: name=uchiwa state=restarted
-    sudo: true
+    become: true
 
   - name: restart sensu-client
     service: name=sensu-client state=restarted
-    sudo: true
+    become: true
