@@ -30,6 +30,7 @@
     - { role: base/kibana, sudo: yes }
     - { role: base/node, sudo: yes }
     - { role: base/balancer, sudo: yes }
+    - { role: base/zipkin }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
