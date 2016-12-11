@@ -1,0 +1,14 @@
+{
+    "service": {
+        "name": "sinopia",
+        "tags": ["sinopia"],
+        "checks": [
+            {
+                "name": "HTTPS API on port 4873",
+                "https": "https://localhost:4873",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

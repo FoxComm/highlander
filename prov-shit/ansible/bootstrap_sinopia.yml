@@ -1,0 +1,15 @@
+---
+
+- name: Bootstrap Sinopia
+  hosts: foxcomm-sinopia
+  vars:
+    sinopia_webui_title: FoxCommerce Private NPM Registry
+    sinopia_host: npm.foxcommerce.com
+    sinopia_max_users: 100
+    sinopia_max_body_size: 2mb
+
+  roles:
+      - { role: dev/sinopia }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

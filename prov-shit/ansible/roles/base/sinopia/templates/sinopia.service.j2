@@ -1,0 +1,11 @@
+[Service]
+WorkingDirectory={{sinopia_base_dir}}
+ExecStart=sinopia
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=sinopia
+
+[Install]
+WantedBy=multi-user.target
