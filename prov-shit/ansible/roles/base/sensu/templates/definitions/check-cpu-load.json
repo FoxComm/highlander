@@ -4,7 +4,9 @@
       "command": "check-load.rb -w 5,6,7 -c 9.9,9.5,9",
       "interval": 60,
       "subscribers": [
-		  "all"
+        "consul-server",
+        "frontend",
+        "backend"
       ]
 	}
   }
