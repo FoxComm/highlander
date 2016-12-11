@@ -31,18 +31,12 @@ shortcuts:
 
   targets:
   # Bootstrappers
-  - name: Bootstrap Annabelle
-    alias: annabelle.yml
-    target: ansible/bootstrap_annabelle.yml
   - name: Bootstrap Build Agents Keys
     alias: build_agent_keys.yml
     target: ansible/bootstrap_build_agent_keys.yml
   - name: Bootstrap Consul Alerts
     alias: consul_alerts.yml
     target: ansible/bootstrap_consul_alerts.yml
-  - name: Bootstrap Docker Clean
-    alias: docker_clean.yml
-    target: ansible/bootstrap_docker_clean.yml
   - name: Bootstrap Marathon Alerts
     alias: marathon_alerts.yml
     target: ansible/bootstrap_marathon_alerts.yml
@@ -77,6 +71,14 @@ shortcuts:
   - name: Perform Healthchecks
     alias: healthchecks.yml
     target: ansible/healthchecks.yml
+
+  # Custom
+  - name: Bootstrap Annabelle
+    alias: annabelle.yml
+    target: ansible/bootstrap_annabelle.yml
+  - name: Bootstrap Sinopia
+    alias: sinopia.yml
+    target: ansible/bootstrap_sinopia.yml
 
 # Packer shortcuts
 - type: snowflake

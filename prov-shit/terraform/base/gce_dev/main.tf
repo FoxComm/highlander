@@ -1,6 +1,9 @@
 variable "ssh_user" {}
 variable "ssh_private_key" {}
 
+variable "dnsimple_token" {}
+variable "dnsimple_email" {}
+
 variable "account_file" {}
 variable "gce_project" {}
 variable "region" {}
@@ -11,23 +14,27 @@ variable "tiny_frontend_image" {}
 variable "gatling_image" {}
 variable "builder_image" {}
 
-provider "google"
-{
+provider "google" {
     credentials = "${file(var.account_file)}"
-    project = "${var.gce_project}"
-    region = "${var.region}"
+    project     = "${var.gce_project}"
+    region      = "${var.region}"
+}
+
+provider "dnsimple" {
+    token = "${var.dnsimple_token}"
+    email = "${var.dnsimple_email}"
 }
 
 ##############################################
 # Setup Consul Cluster
 ##############################################
 module "consul_cluster" {
-    source = "../../modules/gce/amigos"
-    datacenter = "dev"
-    network = "default"
-    servers = 3
-    image = "${var.amigo_image}"
-    ssh_user = "${var.ssh_user}"
+    source          = "../../modules/gce/amigos"
+    datacenter      = "dev"
+    network         = "default"
+    servers         = 3
+    image           = "${var.amigo_image}"
+    ssh_user        = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }
 
@@ -35,12 +42,29 @@ module "consul_cluster" {
 # Setup Buildkite Agent Machines
 ##############################################
 module "buildagents" {
-    source = "../../modules/gce/agent"
-    prefix = "buildkite-agent"
-    queue = "core"
-    network = "default"
-    image = "${var.builder_image}"
-    ssh_user = "${var.ssh_user}"
+    source          = "../../modules/gce/agent"
+    prefix          = "buildkite-agent"
+    queue           = "core"
+    network         = "default"
+    servers         = 8
+    image           = "${var.builder_image}"
+    ssh_user        = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
-    servers = 8
+}
+
+##############################################
+# Setup Sinopia Server
+##############################################
+module "sinopia" {
+    source          = "../../modules/gce/sinopia"
+    network         = "default"
+    datacenter      = "dev"
+    image           = "base-161111-180429"
+    amigo_leader    = "10.240.0.10"
+    domain          = "foxcommerce.com"
+    subdomain       = "npm"
+    ssh_user        = "${var.ssh_user}"
+    ssh_private_key = "${var.ssh_private_key}"
+    dnsimple_token  = "${var.dnsimple_token}"
+    dnsimple_email  = "${var.dnsimple_email}"
 }
