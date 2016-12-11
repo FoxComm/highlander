@@ -65,8 +65,14 @@ def tune_vm(config, opts = {})
   end
 
   config.vm.provider :vmware_fusion do |v, override|
+    user = "vagrant"
     v.vmx["memsize"] = memory if memory
     v.vmx["numvcpus"] = cpus if cpus
+    #override.ssh.insert_key = false
+    #override.ssh.username = "vagrant"
+    #override.ssh.password = "vagrant"
+    override.vm.box = "fox/vmare_fusion_appliance_base_2016"
+    override.vm.box_url = "file://fox_vmare_fusion_appliance_base_2016.12.11_2.box"
   end
 
   config.vm.provider :google do |g, override|
