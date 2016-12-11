@@ -3,14 +3,14 @@ shortcuts:
 
 # Ansible shortcuts
 - type: snowflake
-  process: ansible-playbook -vvvv
+  process: ansible-playbook -v
   alias: ansible
 
   flags:
   - name: Inventory Files
     flag: "--inventory-file"
     aliases:
-      api_docs: bin/envs/api_docs
+      dev: bin/envs/dev
       stage_vpn: bin/envs/stage_vpn
       staging: bin/envs/staging
       target_dev: bin/envs/target_dev
@@ -26,6 +26,7 @@ shortcuts:
     flag: "--user"
     aliases:
       ejik: ejik
+      kpashka: kpashka
       pavel: pavel
       ubuntu: ubuntu
 

@@ -59,7 +59,7 @@ module "sinopia" {
     source          = "../../modules/gce/sinopia"
     network         = "default"
     datacenter      = "dev"
-    image           = "base-161111-180429"
+    image           = "base-node-1470785359"
     amigo_leader    = "10.240.0.10"
     domain          = "foxcommerce.com"
     subdomain       = "npm"
