@@ -21,6 +21,10 @@ import MerchantApplicationsList from 'components/merchant-applications/list';
 
 import IntegrationDetails from 'components/origin-integrations/details';
 
+import ShippingMethodList from 'components/shipping-methods/list';
+import ShippingMethodDetails from 'components/shipping-methods/details';
+import ShippingMethodForm from 'components/shipping-methods/form';
+
 import type { JWT } from 'lib/claims';
 
 const getRoutes = (jwt: JWT) => {
@@ -58,12 +62,22 @@ const getRoutes = (jwt: JWT) => {
       router.read('integrations', { component: IntegrationDetails, isIndex: true }),
     ]);
 
+  const shippingMethodRoutes =
+    router.read('shipping-methods-base', { path: 'methods', frn: frn.oms.order }, [
+      router.read('shipping-methods', { component: ShippingMethodList, isIndex: true }),
+      router.read('shipping-method', { path: ':shippingMethodId', component: ShippingMethodDetails }, [
+        router.read('shipping-method-details', { component: ShippingMethodForm, isIndex: true }),
+      ]),
+    ]);
+
+
   return (
     <div>
       {userRoutes}
       {pluginRoutes}
       {applicationsRoutes}
       {integrationRoutes}
+      {shippingMethodRoutes}
     </div>
   );
 };

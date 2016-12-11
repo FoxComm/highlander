@@ -86,7 +86,7 @@ export const deleteShippingAddress = _deleteShippingAddress.perform;
 // Shipping Method Actions
 
 const _updateShippingMethod = createAsyncActions(
-  'updateShippingMethod',
+  'updateCartShippingMethod',
   (refNum: string, shippingMethodId: number) => {
     const payload = { shippingMethodId };
     return Api.patch(`/orders/${refNum}/shipping-method`, payload);

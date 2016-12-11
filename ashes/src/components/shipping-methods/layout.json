@@ -1,0 +1,22 @@
+{
+  "main": [
+    {
+      "type": "group",
+      "title": "General",
+      "fields": {
+        "canAddProperty": false,
+        "value": [
+          "adminDisplayName",
+          "storefrontDisplayName",
+          "price"
+        ],
+        "includeRest": true
+      }
+    }
+  ],
+  "aside": [
+    {
+      "type": "state"
+    }
+  ]
+}
