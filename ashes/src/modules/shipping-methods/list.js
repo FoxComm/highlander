@@ -4,7 +4,7 @@ import { createReducer } from 'redux-act';
 import Api from 'lib/api';
 import createAsyncActions from 'modules/async-utils';
 
-import type { ShippingMethod } from 'paragons/merchant-application';
+import type { ShippingMethod } from 'paragons/shipping-method';
 
 type State = {
   shippingMethods: Array<ShippingMethod>,

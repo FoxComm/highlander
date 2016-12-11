@@ -12,7 +12,7 @@ import MultiSelectRow from '../table/multi-select-row';
 import type { ShippingMethod } from 'paragons/shipping-method';
 
 type Props = {
-  application: ShippingMethod,
+  shippingMethod: ShippingMethod,
   columns?: Array<Object>,
   params: Object,
 };

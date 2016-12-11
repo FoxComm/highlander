@@ -343,9 +343,9 @@ export default class ObjectFormInner extends Component {
 
       const renderName = this.guessRenderName(attrSchema, attribute);
       const attrOptions = this.getAttrOptions(name, attrSchema);
-      // $FlowFixMe: guessRenderName is enough
-
       const attributeValue = _.get(attribute, 'v', attribute);
+      
+      // $FlowFixMe: guessRenderName is enough
       return React.cloneElement(this[renderName](name, attributeValue, attrOptions), { key: name });
     });
 
