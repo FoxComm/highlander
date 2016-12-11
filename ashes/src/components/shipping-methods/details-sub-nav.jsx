@@ -17,8 +17,6 @@ export default class DetailsSubNav extends Component {
   props: Props;
 
   render(): Element {
-    console.log('SM ID');
-    console.log(this.props.shippingMethodId);
     const params = { shippingMethodId: this.props.shippingMethodId };
     return (
       <LocalNav>

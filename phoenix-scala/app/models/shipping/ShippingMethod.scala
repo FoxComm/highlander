@@ -15,8 +15,9 @@ case class ShippingMethod(id: Int = 0,
                           adminDisplayName: String,
                           storefrontDisplayName: String,
                           code: String,
-                          shippingCarrierId: Option[Int] = None,
+                          carrier: Option[String] = None,
                           price: Int,
+                          eta: Option[String] = None,
                           isActive: Boolean = true,
                           conditions: Option[QueryStatement] = None,
                           restrictions: Option[QueryStatement] = None)
@@ -45,6 +46,8 @@ object ShippingMethod {
         storefrontDisplayName = payload.storefrontDisplayName,
         code = payload.code,
         price = payload.price,
+        eta = payload.eta,
+        carrier = payload.carrier,
         isActive = true
     )
 
@@ -55,7 +58,9 @@ object ShippingMethod {
         adminDisplayName = payload.adminDisplayName.getOrElse(original.adminDisplayName),
         storefrontDisplayName =
           payload.storefrontDisplayName.getOrElse(original.storefrontDisplayName),
-        price = payload.price.getOrElse(original.price)
+        price = payload.price.getOrElse(original.price),
+        eta = payload.eta.fold(original.eta)(_ ⇒ payload.eta),
+        carrier = payload.carrier.fold(original.carrier)(_ ⇒ payload.carrier)
     )
 }
 
@@ -65,8 +70,9 @@ class ShippingMethods(tag: Tag) extends FoxTable[ShippingMethod](tag, "shipping_
   def adminDisplayName      = column[String]("admin_display_name")
   def storefrontDisplayName = column[String]("storefront_display_name")
   def code                  = column[String]("code")
-  def shippingCarrierId     = column[Option[Int]]("shipping_carrier_id")
+  def carrier               = column[Option[String]]("carrier")
   def price                 = column[Int]("price")
+  def eta                   = column[Option[String]]("eta")
   def isActive              = column[Boolean]("is_active")
   def conditions            = column[Option[QueryStatement]]("conditions")
   def restrictions          = column[Option[QueryStatement]]("restrictions")
@@ -77,8 +83,9 @@ class ShippingMethods(tag: Tag) extends FoxTable[ShippingMethod](tag, "shipping_
      adminDisplayName,
      storefrontDisplayName,
      code,
-     shippingCarrierId,
+     carrier,
      price,
+     eta,
      isActive,
      conditions,
      restrictions) <> ((ShippingMethod.apply _).tupled, ShippingMethod.unapply)
