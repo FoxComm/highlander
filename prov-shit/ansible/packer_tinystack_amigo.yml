@@ -8,6 +8,7 @@
     join_type: join-wan
     mesos_quorum: 1
     consul_expect: 1
+    sensu_subscriptions: consul-server
 
   roles:
     - { role: base/consul_server }
@@ -16,3 +17,4 @@
     - { role: base/mesos_master }
     - { role: base/mesos_consul }
 #    - { role: base/kibana, sudo: yes }
+    - { role: base/sensu}

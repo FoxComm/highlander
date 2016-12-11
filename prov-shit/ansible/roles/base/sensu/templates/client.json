@@ -2,6 +2,6 @@
   "client": {
     "name": "{{ inventory_hostname }}",
     "address": "{{ ansible_default_ipv4['address'] }}",
-    "subscriptions": {{ subscriptions | to_nice_json }}
+    "subscriptions": {{ sensu_subscriptions | to_nice_json }}
   }
 }
