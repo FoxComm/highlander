@@ -10,7 +10,7 @@ import:
   - package: github.com/stretchr/testify
   - package: github.com/FoxComm/metamorphosis
     vcs: git
-    version: e3bb41d947c96bed64c891a056cac6651476642c
+    version: a1d67c1556225e44008ff37b5467fbca84113a06
     repo: git@github.com:FoxComm/metamorphosis.git
   - package: github.com/elodina/go-avro
     version: 0c8185d9a3ba82aeac98db3313a268a5b6df99b5
