@@ -32,6 +32,7 @@ location /internal-search/ {
     proxy_http_version 1.1;
 }
 
+
 # Proxy the internal search location and sanitizes output from ES for external use
 location ~ /api/search/admin/.*/_search {
     auth_request /internal-auth;
