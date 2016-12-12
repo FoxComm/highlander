@@ -1,5 +1,6 @@
 sensu_master: false
-sensu_api_host: "{{ inventory_hostname | default(sensu-master)}}"
+#sensu_api_host: "{{ inventory_hostname | default(here)"
+sensu_api_host: sensu-master
 sensu_transport: redis
 sensu_config_path: /etc/sensu/conf.d
 redis_host: "{{ sensu_api_host }}"

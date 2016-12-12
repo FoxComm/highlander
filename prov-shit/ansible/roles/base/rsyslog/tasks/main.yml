@@ -1,5 +1,9 @@
 ---
 
+- name: Wait for apt unlock
+  shell: while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
+  sudo: true
+
 - name: Install rsyslog
   apt: name={{item}} state=installed
   with_items:
