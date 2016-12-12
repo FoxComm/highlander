@@ -56,9 +56,9 @@ func (suite *ConsumerTestSuite) TestMessageHander() {
 	defer ts.Close()
 
 	client := phoenix.NewPhoenixClient(tss.URL, username, password)
-	consumer, err := NewConsumer(client, "localhost:2181", "http://localhost:8081", ts.URL)
+	consumer, err := NewStockItemsConsumer(client, ts.URL)
 	suite.Nil(err)
 
-	err = consumer.handler(msg)
+	err = consumer.Handler(msg)
 	suite.Nil(err)
 }
