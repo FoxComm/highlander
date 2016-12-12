@@ -1,7 +1,7 @@
 {
   "checks": {
     "consul-server-dc-client": {
-      "command": "check-consul-servers.rb -s ::consul-server.server|10.240.0.10::: -e :::consul-server.expect|3::: -g :::consul-server.greater|1:::",
+      "command": "check-consul-servers.rb -s :::consul-server.server|10.240.0.10::: -e :::consul-server.expect|3::: -g :::consul-server.greater|1:::",
       "interval": 60,
       "subscribers": [
         "frontend",
