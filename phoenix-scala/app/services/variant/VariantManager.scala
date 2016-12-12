@@ -17,7 +17,7 @@ import utils.aliases._
 import utils.db._
 
 object VariantManager {
-  type FullVariant = (FullObject[Variant], Seq[FullObject[VariantValue]])
+  type FullVariant = (FullObject[Variant], Seq[FullObject[ProductValue]])
 
   def createVariant(contextName: String, payload: VariantPayload)(
       implicit ec: EC,
@@ -161,7 +161,7 @@ object VariantManager {
                                       payload: VariantValuePayload)(
       implicit ec: EC,
       db: DB,
-      au: AU): DbResultT[FullObject[VariantValue]] = {
+      au: AU): DbResultT[FullObject[ProductValue]] = {
 
     val (form, shadow) = payload.formAndShadow.tupled
 
@@ -172,7 +172,7 @@ object VariantManager {
                DbResultT.fromXor(sku.mustNotBeArchived(Variant, variant.formId)))
       ins ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       variantValue ← * <~ VariantValues.create(
-                        VariantValue(scope = scope,
+                        ProductValue(scope = scope,
                                      contextId = context.id,
                                      formId = ins.form.id,
                                      shadowId = ins.shadow.id,
@@ -188,7 +188,7 @@ object VariantManager {
 
   private def updateVariantValueInner(valueId: Int, contextId: Int, payload: VariantValuePayload)(
       implicit ec: EC,
-      db: DB): DbResultT[FullObject[VariantValue]] = {
+      db: DB): DbResultT[FullObject[ProductValue]] = {
     val (form, shadow) = payload.formAndShadow.tupled
 
     for {
@@ -232,9 +232,9 @@ object VariantManager {
   }
 
   private def updateValueHead(
-      value: VariantValue,
+      value: ProductValue,
       shadow: ObjectShadow,
-      maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[VariantValue] =
+      maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[ProductValue] =
     maybeCommit match {
       case Some(commit) ⇒
         VariantValues.update(value, value.copy(shadowId = shadow.id, commitId = commit.id))
@@ -244,7 +244,7 @@ object VariantManager {
 
   def findVariantsByProduct(product: Product)(
       implicit ec: EC,
-      db: DB): DbResultT[Seq[(FullObject[Variant], Seq[FullObject[VariantValue]])]] =
+      db: DB): DbResultT[Seq[(FullObject[Variant], Seq[FullObject[ProductValue]])]] =
     for {
       variants ← * <~ ProductVariantLinks.queryRightByLeft(product)
       values   ← * <~ variants.map(findValuesForVariant)
@@ -252,7 +252,7 @@ object VariantManager {
 
   def findValuesForVariant(variant: FullObject[Variant])(
       implicit ec: EC,
-      db: DB): DbResultT[Seq[FullObject[VariantValue]]] =
+      db: DB): DbResultT[Seq[FullObject[ProductValue]]] =
     VariantValueLinks.queryRightByLeft(variant.model)
 
   def getVariantValueSkuCodes(
@@ -266,7 +266,7 @@ object VariantManager {
 
   private def mustFindVariantValueByContextAndForm(contextId: Int, formId: Int)(
       implicit ec: EC,
-      db: DB): DbResultT[VariantValue] =
+      db: DB): DbResultT[ProductValue] =
     for {
 
       value ← * <~ VariantValues
@@ -275,7 +275,7 @@ object VariantManager {
     } yield value
 
   def mustFindVariantValueByContextAndShadow(contextId: Int, shadowId: Int)(
-      implicit ec: EC): DbResultT[FullObject[VariantValue]] =
+      implicit ec: EC): DbResultT[FullObject[ProductValue]] =
     for {
 
       shadow ← * <~ ObjectManager.mustFindShadowById404(shadowId)

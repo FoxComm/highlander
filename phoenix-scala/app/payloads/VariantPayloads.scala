@@ -2,7 +2,7 @@ package payloads
 
 import models.objects.ObjectUtils._
 import models.objects.{FormAndShadow, ObjectForm, ObjectShadow}
-import models.product.VariantValue
+import models.product.ProductValue
 import payloads.ObjectPayloads._
 import utils.aliases._
 
@@ -24,7 +24,7 @@ object VariantPayloads {
       val jsonBuilder: AttributesBuilder = ObjectPayloads
         .optionalAttributes(name.map(StringField("name", _)), swatch.map(StringField("swatch", _)))
 
-      (ObjectForm(kind = VariantValue.kind, attributes = jsonBuilder.objectForm),
+      (ObjectForm(kind = ProductValue.kind, attributes = jsonBuilder.objectForm),
        ObjectShadow(attributes = jsonBuilder.objectShadow))
     }
   }

@@ -28,7 +28,7 @@ class VariantValueLinks(tag: Tag)
 }
 
 object VariantValueLinks
-    extends ObjectHeadLinkQueries[VariantValueLink, VariantValueLinks, Variant, VariantValue](
+    extends ObjectHeadLinkQueries[VariantValueLink, VariantValueLinks, Variant, ProductValue](
         new VariantValueLinks(_),
         Variants,
         VariantValues)
@@ -36,6 +36,6 @@ object VariantValueLinks
 
   val returningLens: Lens[VariantValueLink, Int] = lens[VariantValueLink].id
 
-  def build(left: Variant, right: VariantValue) =
+  def build(left: Variant, right: ProductValue) =
     VariantValueLink(leftId = left.id, rightId = right.id)
 }

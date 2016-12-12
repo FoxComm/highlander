@@ -11,11 +11,11 @@ import utils.{JsonFormatters, Validation}
 
 import com.github.tminglei.slickpg._
 
-object VariantValue {
+object ProductValue {
   val kind = "variant-value"
 }
 
-case class VariantValue(id: Int = 0,
+case class ProductValue(id: Int = 0,
                         scope: LTree,
                         contextId: Int,
                         shadowId: Int,
@@ -24,25 +24,25 @@ case class VariantValue(id: Int = 0,
                         updatedAt: Instant = Instant.now,
                         createdAt: Instant = Instant.now,
                         archivedAt: Option[Instant] = None)
-    extends FoxModel[VariantValue]
-    with Validation[VariantValue]
-    with ObjectHead[VariantValue] {
+    extends FoxModel[ProductValue]
+    with Validation[ProductValue]
+    with ObjectHead[ProductValue] {
 
-  def withNewShadowAndCommit(shadowId: Int, commitId: Int): VariantValue =
+  def withNewShadowAndCommit(shadowId: Int, commitId: Int): ProductValue =
     this.copy(shadowId = shadowId, commitId = commitId)
 }
 
-class VariantValues(tag: Tag) extends ObjectHeads[VariantValue](tag, "variant_values") {
+class VariantValues(tag: Tag) extends ObjectHeads[ProductValue](tag, "variant_values") {
   def * =
-    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((VariantValue.apply _).tupled,
-        VariantValue.unapply)
+    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((ProductValue.apply _).tupled,
+        ProductValue.unapply)
 }
 
 object VariantValues
-    extends FoxTableQuery[VariantValue, VariantValues](new VariantValues(_))
-    with ReturningId[VariantValue, VariantValues] {
+    extends FoxTableQuery[ProductValue, VariantValues](new VariantValues(_))
+    with ReturningId[ProductValue, VariantValues] {
 
-  val returningLens: Lens[VariantValue, Int] = lens[VariantValue].id
+  val returningLens: Lens[ProductValue, Int] = lens[ProductValue].id
 
   implicit val formats = JsonFormatters.phoenixFormats
 

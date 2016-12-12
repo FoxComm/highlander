@@ -19,7 +19,7 @@ object VariantResponses {
         extends ResponseItem
 
     def build(variant: IlluminatedVariant,
-              variantValues: Seq[FullObject[VariantValue]],
+              variantValues: Seq[FullObject[ProductValue]],
               variantValueSkus: VariantValueSkuLinks): Root =
       Root(id = variant.id,
            attributes = variant.attributes,
@@ -27,7 +27,7 @@ object VariantResponses {
            values = illuminateValues(variantValues, variantValueSkus))
 
     def buildLite(variant: IlluminatedVariant,
-                  variantValues: Seq[FullObject[VariantValue]],
+                  variantValues: Seq[FullObject[ProductValue]],
                   variantValueSkus: VariantValueSkuLinks): Root =
       Root(id = variant.id,
            attributes = variant.attributes,
@@ -35,7 +35,7 @@ object VariantResponses {
            values = illuminateValues(variantValues, variantValueSkus))
 
     def illuminateValues(
-        variantValues: Seq[FullObject[VariantValue]],
+        variantValues: Seq[FullObject[ProductValue]],
         variantValueSkus: VariantValueSkuLinks): Seq[IlluminatedVariantValueResponse.Root] =
       variantValues.map(
           vv ⇒
