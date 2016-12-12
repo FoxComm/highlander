@@ -20,7 +20,7 @@ final case class StoreCreditTransactionsSearchView()(implicit ec: EC) extends Av
       field("originType", StringType).index("not_analyzed"),
       field("currency", StringType).index("not_analyzed"),
       field("storeCreditCreatedAt", DateType).format(dateFormat),
-      field("scope", StringType),
+      field("scope", StringType).index("not_analyzed"),
       // Order Payment
       field("orderPayment").nested(
           field("orderReferenceNumber", StringType).analyzer("upper_cased"),
