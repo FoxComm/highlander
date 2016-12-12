@@ -9,10 +9,10 @@ import consumer.elastic.mappings._
 final case class InventorySearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("inventory_search_view").fields(
       field("id", IntegerType),
-      field("sku", StringType).analyzer("not_analyzed"),
+      field("sku", StringType).index("not_analyzed"),
       field("stockItem").nested(
           field("id", IntegerType),
-          field("sku", StringType).analyzer("not_analyzed"),
+          field("sku", StringType).index("not_analyzed"),
           field("defaultUnitCost", IntegerType)
       ),
       field("stockLocation").nested(

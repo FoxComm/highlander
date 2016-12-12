@@ -20,7 +20,7 @@ const searchTerms = [
   {
     title: 'SKU : Code',
     type: 'identifier',
-    term: 'code',
+    term: 'skuCode',
   },
   {
     title: 'SKU : Title',
