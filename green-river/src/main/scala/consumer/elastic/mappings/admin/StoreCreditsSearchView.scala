@@ -20,7 +20,7 @@ final case class StoreCreditsSearchView()(implicit ec: EC) extends AvroTransform
       field("canceledAmount", IntegerType),
       field("createdAt", DateType).format(dateFormat),
       field("updatedAt", DateType).format(dateFormat),
-      field("scope", StringType),
+      field("scope", StringType).index("not_analyzed"),
       field("storeAdmin").nested(
           field("email", StringType).analyzer("autocomplete"),
           field("name", StringType).analyzer("autocomplete"),
