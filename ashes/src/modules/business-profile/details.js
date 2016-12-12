@@ -16,7 +16,7 @@ const initialState = {
 
 const _updateBusinessProfile = createAsyncActions(
   'updateBusinessProfile',
-  (id: number, data: BusinessProfile) => Api.patch(`/merchant_applications/${id}/business_profile`, data)
+  (id: number, data: BusinessProfile) => Api.patch(`/merchants/${id}/legal_profile`, data)
 );
 
 export const updateBusinessProfile = _updateBusinessProfile.perform;

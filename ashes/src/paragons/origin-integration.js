@@ -6,3 +6,10 @@ export type OriginIntegration = {
   shopify_password: string,
   shopify_domain: string,
 };
+
+export type ProductFeed = {
+  name: string,
+  url: string,
+  format: string,
+  schedule: string,
+};
