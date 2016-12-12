@@ -10,7 +10,7 @@ object VariantValueResponses {
   object IlluminatedVariantValueResponse {
     case class Root(id: Int, name: String, swatch: Option[String] = None, skuCodes: Seq[String])
 
-    def build(value: FullObject[VariantValue], skuCodes: Seq[String]): Root = {
+    def build(value: FullObject[ProductValue], skuCodes: Seq[String]): Root = {
       val model       = value.model
       val formAttrs   = value.form.attributes
       val shadowAttrs = value.shadow.attributes

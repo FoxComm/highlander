@@ -167,7 +167,7 @@ case class SimpleVariantValue(name: String, swatch: String, skuCodes: Seq[String
   val (keyMap, form) =
     ObjectUtils.createForm(parse(s"""{ "name": "$name", "swatch": "$swatch" }"""))
 
-  def create: ObjectForm = ObjectForm(kind = VariantValue.kind, attributes = form)
+  def create: ObjectForm = ObjectForm(kind = ProductValue.kind, attributes = form)
 
   def update(oldForm: ObjectForm): ObjectForm =
     oldForm.copy(attributes = oldForm.attributes merge form)
@@ -390,7 +390,7 @@ object Mvp {
       shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       value ← * <~ VariantValues.create(
-                 VariantValue(scope = scope,
+                 ProductValue(scope = scope,
                               contextId = contextId,
                               formId = form.id,
                               shadowId = shadow.id,

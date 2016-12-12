@@ -256,7 +256,7 @@ object ProductManager {
   }
 
   private def validateUpdate(skus: Seq[SkuResponse.Root],
-                             variants: Seq[(FullObject[Variant], Seq[FullObject[VariantValue]])])
+                             variants: Seq[(FullObject[Variant], Seq[FullObject[ProductValue]])])
     : ValidatedNel[Failure, Unit] = {
     val maxSkus = variants.map { case (_, values) ⇒ values.length.max(1) }.product
 
