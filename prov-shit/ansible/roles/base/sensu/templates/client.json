@@ -12,8 +12,7 @@
       "greater": 1
     },
     "mesos":{
-	  "server": "",
-      "port": ""
+      "server": ""
     },
     "subscriptions": {{ sensu_subscriptions | to_nice_json }}
   },

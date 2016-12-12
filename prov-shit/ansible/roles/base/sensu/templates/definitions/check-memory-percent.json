@@ -4,6 +4,7 @@
       "command": "check-memory-percent.rb -w 90 -c 95",
       "interval": 60,
       "subscribers": [
+        "all",
         "consul-server",
         "frontend",
         "backend"
