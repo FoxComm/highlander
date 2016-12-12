@@ -3,7 +3,7 @@ package services.variant
 import failures.ArchiveFailures._
 import failures.NotFoundFailure404
 import failures.ProductFailures._
-import models.inventory.Sku
+import models.inventory.ProductVariant
 import models.account._
 import models.objects._
 import models.product._

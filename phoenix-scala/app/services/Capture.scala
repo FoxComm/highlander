@@ -10,7 +10,7 @@ import models.account.{User, Users}
 import models.cord._
 import models.cord.lineitems._
 import models.coupon._
-import models.inventory.{Sku, Skus}
+import models.inventory.{ProductVariant, ProductVariants}
 import models.objects._
 import models.payment.creditcard._
 import models.payment.giftcard._

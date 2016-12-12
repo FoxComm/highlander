@@ -4,7 +4,7 @@ import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.LinkArchivedSkuFailure
 import failures.ProductFailures.VariantNotFoundForContext
 import models.account.Scope
-import models.inventory.Skus
+import models.inventory.ProductVariants
 import models.product._
 import org.json4s.JsonDSL._
 import payloads.VariantPayloads._
@@ -155,7 +155,7 @@ class VariantIntegrationTest
 
     val archivedSkus = (for {
       archivedSkus ← * <~ skus.map { sku ⇒
-                      Skus.update(sku, sku.copy(archivedAt = Some(Instant.now)))
+                      ProductVariants.update(sku, sku.copy(archivedAt = Some(Instant.now)))
                     }
     } yield archivedSkus).gimme
 

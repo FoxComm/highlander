@@ -25,17 +25,18 @@ class ProductSkuLinks(tag: Tag) extends ObjectHeadLinks[ProductSkuLink](tag, "pr
     (id, leftId, rightId, createdAt, updatedAt) <> ((ProductSkuLink.apply _).tupled, ProductSkuLink.unapply)
 
   def left  = foreignKey(Products.tableName, leftId, Products)(_.id)
-  def right = foreignKey(Skus.tableName, rightId, Skus)(_.id)
+  def right = foreignKey(ProductVariants.tableName, rightId, ProductVariants)(_.id)
 }
 
 object ProductSkuLinks
-    extends ObjectHeadLinkQueries[ProductSkuLink, ProductSkuLinks, Product, Sku](
+    extends ObjectHeadLinkQueries[ProductSkuLink, ProductSkuLinks, Product, ProductVariant](
         new ProductSkuLinks(_),
         Products,
-        Skus)
+        ProductVariants)
     with ReturningId[ProductSkuLink, ProductSkuLinks] {
 
   val returningLens: Lens[ProductSkuLink, Int] = lens[ProductSkuLink].id
 
-  def build(left: Product, right: Sku) = ProductSkuLink(leftId = left.id, rightId = right.id)
+  def build(left: Product, right: ProductVariant) =
+    ProductSkuLink(leftId = left.id, rightId = right.id)
 }

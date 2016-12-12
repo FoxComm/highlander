@@ -8,7 +8,7 @@ import models.activity.Activity
 import models.cord._
 import models.cord.lineitems.CartLineItems.scope._
 import models.cord.lineitems._
-import models.inventory.{Sku, Skus}
+import models.inventory.{ProductVariant, ProductVariants}
 import models.objects._
 import models.product.VariantValueSkuLinks
 import payloads.LineItemPayloads._
@@ -168,7 +168,7 @@ object LineItemUpdater {
   private def updateLineItems(cart: Cart, lineItem: UpdateLineItemsPayload)(implicit ec: EC,
                                                                             ctx: OC) =
     for {
-      sku ← * <~ Skus
+      sku ← * <~ ProductVariants
              .filterByContext(ctx.id)
              .filter(_.code === lineItem.sku)
              .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
@@ -193,7 +193,7 @@ object LineItemUpdater {
       ctx: OC): DbResultT[Unit] = {
     val lineItemUpdActions = payload.map { lineItem ⇒
       for {
-        sku ← * <~ Skus
+        sku ← * <~ ProductVariants
                .filterByContext(ctx.id)
                .filter(_.code === lineItem.sku)
                .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
@@ -207,7 +207,8 @@ object LineItemUpdater {
     DbResultT.sequence(lineItemUpdActions).meh
   }
 
-  private def mustFindProductIdForSku(sku: Sku, refNum: String)(implicit ec: EC, oc: OC) = {
+  private def mustFindProductIdForSku(sku: ProductVariant, refNum: String)(implicit ec: EC,
+                                                                           oc: OC) = {
     for {
       link ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
               case Some(productLink) ⇒

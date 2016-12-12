@@ -5,7 +5,7 @@ import cats.implicits._
 import com.pellucid.sealerate
 import failures.{Failure, Failures}
 import models.cord.lineitems.{OrderLineItem ⇒ OLI}
-import models.inventory.{Sku, Skus}
+import models.inventory.{ProductVariant, ProductVariants}
 import models.objects._
 import org.json4s.Extraction.decompose
 import org.json4s.Formats
@@ -19,7 +19,7 @@ import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 trait LineItemProductData[LI] {
-  def sku: Sku
+  def sku: ProductVariant
   def skuForm: ObjectForm
   def skuShadow: ObjectShadow
   def productForm: ObjectForm
@@ -32,7 +32,7 @@ trait LineItemProductData[LI] {
   def withLineItemReferenceNumber(newLineItemRef: String): LineItemProductData[LI]
 }
 
-case class OrderLineItemProductData(sku: Sku,
+case class OrderLineItemProductData(sku: ProductVariant,
                                     skuForm: ObjectForm,
                                     skuShadow: ObjectShadow,
                                     productForm: ObjectForm,
@@ -124,7 +124,7 @@ class OrderLineItems(tag: Tag) extends FoxTable[OrderLineItem](tag, "order_line_
          oli.attributes.map(decompose)).some
       })
 
-  def sku    = foreignKey(Skus.tableName, skuId, Skus)(_.id)
+  def sku    = foreignKey(ProductVariants.tableName, skuId, ProductVariants)(_.id)
   def shadow = foreignKey(ObjectShadows.tableName, skuShadowId, ObjectShadows)(_.id)
 }
 
@@ -142,7 +142,7 @@ object OrderLineItems
 
   object scope {
     implicit class OrderLineItemQuerySeqConversions(q: QuerySeq) {
-      def withSkus: Query[(OrderLineItems, Skus), (OrderLineItem, Sku), Seq] =
+      def withSkus: Query[(OrderLineItems, ProductVariants), (OrderLineItem, ProductVariant), Seq] =
         for {
           items ← q
           skus  ← items.sku

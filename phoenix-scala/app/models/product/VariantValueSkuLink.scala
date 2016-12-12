@@ -2,7 +2,7 @@ package models.product
 
 import java.time.Instant
 
-import models.inventory.Skus
+import models.inventory.ProductVariants
 import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
@@ -26,7 +26,7 @@ class VariantValueSkuLinks(tag: Tag)
     (id, leftId, rightId, createdAt, updatedAt) <> ((VariantValueSkuLink.apply _).tupled, VariantValueSkuLink.unapply)
 
   def left  = foreignKey(VariantValues.tableName, leftId, VariantValues)(_.id)
-  def right = foreignKey(Skus.tableName, rightId, Skus)(_.id)
+  def right = foreignKey(ProductVariants.tableName, rightId, ProductVariants)(_.id)
 }
 
 object VariantValueSkuLinks
@@ -43,7 +43,7 @@ object VariantValueSkuLinks
       variantValueHeadIds: Seq[Int]): Query[(Rep[Int], Rep[String]), (Int, String), Seq] = {
     for {
       link ← filterLeft(variantValueHeadIds)
-      sku  ← Skus if link.rightId === sku.id
+      sku  ← ProductVariants if link.rightId === sku.id
     } yield (link.leftId, sku.code)
   }
 }

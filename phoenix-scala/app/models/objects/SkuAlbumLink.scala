@@ -26,19 +26,19 @@ class SkuAlbumLinks(tag: Tag)
   def * =
     (id, leftId, rightId, position, createdAt, updatedAt) <> ((SkuAlbumLink.apply _).tupled, SkuAlbumLink.unapply)
 
-  def left  = foreignKey(Skus.tableName, leftId, Skus)(_.id)
+  def left  = foreignKey(ProductVariants.tableName, leftId, ProductVariants)(_.id)
   def right = foreignKey(Albums.tableName, rightId, Albums)(_.id)
 }
 
 object SkuAlbumLinks
-    extends OrderedObjectHeadLinkQueries[SkuAlbumLink, SkuAlbumLinks, Sku, Album](
+    extends OrderedObjectHeadLinkQueries[SkuAlbumLink, SkuAlbumLinks, ProductVariant, Album](
         new SkuAlbumLinks(_),
-        Skus,
+        ProductVariants,
         Albums)
     with ReturningId[SkuAlbumLink, SkuAlbumLinks] {
 
   val returningLens: Lens[SkuAlbumLink, Int] = lens[SkuAlbumLink].id
 
-  def buildOrdered(left: Sku, right: Album, position: Int) =
+  def buildOrdered(left: ProductVariant, right: Album, position: Int) =
     SkuAlbumLink(leftId = left.id, rightId = right.id, position = position)
 }

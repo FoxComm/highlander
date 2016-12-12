@@ -7,7 +7,7 @@ import models.cord.Orders
 import models.customer.CustomersData
 import models.admin.AdminsData
 import models.account._
-import models.inventory.Sku
+import models.inventory.ProductVariant
 import models.objects._
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard
@@ -94,7 +94,7 @@ object ReturnResponse {
         paymentMethodType = pmt.paymentMethodType
     )
 
-  def buildLineItems(skus: Seq[(Sku, ObjectForm, ObjectShadow, ReturnLineItem)],
+  def buildLineItems(skus: Seq[(ProductVariant, ObjectForm, ObjectShadow, ReturnLineItem)],
                      giftCards: Seq[(GiftCard, ReturnLineItem)],
                      shipments: Seq[(Shipment, ReturnLineItem)]): LineItems = {
     LineItems(

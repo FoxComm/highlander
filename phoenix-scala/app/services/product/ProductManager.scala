@@ -314,7 +314,7 @@ object ProductManager {
 
       for {
         code ← * <~ SkuManager.mustGetSkuCode(payload)
-        sku  ← * <~ Skus.filterByContextAndCode(oc.id, code).one.dbresult
+        sku  ← * <~ ProductVariants.filterByContextAndCode(oc.id, code).one.dbresult
         up ← * <~ sku.map { foundSku ⇒
               if (foundSku.archivedAt.isEmpty) {
                 for {
@@ -411,12 +411,12 @@ object ProductManager {
                                           .result
                             } yield skuLinks.map(_.rightId)
                         }
-      skuCodesForProduct ← * <~ Skus.filter(_.id.inSet(skuIdsForProduct)).map(_.code).result
+      skuCodesForProduct ← * <~ ProductVariants.filter(_.id.inSet(skuIdsForProduct)).map(_.code).result
       skuCodesFromPayload = payloadSkus.map(ps ⇒ SkuManager.getSkuCode(ps.attributes)).flatten
       skuCodesToBeGone    = skuCodesForProduct.diff(skuCodesFromPayload)
       _ ← * <~ (skuCodesToBeGone.map { codeToUnassociate ⇒
                for {
-                 skuToUnassociate ← * <~ Skus.mustFindByCode(codeToUnassociate)
+                 skuToUnassociate ← * <~ ProductVariants.mustFindByCode(codeToUnassociate)
                  _                ← * <~ skuToUnassociate.mustNotBePresentInCarts
                } yield {}
              })

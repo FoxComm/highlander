@@ -60,7 +60,9 @@ object ProductResponses {
     case class Root(product: ProductFormResponse.Root, skus: Seq[SkuFormResponse.Root])
         extends ResponseItem
 
-    def build(product: Product, productForm: ObjectForm, skus: Seq[(Sku, ObjectForm)]): Root =
+    def build(product: Product,
+              productForm: ObjectForm,
+              skus: Seq[(ProductVariant, ObjectForm)]): Root =
       Root(product = ProductFormResponse.build(product, productForm), skus = skus.map {
         case (s, f) ⇒ SkuFormResponse.build(s, f)
       })
@@ -71,7 +73,7 @@ object ProductResponses {
     case class Root(product: ProductShadowResponse.Root, skus: Seq[SkuShadowResponse.Root])
         extends ResponseItem
 
-    def build(shadow: ObjectShadow, skus: Seq[(Sku, ObjectShadow)]): Root =
+    def build(shadow: ObjectShadow, skus: Seq[(ProductVariant, ObjectShadow)]): Root =
       Root(product = ProductShadowResponse.build(shadow), skus = skus.map {
         case (s, ss) ⇒ SkuShadowResponse.build(s, ss)
       })
@@ -84,7 +86,7 @@ object ProductResponses {
     def build(product: Product,
               productForm: ObjectForm,
               productShadow: ObjectShadow,
-              skus: Seq[FullObject[Sku]]): Root =
+              skus: Seq[FullObject[ProductVariant]]): Root =
       Root(form = FullProductFormResponse.build(product, productForm, skus.map { sku ⇒
         (sku.model, sku.form)
       }), shadow = FullProductShadowResponse.build(productShadow, skus.map { sku ⇒

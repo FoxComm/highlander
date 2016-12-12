@@ -5,16 +5,17 @@ import models.product.Product
 object ProductFailures {
 
   object SkuNotFound {
-    def apply(code: String) = NotFoundFailure404(s"Sku $code not found")
-    def apply(id: Int)      = NotFoundFailure404(s"Sku with id $id not found")
+    def apply(code: String) = NotFoundFailure404(s"ProductVariant $code not found")
+    def apply(id: Int)      = NotFoundFailure404(s"ProductVariant with id $id not found")
   }
 
   object SkuWithFormNotFound {
-    def apply(formId: Int) = NotFoundFailure404(s"Sku with form id $formId not found")
+    def apply(formId: Int) = NotFoundFailure404(s"ProductVariant with form id $formId not found")
   }
 
   object SkuWithShadowNotFound {
-    def apply(shadowId: Int) = NotFoundFailure404(s"Sku with shadow id $shadowId not found")
+    def apply(shadowId: Int) =
+      NotFoundFailure404(s"ProductVariant with shadow id $shadowId not found")
   }
 
   case class ProductNotFoundAtCommit(id: Int, commit: Int) extends Failure {
@@ -23,12 +24,13 @@ object ProductFailures {
 
   object SkuShadowNotFoundInPayload {
     def apply(code: String) =
-      NotFoundFailure404(s"Sku shadow with code $code not found in payload")
+      NotFoundFailure404(s"ProductVariant shadow with code $code not found in payload")
   }
 
   object SkuNotFoundForContext {
     def apply(code: String, productContextId: Int) =
-      NotFoundFailure404(s"Sku $code with product context $productContextId cannot be found")
+      NotFoundFailure404(
+          s"ProductVariant $code with product context $productContextId cannot be found")
   }
 
   object VariantNotFound {
