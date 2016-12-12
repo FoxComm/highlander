@@ -7,7 +7,7 @@ variable "base_image" {}
 variable "tiny_backend_image" {}
 variable "tiny_frontend_image" {}
 variable "consul_server_image" {}
-#variable "gatling_image" {}
+variable "gatling_image" {}
 variable "consul_leader" {}
 variable "sensu_api_host" {}
 

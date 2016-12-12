@@ -46,7 +46,7 @@ resource "google_compute_instance" "tiny-consul" {
           "/usr/local/bin/bootstrap.sh",
           "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${var.consul_leader}",
           "sudo rm -rf /var/consul/* && sudo systemctl restart consul_server.service",
-          "sudo /opt/sensu/embedded/bin/update-client-cfg.rb ${var.datacenter}-consul-server ${google_compute_instance.tiny-consul.network_interface.0.address}",
+          "sudo /opt/sensu/embedded/bin/update-client-cfg.rb ${var.datacenter}-consul-server ${google_compute_instance.tiny-consul.network_interface.0.address} ${var.sensu_api_host}",
           "sudo systemctl restart sensu-client"
         ]
     }
@@ -79,7 +79,7 @@ resource "google_compute_instance" "tiny-frontend" {
         inline = [
           "/usr/local/bin/bootstrap.sh",
           "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.tiny-consul.network_interface.0.address}",
-          "sudo /opt/sensu/embedded/bin/update-client-cfg.rb ${var.datacenter}-frontend ${google_compute_instance.tiny-consul.network_interface.0.address}",
+          "sudo /opt/sensu/embedded/bin/update-client-cfg.rb ${var.datacenter}-frontend ${google_compute_instance.tiny-consul.network_interface.0.address} ${var.sensu_api_host}",
           "sudo systemctl restart sensu-client"
         ]
     }
@@ -111,7 +111,7 @@ resource "google_compute_instance" "tiny-backend" {
         inline = [
           "/usr/local/bin/bootstrap.sh",
           "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.tiny-consul.network_interface.0.address}",
-          "sudo /opt/sensu/embedded/bin/update-client-cfg.rb ${var.datacenter}-backend ${google_compute_instance.tiny-consul.network_interface.0.address}",
+          "sudo /opt/sensu/embedded/bin/update-client-cfg.rb ${var.datacenter}-backend ${google_compute_instance.tiny-consul.network_interface.0.address} ${var.sensu_api_host}",
           "sudo systemctl restart sensu-client"
         ]
     }
