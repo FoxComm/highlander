@@ -1,10 +1,44 @@
 ---
 
-- name: Install rsyslog
+- name: Get libfastjson
+  git: repo=https://github.com/rsyslog/libfastjson.git dest={{home}}/
+
+- name: Build Libfastjson
+  shell: ./autogen.sh && ./configure && make && make install
+  args:
+      chdir: "{{home}}/libfastjson"
+
+  sudo: true
+
+- name: Install Rsyslog Dependencies
   apt: name={{item}} state=installed
   with_items:
-    - rsyslog
-    - rsyslog-elasticsearch
+      - libestr-dev
+      - autoconf
+      - automake
+      - libtool
+      - uuid-dev
+      - libgcrypt-dev
+      - liblogging-stdlog-dev
+
+- name: Get Rsyslog
+  get_url: url=http://www.rsyslog.com/files/download/rsyslog/rsyslog-8.23.0.tar.gz dest={{home}}/
+
+
+- name: Configure Rsyslog
+  shell: ./configure --enable-omkafka --enable-elasticsearch --enable-mmjsonparse --enable-imfile
+  args:
+      chdir: "{{home}}/rsyslog-8.23.0"
+
+- name: Make Rsyslog
+  make: 
+      chdir: "{{home}}/rsyslog-8.23.0"
+
+- name: Install Rsyslog
+  sudo: true
+  make: 
+      target: install
+      chdir: "{{home}}/rsyslog-8.23.0"
 
 - name: Install base rsyslog config
   template: >
@@ -14,10 +48,18 @@
     group=root
     mode=0644
 
-- name: Install rsyslog config
+- name: Install rsyslog ES config
   template: >
     src=elastic.conf.j2
     dest=/etc/rsyslog.d/51-elastic.conf
+    owner=root
+    group=root
+    mode=0644
+
+- name: Install rsyslog kafka config
+  template: >
+    src=kafka.conf.j2
+    dest=/etc/rsyslog.d/52-kafka.conf
     owner=root
     group=root
     mode=0644
