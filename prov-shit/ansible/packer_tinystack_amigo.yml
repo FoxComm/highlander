@@ -15,5 +15,5 @@
     - { role: base/docker_registry }
     - { role: base/mesos_master }
     - { role: base/mesos_consul }
-#    - { role: base/kibana, sudo: yes }
+    - { role: base/kibana, sudo: yes }
     - { role: base/sensu, sensu_subscriptions: ["consul-server"] }
