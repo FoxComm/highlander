@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 
@@ -14,16 +13,11 @@ import (
 const activityShipmentShipped = "shipment_shipped"
 
 type ShipmentHandler struct {
-	mwhURL string
-	client phoenix.PhoenixClient
+	phoenixClient phoenix.PhoenixClient
 }
 
-func NewShipmentHandler(mwhURL string, client phoenix.PhoenixClient) (*ShipmentHandler, error) {
-	if mwhURL == "" {
-		return nil, errors.New("middlewarehouse URL must be set")
-	}
-
-	return &ShipmentHandler{mwhURL, client}, nil
+func NewShipmentHandler(phoenixClient phoenix.PhoenixClient) (*ShipmentHandler, error) {
+	return &ShipmentHandler{phoenixClient}, nil
 }
 
 // Handler accepts an Avro encoded message from Kafka and takes
@@ -43,7 +37,7 @@ func (h ShipmentHandler) Handler(message metamorphosis.AvroMessage) error {
 	if err != nil {
 		return err
 	}
-	if err := h.client.CapturePayment(capture); err != nil {
+	if err := h.phoenixClient.CapturePayment(capture); err != nil {
 		log.Printf("Unable to capture payment with error: %s", err.Error())
 		return err
 	}
