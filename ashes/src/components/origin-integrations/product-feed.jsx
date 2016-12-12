@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { getUserId } from 'lib/claims';
 
 // components
-import { Dropdown } from 'components/dropdown';
+import { Dropdown, DropdownItem } from 'components/dropdown';
 import { PageTitle } from 'components/section-title';
 import { PrimaryButton } from 'components/common/buttons';
 import ContentBox from 'components/content-box/content-box';
@@ -42,6 +42,10 @@ type Props = {
 
 type State = ProductFeed;
 
+const IMPORT_SCHEDULE = ['Once', 'Daily', 'Weekly'];
+const WEEK_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday',
+                   'Thursday', 'Friday', 'Saturday'];
+
 const mapStateToProps = (state) => {
   return {
     details: state.originIntegrations.details,
@@ -59,7 +63,6 @@ class ProductFeedDetails extends Component {
   state: State = {
     name: '',
     url: '',
-    format: '',
     schedule: '',
   };
 
@@ -79,12 +82,10 @@ class ProductFeedDetails extends Component {
     const { productFeed } = this.props.details;
     const name = _.get(productFeed, 'name', '');
     const url = _.get(productFeed, 'url', '');
-    const format = _.get(productFeed, 'format', '');
     const schedule = _.get(productFeed, 'schedule', '');
 
     return this.state.name !== name ||
       this.state.url !== url ||
-      this.state.format !== format ||
       this.state.schedule !== schedule;
   }
 
@@ -142,10 +143,6 @@ class ProductFeedDetails extends Component {
       this.setState({ url: target.value });
     };
 
-    const handleFormat = ({target}) => {
-      this.setState({ format: target.value });
-    };
-
     const handleSchedule = ({target}) => {
       this.setState({ schedule: target.value });
     };
@@ -188,27 +185,15 @@ class ProductFeedDetails extends Component {
                   <li styleName="entry">
                     <FormField
                       className="fc-object-form__field _form-field-required"
-                      label="Feed Format"
-                      validator="ascii"
-                      maxLength={255}>
-                      <input
-                        type="text"
-                        className="fc-object-form__field-value"
-                        value={this.state.format}
-                        onChange={handleFormat} />
-                    </FormField>
-                  </li>
-                  <li styleName="entry">
-                    <FormField
-                      className="fc-object-form__field _form-field-required"
                       label="Import Schedule"
                       validator="ascii"
                       maxLength={255}>
-                      <input
-                        type="text"
-                        className="fc-object-form__field-value"
+                      <Dropdown
+                        name="schedule"
+                        placeholder="schedule"
                         value={this.state.schedule}
-                        onChange={handleSchedule} />
+                        onChange={handleSchedule}
+                        items={IMPORT_SCHEDULE.map(s => [s, s])} />
                     </FormField>
                   </li>
                 </ul>

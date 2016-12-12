@@ -10,6 +10,5 @@ export type OriginIntegration = {
 export type ProductFeed = {
   name: string,
   url: string,
-  format: string,
   schedule: string,
 };
