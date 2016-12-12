@@ -11,6 +11,5 @@
     "docker_registry_bucket": "stage-docker",
     "docker_registry":"https://docker-stage.foxcommerce.com",
     "db_host": "db.service.consul",
-    "consul_expect": 1,
-    "sensu_api_host": "sensu-master"
+    "consul_expect": 1
 }
