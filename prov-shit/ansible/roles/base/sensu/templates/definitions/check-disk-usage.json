@@ -4,8 +4,10 @@
       "command": "check-disk-usage.rb -p '\/run\/|\/var\/lib\/docker|\/sys\/' -w 90 -c 95 -W 90 -K 95",
       "interval": 60,
       "subscribers": [
-		  "all"
-	  ]
+        "consul-server",
+        "frontend",
+        "backend"
+      ]
     }
   }
 }

@@ -4,8 +4,10 @@
       "command": "check-uptime.rb -w 2000",
       "interval": 60,
       "subscribers": [
-        {{ ansible_hostname | to_nice_json }}
-       ]
+        "consul-server",
+        "frontend",
+        "backend"
+      ]
     }
   }
 }

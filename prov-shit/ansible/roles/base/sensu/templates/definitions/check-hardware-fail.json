@@ -4,8 +4,10 @@
       "command": "check-hardware-fail.rb",
       "interval": 60,
       "subscribers": [
-{{ ansible_hostname | to_nice_json }}
-	  ]
+        "consul-server",
+        "frontend",
+        "backend"
+      ]
     }
   }
 }

@@ -4,7 +4,9 @@
       "command": "check-mesos.rb -m slave -s 0.0.0.0 -p 5051",
       "interval": 60,
       "subscribers": [
-        {{ ansible_hostname | to_nice_json }}
+        "consul-server",
+        "frontend",
+        "backend"
       ]
     }
   }

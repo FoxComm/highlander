@@ -4,7 +4,7 @@
       "command": "check-consul-servers.rb -s foxcomm-tony-consul-server -e 1 -g 1",
       "interval": 60,
       "subscribers": [
-         {{ ansible_hostname | to_nice_json }}
+		  "consul-server"
       ]
     }
   }

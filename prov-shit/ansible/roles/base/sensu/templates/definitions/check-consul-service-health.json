@@ -4,7 +4,7 @@
       "command": "check-consul-service-health.rb -a",
       "interval": 60,
       "subscribers": [
-        {{ ansible_hostname | to_nice_json }}
+		  "consul-server"
       ]
     }
   }
