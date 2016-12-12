@@ -1,0 +1,19 @@
+
+# send to Kafka
+module(load="omkafka")
+module(load="imfile")
+
+template(name="kafkamsg" type="string" string="%msg%")
+
+input(type="imfile"
+      File="/var/log/nginx/access.log"
+      Tag="nginx-access"
+)
+
+if $programname == 'nginx-access' then {
+        action(type="omkafka"
+          topic="nginx"
+          broker=["kafka.service.consul:9092"]
+          template="kafkamsg")
+        stop
+}
