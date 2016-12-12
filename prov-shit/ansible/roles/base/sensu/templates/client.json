@@ -1,7 +1,15 @@
 {
+  "transport": {
+    "name": "redis",
+    "reconnect_on_error": true
+  },
   "client": {
-    "name": "{{ ansible_hostname }}",
-    "address": "{{ inventory_hostname }}",
+    "name": "{{ inventory_hostname }}",
+    "address": "{{ ansible_default_ipv4['address'] }}",
     "subscriptions": {{ sensu_subscriptions | to_nice_json }}
+  },
+  "redis": {
+    "host": "{{ redis_host }}",
+    "port": 6379
   }
 }
