@@ -1,11 +1,20 @@
 {
   "transport": {
-    "name": "redis",
+    "name": "{{ sensu_transport }}",
     "reconnect_on_error": true
   },
   "client": {
     "name": "{{ inventory_hostname }}",
     "address": "{{ ansible_default_ipv4['address'] }}",
+    "consul-server": {
+      "server": "",
+      "expect": 1,
+      "greater": 1
+    },
+    "mesos":{
+	  "server": "",
+      "port": ""
+    },
     "subscriptions": {{ sensu_subscriptions | to_nice_json }}
   },
   "redis": {
