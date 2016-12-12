@@ -132,9 +132,10 @@ class EditBilling extends Component {
     );
   }
 
+  // Possible values: https://stripe.com/docs/stripe.js?#card-cardType
   get cardType() {
     const { number } = this.props.data;
-    return _.kebabCase(foxApi.creditCards.cardType(number));
+    return foxApi.creditCards.cardType(number);
   }
 
   get cardMask() {
@@ -143,7 +144,12 @@ class EditBilling extends Component {
 
   get paymentIcon() {
     if (this.cardType) {
-      return <Icon styleName="payment-icon" name={`fc-payment-${this.cardType}`} />;
+      return (
+        <Icon
+          styleName="payment-icon"
+          name={`fc-payment-${_.kebabCase(this.cardType)}`}
+        />
+      );
     }
   }
 
@@ -237,7 +243,7 @@ class EditBilling extends Component {
         >
           Make this card my default
         </Checkbox>
-         <FormField styleName="text-field">
+          <FormField styleName="text-field">
             <TextInput
               required
               name="holderName"
