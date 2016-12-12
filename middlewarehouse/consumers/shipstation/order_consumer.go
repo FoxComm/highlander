@@ -19,17 +19,12 @@ const (
 
 type OrderConsumer struct {
 	phoenixClient phoenix.PhoenixClient
-	topic         string
-	client        *api.Client
+	ssClient      *api.Client
 }
 
-func NewOrderConsumer(phoenixClient phoenix.PhoenixClient, topic string, key string, secret string) (*OrderConsumer, error) {
-	client, err := api.NewClient(key, secret)
-	if err != nil {
-		return nil, err
-	}
+func NewOrderConsumer(phoenixClient phoenix.PhoenixClient, ssClient *api.Client) (*OrderConsumer, error) {
 
-	return &OrderConsumer{phoenixClient, topic, client}, nil
+	return &OrderConsumer{phoenixClient, ssClient}, nil
 }
 
 func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
@@ -93,7 +88,7 @@ func (c OrderConsumer) handlerInner(fullOrder *shared.FullOrder) error {
 		log.Panicf("Unable to create ShipStation order with error %s", err.Error())
 	}
 
-	_, err = c.client.CreateOrder(ssOrder)
+	_, err = c.ssClient.CreateOrder(ssOrder)
 	if err != nil {
 		log.Panicf("Unable to create order in ShipStation with error %s", err.Error())
 	}

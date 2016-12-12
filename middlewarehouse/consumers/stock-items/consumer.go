@@ -11,8 +11,7 @@ import (
 	"github.com/FoxComm/metamorphosis"
 )
 
-type Consumer struct {
-	c             metamorphosis.Consumer
+type StockItemsConsumer struct {
 	phoenixClient phoenix.PhoenixClient
 	mwhURL        string
 }
@@ -22,23 +21,11 @@ const (
 	groupID  = "mwh-stock-items-consumers"
 )
 
-func NewConsumer(phoenixClient phoenix.PhoenixClient, zookeeper string, schemaRepo string, mwhURL string) (*Consumer, error) {
-	consumer, err := metamorphosis.NewConsumer(zookeeper, schemaRepo)
-	if err != nil {
-		return nil, err
-	}
-
-	consumer.SetGroupID(groupID)
-	consumer.SetClientID(clientID)
-
-	return &Consumer{c: consumer, mwhURL: mwhURL, phoenixClient: phoenixClient}, nil
+func NewStockItemsConsumer(phoenixClient phoenix.PhoenixClient, mwhUrl string) (*StockItemsConsumer, error) {
+	return &StockItemsConsumer{phoenixClient, mwhUrl}, nil
 }
 
-func (consumer *Consumer) Run(topic string, partition int) {
-	consumer.c.RunTopic(topic, partition, consumer.handler)
-}
-
-func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
+func (consumer *StockItemsConsumer) Handler(m metamorphosis.AvroMessage) error {
 	log.Printf("Received SKU %s", string(m.Bytes()))
 
 	sku, err := NewSKUFromAvro(m)

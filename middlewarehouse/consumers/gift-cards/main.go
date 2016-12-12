@@ -20,25 +20,25 @@ func main() {
 		log.Fatalf("Unable to initialize consumer with error %s", err.Error())
 	}
 
-	consumer, err := metamorphosis.NewConsumer(config.ZookeeperURL, config.SchemaRepositoryURL)
-	if err != nil {
-		log.Fatalf("Unable to connect to Kafka with error %s", err.Error())
-	}
-
-	capConf, err := shared.MakeConsumerConfig()
+	phoenixConfig, err := shared.MakePhoenixConfig()
 	if err != nil {
 		log.Fatalf("Unable to initialize consumer with error: %s", err.Error())
 	}
 
-	client := phoenix.NewPhoenixClient(capConf.PhoenixURL, capConf.PhoenixUser, capConf.PhoenixPassword)
+	consumer, err := metamorphosis.NewConsumer(config.ZookeeperURL, config.SchemaRepositoryURL, config.OffsetResetStrategy)
+	if err != nil {
+		log.Fatalf("Unable to connect to Kafka with error %s", err.Error())
+	}
+
+	client := phoenix.NewPhoenixClient(phoenixConfig.URL, phoenixConfig.User, phoenixConfig.Password)
 
 	consumer.SetGroupID(groupID)
 	consumer.SetClientID(clientID)
 
-	oh, err := NewGiftCardConsumer(client)
+	gc, err := NewGiftCardConsumer(client)
 	if err != nil {
 		log.Fatalf("Can't create handler for orders with error %s", err.Error())
 	}
 
-	consumer.RunTopic(config.Topic, config.Partition, oh.Handler)
+	consumer.RunTopic(config.Topic, config.Partition, gc.Handler)
 }

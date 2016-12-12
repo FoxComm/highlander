@@ -22,16 +22,16 @@ const (
 )
 
 type OrderHandler struct {
-	client phoenix.PhoenixClient
-	mwhURL string
+	phoenixClient phoenix.PhoenixClient
+	mwhURL        string
 }
 
-func NewOrderHandler(client phoenix.PhoenixClient, mwhURL string) (*OrderHandler, error) {
+func NewOrderHandler(phoenixClient phoenix.PhoenixClient, mwhURL string) (*OrderHandler, error) {
 	if mwhURL == "" {
 		return nil, errors.New("middlewarehouse URL must be set")
 	}
 
-	return &OrderHandler{client, mwhURL}, nil
+	return &OrderHandler{phoenixClient, mwhURL}, nil
 }
 
 // Handler accepts an Avro encoded message from Kafka and takes
@@ -67,7 +67,7 @@ func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 		}
 
 		// Get orders from Phoenix
-		orders, err := bulkStateChange.GetRelatedOrders(o.client)
+		orders, err := bulkStateChange.GetRelatedOrders(o.phoenixClient)
 		if err != nil {
 			return err
 		}
@@ -110,7 +110,7 @@ func (o OrderHandler) handlerInner(fullOrder *shared.FullOrder) error {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("JWT", o.client.GetJwt())
+	req.Header.Set("JWT", o.phoenixClient.GetJwt())
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
