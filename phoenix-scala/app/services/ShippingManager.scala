@@ -5,7 +5,7 @@ import failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
 import models.account._
 import models.cord._
 import models.cord.lineitems._
-import models.inventory.Sku
+import models.inventory.ProductVariant
 import models.location.Region
 import models.objects._
 import models.rules.{Condition, QueryStatement}

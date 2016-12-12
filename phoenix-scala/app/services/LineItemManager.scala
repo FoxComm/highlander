@@ -5,7 +5,7 @@ import cats.implicits._
 import failures.ProductFailures.NoProductFoundForSku
 import models.cord.lineitems._
 import models.image.{AlbumImageLinks, Albums, Images}
-import models.inventory.Sku
+import models.inventory.ProductVariant
 import models.objects._
 import models.product._
 import org.json4s.JsonAST.JString
@@ -64,7 +64,7 @@ object LineItemManager {
                                lineItem = orderLineItem,
                                attributes = orderLineItem.attributes)
 
-  private def getProductForSku(sku: Sku)(implicit ec: EC, db: DB) =
+  private def getProductForSku(sku: ProductVariant)(implicit ec: EC, db: DB) =
     for {
       productId ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
                    case Some(productLink) ⇒
@@ -85,7 +85,7 @@ object LineItemManager {
       product ← * <~ ProductManager.mustFindFullProductById(productId)
     } yield product
 
-  private def getLineItemImage(sku: Sku, product: Product)(implicit ec: EC, db: DB) =
+  private def getLineItemImage(sku: ProductVariant, product: Product)(implicit ec: EC, db: DB) =
     for {
       image ← * <~ getLineItemAlbumId(sku, product).flatMap {
                case Some(albumId) ⇒
@@ -99,7 +99,7 @@ object LineItemManager {
              }
     } yield image
 
-  private def getLineItemAlbumId(sku: Sku, product: Product)(implicit ec: EC, db: DB) =
+  private def getLineItemAlbumId(sku: ProductVariant, product: Product)(implicit ec: EC, db: DB) =
     for {
       albumId ← * <~ SkuAlbumLinks.filterLeft(sku).one.dbresult.flatMap {
                  case Some(albumLink) ⇒

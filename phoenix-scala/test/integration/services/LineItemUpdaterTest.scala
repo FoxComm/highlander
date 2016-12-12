@@ -52,7 +52,7 @@ class LineItemUpdaterTest
       root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (CartLineItems.size.gimme)
     }
 
-    "Updates line items when the Sku already is in cart" in new Fixture {
+    "Updates line items when the ProductVariant already is in cart" in new Fixture {
       val (context, products) = createProducts(3).gimme
       val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId ⇒
         CartLineItem(cordRef = cart.refNum, skuId = skuId)

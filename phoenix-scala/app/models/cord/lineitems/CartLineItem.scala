@@ -1,7 +1,7 @@
 package models.cord.lineitems
 
 import cats.implicits._
-import models.inventory.{Sku, Skus}
+import models.inventory.{ProductVariant, ProductVariants}
 import models.objects._
 import org.json4s.Extraction.decompose
 import org.json4s.Formats
@@ -11,7 +11,7 @@ import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
-case class CartLineItemProductData(sku: Sku,
+case class CartLineItemProductData(sku: ProductVariant,
                                    skuForm: ObjectForm,
                                    skuShadow: ObjectShadow,
                                    productForm: ObjectForm,
@@ -52,7 +52,7 @@ class CartLineItems(tag: Tag) extends FoxTable[CartLineItem](tag, "cart_line_ite
         (cli.id, cli.referenceNumber, cli.cordRef, cli.skuId, cli.attributes.map(decompose)).some
       })
 
-  def sku = foreignKey(Skus.tableName, skuId, Skus)(_.id)
+  def sku = foreignKey(ProductVariants.tableName, skuId, ProductVariants)(_.id)
 }
 
 object CartLineItems

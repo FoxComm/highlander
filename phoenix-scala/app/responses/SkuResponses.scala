@@ -15,7 +15,7 @@ object SkuResponses {
 
     case class Root(code: String) extends ResponseItem
 
-    def build(sku: Sku): Root =
+    def build(sku: ProductVariant): Root =
       Root(code = sku.code)
   }
 
@@ -24,7 +24,7 @@ object SkuResponses {
     case class Root(id: Int, code: String, attributes: Json, createdAt: Instant)
         extends ResponseItem
 
-    def build(sku: Sku, form: ObjectForm): Root =
+    def build(sku: ProductVariant, form: ObjectForm): Root =
       Root(id = form.id, code = sku.code, attributes = form.attributes, createdAt = form.createdAt)
   }
 
@@ -32,7 +32,7 @@ object SkuResponses {
 
     case class Root(code: String, attributes: Json, createdAt: Instant) extends ResponseItem
 
-    def build(sku: Sku, shadow: ObjectShadow): Root =
+    def build(sku: ProductVariant, shadow: ObjectShadow): Root =
       Root(code = sku.code, attributes = shadow.attributes, createdAt = shadow.createdAt)
   }
 
@@ -50,7 +50,9 @@ object SkuResponses {
            context = ObjectContextResponse.build(s.context).some,
            albums = Seq.empty)
 
-    def build(ctx: ObjectContext, sku: FullObject[Sku], albums: Seq[AlbumResponse.Root]): Root = {
+    def build(ctx: ObjectContext,
+              sku: FullObject[ProductVariant],
+              albums: Seq[AlbumResponse.Root]): Root = {
       val illuminatedSku = IlluminatedSku.illuminate(ctx, sku)
       Root(code = illuminatedSku.code,
            attributes = illuminatedSku.attributes,
@@ -62,7 +64,7 @@ object SkuResponses {
       Root(code = s.code, attributes = s.attributes, context = None, albums = Seq.empty)
 
     def buildLite(ctx: ObjectContext,
-                  sku: FullObject[Sku],
+                  sku: FullObject[ProductVariant],
                   albums: Seq[AlbumResponse.Root]): Root = {
       val illuminatedSku = IlluminatedSku.illuminate(ctx, sku)
       Root(code = illuminatedSku.code,

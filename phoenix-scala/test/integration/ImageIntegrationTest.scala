@@ -294,10 +294,10 @@ class ImageIntegrationTest
     "POST v1/skus/:context/:id/albums" - {
       "Creates a new album on an existing SKU" in new ProductFixture {
         val payload =
-          AlbumPayload(name = Some("Sku Album"), images = Seq(ImagePayload(src = "url")).some)
+          AlbumPayload(name = Some("ProductVariant Album"), images = Seq(ImagePayload(src = "url")).some)
         val albumResponse = skusApi(sku.code).albums.create(payload).as[AlbumRoot]
 
-        albumResponse.name must === ("Sku Album")
+        albumResponse.name must === ("ProductVariant Album")
         albumResponse.images.length must === (1)
         albumResponse.images.head.src must === ("url")
       }
@@ -441,8 +441,8 @@ class ImageIntegrationTest
       skuShadow  ← * <~ ObjectShadows.create(sSkuShadow.create.copy(formId = skuForm.id))
       skuCommit ← * <~ ObjectCommits.create(
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
-      sku ← * <~ Skus.create(
-               Sku(scope = Scope.current,
+      sku ← * <~ ProductVariants.create(
+               ProductVariant(scope = Scope.current,
                    contextId = ctx.id,
                    formId = skuForm.id,
                    shadowId = skuShadow.id,

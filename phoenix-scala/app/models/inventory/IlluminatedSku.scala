@@ -18,7 +18,7 @@ case class IlluminatedSku(id: Int,
 
 object IlluminatedSku {
 
-  def illuminate(context: ObjectContext, sku: FullObject[Sku]): IlluminatedSku = {
+  def illuminate(context: ObjectContext, sku: FullObject[ProductVariant]): IlluminatedSku = {
     val model       = sku.model
     val formAttrs   = sku.form.attributes
     val shadowAttrs = sku.shadow.attributes

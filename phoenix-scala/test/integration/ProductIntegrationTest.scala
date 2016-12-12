@@ -9,7 +9,7 @@ import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures._
 import models.account.Scope
 import models.account.User
-import models.inventory.Skus
+import models.inventory.ProductVariants
 import models.objects._
 import models.product._
 import org.json4s.JsonDSL._
@@ -746,7 +746,7 @@ class ProductIntegrationTest
 
     val archivedSkus = (for {
       archivedSkus ← * <~ skus.map { sku ⇒
-                      Skus.update(sku, sku.copy(archivedAt = Some(Instant.now)))
+                      ProductVariants.update(sku, sku.copy(archivedAt = Some(Instant.now)))
                     }
     } yield archivedSkus).gimme
 

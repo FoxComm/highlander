@@ -70,7 +70,7 @@ object SkuManager {
       fullSku ← * <~ ObjectManager.getFullObject(
                    SkuManager.mustFindSkuByContextAndCode(oc.id, code))
       _ ← * <~ fullSku.model.mustNotBePresentInCarts
-      archivedSku ← * <~ Skus.update(fullSku.model,
+      archivedSku ← * <~ ProductVariants.update(fullSku.model,
                                      fullSku.model.copy(archivedAt = Some(Instant.now)))
       albumLinks ← * <~ SkuAlbumLinks.filter(_.leftId === archivedSku.id).result
       _ ← * <~ albumLinks.map { link ⇒
@@ -92,31 +92,33 @@ object SkuManager {
               FullObject(model = archivedSku, form = fullSku.form, shadow = fullSku.shadow)),
           albums)
 
-  def createSkuInner(
-      context: ObjectContext,
-      payload: SkuPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[FullObject[Sku]] = {
+  def createSkuInner(context: ObjectContext, payload: SkuPayload)(
+      implicit ec: EC,
+      db: DB,
+      au: AU): DbResultT[FullObject[ProductVariant]] = {
 
-    val form   = ObjectForm.fromPayload(Sku.kind, payload.attributes)
+    val form   = ObjectForm.fromPayload(ProductVariant.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       code  ← * <~ mustGetSkuCode(payload)
       ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
-      sku ← * <~ Skus.create(
-               Sku(scope = scope,
-                   contextId = context.id,
-                   code = code,
-                   formId = ins.form.id,
-                   shadowId = ins.shadow.id,
-                   commitId = ins.commit.id))
+      sku ← * <~ ProductVariants.create(
+               ProductVariant(scope = scope,
+                              contextId = context.id,
+                              code = code,
+                              formId = ins.form.id,
+                              shadowId = ins.shadow.id,
+                              commitId = ins.commit.id))
     } yield FullObject(sku, ins.form, ins.shadow)
   }
 
-  def updateSkuInner(sku: Sku, payload: SkuPayload)(implicit ec: EC,
-                                                    db: DB): DbResultT[FullObject[Sku]] = {
+  def updateSkuInner(sku: ProductVariant, payload: SkuPayload)(
+      implicit ec: EC,
+      db: DB): DbResultT[FullObject[ProductVariant]] = {
 
-    val newFormAttrs   = ObjectForm.fromPayload(Sku.kind, payload.attributes).attributes
+    val newFormAttrs   = ObjectForm.fromPayload(ProductVariant.kind, payload.attributes).attributes
     val newShadowAttrs = ObjectShadow.fromPayload(payload.attributes).attributes
     val code           = getSkuCode(payload.attributes).getOrElse(sku.code)
 
@@ -135,19 +137,20 @@ object SkuManager {
   def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC, db: DB, oc: OC, au: AU) =
     for {
       code ← * <~ mustGetSkuCode(skuPayload)
-      sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.dbresult.flatMap {
+      sku ← * <~ ProductVariants.filterByContextAndCode(oc.id, code).one.dbresult.flatMap {
              case Some(sku) ⇒ SkuManager.updateSkuInner(sku, skuPayload)
              case None      ⇒ SkuManager.createSkuInner(oc, skuPayload)
            }
     } yield sku
 
-  private def updateHead(sku: Sku,
-                         code: String,
-                         shadow: ObjectShadow,
-                         maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Sku] =
+  private def updateHead(
+      sku: ProductVariant,
+      code: String,
+      shadow: ObjectShadow,
+      maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[ProductVariant] =
     maybeCommit match {
       case Some(commit) ⇒
-        Skus.update(sku, sku.copy(code = code, shadowId = shadow.id, commitId = commit.id))
+        ProductVariants.update(sku, sku.copy(code = code, shadowId = shadow.id, commitId = commit.id))
       case None ⇒
         DbResultT.good(sku)
     }
@@ -161,7 +164,7 @@ object SkuManager {
   def getSkuCode(attributes: Map[String, Json]): Option[String] =
     attributes.get("code").flatMap(json ⇒ (json \ "v").extractOpt[String])
 
-  def findOrCreateAlbumsForSku(sku: Sku, payload: Seq[AlbumPayload])(
+  def findOrCreateAlbumsForSku(sku: ProductVariant, payload: Seq[AlbumPayload])(
       implicit ec: EC,
       db: DB,
       oc: OC,
@@ -171,7 +174,8 @@ object SkuManager {
       _      ← * <~ SkuAlbumLinks.syncLinks(sku, albums.map { case (fullAlbum, _) ⇒ fullAlbum.model })
     } yield albums
 
-  private def updateAssociatedAlbums(sku: Sku, albumsPayload: Option[Seq[AlbumPayload]])(
+  private def updateAssociatedAlbums(sku: ProductVariant,
+                                     albumsPayload: Option[Seq[AlbumPayload]])(
       implicit ec: EC,
       db: DB,
       oc: OC,
@@ -183,27 +187,30 @@ object SkuManager {
         ImageManager.getAlbumsForSkuInner(sku.code, oc)
     }
 
-  def mustFindSkuByContextAndCode(contextId: Int, code: String)(implicit ec: EC): DbResultT[Sku] =
+  def mustFindSkuByContextAndCode(contextId: Int, code: String)(
+      implicit ec: EC): DbResultT[ProductVariant] =
     for {
-      sku ← * <~ Skus
+      sku ← * <~ ProductVariants
              .filterByContextAndCode(contextId, code)
              .mustFindOneOr(SkuNotFoundForContext(code, contextId))
     } yield sku
 
-  def mustFindFullSkuById(id: Int)(implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] =
-    ObjectManager.getFullObject(Skus.filter(_.id === id).mustFindOneOr(SkuNotFound(id)))
+  def mustFindFullSkuById(id: Int)(implicit ec: EC,
+                                   db: DB): DbResultT[FullObject[ProductVariant]] =
+    ObjectManager.getFullObject(ProductVariants.filter(_.id === id).mustFindOneOr(SkuNotFound(id)))
 
   def mustFindFullSkuByIdAndShadowId(skuId: Int, shadowId: Int)(
       implicit ec: EC,
-      db: DB): DbResultT[FullObject[Sku]] =
+      db: DB): DbResultT[FullObject[ProductVariant]] =
     for {
       shadow ← * <~ ObjectShadows.mustFindById404(shadowId)
       form   ← * <~ ObjectForms.mustFindById404(shadow.formId)
-      sku    ← * <~ Skus.mustFindById404(skuId)
+      sku    ← * <~ ProductVariants.mustFindById404(skuId)
     } yield FullObject(sku, form, shadow)
 
-  def illuminateSku(
-      fullSku: FullObject[Sku])(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
+  def illuminateSku(fullSku: FullObject[ProductVariant])(implicit ec: EC,
+                                                         db: DB,
+                                                         oc: OC): DbResultT[SkuResponse.Root] =
     ImageManager
       .getAlbumsBySku(fullSku.model)
       .map(albums ⇒ SkuResponse.buildLite(IlluminatedSku.illuminate(oc, fullSku), albums))

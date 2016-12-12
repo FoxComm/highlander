@@ -6,7 +6,7 @@ import models.Reasons
 import models.account._
 import models.cord._
 import models.cord.lineitems._
-import models.inventory.Skus
+import models.inventory.ProductVariants
 import models.payment.giftcard._
 import models.product.Mvp
 import models.returns.Return.{Canceled, Processing}
@@ -457,7 +457,7 @@ class ReturnIntegrationTest
     val (returnReason, sku, giftCard, shipment) = (for {
       returnReason ← * <~ ReturnReasons.create(Factories.returnReasons.head)
       product      ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
-      sku          ← * <~ Skus.mustFindById404(product.skuId)
+      sku          ← * <~ ProductVariants.mustFindById404(product.skuId)
       _            ← * <~ addSkusToOrder(Seq(sku.id), order.refNum, OrderLineItem.Cart)
 
       gcReason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))

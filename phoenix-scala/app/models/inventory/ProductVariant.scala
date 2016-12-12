@@ -14,34 +14,34 @@ import utils.db._
 import com.github.tminglei.slickpg._
 import models.cord.lineitems.CartLineItems
 
-object Sku {
+object ProductVariant {
   val kind         = "sku"
   val skuCodeRegex = """([a-zA-Z0-9-_]*)""".r
 }
 
 /**
-  * A Sku represents the latest version of Stock Keeping Unit.
+  * A ProductVariant represents the latest version of Stock Keeping Unit.
   * This data structure stores a pointer to a commit of a version of a sku in
-  * the object context referenced. The same Sku can have a different version
+  * the object context referenced. The same ProductVariant can have a different version
   * in a different context.
   */
-case class Sku(id: Int = 0,
-               scope: LTree,
-               code: String,
-               contextId: Int,
-               shadowId: Int,
-               formId: Int,
-               commitId: Int,
-               updatedAt: Instant = Instant.now,
-               createdAt: Instant = Instant.now,
-               archivedAt: Option[Instant] = None)
-    extends FoxModel[Sku]
-    with ObjectHead[Sku] {
+case class ProductVariant(id: Int = 0,
+                          scope: LTree,
+                          code: String,
+                          contextId: Int,
+                          shadowId: Int,
+                          formId: Int,
+                          commitId: Int,
+                          updatedAt: Instant = Instant.now,
+                          createdAt: Instant = Instant.now,
+                          archivedAt: Option[Instant] = None)
+    extends FoxModel[ProductVariant]
+    with ObjectHead[ProductVariant] {
 
-  def withNewShadowAndCommit(shadowId: Int, commitId: Int): Sku =
+  def withNewShadowAndCommit(shadowId: Int, commitId: Int): ProductVariant =
     this.copy(shadowId = shadowId, commitId = commitId)
 
-  def mustNotBeArchived[T](target: T, targetId: Any): Failures Xor Sku = {
+  def mustNotBeArchived[T](target: T, targetId: Any): Failures Xor ProductVariant = {
     if (archivedAt.isEmpty) Xor.right(this)
     else Xor.left(LinkArchivedSkuFailure(target, targetId, code).single)
   }
@@ -54,20 +54,20 @@ case class Sku(id: Int = 0,
 
 }
 
-class Skus(tag: Tag) extends ObjectHeads[Sku](tag, "skus") {
+class ProductVariants(tag: Tag) extends ObjectHeads[ProductVariant](tag, "skus") {
 
   def code = column[String]("code")
 
   def * =
-    (id, scope, code, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Sku.apply _).tupled, Sku.unapply)
+    (id, scope, code, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((ProductVariant.apply _).tupled, ProductVariant.unapply)
 }
 
-object Skus
-    extends FoxTableQuery[Sku, Skus](new Skus(_))
-    with ReturningId[Sku, Skus]
-    with SearchByCode[Sku, Skus] {
+object ProductVariants
+    extends FoxTableQuery[ProductVariant, ProductVariants](new ProductVariants(_))
+    with ReturningId[ProductVariant, ProductVariants]
+    with SearchByCode[ProductVariant, ProductVariants] {
 
-  val returningLens: Lens[Sku, Int] = lens[Sku].id
+  val returningLens: Lens[ProductVariant, Int] = lens[ProductVariant].id
 
   implicit val formats = JsonFormatters.phoenixFormats
 
@@ -77,6 +77,6 @@ object Skus
     filter(_.contextId === contextId).filter(_.code.toLowerCase === code.toLowerCase)
   def filterByCode(code: String): QuerySeq =
     filter(_.code.toLowerCase === code.toLowerCase)
-  def findOneByCode(code: String): DBIO[Option[Sku]] =
+  def findOneByCode(code: String): DBIO[Option[ProductVariant]] =
     filter(_.code.toLowerCase === code.toLowerCase).one
 }

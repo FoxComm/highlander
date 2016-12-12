@@ -177,8 +177,8 @@ class SkuIntegrationTest
       skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.copy(formId = skuForm.id))
       skuCommit ← * <~ ObjectCommits.create(
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
-      sku ← * <~ Skus.create(
-               Sku(scope = Scope.current,
+      sku ← * <~ ProductVariants.create(
+               ProductVariant(scope = Scope.current,
                    contextId = ctx.id,
                    code = simpleSku.code,
                    formId = skuForm.id,

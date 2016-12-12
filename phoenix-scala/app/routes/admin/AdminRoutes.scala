@@ -6,7 +6,7 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import failures.SharedSearchFailures.SharedSearchInvalidQueryFailure
 import models.account.User
 import models.cord.Cord.cordRefNumRegex
-import models.inventory.Sku
+import models.inventory.ProductVariant
 import models.payment.giftcard.GiftCard
 import models.returns.Return
 import models.sharedsearch.SharedSearch
@@ -127,7 +127,7 @@ object AdminRoutes {
             }
           }
         } ~
-        pathPrefix("sku" / Sku.skuCodeRegex) { code ⇒
+        pathPrefix("sku" / ProductVariant.skuCodeRegex) { code ⇒
           (get & pathEnd) {
             getOrFailures {
               SkuNoteManager.list(code)

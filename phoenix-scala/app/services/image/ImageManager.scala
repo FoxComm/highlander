@@ -8,7 +8,7 @@ import failures.ImageFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
 import models.account._
 import models.image._
-import models.inventory.Sku
+import models.inventory.ProductVariant
 import models.objects.ObjectUtils.InsertResult
 import models.objects._
 import models.product._
@@ -71,7 +71,8 @@ object ImageManager {
       result ← * <~ getAlbumsBySku(sku)
     } yield result
 
-  def getAlbumsBySku(sku: Sku)(implicit ec: EC, db: DB): DbResultT[Seq[AlbumResponse.Root]] =
+  def getAlbumsBySku(sku: ProductVariant)(implicit ec: EC,
+                                          db: DB): DbResultT[Seq[AlbumResponse.Root]] =
     for {
       albums ← * <~ SkuAlbumLinks.queryRightByLeft(sku)
       images ← * <~ albums.map(album ⇒ AlbumImageLinks.queryRightByLeft(album.model))
