@@ -10,7 +10,7 @@ final case class CartsSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("carts_search_view").fields(
       // Cart
       field("id", IntegerType),
-      field("scope", StringType),
+      field("scope", StringType).index("not_analyzed"),
       field("referenceNumber", StringType).analyzer("upper_cased"),
       field("createdAt", DateType) format dateFormat,
       field("updatedAt", DateType) format dateFormat,

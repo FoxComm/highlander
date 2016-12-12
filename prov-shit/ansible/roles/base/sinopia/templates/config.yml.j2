@@ -1,0 +1,37 @@
+storage: {{sinopia_storage_dir}}
+
+web:
+    enable: true
+    title: {{sinopia_webui_title}}
+    logo: {{sinopia_webui_logo}}
+
+auth:
+    htpasswd:
+        file: {{sinopia_htpasswd_file}}
+        max_users: {{sinopia_max_users}}
+
+uplinks:
+    npmjs:
+        url: {{sinopia_npmjs_url}}
+        timeout: {{sinopia_npmjs_timeout}}
+        maxage: {{sinopia_npmjs_maxage}}
+        max_fails: {{sinopia_npmjs_max_fails}}
+        fail_timeout: {{sinopia_npmjs_fail_timeout}}
+
+packages:
+    '*':
+        access: $all
+        publish: admin
+        proxy: npmjs
+
+listen:
+    - https://{{sinopia_host}}:4873
+
+https:
+    key: /certs/domain.key
+    cert: /certs/domain.crt
+
+logs:
+    - {type: stdout, format: pretty, level: http}
+
+max_body_size: {{sinopia_max_body_size}}

@@ -10,7 +10,7 @@ final case class StoreAdminsSearchView()(implicit ec: EC) extends AvroTransforme
   def mapping() = esMapping("store_admins_search_view").fields(
       // Store Admin
       field("id", IntegerType),
-      field("scope", StringType),
+      field("scope", StringType).index("not_analyzed"),
       field("email", StringType).analyzer("autocomplete"),
       field("name", StringType).analyzer("autocomplete"),
       field("phoneNumber", StringType).index("not_analyzed"),

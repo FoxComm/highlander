@@ -18,13 +18,11 @@ package object failures {
   }
 
   implicit class FailureOps(val underlying: Failure) extends AnyVal {
-    def single: Failures = NonEmptyList(underlying)
+    def single: Failures = NonEmptyList.of(underlying)
   }
 
   implicit class FailuresOps(val underlying: Failures) extends AnyVal {
-    def toList: List[Failure] = underlying.unwrap
-
-    def flatten: List[String] = toList.map(_.description)
+    def flatten: List[String] = underlying.toList.map(_.description)
   }
 
   object Util {

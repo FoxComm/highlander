@@ -14,12 +14,13 @@ import utils.aliases._
 case class ItemsAmountOffer(discount: Int, search: Seq[ProductSearch])
     extends Offer
     with AmountOffer
+    with NonEmptySearch
     with ItemsOffer {
 
   val offerType: OfferType           = ItemsAmountOff
   val adjustmentType: AdjustmentType = LineItemAdjustment
 
-  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult =
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): OfferResult =
     if (discount > 0) adjustInner(input)(search) else pureResult()
 
   def matchXor(input: DiscountInput)(
