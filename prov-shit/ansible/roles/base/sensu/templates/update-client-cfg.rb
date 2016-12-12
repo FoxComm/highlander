@@ -8,4 +8,6 @@ f = File.read(conf)
 hash = JSON.load(f)
 hash["client"]["name"] = ARGV[0]
 hash["client"]["address"] = ARGV[1]
+hash["client"]["consul-server"]["server"] = ARGV[2]
+hash["client"]["mesos"]["server"] = ARGV[3]
 File.write(conf, JSON.pretty_generate(hash))
