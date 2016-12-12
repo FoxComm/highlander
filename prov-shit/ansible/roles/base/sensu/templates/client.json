@@ -17,7 +17,7 @@
     "subscriptions": {{ sensu_subscriptions | to_nice_json }}
   },
   "redis": {
-    "host": "{{ redis_host }}",
+    "host": "{{ sensu_api_host }}",
     "port": 6379
   }
 }

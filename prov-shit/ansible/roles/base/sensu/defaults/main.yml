@@ -1,6 +1,5 @@
 sensu_master: false
-#sensu_api_host: "{{ inventory_hostname | default(here)"
-sensu_api_host: sensu-master
+sensu_api_host: "{{ ansible_hostname }}"
 sensu_transport: redis
 sensu_config_path: /etc/sensu/conf.d
 redis_host: "{{ sensu_api_host }}"
@@ -17,7 +16,6 @@ uchiwa_port: 3000
 uchiwa_refresh: 5
 sensu_slack_url: https://hooks.slack.com/services/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
 sensu_subscriptions: ["all"]
-#sensu_subscribers: ["all"]
 sensu_plugins:
   - slack
   - cpu-checks

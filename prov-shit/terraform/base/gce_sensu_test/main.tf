@@ -19,7 +19,7 @@ provider "google"
 }
 
 ##############################################
-# Setup Staging
+# Setup Staging + Sensu
 ##############################################
 module "foxcomm-govale" {
     source = "../../modules/gce/tinystack"
@@ -32,4 +32,17 @@ module "foxcomm-govale" {
     consul_server_image = "${var.consul_server_image}"
     frontend_machine_type = "n1-highmem-8"
     sensu_api_host = "${var.sensu_api_host}"
+}
+
+provider "dnsimple" {
+    token = "${var.dnsimple_token}"
+    email = "${var.dnsimple_email}"
+}
+
+resource "dnsimple_record" "sensu-master-dns-record" {
+    domain = "foxcommerce.com"
+    name   = "sensu"
+    value  = "${module.tpg_production.amigo_address}"
+    type   = "A"
+    ttl    = 3600
 }
