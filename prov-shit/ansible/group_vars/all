@@ -112,6 +112,7 @@ phoenix_tracing: "false"
 phoenix_db_connection_string: "postgresql://{{phoenix_db_user}}@{{db_host}}/{{phoenix_db_name}}"
 
 phoenix_api_version: v1
+phoenix_api_user_org: tenant
 phoenix_api_user: "api@foxcommerce.com"
 phoenix_api_password: "api$pass7!"
 

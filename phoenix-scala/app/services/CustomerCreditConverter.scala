@@ -1,6 +1,6 @@
 package services
 
-import cats.std.map
+import cats.instances.map
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures.OpenTransactionsFailure
 import failures.StoreCreditFailures.StoreCreditConvertFailure

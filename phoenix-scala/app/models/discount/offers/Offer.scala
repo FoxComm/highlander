@@ -19,7 +19,7 @@ trait Offer extends DiscountBase {
 
   val adjustmentType: AdjustmentType
 
-  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): OfferResult
 
   // Returns single line item adjustment for now
   def build(input: DiscountInput,
@@ -88,7 +88,7 @@ trait ItemsOffer {
   def matchXor(input: DiscountInput)(xor: Failures Xor Buckets): Failures Xor Seq[Adjustment]
 
   def adjustInner(input: DiscountInput)(
-      search: Seq[ProductSearch])(implicit db: DB, ec: EC, es: ES): OfferResult = {
+      search: Seq[ProductSearch])(implicit db: DB, ec: EC, es: ES, au: AU): OfferResult = {
     val inAnyOf = search.map(_.query(input).map(matchXor(input)))
 
     Future

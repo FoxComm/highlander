@@ -81,6 +81,11 @@ shortcuts:
     alias: sinopia.yml
     target: ansible/bootstrap_sinopia.yml
 
+  # Hotfix
+  - name: Hotfix Promotion Discount Forms
+    alias: hotfix_promo_discounts.yml
+    target: ansible/hotfix_promo_discounts.yml
+
 # Packer shortcuts
 - type: snowflake
   process: packer build
