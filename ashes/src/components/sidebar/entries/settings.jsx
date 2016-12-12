@@ -48,6 +48,11 @@ export default class SettingsEntry extends Component {
               Integrations
             </IndexLink>
             <Link
+              to="business-profile-details"
+              className="fc-navigation-item__sublink">
+              Business Profile
+            </Link>
+            <Link
               to="shipping-methods"
               className="fc-navigation-item__sublink">
               Shipping Methods
@@ -90,13 +95,13 @@ export default class SettingsEntry extends Component {
             expectedClaims={applicationClaims}>
             Applications
           </Link>
-            <Link
-              to="shipping-methods"
-              className="fc-navigation-item__sublink"
-              actualClaims={claims}
-              expectedClaims={shippingMethodClaims}>
-              Shipping Methods
-            </Link>
+          <Link
+            to="shipping-methods"
+            className="fc-navigation-item__sublink"
+            actualClaims={claims}
+            expectedClaims={shippingMethodClaims}>
+            Shipping Methods
+          </Link>
         </NavigationItem>
       </li>
     );

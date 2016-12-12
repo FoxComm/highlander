@@ -20,6 +20,7 @@ import MerchantApplicationDetails from 'components/merchant-applications/details
 import MerchantApplicationsList from 'components/merchant-applications/list';
 
 import IntegrationDetails from 'components/origin-integrations/details';
+import BusinessProfileDetails from 'components/business-profile/details';
 
 import ShippingMethodList from 'components/shipping-methods/list';
 import ShippingMethodDetails from 'components/shipping-methods/details';
@@ -62,6 +63,11 @@ const getRoutes = (jwt: JWT) => {
       router.read('integrations', { component: IntegrationDetails, isIndex: true }),
     ]);
 
+  const businessProfileRoutes =
+    router.read('business-profile-base', { path: 'profile' }, [
+      router.read('business-profile-details', { component: BusinessProfileDetails, isIndex: true }),
+    ]);
+
   const shippingMethodRoutes =
     router.read('shipping-methods-base', { path: 'methods', frn: frn.settings.shippingMethod }, [
       router.read('shipping-methods', { component: ShippingMethodList, isIndex: true }),
@@ -77,6 +83,7 @@ const getRoutes = (jwt: JWT) => {
       {pluginRoutes}
       {applicationsRoutes}
       {integrationRoutes}
+      {businessProfileRoutes}
       {shippingMethodRoutes}
     </div>
   );

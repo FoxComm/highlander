@@ -1,0 +1,13 @@
+.founding-date {
+  display: flex;
+}
+
+
+.founding-date > div {
+  margin-right: 10px;
+  align-self: flex-end;
+}
+
+.content {
+  margin-bottom: 20px;
+}
