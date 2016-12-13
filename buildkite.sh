@@ -1,4 +1,6 @@
 #!/bin/bash
+# A script executed on BuildKite to test developer appliance provisioning on GCE
+
 export VAGRANT_DEFAULT_PROVIDER=google
 export eval `cat ./.env.local`
 

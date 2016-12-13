@@ -20,7 +20,7 @@ final case class GiftCardTransactionsSearchView()(implicit ec: EC) extends AvroT
       field("originType", StringType).index("not_analyzed"),
       field("currency", StringType).index("not_analyzed"),
       field("giftCardCreatedAt", DateType).format(dateFormat),
-      field("scope", StringType),
+      field("scope", StringType).index("not_analyzed"),
       // Order Payment
       field("orderPayment").nested(
           field("orderReferenceNumber", StringType).analyzer("upper_cased"),

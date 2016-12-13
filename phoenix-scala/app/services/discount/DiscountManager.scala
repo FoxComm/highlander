@@ -4,11 +4,13 @@ import cats.implicits._
 import failures.DiscountFailures._
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
+import models.discount.DiscountHelpers.{offer, qualifier}
 import models.discount._
 import models.objects._
 import models.account._
 import payloads.DiscountPayloads._
 import responses.DiscountResponses._
+import services.discount.compilers.{OfferAstCompiler, QualifierAstCompiler}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -71,11 +73,11 @@ object DiscountManager {
   def createInternal(payload: CreateDiscount, context: ObjectContext)(
       implicit ec: EC,
       au: AU): DbResultT[CreateInternalResult] = {
-    val formAndShadow = FormAndShadow.fromPayload(Discount.kind, payload.attributes)
-
+    val fs = FormAndShadow.fromPayload(Discount.kind, payload.attributes)
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
-      ins   ← * <~ ObjectUtils.insert(formAndShadow.form, formAndShadow.shadow, payload.schema)
+      _     ← * <~ DiscountValidator.validate(fs)
+      ins   ← * <~ ObjectUtils.insert(fs.form, fs.shadow, payload.schema)
       discount ← * <~ Discounts.create(
                     Discount(scope = scope,
                              contextId = context.id,
@@ -105,18 +107,18 @@ object DiscountManager {
       attributes: Map[String, Json],
       context: ObjectContext,
       forceUpdate: Boolean = false)(implicit ec: EC, db: DB): DbResultT[UpdateInternalResult] = {
-
-    val formAndShadow = FormAndShadow.fromPayload(Discount.kind, attributes)
+    val fs = FormAndShadow.fromPayload(Discount.kind, attributes)
 
     for {
       discount ← * <~ Discounts
                   .filter(_.contextId === context.id)
                   .filter(_.formId === discountId)
                   .mustFindOneOr(DiscountNotFoundForContext(discountId, context.id))
+      _ ← * <~ DiscountValidator.validate(fs)
       update ← * <~ ObjectUtils.update(discount.formId,
                                        discount.shadowId,
-                                       formAndShadow.form.attributes,
-                                       formAndShadow.shadow.attributes,
+                                       fs.form.attributes,
+                                       fs.shadow.attributes,
                                        forceUpdate)
       commit  ← * <~ ObjectUtils.commit(update)
       updated ← * <~ updateHead(discount, update.shadow, commit)

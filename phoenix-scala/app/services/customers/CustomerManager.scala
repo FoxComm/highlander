@@ -63,7 +63,7 @@ object CustomerManager {
                        .mustFindOneOr(NotFoundFailure404(CustomerData, accountId))
       (customerData, shipRegion, billRegion, rank) = customerDatas
       maxOrdersDate ← * <~ Orders.filter(_.accountId === accountId).map(_.placedAt).max.result
-      totals ← * <~ StoreCreditService.fetchTotalsForCustomer(accountId)
+      totals        ← * <~ StoreCreditService.fetchTotalsForCustomer(accountId)
       phoneOverride ← * <~ doOrGood(customer.phoneNumber.isEmpty,
                                     resolvePhoneNumber(accountId),
                                     None)
@@ -73,7 +73,7 @@ object CustomerManager {
             shipRegion,
             billRegion,
             rank = rank,
-            scTotals  = totals,
+            scTotals = totals,
             lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)))
   }
 

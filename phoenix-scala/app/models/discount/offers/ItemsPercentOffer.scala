@@ -14,12 +14,13 @@ import utils.aliases._
 case class ItemsPercentOffer(discount: Int, search: Seq[ProductSearch])
     extends Offer
     with PercentOffer
+    with NonEmptySearch
     with ItemsOffer {
 
   val offerType: OfferType           = ItemsPercentOff
   val adjustmentType: AdjustmentType = LineItemAdjustment
 
-  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): OfferResult =
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): OfferResult =
     if (discount > 0 && discount < 100) adjustInner(input)(search) else pureResult()
 
   def matchXor(input: DiscountInput)(

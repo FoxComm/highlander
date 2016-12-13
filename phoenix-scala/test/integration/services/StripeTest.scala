@@ -63,7 +63,7 @@ class StripeTest extends RealStripeApis {
         auth.getStatus must === ("succeeded")
         auth.getPaid mustBe true
         auth.getCaptured mustBe false
-        auth.getFailureCode.some mustBe 'empty
+        Option(auth.getFailureCode) mustBe 'empty
         auth.getAmountRefunded.toInt must === (0)
         auth.getCustomer must === (realStripeCustomerId)
       }

@@ -12,7 +12,7 @@ final case class CouponCodesSearchView()(implicit ec: EC) extends AvroTransforme
       field("code", StringType).analyzer("upper_cased"),
       field("couponId", IntegerType),
       field("promotionId", IntegerType),
-      field("scope", StringType),
+      field("scope", StringType).index("not_analyzed"),
       field("totalUsed", IntegerType),
       field("createdAt", DateType).format(dateFormat)
   )

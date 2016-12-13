@@ -8,11 +8,15 @@
   args:
     creates: "/usr/local/bin/consul-template"
 
+- name: Install 1x1 GIF Image
+  copy: src=1x1.gif dest=/var/www/
+
 - name: Install Consul Template Service
   template: src=consul_template.service dest="{{dest_services}}/consul_template.service"
 
-- name: Install 1x1 GIF Image
-  copy: src=1x1.gif dest=/var/www/
+- name: Copy Consul Template Service File
+  template: src=consul_template.json dest=/etc/consul.d/consul_template.json
+  notify: reload consul
 
 - name: Install uuid4 Lua Lib
   copy: src=uuid4.lua dest=/etc/nginx/uuid4.lua
@@ -44,7 +48,7 @@
 - name: Install Service Upstreams
   template: src=services.j2 dest=/etc/nginx/services.template
 
-- name: Reload Systemd for Nginx 
+- name: Reload Systemd for Nginx
   command: systemctl daemon-reload
 
 - name: Restart Consul Template

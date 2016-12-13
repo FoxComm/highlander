@@ -46,3 +46,6 @@
     - { role: demo/balancer, sudo: yes }
     - { role: dev/consumers }
     - { role: dev/seeder, when: first_run }
+
+  handlers:
+    - include: roles/base/consul_agent/handlers/main.yml

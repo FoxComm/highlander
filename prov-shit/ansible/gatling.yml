@@ -41,6 +41,9 @@
     - { role: dev/consumers }
     - { role: dev/seeder }
 
+  handlers:
+    - include: roles/base/consul_agent/handlers/main.yml
+
 - name: Provision Gatling Gun
   hosts: gatling-gun
   tags:
