@@ -38,6 +38,7 @@
   "contributors": "https://github.com/FoxComm/highlander/graphs/contributors",
   "homepage": "https://github.com/FoxComm/highlander#readme",
   "dependencies": {
+    "@foxcomm/wings": "^1.7.1",
     "babel-polyfill": "^6.13.0",
     "browserHistory": "file:src/opt/browserHistory",
     "chance": "^0.7.6",
@@ -98,7 +99,6 @@
     "superagent": "^2.1.0",
     "thunkify-wrap": "^1.0.4",
     "use-named-routes": "^0.3.0",
-    "wings": "git+ssh://git@github.com/FoxComm/wings.git#v1.2.1",
     "zipcodes-regex": "^1.0.0"
   },
   "devDependencies": {
