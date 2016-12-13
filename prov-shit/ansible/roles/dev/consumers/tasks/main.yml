@@ -47,8 +47,8 @@
 
 - name: Get Consumers Marathon tasks in `healthy` state
   shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/{{item}} | jq '.app.tasksHealthy > 0'
-  register: healthy_task_count
-  until: healthy_task_count.stdout == 'true'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
   retries: 60
   delay: 10
   when: vagrant
