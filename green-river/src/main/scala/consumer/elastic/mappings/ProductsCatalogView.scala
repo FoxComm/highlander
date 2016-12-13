@@ -14,7 +14,7 @@ final case class ProductsCatalogView()(implicit ec: EC) extends AvroTransformer 
       field("salePrice", IntegerType).analyzer("autocomplete"),
       field("tags", StringType).index("not_analyzed"),
       field("archivedAt", DateType).format(dateFormat),
-      field("skus", StringType).index("not_analyzed"),
+      field("skus", StringType).analyzer("upper_cased"),
       field("albums").nested(
           field("name", StringType).index("not_analyzed"),
           field("images").nested(
