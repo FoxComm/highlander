@@ -8,12 +8,12 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
-input {
-  &[type=text],
-  &[type=password],
-  &[type=email] {
-    -webkit-appearance: none;
-    border-radius: 0;
-  }
+textarea,
+input[type=number],
+input[type=text],
+input[type=password],
+input[type=email] {
+  -webkit-appearance: none;
+  -webkit-border-radius: 0;
 }
 

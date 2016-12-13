@@ -18,11 +18,13 @@ const introSliderSettings = {
 
 const imageNames = [
   'Busy_Families',
-  'Couples',
   'Entertaining',
-  'Everyone',
+  'Celebrating',
   'Holidays',
-  'Singles',
+  'Gift_Giving',
+  'Treating_yourself',
+  'New_parents',
+  'Young_Professionals',
 ];
 
 const introSliderImages = imageNames.map(img =>

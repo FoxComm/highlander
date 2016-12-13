@@ -25,7 +25,7 @@ export type ProductInCart = {
   state: string;
 };
 
-type Totals = {
+export type Totals = {
   subTotal: number;
   taxes: number;
   shipping: number;

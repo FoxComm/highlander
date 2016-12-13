@@ -7,19 +7,17 @@ import React, { Component } from 'react';
 import PageTitle from '../../components/cms/page-title';
 import PageBody from '../../components/cms/page-body';
 
-// data
-import data from './shipping-and-returns-data.json';
+import data from './contact-us-data.json';
 
-class ShippingAndReturns extends Component {
-
+class ContactUsPage extends Component {
   render() {
     return (
       <div>
-        <PageTitle title="Shipping and Returns Policies" />
+        <PageTitle title="Contact Us" />
         <PageBody blocks={data} />
       </div>
     );
   }
 }
 
-export default ShippingAndReturns;
+export default ContactUsPage;

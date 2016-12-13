@@ -14,7 +14,7 @@ import localized from 'lib/i18n';
 // components
 import Icon from 'ui/icon';
 import Currency from 'ui/currency';
-import Autocomplete from 'ui/autocomplete';
+import Select from 'ui/select/select';
 
 const QUANTITY_ITEMS = _.range(1, 1 + 10, 1).map(x => x.toString());
 
@@ -42,6 +42,14 @@ class LineItem extends Component {
     this.props.deleteLineItem(this.props.sku);
   }
 
+  quantityItems() {
+    if (this.props.quantity > 8) {
+      return _.range(1, this.props.quantity + 3, 1).map(x => x.toString());
+    }
+
+    return QUANTITY_ITEMS;
+  }
+
   render() {
     return (
       <div styleName="box">
@@ -58,12 +66,12 @@ class LineItem extends Component {
             </div>
           </div>
           <div styleName="quantity">
-            <Autocomplete
+            <Select
               inputProps={{
                 type: 'number',
               }}
               getItemValue={item => item}
-              items={QUANTITY_ITEMS}
+              items={this.quantityItems()}
               onSelect={this.changeQuantity}
               selectedItem={this.props.quantity}
               sortItems={false}

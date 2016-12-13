@@ -105,6 +105,7 @@ class Search extends Component {
           autoComplete="off"
           placeholder={t('Search')}
           ref="input"
+          type="text"
         />
 
         <Icon styleName="head-icon" name="fc-magnifying-glass" onClick={this.onSearch}/>

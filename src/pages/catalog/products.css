@@ -23,6 +23,7 @@
 }
 
 .description {
+  letter-spacing: 1.7px;
   font-family: var(--font-main);
   font-weight: 400;
   color: var(--whitish);
@@ -62,11 +63,6 @@
     height: 290px;
   }
 
-  .description {
-    font-size: 15px;
-    letter-spacing: 1.7px;
-  }
-
   .title {
     font-size: 43px;
     letter-spacing: 4.88px;
@@ -84,8 +80,8 @@
   }
 
   .description {
+    margin-bottom: 10px;
     font-size: 15px;
-    letter-spacing: 1.7px;
   }
 
   .title {

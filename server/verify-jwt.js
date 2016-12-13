@@ -13,7 +13,6 @@ const getPublicKey = _.memoize(() => {
 
 export default function *verifyJwt(next) {
   const jwt = this.cookies.get('JWT');
-  const publicKey = getPublicKey();
 
   let decodedToken;
 
@@ -23,7 +22,7 @@ export default function *verifyJwt(next) {
       decodedToken = jsonwebtoken.decode(jwt);
     } else {
       try {
-        decodedToken = jsonwebtoken.verify(jwt, publicKey, {
+        decodedToken = jsonwebtoken.verify(jwt, getPublicKey(), {
           issuer: 'FC',
           audience: 'user',
           algorithms: ['RS256', 'RS384', 'RS512'],

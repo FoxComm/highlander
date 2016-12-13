@@ -8,6 +8,7 @@ import styles from './footer.css';
 import Icon from 'ui/icon';
 import { Link } from 'react-router';
 import SubscriptionForm from '../email-subscription/form';
+import Copyright from './copyright';
 
 const Footer = () : HTMLElement => {
   return (
@@ -25,6 +26,7 @@ const Footer = () : HTMLElement => {
           <li><Link to="/stores">STORES</Link></li>
           <li><Link to="/gift-cards">GIFT CARDS</Link></li>
           <li><Link to="/frequently-asked-questions">FAQ</Link></li>
+          <li><Link to="/contact-us">CONTACT US</Link></li>
           <li><Link to="/shipping-and-returns">SHIPPING & RETURNS</Link></li>
         </ul>
 
@@ -43,15 +45,7 @@ const Footer = () : HTMLElement => {
           </Link>
         </div>
       </div>
-
-      <div styleName="copyright">
-        <p>&copy; COPYRIGHT 2016. THE PERFECT GOURMET</p>
-        <ul>
-          <li><Link to="terms-of-use">Terms</Link></li>
-          <li><Link to="privacy-policy">Privacy</Link></li>
-        </ul>
-        <p><a href="http://foxcommerce.com/" target="_blank">POWERED BY FOXCOMMERCE</a>.</p>
-      </div>
+      <Copyright />
     </section>
   );
 };

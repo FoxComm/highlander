@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="25px" height="19px" viewBox="0 0 25 19" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 3.6 (26304) - http://www.bohemiancoding.com/sketch -->
-    <title>Hamburger</title>
+<svg width="26px" height="28px" viewBox="0 0 26 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 41.2 (35397) - http://www.bohemiancoding.com/sketch -->
+    <title>Hamburger Menu</title>
     <desc>Created with Sketch.</desc>
     <defs></defs>
-    <g id="CAT" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="square">
-        <g id="CAT-Mobile-Annotations" transform="translate(-104.000000, -50.000000)" stroke-width="3">
-            <g id="HEader" transform="translate(105.000000, 45.000000)">
-                <g id="Hamburger" transform="translate(0.000000, 5.000000)">
-                    <path d="M0.5,1.5 L22.5,1.5" id="Line"></path>
-                    <path d="M0.5,9.5 L22.5,9.5" id="Line-Copy"></path>
-                    <path d="M0.5,17.5 L22.5,17.5" id="Line"></path>
-                </g>
+    <g id="TAblet-&amp;-Mobile" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="iPhone_Hamburger_Menu" transform="translate(-10.000000, -90.000000)" fill="#212121">
+            <g id="Hamburger-Menu" transform="translate(10.000000, 90.000000)">
+                <polygon id="Line" points="0 14 25 14 25 11 0 11"></polygon>
+                <polygon id="Line-Copy" points="0 21 25 21 25 18 0 18"></polygon>
+                <polygon id="Line" points="0 28 25 28 25 25 0 25"></polygon>
+                <path d="M1.6875,0.3125 L3.5,4.93359375 L3.5234375,4.93359375 L5.3359375,0.3125 L6.3203125,0.3125 L6.3203125,6 L5.55078125,6 L5.55078125,3.75 L5.62890625,1.4375 L5.609375,1.43359375 L3.765625,6 L3.25390625,6 L1.41796875,1.4453125 L1.3984375,1.44921875 L1.47265625,3.75 L1.47265625,6 L0.703125,6 L0.703125,0.3125 L1.6875,0.3125 Z M11.375,3.36328125 L8.76953125,3.36328125 L8.76953125,5.3984375 L11.7734375,5.3984375 L11.7734375,6 L8,6 L8,0.3125 L11.7304687,0.3125 L11.7304687,0.91796875 L8.76953125,0.91796875 L8.76953125,2.7578125 L11.375,2.7578125 L11.375,3.36328125 Z M18.3007812,6 L17.53125,6 L14.7929687,1.6015625 L14.7695312,1.609375 L14.7695312,6 L14,6 L14,0.3125 L14.7695312,0.3125 L17.5078125,4.703125 L17.53125,4.6953125 L17.53125,0.3125 L18.3007812,0.3125 L18.3007812,6 Z M25.2851562,0.3125 L25.2851562,4.16796875 C25.2851562,4.78776352 25.0839864,5.26171711 24.6816406,5.58984375 C24.2792949,5.91797039 23.7539095,6.08203125 23.1054688,6.08203125 C22.4804656,6.08203125 21.9733092,5.91731936 21.5839844,5.58789062 C21.1946595,5.25846189 21,4.78515934 21,4.16796875 L21,0.3125 L21.7695312,0.3125 L21.7695312,4.16796875 C21.7695312,4.5976584 21.8919259,4.92382701 22.1367188,5.14648438 C22.3815116,5.36914174 22.7044251,5.48046875 23.1054688,5.48046875 C23.5273459,5.48046875 23.8678372,5.36914174 24.1269531,5.14648438 C24.386069,4.92382701 24.515625,4.5976584 24.515625,4.16796875 L24.515625,0.3125 L25.2851562,0.3125 Z" id="MENU"></path>
             </g>
         </g>
     </g>

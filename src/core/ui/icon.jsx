@@ -14,7 +14,7 @@ function wrapSpinner(svg: HTMLElement, className: string) {
   return svg;
 }
 
-type IconSize = 'm' | 'l' | 'xl' | 'xxl';
+type IconSize = 'custom' | 'm' | 'l' | 'xl' | 'xxl';
 
 type IconProps = {
   size: ?IconSize,

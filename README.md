@@ -10,7 +10,9 @@ The Perfect Gourmet store. Isomorphic React app powered by FoxComm's backend API
 
 * `node` > v5.1.0
 
-  To install this or another versions of node you can use [n](https://github.com/tj/n) or [nvm](https://github.com/creationix/nvm)
+  To install this or another versions of node you can use [brew](http://brew.sh), [n](https://github.com/tj/n) or [nvm](https://github.com/creationix/nvm)
+
+* `yarn` > v0.17.8
 
 * [Flow](http://flowtype.org)
 
@@ -18,24 +20,26 @@ The Perfect Gourmet store. Isomorphic React app powered by FoxComm's backend API
 
 * `public_key.pem` in the root of the project, as described in the [engineering wiki](https://github.com/FoxComm/engineering-wiki/blob/master/development/setup.md#developing-frontend-applications)
 
-
 ### Run the dev server
 
-1. Run `npm i` to install dependencies.
-
-1. Select your API backend. There are convenience tasks to run the common backend development methods, hitting backend API at either local or remote stage:
-
-  `npm run dev-stage` — backend API at `stage.foxcommerce.com`
-
-  `npm run dev-local` — backend API at `http://localhost:9090`
+1. Run `yarn` to install dependencies.
 
 1. Set Stripe.js publishable key.
 In order to checkout to work you should set Stripe key by exporting `STRIPE_PUBLISHABLE_KEY` variable, or setting it in your `.env` file if you're using foreman, or run dev command with it:
 
-  `export STRIPE_PUBLISHABLE_KEY=pk_test_r6t0niqmG9OOZhhaSkacUUU1`
+  `export STRIPE_PUBLISHABLE_KEY=pk_test_JvTXpI3DrkV6QwdcmZarmlfk`
 
-  `STRIPE_PUBLISHABLE_KEY=pk_test_r6t0niqmG9OOZhhaSkacUUU1 npm run dev`
+  `STRIPE_PUBLISHABLE_KEY=pk_test_JvTXpI3DrkV6QwdcmZarmlfk npm run dev`
 
+1. Set DEV_SKIP_JWT_VERIFY, or configure PHOENIX_PUBLIC_KEY variable for verifying jwt token.
+
+  `export DEV_SKIP_JWT_VERIFY=1`
+
+  `DEV_SKIP_JWT_VERIFY=1 STRIPE_PUBLISHABLE_KEY=pk_test_JvTXpI3DrkV6QwdcmZarmlfk npm run dev`
+
+1. Select your API backend. There are convenience tasks to run the common backend development methods, hitting backend API at remote stage:
+
+  `npm run dev` — backend API at `API_URL` env variable
 
 1. Develop it at http://localhost:4044/
 

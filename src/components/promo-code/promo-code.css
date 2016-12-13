@@ -41,6 +41,10 @@
     background: var(--additional-color);
     color: #FFFFFF;
   }
+
+  &:disabled {
+    background: #8D757A;
+  }
 }
 
 .promo-title {
@@ -72,6 +76,14 @@
 @media (--small-only) {
   .code {
     height: 36px;
+  }
+  .submit {
+    padding-left: 0;
+    padding-right: 0;
+    min-width: 4em;
+  }
+  .fieldset {
+    flex-wrap: nowrap;
   }
 }
 
