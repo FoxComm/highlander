@@ -23,6 +23,13 @@
       "portIndex": 0
     }
   ],
+  "portDefinitions": [
+    {
+      "port": 10001,
+      "protocol": "tcp",
+      "labels": {}
+    }
+  ],
   "container": {
     "type": "DOCKER",
     "volumes": [
