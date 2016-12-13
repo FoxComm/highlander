@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { trackEvent } from 'lib/analytics';
+import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 
 import EditableContentBox from 'components/content-box/editable-content-box';
 import CartLineItem from './line-item';
@@ -38,8 +39,7 @@ export default class CartLineItems extends Component {
     const { cart } = this.props;
 
     const renderRow = (item: SkuItem) => {
-      const key = `sku-line-item-${item.sku}`;
-      return <CartLineItem key={key} item={item} cart={cart} />;
+      return <CartLineItem key={skuIdentity(item)} item={item} cart={cart} />;
     };
 
     return <SkuLineItems className="_edit" items={this.skus} columns={columns} renderRow={renderRow} />;
