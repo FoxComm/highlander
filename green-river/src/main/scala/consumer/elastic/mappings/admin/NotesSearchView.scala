@@ -50,7 +50,7 @@ final case class NotesSearchView()(implicit ec: EC) extends AvroTransformer {
       ),
       field("skuItem").nested(
           field("id", IntegerType),
-          field("sku", StringType).index("not_analyzed"),
+          field("sku", StringType).analyzer("upper_cased"),
           field("type", ObjectType),
           field("attributes", ObjectType),
           field("createdAt", DateType).format(dateFormat)
