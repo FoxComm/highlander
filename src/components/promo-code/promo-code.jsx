@@ -21,11 +21,13 @@ type Props = {
   removeCode: Function,
   buttonLabel?: ?string,
   coupon?: ?Object,
-  giftCard?: ?Object,
+  giftCards?: ?Array<Object>,
   promotion?: ?Object,
   discountValue?: ?number,
   allowDelete?: ?boolean,
   disabled?: boolean,
+  placeholder?: string,
+  theme: string,
 };
 
 type State = {
@@ -41,10 +43,11 @@ class PromoCode extends Component {
     saveCode: _.noop,
     removeCode: _.noop,
     disabled: false,
+    theme: 'light',
   };
 
   state: State = {
-    code: '',
+    code: '', // input value
     error: false,
   };
 
@@ -74,94 +77,109 @@ class PromoCode extends Component {
     const code = this.state.code.replace(/\s+/g, '');
 
     this.props.saveCode(code)
+      .then(() => this.setState({ code: '', error: false }))
       .catch(error => {
         this.setState({ error });
       });
   }
 
-  @autobind
-  removeCode() {
-    const { code } = (this.props.giftCard || {});
-
+  removeCode(code?: string) {
     this.props.removeCode(code)
-      .then(() => this.setState({ code: '' }))
       .catch(error => {
         this.setState({ error });
       });
   }
 
-  renderApplyPromoView() {
-    return (
-      <div styleName="fieldset">
-        <FormField styleName="code-field">
-          <TextInput
-            styleName="code"
-            placeholder={'COUPON CODE'}
-            value={this.state.code}
-            onChange={this.changeCode}
-            onKeyPress={this.onKeyPress}
-          />
-        </FormField>
-        <Button
-          type="button"
-          styleName="submit"
-          onClick={this.saveCode}
-          disabled={this.props.disabled}
-        >
-          {this.buttonLabel}
-        </Button>
-        <ErrorAlerts error={this.state.error} />
-      </div>
-    );
-  }
-
-  renderAttachedPromo() {
-    let promoTitle;
-    let promoCode;
-    let discountDescription;
-    let discountValue;
-
-    if (this.props.coupon) {
-      promoTitle = 'Coupon code';
-      promoCode = _.get(this.props, 'coupon.code');
-      discountDescription = _.get(this.props, 'promotion.attributes.name.v');
-      discountValue = this.props.discountValue;
-    } else if (this.props.giftCard) {
-      promoTitle = 'Gift card';
-      promoCode = this.props.giftCard.code;
-      discountDescription = (
-        <span>
-          <span>Balance: </span>
-          <Currency value={this.props.giftCard.currentBalance} />
-        </span>
-      );
-
-      discountValue = this.props.giftCard.amount;
-    }
+  renderGiftCard(card: Object) {
+    const { code, amount: discountValue, currentBalance } = card;
 
     return (
-      <div styleName="promo-description">
+      <div styleName="promo-description" key={card.code}>
         <div styleName="promo-description-wrapper">
-          <div styleName="promo-title">{promoTitle}</div>
-          <div>{promoCode}</div>
-          <div>{discountDescription}</div>
+          <div styleName="gift-title">{`Gift Card ${code}`}</div>
+          <div>
+            <Currency prefix={'Current Balance: '} value={currentBalance} />
+          </div>
         </div>
         <div styleName="subtotal-price">
-          <span>- &nbsp;<Currency value={discountValue} /></span>
+          <Currency value={discountValue} prefix={'– '} />
         </div>
 
         {this.props.allowDelete &&
-          <a styleName="delete-promo-btn" onClick={this.removeCode}>
-            <Icon name="fc-close" styleName="delete-promo-icon" />
+          <a styleName="delete-promo-btn delete-promo-icon" onClick={() => this.removeCode(code)}>
+            <Icon
+              name="fc-close"
+              styleName="delete-promo-icon"
+              styleName="delete-promo-btn"
+            />
           </a>}
       </div>
     );
   }
 
+  renderAttachedPromo() {
+    if (this.props.coupon) {
+      const promoCode = _.get(this.props, 'coupon.code');
+      const discountValue = this.props.discountValue;
+
+      return (
+        <div styleName="promo-description">
+          <div styleName="promo-code">{promoCode}</div>
+          <Currency styleName="subtotal-price" value={discountValue} prefix={'– '} />
+
+          {this.props.allowDelete &&
+            <Icon
+              name="fc-close"
+              styleName="delete-promo-icon"
+              styleName="delete-promo-btn"
+              onClick={() => this.removeCode()}
+            />
+          }
+        </div>
+      );
+    }
+
+    if (this.props.giftCards) {
+      return this.props.giftCards.map(card => this.renderGiftCard(card));
+    }
+
+    return null;
+  }
+
   render() {
-    return (this.props.giftCard || this.props.coupon) ?
-      this.renderAttachedPromo() :
-      this.renderApplyPromoView();
+    const { placeholder, theme } = this.props;
+
+    return (
+      <div styleName="root" className={styles[theme]}>
+        <div styleName="fieldset">
+          <FormField styleName="code-field">
+            <TextInput
+              styleName="code"
+              placeholder={placeholder}
+              value={this.state.code}
+              onChange={this.changeCode}
+              onKeyPress={this.onKeyPress}
+            />
+          </FormField>
+          <Button
+            type="button"
+            styleName="submit"
+            onClick={this.saveCode}
+            disabled={this.props.disabled}
+          >
+            {this.buttonLabel}
+          </Button>
+        </div>
+
+        {!!this.state.error &&
+          <div styleName="error">
+            <ErrorAlerts error={this.state.error} />
+          </div>
+        }
+
+        {this.renderAttachedPromo()}
+      </div>
+    );
   }
 }
 

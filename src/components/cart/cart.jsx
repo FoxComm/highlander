@@ -179,6 +179,8 @@ class Cart extends Component {
                 saveCode={saveCode}
                 removeCode={removeCode}
                 disabled={checkoutDisabled}
+                placeholder="Coupon Code"
+                theme="dark"
               />
             </div>
 

@@ -332,12 +332,12 @@ class EditBilling extends Component {
 
   renderGiftCard() {
     const { giftCards } = this.props;
-    const giftCard = _.find(giftCards, { type: 'giftCard' });
 
     return (
       <PromoCode
+        placeholder="Gift Card Number"
         buttonLabel="Redeem"
-        giftCard={giftCard}
+        giftCards={giftCards}
         saveCode={this.props.saveGiftCard}
         removeCode={this.props.removeGiftCard}
       />
@@ -385,8 +385,9 @@ class EditBilling extends Component {
           <button onClick={this.addNew} type="button" styleName="add-card-button">Add Card</button>
         </fieldset>
 
-        <Accordion title="PROMO CODE?">
+        <Accordion title="COUPON CODE?">
           <PromoCode
+            placeholder="Coupon Code"
             coupon={this.props.coupon}
             promotion={this.props.promotion}
             discountValue={this.props.totals.adjustments}
@@ -411,4 +412,10 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { ...checkoutActions, ...cartActions })(localized(EditBilling));
+export default connect(
+  mapStateToProps,
+  {
+    ...checkoutActions,
+    ...cartActions,
+  }
+)(localized(EditBilling));

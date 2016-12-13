@@ -2,6 +2,9 @@ DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
 DOCKER_TAG ?= tpg-storefront
 DOCKER_BRANCH ?= master
 
+dev d:
+	source .env && npm run dev
+
 setup:
 	npm install
 
@@ -21,4 +24,4 @@ clean:
 test:
 	npm test
 
-.PHONY: setup build docker docker-push clean test
+.PHONY: dev d setup build docker docker-push clean test

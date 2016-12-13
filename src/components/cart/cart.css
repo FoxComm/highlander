@@ -122,16 +122,6 @@
   height: 100%;
 }
 
-.coupon {
-  padding: 10px 0;
-  border-top: 1px solid var(--border-color);
-
-  & input {
-    background-color: #F4F2F2;
-    border-color: #F4F2F2;
-  }
-}
-
 .cart-subtotal {
   display: flex;
   align-content: space-around;

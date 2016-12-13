@@ -18,7 +18,6 @@
 .content {
   overflow: hidden;
   max-height: 500px;
-  padding-bottom: 30px;
   transition: all .3s;
 }
 
