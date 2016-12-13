@@ -17,9 +17,9 @@
     }
   },
   "env": {
-    "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",
+    "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
     "ZOOKEEPER_URL": "{{zookeeper_server}}",
-    "MIDDLEWAREHOUSE_URL": "http://{{middlewarehouse_server}}",
+    "MWH_URL": "http://{{middlewarehouse_server}}",
     "API_KEY": "{{shipstation_api_key}}",
     "API_SECRET": "{{shipstation_api_secret}}",
     "TOPIC": "{{shipstation_topic}}",

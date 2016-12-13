@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/FoxComm/metamorphosis"
 	"os"
-	"strconv"
 )
 
 type ConsumerConfig struct {

@@ -34,6 +34,22 @@ func main() {
 		log.Fatalf("Unable to initialize ShipStation client with error: %s", err.Error())
 	}
 
+	pollingAgent, err := NewPollingAgent(phoenixClient, shipStationClient, config.MiddlewarehouseURL)
+	if err != nil {
+		log.Fatalf("Unable to initialize ShipStation API client with error %s", err.Error())
+	}
+
+	ticker := time.NewTicker(ssConfig.PollingInterval)
+
+	for {
+		select {
+		case <-ticker.C:
+			if err := pollingAgent.GetShipments(); err != nil {
+				panic(err)
+			}
+		}
+	}
+
 	consumer, err := metamorphosis.NewConsumer(config.ZookeeperURL, config.SchemaRepositoryURL, config.OffsetResetStrategy)
 	if err != nil {
 		log.Fatalf("Unable to connect to Kafka with error %s", err.Error())
@@ -45,21 +61,4 @@ func main() {
 	}
 
 	consumer.RunTopic(config.Topic, oh.Handler)
-
-	pollingAgent, err := NewPollingAgent(ssConfig.ApiKey, ssConfig.ApiSecret, config.MiddlewarehouseURL)
-	if err != nil {
-		log.Fatalf("Unable to initialize ShipStation API client with error %s", err.Error())
-	}
-
-	ticker := time.NewTicker(ssConfig.PollingInterval)
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				if err := pollingAgent.GetShipments(); err != nil {
-					panic(err)
-				}
-			}
-		}
-	}()
 }
