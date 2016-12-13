@@ -47,17 +47,22 @@ shortcuts:
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
-  - name: Bootstrap Phoenix JAR
-    alias: phoenix.yml
-    target: ansible/bootstrap_phoenix.yml
   - name: Bootstrap Store Admin User
     alias: store_admin.yml
     target: ansible/bootstrap_store_admin.yml
-  - name: Bootstrap Tinystack
-    alias: tinystack.yml
-    target: ansible/bootstrap_tinystack.yml
+
+  # Custom
+  - name: Bootstrap Annabelle
+    alias: annabelle.yml
+    target: ansible/bootstrap_annabelle.yml
+  - name: Bootstrap Sinopia
+    alias: sinopia.yml
+    target: ansible/bootstrap_sinopia.yml
 
   # TPG
+  - name: Provision TPG Test
+    alias: tpg_test.yml
+    target: ansible/tpg_test.yml
   - name: Provision TPG Staging
     alias: tpg_stage.yml
     target: ansible/tpg_stage.yml
@@ -72,19 +77,6 @@ shortcuts:
   - name: Perform Healthchecks
     alias: healthchecks.yml
     target: ansible/healthchecks.yml
-
-  # Custom
-  - name: Bootstrap Annabelle
-    alias: annabelle.yml
-    target: ansible/bootstrap_annabelle.yml
-  - name: Bootstrap Sinopia
-    alias: sinopia.yml
-    target: ansible/bootstrap_sinopia.yml
-
-  # Hotfix
-  - name: Hotfix Promotion Discount Forms
-    alias: hotfix_promo_discounts.yml
-    target: ansible/hotfix_promo_discounts.yml
 
 # Packer shortcuts
 - type: snowflake
@@ -140,7 +132,9 @@ shortcuts:
       gatling: terraform/envs/gce_gatling/terraform.tfstate
       target: terraform/envs/aws_target/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
+      td_test: terraform/envs/gce_td_test/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
+      tpg_test: terraform/envs/gce_tpg_test/terraform.tfstate
   - name: Variable Files
     flag: "-var-file"
     aliases:
@@ -150,24 +144,32 @@ shortcuts:
       gatling: terraform/envs/gce_gatling/gatling.tfvars
       target: terraform/envs/aws_target/target.tfvars
       topdrawer: terraform/envs/gce_topdrawer/topdrawer.tfvars
+      td_test: terraform/envs/gce_td_test/td_test.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
+      tpg_test: terraform/envs/gce_tpg_test/tpg_test.tfvars
 
   targets:
-  - name: Staging Legacy
+  - name: FoxCommerce Core
     alias: dev
     target: terraform/base/gce_dev
-  - name: Staging Highlander
+  - name: FoxCommerce Test
     alias: staging
     target: terraform/base/gce_staging
-  - name: Staging Gatling
+  - name: FoxCommerce Gatling
     alias: gatling
     target: terraform/base/gce_gatling
+  - name: TopDrawer Test
+    alias: td_test
+    target: terraform/base/gce_td_test
+  - name: TPG Test
+    alias: tpg_test
+    target: terraform/base/gce_tpg_test
   - name: Target AWS Networking
     alias: target
     target: terraform/base/aws_target
-  - name: TopDrawer
+  - name: TopDrawer Production
     alias: topdrawer
     target: terraform/base/gce_topdrawer
-  - name: The Perfect Gourmet
+  - name: TPG Production
     alias: tpg
     target: terraform/base/gce_tpg
