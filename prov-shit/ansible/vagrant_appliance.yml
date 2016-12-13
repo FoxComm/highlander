@@ -22,7 +22,7 @@
     - { role: base/marketplace, when: with_marketplace }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
-    - { role: dev/kibana, sudo: true }
+    - { role: dev/kibana, become: true }
     - { role: dev/db }
     - { role: dev/isaac }
     - { role: dev/phoenix }
@@ -35,8 +35,8 @@
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
-    - { role: dev/balancer, sudo: true }
-    - { role: demo/balancer, sudo: true }
+    - { role: dev/balancer, become: true }
+    - { role: demo/balancer, become: true }
     - { role: dev/consumers }
     - { role: dev/healthcheck }
 

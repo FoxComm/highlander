@@ -7,19 +7,19 @@
 
 - name: Create Phoenix Directory
   file: path={{phoenix_dir}} state=directory owner="{{user}}"
-  sudo: true
+  become: true
 
 - name: Synchronize Phoenix Sql
   synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
-  sudo: true
+  become: true
 
 - name: Delete Phoenix Gatling Resources
   file: path="{{phoenix_dir}}/gatling-classes" state=absent
-  sudo: true
+  become: true
 
 - name: Delete Phoenix Gatling Results
   file: path="{{phoenix_dir}}/gatling-results" state=absent
-  sudo: true
+  become: true
 
 - name: Synchronize Phoenix Gatling Resources
   synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes
@@ -30,20 +30,20 @@
 
 - name: Copy JAR
   copy: src={{phoenix_jar_src}} dest={{phoenix_jar}} mode="u+x,g+x,o+x"
-  sudo: true
+  become: true
 
 - name: Copy Service
   template: src=phoenix.service dest="{{dest_services}}/phoenix.service"
-  sudo: true
+  become: true
 
 - name: Reload Systemd for Phoenix
-  sudo: yes
+  become: true
   command: systemctl daemon-reload
 
 - name: Restart Phoenix
   service: name=phoenix state=restarted enabled=yes
-  sudo: true
+  become: true
 
 - name: Copy Consul Service File
   template: src=phoenix.json dest="/etc/consul.d/phoenix.json"
-  sudo: true
+  become: true

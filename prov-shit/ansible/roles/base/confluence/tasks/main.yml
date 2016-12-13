@@ -2,12 +2,12 @@
 
 - name: Add Confluent Key
   apt_key: url=http://packages.confluent.io/deb/2.0/archive.key
-  sudo: true
+  become: true
 
 - name: Add Confluent Repository
   apt_repository: repo='deb [arch=amd64] http://packages.confluent.io/deb/2.0 stable main' state=present update_cache=yes
-  sudo: true
+  become: true
 
 - name: Install Packages
   apt: name=confluent-platform-2.11.7 state=latest force=yes
-  sudo: true
+  become: true

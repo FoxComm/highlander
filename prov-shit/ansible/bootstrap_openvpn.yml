@@ -7,7 +7,7 @@
     vpn_network: 10.8.0.0
     vpn_server: 10.0.0.0 255.255.255.0
     vpn_network_interface: ens4
-    user: '{{ansible_ssh_user}}'
+    user: '{{ansible_user}}'
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a VPN to configure"
@@ -15,4 +15,4 @@
       private: no
 
   roles:
-      - { role: base/openvpn, sudo: true }
+      - { role: base/openvpn, become: true }

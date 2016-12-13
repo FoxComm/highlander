@@ -25,13 +25,12 @@
     - { role: dev/marketplace }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/ashes }
-    - { role: dev/balancer, sudo: true }
+    - { role: dev/balancer, become: true }
     - { role: ext/tgt/marketplace-ui }
     - { role: ext/tgt/product-search }
-    - { role: ext/tgt/balancer, sudo: true }
+    - { role: ext/tgt/balancer, become: true }
     - { role: dev/consumers }
     - { role: dev/seeder }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
-

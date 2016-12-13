@@ -2,11 +2,11 @@
 
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
-  sudo: true
+  become: true
 
 - name: Copy Shipstation Consumer Marathon JSON
   template: src=shipstation.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  sudo: true
+  become: true
 
 - name: Update Shipstation Consumer in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/shipstation.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/shipstation'

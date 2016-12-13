@@ -3,14 +3,14 @@
 - name: Bootstrap Sinopia
   hosts: sinopia
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: '{{ansible_user}}'
     sinopia_webui_title: FoxCommerce Private NPM Registry
     sinopia_host: npm.foxcommerce.com
     sinopia_max_users: 100
     sinopia_max_body_size: 2mb
 
   roles:
-      - { role: base/sinopia, sudo: true }
+      - { role: base/sinopia, become: true }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

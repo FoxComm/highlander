@@ -2,16 +2,16 @@
 
 - name: Copy Jar
   copy: src={{loyalty_jar_src}} dest={{loyalty_jar}} mode="u+x,g+x,o+x"
-  sudo: true
+  become: true
 
 - name: Copy Service
   template: src=loyalty.service dest="{{dest_services}}/loyalty.service"
-  sudo: true
+  become: true
 
 - name: Reload Systemd for Loyalty
-  sudo: yes
+  become: true
   command: systemctl daemon-reload
 
 - name: Restart Loyalty
   service: name=loyalty state=restarted enabled=yes
-  sudo: true
+  become: true

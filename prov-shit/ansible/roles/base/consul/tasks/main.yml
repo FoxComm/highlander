@@ -2,44 +2,44 @@
 
 - name: Copy Consul Bin
   copy: src=consul dest=/usr/local/bin/consul mode="u+x,g+x,o+x"
-  sudo: true
+  become: true
 
 - name: Create Config Directory
   file: path=/etc/consul.d state=directory
-  sudo: true
+  become: true
 
 - name: Touch or be Touched
   file: path="/etc/consul.d/env" state=touch
-  sudo: true
+  become: true
 
 - name: Specify Server
   lineinfile: dest="/etc/consul.d/env" line="CONSUL_SERVER={{consul_server}}"
-  sudo: true
+  become: true
   when: consul_server is defined
 
 - name: Specify Datacenter
   lineinfile: dest="/etc/consul.d/env" line="CONSUL_DC={{consul_dc}}"
-  sudo: true
+  become: true
   when: consul_dc is defined
 
 - name: Specify Bind
   lineinfile: dest="/etc/consul.d/env" line="CONSUL_BIND={{consul_bind}}"
-  sudo: true
+  become: true
   when: consul_bind is defined
 
 - name: Create Data Directory
   file: path=/var/consul state=directory
-  sudo: true
+  become: true
 
 - name: Create Web Ui Directory
   file: path=/usr/local/share/consul state=directory
-  sudo: true
+  become: true
 
 - name: Copy Consul Web UI
   copy: src=consul_0.6.4_web_ui.zip dest={{home}}/consul_0.6.4_web_ui.zip
 
 - name: Unzip Consul Web UI
   unarchive: src="{{home}}/consul_0.6.4_web_ui.zip" dest="/usr/local/share/consul" copy=no
-  sudo: true
+  become: true
   args:
     creates: "/usr/local/share/consul/static"

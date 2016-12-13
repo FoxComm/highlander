@@ -3,7 +3,7 @@
 - name: Bootstrap Annabelle
   hosts: api-docs
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: '{{ansible_user}}'
     annabelle_dir: /annabelle
   vars_prompt:
     - name: "annabelle_jar"
@@ -24,7 +24,7 @@
       private: no
 
   roles:
-      - { role: dev/annabelle, sudo: true }
+    - { role: dev/annabelle, become: true }
 
   handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
+    - include: roles/base/consul_agent/handlers/main.yml

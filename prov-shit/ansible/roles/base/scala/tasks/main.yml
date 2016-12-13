@@ -1,18 +1,18 @@
 ---
 - name: Add SBT Key
   apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=642AC823
-  sudo: true
+  become: true
 
 - name: Add SBT Repository
   apt_repository: repo='deb http://dl.bintray.com/sbt/debian /' state=present
-  sudo: true
+  become: true
 
 - name: Update System Package Cache
   apt: update_cache=yes
-  sudo: true
+  become: true
 
 - name: Install Scala Stuff Packages
   apt: name={{ item }} state=latest force=yes
-  sudo: true
+  become: true
   with_items:
     - sbt

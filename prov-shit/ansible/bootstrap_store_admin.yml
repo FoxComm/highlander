@@ -1,8 +1,9 @@
+---
 
 - name: Bootstrap Store Admin user
   hosts: '{{hostname}}'
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: '{{ansible_user}}'
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a Db to bootstrap"
@@ -26,4 +27,4 @@
       private: no
 
   roles:
-      - { role: prod/bootstrap_store_admin }
+    - { role: prod/bootstrap_store_admin }

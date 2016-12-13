@@ -3,7 +3,7 @@
 - name: Provision Top Drawer Test Backend
   hosts: top-drawer-test-backend
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: '{{ansible_user}}'
     upload_phoenix_jar: true
     download_flyway: false
   tags:
@@ -23,7 +23,7 @@
 - name: Provision Top Drawer Test Frontend
   hosts: top-drawer-test-frontend
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: '{{ansible_user}}'
     api_server: test-topdrawer.foxcommerce.com
     self_host: test-topdrawer.foxcommerce.com
     ashes_server_name: test-topdrawer.foxcommerce.com
@@ -45,8 +45,8 @@
     - { role: dev/messaging }
     - { role: dev/isaac }
     - { role: dev/solomon }
-    - { role: dev/balancer, sudo: true }
-    - { role: demo/balancer, sudo: true }
+    - { role: dev/balancer, become: true }
+    - { role: demo/balancer, become: true }
     - { role: dev/consumers }
     - { role: dev/seeder, when: first_run }
 

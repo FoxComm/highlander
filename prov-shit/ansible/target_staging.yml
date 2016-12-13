@@ -3,7 +3,7 @@
 - name: Provision Target Stage Backend
   hosts: new-target-stage-backend
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: '{{ansible_user}}'
     with_marketplace: true
   tags:
     - backend
@@ -20,7 +20,7 @@
 - name: Provision Target Stage Frontend
   hosts: new-target-stage-frontend
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: '{{ansible_user}}'
     api_server: stage-tgt.foxcommerce.com
     self_host: stage-tgt.foxcommerce.com
     ashes_server_name: stage-tgt.foxcommerce.com
@@ -39,8 +39,8 @@
     - { role: dev/isaac }
     - { role: dev/solomon }
     - { role: dev/marketplace }
-    - { role: dev/balancer, sudo: yes }
-    - { role: ext/tgt/balancer, sudo: yes }
+    - { role: dev/balancer, become: true }
+    - { role: ext/tgt/balancer, become: true }
     - { role: dev/consumers }
     - { role: dev/seeder }
 

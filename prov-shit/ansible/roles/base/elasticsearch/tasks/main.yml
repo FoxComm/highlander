@@ -2,31 +2,31 @@
 
 - name: Get ElasticSearch 2.0
   get_url: url=https://download.elastic.co/elasticsearch/elasticsearch/{{es_zip}} dest={{home}}/{{es_zip}}
-  sudo: true
+  become: true
 
 - name: Unzip ElasticSearch
   unarchive: src={{home}}/{{es_zip}} dest={{usr_local}} copy=no
-  sudo: true
+  become: true
 
 - name: Copy Run Script
   template: src=run_elasticsearch.sh dest={{usr_local}}
-  sudo: true
+  become: true
 
 - name: Copy ElasticSearch service
   template: src=elasticsearch.service dest={{dest_services}}/
-  sudo: true
+  become: true
 
 - name: Setting Up Admin User Group
   group: name=admin state=present
-  sudo: true
+  become: true
 
 - name: Setting Up Elasticsearch User
   user: name=elasticsearch groups=admin
-  sudo: true
+  become: true
 
 - name: Create Elasticsearch subdirectories
   file: path={{es_path}}/{{item}} owner=elasticsearch state=directory mode="u=rwx,g=rwx,o=r"
-  sudo: true
+  become: true
   with_items:
     - data
     - logs
@@ -35,16 +35,16 @@
 
 - name: Copy Elasticsearch Config
   template: src=elasticsearch.yml dest={{es_path}}/config/elasticsearch.yml
-  sudo: true
+  become: true
 
 - name: Reload Systemd for Elastic Search
-  sudo: yes
+  become: true
   command: systemctl daemon-reload
 
 - name: Setup Service
   service: name=elasticsearch state=restarted enabled=yes
-  sudo: true
+  become: true
 
 - name: Copy Consul Service File
   template: src=elastic.json dest="/etc/consul.d/elastic.json"
-  sudo: true
+  become: true

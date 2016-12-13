@@ -5,7 +5,7 @@
   tags:
     - amigo
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: '{{ansible_user}}'
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a backend to provision"
@@ -13,14 +13,14 @@
       private: no
 
   roles:
-    - { role: dev/kibana, sudo: true }
+    - { role: dev/kibana, become: true }
 
 - name: Bootstrap Tinyprod
   hosts: '{{hostname}}'
   tags:
     - backend
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: '{{ansible_user}}'
     seeds_cmd: utils.seeds.Seeds seed
     updating_mwh: true
     middlewarehouse_src: "{{gopath}}/src/github.com/FoxComm/highlander/middlewarehouse"
@@ -50,7 +50,7 @@
   tags:
     - frontend
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: '{{ansible_user}}'
     firebrand_default_language: en
     firebrand_fixed_language: false
     phoenix_service_requires: ""
@@ -90,7 +90,7 @@
     - { role: dev/ashes }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/firebrand }
-    - { role: dev/balancer, sudo: true }
+    - { role: dev/balancer, become: true }
     - { role: dev/consumers }
 
   handlers:

@@ -5,7 +5,7 @@
   tags:
     - packer
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: '{{ansible_user}}'
 
   roles:
     - { role: base/common }
@@ -14,8 +14,8 @@
     - { role: base/docker_clean }
     - { role: base/scala }
     - { role: base/clojure }
-    - { role: base/node, sudo: true }
-    - { role: base/builder, sudo: true }
+    - { role: base/node, become: true }
+    - { role: base/builder, become: true }
     - { role: test/db }
     - { role: test/selenium }
     - { role: dev/ssh_gce }

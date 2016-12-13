@@ -12,6 +12,6 @@
     - { role: base/kafka }
     - { role: base/schema-registry }
     - { role: base/elasticsearch }
-    - { role: base/rsyslog, sudo: yes }
+    - { role: base/rsyslog, become: true }
     - { role: base/db }
     - { role: base/bottledwater }

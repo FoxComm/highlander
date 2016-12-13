@@ -2,4 +2,4 @@
 
 - name: reload consul
   shell: "consul reload || true"
-  sudo: true
+  become: true

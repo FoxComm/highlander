@@ -11,9 +11,9 @@
     - buildkite-agent-6
     - buildkite-agent-7
   tags:
-    - buildkite-agent  
+    - buildkite-agent
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: '{{ansible_user}}'
     agent_home: /var/lib/buildkite-agent
   vars_prompt:
     - name: "account_json_src"
@@ -23,7 +23,7 @@
     - name: "vault_pass_src"
       prompt: "Enter a local path to .vault_pass"
       default: "~/FoxComm/highlander/prov-shit/.vault_pass"
-      private: no    
+      private: no
 
   roles:
     - { role: dev/builder_keys }
