@@ -27,8 +27,8 @@
 - name: Restart Green River in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/greenriver/restart'
 
-- name: Get Green River Marathon tasks in `unhealthy` state
-  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/storefront | jq '.app.tasksHealthy > 0'
+- name: Get Green River Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/greenriver | jq '.app.tasksHealthy > 0'
   register: healthy_tasks_available
   until: healthy_tasks_available.stdout == 'true'
   retries: 60
