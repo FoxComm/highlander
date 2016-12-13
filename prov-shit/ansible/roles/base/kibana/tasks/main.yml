@@ -10,7 +10,7 @@
   file: path={{kibana_dir}} state=directory
 
 - name: Copy Kibana to Working Directory
-  shell: mv {{home}}/{{kibana_name}}/* {{kibana_dir}}/
+  shell: creates=/opt/kibana/bin mv {{home}}/{{kibana_name}}/* {{kibana_dir}}/
 
 - name: Remove Kibana Download Directory
   file: path={{home}}/{{kibana_name}} state=absent

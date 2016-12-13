@@ -31,6 +31,6 @@
   shell: "curl -X GET http://{{marathon_server}}/v2/deployments | jq 'length'"
   register: wt
   until: wt.stdout == '0'
-  retries: 60
+  retries: 125
   delay: 10
   when: vagrant

@@ -7,7 +7,7 @@ CONFIG = File.join(File.dirname(__FILE__), "vagrant.local.rb")
 
 $vb_memory = 1024*8
 $vb_cpu = 4
-$nginx_ip = "192.168.10.111"
+$nginx_ip = "192.168.11.111"
 $local = true
 user = "vagrant"
 
@@ -82,8 +82,8 @@ def tune_vm(config, opts = {})
     g.google_client_email = ENV['GOOGLE_CLIENT_EMAIL']
     g.google_json_key_location = ENV['GOOGLE_JSON_KEY_LOCATION']
 
-    g.machine_type = "n1-standard-4"
-    g.image = "appliance-base-161129-185737"
+    g.machine_type = "n1-standard-2"
+    g.image = "ubuntu-1604-xenial-v20161115"
     g.disk_size = 40
     g.zone = "us-central1-a"
     g.tags = ['vagrant', 'no-ports']
@@ -115,10 +115,12 @@ Vagrant.configure("2") do |config|
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.define :appliance, primary: true do |app|
-    app.vm.box = "base_appliance_16.04_20161129"
-    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base_appliance_16.04_20161129.box"
+    app.vm.box = "boxcutter/ubuntu1604"
 
     app.vm.network :private_network, ip: $nginx_ip
+
+    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
+
     expose_ports(app)
 
     # Workaround for mitchellh/vagrant#1867
@@ -135,9 +137,19 @@ Vagrant.configure("2") do |config|
       $local = false
     end
 
-    app.vm.provision "ansible" do |ansible|
-
+    app.vm.provision "base", type: "ansible" do |ansible|
       ansible.verbose = "v"
+      ansible.playbook = "prov-shit/ansible/vagrant_appliance_base.yml"
+      ansible.extra_vars = {
+        user: user,
+        appliance_hostname: $nginx_ip,
+        mesos_ip: $nginx_ip,
+      }
+    end
+
+    app.vm.provision "application", type: "ansible" do |ansible|
+      ansible.verbose = "v"
+
       ansible.playbook = "prov-shit/ansible/vagrant_appliance.yml"
       ansible.extra_vars = {
         user: user,
