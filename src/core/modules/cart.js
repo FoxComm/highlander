@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
-import { createAsyncActions } from 'wings';
+import { createAsyncActions } from '@foxcomm/wings';
 import { api as foxApi } from 'lib/api';
 
 export const toggleCart = createAction('TOGGLE_CART');

@@ -1,7 +1,7 @@
 /* @flow */
 
 import { createReducer, createAction } from 'redux-act';
-import { createAsyncActions } from 'wings';
+import { createAsyncActions } from '@foxcomm/wings';
 
 export const clearOrder = createAction('ORDERS_CLEAR_ONE');
 

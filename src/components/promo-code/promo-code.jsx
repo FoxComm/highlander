@@ -9,7 +9,7 @@ import _ from 'lodash';
 import { TextInput } from 'ui/inputs';
 import Button from 'ui/buttons';
 import { FormField } from 'ui/forms';
-import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import Currency from 'ui/currency';
 import Icon from 'ui/icon';
 

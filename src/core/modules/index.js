@@ -15,7 +15,7 @@ import profile from './profile';
 import orders from './orders';
 import banner from './banner';
 
-import { reducer as asyncReducer } from 'wings/lib/redux/async-utils';
+import { reducer as asyncReducer } from '@foxcomm/wings/lib/redux/async-utils';
 
 const reducer = combineReducers({
   routing: routeReducer,

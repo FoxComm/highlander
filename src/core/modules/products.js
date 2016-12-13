@@ -1,7 +1,7 @@
 /* @flow */
 
 import { createReducer } from 'redux-act';
-import { createAsyncActions } from 'wings';
+import { createAsyncActions } from '@foxcomm/wings';
 import { addTermFilter, defaultSearch, termFilter } from 'lib/elastic';
 import _ from 'lodash';
 import { api } from 'lib/api';

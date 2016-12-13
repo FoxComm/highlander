@@ -1,7 +1,7 @@
 /* @flow */
 
 import { createReducer } from 'redux-act';
-import { createAsyncActions } from 'wings';
+import { createAsyncActions } from '@foxcomm/wings';
 
 function apiCall(): Promise {
   const result = [

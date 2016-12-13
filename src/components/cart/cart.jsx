@@ -17,7 +17,8 @@ import Currency from 'ui/currency';
 import LineItem from './line-item';
 import Button from 'ui/buttons';
 import Icon from 'ui/icon';
-import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 import { parseError } from 'api-js';
 import CouponCode from '../promo-code/promo-code';
 
@@ -108,7 +109,7 @@ class Cart extends Component {
           {...sku}
           deleteLineItem={() => this.deleteLineItem(sku)}
           updateLineItemQuantity={(id, quantity) => this.updateLineItemQuantity(sku, quantity)}
-          key={sku.sku}
+          key={skuIdentity(sku)}
         />
       );
     });

@@ -3,7 +3,7 @@
 import { createReducer, createAction } from 'redux-act';
 import _ from 'lodash';
 
-import { createAsyncActions } from 'wings';
+import { createAsyncActions } from '@foxcomm/wings';
 
 type Attribute = {
   t: string,

@@ -25,7 +25,7 @@ import type { ProductResponse } from 'modules/product-details';
 // components
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
-import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import ProductDetails from './product-details';
 import GiftCardForm from '../../components/gift-card-form';
 import ProductAttributes from './product-attributes';
