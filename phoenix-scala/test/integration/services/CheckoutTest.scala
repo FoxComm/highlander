@@ -182,7 +182,7 @@ class CheckoutTest
           } yield totalAdjustments
 
           dbResultT
-            .fold(failures ⇒ false :| "\nFailures:\n" + failures.flatten.mkString("\n"),
+            .fold(failures ⇒ false :| "\nFailures:\n" + failures.toList.mkString("\n"),
                   result ⇒ Prop(result == total))
             .gimme
       }

@@ -4,6 +4,7 @@ import org.json4s.JsonDSL._
 import utils.IlluminateAlgorithm
 import utils.aliases.Json
 import FormAndShadow._
+import org.json4s.JsonAST.JObject
 
 trait FormAndShadow {
   def form: ObjectForm
@@ -14,10 +15,15 @@ trait FormAndShadow {
   def toPayload: Map[String, Json] = {
     val attributes = IlluminateAlgorithm
       .projectAttributes(formJson = this.form.attributes, shadowJson = this.shadow.attributes)
-    attributes.foldField(Map.empty[String, Json]) {
-      case (acc, (fieldName, jvalue)) ⇒
-        acc + (fieldName → jvalue)
+    attributes match {
+      case JObject(o) ⇒
+        o.foldLeft(Map.empty[String, Json]) {
+          case (acc, (fieldName, jvalue)) ⇒
+            acc + (fieldName → jvalue)
+        }
+      case _ ⇒ throw new IllegalArgumentException("Invalid attributes")
     }
+
   }
 
   def mergeShadowAttrs(newShadowAttrs: Json): FormAndShadow = {

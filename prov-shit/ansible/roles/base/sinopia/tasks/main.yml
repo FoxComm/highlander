@@ -1,0 +1,38 @@
+---
+
+- name: Install Sinopia
+  shell: npm install sinopia -g
+
+- name: Create Sinopia Directory
+  file: path={{sinopia_base_dir}} state=directory owner="{{user}}"
+
+- name: Copy Sinopia Config
+  template: src="config.yml.j2" dest="{{sinopia_base_dir}}/config.yml"
+
+- name: Copy Sinopia Logo
+  copy: src=logo_small.png dest={{sinopia_base_dir}}/logo.png mode="u+x,g+x,o+x"
+
+- name: Make SSL Certs Directory
+  file: path=/certs state=directory mode="600"
+
+- name: Copy SSL Certificate
+  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.crt" dest=/certs/domain.crt
+
+- name: Copy SSL Key
+  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.key" dest=/certs/domain.key
+
+- name: Install Sinopia Run Script
+  template: src=run_sinopia.sh.j2 dest="{{sinopia_base_dir}}/run_sinopia.sh" mode="u=rwx,g=rwx,o=r"
+
+- name: Install Sinopia Service Entry
+  template: src="sinopia.service.j2" dest="{{dest_services}}/sinopia.service"
+
+- name: Reload Systemd for Sinopia
+  command: systemctl daemon-reload
+
+- name: Restart Sinopia
+  service: name=sinopia state=restarted enabled=true
+
+- name: Copy Consul Service File
+  template: src=sinopia.json dest="/etc/consul.d/sinopia.json"
+  notify: reload consul

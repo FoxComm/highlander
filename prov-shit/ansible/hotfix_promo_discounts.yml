@@ -1,0 +1,13 @@
+---
+
+- name: Run Promotion Engine Discount Forms Hotfix
+  hosts: '{{hostname}}'
+  vars:
+    user: '{{ansible_ssh_user}}'
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname"
+      private: no
+
+  roles:
+      - { role: ext/common/promo_hotfix }

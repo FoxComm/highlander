@@ -74,6 +74,8 @@ class ScopeProcessor(uri: String,
             case e: RemoteTransportException
                 if e.getCause.isInstanceOf[IndexAlreadyExistsException] ⇒
               Console.out.println(s"Index $scopedIndexName already exists, skip")
+            case other ⇒
+              Console.println(s"Creation of index $scopedIndexName failed with error: $other")
           }
         }
     }

@@ -45,10 +45,15 @@
 - name: Restart Gift Card Consumer in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/gift-card-consumer/restart'
 
-- name: Wait For Deployments to Finish
-  shell: "curl -X GET http://{{marathon_server}}/v2/deployments | jq 'length'"
-  register: wt
-  until: wt.stdout == '0'
-  retries: 30
-  delay: 20
+- name: Get Consumers Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/{{item}} | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: 60
+  delay: 10
   when: vagrant
+  with_items:
+    - shipments-consumer
+    - capture-consumer
+    - gift-card-consumer
+    - stock-items-consumer

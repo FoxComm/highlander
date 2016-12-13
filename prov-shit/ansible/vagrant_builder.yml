@@ -8,9 +8,9 @@
     - { role: base/common }
     - { role: base/ssh_keys }
     - { role: base/scala }
-    - { role: base/node, sudo: yes }
+    - { role: base/node, sudo: true }
     - { role: test/db }
-    - { role: base/builder }
+    - { role: base/builder, sudo: true }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml

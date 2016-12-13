@@ -2,6 +2,24 @@
 # yarn lockfile v1
 
 
+"@foxcomm/wings@^1.7.1":
+  version "1.7.1"
+  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fwings/-/wings-1.7.1.tgz#fef1e811790482e6acf5438ed09ec6530e90ea91"
+  dependencies:
+    classnames "^2.2.5"
+    flow-bin "^0.36.0"
+    hoist-non-react-statics "^1.2.0"
+    lodash "^4.13.1"
+    postcss "^5.0.21"
+    postcss-cli "^2.5.2"
+    postcss-cssnext "^2.7.0"
+    react "^15.2.0"
+    reduce-reducers "^0.1.2"
+    redux "^3.6.0"
+    redux-act "^1.1.0"
+    redux-thunk "^2.1.0"
+    sprout-data "^0.2.3"
+
 JSONStream@^1.0.3:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/JSONStream/-/JSONStream-1.2.1.tgz#32aa5790e799481083b49b4b7fa94e23bae69bf9"
@@ -3095,6 +3113,10 @@ flow-bin@0.25.0:
   dependencies:
     bin-wrapper "^3.0.2"
     logalot "^2.0.0"
+
+flow-bin@^0.36.0:
+  version "0.36.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.36.0.tgz#557907bd9c2ab0670cfad9e7e906a74b0631e39a"
 
 for-in@^0.1.5:
   version "0.1.6"
@@ -6383,10 +6405,6 @@ postcss@^5.0.0, postcss@^5.0.10, postcss@^5.0.11, postcss@^5.0.12, postcss@^5.0.
     source-map "^0.5.6"
     supports-color "^3.1.2"
 
-postinstall-build@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/postinstall-build/-/postinstall-build-0.2.1.tgz#132e95029ba6ee5229a8802b90a7adbf3f46875d"
-
 prelude-ls@~1.1.0, prelude-ls@~1.1.1, prelude-ls@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
@@ -6797,11 +6815,11 @@ reduce-function-call@^1.0.1:
   dependencies:
     balanced-match "~0.1.0"
 
-reduce-reducers@^0.1.1:
+reduce-reducers@^0.1.1, reduce-reducers@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/reduce-reducers/-/reduce-reducers-0.1.2.tgz#fa1b4718bc5292a71ddd1e5d839c9bea9770f14b"
 
-redux-act@^1.0.0:
+redux-act@^1.0.0, redux-act@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/redux-act/-/redux-act-1.1.0.tgz#941f6999f73b02d876f26aa0d76b0b61ce3e58bc"
 
@@ -6814,6 +6832,10 @@ redux-logger@^2.0.3:
 redux-thunk@^1.0.0:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/redux-thunk/-/redux-thunk-1.0.3.tgz#778aa0099eea0595031ab6b39165f6670d8d26bd"
+
+redux-thunk@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/redux-thunk/-/redux-thunk-2.1.0.tgz#c724bfee75dbe352da2e3ba9bc14302badd89a98"
 
 redux@^3.2.0, redux@^3.6.0:
   version "3.6.0"
@@ -8178,18 +8200,6 @@ window-size@0.1.0:
 window-size@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/window-size/-/window-size-0.2.0.tgz#b4315bb4214a3d7058ebeee892e13fa24d98b075"
-
-"wings@git+ssh://git@github.com/FoxComm/wings.git#v1.2.1":
-  version "1.2.0"
-  resolved "git+ssh://git@github.com/FoxComm/wings.git#3f783b85b875188a1b3923caf3d5b8fb313e1c16"
-  dependencies:
-    classnames "^2.2.5"
-    lodash "^4.13.1"
-    postcss "^5.0.21"
-    postcss-cli "^2.5.2"
-    postcss-cssnext "^2.7.0"
-    postinstall-build "^0.2.1"
-    react "^15.2.0"
 
 wordwrap@0.0.2, wordwrap@~0.0.2:
   version "0.0.2"

@@ -1,6 +1,6 @@
 # Highlander
 
-[![Build status](https://badge.buildkite.com/dac897cf8947d04db75c127e62971ac46e1d2211398a302568.svg)](https://buildkite.com/foxcommerce/highlander)
+[![Build status](https://badge.buildkite.com/9194ecb4f86c089e8962db23843a00662dac85e98418697dd4.svg)](https://buildkite.com/foxcommerce/developer-appliance-gce)
 
 Highlander is the brand-spanking-new FoxCommerce mono-repo.
 

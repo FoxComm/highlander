@@ -1,4 +1,9 @@
 ---
+
+- name: Remove DPKG Lock
+  file: path=/var/lib/dpkg/lock state=absent
+  sudo: true
+
 - name: Remove Unattended Upgrades
   apt:
     name: unattended-upgrades
@@ -24,6 +29,10 @@
 
 - name: Copy Mesos Resources Config
   template: src=resources.json dest=/var/lib/mesos/resources.json mode="u+r,g+r,o+r"
+  sudo: true
+
+- name: Copy Mesos Healthcheck script
+  template: src=mesos_master_check.sh dest=/usr/local/bin/mesos_master_check.sh mode="u=rwx,g=rwx,o=rx"
   sudo: true
 
 - name: Restart Mesos Master
