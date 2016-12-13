@@ -60,18 +60,12 @@ shortcuts:
     target: ansible/bootstrap_sinopia.yml
 
   # TPG
+  - name: Provision TD Test
+    alias: td_test.yml
+    target: ansible/td_test.yml
   - name: Provision TPG Test
     alias: tpg_test.yml
     target: ansible/tpg_test.yml
-  - name: Provision TPG Staging
-    alias: tpg_stage.yml
-    target: ansible/tpg_stage.yml
-  - name: Provision TPG Production Backend
-    alias: tpg_backend.yml
-    target: ansible/tpg_backend.yml
-  - name: Provision TPG Production
-    alias: tpg_production.yml
-    target: ansible/tpg_production.yml
 
   # Healthchecks
   - name: Perform Healthchecks

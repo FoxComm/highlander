@@ -1,0 +1,14 @@
+{
+    "service" : {
+        "name": "consul-template",
+        "tags": ["consul-template"],
+        "checks": [
+            {
+                "name": "Check Consul Template Running",
+                "script": "systemctl status consul_template",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}
