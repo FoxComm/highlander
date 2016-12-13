@@ -23,7 +23,6 @@
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/kibana, sudo: true }
-    - { role: base/bottledwater }
     - { role: dev/db }
     - { role: dev/isaac }
     - { role: dev/phoenix }
