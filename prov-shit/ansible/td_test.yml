@@ -23,6 +23,7 @@
 - name: Provision Top Drawer Test Frontend
   hosts: top-drawer-test-frontend
   vars:
+    user: '{{ansible_ssh_user}}'
     api_server: test-topdrawer.foxcommerce.com
     self_host: test-topdrawer.foxcommerce.com
     ashes_server_name: test-topdrawer.foxcommerce.com
