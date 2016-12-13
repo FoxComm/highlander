@@ -30,8 +30,8 @@ object CartTailored {
       extends ActivityBase[CartLineItemsDeletedGiftCard]
 
   case class CartLineItemsUpdatedQuantities(cart: CartResponse,
-                                            oldQuantities: Map[String, Int],
-                                            newQuantities: Map[String, Int],
+                                            oldQuantities: Map[Int, Int],
+                                            newQuantities: Map[Int, Int],
                                             admin: Option[UserResponse.Root])
       extends ActivityBase[CartLineItemsUpdatedQuantities]
 

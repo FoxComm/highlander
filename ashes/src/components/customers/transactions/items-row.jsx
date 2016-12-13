@@ -28,13 +28,11 @@ function setCellContents(order, field) {
 const CustomerItemsRow = props => {
   const { item, columns, params } = props;
 
-  const key = `customer-items-${item.id}`;
-
   return (
     <MultiSelectRow
       columns={columns}
       linkTo="sku-inventory-details"
-      linkParams={{skuCode: item.skuCode}}
+      linkParams={{skuId: item.skuId}}
       row={item}
       setCellContents={setCellContents}
       params={params}/>

@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -52,24 +51,22 @@ func (suite *summaryControllerTestSuite) Test_GetSummary() {
 }
 
 func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
-	sku := "TEST-SKU"
-	suite.service.On("GetSummaryBySKU", sku).Return([]*models.StockItemSummary{{
+	suite.service.On("GetSummaryBySKU", uint(1)).Return([]*models.StockItemSummary{{
 		StockItemID: 1,
-		StockItem:   models.StockItem{SKU: sku},
+		StockItem:   models.StockItem{},
 		Type:        models.Sellable,
 	}}, nil).Once()
 
-	res := suite.Get(fmt.Sprintf("/summary/%s", sku))
+	res := suite.Get("/summary/1")
 
 	suite.Equal(http.StatusOK, res.Code)
-	suite.Contains(res.Body.String(), sku)
 	suite.service.AssertExpectations(suite.T())
 }
 
 func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUNoSKU() {
-	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, gorm.ErrRecordNotFound).Once()
+	suite.service.On("GetSummaryBySKU", uint(32)).Return(nil, gorm.ErrRecordNotFound).Once()
 
-	res := suite.Get("/summary/NO-SKU")
+	res := suite.Get("/summary/32")
 
 	suite.Equal(http.StatusNotFound, res.Code)
 	suite.Contains(res.Body.String(), "errors")
@@ -77,9 +74,9 @@ func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUNoSKU() {
 }
 
 func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUServerError() {
-	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, gorm.ErrUnaddressable).Once()
+	suite.service.On("GetSummaryBySKU", uint(32)).Return(nil, gorm.ErrUnaddressable).Once()
 
-	res := suite.Get("/summary/NO-SKU")
+	res := suite.Get("/summary/32")
 
 	suite.Equal(http.StatusBadRequest, res.Code)
 	suite.Contains(res.Body.String(), "errors")

@@ -12,7 +12,8 @@ import utils.db._
 case class CordResponseLineItem(imagePath: String,
                                 referenceNumbers: Seq[String],
                                 name: Option[String],
-                                sku: String,
+                                skuId: Int,
+                                skuCode: String,
                                 price: Int,
                                 quantity: Int = 1,
                                 totalPrice: Int,
@@ -155,7 +156,8 @@ object CordResponseLineItems {
     val trackInventory = Mvp.trackInventory(data.skuForm, data.skuShadow)
 
     CordResponseLineItem(imagePath = image,
-                         sku = data.sku.code,
+                         skuId = data.sku.formId,
+                         skuCode = data.sku.code,
                          referenceNumbers = Seq(data.lineItemReferenceNumber),
                          state = data.lineItemState,
                          name = title,

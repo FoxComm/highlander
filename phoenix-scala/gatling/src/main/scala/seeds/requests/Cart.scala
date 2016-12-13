@@ -34,15 +34,15 @@ object Cart {
     val skusInOrder   = Random.nextInt(5) + 1
     val numberOfItems = Random.nextInt(3) + 1
     feed(dbFeeder("select code as sku from skus").random, _ ⇒ skusInOrder).exec { session ⇒
-      def newPayloadItem(skuCode: String) = UpdateLineItemsPayload(skuCode, numberOfItems, None)
+      def newPayloadItem(skuId: Int) = UpdateLineItemsPayload(skuId, numberOfItems, None)
 
       val payload =
         if (skusInOrder == 1)
-          Seq(newPayloadItem(session.get("sku").as[String]))
+          Seq(newPayloadItem(session.get("skuId").as[Int]))
         else
           (1 until skusInOrder).map { i ⇒
-            val skuCode = session.get(s"sku$i").as[String]
-            newPayloadItem(skuCode)
+            val skuId = session.get(s"skuId$i").as[Int]
+            newPayloadItem(skuId)
           }
       session.set("skuPayload", json(payload))
     }

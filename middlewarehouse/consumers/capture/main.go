@@ -36,6 +36,7 @@ func main() {
 	consumer.SetClientID(clientID)
 
 	client := lib.NewPhoenixClient(capConf.PhoenixURL, capConf.PhoenixUser, capConf.PhoenixPassword)
+
 	oh, err := NewShipmentHandler(config.MiddlewarehouseURL, client)
 
 	if err != nil {

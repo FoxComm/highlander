@@ -6,7 +6,7 @@ begin
         then
             '[]'::jsonb
         else
-        json_agg(sku.code)::jsonb
+        json_agg(sku.form_id)::jsonb
       end into skus
     from product_sku_links as link
     inner join skus as sku on (sku.id = link.right_id)
@@ -17,7 +17,7 @@ begin
         then
             '[]'::jsonb
         else
-        json_agg(distinct sku.code)::jsonb
+        json_agg(distinct sku.form_id)::jsonb
       end into skus
       from product_variant_links as pvlink
         inner join variant_variant_value_links as vvlink on (pvlink.right_id = vvlink.left_id)

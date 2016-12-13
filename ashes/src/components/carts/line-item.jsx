@@ -1,7 +1,6 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 import { autobind, debounce } from 'core-decorators';
@@ -41,10 +40,6 @@ type State = {
   quantity: number;
 };
 
-type DefaultProps = {
-  updateLineItemCount: Function,
-};
-
 export class CartLineItem extends Component {
   props: Props;
 
@@ -62,14 +57,14 @@ export class CartLineItem extends Component {
   @autobind
   @debounce(300)
   performUpdate() {
-    const { cart: { referenceNumber }, item: { sku, attributes } } = this.props;
+    const { cart: { referenceNumber }, item: { skuId, attributes } } = this.props;
     const { quantity, lastSyncedQuantity } = this.state;
 
     const quantityDiff = quantity - lastSyncedQuantity;
 
     this.setState({
       lastSyncedQuantity: quantity,
-    }, () => this.props.updateLineItemCount(referenceNumber, sku, quantityDiff, attributes));
+    }, () => this.props.updateLineItemCount(referenceNumber, skuId, quantityDiff, attributes));
 
   }
 
@@ -114,11 +109,11 @@ export class CartLineItem extends Component {
       <tr className={classNames('line-item', className)}>
         <td><img src={item.imagePath} /></td>
         <td>{item.name}</td>
-        <td><Link to="sku-details" params={{ skuCode: item.sku }}>{item.sku}</Link></td>
+        <td><Link to="sku-details" params={{ skuCode: item.skuCode }}>{item.skuCode}</Link></td>
         <td><Currency value={item.price} /></td>
         <td>
           <Counter
-            id={`line-item-quantity-${item.sku}`}
+            id={`line-item-quantity-${item.skuId}`}
             value={quantity}
             min={1}
             max={1000000}

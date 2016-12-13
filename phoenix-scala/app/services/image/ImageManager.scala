@@ -58,16 +58,16 @@ object ImageManager {
               }
     } yield result
 
-  def getAlbumsForSku(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
+  def getAlbumsForSku(skuId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
     for {
-      albums ← * <~ getAlbumsForSkuInner(code, oc)
+      albums ← * <~ getAlbumsForSkuInner(skuId, oc)
     } yield albums
 
-  def getAlbumsForSkuInner(code: String, context: ObjectContext)(
+  def getAlbumsForSkuInner(skuId: Int, context: ObjectContext)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[AlbumResponse.Root]] =
     for {
-      sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
+      sku    ← * <~ SkuManager.mustFindSkuByContextAndId(context.id, skuId)
       result ← * <~ getAlbumsBySku(sku)
     } yield result
 
@@ -192,14 +192,14 @@ object ImageManager {
       link ← * <~ ProductAlbumLinks.createLast(product, fullAlbum.model)
     } yield AlbumResponse.build(fullAlbum, images)
 
-  def createAlbumForSku(admin: User, code: String, payload: AlbumPayload)(
+  def createAlbumForSku(admin: User, skuId: Int, payload: AlbumPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
       oc: OC,
       au: AU): DbResultT[AlbumRoot] =
     for {
-      sku     ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, code)
+      sku     ← * <~ SkuManager.mustFindSkuByContextAndId(oc.id, skuId)
       created ← * <~ createAlbumInner(payload, oc)
       (fullAlbum, images) = created
       link ← * <~ SkuAlbumLinks.createLast(sku, fullAlbum.model)

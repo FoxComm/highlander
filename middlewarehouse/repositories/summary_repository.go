@@ -20,7 +20,7 @@ type summaryRepository struct {
 
 type ISummaryRepository interface {
 	GetSummary() ([]*models.StockItemSummary, error)
-	GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error)
+	GetSummaryBySKU(skuId uint) ([]*models.StockItemSummary, error)
 
 	GetSummaryItemByType(stockItemId uint, unitType models.UnitType) (*models.StockItemSummary, error)
 
@@ -46,19 +46,19 @@ func (repository *summaryRepository) GetSummary() ([]*models.StockItemSummary, e
 	return summary, err
 }
 
-func (repository *summaryRepository) GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error) {
+func (repository *summaryRepository) GetSummaryBySKU(skuId uint) ([]*models.StockItemSummary, error) {
 	summary := []*models.StockItemSummary{}
 	err := repository.db.
 		Preload("StockItem").
 		Preload("StockItem.StockLocation").
 		Joins("left join stock_items si ON stock_item_summaries.stock_item_id=si.id").
-		Where("si.sku = ?", sku).
+		Where("si.sku_id = ?", skuId).
 		Order("created_at").
 		Find(&summary).
 		Error
 
 	if len(summary) == 0 {
-		return nil, fmt.Errorf(ErrorSummaryForSKUNotFound, sku)
+		return nil, fmt.Errorf(ErrorSummaryForSKUNotFound, skuId)
 	}
 
 	return summary, err

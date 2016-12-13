@@ -68,7 +68,7 @@ const getRoutes = (jwt: Object) => {
       router.read('skus-list-pages', { component: SkusListPage }, [
         router.read('skus', { component: Skus, isIndex: true }),
       ]),
-      router.read('sku', { path: ':skuCode', component: SkuPage }, [
+      router.read('sku', { path: ':skuId', component: SkuPage }, [
         router.read('sku-details', { component: SkuDetails, isIndex: true }),
         router.read('sku-images', {
           path: 'images',

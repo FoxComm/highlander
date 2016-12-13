@@ -9,7 +9,8 @@ import consumer.elastic.mappings.dateFormat
 final case class InventoryTransactionSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("inventory_transactions_search_view").fields(
       field("id", IntegerType),
-      field("sku", StringType).analyzer("upper_cased"),
+      field("skuId", IntegerType),
+      field("skuCode", StringType).analyzer("autocomplete"),
       field("type", StringType).index("not_analyzed"),
       field("status", StringType).index("not_analyzed"),
       field("stockLocationName", StringType).analyzer("autocomplete"),

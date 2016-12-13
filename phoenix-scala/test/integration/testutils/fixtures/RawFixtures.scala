@@ -120,7 +120,7 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
       for {
         spd ← * <~ Mvp.insertProduct(ctx.id,
                                      SimpleProductData(title = "Test Product",
-                                                       code = "TEST",
+                                                       skuCode = "TEST",
                                                        description = "Test product description",
                                                        image = "image.png",
                                                        price = 5999,

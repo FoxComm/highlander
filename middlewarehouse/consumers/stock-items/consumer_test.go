@@ -38,7 +38,7 @@ func (suite *ConsumerTestSuite) TestMessageHander() {
 		var stockItem models.StockItem
 		err := json.NewDecoder(r.Body).Decode(&stockItem)
 		suite.Nil(err)
-		suite.Equal("SKU-HANDLER", stockItem.SKU)
+		suite.Equal("SKU-HANDLER", stockItem.SkuCode)
 	}))
 	defer ts.Close()
 

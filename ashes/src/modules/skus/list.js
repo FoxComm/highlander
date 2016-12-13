@@ -9,6 +9,7 @@ export type Sku = {
   image: string|null,
   context: string,
   skuCode: string,
+  skuId: number,
   title: string,
   salePrice: string,
   salePriceCurrency: string,

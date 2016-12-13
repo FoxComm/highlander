@@ -10,8 +10,8 @@ type Reservation struct {
 
 //TODO Do we really need this? Looks like it's not used at all
 type ItemReservation struct {
-	SKU string `json:"sku" binding:"required"`
-	Qty uint   `json:"qty" binding:"required"`
+	SkuID uint `json:"skuId" binding:"required"`
+	Qty   uint `json:"qty" binding:"required"`
 }
 
 func (r Reservation) Validate() error {

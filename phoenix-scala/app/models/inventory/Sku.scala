@@ -75,6 +75,8 @@ object Skus
     filter(_.contextId === contextId)
   def filterByContextAndCode(contextId: Int, code: String): QuerySeq =
     filter(_.contextId === contextId).filter(_.code.toLowerCase === code.toLowerCase)
+  def filterByContextAndId(contextId: Int, id: Int): QuerySeq =
+    filter(_.contextId === contextId).filter(_.formId === id)
   def filterByCode(code: String): QuerySeq =
     filter(_.code.toLowerCase === code.toLowerCase)
   def findOneByCode(code: String): DBIO[Option[Sku]] =

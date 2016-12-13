@@ -12,7 +12,7 @@ import createAsyncActions from 'modules/async-utils';
 // Cart Manipulation Actions
 
 type UpdateLineItemPayload = {
-  sku: string;
+  skuId: number;
   quantity: number;
   attributes: ?Object;
 }
@@ -50,8 +50,8 @@ const _updateLineItemCount = createAsyncActions(
   (refNum: string, payload: Array<UpdateLineItemPayload>) => Api.patch(`/orders/${refNum}/line-items`, payload)
 );
 
-export function updateLineItemCount(refNum: string, skuCode: string, quantityDiff: number, attributes: ?Object): Function {
-  return _updateLineItemCount.perform(refNum, [{ sku: skuCode, quantity: quantityDiff, attributes }]);
+export function updateLineItemCount(refNum: string, skuId: number, quantityDiff: number, attributes: ?Object): Function {
+  return _updateLineItemCount.perform(refNum, [{ skuId, quantity: quantityDiff, attributes }]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -6,9 +6,9 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api/payloads"
-	"github.com/FoxComm/metamorphosis"
-	"github.com/FoxComm/highlander/middlewarehouse/shared"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/highlander/middlewarehouse/shared"
+	"github.com/FoxComm/metamorphosis"
 )
 
 const (

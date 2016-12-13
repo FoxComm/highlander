@@ -26,31 +26,31 @@ object SkuRoutes {
                 SkuManager.createSku(auth.model, payload)
               }
             } ~
-            pathPrefix(Segment) { code ⇒
+            pathPrefix(IntNumber) { id ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  SkuManager.getSku(code)
+                  SkuManager.getSku(id)
                 }
               } ~
               (patch & pathEnd & entity(as[SkuPayload])) { payload ⇒
                 mutateOrFailures {
-                  SkuManager.updateSku(auth.model, code, payload)
+                  SkuManager.updateSku(auth.model, id, payload)
                 }
               } ~
               (delete & pathEnd) {
                 mutateOrFailures {
-                  SkuManager.archiveByCode(code)
+                  SkuManager.archiveById(id)
                 }
               } ~
               pathPrefix("albums") {
                 (get & pathEnd) {
                   getOrFailures {
-                    ImageManager.getAlbumsForSku(code)
+                    ImageManager.getAlbumsForSku(id)
                   }
                 } ~
                 (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
                   mutateOrFailures {
-                    ImageManager.createAlbumForSku(auth.model, code, payload)
+                    ImageManager.createAlbumForSku(auth.model, id, payload)
                   }
                 }
               }

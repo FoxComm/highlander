@@ -56,18 +56,9 @@ function getLineItems(payload) {
   return collectLineItems(skus);
 }
 
-// collect items for submit
-function collectItemsToSubmit(items) {
-  return _.map(items, (item) => ({
-    sku: item.sku,
-    quantity: item.quantity,
-  }));
-}
-
 // collect line items to submit change
-function addToLineItems(items, id, quantity) {
-  const toCollect = items.concat([{sku: id, quantity}]);
-  return collectItemsToSubmit(toCollect);
+function addToLineItems(items, skuId, quantity) {
+  return items.concat([{ skuId, quantity }]);
 }
 
 function changeCart(payload) {
@@ -77,11 +68,11 @@ function changeCart(payload) {
 const { fetch: submitChange, ...changeCartActions } = createAsyncActions('cartChange', changeCart);
 
 // add line item to cart
-export function addLineItem(id, quantity) {
+export function addLineItem(skuId, quantity) {
   return (dispatch, getState) => {
     const state = getState();
     const lineItems = _.get(state, ['cart', 'skus'], []);
-    const newLineItems = addToLineItems(lineItems, id, quantity);
+    const newLineItems = addToLineItems(lineItems, skuId, quantity);
     return dispatch(submitChange(newLineItems));
   };
 }
@@ -92,9 +83,9 @@ export function deleteLineItem(id) {
     const state = getState();
     const lineItems = _.get(state, ['cart', 'skus'], []);
     const newLineItems = _.map(lineItems, (item) => {
-      const quantity = item.sku === id ? 0 : item.quantity;
+      const quantity = item.skuId === id ? 0 : item.quantity;
       return {
-        sku: item.sku,
+        skuId: item.skuId,
         quantity,
       };
     });
@@ -106,7 +97,7 @@ function fetchMyCart(): global.Promise {
   return this.api.get(`/v1/my/cart`);
 }
 
-const {fetch, ...actions} = createAsyncActions('cart', fetchMyCart);
+const { fetch, ...actions } = createAsyncActions('cart', fetchMyCart);
 
 const initialState: FormData = {
   isVisible: false,

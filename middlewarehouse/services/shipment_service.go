@@ -40,7 +40,7 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 	stockItemCounts := make(map[uint]int)
 	unitRepo := repositories.NewStockItemUnitRepository(txn)
 	for i, lineItem := range shipment.ShipmentLineItems {
-		siu, err := unitRepo.GetUnitForLineItem(shipment.OrderRefNum, lineItem.SKU)
+		siu, err := unitRepo.GetUnitForLineItem(shipment.OrderRefNum, lineItem.SkuID)
 		if err != nil {
 			txn.Rollback()
 			return nil, err

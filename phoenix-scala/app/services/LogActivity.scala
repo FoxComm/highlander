@@ -325,7 +325,7 @@ object LogActivity {
 
   def orderLineItemsUpdated(
       cart: CartResponse,
-      oldQtys: Map[String, Int],
+      oldQtys: Map[Int, Int],
       payload: Seq[UpdateLineItemsPayload],
       admin: Option[User] = None)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(

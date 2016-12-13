@@ -45,7 +45,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
 
   def capture: DbResultT[CaptureResponse] =
     for {
-      //get data for capture. We use the findLineItemsByCordRef function in 
+      //get data for capture. We use the findLineItemsByCordRef function in
       //OrderLineItems to get all the relevant data for the order line item.
       //The function returns a tuple so we will convert it to a case class for
       //convenience.
@@ -76,7 +76,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
         .filter(_.adjustmentType == OrderLineItemAdjustment.OrderAdjustment)
         .foldLeft(0)(_ + _.subtract)
 
-      //find the shipping method used for the order, take the minimum between 
+      //find the shipping method used for the order, take the minimum between
       //shipping method and what shipping cost was passed in payload because
       //we don't want to charge more than estimated. Finally adjust shipping cost
       //based on any adjustments.
@@ -91,8 +91,8 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
                                                      payload.shipping)
 
       //we compute the total by adding the three price components together. The
-      //actual total should be less than or equal to the original grandTotal. 
-      //It may be different because of various time differences between when 
+      //actual total should be less than or equal to the original grandTotal.
+      //It may be different because of various time differences between when
       //taxes and shipping were computed. The computed grand total should never be bigger
       //than the estimated grand total.
       total = computeTotal(totalLineItemPrice,
@@ -294,10 +294,12 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   private def validatePayload(payload: CapturePayloads.Capture,
                               orderSkus: Seq[OrderLineItemProductData]): DbResultT[Unit] =
     for {
-      codes ← * <~ orderSkus.map { _.sku.code }
-      _     ← * <~ mustHaveCodes(payload.items, codes, payload.order)
-      _     ← * <~ mustHaveSameLineItems(payload.items.length, orderSkus.length, payload.order)
-      _     ← * <~ mustHavePositiveShippingCost(payload.shipping)
+      skuIds ← * <~ orderSkus.map {
+                _.sku.formId
+              }
+      _ ← * <~ mustHaveSkus(payload.items, skuIds, payload.order)
+      _ ← * <~ mustHaveSameLineItems(payload.items.length, orderSkus.length, payload.order)
+      _ ← * <~ mustHavePositiveShippingCost(payload.shipping)
     } yield Unit
 
   private def validateOrder(order: Order, paymentState: CreditCardCharge.State): DbResultT[Unit] =
@@ -318,18 +320,18 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       DbResultT.failure(CaptureFailures.ShippingCostNegative(shippingCost.total))
     else DbResultT.pure(Unit)
 
-  private def mustHaveCodes(items: Seq[CapturePayloads.CaptureLineItem],
-                            codes: Seq[String],
-                            orderRef: String): DbResultT[Seq[Unit]] =
+  private def mustHaveSkus(items: Seq[CapturePayloads.CaptureLineItem],
+                           skuIds: Seq[Int],
+                           orderRef: String): DbResultT[Seq[Unit]] =
     DbResultT.sequence(items.map { i ⇒
-      mustHaveCode(i, codes, orderRef)
+      mustHaveSku(i, skuIds, orderRef)
     })
 
-  private def mustHaveCode(item: CapturePayloads.CaptureLineItem,
-                           codes: Seq[String],
-                           orderRef: String): DbResultT[Unit] =
-    if (codes.contains(item.sku)) DbResultT.pure(Unit)
-    else DbResultT.failure(CaptureFailures.SkuNotFoundInOrder(item.sku, orderRef))
+  private def mustHaveSku(item: CapturePayloads.CaptureLineItem,
+                          skuIds: Seq[Int],
+                          orderRef: String): DbResultT[Unit] =
+    if (skuIds.contains(item.skuId)) DbResultT.pure(Unit)
+    else DbResultT.failure(CaptureFailures.SkuNotFoundInOrder(item.skuCode, item.skuId, orderRef))
 
   private def mustHaveSameLineItems(lOne: Int, lTwo: Int, orderRef: String): DbResultT[Unit] =
     if (lOne == lTwo) DbResultT.pure(Unit)

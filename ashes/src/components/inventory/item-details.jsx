@@ -16,7 +16,7 @@ import * as WarehousesActions from 'modules/inventory/warehouses';
 import type { WarehouseInventorySummary, WarehouseInventoryMap } from 'modules/inventory/warehouses';
 
 const mapStateToProps = (state, props) => ({
-  inventoryDetails: _.get(state, ['inventory', 'warehouses', 'details', props.params.skuCode], {}),
+  inventoryDetails: _.get(state, ['inventory', 'warehouses', 'details', props.params.skuId], {}),
   fetchState: _.get(state, 'asyncActions.inventory-summary', {}),
   inventoryUpdated: _.get(state, 'asyncActions.inventory-increment.finished', false),
 });
@@ -24,7 +24,7 @@ const mapStateToProps = (state, props) => ({
 type Props = {
   inventoryDetails: WarehouseInventoryMap,
   params: Object,
-  fetchSummary: (skuCode: string) => Promise,
+  fetchSummary: (skuId: string) => Promise,
   fetchState: {
     inProgress?: boolean,
     err?: any,
@@ -44,12 +44,12 @@ class InventoryItemDetails extends Component {
   props: Props;
 
   componentDidMount() {
-    this.props.fetchSummary(this.props.params.skuCode);
+    this.props.fetchSummary(this.props.params.skuId);
   }
 
   componentWillReceiveProps(nextProps: Props) {
     if (!this.props.inventoryUpdated && nextProps.inventoryUpdated) {
-      this.props.fetchSummary(this.props.params.skuCode);
+      this.props.fetchSummary(this.props.params.skuId);
     }
   }
 
@@ -81,7 +81,6 @@ class InventoryItemDetails extends Component {
       <WarehouseDrawer
         data={this.drawerData(row)}
         columns={this.drawerColumns}
-        isLoading={_.get(this.props, ['fetchState', 'inProgress'], true)}
         failed={!!_.get(this.props, ['fetchState', 'err'])}
         params={params}
       />

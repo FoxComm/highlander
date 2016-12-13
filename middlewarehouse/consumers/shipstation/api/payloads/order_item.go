@@ -1,6 +1,11 @@
 package payloads
 
-import mwhPayloads "github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+import (
+	"strconv"
+
+	mwhPayloads "github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
+)
 
 // OrderItem is a single line item in an order.
 type OrderItem struct {
@@ -22,15 +27,15 @@ type OrderItem struct {
 }
 
 func NewOrderItemsFromPhoenix(items []mwhPayloads.OrderLineItem) []OrderItem {
-	condensedItems := make(map[string]OrderItem)
+	condensedItems := make(map[uint]OrderItem)
 
 	for _, item := range items {
 		newItem := NewOrderItemFromPhoenix(item)
-		ci, ok := condensedItems[item.SKU]
+		ci, ok := condensedItems[item.SkuID]
 		if ok {
 			newItem.Quantity += ci.Quantity
 		}
-		condensedItems[item.SKU] = newItem
+		condensedItems[item.SkuID] = newItem
 	}
 
 	orderItems := []OrderItem{}
@@ -43,11 +48,12 @@ func NewOrderItemsFromPhoenix(items []mwhPayloads.OrderLineItem) []OrderItem {
 
 func NewOrderItemFromPhoenix(item mwhPayloads.OrderLineItem) OrderItem {
 	return OrderItem{
-		LineItemKey: item.ReferenceNumbers[0],
-		SKU:         item.SKU,
-		Name:        item.Name,
-		UnitPrice:   float64(item.Price) / 100.0,
-		Quantity:    item.Quantity,
-		Weight:      Weight{Value: 1, Units: "ounces"},
+		LineItemKey:    item.ReferenceNumbers[0],
+		FulfillmentSKU: utils.ToStringPtr(strconv.Itoa(int(item.SkuID))),
+		SKU:            item.SkuCode,
+		Name:           item.Name,
+		UnitPrice:      float64(item.Price) / 100.0,
+		Quantity:       item.Quantity,
+		Weight:         Weight{Value: 1, Units: "ounces"},
 	}
 }

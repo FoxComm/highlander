@@ -12,7 +12,7 @@ import utils.JsonFormatters
 import payloads.AuthPayload
 import utils.aliases._
 
-case class SkuInventoryHold(sku: String, qty: Int)
+case class SkuInventoryHold(skuId: Integer, qty: Int)
 case class OrderInventoryHold(refNum: String, items: Seq[SkuInventoryHold])
 
 trait MiddlewarehouseApi {

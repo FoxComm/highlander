@@ -3,6 +3,7 @@ package services
 import models.cord.lineitems._
 import models.objects._
 import models.product.{Mvp, SimpleContext, SimpleProductData}
+import services.inventory.SkuManager
 import payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}
 import testutils._
 import testutils.fixtures.BakedFixtures
@@ -10,6 +11,8 @@ import utils.MockedApis
 import utils.aliases._
 import utils.db._
 import utils.seeds.Seeds.Factories
+
+import scala.collection.immutable.::
 
 class LineItemUpdaterTest
     extends IntegrationTestBase
@@ -23,26 +26,31 @@ class LineItemUpdaterTest
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       products ← * <~ Mvp.insertProducts((1 to num).map { i ⇒
-                  Factories.products.head.copy(code = i.toString, price = 5)
+                  Factories.products.head.copy(skuCode = i.toString, price = 5)
                 }, context.id)
     } yield (context, products)
 
   "LineItemUpdater" - {
 
+    def skuFormId =
+      (contextId: Int) ⇒
+        (code: String) ⇒ SkuManager.mustFindSkuByContextAndCode(contextId, code).gimme.formId
+
     "Adds line items when the sku doesn't exist in cart" in new Fixture {
-      val (context, products) = createProducts(2).gimme
+      val (context, _) = createProducts(2).gimme
+      val skuId        = skuFormId(context.id)
 
       val payload = Seq[Payload](
-          Payload(sku = "1", quantity = 3),
-          Payload(sku = "2", quantity = 0)
+          Payload(skuId = skuId("1"), quantity = 3),
+          Payload(skuId = skuId("2"), quantity = 0)
       )
 
       val root =
         LineItemUpdater.updateQuantitiesOnCart(storeAdmin, cart.refNum, payload).gimme.result
-      root.lineItems.skus.count(_.sku == "1") must be(1)
-      root.lineItems.skus.count(_.sku == "2") must be(0)
+      root.lineItems.skus.count(_.skuCode == "1") must be(1)
+      root.lineItems.skus.count(_.skuCode == "2") must be(0)
 
-      root.lineItems.skus.find(_.sku === "1") match {
+      root.lineItems.skus.find(_.skuCode === "1") match {
         case Some(s) ⇒
           s.quantity must be(3)
         case None ⇒
@@ -53,7 +61,8 @@ class LineItemUpdaterTest
     }
 
     "Updates line items when the Sku already is in cart" in new Fixture {
-      val (context, products) = createProducts(3).gimme
+      val (context, _) = createProducts(3).gimme
+      val skuId        = skuFormId(context.id)
       val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId ⇒
         CartLineItem(cordRef = cart.refNum, skuId = skuId)
       }
@@ -61,18 +70,18 @@ class LineItemUpdaterTest
       CartLineItems.createAll(seedItems).gimme
 
       val payload = Seq[Payload](
-          Payload(sku = "1", quantity = 3),
-          Payload(sku = "2", quantity = 0),
-          Payload(sku = "3", quantity = 1)
+          Payload(skuId = skuId("1"), quantity = 3),
+          Payload(skuId = skuId("2"), quantity = 0),
+          Payload(skuId = skuId("3"), quantity = 1)
       )
 
       val root =
         LineItemUpdater.updateQuantitiesOnCart(storeAdmin, cart.refNum, payload).gimme.result
-      root.lineItems.skus.count(_.sku == "1") must be(1)
-      root.lineItems.skus.count(_.sku == "2") must be(0)
-      root.lineItems.skus.count(_.sku == "3") must be(1)
+      root.lineItems.skus.count(_.skuCode == "1") must be(1)
+      root.lineItems.skus.count(_.skuCode == "2") must be(0)
+      root.lineItems.skus.count(_.skuCode == "3") must be(1)
 
-      root.lineItems.skus.find(_.sku === "1") match {
+      root.lineItems.skus.find(_.skuCode === "1") match {
         case Some(s) ⇒
           s.quantity must be(3)
         case None ⇒

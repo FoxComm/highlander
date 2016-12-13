@@ -15,7 +15,8 @@ type ShipmentLineItem struct {
 	ReferenceNumbers StringsArray
 	StockItemUnitID  uint
 	StockItemUnit    StockItemUnit
-	SKU              string
+	SkuID            uint
+	SkuCode          string
 	Name             string
 	Price            uint
 	ImagePath        string
@@ -27,7 +28,8 @@ func NewShipmentLineItemFromPayload(payload *payloads.ShipmentLineItem) *Shipmen
 			ID: payload.ID,
 		},
 		ReferenceNumbers: payload.ReferenceNumbers,
-		SKU:              payload.SKU,
+		SkuID:            payload.SkuID,
+		SkuCode:          payload.SkuCode,
 		Name:             payload.Name,
 		Price:            payload.Price,
 		ImagePath:        payload.ImagePath,
@@ -37,7 +39,8 @@ func NewShipmentLineItemFromPayload(payload *payloads.ShipmentLineItem) *Shipmen
 func NewShipmentLineItemFromOrderPayload(payload *payloads.OrderLineItem) *ShipmentLineItem {
 	return &ShipmentLineItem{
 		ReferenceNumbers: payload.ReferenceNumbers,
-		SKU:              payload.SKU,
+		SkuID:            payload.SkuID,
+		SkuCode:          payload.SkuCode,
 		Name:             payload.Name,
 		Price:            payload.Price,
 		ImagePath:        payload.ImagePath,

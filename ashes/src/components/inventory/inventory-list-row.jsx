@@ -17,7 +17,7 @@ const InventoryListRow = (props) => {
     <MultiSelectRow
       columns={columns}
       linkTo="sku-inventory-details"
-      linkParams={{skuCode: sku.sku}}
+      linkParams={{skuId: sku.skuId}}
       row={sku}
       setCellContents={setCellContents}
       params={params} />

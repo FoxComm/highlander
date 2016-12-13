@@ -35,26 +35,28 @@ class SaveForLaterIntegrationTest
 
   "POST v1/save-for-later/:customerId/:sku" - {
     "adds sku to customer's save for later list" in new Fixture {
-      saveForLaterApi(customer.accountId).create(product.code).as[SavedForLater].result must === (
-          roots)
+      saveForLaterApi(customer.accountId)
+        .create(product.skuCode)
+        .as[SavedForLater]
+        .result must === (roots)
 
       saveForLaterApi(customer.accountId).get().as[SavedForLater].result must === (roots)
     }
 
     "does not create duplicate records" in new Fixture {
       val result =
-        saveForLaterApi(customer.accountId).create(product.code).as[SavedForLater].result
+        saveForLaterApi(customer.accountId).create(product.skuCode).as[SavedForLater].result
       result must === (roots)
 
       saveForLaterApi(customer.accountId)
-        .create(product.code)
+        .create(product.skuCode)
         .mustFailWith400(AlreadySavedForLater(customer.accountId, product.skuId))
 
       SaveForLaters.gimme must have size 1
     }
 
     "404 if customer is not found" in new Fixture {
-      saveForLaterApi(666).create(product.code).mustFailWith404(NotFoundFailure404(User, 666))
+      saveForLaterApi(666).create(product.skuCode).mustFailWith404(NotFoundFailure404(User, 666))
     }
 
     "404 if sku is not found" in new Fixture {
@@ -66,8 +68,12 @@ class SaveForLaterIntegrationTest
 
   "DELETE v1/save-for-later/:id" - {
     "deletes save for later" in new Fixture {
-      val saveForLaterId =
-        saveForLaterApi(customer.accountId).create(product.code).as[SavedForLater].result.head.id
+      val saveForLaterId = saveForLaterApi(customer.accountId)
+        .create(product.skuCode)
+        .as[SavedForLater]
+        .result
+        .head
+        .id
 
       saveForLaterApi.delete(saveForLaterId).mustBeEmpty()
     }

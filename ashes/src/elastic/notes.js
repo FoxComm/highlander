@@ -16,10 +16,6 @@ export default function processQuery({ entityType, entityId }, query) {
       return addNativeFilters(query, [
         dsl.nestedTermFilter('order.referenceNumber', entityId),
       ]);
-    case 'sku':
-      return addNativeFilters(query, [
-        dsl.nestedTermFilter('skuItem.sku', entityId),
-      ]);
     case 'gift-card':
       return addNativeFilters(query, [
         dsl.nestedTermFilter('giftCard.code', entityId),

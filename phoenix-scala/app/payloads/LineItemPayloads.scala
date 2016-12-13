@@ -4,7 +4,7 @@ import models.cord.lineitems._
 
 object LineItemPayloads {
 
-  case class UpdateLineItemsPayload(sku: String,
+  case class UpdateLineItemsPayload(skuId: Int,
                                     quantity: Int,
                                     attributes: Option[LineItemAttributes] = None)
 

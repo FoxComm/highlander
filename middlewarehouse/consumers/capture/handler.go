@@ -38,6 +38,9 @@ func (h ShipmentHandler) Handler(message metamorphosis.AvroMessage) error {
 	if activity.Type() != activityShipmentShipped {
 		return nil
 	}
+
+	log.Printf("Found shipped order. Order data: %s. Capture from phoenix!", activity.Data())
+
 	capture, err := lib.NewCapturePayload(activity)
 	if err != nil {
 		return err

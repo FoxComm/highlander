@@ -39,8 +39,18 @@ func (m *InventoryServiceMock) GetAFSByID(id uint, unitType models.UnitType) (*m
 	return nil, args.Error(1)
 }
 
-func (m *InventoryServiceMock) GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error) {
-	args := m.Called(sku, unitType)
+func (m *InventoryServiceMock) GetAFSBySkuCode(skuCode string, unitType models.UnitType) (*models.AFS, error) {
+	args := m.Called(skuCode, unitType)
+
+	if model, ok := args.Get(0).(*models.AFS); ok {
+		return model, nil
+	}
+
+	return nil, args.Error(1)
+}
+
+func (m *InventoryServiceMock) GetAFSBySkuID(skuId uint, unitType models.UnitType) (*models.AFS, error) {
+	args := m.Called(skuId, unitType)
 
 	if model, ok := args.Get(0).(*models.AFS); ok {
 		return model, nil
@@ -71,7 +81,7 @@ func (m *InventoryServiceMock) DecrementStockItemUnits(id uint, unitType models.
 	return args.Error(0)
 }
 
-func (m *InventoryServiceMock) HoldItems(refNum string, skus map[string]int) error {
+func (m *InventoryServiceMock) HoldItems(refNum string, skus map[uint]int) error {
 	args := m.Called(refNum, skus)
 
 	return args.Error(0)

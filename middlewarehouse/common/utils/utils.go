@@ -1,7 +1,7 @@
 package utils
 
 // IsInSlice - returns true if needle is found in haystack
-func IsInSlice(needle string, haystack []string) bool {
+func IsInSlice(needle uint, haystack []uint) bool {
 	found := false
 
 	for _, item := range haystack {
@@ -15,8 +15,8 @@ func IsInSlice(needle string, haystack []string) bool {
 }
 
 // DiffSlices - returns list of needles not found in haystack
-func DiffSlices(needles []string, haystack []string) []string {
-	diff := []string{}
+func DiffSlices(needles []uint, haystack []uint) []uint {
+	diff := []uint{}
 
 	for _, needle := range needles {
 		if !IsInSlice(needle, haystack) {
@@ -25,4 +25,7 @@ func DiffSlices(needles []string, haystack []string) []string {
 	}
 
 	return diff
+}
+func ToStringPtr(str string) *string {
+	return &str
 }

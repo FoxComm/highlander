@@ -8,7 +8,7 @@ import (
 )
 
 type SKU struct {
-	ID   int    `json:"id" binding:"required"`
+	ID   uint   `json:"sku_id" binding:"required"`
 	Code string `json:"sku_code" binding:"required"`
 }
 
@@ -23,7 +23,8 @@ func NewSKUFromAvro(message metamorphosis.AvroMessage) (*SKU, error) {
 
 func (s SKU) StockItem(stockLocationID uint) payloads.StockItem {
 	return payloads.StockItem{
-		SKU:             s.Code,
+		SkuID:           s.ID,
+		SkuCode:         s.Code,
 		StockLocationID: stockLocationID,
 		DefaultUnitCost: 0,
 	}

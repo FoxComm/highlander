@@ -403,8 +403,8 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       POST(skusPath, payload)
   }
 
-  case class skusApi(code: String)(implicit val ctx: OC) {
-    val skuPath = s"${skusApi.skusPath}/$code"
+  case class skusApi(skuFormId: Int)(implicit val ctx: OC) {
+    val skuPath = s"${skusApi.skusPath}/$skuFormId"
 
     def get(): HttpResponse =
       GET(skuPath)

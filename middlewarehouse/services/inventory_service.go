@@ -23,12 +23,13 @@ type IInventoryService interface {
 	GetStockItemById(id uint) (*models.StockItem, error)
 	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error)
 	GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error)
-	GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error)
+	GetAFSBySkuCode(skuCode string, unitType models.UnitType) (*models.AFS, error)
+	GetAFSBySkuID(skuId uint, unitType models.UnitType) (*models.AFS, error)
 
 	IncrementStockItemUnits(id uint, unitType models.UnitType, units []*models.StockItemUnit) error
 	DecrementStockItemUnits(id uint, unitType models.UnitType, qty int) error
 
-	HoldItems(refNum string, skus map[string]int) error
+	HoldItems(refNum string, skus map[uint]int) error
 	ReserveItems(refNum string) error
 	ReleaseItems(refNum string) error
 }
@@ -64,8 +65,12 @@ func (service *inventoryService) GetAFSByID(id uint, unitType models.UnitType) (
 	return service.stockItemRepo.GetAFSByID(id, unitType)
 }
 
-func (service *inventoryService) GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error) {
-	return service.stockItemRepo.GetAFSBySKU(sku, unitType)
+func (service *inventoryService) GetAFSBySkuCode(skuCode string, unitType models.UnitType) (*models.AFS, error) {
+	return service.stockItemRepo.GetAFSBySkuCode(skuCode, unitType)
+}
+
+func (service *inventoryService) GetAFSBySkuID(skuId uint, unitType models.UnitType) (*models.AFS, error) {
+	return service.stockItemRepo.GetAFSBySkuID(skuId, unitType)
 }
 
 func (service *inventoryService) IncrementStockItemUnits(stockItemId uint, unitType models.UnitType, units []*models.StockItemUnit) error {
@@ -89,11 +94,11 @@ func (service *inventoryService) DecrementStockItemUnits(stockItemID uint, unitT
 	return service.updateStockItemSummary(stockItemID, unitType, -1*qty, models.StatusChange{To: models.StatusOnHand})
 }
 
-func (service *inventoryService) HoldItems(refNum string, skus map[string]int) error {
+func (service *inventoryService) HoldItems(refNum string, skus map[uint]int) error {
 	// map [sku]qty to list of SKUs
-	skusList := []string{}
-	for code := range skus {
-		skusList = append(skusList, code)
+	skusList := []uint{}
+	for id := range skus {
+		skusList = append(skusList, id)
 	}
 
 	// get stock items associated with SKUs
@@ -103,9 +108,9 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 	}
 
 	// grab found SKU list from repo
-	skusListRepo := []string{}
+	skusListRepo := []uint{}
 	for _, item := range items {
-		skusListRepo = append(skusListRepo, item.SKU)
+		skusListRepo = append(skusListRepo, item.SkuID)
 	}
 
 	// compare expectations with reality
@@ -123,7 +128,7 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 	// get available units for each stock item
 	unitsIds := []uint{}
 	for _, si := range items {
-		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
+		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SkuID])
 		if err != nil {
 			aggregateErr.Add(err)
 		}
@@ -148,7 +153,7 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 	// update summary
 	stockItemsMap := make(map[uint]int)
 	for _, si := range items {
-		stockItemsMap[si.ID] = skus[si.SKU]
+		stockItemsMap[si.ID] = skus[si.SkuID]
 	}
 	statusShift := models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold}
 	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)

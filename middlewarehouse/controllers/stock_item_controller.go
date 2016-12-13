@@ -161,10 +161,10 @@ func (controller *stockItemController) GetAFS() gin.HandlerFunc {
 		afs := &models.AFS{}
 		if err == nil {
 			// if successfully converted to int try to find by ID
-			afs, err = controller.service.GetAFSByID(uint(idOrSKU), models.UnitType(unitType))
+			afs, err = controller.service.GetAFSBySkuID(uint(idOrSKU), models.UnitType(unitType))
 		} else {
 			// trying find by sku code otherwise
-			afs, err = controller.service.GetAFSBySKU(idOrSKUStr, models.UnitType(unitType))
+			afs, err = controller.service.GetAFSBySkuCode(idOrSKUStr, models.UnitType(unitType))
 		}
 
 		if err != nil {

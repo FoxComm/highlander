@@ -336,7 +336,7 @@ object ProductManager {
                                                    else Seq.empty)
               } yield newSku
             }
-        albums ← * <~ ImageManager.getAlbumsForSkuInner(code, oc)
+        albums ← * <~ ImageManager.getAlbumsForSkuInner(up.model.formId, oc)
       } yield SkuResponse.buildLite(IlluminatedSku.illuminate(oc, up), albums)
     }
 

@@ -203,12 +203,12 @@ class CheckoutTest
     def lineItemPayload(cost: Int) = {
       val sku = (for {
         productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-        product ← * <~ Mvp.insertProduct(
-                     productCtx.id,
-                     Factories.products.head.copy(price = cost, code = Lorem.letterify("?????")))
+        product ← * <~ Mvp.insertProduct(productCtx.id,
+                                         Factories.products.head
+                                           .copy(price = cost, skuCode = Lorem.letterify("?????")))
         sku ← * <~ Skus.mustFindById404(product.skuId)
       } yield sku).gimme
-      Seq(UpdateLineItemsPayload(sku.code, 1))
+      Seq(UpdateLineItemsPayload(sku.formId, 1))
     }
 
     def generateGiftCards(amount: Seq[Int]) =

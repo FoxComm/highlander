@@ -86,7 +86,7 @@ trait ProductGenerator {
     val code  = base.letterify("???-???")
     val title = nameGenerator.generate(Math.max(5, Random.nextInt(20))).mkString("")
     Console.err.println(s"product: ${code} ${title}")
-    SimpleProductData(code = code,
+    SimpleProductData(skuCode = code,
                       title = title,
                       description = title,
                       price = Random.nextInt(10000),

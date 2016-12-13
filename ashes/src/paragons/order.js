@@ -37,7 +37,8 @@ export type CreditCard = {
 export type SkuItem = {
   imagePath: string,
   name: string,
-  sku: string,
+  skuId: number,
+  skuCode: string,
   price: number,
   quantity: number,
   totalPrice: number,

@@ -18,7 +18,7 @@ type Props = {
 
 const SkusListPage = (props: Props) => {
   const TotalCounter = makeTotalCounter(state => state.skus.list, actions);
-  const addAction = () => transitionTo('sku-details', { skuCode: 'new' });
+  const addAction = () => transitionTo('sku-details', { skuId: 'new' });
   const navLinks = [
     { title: 'Lists', to: 'skus' },
     { title: 'Activity Trail', to: 'home' },

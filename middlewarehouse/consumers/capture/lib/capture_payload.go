@@ -16,7 +16,8 @@ type CapturePayload struct {
 
 type CaptureLineItem struct {
 	ReferenceNumber string `json:"ref"`
-	SKU             string `json:"sku"`
+	SkuID           uint   `json:"skuId"`
+	SkuCode         string `json:"skuCode"`
 }
 
 type CaptureShippingCost struct {
@@ -42,7 +43,8 @@ func NewCapturePayload(activity activities.ISiteActivity) (*CapturePayload, erro
 		for i := 0; i < len(lineItem.ReferenceNumbers); i++ {
 			cLineItem := CaptureLineItem{
 				ReferenceNumber: lineItem.ReferenceNumbers[i],
-				SKU:             lineItem.SKU,
+				SkuID:           lineItem.SkuID,
+				SkuCode:         lineItem.SkuCode,
 			}
 
 			capture.Items = append(capture.Items, cLineItem)

@@ -7,7 +7,8 @@ import (
 
 type StockItem struct {
 	gormfox.Base
-	SKU             string
+	SkuID           uint
+	SkuCode         string
 	StockLocation   StockLocation
 	StockLocationID uint
 	DefaultUnitCost int
@@ -20,7 +21,8 @@ func (si StockItem) Identifier() uint {
 func NewStockItemFromPayload(payload *payloads.StockItem) *StockItem {
 	return &StockItem{
 		StockLocationID: payload.StockLocationID,
-		SKU:             payload.SKU,
+		SkuID:           payload.SkuID,
+		SkuCode:         payload.SkuCode,
 		DefaultUnitCost: payload.DefaultUnitCost,
 	}
 }

@@ -55,7 +55,7 @@ func (suite *ShipmentLineItemRepositoryTestSuite) SetupSuite() {
 	stockLocation := fixtures.GetStockLocation()
 	suite.Nil(suite.db.Create(stockLocation).Error)
 
-	stockItem := fixtures.GetStockItem(stockLocation.ID, "SKU-TEST")
+	stockItem := fixtures.GetStockItem(stockLocation.ID, 1, "SKU-TEST")
 	suite.Nil(suite.db.Create(stockItem).Error)
 
 	suite.stockItemUnit1 = fixtures.GetStockItemUnit(stockItem)

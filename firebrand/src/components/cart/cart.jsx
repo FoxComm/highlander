@@ -44,7 +44,7 @@ class Cart extends Component {
 
   get lineItems() {
     return _.map(this.props.skus, sku => {
-      return <LineItem {...sku} deleteLineItem={this.deleteLineItem} key={sku.sku} />;
+      return <LineItem {...sku} deleteLineItem={this.deleteLineItem} key={sku.skuId} />;
     });
   }
 

@@ -44,7 +44,7 @@ class WarehouseDrawer extends Component {
     const { state } = this;
 
     const handleChangeQuantity = (diff: number) => {
-      this.props.updateSkuItemsCount(row.sku, row, diff);
+      this.props.updateSkuItemsCount(row.skuId, row, diff);
     };
 
     const uniqId = `${row.type}-${row.id}`;

@@ -62,14 +62,21 @@ export default class ExpandableTable extends Component {
     ];
   }
 
-  render() {
-    const { props } = this;
+  get isLoadingInline() {
+    return this.props.isLoading && this.props.data.total > 0;
+  }
 
+  render() {
+    const { className, columns, isLoading, ...rest } = this.props;
+
+
+    const l = isLoading && !this.isLoadingInline;
     return (
       <TableView
-        {...props}
-        className={classNames('fc-expandable-table', props.className)}
-        columns={props.columns}
+        {...rest}
+        isLoading={l}
+        className={classNames('fc-expandable-table', className, { '_loading': this.isLoadingInline})}
+        columns={columns}
         renderRow={this.renderRow}
       />
     );

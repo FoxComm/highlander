@@ -38,7 +38,7 @@ export default class CartLineItems extends Component {
     const { cart } = this.props;
 
     const renderRow = (item: SkuItem) => {
-      const key = `sku-line-item-${item.sku}`;
+      const key = `sku-line-item-${item.skuId}`;
       return <CartLineItem key={key} item={item} cart={cart} />;
     };
 

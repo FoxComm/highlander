@@ -23,6 +23,6 @@ func (repository *SummaryServiceStub) GetSummary() ([]*models.StockItemSummary, 
 	return []*models.StockItemSummary{}, nil
 }
 
-func (repository *SummaryServiceStub) GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error) {
+func (repository *SummaryServiceStub) GetSummaryBySKU(skuId uint) ([]*models.StockItemSummary, error) {
 	return []*models.StockItemSummary{}, nil
 }

@@ -94,7 +94,7 @@ func (o OrderHandler) handlerInner(fullOrder *shared.FullOrder) error {
 	}
 
 	log.Printf(
-		"Found order %s in fulfillmentStarted. Add to middlewarehouse!",
+		"Found order %s in fulfillmentStarted. Order data: %s. Add to middlewarehouse!",
 		order.ReferenceNumber,
 	)
 
@@ -110,7 +110,7 @@ func (o OrderHandler) handlerInner(fullOrder *shared.FullOrder) error {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-    req.Header.Set("JWT", o.client.GetJwt())
+	req.Header.Set("JWT", o.client.GetJwt())
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

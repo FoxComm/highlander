@@ -14,7 +14,7 @@ export const defaultColumns = [
   { field: 'imagePath', text: 'Image', type: 'image' },
   { field: 'name', text: 'Name' },
   {
-    field: 'sku',
+    field: 'skuCode',
     text: 'SKU',
     render: (code: string) => <Link to="sku-details" params={{ skuCode: code }}>{code}</Link>
   },

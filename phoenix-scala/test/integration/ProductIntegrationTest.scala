@@ -1,7 +1,6 @@
 import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
-
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures._
@@ -47,6 +46,8 @@ object ProductTestExtensions {
 // added to carts. I can't put some guards in here against that because I'll have to rewrite almost all tests in this
 // file. If you add a new test, consider adding one where gets added to cart before update/archive just to make sure.
 // -- Anna
+// And use SKU's formId instead code
+// -- Tony
 
 class ProductIntegrationTest
     extends IntegrationTestBase
@@ -285,7 +286,9 @@ class ProductIntegrationTest
       private val cartRef =
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
 
-      cartsApi(cartRef).lineItems.add(allSkus.map(sku ⇒ UpdateLineItemsPayload(sku, 1))).mustBeOk()
+      cartsApi(cartRef).lineItems
+        .add(skus.map(sku ⇒ UpdateLineItemsPayload(sku.formId, 1)))
+        .mustBeOk()
 
       productsApi(product.formId)
         .update(
@@ -525,7 +528,8 @@ class ProductIntegrationTest
           cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse].referenceNumber
 
         cartsApi(cartRefNum).lineItems
-          .add(Seq(UpdateLineItemsPayload(skuGreenLargeCode, 1)))
+          .add(
+              Seq(UpdateLineItemsPayload(skus.filter(_.code == skuGreenLargeCode).head.formId, 1)))
           .mustBeOk()
 
         productsApi(product.formId)
@@ -557,7 +561,7 @@ class ProductIntegrationTest
       val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
 
       cartsApi(cart.referenceNumber).lineItems
-        .add(Seq(UpdateLineItemsPayload(skuRedSmallCode, 1)))
+        .add(Seq(UpdateLineItemsPayload(skus.head.formId, 1)))
         .mustBeOk()
 
       productsApi(product.formId)
@@ -621,7 +625,7 @@ class ProductIntegrationTest
                                               albums = None)
 
     val simpleProd = SimpleProductData(title = "Test Product",
-                                       code = "TEST",
+                                       skuCode = "TEST",
                                        description = "Test product description",
                                        image = "image.png",
                                        price = 5999)
