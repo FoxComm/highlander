@@ -19,7 +19,7 @@ import Button from 'ui/buttons';
 import Icon from 'ui/icon';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
-import { parseError } from 'api-js';
+import { parseError } from '@foxcomm/api-js';
 import CouponCode from '../promo-code/promo-code';
 
 // styles

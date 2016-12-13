@@ -1,6 +1,6 @@
 /* @flow weak */
 
-import Api from 'api-js';
+import Api from '@foxcomm/api-js';
 import { browserHistory } from 'react-router';
 import { authBlockTypes } from 'paragons/auth';
 
