@@ -19,6 +19,11 @@ uplinks:
         fail_timeout: {{sinopia_npmjs_fail_timeout}}
 
 packages:
+    # scoped packages
+    '@*/*':
+        access: $all
+        publish: $authenticated
+
     '*':
         access: $all
         publish: admin
