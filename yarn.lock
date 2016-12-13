@@ -2,6 +2,24 @@
 # yarn lockfile v1
 
 
+"@foxcomm/wings@^1.7.0":
+  version "1.7.0"
+  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fwings/-/wings-1.7.0.tgz#db836039dc599e3371112e51ffd55eee2074506c"
+  dependencies:
+    classnames "^2.2.5"
+    flow-bin "^0.36.0"
+    hoist-non-react-statics "^1.2.0"
+    lodash "^4.13.1"
+    postcss "^5.0.21"
+    postcss-cli "^2.5.2"
+    postcss-cssnext "^2.7.0"
+    react "^15.2.0"
+    reduce-reducers "^0.1.2"
+    redux "^3.6.0"
+    redux-act "^1.1.0"
+    redux-thunk "^2.1.0"
+    sprout-data "^0.2.3"
+
 JSONStream@^1.0.3:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/JSONStream/-/JSONStream-1.2.1.tgz#32aa5790e799481083b49b4b7fa94e23bae69bf9"
@@ -3097,6 +3115,10 @@ flow-bin@^0.23.0:
   dependencies:
     bin-wrapper "^3.0.2"
     logalot "^2.0.0"
+
+flow-bin@^0.36.0:
+  version "0.36.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.36.0.tgz#557907bd9c2ab0670cfad9e7e906a74b0631e39a"
 
 for-in@^0.1.5:
   version "0.1.6"
@@ -7985,24 +8007,6 @@ window-size@^0.1.2:
 window-size@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/window-size/-/window-size-0.2.0.tgz#b4315bb4214a3d7058ebeee892e13fa24d98b075"
-
-"wings@git+ssh://git@github.com/FoxComm/wings.git#v1.6.0":
-  version "1.6.0"
-  resolved "git+ssh://git@github.com/FoxComm/wings.git#f90d61d6723d3bc95aeeb879052dd5b4855df87a"
-  dependencies:
-    classnames "^2.2.5"
-    hoist-non-react-statics "^1.2.0"
-    lodash "^4.13.1"
-    postcss "^5.0.21"
-    postcss-cli "^2.5.2"
-    postcss-cssnext "^2.7.0"
-    postinstall-build "^0.2.1"
-    react "^15.2.0"
-    reduce-reducers "^0.1.2"
-    redux "^3.6.0"
-    redux-act "^1.1.0"
-    redux-thunk "^2.1.0"
-    sprout-data "^0.2.3"
 
 wordwrap@0.0.2:
   version "0.0.2"

@@ -3,6 +3,7 @@
 // libs
 import _ from 'lodash';
 import React from 'react';
+import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 
 // components
 import LineItemRow from './summary-line-item';
@@ -15,7 +16,7 @@ type Props = {
 };
 
 const Products = (props: Props) => {
-  const rows = _.map(props.skus, (item) => <LineItemRow {...item} key={item.sku} />);
+  const rows = _.map(props.skus, (item) => <LineItemRow {...item} key={skuIdentity(item)} />);
 
   return (
     <table styleName="products">

@@ -1,7 +1,7 @@
 /* @flow */
 
 import { createAction, createReducer } from 'redux-act';
-import { createAsyncActions } from 'wings';
+import { createAsyncActions } from '@foxcomm/wings';
 import { dissoc, merge, update } from 'sprout-data';
 import { api } from 'lib/api';
 import { setUserId } from 'lib/analytics';

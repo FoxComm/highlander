@@ -2,7 +2,7 @@
 
 import { get } from 'lodash';
 import { createReducer, createAction } from 'redux-act';
-import { createAsyncActions } from 'wings';
+import { createAsyncActions } from '@foxcomm/wings';
 import { addMatchQuery, defaultSearch } from 'lib/elastic';
 import type { Product } from './products';
 

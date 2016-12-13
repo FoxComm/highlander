@@ -15,7 +15,7 @@ import Billing from './03-billing/billing';
 import GuestAuth from './05-guest-auth/guest-auth';
 import OrderSummary from '../../components/order-summary/order-summary';
 import Header from './header';
-import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import Loader from 'ui/loader';
 
 // styles

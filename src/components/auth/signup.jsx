@@ -15,7 +15,7 @@ import { TextInput } from 'ui/inputs';
 import ShowHidePassword from 'ui/forms/show-hide-password';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
-import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 
 import * as actions from 'modules/auth';
 import { authBlockTypes } from 'paragons/auth';

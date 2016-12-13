@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import styles from '../profile.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 
 import Block from '../common/block';
 import OrderRow from './order-row';

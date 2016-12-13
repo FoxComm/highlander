@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import textStyles from 'ui/css/input.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { cardMask } from 'wings/lib/payment-cards';
+import { cardMask } from '@foxcomm/wings/lib/payment-cards';
 import localized from 'lib/i18n';
 import { api as foxApi } from 'lib/api';
 
@@ -178,7 +178,9 @@ class EditBilling extends Component {
   @autobind
   cancelEditing() {
     this.props.performStageTransition('billingInProgress', () => {
-      this.setState({ addingNew: false, cardAdded: false });
+      return new Promise(resolve => {
+        this.setState({ addingNew: false, cardAdded: false }, () => resolve());
+      });
     });
   }
 
