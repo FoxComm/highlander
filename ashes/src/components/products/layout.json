@@ -25,6 +25,17 @@
     },
     {
       "type": "sku-list"
+    },
+    {
+      "type": "group",
+      "title": "SEO",
+      "fields": {
+        "value": [
+          "url",
+          "metaTitle",
+          "metaDescription"
+        ]
+      }
     }
   ],
   "aside": [
