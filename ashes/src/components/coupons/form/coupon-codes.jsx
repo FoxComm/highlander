@@ -186,12 +186,6 @@ class CouponCodes extends Component {
             Excludes prefix
           </div>
         </div>
-        <div styleName="form-group">
-          <Checkbox id="downloadCSVCheckbox">Download a CSV file of the coupon codes</Checkbox>
-        </div>
-        <div styleName="form-group">
-          <Checkbox id="emailCSVCheckbox">Email a CSV file of the coupon codes to other users</Checkbox>
-        </div>
         <PrimaryButton
           type="button"
           disabled={this.generateCodesDisabled}
