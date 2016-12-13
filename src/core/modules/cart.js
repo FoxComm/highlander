@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
+import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 import { api as foxApi } from 'lib/api';
 
 export const toggleCart = createAction('TOGGLE_CART');
@@ -88,12 +89,12 @@ export function addLineItem(sku, quantity, attributes = {}) {
 }
 
 // update line item quantity
-export function updateLineItemQuantity(sku, qtt) {
+export function updateLineItemQuantity(sku: Object, qtt: string|number) {
   return (dispatch, getState) => {
     const state = getState();
     const lineItems = _.get(state, ['cart', 'skus'], []);
     const newLineItems = _.map(lineItems, (item) => {
-      const quantity = item.sku === sku ? parseInt(qtt, 10) : item.quantity;
+      const quantity = skuIdentity(item) === skuIdentity(sku) ? parseInt(qtt, 10) : item.quantity;
       return {
         ...item,
         quantity,
