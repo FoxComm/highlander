@@ -24,7 +24,7 @@
     "PHOENIX_URL": "http://{{phoenix_server}}",
     "PHOENIX_USER": "{{phoenix_api_user}}",
     "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
-    "PARTITION": "1"
+    "OFFSET_RESET_STRATEGY": "smallest"
   },
   "healthChecks": [
     {
