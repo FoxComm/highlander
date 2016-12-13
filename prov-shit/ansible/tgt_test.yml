@@ -16,7 +16,7 @@
     - { role: dev/db, when: first_run }
     - { role: dev/db_phoenix, when: first_run }
     - { role: prod/migrate_phoenix_db}
-    - { role: prod/migrate_middlewarehouse_db}
+    - { role: prod/migrate_middlewarehouse_db }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
@@ -49,7 +49,7 @@
     - { role: ext/tgt/marketplace-ui }
     - { role: ext/tgt/product-search }
     - { role: demo/search }
-    - { role: dev/balancer, sudo: yes }
+    - { role: dev/balancer, sudo: true }
     - { role: ext/tgt/balancer, sudo: true }
     - { role: dev/seeder, when: first_run }
 
