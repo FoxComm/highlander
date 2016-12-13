@@ -8,7 +8,6 @@
   "env": {
     "API_URL": "https://{{storefront_server_name}}",
     "NODE_ENV": "production",
-    "LISTEN_PORT": "4041",
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
     "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}"
   },
