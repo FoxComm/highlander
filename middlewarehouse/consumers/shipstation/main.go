@@ -44,7 +44,7 @@ func main() {
 		log.Fatalf("Unable to initialize ShipStation order consumer with error %s", err.Error())
 	}
 
-	consumer.RunTopic(config.Topic, config.Partition, oh.Handler)
+	consumer.RunTopic(config.Topic, oh.Handler)
 
 	pollingAgent, err := NewPollingAgent(ssConfig.ApiKey, ssConfig.ApiSecret, config.MiddlewarehouseURL)
 	if err != nil {

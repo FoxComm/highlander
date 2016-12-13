@@ -12,7 +12,6 @@ type ConsumerConfig struct {
 	ZookeeperURL        string
 	MiddlewarehouseURL  string
 	Topic               string
-	Partition           int
 	OffsetResetStrategy string
 }
 
@@ -44,12 +43,6 @@ func MakeConsumerConfig() (ConsumerConfig, error) {
 		return config, errors.New("Unable to find TOPIC in env")
 	} else if config.OffsetResetStrategy == "" {
 		config.OffsetResetStrategy = metamorphosis.OffsetResetLargest
-	}
-
-	var err error
-	config.Partition, err = strconv.Atoi(os.Getenv("PARTITION"))
-	if err != nil {
-		return config, errors.New("Unable to parse valid PARTITION in env")
 	}
 
 	return config, nil

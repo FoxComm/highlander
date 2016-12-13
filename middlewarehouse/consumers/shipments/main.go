@@ -40,5 +40,5 @@ func main() {
 		log.Fatalf("Can't create handler for orders with error %s", err.Error())
 	}
 
-	consumer.RunTopic(config.Topic, config.Partition, oh.Handler)
+	consumer.RunTopic(config.Topic, oh.Handler)
 }
