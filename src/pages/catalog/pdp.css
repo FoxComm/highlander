@@ -133,9 +133,14 @@
   letter-spacing: 2.26px;
   display: inline-block;
   cursor: pointer;
+  margin-right: 22px;
 
   &.active {
     box-shadow: 0 2px rgba(255, 255, 255, 0.70);
+  }
+
+  &:hover {
+    box-shadow: 0 2px rgba(255, 255, 255, 0.27);
   }
 }
 

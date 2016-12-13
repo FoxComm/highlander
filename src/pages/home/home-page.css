@@ -28,7 +28,7 @@
 .hashtag-image {
   background: url('/images/home-page/MyGourmet-hashtag.svg') center no-repeat;
   height: 152px;
-  background-size: 100% 100%;
+  background-size: auto 100%;
 }
 
 .instagram-gallery {
