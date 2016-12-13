@@ -109,6 +109,10 @@ func (o OrderHandler) handlerInner(fullOrder *shared.FullOrder) error {
 		return err
 	}
 
+	if err := o.phoenixClient.EnsureAuthentication(); err != nil {
+		log.Panicf("Error auth in phoenix with error: %s", err.Error())
+	}
+
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("JWT", o.phoenixClient.GetJwt())
 

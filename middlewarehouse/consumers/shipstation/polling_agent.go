@@ -6,12 +6,14 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/api"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/utils"
+	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 )
 
 const mwhShipmentsURI = "v1/public/shipments/for-order"
 
 type PollingAgent struct {
-	client             *api.Client
+	phoenixClient      phoenix.PhoenixClient
+	ssClient           *api.Client
 	middleWarehouseUrl string
 }
 
@@ -22,25 +24,25 @@ type S struct {
 	TrackingNumber  string `json:"trackingNumber"`
 }
 
-func NewPollingAgent(key string, secret string, middleWarehouseUrl string) (*PollingAgent, error) {
-
-	client, err := api.NewClient(key, secret)
-	if err != nil {
-		return nil, err
-	}
-
-	return &PollingAgent{client, middleWarehouseUrl}, nil
+func NewPollingAgent(phoenixClient phoenix.PhoenixClient, ssClient *api.Client, middleWarehouseUrl string) (*PollingAgent, error) {
+	return &PollingAgent{phoenixClient, ssClient, middleWarehouseUrl}, nil
 }
 
 func (c PollingAgent) GetShipments() error {
-	shipments, err := c.client.Shipments()
+	shipments, err := c.ssClient.Shipments()
 	if err != nil {
 		log.Printf("Error Getting Shipments: %v", err)
 		return err
 	}
 
+	if err := c.phoenixClient.EnsureAuthentication(); err != nil {
+		log.Panicf("Error auth in phoenix with error: %s", err.Error())
+	}
+
 	httpClient := utils.NewHTTPClient()
 	httpClient.SetHeader("Content-Type", "application/json")
+	httpClient.SetHeader("JWT", c.phoenixClient.GetJwt())
+
 	for _, shipment := range shipments.Shipments {
 		log.Printf("Processing shipment %s", shipment.OrderNumber)
 

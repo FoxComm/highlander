@@ -23,7 +23,6 @@ type OrderConsumer struct {
 }
 
 func NewOrderConsumer(phoenixClient phoenix.PhoenixClient, ssClient *api.Client) (*OrderConsumer, error) {
-
 	return &OrderConsumer{phoenixClient, ssClient}, nil
 }
 
