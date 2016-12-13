@@ -45,10 +45,15 @@
 - name: Restart Gift Card Consumer in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/gift-card-consumer/restart'
 
-- name: Get Firebrand Marathon tasks in `healthy` state
-  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/storefront | jq '.app.tasksHealthy > 0'
+- name: Get Consumers Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/{{item}} | jq '.app.tasksHealthy > 0'
   register: healthy_task_count
   until: healthy_task_count.stdout == 'true'
   retries: 60
   delay: 10
   when: vagrant
+  with_items:
+    - shipments-consumer
+    - capture-consumer
+    - gift-card-consumer
+    - stock-items-consumer
