@@ -15,4 +15,4 @@
     - { role: base/mesos_worker }
     - { role: base/rsyslog, sudo: yes }
     - { role: base/balancer, sudo: yes }
-    - { role: base/sensu, sensu_subscriptions: ["frontend"] }
+    - { role: base/sensu, become: true, sensu_subscriptions: ["frontend"] }

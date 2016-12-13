@@ -20,4 +20,4 @@
     - { role: base/rsyslog, sudo: yes }
     - { role: base/db }
     - { role: base/bottledwater }
-    - { role: base/sensu, sensu_subscriptions: ["backend"] }
+    - { role: base/sensu, become: true, sensu_subscriptions: ["backend"] }
