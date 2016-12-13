@@ -304,6 +304,7 @@ export default class NewGiftCard extends React.Component {
             </div>
           </fieldset>
           {this.quantitySection}
+{/* REMOVED UNTIL WE ARE READY TO IMPLEMENT EMAILED GIFT CARD FROM ASHES
           <fieldset className="fc-new-gift-card__fieldset">
             <Checkbox
               className="fc-new-gift-card__label"
@@ -315,6 +316,7 @@ export default class NewGiftCard extends React.Component {
             </Checkbox>
             { this.customerListBlock }
           </fieldset>
+*/}
           <SaveCancel cancelTo="gift-cards"
                       saveDisabled={saveDisabled}
                       saveText="Issue Gift Card" />
