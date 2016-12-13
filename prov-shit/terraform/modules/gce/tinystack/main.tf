@@ -18,7 +18,7 @@ variable "frontend_disk_size" {
 resource "google_compute_instance" "tiny-consul" {
     name = "${var.datacenter}-consul-server"
     machine_type = "n1-standard-1"
-    tags = ["no-ip", "${var.datacenter}-consul-server", "${var.datacenter}", "sensu-client"]
+    tags = ["no-ip", "${var.datacenter}-consul-server", "${var.datacenter}"]
     zone = "us-central1-a"
 
     service_account {
@@ -55,7 +55,7 @@ resource "google_compute_instance" "tiny-consul" {
 resource "google_compute_instance" "tiny-frontend" {
     name = "${var.datacenter}-frontend"
     machine_type = "${var.frontend_machine_type}"
-    tags = ["no-ip", "http-server", "https-server", "${var.datacenter}-frontend", "sensu-client"]
+    tags = ["no-ip", "http-server", "https-server", "${var.datacenter}-frontend"]
     zone = "us-central1-a"
 
     disk {
@@ -86,7 +86,7 @@ resource "google_compute_instance" "tiny-frontend" {
 resource "google_compute_instance" "tiny-backend" {
     name = "${var.datacenter}-backend"
     machine_type = "n1-highmem-4"
-    tags = ["no-ip", "${var.datacenter}-backend", "sensu-client"]
+    tags = ["no-ip", "${var.datacenter}-backend"]
     zone = "us-central1-a"
 
     disk {

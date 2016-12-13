@@ -6,11 +6,6 @@
     user: ubuntu
     packing: true
 
-  pre_tasks:
-    - name: Wait for apt unlock
-      shell: while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
-      become: true
-
   roles:
     - { role: base/mesos_worker }
     - { role: base/rsyslog, sudo: yes }

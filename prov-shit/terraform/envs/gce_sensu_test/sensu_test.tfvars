@@ -8,4 +8,4 @@ consul_server_image  = "base-amigo-161212-170551"
 gatling_image        = "base-jvm-1470785305"
 consul_leader        = "10.240.0.10"
 sensu_api_host       = "sensu-master"
-#dnsimple_domain      = "foxcommerce.com"
+
