@@ -2,15 +2,12 @@
 
   - name: Add Sensu Core Repo Key
     apt_key: url={{ sensu_core_repo_key }} state=present
-    become: true
 
   - name: Add Sensu Core Repo
     apt_repository: repo="{{ sensu_core_repo }}" state=present update_cache=true
-    become: true
 
   - name: Install Sensu Core
     apt: name=sensu state=latest
-    become: true
 
   - include: server.yml
     tags: server
@@ -21,11 +18,10 @@
 
   - name: Add Client Config Updater
     template: src=update-client-cfg.rb dest=/opt/sensu/embedded/bin mode=0755
-    become: true
 
   - name: Install Plugins
     shell: sensu-install -p {{ item }}
     with_items: "{{ sensu_plugins }}"
     changed_when: false
     when: sensu_plugins > 0
-    become: true
+

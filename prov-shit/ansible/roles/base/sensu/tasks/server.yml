@@ -2,11 +2,9 @@
 
   - name: Create Redis Config
     template: src=redis.json dest={{ sensu_config_path }}
-    become: true
 
   - name: Create Transport Config
     template: src=transport.json dest={{ sensu_config_path }}
-    become: true
 
   - name: Create Api Config
     template: src=api.json dest={{ sensu_config_path }}
