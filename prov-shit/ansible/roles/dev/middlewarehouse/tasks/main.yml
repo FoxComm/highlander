@@ -13,3 +13,11 @@
 
 - name: Restart Middlewarehouse in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/middlewarehouse/restart'
+
+- name: Get Middlewarehouse Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/middlewarehouse | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: 60
+  delay: 10
+  when: vagrant
