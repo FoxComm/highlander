@@ -11,18 +11,25 @@ auth:
         max_users: {{sinopia_max_users}}
 
 uplinks:
+    yarnjs:
+        url: {{sinopia_yarnjs_url}}
+        timeout: {{sinopia_uplink_timeout}}
+        maxage: {{sinopia_uplink_maxage}}
+        max_fails: {{sinopia_uplink_max_fails}}
+        fail_timeout: {{sinopia_uplink_fail_timeout}}
+
     npmjs:
         url: {{sinopia_npmjs_url}}
-        timeout: {{sinopia_npmjs_timeout}}
-        maxage: {{sinopia_npmjs_maxage}}
-        max_fails: {{sinopia_npmjs_max_fails}}
-        fail_timeout: {{sinopia_npmjs_fail_timeout}}
+        timeout: {{sinopia_uplink_timeout}}
+        maxage: {{sinopia_uplink_maxage}}
+        max_fails: {{sinopia_uplink_max_fails}}
+        fail_timeout: {{sinopia_uplink_fail_timeout}}
 
 packages:
     '*':
         access: $all
-        publish: admin
-        proxy: npmjs
+        publish: $authenticated
+        proxy: yarnjs
 
 listen:
     - https://{{sinopia_host}}:4873
