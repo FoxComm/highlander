@@ -3,7 +3,7 @@
 @import "colors";
 
 .list {
-  margin-top: 30px;
+  margin-top: 90px;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -20,6 +20,7 @@
 
 @media (--small-only) {
   .list {
+    margin-top: 50px;
     lost-column: 11/12;
     lost-offset: -0.5/12;
   }

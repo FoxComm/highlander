@@ -4,6 +4,7 @@
 
 .catalog {
   overflow: auto;
+  padding-bottom: 70px;
 }
 
 .header-wrap {
@@ -26,6 +27,7 @@
   font-family: var(--font-main);
   font-weight: 400;
   color: var(--whitish);
+  text-transform: uppercase;
 }
 
 .title {
@@ -49,10 +51,14 @@
 }
 
 .dropdown {
-  margin: 80px auto;
+  margin: 0 auto;
 }
 
 @media (--small-only) {
+  .catalog {
+    padding-bottom: 30px;
+  }
+
   .header-wrap {
     height: 290px;
   }

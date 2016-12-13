@@ -7,6 +7,9 @@ import cx from 'classnames';
 // styles
 import styles from './add-to-cart-btn.css';
 
+// components
+import Icon from 'ui/icon';
+
 type Props = {
   expanded?: bool,
   onClick?: Function,
@@ -21,7 +24,9 @@ const AddToCartBtn = (props: Props) => {
 
   return (
     <button className={classNames} onClick={onClick} {...restProps}>
-      <span styleName="add-icon">+</span>
+      <span styleName="add-icon-wrapper">
+        <Icon name="fc-add" styleName="add-icon" />
+      </span>
       <span styleName="add-btn-title">ADD TO CART</span>
     </button>
   );
