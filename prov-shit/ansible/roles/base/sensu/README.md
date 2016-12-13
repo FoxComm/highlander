@@ -20,9 +20,13 @@ Tested on:
 Most important default variables:
 
 `sensu_master`: Determines if a node is to act as the Sensu "master" node
+
 `sensu_api_host`: Hostname/IP address of the node running the Sensu API
+
 `redis_host`: Hostname/IP address of the redis node
+
 `sensu_plugins`: A list of plugins to install via `sensu-install` (Ruby Gems)
+
 `sensu_subscriptions`: An Array with client subscriptions
 
 
