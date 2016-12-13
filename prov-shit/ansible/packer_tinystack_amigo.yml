@@ -9,6 +9,11 @@
     mesos_quorum: 1
     consul_expect: 1
 
+  pre_tasks:
+    - name: Wait for apt unlock
+      shell: while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
+      become: true
+
   roles:
     - { role: base/consul_server }
     - { role: base/zookeeper }
