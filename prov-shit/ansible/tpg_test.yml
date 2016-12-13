@@ -6,6 +6,7 @@
     user: '{{ansible_ssh_user}}'
     upload_phoenix_jar: true
     download_flyway: false
+    first_run: true
   tags:
     - backend
   roles:
@@ -32,6 +33,7 @@
     with_base_seeds: true
     phoenix_tax_rule_region: 4146
     phoenix_tax_rule_rate: 0
+    first_run: true
   tags:
     - frontend
   roles:
