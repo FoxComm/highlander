@@ -1,9 +1,10 @@
 apache_mirror: http://mirror.cogentco.com/pub/apache
+apache_mirror_alt: https://archive.apache.org/dist
 
 avro_vers: 1.7.7
 avro_name: "avro-{{avro_vers}}"
 avro_c_name: "avro-c-{{avro_vers}}"
-avro_url: "{{apache_mirror}}/avro/{{avro_name}}/c/{{avro_c_name}}.tar.gz"
+avro_url: "{{apache_mirror_alt}}/avro/{{avro_name}}/c/{{avro_c_name}}.tar.gz"
 avro_dir: "{{home}}/{{avro_c_name}}"
 
 bottledwater_repo: https://github.com/confluentinc/bottledwater-pg.git
