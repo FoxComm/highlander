@@ -2,9 +2,9 @@ package services.carts
 
 import cats.implicits._
 import failures.CartFailures.NoShipMethod
+import models.account.User
 import models.cord._
 import models.shipping.{Shipments, ShippingMethods}
-import models.account.User
 import payloads.UpdateShippingMethod
 import responses.TheResponse
 import responses.cord.CartResponse
@@ -22,7 +22,8 @@ object CartShippingMethodUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] =
+      ctx: OC,
+      au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
       cart           ← * <~ getCartByOriginator(originator, refNum)
       oldShipMethod  ← * <~ ShippingMethods.forCordRef(cart.refNum).one
@@ -55,7 +56,8 @@ object CartShippingMethodUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] =
+      ctx: OC,
+      au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
       cart ← * <~ getCartByOriginator(originator, refNum)
       shipMethod ← * <~ ShippingMethods

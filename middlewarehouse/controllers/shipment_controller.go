@@ -56,7 +56,7 @@ func (controller *shipmentController) getShipmentsByOrder() gin.HandlerFunc {
 
 func (controller *shipmentController) createShipment() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		payload := &payloads.Shipment{}
+		payload := &payloads.CreateShipment{}
 		if parse(context, payload) != nil {
 			return
 		}
@@ -65,7 +65,7 @@ func (controller *shipmentController) createShipment() gin.HandlerFunc {
 			return
 		}
 
-		shipment, err := controller.shipmentService.CreateShipment(models.NewShipmentFromPayload(payload))
+		shipment, err := controller.shipmentService.CreateShipment(payload.Model())
 		if err != nil {
 			handleServiceError(context, err)
 			return
@@ -95,7 +95,7 @@ func (controller *shipmentController) updateShipmentForOrder() gin.HandlerFunc {
 			return
 		}
 
-		model := models.NewShipmentFromUpdatePayload(payload)
+		model := payload.Model()
 		model.OrderRefNum = orderRef
 
 		shipment, err := controller.shipmentService.UpdateShipmentForOrder(model)
@@ -125,7 +125,7 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 			return
 		}
 
-		shipment, err := controller.shipmentService.CreateShipment(models.NewShipmentFromOrderPayload(payload))
+		shipment, err := controller.shipmentService.CreateShipment(payload.ShipmentModel())
 		if err != nil {
 			handleServiceError(context, err)
 			return

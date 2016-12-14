@@ -122,7 +122,7 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdate
 	suite.Nil(suite.db.Set("gorm:save_associations", false).Create(shipment).Error)
 
 	payload := payloads.UpdateShipment{State: "shipped"}
-	updateShipment := models.NewShipmentFromUpdatePayload(&payload)
+	updateShipment := payload.Model()
 	updateShipment.ID = shipment.ID
 
 	//act

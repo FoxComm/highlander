@@ -6,7 +6,7 @@ import com.github.tminglei.slickpg.LTree
 import cats.data._
 import cats.implicits._
 import cats.data.ValidatedNel
-import cats.std.map
+import cats.instances.map
 import failures._
 import failures.ArchiveFailures._
 import failures.ProductFailures._

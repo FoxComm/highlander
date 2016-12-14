@@ -3,7 +3,7 @@ package models.returns
 import java.time.Instant
 
 import cats.data.Validated._
-import cats.data._
+import cats.data.{State ⇒ _, _}
 import com.pellucid.sealerate
 import failures.Failure
 import models.account._
