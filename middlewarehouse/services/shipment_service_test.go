@@ -167,7 +167,7 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdate
 
 	//act
 	payload := payloads.UpdateShipment{State: "shipped"}
-	updateShipment := models.NewShipmentFromUpdatePayload(&payload)
+	updateShipment := payload.Model()
 	updateShipment.ID = shipment.ID
 
 	//act

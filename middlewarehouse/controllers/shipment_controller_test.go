@@ -81,7 +81,7 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 	//arrange
 	shipment1 := fixtures.GetShipmentShort(uint(1))
 	payload := fixtures.ToShipmentPayload(shipment1)
-	suite.shipmentService.On("CreateShipment", models.NewShipmentFromPayload(payload)).Return(shipment1, nil).Once()
+	suite.shipmentService.On("CreateShipment", payload.Model()).Return(shipment1, nil).Once()
 
 	//act
 	shipment := &responses.Shipment{}

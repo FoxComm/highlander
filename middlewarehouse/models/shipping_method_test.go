@@ -22,13 +22,13 @@ func (suite *ShippingMethodModelTestSuite) SetupSuite() {
 	suite.assert = assert.New(suite.T())
 }
 
-func (suite *ShippingMethodModelTestSuite) Test_NewShippingMethodFromPayload_ReturnsValidModel() {
+func (suite *ShippingMethodModelTestSuite) Test_ShippingMethodPayloadToModel_ReturnsValidModel() {
 	//arrange
 	carrierID, name, code, shippingType, cost, scope := uint(1), "UPS 2 days ground", "GROUND", "flat", uint(599), payloads.Scopable{"1.2"}
 	payload := &payloads.ShippingMethod{carrierID, name, code, shippingType, cost, scope}
 
 	//act
-	model, err := NewShippingMethodFromPayload(payload)
+	model, err := payload.Model()
 	suite.assert.Nil(err)
 
 	//assert
