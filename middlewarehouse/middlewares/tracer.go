@@ -10,6 +10,7 @@ import (
 
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
+	oLog "github.com/opentracing/opentracing-go/log"
 
 	"bytes"
 	"github.com/gin-gonic/gin"
@@ -87,11 +88,11 @@ func TraceFromHTTPRequest(tracer opentracing.Tracer) gin.HandlerFunc {
 		span.SetTag("http.path", c.Request.URL.Path)
 
 		if body := dumpBody(c.Request); len(body) > 0 {
-			span.SetTag("http.payload", string(body))
+			span.LogFields(oLog.String("Body", body))
 		}
 
 		if jwt := c.Request.Header.Get("JWT"); len(jwt) > 0 {
-			span.SetTag("http.jwt", jwt)
+			span.LogFields(oLog.String("JWT", jwt))
 		}
 
 		// store span in context
