@@ -110,8 +110,18 @@
   .username {
     cursor: default;
   }
+  .cart {
+    & :global(.icon) {
+      width: 32px;
+      height: 32px;
+    }
+  }
+  .cart-quantity {
+    top: 8px;
+  }
 }
 
 @media (--large) {
 
 }
+
