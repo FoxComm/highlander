@@ -32,15 +32,13 @@ import type { Totals } from 'modules/cart';
 import * as actions from 'modules/cart';
 import { saveCouponCode, removeCouponCode } from 'modules/checkout';
 
-const mapStateToProps = state => ({ ...state.cart, ...state.auth });
-
 type Props = {
   fetch: Function,
   deleteLineItem: Function,
   updateLineItemQuantity: Function,
   toggleCart: Function,
-  saveCouponCode: Function,
-  removeCouponCode: Function,
+  saveCode: Function,
+  removeCode: Function,
   skus: Array<any>,
   coupon: ?Object,
   promotion: ?Object,
@@ -140,7 +138,17 @@ class Cart extends Component {
   }
 
   render() {
-    const { t, totals, coupon, toggleCart, skus, promotion, isVisible } = this.props;
+    const {
+      t,
+      totals,
+      coupon,
+      toggleCart,
+      skus,
+      promotion,
+      isVisible,
+      saveCode,
+      removeCode,
+    } = this.props;
 
     const cartClass = classNames({
       'cart-hidden': !isVisible,
@@ -168,8 +176,8 @@ class Cart extends Component {
                 coupon={coupon}
                 promotion={promotion}
                 discountValue={totals.adjustments}
-                saveCode={saveCouponCode}
-                removeCode={removeCouponCode}
+                saveCode={saveCode}
+                removeCode={removeCode}
                 disabled={checkoutDisabled}
               />
             </div>
@@ -195,8 +203,10 @@ class Cart extends Component {
   }
 }
 
+const mapStateToProps = state => ({ ...state.cart, ...state.auth });
+
 export default connect(mapStateToProps, {
   ...actions,
-  saveCouponCode,
-  removeCouponCode,
+  saveCode: saveCouponCode,
+  removeCode: removeCouponCode,
 })(localized(Cart));
