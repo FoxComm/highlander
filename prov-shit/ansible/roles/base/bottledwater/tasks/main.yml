@@ -83,7 +83,7 @@
   command: systemctl daemon-reload
 
 - name: Start Bottledwater
-  service: name=bottledwater_{{item}} state=started enabled=yes sleep=10
+  service: name=bottledwater_{{item}} state=started enabled=yes
   with_items:
     - phoenix
     - middlewarehouse

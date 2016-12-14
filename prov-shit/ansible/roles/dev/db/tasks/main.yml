@@ -110,11 +110,11 @@
   command: systemctl daemon-reload
 
 - name: Start Materialized Views Service
-  service: name=materialized_views state=started enabled=yes sleep=5
+  service: name=materialized_views state=started enabled=yes
   become: true
 
 - name: Start Bottledwater Services
-  service: name=bottledwater_{{item}} state=started enabled=yes sleep=10
+  service: name=bottledwater_{{item}} state=started enabled=yes
   with_items:
     - phoenix
     - middlewarehouse

@@ -22,7 +22,7 @@
 - include: flyway_install.yml
 
 - name: Copy Postgres Configuration
-  copy: src={{item}} dest="/etc/postgresql/9.5/main/{{item}}" mode="644"
+  copy: src={{item}} dest="/etc/postgresql/9.5/main/{{item}}" mode="0644"
   become: true
   with_items:
       - postgresql.conf
@@ -33,7 +33,7 @@
   command: systemctl daemon-reload
 
 - name: Restart Postgresql
-  service: name=postgresql state=restarted sleep=5
+  service: name=postgresql state=restarted
   become: true
 
 - name: Copy Consul Service File

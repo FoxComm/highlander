@@ -33,7 +33,7 @@
 
 - name: Copy Mesos Healthcheck script
   template: src=mesos_master_check.sh dest=/usr/local/bin/mesos_master_check.sh mode="u=rwx,g=rwx,o=rx"
-  sudo: true
+  become: true
 
 - name: Restart Mesos Master
   service: name=mesos_master state=restarted enabled=true

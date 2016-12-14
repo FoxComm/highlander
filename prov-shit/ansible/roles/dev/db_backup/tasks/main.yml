@@ -49,5 +49,5 @@
   command: systemctl daemon-reload
 
 - name: Start backup_mount service
-  service: name=backup_mount state=started enabled=yes sleep=5
+  service: name=backup_mount state=started enabled=yes
   become: true

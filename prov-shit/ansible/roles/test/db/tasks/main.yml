@@ -25,7 +25,7 @@
   command: systemctl daemon-reload
 
 - name: Restart Postgresql
-  service: name=postgresql state=restarted sleep=5
+  service: name=postgresql state=restarted
   become: true
 
 - name: Install Prerequisites for postgresql ansible module
