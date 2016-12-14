@@ -87,9 +87,9 @@ const ProductDetails = (props: Props) => {
         <Link to=
             {
               'https://twitter.com/intent/tweet?' +
-              'text=" + title + '&' +
-              'url=" + ProductURL + '&' +
-              'via=" + TwitterHandle
+              'text=' + title + '&' +
+              'url=' + ProductURL + '&' +
+              'via=' + TwitterHandle
             } target="_blank" styleName="social-icon">
           <Icon name="fc-twitter" styleName="social-icon" />
         </Link>
@@ -97,8 +97,8 @@ const ProductDetails = (props: Props) => {
         <Link to=
             {
               'https://pinterest.com/pin/create/button/?' +
-              'url=" + ProductURL + '&' +
-              'media=" + props.product.images[0] + '&' +
+              'url=' + ProductURL + '&' +
+              'media=' + props.product.images[0] + '&' +
               'description=' + description
             } target="_blank" styleName="social-icon">
           <Icon name="fc-pinterest" styleName="social-icon"/>
