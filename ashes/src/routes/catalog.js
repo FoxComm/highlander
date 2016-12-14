@@ -4,6 +4,7 @@ import React, { Component, Element } from 'react';
 import FoxRouter from 'lib/fox-router';
 import { frn } from 'lib/frn';
 
+import Insights from 'components/insights/insights';
 import ActivityTrailPage from 'components/activity-trail/activity-trail-page';
 import Notes from 'components/notes/notes';
 
@@ -58,6 +59,12 @@ const getRoutes = (jwt: Object) => {
           title: 'Activity Trail',
           path: 'activity-trail',
           component: ActivityTrailPage,
+          frn: frn.activity.product,
+        }),
+        router.read('product-insights', {
+          title: 'Activity Trail',
+          path: 'activity-trail',
+          component: Insights,
           frn: frn.activity.product,
         }),
       ]),
