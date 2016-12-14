@@ -41,8 +41,8 @@ export const clearArchiveErrors = _archiveSku.clearErrors;
 
 const _fetchSku = createAsyncActions(
   'fetchSku',
-  (code: string, context: string = defaultContext) => {
-    return Api.get(`/skus/${context}/${code}`);
+  (code: string) => {
+    return Api.get(`inventory/skus/${code}`);
   }
 );
 
@@ -91,7 +91,7 @@ export function reset() {
 
 export type SkuState = {
   sku: ?Sku,
-}
+};
 
 const initialState: SkuState = {
   sku: null,

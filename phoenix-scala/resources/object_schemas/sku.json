@@ -12,50 +12,17 @@
           "minLength": 1
         },
         "title": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "upc": {
           "title": "UPC",
           "type": "string"
         },
-        "description": {
-          "type": "string",
-          "widget": "richText"
-        },
-        "retailPrice": {
-          "type":"object",
-          "widget": "price",
-          "properties": {
-            "currency": {
-              "type": "string",
-              "minLength": 3,
-              "maxLength": 3
-            },
-            "value": {
-              "type": "number",
-              "minimum": 0,
-              "default": 0
-            }
-          }
-        },
-        "salePrice": {
-          "type":"object",
-          "widget": "price",
-          "properties": {
-            "currency": {
-              "type": "string",
-              "minLength": 3,
-              "maxLength": 3
-            },
-            "value": {
-              "type": "number",
-              "minimum": 0,
-              "default": 0
-            }
-          }
-        },
         "unitCost": {
-          "type":"object",
+          "type": "object",
           "widget": "price",
           "properties": {
             "currency": {
@@ -70,16 +37,40 @@
             }
           }
         },
-        "activeFrom": {
-          "type": ["string", "null"],
-          "format": "date-time"
+        "taxClass": {
+          "type": "options",
+          "title": "Tax Class",
+          "fieldsOptions": [
+            "Default"
+          ]
         },
-        "activeTo": {
-          "type": ["string", "null"],
-          "format": "date-time"
+        "requiresShipping": {
+          "type": "options",
+          "title": "Item requires shipping?",
+          "fieldsOptions": [
+            "Yes",
+            "No"
+          ]
+        },
+        "shippingClass": {
+          "type": "options",
+          "title": "Shipping Class",
+          "fieldsOptions": [
+            "Default"
+          ]
+        },
+        "isReturnable": {
+          "type": "options",
+          "title": "Item is returnable?",
+          "fieldsOptions": [
+            "Yes",
+            "No"
+          ]
         }
       },
-      "required": ["code"]
+      "required": [
+        "code"
+      ]
     }
   }
 }
