@@ -12,10 +12,10 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-func GetRoutes(db *gorm.DB) map[string]controllers.IController {
+func GetRoutes(config *config.AppConfig, db *gorm.DB) map[string]controllers.IController {
 	// Kafka
-	broker := config.Config.KafkaBroker
-	schemaRegistryURL := config.Config.SchemaRegistryURL
+	broker := config.KafkaBroker
+	schemaRegistryURL := config.SchemaRegistryURL
 
 	producer, err := metamorphosis.NewProducer(broker, schemaRegistryURL)
 	if err != nil {

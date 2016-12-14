@@ -3,19 +3,20 @@ package tracer
 import (
 	"fmt"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/config"
 	"github.com/opentracing/opentracing-go"
 	zipkin "github.com/openzipkin/zipkin-go-opentracing"
 )
 
-func NewTracer() (opentracing.Tracer, error) {
+func NewTracer(config *config.TracerConfig, port string) (opentracing.Tracer, error) {
 
-	collector, err := zipkin.NewHTTPCollector("http://10.240.0.5:9411/api/v1/spans")
+	collector, err := zipkin.NewHTTPCollector(fmt.Sprintf("%s/api/v1/spans", config.ZipkinHttpEndpoint))
 	if err != nil {
-		return nil, fmt.Errorf("Failed to start kafka collector with error %s", err.Error())
+		return nil, fmt.Errorf("Failed to start zipkin collector with error %s", err.Error())
 	}
 
 	tracer, err := zipkin.NewTracer(
-		zipkin.NewRecorder(collector, true, ":9292", "middlewarehouse"),
+		zipkin.NewRecorder(collector, true, fmt.Sprintf("localhost:%s", port), "middlewarehouse"),
 		zipkin.DebugMode(true),
 	)
 	if err != nil {
