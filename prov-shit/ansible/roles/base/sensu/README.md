@@ -38,7 +38,8 @@ Deploy whole Stack:
   hosts: sensu-master
   roles:
       - { role: base/redis }
-	  - { role: base/sensu, sensu_master: true, redis: redis-server}
+      - { role: base/sensu, sensu_master: true, redis: redis-server}
+
 ```
 Deploy Client with [Subscriptions](https://sensuapp.org/docs/latest/reference/clients.html#client-subscriptions)
 ```
@@ -46,6 +47,7 @@ Deploy Client with [Subscriptions](https://sensuapp.org/docs/latest/reference/cl
   hosts: all
   roles:
 	  - { role: base/sensu, sensu_subscriptions ["backend", "frontend", "consul-server"] }
+
 ```
 Also all clients have a simple `/opt/sensu/embedded/bin/update-client-cfg.rb` script that passing input arguments then  update `client.json` config during terraforming:
 ```
@@ -86,7 +88,3 @@ check-memory-percent.sh [ -w value -c value -p -h ]
         -p --> print out performance data
         -h --> print this help screen
 ```
-
-
-
-

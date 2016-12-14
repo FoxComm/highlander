@@ -1,12 +1,11 @@
 ---
   - name: Update Client run as
     lineinfile: "dest=/etc/init.d/sensu-service regexp='^USER' line='USER=root'"
-    notify: restart sensu-client
+    notify: Restart sensu-client
 
   - name: Create Client Config
     template: src=client.json dest={{ sensu_config_path }}
-    notify: restart sensu-client
+    notify: Restart sensu-client
 
   - name: Start Client
     service: name=sensu-client state=started enabled=yes
-

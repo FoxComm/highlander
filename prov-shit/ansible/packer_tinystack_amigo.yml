@@ -16,4 +16,4 @@
     - { role: base/mesos_master }
     - { role: base/mesos_consul }
     - { role: base/kibana, sudo: yes }
-    - { role: base/sensu, become: true, sensu_subscriptions: ["consul-server"] }
+    - { role: base/sensu, when: with_sensu, become: true, sensu_subscriptions: ["consul-server"] }

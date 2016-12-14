@@ -24,4 +24,3 @@
     with_items: "{{ sensu_plugins }}"
     changed_when: false
     when: sensu_plugins > 0
-
