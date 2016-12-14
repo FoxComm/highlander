@@ -6,7 +6,7 @@ module.exports = function(gulp, $) {
     'node_modules/evil-icons/assets/evil-icons.css',
     'src/css/reset.css',
     'src/css/inputs.css',
-    'node_modules/wings/lib/bundle.css',
+    'node_modules/@foxcomm/wings/lib/bundle.css',
     'build/bundle.css',
     'node_modules/slick-carousel/slick/slick.css',
     'node_modules/slick-carousel/slick/slick-theme.css',
