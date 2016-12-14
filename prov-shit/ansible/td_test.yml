@@ -3,7 +3,7 @@
 - name: Provision Top Drawer Test Backend
   hosts: top-drawer-test-backend
   vars:
-    user: '{{ansible_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     upload_phoenix_jar: true
     download_flyway: false
   tags:
@@ -23,7 +23,7 @@
 - name: Provision Top Drawer Test Frontend
   hosts: top-drawer-test-frontend
   vars:
-    user: '{{ansible_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     api_server: test-topdrawer.foxcommerce.com
     self_host: test-topdrawer.foxcommerce.com
     ashes_server_name: test-topdrawer.foxcommerce.com

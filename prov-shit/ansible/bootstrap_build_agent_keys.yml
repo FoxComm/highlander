@@ -13,7 +13,7 @@
   tags:
     - buildkite-agent
   vars:
-    user: '{{ansible_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     agent_home: /var/lib/buildkite-agent
   vars_prompt:
     - name: "account_json_src"

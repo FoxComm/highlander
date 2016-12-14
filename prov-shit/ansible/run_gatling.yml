@@ -5,7 +5,7 @@
   tags:
     - run-gatling
   vars:
-    user: '{{ansible_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
 
   tasks:
       - name: Sleep Before Consul DNS Init

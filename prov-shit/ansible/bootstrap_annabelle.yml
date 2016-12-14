@@ -3,7 +3,7 @@
 - name: Bootstrap Annabelle
   hosts: api-docs
   vars:
-    user: '{{ansible_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     annabelle_dir: /annabelle
   vars_prompt:
     - name: "annabelle_jar"

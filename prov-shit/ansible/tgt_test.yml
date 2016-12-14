@@ -3,7 +3,7 @@
 - name: Provision Target Test Backend
   hosts: tgt-test-backend
   vars:
-    user: '{{ansible_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     upload_phoenix_jar: true
     docker_registry: docker-tgt.foxcommerce.com
     download_flyway: false
@@ -24,7 +24,7 @@
 - name: Provision Target Test Frontend
   hosts: tgt-test-frontend
   vars:
-    user: '{{ansible_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     docker_registry: docker-tgt.foxcommerce.com
     api_server: tgt-wild.foxcommerce.com
     self_host: tgt-wild.foxcommerce.com

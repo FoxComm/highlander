@@ -3,7 +3,7 @@
 - name: Provision Stage Backend
   hosts: foxcomm-stage-backend
   vars:
-    user: '{{ansible_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     download_flyway: false
   tags:
     - backend
@@ -21,7 +21,7 @@
 - name: Provision Stage Frontend
   hosts: foxcomm-stage-frontend
   vars:
-    user: '{{ansible_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     api_server: stage.foxcommerce.com
     self_host: stage.foxcommerce.com
     ashes_server_name: stage.foxcommerce.com

@@ -3,7 +3,7 @@
 - name: Provision Gatling Backend
   hosts: foxcomm-gatling-backend
   vars:
-    user: '{{ansible_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   tags:
     - backend
   roles:
@@ -18,7 +18,7 @@
 - name: Provision Gatling Frontend
   hosts: foxcomm-gatling-frontend
   vars:
-    user: '{{ansible_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     api_server: gatling.foxcommerce.com
     self_host: gatling.foxcommerce.com
     ashes_server_name: gatling.foxcommerce.com
@@ -49,7 +49,7 @@
   tags:
       - gatling
   vars:
-    user: '{{ansible_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
 
   roles:
     - { role: test/gatling }
