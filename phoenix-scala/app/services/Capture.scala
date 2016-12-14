@@ -1,17 +1,11 @@
 package services
 
 import cats.implicits._
-import failures.CouponFailures.CouponWithCodeCannotBeFound
-import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
-import failures.GeneralFailure
 import failures.CaptureFailures
-import failures.PromotionFailures.PromotionNotFoundForContext
+import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
 import models.account.{User, Users}
 import models.cord._
 import models.cord.lineitems._
-import models.coupon._
-import models.inventory.{Sku, Skus}
-import models.objects._
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
@@ -50,7 +44,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       //The function returns a tuple so we will convert it to a case class for
       //convenience.
       order    ← * <~ Orders.mustFindByRefNum(payload.order)
-      payState ← * <~ OrderQueries.getPaymentState(order.refNum)
+      payState ← * <~ OrderQueries.getCordPaymentState(order.refNum)
       _        ← * <~ validateOrder(order, payState)
 
       customer     ← * <~ Users.mustFindByAccountId(order.accountId)

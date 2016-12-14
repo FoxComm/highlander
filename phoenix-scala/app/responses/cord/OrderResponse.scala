@@ -49,7 +49,7 @@ object OrderResponse {
                                                 ec: EC): DbResultT[OrderResponse] =
     for {
       context      ← * <~ ObjectContexts.mustFindById400(order.contextId)
-      payState     ← * <~ OrderQueries.getPaymentState(order.refNum)
+      payState     ← * <~ OrderQueries.getCordPaymentState(order.refNum)
       lineItemAdj  ← * <~ CordResponseLineItemAdjustments.fetch(order.refNum)
       lineItems    ← * <~ CordResponseLineItems.fetch(order.refNum, lineItemAdj, grouped)
       promo        ← * <~ CordResponsePromotions.fetch(order.refNum)(db, ec, context)

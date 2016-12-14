@@ -54,7 +54,7 @@ object CartResponse {
                          .fold(_ ⇒ None, good ⇒ good.some)
       paymentMethods ← * <~ (if (isGuest) DBIO.successful(Seq())
                              else CordResponsePayments.fetchAll(cart.refNum))
-      paymentState ← * <~ CartQueries.getPaymentState(cart.refNum)
+      paymentState ← * <~ CartQueries.getCordPaymentState(cart.refNum)
       lockedBy     ← * <~ currentLock(cart)
     } yield
       CartResponse(
