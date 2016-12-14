@@ -75,7 +75,7 @@ const ProductDetails = (props: Props) => {
       <div styleName="social-sharing">
         <Link to=
             {
-              'https://www.facebook.com/sharer/sharer.php?" +
+              'https://www.facebook.com/sharer/sharer.php?' +
               'u=' + ProductURL + '&' +
               'title=' + title + '&' +
               'description=' + description + '&' +
