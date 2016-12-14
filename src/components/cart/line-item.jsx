@@ -34,12 +34,12 @@ class LineItem extends Component {
 
   @autobind
   changeQuantity(quantity) {
-    this.props.updateLineItemQuantity(this.props.sku, quantity);
+    this.props.updateLineItemQuantity(this.props, quantity);
   }
 
   @autobind
   deleteItem() {
-    this.props.deleteLineItem(this.props.sku);
+    this.props.deleteLineItem(this.props);
   }
 
   quantityItems() {
