@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
@@ -30,7 +31,21 @@ func (controller *skuController) SetUp(router gin.IRouter) {
 
 func (controller *skuController) CreateSKU() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		resp := dummyResponse()
+		payload := &payloads.CreateSKU{}
+		if parse(context, payload) != nil {
+			return
+		}
+
+		if !setScope(context, payload) {
+			return
+		}
+
+		resp, err := controller.skuService.Create(payload)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
 		context.JSON(http.StatusCreated, resp)
 	}
 }

@@ -11,11 +11,11 @@ type CreateSKU struct {
 	RequiresShipping              bool           `json:"requiresShipping"`
 	ShippingClass                 string         `json:"shippingClass"`
 	IsReturnable                  bool           `json:"isReturnable"`
-	ReturnWindow                  *dimension     `json:"returnWindow"`
-	Height                        *dimension     `json:"height"`
-	Weight                        *dimension     `json:"weight"`
-	Length                        *dimension     `json:"length"`
-	Width                         *dimension     `json:"width"`
+	ReturnWindow                  *Dimension     `json:"returnWindow"`
+	Height                        *Dimension     `json:"height"`
+	Weight                        *Dimension     `json:"weight"`
+	Length                        *Dimension     `json:"length"`
+	Width                         *Dimension     `json:"width"`
 	RequiresInventoryTracking     bool           `json:"requiresInventoryTracking"`
 	InventoryWarningLevel         *QuantityLevel `json:"inventoryWarningLevel"`
 	MaximumQuantityInCart         *QuantityLevel `json:"maximumQuantityInCart"`
@@ -23,12 +23,15 @@ type CreateSKU struct {
 	AllowPreorder                 bool           `json:"allowPreorder"`
 	AllowBackorder                bool           `json:"allowBackorder"`
 	RequiresLotTracking           bool           `json:"requiresLotTracking"`
-	LotExpirationThreshold        *dimension     `json:"lotExpirationThreshold"`
-	LotExpirationWarningThreshold *dimension     `json:"lotExpirationWarningThreshold"`
+	LotExpirationThreshold        *Dimension     `json:"lotExpirationThreshold"`
+	LotExpirationWarningThreshold *Dimension     `json:"lotExpirationWarningThreshold"`
+	Scopable
 }
 
-func (sku CreateSKU) Model() models.SKU {
-	return models.SKU{
+func (sku CreateSKU) Model() *models.SKU {
+	return &models.SKU{
+		Scope:                              sku.Scope,
+		Code:                               sku.Code,
 		UPC:                                sku.UPC,
 		Title:                              sku.Title,
 		UnitCost:                           sku.UnitCost,
@@ -62,7 +65,7 @@ func (sku CreateSKU) Model() models.SKU {
 	}
 }
 
-type dimension struct {
+type Dimension struct {
 	Value float64 `json:"value"`
 	Units string  `json:"units"`
 }

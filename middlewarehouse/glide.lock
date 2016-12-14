@@ -1,5 +1,5 @@
-hash: ed26a33fce45881735d3504aaaab441d71bcaa058a21bb2b8529218eb22a6f73
-updated: 2016-11-07T15:04:51.305267423-08:00
+hash: fca03931b70ec0c3730220f91354f3a47ea420b94b107b790ffafacf5a754349
+updated: 2016-12-14T16:01:33.579412096+03:00
 imports:
 - name: github.com/cihub/seelog
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
@@ -42,6 +42,8 @@ imports:
   - proto
 - name: github.com/golang/snappy
   version: 723cc1e459b8eea2dea4583200fd60757d40097a
+- name: github.com/icrowley/fake
+  version: 84bff6d01560fb0b5a396ba29534e93fd00d09c6
 - name: github.com/jinzhu/gorm
   version: caa792644ce60fd7b429e0616afbdbccdf011be2
 - name: github.com/jinzhu/inflection
@@ -68,6 +70,10 @@ imports:
   - zk
 - name: github.com/SermoDigital/jose
   version: b10f12c5188d355a3eacc61aba9abd3eb6b3b787
+  subpackages:
+  - crypto
+  - jws
+  - jwt
 - name: github.com/Shopify/sarama
   version: 094e483251042a52ce92f76dbcf140ad2bd7cffb
 - name: github.com/Sirupsen/logrus
@@ -77,10 +83,10 @@ imports:
 - name: github.com/stretchr/testify
   version: f390dcf405f7b83c997eac1b06768bb9f44dec18
   subpackages:
-  - suite
-  - mock
   - assert
+  - mock
   - require
+  - suite
 - name: github.com/yanzay/cfg
   version: 3b647091f880406fdb14edcb309ce750a38d3e85
 - name: golang.org/x/net

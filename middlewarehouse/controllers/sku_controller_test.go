@@ -48,5 +48,17 @@ func (suite *skuControllerTestSuite) Test_GetSKU_Success() {
 	err := json.NewDecoder(res.Body).Decode(respBody)
 	suite.Nil(err)
 	suite.Equal(suite.sku.ID, respBody.ID)
-	suite.Equal("SKU-TEST", respBody.Code)
+	suite.Equal(suite.sku.Code, respBody.Code)
+}
+
+func (suite *skuControllerTestSuite) Test_CreateSKU_Success() {
+	payload := fixtures.GetCreateSKUPayload()
+	res := suite.Post("/skus", payload)
+	suite.Equal(http.StatusCreated, res.Code)
+
+	respBody := new(responses.SKU)
+	err := json.NewDecoder(res.Body).Decode(respBody)
+	suite.Nil(err)
+	suite.Equal(payload.Code, respBody.Code)
+	suite.Equal(payload.UPC, respBody.UPC)
 }
