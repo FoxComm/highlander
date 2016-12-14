@@ -46,6 +46,8 @@
     & :global(.icon) {
       cursor: pointer;
       stroke: var(--icon);
+      width: 32px;
+      height: 32px;
     }
   }
 }
