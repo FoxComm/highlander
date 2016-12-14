@@ -5,6 +5,8 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
+	"github.com/FoxComm/highlander/middlewarehouse/middlewares"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
@@ -20,7 +22,7 @@ func NewShippingMethodController(service services.IShippingMethodService) IContr
 }
 
 func (controller *shippingMethodController) SetUp(router gin.IRouter) {
-	router.Use(FetchJWT)
+	router.Use(middlewares.FetchJWT)
 	router.GET("", controller.getShippingMethods())
 	router.GET(":id", controller.getShippingMethodByID())
 	router.POST("", controller.createShippingMethod())
@@ -42,7 +44,7 @@ func (controller *shippingMethodController) getShippingMethods() gin.HandlerFunc
 		for i := range shippingMethods {
 			resp, err := responses.NewShippingMethodFromModel(shippingMethods[i])
 			if err != nil {
-				handleServiceError(context, err)
+				failures.HandleServiceError(context, err)
 				return
 			}
 
@@ -63,13 +65,13 @@ func (controller *shippingMethodController) getShippingMethodByID() gin.HandlerF
 		//get shippingMethod by id
 		shippingMethod, err := controller.service.GetShippingMethodByID(id)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
 		resp, err := responses.NewShippingMethodFromModel(shippingMethod)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -92,19 +94,19 @@ func (controller *shippingMethodController) createShippingMethod() gin.HandlerFu
 		//try create
 		model, err := models.NewShippingMethodFromPayload(payload)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
 		shippingMethod, err := controller.service.CreateShippingMethod(model)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
 		resp, err := responses.NewShippingMethodFromModel(shippingMethod)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -129,20 +131,20 @@ func (controller *shippingMethodController) updateShippingMethod() gin.HandlerFu
 		//try update
 		model, err := models.NewShippingMethodFromPayload(payload)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
 		model.ID = id
 		shippingMethod, err := controller.service.UpdateShippingMethod(model)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
 		resp, err := responses.NewShippingMethodFromModel(shippingMethod)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -160,7 +162,7 @@ func (controller *shippingMethodController) deleteShippingMethod() gin.HandlerFu
 		if err := controller.service.DeleteShippingMethod(id); err == nil {
 			context.Status(http.StatusNoContent)
 		} else {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 		}
 	}
 }

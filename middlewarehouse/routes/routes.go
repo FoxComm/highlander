@@ -13,7 +13,7 @@ import (
 )
 
 func GetRoutes(db *gorm.DB) map[string]controllers.IController {
-	// Kkkkkafka
+	// Kafka
 	broker := config.Config.KafkaBroker
 	schemaRegistryURL := config.Config.SchemaRegistryURL
 

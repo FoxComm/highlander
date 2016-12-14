@@ -57,6 +57,7 @@ func Connect(config *PGConfig) (*gorm.DB, error) {
 		conn = fmt.Sprintf("host=%s %s", config.Host, conn)
 	}
 
+	fmt.Print(conn)
 	db, err := gorm.Open("postgres", conn)
 	return db, err
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
+	"github.com/FoxComm/highlander/middlewarehouse/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,7 +23,7 @@ func NewStockItemController(service services.IInventoryService) IController {
 }
 
 func (controller *stockItemController) SetUp(router gin.IRouter) {
-	router.Use(FetchJWT)
+	router.Use(middlewares.FetchJWT)
 	router.GET("", controller.GetStockItems())
 	router.GET(":id", controller.GetStockItemById())
 	router.POST("", controller.CreateStockItem())
@@ -60,7 +61,7 @@ func (controller *stockItemController) GetStockItemById() gin.HandlerFunc {
 
 		stockItem, err := controller.service.GetStockItemById(uint(id))
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -81,7 +82,7 @@ func (controller *stockItemController) CreateStockItem() gin.HandlerFunc {
 
 		stockItem, err := controller.service.CreateStockItem(stockItem)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -113,7 +114,7 @@ func (controller *stockItemController) IncrementStockItemUnits() gin.HandlerFunc
 		units := models.NewStockItemUnitsFromPayload(uint(id), payload)
 
 		if err := controller.service.IncrementStockItemUnits(uint(id), models.UnitType(payload.Type), units); err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -142,7 +143,7 @@ func (controller *stockItemController) DecrementStockItemUnits() gin.HandlerFunc
 			return
 		}
 		if err := controller.service.DecrementStockItemUnits(uint(id), models.UnitType(payload.Type), payload.Qty); err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -168,7 +169,7 @@ func (controller *stockItemController) GetAFS() gin.HandlerFunc {
 		}
 
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 

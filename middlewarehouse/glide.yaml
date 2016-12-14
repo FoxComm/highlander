@@ -33,3 +33,7 @@ import:
   - package: github.com/Shopify/sarama
   - package: github.com/cihub/seelog
   - package: github.com/SermoDigital/jose
+  - package: github.com/openzipkin/zipkin-go-opentracing
+    version: ~0.2.1
+  - package: github.com/opentracing/opentracing-go
+    version: ~1.0.0

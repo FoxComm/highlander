@@ -9,6 +9,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
+	"github.com/FoxComm/highlander/middlewarehouse/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,7 +27,7 @@ func NewReservationController(service services.IInventoryService) IController {
 }
 
 func (controller *reservationController) SetUp(router gin.IRouter) {
-	router.Use(FetchJWT)
+	router.Use(middlewares.FetchJWT)
 	router.POST("hold", controller.Hold())
 	router.DELETE("hold/:refNum", controller.Unhold())
 }
@@ -56,9 +57,9 @@ func (controller *reservationController) Hold() gin.HandlerFunc {
 		if err := controller.service.HoldItems(payload.RefNum, skuMap); err != nil {
 			// This is ugly - let's spike into error messages in MWH in the future.
 			if strings.HasPrefix(err.Error(), outOfStockPrefix) {
-				handleServiceError(context, errors.New(outOfStockError))
+				failures.HandleServiceError(context, errors.New(outOfStockError))
 			} else {
-				handleServiceError(context, err)
+				failures.HandleServiceError(context, err)
 			}
 			return
 		}
@@ -72,7 +73,7 @@ func (controller *reservationController) Unhold() gin.HandlerFunc {
 		refNum := context.Params.ByName("refNum")
 
 		if err := controller.service.ReleaseItems(refNum); err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 

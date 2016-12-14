@@ -6,23 +6,42 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/config"
 	dbConfig "github.com/FoxComm/highlander/middlewarehouse/common/db/config"
+	"github.com/FoxComm/highlander/middlewarehouse/middlewares"
 	"github.com/FoxComm/highlander/middlewarehouse/routes"
+	"github.com/FoxComm/highlander/middlewarehouse/tracer"
 
 	"github.com/gin-gonic/gin"
+	"github.com/opentracing/opentracing-go"
 )
 
-func engine() (*gin.Engine, error) {
+func setRoutes(engine *gin.Engine) error {
 	db, err := dbConfig.DefaultConnection()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	configuration := routes.RouterConfiguration{
-		Engine: gin.Default(),
+		Engine: engine,
 		Routes: routes.GetRoutes(db),
 	}
 
-	return routes.SetUp(configuration), nil
+	routes.SetUp(configuration)
+
+	return nil
+}
+
+func setTracer(engine *gin.Engine) error {
+	tr, err := tracer.NewTracer()
+	if err != nil {
+		return err
+	}
+
+	// explicitely set our tracer to be the default tracer.
+	opentracing.InitGlobalTracer(tr)
+
+	engine.Use(middlewares.TraceFromHTTPRequest(tr))
+
+	return nil
 }
 
 func main() {
@@ -30,11 +49,16 @@ func main() {
 		log.Panicf("Failed to initialize middlewarehouse config with error %s", err.Error())
 	}
 
-	engine, err := engine()
-	if err != nil {
+	engine := gin.Default()
+
+	if err := setTracer(engine); err != nil {
 		log.Panicf("Failed to start middlewarehouse with error %s", err.Error())
 	}
 
-    port:= os.Getenv("PORT")
+	if err := setRoutes(engine); err != nil {
+		log.Panicf("Failed to start middlewarehouse with error %s", err.Error())
+	}
+
+	port := os.Getenv("PORT")
 	engine.Run(":" + port)
 }

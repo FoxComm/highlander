@@ -9,6 +9,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
+	"github.com/FoxComm/highlander/middlewarehouse/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,7 +22,7 @@ func NewStockLocationController(service services.IStockLocationService) IControl
 }
 
 func (controller *stockLocationController) SetUp(router gin.IRouter) {
-	router.Use(FetchJWT)
+	router.Use(middlewares.FetchJWT)
 	router.GET("", controller.GetLocations())
 	router.GET(":id", controller.GetLocationByID())
 	router.POST("", controller.CreateLocation())
@@ -51,7 +52,7 @@ func (controller *stockLocationController) GetLocationByID() gin.HandlerFunc {
 
 		location, err := controller.service.GetLocationByID(id)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -73,7 +74,7 @@ func (controller *stockLocationController) CreateLocation() gin.HandlerFunc {
 		model := models.NewStockLocationFromPayload(payload)
 		location, err := controller.service.CreateLocation(model)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -98,7 +99,7 @@ func (controller *stockLocationController) UpdateLocation() gin.HandlerFunc {
 
 		location, err := controller.service.UpdateLocation(model)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -114,7 +115,7 @@ func (controller *stockLocationController) DeleteLocation() gin.HandlerFunc {
 		}
 
 		if err := controller.service.DeleteLocation(id); err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
