@@ -236,4 +236,11 @@ class CouponCodes extends Component {
   }
 }
 
-export default connect(null, actions)(CouponCodes);
+const mergeProps = (stateProps, dispatchProps, ownProps) => {
+  return {
+    ...dispatchProps,
+    ...ownProps
+  };
+};
+
+export default connect(null, actions, mergeProps)(CouponCodes);
