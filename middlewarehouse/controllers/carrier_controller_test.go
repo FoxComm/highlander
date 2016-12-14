@@ -104,7 +104,7 @@ func (suite *carrierControllerTestSuite) Test_CreateCarrier_ReturnsRecord() {
 	//arrange
 	carrier1 := fixtures.GetCarrier(uint(1))
 	payload := fixtures.ToCarrierPayload(carrier1)
-	suite.service.On("CreateCarrier", models.NewCarrierFromPayload(payload)).Return(carrier1, nil).Once()
+	suite.service.On("CreateCarrier", payload.Model()).Return(carrier1, nil).Once()
 
 	//act
 	carrier := &responses.Carrier{}
