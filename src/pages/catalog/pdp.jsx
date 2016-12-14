@@ -72,6 +72,7 @@ type Product = {
   price: number|string,
   amountOfServings: string,
   servingSize: string,
+  pathName: string,
 };
 
 const mapStateToProps = state => {
@@ -195,6 +196,7 @@ class Pdp extends Component {
       amountOfServings: _.get(attributes, 'Amount of Servings.v', ''),
       servingSize: _.get(attributes, 'Serving Size.v', ''),
       skus: this.sortedSkus,
+      pathName: this.props.location.pathname,
     };
   }
 
