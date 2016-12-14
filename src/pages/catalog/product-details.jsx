@@ -33,8 +33,8 @@ const ProductDetails = (props: Props) => {
     servingSize,
   } = props.product;
 
-  const ProductURL = "http://theperfectgourmet.com" + props.product.pathName;
-  const TwitterHandle = "perfectgourmet1";
+  const ProductURL = 'http://theperfectgourmet.com' + props.product.pathName;
+  const TwitterHandle = 'perfectgourmet1';
 
   return (
     <div>
@@ -75,31 +75,31 @@ const ProductDetails = (props: Props) => {
       <div styleName="social-sharing">
         <Link to=
             {
-              "https://www.facebook.com/sharer/sharer.php?" +
-              "u=" + ProductURL + "&" +
-              "title=" + title + "&" +
-              "description=" + description + "&" +
-              "picture=" + props.product.images[0]
+              'https://www.facebook.com/sharer/sharer.php?" +
+              'u=' + ProductURL + '&' +
+              'title=' + title + '&' +
+              'description=' + description + '&' +
+              'picture=' + props.product.images[0]
             } target="_blank" styleName="social-icon">
           <Icon name="fc-facebook" styleName="social-icon"/>
         </Link>
 
         <Link to=
             {
-              "https://twitter.com/intent/tweet?" +
-              "text=" + title + "&" +
-              "url=" + ProductURL + "&" +
-              "via=" + TwitterHandle
+              'https://twitter.com/intent/tweet?' +
+              'text=" + title + '&' +
+              'url=" + ProductURL + '&' +
+              'via=" + TwitterHandle
             } target="_blank" styleName="social-icon">
           <Icon name="fc-twitter" styleName="social-icon" />
         </Link>
 
         <Link to=
             {
-              "https://pinterest.com/pin/create/button/?" +
-              "url=" + ProductURL + "&" +
-              "media=" + props.product.images[0] + "&" +
-              "description=" + description
+              'https://pinterest.com/pin/create/button/?' +
+              'url=" + ProductURL + '&' +
+              'media=" + props.product.images[0] + '&' +
+              'description=' + description
             } target="_blank" styleName="social-icon">
           <Icon name="fc-pinterest" styleName="social-icon"/>
         </Link>
