@@ -11,7 +11,6 @@
     docker_db_host: 172.17.0.1
   roles:
     - { role: base/phoenix }
-    - { role: base/greenriver }
     - { role: base/marketplace }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
