@@ -71,7 +71,7 @@ object SkuManager {
                    SkuManager.mustFindSkuByContextAndCode(oc.id, code))
       _ ← * <~ fullSku.model.mustNotBePresentInCarts
       archivedSku ← * <~ ProductVariants.update(fullSku.model,
-                                     fullSku.model.copy(archivedAt = Some(Instant.now)))
+                                                fullSku.model.copy(archivedAt = Some(Instant.now)))
       albumLinks ← * <~ SkuAlbumLinks.filter(_.leftId === archivedSku.id).result
       _ ← * <~ albumLinks.map { link ⇒
            SkuAlbumLinks.deleteById(link.id,
@@ -150,7 +150,8 @@ object SkuManager {
       maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[ProductVariant] =
     maybeCommit match {
       case Some(commit) ⇒
-        ProductVariants.update(sku, sku.copy(code = code, shadowId = shadow.id, commitId = commit.id))
+        ProductVariants
+          .update(sku, sku.copy(code = code, shadowId = shadow.id, commitId = commit.id))
       case None ⇒
         DbResultT.good(sku)
     }

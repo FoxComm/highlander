@@ -569,7 +569,7 @@ class ProductIntegrationTest
       productsApi(product.formId).archive().as[Root].skus mustBe empty
     }
 
-    "Variants must be unlinked" in new VariantFixture {
+    "ProductOptions must be unlinked" in new VariantFixture {
       productsApi(product.formId).archive().as[Root].variants mustBe empty
     }
 
@@ -662,7 +662,7 @@ class ProductIntegrationTest
         // Create the product.
         product ← * <~ Mvp.insertProductWithExistingSkus(scope, ctx.id, simpleProd, skus)
 
-        // Create the Variants and their Values.
+        // Create the ProductOptions and their Values.
         variantsAndValues ← * <~ variantsWithValues.map { scv ⇒
                              Mvp.insertVariantWithValues(scope, ctx.id, product, scv)
                            }
@@ -673,7 +673,7 @@ class ProductIntegrationTest
                            acc ++ item.variantValues
                        }
 
-        // Map the SKUs to the Variant Values
+        // Map the SKUs to the ProductOption Values
         skuMap ← * <~ skuValueMapping.map {
                   case (code, colorName, sizeName) ⇒
                     val selectedSku = skus.filter(_.code == code).head

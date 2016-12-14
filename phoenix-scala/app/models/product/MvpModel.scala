@@ -150,7 +150,7 @@ case class SimpleSkuShadow(s: SimpleSku) {
 case class SimpleVariant(name: String) {
   val (keyMap, form) = ObjectUtils.createForm(parse(s"""{ "name": "$name" }"""))
 
-  def create: ObjectForm = ObjectForm(kind = Variant.kind, attributes = form)
+  def create: ObjectForm = ObjectForm(kind = ProductOption.kind, attributes = form)
 
   def update(oldForm: ObjectForm): ObjectForm =
     oldForm.copy(attributes = oldForm.attributes merge form)
@@ -241,7 +241,9 @@ object Mvp {
               .filterLeft(product)
               .mustFindOneOr(ObjectLeftLinkCannotBeFound(product.shadowId))
 
-      sku ← * <~ ProductVariants.filter(_.id === link.rightId).mustFindOneOr(SkuNotFound(link.rightId))
+      sku ← * <~ ProductVariants
+             .filter(_.id === link.rightId)
+             .mustFindOneOr(SkuNotFound(link.rightId))
 
       simpleSku  ← * <~ SimpleSku(p.code, p.title, p.price, p.currency, p.active, p.tags)
       oldSkuForm ← * <~ ObjectForms.mustFindById404(sku.formId)
@@ -364,12 +366,12 @@ object Mvp {
       sShadow ← * <~ SimpleVariantShadow(v)
       shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
-      variant ← * <~ Variants.create(
-                   Variant(scope = scope,
-                           contextId = contextId,
-                           formId = form.id,
-                           shadowId = shadow.id,
-                           commitId = commit.id))
+      variant ← * <~ ProductOptions.create(
+                   ProductOption(scope = scope,
+                                 contextId = contextId,
+                                 formId = form.id,
+                                 shadowId = shadow.id,
+                                 commitId = commit.id))
       _ ← * <~ ProductVariantLinks.create(
              ProductVariantLink(leftId = product.id, rightId = variant.id))
     } yield
@@ -383,7 +385,7 @@ object Mvp {
                          contextId: Int,
                          v: SimpleVariantValue,
                          variantShadowId: Int,
-                         variantId: Variant#Id): DbResultT[SimpleVariantValueData] =
+                         variantId: ProductOption#Id): DbResultT[SimpleVariantValueData] =
     for {
       form    ← * <~ ObjectForms.create(v.create)
       sShadow ← * <~ SimpleVariantValueShadow(v)

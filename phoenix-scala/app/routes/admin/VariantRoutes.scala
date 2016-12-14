@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import payloads.VariantPayloads._
-import services.variant.VariantManager
+import services.variant.ProductOptionManager
 import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
@@ -20,24 +20,24 @@ object VariantRoutes {
         pathPrefix(Segment) { context ⇒
           (post & pathEnd & entity(as[VariantPayload])) { payload ⇒
             mutateOrFailures {
-              VariantManager.createVariant(context, payload)
+              ProductOptionManager.createVariant(context, payload)
             }
           } ~
           pathPrefix(IntNumber) { variantId ⇒
             (get & pathEnd) {
               getOrFailures {
-                VariantManager.getVariant(context, variantId)
+                ProductOptionManager.getVariant(context, variantId)
               }
             } ~
             (patch & pathEnd & entity(as[VariantPayload])) { payload ⇒
               mutateOrFailures {
-                VariantManager.updateVariant(context, variantId, payload)
+                ProductOptionManager.updateVariant(context, variantId, payload)
               }
             } ~
             pathPrefix("values") {
               (post & pathEnd & entity(as[VariantValuePayload])) { payload ⇒
                 mutateOrFailures {
-                  VariantManager.createVariantValue(context, variantId, payload)
+                  ProductOptionManager.createVariantValue(context, variantId, payload)
                 }
               }
             }

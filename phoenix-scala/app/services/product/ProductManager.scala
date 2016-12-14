@@ -30,8 +30,8 @@ import responses.VariantResponses.IlluminatedVariantResponse
 import services.image.ImageManager
 import services.inventory.SkuManager
 import services.objects.ObjectManager
-import services.variant.VariantManager
-import services.variant.VariantManager._
+import services.variant.ProductOptionManager
+import services.variant.ProductOptionManager._
 import slick.driver.PostgresDriver.api._
 import utils.Validation._
 import utils.aliases._
@@ -96,7 +96,7 @@ object ProductManager {
       productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
 
       variants     ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
-      fullVariants ← * <~ variants.map(VariantManager.zipVariantWithValues)
+      fullVariants ← * <~ variants.map(ProductOptionManager.zipVariantWithValues)
 
       hasVariants = variants.nonEmpty
 
@@ -208,7 +208,7 @@ object ProductManager {
                                           id ⇒ NotFoundFailure400(ProductSkuLink, link.id))
          }
       updatedVariants ← * <~ ProductVariantLinks.queryRightByLeft(archiveResult)
-      variants        ← * <~ updatedVariants.map(VariantManager.zipVariantWithValues)
+      variants        ← * <~ updatedVariants.map(ProductOptionManager.zipVariantWithValues)
       variantAndSkus  ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(productObject.model)
@@ -230,7 +230,7 @@ object ProductManager {
     val variantValueIds = variants.flatMap { case (_, variantValue) ⇒ variantValue }
       .map(_.model.id)
     for {
-      variantValueSkuCodes ← * <~ VariantManager.getVariantValueSkuCodes(variantValueIds)
+      variantValueSkuCodes ← * <~ ProductOptionManager.getVariantValueSkuCodes(variantValueIds)
       variantValueSkuCodesSet = variantValueSkuCodes.values.toSeq.flatten.distinct
       variantSkus ← * <~ variantValueSkuCodesSet.map(skuCode ⇒ SkuManager.getSku(skuCode))
       illuminated = variants.map {
@@ -255,8 +255,9 @@ object ProductManager {
     }
   }
 
-  private def validateUpdate(skus: Seq[SkuResponse.Root],
-                             variants: Seq[(FullObject[Variant], Seq[FullObject[ProductValue]])])
+  private def validateUpdate(
+      skus: Seq[SkuResponse.Root],
+      variants: Seq[(FullObject[ProductOption], Seq[FullObject[ProductValue]])])
     : ValidatedNel[Failure, Unit] = {
     val maxSkus = variants.map { case (_, values) ⇒ values.length.max(1) }.product
 
@@ -277,7 +278,7 @@ object ProductManager {
       case None ⇒
         for {
           variants     ← * <~ ProductVariantLinks.queryRightByLeft(product)
-          fullVariants ← * <~ variants.map(VariantManager.zipVariantWithValues)
+          fullVariants ← * <~ variants.map(ProductOptionManager.zipVariantWithValues)
         } yield fullVariants
     }
 
@@ -346,7 +347,7 @@ object ProductManager {
       oc: OC,
       au: AU): DbResultT[Seq[FullVariant]] =
     for {
-      variants ← * <~ payload.map(VariantManager.updateOrCreateVariant(oc, _))
+      variants ← * <~ payload.map(ProductOptionManager.updateOrCreateVariant(oc, _))
       _ ← * <~ ProductVariantLinks.syncLinks(product, variants.map {
            case (variant, values) ⇒ variant.model
          })
@@ -411,7 +412,10 @@ object ProductManager {
                                           .result
                             } yield skuLinks.map(_.rightId)
                         }
-      skuCodesForProduct ← * <~ ProductVariants.filter(_.id.inSet(skuIdsForProduct)).map(_.code).result
+      skuCodesForProduct ← * <~ ProductVariants
+                            .filter(_.id.inSet(skuIdsForProduct))
+                            .map(_.code)
+                            .result
       skuCodesFromPayload = payloadSkus.map(ps ⇒ SkuManager.getSkuCode(ps.attributes)).flatten
       skuCodesToBeGone    = skuCodesForProduct.diff(skuCodesFromPayload)
       _ ← * <~ (skuCodesToBeGone.map { codeToUnassociate ⇒

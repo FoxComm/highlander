@@ -24,18 +24,18 @@ class ProductVariantLinks(tag: Tag)
     (id, leftId, rightId, createdAt, updatedAt) <> ((ProductVariantLink.apply _).tupled, ProductVariantLink.unapply)
 
   def left  = foreignKey(Products.tableName, leftId, Products)(_.id)
-  def right = foreignKey(Variants.tableName, rightId, Variants)(_.id)
+  def right = foreignKey(ProductOptions.tableName, rightId, ProductOptions)(_.id)
 }
 
 object ProductVariantLinks
-    extends ObjectHeadLinkQueries[ProductVariantLink, ProductVariantLinks, Product, Variant](
+    extends ObjectHeadLinkQueries[ProductVariantLink, ProductVariantLinks, Product, ProductOption](
         new ProductVariantLinks(_),
         Products,
-        Variants)
+        ProductOptions)
     with ReturningId[ProductVariantLink, ProductVariantLinks] {
 
   val returningLens: Lens[ProductVariantLink, Int] = lens[ProductVariantLink].id
 
-  def build(left: Product, right: Variant) =
+  def build(left: Product, right: ProductOption) =
     ProductVariantLink(leftId = left.id, rightId = right.id)
 }
