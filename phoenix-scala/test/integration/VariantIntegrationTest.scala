@@ -48,7 +48,7 @@ class VariantIntegrationTest
     "Fails when trying to create variant with archived sku as value" in new ArchivedSkusFixture {
       variantsApi
         .create(archivedSkuVariantPayload)
-        .mustFailWith400(LinkArchivedSkuFailure(Variant, 10, archivedSkuCode))
+        .mustFailWith400(LinkArchivedSkuFailure(ProductOption, 10, archivedSkuCode))
     }
   }
 
@@ -91,7 +91,7 @@ class VariantIntegrationTest
       variantsApi(variant.variant.variantFormId)
         .update(payload)
         .mustFailWith400(
-            LinkArchivedSkuFailure(Variant, variant.variant.variantFormId, archivedSkuCode))
+            LinkArchivedSkuFailure(ProductOption, variant.variant.variantFormId, archivedSkuCode))
     }
   }
 
@@ -111,7 +111,7 @@ class VariantIntegrationTest
 
       variantsApi(variantResponse.id)
         .createValues(archivedSkuVariantValuePayload)
-        .mustFailWith400(LinkArchivedSkuFailure(Variant, variantResponse.id, archivedSkuCode))
+        .mustFailWith400(LinkArchivedSkuFailure(ProductOption, variantResponse.id, archivedSkuCode))
     }
   }
 

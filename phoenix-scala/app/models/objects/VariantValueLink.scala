@@ -23,19 +23,21 @@ class VariantValueLinks(tag: Tag)
   def * =
     (id, leftId, rightId, createdAt, updatedAt) <> ((VariantValueLink.apply _).tupled, VariantValueLink.unapply)
 
-  def left  = foreignKey(Variants.tableName, leftId, Variants)(_.id)
+  def left  = foreignKey(ProductOptions.tableName, leftId, ProductOptions)(_.id)
   def right = foreignKey(VariantValues.tableName, rightId, VariantValues)(_.id)
 }
 
 object VariantValueLinks
-    extends ObjectHeadLinkQueries[VariantValueLink, VariantValueLinks, Variant, ProductValue](
-        new VariantValueLinks(_),
-        Variants,
-        VariantValues)
+    extends ObjectHeadLinkQueries[VariantValueLink,
+                                  VariantValueLinks,
+                                  ProductOption,
+                                  ProductValue](new VariantValueLinks(_),
+                                                ProductOptions,
+                                                VariantValues)
     with ReturningId[VariantValueLink, VariantValueLinks] {
 
   val returningLens: Lens[VariantValueLink, Int] = lens[VariantValueLink].id
 
-  def build(left: Variant, right: ProductValue) =
+  def build(left: ProductOption, right: ProductValue) =
     VariantValueLink(leftId = left.id, rightId = right.id)
 }

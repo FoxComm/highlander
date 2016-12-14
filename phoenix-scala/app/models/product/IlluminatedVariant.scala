@@ -8,7 +8,7 @@ case class IlluminatedVariant(id: Int, context: IlluminatedContext, attributes: 
 
 object IlluminatedVariant {
 
-  def illuminate(c: ObjectContext, v: FullObject[Variant]): IlluminatedVariant =
+  def illuminate(c: ObjectContext, v: FullObject[ProductOption]): IlluminatedVariant =
     IlluminatedVariant(
         id = v.form.id,
         context = IlluminatedContext(c.name, c.attributes),
