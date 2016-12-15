@@ -71,7 +71,7 @@ object LineItemManager {
                      DbResultT.good(productLink.leftId)
                    case None ⇒
                      for {
-                       valueLink ← * <~ ProductValueSkuLinks
+                       valueLink ← * <~ ProductValueVariantLinks
                                     .filter(_.rightId === sku.id)
                                     .mustFindOneOr(NoProductFoundForSku(sku.id))
                        variantLink ← * <~ ProductOptionValueLinks
