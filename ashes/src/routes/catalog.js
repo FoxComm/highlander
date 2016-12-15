@@ -62,8 +62,8 @@ const getRoutes = (jwt: Object) => {
           frn: frn.activity.product,
         }),
         router.read('product-insights', {
-          title: 'Activity Trail',
-          path: 'activity-trail',
+          title: 'Insights',
+          path: 'insights',
           component: Insights,
           frn: frn.activity.product,
         }),
