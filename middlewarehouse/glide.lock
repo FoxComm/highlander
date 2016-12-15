@@ -1,5 +1,5 @@
-hash: 3ff69a8ca568f20b88c7c2cafcb9e960071df19a7a1201d8b4725ef35d42a5b3
-updated: 2016-12-13T12:56:09.616592485+03:00
+hash: 44b4375aa6720cd183332d1523b0c167d97fc61279f46a6a05ade2f05139891e
+updated: 2016-12-15T19:25:02.378909157+03:00
 imports:
 - name: github.com/cihub/seelog
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
@@ -28,7 +28,7 @@ imports:
 - name: github.com/elodina/siesta-producer
   version: a374fc36c515243efb438aed41c536af55d8b19b
 - name: github.com/FoxComm/metamorphosis
-  version: 90c45efd24343d09bb1e33e4b5c4eec378ecfb97
+  version: 869be193229e7c03f48d3890623bd33d60472c27
   repo: git@github.com:FoxComm/metamorphosis.git
   vcs: git
 - name: github.com/gin-gonic/gin
@@ -87,10 +87,8 @@ imports:
   - require
 - name: github.com/yanzay/cfg
   version: 3b647091f880406fdb14edcb309ce750a38d3e85
-- name: golang.org/x/net
-  version: f315505cf3349909cdf013ea56690da34e96a451
-  subpackages:
-  - context
+- name: golang.org/x/net/context
+  version: ""
 - name: golang.org/x/sys
   version: a646d33e2ee3172a661fc09bca23bb4889a41bc8
   subpackages:
