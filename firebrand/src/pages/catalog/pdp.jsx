@@ -199,8 +199,12 @@ class Pdp extends Component {
     return (
       <div styleName="container">
         <TrackingPixel
-          devUrl="/api/v1/hal"
-          queryParams={{action: 'pdp',productId: this.productId}}
+          url="/api/v1/hal"
+          channel={1}
+          subject={1} 
+          verb='pdp'
+          obj='product'
+          objId={this.productId}
         />
         <div styleName="gallery">
           <Gallery images={images} />

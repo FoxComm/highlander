@@ -47,8 +47,12 @@ class ListItem extends React.Component {
     return (
       <div styleName="list-item" onClick={click}>
         <TrackingPixel
-          devUrl="/api/v1/hal"
-          queryParams={{action: 'list',productId: productId}}
+          url="/api/v1/hal"
+          channel={1}
+          subject={1} 
+          verb='list'
+          obj='product'
+          objId={productId}
         />
         <div styleName="preview">
           {image}
