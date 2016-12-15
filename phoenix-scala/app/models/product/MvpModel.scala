@@ -391,7 +391,7 @@ object Mvp {
       sShadow ← * <~ SimpleVariantValueShadow(v)
       shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
-      value ← * <~ VariantValues.create(
+      value ← * <~ ProductValues.create(
                  ProductValue(scope = scope,
                               contextId = contextId,
                               formId = form.id,

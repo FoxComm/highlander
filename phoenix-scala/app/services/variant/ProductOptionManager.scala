@@ -174,7 +174,7 @@ object ProductOptionManager {
       _ ← * <~ skuCodes.map(sku ⇒
                DbResultT.fromXor(sku.mustNotBeArchived(ProductOption, variant.formId)))
       ins ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
-      variantValue ← * <~ VariantValues.create(
+      variantValue ← * <~ ProductValues.create(
                         ProductValue(scope = scope,
                                      contextId = context.id,
                                      formId = ins.form.id,
@@ -240,7 +240,7 @@ object ProductOptionManager {
       maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[ProductValue] =
     maybeCommit match {
       case Some(commit) ⇒
-        VariantValues.update(value, value.copy(shadowId = shadow.id, commitId = commit.id))
+        ProductValues.update(value, value.copy(shadowId = shadow.id, commitId = commit.id))
       case None ⇒
         DbResultT.good(value)
     }
@@ -272,7 +272,7 @@ object ProductOptionManager {
       db: DB): DbResultT[ProductValue] =
     for {
 
-      value ← * <~ VariantValues
+      value ← * <~ ProductValues
                .filterByContextAndFormId(contextId, formId)
                .mustFindOneOr(VariantValueNotFoundForContext(formId, contextId))
     } yield value
@@ -283,7 +283,7 @@ object ProductOptionManager {
 
       shadow ← * <~ ObjectManager.mustFindShadowById404(shadowId)
       form   ← * <~ ObjectManager.mustFindFormById404(shadow.formId)
-      value ← * <~ VariantValues
+      value ← * <~ ProductValues
                .filterByContextAndFormId(contextId, form.id)
                .mustFindOneOr(VariantValueNotFoundForContext(form.id, contextId))
     } yield FullObject(value, form, shadow)

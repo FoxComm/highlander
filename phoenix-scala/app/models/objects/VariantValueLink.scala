@@ -24,7 +24,7 @@ class VariantValueLinks(tag: Tag)
     (id, leftId, rightId, createdAt, updatedAt) <> ((VariantValueLink.apply _).tupled, VariantValueLink.unapply)
 
   def left  = foreignKey(ProductOptions.tableName, leftId, ProductOptions)(_.id)
-  def right = foreignKey(VariantValues.tableName, rightId, VariantValues)(_.id)
+  def right = foreignKey(ProductValues.tableName, rightId, ProductValues)(_.id)
 }
 
 object VariantValueLinks
@@ -33,7 +33,7 @@ object VariantValueLinks
                                   ProductOption,
                                   ProductValue](new VariantValueLinks(_),
                                                 ProductOptions,
-                                                VariantValues)
+                                                ProductValues)
     with ReturningId[VariantValueLink, VariantValueLinks] {
 
   val returningLens: Lens[VariantValueLink, Int] = lens[VariantValueLink].id

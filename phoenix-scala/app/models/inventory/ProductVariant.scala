@@ -15,7 +15,7 @@ import com.github.tminglei.slickpg._
 import models.cord.lineitems.CartLineItems
 
 object ProductVariant {
-  val kind         = "sku"
+  val kind         = "product-variant"
   val skuCodeRegex = """([a-zA-Z0-9-_]*)""".r
 }
 
@@ -54,7 +54,7 @@ case class ProductVariant(id: Int = 0,
 
 }
 
-class ProductVariants(tag: Tag) extends ObjectHeads[ProductVariant](tag, "skus") {
+class ProductVariants(tag: Tag) extends ObjectHeads[ProductVariant](tag, "product_variants") {
 
   def code = column[String]("code")
 
