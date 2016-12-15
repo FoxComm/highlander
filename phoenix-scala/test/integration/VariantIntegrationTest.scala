@@ -7,7 +7,7 @@ import models.account.Scope
 import models.inventory.ProductVariants
 import models.product._
 import org.json4s.JsonDSL._
-import payloads.VariantPayloads._
+import payloads.ProductOptionPayloads._
 import responses.VariantResponses.IlluminatedVariantResponse.{Root ⇒ VariantRoot}
 import responses.VariantValueResponses.IlluminatedVariantValueResponse.{Root ⇒ ValueRoot}
 import services.product.ProductManager
@@ -72,7 +72,7 @@ class VariantIntegrationTest
 
   "PATCH v1/variants/:context/:id" - {
     "Updates the name of the variant successfully" in new VariantFixture {
-      val payload = VariantPayload(values = None,
+      val payload = ProductOptionPayload(values = None,
                                    attributes =
                                      Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
       val response = variantsApi(variant.variant.variantFormId).update(payload).as[VariantRoot]
@@ -84,7 +84,7 @@ class VariantIntegrationTest
     }
 
     "Fails when trying to attach archived SKU to the variant" in new ArchivedSkusFixture {
-      var payload = VariantPayload(values = Some(Seq(archivedSkuVariantValuePayload)),
+      var payload = ProductOptionPayload(values = Some(Seq(archivedSkuVariantValuePayload)),
                                    attributes =
                                      Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
 
@@ -118,7 +118,7 @@ class VariantIntegrationTest
   trait Fixture extends StoreAdmin_Seed {
     val scope = Scope.current
 
-    val createVariantPayload = VariantPayload(attributes =
+    val createVariantPayload = ProductOptionPayload(attributes =
                                                 Map("name" → (("t" → "string") ~ ("v" → "Color"))),
                                               values = None)
 

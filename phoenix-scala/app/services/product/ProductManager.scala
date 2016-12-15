@@ -19,7 +19,7 @@ import models.cord.lineitems.CartLineItems
 import payloads.ImagePayloads.{AlbumPayload, UpdateAlbumPositionPayload}
 import payloads.ProductPayloads._
 import payloads.SkuPayloads._
-import payloads.VariantPayloads._
+import payloads.ProductOptionPayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
 import responses.ImageResponses.ImageResponse
@@ -267,7 +267,7 @@ object ProductManager {
   }
 
   private def updateAssociatedVariants(product: Product,
-                                       variantsPayload: Option[Seq[VariantPayload]])(
+                                       variantsPayload: Option[Seq[ProductOptionPayload]])(
       implicit ec: EC,
       db: DB,
       oc: OC,
@@ -341,7 +341,7 @@ object ProductManager {
       } yield SkuResponse.buildLite(IlluminatedVariant.illuminate(oc, up), albums)
     }
 
-  private def findOrCreateVariantsForProduct(product: Product, payload: Seq[VariantPayload])(
+  private def findOrCreateVariantsForProduct(product: Product, payload: Seq[ProductOptionPayload])(
       implicit ec: EC,
       db: DB,
       oc: OC,

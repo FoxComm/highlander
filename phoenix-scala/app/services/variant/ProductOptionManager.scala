@@ -7,7 +7,7 @@ import models.inventory.ProductVariant
 import models.account._
 import models.objects._
 import models.product._
-import payloads.VariantPayloads._
+import payloads.ProductOptionPayloads._
 import responses.VariantResponses.IlluminatedVariantResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse
 import services.inventory.SkuManager
@@ -19,7 +19,7 @@ import utils.db._
 object ProductOptionManager {
   type FullVariant = (FullObject[ProductOption], Seq[FullObject[ProductValue]])
 
-  def createVariant(contextName: String, payload: VariantPayload)(
+  def createVariant(contextName: String, payload: ProductOptionPayload)(
       implicit ec: EC,
       db: DB,
       au: AU): DbResultT[IlluminatedVariantResponse.Root] =
@@ -60,7 +60,7 @@ object ProductOptionManager {
           variantValueSkus = variantValueSkuCodes
       )
 
-  def updateVariant(contextName: String, variantId: Int, payload: VariantPayload)(
+  def updateVariant(contextName: String, variantId: Int, payload: ProductOptionPayload)(
       implicit ec: EC,
       db: DB,
       au: AU): DbResultT[IlluminatedVariantResponse.Root] =
@@ -79,7 +79,7 @@ object ProductOptionManager {
 
   def createVariantInner(
       context: ObjectContext,
-      payload: VariantPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[FullVariant] = {
+      payload: ProductOptionPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[FullVariant] = {
 
     val form          = ObjectForm.fromPayload(ProductOption.kind, payload.attributes)
     val shadow        = ObjectShadow.fromPayload(payload.attributes)
@@ -98,7 +98,7 @@ object ProductOptionManager {
     } yield (FullObject(variant, ins.form, ins.shadow), values)
   }
 
-  def updateVariantInner(context: ObjectContext, variantId: Int, payload: VariantPayload)(
+  def updateVariantInner(context: ObjectContext, variantId: Int, payload: ProductOptionPayload)(
       implicit ec: EC,
       db: DB,
       au: AU): DbResultT[FullVariant] = {
@@ -128,7 +128,7 @@ object ProductOptionManager {
 
   def updateOrCreateVariant(
       context: ObjectContext,
-      payload: VariantPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[FullVariant] = {
+      payload: ProductOptionPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[FullVariant] = {
 
     payload.id match {
       case Some(id) ⇒ updateVariantInner(context, id, payload)
