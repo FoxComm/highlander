@@ -681,11 +681,11 @@ class ProductIntegrationTest
                     val sizeValue   = variantValues.filter(_.name == sizeName).head
 
                     for {
-                      colorLink ← * <~ ProductValueSkuLinks.create(
-                                     ProductValueSkuLink(leftId = colorValue.valueId,
+                      colorLink ← * <~ ProductValueVariantLinks.create(
+                                     ProductValueVariantLink(leftId = colorValue.valueId,
                                                          rightId = selectedSku.id))
-                      sizeLink ← * <~ ProductValueSkuLinks.create(
-                                    ProductValueSkuLink(leftId = sizeValue.valueId,
+                      sizeLink ← * <~ ProductValueVariantLinks.create(
+                                    ProductValueVariantLink(leftId = sizeValue.valueId,
                                                         rightId = selectedSku.id))
                     } yield (colorLink, sizeLink)
                 }

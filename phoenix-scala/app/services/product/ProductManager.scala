@@ -407,7 +407,7 @@ object ProductManager {
                                             .filter(_.leftId.inSet(variantIds))
                                             .result
                               valueIds = valueLinks.map(_.rightId)
-                              skuLinks ← ProductValueSkuLinks
+                              skuLinks ← ProductValueVariantLinks
                                           .filter(_.leftId.inSet(valueIds))
                                           .result
                             } yield skuLinks.map(_.rightId)

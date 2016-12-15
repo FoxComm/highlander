@@ -184,8 +184,8 @@ object ProductOptionManager {
              ProductOptionValueLink(leftId = variant.id, rightId = variantValue.id))
       _ ← * <~ skuCodes.map(
              s ⇒
-               ProductValueSkuLinks.create(
-                   ProductValueSkuLink(leftId = variantValue.id, rightId = s.id)))
+               ProductValueVariantLinks.create(
+                   ProductValueVariantLink(leftId = variantValue.id, rightId = s.id)))
     } yield FullObject(variantValue, ins.form, ins.shadow)
   }
 
@@ -208,17 +208,17 @@ object ProductOptionManager {
       newSkus ← * <~ payload.skuCodes.map(SkuManager.mustFindSkuByContextAndCode(contextId, _))
       newSkuIds = newSkus.map(_.id).toSet
 
-      variantValueLinks ← * <~ ProductValueSkuLinks.filterLeft(value.id).result
+      variantValueLinks ← * <~ ProductValueVariantLinks.filterLeft(value.id).result
       linkedSkuIds = variantValueLinks.map(_.rightId).toSet
 
       toDelete = variantValueLinks.filter(link ⇒ !newSkuIds.contains(link.rightId))
       toCreate = newSkuIds.diff(linkedSkuIds)
 
-      _ ← * <~ ProductValueSkuLinks.createAllReturningIds(
-             toCreate.map(id ⇒ ProductValueSkuLink(leftId = value.id, rightId = id)))
+      _ ← * <~ ProductValueVariantLinks.createAllReturningIds(
+             toCreate.map(id ⇒ ProductValueVariantLink(leftId = value.id, rightId = id)))
       _ ← * <~ toDelete.map(
              link ⇒
-               ProductValueSkuLinks
+               ProductValueVariantLinks
                  .deleteById(link.id, DbResultT.unit, id ⇒ NotFoundFailure404(link, link.id)))
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
@@ -261,7 +261,9 @@ object ProductOptionManager {
   def getVariantValueSkuCodes(
       variantValueHeadIds: Seq[Int])(implicit ec: EC, db: DB): DbResultT[Map[Int, Seq[String]]] =
     for {
-      links ← * <~ ProductValueSkuLinks.findSkusForVariantValues(variantValueHeadIds).result
+      links ← * <~ ProductValueVariantLinks
+               .findVariantsForProductValues(variantValueHeadIds)
+               .result
       linksMapping = links.groupBy { case (valueId, _) ⇒ valueId }.mapValues(_.map {
         case (_, skuCode) ⇒ skuCode
       })
