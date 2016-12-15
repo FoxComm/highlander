@@ -17,16 +17,13 @@ trait CordQueries {
   def getCordPaymentState(cordRef: String)(implicit ec: EC): DBIO[State] =
     for {
       payments ← OrderPayments.findAllByCordRef(cordRef).result
-      charges  ← DBIO.sequence(payments.map(getPaymentState))
+      charges  ← DBIO.sequence(payments.map(getPaymentState)).map(_.flatten)
     } yield {
-      val flatten = charges.flatten
-
-      if (payments.size != flatten.size || payments.isEmpty) Cart
-      else if (flatten.contains(ExpiredAuth)) ExpiredAuth
-      else if (flatten.contains(FailedCapture)) FailedCapture
-      else if (flatten.forall(_ == FullCapture)) FullCapture
+      if (payments.size != charges.size || payments.isEmpty) Cart
+      else if (charges.contains(ExpiredAuth)) ExpiredAuth
+      else if (charges.contains(FailedCapture)) FailedCapture
+      else if (charges.forall(_ == FullCapture)) FullCapture
       else Auth
-
     }
 
   private def getPaymentState(payment: OrderPayment)(implicit ec: EC): DBIO[Option[State]] = {
