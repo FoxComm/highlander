@@ -13,7 +13,7 @@ import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
-object SkuRoutes {
+object ProductVariantRoutes {
 
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
