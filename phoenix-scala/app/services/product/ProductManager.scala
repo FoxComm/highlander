@@ -18,7 +18,7 @@ import models.account._
 import models.cord.lineitems.CartLineItems
 import payloads.ImagePayloads.{AlbumPayload, UpdateAlbumPositionPayload}
 import payloads.ProductPayloads._
-import payloads.SkuPayloads._
+import payloads.ProductVariantPayloads._
 import payloads.ProductOptionPayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
@@ -308,7 +308,7 @@ object ProductManager {
 
   private def findOrCreateSkusForProduct(
       product: Product,
-      skuPayloads: Seq[SkuPayload],
+      skuPayloads: Seq[ProductVariantPayload],
       createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC, au: AU) =
     skuPayloads.map { payload ⇒
       val albumPayloads = payload.albums.getOrElse(Seq.empty)
@@ -392,7 +392,7 @@ object ProductManager {
   // This is an inefficient intensely quering method that does the trick
   private def skusToBeUnassociatedMustNotBePresentInCarts(
       productId: Int,
-      payloadSkus: Seq[SkuPayload])(implicit ec: EC, db: DB): DbResultT[Unit] =
+      payloadSkus: Seq[ProductVariantPayload])(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
       skuIdsForProduct ← * <~ ProductVariantLinks.filter(_.leftId === productId).result.flatMap {
                           case links @ Seq(_) ⇒

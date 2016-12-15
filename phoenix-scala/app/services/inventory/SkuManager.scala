@@ -10,7 +10,7 @@ import models.account._
 import models.inventory._
 import models.objects._
 import payloads.ImagePayloads.AlbumPayload
-import payloads.SkuPayloads._
+import payloads.ProductVariantPayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
 import responses.ObjectResponses.ObjectContextResponse
@@ -27,11 +27,12 @@ import utils.db._
 object SkuManager {
   implicit val formats = JsonFormatters.DefaultFormats
 
-  def createSku(admin: User, payload: SkuPayload)(implicit ec: EC,
-                                                  db: DB,
-                                                  ac: AC,
-                                                  oc: OC,
-                                                  au: AU): DbResultT[SkuResponse.Root] = {
+  def createSku(admin: User, payload: ProductVariantPayload)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      oc: OC,
+      au: AU): DbResultT[SkuResponse.Root] = {
     val albumPayloads = payload.albums.getOrElse(Seq.empty)
 
     for {
@@ -52,7 +53,7 @@ object SkuManager {
     } yield
       SkuResponse.build(IlluminatedVariant.illuminate(oc, FullObject(sku, form, shadow)), albums)
 
-  def updateSku(admin: User, code: String, payload: SkuPayload)(
+  def updateSku(admin: User, code: String, payload: ProductVariantPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
@@ -93,7 +94,7 @@ object SkuManager {
               FullObject(model = archivedSku, form = fullSku.form, shadow = fullSku.shadow)),
           albums)
 
-  def createSkuInner(context: ObjectContext, payload: SkuPayload)(
+  def createSkuInner(context: ObjectContext, payload: ProductVariantPayload)(
       implicit ec: EC,
       db: DB,
       au: AU): DbResultT[FullObject[ProductVariant]] = {
@@ -115,7 +116,7 @@ object SkuManager {
     } yield FullObject(sku, ins.form, ins.shadow)
   }
 
-  def updateSkuInner(sku: ProductVariant, payload: SkuPayload)(
+  def updateSkuInner(sku: ProductVariant, payload: ProductVariantPayload)(
       implicit ec: EC,
       db: DB): DbResultT[FullObject[ProductVariant]] = {
 
@@ -135,7 +136,7 @@ object SkuManager {
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 
-  def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC, db: DB, oc: OC, au: AU) =
+  def findOrCreateSku(skuPayload: ProductVariantPayload)(implicit ec: EC, db: DB, oc: OC, au: AU) =
     for {
       code ← * <~ mustGetSkuCode(skuPayload)
       sku ← * <~ ProductVariants.filterByContextAndCode(oc.id, code).one.dbresult.flatMap {
@@ -157,7 +158,7 @@ object SkuManager {
         DbResultT.good(sku)
     }
 
-  def mustGetSkuCode(payload: SkuPayload): Failures Xor String =
+  def mustGetSkuCode(payload: ProductVariantPayload): Failures Xor String =
     getSkuCode(payload.attributes) match {
       case Some(code) ⇒ Xor.right(code)
       case None       ⇒ Xor.left(GeneralFailure("SKU code not found in payload").single)

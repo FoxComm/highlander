@@ -35,7 +35,7 @@ object VariantRoutes {
               }
             } ~
             pathPrefix("values") {
-              (post & pathEnd & entity(as[VariantValuePayload])) { payload ⇒
+              (post & pathEnd & entity(as[ProductValuePayload])) { payload ⇒
                 mutateOrFailures {
                   ProductOptionManager.createVariantValue(context, variantId, payload)
                 }

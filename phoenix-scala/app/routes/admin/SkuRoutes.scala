@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import payloads.ImagePayloads.AlbumPayload
-import payloads.SkuPayloads._
+import payloads.ProductVariantPayloads._
 import services.image.ImageManager
 import services.inventory.SkuManager
 import services.Authenticator.AuthData
@@ -21,7 +21,7 @@ object SkuRoutes {
       pathPrefix("skus") {
         pathPrefix(Segment) { contextName ⇒
           adminObjectContext(contextName) { implicit context ⇒
-            (post & pathEnd & entity(as[SkuPayload])) { payload ⇒
+            (post & pathEnd & entity(as[ProductVariantPayload])) { payload ⇒
               mutateOrFailures {
                 SkuManager.createSku(auth.model, payload)
               }
@@ -32,7 +32,7 @@ object SkuRoutes {
                   SkuManager.getSku(code)
                 }
               } ~
-              (patch & pathEnd & entity(as[SkuPayload])) { payload ⇒
+              (patch & pathEnd & entity(as[ProductVariantPayload])) { payload ⇒
                 mutateOrFailures {
                   SkuManager.updateSku(auth.model, code, payload)
                 }

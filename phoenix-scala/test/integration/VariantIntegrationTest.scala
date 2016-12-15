@@ -127,7 +127,7 @@ class VariantIntegrationTest
 
     val skus = Mvp.insertSkus(scope, ctx.id, testSkus).gimme
 
-    val createVariantValuePayload = VariantValuePayload(name = Some("Red"),
+    val createVariantValuePayload = ProductValuePayload(name = Some("Red"),
                                                         swatch = Some("ff0000"),
                                                         skuCodes = Seq(skus.head.code))
   }

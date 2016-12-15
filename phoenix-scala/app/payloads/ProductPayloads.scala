@@ -1,14 +1,14 @@
 package payloads
 
 import payloads.ImagePayloads.AlbumPayload
-import payloads.SkuPayloads._
+import payloads.ProductVariantPayloads._
 import payloads.ProductOptionPayloads.ProductOptionPayload
 import utils.aliases._
 
 object ProductPayloads {
   case class CreateProductPayload(scope: Option[String] = None,
                                   attributes: Map[String, Json],
-                                  skus: Seq[SkuPayload],
+                                  skus: Seq[ProductVariantPayload],
                                   variants: Option[Seq[ProductOptionPayload]],
                                   albums: Option[Seq[AlbumPayload]] = None,
                                   override val schema: Option[String] = None)
@@ -18,7 +18,7 @@ object ProductPayloads {
   }
 
   case class UpdateProductPayload(attributes: Map[String, Json],
-                                  skus: Option[Seq[SkuPayload]],
+                                  skus: Option[Seq[ProductVariantPayload]],
                                   variants: Option[Seq[ProductOptionPayload]],
                                   albums: Option[Seq[AlbumPayload]] = None)
       extends ObjectSchemaValidation.SchemaValidation[UpdateProductPayload] {
