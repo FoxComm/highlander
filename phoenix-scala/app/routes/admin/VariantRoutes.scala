@@ -4,7 +4,7 @@ import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
-import payloads.VariantPayloads._
+import payloads.ProductOptionPayloads._
 import services.variant.ProductOptionManager
 import services.Authenticator.AuthData
 import utils.aliases._
@@ -18,7 +18,7 @@ object VariantRoutes {
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("variants") {
         pathPrefix(Segment) { context ⇒
-          (post & pathEnd & entity(as[VariantPayload])) { payload ⇒
+          (post & pathEnd & entity(as[ProductOptionPayload])) { payload ⇒
             mutateOrFailures {
               ProductOptionManager.createVariant(context, payload)
             }
@@ -29,7 +29,7 @@ object VariantRoutes {
                 ProductOptionManager.getVariant(context, variantId)
               }
             } ~
-            (patch & pathEnd & entity(as[VariantPayload])) { payload ⇒
+            (patch & pathEnd & entity(as[ProductOptionPayload])) { payload ⇒
               mutateOrFailures {
                 ProductOptionManager.updateVariant(context, variantId, payload)
               }

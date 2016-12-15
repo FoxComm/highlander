@@ -19,7 +19,7 @@ import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.CreateCart
 import payloads.ProductPayloads._
 import payloads.SkuPayloads.SkuPayload
-import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
+import payloads.ProductOptionPayloads.{ProductOptionPayload, VariantValuePayload}
 import responses.ProductResponses.ProductResponse
 import responses.ProductResponses.ProductResponse.Root
 import responses.cord.CartResponse
@@ -82,7 +82,7 @@ class ProductIntegrationTest
         val valuePayload =
           Seq(VariantValuePayload(skuCodes = Seq(skuName), swatch = None, name = Some("Test")))
         val variantPayload =
-          Seq(VariantPayload(attributes = Map("test" → "Test"), values = Some(valuePayload)))
+          Seq(ProductOptionPayload(attributes = Map("test" → "Test"), values = Some(valuePayload)))
 
         val productResponse = doQuery(productPayload.copy(variants = Some(variantPayload)))
 
@@ -154,7 +154,7 @@ class ProductIntegrationTest
         val values =
           Seq(VariantValuePayload(name = Some("value"), swatch = None, skuCodes = Seq.empty))
         val variantPayload =
-          Seq(VariantPayload(attributes = Map("t" → "t"), values = Some(values)))
+          Seq(ProductOptionPayload(attributes = Map("t" → "t"), values = Some(values)))
         val payload =
           productPayload.copy(skus = Seq(redSkuPayload), variants = Some(variantPayload))
 
@@ -215,7 +215,7 @@ class ProductIntegrationTest
                                 swatch = None,
                                 skuCodes = Seq("SKU-TEST1", "SKU-TEST2")))
         val variantPayload =
-          Seq(VariantPayload(attributes = Map("t" → "t"), values = Some(values)))
+          Seq(ProductOptionPayload(attributes = Map("t" → "t"), values = Some(values)))
         val payload = productPayload.copy(skus = Seq.empty, variants = Some(variantPayload))
 
         productsApi.create(payload).mustFailWithMessage("SKUs must not be empty")
@@ -695,7 +695,7 @@ class ProductIntegrationTest
 
   trait VariantFixture extends Fixture {
     def makeVariantPayload(name: String, values: Seq[VariantValuePayload]) =
-      VariantPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → name))),
+      ProductOptionPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → name))),
                      values = Some(values))
 
     val redSkus   = Seq(skuRedSmallCode, skuRedLargeCode)
@@ -756,7 +756,7 @@ class ProductIntegrationTest
 
   trait RemovingSkusFixture extends VariantFixture {
 
-    val twoSkuVariantPayload: Seq[VariantPayload] = Seq(
+    val twoSkuVariantPayload: Seq[ProductOptionPayload] = Seq(
         makeVariantPayload("Size",
                            Seq(redValuePayload.copy(skuCodes = Seq(skuRedLargeCode)),
                                greenValuePayload.copy(skuCodes = Seq(skuGreenSmallCode)))),

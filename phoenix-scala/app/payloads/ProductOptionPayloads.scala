@@ -6,12 +6,12 @@ import models.product.ProductValue
 import payloads.ObjectPayloads._
 import utils.aliases._
 
-object VariantPayloads {
-  case class VariantPayload(id: Option[Int] = None,
-                            attributes: Map[String, Json],
-                            values: Option[Seq[VariantValuePayload]],
-                            schema: Option[String] = None,
-                            scope: Option[String] = None)
+object ProductOptionPayloads {
+  case class ProductOptionPayload(id: Option[Int] = None,
+                                  attributes: Map[String, Json],
+                                  values: Option[Seq[VariantValuePayload]],
+                                  schema: Option[String] = None,
+                                  scope: Option[String] = None)
 
   case class VariantValuePayload(id: Option[Int] = None,
                                  name: Option[String],
