@@ -250,3 +250,6 @@ first_run: false
 
 # BuildKite Settings
 buildkite_env: gce
+
+# Set to true for Sensu Client deployment
+with_sensu: false

@@ -5,6 +5,7 @@ variable "ssh_user" {}
 variable "ssh_private_key" {}
 variable "consul_leader" {}
 variable "consul_server_image" {}
+variable "sensu_api_host" {}
 
 variable "frontend_machine_type" {
     default = "n1-highcpu-8"
@@ -45,6 +46,7 @@ resource "google_compute_instance" "tiny-consul" {
           "/usr/local/bin/bootstrap.sh",
           "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${var.consul_leader}",
           "sudo rm -rf /var/consul/* && sudo systemctl restart consul_server.service",
+          "sudo /opt/sensu/embedded/bin/update-client-cfg.rb ${var.datacenter}-consul-server ${google_compute_instance.tiny-consul.network_interface.0.address} ${var.sensu_api_host}"
         ]
     }
 
@@ -75,7 +77,8 @@ resource "google_compute_instance" "tiny-frontend" {
     provisioner "remote-exec" {
         inline = [
           "/usr/local/bin/bootstrap.sh",
-          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.tiny-consul.network_interface.0.address}"
+          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.tiny-consul.network_interface.0.address}",
+          "sudo /opt/sensu/embedded/bin/update-client-cfg.rb ${var.datacenter}-frontend ${google_compute_instance.tiny-frontend.network_interface.0.address} ${var.sensu_api_host}"
         ]
     }
 }
@@ -105,7 +108,8 @@ resource "google_compute_instance" "tiny-backend" {
     provisioner "remote-exec" {
         inline = [
           "/usr/local/bin/bootstrap.sh",
-          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.tiny-consul.network_interface.0.address}"
+          "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${google_compute_instance.tiny-consul.network_interface.0.address}",
+          "sudo /opt/sensu/embedded/bin/update-client-cfg.rb ${var.datacenter}-backend ${google_compute_instance.tiny-backend.network_interface.0.address} ${var.sensu_api_host}"
         ]
     }
 }

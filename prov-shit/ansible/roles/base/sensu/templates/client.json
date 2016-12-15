@@ -1,9 +1,23 @@
 {
+  "transport": {
+    "name": "{{ sensu_transport }}",
+    "reconnect_on_error": true
+  },
   "client": {
-    "name": "{{ ansible_hostname }}",
+    "name": "{{ inventory_hostname }}",
     "address": "{{ ansible_default_ipv4['address'] }}",
-    "subscriptions": [
-      "{{ ansible_hostname }}"
-	]
+    "consul-server": {
+      "server": "",
+      "expect": 1,
+      "greater": 1
+    },
+    "mesos":{
+      "server": ""
+    },
+    "subscriptions": {{ sensu_subscriptions | to_nice_json }}
+  },
+  "redis": {
+    "host": "{{ sensu_api_host }}",
+    "port": 6379
   }
 }

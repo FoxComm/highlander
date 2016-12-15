@@ -1,0 +1,12 @@
+{
+  "checks": {
+    "mesos-slave": {
+      "command": "check-mesos.rb -m slave -s :::mesos.server|0.0.0.0::: -p :::mesos.port|5051:::",
+      "interval": 60,
+      "subscribers": [
+        "frontend",
+        "backend"
+      ]
+    }
+  }
+}

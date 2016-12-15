@@ -1,10 +1,10 @@
 {
   "checks": {
     "mesos-master": {
-      "command": "check-mesos.rb -m master -s foxcomm-tony-consul-server -p 5050",
+      "command": "check-mesos.rb -m master -s :::mesos.server|0.0.0.0::: -p :::mesos.port|5050:::",
       "interval": 60,
       "subscribers": [
-        {{ ansible_hostname | to_nice_json }}
+        "consul-server"
       ]
     }
   }

@@ -4,7 +4,10 @@
       "command": "metrics-sockstat.rb",
       "interval": 60,
       "subscribers": [
-        {{ ansible_hostname | to_nice_json }}
+        "all",
+        "consul-server",
+        "frontend",
+        "backend"
       ]
     }
   }
