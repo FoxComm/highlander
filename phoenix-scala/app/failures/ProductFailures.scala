@@ -85,7 +85,7 @@ object ProductFailures {
   }
 
   case class NoVariantForContext(context: String) extends Failure {
-    override def description = s"No variant context $context"
+    override def description = s"No productOption context $context"
   }
 
   case class NoProductFoundForSku(id: Int) extends Failure {

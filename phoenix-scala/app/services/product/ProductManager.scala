@@ -26,7 +26,7 @@ import responses.ImageResponses.ImageResponse
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
 import responses.ProductVariantResponses._
-import responses.VariantResponses.IlluminatedVariantResponse
+import responses.ProductOptionResponses.IlluminatedProductOptionResponse
 import services.image.ImageManager
 import services.inventory.ProductVariantManager
 import services.objects.ObjectManager
@@ -224,19 +224,19 @@ object ProductManager {
   }
 
   private def getVariantsWithRelatedSkus(
-      variants: Seq[FullVariant])(implicit ec: EC, db: DB, oc: OC)
-    : DbResultT[(Seq[ProductVariantResponse.Root], Seq[IlluminatedVariantResponse.Root])] = {
+      variants: Seq[FullProductOption])(implicit ec: EC, db: DB, oc: OC)
+    : DbResultT[(Seq[ProductVariantResponse.Root], Seq[IlluminatedProductOptionResponse.Root])] = {
     val variantValueIds = variants.flatMap { case (_, variantValue) ⇒ variantValue }
       .map(_.model.id)
     for {
-      variantValueSkuCodes ← * <~ ProductOptionManager.getVariantValueSkuCodes(variantValueIds)
+      variantValueSkuCodes ← * <~ ProductOptionManager.getProductValueSkuCodes(variantValueIds)
       variantValueSkuCodesSet = variantValueSkuCodes.values.toSeq.flatten.distinct
       variantSkus ← * <~ variantValueSkuCodesSet.map(skuCode ⇒
                          ProductVariantManager.getBySkuCode(skuCode))
       illuminated = variants.map {
         case (fullVariant, values) ⇒
           val variant = IlluminatedProductOption.illuminate(oc, fullVariant)
-          IlluminatedVariantResponse.buildLite(variant, values, variantValueSkuCodes)
+          IlluminatedProductOptionResponse.buildLite(variant, values, variantValueSkuCodes)
       }
     } yield (variantSkus, illuminated)
   }
@@ -271,7 +271,7 @@ object ProductManager {
       implicit ec: EC,
       db: DB,
       oc: OC,
-      au: AU): DbResultT[Seq[FullVariant]] =
+      au: AU): DbResultT[Seq[FullProductOption]] =
     variantsPayload match {
       case Some(payloads) ⇒
         findOrCreateVariantsForProduct(product, payloads)
@@ -347,9 +347,9 @@ object ProductManager {
       implicit ec: EC,
       db: DB,
       oc: OC,
-      au: AU): DbResultT[Seq[FullVariant]] =
+      au: AU): DbResultT[Seq[FullProductOption]] =
     for {
-      variants ← * <~ payload.map(ProductOptionManager.updateOrCreateVariant(oc, _))
+      variants ← * <~ payload.map(ProductOptionManager.updateOrCreate(oc, _))
       _ ← * <~ ProductOptionLinks.syncLinks(product, variants.map {
            case (variant, values) ⇒ variant.model
          })
