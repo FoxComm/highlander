@@ -77,7 +77,7 @@ object LineItemManager {
                        variantLink ← * <~ ProductOptionValueLinks
                                       .filter(_.rightId === valueLink.leftId)
                                       .mustFindOneOr(NoProductFoundForSku(sku.id))
-                       productLink ← * <~ ProductVariantLinks
+                       productLink ← * <~ ProductOptionLinks
                                       .filter(_.rightId === variantLink.leftId)
                                       .mustFindOneOr(NoProductFoundForSku(sku.id))
                      } yield productLink.leftId

@@ -221,7 +221,7 @@ object LineItemUpdater {
                   variantLink ← * <~ ProductOptionValueLinks
                                  .filter(_.rightId === valueLink.leftId)
                                  .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
-                  productLink ← * <~ ProductVariantLinks
+                  productLink ← * <~ ProductOptionLinks
                                  .filter(_.rightId === variantLink.leftId)
                                  .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
                 } yield productLink.leftId

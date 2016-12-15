@@ -37,7 +37,7 @@ object ProductOptionManager {
         .toMap
     } yield
       IlluminatedVariantResponse.build(
-          variant = IlluminatedVariant.illuminate(context, variant),
+          variant = IlluminatedProductOption.illuminate(context, variant),
           variantValues = values,
           variantValueSkus = variantToSkuMapping
       )
@@ -55,7 +55,7 @@ object ProductOptionManager {
                                 values.map(_.model.id))
     } yield
       IlluminatedVariantResponse.build(
-          variant = IlluminatedVariant.illuminate(context, fullVariant),
+          variant = IlluminatedProductOption.illuminate(context, fullVariant),
           variantValues = values,
           variantValueSkus = variantValueSkuCodes
       )
@@ -72,7 +72,7 @@ object ProductOptionManager {
                                 values.map(_.model.id))
     } yield
       IlluminatedVariantResponse.build(
-          variant = IlluminatedVariant.illuminate(context, variant),
+          variant = IlluminatedProductOption.illuminate(context, variant),
           variantValues = values,
           variantValueSkus = variantValueSkuCodes
       )
@@ -249,7 +249,7 @@ object ProductOptionManager {
       implicit ec: EC,
       db: DB): DbResultT[Seq[(FullObject[ProductOption], Seq[FullObject[ProductValue]])]] =
     for {
-      variants ← * <~ ProductVariantLinks.queryRightByLeft(product)
+      variants ← * <~ ProductOptionLinks.queryRightByLeft(product)
       values   ← * <~ variants.map(findValuesForVariant)
     } yield variants.zip(values)
 
