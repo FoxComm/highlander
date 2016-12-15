@@ -3,7 +3,7 @@
 - name: Bootstrap Consul Alerts
   hosts: '{{hostname}}'
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     change_threshold: "60"
   vars_prompt:
     - name: "hostname"
@@ -26,7 +26,7 @@
     GOPATH: "/home/{{user}}/go"
 
   roles:
-      - { role: dev/consul_alerts, sudo: true }
+      - { role: dev/consul_alerts, become: true }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

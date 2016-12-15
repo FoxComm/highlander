@@ -14,7 +14,7 @@ has a lot to do!
 ### Install Prerequisites
 
 - Install [Vagrant](https://www.vagrantup.com)
-- Install [Ansible 1.9.x](http://docs.ansible.com/ansible/intro_installation.html#installation)
+- Install [Ansible 2.2.x](http://docs.ansible.com/ansible/intro_installation.html#installation)
 
 ### Build the Application
 

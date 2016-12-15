@@ -2,37 +2,36 @@
 
 - name: Copy Execution File
   template: src=run_consul_agent.sh dest="/usr/local/bin/run_consul_agent.sh" mode="u+x,g+x,o+x"
-  sudo: true
+  become: true
 
 - name: Copy Service
   template: src=consul_agent.service dest="{{dest_services}}/consul_agent.service"
-  sudo: true
+  become: true
 
 - name: Copy Config
   template: src=agent.json dest="/etc/consul.d/agent.json"
-  sudo: true
+  become: true
 
 - name: Reload Systemd for Consul Agent
-  sudo: yes
+  become: true
   command: systemctl daemon-reload
 
 - name: Restart Consul Agent
   service: name=consul_agent state=restarted enabled=yes
-  sudo: true
+  become: true
 
 - name: Install Dnsmasq
   apt: name=dnsmasq state=latest force=yes
-  sudo: true
+  become: true
 
 - name: Touch Dnsmasq Config
   file: path=/etc/dnsmasq.d/10-consul state=touch
-  sudo: true
+  become: true
 
 - name: Add Consul to Dnsmasq Config
   lineinfile: dest="/etc/dnsmasq.d/10-consul" line="server=/consul/127.0.0.1#8600"
-  sudo: true
+  become: true
 
 - name: Restart Dnsmasq
   service: name=dnsmasq state=restarted enabled=yes
-  sudo: true
-
+  become: true

@@ -2,11 +2,11 @@
 
 - name: Update System Package Cache
   apt: update_cache=yes
-  sudo: true
+  become: true
 
 - name: Install Bottledwater Packages
   apt: name={{item}} state=latest force=yes
-  sudo: true
+  become: true
   with_items:
     - make
     - jq
@@ -22,7 +22,7 @@
 
 - name: Get Avro
   get_url: url={{avro_url}} dest="{{home}}/{{avro_name}}.tar.gz"
-  sudo: true
+  become: true
 
 - name: Unzip Avro
   unarchive: src="{{home}}/{{avro_name}}.tar.gz" dest="{{home}}/" copy=no
@@ -39,13 +39,13 @@
 
 - name: Compile and Install Avro
   shell: make && make test && make install && ldconfig
-  sudo: true
+  become: true
   args:
     chdir: "{{avro_dir}}/build"
 
 - name: Setup Libsnappy
   copy: src=libsnappy.pc dest=/usr/local/lib/pkgconfig/libsnappy.pc
-  sudo: true
+  become: true
 
 - name: Get Bottledwater
   git: repo={{bottledwater_repo}} dest={{bottledwater_dir}} version={{bottledwater_version}}
@@ -54,11 +54,11 @@
   shell: make && make install
   args:
     chdir: "{{bottledwater_dir}}"
-  sudo: true
+  become: true
 
 - name: Symlink Bottledwater Executable
   file: src="{{bottledwater_dir}}/kafka/bottledwater" dest="/usr/local/bin/bottledwater" state=link
-  sudo: true
+  become: true
 
 - name: Copy Bottledwater Run Files
   template: src=run_bottledwater.sh dest="/usr/local/bin/run_bottledwater_{{item.name}}.sh" mode="u+x,g+x,o+x"
@@ -67,7 +67,7 @@
     - { name: middlewarehouse, db_connection_string: "{{middlewarehouse_db_connection_string}}", slot: "{{bottledwater_slot_middlewarehouse}}" }
     - { name: marketplace, db_connection_string: "{{marketplace_db_connection_string}}", slot: "{{bottledwater_slot_marketplace}}" }
   when: item.name != 'marketplace' or with_marketplace
-  sudo: true
+  become: true
 
 - name: Copy Bottledwater Services
   template: src=bottledwater.service dest="{{dest_services}}/bottledwater_{{item}}.service"
@@ -76,20 +76,20 @@
     - middlewarehouse
     - marketplace
   when: item != 'marketplace' or with_marketplace
-  sudo: true
+  become: true
 
 - name: Reload Systemd for Bottledwater
-  sudo: yes
+  become: true
   command: systemctl daemon-reload
 
 - name: Start Bottledwater
-  service: name=bottledwater_{{item}} state=started enabled=yes sleep=10
+  service: name=bottledwater_{{item}} state=started enabled=yes
   with_items:
     - phoenix
     - middlewarehouse
     - marketplace
   when: item != 'marketplace' or with_marketplace
-  sudo: true
+  become: true
 
 - name: Copy Bottledwater Consul Service
   template: src=bottledwater.json dest="/etc/consul.d/bottledwater_{{item}}.json"
@@ -98,4 +98,4 @@
     - middlewarehouse
     - marketplace
   when: item != 'marketplace' or with_marketplace
-  sudo: true
+  become: true

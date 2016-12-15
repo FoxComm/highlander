@@ -1,24 +1,24 @@
 ---
 - name: Copy Kafka Config File
   template: src=server.properties dest=/etc/kafka/server.properties
-  sudo: true
+  become: true
 
 - name: Copy Kafka Service Files
   copy: src=kafka.service dest={{dest_services}}/kafka.service
-  sudo: true
+  become: true
 
 - name: Reload Systemd for Kafka Related Services
-  sudo: yes
+  become: true
   command: systemctl daemon-reload
 
 - name: Create Kafka dir
   file: path=/var/lib/kafka state=directory
-  sudo: true
+  become: true
 
 - name: Start Kafka
   service: name=kafka state=started enabled=yes
-  sudo: true
+  become: true
 
 - name: Copy Consul Service File
   template: src=kafka.json dest="/etc/consul.d/kafka.json"
-  sudo: true
+  become: true

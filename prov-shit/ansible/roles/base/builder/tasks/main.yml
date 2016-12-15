@@ -85,14 +85,14 @@
     - glide
   tags: golang
 
-- name: Remove Ansible 2.x
+- name: Remove Preinstalled Ansible
   command: pip uninstall -y ansible
-  tags: ansible19
+  tags: ansible
   ignore_errors: yes
 
-- name: Install Ansible 1.9.x
-  command: pip install ansible==1.9.4
-  tags: ansible19
+- name: Install Ansible 2.x.x
+  command: pip install ansible==2.2.0
+  tags: ansible
 
 - name: Install Package for Ansible Lint
   apt: name=libffi-dev state=latest force=yes

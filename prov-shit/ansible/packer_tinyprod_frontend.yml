@@ -15,8 +15,8 @@
     - { role: base/ssh_keys }
     - { role: base/scala }
     - { role: base/mesos_worker }
-    - { role: base/rsyslog, sudo: yes }
-    - { role: base/balancer, sudo: yes }
+    - { role: base/rsyslog, become: true }
+    - { role: base/balancer, become: true }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

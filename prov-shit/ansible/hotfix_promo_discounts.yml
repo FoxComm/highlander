@@ -3,7 +3,7 @@
 - name: Run Promotion Engine Discount Forms Hotfix
   hosts: '{{hostname}}'
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname"
