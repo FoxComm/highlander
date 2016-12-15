@@ -2,11 +2,11 @@
 
 - name: Update System Package Cache
   apt: update_cache=yes
-  become: true
+  pause: seconds=5
 
 - name: Install Bottledwater Packages
   apt: name={{item}} state=latest force=yes
-  become: true
+  pause: seconds=5
   with_items:
     - make
     - jq
@@ -22,7 +22,7 @@
 
 - name: Get Avro
   get_url: url={{avro_url}} dest="{{home}}/{{avro_name}}.tar.gz"
-  become: true
+  pause: seconds=5
 
 - name: Unzip Avro
   unarchive: src="{{home}}/{{avro_name}}.tar.gz" dest="{{home}}/" copy=no
@@ -39,13 +39,13 @@
 
 - name: Compile and Install Avro
   shell: make && make test && make install && ldconfig
-  become: true
+  pause: seconds=5
   args:
     chdir: "{{avro_dir}}/build"
 
 - name: Setup Libsnappy
   copy: src=libsnappy.pc dest=/usr/local/lib/pkgconfig/libsnappy.pc
-  become: true
+  pause: seconds=5
 
 - name: Get Bottledwater
   git: repo={{bottledwater_repo}} dest={{bottledwater_dir}} version={{bottledwater_version}}
@@ -54,11 +54,11 @@
   shell: make && make install
   args:
     chdir: "{{bottledwater_dir}}"
-  become: true
+  pause: seconds=5
 
 - name: Symlink Bottledwater Executable
   file: src="{{bottledwater_dir}}/kafka/bottledwater" dest="/usr/local/bin/bottledwater" state=link
-  become: true
+  pause: seconds=5
 
 - name: Copy Bottledwater Run Files
   template: src=run_bottledwater.sh dest="/usr/local/bin/run_bottledwater_{{item.name}}.sh" mode="u+x,g+x,o+x"
@@ -67,7 +67,7 @@
     - { name: middlewarehouse, db_connection_string: "{{middlewarehouse_db_connection_string}}", slot: "{{bottledwater_slot_middlewarehouse}}" }
     - { name: marketplace, db_connection_string: "{{marketplace_db_connection_string}}", slot: "{{bottledwater_slot_marketplace}}" }
   when: item.name != 'marketplace' or with_marketplace
-  become: true
+  pause: seconds=5
 
 - name: Copy Bottledwater Services
   template: src=bottledwater.service dest="{{dest_services}}/bottledwater_{{item}}.service"
@@ -76,10 +76,10 @@
     - middlewarehouse
     - marketplace
   when: item != 'marketplace' or with_marketplace
-  become: true
+  pause: seconds=5
 
 - name: Reload Systemd for Bottledwater
-  become: true
+  pause: seconds=5
   command: systemctl daemon-reload
 
 - name: Start Bottledwater
@@ -89,7 +89,7 @@
     - middlewarehouse
     - marketplace
   when: item != 'marketplace' or with_marketplace
-  become: true
+  pause: seconds=5
 
 - name: Copy Bottledwater Consul Service
   template: src=bottledwater.json dest="/etc/consul.d/bottledwater_{{item}}.json"
@@ -98,4 +98,4 @@
     - middlewarehouse
     - marketplace
   when: item != 'marketplace' or with_marketplace
-  become: true
+  pause: seconds=5

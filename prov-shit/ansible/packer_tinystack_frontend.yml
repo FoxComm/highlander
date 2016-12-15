@@ -2,11 +2,12 @@
 
 - name: Provision Packer Tinystack Frontend
   hosts: all
+  become: true
   vars:
     user: ubuntu
     packing: true
 
   roles:
     - { role: base/mesos_worker }
-    - { role: base/rsyslog, become: true }
-    - { role: base/balancer, become: true }
+    - { role: base/rsyslog }
+    - { role: base/balancer }

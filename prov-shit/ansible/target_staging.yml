@@ -2,6 +2,7 @@
 
 - name: Provision Target Stage Backend
   hosts: new-target-stage-backend
+  become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     with_marketplace: true
@@ -10,7 +11,7 @@
   roles:
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
-    - { role: dev/db, become: true }
+    - { role: dev/db }
     # TODO: Move to packer
     - { role: base/marketplace }
 
@@ -19,6 +20,7 @@
 
 - name: Provision Target Stage Frontend
   hosts: new-target-stage-frontend
+  become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     api_server: stage-tgt.foxcommerce.com
@@ -39,8 +41,8 @@
     - { role: dev/isaac }
     - { role: dev/solomon }
     - { role: dev/marketplace }
-    - { role: dev/balancer, become: true }
-    - { role: ext/tgt/balancer, become: true }
+    - { role: dev/balancer }
+    - { role: ext/tgt/balancer }
     - { role: dev/consumers }
     - { role: dev/seeder }
 

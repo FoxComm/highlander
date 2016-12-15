@@ -2,19 +2,19 @@
 
 - name: Kill Elasticsearch if it is Running
   shell: systemctl stop elasticsearch || true
-  become: true
+  pause: seconds=5
 
 - name: Purge Elasticsearch data
   file: path={{es_path}}/data state=absent
-  become: true
+  pause: seconds=5
 
 - name: Create Elasticsearch subdirectories
   file: path={{es_path}}/data owner=elasticsearch state=directory mode="u=rwx,g=rwx,o=r"
-  become: true
+  pause: seconds=5
 
 - name: Setup Service
   service: name=elasticsearch state=restarted enabled=yes
-  become: true
+  pause: seconds=5
 
 - name: Sleep
   shell: sleep 20

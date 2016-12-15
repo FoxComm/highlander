@@ -19,4 +19,4 @@
 
 - name: Copy Consul Service File
   template: src=balancer.json dest="/etc/consul.d/balancer.json"
-  become: true
+  pause: seconds=5

@@ -3,20 +3,20 @@
 
 - name: Unzip Flyway
   unarchive: src={{home}}/flyway-{{flyway_vers}}.tar.gz dest=/usr/local/share copy=no creates=/usr/local/share/flyway-{{flyway_vers}}
-  become: true
+  pause: seconds=5
 
 - name: Make Flyway Executable
   file: path={{flyway_dir}}/flyway mode="u+x,g+x,o+x"
-  become: true
+  pause: seconds=5
 
 - name: Add Flyway Home
   lineinfile: dest=/etc/profile line="FLYWAY_HOME={{flyway_dir}}"
-  become: true
+  pause: seconds=5
 
 - name: Add Flyway Path
   lineinfile: dest=/etc/profile line="PATH=$PATH:$FLYWAY_HOME" insertafter="^FLYWAY"
-  become: true
+  pause: seconds=5
 
 - name: Symlink Flyway Executable
   file: src="{{flyway_dir}}/flyway" dest="/usr/local/bin/flyway" state=link
-  become: true
+  pause: seconds=5

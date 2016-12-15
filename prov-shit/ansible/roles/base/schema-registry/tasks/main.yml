@@ -2,20 +2,20 @@
 
 - name: Copy Schema Service Files
   copy: src=schema-registry.service dest={{dest_services}}/schema-registry.service
-  become: true
+  pause: seconds=5
 
 - name: Copy Schema Registry Config
   template: src=schema-registry.properties dest="/etc/schema-registry/schema-registry.properties"
-  become: true
+  pause: seconds=5
 
 - name: Reload Systemd for Kafka Related Services
-  become: true
+  pause: seconds=5
   command: systemctl daemon-reload
 
 - name: Setup Schema Registry
   service: name=schema-registry state=restarted enabled=yes
-  become: true
+  pause: seconds=5
 
 - name: Copy Consul Service File
   template: src=schema-registry.json dest="/etc/consul.d/schema-registry.json"
-  become: true
+  pause: seconds=5

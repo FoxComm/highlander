@@ -2,6 +2,7 @@
 
 - name: Provision All The Things
   hosts: all
+  become: true
   vars:
     cert_path: test/fox
     ashes_server_name: local.foxcommerce.com
@@ -15,7 +16,7 @@
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/isaac }
-    - { role: dev/db, become: true }
+    - { role: dev/db }
     - { role: dev/phoenix }
     - { role: dev/appliance }
     - { role: dev/solomon }
@@ -24,10 +25,10 @@
     - { role: dev/marketplace }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/ashes }
-    - { role: dev/balancer, become: true }
+    - { role: dev/balancer }
     - { role: ext/tgt/marketplace-ui }
     - { role: ext/tgt/product-search }
-    - { role: ext/tgt/balancer, become: true }
+    - { role: ext/tgt/balancer }
     - { role: dev/consumers }
     - { role: dev/seeder }
 

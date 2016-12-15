@@ -2,6 +2,7 @@
 
 - name: Pack Buildkite Agent image
   hosts: all
+  become: true
   tags:
     - packer
   vars:
@@ -14,8 +15,8 @@
     - { role: base/docker_clean }
     - { role: base/scala }
     - { role: base/clojure }
-    - { role: base/node, become: true }
-    - { role: base/builder, become: true }
+    - { role: base/node }
+    - { role: base/builder }
     - { role: test/db }
     - { role: test/selenium }
     - { role: dev/ssh_gce }

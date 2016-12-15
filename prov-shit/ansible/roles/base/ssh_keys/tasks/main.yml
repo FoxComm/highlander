@@ -1,7 +1,7 @@
 ---
 
 - name: Install Private Key So Buildkite Agents Can Work
-  become: true
+  pause: seconds=5
   copy: src=id_rsa dest={{ item }} mode="0600"
   with_items:
     - "/var/lib/buildkite-agent/.ssh/"
@@ -10,7 +10,7 @@
     - "/home/root/.ssh/"
 
 - name: Install Public SSH Keys
-  become: true
+  pause: seconds=5
   copy: src=id_rsa.pub dest={{ item }} mode="u=rw,g=r,o=r"
   with_items:
     - "/var/lib/buildkite-agent/.ssh/"
@@ -19,7 +19,7 @@
     - "/home/root/.ssh/"
 
 - name: Update SSH config
-  become: true
+  pause: seconds=5
   copy: src=config dest={{ item }} mode="u=rw,g=r,o=r"
   with_items:
     - "/var/lib/buildkite-agent/.ssh/"
@@ -28,7 +28,7 @@
     - "/home/root/.ssh/"
 
 - name: Correct Ownership
-  become: true
+  pause: seconds=5
   file: path="/home/{{item}}/.ssh/" state=directory owner={{item}} group={{item}} recurse=yes
   with_items:
     - "{{user}}"

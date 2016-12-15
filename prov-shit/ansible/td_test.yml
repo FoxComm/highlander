@@ -2,6 +2,7 @@
 
 - name: Provision Top Drawer Test Backend
   hosts: top-drawer-test-backend
+  become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     upload_phoenix_jar: true
@@ -12,7 +13,7 @@
     - { role: dev/stage_mesos, when: first_run }
     - { role: dev/kafka, when: first_run }
     - { role: dev/elasticsearch, when: first_run }
-    - { role: dev/db, become: true, when: first_run }
+    - { role: dev/db, when: first_run }
     - { role: dev/db_phoenix, when: first_run }
     - { role: prod/migrate_phoenix_db }
     - { role: prod/migrate_middlewarehouse_db }
@@ -22,6 +23,7 @@
 
 - name: Provision Top Drawer Test Frontend
   hosts: top-drawer-test-frontend
+  become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     api_server: test-topdrawer.foxcommerce.com
@@ -45,8 +47,8 @@
     - { role: dev/messaging }
     - { role: dev/isaac }
     - { role: dev/solomon }
-    - { role: dev/balancer, become: true }
-    - { role: demo/balancer, become: true }
+    - { role: dev/balancer }
+    - { role: demo/balancer }
     - { role: dev/consumers }
     - { role: dev/seeder, when: first_run }
 

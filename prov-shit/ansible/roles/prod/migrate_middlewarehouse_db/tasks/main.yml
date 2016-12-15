@@ -7,11 +7,11 @@
 
 - name: Synchronize Middlewarehouse SQL
   synchronize: src="{{middlewarehouse_src}}/sql" dest="{{middlewarehouse_dir}}" delete=yes recursive=yes
-  become: true
+  pause: seconds=5
 
 - name: Synchronize Middlewarehouse SQL
   synchronize: src="{{middlewarehouse_src}}/sql" dest="{{middlewarehouse_dir}}" delete=yes recursive=yes
-  become: true
+  pause: seconds=5
 
 - name: Repair Flyway Schema
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} repair

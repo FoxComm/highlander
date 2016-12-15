@@ -2,6 +2,7 @@
 
 - name: Provision Target Test Backend
   hosts: tgt-test-backend
+  become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     upload_phoenix_jar: true
@@ -23,6 +24,7 @@
 
 - name: Provision Target Test Frontend
   hosts: tgt-test-frontend
+  become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     docker_registry: docker-tgt.foxcommerce.com
@@ -49,8 +51,8 @@
     - { role: ext/tgt/marketplace-ui }
     - { role: ext/tgt/product-search }
     - { role: demo/search }
-    - { role: dev/balancer, become: true }
-    - { role: ext/tgt/balancer, become: true }
+    - { role: dev/balancer }
+    - { role: ext/tgt/balancer }
     - { role: dev/seeder, when: first_run }
 
   handlers:
