@@ -92,7 +92,7 @@ object ProductManager {
       oldProduct ← * <~ mustFindFullProductByFormId(productId)
       albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.form.id)
 
-      fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
+      fullSkus    ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
       productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
 
       variants     ← * <~ ProductOptionLinks.queryRightByLeft(oldProduct.model)
@@ -193,19 +193,19 @@ object ProductManager {
                                         id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
          }
       albums   ← * <~ ImageManager.getAlbumsForProduct(inactive.form.id)
-      skuLinks ← * <~ ProductSkuLinks.filter(_.leftId === archiveResult.id).result
+      skuLinks ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
       _ ← * <~ skuLinks.map { link ⇒
-           ProductSkuLinks.deleteById(link.id,
-                                      DbResultT.unit,
-                                      id ⇒ NotFoundFailure400(ProductSkuLink, id))
+           ProductVariantLinks.deleteById(link.id,
+                                          DbResultT.unit,
+                                          id ⇒ NotFoundFailure400(ProductVariantLink, id))
          }
-      updatedSkus  ← * <~ ProductSkuLinks.queryRightByLeft(archiveResult)
+      updatedSkus  ← * <~ ProductVariantLinks.queryRightByLeft(archiveResult)
       skus         ← * <~ updatedSkus.map(SkuManager.illuminateSku)
       variantLinks ← * <~ ProductOptionLinks.filter(_.leftId === archiveResult.id).result
       _ ← * <~ variantLinks.map { link ⇒
            ProductOptionLinks.deleteById(link.id,
                                          DbResultT.unit,
-                                         id ⇒ NotFoundFailure400(ProductSkuLink, link.id))
+                                         id ⇒ NotFoundFailure400(ProductVariantLink, link.id))
          }
       updatedVariants ← * <~ ProductOptionLinks.queryRightByLeft(archiveResult)
       variants        ← * <~ updatedVariants.map(ProductOptionManager.zipVariantWithValues)
@@ -321,9 +321,9 @@ object ProductManager {
                 for {
                   existingSku ← * <~ SkuManager.updateSkuInner(foundSku, payload)
                   _           ← * <~ SkuManager.findOrCreateAlbumsForSku(existingSku.model, albumPayloads)
-                  _ ← * <~ ProductSkuLinks.syncLinks(product,
-                                                     if (createLinks) Seq(existingSku.model)
-                                                     else Seq.empty)
+                  _ ← * <~ ProductVariantLinks.syncLinks(product,
+                                                         if (createLinks) Seq(existingSku.model)
+                                                         else Seq.empty)
                 } yield existingSku
               } else {
                 DbResultT.failure(LinkArchivedSkuFailure(Product, product.id, code))
@@ -332,9 +332,9 @@ object ProductManager {
               for {
                 newSku ← * <~ SkuManager.createSkuInner(oc, payload)
                 _      ← * <~ SkuManager.findOrCreateAlbumsForSku(newSku.model, albumPayloads)
-                _ ← * <~ ProductSkuLinks.syncLinks(product,
-                                                   if (createLinks) Seq(newSku.model)
-                                                   else Seq.empty)
+                _ ← * <~ ProductVariantLinks.syncLinks(product,
+                                                       if (createLinks) Seq(newSku.model)
+                                                       else Seq.empty)
               } yield newSku
             }
         albums ← * <~ ImageManager.getAlbumsForSkuInner(code, oc)
@@ -394,7 +394,7 @@ object ProductManager {
       productId: Int,
       payloadSkus: Seq[SkuPayload])(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
-      skuIdsForProduct ← * <~ ProductSkuLinks.filter(_.leftId === productId).result.flatMap {
+      skuIdsForProduct ← * <~ ProductVariantLinks.filter(_.leftId === productId).result.flatMap {
                           case links @ Seq(_) ⇒
                             lift(links.map(_.rightId))
                           case _ ⇒

@@ -411,7 +411,7 @@ class ProductIntegrationTest
 
     "Updates the SKUs on a product if variants are Some(Seq.empty)" in new Fixture {
 
-      ProductSkuLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
+      ProductVariantLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
       ProductOptionLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
 
       val payload = UpdateProductPayload(attributes = Map.empty,
@@ -429,7 +429,7 @@ class ProductIntegrationTest
 
     "Multiple calls with same params create single SKU link" in new Fixture {
 
-      ProductSkuLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
+      ProductVariantLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
       ProductOptionLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
 
       val payload = UpdateProductPayload(attributes = Map.empty,
@@ -443,7 +443,7 @@ class ProductIntegrationTest
       response = doQuery(product.formId, payload)
       response.skus.length must === (1)
 
-      ProductSkuLinks.filterLeft(product).gimme.size must === (1)
+      ProductVariantLinks.filterLeft(product).gimme.size must === (1)
     }
 
     "Updates the properties on a product successfully" in new Fixture {

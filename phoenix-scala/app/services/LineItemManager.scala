@@ -66,7 +66,7 @@ object LineItemManager {
 
   private def getProductForSku(sku: ProductVariant)(implicit ec: EC, db: DB) =
     for {
-      productId ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
+      productId ← * <~ ProductVariantLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
                    case Some(productLink) ⇒
                      DbResultT.good(productLink.leftId)
                    case None ⇒

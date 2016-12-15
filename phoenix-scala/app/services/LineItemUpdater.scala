@@ -210,7 +210,7 @@ object LineItemUpdater {
   private def mustFindProductIdForSku(sku: ProductVariant, refNum: String)(implicit ec: EC,
                                                                            oc: OC) = {
     for {
-      link ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
+      link ← * <~ ProductVariantLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
               case Some(productLink) ⇒
                 DbResultT.good(productLink.leftId)
               case None ⇒

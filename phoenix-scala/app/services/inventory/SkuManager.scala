@@ -79,11 +79,11 @@ object SkuManager {
                                     id ⇒ NotFoundFailure400(SkuAlbumLinks, id))
          }
       albums       ← * <~ ImageManager.getAlbumsForSkuInner(archivedSku.code, oc)
-      productLinks ← * <~ ProductSkuLinks.filter(_.rightId === archivedSku.id).result
+      productLinks ← * <~ ProductVariantLinks.filter(_.rightId === archivedSku.id).result
       _ ← * <~ productLinks.map { link ⇒
-           ProductSkuLinks.deleteById(link.id,
-                                      DbResultT.unit,
-                                      id ⇒ NotFoundFailure400(ProductSkuLinks, id))
+           ProductVariantLinks.deleteById(link.id,
+                                          DbResultT.unit,
+                                          id ⇒ NotFoundFailure400(ProductVariantLinks, id))
          }
     } yield
       SkuResponse.build(
