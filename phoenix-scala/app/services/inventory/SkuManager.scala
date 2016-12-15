@@ -38,7 +38,7 @@ object SkuManager {
       sku    ← * <~ createSkuInner(oc, payload)
       albums ← * <~ findOrCreateAlbumsForSku(sku.model, albumPayloads)
       albumResponse = albums.map { case (album, images) ⇒ AlbumResponse.build(album, images) }
-      response      = SkuResponse.build(IlluminatedSku.illuminate(oc, sku), albumResponse)
+      response      = SkuResponse.build(IlluminatedVariant.illuminate(oc, sku), albumResponse)
       _ ← * <~ LogActivity.fullSkuCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
   }
@@ -49,7 +49,8 @@ object SkuManager {
       form   ← * <~ ObjectForms.mustFindById404(sku.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
       albums ← * <~ ImageManager.getAlbumsForSkuInner(sku.code, oc)
-    } yield SkuResponse.build(IlluminatedSku.illuminate(oc, FullObject(sku, form, shadow)), albums)
+    } yield
+      SkuResponse.build(IlluminatedVariant.illuminate(oc, FullObject(sku, form, shadow)), albums)
 
   def updateSku(admin: User, code: String, payload: SkuPayload)(
       implicit ec: EC,
@@ -61,7 +62,7 @@ object SkuManager {
       sku        ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, code)
       updatedSku ← * <~ updateSkuInner(sku, payload)
       albums     ← * <~ updateAssociatedAlbums(updatedSku.model, payload.albums)
-      response = SkuResponse.build(IlluminatedSku.illuminate(oc, updatedSku), albums)
+      response = SkuResponse.build(IlluminatedVariant.illuminate(oc, updatedSku), albums)
       _ ← * <~ LogActivity.fullSkuUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
@@ -87,7 +88,7 @@ object SkuManager {
          }
     } yield
       SkuResponse.build(
-          IlluminatedSku.illuminate(
+          IlluminatedVariant.illuminate(
               oc,
               FullObject(model = archivedSku, form = fullSku.form, shadow = fullSku.shadow)),
           albums)
@@ -214,5 +215,5 @@ object SkuManager {
                                                          oc: OC): DbResultT[SkuResponse.Root] =
     ImageManager
       .getAlbumsBySku(fullSku.model)
-      .map(albums ⇒ SkuResponse.buildLite(IlluminatedSku.illuminate(oc, fullSku), albums))
+      .map(albums ⇒ SkuResponse.buildLite(IlluminatedVariant.illuminate(oc, fullSku), albums))
 }

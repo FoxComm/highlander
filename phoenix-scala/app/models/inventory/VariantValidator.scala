@@ -5,9 +5,9 @@ import models.objects._
 import utils.IlluminateAlgorithm
 
 /**
-  * An SkuValidator checks to make sure a sku shadow is valid
+  * An VariantValidator checks to make sure a sku shadow is valid
   */
-object SkuValidator {
+object VariantValidator {
 
   def validate(form: ObjectForm, shadow: ObjectShadow): Seq[Failure] = {
     IlluminateAlgorithm.validateAttributes(form.attributes, shadow.attributes)

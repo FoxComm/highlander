@@ -338,7 +338,7 @@ object ProductManager {
               } yield newSku
             }
         albums ← * <~ ImageManager.getAlbumsForSkuInner(code, oc)
-      } yield SkuResponse.buildLite(IlluminatedSku.illuminate(oc, up), albums)
+      } yield SkuResponse.buildLite(IlluminatedVariant.illuminate(oc, up), albums)
     }
 
   private def findOrCreateVariantsForProduct(product: Product, payload: Seq[VariantPayload])(

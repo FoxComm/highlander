@@ -44,7 +44,7 @@ object SkuResponses {
                     albums: Seq[AlbumResponse.Root])
         extends ResponseItem
 
-    def build(s: IlluminatedSku): Root =
+    def build(s: IlluminatedVariant): Root =
       Root(code = s.code,
            attributes = s.attributes,
            context = ObjectContextResponse.build(s.context).some,
@@ -53,20 +53,20 @@ object SkuResponses {
     def build(ctx: ObjectContext,
               sku: FullObject[ProductVariant],
               albums: Seq[AlbumResponse.Root]): Root = {
-      val illuminatedSku = IlluminatedSku.illuminate(ctx, sku)
+      val illuminatedSku = IlluminatedVariant.illuminate(ctx, sku)
       Root(code = illuminatedSku.code,
            attributes = illuminatedSku.attributes,
            context = ObjectContextResponse.build(ctx).some,
            albums = albums)
     }
 
-    def buildLite(s: IlluminatedSku): Root =
+    def buildLite(s: IlluminatedVariant): Root =
       Root(code = s.code, attributes = s.attributes, context = None, albums = Seq.empty)
 
     def buildLite(ctx: ObjectContext,
                   sku: FullObject[ProductVariant],
                   albums: Seq[AlbumResponse.Root]): Root = {
-      val illuminatedSku = IlluminatedSku.illuminate(ctx, sku)
+      val illuminatedSku = IlluminatedVariant.illuminate(ctx, sku)
       Root(code = illuminatedSku.code,
            attributes = illuminatedSku.attributes,
            context = None,
@@ -99,14 +99,14 @@ object SkuResponses {
                     archivedAt: Option[Instant])
         extends ResponseItem
 
-    def build(sku: IlluminatedSku, albums: Seq[AlbumResponse.Root]): Root =
+    def build(sku: IlluminatedVariant, albums: Seq[AlbumResponse.Root]): Root =
       Root(id = sku.id,
            archivedAt = sku.archivedAt,
            attributes = sku.attributes,
            context = ObjectContextResponse.build(sku.context).some,
            albums = albums)
 
-    def buildLite(sku: IlluminatedSku, albums: Seq[AlbumResponse.Root]): Root =
+    def buildLite(sku: IlluminatedVariant, albums: Seq[AlbumResponse.Root]): Root =
       Root(id = sku.id,
            archivedAt = sku.archivedAt,
            attributes = sku.attributes,
