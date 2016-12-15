@@ -12,7 +12,7 @@ import utils.{JsonFormatters, Validation}
 import com.github.tminglei.slickpg._
 
 object ProductValue {
-  val kind = "variant-value"
+  val kind = "product-value"
 }
 
 case class ProductValue(id: Int = 0,
@@ -32,15 +32,15 @@ case class ProductValue(id: Int = 0,
     this.copy(shadowId = shadowId, commitId = commitId)
 }
 
-class VariantValues(tag: Tag) extends ObjectHeads[ProductValue](tag, "variant_values") {
+class ProductValues(tag: Tag) extends ObjectHeads[ProductValue](tag, "product_values") {
   def * =
     (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((ProductValue.apply _).tupled,
         ProductValue.unapply)
 }
 
-object VariantValues
-    extends FoxTableQuery[ProductValue, VariantValues](new VariantValues(_))
-    with ReturningId[ProductValue, VariantValues] {
+object ProductValues
+    extends FoxTableQuery[ProductValue, ProductValues](new ProductValues(_))
+    with ReturningId[ProductValue, ProductValues] {
 
   val returningLens: Lens[ProductValue, Int] = lens[ProductValue].id
 

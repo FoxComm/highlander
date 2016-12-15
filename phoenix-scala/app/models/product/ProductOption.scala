@@ -37,7 +37,7 @@ case class ProductOption(id: Int = 0,
     this.copy(shadowId = shadowId, commitId = commitId)
 }
 
-class ProductOptions(tag: Tag) extends ObjectHeads[ProductOption](tag, "variants") {
+class ProductOptions(tag: Tag) extends ObjectHeads[ProductOption](tag, "product_options") {
   def * =
     (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((ProductOption.apply _).tupled, ProductOption.unapply)
 }
