@@ -100,7 +100,12 @@ sub track($henhouse, $path)
 
 sub send-to-henhouse($r, $henhouse)
 {
-    count($henhouse, "$r<path>.$r<cmd>.$r<response>");
-    track($henhouse, $r<path>) if $r<path> ~~ m/api\/v1\/hal/ ;
+    if $r<path> ~~ m/api\/v1\/hal/ {
+        track($henhouse, $r<path>) 
+    } 
+    else 
+    {
+        count($henhouse, "$r<path>.$r<cmd>.$r<response>");
+    }
 }
 
