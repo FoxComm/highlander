@@ -2,24 +2,24 @@
 
 - name: Setup Zookeeper Dir
   file: path=/var/lib/zookeeper state=directory
-  become: true
+  pause: seconds=5
 
 - name: Setup Zookeeper config
   template: src=zookeeper.properties dest="/etc/kafka/zookeeper.properties"
-  become: true
+  pause: seconds=5
 
 - name: Copy Zookeeper Service Files
   copy: src=zookeeper.service dest={{dest_services}}/zookeeper.service
-  become: true
+  pause: seconds=5
 
 - name: Reload Systemd for Kafka Related Services
-  become: true
+  pause: seconds=5
   command: systemctl daemon-reload
 
 - name: Start Zookeeper
   service: name=zookeeper state=started enabled=yes
-  become: true
+  pause: seconds=5
 
 - name: Copy Consul Service File
   template: src=zookeeper.json dest="/etc/consul.d/zookeeper.json"
-  become: true
+  pause: seconds=5

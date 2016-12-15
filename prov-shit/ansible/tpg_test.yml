@@ -2,6 +2,7 @@
 
 - name: Provision The Perfect Gourmet Test Backend
   hosts: perfect-gourmet-test-backend
+  become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     upload_phoenix_jar: true
@@ -22,6 +23,7 @@
 
 - name: Provision The Perfect Gourmet Test Frontend
   hosts: perfect-gourmet-test-frontend
+  become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     api_server: test-perfectgourmet.foxcommerce.com
@@ -45,8 +47,8 @@
     - { role: dev/messaging }
     - { role: dev/isaac }
     - { role: dev/solomon }
-    - { role: dev/balancer, become: true }
-    - { role: demo/balancer, become: true }
+    - { role: dev/balancer }
+    - { role: demo/balancer }
     - { role: dev/consumers }
     - { role: dev/seeder, when: first_run }
 

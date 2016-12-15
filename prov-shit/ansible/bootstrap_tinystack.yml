@@ -2,6 +2,7 @@
 
 - name: Bootstrap Amigo
   hosts: '{{hostname}}'
+  become: true
   tags:
     - amigo
   vars:
@@ -13,10 +14,11 @@
       private: no
 
   roles:
-    - { role: dev/kibana, become: true }
+    - { role: dev/kibana }
 
 - name: Bootstrap Backend
   hosts: '{{hostname}}'
+  become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     upload_phoenix_jar: true
@@ -33,6 +35,7 @@
 
 - name: Bootstrap Frontend
   hosts: '{{hostname}}'
+  become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     upload_phoenix_jar: true

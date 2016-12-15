@@ -2,11 +2,11 @@
 
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
-  become: true
+  pause: seconds=5
 
 - name: Copy Marketplace UI Marathon JSON
   template: src=marketplace_ui.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  become: true
+  pause: seconds=5
 
 - name: Update Marketplace UI in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/marketplace_ui.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/marketplace-ui'

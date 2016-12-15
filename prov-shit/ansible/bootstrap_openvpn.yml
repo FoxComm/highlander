@@ -2,6 +2,7 @@
 
 - name: Bootstrap OpenVPN
   hosts: '{{hostname}}'
+  become: true
   vars:
     vpn_server_ip: 10.0.0.2
     vpn_network: 10.8.0.0
@@ -15,4 +16,4 @@
       private: no
 
   roles:
-      - { role: base/openvpn, become: true }
+      - { role: base/openvpn }

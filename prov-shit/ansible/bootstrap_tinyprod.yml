@@ -2,6 +2,7 @@
 
 - name: Bootstrap Amigo
   hosts: '{{hostname}}'
+  become: true
   tags:
     - amigo
   vars:
@@ -13,10 +14,11 @@
       private: no
 
   roles:
-    - { role: dev/kibana, become: true }
+    - { role: dev/kibana }
 
 - name: Bootstrap Tinyprod
   hosts: '{{hostname}}'
+  become: true
   tags:
     - backend
   vars:
@@ -47,6 +49,7 @@
 
 - name: Bootstrap Frontend
   hosts: '{{hostname}}'
+  become: true
   tags:
     - frontend
   vars:
@@ -89,7 +92,7 @@
     - { role: dev/ashes }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/firebrand }
-    - { role: dev/balancer, become: true }
+    - { role: dev/balancer }
     - { role: dev/consumers }
 
   handlers:

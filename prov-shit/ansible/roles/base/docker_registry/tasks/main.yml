@@ -5,42 +5,42 @@
 
 - name: Setup docker_registry config
   file: path=/etc/docker_registry/ state=directory
-  become: true
+  pause: seconds=5
 
 - name: Copy GCE Docker Registry Config
   template: src=config_gce.yml dest="/etc/docker_registry/config.yml"
   when: docker_registry_provider == "gce"
-  become: true
+  pause: seconds=5
 
 - name: Copy AWS Docker Registry Config
   template: src=config_aws.yml dest="/etc/docker_registry/config.yml"
   when: docker_registry_provider == "aws"
-  become: true
+  pause: seconds=5
 
 - name: Copy Service
   template: src=docker_registry.service dest="{{dest_services}}/docker_registry.service"
-  become: true
+  pause: seconds=5
 
 - name: Make Certs Directory
   file: path=/certs state=directory mode="600"
-  become: true
+  pause: seconds=5
 
 - name: Copy Cert
   copy: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.crt" dest=/certs/domain.crt
-  become: true
+  pause: seconds=5
 
 - name: Copy Key
   copy: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.key" dest=/certs/domain.key
-  become: true
+  pause: seconds=5
 
 - name: Reload Systemd for Docker Registry
-  become: true
+  pause: seconds=5
   command: systemctl daemon-reload
 
 - name: Restart Docker Registry Server
   service: name=docker_registry state=restarted enabled=yes
-  become: true
+  pause: seconds=5
 
 - name: Copy Consul Service File
   template: src=docker_registry.json dest="/etc/consul.d/docker_registry.json"
-  become: true
+  pause: seconds=5

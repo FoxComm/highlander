@@ -2,4 +2,4 @@
 
 - name: reload consul
   shell: "consul reload || true"
-  become: true
+  pause: seconds=5

@@ -2,6 +2,7 @@
 
 - name: Provision Packer Tinyprod Backend
   hosts: all
+  become: true
   tags:
       - packer-tinyprod-backend
   vars:
@@ -22,7 +23,7 @@
     - { role: base/elasticsearch }
     - { role: base/db }
     - { role: base/bottledwater }
-    - { role: base/rsyslog, become: true }
+    - { role: base/rsyslog }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
