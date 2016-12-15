@@ -95,7 +95,7 @@ object ProductManager {
       fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
       productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
 
-      variants     ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
+      variants     ← * <~ ProductOptionLinks.queryRightByLeft(oldProduct.model)
       fullVariants ← * <~ variants.map(ProductOptionManager.zipVariantWithValues)
 
       hasVariants = variants.nonEmpty
@@ -139,7 +139,7 @@ object ProductManager {
 
       albums ← * <~ updateAssociatedAlbums(updatedHead, payload.albums)
 
-      variantLinks ← * <~ ProductVariantLinks.filterLeft(oldProduct.model).result
+      variantLinks ← * <~ ProductOptionLinks.filterLeft(oldProduct.model).result
 
       hasVariants = variantLinks.nonEmpty || payload.variants.exists(_.nonEmpty)
 
@@ -201,13 +201,13 @@ object ProductManager {
          }
       updatedSkus  ← * <~ ProductSkuLinks.queryRightByLeft(archiveResult)
       skus         ← * <~ updatedSkus.map(SkuManager.illuminateSku)
-      variantLinks ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
+      variantLinks ← * <~ ProductOptionLinks.filter(_.leftId === archiveResult.id).result
       _ ← * <~ variantLinks.map { link ⇒
-           ProductVariantLinks.deleteById(link.id,
-                                          DbResultT.unit,
-                                          id ⇒ NotFoundFailure400(ProductSkuLink, link.id))
+           ProductOptionLinks.deleteById(link.id,
+                                         DbResultT.unit,
+                                         id ⇒ NotFoundFailure400(ProductSkuLink, link.id))
          }
-      updatedVariants ← * <~ ProductVariantLinks.queryRightByLeft(archiveResult)
+      updatedVariants ← * <~ ProductOptionLinks.queryRightByLeft(archiveResult)
       variants        ← * <~ updatedVariants.map(ProductOptionManager.zipVariantWithValues)
       variantAndSkus  ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
@@ -235,7 +235,7 @@ object ProductManager {
       variantSkus ← * <~ variantValueSkuCodesSet.map(skuCode ⇒ SkuManager.getSku(skuCode))
       illuminated = variants.map {
         case (fullVariant, values) ⇒
-          val variant = IlluminatedVariant.illuminate(oc, fullVariant)
+          val variant = IlluminatedProductOption.illuminate(oc, fullVariant)
           IlluminatedVariantResponse.buildLite(variant, values, variantValueSkuCodes)
       }
     } yield (variantSkus, illuminated)
@@ -277,7 +277,7 @@ object ProductManager {
         findOrCreateVariantsForProduct(product, payloads)
       case None ⇒
         for {
-          variants     ← * <~ ProductVariantLinks.queryRightByLeft(product)
+          variants     ← * <~ ProductOptionLinks.queryRightByLeft(product)
           fullVariants ← * <~ variants.map(ProductOptionManager.zipVariantWithValues)
         } yield fullVariants
     }
@@ -348,7 +348,7 @@ object ProductManager {
       au: AU): DbResultT[Seq[FullVariant]] =
     for {
       variants ← * <~ payload.map(ProductOptionManager.updateOrCreateVariant(oc, _))
-      _ ← * <~ ProductVariantLinks.syncLinks(product, variants.map {
+      _ ← * <~ ProductOptionLinks.syncLinks(product, variants.map {
            case (variant, values) ⇒ variant.model
          })
     } yield variants
@@ -399,7 +399,7 @@ object ProductManager {
                             lift(links.map(_.rightId))
                           case _ ⇒
                             for {
-                              variantLinks ← ProductVariantLinks
+                              variantLinks ← ProductOptionLinks
                                               .filter(_.leftId === productId)
                                               .result
                               variantIds = variantLinks.map(_.rightId)

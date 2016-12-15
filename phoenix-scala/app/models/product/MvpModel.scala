@@ -372,8 +372,8 @@ object Mvp {
                                  formId = form.id,
                                  shadowId = shadow.id,
                                  commitId = commit.id))
-      _ ← * <~ ProductVariantLinks.create(
-             ProductVariantLink(leftId = product.id, rightId = variant.id))
+      _ ← * <~ ProductOptionLinks.create(
+             ProductOptionLink(leftId = product.id, rightId = variant.id))
     } yield
       SimpleVariantData(variantId = variant.id,
                         variantFormId = variant.formId,

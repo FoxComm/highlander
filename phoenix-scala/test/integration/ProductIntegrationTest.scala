@@ -412,7 +412,7 @@ class ProductIntegrationTest
     "Updates the SKUs on a product if variants are Some(Seq.empty)" in new Fixture {
 
       ProductSkuLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
-      ProductVariantLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
+      ProductOptionLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
 
       val payload = UpdateProductPayload(attributes = Map.empty,
                                          skus = Some(Seq(skuPayload)),
@@ -430,7 +430,7 @@ class ProductIntegrationTest
     "Multiple calls with same params create single SKU link" in new Fixture {
 
       ProductSkuLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
-      ProductVariantLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
+      ProductOptionLinks.filterLeft(product).deleteAll(DbResultT.none, DbResultT.none).gimme
 
       val payload = UpdateProductPayload(attributes = Map.empty,
                                          skus = Some(Seq(skuPayload)),

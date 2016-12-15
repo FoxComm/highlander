@@ -18,7 +18,7 @@ object VariantResponses {
                     values: Seq[IlluminatedVariantValueResponse.Root])
         extends ResponseItem
 
-    def build(variant: IlluminatedVariant,
+    def build(variant: IlluminatedProductOption,
               variantValues: Seq[FullObject[ProductValue]],
               variantValueSkus: VariantValueSkuLinks): Root =
       Root(id = variant.id,
@@ -26,7 +26,7 @@ object VariantResponses {
            context = ObjectContextResponse.build(variant.context).some,
            values = illuminateValues(variantValues, variantValueSkus))
 
-    def buildLite(variant: IlluminatedVariant,
+    def buildLite(variant: IlluminatedProductOption,
                   variantValues: Seq[FullObject[ProductValue]],
                   variantValueSkus: VariantValueSkuLinks): Root =
       Root(id = variant.id,
