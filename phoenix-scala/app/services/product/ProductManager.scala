@@ -69,7 +69,7 @@ object ProductManager {
                            commitId = ins.commit.id))
 
       albums         ← * <~ findOrCreateAlbumsForProduct(product, albumPayloads)
-      productSkus    ← * <~ findOrCreateSkusForProduct(product, payload.skus, !hasVariants)
+      productSkus    ← * <~ findOrCreateVariantsForProduct(product, payload.skus, !hasVariants)
       variants       ← * <~ findOrCreateVariantsForProduct(product, variantPayloads)
       variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
@@ -143,7 +143,9 @@ object ProductManager {
 
       hasVariants = variantLinks.nonEmpty || payload.variants.exists(_.nonEmpty)
 
-      updatedSkus ← * <~ findOrCreateSkusForProduct(oldProduct.model, payloadSkus, !hasVariants)
+      updatedSkus ← * <~ findOrCreateVariantsForProduct(oldProduct.model,
+                                                        payloadSkus,
+                                                        !hasVariants)
 
       variants ← * <~ updateAssociatedVariants(updatedHead, payload.variants)
       _        ← * <~ validateUpdate(updatedSkus, variants)
@@ -306,34 +308,35 @@ object ProductManager {
         DbResultT.good(product)
     }
 
-  private def findOrCreateSkusForProduct(
+  private def findOrCreateVariantsForProduct(
       product: Product,
-      skuPayloads: Seq[ProductVariantPayload],
+      variantPayloads: Seq[ProductVariantPayload],
       createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC, au: AU) =
-    skuPayloads.map { payload ⇒
+    variantPayloads.map { payload ⇒
       val albumPayloads = payload.albums.getOrElse(Seq.empty)
 
       for {
-        code ← * <~ ProductVariantManager.mustGetSkuCode(payload)
-        sku  ← * <~ ProductVariants.filterByContextAndCode(oc.id, code).one.dbresult
-        up ← * <~ sku.map { foundSku ⇒
-              if (foundSku.archivedAt.isEmpty) {
+        code    ← * <~ ProductVariantManager.mustGetSkuCode(payload)
+        variant ← * <~ ProductVariants.filterByContextAndCode(oc.id, code).one.dbresult
+        up ← * <~ variant.map { foundVariant ⇒
+              if (foundVariant.archivedAt.isEmpty) {
                 for {
-                  existingSku ← * <~ ProductVariantManager.updateInner(foundSku, payload)
-                  _ ← * <~ ProductVariantManager.findOrCreateAlbumsForSku(existingSku.model,
-                                                                          albumPayloads)
+                  existingVariant ← * <~ ProductVariantManager.updateInner(foundVariant, payload)
+                  _ ← * <~ ProductVariantManager
+                       .findOrCreateAlbumsForVariant(existingVariant.model, albumPayloads)
                   _ ← * <~ ProductVariantLinks.syncLinks(product,
-                                                         if (createLinks) Seq(existingSku.model)
+                                                         if (createLinks)
+                                                           Seq(existingVariant.model)
                                                          else Seq.empty)
-                } yield existingSku
+                } yield existingVariant
               } else {
                 DbResultT.failure(LinkArchivedSkuFailure(Product, product.id, code))
               }
             }.getOrElse {
               for {
                 newSku ← * <~ ProductVariantManager.createInner(oc, payload)
-                _ ← * <~ ProductVariantManager.findOrCreateAlbumsForSku(newSku.model,
-                                                                        albumPayloads)
+                _ ← * <~ ProductVariantManager.findOrCreateAlbumsForVariant(newSku.model,
+                                                                            albumPayloads)
                 _ ← * <~ ProductVariantLinks.syncLinks(product,
                                                        if (createLinks) Seq(newSku.model)
                                                        else Seq.empty)
