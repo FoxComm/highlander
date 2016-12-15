@@ -37,6 +37,7 @@ func (sku CreateSKU) Model() *models.SKU {
 		UnitCost:                  sku.UnitCost,
 		TaxClass:                  sku.TaxClass,
 		RequiresShipping:          sku.RequiresShipping,
+		ShippingClass:             sku.ShippingClass,
 		IsReturnable:              sku.IsReturnable,
 		RequiresInventoryTracking: sku.RequiresInventoryTracking,
 		AllowBackorder:            sku.AllowBackorder,

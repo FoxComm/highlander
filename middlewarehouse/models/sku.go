@@ -1,6 +1,9 @@
 package models
 
-import "github.com/FoxComm/highlander/middlewarehouse/common/gormfox"
+import (
+	ce "github.com/FoxComm/highlander/middlewarehouse/common/errors"
+	"github.com/FoxComm/highlander/middlewarehouse/common/gormfox"
+)
 
 type SKU struct {
 	gormfox.Base
@@ -37,4 +40,22 @@ type SKU struct {
 	LotExpirationThresholdUnits        string
 	LotExpirationWarningThresholdValue float64
 	LotExpirationWarningThresholdUnits string
+}
+
+func (s *SKU) Validate() error {
+	v := ce.NewValidation("sku")
+
+	v.NonEmpty(s.Code, "code")
+	v.NonEmpty(s.TaxClass, "tax_class")
+
+	if s.RequiresShipping {
+		v.NonEmpty(s.ShippingClass, "shipping_class", "shipping is required")
+	}
+
+	if s.IsReturnable {
+		v.GreaterThanF(0.0, s.ReturnWindowValue, "return_window.value", "an item is returnable")
+		v.NonEmpty(s.ReturnWindowUnits, "return_window.units", "an item is returnable")
+	}
+
+	return v.Error()
 }

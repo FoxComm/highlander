@@ -74,6 +74,15 @@ func (suite *skuControllerTestSuite) Test_UpdateSKUCode_Success() {
 	suite.Equal(http.StatusOK, res.Code)
 }
 
+func (suite *skuControllerTestSuite) Test_UpdateSKUCodeBlank_Failure() {
+	code := ""
+	payload := &payloads.UpdateSKU{Code: &code}
+
+	url := fmt.Sprintf("/skus/%d", suite.sku.ID)
+	res := suite.Patch(url, payload)
+	suite.Equal(http.StatusBadRequest, res.Code)
+}
+
 func (suite *skuControllerTestSuite) Test_DeleteSKU_Success() {
 	url := fmt.Sprintf("/skus/%d", suite.sku.ID)
 	res := suite.Delete(url)

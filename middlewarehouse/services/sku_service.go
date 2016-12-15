@@ -35,6 +35,10 @@ func (s *skuService) GetByID(id uint) (*responses.SKU, error) {
 func (s *skuService) Create(payload *payloads.CreateSKU) (*responses.SKU, error) {
 	sku := payload.Model()
 
+	if err := sku.Validate(); err != nil {
+		return nil, err
+	}
+
 	if err := s.db.Create(sku).Error; err != nil {
 		return nil, err
 	}
@@ -52,6 +56,11 @@ func (s *skuService) Update(id uint, payload *payloads.UpdateSKU) (*responses.SK
 	}
 
 	updated := payload.Model(sku)
+	if err := updated.Validate(); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
 	if err := tx.Save(updated).Error; err != nil {
 		tx.Rollback()
 		return nil, err
