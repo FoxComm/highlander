@@ -83,13 +83,13 @@
 }
 
 .servings {
-  margin-top: 50px;
+  margin-top: 10px;
   font-family: var(--font-main);
   font-weight: 300;
   font-size: 15px;
-  color: #212121;
+  color: #363636;
   opacity: 0.66;
-  line-height: 31px;
+  line-height: 25px;
 }
 
 .social-sharing {

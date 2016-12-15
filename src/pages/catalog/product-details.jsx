@@ -3,6 +3,7 @@
 // libs
 import _ from 'lodash';
 import React from 'react';
+import { Link } from 'react-router';
 
 // components
 import Currency from 'ui/currency';
@@ -32,11 +33,19 @@ const ProductDetails = (props: Props) => {
     servingSize,
   } = props.product;
 
+  const ProductURL = `http://theperfectgourmet.com${props.product.pathName}`;
+  const TwitterHandle = 'perfectgourmet1';
+
   return (
     <div>
       <h1 styleName="title">{title}</h1>
       <div styleName="price">
         <Currency value={price} currency={currency} />
+      </div>
+
+      <div styleName="servings">
+        <div>{amountOfServings}</div>
+        <div>{servingSize}</div>
       </div>
 
       <div styleName="cart-actions">
@@ -63,16 +72,18 @@ const ProductDetails = (props: Props) => {
         dangerouslySetInnerHTML={{__html: description}}
       />
 
-      <div styleName="servings">
-        <div>{amountOfServings}</div>
-        <div>{servingSize}</div>
-      </div>
-
       <div styleName="social-sharing">
-        <Icon name="fc-instagram" styleName="social-icon"/>
-        <Icon name="fc-facebook" styleName="social-icon"/>
-        <Icon name="fc-twitter" styleName="social-icon" />
-        <Icon name="fc-pinterest" styleName="social-icon"/>
+        <Link to={`https://www.facebook.com/sharer/sharer.php?u=${ProductURL}&title=${title}&description=${description}&picture=${props.product.images[0]}`} target="_blank" styleName="social-icon">
+          <Icon name="fc-facebook" styleName="social-icon"/>
+        </Link>
+
+        <Link to={`https://twitter.com/intent/tweet?text=${title}&url=${ProductURL}&via=${TwitterHandle}`} target="_blank" styleName="social-icon">
+          <Icon name="fc-twitter" styleName="social-icon" />
+        </Link>
+
+        <Link to={`https://pinterest.com/pin/create/button/?url=${ProductURL}&media=${props.product.images[0]}&description=${description}`} target="_blank" styleName="social-icon">
+          <Icon name="fc-pinterest" styleName="social-icon"/>
+        </Link>
       </div>
     </div>
   );
