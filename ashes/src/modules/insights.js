@@ -6,30 +6,21 @@ import { updateItems } from './state-helpers';
 import Api from '../lib/api';
 
 const startFetching = createAction('INSIGHTS_START_FETCHING');
-const receivedValues = createAction('INSIGHTS_RECEIVED');
+const receivedValues = createAction('INSIGHTS_RECEIVED',(insightKey, values, from, to, sizeSec, stepSec) => [insightKey, values, from, to, sizeSec, stepSec]);
 const fetchFailed = createAction('INSIGHTS_FETCH_FAILED');
+const setInsightKey = createAction('INSIGHTS_SET_INSIGHT_KEY', (insightKey) => [insightKey]);
 export const resetInsights = createAction('INSIGHTS_RESET');
 
-function getValues(key, a, b, size, step) {
-      const url = `henhouse/values?key=${key}&a${a}&b${b}&size=${size}&step=&{step}&xy`;
-      return Api.get(url);
+export function updateInsightKey(insightKey) { 
+  return dispatch => { dispatch(setInsightKey(insightKey));};
 }
 
-export function fetchInsights(key, a, b, size, step) {
+export function fetchInsights(insightKey, from, to, sizeSec, stepSec) {
   return dispatch => {
     dispatch(startFetching());
-    getValues(key, a, b, size, step).then(
-      response => {
-        dispatch(receivedValues( {
-            key: key,
-            values: response.result,
-            from_tm: a,
-            to_tm: b,
-            size_sec: size,
-            step_sec: step,
-          }
-        ));
-      },
+    const url = `time/values?key=${insightKey}&a=${from}&b=${to}&size=${sizeSec}&step=${stepSec}&xy&sum`;
+    return Api.get(url).then(
+      values => dispatch(receivedValues(insightKey, values, from, to, sizeSec, stepSec)),
       err => dispatch(fetchFailed(err))
     );
   };
@@ -39,11 +30,11 @@ const initialState = {
   isFetching: null,
   err: null,
   values: [],
-  size_sec: 1,
-  step_Sec: 1,
+  sizeSec: 1,
+  stepSec: 1,
   from: 0,
   to: 0,
-  key: "",
+  insightKey: "poo",
 };
 
 const reducer = createReducer({
@@ -56,15 +47,18 @@ const reducer = createReducer({
   [resetInsights]: () => {
     return initialState;
   },
-  [receivedValues]: (state, data) => {
+  [receivedValues]: (state, [insightKey, values, from, to, sizeSec, stepSec]) => {
+        console.log("RESP");
+        console.log(values);
+        console.log(insightKey);
     const updater = _.flow(
       _.partialRight(assoc,
-        ['key'], data.key,
-        ['values'], data.values,
-        ['from'], data.from,
-        ['to'], data.to,
-        ['size_sec'], data.size_sec,
-        ['step_sec'], data.step_sec,
+        ['insightKey'], insightKey,
+        ['values'], values,
+        ['from'], from,
+        ['to'], to,
+        ['sizeSec'], sizeSec,
+        ['stepSec'], stepSec,
         ['isFetching'], false
       )
     );
@@ -78,6 +72,9 @@ const reducer = createReducer({
       ['isFetching'], false,
       ['err'], err
     );
+  },
+  [setInsightKey]: (state, [insightKey]) => {
+    return assoc(state, ['insightKey'], insightKey);
   },
 }, initialState);
 

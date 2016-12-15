@@ -33,10 +33,9 @@ export default class SubNav extends Component<void, Props, void> {
     if (this.isNew) {
       return;
     }
-    const key = `api.v1.hal.action.list.productId.${this.props.productId}.GET.200`;
 
     return [
-      <Link to="product-insights" params={{key: key, ...this.props}} key="insights">Insights</Link>,
+      <Link to="product-insights" params={this.props} key="insights">Insights</Link>,
       <Link to="product-images" params={this.props} key="images">Images</Link>,
       <Link to="product-notes" params={this.props} key="notes">Notes</Link>,
       <Link to="product-analytics" params={this.props} key="analytics">Analytics</Link>,
