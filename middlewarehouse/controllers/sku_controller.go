@@ -24,6 +24,7 @@ func (controller *skuController) SetUp(router gin.IRouter) {
 	router.POST("", controller.CreateSKU())
 	router.GET(":id", controller.GetSKUByID())
 	router.PATCH(":id", controller.UpdateSKU())
+	router.DELETE(":id", controller.DeleteSKU())
 	router.GET(":id/afs", controller.GetAFS())
 }
 
@@ -84,6 +85,22 @@ func (controller *skuController) UpdateSKU() gin.HandlerFunc {
 		}
 
 		context.JSON(http.StatusOK, resp)
+	}
+}
+
+func (controller *skuController) DeleteSKU() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		id, failure := paramUint(context, "id")
+		if failure != nil {
+			return
+		}
+
+		if err := controller.skuService.Delete(id); err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		context.JSON(http.StatusNoContent, gin.H{})
 	}
 }
 
