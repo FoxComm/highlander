@@ -36,7 +36,7 @@
   roles:
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
-    - { role: dev/db }
+    - { role: dev/db, become: true }
     - { role: dev/isaac }
     - { role: dev/greenriver }
     - { role: dev/middlewarehouse }

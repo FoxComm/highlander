@@ -23,7 +23,7 @@
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/kibana, become: true }
-    - { role: dev/db }
+    - { role: dev/db, become: true }
     - { role: dev/isaac }
     - { role: dev/phoenix }
     - { role: dev/solomon }

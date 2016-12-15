@@ -10,7 +10,7 @@
   roles:
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
-    - { role: dev/db }
+    - { role: dev/db, become: true }
     # TODO: Move to packer
     - { role: base/marketplace }
 

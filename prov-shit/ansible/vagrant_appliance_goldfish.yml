@@ -15,7 +15,7 @@
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/isaac }
-    - { role: dev/db }
+    - { role: dev/db, become: true }
     - { role: dev/phoenix }
     - { role: dev/appliance }
     - { role: dev/solomon }

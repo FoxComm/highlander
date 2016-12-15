@@ -29,7 +29,7 @@
   roles:
       - { role: dev/kafka }
       - { role: dev/elasticsearch }
-      - { role: dev/db }
+      - { role: dev/db, become: true }
 
 - name: Bootstrap Frontend
   hosts: '{{hostname}}'
