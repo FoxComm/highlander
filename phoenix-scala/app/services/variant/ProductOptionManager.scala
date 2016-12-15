@@ -147,7 +147,7 @@ object ProductOptionManager {
         DbResultT.good(variant)
     }
 
-  def createVariantValue(contextName: String, variantId: Int, payload: VariantValuePayload)(
+  def createVariantValue(contextName: String, variantId: Int, payload: ProductValuePayload)(
       implicit ec: EC,
       db: DB,
       au: AU): DbResultT[IlluminatedVariantValueResponse.Root] =
@@ -161,7 +161,7 @@ object ProductOptionManager {
 
   private def createVariantValueInner(context: ObjectContext,
                                       variant: ProductOption,
-                                      payload: VariantValuePayload)(
+                                      payload: ProductValuePayload)(
       implicit ec: EC,
       db: DB,
       au: AU): DbResultT[FullObject[ProductValue]] = {
@@ -189,7 +189,7 @@ object ProductOptionManager {
     } yield FullObject(variantValue, ins.form, ins.shadow)
   }
 
-  private def updateVariantValueInner(valueId: Int, contextId: Int, payload: VariantValuePayload)(
+  private def updateVariantValueInner(valueId: Int, contextId: Int, payload: ProductValuePayload)(
       implicit ec: EC,
       db: DB): DbResultT[FullObject[ProductValue]] = {
     val (form, shadow) = payload.formAndShadow.tupled
@@ -226,7 +226,7 @@ object ProductOptionManager {
   private def updateOrCreateVariantValue(
       variant: ProductOption,
       context: ObjectContext,
-      payload: VariantValuePayload)(implicit ec: EC, db: DB, au: AU) = {
+      payload: ProductValuePayload)(implicit ec: EC, db: DB, au: AU) = {
 
     payload.id match {
       case Some(id) ⇒ updateVariantValueInner(id, context.id, payload)

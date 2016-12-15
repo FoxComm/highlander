@@ -17,7 +17,7 @@ import payloads.ImagePayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.CreateCart
 import payloads.ProductPayloads.UpdateProductPayload
-import payloads.SkuPayloads.SkuPayload
+import payloads.ProductVariantPayloads.ProductVariantPayload
 import responses.SkuResponses.SkuResponse
 import responses.cord.CartResponse
 import testutils._
@@ -49,7 +49,7 @@ class SkuIntegrationTest
       val attrMap    = Map("price" → priceJson)
 
       skusApi
-        .create(SkuPayload(attributes = attrMap, albums = None))
+        .create(ProductVariantPayload(attributes = attrMap, albums = None))
         .mustFailWithMessage("SKU code not found in payload")
     }
 
@@ -91,7 +91,7 @@ class SkuIntegrationTest
   "PATCH v1/skus/:context/:code" - {
     "Adds a new attribute to the SKU" in new Fixture {
       val payload =
-        SkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))), albums = None)
+        ProductVariantPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))), albums = None)
       val skuResponse = skusApi(sku.code).update(payload).as[SkuResponse.Root]
 
       (skuResponse.attributes \ "code" \ "v").extract[String] must === (sku.code)
@@ -101,7 +101,7 @@ class SkuIntegrationTest
 
     "Updates the SKU's code" in new Fixture {
       val payload =
-        SkuPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))), albums = None)
+        ProductVariantPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))), albums = None)
       skusApi(sku.code).update(payload).mustBeOk()
 
       val skuResponse = skusApi("upcode").get().as[SkuResponse.Root]
@@ -167,7 +167,7 @@ class SkuIntegrationTest
                        albums: Option[Seq[AlbumPayload]] = None) = {
       val codeJson   = ("t"              → "string") ~ ("v" → code)
       val attributes = attrMap + ("code" → codeJson)
-      SkuPayload(attributes = attributes, albums = albums)
+      ProductVariantPayload(attributes = attributes, albums = albums)
     }
 
     val (sku, skuForm, skuShadow) = (for {

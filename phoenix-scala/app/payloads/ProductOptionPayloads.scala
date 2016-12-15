@@ -9,11 +9,11 @@ import utils.aliases._
 object ProductOptionPayloads {
   case class ProductOptionPayload(id: Option[Int] = None,
                                   attributes: Map[String, Json],
-                                  values: Option[Seq[VariantValuePayload]],
+                                  values: Option[Seq[ProductValuePayload]],
                                   schema: Option[String] = None,
                                   scope: Option[String] = None)
 
-  case class VariantValuePayload(id: Option[Int] = None,
+  case class ProductValuePayload(id: Option[Int] = None,
                                  name: Option[String],
                                  swatch: Option[String],
                                  skuCodes: Seq[String],
