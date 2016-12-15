@@ -81,7 +81,7 @@ func TraceFromHTTPRequest(tracer opentracing.Tracer) gin.HandlerFunc {
 		}
 
 		// create span
-		span := tracer.StartSpan(c.Request.URL.Path, ext.RPCServerOption(wireContext))
+		span := tracer.StartSpan(fmt.Sprintf("%s %s", c.Request.Method, c.Request.URL.Path), ext.RPCServerOption(wireContext))
 		defer span.Finish()
 
 		ext.HTTPMethod.Set(span, c.Request.Method)
