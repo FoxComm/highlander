@@ -8,6 +8,3 @@
 
 - name: Restart Mesos Worker
   service: name=mesos_worker state=restarted enabled=true
-
-- name: Pause for 5 seconds
-
