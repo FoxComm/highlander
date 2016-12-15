@@ -50,7 +50,7 @@ object ProductOptionManager {
       fullVariant ← * <~ ObjectManager.getFullObject(
                        mustFindVariantByContextAndForm(context.id, variantId))
 
-      values ← * <~ VariantValueLinks.queryRightByLeft(fullVariant.model)
+      values ← * <~ ProductOptionValueLinks.queryRightByLeft(fullVariant.model)
       variantValueSkuCodes ← * <~ ProductOptionManager.getVariantValueSkuCodes(
                                 values.map(_.model.id))
     } yield
@@ -122,7 +122,7 @@ object ProductOptionManager {
 
       _ ← * <~ valuePayloads.map(pay ⇒ updateOrCreateVariantValue(updatedHead, context, pay))
 
-      values ← * <~ VariantValueLinks.queryRightByLeft(oldVariant.model)
+      values ← * <~ ProductOptionValueLinks.queryRightByLeft(oldVariant.model)
     } yield (FullObject(updatedHead, updated.form, updated.shadow), values)
   }
 
@@ -180,12 +180,12 @@ object ProductOptionManager {
                                      formId = ins.form.id,
                                      shadowId = ins.shadow.id,
                                      commitId = ins.commit.id))
-      _ ← * <~ VariantValueLinks.create(
-             VariantValueLink(leftId = variant.id, rightId = variantValue.id))
+      _ ← * <~ ProductOptionValueLinks.create(
+             ProductOptionValueLink(leftId = variant.id, rightId = variantValue.id))
       _ ← * <~ skuCodes.map(
              s ⇒
-               VariantValueSkuLinks.create(
-                   VariantValueSkuLink(leftId = variantValue.id, rightId = s.id)))
+               ProductValueSkuLinks.create(
+                   ProductValueSkuLink(leftId = variantValue.id, rightId = s.id)))
     } yield FullObject(variantValue, ins.form, ins.shadow)
   }
 
@@ -208,17 +208,17 @@ object ProductOptionManager {
       newSkus ← * <~ payload.skuCodes.map(SkuManager.mustFindSkuByContextAndCode(contextId, _))
       newSkuIds = newSkus.map(_.id).toSet
 
-      variantValueLinks ← * <~ VariantValueSkuLinks.filterLeft(value.id).result
+      variantValueLinks ← * <~ ProductValueSkuLinks.filterLeft(value.id).result
       linkedSkuIds = variantValueLinks.map(_.rightId).toSet
 
       toDelete = variantValueLinks.filter(link ⇒ !newSkuIds.contains(link.rightId))
       toCreate = newSkuIds.diff(linkedSkuIds)
 
-      _ ← * <~ VariantValueSkuLinks.createAllReturningIds(
-             toCreate.map(id ⇒ VariantValueSkuLink(leftId = value.id, rightId = id)))
+      _ ← * <~ ProductValueSkuLinks.createAllReturningIds(
+             toCreate.map(id ⇒ ProductValueSkuLink(leftId = value.id, rightId = id)))
       _ ← * <~ toDelete.map(
              link ⇒
-               VariantValueSkuLinks
+               ProductValueSkuLinks
                  .deleteById(link.id, DbResultT.unit, id ⇒ NotFoundFailure404(link, link.id)))
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
@@ -256,12 +256,12 @@ object ProductOptionManager {
   def findValuesForVariant(variant: FullObject[ProductOption])(
       implicit ec: EC,
       db: DB): DbResultT[Seq[FullObject[ProductValue]]] =
-    VariantValueLinks.queryRightByLeft(variant.model)
+    ProductOptionValueLinks.queryRightByLeft(variant.model)
 
   def getVariantValueSkuCodes(
       variantValueHeadIds: Seq[Int])(implicit ec: EC, db: DB): DbResultT[Map[Int, Seq[String]]] =
     for {
-      links ← * <~ VariantValueSkuLinks.findSkusForVariantValues(variantValueHeadIds).result
+      links ← * <~ ProductValueSkuLinks.findSkusForVariantValues(variantValueHeadIds).result
       linksMapping = links.groupBy { case (valueId, _) ⇒ valueId }.mapValues(_.map {
         case (_, skuCode) ⇒ skuCode
       })
