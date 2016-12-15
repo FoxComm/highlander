@@ -448,7 +448,7 @@ class ImageIntegrationTest
                    shadowId = skuShadow.id,
                    commitId = skuCommit.id,
                    code = "SKU-TEST"))
-      _ ← * <~ SkuAlbumLinks.create(SkuAlbumLink(leftId = sku.id, rightId = album.id))
+      _ ← * <~ VariantAlbumLinks.create(VariantAlbumLink(leftId = sku.id, rightId = album.id))
 
       simpleProd ← * <~ SimpleProduct(title = "Test Product",
                                       description = "Test product description")

@@ -243,7 +243,7 @@ object Mvp {
 
       sku ← * <~ ProductVariants
              .filter(_.id === link.rightId)
-             .mustFindOneOr(SkuNotFound(link.rightId))
+             .mustFindOneOr(ProductVariantNotFound(link.rightId))
 
       simpleSku  ← * <~ SimpleSku(p.code, p.title, p.price, p.currency, p.active, p.tags)
       oldSkuForm ← * <~ ObjectForms.mustFindById404(sku.formId)
@@ -401,7 +401,7 @@ object Mvp {
       _ ← * <~ ProductOptionValueLinks.create(
              ProductOptionValueLink(leftId = variantId, rightId = value.id))
       skuCodes ← * <~ v.skuCodes.map(code ⇒
-                      ProductVariantManager.mustFindSkuByContextAndCode(contextId, code))
+                      ProductVariantManager.mustFindByContextAndCode(contextId, code))
       _ ← * <~ skuCodes.map(
              s ⇒
                ProductValueVariantLinks.create(

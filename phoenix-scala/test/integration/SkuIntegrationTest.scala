@@ -6,7 +6,7 @@ import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.SkuIsPresentInCarts
 import failures.ObjectFailures.ObjectContextNotFound
-import failures.ProductFailures.SkuNotFoundForContext
+import failures.ProductFailures.ProductVariantNotFoundForContext
 import models.account.Scope
 import models.inventory._
 import models.objects._
@@ -139,7 +139,7 @@ class SkuIntegrationTest
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong code" in new Fixture {
-      skusApi("666").archive().mustFailWith404(SkuNotFoundForContext("666", ctx.id))
+      skusApi("666").archive().mustFailWith404(ProductVariantNotFoundForContext("666", ctx.id))
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong context" in new Fixture {

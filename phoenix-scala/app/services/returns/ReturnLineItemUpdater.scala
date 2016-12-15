@@ -28,7 +28,7 @@ object ReturnLineItemUpdater {
       reason ← * <~ ReturnReasons
                 .filter(_.id === payload.reasonId)
                 .mustFindOneOr(NotFoundFailure400(ReturnReason, payload.reasonId))
-      sku       ← * <~ ProductVariantManager.mustFindSkuByContextAndCode(context.id, payload.sku)
+      sku       ← * <~ ProductVariantManager.mustFindByContextAndCode(context.id, payload.sku)
       skuShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
       // Inserts
       origin ← * <~ ReturnLineItemSkus.create(

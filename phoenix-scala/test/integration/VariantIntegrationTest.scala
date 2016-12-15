@@ -2,7 +2,7 @@ import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.LinkArchivedSkuFailure
-import failures.ProductFailures.VariantNotFoundForContext
+import failures.ProductFailures.ProductOptionNotFoundForContext
 import models.account.Scope
 import models.inventory.ProductVariants
 import models.product._
@@ -66,7 +66,7 @@ class VariantIntegrationTest
     }
 
     "Throws a 404 if given an invalid id" in new Fixture {
-      variantsApi(123).get().mustFailWith404(VariantNotFoundForContext(123, ctx.id))
+      variantsApi(123).get().mustFailWith404(ProductOptionNotFoundForContext(123, ctx.id))
     }
   }
 

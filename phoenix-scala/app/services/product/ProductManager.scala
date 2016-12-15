@@ -93,7 +93,7 @@ object ProductManager {
       albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.form.id)
 
       fullSkus    ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
-      productSkus ← * <~ fullSkus.map(ProductVariantManager.illuminateSku)
+      productSkus ← * <~ fullSkus.map(ProductVariantManager.illuminateVariant)
 
       variants     ← * <~ ProductOptionLinks.queryRightByLeft(oldProduct.model)
       fullVariants ← * <~ variants.map(ProductOptionManager.zipVariantWithValues)
@@ -200,7 +200,7 @@ object ProductManager {
                                           id ⇒ NotFoundFailure400(ProductVariantLink, id))
          }
       updatedSkus  ← * <~ ProductVariantLinks.queryRightByLeft(archiveResult)
-      skus         ← * <~ updatedSkus.map(ProductVariantManager.illuminateSku)
+      skus         ← * <~ updatedSkus.map(ProductVariantManager.illuminateVariant)
       variantLinks ← * <~ ProductOptionLinks.filter(_.leftId === archiveResult.id).result
       _ ← * <~ variantLinks.map { link ⇒
            ProductOptionLinks.deleteById(link.id,
@@ -339,7 +339,7 @@ object ProductManager {
                                                        else Seq.empty)
               } yield newSku
             }
-        albums ← * <~ ImageManager.getAlbumsForSkuInner(code, oc)
+        albums ← * <~ ImageManager.getAlbumsForVariantInner(code, oc)
       } yield ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, up), albums)
     }
 

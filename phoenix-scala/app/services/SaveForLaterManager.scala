@@ -26,7 +26,7 @@ object SaveForLaterManager {
       ec: EC): DbResultT[SavedForLater] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      sku      ← * <~ ProductVariantManager.mustFindSkuByContextAndCode(context.id, skuCode)
+      sku      ← * <~ ProductVariantManager.mustFindByContextAndCode(context.id, skuCode)
       _ ← * <~ SaveForLaters
            .find(accountId = customer.accountId, skuId = sku.id)
            .mustNotFindOneOr(AlreadySavedForLater(accountId = customer.accountId, skuId = sku.id))

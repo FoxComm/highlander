@@ -157,7 +157,7 @@ object ProductOptionManager {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       variant ← * <~ ProductOptions
                  .filterByContextAndFormId(context.id, variantId)
-                 .mustFindOneOr(VariantNotFoundForContext(variantId, context.id))
+                 .mustFindOneOr(ProductOptionNotFoundForContext(variantId, context.id))
       value ← * <~ createProductValueInner(context, variant, payload)
     } yield IlluminatedProductValueResponse.build(value, payload.skuCodes)
 
@@ -173,7 +173,7 @@ object ProductOptionManager {
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       skuCodes ← * <~ payload.skuCodes.map(
-                    ProductVariantManager.mustFindSkuByContextAndCode(context.id, _))
+                    ProductVariantManager.mustFindByContextAndCode(context.id, _))
       _ ← * <~ skuCodes.map(sku ⇒
                DbResultT.fromXor(sku.mustNotBeArchived(ProductOption, variant.formId)))
       ins ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
@@ -209,7 +209,7 @@ object ProductOptionManager {
       updatedHead ← * <~ updateValueHead(value, updated.shadow, commit)
 
       newSkus ← * <~ payload.skuCodes.map(
-                   ProductVariantManager.mustFindSkuByContextAndCode(contextId, _))
+                   ProductVariantManager.mustFindByContextAndCode(contextId, _))
       newSkuIds = newSkus.map(_.id).toSet
 
       variantValueLinks ← * <~ ProductValueVariantLinks.filterLeft(value.id).result
@@ -280,7 +280,7 @@ object ProductOptionManager {
 
       value ← * <~ ProductValues
                .filterByContextAndFormId(contextId, formId)
-               .mustFindOneOr(VariantValueNotFoundForContext(formId, contextId))
+               .mustFindOneOr(ProductValueNotFoundForContext(formId, contextId))
     } yield value
 
   def mustFindProductValueByContextAndShadow(contextId: Int, shadowId: Int)(
@@ -291,7 +291,7 @@ object ProductOptionManager {
       form   ← * <~ ObjectManager.mustFindFormById404(shadow.formId)
       value ← * <~ ProductValues
                .filterByContextAndFormId(contextId, form.id)
-               .mustFindOneOr(VariantValueNotFoundForContext(form.id, contextId))
+               .mustFindOneOr(ProductValueNotFoundForContext(form.id, contextId))
     } yield FullObject(value, form, shadow)
 
   private def mustFindByContextAndForm(contextId: Int, formId: Int)(
@@ -299,7 +299,7 @@ object ProductOptionManager {
     for {
       productOption ← * <~ ProductOptions
                        .filterByContextAndFormId(contextId, formId)
-                       .mustFindOneOr(VariantNotFoundForContext(formId, contextId))
+                       .mustFindOneOr(ProductOptionNotFoundForContext(formId, contextId))
     } yield productOption
 
   def mustFindByContextAndShadow(contextId: Int, shadowId: Int)(
@@ -309,7 +309,7 @@ object ProductOptionManager {
       form   ← * <~ ObjectManager.mustFindFormById404(shadow.formId)
       productOption ← * <~ ProductOptions
                        .filterByContextAndFormId(contextId, form.id)
-                       .mustFindOneOr(VariantNotFoundForContext(form.id, contextId))
+                       .mustFindOneOr(ProductOptionNotFoundForContext(form.id, contextId))
     } yield FullObject(productOption, form, shadow)
 
   def mustFindFullWithValuesById(
