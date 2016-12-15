@@ -45,12 +45,12 @@ object ProductVariantRoutes {
               pathPrefix("albums") {
                 (get & pathEnd) {
                   getOrFailures {
-                    ImageManager.getAlbumsForSku(code)
+                    ImageManager.getAlbumsForVariantCode(code)
                   }
                 } ~
                 (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
                   mutateOrFailures {
-                    ImageManager.createAlbumForSku(auth.model, code, payload)
+                    ImageManager.createAlbumForVariantCode(auth.model, code, payload)
                   }
                 }
               }

@@ -7,3 +7,5 @@ alter table variant_value_sku_links rename to product_value_variant_links;
 
 alter table product_variant_links rename to product_option_links;
 alter table product_sku_links rename to product_variant_links;
+
+alter table sku_album_links rename to variant_album_links;

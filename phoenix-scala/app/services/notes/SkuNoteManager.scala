@@ -12,7 +12,7 @@ object SkuNoteManager extends NoteManager[String, IlluminatedObject] {
 
   def fetchEntity(code: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[IlluminatedObject] =
     for {
-      sku    ← * <~ ProductVariantManager.mustFindSkuByContextAndCode(defaultContextId, code)
+      sku    ← * <~ ProductVariantManager.mustFindByContextAndCode(defaultContextId, code)
       form   ← * <~ ObjectForms.mustFindById404(sku.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
     } yield IlluminatedObject.illuminate(form = form, shadow = shadow)

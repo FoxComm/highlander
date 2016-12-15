@@ -2,7 +2,7 @@ package services
 
 import failures.CartFailures._
 import failures.OrderFailures.OrderLineItemNotFound
-import failures.ProductFailures.SkuNotFoundForContext
+import failures.ProductFailures.ProductVariantNotFoundForContext
 import models.account._
 import models.activity.Activity
 import models.cord._
@@ -171,7 +171,7 @@ object LineItemUpdater {
       sku ← * <~ ProductVariants
              .filterByContext(ctx.id)
              .filter(_.code === lineItem.sku)
-             .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
+             .mustFindOneOr(ProductVariantNotFoundForContext(lineItem.sku, ctx.id))
       _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
       updateResult ← * <~ createLineItems(sku.id,
                                           lineItem.quantity,
@@ -196,7 +196,7 @@ object LineItemUpdater {
         sku ← * <~ ProductVariants
                .filterByContext(ctx.id)
                .filter(_.code === lineItem.sku)
-               .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
+               .mustFindOneOr(ProductVariantNotFoundForContext(lineItem.sku, ctx.id))
         _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
         _ ← * <~ (if (lineItem.quantity > 0)
                     createLineItems(sku.id, lineItem.quantity, cart.refNum, lineItem.attributes).meh

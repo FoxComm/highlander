@@ -48,10 +48,10 @@ object ProductVariantManager {
   def getBySkuCode(
       code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductVariantResponse.Root] =
     for {
-      variant ← * <~ ProductVariantManager.mustFindSkuByContextAndCode(oc.id, code)
+      variant ← * <~ ProductVariantManager.mustFindByContextAndCode(oc.id, code)
       form    ← * <~ ObjectForms.mustFindById404(variant.formId)
       shadow  ← * <~ ObjectShadows.mustFindById404(variant.shadowId)
-      albums  ← * <~ ImageManager.getAlbumsForSkuInner(variant.code, oc)
+      albums  ← * <~ ImageManager.getAlbumsForVariantInner(variant.code, oc)
     } yield
       ProductVariantResponse
         .build(IlluminatedVariant.illuminate(oc, FullObject(variant, form, shadow)), albums)
@@ -63,7 +63,7 @@ object ProductVariantManager {
       oc: OC,
       au: AU): DbResultT[ProductVariantResponse.Root] =
     for {
-      variant    ← * <~ ProductVariantManager.mustFindSkuByContextAndCode(oc.id, code)
+      variant    ← * <~ ProductVariantManager.mustFindByContextAndCode(oc.id, code)
       updatedSku ← * <~ updateInner(variant, payload)
       albums     ← * <~ updateAssociatedAlbums(updatedSku.model, payload.albums)
       response = ProductVariantResponse
@@ -75,17 +75,17 @@ object ProductVariantManager {
       code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductVariantResponse.Root] =
     for {
       fullSku ← * <~ ObjectManager.getFullObject(
-                   ProductVariantManager.mustFindSkuByContextAndCode(oc.id, code))
+                   ProductVariantManager.mustFindByContextAndCode(oc.id, code))
       _ ← * <~ fullSku.model.mustNotBePresentInCarts
       archivedSku ← * <~ ProductVariants.update(fullSku.model,
                                                 fullSku.model.copy(archivedAt = Some(Instant.now)))
-      albumLinks ← * <~ SkuAlbumLinks.filter(_.leftId === archivedSku.id).result
+      albumLinks ← * <~ VariantAlbumLinks.filter(_.leftId === archivedSku.id).result
       _ ← * <~ albumLinks.map { link ⇒
-           SkuAlbumLinks.deleteById(link.id,
-                                    DbResultT.unit,
-                                    id ⇒ NotFoundFailure400(SkuAlbumLinks, id))
+           VariantAlbumLinks.deleteById(link.id,
+                                        DbResultT.unit,
+                                        id ⇒ NotFoundFailure400(VariantAlbumLinks, id))
          }
-      albums       ← * <~ ImageManager.getAlbumsForSkuInner(archivedSku.code, oc)
+      albums       ← * <~ ImageManager.getAlbumsForVariantInner(archivedSku.code, oc)
       productLinks ← * <~ ProductVariantLinks.filter(_.rightId === archivedSku.id).result
       _ ← * <~ productLinks.map { link ⇒
            ProductVariantLinks.deleteById(link.id,
@@ -179,10 +179,12 @@ object ProductVariantManager {
       au: AU): DbResultT[Seq[FullAlbumWithImages]] =
     for {
       albums ← * <~ payload.map(ImageManager.updateOrCreateAlbum)
-      _      ← * <~ SkuAlbumLinks.syncLinks(sku, albums.map { case (fullAlbum, _) ⇒ fullAlbum.model })
+      _ ← * <~ VariantAlbumLinks.syncLinks(sku, albums.map {
+           case (fullAlbum, _) ⇒ fullAlbum.model
+         })
     } yield albums
 
-  private def updateAssociatedAlbums(sku: ProductVariant,
+  private def updateAssociatedAlbums(variant: ProductVariant,
                                      albumsPayload: Option[Seq[AlbumPayload]])(
       implicit ec: EC,
       db: DB,
@@ -190,24 +192,24 @@ object ProductVariantManager {
       au: AU): DbResultT[Seq[AlbumRoot]] =
     albumsPayload match {
       case Some(payloads) ⇒
-        findOrCreateAlbumsForSku(sku, payloads).map(_.map(AlbumResponse.build))
+        findOrCreateAlbumsForSku(variant, payloads).map(_.map(AlbumResponse.build))
       case None ⇒
-        ImageManager.getAlbumsForSkuInner(sku.code, oc)
+        ImageManager.getAlbumsForVariantInner(variant.code, oc)
     }
 
-  def mustFindSkuByContextAndCode(contextId: Int, code: String)(
+  def mustFindByContextAndCode(contextId: Int, code: String)(
       implicit ec: EC): DbResultT[ProductVariant] =
     for {
       sku ← * <~ ProductVariants
              .filterByContextAndCode(contextId, code)
-             .mustFindOneOr(SkuNotFoundForContext(code, contextId))
+             .mustFindOneOr(ProductVariantNotFoundForContext(code, contextId))
     } yield sku
 
-  def mustFindFullSkuById(id: Int)(implicit ec: EC,
-                                   db: DB): DbResultT[FullObject[ProductVariant]] =
-    ObjectManager.getFullObject(ProductVariants.filter(_.id === id).mustFindOneOr(SkuNotFound(id)))
+  def mustFindFullById(id: Int)(implicit ec: EC, db: DB): DbResultT[FullObject[ProductVariant]] =
+    ObjectManager.getFullObject(
+        ProductVariants.filter(_.id === id).mustFindOneOr(ProductVariantNotFound(id)))
 
-  def mustFindFullSkuByIdAndShadowId(skuId: Int, shadowId: Int)(
+  def mustFindFullByIdAndShadowId(skuId: Int, shadowId: Int)(
       implicit ec: EC,
       db: DB): DbResultT[FullObject[ProductVariant]] =
     for {
@@ -216,12 +218,12 @@ object ProductVariantManager {
       sku    ← * <~ ProductVariants.mustFindById404(skuId)
     } yield FullObject(sku, form, shadow)
 
-  def illuminateSku(fullSku: FullObject[ProductVariant])(
+  def illuminateVariant(fullSku: FullObject[ProductVariant])(
       implicit ec: EC,
       db: DB,
       oc: OC): DbResultT[ProductVariantResponse.Root] =
     ImageManager
-      .getAlbumsBySku(fullSku.model)
+      .getAlbumsByVariant(fullSku.model)
       .map(albums ⇒
             ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, fullSku), albums))
 }

@@ -157,7 +157,7 @@ case class Checkout(
 
   private def isInventoryTracked(skuCode: String, qty: Int) =
     for {
-      sku    ← * <~ ProductVariantManager.mustFindSkuByContextAndCode(contextId = ctx.id, skuCode)
+      sku    ← * <~ ProductVariantManager.mustFindByContextAndCode(contextId = ctx.id, skuCode)
       shadow ← * <~ ObjectShadows.mustFindById400(sku.shadowId)
       form   ← * <~ ObjectForms.mustFindById400(shadow.formId)
       trackInventory = ObjectUtils.get("trackInventory", form, shadow) match {

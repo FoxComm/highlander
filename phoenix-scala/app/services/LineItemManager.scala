@@ -2,7 +2,7 @@ package services
 
 import cats.data._
 import cats.implicits._
-import failures.ProductFailures.NoProductFoundForSku
+import failures.ProductFailures.NoProductFoundForVariant
 import models.cord.lineitems._
 import models.image.{AlbumImageLinks, Albums, Images}
 import models.inventory.ProductVariant
@@ -35,7 +35,7 @@ object LineItemManager {
 
   private def getCartLineItem(cartLineItem: CartLineItem)(implicit ec: EC, db: DB) =
     for {
-      sku     ← * <~ ProductVariantManager.mustFindFullSkuById(cartLineItem.skuId)
+      sku     ← * <~ ProductVariantManager.mustFindFullById(cartLineItem.skuId)
       product ← * <~ getProductForSku(sku.model)
       image   ← * <~ getLineItemImage(sku.model, product.model)
     } yield
@@ -50,8 +50,8 @@ object LineItemManager {
 
   private def getOrderLineItem(orderLineItem: OrderLineItem)(implicit ec: EC, db: DB) =
     for {
-      sku ← * <~ ProductVariantManager.mustFindFullSkuByIdAndShadowId(orderLineItem.skuId,
-                                                                      orderLineItem.skuShadowId)
+      sku ← * <~ ProductVariantManager.mustFindFullByIdAndShadowId(orderLineItem.skuId,
+                                                                   orderLineItem.skuShadowId)
       product ← * <~ getProductForSku(sku.model)
       image   ← * <~ getLineItemImage(sku.model, product.model)
     } yield
@@ -73,13 +73,13 @@ object LineItemManager {
                      for {
                        valueLink ← * <~ ProductValueVariantLinks
                                     .filter(_.rightId === sku.id)
-                                    .mustFindOneOr(NoProductFoundForSku(sku.id))
+                                    .mustFindOneOr(NoProductFoundForVariant(sku.id))
                        variantLink ← * <~ ProductOptionValueLinks
                                       .filter(_.rightId === valueLink.leftId)
-                                      .mustFindOneOr(NoProductFoundForSku(sku.id))
+                                      .mustFindOneOr(NoProductFoundForVariant(sku.id))
                        productLink ← * <~ ProductOptionLinks
                                       .filter(_.rightId === variantLink.leftId)
-                                      .mustFindOneOr(NoProductFoundForSku(sku.id))
+                                      .mustFindOneOr(NoProductFoundForVariant(sku.id))
                      } yield productLink.leftId
                  }
       product ← * <~ ProductManager.mustFindFullProductById(productId)
@@ -101,7 +101,7 @@ object LineItemManager {
 
   private def getLineItemAlbumId(sku: ProductVariant, product: Product)(implicit ec: EC, db: DB) =
     for {
-      albumId ← * <~ SkuAlbumLinks.filterLeft(sku).one.dbresult.flatMap {
+      albumId ← * <~ VariantAlbumLinks.filterLeft(sku).one.dbresult.flatMap {
                  case Some(albumLink) ⇒
                    DbResultT.good(albumLink.rightId.some)
                  case None ⇒

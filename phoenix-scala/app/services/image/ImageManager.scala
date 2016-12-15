@@ -58,23 +58,24 @@ object ImageManager {
               }
     } yield result
 
-  def getAlbumsForSku(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
+  def getAlbumsForVariantCode(
+      code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
     for {
-      albums ← * <~ getAlbumsForSkuInner(code, oc)
+      albums ← * <~ getAlbumsForVariantInner(code, oc)
     } yield albums
 
-  def getAlbumsForSkuInner(code: String, context: ObjectContext)(
+  def getAlbumsForVariantInner(code: String, context: ObjectContext)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[AlbumResponse.Root]] =
     for {
-      sku    ← * <~ ProductVariantManager.mustFindSkuByContextAndCode(context.id, code)
-      result ← * <~ getAlbumsBySku(sku)
+      variant ← * <~ ProductVariantManager.mustFindByContextAndCode(context.id, code)
+      result  ← * <~ getAlbumsByVariant(variant)
     } yield result
 
-  def getAlbumsBySku(sku: ProductVariant)(implicit ec: EC,
-                                          db: DB): DbResultT[Seq[AlbumResponse.Root]] =
+  def getAlbumsByVariant(variant: ProductVariant)(implicit ec: EC,
+                                                  db: DB): DbResultT[Seq[AlbumResponse.Root]] =
     for {
-      albums ← * <~ SkuAlbumLinks.queryRightByLeft(sku)
+      albums ← * <~ VariantAlbumLinks.queryRightByLeft(variant)
       images ← * <~ albums.map(album ⇒ AlbumImageLinks.queryRightByLeft(album.model))
       result ← * <~ albums.zip(images).map {
                 case (album, image) ⇒ AlbumResponse.build(album, image)
@@ -193,17 +194,17 @@ object ImageManager {
       link ← * <~ ProductAlbumLinks.createLast(product, fullAlbum.model)
     } yield AlbumResponse.build(fullAlbum, images)
 
-  def createAlbumForSku(admin: User, code: String, payload: AlbumPayload)(
+  def createAlbumForVariantCode(admin: User, code: String, payload: AlbumPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
       oc: OC,
       au: AU): DbResultT[AlbumRoot] =
     for {
-      sku     ← * <~ ProductVariantManager.mustFindSkuByContextAndCode(oc.id, code)
+      variant ← * <~ ProductVariantManager.mustFindByContextAndCode(oc.id, code)
       created ← * <~ createAlbumInner(payload, oc)
       (fullAlbum, images) = created
-      link ← * <~ SkuAlbumLinks.createLast(sku, fullAlbum.model)
+      link ← * <~ VariantAlbumLinks.createLast(variant, fullAlbum.model)
     } yield AlbumResponse.build(fullAlbum, images)
 
   def updateAlbum(id: ObjectForm#Id,
@@ -268,11 +269,11 @@ object ImageManager {
                                         DbResultT.unit,
                                         id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
          }
-      skuLinks ← * <~ SkuAlbumLinks.filterRight(albumObject.model).result
-      _ ← * <~ skuLinks.map { link ⇒
-           SkuAlbumLinks.deleteById(link.id,
-                                    DbResultT.unit,
-                                    id ⇒ NotFoundFailure400(SkuAlbumLink, id))
+      variantLinks ← * <~ VariantAlbumLinks.filterRight(albumObject.model).result
+      _ ← * <~ variantLinks.map { link ⇒
+           VariantAlbumLinks.deleteById(link.id,
+                                        DbResultT.unit,
+                                        id ⇒ NotFoundFailure400(VariantAlbumLink, id))
          }
       images ← * <~ getAlbumImages(albumObject.model)
     } yield
