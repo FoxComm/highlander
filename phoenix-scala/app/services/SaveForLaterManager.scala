@@ -6,7 +6,7 @@ import models.account.{User, Users}
 import models.objects.ObjectContext
 import models.{SaveForLater, SaveForLaters}
 import responses.{SaveForLaterResponse, TheResponse}
-import services.inventory.SkuManager
+import services.inventory.ProductVariantManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -26,7 +26,7 @@ object SaveForLaterManager {
       ec: EC): DbResultT[SavedForLater] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      sku      ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, skuCode)
+      sku      ← * <~ ProductVariantManager.mustFindSkuByContextAndCode(context.id, skuCode)
       _ ← * <~ SaveForLaters
            .find(accountId = customer.accountId, skuId = sku.id)
            .mustNotFindOneOr(AlreadySavedForLater(accountId = customer.accountId, skuId = sku.id))

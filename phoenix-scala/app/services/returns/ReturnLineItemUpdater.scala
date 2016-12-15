@@ -9,7 +9,7 @@ import models.shipping.Shipments
 import payloads.ReturnPayloads._
 import responses.ReturnResponse
 import responses.ReturnResponse.Root
-import services.inventory.SkuManager
+import services.inventory.ProductVariantManager
 import services.returns.Helpers._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -28,7 +28,7 @@ object ReturnLineItemUpdater {
       reason ← * <~ ReturnReasons
                 .filter(_.id === payload.reasonId)
                 .mustFindOneOr(NotFoundFailure400(ReturnReason, payload.reasonId))
-      sku       ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, payload.sku)
+      sku       ← * <~ ProductVariantManager.mustFindSkuByContextAndCode(context.id, payload.sku)
       skuShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
       // Inserts
       origin ← * <~ ReturnLineItemSkus.create(

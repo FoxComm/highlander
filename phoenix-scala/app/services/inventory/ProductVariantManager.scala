@@ -14,7 +14,7 @@ import payloads.ProductVariantPayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
 import responses.ObjectResponses.ObjectContextResponse
-import responses.SkuResponses._
+import responses.ProductVariantResponses._
 import services.LogActivity
 import services.image.ImageManager
 import services.image.ImageManager.FullAlbumWithImages
@@ -24,53 +24,58 @@ import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
 
-object SkuManager {
+object ProductVariantManager {
   implicit val formats = JsonFormatters.DefaultFormats
 
-  def createSku(admin: User, payload: ProductVariantPayload)(
+  def create(admin: User, payload: ProductVariantPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
       oc: OC,
-      au: AU): DbResultT[SkuResponse.Root] = {
+      au: AU): DbResultT[ProductVariantResponse.Root] = {
     val albumPayloads = payload.albums.getOrElse(Seq.empty)
 
     for {
-      sku    ← * <~ createSkuInner(oc, payload)
-      albums ← * <~ findOrCreateAlbumsForSku(sku.model, albumPayloads)
+      variant ← * <~ createInner(oc, payload)
+      albums  ← * <~ findOrCreateAlbumsForSku(variant.model, albumPayloads)
       albumResponse = albums.map { case (album, images) ⇒ AlbumResponse.build(album, images) }
-      response      = SkuResponse.build(IlluminatedVariant.illuminate(oc, sku), albumResponse)
+      response = ProductVariantResponse
+        .build(IlluminatedVariant.illuminate(oc, variant), albumResponse)
       _ ← * <~ LogActivity.fullSkuCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
   }
 
-  def getSku(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
+  def getBySkuCode(
+      code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductVariantResponse.Root] =
     for {
-      sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, code)
-      form   ← * <~ ObjectForms.mustFindById404(sku.formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      albums ← * <~ ImageManager.getAlbumsForSkuInner(sku.code, oc)
+      variant ← * <~ ProductVariantManager.mustFindSkuByContextAndCode(oc.id, code)
+      form    ← * <~ ObjectForms.mustFindById404(variant.formId)
+      shadow  ← * <~ ObjectShadows.mustFindById404(variant.shadowId)
+      albums  ← * <~ ImageManager.getAlbumsForSkuInner(variant.code, oc)
     } yield
-      SkuResponse.build(IlluminatedVariant.illuminate(oc, FullObject(sku, form, shadow)), albums)
+      ProductVariantResponse
+        .build(IlluminatedVariant.illuminate(oc, FullObject(variant, form, shadow)), albums)
 
-  def updateSku(admin: User, code: String, payload: ProductVariantPayload)(
+  def update(admin: User, code: String, payload: ProductVariantPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
       oc: OC,
-      au: AU): DbResultT[SkuResponse.Root] =
+      au: AU): DbResultT[ProductVariantResponse.Root] =
     for {
-      sku        ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, code)
-      updatedSku ← * <~ updateSkuInner(sku, payload)
+      variant    ← * <~ ProductVariantManager.mustFindSkuByContextAndCode(oc.id, code)
+      updatedSku ← * <~ updateInner(variant, payload)
       albums     ← * <~ updateAssociatedAlbums(updatedSku.model, payload.albums)
-      response = SkuResponse.build(IlluminatedVariant.illuminate(oc, updatedSku), albums)
+      response = ProductVariantResponse
+        .build(IlluminatedVariant.illuminate(oc, updatedSku), albums)
       _ ← * <~ LogActivity.fullSkuUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
-  def archiveByCode(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
+  def archiveByCode(
+      code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductVariantResponse.Root] =
     for {
       fullSku ← * <~ ObjectManager.getFullObject(
-                   SkuManager.mustFindSkuByContextAndCode(oc.id, code))
+                   ProductVariantManager.mustFindSkuByContextAndCode(oc.id, code))
       _ ← * <~ fullSku.model.mustNotBePresentInCarts
       archivedSku ← * <~ ProductVariants.update(fullSku.model,
                                                 fullSku.model.copy(archivedAt = Some(Instant.now)))
@@ -88,13 +93,13 @@ object SkuManager {
                                           id ⇒ NotFoundFailure400(ProductVariantLinks, id))
          }
     } yield
-      SkuResponse.build(
+      ProductVariantResponse.build(
           IlluminatedVariant.illuminate(
               oc,
               FullObject(model = archivedSku, form = fullSku.form, shadow = fullSku.shadow)),
           albums)
 
-  def createSkuInner(context: ObjectContext, payload: ProductVariantPayload)(
+  def createInner(context: ObjectContext, payload: ProductVariantPayload)(
       implicit ec: EC,
       db: DB,
       au: AU): DbResultT[FullObject[ProductVariant]] = {
@@ -106,17 +111,17 @@ object SkuManager {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       code  ← * <~ mustGetSkuCode(payload)
       ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
-      sku ← * <~ ProductVariants.create(
-               ProductVariant(scope = scope,
-                              contextId = context.id,
-                              code = code,
-                              formId = ins.form.id,
-                              shadowId = ins.shadow.id,
-                              commitId = ins.commit.id))
-    } yield FullObject(sku, ins.form, ins.shadow)
+      variant ← * <~ ProductVariants.create(
+                   ProductVariant(scope = scope,
+                                  contextId = context.id,
+                                  code = code,
+                                  formId = ins.form.id,
+                                  shadowId = ins.shadow.id,
+                                  commitId = ins.commit.id))
+    } yield FullObject(variant, ins.form, ins.shadow)
   }
 
-  def updateSkuInner(sku: ProductVariant, payload: ProductVariantPayload)(
+  def updateInner(sku: ProductVariant, payload: ProductVariantPayload)(
       implicit ec: EC,
       db: DB): DbResultT[FullObject[ProductVariant]] = {
 
@@ -136,12 +141,12 @@ object SkuManager {
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 
-  def findOrCreateSku(skuPayload: ProductVariantPayload)(implicit ec: EC, db: DB, oc: OC, au: AU) =
+  def findOrCreate(skuPayload: ProductVariantPayload)(implicit ec: EC, db: DB, oc: OC, au: AU) =
     for {
       code ← * <~ mustGetSkuCode(skuPayload)
       sku ← * <~ ProductVariants.filterByContextAndCode(oc.id, code).one.dbresult.flatMap {
-             case Some(sku) ⇒ SkuManager.updateSkuInner(sku, skuPayload)
-             case None      ⇒ SkuManager.createSkuInner(oc, skuPayload)
+             case Some(sku) ⇒ ProductVariantManager.updateInner(sku, skuPayload)
+             case None      ⇒ ProductVariantManager.createInner(oc, skuPayload)
            }
     } yield sku
 
@@ -211,10 +216,12 @@ object SkuManager {
       sku    ← * <~ ProductVariants.mustFindById404(skuId)
     } yield FullObject(sku, form, shadow)
 
-  def illuminateSku(fullSku: FullObject[ProductVariant])(implicit ec: EC,
-                                                         db: DB,
-                                                         oc: OC): DbResultT[SkuResponse.Root] =
+  def illuminateSku(fullSku: FullObject[ProductVariant])(
+      implicit ec: EC,
+      db: DB,
+      oc: OC): DbResultT[ProductVariantResponse.Root] =
     ImageManager
       .getAlbumsBySku(fullSku.model)
-      .map(albums ⇒ SkuResponse.buildLite(IlluminatedVariant.illuminate(oc, fullSku), albums))
+      .map(albums ⇒
+            ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, fullSku), albums))
 }

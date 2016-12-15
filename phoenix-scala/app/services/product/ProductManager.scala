@@ -25,10 +25,10 @@ import responses.AlbumResponses._
 import responses.ImageResponses.ImageResponse
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
-import responses.SkuResponses._
+import responses.ProductVariantResponses._
 import responses.VariantResponses.IlluminatedVariantResponse
 import services.image.ImageManager
-import services.inventory.SkuManager
+import services.inventory.ProductVariantManager
 import services.objects.ObjectManager
 import services.variant.ProductOptionManager
 import services.variant.ProductOptionManager._
@@ -93,7 +93,7 @@ object ProductManager {
       albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.form.id)
 
       fullSkus    ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
-      productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
+      productSkus ← * <~ fullSkus.map(ProductVariantManager.illuminateSku)
 
       variants     ← * <~ ProductOptionLinks.queryRightByLeft(oldProduct.model)
       fullVariants ← * <~ variants.map(ProductOptionManager.zipVariantWithValues)
@@ -200,7 +200,7 @@ object ProductManager {
                                           id ⇒ NotFoundFailure400(ProductVariantLink, id))
          }
       updatedSkus  ← * <~ ProductVariantLinks.queryRightByLeft(archiveResult)
-      skus         ← * <~ updatedSkus.map(SkuManager.illuminateSku)
+      skus         ← * <~ updatedSkus.map(ProductVariantManager.illuminateSku)
       variantLinks ← * <~ ProductOptionLinks.filter(_.leftId === archiveResult.id).result
       _ ← * <~ variantLinks.map { link ⇒
            ProductOptionLinks.deleteById(link.id,
@@ -223,16 +223,16 @@ object ProductManager {
       )
   }
 
-  private def getVariantsWithRelatedSkus(variants: Seq[FullVariant])(
-      implicit ec: EC,
-      db: DB,
-      oc: OC): DbResultT[(Seq[SkuResponse.Root], Seq[IlluminatedVariantResponse.Root])] = {
+  private def getVariantsWithRelatedSkus(
+      variants: Seq[FullVariant])(implicit ec: EC, db: DB, oc: OC)
+    : DbResultT[(Seq[ProductVariantResponse.Root], Seq[IlluminatedVariantResponse.Root])] = {
     val variantValueIds = variants.flatMap { case (_, variantValue) ⇒ variantValue }
       .map(_.model.id)
     for {
       variantValueSkuCodes ← * <~ ProductOptionManager.getVariantValueSkuCodes(variantValueIds)
       variantValueSkuCodesSet = variantValueSkuCodes.values.toSeq.flatten.distinct
-      variantSkus ← * <~ variantValueSkuCodesSet.map(skuCode ⇒ SkuManager.getSku(skuCode))
+      variantSkus ← * <~ variantValueSkuCodesSet.map(skuCode ⇒
+                         ProductVariantManager.getBySkuCode(skuCode))
       illuminated = variants.map {
         case (fullVariant, values) ⇒
           val variant = IlluminatedProductOption.illuminate(oc, fullVariant)
@@ -256,7 +256,7 @@ object ProductManager {
   }
 
   private def validateUpdate(
-      skus: Seq[SkuResponse.Root],
+      skus: Seq[ProductVariantResponse.Root],
       variants: Seq[(FullObject[ProductOption], Seq[FullObject[ProductValue]])])
     : ValidatedNel[Failure, Unit] = {
     val maxSkus = variants.map { case (_, values) ⇒ values.length.max(1) }.product
@@ -314,13 +314,14 @@ object ProductManager {
       val albumPayloads = payload.albums.getOrElse(Seq.empty)
 
       for {
-        code ← * <~ SkuManager.mustGetSkuCode(payload)
+        code ← * <~ ProductVariantManager.mustGetSkuCode(payload)
         sku  ← * <~ ProductVariants.filterByContextAndCode(oc.id, code).one.dbresult
         up ← * <~ sku.map { foundSku ⇒
               if (foundSku.archivedAt.isEmpty) {
                 for {
-                  existingSku ← * <~ SkuManager.updateSkuInner(foundSku, payload)
-                  _           ← * <~ SkuManager.findOrCreateAlbumsForSku(existingSku.model, albumPayloads)
+                  existingSku ← * <~ ProductVariantManager.updateInner(foundSku, payload)
+                  _ ← * <~ ProductVariantManager.findOrCreateAlbumsForSku(existingSku.model,
+                                                                          albumPayloads)
                   _ ← * <~ ProductVariantLinks.syncLinks(product,
                                                          if (createLinks) Seq(existingSku.model)
                                                          else Seq.empty)
@@ -330,15 +331,16 @@ object ProductManager {
               }
             }.getOrElse {
               for {
-                newSku ← * <~ SkuManager.createSkuInner(oc, payload)
-                _      ← * <~ SkuManager.findOrCreateAlbumsForSku(newSku.model, albumPayloads)
+                newSku ← * <~ ProductVariantManager.createInner(oc, payload)
+                _ ← * <~ ProductVariantManager.findOrCreateAlbumsForSku(newSku.model,
+                                                                        albumPayloads)
                 _ ← * <~ ProductVariantLinks.syncLinks(product,
                                                        if (createLinks) Seq(newSku.model)
                                                        else Seq.empty)
               } yield newSku
             }
         albums ← * <~ ImageManager.getAlbumsForSkuInner(code, oc)
-      } yield SkuResponse.buildLite(IlluminatedVariant.illuminate(oc, up), albums)
+      } yield ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, up), albums)
     }
 
   private def findOrCreateVariantsForProduct(product: Product, payload: Seq[ProductOptionPayload])(
@@ -416,8 +418,10 @@ object ProductManager {
                             .filter(_.id.inSet(skuIdsForProduct))
                             .map(_.code)
                             .result
-      skuCodesFromPayload = payloadSkus.map(ps ⇒ SkuManager.getSkuCode(ps.attributes)).flatten
-      skuCodesToBeGone    = skuCodesForProduct.diff(skuCodesFromPayload)
+      skuCodesFromPayload = payloadSkus
+        .map(ps ⇒ ProductVariantManager.getSkuCode(ps.attributes))
+        .flatten
+      skuCodesToBeGone = skuCodesForProduct.diff(skuCodesFromPayload)
       _ ← * <~ (skuCodesToBeGone.map { codeToUnassociate ⇒
                for {
                  skuToUnassociate ← * <~ ProductVariants.mustFindByCode(codeToUnassociate)

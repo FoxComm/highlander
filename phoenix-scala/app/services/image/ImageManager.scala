@@ -16,7 +16,7 @@ import org.json4s.JsonAST.JString
 import payloads.ImagePayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
-import services.inventory.SkuManager
+import services.inventory.ProductVariantManager
 import services.objects.ObjectManager
 import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
@@ -67,7 +67,7 @@ object ImageManager {
       implicit ec: EC,
       db: DB): DbResultT[Seq[AlbumResponse.Root]] =
     for {
-      sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, code)
+      sku    ← * <~ ProductVariantManager.mustFindSkuByContextAndCode(context.id, code)
       result ← * <~ getAlbumsBySku(sku)
     } yield result
 
@@ -200,7 +200,7 @@ object ImageManager {
       oc: OC,
       au: AU): DbResultT[AlbumRoot] =
     for {
-      sku     ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, code)
+      sku     ← * <~ ProductVariantManager.mustFindSkuByContextAndCode(oc.id, code)
       created ← * <~ createAlbumInner(payload, oc)
       (fullAlbum, images) = created
       link ← * <~ SkuAlbumLinks.createLast(sku, fullAlbum.model)
