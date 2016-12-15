@@ -24,7 +24,7 @@ import responses.CouponResponses.CouponResponse
 import responses.CreditCardsResponse.{buildSimple ⇒ buildCc}
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses.ProductResponse
-import responses.SkuResponses.SkuResponse
+import responses.ProductVariantResponses.ProductVariantResponse
 import responses.CaptureResponse
 import responses.UserResponse.{Root ⇒ UserResponse, build ⇒ buildUser}
 import responses.CustomerResponse.{Root ⇒ CustomerResponse}
@@ -495,13 +495,13 @@ object LogActivity {
   /* SKUs */
   def fullSkuCreated(
       admin: Option[User],
-      product: SkuResponse.Root,
+      product: ProductVariantResponse.Root,
       context: ObjectContextResponse.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(FullSkuCreated(admin.map(buildUser), product, context))
 
   def fullSkuUpdated(
       admin: Option[User],
-      product: SkuResponse.Root,
+      product: ProductVariantResponse.Root,
       context: ObjectContextResponse.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(FullSkuUpdated(admin.map(buildUser), product, context))
 

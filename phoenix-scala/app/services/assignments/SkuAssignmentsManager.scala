@@ -2,7 +2,7 @@ package services.assignments
 
 import models.{Assignment, NotificationSubscription}
 import models.inventory.{ProductVariant, ProductVariants}
-import responses.SkuResponses.SkuHeadResponse.{Root, build}
+import responses.ProductVariantResponses.SkuHeadResponse.{Root, build}
 import slick.driver.PostgresDriver.api._
 import utils.db._
 import utils.aliases._

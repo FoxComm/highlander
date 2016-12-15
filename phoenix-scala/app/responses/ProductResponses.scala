@@ -8,7 +8,7 @@ import models.objects._
 import models.product._
 import responses.AlbumResponses._
 import responses.ObjectResponses._
-import responses.SkuResponses._
+import responses.ProductVariantResponses._
 import responses.TaxonomyResponses.SingleTaxonResponse
 import responses.VariantResponses._
 import utils.aliases._
@@ -57,25 +57,26 @@ object ProductResponses {
 
   object FullProductFormResponse {
 
-    case class Root(product: ProductFormResponse.Root, skus: Seq[SkuFormResponse.Root])
+    case class Root(product: ProductFormResponse.Root, skus: Seq[ProductVariantFormResponse.Root])
         extends ResponseItem
 
     def build(product: Product,
               productForm: ObjectForm,
               skus: Seq[(ProductVariant, ObjectForm)]): Root =
       Root(product = ProductFormResponse.build(product, productForm), skus = skus.map {
-        case (s, f) ⇒ SkuFormResponse.build(s, f)
+        case (s, f) ⇒ ProductVariantFormResponse.build(s, f)
       })
   }
 
   object FullProductShadowResponse {
 
-    case class Root(product: ProductShadowResponse.Root, skus: Seq[SkuShadowResponse.Root])
+    case class Root(product: ProductShadowResponse.Root,
+                    skus: Seq[ProductVariantShadowResponse.Root])
         extends ResponseItem
 
     def build(shadow: ObjectShadow, skus: Seq[(ProductVariant, ObjectShadow)]): Root =
       Root(product = ProductShadowResponse.build(shadow), skus = skus.map {
-        case (s, ss) ⇒ SkuShadowResponse.build(s, ss)
+        case (s, ss) ⇒ ProductVariantShadowResponse.build(s, ss)
       })
   }
 
@@ -101,7 +102,7 @@ object ProductResponses {
                     context: ObjectContextResponse.Root,
                     attributes: Json,
                     albums: Seq[AlbumResponse.Root],
-                    skus: Seq[SkuResponse.Root],
+                    skus: Seq[ProductVariantResponse.Root],
                     variants: Seq[IlluminatedVariantResponse.Root],
                     archivedAt: Option[Instant],
                     taxons: Seq[SingleTaxonResponse])
@@ -109,7 +110,7 @@ object ProductResponses {
 
     def build(product: IlluminatedProduct,
               albums: Seq[AlbumResponse.Root],
-              skus: Seq[SkuResponse.Root],
+              skus: Seq[ProductVariantResponse.Root],
               variants: Seq[IlluminatedVariantResponse.Root],
               taxons: Seq[SingleTaxonResponse]): Root =
       Root(id = product.id,

@@ -21,7 +21,7 @@ import models.promotion._
 import org.json4s.JsonAST._
 import responses.cord.OrderResponse
 import services.coupon.CouponUsageService
-import services.inventory.SkuManager
+import services.inventory.ProductVariantManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis._
@@ -157,7 +157,7 @@ case class Checkout(
 
   private def isInventoryTracked(skuCode: String, qty: Int) =
     for {
-      sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(contextId = ctx.id, skuCode)
+      sku    ← * <~ ProductVariantManager.mustFindSkuByContextAndCode(contextId = ctx.id, skuCode)
       shadow ← * <~ ObjectShadows.mustFindById400(sku.shadowId)
       form   ← * <~ ObjectForms.mustFindById400(shadow.formId)
       trackInventory = ObjectUtils.get("trackInventory", form, shadow) match {

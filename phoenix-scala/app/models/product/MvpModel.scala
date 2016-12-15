@@ -18,7 +18,7 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import payloads.ImagePayloads._
 import services.image.ImageManager
-import services.inventory.SkuManager
+import services.inventory.ProductVariantManager
 import com.github.tminglei.slickpg.LTree
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
@@ -401,7 +401,7 @@ object Mvp {
       _ ← * <~ ProductOptionValueLinks.create(
              ProductOptionValueLink(leftId = variantId, rightId = value.id))
       skuCodes ← * <~ v.skuCodes.map(code ⇒
-                      SkuManager.mustFindSkuByContextAndCode(contextId, code))
+                      ProductVariantManager.mustFindSkuByContextAndCode(contextId, code))
       _ ← * <~ skuCodes.map(
              s ⇒
                ProductValueVariantLinks.create(

@@ -10,7 +10,7 @@ import models.product._
 import payloads.ProductOptionPayloads._
 import responses.VariantResponses.IlluminatedVariantResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse
-import services.inventory.SkuManager
+import services.inventory.ProductVariantManager
 import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -169,8 +169,9 @@ object ProductOptionManager {
     val (form, shadow) = payload.formAndShadow.tupled
 
     for {
-      scope    ← * <~ Scope.resolveOverride(payload.scope)
-      skuCodes ← * <~ payload.skuCodes.map(SkuManager.mustFindSkuByContextAndCode(context.id, _))
+      scope ← * <~ Scope.resolveOverride(payload.scope)
+      skuCodes ← * <~ payload.skuCodes.map(
+                    ProductVariantManager.mustFindSkuByContextAndCode(context.id, _))
       _ ← * <~ skuCodes.map(sku ⇒
                DbResultT.fromXor(sku.mustNotBeArchived(ProductOption, variant.formId)))
       ins ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
@@ -205,7 +206,8 @@ object ProductOptionManager {
       commit      ← * <~ ObjectUtils.commit(updated)
       updatedHead ← * <~ updateValueHead(value, updated.shadow, commit)
 
-      newSkus ← * <~ payload.skuCodes.map(SkuManager.mustFindSkuByContextAndCode(contextId, _))
+      newSkus ← * <~ payload.skuCodes.map(
+                   ProductVariantManager.mustFindSkuByContextAndCode(contextId, _))
       newSkuIds = newSkus.map(_.id).toSet
 
       variantValueLinks ← * <~ ProductValueVariantLinks.filterLeft(value.id).result

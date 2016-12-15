@@ -9,34 +9,37 @@ import responses.AlbumResponses.AlbumResponse
 import responses.ObjectResponses.ObjectContextResponse
 import utils.aliases._
 
-object SkuResponses {
+object ProductVariantResponses {
 
   object SkuHeadResponse {
 
     case class Root(code: String) extends ResponseItem
 
-    def build(sku: ProductVariant): Root =
-      Root(code = sku.code)
+    def build(variant: ProductVariant): Root =
+      Root(code = variant.code)
   }
 
-  object SkuFormResponse {
+  object ProductVariantFormResponse {
 
     case class Root(id: Int, code: String, attributes: Json, createdAt: Instant)
         extends ResponseItem
 
-    def build(sku: ProductVariant, form: ObjectForm): Root =
-      Root(id = form.id, code = sku.code, attributes = form.attributes, createdAt = form.createdAt)
+    def build(variant: ProductVariant, form: ObjectForm): Root =
+      Root(id = form.id,
+           code = variant.code,
+           attributes = form.attributes,
+           createdAt = form.createdAt)
   }
 
-  object SkuShadowResponse {
+  object ProductVariantShadowResponse {
 
     case class Root(code: String, attributes: Json, createdAt: Instant) extends ResponseItem
 
-    def build(sku: ProductVariant, shadow: ObjectShadow): Root =
-      Root(code = sku.code, attributes = shadow.attributes, createdAt = shadow.createdAt)
+    def build(variant: ProductVariant, shadow: ObjectShadow): Root =
+      Root(code = variant.code, attributes = shadow.attributes, createdAt = shadow.createdAt)
   }
 
-  object IlluminatedSkuResponse {
+  object IlluminatedProductVariantResponse {
 
     case class Root(code: String,
                     context: Option[ObjectContextResponse.Root],
@@ -51,11 +54,11 @@ object SkuResponses {
            albums = Seq.empty)
 
     def build(ctx: ObjectContext,
-              sku: FullObject[ProductVariant],
+              variant: FullObject[ProductVariant],
               albums: Seq[AlbumResponse.Root]): Root = {
-      val illuminatedSku = IlluminatedVariant.illuminate(ctx, sku)
-      Root(code = illuminatedSku.code,
-           attributes = illuminatedSku.attributes,
+      val illuminatedVariant = IlluminatedVariant.illuminate(ctx, variant)
+      Root(code = illuminatedVariant.code,
+           attributes = illuminatedVariant.attributes,
            context = ObjectContextResponse.build(ctx).some,
            albums = albums)
     }
@@ -64,25 +67,25 @@ object SkuResponses {
       Root(code = s.code, attributes = s.attributes, context = None, albums = Seq.empty)
 
     def buildLite(ctx: ObjectContext,
-                  sku: FullObject[ProductVariant],
+                  variant: FullObject[ProductVariant],
                   albums: Seq[AlbumResponse.Root]): Root = {
-      val illuminatedSku = IlluminatedVariant.illuminate(ctx, sku)
-      Root(code = illuminatedSku.code,
-           attributes = illuminatedSku.attributes,
+      val illuminatedVariant = IlluminatedVariant.illuminate(ctx, variant)
+      Root(code = illuminatedVariant.code,
+           attributes = illuminatedVariant.attributes,
            context = None,
            albums = albums)
     }
   }
 
-  object FullSkuResponse {
+  object FullProductVariantResponse {
 
     case class Root(code: String,
                     context: ObjectContextResponse.Root,
-                    form: SkuFormResponse.Root,
-                    shadow: SkuShadowResponse.Root)
+                    form: ProductVariantFormResponse.Root,
+                    shadow: ProductVariantShadowResponse.Root)
 
-    def build(form: SkuFormResponse.Root,
-              shadow: SkuShadowResponse.Root,
+    def build(form: ProductVariantFormResponse.Root,
+              shadow: ProductVariantShadowResponse.Root,
               context: ObjectContext): Root =
       Root(code = shadow.code,
            form = form,
@@ -90,7 +93,7 @@ object SkuResponses {
            context = ObjectContextResponse.build(context))
   }
 
-  object SkuResponse {
+  object ProductVariantResponse {
 
     case class Root(id: Int,
                     context: Option[ObjectContextResponse.Root],
@@ -99,17 +102,17 @@ object SkuResponses {
                     archivedAt: Option[Instant])
         extends ResponseItem
 
-    def build(sku: IlluminatedVariant, albums: Seq[AlbumResponse.Root]): Root =
-      Root(id = sku.id,
-           archivedAt = sku.archivedAt,
-           attributes = sku.attributes,
-           context = ObjectContextResponse.build(sku.context).some,
+    def build(variant: IlluminatedVariant, albums: Seq[AlbumResponse.Root]): Root =
+      Root(id = variant.id,
+           archivedAt = variant.archivedAt,
+           attributes = variant.attributes,
+           context = ObjectContextResponse.build(variant.context).some,
            albums = albums)
 
-    def buildLite(sku: IlluminatedVariant, albums: Seq[AlbumResponse.Root]): Root =
-      Root(id = sku.id,
-           archivedAt = sku.archivedAt,
-           attributes = sku.attributes,
+    def buildLite(variant: IlluminatedVariant, albums: Seq[AlbumResponse.Root]): Root =
+      Root(id = variant.id,
+           archivedAt = variant.archivedAt,
+           attributes = variant.attributes,
            context = None,
            albums = albums)
   }

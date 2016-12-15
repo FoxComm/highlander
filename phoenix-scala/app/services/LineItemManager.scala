@@ -10,7 +10,7 @@ import models.objects._
 import models.product._
 import org.json4s.JsonAST.JString
 import services.image.ImageManager
-import services.inventory.SkuManager
+import services.inventory.ProductVariantManager
 import services.objects.ObjectManager
 import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
@@ -35,7 +35,7 @@ object LineItemManager {
 
   private def getCartLineItem(cartLineItem: CartLineItem)(implicit ec: EC, db: DB) =
     for {
-      sku     ← * <~ SkuManager.mustFindFullSkuById(cartLineItem.skuId)
+      sku     ← * <~ ProductVariantManager.mustFindFullSkuById(cartLineItem.skuId)
       product ← * <~ getProductForSku(sku.model)
       image   ← * <~ getLineItemImage(sku.model, product.model)
     } yield
@@ -50,8 +50,8 @@ object LineItemManager {
 
   private def getOrderLineItem(orderLineItem: OrderLineItem)(implicit ec: EC, db: DB) =
     for {
-      sku ← * <~ SkuManager.mustFindFullSkuByIdAndShadowId(orderLineItem.skuId,
-                                                           orderLineItem.skuShadowId)
+      sku ← * <~ ProductVariantManager.mustFindFullSkuByIdAndShadowId(orderLineItem.skuId,
+                                                                      orderLineItem.skuShadowId)
       product ← * <~ getProductForSku(sku.model)
       image   ← * <~ getLineItemImage(sku.model, product.model)
     } yield
