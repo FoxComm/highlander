@@ -25,6 +25,7 @@ type Props = {
   continueAction: Function,
   editAction: Function,
   updateAddress: Function,
+  inProgress: boolean,
   t: any,
   error: any,
 };
@@ -237,11 +238,13 @@ class AddressList extends Component {
   }
 
   renderList() {
+    const { props } = this;
     return (
       <CheckoutForm
         submit={this.saveAndContinue}
         title="SHIPPING ADDRESS"
-        error={this.props.error}
+        error={props.error}
+        inProgress={props.inProgress}
       >
         {this.renderAddresses()}
       </CheckoutForm>

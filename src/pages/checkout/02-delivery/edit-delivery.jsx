@@ -24,6 +24,7 @@ type Props = {
   shippingMethodCost: Function,
   isLoading: boolean,
   error: ?Array<any>,
+  inProgress: boolean,
   onUpdateCart: (cart: Object) => void,
 };
 
@@ -74,9 +75,9 @@ class EditDelivery extends Component {
   }
 
   render() {
-    const { isLoading } = this.props;
+    const { props } = this;
 
-    if (isLoading) {
+    if (props.isLoading) {
       return <Loader size="m" />;
     }
 
@@ -84,7 +85,8 @@ class EditDelivery extends Component {
       <CheckoutForm
         submit={this.handleSubmit}
         title="DELIVERY METHOD"
-        error={this.props.error}
+        error={props.error}
+        inProgress={props.inProgress}
       >
         {this.shippingMethods}
       </CheckoutForm>

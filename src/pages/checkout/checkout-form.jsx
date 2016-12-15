@@ -18,6 +18,7 @@ type Props = {
   action?: ?Object,
   children?: any,
   buttonLabel?: ?string,
+  inProgress?: boolean,
 };
 
 class CheckoutForm extends Component {
@@ -38,18 +39,19 @@ class CheckoutForm extends Component {
   }
 
   render() {
+    const { props } = this;
     return (
-      <Form onSubmit={this.props.submit}>
+      <Form onSubmit={props.submit}>
         <div styleName="form-header">
-          <legend styleName="legend">{this.props.title}</legend>
+          <legend styleName="legend">{props.title}</legend>
           {this.actionLink}
         </div>
 
-        {this.props.children}
+        {props.children}
 
-        <ErrorAlerts error={this.props.error} />
+        <ErrorAlerts error={props.error} />
         <div styleName="button-wrap">
-          <Button styleName="checkout-submit" type="submit">{this.buttonLabel}</Button>
+          <Button styleName="checkout-submit" type="submit" isLoading={props.inProgress}>{this.buttonLabel}</Button>
         </div>
       </Form>
     );
