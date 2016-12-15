@@ -5,11 +5,11 @@
 
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
-  pause: seconds=5
+  
 
 - name: Copy Phoenix Marathon JSON
   template: src=phoenix.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  pause: seconds=5
+  
 
 - name: Update Phoenix in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/phoenix.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/phoenix'

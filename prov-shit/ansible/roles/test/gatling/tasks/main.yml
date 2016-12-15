@@ -19,28 +19,28 @@
     - lua-cjson
     - lua-cjson-dev
     - nginx-extras
-  pause: seconds=5
+  
 
 - name: Assign User to Group www-data
   user: name={{user}} groups=www-data
-  pause: seconds=5
+  
 
 - name: Give Access to Gatling Target Directory
   file: path={{gatling_install_dir}}/target state=directory mode="u=rwx,g=rwx,o=rwx"
-  pause: seconds=5
+  
 
 - name: Setup Symlink to Gatling Results
   file: src={{gatling_install_dir}}/target/gatling dest=/var/www/gatling state=link force=yes
-  pause: seconds=5
+  
 
 - name: Install Default Hosts
   template: src=default.j2 dest=/etc/nginx/sites-available/default
-  pause: seconds=5
+  
 
 - name: Reload Systemd for Nginx
-  pause: seconds=5
+  
   command: systemctl daemon-reload
 
 - name: Restart Nginx
   service: name=nginx state=reloaded
-  pause: seconds=5
+  

@@ -65,14 +65,14 @@
 
 - name: Copy OpenVPN Execution File
   template: src=run_openvpn.sh dest=/usr/local/bin/run_openvpn.sh mode="u+x,g+x,o+x"
-  pause: seconds=5
+  
 
 - name: Copy OpenVPN Service
   template: src=openvpn.service dest="{{dest_services}}/openvpn.service"
-  pause: seconds=5
+  
 
 - name: Reload Systemd for OpenVPN
-  pause: seconds=5
+  
   command: systemctl daemon-reload
 
 - name: Restart Openvpn

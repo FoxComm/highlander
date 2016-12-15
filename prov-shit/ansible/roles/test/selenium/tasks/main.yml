@@ -2,20 +2,20 @@
 
 - name: Add Chrome apt key
   apt_key: url=https://dl-ssl.google.com/linux/linux_signing_key.pub
-  pause: seconds=5
+  
 
 - name: Add Chrome apt repository
   apt_repository: repo='{{ item }}' state=present update_cache=yes
   with_items:
     - deb http://dl.google.com/linux/chrome/deb/ stable main
-  pause: seconds=5
+  
 
 - name: Install Chrome and dependencies
   apt: name={{ item }} force=yes state=latest
   with_items:
     - google-chrome-stable
     - xvfb
-  pause: seconds=5
+  
 
 - name: Create Dirs for allure and chromedriver
   file: path={{home}}/{{item}} state=directory
@@ -34,7 +34,7 @@
 
 - name: Allure Symbolic link
   file: src={{home}}/allure/bin/allure dest=/usr/local/bin/allure state=link
-  pause: seconds=5
+  
 
 - name: Get Web Driver
   get_url: url=http://chromedriver.storage.googleapis.com/2.23/chromedriver_linux64.zip dest={{home}}
@@ -47,4 +47,4 @@
 
 - name: Web Driver Symbolic link
   file: src={{home}}/chromedriver/chromedriver dest=/usr/local/bin/chromedriver state=link
-  pause: seconds=5
+  

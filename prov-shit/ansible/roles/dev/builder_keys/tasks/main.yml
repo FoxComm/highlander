@@ -11,11 +11,11 @@
 
 - name: Move Account.json File
   command: mv /tmp/account.json {{agent_home}}/account.json
-  pause: seconds=5
+  
 
 - name: Move Vault Pass File
   command: mv /tmp/.vault_pass {{agent_home}}/.vault_pass
-  pause: seconds=5
+  
 
 - name: Init Google Cloud
   command: gcloud auth activate-service-account --key-file={{agent_home}}/account.json

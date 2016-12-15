@@ -1,27 +1,27 @@
 ---
 - name: Kill Kafka if it is Running
   shell: systemctl stop kafka || true
-  pause: seconds=5
+  
 
 - name: Purge Kafka Queue
   file: path=/var/lib/kafka state=absent
-  pause: seconds=5
+  
 
 - name: Create Kafka dir
   file: path=/var/lib/kafka state=directory
-  pause: seconds=5
+  
 
 - name: Override Kafka config
   template: src=server.properties dest="/etc/kafka/server.properties"
-  pause: seconds=5
+  
 
 - name: Restart Kafka
   service: name=kafka state=started enabled=yes
-  pause: seconds=5
+  
 
 - name: Sleep
   shell: sleep 5
 
 - name: Restart Schema Registry
   service: name=schema-registry state=started enabled=yes
-  pause: seconds=5
+  
