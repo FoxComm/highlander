@@ -237,7 +237,7 @@ object Mvp {
       productForm ← * <~ ObjectForms.update(oldForm, simpleProduct.update(oldForm))
 
       //find sku form for the product and update it with new sku
-      link ← * <~ ProductSkuLinks
+      link ← * <~ ProductVariantLinks
               .filterLeft(product)
               .mustFindOneOr(ObjectLeftLinkCannotBeFound(product.shadowId))
 
@@ -330,7 +330,8 @@ object Mvp {
   // Temporary convenience method to use until ObjectLink is replaced.
   private def linkProductAndSku(product: Product, sku: ProductVariant)(implicit ec: EC) =
     for {
-      _ ← * <~ ProductSkuLinks.create(ProductSkuLink(leftId = product.id, rightId = sku.id))
+      _ ← * <~ ProductVariantLinks.create(
+             ProductVariantLink(leftId = product.id, rightId = sku.id))
     } yield {}
 
   def insertSku(scope: LTree, contextId: Int, s: SimpleSku): DbResultT[ProductVariant] =
