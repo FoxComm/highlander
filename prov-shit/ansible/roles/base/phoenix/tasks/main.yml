@@ -7,19 +7,19 @@
 
 - name: Create Phoenix Directory
   file: path={{phoenix_dir}} state=directory owner="{{user}}"
-  pause: seconds=5
+  
 
 - name: Synchronize Phoenix Sql
   synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
-  pause: seconds=5
+  
 
 - name: Delete Phoenix Gatling Resources
   file: path="{{phoenix_dir}}/gatling-classes" state=absent
-  pause: seconds=5
+  
 
 - name: Delete Phoenix Gatling Results
   file: path="{{phoenix_dir}}/gatling-results" state=absent
-  pause: seconds=5
+  
 
 - name: Synchronize Phoenix Gatling Resources
   synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes
@@ -30,20 +30,20 @@
 
 - name: Copy JAR
   copy: src={{phoenix_jar_src}} dest={{phoenix_jar}} mode="u+x,g+x,o+x"
-  pause: seconds=5
+  
 
 - name: Copy Service
   template: src=phoenix.service dest="{{dest_services}}/phoenix.service"
-  pause: seconds=5
+  
 
 - name: Reload Systemd for Phoenix
-  pause: seconds=5
+  
   command: systemctl daemon-reload
 
 - name: Restart Phoenix
   service: name=phoenix state=restarted enabled=yes
-  pause: seconds=5
+  
 
 - name: Copy Consul Service File
   template: src=phoenix.json dest="/etc/consul.d/phoenix.json"
-  pause: seconds=5
+  

@@ -2,20 +2,20 @@
 
 - name: Download Zipkin
   get_url: url='https://search.maven.org/remote_content?g=io.zipkin.java&a=zipkin-server&v=LATEST&c=exec' dest=/usr/local/lib/zipkin.jar
-  pause: seconds=5
+  
 
 - name: Copy Zipkin Service File
   template: src=zipkin.service dest={{dest_services}}/
-  pause: seconds=5
+  
 
 - name: Reload Systemd for Kafka Related Services
-  pause: seconds=5
+  
   command: systemctl daemon-reload
 
 - name: Start Zipkin Services
   service: name=zipkin state=started enabled=yes
-  pause: seconds=5
+  
 
 - name: Copy Consul Service Files
   template: src=zipkin.json dest=/etc/consul.d/
-  pause: seconds=5
+  

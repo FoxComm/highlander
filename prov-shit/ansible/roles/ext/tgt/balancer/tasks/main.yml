@@ -24,7 +24,7 @@
 
 - name: Restart Nginx every 30 secons, Try for 30 minutes
   shell: 'systemctl restart nginx'
-  pause: seconds=5
+  
   register: nginx
   until: nginx.rc == 0
   retries: 60

@@ -8,8 +8,8 @@
 
 - name: Copy to Binaries Directory
   command: mv lein /usr/local/bin
-  pause: seconds=5
+  
 
 - name: Trigger Installation Process
   command: lein -v
-  pause: seconds=5
+  

@@ -2,11 +2,11 @@
 
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
-  pause: seconds=5
+  
 
 - name: Copy Storefront Marathon JSON
   template: src=storefront.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  pause: seconds=5
+  
 
 - name: Update Storefront in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/storefront.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/storefront'

@@ -2,18 +2,18 @@
 
 - name: Create Directories for Public Keys
   file: path={{public_keys_dest_dir}} state=directory mode=0700 owner={{user}}
-  pause: seconds=5
+
   when: public_keys_dest_dir is defined and install_public_keys
 
 - name: Create Directories for Private Keys
   file: path={{private_keys_dest_dir}} state=directory mode=0700 owner={{user}}
-  pause: seconds=5
+
   when: private_keys_dest_dir is defined and install_private_keys
 
 - name: Copy Public Keys
   copy: src=secret_keys/{{cert_path}}/{{item}} dest={{public_keys_dest_dir}}/{{item}} mode=600
   when: public_keys_dest_dir is defined and install_public_keys
-  pause: seconds=5
+
   with_items:
       - public_key.der
       - public_key.pem
@@ -21,7 +21,7 @@
 - name: Copy Private Keys
   copy: src=secret_keys/{{cert_path}}/{{item}} dest={{private_keys_dest_dir}}/{{item}} mode=600
   when: private_keys_dest_dir is defined and install_private_keys
-  pause: seconds=5
+
   with_items:
       - private_key.der
       - private_key.pem
