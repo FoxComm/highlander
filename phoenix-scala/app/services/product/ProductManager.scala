@@ -403,11 +403,11 @@ object ProductManager {
                                               .filter(_.leftId === productId)
                                               .result
                               variantIds = variantLinks.map(_.rightId)
-                              valueLinks ← VariantValueLinks
+                              valueLinks ← ProductOptionValueLinks
                                             .filter(_.leftId.inSet(variantIds))
                                             .result
                               valueIds = valueLinks.map(_.rightId)
-                              skuLinks ← VariantValueSkuLinks
+                              skuLinks ← ProductValueSkuLinks
                                           .filter(_.leftId.inSet(valueIds))
                                           .result
                             } yield skuLinks.map(_.rightId)

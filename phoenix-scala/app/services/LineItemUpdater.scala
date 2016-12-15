@@ -10,7 +10,7 @@ import models.cord.lineitems.CartLineItems.scope._
 import models.cord.lineitems._
 import models.inventory.{ProductVariant, ProductVariants}
 import models.objects._
-import models.product.VariantValueSkuLinks
+import models.product.ProductValueSkuLinks
 import payloads.LineItemPayloads._
 import responses.TheResponse
 import responses.cord.{CartResponse, OrderResponse}
@@ -215,10 +215,10 @@ object LineItemUpdater {
                 DbResultT.good(productLink.leftId)
               case None ⇒
                 for {
-                  valueLink ← * <~ VariantValueSkuLinks
+                  valueLink ← * <~ ProductValueSkuLinks
                                .filter(_.rightId === sku.id)
                                .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
-                  variantLink ← * <~ VariantValueLinks
+                  variantLink ← * <~ ProductOptionValueLinks
                                  .filter(_.rightId === valueLink.leftId)
                                  .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
                   productLink ← * <~ ProductVariantLinks

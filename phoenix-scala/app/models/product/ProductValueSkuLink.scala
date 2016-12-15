@@ -7,15 +7,15 @@ import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
-case class VariantValueSkuLink(id: Int = 0,
+case class ProductValueSkuLink(id: Int = 0,
                                leftId: Int,
                                rightId: Int,
                                createdAt: Instant = Instant.now,
                                updatedAt: Instant = Instant.now)
-    extends FoxModel[VariantValueSkuLink]
+    extends FoxModel[ProductValueSkuLink]
 
-class VariantValueSkuLinks(tag: Tag)
-    extends FoxTable[VariantValueSkuLink](tag, "variant_value_sku_links") {
+class ProductValueSkuLinks(tag: Tag)
+    extends FoxTable[ProductValueSkuLink](tag, "product_value_sku_links") {
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def leftId    = column[Int]("left_id")
   def rightId   = column[Int]("right_id")
@@ -23,17 +23,17 @@ class VariantValueSkuLinks(tag: Tag)
   def updatedAt = column[Instant]("updated_at")
 
   def * =
-    (id, leftId, rightId, createdAt, updatedAt) <> ((VariantValueSkuLink.apply _).tupled, VariantValueSkuLink.unapply)
+    (id, leftId, rightId, createdAt, updatedAt) <> ((ProductValueSkuLink.apply _).tupled, ProductValueSkuLink.unapply)
 
   def left  = foreignKey(ProductValues.tableName, leftId, ProductValues)(_.id)
   def right = foreignKey(ProductVariants.tableName, rightId, ProductVariants)(_.id)
 }
 
-object VariantValueSkuLinks
-    extends FoxTableQuery[VariantValueSkuLink, VariantValueSkuLinks](new VariantValueSkuLinks(_))
-    with ReturningId[VariantValueSkuLink, VariantValueSkuLinks] {
+object ProductValueSkuLinks
+    extends FoxTableQuery[ProductValueSkuLink, ProductValueSkuLinks](new ProductValueSkuLinks(_))
+    with ReturningId[ProductValueSkuLink, ProductValueSkuLinks] {
 
-  val returningLens: Lens[VariantValueSkuLink, Int] = lens[VariantValueSkuLink].id
+  val returningLens: Lens[ProductValueSkuLink, Int] = lens[ProductValueSkuLink].id
 
   def filterLeft(leftId: Int): QuerySeq = filter(_.leftId === leftId)
 

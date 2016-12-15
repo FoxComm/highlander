@@ -397,11 +397,12 @@ object Mvp {
                               formId = form.id,
                               shadowId = shadow.id,
                               commitId = commit.id))
-      _ ← * <~ VariantValueLinks.create(VariantValueLink(leftId = variantId, rightId = value.id))
+      _ ← * <~ ProductOptionValueLinks.create(
+             ProductOptionValueLink(leftId = variantId, rightId = value.id))
       skuCodes ← * <~ v.skuCodes.map(code ⇒
                       SkuManager.mustFindSkuByContextAndCode(contextId, code))
       _ ← * <~ skuCodes.map(s ⇒
-               VariantValueSkuLinks.create(VariantValueSkuLink(leftId = value.id, rightId = s.id)))
+               ProductValueSkuLinks.create(ProductValueSkuLink(leftId = value.id, rightId = s.id)))
     } yield
       SimpleVariantValueData(valueId = value.id,
                              variantShadowId = variantShadowId,
