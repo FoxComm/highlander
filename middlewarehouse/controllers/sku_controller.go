@@ -7,8 +7,6 @@ import (
 	"github.com/jinzhu/gorm"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
-	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
-	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 )
 
@@ -69,7 +67,22 @@ func (controller *skuController) GetSKUByID() gin.HandlerFunc {
 
 func (controller *skuController) UpdateSKU() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		resp := dummyResponse()
+		id, failure := paramUint(context, "id")
+		if failure != nil {
+			return
+		}
+
+		payload := &payloads.UpdateSKU{}
+		if parse(context, payload) != nil {
+			return
+		}
+
+		resp, err := controller.skuService.Update(id, payload)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
 		context.JSON(http.StatusOK, resp)
 	}
 }
@@ -79,42 +92,4 @@ func (controller *skuController) GetAFS() gin.HandlerFunc {
 		resp := map[string]int{"afs": 10}
 		context.JSON(http.StatusOK, resp)
 	}
-}
-
-func dummyResponse() *responses.SKU {
-	model := &models.SKU{
-		Code:                               "SKU-TEST",
-		UPC:                                "12312342131",
-		Title:                              "Some test SKU",
-		UnitCost:                           299,
-		TaxClass:                           "default",
-		RequiresShipping:                   true,
-		ShippingClass:                      "default",
-		IsReturnable:                       true,
-		ReturnWindowValue:                  30.0,
-		ReturnWindowUnits:                  "days",
-		HeightValue:                        15.0,
-		HeightUnits:                        "cm",
-		LengthValue:                        10.0,
-		LengthUnits:                        "cm",
-		WidthValue:                         5.0,
-		WidthUnits:                         "cm",
-		WeightValue:                        50.0,
-		WeightUnits:                        "g",
-		RequiresInventoryTracking:          true,
-		InventoryWarningLevelIsEnabled:     true,
-		InventoryWarningLevelValue:         3,
-		MaximumQuantityInCartIsEnabled:     true,
-		MaximumQuantityInCartValue:         6,
-		MinimumQuantityInCartIsEnabled:     false,
-		AllowPreorder:                      false,
-		AllowBackorder:                     false,
-		RequiresLotTracking:                true,
-		LotExpirationThresholdValue:        3.0,
-		LotExpirationThresholdUnits:        "months",
-		LotExpirationWarningThresholdValue: 15.0,
-		LotExpirationWarningThresholdUnits: "days",
-	}
-
-	return responses.NewSKUFromModel(model)
 }

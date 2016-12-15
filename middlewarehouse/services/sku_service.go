@@ -8,8 +8,9 @@ import (
 )
 
 type SKU interface {
-	Create(payload *payloads.CreateSKU) (*responses.SKU, error)
 	GetByID(id uint) (*responses.SKU, error)
+	Create(payload *payloads.CreateSKU) (*responses.SKU, error)
+	Update(id uint, payload *payloads.UpdateSKU) (*responses.SKU, error)
 }
 
 func NewSKU(db *gorm.DB) SKU {
@@ -18,6 +19,16 @@ func NewSKU(db *gorm.DB) SKU {
 
 type skuService struct {
 	db *gorm.DB
+}
+
+func (s *skuService) GetByID(id uint) (*responses.SKU, error) {
+	sku := new(models.SKU)
+
+	if err := s.db.First(sku, id).Error; err != nil {
+		return nil, err
+	}
+
+	return responses.NewSKUFromModel(sku), nil
 }
 
 func (s *skuService) Create(payload *payloads.CreateSKU) (*responses.SKU, error) {
@@ -30,12 +41,25 @@ func (s *skuService) Create(payload *payloads.CreateSKU) (*responses.SKU, error)
 	return responses.NewSKUFromModel(sku), nil
 }
 
-func (s *skuService) GetByID(id uint) (*responses.SKU, error) {
-	sku := new(models.SKU)
+func (s *skuService) Update(id uint, payload *payloads.UpdateSKU) (*responses.SKU, error) {
+	tx := s.db.Begin()
 
-	if err := s.db.First(sku, id).Error; err != nil {
+	sku := new(models.SKU)
+	if err := tx.Find(sku, id).Error; err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
-	return responses.NewSKUFromModel(sku), nil
+	updated := payload.Model(sku)
+	if err := tx.Save(updated).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	return responses.NewSKUFromModel(updated), nil
 }

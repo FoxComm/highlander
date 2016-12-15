@@ -29,40 +29,72 @@ type CreateSKU struct {
 }
 
 func (sku CreateSKU) Model() *models.SKU {
-	return &models.SKU{
-		Scope:                              sku.Scope,
-		Code:                               sku.Code,
-		UPC:                                sku.UPC,
-		Title:                              sku.Title,
-		UnitCost:                           sku.UnitCost,
-		TaxClass:                           sku.TaxClass,
-		RequiresShipping:                   sku.RequiresShipping,
-		IsReturnable:                       sku.IsReturnable,
-		ReturnWindowValue:                  sku.ReturnWindow.Value,
-		ReturnWindowUnits:                  sku.ReturnWindow.Units,
-		HeightValue:                        sku.Height.Value,
-		HeightUnits:                        sku.Height.Units,
-		WeightValue:                        sku.Weight.Value,
-		WeightUnits:                        sku.Weight.Units,
-		LengthValue:                        sku.Length.Value,
-		LengthUnits:                        sku.Length.Units,
-		WidthValue:                         sku.Width.Value,
-		WidthUnits:                         sku.Width.Units,
-		RequiresInventoryTracking:          sku.RequiresInventoryTracking,
-		InventoryWarningLevelIsEnabled:     sku.InventoryWarningLevel.IsEnabled,
-		InventoryWarningLevelValue:         sku.InventoryWarningLevel.Level,
-		MaximumQuantityInCartIsEnabled:     sku.MaximumQuantityInCart.IsEnabled,
-		MaximumQuantityInCartValue:         sku.MaximumQuantityInCart.Level,
-		MinimumQuantityInCartIsEnabled:     sku.MinimumQuantityInCart.IsEnabled,
-		MinimumQuantityInCartValue:         sku.MinimumQuantityInCart.Level,
-		AllowBackorder:                     sku.AllowBackorder,
-		AllowPreorder:                      sku.AllowPreorder,
-		RequiresLotTracking:                sku.RequiresLotTracking,
-		LotExpirationThresholdValue:        sku.LotExpirationThreshold.Value,
-		LotExpirationThresholdUnits:        sku.LotExpirationThreshold.Units,
-		LotExpirationWarningThresholdValue: sku.LotExpirationWarningThreshold.Value,
-		LotExpirationWarningThresholdUnits: sku.LotExpirationWarningThreshold.Units,
+	model := &models.SKU{
+		Scope:                     sku.Scope,
+		Code:                      sku.Code,
+		UPC:                       sku.UPC,
+		Title:                     sku.Title,
+		UnitCost:                  sku.UnitCost,
+		TaxClass:                  sku.TaxClass,
+		RequiresShipping:          sku.RequiresShipping,
+		IsReturnable:              sku.IsReturnable,
+		RequiresInventoryTracking: sku.RequiresInventoryTracking,
+		AllowBackorder:            sku.AllowBackorder,
+		AllowPreorder:             sku.AllowPreorder,
+		RequiresLotTracking:       sku.RequiresLotTracking,
 	}
+
+	if sku.ReturnWindow != nil {
+		model.ReturnWindowValue = sku.ReturnWindow.Value
+		model.ReturnWindowUnits = sku.ReturnWindow.Units
+	}
+
+	if sku.Height != nil {
+		model.HeightValue = sku.Height.Value
+		model.HeightUnits = sku.Height.Units
+	}
+
+	if sku.Weight != nil {
+		model.WeightValue = sku.Weight.Value
+		model.WeightUnits = sku.Weight.Units
+	}
+
+	if sku.Length != nil {
+		model.LengthValue = sku.Length.Value
+		model.LengthUnits = sku.Length.Units
+	}
+
+	if sku.Width != nil {
+		model.WidthValue = sku.Width.Value
+		model.WidthUnits = sku.Width.Units
+	}
+
+	if sku.LotExpirationThreshold != nil {
+		model.LotExpirationThresholdValue = sku.LotExpirationThreshold.Value
+		model.LotExpirationThresholdUnits = sku.LotExpirationThreshold.Units
+	}
+
+	if sku.LotExpirationWarningThreshold != nil {
+		model.LotExpirationWarningThresholdValue = sku.LotExpirationWarningThreshold.Value
+		model.LotExpirationWarningThresholdUnits = sku.LotExpirationWarningThreshold.Units
+	}
+
+	if sku.InventoryWarningLevel != nil {
+		model.InventoryWarningLevelIsEnabled = sku.InventoryWarningLevel.IsEnabled
+		model.InventoryWarningLevelValue = sku.InventoryWarningLevel.Level
+	}
+
+	if sku.MaximumQuantityInCart != nil {
+		model.MaximumQuantityInCartIsEnabled = sku.MaximumQuantityInCart.IsEnabled
+		model.MaximumQuantityInCartValue = sku.MaximumQuantityInCart.Level
+	}
+
+	if sku.MinimumQuantityInCart != nil {
+		model.MinimumQuantityInCartIsEnabled = sku.MinimumQuantityInCart.IsEnabled
+		model.MinimumQuantityInCartValue = sku.MinimumQuantityInCart.Level
+	}
+
+	return model
 }
 
 type Dimension struct {

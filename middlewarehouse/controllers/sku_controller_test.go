@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
@@ -61,4 +63,13 @@ func (suite *skuControllerTestSuite) Test_CreateSKU_Success() {
 	suite.Nil(err)
 	suite.Equal(payload.Code, respBody.Code)
 	suite.Equal(payload.UPC, respBody.UPC)
+}
+
+func (suite *skuControllerTestSuite) Test_UpdateSKUCode_Success() {
+	code := "UPDATED"
+	payload := &payloads.UpdateSKU{Code: &code}
+
+	url := fmt.Sprintf("/skus/%d", suite.sku.ID)
+	res := suite.Patch(url, payload)
+	suite.Equal(http.StatusOK, res.Code)
 }
