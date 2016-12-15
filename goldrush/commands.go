@@ -21,7 +21,10 @@ var Commands = []cli.Command{
 		Name:   "provision",
 		Usage:  "Provisions environment for you.",
 		Action: command.CmdProvision,
-		Flags:  []cli.Flag{},
+		Flags:  []cli.Flag{
+			cli.BoolTFlag{name: "vmware"},
+			cli.BoolTFlag{name: "virtualbox"},
+		},
 	},
 	{
 		Name:   "deploy",
