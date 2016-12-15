@@ -78,7 +78,7 @@ class ProductIntegrationTest
         productResponse.skus.head.attributes.code must === (skuName)
       }
 
-      "a new SKU in variant successfully" in new Fixture {
+      "a new SKU in productOption successfully" in new Fixture {
         val valuePayload =
           Seq(ProductValuePayload(skuCodes = Seq(skuName), swatch = None, name = Some("Test")))
         val variantPayload =
@@ -149,7 +149,7 @@ class ProductIntegrationTest
         productResponse.skus.head.attributes.code must === (skuRedLargeCode)
       }
 
-      "empty variant successfully" in new Fixture {
+      "empty productOption successfully" in new Fixture {
         val redSkuPayload = makeSkuPayload(skuRedSmallCode, skuAttrMap, None)
         val values =
           Seq(ProductValuePayload(name = Some("value"), swatch = None, skuCodes = Seq.empty))
@@ -468,7 +468,7 @@ class ProductIntegrationTest
         response.variants.length must === (0)
       }
 
-      "Add new variant with new SKU successfully" in new VariantFixture {
+      "Add new productOption with new SKU successfully" in new VariantFixture {
         private val newSkuCode: ActivityType = "SKU-NEW-TEST"
         val newSkuPayload                    = makeSkuPayload(newSkuCode, skuAttrMap, None)
 

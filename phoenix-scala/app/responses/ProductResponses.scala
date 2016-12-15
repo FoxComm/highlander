@@ -10,7 +10,7 @@ import responses.AlbumResponses._
 import responses.ObjectResponses._
 import responses.ProductVariantResponses._
 import responses.TaxonomyResponses.SingleTaxonResponse
-import responses.VariantResponses._
+import responses.ProductOptionResponses._
 import utils.aliases._
 
 object ProductResponses {
@@ -103,7 +103,7 @@ object ProductResponses {
                     attributes: Json,
                     albums: Seq[AlbumResponse.Root],
                     skus: Seq[ProductVariantResponse.Root],
-                    variants: Seq[IlluminatedVariantResponse.Root],
+                    variants: Seq[IlluminatedProductOptionResponse.Root],
                     archivedAt: Option[Instant],
                     taxons: Seq[SingleTaxonResponse])
         extends ResponseItem
@@ -111,7 +111,7 @@ object ProductResponses {
     def build(product: IlluminatedProduct,
               albums: Seq[AlbumResponse.Root],
               skus: Seq[ProductVariantResponse.Root],
-              variants: Seq[IlluminatedVariantResponse.Root],
+              variants: Seq[IlluminatedProductOptionResponse.Root],
               taxons: Seq[SingleTaxonResponse]): Root =
       Root(id = product.id,
            attributes = product.attributes,

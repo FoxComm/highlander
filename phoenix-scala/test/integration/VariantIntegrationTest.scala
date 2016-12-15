@@ -8,8 +8,8 @@ import models.inventory.ProductVariants
 import models.product._
 import org.json4s.JsonDSL._
 import payloads.ProductOptionPayloads._
-import responses.VariantResponses.IlluminatedVariantResponse.{Root ⇒ VariantRoot}
-import responses.VariantValueResponses.IlluminatedVariantValueResponse.{Root ⇒ ValueRoot}
+import responses.ProductOptionResponses.IlluminatedProductOptionResponse.{Root ⇒ VariantRoot}
+import responses.ProductValueResponses.IlluminatedProductValueResponse.{Root ⇒ ValueRoot}
 import services.product.ProductManager
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -26,14 +26,14 @@ class VariantIntegrationTest
     with BakedFixtures {
 
   "POST v1/variants/:context" - {
-    "Creates a variant successfully" in new Fixture {
+    "Creates a productOption successfully" in new Fixture {
       val variantResponse = variantsApi.create(createVariantPayload).as[VariantRoot]
       variantResponse.values.length must === (0)
 
       (variantResponse.attributes \ "name" \ "v").extract[String] must === ("Color")
     }
 
-    "Creates a variant with a value successfully" in new Fixture {
+    "Creates a productOption with a value successfully" in new Fixture {
       val payload         = createVariantPayload.copy(values = Some(Seq(createVariantValuePayload)))
       val variantResponse = variantsApi.create(payload).as[VariantRoot]
       variantResponse.values.length must === (1)
@@ -45,7 +45,7 @@ class VariantIntegrationTest
       (variantResponse.attributes \ "name" \ "v").extract[String] must === ("Color")
     }
 
-    "Fails when trying to create variant with archived sku as value" in new ArchivedSkusFixture {
+    "Fails when trying to create productOption with archived sku as value" in new ArchivedSkusFixture {
       variantsApi
         .create(archivedSkuVariantPayload)
         .mustFailWith400(LinkArchivedSkuFailure(ProductOption, 10, archivedSkuCode))
@@ -53,7 +53,7 @@ class VariantIntegrationTest
   }
 
   "GET v1/variants/:context/:id" - {
-    "Gets a created variant successfully" in new VariantFixture {
+    "Gets a created productOption successfully" in new VariantFixture {
       val variantResponse = variantsApi(variant.variant.variantFormId).get().as[VariantRoot]
       variantResponse.values.length must === (2)
 
@@ -71,7 +71,7 @@ class VariantIntegrationTest
   }
 
   "PATCH v1/variants/:context/:id" - {
-    "Updates the name of the variant successfully" in new VariantFixture {
+    "Updates the name of the productOption successfully" in new VariantFixture {
       val payload = ProductOptionPayload(values = None,
                                    attributes =
                                      Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
@@ -83,7 +83,7 @@ class VariantIntegrationTest
       response.values.map(_.name).toSet must === (Set("Small", "Large"))
     }
 
-    "Fails when trying to attach archived SKU to the variant" in new ArchivedSkusFixture {
+    "Fails when trying to attach archived SKU to the productOption" in new ArchivedSkusFixture {
       var payload = ProductOptionPayload(values = Some(Seq(archivedSkuVariantValuePayload)),
                                    attributes =
                                      Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
@@ -96,7 +96,7 @@ class VariantIntegrationTest
   }
 
   "POST v1/variants/:context/:id/values" - {
-    "Creates a variant value successfully" in new Fixture {
+    "Creates a productOption value successfully" in new Fixture {
       val variantResponse = variantsApi.create(createVariantPayload).as[VariantRoot]
 
       val valueResponse =
@@ -106,7 +106,7 @@ class VariantIntegrationTest
       valueResponse.skuCodes must === (Seq(skus.head.code))
     }
 
-    "Fails when attaching archived SKU to variant as variant value" in new ArchivedSkusFixture {
+    "Fails when attaching archived SKU to productOption as productOption value" in new ArchivedSkusFixture {
       val variantResponse = variantsApi.create(createVariantPayload).as[VariantRoot]
 
       variantsApi(variantResponse.id)
