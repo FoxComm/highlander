@@ -34,6 +34,12 @@ const getRoutes = (jwt: Object) => {
     router.read('products-base', { path: 'products', frn: frn.pim.product }, [
       router.read('products-list-pages', { component: ProductsListPage }, [
         router.read('products', { component: Products, isIndex: true }),
+        router.read('products-activity-trail', {
+          title: 'Activity Trail',
+          path: 'activity-trail',
+          component: ActivityTrailPage,
+          frn: frn.activity.product,
+        }),
       ]),
       router.read('product', {
         path: ':context/:productId',
@@ -67,6 +73,12 @@ const getRoutes = (jwt: Object) => {
     router.read('skus-base', { title: 'SKUs', path: 'skus', frn: frn.pim.sku }, [
       router.read('skus-list-pages', { component: SkusListPage }, [
         router.read('skus', { component: Skus, isIndex: true }),
+        router.read('skus-activity-trail', {
+          path: 'activity-trail',
+          title: 'Activity Trail',
+          component: ActivityTrailPage,
+          frn: frn.activity.sku,
+        }),
       ]),
       router.read('sku', { path: ':skuCode', component: SkuPage }, [
         router.read('sku-details', { component: SkuDetails, isIndex: true }),

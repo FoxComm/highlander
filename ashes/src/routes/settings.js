@@ -30,6 +30,11 @@ const getRoutes = (jwt: JWT) => {
     router.read('user-base', { path: 'users', frn: frn.settings.user }, [
       router.read('users-list-page', { component: UsersListPage }, [
         router.read('users', { component: Users, isIndex: true }),
+        router.read('users-activity-trail', {
+          path: 'activity-trail',
+          component: ActivityTrailPage,
+          frn: frn.activity.user,
+        }),
       ]),
       router.read('user', { path: ':userId', component: User }, [
         router.read('user-form', { component: UserForm, isIndex: true }),
