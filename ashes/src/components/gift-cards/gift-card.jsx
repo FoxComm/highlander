@@ -89,7 +89,13 @@ export default class GiftCard extends React.Component {
       return null;
     }
 
-    const content = React.cloneElement(this.props.children, { entity: this.props.card });
+    const content = React.cloneElement(this.props.children, {
+      entity: {
+        ...this.props.card,
+        entityType: "gift-card",
+        entityId: params.giftCard,
+      }
+    });
 
     return (
       <div>

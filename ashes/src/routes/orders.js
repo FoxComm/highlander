@@ -29,6 +29,7 @@ const getRoutes = (jwt: Object) => {
         router.read('carts', { component: Carts, isIndex: true }),
         router.read('carts-activity-trail', {
           path: 'activity-trail',
+          dimension: 'order',
           component: ActivityTrailPage,
           frn: frn.activity.cart,
         }),

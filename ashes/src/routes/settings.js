@@ -32,6 +32,8 @@ const getRoutes = (jwt: JWT) => {
         router.read('users', { component: Users, isIndex: true }),
         router.read('users-activity-trail', {
           path: 'activity-trail',
+          // TODO change this to user
+          dimension: 'account',
           component: ActivityTrailPage,
           frn: frn.activity.user,
         }),
