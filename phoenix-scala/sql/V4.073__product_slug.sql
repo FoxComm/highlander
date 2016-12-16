@@ -1,12 +1,49 @@
-alter table products add column slug  generic_string;
+alter table products
+  add column slug generic_string;
 
 create unique index product_slug_idx on products(lower(slug), context_id);
 
-alter table products_catalog_view add column slug generic_string;
+create or replace function generate_slug(title text)
+  returns varchar as $$
+declare
+  similar_slugs text [];
+  slug_index    int;
+  new_slug      text;
+begin
 
-alter table products_search_view add column slug generic_string;
+  title := regexp_replace(lower(title), '\s+', ' ', 'g');
+  title := replace(title, '&', 'and');
+  title := replace(title, ' ', '-');
+  title := regexp_replace(title, E'[^\\w -]', '', 'g');
 
+  if (title = '') is not false
+  then
+    title := 'unnamed-product';
+  end if;
 
+  --handle duplication by adding index: e.g. product-slug-2
+  select array_agg(cast(slug as text)) into strict similar_slugs
+  from products
+  where slug ~* (title || '(-[\\d]+)?');
+
+  new_slug := title;
+  slug_index := 2;
+
+  while array_length(similar_slugs, 1) > 0 and new_slug = any (similar_slugs)
+  loop
+    new_slug := title || '-' || CAST(slug_index as text);
+    slug_index := slug_index + 1;
+  end loop;
+
+  return new_slug;
+
+end;
+$$ language plpgsql;
+
+alter table products_catalog_view
+  add column slug generic_string;
+alter table products_search_view
+  add column slug generic_string;
 
 create or replace function insert_products_search_view_from_products_fn() returns trigger as $$
 begin
@@ -33,7 +70,6 @@ begin
                                      left join product_sku_links_view as link on (link.product_id = p.id)
                                      left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
                                    where p.id = new.id;
-
   return null;
 end;
 $$ language plpgsql;
@@ -73,3 +109,34 @@ begin
   return null;
 end;
 $$ language plpgsql;
+
+update products
+set slug = generate_slug(illuminate_text(f, s, 'title'))
+from object_shadows as s
+  inner join object_forms as f on s.form_id = f.id
+where products.shadow_id = s.id;
+
+create or replace function generate_product_slug_from_product_insert_fn()
+  returns trigger as $$
+begin
+  if (new.slug <> '') is not true
+  then
+    new.slug := (select generate_slug(illuminate_text(f, s, 'title')) as slug
+                 from
+                   object_shadows as s inner join
+                   object_forms as f on f.id = s.form_id
+                 where new.shadow_id = s.id);
+  end if;
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists generate_slugs_on_product_insert
+on products;
+
+create trigger generate_slugs_on_product_insert
+before insert or update on products
+for each row
+execute procedure generate_product_slug_from_product_insert_fn();
+
+alter table products alter column slug set not null;

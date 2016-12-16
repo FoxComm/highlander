@@ -24,7 +24,7 @@ object ProductResponses {
   object ProductResponse {
 
     case class Root(id: Int,
-                    slug: Option[String],
+                    slug: String,
                     context: ObjectContextResponse.Root,
                     attributes: Json,
                     albums: Seq[AlbumResponse.Root],

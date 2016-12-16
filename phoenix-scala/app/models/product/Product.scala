@@ -8,11 +8,12 @@ import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.ProductIsPresentInCarts
 import failures.ProductFailures.{ProductFormNotFoundForContext, SlugDuplicates}
 import failures._
+import models.cord.Carts._
 import models.cord.lineitems.CartLineItems
 import models.objects._
 import services.objects.ObjectManager
 import shapeless._
-import slick.lifted.Tag
+import slick.lifted._
 import sun.misc.Regexp
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
@@ -41,7 +42,7 @@ case class ProductSlug(slug: String)        extends ProductReference
   * and shadow system where it has attributes controlled by the customer.
   */
 case class Product(id: Int = 0,
-                   slug: Option[String] = None,
+                   slug: String = "",
                    scope: LTree,
                    contextId: Int,
                    shadowId: Int,
@@ -53,13 +54,6 @@ case class Product(id: Int = 0,
     extends FoxModel[Product]
     with Validation[Product]
     with ObjectHead[Product] {
-
-  override def sanitize: Product = {
-    val sanitized: Product = super.sanitize
-
-    if (sanitized.slug == Some("")) sanitized.copy(slug = None)
-    else sanitized
-  }
 
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Product =
     this.copy(shadowId = shadowId, commitId = commitId)
@@ -76,7 +70,7 @@ case class Product(id: Int = 0,
 
 class Products(tag: Tag) extends ObjectHeads[Product](tag, "products") {
 
-  def slug = column[Option[String]]("slug")
+  def slug = column[String]("slug")
 
   def * =
     (id, slug, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Product.apply _).tupled, Product.unapply)
@@ -84,9 +78,14 @@ class Products(tag: Tag) extends ObjectHeads[Product](tag, "products") {
 
 object Products
     extends ObjectHeadsQueries[Product, Products](new Products(_))
-    with ReturningId[Product, Products] {
+    with ReturningIdAndString[Product, Products] {
 
-  val returningLens: Lens[Product, Int] = lens[Product].id
+  val returningLens: Lens[Product, (Int, String)] = {
+    val productLens = lens[Product]
+    productLens.id ~ productLens.slug
+  }
+
+  override val returningQuery = map(p ⇒ (p.id, p.slug))
 
   implicit val formats = JsonFormatters.phoenixFormats
 
@@ -130,7 +129,7 @@ object Products
 
     def resolveSlugError(product: Product): PartialFunction[Failure, Failure] = {
       case DatabaseFailure(message) if slugDuplicatedRegex.findFirstIn(message).isDefined ⇒
-        SlugDuplicates(product.slug.getOrElse(""))
+        SlugDuplicates(product.slug)
     }
   }
 }

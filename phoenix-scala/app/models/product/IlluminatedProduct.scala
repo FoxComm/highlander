@@ -11,7 +11,7 @@ import utils.aliases._
   * the form.
   */
 case class IlluminatedProduct(id: Int,
-                              slug: Option[String],
+                              slug: String,
                               context: IlluminatedContext,
                               attributes: Json,
                               archivedAt: Option[Instant])

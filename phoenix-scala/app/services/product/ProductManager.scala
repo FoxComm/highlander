@@ -61,7 +61,7 @@ object ProductManager {
       ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       product ← * <~ Products.create(
                    Product(scope = scope,
-                           slug = payload.slug.filter(!_.isEmpty),
+                           slug = payload.slug,
                            contextId = oc.id,
                            formId = ins.form.id,
                            shadowId = ins.shadow.id,
@@ -254,23 +254,21 @@ object ProductManager {
     (notEmpty(payload.skus, "SKUs") |@| lesserThanOrEqual(payload.skus.length,
                                                           maxSkus,
                                                           "number of SKUs") |@|
-          validateSlug(payload.slug)).map {
+          validateSlug(payload.slug, true)).map {
       case _ ⇒ payload
     }
   }
 
   private def validateUpdate(
       payload: UpdateProductPayload): ValidatedNel[Failure, UpdateProductPayload] =
-    validateSlug(payload.slug).map { case _ ⇒ payload }
+    payload.slug.fold(ok)(value ⇒ validateSlug(value)).map { case _ ⇒ payload }
 
-  private def validateSlug(slug: Option[String]): ValidatedNel[Failure, Unit] = {
-    slug match {
-      case Some("") ⇒
-        ok
-      case Some(value) if !value.exists(_.isLetter) ⇒
-        Validated.invalidNel(ProductFailures.SlugShouldHaveLetters(value))
-      case _ ⇒
-        ok
+  private def validateSlug(slug: String,
+                           forProductCreate: Boolean = false): ValidatedNel[Failure, Unit] = {
+    if (slug.isEmpty && forProductCreate || slug.exists(_.isLetter)) {
+      ok
+    } else {
+      Validated.invalidNel(ProductFailures.SlugShouldHaveLetters(slug))
     }
   }
 
@@ -320,7 +318,8 @@ object ProductManager {
                          maybeCommit: Option[ObjectCommit],
                          newSlug: Option[String])(implicit ec: EC): DbResultT[Product] = {
 
-    def withNewSlug = (product: Product) ⇒ newSlug.fold(product)(_ ⇒ product.copy(slug = newSlug))
+    def withNewSlug =
+      (product: Product) ⇒ newSlug.fold(product)(value ⇒ product.copy(slug = value))
     def withCommit =
       (product: Product) ⇒
         maybeCommit.fold(product)(commit ⇒

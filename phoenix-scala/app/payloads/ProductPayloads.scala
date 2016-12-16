@@ -8,7 +8,7 @@ import utils.aliases._
 object ProductPayloads {
   case class CreateProductPayload(scope: Option[String] = None,
                                   attributes: Map[String, Json],
-                                  slug: Option[String] = None,
+                                  slug: String = "",
                                   skus: Seq[SkuPayload],
                                   variants: Option[Seq[VariantPayload]],
                                   albums: Option[Seq[AlbumPayload]] = None,
