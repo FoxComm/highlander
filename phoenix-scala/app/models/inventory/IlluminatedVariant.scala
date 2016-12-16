@@ -7,8 +7,8 @@ import utils.IlluminateAlgorithm
 import utils.aliases._
 
 /**
-  * An IlluminatedVariant is what you get when you combine the productOption shadow and
-  * the productOption.
+  * An IlluminatedVariant is what you get when you combine the variant shadow and
+  * the variant form.
   */
 case class IlluminatedVariant(id: Int,
                               code: String,
