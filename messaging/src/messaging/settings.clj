@@ -144,7 +144,12 @@
    {:name "reset_password_link_format"
     :title "Relative URL to reset password link, use %s to inject reset code"
     :type "string"
-    :default ""}])
+    :default ""}
+
+   {:name "send_order_checkout_completed_bcc"
+    :title "Add 'From Email' address to bcc recipient list after every completed order email"
+    :type "bool"
+    :default false}])
 
 
 (defonce store (atom {}))

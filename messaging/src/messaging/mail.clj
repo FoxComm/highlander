@@ -85,6 +85,10 @@
         email (get-in order ["customer" "email"])
         customer-name (get-in order ["customer" "name"] "")
         order-ref (get order "referenceNumber")
+        msg-subject (if (settings/get :send_order_checkout_completed_bcc)
+                        (merge {:bcc {:email (settings/get :from_email) :type "bcc"}
+                          :subject (settings/get :order_checkout_subject)})
+                        (merge {:subject (settings/get :order_checkout_subject)}))
         msg (gen-msg {:email email :name customer-name}
                      {:items (let [skus (get-in order ["lineItems" "skus"])]
                                (map at/sku->item skus))
@@ -96,8 +100,7 @@
                       :billing_info (get order "billingCreditCardInfo")
                       :order_ref order-ref}
 
-                      (merge {:bcc {(settings/get :from_email) :email "bcc" :type}
-                              :subject (settings/get :order_checkout_subject)}))]
+                      msg-subject)]
 
       (send-template! (settings/get :order_confirmation_template) msg)))
 
