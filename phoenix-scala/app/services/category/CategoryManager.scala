@@ -44,12 +44,12 @@ object CategoryManager {
       ac: AC,
       au: AU): DbResultT[FullCategoryResponse.Root] =
     for {
-      context ← * <~ contextByName(contextName)
-      form    ← * <~ ObjectForm(kind = Category.kind, attributes = payload.form.attributes)
-      shadow  ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
-      insert  ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
-      category ← * <~ Categories.create(
-                    Category.build(LTree.apply(au.token.scope), context.id, insert))
+      scope    ← * <~ Scope.resolveOverride(payload.scope)
+      context  ← * <~ contextByName(contextName)
+      form     ← * <~ ObjectForm(kind = Category.kind, attributes = payload.form.attributes)
+      shadow   ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
+      insert   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
+      category ← * <~ Categories.create(Category.build(scope, context.id, insert))
       response = FullCategoryResponse.build(category, insert.form, insert.shadow)
       _ ← * <~ LogActivity
            .fullCategoryCreated(Some(admin), response, ObjectContextResponse.build(context))

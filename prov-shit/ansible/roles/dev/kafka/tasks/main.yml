@@ -1,27 +1,27 @@
 ---
 - name: Kill Kafka if it is Running
   shell: systemctl stop kafka || true
-  sudo: true
+  
 
 - name: Purge Kafka Queue
   file: path=/var/lib/kafka state=absent
-  sudo: true
+  
 
 - name: Create Kafka dir
   file: path=/var/lib/kafka state=directory
-  sudo: true
+  
 
 - name: Override Kafka config
   template: src=server.properties dest="/etc/kafka/server.properties"
-  sudo: true
+  
 
 - name: Restart Kafka
   service: name=kafka state=started enabled=yes
-  sudo: true
+  
 
 - name: Sleep
   shell: sleep 5
 
 - name: Restart Schema Registry
   service: name=schema-registry state=started enabled=yes
-  sudo: true
+  

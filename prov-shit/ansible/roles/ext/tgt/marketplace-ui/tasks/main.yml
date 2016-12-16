@@ -2,14 +2,22 @@
 
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
-  sudo: true
+  
 
 - name: Copy Marketplace UI Marathon JSON
   template: src=marketplace_ui.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  sudo: true
+  
 
-- name: Update marketplace in Marathon
+- name: Update Marketplace UI in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/marketplace_ui.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/marketplace-ui'
 
-- name: Restart marketplace in Marathon
-  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/marketplace/restart'
+- name: Restart Marketplace UI in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/marketplace-ui/restart'
+
+- name: Get Marketplace UI Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/marketplace-ui | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: 60
+  delay: 10
+  when: vagrant

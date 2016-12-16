@@ -1,11 +1,10 @@
 package services.variant
 
-import com.github.tminglei.slickpg.LTree
-
 import failures.ArchiveFailures._
 import failures.NotFoundFailure404
 import failures.ProductFailures._
 import models.inventory.Sku
+import models.account._
 import models.objects._
 import models.product._
 import payloads.VariantPayloads._
@@ -85,9 +84,10 @@ object VariantManager {
     val variantValues = payload.values.getOrElse(Seq.empty)
 
     for {
-      ins ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
+      scope ← * <~ Scope.resolveOverride(payload.scope)
+      ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       variant ← * <~ Variants.create(
-                   Variant(scope = LTree(au.token.scope),
+                   Variant(scope = scope,
                            contextId = context.id,
                            formId = ins.form.id,
                            shadowId = ins.shadow.id,
@@ -166,12 +166,13 @@ object VariantManager {
     val (form, shadow) = payload.formAndShadow.tupled
 
     for {
+      scope    ← * <~ Scope.resolveOverride(payload.scope)
       skuCodes ← * <~ payload.skuCodes.map(SkuManager.mustFindSkuByContextAndCode(context.id, _))
       _ ← * <~ skuCodes.map(sku ⇒
                DbResultT.fromXor(sku.mustNotBeArchived(Variant, variant.formId)))
       ins ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       variantValue ← * <~ VariantValues.create(
-                        VariantValue(scope = LTree(au.token.scope),
+                        VariantValue(scope = scope,
                                      contextId = context.id,
                                      formId = ins.form.id,
                                      shadowId = ins.shadow.id,

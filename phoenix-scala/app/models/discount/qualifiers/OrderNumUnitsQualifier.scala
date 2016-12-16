@@ -8,7 +8,7 @@ case class OrderNumUnitsQualifier(numUnits: Int) extends Qualifier {
 
   val qualifierType: QualifierType = OrderNumUnits
 
-  def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Unit] =
+  def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): Result[Unit] =
     if (input.lineItems.size >= numUnits) accept()
     else reject(input, s"Order unit count is less than $numUnits")
 }

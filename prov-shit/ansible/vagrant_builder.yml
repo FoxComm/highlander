@@ -2,13 +2,14 @@
 
 - name: Environment that can build All The Things
   hosts: all
+  become: true
   vars:
       user: vagrant
   roles:
     - { role: base/common }
     - { role: base/ssh_keys }
     - { role: base/scala }
-    - { role: base/node, sudo: yes }
+    - { role: base/node }
     - { role: test/db }
     - { role: base/builder }
 

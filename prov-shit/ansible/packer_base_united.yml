@@ -2,6 +2,7 @@
 
 - name: Packing Base Image
   hosts: all
+  become: true
   tags:
     - packer
   vars:
@@ -9,6 +10,8 @@
     packing: true
   gather_facts: no
   pre_tasks:
+    - name: Update Apt Cache
+      raw: sudo apt-get update
     - name: Install Python 2 and Boto
       raw: sudo apt update; sudo apt -y install python2.7 python-boto
     - name: Gather Facts

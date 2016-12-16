@@ -29,7 +29,7 @@ import utils.db._
 
 object CartPromotionUpdater {
 
-  def readjust(cart: Cart)(implicit ec: EC, es: ES, db: DB, ctx: OC): DbResultT[Unit] =
+  def readjust(cart: Cart)(implicit ec: EC, es: ES, db: DB, ctx: OC, au: AU): DbResultT[Unit] =
     for {
       // Fetch base stuff
       orderPromo ← * <~ OrderPromotions
@@ -65,7 +65,8 @@ object CartPromotionUpdater {
       es: ES,
       db: DB,
       ac: AC,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] =
+      ctx: OC,
+      au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
       // Fetch base data
       cart ← * <~ getCartByOriginator(originator, refNum)
@@ -134,7 +135,8 @@ object CartPromotionUpdater {
   private def getAdjustments(promo: ObjectShadow, cart: Cart, qualifier: Qualifier, offer: Offer)(
       implicit ec: EC,
       es: ES,
-      db: DB) =
+      db: DB,
+      au: AU) =
     for {
       lineItems      ← * <~ LineItemManager.getCartLineItems(cart.refNum)
       shippingMethod ← * <~ shipping.ShippingMethods.forCordRef(cart.refNum).one

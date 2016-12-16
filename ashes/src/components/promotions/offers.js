@@ -45,7 +45,7 @@ const offers = [
       ],
       [
         {
-          name: 'references',
+          name: 'search',
           widget: 'selectProduct',
           label: 'Discount the item'
         }
@@ -66,7 +66,7 @@ const offers = [
       ],
       [
         {
-          name: 'references',
+          name: 'search',
           widget: 'selectProduct',
           label: 'Discount the items'
         }
@@ -87,7 +87,7 @@ const offers = [
       ],
       [
         {
-          name: 'references',
+          name: 'search',
           widget: 'selectProducts',
           label: 'Discount the items'
         }
@@ -108,7 +108,7 @@ const offers = [
       ],
       [
         {
-          name: 'references',
+          name: 'search',
           widget: 'selectProducts',
           label: 'Discount the items'
         }

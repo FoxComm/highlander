@@ -1,18 +1,26 @@
 ---
 
-- include_vars: aws.yml
+- include_vars: "{{role_path}}/../../base/secret_keys/files/aws/aws.yml"
 - include_vars: stripe.yml
 
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
-  sudo: true
+  
 
 - name: Copy Phoenix Marathon JSON
   template: src=phoenix.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  sudo: true
+  
 
 - name: Update Phoenix in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/phoenix.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/phoenix'
 
 - name: Restart Phoenix in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/phoenix/restart'
+
+- name: Get Phoenix Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/phoenix | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: 60
+  delay: 10
+  when: vagrant

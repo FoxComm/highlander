@@ -105,10 +105,12 @@ object PaymentPayloads {
                                      currency: Currency = Currency.USD,
                                      reasonId: Int,
                                      subReasonId: Option[Int] = None,
-                                     subTypeId: Option[Int] = None)
+                                     subTypeId: Option[Int] = None,
+                                     scope: Option[String] = None)
 
   case class CreateExtensionStoreCredit(amount: Int,
                                         currency: Currency = Currency.USD,
                                         subTypeId: Option[Int] = None,
-                                        metadata: Json = JObject())
+                                        metadata: Json = JObject(),
+                                        scope: Option[String] = None)
 }

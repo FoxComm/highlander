@@ -2,13 +2,14 @@ package utils
 
 import scala.concurrent.Future
 
+import cats.data.{NonEmptyList, Xor, XorT}
 import cats.implicits._
-import cats.data.{Xor, XorT}
 import cats.{Applicative, Functor, Monad}
 import failures._
 import services.Result
 import slick.dbio.DBIOAction
 import slick.driver.PostgresDriver.api._
+import cats.FlatMap
 import slick.jdbc.SQLActionBuilder
 import slick.lifted.Query
 import slick.profile.SqlAction
@@ -20,7 +21,7 @@ package object db {
   type DbResultT[A] = XorT[DBIO, Failures, A]
   // DBIO monad
   implicit def dbioApplicative(implicit ec: EC): Applicative[DBIO] = new Applicative[DBIO] {
-    def ap[A, B](fa: DBIO[A])(f: DBIO[A ⇒ B]): DBIO[B] =
+    def ap[A, B](f: DBIO[A ⇒ B])(fa: DBIO[A]): DBIO[B] =
       fa.flatMap(a ⇒ f.map(ff ⇒ ff(a)))
 
     def pure[A](a: A): DBIO[A] = DBIO.successful(a)
@@ -32,6 +33,9 @@ package object db {
     override def pure[A](a: A): DBIO[A] = DBIO.successful(a)
 
     override def flatMap[A, B](fa: DBIO[A])(f: A ⇒ DBIO[B]): DBIO[B] = fa.flatMap(f)
+
+    override def tailRecM[A, B](a: A)(f: A ⇒ DBIO[Either[A, B]]): DBIO[B] =
+      defaultTailRecM(a)(f)
   }
 
   // implicits
@@ -93,6 +97,14 @@ package object db {
 
   def failIfNot(condition: Boolean, failure: Failure)(implicit ec: EC): DbResultT[Unit] =
     failIf(!condition, failure)
+
+  def failIfFailures(failures: Seq[Failure])(implicit ec: EC): DbResultT[Unit] =
+    failures match {
+      case head :: tail ⇒
+        DbResultT.failures[Unit](NonEmptyList.of(head, tail: _*))
+      case _ ⇒
+        DbResultT.unit
+    }
 
   implicit class EnrichedSQLActionBuilder(val action: SQLActionBuilder) extends AnyVal {
     def stripMargin: SQLActionBuilder =

@@ -2,11 +2,11 @@
 
 - name: Update System Package Cache
   apt: update_cache=yes
-  sudo: true
+  
 
 - name: Install Packages
   apt: name={{ item }} state=latest force=yes
-  sudo: true
+  
   with_items:
     - postgresql-server-dev-9.5
     - postgresql-9.5
@@ -15,21 +15,21 @@
 
 - name: Copy Postgres Configuration
   copy: src={{item}} dest="/etc/postgresql/9.5/main/{{item}}" mode="644"
-  sudo: true
+  
   with_items:
       - postgresql.conf
       - pg_hba.conf
 
 - name: Reload Systemd for Postgresql
-  sudo: yes
+  
   command: systemctl daemon-reload
 
 - name: Restart Postgresql
-  service: name=postgresql state=restarted sleep=5
-  sudo: true
+  service: name=postgresql state=restarted
+  
 
 - name: Install Prerequisites for postgresql ansible module
-  sudo: true
+  
   apt: name={{item}} state=latest
   with_items:
     - libpq-dev
@@ -37,15 +37,15 @@
 
 - name: Create Phoenix Test DB
   postgresql_db: name={{phoenix_test_db_name}}
-  sudo: true
+  
 
 - name: Create Middlewarehouse Test DB
   postgresql_db: name={{middlewarehouse_test_db_name}}
-  sudo: true
+  
 
 - name: Configure Db Users
   postgresql_user: name={{item}} state=present role_attr_flags=SUPERUSER
-  sudo: true
+  
   with_items:
       - root
       - "{{user}}"

@@ -22,7 +22,7 @@ class AddressTest extends TestBase {
                           phoneNumber = None)
 
       def zipFailure(pattern: String): NonEmptyList[Failure] =
-        NonEmptyList(buildMatchesFailure("zip", pattern))
+        NonEmptyList.of(buildMatchesFailure("zip", pattern))
 
       "returns errors when zip is invalid" in {
         val badZip         = valid.copy(zip = "AB+123")
@@ -57,8 +57,8 @@ class AddressTest extends TestBase {
       "returns errors when name or address1 is empty" in {
         val result = valid.copy(name = "", address1 = "").validate
         invalidValue(result) must === (
-            NonEmptyList[Failure](GeneralFailure("name must not be empty"),
-                                  GeneralFailure("address1 must not be empty")))
+            NonEmptyList.of[Failure](GeneralFailure("name must not be empty"),
+                                     GeneralFailure("address1 must not be empty")))
       }
 
       "returns errors if US address and Some(phoneNumber) < 10 digits" in {

@@ -20,6 +20,7 @@ func NewCarrierController(service services.ICarrierService) IController {
 }
 
 func (controller *carrierController) SetUp(router gin.IRouter) {
+	router.Use(FetchJWT)
 	router.GET("", controller.getCarriers())
 	router.GET(":id", controller.getCarrierByID())
 	router.POST("", controller.createCarrier())
@@ -68,6 +69,10 @@ func (controller *carrierController) createCarrier() gin.HandlerFunc {
 		//try parse payload
 		payload := &payloads.Carrier{}
 		if parse(context, payload) != nil {
+			return
+		}
+
+		if !setScope(context, payload) {
 			return
 		}
 

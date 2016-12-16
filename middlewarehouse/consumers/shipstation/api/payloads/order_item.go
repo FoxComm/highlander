@@ -1,6 +1,6 @@
 package payloads
 
-import "github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
+import mwhPayloads "github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 
 // OrderItem is a single line item in an order.
 type OrderItem struct {
@@ -21,7 +21,7 @@ type OrderItem struct {
 	UPC               *string `json:"upc"`
 }
 
-func NewOrderItemsFromPhoenix(items []phoenix.OrderLineItem) []OrderItem {
+func NewOrderItemsFromPhoenix(items []mwhPayloads.OrderLineItem) []OrderItem {
 	condensedItems := make(map[string]OrderItem)
 
 	for _, item := range items {
@@ -41,9 +41,9 @@ func NewOrderItemsFromPhoenix(items []phoenix.OrderLineItem) []OrderItem {
 	return orderItems
 }
 
-func NewOrderItemFromPhoenix(item phoenix.OrderLineItem) OrderItem {
+func NewOrderItemFromPhoenix(item mwhPayloads.OrderLineItem) OrderItem {
 	return OrderItem{
-		LineItemKey: item.ReferenceNumber,
+		LineItemKey: item.ReferenceNumbers[0],
 		SKU:         item.SKU,
 		Name:        item.Name,
 		UnitPrice:   float64(item.Price) / 100.0,

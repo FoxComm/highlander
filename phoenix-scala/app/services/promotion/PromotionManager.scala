@@ -7,6 +7,7 @@ import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import failures.PromotionFailures._
 import models.coupon.Coupons
+import models.account._
 import models.discount._
 import models.objects.ObjectUtils._
 import models.objects._
@@ -29,6 +30,7 @@ object PromotionManager {
       FormAndShadow.fromPayload(kind = Promotion.kind, attributes = payload.attributes)
 
     for {
+      scope ← * <~ Scope.resolveOverride(payload.scope)
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
@@ -37,7 +39,7 @@ object PromotionManager {
         .tupled
       ins ← * <~ ObjectUtils.insert((form, shadow), payload.schema)
       promotion ← * <~ Promotions.create(
-                     Promotion(scope = LTree(au.token.scope),
+                     Promotion(scope = scope,
                                contextId = context.id,
                                applyType = payload.applyType,
                                formId = ins.form.id,

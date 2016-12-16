@@ -3,10 +3,8 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import CustomerContacts from './contacts';
 import CustomerAccountPassword from './account-password';
-import CustomerRoles from './roles';
 import CustomerAddressBook from './address-book';
 import CustomerCreditCards from './credit-cards';
-import CustomerNotificationSettings from './notification-settings';
 import CustomerAccountStatus from './account-status';
 import SectionSubtitle from '../section-title/section-subtitle';
 import { connect } from 'react-redux';
@@ -40,7 +38,6 @@ export default class CustomerDetails extends React.Component {
           </div>
           <div className="fc-col-md-1-2">
             <CustomerAccountPassword />
-            <CustomerRoles />
           </div>
         </div>
         <div className="fc-grid fc-grid-gutter">
@@ -54,9 +51,6 @@ export default class CustomerDetails extends React.Component {
           </div>
         </div>
         <div className="fc-grid fc-grid-gutter">
-          <div className="fc-col-md-1-2">
-            <CustomerNotificationSettings />
-          </div>
           <div className="fc-col-md-1-2">
             <CustomerAccountStatus customer={ customer }/>
           </div>
