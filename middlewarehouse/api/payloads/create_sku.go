@@ -11,11 +11,11 @@ type CreateSKU struct {
 	RequiresShipping              bool           `json:"requiresShipping"`
 	ShippingClass                 string         `json:"shippingClass"`
 	IsReturnable                  bool           `json:"isReturnable"`
-	ReturnWindow                  *Dimension     `json:"returnWindow"`
-	Height                        *Dimension     `json:"height"`
-	Weight                        *Dimension     `json:"weight"`
-	Length                        *Dimension     `json:"length"`
-	Width                         *Dimension     `json:"width"`
+	ReturnWindow                  *PhysicalUnit  `json:"returnWindow"`
+	Height                        *PhysicalUnit  `json:"height"`
+	Weight                        *PhysicalUnit  `json:"weight"`
+	Length                        *PhysicalUnit  `json:"length"`
+	Width                         *PhysicalUnit  `json:"width"`
 	RequiresInventoryTracking     bool           `json:"requiresInventoryTracking"`
 	InventoryWarningLevel         *QuantityLevel `json:"inventoryWarningLevel"`
 	MaximumQuantityInCart         *QuantityLevel `json:"maximumQuantityInCart"`
@@ -23,8 +23,8 @@ type CreateSKU struct {
 	AllowPreorder                 bool           `json:"allowPreorder"`
 	AllowBackorder                bool           `json:"allowBackorder"`
 	RequiresLotTracking           bool           `json:"requiresLotTracking"`
-	LotExpirationThreshold        *Dimension     `json:"lotExpirationThreshold"`
-	LotExpirationWarningThreshold *Dimension     `json:"lotExpirationWarningThreshold"`
+	LotExpirationThreshold        *PhysicalUnit  `json:"lotExpirationThreshold"`
+	LotExpirationWarningThreshold *PhysicalUnit  `json:"lotExpirationWarningThreshold"`
 	Scopable
 }
 
@@ -96,14 +96,4 @@ func (sku CreateSKU) Model() *models.SKU {
 	}
 
 	return model
-}
-
-type Dimension struct {
-	Value float64 `json:"value"`
-	Units string  `json:"units"`
-}
-
-type QuantityLevel struct {
-	IsEnabled bool `json:"isEnabled"`
-	Level     int  `json:"level"`
 }

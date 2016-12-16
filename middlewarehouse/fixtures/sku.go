@@ -33,23 +33,23 @@ func GetCreateSKUPayload() *payloads.CreateSKU {
 		RequiresShipping: randomBool(),
 		ShippingClass:    "default",
 		IsReturnable:     randomBool(),
-		ReturnWindow: &payloads.Dimension{
+		ReturnWindow: &payloads.PhysicalUnit{
 			Value: randomFloat(),
 			Units: "days",
 		},
-		Height: &payloads.Dimension{
+		Height: &payloads.PhysicalUnit{
 			Value: randomFloat(),
 			Units: "cm",
 		},
-		Length: &payloads.Dimension{
+		Length: &payloads.PhysicalUnit{
 			Value: randomFloat(),
 			Units: "cm",
 		},
-		Width: &payloads.Dimension{
+		Width: &payloads.PhysicalUnit{
 			Value: randomFloat(),
 			Units: "cm",
 		},
-		Weight: &payloads.Dimension{
+		Weight: &payloads.PhysicalUnit{
 			Value: randomFloat(),
 			Units: "g",
 		},
@@ -69,11 +69,11 @@ func GetCreateSKUPayload() *payloads.CreateSKU {
 		AllowPreorder:       randomBool(),
 		AllowBackorder:      randomBool(),
 		RequiresLotTracking: randomBool(),
-		LotExpirationThreshold: &payloads.Dimension{
+		LotExpirationThreshold: &payloads.PhysicalUnit{
 			Value: randomFloat(),
 			Units: "months",
 		},
-		LotExpirationWarningThreshold: &payloads.Dimension{
+		LotExpirationWarningThreshold: &payloads.PhysicalUnit{
 			Value: randomFloat(),
 			Units: "days",
 		},
