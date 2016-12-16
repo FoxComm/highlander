@@ -18,12 +18,12 @@ case class IlluminatedVariant(id: Int,
 
 object IlluminatedVariant {
 
-  def illuminate(context: ObjectContext, sku: FullObject[ProductVariant]): IlluminatedVariant = {
-    val model       = sku.model
-    val formAttrs   = sku.form.attributes
-    val shadowAttrs = sku.shadow.attributes
+  def illuminate(context: ObjectContext, variant: FullObject[ProductVariant]): IlluminatedVariant = {
+    val model       = variant.model
+    val formAttrs   = variant.form.attributes
+    val shadowAttrs = variant.shadow.attributes
 
-    IlluminatedVariant(id = sku.form.id,
+    IlluminatedVariant(id = variant.form.id,
                        code = model.code,
                        archivedAt = model.archivedAt,
                        context = IlluminatedContext(context.name, context.attributes),
