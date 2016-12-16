@@ -16,7 +16,7 @@ const CartListPage = (props: Props) => {
 
   const navLinks = [
     { title: 'Lists', to: 'carts' },
-    { title: 'Activity Trail', to: 'carts-activity-trail' }
+    { title: 'Activity Trail', to: 'carts-activity-trail' },
   ];
 
   return (
