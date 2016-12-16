@@ -61,7 +61,7 @@ const defaultProductType = productTypes[0];
 
 const toLowerCaseAndCapitalize = (word: string) => {
   // Example: POULTRY -> Poultry
-  let lowerCaseWord = word.toLowerCase();
+  const lowerCaseWord = word.toLowerCase();
   return lowerCaseWord.charAt(0).toUpperCase() + lowerCaseWord.slice(1);
 };
 
