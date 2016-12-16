@@ -26,12 +26,21 @@ const getRoutes = (jwt: Object) => {
   const cartRoutes =
     router.read('carts-base', { path: 'carts', frn: frn.oms.cart }, [
       router.read('carts-list-pages', { component: CartsListPage }, [
-        router.read('carts', { component: Carts, isIndex: true })
+        router.read('carts', { component: Carts, isIndex: true }),
+        router.read('carts-activity-trail', {
+          path: 'activity-trail',
+          component: ActivityTrailPage,
+          frn: frn.activity.cart,
+        }),
       ]),
       router.read('cart', { path: ':cart', component: Cart}, [
         router.read('cart-details', { component: CartDetails, isIndex: true}),
         router.read('cart-notes', { path: 'notes', component: Notes}),
-        router.read('cart-activity-trail', { path: 'activity-trail', component: ActivityTrailPage}),
+        router.read('cart-activity-trail', {
+          path: 'activity-trail',
+          component: ActivityTrailPage,
+          frn: frn.activity.cart,
+        }),
       ]),
     ]);
 
@@ -40,18 +49,22 @@ const getRoutes = (jwt: Object) => {
       router.create('new-order', { path: 'new', component: NewOrder }),
       router.read('orders-list-pages', { component: OrdersListPage }, [
         router.read('orders', { component: Orders, isIndex: true }),
-        router.read('orders-activity-trail', { 
-            path: 'activity-trail',
-            dimension: 'order',
-            component: ActivityTrailPage, 
-            frn: frn.activity.order }),
+        router.read('orders-activity-trail', {
+          path: 'activity-trail',
+          dimension: 'order',
+          component: ActivityTrailPage,
+          frn: frn.activity.order,
+        }),
       ]),
       router.read('order', { path: ':order', component: Order }, [
         router.read('order-details', { component: OrderDetails, isIndex: true }),
         router.read('order-shipments', { path: 'shipments', component: Shipments, frn: frn.mdl.shipment }),
         router.read('order-notes', { path: 'notes', component: Notes, frn: frn.note.order }),
-        router.read('order-activity-trail', { path: 'activity-trail',
-            components: ActivityTrailPage, frn: frn.activity.order }),
+        router.read('order-activity-trail', {
+          path: 'activity-trail',
+          components: ActivityTrailPage,
+          frn: frn.activity.order,
+        }),
       ]),
     ]);
 

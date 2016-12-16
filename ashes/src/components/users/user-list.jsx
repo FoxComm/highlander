@@ -14,7 +14,7 @@ type Props = {
 const UserListPage = (props: Props) => {
   const navLinks = [
     { title: 'Users', to: 'users' },
-    { title: 'Activity Trail', to: 'home' },
+    { title: 'Activity Trail', to: 'users-activity-trail' },
   ];
   const addAction = () => transitionTo('user', {userId: 'new'});
 
