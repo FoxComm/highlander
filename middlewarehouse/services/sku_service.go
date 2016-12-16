@@ -11,7 +11,7 @@ type SKU interface {
 	GetByID(id uint) (*responses.SKU, error)
 	Create(payload *payloads.CreateSKU) (*responses.SKU, error)
 	Update(id uint, payload *payloads.UpdateSKU) (*responses.SKU, error)
-	Delete(id uint) error
+	Archive(id uint) error
 }
 
 func NewSKU(db *gorm.DB) SKU {
@@ -74,7 +74,7 @@ func (s *skuService) Update(id uint, payload *payloads.UpdateSKU) (*responses.SK
 	return responses.NewSKUFromModel(updated), nil
 }
 
-func (s *skuService) Delete(id uint) error {
+func (s *skuService) Archive(id uint) error {
 	sku := models.SKU{}
 	sku.ID = id
 

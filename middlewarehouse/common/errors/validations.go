@@ -22,7 +22,7 @@ func NewValidation(model string) *Validation {
 	return &Validation{err, model}
 }
 
-func (v *Validation) Error() error {
+func (v *Validation) ToError() error {
 	if v.err.Length() > 0 {
 		return v.err
 	}

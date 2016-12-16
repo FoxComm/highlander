@@ -57,5 +57,5 @@ func (s *SKU) Validate() error {
 		v.NonEmpty(s.ReturnWindowUnits, "return_window.units", "an item is returnable")
 	}
 
-	return v.Error()
+	return v.ToError()
 }
