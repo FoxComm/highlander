@@ -55,7 +55,9 @@
   margin-right: auto;
   margin-left: auto;
   display: block;
-  width: 20%;
+  max-width: 256px;
+  min-width: 256px;
+  min-height: 46px;
 
   & select {
     color: var(--text-color-main);
@@ -66,14 +68,24 @@
     line-height: 30px;
     min-height: 82px;
     background: #EBEAEA;
-    margin-top: 10px;
-    margin-bottom: 10px;
   }
 }
 
 @media (--small-only) {
   .catalog {
     padding-bottom: 30px;
+  }
+
+  .product-type-select {
+    max-width: 128px;
+    min-width: 128px;
+
+    & select {
+        font-size: 15px;
+        letter-spacing: 0.52px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
   }
 
   .header-wrap {
