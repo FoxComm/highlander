@@ -32,13 +32,12 @@ class HalArgs
     method TOP ($/) { $/.make: Map.new($<arg>».made)}
 };
 
-sub MAIN () 
+sub MAIN ($kafka-host, $henhouse-host) 
 {
-    my $host = "10.240.0.14";
     my $config = PKafka::Config.new("group.id"=> "hal-test-1");
-    my $rsyslog = PKafka::Consumer.new( topic=>"nginx", brokers=>$host, config=>$config);
+    my $rsyslog = PKafka::Consumer.new( topic=>"nginx", brokers=>$kafka-host, config=>$config);
 
-    my $henhouse = IO::Socket::INET.new(:host($host), :port<2003>);
+    my $henhouse = IO::Socket::INET.new(:host($henhouse-host), :port<2003>);
 
     $rsyslog.messages.tap(-> $msg 
     {
