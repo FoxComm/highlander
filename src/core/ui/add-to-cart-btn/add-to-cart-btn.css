@@ -8,6 +8,7 @@
   overflow: hidden;
   cursor: pointer;
   display: flex;
+  justify-content: center;
 
   &.expanded, &:hover {
     max-width: 100%;
