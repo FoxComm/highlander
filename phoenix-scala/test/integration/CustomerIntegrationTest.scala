@@ -32,7 +32,6 @@ import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures
 import utils.MockedApis
-import utils.aliases.AU
 import utils.aliases.stripe.StripeCard
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -78,7 +77,7 @@ class CustomerIntegrationTest
     }
 
     "customer info shows valid billingRegion" in new CreditCardFixture {
-      val billRegion = Regions.findOneById(creditCard.regionId).gimme
+      val billRegion = Regions.findOneById(creditCard.address.regionId).gimme
 
       val root = CustomerResponse
         .build(customer, customerData, shippingRegion = region.some, billingRegion = billRegion)
@@ -361,7 +360,7 @@ class CustomerIntegrationTest
 
       val creditCards =
         customersApi(customer.accountId).payments.creditCards.get().as[Seq[CardResponse]]
-      val ccRegion = Regions.findOneById(creditCard.regionId).gimme.value
+      val ccRegion = Regions.findOneById(creditCard.address.regionId).gimme.value
 
       creditCards must have size 1
       creditCards.head must === (CreditCardsResponse.build(creditCard, ccRegion))
@@ -475,7 +474,8 @@ class CustomerIntegrationTest
         val numAddresses = Addresses.length.result.gimme
 
         numAddresses must === (1)
-        (newVersion.zip, newVersion.regionId) must === ((address.zip, address.regionId))
+        (newVersion.address.zip, newVersion.address.regionId) must === (
+            (address.zip, address.regionId))
       }
 
       "creates a new address book entry if a full address was given" in new CreditCardFixture {
@@ -496,8 +496,10 @@ class CustomerIntegrationTest
         val newAddress = addresses.last
 
         addresses must have size 2
-        (newVersion.zip, newVersion.regionId) must === (("54321", address.regionId + 1))
-        (newVersion.zip, newVersion.regionId) must === ((newAddress.zip, newAddress.regionId))
+        (newVersion.address.zip, newVersion.address.regionId) must === (
+            ("54321", address.regionId + 1))
+        (newVersion.address.zip, newVersion.address.regionId) must === (
+            (newAddress.zip, newAddress.regionId))
       }
     }
 
