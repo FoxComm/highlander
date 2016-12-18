@@ -20,7 +20,7 @@ case class ProductVariantLink(id: Int = 0,
     with ObjectHeadLink[ProductVariantLink]
 
 class ProductVariantLinks(tag: Tag)
-    extends ObjectHeadLinks[ProductVariantLink](tag, "product_variant_links") {
+    extends ObjectHeadLinks[ProductVariantLink](tag, "product__variant_links") {
 
   def * =
     (id, leftId, rightId, createdAt, updatedAt) <> ((ProductVariantLink.apply _).tupled, ProductVariantLink.unapply)

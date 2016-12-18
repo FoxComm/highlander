@@ -1,5 +1,6 @@
-create or replace function get_skus_for_product(int) returns jsonb as $$
-declare skus jsonb;
+create or replace function get_variants_for_product(int) returns jsonb as $$
+declare
+    variants jsonb;
 begin
     select
       case when count(sku) = 0
@@ -7,26 +8,26 @@ begin
             '[]'::jsonb
         else
         json_agg(sku.code)::jsonb
-      end into skus
-    from product_sku_links as link
-    inner join skus as sku on (sku.id = link.right_id)
+      end into variants
+    from product__variant_links as link
+    inner join product_variants as pvariant on (pvariant.id = link.right_id)
     where link.left_id = $1;
-  if (skus = '[]'::jsonb) then
+  if (variants = '[]'::jsonb) then
     select
       case when count(sku) = 0
         then
             '[]'::jsonb
         else
         json_agg(distinct sku.code)::jsonb
-      end into skus
-      from product_variant_links as pvlink
-        inner join variant_variant_value_links as vvlink on (pvlink.right_id = vvlink.left_id)
-        inner join variant_value_sku_links as vsku_link on (vsku_link.left_id = vvlink.right_id)
-        inner join skus as sku on (vsku_link.right_id = sku.id)
-      where pvlink.left_id = $1;
+      end into variants
+      from product__option_links as polink
+        inner join product_option__value_links as vvlink on (polink.right_id = vvlink.left_id)
+        inner join product_value__variant_links as vsku_link on (vsku_link.left_id = vvlink.right_id)
+        inner join product_variants as variants on (vsku_link.right_id = variants.id)
+      where polink.left_id = $1;
   end if;
 
-  return skus;
+  return variants;
 
 end;
 $$ language plpgsql;
@@ -37,7 +38,7 @@ begin
 
   insert into product_sku_links_view select
     new.id as product_id,
-    get_skus_for_product(new.id) as skus;
+    get_variants_for_product(new.id) as skus;
 
     return null;
 end;
@@ -50,22 +51,22 @@ begin
   case tg_table_name
     when 'products' then
       product_ids := array_agg(new.id);
-    when 'product_sku_links' then
+    when 'product__variant_links' then
       select array_agg(p.id) into product_ids
       from products as p
-      inner join product_sku_links as link on (link.left_id = p.id)
+      inner join product__variant_links as link on (link.left_id = p.id)
       where link.id = new.id;
-    when 'skus' then
+    when 'product_variants' then
       select array_agg(p.id) into product_ids
       from products as p
-      inner join product_sku_links as link on link.left_id = p.id
-      inner join skus as sku on (sku.id = link.right_id)
+      inner join product_variant_links as link on link.left_id = p.id
+      inner join product_variants as sku on (sku.id = link.right_id)
       where sku.id = new.id;
-    when 'variant_value_sku_links' then
+    when 'product_value__variant_links' then
       select array_agg(p.id) into product_ids
       from products as p
-      inner join product_variant_links as pvlink on (pvlink.left_id = p.id)
-      inner join variant_variant_value_links as vvlink on (pvlink.right_id = vvlink.left_id)
+      inner join product_option_links as polink on (polink.left_id = p.id)
+      inner join product_value__variant_links as vvlink on (polink.right_id = vvlink.left_id)
       where vvlink.right_id = (case TG_OP
                             when 'DELETE' then
                               old.left_id
@@ -74,15 +75,15 @@ begin
                           end);
   end case;
 
-  update product_sku_links_view set
-    skus = subquery.skus
+  update product__variant_links_view set
+    variants = subquery.variants
     from (select
             p.id,
-            get_skus_for_product(p.id) skus
+            get_variants_for_product(p.id) variants
           from products as p
          where p.id = any(product_ids)
          group by p.id) as subquery
-    where subquery.id = product_sku_links_view.product_id;
+    where subquery.id = product__variant_links_view.product_id;
     return null;
 end;
 $$ language plpgsql;
