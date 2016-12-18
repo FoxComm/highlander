@@ -18,7 +18,7 @@ case class ProductOptionValueLink(id: Int = 0,
     with ObjectHeadLink[ProductOptionValueLink]
 
 class ProductOptionValueLinks(tag: Tag)
-    extends ObjectHeadLinks[ProductOptionValueLink](tag, "product_option_value_links") {
+    extends ObjectHeadLinks[ProductOptionValueLink](tag, "product_option__value_links") {
 
   def * =
     (id, leftId, rightId, createdAt, updatedAt) <> ((ProductOptionValueLink.apply _).tupled, ProductOptionValueLink.unapply)

@@ -9,7 +9,7 @@ begin
   case tg_table_name
     when 'products' then
       product_ids := array_agg(new.id);
-    when 'product_sku_links_view' then
+    when 'product__variant_links_view' then
       product_ids := array_agg(new.product_id);
     when 'product_album_links_view' then
       product_ids := array_agg(new.product_id);
