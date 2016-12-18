@@ -38,7 +38,16 @@
 
 
 (defn gen-msg
-  [{customer-email :email customer-name :name :as rcpt} vars {:keys [subject text html bcc] :as opts}]
+  "Generate ready to send email message for Mandrill.
+  Params:
+  recepient(s)
+  template vars
+  Additional key-values for mandrill message which will be passed to Mandrill API as is
+  "
+  [[{customer-email :email customer-name :name :as rcpt} & _ :as recipients]
+   vars
+   {:keys [subject text html] :as opts}]
+  {:pre [(every? not-empty [recipients customer-email])]}
   (let [additional-vars (some->
                           (settings/get :additional_merge_vars)
                           (json/parse-string true))
@@ -49,12 +58,8 @@
                    :customer_name customer-name}
         base-merge-vars (if additional-vars
                            (merge base-vars additional-vars)
-                          base-vars)
-        recipients (if bcc
-                      [rcpt bcc]
-                      [rcpt])]
-   (merge opts {:to
-                [recipients]
+                          base-vars)]
+   (merge opts {:to recipients
                 :global_merge_vars (make-tpl-vars (merge base-merge-vars vars))
                 :merge_language "handlebars"
                 :auto_text true
@@ -85,11 +90,11 @@
         email (get-in order ["customer" "email"])
         customer-name (get-in order ["customer" "name"] "")
         order-ref (get order "referenceNumber")
-        msg-subject (if (settings/get :send_order_checkout_completed_bcc)
-                        (merge {:bcc {:email (settings/get :from_email) :type "bcc"}
-                          :subject (settings/get :order_checkout_subject)})
-                        (merge {:subject (settings/get :order_checkout_subject)}))
-        msg (gen-msg {:email email :name customer-name}
+        rcpt {:email email :name customer-name}
+        rcpts (if (settings/get :send_order_checkout_completed_bcc)
+                  [rcpt {:email (settings/get :from_email) :type "bcc"}]
+                  [rcpt])
+        msg (gen-msg rcpts
                      {:items (let [skus (get-in order ["lineItems" "skus"])]
                                (map at/sku->item skus))
                       :totals (at/format-prices (get order "totals"))
@@ -100,7 +105,7 @@
                       :billing_info (get order "billingCreditCardInfo")
                       :order_ref order-ref}
 
-                      msg-subject)]
+                     {:subject (settings/get :order_checkout_subject)})]
 
       (send-template! (settings/get :order_confirmation_template) msg)))
 
@@ -113,7 +118,7 @@
         customer-name (get-in order ["customer" "name"] "")
         tracking-number (get data "trackingNumber")
         tracking-template (get-in data ["shippingMethod" "carrier" "trackingTemplate"])
-        msg (gen-msg {:email email :name customer-name}
+        msg (gen-msg [{:email email :name customer-name}]
                      {:items (let [skus (get-in order ["lineItems" "skus"])]
                                (map at/sku->item skus))
                       :totals (at/format-prices (get order "totals"))
@@ -137,8 +142,8 @@
         customer-name (get-in order ["customer" "name"] "")
         order-ref (get-in order ["referenceNumber"])
         new-state (get-in order ["orderState"])
-        msg (gen-msg {:email email :name customer-name}
-                    {:items (let [skus (get-in order ["lineItems" "skus"])]
+        msg (gen-msg [{:email email :name customer-name}]
+                     {:items (let [skus (get-in order ["lineItems" "skus"])]
                               (map at/sku->item skus))
                       :totals (at/format-prices (get order "totals"))
                       :placed_at (at/date-simple-format (get order "placedAt"))
@@ -160,7 +165,7 @@
               full-reset-password-link (format "%s/%s" (settings/get :shop_base_url) reset-pw-link)
               customer-name (get-in activity [:data "user" "name"])]
        (send-template! (settings/get :customer_remind_password_template)
-           (gen-msg {:email email :name customer-name}
+           (gen-msg [{:email email :name customer-name}]
                {:reset_password_link full-reset-password-link
                 :reset_code reset-code}
                {:subject (settings/get :customer_remind_password_subject)}))))
@@ -178,7 +183,7 @@
 
    (when (every? seq [recipientEmail giftCardCode])
      (send-template! (settings/get :gift_card_customer_template)
-          (gen-msg {:email recipientEmail :name recipientName}
+          (gen-msg [{:email recipientEmail :name recipientName}]
               {:balance (at/format-price-int (get giftCard "availableBalance"))
                :message message
                :sender_name senderName
@@ -191,7 +196,7 @@
   [activity]
   (let [email (get-in activity [:data "email"])
         customer-name (get-in activity [:data "name"] "")
-        msg (gen-msg {:email email :name customer-name}
+        msg (gen-msg [{:email email :name customer-name}]
                      {}
                      (merge {:text (get-in activity [:data "text"])
                              :html (get-in activity [:data "html"])
@@ -218,7 +223,7 @@
 
 
    (send-template! (settings/get :customer_created_template)
-                   (gen-msg {:email email :name customer-name}
+                   (gen-msg [{:email email :name customer-name}]
                             {}
                             {:subject (settings/get :customer_registration_subject)}))))
 
@@ -237,7 +242,7 @@
         email (get-in data ["storeAdmin" "email"])
         new-admin-name (get-in data ["storeAdmin" "name"])
         store-admin-name (get-in data ["admin" "name"])
-        msg (gen-msg {:email email :name new-admin-name}
+        msg (gen-msg [{:email email :name new-admin-name}]
                      {:user_being_invited new-admin-name
                       :name_of_retailer (settings/get :retailer_name)
                       :user_that_invited_you store-admin-name}
