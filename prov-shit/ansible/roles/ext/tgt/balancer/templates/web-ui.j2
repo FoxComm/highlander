@@ -24,8 +24,24 @@ server {
   }
   {% if storefront_fixed_language %}set $accept_language {{storefront_default_language}};{% endif %}
 
-  # Proxy to marketplace-ui
+  # Proxy to the demo search
   location / {
+      proxy_pass http://demo-search;
+  }
+
+  location @demo-search {
+      proxy_pass http://demo-search;
+  }
+
+  location ~ /application/public/images/(.*) {
+      proxy_pass http://marketplace-ui/application/public/images/$1;
+  }
+
+  location ~ /application/public/(.*) {
+      proxy_pass http://marketplace-ui/$1;
+  }
+
+  location /application/ {
       proxy_pass http://marketplace-ui;
   }
 
