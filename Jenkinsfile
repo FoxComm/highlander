@@ -3,7 +3,7 @@ node {
     notifyBuild()
 
     stage('Checkout') {
-      git 'git@github.com:FoxComm/highlander.git'
+      checkout scm
     }
 
     stage('Projects Filtering') {
