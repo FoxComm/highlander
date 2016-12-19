@@ -59,12 +59,6 @@ const productTypes = [
 
 const defaultProductType = productTypes[0];
 
-const toLowerCaseAndCapitalize = (word: string) => {
-  // Example: POULTRY -> Poultry
-  const lowerCaseWord = word.toLowerCase();
-  return lowerCaseWord.charAt(0).toUpperCase() + lowerCaseWord.slice(1);
-};
-
 class Products extends Component {
   props: Props;
 
@@ -137,7 +131,7 @@ class Products extends Component {
     const { productType } = this.props.params;
 
     const type = (productType && !_.isEmpty(productType))
-      ? toLowerCaseAndCapitalize(productType)
+      ? _.capitalize(productType)
       : productTypes[0];
 
     return (
