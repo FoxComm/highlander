@@ -4,14 +4,19 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 
-	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
 )
 
-type skuController struct{}
+type skuController struct {
+	skuService services.SKU
+}
 
-func NewSKUController() IController {
-	return &skuController{}
+func NewSKUController(db *gorm.DB) IController {
+	skuService := services.NewSKU(db)
+	return &skuController{skuService}
 }
 
 func (controller *skuController) SetUp(router gin.IRouter) {
@@ -19,27 +24,83 @@ func (controller *skuController) SetUp(router gin.IRouter) {
 	router.POST("", controller.CreateSKU())
 	router.GET(":id", controller.GetSKUByID())
 	router.PATCH(":id", controller.UpdateSKU())
+	router.DELETE(":id", controller.ArchiveSKU())
 	router.GET(":id/afs", controller.GetAFS())
 }
 
 func (controller *skuController) CreateSKU() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		resp := dummyResponse()
+		payload := &payloads.CreateSKU{}
+		if parse(context, payload) != nil {
+			return
+		}
+
+		if !setScope(context, payload) {
+			return
+		}
+
+		resp, err := controller.skuService.Create(payload)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
 		context.JSON(http.StatusCreated, resp)
 	}
 }
 
 func (controller *skuController) GetSKUByID() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		resp := dummyResponse()
+		id, failure := paramUint(context, "id")
+		if failure != nil {
+			return
+		}
+
+		resp, err := controller.skuService.GetByID(id)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
 		context.JSON(http.StatusOK, resp)
 	}
 }
 
 func (controller *skuController) UpdateSKU() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		resp := dummyResponse()
+		id, failure := paramUint(context, "id")
+		if failure != nil {
+			return
+		}
+
+		payload := &payloads.UpdateSKU{}
+		if parse(context, payload) != nil {
+			return
+		}
+
+		resp, err := controller.skuService.Update(id, payload)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
 		context.JSON(http.StatusOK, resp)
+	}
+}
+
+func (controller *skuController) ArchiveSKU() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		id, failure := paramUint(context, "id")
+		if failure != nil {
+			return
+		}
+
+		if err := controller.skuService.Archive(id); err != nil {
+			handleServiceError(context, err)
+			return
+		}
+
+		context.JSON(http.StatusNoContent, gin.H{})
 	}
 }
 
@@ -47,62 +108,5 @@ func (controller *skuController) GetAFS() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		resp := map[string]int{"afs": 10}
 		context.JSON(http.StatusOK, resp)
-	}
-}
-
-func dummyResponse() responses.SKU {
-	return responses.SKU{
-		ID:               1,
-		Code:             "SKU-TEST",
-		UPC:              "12312342131",
-		Title:            "Some test SKU",
-		UnitCost:         299,
-		TaxClass:         "default",
-		RequiresShipping: true,
-		ShippingClass:    "default",
-		IsReturnable:     true,
-		ReturnWindow: responses.Dimension{
-			Value: 30.0,
-			Units: "days",
-		},
-		Height: responses.Dimension{
-			Value: 15.0,
-			Units: "cm",
-		},
-		Length: responses.Dimension{
-			Value: 10.0,
-			Units: "cm",
-		},
-		Width: responses.Dimension{
-			Value: 5.0,
-			Units: "cm",
-		},
-		Weight: responses.Dimension{
-			Value: 50.0,
-			Units: "g",
-		},
-		RequiresInventoryTracking: true,
-		InventoryWarningLevel: responses.QuantityLevel{
-			IsEnabled: true,
-			Level:     3,
-		},
-		MaximumQuantityInCart: responses.QuantityLevel{
-			IsEnabled: true,
-			Level:     6,
-		},
-		MinimumQuantityInCart: responses.QuantityLevel{
-			IsEnabled: false,
-		},
-		AllowPreorder:       false,
-		AllowBackorder:      false,
-		RequiresLotTracking: true,
-		LotExpirationThreshold: responses.Dimension{
-			Value: 3.0,
-			Units: "months",
-		},
-		LotExpirationWarningThreshold: responses.Dimension{
-			Value: 15.0,
-			Units: "days",
-		},
 	}
 }
