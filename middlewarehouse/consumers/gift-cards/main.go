@@ -35,10 +35,7 @@ func main() {
 	consumer.SetGroupID(groupID)
 	consumer.SetClientID(clientID)
 
-	gc, err := NewGiftCardConsumer(client)
-	if err != nil {
-		log.Fatalf("Can't create handler for orders with error %s", err.Error())
-	}
+	gc := NewGiftCardConsumer(client)
 
 	consumer.RunTopic(config.Topic, gc.Handler)
 }

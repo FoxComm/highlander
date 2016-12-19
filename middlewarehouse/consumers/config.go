@@ -39,7 +39,7 @@ func MakeConsumerConfig() (ConsumerConfig, error) {
 
 	config.OffsetResetStrategy = os.Getenv("OFFSET_RESET_STRATEGY")
 	if invalidOffsetResetStrategy(config.OffsetResetStrategy) {
-		return config, errors.New("Unable to find TOPIC in env")
+		return config, errors.New("Unable to find OFFSET_RESET_STRATEGY in env")
 	} else if config.OffsetResetStrategy == "" {
 		config.OffsetResetStrategy = metamorphosis.OffsetResetLargest
 	}

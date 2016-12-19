@@ -36,11 +36,7 @@ func main() {
 	consumer.SetClientID(clientID)
 
 	phoenixClient := phoenix.NewPhoenixClient(phoenixConfig.URL, phoenixConfig.User, phoenixConfig.Password)
-	oh, err := NewShipmentHandler(phoenixClient)
-
-	if err != nil {
-		log.Fatalf("Can't create handler for orders with error %s", err.Error())
-	}
+	oh := NewCaptureConsumer(phoenixClient)
 
 	consumer.RunTopic(config.Topic, oh.Handler)
 }

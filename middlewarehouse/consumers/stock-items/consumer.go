@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,8 +22,12 @@ const (
 	groupID  = "mwh-stock-items-consumers"
 )
 
-func NewStockItemsConsumer(phoenixClient phoenix.PhoenixClient, mwhUrl string) (*StockItemsConsumer, error) {
-	return &StockItemsConsumer{phoenixClient, mwhUrl}, nil
+func NewStockItemsConsumer(phoenixClient phoenix.PhoenixClient, mwhURL string) (*StockItemsConsumer, error) {
+	if mwhURL == "" {
+		return nil, errors.New("middlewarehouse URL must be set")
+	}
+
+	return &StockItemsConsumer{phoenixClient, mwhURL}, nil
 }
 
 func (consumer *StockItemsConsumer) Handler(m metamorphosis.AvroMessage) error {
