@@ -330,22 +330,8 @@ class EditBilling extends Component {
     );
   }
 
-  renderGiftCard() {
-    const { giftCards } = this.props;
-
-    return (
-      <PromoCode
-        placeholder="Gift Card Number"
-        buttonLabel="Redeem"
-        giftCards={giftCards}
-        saveCode={this.props.saveGiftCard}
-        removeCode={this.props.removeGiftCard}
-      />
-    );
-  }
-
   render() {
-    const { inProgress, t } = this.props;
+    const { inProgress, t, giftCards } = this.props;
 
     if (this.state.addingNew) {
       const action = {
@@ -393,11 +379,19 @@ class EditBilling extends Component {
             discountValue={this.props.totals.adjustments}
             saveCode={this.props.saveCouponCode}
             removeCode={this.props.removeCouponCode}
+            context="billingEdit"
           />
         </Accordion>
 
         <Accordion title="GIFT CARD?">
-          { this.renderGiftCard() }
+          <PromoCode
+            placeholder="Gift Card Number"
+            buttonLabel="Redeem"
+            giftCards={giftCards}
+            saveCode={this.props.saveGiftCard}
+            removeCode={this.props.removeGiftCard}
+            context="billingEdit"
+          />
         </Accordion>
 
       </CheckoutForm>

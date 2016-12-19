@@ -55,6 +55,8 @@ class Billing extends Component {
               promotion={promotion}
               discountValue={totals.adjustments}
               allowDelete={false}
+              editable={false}
+              context="billingView"
             />
           </div>}
 
@@ -64,6 +66,8 @@ class Billing extends Component {
               placeholder="Gift Card Number"
               giftCards={this.giftCards}
               allowDelete={false}
+              editable={false}
+              context="billingView"
             />
           </div>}
       </div>

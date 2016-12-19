@@ -6,6 +6,7 @@ dev d:
 	source .env && npm run dev
 
 setup:
+	rm -rf ./node_modules
 	npm install
 
 build: setup

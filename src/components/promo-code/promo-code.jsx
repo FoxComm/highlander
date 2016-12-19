@@ -27,7 +27,8 @@ type Props = {
   allowDelete?: ?boolean,
   disabled?: boolean,
   placeholder?: string,
-  theme: string,
+  context: string,
+  editable: boolean,
 };
 
 type State = {
@@ -43,7 +44,8 @@ class PromoCode extends Component {
     saveCode: _.noop,
     removeCode: _.noop,
     disabled: false,
-    theme: 'light',
+    context: 'light',
+    editable: true,
   };
 
   state: State = {
@@ -94,37 +96,33 @@ class PromoCode extends Component {
     const { code, amount: discountValue, currentBalance } = card;
 
     return (
-      <div styleName="promo-description" key={card.code}>
-        <div styleName="promo-description-wrapper">
-          <div styleName="gift-title">{`Gift Card ${code}`}</div>
-          <div>
-            <Currency prefix={'Current Balance: '} value={currentBalance} />
-          </div>
+      <div styleName="gift-card" key={card.code}>
+        <div styleName="gift-card-description">
+          <div styleName="gift-card-title">{`Gift Card ${code}`}</div>
+          <Currency styleName="gift-card-curr" prefix={'Current Balance: '} value={currentBalance} />
         </div>
-        <div styleName="subtotal-price">
-          <Currency value={discountValue} prefix={'– '} />
-        </div>
+        <Currency styleName="subtotal-price" value={discountValue} prefix={'– '} />
 
         {this.props.allowDelete &&
-          <a styleName="delete-promo-btn delete-promo-icon" onClick={() => this.removeCode(code)}>
-            <Icon
-              name="fc-close"
-              styleName="delete-promo-icon"
-              styleName="delete-promo-btn"
-            />
-          </a>}
+          <Icon
+            onClick={() => this.removeCode(code)}
+            name="fc-close"
+            styleName="delete-promo-icon"
+            styleName="delete-promo-btn"
+          />
+        }
       </div>
     );
   }
 
-  renderAttachedPromo() {
+  renderAttachedCoupon() {
     if (this.props.coupon) {
       const promoCode = _.get(this.props, 'coupon.code');
       const discountValue = this.props.discountValue;
 
       return (
-        <div styleName="promo-description">
-          <div styleName="promo-code">{promoCode}</div>
+        <div styleName="coupon">
+          <div styleName="coupon-code">{promoCode}</div>
           <Currency styleName="subtotal-price" value={discountValue} prefix={'– '} />
 
           {this.props.allowDelete &&
@@ -147,29 +145,31 @@ class PromoCode extends Component {
   }
 
   render() {
-    const { placeholder, theme } = this.props;
+    const { placeholder, context, editable } = this.props;
 
     return (
-      <div styleName="root" className={styles[theme]}>
-        <div styleName="fieldset">
-          <FormField styleName="code-field">
-            <TextInput
-              styleName="code"
-              placeholder={placeholder}
-              value={this.state.code}
-              onChange={this.changeCode}
-              onKeyPress={this.onKeyPress}
-            />
-          </FormField>
-          <Button
-            type="button"
-            styleName="submit"
-            onClick={this.saveCode}
-            disabled={this.props.disabled}
-          >
-            {this.buttonLabel}
-          </Button>
-        </div>
+      <div styleName="root" className={styles[context]}>
+        {editable &&
+          <div styleName="fieldset">
+            <FormField styleName="code-field">
+              <TextInput
+                styleName="code"
+                placeholder={placeholder}
+                value={this.state.code}
+                onChange={this.changeCode}
+                onKeyPress={this.onKeyPress}
+              />
+            </FormField>
+            <Button
+              type="button"
+              styleName="submit"
+              onClick={this.saveCode}
+              disabled={this.props.disabled}
+            >
+              {this.buttonLabel}
+            </Button>
+          </div>
+        }
 
         {!!this.state.error &&
           <div styleName="error">
@@ -177,7 +177,7 @@ class PromoCode extends Component {
           </div>
         }
 
-        {this.renderAttachedPromo()}
+        {this.renderAttachedCoupon()}
       </div>
     );
   }
