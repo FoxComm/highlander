@@ -34,7 +34,7 @@ object ProductFailures {
   }
 
   object ProductOptionNotFound {
-    def apply(id: Int) = NotFoundFailure404(s"ProductOption with id $id not found")
+    def apply(id: Int) = NotFoundFailure404(s"Product option with id $id not found")
   }
 
   object ProductOptionNotFoundForContext {
@@ -82,10 +82,6 @@ object ProductFailures {
 
   object ProductFormNotFound {
     def apply(id: Int) = NotFoundFailure404(s"Product Form with id $id cannot be found")
-  }
-
-  case class NoProductOptionForContext(context: String) extends Failure {
-    override def description = s"No product option context $context"
   }
 
   case class NoProductFoundForVariant(id: Int) extends Failure {
