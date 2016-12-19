@@ -7,16 +7,16 @@ import type { HTMLElement } from 'types';
 import { browserHistory } from 'react-router';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import * as actions from 'modules/products';
 
 // components
 import ProductsList from '../../components/products-list/products-list';
-import ProductTypeSelector from 'ui/product-type-selector';
+import Select from 'ui/select/select';
 
 // styles
 import styles from './products.css';
 
-import * as actions from 'modules/products';
-
+// types
 type Params = {
   categoryName: ?string,
   productType: ?string,
@@ -37,16 +37,7 @@ type Props = {
   location: any,
 };
 
-const productTypes = [
-  'All',
-  'Poultry',
-  'Seafood',
-  'Beef',
-  'Vegetarian',
-];
-
-const defaultProductType = productTypes[0];
-
+// redux
 const mapStateToProps = state => {
   const async = state.asyncActions.products;
 
@@ -56,6 +47,17 @@ const mapStateToProps = state => {
     categories: state.categories.list,
   };
 };
+
+// consts
+const productTypes = [
+  'All',
+  'Poultry',
+  'Seafood',
+  'Beef',
+  'Vegetarian',
+];
+
+const defaultProductType = productTypes[0];
 
 class Products extends Component {
   props: Props;
@@ -75,11 +77,6 @@ class Products extends Component {
     if ((categoryName !== nextCategoryName) || (productType !== nextProductType)) {
       this.props.fetch(nextCategoryName, nextProductType);
     }
-  }
-
-  categoryId(params: Params): ?number {
-    const id = params.categoryName ? parseInt(params.categoryName, 10) : null;
-    return isNaN(id) ? null : id;
   }
 
   @autobind
@@ -134,20 +131,24 @@ class Products extends Component {
     const { productType } = this.props.params;
 
     const type = (productType && !_.isEmpty(productType))
-      ? productType.toUpperCase()
+      ? _.capitalize(productType)
       : productTypes[0];
 
     return (
       <section styleName="catalog">
         {this.renderHeader()}
-        <div styleName="dropdown">
-          <ProductTypeSelector
+        <div styleName="product-type-select">
+          <Select
+            inputProps={{
+              type: 'text',
+            }}
+            getItemValue={item => item}
             items={productTypes}
-            activeItem={type}
-            onItemClick={this.onDropDownItemClick}
+            onSelect={this.onDropDownItemClick}
+            selectedItem={type}
+            sortItems={false}
           />
         </div>
-
         <ProductsList
           list={this.props.list}
           isLoading={this.props.isLoading}
