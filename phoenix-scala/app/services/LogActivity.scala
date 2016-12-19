@@ -45,7 +45,7 @@ import services.activity.OrderTailored._
 import services.activity.ProductTailored._
 import services.activity.PromotionTailored._
 import services.activity.SharedSearchTailored._
-import services.activity.SkuTailored._
+import services.activity.ProductVariantTailored._
 import services.activity.StoreAdminsTailored._
 import services.activity.StoreCreditTailored._
 import utils.aliases._
@@ -492,18 +492,18 @@ object LogActivity {
       context: ObjectContextResponse.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(FullProductUpdated(admin.map(buildUser), product, context))
 
-  /* SKUs */
-  def fullSkuCreated(
+  /* Product variants */
+  def fullProductVariantCreated(
       admin: Option[User],
       product: ProductVariantResponse.Root,
       context: ObjectContextResponse.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(FullSkuCreated(admin.map(buildUser), product, context))
+    Activities.log(FullProductVariantCreated(admin.map(buildUser), product, context))
 
-  def fullSkuUpdated(
+  def fullProductVariantUpdated(
       admin: Option[User],
       product: ProductVariantResponse.Root,
       context: ObjectContextResponse.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(FullSkuUpdated(admin.map(buildUser), product, context))
+    Activities.log(FullProductVariantUpdated(admin.map(buildUser), product, context))
 
   /* Promotions */
   def promotionCreated(promotionResponse: PromotionResponse.Root,
