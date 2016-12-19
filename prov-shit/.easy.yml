@@ -123,7 +123,6 @@ shortcuts:
       dev: terraform/envs/gce_dev/terraform.tfstate
       staging: terraform/envs/gce_staging/terraform.tfstate
       stable: terraform/envs/gce_staging_stable/terraform.tfstate
-      gatling: terraform/envs/gce_gatling/terraform.tfstate
       target: terraform/envs/aws_target/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       td_test: terraform/envs/gce_td_test/terraform.tfstate
@@ -135,7 +134,6 @@ shortcuts:
       dev: terraform/envs/gce_dev/dev.tfvars
       staging: terraform/envs/gce_staging/staging.tfvars
       stable: terraform/envs/gce_staging_stable/staging.tfvars
-      gatling: terraform/envs/gce_gatling/gatling.tfvars
       target: terraform/envs/aws_target/target.tfvars
       topdrawer: terraform/envs/gce_topdrawer/topdrawer.tfvars
       td_test: terraform/envs/gce_td_test/td_test.tfvars
@@ -149,9 +147,6 @@ shortcuts:
   - name: FoxCommerce Test
     alias: staging
     target: terraform/base/gce_staging
-  - name: FoxCommerce Gatling
-    alias: gatling
-    target: terraform/base/gce_gatling
   - name: TopDrawer Test
     alias: td_test
     target: terraform/base/gce_td_test

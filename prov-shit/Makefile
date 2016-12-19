@@ -31,12 +31,6 @@ deploy-td-test:
 deploy-tpg-test:
 	ansible-playbook -v -i bin/envs/staging ansible/tpg_test.yml
 
-deploy-gatling:
-	ansible-playbook -v -i bin/envs/staging ansible/gatling.yml
-
-run-gatling: deploy-gatling
-	ansible-playbook -v -i bin/envs/staging ansible/run_gatling.yml
-
 docker:
 	$(call header, Dockerizing)
 	true

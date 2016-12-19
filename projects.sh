@@ -26,7 +26,6 @@ PROJECTS=(
     'engineering-wiki'
     'firebrand'
     'green-river'
-    'integration-tests'
     'isaac'
     'marketplace'
     'marketplace-ui'
