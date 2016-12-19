@@ -20,17 +20,18 @@ type Props = {
 
 const ActionBlock = (props: Props) => {
   const bgImageStyle = { backgroundImage: `url(${props.imageUrl})` };
+  const { description, title, action } = props;
 
   return (
     <div styleName="header" style={bgImageStyle}>
       <div styleName="header-wrap">
         <div styleName="text-wrap">
-          <span styleName="description">{props.description}</span>
-          <h1 styleName="title">{props.title}</h1>
-          <Link to={props.action.link} styleName="action-link">
-            {props.action.title}
-          </Link>
+          <h1 styleName="title">{title}</h1>
+          <span styleName="description">{description}</span>
         </div>
+        <Link to={action.link} styleName="action-link">
+          {action.title}
+        </Link>
       </div>
     </div>
   );
