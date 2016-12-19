@@ -6,7 +6,7 @@ import models.cord.OrderPayments
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit._
 import models.payment.storecredit._
-import models.payment.{PaymentMethod, giftcard}
+import models.payment.{PaymentMethod, PaymentStates, giftcard}
 import payloads.PaymentPayloads.CreateManualStoreCredit
 import payloads.StoreCreditPayloads._
 import responses.StoreCreditResponse.Root
@@ -121,7 +121,7 @@ class StoreCreditIntegrationTest
         // Ensure that cancel adjustment is automatically created
         val adjustments = StoreCreditAdjustments.filterByStoreCreditId(storeCredit.id).gimme
         adjustments.size mustBe 2
-        adjustments.head.state must === (StoreCreditAdjustment.CancellationCapture)
+        adjustments.head.state must === (PaymentStates.CancellationCapture)
       }
 
       "successfully cancels store credit with zero balance" in new Fixture {
@@ -138,7 +138,7 @@ class StoreCreditIntegrationTest
         // Ensure that cancel adjustment is automatically created
         val adjustments = StoreCreditAdjustments.filterByStoreCreditId(storeCredit.id).gimme
         adjustments.size mustBe 2
-        adjustments.head.state must === (StoreCreditAdjustment.CancellationCapture)
+        adjustments.head.state must === (PaymentStates.CancellationCapture)
       }
 
       "fails to cancel store credit if invalid reason provided" in new Fixture {

@@ -1,15 +1,16 @@
 package utils
 
+import models.admin.AdminData
 import models.auth.Identity.IdentityKind
 import models.cord.Order
 import models.cord.lineitems._
 import models.discount.offers.OfferType
 import models.discount.qualifiers.QualifierType
 import models.inventory.SkuType
-import models.payment.PaymentMethod
 import models.payment.creditcard.CreditCardCharge
-import models.payment.giftcard.{GiftCard, GiftCardAdjustment}
-import models.payment.storecredit.{StoreCredit, StoreCreditAdjustment}
+import models.payment.giftcard.GiftCard
+import models.payment.storecredit.StoreCredit
+import models.payment.{PaymentMethod, PaymentStates}
 import models.plugins.PluginSettings
 import models.promotion.Promotion
 import models.returns._
@@ -17,9 +18,8 @@ import models.rules.{Condition, QueryStatement}
 import models.sharedsearch.SharedSearch
 import models.shipping.Shipment
 import models.{Assignment, Note, Reason}
-import models.admin.AdminData
-import payloads.AuthPayload
 import org.json4s.jackson
+import payloads.AuthPayload
 import responses.PublicResponses.CountryWithRegions
 
 object JsonFormatters {
@@ -34,8 +34,8 @@ object JsonFormatters {
       Assignment.ReferenceType.jsonFormat + Order.State.jsonFormat + Promotion.ApplyType.jsonFormat +
       OrderLineItem.State.jsonFormat + OrderLineItemAdjustment.AdjustmentType.jsonFormat +
       Shipment.State.jsonFormat + GiftCard.OriginType.jsonFormat + GiftCard.State.jsonFormat +
-      GiftCardAdjustment.State.jsonFormat + StoreCredit.State.jsonFormat +
-      StoreCredit.OriginType.jsonFormat + StoreCreditAdjustment.State.jsonFormat +
+      PaymentStates.State.jsonFormat + StoreCredit.State.jsonFormat +
+      StoreCredit.OriginType.jsonFormat +
       Reason.ReasonType.jsonFormat + Return.State.jsonFormat + Return.ReturnType.jsonFormat +
       ReturnLineItem.InventoryDisposition.jsonFormat + ReturnReason.ReasonType.jsonFormat +
       CreditCardCharge.State.jsonFormat + CountryWithRegions.jsonFormat +

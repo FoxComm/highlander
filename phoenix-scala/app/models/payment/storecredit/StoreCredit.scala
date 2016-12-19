@@ -10,7 +10,7 @@ import com.pellucid.sealerate
 import failures.{Failure, Failures, GeneralFailure}
 import models.account._
 import models.cord.OrderPayment
-import models.payment.PaymentMethod
+import models.payment.{PaymentMethod, PaymentStates}
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit._
 import models.payment.storecredit.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
@@ -171,7 +171,7 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
     debit(storeCredit = storeCredit,
           orderPaymentId = orderPaymentId,
           amount = amount,
-          state = Adj.Auth)
+          state = PaymentStates.Auth)
 
   def authOrderPayment(
       storeCredit: StoreCredit,
@@ -194,7 +194,7 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
     debit(storeCredit = storeCredit,
           orderPaymentId = orderPaymentId,
           amount = amount,
-          state = Adj.Capture)
+          state = PaymentStates.Capture)
 
   def cancelByCsr(storeCredit: StoreCredit, storeAdmin: User)(
       implicit ec: EC): DbResultT[StoreCreditAdjustment] = {
@@ -203,7 +203,7 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
                          storeAdminId = storeAdmin.accountId.some,
                          debit = storeCredit.availableBalance,
                          availableBalance = 0,
-                         state = Adj.CancellationCapture)
+                         state = PaymentStates.CancellationCapture)
     Adjs.create(adjustment)
   }
 
@@ -214,7 +214,7 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
                          storeAdminId = storeAdmin.accountId.some,
                          debit = storeCredit.availableBalance,
                          availableBalance = 0,
-                         state = Adj.Capture)
+                         state = PaymentStates.Capture)
     Adjs.create(adjustment)
   }
 
@@ -237,7 +237,7 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
   private def debit(storeCredit: StoreCredit,
                     orderPaymentId: Option[Int],
                     amount: Int = 0,
-                    state: StoreCreditAdjustment.State = Adj.Auth)(
+                    state: PaymentStates.State = PaymentStates.Auth)(
       implicit ec: EC): DbResultT[StoreCreditAdjustment] = {
     val adjustment = Adj(storeCreditId = storeCredit.id,
                          orderPaymentId = orderPaymentId,

@@ -18,9 +18,9 @@ import models.cord.lineitems._
 import models.inventory.Skus
 import models.location.Addresses
 import models.objects.ObjectContext
+import models.payment.PaymentStates
 import models.payment.creditcard.CreditCardCharge.FullCapture
 import models.payment.creditcard.{CreditCard, CreditCardCharge, CreditCardCharges, CreditCards}
-import models.payment.giftcard.GiftCardAdjustment.Capture
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.product.Mvp
@@ -342,7 +342,7 @@ trait OrderGenerator extends ShipmentSeeds {
                                       credit = amount,
                                       debit = 0,
                                       availableBalance = gc.availableBalance - amount,
-                                      state = Capture))
+                                      state = PaymentStates.Capture))
            }
     } yield (ccr, gcr)
 

@@ -1,4 +1,5 @@
 import akka.http.scaladsl.model.StatusCodes
+
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.GiftCardFailures.GiftCardConvertFailure
@@ -9,7 +10,7 @@ import models.account._
 import models.cord.{Carts, Cord, Cords}
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard._
-import models.payment.storecredit
+import models.payment.{PaymentStates, storecredit}
 import models.payment.storecredit.StoreCredit
 import org.json4s.jackson.JsonMethods._
 import payloads.GiftCardPayloads._
@@ -237,7 +238,7 @@ class GiftCardIntegrationTest
         val adjustments: Seq[GiftCardAdjustment] =
           GiftCardAdjustments.filterByGiftCardId(giftCard1.id).gimme
         adjustments must have size 2
-        adjustments.head.state must === (GiftCardAdjustment.CancellationCapture)
+        adjustments.head.state must === (PaymentStates.CancellationCapture)
       }
 
       "successfully cancels gift card with zero balance" in new Fixture {
@@ -256,7 +257,7 @@ class GiftCardIntegrationTest
         val adjustments: Seq[GiftCardAdjustment] =
           GiftCardAdjustments.filterByGiftCardId(giftCard1.id).gimme
         adjustments.size mustBe 2
-        adjustments.head.state must === (GiftCardAdjustment.CancellationCapture)
+        adjustments.head.state must === (PaymentStates.CancellationCapture)
       }
 
       "fails to cancel gift card if invalid reason provided" in new Fixture {

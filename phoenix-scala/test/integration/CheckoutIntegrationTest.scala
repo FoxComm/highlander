@@ -13,6 +13,7 @@ import models.cord.lineitems._
 import models.customer._
 import models.inventory._
 import models.location.{Address, Addresses}
+import models.payment.PaymentStates
 import models.payment.giftcard._
 import models.product.Mvp
 import models.shipping._
@@ -109,7 +110,7 @@ class CheckoutIntegrationTest
       orderResponse.remorsePeriodEnd.value.isAfter(Instant.now) mustBe true
 
       // Authorizes payments
-      GiftCardAdjustments.map(_.state).gimme must contain only GiftCardAdjustment.Auth
+      GiftCardAdjustments.map(_.state).gimme must contain only PaymentStates.Auth
     }
 
     "fails if customer's credentials are empty" in new Fixture {

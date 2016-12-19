@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.data.Xor
 import failures.Failures
 import models.payment._
-import models.payment.InternalPaymentAdjustment._
+import models.payment.PaymentStates._
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
@@ -20,10 +20,8 @@ case class StoreCreditAdjustment(id: Int = 0,
                                  state: State = Auth,
                                  createdAt: Instant = Instant.now())
     extends FoxModel[StoreCreditAdjustment]
-    with InternalPaymentAdjustment[StoreCreditAdjustment]
-    with FSM[StoreCreditAdjustment.State, StoreCreditAdjustment] {
-
-  import StoreCreditAdjustment._
+    with PaymentAdjustment[StoreCreditAdjustment]
+    with FSM[State, StoreCreditAdjustment] {
 
   def stateLens = lens[StoreCreditAdjustment].state
   override def updateTo(newModel: StoreCreditAdjustment): Failures Xor StoreCreditAdjustment =
@@ -36,12 +34,8 @@ case class StoreCreditAdjustment(id: Int = 0,
   )
 }
 
-object StoreCreditAdjustment extends InternalPaymentStates {
-  type State = InternalPaymentAdjustment.State
-}
-
 class StoreCreditAdjustments(tag: Tag)
-    extends InternalPaymentAdjustments[StoreCreditAdjustment](tag, "store_credit_adjustments") {
+    extends PaymentAdjustmentTable[StoreCreditAdjustment](tag, "store_credit_adjustments") {
 
   def storeCreditId = column[Int]("store_credit_id")
 
@@ -52,7 +46,7 @@ class StoreCreditAdjustments(tag: Tag)
 }
 
 object StoreCreditAdjustments
-    extends InternalPaymentAdjustmentQueries[StoreCreditAdjustment, StoreCreditAdjustments](
+    extends PaymentAdjustmentQueries[StoreCreditAdjustment, StoreCreditAdjustments](
         new StoreCreditAdjustments(_))
     with ReturningId[StoreCreditAdjustment, StoreCreditAdjustments] {
 

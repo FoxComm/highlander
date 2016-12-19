@@ -6,7 +6,7 @@ import cats.data.Xor
 import failures.Failures
 import models.cord.OrderPayment
 import models.payment._
-import models.payment.InternalPaymentAdjustment._
+import models.payment.PaymentStates._
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
@@ -22,10 +22,8 @@ case class GiftCardAdjustment(id: Int = 0,
                               state: State = Auth,
                               createdAt: Instant = Instant.now())
     extends FoxModel[GiftCardAdjustment]
-    with InternalPaymentAdjustment[GiftCardAdjustment]
-    with FSM[GiftCardAdjustment.State, GiftCardAdjustment] {
-
-  import GiftCardAdjustment._
+    with PaymentAdjustment[GiftCardAdjustment]
+    with FSM[PaymentStates.State, GiftCardAdjustment] {
 
   def stateLens = lens[GiftCardAdjustment].state
   override def updateTo(newModel: GiftCardAdjustment): Failures Xor GiftCardAdjustment =
@@ -38,8 +36,7 @@ case class GiftCardAdjustment(id: Int = 0,
   )
 }
 
-object GiftCardAdjustment extends InternalPaymentStates {
-  type State = InternalPaymentAdjustment.State
+object GiftCardAdjustment {
 
   def build(gc: GiftCard, orderPayment: OrderPayment): GiftCardAdjustment =
     GiftCardAdjustment(giftCardId = gc.id,
@@ -50,7 +47,7 @@ object GiftCardAdjustment extends InternalPaymentStates {
 }
 
 class GiftCardAdjustments(tag: Tag)
-    extends InternalPaymentAdjustments[GiftCardAdjustment](tag, "gift_card_adjustments") {
+    extends PaymentAdjustmentTable[GiftCardAdjustment](tag, "gift_card_adjustments") {
 
   def giftCardId = column[Int]("gift_card_id")
   def credit     = column[Int]("credit")
@@ -68,11 +65,9 @@ class GiftCardAdjustments(tag: Tag)
 }
 
 object GiftCardAdjustments
-    extends InternalPaymentAdjustmentQueries[GiftCardAdjustment, GiftCardAdjustments](
+    extends PaymentAdjustmentQueries[GiftCardAdjustment, GiftCardAdjustments](
         new GiftCardAdjustments(_))
     with ReturningId[GiftCardAdjustment, GiftCardAdjustments] {
-
-  import InternalPaymentAdjustment._
 
   val returningLens: Lens[GiftCardAdjustment, Int] = lens[GiftCardAdjustment].id
 

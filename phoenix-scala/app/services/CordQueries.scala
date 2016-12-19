@@ -1,7 +1,7 @@
 package services
 
 import models.cord.{OrderPayment, OrderPayments}
-import models.payment.InternalPaymentAdjustment.{State ⇒ InternalState, Auth ⇒ InternalAuth, Capture ⇒ InternalCapture}
+import models.payment.PaymentStates
 import models.payment.PaymentMethod
 import models.payment.creditcard.CreditCardCharge._
 import models.payment.creditcard._
@@ -27,10 +27,10 @@ trait CordQueries {
     }
 
   private def getPaymentState(payment: OrderPayment)(implicit ec: EC): DBIO[Option[State]] = {
-    def internalToCCState(state: Option[InternalState]) = state.map {
-      case InternalAuth    ⇒ Auth
-      case InternalCapture ⇒ FullCapture
-      case _               ⇒ Cart
+    def internalToCCState(state: Option[PaymentStates.State]) = state.map {
+      case PaymentStates.Auth    ⇒ Auth
+      case PaymentStates.Capture ⇒ FullCapture
+      case _                     ⇒ Cart
     }
 
     payment.paymentMethodType match {
