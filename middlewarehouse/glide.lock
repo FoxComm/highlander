@@ -42,6 +42,8 @@ imports:
   - proto
 - name: github.com/golang/snappy
   version: 723cc1e459b8eea2dea4583200fd60757d40097a
+- name: github.com/icrowley/fake
+  version: 84bff6d01560fb0b5a396ba29534e93fd00d09c6
 - name: github.com/jinzhu/gorm
   version: caa792644ce60fd7b429e0616afbdbccdf011be2
 - name: github.com/jinzhu/inflection
@@ -81,10 +83,10 @@ imports:
 - name: github.com/stretchr/testify
   version: f390dcf405f7b83c997eac1b06768bb9f44dec18
   subpackages:
-  - suite
-  - mock
   - assert
+  - mock
   - require
+  - suite
 - name: github.com/yanzay/cfg
   version: 3b647091f880406fdb14edcb309ce750a38d3e85
 - name: golang.org/x/net

@@ -7,7 +7,7 @@ FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/
 DB=middlewarehouse_development
 DB_TEST=middlewarehouse_test
 DB_USER=middlewarehouse
-GOPATH = /tmp/go
+GOPATH=/tmp/go
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
 HIGHLANDER_PATH=$(CURDIR)/..
@@ -102,3 +102,8 @@ test:
 	make reset-test
 	# -p 1 serves to run tests sequentially, as it is required for non-isolated database tests
 	cd $(BUILD_PATH) && GOENV=test go test -p 1 `glide nv`
+
+test-local:
+	make reset-test
+	GOENV=test go test -p 1 `glide nv`
+
