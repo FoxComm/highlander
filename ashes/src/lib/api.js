@@ -1,7 +1,7 @@
 import superagent from 'superagent';
 import _ from 'lodash';
-import { Tracer, ExplicitContext, BatchRecorder } from 'zipkin';
-import { HttpLogger } from 'zipkin-transport-http';
+import { Tracer, ExplicitContext, BatchRecorder } from '@foxcomm/zipkin';
+import { HttpLogger } from '@foxcomm/zipkin-transport-http';
 
 import zipkin from '../opt/superagent-zipkin';
 

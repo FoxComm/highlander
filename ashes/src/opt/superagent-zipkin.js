@@ -1,4 +1,4 @@
-const { HttpHeaders, Annotation } = require('zipkin');
+import { HttpHeaders, Annotation } from '@foxcomm/zipkin';
 
 function getHeaders(traceId, headers) {
   headers[HttpHeaders.TraceId] = traceId.traceId;
