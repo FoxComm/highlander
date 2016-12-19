@@ -2,7 +2,6 @@
 
 - name: Kill Auto Update Script If Present
   command: pkill --full /usr/bin/unattended-upgrade
-  become: true
   register: kill_result
   failed_when: kill_result.rc > 1
   changed_when: kill_result.rc == 0
@@ -11,11 +10,9 @@
   apt:
     name: unattended-upgrades
     state: absent
-  sudo: true
 
 - name: Install Packages 1
   apt: name={{ item }} state=latest force=yes
-  sudo: true
   with_items:
     - curl
     - debconf-utils
@@ -25,7 +22,6 @@
 
 - name: Install Packages 2
   apt: name={{ item }} state=latest force=yes
-  sudo: true
   with_items:
     - python-httplib2
     - python-pip
@@ -35,7 +31,6 @@
 
 - name: Install Packages 3
   apt: name={{ item }} state=latest force=yes
-  sudo: true
   with_items:
     - vim
     - nmap
@@ -47,7 +42,6 @@
 
 - name: Install Packages 4
   apt: name={{ item }} state=latest force=yes
-  sudo: true
   with_items:
     - libcairo2-dev
     - libjpeg8-dev
@@ -56,24 +50,18 @@
 
 - name: Create /etc/profile.d Directory
   file: path=/etc/profile.d state=directory
-  sudo: true
 
 - name: Set GOPATH for all users
   copy: src=go-path.sh dest=/etc/profile.d
-  sudo: true
 
 - name: Add Oracle Java Repository
   apt_repository: repo='ppa:webupd8team/java' update_cache=yes
-  sudo: true
 
 - name: Automatically select the Oracle License
-  sudo: true
   shell: echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
-
 
 - name: Install Java Packages
   apt: name={{ item }} state=latest force=yes
-  sudo: true
   with_items:
     - oracle-java8-installer
     - oracle-java8-set-default
@@ -81,40 +69,31 @@
 
 - name: Setup Unprivileged
   command: /usr/sbin/usermod -a -G systemd-journal {{user}}
-  sudo: true
 
 - name: Create Swap File
   shell: "dd if=/dev/zero of={{ swap_file }} bs=1048576 count={{ swap_size_mb }}"
-  sudo: true
   args:
       creates: "{{ swap_file }}"
 
 - name: Change Swap File Permissions
   file: path="{{ swap_file}}" owner=root group=root mode=0600
-  sudo: true
 
 - name: Make Swap File
   shell: "sudo mkswap {{ swap_file }} || true"
-  sudo: true
 
 - name: Add Swap to Fstab
   lineinfile: dest=/etc/fstab line="/swap none swap sw 0 0"
-  sudo: true
 
 - name: Install Bootstrap
   copy: src=bootstrap.sh dest=/usr/local/bin/bootstrap.sh mode=775
-  sudo: true
 
 - name: Install Consul Bootstrap for GCE
   copy: src=bootstrap_consul.sh dest=/usr/local/bin/bootstrap_consul.sh mode=775
-  sudo: true
 
 - name: Install Consul Bootstrap for AWS
   copy: src=bootstrap_consul_aws.sh dest=/usr/local/bin/bootstrap_consul_aws.sh mode=775
-  sudo: true
 
 - name: Remove Unattended Upgrades Again
   apt:
     name: unattended-upgrades
     state: absent
-  sudo: true

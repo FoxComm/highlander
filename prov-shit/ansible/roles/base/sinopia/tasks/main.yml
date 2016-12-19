@@ -16,10 +16,10 @@
   file: path=/certs state=directory mode="600"
 
 - name: Copy SSL Certificate
-  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.crt" dest=/certs/domain.crt
+  copy: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.crt" dest=/certs/domain.crt
 
 - name: Copy SSL Key
-  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.key" dest=/certs/domain.key
+  copy: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.key" dest=/certs/domain.key
 
 - name: Install Sinopia Run Script
   template: src=run_sinopia.sh.j2 dest="{{sinopia_base_dir}}/run_sinopia.sh" mode="u=rwx,g=rwx,o=r"

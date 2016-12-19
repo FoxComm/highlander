@@ -2,6 +2,7 @@
 
 - name: Provision All The Things
   hosts: all
+  become: true
   vars:
     appliance_hostname: local.foxcommerce.com
     cert_path: test/fox
@@ -22,7 +23,7 @@
     - { role: base/marketplace, when: with_marketplace }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
-    - { role: dev/kibana, sudo: true }
+    - { role: dev/kibana }
     - { role: dev/db }
     - { role: dev/isaac }
     - { role: dev/phoenix }
@@ -35,8 +36,8 @@
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
-    - { role: dev/balancer, sudo: true }
-    - { role: demo/balancer, sudo: true }
+    - { role: dev/balancer }
+    - { role: demo/balancer }
     - { role: dev/consumers }
     - { role: dev/healthcheck }
 

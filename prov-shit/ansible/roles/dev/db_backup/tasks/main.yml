@@ -3,51 +3,51 @@
 - name: Create Backup Directory
   file: path=/mnt/backups state=directory mode="0700"
   run_once: true
-  sudo: true
+  
 
 - name: Setup Database Backup and Restore Scripts
   copy: src={{item}} dest="{{usr_local}}bin/{{item}}" mode="0777"
   with_items:
     - restore_db.sh
     - backup_db.sh
-  sudo: true
+  
 
 - name: Download gcsfuse
   get_url: url=https://github.com/GoogleCloudPlatform/gcsfuse/releases/download/v0.18.2/gcsfuse_0.18.2_amd64.deb dest=/tmp/gcsfuse_0.18.2_amd64.deb
 
 - name: Install gcsfuse
   shell: dpkg -i /tmp/gcsfuse_0.18.2_amd64.deb
-  sudo: true
+  
 
 - name: Add Backup Directory Mount Service
   template: src=backup_mount.service dest={{dest_services}}/backup_mount.service
-  sudo: true
+  
 
 - name: Make sure keys dir exist
   file: path=/etc/keys state=directory owner={{user}} mode="0700"
-  sudo: true
+  
 
 - name: Copy GCE service account key
   copy: src={{service_key_file}} dest=/etc/keys/gce_backup_service_key.json mode="0600" owner={{user}}
-  sudo: true
+  
 
 - name: Setup Phoenix Database Backup Cron
   cron: name="phoenix db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh /mnt/backups/{{ansible_hostname}}_{{db_name}}_$(date +%F_%H_%M) {{db_name}}"
-  sudo: true
+  
 
 - name: Setup Middlewarehouse Database Backup Cron
   cron: name="middlewarehouse db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh /mnt/backups/{{ansible_hostname}}_{{middlewarehouse_db_name}}_$(date +%F_%H_%M) {{middlewarehouse_db_name}}"
-  sudo: true
+  
 
 - name: Setup Marketplace Database Backup Cron
   cron: name="marketplace db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh /mnt/backups/{{ansible_hostname}}_{{marketplace_db_name}}_$(date +%F_%H_%M) {{marketplace_db_name}}"
-  sudo: true
+  
   when: with_marketplace
 
 - name: Reload Systemd for Postgresql
-  sudo: yes
+  
   command: systemctl daemon-reload
 
 - name: Start backup_mount service
-  service: name=backup_mount state=started enabled=yes sleep=5
-  sudo: true
+  service: name=backup_mount state=started enabled=yes
+  

@@ -31,7 +31,8 @@ case class CordResponseCreditCardPayment(id: Int,
                                          expYear: Int,
                                          brand: String,
                                          address: AddressResponse,
-                                         `type`: Type = CreditCard)
+                                         `type`: Type = CreditCard,
+                                         createdAt: Instant)
     extends CordResponsePayments
 
 object CordResponseCreditCardPayment {
@@ -50,6 +51,7 @@ object CordResponseCreditCardPayment {
                                       expMonth = creditCard.expMonth,
                                       expYear = creditCard.expYear,
                                       brand = creditCard.brand,
+                                      createdAt = creditCard.createdAt,
                                       address =
                                         AddressResponse.buildFromCreditCard(creditCard, region))
     })

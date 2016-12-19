@@ -100,6 +100,7 @@ class Watchers extends Component {
     return (
       <Panel className="fc-watchers">
         <div className="fc-watchers__container">
+{/*
           <div className="fc-watchers__title-row">
             <div className="fc-watchers__title">
               Assignees
@@ -109,6 +110,7 @@ class Watchers extends Component {
             </div>
           </div>
           {renderGroup(props, groups.assignees)}
+*/}
           <div className="fc-watchers__title-row">
             <div className="fc-watchers__title">
               Watchers

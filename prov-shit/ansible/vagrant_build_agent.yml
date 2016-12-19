@@ -2,6 +2,7 @@
 
 - name: Provision JVM Build Machines
   hosts: all
+  become: true
   vars:
     user: vagrant
   tags:
@@ -11,7 +12,7 @@
     - { role: base/common }
     - { role: base/ssh_keys }
     - { role: base/scala }
-    - { role: base/node, sudo: true }
+    - { role: base/node }
     - { role: test/db }
     - { role: test/selenium }
-    - { role: base/builder, sudo: true }
+    - { role: base/builder }

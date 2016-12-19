@@ -2,6 +2,7 @@
 
 - name: Packing Tinystack Amigo
   hosts: all
+  become: true
   vars:
     user: ubuntu
     packing: true
@@ -15,4 +16,4 @@
     - { role: base/docker_registry }
     - { role: base/mesos_master }
     - { role: base/mesos_consul }
-    - { role: base/kibana, sudo: yes }
+    - { role: base/kibana }

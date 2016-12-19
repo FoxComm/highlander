@@ -2,8 +2,9 @@
 
 - name: Provision The Perfect Gourmet Test Backend
   hosts: perfect-gourmet-test-backend
+  become: true
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     upload_phoenix_jar: true
     download_flyway: false
   tags:
@@ -22,8 +23,9 @@
 
 - name: Provision The Perfect Gourmet Test Frontend
   hosts: perfect-gourmet-test-frontend
+  become: true
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     api_server: test-perfectgourmet.foxcommerce.com
     self_host: test-perfectgourmet.foxcommerce.com
     ashes_server_name: test-perfectgourmet.foxcommerce.com
@@ -45,6 +47,10 @@
     - { role: dev/messaging }
     - { role: dev/isaac }
     - { role: dev/solomon }
-    - { role: dev/balancer, sudo: true }
+    - { role: dev/balancer }
+    - { role: demo/balancer }
     - { role: dev/consumers }
     - { role: dev/seeder, when: first_run }
+
+  handlers:
+    - include: roles/base/consul_agent/handlers/main.yml

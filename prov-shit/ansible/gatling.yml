@@ -2,8 +2,9 @@
 
 - name: Provision Gatling Backend
   hosts: foxcomm-gatling-backend
+  become: true
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   tags:
     - backend
   roles:
@@ -17,8 +18,9 @@
 
 - name: Provision Gatling Frontend
   hosts: foxcomm-gatling-frontend
+  become: true
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     api_server: gatling.foxcommerce.com
     self_host: gatling.foxcommerce.com
     ashes_server_name: gatling.foxcommerce.com
@@ -37,16 +39,20 @@
     - { role: dev/messaging }
     - { role: dev/isaac }
     - { role: dev/solomon }
-    - { role: dev/balancer, sudo: yes }
+    - { role: dev/balancer }
     - { role: dev/consumers }
     - { role: dev/seeder }
 
+  handlers:
+    - include: roles/base/consul_agent/handlers/main.yml
+
 - name: Provision Gatling Gun
   hosts: gatling-gun
+  become: true
   tags:
       - gatling
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
 
   roles:
     - { role: test/gatling }
