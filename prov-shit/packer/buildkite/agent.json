@@ -16,6 +16,37 @@
             ],
             "use_internal_ip": true,
             "ssh_username": "{{user `ssh_username`}}"
+        },
+        {
+            "name": "amazon",
+            "type": "amazon-ebs",
+            "source_ami": "{{user `source_ami`}}",
+            "instance_type": "{{user `instance_type`}}",
+            "region": "{{user `region`}}",
+            "ami_name": "base-agent-{{isotime \"060102-150405\"}}",
+            "ami_description": "Base BuildKite Agent Image",
+            "associate_public_ip_address": true,
+            "ssh_username": "{{user `ssh_username`}}",
+            "vpc_id": "{{user `vpc_id`}}",
+            "security_group_id": "{{user `security_group_id`}}",
+            "subnet_id": "{{user `subnet_id`}}",
+            "ami_block_device_mappings": [
+              {
+                "device_name": "/dev/sda1",
+                "volume_size": 40,
+                "delete_on_termination": true
+              }
+            ],
+            "launch_block_device_mappings": [
+              {
+                "device_name": "/dev/sda1",
+                "volume_size": 40,
+                "delete_on_termination": true
+              }
+            ],
+            "tags": {
+                "Name": "base-agent-{{isotime \"060102-150405\"}}"
+            }
         }
     ],
     "provisioners": [

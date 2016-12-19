@@ -1,15 +1,12 @@
 ---
 
 - name: Download Lein Installer
-  command: wget {{lein_installer_url}}
-
-- name: Make Installer Executable
-  command: chown +x lein
-
-- name: Copy to Binaries Directory
-  command: mv lein /usr/local/bin
+  get_url:
+    url: "{{ lein_installer_url }}"
+    dest: /usr/local/bin
+    mode: u+rwx
   sudo: yes
 
-- name: Trigger Installation Process
-  command: lein -v
-  sudo: yes
+#- name: Trigger Installation Process
+  #command: lein -v
+  #sudo: yes
