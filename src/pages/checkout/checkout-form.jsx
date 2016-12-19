@@ -38,17 +38,25 @@ class CheckoutForm extends Component {
     return this.props.buttonLabel || 'Continue';
   }
 
-  render() {
+  get header() {
     const { props } = this;
-    return (
-      <Form onSubmit={props.submit}>
-        <div styleName="form-header">
+
+    if (props.title || props.action) {
+      return (
+        <div styleName="form-header" key="header">
           <legend styleName="legend">{props.title}</legend>
           {this.actionLink}
         </div>
+      );
+    }
+  }
 
+  render() {
+    const { props } = this;
+    return (
+      <Form onSubmit={props.submit} styleName="root">
+        {this.header}
         {props.children}
-
         <ErrorAlerts error={props.error} />
         <div styleName="button-wrap">
           <Button styleName="checkout-submit" type="submit" isLoading={props.inProgress}>{this.buttonLabel}</Button>
