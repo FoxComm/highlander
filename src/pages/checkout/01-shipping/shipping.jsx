@@ -10,6 +10,8 @@ import EditableBlock from 'ui/editable-block';
 import { AddressDetails } from 'ui/address';
 import AddressList from './address-list';
 
+import { isGuest } from 'paragons/auth';
+
 // styles
 import styles from './shipping.css';
 
@@ -37,6 +39,10 @@ class Shipping extends Component {
     if (nextProps.auth !== this.props.auth) {
       this.props.fetchAddresses();
     }
+  }
+
+  isGuestMode(): boolean {
+    return isGuest(this.props.auth);
   }
 
   content() {
