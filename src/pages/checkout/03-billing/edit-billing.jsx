@@ -330,22 +330,8 @@ class EditBilling extends Component {
     );
   }
 
-  renderGiftCard() {
-    const { giftCards } = this.props;
-    const giftCard = _.find(giftCards, { type: 'giftCard' });
-
-    return (
-      <PromoCode
-        buttonLabel="Redeem"
-        giftCard={giftCard}
-        saveCode={this.props.saveGiftCard}
-        removeCode={this.props.removeGiftCard}
-      />
-    );
-  }
-
   render() {
-    const { inProgress, t } = this.props;
+    const { inProgress, t, giftCards } = this.props;
 
     if (this.state.addingNew) {
       const action = {
@@ -385,18 +371,27 @@ class EditBilling extends Component {
           <button onClick={this.addNew} type="button" styleName="add-card-button">Add Card</button>
         </fieldset>
 
-        <Accordion title="PROMO CODE?">
+        <Accordion title="COUPON CODE?">
           <PromoCode
+            placeholder="Coupon Code"
             coupon={this.props.coupon}
             promotion={this.props.promotion}
             discountValue={this.props.totals.adjustments}
             saveCode={this.props.saveCouponCode}
             removeCode={this.props.removeCouponCode}
+            context="billingEdit"
           />
         </Accordion>
 
         <Accordion title="GIFT CARD?">
-          { this.renderGiftCard() }
+          <PromoCode
+            placeholder="Gift Card Number"
+            buttonLabel="Redeem"
+            giftCards={giftCards}
+            saveCode={this.props.saveGiftCard}
+            removeCode={this.props.removeGiftCard}
+            context="billingEdit"
+          />
         </Accordion>
 
       </CheckoutForm>
@@ -411,4 +406,10 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { ...checkoutActions, ...cartActions })(localized(EditBilling));
+export default connect(
+  mapStateToProps,
+  {
+    ...checkoutActions,
+    ...cartActions,
+  }
+)(localized(EditBilling));

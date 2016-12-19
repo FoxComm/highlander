@@ -57,14 +57,22 @@ class OrderSummary extends Component {
     isCollapsed: this.props.isCollapsed,
   };
 
+  get giftCards() {
+    return _.filter(this.props.paymentMethods, {type: 'giftCard'});
+  }
+
   renderGiftCard(amount) {
     const { t } = this.props;
+
+    if (!amount) {
+      return null;
+    }
 
     return (
       <li>
         <TermValueLine>
           <span>{t('GIFT CARD')}</span>
-          <span>- &nbsp;<Currency value={amount} /></span>
+          <Currency prefix="– " value={amount} />
         </TermValueLine>
       </li>
     );
@@ -77,7 +85,7 @@ class OrderSummary extends Component {
       <li>
         <TermValueLine>
           <span>{t('PROMO CODE')}</span>
-          <span>- &nbsp;<Currency value={amount} /></span>
+          <Currency prefix="– " value={amount} />
         </TermValueLine>
       </li>
     );
@@ -93,16 +101,17 @@ class OrderSummary extends Component {
   render() {
     const props = this.props;
     const { t } = props;
-
-    const giftCardPresent = _.some(props.paymentMethods, {type: 'giftCard'});
-    const giftCardAmount = _.get(_.find(props.paymentMethods, {type: 'giftCard'}), 'amount', 0);
-    const giftCardBlock = giftCardPresent ? this.renderGiftCard(giftCardAmount) : null;
+    const giftCardAmount = _.reduce(this.giftCards, (a, card) => {
+      return a + card.amount;
+    }, 0);
 
     const couponAmount = _.get(props, 'totals.adjustments');
     const couponPresent = _.isNumber(couponAmount) && couponAmount > 0;
     const couponBlock = couponPresent ? this.renderCoupon(couponAmount) : null;
 
-    const grandTotal = giftCardPresent ? props.totals.total - giftCardAmount : props.totals.total;
+    // @todo figure out why
+    // const grandTotal = props.totals.total;
+    const grandTotal = props.totals.total - giftCardAmount;
     const grandTotalResult = grandTotal > 0 ? grandTotal : 0;
 
     const style = classNames({
@@ -144,7 +153,7 @@ class OrderSummary extends Component {
                 <Currency value={props.totals.taxes} />
               </TermValueLine>
             </li>
-            {giftCardBlock}
+            {this.renderGiftCard(giftCardAmount)}
             {couponBlock}
           </ul>
           <TermValueLine styleName="grand-total">

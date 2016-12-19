@@ -4,6 +4,7 @@
 .fieldset {
   display: flex;
   flex-wrap: wrap;
+  margin: 0 0 10px;
 
   & :global(.fc-errors) {
     width: 100%;
@@ -24,6 +25,22 @@
   composes: text-input from "ui/css/input.css";
   width: 100%;
   border-right: none;
+  background-color: white;
+  border-color: white;
+
+  &::placeholder {
+    text-transform: uppercase;
+  }
+}
+
+.root.dark .code {
+  background-color: white;
+  border-color: white;
+}
+
+.root.light .code {
+  background-color: #F4F2F2;
+  border-color: #F4F2F2;
 }
 
 .submit {
@@ -47,26 +64,52 @@
   }
 }
 
-.promo-title {
-  text-transform: uppercase;
-}
-
-.promo-description {
+.gift-card {
   display: flex;
   align-items: center;
   color: #212121;
+  padding: 10px 0;
+  border-top: 1px solid var(--border-color);
 }
 
-.promo-description-wrapper {
+.root.billingView .gift-card:first-child {
+  border-top: none;
+}
+
+.gift-card-description {
   flex-grow: 1;
   line-height: 23px;
   font-weight: 300;
 }
 
+.gift-card-title {
+  text-transform: uppercase;
+}
+
+.gift-card-curr {
+  display: block;
+}
+
+.coupon {
+  display: flex;
+  align-items: center;
+  color: #212121;
+  padding: 15px 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.root.billingView .coupon {
+  border-top: none;
+}
+
+.coupon-code {
+  flex-grow: 1;
+}
+
 .delete-promo-btn {
   composes: delete-button from '../../components/cart/line-item.css';
   line-height: 15px;
-  padding-left: 10px;
+  margin-left: 10px;
 }
 
 .delete-promo-icon {
@@ -93,4 +136,8 @@
     font-size: 14px;
     height: 46px;
   }
+}
+
+.error {
+  margin: 8px 0;
 }

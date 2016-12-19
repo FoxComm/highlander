@@ -41,25 +41,33 @@ class Billing extends Component {
   }
 
   get viewBilling() {
-    const giftCard = this.giftCards[0];
     const { coupon, promotion, totals, creditCard } = this.props;
 
     return (
       <div styleName="billing-summary">
         <ViewBilling billingData={creditCard} />
 
-        {giftCard &&
-          <div styleName="promo-line">
-            <PromoCode giftCard={giftCard} allowDelete={false} />
-          </div>}
-
         {coupon &&
           <div styleName="promo-line">
             <PromoCode
+              placeholder="Coupon Code"
               coupon={coupon}
               promotion={promotion}
               discountValue={totals.adjustments}
               allowDelete={false}
+              editable={false}
+              context="billingView"
+            />
+          </div>}
+
+        {this.giftCards &&
+          <div styleName="promo-line">
+            <PromoCode
+              placeholder="Gift Card Number"
+              giftCards={this.giftCards}
+              allowDelete={false}
+              editable={false}
+              context="billingView"
             />
           </div>}
       </div>

@@ -171,16 +171,16 @@ class Cart extends Component {
               {this.lineItems}
             </div>
 
-            <div styleName="coupon">
-              <CouponCode
-                coupon={coupon}
-                promotion={promotion}
-                discountValue={totals.adjustments}
-                saveCode={saveCode}
-                removeCode={removeCode}
-                disabled={checkoutDisabled}
-              />
-            </div>
+            <CouponCode
+              coupon={coupon}
+              promotion={promotion}
+              discountValue={totals.adjustments}
+              saveCode={saveCode}
+              removeCode={removeCode}
+              disabled={checkoutDisabled}
+              placeholder="Coupon Code"
+              theme="dark"
+            />
 
             <div styleName="cart-subtotal">
               <div styleName="subtotal-title">{t('SUBTOTAL')}</div>
