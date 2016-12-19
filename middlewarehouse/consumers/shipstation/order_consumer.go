@@ -22,8 +22,8 @@ type OrderConsumer struct {
 	ssClient      *api.Client
 }
 
-func NewOrderConsumer(phoenixClient phoenix.PhoenixClient, ssClient *api.Client) (*OrderConsumer, error) {
-	return &OrderConsumer{phoenixClient, ssClient}, nil
+func NewOrderConsumer(phoenixClient phoenix.PhoenixClient, ssClient *api.Client) *OrderConsumer {
+	return &OrderConsumer{phoenixClient, ssClient}
 }
 
 func (c OrderConsumer) Handler(message metamorphosis.AvroMessage) error {

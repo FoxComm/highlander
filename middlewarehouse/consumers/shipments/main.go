@@ -35,7 +35,7 @@ func main() {
 	consumer.SetGroupID(groupID)
 	consumer.SetClientID(clientID)
 
-	oh, err := NewOrderHandler(phoenixClient, config.MiddlewarehouseURL)
+	oh, err := NewOrderConsumer(phoenixClient, config.MiddlewarehouseURL)
 	if err != nil {
 		log.Fatalf("Can't create handler for orders with error %s", err.Error())
 	}

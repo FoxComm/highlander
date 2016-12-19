@@ -55,10 +55,7 @@ func main() {
 		log.Fatalf("Unable to connect to Kafka with error %s", err.Error())
 	}
 
-	oh, err := NewOrderConsumer(phoenixClient, shipStationClient)
-	if err != nil {
-		log.Fatalf("Unable to initialize ShipStation order consumer with error %s", err.Error())
-	}
+	oh := NewOrderConsumer(phoenixClient, shipStationClient)
 
 	consumer.RunTopic(config.Topic, oh.Handler)
 }

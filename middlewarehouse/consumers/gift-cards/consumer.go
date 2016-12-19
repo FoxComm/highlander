@@ -24,8 +24,8 @@ type GiftCardConsumer struct {
 }
 
 //NewGiftCardConsumer creates a new consumer for gifcards
-func NewGiftCardConsumer(client phoenix.PhoenixClient) (*GiftCardConsumer, error) {
-	return &GiftCardConsumer{client}, nil
+func NewGiftCardConsumer(client phoenix.PhoenixClient) *GiftCardConsumer {
+	return &GiftCardConsumer{client}
 }
 
 // Handler accepts an Avro encoded message from Kafka and takes

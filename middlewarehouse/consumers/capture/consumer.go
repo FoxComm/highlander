@@ -12,19 +12,19 @@ import (
 
 const activityShipmentShipped = "shipment_shipped"
 
-type ShipmentHandler struct {
+type CaptureConsumer struct {
 	phoenixClient phoenix.PhoenixClient
 }
 
-func NewShipmentHandler(phoenixClient phoenix.PhoenixClient) (*ShipmentHandler, error) {
-	return &ShipmentHandler{phoenixClient}, nil
+func NewCaptureConsumer(phoenixClient phoenix.PhoenixClient) *CaptureConsumer {
+	return &CaptureConsumer{phoenixClient}
 }
 
 // Handler accepts an Avro encoded message from Kafka and takes
 // based on the activities topic and looks for orders that were just placed in
 // fulfillment started. If it finds one, it sends to middlewarehouse to create
 // a shipment. Returning an error will cause a panic.
-func (h ShipmentHandler) Handler(message metamorphosis.AvroMessage) error {
+func (h CaptureConsumer) Handler(message metamorphosis.AvroMessage) error {
 	activity, err := activities.NewActivityFromAvro(message)
 	if err != nil {
 		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
