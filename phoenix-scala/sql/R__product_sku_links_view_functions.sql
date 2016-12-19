@@ -1,33 +1,35 @@
-create or replace function get_variants_for_product(int) returns jsonb as $$
+create or replace function get_skus_for_product(int) returns jsonb as $$
+-- return list of sku codes from variants from product
 declare
-    variants jsonb;
+    skus jsonb;
 begin
     select
-      case when count(sku) = 0
+      case when count(pvariant) = 0
         then
             '[]'::jsonb
         else
-        json_agg(sku.code)::jsonb
-      end into variants
+        json_agg(pvariant.code)::jsonb
+      end into skus
     from product__variant_links as link
     inner join product_variants as pvariant on (pvariant.id = link.right_id)
     where link.left_id = $1;
-  if (variants = '[]'::jsonb) then
+
+  if (skus = '[]'::jsonb) then
     select
-      case when count(sku) = 0
+      case when count(pvariants) = 0
         then
             '[]'::jsonb
         else
-        json_agg(distinct sku.code)::jsonb
-      end into variants
+        json_agg(distinct pvariants.code)::jsonb
+      end into skus
       from product__option_links as polink
         inner join product_option__value_links as vvlink on (polink.right_id = vvlink.left_id)
         inner join product_value__variant_links as vsku_link on (vsku_link.left_id = vvlink.right_id)
-        inner join product_variants as variants on (vsku_link.right_id = variants.id)
+        inner join product_variants as pvariants on (vsku_link.right_id = pvariants.id)
       where polink.left_id = $1;
   end if;
 
-  return variants;
+  return skus;
 
 end;
 $$ language plpgsql;
@@ -36,9 +38,9 @@ $$ language plpgsql;
 create or replace function insert_product_sku_links_view_from_products_fn() returns trigger as $$
 begin
 
-  insert into product_sku_links_view select
+  insert into product__variant_links_view select
     new.id as product_id,
-    get_variants_for_product(new.id) as skus;
+    get_skus_for_product(new.id) as skus;
 
     return null;
 end;
@@ -59,7 +61,7 @@ begin
     when 'product_variants' then
       select array_agg(p.id) into product_ids
       from products as p
-      inner join product_variant_links as link on link.left_id = p.id
+      inner join product__variant_links as link on link.left_id = p.id
       inner join product_variants as sku on (sku.id = link.right_id)
       where sku.id = new.id;
     when 'product_value__variant_links' then
@@ -76,10 +78,10 @@ begin
   end case;
 
   update product__variant_links_view set
-    variants = subquery.variants
+    skus = subquery.skus
     from (select
             p.id,
-            get_variants_for_product(p.id) variants
+            get_skus_for_product(p.id) skus
           from products as p
          where p.id = any(product_ids)
          group by p.id) as subquery

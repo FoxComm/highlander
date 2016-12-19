@@ -13,13 +13,13 @@ begin
       product_ids := array_agg(new.product_id);
     when 'product_album_links_view' then
       product_ids := array_agg(new.product_id);
-    when 'sku_search_view' then
+    when 'inventory_search_view' then
       select array_agg(p.id) into strict product_ids
         from products as p
           inner join object_contexts as context on (p.context_id = context.id)
-          inner join product_sku_links_view as sv on (sv.product_id = p.id) --get list of sku codes for the product
-          inner join sku_search_view as sku on (sku.context_id = context.id and sku.sku_code = sv.skus->>0)
-        where sku.id = new.id;
+          inner join product__variant_links_view as pv on (pv.product_id = p.id) --get list of sku codes for the product
+          inner join inventory_search_view as inv on (inv.context_id = context.id and inv.sku_code = pv.skus->>0)
+        where inv.id = new.id;
   end case;
 
   with temp_table(id, alive, catalog_id) as (
@@ -63,18 +63,18 @@ begin
       context.name as context,
       f.attributes->>(s.attributes->'title'->>'ref') as title,
       f.attributes->>(s.attributes->'description'->>'ref') as description,
-      sku.sale_price as sale_price,
-      sku.sale_price_currency as currency,
+      inv.sale_price as sale_price,
+      inv.sale_price_currency as currency,
       f.attributes->>(s.attributes->'tags'->>'ref') as tags,
       albumLink.albums as albums,
       p.scope as scope,
-      sv.skus as skus
+      pv.skus as skus
       from products as p
         inner join object_contexts as context on (p.context_id = context.id)
         inner join object_forms as f on (f.id = p.form_id)
         inner join object_shadows as s on (s.id = p.shadow_id)
-        inner join product_sku_links_view as sv on (sv.product_id = p.id) --get list of sku codes for the product
-        inner join sku_search_view as sku on (sku.context_id = context.id and sku.sku_code = sv.skus->>0)
+        inner join product__variant_links_view as pv on (pv.product_id = p.id) --get list of sku codes for the product
+        inner join inventory_search_view as inv on (inv.context_id = context.id and inv.sku_code = pv.skus->>0)
         left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
       where p.id = any(insert_ids);
     end if;
@@ -97,8 +97,8 @@ begin
                 context.name as context,
                 f.attributes->>(s.attributes->'title'->>'ref') as title,
                 f.attributes->>(s.attributes->'description'->>'ref') as description,
-                sku.sale_price as sale_price,
-                sku.sale_price_currency as currency,
+                inv.sale_price as sale_price,
+                inv.sale_price_currency as currency,
                 f.attributes->>(s.attributes->'tags'->>'ref') as tags,
                 albumLink.albums as albums,
                 ((p.archived_at is null or (p.archived_at)::timestamp > statement_timestamp()) and
@@ -108,13 +108,14 @@ begin
                     ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp >= statement_timestamp())))
                 as alive,
                 p.scope as scope,
-                sv.skus as skus
+                pv.skus as skus
               from products as p
                 inner join object_contexts as context on (p.context_id = context.id)
                 inner join object_forms as f on (f.id = p.form_id)
                 inner join object_shadows as s on (s.id = p.shadow_id)
-                inner join product_sku_links_view as sv on (sv.product_id = p.id) --get list of sku codes for the product
-                inner join sku_search_view as sku on (sku.context_id = context.id and sku.sku_code = sv.skus->>0)
+                -- get list of sku codes for the product
+                inner join product__variant_links_view as pv on (pv.product_id = p.id)
+                inner join inventory_search_view as inv on (inv.context_id = context.id and inv.sku_code = pv.skus->>0)
                 left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
               where p.id = any(update_ids)
            ) as subquery
