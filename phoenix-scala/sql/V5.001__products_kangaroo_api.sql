@@ -85,3 +85,7 @@ create trigger update_object_schemas_insert
 
 update object_schemas set name = 'variant' where name = 'sku';
 update object_schemas set kind = 'variant' where kind = 'sku';
+
+-- notes
+
+update notes set reference_type = 'variant' where reference_type = 'sku';

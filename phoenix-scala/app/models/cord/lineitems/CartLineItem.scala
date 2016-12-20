@@ -70,10 +70,10 @@ object CartLineItems
   object scope {
     implicit class ExtractLineItems(q: QuerySeq) {
       // Map [SKU code → quantity in cart/order]
-      def countSkus(implicit ec: EC): DBIO[Map[String, Int]] =
+      def countVariants(implicit ec: EC): DBIO[Map[String, Int]] =
         (for {
-          skuLineItems ← q
-          variant      ← skuLineItems.variant
+          cartLineItems ← q
+          variant       ← cartLineItems.variant
         } yield variant.code).result.map(_.foldLeft(Map[String, Int]()) {
           case (acc, skuCode) ⇒
             val quantity = acc.getOrElse(skuCode, 0)

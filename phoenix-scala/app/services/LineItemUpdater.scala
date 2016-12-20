@@ -145,7 +145,7 @@ object LineItemUpdater {
       cart  ← * <~ CartTotaler.saveTotals(cart)
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
-      li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
+      li    ← * <~ CartLineItems.byCordRef(cart.refNum).countVariants
       _     ← * <~ logAct(res, li)
     } yield TheResponse.validated(res, valid)
 

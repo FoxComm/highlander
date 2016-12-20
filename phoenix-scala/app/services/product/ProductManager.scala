@@ -68,16 +68,16 @@ object ProductManager {
                            shadowId = ins.shadow.id,
                            commitId = ins.commit.id))
 
-      albums         ← * <~ findOrCreateAlbumsForProduct(product, albumPayloads)
-      productSkus    ← * <~ findOrCreateVariantsForProduct(product, payload.skus, !hasVariants)
-      variants       ← * <~ findOrCreateVariantsForProduct(product, variantPayloads)
-      variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
+      albums          ← * <~ findOrCreateAlbumsForProduct(product, albumPayloads)
+      productVariants ← * <~ findOrCreateVariantsForProduct(product, payload.skus, !hasVariants)
+      variants        ← * <~ findOrCreateOptionsForProduct(product, variantPayloads)
+      variantAndSkus  ← * <~ getOptionsWithRelatedVariants(variants)
       (variantSkus, variantResponses) = variantAndSkus
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(product)
       response = ProductResponse.build(
           IlluminatedProduct.illuminate(oc, product, ins.form, ins.shadow),
           albums.map(AlbumResponse.build),
-          if (hasVariants) variantSkus else productSkus,
+          if (hasVariants) variantSkus else productVariants,
           variantResponses,
           taxons)
       _ ← * <~ LogActivity
@@ -100,7 +100,7 @@ object ProductManager {
 
       hasVariants = variants.nonEmpty
 
-      variantAndSkus ← * <~ getVariantsWithRelatedSkus(fullVariants)
+      variantAndSkus ← * <~ getOptionsWithRelatedVariants(fullVariants)
       (variantSkus, variantResponses) = variantAndSkus
 
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(oldProduct.model)
@@ -147,10 +147,10 @@ object ProductManager {
                                                         payloadSkus,
                                                         !hasVariants)
 
-      variants ← * <~ updateAssociatedVariants(updatedHead, payload.variants)
+      variants ← * <~ updateAssociatedOptions(updatedHead, payload.variants)
       _        ← * <~ validateUpdate(updatedSkus, variants)
 
-      variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
+      variantAndSkus ← * <~ getOptionsWithRelatedVariants(variants)
       (variantSkus, variantResponses) = variantAndSkus
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(oldProduct.model)
       response = ProductResponse.build(
@@ -211,7 +211,7 @@ object ProductManager {
          }
       updatedVariants ← * <~ ProductOptionLinks.queryRightByLeft(archiveResult)
       variants        ← * <~ updatedVariants.map(ProductOptionManager.zipVariantWithValues)
-      variantAndSkus  ← * <~ getVariantsWithRelatedSkus(variants)
+      variantAndSkus  ← * <~ getOptionsWithRelatedVariants(variants)
       (variantSkus, variantResponses) = variantAndSkus
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(productObject.model)
     } yield
@@ -225,20 +225,19 @@ object ProductManager {
       )
   }
 
-  private def getVariantsWithRelatedSkus(
-      variants: Seq[FullProductOption])(implicit ec: EC, db: DB, oc: OC)
+  private def getOptionsWithRelatedVariants(
+      options: Seq[FullProductOption])(implicit ec: EC, db: DB, oc: OC)
     : DbResultT[(Seq[ProductVariantResponse.Root], Seq[IlluminatedProductOptionResponse.Root])] = {
-    val variantValueIds = variants.flatMap { case (_, variantValue) ⇒ variantValue }
-      .map(_.model.id)
+    val productValueIds = options.flatMap { case (_, variantValue) ⇒ variantValue }.map(_.model.id)
     for {
-      variantValueSkuCodes ← * <~ ProductOptionManager.getProductValueSkuCodes(variantValueIds)
-      variantValueSkuCodesSet = variantValueSkuCodes.values.toSeq.flatten.distinct
-      variantSkus ← * <~ variantValueSkuCodesSet.map(skuCode ⇒
+      productValueSkuCodes ← * <~ ProductOptionManager.getProductValueSkuCodes(productValueIds)
+      productValueSkuCodesSet = productValueSkuCodes.values.toSeq.flatten.distinct
+      variantSkus ← * <~ productValueSkuCodesSet.map(skuCode ⇒
                          ProductVariantManager.getBySkuCode(skuCode))
-      illuminated = variants.map {
-        case (fullVariant, values) ⇒
-          val variant = IlluminatedProductOption.illuminate(oc, fullVariant)
-          IlluminatedProductOptionResponse.buildLite(variant, values, variantValueSkuCodes)
+      illuminated = options.map {
+        case (fullOption, values) ⇒
+          val variant = IlluminatedProductOption.illuminate(oc, fullOption)
+          IlluminatedProductOptionResponse.buildLite(variant, values, productValueSkuCodes)
       }
     } yield (variantSkus, illuminated)
   }
@@ -258,30 +257,30 @@ object ProductManager {
   }
 
   private def validateUpdate(
-      skus: Seq[ProductVariantResponse.Root],
-      variants: Seq[(FullObject[ProductOption], Seq[FullObject[ProductValue]])])
+      variants: Seq[ProductVariantResponse.Root],
+      options: Seq[(FullObject[ProductOption], Seq[FullObject[ProductValue]])])
     : ValidatedNel[Failure, Unit] = {
-    val maxSkus = variants.map { case (_, values) ⇒ values.length.max(1) }.product
+    val maxVariants = options.map { case (_, values) ⇒ values.length.max(1) }.product
 
-    lesserThanOrEqual(skus.length, maxSkus, "number of SKUs for given variants").map {
+    lesserThanOrEqual(variants.length, maxVariants, "number of variants for given options").map {
       case _ ⇒ Unit
     }
   }
 
-  private def updateAssociatedVariants(product: Product,
-                                       variantsPayload: Option[Seq[ProductOptionPayload]])(
+  private def updateAssociatedOptions(product: Product,
+                                      optionsPayload: Option[Seq[ProductOptionPayload]])(
       implicit ec: EC,
       db: DB,
       oc: OC,
       au: AU): DbResultT[Seq[FullProductOption]] =
-    variantsPayload match {
+    optionsPayload match {
       case Some(payloads) ⇒
-        findOrCreateVariantsForProduct(product, payloads)
+        findOrCreateOptionsForProduct(product, payloads)
       case None ⇒
         for {
-          variants     ← * <~ ProductOptionLinks.queryRightByLeft(product)
-          fullVariants ← * <~ variants.map(ProductOptionManager.zipVariantWithValues)
-        } yield fullVariants
+          options     ← * <~ ProductOptionLinks.queryRightByLeft(product)
+          fullOptions ← * <~ options.map(ProductOptionManager.zipVariantWithValues)
+        } yield fullOptions
     }
 
   private def updateAssociatedAlbums(product: Product, albumsPayload: Option[Seq[AlbumPayload]])(
@@ -346,17 +345,17 @@ object ProductManager {
       } yield ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, up), albums)
     }
 
-  private def findOrCreateVariantsForProduct(product: Product, payload: Seq[ProductOptionPayload])(
+  private def findOrCreateOptionsForProduct(product: Product, payload: Seq[ProductOptionPayload])(
       implicit ec: EC,
       db: DB,
       oc: OC,
       au: AU): DbResultT[Seq[FullProductOption]] =
     for {
-      variants ← * <~ payload.map(ProductOptionManager.updateOrCreate(oc, _))
-      _ ← * <~ ProductOptionLinks.syncLinks(product, variants.map {
-           case (variant, values) ⇒ variant.model
+      options ← * <~ payload.map(ProductOptionManager.updateOrCreate(oc, _))
+      _ ← * <~ ProductOptionLinks.syncLinks(product, options.map {
+           case (option, _) ⇒ option.model
          })
-    } yield variants
+    } yield options
 
   private def findOrCreateAlbumsForProduct(product: Product, payload: Seq[AlbumPayload])(
       implicit ec: EC,
@@ -397,7 +396,7 @@ object ProductManager {
   // This is an inefficient intensely quering method that does the trick
   private def skusToBeUnassociatedMustNotBePresentInCarts(
       productId: Int,
-      payloadSkus: Seq[ProductVariantPayload])(implicit ec: EC, db: DB): DbResultT[Unit] =
+      payloadVariants: Seq[ProductVariantPayload])(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
       skuIdsForProduct ← * <~ ProductVariantLinks.filter(_.leftId === productId).result.flatMap {
                           case links @ Seq(_) ⇒
@@ -421,7 +420,7 @@ object ProductManager {
                             .filter(_.id.inSet(skuIdsForProduct))
                             .map(_.code)
                             .result
-      skuCodesFromPayload = payloadSkus
+      skuCodesFromPayload = payloadVariants
         .map(ps ⇒ ProductVariantManager.getSkuCode(ps.attributes))
         .flatten
       skuCodesToBeGone = skuCodesForProduct.diff(skuCodesFromPayload)

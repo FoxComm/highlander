@@ -35,13 +35,13 @@ object LineItemManager {
 
   private def getCartLineItem(cartLineItem: CartLineItem)(implicit ec: EC, db: DB) =
     for {
-      sku     ← * <~ ProductVariantManager.mustFindFullById(cartLineItem.variantId)
-      product ← * <~ getProductForSku(sku.model)
-      image   ← * <~ getLineItemImage(sku.model, product.model)
+      variant ← * <~ ProductVariantManager.mustFindFullById(cartLineItem.variantId)
+      product ← * <~ getProductForVariant(variant.model)
+      image   ← * <~ getLineItemImage(variant.model, product.model)
     } yield
-      CartLineItemProductData(variant = sku.model,
-                              variantForm = sku.form,
-                              variantShadow = sku.shadow,
+      CartLineItemProductData(variant = variant.model,
+                              variantForm = variant.form,
+                              variantShadow = variant.shadow,
                               productForm = product.form,
                               productShadow = product.shadow,
                               image = image,
@@ -50,44 +50,46 @@ object LineItemManager {
 
   private def getOrderLineItem(orderLineItem: OrderLineItem)(implicit ec: EC, db: DB) =
     for {
-      sku ← * <~ ProductVariantManager.mustFindFullByIdAndShadowId(orderLineItem.variantId,
-                                                                   orderLineItem.variantShadowId)
-      product ← * <~ getProductForSku(sku.model)
-      image   ← * <~ getLineItemImage(sku.model, product.model)
+      variant ← * <~ ProductVariantManager.mustFindFullByIdAndShadowId(
+                   orderLineItem.variantId,
+                   orderLineItem.variantShadowId)
+      product ← * <~ getProductForVariant(variant.model)
+      image   ← * <~ getLineItemImage(variant.model, product.model)
     } yield
-      OrderLineItemProductData(variant = sku.model,
-                               variantForm = sku.form,
-                               variantShadow = sku.shadow,
+      OrderLineItemProductData(variant = variant.model,
+                               variantForm = variant.form,
+                               variantShadow = variant.shadow,
                                productForm = product.form,
                                productShadow = product.shadow,
                                image = image,
                                lineItem = orderLineItem,
                                attributes = orderLineItem.attributes)
 
-  private def getProductForSku(sku: ProductVariant)(implicit ec: EC, db: DB) =
+  private def getProductForVariant(variant: ProductVariant)(implicit ec: EC, db: DB) =
     for {
-      productId ← * <~ ProductVariantLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
+      productId ← * <~ ProductVariantLinks.filter(_.rightId === variant.id).one.dbresult.flatMap {
                    case Some(productLink) ⇒
                      DbResultT.good(productLink.leftId)
                    case None ⇒
                      for {
                        valueLink ← * <~ ProductValueVariantLinks
-                                    .filter(_.rightId === sku.id)
-                                    .mustFindOneOr(NoProductFoundForVariant(sku.id))
+                                    .filter(_.rightId === variant.id)
+                                    .mustFindOneOr(NoProductFoundForVariant(variant.id))
                        variantLink ← * <~ ProductOptionValueLinks
                                       .filter(_.rightId === valueLink.leftId)
-                                      .mustFindOneOr(NoProductFoundForVariant(sku.id))
+                                      .mustFindOneOr(NoProductFoundForVariant(variant.id))
                        productLink ← * <~ ProductOptionLinks
                                       .filter(_.rightId === variantLink.leftId)
-                                      .mustFindOneOr(NoProductFoundForVariant(sku.id))
+                                      .mustFindOneOr(NoProductFoundForVariant(variant.id))
                      } yield productLink.leftId
                  }
       product ← * <~ ProductManager.mustFindFullProductById(productId)
     } yield product
 
-  private def getLineItemImage(sku: ProductVariant, product: Product)(implicit ec: EC, db: DB) =
+  private def getLineItemImage(variant: ProductVariant, product: Product)(implicit ec: EC,
+                                                                          db: DB) =
     for {
-      image ← * <~ getLineItemAlbumId(sku, product).flatMap {
+      image ← * <~ getLineItemAlbumId(variant, product).flatMap {
                case Some(albumId) ⇒
                  for {
                    album ← * <~ Albums.mustFindById404(albumId)
@@ -99,9 +101,10 @@ object LineItemManager {
              }
     } yield image
 
-  private def getLineItemAlbumId(sku: ProductVariant, product: Product)(implicit ec: EC, db: DB) =
+  private def getLineItemAlbumId(variant: ProductVariant, product: Product)(implicit ec: EC,
+                                                                            db: DB) =
     for {
-      albumId ← * <~ VariantAlbumLinks.filterLeft(sku).one.dbresult.flatMap {
+      albumId ← * <~ VariantAlbumLinks.filterLeft(variant).one.dbresult.flatMap {
                  case Some(albumLink) ⇒
                    DbResultT.good(albumLink.rightId.some)
                  case None ⇒

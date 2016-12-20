@@ -24,10 +24,10 @@ object ProductOptionManager {
       db: DB,
       au: AU): DbResultT[IlluminatedProductOptionResponse.Root] =
     for {
-      context     ← * <~ ObjectManager.mustFindByName404(contextName)
-      fullVariant ← * <~ createInner(context, payload)
-      (variant, values) = fullVariant
-      variantToSkuMapping = payload.values
+      context           ← * <~ ObjectManager.mustFindByName404(contextName)
+      fullProductOption ← * <~ createInner(context, payload)
+      (productOption, values) = fullProductOption
+      productValueToSkuCodesMapping = payload.values
         .getOrElse(Seq.empty)
         .zip(values)
         .collect {
@@ -37,9 +37,9 @@ object ProductOptionManager {
         .toMap
     } yield
       IlluminatedProductOptionResponse.build(
-          productOption = IlluminatedProductOption.illuminate(context, variant),
+          productOption = IlluminatedProductOption.illuminate(context, productOption),
           productValues = values,
-          productValueVariants = variantToSkuMapping
+          productValueVariants = productValueToSkuCodesMapping
       )
 
   def get(contextName: String, variantId: Int)(
@@ -315,9 +315,9 @@ object ProductOptionManager {
   def mustFindFullWithValuesById(
       id: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[FullProductOption] =
     for {
-      fullVariant ← * <~ ObjectManager.getFullObject(ProductOptions.mustFindById404(id))
-      values      ← * <~ findValuesForOption(fullVariant)
-    } yield (fullVariant, values)
+      fullProductOption ← * <~ ObjectManager.getFullObject(ProductOptions.mustFindById404(id))
+      values            ← * <~ findValuesForOption(fullProductOption)
+    } yield (fullProductOption, values)
 
   def zipVariantWithValues(variant: FullObject[ProductOption])(
       implicit ec: EC,
