@@ -40,8 +40,8 @@ object LineItemManager {
       image   ← * <~ getLineItemImage(sku.model, product.model)
     } yield
       CartLineItemProductData(variant = sku.model,
-                              skuForm = sku.form,
-                              skuShadow = sku.shadow,
+                              variantForm = sku.form,
+                              variantShadow = sku.shadow,
                               productForm = product.form,
                               productShadow = product.shadow,
                               image = image,
@@ -56,8 +56,8 @@ object LineItemManager {
       image   ← * <~ getLineItemImage(sku.model, product.model)
     } yield
       OrderLineItemProductData(variant = sku.model,
-                               skuForm = sku.form,
-                               skuShadow = sku.shadow,
+                               variantForm = sku.form,
+                               variantShadow = sku.shadow,
                                productForm = product.form,
                                productShadow = product.shadow,
                                image = image,

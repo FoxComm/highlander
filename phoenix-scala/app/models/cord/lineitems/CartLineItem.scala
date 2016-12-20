@@ -12,8 +12,8 @@ import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 case class CartLineItemProductData(variant: ProductVariant,
-                                   skuForm: ObjectForm,
-                                   skuShadow: ObjectShadow,
+                                   variantForm: ObjectForm,
+                                   variantShadow: ObjectShadow,
                                    productForm: ObjectForm,
                                    productShadow: ObjectShadow,
                                    image: Option[String],

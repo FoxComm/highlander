@@ -8,7 +8,8 @@ import models.product.Mvp
   */
 trait DiscountBase {
 
-  def price[A](data: LineItemProductData[A]): Int = Mvp.priceAsInt(data.skuForm, data.skuShadow)
+  def price[A](data: LineItemProductData[A]): Int =
+    Mvp.priceAsInt(data.variantForm, data.variantShadow)
 
   def unitsByProducts(lineItems: Seq[LineItemProductData[_]], formIds: Seq[String]): Int =
     lineItems.foldLeft(0) { (sum, data) ⇒

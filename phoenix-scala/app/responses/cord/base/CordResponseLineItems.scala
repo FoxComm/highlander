@@ -150,9 +150,9 @@ object CordResponseLineItems {
     val title = Mvp.title(data.productForm, data.productShadow)
     val image = data.image.getOrElse(NO_IMAGE)
 
-    val price          = Mvp.priceAsInt(data.skuForm, data.skuShadow)
-    val externalId     = Mvp.externalId(data.skuForm, data.skuShadow)
-    val trackInventory = Mvp.trackInventory(data.skuForm, data.skuShadow)
+    val price          = Mvp.priceAsInt(data.variantForm, data.variantShadow)
+    val externalId     = Mvp.externalId(data.variantForm, data.variantShadow)
+    val trackInventory = Mvp.trackInventory(data.variantForm, data.variantShadow)
 
     CordResponseLineItem(imagePath = image,
                          sku = data.variant.code,

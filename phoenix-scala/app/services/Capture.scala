@@ -284,7 +284,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
     })
 
   private def getPrice(item: OrderLineItemProductData): DbResultT[LineItemPrice] =
-    Mvp.price(item.skuForm, item.skuShadow) match {
+    Mvp.price(item.variantForm, item.variantShadow) match {
       case Some((price, currency)) ⇒
         DbResultT.pure(
             LineItemPrice(item.lineItem.referenceNumber, item.variant.code, price, currency))

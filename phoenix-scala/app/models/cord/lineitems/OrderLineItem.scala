@@ -20,8 +20,8 @@ import utils.db._
 
 trait LineItemProductData[LI] {
   def variant: ProductVariant
-  def skuForm: ObjectForm
-  def skuShadow: ObjectShadow
+  def variantForm: ObjectForm
+  def variantShadow: ObjectShadow
   def productForm: ObjectForm
   def productShadow: ObjectShadow
   def image: Option[String]
@@ -33,8 +33,8 @@ trait LineItemProductData[LI] {
 }
 
 case class OrderLineItemProductData(variant: ProductVariant,
-                                    skuForm: ObjectForm,
-                                    skuShadow: ObjectShadow,
+                                    variantForm: ObjectForm,
+                                    variantShadow: ObjectShadow,
                                     productForm: ObjectForm,
                                     productShadow: ObjectShadow,
                                     image: Option[String],
@@ -142,7 +142,7 @@ object OrderLineItems
 
   object scope {
     implicit class OrderLineItemQuerySeqConversions(q: QuerySeq) {
-      def withSkus: Query[(OrderLineItems, ProductVariants), (OrderLineItem, ProductVariant), Seq] =
+      def withVariants: Query[(OrderLineItems, ProductVariants), (OrderLineItem, ProductVariant), Seq] =
         for {
           items    ← q
           variants ← items.variant
