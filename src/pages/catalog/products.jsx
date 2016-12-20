@@ -11,7 +11,7 @@ import * as actions from 'modules/products';
 
 // components
 import ProductsList from '../../components/products-list/products-list';
-import Select from 'ui/select/select';
+import ProductTypeSelector from 'ui/product-type-selector';
 
 // styles
 import styles from './products.css';
@@ -53,7 +53,7 @@ const productTypes = [
   'All',
   'Poultry',
   'Seafood',
-  'Beef',
+  'Meat',
   'Vegetarian',
 ];
 
@@ -127,27 +127,31 @@ class Products extends Component {
     );
   }
 
-  render(): HTMLElement {
-    const { productType } = this.props.params;
+  get navBar() {
+    const { categoryName, productType } = this.props.params;
 
     const type = (productType && !_.isEmpty(productType))
       ? _.capitalize(productType)
       : productTypes[0];
 
+    if (categoryName == 'ENTRÉES') {
+      return (
+        <ProductTypeSelector
+          items={productTypes}
+          activeItem={type}
+          onItemClick={this.onDropDownItemClick}
+        />
+      );
+    }
+    return null;
+  }
+
+  render(): HTMLElement {
     return (
       <section styleName="catalog">
         {this.renderHeader()}
-        <div styleName="product-type-select">
-          <Select
-            inputProps={{
-              type: 'text',
-            }}
-            getItemValue={item => item}
-            items={productTypes}
-            onSelect={this.onDropDownItemClick}
-            selectedItem={type}
-            sortItems={false}
-          />
+        <div styleName="dropDown">
+          {this.navBar}
         </div>
         <ProductsList
           list={this.props.list}
