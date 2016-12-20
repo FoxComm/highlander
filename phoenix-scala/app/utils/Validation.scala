@@ -2,14 +2,14 @@ package utils
 
 import java.time.LocalDateTime
 
+import scala.util.matching.Regex
+
 import cats.data.Validated.{Invalid, Valid, invalidNel, valid}
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import com.wix.accord
 import com.wix.accord.RuleViolation
 import com.wix.accord.combinators._
 import failures.{Failure, GeneralFailure}
-
-import scala.util.matching.Regex
 
 trait Validation[M] {
   def validate: ValidatedNel[Failure, M]
@@ -43,6 +43,9 @@ object Validation {
       notEmpty(s, constraint)
     }
   }
+
+  def emailish(maybeEmail: String, fieldName: String): ValidatedNel[Failure, Unit] =
+    validExpr(maybeEmail.contains('@'), s"$fieldName must be an email")
 
   def notExpired(expYear: Int, expMonth: Int, message: String): ValidatedNel[Failure, Unit] = {
     val today = LocalDateTime.now()

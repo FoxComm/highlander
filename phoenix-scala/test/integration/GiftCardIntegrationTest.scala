@@ -1,6 +1,8 @@
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures.GiftCardFailures.GiftCardConvertFailure
+import failures.ScopeFailures._
 import failures._
 import models.Reason
 import models.account._
@@ -79,11 +81,41 @@ class GiftCardIntegrationTest
           .create(GiftCardCreateByCsr(balance = 555, reasonId = 999))
           .mustFailWith400(NotFoundFailure404(Reason, 999))
       }
+
+      "overrides scope" in new Reason_Baked {
+        val gc1Code =
+          giftCardsApi.create(GiftCardCreateByCsr(balance = 100, reason.id)).as[GcRoot].code
+
+        GiftCards.mustFindByCode(gc1Code).gimme.scope must === (LTree("1"))
+
+        val gc2Code = giftCardsApi
+          .create(GiftCardCreateByCsr(balance = 100, reasonId = reason.id, scope = "1.2".some))
+          .as[GcRoot]
+          .code
+
+        GiftCards.mustFindByCode(gc2Code).gimme.scope must === (LTree("1.2"))
+      }
+
+      "refuses to override empty scope" in new Reason_Baked {
+        giftCardsApi
+          .create(GiftCardCreateByCsr(balance = 100, reasonId = reason.id, scope = "".some))
+          .mustFailWithMessage("scope must not be empty")
+      }
+
+      "refuses to override invalid scope" in new Reason_Baked {
+        giftCardsApi
+          .create(GiftCardCreateByCsr(balance = 100, reasonId = reason.id, scope = "2".some))
+          .mustFailWith400(InvalidSubscope("1", "2"))
+
+        giftCardsApi
+          .create(GiftCardCreateByCsr(balance = 100, reasonId = reason.id, scope = "2.2".some))
+          .mustFailWith400(InvalidSubscope("1", "2.2"))
+      }
     }
 
     "POST /v1/customer-gift-cards" - {
       "successfully creates gift card as a custumer from payload" in new Reason_Baked {
-        val cordInsert = Carts.create(Factories.cart).gimme
+        val cordInsert = Carts.create(Factories.cart(LTree("1"))).gimme
         val attributes = Some(parse("""{"attributes":{"giftCard":{"senderName":"senderName",
                  "recipientName":"recipientName",
                  "recipientEmail":"example@example.com"}}}""".stripMargin))
@@ -104,7 +136,7 @@ class GiftCardIntegrationTest
       }
 
       "successfully creates gift cards  as a custumer from payload" in new Reason_Baked {
-        val cordInsert = Carts.create(Factories.cart).gimme
+        val cordInsert = Carts.create(Factories.cart(LTree("1"))).gimme
         val attributes = Some(
             parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
         val root = giftCardsApi

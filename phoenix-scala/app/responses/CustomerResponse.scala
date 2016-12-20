@@ -6,6 +6,7 @@ import models.account._
 import models.customer.CustomerRank
 import models.customer.CustomerData
 import models.location.Region
+import responses.StoreCreditResponse.Totals
 
 object CustomerResponse {
   case class Root(id: Int = 0,
@@ -18,6 +19,7 @@ object CustomerResponse {
                   isBlacklisted: Boolean,
                   rank: Option[Int] = None,
                   totalSales: Int = 0,
+                  storeCreditTotals: Totals,
                   numOrders: Option[Int] = None,
                   billingRegion: Option[Region] = None,
                   shippingRegion: Option[Region] = None,
@@ -30,7 +32,8 @@ object CustomerResponse {
             billingRegion: Option[Region] = None,
             numOrders: Option[Int] = None,
             rank: Option[CustomerRank] = None,
-            lastOrderDays: Option[Long] = None): Root = {
+            lastOrderDays: Option[Long] = None,
+            scTotals: Option[Totals] = None): Root = {
 
     require(customerData.userId == customer.id)
     require(customerData.accountId == customer.accountId)
@@ -46,6 +49,7 @@ object CustomerResponse {
          rank = rank.flatMap(_.rank),
          totalSales = rank.map(_.revenue).getOrElse(0),
          numOrders = numOrders,
+         storeCreditTotals = scTotals.getOrElse(Totals(0, 0)),
          billingRegion = billingRegion,
          shippingRegion = shippingRegion,
          lastOrderDays = lastOrderDays)

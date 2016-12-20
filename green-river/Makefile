@@ -14,6 +14,7 @@ clean:
 
 test:
 	$(call header, Testing)
+	sbt scalafmtTest
 	sbt test
 
 docker:

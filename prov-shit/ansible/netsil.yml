@@ -15,4 +15,3 @@
       private: no
   roles:
     - { role: dev/netsil-collector }
-    

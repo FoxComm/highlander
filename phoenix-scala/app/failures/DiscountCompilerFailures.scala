@@ -58,6 +58,11 @@ object DiscountCompilerFailures {
     override def description = s"qualifier $qualifier is not valid"
   }
 
+  case class QualifierSearchIsEmpty(qualifierType: QualifierType) extends Failure {
+    override def description =
+      s"failed to compile qualifier ${show(qualifierType)}, search attribute is missing"
+  }
+
   /* Offer Compiler */
   case class OfferAttributesExtractionFailure(offerType: OfferType) extends Failure {
     override def description =
@@ -66,6 +71,11 @@ object DiscountCompilerFailures {
 
   case class OfferNotImplementedFailure(offerType: OfferType) extends Failure {
     override def description = s"offer not implemented for offer type ${OfferType.show(offerType)}"
+  }
+
+  case class OfferSearchIsEmpty(offerType: OfferType) extends Failure {
+    override def description =
+      s"failed to compile offer ${OfferType.show(offerType)}, search attribute is missing"
   }
 
   /* Rejections */

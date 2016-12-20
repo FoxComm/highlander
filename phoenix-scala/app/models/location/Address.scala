@@ -65,13 +65,13 @@ object Address {
 
   def fromCreditCard(cc: CreditCard): Address =
     Address(accountId = 0,
-            regionId = cc.regionId,
-            name = cc.addressName,
-            address1 = cc.address1,
-            address2 = cc.address2,
-            city = cc.city,
-            zip = cc.zip,
-            phoneNumber = cc.phoneNumber)
+            regionId = cc.address.regionId,
+            name = cc.address.name,
+            address1 = cc.address.address1,
+            address2 = cc.address.address2,
+            city = cc.address.city,
+            zip = cc.address.zip,
+            phoneNumber = cc.address.phoneNumber)
 }
 
 class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {

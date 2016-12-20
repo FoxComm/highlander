@@ -19,28 +19,28 @@
     - lua-cjson
     - lua-cjson-dev
     - nginx-extras
-  sudo: true
+  
 
 - name: Assign User to Group www-data
   user: name={{user}} groups=www-data
-  sudo: true
+  
 
 - name: Give Access to Gatling Target Directory
   file: path={{gatling_install_dir}}/target state=directory mode="u=rwx,g=rwx,o=rwx"
-  sudo: true
+  
 
 - name: Setup Symlink to Gatling Results
   file: src={{gatling_install_dir}}/target/gatling dest=/var/www/gatling state=link force=yes
-  sudo: true
+  
 
 - name: Install Default Hosts
   template: src=default.j2 dest=/etc/nginx/sites-available/default
-  sudo: true
+  
 
 - name: Reload Systemd for Nginx
-  sudo: yes
+  
   command: systemctl daemon-reload
 
 - name: Restart Nginx
   service: name=nginx state=reloaded
-  sudo: yes
+  

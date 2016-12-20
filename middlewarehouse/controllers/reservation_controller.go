@@ -26,14 +26,19 @@ func NewReservationController(service services.IInventoryService) IController {
 }
 
 func (controller *reservationController) SetUp(router gin.IRouter) {
+	router.Use(FetchJWT)
 	router.POST("hold", controller.Hold())
 	router.DELETE("hold/:refNum", controller.Unhold())
 }
 
 func (controller *reservationController) Hold() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		var payload payloads.Reservation
-		if parse(context, &payload) != nil {
+		payload := &payloads.Reservation{}
+		if parse(context, payload) != nil {
+			return
+		}
+
+		if !setScope(context, payload) {
 			return
 		}
 

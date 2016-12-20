@@ -126,7 +126,7 @@ object CartPaymentUpdater {
       cc     ← * <~ CreditCards.mustFindById400(id)
       _      ← * <~ cc.mustBelongToAccount(cart.accountId)
       _      ← * <~ cc.mustBeInWallet
-      region ← * <~ Regions.findOneById(cc.regionId).safeGet
+      region ← * <~ Regions.findOneById(cc.address.regionId).safeGet
       _      ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).creditCards.delete
       _ ← * <~ OrderPayments.create(
              OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = None))

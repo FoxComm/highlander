@@ -2,25 +2,30 @@
 
 - name: Provision Top Drawer Test Backend
   hosts: top-drawer-test-backend
+  become: true
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     upload_phoenix_jar: true
-    upload_greenriver_jar: true
+    download_flyway: false
   tags:
     - backend
   roles:
-    - { role: dev/kafka }
-    - { role: dev/elasticsearch }
-    - { role: dev/db }
-    - { role: dev/db_phoenix }
+    - { role: dev/stage_mesos, when: first_run }
+    - { role: dev/kafka, when: first_run }
+    - { role: dev/elasticsearch, when: first_run }
+    - { role: dev/db, when: first_run }
+    - { role: dev/db_phoenix, when: first_run }
+    - { role: prod/migrate_phoenix_db }
+    - { role: prod/migrate_middlewarehouse_db }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Top Drawer Test Frontend
   hosts: top-drawer-test-frontend
+  become: true
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     api_server: test-topdrawer.foxcommerce.com
     self_host: test-topdrawer.foxcommerce.com
     ashes_server_name: test-topdrawer.foxcommerce.com
@@ -32,7 +37,8 @@
   tags:
     - frontend
   roles:
-    - { role: base/ssh_keys }
+    - { role: dev/stage_mesos, when: first_run }
+    - { role: base/ssh_keys, when: first_run }
     - { role: dev/phoenix }
     - { role: dev/greenriver }
     - { role: dev/ashes }
@@ -41,6 +47,10 @@
     - { role: dev/messaging }
     - { role: dev/isaac }
     - { role: dev/solomon }
-    - { role: dev/balancer, sudo: yes }
+    - { role: dev/balancer }
+    - { role: demo/balancer }
     - { role: dev/consumers }
-    - { role: dev/seeder }
+    - { role: dev/seeder, when: first_run }
+
+  handlers:
+    - include: roles/base/consul_agent/handlers/main.yml

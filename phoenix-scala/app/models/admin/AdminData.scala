@@ -4,22 +4,23 @@ import java.time.Instant
 
 import cats.data.ValidatedNel
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import failures.Failure
 import failures.UserFailures._
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Passwords.hashPassword
 import utils.aliases._
 import utils.db._
 import utils.{ADT, FSM, Validation}
-
 import models.admin.AdminData._
 
 case class AdminData(id: Int = 0,
                      userId: Int,
+                     scope: LTree,
                      accountId: Int,
                      state: State = Inactive,
                      createdAt: Instant = Instant.now,
@@ -63,6 +64,7 @@ object AdminData {
 class AdminsData(tag: Tag) extends FoxTable[AdminData](tag, "admin_data") {
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def userId    = column[Int]("user_id")
+  def scope     = column[LTree]("scope")
   def accountId = column[Int]("account_id")
   def state     = column[AdminData.State]("state")
   def createdAt = column[Instant]("created_at")
@@ -70,7 +72,7 @@ class AdminsData(tag: Tag) extends FoxTable[AdminData](tag, "admin_data") {
   def deletedAt = column[Option[Instant]]("deleted_at")
 
   def * =
-    (id, userId, accountId, state, createdAt, updatedAt, deletedAt) <> ((AdminData.apply _).tupled, AdminData.unapply)
+    (id, userId, scope, accountId, state, createdAt, updatedAt, deletedAt) <> ((AdminData.apply _).tupled, AdminData.unapply)
 }
 
 object AdminsData

@@ -1,6 +1,6 @@
 # Highlander
 
-[![Build status](https://badge.buildkite.com/dac897cf8947d04db75c127e62971ac46e1d2211398a302568.svg)](https://buildkite.com/foxcommerce/highlander)
+[![Build status](https://badge.buildkite.com/9194ecb4f86c089e8962db23843a00662dac85e98418697dd4.svg)](https://buildkite.com/foxcommerce/developer-appliance-gce)
 
 Highlander is the brand-spanking-new FoxCommerce mono-repo.
 
@@ -14,7 +14,7 @@ has a lot to do!
 ### Install Prerequisites
 
 - Install [Vagrant](https://www.vagrantup.com)
-- Install [Ansible 1.9.x](http://docs.ansible.com/ansible/intro_installation.html#installation)
+- Install [Ansible 2.2.x](http://docs.ansible.com/ansible/intro_installation.html#installation)
 
 ### Build the Application
 
@@ -93,7 +93,7 @@ Once downloaded, set the location.
 
 Then run
 
-    $ vagrant up --provider=google
+    $ make up
 
 Test machines are created without a public facing IP address, so you'll need to use the VPN to access it.
 

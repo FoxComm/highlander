@@ -100,10 +100,11 @@ object SkuManager {
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
-      code ← * <~ mustGetSkuCode(payload)
-      ins  ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
+      scope ← * <~ Scope.resolveOverride(payload.scope)
+      code  ← * <~ mustGetSkuCode(payload)
+      ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       sku ← * <~ Skus.create(
-               Sku(scope = LTree(au.token.scope),
+               Sku(scope = scope,
                    contextId = context.id,
                    code = code,
                    formId = ins.form.id,

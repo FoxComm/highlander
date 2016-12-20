@@ -1,7 +1,6 @@
 package utils.seeds.generators
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.github.tminglei.slickpg.LTree
 
 import scala.io.Source
 import scala.util.Random

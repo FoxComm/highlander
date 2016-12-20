@@ -1,8 +1,8 @@
 package models.discount.qualifiers
 
 import cats.data.Xor
-import failures._
 import failures.DiscountFailures._
+import failures._
 import models.discount._
 import services.Result
 import utils.ElasticsearchApi._
@@ -10,11 +10,12 @@ import utils.aliases._
 
 case class ItemsTotalAmountQualifier(totalAmount: Int, search: Seq[ProductSearch])
     extends Qualifier
-    with ItemsQualifier {
+    with ItemsQualifier
+    with NonEmptySearch {
 
   val qualifierType: QualifierType = ItemsTotalAmount
 
-  def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[Unit] =
+  def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): Result[Unit] =
     checkInner(input)(search)
 
   def matchXor(input: DiscountInput)(xor: Failures Xor Buckets): Failures Xor Unit = xor match {

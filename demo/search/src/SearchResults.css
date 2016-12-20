@@ -1,0 +1,9 @@
+.search-results {
+  display: flex;
+  max-width: 1000px;
+  flex-wrap: wrap;
+  margin: 0 auto;
+  justify-content: space-around; 
+
+  padding: 40px 0;
+}

@@ -1,0 +1,14 @@
+sinopia_base_dir: /sinopia
+sinopia_storage_dir: "{{sinopia_base_dir}}/storage"
+sinopia_htpasswd_file: "{{sinopia_base_dir}}/.htpasswd"
+sinopia_webui_title: Sinopia
+sinopia_webui_logo: "{{sinopia_base_dir}}/logo.png"
+sinopia_max_users: 1000
+sinopia_host: 0.0.0.0
+sinopia_npmjs_url: https://registry.npmjs.org
+sinopia_yarnjs_url: https://registry.yarnpkg.com
+sinopia_uplink_timeout: 30s
+sinopia_uplink_maxage: 2m
+sinopia_uplink_max_fails: 3
+sinopia_uplink_fail_timeout: 5m
+sinopia_max_body_size: 1mb
