@@ -73,8 +73,8 @@ class VariantIntegrationTest
   "PATCH v1/variants/:context/:id" - {
     "Updates the name of the productOption successfully" in new VariantFixture {
       val payload = ProductOptionPayload(values = None,
-                                   attributes =
-                                     Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
+                                         attributes =
+                                           Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
       val response = variantsApi(variant.variant.variantFormId).update(payload).as[VariantRoot]
       response.values.length must === (2)
 
@@ -85,13 +85,14 @@ class VariantIntegrationTest
 
     "Fails when trying to attach archived SKU to the productOption" in new ArchivedSkusFixture {
       var payload = ProductOptionPayload(values = Some(Seq(archivedSkuVariantValuePayload)),
-                                   attributes =
-                                     Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
+                                         attributes =
+                                           Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
 
       variantsApi(variant.variant.variantFormId)
         .update(payload)
-        .mustFailWith400(
-            LinkArchivedVariantFailure(ProductOption, variant.variant.variantFormId, archivedSkuCode))
+        .mustFailWith400(LinkArchivedVariantFailure(ProductOption,
+                                                    variant.variant.variantFormId,
+                                                    archivedSkuCode))
     }
   }
 
@@ -111,21 +112,22 @@ class VariantIntegrationTest
 
       variantsApi(variantResponse.id)
         .createValues(archivedSkuVariantValuePayload)
-        .mustFailWith400(LinkArchivedVariantFailure(ProductOption, variantResponse.id, archivedSkuCode))
+        .mustFailWith400(
+            LinkArchivedVariantFailure(ProductOption, variantResponse.id, archivedSkuCode))
     }
   }
 
   trait Fixture extends StoreAdmin_Seed {
     val scope = Scope.current
 
-    val createVariantPayload = ProductOptionPayload(attributes =
-                                                Map("name" → (("t" → "string") ~ ("v" → "Color"))),
-                                              values = None)
+    val createVariantPayload = ProductOptionPayload(
+        attributes = Map("name" → (("t" → "string") ~ ("v" → "Color"))),
+        values = None)
 
-    val testSkus = Seq(SimpleSku("SKU-TST", "SKU test", 1000, Currency.USD, active = true),
-                       SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, active = true))
+    val testSkus = Seq(SimpleVariant("SKU-TST", "SKU test", 1000, Currency.USD, active = true),
+                       SimpleVariant("SKU-TS2", "SKU test 2", 1000, Currency.USD, active = true))
 
-    val skus = Mvp.insertSkus(scope, ctx.id, testSkus).gimme
+    val skus = Mvp.insertVariants(scope, ctx.id, testSkus).gimme
 
     val createVariantValuePayload = ProductValuePayload(name = Some("Red"),
                                                         swatch = Some("ff0000"),
@@ -139,10 +141,10 @@ class VariantIntegrationTest
                                        image = "image.png",
                                        price = 5999)
 
-    val simpleSizeVariant = SimpleCompleteVariant(
-        variant = SimpleVariant("Size"),
-        variantValues = Seq(SimpleVariantValue("Small", "", Seq(skus.head.code)),
-                            SimpleVariantValue("Large", "", Seq(skus(1).code))))
+    val simpleSizeVariant = SimpleCompleteOption(
+        option = SimpleProductOption("Size"),
+        productValues = Seq(SimpleProductValue("Small", "", Seq(skus.head.code)),
+                            SimpleProductValue("Large", "", Seq(skus(1).code))))
 
     val (product, variant) = (for {
       productData ← * <~ Mvp.insertProduct(ctx.id, simpleProd)

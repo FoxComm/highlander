@@ -293,8 +293,8 @@ class ImageIntegrationTest
 
     "POST v1/skus/:context/:id/albums" - {
       "Creates a new album on an existing SKU" in new ProductFixture {
-        val payload =
-          AlbumPayload(name = Some("ProductVariant Album"), images = Seq(ImagePayload(src = "url")).some)
+        val payload = AlbumPayload(name = Some("ProductVariant Album"),
+                                   images = Seq(ImagePayload(src = "url")).some)
         val albumResponse = skusApi(sku.code).albums.create(payload).as[AlbumRoot]
 
         albumResponse.name must === ("ProductVariant Album")
@@ -435,7 +435,7 @@ class ImageIntegrationTest
 
   trait ProductFixture extends Fixture {
     val (product, prodForm, prodShadow, sku, skuForm, skuShadow) = (for {
-      simpleSku  ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
+      simpleSku  ← * <~ SimpleVariant("SKU-TEST", "Test SKU", 9999, Currency.USD)
       skuForm    ← * <~ ObjectForms.create(simpleSku.create)
       sSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuShadow  ← * <~ ObjectShadows.create(sSkuShadow.create.copy(formId = skuForm.id))
@@ -443,11 +443,11 @@ class ImageIntegrationTest
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
       sku ← * <~ ProductVariants.create(
                ProductVariant(scope = Scope.current,
-                   contextId = ctx.id,
-                   formId = skuForm.id,
-                   shadowId = skuShadow.id,
-                   commitId = skuCommit.id,
-                   code = "SKU-TEST"))
+                              contextId = ctx.id,
+                              formId = skuForm.id,
+                              shadowId = skuShadow.id,
+                              commitId = skuCommit.id,
+                              code = "SKU-TEST"))
       _ ← * <~ VariantAlbumLinks.create(VariantAlbumLink(leftId = sku.id, rightId = album.id))
 
       simpleProd ← * <~ SimpleProduct(title = "Test Product",
@@ -465,7 +465,8 @@ class ImageIntegrationTest
                            commitId = prodCommit.id))
 
       _ ← * <~ ProductAlbumLinks.create(ProductAlbumLink(leftId = product.id, rightId = album.id))
-      _ ← * <~ ProductVariantLinks.create(ProductVariantLink(leftId = product.id, rightId = sku.id))
+      _ ← * <~ ProductVariantLinks.create(
+             ProductVariantLink(leftId = product.id, rightId = sku.id))
     } yield (product, prodForm, prodShadow, sku, skuForm, skuShadow)).gimme
   }
 

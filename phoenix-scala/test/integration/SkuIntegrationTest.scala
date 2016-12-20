@@ -90,8 +90,9 @@ class SkuIntegrationTest
 
   "PATCH v1/skus/:context/:code" - {
     "Adds a new attribute to the SKU" in new Fixture {
-      val payload =
-        ProductVariantPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))), albums = None)
+      val payload = ProductVariantPayload(attributes =
+                                            Map("name" → (("t" → "string") ~ ("v" → "Test"))),
+                                          albums = None)
       val skuResponse = skusApi(sku.code).update(payload).as[ProductVariantResponse.Root]
 
       (skuResponse.attributes \ "code" \ "v").extract[String] must === (sku.code)
@@ -100,8 +101,9 @@ class SkuIntegrationTest
     }
 
     "Updates the SKU's code" in new Fixture {
-      val payload =
-        ProductVariantPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))), albums = None)
+      val payload = ProductVariantPayload(attributes =
+                                            Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))),
+                                          albums = None)
       skusApi(sku.code).update(payload).mustBeOk()
 
       val skuResponse = skusApi("upcode").get().as[ProductVariantResponse.Root]
@@ -171,7 +173,7 @@ class SkuIntegrationTest
     }
 
     val (sku, skuForm, skuShadow) = (for {
-      simpleSku       ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
+      simpleSku       ← * <~ SimpleVariant("SKU-TEST", "Test SKU", 9999, Currency.USD)
       skuForm         ← * <~ ObjectForms.create(simpleSku.create)
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.copy(formId = skuForm.id))
@@ -179,11 +181,11 @@ class SkuIntegrationTest
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
       sku ← * <~ ProductVariants.create(
                ProductVariant(scope = Scope.current,
-                   contextId = ctx.id,
-                   code = simpleSku.code,
-                   formId = skuForm.id,
-                   shadowId = skuShadow.id,
-                   commitId = skuCommit.id))
+                              contextId = ctx.id,
+                              code = simpleSku.code,
+                              formId = skuForm.id,
+                              shadowId = skuShadow.id,
+                              commitId = skuCommit.id))
     } yield (sku, skuForm, skuShadow)).gimme
   }
 
