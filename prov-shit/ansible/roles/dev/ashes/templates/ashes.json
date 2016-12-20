@@ -10,7 +10,8 @@
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
     "ON_SERVER": "true",
     "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}",
-    "GA_TRACKING_ID": "{{ashes_ga_tracking_id}}"
+    "GA_TRACKING_ID": "{{ashes_ga_tracking_id}}",
+    "ZIPKIN_URL": "{{zipkin_server}}/api/v1/spans"
   },
   "healthChecks": [
     {

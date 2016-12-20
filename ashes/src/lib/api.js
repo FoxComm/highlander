@@ -82,10 +82,10 @@ export function request(method, uri, data, options = {}) {
 
   const abort = _.bind(result.abort, result);
 
-  if (process.env.NODE_ENV !== 'test') {
+  if (!isServer && process.env.NODE_ENV !== 'test') {
     const recorder = new BatchRecorder({
       logger: new HttpLogger({
-        endpoint: 'http://10.240.0.5:9411/api/v1/spans'
+        endpoint: window.ZIPKIN_URL,
       })
     });
 

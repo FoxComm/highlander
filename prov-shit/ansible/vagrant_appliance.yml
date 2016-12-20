@@ -27,6 +27,7 @@
     - { role: dev/elasticsearch }
     - { role: dev/kibana }
     - { role: dev/db }
+    - { role: base/zipkin }
     - { role: dev/isaac }
     - { role: dev/phoenix }
     - { role: dev/solomon }
