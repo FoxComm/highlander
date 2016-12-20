@@ -34,10 +34,10 @@ package object failures {
       case Return | _: Return                   ⇒ "referenceNumber"
       case Assignment.Order | Assignment.Return ⇒ "referenceNumber"
 
-      case GiftCard | _: GiftCard               ⇒ "code"
-      case ProductVariant | _: ProductVariant   ⇒ "code"
-      case Assignment.GiftCard | Assignment.Sku ⇒ "code"
-      case SharedSearch | _: SharedSearch       ⇒ "code"
+      case GiftCard | _: GiftCard                   ⇒ "code"
+      case ProductVariant | _: ProductVariant       ⇒ "code"
+      case Assignment.GiftCard | Assignment.Variant ⇒ "code"
+      case SharedSearch | _: SharedSearch           ⇒ "code"
 
       case Dimension | _: Dimension ⇒ "name"
       case _                        ⇒ "id"

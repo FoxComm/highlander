@@ -45,7 +45,7 @@ class VariantIntegrationTest
       (variantResponse.attributes \ "name" \ "v").extract[String] must === ("Color")
     }
 
-    "Fails when trying to create productOption with archived sku as value" in new ArchivedSkusFixture {
+    "Fails when trying to create productOption with archived variant as value" in new ArchivedSkusFixture {
       variantsApi
         .create(archivedSkuVariantPayload)
         .mustFailWith400(LinkArchivedSkuFailure(ProductOption, 10, archivedSkuCode))

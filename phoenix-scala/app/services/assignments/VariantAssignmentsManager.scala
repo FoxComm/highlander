@@ -7,11 +7,11 @@ import slick.driver.PostgresDriver.api._
 import utils.db._
 import utils.aliases._
 
-object SkuAssignmentsManager extends AssignmentsManager[String, ProductVariant] {
+object VariantAssignmentsManager extends AssignmentsManager[String, ProductVariant] {
 
   val assignmentType  = Assignment.Assignee
-  val referenceType   = Assignment.Sku
-  val notifyDimension = models.activity.Dimension.sku
+  val referenceType   = Assignment.Variant
+  val notifyDimension = models.activity.Dimension.variant
   val notifyReason    = NotificationSubscription.Assigned
 
   def buildResponse(model: ProductVariant): Root = build(model)

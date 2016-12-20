@@ -5,7 +5,7 @@ import models.objects._
 import utils.IlluminateAlgorithm
 
 /**
-  * An VariantValidator checks to make sure a sku shadow is valid
+  * An VariantValidator checks to make sure a variant shadow is valid
   */
 object VariantValidator {
 

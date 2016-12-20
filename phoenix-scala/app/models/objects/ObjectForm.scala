@@ -18,7 +18,7 @@ case class ObjectForm(id: Int = 0,
 
 object ObjectForm {
   val product   = "product"
-  val sku       = "sku"
+  val variant   = "variant"
   val promotion = "promotion"
   val coupon    = "coupon"
 
