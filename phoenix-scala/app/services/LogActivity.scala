@@ -493,17 +493,17 @@ object LogActivity {
     Activities.log(FullProductUpdated(admin.map(buildUser), product, context))
 
   /* Product variants */
-  def fullProductVariantCreated(
+  def fullVariantCreated(
       admin: Option[User],
-      product: ProductVariantResponse.Root,
+      variant: ProductVariantResponse.Root,
       context: ObjectContextResponse.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(FullProductVariantCreated(admin.map(buildUser), product, context))
+    Activities.log(FullVariantCreated(admin.map(buildUser), variant, context))
 
-  def fullProductVariantUpdated(
+  def fullVariantUpdated(
       admin: Option[User],
-      product: ProductVariantResponse.Root,
+      variant: ProductVariantResponse.Root,
       context: ObjectContextResponse.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(FullProductVariantUpdated(admin.map(buildUser), product, context))
+    Activities.log(FullVariantUpdated(admin.map(buildUser), variant, context))
 
   /* Promotions */
   def promotionCreated(promotionResponse: PromotionResponse.Root,

@@ -92,8 +92,8 @@ object ProductManager {
       oldProduct ← * <~ mustFindFullProductByFormId(productId)
       albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.form.id)
 
-      fullSkus    ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
-      productSkus ← * <~ fullSkus.map(ProductVariantManager.illuminateVariant)
+      fullVariants ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
+      productSkus  ← * <~ fullVariants.map(ProductVariantManager.illuminateVariant)
 
       variants     ← * <~ ProductOptionLinks.queryRightByLeft(oldProduct.model)
       fullVariants ← * <~ variants.map(ProductOptionManager.zipVariantWithValues)

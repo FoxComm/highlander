@@ -42,7 +42,7 @@ object ProductVariantManager {
       response = ProductVariantResponse
         .build(IlluminatedVariant.illuminate(oc, variant), albumResponse)
       _ ← * <~ LogActivity
-           .fullProductVariantCreated(Some(admin), response, ObjectContextResponse.build(oc))
+           .fullVariantCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
   }
 
@@ -70,7 +70,7 @@ object ProductVariantManager {
       response = ProductVariantResponse
         .build(IlluminatedVariant.illuminate(oc, updatedVariant), albums)
       _ ← * <~ LogActivity
-           .fullProductVariantUpdated(Some(admin), response, ObjectContextResponse.build(oc))
+           .fullVariantUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
   def archiveByCode(
@@ -221,17 +221,18 @@ object ProductVariantManager {
       implicit ec: EC,
       db: DB): DbResultT[FullObject[ProductVariant]] =
     for {
-      shadow ← * <~ ObjectShadows.mustFindById404(shadowId)
-      form   ← * <~ ObjectForms.mustFindById404(shadow.formId)
-      sku    ← * <~ ProductVariants.mustFindById404(skuId)
-    } yield FullObject(sku, form, shadow)
+      shadow  ← * <~ ObjectShadows.mustFindById404(shadowId)
+      form    ← * <~ ObjectForms.mustFindById404(shadow.formId)
+      variant ← * <~ ProductVariants.mustFindById404(skuId)
+    } yield FullObject(variant, form, shadow)
 
-  def illuminateVariant(fullSku: FullObject[ProductVariant])(
+  def illuminateVariant(fullVariant: FullObject[ProductVariant])(
       implicit ec: EC,
       db: DB,
       oc: OC): DbResultT[ProductVariantResponse.Root] =
     ImageManager
-      .getAlbumsByVariant(fullSku.model)
+      .getAlbumsByVariant(fullVariant.model)
       .map(albums ⇒
-            ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, fullSku), albums))
+            ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, fullVariant),
+                                             albums))
 }

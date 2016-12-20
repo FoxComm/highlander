@@ -5,13 +5,13 @@ import responses.ProductVariantResponses.ProductVariantResponse
 import responses.UserResponse
 
 object ProductVariantTailored {
-  case class FullProductVariantCreated(admin: Option[UserResponse.Root],
-                                       sku: ProductVariantResponse.Root,
-                                       context: ObjectContextResponse.Root)
-      extends ActivityBase[FullProductVariantCreated]
+  case class FullVariantCreated(admin: Option[UserResponse.Root],
+                                variant: ProductVariantResponse.Root,
+                                context: ObjectContextResponse.Root)
+      extends ActivityBase[FullVariantCreated]
 
-  case class FullProductVariantUpdated(admin: Option[UserResponse.Root],
-                                       sku: ProductVariantResponse.Root,
-                                       context: ObjectContextResponse.Root)
-      extends ActivityBase[FullProductVariantUpdated]
+  case class FullVariantUpdated(admin: Option[UserResponse.Root],
+                                variant: ProductVariantResponse.Root,
+                                context: ObjectContextResponse.Root)
+      extends ActivityBase[FullVariantUpdated]
 }
