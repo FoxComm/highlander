@@ -203,6 +203,9 @@ rsync_opts: ssh -l {{user}}
 namespace: setme
 
 # Zipkin
+zipkin_host: "zipkin.{{consul_suffix}}"
+zipkin_port: 9411
+zipkin_server: "{{zipkin_host}}:{{zipkin_port}}"
 zipkin_collector: localhost
 
 # Are we running packer?
