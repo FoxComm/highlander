@@ -16,9 +16,9 @@ object ProductOption {
 }
 
 /**
-  * A ProductOption represents the attributes that are used to collect SKUs into a
+  * A ProductOption represents the attributes that are used to collect variants into a
   * product. One ProductOption will contain an array of many values, which define the
-  * individual attributes that can be used to select a SKU.
+  * individual attributes that can be used to select a variant.
   */
 case class ProductOption(id: Int = 0,
                          scope: LTree,
