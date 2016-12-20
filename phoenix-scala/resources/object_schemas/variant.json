@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "Sku",
+  "title": "Variant",
   "type": "object",
   "properties": {
     "attributes": {

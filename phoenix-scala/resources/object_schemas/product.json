@@ -38,7 +38,7 @@
     "skus": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/sku"
+        "$ref": "#/definitions/variant"
       },
       "minItems": 1
     }

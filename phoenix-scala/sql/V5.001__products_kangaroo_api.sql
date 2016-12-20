@@ -18,3 +18,35 @@ alter table product_sku_links_view rename to product__variant_links_view;
 -- alter table product__variant_links_view rename column skus to variants;
 alter table sku_search_view rename to inventory_search_view;
 alter table order_line_items rename column sku_shadow_id to variant_shadow_id;
+
+update object_shadows set json_schema = 'variant' where json_schema = 'sku';
+
+alter table object_schemas drop column id;
+alter table object_full_schemas drop column id;
+
+create or replace function update_object_schemas_insert_fn() returns trigger as $$
+declare
+  dep text;
+  did int;
+begin
+  -- check deps are already exists in object_schemas
+    foreach dep in array new.dependencies
+      loop
+        select id into did from object_schemas where "name" = dep;
+         if did is null then
+            raise exception 'ObjectSchema with name % doesn''t exist', dep;
+         end if;
+      end loop;
+  --
+  insert into object_full_schemas(kind, "name", "schema", created_at)
+    values(new.kind, new.name, new.schema || get_definitions_for_object_schema(new.name), new.created_at)
+  on conflict ("name") do update
+    set "schema" = new.schema || get_definitions_for_object_schema(new.name),
+        kind = new.kind;
+
+  return null;
+end;
+$$ language plpgsql;
+
+update object_schemas set name = 'variant' where name = 'sku';
+update object_schemas set kind = 'variant' where kind = 'sku';

@@ -16,7 +16,7 @@ trait ObjectSchemaSeeds {
       _         ← * <~ ObjectSchemas.create(getSchema("album"))
       _         ← * <~ ObjectSchemas.create(getSchema("image"))
       price     ← * <~ ObjectSchemas.create(getSchema("price"))
-      sku       ← * <~ ObjectSchemas.create(getSchema("sku"))
+      variant   ← * <~ ObjectSchemas.create(getSchema("variant"))
       coupon    ← * <~ ObjectSchemas.create(getSchema("coupon"))
       discount  ← * <~ ObjectSchemas.create(getSchema("discount"))
       promotion ← * <~ ObjectSchemas.create(getSchema("promotion"))

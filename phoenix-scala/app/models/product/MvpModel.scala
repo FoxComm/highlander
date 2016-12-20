@@ -336,11 +336,11 @@ object Mvp {
 
   def insertSku(scope: LTree, contextId: Int, s: SimpleSku): DbResultT[ProductVariant] =
     for {
-      form      ← * <~ ObjectForms.create(s.create)
-      sShadow   ← * <~ SimpleSkuShadow(s)
-      skuSchema ← * <~ ObjectFullSchemas.findOneByName("sku")
+      form          ← * <~ ObjectForms.create(s.create)
+      sShadow       ← * <~ SimpleSkuShadow(s)
+      variantSchema ← * <~ ObjectFullSchemas.findOneByName("variant")
       shadow ← * <~ ObjectShadows.create(
-                  sShadow.create.copy(formId = form.id, jsonSchema = skuSchema.map(_.name)))
+                  sShadow.create.copy(formId = form.id, jsonSchema = variantSchema.map(_.name)))
       commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       sku ← * <~ ProductVariants.create(
                ProductVariant(scope = scope,
@@ -457,10 +457,10 @@ object Mvp {
                            commitId = productCommit.id))
 
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
-      skuSchema       ← * <~ ObjectFullSchemas.findOneByName("sku")
+      variantSchema   ← * <~ ObjectFullSchemas.findOneByName("variant")
       skuShadow ← * <~ ObjectShadows.create(
                      simpleSkuShadow.create.copy(formId = skuForm.id,
-                                                 jsonSchema = skuSchema.map(_.name)))
+                                                 jsonSchema = variantSchema.map(_.name)))
 
       skuCommit ← * <~ ObjectCommits.create(
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))

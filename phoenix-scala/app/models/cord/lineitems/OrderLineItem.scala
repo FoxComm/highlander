@@ -142,7 +142,9 @@ object OrderLineItems
 
   object scope {
     implicit class OrderLineItemQuerySeqConversions(q: QuerySeq) {
-      def withVariants: Query[(OrderLineItems, ProductVariants), (OrderLineItem, ProductVariant), Seq] =
+      def withVariants: Query[(OrderLineItems, ProductVariants),
+                              (OrderLineItem, ProductVariant),
+                              Seq] =
         for {
           items    ← q
           variants ← items.variant
