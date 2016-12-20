@@ -1,6 +1,6 @@
 create or replace function insert_skus_view_from_skus_fn() returns trigger as $$
 begin
-  insert into inventory_search_view select
+  insert into sku_search_view select
     new.id as id,
     new.code as sku_code,
     context.name as context,
@@ -26,7 +26,7 @@ $$ language plpgsql;
 
 create or replace function update_skus_view_from_object_attrs_fn() returns trigger as $$
 begin
-  update inventory_search_view set
+  update sku_search_view set
     sku_code = subquery.code,
     title = subquery.title,
     sale_price = subquery.sale_price,
@@ -49,7 +49,7 @@ begin
       inner join object_forms as form on (form.id = variant.form_id)
       inner join object_shadows as shadow on (shadow.id = sku.shadow_id)
       where variant.id = new.id) as subquery
-      where subquery.id = inventory_search_view.id;
+      where subquery.id = sku_search_view.id;
 
     return null;
 end;
@@ -57,7 +57,7 @@ $$ language plpgsql;
 
 create or replace function update_skus_view_from_object_context_fn() returns trigger as $$
 begin
-  update inventory_search_view set
+  update sku_search_view set
     context = subquery.name,
     context_id = subquery.id,
     archived_at = subquery.archived_at
@@ -69,7 +69,7 @@ begin
       from object_contexts as o
       inner join product_variants as variants on (variants.context_id = o.id)
       where variants.id = new.id) as subquery
-      where subquery.variant_id = inventory_search_view.id;
+      where subquery.variant_id = sku_search_view.id;
 
     return null;
 end;
@@ -92,7 +92,7 @@ begin
         where product__variant_links.left_id = new.product_id;
   end case;
 
-  update inventory_search_view
+  update sku_search_view
     set image = subquery.image
   from (select variant.id as id,
                variant.code as code,
@@ -101,7 +101,7 @@ begin
           inner join product__variant_links on variant.id = product__variant_links.right_id
           inner join product_album_links_view on product__variant_links.left_id = product_album_links_view.product_id
         where variant.id = any(variant_ids)) as subquery
-  where subquery.id = inventory_search_view.id;
+  where subquery.id = sku_search_view.id;
 
     return null;
 end;
