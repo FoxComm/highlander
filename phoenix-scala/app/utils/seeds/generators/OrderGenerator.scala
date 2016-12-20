@@ -280,8 +280,8 @@ trait OrderGenerator extends ShipmentSeeds {
              skus.map(
                  sku ⇒
                    OrderLineItem(cordRef = orderRef,
-                                 skuId = sku.id,
-                                 skuShadowId = sku.shadowId,
+                                 variantId = sku.id,
+                                 variantShadowId = sku.shadowId,
                                  state = state)))
     } yield {}
 

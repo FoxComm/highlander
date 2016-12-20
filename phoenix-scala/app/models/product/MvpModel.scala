@@ -236,7 +236,7 @@ object Mvp {
       oldForm     ← * <~ ObjectForms.mustFindById404(product.formId)
       productForm ← * <~ ObjectForms.update(oldForm, simpleProduct.update(oldForm))
 
-      //find sku form for the product and update it with new sku
+      //find variant form for the product and update it with new variant
       link ← * <~ ProductVariantLinks
               .filterLeft(product)
               .mustFindOneOr(ObjectLeftLinkCannotBeFound(product.shadowId))

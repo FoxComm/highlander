@@ -19,7 +19,7 @@ import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 trait LineItemProductData[LI] {
-  def sku: ProductVariant
+  def variant: ProductVariant
   def skuForm: ObjectForm
   def skuShadow: ObjectShadow
   def productForm: ObjectForm
@@ -32,7 +32,7 @@ trait LineItemProductData[LI] {
   def withLineItemReferenceNumber(newLineItemRef: String): LineItemProductData[LI]
 }
 
-case class OrderLineItemProductData(sku: ProductVariant,
+case class OrderLineItemProductData(variant: ProductVariant,
                                     skuForm: ObjectForm,
                                     skuShadow: ObjectShadow,
                                     productForm: ObjectForm,
@@ -50,8 +50,8 @@ case class OrderLineItemProductData(sku: ProductVariant,
 case class OrderLineItem(id: Int = 0,
                          referenceNumber: String = "",
                          cordRef: String,
-                         skuId: Int,
-                         skuShadowId: Int,
+                         variantId: Int,
+                         variantShadowId: Int,
                          state: OLI.State = OLI.Cart,
                          attributes: Option[LineItemAttributes] = None)
     extends FoxModel[OrderLineItem]
@@ -96,36 +96,36 @@ class OrderLineItems(tag: Tag) extends FoxTable[OrderLineItem](tag, "order_line_
   def id              = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber = column[String]("reference_number")
   def cordRef         = column[String]("cord_ref")
-  def skuId           = column[Int]("sku_id")
-  def skuShadowId     = column[Int]("sku_shadow_id")
+  def variantId       = column[Int]("variant_id")
+  def variantShadowId = column[Int]("variant_shadow_id")
   def state           = column[OrderLineItem.State]("state")
   def attributes      = column[Option[Json]]("attributes")
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def * =
-    (id, referenceNumber, cordRef, skuId, skuShadowId, state, attributes).shaped <>
+    (id, referenceNumber, cordRef, variantId, variantShadowId, state, attributes).shaped <>
       ({
-        case (id, refNum, cordRef, skuId, skuShadowId, state, attrs) ⇒
+        case (id, refNum, cordRef, variantId, variantShadowId, state, attrs) ⇒
           OrderLineItem(id,
                         refNum,
                         cordRef,
-                        skuId,
-                        skuShadowId,
+                        variantId,
+                        variantShadowId,
                         state,
                         attrs.flatMap(_.extractOpt[LineItemAttributes]))
       }, { oli: OrderLineItem ⇒
         (oli.id,
          oli.referenceNumber,
          oli.cordRef,
-         oli.skuId,
-         oli.skuShadowId,
+         oli.variantId,
+         oli.variantShadowId,
          oli.state,
          oli.attributes.map(decompose)).some
       })
 
-  def sku    = foreignKey(ProductVariants.tableName, skuId, ProductVariants)(_.id)
-  def shadow = foreignKey(ObjectShadows.tableName, skuShadowId, ObjectShadows)(_.id)
+  def variant = foreignKey(ProductVariants.tableName, variantId, ProductVariants)(_.id)
+  def shadow  = foreignKey(ObjectShadows.tableName, variantShadowId, ObjectShadows)(_.id)
 }
 
 object OrderLineItems
@@ -138,15 +138,15 @@ object OrderLineItems
     filter(_.cordRef === cordRef)
 
   def findBySkuId(id: Int): DBIO[Option[OrderLineItem]] =
-    filter(_.skuId === id).one
+    filter(_.variantId === id).one
 
   object scope {
     implicit class OrderLineItemQuerySeqConversions(q: QuerySeq) {
       def withSkus: Query[(OrderLineItems, ProductVariants), (OrderLineItem, ProductVariant), Seq] =
         for {
-          items ← q
-          skus  ← items.sku
-        } yield (items, skus)
+          items    ← q
+          variants ← items.variant
+        } yield (items, variants)
     }
   }
 

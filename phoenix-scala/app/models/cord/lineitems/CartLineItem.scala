@@ -11,7 +11,7 @@ import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
-case class CartLineItemProductData(sku: ProductVariant,
+case class CartLineItemProductData(variant: ProductVariant,
                                    skuForm: ObjectForm,
                                    skuShadow: ObjectShadow,
                                    productForm: ObjectForm,

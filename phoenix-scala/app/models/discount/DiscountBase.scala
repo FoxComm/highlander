@@ -22,11 +22,11 @@ trait DiscountBase {
 
   def unitsBySku(lineItems: Seq[LineItemProductData[_]], codes: Seq[String]): Int =
     lineItems.foldLeft(0) { (sum, data) ⇒
-      if (codes.contains(data.sku.code)) sum + 1 else sum
+      if (codes.contains(data.variant.code)) sum + 1 else sum
     }
 
   def totalBySku(lineItems: Seq[LineItemProductData[_]], codes: Seq[String]): Int =
     lineItems.foldLeft(0) { (sum, data) ⇒
-      if (codes.contains(data.sku.code)) sum + price(data) else sum
+      if (codes.contains(data.variant.code)) sum + price(data) else sum
     }
 }

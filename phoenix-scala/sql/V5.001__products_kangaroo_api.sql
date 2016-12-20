@@ -17,3 +17,4 @@ update object_forms set kind = 'product-variant' where kind = 'sku';
 alter table product_sku_links_view rename to product__variant_links_view;
 -- alter table product__variant_links_view rename column skus to variants;
 alter table sku_search_view rename to inventory_search_view;
+alter table order_line_items rename column sku_shadow_id to variant_shadow_id;

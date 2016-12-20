@@ -21,7 +21,7 @@ object ProductVariant {
 
 /**
   * A ProductVariant represents the latest version of Stock Keeping Unit.
-  * This data structure stores a pointer to a commit of a version of a sku in
+  * This data structure stores a pointer to a commit of a version of a variant in
   * the object context referenced. The same ProductVariant can have a different version
   * in a different context.
   */

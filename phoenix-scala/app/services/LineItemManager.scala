@@ -39,7 +39,7 @@ object LineItemManager {
       product ← * <~ getProductForSku(sku.model)
       image   ← * <~ getLineItemImage(sku.model, product.model)
     } yield
-      CartLineItemProductData(sku = sku.model,
+      CartLineItemProductData(variant = sku.model,
                               skuForm = sku.form,
                               skuShadow = sku.shadow,
                               productForm = product.form,
@@ -50,12 +50,12 @@ object LineItemManager {
 
   private def getOrderLineItem(orderLineItem: OrderLineItem)(implicit ec: EC, db: DB) =
     for {
-      sku ← * <~ ProductVariantManager.mustFindFullByIdAndShadowId(orderLineItem.skuId,
-                                                                   orderLineItem.skuShadowId)
+      sku ← * <~ ProductVariantManager.mustFindFullByIdAndShadowId(orderLineItem.variantId,
+                                                                   orderLineItem.variantShadowId)
       product ← * <~ getProductForSku(sku.model)
       image   ← * <~ getLineItemImage(sku.model, product.model)
     } yield
-      OrderLineItemProductData(sku = sku.model,
+      OrderLineItemProductData(variant = sku.model,
                                skuForm = sku.form,
                                skuShadow = sku.shadow,
                                productForm = product.form,

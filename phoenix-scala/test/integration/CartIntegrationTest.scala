@@ -220,7 +220,7 @@ class CartIntegrationTest
       cartsApi("NOPE").lineItems.add(addPayload).mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
     }
 
-    "should add line items if productId and skuId are different" in new OrderShippingMethodFixture
+    "should add line items if productId and variantId are different" in new OrderShippingMethodFixture
     with ProductAndSkus_Baked {
       val addPayload = Seq(UpdateLineItemsPayload("TEST", 1))
       val skus: Seq[CordResponseLineItem] = cartsApi(cart.refNum).lineItems

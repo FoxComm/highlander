@@ -60,7 +60,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       //support split capture yet.
       _ ← * <~ validatePayload(payload, lineItemData)
 
-      //get prices for line items using historical version of sku and adjust
+      //get prices for line items using historical version of variant and adjust
       //the prices based on line item adjustments. Line item adjustments use
       //line item reference number to match the adjustment with the line item.
       //some line items will not have adjustments. Then finally aggregate to
@@ -287,14 +287,14 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
     Mvp.price(item.skuForm, item.skuShadow) match {
       case Some((price, currency)) ⇒
         DbResultT.pure(
-            LineItemPrice(item.lineItem.referenceNumber, item.sku.code, price, currency))
-      case None ⇒ DbResultT.failure(CaptureFailures.SkuMissingPrice(item.sku.code))
+            LineItemPrice(item.lineItem.referenceNumber, item.variant.code, price, currency))
+      case None ⇒ DbResultT.failure(CaptureFailures.SkuMissingPrice(item.variant.code))
     }
 
   private def validatePayload(payload: CapturePayloads.Capture,
                               orderSkus: Seq[OrderLineItemProductData]): DbResultT[Unit] =
     for {
-      codes ← * <~ orderSkus.map { _.sku.code }
+      codes ← * <~ orderSkus.map { _.variant.code }
       _     ← * <~ mustHaveCodes(payload.items, codes, payload.order)
       _     ← * <~ mustHaveSameLineItems(payload.items.length, orderSkus.length, payload.order)
       _     ← * <~ mustHavePositiveShippingCost(payload.shipping)

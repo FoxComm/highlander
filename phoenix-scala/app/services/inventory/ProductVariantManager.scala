@@ -41,7 +41,8 @@ object ProductVariantManager {
       albumResponse = albums.map { case (album, images) ⇒ AlbumResponse.build(album, images) }
       response = ProductVariantResponse
         .build(IlluminatedVariant.illuminate(oc, variant), albumResponse)
-      _ ← * <~ LogActivity.fullProductVariantCreated(Some(admin), response, ObjectContextResponse.build(oc))
+      _ ← * <~ LogActivity
+           .fullProductVariantCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
   }
 
@@ -68,7 +69,8 @@ object ProductVariantManager {
       albums         ← * <~ updateAssociatedAlbums(updatedVariant.model, payload.albums)
       response = ProductVariantResponse
         .build(IlluminatedVariant.illuminate(oc, updatedVariant), albums)
-      _ ← * <~ LogActivity.fullProductVariantUpdated(Some(admin), response, ObjectContextResponse.build(oc))
+      _ ← * <~ LogActivity
+           .fullProductVariantUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
   def archiveByCode(
