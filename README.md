@@ -115,7 +115,6 @@ Edit your hosts file so that `local.foxcommerce.com` points to the new box using
 | [ashes](ashes)                         | The Admin UI, written in React.js.                                                                           |
 | [api-js](api-js)                       | A JavaScript library for interacting with the FoxCommerce API.                                               |
 | [firebrand](firebrand)                 | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
-| [integration-tests](integration-tests) | Our tests for hitting the system as a black box at the API level.                                            |
 | [prov-shit](prov-shit)                 | All of our DevOps tools for deploying the application to both development and production.                    |
 | [api-docs](api-docs)                   | Our API documentation in API Blueprint format and Postman query collections.                                 |
 
