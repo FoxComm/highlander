@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.ArchiveFailures.SkuIsPresentInCarts
+import failures.ArchiveFailures.VariantIsPresentInCarts
 import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures.ProductVariantNotFoundForContext
 import models.account.Scope
@@ -157,7 +157,7 @@ class SkuIntegrationTest
         .add(Seq(UpdateLineItemsPayload(sku.code, 1)))
         .mustBeOk()
 
-      skusApi(sku.code).archive().mustFailWith400(SkuIsPresentInCarts(sku.code))
+      skusApi(sku.code).archive().mustFailWith400(VariantIsPresentInCarts(sku.code))
     }
   }
 

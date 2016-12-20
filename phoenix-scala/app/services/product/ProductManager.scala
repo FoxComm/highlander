@@ -330,7 +330,7 @@ object ProductManager {
                                                          else Seq.empty)
                 } yield existingVariant
               } else {
-                DbResultT.failure(LinkArchivedSkuFailure(Product, product.id, code))
+                DbResultT.failure(LinkArchivedVariantFailure(Product, product.id, code))
               }
             }.getOrElse {
               for {

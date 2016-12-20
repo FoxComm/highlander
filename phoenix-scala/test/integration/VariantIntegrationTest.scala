@@ -1,7 +1,7 @@
 import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
-import failures.ArchiveFailures.LinkArchivedSkuFailure
+import failures.ArchiveFailures.LinkArchivedVariantFailure
 import failures.ProductFailures.ProductOptionNotFoundForContext
 import models.account.Scope
 import models.inventory.ProductVariants
@@ -48,7 +48,7 @@ class VariantIntegrationTest
     "Fails when trying to create productOption with archived variant as value" in new ArchivedSkusFixture {
       variantsApi
         .create(archivedSkuVariantPayload)
-        .mustFailWith400(LinkArchivedSkuFailure(ProductOption, 10, archivedSkuCode))
+        .mustFailWith400(LinkArchivedVariantFailure(ProductOption, 10, archivedSkuCode))
     }
   }
 
@@ -91,7 +91,7 @@ class VariantIntegrationTest
       variantsApi(variant.variant.variantFormId)
         .update(payload)
         .mustFailWith400(
-            LinkArchivedSkuFailure(ProductOption, variant.variant.variantFormId, archivedSkuCode))
+            LinkArchivedVariantFailure(ProductOption, variant.variant.variantFormId, archivedSkuCode))
     }
   }
 
@@ -111,7 +111,7 @@ class VariantIntegrationTest
 
       variantsApi(variantResponse.id)
         .createValues(archivedSkuVariantValuePayload)
-        .mustFailWith400(LinkArchivedSkuFailure(ProductOption, variantResponse.id, archivedSkuCode))
+        .mustFailWith400(LinkArchivedVariantFailure(ProductOption, variantResponse.id, archivedSkuCode))
     }
   }
 

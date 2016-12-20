@@ -3,7 +3,7 @@ package models.inventory
 import java.time.Instant
 
 import cats.data.Xor
-import failures.ArchiveFailures.{LinkArchivedSkuFailure, SkuIsPresentInCarts}
+import failures.ArchiveFailures.{LinkArchivedVariantFailure, VariantIsPresentInCarts}
 import failures.Failures
 import models.objects._
 import shapeless._
@@ -43,13 +43,13 @@ case class ProductVariant(id: Int = 0,
 
   def mustNotBeArchived[T](target: T, targetId: Any): Failures Xor ProductVariant = {
     if (archivedAt.isEmpty) Xor.right(this)
-    else Xor.left(LinkArchivedSkuFailure(target, targetId, code).single)
+    else Xor.left(LinkArchivedVariantFailure(target, targetId, code).single)
   }
 
   def mustNotBePresentInCarts(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
       inCartCount ← * <~ CartLineItems.filter(_.variantId === id).size.result
-      _           ← * <~ failIf(inCartCount > 0, SkuIsPresentInCarts(code))
+      _           ← * <~ failIf(inCartCount > 0, VariantIsPresentInCarts(code))
     } yield {}
 
 }

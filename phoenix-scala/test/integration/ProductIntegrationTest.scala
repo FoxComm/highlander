@@ -249,7 +249,7 @@ class ProductIntegrationTest
       "trying to create a product with archived SKU" in new ArchivedSkuFixture {
         productsApi
           .create(archivedSkuProductPayload)
-          .mustFailWith400(LinkArchivedSkuFailure(Product, 2, archivedSkuCode))
+          .mustFailWith400(LinkArchivedVariantFailure(Product, 2, archivedSkuCode))
       }
 
       "trying to create a product with string price" in new Fixture {
@@ -517,7 +517,7 @@ class ProductIntegrationTest
                                        skus = archivedSkuProductPayload.skus.some,
                                        albums = None,
                                        variants = archivedSkuProductPayload.variants))
-          .mustFailWith400(LinkArchivedSkuFailure(Product, product.id, archivedSkuCode))
+          .mustFailWith400(LinkArchivedVariantFailure(Product, product.id, archivedSkuCode))
       }
 
       "trying to unassociate a SKU that is in cart" in new RemovingSkusFixture {
@@ -530,7 +530,7 @@ class ProductIntegrationTest
 
         productsApi(product.formId)
           .update(twoSkuProductPayload)
-          .mustFailWith400(SkuIsPresentInCarts(skuGreenLargeCode))
+          .mustFailWith400(VariantIsPresentInCarts(skuGreenLargeCode))
       }
     }
   }

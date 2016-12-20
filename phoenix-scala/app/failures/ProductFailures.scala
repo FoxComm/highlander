@@ -85,6 +85,6 @@ object ProductFailures {
   }
 
   case class NoProductFoundForVariant(id: Int) extends Failure {
-    override def description = s"No product for SKU $id found"
+    override def description = s"No product for variant $id found"
   }
 }

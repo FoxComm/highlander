@@ -6,14 +6,14 @@ import models.payment.creditcard._
 
 object CaptureFailures {
 
-  case class SkuNotFoundInOrder(sku: String, refNum: String) extends Failure {
+  case class VariantNotFoundInOrder(variant: String, refNum: String) extends Failure {
     override def description =
-      s"line item with sku=$sku not found in order with referenceNumber=$refNum"
+      s"line item with variant=$variant not found in order with referenceNumber=$refNum"
   }
 
-  case class SkuMissingPrice(sku: String) extends Failure {
+  case class VariantMissingPrice(variant: String) extends Failure {
     override def description =
-      s"The SKU $sku is missing a price"
+      s"The Variant $variant is missing a price"
   }
 
   case class ShippingCostNegative(total: Int) extends Failure {

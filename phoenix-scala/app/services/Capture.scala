@@ -288,7 +288,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       case Some((price, currency)) ⇒
         DbResultT.pure(
             LineItemPrice(item.lineItem.referenceNumber, item.variant.code, price, currency))
-      case None ⇒ DbResultT.failure(CaptureFailures.SkuMissingPrice(item.variant.code))
+      case None ⇒ DbResultT.failure(CaptureFailures.VariantMissingPrice(item.variant.code))
     }
 
   private def validatePayload(payload: CapturePayloads.Capture,
@@ -329,7 +329,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
                            codes: Seq[String],
                            orderRef: String): DbResultT[Unit] =
     if (codes.contains(item.sku)) DbResultT.pure(Unit)
-    else DbResultT.failure(CaptureFailures.SkuNotFoundInOrder(item.sku, orderRef))
+    else DbResultT.failure(CaptureFailures.VariantNotFoundInOrder(item.sku, orderRef))
 
   private def mustHaveSameLineItems(lOne: Int, lTwo: Int, orderRef: String): DbResultT[Unit] =
     if (lOne == lTwo) DbResultT.pure(Unit)

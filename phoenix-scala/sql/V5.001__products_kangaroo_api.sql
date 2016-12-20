@@ -23,6 +23,7 @@ alter table sku_search_view rename to inventory_search_view;
 alter table order_line_items rename column sku_shadow_id to variant_shadow_id;
 alter table order_line_items rename column sku_id to variant_id;
 alter table cart_line_items rename column sku_id to variant_id;
+alter table save_for_later rename column sku_id to variant_id;
 
 update object_shadows set json_schema = 'variant' where json_schema = 'sku';
 
