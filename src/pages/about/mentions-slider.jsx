@@ -13,11 +13,12 @@ import mentions from './mentions';
 
 const mentionsSliderSettings = {
   dots: true,
-  autoplay: false,
   arrows: false,
   slidesToShow: 1,
   slidesToScroll: 1,
   dotsClass: classNames('slick-dots', styles['slider-dots']),
+  autoplay: true,
+  autoplaySpeed: 3500,
 };
 
 const mentionsSlides = mentions.map(({ mention, author, location }, i) => {
@@ -51,15 +52,6 @@ export default class MentionsSlider extends React.Component {
   render() {
     return (
       <div styleName="slider-wrapper">
-        <div styleName="slider-controls">
-          <div styleName="arrow-control" onClick={this.prevMention}>
-            <img src="/images/about-page/Arrow_Left.svg" />
-          </div>
-          <div styleName="arrow-control" onClick={this.nextMention}>
-            <img src="/images/about-page/Arrow_Right.svg" />
-          </div>
-        </div>
-
         <Slider {...mentionsSliderSettings} ref="mentionsSlider" styleName="slider">
           {mentionsSlides}
         </Slider>

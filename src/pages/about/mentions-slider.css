@@ -11,32 +11,6 @@
 
 }
 
-.slider-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.arrow-control {
-  width: 74px;
-  height: 74px;
-  color: #3E3436;
-  border: 1px solid #8D757A;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-
-  &:first-child, &:first-child:hover {
-    border-right: none;
-  }
-
-  &:hover {
-    background: rgba(255,255,255,0.80);
-    border: 1px solid #3E3436;
-  }
-}
-
 .slider {
   margin-top: 70px;
 }

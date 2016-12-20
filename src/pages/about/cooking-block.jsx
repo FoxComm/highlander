@@ -6,15 +6,14 @@ import styles from './cooking-block.css';
 
 const cookingData = [
   {
-    imgUrl: '/images/about-page/Icon_Deliciously_Convienient.svg',
+    imgUrl: '/images/about-page/Icon_Chef_Prepared.svg',
     title: 'Delicious',
     description:
       `It begins with inspiration.
-      Looking to new dishes as well as old favorites, we create unique,
-      original recipes with you in mind.`,
+      Looking to both new and classic favorites, we create unique, original recipes with you in mind`,
   },
   {
-    imgUrl: '/images/about-page/Icon_Chef_Prepared.svg',
+    imgUrl: '/images/about-page/Icon_Deliciously_Convienient.svg',
     title: 'Quality',
     description:
       `We use fresh ingredients to prepare dishes that are flash frozen---ensuring optimal flavor
@@ -24,8 +23,9 @@ const cookingData = [
     imgUrl: '/images/about-page/Icon_Stress_Free.svg',
     title: 'Time Saving',
     description:
-      `We do all the prep work for you, then deliver your food right to your door.
-      Spend less time in the kitchen, and more time tending to the rest of your busy life.`,
+      `We do all the prep work for you, so that your food can go from freezer to oven to table
+      in a few short minutes. That way, you can spend less time in the kitchen, and more time
+      tending to the rest of your busy life.`,
   },
 ];
 
