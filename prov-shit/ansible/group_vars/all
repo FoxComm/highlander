@@ -236,6 +236,8 @@ docker_branch: master
 docker_frontend_branch: master
 docker_registry: docker-stage.foxcommerce.com
 docker_registry_provider: gce
+docker_logs_dir: /logs
+docker_logs_host_dir: /var/log/docker
 
 # Marketplace
 marketplace_db_name: marketplace_development

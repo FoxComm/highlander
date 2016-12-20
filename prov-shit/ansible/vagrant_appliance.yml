@@ -18,6 +18,8 @@
 
   roles:
     - { role: dev/appliance, run_once: true }
+    - { role: base/mesos_master }
+    - { role: base/mesos_worker }
     - { role: base/secret_keys }
     - { role: dev/consul_agent }
     - { role: base/marketplace, when: with_marketplace }
