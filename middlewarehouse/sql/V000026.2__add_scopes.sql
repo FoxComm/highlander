@@ -1,9 +1,8 @@
-ALTER TABLE carriers ADD COLUMN scope exts.ltree NOT NULL;
-ALTER TABLE inventory_search_view ADD COLUMN scope exts.ltree NOT NULL;
-ALTER TABLE inventory_transactions_search_view ADD COLUMN scope exts.ltree NOT NULL;
-ALTER TABLE shipments ADD COLUMN scope exts.ltree NOT NULL;
-ALTER TABLE shipping_methods ADD COLUMN scope exts.ltree NOT NULL;
-
+ALTER TABLE carriers ADD COLUMN scope exts.ltree;
+ALTER TABLE inventory_search_view ADD COLUMN scope exts.ltree;
+ALTER TABLE inventory_transactions_search_view ADD COLUMN scope exts.ltree;
+ALTER TABLE shipments ADD COLUMN scope exts.ltree;
+ALTER TABLE shipping_methods ADD COLUMN scope exts.ltree;
 ALTER TABLE stock_locations ADD COLUMN scope exts.ltree;
 
 
