@@ -167,24 +167,25 @@ object Orders
   def prepareOrderLineItemsFromCart(cart: Cart, contextId: Int)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[OrderLineItem]] = {
-    val uniqueSkuIdsInCart = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
-      case (skuId, q) ⇒ skuId
-    }
+    val uniqueVariantIdsInCart =
+      CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.variantId).map {
+        case (variantId, q) ⇒ variantId
+      }
 
-    val skusInCart = for {
-      skuId ← uniqueSkuIdsInCart
-      sku   ← ProductVariants if sku.id === skuId
-    } yield (skuId, sku)
+    val variantsInCart = for {
+      variantId ← uniqueVariantIdsInCart
+      variant   ← ProductVariants if variant.id === variantId
+    } yield (variantId, variant)
 
     for {
-      skus      ← * <~ skusInCart.result
-      skuMaps   ← * <~ skus.toMap
-      lineItems ← * <~ CartLineItems.byCordRef(cart.referenceNumber).result
+      variants    ← * <~ variantsInCart.result
+      variantMaps ← * <~ variants.toMap
+      lineItems   ← * <~ CartLineItems.byCordRef(cart.referenceNumber).result
       orderLineItems ← * <~ lineItems.map { cli ⇒
-                        val sku = skuMaps.get(cli.skuId).get
+                        val variant = variantMaps.get(cli.variantId).get
                         OrderLineItem(cordRef = cart.referenceNumber,
-                                      variantId = sku.id,
-                                      variantShadowId = sku.shadowId,
+                                      variantId = variant.id,
+                                      variantShadowId = variant.shadowId,
                                       state = OrderLineItem.Pending,
                                       attributes = cli.attributes)
                       }

@@ -48,7 +48,7 @@ case class ProductVariant(id: Int = 0,
 
   def mustNotBePresentInCarts(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
-      inCartCount ← * <~ CartLineItems.filter(_.skuId === id).size.result
+      inCartCount ← * <~ CartLineItems.filter(_.variantId === id).size.result
       _           ← * <~ failIf(inCartCount > 0, SkuIsPresentInCarts(code))
     } yield {}
 

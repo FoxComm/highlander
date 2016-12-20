@@ -35,7 +35,7 @@ object LineItemManager {
 
   private def getCartLineItem(cartLineItem: CartLineItem)(implicit ec: EC, db: DB) =
     for {
-      sku     ← * <~ ProductVariantManager.mustFindFullById(cartLineItem.skuId)
+      sku     ← * <~ ProductVariantManager.mustFindFullById(cartLineItem.variantId)
       product ← * <~ getProductForSku(sku.model)
       image   ← * <~ getLineItemImage(sku.model, product.model)
     } yield

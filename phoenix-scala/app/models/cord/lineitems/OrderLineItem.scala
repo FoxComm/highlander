@@ -137,7 +137,7 @@ object OrderLineItems
   def findByOrderRef(cordRef: Rep[String]): Query[OrderLineItems, OrderLineItem, Seq] =
     filter(_.cordRef === cordRef)
 
-  def findBySkuId(id: Int): DBIO[Option[OrderLineItem]] =
+  def findByVariantId(id: Int): DBIO[Option[OrderLineItem]] =
     filter(_.variantId === id).one
 
   object scope {

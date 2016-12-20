@@ -184,7 +184,7 @@ object LineItemUpdater {
                               cordRef: String,
                               attributes: Option[LineItemAttributes])(implicit ec: EC) = {
     require(quantity > 0)
-    val lineItem = CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes)
+    val lineItem = CartLineItem(cordRef = cordRef, variantId = skuId, attributes = attributes)
     CartLineItems.createAllReturningModels(List.fill(quantity)(lineItem))
   }
 
@@ -236,7 +236,7 @@ object LineItemUpdater {
       requestedAttrs: Option[LineItemAttributes])(implicit ec: EC): DbResultT[Unit] =
     CartLineItems
       .byCordRef(cordRef)
-      .filter(_.skuId === skuId)
+      .filter(_.variantId === skuId)
       .result
       .dbresult
       .flatMap { lineItemsInCart ⇒

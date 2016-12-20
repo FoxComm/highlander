@@ -27,14 +27,15 @@ object CartTotaler {
   val defaultTaxRate = 0.0
 
   def subTotal(cart: Cart)(implicit ec: EC): DBIO[Int] =
-    skuSubTotalForCart(cart)
+    variantSubTotalForCart(cart)
 
-  def skuSubTotalForCart(cart: Cart)(implicit ec: EC): DBIO[Int] =
-    sql"""select count(*), sum(coalesce(cast(sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as integer), 0)) as sum
+  def variantSubTotalForCart(cart: Cart)(implicit ec: EC): DBIO[Int] =
+    sql"""select count(*), sum(coalesce(cast(vform.attributes->(vshadow.attributes->'salePrice'->>'ref')->>'value' as
+       | integer), 0)) as sum
        |	from cart_line_items sli
-       |	left outer join skus sku on (sku.id = sli.sku_id)
-       |	left outer join object_forms sku_form on (sku_form.id = sku.form_id)
-       |	left outer join object_shadows sku_shadow on (sku_shadow.id = sku.shadow_id)
+       |	left outer join product_variants variant on (variant.id = sli.variant_id)
+       |	left outer join object_forms vform on (vform.id = variant.form_id)
+       |	left outer join object_shadows vshadow on (vshadow.id = variant.shadow_id)
        |
        |	where sli.cord_ref = ${cart.refNum}
        | """.stripMargin.as[(Int, Int)].headOption.map {

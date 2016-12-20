@@ -42,9 +42,12 @@ case class Product(id: Int = 0,
 
   def mustNotBePresentInCarts(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
-      skus        ← * <~ ProductVariantLinks.filter(_.leftId === id).result
-      inCartCount ← * <~ CartLineItems.filter(_.skuId.inSetBind(skus.map(_.rightId))).size.result
-      _           ← * <~ failIf(inCartCount > 0, ProductIsPresentInCarts(formId))
+      skus ← * <~ ProductVariantLinks.filter(_.leftId === id).result
+      inCartCount ← * <~ CartLineItems
+                     .filter(_.variantId.inSetBind(skus.map(_.rightId)))
+                     .size
+                     .result
+      _ ← * <~ failIf(inCartCount > 0, ProductIsPresentInCarts(formId))
     } yield {}
 }
 

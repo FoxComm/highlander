@@ -30,7 +30,7 @@ case class CartLineItemProductData(variant: ProductVariant,
 case class CartLineItem(id: Int = 0,
                         referenceNumber: String = "",
                         cordRef: String,
-                        skuId: Int,
+                        variantId: Int,
                         attributes: Option[LineItemAttributes] = None)
     extends FoxModel[CartLineItem]
 
@@ -38,21 +38,25 @@ class CartLineItems(tag: Tag) extends FoxTable[CartLineItem](tag, "cart_line_ite
   def id              = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber = column[String]("reference_number")
   def cordRef         = column[String]("cord_ref")
-  def skuId           = column[Int]("sku_id")
+  def variantId       = column[Int]("variant_id")
   def attributes      = column[Option[Json]]("attributes")
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def * =
-    (id, referenceNumber, cordRef, skuId, attributes).shaped <>
+    (id, referenceNumber, cordRef, variantId, attributes).shaped <>
       ({
-        case (id, refNum, cordRef, skuId, attrs) ⇒
-          CartLineItem(id, refNum, cordRef, skuId, attrs.flatMap(_.extractOpt[LineItemAttributes]))
+        case (id, refNum, cordRef, variantId, attrs) ⇒
+          CartLineItem(id,
+                       refNum,
+                       cordRef,
+                       variantId,
+                       attrs.flatMap(_.extractOpt[LineItemAttributes]))
       }, { cli: CartLineItem ⇒
-        (cli.id, cli.referenceNumber, cli.cordRef, cli.skuId, cli.attributes.map(decompose)).some
+        (cli.id, cli.referenceNumber, cli.cordRef, cli.variantId, cli.attributes.map(decompose)).some
       })
 
-  def sku = foreignKey(ProductVariants.tableName, skuId, ProductVariants)(_.id)
+  def variant = foreignKey(ProductVariants.tableName, variantId, ProductVariants)(_.id)
 }
 
 object CartLineItems
@@ -69,8 +73,8 @@ object CartLineItems
       def countSkus(implicit ec: EC): DBIO[Map[String, Int]] =
         (for {
           skuLineItems ← q
-          sku          ← skuLineItems.sku
-        } yield sku.code).result.map(_.foldLeft(Map[String, Int]()) {
+          variant      ← skuLineItems.variant
+        } yield variant.code).result.map(_.foldLeft(Map[String, Int]()) {
           case (acc, skuCode) ⇒
             val quantity = acc.getOrElse(skuCode, 0)
             acc.updated(skuCode, quantity + 1)
