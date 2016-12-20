@@ -71,7 +71,7 @@
   margin-top: 70px;
 }
 
-@media (--small-only), (--medium) {
+@media (--small-only), (--medium-only) {
   .description {
     &:after {
       position: absolute;
@@ -84,7 +84,7 @@
   }
 }
 
-@media (--medium), (--large) {
+@media (--medium) {
   .description {
     font-size: 19px;
     &:after {
