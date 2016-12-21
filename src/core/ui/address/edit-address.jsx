@@ -1,9 +1,9 @@
+
 // libs
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
-import { zipCode } from 'ui/forms/validators';
 
 // localization
 import localized, { phoneMask } from 'lib/i18n';
@@ -14,6 +14,7 @@ import InputMask from 'react-input-mask';
 import { TextInput } from '../inputs';
 import { FormField } from 'ui/forms';
 import Select from 'ui/select/select';
+import Autocomplete from 'ui/autocomplete';
 import Checkbox from '../checkbox/checkbox';
 import Loader from '../loader';
 
@@ -28,6 +29,9 @@ type EditAddressProps = Localized & {
   onUpdate: (address: Address) => void,
   initAddressData: (address: Address) => Promise,
   colorTheme?: string,
+  withCountry?: boolean,
+  withoutDefaultCheckbox?: boolean,
+  title?: string,
 }
 
 function mapStateToProps(state) {
@@ -52,6 +56,9 @@ export default class EditAddress extends Component {
 
   static defaultProps = {
     colorTheme: 'default',
+    withCountry: false,
+    withoutDefaultCheckbox: false,
+    title: '',
   };
 
   state: State = {
@@ -97,6 +104,52 @@ export default class EditAddress extends Component {
     this.setAddressData('phoneNumber', value);
   }
 
+  get countryInput() {
+    const { countries } = this.props;
+
+    return (
+      <Autocomplete
+        inputProps={{
+          placeholder: 'UNITED STATES',
+          name: 'country',
+        }}
+        getItemValue={item => item.name}
+        items={countries.list}
+        onSelect={this.changeCountry}
+        selectedItem={this.selectedCountry}
+      />
+    );
+  }
+
+  get defaultCheckboxInput() {
+    const { withoutDefaultCheckbox } = this.props;
+
+    if (withoutDefaultCheckbox) {
+      return null;
+    }
+
+    const checked = _.get(this.state.address, 'isDefault', false);
+
+    return (
+      <Checkbox
+        name="isDefault"
+        checked={checked}
+        onChange={({target}) => this.changeDefault(target.checked)}
+        id="set-default-address"
+      >
+        Make this address my default
+      </Checkbox>
+    );
+  }
+
+  get title() {
+    const { title } = this.props;
+
+    return (
+      title && <div styleName="address-title">{title}</div>
+    );
+  }
+
   get phoneInput() {
     const { address } = this.state;
     const { t } = this.props;
@@ -122,8 +175,10 @@ export default class EditAddress extends Component {
         />
       );
     } else {
-      const onChange = value => this.handlePhoneChange(value);
-      input = <TextInput {...inputAttributes} onChange={onChange} maxLength="15"/>;
+      const onChange = ({ target: { value }}) => this.handlePhoneChange(value);
+      input = (
+        <TextInput {...inputAttributes} onChange={onChange} maxLength="15"/>
+      );
     }
 
     return input;
@@ -193,6 +248,11 @@ export default class EditAddress extends Component {
   }
 
   @autobind
+  changeCountry(item) {
+    this.setAddressData('country', item);
+  }
+
+  @autobind
   changeDefault(value) {
     this.setAddressData('isDefault', value);
   }
@@ -207,26 +267,21 @@ export default class EditAddress extends Component {
     if (!this.isAddressLoaded) return <Loader size="m"/>;
 
     const props: EditAddressProps = this.props;
-    const { t } = props;
+    const { t, withCountry } = props;
     const selectedCountry = this.selectedCountry;
     const data = this.state.address;
 
-    const checked = _.get(data, 'isDefault', false);
-
     return (
       <div styleName={`theme-${props.colorTheme}`}>
-        <Checkbox
-          name="isDefault"
-          checked={checked}
-          onChange={({target}) => this.changeDefault(target.checked)}
-          id="set-default-address"
-        >
-          Make this address my default
-        </Checkbox>
-
+        { this.title }
+        { this.defaultCheckboxInput }
         <FormField styleName="text-field">
-          <TextInput required
-            name="name" placeholder={t('FIRST & LAST NAME')} value={data.name} onChange={this.changeFormData}
+          <TextInput
+            required
+            name="name"
+            placeholder={t('FIRST & LAST NAME')}
+            value={data.name}
+            onChange={this.changeFormData}
           />
         </FormField>
         <FormField styleName="text-field">
@@ -241,15 +296,15 @@ export default class EditAddress extends Component {
             onChange={this.changeFormData}
           />
         </FormField>
-        <FormField styleName="text-field" validator={zipCode}>
+        <FormField styleName="text-field" validator="zipCode">
           <TextInput required placeholder={t('ZIP')} onChange={this.handleZipChange} value={data.zip} />
         </FormField>
         <FormField styleName="text-field">
           <TextInput required name="city" placeholder={t('CITY')} onChange={this.changeFormData} value={data.city}/>
         </FormField>
+        { withCountry && this.countryInput }
         <FormField styleName="text-field">
           <Select
-            name="state"
             inputProps={{
               placeholder: t('STATE'),
             }}
