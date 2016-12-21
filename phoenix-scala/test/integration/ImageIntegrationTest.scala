@@ -437,7 +437,7 @@ class ImageIntegrationTest
     val (product, prodForm, prodShadow, sku, skuForm, skuShadow) = (for {
       simpleSku  ← * <~ SimpleVariant("SKU-TEST", "Test SKU", 9999, Currency.USD)
       skuForm    ← * <~ ObjectForms.create(simpleSku.create)
-      sSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
+      sSkuShadow ← * <~ SimpleVariantShadow(simpleSku)
       skuShadow  ← * <~ ObjectShadows.create(sSkuShadow.create.copy(formId = skuForm.id))
       skuCommit ← * <~ ObjectCommits.create(
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))

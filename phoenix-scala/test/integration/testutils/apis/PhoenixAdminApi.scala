@@ -396,7 +396,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   case object skusApi {
-    val skusPrefix = s"$rootPrefix/skus"
+    val skusPrefix = s"$rootPrefix/variants"
     def skusPath(implicit ctx: OC) = s"$skusPrefix/${ctx.name}"
 
     def create(payload: ProductVariantPayload)(implicit ctx: OC): HttpResponse =
@@ -492,7 +492,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   object variantsApi {
-    def variantsPrefix()(implicit ctx: OC) = s"$rootPrefix/variants/${ctx.name}"
+    def variantsPrefix()(implicit ctx: OC) = s"$rootPrefix/options/${ctx.name}"
 
     def create(payload: ProductOptionPayload)(implicit ctx: OC): HttpResponse =
       POST(variantsPrefix, payload)

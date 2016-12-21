@@ -1,6 +1,7 @@
 --- Rename tables
 alter table skus rename to product_variants;
 alter table variants rename to product_options;
+alter table variant_values rename to product_values;
 alter table variant_variant_value_links rename to product_option__value_links;
 alter table variant_value_sku_links rename to product_value__variant_links;
 alter table product_variant_links rename to product__option_links;
@@ -88,3 +89,8 @@ update object_schemas set kind = 'variant' where kind = 'sku';
 -- notes
 
 update notes set reference_type = 'variant' where reference_type = 'sku';
+
+alter table notes_search_view rename column sku_item to variant_item;
+-- will trigger reindexing, it's ok.
+update notes_search_view set reference_type = 'variant' where reference_type = 'sku';
+

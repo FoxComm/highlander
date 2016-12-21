@@ -67,7 +67,7 @@ begin
     when 'product_value__variant_links' then
       select array_agg(p.id) into product_ids
       from products as p
-      inner join product_option_links as polink on (polink.left_id = p.id)
+      inner join product__option_links as polink on (polink.left_id = p.id)
       inner join product_value__variant_links as vvlink on (polink.right_id = vvlink.left_id)
       where vvlink.right_id = (case TG_OP
                             when 'DELETE' then

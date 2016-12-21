@@ -99,11 +99,11 @@ case class SimpleAlbumShadow(album: SimpleAlbum) {
 }
 
 case class SimpleVariant(code: String,
-                     title: String,
-                     price: Int,
-                     currency: Currency = Currency.USD,
-                     active: Boolean = false,
-                     tags: Seq[String] = Seq.empty) {
+                         title: String,
+                         price: Int,
+                         currency: Currency = Currency.USD,
+                         active: Boolean = false,
+                         tags: Seq[String] = Seq.empty) {
 
   val activeFrom = if (active) s""""${Instant.now}"""" else "null";
   val ts: String = compact(render(JArray(tags.map(t ⇒ JString(t)).toList)))
@@ -130,7 +130,7 @@ case class SimpleVariant(code: String,
     oldForm.copy(attributes = oldForm.attributes merge form)
 }
 
-case class SimpleSkuShadow(s: SimpleVariant) {
+case class SimpleVariantShadow(s: SimpleVariant) {
 
   val shadow = ObjectUtils.newShadow(parse("""
         {
@@ -185,7 +185,8 @@ case class SimpleProductValueShadow(v: SimpleProductValue) {
   def create: ObjectShadow = ObjectShadow(attributes = shadow)
 }
 
-case class SimpleCompleteOption(option: SimpleProductOption, productValues: Seq[SimpleProductValue])
+case class SimpleCompleteOption(option: SimpleProductOption,
+                                productValues: Seq[SimpleProductValue])
 
 case class SimpleProductData(productId: Int = 0,
                              skuId: Int = 0,
@@ -337,7 +338,7 @@ object Mvp {
   def insertVariant(scope: LTree, contextId: Int, s: SimpleVariant): DbResultT[ProductVariant] =
     for {
       form          ← * <~ ObjectForms.create(s.create)
-      sShadow       ← * <~ SimpleSkuShadow(s)
+      sShadow       ← * <~ SimpleVariantShadow(s)
       variantSchema ← * <~ ObjectFullSchemas.findOneByName("variant")
       shadow ← * <~ ObjectShadows.create(
                   sShadow.create.copy(formId = form.id, jsonSchema = variantSchema.map(_.name)))
@@ -352,8 +353,8 @@ object Mvp {
     } yield sku
 
   def insertVariants(scope: LTree,
-                 contextId: Int,
-                 ss: Seq[SimpleVariant]): DbResultT[Seq[ProductVariant]] =
+                     contextId: Int,
+                     ss: Seq[SimpleVariant]): DbResultT[Seq[ProductVariant]] =
     for {
       skus ← * <~ ss.map(s ⇒ insertVariant(scope, contextId, s))
     } yield skus
@@ -456,7 +457,7 @@ object Mvp {
                            shadowId = productShadow.id,
                            commitId = productCommit.id))
 
-      simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
+      simpleSkuShadow ← * <~ SimpleVariantShadow(simpleSku)
       variantSchema   ← * <~ ObjectFullSchemas.findOneByName("variant")
       skuShadow ← * <~ ObjectShadows.create(
                      simpleSkuShadow.create.copy(formId = skuForm.id,

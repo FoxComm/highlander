@@ -18,7 +18,7 @@ object ProductVariantRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
     activityContext(auth.model) { implicit ac ⇒
-      pathPrefix("skus") {
+      pathPrefix("variants") {
         pathPrefix(Segment) { contextName ⇒
           adminObjectContext(contextName) { implicit context ⇒
             (post & pathEnd & entity(as[ProductVariantPayload])) { payload ⇒

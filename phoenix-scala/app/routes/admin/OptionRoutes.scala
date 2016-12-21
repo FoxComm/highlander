@@ -11,7 +11,7 @@ import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
-object VariantRoutes {
+object OptionRoutes {
 
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 

@@ -636,10 +636,11 @@ class ProductIntegrationTest
     val allSkus: Seq[String] =
       Seq(skuRedSmallCode, skuRedLargeCode, skuGreenSmallCode, skuGreenLargeCode)
 
-    val simpleSkus = Seq(SimpleVariant(skuRedSmallCode, "A small, red item", 9999, Currency.USD),
-                         SimpleVariant(skuRedLargeCode, "A large, red item", 9999, Currency.USD),
-                         SimpleVariant(skuGreenSmallCode, "A small, green item", 9999, Currency.USD),
-                         SimpleVariant(skuGreenLargeCode, "A large, green item", 9999, Currency.USD))
+    val simpleSkus = Seq(
+        SimpleVariant(skuRedSmallCode, "A small, red item", 9999, Currency.USD),
+        SimpleVariant(skuRedLargeCode, "A large, red item", 9999, Currency.USD),
+        SimpleVariant(skuGreenSmallCode, "A small, green item", 9999, Currency.USD),
+        SimpleVariant(skuGreenLargeCode, "A large, green item", 9999, Currency.USD))
 
     val variantsWithValues = Seq(
         SimpleCompleteOption(

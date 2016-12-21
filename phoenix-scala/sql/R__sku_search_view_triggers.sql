@@ -47,7 +47,7 @@ begin
         form.attributes->(shadow.attributes->'externalId'->>'ref') as external_id
       from product_variants as variant
       inner join object_forms as form on (form.id = variant.form_id)
-      inner join object_shadows as shadow on (shadow.id = sku.shadow_id)
+      inner join object_shadows as shadow on (shadow.id = variant.shadow_id)
       where variant.id = new.id) as subquery
       where subquery.id = sku_search_view.id;
 
