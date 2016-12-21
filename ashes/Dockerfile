@@ -10,4 +10,4 @@ WORKDIR /ashes
 COPY . /ashes
 
 EXPOSE 4000
-CMD ["gulp", "server"]
+CMD gulp server 2>&1 | tee /logs/ashes.log
