@@ -85,7 +85,7 @@ export function request(method, uri, data, options = {}) {
   if (!isServer && process.env.NODE_ENV !== 'test') {
     const recorder = new BatchRecorder({
       logger: new HttpLogger({
-        endpoint: window.ZIPKIN_URL,
+        endpoint: `/zipkin/spans`,
       })
     });
 

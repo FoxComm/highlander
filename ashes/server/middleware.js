@@ -105,7 +105,6 @@ module.exports = function(app) {
       gaEnableLocal: 'GA_LOCAL' in process.env,
       JWT: JSON.stringify(this.state.jwt || null),
       stripeApiKey: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY || null),
-      zipkinUrl: JSON.stringify(process.env.ZIPKIN_URL),
     }, config.layout.pageConstants);
 
     this.body = layout(layoutData);

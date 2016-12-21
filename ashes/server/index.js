@@ -21,6 +21,7 @@ app.init = co.wrap(function *(env) {
 
   require(`${__dirname}/middleware`)(app);
   require(`${__dirname}/api`)(app);
+  require(`${__dirname}/zipkin`)(app);
   require(`${__dirname}/cms`)(app);
   app.server = app.listen(app.config.server.port);
 });
