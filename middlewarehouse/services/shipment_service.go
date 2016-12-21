@@ -13,6 +13,7 @@ import (
 
 type shipmentService struct {
 	db                 *gorm.DB
+	inventoryService   IInventoryService
 	summaryService     ISummaryService
 	activityLogger     IActivityLogger
 	updateSummaryAsync bool
@@ -25,8 +26,8 @@ type IShipmentService interface {
 	UpdateShipmentForOrder(shipment *models.Shipment) (*models.Shipment, error)
 }
 
-func NewShipmentService(db *gorm.DB, summaryService ISummaryService, activityLogger IActivityLogger) IShipmentService {
-	return &shipmentService{db, summaryService, activityLogger, true}
+func NewShipmentService(db *gorm.DB, inventoryService IInventoryService, summaryService ISummaryService, activityLogger IActivityLogger) IShipmentService {
+	return &shipmentService{db, inventoryService, summaryService, activityLogger, true}
 }
 
 func (service *shipmentService) GetShipmentsByOrder(referenceNumber string) ([]*models.Shipment, error) {
@@ -69,12 +70,6 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		return nil, err
 	}
 
-	err = service.updateSummariesToReserved(stockItemCounts)
-	if err != nil {
-		txn.Rollback()
-		return nil, err
-	}
-
 	activity, err := activities.NewShipmentCreated(result, result.CreatedAt)
 	if err != nil {
 		txn.Rollback()
@@ -90,6 +85,8 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		txn.Rollback()
 		return nil, err
 	}
+
+	service.updateSummariesToReserved(stockItemCounts)
 
 	return result, nil
 }
@@ -181,11 +178,11 @@ func (service *shipmentService) logActivity(original *models.Shipment, updated *
 			}
 		}
 
-		if err := service.updateSummariesToShipped(stockItemCounts); err != nil {
-			return err
-		}
-
 		activity, err = activities.NewShipmentShipped(updated, updated.UpdatedAt)
+
+		if err == nil {
+			service.updateSummariesToShipped(stockItemCounts)
+		}
 	} else {
 		activity, err = activities.NewShipmentUpdated(updated, updated.UpdatedAt)
 	}
@@ -236,12 +233,11 @@ func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, new
 		return nil
 	}
 
-	unitRepo := repositories.NewStockItemUnitRepository(db)
 	var err error
 
 	switch newShipment.State {
 	case models.ShipmentStateCancelled:
-		_, err = unitRepo.UnsetUnitsInOrder(newShipment.OrderRefNum)
+		err = service.inventoryService.ReleaseItems(newShipment.OrderRefNum)
 
 	case models.ShipmentStateShipped:
 		// TODO: Bring capture back when we move to the capture consumer
@@ -249,7 +245,7 @@ func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, new
 		for _, lineItem := range newShipment.ShipmentLineItems {
 			unitIDs = append(unitIDs, lineItem.StockItemUnitID)
 		}
-		err = unitRepo.DeleteUnits(unitIDs)
+		err = service.inventoryService.DeleteItems(newShipment.OrderRefNum)
 	}
 
 	return err

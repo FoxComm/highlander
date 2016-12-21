@@ -26,7 +26,7 @@ func TestShipmentServiceSuite(t *testing.T) {
 func (suite *ShipmentServiceTestSuite) SetupSuite() {
 	suite.db = config.TestConnection()
 
-	suite.service = NewShipmentService(suite.db, &mocks.SummaryServiceStub{}, &mocks.ActivityLoggerMock{})
+	suite.service = NewShipmentService(suite.db, &mocks.InventoryServiceStub{}, &mocks.SummaryServiceStub{}, &mocks.ActivityLoggerMock{})
 }
 
 func (suite *ShipmentServiceTestSuite) SetupTest() {

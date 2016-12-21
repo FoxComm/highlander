@@ -175,6 +175,25 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_Summary() {
 	suite.Equal(0, summary[0].OnHold, "No stock item units should be onHold")
 }
 
+func (suite *InventoryServiceIntegrationTestSuite) Test_DeleteItems_Summary() {
+	skus := map[string]int{suite.sku: 1}
+	refNum := "BR10001"
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
+	suite.Nil(err)
+	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1)))
+	suite.Nil(suite.service.HoldItems(refNum, skus))
+	suite.Nil(suite.service.ReserveItems(refNum))
+
+	suite.Nil(suite.service.DeleteItems(refNum))
+
+	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku)
+	suite.Nil(err)
+
+	suite.Equal(0, summary[0].OnHand, "No stock item units should be onHand")
+	suite.Equal(0, summary[0].OnHold, "No stock item units should be onHold")
+	suite.Equal(0, summary[0].Reserved, "No stock item units should be Reserved")
+}
+
 func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID() {
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)

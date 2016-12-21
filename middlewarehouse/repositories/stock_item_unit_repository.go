@@ -23,9 +23,10 @@ type IStockItemUnitRepository interface {
 	HoldUnitsInOrder(refNum string, ids []uint) (int, error)
 	ReserveUnitsInOrder(refNum string) (int, error)
 	UnsetUnitsInOrder(refNum string) (int, error)
+	DeleteUnitsInOrder(refNum string) (int, error)
 	GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, error)
 
-	GetReleaseQtyByRefNum(refNum string) ([]*models.Release, error)
+	GetQtyByRefNum(refNum string) ([]*models.Release, error)
 
 	CreateUnits(units []*models.StockItemUnit) error
 	DeleteUnits(ids []uint) error
@@ -136,7 +137,13 @@ func (repository *stockItemUnitRepository) UnsetUnitsInOrder(refNum string) (int
 	return int(result.RowsAffected), result.Error
 }
 
-func (repository *stockItemUnitRepository) GetReleaseQtyByRefNum(refNum string) ([]*models.Release, error) {
+func (repository *stockItemUnitRepository) DeleteUnitsInOrder(refNum string) (int, error) {
+	result := repository.db.Delete(models.StockItemUnit{}, "ref_num = ?", refNum)
+
+	return int(result.RowsAffected), result.Error
+}
+
+func (repository *stockItemUnitRepository) GetQtyByRefNum(refNum string) ([]*models.Release, error) {
 	res := []*models.Release{}
 
 	err := repository.db.Table("stock_item_units u").

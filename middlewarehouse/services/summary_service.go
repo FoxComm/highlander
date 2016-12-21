@@ -69,6 +69,11 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 		summary = updateStatusUnitsAmount(summary, status.To, qty)
 	}
 
+	// delete OnHand items when item is shipped
+	if status.To == models.StatusShipped {
+		summary = updateStatusUnitsAmount(summary, models.StatusOnHand, -qty)
+	}
+
 	summary = updateAfs(summary, status, qty)
 	summary = updateAfsCost(summary, stockItem)
 
