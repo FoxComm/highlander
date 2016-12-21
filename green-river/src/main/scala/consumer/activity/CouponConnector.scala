@@ -22,7 +22,7 @@ object CouponConnector extends ActivityConnector {
   private def byCouponData(activity: Activity): Seq[String] =
     activity.data \ "coupon" \ "id" match {
       case JInt(couponId) ⇒ Seq(couponId.toString)
-      case _ ⇒ Seq.empty
+      case _              ⇒ Seq.empty
     }
 
   private def byNoteData(activity: Activity): Seq[String] =
