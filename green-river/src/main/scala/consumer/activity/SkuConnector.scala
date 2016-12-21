@@ -21,9 +21,9 @@ object SkuConnector extends ActivityConnector {
   }
 
   private def bySkuData(activity: Activity): Seq[String] = {
-    activity.data \ "sku" \ "form" \ "id" match {
-      case JInt(formId) ⇒ Seq(formId.toString)
-      case _            ⇒ Seq.empty
+    activity.data \ "sku" \ "id" match {
+      case JInt(id) ⇒ Seq(id.toString)
+      case _        ⇒ Seq.empty
     }
   }
 

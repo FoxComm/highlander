@@ -71,8 +71,10 @@ trait PromotionGenerator {
     SimplePromotion(applyType = applyType, percentOff = percent, totalAmount = totalAmount)
   }
 
-  def generatePromotions(
-      sourceData: Seq[SimplePromotion])(implicit db: DB, au: AU): DbResultT[Seq[SimplePromotion]] =
+  def generatePromotions(sourceData: Seq[SimplePromotion])(
+      implicit db: DB,
+      ac: AC,
+      au: AU): DbResultT[Seq[SimplePromotion]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       promotions ← * <~ sourceData.map(source ⇒ {
@@ -96,7 +98,7 @@ trait PromotionGenerator {
                                       discounts =
                                         Seq(CreateDiscount(attributes = discountFS.toPayload)))
 
-                    PromotionManager.create(payload, context.name).map { newPromo ⇒
+                    PromotionManager.create(payload, context.name, None).map { newPromo ⇒
                       source.copy(promotionId = newPromo.id)
                     }
                   })
