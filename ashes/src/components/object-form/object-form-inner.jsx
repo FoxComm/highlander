@@ -167,6 +167,25 @@ export default class ObjectFormInner extends Component {
     return this.renderBoolean(...args);
   }
 
+  renderBooleanOptions(name: string, value: boolean, options: AttrOptions): Element {
+    const onChange = v => this.handleChange(name, 'options', v);
+
+    const BOOL_OPTIONS = [
+      ['true', 'Yes'],
+      ['false', 'No'],
+    ];
+
+    const sliderCheckbox = (
+      <Dropdown
+        value={value}
+        items={BOOL_OPTIONS}
+        onChange={onChange}
+      />
+    );
+
+    return renderFormField(name, sliderCheckbox, options);
+  }
+
   renderElement(name: string, value: any, options: AttrOptions): Element {
     return renderFormField(name, value, options);
   }

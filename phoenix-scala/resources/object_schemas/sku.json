@@ -38,27 +38,12 @@
           }
         },
         "requiresShipping": {
-          "type": "options",
-          "title": "Item requires shipping?",
-          "fieldsOptions": [
-            "Yes",
-            "No"
-          ]
-        },
-        "shippingClass": {
-          "type": "options",
-          "title": "Shipping Class",
-          "fieldsOptions": [
-            "Default"
-          ]
+          "type": "booleanOptions",
+          "title": "Item requires shipping?"
         },
         "isReturnable": {
-          "type": "options",
-          "title": "Item is returnable?",
-          "fieldsOptions": [
-            "Yes",
-            "No"
-          ]
+          "type": "booleanOptions",
+          "title": "Item is returnable?"
         }
       },
       "required": [
