@@ -49,11 +49,10 @@ export default class AboutPage extends React.Component {
                 we have a variety of delicious foods to help simplify your busy life,
                 without sacrificing taste and quality. Every dish is prepared with quality ingredients,
                 then flash frozen to lock in flavors and freshness.</p>
-              <p>Let us show you why frozen is the new fresh.</p>
             </div>
 
             <Link to="/best-sellers" styleName="action-link">
-              Shop now
+              Shop Best Sellers
             </Link>
           </div>
         </div>
@@ -63,14 +62,8 @@ export default class AboutPage extends React.Component {
         <div styleName="fresh-header-wrap">
           <div styleName="content-wrapper">
             <div styleName="text-wrap">
-              <div styleName="fresh-description">QUALITY IS OUR PRIORITY</div>
-              <h1 styleName="title">THE NEW FRESH</h1>
-              <div styleName="fresh-text">
-                Our chefs only cook with locally sourced, fresh ingredients.
-                Our meals are then flash frozen, ensuring optimal taste, nutrition
-                and convenience. So you know you never have to sacrifice quality
-                for convenience.
-              </div>
+              <div styleName="fresh-description">QUALITY IS OUR TOP PRIORITY</div>
+              <h1 styleName="title">LET US SHOW YOU WHY FROZEN IS THE NEW FRESH</h1>
             </div>
           </div>
         </div>
