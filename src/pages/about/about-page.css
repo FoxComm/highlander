@@ -204,6 +204,12 @@
   margin-top: 20px;
 }
 
+@media (--small-only) {
+  .gifts-text {
+    line-height: 32px;
+  }
+}
+
 @media (--medium) {
   .top-header-wrap {
     height: 680px;
