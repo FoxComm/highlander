@@ -84,14 +84,33 @@ function addressToPayload(address) {
   return payload;
 }
 
-export function saveShippingAddress(id): Function {
-  return (dispatch) => {
+const _saveShippingAddress = createAsyncActions(
+  'saveShippingAddress',
+  function(id: number) {
+    const { dispatch } = this;
+
     return foxApi.cart.setShippingAddressById(id)
       .then(res => {
         dispatch(updateCart(res.result));
       });
-  };
-}
+  }
+);
+
+export const saveShippingAddress = _saveShippingAddress.perform;
+
+const _addShippingAddress = createAsyncActions(
+  'addShippingAddress',
+  function(address) {
+    const { dispatch } = this;
+    const payload = addressToPayload(address);
+    return foxApi.cart.setShippingAddress(payload)
+      .then(res => {
+        dispatch(updateCart(res.result));
+      });
+  }
+);
+
+export const addShippingAddress = _addShippingAddress.perform;
 
 export function saveShippingMethod(shippingMethod): Function {
   return (dispatch, getState, api) => {

@@ -1,0 +1,16 @@
+
+.subtitle {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 15px 0;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.guest-email {
+  composes: text-input from "ui/css/input.css";
+  width: 100%;
+}
+

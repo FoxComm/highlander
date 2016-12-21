@@ -12,7 +12,7 @@ import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import styles from './checkout-form.css';
 
 type Props = {
-  title: string,
+  title?: string,
   error: ?Array<any>|Object,
   submit: Function,
   action?: ?Object,

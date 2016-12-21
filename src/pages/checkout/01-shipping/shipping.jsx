@@ -4,13 +4,18 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import localized from 'lib/i18n';
+import { connect } from 'react-redux';
+import { isGuest } from 'paragons/auth';
 
 // components
 import EditableBlock from 'ui/editable-block';
 import { AddressDetails } from 'ui/address';
 import AddressList from './address-list';
+import GuestShipping from './guest-shipping';
 
-import { isGuest } from 'paragons/auth';
+import { saveShippingAddress, updateAddress, addShippingAddress } from 'modules/checkout';
+import type { Address } from 'types/address';
+import type { AsyncStatus } from 'types/async-actions';
 
 // styles
 import styles from './shipping.css';
@@ -18,15 +23,24 @@ import styles from './shipping.css';
 type Props = {
   addresses: Array<any>,
   collapsed: boolean,
-  continueAction: Function,
+  onComplete: Function,
   editAction: Function,
   fetchAddresses: Function,
-  inProgress: boolean,
   isEditing: boolean,
   t: any,
   shippingAddress: Object,
+  addShippingAddress: (address: Address) => Promise,
+  saveShippingAddress: (id: number) => Promise,
+  saveShippingState: AsyncStatus,
+  updateAddress: (address: Address, id?: number) => Promise,
   auth: ?Object,
 };
+
+function mapStateToProps(state) {
+  return {
+    saveShippingState: _.get(state.asyncActions, 'saveShippingAddress', {}),
+  };
+}
 
 class Shipping extends Component {
   props: Props;
@@ -41,21 +55,33 @@ class Shipping extends Component {
     }
   }
 
-  isGuestMode(): boolean {
+  get isGuestMode(): boolean {
     return isGuest(this.props.auth);
   }
 
   content() {
-    const savedAddress = this.props.shippingAddress;
+    const { props } = this;
+    const savedAddress = props.shippingAddress;
 
-    if ((!_.isEmpty(savedAddress) && !this.props.isEditing)) {
+    if ((!_.isEmpty(savedAddress) && !props.isEditing)) {
       return (
         <AddressDetails address={savedAddress} styleName="savedAddress" />
       );
     }
 
+    if (this.isGuestMode) {
+      return (
+        <GuestShipping
+          addShippingAddress={props.addShippingAddress}
+          shippingAddress={props.shippingAddress}
+          auth={props.auth}
+          onComplete={props.onComplete}
+        />
+      );
+    }
+
     return (
-      <AddressList { ...this.props } activeAddress={savedAddress}/>
+      <AddressList { ...props } activeAddress={savedAddress}/>
     );
   }
 
@@ -76,4 +102,11 @@ class Shipping extends Component {
   }
 }
 
-export default localized(Shipping);
+export default _.flowRight(
+  localized,
+  connect(mapStateToProps, {
+    addShippingAddress,
+    saveShippingAddress,
+    updateAddress,
+  })
+)(Shipping);

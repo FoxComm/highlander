@@ -51,7 +51,6 @@ type Props = CheckoutState & CheckoutActions & {
 type State = {
   isPerformingCheckout: boolean,
   deliveryInProgress: boolean,
-  shippingInProgress: boolean,
   billingInProgress: boolean,
   isProceedingCard: boolean,
   guestAuthInProgress: boolean,
@@ -68,7 +67,6 @@ class Checkout extends Component {
   state: State = {
     isPerformingCheckout: false,
     deliveryInProgress: false,
-    shippingInProgress: false,
     billingInProgress: false,
     isProceedingCard: false,
     guestAuthInProgress: false,
@@ -282,13 +280,11 @@ class Checkout extends Component {
             isEditing={props.editStage == EditStages.SHIPPING}
             collapsed={props.editStage < EditStages.SHIPPING}
             editAction={this.setShippingStage}
-            inProgress={this.state.shippingInProgress}
-            continueAction={this.saveShippingAddress}
+            onComplete={this.setDeliveryStage}
             error={_.get(this.state.errors, 'shippingInProgress')}
             addresses={this.props.addresses}
             fetchAddresses={this.props.fetchAddresses}
             shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
-            updateAddress={this.props.updateAddress}
             auth={this.props.auth}
           />
           <Delivery

@@ -17,15 +17,17 @@ import { AddressDetails } from 'ui/address';
 import styles from './address-list.css';
 
 import type { Address } from 'types/address';
+import type { AsyncStatus } from 'types/async-actions';
 
 type Props = {
   activeAddress?: Address,
   addresses: Array<any>,
   collapsed: boolean,
-  continueAction: Function,
+  saveShippingAddress: (id: number) => Promise,
+  updateAddress: (address: Address, id?: number) => Promise,
   editAction: Function,
-  updateAddress: Function,
-  inProgress: boolean,
+  onComplete: () => void,
+  saveShippingState: AsyncStatus,
   t: any,
   error: any,
 };
@@ -107,8 +109,8 @@ class AddressList extends Component {
     const selectedAddress = _.find(nextProps.addresses, { id: nextState.activeAddressId });
     if (!nextState.isEditFormActive && nextProps.addresses.length > 0 && !selectedAddress) {
       const defaultAddress = _.find(nextProps.addresses, { isDefault: true });
-      const selected = defaultAddress ? defaultAddress.id : nextProps.addresses[0].id;
-      this.changeAddressOption(selected);
+      const selectedAddressId = defaultAddress ? defaultAddress.id : nextProps.addresses[0].id;
+      this.changeAddressOption(selectedAddressId);
     }
   }
 
@@ -156,7 +158,7 @@ class AddressList extends Component {
   }
 
   @autobind
-  changeAddressOption(id) {
+  changeAddressOption(id: number) {
     this.setState({
       activeAddressId: id,
     });
@@ -164,7 +166,9 @@ class AddressList extends Component {
 
   @autobind
   saveAndContinue() {
-    this.props.continueAction(this.state.activeAddressId);
+    if (this.state.activeAddressId != null) {
+      this.props.saveShippingAddress(this.state.activeAddressId).then(this.props.onComplete);
+    }
   }
 
   renderAddresses() {
@@ -244,7 +248,7 @@ class AddressList extends Component {
         submit={this.saveAndContinue}
         title="SHIPPING ADDRESS"
         error={props.error}
-        inProgress={props.inProgress}
+        inProgress={_.get(props.saveShippingState, 'inProgress', false)}
       >
         {this.renderAddresses()}
       </CheckoutForm>
