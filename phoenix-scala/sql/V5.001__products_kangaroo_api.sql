@@ -11,7 +11,7 @@ alter table sku_album_links rename to variant_album_links;
 -- Update kinds in object forms
 update object_forms set kind = 'product-option' where kind = 'variant';
 update object_forms set kind = 'product-value' where kind = 'variant-value';
-update object_forms set kind = 'product-variant' where kind = 'sku';
+update object_forms set kind = 'variant' where kind = 'sku';
 
 
 -- Views
