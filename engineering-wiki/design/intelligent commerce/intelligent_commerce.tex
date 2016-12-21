@@ -78,7 +78,7 @@ We need to build several foundational pieces based on the principles above.
     \item Channels
     \item Oracles
     \item CMS/Object Store
-    \item Bandit Proxy
+    \item River Rock Proxy
     \item Chameleon Components
 \end{itemize}
 
@@ -91,7 +91,7 @@ We need to build several foundational pieces based on the principles above.
 
     c [shape=note,label="Client"];
     m [shape=rectangle,label="Chameleon Components"];
-    a [shape=rectangle,label="Bandit Proxy"];
+    a [shape=rectangle,label="River Rock Proxy"];
     o [shape=box3d,label="Object Store"];
     d [shape=rectangle,label="Data Collection"];
     s [shape=box3d,label="Stats Store"];
@@ -148,16 +148,18 @@ We currently have an object store driving most PIM and MERCH data. However, we
 need to remove the constraints of certain data types and allow any kind of data to be stored in a
 flexible and generic way, including drive our CMS.
 
-\subsection{Bandit Proxy}
+\subsection{River Rock Proxy}
 
-For a particular channel, this is a proxy that uses the Stats Store to decide
-which context to show the consumer. This allows our system to make and track intelligent
-changes. It is called the Bandit Proxy because it will use a particular version
-of Markov Decision Process called the Multi Armed Bandit algorithm.
+This is a proxy that uses the Stats Store to decide
+which context to show the consumer for a particular channel. 
+This allows our system to make and track intelligent changes. 
+It use a particular version of Markov Decision Process called the Multi Armed 
+Bandit algorithm. It is called the River Rock Proxy because it uses green river to polish
+the output to a channel like a river rock. 
 
 \subsection{Chameleon Components}
 
-These are UI components that look different given a context. The Bandit Proxy 
+These are UI components that look different given a context. The River Rock Proxy 
 will decide Context and the UI can adjust depending on what is chosen. 
 
 \end{document}
