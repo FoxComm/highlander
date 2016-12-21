@@ -13,7 +13,7 @@ import { AddressDetails } from 'ui/address';
 import AddressList from './address-list';
 import GuestShipping from './guest-shipping';
 
-import { saveShippingAddress, updateAddress, addShippingAddress } from 'modules/checkout';
+import { saveShippingAddress, updateAddress, addShippingAddress, updateShippingAddress } from 'modules/checkout';
 import type { Address } from 'types/address';
 import type { AsyncStatus } from 'types/async-actions';
 
@@ -30,6 +30,7 @@ type Props = {
   t: any,
   shippingAddress: Object,
   addShippingAddress: (address: Address) => Promise,
+  updateShippingAddress: (address: Address) => Promise,
   saveShippingAddress: (id: number) => Promise,
   saveShippingState: AsyncStatus,
   updateAddress: (address: Address, id?: number) => Promise,
@@ -73,6 +74,7 @@ class Shipping extends Component {
       return (
         <GuestShipping
           addShippingAddress={props.addShippingAddress}
+          updateShippingAddress={props.updateShippingAddress}
           shippingAddress={props.shippingAddress}
           auth={props.auth}
           onComplete={props.onComplete}
@@ -105,6 +107,7 @@ class Shipping extends Component {
 export default _.flowRight(
   localized,
   connect(mapStateToProps, {
+    updateShippingAddress,
     addShippingAddress,
     saveShippingAddress,
     updateAddress,

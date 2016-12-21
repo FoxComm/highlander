@@ -112,6 +112,20 @@ const _addShippingAddress = createAsyncActions(
 
 export const addShippingAddress = _addShippingAddress.perform;
 
+const _updateShippingAddress = createAsyncActions(
+  'updateShippingAddress',
+  function(address) {
+    const { dispatch } = this;
+    const payload = addressToPayload(address);
+    return foxApi.cart.updateShippingAddress(payload)
+      .then(res => {
+        dispatch(updateCart(res.result));
+      });
+  }
+);
+
+export const updateShippingAddress = _updateShippingAddress.perform;
+
 export function saveShippingMethod(shippingMethod): Function {
   return (dispatch, getState, api) => {
     const methodId = shippingMethod.id;

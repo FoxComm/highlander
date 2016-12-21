@@ -5,6 +5,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import localized from 'lib/i18n';
+import { lookupAddressId } from 'paragons/address';
 
 // components
 import EditableBlock from 'ui/editable-block';
@@ -52,20 +53,7 @@ class AddressList extends Component {
 
   // IDs in cart.shippingAddress and in addresses DON'T match!
   lookupAddressId(address: ?Address): null|number {
-    let addressId = null;
-
-    if (address) {
-      const sample = _.omit(address, 'id');
-
-      _.some(this.props.addresses, nextAddress => {
-        if (_.isEqual(_.omit(nextAddress, 'id'), sample)) {
-          addressId = nextAddress.id;
-          return true;
-        }
-      });
-    }
-
-    return addressId;
+    return lookupAddressId(this.props.addresses, address);
   }
 
   componentWillMount() {

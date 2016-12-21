@@ -18,6 +18,7 @@ type Props = {
   shippingAddress?: Address,
   auth: Object,
   addShippingAddress: (address: Address) => Promise,
+  updateShippingAddress: (address: Address) => Promise,
   onComplete: Function,
   saveEmail: (email: string) => Promise,
   submitInProgress: boolean,
@@ -32,6 +33,7 @@ type State = {
 function mapStateToProps(state) {
   return {
     submitInProgress: _.get(state.asyncActions, 'addShippingAddress.inProgress', false) ||
+    _.get(state.asyncActions, 'updateShippingAddress.inProgress', false) ||
       _.get(state.asyncActions, 'save-email.inProgress', false),
     submitError: _.get(state.asyncActions, 'addShippingAddress.err') ||
     _.get(state.asyncActions, 'save-email.err'),
@@ -63,8 +65,10 @@ class GuestShipping extends Component {
 
   @autobind
   saveAndContinue() {
+    const { props } = this;
+    const saveAction = props.shippingAddress ? props.updateShippingAddress : props.addShippingAddress;
     let actions = [
-      this.props.addShippingAddress(this.state.newAddress),
+      saveAction(this.state.newAddress),
     ];
     if (_.get(this.props.auth.user, 'email') != this.state.email) {
       actions = [
