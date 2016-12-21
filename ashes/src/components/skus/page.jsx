@@ -35,7 +35,7 @@ class SkuPage extends ObjectPage {
   props: Props;
 
   get code(): string {
-    return _.get(this.props.originalObject, 'attributes.code.v', '');
+    return _.get(this.props.originalObject, 'attributes.code', '');
   }
 
   get pageTitle(): string {

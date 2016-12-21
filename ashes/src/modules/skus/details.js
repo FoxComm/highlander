@@ -97,7 +97,12 @@ const initialState: SkuState = {
   sku: null,
 };
 
-function updateSkuInState(state: SkuState, sku: Sku) {
+function updateSkuInState(state: SkuState, skuData: Sku) {
+  const sku = {
+    id: skuData.id,
+    attributes: skuData,
+  };
+
   return {
     ...state,
     sku,
