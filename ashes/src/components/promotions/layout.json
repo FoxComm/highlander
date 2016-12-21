@@ -5,7 +5,7 @@
       "title": "General",
       "content": [
         {
-          "type": "apply-type"
+          "type": "applyType"
         },
         {
           "type": "fields",

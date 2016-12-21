@@ -15,12 +15,17 @@
     {
       "type": "group",
       "title": "Pricing",
-      "fields": {
-        "value": [
-          "unitCost",
-          "taxClass"
-        ]
-      }
+      "content": [
+        {
+          "type": "fields",
+          "value": [
+            "unitCost"
+          ]
+        },
+        {
+          "type": "taxClass"
+        }
+      ]
     },
     {
       "type": "group",

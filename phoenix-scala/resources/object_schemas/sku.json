@@ -37,13 +37,6 @@
             }
           }
         },
-        "taxClass": {
-          "type": "options",
-          "title": "Tax Class",
-          "fieldsOptions": [
-            "Default"
-          ]
-        },
         "requiresShipping": {
           "type": "options",
           "title": "Item requires shipping?",
