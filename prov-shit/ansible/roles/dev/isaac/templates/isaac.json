@@ -9,7 +9,7 @@
     "type": "DOCKER",
     "volumes": [
       {
-        "containerPath": "/keys",
+        "containerPath": "/certs",
         "hostPath": "{{public_keys_dest_dir}}",
         "mode": "RO"
       },
