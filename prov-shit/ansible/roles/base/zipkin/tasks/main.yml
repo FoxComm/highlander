@@ -12,5 +12,6 @@
 - name: Start Zipkin Services
   service: name=zipkin state=started enabled=yes
 
-- name: Copy Consul Service Files
+- name: Copy Consul Service File
   template: src=zipkin.json dest=/etc/consul.d/
+  notify: reload consul

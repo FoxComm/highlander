@@ -21,13 +21,13 @@
   roles:
     - { role: dev/appliance, run_once: true }
     - { role: base/secret_keys }
+    - { role: base/zipkin }
     - { role: dev/consul_agent }
     - { role: base/marketplace, when: with_marketplace }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/kibana }
     - { role: dev/db }
-    - { role: base/zipkin }
     - { role: dev/isaac }
     - { role: dev/phoenix }
     - { role: dev/solomon }
