@@ -17,6 +17,8 @@ import storeCreditsActivities from './store-credits';
 import assignmentsActivities from './assignments';
 import productsActivities from './products';
 import skusActivities from './skus';
+import couponActivities from './coupons';
+import promotionActivities from './promotions';
 
 export const representatives = {
   ...ordersActivities,
@@ -33,6 +35,8 @@ export const representatives = {
   ...assignmentsActivities,
   ...productsActivities,
   ...skusActivities,
+  ...couponActivities,
+  ...promotionActivities,
 };
 
 export function getActivityRepresentative(activity) {
