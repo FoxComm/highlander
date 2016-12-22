@@ -7,4 +7,4 @@ RUN mkdir -p /stock-items-consumer
 WORKDIR /stock-items-consumer
 COPY stock-items-consumer /stock-items-consumer
 
-CMD ["/stock-items-consumer/stock-items-consumer"] 
+CMD /stock-items-consumer/stock-items-consumer 2>&1 | tee /logs/stock-items-consumer.log
