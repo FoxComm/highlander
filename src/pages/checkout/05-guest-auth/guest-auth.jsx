@@ -38,11 +38,6 @@ class GuestAuth extends Component {
   }
 
   @autobind
-  doCheckoutAfterAuth() {
-    this.props.checkoutAfterSignIn();
-  }
-
-  @autobind
   getPath(newType: ?string): Object {
     const { location } = this.props;
     return newType ? assoc(location, ['query', 'auth'], newType) : dissoc(location, ['query', 'auth']);
@@ -65,7 +60,6 @@ class GuestAuth extends Component {
           mergeGuestCart
           getPath={this.getPath}
           title="LOG IN & CHECKOUT"
-          onAuthenticated={this.doCheckoutAfterAuth}
           onSignupClick={this.toggleAuthForm}
         />
       );
@@ -75,7 +69,6 @@ class GuestAuth extends Component {
         mergeGuestCart
         getPath={this.getPath}
         title="SIGN UP & CHECKOUT"
-        onGuestCheckout={this.doCheckoutAfterAuth}
         onLoginClick={this.toggleAuthForm}
       />
     );
