@@ -52,7 +52,9 @@ will have been created. You can exit the VM.
 The appliance VM (a single VM containing all services) can be run either on your
 local environment through VirtualBox or VMWare Fusion, or in the cloud through
 Google Compute Engine. If you have sufficient hardware resources, a local VM
-will give you the most flexibility and performance.
+will give you the most flexibility and performance. Currently, the VM is
+configured to use 8 GB of memory and 4 vCPUs, so it’s not worth trying unless
+you have 12+ GB of RAM.
 
 **Local VM**
 
