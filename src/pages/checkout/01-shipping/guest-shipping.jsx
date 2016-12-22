@@ -66,7 +66,7 @@ class GuestShipping extends Component {
   @autobind
   saveAndContinue() {
     const { props } = this;
-    const saveAction = props.shippingAddress ? props.updateShippingAddress : props.addShippingAddress;
+    const saveAction = !_.isEmpty(props.shippingAddress) ? props.updateShippingAddress : props.addShippingAddress;
     let actions = [
       saveAction(this.state.newAddress),
     ];

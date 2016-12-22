@@ -12,21 +12,37 @@ import RadioButton from 'ui/radiobutton/radiobutton';
 import Loader from 'ui/loader';
 import CheckoutForm from '../checkout-form';
 
+// types
+
+import type { AsyncStatus } from 'types/async-actions';
+import { saveShippingMethod } from 'modules/checkout';
+
 // styles
 import styles from './delivery.css';
 
+type ShippingMethodLike = {
+  id: number,
+}
 
 type Props = {
-  continueAction: Function,
+  onComplete: Function,
   shippingMethods: Array<any>,
   cart: Object,
   fetchShippingMethods: Function,
   shippingMethodCost: Function,
+  saveShippingMethod: (shippingMethod: ShippingMethodLike) => Promise,
   isLoading: boolean,
-  error: ?Array<any>,
-  inProgress: boolean,
   onUpdateCart: (cart: Object) => void,
+  saveDeliveryState: AsyncStatus,
 };
+
+function mapStateToProps(state) {
+  return {
+    isLoading: _.get(state.asyncActions, ['shippingMethods', 'inProgress'], true),
+    saveDeliveryState: _.get(state.asyncActions, 'saveShippingMethod', {}),
+  };
+}
+
 
 class EditDelivery extends Component {
   props: Props;
@@ -40,7 +56,7 @@ class EditDelivery extends Component {
     const selectedMethod = this.props.cart.shippingMethod;
     if (selectedMethod) {
       tracking.chooseShippingMethod(selectedMethod.code || selectedMethod.name);
-      this.props.continueAction();
+      this.props.saveShippingMethod(selectedMethod).then(this.props.onComplete);
     }
   }
 
@@ -85,8 +101,8 @@ class EditDelivery extends Component {
       <CheckoutForm
         submit={this.handleSubmit}
         title="DELIVERY METHOD"
-        error={props.error}
-        inProgress={props.inProgress}
+        error={props.saveDeliveryState.err}
+        inProgress={props.saveDeliveryState.inProgress}
       >
         {this.shippingMethods}
       </CheckoutForm>
@@ -94,10 +110,6 @@ class EditDelivery extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {
-    isLoading: _.get(state.asyncActions, ['shippingMethods', 'inProgress'], true),
-  };
-}
-
-export default connect(mapStateToProps)(EditDelivery);
+export default connect(mapStateToProps, {
+  saveShippingMethod,
+})(EditDelivery);

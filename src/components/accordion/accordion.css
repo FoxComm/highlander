@@ -7,7 +7,7 @@
   position: relative;
   margin: 0;
   height: 50px;
-  font-weight: 300;
+  font-weight: 500;
 
   &:after {
     content: "▲";

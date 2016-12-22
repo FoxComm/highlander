@@ -30,7 +30,6 @@ type Props = {
   onComplete: () => void,
   saveShippingState: AsyncStatus,
   t: any,
-  error: any,
 };
 
 type State = {
@@ -235,7 +234,7 @@ class AddressList extends Component {
       <CheckoutForm
         submit={this.saveAndContinue}
         title="SHIPPING ADDRESS"
-        error={props.error}
+        error={_.get(props.saveShippingState, 'err')}
         inProgress={_.get(props.saveShippingState, 'inProgress', false)}
       >
         {this.renderAddresses()}

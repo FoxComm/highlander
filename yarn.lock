@@ -10,9 +10,9 @@
     isomorphic-fetch "^2.2.1"
     jwt-decode "^2.0.1"
 
-"@foxcomm/wings@^1.7.1":
-  version "1.7.1"
-  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fwings/-/wings-1.7.1.tgz#fef1e811790482e6acf5438ed09ec6530e90ea91"
+"@foxcomm/wings@^1.8.0":
+  version "1.8.0"
+  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fwings/-/wings-1.8.0.tgz#9ffb44bf396e80d58e49fa4d498710208298171e"
   dependencies:
     classnames "^2.2.5"
     flow-bin "^0.36.0"

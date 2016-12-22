@@ -17,7 +17,7 @@ type Props = {
   isScrolled: boolean,
   setShippingStage: Function,
   setDeliveryStage: Function,
-  setBillingState: Function,
+  setBillingStage: Function,
   isGuestAuth: boolean,
   currentStage: number,
 };
@@ -28,7 +28,7 @@ const Header = (props: Props) => {
   const navItems = [
     ['Shipping', props.setShippingStage, EditStages.SHIPPING],
     ['Delivery', props.setDeliveryStage, EditStages.DELIVERY],
-    ['Billing', props.setBillingState, EditStages.BILLING],
+    ['Billing', props.setBillingStage, EditStages.BILLING],
   ];
 
   const navList = navItems.map(([title, callback, stage], i) => {

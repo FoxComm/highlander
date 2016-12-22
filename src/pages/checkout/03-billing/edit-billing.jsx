@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import { cardMask } from '@foxcomm/wings/lib/payment-cards';
 import localized from 'lib/i18n';
 import { api as foxApi } from 'lib/api';
+import { isGuest } from 'paragons/auth';
 
 // components
 import { FormField } from 'ui/forms';
@@ -26,6 +27,8 @@ import Accordion from '../../../components/accordion/accordion';
 
 // styles
 import styles from './billing.css';
+// $FlowFixMe: there is style name from css module
+import { subtitle } from '../01-shipping/guest-shipping.css';
 
 // actions
 import * as cartActions from 'modules/cart';
@@ -33,20 +36,24 @@ import * as checkoutActions from 'modules/checkout';
 
 // types
 import type { CreditCardType, CheckoutActions } from '../types';
+import type { AsyncStatus } from 'types/async-actions';
 
 type Props = CheckoutActions & {
   error: Array<any>,
   data: CreditCardType,
   billingData: ?CreditCardType,
   continueAction: Function,
-  performStageTransition: Function,
   t: any,
-  inProgress: boolean,
   saveCouponCode: Function,
   removeCouponCode: Function,
   coupon: ?Object,
   promotion: ?Object,
   totals: Object,
+  auth: ?Object,
+  updateCreditCardInProgress: boolean,
+  updateCreditCardError: void|Object,
+  checkoutState: AsyncStatus,
+  giftCards: Array<Object>,
 };
 
 type State = {
@@ -57,6 +64,18 @@ type State = {
 
 function numbersComparator(value1, value2) {
   return Number(value1) === Number(value2);
+}
+
+function mapStateToProps(state) {
+  return {
+    data: state.checkout.billingData,
+    ...state.cart,
+    updateCreditCardError: _.get(state.asyncActions, 'addCreditCard.err')
+    || _.get(state.asyncActions, 'updateCreditCard.err'),
+    updateCreditCardInProgress: _.get(state.asyncActions, 'addCreditCard.inProgress', false)
+    || _.get(state.asyncActions, 'updateCreditCard.inProgress', false),
+    checkoutState: _.get(state.asyncActions, 'checkout', {}),
+  };
 }
 
 class EditBilling extends Component {
@@ -74,6 +93,10 @@ class EditBilling extends Component {
         billingAddressIsSame: false,
       });
     }
+  }
+
+  get isGuestMode(): boolean {
+    return isGuest(this.props.auth);
   }
 
   @autobind
@@ -116,7 +139,7 @@ class EditBilling extends Component {
     this.props.setBillingData('isDefault', value);
   }
 
-  get billingAddress() {
+  renderBillingAddress(withoutDefaultCheckbox = false) {
     const { billingAddressIsSame } = this.state;
 
     if (billingAddressIsSame) {
@@ -126,6 +149,7 @@ class EditBilling extends Component {
     return (
       <EditAddress
         {...this.props}
+        withoutDefaultCheckbox={withoutDefaultCheckbox}
         address={this.props.data.address}
         onUpdate={this.props.setBillingAddress}
       />
@@ -177,10 +201,9 @@ class EditBilling extends Component {
 
   @autobind
   cancelEditing() {
-    this.props.performStageTransition('billingInProgress', () => {
-      return new Promise(resolve => {
-        this.setState({ addingNew: false, cardAdded: false }, () => resolve());
-      });
+    this.setState({
+      addingNew: false,
+      cardAdded: false,
     });
   }
 
@@ -195,11 +218,13 @@ class EditBilling extends Component {
     const id = _.get(this.props, 'billingData.id');
     const { billingAddressIsSame } = this.state;
 
-    this.props.performStageTransition('isProceedingCard', () => {
-      const operation = id
-        ? this.props.updateCreditCard(id, billingAddressIsSame)
-        : this.props.addCreditCard(billingAddressIsSame);
-      return operation.then(() => this.setState({ addingNew: false, cardAdded: (id === undefined) }));
+    const operation = id
+      ? this.props.updateCreditCard(id, billingAddressIsSame)
+      : this.props.addCreditCard(billingAddressIsSame);
+
+    return operation.then(card => {
+      this.setState({ addingNew: false, cardAdded: (id === undefined) });
+      return card;
     });
   }
 
@@ -221,7 +246,7 @@ class EditBilling extends Component {
     });
   }
 
-  get editCardForm() {
+  renderCardEditForm(withoutDefaultCheckbox = false) {
     const { props } = this;
     const { data, t } = props;
 
@@ -234,8 +259,7 @@ class EditBilling extends Component {
       (_.repeat('**** ', 3) + data.lastFour) : t('CARD NUMBER');
     const cvcPlaceholder = editingSavedCard ? '***' : 'CVC';
 
-    return (
-      <div styleName="edit-card-form">
+    const defaultCheckbox = withoutDefaultCheckbox ? null : (
         <Checkbox
           styleName="checkbox-field"
           name="isDefault"
@@ -245,132 +269,99 @@ class EditBilling extends Component {
         >
           Make this card my default
         </Checkbox>
-          <FormField styleName="text-field">
-            <TextInput
-              required
-              name="holderName"
-              placeholder={t('NAME ON CARD')}
-              value={data.holderName}
-              onChange={this.changeFormData}
-            />
-          </FormField>
-          <div styleName="union-fields">
-            <FormField styleName="card-number-field" validator={this.validateCardNumber}>
-              <TextInputWithLabel
-                label={this.paymentIcon}
-              >
-                <InputMask
-                  required
-                  disabled={editingSavedCard}
-                  styleName="payment-input"
-                  className={textStyles['text-input']}
-                  maskChar=" "
-                  type="text"
-                  mask={this.cardMask}
-                  name="number"
-                  placeholder={cardNumberPlaceholder}
-                  size="20"
-                  value={data.number}
-                  onChange={this.changeCardNumber}
-                />
-              </TextInputWithLabel>
-            </FormField>
-            <FormField styleName="cvc-field" validator={this.validateCvcNumber}>
-              <TextInputWithLabel
+      );
+
+    return (
+      <div styleName="edit-card-form">
+        {defaultCheckbox}
+        <FormField styleName="text-field">
+          <TextInput
+            required
+            name="holderName"
+            placeholder={t('NAME ON CARD')}
+            value={data.holderName}
+            onChange={this.changeFormData}
+          />
+        </FormField>
+        <div styleName="union-fields">
+          <FormField styleName="card-number-field" validator={this.validateCardNumber}>
+            <TextInputWithLabel
+              label={this.paymentIcon}
+            >
+              <InputMask
                 required
                 disabled={editingSavedCard}
-                label={<CvcHelp />}
-                type="number"
-                maxLength="4"
-                placeholder={cvcPlaceholder}
-                onChange={this.changeCVC}
-                value={data.cvc}
+                styleName="payment-input"
+                className={textStyles['text-input']}
+                maskChar=" "
+                type="text"
+                mask={this.cardMask}
+                name="number"
+                placeholder={cardNumberPlaceholder}
+                size="20"
+                value={data.number}
+                onChange={this.changeCardNumber}
               />
-            </FormField>
-          </div>
-          <div styleName="union-fields">
-            <FormField required styleName="text-field" getTargetValue={() => data.expMonth}>
-              <Autocomplete
-                inputProps={{
-                  placeholder: t('MONTH'),
-                  type: 'text',
-                }}
-                compareValues={numbersComparator}
-                getItemValue={item => item}
-                items={months}
-                onSelect={this.changeMonth}
-                selectedItem={data.expMonth}
-              />
-            </FormField>
-            <FormField required styleName="text-field" getTargetValue={() => data.expYear}>
-              <Autocomplete
-                inputProps={{
-                  placeholder: t('YEAR'),
-                  type: 'text',
-                }}
-                compareValues={numbersComparator}
-                allowCustomValues
-                getItemValue={item => item}
-                items={years}
-                onSelect={this.changeYear}
-                selectedItem={data.expYear}
-              />
-            </FormField>
-          </div>
-          <Checkbox
-            id="billingAddressIsSame"
-            checked={this.state.billingAddressIsSame}
-            onChange={this.toggleSeparateBillingAddress}
-            styleName="same-address-checkbox"
-          >
-            {t('Billing address is same as shipping')}
-          </Checkbox>
-          {this.billingAddress}
+            </TextInputWithLabel>
+          </FormField>
+          <FormField styleName="cvc-field" validator={this.validateCvcNumber}>
+            <TextInputWithLabel
+              required
+              disabled={editingSavedCard}
+              label={<CvcHelp />}
+              type="number"
+              maxLength="4"
+              placeholder={cvcPlaceholder}
+              onChange={this.changeCVC}
+              value={data.cvc}
+            />
+          </FormField>
+        </div>
+        <div styleName="union-fields">
+          <FormField required styleName="text-field" getTargetValue={() => data.expMonth}>
+            <Autocomplete
+              inputProps={{
+                placeholder: t('MONTH'),
+                type: 'text',
+              }}
+              compareValues={numbersComparator}
+              getItemValue={item => item}
+              items={months}
+              onSelect={this.changeMonth}
+              selectedItem={data.expMonth}
+            />
+          </FormField>
+          <FormField required styleName="text-field" getTargetValue={() => data.expYear}>
+            <Autocomplete
+              inputProps={{
+                placeholder: t('YEAR'),
+                type: 'text',
+              }}
+              compareValues={numbersComparator}
+              allowCustomValues
+              getItemValue={item => item}
+              items={years}
+              onSelect={this.changeYear}
+              selectedItem={data.expYear}
+            />
+          </FormField>
+        </div>
+        <Checkbox
+          id="billingAddressIsSame"
+          checked={this.state.billingAddressIsSame}
+          onChange={this.toggleSeparateBillingAddress}
+          styleName="same-address-checkbox"
+        >
+          {t('Billing address is same as shipping')}
+        </Checkbox>
+        {this.renderBillingAddress(withoutDefaultCheckbox)}
       </div>
     );
   }
 
-  render() {
-    const { inProgress, t, giftCards } = this.props;
-
-    if (this.state.addingNew) {
-      const action = {
-        action: this.cancelEditing,
-        title: 'Cancel',
-      };
-
-      return (
-        <CheckoutForm
-          submit={this.updateCreditCard}
-          title={t('Add Card')}
-          error={this.props.error}
-          buttonLabel="SAVE & CONTINUE"
-          action={action}
-          inProgress={inProgress}
-        >
-          {this.editCardForm}
-        </CheckoutForm>
-      );
-    }
-
+  renderPaymentFeatures() {
     return (
-      <CheckoutForm
-        submit={this.handleSubmit}
-        title="PAYMENT METHOD"
-        error={this.props.error}
-        buttonLabel="Place Order"
-        inProgress={inProgress}
-      >
-        <fieldset styleName="fieldset-cards">
-          <CreditCards
-            selectCreditCard={this.selectCreditCard}
-            editCard={this.editCard}
-            deleteCard={this.deleteCreditCard}
-            cardAdded={this.state.cardAdded}
-          />
-          <button onClick={this.addNew} type="button" styleName="add-card-button">Add Card</button>
-        </fieldset>
-
+      <div key="payment-features">
         <Accordion title="COUPON CODE?">
           <PromoCode
             placeholder="Coupon Code"
@@ -387,29 +378,90 @@ class EditBilling extends Component {
           <PromoCode
             placeholder="Gift Card Number"
             buttonLabel="Redeem"
-            giftCards={giftCards}
+            giftCards={this.props.giftCards}
             saveCode={this.props.saveGiftCard}
             removeCode={this.props.removeGiftCard}
             context="billingEdit"
           />
         </Accordion>
+      </div>
+    );
+  }
 
+  @autobind
+  submitCardAndContinue() {
+    return this.updateCreditCard().then(card => {
+      this.props.selectCreditCard(card);
+      this.props.continueAction();
+    });
+  }
+
+  renderGuestView() {
+    const { props } = this;
+
+    return (
+      <CheckoutForm
+        submit={this.submitCardAndContinue}
+        error={props.updateCreditCardError}
+        buttonLabel="Place Order"
+        inProgress={props.updateCreditCardInProgress || props.checkoutState.inProgress}
+      >
+        <div className={subtitle}>PAYMENT METHOD</div>
+        {this.renderCardEditForm(true)}
+        { this.renderPaymentFeatures() }
+      </CheckoutForm>
+    );
+  }
+
+  render() {
+    const { props } = this;
+    const { t } = props;
+
+    if (this.isGuestMode) {
+      return this.renderGuestView();
+    }
+
+    if (this.state.addingNew) {
+      const action = {
+        action: this.cancelEditing,
+        title: 'Cancel',
+      };
+
+      return (
+        <CheckoutForm
+          submit={this.updateCreditCard}
+          title={t('Add Card')}
+          error={props.updateCreditCardError}
+          buttonLabel="SAVE & CONTINUE"
+          action={action}
+          inProgress={props.updateCreditCardInProgress}
+        >
+          {this.renderCardEditForm()}
+        </CheckoutForm>
+      );
+    }
+
+    return (
+      <CheckoutForm
+        submit={this.handleSubmit}
+        title="PAYMENT METHOD"
+        error={null} // error for placing order action is showed in Checkout component
+        buttonLabel="Place Order"
+        inProgress={props.checkoutState.inProgress}
+      >
+        <fieldset styleName="fieldset-cards">
+          <CreditCards
+            selectCreditCard={this.selectCreditCard}
+            editCard={this.editCard}
+            deleteCard={this.deleteCreditCard}
+            cardAdded={this.state.cardAdded}
+          />
+          <button onClick={this.addNew} type="button" styleName="add-card-button">Add Card</button>
+        </fieldset>
+        { this.renderPaymentFeatures() }
       </CheckoutForm>
     );
   }
 }
 
-function mapStateToProps(state) {
-  return {
-    data: state.checkout.billingData,
-    ...state.cart,
-  };
-}
-
-export default connect(
-  mapStateToProps,
-  {
-    ...checkoutActions,
-    ...cartActions,
-  }
-)(localized(EditBilling));
+export default connect(mapStateToProps, { ...checkoutActions, ...cartActions })(localized(EditBilling));
