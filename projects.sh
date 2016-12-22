@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 VERBOSE=false
 if [[ $# -ge 1 ]] && [[ $1 == "-verbose" ]]; then
     VERBOSE=true
