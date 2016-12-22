@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 WORK_DIR=/var/lib/mesos
 LOG_DIR=/var/log/mesos
