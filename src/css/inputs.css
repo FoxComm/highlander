@@ -4,6 +4,11 @@ input[type=number]::-webkit-inner-spin-button {
   margin: 0;
 }
 
+input[type=tel] {
+  border-radius: 0;
+  -webkit-appearance: none;
+}
+
 input[type=number] {
   -moz-appearance: textfield;
 }
