@@ -1,5 +1,7 @@
 package utils.seeds
 
+import java.io.FileNotFoundException
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.implicits._
@@ -16,7 +18,7 @@ trait ObjectSchemaSeeds {
       _         ← * <~ ObjectSchemas.create(getSchema("album"))
       _         ← * <~ ObjectSchemas.create(getSchema("image"))
       price     ← * <~ ObjectSchemas.create(getSchema("price"))
-      variant   ← * <~ ObjectSchemas.create(getSchema("variant"))
+      _         ← * <~ ObjectSchemas.create(getSchema("product-variant"))
       coupon    ← * <~ ObjectSchemas.create(getSchema("coupon"))
       discount  ← * <~ ObjectSchemas.create(getSchema("discount"))
       promotion ← * <~ ObjectSchemas.create(getSchema("promotion"))
@@ -24,8 +26,12 @@ trait ObjectSchemaSeeds {
     } yield product
 
   private def loadJson(fileName: String): JValue = {
-    val stream = getClass.getResourceAsStream(fileName)
-    parse(scala.io.Source.fromInputStream(stream).mkString)
+    val streamMaybe = Option(getClass.getResourceAsStream(fileName))
+    streamMaybe.fold {
+      throw new java.io.FileNotFoundException(s"schema $fileName not found")
+    } { stream ⇒
+      parse(scala.io.Source.fromInputStream(stream).mkString)
+    }
   }
 
   def getSchema(name: String): ObjectSchema = {
