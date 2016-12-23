@@ -29,7 +29,7 @@ object OrderTotaler {
     sql"""select count(*), sum(coalesce(cast(vform.attributes->(vshadow.attributes->'salePrice'->>'ref')->>'value' as
        |  integer), 0)) as sum
        |	from order_line_items oli
-       |	left outer join product_variants variant on (variant.id = oli.variant_id)
+       |	left outer join product_variants variant on (variant.id = oli.product_variant_id)
        |	left outer join object_forms vform on (vform.id = variant.form_id)
        |	left outer join object_shadows vshadow on (vshadow.id = oli.variant_shadow_id)
        |

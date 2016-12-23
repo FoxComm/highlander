@@ -33,7 +33,7 @@ object CartTotaler {
     sql"""select count(*), sum(coalesce(cast(vform.attributes->(vshadow.attributes->'salePrice'->>'ref')->>'value' as
        | integer), 0)) as sum
        |	from cart_line_items sli
-       |	left outer join product_variants variant on (variant.id = sli.variant_id)
+       |	left outer join product_variants variant on (variant.id = sli.product_variant_id)
        |	left outer join object_forms vform on (vform.id = variant.form_id)
        |	left outer join object_shadows vshadow on (vshadow.id = variant.shadow_id)
        |

@@ -244,7 +244,7 @@ class ProductIntegrationTest
         productsApi
           .create(newProductPayload)
           .mustFailWithMessage(
-              """Object variant with id=13 doesn't pass validation: $.code: must be at least 1 characters long""")
+              """Object product-variant with id=13 doesn't pass validation: $.code: must be at least 1 characters long""".stripMargin)
       }
 
       "trying to create a product with archived SKU" in new ArchivedSkuFixture {
@@ -263,7 +263,7 @@ class ProductIntegrationTest
 
         createResponse.mustHaveStatus(StatusCodes.BadRequest)
         val errorPattern =
-          "Object variant with id=\\d+ doesn't pass validation: \\$.salePrice.value: string found, number expected"
+          "Object product-variant with id=\\d+ doesn't pass validation: \\$.salePrice.value: string found, number expected"
         createResponse.error must fullyMatch regex errorPattern.r
       }
     }
