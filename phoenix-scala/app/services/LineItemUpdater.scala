@@ -145,7 +145,7 @@ object LineItemUpdater {
       cart  ← * <~ CartTotaler.saveTotals(cart)
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
-      li    ← * <~ CartLineItems.byCordRef(cart.refNum).countVariants
+      li    ← * <~ CartLineItems.byCordRef(cart.refNum).countProductVariants
       _     ← * <~ logAct(res, li)
     } yield TheResponse.validated(res, valid)
 
@@ -184,7 +184,8 @@ object LineItemUpdater {
                               cordRef: String,
                               attributes: Option[LineItemAttributes])(implicit ec: EC) = {
     require(quantity > 0)
-    val lineItem = CartLineItem(cordRef = cordRef, variantId = skuId, attributes = attributes)
+    val lineItem =
+      CartLineItem(cordRef = cordRef, productVariantId = skuId, attributes = attributes)
     CartLineItems.createAllReturningModels(List.fill(quantity)(lineItem))
   }
 
@@ -236,7 +237,7 @@ object LineItemUpdater {
       requestedAttrs: Option[LineItemAttributes])(implicit ec: EC): DbResultT[Unit] =
     CartLineItems
       .byCordRef(cordRef)
-      .filter(_.variantId === skuId)
+      .filter(_.productVariantId === skuId)
       .result
       .dbresult
       .flatMap { lineItemsInCart ⇒

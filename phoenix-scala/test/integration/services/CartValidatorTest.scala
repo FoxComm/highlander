@@ -152,7 +152,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
       sku           ← * <~ ProductVariants.mustFindById404(productData.skuId)
       skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      items         ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, variantId = sku.id))
+      items         ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, productVariantId = sku.id))
       _             ← * <~ CartTotaler.saveTotals(cart)
     } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme
 
@@ -168,7 +168,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
       sku           ← * <~ ProductVariants.mustFindById404(productData.skuId)
       skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      items         ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, variantId = sku.id))
+      items         ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, productVariantId = sku.id))
       _             ← * <~ CartTotaler.saveTotals(cart)
     } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme
 

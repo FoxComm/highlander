@@ -19,9 +19,9 @@ import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 trait LineItemProductData[LI] {
-  def variant: ProductVariant
-  def variantForm: ObjectForm
-  def variantShadow: ObjectShadow
+  def productVariant: ProductVariant
+  def productVariantForm: ObjectForm
+  def productVariantShadow: ObjectShadow
   def productForm: ObjectForm
   def productShadow: ObjectShadow
   def image: Option[String]
@@ -32,9 +32,9 @@ trait LineItemProductData[LI] {
   def withLineItemReferenceNumber(newLineItemRef: String): LineItemProductData[LI]
 }
 
-case class OrderLineItemProductData(variant: ProductVariant,
-                                    variantForm: ObjectForm,
-                                    variantShadow: ObjectShadow,
+case class OrderLineItemProductData(productVariant: ProductVariant,
+                                    productVariantForm: ObjectForm,
+                                    productVariantShadow: ObjectShadow,
                                     productForm: ObjectForm,
                                     productShadow: ObjectShadow,
                                     image: Option[String],
@@ -50,8 +50,8 @@ case class OrderLineItemProductData(variant: ProductVariant,
 case class OrderLineItem(id: Int = 0,
                          referenceNumber: String = "",
                          cordRef: String,
-                         variantId: Int,
-                         variantShadowId: Int,
+                         productVariantId: Int,
+                         productVariantShadowId: Int,
                          state: OLI.State = OLI.Cart,
                          attributes: Option[LineItemAttributes] = None)
     extends FoxModel[OrderLineItem]
@@ -93,18 +93,18 @@ object OrderLineItem {
 }
 
 class OrderLineItems(tag: Tag) extends FoxTable[OrderLineItem](tag, "order_line_items") {
-  def id              = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def referenceNumber = column[String]("reference_number")
-  def cordRef         = column[String]("cord_ref")
-  def variantId       = column[Int]("variant_id")
-  def variantShadowId = column[Int]("variant_shadow_id")
-  def state           = column[OrderLineItem.State]("state")
-  def attributes      = column[Option[Json]]("attributes")
+  def id                     = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def referenceNumber        = column[String]("reference_number")
+  def cordRef                = column[String]("cord_ref")
+  def productVariantId       = column[Int]("product_variant_id")
+  def productVariantShadowId = column[Int]("product_variant_shadow_id")
+  def state                  = column[OrderLineItem.State]("state")
+  def attributes             = column[Option[Json]]("attributes")
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def * =
-    (id, referenceNumber, cordRef, variantId, variantShadowId, state, attributes).shaped <>
+    (id, referenceNumber, cordRef, productVariantId, productVariantShadowId, state, attributes).shaped <>
       ({
         case (id, refNum, cordRef, variantId, variantShadowId, state, attrs) ⇒
           OrderLineItem(id,
@@ -118,14 +118,16 @@ class OrderLineItems(tag: Tag) extends FoxTable[OrderLineItem](tag, "order_line_
         (oli.id,
          oli.referenceNumber,
          oli.cordRef,
-         oli.variantId,
-         oli.variantShadowId,
+         oli.productVariantId,
+         oli.productVariantShadowId,
          oli.state,
          oli.attributes.map(decompose)).some
       })
 
-  def variant = foreignKey(ProductVariants.tableName, variantId, ProductVariants)(_.id)
-  def shadow  = foreignKey(ObjectShadows.tableName, variantShadowId, ObjectShadows)(_.id)
+  def productVariant =
+    foreignKey(ProductVariants.tableName, productVariantId, ProductVariants)(_.id)
+  def productVariantShadow =
+    foreignKey(ObjectShadows.tableName, productVariantShadowId, ObjectShadows)(_.id)
 }
 
 object OrderLineItems
@@ -137,18 +139,18 @@ object OrderLineItems
   def findByOrderRef(cordRef: Rep[String]): Query[OrderLineItems, OrderLineItem, Seq] =
     filter(_.cordRef === cordRef)
 
-  def findByVariantId(id: Int): DBIO[Option[OrderLineItem]] =
-    filter(_.variantId === id).one
+  def findByProductVariantId(id: Int): DBIO[Option[OrderLineItem]] =
+    filter(_.productVariantId === id).one
 
   object scope {
     implicit class OrderLineItemQuerySeqConversions(q: QuerySeq) {
-      def withVariants: Query[(OrderLineItems, ProductVariants),
-                              (OrderLineItem, ProductVariant),
-                              Seq] =
+      def withProductVariants: Query[(OrderLineItems, ProductVariants),
+                                     (OrderLineItem, ProductVariant),
+                                     Seq] =
         for {
-          items    ← q
-          variants ← items.variant
-        } yield (items, variants)
+          items           ← q
+          productVariants ← items.productVariant
+        } yield (items, productVariants)
     }
   }
 

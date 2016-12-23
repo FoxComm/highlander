@@ -266,7 +266,7 @@ object ProductOptionManager {
       variantValueHeadIds: Seq[Int])(implicit ec: EC, db: DB): DbResultT[Map[Int, Seq[String]]] =
     for {
       links ← * <~ ProductValueVariantLinks
-               .findVariantsForProductValues(variantValueHeadIds)
+               .findProductVariantsForProductValues(variantValueHeadIds)
                .result
       linksMapping = links.groupBy { case (valueId, _) ⇒ valueId }.mapValues(_.map {
         case (_, skuCode) ⇒ skuCode

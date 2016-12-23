@@ -35,13 +35,13 @@ object LineItemManager {
 
   private def getCartLineItem(cartLineItem: CartLineItem)(implicit ec: EC, db: DB) =
     for {
-      variant ← * <~ ProductVariantManager.mustFindFullById(cartLineItem.variantId)
+      variant ← * <~ ProductVariantManager.mustFindFullById(cartLineItem.productVariantId)
       product ← * <~ getProductForVariant(variant.model)
       image   ← * <~ getLineItemImage(variant.model, product.model)
     } yield
-      CartLineItemProductData(variant = variant.model,
-                              variantForm = variant.form,
-                              variantShadow = variant.shadow,
+      CartLineItemProductData(productVariant = variant.model,
+                              productVariantForm = variant.form,
+                              productVariantShadow = variant.shadow,
                               productForm = product.form,
                               productShadow = product.shadow,
                               image = image,
@@ -51,14 +51,14 @@ object LineItemManager {
   private def getOrderLineItem(orderLineItem: OrderLineItem)(implicit ec: EC, db: DB) =
     for {
       variant ← * <~ ProductVariantManager.mustFindFullByIdAndShadowId(
-                   orderLineItem.variantId,
-                   orderLineItem.variantShadowId)
+                   orderLineItem.productVariantId,
+                   orderLineItem.productVariantShadowId)
       product ← * <~ getProductForVariant(variant.model)
       image   ← * <~ getLineItemImage(variant.model, product.model)
     } yield
-      OrderLineItemProductData(variant = variant.model,
-                               variantForm = variant.form,
-                               variantShadow = variant.shadow,
+      OrderLineItemProductData(productVariant = variant.model,
+                               productVariantForm = variant.form,
+                               productVariantShadow = variant.shadow,
                                productForm = product.form,
                                productShadow = product.shadow,
                                image = image,

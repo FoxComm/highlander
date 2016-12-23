@@ -134,7 +134,7 @@ case class Checkout(
 
   private def holdInMiddleWarehouse(implicit ctx: OC): DbResultT[Unit] =
     for {
-      liSkus               ← * <~ CartLineItems.byCordRef(cart.refNum).countVariants
+      liSkus               ← * <~ CartLineItems.byCordRef(cart.refNum).countProductVariants
       inventoryTrackedSkus ← * <~ filterInventoryTrackingSkus(liSkus)
       skusToHold ← * <~ inventoryTrackedSkus.map { s ⇒
                     SkuInventoryHold(s.code, s.qty)

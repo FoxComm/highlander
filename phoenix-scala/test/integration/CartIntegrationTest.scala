@@ -71,7 +71,7 @@ class CartIntegrationTest
       (for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
         _ ← * <~ CartLineItems.create(
-               CartLineItem(cordRef = cart.refNum, variantId = product.skuId))
+               CartLineItem(cordRef = cart.refNum, productVariantId = product.skuId))
       } yield {}).gimme
 
       val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
@@ -488,9 +488,9 @@ class CartIntegrationTest
       for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
         _ ← * <~ CartLineItems.create(
-               CartLineItem(cordRef = cart.refNum, variantId = product.skuId))
+               CartLineItem(cordRef = cart.refNum, productVariantId = product.skuId))
         _ ← * <~ CartLineItems.create(
-               CartLineItem(cordRef = cart.refNum, variantId = product.skuId))
+               CartLineItem(cordRef = cart.refNum, productVariantId = product.skuId))
 
         lowShippingMethod ← * <~ ShippingMethods.create(lowSm)
         inactiveShippingMethod ← * <~ ShippingMethods.create(

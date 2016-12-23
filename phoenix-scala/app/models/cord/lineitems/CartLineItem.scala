@@ -11,9 +11,9 @@ import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
-case class CartLineItemProductData(variant: ProductVariant,
-                                   variantForm: ObjectForm,
-                                   variantShadow: ObjectShadow,
+case class CartLineItemProductData(productVariant: ProductVariant,
+                                   productVariantForm: ObjectForm,
+                                   productVariantShadow: ObjectShadow,
                                    productForm: ObjectForm,
                                    productShadow: ObjectShadow,
                                    image: Option[String],
@@ -30,21 +30,21 @@ case class CartLineItemProductData(variant: ProductVariant,
 case class CartLineItem(id: Int = 0,
                         referenceNumber: String = "",
                         cordRef: String,
-                        variantId: Int,
+                        productVariantId: Int,
                         attributes: Option[LineItemAttributes] = None)
     extends FoxModel[CartLineItem]
 
 class CartLineItems(tag: Tag) extends FoxTable[CartLineItem](tag, "cart_line_items") {
-  def id              = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def referenceNumber = column[String]("reference_number")
-  def cordRef         = column[String]("cord_ref")
-  def variantId       = column[Int]("variant_id")
-  def attributes      = column[Option[Json]]("attributes")
+  def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def referenceNumber  = column[String]("reference_number")
+  def cordRef          = column[String]("cord_ref")
+  def productVariantId = column[Int]("product_variant_id")
+  def attributes       = column[Option[Json]]("attributes")
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def * =
-    (id, referenceNumber, cordRef, variantId, attributes).shaped <>
+    (id, referenceNumber, cordRef, productVariantId, attributes).shaped <>
       ({
         case (id, refNum, cordRef, variantId, attrs) ⇒
           CartLineItem(id,
@@ -53,10 +53,15 @@ class CartLineItems(tag: Tag) extends FoxTable[CartLineItem](tag, "cart_line_ite
                        variantId,
                        attrs.flatMap(_.extractOpt[LineItemAttributes]))
       }, { cli: CartLineItem ⇒
-        (cli.id, cli.referenceNumber, cli.cordRef, cli.variantId, cli.attributes.map(decompose)).some
+        (cli.id,
+         cli.referenceNumber,
+         cli.cordRef,
+         cli.productVariantId,
+         cli.attributes.map(decompose)).some
       })
 
-  def variant = foreignKey(ProductVariants.tableName, variantId, ProductVariants)(_.id)
+  def productVariant =
+    foreignKey(ProductVariants.tableName, productVariantId, ProductVariants)(_.id)
 }
 
 object CartLineItems
@@ -70,11 +75,11 @@ object CartLineItems
   object scope {
     implicit class ExtractLineItems(q: QuerySeq) {
       // Map [SKU code → quantity in cart/order]
-      def countVariants(implicit ec: EC): DBIO[Map[String, Int]] =
+      def countProductVariants(implicit ec: EC): DBIO[Map[String, Int]] =
         (for {
-          cartLineItems ← q
-          variant       ← cartLineItems.variant
-        } yield variant.code).result.map(_.foldLeft(Map[String, Int]()) {
+          cartLineItems  ← q
+          productVariant ← cartLineItems.productVariant
+        } yield productVariant.code).result.map(_.foldLeft(Map[String, Int]()) {
           case (acc, skuCode) ⇒
             val quantity = acc.getOrElse(skuCode, 0)
             acc.updated(skuCode, quantity + 1)

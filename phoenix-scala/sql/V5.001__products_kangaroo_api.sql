@@ -20,10 +20,10 @@ alter table product_sku_links_view rename to product_to_variant_links_view;
 -- alter table product_to_variant_links_view rename column skus to variants;
 
 -- fields
-alter table order_line_items rename column sku_shadow_id to variant_shadow_id;
-alter table order_line_items rename column sku_id to variant_id;
-alter table cart_line_items rename column sku_id to variant_id;
-alter table save_for_later rename column sku_id to variant_id;
+alter table order_line_items rename column sku_shadow_id to product_variant_shadow_id;
+alter table order_line_items rename column sku_id to product_variant_id;
+alter table cart_line_items rename column sku_id to product_variant_id;
+alter table save_for_later rename column sku_id to product_variant_id;
 
 update object_shadows set json_schema = 'variant' where json_schema = 'sku';
 

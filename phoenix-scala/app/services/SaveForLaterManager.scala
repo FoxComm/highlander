@@ -28,11 +28,11 @@ object SaveForLaterManager {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       variant  ← * <~ ProductVariantManager.mustFindByContextAndCode(context.id, skuCode)
       _ ← * <~ SaveForLaters
-           .find(accountId = customer.accountId, variantId = variant.id)
+           .find(accountId = customer.accountId, productVariantId = variant.id)
            .mustNotFindOneOr(
                AlreadySavedForLater(accountId = customer.accountId, variantId = variant.id))
       _ ← * <~ SaveForLaters.create(
-             SaveForLater(accountId = customer.accountId, variantId = variant.id))
+             SaveForLater(accountId = customer.accountId, productVariantId = variant.id))
       response ← * <~ findAllDbio(customer, context.id)
     } yield response
 
@@ -43,8 +43,8 @@ object SaveForLaterManager {
                                                           db: DB): DBIO[SavedForLater] =
     for {
       sfls ← SaveForLaters.filter(_.accountId === customer.accountId).result
-      xors ← DBIO.sequence(
-                sfls.map(sfl ⇒ SaveForLaterResponse.forSkuId(sfl.variantId, contextId).value))
+      xors ← DBIO.sequence(sfls.map(sfl ⇒
+                      SaveForLaterResponse.forSkuId(sfl.productVariantId, contextId).value))
 
       fails = xors.collect { case Xor.Left(f)  ⇒ f }.flatMap(_.toList)
       roots = xors.collect { case Xor.Right(r) ⇒ r }

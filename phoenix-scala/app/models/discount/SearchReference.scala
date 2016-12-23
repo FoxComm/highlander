@@ -59,7 +59,7 @@ case class SkuSearch(skuSearchId: Int) extends SearchReference[String, Buckets] 
   val searchView: SearchViewReference = skuSearchView
   val fieldName: String               = skuSearchField
 
-  def references(input: DiscountInput): Seq[String] = input.lineItems.map(_.variant.code)
+  def references(input: DiscountInput): Seq[String] = input.lineItems.map(_.productVariant.code)
 
   def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): Result[Buckets] = {
     SharedSearches.findOneById(skuSearchId).run().flatMap {

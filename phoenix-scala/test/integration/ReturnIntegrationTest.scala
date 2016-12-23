@@ -480,7 +480,7 @@ class ReturnIntegrationTest
   def addSkusToOrder(skuIds: Seq[Int],
                      cordRef: String,
                      state: OrderLineItem.State): DbResultT[Unit] = {
-    val itemsToInsert = skuIds.map(skuId ⇒ CartLineItem(cordRef = cordRef, variantId = skuId))
+    val itemsToInsert = skuIds.map(skuId ⇒ CartLineItem(cordRef = cordRef, productVariantId = skuId))
     CartLineItems.createAll(itemsToInsert).map(_ ⇒ Unit)
   }
 

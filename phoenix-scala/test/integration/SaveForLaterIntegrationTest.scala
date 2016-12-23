@@ -23,7 +23,7 @@ class SaveForLaterIntegrationTest
       saveForLaterApi(customer.accountId).get().as[SavedForLater].result mustBe empty
 
       SaveForLaters
-        .create(SaveForLater(accountId = customer.accountId, variantId = product.skuId))
+        .create(SaveForLater(accountId = customer.accountId, productVariantId = product.skuId))
         .gimme
       saveForLaterApi(customer.accountId).get().as[SavedForLater].result must === (roots)
     }

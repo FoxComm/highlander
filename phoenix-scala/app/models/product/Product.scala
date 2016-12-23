@@ -44,7 +44,7 @@ case class Product(id: Int = 0,
     for {
       skus ← * <~ ProductVariantLinks.filter(_.leftId === id).result
       inCartCount ← * <~ CartLineItems
-                     .filter(_.variantId.inSetBind(skus.map(_.rightId)))
+                     .filter(_.productVariantId.inSetBind(skus.map(_.rightId)))
                      .size
                      .result
       _ ← * <~ failIf(inCartCount > 0, ProductIsPresentInCarts(formId))

@@ -168,7 +168,7 @@ object Orders
       implicit ec: EC,
       db: DB): DbResultT[Seq[OrderLineItem]] = {
     val uniqueVariantIdsInCart =
-      CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.variantId).map {
+      CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.productVariantId).map {
         case (variantId, _) ⇒ variantId
       }
 
@@ -182,10 +182,10 @@ object Orders
       variantMaps ← * <~ variants.toMap
       lineItems   ← * <~ CartLineItems.byCordRef(cart.referenceNumber).result
       orderLineItems ← * <~ lineItems.map { cli ⇒
-                        val variant = variantMaps(cli.variantId)
+                        val variant = variantMaps(cli.productVariantId)
                         OrderLineItem(cordRef = cart.referenceNumber,
-                                      variantId = variant.id,
-                                      variantShadowId = variant.shadowId,
+                                      productVariantId = variant.id,
+                                      productVariantShadowId = variant.shadowId,
                                       state = OrderLineItem.Pending,
                                       attributes = cli.attributes)
                       }

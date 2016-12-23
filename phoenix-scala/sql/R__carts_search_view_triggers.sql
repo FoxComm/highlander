@@ -7,11 +7,11 @@ begin
     when 'product_variants' then
       select array_agg(cord_ref) into strict cord_refs
         from cart_line_items as cli
-        where cli.variant_id = new.id;
+        where cli.product_variant_id = new.id;
     when 'object_forms' then
       select array_agg(cord_ref) into strict cord_refs
       from cart_line_items as cli
-        inner join product_variants as variant on (cli.variant_id = variant.id)
+        inner join product_variants as variant on (cli.product_variant_id = variant.id)
         where variant.form_id = new.id;
   end case;
 
@@ -37,7 +37,7 @@ begin
           end as items
           from carts as c
           left join cart_line_items as cli on (c.reference_number = cli.cord_ref)
-          left join product_variants as variant on (cli.variant_id = variant.id)
+          left join product_variants as variant on (cli.product_variant_id = variant.id)
           left join object_forms as vform on (variant.form_id = vform.id)
           left join object_shadows as vshadow on (variant.shadow_id = vshadow.id)
           where c.reference_number = any(cord_refs)

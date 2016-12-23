@@ -284,17 +284,20 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
     })
 
   private def getPrice(item: OrderLineItemProductData): DbResultT[LineItemPrice] =
-    Mvp.price(item.variantForm, item.variantShadow) match {
+    Mvp.price(item.productVariantForm, item.productVariantShadow) match {
       case Some((price, currency)) ⇒
         DbResultT.pure(
-            LineItemPrice(item.lineItem.referenceNumber, item.variant.code, price, currency))
-      case None ⇒ DbResultT.failure(CaptureFailures.VariantMissingPrice(item.variant.code))
+            LineItemPrice(item.lineItem.referenceNumber,
+                          item.productVariant.code,
+                          price,
+                          currency))
+      case None ⇒ DbResultT.failure(CaptureFailures.VariantMissingPrice(item.productVariant.code))
     }
 
   private def validatePayload(payload: CapturePayloads.Capture,
                               orderSkus: Seq[OrderLineItemProductData]): DbResultT[Unit] =
     for {
-      codes ← * <~ orderSkus.map { _.variant.code }
+      codes ← * <~ orderSkus.map { _.productVariant.code }
       _     ← * <~ mustHaveCodes(payload.items, codes, payload.order)
       _     ← * <~ mustHaveSameLineItems(payload.items.length, orderSkus.length, payload.order)
       _     ← * <~ mustHavePositiveShippingCost(payload.shipping)

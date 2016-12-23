@@ -64,12 +64,12 @@ begin
     from (select
         o.id,
         o.name,
-        variants.id as variant_id,
+        variants.id as product_variant_id,
         to_json_timestamp(variants.archived_at) as archived_at
       from object_contexts as o
       inner join product_variants as variants on (variants.context_id = o.id)
       where variants.id = new.id) as subquery
-      where subquery.variant_id = sku_search_view.id;
+      where subquery.product_variant_id = sku_search_view.id;
 
     return null;
 end;
@@ -77,16 +77,16 @@ $$ language plpgsql;
 
 create or replace function update_skus_view_image_fn() returns trigger as $$
 declare
-    variant_ids int[];
+    product_variant_ids int[];
 begin
 
   case tg_table_name
     when 'product_to_variant_links' then
-    select array_agg(product_to_variant_links.right_id) into variant_ids
+    select array_agg(product_to_variant_links.right_id) into product_variant_ids
         from product_to_variant_links
         where product_to_variant_links.id = new.id;
     when 'product_album_links_view' then
-      select array_agg(variant.id) into variant_ids
+      select array_agg(variant.id) into product_variant_ids
       from product_variants as variant
         inner join product_to_variant_links on variant.id = product_to_variant_links.right_id
         where product_to_variant_links.left_id = new.product_id;
@@ -100,7 +100,7 @@ begin
         from product_variants as variant
           inner join product_to_variant_links on variant.id = product_to_variant_links.right_id
           inner join product_album_links_view on product_to_variant_links.left_id = product_album_links_view.product_id
-        where variant.id = any(variant_ids)) as subquery
+        where variant.id = any(product_variant_ids)) as subquery
   where subquery.id = sku_search_view.id;
 
     return null;
