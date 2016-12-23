@@ -89,6 +89,12 @@ func (m *InventoryServiceMock) ReleaseItems(refNum string) error {
 	return args.Error(0)
 }
 
+func (m *InventoryServiceMock) ShipItems(refNum string) error {
+	args := m.Called(refNum)
+
+	return args.Error(0)
+}
+
 func (m *InventoryServiceMock) DeleteItems(refNum string) error {
 	args := m.Called(refNum)
 

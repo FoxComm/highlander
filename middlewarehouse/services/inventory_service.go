@@ -31,10 +31,11 @@ type IInventoryService interface {
 	HoldItems(refNum string, skus map[string]int) error
 	ReserveItems(refNum string) error
 	ReleaseItems(refNum string) error
+	ShipItems(refNum string) error
 	DeleteItems(refNum string) error
 }
 
-type updateItemsStateFunc func() (int, error)
+type updateItemsStatusFunc func() (int, error)
 
 func NewInventoryService(stockItemRepo repositories.IStockItemRepository, unitRepo repositories.IStockItemUnitRepository,
 	summaryService ISummaryService) IInventoryService {
@@ -100,42 +101,15 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 	}
 
 	// get stock items associated with SKUs
-	items, err := service.stockItemRepo.GetStockItemsBySKUs(skusList)
+	items, err := service.getStockItemsBySKUs(skusList)
 	if err != nil {
 		return err
 	}
 
-	// grab found SKU list from repo
-	skusListRepo := []string{}
-	for _, item := range items {
-		skusListRepo = append(skusListRepo, item.SKU)
-	}
-
-	// compare expectations with reality
-	aggregateErr := commonErrors.AggregateError{}
-	diff := utils.DiffSlices(skusList, skusListRepo)
-	if len(diff) > 0 {
-		for _, sku := range diff {
-			msg := fmt.Sprintf("Can't hold items for %s - no stock items found", sku)
-			aggregateErr.Add(errors.New(msg))
-		}
-
-		return aggregateErr
-	}
-
 	// get available units for each stock item
-	unitsIds := []uint{}
-	for _, si := range items {
-		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
-		if err != nil {
-			aggregateErr.Add(err)
-		}
-
-		unitsIds = append(unitsIds, ids...)
-	}
-
-	if aggregateErr.Length() > 0 {
-		return aggregateErr
+	unitsIds, err := service.getUnitsForOrder(items, skus)
+	if err != nil {
+		return err
 	}
 
 	// updated units with refNum and appropriate status
@@ -154,13 +128,14 @@ func (service *inventoryService) HoldItems(refNum string, skus map[string]int) e
 		stockItemsMap[si.ID] = skus[si.SKU]
 	}
 	statusShift := models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold}
+
 	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)
 }
 
 func (service *inventoryService) ReserveItems(refNum string) error {
 	statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusReserved}
 
-	return service.updateItemsState(refNum, statusShift, func() (int, error) {
+	return service.updateItemsStatus(refNum, statusShift, func() (int, error) {
 		return service.unitRepo.ReserveUnitsInOrder(refNum)
 	})
 }
@@ -168,33 +143,110 @@ func (service *inventoryService) ReserveItems(refNum string) error {
 func (service *inventoryService) ReleaseItems(refNum string) error {
 	statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusOnHand}
 
-	return service.updateItemsState(refNum, statusShift, func() (int, error) {
+	return service.updateItemsStatus(refNum, statusShift, func() (int, error) {
 		return service.unitRepo.UnsetUnitsInOrder(refNum)
 	})
 }
 
-func (service *inventoryService) DeleteItems(refNum string) error {
+func (service *inventoryService) ShipItems(refNum string) error {
 	statusShift := models.StatusChange{From: models.StatusReserved, To: models.StatusShipped}
 
-	return service.updateItemsState(refNum, statusShift, func() (int, error) {
+	return service.updateItemsStatus(refNum, statusShift, func() (int, error) {
+		return service.unitRepo.ShipUnitsInOrder(refNum)
+	})
+}
+
+func (service *inventoryService) DeleteItems(refNum string) error {
+	statusShift := models.StatusChange{From: models.StatusOnHand}
+
+	return service.updateItemsStatus(refNum, statusShift, func() (int, error) {
 		return service.unitRepo.DeleteUnitsInOrder(refNum)
 	})
 }
 
-func (service *inventoryService) updateItemsState(refNum string, statusShift models.StatusChange, updateFn updateItemsStateFunc) error {
+func (service *inventoryService) getStockItemsBySKUs(skusList []string) ([]*models.StockItem, error) {
+	// get stock items associated with SKUs
+	items, err := service.stockItemRepo.GetStockItemsBySKUs(skusList)
+	if err != nil {
+		return nil, err
+	}
+
+	// grab found SKU list from repo
+	skusListRepo := []string{}
+	for _, item := range items {
+		skusListRepo = append(skusListRepo, item.SKU)
+	}
+
+	// compare expectations with reality
+	aggregateErr := commonErrors.AggregateError{}
+	diff := utils.DiffSlices(skusList, skusListRepo)
+	if len(diff) > 0 {
+		for _, sku := range diff {
+			msg := fmt.Sprintf("Can't hold items for %s - no stock items found", sku)
+			aggregateErr.Add(errors.New(msg))
+		}
+
+		return nil, aggregateErr
+	}
+
+	return items, nil
+}
+
+func (service *inventoryService) getUnitsForOrder(items []*models.StockItem, skus map[string]int) ([]uint, error) {
+	aggregateErr := commonErrors.AggregateError{}
+	unitsIds := []uint{}
+	for _, si := range items {
+		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
+		if err != nil {
+			aggregateErr.Add(err)
+		}
+
+		unitsIds = append(unitsIds, ids...)
+	}
+
+	if aggregateErr.Length() > 0 {
+		return nil, aggregateErr
+	}
+
+	return unitsIds, nil
+}
+
+func (service *inventoryService) checkItemsStatus(refNum string, statusShift models.StatusChange) error {
+	units, err := service.unitRepo.GetUnitsInOrder(refNum)
+	if err != nil {
+		return nil
+	}
+
+	for _, unit := range units {
+		if unit.Status != statusShift.From {
+			return fmt.Errorf("Order: %s. Status turn: \"%s\" -> \"%s\". Units in \"%s\" status found.",
+				refNum,
+				statusShift.From,
+				statusShift.To,
+				unit.Status,
+			)
+		}
+	}
+
+	return nil
+}
+
+func (service *inventoryService) updateItemsStatus(refNum string, statusShift models.StatusChange, updateFn updateItemsStatusFunc) error {
 	// extract stock item ids/qty by refNum
 	unitsQty, err := service.unitRepo.GetQtyByRefNum(refNum)
 	if err != nil {
 		return err
 	}
+	if len(unitsQty) == 0 {
+		return fmt.Errorf(`No stock item units associated with "%s"`, refNum)
+	}
 
-	count, err := updateFn()
-	if err != nil {
+	if err := service.checkItemsStatus(refNum, statusShift); err != nil {
 		return err
 	}
 
-	if count == 0 {
-		return fmt.Errorf(`No stock item units associated with "%s"`, refNum)
+	if _, err = updateFn(); err != nil {
+		return err
 	}
 
 	stockItemsMap := make(map[uint]int)
