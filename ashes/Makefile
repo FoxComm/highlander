@@ -38,6 +38,12 @@ run-staging: setup stop
 run-production: setup stop
 	export NODE_ENV=production; nohup ./node_modules/.bin/gulp server 2>&1 &
 
+hooks:
+	./node_modules/.bin/gulp hooks
+
+dev d:
+	test -f .env && export eval `cat .env` || true && ./node_modules/.bin/gulp dev
+
 build-dev: setup
 	./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && ON_SERVER=true ./node_modules/.bin/gulp build
@@ -57,4 +63,4 @@ docker-push:
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
-.PHONY: build test test-cov tag docker docker-push
+.PHONY: hooks dev d build test test-cov tag docker docker-push
