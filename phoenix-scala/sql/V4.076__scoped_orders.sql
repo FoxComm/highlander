@@ -1,6 +1,5 @@
 alter table orders add column scope exts.ltree;
 alter table orders_search_view add column scope exts.ltree;
-alter table export_line_items add column scope exts.ltree;
 
 update orders set scope = text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
 update orders_search_view set scope = text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
@@ -22,7 +21,7 @@ create or replace function update_orders_view_from_orders_insert_fn() returns tr
             adjustments_total,
             taxes_total,
             grand_total,
-            customer) 
+            customer)
         select distinct on (new.id)
             -- order
             new.id as id,
@@ -78,6 +77,7 @@ begin
                     sku_form.attributes->>(sku_shadow.attributes->'title'->>'ref'),
                     sku_form.attributes->>(sku_shadow.attributes->'externalId'->>'ref'),
                     sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value',
+                    oli.attributes,
                     sku.scope)::export_line_items)
                     ::jsonb
           end as items

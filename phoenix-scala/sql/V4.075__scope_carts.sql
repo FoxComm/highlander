@@ -1,5 +1,7 @@
+
 alter table carts add column scope exts.ltree;
 alter table carts_search_view add column scope exts.ltree;
+alter table export_line_items add column scope exts.ltree;
 
 update carts set scope = exts.text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
 update carts_search_view set scope = text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
@@ -83,6 +85,7 @@ begin
                     sku_form.attributes->>(sku_shadow.attributes->'title'->>'ref'),
                     sku_form.attributes->>(sku_shadow.attributes->'externalId'->>'ref'),
                     sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value',
+                    cli_skus.attributes,
                     sku.scope)::export_line_items)
                     ::jsonb
           end as items
