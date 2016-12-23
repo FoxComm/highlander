@@ -458,14 +458,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                VariantAssignmentsManager.assignBulk(auth.model, payload)
+                ProductVariantAssignmentsManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                VariantAssignmentsManager.unassignBulk(auth.model, payload)
+                ProductVariantAssignmentsManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -492,17 +492,17 @@ object AssignmentsRoutes {
         pathPrefix("assignees") {
           (get & pathEnd) {
             getOrFailures {
-              VariantAssignmentsManager.list(refNum)
+              ProductVariantAssignmentsManager.list(refNum)
             }
           } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              VariantAssignmentsManager.assign(refNum, payload, auth.model)
+              ProductVariantAssignmentsManager.assign(refNum, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              VariantAssignmentsManager.unassign(refNum, assigneeId, auth.model)
+              ProductVariantAssignmentsManager.unassign(refNum, assigneeId, auth.model)
             }
           }
         } ~

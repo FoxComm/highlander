@@ -130,23 +130,23 @@ object AdminRoutes {
         pathPrefix("sku" / ProductVariant.skuCodeRegex) { code ⇒
           (get & pathEnd) {
             getOrFailures {
-              VariantNoteManager.list(code)
+              ProductVariantNoteManager.list(code)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             mutateOrFailures {
-              VariantNoteManager.create(code, auth.model, payload)
+              ProductVariantNoteManager.create(code, auth.model, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               mutateOrFailures {
-                VariantNoteManager.update(code, noteId, auth.model, payload)
+                ProductVariantNoteManager.update(code, noteId, auth.model, payload)
               }
             } ~
             (delete & pathEnd) {
               deleteOrFailures {
-                VariantNoteManager.delete(code, noteId, auth.model)
+                ProductVariantNoteManager.delete(code, noteId, auth.model)
               }
             }
           }

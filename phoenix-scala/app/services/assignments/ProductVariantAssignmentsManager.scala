@@ -7,7 +7,7 @@ import slick.driver.PostgresDriver.api._
 import utils.db._
 import utils.aliases._
 
-object VariantAssignmentsManager extends AssignmentsManager[String, ProductVariant] {
+object ProductVariantAssignmentsManager extends AssignmentsManager[String, ProductVariant] {
 
   val assignmentType  = Assignment.Assignee
   val referenceType   = Assignment.Variant

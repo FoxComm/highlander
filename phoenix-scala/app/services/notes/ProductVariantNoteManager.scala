@@ -6,7 +6,7 @@ import services.inventory.ProductVariantManager
 import utils.aliases._
 import utils.db._
 
-object VariantNoteManager extends NoteManager[String, IlluminatedObject] {
+object ProductVariantNoteManager extends NoteManager[String, IlluminatedObject] {
 
   def noteType(): Note.ReferenceType = Note.Variant
 

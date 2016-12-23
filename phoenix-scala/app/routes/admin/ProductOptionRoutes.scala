@@ -11,12 +11,12 @@ import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
-object OptionRoutes {
+object ProductOptionRoutes {
 
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
     activityContext(auth.model) { implicit ac ⇒
-      pathPrefix("options") {
+      pathPrefix("product-options") {
         pathPrefix(Segment) { context ⇒
           (post & pathEnd & entity(as[ProductOptionPayload])) { payload ⇒
             mutateOrFailures {

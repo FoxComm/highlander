@@ -15,7 +15,7 @@ import com.github.tminglei.slickpg._
 import models.cord.lineitems.CartLineItems
 
 object ProductVariant {
-  val kind         = "variant"
+  val kind         = "product-variant"
   val skuCodeRegex = """([a-zA-Z0-9-_]*)""".r
 }
 

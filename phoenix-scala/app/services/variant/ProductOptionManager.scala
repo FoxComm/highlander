@@ -84,19 +84,19 @@ object ProductOptionManager {
 
     val form          = ObjectForm.fromPayload(ProductOption.kind, payload.attributes)
     val shadow        = ObjectShadow.fromPayload(payload.attributes)
-    val variantValues = payload.values.getOrElse(Seq.empty)
+    val productValues = payload.values.getOrElse(Seq.empty)
 
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
-      variant ← * <~ ProductOptions.create(
-                   ProductOption(scope = scope,
-                                 contextId = context.id,
-                                 formId = ins.form.id,
-                                 shadowId = ins.shadow.id,
-                                 commitId = ins.commit.id))
-      values ← * <~ variantValues.map(createProductValueInner(context, variant, _))
-    } yield (FullObject(variant, ins.form, ins.shadow), values)
+      productOption ← * <~ ProductOptions.create(
+                         ProductOption(scope = scope,
+                                       contextId = context.id,
+                                       formId = ins.form.id,
+                                       shadowId = ins.shadow.id,
+                                       commitId = ins.commit.id))
+      values ← * <~ productValues.map(createProductValueInner(context, productOption, _))
+    } yield (FullObject(productOption, ins.form, ins.shadow), values)
   }
 
   def updateInner(context: ObjectContext, variantId: Int, payload: ProductOptionPayload)(

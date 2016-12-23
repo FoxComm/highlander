@@ -11,7 +11,7 @@ alter table sku_album_links rename to variant_album_links;
 -- Update kinds in object forms
 update object_forms set kind = 'product-option' where kind = 'variant';
 update object_forms set kind = 'product-value' where kind = 'variant-value';
-update object_forms set kind = 'variant' where kind = 'sku';
+update object_forms set kind = 'product-variant' where kind = 'sku';
 
 
 -- Views
@@ -25,7 +25,7 @@ alter table order_line_items rename column sku_id to product_variant_id;
 alter table cart_line_items rename column sku_id to product_variant_id;
 alter table save_for_later rename column sku_id to product_variant_id;
 
-update object_shadows set json_schema = 'variant' where json_schema = 'sku';
+update object_shadows set json_schema = 'product-variant' where json_schema = 'sku';
 
 create or replace function update_object_schemas_insert_fn() returns trigger as $$
 declare
@@ -83,14 +83,14 @@ create trigger update_object_schemas_insert
     for each row
     execute procedure update_object_schemas_insert_fn();
 
-update object_schemas set name = 'variant' where name = 'sku';
-update object_schemas set kind = 'variant' where kind = 'sku';
+update object_schemas set name = 'product-variant' where name = 'sku';
+update object_schemas set kind = 'product-variant' where kind = 'sku';
 
 -- notes
 
-update notes set reference_type = 'variant' where reference_type = 'sku';
+update notes set reference_type = 'product-variant' where reference_type = 'sku';
 
 alter table notes_search_view rename column sku_item to variant_item;
 -- will trigger reindexing, it's ok.
-update notes_search_view set reference_type = 'variant' where reference_type = 'sku';
+update notes_search_view set reference_type = 'product-variant' where reference_type = 'sku';
 
