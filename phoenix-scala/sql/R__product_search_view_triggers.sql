@@ -7,7 +7,7 @@ begin
                 p.id,
                 link.skus
             from products as p
-            inner join product__variant_links_view as link on (link.product_id = p.id)
+            inner join product_to_variant_links_view as link on (link.product_id = p.id)
             where link.product_id = new.product_id) as subquery
         where subquery.id = products_search_view.id;
 
@@ -37,7 +37,7 @@ begin
     inner join object_contexts as context on (p.context_id = context.id)
     inner join object_forms as f on (f.id = p.form_id)
     inner join object_shadows as s on (s.id = p.shadow_id)
-    left join product__variant_links_view as link on (link.product_id = p.id)
+    left join product_to_variant_links_view as link on (link.product_id = p.id)
     left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
     where p.id = new.id;
 

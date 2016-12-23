@@ -15,7 +15,7 @@ case class ProductValueVariantLink(id: Int = 0,
     extends FoxModel[ProductValueVariantLink]
 
 class ProductValueVariantLinks(tag: Tag)
-    extends FoxTable[ProductValueVariantLink](tag, "product_value__variant_links") {
+    extends FoxTable[ProductValueVariantLink](tag, "product_value_to_variant_links") {
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def leftId    = column[Int]("left_id")
   def rightId   = column[Int]("right_id")

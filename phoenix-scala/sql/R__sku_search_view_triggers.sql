@@ -81,15 +81,15 @@ declare
 begin
 
   case tg_table_name
-    when 'product__variant_links' then
-    select array_agg(product__variant_links.right_id) into variant_ids
-        from product__variant_links
-        where product__variant_links.id = new.id;
+    when 'product_to_variant_links' then
+    select array_agg(product_to_variant_links.right_id) into variant_ids
+        from product_to_variant_links
+        where product_to_variant_links.id = new.id;
     when 'product_album_links_view' then
       select array_agg(variant.id) into variant_ids
       from product_variants as variant
-        inner join product__variant_links on variant.id = product__variant_links.right_id
-        where product__variant_links.left_id = new.product_id;
+        inner join product_to_variant_links on variant.id = product_to_variant_links.right_id
+        where product_to_variant_links.left_id = new.product_id;
   end case;
 
   update sku_search_view
@@ -98,8 +98,8 @@ begin
                variant.code as code,
                (product_album_links_view.albums #>> '{0, images, 0, src}') as image
         from product_variants as variant
-          inner join product__variant_links on variant.id = product__variant_links.right_id
-          inner join product_album_links_view on product__variant_links.left_id = product_album_links_view.product_id
+          inner join product_to_variant_links on variant.id = product_to_variant_links.right_id
+          inner join product_album_links_view on product_to_variant_links.left_id = product_album_links_view.product_id
         where variant.id = any(variant_ids)) as subquery
   where subquery.id = sku_search_view.id;
 
