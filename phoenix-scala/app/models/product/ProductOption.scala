@@ -16,7 +16,7 @@ object ProductOption {
 }
 
 /**
-  * A ProductOption represents the attributes that are used to collect variants into a
+  * A ProductOption represents the attributes that are used to collect product values into a
   * product. One ProductOption will contain an array of many values, which define the
   * individual attributes that can be used to select a variant.
   */

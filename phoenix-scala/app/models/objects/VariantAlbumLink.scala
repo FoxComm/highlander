@@ -39,6 +39,6 @@ object VariantAlbumLinks
 
   val returningLens: Lens[VariantAlbumLink, Int] = lens[VariantAlbumLink].id
 
-  def buildOrdered(left: ProductVariant, right: Album, position: Int) =
+  def buildOrdered(left: ProductVariant, right: Album, position: Int): VariantAlbumLink =
     VariantAlbumLink(leftId = left.id, rightId = right.id, position = position)
 }

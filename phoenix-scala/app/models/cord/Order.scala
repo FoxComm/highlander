@@ -169,7 +169,7 @@ object Orders
       db: DB): DbResultT[Seq[OrderLineItem]] = {
     val uniqueVariantIdsInCart =
       CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.variantId).map {
-        case (variantId, q) ⇒ variantId
+        case (variantId, _) ⇒ variantId
       }
 
     val variantsInCart = for {
@@ -182,7 +182,7 @@ object Orders
       variantMaps ← * <~ variants.toMap
       lineItems   ← * <~ CartLineItems.byCordRef(cart.referenceNumber).result
       orderLineItems ← * <~ lineItems.map { cli ⇒
-                        val variant = variantMaps.get(cli.variantId).get
+                        val variant = variantMaps(cli.variantId)
                         OrderLineItem(cordRef = cart.referenceNumber,
                                       variantId = variant.id,
                                       variantShadowId = variant.shadowId,

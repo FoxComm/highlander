@@ -20,14 +20,15 @@ object ProductVariant {
 }
 
 /**
-  * A ProductVariant represents the latest version of Stock Keeping Unit.
+  * A ProductVariant represents the latest and specific version of Product.
+  * For example: Red T-shirt, size XL.
   * This data structure stores a pointer to a commit of a version of a variant in
   * the object context referenced. The same ProductVariant can have a different version
   * in a different context.
   */
 case class ProductVariant(id: Int = 0,
                           scope: LTree,
-                          code: String,
+                          code: String, /** sku code */
                           contextId: Int,
                           shadowId: Int,
                           formId: Int,

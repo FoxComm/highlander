@@ -36,6 +36,6 @@ object ProductOptionLinks
 
   val returningLens: Lens[ProductOptionLink, Int] = lens[ProductOptionLink].id
 
-  def build(left: Product, right: ProductOption) =
+  def build(left: Product, right: ProductOption): ProductOptionLink =
     ProductOptionLink(leftId = left.id, rightId = right.id)
 }
