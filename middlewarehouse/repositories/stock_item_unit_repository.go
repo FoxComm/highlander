@@ -23,6 +23,7 @@ type IStockItemUnitRepository interface {
 	HoldUnitsInOrder(refNum string, ids []uint) (int, error)
 	ReserveUnitsInOrder(refNum string) (int, error)
 	UnsetUnitsInOrder(refNum string) (int, error)
+	ShipUnitsInOrder(refNum string) (int, error)
 	DeleteUnitsInOrder(refNum string) (int, error)
 	GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, error)
 
@@ -118,6 +119,16 @@ func (repository *stockItemUnitRepository) HoldUnitsInOrder(refNum string, ids [
 func (repository *stockItemUnitRepository) ReserveUnitsInOrder(refNum string) (int, error) {
 	updateWith := models.StockItemUnit{
 		Status: models.StatusReserved,
+	}
+
+	result := repository.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)
+
+	return int(result.RowsAffected), result.Error
+}
+
+func (repository *stockItemUnitRepository) ShipUnitsInOrder(refNum string) (int, error) {
+	updateWith := map[string]interface{}{
+		"status": models.StatusShipped,
 	}
 
 	result := repository.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)

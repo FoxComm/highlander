@@ -167,14 +167,12 @@ func (service *shipmentService) logActivity(original *models.Shipment, updated *
 	if original.State != updated.State && updated.State == models.ShipmentStateShipped {
 		stockItemCounts := make(map[uint]int)
 		for _, lineItem := range original.ShipmentLineItems {
-			siu := lineItem.StockItemUnit
-
 			// Aggregate which stock items, and how many, have been updated, so that we
 			// can update summaries asynchronously at the end.
-			if count, ok := stockItemCounts[siu.StockItemID]; ok {
-				stockItemCounts[siu.StockItemID] = count + 1
+			if count, ok := stockItemCounts[lineItem.StockItemUnitID]; ok {
+				stockItemCounts[lineItem.StockItemUnitID] = count + 1
 			} else {
-				stockItemCounts[siu.StockItemID] = 1
+				stockItemCounts[lineItem.StockItemUnitID] = 1
 			}
 		}
 
@@ -241,11 +239,6 @@ func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, new
 
 	case models.ShipmentStateShipped:
 		// TODO: Bring capture back when we move to the capture consumer
-		unitIDs := []uint{}
-		for _, lineItem := range newShipment.ShipmentLineItems {
-			unitIDs = append(unitIDs, lineItem.StockItemUnitID)
-		}
-		err = service.inventoryService.DeleteItems(newShipment.OrderRefNum)
 	}
 
 	return err

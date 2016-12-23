@@ -136,6 +136,7 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 	suite.Equal(suite.onHand-1, summary.OnHand)
 	suite.Equal(3, summary.OnHold)
 	suite.Equal(0, summary.Reserved)
+	suite.Equal(1, summary.Shipped)
 	suite.Equal(6, summary.AFS)
 }
 

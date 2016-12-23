@@ -60,6 +60,26 @@ func (service *StockItemUnitRepositoryMock) UnsetUnitsInOrder(refNum string) (in
 	return 0, args.Error(1)
 }
 
+func (service *StockItemUnitRepositoryMock) ShipUnitsInOrder(refNum string) (int, error) {
+	args := service.Called(refNum)
+
+	if result, ok := args.Get(0).(int); ok {
+		return result, nil
+	}
+
+	return 0, args.Error(1)
+}
+
+func (service *StockItemUnitRepositoryMock) DeleteUnitsInOrder(refNum string) (int, error) {
+	args := service.Called(refNum)
+
+	if result, ok := args.Get(0).(int); ok {
+		return result, nil
+	}
+
+	return 0, args.Error(1)
+}
+
 func (service *StockItemUnitRepositoryMock) GetReleaseQtyByRefNum(refNum string) ([]*models.Release, error) {
 	args := service.Called(refNum)
 

@@ -69,7 +69,7 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 		summary = updateStatusUnitsAmount(summary, status.To, qty)
 	}
 
-	// delete OnHand items when item is shipped
+	// decrease OnHand items when item is shipped
 	if status.To == models.StatusShipped {
 		summary = updateStatusUnitsAmount(summary, models.StatusOnHand, -qty)
 	}
@@ -87,6 +87,12 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 }
 
 func (service *summaryService) CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) error {
+	// If order was shipped create transaction for onHand items - delete qty items
+	if status == models.StatusShipped {
+		status = models.StatusOnHand
+		qty = -qty
+	}
+
 	transaction := &models.StockItemTransaction{
 		StockItemId:    summary.StockItemID,
 		Type:           summary.Type,
@@ -104,7 +110,7 @@ func (service *summaryService) CreateStockItemTransaction(summary *models.StockI
 }
 
 func updateStatusUnitsAmount(summary *models.StockItemSummary, status models.UnitStatus, qty int) *models.StockItemSummary {
-	if status == "" {
+	if status == models.StatusEmpty {
 		return summary
 	}
 
@@ -115,6 +121,8 @@ func updateStatusUnitsAmount(summary *models.StockItemSummary, status models.Uni
 		summary.OnHold += qty
 	case models.StatusReserved:
 		summary.Reserved += qty
+	case models.StatusShipped:
+		summary.Shipped += qty
 	}
 
 	return summary

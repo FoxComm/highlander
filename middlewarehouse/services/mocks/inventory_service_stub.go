@@ -47,6 +47,10 @@ func (repository *InventoryServiceStub) ReleaseItems(refNum string) error {
 	return nil
 }
 
+func (repository *InventoryServiceStub) ShipItems(refNum string) error {
+	return nil
+}
+
 func (repository *InventoryServiceStub) DeleteItems(refNum string) error {
 	return nil
 }
