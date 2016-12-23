@@ -31,8 +31,8 @@ begin
                     vform.attributes->>(vshadow.attributes->'title'->>'ref'),
                     vform.attributes->>(vshadow.attributes->'externalId'->>'ref'),
                     vform.attributes->(vshadow.attributes->'salePrice'->>'ref')->>'value',
-                    variant.scope,
-                    cli.attributes)::export_line_items)
+                    cli.attributes,
+                    variant.scope)::export_line_items)
                     ::jsonb
           end as items
           from carts as c

@@ -23,8 +23,8 @@ begin
                     illuminate_text(vform, vshadow, 'title'),
                     vform.attributes->>(vshadow.attributes->'externalId'->>'ref'),
                     vform.attributes->(vshadow.attributes->'salePrice'->>'ref')->>'value',
-                    variant.scope,
-                    oli.attributes)::export_line_items)
+                    oli.attributes,
+                    variant.scope)::export_line_items)
                     ::jsonb
           end as items
           from orders as o
