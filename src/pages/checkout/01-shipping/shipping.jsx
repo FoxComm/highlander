@@ -5,7 +5,6 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import localized from 'lib/i18n';
 import { connect } from 'react-redux';
-import { isGuest } from 'paragons/auth';
 
 // components
 import EditableBlock from 'ui/editable-block';
@@ -35,6 +34,7 @@ type Props = {
   saveShippingState: AsyncStatus,
   updateAddress: (address: Address, id?: number) => Promise,
   auth: ?Object,
+  isGuestMode: boolean,
 };
 
 function mapStateToProps(state) {
@@ -56,10 +56,6 @@ class Shipping extends Component {
     }
   }
 
-  get isGuestMode(): boolean {
-    return isGuest(this.props.auth);
-  }
-
   content() {
     const { props } = this;
     const savedAddress = props.shippingAddress;
@@ -70,7 +66,7 @@ class Shipping extends Component {
       );
     }
 
-    if (this.isGuestMode) {
+    if (props.isGuestMode) {
       return (
         <GuestShipping
           addShippingAddress={props.addShippingAddress}

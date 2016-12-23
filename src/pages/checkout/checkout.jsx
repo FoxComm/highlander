@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
 import * as tracking from 'lib/analytics';
-import { emailIsSet } from 'paragons/auth';
+import { emailIsSet, isGuest } from 'paragons/auth';
 
 // components
 import Shipping from './01-shipping/shipping';
@@ -176,6 +176,7 @@ class Checkout extends Component {
 
   get content() {
     const { props } = this;
+    const isGuestMode = isGuest(_.get(props.auth, 'user'));
     return (
       <div styleName="body">
         <div styleName="summary">
@@ -196,6 +197,7 @@ class Checkout extends Component {
             fetchAddresses={this.props.fetchAddresses}
             shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
             auth={this.props.auth}
+            isGuestMode={isGuestMode}
           />
           <Delivery
             isEditing={props.editStage == EditStages.DELIVERY}
@@ -209,7 +211,7 @@ class Checkout extends Component {
             fetchShippingMethods={props.fetchShippingMethods}
           />
           <Billing
-            auth={this.props.auth}
+            isGuestMode={isGuestMode}
             isEditing={props.editStage == EditStages.BILLING}
             editAllowed={props.editStage >= EditStages.BILLING}
             collapsed={!props.isBillingDirty && props.editStage < EditStages.BILLING}

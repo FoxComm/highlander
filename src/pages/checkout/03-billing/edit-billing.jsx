@@ -9,7 +9,6 @@ import { connect } from 'react-redux';
 import { cardMask } from '@foxcomm/wings/lib/payment-cards';
 import localized from 'lib/i18n';
 import { api as foxApi } from 'lib/api';
-import { isGuest } from 'paragons/auth';
 
 // components
 import { FormField } from 'ui/forms';
@@ -49,11 +48,11 @@ type Props = CheckoutActions & {
   coupon: ?Object,
   promotion: ?Object,
   totals: Object,
-  auth: ?Object,
   updateCreditCardInProgress: boolean,
   updateCreditCardError: void|Object,
   checkoutState: AsyncStatus,
   giftCards: Array<Object>,
+  isGuestMode: boolean,
 };
 
 type State = {
@@ -93,10 +92,6 @@ class EditBilling extends Component {
         billingAddressIsSame: false,
       });
     }
-  }
-
-  get isGuestMode(): boolean {
-    return isGuest(this.props.auth);
   }
 
   @autobind
@@ -417,7 +412,7 @@ class EditBilling extends Component {
     const { props } = this;
     const { t } = props;
 
-    if (this.isGuestMode) {
+    if (props.isGuestMode) {
       return this.renderGuestView();
     }
 
