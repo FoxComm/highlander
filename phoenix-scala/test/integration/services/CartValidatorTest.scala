@@ -152,8 +152,9 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
       sku           ← * <~ ProductVariants.mustFindById404(productData.skuId)
       skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      items         ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, productVariantId = sku.id))
-      _             ← * <~ CartTotaler.saveTotals(cart)
+      items ← * <~ CartLineItems.create(
+                 CartLineItem(cordRef = cart.refNum, productVariantId = sku.id))
+      _ ← * <~ CartTotaler.saveTotals(cart)
     } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme
 
     val grandTotal = refresh(cart).grandTotal
@@ -168,8 +169,9 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
       sku           ← * <~ ProductVariants.mustFindById404(productData.skuId)
       skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      items         ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, productVariantId = sku.id))
-      _             ← * <~ CartTotaler.saveTotals(cart)
+      items ← * <~ CartLineItems.create(
+                 CartLineItem(cordRef = cart.refNum, productVariantId = sku.id))
+      _ ← * <~ CartTotaler.saveTotals(cart)
     } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme
 
     val grandTotal = refresh(cart).grandTotal
