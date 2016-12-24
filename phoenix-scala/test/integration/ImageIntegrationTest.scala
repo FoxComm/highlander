@@ -260,14 +260,14 @@ class ImageIntegrationTest
       "Retrieves the albums associated with product's SKUs" in new ProductFixture {
         val productResponse = productsApi(prodForm.id).get().as[ProductResponse.Root]
 
-        productResponse.skus.headOption.value.albums.length must === (1)
+        productResponse.variants.headOption.value.albums.length must === (1)
       }
 
       "Archived albums are not present in list" in new ProductFixture {
         albumsApi(album.formId).delete().mustBeOk()
 
         val productResponse = productsApi(prodForm.id).get().as[ProductResponse.Root]
-        productResponse.skus.headOption.value.albums.length must === (0)
+        productResponse.variants.headOption.value.albums.length must === (0)
       }
     }
 

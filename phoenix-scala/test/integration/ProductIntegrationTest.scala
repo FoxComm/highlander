@@ -74,8 +74,8 @@ class ProductIntegrationTest
 
       "a new SKU successfully" in new Fixture {
         val productResponse = doQuery(productPayload)
-        productResponse.skus.length must === (1)
-        productResponse.skus.head.attributes.code must === (skuName)
+        productResponse.variants.length must === (1)
+        productResponse.variants.head.attributes.code must === (skuName)
       }
 
       "a new SKU in productOption successfully" in new Fixture {
@@ -86,11 +86,11 @@ class ProductIntegrationTest
 
         val productResponse = doQuery(productPayload.copy(options = Some(variantPayload)))
 
-        productResponse.skus.length must === (1)
-        productResponse.skus.head.attributes.code must === (skuName)
+        productResponse.variants.length must === (1)
+        productResponse.variants.head.attributes.code must === (skuName)
 
-        productResponse.variants.size must === (1)
-        val variant = productResponse.variants.head
+        productResponse.options.size must === (1)
+        val variant = productResponse.options.head
         variant.values.size must === (1)
         variant.values.head.skuCodes must contain only skuName
       }
@@ -101,9 +101,9 @@ class ProductIntegrationTest
 
         val productResponse    = productsApi.create(payload).as[Root]
         val getProductResponse = productsApi(productResponse.id).get().as[Root]
-        getProductResponse.skus.length must === (1)
+        getProductResponse.variants.length must === (1)
 
-        val getFirstSku :: Nil = getProductResponse.skus
+        val getFirstSku :: Nil = getProductResponse.variants
         val getCode            = getFirstSku.attributes \ "code" \ "v"
         getCode.extract[String] must === ("SKU-RED-SMALL")
       }
@@ -114,19 +114,19 @@ class ProductIntegrationTest
 
         val productResponse = doQuery(payload)
 
-        productResponse.skus.length must === (1)
-        productResponse.skus.head.attributes.code must === (skuRedSmallCode)
+        productResponse.variants.length must === (1)
+        productResponse.variants.head.attributes.code must === (skuRedSmallCode)
       }
 
       "an existing SKU with variants successfully" in new VariantFixture {
         val payload         = productPayload.copy(options = Some(Seq(justColorVariantPayload)))
         val productResponse = doQuery(payload)
 
-        productResponse.variants.length must === (1)
-        productResponse.variants.head.values.length must === (2)
+        productResponse.options.length must === (1)
+        productResponse.options.head.values.length must === (2)
 
-        val skuCodes        = productResponse.skus.map(s ⇒ s.attributes.code)
-        val variantSkuCodes = productResponse.variants.head.values.flatMap(v ⇒ v.skuCodes)
+        val skuCodes        = productResponse.variants.map(s ⇒ s.attributes.code)
+        val variantSkuCodes = productResponse.options.head.values.flatMap(v ⇒ v.skuCodes)
         val expectedSkus    = justColorVariantPayload.values.getOrElse(Seq.empty).flatMap(_.skuCodes)
 
         skuCodes must contain only (expectedSkus: _*)
@@ -146,8 +146,8 @@ class ProductIntegrationTest
 
         val productResponse = doQuery(payload)
 
-        productResponse.skus.length must === (1)
-        productResponse.skus.head.attributes.code must === (skuRedLargeCode)
+        productResponse.variants.length must === (1)
+        productResponse.variants.head.attributes.code must === (skuRedLargeCode)
       }
 
       "empty productOption successfully" in new Fixture {
@@ -161,10 +161,10 @@ class ProductIntegrationTest
 
         val response = doQuery(payload)
 
-        response.variants.length must === (1)
-        response.variants.head.values.length must === (1)
-        response.variants.head.values.head.skuCodes.length must === (0)
-        response.skus.length must === (0)
+        response.options.length must === (1)
+        response.options.head.values.length must === (1)
+        response.options.head.values.head.skuCodes.length must === (0)
+        response.variants.length must === (0)
       }
 
       "an album successfully" in new Fixture {
@@ -192,13 +192,13 @@ class ProductIntegrationTest
         val newProductPayload = productPayload.copy(variants = Seq(newSkuPayload))
 
         val productResponse = doQuery(newProductPayload)
-        productResponse.skus.length must === (1)
-        productResponse.skus.head.albums.length must === (1)
+        productResponse.variants.length must === (1)
+        productResponse.variants.head.albums.length must === (1)
 
         val getProductResponse = productsApi(productResponse.id).get().as[Root]
-        getProductResponse.skus.length must === (1)
+        getProductResponse.variants.length must === (1)
 
-        val album :: Nil = getProductResponse.skus.head.albums
+        val album :: Nil = getProductResponse.variants.head.albums
         album.images.length must === (1)
         album.images.head.src must === (src)
       }
@@ -207,7 +207,7 @@ class ProductIntegrationTest
     "Throws an error if" - {
       "no variant is added" in new Fixture {
         val payload = productPayload.copy(variants = Seq.empty)
-        productsApi.create(payload).mustFailWithMessage("SKUs must not be empty")
+        productsApi.create(payload).mustFailWithMessage("Product variants must not be empty")
       }
 
       "no variant exists for product options" in new Fixture {
@@ -219,7 +219,7 @@ class ProductIntegrationTest
           Seq(ProductOptionPayload(attributes = Map("t" → "t"), values = Some(values)))
         val payload = productPayload.copy(variants = Seq.empty, options = Some(variantPayload))
 
-        productsApi.create(payload).mustFailWithMessage("SKUs must not be empty")
+        productsApi.create(payload).mustFailWithMessage("Product variants must not be empty")
       }
 
       "there is more than one variant and no variants" in new Fixture {
@@ -227,7 +227,9 @@ class ProductIntegrationTest
         val sku2    = makeVariantPayload("SKU-TEST-NUM2", attrMap, None)
         val payload = productPayload.copy(variants = Seq(sku1, sku2), options = Some(Seq.empty))
 
-        productsApi.create(payload).mustFailWithMessage("number of SKUs got 2, expected 1 or less")
+        productsApi
+          .create(payload)
+          .mustFailWithMessage("number of product variants got 2, expected 1 or less")
       }
 
       "trying to create a product and variant with no code" in new Fixture {
@@ -272,8 +274,8 @@ class ProductIntegrationTest
       val productId = doQuery(productPayload).id
 
       val response = productsApi(productId).get().as[Root]
-      response.skus.length must === (1)
-      response.skus.head.attributes.code must === ("SKU-NEW-TEST")
+      response.variants.length must === (1)
+      response.variants.head.attributes.code must === ("SKU-NEW-TEST")
     }
   }
 
@@ -305,8 +307,8 @@ class ProductIntegrationTest
                                          albums = None)
 
       val response = doQuery(product.formId, payload)
-      response.skus.length must === (4)
-      response.variants.length must === (2)
+      response.variants.length must === (4)
+      response.options.length must === (2)
 
       val description = response.attributes \ "description" \ "v"
       description.extract[String] must === ("Test product description")
@@ -326,12 +328,12 @@ class ProductIntegrationTest
                                          options = Some(Seq.empty))
 
       val response = doQuery(simpleProduct.formId, payload)
-      response.skus.length must === (1)
+      response.variants.length must === (1)
 
       val getProductResponse = productsApi(response.id).get().as[Root]
-      getProductResponse.skus.length must === (1)
+      getProductResponse.variants.length must === (1)
 
-      val sku :: Nil = getProductResponse.skus
+      val sku :: Nil = getProductResponse.variants
       sku.albums.length must === (1)
 
       val album :: Nil = sku.albums
@@ -372,10 +374,10 @@ class ProductIntegrationTest
                                          options = Some(Seq.empty))
 
       val response = doQuery(simpleProduct.formId, payload)
-      response.skus.length must === (1)
-      response.variants.length must === (0)
+      response.variants.length must === (1)
+      response.options.length must === (0)
 
-      val skuResponse = response.skus.head
+      val skuResponse = response.variants.head
       val code        = skuResponse.attributes \ "code" \ "v"
       code.extract[String] must === ("SKU-UPDATE-TEST")
 
@@ -394,16 +396,16 @@ class ProductIntegrationTest
                                  albums = None,
                                  options = Seq.empty.some))
         .as[Root]
-        .skus mustBe empty
+        .variants mustBe empty
     }
 
     "Removes some variants from product" in new RemovingSkusFixture {
-      productsApi(product.formId).get.as[Root].skus must have size 4
+      productsApi(product.formId).get.as[Root].variants must have size 4
 
       val remainingSkus: Seq[String] = productsApi(product.formId)
         .update(twoSkuProductPayload)
         .as[Root]
-        .skus
+        .variants
         .map(sku ⇒ (sku.attributes \ "code" \ "v").extract[String])
 
       remainingSkus must have size 2
@@ -421,8 +423,8 @@ class ProductIntegrationTest
                                          options = Some(Seq.empty))
 
       val response = doQuery(product.formId, payload)
-      response.skus.length must === (1)
-      response.variants.length must === (0)
+      response.variants.length must === (1)
+      response.options.length must === (0)
 
       val description = response.attributes \ "description" \ "v"
       description.extract[String] must === ("Test product description")
@@ -439,22 +441,24 @@ class ProductIntegrationTest
                                          albums = None)
 
       var response = doQuery(product.formId, payload)
-      response.skus.length must === (1)
+      response.variants.length must === (1)
 
       response = doQuery(product.formId, payload)
-      response.skus.length must === (1)
+      response.variants.length must === (1)
 
       ProductVariantLinks.filterLeft(product).gimme.size must === (1)
     }
 
     "Updates the properties on a product successfully" in new Fixture {
       val newAttrMap = Map("name" → (("t" → "string") ~ ("v" → "Some new product name")))
-      val payload =
-        UpdateProductPayload(attributes = newAttrMap, variants = None, options = None, albums = None)
+      val payload = UpdateProductPayload(attributes = newAttrMap,
+                                         variants = None,
+                                         options = None,
+                                         albums = None)
 
       val response = doQuery(product.formId, payload)
-      response.skus.length must === (4)
-      response.variants.length must === (2)
+      response.variants.length must === (4)
+      response.options.length must === (2)
     }
 
     "Updates the variants" - {
@@ -465,8 +469,8 @@ class ProductIntegrationTest
                                            albums = None)
 
         val response = doQuery(product.formId, payload)
-        response.skus.length must === (0)
         response.variants.length must === (0)
+        response.options.length must === (0)
       }
 
       "Add new productOption with new SKU successfully" in new VariantFixture {
@@ -487,9 +491,9 @@ class ProductIntegrationTest
                                              Some(colorSizeVariants.+:(metalVariantPayload)))
 
         val response = doQuery(product.formId, payload)
-        response.skus.length must === (5)
-        response.variants.length must === (3)
-        response.skus.map(_.attributes.code) must contain(newSkuCode)
+        response.variants.length must === (5)
+        response.options.length must === (3)
+        response.variants.map(_.attributes.code) must contain(newSkuCode)
       }
     }
 
@@ -509,7 +513,8 @@ class ProductIntegrationTest
 
         productsApi(product.formId)
           .update(upPayload)
-          .mustFailWithMessage("number of variants for given options got 5, expected 4 or less")
+          .mustFailWithMessage(
+              "number of product variants for given options got 5, expected 4 or less")
       }
 
       "trying to update a product with archived variant" in new ArchivedSkuFixture {
@@ -567,11 +572,11 @@ class ProductIntegrationTest
     }
 
     "Variants must be unlinked" in new VariantFixture {
-      productsApi(product.formId).archive().as[Root].skus mustBe empty
+      productsApi(product.formId).archive().as[Root].variants mustBe empty
     }
 
     "Product options must be unlinked" in new VariantFixture {
-      productsApi(product.formId).archive().as[Root].variants mustBe empty
+      productsApi(product.formId).archive().as[Root].options mustBe empty
     }
 
     "Albums must be unlinked" in new VariantFixture {

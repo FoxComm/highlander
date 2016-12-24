@@ -51,11 +51,11 @@ object ProductManager {
       oc: OC,
       au: AU): DbResultT[ProductResponse.Root] = {
 
-    val form            = ObjectForm.fromPayload(Product.kind, payload.attributes)
-    val shadow          = ObjectShadow.fromPayload(payload.attributes)
+    val form                  = ObjectForm.fromPayload(Product.kind, payload.attributes)
+    val shadow                = ObjectShadow.fromPayload(payload.attributes)
     val productOptionPayloads = payload.options.getOrElse(Seq.empty)
-    val hasOptions     = productOptionPayloads.nonEmpty
-    val albumPayloads   = payload.albums.getOrElse(Seq.empty)
+    val hasOptions            = productOptionPayloads.nonEmpty
+    val albumPayloads         = payload.albums.getOrElse(Seq.empty)
 
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
@@ -68,10 +68,10 @@ object ProductManager {
                            shadowId = ins.shadow.id,
                            commitId = ins.commit.id))
 
-      albums          ← * <~ findOrCreateAlbumsForProduct(product, albumPayloads)
-      productVariants ← * <~ findOrCreateVariantsForProduct(product, payload.variants, !hasOptions)
-      productOptions  ← * <~ findOrCreateOptionsForProduct(product, productOptionPayloads)
-      productOptionsWithVariants  ← * <~ getProductOptionsWithRelatedVariants(productOptions)
+      albums                     ← * <~ findOrCreateAlbumsForProduct(product, albumPayloads)
+      productVariants            ← * <~ findOrCreateVariantsForProduct(product, payload.variants, !hasOptions)
+      productOptions             ← * <~ findOrCreateOptionsForProduct(product, productOptionPayloads)
+      productOptionsWithVariants ← * <~ getProductOptionsWithRelatedVariants(productOptions)
       (productOptionVariants, productOptionResponses) = productOptionsWithVariants
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(product)
       response = ProductResponse.build(
@@ -92,11 +92,11 @@ object ProductManager {
       oldProduct ← * <~ mustFindFullProductByFormId(productId)
       albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.form.id)
 
-      fullVariants ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
-      productVariants  ← * <~ fullVariants.map(ProductVariantManager.illuminateVariant)
+      fullVariants    ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
+      productVariants ← * <~ fullVariants.map(ProductVariantManager.illuminateVariant)
 
-      productOptions     ← * <~ ProductOptionLinks.queryRightByLeft(oldProduct.model)
-      fullVariants ← * <~ productOptions.map(ProductOptionManager.zipVariantWithValues)
+      productOptions ← * <~ ProductOptionLinks.queryRightByLeft(oldProduct.model)
+      fullVariants   ← * <~ productOptions.map(ProductOptionManager.zipVariantWithValues)
 
       hasOptions = productOptions.nonEmpty
 
@@ -145,8 +145,8 @@ object ProductManager {
       hasOptions = productOptionLinks.nonEmpty || payload.options.exists(_.nonEmpty)
 
       updatedProductVariants ← * <~ findOrCreateVariantsForProduct(oldProduct.model,
-                                                        productVariantPayloads,
-                                                        !hasOptions)
+                                                                   productVariantPayloads,
+                                                                   !hasOptions)
 
       variants ← * <~ updateAssociatedOptions(updatedHead, payload.options)
       _        ← * <~ validateUpdate(updatedProductVariants, variants)
@@ -195,7 +195,7 @@ object ProductManager {
                                         DbResultT.unit,
                                         id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
          }
-      albums   ← * <~ ImageManager.getAlbumsForProduct(inactive.form.id)
+      albums              ← * <~ ImageManager.getAlbumsForProduct(inactive.form.id)
       productVariantLinks ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
       _ ← * <~ productVariantLinks.map { link ⇒
            ProductVariantLinks.deleteById(link.id,
@@ -247,14 +247,13 @@ object ProductManager {
 
   private def validateCreate(
       payload: CreateProductPayload): ValidatedNel[Failure, CreateProductPayload] = {
-    val maxProductVariants = payload.options
-      .getOrElse(Seq.empty)
-      .map(_.values.getOrElse(Seq.empty).length.max(1))
-      .product
+    val maxProductVariants =
+      payload.options.getOrElse(Seq.empty).map(_.values.getOrElse(Seq.empty).length.max(1)).product
 
-    (notEmpty(payload.variants, "Product variants") |@| lesserThanOrEqual(payload.variants.length,
-                                                          maxProductVariants,
-                                                          "number of product variants")).map {
+    (notEmpty(payload.variants, "Product variants") |@| lesserThanOrEqual(
+            payload.variants.length,
+            maxProductVariants,
+            "number of product variants")).map {
       case _ ⇒ payload
     }
   }
