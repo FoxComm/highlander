@@ -125,8 +125,8 @@ class VariantIntegrationTest
     "Successfully archives SKU which is linked to a product" in new FixtureWithProduct {
       private val updateProductPayload: UpdateProductPayload =
         UpdateProductPayload(attributes = Map(),
-                             skus = Some(List(makeSkuPayload(sku.code, Map()))),
-                             variants = None)
+                             variants = Some(List(makeSkuPayload(sku.code, Map()))),
+                             options = None)
       productsApi(product.formId).update(updateProductPayload).mustBeOk
 
       val result = skusApi(sku.code).archive().as[ProductVariantResponse.Root]

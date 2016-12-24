@@ -28,8 +28,8 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
       CreateProductPayload(
           attributes =
             Map("name" → tv(productCode.capitalize), "title" → tv(productCode.capitalize)),
-          skus = Seq(skuPayload),
-          variants = None)
+          variants = Seq(skuPayload),
+          options = None)
 
     productsApi.create(productPayload).mustBeOk()
   }
