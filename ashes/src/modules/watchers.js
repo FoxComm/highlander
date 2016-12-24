@@ -6,8 +6,8 @@ import { get, assoc } from 'sprout-data';
 import { searchAdmins } from '../elastic/store-admins';
 
 // helpers
-import Api from '../lib/api';
-import createStore from '../lib/store-creator';
+import Api from 'lib/api';
+import { createAsyncActions } from '@foxcomm/wings';
 
 const fetchWatchers = entityType => (actions, entityId, group) => dispatch => {
   dispatch(actions.fetchStart(entityId, group));
@@ -17,6 +17,13 @@ const fetchWatchers = entityType => (actions, entityId, group) => dispatch => {
     error => dispatch(actions.fetchFailed(entityId, group, error))
   );
 };
+
+const _fetchWatchers = createAsyncActions(
+  'fetchWatchers',
+  function(entityType, entityId, group) {
+    return Api.get(`/${entityType}/${entityId}/${group}`)
+  }
+);
 
 const addWatchers = entityType => (actions, entityId) => (dispatch, getState) => {
   const state = getState();

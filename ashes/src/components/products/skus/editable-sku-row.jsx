@@ -6,7 +6,7 @@ import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
-import makeLocalStore from 'lib/make-local-store';
+import makeLocalStore from '@foxcomm/wings/lib/redux/make-local-store';
 import styles from './editable-sku-row.css';
 
 import { FormField } from 'components/forms';

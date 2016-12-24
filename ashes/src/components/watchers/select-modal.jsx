@@ -2,9 +2,7 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-
-// helpers
-import { numberize } from '../../lib/text-utils';
+import { numberize } from 'lib/text-utils';
 
 // components
 import { ModalContainer } from '../modal/base';
@@ -44,7 +42,8 @@ function SelectWatcherModal(props) {
             storePath={storePath}
             entity={entity}
             hideOnBlur={true}
-            label={renderText(group, entity)}/>
+            label={renderText(group, entity)}
+          />
         </div>
       </ContentBox>
     </ModalContainer>
