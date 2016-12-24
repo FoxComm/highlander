@@ -164,7 +164,7 @@ class PromoCode extends Component {
               type="button"
               styleName="submit"
               onClick={this.saveCode}
-              disabled={this.props.disabled}
+              disabled={this.props.disabled || !this.state.code}
             >
               {this.buttonLabel}
             </Button>
