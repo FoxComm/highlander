@@ -1,8 +1,8 @@
-## SKUs [/v1/skus/{context}/{code}]
+## SKUs [/v1/product-variants/{context}/{code}]
 
 + Parameters
-    + context: `default` (required, string) - The context in which a SKU is viewable.
-    + code: `SKU-TEST` (required, string) - Unique code that identifies a SKU.
+    + context: `default` (required, string) - The context in which a product variant is viewable.
+    + code: `SKU-TEST` (required, string) - Unique SKU code that identifies a product variant.
 
 ### View [GET]
 
@@ -51,7 +51,7 @@
           "variantValueIds": [1]
         }
 
-### Create [POST /v1/skus/{context}]
+### Create [POST /v1/product-variants/{context}]
 
 + Parameters
     + context: `default` (required, string) - The context in which a SKU is viewable.
@@ -116,7 +116,7 @@
           "variantValueIds": []
         }
 
-### Update [PATCH /v1/skus/{context}/{code}]
+### Update [PATCH /v1/product-variants/{context}/{code}]
 
 + Parameters
     + context: `default` (required, string) - The context in which a SKU is viewable.
@@ -240,7 +240,7 @@
           "archivedAt": "2020-01-01T12:00:00Z"
         }
 
-## SKU Album [/v1/skus/{context}/{code}/albums/{id}]
+## SKU Album [/v1/product-variants/{context}/{code}/albums/{id}]
 
 + Parameters
     + context: `default` (required, string) - The context in which the album will be viewable.
@@ -252,7 +252,7 @@
 + Response 200 (application/json)
     + Attributes (Album)
 
-### Create [POST /v1/skus/{context}/{code}/albums]
+### Create [POST /v1/product-variants/{context}/{code}/albums]
 
 Create a new album that is not associated with a SKU.
 
