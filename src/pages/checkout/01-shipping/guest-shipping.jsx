@@ -82,9 +82,8 @@ class GuestShipping extends Component {
 
   @autobind
   handleChangeEmail(evt) {
-    const value = _.get(evt.target, 'value');
     this.setState({
-      email: value,
+      email: evt.target.value,
     });
   }
 

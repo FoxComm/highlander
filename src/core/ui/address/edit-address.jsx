@@ -145,9 +145,9 @@ export default class EditAddress extends Component {
   get title() {
     const { title } = this.props;
 
-    return (
-      title && <div styleName="address-title">{title}</div>
-    );
+    if (title != null) {
+      return <div styleName="address-title">{title}</div>;
+    }
   }
 
   get phoneInput() {
