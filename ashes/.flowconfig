@@ -28,6 +28,7 @@
 
 [libs]
 src/interfaces/
+src/interfaces/paragons/
 
 [options]
 unsafe.enable_getters_and_setters=true
