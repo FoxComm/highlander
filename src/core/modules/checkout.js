@@ -251,6 +251,7 @@ const _addCreditCard = createAsyncActions(
 );
 
 export const addCreditCard = _addCreditCard.perform;
+export const clearAddCreditCardErrors = _addCreditCard.clearErrors;
 
 export function chooseCreditCard(): Function {
   return (dispatch, getState) => {
@@ -278,6 +279,7 @@ const _updateCreditCard = createAsyncActions(
 );
 
 export const updateCreditCard = _updateCreditCard.perform;
+export const clearUpdateCreditCardErrors = _updateCreditCard.clearErrors;
 
 export function deleteCreditCard(id): Function {
   return (dispatch, getState) => {
