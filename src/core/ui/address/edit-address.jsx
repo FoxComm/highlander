@@ -110,7 +110,7 @@ export default class EditAddress extends Component {
     return (
       <Autocomplete
         inputProps={{
-          placeholder: 'UNITED STATES',
+          placeholder: 'COUNTRY',
           name: 'country',
         }}
         getItemValue={item => item.name}
