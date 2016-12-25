@@ -15,7 +15,7 @@ import CartPayments from './payments';
 import CartShippingAddress from './shipping-address';
 import CartShippingMethod from './shipping-method';
 import DiscountsPanel from 'components/discounts-panel/discounts-panel';
-import Watchers from '../watchers/watchers';
+import Participants from '../participants';
 
 import type { Cart } from 'paragons/order';
 
@@ -69,7 +69,7 @@ export default class CartDetails extends Component {
             <Messages errors={errors} warnings={warnings} />
             <TotalsSummary entity={cart} title="Cart" />
             <CustomerCard customer={cart.customer} />
-            <Watchers entity={{entityId: cart.referenceNumber, entityType: 'carts'}} />
+            <Participants entity={{entityId: cart.referenceNumber, entityType: 'carts'}} />
           </div>
         </div>
       </div>

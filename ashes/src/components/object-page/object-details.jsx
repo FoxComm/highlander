@@ -16,7 +16,7 @@ import ObjectFormInner from '../object-form/object-form-inner';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import { Form } from '../forms';
 import Tags from '../tags/tags';
-import Watchers from '../watchers/watchers';
+import Participants from '../participants';
 
 import type { ObjectView } from 'paragons/object';
 
@@ -142,7 +142,7 @@ export default class ObjectDetails extends Component {
     const { object, plural } = this.props;
 
     if (object.id) {
-      return <Watchers entity={{entityId: object.id, entityType: plural}} />;
+      return <Participants entity={{entityId: object.id, entityType: plural}} />;
     }
   }
 

@@ -4,7 +4,7 @@ import types from '../base/types';
 import Title from '../base/title';
 
 const representatives = {
-  [types.POMOTION_CREATED]: {
+  [types.PROMOTION_CREATED]: {
     title: (data, activity) => {
       return (
         <Title activity={activity}>

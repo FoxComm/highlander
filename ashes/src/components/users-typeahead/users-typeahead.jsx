@@ -4,7 +4,7 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
-import styles from './user-typeahead.css';
+import styles from './users-typeahead.css';
 
 // components
 import Typeahead from '../typeahead/typeahead';
@@ -16,6 +16,7 @@ type Props = {
   label?: string,
   className?: string,
   hideOnBlur?: boolean,
+  onSelect: (users: Array<UserType>) => void,
   suggested: Array<UserType>,
   suggestUsers: (term: string) => AbortablePromise,
   suggestState: AsyncState,
@@ -26,7 +27,12 @@ type State = {
   selected: Array<any>,
 }
 
-export default class UserTypeahead extends Component {
+/**
+ * Dump component, doesn't connected to redux store.
+ * Requires `suggested`, `suggestUsers`, `suggestState` props for work.
+ * For suggesting admins, for example, see `admins-typeahead` component which connect this component to admins view.
+ */
+export default class UsersTypeahead extends Component {
   static defaultProps = {
     hideOnBlur: false,
     maxUsers: Infinity,
@@ -42,6 +48,12 @@ export default class UserTypeahead extends Component {
     this.setState({
       term,
     });
+  }
+
+  componentWillUpdate(nextProps: Props, nextState: State) {
+    if (nextState.selected != this.state.selected) {
+      this.props.onSelect(nextState.selected);
+    }
   }
 
   @autobind

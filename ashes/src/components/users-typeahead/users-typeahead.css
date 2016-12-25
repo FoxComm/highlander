@@ -1,6 +1,6 @@
 
 .root {
-  & .fc-typeahead__items {
+  & :global(.fc-typeahead__items) {
     width: 600px;
     overflow-y: auto;
 
@@ -8,19 +8,19 @@
       padding: 0;
     }
 
-    .fc-typeahead__item-not-found {
+    & :global(.fc-typeahead__item-not-found) {
       padding: 0 20px;
     }
   }
 
-  & .fc-typeahead__menu {
+  & :global(.fc-typeahead__menu) {
     box-shadow: 0 2px 4px 0 @color-decor51;
   }
 
-  & .fc-pilled-input__input-container {
+  & :global(.fc-pilled-input__input-container) {
     width: 600px;
 
-    input.fc-pilled-input__input-field {
+    :global(.fc-pilled-input__input-field) {
       width: 100%;
       padding-right: 0;
     }

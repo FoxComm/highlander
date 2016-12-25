@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import React from 'react';
 import * as ShallowTestUtils from 'react-shallow-testutils';
-import { groups } from '../../../src/paragons/watcher';
+import { groups } from 'paragons/watcher';
 
+// @TODO: fix this test
 describe('Watchers', function () {
-  const Watchers = requireComponent('watchers/watchers.jsx').WrappedComponent;
+  const Watchers = requireComponent('participants/participants.jsx').WrappedComponent;
 
   let watchers;
   const entity = {
