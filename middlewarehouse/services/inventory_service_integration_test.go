@@ -43,7 +43,7 @@ func (suite *InventoryServiceIntegrationTestSuite) SetupSuite() {
 	stockLocationService := NewStockLocationService(stockLocationRepository)
 
 	suite.summaryService = NewSummaryService(summaryRepository, stockItemRepository)
-	suite.service = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, false}
+	suite.service = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, nil}
 
 	suite.sl, _ = stockLocationService.CreateLocation(fixtures.GetStockLocation())
 	suite.sku = "SKU-INTEGRATION"
@@ -78,6 +78,20 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_IncrementStockItemUnits_
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)
 	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5)))
+
+	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku)
+
+	suite.Nil(err)
+	suite.Equal(5, summary[0].OnHand)
+	suite.Equal(5, summary[0].AFS)
+}
+
+func (suite *InventoryServiceIntegrationTestSuite) Test_IncrementStockItemUnits_SummaryUpdate_WithTransaction() {
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
+	suite.Nil(err)
+	txn := suite.db.Begin()
+	suite.Nil(suite.service.WithTransaction(txn).IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5)))
+	txn.Commit()
 
 	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku)
 
