@@ -2,11 +2,17 @@ package mocks
 
 import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
 )
 
 type InventoryServiceMock struct {
 	mock.Mock
+}
+
+func (m *InventoryServiceMock) WithTransaction(txn *gorm.DB) services.IInventoryService {
+	return m
 }
 
 func (m *InventoryServiceMock) GetStockItems() ([]*models.StockItem, error) {

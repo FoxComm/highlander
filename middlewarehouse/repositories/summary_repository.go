@@ -6,6 +6,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/jinzhu/gorm"
+	"github.com/FoxComm/highlander/middlewarehouse/common/transaction"
 )
 
 const (
@@ -19,6 +20,8 @@ type summaryRepository struct {
 }
 
 type ISummaryRepository interface {
+	WithTransaction(txn *gorm.DB) ISummaryRepository
+
 	GetSummary() ([]*models.StockItemSummary, error)
 	GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error)
 
@@ -32,6 +35,15 @@ type ISummaryRepository interface {
 
 func NewSummaryRepository(db *gorm.DB) ISummaryRepository {
 	return &summaryRepository{db}
+}
+
+// WithTransaction returns a shallow copy of repository with its db changed to txn. The provided txn must be non-nil.
+func (repository *summaryRepository) WithTransaction(txn *gorm.DB) ISummaryRepository {
+	if txn == nil {
+		panic("nil transaction")
+	}
+
+	return NewSummaryRepository(txn)
 }
 
 func (repository *summaryRepository) GetSummary() ([]*models.StockItemSummary, error) {
@@ -80,7 +92,7 @@ func (repository *summaryRepository) GetSummaryItemByType(stockItemId uint, unit
 }
 
 func (repository *summaryRepository) CreateStockItemSummary(summary []*models.StockItemSummary) error {
-	txn := repository.db.Begin()
+	txn := transaction.NewTransaction(repository.db).Begin()
 
 	for _, item := range summary {
 		// use `UPDATE SET stock_item_id = '%d'` as postgres driver does not return anything on `DO NOTHING`

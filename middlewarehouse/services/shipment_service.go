@@ -3,7 +3,6 @@ package services
 import (
 	"errors"
 
-	"github.com/FoxComm/highlander/middlewarehouse/common/async"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
@@ -38,31 +37,6 @@ func (service *shipmentService) GetShipmentsByOrder(referenceNumber string) ([]*
 func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
 	txn := service.db.Begin()
 
-	stockItemCounts := make(map[uint]int)
-	unitRepo := repositories.NewStockItemUnitRepository(txn)
-	for i, lineItem := range shipment.ShipmentLineItems {
-		siu, err := unitRepo.GetUnitForLineItem(shipment.OrderRefNum, lineItem.SKU)
-		if err != nil {
-			txn.Rollback()
-			return nil, err
-		}
-
-		if err := txn.Model(siu).Update("status", "reserved").Error; err != nil {
-			txn.Rollback()
-			return nil, err
-		}
-
-		shipment.ShipmentLineItems[i].StockItemUnitID = siu.ID
-
-		// Aggregate which stock items, and how many, have been updated, so that we
-		// can update summaries asynchronously at the end.
-		if count, ok := stockItemCounts[siu.StockItemID]; ok {
-			stockItemCounts[siu.StockItemID] = count + 1
-		} else {
-			stockItemCounts[siu.StockItemID] = 1
-		}
-	}
-
 	shipmentRepo := repositories.NewShipmentRepository(txn)
 	result, err := shipmentRepo.CreateShipment(shipment)
 	if err != nil {
@@ -76,6 +50,11 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		return nil, err
 	}
 
+	if err := service.inventoryService.WithTransaction(txn).ReserveItems(shipment.OrderRefNum); err != nil {
+		txn.Rollback()
+		return nil, err
+	}
+
 	if err := service.activityLogger.Log(activity); err != nil {
 		txn.Rollback()
 		return nil, err
@@ -85,8 +64,6 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		txn.Rollback()
 		return nil, err
 	}
-
-	service.updateSummariesToReserved(stockItemCounts)
 
 	return result, nil
 }
@@ -165,22 +142,7 @@ func (service *shipmentService) logActivity(original *models.Shipment, updated *
 	var err error
 
 	if original.State != updated.State && updated.State == models.ShipmentStateShipped {
-		stockItemCounts := make(map[uint]int)
-		for _, lineItem := range original.ShipmentLineItems {
-			// Aggregate which stock items, and how many, have been updated, so that we
-			// can update summaries asynchronously at the end.
-			if count, ok := stockItemCounts[lineItem.StockItemUnitID]; ok {
-				stockItemCounts[lineItem.StockItemUnitID] = count + 1
-			} else {
-				stockItemCounts[lineItem.StockItemUnitID] = 1
-			}
-		}
-
 		activity, err = activities.NewShipmentShipped(updated, updated.UpdatedAt)
-
-		if err == nil {
-			service.updateSummariesToShipped(stockItemCounts)
-		}
 	} else {
 		activity, err = activities.NewShipmentUpdated(updated, updated.UpdatedAt)
 	}
@@ -192,41 +154,7 @@ func (service *shipmentService) logActivity(original *models.Shipment, updated *
 	return service.activityLogger.Log(activity)
 }
 
-func (service *shipmentService) updateSummariesToReserved(stockItemsMap map[uint]int) error {
-	statusShift := models.StatusChange{From: models.StatusOnHold, To: models.StatusReserved}
-	unitType := models.Sellable
-
-	fn := func() error {
-		for id, qty := range stockItemsMap {
-			if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
-				return err
-			}
-		}
-
-		return nil
-	}
-
-	return async.MaybeExecAsync(fn, service.updateSummaryAsync, "Error updating stock item summary creating shipment")
-}
-
-func (service *shipmentService) updateSummariesToShipped(stockItemsMap map[uint]int) error {
-	statusShift := models.StatusChange{From: models.StatusReserved, To: models.StatusShipped}
-	unitType := models.Sellable
-
-	fn := func() error {
-		for id, qty := range stockItemsMap {
-			if err := service.summaryService.UpdateStockItemSummary(id, unitType, qty, statusShift); err != nil {
-				return err
-			}
-		}
-
-		return nil
-	}
-
-	return async.MaybeExecAsync(fn, service.updateSummaryAsync, "Error updating stock item summary after shipment")
-}
-
-func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, newShipment *models.Shipment) error {
+func (service *shipmentService) handleStatusChange(txn *gorm.DB, oldShipment, newShipment *models.Shipment) error {
 	if oldShipment.State == newShipment.State {
 		return nil
 	}
@@ -235,10 +163,11 @@ func (service *shipmentService) handleStatusChange(db *gorm.DB, oldShipment, new
 
 	switch newShipment.State {
 	case models.ShipmentStateCancelled:
-		err = service.inventoryService.ReleaseItems(newShipment.OrderRefNum)
+		err = service.inventoryService.WithTransaction(txn).ReleaseItems(newShipment.OrderRefNum)
 
 	case models.ShipmentStateShipped:
 		// TODO: Bring capture back when we move to the capture consumer
+		err = service.inventoryService.WithTransaction(txn).ShipItems(newShipment.OrderRefNum)
 	}
 
 	return err

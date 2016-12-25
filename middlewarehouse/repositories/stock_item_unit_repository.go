@@ -7,6 +7,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/jinzhu/gorm"
+	"github.com/FoxComm/highlander/middlewarehouse/common/transaction"
 )
 
 const (
@@ -18,16 +19,17 @@ type stockItemUnitRepository struct {
 }
 
 type IStockItemUnitRepository interface {
+	WithTransaction(txn *gorm.DB) IStockItemUnitRepository
 	GetStockItemUnitIDs(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error)
 	GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, error)
+	GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, error)
+	GetQtyForOrder(refNum string) ([]*models.Release, error)
+
 	HoldUnitsInOrder(refNum string, ids []uint) (int, error)
 	ReserveUnitsInOrder(refNum string) (int, error)
 	UnsetUnitsInOrder(refNum string) (int, error)
 	ShipUnitsInOrder(refNum string) (int, error)
 	DeleteUnitsInOrder(refNum string) (int, error)
-	GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, error)
-
-	GetQtyByRefNum(refNum string) ([]*models.Release, error)
 
 	CreateUnits(units []*models.StockItemUnit) error
 	DeleteUnits(ids []uint) error
@@ -37,8 +39,17 @@ func NewStockItemUnitRepository(db *gorm.DB) IStockItemUnitRepository {
 	return &stockItemUnitRepository{db}
 }
 
+// WithTransaction returns a shallow copy of repository with its db changed to txn. The provided txn must be non-nil.
+func (repository *stockItemUnitRepository) WithTransaction(txn *gorm.DB) IStockItemUnitRepository {
+	if txn == nil {
+		panic("nil transaction")
+	}
+
+	return NewStockItemUnitRepository(txn)
+}
+
 func (repository *stockItemUnitRepository) CreateUnits(units []*models.StockItemUnit) error {
-	txn := repository.db.Begin()
+	txn := transaction.NewTransaction(repository.db).Begin()
 	for _, v := range units {
 		if err := txn.Create(v).Error; err != nil {
 			txn.Rollback()
@@ -154,7 +165,7 @@ func (repository *stockItemUnitRepository) DeleteUnitsInOrder(refNum string) (in
 	return int(result.RowsAffected), result.Error
 }
 
-func (repository *stockItemUnitRepository) GetQtyByRefNum(refNum string) ([]*models.Release, error) {
+func (repository *stockItemUnitRepository) GetQtyForOrder(refNum string) ([]*models.Release, error) {
 	res := []*models.Release{}
 
 	err := repository.db.Table("stock_item_units u").
