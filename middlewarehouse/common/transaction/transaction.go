@@ -49,17 +49,6 @@ func (txn *Transaction) Set(name string, value interface{}) *gorm.DB {
 	return txn.db.Set(name, value)
 }
 
-//func (txn *Transaction) runQuery(methodName string, value interface{}) *gorm.DB {
-//	methodValue := reflect.ValueOf(txn.db).MethodByName(methodName)
-//	if !methodValue.IsValid() {
-//		panic(fmt.Sprintf("Can't call method %s of Transaction. Not implemented", methodName))
-//	}
-//
-//	result := methodValue.Call([]reflect.Value{reflect.ValueOf(value)})
-//
-//	return result[0].Interface().(*gorm.DB)
-//}
-
 func (txn *Transaction) runTransaction(methodName string, whenTxn bool) *Transaction {
 	if txn.wrapped {
 		return txn

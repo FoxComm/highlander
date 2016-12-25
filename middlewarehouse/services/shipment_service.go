@@ -13,7 +13,6 @@ import (
 type shipmentService struct {
 	db                 *gorm.DB
 	inventoryService   IInventoryService
-	summaryService     ISummaryService
 	activityLogger     IActivityLogger
 	updateSummaryAsync bool
 }
@@ -25,8 +24,8 @@ type IShipmentService interface {
 	UpdateShipmentForOrder(shipment *models.Shipment) (*models.Shipment, error)
 }
 
-func NewShipmentService(db *gorm.DB, inventoryService IInventoryService, summaryService ISummaryService, activityLogger IActivityLogger) IShipmentService {
-	return &shipmentService{db, inventoryService, summaryService, activityLogger, true}
+func NewShipmentService(db *gorm.DB, inventoryService IInventoryService, activityLogger IActivityLogger) IShipmentService {
+	return &shipmentService{db, inventoryService, activityLogger, true}
 }
 
 func (service *shipmentService) GetShipmentsByOrder(referenceNumber string) ([]*models.Shipment, error) {
@@ -36,6 +35,17 @@ func (service *shipmentService) GetShipmentsByOrder(referenceNumber string) ([]*
 
 func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
 	txn := service.db.Begin()
+
+	unitRepo := repositories.NewStockItemUnitRepository(txn)
+	for i, lineItem := range shipment.ShipmentLineItems {
+		siu, err := unitRepo.GetUnitForLineItem(shipment.OrderRefNum, lineItem.SKU)
+		if err != nil {
+			txn.Rollback()
+			return nil, err
+		}
+
+		shipment.ShipmentLineItems[i].StockItemUnitID = siu.ID
+	}
 
 	shipmentRepo := repositories.NewShipmentRepository(txn)
 	result, err := shipmentRepo.CreateShipment(shipment)
