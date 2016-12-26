@@ -229,7 +229,7 @@ class EditBilling extends Component {
     const currentYear = new Date().getFullYear();
     const years = _.range(currentYear, currentYear + 10, 1).map(x => x.toString());
     const checkedDefaultCard = _.get(data, 'isDefault', false);
-    const editingSavedCard = data.id;
+    const editingSavedCard = !!data.id;
     const cardNumberPlaceholder = editingSavedCard ?
       (_.repeat('**** ', 3) + data.lastFour) : t('CARD NUMBER');
     const cvcPlaceholder = editingSavedCard ? '***' : 'CVC';
@@ -266,6 +266,8 @@ class EditBilling extends Component {
                   className={textStyles['text-input']}
                   maskChar=" "
                   type="text"
+                  pattern="\d*"
+                  inputmode="numeric"
                   mask={this.cardMask}
                   name="number"
                   placeholder={cardNumberPlaceholder}
@@ -281,6 +283,8 @@ class EditBilling extends Component {
                 disabled={editingSavedCard}
                 label={<CvcHelp />}
                 type="number"
+                pattern="\d*"
+                inputmode="numeric"
                 maxLength="4"
                 placeholder={cvcPlaceholder}
                 onChange={this.changeCVC}
