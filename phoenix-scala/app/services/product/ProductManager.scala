@@ -26,7 +26,7 @@ import responses.ImageResponses.ImageResponse
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
 import responses.ProductVariantResponses._
-import responses.ProductOptionResponses.IlluminatedProductOptionResponse
+import responses.ProductOptionResponses.ProductOptionResponse
 import services.image.ImageManager
 import services.inventory.ProductVariantManager
 import services.objects.ObjectManager
@@ -227,9 +227,10 @@ object ProductManager {
       )
   }
 
-  private def getProductOptionsWithRelatedVariants(
-      productOptions: Seq[FullProductOption])(implicit ec: EC, db: DB, oc: OC)
-    : DbResultT[(Seq[ProductVariantResponse.Root], Seq[IlluminatedProductOptionResponse.Root])] = {
+  private def getProductOptionsWithRelatedVariants(productOptions: Seq[FullProductOption])(
+      implicit ec: EC,
+      db: DB,
+      oc: OC): DbResultT[(Seq[ProductVariantResponse.Root], Seq[ProductOptionResponse.Root])] = {
     val productValueIds = productOptions.flatMap { case (_, variantValue) ⇒ variantValue }
       .map(_.model.id)
     for {
@@ -240,7 +241,7 @@ object ProductManager {
       illuminated = productOptions.map {
         case (fullOption, values) ⇒
           val variant = IlluminatedProductOption.illuminate(oc, fullOption)
-          IlluminatedProductOptionResponse.buildLite(variant, values, productValueSkuCodes)
+          ProductOptionResponse.buildLite(variant, values, productValueSkuCodes)
       }
     } yield (productVariants, illuminated)
   }
@@ -260,7 +261,7 @@ object ProductManager {
 
   private def validateUpdate(
       variants: Seq[ProductVariantResponse.Root],
-      options: Seq[(FullObject[ProductOption], Seq[FullObject[ProductValue]])])
+      options: Seq[(FullObject[ProductOption], Seq[FullObject[ProductOptionValue]])])
     : ValidatedNel[Failure, Unit] = {
     val maxVariants = options.map { case (_, values) ⇒ values.length.max(1) }.product
 

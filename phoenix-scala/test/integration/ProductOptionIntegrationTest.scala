@@ -8,8 +8,8 @@ import models.inventory.ProductVariants
 import models.product._
 import org.json4s.JsonDSL._
 import payloads.ProductOptionPayloads._
-import responses.ProductOptionResponses.IlluminatedProductOptionResponse.{Root ⇒ OptionRoot}
-import responses.ProductValueResponses.IlluminatedProductValueResponse.{Root ⇒ ValueRoot}
+import responses.ProductOptionResponses.ProductOptionResponse.{Root ⇒ OptionRoot}
+import responses.ProductValueResponses.ProductValueResponse.{Root ⇒ ValueRoot}
 import services.product.ProductManager
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -129,9 +129,9 @@ class ProductOptionIntegrationTest
 
     val skus = Mvp.insertVariants(scope, ctx.id, testSkus).gimme
 
-    val createVariantValuePayload = ProductValuePayload(name = Some("Red"),
-                                                        swatch = Some("ff0000"),
-                                                        skuCodes = Seq(skus.head.code))
+    val createVariantValuePayload = ProductOptionValuePayload(name = Some("Red"),
+                                                              swatch = Some("ff0000"),
+                                                              skuCodes = Seq(skus.head.code))
   }
 
   trait VariantFixture extends Fixture {

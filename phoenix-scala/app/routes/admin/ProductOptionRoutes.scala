@@ -35,9 +35,9 @@ object ProductOptionRoutes {
               }
             } ~
             pathPrefix("values") {
-              (post & pathEnd & entity(as[ProductValuePayload])) { payload ⇒
+              (post & pathEnd & entity(as[ProductOptionValuePayload])) { payload ⇒
                 mutateOrFailures {
-                  ProductOptionManager.createProductValue(context, variantId, payload)
+                  ProductOptionManager.createProductOptionValue(context, variantId, payload)
                 }
               }
             }

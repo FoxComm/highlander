@@ -167,7 +167,7 @@ case class SimpleProductValue(name: String, swatch: String, skuCodes: Seq[String
   val (keyMap, form) =
     ObjectUtils.createForm(parse(s"""{ "name": "$name", "swatch": "$swatch" }"""))
 
-  def create: ObjectForm = ObjectForm(kind = ProductValue.kind, attributes = form)
+  def create: ObjectForm = ObjectForm(kind = ProductOptionValue.kind, attributes = form)
 
   def update(oldForm: ObjectForm): ObjectForm =
     oldForm.copy(attributes = oldForm.attributes merge form)
@@ -393,12 +393,12 @@ object Mvp {
       sShadow ← * <~ SimpleProductValueShadow(v)
       shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
-      value ← * <~ ProductValues.create(
-                 ProductValue(scope = scope,
-                              contextId = contextId,
-                              formId = form.id,
-                              shadowId = shadow.id,
-                              commitId = commit.id))
+      value ← * <~ ProductOptionValues.create(
+                 ProductOptionValue(scope = scope,
+                                    contextId = contextId,
+                                    formId = form.id,
+                                    shadowId = shadow.id,
+                                    commitId = commit.id))
       _ ← * <~ ProductOptionValueLinks.create(
              ProductOptionValueLink(leftId = variantId, rightId = value.id))
       skuCodes ← * <~ v.skuCodes.map(code ⇒

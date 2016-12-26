@@ -31,7 +31,7 @@ object ProductResponses {
                     attributes: Json,
                     albums: Seq[AlbumResponse.Root],
                     variants: Seq[ProductVariantResponse.Root],
-                    options: Seq[IlluminatedProductOptionResponse.Root],
+                    options: Seq[ProductOptionResponse.Root],
                     archivedAt: Option[Instant],
                     taxons: Seq[SingleTaxonResponse])
         extends ResponseItem
@@ -39,7 +39,7 @@ object ProductResponses {
     def build(product: IlluminatedProduct,
               albums: Seq[AlbumResponse.Root],
               variants: Seq[ProductVariantResponse.Root],
-              options: Seq[IlluminatedProductOptionResponse.Root],
+              options: Seq[ProductOptionResponse.Root],
               taxons: Seq[SingleTaxonResponse]): Root =
       Root(id = product.id,
            attributes = product.attributes,

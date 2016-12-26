@@ -507,7 +507,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def update(payload: ProductOptionPayload)(implicit ctx: OC): HttpResponse =
       PATCH(variantPath, payload)
 
-    def createValues(payload: ProductValuePayload)(implicit ctx: OC): HttpResponse =
+    def createValues(payload: ProductOptionValuePayload)(implicit ctx: OC): HttpResponse =
       POST(s"$variantPath/values", payload)
   }
 

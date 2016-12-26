@@ -24,20 +24,20 @@ class ProductOptionValueLinks(tag: Tag)
     (id, leftId, rightId, createdAt, updatedAt) <> ((ProductOptionValueLink.apply _).tupled, ProductOptionValueLink.unapply)
 
   def left  = foreignKey(ProductOptions.tableName, leftId, ProductOptions)(_.id)
-  def right = foreignKey(ProductValues.tableName, rightId, ProductValues)(_.id)
+  def right = foreignKey(ProductOptionValues.tableName, rightId, ProductOptionValues)(_.id)
 }
 
 object ProductOptionValueLinks
     extends ObjectHeadLinkQueries[ProductOptionValueLink,
                                   ProductOptionValueLinks,
                                   ProductOption,
-                                  ProductValue](new ProductOptionValueLinks(_),
-                                                ProductOptions,
-                                                ProductValues)
+                                  ProductOptionValue](new ProductOptionValueLinks(_),
+                                                      ProductOptions,
+                                                      ProductOptionValues)
     with ReturningId[ProductOptionValueLink, ProductOptionValueLinks] {
 
   val returningLens: Lens[ProductOptionValueLink, Int] = lens[ProductOptionValueLink].id
 
-  def build(left: ProductOption, right: ProductValue): ProductOptionValueLink =
+  def build(left: ProductOption, right: ProductOptionValue): ProductOptionValueLink =
     ProductOptionValueLink(leftId = left.id, rightId = right.id)
 }

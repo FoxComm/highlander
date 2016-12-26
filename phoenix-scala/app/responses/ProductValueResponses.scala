@@ -7,10 +7,10 @@ import utils.{IlluminateAlgorithm, JsonFormatters}
 object ProductValueResponses {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  object IlluminatedProductValueResponse {
+  object ProductValueResponse {
     case class Root(id: Int, name: String, swatch: Option[String] = None, skuCodes: Seq[String])
 
-    def build(value: FullObject[ProductValue], skuCodes: Seq[String]): Root = {
+    def build(value: FullObject[ProductOptionValue], skuCodes: Seq[String]): Root = {
       val model       = value.model
       val formAttrs   = value.form.attributes
       val shadowAttrs = value.shadow.attributes
