@@ -22,47 +22,47 @@ export const skuEmptyAttributes = {
   shippingClass: 'default',
   isReturnable: true,
   returnWindow: {
-    "value": '',
+    "value": 30,
     "units": "days"
   },
   height: {
-    "value": '',
+    "value": 0,
     "units": "in"
   },
   weight: {
-    "value": '',
+    "value": 0,
     "units": "lbs"
   },
   length: {
-    "value": '',
+    "value": 0,
     "units": "in"
   },
   width: {
-    "value": '',
+    "value": 0,
     "units": "in"
   },
   requiresInventoryTracking: true,
   inventoryWarningLevel: {
-    "isEnabled": true,
-    "level": ''
+    "isEnabled": false,
+    "level": 0
   },
   maximumQuantityInCart: {
-    "isEnabled": true,
-    "level": ''
+    "isEnabled": false,
+    "level": 0
   },
   minimumQuantityInCart: {
     "isEnabled": false,
-    "level": ''
+    "level": 0
   },
   allowBackorder: false,
   allowPreorder: false,
   requiresLotTracking: true,
   lotExpirationThreshold: {
-    "value": '',
+    "value": 0,
     "units": "months"
   },
   lotExpirationWarningThreshold: {
-    "value": '',
+    "value": 0,
     "units": "days"
   }
 };

@@ -17,10 +17,6 @@ export type Sku = {
   feCode?: string,
   attributes: Attributes,
   id: any,
-  context: {
-    attributes?: Object,
-    name: string,
-  }
 };
 
 const defaultContext = 'default';
@@ -31,12 +27,14 @@ export const syncSku = createAction('SKU_SYNC');
 
 function cleanAttributes(entity) {
   const attributes = _.get(entity, 'attributes', entity);
-  return _.reduce(attributes, (res, val, key) => {
-    return {
-      ...res,
-      [key]: _.get(val, 'v', val),
-    };
+
+  let payload = _.omit(entity, 'attributes');
+
+  _.map(attributes, (val, key) => {
+    payload[key] = _.get(val, 'v', val);
   });
+
+  return payload;
 }
 
 const _archiveSku = createAsyncActions(
@@ -66,12 +64,16 @@ const _createSku = createAsyncActions(
 
 const _updateSku = createAsyncActions(
   'updateSku',
-  function(sku: Sku, context: string = defaultContext) {
+  function(sku: Sku) {
     const { dispatch, getState } = this;
-    const oldSku = _.get(getState(), ['skus', 'details', 'sku', 'attributes', 'code', 'v']);
+    const oldSku = _.get(getState(), ['skus', 'details', 'sku']);
+
+    const code = _.get(oldSku, ['attributes', 'code']);
+    const id = _.get(oldSku, 'id');
+
     if (oldSku) {
-      const stockItemsPromise = dispatch(pushStockItemChanges(oldSku));
-      const updatePromise = Api.patch(`/skus/${context}/${oldSku}`, sku);
+      const stockItemsPromise = dispatch(pushStockItemChanges(code));
+      const updatePromise = Api.patch(`inventory/skus/${id}`, cleanAttributes(sku));
       return Promise.all([updatePromise, stockItemsPromise]).then(([updateResponse]) => {
         return updateResponse;
       });
