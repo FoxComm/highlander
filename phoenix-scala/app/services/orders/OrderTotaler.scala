@@ -31,7 +31,7 @@ object OrderTotaler {
        |	from order_line_items oli
        |	left outer join product_variants variant on (variant.id = oli.product_variant_id)
        |	left outer join object_forms vform on (vform.id = variant.form_id)
-       |	left outer join object_shadows vshadow on (vshadow.id = oli.variant_shadow_id)
+       |	left outer join object_shadows vshadow on (vshadow.id = oli.product_variant_shadow_id)
        |
        |	where oli.cord_ref = ${cart.refNum}
        | """.stripMargin.as[(Int, Int)].headOption.map {
