@@ -13,9 +13,15 @@ import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
+import com.github.levkhomich.akka.tracing.TracingExtensionImpl
+
 object DevRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
+  def routes(implicit ec: EC,
+             db: DB,
+             auth: AuthData[User],
+             tr: TracingRequest,
+             trace: TracingExtensionImpl) = {
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("order-time-machine") {
         (post & pathEnd & entity(as[OrderTimeMachine])) { payload ⇒

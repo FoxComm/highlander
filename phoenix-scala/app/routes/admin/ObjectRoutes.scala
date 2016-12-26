@@ -10,8 +10,14 @@ import services.objects.ObjectSchemasManager
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
+import com.github.levkhomich.akka.tracing.TracingExtensionImpl
+
 object ObjectRoutes {
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
+  def routes(implicit ec: EC,
+             db: DB,
+             auth: AuthData[User],
+             tr: TracingRequest,
+             trace: TracingExtensionImpl) = {
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("object" / "schemas") {
         (get & pathEnd) {

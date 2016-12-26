@@ -4,7 +4,6 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.account.User
 import models.product.ProductReference
 import payloads.ContextPayloads._
 import payloads.ImagePayloads.{AlbumPayload, UpdateAlbumPositionPayload}
@@ -12,16 +11,19 @@ import payloads.ProductPayloads._
 import services.image.ImageManager
 import services.objects.ObjectManager
 import services.product.ProductManager
-import services.Authenticator.AuthData
 import services.taxonomy.TaxonomyManager
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
+import com.github.levkhomich.akka.tracing.TracingExtensionImpl
+
 object ProductRoutes {
 
   def productRoutes(
-      productRef: ProductReference)(implicit ec: EC, db: DB, oc: OC, ac: AC, auth: AU): Route = {
+      productRef: ProductReference)(implicit ec: EC, db: DB, oc: OC, ac: AC, auth: AU,
+                                    tr: TracingRequest,
+                                    trace: TracingExtensionImpl): Route = {
     (get & pathEnd) {
       getOrFailures {
         ProductManager.getProduct(productRef)
@@ -63,7 +65,11 @@ object ProductRoutes {
     }
   }
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
+  def routes(implicit ec: EC,
+             db: DB,
+             auth: AU,
+             tr: TracingRequest,
+             trace: TracingExtensionImpl) = {
 
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("products") {

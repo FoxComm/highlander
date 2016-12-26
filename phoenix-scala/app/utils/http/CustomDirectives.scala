@@ -25,7 +25,11 @@ import utils.aliases._
 import utils.db._
 import utils.http.Http._
 
+import com.github.levkhomich.akka.tracing._
+
 object CustomDirectives {
+
+  final case class TracingRequest(service: String) extends TracingSupport
 
   val DefaultContextName = SimpleContext.default
 
@@ -56,6 +60,29 @@ object CustomDirectives {
       case (None) ⇒
         ActivityContext(userId = 0, userType = "guest", transactionId = generateUuid)
     }
+  }
+
+  def traceStart(service: String, trace: TracingExtensionImpl): Directive1[TracingRequest] = {
+    extractRequest.map { request ⇒
+      val tr = TracingRequest(service)
+      trace.sample(tr, service)
+      trace.recordKeyValue(tr, "request.uri", request.uri.toString())
+      trace.recordKeyValue(tr, "request.path", request.uri.path.toString())
+      trace.recordKeyValue(tr, "request.proto", request.protocol.value)
+      request.uri.query().toMultiMap.foreach {
+        case (key, values) ⇒
+          values.foreach(trace.recordKeyValue(tr, "request.query." + key, _))
+      }
+      request.headers.foreach { header ⇒
+        trace.recordKeyValue(tr, "request.headers." + header.name, header.value)
+      }
+      tr
+    }
+  }
+
+  def traceEnd[T <: AnyRef](t: T)(implicit tr: TracingRequest, trace: TracingExtensionImpl): T = {
+    trace.finish(tr)
+    t
   }
 
   /**
@@ -104,26 +131,39 @@ object CustomDirectives {
       case None ⇒ getContextByName(DefaultContextName)
     }
 
-  def good[A <: AnyRef](a: Future[A])(implicit ec: EC): StandardRoute =
+  def good[A <: AnyRef](a: Future[A])(implicit ec: EC,
+                                      tr: TracingRequest,
+                                      trace: TracingExtensionImpl): StandardRoute =
     complete(a.map(render(_)))
 
-  def good[A <: AnyRef](a: A): StandardRoute =
+  def good[A <: AnyRef](a: A, tr: TracingRequest, trace: TracingExtensionImpl): StandardRoute =
     complete(render(a))
 
   private def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G): HttpResponse =
     or.fold(renderFailure(_), render(_))
 
-  def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: EC): StandardRoute =
+  def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: EC,
+                                                tr: TracingRequest,
+                                                trace: TracingExtensionImpl): StandardRoute =
     complete(a.map(renderGoodOrFailures))
 
-  def getOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
+  def getOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC,
+                                                  db: DB,
+                                                  tr: TracingRequest,
+                                                  trace: TracingExtensionImpl): StandardRoute =
     complete(a.run().map(renderGoodOrFailures))
 
-  def mutateOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
+  def mutateOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC,
+                                                     db: DB,
+                                                     tr: TracingRequest,
+                                                     trace: TracingExtensionImpl): StandardRoute =
     complete(a.runTxn().map(renderGoodOrFailures))
 
-  def mutateWithNewTokenOrFailures[A <: AnyRef](a: DbResultT[(A, AuthPayload)])(implicit ec: EC,
-                                                                                db: DB): Route = {
+  def mutateWithNewTokenOrFailures[A <: AnyRef](a: DbResultT[(A, AuthPayload)])(
+      implicit ec: EC,
+      db: DB,
+      tr: TracingRequest,
+      trace: TracingExtensionImpl): Route = {
     onSuccess(a.runTxn()) { result ⇒
       result.fold({ f ⇒
         complete(renderFailure(f))
@@ -141,13 +181,21 @@ object CustomDirectives {
     }
   }
 
-  def deleteOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
+  def deleteOrFailures(a: DbResultT[_])(implicit ec: EC,
+                                        db: DB,
+                                        tr: TracingRequest,
+                                        trace: TracingExtensionImpl): StandardRoute =
     complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
 
-  def doOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
+  def doOrFailures(a: DbResultT[_])(implicit ec: EC,
+                                    db: DB,
+                                    tr: TracingRequest,
+                                    trace: TracingExtensionImpl): StandardRoute =
     complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
 
-  def entityOr[T](um: FromRequestUnmarshaller[T], failure: failures.Failure): Directive1[T] =
+  def entityOr[T](um: FromRequestUnmarshaller[T], failure: failures.Failure)(
+      implicit tr: TracingRequest,
+      trace: TracingExtensionImpl): Directive1[T] =
     extractRequestContext.flatMap[Tuple1[T]] { ctx ⇒
       import ctx.{executionContext, materializer}
       onComplete(um(ctx.request)).flatMap {

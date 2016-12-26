@@ -23,12 +23,13 @@ object Versions {
 object Dependencies {
 
   val akka = Seq(
-    "com.typesafe.akka" %% "akka-slf4j"     % Versions.akka,
-    "com.typesafe.akka" %% "akka-actor"     % Versions.akka,
-    "com.typesafe.akka" %% "akka-agent"     % Versions.akka,
-    "com.typesafe.akka" %% "akka-stream"    % Versions.akka,
-    "com.typesafe.akka" %% "akka-http-core" % Versions.akka,
-    "de.heikoseeberger" %% "akka-sse"       % "1.8.1"
+    "com.typesafe.akka"     %% "akka-slf4j"         % Versions.akka,
+    "com.typesafe.akka"     %% "akka-actor"         % Versions.akka,
+    "com.typesafe.akka"     %% "akka-agent"         % Versions.akka,
+    "com.typesafe.akka"     %% "akka-stream"        % Versions.akka,
+    "com.typesafe.akka"     %% "akka-http-core"     % Versions.akka,
+    "de.heikoseeberger"     %% "akka-sse"           % "1.8.1",
+    "com.github.levkhomich" %% "akka-tracing-core"  % "0.4"
   )
 
   val slick = Seq(

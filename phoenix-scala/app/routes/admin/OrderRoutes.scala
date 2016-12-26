@@ -22,9 +22,17 @@ import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
+import com.github.levkhomich.akka.tracing.TracingExtensionImpl
+
 object OrderRoutes {
 
-  def routes(implicit ec: EC, es: ES, db: DB, auth: AuthData[User], apis: Apis) = {
+  def routes(implicit ec: EC,
+             es: ES,
+             db: DB,
+             auth: AuthData[User],
+             apis: Apis,
+             tr: TracingRequest,
+             trace: TracingExtensionImpl) = {
 
     activityContext(auth.model) { implicit ac ⇒
       determineObjectContext(db, ec) { implicit ctx ⇒
