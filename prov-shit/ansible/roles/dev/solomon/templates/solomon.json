@@ -21,11 +21,6 @@
     "type": "DOCKER",
     "volumes": [
       {
-        "containerPath": "{{private_keys_dest_dir}}",
-        "hostPath": "{{private_keys_dest_dir}}",
-        "mode": "RO"
-      },
-      {
         "containerPath": "{{public_keys_dest_dir}}",
         "hostPath": "{{public_keys_dest_dir}}",
         "mode": "RO"
