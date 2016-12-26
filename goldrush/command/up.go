@@ -41,19 +41,19 @@ func CmdUp(c *cli.Context) {
 
 	timeStart := time.Now()
 	go func() {
-		color.Set(color.FgYellow)
 		for cmdScanner.Scan() {
+			color.Set(color.FgYellow)
 			fmt.Printf("[%s]fox up | %s \n", time.Now().Format("15:04:05"), cmdScanner.Text())
+			color.Unset()
 		}
-		color.Unset()
 	}()
 
 	go func() {
-		color.Set(color.FgRed)
 		for errScanner.Scan() {
+			color.Set(color.FgRed)
 			fmt.Printf("[%s]fox up | %s \n", time.Now().Format("15:04:05"), errScanner.Text())
+			color.Unset()
 		}
-		color.Unset()
 	}()
 
 	err = cmd.Start()
