@@ -13,6 +13,8 @@ import (
 type shipmentService struct {
 	db                 *gorm.DB
 	inventoryService   IInventoryService
+	shipmentRepo       repositories.IShipmentRepository
+	unitRepo           repositories.IStockItemUnitRepository
 	activityLogger     IActivityLogger
 	updateSummaryAsync bool
 }
@@ -24,21 +26,24 @@ type IShipmentService interface {
 	UpdateShipmentForOrder(shipment *models.Shipment) (*models.Shipment, error)
 }
 
-func NewShipmentService(db *gorm.DB, inventoryService IInventoryService, activityLogger IActivityLogger) IShipmentService {
-	return &shipmentService{db, inventoryService, activityLogger, true}
+func NewShipmentService(db *gorm.DB,
+	inventoryService IInventoryService,
+	shipmentRepo repositories.IShipmentRepository,
+	unitRepository repositories.IStockItemUnitRepository,
+	activityLogger IActivityLogger,
+) IShipmentService {
+	return &shipmentService{db, inventoryService, shipmentRepo, unitRepository, activityLogger, true}
 }
 
 func (service *shipmentService) GetShipmentsByOrder(referenceNumber string) ([]*models.Shipment, error) {
-	repo := repositories.NewShipmentRepository(service.db)
-	return repo.GetShipmentsByOrder(referenceNumber)
+	return service.shipmentRepo.GetShipmentsByOrder(referenceNumber)
 }
 
 func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
 	txn := service.db.Begin()
 
-	unitRepo := repositories.NewStockItemUnitRepository(txn)
 	for i, lineItem := range shipment.ShipmentLineItems {
-		siu, err := unitRepo.GetUnitForLineItem(shipment.OrderRefNum, lineItem.SKU)
+		siu, err := service.unitRepo.WithTransaction(txn).GetUnitForLineItem(shipment.OrderRefNum, lineItem.SKU)
 		if err != nil {
 			txn.Rollback()
 			return nil, err
@@ -47,8 +52,7 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		shipment.ShipmentLineItems[i].StockItemUnitID = siu.ID
 	}
 
-	shipmentRepo := repositories.NewShipmentRepository(txn)
-	result, err := shipmentRepo.CreateShipment(shipment)
+	result, err := service.shipmentRepo.WithTransaction(txn).CreateShipment(shipment)
 	if err != nil {
 		txn.Rollback()
 		return nil, err
@@ -81,23 +85,21 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 func (service *shipmentService) UpdateShipment(shipment *models.Shipment) (*models.Shipment, error) {
 	txn := service.db.Begin()
 
-	shipmentRepo := repositories.NewShipmentRepository(txn)
-	source, err := shipmentRepo.GetShipmentByID(shipment.ID)
+	source, err := service.shipmentRepo.WithTransaction(txn).GetShipmentByID(shipment.ID)
 	if err != nil {
 		txn.Rollback()
 		return nil, err
 	}
 
 	shipment.ID = source.ID
-	return service.updateShipmentHelper(txn, shipmentRepo, shipment, source)
+	return service.updateShipmentHelper(txn, shipment, source)
 }
 
 func (service *shipmentService) UpdateShipmentForOrder(shipment *models.Shipment) (*models.Shipment, error) {
 
 	txn := service.db.Begin()
 
-	shipmentRepo := repositories.NewShipmentRepository(txn)
-	sources, err := shipmentRepo.GetShipmentsByOrder(shipment.OrderRefNum)
+	sources, err := service.shipmentRepo.GetShipmentsByOrder(shipment.OrderRefNum)
 	if err != nil {
 		txn.Rollback()
 		return nil, err
@@ -110,15 +112,14 @@ func (service *shipmentService) UpdateShipmentForOrder(shipment *models.Shipment
 
 	source := sources[0]
 
-	return service.updateShipmentHelper(txn, shipmentRepo, shipment, source)
+	return service.updateShipmentHelper(txn, shipment, source)
 }
 
-func (service *shipmentService) updateShipmentHelper(txn *gorm.DB, shipmentRepo repositories.IShipmentRepository, shipment *models.Shipment, source *models.Shipment) (*models.Shipment, error) {
-
+func (service *shipmentService) updateShipmentHelper(txn *gorm.DB, shipment *models.Shipment, source *models.Shipment) (*models.Shipment, error) {
 	shipment.ID = source.ID
 
 	var err error
-	shipment, err = shipmentRepo.UpdateShipment(shipment)
+	shipment, err = service.shipmentRepo.WithTransaction(txn).UpdateShipment(shipment)
 	if err != nil {
 		txn.Rollback()
 		return nil, err

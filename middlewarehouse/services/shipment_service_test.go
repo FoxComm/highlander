@@ -6,17 +6,18 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
-	"github.com/FoxComm/highlander/middlewarehouse/common/db/utils"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
-
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
+
 	"github.com/stretchr/testify/suite"
 )
 
 type ShipmentServiceTestSuite struct {
 	GeneralServiceTestSuite
 	service IShipmentService
+	inventoryService IInventoryService
 }
 
 func TestShipmentServiceSuite(t *testing.T) {
@@ -26,7 +27,21 @@ func TestShipmentServiceSuite(t *testing.T) {
 func (suite *ShipmentServiceTestSuite) SetupSuite() {
 	suite.db = config.TestConnection()
 
-	suite.service = NewShipmentService(suite.db, &InventoryServiceStub{}, &mocks.ActivityLoggerMock{})
+	summaryRepository := repositories.NewSummaryRepository(suite.db)
+	stockItemRepository := repositories.NewStockItemRepository(suite.db)
+	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
+	shipmentRepository := repositories.NewShipmentRepository(suite.db)
+
+	summaryService := NewSummaryService(summaryRepository, stockItemRepository)
+	suite.inventoryService = &inventoryService{stockItemRepository, unitRepository, summaryService, nil}
+
+	suite.service = NewShipmentService(
+		suite.db,
+		suite.inventoryService,
+		shipmentRepository,
+		unitRepository,
+		&mocks.ActivityLoggerMock{},
+	)
 }
 
 func (suite *ShipmentServiceTestSuite) SetupTest() {
@@ -39,6 +54,8 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 		"stock_items",
 		"stock_item_units",
 		"stock_locations",
+		"inventory_search_view",
+		"inventory_transactions_search_view",
 	})
 }
 
@@ -90,16 +107,11 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	suite.Nil(suite.db.Create(stockLocation).Error)
 
 	stockItem := fixtures.GetStockItem(stockLocation.ID, shipment1.ShipmentLineItems[0].SKU)
-	suite.Nil(suite.db.Create(stockItem).Error)
+	stockItem, err := suite.inventoryService.CreateStockItem(stockItem)
+	suite.Nil(err)
 
-	stockItemUnit1 := fixtures.GetStockItemUnit(stockItem)
-	stockItemUnit1.RefNum = utils.MakeSqlNullString(&shipment1.OrderRefNum)
-	stockItemUnit1.Status = "onHold"
-	stockItemUnit2 := fixtures.GetStockItemUnit(stockItem)
-	stockItemUnit2.RefNum = utils.MakeSqlNullString(&shipment1.OrderRefNum)
-	stockItemUnit2.Status = "onHold"
-	suite.Nil(suite.db.Create(stockItemUnit1).Error)
-	suite.Nil(suite.db.Create(stockItemUnit2).Error)
+	suite.Nil(suite.inventoryService.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5)))
+	suite.Nil(suite.inventoryService.HoldItems(shipment1.OrderRefNum, map[string]int{stockItem.SKU: 2}))
 
 	//act
 	shipment, err := suite.service.CreateShipment(shipment1)
@@ -119,8 +131,21 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdate
 	suite.Nil(suite.db.Create(&shipment.ShippingMethod.Carrier).Error)
 	suite.Nil(suite.db.Create(&shipment.ShippingMethod).Error)
 	shipment.AddressID = shipment.Address.ID
-	suite.Nil(suite.db.Set("gorm:save_associations", false).Create(shipment).Error)
 
+	stockLocation := fixtures.GetStockLocation()
+	suite.Nil(suite.db.Create(stockLocation).Error)
+
+	stockItem := fixtures.GetStockItem(stockLocation.ID, shipment.ShipmentLineItems[0].SKU)
+	stockItem, err := suite.inventoryService.CreateStockItem(stockItem)
+	suite.Nil(err)
+
+	suite.Nil(suite.inventoryService.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5)))
+	suite.Nil(suite.inventoryService.HoldItems(shipment.OrderRefNum, map[string]int{stockItem.SKU: 2}))
+
+	_, err = suite.service.CreateShipment(shipment)
+	suite.Nil(err)
+
+	//act
 	payload := payloads.UpdateShipment{State: "shipped"}
 	updateShipment := models.NewShipmentFromUpdatePayload(&payload)
 	updateShipment.ID = shipment.ID
