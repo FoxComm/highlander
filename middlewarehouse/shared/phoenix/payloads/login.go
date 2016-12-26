@@ -1,4 +1,4 @@
-package lib
+package payloads
 
 type LoginPayload struct {
 	Email    string `json:"email" binding:"required"`

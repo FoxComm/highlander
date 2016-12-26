@@ -23,8 +23,7 @@
     "MWH_URL": "http://{{middlewarehouse_server}}",
     "PHOENIX_URL": "http://{{phoenix_server}}",
     "PHOENIX_USER": "{{phoenix_api_user}}",
-    "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
-    "PARTITION": "1"
+    "PHOENIX_PASSWORD": "{{phoenix_api_password}}"
   },
   "healthChecks": [
     {
