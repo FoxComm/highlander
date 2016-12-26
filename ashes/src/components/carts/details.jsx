@@ -57,7 +57,7 @@ export default class CartDetails extends Component {
       <div className="fc-order-details">
         <div className="fc-order-details-body">
           <div className="fc-order-details-main">
-            <CartLineItems status={itemsStatus} cart={cart} />
+            <CartLineItems id="cart-line-items" status={itemsStatus} cart={cart} />
             <DiscountsPanel promotion={cart.promotion} />
             <CartShippingAddress status={shippingAddressStatus} cart={cart} />
             <CartShippingMethod status={shippingMethodStatus} cart={cart} />

@@ -24,6 +24,7 @@ type Props = {
     lineItems: Array<Object>,
     isCheckingOut: boolean,
   },
+  id: string,
   status: string,
 };
 
@@ -50,7 +51,7 @@ export default class CartLineItems extends Component {
   }
 
   render() {
-    const { cart, status } = this.props;
+    const { cart, id, status } = this.props;
 
     const title = <PanelHeader showStatus={true} status={status} text="Items" />;
     const isCheckingOut = cart.isCheckingOut;
@@ -70,6 +71,7 @@ export default class CartLineItems extends Component {
     return (
       <EditableContentBox
         className='fc-line-items'
+        id={id}
         title={title}
         isEditing={this.state.isEditing}
         editAction={editAction}
