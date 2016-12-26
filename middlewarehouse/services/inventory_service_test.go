@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
@@ -169,7 +168,6 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_MultipleSKUs() {
 
 	sl := []models.StockLocation{}
 	suite.db.Find(&sl)
-	fmt.Println(sl)
 
 	stockItem1, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku1))
 	suite.Nil(err)

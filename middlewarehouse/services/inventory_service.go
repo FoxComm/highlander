@@ -248,7 +248,7 @@ func (service *inventoryService) checkItemsStatus(refNum string, statusShift mod
 func (service *inventoryService) updateItemsStatus(
 	refNum string, statusShift models.StatusChange,
 	updateFn updateItemsStatusFunc,
-	txn  *gorm.DB,
+	txn *gorm.DB,
 ) error {
 	// extract stock item ids/qty by refNum
 	unitsQty, err := service.unitRepo.GetQtyForOrder(refNum)
