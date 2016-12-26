@@ -71,7 +71,7 @@ export class Payments extends Component {
         trackEvent('Orders', 'add_new_payment_method');
         this.setState({ isAdding: true });
       };
-      return <AddButton onClick={handleClick} />;
+      return <AddButton id="payment-methods-add-method-btn" onClick={handleClick} />;
     }
   }
 
@@ -104,6 +104,7 @@ export class Payments extends Component {
         indentContent={false}
         isEditing={this.state.isEditing}
         editAction={this.startEdit}
+        editButtonId="payment-methods-edit-btn"
         editingActions={this.editingActions}
         doneAction={this.completeEdit}
         editContent={content}

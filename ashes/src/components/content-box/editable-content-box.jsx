@@ -49,6 +49,7 @@ EditableContentBox.propTypes = {
   editContent: PropTypes.node,
   viewContent: PropTypes.node,
   isEditing: PropTypes.bool,
+  editButtonId: PropTypes.string,
   editAction: PropTypes.func,
   doneAction: PropTypes.func,
   editingActions: PropTypes.node,
@@ -62,6 +63,7 @@ EditableContentBox.propTypes = {
 
 EditableContentBox.defaultProps = {
   editingActions: null,
+  editButtonId: null,
 };
 
 // eslint you are drunk, renderFooter and renderActions are just functions
@@ -88,8 +90,8 @@ EditableContentBox.defaultProps = {
       return props.editingActions;
     } else {
       return props.editAction
-        ? <EditButton onClick={props.editAction} />
-        : <EditButton disabled={true} />;
+        ? <EditButton id={props.editButtonId} onClick={props.editAction} />
+        : <EditButton id={props.editButtonId} disabled={true} />;
     }
   },
 };

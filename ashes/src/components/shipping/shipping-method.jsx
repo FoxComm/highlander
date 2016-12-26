@@ -80,6 +80,7 @@ const ShippingMethod = props => {
       title={props.title}
       isEditing={props.isEditing}
       editAction={props.editAction}
+      editButtonId="shipping-method-edit-btn"
       doneAction={props.doneAction}
       viewContent={viewContent(props)}
       editContent={editContent}
