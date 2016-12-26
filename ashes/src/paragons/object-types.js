@@ -15,3 +15,7 @@ export function price(v: Object): Attribute {
 export function bool(v: boolean): Attribute {
   return { t: 'bool', v };
 }
+
+export function unitInput(v: boolean): Attribute {
+  return { t: 'bool', v };
+}

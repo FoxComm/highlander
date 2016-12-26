@@ -16,10 +16,55 @@ export const skuEmptyAttributes = {
   code: t.string(''),
   title: t.string(''),
   upc: t.string(''),
-  description: t.richText(''),
-  retailPrice: t.price({ currency: 'USD', value: 0 }),
-  salePrice: t.price({ currency: 'USD', value: 0 }),
   unitCost: t.price({ currency: 'USD', value: 0 }),
+  taxClass: 'default',
+  requiresShipping: true,
+  shippingClass: 'default',
+  isReturnable: true,
+  returnWindow: {
+    "value": '',
+    "units": "days"
+  },
+  height: {
+    "value": '',
+    "units": "in"
+  },
+  weight: {
+    "value": '',
+    "units": "lbs"
+  },
+  length: {
+    "value": '',
+    "units": "in"
+  },
+  width: {
+    "value": '',
+    "units": "in"
+  },
+  requiresInventoryTracking: true,
+  inventoryWarningLevel: {
+    "isEnabled": true,
+    "level": ''
+  },
+  maximumQuantityInCart: {
+    "isEnabled": true,
+    "level": ''
+  },
+  minimumQuantityInCart: {
+    "isEnabled": false,
+    "level": ''
+  },
+  allowBackorder: false,
+  allowPreorder: false,
+  requiresLotTracking: true,
+  lotExpirationThreshold: {
+    "value": '',
+    "units": "months"
+  },
+  lotExpirationWarningThreshold: {
+    "value": '',
+    "units": "days"
+  }
 };
 
 // HACK
@@ -40,9 +85,6 @@ export function createEmptySku(): Sku {
       externalId: t.string(''),
       mpn: t.string(''),
       gtin: t.string(''),
-      weight: t.string(''),
-      height: t.string(''),
-      width: t.string(''),
       depth: t.string(''),
     };
   }
@@ -50,8 +92,5 @@ export function createEmptySku(): Sku {
   return {
     id: null,
     attributes: { ...cloneDeep(skuEmptyAttributes), ...merchantAttributes },
-    context: {
-      name: 'default',
-    }
   };
 }

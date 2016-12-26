@@ -77,7 +77,7 @@
               "minLength": 1
             }
           },
-          "units": ["Lbs", "kg"]
+          "units": ["lbs", "kg", "g"]
         },
         "height": {
           "type": "object",
@@ -93,7 +93,7 @@
               "minLength": 1
             }
           },
-          "units": ["In", "Cm"]
+          "units": ["in", "cm"]
         },
         "length": {
           "type": "object",
@@ -109,7 +109,7 @@
               "minLength": 1
             }
           },
-          "units": ["In", "Cm"]
+          "units": ["in", "cm"]
         },
         "width": {
           "type": "object",
@@ -125,7 +125,7 @@
               "minLength": 1
             }
           },
-          "units": ["In", "Cm"]
+          "units": ["in", "cm"]
         },
         "requiresInventoryTracking": {
           "type": "bool",

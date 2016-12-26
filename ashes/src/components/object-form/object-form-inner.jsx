@@ -273,7 +273,7 @@ export default class ObjectFormInner extends Component {
 
   renderUnitInput(name: string, value: any, options: AttrOptions): Element {
     const inputValue: string = _.get(value, 'value', '');
-    const unit: string = _.get(value, 'unit', '');
+    const unit: string = _.get(value, 'units', '');
 
     let units = this.props.units && this.props.units[name];
     if (units == null) {
@@ -288,7 +288,7 @@ export default class ObjectFormInner extends Component {
     });
 
     const onUnitChange = v => this.handleChange(name, 'unitInput', {
-      ...assoc(value, 'unit', v)
+      ...assoc(value, 'units', v)
     });
 
     const input = (
