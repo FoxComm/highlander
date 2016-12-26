@@ -12,6 +12,8 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
 	"github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/mock"
+	"errors"
 )
 
 type ShipmentServiceTestSuite struct {
@@ -19,6 +21,7 @@ type ShipmentServiceTestSuite struct {
 	service IShipmentService
 	inventoryService IInventoryService
 	summaryService ISummaryService
+	logger *mocks.ActivityLoggerMock
 }
 
 func TestShipmentServiceSuite(t *testing.T) {
@@ -35,13 +38,14 @@ func (suite *ShipmentServiceTestSuite) SetupSuite() {
 
 	suite.summaryService = NewSummaryService(summaryRepository, stockItemRepository)
 	suite.inventoryService = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, nil}
+	suite.logger = &mocks.ActivityLoggerMock{}
 
 	suite.service = NewShipmentService(
 		suite.db,
 		suite.inventoryService,
 		shipmentRepository,
 		unitRepository,
-		&mocks.ActivityLoggerMock{},
+		suite.logger,
 	)
 }
 
@@ -62,6 +66,8 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 
 func (suite *ShipmentServiceTestSuite) TearDownSuite() {
 	suite.db.Close()
+	suite.logger.ExpectedCalls = []*mock.Call{}
+	suite.logger.Calls = []mock.Call{}
 }
 
 func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByOrderRefNum_ReturnsShipmentModels() {
@@ -93,6 +99,8 @@ func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByOrderRefNum_ReturnsShi
 
 func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreatedRecord() {
 	//arrange
+	suite.logger.On("Log", mock.Anything).Return(nil).Once()
+
 	shipment1 := fixtures.GetShipmentShort(uint(0))
 	shipment1.ShipmentLineItems[0].ID = 0
 	shipment1.ShipmentLineItems[1].ID = 0
@@ -135,6 +143,8 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 
 func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdatedRecord() {
 	//arrange
+	suite.logger.On("Log", mock.Anything).Return(nil).Twice()
+
 	shipment := fixtures.GetShipmentShort(uint(1))
 
 	suite.Nil(suite.db.Set("gorm:save_associations", false).Create(&shipment.Address).Error)
@@ -175,6 +185,56 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdate
 	suite.Nil(err)
 	suite.Equal(3, summary[0].OnHand)
 	suite.Equal(0, summary[0].OnHold)
+	suite.Equal(0, summary[0].Reserved)
+	suite.Equal(3, summary[0].AFS)
+}
+
+func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Failed() {
+	//arrange
+	suite.logger.On("Log", mock.Anything).Return(errors.New("Failed")).Once()
+
+	shipment1 := fixtures.GetShipmentShort(uint(0))
+	shipment1.ShipmentLineItems[0].ID = 0
+	shipment1.ShipmentLineItems[1].ID = 0
+
+	carrier := fixtures.GetCarrier(0)
+	suite.Nil(suite.db.Create(carrier).Error)
+
+	method := fixtures.GetShippingMethod(0, carrier.ID, carrier)
+	suite.Nil(suite.db.Create(method).Error)
+	shipment1.ShippingMethodCode = method.Code
+
+	stockLocation := fixtures.GetStockLocation()
+	suite.Nil(suite.db.Create(stockLocation).Error)
+
+	stockItem := fixtures.GetStockItem(stockLocation.ID, shipment1.ShipmentLineItems[0].SKU)
+	stockItem, err := suite.inventoryService.CreateStockItem(stockItem)
+	suite.Nil(err)
+
+	suite.Nil(suite.inventoryService.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5)))
+	suite.Nil(suite.inventoryService.HoldItems(shipment1.OrderRefNum, map[string]int{stockItem.SKU: 2}))
+
+	// check summary updated properly before shipment created
+	summary, err := suite.summaryService.GetSummaryBySKU(stockItem.SKU)
+
+	suite.Nil(err)
+	suite.Equal(5, summary[0].OnHand)
+	suite.Equal(2, summary[0].OnHold)
+	suite.Equal(0, summary[0].Reserved)
+	suite.Equal(3, summary[0].AFS)
+
+	//act
+	_, err = suite.service.CreateShipment(shipment1)
+
+	//assert
+	suite.NotNil(err)
+
+	// check summary was not updated properly
+	summary, err = suite.summaryService.GetSummaryBySKU(stockItem.SKU)
+
+	suite.Nil(err)
+	suite.Equal(5, summary[0].OnHand)
+	suite.Equal(2, summary[0].OnHold)
 	suite.Equal(0, summary[0].Reserved)
 	suite.Equal(3, summary[0].AFS)
 }
