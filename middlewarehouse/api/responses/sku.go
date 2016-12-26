@@ -8,7 +8,7 @@ type SKU struct {
 	UPC   string `json:"upc"`
 	Title string `json:"title"`
 
-	UnitCost int    `json:"unitCost"`
+	UnitCost Money  `json:"unitCost"`
 	TaxClass string `json:"taxClass"`
 
 	RequiresShipping bool   `json:"requiresShipping"`
@@ -37,11 +37,14 @@ type SKU struct {
 
 func NewSKUFromModel(sku *models.SKU) *SKU {
 	return &SKU{
-		ID:               sku.Base.ID,
-		Code:             sku.Code,
-		UPC:              sku.UPC,
-		Title:            sku.Title,
-		UnitCost:         sku.UnitCost,
+		ID:    sku.Base.ID,
+		Code:  sku.Code,
+		UPC:   sku.UPC,
+		Title: sku.Title,
+		UnitCost: Money{
+			Currency: "USD",
+			Value:    sku.UnitCost,
+		},
 		TaxClass:         sku.TaxClass,
 		RequiresShipping: sku.RequiresShipping,
 		ShippingClass:    sku.ShippingClass,
