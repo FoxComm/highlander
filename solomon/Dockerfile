@@ -16,4 +16,4 @@ RUN mix deps.get
 RUN npm install
 
 EXPOSE 4002
-CMD mix phoenix.server
+CMD MIX_ENV=prod mix phoenix.server
