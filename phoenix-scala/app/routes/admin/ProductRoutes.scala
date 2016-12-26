@@ -1,9 +1,11 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
+import models.product.ProductReference
 import payloads.ContextPayloads._
 import payloads.ImagePayloads.{AlbumPayload, UpdateAlbumPositionPayload}
 import payloads.ProductPayloads._
@@ -18,6 +20,49 @@ import utils.http.Http._
 
 object ProductRoutes {
 
+  def productRoutes(
+      productRef: ProductReference)(implicit ec: EC, db: DB, oc: OC, ac: AC, auth: AU): Route = {
+    (get & pathEnd) {
+      getOrFailures {
+        ProductManager.getProduct(productRef)
+      }
+    } ~
+    (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
+      mutateOrFailures {
+        ProductManager.updateProduct(productRef, payload)
+      }
+    } ~
+    (delete & pathEnd) {
+      mutateOrFailures {
+        ProductManager.archiveByContextAndId(productRef)
+      }
+    } ~
+    (pathPrefix("taxons") & get & pathEnd) {
+      getOrFailures {
+        TaxonomyManager.getAssignedTaxons(productRef)
+      }
+    } ~
+    pathPrefix("albums") {
+      (get & pathEnd) {
+        getOrFailures {
+          ImageManager.getAlbumsForProduct(productRef)
+        }
+      } ~
+      (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+        mutateOrFailures {
+          ImageManager.createAlbumForProduct(auth.model, productRef, payload)
+        }
+      } ~
+      pathPrefix("position") {
+        (post & pathEnd & entity(as[UpdateAlbumPositionPayload])) { payload ⇒
+          mutateOrFailures {
+            ImageManager.updateProductAlbumPosition(payload.albumId, productRef, payload.position)
+          }
+        }
+      }
+    }
+  }
+
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
     activityContext(auth.model) { implicit ac ⇒
@@ -29,48 +74,8 @@ object ProductRoutes {
                 ProductManager.createProduct(auth.model, payload)
               }
             } ~
-            pathPrefix(IntNumber) { productId ⇒
-              (get & pathEnd) {
-                getOrFailures {
-                  ProductManager.getProduct(productId)
-                }
-              } ~
-              (patch & pathEnd & entity(as[UpdateProductPayload])) { payload ⇒
-                mutateOrFailures {
-                  ProductManager.updateProduct(auth.model, productId, payload)
-                }
-              } ~
-              (delete & pathEnd) {
-                mutateOrFailures {
-                  ProductManager.archiveByContextAndId(productId)
-                }
-              } ~
-              (pathPrefix("taxons") & get & pathEnd) {
-                getOrFailures {
-                  TaxonomyManager.getAssignedTaxons(productId)
-                }
-              }
-            } ~
-            pathPrefix(IntNumber / "albums") { productId ⇒
-              (get & pathEnd) {
-                getOrFailures {
-                  ImageManager.getAlbumsForProduct(productId)
-                }
-              } ~
-              (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
-                mutateOrFailures {
-                  ImageManager.createAlbumForProduct(auth.model, productId, payload, contextName)
-                }
-              } ~
-              pathPrefix("position") {
-                (post & pathEnd & entity(as[UpdateAlbumPositionPayload])) { payload ⇒
-                  mutateOrFailures {
-                    ImageManager.updateProductAlbumPosition(payload.albumId,
-                                                            productId,
-                                                            payload.position)
-                  }
-                }
-              }
+            pathPrefix(ProductRef) { productId ⇒
+              productRoutes(productId)
             }
           }
         } ~
