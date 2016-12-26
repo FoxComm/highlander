@@ -3,13 +3,11 @@ import java.time.Instant
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 import cats.implicits._
-import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures._
 import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures
 import failures.ProductFailures._
 import models.account.Scope
-import models.account.User
 import models.inventory.Skus
 import models.objects._
 import models.product._
@@ -24,7 +22,6 @@ import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 import responses.ProductResponses.ProductResponse
 import responses.ProductResponses.ProductResponse.Root
 import responses.cord.CartResponse
-import services.Authenticator.AuthData
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -126,6 +123,16 @@ class ProductIntegrationTest
         val getProductResponse = productsApi(generatedSlug).get().as[Root]
         getProductResponse.slug must === (generatedSlug)
         getProductResponse.id must === (productResponse.id)
+      }
+
+      "generated slug is unique" in new Fixture {
+        val productResponses = for (_ ← 1 to 2)
+          yield doQuery(productPayload.copy(slug = ""))
+
+        val slugs = productResponses.map(_.slug)
+
+        slugs.forall(!_.isEmpty) must === (true)
+        slugs.distinct.size must === (slugs.size)
       }
 
       "a new SKU successfully" in new Fixture {
@@ -340,7 +347,7 @@ class ProductIntegrationTest
         productsApi.create(payload).mustFailWith400(SlugDuplicates(slug))
       }
 
-      "slugs differs only by case" in new Fixture {
+      "slugs differ only by case" in new Fixture {
         val slug = "simple-product"
         productsApi.create(productPayload.copy(slug = slug)).mustBeOk()
         val duplicatedSlug: String = slug.toUpperCase()
