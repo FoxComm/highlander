@@ -126,6 +126,63 @@
             }
           },
           "units": ["In", "Cm"]
+        },
+        "requiresInventoryTracking": {
+          "type": "bool",
+          "widget": "booleanOptions",
+          "title": "Item requires inventory tracking"
+        },
+        "minimumQuantityInCart": {
+          "type": "bool",
+          "widget": "booleanOptions",
+          "title": "Minimum quantity allowed in shopping cart"
+        },
+        "allowBackorder": {
+          "type": "bool",
+          "widget": "booleanOptions",
+          "title": "Allow Backorder"
+        },
+        "allowPreorder": {
+          "type": "bool",
+          "widget": "booleanOptions",
+          "title": "Allow Preorder"
+        },
+        "requiresLotTracking": {
+          "type": "bool",
+          "widget": "booleanOptions",
+          "title": "Item requires lot tracking"
+        },
+        "lotExpirationThreshold": {
+          "type": "object",
+          "widget": "unitInput",
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "units": ["hours", "days", "months"]
+        },
+        "lotExpirationWarningThreshold": {
+          "type": "object",
+          "widget": "unitInput",
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "units": ["hours", "days", "months"]
         }
       },
       "required": [

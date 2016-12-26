@@ -43,17 +43,42 @@
         {
           "type": "fields",
           "value": [
-            "isReturnable"
-          ]
-        },
-        {
-          "type": "fields",
-          "value": [
+            "isReturnable",
             "returnWindow",
             "weight",
             "height",
             "length",
             "width"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "title": "Inventory Settings",
+      "content": [
+        {
+          "type": "fields",
+          "value": [
+            "requiresInventoryTracking"
+          ]
+        },
+        {
+          "type": "fields",
+          "value": [
+            "inventoryWarningLevel",
+            "maximumQuantityInCart"
+          ]
+        },
+        {
+          "type": "fields",
+          "value": [
+            "minimumQuantityInCart",
+            "allowBackorder",
+            "allowPreorder",
+            "requiresLotTracking",
+            "lotExpirationThreshold",
+            "lotExpirationWarningThreshold"
           ]
         }
       ]
