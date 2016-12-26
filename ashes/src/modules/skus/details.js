@@ -29,6 +29,16 @@ export const skuNew = createAction('SKU_NEW');
 const skuClear = createAction('SKU_CLEAR');
 export const syncSku = createAction('SKU_SYNC');
 
+function cleanAttributes(entity) {
+  const attributes = _.get(entity, 'attributes', entity);
+  return _.reduce(attributes, (res, val, key) => {
+    return {
+      ...res,
+      [key]: _.get(val, 'v', val),
+    };
+  });
+}
+
 const _archiveSku = createAsyncActions(
   'archiveSku',
   (code, context = defaultContext) => {
@@ -48,8 +58,9 @@ const _fetchSku = createAsyncActions(
 
 const _createSku = createAsyncActions(
   'createSku',
-  (sku: Sku, context: string = defaultContext) => {
-    return Api.post(`/skus/${context}`, sku);
+  (sku: Sku) => {
+    const payload = cleanAttributes(sku);
+    return Api.post(`inventory/skus`, payload);
   }
 );
 
