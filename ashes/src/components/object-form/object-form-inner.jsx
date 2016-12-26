@@ -2,13 +2,16 @@
  * @flow
  */
 
+// libs
 import React, { Component, Element } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
+import { assoc } from 'sprout-data';
 import { stripTags } from 'lib/text-utils';
 import { isDefined } from 'lib/utils';
 
+// components
 import { FormField, FormFieldError } from '../forms';
 import { SliderCheckbox } from '../checkbox/checkbox';
 import CurrencyInput from '../forms/currency-input';
@@ -266,6 +269,53 @@ export default class ObjectFormInner extends Component {
     );
 
     return renderFormField(name, stringInput, options);
+  }
+
+  renderUnitInput(name: string, value: any, options: AttrOptions): Element {
+    const inputValue: string = _.get(value, 'value', '');
+    const unit: string = _.get(value, 'unit', '');
+
+    let units = this.props.units && this.props.units[name];
+    if (units == null) {
+      const items = _.get(this.props.schema, ['properties', name, 'units'], []);
+      units = _.map(items, item => {
+        return [item, item, false];
+      });
+    }
+
+    const onInputChange = v => this.handleChange(name, 'unitInput', {
+      ...assoc(value, 'value', v)
+    });
+
+    const onUnitChange = v => this.handleChange(name, 'unitInput', {
+      ...assoc(value, 'unit', v)
+    });
+
+    const input = (
+      <input
+        type="text"
+        name={name}
+        value={inputValue || ''}
+        onChange={onInputChange}
+      />
+    );
+
+    const dropdown = (
+      <Dropdown
+        value={unit}
+        items={units}
+        onChange={onUnitChange}
+      />
+    );
+
+    const field = (
+      <div>
+        {input}
+        {dropdown}
+      </div>
+    );
+
+    return renderFormField(name, field, options);
   }
 
   renderOptions(name: string, value: any, options: AttrOptions): Element {

@@ -30,13 +30,33 @@
     {
       "type": "group",
       "title": "Shipping & Return Settings",
-      "fields": {
-        "value": [
-          "requiresShipping",
-          "shippingClass",
-          "isReturnable"
-        ]
-      }
+      "content": [
+        {
+          "type": "fields",
+          "value": [
+            "requiresShipping"
+          ]
+        },
+        {
+          "type": "shippingClass"
+        },
+        {
+          "type": "fields",
+          "value": [
+            "isReturnable"
+          ]
+        },
+        {
+          "type": "fields",
+          "value": [
+            "returnWindow",
+            "weight",
+            "height",
+            "length",
+            "width"
+          ]
+        }
+      ]
     }
   ],
   "aside": [

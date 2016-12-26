@@ -38,12 +38,94 @@
           }
         },
         "requiresShipping": {
-          "type": "booleanOptions",
+          "type": "boolean",
+          "widget": "booleanOptions",
           "title": "Item requires shipping?"
         },
         "isReturnable": {
-          "type": "booleanOptions",
+          "type": "boolean",
+          "widget": "booleanOptions",
           "title": "Item is returnable?"
+        },
+        "returnWindow": {
+          "type": "object",
+          "widget": "unitInput",
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "units": ["hours", "days", "months"]
+        },
+        "weight": {
+          "type": "object",
+          "widget": "unitInput",
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "units": ["Lbs", "kg"]
+        },
+        "height": {
+          "type": "object",
+          "widget": "unitInput",
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "units": ["In", "Cm"]
+        },
+        "length": {
+          "type": "object",
+          "widget": "unitInput",
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "units": ["In", "Cm"]
+        },
+        "width": {
+          "type": "object",
+          "widget": "unitInput",
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "units": ["In", "Cm"]
         }
       },
       "required": [
