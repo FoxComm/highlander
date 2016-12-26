@@ -129,6 +129,15 @@ func (suite *summaryServiceTestSuite) Test_Increment_Chain() {
 	suite.Equal(1, summary.Reserved)
 	suite.Equal(6, summary.AFS)
 	suite.Equal(6*suite.unitCost, summary.AFSCost)
+
+	suite.Nil(suite.service.UpdateStockItemSummary(suite.si.ID, models.Sellable, 1, models.StatusChange{From: models.StatusReserved, To: models.StatusShipped}))
+
+	suite.Nil(suite.db.First(&summary, suite.si.ID).Error)
+	suite.Equal(suite.onHand-1, summary.OnHand)
+	suite.Equal(3, summary.OnHold)
+	suite.Equal(0, summary.Reserved)
+	suite.Equal(1, summary.Shipped)
+	suite.Equal(6, summary.AFS)
 }
 
 func (suite *summaryServiceTestSuite) Test_GetSummary() {

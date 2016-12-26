@@ -1,10 +1,15 @@
-package mocks
+package services
 
 import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/jinzhu/gorm"
 )
 
 type SummaryServiceStub struct {
+}
+
+func (service *SummaryServiceStub) WithTransaction(txn *gorm.DB) ISummaryService {
+	return service
 }
 
 func (repository *SummaryServiceStub) CreateStockItemSummary(stockItemId uint) error {
