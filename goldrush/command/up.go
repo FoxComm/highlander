@@ -17,21 +17,37 @@ func CmdUp(c *cli.Context) {
 	cmdName := "vagrant"
 	cmdArgs := []string{"up"}
 
+	if c.BoolT("vmware") {
+		fmt.Printf("VMWARE!")
+		cmdArgs = append(cmdArgs, "--provider=vmware_fusion")
+	}
+
 	cmd := exec.Command(cmdName, cmdArgs...)
 	cmdReader, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	errReader, err := cmd.StderrPipe()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fmt.Printf("Running Vagrant Up.. Output below: \n")
 
-	scanner := bufio.NewScanner(cmdReader)
+	cmdScanner := bufio.NewScanner(cmdReader)
+	errScanner := bufio.NewScanner(errReader)
 
 	timeStart := time.Now()
 	go func() {
-		for scanner.Scan() {
-			fmt.Printf("[%s]fox up | %s \n", time.Now().Format("15:04:05"), scanner.Text())
+		for cmdScanner.Scan() {
+			fmt.Printf("[%s]fox up | %s \n", time.Now().Format("15:04:05"), cmdScanner.Text())
+		}
+	}()
+
+	go func() {
+		for errScanner.Scan() {
+			fmt.Printf("[%s]fox up | %s \n", time.Now().Format("15:04:05"), errScanner.Text())
 		}
 	}()
 

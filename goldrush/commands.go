@@ -22,8 +22,8 @@ var Commands = []cli.Command{
 		Usage:  "Provisions environment for you.",
 		Action: command.CmdProvision,
 		Flags: []cli.Flag{
-			cli.BoolTFlag{Name: "vmware"},
-			cli.BoolTFlag{Name: "virtualbox"},
+			cli.BoolFlag{Name: "vmware"},
+			cli.BoolFlag{Name: "virtualbox"},
 		},
 	},
 	{
@@ -37,8 +37,8 @@ var Commands = []cli.Command{
 		Usage:  "Deploys and provisions the environment for you.",
 		Action: command.CmdUp,
 		Flags: []cli.Flag{
-			cli.BoolTFlag{Name: "vmware"},
-			cli.BoolTFlag{Name: "virtualbox"},
+			cli.BoolFlag{Name: "vmware"},
+			cli.BoolFlag{Name: "virtualbox"},
 		},
 	},
 	{
