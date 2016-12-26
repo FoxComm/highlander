@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/urfave/cli"
 	"github.com/foxcomm/highlander/goldrush/command"
+	"github.com/urfave/cli"
 )
 
 var GlobalFlags = []cli.Flag{}
@@ -21,7 +21,7 @@ var Commands = []cli.Command{
 		Name:   "provision",
 		Usage:  "Provisions environment for you.",
 		Action: command.CmdProvision,
-		Flags:  []cli.Flag{
+		Flags: []cli.Flag{
 			cli.BoolTFlag{Name: "vmware"},
 			cli.BoolTFlag{Name: "virtualbox"},
 		},
@@ -33,14 +33,14 @@ var Commands = []cli.Command{
 		Flags:  []cli.Flag{},
 	},
 	{
-        Name:   "up",
-        Usage:  "Deploys and provisions the environment for you.",
-        Action: command.CmdUp,
-        Flags:  []cli.Flag{
-            cli.BoolTFlag{Name: "vmware"},
-            cli.BoolTFlag{Name: "virtualbox"},
-        },
-    },
+		Name:   "up",
+		Usage:  "Deploys and provisions the environment for you.",
+		Action: command.CmdUp,
+		Flags: []cli.Flag{
+			cli.BoolTFlag{Name: "vmware"},
+			cli.BoolTFlag{Name: "virtualbox"},
+		},
+	},
 	{
 		Name:   "phoenix",
 		Usage:  "Specific phoenix subcommands.",
