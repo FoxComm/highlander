@@ -24,11 +24,16 @@ func randomInt() int {
 }
 
 func GetCreateSKUPayload() *payloads.CreateSKU {
+	unitCost := &payloads.Money{
+		Currency: "USD",
+		Value:    randomInt(),
+	}
+
 	return &payloads.CreateSKU{
 		Code:             fake.CharactersN(10),
 		UPC:              fake.CharactersN(15),
 		Title:            fake.ProductName(),
-		UnitCost:         randomInt(),
+		UnitCost:         unitCost,
 		TaxClass:         "default",
 		RequiresShipping: randomBool(),
 		ShippingClass:    "default",

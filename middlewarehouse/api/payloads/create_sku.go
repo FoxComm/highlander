@@ -6,7 +6,7 @@ type CreateSKU struct {
 	Code                          string         `json:"code" binding:"required"`
 	UPC                           string         `json:"upc"`
 	Title                         string         `json:"title"`
-	UnitCost                      int            `json:"unitCost"`
+	UnitCost                      *Money         `json:"unitCost"`
 	TaxClass                      string         `json:"taxClass" binding:"required"`
 	RequiresShipping              bool           `json:"requiresShipping"`
 	ShippingClass                 string         `json:"shippingClass"`
@@ -34,7 +34,6 @@ func (sku CreateSKU) Model() *models.SKU {
 		Code:                      sku.Code,
 		UPC:                       sku.UPC,
 		Title:                     sku.Title,
-		UnitCost:                  sku.UnitCost,
 		TaxClass:                  sku.TaxClass,
 		RequiresShipping:          sku.RequiresShipping,
 		ShippingClass:             sku.ShippingClass,
@@ -43,6 +42,12 @@ func (sku CreateSKU) Model() *models.SKU {
 		AllowBackorder:            sku.AllowBackorder,
 		AllowPreorder:             sku.AllowPreorder,
 		RequiresLotTracking:       sku.RequiresLotTracking,
+	}
+
+	if sku.UnitCost != nil {
+		model.UnitCost = sku.UnitCost.Value
+	} else {
+		model.UnitCost = 0
 	}
 
 	if sku.ReturnWindow != nil {
