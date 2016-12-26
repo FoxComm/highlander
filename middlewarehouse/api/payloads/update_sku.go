@@ -6,7 +6,7 @@ type UpdateSKU struct {
 	Code                          *string        `json:"code"`
 	UPC                           *string        `json:"upc"`
 	Title                         *string        `json:"title"`
-	UnitCost                      *int           `json:"unitCost"`
+	UnitCost                      *Money         `json:"unitCost"`
 	TaxClass                      *string        `json:"taxClass"`
 	RequiresShipping              *bool          `json:"requiresShipping"`
 	ShippingClass                 *string        `json:"shippingClass"`
@@ -50,9 +50,11 @@ func (sku UpdateSKU) Model(original *models.SKU) *models.SKU {
 	}
 
 	if sku.UnitCost != nil {
-		model.UnitCost = *sku.UnitCost
+		model.UnitCostCurrency = sku.UnitCost.Currency
+		model.UnitCostValue = sku.UnitCost.Value
 	} else {
-		model.UnitCost = original.UnitCost
+		model.UnitCostCurrency = original.UnitCostCurrency
+		model.UnitCostValue = original.UnitCostValue
 	}
 
 	if sku.TaxClass != nil {

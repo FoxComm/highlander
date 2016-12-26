@@ -11,7 +11,8 @@ type SKU struct {
 	Code                               string
 	UPC                                string
 	Title                              string
-	UnitCost                           int
+	UnitCostCurrency                   string
+	UnitCostValue                      int
 	TaxClass                           string
 	RequiresShipping                   bool
 	ShippingClass                      string
