@@ -75,6 +75,12 @@ export API_URL=http://10.240.0.3
 npm run dev
 ```
 
+### Run the production server
+
+```
+make p
+```
+
 ### Stripe.js
 
 In order to Stripe.js to work (used for creating credit cards in Stripe) you need to provide publishable key for stripe (https://stripe.com/docs/stripe.js#setting-publishable-key)
