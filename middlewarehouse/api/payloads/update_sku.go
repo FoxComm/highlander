@@ -50,9 +50,11 @@ func (sku UpdateSKU) Model(original *models.SKU) *models.SKU {
 	}
 
 	if sku.UnitCost != nil {
-		model.UnitCost = sku.UnitCost.Value
+		model.UnitCostCurrency = sku.UnitCost.Currency
+		model.UnitCostValue = sku.UnitCost.Value
 	} else {
-		model.UnitCost = original.UnitCost
+		model.UnitCostCurrency = original.UnitCostCurrency
+		model.UnitCostValue = original.UnitCostValue
 	}
 
 	if sku.TaxClass != nil {
