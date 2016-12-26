@@ -7,6 +7,7 @@ import (
 	"log"
 	"bufio"
 	"time"
+	"github.com/fatih/color"
 )
 
 
@@ -40,15 +41,19 @@ func CmdUp(c *cli.Context) {
 
 	timeStart := time.Now()
 	go func() {
+		color.Set(color.FgYellow)
 		for cmdScanner.Scan() {
 			fmt.Printf("[%s]fox up | %s \n", time.Now().Format("15:04:05"), cmdScanner.Text())
 		}
+		color.Unset()
 	}()
 
 	go func() {
+		color.Set(color.FgRed)
 		for errScanner.Scan() {
 			fmt.Printf("[%s]fox up | %s \n", time.Now().Format("15:04:05"), errScanner.Text())
 		}
+		color.Unset()
 	}()
 
 	err = cmd.Start()
