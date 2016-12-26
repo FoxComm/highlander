@@ -12,8 +12,10 @@ COPY . /solomon
 RUN mix local.hex --force
 RUN mix local.rebar --force
 RUN mix deps.get
+RUN MIX_ENV=prod mix phoenix.gen.secret
 
 RUN npm install
+RUN MIX_ENV=prod mix phoenix.digest
 
 EXPOSE 4002
 CMD MIX_ENV=prod mix phoenix.server
