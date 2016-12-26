@@ -1,8 +1,8 @@
-hash: a89ad6a0328cd63b1eb631156d17c5187f457db3006643c8fcb9ce0a6520868e
-updated: 2016-12-13T21:12:53.271071138+03:00
+hash: e5635b1f6e0b06dc6d6ded71518aaa1a4c26e93a0c234bbdf426407ce499db17
+updated: 2016-12-27T01:07:48.664639984+03:00
 imports:
 - name: github.com/apache/thrift
-  version: 60611917cf309d2a25b9cd8f8b5631784b07323d
+  version: fa133629a265284eeae2bfead4ea2cd6839bf1ff
   subpackages:
   - lib/go/thrift
 - name: github.com/cihub/seelog
@@ -15,10 +15,8 @@ imports:
   version: b86b1ec0dd4209a588dc1285cdd471e73525c0b3
   subpackages:
   - breaker
-- name: github.com/eapache/go-xerial-snappy
-  version: bb955e01b9346ac19dc29eb16586c90ded99a98c
 - name: github.com/eapache/queue
-  version: 44cc805cf13205b55f69e14bcb69867d1ae92f98
+  version: ded5959c0d4e360646dc9e9908cff48666781367
 - name: github.com/elodina/go-avro
   version: 0c8185d9a3ba82aeac98db3313a268a5b6df99b5
 - name: github.com/elodina/go-kafka-avro
@@ -42,8 +40,10 @@ imports:
   subpackages:
   - binding
   - render
+- name: github.com/go-logfmt/logfmt
+  version: 390ab7935ee28ec6b286364bba9b4dd6410cb3d5
 - name: github.com/gogo/protobuf
-  version: 06ec6c31ff1bac6ed4e205a547a3d72934813ef3
+  version: 84af2615df1ba1d35cc975ba94b64ee67d6c196e
   subpackages:
   - proto
 - name: github.com/golang/protobuf
@@ -60,8 +60,8 @@ imports:
   version: 8e0a68de05f21bcefcd581c6b934a1d1e4390fa1
   subpackages:
   - autoload
-- name: github.com/klauspost/crc32
-  version: cb6bfca970f6908083f26f39a79009d608efd5cd
+- name: github.com/kr/logfmt
+  version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
 - name: github.com/lib/pq
   version: 55196ec83d60d789e27b2627549bf00974a70084
   subpackages:
@@ -76,19 +76,13 @@ imports:
   - ext
   - log
 - name: github.com/openzipkin/zipkin-go-opentracing
-  version: e877b8e9d1069eaedfe4f27e9b6a51cfe20073c9
+  version: 594640b9ef7e5c994e8d9499359d693c032d738c
   subpackages:
   - _thrift/gen-go/scribe
   - _thrift/gen-go/zipkincore
   - flag
   - types
   - wire
-- name: github.com/pierrec/lz4
-  version: 5c9560bfa9ace2bf86080bf40d46b34ae44604df
-- name: github.com/pierrec/xxHash
-  version: 5a004441f897722c627870a981d02b29924215fa
-  subpackages:
-  - xxHash32
 - name: github.com/pmezard/go-difflib
   version: 792786c7400a136282c1664665ae0a8db921c6c2
   subpackages:
@@ -100,13 +94,13 @@ imports:
   subpackages:
   - zk
 - name: github.com/SermoDigital/jose
-  version: b10f12c5188d355a3eacc61aba9abd3eb6b3b787
+  version: 2bd9b81ac51d6d6134fcd4fd846bd2e7347a15f9
   subpackages:
   - crypto
   - jws
   - jwt
 - name: github.com/Shopify/sarama
-  version: 9a9e66f928cbc9febba598484ab34dcef6f8f43e
+  version: 094e483251042a52ce92f76dbcf140ad2bd7cffb
 - name: github.com/Sirupsen/logrus
   version: 881bee4e20a5d11a6a88a5667c6f292072ac1963
 - name: github.com/stretchr/objx
@@ -114,20 +108,18 @@ imports:
 - name: github.com/stretchr/testify
   version: f390dcf405f7b83c997eac1b06768bb9f44dec18
   subpackages:
-  - suite
-  - mock
   - assert
+  - mock
   - require
+  - suite
 - name: github.com/yanzay/cfg
   version: 3b647091f880406fdb14edcb309ce750a38d3e85
 - name: golang.org/x/net
   version: f315505cf3349909cdf013ea56690da34e96a451
   subpackages:
   - context
-  - trace
-  - internal/timeseries
 - name: golang.org/x/sys
-  version: 478fcf54317e52ab69f40bb4c7a1520288d7f7ea
+  version: d75a52659825e75fff6158388dddc6a5b04f9ba5
   subpackages:
   - unix
 - name: gopkg.in/cihub/seelog.v2
