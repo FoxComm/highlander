@@ -42,8 +42,8 @@ func NewSKUFromModel(sku *models.SKU) *SKU {
 		UPC:   sku.UPC,
 		Title: sku.Title,
 		UnitCost: Money{
-			Currency: "USD",
-			Value:    sku.UnitCost,
+			Currency: sku.UnitCostCurrency,
+			Value:    sku.UnitCostValue,
 		},
 		TaxClass:         sku.TaxClass,
 		RequiresShipping: sku.RequiresShipping,

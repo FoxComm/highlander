@@ -45,9 +45,11 @@ func (sku CreateSKU) Model() *models.SKU {
 	}
 
 	if sku.UnitCost != nil {
-		model.UnitCost = sku.UnitCost.Value
+		model.UnitCostCurrency = sku.UnitCost.Currency
+		model.UnitCostValue = sku.UnitCost.Value
 	} else {
-		model.UnitCost = 0
+		model.UnitCostCurrency = "USD"
+		model.UnitCostValue = 0
 	}
 
 	if sku.ReturnWindow != nil {
