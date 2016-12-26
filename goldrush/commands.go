@@ -22,8 +22,8 @@ var Commands = []cli.Command{
 		Usage:  "Provisions environment for you.",
 		Action: command.CmdProvision,
 		Flags:  []cli.Flag{
-			cli.BoolTFlag{name: "vmware"},
-			cli.BoolTFlag{name: "virtualbox"},
+			cli.BoolTFlag{Name: "vmware"},
+			cli.BoolTFlag{Name: "virtualbox"},
 		},
 	},
 	{
@@ -32,6 +32,15 @@ var Commands = []cli.Command{
 		Action: command.CmdDeploy,
 		Flags:  []cli.Flag{},
 	},
+	{
+        Name:   "up",
+        Usage:  "Deploys and provisions the environment for you.",
+        Action: command.CmdUp,
+        Flags:  []cli.Flag{
+            cli.BoolTFlag{Name: "vmware"},
+            cli.BoolTFlag{Name: "virtualbox"},
+        },
+    },
 	{
 		Name:   "phoenix",
 		Usage:  "Specific phoenix subcommands.",

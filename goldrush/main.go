@@ -9,8 +9,8 @@ import (
 func main() {
 
 	app := cli.NewApp()
-	app.Name = Name
-	app.Version = Version
+	app.Name = "FoxCommerce Development Tools"
+	app.Version = "0.0.1"
 	app.Author = "foxcomm"
 	app.Email = ""
 	app.Usage = "FoxCommerce developer toolkit that simplifies the process of bringing up the environment locally and deploying to it."
