@@ -18,6 +18,7 @@ type ShipmentServiceTestSuite struct {
 	GeneralServiceTestSuite
 	service IShipmentService
 	inventoryService IInventoryService
+	summaryService ISummaryService
 }
 
 func TestShipmentServiceSuite(t *testing.T) {
@@ -32,8 +33,8 @@ func (suite *ShipmentServiceTestSuite) SetupSuite() {
 	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
 	shipmentRepository := repositories.NewShipmentRepository(suite.db)
 
-	summaryService := NewSummaryService(summaryRepository, stockItemRepository)
-	suite.inventoryService = &inventoryService{stockItemRepository, unitRepository, summaryService, nil}
+	suite.summaryService = NewSummaryService(summaryRepository, stockItemRepository)
+	suite.inventoryService = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, nil}
 
 	suite.service = NewShipmentService(
 		suite.db,
@@ -121,6 +122,15 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	suite.Equal(shipment1.ShippingMethodCode, shipment.ShippingMethodCode)
 	suite.Equal(shipment1.OrderRefNum, shipment.OrderRefNum)
 	suite.Equal(shipment1.State, shipment.State)
+
+	// check summary updated properly
+	summary, err := suite.summaryService.GetSummaryBySKU(stockItem.SKU)
+
+	suite.Nil(err)
+	suite.Equal(5, summary[0].OnHand)
+	suite.Equal(0, summary[0].OnHold)
+	suite.Equal(2, summary[0].Reserved)
+	suite.Equal(3, summary[0].AFS)
 }
 
 func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdatedRecord() {
@@ -158,4 +168,13 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdate
 	suite.Equal(shipment.ID, updated.ID)
 	suite.Equal(shipment.OrderRefNum, updated.OrderRefNum)
 	suite.Equal(models.ShipmentStateShipped, updated.State)
+
+	// check summary updated properly
+	summary, err := suite.summaryService.GetSummaryBySKU(stockItem.SKU)
+
+	suite.Nil(err)
+	suite.Equal(3, summary[0].OnHand)
+	suite.Equal(0, summary[0].OnHold)
+	suite.Equal(0, summary[0].Reserved)
+	suite.Equal(3, summary[0].AFS)
 }
