@@ -74,6 +74,24 @@ func (suite *skuControllerTestSuite) Test_UpdateSKUCode_Success() {
 	suite.Equal(http.StatusOK, res.Code)
 }
 
+func (suite *skuControllerTestSuite) Test_UpdateSKUCodeAndRequest_Success() {
+	code := "UPDATED"
+	payload := &payloads.UpdateSKU{Code: &code}
+
+	url := fmt.Sprintf("/skus/%d", suite.sku.ID)
+	res := suite.Patch(url, payload)
+	suite.Equal(http.StatusOK, res.Code)
+
+	getRes := suite.Get(url)
+	suite.Equal(http.StatusOK, getRes.Code)
+
+	respBody := new(responses.SKU)
+	err := json.NewDecoder(getRes.Body).Decode(respBody)
+	suite.Nil(err)
+	suite.Equal(suite.sku.ID, respBody.ID)
+	suite.Equal(code, respBody.Code)
+}
+
 func (suite *skuControllerTestSuite) Test_UpdateSKUCodeBlank_Failure() {
 	code := ""
 	payload := &payloads.UpdateSKU{Code: &code}
