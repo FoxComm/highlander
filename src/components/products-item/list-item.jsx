@@ -102,7 +102,7 @@ class ListItem extends React.Component {
       currency,
     } = this.props;
 
-    const productSlug = slug ? slug : productId;
+    const productSlug = slug != null && !_.isEmpty(slug) ? slug : productId;
 
     return (
       <div styleName="list-item">
