@@ -1,4 +1,4 @@
-package lib
+package responses
 
 type LoginResponse struct {
 	ID         int    `json:"id"`

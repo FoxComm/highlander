@@ -2,9 +2,6 @@ package responses
 
 import java.time.Instant
 
-import cats.implicits._
-import models.inventory._
-import models.objects._
 import models.product._
 import responses.AlbumResponses._
 import responses.ObjectResponses._
@@ -27,6 +24,7 @@ object ProductResponses {
   object ProductResponse {
 
     case class Root(id: Int,
+                    slug: String,
                     context: ObjectContextResponse.Root,
                     attributes: Json,
                     albums: Seq[AlbumResponse.Root],
@@ -42,6 +40,7 @@ object ProductResponses {
               options: Seq[ProductOptionResponse.Root],
               taxons: Seq[SingleTaxonResponse]): Root =
       Root(id = product.id,
+           slug = product.slug,
            attributes = product.attributes,
            context = ObjectContextResponse.build(product.context),
            albums = albums,

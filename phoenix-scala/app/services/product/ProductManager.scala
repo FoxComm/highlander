@@ -15,14 +15,12 @@ import models.inventory._
 import models.objects._
 import models.product._
 import models.account._
-import models.cord.lineitems.CartLineItems
-import payloads.ImagePayloads.{AlbumPayload, UpdateAlbumPositionPayload}
+import payloads.ImagePayloads.AlbumPayload
 import payloads.ProductPayloads._
 import payloads.ProductVariantPayloads._
 import payloads.ProductOptionPayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
-import responses.ImageResponses.ImageResponse
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
 import responses.ProductVariantResponses._
@@ -63,6 +61,7 @@ object ProductManager {
       ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       product ← * <~ Products.create(
                    Product(scope = scope,
+                           slug = payload.slug,
                            contextId = oc.id,
                            formId = ins.form.id,
                            shadowId = ins.shadow.id,
@@ -86,11 +85,12 @@ object ProductManager {
 
   }
 
-  def getProduct(
-      productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] =
+  def getProduct(productId: ProductReference)(implicit ec: EC,
+                                              db: DB,
+                                              oc: OC): DbResultT[ProductResponse.Root] =
     for {
-      oldProduct ← * <~ mustFindFullProductByFormId(productId)
-      albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.form.id)
+      oldProduct ← * <~ Products.mustFindFullByReference(productId)
+      albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
       fullVariants    ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
       productVariants ← * <~ fullVariants.map(ProductVariantManager.illuminateVariant)
@@ -112,7 +112,7 @@ object ProductManager {
           productOptionResponses,
           taxons)
 
-  def updateProduct(admin: User, productId: Int, payload: UpdateProductPayload)(
+  def updateProduct(productId: ProductReference, payload: UpdateProductPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
@@ -124,7 +124,8 @@ object ProductManager {
     val productVariantPayloads = payload.variants.getOrElse(Seq.empty)
 
     for {
-      oldProduct ← * <~ mustFindFullProductByFormId(productId)
+      _          ← * <~ validateUpdate(payload)
+      oldProduct ← * <~ Products.mustFindFullByReference(productId)
 
       _ ← * <~ productVariantsToBeUnassociatedMustNotBePresentInCarts(oldProduct.model.id,
                                                                       productVariantPayloads)
@@ -136,7 +137,7 @@ object ProductManager {
                                         mergedAttrs,
                                         force = true)
       commit      ← * <~ ObjectUtils.commit(updated)
-      updatedHead ← * <~ updateHead(oldProduct.model, updated.shadow, commit)
+      updatedHead ← * <~ updateHead(oldProduct.model, updated.shadow, commit, payload.slug)
 
       albums ← * <~ updateAssociatedAlbums(updatedHead, payload.albums)
 
@@ -149,7 +150,7 @@ object ProductManager {
                                                                    !hasOptions)
 
       variants ← * <~ updateAssociatedOptions(updatedHead, payload.options)
-      _        ← * <~ validateUpdate(updatedProductVariants, variants)
+      _        ← * <~ validateVariantsMatchesProductOptions(updatedProductVariants, variants)
 
       productOptionWithVariants ← * <~ getProductOptionsWithRelatedVariants(variants)
       (productOptionVariants, variantResponses) = productOptionWithVariants
@@ -161,13 +162,15 @@ object ProductManager {
           variantResponses,
           taxons)
       _ ← * <~ LogActivity
-           .fullProductUpdated(Some(admin), response, ObjectContextResponse.build(oc))
+           .fullProductUpdated(Some(au.model), response, ObjectContextResponse.build(oc))
     } yield response
 
   }
 
-  def archiveByContextAndId(
-      productId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] = {
+  def archiveByContextAndId(productId: ProductReference)(
+      implicit ec: EC,
+      db: DB,
+      oc: OC): DbResultT[ProductResponse.Root] = {
     val payload = Map("activeFrom" → (("v" → JNull) ~ ("type" → JString("datetime"))),
                       "activeTo" → (("v" → JNull) ~ ("type" → JString("datetime"))))
 
@@ -175,7 +178,7 @@ object ProductManager {
     val newShadowAttrs = ObjectShadow.fromPayload(payload).attributes
 
     for {
-      productObject ← * <~ mustFindFullProductByFormId(productId)
+      productObject ← * <~ Products.mustFindFullByReference(productId)
       _             ← * <~ productObject.model.mustNotBePresentInCarts
       mergedAttrs = productObject.shadow.attributes.merge(newShadowAttrs)
       inactive ← * <~ ObjectUtils.update(productObject.form.id,
@@ -184,7 +187,7 @@ object ProductManager {
                                          mergedAttrs,
                                          force = true)
       commit      ← * <~ ObjectUtils.commit(inactive)
-      updatedHead ← * <~ updateHead(productObject.model, inactive.shadow, commit)
+      updatedHead ← * <~ updateHead(productObject.model, inactive.shadow, commit, None)
 
       archiveResult ← * <~ Products.update(updatedHead,
                                            updatedHead.copy(archivedAt = Some(Instant.now)))
@@ -195,7 +198,7 @@ object ProductManager {
                                         DbResultT.unit,
                                         id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
          }
-      albums              ← * <~ ImageManager.getAlbumsForProduct(inactive.form.id)
+      albums              ← * <~ ImageManager.getAlbumsForProduct(ProductReference(inactive.form.id))
       productVariantLinks ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
       _ ← * <~ productVariantLinks.map { link ⇒
            ProductVariantLinks.deleteById(link.id,
@@ -254,18 +257,32 @@ object ProductManager {
     (notEmpty(payload.variants, "Product variants") |@| lesserThanOrEqual(
             payload.variants.length,
             maxProductVariants,
-            "number of product variants")).map {
+            "number of product variants") |@|
+          validateSlug(payload.slug, true)).map {
       case _ ⇒ payload
     }
   }
 
   private def validateUpdate(
+      payload: UpdateProductPayload): ValidatedNel[Failure, UpdateProductPayload] =
+    payload.slug.fold(ok)(value ⇒ validateSlug(value)).map { case _ ⇒ payload }
+
+  private def validateSlug(slug: String,
+                           forProductCreate: Boolean = false): ValidatedNel[Failure, Unit] = {
+    if (slug.isEmpty && forProductCreate || slug.exists(_.isLetter)) {
+      ok
+    } else {
+      Validated.invalidNel(ProductFailures.SlugShouldHaveLetters(slug))
+    }
+  }
+
+  private def validateVariantsMatchesProductOptions(
       variants: Seq[ProductVariantResponse.Root],
       options: Seq[(FullObject[ProductOption], Seq[FullObject[ProductOptionValue]])])
     : ValidatedNel[Failure, Unit] = {
-    val maxVariants = options.map { case (_, values) ⇒ values.length.max(1) }.product
+    val maxOptions = options.map { case (_, values) ⇒ values.length.max(1) }.product
 
-    lesserThanOrEqual(variants.length, maxVariants, "number of product variants for given options").map {
+    lesserThanOrEqual(variants.length, maxOptions, "number of product variants for given options").map {
       case _ ⇒ Unit
     }
   }
@@ -302,13 +319,21 @@ object ProductManager {
 
   private def updateHead(product: Product,
                          shadow: ObjectShadow,
-                         maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Product] =
-    maybeCommit match {
-      case Some(commit) ⇒
-        Products.update(product, product.copy(shadowId = shadow.id, commitId = commit.id))
-      case None ⇒
-        DbResultT.good(product)
-    }
+                         maybeCommit: Option[ObjectCommit],
+                         newSlug: Option[String])(implicit ec: EC): DbResultT[Product] = {
+
+    def withNewSlug =
+      (product: Product) ⇒ newSlug.fold(product)(value ⇒ product.copy(slug = value))
+    def withCommit =
+      (product: Product) ⇒
+        maybeCommit.fold(product)(commit ⇒
+              product.copy(shadowId = shadow.id, commitId = commit.id))
+
+    val newProduct = withNewSlug.andThen(withCommit)(product)
+
+    if (newProduct != product) Products.update(product, newProduct)
+    else DbResultT.good(product)
+  }
 
   private def findOrCreateVariantsForProduct(
       product: Product,

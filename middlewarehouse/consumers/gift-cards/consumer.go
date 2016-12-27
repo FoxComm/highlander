@@ -6,9 +6,9 @@ import (
 	"log"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
+	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 	"github.com/FoxComm/metamorphosis"
 )
 
@@ -20,12 +20,12 @@ const (
 
 // GiftCardConsumer represents a consumer for giftcards
 type GiftCardConsumer struct {
-	client lib.PhoenixClient
+	client phoenix.PhoenixClient
 }
 
 //NewGiftCardConsumer creates a new consumer for gifcards
-func NewGiftCardConsumer(client lib.PhoenixClient) (*GiftCardConsumer, error) {
-	return &GiftCardConsumer{client}, nil
+func NewGiftCardConsumer(client phoenix.PhoenixClient) *GiftCardConsumer {
+	return &GiftCardConsumer{client}
 }
 
 // Handler accepts an Avro encoded message from Kafka and takes

@@ -7,6 +7,7 @@ import org.json4s.JsonDSL._
 import org.scalatest.SuiteMixin
 import payloads.ProductPayloads.CreateProductPayload
 import payloads.ProductVariantPayloads.ProductVariantPayload
+import responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
 import testutils.PayloadHelpers.tv
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -24,14 +25,15 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
                          "salePrice"   → tv(("currency" → "USD") ~ ("value" → skuPrice), "price"),
                          "retailPrice" → tv(("currency" → "USD") ~ ("value" → skuPrice), "price")))
 
-    private val productPayload =
+    val productPayload =
       CreateProductPayload(
           attributes =
             Map("name" → tv(productCode.capitalize), "title" → tv(productCode.capitalize)),
+          slug = productCode.toLowerCase,
           variants = Seq(skuPayload),
           options = None)
 
-    productsApi.create(productPayload).mustBeOk()
+    val product = productsApi.create(productPayload).as[ProductRoot]
   }
 
 }

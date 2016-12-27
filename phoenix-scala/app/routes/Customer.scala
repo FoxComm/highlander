@@ -1,40 +1,40 @@
 package routes
 
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
-import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.ProductVariant.skuCodeRegex
 import models.payment.giftcard.GiftCard
+import models.product.ProductReference
+import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.AddressPayloads._
 import payloads.CustomerPayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
-import services.Authenticator.{UserAuthenticator, requireCustomerAuth}
+import services.Authenticator.{AuthData, UserAuthenticator, requireCustomerAuth}
 import services._
 import services.carts._
 import services.customers.CustomerManager
+import services.orders.OrderQueries
 import services.product.ProductManager
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
-import org.json4s.jackson.Serialization.{write ⇒ json}
-import utils.db._
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import services.orders.OrderQueries
 import utils.http.Http._
 
 object Customer {
+
   def routes(implicit ec: EC, es: ES, db: DB, auth: UserAuthenticator, apis: Apis) = {
 
     pathPrefix("my") {
       requireCustomerAuth(auth) { implicit auth ⇒
         activityContext(auth.model) { implicit ac ⇒
           determineObjectContext(db, ec) { implicit ctx ⇒
-            pathPrefix("products" / IntNumber / "baked") { productId ⇒
+            pathPrefix("products" / ProductRef / "baked") { productId ⇒
               (get & pathEnd) {
                 getOrFailures {
                   ProductManager.getProduct(productId)
