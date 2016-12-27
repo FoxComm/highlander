@@ -37,7 +37,7 @@ object CartTotaler {
       variant  ← ProductVariants if variant.id === lineItem.productVariantId
       form     ← ObjectForms if form.id === variant.formId
       shadow   ← ObjectShadows if shadow.id === variant.shadowId
-      salePrice = ((form.attributes +> ((shadow.attributes +> "salePrice") +>> "ref")) +>> "value")
+      salePrice = ((form.attributes +> (shadow.attributes +> "salePrice" +>> "ref")) +>> "value")
         .asColumnOf[Int]
     } yield salePrice).sum.result.map(_.getOrElse(0))
 

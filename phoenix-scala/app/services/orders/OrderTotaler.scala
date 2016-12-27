@@ -33,9 +33,9 @@ object OrderTotaler {
       variant  ← ProductVariants if variant.id === lineItem.productVariantId
       form     ← ObjectForms if form.id === variant.formId
       shadow   ← ObjectShadows if shadow.id === lineItem.productVariantShadowId
-      salePrice = ((form.attributes +> ((shadow.attributes +> "salePrice") +>> "ref")) +>> "value")
+      salePrice = ((form.attributes +> (shadow.attributes +> "salePrice" +>> "ref")) +>> "value")
         .asColumnOf[Int]
-    } yield lineItem.id).sum.result.map(_.getOrElse(0))
+    } yield salePrice).sum.result.map(_.getOrElse(0))
 
   def shippingTotal(order: Order)(implicit ec: EC): DbResultT[Int] =
     for {
