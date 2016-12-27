@@ -5,12 +5,13 @@ import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { capitalize } from 'fleck';
+import { numberize } from 'lib/text-utils';
 
 //helpers
-import { groups } from '../../paragons/watcher';
-import { getStore } from '../../lib/store-creator';
+import { groups } from 'paragons/watcher';
+import { getStore } from 'lib/store-creator';
 
-import { SelectUsersModal } from './modal';
+import SelectUsersModal from '../users/select-modal';
 
 const mapDispatchToProps = (dispatch, {module}) => {
   const {actions} = getStore(`${module}.bulk`);
@@ -20,14 +21,7 @@ const mapDispatchToProps = (dispatch, {module}) => {
   };
 };
 
-function mapStateToProps(state, {module}) {
-  const watchers = _.get(state, [module, 'watchers']);
-  return {
-    selectedWatchers: _.get(watchers, 'list.selectModal.selected', []).map(({id}) => id)
-  };
-}
-
-@connect(mapStateToProps, mapDispatchToProps)
+@connect(void 0, mapDispatchToProps)
 export default class BulkActions extends Component {
   static propTypes = {
     module: PropTypes.string.isRequired,
@@ -56,16 +50,18 @@ export default class BulkActions extends Component {
       } else {
         label = isDirectAction ? 'Assign' : 'Unassign';
       }
-
+      const entityForm = numberize(entity, count);
       const bulkAction = isDirectAction ? bulkActions.watch : bulkActions.unwatch;
+      const actionForm = _.capitalize(action);
 
       return (
         <SelectUsersModal
-          action={action}
-          count={count}
-          labelPrefix={label}
+          title={`${actionForm} ${_.capitalize(entityForm)}`}
+          bodyLabel={<span>{label} <strong>{count}</strong> {entityForm}</span>}
+          saveLabel={group == 'watchers' ? 'Watch' : 'Assign'}
           maxUsers={1}
-          onConfirm={() => bulkAction(entity, group, toggledIds, this.props.selectedWatchers)} />
+          onConfirm={users => bulkAction(entity, group, toggledIds, _.map(users, user => user.id))}
+        />
       );
     };
   }

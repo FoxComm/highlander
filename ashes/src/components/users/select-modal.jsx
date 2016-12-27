@@ -17,6 +17,7 @@ type Props = {
   title: string|Element,
   bodyLabel: string|Element,
   saveLabel: string|Element,
+  maxUsers?: number,
 }
 
 type State = {
@@ -82,6 +83,7 @@ class SelectUsersModal extends Component {
               hideOnBlur
               onSelect={this.handleAdminsSelected}
               label={props.bodyLabel}
+              maxUsers={props.maxUsers}
             />
           </div>
         </ContentBox>

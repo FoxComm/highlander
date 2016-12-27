@@ -103,7 +103,7 @@ export default class UsersTypeahead extends Component {
   }
 
   get placeholder(): string {
-    return this.state.selected.length > this.props.maxUsers ? '' : 'Name or email...';
+    return this.state.selected.length >= this.props.maxUsers ? '' : 'Name or email...';
   }
 
   render() {
