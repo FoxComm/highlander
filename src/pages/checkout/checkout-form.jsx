@@ -12,12 +12,13 @@ import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import styles from './checkout-form.css';
 
 type Props = {
-  title: string,
-  error: ?Array<any>|Object,
+  title?: string,
+  error: ?Array<any>|Object|null,
   submit: Function,
   action?: ?Object,
   children?: any,
   buttonLabel?: ?string,
+  inProgress?: boolean,
 };
 
 class CheckoutForm extends Component {
@@ -37,19 +38,28 @@ class CheckoutForm extends Component {
     return this.props.buttonLabel || 'Continue';
   }
 
-  render() {
-    return (
-      <Form onSubmit={this.props.submit}>
-        <div styleName="form-header">
-          <legend styleName="legend">{this.props.title}</legend>
+  get header() {
+    const { props } = this;
+
+    if (props.title || props.action) {
+      return (
+        <div styleName="form-header" key="header">
+          <legend styleName="legend">{props.title}</legend>
           {this.actionLink}
         </div>
+      );
+    }
+  }
 
-        {this.props.children}
-
-        <ErrorAlerts error={this.props.error} />
+  render() {
+    const { props } = this;
+    return (
+      <Form onSubmit={props.submit} styleName="root">
+        {this.header}
+        {props.children}
+        <ErrorAlerts error={props.error} />
         <div styleName="button-wrap">
-          <Button styleName="checkout-submit" type="submit">{this.buttonLabel}</Button>
+          <Button styleName="checkout-submit" type="submit" isLoading={props.inProgress}>{this.buttonLabel}</Button>
         </div>
       </Form>
     );

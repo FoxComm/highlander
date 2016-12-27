@@ -25,9 +25,10 @@ const AddressDetails = (props: Props) => {
   }
 
   const nameField = !props.hideName && address.name ? <li>{address.name}</li> : null;
+  const className = props.className || styles['address-details'];
 
   return (
-    <ul styleName="address-details" className={props.className}>
+    <ul className={className}>
       {nameField}
       <li>{address.address1}</li>
       {address.address2 && <li>{address.address2}</li>}

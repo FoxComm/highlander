@@ -1,17 +1,21 @@
+
+.root {
+  padding: 20px 0;
+}
+
 .form-header {
   display: flex;
   justify-content: space-between;
+  margin-bottom: 15px;
 }
 
 .legend {
-  padding: 1.71em 0;
   font-weight: 300;
-  letter-spacing: 0.9;
+  letter-spacing: 1px;
   text-transform: uppercase;
 }
 
 .action-link {
-  padding: 1.71em 0;
   color: #8D757A;
   text-transform: uppercase;
   cursor: pointer;

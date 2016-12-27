@@ -5,6 +5,7 @@
 }
 
 .savedAddress {
+  composes: address-details from 'ui/address/address.css';
   padding: 15px 0;
   line-height: 1.6;
   text-align: center;
