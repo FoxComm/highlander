@@ -34,6 +34,7 @@ class ShippingMethodsIntegrationTest
       val methodResp = resp.headOption.value
       methodResp.id must === (shippingMethod.id)
       methodResp.name must === (shippingMethod.name)
+      methodResp.conditions must === (shippingMethod.conditions)
     }
 
     "Only returns active shipping methods" in new WestCoastShippingMethodsFixture {

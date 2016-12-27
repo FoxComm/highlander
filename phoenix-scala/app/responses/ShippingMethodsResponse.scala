@@ -1,5 +1,6 @@
 package responses
 
+import models.rules.QueryStatement
 import models.shipping.ShippingMethod
 
 object ShippingMethodsResponse {
@@ -22,7 +23,9 @@ object AdminShippingMethodsResponse {
                   price: PriceResponse.Root,
                   eta: String,
                   carrier: String,
-                  isActive: Boolean)
+                  isActive: Boolean,
+                  conditions: Option[QueryStatement],
+                  restrictions: Option[QueryStatement])
 
   def build(record: ShippingMethod): Root =
     Root(id = record.id,
@@ -31,5 +34,7 @@ object AdminShippingMethodsResponse {
          price = PriceResponse.build(record.price),
          eta = record.eta.getOrElse(""),
          carrier = record.carrier.getOrElse(""),
-         isActive = record.isActive)
+         isActive = record.isActive,
+         conditions = record.conditions,
+         restrictions = record.restrictions)
 }
