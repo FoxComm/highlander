@@ -8,6 +8,7 @@ import utils.aliases._
 import utils.db._
 import utils.FoxConfig._
 import utils.db.ExPostgresDriver.api._
+import utils.db.DbObjectUtils._
 
 // TODO: Use utils.Money
 object CartTotaler {
@@ -37,8 +38,8 @@ object CartTotaler {
       variant  ← ProductVariants if variant.id === lineItem.productVariantId
       form     ← ObjectForms if form.id === variant.formId
       shadow   ← ObjectShadows if shadow.id === variant.shadowId
-      salePrice = ((form.attributes +> (shadow.attributes +> "salePrice" +>> "ref")) +>> "value")
-        .asColumnOf[Int]
+      illuminated = (form, shadow)
+      salePrice   = ((illuminated |→ "salePrice") +>> "value").asColumnOf[Int]
     } yield salePrice).sum.result.map(_.getOrElse(0))
 
   def shippingTotal(cart: Cart)(implicit ec: EC): DbResultT[Int] =
