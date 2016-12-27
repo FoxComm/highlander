@@ -30,6 +30,7 @@ type UpdateSKU struct {
 
 func (sku UpdateSKU) Model(original *models.SKU) *models.SKU {
 	model := new(models.SKU)
+	model.ID = original.ID
 
 	if sku.Code != nil {
 		model.Code = *sku.Code
