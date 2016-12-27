@@ -31,6 +31,7 @@ type Product = {
   id: number,
   index: number,
   productId: number,
+  slug: ?string,
   context: string,
   title: string,
   description: ?string,
@@ -94,15 +95,18 @@ class ListItem extends React.Component {
   render(): HTMLElement {
     const {
       productId,
+      slug,
       title,
       description,
       salePrice,
       currency,
     } = this.props;
 
+    const productSlug = slug != null && !_.isEmpty(slug) ? slug : productId;
+
     return (
       <div styleName="list-item">
-        <Link onClick={this.handleClick} to={`/products/${productId}`}>
+        <Link onClick={this.handleClick} to={`/products/${productSlug}`}>
           <div styleName="preview">
             {this.image}
             <div styleName="hover-info">
@@ -116,7 +120,7 @@ class ListItem extends React.Component {
 
         <div styleName="text-block">
           <h1 styleName="title" alt={title}>
-            <Link to={`/products/${productId}`}>{title}</Link>
+            <Link to={`/products/${productSlug}`}>{title}</Link>
           </h1>
           <h2 styleName="description">{/* serving size */}</h2>
           <div styleName="price-line">

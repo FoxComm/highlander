@@ -36,11 +36,14 @@ type Context = {
 
 export type ProductResponse = {
   id: number,
+  slug?: string,
   context: Context,
   attributes: Attributes,
   skus: Array<Sku>,
   albums: Array<Album>,
 };
+
+export type ProductSlug = string|number;
 
 export function getNextId(current: number): Function {
   return (dispatch, getState) => {
@@ -72,7 +75,7 @@ export function getPreviousId(current: number): Function {
   };
 }
 
-function fetchProduct(id: number): global.Promise {
+function fetchProduct(id: ProductSlug): global.Promise {
   return this.api.get(`/v1/public/products/${id}`);
 }
 
