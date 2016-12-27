@@ -2,7 +2,7 @@
 
 import { createReducer } from 'redux-act';
 import Api from 'lib/api';
-import createAsyncActions from 'modules/async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 
 import type { OriginIntegration } from 'paragons/origin-integration';
 

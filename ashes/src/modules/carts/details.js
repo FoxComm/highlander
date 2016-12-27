@@ -6,7 +6,7 @@ import { createReducer } from 'redux-act';
 import { transitionTo } from 'browserHistory';
 import OrderParagon from 'paragons/order';
 
-import createAsyncActions from 'modules/async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 
 ////////////////////////////////////////////////////////////////////////////////
 // Cart Manipulation Actions
