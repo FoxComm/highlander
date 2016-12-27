@@ -50,7 +50,9 @@ const _updateLineItemCount = createAsyncActions(
   (refNum: string, payload: Array<UpdateLineItemPayload>) => Api.patch(`/orders/${refNum}/line-items`, payload)
 );
 
-export function updateLineItemCount(refNum: string, skuCode: string, quantityDiff: number, attributes: ?Object): Function {
+export function updateLineItemCount(
+  refNum: string, skuCode: string, quantityDiff: number, attributes: ?Object
+): Promise {
   return _updateLineItemCount.perform(refNum, [{ sku: skuCode, quantity: quantityDiff, attributes }]);
 }
 

@@ -12,7 +12,7 @@ import OrderShippingMethod from './order-shipping-method';
 import Payments from './payments';
 import DiscountsPanel from 'components/discounts-panel/discounts-panel';
 import OrderCoupons from './order-coupons';
-import Participants from '../participants';
+import ParticipantsPanel from '../participants';
 
 import type { Order } from 'paragons/order';
 
@@ -47,7 +47,7 @@ export default class OrderDetails extends Component {
           <div className="fc-order-details-aside">
             <TotalsSummary entity={order} title={order.title} />
             <CustomerCard customer={order.customer} />
-            <Participants entity={{entityId: order.referenceNumber, entityType}} />
+            <ParticipantsPanel entity={{entityId: order.referenceNumber, entityType}} />
           </div>
         </div>
       </div>

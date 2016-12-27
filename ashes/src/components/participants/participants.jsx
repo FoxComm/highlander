@@ -235,6 +235,7 @@ class Participants extends Component {
         isVisible={this.state.isUsersPopupShown}
         title={this.popupTitle}
         bodyLabel={this.popupBodyLabel}
+        saveLabel={this.props.group == 'watchers' ? 'Watch' : 'Assign'}
         onCancel={this.hideUsersPopup}
         onConfirm={this.handleUsersConfirm}
       />

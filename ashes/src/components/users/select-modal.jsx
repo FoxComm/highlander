@@ -10,16 +10,13 @@ import ContentBox from '../content-box/content-box';
 import SaveCancel from '../common/save-cancel';
 import AdminsTypeahead from '../users-typeahead/admins-typeahead';
 
-// types
-import type { GroupType } from 'types/participants';
-
 type Props = {
   isVisible: boolean,
-  group: GroupType,
   onCancel: (event: SyntheticEvent) => void,
   onConfirm: (users: Array<UserType>) => void,
   title: string|Element,
   bodyLabel: string|Element,
+  saveLabel: string|Element,
 }
 
 type State = {
@@ -41,7 +38,7 @@ class SelectUsersModal extends Component {
   }
 
   get isSaveDisabled(): boolean {
-    return !this.state.selected.length
+    return !this.state.selected.length;
   }
 
   @autobind
@@ -51,14 +48,13 @@ class SelectUsersModal extends Component {
 
   get footer() {
     const { props } = this;
-    const saveLabel = props.group === 'watchers' ? 'Watch' : 'Assign';
     return (
       <SaveCancel
         className="fc-modal-footer fc-add-watcher-modal__footer"
         onCancel={props.onCancel}
         onSave={this.handleSave}
         saveDisabled={this.isSaveDisabled}
-        saveText={saveLabel}
+        saveText={props.saveLabel}
       />
     );
   }

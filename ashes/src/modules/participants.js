@@ -49,7 +49,7 @@ function assignParticipants(state, result) {
   return {
     ...state,
     participants: _.map(result, item => item.assignee),
-  }
+  };
 }
 
 const reducer = createReducer({
