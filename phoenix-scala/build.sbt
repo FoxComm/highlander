@@ -42,7 +42,7 @@ lazy val phoenixScala = (project in file("."))
     initialCommands in (Compile, consoleQuick) := "",
     writeVersion <<= sh.toTask(fromFile("project/write_version").getLines.mkString).triggeredBy(compile in Compile),
     unmanagedResources in Compile += file("version"),
-    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
+    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC", "-Dphoenix.env=test"),
     parallelExecution in Test := true,
     parallelExecution in IT   := false,
