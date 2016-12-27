@@ -43,7 +43,9 @@ object ShippingMethod {
         price = payload.price.value,
         eta = payload.eta,
         carrier = payload.carrier,
-        isActive = true
+        isActive = true,
+        conditions = payload.conditions,
+        restrictions = payload.restrictions
     )
 
   def buildFromUpdatePayload(original: ShippingMethod,
@@ -53,7 +55,9 @@ object ShippingMethod {
         name = payload.name.getOrElse(original.name),
         price = payload.price.fold(original.price)(_.value),
         eta = payload.eta.fold(original.eta)(_ ⇒ payload.eta),
-        carrier = payload.carrier.fold(original.carrier)(_ ⇒ payload.carrier)
+        carrier = payload.carrier.fold(original.carrier)(_ ⇒ payload.carrier),
+        conditions = payload.conditions.fold(original.conditions)(_ ⇒ payload.conditions),
+        restrictions = payload.restrictions.fold(original.restrictions)(_ ⇒ payload.restrictions)
     )
 }
 

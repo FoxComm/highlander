@@ -1,4 +1,5 @@
 import akka.http.scaladsl.model.StatusCodes
+import cats.implicits._
 import failures.ShippingMethodFailures.ShippingMethodNotFound
 import models.cord.OrderShippingAddresses
 import models.cord.lineitems._
@@ -84,6 +85,43 @@ class ShippingMethodsIntegrationTest
       resp.name must === (payload.name)
     }
 
+    "Successfully creates a shipping method with conditions and restrictions" in new ShippingMethodsFixture {
+      val conditions = parse(
+          """
+          | {
+          |   "comparison": "and",
+          |   "conditions": [{
+          |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 100
+          |   }]
+          | }
+        """.stripMargin).extract[QueryStatement]
+
+      val restrictions = parse("""
+         | {
+         |   "comparison": "and",
+         |   "conditions": [
+         |     {
+         |       "rootObject": "Order",
+         |       "field": "skus.isHazardous",
+         |       "operator": "equals",
+         |       "valBoolean": true
+         |     }
+         |   ]
+         | }
+       """.stripMargin).extract[QueryStatement]
+
+      val payload = CreateShippingMethodPayload(name = "Donkey Ground with Conditions",
+                                                code = "DONKEY",
+                                                price = PricePayload("USD", 199),
+                                                conditions = conditions.some,
+                                                restrictions = restrictions.some)
+
+      val resp = shippingMethodsApi.create(payload).as[responses.AdminShippingMethodsResponse.Root]
+      resp.name must === (payload.name)
+      resp.conditions must === (payload.conditions)
+      resp.restrictions must === (payload.restrictions)
+    }
+
     "Returns an error when creating a shipping method with a duplicate code" in new WestCoastShippingMethodsFixture {
       val payload = CreateShippingMethodPayload(name = "Donkey Ground",
                                                 code = shippingMethod.code,
@@ -102,6 +140,40 @@ class ShippingMethodsIntegrationTest
         .as[responses.AdminShippingMethodsResponse.Root]
       resp.id must !==(shippingMethod.id)
       resp.price.value must === (payload.price.value.value)
+    }
+
+    "Successfully updates a shipping method with conditions and restrictions" in new WestCoastShippingMethodsFixture {
+      val newConditions = parse(
+          """
+          | {
+          |   "comparison": "and",
+          |   "conditions": [{
+          |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 100
+          |   }]
+          | }
+        """.stripMargin).extract[QueryStatement]
+
+      val newRestrictions = parse("""
+                                 | {
+                                 |   "comparison": "and",
+                                 |   "conditions": [
+                                 |     {
+                                 |       "rootObject": "Order",
+                                 |       "field": "skus.isHazardous",
+                                 |       "operator": "equals",
+                                 |       "valBoolean": true
+                                 |     }
+                                 |   ]
+                                 | }
+                               """.stripMargin).extract[QueryStatement]
+
+      val payload = UpdateShippingMethodPayload(conditions = newConditions.some,
+                                                restrictions = newRestrictions.some)
+      val resp = shippingMethodsApi
+        .update(shippingMethod.id, payload)
+        .as[responses.AdminShippingMethodsResponse.Root]
+      resp.id must !==(shippingMethod.id)
+      resp.conditions must === (payload.conditions)
     }
   }
 
