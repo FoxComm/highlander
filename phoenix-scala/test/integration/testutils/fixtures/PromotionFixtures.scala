@@ -53,7 +53,7 @@ trait PromotionFixtures extends TestFixtureBase {
 
     def createPromotionFromPayload(promoPayload: CreatePromotion) = {
       (for {
-        promoRoot ← * <~ PromotionManager.create(promoPayload, ctx.name)
+        promoRoot ← * <~ PromotionManager.create(promoPayload, ctx.name, None)
         promotion ← * <~ Promotions
                      .filter(_.contextId === ctx.id)
                      .filter(_.formId === promoRoot.id)

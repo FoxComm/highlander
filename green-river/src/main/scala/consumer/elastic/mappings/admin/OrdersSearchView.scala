@@ -12,7 +12,7 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
       field("id", IntegerType),
       field("referenceNumber", StringType).analyzer("upper_cased"),
       field("state", StringType).index("not_analyzed"),
-      field("scope", StringType),
+      field("scope", StringType).index("not_analyzed"),
       field("createdAt", DateType).format(dateFormat),
       field("placedAt", DateType).format(dateFormat),
       field("currency", StringType).index("not_analyzed"),
@@ -41,7 +41,7 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
       field("lineItems").nested(
           field("referenceNumber", StringType).analyzer("upper_cased"),
           field("state", StringType).index("not_analyzed"),
-          field("sku", StringType).index("not_analyzed"),
+          field("sku", StringType).analyzer("upper_cased"),
           field("name", StringType).analyzer("autocomplete"),
           field("price", IntegerType)
       ),

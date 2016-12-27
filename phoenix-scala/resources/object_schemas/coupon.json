@@ -12,8 +12,7 @@
         },
         "storefrontName": {
           "type": "string",
-          "widget": "richText",
-          "minLength": 1
+          "widget": "richText"
         },
         "details": {
           "type": "string",
@@ -42,7 +41,7 @@
           "format": "date-time"
         }
       },
-      "required": ["name", "storefrontName"]
+      "required": ["name"]
     }
   }
 }

@@ -52,7 +52,7 @@ function formatLabel(label: string): string {
   });
 }
 
-function renderFormField(name: string, content: Element, options: AttrOptions): Element {
+export function renderFormField(name: string, content: Element, options: AttrOptions): Element {
   return (
     <FormField
       {...options}

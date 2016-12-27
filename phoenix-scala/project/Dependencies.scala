@@ -14,6 +14,7 @@ object Versions {
   val scalatest = "2.2.6"
   val dispatch  = "0.11.3"
   val fasterxml = "2.8.2"
+
 }
 
 object Dependencies {
@@ -101,7 +102,7 @@ object Dependencies {
     "org.conbere"           % "markov_2.10"             % "0.2.0",
     "io.backchat.inflector" %% "scala-inflector"        % "1.3.5",
     "com.github.tototoshi"  %% "scala-csv"              % "1.3.3",
-    ("org.spire-math"       %% "cats"                   % "0.3.0").excludeAll(noScalaCheck)
+    "org.typelevel"         %% "cats"                   % "0.7.2"
   )
 
   private lazy val noScalaCheck = ExclusionRule(organization = "org.scalacheck")

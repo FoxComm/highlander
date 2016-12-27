@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 source /etc/consul.d/env
 HOST={{appliance_hostname}}

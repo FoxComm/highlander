@@ -10,13 +10,14 @@ final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("products_search_view").fields(
       field("id", IntegerType),
       field("productId", IntegerType),
+      field("slug", StringType).index("not_analyzed"),
       field("context", StringType).index("not_analyzed"),
-      field("scope", StringType),
+      field("scope", StringType).index("not_analyzed"),
       field("title", StringType)
         .analyzer("autocomplete")
         .fields(field("raw", StringType).index("not_analyzed")),
       field("description", StringType).analyzer("autocomplete"),
-      field("skus", StringType).index("not_analyzed"),
+      field("skus", StringType).analyzer("upper_cased"),
       field("tags", StringType).index("not_analyzed"),
       field("activeFrom", DateType).format(dateFormat),
       field("activeTo", DateType).format(dateFormat),

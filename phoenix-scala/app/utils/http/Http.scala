@@ -29,7 +29,7 @@ object Http {
     HttpResponse(StatusCodes.OK, entity = HttpEntity(ContentTypes.`text/plain(UTF-8)`, text))
 
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
-    val failuresList = failures.unwrap
+    val failuresList = failures.toList
     val notFound     = failuresList.collectFirst { case f: NotFoundFailure404 ⇒ f }
     notFound.fold(HttpResponse(statusCode,
                                entity = jsonEntity("errors" → failuresList.map(_.description)))) {

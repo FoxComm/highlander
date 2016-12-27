@@ -1,0 +1,11 @@
+[Service]
+WorkingDirectory={{sinopia_base_dir}}
+ExecStart=/usr/bin/env bash ./run_sinopia.sh
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=sinopia
+
+[Install]
+WantedBy=multi-user.target

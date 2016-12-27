@@ -4,6 +4,7 @@ import type { Claims } from 'lib/claims';
 
 export const frn = {
   activity: {
+    cart: 'frn:activity:cart',
     coupon: 'frn:activity:coupon',
     customer: 'frn:activity:customer',
     giftCard: 'frn:activity:giftCard',

@@ -99,7 +99,7 @@ class PromotionsIntegrationTest
         }
 
       PromotionManager
-        .update(promotion.formId, UpdatePromotion(Coupon, attributes.toMap, Seq()), ctx.name)
+        .update(promotion.formId, UpdatePromotion(Coupon, attributes.toMap, Seq()), ctx.name, None)
         .gimme
 
       fullPromotion =

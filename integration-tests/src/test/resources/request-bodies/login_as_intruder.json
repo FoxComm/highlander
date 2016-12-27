@@ -1,5 +1,0 @@
-{
-  "email": "${intruderEmail}",
-  "password": "${intruderPassword}",
-  "org": "merchant"
-}

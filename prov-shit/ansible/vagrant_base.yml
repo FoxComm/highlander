@@ -2,6 +2,7 @@
 
 - name: Build and Provision All The Things
   hosts: all
+  become: true
   vars:
     ashes_server_name: admin.local.foxcommerce.com
     storefront_server_name: local.foxcommerce.com
@@ -17,11 +18,11 @@
     - { role: base/elasticsearch }
     - { role: base/db }
     - { role: base/bottledwater }
-    - { role: base/rsyslog, sudo: true }
-    - { role: base/kibana, sudo: true }
-    - { role: base/node, sudo: true }
-    - { role: base/balancer, sudo: true }
-    - { role: base/builder, sudo: true }
+    - { role: base/rsyslog }
+    - { role: base/kibana }
+    - { role: base/node }
+    - { role: base/balancer }
+    - { role: base/builder }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml

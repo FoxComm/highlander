@@ -1,0 +1,49 @@
+storage: {{sinopia_storage_dir}}
+
+web:
+    enable: true
+    title: {{sinopia_webui_title}}
+    logo: {{sinopia_webui_logo}}
+
+auth:
+    htpasswd:
+        file: {{sinopia_htpasswd_file}}
+        max_users: {{sinopia_max_users}}
+
+uplinks:
+    yarnjs:
+        url: {{sinopia_yarnjs_url}}
+        timeout: {{sinopia_uplink_timeout}}
+        maxage: {{sinopia_uplink_maxage}}
+        max_fails: {{sinopia_uplink_max_fails}}
+        fail_timeout: {{sinopia_uplink_fail_timeout}}
+
+    npmjs:
+        url: {{sinopia_npmjs_url}}
+        timeout: {{sinopia_uplink_timeout}}
+        maxage: {{sinopia_uplink_maxage}}
+        max_fails: {{sinopia_uplink_max_fails}}
+        fail_timeout: {{sinopia_uplink_fail_timeout}}
+
+packages:
+    # scoped packages
+    '@*/*':
+        access: $all
+        publish: $authenticated
+
+    '*':
+        access: $all
+        publish: $authenticated
+        proxy: yarnjs
+
+listen:
+    - https://{{sinopia_host}}:4873
+
+https:
+    key: /certs/domain.key
+    cert: /certs/domain.crt
+
+logs:
+    - {type: stdout, format: pretty, level: http}
+
+max_body_size: {{sinopia_max_body_size}}

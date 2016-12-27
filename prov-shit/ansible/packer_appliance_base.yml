@@ -2,6 +2,7 @@
 
 - name: Provision All The Things
   hosts: all
+  become: true
   tags:
     - packer
   vars:
@@ -30,10 +31,10 @@
     - { role: base/elasticsearch }
     - { role: base/db }
     - { role: base/bottledwater }
-    - { role: base/rsyslog, sudo: yes }
-    - { role: base/kibana, sudo: yes }
-    - { role: base/node, sudo: yes }
-    - { role: base/balancer, sudo: yes }
+    - { role: base/rsyslog }
+    - { role: base/kibana }
+    - { role: base/node }
+    - { role: base/balancer }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
