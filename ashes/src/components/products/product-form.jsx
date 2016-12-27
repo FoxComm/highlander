@@ -27,7 +27,7 @@ const layout = require('./layout.json');
 
 type Props = DetailsProps & {
   object: Product,
-}
+};
 
 /**
  * ProductForm is dumb component that implements the logic needed for creating
@@ -116,8 +116,8 @@ export default class ProductForm extends ObjectDetails {
   }
 
   @autobind
-  onSlugChange(value) {
-    const realSlug = value.replace(/\W/g, '-');
+  onSlugChange(value: string) {
+    const realSlug = _.toLower(value.replace(/\W/g, '-'));
     const product = assoc(this.props.object, 'slug', realSlug);
     this.props.onUpdateObject(product);
   }
