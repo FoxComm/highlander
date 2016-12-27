@@ -4,19 +4,11 @@
       "type": "group",
       "title": "General",
       "fields": {
-        "canAddProperty": true,
+        "canAddProperty": false,
         "value": [
           "code",
           "title",
-          "upc",
-          "description"
-        ],
-        "includeRest": true,
-        "omit": [
-          "activeFrom",
-          "activeTo",
-          "tags",
-          "context"
+          "upc"
         ]
       }
     },
@@ -25,9 +17,19 @@
       "title": "Pricing",
       "fields": {
         "value": [
-          "retailPrice",
-          "salePrice",
-          "unitCost"
+          "unitCost",
+          "taxClass"
+        ]
+      }
+    },
+    {
+      "type": "group",
+      "title": "Shipping & Return Settings",
+      "fields": {
+        "value": [
+          "requiresShipping",
+          "shippingClass",
+          "isReturnable"
         ]
       }
     }
