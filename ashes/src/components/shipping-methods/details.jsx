@@ -76,9 +76,11 @@ class ShippingMethodDetails extends ObjectPage {
 
   @autobind
   subNav() {
-    const { id } = this.props.details.shippingMethod;
-    if (id) {
-      return <SubNav shippingMethodId={id} />;
+    if (this.props.details.shippingMethod) {
+      const { id } = this.props.details.shippingMethod;
+      if (id) {
+        return <SubNav shippingMethodId={id} />;
+      }
     }
   }
 }
