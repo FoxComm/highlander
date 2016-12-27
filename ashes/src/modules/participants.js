@@ -24,12 +24,8 @@ export const fetchParticipants = _fetchParticipants.perform;
 const _addParticipants = createAsyncActions(
   'addParticipants',
   function(entity: EntityType, group: GroupType, ids: Array<number>) {
-    const { dispatch } = this;
     return Api.post(url(entity, group), {
       assignees: ids,
-    }).then(result => {
-      dispatch(fetchParticipants(entity, group));
-      return result;
     });
   }
 );
@@ -39,10 +35,7 @@ export const addParticipants = _addParticipants.perform;
 export const _removeParticipant = createAsyncActions(
   'removeParticipant',
   function(entity: EntityType, group: GroupType, id: number) {
-    const { dispatch } = this;
-    return Api.delete(url(entity, group, id)).then(() => {
-      dispatch(fetchParticipants(entity, group));
-    });
+    return Api.delete(url(entity, group, id));
   }
 );
 
@@ -52,13 +45,19 @@ const initialState = {
   participants: [],
 };
 
+function assignParticipants(state, result) {
+  return {
+    ...state,
+    participants: _.map(result, item => item.assignee),
+  }
+}
+
 const reducer = createReducer({
-  [_fetchParticipants.succeeded]: (state, result) => {
-    return {
-      ...state,
-      participants: _.map(result, item => item.assignee),
-    };
+  [_addParticipants.succeeded]: (state, response) => {
+    return assignParticipants(state, response.result);
   },
+  [_fetchParticipants.succeeded]: assignParticipants,
+  [_removeParticipant.succeeded]: assignParticipants,
 }, initialState);
 
 export default reducer;
