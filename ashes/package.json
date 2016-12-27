@@ -122,7 +122,7 @@
     "canvas": "^1.4.0",
     "chai": "^3.0.0",
     "co-mocha": "^1.1.2",
-    "css-modulesify": "0.25.1",
+    "css-modulesify": "^0.26.0",
     "cssnano": "^3.7.3",
     "envify": "^3.4.0",
     "eslint": "^3.4.0",
