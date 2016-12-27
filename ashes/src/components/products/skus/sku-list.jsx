@@ -13,7 +13,7 @@ import EditableSkuRow from './editable-sku-row';
 import MultiSelectTable from 'components/table/multi-select-table';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 
-import { mapSkusToVariants } from 'paragons/variants';
+import { mapVariantsToOptions } from 'paragons/variants';
 
 import type { Product } from 'paragons/product';
 import type { Sku } from 'modules/skus/details';
@@ -22,10 +22,10 @@ type UpdateFn = (code: string, field: string, value: any) => void;
 
 type Props = {
   fullProduct: Product,
-  skus: Array<any>,
+  variants: Array<any>,
   updateField: UpdateFn,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
-  variants: Array<any>,
+  options: Array<any>,
   onDeleteSku: (skuCode: string) => void,
 };
 
@@ -40,27 +40,27 @@ export default class SkuList extends Component {
   state: State = {
     isDeleteConfirmationVisible: false,
     skuId: null,
-    variantsSkusIndex: mapSkusToVariants(this.props.variants),
+    variantsSkusIndex: mapVariantsToOptions(this.props.options),
   };
 
   componentWillReceiveProps(nextProps: Props) {
-    if (this.props.variants != nextProps.variants || this.props.fullProduct.skus !== nextProps.fullProduct.skus) {
-      const variantsSkusIndex = mapSkusToVariants(nextProps.variants);
+    if (this.props.options != nextProps.options || this.props.fullProduct.variants !== nextProps.fullProduct.variants) {
+      const variantsSkusIndex = mapVariantsToOptions(nextProps.options);
       this.setState({variantsSkusIndex});
     }
   }
 
   tableColumns(): Array<Object> {
-    const { variants } = this.props;
-    const variantColumns = _.map(variants, (variant, idx) => {
+    const { options } = this.props;
+    const optionColumns = _.map(options, (option, idx) => {
       return {
         field: `${idx}_variant`,
-        text: _.get(variant, 'attributes.name.v'),
+        text: _.get(option, 'attributes.name.v'),
       };
     });
 
     return [
-      ...variantColumns,
+      ...optionColumns,
       { field: 'sku', text: 'SKU' },
       { field: 'retailPrice', text: 'Retail Price' },
       { field: 'salePrice', text: 'Sale Price' },
@@ -83,8 +83,8 @@ export default class SkuList extends Component {
     return 'default';
   }
 
-  get hasVariants(): boolean {
-    return !_.isEmpty(this.props.variants);
+  get hasOptions(): boolean {
+    return !_.isEmpty(this.props.options);
   }
 
   @autobind
@@ -139,7 +139,7 @@ export default class SkuList extends Component {
           sku={row}
           index={index}
           params={params}
-          variants={this.props.variants}
+          options={this.props.options}
           variantsSkusIndex={this.state.variantsSkusIndex}
           updateField={this.props.updateField}
           updateFields={this.props.updateFields}
@@ -166,8 +166,8 @@ export default class SkuList extends Component {
   }
 
   render(): Element {
-    return _.isEmpty(this.props.skus)
+    return _.isEmpty(this.props.variants)
       ? this.emptyContent
-      : this.skuContent(this.props.skus);
+      : this.skuContent(this.props.variants);
   }
 }

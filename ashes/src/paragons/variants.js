@@ -12,15 +12,15 @@ const dbCache = new Map();
 
 /**
  * This is a convenience function that iterates through a product and creates a
- * mapping from SKU => Variant => Value.
+ * mapping from Variant(SKU) => Option => OptionValue.
  * For example SKU-BRO => Size => L.
  */
-export function mapSkusToVariants(variants: Array<Option>): Object {
-  return _.reduce(variants, (res, variant) => {
-    const variantName = _.get(variant, 'attributes.name.v');
-    return _.reduce(variant.values, (res, value) => {
+export function mapVariantsToOptions(options: Array<Option>): Object {
+  return _.reduce(options, (res, option) => {
+    const optionName = _.get(option, 'attributes.name.v');
+    return _.reduce(option.values, (res, value) => {
       return _.reduce(value.skuCodes, (res, skuCode) => {
-        return assoc(res, [skuCode, variantName], value.name);
+        return assoc(res, [skuCode, optionName], value.name);
       }, res);
     }, res);
   }, {});
@@ -28,44 +28,44 @@ export function mapSkusToVariants(variants: Array<Option>): Object {
 
 
 /**
- * This function replaces variants without options from variant array
- * Returns list of variants with one or more value
+ * This function replaces options without option values from option array
+ * Returns list of options with one or more value
  */
-export function variantsWithMultipleOptions(variants: Array<any>): Array<Object> {
-  return _.reduce(variants, (acc, variant) => {
-    if (_.isEmpty(variant.values)) {
+export function optionsWithMultipleValues(options: Array<any>): Array<Object> {
+  return _.reduce(options, (acc, option) => {
+    if (_.isEmpty(option.values)) {
       return acc;
     }
-    return acc.concat([variant]);
+    return acc.concat([option]);
   }, []);
 }
 
 /**
- * This function replaces variants without options from variant array
- * Be careful, it returns list of variant options, not variants theirselves
+ * This function replaces options without option values from option array
+ * Be careful, it returns list of option values, not options theirselves
  */
-export function variantValuesWithMultipleOptions(variants: Array<Option>): Array<Array<OptionValue>> {
-  return _.reduce(variants, (acc, variant) => {
-    if (_.isEmpty(variant.values)) {
+export function optionValuesWithMultipleValues(options: Array<Option>): Array<Array<OptionValue>> {
+  return _.reduce(options, (acc, option) => {
+    if (_.isEmpty(option.values)) {
       return acc;
     }
-    return [...acc, variant.values];
+    return [...acc, option.values];
   }, []);
 }
 
 /**
  * This function generates all available combinations of variant values
  */
-export function allVariantsValues(variants: Array<Option>): Array<Object> {
-  const opts = variantValuesWithMultipleOptions(variants);
+export function allOptionsValues(variants: Array<Option>): Array<Object> {
+  const opts = optionValuesWithMultipleValues(variants);
   return cartesianProductOf(...opts);
 }
 
-function indexBySku(variants: Array<Option>): Object {
-  if (!dbCache.has(variants)) {
+function indexBySku(options: Array<Option>): Object {
+  if (!dbCache.has(options)) {
     const db = Wharf();
-    _.each(variants, variant => {
-      _.each(variant.values, value => {
+    _.each(options, option => {
+      _.each(option.values, value => {
         _.each(value.skuCodes, code => {
           db.add({
             sku: code,
@@ -75,9 +75,9 @@ function indexBySku(variants: Array<Option>): Object {
       });
     });
 
-    dbCache.set(variants, db);
+    dbCache.set(options, db);
   }
-  return dbCache.get(variants);
+  return dbCache.get(options);
 }
 
 function indexByName(variants: Array<Option>): Object {
@@ -118,32 +118,32 @@ function findClosestTuples(smallCartesian: Array<Array<any>>,
 }
 
 export function deleteVariantCombination(product: Product, code: string): Product {
-  const newSkus = _.filter(product.skus, sku => skuId(sku) != code);
-  const newVariants = _.cloneDeep(product.variants);
-  _.each(newVariants, variant => {
-    _.each(variant.values, variantValue => {
-      variantValue.skuCodes = _.filter(variantValue.skuCodes, boundSku => boundSku != code);
+  const newVariants = _.filter(product.variants, sku => skuId(sku) != code);
+  const newOptions = _.cloneDeep(product.options);
+  _.each(newOptions, option => {
+    _.each(option.values, optionValue => {
+      optionValue.skuCodes = _.filter(optionValue.skuCodes, boundSku => boundSku != code);
     });
   });
 
-  if (!newVariants.length && !newSkus.length) {
-    newSkus.push(createEmptySku());
+  if (!newOptions.length && !newVariants.length) {
+    newVariants.push(createEmptySku());
   }
 
   return assoc(product,
-    'skus', newSkus,
-    'variants', newVariants
+    'variants', newVariants,
+    'options', newOptions
   );
 }
 
 export function addSkusForVariants(product: Product, variantTuples: Array<Array<OptionValue>>) {
-  const newVariants = _.cloneDeep(product.variants);
-  const indexedVariants = indexByName(newVariants);
+  const newOptions = _.cloneDeep(product.options);
+  const indexedOptions = indexByName(newOptions);
 
   const newSkus = _.map(variantTuples, tuple => {
     const sku = createEmptySku();
     _.each(tuple, variantValue => {
-      const value = indexedVariants[variantValue.name];
+      const value = indexedOptions[variantValue.name];
 
       bindSkuToVariantsTuple([value], sku);
     });
@@ -151,21 +151,21 @@ export function addSkusForVariants(product: Product, variantTuples: Array<Array<
   });
 
   return assoc(product,
-    'skus', [...product.skus, ...newSkus],
-    'variants', newVariants
+    'variants', [...product.variants, ...newSkus],
+    'options', newOptions
   );
 }
 
-export function availableVariantsValues(product: Product): Array<Array<OptionValue>> {
-  const indexedVariants = indexBySku(product.variants);
-  const allVariants = allVariantsValues(product.variants);
-  const existsVariants = _.map(product.skus, sku => {
-    return indexedVariants.q({av: [['sku', skuId(sku)]]}).map(indexedVariants.get).map(x => x.variant);
+export function availableOptionsValues(product: Product): Array<Array<OptionValue>> {
+  const indexedOptions = indexBySku(product.options);
+  const allOptions = allOptionsValues(product.options);
+  const existsVariants = _.map(product.variants, variant => {
+    return indexedOptions.q({av: [['sku', skuId(variant)]]}).map(indexedOptions.get).map(x => x.variant);
   });
 
   const identity = value => value.name;
 
-  return _.filter(allVariants, t => {
+  return _.filter(allOptions, t => {
      return !_.some(existsVariants,
        values => _.intersection(values.map(identity), t.map(identity)).length === t.length
      );
@@ -178,14 +178,14 @@ function bindSkuToVariantsTuple(tuple: Array<OptionValue>, sku: string): void {
   });
 }
 
-export function autoAssignVariants(product: Product, variants: Array<Option>): Product {
-  const existsSkus: Array<Sku> = product.skus;
-  const indexedVariants = indexBySku(variants);
-  const newVariants = _.cloneDeep(variants);
-  const availableValues = allVariantsValues(newVariants);
+export function autoAssignOptions(product: Product, options: Array<Option>): Product {
+  const existingVariants: Array<Sku> = product.variants;
+  const indexedOptions = indexBySku(options);
+  const newOptions = _.cloneDeep(options);
+  const availableValues = allOptionsValues(newOptions);
   // here we assume that there is defined sku (even with feCode only) for each variant
-  const existsValues = _.map(existsSkus, sku => {
-    return indexedVariants.q({av: [['sku', skuId(sku)]]}).map(indexedVariants.get).map(x => x.variant);
+  const existsValues = _.map(existingVariants, sku => {
+    return indexedOptions.q({av: [['sku', skuId(sku)]]}).map(indexedOptions.get).map(x => x.variant);
   });
 
   let closestTuples;
@@ -193,8 +193,8 @@ export function autoAssignVariants(product: Product, variants: Array<Option>): P
 
   const unbindAll = () => {
     // unbind all skus
-    _.each(newVariants, variant => {
-      _.each(variant.values, value => {
+    _.each(newOptions, option => {
+      _.each(option.values, value => {
         value.skuCodes = [];
       });
     });
@@ -209,24 +209,24 @@ export function autoAssignVariants(product: Product, variants: Array<Option>): P
 
     for (let i = 0; i < closestTuples.length; i++) {
       const selectedTupleIndex = closestTuples[i];
-      newSkus.push(existsSkus[i]);
+      newSkus.push(existingVariants[i]);
       lastUsedSkuIndex = i;
 
-      bindSkuToVariantsTuple(availableValues[selectedTupleIndex], existsSkus[i]);
+      bindSkuToVariantsTuple(availableValues[selectedTupleIndex], existingVariants[i]);
     }
     closestTuples.sort();
-    const oldVariantsByName = indexByName(product.variants);
+    const oldOptionsByName = indexByName(product.options);
 
     for (let i = 0; i < availableValues.length; i++) {
       if (_.sortedIndexOf(closestTuples, i) !== -1) continue;
 
-      const thereIsNewVariants = _.some(availableValues[i], value => {
-        return !(value.name in oldVariantsByName);
+      const thereIsNewOptions = _.some(availableValues[i], value => {
+        return !(value.name in oldOptionsByName);
       });
-      if (!thereIsNewVariants) continue;
+      if (!thereIsNewOptions) continue;
 
-      const sku = lastUsedSkuIndex != null && lastUsedSkuIndex < existsSkus.length - 1
-        ? existsSkus[++lastUsedSkuIndex] : createEmptySku();
+      const sku = lastUsedSkuIndex != null && lastUsedSkuIndex < existingVariants.length - 1
+        ? existingVariants[++lastUsedSkuIndex] : createEmptySku();
       newSkus.push(sku);
       bindSkuToVariantsTuple(availableValues[i], sku);
     }
@@ -238,7 +238,7 @@ export function autoAssignVariants(product: Product, variants: Array<Option>): P
     // do rest job
     for (let i = 0; i < availableValues.length; i++) {
       const selectedTuple = availableValues[i];
-      const boundSku = existsSkus[closestTuples[i]];
+      const boundSku = existingVariants[closestTuples[i]];
 
       newSkus.push(boundSku);
       bindSkuToVariantsTuple(selectedTuple, boundSku);
@@ -246,7 +246,7 @@ export function autoAssignVariants(product: Product, variants: Array<Option>): P
   }
 
   return assoc(product,
-    'skus', newSkus,
-    'variants', newVariants
+    'variants', newSkus,
+    'options', newOptions
   );
 }
