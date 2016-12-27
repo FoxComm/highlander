@@ -19,6 +19,7 @@ import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
+import { BooleanOptions } from '../boolean-options/boolean-options';
 
 type Props = {
   canAddProperty?: boolean,
@@ -173,15 +174,9 @@ export default class ObjectFormInner extends Component {
   renderBooleanOptions(name: string, value: boolean, options: AttrOptions): Element {
     const onChange = v => this.handleChange(name, 'booleanOptions', v);
 
-    const BOOL_OPTIONS = [
-      [true, 'Yes'],
-      [false, 'No'],
-    ];
-
     const dropdown = (
-      <Dropdown
+      <BooleanOptions
         value={value}
-        items={BOOL_OPTIONS}
         onChange={onChange}
       />
     );

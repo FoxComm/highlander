@@ -48,11 +48,11 @@ export const skuEmptyAttributes = {
   },
   maximumQuantityInCart: {
     "isEnabled": false,
-    "level": 0
+    "level": 10
   },
   minimumQuantityInCart: {
     "isEnabled": false,
-    "level": 0
+    "level": 1
   },
   allowBackorder: false,
   allowPreorder: false,

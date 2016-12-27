@@ -66,14 +66,18 @@
         {
           "type": "fields",
           "value": [
-            "inventoryWarningLevel",
-            "maximumQuantityInCart"
+            "inventoryWarningLevel"
           ]
+        },
+        {
+          "type": "maximumQuantityInCart"
+        },
+        {
+          "type": "minimumQuantityInCart"
         },
         {
           "type": "fields",
           "value": [
-            "minimumQuantityInCart",
             "allowBackorder",
             "allowPreorder",
             "requiresLotTracking",

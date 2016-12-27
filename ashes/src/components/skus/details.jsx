@@ -11,6 +11,9 @@ import { assoc } from 'sprout-data';
 import ObjectDetails from '../object-page/object-details';
 import { Dropdown } from '../dropdown';
 import { FormField } from '../forms';
+import { BooleanOptions } from '../boolean-options/boolean-options';
+import Counter from '../forms/counter';
+
 const layout = require('./layout.json');
 
 const SELECT_CLASS = [
@@ -22,20 +25,20 @@ export default class SkuDetails extends ObjectDetails {
   layout = layout;
 
   renderTaxClass() {
-    const sku = this.props.object;
+    const { taxClass } = this.props.object.attributes;
 
     return (
       <FormField
         ref="taxClassField"
         className="fc-object-form__field"
         label="Tax Class"
-        getTargetValue={() => sku.attributes.taxClass}
+        getTargetValue={() => taxClass}
       >
         <div>
           <Dropdown
             placeholder="- Select -"
-            value={sku.attributes.taxClass}
-            onChange={this.handleTaxClassChange}
+            value={taxClass}
+            onChange={(v) => this.handleChange(v, 'taxClass', 'taxClassField')}
             items={SELECT_CLASS}
           />
         </div>
@@ -43,29 +46,21 @@ export default class SkuDetails extends ObjectDetails {
     );
   }
 
-  @autobind
-  handleTaxClassChange(value: any) {
-    const newSku = assoc(this.props.object.attributes, 'taxClass', value);
-
-    this.props.onUpdateObject(newSku);
-    this.refs.taxClassField.validate();
-  }
-
   renderShippingClass() {
-    const sku = this.props.object;
+    const { shippingClass } = this.props.object.attributes;
 
     return (
       <FormField
         ref="shippingClassField"
         className="fc-object-form__field"
         label="Shipping Class"
-        getTargetValue={() => sku.attributes.shippingClass}
+        getTargetValue={() => shippingClass}
       >
         <div>
           <Dropdown
             placeholder="- Select -"
-            value={sku.attributes.shippingClass}
-            onChange={this.handleShippingClassChange}
+            value={shippingClass}
+            onChange={(v) => this.handleChange(v, 'shippingClass', 'shippingClassField')}
             items={SELECT_CLASS}
           />
         </div>
@@ -74,10 +69,59 @@ export default class SkuDetails extends ObjectDetails {
   }
 
   @autobind
-  handleShippingClassChange(value: any) {
-    const newSku = assoc(this.props.object.attributes, 'shippingClass', value);
+  handleChange(value, field, ref) {
+    const attributes = assoc(this.props.object.attributes, field, value);
+    const sku = assoc(this.props.object, "attributes", attributes);
 
-    this.props.onUpdateObject(newSku);
-    this.refs.shippingClassField.validate();
+    this.props.onUpdateObject(sku);
+    this.refs[ref].validate();
+  }
+
+  renderQuantityInCart(field, ref, label) {
+    const { isEnabled, level } = this.props.object.attributes[field];
+
+    const counter = (
+      <Counter
+        id={field}
+        name={field}
+        value={level}
+        decreaseAction={() => this.handleChange(level - 1, [field, 'level'], ref)}
+        increaseAction={() => this.handleChange(level + 1, [field, 'level'], ref)}
+        onChange={({target}) => this.handleChange(target.value, [field, 'level'], ref)}
+        min={1}
+      />
+    );
+
+    return (
+      <FormField
+        ref={ref}
+        className="fc-object-form__field"
+        label={label}
+      >
+        <div>
+          <BooleanOptions
+            value={isEnabled}
+            onChange={v => this.handleChange(v, [field, 'isEnabled'], ref)}
+          />
+          {isEnabled && counter}
+        </div>
+      </FormField>
+    )
+  }
+
+  renderMaximumQuantityInCart() {
+    return this.renderQuantityInCart(
+      'maximumQuantityInCart',
+      'maximumQuantityField',
+      'Maximum quantity allowed in shopping cart'
+    )
+  }
+
+  renderMinimumQuantityInCart() {
+    return this.renderQuantityInCart(
+      'minimumQuantityInCart',
+      'minimumQuantityField',
+      'Minimum quantity allowed in shopping cart'
+    )
   }
 }
