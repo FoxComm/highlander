@@ -119,14 +119,3 @@ Edit your hosts file so that `local.foxcommerce.com` points to the new box using
 | [firebrand](firebrand)                 | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
 | [prov-shit](prov-shit)                 | All of our DevOps tools for deploying the application to both development and production.                    |
 | [api-docs](api-docs)                   | Our API documentation in API Blueprint format and Postman query collections.                                 |
-
-## Usage
-
-### Updating from Upstream
-
-Updating from upstream will pull in all commits on each project's `master`
-branch. All commit history in each repository will be cloned into this repo.
-
-```
-$ make update
-```
