@@ -3,13 +3,13 @@ import classNames from 'classnames';
 import formatCurrency from '../../lib/format-currency';
 
 const Currency = (props) => {
-  const {isTransaction, ...rest} = props;
+  const {isTransaction, id, ...rest} = props;
   const className = classNames('fc-currency', {
     '_transaction': isTransaction,
     '_negative': parseInt(props.value, 10) < 0
   });
 
-  return <span className={className}>{formatCurrency(props.value, {...rest})}</span>;
+  return <span id={id} className={className}>{formatCurrency(props.value, {...rest})}</span>;
 };
 
 Currency.propTypes = {

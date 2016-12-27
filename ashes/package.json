@@ -83,7 +83,7 @@
     "react-dnd": "^2.1.4",
     "react-dnd-html5-backend": "^2.1.2",
     "react-dom": "^15.4.0",
-    "react-input-mask": "anru/react-input-mask#a7b8dc04debe9e8dfe7eee3ad31facb79b7c1826",
+    "react-input-mask": "github:anru/react-input-mask#a7b8dc04debe9e8dfe7eee3ad31facb79b7c1826",
     "react-motion": "^0.4.4",
     "react-redux": "^4.4.0",
     "react-router": "^2.3.0",
@@ -129,7 +129,7 @@
     "eslint-plugin-lodash-fp": "^2.0.1",
     "eslint-plugin-react": "^6.2.0",
     "flow-bin": "0.25.0",
-    "gulp": "^3.9.0",
+    "gulp": "^3.9.1",
     "gulp-concat": "^2.6.0",
     "gulp-cssnano": "^2.1.2",
     "gulp-eslint": "^3.0.1",
@@ -179,5 +179,8 @@
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.3.1",
     "xmlhttprequest": "^1.7.0"
+  },
+  "directories": {
+    "test": "test"
   }
 }
