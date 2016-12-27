@@ -38,7 +38,7 @@
   "contributors": "https://github.com/FoxComm/highlander/graphs/contributors",
   "homepage": "https://github.com/FoxComm/highlander#readme",
   "dependencies": {
-    "@foxcomm/wings": "^1.8.0",
+    "@foxcomm/wings": "^1.9.0",
     "babel-polyfill": "^6.13.0",
     "browserHistory": "file:src/opt/browserHistory",
     "chance": "^0.7.6",
@@ -128,7 +128,7 @@
     "eslint": "^3.4.0",
     "eslint-plugin-lodash-fp": "^2.0.1",
     "eslint-plugin-react": "^6.2.0",
-    "flow-bin": "0.25.0",
+    "flow-bin": "^0.25.0",
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
     "gulp-cssnano": "^2.1.2",

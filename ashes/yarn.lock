@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@foxcomm/wings@^1.8.0":
-  version "1.8.0"
-  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fwings/-/wings-1.8.0.tgz#9ffb44bf396e80d58e49fa4d498710208298171e"
+"@foxcomm/wings@^1.9.0":
+  version "1.9.0"
+  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fwings/-/wings-1.9.0.tgz#7c7db289b9e92e8f3f6bf1a44f4314cd04995e06"
   dependencies:
     classnames "^2.2.5"
     flow-bin "^0.36.0"
@@ -3107,7 +3107,7 @@ fleck@^0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/fleck/-/fleck-0.5.1.tgz#4d25e3c30eba2d8c0f3f0dae02554f0311ebf078"
 
-flow-bin@0.25.0:
+flow-bin@^0.25.0:
   version "0.25.0"
   resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.25.0.tgz#bb85717e566686bef1372b70a924b9fa4c218388"
   dependencies:

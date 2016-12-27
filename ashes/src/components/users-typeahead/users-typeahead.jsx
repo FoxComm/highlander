@@ -11,8 +11,8 @@ import Typeahead from '../typeahead/typeahead';
 import PilledInput from '../pilled-search/pilled-input';
 import UserRow from './user-row';
 
-type Props = {
-  maxUsers?: number,
+export type Props = {
+  maxUsers: number,
   label?: string,
   className?: string,
   hideOnBlur?: boolean,
@@ -70,7 +70,7 @@ export default class UsersTypeahead extends Component {
   }
 
   @autobind
-  handleSelectItem(item, event) {
+  handleSelectItem(item: UserType, event: Object) {
     if (_.find(this.state.selected, {id: item.id})) {
       event.preventHiding();
     } else {

@@ -11,11 +11,7 @@ import UsersTypeahead from './users-typeahead';
 import reducer, { suggestAdmins } from 'modules/users/suggest';
 
 // types
-type Props = {
-  suggested: Array<UserType>,
-  suggestUsers: (term: string) => AbortablePromise,
-  suggestState: AsyncState,
-}
+import type { Props } from './users-typeahead';
 
 function mapStateToProps(state) {
   return {
@@ -25,6 +21,7 @@ function mapStateToProps(state) {
 }
 
 const AdminsTypeahead = (props: Props) => {
+  // $FlowFixMe: hideOnBlur is defined and true!
   return <UsersTypeahead {...props}/>;
 };
 
