@@ -34,7 +34,6 @@ type Props = {
   title: string,
   emptyTitle: string,
   actionTitle: string,
-  onAction: () => void,
   // connected
   fetchParticipants: () => AbortablePromise,
   removeParticipant: (id: number) => AbortablePromise,
@@ -104,7 +103,7 @@ class Participants extends Component {
     const active = this.state.restUsersDisplayed;
 
     return (
-      <div className="fc-watchers__rest-cell">
+      <div>
         <Button
           icon="ellipsis"
           styleName="toggle-watchers-btn"
@@ -117,7 +116,7 @@ class Participants extends Component {
           onClick={this.toggleRestUsers}
         />
         <div styleName="rest-block" styleName={active ? '_shown' : void 0}>
-          <div className="fc-watchers__users-row">
+          <div styleName="users-row">
             {cells}
           </div>
         </div>

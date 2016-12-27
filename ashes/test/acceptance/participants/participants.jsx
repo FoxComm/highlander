@@ -3,27 +3,26 @@ import React from 'react';
 import * as ShallowTestUtils from 'react-shallow-testutils';
 import { groups } from 'paragons/watcher';
 
-// @TODO: fix this test
 describe('Watchers', function () {
-  const Watchers = requireComponent('participants/participants.jsx').WrappedComponent;
+  const Participants = requireComponent('participants/participants.jsx').WrappedComponent;
+  const styles = requireComponent('participants/participants.css', false);
 
   let watchers;
   const entity = {
     entityType: 'orders',
     entityId: 'BR0001',
   };
-  const data = {};
-  const isFetching = {
-    [groups.assignees]: false,
-    [groups.watchers]: false,
-  };
 
   const actions = {
-    showSelectModal: _.noop,
-    hideSelectModal: _.noop,
-    toggleListModal: _.noop,
-    addWatchers: _.noop,
-    removeWatcher: _.noop,
+    addParticipants: _.noop,
+    removeParticipant: _.noop,
+  };
+
+  const props = {
+    asyncActions: {},
+    entity,
+    ...actions,
+    group: groups.watchers,
   };
 
   afterEach(function () {
@@ -35,11 +34,10 @@ describe('Watchers', function () {
 
   it('should render message when watchers are empty', function *() {
     watchers = shallowRender(
-      <Watchers entity={entity} data={data} isFetching={isFetching} {...actions} />
+      <Participants {...props} participants={[]} />
     );
-    const box = ShallowTestUtils.findWithClass(watchers, "fc-watchers__watchers-empty");
+    const box = ShallowTestUtils.findWithClass(watchers, styles['empty-list']);
     expect(box).not.to.be.empty;
-    expect(box, 'to contain', 'Unwatched');
   });
 
   it('should render watcher cells for each watcher in array', function *() {
@@ -49,9 +47,9 @@ describe('Watchers', function () {
     ];
 
     watchers = shallowRender(
-      <Watchers entity={entity} data={{...data, watchers: {entries: assignedWatchers}}} isFetching={isFetching} {...actions} />
+      <Participants {...props} participants={assignedWatchers} />
     );
-    const cells = ShallowTestUtils.findAllWithClass(watchers, "fc-watchers__cell");
+    const cells = ShallowTestUtils.findAllWithClass(watchers, styles.cell);
     expect(cells).not.to.be.empty;
     expect(cells.length).to.be.equal(assignedWatchers.length);
   });
@@ -71,13 +69,12 @@ describe('Watchers', function () {
     ];
 
     watchers = shallowRender(
-      <Watchers entity={entity} data={{...data, watchers: {entries: assignedWatchers}}} isFetching={isFetching} {...actions} />
+      <Participants {...props} participants={assignedWatchers} />
     );
-    const cells = ShallowTestUtils.findAllWithClass(watchers, "fc-watchers__cell");
+    const cells = ShallowTestUtils.findAllWithClass(watchers, styles.cell);
     expect(cells).not.to.be.empty;
-    expect(cells.length).to.be.equal(6);
-    expect(ShallowTestUtils.findWithClass(watchers, 'fc-watchers__rest-cell')).not.to.be.empty;
-    expect(ShallowTestUtils.findWithClass(watchers, 'fc-watchers__rest-block')).not.to.be.empty;
+    expect(cells.length).to.be.equal(assignedWatchers.length);
+    expect(ShallowTestUtils.findWithClass(watchers, styles['rest-block'])).not.to.be.empty;
   });
 
 });
