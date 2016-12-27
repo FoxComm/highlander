@@ -2025,9 +2025,9 @@ css-modules-loader-core@^1.0.0:
     postcss-modules-scope "1.0.2"
     postcss-modules-values "1.2.2"
 
-css-modulesify@0.25.1:
-  version "0.25.1"
-  resolved "https://registry.yarnpkg.com/css-modulesify/-/css-modulesify-0.25.1.tgz#b820fdd607a97b2533214c4b94e636cd2d155d2d"
+css-modulesify@^0.26.0:
+  version "0.26.0"
+  resolved "https://registry.yarnpkg.com/css-modulesify/-/css-modulesify-0.26.0.tgz#5f3f0605fb19bbdaf2973cd1d6410f4556372933"
   dependencies:
     css-modules-loader-core "^1.0.0"
     dependency-graph "^0.4.1"
