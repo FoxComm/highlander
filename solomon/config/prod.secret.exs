@@ -1,7 +1,7 @@
 use Mix.Config
 
 config :solomon, Solomon.Endpoint,
-  secret_key_base: "C0VuCzlCDYJgbgx9IEZGERHCyRfB3Mf7L4Du+aNQk/Ixrf6vlNr9QNXp8EC2NMle"
+  secret_key_base: System.get_env("SOLOMON_SECRET")
 
 config :solomon, Solomon.Repo,
   adapter: Ecto.Adapters.Postgres,

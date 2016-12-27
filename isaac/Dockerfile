@@ -11,8 +11,6 @@ RUN mkdir /isaac
 ADD run_isaac.sh /isaac/
 ADD build/src/isaac/isaac /isaac/
 
-RUN mkdir /logs
-
 WORKDIR /isaac
 
 CMD /isaac/run_isaac.sh 2>&1 | tee /logs/isaac.log
