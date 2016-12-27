@@ -1,45 +1,39 @@
 package services
 
+import models.cord.CordPaymentState._
 import models.cord.{OrderPayment, OrderPayments}
-import models.payment.PaymentStates
 import models.payment.PaymentMethod
-import models.payment.creditcard.CreditCardCharge._
-import models.payment.creditcard._
-import models.payment.giftcard._
-import models.payment.storecredit._
+import models.payment.creditcard.CreditCardCharges
+import models.payment.giftcard.GiftCardAdjustments
+import models.payment.storecredit.StoreCreditAdjustments
 import slick.dbio.DBIO
-import utils.aliases._
+import utils.aliases.EC
 import utils.db.ExPostgresDriver.api._
 
 trait CordQueries {
 
-  // Using CreditCardCharge here as it has both Cart and Auth states. Consider refactoring.
   def getCordPaymentState(cordRef: String)(implicit ec: EC): DBIO[State] =
     for {
-      payments ← OrderPayments.findAllByCordRef(cordRef).result
-      charges  ← DBIO.sequence(payments.map(getPaymentState)).map(_.flatten)
+      payments  ← OrderPayments.findAllByCordRef(cordRef).result
+      payStates ← DBIO.sequence(payments.map(getPaymentState)).map(_.flatten)
     } yield {
-      if (payments.size != charges.size || payments.isEmpty) Cart
-      else if (charges.contains(ExpiredAuth)) ExpiredAuth
-      else if (charges.contains(FailedCapture)) FailedCapture
-      else if (charges.forall(_ == FullCapture)) FullCapture
-      else Auth
+      if (payStates.contains(Cart) || payments.size != payStates.size || payments.isEmpty) Cart
+      else payStates.deduceCordPaymentState
     }
 
   private def getPaymentState(payment: OrderPayment)(implicit ec: EC): DBIO[Option[State]] = {
-    def internalToCCState(state: Option[PaymentStates.State]) = state.map {
-      case PaymentStates.Auth    ⇒ Auth
-      case PaymentStates.Capture ⇒ FullCapture
-      case _                     ⇒ Cart
-    }
-
     payment.paymentMethodType match {
       case PaymentMethod.CreditCard ⇒
-        CreditCardCharges.filter(_.orderPaymentId === payment.id).map(_.state).result.headOption
+        CreditCardCharges
+          .filter(_.orderPaymentId === payment.id)
+          .map(_.state)
+          .result
+          .headOption
+          .map(_.map(fromCCState))
       case PaymentMethod.GiftCard ⇒
-        GiftCardAdjustments.lastPaymentState(payment.id).map(internalToCCState)
+        GiftCardAdjustments.lastPaymentState(payment.id).map(_.map(fromInStoreState))
       case PaymentMethod.StoreCredit ⇒
-        StoreCreditAdjustments.lastPaymentState(payment.id).map(internalToCCState)
+        StoreCreditAdjustments.lastPaymentState(payment.id).map(_.map(fromInStoreState))
     }
   }
 }

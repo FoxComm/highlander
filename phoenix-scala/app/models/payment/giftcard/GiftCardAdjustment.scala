@@ -6,7 +6,7 @@ import cats.data.Xor
 import failures.Failures
 import models.cord.OrderPayment
 import models.payment._
-import models.payment.PaymentStates._
+import models.payment.InStorePaymentStates._
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
@@ -22,8 +22,8 @@ case class GiftCardAdjustment(id: Int = 0,
                               state: State = Auth,
                               createdAt: Instant = Instant.now())
     extends FoxModel[GiftCardAdjustment]
-    with PaymentAdjustment[GiftCardAdjustment]
-    with FSM[PaymentStates.State, GiftCardAdjustment] {
+    with InStorePaymentAdjustment[GiftCardAdjustment]
+    with FSM[InStorePaymentStates.State, GiftCardAdjustment] {
 
   def stateLens = lens[GiftCardAdjustment].state
   override def updateTo(newModel: GiftCardAdjustment): Failures Xor GiftCardAdjustment =
@@ -47,7 +47,7 @@ object GiftCardAdjustment {
 }
 
 class GiftCardAdjustments(tag: Tag)
-    extends PaymentAdjustmentTable[GiftCardAdjustment](tag, "gift_card_adjustments") {
+    extends InStorePaymentAdjustmentTable[GiftCardAdjustment](tag, "gift_card_adjustments") {
 
   def giftCardId = column[Int]("gift_card_id")
   def credit     = column[Int]("credit")
@@ -65,7 +65,7 @@ class GiftCardAdjustments(tag: Tag)
 }
 
 object GiftCardAdjustments
-    extends PaymentAdjustmentQueries[GiftCardAdjustment, GiftCardAdjustments](
+    extends InStorePaymentAdjustmentQueries[GiftCardAdjustment, GiftCardAdjustments](
         new GiftCardAdjustments(_))
     with ReturningId[GiftCardAdjustment, GiftCardAdjustments] {
 
@@ -77,8 +77,6 @@ object GiftCardAdjustments
     filterByGiftCardId(id).filter(_.state === (Auth: State)).sortBy(_.createdAt).take(1)
 
   object scope {
-    implicit class GCAQuerySeqAdditions(query: QuerySeq) {
-      def cancel(): DBIO[Int] = query.map(_.state).update(Canceled)
-    }
+    implicit class GCAQuerySeqAdditions(val query: QuerySeq) extends QuerySeqAdditions
   }
 }

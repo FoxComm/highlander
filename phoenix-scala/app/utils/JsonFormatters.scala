@@ -2,7 +2,7 @@ package utils
 
 import models.admin.AdminData
 import models.auth.Identity.IdentityKind
-import models.cord.Order
+import models.cord.{Order, CordPaymentState}
 import models.cord.lineitems._
 import models.discount.offers.OfferType
 import models.discount.qualifiers.QualifierType
@@ -10,7 +10,7 @@ import models.inventory.SkuType
 import models.payment.creditcard.CreditCardCharge
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
-import models.payment.{PaymentMethod, PaymentStates}
+import models.payment.{InStorePaymentStates, PaymentMethod}
 import models.plugins.PluginSettings
 import models.promotion.Promotion
 import models.returns._
@@ -34,7 +34,7 @@ object JsonFormatters {
       Assignment.ReferenceType.jsonFormat + Order.State.jsonFormat + Promotion.ApplyType.jsonFormat +
       OrderLineItem.State.jsonFormat + OrderLineItemAdjustment.AdjustmentType.jsonFormat +
       Shipment.State.jsonFormat + GiftCard.OriginType.jsonFormat + GiftCard.State.jsonFormat +
-      PaymentStates.State.jsonFormat + StoreCredit.State.jsonFormat +
+      InStorePaymentStates.State.jsonFormat + CordPaymentState.State.jsonFormat + StoreCredit.State.jsonFormat +
       StoreCredit.OriginType.jsonFormat +
       Reason.ReasonType.jsonFormat + Return.State.jsonFormat + Return.ReturnType.jsonFormat +
       ReturnLineItem.InventoryDisposition.jsonFormat + ReturnReason.ReasonType.jsonFormat +

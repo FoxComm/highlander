@@ -11,7 +11,7 @@ import failures.GiftCardFailures._
 import failures._
 import models.account._
 import models.cord.OrderPayment
-import models.payment.{PaymentMethod, PaymentStates}
+import models.payment.{PaymentMethod, InStorePaymentStates}
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
 import payloads.GiftCardPayloads.{GiftCardCreateByCsr, GiftCardCreatedByCustomer}
@@ -279,7 +279,11 @@ object GiftCards
 
   def auth(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] =
-    adjust(giftCard, orderPaymentId, debit = debit, credit = credit, state = PaymentStates.Auth)
+    adjust(giftCard,
+           orderPaymentId,
+           debit = debit,
+           credit = credit,
+           state = InStorePaymentStates.Auth)
 
   def authOrderPayment(
       giftCard: GiftCard,
@@ -295,7 +299,11 @@ object GiftCards
 
   def capture(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int, credit: Int = 0)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] =
-    adjust(giftCard, orderPaymentId, debit = debit, credit = credit, state = PaymentStates.Capture)
+    adjust(giftCard,
+           orderPaymentId,
+           debit = debit,
+           credit = credit,
+           state = InStorePaymentStates.Capture)
 
   def cancelByCsr(giftCard: GiftCard, storeAdmin: User)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] = {
@@ -305,7 +313,7 @@ object GiftCards
                          debit = giftCard.availableBalance,
                          credit = 0,
                          availableBalance = 0,
-                         state = PaymentStates.CancellationCapture)
+                         state = InStorePaymentStates.CancellationCapture)
     Adjs.create(adjustment)
   }
 
@@ -317,7 +325,7 @@ object GiftCards
                          debit = giftCard.availableBalance,
                          credit = 0,
                          availableBalance = 0,
-                         state = PaymentStates.Capture)
+                         state = InStorePaymentStates.Capture)
     Adjs.create(adjustment)
   }
 
@@ -337,7 +345,7 @@ object GiftCards
                      orderPaymentId: Option[Int],
                      debit: Int = 0,
                      credit: Int = 0,
-                     state: PaymentStates.State = PaymentStates.Auth)(
+                     state: InStorePaymentStates.State = InStorePaymentStates.Auth)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] = {
     val balance = giftCard.availableBalance - debit + credit
     val adjustment = Adj(giftCardId = giftCard.id,

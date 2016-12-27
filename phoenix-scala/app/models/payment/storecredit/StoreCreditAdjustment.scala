@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.data.Xor
 import failures.Failures
 import models.payment._
-import models.payment.PaymentStates._
+import models.payment.InStorePaymentStates._
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
@@ -20,7 +20,7 @@ case class StoreCreditAdjustment(id: Int = 0,
                                  state: State = Auth,
                                  createdAt: Instant = Instant.now())
     extends FoxModel[StoreCreditAdjustment]
-    with PaymentAdjustment[StoreCreditAdjustment]
+    with InStorePaymentAdjustment[StoreCreditAdjustment]
     with FSM[State, StoreCreditAdjustment] {
 
   def stateLens = lens[StoreCreditAdjustment].state
@@ -35,7 +35,7 @@ case class StoreCreditAdjustment(id: Int = 0,
 }
 
 class StoreCreditAdjustments(tag: Tag)
-    extends PaymentAdjustmentTable[StoreCreditAdjustment](tag, "store_credit_adjustments") {
+    extends InStorePaymentAdjustmentTable[StoreCreditAdjustment](tag, "store_credit_adjustments") {
 
   def storeCreditId = column[Int]("store_credit_id")
 
@@ -46,7 +46,7 @@ class StoreCreditAdjustments(tag: Tag)
 }
 
 object StoreCreditAdjustments
-    extends PaymentAdjustmentQueries[StoreCreditAdjustment, StoreCreditAdjustments](
+    extends InStorePaymentAdjustmentQueries[StoreCreditAdjustment, StoreCreditAdjustments](
         new StoreCreditAdjustments(_))
     with ReturningId[StoreCreditAdjustment, StoreCreditAdjustments] {
 
@@ -58,8 +58,6 @@ object StoreCreditAdjustments
     filterByStoreCreditId(id).filter(_.state === (Auth: State)).sortBy(_.createdAt).take(1)
 
   object scope {
-    implicit class SCAQuerySeqAdditions(query: QuerySeq) {
-      def cancel(): DBIO[Int] = query.map(_.state).update(Canceled)
-    }
+    implicit class SCAQuerySeqAdditions(val query: QuerySeq) extends QuerySeqAdditions
   }
 }

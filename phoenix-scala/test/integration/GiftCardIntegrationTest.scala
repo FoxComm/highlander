@@ -10,7 +10,7 @@ import models.account._
 import models.cord.{Carts, Cord, Cords}
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard._
-import models.payment.{PaymentStates, storecredit}
+import models.payment.{InStorePaymentStates, storecredit}
 import models.payment.storecredit.StoreCredit
 import org.json4s.jackson.JsonMethods._
 import payloads.GiftCardPayloads._
@@ -238,7 +238,7 @@ class GiftCardIntegrationTest
         val adjustments: Seq[GiftCardAdjustment] =
           GiftCardAdjustments.filterByGiftCardId(giftCard1.id).gimme
         adjustments must have size 2
-        adjustments.head.state must === (PaymentStates.CancellationCapture)
+        adjustments.head.state must === (InStorePaymentStates.CancellationCapture)
       }
 
       "successfully cancels gift card with zero balance" in new Fixture {
@@ -257,7 +257,7 @@ class GiftCardIntegrationTest
         val adjustments: Seq[GiftCardAdjustment] =
           GiftCardAdjustments.filterByGiftCardId(giftCard1.id).gimme
         adjustments.size mustBe 2
-        adjustments.head.state must === (PaymentStates.CancellationCapture)
+        adjustments.head.state must === (InStorePaymentStates.CancellationCapture)
       }
 
       "fails to cancel gift card if invalid reason provided" in new Fixture {

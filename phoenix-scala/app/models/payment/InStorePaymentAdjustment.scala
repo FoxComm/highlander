@@ -4,24 +4,28 @@ import java.time.Instant
 
 import com.pellucid.sealerate
 import models.cord.OrderPayments
-import models.payment.PaymentStates._
+import models.payment.InStorePaymentStates._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.ADT
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
-trait PaymentAdjustment[M <: PaymentAdjustment[M]] extends FoxModel[M] { self: M ⇒
+/*
+Base trait for GiftCardAdjustment and CreditCardAdjustment.
+Contains common fields for both models.
+ */
+trait InStorePaymentAdjustment[M <: InStorePaymentAdjustment[M]] extends FoxModel[M] { self: M ⇒
   def id: Int
   def orderPaymentId: Option[Int]
   def storeAdminId: Option[Int]
   def debit: Int
   def availableBalance: Int
-  def state: PaymentStates.State
+  def state: InStorePaymentStates.State
   def createdAt: Instant
 }
 
-object PaymentStates {
+object InStorePaymentStates {
   sealed trait State
   case object Auth                extends State
   case object Canceled            extends State
@@ -35,7 +39,8 @@ object PaymentStates {
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 }
 
-abstract class PaymentAdjustmentTable[M <: PaymentAdjustment[M]](tag: Tag, table: String)
+abstract class InStorePaymentAdjustmentTable[M <: InStorePaymentAdjustment[M]](tag: Tag,
+                                                                               table: String)
     extends FoxTable[M](tag, table) {
 
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -49,8 +54,8 @@ abstract class PaymentAdjustmentTable[M <: PaymentAdjustment[M]](tag: Tag, table
   def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id.?)
 }
 
-abstract class PaymentAdjustmentQueries[M <: PaymentAdjustment[M],
-    T <: PaymentAdjustmentTable[M]](construct: Tag ⇒ T)
+abstract class InStorePaymentAdjustmentQueries[M <: InStorePaymentAdjustment[M],
+    T <: InStorePaymentAdjustmentTable[M]](construct: Tag ⇒ T)
     extends FoxTableQuery[M, T](construct) {
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.state).update(Canceled)
@@ -61,4 +66,8 @@ abstract class PaymentAdjustmentQueries[M <: PaymentAdjustment[M],
   def lastPaymentState(orderPaymentId: Int): DBIO[Option[State]] =
     filter(_.orderPaymentId === orderPaymentId).sortBy(_.createdAt.desc).map(_.state).one
 
+  trait QuerySeqAdditions {
+    val query: QuerySeq
+    def cancel(): DBIO[Int] = query.map(_.state).update(Canceled)
+  }
 }

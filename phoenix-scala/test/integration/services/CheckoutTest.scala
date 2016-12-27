@@ -8,7 +8,7 @@ import models.account.Scope
 import models.cord._
 import models.inventory.Skus
 import models.objects.ObjectContexts
-import models.payment.PaymentStates
+import models.payment.InStorePaymentStates
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.product.{Mvp, SimpleContext}
@@ -83,7 +83,8 @@ class CheckoutTest
 
         import GiftCardAdjustment._
 
-        adjustments.map(_.state).toSet must === (Set[PaymentStates.State](PaymentStates.Auth))
+        adjustments.map(_.state).toSet must === (
+            Set[InStorePaymentStates.State](InStorePaymentStates.Auth))
         adjustments.map(_.debit) must === (List(gcAmount, cart.grandTotal - gcAmount))
       }
 
@@ -102,7 +103,8 @@ class CheckoutTest
 
         import StoreCreditAdjustment._
 
-        adjustments.map(_.state).toSet must === (Set[PaymentStates.State](PaymentStates.Auth))
+        adjustments.map(_.state).toSet must === (
+            Set[InStorePaymentStates.State](InStorePaymentStates.Auth))
         adjustments.map(_.debit) must === (List(scAmount, cart.grandTotal - scAmount))
       }
     }

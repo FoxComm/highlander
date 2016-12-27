@@ -22,6 +22,7 @@ import payloads.UpdateShippingMethod
 import responses.cord.CartResponse
 import responses.cord.base.CordResponseLineItem
 import responses.{CustomerResponse, TheResponse}
+import models.cord.CordPaymentState
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import testutils._
@@ -44,14 +45,14 @@ class CartIntegrationTest
 
       "displays 'cart' payment state" in new Fixture {
         val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
-        fullCart.paymentState must === (CreditCardCharge.Cart)
+        fullCart.paymentState must === (CordPaymentState.Cart)
       }
 
       "displays 'auth' payment state" in new PaymentStateFixture {
         CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).gimme
 
         val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
-        fullCart.paymentState must === (CreditCardCharge.Auth)
+        fullCart.paymentState must === (CordPaymentState.Auth)
       }
     }
 

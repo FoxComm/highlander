@@ -294,15 +294,15 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       _     ← * <~ mustHavePositiveShippingCost(payload.shipping)
     } yield Unit
 
-  private def validateOrder(order: Order, paymentState: CreditCardCharge.State): DbResultT[Unit] =
+  private def validateOrder(order: Order, paymentState: CordPaymentState.State): DbResultT[Unit] =
     for {
       _ ← * <~ paymentStateMustBeInAuth(order, paymentState)
       //Future validation goes here.
     } yield Unit
 
   private def paymentStateMustBeInAuth(order: Order,
-                                       paymentState: CreditCardCharge.State): DbResultT[Unit] =
-    if (paymentState != CreditCardCharge.Auth)
+                                       paymentState: CordPaymentState.State): DbResultT[Unit] =
+    if (paymentState != CordPaymentState.Auth)
       DbResultT.failure(CaptureFailures.OrderMustBeInAuthState(order.refNum))
     else DbResultT.pure(Unit)
 
