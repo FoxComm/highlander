@@ -19,7 +19,7 @@ import org.json4s.JsonDSL._
 import payloads.ImagePayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.ProductResponses._
-import responses.SkuResponses._
+import responses.ProductVariantResponses._
 import services.image.ImageManager
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -273,7 +273,7 @@ class ImageIntegrationTest
 
     "GET v1/skus/:context/:code" - {
       "Retrieves all the albums associated with a SKU" in new ProductFixture {
-        val skuResponse = skusApi(sku.code).get().as[SkuResponse.Root]
+        val skuResponse = skusApi(sku.code).get().as[ProductVariantResponse.Root]
         skuResponse.albums.length must === (1)
 
         val headAlbum = skuResponse.albums.head
@@ -286,7 +286,7 @@ class ImageIntegrationTest
       "Archived albums are not present in list" in new ProductFixture {
         albumsApi(album.formId).delete().mustBeOk()
 
-        val skuResponse = skusApi(sku.code).get().as[SkuResponse.Root]
+        val skuResponse = skusApi(sku.code).get().as[ProductVariantResponse.Root]
         skuResponse.albums.length must === (0)
       }
     }
@@ -294,10 +294,10 @@ class ImageIntegrationTest
     "POST v1/skus/:context/:id/albums" - {
       "Creates a new album on an existing SKU" in new ProductFixture {
         val payload =
-          AlbumPayload(name = Some("Sku Album"), images = Seq(ImagePayload(src = "url")).some)
+          AlbumPayload(name = Some("ProductVariant Album"), images = Seq(ImagePayload(src = "url")).some)
         val albumResponse = skusApi(sku.code).albums.create(payload).as[AlbumRoot]
 
-        albumResponse.name must === ("Sku Album")
+        albumResponse.name must === ("ProductVariant Album")
         albumResponse.images.length must === (1)
         albumResponse.images.head.src must === ("url")
       }
@@ -441,14 +441,14 @@ class ImageIntegrationTest
       skuShadow  ← * <~ ObjectShadows.create(sSkuShadow.create.copy(formId = skuForm.id))
       skuCommit ← * <~ ObjectCommits.create(
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
-      sku ← * <~ Skus.create(
-               Sku(scope = Scope.current,
+      sku ← * <~ ProductVariants.create(
+               ProductVariant(scope = Scope.current,
                    contextId = ctx.id,
                    formId = skuForm.id,
                    shadowId = skuShadow.id,
                    commitId = skuCommit.id,
                    code = "SKU-TEST"))
-      _ ← * <~ SkuAlbumLinks.create(SkuAlbumLink(leftId = sku.id, rightId = album.id))
+      _ ← * <~ VariantAlbumLinks.create(VariantAlbumLink(leftId = sku.id, rightId = album.id))
 
       simpleProd ← * <~ SimpleProduct(title = "Test Product",
                                       description = "Test product description")
@@ -465,7 +465,7 @@ class ImageIntegrationTest
                            commitId = prodCommit.id))
 
       _ ← * <~ ProductAlbumLinks.create(ProductAlbumLink(leftId = product.id, rightId = album.id))
-      _ ← * <~ ProductSkuLinks.create(ProductSkuLink(leftId = product.id, rightId = sku.id))
+      _ ← * <~ ProductVariantLinks.create(ProductVariantLink(leftId = product.id, rightId = sku.id))
     } yield (product, prodForm, prodShadow, sku, skuForm, skuShadow)).gimme
   }
 

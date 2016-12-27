@@ -5,15 +5,15 @@ import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import payloads.ImagePayloads.AlbumPayload
-import payloads.SkuPayloads._
+import payloads.ProductVariantPayloads._
 import services.image.ImageManager
-import services.inventory.SkuManager
+import services.inventory.ProductVariantManager
 import services.Authenticator.AuthData
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
-object SkuRoutes {
+object ProductVariantRoutes {
 
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
@@ -21,36 +21,36 @@ object SkuRoutes {
       pathPrefix("skus") {
         pathPrefix(Segment) { contextName ⇒
           adminObjectContext(contextName) { implicit context ⇒
-            (post & pathEnd & entity(as[SkuPayload])) { payload ⇒
+            (post & pathEnd & entity(as[ProductVariantPayload])) { payload ⇒
               mutateOrFailures {
-                SkuManager.createSku(auth.model, payload)
+                ProductVariantManager.create(auth.model, payload)
               }
             } ~
             pathPrefix(Segment) { code ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  SkuManager.getSku(code)
+                  ProductVariantManager.getBySkuCode(code)
                 }
               } ~
-              (patch & pathEnd & entity(as[SkuPayload])) { payload ⇒
+              (patch & pathEnd & entity(as[ProductVariantPayload])) { payload ⇒
                 mutateOrFailures {
-                  SkuManager.updateSku(auth.model, code, payload)
+                  ProductVariantManager.update(auth.model, code, payload)
                 }
               } ~
               (delete & pathEnd) {
                 mutateOrFailures {
-                  SkuManager.archiveByCode(code)
+                  ProductVariantManager.archiveByCode(code)
                 }
               } ~
               pathPrefix("albums") {
                 (get & pathEnd) {
                   getOrFailures {
-                    ImageManager.getAlbumsForSku(code)
+                    ImageManager.getAlbumsForVariantCode(code)
                   }
                 } ~
                 (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
                   mutateOrFailures {
-                    ImageManager.createAlbumForSku(auth.model, code, payload)
+                    ImageManager.createAlbumForVariantCode(auth.model, code, payload)
                   }
                 }
               }

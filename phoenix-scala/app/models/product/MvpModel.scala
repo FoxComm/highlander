@@ -18,7 +18,7 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import payloads.ImagePayloads._
 import services.image.ImageManager
-import services.inventory.SkuManager
+import services.inventory.ProductVariantManager
 import com.github.tminglei.slickpg.LTree
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
@@ -125,7 +125,7 @@ case class SimpleSku(code: String,
       } """))
 
   def create: ObjectForm =
-    ObjectForm(kind = Sku.kind, attributes = form)
+    ObjectForm(kind = ProductVariant.kind, attributes = form)
   def update(oldForm: ObjectForm): ObjectForm =
     oldForm.copy(attributes = oldForm.attributes merge form)
 }
@@ -150,7 +150,7 @@ case class SimpleSkuShadow(s: SimpleSku) {
 case class SimpleVariant(name: String) {
   val (keyMap, form) = ObjectUtils.createForm(parse(s"""{ "name": "$name" }"""))
 
-  def create: ObjectForm = ObjectForm(kind = Variant.kind, attributes = form)
+  def create: ObjectForm = ObjectForm(kind = ProductOption.kind, attributes = form)
 
   def update(oldForm: ObjectForm): ObjectForm =
     oldForm.copy(attributes = oldForm.attributes merge form)
@@ -167,7 +167,7 @@ case class SimpleVariantValue(name: String, swatch: String, skuCodes: Seq[String
   val (keyMap, form) =
     ObjectUtils.createForm(parse(s"""{ "name": "$name", "swatch": "$swatch" }"""))
 
-  def create: ObjectForm = ObjectForm(kind = VariantValue.kind, attributes = form)
+  def create: ObjectForm = ObjectForm(kind = ProductValue.kind, attributes = form)
 
   def update(oldForm: ObjectForm): ObjectForm =
     oldForm.copy(attributes = oldForm.attributes merge form)
@@ -200,7 +200,7 @@ case class SimpleProductData(productId: Int = 0,
                              tags: Seq[String] = Seq.empty)
 
 case class SimpleProductTuple(product: Product,
-                              sku: Sku,
+                              sku: ProductVariant,
                               productForm: ObjectForm,
                               skuForm: ObjectForm,
                               productShadow: ObjectShadow,
@@ -237,11 +237,13 @@ object Mvp {
       productForm ← * <~ ObjectForms.update(oldForm, simpleProduct.update(oldForm))
 
       //find sku form for the product and update it with new sku
-      link ← * <~ ProductSkuLinks
+      link ← * <~ ProductVariantLinks
               .filterLeft(product)
               .mustFindOneOr(ObjectLeftLinkCannotBeFound(product.shadowId))
 
-      sku ← * <~ Skus.filter(_.id === link.rightId).mustFindOneOr(SkuNotFound(link.rightId))
+      sku ← * <~ ProductVariants
+             .filter(_.id === link.rightId)
+             .mustFindOneOr(ProductVariantNotFound(link.rightId))
 
       simpleSku  ← * <~ SimpleSku(p.code, p.title, p.price, p.currency, p.active, p.tags)
       oldSkuForm ← * <~ ObjectForms.mustFindById404(sku.formId)
@@ -291,7 +293,7 @@ object Mvp {
   def insertProductWithExistingSkus(scope: LTree,
                                     contextId: Int,
                                     productData: SimpleProductData,
-                                    skus: Seq[Sku]): DbResultT[Product] =
+                                    skus: Seq[ProductVariant]): DbResultT[Product] =
     for {
       simpleProduct ← * <~ SimpleProduct(productData.title,
                                          productData.description,
@@ -303,7 +305,7 @@ object Mvp {
   def insertProductWithExistingSkus(scope: LTree,
                                     contextId: Int,
                                     simpleProduct: SimpleProduct,
-                                    skus: Seq[Sku]): DbResultT[Product] =
+                                    skus: Seq[ProductVariant]): DbResultT[Product] =
     for {
       productForm   ← * <~ ObjectForms.create(simpleProduct.create)
       simpleShadow  ← * <~ SimpleProductShadow(simpleProduct)
@@ -326,12 +328,13 @@ object Mvp {
     } yield product
 
   // Temporary convenience method to use until ObjectLink is replaced.
-  private def linkProductAndSku(product: Product, sku: Sku)(implicit ec: EC) =
+  private def linkProductAndSku(product: Product, sku: ProductVariant)(implicit ec: EC) =
     for {
-      _ ← * <~ ProductSkuLinks.create(ProductSkuLink(leftId = product.id, rightId = sku.id))
+      _ ← * <~ ProductVariantLinks.create(
+             ProductVariantLink(leftId = product.id, rightId = sku.id))
     } yield {}
 
-  def insertSku(scope: LTree, contextId: Int, s: SimpleSku): DbResultT[Sku] =
+  def insertSku(scope: LTree, contextId: Int, s: SimpleSku): DbResultT[ProductVariant] =
     for {
       form      ← * <~ ObjectForms.create(s.create)
       sShadow   ← * <~ SimpleSkuShadow(s)
@@ -339,16 +342,18 @@ object Mvp {
       shadow ← * <~ ObjectShadows.create(
                   sShadow.create.copy(formId = form.id, jsonSchema = skuSchema.map(_.name)))
       commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
-      sku ← * <~ Skus.create(
-               Sku(scope = scope,
-                   contextId = contextId,
-                   code = s.code,
-                   formId = form.id,
-                   shadowId = shadow.id,
-                   commitId = commit.id))
+      sku ← * <~ ProductVariants.create(
+               ProductVariant(scope = scope,
+                              contextId = contextId,
+                              code = s.code,
+                              formId = form.id,
+                              shadowId = shadow.id,
+                              commitId = commit.id))
     } yield sku
 
-  def insertSkus(scope: LTree, contextId: Int, ss: Seq[SimpleSku]): DbResultT[Seq[Sku]] =
+  def insertSkus(scope: LTree,
+                 contextId: Int,
+                 ss: Seq[SimpleSku]): DbResultT[Seq[ProductVariant]] =
     for {
       skus ← * <~ ss.map(s ⇒ insertSku(scope, contextId, s))
     } yield skus
@@ -362,14 +367,14 @@ object Mvp {
       sShadow ← * <~ SimpleVariantShadow(v)
       shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
-      variant ← * <~ Variants.create(
-                   Variant(scope = scope,
-                           contextId = contextId,
-                           formId = form.id,
-                           shadowId = shadow.id,
-                           commitId = commit.id))
-      _ ← * <~ ProductVariantLinks.create(
-             ProductVariantLink(leftId = product.id, rightId = variant.id))
+      variant ← * <~ ProductOptions.create(
+                   ProductOption(scope = scope,
+                                 contextId = contextId,
+                                 formId = form.id,
+                                 shadowId = shadow.id,
+                                 commitId = commit.id))
+      _ ← * <~ ProductOptionLinks.create(
+             ProductOptionLink(leftId = product.id, rightId = variant.id))
     } yield
       SimpleVariantData(variantId = variant.id,
                         variantFormId = variant.formId,
@@ -381,23 +386,26 @@ object Mvp {
                          contextId: Int,
                          v: SimpleVariantValue,
                          variantShadowId: Int,
-                         variantId: Variant#Id): DbResultT[SimpleVariantValueData] =
+                         variantId: ProductOption#Id): DbResultT[SimpleVariantValueData] =
     for {
       form    ← * <~ ObjectForms.create(v.create)
       sShadow ← * <~ SimpleVariantValueShadow(v)
       shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
-      value ← * <~ VariantValues.create(
-                 VariantValue(scope = scope,
+      value ← * <~ ProductValues.create(
+                 ProductValue(scope = scope,
                               contextId = contextId,
                               formId = form.id,
                               shadowId = shadow.id,
                               commitId = commit.id))
-      _ ← * <~ VariantValueLinks.create(VariantValueLink(leftId = variantId, rightId = value.id))
+      _ ← * <~ ProductOptionValueLinks.create(
+             ProductOptionValueLink(leftId = variantId, rightId = value.id))
       skuCodes ← * <~ v.skuCodes.map(code ⇒
-                      SkuManager.mustFindSkuByContextAndCode(contextId, code))
-      _ ← * <~ skuCodes.map(s ⇒
-               VariantValueSkuLinks.create(VariantValueSkuLink(leftId = value.id, rightId = s.id)))
+                      ProductVariantManager.mustFindByContextAndCode(contextId, code))
+      _ ← * <~ skuCodes.map(
+             s ⇒
+               ProductValueVariantLinks.create(
+                   ProductValueVariantLink(leftId = value.id, rightId = s.id)))
     } yield
       SimpleVariantValueData(valueId = value.id,
                              variantShadowId = variantShadowId,
@@ -457,13 +465,13 @@ object Mvp {
       skuCommit ← * <~ ObjectCommits.create(
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
 
-      sku ← * <~ Skus.create(
-               Sku(scope = scope,
-                   contextId = contextId,
-                   code = p.code,
-                   formId = skuForm.id,
-                   shadowId = skuShadow.id,
-                   commitId = skuCommit.id))
+      sku ← * <~ ProductVariants.create(
+               ProductVariant(scope = scope,
+                              contextId = contextId,
+                              code = p.code,
+                              formId = skuForm.id,
+                              shadowId = skuShadow.id,
+                              commitId = skuCommit.id))
 
       _ ← * <~ linkProductAndSku(product, sku)
 
@@ -501,7 +509,7 @@ object Mvp {
 
   def getPrice(skuId: Int)(implicit db: DB): DbResultT[Int] =
     for {
-      sku    ← * <~ Skus.mustFindById404(skuId)
+      sku    ← * <~ ProductVariants.mustFindById404(skuId)
       form   ← * <~ ObjectForms.mustFindById404(sku.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
       p      ← * <~ priceAsInt(form, shadow)
@@ -512,7 +520,7 @@ object Mvp {
       product       ← * <~ Products.mustFindById404(d.productId)
       productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
       productShadow ← * <~ ObjectShadows.mustFindById404(product.shadowId)
-      sku           ← * <~ Skus.mustFindById404(d.skuId)
+      sku           ← * <~ ProductVariants.mustFindById404(d.skuId)
       skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
     } yield SimpleProductTuple(product, sku, productForm, skuForm, productShadow, skuShadow)

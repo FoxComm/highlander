@@ -5,7 +5,7 @@ import java.time.Instant
 import failures.{Failures, GeneralFailure}
 import models.cord.lineitems.{OrderLineItem, OrderLineItems, CartLineItems}
 import models.account._
-import models.inventory.Skus
+import models.inventory.ProductVariants
 import utils.Money.Currency
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
@@ -173,7 +173,7 @@ object Orders
 
     val skusInCart = for {
       skuId ← uniqueSkuIdsInCart
-      sku   ← Skus if sku.id === skuId
+      sku   ← ProductVariants if sku.id === skuId
     } yield (skuId, sku)
 
     for {

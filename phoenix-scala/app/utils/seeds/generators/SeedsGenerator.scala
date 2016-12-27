@@ -70,7 +70,7 @@ object SeedsGenerator
     for {
       context     ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       shipMethods ← * <~ getShipmentRules
-      skus        ← * <~ Skus.filter(_.contextId === context.id).result
+      skus        ← * <~ ProductVariants.filter(_.contextId === context.id).result
       skuIds             = skus.map(_.id)
       generatedCustomers = generateCustomers(customersCount)
       accountIds ← * <~ Accounts.createAllReturningIds(generatedCustomers.map { _ ⇒

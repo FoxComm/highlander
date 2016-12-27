@@ -2,15 +2,15 @@ package services
 
 import cats.data._
 import cats.implicits._
-import failures.ProductFailures.NoProductFoundForSku
+import failures.ProductFailures.NoProductFoundForVariant
 import models.cord.lineitems._
 import models.image.{AlbumImageLinks, Albums, Images}
-import models.inventory.Sku
+import models.inventory.ProductVariant
 import models.objects._
 import models.product._
 import org.json4s.JsonAST.JString
 import services.image.ImageManager
-import services.inventory.SkuManager
+import services.inventory.ProductVariantManager
 import services.objects.ObjectManager
 import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
@@ -35,7 +35,7 @@ object LineItemManager {
 
   private def getCartLineItem(cartLineItem: CartLineItem)(implicit ec: EC, db: DB) =
     for {
-      sku     ← * <~ SkuManager.mustFindFullSkuById(cartLineItem.skuId)
+      sku     ← * <~ ProductVariantManager.mustFindFullById(cartLineItem.skuId)
       product ← * <~ getProductForSku(sku.model)
       image   ← * <~ getLineItemImage(sku.model, product.model)
     } yield
@@ -50,8 +50,8 @@ object LineItemManager {
 
   private def getOrderLineItem(orderLineItem: OrderLineItem)(implicit ec: EC, db: DB) =
     for {
-      sku ← * <~ SkuManager.mustFindFullSkuByIdAndShadowId(orderLineItem.skuId,
-                                                           orderLineItem.skuShadowId)
+      sku ← * <~ ProductVariantManager.mustFindFullByIdAndShadowId(orderLineItem.skuId,
+                                                                   orderLineItem.skuShadowId)
       product ← * <~ getProductForSku(sku.model)
       image   ← * <~ getLineItemImage(sku.model, product.model)
     } yield
@@ -64,28 +64,28 @@ object LineItemManager {
                                lineItem = orderLineItem,
                                attributes = orderLineItem.attributes)
 
-  private def getProductForSku(sku: Sku)(implicit ec: EC, db: DB) =
+  private def getProductForSku(sku: ProductVariant)(implicit ec: EC, db: DB) =
     for {
-      productId ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
+      productId ← * <~ ProductVariantLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
                    case Some(productLink) ⇒
                      DbResultT.good(productLink.leftId)
                    case None ⇒
                      for {
-                       valueLink ← * <~ VariantValueSkuLinks
+                       valueLink ← * <~ ProductValueVariantLinks
                                     .filter(_.rightId === sku.id)
-                                    .mustFindOneOr(NoProductFoundForSku(sku.id))
-                       variantLink ← * <~ VariantValueLinks
+                                    .mustFindOneOr(NoProductFoundForVariant(sku.id))
+                       variantLink ← * <~ ProductOptionValueLinks
                                       .filter(_.rightId === valueLink.leftId)
-                                      .mustFindOneOr(NoProductFoundForSku(sku.id))
-                       productLink ← * <~ ProductVariantLinks
+                                      .mustFindOneOr(NoProductFoundForVariant(sku.id))
+                       productLink ← * <~ ProductOptionLinks
                                       .filter(_.rightId === variantLink.leftId)
-                                      .mustFindOneOr(NoProductFoundForSku(sku.id))
+                                      .mustFindOneOr(NoProductFoundForVariant(sku.id))
                      } yield productLink.leftId
                  }
       product ← * <~ ProductManager.mustFindFullProductById(productId)
     } yield product
 
-  private def getLineItemImage(sku: Sku, product: Product)(implicit ec: EC, db: DB) =
+  private def getLineItemImage(sku: ProductVariant, product: Product)(implicit ec: EC, db: DB) =
     for {
       image ← * <~ getLineItemAlbumId(sku, product).flatMap {
                case Some(albumId) ⇒
@@ -99,9 +99,9 @@ object LineItemManager {
              }
     } yield image
 
-  private def getLineItemAlbumId(sku: Sku, product: Product)(implicit ec: EC, db: DB) =
+  private def getLineItemAlbumId(sku: ProductVariant, product: Product)(implicit ec: EC, db: DB) =
     for {
-      albumId ← * <~ SkuAlbumLinks.filterLeft(sku).one.dbresult.flatMap {
+      albumId ← * <~ VariantAlbumLinks.filterLeft(sku).one.dbresult.flatMap {
                  case Some(albumLink) ⇒
                    DbResultT.good(albumLink.rightId.some)
                  case None ⇒

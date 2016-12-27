@@ -4,13 +4,13 @@ import models.objects._
 import models.product._
 import utils.{IlluminateAlgorithm, JsonFormatters}
 
-object VariantValueResponses {
+object ProductValueResponses {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  object IlluminatedVariantValueResponse {
+  object IlluminatedProductValueResponse {
     case class Root(id: Int, name: String, swatch: Option[String] = None, skuCodes: Seq[String])
 
-    def build(value: FullObject[VariantValue], skuCodes: Seq[String]): Root = {
+    def build(value: FullObject[ProductValue], skuCodes: Seq[String]): Root = {
       val model       = value.model
       val formAttrs   = value.form.attributes
       val shadowAttrs = value.shadow.attributes

@@ -107,7 +107,7 @@ class CartIntegrationTest
         .mustFailWith400(SkuWithNoProductAdded(cart.refNum, simpleSku.code))
     }
 
-    "adding a SKU that's associated through a variant should succeed" in new ProductAndVariants_Baked
+    "adding a SKU that's associated through a productOption should succeed" in new ProductAndVariants_Baked
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
       val (_, _, skus) = productWithVariants
       val code         = skus.head.code

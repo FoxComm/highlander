@@ -6,7 +6,7 @@ import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.SkuIsPresentInCarts
 import failures.ObjectFailures.ObjectContextNotFound
-import failures.ProductFailures.SkuNotFoundForContext
+import failures.ProductFailures.ProductVariantNotFoundForContext
 import models.account.Scope
 import models.inventory._
 import models.objects._
@@ -17,8 +17,8 @@ import payloads.ImagePayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.CreateCart
 import payloads.ProductPayloads.UpdateProductPayload
-import payloads.SkuPayloads.SkuPayload
-import responses.SkuResponses.SkuResponse
+import payloads.ProductVariantPayloads.ProductVariantPayload
+import responses.ProductVariantResponses.ProductVariantResponse
 import responses.cord.CartResponse
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -49,7 +49,7 @@ class SkuIntegrationTest
       val attrMap    = Map("price" → priceJson)
 
       skusApi
-        .create(SkuPayload(attributes = attrMap, albums = None))
+        .create(ProductVariantPayload(attributes = attrMap, albums = None))
         .mustFailWithMessage("SKU code not found in payload")
     }
 
@@ -65,7 +65,7 @@ class SkuIntegrationTest
 
       skusApi.create(makeSkuPayload(code, attrMap, Seq(albumPayload).some)).mustBeOk()
 
-      val getResponse = skusApi(code).get().as[SkuResponse.Root]
+      val getResponse = skusApi(code).get().as[ProductVariantResponse.Root]
       getResponse.albums.length must === (1)
       getResponse.albums.head.images.length must === (1)
       getResponse.albums.head.images.head.src must === (src)
@@ -74,7 +74,7 @@ class SkuIntegrationTest
 
   "GET v1/skus/:context/:code" - {
     "Get a created SKU successfully" in new Fixture {
-      val skuResponse = skusApi(sku.code).get().as[SkuResponse.Root]
+      val skuResponse = skusApi(sku.code).get().as[ProductVariantResponse.Root]
       val code        = skuResponse.attributes \ "code" \ "v"
       code.extract[String] must === (sku.code)
 
@@ -91,8 +91,8 @@ class SkuIntegrationTest
   "PATCH v1/skus/:context/:code" - {
     "Adds a new attribute to the SKU" in new Fixture {
       val payload =
-        SkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))), albums = None)
-      val skuResponse = skusApi(sku.code).update(payload).as[SkuResponse.Root]
+        ProductVariantPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))), albums = None)
+      val skuResponse = skusApi(sku.code).update(payload).as[ProductVariantResponse.Root]
 
       (skuResponse.attributes \ "code" \ "v").extract[String] must === (sku.code)
       (skuResponse.attributes \ "name" \ "v").extract[String] must === ("Test")
@@ -101,10 +101,10 @@ class SkuIntegrationTest
 
     "Updates the SKU's code" in new Fixture {
       val payload =
-        SkuPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))), albums = None)
+        ProductVariantPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))), albums = None)
       skusApi(sku.code).update(payload).mustBeOk()
 
-      val skuResponse = skusApi("upcode").get().as[SkuResponse.Root]
+      val skuResponse = skusApi("upcode").get().as[ProductVariantResponse.Root]
       (skuResponse.attributes \ "code" \ "v").extract[String] must === ("UPCODE")
 
       (skuResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)
@@ -113,7 +113,7 @@ class SkuIntegrationTest
 
   "DELETE v1/products/:context/:id" - {
     "Archives SKU successfully" in new Fixture {
-      val result = skusApi(sku.code).archive().as[SkuResponse.Root]
+      val result = skusApi(sku.code).archive().as[ProductVariantResponse.Root]
 
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow mustBe true
@@ -127,7 +127,7 @@ class SkuIntegrationTest
                              variants = None)
       productsApi(product.formId).update(updateProductPayload).mustBeOk
 
-      val result = skusApi(sku.code).archive().as[SkuResponse.Root]
+      val result = skusApi(sku.code).archive().as[ProductVariantResponse.Root]
 
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow mustBe true
@@ -135,11 +135,11 @@ class SkuIntegrationTest
     }
 
     "SKU Albums must be unlinked" in new Fixture {
-      skusApi(sku.code).archive().as[SkuResponse.Root].albums mustBe empty
+      skusApi(sku.code).archive().as[ProductVariantResponse.Root].albums mustBe empty
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong code" in new Fixture {
-      skusApi("666").archive().mustFailWith404(SkuNotFoundForContext("666", ctx.id))
+      skusApi("666").archive().mustFailWith404(ProductVariantNotFoundForContext("666", ctx.id))
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong context" in new Fixture {
@@ -167,7 +167,7 @@ class SkuIntegrationTest
                        albums: Option[Seq[AlbumPayload]] = None) = {
       val codeJson   = ("t"              → "string") ~ ("v" → code)
       val attributes = attrMap + ("code" → codeJson)
-      SkuPayload(attributes = attributes, albums = albums)
+      ProductVariantPayload(attributes = attributes, albums = albums)
     }
 
     val (sku, skuForm, skuShadow) = (for {
@@ -177,8 +177,8 @@ class SkuIntegrationTest
       skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.copy(formId = skuForm.id))
       skuCommit ← * <~ ObjectCommits.create(
                      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
-      sku ← * <~ Skus.create(
-               Sku(scope = Scope.current,
+      sku ← * <~ ProductVariants.create(
+               ProductVariant(scope = Scope.current,
                    contextId = ctx.id,
                    code = simpleSku.code,
                    formId = skuForm.id,

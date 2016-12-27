@@ -11,11 +11,11 @@ import utils.{JsonFormatters, Validation}
 
 import com.github.tminglei.slickpg._
 
-object VariantValue {
-  val kind = "variant-value"
+object ProductValue {
+  val kind = "product-value"
 }
 
-case class VariantValue(id: Int = 0,
+case class ProductValue(id: Int = 0,
                         scope: LTree,
                         contextId: Int,
                         shadowId: Int,
@@ -24,25 +24,25 @@ case class VariantValue(id: Int = 0,
                         updatedAt: Instant = Instant.now,
                         createdAt: Instant = Instant.now,
                         archivedAt: Option[Instant] = None)
-    extends FoxModel[VariantValue]
-    with Validation[VariantValue]
-    with ObjectHead[VariantValue] {
+    extends FoxModel[ProductValue]
+    with Validation[ProductValue]
+    with ObjectHead[ProductValue] {
 
-  def withNewShadowAndCommit(shadowId: Int, commitId: Int): VariantValue =
+  def withNewShadowAndCommit(shadowId: Int, commitId: Int): ProductValue =
     this.copy(shadowId = shadowId, commitId = commitId)
 }
 
-class VariantValues(tag: Tag) extends ObjectHeads[VariantValue](tag, "variant_values") {
+class ProductValues(tag: Tag) extends ObjectHeads[ProductValue](tag, "product_values") {
   def * =
-    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((VariantValue.apply _).tupled,
-        VariantValue.unapply)
+    (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((ProductValue.apply _).tupled,
+        ProductValue.unapply)
 }
 
-object VariantValues
-    extends FoxTableQuery[VariantValue, VariantValues](new VariantValues(_))
-    with ReturningId[VariantValue, VariantValues] {
+object ProductValues
+    extends FoxTableQuery[ProductValue, ProductValues](new ProductValues(_))
+    with ReturningId[ProductValue, ProductValues] {
 
-  val returningLens: Lens[VariantValue, Int] = lens[VariantValue].id
+  val returningLens: Lens[ProductValue, Int] = lens[ProductValue].id
 
   implicit val formats = JsonFormatters.phoenixFormats
 

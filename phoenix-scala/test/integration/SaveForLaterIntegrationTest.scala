@@ -1,4 +1,4 @@
-import failures.ProductFailures.SkuNotFoundForContext
+import failures.ProductFailures.ProductVariantNotFoundForContext
 import failures.{AlreadySavedForLater, NotFoundFailure404}
 import models.account._
 import models.objects._
@@ -60,7 +60,7 @@ class SaveForLaterIntegrationTest
     "404 if sku is not found" in new Fixture {
       saveForLaterApi(customer.accountId)
         .create("NOPE")
-        .mustFailWith404(SkuNotFoundForContext("NOPE", SimpleContext.id))
+        .mustFailWith404(ProductVariantNotFoundForContext("NOPE", SimpleContext.id))
     }
   }
 

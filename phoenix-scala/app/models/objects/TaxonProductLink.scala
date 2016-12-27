@@ -26,7 +26,7 @@ class ProductTaxonLinks(tag: Tag)
     (id, leftId, rightId, createdAt, updatedAt) <> ((ProductTaxonLink.apply _).tupled, ProductTaxonLink.unapply)
 
   def left  = foreignKey(Products.tableName, leftId, Products)(_.id)
-  def right = foreignKey(Skus.tableName, rightId, Skus)(_.id)
+  def right = foreignKey(ProductVariants.tableName, rightId, ProductVariants)(_.id)
 }
 
 object ProductTaxonLinks

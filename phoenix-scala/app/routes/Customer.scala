@@ -6,7 +6,7 @@ import akka.http.scaladsl.server.Directives._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.cord.Cord.cordRefNumRegex
-import models.inventory.Sku.skuCodeRegex
+import models.inventory.ProductVariant.skuCodeRegex
 import models.payment.giftcard.GiftCard
 import payloads.AddressPayloads._
 import payloads.CustomerPayloads._

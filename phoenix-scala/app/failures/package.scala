@@ -3,7 +3,7 @@ import cats.implicits._
 import models.Assignment
 import models.activity.Dimension
 import models.cord.{Cart, Cord, Order}
-import models.inventory.Sku
+import models.inventory.ProductVariant
 import models.payment.giftcard.GiftCard
 import models.returns.Return
 import models.sharedsearch.SharedSearch
@@ -35,7 +35,7 @@ package object failures {
       case Assignment.Order | Assignment.Return ⇒ "referenceNumber"
 
       case GiftCard | _: GiftCard               ⇒ "code"
-      case Sku | _: Sku                         ⇒ "code"
+      case ProductVariant | _: ProductVariant   ⇒ "code"
       case Assignment.GiftCard | Assignment.Sku ⇒ "code"
       case SharedSearch | _: SharedSearch       ⇒ "code"
 

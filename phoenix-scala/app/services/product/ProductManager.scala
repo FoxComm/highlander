@@ -18,20 +18,20 @@ import models.account._
 import models.cord.lineitems.CartLineItems
 import payloads.ImagePayloads.{AlbumPayload, UpdateAlbumPositionPayload}
 import payloads.ProductPayloads._
-import payloads.SkuPayloads._
-import payloads.VariantPayloads._
+import payloads.ProductVariantPayloads._
+import payloads.ProductOptionPayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
 import responses.ImageResponses.ImageResponse
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses._
-import responses.SkuResponses._
-import responses.VariantResponses.IlluminatedVariantResponse
+import responses.ProductVariantResponses._
+import responses.ProductOptionResponses.IlluminatedProductOptionResponse
 import services.image.ImageManager
-import services.inventory.SkuManager
+import services.inventory.ProductVariantManager
 import services.objects.ObjectManager
-import services.variant.VariantManager
-import services.variant.VariantManager._
+import services.variant.ProductOptionManager
+import services.variant.ProductOptionManager._
 import slick.driver.PostgresDriver.api._
 import utils.Validation._
 import utils.aliases._
@@ -69,7 +69,7 @@ object ProductManager {
                            commitId = ins.commit.id))
 
       albums         ← * <~ findOrCreateAlbumsForProduct(product, albumPayloads)
-      productSkus    ← * <~ findOrCreateSkusForProduct(product, payload.skus, !hasVariants)
+      productSkus    ← * <~ findOrCreateVariantsForProduct(product, payload.skus, !hasVariants)
       variants       ← * <~ findOrCreateVariantsForProduct(product, variantPayloads)
       variantAndSkus ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
@@ -92,11 +92,11 @@ object ProductManager {
       oldProduct ← * <~ mustFindFullProductByFormId(productId)
       albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.form.id)
 
-      fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
-      productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
+      fullSkus    ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
+      productSkus ← * <~ fullSkus.map(ProductVariantManager.illuminateVariant)
 
-      variants     ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
-      fullVariants ← * <~ variants.map(VariantManager.zipVariantWithValues)
+      variants     ← * <~ ProductOptionLinks.queryRightByLeft(oldProduct.model)
+      fullVariants ← * <~ variants.map(ProductOptionManager.zipVariantWithValues)
 
       hasVariants = variants.nonEmpty
 
@@ -139,11 +139,13 @@ object ProductManager {
 
       albums ← * <~ updateAssociatedAlbums(updatedHead, payload.albums)
 
-      variantLinks ← * <~ ProductVariantLinks.filterLeft(oldProduct.model).result
+      variantLinks ← * <~ ProductOptionLinks.filterLeft(oldProduct.model).result
 
       hasVariants = variantLinks.nonEmpty || payload.variants.exists(_.nonEmpty)
 
-      updatedSkus ← * <~ findOrCreateSkusForProduct(oldProduct.model, payloadSkus, !hasVariants)
+      updatedSkus ← * <~ findOrCreateVariantsForProduct(oldProduct.model,
+                                                        payloadSkus,
+                                                        !hasVariants)
 
       variants ← * <~ updateAssociatedVariants(updatedHead, payload.variants)
       _        ← * <~ validateUpdate(updatedSkus, variants)
@@ -193,22 +195,22 @@ object ProductManager {
                                         id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
          }
       albums   ← * <~ ImageManager.getAlbumsForProduct(inactive.form.id)
-      skuLinks ← * <~ ProductSkuLinks.filter(_.leftId === archiveResult.id).result
+      skuLinks ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
       _ ← * <~ skuLinks.map { link ⇒
-           ProductSkuLinks.deleteById(link.id,
-                                      DbResultT.unit,
-                                      id ⇒ NotFoundFailure400(ProductSkuLink, id))
-         }
-      updatedSkus  ← * <~ ProductSkuLinks.queryRightByLeft(archiveResult)
-      skus         ← * <~ updatedSkus.map(SkuManager.illuminateSku)
-      variantLinks ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
-      _ ← * <~ variantLinks.map { link ⇒
            ProductVariantLinks.deleteById(link.id,
                                           DbResultT.unit,
-                                          id ⇒ NotFoundFailure400(ProductSkuLink, link.id))
+                                          id ⇒ NotFoundFailure400(ProductVariantLink, id))
          }
-      updatedVariants ← * <~ ProductVariantLinks.queryRightByLeft(archiveResult)
-      variants        ← * <~ updatedVariants.map(VariantManager.zipVariantWithValues)
+      updatedSkus  ← * <~ ProductVariantLinks.queryRightByLeft(archiveResult)
+      skus         ← * <~ updatedSkus.map(ProductVariantManager.illuminateVariant)
+      variantLinks ← * <~ ProductOptionLinks.filter(_.leftId === archiveResult.id).result
+      _ ← * <~ variantLinks.map { link ⇒
+           ProductOptionLinks.deleteById(link.id,
+                                         DbResultT.unit,
+                                         id ⇒ NotFoundFailure400(ProductVariantLink, link.id))
+         }
+      updatedVariants ← * <~ ProductOptionLinks.queryRightByLeft(archiveResult)
+      variants        ← * <~ updatedVariants.map(ProductOptionManager.zipVariantWithValues)
       variantAndSkus  ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(productObject.model)
@@ -223,20 +225,20 @@ object ProductManager {
       )
   }
 
-  private def getVariantsWithRelatedSkus(variants: Seq[FullVariant])(
-      implicit ec: EC,
-      db: DB,
-      oc: OC): DbResultT[(Seq[SkuResponse.Root], Seq[IlluminatedVariantResponse.Root])] = {
+  private def getVariantsWithRelatedSkus(
+      variants: Seq[FullProductOption])(implicit ec: EC, db: DB, oc: OC)
+    : DbResultT[(Seq[ProductVariantResponse.Root], Seq[IlluminatedProductOptionResponse.Root])] = {
     val variantValueIds = variants.flatMap { case (_, variantValue) ⇒ variantValue }
       .map(_.model.id)
     for {
-      variantValueSkuCodes ← * <~ VariantManager.getVariantValueSkuCodes(variantValueIds)
+      variantValueSkuCodes ← * <~ ProductOptionManager.getProductValueSkuCodes(variantValueIds)
       variantValueSkuCodesSet = variantValueSkuCodes.values.toSeq.flatten.distinct
-      variantSkus ← * <~ variantValueSkuCodesSet.map(skuCode ⇒ SkuManager.getSku(skuCode))
+      variantSkus ← * <~ variantValueSkuCodesSet.map(skuCode ⇒
+                         ProductVariantManager.getBySkuCode(skuCode))
       illuminated = variants.map {
         case (fullVariant, values) ⇒
-          val variant = IlluminatedVariant.illuminate(oc, fullVariant)
-          IlluminatedVariantResponse.buildLite(variant, values, variantValueSkuCodes)
+          val variant = IlluminatedProductOption.illuminate(oc, fullVariant)
+          IlluminatedProductOptionResponse.buildLite(variant, values, variantValueSkuCodes)
       }
     } yield (variantSkus, illuminated)
   }
@@ -255,8 +257,9 @@ object ProductManager {
     }
   }
 
-  private def validateUpdate(skus: Seq[SkuResponse.Root],
-                             variants: Seq[(FullObject[Variant], Seq[FullObject[VariantValue]])])
+  private def validateUpdate(
+      skus: Seq[ProductVariantResponse.Root],
+      variants: Seq[(FullObject[ProductOption], Seq[FullObject[ProductValue]])])
     : ValidatedNel[Failure, Unit] = {
     val maxSkus = variants.map { case (_, values) ⇒ values.length.max(1) }.product
 
@@ -266,18 +269,18 @@ object ProductManager {
   }
 
   private def updateAssociatedVariants(product: Product,
-                                       variantsPayload: Option[Seq[VariantPayload]])(
+                                       variantsPayload: Option[Seq[ProductOptionPayload]])(
       implicit ec: EC,
       db: DB,
       oc: OC,
-      au: AU): DbResultT[Seq[FullVariant]] =
+      au: AU): DbResultT[Seq[FullProductOption]] =
     variantsPayload match {
       case Some(payloads) ⇒
         findOrCreateVariantsForProduct(product, payloads)
       case None ⇒
         for {
-          variants     ← * <~ ProductVariantLinks.queryRightByLeft(product)
-          fullVariants ← * <~ variants.map(VariantManager.zipVariantWithValues)
+          variants     ← * <~ ProductOptionLinks.queryRightByLeft(product)
+          fullVariants ← * <~ variants.map(ProductOptionManager.zipVariantWithValues)
         } yield fullVariants
     }
 
@@ -305,49 +308,52 @@ object ProductManager {
         DbResultT.good(product)
     }
 
-  private def findOrCreateSkusForProduct(
+  private def findOrCreateVariantsForProduct(
       product: Product,
-      skuPayloads: Seq[SkuPayload],
+      variantPayloads: Seq[ProductVariantPayload],
       createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC, au: AU) =
-    skuPayloads.map { payload ⇒
+    variantPayloads.map { payload ⇒
       val albumPayloads = payload.albums.getOrElse(Seq.empty)
 
       for {
-        code ← * <~ SkuManager.mustGetSkuCode(payload)
-        sku  ← * <~ Skus.filterByContextAndCode(oc.id, code).one.dbresult
-        up ← * <~ sku.map { foundSku ⇒
-              if (foundSku.archivedAt.isEmpty) {
+        code    ← * <~ ProductVariantManager.mustGetSkuCode(payload)
+        variant ← * <~ ProductVariants.filterByContextAndCode(oc.id, code).one.dbresult
+        up ← * <~ variant.map { foundVariant ⇒
+              if (foundVariant.archivedAt.isEmpty) {
                 for {
-                  existingSku ← * <~ SkuManager.updateSkuInner(foundSku, payload)
-                  _           ← * <~ SkuManager.findOrCreateAlbumsForSku(existingSku.model, albumPayloads)
-                  _ ← * <~ ProductSkuLinks.syncLinks(product,
-                                                     if (createLinks) Seq(existingSku.model)
-                                                     else Seq.empty)
-                } yield existingSku
+                  existingVariant ← * <~ ProductVariantManager.updateInner(foundVariant, payload)
+                  _ ← * <~ ProductVariantManager
+                       .findOrCreateAlbumsForVariant(existingVariant.model, albumPayloads)
+                  _ ← * <~ ProductVariantLinks.syncLinks(product,
+                                                         if (createLinks)
+                                                           Seq(existingVariant.model)
+                                                         else Seq.empty)
+                } yield existingVariant
               } else {
                 DbResultT.failure(LinkArchivedSkuFailure(Product, product.id, code))
               }
             }.getOrElse {
               for {
-                newSku ← * <~ SkuManager.createSkuInner(oc, payload)
-                _      ← * <~ SkuManager.findOrCreateAlbumsForSku(newSku.model, albumPayloads)
-                _ ← * <~ ProductSkuLinks.syncLinks(product,
-                                                   if (createLinks) Seq(newSku.model)
-                                                   else Seq.empty)
+                newSku ← * <~ ProductVariantManager.createInner(oc, payload)
+                _ ← * <~ ProductVariantManager.findOrCreateAlbumsForVariant(newSku.model,
+                                                                            albumPayloads)
+                _ ← * <~ ProductVariantLinks.syncLinks(product,
+                                                       if (createLinks) Seq(newSku.model)
+                                                       else Seq.empty)
               } yield newSku
             }
-        albums ← * <~ ImageManager.getAlbumsForSkuInner(code, oc)
-      } yield SkuResponse.buildLite(IlluminatedSku.illuminate(oc, up), albums)
+        albums ← * <~ ImageManager.getAlbumsForVariantInner(code, oc)
+      } yield ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, up), albums)
     }
 
-  private def findOrCreateVariantsForProduct(product: Product, payload: Seq[VariantPayload])(
+  private def findOrCreateVariantsForProduct(product: Product, payload: Seq[ProductOptionPayload])(
       implicit ec: EC,
       db: DB,
       oc: OC,
-      au: AU): DbResultT[Seq[FullVariant]] =
+      au: AU): DbResultT[Seq[FullProductOption]] =
     for {
-      variants ← * <~ payload.map(VariantManager.updateOrCreateVariant(oc, _))
-      _ ← * <~ ProductVariantLinks.syncLinks(product, variants.map {
+      variants ← * <~ payload.map(ProductOptionManager.updateOrCreate(oc, _))
+      _ ← * <~ ProductOptionLinks.syncLinks(product, variants.map {
            case (variant, values) ⇒ variant.model
          })
     } yield variants
@@ -391,32 +397,37 @@ object ProductManager {
   // This is an inefficient intensely quering method that does the trick
   private def skusToBeUnassociatedMustNotBePresentInCarts(
       productId: Int,
-      payloadSkus: Seq[SkuPayload])(implicit ec: EC, db: DB): DbResultT[Unit] =
+      payloadSkus: Seq[ProductVariantPayload])(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
-      skuIdsForProduct ← * <~ ProductSkuLinks.filter(_.leftId === productId).result.flatMap {
+      skuIdsForProduct ← * <~ ProductVariantLinks.filter(_.leftId === productId).result.flatMap {
                           case links @ Seq(_) ⇒
                             lift(links.map(_.rightId))
                           case _ ⇒
                             for {
-                              variantLinks ← ProductVariantLinks
+                              variantLinks ← ProductOptionLinks
                                               .filter(_.leftId === productId)
                                               .result
                               variantIds = variantLinks.map(_.rightId)
-                              valueLinks ← VariantValueLinks
+                              valueLinks ← ProductOptionValueLinks
                                             .filter(_.leftId.inSet(variantIds))
                                             .result
                               valueIds = valueLinks.map(_.rightId)
-                              skuLinks ← VariantValueSkuLinks
+                              skuLinks ← ProductValueVariantLinks
                                           .filter(_.leftId.inSet(valueIds))
                                           .result
                             } yield skuLinks.map(_.rightId)
                         }
-      skuCodesForProduct ← * <~ Skus.filter(_.id.inSet(skuIdsForProduct)).map(_.code).result
-      skuCodesFromPayload = payloadSkus.map(ps ⇒ SkuManager.getSkuCode(ps.attributes)).flatten
-      skuCodesToBeGone    = skuCodesForProduct.diff(skuCodesFromPayload)
+      skuCodesForProduct ← * <~ ProductVariants
+                            .filter(_.id.inSet(skuIdsForProduct))
+                            .map(_.code)
+                            .result
+      skuCodesFromPayload = payloadSkus
+        .map(ps ⇒ ProductVariantManager.getSkuCode(ps.attributes))
+        .flatten
+      skuCodesToBeGone = skuCodesForProduct.diff(skuCodesFromPayload)
       _ ← * <~ (skuCodesToBeGone.map { codeToUnassociate ⇒
                for {
-                 skuToUnassociate ← * <~ Skus.mustFindByCode(codeToUnassociate)
+                 skuToUnassociate ← * <~ ProductVariants.mustFindByCode(codeToUnassociate)
                  _                ← * <~ skuToUnassociate.mustNotBePresentInCarts
                } yield {}
              })
