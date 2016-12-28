@@ -1,13 +1,21 @@
 /* @flow */
 
+// libs
 import React from 'react';
-import type { HTMLElement } from 'types';
-import styles from './list-item.css';
-import { browserHistory } from 'react-router';
 import _ from 'lodash';
-import TrackingPixel from '../tracking-pixel/tracking-pixel';
+import { browserHistory } from 'react-router';
 
+// components
 import Currency from 'ui/currency';
+
+// types
+import type { HTMLElement } from 'types';
+
+// modules
+import { trackRequest } from 'modules/tracking';
+
+// styles
+import styles from './list-item.css';
 
 type Image = {
   alt?: string,
@@ -34,6 +42,19 @@ type Product = {
 class ListItem extends React.Component {
   props: Product;
 
+  componentDidMount() {
+    const { productId } = this.props;
+    console.log(`ProductID = ${productId} did mount`);
+    trackRequest({
+      url: "/api/v1/hal",
+      channel: 1,
+      subject: 1,
+      verb: 'list',
+      obj: 'product',
+      objId: productId
+    });
+  }
+
   render(): HTMLElement {
     const {productId, title, albums, salePrice, currency} = this.props;
     const previewImage = _.get(albums, [0, 'images', 0, 'src']);
@@ -46,14 +67,6 @@ class ListItem extends React.Component {
 
     return (
       <div styleName="list-item" onClick={click}>
-        <TrackingPixel
-          url="/api/v1/hal"
-          channel={1}
-          subject={1} 
-          verb='list'
-          obj='product'
-          objId={productId}
-        />
         <div styleName="preview">
           {image}
         </div>
