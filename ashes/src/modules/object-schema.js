@@ -14,20 +14,9 @@ export const fetchSchema = _fetchSchema.perform;
 
 const initialState = {};
 
-// TODO: Remove me please
-const skuSchema = require('../../../phoenix-scala/resources/object_schemas/sku.json');
-
 const reducer = createReducer({
   [_fetchSchema.succeeded]: (state, results) => {
     const result = results[0];
-
-    // TODO: and me
-    if (result.kind == "sku") {
-      return {
-        ...state,
-        [result.kind]: skuSchema,
-      };
-    }
 
     return {
       ...state,
