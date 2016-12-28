@@ -13,7 +13,7 @@ import AdminsTypeahead from '../users-typeahead/admins-typeahead';
 type Props = {
   isVisible: boolean,
   onCancel: (event: SyntheticEvent) => void,
-  onConfirm: (users: Array<UserType>) => void,
+  onConfirm: (users: Array<TUser>) => void,
   title: string|Element,
   bodyLabel: string|Element,
   saveLabel: string|Element,
@@ -21,10 +21,10 @@ type Props = {
 }
 
 type State = {
-  selected: Array<UserType>,
+  selected: Array<TUser>,
 }
 
-class SelectUsersModal extends Component {
+class SelectAdminsModal extends Component {
   props: Props;
   state: State = {
     selected: [],
@@ -61,7 +61,7 @@ class SelectUsersModal extends Component {
   }
 
   @autobind
-  handleAdminsSelected(admins: Array<UserType>) {
+  handleAdminsSelected(admins: Array<TUser>) {
     this.setState({
       selected: admins,
     });
@@ -92,4 +92,4 @@ class SelectUsersModal extends Component {
   }
 }
 
-export default SelectUsersModal;
+export default SelectAdminsModal;

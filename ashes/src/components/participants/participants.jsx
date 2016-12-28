@@ -9,10 +9,11 @@ import { connect } from 'react-redux';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
 import { trackEvent } from 'lib/analytics';
 import { numberize } from 'lib/text-utils';
+import { groups } from 'paragons/participants';
 
 // components
 import WaitAnimation from '../common/wait-animation';
-import SelectUsersModal from '../users/select-modal';
+import SelectAdminsModal from '../users/select-modal';
 import { AddButton, Button } from '../common/buttons';
 import DetailedInitials from '../user-initials/detailed-initials';
 
@@ -41,7 +42,7 @@ type Props = {
   participants: Array<Object>,
   asyncActions: AsyncActions,
   maxDisplayed: number,
-  currentUser: UserType,
+  currentUser: TUser,
 }
 
 type State = {
@@ -125,12 +126,11 @@ class Participants extends Component {
   };
 
   renderCell(user, hidden = false) {
-    const { props } = this;
     const { id } = user;
     const key = hidden ? `cell-hidden-${id}` : `cell-${id}`;
 
     const actionBlock = (
-      <Button icon="close" onClick={() => props.removeParticipant(id)} />
+      <Button icon="close" onClick={() => this.props.removeParticipant(id)} />
     );
 
     return (
@@ -145,7 +145,7 @@ class Participants extends Component {
 
   get usersRow() {
     const { props } = this;
-    const users = this.props.participants;
+    const users = props.participants;
     if (_.isEmpty(users)) {
       return <div styleName="empty-list">{props.emptyTitle}</div>;
     }
@@ -168,15 +168,13 @@ class Participants extends Component {
 
   @autobind
   handleAddClick() {
-    const { props } = this;
-    trackEvent(props.title, 'click_add');
+    trackEvent(this.props.title, 'click_add');
     this.setState({
       isUsersPopupShown: true,
     });
   }
 
   get usersBlock() {
-    const { props } = this;
     if (this.isParticipantsLoading) {
       return <WaitAnimation size="s" />;
     }
@@ -196,9 +194,9 @@ class Participants extends Component {
     const { group, entity } = this.props;
     const entityTitle = _.capitalize(numberize(entity.entityType, 1));
     switch (group) {
-      case 'watchers':
+      case groups.watchers:
         return `Watch ${entityTitle}`;
-      case 'assignees':
+      case groups.assignees:
         return `Assign ${entityTitle}`;
     }
   }
@@ -208,9 +206,9 @@ class Participants extends Component {
 
     const entityTitle = numberize(entity.entityType, 1);
     switch (group) {
-      case 'watchers':
+      case groups.watchers:
         return 'Watchers:';
-      case 'assignees':
+      case groups.assignees:
         return `Assign ${entityTitle} to:`;
     }
   }
@@ -223,18 +221,18 @@ class Participants extends Component {
   }
 
   @autobind
-  handleUsersConfirm(admins: Array<UserType>) {
+  handleUsersConfirm(admins: Array<TUser>) {
     this.props.addParticipants(admins.map(admin => admin.id));
     this.hideUsersPopup();
   }
 
-  get selectUsersModal() {
+  get selectAdminsModal() {
     return (
-      <SelectUsersModal
+      <SelectAdminsModal
         isVisible={this.state.isUsersPopupShown}
         title={this.popupTitle}
         bodyLabel={this.popupBodyLabel}
-        saveLabel={this.props.group == 'watchers' ? 'Watch' : 'Assign'}
+        saveLabel={this.props.group == groups.watchers ? 'Watch' : 'Assign'}
         onCancel={this.hideUsersPopup}
         onConfirm={this.handleUsersConfirm}
       />
@@ -255,7 +253,7 @@ class Participants extends Component {
           </div>
         </div>
         {this.usersBlock}
-        {this.selectUsersModal}
+        {this.selectAdminsModal}
       </div>
     );
   }
