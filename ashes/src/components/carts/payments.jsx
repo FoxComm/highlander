@@ -108,7 +108,6 @@ export class Payments extends Component {
         editButtonId="payment-methods-edit-btn"
         editingActions={this.editingActions}
         doneAction={this.completeEdit}
-        doneButtonId="payments-method-done-btn"
         editContent={content}
         viewContent={content} />
     );
