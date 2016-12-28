@@ -21,3 +21,9 @@
     background: #f4f4f4;
   }
 }
+
+.address-title {
+  font-weight: 500;
+  font-size: 13px;
+  color: #212121;
+}

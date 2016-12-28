@@ -9,7 +9,8 @@ import makeRoutes from './routes';
 import I18nProvider from 'lib/i18n/provider';
 import { initTracker, trackPageView } from 'lib/analytics';
 
-const DEBUG = true;
+const DEBUG = process.env.NODE_ENV != 'production';
+import { api } from 'lib/api';
 
 
 function scrollHandler(prevRouterProps, { params }) {
@@ -28,6 +29,7 @@ export function renderApp() {
 
   if (DEBUG) {
     window.store = store;
+    window.foxApi = api;
   }
 
   const userId = _.get(store.getState(), 'state.auth.user.id');
