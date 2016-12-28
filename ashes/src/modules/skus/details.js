@@ -130,7 +130,7 @@ const reducer = createReducer({
     );
   },
   [skuClear]: state => {
-    return dissoc(state, 'sku');
+    return assoc(state, 'sku', null);
   },
   [syncSku]: (state, data) => {
     return update(state, 'sku', merge, data);

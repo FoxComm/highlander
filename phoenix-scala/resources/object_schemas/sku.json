@@ -53,8 +53,7 @@
           "properties": {
             "value": {
               "type": "number",
-              "minimum": 0,
-              "default": 0
+              "minimum": 0
             },
             "unit": {
               "type": "string",
@@ -69,8 +68,7 @@
           "properties": {
             "value": {
               "type": "number",
-              "minimum": 0,
-              "default": 0
+              "minimum": 0
             },
             "unit": {
               "type": "string",
@@ -85,8 +83,7 @@
           "properties": {
             "value": {
               "type": "number",
-              "minimum": 0,
-              "default": 0
+              "minimum": 0
             },
             "unit": {
               "type": "string",
@@ -101,8 +98,7 @@
           "properties": {
             "value": {
               "type": "number",
-              "minimum": 0,
-              "default": 0
+              "minimum": 0
             },
             "unit": {
               "type": "string",
@@ -117,8 +113,7 @@
           "properties": {
             "value": {
               "type": "number",
-              "minimum": 0,
-              "default": 0
+              "minimum": 0
             },
             "unit": {
               "type": "string",
@@ -132,10 +127,38 @@
           "widget": "booleanOptions",
           "title": "Item requires inventory tracking"
         },
+        "inventoryWarningLevel": {
+          "type": "object",
+          "properties": {
+            "isEnabled": {
+              "type": "bool"
+            },
+            "level": {
+              "type": "number"
+            }
+          }
+        },
+        "maximumQuantityInCart": {
+          "type": "object",
+          "properties": {
+            "isEnabled": {
+              "type": "bool"
+            },
+            "level": {
+              "type": "number"
+            }
+          }
+        },
         "minimumQuantityInCart": {
-          "type": "bool",
-          "widget": "booleanOptions",
-          "title": "Minimum quantity allowed in shopping cart"
+          "type": "object",
+          "properties": {
+            "isEnabled": {
+              "type": "bool"
+            },
+            "level": {
+              "type": "number"
+            }
+          }
         },
         "allowBackorder": {
           "type": "bool",
@@ -158,8 +181,7 @@
           "properties": {
             "value": {
               "type": "number",
-              "minimum": 0,
-              "default": 0
+              "minimum": 0
             },
             "unit": {
               "type": "string",
@@ -174,8 +196,7 @@
           "properties": {
             "value": {
               "type": "number",
-              "minimum": 0,
-              "default": 0
+              "minimum": 0
             },
             "unit": {
               "type": "string",

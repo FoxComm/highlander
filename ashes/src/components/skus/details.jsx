@@ -69,7 +69,7 @@ export default class SkuDetails extends ObjectDetails {
   }
 
   @autobind
-  handleChange(value, field, ref) {
+  handleChange(value: any, field: string|Array<string>, ref: string) {
     const attributes = assoc(this.props.object.attributes, field, value);
     const sku = assoc(this.props.object, "attributes", attributes);
 
@@ -77,7 +77,7 @@ export default class SkuDetails extends ObjectDetails {
     this.refs[ref].validate();
   }
 
-  renderQuantityInCart(field, ref, label) {
+  renderQuantityInCart(field: string, ref: string, label: string) {
     const { isEnabled, level } = this.props.object.attributes[field];
 
     const counter = (
@@ -106,7 +106,7 @@ export default class SkuDetails extends ObjectDetails {
           {isEnabled && counter}
         </div>
       </FormField>
-    )
+    );
   }
 
   renderMaximumQuantityInCart() {
@@ -114,7 +114,7 @@ export default class SkuDetails extends ObjectDetails {
       'maximumQuantityInCart',
       'maximumQuantityField',
       'Maximum quantity allowed in shopping cart'
-    )
+    );
   }
 
   renderMinimumQuantityInCart() {
@@ -122,7 +122,7 @@ export default class SkuDetails extends ObjectDetails {
       'minimumQuantityInCart',
       'minimumQuantityField',
       'Minimum quantity allowed in shopping cart'
-    )
+    );
   }
 
   renderInventoryWarningLevel() {
@@ -150,6 +150,6 @@ export default class SkuDetails extends ObjectDetails {
           <label htmlFor="inventoryWarningLevel">AFS</label>
         </div>
       </FormField>
-    )
+    );
   }
 }
