@@ -2,6 +2,7 @@
 
 - name: Provision All The Things
   hosts: all
+  become: true
   vars:
     cert_path: test/fox
     ashes_server_name: local.foxcommerce.com
@@ -11,7 +12,6 @@
     docker_db_host: 172.17.0.1
   roles:
     - { role: base/phoenix }
-    - { role: base/greenriver }
     - { role: base/marketplace }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
@@ -25,13 +25,12 @@
     - { role: dev/marketplace }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/ashes }
-    - { role: dev/balancer, sudo: true }
+    - { role: dev/balancer }
     - { role: ext/tgt/marketplace-ui }
     - { role: ext/tgt/product-search }
-    - { role: ext/tgt/balancer, sudo: true }
+    - { role: ext/tgt/balancer }
     - { role: dev/consumers }
     - { role: dev/seeder }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
-

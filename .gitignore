@@ -13,6 +13,7 @@
 # Keys
 ashes/public_key.pem
 .env.local
+/foxcomm-staging.json
 
 # target folder
 middlewarehouse/consumers/shipstation/shipstation-consumer

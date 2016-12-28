@@ -2,27 +2,30 @@
 
 - name: Provision All The Things
   hosts: all
+  become: true
   vars:
     appliance_hostname: local.foxcommerce.com
     cert_path: test/fox
     ashes_server_name: local.foxcommerce.com
     storefront_server_name: local.foxcommerce.com
-    storefront_host: firebrand.service.consul
+    storefront_host: storefront.service.consul
     docker_db_host: 172.17.0.1
     install_public_keys: true
     install_private_keys: true
     with_base_seeds: true
     mesos_quorum: 1
     vagrant: true
+    phoenix_tax_rule_region: 4129
+    phoenix_tax_rule_rate: 7.5
 
   roles:
-    - { role: dev/appliance, run_once: true}
+    - { role: dev/appliance, run_once: true }
     - { role: base/secret_keys }
     - { role: dev/consul_agent }
     - { role: base/marketplace, when: with_marketplace }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
-    - { role: base/bottledwater }
+    - { role: dev/kibana }
     - { role: dev/db }
     - { role: dev/isaac }
     - { role: dev/phoenix }
@@ -30,13 +33,15 @@
     - { role: dev/marketplace, when: with_marketplace }
     - { role: dev/middlewarehouse }
     - { role: dev/greenriver }
-    - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/ashes }
     - { role: dev/firebrand }
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }
-    - { role: dev/balancer, sudo: yes }
+    - { role: dev/messaging, retailer_name: 'FoxCommerce' }
+    - { role: dev/balancer }
+    - { role: demo/balancer }
     - { role: dev/consumers }
+    - { role: dev/healthcheck }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

@@ -1,9 +1,9 @@
 package models.cord.lineitems
 
-import cats.data.Xor
+import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import com.pellucid.sealerate
-import failures.Failures
+import failures.{Failure, Failures}
 import models.cord.lineitems.{OrderLineItem ⇒ OLI}
 import models.inventory.{Sku, Skus}
 import models.objects._
@@ -12,6 +12,7 @@ import org.json4s.Formats
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
+import utils.Validation._
 import utils._
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._

@@ -2,8 +2,8 @@ package consumers
 
 import (
 	"errors"
+	"github.com/FoxComm/metamorphosis"
 	"os"
-	"strconv"
 )
 
 type ConsumerConfig struct {
@@ -11,7 +11,7 @@ type ConsumerConfig struct {
 	ZookeeperURL        string
 	MiddlewarehouseURL  string
 	Topic               string
-	Partition           int
+	OffsetResetStrategy string
 }
 
 func MakeConsumerConfig() (ConsumerConfig, error) {
@@ -37,11 +37,16 @@ func MakeConsumerConfig() (ConsumerConfig, error) {
 		return config, errors.New("Unable to find TOPIC in env")
 	}
 
-	var err error
-	config.Partition, err = strconv.Atoi(os.Getenv("PARTITION"))
-	if err != nil {
-		return config, errors.New("Unable to parse valid PARTITION in env")
+	config.OffsetResetStrategy = os.Getenv("OFFSET_RESET_STRATEGY")
+	if invalidOffsetResetStrategy(config.OffsetResetStrategy) {
+		return config, errors.New("Unable to find OFFSET_RESET_STRATEGY in env")
+	} else if config.OffsetResetStrategy == "" {
+		config.OffsetResetStrategy = metamorphosis.OffsetResetLargest
 	}
 
 	return config, nil
+}
+
+func invalidOffsetResetStrategy(value string) bool {
+	return value != "" && value != metamorphosis.OffsetResetLargest && value != metamorphosis.OffsetResetSmallest
 }

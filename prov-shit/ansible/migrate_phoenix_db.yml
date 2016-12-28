@@ -3,7 +3,7 @@
 - name: Migrate DB
   hosts: '{{hostname}}'
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     download_flyway: false
   vars_prompt:
     - name: "hostname"
@@ -16,4 +16,4 @@
       private: no
 
   roles:
-      - { role: prod/migrate_phoenix_db }
+    - { role: prod/migrate_phoenix_db, become: true }

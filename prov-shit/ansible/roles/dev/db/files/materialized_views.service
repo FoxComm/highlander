@@ -1,6 +1,6 @@
 [Service]
 WorkingDirectory=/usr/local
-ExecStart=/bin/bash /usr/local/bin/update_materialized_views_forever.sh
+ExecStart=/usr/bin/env bash /usr/local/bin/update_materialized_views_forever.sh
 Restart=always
 StandardOutput=syslog
 StandardError=syslog

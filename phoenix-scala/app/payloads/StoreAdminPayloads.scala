@@ -14,7 +14,8 @@ object StoreAdminPayloads {
                                      phoneNumber: Option[String] = None,
                                      password: Option[String] = None,
                                      roles: List[String],
-                                     org: String)
+                                     org: String,
+                                     scope: Option[String] = None)
       extends Validation[CreateStoreAdminPayload] {
 
     def validate: ValidatedNel[Failure, CreateStoreAdminPayload] = {

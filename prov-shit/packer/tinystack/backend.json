@@ -16,6 +16,23 @@
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}",
             "disk_size": 20
+        },
+        {
+            "name": "amazon",
+            "type": "amazon-ebs",
+            "source_ami": "{{user `base_united_ami`}}",
+            "instance_type": "{{user `backend_instance_type`}}",
+            "region": "{{user `region`}}",
+            "ami_name": "base-backend-{{isotime \"060102-150405\"}}",
+            "ami_description": "Base Backend Image",
+            "associate_public_ip_address": true,
+            "ssh_username": "{{user `ssh_username`}}",
+            "vpc_id": "{{user `vpc_id`}}",
+            "security_group_id": "{{user `security_group_id`}}",
+            "subnet_id": "{{user `subnet_id`}}",
+            "tags": {
+                "Name": "base-backend-{{isotime \"060102-150405\"}}"
+            }
         }
     ],
     "provisioners" : [

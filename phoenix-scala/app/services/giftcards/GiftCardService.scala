@@ -52,12 +52,13 @@ object GiftCardService {
       case _ ⇒ DbResultT.good(GiftCardResponse.build(giftCard, None, None))
     }
 
-  def createByAdmin(admin: User, payload: GiftCardCreateByCsr)(implicit ec: EC,
-                                                               db: DB,
-                                                               ac: AC): DbResultT[Root] =
+  def createByAdmin(
+      admin: User,
+      payload: GiftCardCreateByCsr)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Root] =
     for {
-      _ ← * <~ payload.validate
-      _ ← * <~ Reasons.mustFindById400(payload.reasonId)
+      _     ← * <~ payload.validate
+      scope ← * <~ Scope.resolveOverride(payload.scope)
+      _     ← * <~ Reasons.mustFindById400(payload.reasonId)
       // If `subTypeId` is absent, don't query. Check for model existence otherwise.
       subtype ← * <~ payload.subTypeId.fold(DbResultT.none[GiftCardSubtype]) { subId ⇒
                  GiftCardSubtypes.csrAppeasements
@@ -67,31 +68,36 @@ object GiftCardService {
                }
       origin ← * <~ GiftCardManuals.create(
                   GiftCardManual(adminId = admin.accountId, reasonId = payload.reasonId))
-      giftCard ← * <~ GiftCards.create(GiftCard.buildAppeasement(payload, origin.id))
+      giftCard ← * <~ GiftCards.create(GiftCard.buildAppeasement(payload, origin.id, scope))
       adminResp = Some(UserResponse.build(admin))
       _ ← * <~ LogActivity.gcCreated(admin, giftCard)
     } yield build(gc = giftCard, admin = adminResp)
 
   def createByCustomer(admin: User, payload: GiftCardCreatedByCustomer)(implicit ec: EC,
                                                                         db: DB,
-                                                                        ac: AC): DbResultT[Root] =
+                                                                        ac: AC,
+                                                                        au: AU): DbResultT[Root] =
     for {
       _      ← * <~ payload.validate
+      scope  ← * <~ Scope.resolveOverride(payload.scope)
       origin ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = payload.cordRef))
       adminResp = UserResponse.build(admin).some
-      giftCard ← * <~ GiftCards.create(GiftCard.buildByCustomerPurchase(payload, origin.id))
+      giftCard ← * <~ GiftCards.create(GiftCard.buildByCustomerPurchase(payload, origin.id, scope))
       _        ← * <~ LogActivity.gcCreated(admin, giftCard)
     } yield build(gc = giftCard, admin = adminResp)
 
   def createBulkByAdmin(admin: User, payload: GiftCardBulkCreateByCsr)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[Seq[ItemResult]] =
+      ac: AC,
+      au: AU): DbResultT[Seq[ItemResult]] =
     for {
-      _ ← * <~ payload.validate
+      _     ← * <~ payload.validate
+      scope ← * <~ Scope.resolveOverride(payload.scope)
       gcCreatePayload = GiftCardCreateByCsr(balance = payload.balance,
                                             reasonId = payload.reasonId,
-                                            currency = payload.currency)
+                                            currency = payload.currency,
+                                            scope = scope.toString.some)
       response ← * <~ (1 to payload.quantity).value.map { num ⇒
                   createByAdmin(admin, gcCreatePayload).value.map(buildItemResult(_)).dbresult
                 }

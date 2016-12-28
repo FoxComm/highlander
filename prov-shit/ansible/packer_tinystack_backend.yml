@@ -2,6 +2,7 @@
 
 - name: Provision Packer Tinystack Backend
   hosts: all
+  become: true
   vars:
     user: ubuntu
     packing: true
@@ -12,8 +13,6 @@
     - { role: base/kafka }
     - { role: base/schema-registry }
     - { role: base/elasticsearch }
-    - { role: base/rsyslog, sudo: yes }
+    - { role: base/rsyslog }
     - { role: base/db }
     - { role: base/bottledwater }
-    - { role: base/phoenix }
-    - { role: base/greenriver }

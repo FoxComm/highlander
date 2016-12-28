@@ -18,11 +18,9 @@ func (si StockItem) Identifier() uint {
 }
 
 func NewStockItemFromPayload(payload *payloads.StockItem) *StockItem {
-	item := &StockItem{
+	return &StockItem{
 		StockLocationID: payload.StockLocationID,
 		SKU:             payload.SKU,
 		DefaultUnitCost: payload.DefaultUnitCost,
 	}
-
-	return item
 }

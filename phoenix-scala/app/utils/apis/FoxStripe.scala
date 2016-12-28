@@ -98,12 +98,12 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
     def update(stripeCard: StripeCard): Result[StripeCard] = {
 
       val params = Map[String, Object](
-          "address_line1" → cc.address1,
-          "address_line2" → cc.address2,
+          "address_line1" → cc.address.address1,
+          "address_line2" → cc.address.address2,
           // ("address_state" → cc.region),
-          "address_zip"  → cc.zip,
-          "address_city" → cc.city,
-          "name"         → cc.addressName,
+          "address_zip"  → cc.address.zip,
+          "address_city" → cc.address.city,
+          "name"         → cc.address.name,
           "exp_year"     → cc.expYear.toString,
           "exp_month"    → cc.expMonth.toString
       )

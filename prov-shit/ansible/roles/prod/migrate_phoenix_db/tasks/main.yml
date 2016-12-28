@@ -7,22 +7,22 @@
 
 - name: Synchronize Phoenix SQL
   synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
-  sudo: true
 
-- name: Synchronize Middlewarehouse SQL
-  synchronize: src="{{middlewarehouse_src}}/sql" dest="{{middlewarehouse_dir}}" delete=yes recursive=yes
-  sudo: true
+- name: Copy Flyway Config
+  template: src=flyway.conf.j2 dest="{{phoenix_dir}}/sql/flyway.conf"
 
 - name: Repair Flyway Schema
-  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} repair
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} repair
+  become: true
   args:
     chdir: "{{phoenix_dir}}"
 
 - name: Migrate Database
-  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  become: true
   args:
     chdir: "{{phoenix_dir}}"
 
 - name: Setup Update Materialized Views SQL
   copy: src={{role_path}}/../../dev/db/files/update_materialized_views.sql dest={{update_materialized_views_sql}}
-  sudo: true
+  

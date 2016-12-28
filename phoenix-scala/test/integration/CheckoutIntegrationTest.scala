@@ -199,7 +199,9 @@ class CheckoutIntegrationTest
                                             isBlacklisted = true,
                                             blacklistedBy = Some(storeAdmin.accountId)))
       custData ← * <~ CustomersData.create(
-                    CustomerData(userId = customer.accountId, accountId = account.id))
+                    CustomerData(userId = customer.accountId,
+                                 accountId = account.id,
+                                 scope = Scope.current))
       address ← * <~ Addresses.create(Factories.usAddress1.copy(accountId = customer.accountId))
       _       ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethod ← * <~ ShippingMethods

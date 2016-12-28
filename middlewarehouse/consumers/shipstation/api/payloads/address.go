@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/shipstation/phoenix"
+	mwhPayloads "github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 )
 
 // Address is a payload for creating and updating addresses.
@@ -22,7 +22,7 @@ type Address struct {
 	Residential bool
 }
 
-func NewAddressFromPhoenix(name string, address phoenix.Address) (*Address, error) {
+func NewAddressFromPhoenix(name string, address mwhPayloads.Address) (*Address, error) {
 	state, err := convertRegionFromPhoenix(address.Region.Name)
 	if err != nil {
 		return nil, err

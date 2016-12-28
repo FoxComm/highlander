@@ -11,8 +11,7 @@ variable "consul_server_image" {}
 variable "gatling_image" {}
 variable "consul_leader" {}
 
-provider "google"
-{
+provider "google" {
     credentials = "${file(var.account_file)}"
     project = "${var.gce_project}"
     region = "${var.region}"

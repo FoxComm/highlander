@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 WORK_DIR=/var/lib/mesos
 IP=`hostname -I | awk '{print $1}'`

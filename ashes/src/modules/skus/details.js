@@ -5,7 +5,7 @@
 import Api from 'lib/api';
 import { dissoc, assoc, update, merge } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
-import createAsyncActions from '../async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 import _ from 'lodash';
 
 import { createEmptySku } from 'paragons/sku';

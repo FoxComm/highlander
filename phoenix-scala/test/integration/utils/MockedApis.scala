@@ -77,8 +77,8 @@ trait MockedApis extends MockitoSugar {
 
   lazy val middlewarehouseApiMock = {
     val mocked = mock[MiddlewarehouseApi]
-    when(mocked.hold(any[OrderInventoryHold])(any[EC])).thenReturn(Result.unit)
-    when(mocked.cancelHold(any[String])(any[EC])).thenReturn(Result.unit)
+    when(mocked.hold(any[OrderInventoryHold])(any[EC], any[AU])).thenReturn(Result.unit)
+    when(mocked.cancelHold(any[String])(any[EC], any[AU])).thenReturn(Result.unit)
     mocked
   }
 

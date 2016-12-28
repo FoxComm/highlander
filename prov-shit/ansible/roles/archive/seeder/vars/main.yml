@@ -1,2 +1,0 @@
-seeder_service_requires: phoenix.service
-seeder_service_after: phoenix.service

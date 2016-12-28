@@ -2,6 +2,7 @@
 
 // libs
 import _ from 'lodash';
+import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -11,9 +12,12 @@ import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import Counter from 'components/forms/counter';
 import { DeleteButton } from 'components/common/buttons';
 import Currency from 'components/common/currency';
+import Link from 'components/link/link';
 
 // actions
 import { updateLineItemCount } from 'modules/carts/details';
+
+import type { SkuItem } from 'paragons/order';
 
 type Props = {
   updateLineItemCount: Function,
@@ -23,15 +27,8 @@ type Props = {
       skus: Array<any>,
     },
   },
-  item: {
-    imagePath: string,
-    name: string,
-    sku: string,
-    price: number,
-    totalPrice: number,
-    quantity: number,
-    attributes: ?Object,
-  },
+  item: SkuItem,
+  className?: string,
 };
 
 type Target = {
@@ -110,14 +107,14 @@ export class CartLineItem extends Component {
   }
 
   render() {
-    const { item } = this.props;
+    const { item, className } = this.props;
     const { isDeleting, quantity } = this.state;
 
     return (
-      <tr>
+      <tr className={classNames('line-item', className)}>
         <td><img src={item.imagePath} /></td>
         <td>{item.name}</td>
-        <td>{item.sku}</td>
+        <td><Link to="sku-details" params={{ skuCode: item.sku }}>{item.sku}</Link></td>
         <td><Currency value={item.price} /></td>
         <td>
           <Counter
@@ -147,6 +144,5 @@ export class CartLineItem extends Component {
     );
   }
 }
-;
 
 export default connect(null, { updateLineItemCount })(CartLineItem);

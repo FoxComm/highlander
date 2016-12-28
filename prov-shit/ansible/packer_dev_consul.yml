@@ -1,0 +1,20 @@
+---
+
+- name: Packing Dev Consul
+  hosts: all
+  become: true
+  vars:
+    user: ubuntu
+    packing: true
+    join_type: join
+    consul_expect: 1
+  gather_facts: no
+  pre_tasks:
+    - name: Install Python 2 and Boto
+      raw: sudo apt-get -y install python2.7 python-boto
+    - name: Gather Facts
+      setup:
+  roles:
+    - { role: base/common }
+    - { role: base/consul }
+    - { role: base/consul_server }

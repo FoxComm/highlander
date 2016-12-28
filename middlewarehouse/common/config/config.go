@@ -1,7 +1,7 @@
 package config
 
 import (
-	"errors"
+	"fmt"
 	"os"
 )
 
@@ -12,18 +12,29 @@ type SiteConfig struct {
 	SchemaRegistryURL string
 }
 
+const (
+	KAFKA_BROKER        = "KAFKA_BROKER"
+	SCHEMA_REGISTRY_URL = "SCHEMA_REGISTRY_URL"
+
+	ErrorEnvironmentVariableNotFound = "%s not found in the environment"
+)
+
 // Config stores all site level configurations for the application.
 var Config *SiteConfig
 
 func InitializeSiteConfig() error {
-	kafkaBroker := os.Getenv("KAFKA_BROKER")
-	if kafkaBroker == "" {
-		return errors.New("KAFKA_BROKER not found in the environment")
+	if Config != nil {
+		return nil
 	}
 
-	schemaRegistryURL := os.Getenv("SCHEMA_REGISTRY_URL")
+	kafkaBroker := os.Getenv(KAFKA_BROKER)
+	if kafkaBroker == "" {
+		return fmt.Errorf(ErrorEnvironmentVariableNotFound, KAFKA_BROKER)
+	}
+
+	schemaRegistryURL := os.Getenv(SCHEMA_REGISTRY_URL)
 	if schemaRegistryURL == "" {
-		return errors.New("SCHEMA_REGISTRY_URL not found in the environment")
+		return fmt.Errorf(ErrorEnvironmentVariableNotFound, SCHEMA_REGISTRY_URL)
 	}
 
 	Config = &SiteConfig{kafkaBroker, schemaRegistryURL}

@@ -1,11 +1,28 @@
 ---
 
+- name: Bootstrap Amigo
+  hosts: '{{hostname}}'
+  become: true
+  tags:
+    - amigo
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a backend to provision"
+      default: "vanilla-amigo"
+      private: no
+
+  roles:
+    - { role: dev/kibana }
+
 - name: Bootstrap Tinyprod
   hosts: '{{hostname}}'
+  become: true
   tags:
     - backend
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     seeds_cmd: utils.seeds.Seeds seed
     updating_mwh: true
     middlewarehouse_src: "{{gopath}}/src/github.com/FoxComm/highlander/middlewarehouse"
@@ -32,10 +49,11 @@
 
 - name: Bootstrap Frontend
   hosts: '{{hostname}}'
+  become: true
   tags:
     - frontend
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     firebrand_default_language: en
     firebrand_fixed_language: false
     phoenix_service_requires: ""
@@ -66,7 +84,6 @@
 
   roles:
     - { role: base/phoenix }
-    - { role: base/greenriver }
     - { role: dev/greenriver }
     - { role: dev/phoenix }
     - { role: dev/isaac }
@@ -75,7 +92,7 @@
     - { role: dev/ashes }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/firebrand }
-    - { role: dev/balancer, sudo: yes }
+    - { role: dev/balancer }
     - { role: dev/consumers }
 
   handlers:

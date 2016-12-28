@@ -77,7 +77,7 @@ class CustomerIntegrationTest
     }
 
     "customer info shows valid billingRegion" in new CreditCardFixture {
-      val billRegion = Regions.findOneById(creditCard.regionId).gimme
+      val billRegion = Regions.findOneById(creditCard.address.regionId).gimme
 
       val root = CustomerResponse
         .build(customer, customerData, shippingRegion = region.some, billingRegion = billRegion)
@@ -93,7 +93,7 @@ class CustomerIntegrationTest
     }
 
     "empty phone number is resolved from" - {
-      "default shipping address" in {
+      "default shipping address" in new StoreAdmin_Seed {
         val defaultPhoneNumber: String = "1111111111"
 
         val (customer, customerData, region) = (for {
@@ -101,7 +101,9 @@ class CustomerIntegrationTest
           customer ← * <~ Users.create(
                         Factories.customer.copy(accountId = account.id, phoneNumber = None))
           customerData ← * <~ CustomersData.create(
-                            CustomerData(accountId = account.id, userId = customer.id))
+                            CustomerData(accountId = account.id,
+                                         userId = customer.id,
+                                         scope = Scope.current))
           address ← * <~ Addresses.create(
                        Factories.address.copy(accountId = customer.accountId,
                                               isDefaultShipping = true,
@@ -116,7 +118,7 @@ class CustomerIntegrationTest
         customersApi(customer.accountId).get().as[Root] must === (customerRoot)
       }
 
-      "last shipping address" in {
+      "last shipping address" in new StoreAdmin_Seed {
 
         val phoneNumbers = Seq("1111111111", "2222222222")
 
@@ -134,17 +136,23 @@ class CustomerIntegrationTest
           customer ← * <~ Users.create(
                         Factories.customer.copy(accountId = account.id, phoneNumber = None))
           custData ← * <~ CustomersData.create(
-                        CustomerData(userId = customer.id, accountId = account.id))
+                        CustomerData(userId = customer.id,
+                                     accountId = account.id,
+                                     scope = Scope.current))
           address ← * <~ Addresses.create(defaultAddress.copy(accountId = customer.accountId))
           region  ← * <~ Regions.findOneById(address.regionId)
           cart1 ← * <~ Carts.create(
-                     Cart(referenceNumber = "ABC-1", accountId = customer.accountId))
-          order1 ← * <~ Orders.createFromCart(cart1)
+                     Cart(referenceNumber = "ABC-1",
+                          scope = Scope.current,
+                          accountId = customer.accountId))
+          order1 ← * <~ Orders.createFromCart(cart1, None)
           order1 ← * <~ Orders.update(order1, order1.copy(state = Order.FulfillmentStarted))
           order1 ← * <~ Orders.update(order1, order1.copy(state = Order.Shipped))
           cart2 ← * <~ Carts.create(
-                     Cart(referenceNumber = "ABC-2", accountId = customer.accountId))
-          order2 ← * <~ Orders.createFromCart(cart2)
+                     Cart(referenceNumber = "ABC-2",
+                          scope = Scope.current,
+                          accountId = customer.accountId))
+          order2 ← * <~ Orders.createFromCart(cart2, None)
           order2 ← Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))
           order2 ← Orders.update(order2, order2.copy(state = Order.Shipped))
           orders = Seq(order1, order2)
@@ -352,7 +360,7 @@ class CustomerIntegrationTest
 
       val creditCards =
         customersApi(customer.accountId).payments.creditCards.get().as[Seq[CardResponse]]
-      val ccRegion = Regions.findOneById(creditCard.regionId).gimme.value
+      val ccRegion = Regions.findOneById(creditCard.address.regionId).gimme.value
 
       creditCards must have size 1
       creditCards.head must === (CreditCardsResponse.build(creditCard, ccRegion))
@@ -466,7 +474,8 @@ class CustomerIntegrationTest
         val numAddresses = Addresses.length.result.gimme
 
         numAddresses must === (1)
-        (newVersion.zip, newVersion.regionId) must === ((address.zip, address.regionId))
+        (newVersion.address.zip, newVersion.address.regionId) must === (
+            (address.zip, address.regionId))
       }
 
       "creates a new address book entry if a full address was given" in new CreditCardFixture {
@@ -487,8 +496,10 @@ class CustomerIntegrationTest
         val newAddress = addresses.last
 
         addresses must have size 2
-        (newVersion.zip, newVersion.regionId) must === (("54321", address.regionId + 1))
-        (newVersion.zip, newVersion.regionId) must === ((newAddress.zip, newAddress.regionId))
+        (newVersion.address.zip, newVersion.address.regionId) must === (
+            ("54321", address.regionId + 1))
+        (newVersion.address.zip, newVersion.address.regionId) must === (
+            (newAddress.zip, newAddress.regionId))
       }
     }
 
@@ -602,10 +613,15 @@ class CustomerIntegrationTest
                                              email = "second@example.org".some,
                                              name = "second".some))
       custData2 ← * <~ CustomersData.create(
-                     CustomerData(userId = customer2.id, accountId = account.id))
-      cart2  ← * <~ Carts.create(Cart(accountId = customer2.accountId, referenceNumber = "ABC-456"))
-      order  ← * <~ Orders.createFromCart(cart)
-      order2 ← * <~ Orders.createFromCart(cart2)
+                     CustomerData(userId = customer2.id,
+                                  accountId = account.id,
+                                  scope = Scope.current))
+      cart2 ← * <~ Carts.create(
+                 Cart(accountId = customer2.accountId,
+                      scope = Scope.current,
+                      referenceNumber = "ABC-456"))
+      order  ← * <~ Orders.createFromCart(cart, None)
+      order2 ← * <~ Orders.createFromCart(cart2, None)
       orderPayment ← * <~ OrderPayments.create(
                         Factories.orderPayment.copy(cordRef = order.refNum,
                                                     paymentMethodId = creditCard.id,

@@ -9,9 +9,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
+	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 	"github.com/FoxComm/metamorphosis"
 )
 
@@ -21,24 +21,24 @@ const (
 	orderStateFulfillmentStarted  = "fulfillmentStarted"
 )
 
-type OrderHandler struct {
-	client lib.PhoenixClient
-	mwhURL string
+type OrderConsumer struct {
+	phoenixClient phoenix.PhoenixClient
+	mwhURL        string
 }
 
-func NewOrderHandler(client lib.PhoenixClient, mwhURL string) (*OrderHandler, error) {
+func NewOrderConsumer(phoenixClient phoenix.PhoenixClient, mwhURL string) (*OrderConsumer, error) {
 	if mwhURL == "" {
 		return nil, errors.New("middlewarehouse URL must be set")
 	}
 
-	return &OrderHandler{client, mwhURL}, nil
+	return &OrderConsumer{phoenixClient, mwhURL}, nil
 }
 
 // Handler accepts an Avro encoded message from Kafka and takes
 // based on the activities topic and looks for orders that were just placed in
 // fulfillment started. If it finds one, it sends to middlewarehouse to create
 // a shipment. Returning an error will cause a panic.
-func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
+func (o OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 	activity, err := activities.NewActivityFromAvro(message)
 	if err != nil {
 		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
@@ -67,7 +67,7 @@ func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 		}
 
 		// Get orders from Phoenix
-		orders, err := bulkStateChange.GetRelatedOrders(o.client)
+		orders, err := bulkStateChange.GetRelatedOrders(o.phoenixClient)
 		if err != nil {
 			return err
 		}
@@ -87,7 +87,7 @@ func (o OrderHandler) Handler(message metamorphosis.AvroMessage) error {
 }
 
 // Handle activity for single order
-func (o OrderHandler) handlerInner(fullOrder *shared.FullOrder) error {
+func (o OrderConsumer) handlerInner(fullOrder *shared.FullOrder) error {
 	order := fullOrder.Order
 	if order.OrderState != orderStateFulfillmentStarted {
 		return nil
@@ -109,7 +109,12 @@ func (o OrderHandler) handlerInner(fullOrder *shared.FullOrder) error {
 		return err
 	}
 
+	if err := o.phoenixClient.EnsureAuthentication(); err != nil {
+		log.Panicf("Error auth in phoenix with error: %s", err.Error())
+	}
+
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("JWT", o.phoenixClient.GetJwt())
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

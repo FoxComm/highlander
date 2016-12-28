@@ -73,6 +73,8 @@ def tune_vm(config, opts = {})
     user = "ubuntu"
 
     override.vm.box = "gce"
+    override.vm.synced_folder '.', '/vagrant', disabled: true
+
     override.ssh.username = ENV['GOOGLE_SSH_USERNAME']
     override.ssh.private_key_path = ENV['GOOGLE_SSH_KEY']
 
@@ -80,7 +82,7 @@ def tune_vm(config, opts = {})
     g.google_client_email = ENV['GOOGLE_CLIENT_EMAIL']
     g.google_json_key_location = ENV['GOOGLE_JSON_KEY_LOCATION']
 
-    g.machine_type = "n1-standard-2"
+    g.machine_type = "n1-standard-4"
     g.image = "appliance-base-161129-185737"
     g.disk_size = 40
     g.zone = "us-central1-a"
@@ -135,13 +137,14 @@ Vagrant.configure("2") do |config|
 
     app.vm.provision "ansible" do |ansible|
 
-      ansible.verbose = "vvvv"
+      ansible.verbose = "v"
       ansible.playbook = "prov-shit/ansible/vagrant_appliance.yml"
       ansible.extra_vars = {
         user: user,
         appliance_hostname: $nginx_ip,
         mesos_ip: $nginx_ip,
-        local_vagrant: $local
+        local_vagrant: $local,
+        first_run: true
       }
     end
   end
@@ -159,7 +162,7 @@ Vagrant.configure("2") do |config|
 
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
-      ansible.verbose = "vvvv"
+      ansible.verbose = "v"
       ansible.playbook = "prov-shit/ansible/vagrant_appliance_base.yml"
       ansible.extra_vars = {
         user: user
@@ -173,7 +176,7 @@ Vagrant.configure("2") do |config|
 
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
-      ansible.verbose = "vvvv"
+      ansible.verbose = "v"
       ansible.skip_tags = "buildkite"
       ansible.playbook = "prov-shit/ansible/vagrant_builder.yml"
       ansible.extra_vars = {

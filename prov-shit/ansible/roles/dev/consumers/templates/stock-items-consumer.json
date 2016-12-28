@@ -21,7 +21,10 @@
     "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
     "ZOOKEEPER_URL": "{{zookeeper_server}}",
     "MWH_URL": "http://{{middlewarehouse_server}}",
-    "PARTITION": "1"
+    "PHOENIX_URL": "http://{{phoenix_server}}",
+    "PHOENIX_USER": "{{phoenix_api_user}}",
+    "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
+    "OFFSET_RESET_STRATEGY": "smallest"
   },
   "healthChecks": [
     {

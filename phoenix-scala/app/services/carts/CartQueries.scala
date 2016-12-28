@@ -1,18 +1,17 @@
 package services.carts
 
+//import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import models.account._
 import models.cord._
 import models.objects.ObjectContext
 import models.payment.creditcard.CreditCardCharge.{Auth ⇒ ccAuth}
-import models.payment.creditcard._
 import models.payment.giftcard.GiftCardAdjustment.{Auth ⇒ gcAuth}
 import models.payment.storecredit.StoreCreditAdjustment.{Auth ⇒ scAuth}
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.Authenticator.UserAuthenticator
 import services.{CartValidator, CordQueries, LogActivity}
-import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
@@ -71,7 +70,8 @@ object CartQueries extends CordQueries {
       result ← * <~ Carts
                 .findByAccountId(customer.accountId)
                 .one
-                .findOrCreateExtended(Carts.create(Cart(accountId = customer.accountId)))
+                .findOrCreateExtended(
+                    Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)))
       (cart, foundOrCreated) = result
       fullOrder ← * <~ CartResponse.fromCart(cart, grouped, au.isGuest)
       _         ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)

@@ -57,9 +57,12 @@ begin
   end if;
 
   if array_length(insert_ids, 1) > 0 then
-    insert into products_catalog_view select
+    insert into products_catalog_view(id, product_id, slug, context, title, description, sale_price, currency, tags,
+                                      albums, scope, skus)
+      select
       p.id,
       f.id as product_id,
+      p.slug,
       context.name as context,
       f.attributes->>(s.attributes->'title'->>'ref') as title,
       f.attributes->>(s.attributes->'description'->>'ref') as description,
@@ -82,6 +85,7 @@ begin
   if array_length(update_ids, 1) > 0 then
     update products_catalog_view set
         product_id = subquery.product_id,
+        slug = subquery.slug,
         context = subquery.context,
         title = subquery.title,
         description = subquery.description,
@@ -93,6 +97,7 @@ begin
         skus = subquery.skus
       from (select
                 p.id,
+                p.slug as slug,
                 f.id as product_id,
                 context.name as context,
                 f.attributes->>(s.attributes->'title'->>'ref') as title,

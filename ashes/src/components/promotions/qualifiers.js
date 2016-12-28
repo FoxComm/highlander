@@ -45,7 +45,7 @@ const qualifiers = [
       [{type: 'type'}],
       [
         {
-          name: 'references',
+          name: 'search',
           widget: 'selectProducts',
           label: 'Items for qualify'
         }
@@ -66,7 +66,7 @@ const qualifiers = [
       ],
       [
         {
-          name: 'references',
+          name: 'search',
           widget: 'selectProducts',
           label: 'Items for qualify'
         }
@@ -87,7 +87,7 @@ const qualifiers = [
       ],
       [
         {
-          name: 'references',
+          name: 'search',
           widget: 'selectProducts',
           label: 'Items for qualify'
         }

@@ -2,6 +2,24 @@
 # yarn lockfile v1
 
 
+"@foxcomm/wings@^1.9.0":
+  version "1.9.0"
+  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fwings/-/wings-1.9.0.tgz#7c7db289b9e92e8f3f6bf1a44f4314cd04995e06"
+  dependencies:
+    classnames "^2.2.5"
+    flow-bin "^0.36.0"
+    hoist-non-react-statics "^1.2.0"
+    lodash "^4.13.1"
+    postcss "^5.0.21"
+    postcss-cli "^2.5.2"
+    postcss-cssnext "^2.7.0"
+    react "^15.2.0"
+    reduce-reducers "^0.1.2"
+    redux "^3.6.0"
+    redux-act "^1.1.0"
+    redux-thunk "^2.1.0"
+    sprout-data "^0.2.3"
+
 JSONStream@^1.0.3:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/JSONStream/-/JSONStream-1.2.1.tgz#32aa5790e799481083b49b4b7fa94e23bae69bf9"
@@ -332,6 +350,27 @@ aws-sign2@~0.6.0:
 aws4@^1.2.1:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.5.0.tgz#0a29ffb79c31c9e712eeb087e8e7a64b4a56d755"
+
+babel-cli@^6.18.0:
+  version "6.18.0"
+  resolved "https://registry.yarnpkg.com/babel-cli/-/babel-cli-6.18.0.tgz#92117f341add9dead90f6fa7d0a97c0cc08ec186"
+  dependencies:
+    babel-core "^6.18.0"
+    babel-polyfill "^6.16.0"
+    babel-register "^6.18.0"
+    babel-runtime "^6.9.0"
+    commander "^2.8.1"
+    convert-source-map "^1.1.0"
+    fs-readdir-recursive "^1.0.0"
+    glob "^5.0.5"
+    lodash "^4.2.0"
+    output-file-sync "^1.1.0"
+    path-is-absolute "^1.0.0"
+    slash "^1.0.0"
+    source-map "^0.5.0"
+    v8flags "^2.0.10"
+  optionalDependencies:
+    chokidar "^1.0.0"
 
 babel-code-frame@^6.16.0:
   version "6.16.0"
@@ -932,7 +971,7 @@ babel-plugin-transform-system-register@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/babel-plugin-transform-system-register/-/babel-plugin-transform-system-register-0.0.1.tgz#9dff40390c2763ac518f0b2ad7c5ea4f65a5be25"
 
-babel-polyfill@^6.13.0:
+babel-polyfill@^6.13.0, babel-polyfill@^6.16.0:
   version "6.16.0"
   resolved "https://registry.yarnpkg.com/babel-polyfill/-/babel-polyfill-6.16.0.tgz#2d45021df87e26a374b6d4d1a9c65964d17f2422"
   dependencies:
@@ -1016,7 +1055,7 @@ babel-preset-stage-3@^6.17.0:
     babel-plugin-transform-exponentiation-operator "^6.3.13"
     babel-plugin-transform-object-rest-spread "^6.16.0"
 
-babel-register@^6.14.0, babel-register@^6.18.0:
+babel-register@^6.18.0:
   version "6.18.0"
   resolved "https://registry.yarnpkg.com/babel-register/-/babel-register-6.18.0.tgz#892e2e03865078dd90ad2c715111ec4449b32a68"
   dependencies:
@@ -1782,7 +1821,7 @@ commander@2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.3.0.tgz#fd430e889832ec353b9acd1de217c11cb3eef873"
 
-commander@2.9.x, commander@^2.5.0, commander@^2.9.0:
+commander@2.9.x, commander@^2.5.0, commander@^2.8.1, commander@^2.9.0:
   version "2.9.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.9.0.tgz#9c99094176e12240cb22d6c5146098400fe0f7d4"
   dependencies:
@@ -1986,9 +2025,9 @@ css-modules-loader-core@^1.0.0:
     postcss-modules-scope "1.0.2"
     postcss-modules-values "1.2.2"
 
-css-modulesify@0.25.1:
-  version "0.25.1"
-  resolved "https://registry.yarnpkg.com/css-modulesify/-/css-modulesify-0.25.1.tgz#b820fdd607a97b2533214c4b94e636cd2d155d2d"
+css-modulesify@^0.26.0:
+  version "0.26.0"
+  resolved "https://registry.yarnpkg.com/css-modulesify/-/css-modulesify-0.26.0.tgz#5f3f0605fb19bbdaf2973cd1d6410f4556372933"
   dependencies:
     css-modules-loader-core "^1.0.0"
     dependency-graph "^0.4.1"
@@ -3068,12 +3107,16 @@ fleck@^0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/fleck/-/fleck-0.5.1.tgz#4d25e3c30eba2d8c0f3f0dae02554f0311ebf078"
 
-flow-bin@0.25.0:
+flow-bin@^0.25.0:
   version "0.25.0"
   resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.25.0.tgz#bb85717e566686bef1372b70a924b9fa4c218388"
   dependencies:
     bin-wrapper "^3.0.2"
     logalot "^2.0.0"
+
+flow-bin@^0.36.0:
+  version "0.36.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.36.0.tgz#557907bd9c2ab0670cfad9e7e906a74b0631e39a"
 
 for-in@^0.1.5:
   version "0.1.6"
@@ -3126,6 +3169,10 @@ fresh@^0.3.0:
 fs-exists-sync@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/fs-exists-sync/-/fs-exists-sync-0.1.0.tgz#982d6893af918e72d08dec9e8673ff2b5a8d6add"
+
+fs-readdir-recursive@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/fs-readdir-recursive/-/fs-readdir-recursive-1.0.0.tgz#8cd1745c8b4f8a29c8caec392476921ba195f560"
 
 fs.realpath@^1.0.0:
   version "1.0.0"
@@ -3284,7 +3331,7 @@ glob@3.2.11:
     inherits "2"
     minimatch "0.3"
 
-glob@5.0.x, glob@5.x, glob@^5.0.15, glob@^5.0.3:
+glob@5.0.x, glob@5.x, glob@^5.0.15, glob@^5.0.3, glob@^5.0.5:
   version "5.0.15"
   resolved "https://registry.yarnpkg.com/glob/-/glob-5.0.15.tgz#1bc936b9e02f4a603fcc222ecf7633d30b8b93b1"
   dependencies:
@@ -3408,7 +3455,7 @@ got@^5.0.0:
     unzip-response "^1.0.2"
     url-parse-lax "^1.0.0"
 
-graceful-fs@4.X, graceful-fs@^4.0.0, graceful-fs@^4.1.2, graceful-fs@^4.1.3:
+graceful-fs@4.X, graceful-fs@^4.0.0, graceful-fs@^4.1.2, graceful-fs@^4.1.3, graceful-fs@^4.1.4:
   version "4.1.10"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.10.tgz#f2d720c22092f743228775c75e3612632501f131"
 
@@ -5711,6 +5758,14 @@ outpipe@^1.1.0:
   dependencies:
     shell-quote "^1.4.2"
 
+output-file-sync@^1.1.0:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/output-file-sync/-/output-file-sync-1.1.2.tgz#d0a33eefe61a205facb90092e826598d5245ce76"
+  dependencies:
+    graceful-fs "^4.1.4"
+    mkdirp "^0.5.1"
+    object-assign "^4.1.0"
+
 pako@~0.2.0:
   version "0.2.9"
   resolved "https://registry.yarnpkg.com/pako/-/pako-0.2.9.tgz#f3f7522f4ef782348da8161bad9ecfd51bf83a75"
@@ -6350,10 +6405,6 @@ postcss@^5.0.0, postcss@^5.0.10, postcss@^5.0.11, postcss@^5.0.12, postcss@^5.0.
     source-map "^0.5.6"
     supports-color "^3.1.2"
 
-postinstall-build@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/postinstall-build/-/postinstall-build-0.2.1.tgz#132e95029ba6ee5229a8802b90a7adbf3f46875d"
-
 prelude-ls@~1.1.0, prelude-ls@~1.1.1, prelude-ls@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
@@ -6764,11 +6815,11 @@ reduce-function-call@^1.0.1:
   dependencies:
     balanced-match "~0.1.0"
 
-reduce-reducers@^0.1.1:
+reduce-reducers@^0.1.1, reduce-reducers@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/reduce-reducers/-/reduce-reducers-0.1.2.tgz#fa1b4718bc5292a71ddd1e5d839c9bea9770f14b"
 
-redux-act@^1.0.0:
+redux-act@^1.0.0, redux-act@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/redux-act/-/redux-act-1.1.0.tgz#941f6999f73b02d876f26aa0d76b0b61ce3e58bc"
 
@@ -6781,6 +6832,10 @@ redux-logger@^2.0.3:
 redux-thunk@^1.0.0:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/redux-thunk/-/redux-thunk-1.0.3.tgz#778aa0099eea0595031ab6b39165f6670d8d26bd"
+
+redux-thunk@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/redux-thunk/-/redux-thunk-2.1.0.tgz#c724bfee75dbe352da2e3ba9bc14302badd89a98"
 
 redux@^3.2.0, redux@^3.6.0:
   version "3.6.0"
@@ -7913,7 +7968,7 @@ uuid@^2.0.1:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-2.0.3.tgz#67e2e863797215530dff318e5bf9dcebfd47b21a"
 
-v8flags@^2.0.2:
+v8flags@^2.0.10, v8flags@^2.0.2:
   version "2.0.11"
   resolved "https://registry.yarnpkg.com/v8flags/-/v8flags-2.0.11.tgz#bca8f30f0d6d60612cc2c00641e6962d42ae6881"
   dependencies:
@@ -8145,18 +8200,6 @@ window-size@0.1.0:
 window-size@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/window-size/-/window-size-0.2.0.tgz#b4315bb4214a3d7058ebeee892e13fa24d98b075"
-
-"wings@git+ssh://git@github.com/FoxComm/wings.git#v1.2.1":
-  version "1.2.0"
-  resolved "git+ssh://git@github.com/FoxComm/wings.git#3f783b85b875188a1b3923caf3d5b8fb313e1c16"
-  dependencies:
-    classnames "^2.2.5"
-    lodash "^4.13.1"
-    postcss "^5.0.21"
-    postcss-cli "^2.5.2"
-    postcss-cssnext "^2.7.0"
-    postinstall-build "^0.2.1"
-    react "^15.2.0"
 
 wordwrap@0.0.2, wordwrap@~0.0.2:
   version "0.0.2"

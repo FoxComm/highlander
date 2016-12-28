@@ -3,10 +3,16 @@ package mocks
 import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/stretchr/testify/mock"
+	"github.com/jinzhu/gorm"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
 )
 
 type SummaryServiceMock struct {
 	mock.Mock
+}
+
+func (m *SummaryServiceMock) WithTransaction(txn *gorm.DB) services.ISummaryService {
+	return m
 }
 
 // implement service interface to pass mock as service (another solution?)
