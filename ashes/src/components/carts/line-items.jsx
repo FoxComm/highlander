@@ -74,8 +74,9 @@ export default class CartLineItems extends Component {
         id={id}
         title={title}
         isEditing={this.state.isEditing}
-        editAction={editAction}
         editButtonId="line-items-edit-btn"
+        editAction={editAction}
+        doneButtonId="line-items-done-btn"
         doneAction={doneAction}
         editContent={this.editContent}
         editFooter={editFooter}

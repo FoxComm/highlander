@@ -51,6 +51,7 @@ EditableContentBox.propTypes = {
   isEditing: PropTypes.bool,
   editButtonId: PropTypes.string,
   editAction: PropTypes.func,
+  doneButtonId: PropTypes.func,
   doneAction: PropTypes.func,
   editingActions: PropTypes.node,
   editFooter: PropTypes.node,
@@ -78,7 +79,7 @@ EditableContentBox.defaultProps = {
       return (
         <footer className="fc-editable-content-box-footer">
           {footer}
-          <EditDoneButton doneAction={props.doneAction} />
+          <EditDoneButton id={props.doneButtonId} doneAction={props.doneAction} />
         </footer>
       );
     } else {

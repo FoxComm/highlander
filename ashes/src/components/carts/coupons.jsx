@@ -160,6 +160,7 @@ class CartCoupons extends Component {
         isEditing={this.isEditing}
         editButtonId="coupons-edit-btn"
         editAction={this.handleEditAction}
+        doneButtonId="coupons-done-btn"
         doneAction={this.handleDoneAction}
       />
     );

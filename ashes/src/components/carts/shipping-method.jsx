@@ -70,8 +70,8 @@ export class CartShippingMethod extends Component {
         title={title}
         readOnly={false}
         availableShippingMethods={list}
-        editAction={this.startEditing}
         isEditing={this.state.isEditing}
+        editAction={this.startEditing}
         editButtonId="shipping-method-edit-btn"
         doneAction={this.completeEditing}
         updateAction={this.updateShippingMethod}

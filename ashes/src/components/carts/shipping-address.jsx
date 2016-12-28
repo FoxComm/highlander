@@ -69,6 +69,7 @@ export default class CartShippingAddress extends Component {
         isEditing={this.state.isEditing}
         editButtonId="shipping-address-edit-btn"
         editAction={editAction}
+        doneButtonId="shipping-address-done-btn"
         doneAction={this.handleToggleEdit}
         renderContent={this.renderContent}
       />
