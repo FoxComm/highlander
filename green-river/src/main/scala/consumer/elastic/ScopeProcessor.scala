@@ -55,8 +55,7 @@ class ScopeProcessor(uri: String,
   }
 
   private def createIndex(scope: Scope): Future[Unit] = {
-    var createFutures = Buffer[Future[Unit]]()
-    indexTopics.foreach {
+    val futures: Iterable[Future[Unit]] = indexTopics.map {
       case (indexName, topics) ⇒ {
           val scopedIndexName = s"${indexName}_${scope.path}"
           Console.out.println(s"Creating type mappings for index: ${scopedIndexName}")
@@ -66,7 +65,7 @@ class ScopeProcessor(uri: String,
           }.mapValues(_.mapping()).values.toSeq
 
           // create index with scope in the
-          createFutures += client.execute {
+          client.execute {
             create index scopedIndexName mappings (jsonMappings: _*) analysis (autocompleteAnalyzer, lowerCasedAnalyzer, upperCasedAnalyzer)
           }.map { _ ⇒
             ()
@@ -79,6 +78,6 @@ class ScopeProcessor(uri: String,
           }
         }
     }
-    Future.sequence(createFutures).map(_ ⇒ ())
+    Future.sequence(futures).map(_ ⇒ ())
   }
 }
