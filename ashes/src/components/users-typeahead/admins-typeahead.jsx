@@ -20,9 +20,16 @@ function mapStateToProps(state) {
   };
 }
 
-const AdminsTypeahead = (props: Props) => {
-  // $FlowFixMe: hideOnBlur is defined and true!
-  return <UsersTypeahead {...props}/>;
+type AdminsTypeaheadProps = Props & {
+  mapAdmins?: (admins: Array<TUser>) => Array<TUser>,
+}
+
+const AdminsTypeahead = (props: AdminsTypeaheadProps) => {
+  const { mapAdmins, suggested, ...rest } = props;
+  const mappedSuggested = mapAdmins ? mapAdmins(suggested) : suggested;
+
+  // $FlowFixMe: hideOnBlur is defined and true when it has been passed without props
+  return <UsersTypeahead {...rest} suggested={mappedSuggested} />;
 };
 
 export default _.flowRight(

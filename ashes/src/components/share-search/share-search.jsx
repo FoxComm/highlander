@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import React, { Component, PropTypes } from 'react';
+import { numberize } from 'lib/text-utils';
 
 /** Component */
 import { ModalContainer } from '../modal/base';
@@ -94,12 +95,13 @@ class ShareSearch extends Component {
     const { numberUpdatedUsers, failed } = this.state;
     if (numberUpdatedUsers || failed) {
       let label = '';
+      const absCount = Math.abs(numberUpdatedUsers);
       if (failed) {
         label = `Failed updating data.`;
       } else if (numberUpdatedUsers > 0) {
-        label = `Search was successfully shared with ${Math.abs(numberUpdatedUsers)} users.`;
+        label = `Search was successfully shared with ${absCount} ${numberize('user', absCount)}.`;
       } else {
-        label = `Search was successfully unshared from ${Math.abs(numberUpdatedUsers)} users.`;
+        label = `Search was successfully unshared from ${absCount} ${numberize('user', absCount)}.`;
       }
 
       return (
@@ -157,7 +159,9 @@ class ShareSearch extends Component {
   render() {
     const { state } = this;
     const { search, shares, maxUsers } = this.props;
-    const { isUpdatingAssociations = false, } = shares;
+    const { isUpdatingAssociations = false, associations = [] } = shares;
+
+    const associationsById = _.keyBy(associations, 'id');
 
     return (
       <ModalContainer isVisible={this.props.isVisible}>
@@ -170,6 +174,7 @@ class ShareSearch extends Component {
                 label="Invite Users"
                 onSelect={this.handleSelectUsers}
                 maxUsers={maxUsers}
+                mapAdmins={admins => _.filter(admins, admin => !(admin.id in associationsById))}
               />
               <div className="fc-share-search__controls">
                 <PrimaryButton className="fc-align-right"
