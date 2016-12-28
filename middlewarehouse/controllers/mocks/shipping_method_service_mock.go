@@ -1,6 +1,8 @@
 package mocks
 
 import (
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/stretchr/testify/mock"
@@ -54,4 +56,11 @@ func (service *ShippingMethodServiceMock) DeleteShippingMethod(id uint) error {
 	args := service.Called(id)
 
 	return args.Error(0)
+}
+
+func (service *ShippingMethodServiceMock) EvaluateForOrder(order *payloads.Order) ([]*responses.OrderShippingMethod, error) {
+	args := service.Called(order)
+
+	resp := []*responses.OrderShippingMethod{}
+	return resp, args.Error(0)
 }

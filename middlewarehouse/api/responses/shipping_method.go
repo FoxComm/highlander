@@ -13,7 +13,7 @@ type ShippingMethod struct {
 	Code         string  `json:"code"`
 	ShippingType string  `json:"type"`
 	Cost         uint    `json:"cost"`
-	Scope   string  `json:"scope"`
+	Scope        string  `json:"scope"`
 }
 
 func NewShippingMethodFromModel(shippingMethod *models.ShippingMethod) (*ShippingMethod, error) {
