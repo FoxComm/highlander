@@ -13,6 +13,7 @@ import utils.IlluminateAlgorithm
 import services.objects.ObjectSchemasManager
 import utils.aliases._
 import utils.db._
+import scala.annotation.tailrec
 
 object ObjectUtils {
 
@@ -25,9 +26,10 @@ object ObjectUtils {
 
   def get(attr: String, form: ObjectForm, shadow: ObjectShadow): Json = {
     IlluminateAlgorithm.get(attr, form.attributes, shadow.attributes)
+
   }
 
-  def key(content: Json): String = {
+  def hash(content: Json): String = {
     val KEY_LENGTH = 5
     val md         = java.security.MessageDigest.getInstance("SHA-1")
     md.digest(compact(render(content)).getBytes)
@@ -36,23 +38,56 @@ object ObjectUtils {
       .mkString
   }
 
-  def key(content: String): String = key(JString(content))
-
-  def attribute(content: Json): JField = {
-    (key(content), content)
+  //Key is valid if the content is the same or the key doesn't exist
+  //in existing fields
+  def validKey(key: String, content: Json, fields: Json): Boolean = {
+    fields \ key match {
+      case JNothing     ⇒ true
+      case otherContent ⇒ content.equals(otherContent)
+    }
   }
 
-  def attributes(values: Seq[Json]): Json =
-    JObject(values.map(attribute).toList)
+  @tailrec
+  def findKey(hashKey: String, content: Json, fields: Json, index: Int): String = {
+    val newKey = if (index == 0) hashKey else s"$hashKey/$index"
+    if (validKey(newKey, content, fields)) newKey
+    else findKey(hashKey, content, fields, index + 1)
+  }
+
+  /**
+    * The key algorithm will compute a hash of the content and then search
+    * for a valid key. The search function looks for hash collisions.
+    * If a hash collision is found, an index is appended to the hash and the 
+    * new hash+index key is searched until we find a key with same content or 
+    * we reach the end of the list.
+    */
+  def key(content: Json, fields: Json): String = {
+    val hashKey = hash(content)
+    findKey(hashKey, content, fields, index = 0)
+  }
+
+  def key(content: String, fields: Json): String = key(JString(content), fields)
+
+  def attribute(content: Json, fields: Json): JField = {
+    (key(content, fields), content)
+  }
+
+  def attributes(values: Seq[Json], fields: Json): Json = {
+    JObject(values.map(j ⇒ attribute(j, fields)).toList)
+  }
 
   type KeyMap = Map[String, String]
-  def createForm(form: Json): (KeyMap, Json) = {
+  def createForm(form: Json, existingForm: Json = JNothing): (KeyMap, Json) = {
+    var accumObj = existingForm.merge(form)
+
     form match {
       case JObject(o) ⇒
         val m = o.obj.map {
           case (attr, value) ⇒
-            val k = key(value)
-            (Map(attr → k), (k, value))
+            val k     = key(value, accumObj)
+            val field = (k, value)
+            accumObj = accumObj.merge(JObject(List(field)))
+            (Map(attr → k), field)
         }
         val keyMap  = m.map(_._1).reduceOption(_ ++ _).getOrElse(Map.empty)
         val newForm = JObject(m.map(_._2).toList.distinct)
@@ -63,7 +98,7 @@ object ObjectUtils {
   }
 
   def updateForm(oldForm: Json, updatedForm: Json): (KeyMap, Json) = {
-    val (keyMap, newForm) = createForm(updatedForm)
+    val (keyMap, newForm) = createForm(updatedForm, oldForm)
     (keyMap, oldForm.merge(newForm))
   }
 
