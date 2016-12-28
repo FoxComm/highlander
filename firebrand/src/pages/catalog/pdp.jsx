@@ -113,7 +113,6 @@ class Pdp extends Component {
   }
 
   componentDidMount() {
-    console.log(`ProductID = ${this.productId} Mounted`);
     trackRequest({
       url: "/api/v1/hal",
       channel: 1,

@@ -44,7 +44,6 @@ class ListItem extends React.Component {
 
   componentDidMount() {
     const { productId } = this.props;
-    console.log(`ProductID = ${productId} did mount`);
     trackRequest({
       url: "/api/v1/hal",
       channel: 1,
