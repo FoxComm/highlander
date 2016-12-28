@@ -22,3 +22,12 @@ input[type=email] {
   -webkit-border-radius: 0;
 }
 
+@media (-webkit-min-device-pixel-ratio: 0) {
+  select,
+  textarea,
+  input {
+    /* explicitly set font size to prevent zooming on focus for ios */
+    font-size: 16px !important;
+  }
+}
+
