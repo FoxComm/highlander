@@ -74,7 +74,6 @@ class Service(systemOverride: Option[ActorSystem] = None,
     ActorSystem.create("Orders", config)
   }
 
-  Console.out.println(s"Tracing host: ${system.settings.config.getString("akka.tracing.host")}")
   implicit val trace = TracingExtension(system)
 
   val threadPool                = java.util.concurrent.Executors.newCachedThreadPool()
@@ -83,6 +82,9 @@ class Service(systemOverride: Option[ActorSystem] = None,
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   val logger = Logging(system, getClass)
+
+  logger.info(s"Tracing host: ${config.getString("akka.tracing.host")}")
+  logger.info(s"Tracing port: ${config.getString("akka.tracing.port")}")
 
   implicit val db: Database         = dbOverride.getOrElse(Database.forConfig("db", config))
   lazy val defaultApis: Apis        = Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse())
@@ -99,7 +101,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
   val defaultRoutes = {
     traceStart("phoenix", trace) { implicit tr ⇒
       pathPrefix("v1") {
-        routes.AuthRoutes.routes ~
+//        routes.AuthRoutes.routes ~
         routes.Public.routes(customerCreateContext) ~
         routes.Customer.routes ~
         requireAdminAuth(userAuth) { implicit auth ⇒

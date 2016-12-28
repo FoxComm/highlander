@@ -24,12 +24,12 @@ import utils._
 import utils.aliases._
 import utils.db._
 import utils.http.Http._
-
 import com.github.levkhomich.akka.tracing._
+import com.typesafe.scalalogging.LazyLogging
 
-object CustomDirectives {
+object CustomDirectives extends LazyLogging {
 
-  final case class TracingRequest(service: String) extends TracingSupport
+  final case class TracingRequest() extends TracingSupport
 
   val DefaultContextName = SimpleContext.default
 
@@ -64,8 +64,9 @@ object CustomDirectives {
 
   def traceStart(service: String, trace: TracingExtensionImpl): Directive1[TracingRequest] = {
     extractRequest.map { request ⇒
-      val tr = TracingRequest(service)
-      trace.sample(tr, service)
+      val tr = TracingRequest()
+      logger.info(s"In traceStart. ${service}")
+      trace.sample(tr, service, true)
       trace.recordKeyValue(tr, "request.uri", request.uri.toString())
       trace.recordKeyValue(tr, "request.path", request.uri.path.toString())
       trace.recordKeyValue(tr, "request.proto", request.protocol.value)
@@ -81,7 +82,9 @@ object CustomDirectives {
   }
 
   def traceEnd[T <: AnyRef](t: T)(implicit tr: TracingRequest, trace: TracingExtensionImpl): T = {
-    trace.finish(tr)
+    trace.record(tr, TracingAnnotations.ServerSend.text)
+    logger.info(s"In traceEnd. ${TracingAnnotations.ServerSend}")
+
     t
   }
 
@@ -134,10 +137,11 @@ object CustomDirectives {
   def good[A <: AnyRef](a: Future[A])(implicit ec: EC,
                                       tr: TracingRequest,
                                       trace: TracingExtensionImpl): StandardRoute =
-    complete(a.map(render(_)))
+    complete(traceEnd(a.map(render(_))))
 
-  def good[A <: AnyRef](a: A, tr: TracingRequest, trace: TracingExtensionImpl): StandardRoute =
-    complete(render(a))
+  def good[A <: AnyRef](a: A)(implicit tr: TracingRequest,
+                              trace: TracingExtensionImpl): StandardRoute =
+    complete(traceEnd(render(a)))
 
   private def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G): HttpResponse =
     or.fold(renderFailure(_), render(_))
@@ -145,19 +149,19 @@ object CustomDirectives {
   def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: EC,
                                                 tr: TracingRequest,
                                                 trace: TracingExtensionImpl): StandardRoute =
-    complete(a.map(renderGoodOrFailures))
+    complete(traceEnd(a.map(renderGoodOrFailures)))
 
   def getOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC,
                                                   db: DB,
                                                   tr: TracingRequest,
                                                   trace: TracingExtensionImpl): StandardRoute =
-    complete(a.run().map(renderGoodOrFailures))
+    complete(traceEnd(a.run().map(renderGoodOrFailures)))
 
   def mutateOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC,
                                                      db: DB,
                                                      tr: TracingRequest,
                                                      trace: TracingExtensionImpl): StandardRoute =
-    complete(a.runTxn().map(renderGoodOrFailures))
+    complete(traceEnd(a.runTxn().map(renderGoodOrFailures)))
 
   def mutateWithNewTokenOrFailures[A <: AnyRef](a: DbResultT[(A, AuthPayload)])(
       implicit ec: EC,
@@ -166,14 +170,16 @@ object CustomDirectives {
       trace: TracingExtensionImpl): Route = {
     onSuccess(a.runTxn()) { result ⇒
       result.fold({ f ⇒
-        complete(renderFailure(f))
+        complete(traceEnd(renderFailure(f)))
       }, { resp ⇒
         {
           val (body, auth) = resp
           respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
             complete(
-                HttpResponse(
-                    entity = HttpEntity(ContentTypes.`application/json`, json(body))
+                traceEnd(
+                    HttpResponse(
+                        entity = HttpEntity(ContentTypes.`application/json`, json(body))
+                    )
                 ))
           }
         }

@@ -17,16 +17,18 @@ lazy val phoenixScala = (project in file("."))
     dependencyOverrides += "org.scala-lang" % "scala-library" % scalaVersion.value,
     dependencyOverrides ++= Dependencies.slick.toSet,
     dependencyOverrides ++= Dependencies.json4s.toSet,
+    dependencyOverrides ++= Dependencies.akka.toSet,
     ivyScala := ivyScala.value.map(_.copy(overrideScalaVersion = true)),
     resolvers ++= Seq(
       "hseeberger bintray" at "http://dl.bintray.com/hseeberger/maven",
       "pellucid bintray"   at "http://dl.bintray.com/pellucid/maven",
       "justwrote"          at "http://repo.justwrote.it/releases/",
+      Resolver.sonatypeRepo("snapshots"),
       Resolver.bintrayRepo("kwark", "maven") // Slick with deadlock patch
     ),
     libraryDependencies ++= {
       import Dependencies._
-      akka ++ http ++ auth ++ db ++ slick ++ json4s ++ fasterxml ++ apis ++ logging ++ test ++ misc
+      akka ++ http ++ auth ++ db ++ tracing ++ slick ++ json4s ++ fasterxml ++ apis ++ logging ++ test ++ misc
     },
     scalaSource in Compile <<= baseDirectory(_ / "app"),
     scalaSource in Test    <<= baseDirectory(_ / "test" / "unit"),

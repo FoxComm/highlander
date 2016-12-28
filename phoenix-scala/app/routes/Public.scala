@@ -87,7 +87,7 @@ object Public {
         } ~
         pathPrefix("ping") {
           (get & pathEnd) {
-            complete(renderPlain("pong"))
+            complete(traceEnd(renderPlain("pong")))
           }
         }
       }

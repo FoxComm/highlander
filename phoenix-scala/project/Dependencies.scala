@@ -28,8 +28,7 @@ object Dependencies {
     "com.typesafe.akka"     %% "akka-agent"         % Versions.akka,
     "com.typesafe.akka"     %% "akka-stream"        % Versions.akka,
     "com.typesafe.akka"     %% "akka-http-core"     % Versions.akka,
-    "de.heikoseeberger"     %% "akka-sse"           % "1.8.1",
-    "com.github.levkhomich" %% "akka-tracing-core"  % "0.4"
+    "de.heikoseeberger"     %% "akka-sse"           % "1.8.1"
   )
 
   val slick = Seq(
@@ -53,6 +52,10 @@ object Dependencies {
     "io.gatling.highcharts" % "gatling-charts-highcharts" % Versions.gatling
   )
 
+  val tracing = Seq(
+    "com.github.levkhomich" %% "akka-tracing-core"  % "0.6-SNAPSHOT" changing()
+  )
+
   val db = Seq(
     "com.github.tminglei" %% "slick-pg"         % Versions.slickPg,
     "com.github.tminglei" %% "slick-pg_json4s"  % Versions.slickPg,
@@ -69,7 +72,7 @@ object Dependencies {
   )
 
   val logging = Seq(
-    "ch.qos.logback"             % "logback-classic" % "1.1.7",
+    "ch.qos.logback"             % "logback-classic" % "1.1.8",
     "com.typesafe.scala-logging" %% "scala-logging"  % "3.4.0",
     "com.lihaoyi"                %% "sourcecode"     % "0.1.1",
     "org.slf4j"                  % "slf4j-api"       % "1.7.21"
