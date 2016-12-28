@@ -8,10 +8,10 @@ import { capitalize } from 'fleck';
 import { numberize } from 'lib/text-utils';
 
 //helpers
-import { groups } from 'paragons/watcher';
+import { groups } from 'paragons/participants';
 import { getStore } from 'lib/store-creator';
 
-import SelectUsersModal from '../users/select-modal';
+import SelectAdminsModal from '../users/select-modal';
 
 const mapDispatchToProps = (dispatch, {module}) => {
   const {actions} = getStore(`${module}.bulk`);
@@ -55,7 +55,7 @@ export default class BulkActions extends Component {
       const actionForm = _.capitalize(action);
 
       return (
-        <SelectUsersModal
+        <SelectAdminsModal
           title={`${actionForm} ${_.capitalize(entityForm)}`}
           bodyLabel={<span>{label} <strong>{count}</strong> {entityForm}</span>}
           saveLabel={group == 'watchers' ? 'Watch' : 'Assign'}

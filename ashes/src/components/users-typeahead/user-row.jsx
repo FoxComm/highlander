@@ -6,7 +6,7 @@ import styles from './user-row.css';
 import Initials from '../user-initials/initials';
 
 type Props = {
-  model: UserType,
+  model: TUser,
 }
 
 const UserRow = (props: Props) => {

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import * as ShallowTestUtils from 'react-shallow-testutils';
-import { groups } from 'paragons/watcher';
+import { groups } from 'paragons/participants';
 
 describe('Watchers', function () {
   const Participants = requireComponent('participants/participants.jsx').WrappedComponent;

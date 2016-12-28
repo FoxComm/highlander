@@ -16,8 +16,8 @@ export type Props = {
   label?: string,
   className?: string,
   hideOnBlur?: boolean,
-  onSelect: (users: Array<UserType>) => void,
-  suggested: Array<UserType>,
+  onSelect: (users: Array<TUser>) => void,
+  suggested: Array<TUser>,
   suggestUsers: (term: string) => AbortablePromise,
   suggestState: AsyncState,
 }
@@ -57,7 +57,7 @@ export default class UsersTypeahead extends Component {
   }
 
   @autobind
-  getUsername(user: UserType) {
+  getUsername(user: TUser) {
     return user.name ? user.name : `${user.firstName} ${user.lastName}`;
   }
 
@@ -70,7 +70,7 @@ export default class UsersTypeahead extends Component {
   }
 
   @autobind
-  handleSelectItem(item: UserType, event: Object) {
+  handleSelectItem(item: TUser, event: Object) {
     if (_.find(this.state.selected, {id: item.id})) {
       event.preventHiding();
     } else {

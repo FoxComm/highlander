@@ -148,7 +148,7 @@ class ShareSearch extends Component {
   }
 
   @autobind
-  handleSelectUsers(users: Array<UserType>) {
+  handleSelectUsers(users: Array<TUser>) {
     this.setState({
       selected: users,
     });
