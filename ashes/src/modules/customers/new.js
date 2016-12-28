@@ -1,7 +1,7 @@
 // @flow
 
 import Api from 'lib/api';
-import createAsyncActions from 'modules/async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 
 export type NewCustomerPayload = {
   email: string,

@@ -4,7 +4,7 @@ import superagent from 'superagent';
 import Api from '../lib/api';
 import _ from 'lodash';
 import { dissoc } from 'sprout-data';
-import createAsyncActions from './async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 
 // types
 

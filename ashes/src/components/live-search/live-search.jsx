@@ -80,7 +80,6 @@ export default class LiveSearch extends React.Component {
     noGutter: PropTypes.bool,
     fetchSearches: PropTypes.func.isRequired,
 
-    suggestAssociations: PropTypes.func,
     fetchAssociations: PropTypes.func,
     associateSearch: PropTypes.func,
     dissociateSearch: PropTypes.func,
@@ -588,12 +587,9 @@ export default class LiveSearch extends React.Component {
         title={this.currentSearch.title}
         onClose={this.handleCloseShareSearch}
         fetchAssociations={this.props.fetchAssociations}
-        suggestAssociations={this.props.suggestAssociations}
         associateSearch={this.props.associateSearch}
         dissociateSearch={this.props.dissociateSearch}
-        selectItem={this.props.selectItem}
-        deselectItem={this.props.deselectItem}
-        setTerm={this.props.setTerm} />
+      />
     );
   }
 
