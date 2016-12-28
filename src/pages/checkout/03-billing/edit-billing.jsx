@@ -294,6 +294,8 @@ class EditBilling extends Component {
                 className={textStyles['text-input']}
                 maskChar=" "
                 type="text"
+                pattern="\d*"
+                inputmode="numeric"
                 mask={this.cardMask}
                 name="number"
                 placeholder={cardNumberPlaceholder}
@@ -309,6 +311,8 @@ class EditBilling extends Component {
               disabled={editingSavedCard}
               label={<CvcHelp />}
               type="number"
+              pattern="\d*"
+              inputmode="numeric"
               maxLength="4"
               placeholder={cvcPlaceholder}
               onChange={this.changeCVC}

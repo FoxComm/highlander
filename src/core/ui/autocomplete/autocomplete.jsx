@@ -247,10 +247,18 @@ class Autocomplete extends Component {
             highlightedIndex: null,
           }, () => {
             // this.getInput().focus() // TODO: file issue
-            this.getInput().setSelectionRange(
-              this.state.value.length,
-              this.state.value.length
-            );
+            const input = this.getInput();
+            if (input.setSelectionRange) {
+              try {
+                input.setSelectionRange(
+                  this.state.value.length,
+                  this.state.value.length
+                );
+              } catch (ex) {
+                // ignore
+              }
+            }
+
             this.props.onSelect(item, this.state.value);
           });
         }

@@ -4,6 +4,11 @@ input[type=number]::-webkit-inner-spin-button {
   margin: 0;
 }
 
+input[type=tel] {
+  border-radius: 0;
+  -webkit-appearance: none;
+}
+
 input[type=number] {
   -moz-appearance: textfield;
 }
@@ -15,5 +20,14 @@ input[type=password],
 input[type=email] {
   -webkit-appearance: none;
   -webkit-border-radius: 0;
+}
+
+@media (-webkit-min-device-pixel-ratio: 2) {
+  select,
+  textarea,
+  input {
+    /* explicitly set font size to prevent zooming on focus for ios */
+    font-size: 16px !important;
+  }
 }
 
