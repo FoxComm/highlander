@@ -124,4 +124,32 @@ export default class SkuDetails extends ObjectDetails {
       'Minimum quantity allowed in shopping cart'
     )
   }
+
+  renderInventoryWarningLevel() {
+    const { isEnabled, level } = this.props.object.attributes.inventoryWarningLevel;
+
+    return (
+      <FormField
+        ref="inventoryWarningField"
+        className="fc-object-form__field"
+        label="Low inventory warning threshold"
+      >
+        <div>
+          <BooleanOptions
+            value={isEnabled}
+            onChange={v => this.handleChange(v, ['inventoryWarningLevel', 'isEnabled'], 'inventoryWarningField')}
+          />
+          <input
+            type="text"
+            id="inventoryWarningLevel"
+            name="inventoryWarningLevel"
+            value={level}
+            onChange={({target}) => this.handleChange(target.value, ['inventoryWarningLevel', 'level'], 'inventoryWarningField')}
+            disabled={!isEnabled}
+          />
+          <label htmlFor="inventoryWarningLevel">AFS</label>
+        </div>
+      </FormField>
+    )
+  }
 }
