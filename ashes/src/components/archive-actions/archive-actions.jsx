@@ -3,6 +3,7 @@
 // libs
 import React, {Component, Element} from 'react';
 import {autobind} from 'core-decorators';
+import _ from 'lodash';
 
 // components
 import { Button } from '../common/buttons';
@@ -53,12 +54,16 @@ class ArchiveActions extends Component {
   }
 
   render():Element {
+    const text = _.split(_.kebabCase(this.props.type), '-').reduce((res, val) => {
+      return `${res} ${_.capitalize(val)}`;
+    }, 'Archive');
+    
     return (
       <div className="fc-archive-actions">
         <Button
           type="button"
           onClick={this.showArchiveConfirmation}>
-          Archive {this.props.type}
+          {text}
         </Button>
         <ArchiveConfirmation
           isVisible={this.state.archiveConfirmation}

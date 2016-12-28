@@ -42,6 +42,10 @@ export function connectPage(namespace, actions) {
     archive: `archive${capitalized}`,
     sync: `sync${capitalized}`,
   };
+  const linkNames = {
+    list: `${_.kebabCase(namespace)}s`,
+    details: `${_.kebabCase(namespace)}-details`,
+  };
 
   const requiredActions = _.values(_.omit(actionNames, 'sync'));
 
@@ -51,6 +55,7 @@ export function connectPage(namespace, actions) {
       plural,
       capitalized,
       requiredActions,
+      linkNames,
       schema: _.get(state.objectSchemas, namespace),
       details: state[plural].details,
       originalObject: _.get(state, [plural, 'details', namespace], {}),
@@ -187,7 +192,7 @@ export class ObjectPage extends Component {
   }
 
   transitionTo(id, props = {}) {
-    transitionTo(`${this.props.namespace}-details`, {
+    transitionTo(this.props.linkNames.details, {
       ...this.detailsRouteProps(),
       ...props,
       [this.entityIdName]: id
@@ -343,8 +348,8 @@ export class ObjectPage extends Component {
   }
 
   transitionToList() {
-    const { dispatch, plural } = this.props;
-    dispatch(push({ name: plural }));
+    const { dispatch, linkNames } = this.props;
+    dispatch(push({ name: linkNames.list }));
   }
 
   @autobind

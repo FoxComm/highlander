@@ -49,6 +49,7 @@ export const frn = {
     user: 'frn:settings:usr',
     plugin: 'frn:settings:plugin',
     application: 'frn:settings:application',
+    shippingMethod: 'frn:settings:shippingMethod',
   },
   user: {
     customer: 'frn:usr:customer',

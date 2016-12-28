@@ -250,14 +250,21 @@ export default class ObjectFormInner extends Component {
   }
 
   renderOptions(name: string, value: any, options: AttrOptions): Element {
-    const fieldOptions = this.props.fieldsOptions && this.props.fieldsOptions[name];
+    let fieldOptions = this.props.fieldsOptions && this.props.fieldsOptions[name];
+    if (fieldOptions == null) {
+      const items = _.get(this.props.schema, ['properties', name, 'fieldsOptions'], []);
+      fieldOptions = _.map(items, item => {
+        return [item, item, false];
+      });
+    }
+
     if (!fieldOptions) throw new Error('You must define fieldOptions for options fields');
 
     const onChange = v => this.handleChange(name, 'options', v);
     const error = _.get(this.state, ['errors', name]);
 
     return (
-      <div className="fc-object-form_field">
+      <div className="fc-object-form__field">
         <div className="fc-object-form__field-label">{options.label}</div>
         <Dropdown
           value={value}
@@ -311,7 +318,7 @@ export default class ObjectFormInner extends Component {
     }
 
     let renderName = `render${_.upperFirst(name)}`;
-    if (!(renderName in this)) {
+    if (!(renderName in this) || !name) {
       renderName = 'renderString';
     }
     return renderName;
@@ -343,8 +350,10 @@ export default class ObjectFormInner extends Component {
 
       const renderName = this.guessRenderName(attrSchema, attribute);
       const attrOptions = this.getAttrOptions(name, attrSchema);
+      const attributeValue = _.get(attribute, 'v', attribute);
+      
       // $FlowFixMe: guessRenderName is enough
-      return React.cloneElement(this[renderName](name, attribute && attribute.v, attrOptions), { key: name });
+      return React.cloneElement(this[renderName](name, attributeValue, attrOptions), { key: name });
     });
 
     return (

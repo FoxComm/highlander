@@ -11,7 +11,7 @@ const initialState = {
 const _getShippingMethods = createAsyncActions(
   'getShippingMethods',
   (refNum: string) => {
-    return Api.get(`/shipping-methods/${refNum}`);
+    return Api.get(`/shipping-methods/for-cart/${refNum}`);
   }
 );
 

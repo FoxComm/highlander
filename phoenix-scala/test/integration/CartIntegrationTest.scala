@@ -428,7 +428,7 @@ class CartIntegrationTest
         .asTheResult[CartResponse]
         .shippingMethod
         .value
-        .name must === (lowShippingMethod.adminDisplayName)
+        .name must === (lowShippingMethod.name)
 
       val shipMethod: OrderShippingMethod =
         OrderShippingMethods.findByOrderRef(cart.refNum).gimme.head
@@ -479,9 +479,9 @@ class CartIntegrationTest
             """.stripMargin).extract[QueryStatement]
 
     val lowSm: ShippingMethod = Factories.shippingMethods.head
-      .copy(adminDisplayName = "Low", conditions = lowConditions.some, code = "HIGH")
+      .copy(name = "Low", conditions = lowConditions.some, code = "HIGH")
     val highSm: ShippingMethod = Factories.shippingMethods.head
-      .copy(adminDisplayName = "High", conditions = highConditions.some, code = "LOW")
+      .copy(name = "High", conditions = highConditions.some, code = "LOW")
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = ({
       for {

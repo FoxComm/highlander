@@ -1,7 +1,7 @@
 package services
 
 import failures.NotFoundFailure404
-import failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
+import failures.ShippingMethodFailures.{ShippingMethodNotApplicableToCart, ShippingMethodNotFound}
 import models.account._
 import models.cord._
 import models.cord.lineitems._
@@ -14,9 +14,9 @@ import services.carts.getCartByOriginator
 import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
-
 import slick.driver.PostgresDriver.api._
 import org.json4s.JsonAST._
+import payloads.ShippingMethodPayloadsPayloads.{CreateShippingMethodPayload, UpdateShippingMethodPayload}
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
@@ -27,6 +27,48 @@ object ShippingManager {
                           shippingAddress: Option[OrderShippingAddress] = None,
                           shippingRegion: Option[Region] = None,
                           lineItems: Seq[CartLineItemProductData])
+
+  def getShippingMethods()(implicit ec: EC,
+                           db: DB): DbResultT[Seq[responses.AdminShippingMethodsResponse.Root]] =
+    for {
+      shipMethods ← * <~ ShippingMethods.findActive.result
+    } yield shipMethods.map(responses.AdminShippingMethodsResponse.build)
+
+  def getShippingMethodById(
+      id: Int)(implicit ec: EC, db: DB): DbResultT[responses.AdminShippingMethodsResponse.Root] =
+    for {
+      shipMethod ← * <~ ShippingMethods
+                    .findActiveById(id)
+                    .mustFindOneOr(ShippingMethodNotFound(id))
+    } yield responses.AdminShippingMethodsResponse.build(shipMethod)
+
+  def createShippingMethod(payload: CreateShippingMethodPayload)(
+      implicit ec: EC,
+      db: DB): DbResultT[responses.AdminShippingMethodsResponse.Root] =
+    for {
+      shipMethod ← * <~ ShippingMethod.buildFromCreatePayload(payload)
+      created    ← * <~ ShippingMethods.create(shipMethod)
+    } yield responses.AdminShippingMethodsResponse.build(created)
+
+  def updateShippingMethod(id: Int, payload: UpdateShippingMethodPayload)(
+      implicit ec: EC,
+      db: DB): DbResultT[responses.AdminShippingMethodsResponse.Root] =
+    for {
+      oldShipMethod ← * <~ ShippingMethods
+                       .findActiveById(id)
+                       .mustFindOneOr(ShippingMethodNotFound(id))
+      newShipMethod ← * <~ ShippingMethod.buildFromUpdatePayload(oldShipMethod, payload)
+      _             ← * <~ ShippingMethods.update(oldShipMethod, oldShipMethod.copy(isActive = false))
+      created       ← * <~ ShippingMethods.create(newShipMethod)
+    } yield responses.AdminShippingMethodsResponse.build(created)
+
+  def softDeleteShippingMethod(id: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
+    for {
+      shipMethod ← * <~ ShippingMethods
+                    .findActiveById(id)
+                    .mustFindOneOr(ShippingMethodNotFound(id))
+      _ ← * <~ ShippingMethods.update(shipMethod, shipMethod.copy(isActive = false))
+    } yield {}
 
   def getShippingMethodsForCart(originator: User)(
       implicit ec: EC,

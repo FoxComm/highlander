@@ -1,7 +1,6 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import failures.SharedSearchFailures.SharedSearchInvalidQueryFailure
 import models.account.User
@@ -12,6 +11,7 @@ import models.returns.Return
 import models.sharedsearch.SharedSearch
 import payloads.NotePayloads._
 import payloads.SharedSearchPayloads._
+import payloads.ShippingMethodPayloadsPayloads.{CreateShippingMethodPayload, UpdateShippingMethodPayload}
 import services.notes._
 import services.{SaveForLaterManager, SharedSearchService, ShippingManager}
 import services.Authenticator.AuthData
@@ -25,10 +25,45 @@ object AdminRoutes {
 
     activityContext(auth.model) { implicit ac ⇒
       StoreCreditRoutes.storeCreditRoutes ~
-      pathPrefix("shipping-methods" / cordRefNumRegex) { refNum ⇒
+      pathPrefix("shipping-methods") {
         (get & pathEnd) {
           getOrFailures {
-            ShippingManager.getShippingMethodsForCart(refNum)
+            ShippingManager.getShippingMethods
+          }
+        } ~
+        (get & path(IntNumber) & pathEnd) { shippingMethodId ⇒
+          getOrFailures {
+            ShippingManager.getShippingMethodById(shippingMethodId)
+          }
+        } ~
+        (post & pathEnd & entity(as[CreateShippingMethodPayload])) { payload ⇒
+          mutateOrFailures {
+            ShippingManager.createShippingMethod(payload)
+          }
+        } ~
+        pathPrefix(IntNumber) { shippingMethodId ⇒
+          (patch & pathEnd & entity(as[UpdateShippingMethodPayload])) { payload ⇒
+            mutateOrFailures {
+              ShippingManager.updateShippingMethod(shippingMethodId, payload)
+            }
+          } ~
+          (delete & pathEnd) {
+            deleteOrFailures {
+              ShippingManager.softDeleteShippingMethod(shippingMethodId)
+            }
+          }
+        } ~
+        (patch & path(IntNumber) & pathEnd & entity(as[UpdateShippingMethodPayload])) {
+          (id, payload) ⇒
+            mutateOrFailures {
+              ShippingManager.updateShippingMethod(id, payload)
+            }
+        } ~
+        pathPrefix("for-cart") {
+          (get & path(cordRefNumRegex) & pathEnd) { refNum ⇒
+            getOrFailures {
+              ShippingManager.getShippingMethodsForCart(refNum)
+            }
           }
         }
       } ~
