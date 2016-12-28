@@ -4,7 +4,7 @@ package payloads
 type OrderLineItem struct {
 	SKU              string      `json:"sku" binding:"required"`
 	Name             string      `json:"name" binding:"required"`
-	Price            uint        `json:"price" binding:"required"`
+	Price            uint        `json:"price"`
 	State            string      `json:"state" binding:"required"`
 	ReferenceNumbers []string    `json:"referenceNumbers" binding:"required"`
 	ImagePath        string      `json:"image_path" binding:"required"`
@@ -14,7 +14,7 @@ type OrderLineItem struct {
 }
 
 type OrderLineItems struct {
-	SKUs []OrderLineItem `json:"skus" binding:"required"`
+	SKUs []OrderLineItem `json:"skus"`
 }
 
 type UpdateOrderLineItem struct {

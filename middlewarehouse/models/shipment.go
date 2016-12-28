@@ -82,7 +82,7 @@ func NewShipmentFromOrderPayload(payload *payloads.Order) *Shipment {
 		ShippingMethodCode: payload.ShippingMethod.Code,
 		OrderRefNum:        payload.ReferenceNumber,
 		State:              ShipmentStatePending,
-		Address:            *NewAddressFromPayload(&payload.ShippingAddress),
+		Address:            *NewAddressFromPayload(payload.ShippingAddress),
 		ShippingPrice:      payload.ShippingMethod.Price,
 		Scope:              payload.Scope,
 	}
