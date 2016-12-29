@@ -18,7 +18,6 @@
 
   roles:
     - { role: dev/appliance, run_once: true }
-    - { role: base/rsyslog }
     - { role: base/secret_keys }
     - { role: dev/consul_agent }
     - { role: base/marketplace, when: with_marketplace }
