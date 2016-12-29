@@ -6,17 +6,17 @@ import (
 )
 
 const (
-	Equals              = "Equals"
-	NotEquals           = "NotEquals"
-	GreaterThan         = "GreaterThan"
-	GreaterThanOrEquals = "GreaterThanOrEquals"
-	LessThan            = "LessThan"
-	LessThanOrEquals    = "LessThanOrEquals"
-	Contains            = "Contains"
-	NotContains         = "NotContains"
-	StartsWith          = "StartsWith"
-	InArray             = "InArray"
-	NotInArray          = "NotInArray"
+	Equals              = "equals"
+	NotEquals           = "notEquals"
+	GreaterThan         = "greaterThan"
+	GreaterThanOrEquals = "greaterThanOrEquals"
+	LessThan            = "lessThan"
+	LessThanOrEquals    = "lessThanOrEquals"
+	Contains            = "contains"
+	NotContains         = "notContains"
+	StartsWith          = "startsWith"
+	InArray             = "inArray"
+	NotInArray          = "notInArray"
 
 	errorInvalidComparison = "Invalid operator for '%s' for %s comparison"
 	errorInvalidTypeCast   = "Error in %s comparison -- type of value is invalid"
