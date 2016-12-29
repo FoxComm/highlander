@@ -11,6 +11,7 @@ import PanelHeader from 'components/panel-header/panel-header';
 export default class CartShippingAddress extends Component {
   static propTypes = {
     cart: PropTypes.object.isRequired,
+    id: PropTypes.string,
     status: PropTypes.string,
     readOnly: PropTypes.bool,
   };
@@ -53,7 +54,7 @@ export default class CartShippingAddress extends Component {
   }
 
   render() {
-    const { readOnly, status } = this.props;
+    const { readOnly, status, id } = this.props;
 
     const title = <PanelHeader showStatus={true} status={status} text="Shipping Address" />;
     const isCheckingOut = _.get(this.props, 'cart.isCheckingOut', false);
@@ -63,6 +64,7 @@ export default class CartShippingAddress extends Component {
 
     return (
       <EditableContentBox
+        id={id}
         className="fc-shipping-address"
         title={title}
         indentContent={true}

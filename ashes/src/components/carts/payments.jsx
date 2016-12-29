@@ -15,6 +15,7 @@ import type { Cart, PaymentMethod } from 'paragons/order';
 
 type Props = {
   cart: Cart,
+  id: string,
   status: string,
   creditCardSelected: boolean,
   giftCardAdded: boolean,
@@ -77,7 +78,7 @@ export class Payments extends Component {
 
 
   render(): Element {
-    const { cart, status } = this.props;
+    const { cart, id, status } = this.props;
     const { paymentMethods } = cart;
 
     const title = (
@@ -101,6 +102,7 @@ export class Payments extends Component {
     return (
       <EditableContentBox
         className="fc-order-payment"
+        id={id}
         title={title}
         indentContent={false}
         isEditing={this.state.isEditing}

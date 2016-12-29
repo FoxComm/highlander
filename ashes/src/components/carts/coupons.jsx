@@ -26,6 +26,7 @@ type Target = {
 type Props = CouponModuleActions & {
   readOnly: bool,
   coupons: CouponModuleProps,
+  id: string,
   cart: {
     coupon: Object,
     referenceNumber: string,
@@ -150,8 +151,11 @@ class CartCoupons extends Component {
   }
 
   render(): Element {
+    const { id } = this.props;
+  
     return (
       <EditableContentBox
+        id={id}
         title={this.title}
         indentContent={false}
         viewContent={this.content}

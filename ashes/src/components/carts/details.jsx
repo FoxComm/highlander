@@ -58,18 +58,18 @@ export default class CartDetails extends Component {
         <div className="fc-order-details-body">
           <div className="fc-order-details-main">
             <CartLineItems id="cart-line-items" status={itemsStatus} cart={cart} />
-            <DiscountsPanel promotion={cart.promotion} />
-            <CartShippingAddress status={shippingAddressStatus} cart={cart} />
-            <CartShippingMethod status={shippingMethodStatus} cart={cart} />
-            <CartCoupons cart={cart} />
-            <CartPayments cart={cart} status={paymentMethodStatus} />
+            <DiscountsPanel id="cart-discounts-block" promotion={cart.promotion} />
+            <CartShippingAddress id="cart-shipping-address-block" status={shippingAddressStatus} cart={cart} />
+            <CartShippingMethod id="cart-shipping-method-block" status={shippingMethodStatus} cart={cart} />
+            <CartCoupons id="cart-coupons-block" cart={cart} />
+            <CartPayments id="cart-payment-method-block" cart={cart} status={paymentMethodStatus} />
             <Checkout cart={cart} validations={details.validations} />
           </div>
           <div className="fc-order-details-aside">
             <Messages errors={errors} warnings={warnings} />
             <TotalsSummary entity={cart} title="Cart" />
             <CustomerCard customer={cart.customer} />
-            <Watchers entity={{entityId: cart.referenceNumber, entityType: 'carts'}} />
+            <Watchers id="cart-watchers-block" entity={{entityId: cart.referenceNumber, entityType: 'carts'}} />
           </div>
         </div>
       </div>

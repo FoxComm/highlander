@@ -20,6 +20,7 @@ function mapStateToProps(state) {
 
 type Props = {
   cart: Cart,
+  id: string,
   shippingMethods: {
     list: Array<ShippingMethod>,
   },
@@ -58,7 +59,7 @@ export class CartShippingMethod extends Component {
   }
 
   render(): Element {
-    const { cart, status } = this.props;
+    const { cart, id, status } = this.props;
     const { shippingMethod } = cart;
     const { list } = this.props.shippingMethods;
 
@@ -66,6 +67,7 @@ export class CartShippingMethod extends Component {
 
     return (
       <ShippingMethodPanel
+        id={id}
         currentOrder={cart}
         title={title}
         readOnly={false}

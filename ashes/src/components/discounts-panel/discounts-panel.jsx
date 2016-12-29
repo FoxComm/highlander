@@ -14,6 +14,7 @@ import styles from './discounts-panel.css';
 
 type Props = {
   promotion: Object,
+  id: string,
 };
 
 const viewColumns = [
@@ -61,8 +62,11 @@ export default class DiscountsPanel extends Component {
   }
 
   render(): Element {
+    const { id } = this.props;
+    
     return (
       <ContentBox
+        id={id}
         title={this.title}
         indentContent={false}
         viewContent={this.viewContent}
