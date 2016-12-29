@@ -1,12 +1,12 @@
 ---
 
-- name: Install rsyslog
+- name: Install Rsyslog
   apt: name={{item}} state=installed
   with_items:
     - rsyslog
     - rsyslog-elasticsearch
 
-- name: Install base rsyslog config
+- name: Install Base Rsyslog Config
   template: >
     src=rsyslog.conf.j2
     dest=/etc/rsyslog.conf
@@ -14,16 +14,24 @@
     group=root
     mode=0644
 
-- name: Install rsyslog config
+- name: Install File Data Forwarding Config
+  template: >
+    src=mesos.conf.j2
+    dest=/etc/rsyslog.d/51-mesos.conf
+    owner=root
+    group=root
+    mode=0644
+
+- name: Install Omelasticsearch Rsyslog Config
   template: >
     src=elastic.conf.j2
-    dest=/etc/rsyslog.d/51-elastic.conf
+    dest=/etc/rsyslog.d/52-elastic.conf
     owner=root
     group=root
     mode=0644
 
 - name: Reload Systemd for Rsyslog
-  
+
   command: systemctl daemon-reload
 
 - name: Restart Rsyslog
