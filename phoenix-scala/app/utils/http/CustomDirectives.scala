@@ -170,16 +170,14 @@ object CustomDirectives extends LazyLogging {
       trace: TracingExtensionImpl): Route = {
     onSuccess(a.runTxn()) { result ⇒
       result.fold({ f ⇒
-        complete(traceEnd(renderFailure(f)))
+        complete(renderFailure(f))
       }, { resp ⇒
         {
           val (body, auth) = resp
           respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
             complete(
-                traceEnd(
-                    HttpResponse(
-                        entity = HttpEntity(ContentTypes.`application/json`, json(body))
-                    )
+                HttpResponse(
+                    entity = HttpEntity(ContentTypes.`application/json`, json(body))
                 ))
           }
         }

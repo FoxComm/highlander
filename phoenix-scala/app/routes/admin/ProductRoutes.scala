@@ -20,10 +20,13 @@ import com.github.levkhomich.akka.tracing.TracingExtensionImpl
 
 object ProductRoutes {
 
-  def productRoutes(
-      productRef: ProductReference)(implicit ec: EC, db: DB, oc: OC, ac: AC, auth: AU,
-                                    tr: TracingRequest,
-                                    trace: TracingExtensionImpl): Route = {
+  def productRoutes(productRef: ProductReference)(implicit ec: EC,
+                                                  db: DB,
+                                                  oc: OC,
+                                                  ac: AC,
+                                                  auth: AU,
+                                                  tr: TracingRequest,
+                                                  trace: TracingExtensionImpl): Route = {
     (get & pathEnd) {
       getOrFailures {
         ProductManager.getProduct(productRef)
@@ -65,11 +68,7 @@ object ProductRoutes {
     }
   }
 
-  def routes(implicit ec: EC,
-             db: DB,
-             auth: AU,
-             tr: TracingRequest,
-             trace: TracingExtensionImpl) = {
+  def routes(implicit ec: EC, db: DB, auth: AU, tr: TracingRequest, trace: TracingExtensionImpl) = {
 
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("products") {
