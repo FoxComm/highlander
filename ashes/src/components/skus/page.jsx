@@ -87,4 +87,4 @@ class SkuPage extends ObjectPage {
   }
 }
 
-export default connectPage('sku', SkuActions)(SkuPage);
+export default connectPage('sku', SkuActions, {schemaName: 'product-variant'})(SkuPage);
