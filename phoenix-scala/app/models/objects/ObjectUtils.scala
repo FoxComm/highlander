@@ -24,23 +24,33 @@ object ObjectUtils {
     override def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow = (form, shadow)
   }
 
-  def get(attr: String, form: ObjectForm, shadow: ObjectShadow): Json = {
+  def get(attr: String, form: ObjectForm, shadow: ObjectShadow): Json =
     IlluminateAlgorithm.get(attr, form.attributes, shadow.attributes)
 
-  }
+  val KEY_LENGTH                = 5
+  val KEY_LENGTH_HEX            = 2 * KEY_LENGTH
+  val KEY_LENGTH_HEX_WITH_SLASH = KEY_LENGTH_HEX + 1
 
+  /**
+    * We compute a SHA-1 hash of the json content and return the first
+    * 10 characters in hex. We don't care about the whole hash because
+    * it would take up too much space. Collisions are handled below in the
+    * findKey function.
+    */
   def hash(content: Json): String = {
-    val KEY_LENGTH = 5
-    val md         = java.security.MessageDigest.getInstance("SHA-1")
+    val md = java.security.MessageDigest.getInstance("SHA-1")
     md.digest(compact(render(content)).getBytes)
       .slice(0, KEY_LENGTH)
       .map("%02x".format(_))
       .mkString
-  }
+  } ensuring (key ⇒ key.length() == KEY_LENGTH_HEX)
 
-  //Key is valid if the content is the same or the key doesn't exist
-  //in existing fields
-  def validKey(key: String, content: Json, fields: Json): Boolean = {
+  /**
+    * Returns true if there if there is no hash collision.
+    */
+  def noHashCollision(key: String, content: Json, fields: Json): Boolean = {
+    require(key.length() >= KEY_LENGTH_HEX)
+
     fields \ key match {
       case JNothing     ⇒ true
       case otherContent ⇒ content.equals(otherContent)
@@ -48,10 +58,12 @@ object ObjectUtils {
   }
 
   @tailrec
-  def findKey(hashKey: String, content: Json, fields: Json, index: Int): String = {
+  def findKeyʹ(hashKey: String, content: Json, fields: Json, index: Int): (String, Int) = {
+    require(hashKey.length() == KEY_LENGTH_HEX)
+
     val newKey = if (index == 0) hashKey else s"$hashKey/$index"
-    if (validKey(newKey, content, fields)) newKey
-    else findKey(hashKey, content, fields, index + 1)
+    if (noHashCollision(newKey, content, fields)) (newKey, index)
+    else findKeyʹ(hashKey, content, fields, index + 1)
   }
 
   /**
@@ -61,10 +73,19 @@ object ObjectUtils {
     * new hash+index key is searched until we find a key with same content or 
     * we reach the end of the list.
     */
-  def key(content: Json, fields: Json): String = {
+  def findKey(content: Json, fields: Json): (String, Int) = {
     val hashKey = hash(content)
-    findKey(hashKey, content, fields, index = 0)
-  }
+    findKeyʹ(hashKey, content, fields, index = 0)
+  } ensuring (
+      r ⇒
+        r match {
+          case (key, index) ⇒
+            if (index == 0) key.length() == KEY_LENGTH_HEX
+            else key.length() > KEY_LENGTH_HEX_WITH_SLASH
+      }
+  )
+
+  def key(content: Json, fields: Json): String = findKey(content, fields)._1
 
   def key(content: String, fields: Json): String = key(JString(content), fields)
 
