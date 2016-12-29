@@ -33,9 +33,9 @@ object ObjectUtils {
 
   /**
     * We compute a SHA-1 hash of the json content and return the first
-    * 10 characters in hex. We don't care about the whole hash because
-    * it would take up too much space. Collisions are handled below in the
-    * findKey function.
+    * 10 characters in hex representation of the hash. 
+    * We don't care about the whole hash because it would take up too much space. 
+    * Collisions are handled below in the findKey function.
     */
   def hash(content: Json): String = {
     val md = java.security.MessageDigest.getInstance("SHA-1")
@@ -47,6 +47,8 @@ object ObjectUtils {
 
   /**
     * Returns true if there if there is no hash collision.
+    * We consider a hash collision if there is an existing attribute with
+    * the same key but different content.
     */
   def noHashCollision(key: String, content: Json, fields: Json): Boolean = {
     require(key.length() >= KEY_LENGTH_HEX)
