@@ -38,7 +38,7 @@ object Assignment {
   case object GiftCard  extends ReferenceType
   case object Customer  extends ReferenceType
   case object Return    extends ReferenceType
-  case object Sku       extends ReferenceType
+  case object Variant   extends ReferenceType
   case object Product   extends ReferenceType
   case object Promotion extends ReferenceType
   case object Coupon    extends ReferenceType

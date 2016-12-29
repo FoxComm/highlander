@@ -24,7 +24,7 @@ import responses.CouponResponses.CouponResponse
 import responses.CreditCardsResponse.{buildSimple ⇒ buildCc}
 import responses.ObjectResponses.ObjectContextResponse
 import responses.ProductResponses.ProductResponse
-import responses.SkuResponses.SkuResponse
+import responses.ProductVariantResponses.ProductVariantResponse
 import responses.CaptureResponse
 import responses.UserResponse.{Root ⇒ UserResponse, build ⇒ buildUser}
 import responses.CustomerResponse.{Root ⇒ CustomerResponse}
@@ -45,7 +45,7 @@ import services.activity.OrderTailored._
 import services.activity.ProductTailored._
 import services.activity.PromotionTailored._
 import services.activity.SharedSearchTailored._
-import services.activity.SkuTailored._
+import services.activity.ProductVariantTailored._
 import services.activity.StoreAdminsTailored._
 import services.activity.StoreCreditTailored._
 import utils.aliases._
@@ -492,18 +492,18 @@ object LogActivity {
       context: ObjectContextResponse.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(FullProductUpdated(admin.map(buildUser), product, context))
 
-  /* SKUs */
-  def fullSkuCreated(
+  /* Product variants */
+  def fullVariantCreated(
       admin: Option[User],
-      product: SkuResponse.Root,
+      variant: ProductVariantResponse.Root,
       context: ObjectContextResponse.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(FullSkuCreated(admin.map(buildUser), product, context))
+    Activities.log(FullVariantCreated(admin.map(buildUser), variant, context))
 
-  def fullSkuUpdated(
+  def fullVariantUpdated(
       admin: Option[User],
-      product: SkuResponse.Root,
+      variant: ProductVariantResponse.Root,
       context: ObjectContextResponse.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(FullSkuUpdated(admin.map(buildUser), product, context))
+    Activities.log(FullVariantUpdated(admin.map(buildUser), variant, context))
 
   /* Promotions */
   def promotionCreated(promotionResponse: PromotionResponse.Root,

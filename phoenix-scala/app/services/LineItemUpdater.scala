@@ -2,15 +2,15 @@ package services
 
 import failures.CartFailures._
 import failures.OrderFailures.OrderLineItemNotFound
-import failures.ProductFailures.SkuNotFoundForContext
+import failures.ProductFailures.ProductVariantNotFoundForContext
 import models.account._
 import models.activity.Activity
 import models.cord._
 import models.cord.lineitems.CartLineItems.scope._
 import models.cord.lineitems._
-import models.inventory.{Sku, Skus}
+import models.inventory.{ProductVariant, ProductVariants}
 import models.objects._
-import models.product.VariantValueSkuLinks
+import models.product.ProductValueVariantLinks
 import payloads.LineItemPayloads._
 import responses.TheResponse
 import responses.cord.{CartResponse, OrderResponse}
@@ -145,7 +145,7 @@ object LineItemUpdater {
       cart  ← * <~ CartTotaler.saveTotals(cart)
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
-      li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
+      li    ← * <~ CartLineItems.byCordRef(cart.refNum).countProductVariants
       _     ← * <~ logAct(res, li)
     } yield TheResponse.validated(res, valid)
 
@@ -168,23 +168,24 @@ object LineItemUpdater {
   private def updateLineItems(cart: Cart, lineItem: UpdateLineItemsPayload)(implicit ec: EC,
                                                                             ctx: OC) =
     for {
-      sku ← * <~ Skus
-             .filterByContext(ctx.id)
-             .filter(_.code === lineItem.sku)
-             .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
-      _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
-      updateResult ← * <~ createLineItems(sku.id,
+      productVariant ← * <~ ProductVariants
+                        .filterByContext(ctx.id)
+                        .filter(_.code === lineItem.sku)
+                        .mustFindOneOr(ProductVariantNotFoundForContext(lineItem.sku, ctx.id))
+      _ ← * <~ mustFindProductIdForVariant(productVariant, cart.refNum)
+      updateResult ← * <~ createLineItems(productVariant.id,
                                           lineItem.quantity,
                                           cart.refNum,
                                           lineItem.attributes)
     } yield updateResult
 
-  private def createLineItems(skuId: Int,
+  private def createLineItems(productVariantId: Int,
                               quantity: Int,
                               cordRef: String,
                               attributes: Option[LineItemAttributes])(implicit ec: EC) = {
     require(quantity > 0)
-    val lineItem = CartLineItem(cordRef = cordRef, skuId = skuId, attributes = attributes)
+    val lineItem =
+      CartLineItem(cordRef = cordRef, productVariantId = productVariantId, attributes = attributes)
     CartLineItems.createAllReturningModels(List.fill(quantity)(lineItem))
   }
 
@@ -193,49 +194,62 @@ object LineItemUpdater {
       ctx: OC): DbResultT[Unit] = {
     val lineItemUpdActions = payload.map { lineItem ⇒
       for {
-        sku ← * <~ Skus
-               .filterByContext(ctx.id)
-               .filter(_.code === lineItem.sku)
-               .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
-        _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
+        productVariant ← * <~ ProductVariants
+                          .filterByContext(ctx.id)
+                          .filter(_.code === lineItem.sku)
+                          .mustFindOneOr(ProductVariantNotFoundForContext(lineItem.sku, ctx.id))
+        _ ← * <~ mustFindProductIdForVariant(productVariant, cart.refNum)
         _ ← * <~ (if (lineItem.quantity > 0)
-                    createLineItems(sku.id, lineItem.quantity, cart.refNum, lineItem.attributes).meh
+                    createLineItems(productVariant.id,
+                                    lineItem.quantity,
+                                    cart.refNum,
+                                    lineItem.attributes).meh
                   else
-                    removeLineItems(sku.id, -lineItem.quantity, cart.refNum, lineItem.attributes))
+                    removeLineItems(productVariant.id,
+                                    -lineItem.quantity,
+                                    cart.refNum,
+                                    lineItem.attributes))
       } yield {}
     }
     DbResultT.sequence(lineItemUpdActions).meh
   }
 
-  private def mustFindProductIdForSku(sku: Sku, refNum: String)(implicit ec: EC, oc: OC) = {
+  private def mustFindProductIdForVariant(productVariant: ProductVariant,
+                                          refNum: String)(implicit ec: EC, oc: OC) = {
     for {
-      link ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
-              case Some(productLink) ⇒
-                DbResultT.good(productLink.leftId)
-              case None ⇒
-                for {
-                  valueLink ← * <~ VariantValueSkuLinks
-                               .filter(_.rightId === sku.id)
-                               .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
-                  variantLink ← * <~ VariantValueLinks
-                                 .filter(_.rightId === valueLink.leftId)
-                                 .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
-                  productLink ← * <~ ProductVariantLinks
-                                 .filter(_.rightId === variantLink.leftId)
-                                 .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
-                } yield productLink.leftId
-            }
+      link ← * <~ ProductVariantLinks
+              .filter(_.rightId === productVariant.id)
+              .one
+              .dbresult
+              .flatMap {
+                case Some(productLink) ⇒
+                  DbResultT.good(productLink.leftId)
+                case None ⇒
+                  for {
+                    valueLink ← * <~ ProductValueVariantLinks
+                                 .filter(_.rightId === productVariant.id)
+                                 .mustFindOneOr(SkuWithNoProductAdded(refNum, productVariant.code))
+                    variantLink ← * <~ ProductOptionValueLinks
+                                   .filter(_.rightId === valueLink.leftId)
+                                   .mustFindOneOr(
+                                       SkuWithNoProductAdded(refNum, productVariant.code))
+                    productLink ← * <~ ProductOptionLinks
+                                   .filter(_.rightId === variantLink.leftId)
+                                   .mustFindOneOr(
+                                       SkuWithNoProductAdded(refNum, productVariant.code))
+                  } yield productLink.leftId
+              }
     } yield link
   }
 
   private def removeLineItems(
-      skuId: Int,
+      productVariantId: Int,
       delta: Int,
       cordRef: String,
       requestedAttrs: Option[LineItemAttributes])(implicit ec: EC): DbResultT[Unit] =
     CartLineItems
       .byCordRef(cordRef)
-      .filter(_.skuId === skuId)
+      .filter(_.productVariantId === productVariantId)
       .result
       .dbresult
       .flatMap { lineItemsInCart ⇒

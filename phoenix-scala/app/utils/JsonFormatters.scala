@@ -5,7 +5,7 @@ import models.cord.Order
 import models.cord.lineitems._
 import models.discount.offers.OfferType
 import models.discount.qualifiers.QualifierType
-import models.inventory.SkuType
+import models.inventory.ProductVariantType
 import models.payment.PaymentMethod
 import models.payment.creditcard.CreditCardCharge
 import models.payment.giftcard.{GiftCard, GiftCardAdjustment}
@@ -40,7 +40,7 @@ object JsonFormatters {
       ReturnLineItem.InventoryDisposition.jsonFormat + ReturnReason.ReasonType.jsonFormat +
       CreditCardCharge.State.jsonFormat + CountryWithRegions.jsonFormat +
       QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
-      PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +
+      PaymentMethod.Type.jsonFormat + ProductVariantType.jsonFormat + SharedSearch.Scope.jsonFormat +
       IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +
       AuthPayload.JwtClaimsSerializer
 }

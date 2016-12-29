@@ -1,10 +1,13 @@
 package services.orders
 
 import models.cord.lineitems._
-import models.cord.{Order, OrderShippingMethods, Orders, Cart}
-import slick.driver.PostgresDriver.api._
+import models.cord.{Cart, Order, OrderShippingMethods, Orders}
+import models.inventory.ProductVariants
+import models.objects.{ObjectForms, ObjectShadows}
+import utils.db.ExPostgresDriver.api._
 import utils.aliases._
 import utils.db._
+import utils.db.DbObjectUtils._
 
 // TODO: Use utils.Money
 object OrderTotaler {
@@ -26,17 +29,14 @@ object OrderTotaler {
   }
 
   def subTotal(cart: Cart, order: Order)(implicit ec: EC): DBIO[Int] =
-    sql"""select count(*), sum(coalesce(cast(sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as integer), 0)) as sum
-          |	from order_line_items oli
-          |	left outer join skus sku on (sku.id = oli.sku_id)
-          |	left outer join object_forms sku_form on (sku_form.id = sku.form_id)
-          |	left outer join object_shadows sku_shadow on (sku_shadow.id = oli.sku_shadow_id)
-          |
-          |	where oli.cord_ref = ${cart.refNum}
-          | """.stripMargin.as[(Int, Int)].headOption.map {
-      case Some((count, total)) if count > 0 ⇒ total
-      case _                                 ⇒ 0
-    }
+    (for {
+      lineItem ← OrderLineItems if lineItem.cordRef === cart.refNum
+      variant  ← ProductVariants if variant.id === lineItem.productVariantId
+      form     ← ObjectForms if form.id === variant.formId
+      shadow   ← ObjectShadows if shadow.id === lineItem.productVariantShadowId
+      illuminated = (form, shadow)
+      salePrice   = ((illuminated |→ "salePrice") +>> "value").asColumnOf[Int]
+    } yield salePrice).sum.result.map(_.getOrElse(0))
 
   def shippingTotal(order: Order)(implicit ec: EC): DbResultT[Int] =
     for {

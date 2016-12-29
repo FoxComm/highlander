@@ -3,6 +3,7 @@ package utils.db
 import utils.aliases._
 import com.github.tminglei.slickpg._
 import com.github.tminglei.slickpg.array.PgArrayJdbcTypes
+import com.github.tminglei.slickpg.json.PgJsonExtensions
 import com.github.tminglei.slickpg.utils.SimpleArrayUtils
 import slick.driver.PostgresDriver
 
@@ -17,7 +18,8 @@ trait ExPostgresDriver
     with PgSearchSupport
     // with PgPostGISSupport
     with PgNetSupport
-    with PgLTreeSupport {
+    with PgLTreeSupport
+    with PgJsonExtensions {
 
   override val pgjson = "jsonb"
   type DOCType = Json

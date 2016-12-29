@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import models.cord.Cord.cordRefNumRegex
-import models.inventory.Sku.skuCodeRegex
+import models.inventory.ProductVariant.skuCodeRegex
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
 import models.returns.Return.returnRefNumRegex
 import payloads.AssignmentPayloads._
@@ -458,14 +458,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                SkuAssignmentsManager.assignBulk(auth.model, payload)
+                ProductVariantAssignmentsManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                SkuAssignmentsManager.unassignBulk(auth.model, payload)
+                ProductVariantAssignmentsManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -474,14 +474,14 @@ object AssignmentsRoutes {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                SkuWatchersManager.assignBulk(auth.model, payload)
+                VariantWatchersManager.assignBulk(auth.model, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd) {
             entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               mutateOrFailures {
-                SkuWatchersManager.unassignBulk(auth.model, payload)
+                VariantWatchersManager.unassignBulk(auth.model, payload)
               }
             }
           }
@@ -492,34 +492,34 @@ object AssignmentsRoutes {
         pathPrefix("assignees") {
           (get & pathEnd) {
             getOrFailures {
-              SkuAssignmentsManager.list(refNum)
+              ProductVariantAssignmentsManager.list(refNum)
             }
           } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              SkuAssignmentsManager.assign(refNum, payload, auth.model)
+              ProductVariantAssignmentsManager.assign(refNum, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              SkuAssignmentsManager.unassign(refNum, assigneeId, auth.model)
+              ProductVariantAssignmentsManager.unassign(refNum, assigneeId, auth.model)
             }
           }
         } ~
         pathPrefix("watchers") {
           (get & pathEnd) {
             getOrFailures {
-              SkuWatchersManager.list(refNum)
+              VariantWatchersManager.list(refNum)
             }
           } ~
           (post & entity(as[AssignmentPayload])) { payload ⇒
             mutateOrFailures {
-              SkuWatchersManager.assign(refNum, payload, auth.model)
+              VariantWatchersManager.assign(refNum, payload, auth.model)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             mutateOrFailures {
-              SkuWatchersManager.unassign(refNum, assigneeId, auth.model)
+              VariantWatchersManager.unassign(refNum, assigneeId, auth.model)
             }
           }
         }

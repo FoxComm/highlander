@@ -6,7 +6,7 @@ import faker.Lorem
 import org.json4s.JsonDSL._
 import org.scalatest.SuiteMixin
 import payloads.ProductPayloads.CreateProductPayload
-import payloads.SkuPayloads.SkuPayload
+import payloads.ProductVariantPayloads.ProductVariantPayload
 import responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
 import testutils.PayloadHelpers.tv
 import testutils._
@@ -19,7 +19,7 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
     val skuCode             = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
     private val skuPrice    = Random.nextInt(20000) + 100
 
-    private val skuPayload = SkuPayload(
+    private val skuPayload = ProductVariantPayload(
         attributes = Map("code"        → tv(skuCode),
                          "title"       → tv(skuCode.capitalize),
                          "salePrice"   → tv(("currency" → "USD") ~ ("value" → skuPrice), "price"),
@@ -30,8 +30,8 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
           attributes =
             Map("name" → tv(productCode.capitalize), "title" → tv(productCode.capitalize)),
           slug = productCode.toLowerCase,
-          skus = Seq(skuPayload),
-          variants = None)
+          variants = Seq(skuPayload),
+          options = None)
 
     val product = productsApi.create(productPayload).as[ProductRoot]
   }

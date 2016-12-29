@@ -74,8 +74,9 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       simpleProduct  ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
       tup            ← * <~ Mvp.getProductTuple(simpleProduct)
-      _              ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = tup.sku.id))
-      skuPrice       ← * <~ Mvp.priceAsInt(tup.skuForm, tup.skuShadow)
+      _ ← * <~ CartLineItems.create(
+             CartLineItem(cordRef = cart.refNum, productVariantId = tup.sku.id))
+      skuPrice ← * <~ Mvp.priceAsInt(tup.skuForm, tup.skuShadow)
     } yield
       (productContext, tup.product, tup.productShadow, tup.sku, tup.skuShadow, skuPrice)).gimme
   }

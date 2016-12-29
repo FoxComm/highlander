@@ -6,7 +6,7 @@ import faker.Lorem
 import models.Reasons
 import models.account.Scope
 import models.cord._
-import models.inventory.Skus
+import models.inventory.ProductVariants
 import models.objects.ObjectContexts
 import models.payment.giftcard._
 import models.payment.storecredit._
@@ -206,7 +206,7 @@ class CheckoutTest
         product ← * <~ Mvp.insertProduct(
                      productCtx.id,
                      Factories.products.head.copy(price = cost, code = Lorem.letterify("?????")))
-        sku ← * <~ Skus.mustFindById404(product.skuId)
+        sku ← * <~ ProductVariants.mustFindById404(product.skuId)
       } yield sku).gimme
       Seq(UpdateLineItemsPayload(sku.code, 1))
     }
