@@ -7,6 +7,7 @@ import { autobind } from 'core-decorators';
 
 import SkuResult from './sku-result';
 import Typeahead from 'components/typeahead/typeahead';
+import ErrorAlerts from '../alerts/error-alerts';
 
 import { suggestSkus } from 'modules/skus/suggest';
 import { updateLineItemCount } from 'modules/carts/details';
@@ -19,6 +20,7 @@ const mapStateToProps = state => {
   return {
     suggestedSkus: _.get(state, 'skus.suggest.skus', []),
     isFetchingSkus: _.get(state.asyncActions, 'skus-suggest.inProgress', null),
+    updateLineItemErrors: _.get(state.asyncActions, 'updateLineItemCount.err.response.body.errors', null),
   };
 };
 
@@ -32,6 +34,7 @@ type Props = {
   isFetchingSkus: boolean,
   suggestSkus: (code: string, options?: SuggestOptions) => Promise,
   updateLineItemCount: Function,
+  updateLineItemErrors: Array<string>
 };
 
 export class CartLineItemsFooter extends Component {
@@ -59,7 +62,7 @@ export class CartLineItemsFooter extends Component {
   }
 
   render() {
-    const { props } = this;
+    const { updateLineItemErrors, isFetchingSkus, suggestedSkus } = this.props;
 
     return (
       <div className="fc-line-items-add">
@@ -69,11 +72,13 @@ export class CartLineItemsFooter extends Component {
         <Typeahead
           onItemSelected={this.skuSelected}
           component={SkuResult}
-          isFetching={props.isFetchingSkus}
+          isFetching={isFetchingSkus}
           fetchItems={this.suggestSkus}
-          items={props.suggestedSkus}
+          items={suggestedSkus}
           placeholder="Product name or SKU..."
         />
+
+        {updateLineItemErrors && <ErrorAlerts errors={updateLineItemErrors} />}
       </div>
     );
   }
