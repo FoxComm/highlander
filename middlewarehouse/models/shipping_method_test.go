@@ -15,7 +15,7 @@ type ShippingMethodModelTestSuite struct {
 }
 
 func TestShippingMethodModelSuite(t *testing.T) {
-	suite.Run(t, new(suite.Suite))
+	suite.Run(t, new(ShippingMethodModelTestSuite))
 }
 
 func (suite *ShippingMethodModelTestSuite) SetupSuite() {

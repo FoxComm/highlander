@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"encoding/json"
 	"net/http"
 	"testing"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
@@ -52,5 +54,12 @@ func (suite *orderShippingMethodControllerTestSuite) SetupSuite() {
 func (suite *orderShippingMethodControllerTestSuite) Test_GetShippingMethods_Success() {
 	payload := fixtures.GetOrder()
 	res := suite.Post("/order-shipping-methods", payload)
+
 	suite.Equal(http.StatusOK, res.Code)
+
+	methods := []*responses.OrderShippingMethod{}
+	err := json.NewDecoder(res.Body).Decode(&methods)
+
+	suite.Nil(err)
+	suite.Len(methods, 1)
 }
