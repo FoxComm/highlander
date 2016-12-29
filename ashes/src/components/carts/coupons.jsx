@@ -78,7 +78,7 @@ class CartCoupons extends Component {
 
   get editFooter(): Element {
     const plate = (
-      <Button styleName="add-coupon-button" onClick={this.onAddClick}>Apply</Button>
+      <Button id="apply-coupon-btn" styleName="add-coupon-button" onClick={this.onAddClick}>Apply</Button>
     );
     const errorMessage = this.props.coupons.error && (
         <div className="fc-form-field-error">{this.fancyErrorMessage}</div>
@@ -152,7 +152,7 @@ class CartCoupons extends Component {
 
   render(): Element {
     const { id } = this.props;
-  
+
     return (
       <EditableContentBox
         id={id}
