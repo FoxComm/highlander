@@ -1,6 +1,11 @@
 package models
 
-import "fmt"
+import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
+	"fmt"
+)
 
 const (
 	And = "and"
@@ -17,14 +22,18 @@ type QueryStatement struct {
 	Statements []QueryStatement `json:"statements"`
 }
 
-type compareHelper func(bool, bool) bool
-
-func andHelper(left, right bool) bool {
-	return left && right
+func (q QueryStatement) Value() (driver.Value, error) {
+	j, err := json.Marshal(q)
+	return j, err
 }
 
-func orHelper(left, right bool) bool {
-	return left || right
+func (q *QueryStatement) Scan(src interface{}) error {
+	source, ok := src.([]byte)
+	if !ok {
+		return errors.New("Type assertion .([]byte) failed.")
+	}
+
+	return json.Unmarshal(source, q)
 }
 
 func (q *QueryStatement) Evaluate(data interface{}, f QueryEvaluator) (bool, error) {
@@ -59,4 +68,14 @@ func (q *QueryStatement) Evaluate(data interface{}, f QueryEvaluator) (bool, err
 	}
 
 	return result, nil
+}
+
+type compareHelper func(bool, bool) bool
+
+func andHelper(left, right bool) bool {
+	return left && right
+}
+
+func orHelper(left, right bool) bool {
+	return left || right
 }

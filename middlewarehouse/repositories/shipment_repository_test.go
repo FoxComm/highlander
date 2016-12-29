@@ -74,7 +74,8 @@ func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentsByID_Found_ReturnsShi
 	suite.Nil(err)
 	suite.Equal(2, len(shipments))
 	tests.SyncDates(shipment1, shipment2, shipments[0], shipments[1],
-		&shipment1.Address, &shipment2.Address, &shipments[0].Address, &shipments[1].Address)
+		&shipment1.Address, &shipment2.Address, &shipments[0].Address, &shipments[1].Address,
+		&shipment1.ShippingMethod, &shipment2.ShippingMethod, &shipments[0].ShippingMethod, &shipments[1].ShippingMethod)
 	suite.Equal(shipment1, shipments[0])
 	suite.Equal(shipment2, shipments[1])
 }
@@ -89,7 +90,7 @@ func (suite *ShipmentRepositoryTestSuite) Test_GetShipmentByID_Found_ReturnsShip
 
 	//assert
 	suite.Nil(err)
-	tests.SyncDates(shipment1, shipment, &shipment1.Address, &shipment.Address)
+	tests.SyncDates(shipment1, shipment, &shipment1.Address, &shipment.Address, &shipment1.ShippingMethod, &shipment.ShippingMethod)
 	suite.Equal(shipment1, shipment)
 }
 
@@ -102,7 +103,7 @@ func (suite *ShipmentRepositoryTestSuite) Test_CreateShipment_ReturnsCreatedReco
 
 	//assert
 	suite.Nil(err)
-	tests.SyncDates(shipment1, shipment, &shipment1.Address, &shipment.Address)
+	tests.SyncDates(shipment1, shipment, &shipment1.Address, &shipment.Address, &shipment1.ShippingMethod, &shipment.ShippingMethod)
 	suite.Equal(shipment1, shipment)
 }
 
@@ -128,7 +129,7 @@ func (suite *ShipmentRepositoryTestSuite) Test_UpdateShipment_Found_ReturnsUpdat
 
 	//assert
 	suite.Nil(err)
-	tests.SyncDates(shipment1, shipment, &shipment1.Address, &shipment.Address)
+	tests.SyncDates(shipment1, shipment, &shipment1.Address, &shipment.Address, &shipment1.ShippingMethod, &shipment.ShippingMethod)
 	suite.Equal(shipment1, shipment)
 }
 

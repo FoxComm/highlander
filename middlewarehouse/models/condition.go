@@ -29,14 +29,15 @@ type Condition struct {
 	Value      interface{} `json:"value"`
 }
 
-func (c Condition) MatchesBool(comp bool) (result bool, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf(errorInvalidTypeCast, "boolean")
-		}
-	}()
+func (c Condition) MatchesBool(comp bool) (bool, error) {
+	var result bool
+	var err error
 
-	valBool := c.Value.(bool)
+	valBool, ok := c.Value.(bool)
+	if !ok {
+		return false, fmt.Errorf(errorInvalidTypeCast, "boolean")
+	}
+
 	switch c.Operator {
 	case Equals:
 		result = comp == valBool
@@ -46,17 +47,18 @@ func (c Condition) MatchesBool(comp bool) (result bool, err error) {
 		err = fmt.Errorf(errorInvalidComparison, c.Operator, "boolean")
 	}
 
-	return
+	return result, err
 }
 
-func (c Condition) MatchesInt(comp int) (result bool, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf(errorInvalidTypeCast, "integer")
-		}
-	}()
+func (c Condition) MatchesInt(comp int) (bool, error) {
+	var result bool
+	var err error
 
-	valInt := c.Value.(int)
+	valInt, ok := c.Value.(int)
+	if !ok {
+		return false, fmt.Errorf(errorInvalidTypeCast, "integer")
+	}
+
 	switch c.Operator {
 	case Equals:
 		result = comp == valInt
@@ -74,17 +76,18 @@ func (c Condition) MatchesInt(comp int) (result bool, err error) {
 		err = fmt.Errorf(errorInvalidComparison, c.Operator, "boolean")
 	}
 
-	return
+	return result, err
 }
 
-func (c Condition) MatchesString(comp string) (result bool, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf(errorInvalidTypeCast, "string")
-		}
-	}()
+func (c Condition) MatchesString(comp string) (bool, error) {
+	var result bool
+	var err error
 
-	valStr := c.Value.(string)
+	valStr, ok := c.Value.(string)
+	if !ok {
+		return false, fmt.Errorf(errorInvalidTypeCast, "string")
+	}
+
 	switch c.Operator {
 	case Equals:
 		result = comp == valStr
@@ -104,7 +107,35 @@ func (c Condition) MatchesString(comp string) (result bool, err error) {
 		err = fmt.Errorf(errorInvalidComparison, c.Operator, "string")
 	}
 
-	return
+	return result, err
+}
+
+func (c Condition) MatchesUint(comp uint) (bool, error) {
+	var result bool
+	var err error
+
+	valInt, ok := c.Value.(uint)
+	if !ok {
+		return false, fmt.Errorf(errorInvalidTypeCast, "unsigned integer")
+	}
+	switch c.Operator {
+	case Equals:
+		result = comp == valInt
+	case NotEquals:
+		result = comp != valInt
+	case GreaterThan:
+		result = comp > valInt
+	case GreaterThanOrEquals:
+		result = comp >= valInt
+	case LessThan:
+		result = comp < valInt
+	case LessThanOrEquals:
+		result = comp <= valInt
+	default:
+		err = fmt.Errorf(errorInvalidComparison, c.Operator, "boolean")
+	}
+
+	return result, err
 }
 
 func isInArray(comp string, val string) bool {

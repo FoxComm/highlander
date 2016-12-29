@@ -6,6 +6,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
+	"github.com/FoxComm/highlander/middlewarehouse/common/tests"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
@@ -61,6 +62,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethods_ReturnsS
 	suite.Nil(err)
 
 	suite.Equal(2, len(shippingMethods))
+	tests.SyncDates(shippingMethod1, shippingMethod2, shippingMethods[0], shippingMethods[1])
 	suite.Equal(shippingMethod1, shippingMethods[0])
 	suite.Equal(shippingMethod2, shippingMethods[1])
 }
@@ -83,6 +85,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_GetShippingMethodByID_Found
 
 	//assert
 	suite.Nil(err)
+	tests.SyncDates(shippingMethod1, shippingMethod)
 	suite.Equal(shippingMethod1, shippingMethod)
 }
 
@@ -95,7 +98,29 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_CreateShippingMethod_Return
 
 	//assert
 	suite.Nil(err)
+	tests.SyncDates(shippingMethod1, shippingMethod)
 	suite.Equal(shippingMethod1, shippingMethod)
+}
+
+func (suite *ShippingMethodRepositoryTestSuite) Test_CreateShippingMethodWithConditions_ReturnsCreatedRecord() {
+	shippingMethod := fixtures.GetShippingMethod(0, suite.carrier1.ID, suite.carrier1)
+	shippingMethod.Conditions = models.QueryStatement{
+		Comparison: models.And,
+		Conditions: []models.Condition{
+			models.Condition{
+				RootObject: "Order",
+				Field:      "grandTotal",
+				Operator:   models.Equals,
+				Value:      100,
+			},
+		},
+	}
+
+	created, err := suite.repository.CreateShippingMethod(shippingMethod)
+
+	suite.Nil(err)
+	suite.Len(created.Conditions.Conditions, 1)
+	suite.Equal("Order", created.Conditions.Conditions[0].RootObject)
 }
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_NotFound_ReturnsNotFoundError() {
@@ -120,6 +145,7 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_UpdateShippingMethod_Found_
 
 	//assert
 	suite.Nil(err)
+	tests.SyncDates(shippingMethod1, shippingMethod)
 	suite.Equal(shippingMethod1, shippingMethod)
 }
 

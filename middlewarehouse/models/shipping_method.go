@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/common/gormfox"
 )
 
 const (
@@ -12,14 +13,17 @@ const (
 )
 
 type ShippingMethod struct {
-	ID           uint
+	gormfox.Base
 	CarrierID    uint
 	Carrier      Carrier
 	Name         string
 	Code         string
 	ShippingType int
 	Cost         uint
-	Scope     string
+	Scope        string
+
+	Conditions   QueryStatement
+	Restrictions QueryStatement
 }
 
 func (shippingMethod *ShippingMethod) Identifier() uint {
