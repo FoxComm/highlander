@@ -37,20 +37,20 @@ object ObjectUtils {
     * We don't care about the whole hash because it would take up too much space. 
     * Collisions are handled below in the findKey function.
     */
-  def hash(content: Json): String = {
+  private def hash(content: Json): String = {
     val md = java.security.MessageDigest.getInstance("SHA-1")
     md.digest(compact(render(content)).getBytes)
       .slice(0, KEY_LENGTH)
       .map("%02x".format(_))
       .mkString
-  } ensuring (key ⇒ key.length() == KEY_LENGTH_HEX)
+  }
 
   /**
     * Returns true if there if there is no hash collision.
     * We consider a hash collision if there is an existing attribute with
     * the same key but different content.
     */
-  def noHashCollision(key: String, content: Json, fields: Json): Boolean = {
+  private def noHashCollision(key: String, content: Json, fields: Json): Boolean = {
     require(key.length() >= KEY_LENGTH_HEX)
 
     fields \ key match {
@@ -60,11 +60,11 @@ object ObjectUtils {
   }
 
   @tailrec
-  def findKeyʹ(hashKey: String, content: Json, fields: Json, index: Int): (String, Int) = {
+  private def findKeyʹ(hashKey: String, content: Json, fields: Json, index: Int): String = {
     require(hashKey.length() == KEY_LENGTH_HEX)
 
     val newKey = if (index == 0) hashKey else s"$hashKey/$index"
-    if (noHashCollision(newKey, content, fields)) (newKey, index)
+    if (noHashCollision(newKey, content, fields)) newKey
     else findKeyʹ(hashKey, content, fields, index + 1)
   }
 
@@ -75,29 +75,12 @@ object ObjectUtils {
     * new hash+index key is searched until we find a key with same content or 
     * we reach the end of the list.
     */
-  def findKey(content: Json, fields: Json): (String, Int) = {
+  private def findKey(content: Json, fields: Json): String = {
     val hashKey = hash(content)
     findKeyʹ(hashKey, content, fields, index = 0)
-  } ensuring (
-      r ⇒
-        r match {
-          case (key, index) ⇒
-            if (index == 0) key.length() == KEY_LENGTH_HEX
-            else key.length() > KEY_LENGTH_HEX_WITH_SLASH
-      }
-  )
-
-  def key(content: Json, fields: Json): String = findKey(content, fields)._1
-
-  def key(content: String, fields: Json): String = key(JString(content), fields)
-
-  def attribute(content: Json, fields: Json): JField = {
-    (key(content, fields), content)
   }
 
-  def attributes(values: Seq[Json], fields: Json): Json = {
-    JObject(values.map(j ⇒ attribute(j, fields)).toList)
-  }
+  private[objects] def key(content: Json, fields: Json): String = findKey(content, fields)
 
   type KeyMap = Map[String, String]
   def createForm(form: Json, existingForm: Json = JNothing): (KeyMap, Json) = {
