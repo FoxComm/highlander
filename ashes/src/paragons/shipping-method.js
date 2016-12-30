@@ -2,11 +2,18 @@
 
 export type ShippingMethod = {
   id: number,
-  adminDisplayName: string,
-  storefrontDisplayName: string,
+  carrier: {
+    id: number,
+    name: string,
+    trackingTemplate: string,
+  },
+  name: string,
   code: string,
-  price: number,
-  isActive: bool,
+  type: string,
+  price: {
+    currency: string,
+    value: number,
+  },
 };
 
 export type CreatePayload = {

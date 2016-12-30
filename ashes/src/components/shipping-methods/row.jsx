@@ -19,8 +19,13 @@ type Props = {
 
 function setCellContents(method, field) {
   switch (field) {
+    case 'carrier':
+      return _.get(method, [field, 'name']);
     case 'price':
-      return _.get(method, [field, 'value']);
+      const pricingType = _.get(method, 'type', 'flat');
+      return pricingType == 'flat'
+        ? _.get(method, [field, 'value'])
+        : 'variable';
     default:
       return _.get(method, field);
   }

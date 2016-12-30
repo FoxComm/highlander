@@ -16,7 +16,7 @@ const initialState = {
 
 const _fetchShippingMethods = createAsyncActions(
   'fetchShippingMethods',
-  () => Api.get('/shipping-methods')
+  () => Api.get('/inventory/shipping-methods')
 );
 
 export const fetchShippingMethods = _fetchShippingMethods.perform;

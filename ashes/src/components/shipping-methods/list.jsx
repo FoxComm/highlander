@@ -40,10 +40,10 @@ const mapStateToProps = (state) => {
 const tableColumns = [
   { field: 'id', text: 'ID' },
   { field: 'code', text: 'Code' },
-  { field: 'adminDisplayName', text: 'Name' },
-  { field: 'price', text: 'Price', type: 'currency' },
+  { field: 'name', text: 'Name' },
   { field: 'carrier', text: 'Carrier' },
-  { field: 'eta', text: 'Estimated Arrival' },
+  { field: 'price', text: 'Price', type: 'currency' },
+  //{ field: 'eta', text: 'Estimated Arrival' },
 ];
 
 class ShippingMethodsList extends Component {
