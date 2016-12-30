@@ -79,12 +79,15 @@ func NewShipmentFromUpdatePayload(payload *payloads.UpdateShipment) *Shipment {
 
 func NewShipmentFromOrderPayload(payload *payloads.Order) *Shipment {
 	shipment := &Shipment{
-		ShippingMethodCode: payload.ShippingMethod.Code,
-		OrderRefNum:        payload.ReferenceNumber,
-		State:              ShipmentStatePending,
-		Address:            *NewAddressFromPayload(payload.ShippingAddress),
-		ShippingPrice:      payload.ShippingMethod.Price,
-		Scope:              payload.Scope,
+		OrderRefNum: payload.ReferenceNumber,
+		State:       ShipmentStatePending,
+		Address:     *NewAddressFromPayload(payload.ShippingAddress),
+		Scope:       payload.Scope,
+	}
+
+	if payload.ShippingMethod != nil {
+		shipment.ShippingMethodCode = payload.ShippingMethod.Code
+		shipment.ShippingPrice = payload.ShippingMethod.Price
 	}
 
 	for _, lineItem := range payload.LineItems.SKUs {

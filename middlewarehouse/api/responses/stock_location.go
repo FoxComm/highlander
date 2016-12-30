@@ -28,8 +28,8 @@ func NewStockLocationFromModel(location *models.StockLocation) *StockLocation {
 		Type: location.Type,
 	}
 
-	if location.Address != nil {
-		response.Address = NewAddressFromModel(location.Address)
+	if location.AddressID != 0 {
+		response.Address = NewAddressFromModel(&location.Address)
 	}
 
 	response.Scope = location.Scope

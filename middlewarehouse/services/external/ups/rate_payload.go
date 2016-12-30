@@ -95,6 +95,10 @@ type addressLocation struct {
 }
 
 func (a *addressLocation) FromModel(model *models.Address) error {
+	if model == nil {
+		return nil
+	}
+
 	a.Name = model.Name
 
 	addressLines := []string{model.Address1}

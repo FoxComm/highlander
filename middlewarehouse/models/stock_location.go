@@ -7,10 +7,11 @@ import (
 
 type StockLocation struct {
 	gormfox.Base
-	Name    string
-	Type    string
-	Address *Address
-	Scope   string
+	Name      string
+	Type      string
+	AddressID uint
+	Address   Address
+	Scope     string
 }
 
 func NewStockLocationFromPayload(payload *payloads.StockLocation) *StockLocation {
@@ -22,7 +23,7 @@ func NewStockLocationFromPayload(payload *payloads.StockLocation) *StockLocation
 	location := &StockLocation{
 		Name:    payload.Name,
 		Type:    payload.Type,
-		Address: address,
+		Address: *address,
 		Scope:   payload.Scope,
 	}
 

@@ -59,7 +59,7 @@ func (u *API) GetRate(shipment *models.Shipment) (float64, error) {
 	weightUnits := "lbs"
 	weight := "1"
 
-	ratePayload, err := NewRatePayload(auth, shipper, shipFrom, &shipTo, freight, weightUnits, weight)
+	ratePayload, err := NewRatePayload(auth, &shipper, &shipFrom, &shipTo, freight, weightUnits, weight)
 	if err != nil {
 		return 0.0, err
 	}

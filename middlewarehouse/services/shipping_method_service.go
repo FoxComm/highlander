@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
@@ -10,6 +11,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/models/rules"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
+	"github.com/FoxComm/highlander/middlewarehouse/services/external/ups"
 )
 
 type shippingMethodService struct {
@@ -87,12 +89,49 @@ func (service *shippingMethodService) EvaluateForOrder(order *payloads.Order) ([
 				}
 			}
 
+			var price uint
+			if method.ShippingType == models.ShippingTypeVariable {
+				// Placeholder for making the call to the external API
+				price = 9898
+				shipment := models.NewShipmentFromOrderPayload(order)
+				username := os.Getenv("UPS_USERNAME")
+				password := os.Getenv("UPS_PASSWORD")
+				token := os.Getenv("UPS_ACCESS_TOKEN")
+
+				// Get the address for the first stock location in the shipment.
+				if len(shipment.ShipmentLineItems) > 0 {
+					address := models.Address{
+						Name: "FoxCommerce",
+						Region: models.Region{
+							ID:   4177,
+							Name: "Washington",
+						},
+						City:        "Seattle",
+						Zip:         "98109",
+						Address1:    "3131 Elliot Ave",
+						PhoneNumber: "2069637392",
+					}
+
+					shipment.ShipmentLineItems[0].StockItemUnit.StockItem.StockLocation.Address = address
+				}
+
+				upsAPI := ups.NewAPI(username, password, token, false)
+				charge, err := upsAPI.GetRate(shipment)
+				if err != nil {
+					return nil, err
+				}
+
+				price = uint(charge * 100)
+			} else {
+				price = method.Price
+			}
+
 			resp := &responses.OrderShippingMethod{
 				IsEnabled:        !isDisabled,
 				ShippingMethodID: method.ID,
 				Price: responses.Money{
 					Currency: "USD",
-					Value:    method.Price,
+					Value:    price,
 				},
 			}
 

@@ -31,7 +31,11 @@ func NewStockLocationRepository(db *gorm.DB) IStockLocationRepository {
 func (repository *stockLocationRepository) GetLocations() ([]*models.StockLocation, error) {
 	locations := []*models.StockLocation{}
 
-	err := repository.db.Find(&locations).Error
+	err := repository.db.
+		Preload("Address").
+		Preload("Address.Region").
+		Preload("Address.Region.Country").
+		Find(&locations).Error
 
 	return locations, err
 }
@@ -39,7 +43,13 @@ func (repository *stockLocationRepository) GetLocations() ([]*models.StockLocati
 func (repository *stockLocationRepository) GetLocationByID(id uint) (*models.StockLocation, error) {
 	location := &models.StockLocation{}
 
-	if err := repository.db.First(location, id).Error; err != nil {
+	err := repository.db.
+		Preload("Address").
+		Preload("Address.Region").
+		Preload("Address.Region.Country").
+		First(location, id).Error
+
+	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf(ErrorStockLocationNotFound, id)
 		}
