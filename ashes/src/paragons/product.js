@@ -35,8 +35,8 @@ export type Option = {
 export type Product = ObjectView & {
   id: ?number,
   productId: ?number,
-  skus: Array<Sku>,
-  variants: Array<Option>,
+  variants: Array<Sku>,
+  options: Array<Option>,
 };
 
 // we should identity sku be feCode first
@@ -62,9 +62,9 @@ export function createEmptyProduct(): Product {
     attributes: {
       title: t.string(''),
     },
-    skus: [],
-    context: { name: 'default' },
     variants: [],
+    context: { name: 'default' },
+    options: [],
   };
 
   if (isMerchant()) {
@@ -137,9 +137,9 @@ export function createEmptySku(): Object {
 
 export function addEmptySku(product: Product): Product {
   const emptySku = createEmptySku();
-  const newSkus = [emptySku, ...product.skus];
+  const newSkus = [emptySku, ...product.variants];
 
-  return assoc(product, 'skus', newSkus);
+  return assoc(product, 'variants', newSkus);
 }
 
 /**
@@ -155,9 +155,9 @@ export function configureProduct(product: Product): Product {
 }
 
 function ensureProductHasSkus(product: Product): Product {
-  if (_.isEmpty(product.skus)) {
+  if (_.isEmpty(product.variants)) {
     return assoc(product,
-      'skus', [createEmptySku()]
+      'variants', [createEmptySku()]
     );
   }
   return product;
@@ -176,7 +176,7 @@ export function setSkuAttribute(product: Product,
       : sku;
   };
 
-  const newSkus = product.skus.map(sku => updateAttribute(sku));
+  const newSkus = product.variants.map(sku => updateAttribute(sku));
 
-  return assoc(product, 'skus', newSkus);
+  return assoc(product, 'variants', newSkus);
 }

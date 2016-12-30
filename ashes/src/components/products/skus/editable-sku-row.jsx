@@ -39,7 +39,7 @@ type Props = {
   variantsSkusIndex: Object,
   suggestSkus: (code: string, context?: SuggestOptions) => Promise,
   suggestedSkus: Array<SearchViewSku>,
-  variants: Array<any>,
+  options: Array<any>,
 };
 
 type State = {
@@ -268,7 +268,7 @@ class EditableSkuRow extends Component {
     );
   }
 
-  variantCell(field: any, sku: Sku): ?Element {
+  optionCell(field: any, sku: Sku): ?Element {
     if (field.indexOf('variant') < 0) {
       return null;
     }
@@ -276,15 +276,15 @@ class EditableSkuRow extends Component {
     const idx = parseInt(field);
     const mapping = this.props.variantsSkusIndex;
 
-    const variant = _.get(this.props.variants, idx, {});
-    const variantName = _.get(variant, 'attributes.name.v');
+    const option = _.get(this.props.options, idx, {});
+    const optionName = _.get(option, 'attributes.name.v');
     const skuAttributeCode = _.get(sku, 'attributes.code.v');
     const skuCode = sku.feCode || skuAttributeCode;
 
-    const variantValue = _.get(mapping, [skuCode, variantName]);
+    const optionValue = _.get(mapping, [skuCode, optionName]);
 
     return (
-      <div styleName="variant-value">{variantValue}</div>
+      <div styleName="variant-value">{optionValue}</div>
     );
   }
 
@@ -292,7 +292,7 @@ class EditableSkuRow extends Component {
     const skuCode = sku.feCode || _.get(sku.attributes, 'code.v');
     const skuValue = this.skuCodeValue;
 
-    if (!_.isEmpty(this.props.variants) || skuValue) {
+    if (!_.isEmpty(this.props.options) || skuValue) {
       return (
         <DeleteButton onClick={() => this.props.onDeleteClick(skuCode)}/>
       );
@@ -314,7 +314,7 @@ class EditableSkuRow extends Component {
       case 'actions':
         return this.actionsCell(sku);
       default:
-        return this.variantCell(field, sku);
+        return this.optionCell(field, sku);
     }
   }
 

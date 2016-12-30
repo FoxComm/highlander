@@ -32,7 +32,7 @@ export const syncSku = createAction('SKU_SYNC');
 const _archiveSku = createAsyncActions(
   'archiveSku',
   (code, context = defaultContext) => {
-    return Api.delete(`/skus/${context}/${code}`);
+    return Api.delete(`/product-variants/${context}/${code}`);
   }
 );
 
@@ -42,14 +42,14 @@ export const clearArchiveErrors = _archiveSku.clearErrors;
 const _fetchSku = createAsyncActions(
   'fetchSku',
   (code: string, context: string = defaultContext) => {
-    return Api.get(`/skus/${context}/${code}`);
+    return Api.get(`/product-variants/${context}/${code}`);
   }
 );
 
 const _createSku = createAsyncActions(
   'createSku',
   (sku: Sku, context: string = defaultContext) => {
-    return Api.post(`/skus/${context}`, sku);
+    return Api.post(`/product-variants/${context}`, sku);
   }
 );
 
@@ -60,7 +60,7 @@ const _updateSku = createAsyncActions(
     const oldSku = _.get(getState(), ['skus', 'details', 'sku', 'attributes', 'code', 'v']);
     if (oldSku) {
       const stockItemsPromise = dispatch(pushStockItemChanges(oldSku));
-      const updatePromise = Api.patch(`/skus/${context}/${oldSku}`, sku);
+      const updatePromise = Api.patch(`/product-variants/${context}/${oldSku}`, sku);
       return Promise.all([updatePromise, stockItemsPromise]).then(([updateResponse]) => {
         return updateResponse;
       });
