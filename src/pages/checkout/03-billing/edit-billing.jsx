@@ -15,6 +15,7 @@ import { FormField } from 'ui/forms';
 import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import Checkbox from 'ui/checkbox/checkbox';
 import Autocomplete from 'ui/autocomplete';
+import InputMask from 'react-input-mask';
 import EditAddress from 'ui/address/edit-address';
 import CreditCards from './credit-cards';
 import Icon from 'ui/icon';
@@ -285,19 +286,24 @@ class EditBilling extends Component {
           <FormField styleName="card-number-field" validator={this.validateCardNumber}>
             <TextInputWithLabel
               label={this.paymentIcon}
-              required
-              disabled={editingSavedCard}
-              styleName="payment-input"
-              className={textStyles['text-input']}
-              type="text"
-              pattern="\d*"
-              inputmode="numeric"
-              name="number"
-              placeholder={cardNumberPlaceholder}
-              maxLength="20"
-              value={data.number}
-              onChange={this.changeCardNumber}
-            />
+            >
+              <InputMask
+                required
+                disabled={editingSavedCard}
+                styleName="payment-input"
+                className={textStyles['text-input']}
+                maskChar=" "
+                type="text"
+                pattern="\d*"
+                inputmode="numeric"
+                mask={this.cardMask}
+                name="number"
+                placeholder={cardNumberPlaceholder}
+                size="20"
+                value={data.number}
+                onChange={this.changeCardNumber}
+              />
+            </TextInputWithLabel>
           </FormField>
           <FormField styleName="cvc-field" validator={this.validateCvcNumber}>
             <TextInputWithLabel
