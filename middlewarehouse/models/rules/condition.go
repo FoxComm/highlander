@@ -1,25 +1,8 @@
-package models
+package rules
 
 import (
 	"fmt"
 	"strings"
-)
-
-const (
-	Equals              = "equals"
-	NotEquals           = "notEquals"
-	GreaterThan         = "greaterThan"
-	GreaterThanOrEquals = "greaterThanOrEquals"
-	LessThan            = "lessThan"
-	LessThanOrEquals    = "lessThanOrEquals"
-	Contains            = "contains"
-	NotContains         = "notContains"
-	StartsWith          = "startsWith"
-	InArray             = "inArray"
-	NotInArray          = "notInArray"
-
-	errorInvalidComparison = "Invalid operator for '%s' for %s comparison"
-	errorInvalidTypeCast   = "Error in %s comparison -- type of value is invalid"
 )
 
 type Condition struct {

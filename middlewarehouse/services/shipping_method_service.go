@@ -8,6 +8,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/models/rules"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 )
 
@@ -49,6 +50,13 @@ func (service *shippingMethodService) DeleteShippingMethod(id uint) error {
 }
 
 func (service *shippingMethodService) EvaluateForOrder(order *payloads.Order) ([]*responses.OrderShippingMethod, error) {
+	// Get all of the shipping methods associated with this order.
+	// Then, evaluate each one to see if it is applicable.
+	// Finally, we'll return the ones that match.
+	//
+	// TODO:
+	//	1. Scope the shipping methods by the SKU in the order
+	//	2. Potentially run through methods in parallel
 	methods, err := service.repository.GetShippingMethods()
 	if err != nil {
 		return nil, err
@@ -56,28 +64,41 @@ func (service *shippingMethodService) EvaluateForOrder(order *payloads.Order) ([
 
 	resps := []*responses.OrderShippingMethod{}
 	for _, method := range methods {
-		resp := &responses.OrderShippingMethod{
-			IsEnabled:        true,
-			ShippingMethodID: method.ID,
-			Price: responses.Money{
-				Currency: "USD",
-				Value:    method.Cost,
-			},
+		fmt.Printf("The shipping method is %v\n", method)
+		isVisible, err := method.Conditions.Evaluate(order, evaluateCondition)
+		if err != nil {
+			return nil, err
 		}
 
-		resps = append(resps, resp)
+		if isVisible {
+			isDisabled, err := method.Restrictions.Evaluate(order, evaluateCondition)
+			if err != nil {
+				return nil, err
+			}
+
+			resp := &responses.OrderShippingMethod{
+				IsEnabled:        !isDisabled,
+				ShippingMethodID: method.ID,
+				Price: responses.Money{
+					Currency: "USD",
+					Value:    method.Cost,
+				},
+			}
+
+			resps = append(resps, resp)
+		}
 	}
+
+	fmt.Printf("The resps are %v\n", resps)
 	return resps, nil
 }
 
-func evaluateCondition(condition models.Condition, order interface{}) (result bool, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = errors.New("Unable to convert condition payload to order")
-		}
-	}()
-
-	orderPayload := order.(*payloads.Order)
+func evaluateCondition(condition rules.Condition, order interface{}) (result bool, err error) {
+	orderPayload, ok := order.(*payloads.Order)
+	if !ok {
+		err = errors.New("Unable to convert condition payload to order")
+		return
+	}
 
 	switch condition.RootObject {
 	case "Order":
@@ -91,7 +112,7 @@ func evaluateCondition(condition models.Condition, order interface{}) (result bo
 	return
 }
 
-func evaluateOrderCondition(condition models.Condition, order *payloads.Order) (bool, error) {
+func evaluateOrderCondition(condition rules.Condition, order *payloads.Order) (bool, error) {
 	var result bool
 	var err error
 
@@ -107,7 +128,7 @@ func evaluateOrderCondition(condition models.Condition, order *payloads.Order) (
 	return result, err
 }
 
-func evaluateShippingAddressCondition(condition models.Condition, order *payloads.Order) (bool, error) {
+func evaluateShippingAddressCondition(condition rules.Condition, order *payloads.Order) (bool, error) {
 	var result bool
 	var err error
 

@@ -1,4 +1,4 @@
-package models
+package rules
 
 import (
 	"encoding/json"
@@ -8,17 +8,17 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type QueryStatementTestSuite struct {
+type RuleTestSuite struct {
 	suite.Suite
 	assert *assert.Assertions
 }
 
-func TestQueryStatementSuite(t *testing.T) {
-	suite.Run(t, new(QueryStatementTestSuite))
+func TestRuleSuite(t *testing.T) {
+	suite.Run(t, new(RuleTestSuite))
 }
 
-func (suite *QueryStatementTestSuite) Test_JsonDeserialization_Success() {
-	jsonStatement := []byte(`
+func (suite *RuleTestSuite) Test_JsonDeserialization_Success() {
+	jsonRule := []byte(`
 	{
 		"comparison": "and",
 		"conditions": [
@@ -37,20 +37,20 @@ func (suite *QueryStatementTestSuite) Test_JsonDeserialization_Success() {
 		]
 	}`)
 
-	statement := new(QueryStatement)
-	err := json.Unmarshal(jsonStatement, statement)
+	rule := new(Rule)
+	err := json.Unmarshal(jsonRule, rule)
 	suite.Nil(err)
 
-	suite.Equal(And, statement.Comparison)
-	suite.Len(statement.Conditions, 2)
+	suite.Equal(And, rule.Comparison)
+	suite.Len(rule.Conditions, 2)
 
-	condition1 := statement.Conditions[0]
+	condition1 := rule.Conditions[0]
 	suite.Equal("ShippingAddress", condition1.RootObject)
 	suite.Equal("address1", condition1.Field)
 	suite.Equal(NotContains, condition1.Operator)
 	suite.Equal("p.o. box", condition1.Value.(string))
 
-	condition2 := statement.Conditions[1]
+	condition2 := rule.Conditions[1]
 	suite.Equal("ShippingAddress", condition2.RootObject)
 	suite.Equal("countryId", condition2.Field)
 	suite.Equal(Equals, condition2.Operator)

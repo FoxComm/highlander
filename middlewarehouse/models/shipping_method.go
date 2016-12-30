@@ -5,6 +5,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/common/gormfox"
+	"github.com/FoxComm/highlander/middlewarehouse/models/rules"
 )
 
 const (
@@ -22,8 +23,8 @@ type ShippingMethod struct {
 	Cost         uint
 	Scope        string
 
-	Conditions   QueryStatement
-	Restrictions QueryStatement
+	Conditions   rules.Rule
+	Restrictions rules.Rule
 }
 
 func (shippingMethod *ShippingMethod) Identifier() uint {

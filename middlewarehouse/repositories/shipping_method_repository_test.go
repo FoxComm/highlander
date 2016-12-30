@@ -9,6 +9,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/common/tests"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/models/rules"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -104,13 +105,13 @@ func (suite *ShippingMethodRepositoryTestSuite) Test_CreateShippingMethod_Return
 
 func (suite *ShippingMethodRepositoryTestSuite) Test_CreateShippingMethodWithConditions_ReturnsCreatedRecord() {
 	shippingMethod := fixtures.GetShippingMethod(0, suite.carrier1.ID, suite.carrier1)
-	shippingMethod.Conditions = models.QueryStatement{
-		Comparison: models.And,
-		Conditions: []models.Condition{
-			models.Condition{
+	shippingMethod.Conditions = rules.Rule{
+		Comparison: rules.And,
+		Conditions: []rules.Condition{
+			rules.Condition{
 				RootObject: "Order",
 				Field:      "grandTotal",
-				Operator:   models.Equals,
+				Operator:   rules.Equals,
 				Value:      100,
 			},
 		},
