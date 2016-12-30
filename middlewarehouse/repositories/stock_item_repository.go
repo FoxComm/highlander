@@ -20,6 +20,7 @@ type IStockItemRepository interface {
 	GetStockItems() ([]*models.StockItem, error)
 	GetStockItemById(id uint) (*models.StockItem, error)
 	GetStockItemsBySKUs(skus []string) ([]*models.StockItem, error)
+	GetStockItemBySKU(sku string) (*models.StockItem, error)
 	GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error)
 	GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error)
 
@@ -59,6 +60,18 @@ func (repository *stockItemRepository) GetStockItemsBySKUs(skus []string) ([]*mo
 	err := repository.db.Where("sku in (?)", skus).Find(&items).Error
 
 	return items, err
+}
+
+func (repository *stockItemRepository) GetStockItemBySKU(sku string) (*models.StockItem, error) {
+	item := new(models.StockItem)
+	err := repository.db.
+		Preload("StockLocation").
+		Preload("StockLocation.Address").
+		Preload("StockLocation.Address.Region").
+		Where("sku = ?", sku).
+		Find(item).Error
+
+	return item, err
 }
 
 func (repository *stockItemRepository) GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error) {

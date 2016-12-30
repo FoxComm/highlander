@@ -15,7 +15,8 @@ import (
 )
 
 type shippingMethodService struct {
-	repository repositories.IShippingMethodRepository
+	shippingMethodRepo repositories.IShippingMethodRepository
+	stockItemRepo      repositories.IStockItemRepository
 }
 
 type IShippingMethodService interface {
@@ -27,28 +28,28 @@ type IShippingMethodService interface {
 	EvaluateForOrder(order *payloads.Order) ([]*responses.OrderShippingMethod, error)
 }
 
-func NewShippingMethodService(repository repositories.IShippingMethodRepository) IShippingMethodService {
-	return &shippingMethodService{repository}
+func NewShippingMethodService(shippingMethodRepo repositories.IShippingMethodRepository, stockItemRepo repositories.IStockItemRepository) IShippingMethodService {
+	return &shippingMethodService{shippingMethodRepo, stockItemRepo}
 }
 
 func (service *shippingMethodService) GetShippingMethods() ([]*models.ShippingMethod, error) {
-	return service.repository.GetShippingMethods()
+	return service.shippingMethodRepo.GetShippingMethods()
 }
 
 func (service *shippingMethodService) GetShippingMethodByID(id uint) (*models.ShippingMethod, error) {
-	return service.repository.GetShippingMethodByID(id)
+	return service.shippingMethodRepo.GetShippingMethodByID(id)
 }
 
 func (service *shippingMethodService) CreateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error) {
-	return service.repository.CreateShippingMethod(shippingMethod)
+	return service.shippingMethodRepo.CreateShippingMethod(shippingMethod)
 }
 
 func (service *shippingMethodService) UpdateShippingMethod(shippingMethod *models.ShippingMethod) (*models.ShippingMethod, error) {
-	return service.repository.UpdateShippingMethod(shippingMethod)
+	return service.shippingMethodRepo.UpdateShippingMethod(shippingMethod)
 }
 
 func (service *shippingMethodService) DeleteShippingMethod(id uint) error {
-	return service.repository.DeleteShippingMethod(id)
+	return service.shippingMethodRepo.DeleteShippingMethod(id)
 }
 
 func (service *shippingMethodService) EvaluateForOrder(order *payloads.Order) ([]*responses.OrderShippingMethod, error) {
@@ -59,7 +60,7 @@ func (service *shippingMethodService) EvaluateForOrder(order *payloads.Order) ([
 	// TODO:
 	//	1. Scope the shipping methods by the SKU in the order
 	//	2. Potentially run through methods in parallel
-	methods, err := service.repository.GetShippingMethods()
+	methods, err := service.shippingMethodRepo.GetShippingMethods()
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +93,6 @@ func (service *shippingMethodService) EvaluateForOrder(order *payloads.Order) ([
 			var price uint
 			if method.ShippingType == models.ShippingTypeVariable {
 				// Placeholder for making the call to the external API
-				price = 9898
 				shipment := models.NewShipmentFromOrderPayload(order)
 				username := os.Getenv("UPS_USERNAME")
 				password := os.Getenv("UPS_PASSWORD")
@@ -100,18 +100,13 @@ func (service *shippingMethodService) EvaluateForOrder(order *payloads.Order) ([
 
 				// Get the address for the first stock location in the shipment.
 				if len(shipment.ShipmentLineItems) > 0 {
-					address := models.Address{
-						Name: "FoxCommerce",
-						Region: models.Region{
-							ID:   4177,
-							Name: "Washington",
-						},
-						City:        "Seattle",
-						Zip:         "98109",
-						Address1:    "3131 Elliot Ave",
-						PhoneNumber: "2069637392",
+					lineItem := shipment.ShipmentLineItems[0]
+					item, err := service.stockItemRepo.GetStockItemBySKU(lineItem.SKU)
+					if err != nil {
+						return nil, err
 					}
 
+					address := item.StockLocation.Address
 					shipment.ShipmentLineItems[0].StockItemUnit.StockItem.StockLocation.Address = address
 				}
 
