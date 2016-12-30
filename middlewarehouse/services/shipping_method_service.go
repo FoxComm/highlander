@@ -92,7 +92,7 @@ func (service *shippingMethodService) EvaluateForOrder(order *payloads.Order) ([
 				ShippingMethodID: method.ID,
 				Price: responses.Money{
 					Currency: "USD",
-					Value:    method.Cost,
+					Value:    method.Price,
 				},
 			}
 

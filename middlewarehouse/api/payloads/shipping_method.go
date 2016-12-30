@@ -5,6 +5,6 @@ type ShippingMethod struct {
 	Name         string `json:"name"`
 	Code         string `json:"code"`
 	ShippingType string `json:"type"`
-	Cost         uint   `json:"cost"`
+	Price        Money  `json:"price"`
 	Scopable
 }

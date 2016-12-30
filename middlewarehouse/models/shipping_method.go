@@ -20,7 +20,7 @@ type ShippingMethod struct {
 	Name         string
 	Code         string
 	ShippingType int
-	Cost         uint
+	Price        uint
 	Scope        string
 
 	Conditions   rules.Rule
@@ -36,7 +36,7 @@ func NewShippingMethodFromPayload(payload *payloads.ShippingMethod) (*ShippingMe
 		CarrierID: payload.CarrierID,
 		Name:      payload.Name,
 		Code:      payload.Code,
-		Cost:      payload.Cost,
+		Price:     payload.Price.Value,
 		Scope:     payload.Scope,
 	}
 

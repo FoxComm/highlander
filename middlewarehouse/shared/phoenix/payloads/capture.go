@@ -33,7 +33,7 @@ func NewCapturePayload(activity activities.ISiteActivity) (*CapturePayload, erro
 	capture := CapturePayload{
 		ReferenceNumber: shipment.OrderRefNum,
 		Shipping: CaptureShippingCost{
-			Total:    int(shipment.ShippingMethod.Cost),
+			Total:    int(shipment.ShippingMethod.Price.Value),
 			Currency: "USD",
 		},
 	}

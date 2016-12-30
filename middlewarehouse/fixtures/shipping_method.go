@@ -18,7 +18,7 @@ func GetShippingMethod(id uint, carrierID uint, carrier *models.Carrier) *models
 		Name:         "UPS 2 day ground",
 		Code:         "EXPRESS",
 		ShippingType: 1,
-		Cost:         599,
+		Price:        599,
 		Scope:        "1",
 	}
 }
@@ -29,8 +29,11 @@ func ToShippingMethodPayload(shippingMethod *models.ShippingMethod) *payloads.Sh
 		CarrierID: shippingMethod.CarrierID,
 		Name:      shippingMethod.Name,
 		Code:      shippingMethod.Code,
-		Cost:      shippingMethod.Cost,
-		Scopable:  scope,
+		Price: payloads.Money{
+			Currency: "USD",
+			Value:    shippingMethod.Price,
+		},
+		Scopable: scope,
 	}
 
 	if shippingMethod.ShippingType == models.ShippingTypeFlat {
@@ -60,6 +63,6 @@ func GetShippingMethodRow(shippingMethod *models.ShippingMethod) []driver.Value 
 		shippingMethod.Name,
 		shippingMethod.Code,
 		shippingMethod.ShippingType,
-		shippingMethod.Cost,
+		shippingMethod.Price,
 	}
 }

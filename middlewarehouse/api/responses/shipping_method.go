@@ -12,7 +12,7 @@ type ShippingMethod struct {
 	Name         string  `json:"name"`
 	Code         string  `json:"code"`
 	ShippingType string  `json:"type"`
-	Cost         uint    `json:"cost"`
+	Price        Money   `json:"price"`
 	Scope        string  `json:"scope"`
 }
 
@@ -22,8 +22,11 @@ func NewShippingMethodFromModel(shippingMethod *models.ShippingMethod) (*Shippin
 		Carrier: *NewCarrierFromModel(&shippingMethod.Carrier),
 		Name:    shippingMethod.Name,
 		Code:    shippingMethod.Code,
-		Cost:    shippingMethod.Cost,
-		Scope:   shippingMethod.Scope,
+		Price: Money{
+			Currency: "USD",
+			Value:    shippingMethod.Price,
+		},
+		Scope: shippingMethod.Scope,
 	}
 
 	if shippingMethod.ShippingType == models.ShippingTypeFlat {

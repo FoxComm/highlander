@@ -57,7 +57,7 @@ func createShippingMethods(db *gorm.DB) error {
 			Name:         "Standard shipping",
 			Code:         "STANDARD",
 			ShippingType: models.ShippingTypeFlat,
-			Cost:         300,
+			Price:        300,
 			Scope:        "1.2",
 		},
 		&models.ShippingMethod{
@@ -65,7 +65,7 @@ func createShippingMethods(db *gorm.DB) error {
 			Name:         "Standard shipping",
 			Code:         "STANDARD-FREE",
 			ShippingType: models.ShippingTypeFlat,
-			Cost:         0,
+			Price:        0,
 			Scope:        "1.2",
 		},
 		&models.ShippingMethod{
@@ -73,7 +73,7 @@ func createShippingMethods(db *gorm.DB) error {
 			Name:         "2-3 day express",
 			Code:         "EXPRESS",
 			ShippingType: models.ShippingTypeFlat,
-			Cost:         1500,
+			Price:        1500,
 			Scope:        "1.2",
 		},
 		&models.ShippingMethod{
@@ -81,7 +81,7 @@ func createShippingMethods(db *gorm.DB) error {
 			Name:         "Overnight shipping",
 			Code:         "OVERNIGHT",
 			ShippingType: models.ShippingTypeFlat,
-			Cost:         3000,
+			Price:        3000,
 			Scope:        "1.2",
 		},
 	}
