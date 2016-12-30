@@ -1,10 +1,9 @@
-FROM ubuntu:16.04
+FROM golang
 
-RUN apt-get update && apt-get install -y ca-certificates
-RUN apt-get clean
+RUN curl https://glide.sh/get | sh
 
-RUN mkdir -p /capture-consumer
-WORKDIR /capture-consumer
-COPY capture-consumer /capture-consumer
+ADD . /go/src/github.com/FoxComm/highlander/middlewarehouse
+RUN cd /go/src/github.com/FoxComm/highlander/middlewarehouse/consumers/capture && glide install
+RUN go install github.com/FoxComm/highlander/middlewarehouse/consumers/capture -o capture-consumer
 
-CMD ["/capture-consumer/capture-consumer"] 
+ENTRYPOINT /go/bin/capture-consumer
