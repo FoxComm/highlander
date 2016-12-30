@@ -59,13 +59,21 @@ shortcuts:
     alias: sinopia.yml
     target: ansible/bootstrap_sinopia.yml
 
-  # TPG
+  # Production
   - name: Provision TD Test
     alias: td_test.yml
     target: ansible/td_test.yml
   - name: Provision TPG Test
     alias: tpg_test.yml
     target: ansible/tpg_test.yml
+
+  # Migration
+  - name: Migrate Phoenix DB
+    alias: migrate_phoenix_db.yml
+    target: ansible/migrate_phoenix_db.yml
+  - name: Migrate MWH DB
+    alias: migrate_middlewarehouse_db.yml
+    target: ansible/migrate_middlewarehouse_db.yml
 
   # Healthchecks
   - name: Perform Healthchecks
