@@ -17,7 +17,7 @@ imports:
   version: 0c8185d9a3ba82aeac98db3313a268a5b6df99b5
 - name: github.com/elodina/go-kafka-avro
   version: 0c29ad915b6b7dc6cf416005fdae3d1c6b5d9672
-  repo: git@github.com:FoxComm/go-kafka-avro.git
+  repo: https://github.com/FoxComm/go-kafka-avro.git
   vcs: git
 - name: github.com/elodina/go_kafka_client
   version: 95d107b0c102fa81b8c1e5e556adc23352fad065
@@ -29,7 +29,7 @@ imports:
   version: a374fc36c515243efb438aed41c536af55d8b19b
 - name: github.com/FoxComm/metamorphosis
   version: f357818171523aa95aafb58ca8cf419cb4f0e291
-  repo: git@github.com:FoxComm/metamorphosis.git
+  repo: https://github.com/FoxComm/metamorphosis.git
   vcs: git
 - name: github.com/gin-gonic/gin
   version: f931d1ea80ae95a6fc739213cdd9399bd2967fb6
