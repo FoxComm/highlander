@@ -23,7 +23,7 @@ case class CartResponse(referenceNumber: String,
                         lineItemAdjustments: Seq[CordResponseLineItemAdjustment] = Seq.empty,
                         promotion: Option[PromotionResponse.Root] = None,
                         coupon: Option[CordResponseCouponPair] = None,
-                        totals: CordResponseTotals,
+                        totals: CartResponseTotals,
                         customer: Option[CustomerResponse.Root] = None,
                         shippingMethod: Option[ShippingMethodsResponse.Root] = None,
                         shippingAddress: Option[AddressResponse] = None,
@@ -54,8 +54,10 @@ object CartResponse {
                          .fold(_ ⇒ None, good ⇒ good.some)
       paymentMethods ← * <~ (if (isGuest) DBIO.successful(Seq())
                              else CordResponsePayments.fetchAll(cart.refNum))
-      paymentState ← * <~ CartQueries.getPaymentState(cart.refNum)
-      lockedBy     ← * <~ currentLock(cart)
+      paymentState             ← * <~ CartQueries.getPaymentState(cart.refNum)
+      lockedBy                 ← * <~ currentLock(cart)
+      appliedGiftCardAmount    ← * <~ (??? : DBIO[Int])
+      appliedStoreCreditAmount ← * <~ (??? : DBIO[Int])
     } yield
       CartResponse(
           referenceNumber = cart.refNum,
@@ -63,7 +65,8 @@ object CartResponse {
           lineItemAdjustments = lineItemAdj,
           promotion = promo.map { case (promotion, _) ⇒ promotion },
           coupon = promo.map { case (_, coupon)       ⇒ coupon },
-          totals = CordResponseTotals.build(cart),
+          totals = CartResponseTotals
+            .build(cart, decreaseChargeBy = appliedGiftCardAmount + appliedStoreCreditAmount),
           customer = for {
             c  ← customer
             cu ← customerData
@@ -85,7 +88,7 @@ object CartResponse {
           c  ← customer
           cu ← customerData
         } yield CustomerResponse.build(c, cu),
-        totals = CordResponseTotals.empty,
+        totals = CartResponseTotals.empty,
         paymentState = CreditCardCharge.Cart
     )
   }
