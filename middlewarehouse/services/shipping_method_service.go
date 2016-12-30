@@ -64,16 +64,27 @@ func (service *shippingMethodService) EvaluateForOrder(order *payloads.Order) ([
 
 	resps := []*responses.OrderShippingMethod{}
 	for _, method := range methods {
-		fmt.Printf("The shipping method is %v\n", method)
-		isVisible, err := method.Conditions.Evaluate(order, evaluateCondition)
-		if err != nil {
-			return nil, err
+		var isVisible bool
+		var err error
+
+		if method.Conditions.IsEmpty() {
+			isVisible = true
+		} else {
+			isVisible, err = method.Conditions.Evaluate(order, evaluateCondition)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		if isVisible {
-			isDisabled, err := method.Restrictions.Evaluate(order, evaluateCondition)
-			if err != nil {
-				return nil, err
+			var isDisabled bool
+			if method.Restrictions.IsEmpty() {
+				isDisabled = false
+			} else {
+				isDisabled, err = method.Restrictions.Evaluate(order, evaluateCondition)
+				if err != nil {
+					return nil, err
+				}
 			}
 
 			resp := &responses.OrderShippingMethod{

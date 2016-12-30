@@ -22,10 +22,6 @@ func (r Rule) IsEmpty() bool {
 // Evaluate determines whether a piece of data passes or fails validation
 // against this rule, given some specific RuleEvaluator.
 func (r *Rule) Evaluate(data interface{}, f RuleEvaluator) (bool, error) {
-	if r.IsEmpty() {
-		return true, nil
-	}
-
 	result := r.Comparison == And
 	comparer, err := NewComparison(r.Comparison)
 	if err != nil {

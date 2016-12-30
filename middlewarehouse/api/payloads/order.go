@@ -20,8 +20,9 @@ type Order struct {
 
 func (order *Order) SetScope(scope string) {
 	order.Scope = scope
-
-	order.ShippingMethod.SetScope(scope)
+	if order.ShippingMethod != nil {
+		order.ShippingMethod.SetScope(scope)
+	}
 }
 
 // Order wrapped in Phoenix response
