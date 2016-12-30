@@ -33,7 +33,7 @@ func NewAPI(username, password, accessToken string, production bool) *API {
 	return &API{username, password, accessToken, url}
 }
 
-func (u *API) GetRate(shipment *models.Shipment) (float64, error) {
+func (u *API) GetRate(method *models.ShippingMethod, shipment *models.Shipment) (float64, error) {
 	auth := NewAuthPayload(u.username, u.password, u.accessToken)
 
 	if len(shipment.ShipmentLineItems) == 0 {
@@ -49,17 +49,13 @@ func (u *API) GetRate(shipment *models.Shipment) (float64, error) {
 
 	shipTo := shipment.Address
 
-	// TODO: Don't hardcode this as UPS Ground.
-	freight := &models.ExternalFreight{
-		MethodName:  "UPS Ground",
-		ServiceCode: "03",
-	}
+	freight := method.ExternalFreight
 
 	// TODO: Get the weight from the SKU, once that's in MWH.
 	weightUnits := "lbs"
 	weight := "1"
 
-	ratePayload, err := NewRatePayload(auth, &shipper, &shipFrom, &shipTo, freight, weightUnits, weight)
+	ratePayload, err := NewRatePayload(auth, &shipper, &shipFrom, &shipTo, &freight, weightUnits, weight)
 	if err != nil {
 		return 0.0, err
 	}

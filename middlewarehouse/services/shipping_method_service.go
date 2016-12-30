@@ -111,7 +111,7 @@ func (service *shippingMethodService) EvaluateForOrder(order *payloads.Order) ([
 				}
 
 				upsAPI := ups.NewAPI(username, password, token, false)
-				charge, err := upsAPI.GetRate(shipment)
+				charge, err := upsAPI.GetRate(method, shipment)
 				if err != nil {
 					return nil, err
 				}

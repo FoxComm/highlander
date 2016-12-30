@@ -31,15 +31,19 @@ func NewShippingMethodRepository(db *gorm.DB) IShippingMethodRepository {
 func (repository *shippingMethodRepository) GetShippingMethods() ([]*models.ShippingMethod, error) {
 	var shippingMethods []*models.ShippingMethod
 
-	err := repository.db.Preload("Carrier").Find(&shippingMethods).Error
+	err := repository.db.Preload("Carrier").Preload("ExternalFreight").Find(&shippingMethods).Error
 
 	return shippingMethods, err
 }
 
 func (repository *shippingMethodRepository) GetShippingMethodByID(id uint) (*models.ShippingMethod, error) {
 	shippingMethod := &models.ShippingMethod{}
+	err := repository.db.
+		Preload("Carrier").
+		Preload("ExternalFreight").
+		First(shippingMethod, id).Error
 
-	if err := repository.db.First(shippingMethod, id).Related(&shippingMethod.Carrier).Error; err != nil {
+	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf(ErrorShippingMethodNotFound, id)
 		}

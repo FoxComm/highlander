@@ -15,13 +15,15 @@ const (
 
 type ShippingMethod struct {
 	gormfox.Base
-	CarrierID    uint
-	Carrier      Carrier
-	Name         string
-	Code         string
-	ShippingType int
-	Price        uint
-	Scope        string
+	CarrierID         uint
+	Carrier           Carrier
+	ExternalFreightID uint
+	ExternalFreight   ExternalFreight
+	Name              string
+	Code              string
+	ShippingType      int
+	Price             uint
+	Scope             string
 
 	Conditions   rules.Rule
 	Restrictions rules.Rule
