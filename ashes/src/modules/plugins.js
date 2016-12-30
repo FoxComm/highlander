@@ -1,7 +1,7 @@
 // @flow
 import { createReducer } from 'redux-act';
 import Api from 'lib/api';
-import createAsyncActions from './async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 
 export type UpdateSettingsPayload = {
   settings: {[key: string]: any},

@@ -1,3 +1,48 @@
+create or replace function update_orders_view_from_orders_insert_fn() returns trigger as $$
+    begin
+        insert into orders_search_view (
+            id,
+            scope,
+            reference_number,
+            state,
+            placed_at,
+            currency,
+            sub_total,
+            shipping_total,
+            adjustments_total,
+            taxes_total,
+            grand_total,
+            customer)
+        select distinct on (new.id)
+            -- order
+            new.id as id,
+            new.scope as scope,
+            new.reference_number as reference_number,
+            new.state as state,
+            to_char(new.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as placed_at,
+            new.currency as currency,
+            -- totals
+            new.sub_total as sub_total,
+            new.shipping_total as shipping_total,
+            new.adjustments_total as adjustments_total,
+            new.taxes_total as taxes_total,
+            new.grand_total as grand_total,
+            -- customer
+            json_build_object(
+                'id', c.id,
+                'name', c.name,
+                'email', c.email,
+                'is_blacklisted', c.is_blacklisted,
+                'joined_at', c.joined_at,
+                'rank', c.rank,
+                'revenue', c.revenue
+            )::jsonb as customer
+        from customers_search_view as c
+        where (new.account_id = c.id);
+        return null;
+    end;
+$$ language plpgsql;
+
 create or replace function update_orders_view_from_line_items_fn() returns trigger as $$
 declare affected_cord_ref text;
 begin

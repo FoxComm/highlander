@@ -1,27 +1,17 @@
-import _ from 'lodash';
-
-import Api from '../../lib/api';
+import Api from 'lib/api';
 
 import { createReducer } from 'redux-act';
 import { get, assoc } from 'sprout-data';
 
 import { createNsAction } from './../utils';
-import { searchAdmins } from '../../elastic/store-admins';
 
 const INITIAL_STATE = {
   isFetchingAssociations: false,
-  isUpdatingAssociationsAssociations: false,
-  isFetchingSuggestions: false,
+  isUpdatingAssociations: false,
   associations: []
 };
 
 export default function makeAssociations(namespace) {
-
-  /** Search associations management. Internal actions */
-  const suggestAssociationsStart = createNsAction(namespace, 'SUGGEST_ASSOCIATIONS_START');
-  const suggestAssociationsSuccess = createNsAction(namespace, 'SUGGEST_ASSOCIATIONS_SUCCESS');
-  const suggestAssociationsFailure = createNsAction(namespace, 'SUGGEST_ASSOCIATIONS_FAILURE');
-
   const fetchAssociationsStart = createNsAction(namespace, 'FETCH_ASSOCIATIONS_START');
   const fetchAssociationsSuccess = createNsAction(namespace, 'FETCH_ASSOCIATIONS_SUCCESS');
   const fetchAssociationsFailure = createNsAction(namespace, 'FETCH_ASSOCIATIONS_FAILURE');
@@ -33,19 +23,6 @@ export default function makeAssociations(namespace) {
   const dissociateSearchStart = createNsAction(namespace, 'DISSOCIATE_SEARCH_START');
   const dissociateSearchSuccess = createNsAction(namespace, 'DISSOCIATE_SEARCH_SUCCESS');
   const dissociateSearchFailure = createNsAction(namespace, 'DISSOCIATE_SEARCH_FAILURE');
-
-
-  /** Exported actions */
-  const suggestAssociations = term => {
-    return dispatch => {
-      dispatch(suggestAssociationsStart());
-
-      searchAdmins(term).then(
-        res => dispatch(suggestAssociationsSuccess(res.result)),
-        err => dispatch(suggestAssociationsFailure())
-      );
-    };
-  };
 
   const fetchAssociations = (search) => {
     return dispatch => {
@@ -68,7 +45,6 @@ export default function makeAssociations(namespace) {
       return Api.post(`/shared-search/${search.code}/associate`, { associates: ids })
         .then(
           res => {
-            dispatch(clearSelected());
             dispatch(associateSearchSuccess(users));
           },
           err => dispatch(associateSearchFailure())
@@ -88,19 +64,7 @@ export default function makeAssociations(namespace) {
     };
   };
 
-  /** Typeahead actions */
-  const selectItem = createNsAction(namespace, 'TYPEAHEAD_SELECT_ITEM');
-  const deselectItem = createNsAction(namespace, 'TYPEAHEAD_DESELECT_ITEM');
-  const clearSelected = createNsAction(namespace, 'TYPEAHEAD_CLEAR_SELECTED');
-  const setTerm = createNsAction(namespace, 'TYPEAHEAD_SET_TERM');
-
-
   const reducer = createReducer({
-    /** search list of admins by term */
-    [suggestAssociationsStart]: (state) => _suggestAssociationsStart(state),
-    [suggestAssociationsSuccess]: (state, payload) => _suggestAssociationsSuccess(state, payload),
-    [suggestAssociationsFailure]: (state, err) => _suggestAssociationsFailure(state, err),
-
     /** fetch search associations with other admins */
     [fetchAssociationsStart]: (state) => _fetchAssociationsStart(state),
     [fetchAssociationsSuccess]: (state, payload) => _fetchAssociationsSuccess(state, payload),
@@ -115,36 +79,7 @@ export default function makeAssociations(namespace) {
     [dissociateSearchStart]: (state) => _dissociateSearchStart(state),
     [dissociateSearchSuccess]: (state, payload) => _dissociateSearchSuccess(state, payload),
     [dissociateSearchFailure]: (state, err) => _dissociateSearchFailure(state, err),
-
-    /** handle typeahead state for admins search */
-    [selectItem]: (state, payload) => _selectItem(state, payload),
-    [deselectItem]: (state, payload) => _deselectItem(state, payload),
-    [clearSelected]: (state, payload) => _clearSelected(state, payload),
-    [setTerm]: (state, err) => _setTerm(state, err),
   }, INITIAL_STATE);
-
-  /** Reducers functions */
-  function _suggestAssociationsStart(state) {
-    return assoc(state, ['savedSearches', state.selectedSearch, 'shares', 'isFetchingSuggestions'], true);
-  }
-
-  function _suggestAssociationsSuccess(state, list) {
-    const associations = get(state, ['savedSearches', state.selectedSearch, 'shares', 'associations'], []);
-
-    list = _.isArray(list) ? list : [];
-
-    /** skip already associated users */
-    list = list.filter(suggestion => _.findIndex(associations, ({ id }) => id === suggestion.id) < 0);
-
-    return assoc(state,
-      ['savedSearches', state.selectedSearch, 'shares', 'suggested'], list,
-      ['savedSearches', state.selectedSearch, 'shares', 'isFetchingSuggestions'], false
-    );
-  }
-
-  function _suggestAssociationsFailure(state) {
-    return assoc(state, ['savedSearches', state.selectedSearch, 'shares', 'isFetchingSuggestions'], false);
-  }
 
   function _fetchAssociationsStart(state) {
     return assoc(state, ['savedSearches', state.selectedSearch, 'shares', 'isFetchingAssociations'], true);
@@ -199,48 +134,12 @@ export default function makeAssociations(namespace) {
     return assoc(state, ['savedSearches', state.selectedSearch, 'shares', 'isUpdatingAssociations'], false);
   }
 
-
-  function _selectItem(state, item) {
-    const path = ['savedSearches', state.selectedSearch, 'shares', 'selected'];
-
-    const items = get(state, path, []);
-
-    if (_.findIndex(items, ({ id }) => id === item.id) < 0) {
-      return assoc(state, path, [...items, item]);
-    }
-
-    return state;
-  }
-
-  function _deselectItem(state, index) {
-    const path = ['savedSearches', state.selectedSearch, 'shares', 'selected'];
-
-    const items = get(state, path, []);
-    const newItems = _.without(items, items[index]);
-
-    return assoc(state, path, newItems);
-  }
-
-  function _clearSelected(state) {
-    const path = ['savedSearches', state.selectedSearch, 'shares', 'selected'];
-
-    return assoc(state, path, []);
-  }
-
-  function _setTerm(state, term) {
-    return assoc(state, ['savedSearches', state.selectedSearch, 'shares', 'term'], term);
-  }
-
   return {
     reducer,
     actions: {
-      suggestAssociations,
       fetchAssociations,
       associateSearch,
       dissociateSearch,
-      selectItem,
-      deselectItem,
-      setTerm,
     }
   };
 };

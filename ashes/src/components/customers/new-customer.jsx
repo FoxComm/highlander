@@ -17,7 +17,7 @@ import ErrorAlerts from '../alerts/error-alerts';
 import type { NewCustomerPayload } from 'modules/customers/new';
 
 type Props = {
-  submitStatus: AsyncStatus,
+  submitStatus: AsyncState,
   createCustomer: (payload: NewCustomerPayload) => Promise,
   clearErrors: () => void,
 }
