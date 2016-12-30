@@ -1,11 +1,9 @@
 FROM rakudo-star
 
 RUN apt update && apt install -y  \
-    librdkafka++1 \
-    libssl-dev
+    librdkafka++1
 
-RUN zef update
-RUN zef install PKafka HTTP::Client
+RUN panda install PKafka HTTP::Client
 
 RUN mkdir /sphex
 ADD run_sphex.sh /sphex/
