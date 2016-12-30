@@ -1,13 +1,13 @@
-FROM ubuntu:16.04
+FROM golang
 
-RUN apt-get update && apt-get install -y ca-certificates
-RUN apt-get clean
+RUN sudo add-apt-repository ppa:masterminds/glide
+RUN sudo apt-get update
+RUN sudo apt-get install glide
 
-RUN mkdir -p /middlewarehouse
-WORKDIR /middlewarehouse
-COPY middlewarehouse /middlewarehouse
-ADD .env /middlewarehouse
+ADD . /go/src/github.com/FoxComm/highlander/middlewarehouse
+RUN cd /go/src/github.com/FoxComm/highlander/middlewarehouse && glide install
+
+RUN go install github.com/FoxComm/highlander/middlewarehouse
 
 EXPOSE 9292
-CMD ["/middlewarehouse/middlewarehouse"] 
-
+CMD ["/go/bin/middlewarehouse"]
