@@ -37,9 +37,9 @@ func (c Condition) MatchesInt(comp int) (bool, error) {
 	var result bool
 	var err error
 
-	valInt, ok := c.Value.(int)
-	if !ok {
-		return false, fmt.Errorf(errorInvalidTypeCast, "integer")
+	valInt, err := toInt(c.Value)
+	if err != nil {
+		return false, err
 	}
 
 	switch c.Operator {
@@ -97,10 +97,11 @@ func (c Condition) MatchesUint(comp uint) (bool, error) {
 	var result bool
 	var err error
 
-	valInt, ok := c.Value.(uint)
-	if !ok {
-		return false, fmt.Errorf(errorInvalidTypeCast, "unsigned integer")
+	valInt, err := toUint(c.Value)
+	if err != nil {
+		return false, err
 	}
+
 	switch c.Operator {
 	case Equals:
 		result = comp == valInt
@@ -131,4 +132,34 @@ func isInArray(comp string, val string) bool {
 	}
 
 	return false
+}
+
+func toInt(value interface{}) (int, error) {
+	// If the condition has been written to JSON the value will be a float64
+	// rather than an int. First, try to convert to int, if that fails, fall back
+	// to float64.
+	valInt, ok := value.(int)
+	if !ok {
+		valFloat, ok := value.(float64)
+		if !ok {
+			return 0, fmt.Errorf(errorInvalidTypeCast, "integer")
+		}
+		valInt = int(valFloat)
+	}
+	return valInt, nil
+}
+
+func toUint(value interface{}) (uint, error) {
+	// If the condition has been written to JSON the value will be a float64
+	// rather than an unsigned int. First, try to convert to int, if that fails,
+	// fall back to float64.
+	valInt, ok := value.(uint)
+	if !ok {
+		valFloat, ok := value.(float64)
+		if !ok {
+			return 0, fmt.Errorf(errorInvalidTypeCast, "unsigned integer")
+		}
+		valInt = uint(valFloat)
+	}
+	return valInt, nil
 }

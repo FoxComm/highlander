@@ -48,3 +48,20 @@ func GetAddressRow(address *models.Address) []driver.Value {
 	return []driver.Value{address.ID, address.Name, address.RegionID, address.City, address.Zip, address.Address1,
 		nil, address.PhoneNumber, address.CreatedAt, address.UpdatedAt, address.DeletedAt}
 }
+
+func GetCaliforniaAddressPayload() *payloads.Address {
+	return &payloads.Address{
+		ID:   1,
+		Name: "Donkey Hote",
+		Region: payloads.Region{
+			ID:          4129,
+			Name:        "California",
+			CountryID:   1,
+			CountryName: "United States of America",
+		},
+		City:        "Burlingame",
+		Zip:         "94402",
+		Address1:    "2175 Burlingame Ave",
+		PhoneNumber: "1231231234",
+	}
+}

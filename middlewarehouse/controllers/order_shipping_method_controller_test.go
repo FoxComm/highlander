@@ -10,6 +10,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/models/rules"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 	"github.com/gin-gonic/gin"
@@ -19,29 +20,23 @@ import (
 
 type orderShippingMethodControllerTestSuite struct {
 	GeneralControllerTestSuite
-	db             *gorm.DB
-	shippingMethod *models.ShippingMethod
+	db      *gorm.DB
+	carrier *models.Carrier
 }
 
 func TestOrderShippingMethodControllerSuite(t *testing.T) {
 	suite.Run(t, new(orderShippingMethodControllerTestSuite))
 }
 
-func (suite *orderShippingMethodControllerTestSuite) SetupSuite() {
+func (suite *orderShippingMethodControllerTestSuite) SetupTest() {
 	suite.db = config.TestConnection()
 	tasks.TruncateTables(suite.db, []string{
 		"shipping_methods",
 		"carriers",
 	})
 
-	carrier := fixtures.GetCarrier(1)
-	err := suite.db.Create(carrier).Error
-	suite.Nil(err)
-
-	suite.shippingMethod = fixtures.GetShippingMethod(1, carrier.ID, carrier)
-
-	err = suite.db.Create(suite.shippingMethod).Error
-	suite.Nil(err)
+	suite.carrier = fixtures.GetCarrier(1)
+	suite.Nil(suite.db.Create(suite.carrier).Error)
 
 	suite.router = gin.Default()
 
@@ -52,6 +47,9 @@ func (suite *orderShippingMethodControllerTestSuite) SetupSuite() {
 }
 
 func (suite *orderShippingMethodControllerTestSuite) Test_GetShippingMethods_Success() {
+	shippingMethod := fixtures.GetShippingMethod(0, suite.carrier.ID, suite.carrier)
+	suite.Nil(suite.db.Create(shippingMethod).Error)
+
 	payload := fixtures.GetOrder()
 	res := suite.Post("/order-shipping-methods", payload)
 
@@ -62,4 +60,95 @@ func (suite *orderShippingMethodControllerTestSuite) Test_GetShippingMethods_Suc
 
 	suite.Nil(err)
 	suite.Len(methods, 1)
+}
+
+func (suite *orderShippingMethodControllerTestSuite) Test_EvaluateMethod_GrandTotalSuccess() {
+	shippingMethod := fixtures.GetShippingMethod(0, suite.carrier.ID, suite.carrier)
+	shippingMethod.Conditions = fixtures.GrandTotalRole(rules.GreaterThan, 25)
+	suite.Nil(suite.db.Create(shippingMethod).Error)
+
+	payload := fixtures.GetOrder()
+	res := suite.Post("/order-shipping-methods", payload)
+
+	suite.Equal(http.StatusOK, res.Code)
+
+	methods := []*responses.OrderShippingMethod{}
+	err := json.NewDecoder(res.Body).Decode(&methods)
+
+	suite.Nil(err)
+	suite.Len(methods, 1)
+}
+
+func (suite *orderShippingMethodControllerTestSuite) Test_EvaluateMethod_GrandTotalFailure() {
+	shippingMethod := fixtures.GetShippingMethod(0, suite.carrier.ID, suite.carrier)
+	shippingMethod.Conditions = fixtures.GrandTotalRole(rules.GreaterThan, 100)
+	suite.Nil(suite.db.Create(shippingMethod).Error)
+
+	payload := fixtures.GetOrder()
+	payload.Totals.Total = 90
+	res := suite.Post("/order-shipping-methods", payload)
+
+	suite.Equal(http.StatusOK, res.Code)
+
+	methods := []*responses.OrderShippingMethod{}
+	err := json.NewDecoder(res.Body).Decode(&methods)
+
+	suite.Nil(err)
+	suite.Len(methods, 0)
+}
+
+func (suite *orderShippingMethodControllerTestSuite) Test_EvaluateMethod_ShippingRegionSuccess() {
+	shippingMethod := fixtures.GetShippingMethod(0, suite.carrier.ID, suite.carrier)
+	shippingMethod.Conditions = fixtures.WestCoastRole()
+	suite.Nil(suite.db.Create(shippingMethod).Error)
+
+	payload := fixtures.GetOrder()
+	payload.ShippingAddress = fixtures.GetCaliforniaAddressPayload()
+	res := suite.Post("/order-shipping-methods", payload)
+
+	suite.Equal(http.StatusOK, res.Code)
+
+	methods := []*responses.OrderShippingMethod{}
+	err := json.NewDecoder(res.Body).Decode(&methods)
+
+	suite.Nil(err)
+	suite.Len(methods, 1)
+}
+
+func (suite *orderShippingMethodControllerTestSuite) Test_EvaluateMethod_ShippingRegionAndAmountSuccess() {
+	shippingMethod := fixtures.GetShippingMethod(0, suite.carrier.ID, suite.carrier)
+	shippingMethod.Conditions = fixtures.WestCoastAndTotalRole()
+	suite.Nil(suite.db.Create(shippingMethod).Error)
+
+	payload := fixtures.GetOrder()
+	payload.Totals.Total = 50
+	payload.ShippingAddress = fixtures.GetCaliforniaAddressPayload()
+	res := suite.Post("/order-shipping-methods", payload)
+
+	suite.Equal(http.StatusOK, res.Code)
+
+	methods := []*responses.OrderShippingMethod{}
+	err := json.NewDecoder(res.Body).Decode(&methods)
+
+	suite.Nil(err)
+	suite.Len(methods, 1)
+}
+
+func (suite *orderShippingMethodControllerTestSuite) Test_EvaluateMethod_ShippingRegionAndAmountFailure() {
+	shippingMethod := fixtures.GetShippingMethod(0, suite.carrier.ID, suite.carrier)
+	shippingMethod.Conditions = fixtures.WestCoastAndTotalRole()
+	suite.Nil(suite.db.Create(shippingMethod).Error)
+
+	payload := fixtures.GetOrder()
+	payload.Totals.Total = 500
+	payload.ShippingAddress = fixtures.GetCaliforniaAddressPayload()
+	res := suite.Post("/order-shipping-methods", payload)
+
+	suite.Equal(http.StatusOK, res.Code)
+
+	methods := []*responses.OrderShippingMethod{}
+	err := json.NewDecoder(res.Body).Decode(&methods)
+
+	suite.Nil(err)
+	suite.Len(methods, 0)
 }
