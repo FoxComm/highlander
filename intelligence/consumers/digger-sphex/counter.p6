@@ -88,13 +88,23 @@ sub track($henhouse, $path)
     my $verb = %args<v>;
     my $object = %args<ob>;
     my $object-id = %args<id>;
+    my $cluster = 1; #TODO, get these from tracking url
+    my $context = 1; #TODO, get these from tracking url
 
+    count($henhouse, "track.$channel.$cluster.$context.$object.$object-id.$verb.$subject");
+    count($henhouse, "track.$channel.$cluster.$context.$object.$object-id.$verb");
+    count($henhouse, "track.$channel.$cluster.$context.$object.$verb");
+    count($henhouse, "track.$channel.$cluster.$object.$object-id.$verb.$subject");
+    count($henhouse, "track.$channel.$cluster.$object.$object-id.$verb");
+    count($henhouse, "track.$channel.$cluster.$object.$verb");
     count($henhouse, "track.$channel.$object.$object-id.$verb.$subject");
     count($henhouse, "track.$channel.$object.$object-id.$verb");
     count($henhouse, "track.$channel.$object.$verb");
     count($henhouse, "track.$object.$object-id.$verb.$subject");
     count($henhouse, "track.$object.$object-id.$verb");
     count($henhouse, "track.$object.$verb");
+    count($henhouse, "track.$verb.$subject");
+    count($henhouse, "track.$verb");
 }
 
 sub send-to-henhouse($r, $henhouse)
