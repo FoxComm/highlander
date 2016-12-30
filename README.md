@@ -118,6 +118,7 @@ Edit your hosts file so that `local.foxcommerce.com` points to the new box using
 | [integration-tests](integration-tests) | Our tests for hitting the system as a black box at the API level.                                            |
 | [prov-shit](prov-shit)                 | All of our DevOps tools for deploying the application to both development and production.                    |
 | [api-docs](api-docs)                   | Our API documentation in API Blueprint format and Postman query collections.                                 |
+| [intelligence](intelligence)           | Intelligent Commerce Projects |
 
 ## Usage
 
