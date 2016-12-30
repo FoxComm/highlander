@@ -115,9 +115,15 @@ object Main {
     Console.out.println(s"Phoenix: ${conf.phoenixUri}")
 
     val connectionInfo          = conf.connectionInfo()
+    val scopedSearchViewWorkers = Workers.scopedSearchViewWorkers(conf, connectionInfo)
     val activityWork            = Workers.activityWorker(conf, connectionInfo)
     val searchViewWorkers       = Workers.searchViewWorkers(conf, connectionInfo)
-    val scopedSearchViewWorkers = Workers.scopedSearchViewWorkers(conf, connectionInfo)
+
+    scopedSearchViewWorkers.onFailure {
+      case t ⇒
+        Console.err.println(s"Error indexing to ES: $t")
+        System.exit(1)
+    }
 
     activityWork.onFailure {
       case t ⇒
@@ -131,16 +137,10 @@ object Main {
         System.exit(1)
     }
 
-    scopedSearchViewWorkers.onFailure {
-      case t ⇒
-        Console.err.println(s"Error indexing to ES: $t")
-        System.exit(1)
-    }
-
     // These threads will actually never be ready.
     // This is a hedonist bot.
+    Await.ready(scopedSearchViewWorkers, Duration.Inf)
     Await.ready(activityWork, Duration.Inf)
     Await.ready(searchViewWorkers, Duration.Inf)
-    Await.ready(scopedSearchViewWorkers, Duration.Inf)
   }
 }
