@@ -49,7 +49,7 @@
           ]
         }
       },
-      "required": ["storefrontDisplayName", "code", "price"]
+      "required": ["name", "code", "price"]
     }
   }
 }

@@ -16,7 +16,7 @@ type State = {
 
 const _fetchShippingMethod = createAsyncActions(
   'fetchShippingMethod',
-  (id: number) => Api.get(`/shipping-methods/${id}`)
+  (id: number) => Api.get(`/inventory/shipping-methods/${id}`)
 );
 
 const _createShippingMethod = createAsyncActions(
