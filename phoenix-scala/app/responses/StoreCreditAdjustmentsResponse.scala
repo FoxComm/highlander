@@ -2,6 +2,7 @@ package responses
 
 import java.time.Instant
 
+import models.payment.InStorePaymentStates
 import models.payment.storecredit.StoreCreditAdjustment
 
 object StoreCreditAdjustmentsResponse {
@@ -9,7 +10,7 @@ object StoreCreditAdjustmentsResponse {
                   createdAt: Instant,
                   debit: Int,
                   availableBalance: Int,
-                  state: StoreCreditAdjustment.State,
+                  state: InStorePaymentStates.State,
                   cordRef: Option[String])
       extends ResponseItem
 

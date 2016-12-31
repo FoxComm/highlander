@@ -1,48 +1,39 @@
 package services
 
-import models.cord.OrderPayments
+import models.cord.CordPaymentState._
+import models.cord.{OrderPayment, OrderPayments}
 import models.payment.PaymentMethod
-import models.payment.creditcard._
-import models.payment.giftcard._
-import models.payment.storecredit._
+import models.payment.creditcard.CreditCardCharges
+import models.payment.giftcard.GiftCardAdjustments
+import models.payment.storecredit.StoreCreditAdjustments
 import slick.dbio.DBIO
-import slick.driver.PostgresDriver.api._
-import utils.aliases._
+import utils.aliases.EC
+import utils.db.ExPostgresDriver.api._
 
 trait CordQueries {
 
-  def getPaymentState(cordRef: String)(implicit ec: EC): DBIO[CreditCardCharge.State] =
+  def getCordPaymentState(cordRef: String)(implicit ec: EC): DBIO[State] =
     for {
-      payments ← OrderPayments.findAllByCordRef(cordRef).result
-      authorized ← DBIO.sequence(payments.map(payment ⇒
-                            payment.paymentMethodType match {
-                      case PaymentMethod.CreditCard ⇒
-                        CreditCardCharges
-                          .filter(_.orderPaymentId === payment.id)
-                          .filter(_.state === (CreditCardCharge.Auth: CreditCardCharge.State))
-                          .size
-                          .result
-                      case PaymentMethod.GiftCard ⇒
-                        GiftCardAdjustments
-                          .filter(_.orderPaymentId === payment.id)
-                          .filter(_.state === (GiftCardAdjustment.Auth: GiftCardAdjustment.State))
-                          .size
-                          .result
-                      case PaymentMethod.StoreCredit ⇒
-                        import models.payment.storecredit.StoreCreditAdjustment._
-                        StoreCreditAdjustments
-                          .filter(_.orderPaymentId === payment.id)
-                          .filter(
-                              _.state === (StoreCreditAdjustment.Auth: StoreCreditAdjustment.State))
-                          .size
-                          .result
-                  }))
-      // Using CreditCardCharge here as it has both Cart and Auth states. Consider refactoring.
-    } yield
-      (payments.size, authorized.sum) match {
-        case (0, _)                     ⇒ CreditCardCharge.Cart
-        case (pmt, auth) if pmt == auth ⇒ CreditCardCharge.Auth
-        case _                          ⇒ CreditCardCharge.Cart
-      }
+      payments  ← OrderPayments.findAllByCordRef(cordRef).result
+      payStates ← DBIO.sequence(payments.map(getPaymentState)).map(_.flatten)
+    } yield {
+      if (payStates.contains(Cart) || payments.size != payStates.size || payments.isEmpty) Cart
+      else payStates.deduceCordPaymentState
+    }
 
+  private def getPaymentState(payment: OrderPayment)(implicit ec: EC): DBIO[Option[State]] = {
+    payment.paymentMethodType match {
+      case PaymentMethod.CreditCard ⇒
+        CreditCardCharges
+          .filter(_.orderPaymentId === payment.id)
+          .map(_.state)
+          .result
+          .headOption
+          .map(_.map(fromCCState))
+      case PaymentMethod.GiftCard ⇒
+        GiftCardAdjustments.lastPaymentState(payment.id).map(_.map(fromInStoreState))
+      case PaymentMethod.StoreCredit ⇒
+        StoreCreditAdjustments.lastPaymentState(payment.id).map(_.map(fromInStoreState))
+    }
+  }
 }

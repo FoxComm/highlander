@@ -1,12 +1,13 @@
 package responses
 
+import models.payment.InStorePaymentStates
 import models.payment.giftcard.GiftCardAdjustment
 
 object GiftCardAdjustmentsResponse {
   case class Root(id: Int,
                   amount: Int,
                   availableBalance: Int,
-                  state: GiftCardAdjustment.State,
+                  state: InStorePaymentStates.State,
                   cordRef: Option[String])
       extends ResponseItem
 
