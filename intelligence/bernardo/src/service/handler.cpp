@@ -8,7 +8,6 @@
 
 #include <sstream>
 
-
 namespace bernardo
 {
     namespace service
