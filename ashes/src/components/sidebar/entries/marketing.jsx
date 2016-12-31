@@ -15,6 +15,7 @@ type Props = {
   status: string,
   toggleMenuItem: Function,
   claims: Claims,
+  id: string,
 };
 
 const giftCardClaims = readAction(frn.mkt.giftCard);
@@ -46,6 +47,7 @@ export default class MarketingEntry extends Component {
           status={status}
           toggleMenuItem={toggleMenuItem}>
           <IndexLink
+            id="side-bar-navigation-gift-cards"
             to="gift-cards"
             className="fc-navigation-item__sublink"
             actualClaims={claims}

@@ -28,7 +28,7 @@ const Counter = (props: Props) => {
           type="button"
           disabled={disabled || value === min}
           onClick={decreaseAction}
-          className="fc-btn-counter"
+          className={ classNames("fc-btn-counter", "decrement-btn") }
         />
       </div>
       <input
@@ -42,7 +42,7 @@ const Counter = (props: Props) => {
           type="button"
           disabled={disabled || value === max}
           onClick={increaseAction}
-          className="fc-btn-counter"
+          className={ classNames("fc-btn-counter", "increment-btn") }
         />
       </div>
     </div>

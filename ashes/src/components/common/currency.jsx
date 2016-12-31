@@ -9,7 +9,7 @@ const Currency = (props) => {
     '_negative': parseInt(props.value, 10) < 0
   });
 
-  return <span id={id} className={className}>{formatCurrency(props.value, {...rest})}</span>;
+  return <span id={id} className={ classNames(className, props.className) }>{formatCurrency(props.value, {...rest})}</span>;
 };
 
 Currency.propTypes = {

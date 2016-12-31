@@ -76,7 +76,7 @@ export default class AddressSelect extends React.Component {
             Address Book
           </div>
           <div className="fc-right">
-            <AddButton onClick={this.handleAddButtonClick}/>
+            <AddButton id="address-book-add-address-btn" onClick={this.handleAddButtonClick}/>
           </div>
         </div>
         <div className="fc-address-select-body">
