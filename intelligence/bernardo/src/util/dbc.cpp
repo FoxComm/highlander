@@ -4,8 +4,8 @@
 #include <execinfo.h>
 
 namespace bernardo 
-{ 
-    namespace util
+{
+    namespace util 
     {
         namespace 
         {
