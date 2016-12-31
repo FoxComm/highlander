@@ -64,7 +64,7 @@ trait TestSeeds extends TestFixtureBase {
                       .findByName(TENANT)
                       .mustFindOr(OrganizationNotFoundByName(TENANT))
       claims ← * <~ AccountManager.getClaims(ac.id, organization.scopeId)
-    } yield (ac, ad, adu, claims)).gimme
+    } yield (ac, ad, adu, claims)).gimmeTxn
 
   }
 
@@ -93,7 +93,7 @@ trait TestSeeds extends TestFixtureBase {
                       .findByName(TENANT)
                       .mustFindOr(OrganizationNotFoundByName(TENANT))
       claims ← * <~ AccountManager.getClaims(a.id, organization.scopeId)
-    } yield (a, c, cu, am, claims)).gimme
+    } yield (a, c, cu, am, claims)).gimmeTxn
 
   }
 
