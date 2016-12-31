@@ -44,7 +44,8 @@ begin
   update object_full_schemas
     set schema = new.schema ||get_definitions_for_object_schema(new.name),
       kind = new.kind,
-      "name" = new.name;
+      "name" = new.name
+    where name = old.name;
 
   return null;
 end;
@@ -62,10 +63,19 @@ create trigger update_object_schemas_insert
     for each row
     execute procedure update_object_schemas_insert_fn();
 
+
+alter table object_shadows drop constraint object_shadows_json_schema_fkey;
+
+
 update object_schemas set name = 'product-variant' where name = 'sku';
 update object_schemas set kind = 'product-variant' where kind = 'sku';
+update object_schemas set dependencies = '{product-variant}'::text[] where name = 'product';
 
 update object_shadows set json_schema = 'product-variant' where json_schema = 'sku';
+
+alter table object_shadows add constraint object_shadows_json_schema_fkey
+    foreign key (json_schema)
+    references object_full_schemas(name) on update restrict on delete restrict;
 
 -- notes
 
