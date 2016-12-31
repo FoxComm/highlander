@@ -8,10 +8,7 @@ import createAsyncActions from 'modules/async-utils';
 import type { ShippingMethod, CreatePayload, UpdatePayload } from 'paragons/shipping-method';
 
 type State = {
-  shippingMethod: {
-    id?: number,
-    attributes?: ShippingMethod,
-  },
+  shippingMethod?: ShippingMethod,
 };
 
 const _fetchShippingMethod = createAsyncActions(
@@ -68,23 +65,14 @@ export function reset() {
 }
 
 const initialState: State = {
-  shippingMethod: {},
+  shippingMethod: null,
 };
 
-function receiveShippingMethod(state: State, shippingMethod: ShippingMethod): State {
-  const method = { 
-    id: shippingMethod.id,
-    attributes: shippingMethod,
-  };
-
-  return { ...state, shippingMethod: method };
-}
-
 const reducer = createReducer({
-  [_fetchShippingMethod.succeeded]: receiveShippingMethod,
-  [_createShippingMethod.succeeded]: receiveShippingMethod,
-  [_updateShippingMethod.succeeded]: receiveShippingMethod,
-  [clearShippingMethod]: state => ({ ...state, shippingMethod: {} }),
+  [_fetchShippingMethod.succeeded]: (state, shippingMethod) => ({ ...state, shippingMethod }),
+  [_createShippingMethod.succeeded]: (state, shippingMethod) => ({ ...state, shippingMethod }),
+  [_updateShippingMethod.succeeded]: (state, shippingMethod) => ({ ...state, shippingMethod }),
+  [clearShippingMethod]: state => ({ ...state, shippingMethod: null }),
 }, initialState);
 
 export default reducer;

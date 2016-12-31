@@ -15,6 +15,7 @@ import * as ShippingMethodActions from 'modules/shipping-methods/details';
 // components
 import { PageTitle } from 'components/section-title';
 import { PrimaryButton } from 'components/common/buttons';
+import ContentBox from 'components/content-box/content-box';
 import SubNav from './details-sub-nav';
 
 // type
@@ -72,6 +73,8 @@ class ShippingMethodDetails extends Component {
     const { shippingMethod } = this.props.details;
 
     if (!isFetching && shippingMethod) {
+      console.log('method');
+      console.log(shippingMethod);
       const title = `Shipping Method ${shippingMethod.code}`;
 
       return (
@@ -85,6 +88,12 @@ class ShippingMethodDetails extends Component {
     return (
       <div>
         {this.renderPageTitle}
+        <div className="fc-grid">
+          <div className="fc-col-md-1-1">
+            <ContentBox title="General">
+            </ContentBox>
+          </div>
+        </div>
       </div>
     );
   }
