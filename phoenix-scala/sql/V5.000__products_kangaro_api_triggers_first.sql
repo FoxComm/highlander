@@ -1,3 +1,28 @@
+--- Rename tables
+alter table skus rename to product_variants;
+alter table variants rename to product_options;
+alter table variant_values rename to product_option_values;
+alter table variant_variant_value_links rename to product_option_to_value_links;
+alter table variant_value_sku_links rename to product_value_to_variant_links;
+alter table product_variant_links rename to product_to_option_links;
+alter table product_sku_links rename to product_to_variant_links;
+alter table sku_album_links rename to variant_album_links;
+
+-- Views
+alter table product_sku_links_view rename to product_to_variant_links_view;
+
+-- alter table product_to_variant_links_view rename column skus to variants;
+
+-- fields
+alter table order_line_items rename column sku_shadow_id to product_variant_shadow_id;
+alter table order_line_items rename column sku_id to product_variant_id;
+alter table cart_line_items rename column sku_id to product_variant_id;
+alter table save_for_later rename column sku_id to product_variant_id;
+
+alter table notes_search_view rename column sku_item to variant_item;
+
+-- Update triggers
+
 -- R__carts_search_view
 create or replace function update_carts_view_from_carts_insert_fn() returns trigger as $$
 begin
