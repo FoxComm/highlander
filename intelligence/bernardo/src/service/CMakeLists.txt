@@ -5,4 +5,4 @@ include_directories(..)
 
 file(GLOB src *.cpp)
 
-add_library(bernardo_util STATIC ${src})
+add_library(bernardo_service STATIC ${src})

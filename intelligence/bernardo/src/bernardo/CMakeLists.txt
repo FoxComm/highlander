@@ -1,4 +1,4 @@
-ADD_DEFINITIONS(-std=c++1y)
+ADD_DEFINITIONS(-std=c++17)
 
 include_directories(.)
 include_directories(..)
@@ -12,6 +12,7 @@ add_executable(
 
 target_link_libraries(
     bernardo
+    bernardo_service
     bernardo_util
     ${Boost_LIBRARIES}
     ${MISC_LIBRARIES})
