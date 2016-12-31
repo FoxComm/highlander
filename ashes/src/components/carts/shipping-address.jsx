@@ -65,6 +65,7 @@ export default class CartShippingAddress extends Component {
     return (
       <EditableContentBox
         id={id}
+        addButtonId=""
         className="fc-shipping-address"
         title={title}
         indentContent={true}
