@@ -42,29 +42,38 @@ trait TestSeeds extends TestFixtureBase {
                      account = storeAdminAccount)
     implicit lazy val au: AU = storeAdminAuthData
 
-    private val (_storeAdminAccount, _storeAdmin, _storeAdminUser, _storeAdminClaims) = (for {
-      maybeAdmin ← * <~ Users
-                    .findByEmail(Factories.storeAdmin.email.getOrElse(""))
-                    .result
-                    .headOption
+    private val (_storeAdminAccount, _storeAdmin, _storeAdminUser, _storeAdminClaims) = db
+      .run((for {
+        _ ← * <~ println("Before findByEmail")
+        maybeAdmin ← * <~ Users
+                      .findByEmail(Factories.storeAdmin.email.getOrElse(""))
+                      .result
+                      .headOption
 
-      ad ← * <~ (maybeAdmin match {
-                case Some(admin) ⇒ DbResultT.pure(admin)
-                case None ⇒
-                  Factories.createStoreAdmin(user = Factories.storeAdmin,
-                                             password = "password",
-                                             state = AdminData.Active,
-                                             org = "tenant",
-                                             roles = List("admin"),
-                                             author = None)
-              })
-      adu ← * <~ AdminsData.mustFindByAccountId(ad.accountId)
-      ac  ← * <~ Accounts.mustFindById404(ad.accountId)
-      organization ← * <~ Organizations
-                      .findByName(TENANT)
-                      .mustFindOr(OrganizationNotFoundByName(TENANT))
-      claims ← * <~ AccountManager.getClaims(ac.id, organization.scopeId)
-    } yield (ac, ad, adu, claims)).gimme
+        _ ← * <~ println("Before createStoreAdmin")
+        ad ← * <~ (maybeAdmin match {
+                  case Some(admin) ⇒ DbResultT.pure(admin)
+                  case None ⇒
+                    Factories.createStoreAdmin(user = Factories.storeAdmin,
+                                               password = "password",
+                                               state = AdminData.Active,
+                                               org = "tenant",
+                                               roles = List("admin"),
+                                               author = None)
+                })
+        _   ← * <~ println("Before mustFindByAccountID")
+        adu ← * <~ AdminsData.mustFindByAccountId(ad.accountId)
+        _   ← * <~ println("Before mustFindById404")
+        ac  ← * <~ Accounts.mustFindById404(ad.accountId)
+        _   ← * <~ println("Before find organization")
+        organization ← * <~ Organizations
+                        .findByName(TENANT)
+                        .mustFindOr(OrganizationNotFoundByName(TENANT))
+        _      ← * <~ println("Before get claims")
+        claims ← * <~ AccountManager.getClaims(ac.id, organization.scopeId)
+      } yield (ac, ad, adu, claims)).value)
+      .futureValue
+      .rightVal
 
   }
 
