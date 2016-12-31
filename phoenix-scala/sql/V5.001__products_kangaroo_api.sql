@@ -6,9 +6,6 @@ update object_forms set kind = 'product-option-value' where kind = 'variant-valu
 update object_forms set kind = 'product-variant' where kind = 'sku';
 
 
-
-update object_shadows set json_schema = 'product-variant' where json_schema = 'sku';
-
 create or replace function update_object_schemas_insert_fn() returns trigger as $$
 declare
   dep text;
@@ -67,6 +64,8 @@ create trigger update_object_schemas_insert
 
 update object_schemas set name = 'product-variant' where name = 'sku';
 update object_schemas set kind = 'product-variant' where kind = 'sku';
+
+update object_shadows set json_schema = 'product-variant' where json_schema = 'sku';
 
 -- notes
 
