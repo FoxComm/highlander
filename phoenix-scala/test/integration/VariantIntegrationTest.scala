@@ -96,7 +96,9 @@ class VariantIntegrationTest
       val payload = ProductVariantPayload(attributes =
                                             Map("name" → (("t" → "string") ~ ("v" → "Test"))),
                                           albums = None)
-      val skuResponse = skusApi(sku.code).update(payload).as[ProductVariantResponse.Root]
+
+      val formId      = skuForm.id.toString
+      val skuResponse = skusApi(formId).update(payload).as[ProductVariantResponse.Root]
 
       (skuResponse.attributes \ "code" \ "v").extract[String] must === (sku.code)
       (skuResponse.attributes \ "name" \ "v").extract[String] must === ("Test")
@@ -107,9 +109,9 @@ class VariantIntegrationTest
       val payload = ProductVariantPayload(attributes =
                                             Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))),
                                           albums = None)
-      skusApi(sku.code).update(payload).mustBeOk()
+      val formId = skuForm.id.toString
+      skusApi(formId).update(payload).mustBeOk()
 
-      val formId      = skuForm.id.toString
       val skuResponse = skusApi(formId).get().as[ProductVariantResponse.Root]
       (skuResponse.attributes \ "code" \ "v").extract[String] must === ("UPCODE")
 

@@ -64,14 +64,14 @@ object ProductVariantManager {
       ProductVariantResponse
         .build(IlluminatedVariant.illuminate(oc, FullObject(variant, form, shadow)), albums)
 
-  def update(admin: User, code: String, payload: ProductVariantPayload)(
+  def update(admin: User, variantId: Int, payload: ProductVariantPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
       oc: OC,
       au: AU): DbResultT[ProductVariantResponse.Root] =
     for {
-      variant        ← * <~ ProductVariantManager.mustFindByContextAndCode(oc.id, code)
+      variant        ← * <~ ProductVariantManager.mustFindByContextAndFormId(oc.id, variantId)
       updatedVariant ← * <~ updateInner(variant, payload)
       albums         ← * <~ updateAssociatedAlbums(updatedVariant.model, payload.albums)
       response = ProductVariantResponse
@@ -218,6 +218,15 @@ object ProductVariantManager {
              .filterByContextAndCode(contextId, code)
              .mustFindOneOr(ProductVariantNotFoundForContext(code, contextId))
     } yield sku
+
+  def mustFindByContextAndFormId(contextId: Int, formId: Int)(
+      implicit ec: EC): DbResultT[ProductVariant] =
+    for {
+      variant ← * <~ ProductVariants
+                  .filter(_.contextId === contextId)
+                  .filter(_.formId === formId)
+                  .mustFindOneOr(ProductVariantNotFoundForContextAndId(formId, contextId))
+    } yield variant
 
   def mustFindFullById(id: Int)(implicit ec: EC, db: DB): DbResultT[FullObject[ProductVariant]] =
     ObjectManager.getFullObject(

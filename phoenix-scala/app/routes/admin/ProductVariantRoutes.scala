@@ -32,6 +32,11 @@ object ProductVariantRoutes {
                   ProductVariantManager.get(variantId)
                 }
               } ~
+              (patch & pathEnd & entity(as[ProductVariantPayload])) { payload ⇒
+                mutateOrFailures {
+                  ProductVariantManager.update(auth.model, variantId, payload)
+                }
+              } ~
               (delete & pathEnd) {
                 mutateOrFailures {
                   ProductVariantManager.archive(variantId)
@@ -39,11 +44,6 @@ object ProductVariantRoutes {
               }
             } ~
             pathPrefix(Segment) { code ⇒
-              (patch & pathEnd & entity(as[ProductVariantPayload])) { payload ⇒
-                mutateOrFailures {
-                  ProductVariantManager.update(auth.model, code, payload)
-                }
-              } ~
               pathPrefix("albums") {
                 (get & pathEnd) {
                   getOrFailures {
