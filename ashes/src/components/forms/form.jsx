@@ -1,9 +1,11 @@
-
+/* @flow */
 
 import React, { PropTypes, Component } from 'react';
 import ReactDOM from 'react-dom';
 import { EventEmitter } from 'events';
 import { autobind } from 'core-decorators';
+
+import styles from './css/form.css';
 
 export default class Form extends Component {
 
@@ -70,7 +72,7 @@ export default class Form extends Component {
     let props = {...this.props, onSubmit: this.handleSubmit};
 
     return (
-      <form {...props} onKeyDown={this.handleKeyPress} ref="form">
+      <form styleName="form" {...props} onKeyDown={this.handleKeyPress} ref="form">
         {this.props.children}
       </form>
     );

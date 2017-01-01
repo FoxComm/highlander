@@ -15,7 +15,14 @@ import * as ShippingMethodActions from 'modules/shipping-methods/details';
 // components
 import { PageTitle } from 'components/section-title';
 import { PrimaryButton } from 'components/common/buttons';
+import ContentBox from 'components/content-box/content-box';
+import FoxyForm from 'components/forms/foxy-form';
+import FormField from 'components/forms/formfield';
 import SubNav from './details-sub-nav';
+import WaitAnimation from 'components/common/wait-animation';
+
+// styles
+import styles from './details.css';
 
 // type
 import type { ShippingMethod, CreatePayload, UpdatePayload } from 'paragons/shipping-method';
@@ -31,7 +38,7 @@ type Props = {
     shippingMethod: ?ShippingMethod,
   },
   params: {
-    shippingMethodId: number,
+    shippingMethodId: string,
   },
   status: {
     isFetching: boolean,
@@ -82,9 +89,31 @@ class ShippingMethodDetails extends Component {
   }
 
   render(): Element {
+    const { shippingMethod } = this.props.details;
+    const { isFetching } = this.props.status;
+
+    if (isFetching || !shippingMethod) {
+      return (
+        <div styleName="waiting">
+          <WaitAnimation />
+        </div>
+      );
+    }
+
     return (
       <div>
         {this.renderPageTitle}
+        <div className="fc-grid">
+          <div className="fc-col-md-1-1">
+            <ContentBox title="General">
+              <FoxyForm>
+                <FormField label="Name" validator="ascii" maxLength={255} required>
+                  <input type="text" defaultValue={shippingMethod.name} />
+                </FormField>
+              </FoxyForm>
+            </ContentBox>
+          </div>
+        </div>
       </div>
     );
   }
