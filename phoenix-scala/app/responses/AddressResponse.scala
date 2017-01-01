@@ -51,13 +51,13 @@ object AddressResponse {
   def buildFromCreditCard(cc: CreditCard, region: Region): AddressResponse =
     AddressResponse(id = 0,
                     region = region,
-                    name = cc.name,
-                    address1 = cc.address1,
-                    address2 = cc.address2,
-                    city = cc.city,
-                    zip = cc.zip,
+                    name = cc.address.name,
+                    address1 = cc.address.address1,
+                    address2 = cc.address.address2,
+                    city = cc.address.city,
+                    zip = cc.address.zip,
                     isDefault = None,
-                    phoneNumber = cc.phoneNumber)
+                    phoneNumber = cc.address.phoneNumber)
 
   def buildMulti(records: Seq[(Address, Region)]): Seq[AddressResponse] =
     records.map((build _).tupled)

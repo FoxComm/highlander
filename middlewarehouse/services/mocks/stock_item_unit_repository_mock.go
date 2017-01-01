@@ -4,14 +4,25 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/stretchr/testify/mock"
+	"github.com/jinzhu/gorm"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 )
 
 type StockItemUnitRepositoryMock struct {
 	mock.Mock
 }
 
-func (service *StockItemUnitRepositoryMock) GetStockItemUnitIDs(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error) {
-	args := service.Called(stockItemID, unitStatus, unitType, count)
+// WithTransaction returns a shallow copy of repository with its db changed to txn. The provided txn must be non-nil.
+func (repository *StockItemUnitRepositoryMock) WithTransaction(txn *gorm.DB) repositories.IStockItemUnitRepository {
+	if txn == nil {
+		panic("nil transaction")
+	}
+
+	return repository
+}
+
+func (repository *StockItemUnitRepositoryMock) GetStockItemUnitIDs(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error) {
+	args := repository.Called(stockItemID, unitStatus, unitType, count)
 
 	if models, ok := args.Get(0).([]uint); ok {
 		return models, nil
@@ -20,8 +31,8 @@ func (service *StockItemUnitRepositoryMock) GetStockItemUnitIDs(stockItemID uint
 	return nil, args.Error(1)
 }
 
-func (service *StockItemUnitRepositoryMock) GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, error) {
-	args := service.Called(refNum)
+func (repository *StockItemUnitRepositoryMock) GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, error) {
+	args := repository.Called(refNum)
 
 	if models, ok := args.Get(0).([]*models.StockItemUnit); ok {
 		return models, nil
@@ -30,8 +41,8 @@ func (service *StockItemUnitRepositoryMock) GetUnitsInOrder(refNum string) ([]*m
 	return nil, args.Error(1)
 }
 
-func (service *StockItemUnitRepositoryMock) HoldUnitsInOrder(refNum string, ids []uint) (int, error) {
-	args := service.Called(refNum, ids)
+func (repository *StockItemUnitRepositoryMock) HoldUnitsInOrder(refNum string, ids []uint) (int, error) {
+	args := repository.Called(refNum, ids)
 
 	if result, ok := args.Get(0).(int); ok {
 		return result, nil
@@ -40,8 +51,8 @@ func (service *StockItemUnitRepositoryMock) HoldUnitsInOrder(refNum string, ids 
 	return 0, args.Error(1)
 }
 
-func (service *StockItemUnitRepositoryMock) ReserveUnitsInOrder(refNum string) (int, error) {
-	args := service.Called(refNum)
+func (repository *StockItemUnitRepositoryMock) ReserveUnitsInOrder(refNum string) (int, error) {
+	args := repository.Called(refNum)
 
 	if result, ok := args.Get(0).(int); ok {
 		return result, nil
@@ -50,8 +61,8 @@ func (service *StockItemUnitRepositoryMock) ReserveUnitsInOrder(refNum string) (
 	return 0, args.Error(1)
 }
 
-func (service *StockItemUnitRepositoryMock) UnsetUnitsInOrder(refNum string) (int, error) {
-	args := service.Called(refNum)
+func (repository *StockItemUnitRepositoryMock) UnsetUnitsInOrder(refNum string) (int, error) {
+	args := repository.Called(refNum)
 
 	if result, ok := args.Get(0).(int); ok {
 		return result, nil
@@ -60,8 +71,28 @@ func (service *StockItemUnitRepositoryMock) UnsetUnitsInOrder(refNum string) (in
 	return 0, args.Error(1)
 }
 
-func (service *StockItemUnitRepositoryMock) GetReleaseQtyByRefNum(refNum string) ([]*models.Release, error) {
-	args := service.Called(refNum)
+func (repository *StockItemUnitRepositoryMock) ShipUnitsInOrder(refNum string) (int, error) {
+	args := repository.Called(refNum)
+
+	if result, ok := args.Get(0).(int); ok {
+		return result, nil
+	}
+
+	return 0, args.Error(1)
+}
+
+func (repository *StockItemUnitRepositoryMock) DeleteUnitsInOrder(refNum string) (int, error) {
+	args := repository.Called(refNum)
+
+	if result, ok := args.Get(0).(int); ok {
+		return result, nil
+	}
+
+	return 0, args.Error(1)
+}
+
+func (repository *StockItemUnitRepositoryMock) GetQtyForOrder(refNum string) ([]*models.Release, error) {
+	args := repository.Called(refNum)
 
 	if models, ok := args.Get(0).([]*models.Release); ok {
 		return models, nil
@@ -70,14 +101,24 @@ func (service *StockItemUnitRepositoryMock) GetReleaseQtyByRefNum(refNum string)
 	return nil, args.Error(1)
 }
 
-func (service *StockItemUnitRepositoryMock) CreateUnits(units []*models.StockItemUnit) error {
-	args := service.Called(units)
+func (repository *StockItemUnitRepositoryMock) GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, error) {
+	args := repository.Called(refNum, sku)
+
+	if result, ok := args.Get(0).(*models.StockItemUnit); ok {
+		return result, nil
+	}
+
+	return nil, args.Error(1)
+}
+
+func (repository *StockItemUnitRepositoryMock) CreateUnits(units []*models.StockItemUnit) error {
+	args := repository.Called(units)
 
 	return args.Error(0)
 }
 
-func (service *StockItemUnitRepositoryMock) DeleteUnits(ids []uint) error {
-	args := service.Called(ids)
+func (repository *StockItemUnitRepositoryMock) DeleteUnits(ids []uint) error {
+	args := repository.Called(ids)
 
 	return args.Error(0)
 }

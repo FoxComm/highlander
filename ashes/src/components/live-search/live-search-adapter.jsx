@@ -15,13 +15,9 @@ const LiveSearchAdapter = props => {
       submitPhrase={searchActions.addSearchPhrase}
       deleteSearch={searchActions.deleteSearch}
       updateSearch={searchActions.updateSearch}
-      suggestAssociations={searchActions.suggestAssociations}
       fetchAssociations={searchActions.fetchAssociations}
       associateSearch={searchActions.associateSearch}
       dissociateSearch={searchActions.dissociateSearch}
-      selectItem={searchActions.selectItem}
-      deselectItem={searchActions.deselectItem}
-      setTerm={searchActions.setTerm}
     >
       {props.children}
     </LiveSearch>
@@ -37,13 +33,9 @@ LiveSearchAdapter.propTypes = {
     addSearchPhrase: PropTypes.func,
     deleteSearch: PropTypes.func,
     updateSearch: PropTypes.func,
-    suggestAssociations: PropTypes.func,
     fetchAssociations: PropTypes.func,
     associateSearch: PropTypes.func,
     dissociateSearch: PropTypes.func,
-    selectItem: PropTypes.func,
-    deselectItem: PropTypes.func,
-    setTerm: PropTypes.func,
   }),
   singleSearch: PropTypes.bool,
   searches: PropTypes.object,

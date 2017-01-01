@@ -23,6 +23,7 @@ prep:
 
 glide: prep
 	cd $(BUILD_PATH) && glide install
+	rm -rf $(BUILD_PATH)/vendor/github.com/FoxComm/highlander
 
 build:
 	$(call header, Building)

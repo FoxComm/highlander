@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 VERBOSE=false
 if [[ $# -ge 1 ]] && [[ $1 == "-verbose" ]]; then
     VERBOSE=true
@@ -26,7 +26,6 @@ PROJECTS=(
     'engineering-wiki'
     'firebrand'
     'green-river'
-    'integration-tests'
     'isaac'
     'marketplace'
     'marketplace-ui'

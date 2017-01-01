@@ -4,7 +4,7 @@
 
 import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
-import createAsyncActions from '../async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 
 const defaultContext = 'default';
 

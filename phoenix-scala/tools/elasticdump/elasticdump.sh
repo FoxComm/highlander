@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # A script to partially dump Elasticsearch index to local machine for debugging
 
 # Configuration
@@ -42,7 +42,7 @@ do
 		--input=$SOURCE_URL \
 		--input-index=$INDEX_NAME/$TYPE_NAME \
 		--output=$BACKUP_DIR/$TYPE_NAME.$DUMP_FILENAME \
-		--type=data	
+		--type=data
 done
 
 # Import
@@ -52,7 +52,7 @@ do
 	elasticdump \
 		--input=$BACKUP_DIR/$TYPE_NAME.$DUMP_FILENAME \
 		--output=$DESTINATION_URL/$INDEX_NAME \
-		--type=data	
+		--type=data
 done
 
 # Clean

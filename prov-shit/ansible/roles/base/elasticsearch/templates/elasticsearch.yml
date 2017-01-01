@@ -100,3 +100,6 @@ threadpool:
 # action.destructive_requires_name: true
 
 script.engine.groovy.inline.aggs: on
+
+# Disable automatic index creation
+action.auto_create_index: false

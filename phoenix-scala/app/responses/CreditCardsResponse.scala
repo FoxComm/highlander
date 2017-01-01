@@ -22,7 +22,7 @@ object CreditCardsResponse {
 
   def buildFromCreditCard(cc: CreditCard)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
-      region ← * <~ Regions.mustFindById400(cc.regionId)
+      region ← * <~ Regions.mustFindById400(cc.address.regionId)
     } yield build(cc, region)
 
   def build(cc: CreditCard, region: Region): Root =

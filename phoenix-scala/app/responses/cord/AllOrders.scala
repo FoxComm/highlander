@@ -2,12 +2,11 @@ package responses.cord
 
 import java.time.Instant
 
-import models.account.User
-import models.cord.Order
-import models.payment.creditcard.CreditCardCharge
-import responses.ResponseItem
-
 import scala.concurrent.Future
+
+import models.account.User
+import models.cord.{CordPaymentState, Order}
+import responses.ResponseItem
 
 object AllOrders {
   type Response = Future[Seq[Root]]
@@ -17,7 +16,7 @@ object AllOrders {
                   email: Option[String] = None,
                   name: Option[String] = None,
                   // FIXME: why Option?
-                  paymentState: Option[CreditCardCharge.State] = None,
+                  paymentState: Option[CordPaymentState.State] = None,
                   shippingState: Option[Order.State],
                   placedAt: Instant,
                   remorsePeriodEnd: Option[Instant] = None,
@@ -26,7 +25,7 @@ object AllOrders {
 
   def build(order: Order,
             customer: Option[User] = None,
-            paymentState: Option[CreditCardCharge.State] = None): Root = Root(
+            paymentState: Option[CordPaymentState.State] = None): Root = Root(
       referenceNumber = order.referenceNumber,
       orderState = order.state,
       name = customer.flatMap(_.name),

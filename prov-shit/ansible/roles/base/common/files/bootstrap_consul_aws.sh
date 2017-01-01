@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 CONSUL_DC=$1
 CONSUL_SERVER=$2
 PRIVATE_IP=$(curl -sf http://169.254.169.254/latest/meta-data/local-ipv4 | tr -d '\n')

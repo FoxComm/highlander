@@ -1,5 +1,5 @@
 
-// list of all available types 
+// list of all available types
 // https://github.com/FoxComm/phoenix-scala/tree/master/app/services/activity
 
 const types = {
@@ -105,6 +105,16 @@ const types = {
   /* SKUs */
   FULL_SKU_CREATED: 'full_sku_created',
   FULL_SKU_UPDATED: 'full_sku_updated',
+
+  /* Coupons */
+
+  COUPON_CREATED: 'coupon_created',
+  COUPON_UPDATED: 'coupon_updated',
+
+  /* Promotions */
+
+  PROMOTION_CREATED: 'promotion_created',
+  PROMOTION_UPDATED: 'promotion_updated',
 };
 
 export const derivedTypes = {

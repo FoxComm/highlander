@@ -1,0 +1,120 @@
+
+.root {
+  & :global(.fc-wait-animation) {
+    margin: 0 auto;
+  }
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.title {
+  display: inline-block;
+  color: #484848;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 19px;
+}
+
+.controls {
+  display: inline-block;
+}
+
+.link {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 17px;
+  text-decoration: underline;
+  color: #4fc2c9;
+}
+
+.users-row {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  padding: 2px 0;
+
+  & :global(.initials) {
+    width: 28px;
+    height: auto;
+    vertical-align: top;
+    color: #fff;
+    line-height: 28px;
+  }
+}
+
+.add-button {
+  width: 28px;
+  height: 28px;
+  padding: 0 10px;
+  color: #ced2d5;
+  background-color: #fff;
+  border: 2px dashed #ced2d5;
+  line-height: 24px;
+
+  &:hover {
+    border-color: #bdc3c6; /* change of color does not invoke full border redraw */
+  }
+}
+
+.empty-list {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 28px;
+  color: #ced2d5;
+  margin-left: 5px;
+}
+
+.cell {
+  height: 28px;
+  margin-left: 5px;
+}
+
+.rest-block {
+  display: none;
+  position: absolute;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 3px;
+  box-shadow: 0 3px 4px 0 rgba(0,0,0,0.50);
+
+  & .users-row {
+    margin: 10px;
+  }
+
+  &._shown {
+    display: block;
+    left: 100%;
+    transform: translate(-100%, -90px);
+  }
+}
+
+.rest-block-overlay {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: none;
+  position: fixed;
+
+  &._shown {
+    display: block;
+  }
+}
+
+.toggle-watchers-btn {
+  width: 28px;
+  height: 32px;
+  line-height: 32px;
+  color: #ced2d5;
+  background-color: #fff;
+
+  &:hover, &._active {
+    color: #484848;
+  }
+}

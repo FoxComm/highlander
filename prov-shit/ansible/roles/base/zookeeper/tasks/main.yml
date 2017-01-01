@@ -2,24 +2,24 @@
 
 - name: Setup Zookeeper Dir
   file: path=/var/lib/zookeeper state=directory
-  sudo: true
+  
 
 - name: Setup Zookeeper config
   template: src=zookeeper.properties dest="/etc/kafka/zookeeper.properties"
-  sudo: true
+  
 
 - name: Copy Zookeeper Service Files
   copy: src=zookeeper.service dest={{dest_services}}/zookeeper.service
-  sudo: true
+  
 
 - name: Reload Systemd for Kafka Related Services
-  sudo: yes
+  
   command: systemctl daemon-reload
 
 - name: Start Zookeeper
   service: name=zookeeper state=started enabled=yes
-  sudo: true
+  
 
 - name: Copy Consul Service File
   template: src=zookeeper.json dest="/etc/consul.d/zookeeper.json"
-  sudo: true
+  

@@ -2,10 +2,11 @@
 
 - name: Bootstrap Amigo
   hosts: '{{hostname}}'
+  become: true
   tags:
     - amigo
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a backend to provision"
@@ -13,12 +14,13 @@
       private: no
 
   roles:
-    - { role: dev/kibana, sudo: true }
+    - { role: dev/kibana }
 
 - name: Bootstrap Backend
   hosts: '{{hostname}}'
+  become: true
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     upload_phoenix_jar: true
   vars_prompt:
     - name: "hostname"
@@ -33,8 +35,9 @@
 
 - name: Bootstrap Frontend
   hosts: '{{hostname}}'
+  become: true
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     upload_phoenix_jar: true
     first_run: true
   vars_prompt:
