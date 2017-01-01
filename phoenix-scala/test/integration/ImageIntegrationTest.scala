@@ -273,7 +273,8 @@ class ImageIntegrationTest
 
     "GET v1/skus/:context/:code" - {
       "Retrieves all the albums associated with a SKU" in new ProductFixture {
-        val skuResponse = skusApi(sku.code).get().as[ProductVariantResponse.Root]
+        val formId      = skuForm.id.toString
+        val skuResponse = skusApi(formId).get().as[ProductVariantResponse.Root]
         skuResponse.albums.length must === (1)
 
         val headAlbum = skuResponse.albums.head
@@ -286,7 +287,8 @@ class ImageIntegrationTest
       "Archived albums are not present in list" in new ProductFixture {
         albumsApi(album.formId).delete().mustBeOk()
 
-        val skuResponse = skusApi(sku.code).get().as[ProductVariantResponse.Root]
+        val formId      = skuForm.id.toString
+        val skuResponse = skusApi(formId).get().as[ProductVariantResponse.Root]
         skuResponse.albums.length must === (0)
       }
     }

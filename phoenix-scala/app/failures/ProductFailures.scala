@@ -33,6 +33,12 @@ object ProductFailures {
           s"ProductVariant $code with product context $productContextId cannot be found")
   }
 
+  object ProductVariantNotFoundForContextAndId {
+    def apply(formId: Int, productContextId: Int) =
+      NotFoundFailure404(
+          s"ProductVariant $formId with product context $productContextId cannot be found")
+  }
+
   object ProductOptionNotFound {
     def apply(id: Int) = NotFoundFailure404(s"Product option with id $id not found")
   }

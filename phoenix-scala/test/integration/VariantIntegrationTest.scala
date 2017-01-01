@@ -63,9 +63,11 @@ class VariantIntegrationTest
       val imagePayload = ImagePayload(src = src)
       val albumPayload = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
 
-      skusApi.create(makeSkuPayload(code, attrMap, Seq(albumPayload).some)).mustBeOk()
+      val resp = skusApi.create(makeSkuPayload(code, attrMap, Seq(albumPayload).some))
+      resp.mustBeOk()
+      val createResponse = resp.as[ProductVariantResponse.Root]
 
-      val getResponse = skusApi(code).get().as[ProductVariantResponse.Root]
+      val getResponse = skusApi(createResponse.id.toString).get().as[ProductVariantResponse.Root]
       getResponse.albums.length must === (1)
       getResponse.albums.head.images.length must === (1)
       getResponse.albums.head.images.head.src must === (src)
@@ -74,7 +76,8 @@ class VariantIntegrationTest
 
   "GET v1/variants/:context/:code" - {
     "Get a created variant successfully" in new Fixture {
-      val skuResponse = skusApi(sku.code).get().as[ProductVariantResponse.Root]
+      val formId      = skuForm.id.toString
+      val skuResponse = skusApi(formId).get().as[ProductVariantResponse.Root]
       val code        = skuResponse.attributes \ "code" \ "v"
       code.extract[String] must === (sku.code)
 
@@ -83,7 +86,7 @@ class VariantIntegrationTest
     }
 
     "Throws a 404 if given an invalid code" in new Fixture {
-      val response = skusApi("INVALID-CODE").get()
+      val response = skusApi("99").get()
       response.status must === (StatusCodes.NotFound)
     }
   }
@@ -106,7 +109,8 @@ class VariantIntegrationTest
                                           albums = None)
       skusApi(sku.code).update(payload).mustBeOk()
 
-      val skuResponse = skusApi("upcode").get().as[ProductVariantResponse.Root]
+      val formId      = skuForm.id.toString
+      val skuResponse = skusApi(formId).get().as[ProductVariantResponse.Root]
       (skuResponse.attributes \ "code" \ "v").extract[String] must === ("UPCODE")
 
       (skuResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)

@@ -13,4 +13,8 @@ object MiddlewarehouseFailures {
   case object UnableToCancelHoldLineItems extends Failure {
     override def description = s"Unable to cancel hold on line items"
   }
+
+  case object UnableToCreateSku extends Failure {
+    override def description = "Unable to create SKU"
+  }
 }

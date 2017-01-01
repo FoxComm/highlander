@@ -46,6 +46,13 @@ object ProductVariantManager {
     } yield response
   }
 
+  def get(
+      variantId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductVariantResponse.Root] =
+    for {
+      variant ← * <~ ProductVariantManager.mustFindFullByContextAndFormId(oc.id, variantId)
+      albums  ← * <~ ImageManager.getAlbumsByVariant(variant.model)
+    } yield ProductVariantResponse.build(IlluminatedVariant.illuminate(oc, variant), albums)
+
   def getBySkuCode(
       code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductVariantResponse.Root] =
     for {
@@ -225,6 +232,16 @@ object ProductVariantManager {
       form    ← * <~ ObjectForms.mustFindById404(shadow.formId)
       variant ← * <~ ProductVariants.mustFindById404(skuId)
     } yield FullObject(variant, form, shadow)
+
+  def mustFindFullByContextAndFormId(contextId: Int, formId: Int)(
+      implicit ec: EC,
+      db: DB): DbResultT[FullObject[ProductVariant]] =
+    ObjectManager.getFullObject(
+        ProductVariants
+          .filter(_.formId === formId)
+          .filter(_.contextId === contextId)
+          .mustFindOneOr(ProductVariantNotFoundForContextAndId(formId, contextId))
+    )
 
   def illuminateVariant(fullVariant: FullObject[ProductVariant])(
       implicit ec: EC,

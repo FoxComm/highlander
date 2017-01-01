@@ -26,12 +26,14 @@ object ProductVariantRoutes {
                 ProductVariantManager.create(auth.model, payload)
               }
             } ~
-            pathPrefix(Segment) { code ⇒
+            pathPrefix(IntNumber) { variantId ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  ProductVariantManager.getBySkuCode(code)
+                  ProductVariantManager.get(variantId)
                 }
-              } ~
+              }
+            } ~
+            pathPrefix(Segment) { code ⇒
               (patch & pathEnd & entity(as[ProductVariantPayload])) { payload ⇒
                 mutateOrFailures {
                   ProductVariantManager.update(auth.model, code, payload)
