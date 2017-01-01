@@ -273,8 +273,7 @@ class ImageIntegrationTest
 
     "GET v1/skus/:context/:code" - {
       "Retrieves all the albums associated with a SKU" in new ProductFixture {
-        val formId      = skuForm.id.toString
-        val skuResponse = skusApi(formId).get().as[ProductVariantResponse.Root]
+        val skuResponse = skusApi(sku.formId).get().as[ProductVariantResponse.Root]
         skuResponse.albums.length must === (1)
 
         val headAlbum = skuResponse.albums.head
@@ -287,8 +286,7 @@ class ImageIntegrationTest
       "Archived albums are not present in list" in new ProductFixture {
         albumsApi(album.formId).delete().mustBeOk()
 
-        val formId      = skuForm.id.toString
-        val skuResponse = skusApi(formId).get().as[ProductVariantResponse.Root]
+        val skuResponse = skusApi(sku.formId).get().as[ProductVariantResponse.Root]
         skuResponse.albums.length must === (0)
       }
     }
@@ -297,7 +295,7 @@ class ImageIntegrationTest
       "Creates a new album on an existing SKU" in new ProductFixture {
         val payload = AlbumPayload(name = Some("ProductVariant Album"),
                                    images = Seq(ImagePayload(src = "url")).some)
-        val albumResponse = skusApi(sku.code).albums.create(payload).as[AlbumRoot]
+        val albumResponse = skusApi(sku.formId).albums.create(payload).as[AlbumRoot]
 
         albumResponse.name must === ("ProductVariant Album")
         albumResponse.images.length must === (1)
@@ -307,7 +305,7 @@ class ImageIntegrationTest
 
     "GET v1/skus/:context/:id/albums" - {
       "Retrieves all the albums associated with a SKU" in new ProductFixture {
-        val albumResponse = skusApi(sku.code).albums.get().as[Seq[AlbumRoot]].headOption.value
+        val albumResponse = skusApi(sku.formId).albums.get().as[Seq[AlbumRoot]].headOption.value
         albumResponse.images.length must === (1)
 
         albumResponse.name must === ("Sample Album")
@@ -318,14 +316,14 @@ class ImageIntegrationTest
         val response = albumsApi(album.formId).update(AlbumPayload(name = "Name 2.0".some))
         response.as[AlbumRoot].name must === ("Name 2.0")
 
-        val response2 = skusApi(sku.code).albums.get()
+        val response2 = skusApi(sku.formId).albums.get()
         response2.as[Seq[AlbumRoot]].headOption.value.name must === ("Name 2.0")
       }
 
       "Archived albums are not present in list" in new ProductFixture {
         albumsApi(album.formId).delete().mustBeOk()
 
-        val albumResponse = skusApi(sku.code).albums.get().as[Seq[AlbumRoot]]
+        val albumResponse = skusApi(skuForm.id).albums.get().as[Seq[AlbumRoot]]
         albumResponse.length must === (0)
       }
     }

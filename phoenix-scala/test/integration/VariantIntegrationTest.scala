@@ -67,7 +67,7 @@ class VariantIntegrationTest
       resp.mustBeOk()
       val createResponse = resp.as[ProductVariantResponse.Root]
 
-      val getResponse = skusApi(createResponse.id.toString).get().as[ProductVariantResponse.Root]
+      val getResponse = skusApi(createResponse.id).get().as[ProductVariantResponse.Root]
       getResponse.albums.length must === (1)
       getResponse.albums.head.images.length must === (1)
       getResponse.albums.head.images.head.src must === (src)
@@ -76,8 +76,7 @@ class VariantIntegrationTest
 
   "GET v1/variants/:context/:code" - {
     "Get a created variant successfully" in new Fixture {
-      val formId      = skuForm.id.toString
-      val skuResponse = skusApi(formId).get().as[ProductVariantResponse.Root]
+      val skuResponse = skusApi(skuForm.id).get().as[ProductVariantResponse.Root]
       val code        = skuResponse.attributes \ "code" \ "v"
       code.extract[String] must === (sku.code)
 
@@ -86,7 +85,7 @@ class VariantIntegrationTest
     }
 
     "Throws a 404 if given an invalid code" in new Fixture {
-      val response = skusApi("99").get()
+      val response = skusApi(99).get()
       response.status must === (StatusCodes.NotFound)
     }
   }
@@ -97,8 +96,7 @@ class VariantIntegrationTest
                                             Map("name" → (("t" → "string") ~ ("v" → "Test"))),
                                           albums = None)
 
-      val formId      = skuForm.id.toString
-      val skuResponse = skusApi(formId).update(payload).as[ProductVariantResponse.Root]
+      val skuResponse = skusApi(skuForm.id).update(payload).as[ProductVariantResponse.Root]
 
       (skuResponse.attributes \ "code" \ "v").extract[String] must === (sku.code)
       (skuResponse.attributes \ "name" \ "v").extract[String] must === ("Test")
@@ -109,10 +107,9 @@ class VariantIntegrationTest
       val payload = ProductVariantPayload(attributes =
                                             Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))),
                                           albums = None)
-      val formId = skuForm.id.toString
-      skusApi(formId).update(payload).mustBeOk()
+      skusApi(skuForm.id).update(payload).mustBeOk()
 
-      val skuResponse = skusApi(formId).get().as[ProductVariantResponse.Root]
+      val skuResponse = skusApi(skuForm.id).get().as[ProductVariantResponse.Root]
       (skuResponse.attributes \ "code" \ "v").extract[String] must === ("UPCODE")
 
       (skuResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)
@@ -121,8 +118,7 @@ class VariantIntegrationTest
 
   "DELETE v1/products/:context/:id" - {
     "Archives SKU successfully" in new Fixture {
-      val formId = skuForm.id.toString
-      val result = skusApi(formId).archive().as[ProductVariantResponse.Root]
+      val result = skusApi(skuForm.id).archive().as[ProductVariantResponse.Root]
 
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow mustBe true
@@ -136,8 +132,7 @@ class VariantIntegrationTest
                              options = None)
       productsApi(product.formId).update(updateProductPayload).mustBeOk
 
-      val formId = skuForm.id.toString
-      val result = skusApi(formId).archive().as[ProductVariantResponse.Root]
+      val result = skusApi(skuForm.id).archive().as[ProductVariantResponse.Root]
 
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow mustBe true
@@ -145,19 +140,17 @@ class VariantIntegrationTest
     }
 
     "SKU Albums must be unlinked" in new Fixture {
-      val formId = skuForm.id.toString
-      skusApi(formId).archive().as[ProductVariantResponse.Root].albums mustBe empty
+      skusApi(skuForm.id).archive().as[ProductVariantResponse.Root].albums mustBe empty
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong code" in new Fixture {
-      skusApi("666").archive().mustFailWith404(ProductVariantNotFoundForContext("666", ctx.id))
+      skusApi(666).archive().mustFailWith404(ProductVariantNotFoundForContext("666", ctx.id))
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong context" in new Fixture {
       implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
 
-      val formId = skuForm.id.toString
-      skusApi(formId)(donkeyContext)
+      skusApi(skuForm.id)(donkeyContext)
         .archive()
         .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }
@@ -169,8 +162,7 @@ class VariantIntegrationTest
         .add(Seq(UpdateLineItemsPayload(sku.code, 1)))
         .mustBeOk()
 
-      val formId = skuForm.id.toString
-      skusApi(formId).archive().mustFailWith400(VariantIsPresentInCarts(sku.code))
+      skusApi(skuForm.id).archive().mustFailWith400(VariantIsPresentInCarts(sku.code))
     }
   }
 

@@ -41,18 +41,16 @@ object ProductVariantRoutes {
                 mutateOrFailures {
                   ProductVariantManager.archive(variantId)
                 }
-              }
-            } ~
-            pathPrefix(Segment) { code ⇒
+              } ~
               pathPrefix("albums") {
                 (get & pathEnd) {
                   getOrFailures {
-                    ImageManager.getAlbumsForVariantCode(code)
+                    ImageManager.getAlbumsForVariant(variantId)
                   }
                 } ~
                 (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
                   mutateOrFailures {
-                    ImageManager.createAlbumForVariantCode(auth.model, code, payload)
+                    ImageManager.createAlbumForVariant(auth.model, variantId, payload)
                   }
                 }
               }

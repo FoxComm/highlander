@@ -58,17 +58,16 @@ object ImageManager {
               }
     } yield result
 
-  def getAlbumsForVariantCode(
-      code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
+  def getAlbumsForVariant(
+      variantId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
     for {
-      albums ← * <~ getAlbumsForVariantInner(code, oc)
+      albums ← * <~ getAlbumsForVariantInner(variantId)
     } yield albums
 
-  def getAlbumsForVariantInner(code: String, context: ObjectContext)(
-      implicit ec: EC,
-      db: DB): DbResultT[Seq[AlbumResponse.Root]] =
+  def getAlbumsForVariantInner(
+      variantId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumResponse.Root]] =
     for {
-      variant ← * <~ ProductVariantManager.mustFindByContextAndCode(context.id, code)
+      variant ← * <~ ProductVariantManager.mustFindByContextAndFormId(oc.id, variantId)
       result  ← * <~ getAlbumsByVariant(variant)
     } yield result
 
@@ -194,14 +193,14 @@ object ImageManager {
       link ← * <~ ProductAlbumLinks.createLast(product, fullAlbum.model)
     } yield AlbumResponse.build(fullAlbum, images)
 
-  def createAlbumForVariantCode(admin: User, code: String, payload: AlbumPayload)(
+  def createAlbumForVariant(admin: User, variantId: Int, payload: AlbumPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
       oc: OC,
       au: AU): DbResultT[AlbumRoot] =
     for {
-      variant ← * <~ ProductVariantManager.mustFindByContextAndCode(oc.id, code)
+      variant ← * <~ ProductVariantManager.mustFindByContextAndFormId(oc.id, variantId)
       created ← * <~ createAlbumInner(payload, oc)
       (fullAlbum, images) = created
       link ← * <~ VariantAlbumLinks.createLast(variant, fullAlbum.model)

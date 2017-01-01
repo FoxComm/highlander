@@ -369,7 +369,7 @@ object ProductManager {
                                                        else Seq.empty)
               } yield newSku
             }
-        albums ← * <~ ImageManager.getAlbumsForVariantInner(code, oc)
+        albums ← * <~ ImageManager.getAlbumsForVariantInner(up.form.id)
       } yield ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, up), albums)
     }
 

@@ -59,7 +59,7 @@ object ProductVariantManager {
       variant ← * <~ ProductVariantManager.mustFindByContextAndCode(oc.id, code)
       form    ← * <~ ObjectForms.mustFindById404(variant.formId)
       shadow  ← * <~ ObjectShadows.mustFindById404(variant.shadowId)
-      albums  ← * <~ ImageManager.getAlbumsForVariantInner(variant.code, oc)
+      albums  ← * <~ ImageManager.getAlbumsForVariantInner(form.id)
     } yield
       ProductVariantResponse
         .build(IlluminatedVariant.illuminate(oc, FullObject(variant, form, shadow)), albums)
@@ -94,7 +94,7 @@ object ProductVariantManager {
                                         DbResultT.unit,
                                         id ⇒ NotFoundFailure400(VariantAlbumLinks, id))
          }
-      albums       ← * <~ ImageManager.getAlbumsForVariantInner(archivedVariant.code, oc)
+      albums       ← * <~ ImageManager.getAlbumsForVariantInner(archivedVariant.formId)
       productLinks ← * <~ ProductVariantLinks.filter(_.rightId === archivedVariant.id).result
       _ ← * <~ productLinks.map { link ⇒
            ProductVariantLinks.deleteById(link.id,
@@ -208,7 +208,7 @@ object ProductVariantManager {
       case Some(payloads) ⇒
         findOrCreateAlbumsForVariant(variant, payloads).map(_.map(AlbumResponse.build))
       case None ⇒
-        ImageManager.getAlbumsForVariantInner(variant.code, oc)
+        ImageManager.getAlbumsForVariantInner(variant.formId)
     }
 
   def mustFindByContextAndCode(contextId: Int, code: String)(
@@ -223,9 +223,9 @@ object ProductVariantManager {
       implicit ec: EC): DbResultT[ProductVariant] =
     for {
       variant ← * <~ ProductVariants
-                  .filter(_.contextId === contextId)
-                  .filter(_.formId === formId)
-                  .mustFindOneOr(ProductVariantNotFoundForContextAndId(formId, contextId))
+                 .filter(_.contextId === contextId)
+                 .filter(_.formId === formId)
+                 .mustFindOneOr(ProductVariantNotFoundForContextAndId(formId, contextId))
     } yield variant
 
   def mustFindFullById(id: Int)(implicit ec: EC, db: DB): DbResultT[FullObject[ProductVariant]] =
