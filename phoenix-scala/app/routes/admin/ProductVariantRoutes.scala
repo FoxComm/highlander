@@ -31,17 +31,17 @@ object ProductVariantRoutes {
                 getOrFailures {
                   ProductVariantManager.get(variantId)
                 }
+              } ~
+              (delete & pathEnd) {
+                mutateOrFailures {
+                  ProductVariantManager.archive(variantId)
+                }
               }
             } ~
             pathPrefix(Segment) { code ⇒
               (patch & pathEnd & entity(as[ProductVariantPayload])) { payload ⇒
                 mutateOrFailures {
                   ProductVariantManager.update(auth.model, code, payload)
-                }
-              } ~
-              (delete & pathEnd) {
-                mutateOrFailures {
-                  ProductVariantManager.archiveByCode(code)
                 }
               } ~
               pathPrefix("albums") {

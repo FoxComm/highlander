@@ -119,7 +119,8 @@ class VariantIntegrationTest
 
   "DELETE v1/products/:context/:id" - {
     "Archives SKU successfully" in new Fixture {
-      val result = skusApi(sku.code).archive().as[ProductVariantResponse.Root]
+      val formId = skuForm.id.toString
+      val result = skusApi(formId).archive().as[ProductVariantResponse.Root]
 
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow mustBe true
@@ -133,7 +134,8 @@ class VariantIntegrationTest
                              options = None)
       productsApi(product.formId).update(updateProductPayload).mustBeOk
 
-      val result = skusApi(sku.code).archive().as[ProductVariantResponse.Root]
+      val formId = skuForm.id.toString
+      val result = skusApi(formId).archive().as[ProductVariantResponse.Root]
 
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow mustBe true
@@ -141,7 +143,8 @@ class VariantIntegrationTest
     }
 
     "SKU Albums must be unlinked" in new Fixture {
-      skusApi(sku.code).archive().as[ProductVariantResponse.Root].albums mustBe empty
+      val formId = skuForm.id.toString
+      skusApi(formId).archive().as[ProductVariantResponse.Root].albums mustBe empty
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong code" in new Fixture {
@@ -151,7 +154,8 @@ class VariantIntegrationTest
     "Responds with NOT FOUND when SKU is requested with wrong context" in new Fixture {
       implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
 
-      skusApi(sku.code)(donkeyContext)
+      val formId = skuForm.id.toString
+      skusApi(formId)(donkeyContext)
         .archive()
         .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }
@@ -163,7 +167,8 @@ class VariantIntegrationTest
         .add(Seq(UpdateLineItemsPayload(sku.code, 1)))
         .mustBeOk()
 
-      skusApi(sku.code).archive().mustFailWith400(VariantIsPresentInCarts(sku.code))
+      val formId = skuForm.id.toString
+      skusApi(formId).archive().mustFailWith400(VariantIsPresentInCarts(sku.code))
     }
   }
 

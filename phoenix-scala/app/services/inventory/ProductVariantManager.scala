@@ -80,12 +80,11 @@ object ProductVariantManager {
            .fullVariantUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
-  def archiveByCode(
-      code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductVariantResponse.Root] =
+  def archive(
+      variantId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductVariantResponse.Root] =
     for {
-      fullVariant ← * <~ ObjectManager.getFullObject(
-                       ProductVariantManager.mustFindByContextAndCode(oc.id, code))
-      _ ← * <~ fullVariant.model.mustNotBePresentInCarts
+      fullVariant ← * <~ ProductVariantManager.mustFindFullByContextAndFormId(oc.id, variantId)
+      _           ← * <~ fullVariant.model.mustNotBePresentInCarts
       archivedVariant ← * <~ ProductVariants.update(
                            fullVariant.model,
                            fullVariant.model.copy(archivedAt = Some(Instant.now)))
