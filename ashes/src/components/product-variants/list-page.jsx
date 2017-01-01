@@ -16,19 +16,19 @@ type Props = {
   children: any,
 };
 
-const SkusListPage = (props: Props) => {
+const ProductVariantsListPage = (props: Props) => {
   const TotalCounter = makeTotalCounter(state => state.skus.list, actions);
-  const addAction = () => transitionTo('sku-details', { skuCode: 'new' });
+  const addAction = () => transitionTo('variant-details', { variantId: 'new' });
   const navLinks = [
-    { title: 'Lists', to: 'skus' },
-    { title: 'Activity Trail', to: 'skus-activity-trail' },
+    { title: 'Lists', to: 'variants' },
+    { title: 'Activity Trail', to: 'variants-activity-trail' },
   ];
 
   return (
     <ListPageContainer
-      title="SKUs"
+      title="Product Variants"
       subtitle={<TotalCounter />}
-      addTitle="SKU"
+      addTitle="Product Variant"
       handleAddAction={addAction}
       navLinks={navLinks}>
       {props.children}
@@ -36,8 +36,4 @@ const SkusListPage = (props: Props) => {
   );
 };
 
-SkusListPage.propTypes = {
-  children: PropTypes.node,
-};
-
-export default SkusListPage;
+export default ProductVariantsListPage;

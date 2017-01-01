@@ -31,7 +31,7 @@ type Props = {
   children: Element,
 };
 
-class SkuPage extends ObjectPage {
+class ProductVariantPage extends ObjectPage {
   props: Props;
 
   get code(): string {
@@ -40,14 +40,14 @@ class SkuPage extends ObjectPage {
 
   get pageTitle(): string {
     if (this.isNew) {
-      return `New SKU`;
+      return `New Product Variant`;
     }
 
     return this.code.toUpperCase();
   }
 
   get entityIdName(): string {
-    return 'skuCode';
+    return 'variantId';
   }
 
   get detailsLinks() {
@@ -58,10 +58,10 @@ class SkuPage extends ObjectPage {
     const { params } = this.props;
 
     return [
-      <Link to="sku-images" params={params} key="images">Images</Link>,
-      <Link to="sku-inventory-details" params={params} key="inventory">Inventory</Link>,
-      <Link to="sku-notes" params={params} key="notes">Notes</Link>,
-      <Link to="sku-activity-trail" params={params} key="activity-trail">Activity Trail</Link>,
+      <Link to="variant-images" params={params} key="images">Images</Link>,
+      <Link to="variant-inventory-details" params={params} key="inventory">Inventory</Link>,
+      <Link to="variant-notes" params={params} key="notes">Notes</Link>,
+      <Link to="variant-activity-trail" params={params} key="activity-trail">Activity Trail</Link>,
     ];
   }
 
@@ -80,11 +80,11 @@ class SkuPage extends ObjectPage {
 
     return (
       <LocalNav>
-        <IndexLink to="sku-details" params={params}>Details</IndexLink>
+        <IndexLink to="variant-details" params={params}>Details</IndexLink>
         {this.detailsLinks}
       </LocalNav>
     );
   }
 }
 
-export default connectPage('sku', SkuActions, {schemaName: 'product-variant'})(SkuPage);
+export default connectPage('sku', SkuActions, {schemaName: 'product-variant'})(ProductVariantPage);
