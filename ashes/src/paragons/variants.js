@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import Wharf from 'entity-wharf';
 import { cartesianProductOf } from 'lib/utils';
-import { createEmptySku, skuId } from './product';
+import { createEmptySku, productVariantId } from './product';
 import type { Product } from './product';
 import { assoc } from 'sprout-data';
 import type { Sku } from 'modules/skus/details';
@@ -118,7 +118,7 @@ function findClosestTuples(smallCartesian: Array<Array<any>>,
 }
 
 export function deleteVariantCombination(product: Product, code: string): Product {
-  const newVariants = _.filter(product.variants, sku => skuId(sku) != code);
+  const newVariants = _.filter(product.variants, sku => productVariantId(sku) != code);
   const newOptions = _.cloneDeep(product.options);
   _.each(newOptions, option => {
     _.each(option.values, optionValue => {
@@ -160,7 +160,7 @@ export function availableOptionsValues(product: Product): Array<Array<OptionValu
   const indexedOptions = indexBySku(product.options);
   const allOptions = allOptionsValues(product.options);
   const existsVariants = _.map(product.variants, variant => {
-    return indexedOptions.q({av: [['sku', skuId(variant)]]}).map(indexedOptions.get).map(x => x.variant);
+    return indexedOptions.q({av: [['sku', productVariantId(variant)]]}).map(indexedOptions.get).map(x => x.variant);
   });
 
   const identity = value => value.name;
@@ -174,7 +174,7 @@ export function availableOptionsValues(product: Product): Array<Array<OptionValu
 
 function bindSkuToVariantsTuple(tuple: Array<OptionValue>, sku: string): void {
   _.each(tuple, variantValue => {
-    variantValue.skuCodes = _.uniq([...variantValue.skuCodes, skuId(sku)]);
+    variantValue.skuCodes = _.uniq([...variantValue.skuCodes, productVariantId(sku)]);
   });
 }
 
@@ -185,7 +185,7 @@ export function autoAssignOptions(product: Product, options: Array<Option>): Pro
   const availableValues = allOptionsValues(newOptions);
   // here we assume that there is defined sku (even with feCode only) for each variant
   const existsValues = _.map(existingVariants, sku => {
-    return indexedOptions.q({av: [['sku', skuId(sku)]]}).map(indexedOptions.get).map(x => x.variant);
+    return indexedOptions.q({av: [['sku', productVariantId(sku)]]}).map(indexedOptions.get).map(x => x.variant);
   });
 
   let closestTuples;
