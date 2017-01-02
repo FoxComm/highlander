@@ -1195,11 +1195,6 @@ footer .sitemap .nav-home {
   width: 60px;
   height: 60px;
   transition: opacity 0.15s ease-in-out;
-  background: url("../img/logo_small_gray.png") no-repeat content-box;
-}
-footer .sitemap .nav-home:hover,
-footer .sitemap .nav-home:focus {
-  background-image: url("../img/logo_small.png");
 }
 @media screen and (max-width: 740px) {
   footer .sitemap {
