@@ -17,12 +17,9 @@ import { Dropdown } from 'components/dropdown';
 import { PageTitle } from 'components/section-title';
 import { PrimaryButton } from 'components/common/buttons';
 import ContentBox from 'components/content-box/content-box';
-<<<<<<< HEAD
-=======
 import CurrencyInput from 'components/forms/currency-input';
 import FoxyForm from 'components/forms/foxy-form';
 import FormField from 'components/forms/formfield';
->>>>>>> d4bb0ad991c01fde73050f97330aa5a6db7fc87e
 import SubNav from './details-sub-nav';
 import WaitAnimation from 'components/common/wait-animation';
 
@@ -256,10 +253,6 @@ class ShippingMethodDetails extends Component {
         {this.renderPageTitle}
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
-<<<<<<< HEAD
-            <ContentBox title="General">
-            </ContentBox>
-=======
             {this.renderSubNav()}
             <FoxyForm>
               <ContentBox title="General">
@@ -282,7 +275,6 @@ class ShippingMethodDetails extends Component {
                 {this.renderContent}
               </ContentBox>
             </FoxyForm>
->>>>>>> d4bb0ad991c01fde73050f97330aa5a6db7fc87e
           </div>
         </div>
       </div>

@@ -8,11 +8,7 @@ import createAsyncActions from 'modules/async-utils';
 import type { ShippingMethod, CreatePayload, UpdatePayload } from 'paragons/shipping-method';
 
 type State = {
-<<<<<<< HEAD
-  shippingMethod?: ShippingMethod,
-=======
   shippingMethod: ?ShippingMethod,
->>>>>>> d4bb0ad991c01fde73050f97330aa5a6db7fc87e
 };
 
 const _fetchShippingMethod = createAsyncActions(

@@ -10,6 +10,7 @@ import CartsListPage from 'components/carts/list-page';
 import Carts from 'components/carts/carts';
 import Cart from 'components/carts/cart';
 import CartDetails from 'components/carts/details';
+import Messaging from 'components/messaging/notes';
 import Notes from 'components/notes/notes';
 import NewOrder from 'components/orders/new-order';
 import OrdersListPage from 'components/orders/list-page';
@@ -61,6 +62,7 @@ const getRoutes = (jwt: Object) => {
         router.read('order-details', { component: OrderDetails, isIndex: true }),
         router.read('order-shipments', { path: 'shipments', component: Shipments, frn: frn.mdl.shipment }),
         router.read('order-notes', { path: 'notes', component: Notes, frn: frn.note.order }),
+        router.read('order-messaging', { path: 'messaging', component: Messaging }),
         router.read('order-activity-trail', {
           path: 'activity-trail',
           components: ActivityTrailPage,

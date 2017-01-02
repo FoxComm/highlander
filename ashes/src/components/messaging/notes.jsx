@@ -74,18 +74,13 @@ export default class Notes extends React.Component {
 
   get tableColumns() {
     let baseColumns = [
-      {field: 'body', text: 'Note'},
+      {field: 'subject', text: 'Subject'},
+      {field: 'body', text: 'Body'},
+      {field: 'createdAt', text: 'Date/Time', type: 'datetime'},
       {field: 'author', text: 'Author'}
     ];
-    if (this.isCustomerNotes) {
-      baseColumns = [
-        {field: 'transaction', text: 'Transaction'},
-        ...baseColumns,
-      ];
-    }
 
     return [
-      {field: 'createdAt', text: 'Date/Time', type: 'datetime'},
       ...baseColumns
     ];
   }
@@ -153,7 +148,7 @@ export default class Notes extends React.Component {
 
     return (
       <div className={cls} >
-        <SectionTitle className="fc-grid-gutter fc-notes-section-title" title="Notes">{this.controls}</SectionTitle>
+        <SectionTitle className="fc-grid-gutter fc-notes-section-title" title="Messages">{this.controls}</SectionTitle>
         <LiveSearchAdapter
           searches={props.list}
           searchActions={props.searchActions}
@@ -161,7 +156,7 @@ export default class Notes extends React.Component {
           placeholder="keyword search"
           >
           <TableView
-            emptyMessage="No notes found."
+            emptyMessage="No message found."
             data={props.list.currentSearch().results}
             renderRow={this.renderNoteRow}
             columns={this.tableColumns}

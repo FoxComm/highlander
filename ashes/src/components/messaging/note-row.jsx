@@ -19,6 +19,8 @@ const NoteRow = props => {
 
   const setCellContents = (note, field) => {
     switch(field) {
+      case 'subject':
+        return <div>Test message</div>;
       case 'author':
         return (
           <NoteControls

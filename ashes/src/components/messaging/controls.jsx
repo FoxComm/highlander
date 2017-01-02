@@ -7,8 +7,6 @@ const NoteControls = props => {
   return (
     <div className="fc-notes-item-controls">
       <DetailedInitials {...props.model.author}/>
-      <DeleteButton onClick={() => props.onDeleteClick(props.model)} />
-      <EditButton onClick={() => props.onEditClick(props.model)} />
     </div>
   );
 };
