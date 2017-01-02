@@ -1,22 +1,22 @@
 <div class="nav-main">
   <div class="wrap">
-    <a class="nav-home" href="/react/">
-      <img class="nav-logo" src="/react/img/logo_small.png" width="36" height="36">
+    <a class="nav-home" href="/">
+      <img class="nav-logo" src="/img/logo_small.png" width="36" height="36">
       Fox
     </a>
     <div class="nav-lists">
       <ul class="nav-site nav-site-internal">
-        <li><a href="/react/docs/hello-world.html"{% if page.sectionid == 'docs' or page.sectionid == 'tips' or page.sectionid == 'contributing' %} class="active"{% endif %}>Docs</a></li>
-        <li><a href="/react/tutorial/tutorial.html"{% if page.sectionid == 'tutorial' %} class="active"{% endif %}>Tutorials</a></li>
-        <li><a href="/react/community/support.html"{% if page.sectionid == 'community' %} class="active"{% endif %}>Future</a></li>
-        <li><a href="/react/blog/"{% if page.sectionid == 'blog' %} class="active"{% endif %}>Blog</a></li>
+        <li><a href="/docs/hello-world.html"{% if page.sectionid == 'docs' or page.sectionid == 'tips' or page.sectionid == 'contributing' %} class="active"{% endif %}>Docs</a></li>
+        <li><a href="/apiref/api-ref.html"{% if page.sectionid == 'api-reference' %} class="active"{% endif %}>API Reference</a></li>
+        <li><a href="/migrating/migrating.html"{% if page.sectionid == 'migrating' %} class="active"{% endif %}>Migrating</a></li>
+        <li><a href="/integrating/integrating.html"{% if page.sectionid == 'integrating' %} class="active"{% endif %}>Integrating</a></li>
+        <li><a href="/blog/"{% if page.sectionid == 'blog' %} class="active"{% endif %}>Future</a></li>
         <li class="nav-site-search">
           <input id="algolia-doc-search" type="text" placeholder="Search docs..." />
         </li>
       </ul>
       <ul class="nav-site nav-site-external">
-        <li><a href="https://github.com/facebook/react">GitHub</a></li>
-        <li><a href="https://github.com/facebook/react/releases">v{{site.react_version}}</a></li>
+        <li><a href="https://github.com/facebook/releases">v{{site.fox_version}}</a></li>
       </ul>
     </div>
   </div>
