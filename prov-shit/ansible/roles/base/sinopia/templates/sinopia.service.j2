@@ -1,6 +1,6 @@
 [Service]
 WorkingDirectory={{sinopia_base_dir}}
-ExecStart=/bin/bash ./run_sinopia.sh
+ExecStart=/usr/bin/env bash ./run_sinopia.sh
 Restart=always
 RestartSec=5
 StandardOutput=syslog

@@ -11,6 +11,7 @@
     "PHOENIX_PRIVATE_KEY": "/keys/private_key.der",
     "PHOENIX_COOKIE_SECURE": "off",
     "PHOENIX_AUTH_METHOD": "jwt",
+    "SEARCH_SERVER": "elasticsearch://{{search_server}}",
     "GOOGLE_OAUTH_ADMIN_CLIENT_ID": "{{google_oauth_admin_client_id}}",
     "GOOGLE_OAUTH_ADMIN_CLIENT_SECRET": "{{google_oauth_admin_secret}}",
     "GOOGLE_OAUTH_ADMIN_REDIRECT_URI": "{{google_oauth_admin_redirect_uri}}",

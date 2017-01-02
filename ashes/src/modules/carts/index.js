@@ -4,7 +4,6 @@ import list from './list';
 import shippingMethods from './shipping-methods';
 import paymentMethods from './payment-methods';
 import coupons from './coupons';
-import watchers from './watchers';
 
 const cartReducer = combineReducers({
   details,
@@ -12,7 +11,6 @@ const cartReducer = combineReducers({
   shippingMethods,
   paymentMethods,
   coupons,
-  watchers,
 });
 
 export default cartReducer;

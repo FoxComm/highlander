@@ -1,6 +1,6 @@
 [Service]
 WorkingDirectory={{annabelle_dir}}
-ExecStart=/bin/bash ./run_annabelle.sh
+ExecStart=/usr/bin/env bash ./run_annabelle.sh
 Restart=always
 RestartSec=5
 StandardOutput=syslog

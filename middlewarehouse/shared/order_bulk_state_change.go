@@ -3,8 +3,8 @@ package shared
 import (
 	"encoding/json"
 
-	"github.com/FoxComm/highlander/middlewarehouse/consumers/capture/lib"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 )
 
 type OrderBulkStateChange struct {
@@ -19,7 +19,7 @@ func NewOrderBulkStateChangeFromActivity(activity activities.ISiteActivity) (*Or
 	return fo, err
 }
 
-func (ac *OrderBulkStateChange) GetRelatedOrders(client lib.PhoenixClient) ([]*FullOrder, error) {
+func (ac *OrderBulkStateChange) GetRelatedOrders(client phoenix.PhoenixClient) ([]*FullOrder, error) {
 	orders := []*FullOrder{}
 	for _, refNum := range ac.CordRefNums {
 		payload, err := client.GetOrder(refNum)

@@ -52,7 +52,9 @@ will have been created. You can exit the VM.
 The appliance VM (a single VM containing all services) can be run either on your
 local environment through VirtualBox or VMWare Fusion, or in the cloud through
 Google Compute Engine. If you have sufficient hardware resources, a local VM
-will give you the most flexibility and performance.
+will give you the most flexibility and performance. Currently, the VM is
+configured to use 8 GB of memory and 4 vCPUs, so it’s not worth trying unless
+you have 12+ GB of RAM.
 
 **Local VM**
 
@@ -115,17 +117,5 @@ Edit your hosts file so that `local.foxcommerce.com` points to the new box using
 | [ashes](ashes)                         | The Admin UI, written in React.js.                                                                           |
 | [api-js](api-js)                       | A JavaScript library for interacting with the FoxCommerce API.                                               |
 | [firebrand](firebrand)                 | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
-| [integration-tests](integration-tests) | Our tests for hitting the system as a black box at the API level.                                            |
 | [prov-shit](prov-shit)                 | All of our DevOps tools for deploying the application to both development and production.                    |
 | [api-docs](api-docs)                   | Our API documentation in API Blueprint format and Postman query collections.                                 |
-
-## Usage
-
-### Updating from Upstream
-
-Updating from upstream will pull in all commits on each project's `master`
-branch. All commit history in each repository will be cloned into this repo.
-
-```
-$ make update
-```

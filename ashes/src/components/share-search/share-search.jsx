@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import React, { Component, PropTypes } from 'react';
+import { numberize } from 'lib/text-utils';
 
 /** Component */
 import { ModalContainer } from '../modal/base';
@@ -12,10 +13,18 @@ import ContentBox from '../content-box/content-box';
 
 import { PrimaryButton } from '../common/buttons';
 import WaitAnimation from '../common/wait-animation';
-import PilledInput from '../pilled-search/pilled-input';
-import Typeahead from '../typeahead/typeahead';
-import TypeaheadItem from '../watcher-typeahead/watcher-typeahead-item';
+import AdminsTypeahead from '../users-typeahead/admins-typeahead';
 import Alert from '../alerts/alert';
+
+const mapStateToProps = (state, props) => {
+  const search = _.invoke(state, `${props.entity}.currentSearch`);
+
+  return {
+    search,
+    shares: _.get(search, 'shares', {}),
+  };
+};
+
 
 class ShareSearch extends Component {
   static propTypes = {
@@ -25,12 +34,8 @@ class ShareSearch extends Component {
     isVisible: PropTypes.bool.isRequired,
     maxUsers: PropTypes.number,
     fetchAssociations: PropTypes.func.isRequired,
-    suggestAssociations: PropTypes.func.isRequired,
     associateSearch: PropTypes.func.isRequired,
     dissociateSearch: PropTypes.func.isRequired,
-    selectItem: PropTypes.func.isRequired,
-    deselectItem: PropTypes.func.isRequired,
-    setTerm: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
   };
 
@@ -41,7 +46,8 @@ class ShareSearch extends Component {
   state = {
     firstLoad: true,
     numberUpdatedUsers: false,
-    failed: false
+    failed: false,
+    selected: [],
   };
 
   componentWillReceiveProps(nextProps) {
@@ -54,25 +60,23 @@ class ShareSearch extends Component {
       return this.props.fetchAssociations(nextProps.search);
     }
 
-    const state = { ...this.state };
+    const nextState = {};
 
     if (!this.props.isVisible && nextProps.isVisible) {
-      this.props.setTerm('');
-
-      state.numberUpdatedUsers = 0;
+      nextState.numberUpdatedUsers = 0;
     }
 
     const numberUpdatedUsers = nextProps.shares.associations.length - this.props.shares.associations.length;
 
-    if (numberUpdatedUsers && !state.firstLoad) {
-      state.numberUpdatedUsers = numberUpdatedUsers;
+    if (numberUpdatedUsers && !this.state.firstLoad) {
+      nextState.numberUpdatedUsers = numberUpdatedUsers;
     }
 
     if (this.props.shares.isFetchingAssociations && !nextProps.shares.isFetchingAssociations) {
-      state.firstLoad = false;
+      nextState.firstLoad = false;
     }
 
-    this.setState(state);
+    this.setState(nextState);
   }
 
   get closeAction() {
@@ -91,12 +95,13 @@ class ShareSearch extends Component {
     const { numberUpdatedUsers, failed } = this.state;
     if (numberUpdatedUsers || failed) {
       let label = '';
+      const absCount = Math.abs(numberUpdatedUsers);
       if (failed) {
         label = `Failed updating data.`;
       } else if (numberUpdatedUsers > 0) {
-        label = `Search was successfully shared with ${Math.abs(numberUpdatedUsers)} users.`;
+        label = `Search was successfully shared with ${absCount} ${numberize('user', absCount)}.`;
       } else {
-        label = `Search was successfully unshared from ${Math.abs(numberUpdatedUsers)} users.`;
+        label = `Search was successfully unshared from ${absCount} ${numberize('user', absCount)}.`;
       }
 
       return (
@@ -144,9 +149,19 @@ class ShareSearch extends Component {
     );
   }
 
+  @autobind
+  handleSelectUsers(users: Array<TUser>) {
+    this.setState({
+      selected: users,
+    });
+  }
+
   render() {
-    const { search, shares } = this.props;
-    const { isFetchingSuggestions = false, isUpdatingAssociations = false, suggested = [], selected = [] } = shares;
+    const { state } = this;
+    const { search, shares, maxUsers } = this.props;
+    const { isUpdatingAssociations = false, associations = [] } = shares;
+
+    const associationsById = _.keyBy(associations, 'id');
 
     return (
       <ModalContainer isVisible={this.props.isVisible}>
@@ -154,27 +169,18 @@ class ShareSearch extends Component {
           <div className="fc-modal-container">
             <ContentBox title={this.title} actionBlock={this.closeAction}>
               {this.alert}
-              <div className="fc-share-search-typeahead__label">
-                <label>Invite Users</label>
-              </div>
-              <Typeahead
-                className="fc-share-search__typeahead _no-search-icon"
-                isFetching={isFetchingSuggestions}
-                fetchItems={this.props.suggestAssociations}
-                minQueryLength={1}
-                component={TypeaheadItem}
-                items={suggested}
-                name="watchersSelect"
-                placeholder="Name or email..."
-                inputElement={renderPilledInput(this.props)}
-                hideOnBlur={true}
-                onItemSelected={selectItem.bind(null, this.props)} />
-
+              <AdminsTypeahead
+                hideOnBlur
+                label="Invite Users"
+                onSelect={this.handleSelectUsers}
+                maxUsers={maxUsers}
+                mapAdmins={admins => _.filter(admins, admin => !(admin.id in associationsById))}
+              />
               <div className="fc-share-search__controls">
                 <PrimaryButton className="fc-align-right"
                                isLoading={isUpdatingAssociations}
-                               onClick={this.props.associateSearch.bind(null, search, selected)}
-                               disabled={!selected || selected.length === 0}>
+                               onClick={this.props.associateSearch.bind(null, search, state.selected)}
+                               disabled={state.selected.length === 0}>
                   Share
                 </PrimaryButton>
               </div>
@@ -189,47 +195,5 @@ class ShareSearch extends Component {
     );
   }
 }
-
-const selectItem = ({ setTerm, selectItem, shares: { selected = [] } }, item, event) => {
-  if (_.findIndex(selected, ({ id }) => id === item.id) < 0) {
-    setTerm('');
-    selectItem(item);
-  } else {
-    event.preventHiding();
-  }
-};
-
-const renderPilledInput = (props) => {
-  const { setTerm, maxUsers, deselectItem, shares: { term = '', selected = [] } } = props;
-  const pills = selected.map(user => user.name ? user.name : `${user.firstName} ${user.lastName}`);
-
-  return (
-    <PilledInput
-      solid={true}
-      autoFocus={true}
-      value={term}
-      disabled={selected.length >= maxUsers}
-      onChange={({target}) => setTerm(target.value)}
-      pills={pills}
-      icon={null}
-      onPillClose={(name,index) => deselectItem(index)} />
-  );
-};
-
-renderPilledInput.propTypes = {
-  setTerm: PropTypes.func,
-  maxUsers: PropTypes.number,
-  deselectItem: PropTypes.func,
-  shares: PropTypes.object,
-};
-
-const mapStateToProps = (state, props) => {
-  const search = _.invoke(state, `${props.entity}.currentSearch`);
-
-  return {
-    search,
-    shares: _.get(search, 'shares', {}),
-  };
-};
 
 export default connect(mapStateToProps)(ShareSearch);

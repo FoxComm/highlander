@@ -15,6 +15,7 @@ import models.promotion._
 import payloads.DiscountPayloads._
 import payloads.PromotionPayloads._
 import responses.PromotionResponses._
+import services.LogActivity
 import services.discount.DiscountManager
 import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
@@ -23,9 +24,11 @@ import utils.db._
 
 object PromotionManager {
 
-  def create(
-      payload: CreatePromotion,
-      contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[PromotionResponse.Root] = {
+  def create(payload: CreatePromotion, contextName: String, admin: Option[User])(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      au: AU): DbResultT[PromotionResponse.Root] = {
     val formAndShadow =
       FormAndShadow.fromPayload(kind = Promotion.kind, attributes = payload.attributes)
 
@@ -46,9 +49,10 @@ object PromotionManager {
                                shadowId = ins.shadow.id,
                                commitId = ins.commit.id))
       discount ← * <~ createDiscounts(context, payload, ins.shadow)
-    } yield
-      PromotionResponse
+      response = PromotionResponse
         .build(context, promotion, ins.form, ins.shadow, discount.forms.zip(discount.shadows))
+      _ ← * <~ LogActivity.promotionCreated(response, admin)
+    } yield response
   }
 
   private case class DiscountsCreateResult(forms: Seq[ObjectForm], shadows: Seq[ObjectShadow])
@@ -83,8 +87,9 @@ object PromotionManager {
                 PromotionDiscountLink(leftId = promotion.id, rightId = discount.discount.id))
     } yield DiscountCreateResult(discount.form, discount.shadow)
 
-  def update(id: Int, payload: UpdatePromotion, contextName: String)(
+  def update(id: Int, payload: UpdatePromotion, contextName: String, admin: Option[User])(
       implicit ec: EC,
+      ac: AC,
       db: DB): DbResultT[PromotionResponse.Root] = {
 
     val formAndShadow = FormAndShadow.fromPayload(Promotion.kind, payload.attributes)
@@ -106,12 +111,13 @@ object PromotionManager {
       discount  ← * <~ updateDiscounts(context, payload)
       commit    ← * <~ ObjectUtils.commit(updated)
       promotion ← * <~ updateHead(promotion, payload, updated.shadow, commit)
-    } yield
-      PromotionResponse.build(context,
-                              promotion,
-                              updated.form,
-                              updated.shadow,
-                              discount.forms.zip(discount.shadows))
+      response = PromotionResponse.build(context,
+                                         promotion,
+                                         updated.form,
+                                         updated.shadow,
+                                         discount.forms.zip(discount.shadows))
+      _ ← * <~ LogActivity.promotionUpdated(response, admin)
+    } yield response
   }
 
   def archiveByContextAndId(contextName: String, formId: Int)(

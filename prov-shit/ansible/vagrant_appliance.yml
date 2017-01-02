@@ -8,13 +8,15 @@
     cert_path: test/fox
     ashes_server_name: local.foxcommerce.com
     storefront_server_name: local.foxcommerce.com
-    storefront_host: firebrand.service.consul
+    storefront_host: storefront.service.consul
     docker_db_host: 172.17.0.1
     install_public_keys: true
     install_private_keys: true
     with_base_seeds: true
     mesos_quorum: 1
     vagrant: true
+    phoenix_tax_rule_region: 4129
+    phoenix_tax_rule_rate: 7.5
 
   roles:
     - { role: dev/appliance, run_once: true }

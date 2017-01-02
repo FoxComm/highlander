@@ -1,7 +1,7 @@
 {
     "service": {
-        "name": "bottledwater_{{item}}",
-        "tags": ["bottledwater_{{item}}"],
+        "name": "bottledwater-{{item}}",
+        "tags": ["bottledwater-{{item}}"],
         "checks": [
             {
                 "name": "Bottledwater {{item}}",

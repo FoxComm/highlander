@@ -12,7 +12,6 @@ import shapeless._
 import slick.ast.BaseTypedType
 import utils.db.ExPostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.Passwords.hashPassword
 import utils.aliases._
 import utils.db._
 import utils.{ADT, FSM, Validation}
