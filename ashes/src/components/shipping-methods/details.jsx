@@ -17,6 +17,7 @@ import { Dropdown } from 'components/dropdown';
 import { PageTitle } from 'components/section-title';
 import { PrimaryButton } from 'components/common/buttons';
 import ContentBox from 'components/content-box/content-box';
+import CurrencyInput from 'components/forms/currency-input';
 import FoxyForm from 'components/forms/foxy-form';
 import FormField from 'components/forms/formfield';
 import SubNav from './details-sub-nav';
@@ -51,7 +52,7 @@ type State = {
   carrierId: ?number,
   eta: ?number,
   externalFreightId: ?number,
-  pricingType: '',
+  type: '',
 };
 
 function mapStateToProps(state) {
@@ -76,11 +77,25 @@ function mapDispatchToProps(dispatch, props) {
 
 class ShippingMethodDetails extends Component {
   props: Props;
-  state: State = { carrierId: null, eta: null, pricingType: '' };
+  state: State = { carrierId: null, eta: null, type: '' };
 
   componentDidMount() {
     const { shippingMethodId } = this.props.params;
     this.props.actions.fetchShippingMethod(shippingMethodId)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { shippingMethod } = nextProps.details;
+    if (shippingMethod) {
+      const carrierId = shippingMethod.carrier
+        ? shippingMethod.carrier.id
+        : null;
+
+      this.setState({
+        carrierId: carrierId,
+        type: shippingMethod.type, 
+      });
+    }
   }
 
   get carriers() {
@@ -157,9 +172,12 @@ class ShippingMethodDetails extends Component {
       </FormField>
     );
 
-    if (this.state.pricingType == 'flat') {
+    if (this.state.type == 'flat') {
       return (
         <div>
+          <FormField label="Price" validator="ascii" maxLength={255} required>
+            <CurrencyInput value={this.props.details.shippingMethod.price.value} />
+          </FormField>
           {carrierDropdown}
           <FormField label="Estimated Arrival" validator="ascii" maxLength={255} required>
             <Dropdown
@@ -171,7 +189,7 @@ class ShippingMethodDetails extends Component {
           </FormField>
         </div>
       );
-    } else if (this.state.pricingType == 'variable') {
+    } else if (this.state.type == 'variable') {
       const freightPlaceholder = this.freightOptions.length == 0
         ? 'Please choose carrier'
         : 'Select freight option';
@@ -234,25 +252,27 @@ class ShippingMethodDetails extends Component {
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
             {this.renderSubNav()}
-            <ContentBox title="General">
-              <FoxyForm>
+            <FoxyForm>
+              <ContentBox title="General">
                 <FormField label="Name" validator="ascii" maxLength={255} required>
                   <input type="text" defaultValue={shippingMethod.name} />
                 </FormField>
                 <FormField label="Code" validator="ascii" maxLength={255} required>
                   <input type="text" defaultValue={shippingMethod.code} />
                 </FormField>
+              </ContentBox>
+              <ContentBox title="Pricing">
                 <FormField label="Pricing Type" validator="ascii" maxLength={255} required>
                   <Dropdown
                     name="pricingType"
                     placeholder="Pricing Type"
-                    value={this.state.pricingType}
-                    onChange={value => this.setState({ pricingType: value })}
+                    value={this.state.type}
+                    onChange={value => this.setState({ type: value })}
                     items={this.pricingTypes} />
                 </FormField>
                 {this.renderContent}
-              </FoxyForm>
-            </ContentBox>
+              </ContentBox>
+            </FoxyForm>
           </div>
         </div>
       </div>
