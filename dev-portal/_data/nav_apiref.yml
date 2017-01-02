@@ -1,4 +1,6 @@
 - title: API Reference
   items:
+  - id: api-Reference
+    title: API Reference Overview
   - id: api-customers
     title: Customer API Reference
