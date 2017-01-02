@@ -1,0 +1,104 @@
+# Transactions Admin
+
+This section covers all endpoints that a site administrator could use to view
+information about their customers and manage orders in FoxCommerce. All
+endpoints in this section require the user to be authenticated as an administrator.
+
+<!-- include(objects/activity_trail.apib) -->
+<!-- include(objects/common.apib) -->
+<!-- include(objects/coupons.apib) -->
+<!-- include(objects/credit_cards.apib) -->
+<!-- include(objects/customers.apib) -->
+<!-- include(objects/customers_groups.apib) -->
+<!-- include(objects/gift_card.apib) -->
+<!-- include(objects/location.apib) -->
+<!-- include(objects/notifications.apib) -->
+<!-- include(objects/notes.apib) -->
+<!-- include(objects/order.apib) -->
+<!-- include(objects/promotions.apib) -->
+<!-- include(objects/reasons.apib) -->
+<!-- include(objects/returns.apib) -->
+<!-- include(objects/save_for_later.apib) -->
+<!-- include(objects/shared_search.apib) -->
+<!-- include(objects/store_credit.apib) -->
+<!-- include(objects/store_admin.apib) -->
+
+## Group Customers
+
+Customer represents an account of person who buys products in the store.
+
+<!-- include(resources/admin_customers.apib) -->
+
+## Group Customers Groups
+
+Customer groups represents an subset of customers matched to customizable critera.
+
+<!-- include(resources/admin_customers_groups.apib) -->
+
+## Group Orders
+
+Orders mainly consist of a list of line items, payment methods, shipments and calculated totals. It is always related to specific customer account.
+
+<!-- include(resources/admin_orders.apib) -->
+
+## Group Returns
+
+Return is always related to particular Order, but one order can have multiple Returns.
+
+<!-- include(resources/admin_returns.apib) -->
+
+## Group Gift Cards
+
+Gift Card is a payment method with unique code, not related to any customer account.
+
+<!-- include(resources/admin_gift_cards.apib) -->
+
+## Group Store Credits
+
+Store Credit is a payment method always tied to specific customer account. One customer can have multiple store credits.
+
+<!-- include(resources/admin_store_credits.apib) -->
+
+## Group Promotions
+
+Promotions are the basis of discounts, they contain offer and qualifier objects. A promotion can be auto-applied or can be tied to a coupon the customer must enter in order for the promotion to be applied.
+
+<!-- include(resources/admin_promotions.apib) -->
+
+## Group Coupons
+
+A retailer may choose to have a promotion where the customer has to enter a coupon code.
+
+<!-- include(resources/admin_coupons.apib) -->
+
+## Group Save For Later
+
+Save For Later concept is similar to wishlists - a list of products that customer wants to save for future purchases.
+
+<!-- include(resources/admin_save_for_later.apib) -->
+
+## Group Shared Search
+
+Any complex search query state in Phoenix can be saved and shared within it's users.
+
+<!-- include(resources/admin_shared_search.apib) -->
+
+## Group Notes
+
+Notes represent additional text data added by store admins to orders, returns and gift cards, viewable by other store
+admins.
+
+<!-- include(resources/admin_notes.apib) -->
+
+## Group Notifications
+
+Notification streaming and other endpoints.
+
+<!-- include(resources/admin_notifications.apib) -->
+
+## Group Store Admins
+
+Administrator management endpoint.
+
+<!-- include(resources/admin_store_admins.apib) -->
+

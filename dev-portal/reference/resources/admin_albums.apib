@@ -1,0 +1,63 @@
+## Albums [/v1/albums/{context}/{id}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which the album is viewable.
+    + id: `1` (required, number) - Album ID.
+
+### Create [POST /v1/albums/{context}]
+
+Create a new album that is not associated with an entity in the system.
+
++ Parameters
+    + context: `default` (required, string) - The context in which the album will be viewable.
++ Request (application/json)
+    + Attributes (CreateAlbumPayload)
++ Response 200 (application/json)
+    + Attributes (Album)
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (Album)
+
+### Update [PATCH]
+
+Update the album or any of the images inside. Any manipulation of the album should
+be done from this method. This includes adding existing images by URL, reordering
+images, or deleting images.
+
+Internally, all changes are versions, so earlier iterations can be retrieved at
+a later time.
+
++ Request (application/json)
+    + Attributes (CreateAlbumPayload)
++ Response 200 (application/json)
+    + Attributes (Album)
+
+### Archive [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (Album)
+
+### Upload Image [POST /v1/albums/{context}/{id}/images]
+
+Uploads a raw image file to S3 storage and inserts it's URL as a new image in the
+album. The filename that's inserted as the `$filename` parameter will be the name
+of the file in S3.
+
++ Parameters
+    + context: `default` (required, string) - The context in which the album is viewable.
+    + id: `1` (required, number) - Album ID.
+
++ Request (multipart/form-data; boundary=---BOUNDARY)
+
+        -----BOUNDARY
+        Content-Disposition: form-data; name="upload-filename"; filename="$filename"
+        Content-Type: $mimetype
+        Content-Transfer-Encoding: binarydata
+
+        $binarydata
+          -----BOUNDARY
+
++ Response 200 (application/json)
+    + Attributes (Album)

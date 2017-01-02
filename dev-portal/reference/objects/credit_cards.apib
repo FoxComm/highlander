@@ -1,0 +1,36 @@
+# Data Structures
+
+### CreditCard
++ id: 1 (required, number) - Unique identifier.
++ customerId: 1 (required, number) - Customer ID.
++ holderName: `John Smith` (required, string) - Cardholder name.
++ lastFour: `8752` (required, string) - Last four digits.
++ expMonth: 4 (required, number) - Expiration month.
++ expYear: 2020 (required, number) - Expiration year.
++ isDefault: false (required, boolean) - Defines whether credit card is default.
++ inWallet: false (required, boolean) - Defines whether credit card is in wallet.
++ brand: `Visa` (required, string) - Brand name.
++ address (required, Address) - Billing address.
+
+### CreditCardCreatePayload
++ token: `tok_absj22123mjssm` (required, string) - stripe.js credit card token.
++ lastFour: `1234` (required, string) - Last four digits of card number.
++ expYear: 2020 (required, number) - Expiration year.
++ expMonth: 4 (required, number) - Expiration month.
++ brand: `Visa` (required, string) - Credit card brand.
++ holderName: `John Smith` (required, string) - Cardholder name.
++ billingAddress (required, CreateAddressPayload) - Billing address.
++ addressIsNew: false (required, boolean) - If the billing address was just created.
+
+### CreditCardUpdatePayload
++ holderName: `John Smith` (optional, string) - Cardholder name.
++ expMonth: 4 (optional, number) - Expiration month.
++ expYear: 2020 (optional, number) - Expiration year.
++ address (optional, CreateAddressPayload) - Billing address.
++ addressId (optional, number) - Billing address ID.
+
+### CreditCardToggleDefaultPayload
++ isDefault: false (required, boolean) - Defines whether credit card is default.
+
+## CreditCards
++ result     (required, array[CreditCard])

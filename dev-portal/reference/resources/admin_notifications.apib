@@ -1,0 +1,29 @@
+### Stream [GET /v1/notifications]
+
+Streams unread and new notifications for requested admin.
+Heartbeats with `data:` every 30 seconds.
+
++ Response 200 (text/event-stream)
+
+        data:
+        data:{"admin":{"id":1,"name":"Frankly Admin","email":"admin@admin.com"},"order":{"id":1,"totals":{"taxes":165,"total":3465,"shipping":0,"subTotal":3300,"adjustments":0},"customer":{"id":1,"name":"Yax Fuentes","email":"yax@yax.com","isGuest":false,"disabled":false,"location":"DonkeyVille, TN","modality":"Desktop","createdAt":"2016-01-21T18:47:59.422Z","phoneNumber":"123-444-4388","isBlacklisted":false},"watchers":[],"assignees":[],"lineItems":{"skus":[],"giftCards":[{"id":12,"code":"1A9C1AAC4919837D","state":"cart","message":"Not implemented yet","currency":"USD","originId":2,"createdAt":"2016-01-21T18:48:00.296Z","originType":"customerPurchase","currentBalance":7500,"originalBalance":7500,"availableBalance":7500}]},"fraudScore":3,"adjustments":[],"orderState":"fraudHold","paymentState":"cart","paymentMethods":[],"shippingState":"fraudHold","referenceNumber":"BR10001","shippingAddress":{"id":1,"zip":"12345","city":"Seattle","name":"Home","region":{"id":4177,"name":"Washington","countryId":234},"address1":"555 E Lake Union St.","isDefault":false}},"oldState":"manualHold"}
+        data:
+        data:
+
+### Create [POST /v1/notifications/]
+
+Creates new notification connection and notifies all open and listening streams.
+
++ Request (application/json)
+    + Attributes (CreateNotificationPayload)
++ Response 200 (application/json)
+  + Attributes (array[ActivityConnectionResponse])
+
+### Update last seen [POST /v1/notifications/last-seen/{activityId}]
+
+Any activity prior to and including requested won't show up in newly open streams.
+
++ Parameters
+    + activityId: 1 (required, number) - Last seen activity id
++ Response 200
+  + Attributes (LastSeenActivityResponse)

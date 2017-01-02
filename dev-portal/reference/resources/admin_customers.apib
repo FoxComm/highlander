@@ -1,0 +1,179 @@
+## Customer [/v1/customers/{id}]
+
++ Parameters
+    + id: 1 (required, number) - Customer ID.
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (CustomerResponse)
+
+### View Cart [GET /v1/customers/{id}/cart]
+
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Create [POST /v1/customers]
+
++ Request (application/json)
+    + Attributes (CustomerCreatePayload)
++ Response 200 (application/json)
+    + Attributes (CustomerResponse)
+
+### Update [PATCH]
+
++ Request (application/json)
+	+ Attributes(CustomerUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (CustomerResponse)
+
+### Enable / Disable [POST /v1/customers/{id}/disable]
+
++ Parameters
+    + id: 1 (required, number)
++ Request (application/json)
+	+ Attributes(CustomerToggleDisablePayload)
++ Response 200 (application/json)
+    + Attributes (CustomerResponse)
+
+### Add To / Remove From Blacklist [POST /v1/customers/{id}/blacklist]
+
++ Parameters
+    + id: 1 (required, number)
++ Request (application/json)
+    + Attributes(CustomerToggleBlacklistPayload)
++ Response 200 (application/json)
+    + Attributes (CustomerResponse)
+
+### Activate Guest [POST /v1/customers/{id}/activate]
+
++ Parameters
+    + id: 1 (required, number)
++ Request (application/json)
+	+ Attributes(CustomerActivatePayload)
++ Response 200 (application/json)
+    + Attributes (CustomerResponse)
+
+## Address [/v1/customers/{customerId}/addresses/{addressId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + addressId: 1 (required, number) - Address ID.
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (Address)
+
+### Create [POST /v1/customers/{customerId}/addresses]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
++ Request (application/json)
+    + Attributes(CreateAddressPayload)
++ Response 200 (application/json)
+    + Attributes (Address)
+
+### Update [PATCH /v1/customers/{customerId}/addresses/{addressId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + addressId: 1 (required, number) - Address ID.
++ Request (application/json)
+    + Attributes(UpdateAddressPayload)
++ Response 200 (application/json)
+    + Attributes (Address)
+
+### Set as Default [POST /v1/customers/{customerId}/addresses/{addressId}/default]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + addressId: 1 (required, number) - Address ID.
++ Response 200 (application/json)
+    + Attributes (Address)
+
+### Remove Default Address [DELETE /v1/customers/{customerId}/addresses/default]
+
+This endpoint removes `isDefault` flag from any existing customer address.
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
++ Response 204 (application/json)
+
+### Delete [DELETE /v1/customers/{customerId}/addresses/{addressId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + addressId: 1 (required, number) - Address ID.
++ Response 204 (application/json)
+
+## Credit Card [/v1/customers/{customerId}/payment-methods/credit-cards/{creditCardId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + creditCardId: 1 (required, number) - Credit card ID.
+
+### List [GET /v1/customers/{customerId}/payment-methods/credit-cards]
+
++ Parameters
+    + customerId: 1       (required, number) - Customer unique ID.
++ Response 200 (application/json)
+    + Attributes (CreditCards)
+
+### Create [POST /v1/customers/{customerId}/payment-methods/credit-cards]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
++ Request (application/json)
+    + Attributes(CreditCardCreatePayload)
++ Response 200 (application/json)
+    + Attributes (CreditCard)
+
+### Update [PATCH]
+
++ Request (application/json)
+    + Attributes(CreditCardUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (CreditCard)
+
+### Set as Default [POST /v1/customers/{customerId}/payment-methods/credit-cards/{creditCardId}/default]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + creditCardId: 1 (required, number) - Credit card ID.
++ Request (application/json)
+    + Attributes(CreditCardToggleDefaultPayload)
++ Response 200 (application/json)
+    + Attributes (CreditCard)
+
+### Delete [DELETE]
+
++ Response 204 (application/json)
+
+## Store Credit [/v1/customer/{customerId}/payment-methods/store-credits/{storeCreditId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + storeCreditId: 1 (required, number) - Store Credit ID.
+
+### Create [POST /v1/customer/{customerId}/payment-methods/store-credits]
+
++ Request (application/json)
+    + Attributes (StoreCreditCreateSinglePayload)
++ Response 200 (application/json)
+    + Attributes (StoreCredit)
+
+### Total [GET /v1/customers/{customerId}/payment-methods/store-credit/totals]
+
++ Parameters
+    + customerId: 1 (required, number) - Unique Customer ID.
++ Response 200 (application/json)
+    + Attributes (StoreCreditTotals)
+
+### Convert To Gift Card [POST /v1/customer/{customerId}/payment-methods/store-credits/{storeCreditId}/convert]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + storeCreditId: 1 (required, number) - Store Credit ID.
++ Response 200 (application/json)
+    + Attributes (GiftCard)

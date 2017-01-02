@@ -1,0 +1,49 @@
+## Address [/v1/my/addresses/{addressId}]
+
++ Parameters
+    + addressId: 1 (required, number) - Address ID.
+
+### List [GET /v1/my/addresses]
+
++ Response 200 (application/json)
+    + Attributes (Addresses)
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (Address)
+
+### Create [POST /v1/my/addresses]
+
++ Request (application/json)
+    + Attributes(CreateAddressPayload)
++ Response 200 (application/json)
+    + Attributes (Address)
+
+### Update [PATCH /v1/my/addresses/{addressId}]
+
++ Parameters
+    + addressId: 1 (required, number) - Address ID.
++ Request (application/json)
+    + Attributes(UpdateAddressPayload)
++ Response 200 (application/json)
+    + Attributes (Address)
+
+### Set as Default [POST /v1/my/addresses/{addressId}/default]
+
++ Parameters
+    + addressId: 1 (required, number) - Address ID.
++ Response 200 (application/json)
+    + Attributes (Address)
+
+### Remove Default Address [DELETE /v1/my/addresses/default]
+
+This endpoint removes `isDefault` flag from any existing customer address.
+
++ Response 204 (application/json)
+
+### Delete [DELETE /v1/my/addresses/{addressId}]
+
++ Parameters
+    + addressId: 1 (required, number) - Address ID.
++ Response 204 (application/json)

@@ -1,0 +1,55 @@
+# Data Structures
+
+### BaseCountry
++ id: 1 (required, number) - Unique identifier.
++ name: `United States` (required, string) - Country name.
++ alpha2: `US` (required, string) - Two-letter ISO code for country.
++ alpha3: `USA` (required, string) - Three-letter ISO code for country.
++ code: 376 (required, string) - Country phone code.
++ continent: `North America` (required, string) - Country continent.
++ currency: `USD` (required, string) - Official currency in country.
++ languages: `en` (required, array[string]) - Languages in country.
++ usesPostalCode: true (required, boolean) - Whether postal code is using.
++ isShippable: false (required, boolean) - Whether country is shippable.
++ isBillable: false (required, boolean) - Whether country is billable.
+
+### Address
++ id: 1 (required, number) - Unique identifier.
++ region (required, Region) - Region/state if the country.
++ name: `John Smith` (required, string) - Recipient name.
++ address1: `555 E Lake Union St.` (required, string) - Address line 1.
++ address2: `Suite 200` (optional, string) - Address line 2.
++ city: `Seattle` (required, string) - City.
++ zip: 98124 (required, string) - zip/postal code.
++ phoneNumber: `732-757-2923` (optional, string) - Contact phone number.
++ isDefault: false (optional, boolean) - Default or not in address book.
+
+### Addresses
++ results (required, array[Address]) - Addresses list.
+
+### Country
++ Include BaseCountry
+
+### FullCountry
++ Include BaseCountry
++ regions (required, array[Region]) - Country regions list.
+
+### CreateAddressPayload
++ name: `John Smith` (required, string) - Recipient name.
++ regionId (required, number) - Region unique ID.
++ address1: `555 E Lake Union St.` (required, string) - Address line 1.
++ address2: `Suite 200` (optional, string) - Address line 2.
++ city: `Seattle` (required, string) - City.
++ zip: 98124 (required, string) - zip/postal code.
++ isDefault: false (optional, boolean) - Default or not in address book.
++ phoneNumber: `555-555-555` (optional, string) - Contact phone number.
+
+### UpdateAddressPayload
++ name: `John Smith` (optional, string) - Recipient name.
++ regionId (optional, number) - Region unique ID.
++ address1: `555 E Lake Union St.` (optional, string) - Address line 1.
++ address2: `Suite 200` (optional, string) - Address line 2.
++ city: `Seattle` (optional, string) - City.
++ zip: 98124 (optional, string) - zip/postal code.
++ isDefault: false (optional, boolean) - Default or not in address book.
++ phoneNumber: `555-555-555` (optional, string) - Contact phone number.

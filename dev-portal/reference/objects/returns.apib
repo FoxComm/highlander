@@ -1,0 +1,133 @@
+# Data Structures
+
+### ReturnHeader
++ id: 1 (required, number) - Unique identifier.
++ referenceNumber: `RMA-123` (required, string) - Return reference number
+
+### ReturnType
++ returnType: `standard` (required, enum[string]) - Return type.
+    + Members
+        + `standard`
+        + `creditOnly`
+        + `restockOnly`
+
+### ReturnState
++ state: `pending` (required, enum[string]) - State to be switched to.
+    + Members
+        + `pending`
+        + `processed`
+        + `review`
+        + `complete`
+        + `canceled`
+
+### ReturnPayment
++ id: 1 (required, number) - Payment ID.
++ returnId: 1 (required, number) - Related Return.
++ amount: 10 (required, number) - Amount (to be) refunded to this payment method.
++ currency: `USD` (required, string) - Currency
++ paymentMethodId: 1 (required, number) - Related payment method.
++ paymentMethodType: `creditCard` (required, enum[string]) - Payment method type.
+    + Members
+        + `creditCard`
+        + `giftCard`
+        + `storeCredit`
+
+### ReturnTotals
++ subTotal: 70 (required, number) - Subtotal before taxes.
++ shipping: 25 (required, number) - Shipping cost to be returned.
++ taxes: 10 (required, number) - Taxes to be distracted.
++ total: 80 (required, number) - Final total value.
+
+### ReturnBase
++ Include ReturnType
++ Include ReturnState
++ customer (optional, CustomerResponse) - Customer who created Return.
++ storeAdmin (optional, StoreAdminResponse) - StoreAdmin who created Return.
++ lineItems (optional, ReturnLineItems) - Return line items divided by categories.
++ payments (optional, array[ReturnPayment]) - Return payment methods.
++ messageToCustomer: `Lorem ipsum` (optional, string) - Message to customer to be sent at the end of processing.
++ canceledReason: 1 (optional, number) - Possible cancellation reason ID.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
++ updatedAt: `2020-01-01T12:00:00Z` (required, string) - Last update date.
++ totals (required, ReturnTotals) - Total price of return.
+
+### Return
++ Include ReturnHeader
++ orderRefNum: `ABC-123` (required, string) - Order reference number.
++ Include ReturnBase
+
+### ReturnExpanded
++ Include ReturnHeader
++ order (required, FullOrder) - Related order with all necessary information.
++ Include ReturnBase
+
+### FullReturnWithWarnings
++ rma (required, ReturnExpanded) - Expanded Return.
++ warnings (required, array[string]) - List of possible errors / warnings.
+
+### ReturnLineItemSkuInner
++ imagePath: `http://lorempixel.com/75/75/fashion` (required, string) - Image URL.
++ name: `donkey product` (required, string) - Product name.
++ sku: `SKU-YAX` (required, string) - SKU.
++ price: 33 (required, number) - SKU price.
++ quantity: 1 (required, number) - Quantity.
++ totalPrice: 33 (required, number) - Price per item multiplied by quantity
+
+### ReturnLineItemSku
++ lineItemId: 1 (required, number) - Line item ID
++ sku (required, ReturnLineItemSkuInner) - Sku object
+
+### ReturnLineItemGiftCard
++ lineItemId: 1 (required, number) - Line item ID
++ giftCard (required, GiftCard) - Sku object
+
+### ReturnLineItemShipment
++ lineItemId: 1 (required, number) - Line item ID
++ shippingCost (required, Shipment) - Sku object
+
+### ReturnLineItems
++ skus (required, array[ReturnLineItemSku]) - List of SKUs to return.
++ giftCards (required, array[ReturnLineItemGiftCard]) - List of gift cards to return.
++ shippingCosts (required, array[ReturnLineItemShipment]) - List of shipping costs to refund.
+
+### ReturnCreatePayload
++ orderRefNum: `ABC-123` (required, string) - Related order refNum.
++ Include ReturnType
+
+### ReturnStateUpdatePayload
++ Include ReturnState
++ reasonId (optional, number) - Possible reason, required for cancellation.
+
+### ReturnLockInfo
++ isLocked: true (required, boolean) - Whether Return is locked or not.
++ lock (optional, ReturnLock) - Return lock information.
+
+### ReturnLock
++ id: 1 (required, number) - Lock ID.
++ lockedBy (required, StoreAdminResponse) - Locker information.
++ lockedAt: `2020-01-01T12:00:00Z` (optional, string) - Timestamp of when Return was lock.
+
+### ReturnSkuLineItemPayload
++ sku: `ABC-123` (required, string) - SKU.
++ reasonId: 1 (required, number) - Return reason.
++ quantity: 1 (required, number) - Quantity.
++ isReturnItem: true (required, boolean) - Defines whether it's an item for return.
++ inventoryDisposition: `putaway` (required, enum[string]) - Inventory disposition.
+    + Members
+        + `putaway`
+        + `damage`
+        + `recovery`
+        + `discontinued`
+
+### ReturnGiftCardLineItemPayload
++ code: `ABC-123` (required, string) - Gift card code.
++ reasonId: 1 (required, number) - Return reason.
+
+### ReturnShippingCostLineItemPayload
++ reasonId: 1 (required, number) - Return reason.
+
+### ReturnPaymentPayload
++ amount: 10 (required, number) - Amount.
+
+### ReturnMessageToCustomerUpdatePayload
++ message: `Lorem ipsum` (required, string) - Desired message to customer after processing completes. Pass an empty string if you want to disable sending anything.

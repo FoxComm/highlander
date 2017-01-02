@@ -1,0 +1,47 @@
+# Data Structures
+
+## CustomerBase
++ id: 1 (required, number) - Unique identifier.
++ name: `John Smith` (optional, string) - Full name.
++ email: `john@smith.com` (required, string) - E-mail.
++ phoneNumber: `123-444-4388` (optional, string) - Phone number.
++ location: `San Francisco, CA` (optional, string) - Location.
++ modality: `Desktop[PC]` (optional, string) - Client.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
++ disabled: false (required, boolean) - Defines whether account is disabled.
++ isGuest: false (required, boolean) - Defines whether account is guest.
++ isBlacklisted: false (required, boolean) - Defines whether account is added to blacklisted.
+
+## CustomerResponse
+- Include CustomerBase
++ billingRegion (optional, Region) - Billing region name.
++ shippingRegion (optional, Region) - Shipping region name.
++ rank: 1 (optional, number) - Customer ranking.
++ numOrders: 1 (optional, number) - Total number of orders.
++ totalSales: 100 (optional, number) - Customers sales stats.
+
+## FullCustomer
+- Include CustomerResponse
+
+## CustomerCreatePayload
++ email: `user@example.org` (required, string) - Customer email.
++ name: `John Smith` (optional, string) - Customer full name.
++ password: `password` (optional, string) - Customer password.
++ isGuest: false (optional, boolean) - create customer as guest if true.
+
+## CustomerUpdatePayload
++ email: `new@example.org` (optional, string)
++ name: `Jane Smith` (optional, string)
++ phoneNumber: `555 55 55` (optional, string)
+
+## CustomerActivatePayload
++ name: `John Smith` (required, string)
+
+## CustomerToggleDisablePayload
++ disabled: false (required, boolean) - Defines whether account is disabled.
+
+## CustomerToggleBlacklistPayload
++ blacklisted: true (required, boolean) - Defines whether account is added to blacklisted.
+
+## CustomersList
++ result     (required, array[CustomerResponse])

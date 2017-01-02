@@ -1,0 +1,25 @@
+# Data Structures
+
+### Reason
++ id: 1 (required, number) - Unique identifier.
++ reasonType: `cancellation` (required, string) - Reason type.
++ storeAdminId: 1 (required, number) - ID of StoreAdmin.
++ body: `Cancelled by customer request` (required, string) - Reason text.
++ parentId: 1 (optional, number) - Parent reason ID
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
++ deletedAt: `2020-01-01T12:00:00Z` (optional, string) - Deletion date.
+
+### ReturnReason
++ id: 1 (required, number) - Unique identifier.
++ name: `Some reason` (required, string) - ID of StoreAdmin.
++ reasonType (required, enum[string]) - Reason type.
+    + Members
+        + `baseReason`
+        + `productReturnCode`
++ returnType (required, enum[string]) - Return type.
+    + Members
+        + `standard`
+        + `creditOnly`
+        + `restockOnly`
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
++ deletedAt: `2020-01-01T12:00:00Z` (optional, string) - Deletion date.

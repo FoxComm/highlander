@@ -1,0 +1,37 @@
+## Store Admin [/v1/store-admins/{id}]
+
++ Parameters
+    + id: 1 (required, number) - Store Admin ID.
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (StoreAdmin)
+
+### Create [POST /v1/store-admins]
+
++ Request (application/json)
+    + Attributes (StoreAdminCreatePayload)
++ Response 200 (application/json)
+    + Attributes (StoreAdmin)
+
+### Update [PATCH]
+
++ Request (application/json)
+    + Attributes (StoreAdminUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (StoreAdmin)
+
+### Delete [DELETE]
+
++ Response 204 (application/json)
+
+### Update status [PATCH /v1/store-admins/{id}/state]
+
++ Parameters
+    + id: 1 (required, number) - Store Admin ID.
+
++ Request (application/json)
+    + Attributes (StoreAdminChangeStatePayload)
++ Response 200 (application/json)
+    + Attributes (StoreAdmin)

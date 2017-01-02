@@ -1,0 +1,85 @@
+# Inventory Admin
+
+This section covers all the endpoints that a site administrator could use to 
+view and manage inventory and shipping information in FoxCommerce. Every
+endpoint in this section required authentication.
+
+<!-- include(objects/common.apib) -->
+<!-- include(objects/stock_location.apib) -->
+<!-- include(objects/stock_item.apib) -->
+<!-- include(objects/shipment.apib) -->
+<!-- include(objects/order.apib) -->
+<!-- include(objects/gift_card.apib) -->
+<!-- include(objects/customers.apib) -->
+
+## Group Stock Level Summaries
+
+Stock Level Summaries allows a user to see levels of inventory available across
+various inventory types and stock locations.
+
+_Inventory Types_
+
+- **Sellable**: the standard inventory type. Units in this state are considered to
+  be in-stock and available in a stock location.
+- **Non-sellable**: inventory that is in a stock location but not allowed to sold.
+  One example would be inventory that has been received in a warehouse from a
+  manufacturer, but is not yet put in to bins.
+- **Backorder**: the amount of inventory that is either available for backorder or
+  has already been backordered.
+- **Preorder**: the amount of inventory that is either available for preorder or
+  has already been preordered.
+
+_Inventory Count Definitions_
+
+- **On Hand**: refers to the number of units that are sitting within a given stock
+  location. Depending on other states, these may or may not be available for
+  sale.
+- **Hold**: units that have been purchased, but are in one of the hold order states
+  (Manual Hold, Fraud Hold, Remorse Hold). If an outside WMS or 3PL is
+  connected to FoxCommerce, these units will not show up as purchased in that
+  system. Units that are in this state cannot be purchased by other customers.
+- **Reserved**: units that are in the process of being fulfilled.
+- **AFS**: the number of units that are available for sale. This is a calculated
+  field (afs = on hand - hold - reserved).
+
+<!-- include(resources/admin_stock_item_summaries.apib) -->
+
+## Group Stock Locations
+
+Stock Locations are representations of any place that inventory may be stored.
+FoxCommerce Inventory is designed to be manage and track inventory over
+multiple stock locations for a given storefront, as well as over multiple types
+of stock location.
+
+_Stock Location Types_
+
+- **Warehouse** (currently supported)
+- **Retail Store** (coming soon)
+- **Pop-up Shop** (coming soon)
+
+<!-- include(resources/admin_stock_locations.apib) -->
+
+## Group Stock Items
+
+Stock Items are the representation of a SKU within a specific Stock Location.
+
+<!-- include(resources/admin_stock_items.apib) -->
+
+## Group Shipments
+
+Shipments track the status of items that have been purchased and are scheduled
+to be sent from a store to a 3rd party, such as a customer.
+
+_Shipment States_
+
+- **Pending**: the initial state when a new shipment is created. It means that
+  the shipment exists in the warehouse and is in the process of being readied
+  for shipment.
+- **Shipped**: the shipment has left the warehouse and is in the process of
+  being fulfilled.
+- **Delivered**: the recipient has received the shipment.
+- **Cancelled**: the shipment has been cancelled and inventory has been made
+  available to other customers.
+
+<!-- include(resources/admin_shipments.apib) -->
+

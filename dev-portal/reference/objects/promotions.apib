@@ -1,0 +1,89 @@
+# Data Structures
+
+### PromotionApplyType
++ applyType: `auto` (required, enum[string]) - Promotion apply-type (either coupon or automatic).
+    + Members
+        + `auto`
+        + `coupon`
+
+### Promotion
++ Include PromotionApplyType
++ form (required, PromotionForm) - Promotion form.
++ shadow (required, PromotionShadow) - Promotion shadow.
++ archivedAt: `2020-01-01T12:00:00Z` (string) - Archiving date.
+
+### PromotionIlluminated
++ id: 1 (required, number) - Promotion ID.
++ context: `default` (required, string) - Related context.
++ Include PromotionApplyType
++ attributes: `<json>` (required, string) - Promotion attributes.
++ discounts (required, array[DiscountIlluminated]) - Related illuminated discounts.
+
+### PromotionForm
++ id: 1 (required, number) - Promotion form ID.
++ attributes: `<json>` (required, string) - Promotion form attributes.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
+
+### PromotionAndDiscountForm
++ Include PromotionForm
++ discounts (required, array[DiscountForm]) - Related discount forms.
+
+### PromotionShadow
++ id: 1 (required, number) - Promotion shadow ID.
++ formId: 1 (required, number) - Related promotion form ID.
++ attributes: `<json>` (required, string) - Promotion shadow attributes.
++ discounts (required, array[DiscountShadow]) - Related discount shadows.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
+
+### DiscountForm
++ id: 1 (required, number) - Discount form ID.
++ attributes: `<json>` (required, string) - Discount form attributes.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
+
+### DiscountShadow
++ id: 1 (required, number) - Discount shadow ID.
++ attributes: `<json>` (required, string) - Discount shadow attributes.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
+
+### DiscountIlluminated
++ id: 1 (required, number) - Promotion form ID.
++ context: `default` (optional, string) - Related context.
++ attributes: `<json>` (required, string) - Promotion form attributes.
+
+### CreatePromotionPayload
++ Include PromotionApplyType
++ form (required, CreatePromotionForm) - Promotion form.
++ shadow (required, CreatePromotionShadow) - Promotion shadow.
+
+### CreatePromotionForm
++ attributes: `<json>` (required, string) - Promotion form attributes.
++ discounts (required, array[CreateDiscountForm]) - Promotion form discounts.
+
+### CreatePromotionShadow
++ attributes: `<json>` (required, string) - Promotion shadow attributes.
++ discounts (required, array[CreateDiscountShadow]) - Promotion shadow discounts.
+
+### CreateDiscountForm
++ attributes: `<json>` (required, string) - Discount form attributes.
+
+### CreateDiscountShadow
++ attributes: `<json>` (required, string) - Discount shadow attributes.
+
+### UpdatePromotionPayload
++ Include PromotionApplyType
++ form (required, UpdatePromotionForm) - Promotion form.
++ shadow (required, UpdatePromotionShadow) - Promotion shadow.
+
+### UpdatePromotionForm
++ attributes: `<json>` (required, string) - Promotion form attributes.
++ discounts (required, array[UpdatePromoDiscountForm]) - Promotion form discounts.
+
+### UpdatePromotionShadow
++ attributes: `<json>` (required, string) - Promotion shadow attributes.
++ discounts (required, array[UpdatePromoDiscountShadow]) - Promotion shadow discounts.
+
+### UpdatePromoDiscountForm
++ attributes: `<json>` (required, string) - Discount form attributes.
+
+### UpdatePromoDiscountShadow
++ attributes: `<json>` (required, string) - Discount shadow attributes.
