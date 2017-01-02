@@ -1,7 +1,7 @@
-- title: Community Resources
+- title: Integrating
   items:
-    - id: support
-      title: Where To Get Support
+    - id: integrating-with-netsuite
+      title: Integrating NetSuite with FoxCommerce
     - id: conferences
       title: Conferences
     - id: videos

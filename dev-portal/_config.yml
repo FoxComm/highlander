@@ -24,7 +24,7 @@ defaults:
     path: integrating
     type: pages
   values:
-    layout: docs
+    layout: integrating
     sectionid: integrating
 - scope:
     path: docs
@@ -36,12 +36,13 @@ defaults:
     path: api-ref
     type: pages
   values:
-    layout: docs
+    layout: apiref
     sectionid: api-reference
 - scope:
     path: migrating
     type: pages
   values:
+    layout: migrating
     sectionid: migrating
 exclude:
 - Gemfile

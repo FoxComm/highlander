@@ -1,17 +1,17 @@
 <div class="nav-docs">
-  <!-- Tutorial Nav -->
-  {% for section in site.data.nav_tutorial %}
+  <!-- Community Nav -->
+  {% for section in site.data.nav_apiref %}
     <div class="nav-docs-section">
       <h3>{{ section.title }}</h3>
       <ul>
         {% for item in section.items %}
           <li>
-            {{ item | tutorial_sidebar_link }}
+            {{ item | community_sidebar_link }}
             {% if item.subitems %}
               <ul>
                 {% for subitem in item.subitems %}
                   <li>
-                    {{ subitem | tutorial_sidebar_link }}
+                    {{ subitem | community_sidebar_link }}
                   </li>
                 {% endfor %}
               </ul>

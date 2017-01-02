@@ -1,7 +1,6 @@
 ---
 id: migrating
 title: Migrating to FoxCommerce
-layout: docs
 permalink: migrating/migrating.html
 next: codebase-overview.html
 redirect_from: "migrating/index.html"

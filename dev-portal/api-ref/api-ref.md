@@ -1,7 +1,6 @@
 ---
 id: api-ref
 title: API Reference
-layout: docs
 permalink: apiref/api-ref.html
 next: introducing-jsx.html
 redirect_from:
