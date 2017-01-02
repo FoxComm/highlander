@@ -12,7 +12,7 @@ import { getJWT } from 'lib/claims';
 import * as t from 'paragons/object-types';
 
 // types
-import type { Sku } from 'modules/skus/details';
+import type { ProductVariant } from 'modules/product-variants/details';
 import type { ObjectView } from './object';
 import type { JWT } from 'lib/claims';
 
@@ -35,14 +35,14 @@ export type Option = {
 export type Product = ObjectView & {
   id: ?number,
   productId: ?number,
-  variants: Array<Sku>,
+  variants: Array<ProductVariant>,
   options: Array<Option>,
 };
 
 // we should identity sku be feCode first
 // because we want to persist sku even if code has been changes
-export function skuId(sku: Sku): string {
-  return sku.feCode || _.get(sku.attributes, 'code.v');
+export function productVariantId(productVariant: ProductVariant): string {
+  return productVariant.feCode || _.get(productVariant.attributes, 'code.v');
 }
 
 // THIS IS A HAAAAACK.

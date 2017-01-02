@@ -6,7 +6,7 @@ import * as t from 'paragons/object-types';
 
 
 import type { JWT } from 'lib/claims';
-import type { Sku } from 'modules/skus/details';
+import type { ProductVariant } from 'modules/product-variants/details';
 export function generateSkuCode(): string {
   return Math.random().toString(36).substring(7).toUpperCase();
 }
@@ -32,7 +32,7 @@ function isMerchant(): boolean {
   return true;
 }
 
-export function createEmptySku(): Sku {
+export function createEmptySku(): ProductVariant {
   let merchantAttributes = {};
 
   if (isMerchant()) {

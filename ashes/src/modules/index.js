@@ -19,7 +19,7 @@ import activityTrail from './activity-trail';
 import siteMenu from './site-menu';
 import inventory from './inventory';
 import products from './products';
-import skus from './skus';
+import productVariants from './product-variants';
 import user from './user';
 import usermenu from './usermenu';
 import promotions from './promotions';
@@ -52,7 +52,7 @@ const rootReducer = combineReducers({
   siteMenu,
   inventory,
   products,
-  skus,
+  productVariants,
   promotions,
   coupons,
   users,

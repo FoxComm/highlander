@@ -8,12 +8,12 @@ import { autobind } from 'core-decorators';
 import SkuResult from './sku-result';
 import Typeahead from 'components/typeahead/typeahead';
 
-import { suggestSkus } from 'modules/skus/suggest';
+import { suggestSkus } from 'modules/product-variants/suggest';
 import { updateLineItemCount } from 'modules/carts/details';
 
-import type { SuggestOptions } from 'modules/skus/suggest';
+import type { SuggestOptions } from 'modules/product-variants/suggest';
 
-import type { Sku } from 'modules/skus/list';
+import type { Sku } from 'modules/product-variants/list';
 
 const mapStateToProps = state => {
   return {

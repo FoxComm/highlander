@@ -69,47 +69,47 @@ const getRoutes = (jwt: Object) => {
     ]);
 
   const productVariantRoutes =
-    router.read('variants-base', { title: 'Product Variants', path: 'variants', frn: frn.pim.sku }, [
-      router.read('variants-list-pages', { component: ProductVariantsListPage }, [
+    router.read('product-variants-base', { title: 'Product Variants', path: 'variants', frn: frn.pim.sku }, [
+      router.read('product-variants-list-pages', { component: ProductVariantsListPage }, [
         router.read('variants', { component: ProductVariants, isIndex: true }),
-        router.read('variants-activity-trail', {
+        router.read('product-variants-activity-trail', {
           path: 'activity-trail',
           dimension: 'product-variant',
           component: ActivityTrailPage,
           frn: frn.activity.sku,
         }),
       ]),
-      router.read('variant', { path: ':variantId', component: ProductVariantPage }, [
-        router.read('variant-details', { component: ProductVariantDetails, isIndex: true }),
-        router.read('variant-images', {
+      router.read('product-variant', { path: ':productVariantId', component: ProductVariantPage }, [
+        router.read('product-variant-details', { component: ProductVariantDetails, isIndex: true }),
+        router.read('product-variant-images', {
           path: 'images',
           title: 'Images',
           component: ProductVariantImages,
           frn: frn.pim.album,
         }),
-        router.read('variant-inventory-details-base', {
+        router.read('product-variant-inventory-details-base', {
           path: 'inventory',
           component: InventoryItemDetailsBase,
           frn: frn.mdl.summary,
         }, [
-          router.read('variant-inventory-details', {
+          router.read('product-variant-inventory-details', {
             component: InventoryItemDetails,
             isIndex: true,
           }),
-          router.read('variant-inventory-transactions', {
+          router.read('product-variant-inventory-transactions', {
             title: 'Transactions',
             path: 'transactions',
             component: InventoryItemTransactions,
             frn: frn.mdl.transaction,
           }),
         ]),
-        router.read('variant-notes', {
+        router.read('product-variant-notes', {
           path: 'notes',
           title: 'Notes',
           component: Notes,
           frn: frn.note.sku,
         }),
-        router.read('variant-activity-trail', {
+        router.read('product-variant-activity-trail', {
           path: 'activity-trail',
           component: ActivityTrailPage,
           frn: frn.activity.sku,

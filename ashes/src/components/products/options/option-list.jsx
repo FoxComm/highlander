@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { assoc, dissoc } from 'sprout-data';
 import { autoAssignOptions } from 'paragons/variants';
-import { skuId } from 'paragons/product';
+import { productVariantId } from 'paragons/product';
 
 // components
 import ContentBox from 'components/content-box/content-box';
@@ -20,7 +20,7 @@ import styles from './option-list.css';
 
 // types
 import type { Option, OptionValue, Product } from 'paragons/product';
-import type { Sku } from 'modules/skus/details';
+import type { ProductVariant } from 'modules/product-variants/details';
 
 type Props = {
   options: Array<Option>,
@@ -35,7 +35,7 @@ type EditOption = {
 
 type DeletingContext = {
   id: number,
-  affectedSkus: Array<Sku>,
+  affectedSkus: Array<ProductVariant>,
   deletingValueContext?: {
     option: Option,
     value: OptionValue
@@ -192,13 +192,13 @@ class OptionList extends Component {
     });
   }
 
-  getRemovedSkusByNewOptions(newOptions: Array<Option>): Array<Sku> {
+  getRemovedSkusByNewOptions(newOptions: Array<Option>): Array<ProductVariant> {
     const newProduct = autoAssignOptions(this.props.product, newOptions);
-    const newVariants = _.keyBy(newProduct.variants, skuId);
+    const newVariants = _.keyBy(newProduct.variants, productVariantId);
 
-    return _.filter(this.props.product.variants, sku => {
-      const hasRealCode = !!_.get(sku.attributes, 'code.v');
-      return hasRealCode && !(skuId(sku) in newVariants);
+    return _.filter(this.props.product.variants, variant => {
+      const hasRealCode = !!_.get(variant.attributes, 'code.v');
+      return hasRealCode && !(productVariantId(variant) in newVariants);
     });
   }
 

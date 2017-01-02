@@ -16,7 +16,7 @@ import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import { mapVariantsToOptions } from 'paragons/variants';
 
 import type { Product } from 'paragons/product';
-import type { Sku } from 'modules/skus/details';
+import type { ProductVariant } from 'modules/product-variants/details';
 
 type UpdateFn = (code: string, field: string, value: any) => void;
 
@@ -128,7 +128,7 @@ export default class SkuList extends Component {
     );
   }
 
-  skuContent(skus: Array<Sku>): Element {
+  skuContent(skus: Array<ProductVariant>): Element {
     const renderRow = (row, index, columns, params) => {
       const key = row.feCode || row.code || row.id;
 

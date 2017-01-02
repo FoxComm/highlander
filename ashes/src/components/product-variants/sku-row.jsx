@@ -11,7 +11,7 @@ import { isArchived } from 'paragons/common';
 import MultiSelectRow from '../table/multi-select-row';
 
 // types
-import type { Sku } from 'modules/skus/list';
+import type { Sku } from 'modules/product-variants/list';
 
 type Props = {
   sku: Sku,
@@ -39,8 +39,8 @@ const SkuRow = (props: Props) => {
   return (
     <MultiSelectRow
       { ...commonParams }
-      linkTo="variant-details"
-      linkParams={{variantId: sku.id}}
+      linkTo="product-variant-details"
+      linkParams={{productVariantId: sku.id}}
     />
   );
 };

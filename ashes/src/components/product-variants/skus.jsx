@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
 // data
-import { actions } from 'modules/skus/list';
+import { actions } from 'modules/product-variants/list';
 
 // components
 import SelectableSearchList from '../list-page/selectable-search-list';
@@ -19,7 +19,7 @@ import SkuRow from './sku-row';
 import { filterArchived } from 'elastic/archive';
 
 // types
-import type { Sku } from 'modules/skus/list';
+import type { Sku } from 'modules/product-variants/list';
 import type { SearchFilter } from 'elastic/common';
 
 type Column = {
@@ -64,8 +64,8 @@ export class Skus extends Component {
     return (
       <div>
         <SelectableSearchList
-          entity="skus.list"
-          emptyMessage="No SKUs found."
+          entity="productVariants.list"
+          emptyMessage="No variants found."
           list={list}
           renderRow={this.renderRow}
           tableColumns={Skus.tableColumns}
@@ -76,7 +76,7 @@ export class Skus extends Component {
   }
 }
 
-function mapStateToProps({ skus: { list } }) {
+function mapStateToProps({ productVariants: { list } }) {
   return { list };
 }
 

@@ -10,15 +10,15 @@ import { transitionTo } from 'browserHistory';
 import { ListPageContainer, makeTotalCounter } from '../list-page';
 
 // actions
-import { actions } from '../../modules/skus/list';
+import { actions } from '../../modules/product-variants/list';
 
 type Props = {
   children: any,
 };
 
 const ProductVariantsListPage = (props: Props) => {
-  const TotalCounter = makeTotalCounter(state => state.skus.list, actions);
-  const addAction = () => transitionTo('variant-details', { variantId: 'new' });
+  const TotalCounter = makeTotalCounter(state => state.productVariants.list, actions);
+  const addAction = () => transitionTo('product-variant-details', { productVariantId: 'new' });
   const navLinks = [
     { title: 'Lists', to: 'variants' },
     { title: 'Activity Trail', to: 'variants-activity-trail' },

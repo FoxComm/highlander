@@ -22,7 +22,7 @@ import styles from './sku-content-box.css';
 
 // types
 import type { Product, OptionValue } from 'paragons/product';
-import type { Sku } from 'modules/skus/details';
+import type { ProductVariant } from 'modules/product-variants/details';
 
 type UpdateFn = (code: string, field: string, value: any) => void;
 
@@ -63,7 +63,7 @@ class SkuContentBox extends Component {
     );
   }
 
-  get variants(): Array<Sku> {
+  get variants(): Array<ProductVariant> {
     if (this.props.fullProduct) {
       return this.props.fullProduct.variants;
     }

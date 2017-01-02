@@ -49,7 +49,7 @@ const searchTerms = [
 ];
 
 const { reducer, actions } = makeLiveSearch(
-  'skus.list',
+  'productVariants.list',
   searchTerms,
   'sku_search_view/_search',
   'skusScope',

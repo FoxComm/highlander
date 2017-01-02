@@ -171,6 +171,9 @@ export class ObjectPage extends Component {
     this.props.actions.clearFetchErrors();
     this.props.actions.fetchSchema(this.props.schemaName);
     if (this.isNew) {
+      console.log("PROPS");
+      console.log(this.props);
+      alert('IM NEW');
       this.props.actions.newEntity();
     } else {
       this.fetchEntity()
@@ -189,7 +192,10 @@ export class ObjectPage extends Component {
   }
 
   transitionTo(id, props = {}) {
-    transitionTo(`${this.props.namespace}-details`, {
+    console.log('The namespace is: ' + this.props.namespace);
+    console.log('The namespace when kebab cased is: ' + _.kebabCase(this.props.namespace));
+    const linkTo = _.kebabCase(this.props.namespace);
+    transitionTo(`${linkTo}-details`, {
       ...this.detailsRouteProps(),
       ...props,
       [this.entityIdName]: id

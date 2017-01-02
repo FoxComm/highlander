@@ -6,7 +6,7 @@
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
-import { setSkuAttribute, skuId } from 'paragons/product';
+import { setSkuAttribute, productVariantId } from 'paragons/product';
 import { assoc } from 'sprout-data';
 
 // actions
@@ -78,16 +78,16 @@ class ProductPage extends ObjectPage {
     let variants = _.reduce(object.variants, (acc, variant) => {
       const code = _.get(variant.attributes, 'code.v');
       if (code) {
-        existsCodes[skuId(variant)] = 1;
+        existsCodes[productVariantId(variant)] = 1;
         return [...acc, variant];
       }
       return acc;
     }, []);
 
     if (!variants.length && object.variants.length) {
-      const firstSku = object.variants[0];
-      variants = [firstSku];
-      existsCodes[skuId(firstSku)] = 1;
+      const firstVariant = object.variants[0];
+      variants = [firstVariant];
+      existsCodes[productVariantId(firstVariant)] = 1;
     }
 
     const options = _.map(object.options, option => {

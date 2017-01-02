@@ -3,7 +3,7 @@
 import React from 'react';
 import ImagesPage, { connectImages } from '../object-page/object-images';
 
-import { actions } from 'modules/skus/images';
+import { actions } from 'modules/product-variants/images';
 
 class SkuImages extends ImagesPage {
 

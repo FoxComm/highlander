@@ -13,21 +13,21 @@ import LocalNav from '../local-nav/local-nav';
 import { connectPage, ObjectPage } from '../object-page/object-page';
 
 // actions
-import * as SkuActions from 'modules/skus/details';
+import * as SkuActions from 'modules/product-variants/details';
 
 // types
-import type { Sku } from 'modules/skus/details';
+import type { ProductVariant } from 'modules/product-variants/details';
 
 type Props = {
   actions: {
     skuNew: () => void,
-    fetchSku: (code: string, context?: string) => Promise,
-    createSku: (sku: Sku, context?: string) => Promise,
-    updateSku: (sku: Sku, context?: string) => Promise,
-    archiveSku: (code: string, context?: string) => Promise,
+    fetchProductVariant: (code: string, context?: string) => Promise,
+    createProductVariant: (variant: ProductVariant, context?: string) => Promise,
+    updateProductVariant: (variant: ProductVariant, context?: string) => Promise,
+    archiveProductVariant: (code: string, context?: string) => Promise,
   },
-  params: { skuCode: string },
-  originalObject: Sku,
+  params: { productVariantId: string },
+  originalObject: ProductVariant,
   children: Element,
 };
 
@@ -47,7 +47,7 @@ class ProductVariantPage extends ObjectPage {
   }
 
   get entityIdName(): string {
-    return 'variantId';
+    return 'productVariantId';
   }
 
   get detailsLinks() {
@@ -58,10 +58,10 @@ class ProductVariantPage extends ObjectPage {
     const { params } = this.props;
 
     return [
-      <Link to="variant-images" params={params} key="images">Images</Link>,
-      <Link to="variant-inventory-details" params={params} key="inventory">Inventory</Link>,
-      <Link to="variant-notes" params={params} key="notes">Notes</Link>,
-      <Link to="variant-activity-trail" params={params} key="activity-trail">Activity Trail</Link>,
+      <Link to="product-variant-images" params={params} key="images">Images</Link>,
+      <Link to="product-variant-inventory-details" params={params} key="inventory">Inventory</Link>,
+      <Link to="product-variant-notes" params={params} key="notes">Notes</Link>,
+      <Link to="product-variant-activity-trail" params={params} key="activity-trail">Activity Trail</Link>,
     ];
   }
 
@@ -80,11 +80,11 @@ class ProductVariantPage extends ObjectPage {
 
     return (
       <LocalNav>
-        <IndexLink to="variant-details" params={params}>Details</IndexLink>
+        <IndexLink to="product-variant-details" params={params}>Details</IndexLink>
         {this.detailsLinks}
       </LocalNav>
     );
   }
 }
 
-export default connectPage('sku', SkuActions, {schemaName: 'product-variant'})(ProductVariantPage);
+export default connectPage('productVariant', SkuActions, {schemaName: 'product-variant'})(ProductVariantPage);
