@@ -28,7 +28,7 @@ isaac_port: 9190
 isaac_server: "{{isaac_host}}:{{isaac_port}}"
 
 search_host: "elasticsearch.{{consul_suffix}}"
-log_host: "{{search_host}}"
+log_host: "{{search_host}}:9201"
 search_server_http: "{{search_host}}:9200"
 search_server: "{{search_host}}:9300"
 
@@ -152,7 +152,6 @@ capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
 shipstation_api_key: ""
 shipstation_api_secret: ""
 shipstation_topic: "activities"
-shipstation_partition: 1
 shipstation_interval: "10s"
 
 # Ashes

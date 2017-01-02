@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 FLYWAY="/usr/local/share/flyway/flyway -configFile=sql/flyway.conf -locations=filesystem:sql/"
 CONNECTION_STRING=$(cat sql/flyway.conf | grep 'flyway.url' | awk -F ':' '{print $3}')
@@ -37,4 +37,3 @@ echo 'create extension bottledwater;' | $PQL
 #This script is on the stage machine and not yet checked in.
 #It will be part once bottledwater is packaged and provisioned via vagrant
 nohup /usr/local/bin/run_bottledwater.sh &
-

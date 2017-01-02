@@ -1,5 +1,6 @@
 
 // libs
+import _ from 'lodash';
 import { get } from 'sprout-data';
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
@@ -38,16 +39,17 @@ export default class ActivityTrailPage extends React.Component {
 
   get trailParams() {
     const { route, entity } = this.props;
-    const dimension = route.dimension ? route.dimension : entity.entityType;
+    const dimension =
+      route.dimension ? _.snakeCase(route.dimension) : _.snakeCase(entity.entityType);
 
     if (entity) {
       return {
-        dimension: dimension,
+        dimension,
         objectId: entity.entityId
       };
     } else {
       return {
-        dimension: route.dimension
+        dimension
       };
     }
   }

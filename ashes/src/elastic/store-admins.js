@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { post } from '../lib/search';
 import * as dsl from './dsl';
 

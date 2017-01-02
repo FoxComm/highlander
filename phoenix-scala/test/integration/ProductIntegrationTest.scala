@@ -1,14 +1,13 @@
 import java.time.Instant
 
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 import cats.implicits._
-import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures._
 import failures.ObjectFailures.ObjectContextNotFound
+import failures.ProductFailures
 import failures.ProductFailures._
 import models.account.Scope
-import models.account.User
 import models.inventory.Skus
 import models.objects._
 import models.product._
@@ -23,10 +22,10 @@ import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 import responses.ProductResponses.ProductResponse
 import responses.ProductResponses.ProductResponse.Root
 import responses.cord.CartResponse
-import services.Authenticator.AuthData
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
+import testutils.fixtures.api.ApiFixtures
 import utils.JsonFormatters
 import utils.Money.Currency
 import utils.aliases._
@@ -53,6 +52,7 @@ class ProductIntegrationTest
     with PhoenixAdminApi
     with AutomaticAuth
     with BakedFixtures
+    with ApiFixtures
     with TaxonomySeeds {
   import ProductTestExtensions._
 
@@ -61,6 +61,33 @@ class ProductIntegrationTest
       taxonApi(taxons.head.formId).assignProduct(simpleProduct.formId).mustBeOk()
       val product = productsApi(simpleProduct.formId).get().as[ProductResponse.Root]
       product.taxons.map(_.taxon.id) must contain(taxons.head.formId)
+    }
+
+    "queries product by slug" in new ProductSku_ApiFixture {
+      val slug          = "simple-product"
+      val simpleProduct = Products.mustFindById404(product.id).gimme
+
+      val updated = simpleProduct.copy(slug = slug)
+
+      productsApi(product.id)
+        .update(
+            UpdateProductPayload(productPayload.attributes,
+                                 slug = Some(slug),
+                                 skus = None,
+                                 variants = None))
+        .mustBeOk()
+
+      productsApi(slug).get().as[ProductResponse.Root].id must === (updated.formId)
+    }
+
+    "queries product by slug ignoring case" in new ProductSku_ApiFixture {
+      val slug          = "Simple-Product"
+      val simpleProduct = Products.mustFindById404(product.id).gimme
+      val updated       = simpleProduct.copy(slug = slug.toLowerCase)
+
+      Products.update(simpleProduct, updated).gimme
+
+      productsApi(slug).get().as[ProductResponse.Root].id must === (updated.formId)
     }
   }
 
@@ -71,6 +98,42 @@ class ProductIntegrationTest
 
     "Creates a product with" - {
       val skuName = "SKU-NEW-TEST"
+
+      "slug successfully" in new Fixture {
+        val possibleSlug = List("simple-product", "1-Product", "p", "111something")
+        for (slug ← possibleSlug) {
+          val slugClue = s"slug: $slug"
+
+          val productResponse = doQuery(productPayload.copy(slug = slug))
+          productResponse.slug must === (slug).withClue(slugClue)
+
+          val getProductResponse = productsApi(slug).get().as[Root]
+          getProductResponse.slug must === (slug).withClue(slugClue)
+          getProductResponse.id must === (productResponse.id).withClue(slugClue)
+        }
+      }
+
+      "generates slug if it is empty" in new Fixture {
+        val slug = ""
+
+        val productResponse = doQuery(productPayload.copy(slug = slug))
+        productResponse.slug.isEmpty must === (false)
+
+        val generatedSlug      = productResponse.slug
+        val getProductResponse = productsApi(generatedSlug).get().as[Root]
+        getProductResponse.slug must === (generatedSlug)
+        getProductResponse.id must === (productResponse.id)
+      }
+
+      "generated slug is unique" in new Fixture {
+        val productResponses = for (_ ← 1 to 2)
+          yield doQuery(productPayload.copy(slug = ""))
+
+        val slugs = productResponses.map(_.slug)
+
+        slugs.forall(!_.isEmpty) must === (true)
+        slugs.distinct.size must === (slugs.size)
+      }
 
       "a new SKU successfully" in new Fixture {
         val productResponse = doQuery(productPayload)
@@ -265,6 +328,33 @@ class ProductIntegrationTest
           "Object sku with id=\\d+ doesn't pass validation: \\$.salePrice.value: string found, number expected"
         createResponse.error must fullyMatch regex errorPattern.r
       }
+
+      "slug is invalid" in new Fixture {
+        val invalidSlugValues = Seq("1", "-1", "+1", "-", "_-")
+        for (slug ← invalidSlugValues) {
+          productsApi
+            .create(productPayload.copy(slug = slug))
+            .mustFailWith400(ProductFailures.SlugShouldHaveLetters(slug))
+            .withClue(s" slug = $slug")
+        }
+      }
+
+      "slug is duplicated" in new Fixture {
+        val slug    = "simple-product"
+        val payload = productPayload.copy(slug = slug)
+        productsApi.create(payload).mustBeOk()
+
+        productsApi.create(payload).mustFailWith400(SlugDuplicates(slug))
+      }
+
+      "slugs differ only by case" in new Fixture {
+        val slug = "simple-product"
+        productsApi.create(productPayload.copy(slug = slug)).mustBeOk()
+        val duplicatedSlug: String = slug.toUpperCase()
+        productsApi
+          .create(productPayload.copy(slug = duplicatedSlug))
+          .mustFailWith400(SlugDuplicates(duplicatedSlug))
+      }
     }
 
     "Creates a product then requests is successfully" in new Fixture {
@@ -295,6 +385,30 @@ class ProductIntegrationTest
                                  albums = None,
                                  variants = None))
         .mustBeOk()
+    }
+
+    "Updates slug successfully" in new Fixture {
+      val slug = "simple-product"
+
+      val payload = UpdateProductPayload(attributes = Map.empty,
+                                         slug = slug.some,
+                                         skus = Some(Seq(skuPayload)),
+                                         variants = None,
+                                         albums = None)
+
+      doQuery(product.formId, payload).slug must === (slug)
+    }
+
+    "Updates uppercase slug successfully" in new Fixture {
+      val slug = "Simple-Product"
+
+      val payload = UpdateProductPayload(attributes = Map.empty,
+                                         slug = slug.some,
+                                         skus = Some(Seq(skuPayload)),
+                                         variants = None,
+                                         albums = None)
+
+      doQuery(product.formId, payload).slug must === (slug)
     }
 
     "Updates the SKUs on a product successfully" in new Fixture {
@@ -531,6 +645,36 @@ class ProductIntegrationTest
         productsApi(product.formId)
           .update(twoSkuProductPayload)
           .mustFailWith400(SkuIsPresentInCarts(skuGreenLargeCode))
+      }
+
+      "slug is invalid" in new Fixture {
+        val createdProduct = productsApi.create(productPayload).as[Root]
+
+        val invalidSlugValues = Seq("1", "-1", "+1", "_", "-")
+        for (slug ← invalidSlugValues) {
+          productsApi(createdProduct.id)
+            .update(UpdateProductPayload(attributes = productPayload.attributes,
+                                         slug = Some(slug),
+                                         skus = None,
+                                         variants = None))
+            .mustFailWith400(ProductFailures.SlugShouldHaveLetters(slug))
+            .withClue(s" slug = $slug")
+        }
+      }
+
+      "slug is duplicated" in new Fixture {
+        val slug = "simple-product"
+
+        productsApi.create(productPayload.copy(slug = slug)).mustBeOk()
+        val product2 = productsApi.create(productPayload).as[Root]
+
+        private val updateResponse: HttpResponse = productsApi(product2.id).update(
+            UpdateProductPayload(attributes = productPayload.attributes,
+                                 slug = Some(slug),
+                                 skus = None,
+                                 variants = None))
+
+        updateResponse.mustFailWith400(SlugDuplicates(slug))
       }
     }
   }

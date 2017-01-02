@@ -41,7 +41,7 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
       field("lineItems").nested(
           field("referenceNumber", StringType).analyzer("upper_cased"),
           field("state", StringType).index("not_analyzed"),
-          field("sku", StringType).index("not_analyzed"),
+          field("sku", StringType).analyzer("upper_cased"),
           field("name", StringType).analyzer("autocomplete"),
           field("price", IntegerType)
       ),

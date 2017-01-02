@@ -8,6 +8,7 @@ import utils.aliases._
 object ProductPayloads {
   case class CreateProductPayload(scope: Option[String] = None,
                                   attributes: Map[String, Json],
+                                  slug: String = "",
                                   skus: Seq[SkuPayload],
                                   variants: Option[Seq[VariantPayload]],
                                   albums: Option[Seq[AlbumPayload]] = None,
@@ -18,6 +19,7 @@ object ProductPayloads {
   }
 
   case class UpdateProductPayload(attributes: Map[String, Json],
+                                  slug: Option[String] = None,
                                   skus: Option[Seq[SkuPayload]],
                                   variants: Option[Seq[VariantPayload]],
                                   albums: Option[Seq[AlbumPayload]] = None)

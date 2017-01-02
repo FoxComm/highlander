@@ -37,6 +37,7 @@ const getRoutes = (jwt: Object) => {
           path: 'activity-trail',
           dimension: 'gift-card',
           component: ActivityTrailPage,
+          frn: frn.activity.giftCard,
         }),
       ]),
       router.create('gift-cards-new', { path: 'new', component: NewGiftCard }),
@@ -65,7 +66,7 @@ const getRoutes = (jwt: Object) => {
         router.read('promotions', { component: Promotions, isIndex: true }),
         router.read('promotions-activity-trail', {
           path: 'activity-trail',
-          dimension: 'promotions',
+          dimension: 'promotion',
           component: ActivityTrailPage,
           frn: frn.mkt.promotion,
         }),
@@ -91,7 +92,7 @@ const getRoutes = (jwt: Object) => {
         router.read('coupons', { component: Coupons, isIndex: true }),
         router.read('coupons-activity-trail', {
           path: 'activity-trail',
-          dimension: 'coupons',
+          dimension: 'coupon',
           component: ActivityTrailPage,
           frn: frn.mkt.coupon,
         }),

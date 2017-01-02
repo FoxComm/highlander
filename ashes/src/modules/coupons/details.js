@@ -5,7 +5,7 @@ import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
 import { createEmptyCoupon } from '../../paragons/coupons';
-import createAsyncActions from '../async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 import Api from 'lib/api';
 
 /* coupon actions */

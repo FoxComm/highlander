@@ -12,8 +12,13 @@ import _ from 'lodash';
 import ObjectDetails from '../object-page/object-details';
 import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
+import InputMask from 'react-input-mask';
+
+import { renderFormField } from 'components/object-form/object-form-inner';
 
 import { autoAssignVariants, deleteVariantCombination, addSkusForVariants } from 'paragons/variants';
+
+import styles from './form.css';
 
 // types
 import type { DetailsProps } from '../object-page/object-details';
@@ -22,7 +27,7 @@ const layout = require('./layout.json');
 
 type Props = DetailsProps & {
   object: Product,
-}
+};
 
 /**
  * ProductForm is dumb component that implements the logic needed for creating
@@ -103,5 +108,44 @@ export default class ProductForm extends ObjectDetails {
     this.props.onUpdateObject(
       addSkusForVariants(this.props.object, variantValues)
     );
+  }
+
+  @autobind
+  renderSlug() {
+    return this.slugField;
+  }
+
+  @autobind
+  onSlugChange(value: string) {
+    const realSlug = _.toLower(value.replace(/\W/g, '-'));
+    const product = assoc(this.props.object, 'slug', realSlug);
+    this.props.onUpdateObject(product);
+  }
+
+  get slugField() {
+    const value = _.get(this.props, 'object.slug', '');
+    const fieldClass = `fc-object-form__field-value ${styles['slug-field']}`;
+    const slugField = (
+      <div styleName="slug-field-container" >
+        <span styleName="prefix" >/products/</span>
+        <input
+          className={fieldClass}
+          type="text"
+          name="slug"
+          value={value}
+          onChange={({target}) => this.onSlugChange(target.value)}
+        />
+        <div styleName="field-comment">
+          Slug can only contain letters, numbers, dashes, and underscores.
+        </div>
+      </div>
+    );
+    const opts = {
+      label: 'Slug',
+      required: false,
+      isDefined: (value) => _.isEmpty(value),
+    };
+
+    return renderFormField('SLUG', slugField, opts);
   }
 }
