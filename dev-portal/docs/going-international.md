@@ -1,16 +1,9 @@
 ---
-id: jsx-in-depth
-title: JSX In Depth
-permalink: docs/jsx-in-depth.html
+id: going-international
+title: Going International
+permalink: docs/going-international.html
 redirect_from:
-  - "docs/jsx-spread.html"
-  - "docs/jsx-gotchas.html"
-  - "tips/if-else-in-JSX.html"
-  - "tips/self-closing-tag.html"
-  - "tips/maximum-number-of-jsx-root-nodes.html"
-  - "tips/children-props-type.html"
-  - "docs/jsx-in-depth-zh-CN.html"
-  - "docs/jsx-in-depth-ko-KR.html"
+  - "docs/international.html"
 ---
 
 Fundamentally, JSX just provides syntactic sugar for the `React.createElement(component, props, ...children)` function. The JSX code:

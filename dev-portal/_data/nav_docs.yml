@@ -26,8 +26,8 @@
       title: Thinking In React
 - title: Advanced Guides
   items:
-    - id: jsx-in-depth
-      title: JSX In Depth
+    - id: going-international
+      title: Going International
     - id: typechecking-with-proptypes
       title: Typechecking With PropTypes
     - id: refs-and-the-dom
