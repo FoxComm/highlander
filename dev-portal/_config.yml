@@ -37,7 +37,7 @@ defaults:
     type: pages
   values:
     layout: docs
-    sectionid: api-ref
+    sectionid: api-reference
 - scope:
     path: migrating
     type: pages
