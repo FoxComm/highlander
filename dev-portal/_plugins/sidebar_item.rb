@@ -8,12 +8,16 @@ module Jekyll
       return sidebar_helper(item, 'docs-old')
     end
 
-    def community_sidebar_link(item)
-      return sidebar_helper(item, 'community')
+    def apiref_sidebar_link(item)
+      return sidebar_helper(item, 'apiref')
     end
 
-    def tutorial_sidebar_link(item)
-      return sidebar_helper(item, 'tutorial')
+    def migrating_sidebar_link(item)
+      return sidebar_helper(item, 'migrating')
+    end
+
+    def integrating_sidebar_link(item)
+      return sidebar_helper(item, 'integrating')
     end
 
     def sidebar_helper(item, group)
@@ -21,7 +25,7 @@ module Jekyll
 
       pageID = @context.registers[:page]["id"]
       itemID = item["id"]
-      href = item["href"] || "/react/#{group}/#{itemID}.html"
+      href = item["href"] || "/#{group}/#{itemID}.html"
       classes = []
       if pageID == itemID
         classes.push("active")

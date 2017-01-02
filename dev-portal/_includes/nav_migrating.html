@@ -1,17 +1,17 @@
 <div class="nav-docs">
-  <!-- Docs Nav -->
+  <!-- Migrating Nav -->
   {% for section in site.data.nav_migrating %}
     <div class="nav-docs-section">
       <h3>{{ section.title }}</h3>
       <ul>
         {% for item in section.items %}
           <li>
-            {{ item | docs_sidebar_link}}
+            {{ item | migrating_sidebar_link}}
             {% if item.subitems %}
               <ul>
                 {% for subitem in item.subitems %}
                   <li>
-                    {{ subitem | docs_sidebar_link }}
+                    {{ subitem | migrating_sidebar_link }}
                   </li>
                 {% endfor %}
               </ul>
