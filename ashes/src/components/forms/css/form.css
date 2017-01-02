@@ -1,0 +1,15 @@
+.form {
+  composes: global(fc-form-vertical);
+
+  & :global(.fc-form-field) {
+    margin-top: 20px;
+  }
+
+  & :global(.fc-form-field) > input[type="text"] {
+    width: 100%;
+  }
+
+  & :global(.fc-form-field-label) {
+    margin-bottom: 10px;
+  }
+}
