@@ -12,7 +12,7 @@ export function generateSkuCode(): string {
 }
 
 // should contain all known attributes
-export const skuEmptyAttributes = {
+export const productVariantEmptyAttributes = {
   code: t.string(''),
   title: t.string(''),
   upc: t.string(''),
@@ -32,7 +32,7 @@ function isMerchant(): boolean {
   return true;
 }
 
-export function createEmptySku(): ProductVariant {
+export function createEmptyProductVariant(): ProductVariant {
   let merchantAttributes = {};
 
   if (isMerchant()) {
@@ -49,7 +49,7 @@ export function createEmptySku(): ProductVariant {
 
   return {
     id: null,
-    attributes: { ...cloneDeep(skuEmptyAttributes), ...merchantAttributes },
+    attributes: { ...cloneDeep(productVariantEmptyAttributes), ...merchantAttributes },
     context: {
       name: 'default',
     }

@@ -8,7 +8,7 @@ import { createAction, createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 import _ from 'lodash';
 
-import { createEmptySku } from 'paragons/sku';
+import { createEmptyProductVariant } from 'paragons/product-variant';
 
 import { pushStockItemChanges } from '../inventory/warehouses';
 
@@ -26,13 +26,13 @@ export type ProductVariant = {
 const defaultContext = 'default';
 
 export const productVariantNew = createAction('PRODUCT_VARIANT_NEW');
-const skuClear = createAction('SKU_CLEAR');
-export const syncSku = createAction('SKU_SYNC');
+const productVariantClear = createAction('PRODUCT_VARIANT_CLEAR');
+export const syncProductVariant = createAction('PRODUCT_VARIANT_SYNC');
 
 const _archiveProductVariant = createAsyncActions(
   'archiveProductVariant',
-  (code, context = defaultContext) => {
-    return Api.delete(`/product-variants/${context}/${code}`);
+  (id, context = defaultContext) => {
+    return Api.delete(`/product-variants/${context}/${id}`);
   }
 );
 
@@ -41,8 +41,8 @@ export const clearArchiveErrors = _archiveProductVariant.clearErrors;
 
 const _fetchProductVariant = createAsyncActions(
   'fetchProductVariant',
-  (code: string, context: string = defaultContext) => {
-    return Api.get(`/product-variants/${context}/${code}`);
+  (id: number, context: string = defaultContext) => {
+    return Api.get(`/product-variants/${context}/${id}`);
   }
 );
 
@@ -55,16 +55,9 @@ const _createProductVariant = createAsyncActions(
 
 const _updateProductVariant = createAsyncActions(
   'updateProductVariant',
-  function(variant: ProductVariant, context: string = defaultContext) {
-    const { dispatch, getState } = this;
-    const oldVariant = _.get(getState(), ['productVariants', 'details', 'productVariant', 'attributes', 'code', 'v']);
-    if (oldVariant) {
-      const stockItemsPromise = dispatch(pushStockItemChanges(oldVariant));
-      const updatePromise = Api.patch(`/product-variants/${context}/${oldVariant}`, variant);
-      return Promise.all([updatePromise, stockItemsPromise]).then(([updateResponse]) => {
-        return updateResponse;
-      });
-    }
+  (variant: ProductVariant, context: string = defaultContext) => {
+    const { id } = variant;
+    return Api.patch(`/product-variants/${context}/${id}`, variant);
   }
 );
 
@@ -83,7 +76,7 @@ export const clearFetchErrors = _fetchProductVariant.clearErrors;
 
 export function reset() {
   return (dispatch: Function) => {
-    dispatch(skuClear());
+    dispatch(productVariantClear());
     dispatch(clearSubmitErrors());
     dispatch(clearFetchErrors());
   };
@@ -107,15 +100,15 @@ function updateProductVariantInState(state: ProductVariantState, productVariant:
 const reducer = createReducer({
   [productVariantNew]: (state) => {
     return assoc(state,
-      'sku', createEmptySku(),
+      'productVariant', createEmptyProductVariant(),
       'err', null
     );
   },
-  [skuClear]: state => {
-    return dissoc(state, 'sku');
+  [productVariantClear]: state => {
+    return dissoc(state, 'productVariant');
   },
-  [syncSku]: (state, data) => {
-    return update(state, 'sku', merge, data);
+  [syncProductVariant]: (state, data) => {
+    return update(state, 'productVariant', merge, data);
   },
   [_createProductVariant.succeeded]: updateProductVariantInState,
   [_updateProductVariant.succeeded]: updateProductVariantInState,

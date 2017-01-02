@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { assoc, dissoc, update } from 'sprout-data';
 
 // helpers
-import { generateSkuCode } from './sku';
+import { generateSkuCode } from './product-variant';
 import { getJWT } from 'lib/claims';
 import * as t from 'paragons/object-types';
 
