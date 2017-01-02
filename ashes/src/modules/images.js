@@ -46,7 +46,8 @@ const initialState: State = {
 };
 
 function actionPath(entity: string, action: string) {
-  return `${entity}${_.upperFirst(action)}`;
+  const sanitizedEntity = _.camelCase(entity);
+  return `${sanitizedEntity}${_.upperFirst(action)}`;
 }
 
 /**

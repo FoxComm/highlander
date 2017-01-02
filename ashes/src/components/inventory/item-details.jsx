@@ -24,7 +24,7 @@ const mapStateToProps = (state, props) => ({
 type Props = {
   inventoryDetails: WarehouseInventoryMap,
   params: Object,
-  fetchSummary: (skuCode: string) => Promise,
+  fetchSummary: (id: number) => Promise,
   fetchState: {
     inProgress?: boolean,
     err?: any,
@@ -44,12 +44,12 @@ class InventoryItemDetails extends Component {
   props: Props;
 
   componentDidMount() {
-    this.props.fetchSummary(this.props.params.skuCode);
+    this.props.fetchSummary(this.props.params.productVariantId);
   }
 
   componentWillReceiveProps(nextProps: Props) {
     if (!this.props.inventoryUpdated && nextProps.inventoryUpdated) {
-      this.props.fetchSummary(this.props.params.skuCode);
+      this.props.fetchSummary(this.props.params.productVariantId);
     }
   }
 

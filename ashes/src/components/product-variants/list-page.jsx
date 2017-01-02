@@ -21,7 +21,7 @@ const ProductVariantsListPage = (props: Props) => {
   const addAction = () => transitionTo('product-variant-details', { productVariantId: 'new' });
   const navLinks = [
     { title: 'Lists', to: 'variants' },
-    { title: 'Activity Trail', to: 'variants-activity-trail' },
+    { title: 'Activity Trail', to: 'product-variants-activity-trail' },
   ];
 
   return (
