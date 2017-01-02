@@ -2,7 +2,7 @@
   composes: global(fc-form-vertical);
 
   & :global(.fc-form-field) {
-    margin-top: 10px;
+    margin-top: 20px;
   }
 
   & :global(.fc-form-field) > input[type="text"] {
@@ -12,5 +12,4 @@
   & :global(.fc-form-field-label) {
     margin-bottom: 10px;
   }
-
 }
