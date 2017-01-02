@@ -10,12 +10,13 @@ import services.image.ImageManager
 import services.inventory.ProductVariantManager
 import services.Authenticator.AuthData
 import utils.aliases._
+import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object ProductVariantRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis) = {
 
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("product-variants") {

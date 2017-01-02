@@ -22,6 +22,7 @@ import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import utils.aliases._
+import utils.apis._
 import utils.db._
 
 object ProductVariantManager {
@@ -32,6 +33,7 @@ object ProductVariantManager {
       db: DB,
       ac: AC,
       oc: OC,
+      apis: Apis,
       au: AU): DbResultT[ProductVariantResponse.Root] = {
     val albumPayloads = payload.albums.getOrElse(Seq.empty)
 
@@ -112,6 +114,7 @@ object ProductVariantManager {
   def createInner(context: ObjectContext, payload: ProductVariantPayload)(
       implicit ec: EC,
       db: DB,
+      apis: Apis,
       au: AU): DbResultT[FullObject[ProductVariant]] = {
 
     val form   = ObjectForm.fromPayload(ProductVariant.kind, payload.attributes)
@@ -128,6 +131,7 @@ object ProductVariantManager {
                                   formId = ins.form.id,
                                   shadowId = ins.shadow.id,
                                   commitId = ins.commit.id))
+      _ ← * <~ DbResultT(DBIO.from(apis.middlwarehouse.createSku(CreateSku(code))))
     } yield FullObject(variant, ins.form, ins.shadow)
   }
 
@@ -155,6 +159,7 @@ object ProductVariantManager {
       implicit ec: EC,
       db: DB,
       oc: OC,
+      apis: Apis,
       au: AU): DbResultT[FullObject[ProductVariant]] =
     for {
       code ← * <~ mustGetSkuCode(variantPayload)

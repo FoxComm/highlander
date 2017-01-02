@@ -39,6 +39,7 @@ import org.json4s.JsonDSL._
 import services.LogActivity
 import services.taxonomy.TaxonomyManager
 import services.image.ImageManager.FullAlbumWithImages
+import utils.apis.Apis
 
 object ProductManager {
 
@@ -47,6 +48,7 @@ object ProductManager {
       db: DB,
       ac: AC,
       oc: OC,
+      apis: Apis,
       au: AU): DbResultT[ProductResponse.Root] = {
 
     val form                  = ObjectForm.fromPayload(Product.kind, payload.attributes)
@@ -117,6 +119,7 @@ object ProductManager {
       db: DB,
       ac: AC,
       oc: OC,
+      apis: Apis,
       au: AU): DbResultT[ProductResponse.Root] = {
 
     val formAndShadow = FormAndShadow.fromPayload(Product.kind, payload.attributes)
@@ -338,7 +341,7 @@ object ProductManager {
   private def findOrCreateVariantsForProduct(
       product: Product,
       variantPayloads: Seq[ProductVariantPayload],
-      createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC, au: AU) =
+      createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC, au: AU, apis: Apis) =
     variantPayloads.map { payload ⇒
       val albumPayloads = payload.albums.getOrElse(Seq.empty)
 
