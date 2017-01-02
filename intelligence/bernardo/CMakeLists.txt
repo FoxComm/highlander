@@ -37,6 +37,7 @@ set(MISC_LIBRARIES
     glog
     gflags
     double-conversion
-    pqxx)
+    pqxx
+    libflann_cpp_s.a)
 
 add_subdirectory(src)

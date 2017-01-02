@@ -8,57 +8,55 @@
 #include <proxygen/httpserver/RequestHandlerFactory.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
 
-namespace bernardo
+namespace bernardo::service
 {
-    namespace service
+    struct context
     {
-        struct context
-        {
-        };
+    };
 
-        class query_request_handler : public proxygen::RequestHandler {
-            public:
-                explicit query_request_handler(context& c) : 
-                    RequestHandler{}, _c{c} {}
+    class query_request_handler : public proxygen::RequestHandler {
+        public:
+            explicit query_request_handler(context& c) : 
+                RequestHandler{}, _c{c} {}
 
-                void onRequest(std::unique_ptr<proxygen::HTTPMessage> msg) noexcept override;
-                void onBody(std::unique_ptr<folly::IOBuf> body) noexcept override;
-                void onEOM() noexcept override;
-                void onUpgrade(proxygen::UpgradeProtocol proto) noexcept override;
-                void requestComplete() noexcept override;
-                void onError(proxygen::ProxygenError err) noexcept override; 
+            void onRequest(std::unique_ptr<proxygen::HTTPMessage> msg) noexcept override;
+            void onBody(std::unique_ptr<folly::IOBuf> body) noexcept override;
+            void onEOM() noexcept override;
+            void onUpgrade(proxygen::UpgradeProtocol proto) noexcept override;
+            void requestComplete() noexcept override;
+            void onError(proxygen::ProxygenError err) noexcept override; 
 
-            private:
-                void ping();
-                void is404();
+        private:
+            void find();
+            void ping();
+            void is404();
 
-            private:
+        private:
 
-                context& _c;
-                std::unique_ptr<folly::IOBuf> _body;
-                std::unique_ptr<proxygen::HTTPMessage> _msg;
-        };
+            context& _c;
+            std::unique_ptr<folly::IOBuf> _body;
+            std::unique_ptr<proxygen::HTTPMessage> _msg;
+    };
 
-        class query_handler_factory : public proxygen::RequestHandlerFactory 
-        {
-            public:
-                query_handler_factory(context& c) : 
-                    proxygen::RequestHandlerFactory{}, _c{c} {}
+    class query_handler_factory : public proxygen::RequestHandlerFactory 
+    {
+        public:
+            query_handler_factory(context& c) : 
+                proxygen::RequestHandlerFactory{}, _c{c} {}
 
-            public:
-                proxygen::RequestHandler* onRequest(
-                        proxygen::RequestHandler* r, 
-                        proxygen::HTTPMessage* m) noexcept override 
-                {
-                    return new query_request_handler{_c};
-                }
+        public:
+            proxygen::RequestHandler* onRequest(
+                    proxygen::RequestHandler* r, 
+                    proxygen::HTTPMessage* m) noexcept override 
+            {
+                return new query_request_handler{_c};
+            }
 
-                void onServerStart(folly::EventBase* evb) noexcept {} 
-                void onServerStop() noexcept {} 
+            void onServerStart(folly::EventBase* evb) noexcept {} 
+            void onServerStop() noexcept {} 
 
-            private:
-                context& _c;
-        };
-    }
+        private:
+            context& _c;
+    };
 }
 #endif
