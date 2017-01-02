@@ -20,6 +20,13 @@ import MerchantApplicationDetails from 'components/merchant-applications/details
 import MerchantApplicationsList from 'components/merchant-applications/list';
 
 import IntegrationDetails from 'components/origin-integrations/details';
+import ProductFeedDetails from 'components/origin-integrations/product-feed';
+
+import BusinessProfileDetails from 'components/business-profile/details';
+
+import ShippingMethodList from 'components/shipping-methods/list';
+import ShippingMethodDetails from 'components/shipping-methods/details';
+import ShippingMethodForm from 'components/shipping-methods/form';
 
 import type { JWT } from 'lib/claims';
 
@@ -63,7 +70,23 @@ const getRoutes = (jwt: JWT) => {
   const integrationRoutes =
     router.read('integration-base', { path: 'integrations' }, [
       router.read('integrations', { component: IntegrationDetails, isIndex: true }),
+      router.read('integrations-feed', { path: 'feed', component: ProductFeedDetails }),
+      router.read('integrations-upload', { path: 'upload', component: IntegrationDetails }),
     ]);
+
+  const businessProfileRoutes =
+    router.read('business-profile-base', { path: 'profile' }, [
+      router.read('business-profile-details', { component: BusinessProfileDetails, isIndex: true }),
+    ]);
+
+  const shippingMethodRoutes =
+    router.read('shipping-methods-base', { path: 'methods', frn: frn.settings.shippingMethod }, [
+      router.read('shipping-methods', { component: ShippingMethodList, isIndex: true }),
+      router.read('shipping-method', { path: ':shippingMethodId', component: ShippingMethodDetails }, [
+        router.read('shipping-method-details', { component: ShippingMethodForm, isIndex: true }),
+      ]),
+    ]);
+
 
   return (
     <div>
@@ -71,6 +94,8 @@ const getRoutes = (jwt: JWT) => {
       {pluginRoutes}
       {applicationsRoutes}
       {integrationRoutes}
+      {businessProfileRoutes}
+      {shippingMethodRoutes}
     </div>
   );
 };

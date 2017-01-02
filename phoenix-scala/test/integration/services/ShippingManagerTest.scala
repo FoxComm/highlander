@@ -31,7 +31,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
 
       "Is true when the order is shipped to WA" in new WashingtonOrderFixture {
         val matchingMethods = getShippingMethodsForCart(cart.refNum).gimme
-        matchingMethods.head.name must === (shippingMethod.adminDisplayName)
+        matchingMethods.head.name must === (shippingMethod.name)
       }
 
       "Is false when the order is shipped to MI" in new MichiganOrderFixture {
@@ -53,7 +53,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
         OrderShippingAddresses.copyFromAddress(address = canada, cordRef = cart.refNum).gimme
 
         val matchingMethods = getShippingMethodsForCart(cart.refNum).gimme
-        matchingMethods.headOption.value.name must === (shippingMethod.adminDisplayName)
+        matchingMethods.headOption.value.name must === (shippingMethod.name)
       }
 
       "Is false when the order is shipped to US" in new CountryFixture {
@@ -66,7 +66,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
 
       "Is true when the order total is greater than $25" in new PriceConditionFixture {
         val matchingMethods = getShippingMethodsForCart(expensiveCart.refNum).gimme
-        matchingMethods.head.name must === (shippingMethod.adminDisplayName)
+        matchingMethods.head.name must === (shippingMethod.name)
       }
 
       "Is false when the order total is less than $25" in new PriceConditionFixture {
@@ -86,7 +86,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
         } yield (address, orderShippingAddress)).gimme
 
         val matchingMethods = getShippingMethodsForCart(cart.refNum).gimme
-        matchingMethods.head.name must === (shippingMethod.adminDisplayName)
+        matchingMethods.head.name must === (shippingMethod.name)
       }
 
       "Is false when the order total is $27 and shipped to MI" in new StateAndPriceCondition {
@@ -113,7 +113,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
         } yield (address, orderShippingAddress)).gimme
 
         val matchingMethods = getShippingMethodsForCart(cart.refNum).gimme
-        matchingMethods.headOption.value.name must === (shippingMethod.adminDisplayName)
+        matchingMethods.headOption.value.name must === (shippingMethod.name)
       }
 
       "Is false when the order total is greater than $10 and address1 contains a P.O. Box" in new POCondition {

@@ -20,6 +20,7 @@ type Props = {
 const userClaims = readAction(frn.settings.user);
 const pluginClaims = readAction(frn.settings.plugin);
 const applicationClaims = readAction(frn.settings.application);
+const shippingMethodClaims = readAction(frn.settings.shippingMethod);
 
 export default class SettingsEntry extends Component {
   props: Props;
@@ -46,6 +47,16 @@ export default class SettingsEntry extends Component {
               className="fc-navigation-item__sublink">
               Integrations
             </IndexLink>
+            <Link
+              to="business-profile-details"
+              className="fc-navigation-item__sublink">
+              Business Profile
+            </Link>
+            <Link
+              to="shipping-methods"
+              className="fc-navigation-item__sublink">
+              Shipping Methods
+            </Link>
           </NavigationItem>
         </li>
       );
@@ -83,6 +94,13 @@ export default class SettingsEntry extends Component {
             actualClaims={claims}
             expectedClaims={applicationClaims}>
             Applications
+          </Link>
+          <Link
+            to="shipping-methods"
+            className="fc-navigation-item__sublink"
+            actualClaims={claims}
+            expectedClaims={shippingMethodClaims}>
+            Shipping Methods
           </Link>
         </NavigationItem>
       </li>

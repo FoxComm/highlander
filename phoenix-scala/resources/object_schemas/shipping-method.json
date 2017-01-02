@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "ShippingMethod",
+  "type": "object",
+  "properties": {
+    "attributes": {
+      "type": "object",
+      "description": "Shipping method attributes",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "price": {
+          "type": "object",
+          "widget": "price",
+          "properties": {
+            "currency": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3
+            },
+            "value": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0
+            }
+          }
+        },
+        "eta": {
+          "type": "options",
+          "title": "Estimated Arrival",
+          "fieldsOptions": [
+            "5-7 Days",
+            "2-3 Days",
+            "Overnight"
+          ]
+        },
+        "carrier": {
+          "type": "options",
+          "title": "Shipping Carrier",
+          "fieldsOptions": [
+            "FedEx",
+            "UPS",
+            "USPS"
+          ]
+        }
+      },
+      "required": ["storefrontDisplayName", "code", "price"]
+    }
+  }
+}

@@ -29,6 +29,8 @@ import plugins from './plugins';
 import objectSchemas from './object-schema';
 import applications from './merchant-applications';
 import originIntegrations from './origin-integrations';
+import shippingMethods from './shipping-methods';
+import businessProfile from './business-profile';
 
 const rootReducer = combineReducers({
   routing: routerReducer,
@@ -60,6 +62,8 @@ const rootReducer = combineReducers({
   objectSchemas,
   applications,
   originIntegrations,
+  shippingMethods,
+  businessProfile,
 });
 
 export default rootReducer;

@@ -1,0 +1,19 @@
+{
+  "main": [
+    {
+      "type": "group",
+      "title": "General",
+      "fields": {
+        "canAddProperty": false,
+        "value": [
+          "storefrontDisplayName",
+          "price",
+          "eta",
+          "carrier"
+        ],
+        "includeRest": false
+      }
+    }
+  ],
+  "aside": []
+}

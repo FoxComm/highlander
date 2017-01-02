@@ -182,9 +182,9 @@ class CheckoutIntegrationTest
   trait Fixture extends StoreAdmin_Seed with CustomerAddress_Baked {
     val (shipMethod, product, sku, reason) = (for {
       _ ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
-      shipMethodName = ShippingMethod.expressShippingNameForAdmin
+      shipMethodName = ShippingMethod.expressShippingName
       shipMethod ← * <~ ShippingMethods
-                    .filter(_.adminDisplayName === shipMethodName)
+                    .filter(_.name === shipMethodName)
                     .mustFindOneOr(ShippingMethodNotFoundByName(shipMethodName))
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
@@ -206,9 +206,9 @@ class CheckoutIntegrationTest
       address ← * <~ Addresses.create(Factories.usAddress1.copy(accountId = customer.accountId))
       _       ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethod ← * <~ ShippingMethods
-                    .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
+                    .filter(_.name === ShippingMethod.expressShippingName)
                     .mustFindOneOr(
-                        ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
+                        ShippingMethodNotFoundByName(ShippingMethod.expressShippingName))
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
       reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
