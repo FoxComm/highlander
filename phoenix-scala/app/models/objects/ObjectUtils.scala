@@ -103,7 +103,7 @@ object ObjectUtils {
     }
   }
 
-  def updateForm(oldForm: Json, updatedForm: Json): (KeyMap, Json) = {
+  private[objects] def updateForm(oldForm: Json, updatedForm: Json): (KeyMap, Json) = {
     val (keyMap, newForm) = createForm(updatedForm, oldForm)
     (keyMap, oldForm.merge(newForm))
   }
@@ -124,13 +124,15 @@ object ObjectUtils {
     }
 
   case class FormShadowAttributes(form: Json, shadow: Json)
-  def updateFormAndShadow(oldForm: Json, newForm: Json, oldShadow: Json): FormShadowAttributes = {
+  private def updateFormAndShadow(oldForm: Json,
+                                  newForm: Json,
+                                  oldShadow: Json): FormShadowAttributes = {
     val (keyMap, updatedForm) = updateForm(oldForm, newForm)
     val updatedShadow         = newShadow(oldShadow, keyMap)
     FormShadowAttributes(updatedForm, updatedShadow)
   }
 
-  def newFormAndShadow(oldForm: Json, oldShadow: Json): FormShadowAttributes = {
+  private def newFormAndShadow(oldForm: Json, oldShadow: Json): FormShadowAttributes = {
     val (keyMap, form) = createForm(oldForm)
     val shadow         = newShadow(oldShadow, keyMap)
     FormShadowAttributes(form, shadow)
@@ -141,9 +143,6 @@ object ObjectUtils {
     override def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow =
       copy(form = form, shadow = shadow)
   }
-
-  def insert(formAndShadow: FormAndShadow)(implicit ec: EC): DbResultT[InsertResult] =
-    insert(formAndShadow, None)
 
   def insert(formProto: ObjectForm, shadowProto: ObjectShadow)(
       implicit ec: EC): DbResultT[InsertResult] =
@@ -207,7 +206,7 @@ object ObjectUtils {
                            })
     } yield committedObject
 
-  def updateFormAndShadow(
+  private def updateFormAndShadow(
       oldFormAndShadow: FormAndShadow,
       formAttributes: Json,
       shadowAttributes: Json,
