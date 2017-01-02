@@ -12,8 +12,8 @@ class ObjectUtilsTest extends TestBase with GeneratorDrivenPropertyChecks {
 
     ".key" - {
       "returns correct length keys when ‘fields’ are empty" in forAll { (content: String) ⇒
-        ObjectUtils
-          .key(JString(content), JNothing) must have size ObjectUtils.KEY_LENGTH_HEX.toLong
+        // *2L because KeyLength is in bytes and we’re encoding them with hex codes.
+        ObjectUtils.key(JString(content), JNothing) must have size (ObjectUtils.KeyLength * 2L)
       }
 
       "returns correct hash for collisions" in forAll { (content: String, numCollisionsBig: Int) ⇒
@@ -26,7 +26,6 @@ class ObjectUtilsTest extends TestBase with GeneratorDrivenPropertyChecks {
         val hashColl = ObjectUtils.key(JString(content), artificialCollisions)
 
         hashColl mustBe s"$hash/$numCollisions"
-        hashColl.size must be > ObjectUtils.KEY_LENGTH_HEX_WITH_SLASH
       }
     }
 

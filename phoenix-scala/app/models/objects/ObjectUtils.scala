@@ -27,9 +27,7 @@ object ObjectUtils {
   def get(attr: String, form: ObjectForm, shadow: ObjectShadow): Json =
     IlluminateAlgorithm.get(attr, form.attributes, shadow.attributes)
 
-  val KEY_LENGTH                = 5
-  val KEY_LENGTH_HEX            = 2 * KEY_LENGTH
-  val KEY_LENGTH_HEX_WITH_SLASH = KEY_LENGTH_HEX + 1
+  val KeyLength = 5
 
   /**
     * We compute a SHA-1 hash of the json content and return the first
@@ -39,10 +37,7 @@ object ObjectUtils {
     */
   private def hash(content: Json): String = {
     val md = java.security.MessageDigest.getInstance("SHA-1")
-    md.digest(compact(render(content)).getBytes)
-      .slice(0, KEY_LENGTH)
-      .map("%02x".format(_))
-      .mkString
+    md.digest(compact(render(content)).getBytes).slice(0, KeyLength).map("%02x".format(_)).mkString
   }
 
   /**
@@ -51,8 +46,6 @@ object ObjectUtils {
     * the same key but different content.
     */
   private def noHashCollision(key: String, content: Json, fields: Json): Boolean = {
-    require(key.length() >= KEY_LENGTH_HEX)
-
     fields \ key match {
       case JNothing     ⇒ true
       case otherContent ⇒ content.equals(otherContent)
@@ -61,8 +54,6 @@ object ObjectUtils {
 
   @tailrec
   private def findKeyʹ(hashKey: String, content: Json, fields: Json, index: Int): String = {
-    require(hashKey.length() == KEY_LENGTH_HEX)
-
     val newKey = if (index == 0) hashKey else s"$hashKey/$index"
     if (noHashCollision(newKey, content, fields)) newKey
     else findKeyʹ(hashKey, content, fields, index + 1)
