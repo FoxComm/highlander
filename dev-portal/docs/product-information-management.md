@@ -1,13 +1,13 @@
 ---
-id: rendering-elements
-title: Rendering Elements
-permalink: docs/rendering-elements.html
+id: product-information-management
+title: Product Information Management
+permalink: docs/product-information-management.html
 redirect_from: "docs/displaying-data.html"
-prev: introducing-jsx.html
+prev: order-managemen.html
 next: components-and-props.html
 ---
 
-Elements are the smallest building blocks of React apps.
+Fox has a robust PIM! 
 
 An element describes what you want to see on the screen:
 

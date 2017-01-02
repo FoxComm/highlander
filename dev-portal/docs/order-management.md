@@ -1,10 +1,12 @@
 ---
-id: introducing-jsx
-title: Introducing JSX
-permalink: docs/introducing-jsx.html
+id: order-management
+title: Order Management
+permalink: docs/order-management.html
 prev: hello-world.html
-next: rendering-elements.html
+next: product-information-management.html
 ---
+
+Fox has a robust OMS.
 
 Consider this variable declaration:
 

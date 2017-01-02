@@ -1,13 +1,11 @@
 - title: Quick Start
   items:
-    - id: installation
-      title: Installation
     - id: hello-world
-      title: Hello World
-    - id: introducing-jsx
-      title: Introducing JSX
-    - id: rendering-elements
-      title: Rendering Elements
+      title: Getting Started
+    - id: order-management
+      title: Order Management
+    - id: product-information-management
+      title: Product Information (PIM)
     - id: components-and-props
       title: Components and Props
     - id: state-and-lifecycle
