@@ -50,6 +50,7 @@ exclude:
 - README.md
 - Rakefile
 - vendor/bundle
+- "*.apib"
 markdown: redcarpet
 redcarpet:
   extensions:
