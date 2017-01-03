@@ -23,6 +23,16 @@ mixin Nav()
     //- Draw a navigation bar, which includes links to individual
     //- resources and actions.
     nav(class="jeff")
+        if self.api.navItems && self.api.navItems.length
+            .resource-group
+                .heading
+                  .chevron
+                    i.open.fa.fa-angle-down
+                  a(href='#top') Overview
+                .collapse-content
+                  ul: each item in self.api.navItems
+                    li
+                      a(href=item[1])!= item[0]
         each resourceGroup in self.api.resourceGroups || []
             .resource-group
                 .heading
