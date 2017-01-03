@@ -15,6 +15,25 @@
             "tags": ["ssh", "no-ip", "{{user `image_prefix`}}", "amigo"],
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}"
+        },
+        {
+            "name": "amazon",
+            "type": "amazon-ebs",
+            "source_ami": "{{user `base_united_ami`}}",
+            "instance_type": "{{user `instance_type`}}",
+            "region": "{{user `region`}}",
+            "ami_name": "base-{{isotime \"060102-150405\"}}",
+            "ami_description": "Tinyprod Amigo Image",
+            "associate_public_ip_address": true,
+            "ssh_username" : "{{user `ssh_username`}}",
+            "ssh_keypair_name":"{{user `ssh_keypair_name`}}",
+            "ssh_private_key_file":"{{user `ssh_private_key_file`}}",
+            "vpc_id": "{{user `vpc_id`}}",
+            "security_group_id": "{{user `security_group_id`}}",
+            "subnet_id": "{{user `subnet_id`}}",
+            "tags": {
+                "Name": "base-{{isotime \"060102-150405\"}}"
+            }
         }
     ],
     "provisioners" : [

@@ -67,7 +67,14 @@ resource "aws_security_group" "web_access_from_nat_sg" {
     from_port = -1
     to_port = -1
     protocol = "icmp"
-    cidr_blocks = ["${aws_subnet.public.cidr_block}"]
+    cidr_blocks = ["${aws_subnet.private.cidr_block}"]
+  }
+
+  ingress {
+    from_port = -1
+    to_port = -1
+    protocol = "tcp"
+    cidr_blocks = ["${aws_subnet.private.cidr_block}"]
   }
   
   egress {

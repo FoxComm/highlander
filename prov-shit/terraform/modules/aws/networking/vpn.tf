@@ -72,3 +72,27 @@ resource "aws_security_group" "vpn_tcp_udp_sg" {
     Name = "vpn_tcp_udp"
   }
 }
+        
+resource "aws_security_group" "access_from_vpn" {
+  name = "access_from_vpn"
+  description = "Allow access from vpn  "
+  
+  ingress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    security_groups = [
+      "${aws_security_group.vpn_tcp_udp_sg.id}",
+    ]
+  }
+  
+  vpc_id = "${aws_vpc.default.id}"
+
+  tags {
+      Name = "access_from_vpn"
+  }
+}
+
+output "access_from_vpn_sg" {
+  value = "${aws_security_group.access_from_vpn.id}"
+}

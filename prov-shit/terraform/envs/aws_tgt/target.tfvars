@@ -1,0 +1,8 @@
+region                = "us-west-2"
+aws_key_name          = "fc"
+public_subnet_cidr    = "10.0.8.0/23"
+private_subnet_cidr   = "10.0.0.0/21"
+vpn_image             = "ami-746aba14"
+stage_amigo_server_image    = "ami-4b9a332b"
+stage_backend_image         = "ami-2b91384b"
+stage_frontend_image        = "ami-d69c35b6"

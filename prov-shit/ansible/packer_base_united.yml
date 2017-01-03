@@ -13,7 +13,7 @@
     - name: Update Apt Cache
       raw: sudo apt-get update
     - name: Install Python 2 and Boto
-      raw: sudo apt-get -y install python2.7 python-boto
+      raw: sudo apt update; sudo apt -y install python2.7 python-boto
     - name: Gather Facts
       setup:
   post_tasks:
