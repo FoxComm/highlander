@@ -2,83 +2,99 @@
   items:
     - id: hello-world
       title: Getting Started
+    - id: fox-architecture
+      title: The Fox Architecture
+    - id: using-starter-store
+      title: Using the Starter Storefront
+    - id: customizing-look-and-feel
+      title: Customizing the Look and Feel
+    - id: using-fox-admin
+      title: The Fox Admin
+    - id: build-your-first-module
+      title: Building your First Module
+- title: Fox Systems
+  items:
+    - id: authentication
+      title: Authentication
+    - id: product-catalog
+      title: Product Catalog
+      subitems:
+        - id: product-information-management
+          title: Product Information (PIM)
+        - id: merchandising
+          title: Merchandising
+        - id: inventory-management
+          title: Inventory Management
     - id: order-management
       title: Order Management
-    - id: product-information-management
-      title: Product Information (PIM)
-    - id: components-and-props
-      title: Components and Props
-    - id: state-and-lifecycle
-      title: State and Lifecycle
-    - id: handling-events
-      title: Handling Events
-    - id: conditional-rendering
-      title: Conditional Rendering
-    - id: lists-and-keys
-      title: Lists and Keys
-    - id: forms
-      title: Forms
-    - id: lifting-state-up
-      title: Lifting State Up
-    - id: composition-vs-inheritance
-      title: Composition vs Inheritance
-    - id: thinking-in-react
-      title: Thinking In React
+      subitems:
+        - id: carts-and-orders
+          title: Carts and Orders
+        - id: order-routing
+          title: Order Routing
+        - id: shipping-rules
+          title: Shipping Rules
+        - id: taxes-and-tariffs
+          title: Taxes and Tariffs
+    - id: customers
+      title: Customers
+    - id: activity-trail
+      title: Activity Trail & Auditing
+    - id: notifications-and-messaging
+      title: Notifications and Messaging
+    - id: discounts-promotions
+      title: Discounts and Promotions
 - title: Advanced Guides
   items:
+    - id: build-your-own-storefront
+      title: Building your Own Storefront
+    - id: extend-fox-admin
+      title: Extending the Fox Admin
+    - id: handling-events
+      title: Handling Events
     - id: going-international
       title: Going International
-    - id: typechecking-with-proptypes
-      title: Typechecking With PropTypes
-    - id: refs-and-the-dom
-      title: Refs and the DOM
-    - id: uncontrolled-components
-      title: Uncontrolled Components
-    - id: optimizing-performance
-      title: Optimizing Performance
-    - id: react-without-es6
-      title: React Without ES6
-    - id: react-without-jsx
-      title: React Without JSX
-    - id: reconciliation
-      title: Reconciliation
-    - id: context
-      title: Context
-    - id: web-components
-      title: Web Components
-    - id: higher-order-components
-      title: Higher-Order Components
-- title: Reference
+    - id: mobile-app
+      title: Building a Mobile App
+    - id: retail-pos
+      title: Physical Retail POS
+    - id: ab-testing
+      title: AB Testing the Catalog
+    - id: harnessing-intelligent-commerce
+      title: Harnessing Intelligent Commerce
+    - id: multiple-storefronts
+      title: Managing Multiple Storefronts
+    - id: previewing-major-changes
+      title: Previewing Major Site Changes
+- title: Business Types
   items:
-    - id: react-api
-      title: React
+    - id: subscription
+      title: Subscription
       subitems:
-        - id: react-component
-          title: React.Component
-    - id: react-dom
-      title: ReactDOM
-    - id: react-dom-server
-      title: ReactDOMServer
-    - id: dom-elements
-      title: DOM Elements
-    - id: events
-      title: SyntheticEvent
-    - id: addons
-      title: Add-Ons
+        - id: subscription-single-item
+          title: Single Item Subscriptions
+        - id: subscription-box
+          title: Subscription Box
+    - id: marketplace
+      title: Marketplace
       subitems:
-        - id: perf
-          title: Performance Tools
-        - id: test-utils
-          title: Test Utilities
-        - id: animation
-          title: Animation
-        - id: create-fragment
-          title: Keyed Fragments
-        - id: update
-          title: Immutability Helpers
-        - id: pure-render-mixin
-          title: PureRenderMixin
-        - id: shallow-compare
-          title: Shallow Compare
-        - id: two-way-binding-helpers
-          title: Two-way Binding Helpers
+        - id: managed-marketplace
+          title: Managed Marketplaces
+        - id: unmanaged-marketplace
+          title: Unmanaged Marketplaces
+    - id: vip-concierge
+      title: VIP and Concierge
+      subitems:
+        - id: concierge-shopping
+          title: Concierge/Stylist Shopping
+        - id: try-at-home
+          title: Try at Home
+    - id: social
+      title: Social
+      subitems:
+        - id: selling-on-facebook
+          title: Selling on Facebook
+        - id: selling-on-instagram
+          title: Selling on Instagram
+        - id: selling-on-snapchat
+          title: Selling on Snapchat
