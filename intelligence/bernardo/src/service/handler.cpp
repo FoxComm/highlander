@@ -69,6 +69,13 @@ namespace bernardo::service
         if(!type->second.isString())
             throw std::invalid_argument{"'type' must be a string"};
 
+        auto scope = payload.find("scope");
+        if(scope == payload.items().end())
+            throw std::invalid_argument{"'scope' is missing from payload"};
+
+        if(!scope->second.isString())
+            throw std::invalid_argument{"'scope' must be a string"};
+
         auto traits = payload.find("traits");
         if(traits == payload.items().end())
             throw std::invalid_argument{"'traits' object is missing from payload"};
@@ -77,6 +84,7 @@ namespace bernardo::service
             throw std::invalid_argument{"'traits' must be an object"};
 
         cluster::query q;
+        q.scope = scope->second.getString();
         q.type = type->second.getString();
         q.traits = traits->second;
 
@@ -92,7 +100,7 @@ namespace bernardo::service
         auto query = to_query(payload);
 
         cluster::all_groups all;
-        all.groups["poo"] = 
+        all.groups["1.2"]["poo"] = 
         cluster::group {
             {
                 {
@@ -109,14 +117,14 @@ namespace bernardo::service
         std::cout << "TRAITS: " << query.traits << std::endl;
 
         auto group = cluster::group_for_query(all, query);
-        if(group == all.groups.end())
+        if(group == nullptr)
         {
             std::stringstream s;
-            s << "unable to find group " << query.type;
+            s << "unable to find group " << query.type << " in scope " << query.scope;
             throw std::invalid_argument{s.str()};
         }
 
-        auto compiled = cluster::compile_query(query, group->second);
+        auto compiled = cluster::compile_query(query, *group);
 
         std::cout << "COMPILED: ";
         for(auto v : compiled) std::cout << v << " ";

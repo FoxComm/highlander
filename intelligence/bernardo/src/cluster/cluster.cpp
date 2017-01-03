@@ -43,9 +43,14 @@ namespace bernardo::cluster
         return map_value(trait->second, t);
     }
 
-    group_map::const_iterator group_for_query(const all_groups& all, const query& q)
+    const group* group_for_query(const all_groups& all, const query& q)
     {
-        return all.groups.find(q.type);
+        auto groups = all.groups.find(q.scope);
+        if(groups == all.groups.end()) return nullptr;
+
+        auto group = groups->second.find(q.type);
+        if(group == groups->second.end()) return nullptr;
+        return &(group->second);
     }
 
     feature_vec compile_query(const query& q, const group& g)
@@ -55,6 +60,7 @@ namespace bernardo::cluster
 
         feature_vec r;
         r.reserve(d.traits.size());
+
         std::transform(std::begin(d.traits), std::end(d.traits),
                 std::back_inserter(r),
                 [&q](const auto& trait) { return compile_trait(trait, q); });

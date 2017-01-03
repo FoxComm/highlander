@@ -13,6 +13,7 @@ namespace bernardo::cluster
 
     struct query
     {
+        std::string scope;
         std::string type;
         folly::dynamic traits;
     };
@@ -46,6 +47,10 @@ namespace bernardo::cluster
 
     using cluster_vec = std::vector<cluster>;
 
+    using context = std::string;
+    using resource_reference = std::string;
+    using resource_id = std::string;
+
     struct group
     {
         definition def;
@@ -53,13 +58,14 @@ namespace bernardo::cluster
     };
 
     using group_map = std::unordered_map<std::string, group>;
+    using scope_map = std::unordered_map<std::string, group_map>;
 
     struct all_groups
     {
-        group_map groups;
+        scope_map groups;
     };
 
-    group_map::const_iterator group_for_query(const all_groups&, const query&);
+    const group* group_for_query(const all_groups&, const query&);
     feature_vec compile_query(const query&, const group&);
 }
 
