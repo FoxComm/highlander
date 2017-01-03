@@ -1,13 +1,10 @@
 package responses.cord
 
-import cats.data.Xor
 import cats.implicits._
-import models.account.User
+import models.account.{User, _}
 import models.cord._
 import models.cord.lineitems.CartLineItems
 import models.customer.{CustomerData, CustomersData}
-import models.account._
-import models.payment.creditcard._
 import responses.PromotionResponses.PromotionResponse
 import responses._
 import responses.cord.base._
@@ -15,10 +12,9 @@ import services.carts.CartQueries
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import scala.util.{Success, Failure}
 
 case class CartResponse(referenceNumber: String,
-                        paymentState: CreditCardCharge.State,
+                        paymentState: CordPaymentState.State,
                         lineItems: CordResponseLineItems,
                         lineItemAdjustments: Seq[CordResponseLineItemAdjustment] = Seq.empty,
                         promotion: Option[PromotionResponse.Root] = None,
@@ -54,7 +50,7 @@ object CartResponse {
                          .fold(_ ⇒ None, good ⇒ good.some)
       paymentMethods ← * <~ (if (isGuest) DBIO.successful(Seq())
                              else CordResponsePayments.fetchAll(cart.refNum))
-      paymentState             ← * <~ CartQueries.getPaymentState(cart.refNum)
+      paymentState             ← * <~ CartQueries.getCordPaymentState(cart.refNum)
       lockedBy                 ← * <~ currentLock(cart)
       appliedGiftCardAmount    ← * <~ (??? : DBIO[Int])
       appliedStoreCreditAmount ← * <~ (??? : DBIO[Int])
@@ -89,7 +85,7 @@ object CartResponse {
           cu ← customerData
         } yield CustomerResponse.build(c, cu),
         totals = CartResponseTotals.empty,
-        paymentState = CreditCardCharge.Cart
+        paymentState = CordPaymentState.Cart
     )
   }
 
