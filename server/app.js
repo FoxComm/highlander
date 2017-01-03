@@ -12,6 +12,8 @@ import moment from 'moment';
 import chalk from 'chalk';
 import bodyParser from 'koa-bodyparser';
 import contactFeedbackRoute from './routes/contact-feedback-route';
+import log4js from 'koa-log4';
+import path from 'path';
 
 function timestamp() {
   return moment().format('D MMM H:mm:ss');
@@ -30,8 +32,11 @@ export default class App extends KoaApp {
       );
     }
 
+    log4js.configure(path.join(`${__dirname}`, '../log4js.json'));
+
     this.use(serve('public'))
       .use(favicon('public/favicon.png'))
+      .use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }))
       .use(makeApiProxy())
       .use(makeElasticProxy())
       .use(bodyParser())
