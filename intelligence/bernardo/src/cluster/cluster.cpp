@@ -6,6 +6,11 @@
 #include <sstream>
 #include <numeric>
 
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/split.hpp>
+
+#include <folly/json.h>
 namespace bernardo::cluster
 {
 
@@ -202,19 +207,162 @@ namespace bernardo::cluster
             auto best_cluster =  std::min_element(std::begin(clusters), std::end(clusters),
                     [&](const auto& c, const auto&) -> bool
                     {
-                    auto old_smallest = smallest_dist;
-                    auto dist = cluster_dist(features, c.features, def.distance_func);
-                    if(dist <= smallest_dist) smallest_dist = dist;
-                    return dist < old_smallest;
+                        auto old_smallest = smallest_dist;
+                        auto dist = cluster_dist(features, c.features, def.distance_func);
+                        if(dist <= smallest_dist) smallest_dist = dist;
+                        return dist < old_smallest;
                     });
 
             return { best_cluster, smallest_dist};
         }
     }
 
+    distance_function to_distance_func(const std::string& name)
+    {
+        distance_function f = distance_function::euclidean;
+        if(name == "euclidean") f = distance_function::euclidean;
+        else if(name == "hamming") f = distance_function::hamming;
+        else 
+        {
+            std::stringstream e;
+            e << "the distance function " << name << " is not valid" << std::endl;
+            throw std::invalid_argument{e.str()};
+        }
+
+        return f;
+    }
+
+    trait::kind to_trait_kind(const std::string& name)
+    {
+        trait::kind f = trait::kind::number;
+        if(name == "number") f = trait::kind::number;
+        else if(name == "enumeration") f = trait::kind::enumeration;
+        else 
+        {
+            std::stringstream e;
+            e << "the trait kind " << name << " is not valid" << std::endl;
+            throw std::invalid_argument{e.str()};
+        }
+
+        return f;
+    }
+    trait::enum_values to_enum_values(const std::string& encoded)
+    {
+        if(encoded.size() <= 2) return {};
+
+        auto just_values = encoded.substr(1, encoded.size() - 2);
+        trait::enum_values r;
+
+        using split_iter = boost::algorithm::split_iterator<std::string::const_iterator>;
+        split_iter it(just_values.begin(), just_values.end(), 
+                boost::algorithm::first_finder(",", boost::algorithm::is_equal()));
+        split_iter end;
+
+        for(;it != end; it++) r.emplace_back(std::string{it->begin(), it->end()});
+
+        ENSURE_GREATER_EQUAL(r.size(), 1);
+        return r;
+    }
+
+    definition load_definition(pqxx::read_transaction& w, size_t cluster_definition_id)
+    {
+        std::stringstream def_query;
+        def_query << "select distance_func from cluster_definitions where id=" << cluster_definition_id << " limit 1";
+        auto cluster_def = w.exec(def_query.str());
+        if(cluster_def.size() == 0) 
+        {
+            std::stringstream e;
+            e << "unable to find a cluster definition with id " << cluster_definition_id;
+            throw std::invalid_argument{e.str()};
+        }
+
+        std::string distance_function_name;
+        cluster_def[0][0].to(distance_function_name);
+
+        std::cout << "\tdistance function: " << distance_function_name << std::endl;
+        definition def;
+        def.distance_func = to_distance_func(distance_function_name);
+
+        std::stringstream trait_definition_query;
+        trait_definition_query << "select name, kind, enum_values from trait_definitions where cluster_definition_id = " << cluster_definition_id;
+        auto trait_definitions = w.exec(trait_definition_query.str());
+        for(auto t : trait_definitions)
+        {
+            CHECK_EQUAL(t.size(), 3);
+            std::string name;
+            std::string kind;
+            std::string enum_values;
+
+            t[0].to(name);
+            t[1].to(kind);
+            t[2].to(enum_values);
+
+            std::cout << "\t\ttrait: " << name << " kind: " << kind << " vals: " << enum_values << std::endl;
+
+            trait::definition d;
+            d.name = name;
+            d.type = to_trait_kind(kind);
+            d.values = to_enum_values(enum_values);
+            
+            def.traits.emplace_back(d);
+        }
+
+        if(def.traits.empty())
+        {
+            std::cerr << "WARNING: Cluster definition " << cluster_definition_id << " does not have any traits";
+        }
+
+        return def;
+    }
+
+    void load_clusters(pqxx::read_transaction& w, size_t group_id, group& g)
+    {
+        std::stringstream cluster_query;
+        cluster_query << "select ref, traits from clusters where group_id = " << group_id;
+        auto clusters = w.exec(cluster_query.str());
+        for(auto cluster: clusters)
+        {
+            CHECK_EQUAL(cluster.size(), 2);
+            std::string ref;
+            std::string encoded_traits;
+            cluster[0].to(ref);
+            cluster[1].to(encoded_traits);
+
+            std::cout << "\t\tcluster: " << ref << " traits: " << encoded_traits << std::endl;
+            g.add_cluster(ref, folly::parseJson(encoded_traits));
+        }
+        g.build_index();
+    }
+
     void load_groups_from_db(pqxx::connection& c, all_groups& all)
     {
         pqxx::read_transaction w{c};
+        auto groups = w.exec("select id, scope, name, cluster_definition_id from groups");
+        for(auto row: groups)
+        {
+            CHECK_EQUAL(row.size(), 4);
+            
+            size_t group_id;
+            std::string scope;
+            std::string name;
+            size_t cluster_definition_id;
+            row[0].to(group_id);
+            row[1].to(scope);
+            row[2].to(name);
+            row[3].to(cluster_definition_id);
 
+            std::cout << "group: " << group_id << " scope: " << scope << " name: " << name << " def_id: " << cluster_definition_id << std::endl;
+
+            group g;
+            g.def = load_definition(w, cluster_definition_id);
+            load_clusters(w, group_id, g);
+
+            all.groups[scope][name] = g;
+        }
+
+        if(all.groups.empty()) 
+        {
+            std::cerr << "WARNING: NO GROUPS IN DB";
+        }
     }
 }

@@ -99,27 +99,7 @@ namespace bernardo::service
         auto payload = folly::parseJson(body);
         auto query = to_query(payload);
 
-        //TODO: Read this from the DB
-        cluster::all_groups all;
-        cluster::group client_group
-        {
-            {
-                {
-                    {"lang", cluster::trait::kind::enumeration, {"en", "ru"}}, 
-                    {"channel", cluster::trait::kind::enumeration, {"desktop", "mobile"}}
-                },
-                cluster::distance_function::euclidean
-            }
-        };
-        client_group.add_cluster("c1", folly::dynamic::object("lang", "en")("channel", "desktop"));
-        client_group.add_cluster("c2", folly::dynamic::object("lang", "en")("channel", "mobile"));
-        client_group.add_cluster("c3", folly::dynamic::object("lang", "ru")("channel", "desktop"));
-        client_group.add_cluster("c4", folly::dynamic::object("lang", "ru")("channel", "mobile"));
-        client_group.build_index();
-
-        all.groups["1.2"]["client"] = client_group;
-
-        auto group = cluster::group_for_query(all, query);
+        auto group = cluster::group_for_query(_c.groups, query);
         if(group == nullptr)
         {
             std::stringstream s;

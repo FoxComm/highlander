@@ -2,6 +2,7 @@
 #define BERNARDO_QUERY_SERV_H
 
 #include "util/dbc.hpp"
+#include "cluster/cluster.hpp"
 
 #include <proxygen/httpserver/HTTPServer.h>
 #include <proxygen/httpserver/RequestHandler.h>
@@ -12,6 +13,7 @@ namespace bernardo::service
 {
     struct context
     {
+        const cluster::all_groups& groups;
     };
 
     class query_request_handler : public proxygen::RequestHandler {

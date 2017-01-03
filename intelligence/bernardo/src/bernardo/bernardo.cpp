@@ -3,6 +3,7 @@
 #include <thread>
 
 #include "util/dbc.hpp"
+#include "cluster/cluster.hpp"
 #include "service/handler.hpp"
 
 
@@ -50,11 +51,6 @@ po::variables_map parse_options(int argc, char* argv[], po::options_description&
     return v;
 }
 
-void test_db_connection(const std::string& conn)
-{
-    pqxx::connection c{conn};
-}
-
 int main(int argc, char** argv)
 try
 {
@@ -70,18 +66,19 @@ try
     const auto ip = opt["ip"].as<std::string>();
     const auto http_port = opt["http_port"].as<std::uint16_t>();
     const auto http2_port = opt["http2_port"].as<std::uint16_t>();
-    const auto db_conn = opt["db"].as<std::string>();
+    const auto db_conn_str = opt["db"].as<std::string>();
     const auto workers = opt["workers"].as<std::size_t>();
 
-    //test db connection
-    test_db_connection(db_conn);
+    pqxx::connection db_conn{db_conn_str};
+    bernardo::cluster::all_groups groups;
+    bernardo::cluster::load_groups_from_db(db_conn, groups);
 
     std::vector<proxygen::HTTPServer::IPConfig> IPs = {
         {SocketAddress(ip, http_port), Protocol::HTTP},
         {SocketAddress(ip, http2_port), Protocol::HTTP2},
     };
 
-    bernardo::service::context ctx;
+    bernardo::service::context ctx {groups};
 
     proxygen::HTTPServerOptions options;
     options.threads = workers;
