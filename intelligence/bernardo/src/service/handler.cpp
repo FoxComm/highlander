@@ -109,13 +109,13 @@ namespace bernardo::service
                     {"channel", cluster::trait::kind::enumeration, {"desktop", "mobile"}}
                 },
                 cluster::distance_function::euclidean
-            },
-            {}
+            }
         };
         client_group.add_cluster("c1", folly::dynamic::object("lang", "en")("channel", "desktop"));
         client_group.add_cluster("c2", folly::dynamic::object("lang", "en")("channel", "mobile"));
         client_group.add_cluster("c3", folly::dynamic::object("lang", "ru")("channel", "desktop"));
         client_group.add_cluster("c4", folly::dynamic::object("lang", "ru")("channel", "mobile"));
+        client_group.build_index();
 
         all.groups["1.2"]["client"] = client_group;
 
@@ -129,7 +129,7 @@ namespace bernardo::service
 
         auto compiled = cluster::compile_query(query, *group);
 
-        auto result = find_cluster(compiled, *group);
+        auto result = group->find_cluster(compiled);
         if(result.cluster == group->clusters.end())
         {
             std::stringstream s;
