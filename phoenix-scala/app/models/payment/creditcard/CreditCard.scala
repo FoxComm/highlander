@@ -40,8 +40,6 @@ case class CreditCard(id: Int = 0,
                       expMonth: Int,
                       expYear: Int,
                       isDefault: Boolean = false,
-                      address1Check: Option[String] = None,
-                      zipCheck: Option[String] = None,
                       inWallet: Boolean = true,
                       deletedAt: Option[Instant] = None,
                       brand: String,
@@ -73,14 +71,14 @@ case class CreditCard(id: Int = 0,
     if (accountId == ownerId) Xor.right(this)
     else Xor.left(NotFoundFailure400(CreditCard, id).single)
 
-  def copyFromAddress(a: Address): CreditCard =
+  def copyFromAddress(address: Address): CreditCard =
     this.copy(
-        address = this.address.copy(regionId = a.regionId,
-                                    name = a.name,
-                                    address1 = a.address1,
-                                    address2 = a.address2,
-                                    city = a.city,
-                                    zip = a.zip))
+        address = this.address.copy(regionId = address.regionId,
+                                    name = address.name,
+                                    address1 = address.address1,
+                                    address2 = address.address2,
+                                    city = address.city,
+                                    zip = address.zip))
 }
 
 object CreditCard {
@@ -109,26 +107,24 @@ object CreditCard {
   def buildFromSource(accountId: Int,
                       sCust: StripeCustomer,
                       card: StripeCard,
-                      p: CreateCreditCardFromSourcePayload,
-                      a: Address): CreditCard = {
+                      cardPayload: CreateCreditCardFromSourcePayload,
+                      address: Address): CreditCard = {
     CreditCard(accountId = accountId,
                gatewayCustomerId = sCust.getId,
                gatewayCardId = card.getId,
-               holderName = p.holderName,
-               lastFour = p.lastFour,
-               expMonth = p.expMonth,
-               expYear = p.expYear,
-               isDefault = p.isDefault,
-               address1Check = card.getAddressLine1Check.some,
-               zipCheck = card.getAddressZipCheck.some,
+               holderName = cardPayload.holderName,
+               lastFour = cardPayload.lastFour,
+               expMonth = cardPayload.expMonth,
+               expYear = cardPayload.expYear,
+               isDefault = cardPayload.isDefault,
                brand = card.getBrand,
-               address = BillingAddress(regionId = a.regionId,
-                                        name = a.name,
-                                        address1 = a.address1,
-                                        address2 = a.address2,
-                                        city = a.city,
-                                        zip = a.zip,
-                                        phoneNumber = a.phoneNumber))
+               address = BillingAddress(regionId = address.regionId,
+                                        name = address.name,
+                                        address1 = address.address1,
+                                        address2 = address.address2,
+                                        city = address.city,
+                                        zip = address.zip,
+                                        phoneNumber = address.phoneNumber))
   }
 }
 
@@ -145,8 +141,6 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
   def expYear           = column[Int]("exp_year")
   def brand             = column[String]("brand")
   def isDefault         = column[Boolean]("is_default")
-  def address1Check     = column[Option[String]]("address1_check")
-  def zipCheck          = column[Option[String]]("zip_check")
   def inWallet          = column[Boolean]("in_wallet")
   def deletedAt         = column[Option[Instant]]("deleted_at")
   def createdAt         = column[Instant]("created_at")
@@ -170,8 +164,6 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
      expMonth,
      expYear,
      isDefault,
-     address1Check,
-     zipCheck,
      inWallet,
      deletedAt,
      brand,
@@ -187,8 +179,6 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
             expMonth,
             expYear,
             isDefault,
-            address1Check,
-            zipCheck,
             inWallet,
             deletedAt,
             brand,
@@ -204,8 +194,6 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
                    expMonth,
                    expYear,
                    isDefault,
-                   address1Check,
-                   zipCheck,
                    inWallet,
                    deletedAt,
                    brand,
@@ -225,8 +213,6 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
              c.expMonth,
              c.expYear,
              c.isDefault,
-             c.address1Check,
-             c.zipCheck,
              c.inWallet,
              c.deletedAt,
              c.brand,
