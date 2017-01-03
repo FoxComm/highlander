@@ -32,10 +32,10 @@ namespace bernardo::cluster
         return r;
     }
 
-    feature_vec::value_type compile_trait(const trait::definition& t, const query& q)
+    feature_vec::value_type compile_trait(const trait::definition& t, const folly::dynamic& traits)
     {
-        auto trait = q.traits.find(t.name);
-        if(trait == q.traits.items().end())
+        auto trait = traits.find(t.name);
+        if(trait == traits.items().end())
         {
             std::stringstream s;
             s << "query is missing trait \"" << t.name << "\"";
@@ -54,9 +54,8 @@ namespace bernardo::cluster
         return &(group->second);
     }
 
-    feature_vec compile_query(const query& q, const group& g)
+    feature_vec compile_traits(const folly::dynamic& traits, const definition& d)
     {
-        const auto& d = g.def;
         REQUIRE_FALSE(d.traits.empty());
 
         feature_vec r;
@@ -64,10 +63,22 @@ namespace bernardo::cluster
 
         std::transform(std::begin(d.traits), std::end(d.traits),
                 std::back_inserter(r),
-                [&q](const auto& trait) { return compile_trait(trait, q); });
+                [&traits](const auto& trait_def) { return compile_trait(trait_def, traits); });
 
         ENSURE_EQUAL(r.size(), d.traits.size());
         return r;
+    }
+
+    feature_vec compile_query(const query& q, const group& g)
+    {
+        const auto& d = g.def;
+        REQUIRE_FALSE(d.traits.empty());
+        return compile_traits(q.traits, g.def);
+    }
+
+    void group::add_cluster(folly::dynamic traits)
+    {
+        clusters.emplace_back( cluster { traits, compile_traits(traits, def)});
     }
 
     double euclidean_dist(const feature_vec& a, const feature_vec& b)

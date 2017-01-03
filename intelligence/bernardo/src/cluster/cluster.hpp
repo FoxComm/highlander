@@ -40,16 +40,9 @@ namespace bernardo::cluster
         distance_function distance_func;
     };
 
-    struct context 
-    {
-        folly::dynamic attributes;
-    }; 
-
-    using context_map = std::unordered_map<std::string, context>; 
-
     struct cluster
     {
-        context_map contexts;
+        folly::dynamic traits;
         feature_vec features; 
     };
 
@@ -59,6 +52,8 @@ namespace bernardo::cluster
     {
         definition def;
         cluster_vec clusters;
+
+        void add_cluster(folly::dynamic attributes);
     };
 
     using group_map = std::unordered_map<std::string, group>;

@@ -100,8 +100,8 @@ namespace bernardo::service
         auto query = to_query(payload);
 
         cluster::all_groups all;
-        all.groups["1.2"]["poo"] = 
-        cluster::group {
+        cluster::group poo 
+        {
             {
                 {
                     {"foo", cluster::trait::kind::number, {}}, 
@@ -109,8 +109,13 @@ namespace bernardo::service
                 },
                 cluster::distance_function::euclidean
             },
-            {{{}, {2, 1}},{{}, {1, 2}}, {{},{2,2}}}
+            {}
         };
+        poo.add_cluster(folly::dynamic::object("foo", 1)("bar", "b"));
+        poo.add_cluster(folly::dynamic::object("foo", 2)("bar", "a"));
+        poo.add_cluster(folly::dynamic::object("foo", 2)("bar", "b"));
+
+        all.groups["1.2"]["poo"] = poo;
 
         std::cout << "PAYLOAD: " << payload << std::endl;
         std::cout << "TYPE: " << query.type << std::endl;
@@ -139,7 +144,7 @@ namespace bernardo::service
         }
 
         std::cout << "BEST MATCH SCORE: " << result.distance << std::endl;
-        std::cout << "BEST MATCH: ";
+        std::cout << "BEST MATCH: " << result.cluster->traits << " features: ";
         for(auto v : result.cluster->features) std::cout << v << " ";
         std::cout << std::endl;
 
