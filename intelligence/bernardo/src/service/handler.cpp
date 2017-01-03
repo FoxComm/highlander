@@ -62,19 +62,19 @@ namespace bernardo::service
 
     cluster::query to_query(const folly::dynamic& payload)
     {
-        auto type = payload.find("type");
-        if(type == payload.items().end())
-            throw std::invalid_argument{"'type' is missing from payload"};
-
-        if(!type->second.isString())
-            throw std::invalid_argument{"'type' must be a string"};
-
         auto scope = payload.find("scope");
         if(scope == payload.items().end())
             throw std::invalid_argument{"'scope' is missing from payload"};
 
         if(!scope->second.isString())
             throw std::invalid_argument{"'scope' must be a string"};
+
+        auto type = payload.find("type");
+        if(type == payload.items().end())
+            throw std::invalid_argument{"'type' is missing from payload"};
+
+        if(!type->second.isString())
+            throw std::invalid_argument{"'type' must be a string"};
 
         auto traits = payload.find("traits");
         if(traits == payload.items().end())
@@ -109,7 +109,7 @@ namespace bernardo::service
                 },
                 cluster::distance_function::euclidean
             },
-            {}
+            {{{}, {2, 1}},{{}, {1, 2}}, {{},{2,2}}}
         };
 
         std::cout << "PAYLOAD: " << payload << std::endl;
@@ -129,6 +129,20 @@ namespace bernardo::service
         std::cout << "COMPILED: ";
         for(auto v : compiled) std::cout << v << " ";
         std::cout << std::endl;
+
+        auto result = find_cluster(compiled, *group);
+        if(result.cluster == group->clusters.end())
+        {
+            std::stringstream s;
+            s << "unable to find best cluster for " << query.traits << " in group " << query.type;
+            throw std::invalid_argument{s.str()};
+        }
+
+        std::cout << "BEST MATCH SCORE: " << result.distance << std::endl;
+        std::cout << "BEST MATCH: ";
+        for(auto v : result.cluster->features) std::cout << v << " ";
+        std::cout << std::endl;
+
 
 
         proxygen::ResponseBuilder{downstream_}

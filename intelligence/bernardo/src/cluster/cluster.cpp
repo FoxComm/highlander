@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <numeric>
 
 namespace bernardo::cluster
 {
@@ -67,6 +68,63 @@ namespace bernardo::cluster
 
         ENSURE_EQUAL(r.size(), d.traits.size());
         return r;
+    }
+
+    double euclidean_dist(const feature_vec& a, const feature_vec& b)
+    {
+        REQUIRE_EQUAL(a.size(), b.size());
+        return std::inner_product(std::begin(a), std::end(a), std::begin(b), 0.0,
+                std::plus<double>(), 
+                [](auto a, auto b) 
+                { 
+                    auto d = a - b;
+                    return d*d;
+                });
+    }
+
+    double hamming_dist(const feature_vec& a, const feature_vec& b)
+    {
+        REQUIRE_EQUAL(a.size(), b.size());
+
+        return std::inner_product(std::begin(a), std::end(a), std::begin(b), 0.0,
+                std::plus<double>(), 
+                [](auto a, auto b) 
+                { 
+                    return a == b ? 0.0 : 1.0;
+                });
+    }
+
+    double cluster_dist(const feature_vec& a, const feature_vec& b, distance_function dist_type)
+    {
+        double d = std::numeric_limits<double>::max();
+        switch(dist_type)
+        {
+            case distance_function::euclidean: d = euclidean_dist(a, b); break;
+            case distance_function::hamming: d = hamming_dist(a, b); break;
+            default: CHECK(false && "missed case");
+        }
+
+        REQUIRE_GREATER_EQUAL(d, 0.0);
+        return d;
+    }
+
+    /**
+     * TODO: USE FLANN HERE
+     */
+    find_result find_cluster(const feature_vec& features, const group& g)
+    {
+        REQUIRE_GREATER(g.clusters.size(), 0);
+
+        double smallest_dist = cluster_dist(features, g.clusters.front().features, g.def.distance_func);
+        auto best_cluster =  std::min_element(std::begin(g.clusters), std::end(g.clusters),
+                [&](const auto& c, const auto&) -> bool
+                {
+                    auto old_smallest = smallest_dist;
+                    auto dist = cluster_dist(features, c.features, g.def.distance_func);
+                    if(dist <= smallest_dist) smallest_dist = dist;
+                    return dist < old_smallest;
+                });
+        return { best_cluster, smallest_dist};
     }
 
 }

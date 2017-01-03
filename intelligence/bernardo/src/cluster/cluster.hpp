@@ -9,7 +9,7 @@
 namespace bernardo::cluster 
 {
 
-    using feature_vec = std::vector<float>;
+    using feature_vec = std::vector<double>;
 
     struct query
     {
@@ -34,22 +34,26 @@ namespace bernardo::cluster
 
     enum distance_function { euclidean, hamming};
 
-    struct cluster
-    {
-        feature_vec features; 
-    };
-
     struct definition
     {
         trait::definitions traits;
         distance_function distance_func;
     };
 
-    using cluster_vec = std::vector<cluster>;
+    struct context 
+    {
+        folly::dynamic attributes;
+    }; 
 
-    using context = std::string;
-    using resource_reference = std::string;
-    using resource_id = std::string;
+    using context_map = std::unordered_map<std::string, context>; 
+
+    struct cluster
+    {
+        context_map contexts;
+        feature_vec features; 
+    };
+
+    using cluster_vec = std::vector<cluster>;
 
     struct group
     {
@@ -67,6 +71,14 @@ namespace bernardo::cluster
 
     const group* group_for_query(const all_groups&, const query&);
     feature_vec compile_query(const query&, const group&);
+
+    struct find_result
+    {
+        cluster_vec::const_iterator cluster;
+        double distance;
+    };
+
+    find_result find_cluster(const feature_vec&, const group&);
 }
 
 #endif
