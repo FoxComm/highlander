@@ -27,7 +27,8 @@ object ObjectUtils {
   def get(attr: String, form: ObjectForm, shadow: ObjectShadow): Json =
     IlluminateAlgorithm.get(attr, form.attributes, shadow.attributes)
 
-  val KeyLength = 5
+  private val Sha1MessageDigest = java.security.MessageDigest.getInstance("SHA-1")
+  val KeyLength                 = 5
 
   /**
     * We compute a SHA-1 hash of the json content and return the first
@@ -35,29 +36,12 @@ object ObjectUtils {
     * We don't care about the whole hash because it would take up too much space. 
     * Collisions are handled below in the findKey function.
     */
-  private def hash(content: Json): String = {
-    val md = java.security.MessageDigest.getInstance("SHA-1")
-    md.digest(compact(render(content)).getBytes).slice(0, KeyLength).map("%02x".format(_)).mkString
-  }
-
-  /**
-    * Returns true if there if there is no hash collision.
-    * We consider a hash collision if there is an existing attribute with
-    * the same key but different content.
-    */
-  private def noHashCollision(key: String, content: Json, fields: Json): Boolean = {
-    fields \ key match {
-      case JNothing     ⇒ true
-      case otherContent ⇒ content.equals(otherContent)
-    }
-  }
-
-  @tailrec
-  private def findKeyʹ(hashKey: String, content: Json, fields: Json, index: Int): String = {
-    val newKey = if (index == 0) hashKey else s"$hashKey/$index"
-    if (noHashCollision(newKey, content, fields)) newKey
-    else findKeyʹ(hashKey, content, fields, index + 1)
-  }
+  private def hash(content: Json): String =
+    Sha1MessageDigest
+      .digest(compact(render(content)).getBytes)
+      .slice(0, KeyLength)
+      .map("%02x".format(_))
+      .mkString
 
   /**
     * The key algorithm will compute a hash of the content and then search
@@ -66,12 +50,20 @@ object ObjectUtils {
     * new hash+index key is searched until we find a key with same content or 
     * we reach the end of the list.
     */
-  private def findKey(content: Json, fields: Json): String = {
+  private[objects] def key(content: Json, alreadyExistingFields: Json): String = {
     val hashKey = hash(content)
-    findKeyʹ(hashKey, content, fields, index = 0)
-  }
 
-  private[objects] def key(content: Json, fields: Json): String = findKey(content, fields)
+    def noHashCollision(newHash: String): Boolean = {
+      val value = alreadyExistingFields \ newHash
+      value == JNothing || value == content
+    }
+
+    Stream
+      .from(0)
+      .map(i ⇒ if (i == 0) hashKey else s"$hashKey/$i")
+      .find(noHashCollision)
+      .get // safe as the stream is [0;∞)
+  }
 
   type KeyMap = Map[String, String]
   def createForm(form: Json, existingForm: Json = JNothing): (KeyMap, Json) = {
