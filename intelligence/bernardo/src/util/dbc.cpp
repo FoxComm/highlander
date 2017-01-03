@@ -8,7 +8,6 @@ namespace bernardo::util
     namespace 
     {
         const size_t TRACE_SIZE = 16;
-        dialog_callback DIALOG_CALLBACK = [](const char*){};
     }
 
     void trace(std::ostream& o)
@@ -22,18 +21,12 @@ namespace bernardo::util
         std::free(s);
     }
 
-    void set_assert_dialog_callback(dialog_callback c)
-    {
-        DIALOG_CALLBACK = c;
-    }
-
     void raise(const char * msg) 
     {
         std::stringstream s;
         s << msg << std::endl;
         trace(s);
         std::cerr << s.str() << std::endl;
-        DIALOG_CALLBACK(s.str().c_str());
         exit(1);
     }
 

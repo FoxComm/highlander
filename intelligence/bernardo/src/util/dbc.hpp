@@ -7,9 +7,6 @@
 
 namespace bernardo::util
 {
-    using dialog_callback = std::function<void(const char*)>;
-    void set_assert_dialog_callback(dialog_callback);
-
     void raise(const char * msg);
     void raise1( 
             const char * file, 
