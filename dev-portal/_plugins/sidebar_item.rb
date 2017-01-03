@@ -9,7 +9,7 @@ module Jekyll
     end
 
     def apiref_sidebar_link(item)
-      return sidebar_helper(item, 'apiref')
+      return sidebar_helper(item, 'api-ref')
     end
 
     def migrating_sidebar_link(item)
