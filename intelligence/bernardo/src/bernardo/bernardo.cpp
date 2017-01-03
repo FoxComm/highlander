@@ -15,7 +15,7 @@
 //for main
 #include <boost/program_options.hpp>
 
-//db
+//for db
 #include <pqxx/pqxx>
 
 using folly::EventBase;

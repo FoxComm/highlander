@@ -69,12 +69,12 @@ namespace bernardo::service
         if(!scope->second.isString())
             throw std::invalid_argument{"'scope' must be a string"};
 
-        auto type = payload.find("type");
-        if(type == payload.items().end())
-            throw std::invalid_argument{"'type' is missing from payload"};
+        auto group_name = payload.find("group");
+        if(group_name == payload.items().end())
+            throw std::invalid_argument{"'group' is missing from payload"};
 
-        if(!type->second.isString())
-            throw std::invalid_argument{"'type' must be a string"};
+        if(!group_name->second.isString())
+            throw std::invalid_argument{"'group' must be a string"};
 
         auto traits = payload.find("traits");
         if(traits == payload.items().end())
@@ -85,7 +85,7 @@ namespace bernardo::service
 
         cluster::query q;
         q.scope = scope->second.getString();
-        q.type = type->second.getString();
+        q.group_name = group_name->second.getString();
         q.traits = traits->second;
 
         return q;
@@ -99,58 +99,51 @@ namespace bernardo::service
         auto payload = folly::parseJson(body);
         auto query = to_query(payload);
 
+        //TODO: Read this from the DB
         cluster::all_groups all;
-        cluster::group poo 
+        cluster::group client_group
         {
             {
                 {
-                    {"foo", cluster::trait::kind::number, {}}, 
-                    {"bar", cluster::trait::kind::enumeration, {"a", "b"}}
+                    {"lang", cluster::trait::kind::enumeration, {"en", "ru"}}, 
+                    {"channel", cluster::trait::kind::enumeration, {"desktop", "mobile"}}
                 },
                 cluster::distance_function::euclidean
             },
             {}
         };
-        poo.add_cluster(folly::dynamic::object("foo", 1)("bar", "b"));
-        poo.add_cluster(folly::dynamic::object("foo", 2)("bar", "a"));
-        poo.add_cluster(folly::dynamic::object("foo", 2)("bar", "b"));
+        client_group.add_cluster("c1", folly::dynamic::object("lang", "en")("channel", "desktop"));
+        client_group.add_cluster("c2", folly::dynamic::object("lang", "en")("channel", "mobile"));
+        client_group.add_cluster("c3", folly::dynamic::object("lang", "ru")("channel", "desktop"));
+        client_group.add_cluster("c4", folly::dynamic::object("lang", "ru")("channel", "mobile"));
 
-        all.groups["1.2"]["poo"] = poo;
-
-        std::cout << "PAYLOAD: " << payload << std::endl;
-        std::cout << "TYPE: " << query.type << std::endl;
-        std::cout << "TRAITS: " << query.traits << std::endl;
+        all.groups["1.2"]["client"] = client_group;
 
         auto group = cluster::group_for_query(all, query);
         if(group == nullptr)
         {
             std::stringstream s;
-            s << "unable to find group " << query.type << " in scope " << query.scope;
+            s << "unable to find group " << query.group_name << " in scope " << query.scope;
             throw std::invalid_argument{s.str()};
         }
 
         auto compiled = cluster::compile_query(query, *group);
 
-        std::cout << "COMPILED: ";
-        for(auto v : compiled) std::cout << v << " ";
-        std::cout << std::endl;
-
         auto result = find_cluster(compiled, *group);
         if(result.cluster == group->clusters.end())
         {
             std::stringstream s;
-            s << "unable to find best cluster for " << query.traits << " in group " << query.type;
+            s << "unable to find best cluster for " << query.traits << " in group " << query.group_name;
             throw std::invalid_argument{s.str()};
         }
 
-        std::cout << "BEST MATCH SCORE: " << result.distance << std::endl;
-        std::cout << "BEST MATCH: " << result.cluster->traits << " features: ";
-        for(auto v : result.cluster->features) std::cout << v << " ";
-        std::cout << std::endl;
-
-
+        folly::dynamic response = folly::dynamic::object
+            ("ref", result.cluster->reference)
+            ("traits", result.cluster->traits)
+            ("dist", result.distance);
 
         proxygen::ResponseBuilder{downstream_}
+        .body(folly::toJson(response))
         .status(200, "OK")
             .sendWithEOM();
     }

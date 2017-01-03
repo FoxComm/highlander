@@ -6,6 +6,8 @@
 #include <flann/flann.hpp>
 #include <folly/dynamic.h>
 
+#include <pqxx/pqxx>
+
 namespace bernardo::cluster 
 {
 
@@ -14,7 +16,7 @@ namespace bernardo::cluster
     struct query
     {
         std::string scope;
-        std::string type;
+        std::string group_name;
         folly::dynamic traits;
     };
 
@@ -42,6 +44,7 @@ namespace bernardo::cluster
 
     struct cluster
     {
+        std::string reference;
         folly::dynamic traits;
         feature_vec features; 
     };
@@ -53,7 +56,7 @@ namespace bernardo::cluster
         definition def;
         cluster_vec clusters;
 
-        void add_cluster(folly::dynamic attributes);
+        void add_cluster(const std::string& reference, folly::dynamic attributes);
     };
 
     using group_map = std::unordered_map<std::string, group>;
@@ -74,6 +77,8 @@ namespace bernardo::cluster
     };
 
     find_result find_cluster(const feature_vec&, const group&);
+
+    void load_groups_from_db(pqxx::connection&, all_groups&);
 }
 
 #endif

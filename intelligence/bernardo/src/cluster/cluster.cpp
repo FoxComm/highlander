@@ -49,7 +49,7 @@ namespace bernardo::cluster
         auto groups = all.groups.find(q.scope);
         if(groups == all.groups.end()) return nullptr;
 
-        auto group = groups->second.find(q.type);
+        auto group = groups->second.find(q.group_name);
         if(group == groups->second.end()) return nullptr;
         return &(group->second);
     }
@@ -76,9 +76,9 @@ namespace bernardo::cluster
         return compile_traits(q.traits, g.def);
     }
 
-    void group::add_cluster(folly::dynamic traits)
+    void group::add_cluster(const std::string& reference, folly::dynamic traits)
     {
-        clusters.emplace_back( cluster { traits, compile_traits(traits, def)});
+        clusters.emplace_back( cluster { reference, traits, compile_traits(traits, def)});
     }
 
     double euclidean_dist(const feature_vec& a, const feature_vec& b)
@@ -138,4 +138,8 @@ namespace bernardo::cluster
         return { best_cluster, smallest_dist};
     }
 
+    void load_groups_from_db(pqxx::connection& c, all_groups& all)
+    {
+
+    }
 }
