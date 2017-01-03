@@ -1,7 +1,9 @@
 package utils.http
 
+import java.io.{ByteArrayInputStream, DataInputStream}
+
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Random, Success, Try}
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.RawHeader
@@ -9,7 +11,6 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.PathMatcher.Matched
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
-
 import cats.data.Xor
 import failures._
 import models.account._
@@ -25,11 +26,14 @@ import utils.aliases._
 import utils.db._
 import utils.http.Http._
 import com.github.levkhomich.akka.tracing._
+import com.github.levkhomich.akka.tracing.http.TracingHeaders._
 import com.typesafe.scalalogging.LazyLogging
 
 object CustomDirectives extends LazyLogging {
 
-  final case class TracingRequest() extends TracingSupport
+  private val DebugFlag = 1L
+
+  final case class TracingRequest(override val spanName: String) extends TracingSupport
 
   val DefaultContextName = SimpleContext.default
 
@@ -64,18 +68,31 @@ object CustomDirectives extends LazyLogging {
 
   def traceStart(service: String, trace: TracingExtensionImpl): Directive1[TracingRequest] = {
     extractRequest.map { request ⇒
-      val tr = TracingRequest()
-      logger.info(s"In traceStart. ${service}")
-      trace.sample(tr, service, true)
+      def headers(name: String): Option[String] = request.headers.find(_.name == name).map(_.value)
+
+      val cr = TracingRequest("client")
+      val tr = TracingRequest(request.uri.path.toString())
+
+      extractSpan(headers, requireTraceId = false) match {
+        case Right(maybeSpan) ⇒
+          maybeSpan.foreach { span ⇒
+            trace.importMetadata(cr, span, "client")
+            trace.createChild(tr, cr).foreach { md ⇒
+              trace.importMetadata(tr, md, service)
+            }
+          }
+        case Left(malformedHeaderName) ⇒
+          reject(MalformedHeaderRejection(malformedHeaderName, "invalid value"))
+      }
+
+      trace.record(tr, TracingAnnotations.ServerReceived.text)
+
       trace.recordKeyValue(tr, "request.uri", request.uri.toString())
       trace.recordKeyValue(tr, "request.path", request.uri.path.toString())
-      trace.recordKeyValue(tr, "request.proto", request.protocol.value)
+      trace.recordKeyValue(tr, "request.method", request.method.value)
       request.uri.query().toMultiMap.foreach {
         case (key, values) ⇒
           values.foreach(trace.recordKeyValue(tr, "request.query." + key, _))
-      }
-      request.headers.foreach { header ⇒
-        trace.recordKeyValue(tr, "request.headers." + header.name, header.value)
       }
       tr
     }
@@ -86,6 +103,70 @@ object CustomDirectives extends LazyLogging {
     logger.info(s"In traceEnd. ${TracingAnnotations.ServerSend}")
 
     t
+  }
+
+  private def idFromString(x: String): Long = {
+    if (x == null || x.length == 0) {
+      throw new NumberFormatException("Empty span id")
+    } else if (x.length > 32) {
+      throw new NumberFormatException("Span id is too long: " + x)
+    } else if (x.length > 16) {
+      idFromString(x.takeRight(16))
+    } else {
+      val s =
+        if (x.length % 2 == 0) x
+        else "0" + x
+      val bytes = new Array[Byte](8)
+      val start = 7 - (s.length + 1) / 2
+      (s.length until 0 by -2).foreach { i ⇒
+        val x = Integer.parseInt(s.substring(i - 2, i), 16).toByte
+        bytes.update(start + i / 2, x)
+      }
+      new DataInputStream(new ByteArrayInputStream(bytes)).readLong
+    }
+  }
+
+  private def extractSpan(headers: String ⇒ Option[String],
+                          requireTraceId: Boolean): Either[String, Option[SpanMetadata]] = {
+    def headerLongValue(name: String): Either[String, Option[Long]] =
+      Try(headers(name).map(idFromString)) match {
+        case Failure(e) ⇒
+          Left(name)
+        case Success(v) ⇒
+          Right(v)
+      }
+    def spanId: Long = headerLongValue(SpanId).right.toOption.flatten.getOrElse(Random.nextLong)
+
+    // debug flag forces sampling (see http://git.io/hdEVug)
+    val maybeForceSampling = headers(Sampled).map(_.toLowerCase) match {
+      case Some("0") | Some("false") ⇒
+        Some(false)
+      case Some("1") | Some("true") ⇒
+        Some(true)
+      case _ ⇒
+        headers(Flags).flatMap(flags ⇒
+              Try((java.lang.Long.parseLong(flags) & DebugFlag) == DebugFlag).toOption.filter(v ⇒
+                    v))
+    }
+
+    maybeForceSampling match {
+      case Some(false) ⇒
+        Right(None)
+      case _ ⇒
+        val forceSampling = maybeForceSampling.getOrElse(false)
+        headerLongValue(TraceId).right
+          .map({
+            case Some(traceId) ⇒
+              headerLongValue(ParentSpanId).right.map { parentId ⇒
+                Some(SpanMetadata(traceId, spanId, parentId, forceSampling))
+              }
+            case _ if requireTraceId ⇒
+              Right(None)
+            case _ ⇒
+              Right(Some(SpanMetadata(Random.nextLong, spanId, None, forceSampling)))
+          })
+          .joinRight
+    }
   }
 
   /**
