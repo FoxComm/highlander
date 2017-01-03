@@ -67,20 +67,18 @@ object ObjectUtils {
 
   type KeyMap = Map[String, String]
   def createForm(form: Json, existingForm: Json = JNothing): (KeyMap, Json) = {
-    var accumObj = existingForm.merge(form)
-
     form match {
       case JObject(o) ⇒
-        val m = o.obj.map {
-          case (attr, value) ⇒
-            val k     = key(value, accumObj)
-            val field = (k, value)
-            accumObj = accumObj.merge(JObject(List(field)))
-            (Map(attr → k), field)
-        }
-        val keyMap  = m.map(_._1).reduceOption(_ ++ _).getOrElse(Map.empty)
-        val newForm = JObject(m.map(_._2).toList.distinct)
-        (keyMap, newForm)
+        val zeroAccumObj = existingForm.merge(form)
+        val (_, keyMap, newForm) =
+          o.obj.foldLeft((zeroAccumObj, Map.empty: KeyMap, Nil: List[(String, JValue)])) {
+            case ((accumObj, keyMap, newForm), (attr, value)) ⇒
+              val k            = key(value, accumObj)
+              val field        = (k, value)
+              val nextAccumObj = accumObj.merge(JObject(List(field)))
+              (nextAccumObj, keyMap + (attr → k), field :: newForm)
+          }
+        (keyMap, JObject(newForm.distinct))
       case _ ⇒
         (Map(), JNothing)
     }

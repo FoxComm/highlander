@@ -31,6 +31,27 @@ class ObjectUtilsTest extends TestBase with GeneratorDrivenPropertyChecks {
       }
     }
 
+    ".createForm" - {
+      "creates new forms from scratch" in forAll { (kv: List[(String, String)]) ⇒
+        val jobject = JObject(kv.map {
+          case (k, v) ⇒ k → JString(v)
+        })
+        val (keyMap, form) = ObjectUtils.createForm(jobject)
+
+        keyMap must === (
+            kv.map {
+              case (k, v) ⇒ k → ObjectUtils.key(JString(v), JNothing)
+            }.toMap
+        )
+
+        form must === (
+            JObject(kv.map {
+              case (k, v) ⇒ ObjectUtils.key(JString(v), JNothing) → JString(v)
+            })
+        )
+      }
+    }
+
   }
 
 }
