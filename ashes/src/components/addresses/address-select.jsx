@@ -81,7 +81,7 @@ export default class AddressSelect extends React.Component {
         </div>
         <div className="fc-address-select-body">
           <input type="hidden" name={ this.props.name } value={ this.state.value } readOnly/>
-          <div className="fc-address-select-list">
+          <div id="address-select-list" className="fc-address-select-list">
             {(this.props.items && this.props.items.map( this.renderSelectItem ))}
           </div>
         </div>
