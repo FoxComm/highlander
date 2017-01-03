@@ -67,6 +67,7 @@
     "koa-body": "^1.2.1",
     "koa-favicon": "^1.2.0",
     "koa-json": "^1.1.1",
+    "koa-log4": "^1.1.0",
     "koa-proxy": "^0.6.0",
     "koa-router": "^5.1.2",
     "less-plugin-autoprefix": "^1.4.2",
