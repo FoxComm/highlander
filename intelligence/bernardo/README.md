@@ -12,13 +12,15 @@ compared to clusters find the best one using kNN search.
 Bernardo will have an endpoint that will take a json object as a payload
 
   {
-     "type": "customer-request",
-     "foo": "bar",
-     "baz": 6
+     "scope" : "1.1",
+     "group": "client-request",
+     "traits" : {
+        "foo": "bar",
+        "baz": 6
+     }
   } 
 
 And Map that to a feature vector
-
 
   [3, 4]
 
@@ -27,44 +29,45 @@ and find the closest match.
 
 Each cluster type will have a definition describing the mapping.
 
-  create table cluster_mapping(
-    id serial primary key,
-    type text,
-    mapping jsonb,
-    arangement array,
-    distance_function text
- );
+    namespace trait
+    {
+        enum kind { number, enumeration};
+        using enum_values = std::vector<std::string>;
+        struct definition
+        {
+            std::string name;
+            kind type;
+            enum_values values;
+        };
 
-Where the mapping is a json object describing the attributes and the kind
-of mapping function to use
+        using definitions =  std::vector<definition>;
+    }
 
+    enum distance_function { euclidean, hamming};
 
-  {
-      "foo": ["bar", "boop"]
-      "baz": "int"
-  }
+    struct definition
+    {
+        trait::definitions traits;
+        distance_function distance_func;
+    };
 
-The example above, "foo" is mapped to an enumeration where "bar" is 0 and "boop" is 1.
-Also, "baz" is already an int so it gets mapped as an "int"
+Where the definition has a list of traits and info in how they are mapped
 
+For now we will support just enumerations and number, but you can imagine more complex
+mapping functions later, including using neural nets.
 
-For now we will support just enumerations and int, but you can imagine more complex
-mapping functions later.
-
-
-The "arrangement" parameter is an array of the attributes in which order they
-are mapped, so in this case
-
-  ["foo", "baz"] 
-
-means foo is first and baz is next.
-
-Given the above mapping and arrangement we get the following feature vector.
-
-  [0, 6]
+Given the above mapping and arrangement we get a feature vector.
 
 The "distance_function" describes a function to use to compare feature vectors, in
 this case we can have "euclidean" and "hamming" for example.
+
+#Performance
+
+The service will use a kNN library called (FLANN)[http://www.cs.ubc.ca/research/flann/] do index
+and compare feature vectors.
+
+Eventually we may want to run this on a GPU machine given FLANN's support for CUDA and the eventual
+situation where we have many clusters to match against.
 
 
  
