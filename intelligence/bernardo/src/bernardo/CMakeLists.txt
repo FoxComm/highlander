@@ -12,7 +12,6 @@ add_executable(
 
 target_link_libraries(
     bernardo
-    bernardo_cluster
     bernardo_service
     bernardo_cluster
     bernardo_util
