@@ -4,5 +4,12 @@
     title: API Reference Overview
   - id: public
     title: Public API Reference
-  - id: api-customers
+  - id: merchandising
+    title: Merchandising API Reference
+  - id: transactions
+    title: Merchandising API Reference
+  - id: inventory
+    title: Inventory API Reference
+  - id: customer
     title: Customer API Reference
+  

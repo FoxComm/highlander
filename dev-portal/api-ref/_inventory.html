@@ -1,0 +1,2232 @@
+<!DOCTYPE html><div class="content"><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"><link rel="stylesheet" href="template/foxcomm.css"><a href="#top" class="text-muted back-to-top"><i class="fa fa-toggle-up"></i>&nbsp;Back to top</a><header><h1 id="top">Inventory Admin</h1></header><p>This section covers all the endpoints that a site administrator could use to
+view and manage inventory and shipping information in FoxCommerce. Every
+endpoint in this section required authentication.</p>
+<section id="stock-level-summaries" class="resource-group"><h2 class="group-heading">Stock Level Summaries <a href="#stock-level-summaries" class="permalink">&para;</a></h2><p>Stock Level Summaries allows a user to see levels of inventory available across
+various inventory types and stock locations.</p>
+<p><em>Inventory Types</em></p>
+<ul>
+<li>
+<p><strong>Sellable</strong>: the standard inventory type. Units in this state are considered to
+be in-stock and available in a stock location.</p>
+</li>
+<li>
+<p><strong>Non-sellable</strong>: inventory that is in a stock location but not allowed to sold.
+One example would be inventory that has been received in a warehouse from a
+manufacturer, but is not yet put in to bins.</p>
+</li>
+<li>
+<p><strong>Backorder</strong>: the amount of inventory that is either available for backorder or
+has already been backordered.</p>
+</li>
+<li>
+<p><strong>Preorder</strong>: the amount of inventory that is either available for preorder or
+has already been preordered.</p>
+</li>
+</ul>
+<p><em>Inventory Count Definitions</em></p>
+<ul>
+<li>
+<p><strong>On Hand</strong>: refers to the number of units that are sitting within a given stock
+location. Depending on other states, these may or may not be available for
+sale.</p>
+</li>
+<li>
+<p><strong>Hold</strong>: units that have been purchased, but are in one of the hold order states
+(Manual Hold, Fraud Hold, Remorse Hold). If an outside WMS or 3PL is
+connected to FoxCommerce, these units will not show up as purchased in that
+system. Units that are in this state cannot be purchased by other customers.</p>
+</li>
+<li>
+<p><strong>Reserved</strong>: units that are in the process of being fulfilled.</p>
+</li>
+<li>
+<p><strong>AFS</strong>: the number of units that are available for sale. This is a calculated
+field (afs = on hand - hold - reserved).</p>
+</li>
+</ul>
+<div id="stock-level-summaries-stock-item-summaries" class="resource"><h3 class="resource-heading">Stock Item Summaries <a href="#stock-level-summaries-stock-item-summaries" class="permalink">&nbsp;&para;</a></h3><div id="stock-level-summaries-stock-item-summaries-get" class="action get"><h4 class="action-heading"><div class="name">View</div><a href="#stock-level-summaries-stock-item-summaries-get" class="method get">GET</a><code class="uri">/v1/inventory/summary/{code}</code></h4><h4>Example URI</h4><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname"></span>/v1/inventory/summary/<span class="hljs-attribute" title="code">TEST-SKU</span></span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>code</dt><dd><code>string</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>TEST-SKU</span></span><p>The code representing the SKU who’s inventory should be viewed.</p>
+</dd></dl></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">summary</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">sku</span>": <span class="hljs-value"><span class="hljs-string">"TEST-SKU"</span></span>,
+      "<span class="hljs-attribute">stockItem</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">sku</span>": <span class="hljs-value"><span class="hljs-string">"TEST-SKU"</span></span>,
+        "<span class="hljs-attribute">stockLocationId</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">defaultUnitCost</span>": <span class="hljs-value"><span class="hljs-number">999</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">stockLocation</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"default"</span></span>,
+        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"Warehouse"</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"Sellable"</span></span>,
+      "<span class="hljs-attribute">onHand</span>": <span class="hljs-value"><span class="hljs-number">100</span></span>,
+      "<span class="hljs-attribute">onHold</span>": <span class="hljs-value"><span class="hljs-number">12</span></span>,
+      "<span class="hljs-attribute">reserved</span>": <span class="hljs-value"><span class="hljs-number">15</span></span>,
+      "<span class="hljs-attribute">afs</span>": <span class="hljs-value"><span class="hljs-number">73</span></span>,
+      "<span class="hljs-attribute">afsCost</span>": <span class="hljs-value"><span class="hljs-number">72927</span></span>,
+      "<span class="hljs-attribute">createdAt</span>": <span class="hljs-value"><span class="hljs-string">"2016-10-03T06:10:20.464687Z"</span>
+    </span>},
+    {
+      "<span class="hljs-attribute">sku</span>": <span class="hljs-value"><span class="hljs-string">"TEST-SKU"</span></span>,
+      "<span class="hljs-attribute">stockItem</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">sku</span>": <span class="hljs-value"><span class="hljs-string">"TEST-SKU"</span></span>,
+        "<span class="hljs-attribute">stockLocationId</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">defaultUnitCost</span>": <span class="hljs-value"><span class="hljs-number">999</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">stockLocation</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"default"</span></span>,
+        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"Warehouse"</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"Non-sellable"</span></span>,
+      "<span class="hljs-attribute">onHand</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+      "<span class="hljs-attribute">onHold</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+      "<span class="hljs-attribute">reserved</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+      "<span class="hljs-attribute">shipped</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+      "<span class="hljs-attribute">afs</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+      "<span class="hljs-attribute">afsCost</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+      "<span class="hljs-attribute">createdAt</span>": <span class="hljs-value"><span class="hljs-string">"2016-10-03T06:10:20.469778Z"</span>
+    </span>},
+    {
+      "<span class="hljs-attribute">sku</span>": <span class="hljs-value"><span class="hljs-string">"TEST-SKU"</span></span>,
+      "<span class="hljs-attribute">stockItem</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">sku</span>": <span class="hljs-value"><span class="hljs-string">"TEST-SKU"</span></span>,
+        "<span class="hljs-attribute">stockLocationId</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">defaultUnitCost</span>": <span class="hljs-value"><span class="hljs-number">999</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">stockLocation</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"default"</span></span>,
+        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"Warehouse"</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"Backorder"</span></span>,
+      "<span class="hljs-attribute">onHand</span>": <span class="hljs-value"><span class="hljs-number">100</span></span>,
+      "<span class="hljs-attribute">onHold</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+      "<span class="hljs-attribute">reserved</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+      "<span class="hljs-attribute">shipped</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+      "<span class="hljs-attribute">afs</span>": <span class="hljs-value"><span class="hljs-number">100</span></span>,
+      "<span class="hljs-attribute">afsCost</span>": <span class="hljs-value"><span class="hljs-number">99900</span></span>,
+      "<span class="hljs-attribute">createdAt</span>": <span class="hljs-value"><span class="hljs-string">"2016-10-03T06:10:20.470854Z"</span>
+    </span>},
+    {
+      "<span class="hljs-attribute">sku</span>": <span class="hljs-value"><span class="hljs-string">"TEST-SKU"</span></span>,
+      "<span class="hljs-attribute">stockItem</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">sku</span>": <span class="hljs-value"><span class="hljs-string">"TEST-SKU"</span></span>,
+        "<span class="hljs-attribute">stockLocationId</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">defaultUnitCost</span>": <span class="hljs-value"><span class="hljs-number">999</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">stockLocation</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"default"</span></span>,
+        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"Warehouse"</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"Preorder"</span></span>,
+      "<span class="hljs-attribute">onHand</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+      "<span class="hljs-attribute">onHold</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+      "<span class="hljs-attribute">reserved</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+      "<span class="hljs-attribute">shipped</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+      "<span class="hljs-attribute">afs</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+      "<span class="hljs-attribute">afsCost</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+      "<span class="hljs-attribute">createdAt</span>": <span class="hljs-value"><span class="hljs-string">"2016-10-03T06:10:20.471925Z"</span>
+    </span>}
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></section><section id="stock-locations" class="resource-group"><h2 class="group-heading">Stock Locations <a href="#stock-locations" class="permalink">&para;</a></h2><p>Stock Locations are representations of any place that inventory may be stored.
+FoxCommerce Inventory is designed to be manage and track inventory over
+multiple stock locations for a given storefront, as well as over multiple types
+of stock location.</p>
+<p><em>Stock Location Types</em></p>
+<ul>
+<li>
+<p><strong>Warehouse</strong> (currently supported)</p>
+</li>
+<li>
+<p><strong>Retail Store</strong> (coming soon)</p>
+</li>
+<li>
+<p><strong>Pop-up Shop</strong> (coming soon)</p>
+</li>
+</ul>
+<div id="stock-locations-stock-locations" class="resource"><h3 class="resource-heading">Stock Locations <a href="#stock-locations-stock-locations" class="permalink">&nbsp;&para;</a></h3><div id="stock-locations-stock-locations-get" class="action get"><h4 class="action-heading"><div class="name">View</div><a href="#stock-locations-stock-locations-get" class="method get">GET</a><code class="uri">/v1/inventory/stock-locations/{id}</code></h4><h4>Example URI</h4><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname"></span>/v1/inventory/stock-locations/<span class="hljs-attribute" title="id">1</span></span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>Stock Location ID.</p>
+</dd></dl></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+  "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Memphis Warehouse"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"Warehouse"</span></span>,
+  "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Home"</span></span>,
+    "<span class="hljs-attribute">address1</span>": <span class="hljs-value"><span class="hljs-string">"38 Baker Street"</span></span>,
+    "<span class="hljs-attribute">address2</span>": <span class="hljs-value"><span class="hljs-string">"39 Baker Street"</span></span>,
+    "<span class="hljs-attribute">city</span>": <span class="hljs-value"><span class="hljs-string">"Donkeyville"</span></span>,
+    "<span class="hljs-attribute">zip</span>": <span class="hljs-value"><span class="hljs-string">"55555"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+  "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Name of the stock location."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">enum</span>": <span class="hljs-value">[
+        <span class="hljs-string">"Warehouse"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Stock location type."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+      "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+          "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">countryId</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Country unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Region name."</span>
+            </span>}
+          </span>}</span>,
+          "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+            <span class="hljs-string">"id"</span>,
+            <span class="hljs-string">"countryId"</span>,
+            <span class="hljs-string">"name"</span>
+          ]</span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Associated region."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Address record name."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address1</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Actual address."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address2</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Additional address line."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">city</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"City."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">zip</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Zip code."</span>
+        </span>}
+      </span>}</span>,
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+        <span class="hljs-string">"id"</span>,
+        <span class="hljs-string">"region"</span>,
+        <span class="hljs-string">"name"</span>,
+        <span class="hljs-string">"address1"</span>,
+        <span class="hljs-string">"city"</span>,
+        <span class="hljs-string">"zip"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Address of the stock location."</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+    <span class="hljs-string">"id"</span>,
+    <span class="hljs-string">"name"</span>,
+    <span class="hljs-string">"type"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div><div id="stock-locations-stock-locations-post" class="action post"><h4 class="action-heading"><div class="name">Create</div><a href="#stock-locations-stock-locations-post" class="method post">POST</a><code class="uri">/v1/inventory/stock-locations</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname"></span>/v1/inventory/stock-locations</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Memphis Warehouse"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"Warehouse"</span></span>,
+  "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Home"</span></span>,
+    "<span class="hljs-attribute">address1</span>": <span class="hljs-value"><span class="hljs-string">"38 Baker Street"</span></span>,
+    "<span class="hljs-attribute">address2</span>": <span class="hljs-value"><span class="hljs-string">"39 Baker Street"</span></span>,
+    "<span class="hljs-attribute">city</span>": <span class="hljs-value"><span class="hljs-string">"Donkeyville"</span></span>,
+    "<span class="hljs-attribute">zip</span>": <span class="hljs-value"><span class="hljs-string">"55555"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+  "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Name of the stock location."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">enum</span>": <span class="hljs-value">[
+        <span class="hljs-string">"Warehouse"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Stock location type."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+      "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+          "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">countryId</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Country unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Region name."</span>
+            </span>}
+          </span>}</span>,
+          "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+            <span class="hljs-string">"id"</span>,
+            <span class="hljs-string">"countryId"</span>,
+            <span class="hljs-string">"name"</span>
+          ]</span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Associated region."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Address record name."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address1</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Actual address."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address2</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Additional address line."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">city</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"City."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">zip</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Zip code."</span>
+        </span>}
+      </span>}</span>,
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+        <span class="hljs-string">"id"</span>,
+        <span class="hljs-string">"region"</span>,
+        <span class="hljs-string">"name"</span>,
+        <span class="hljs-string">"address1"</span>,
+        <span class="hljs-string">"city"</span>,
+        <span class="hljs-string">"zip"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Address of the stock location."</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+    <span class="hljs-string">"name"</span>,
+    <span class="hljs-string">"type"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>201</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+  "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Memphis Warehouse"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"Warehouse"</span></span>,
+  "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Home"</span></span>,
+    "<span class="hljs-attribute">address1</span>": <span class="hljs-value"><span class="hljs-string">"38 Baker Street"</span></span>,
+    "<span class="hljs-attribute">address2</span>": <span class="hljs-value"><span class="hljs-string">"39 Baker Street"</span></span>,
+    "<span class="hljs-attribute">city</span>": <span class="hljs-value"><span class="hljs-string">"Donkeyville"</span></span>,
+    "<span class="hljs-attribute">zip</span>": <span class="hljs-value"><span class="hljs-string">"55555"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+  "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Name of the stock location."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">enum</span>": <span class="hljs-value">[
+        <span class="hljs-string">"Warehouse"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Stock location type."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+      "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+          "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">countryId</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Country unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Region name."</span>
+            </span>}
+          </span>}</span>,
+          "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+            <span class="hljs-string">"id"</span>,
+            <span class="hljs-string">"countryId"</span>,
+            <span class="hljs-string">"name"</span>
+          ]</span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Associated region."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Address record name."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address1</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Actual address."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address2</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Additional address line."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">city</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"City."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">zip</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Zip code."</span>
+        </span>}
+      </span>}</span>,
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+        <span class="hljs-string">"id"</span>,
+        <span class="hljs-string">"region"</span>,
+        <span class="hljs-string">"name"</span>,
+        <span class="hljs-string">"address1"</span>,
+        <span class="hljs-string">"city"</span>,
+        <span class="hljs-string">"zip"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Address of the stock location."</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+    <span class="hljs-string">"id"</span>,
+    <span class="hljs-string">"name"</span>,
+    <span class="hljs-string">"type"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div><div id="stock-locations-stock-locations-put" class="action put"><h4 class="action-heading"><div class="name">Update</div><a href="#stock-locations-stock-locations-put" class="method put">PUT</a><code class="uri">/v1/inventory/stock-locations/{id}</code></h4><h4>Example URI</h4><div class="definition"><span class="method put">PUT</span>&nbsp;<span class="uri"><span class="hostname"></span>/v1/inventory/stock-locations/<span class="hljs-attribute" title="id">1</span></span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>Stock Location ID.</p>
+</dd></dl></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Memphis Warehouse"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"Warehouse"</span></span>,
+  "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Home"</span></span>,
+    "<span class="hljs-attribute">address1</span>": <span class="hljs-value"><span class="hljs-string">"38 Baker Street"</span></span>,
+    "<span class="hljs-attribute">address2</span>": <span class="hljs-value"><span class="hljs-string">"39 Baker Street"</span></span>,
+    "<span class="hljs-attribute">city</span>": <span class="hljs-value"><span class="hljs-string">"Donkeyville"</span></span>,
+    "<span class="hljs-attribute">zip</span>": <span class="hljs-value"><span class="hljs-string">"55555"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+  "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Name of the stock location."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">enum</span>": <span class="hljs-value">[
+        <span class="hljs-string">"Warehouse"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Stock location type."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+      "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+          "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">countryId</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Country unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Region name."</span>
+            </span>}
+          </span>}</span>,
+          "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+            <span class="hljs-string">"id"</span>,
+            <span class="hljs-string">"countryId"</span>,
+            <span class="hljs-string">"name"</span>
+          ]</span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Associated region."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Address record name."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address1</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Actual address."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address2</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Additional address line."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">city</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"City."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">zip</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Zip code."</span>
+        </span>}
+      </span>}</span>,
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+        <span class="hljs-string">"id"</span>,
+        <span class="hljs-string">"region"</span>,
+        <span class="hljs-string">"name"</span>,
+        <span class="hljs-string">"address1"</span>,
+        <span class="hljs-string">"city"</span>,
+        <span class="hljs-string">"zip"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Address of the stock location."</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+    <span class="hljs-string">"name"</span>,
+    <span class="hljs-string">"type"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+  "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Memphis Warehouse"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"Warehouse"</span></span>,
+  "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Home"</span></span>,
+    "<span class="hljs-attribute">address1</span>": <span class="hljs-value"><span class="hljs-string">"38 Baker Street"</span></span>,
+    "<span class="hljs-attribute">address2</span>": <span class="hljs-value"><span class="hljs-string">"39 Baker Street"</span></span>,
+    "<span class="hljs-attribute">city</span>": <span class="hljs-value"><span class="hljs-string">"Donkeyville"</span></span>,
+    "<span class="hljs-attribute">zip</span>": <span class="hljs-value"><span class="hljs-string">"55555"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+  "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Name of the stock location."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">enum</span>": <span class="hljs-value">[
+        <span class="hljs-string">"Warehouse"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Stock location type."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+      "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+          "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">countryId</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Country unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Region name."</span>
+            </span>}
+          </span>}</span>,
+          "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+            <span class="hljs-string">"id"</span>,
+            <span class="hljs-string">"countryId"</span>,
+            <span class="hljs-string">"name"</span>
+          ]</span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Associated region."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Address record name."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address1</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Actual address."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address2</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Additional address line."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">city</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"City."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">zip</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Zip code."</span>
+        </span>}
+      </span>}</span>,
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+        <span class="hljs-string">"id"</span>,
+        <span class="hljs-string">"region"</span>,
+        <span class="hljs-string">"name"</span>,
+        <span class="hljs-string">"address1"</span>,
+        <span class="hljs-string">"city"</span>,
+        <span class="hljs-string">"zip"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Address of the stock location."</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+    <span class="hljs-string">"id"</span>,
+    <span class="hljs-string">"name"</span>,
+    <span class="hljs-string">"type"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div><div id="stock-locations-stock-locations-delete" class="action delete"><h4 class="action-heading"><div class="name">Delete</div><a href="#stock-locations-stock-locations-delete" class="method delete">DELETE</a><code class="uri">/v1/inventory/stock-locations/{id}</code></h4><h4>Example URI</h4><div class="definition"><span class="method delete">DELETE</span>&nbsp;<span class="uri"><span class="hostname"></span>/v1/inventory/stock-locations/<span class="hljs-attribute" title="id">1</span></span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>Stock Location ID.</p>
+</dd></dl></div><div class="title"><strong>Response&nbsp;&nbsp;<code>204</code></strong></div></div></div></section><section id="stock-items" class="resource-group"><h2 class="group-heading">Stock Items <a href="#stock-items" class="permalink">&para;</a></h2><p>Stock Items are the representation of a SKU within a specific Stock Location.</p>
+<div id="stock-items-stock-items" class="resource"><h3 class="resource-heading">Stock Items <a href="#stock-items-stock-items" class="permalink">&nbsp;&para;</a></h3><div id="stock-items-stock-items-get" class="action get"><h4 class="action-heading"><div class="name">View</div><a href="#stock-items-stock-items-get" class="method get">GET</a><code class="uri">/v1/inventory/stock-items/{id}</code></h4><h4>Example URI</h4><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname"></span>/v1/inventory/stock-items/<span class="hljs-attribute" title="id">1</span></span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>Stock Item ID.</p>
+</dd></dl></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+  "<span class="hljs-attribute">sku</span>": <span class="hljs-value"><span class="hljs-string">"TEST-SKU"</span></span>,
+  "<span class="hljs-attribute">stockLocationId</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+  "<span class="hljs-attribute">defaultUnitCost</span>": <span class="hljs-value"><span class="hljs-number">0</span>
+</span>}</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+  "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">sku</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Code representing the SKU with which to associate the Stock Item"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">stockLocationId</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"ID of the Stock Location the Stock Item should be a part of."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">defaultUnitCost</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"A default unit cost to give all new units of a Stock Item"</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+    <span class="hljs-string">"id"</span>,
+    <span class="hljs-string">"sku"</span>,
+    <span class="hljs-string">"stockLocationId"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div><div id="stock-items-stock-items-post" class="action post"><h4 class="action-heading"><div class="name">Create</div><a href="#stock-items-stock-items-post" class="method post">POST</a><code class="uri">/v1/inventory/stock-items</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname"></span>/v1/inventory/stock-items</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">sku</span>": <span class="hljs-value"><span class="hljs-string">"TEST-SKU"</span></span>,
+  "<span class="hljs-attribute">stockLocationId</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+  "<span class="hljs-attribute">defaultUnitCost</span>": <span class="hljs-value"><span class="hljs-number">0</span>
+</span>}</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+  "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">sku</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Code representing the SKU with which to associate the Stock Item"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">stockLocationId</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"ID of the Stock Location the Stock Item should be a part of."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">defaultUnitCost</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"A default unit cost to give all new units of a Stock Item"</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+    <span class="hljs-string">"sku"</span>,
+    <span class="hljs-string">"stockLocationId"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>201</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+  "<span class="hljs-attribute">sku</span>": <span class="hljs-value"><span class="hljs-string">"TEST-SKU"</span></span>,
+  "<span class="hljs-attribute">stockLocationId</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+  "<span class="hljs-attribute">defaultUnitCost</span>": <span class="hljs-value"><span class="hljs-number">0</span>
+</span>}</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+  "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">sku</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Code representing the SKU with which to associate the Stock Item"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">stockLocationId</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"ID of the Stock Location the Stock Item should be a part of."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">defaultUnitCost</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"A default unit cost to give all new units of a Stock Item"</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+    <span class="hljs-string">"id"</span>,
+    <span class="hljs-string">"sku"</span>,
+    <span class="hljs-string">"stockLocationId"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div><div id="stock-items-stock-items-patch" class="action patch"><h4 class="action-heading"><div class="name">Increment</div><a href="#stock-items-stock-items-patch" class="method patch">PATCH</a><code class="uri">/v1/inventory/stock-items/{id}/increment</code></h4><p>Increment the number of units available to a stock item in the on hand state.
+Units can be added to any type (sellable, nonsellable, preorder, or backorder).</p>
+<h4>Example URI</h4><div class="definition"><span class="method patch">PATCH</span>&nbsp;<span class="uri"><span class="hostname"></span>/v1/inventory/stock-items/<span class="hljs-attribute" title="id">1</span>/increment</span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>Stock Item ID.</p>
+</dd></dl></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">qty</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"sellable"</span></span>,
+  "<span class="hljs-attribute">unitCost</span>": <span class="hljs-value"><span class="hljs-number">999</span>
+</span>}</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+  "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">qty</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"The number of units to increment"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">enum</span>": <span class="hljs-value">[
+        <span class="hljs-string">"sellable"</span>,
+        <span class="hljs-string">"nonsellable"</span>,
+        <span class="hljs-string">"preorder"</span>,
+        <span class="hljs-string">"backorder"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Stock item type."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">unitCost</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"The unit cost to give new stock items. If none is supplied, the stock item's default unit cost is used."</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+    <span class="hljs-string">"qty"</span>,
+    <span class="hljs-string">"type"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>204</code></strong></div></div><div id="stock-items-stock-items-patch-1" class="action patch"><h4 class="action-heading"><div class="name">Decrement</div><a href="#stock-items-stock-items-patch-1" class="method patch">PATCH</a><code class="uri">/v1/inventory/stock-items/{id}/decrement</code></h4><p>Decrement the number of units available to a stock item in the on hand state.
+Units can be removed from any type (sellable, nonsellable, preorder, or
+backorder).</p>
+<h4>Example URI</h4><div class="definition"><span class="method patch">PATCH</span>&nbsp;<span class="uri"><span class="hostname"></span>/v1/inventory/stock-items/<span class="hljs-attribute" title="id">1</span>/decrement</span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>Stock Item ID.</p>
+</dd></dl></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">qty</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"sellable"</span>
+</span>}</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+  "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">qty</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"The number of units to decrement"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">type</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">enum</span>": <span class="hljs-value">[
+        <span class="hljs-string">"sellable"</span>,
+        <span class="hljs-string">"nonsellable"</span>,
+        <span class="hljs-string">"preorder"</span>,
+        <span class="hljs-string">"backorder"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Stock item type."</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+    <span class="hljs-string">"qty"</span>,
+    <span class="hljs-string">"type"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>204</code></strong></div></div></div></section><section id="shipments" class="resource-group"><h2 class="group-heading">Shipments <a href="#shipments" class="permalink">&para;</a></h2><p>Shipments track the status of items that have been purchased and are scheduled
+to be sent from a store to a 3rd party, such as a customer.</p>
+<p><em>Shipment States</em></p>
+<ul>
+<li>
+<p><strong>Pending</strong>: the initial state when a new shipment is created. It means that
+the shipment exists in the warehouse and is in the process of being readied
+for shipment.</p>
+</li>
+<li>
+<p><strong>Shipped</strong>: the shipment has left the warehouse and is in the process of
+being fulfilled.</p>
+</li>
+<li>
+<p><strong>Delivered</strong>: the recipient has received the shipment.</p>
+</li>
+<li>
+<p><strong>Cancelled</strong>: the shipment has been cancelled and inventory has been made
+available to other customers.</p>
+</li>
+</ul>
+<div id="shipments-shipments" class="resource"><h3 class="resource-heading">Shipments <a href="#shipments-shipments" class="permalink">&nbsp;&para;</a></h3><div id="shipments-shipments-get" class="action get"><h4 class="action-heading"><div class="name">View By Order</div><a href="#shipments-shipments-get" class="method get">GET</a><code class="uri">/v1/inventory/shipments/{referenceNumber}</code></h4><p>Gets all of the shipments associated with a single order.</p>
+<h4>Example URI</h4><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname"></span>/v1/inventory/shipments/<span class="hljs-attribute" title="referenceNumber">BR10001</span></span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>referenceNumber</dt><dd><code>string</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>BR10001</span></span><p>Order reference number.</p>
+</dd></dl></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>[
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"SR10001"</span></span>,
+    "<span class="hljs-attribute">shippingMethod</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Ground Shipping"</span></span>,
+      "<span class="hljs-attribute">carrier</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"UPS"</span></span>,
+        "<span class="hljs-attribute">trackingTemplate</span>": <span class="hljs-value"><span class="hljs-string">"http://wwwapps.ups.com/WebTracking/track?track=yes&amp;trackNums=%s"</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"UPS-GROUND"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">orderRefNum</span>": <span class="hljs-value"><span class="hljs-string">"BR10001"</span></span>,
+    "<span class="hljs-attribute">state</span>": <span class="hljs-value"><span class="hljs-string">"pending"</span></span>,
+    "<span class="hljs-attribute">shipmentDate</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+    "<span class="hljs-attribute">estimatedArrival</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+    "<span class="hljs-attribute">deliveredDate</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+    "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Home"</span></span>,
+      "<span class="hljs-attribute">address1</span>": <span class="hljs-value"><span class="hljs-string">"38 Baker Street"</span></span>,
+      "<span class="hljs-attribute">address2</span>": <span class="hljs-value"><span class="hljs-string">"39 Baker Street"</span></span>,
+      "<span class="hljs-attribute">city</span>": <span class="hljs-value"><span class="hljs-string">"Donkeyville"</span></span>,
+      "<span class="hljs-attribute">zip</span>": <span class="hljs-value"><span class="hljs-string">"55555"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shipmentLineItems</span>": <span class="hljs-value">[
+      {
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"SR10001"</span></span>,
+        "<span class="hljs-attribute">ShipmentLineItem</span>": <span class="hljs-value"><span class="hljs-string">"Hello, world!"</span>
+      </span>}
+    ]</span>,
+    "<span class="hljs-attribute">trackingNumber</span>": <span class="hljs-value"><span class="hljs-string">"1Z9999999999999999"</span></span>,
+    "<span class="hljs-attribute">shippingPrice</span>": <span class="hljs-value"><span class="hljs-number">399</span>
+  </span>}
+]</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"array"</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div><div id="shipments-shipments-post" class="action post"><h4 class="action-heading"><div class="name">Create</div><a href="#shipments-shipments-post" class="method post">POST</a><code class="uri">/v1/inventory/shipments</code></h4><p>This is the manual shipment creation endpoint. Use this if you want to have
+precise control over how the shipments are created and the logic for splitting
+them. In order for the shipment to be created successfully, the following
+conditions must be met:</p>
+<ol>
+<li>
+<p>The items that you’re attempting to ship must have been reserved by the
+order that’s associated with the shipment. This step is automatically
+performed by the OMS API when checkout occurs.</p>
+<p>For more details on the reserved status, please see the <code>StockItems</code> API
+in this document.</p>
+</li>
+<li>
+<p>The items that you’re attempting to ship may not be a part of any other
+shipment.</p>
+</li>
+<li>
+<p>All items that you’re attempting to ship must exist in the same stock
+location. Since a shipment represents the bundle of items leaving a stock
+location, it’s necessary that all items must be able to be shipped from the
+same location.</p>
+</li>
+</ol>
+<h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname"></span>/v1/inventory/shipments</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"SR10001"</span></span>,
+  "<span class="hljs-attribute">shippingMethodCode</span>": <span class="hljs-value"><span class="hljs-string">"GROUND-SHIPPING"</span></span>,
+  "<span class="hljs-attribute">orderRefNum</span>": <span class="hljs-value"><span class="hljs-string">"BR10001"</span></span>,
+  "<span class="hljs-attribute">state</span>": <span class="hljs-value"><span class="hljs-string">"pending"</span></span>,
+  "<span class="hljs-attribute">shipmentDate</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+  "<span class="hljs-attribute">estimatedArrival</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+  "<span class="hljs-attribute">deliveredDate</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+  "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Home"</span></span>,
+    "<span class="hljs-attribute">address1</span>": <span class="hljs-value"><span class="hljs-string">"38 Baker Street"</span></span>,
+    "<span class="hljs-attribute">address2</span>": <span class="hljs-value"><span class="hljs-string">"39 Baker Street"</span></span>,
+    "<span class="hljs-attribute">city</span>": <span class="hljs-value"><span class="hljs-string">"Donkeyville"</span></span>,
+    "<span class="hljs-attribute">zip</span>": <span class="hljs-value"><span class="hljs-string">"55555"</span>
+  </span>}</span>,
+  "<span class="hljs-attribute">shipmentLineItems</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">sku</span>": <span class="hljs-value"><span class="hljs-string">"test-sku"</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Brown Shoes"</span></span>,
+      "<span class="hljs-attribute">price</span>": <span class="hljs-value"><span class="hljs-number">999</span></span>,
+      "<span class="hljs-attribute">imagePath</span>": <span class="hljs-value"><span class="hljs-string">"http://testsku.png"</span>
+    </span>}
+  ]</span>,
+  "<span class="hljs-attribute">trackingNumber</span>": <span class="hljs-value"><span class="hljs-string">"1Z9999999999999999"</span></span>,
+  "<span class="hljs-attribute">shippingPrice</span>": <span class="hljs-value"><span class="hljs-number">399</span>
+</span>}</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+  "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID for the shipment."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shippingMethodCode</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Code to identify the shipment to use."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">orderRefNum</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Order that the shipment is associated with."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">state</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">enum</span>": <span class="hljs-value">[
+        <span class="hljs-string">"pending"</span>,
+        <span class="hljs-string">"shipped"</span>,
+        <span class="hljs-string">"delivered"</span>,
+        <span class="hljs-string">"cancelled"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Shipment state."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shipmentDate</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Date that the shipment leaves the warehouse."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">estimatedArrival</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Date that the shipment is expected to arrive to the customer."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">deliveredDate</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Date that the shipment was delivered."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+      "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+          "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">countryId</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Country unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Region name."</span>
+            </span>}
+          </span>}</span>,
+          "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+            <span class="hljs-string">"id"</span>,
+            <span class="hljs-string">"countryId"</span>,
+            <span class="hljs-string">"name"</span>
+          ]</span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Associated region."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Address record name."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address1</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Actual address."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address2</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Additional address line."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">city</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"City."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">zip</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Zip code."</span>
+        </span>}
+      </span>}</span>,
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+        <span class="hljs-string">"id"</span>,
+        <span class="hljs-string">"region"</span>,
+        <span class="hljs-string">"name"</span>,
+        <span class="hljs-string">"address1"</span>,
+        <span class="hljs-string">"city"</span>,
+        <span class="hljs-string">"zip"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Destination address."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shipmentLineItems</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"array"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"The items that should be part of the shipment."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">trackingNumber</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"An optional tracking number, if it's provided."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shippingPrice</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"The price of the shipment."</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+    <span class="hljs-string">"referenceNumber"</span>,
+    <span class="hljs-string">"shippingMethodCode"</span>,
+    <span class="hljs-string">"orderRefNum"</span>,
+    <span class="hljs-string">"state"</span>,
+    <span class="hljs-string">"address"</span>,
+    <span class="hljs-string">"shipmentLineItems"</span>,
+    <span class="hljs-string">"shippingPrice"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>201</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+  "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"SR10001"</span></span>,
+  "<span class="hljs-attribute">shippingMethod</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Ground Shipping"</span></span>,
+    "<span class="hljs-attribute">carrier</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"UPS"</span></span>,
+      "<span class="hljs-attribute">trackingTemplate</span>": <span class="hljs-value"><span class="hljs-string">"http://wwwapps.ups.com/WebTracking/track?track=yes&amp;trackNums=%s"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"UPS-GROUND"</span>
+  </span>}</span>,
+  "<span class="hljs-attribute">orderRefNum</span>": <span class="hljs-value"><span class="hljs-string">"BR10001"</span></span>,
+  "<span class="hljs-attribute">state</span>": <span class="hljs-value"><span class="hljs-string">"pending"</span></span>,
+  "<span class="hljs-attribute">shipmentDate</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+  "<span class="hljs-attribute">estimatedArrival</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+  "<span class="hljs-attribute">deliveredDate</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+  "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Home"</span></span>,
+    "<span class="hljs-attribute">address1</span>": <span class="hljs-value"><span class="hljs-string">"38 Baker Street"</span></span>,
+    "<span class="hljs-attribute">address2</span>": <span class="hljs-value"><span class="hljs-string">"39 Baker Street"</span></span>,
+    "<span class="hljs-attribute">city</span>": <span class="hljs-value"><span class="hljs-string">"Donkeyville"</span></span>,
+    "<span class="hljs-attribute">zip</span>": <span class="hljs-value"><span class="hljs-string">"55555"</span>
+  </span>}</span>,
+  "<span class="hljs-attribute">shipmentLineItems</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"SR10001"</span></span>,
+      "<span class="hljs-attribute">ShipmentLineItem</span>": <span class="hljs-value"><span class="hljs-string">"Hello, world!"</span>
+    </span>}
+  ]</span>,
+  "<span class="hljs-attribute">trackingNumber</span>": <span class="hljs-value"><span class="hljs-string">"1Z9999999999999999"</span></span>,
+  "<span class="hljs-attribute">shippingPrice</span>": <span class="hljs-value"><span class="hljs-number">399</span>
+</span>}</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+  "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID for the shipment."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shippingMethod</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+      "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Name of the shipping method to show to the customer."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">carrier</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+          "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Name of the carrier shown to the customer."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">trackingTemplate</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"(optional, string) - Template to use to construct links to tracking codes."</span>
+            </span>}
+          </span>}</span>,
+          "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+            <span class="hljs-string">"id"</span>,
+            <span class="hljs-string">"name"</span>
+          ]</span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"The carrier that's delivering the shipment."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">code</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"A code that uniquely identifies this shipping method."</span>
+        </span>}
+      </span>}</span>,
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+        <span class="hljs-string">"id"</span>,
+        <span class="hljs-string">"name"</span>,
+        <span class="hljs-string">"carrier"</span>,
+        <span class="hljs-string">"code"</span>
+      ]
+    </span>}</span>,
+    "<span class="hljs-attribute">orderRefNum</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Order that the shipment is associated with."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">state</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">enum</span>": <span class="hljs-value">[
+        <span class="hljs-string">"pending"</span>,
+        <span class="hljs-string">"shipped"</span>,
+        <span class="hljs-string">"delivered"</span>,
+        <span class="hljs-string">"cancelled"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Shipment state."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shipmentDate</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Date that the shipment leaves the warehouse."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">estimatedArrival</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Date that the shipment is expected to arrive to the customer."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">deliveredDate</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Date that the shipment was delivered."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+      "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+          "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">countryId</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Country unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Region name."</span>
+            </span>}
+          </span>}</span>,
+          "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+            <span class="hljs-string">"id"</span>,
+            <span class="hljs-string">"countryId"</span>,
+            <span class="hljs-string">"name"</span>
+          ]</span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Associated region."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Address record name."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address1</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Actual address."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address2</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Additional address line."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">city</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"City."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">zip</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Zip code."</span>
+        </span>}
+      </span>}</span>,
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+        <span class="hljs-string">"id"</span>,
+        <span class="hljs-string">"id"</span>,
+        <span class="hljs-string">"region"</span>,
+        <span class="hljs-string">"name"</span>,
+        <span class="hljs-string">"address1"</span>,
+        <span class="hljs-string">"city"</span>,
+        <span class="hljs-string">"zip"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Destination address."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shipmentLineItems</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"array"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"The items that should be part of the shipment."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">trackingNumber</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"An optional tracking number, if it's provided."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shippingPrice</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"The price of the shipment."</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+    <span class="hljs-string">"id"</span>,
+    <span class="hljs-string">"referenceNumber"</span>,
+    <span class="hljs-string">"shippingMethod"</span>,
+    <span class="hljs-string">"orderRefNum"</span>,
+    <span class="hljs-string">"state"</span>,
+    <span class="hljs-string">"address"</span>,
+    <span class="hljs-string">"shipmentLineItems"</span>,
+    <span class="hljs-string">"shippingPrice"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div><div id="shipments-shipments-post-1" class="action post"><h4 class="action-heading"><div class="name">Create From Order</div><a href="#shipments-shipments-post-1" class="method post">POST</a><code class="uri">/v1/inventory/shipments/from-order</code></h4><p>This is the automatic shipment creation endpoint provided about the WMS.
+It will create a set of shipments based on internal FoxCommerce WMS logic.</p>
+<p><em>Note: At this time only single shipments are supported.</em></p>
+<h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname"></span>/v1/inventory/shipments/from-order</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+  "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"ABC-123"</span></span>,
+  "<span class="hljs-attribute">orderState</span>": <span class="hljs-value"><span class="hljs-string">"Cart"</span></span>,
+  "<span class="hljs-attribute">shippingState</span>": <span class="hljs-value"><span class="hljs-string">"Cart"</span></span>,
+  "<span class="hljs-attribute">paymentState</span>": <span class="hljs-value"><span class="hljs-string">"Cart"</span></span>,
+  "<span class="hljs-attribute">lineItems</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">skus</span>": <span class="hljs-value">[
+      {
+        "<span class="hljs-attribute">imagePath</span>": <span class="hljs-value"><span class="hljs-string">"http://lorempixel.com/75/75/fashion"</span></span>,
+        "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"ABC-123"</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"donkey product"</span></span>,
+        "<span class="hljs-attribute">sku</span>": <span class="hljs-value"><span class="hljs-string">"SKU-YAX"</span></span>,
+        "<span class="hljs-attribute">price</span>": <span class="hljs-value"><span class="hljs-number">33</span></span>,
+        "<span class="hljs-attribute">quantity</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">state</span>": <span class="hljs-value"><span class="hljs-string">"Cart"</span></span>,
+        "<span class="hljs-attribute">totalPrice</span>": <span class="hljs-value"><span class="hljs-number">33</span>
+      </span>}
+    ]</span>,
+    "<span class="hljs-attribute">giftCard</span>": <span class="hljs-value">[
+      {
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">createdAt</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+        "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"ABC-123"</span></span>,
+        "<span class="hljs-attribute">originType</span>": <span class="hljs-value"><span class="hljs-string">"csrAppeasement"</span></span>,
+        "<span class="hljs-attribute">subTypeId</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">state</span>": <span class="hljs-value"><span class="hljs-string">"onHold"</span></span>,
+        "<span class="hljs-attribute">originalBalance</span>": <span class="hljs-value"><span class="hljs-number">50</span></span>,
+        "<span class="hljs-attribute">currentBalance</span>": <span class="hljs-value"><span class="hljs-number">50</span></span>,
+        "<span class="hljs-attribute">availableBalance</span>": <span class="hljs-value"><span class="hljs-number">50</span></span>,
+        "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"Lorem ipsum"</span></span>,
+        "<span class="hljs-attribute">customer</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+          "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"John Smith"</span></span>,
+          "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"john@smith.com"</span></span>,
+          "<span class="hljs-attribute">phoneNumber</span>": <span class="hljs-value"><span class="hljs-string">"123-444-4388"</span></span>,
+          "<span class="hljs-attribute">location</span>": <span class="hljs-value"><span class="hljs-string">"San Francisco, CA"</span></span>,
+          "<span class="hljs-attribute">modality</span>": <span class="hljs-value"><span class="hljs-string">"Desktop[PC]"</span></span>,
+          "<span class="hljs-attribute">createdAt</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+          "<span class="hljs-attribute">disabled</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+          "<span class="hljs-attribute">isGuest</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+          "<span class="hljs-attribute">isBlacklisted</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+          "<span class="hljs-attribute">billingRegion</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+            "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+          </span>}</span>,
+          "<span class="hljs-attribute">shippingRegion</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+            "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+          </span>}</span>,
+          "<span class="hljs-attribute">rank</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+          "<span class="hljs-attribute">numOrders</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+          "<span class="hljs-attribute">totalSales</span>": <span class="hljs-value"><span class="hljs-number">100</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">storeAdmin</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+          "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"John Smith"</span></span>,
+          "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"john@smith.com"</span>
+        </span>}
+      </span>}
+    ]
+  </span>}</span>,
+  "<span class="hljs-attribute">adjustments</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">amount</span>": <span class="hljs-value"><span class="hljs-number">10</span></span>,
+      "<span class="hljs-attribute">sourceId</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">sourceType</span>": <span class="hljs-value"><span class="hljs-string">"order"</span></span>,
+      "<span class="hljs-attribute">reason</span>": <span class="hljs-value"><span class="hljs-string">"Lorem ipsum"</span>
+    </span>}
+  ]</span>,
+  "<span class="hljs-attribute">fraudScore</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+  "<span class="hljs-attribute">customer</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"John Smith"</span></span>,
+    "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"john@smith.com"</span></span>,
+    "<span class="hljs-attribute">phoneNumber</span>": <span class="hljs-value"><span class="hljs-string">"123-444-4388"</span></span>,
+    "<span class="hljs-attribute">location</span>": <span class="hljs-value"><span class="hljs-string">"San Francisco, CA"</span></span>,
+    "<span class="hljs-attribute">modality</span>": <span class="hljs-value"><span class="hljs-string">"Desktop[PC]"</span></span>,
+    "<span class="hljs-attribute">createdAt</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+    "<span class="hljs-attribute">disabled</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+    "<span class="hljs-attribute">isGuest</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+    "<span class="hljs-attribute">isBlacklisted</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+    "<span class="hljs-attribute">billingRegion</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shippingRegion</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">rank</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">numOrders</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">totalSales</span>": <span class="hljs-value"><span class="hljs-number">100</span>
+  </span>}</span>,
+  "<span class="hljs-attribute">totals</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">subTotal</span>": <span class="hljs-value"><span class="hljs-number">100</span></span>,
+    "<span class="hljs-attribute">taxes</span>": <span class="hljs-value"><span class="hljs-number">50</span></span>,
+    "<span class="hljs-attribute">shipping</span>": <span class="hljs-value"><span class="hljs-number">5</span></span>,
+    "<span class="hljs-attribute">adjustments</span>": <span class="hljs-value"><span class="hljs-number">50</span></span>,
+    "<span class="hljs-attribute">total</span>": <span class="hljs-value"><span class="hljs-number">100</span>
+  </span>}</span>,
+  "<span class="hljs-attribute">shippingMethod</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"UPS Ground"</span></span>,
+    "<span class="hljs-attribute">price</span>": <span class="hljs-value"><span class="hljs-number">10</span></span>,
+    "<span class="hljs-attribute">isEnabled</span>": <span class="hljs-value"><span class="hljs-literal">true</span>
+  </span>}</span>,
+  "<span class="hljs-attribute">shippingAddress</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Home"</span></span>,
+    "<span class="hljs-attribute">address1</span>": <span class="hljs-value"><span class="hljs-string">"38 Baker Street"</span></span>,
+    "<span class="hljs-attribute">address2</span>": <span class="hljs-value"><span class="hljs-string">"39 Baker Street"</span></span>,
+    "<span class="hljs-attribute">city</span>": <span class="hljs-value"><span class="hljs-string">"Donkeyville"</span></span>,
+    "<span class="hljs-attribute">zip</span>": <span class="hljs-value"><span class="hljs-string">"55555"</span></span>,
+    "<span class="hljs-attribute">isDefault</span>": <span class="hljs-value"><span class="hljs-literal">false</span>
+  </span>}</span>,
+  "<span class="hljs-attribute">remorsePeriodEnd</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+  "<span class="hljs-attribute">paymentMethods</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"CreditCard"</span>
+    </span>}
+  ]</span>,
+  "<span class="hljs-attribute">lockedBy</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"John Smith"</span></span>,
+    "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-string">"john@smith.com"</span>
+  </span>}</span>,
+  "<span class="hljs-attribute">warnings</span>": <span class="hljs-value">[
+    <span class="hljs-string">"List of validation errors and warnings"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+  "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique identifier."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Order reference number."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">orderState</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">enum</span>": <span class="hljs-value">[
+        <span class="hljs-string">"Cart"</span>,
+        <span class="hljs-string">"Ordered"</span>,
+        <span class="hljs-string">"FraudHold"</span>,
+        <span class="hljs-string">"RemorseHold"</span>,
+        <span class="hljs-string">"ManualHold"</span>,
+        <span class="hljs-string">"Canceled"</span>,
+        <span class="hljs-string">"FulfillmentStarted"</span>,
+        <span class="hljs-string">"Shipped"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Order State."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shippingState</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">enum</span>": <span class="hljs-value">[
+        <span class="hljs-string">"Cart"</span>,
+        <span class="hljs-string">"Ordered"</span>,
+        <span class="hljs-string">"FraudHold"</span>,
+        <span class="hljs-string">"RemorseHold"</span>,
+        <span class="hljs-string">"ManualHold"</span>,
+        <span class="hljs-string">"Canceled"</span>,
+        <span class="hljs-string">"FulfillmentStarted"</span>,
+        <span class="hljs-string">"Shipped"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Shipping state."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">paymentState</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">enum</span>": <span class="hljs-value">[
+        <span class="hljs-string">"Cart"</span>,
+        <span class="hljs-string">"Ordered"</span>,
+        <span class="hljs-string">"FraudHold"</span>,
+        <span class="hljs-string">"RemorseHold"</span>,
+        <span class="hljs-string">"ManualHold"</span>,
+        <span class="hljs-string">"Canceled"</span>,
+        <span class="hljs-string">"FulfillmentStarted"</span>,
+        <span class="hljs-string">"Shipped"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Credit Card payment state."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">lineItems</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+      "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">skus</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"array"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"SKU's as line items."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">giftCard</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"array"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Gift cards as line items."</span>
+        </span>}
+      </span>}</span>,
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+        <span class="hljs-string">"skus"</span>,
+        <span class="hljs-string">"giftCard"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Line items with different types."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">adjustments</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"array"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Order adjustments."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">fraudScore</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Fraud score."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">customer</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+      "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique identifier."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Full name."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">email</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"E-mail."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">phoneNumber</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Phone number."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">location</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Location."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">modality</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Client."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">createdAt</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Creation date."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">disabled</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"boolean"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Defines whether account is disabled."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">isGuest</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"boolean"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Defines whether account is guest."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">isBlacklisted</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"boolean"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Defines whether account is added to blacklisted."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">billingRegion</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+          "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">countryId</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Country unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Region name."</span>
+            </span>}
+          </span>}</span>,
+          "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+            <span class="hljs-string">"id"</span>,
+            <span class="hljs-string">"countryId"</span>,
+            <span class="hljs-string">"name"</span>
+          ]</span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Billing region name."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">shippingRegion</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+          "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">countryId</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Country unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Region name."</span>
+            </span>}
+          </span>}</span>,
+          "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+            <span class="hljs-string">"id"</span>,
+            <span class="hljs-string">"countryId"</span>,
+            <span class="hljs-string">"name"</span>
+          ]</span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Shipping region name."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">rank</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Customer ranking."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">numOrders</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Total number of orders."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">totalSales</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Customers sales stats."</span>
+        </span>}
+      </span>}</span>,
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+        <span class="hljs-string">"id"</span>,
+        <span class="hljs-string">"email"</span>,
+        <span class="hljs-string">"createdAt"</span>,
+        <span class="hljs-string">"disabled"</span>,
+        <span class="hljs-string">"isGuest"</span>,
+        <span class="hljs-string">"isBlacklisted"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Associated customer."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">totals</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+      "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">subTotal</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Subtotal."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">taxes</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Taxes total."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">shipping</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Taxes total."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">adjustments</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Adjustments total."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">total</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Total."</span>
+        </span>}
+      </span>}</span>,
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+        <span class="hljs-string">"subTotal"</span>,
+        <span class="hljs-string">"taxes"</span>,
+        <span class="hljs-string">"shipping"</span>,
+        <span class="hljs-string">"adjustments"</span>,
+        <span class="hljs-string">"total"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Order totals."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shippingMethod</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+      "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Display name in Admin panel."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">price</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Price of shipping."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">isEnabled</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"boolean"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Defines whether shipping method is enabled in store."</span>
+        </span>}
+      </span>}</span>,
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+        <span class="hljs-string">"id"</span>,
+        <span class="hljs-string">"price"</span>,
+        <span class="hljs-string">"isEnabled"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Shipping method."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shippingAddress</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+      "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+          "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">countryId</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Country unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Region name."</span>
+            </span>}
+          </span>}</span>,
+          "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+            <span class="hljs-string">"id"</span>,
+            <span class="hljs-string">"countryId"</span>,
+            <span class="hljs-string">"name"</span>
+          ]</span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Associated region."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Address record name."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address1</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Actual address."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address2</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Additional address line."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">city</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"City."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">zip</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Zip code."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">isDefault</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"boolean"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Defines whether shipping address is default."</span>
+        </span>}
+      </span>}</span>,
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+        <span class="hljs-string">"id"</span>,
+        <span class="hljs-string">"region"</span>,
+        <span class="hljs-string">"name"</span>,
+        <span class="hljs-string">"address1"</span>,
+        <span class="hljs-string">"city"</span>,
+        <span class="hljs-string">"zip"</span>,
+        <span class="hljs-string">"isDefault"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Shipping address."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">remorsePeriodEnd</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Remorse period end."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">paymentMethods</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"array"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Order payment."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">lockedBy</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+      "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique identifier."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Admin name."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">email</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"E-mail."</span>
+        </span>}
+      </span>}</span>,
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+        <span class="hljs-string">"id"</span>,
+        <span class="hljs-string">"name"</span>,
+        <span class="hljs-string">"email"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Currently locked by."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">warnings</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"array"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Warnings."</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+    <span class="hljs-string">"id"</span>,
+    <span class="hljs-string">"referenceNumber"</span>,
+    <span class="hljs-string">"orderState"</span>,
+    <span class="hljs-string">"shippingState"</span>,
+    <span class="hljs-string">"lineItems"</span>,
+    <span class="hljs-string">"adjustments"</span>,
+    <span class="hljs-string">"fraudScore"</span>,
+    <span class="hljs-string">"totals"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>201</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>[
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"SR10001"</span></span>,
+    "<span class="hljs-attribute">shippingMethod</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Ground Shipping"</span></span>,
+      "<span class="hljs-attribute">carrier</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"UPS"</span></span>,
+        "<span class="hljs-attribute">trackingTemplate</span>": <span class="hljs-value"><span class="hljs-string">"http://wwwapps.ups.com/WebTracking/track?track=yes&amp;trackNums=%s"</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"UPS-GROUND"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">orderRefNum</span>": <span class="hljs-value"><span class="hljs-string">"BR10001"</span></span>,
+    "<span class="hljs-attribute">state</span>": <span class="hljs-value"><span class="hljs-string">"pending"</span></span>,
+    "<span class="hljs-attribute">shipmentDate</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+    "<span class="hljs-attribute">estimatedArrival</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+    "<span class="hljs-attribute">deliveredDate</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+    "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Home"</span></span>,
+      "<span class="hljs-attribute">address1</span>": <span class="hljs-value"><span class="hljs-string">"38 Baker Street"</span></span>,
+      "<span class="hljs-attribute">address2</span>": <span class="hljs-value"><span class="hljs-string">"39 Baker Street"</span></span>,
+      "<span class="hljs-attribute">city</span>": <span class="hljs-value"><span class="hljs-string">"Donkeyville"</span></span>,
+      "<span class="hljs-attribute">zip</span>": <span class="hljs-value"><span class="hljs-string">"55555"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shipmentLineItems</span>": <span class="hljs-value">[
+      {
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"SR10001"</span></span>,
+        "<span class="hljs-attribute">ShipmentLineItem</span>": <span class="hljs-value"><span class="hljs-string">"Hello, world!"</span>
+      </span>}
+    ]</span>,
+    "<span class="hljs-attribute">trackingNumber</span>": <span class="hljs-value"><span class="hljs-string">"1Z9999999999999999"</span></span>,
+    "<span class="hljs-attribute">shippingPrice</span>": <span class="hljs-value"><span class="hljs-number">399</span>
+  </span>}
+]</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"array"</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div><div id="shipments-shipments-patch" class="action patch"><h4 class="action-heading"><div class="name">Update</div><a href="#shipments-shipments-patch" class="method patch">PATCH</a><code class="uri">/v1/inventory/shipments/{id}</code></h4><p>This will update the state of a single shipment.</p>
+<h4>Example URI</h4><div class="definition"><span class="method patch">PATCH</span>&nbsp;<span class="uri"><span class="hostname"></span>/v1/inventory/shipments/<span class="hljs-attribute" title="id">1</span></span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>Unique ID.</p>
+</dd></dl></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"SR10001"</span></span>,
+  "<span class="hljs-attribute">shippingMethodCode</span>": <span class="hljs-value"><span class="hljs-string">"GROUND-SHIPPING"</span></span>,
+  "<span class="hljs-attribute">orderRefNum</span>": <span class="hljs-value"><span class="hljs-string">"BR10001"</span></span>,
+  "<span class="hljs-attribute">state</span>": <span class="hljs-value"><span class="hljs-string">"pending"</span></span>,
+  "<span class="hljs-attribute">shipmentDate</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+  "<span class="hljs-attribute">estimatedArrival</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+  "<span class="hljs-attribute">deliveredDate</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+  "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Home"</span></span>,
+    "<span class="hljs-attribute">address1</span>": <span class="hljs-value"><span class="hljs-string">"38 Baker Street"</span></span>,
+    "<span class="hljs-attribute">address2</span>": <span class="hljs-value"><span class="hljs-string">"39 Baker Street"</span></span>,
+    "<span class="hljs-attribute">city</span>": <span class="hljs-value"><span class="hljs-string">"Donkeyville"</span></span>,
+    "<span class="hljs-attribute">zip</span>": <span class="hljs-value"><span class="hljs-string">"55555"</span>
+  </span>}</span>,
+  "<span class="hljs-attribute">shipmentLineItems</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">sku</span>": <span class="hljs-value"><span class="hljs-string">"test-sku"</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Brown Shoes"</span></span>,
+      "<span class="hljs-attribute">price</span>": <span class="hljs-value"><span class="hljs-number">999</span></span>,
+      "<span class="hljs-attribute">imagePath</span>": <span class="hljs-value"><span class="hljs-string">"http://testsku.png"</span>
+    </span>}
+  ]</span>,
+  "<span class="hljs-attribute">trackingNumber</span>": <span class="hljs-value"><span class="hljs-string">"1Z9999999999999999"</span></span>,
+  "<span class="hljs-attribute">shippingPrice</span>": <span class="hljs-value"><span class="hljs-number">399</span>
+</span>}</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+  "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID for the shipment."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shippingMethodCode</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Code to identify the shipment to use."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">orderRefNum</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Order that the shipment is associated with."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">state</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">enum</span>": <span class="hljs-value">[
+        <span class="hljs-string">"pending"</span>,
+        <span class="hljs-string">"shipped"</span>,
+        <span class="hljs-string">"delivered"</span>,
+        <span class="hljs-string">"cancelled"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Shipment state."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shipmentDate</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Date that the shipment leaves the warehouse."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">estimatedArrival</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Date that the shipment is expected to arrive to the customer."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">deliveredDate</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Date that the shipment was delivered."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+      "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique ID."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+          "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+            "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">countryId</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Country unique identifier."</span>
+            </span>}</span>,
+            "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+              "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+              "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Region name."</span>
+            </span>}
+          </span>}</span>,
+          "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+            <span class="hljs-string">"id"</span>,
+            <span class="hljs-string">"countryId"</span>,
+            <span class="hljs-string">"name"</span>
+          ]</span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Associated region."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Address record name."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address1</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Actual address."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">address2</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Additional address line."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">city</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"City."</span>
+        </span>}</span>,
+        "<span class="hljs-attribute">zip</span>": <span class="hljs-value">{
+          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Zip code."</span>
+        </span>}
+      </span>}</span>,
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+        <span class="hljs-string">"id"</span>,
+        <span class="hljs-string">"region"</span>,
+        <span class="hljs-string">"name"</span>,
+        <span class="hljs-string">"address1"</span>,
+        <span class="hljs-string">"city"</span>,
+        <span class="hljs-string">"zip"</span>
+      ]</span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Destination address."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shipmentLineItems</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"array"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"The items that should be part of the shipment."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">trackingNumber</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"An optional tracking number, if it's provided."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shippingPrice</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"The price of the shipment."</span>
+    </span>}
+  </span>}</span>,
+  "<span class="hljs-attribute">required</span>": <span class="hljs-value">[
+    <span class="hljs-string">"state"</span>
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>[
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"SR10001"</span></span>,
+    "<span class="hljs-attribute">shippingMethod</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Ground Shipping"</span></span>,
+      "<span class="hljs-attribute">carrier</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"UPS"</span></span>,
+        "<span class="hljs-attribute">trackingTemplate</span>": <span class="hljs-value"><span class="hljs-string">"http://wwwapps.ups.com/WebTracking/track?track=yes&amp;trackNums=%s"</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"UPS-GROUND"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">orderRefNum</span>": <span class="hljs-value"><span class="hljs-string">"BR10001"</span></span>,
+    "<span class="hljs-attribute">state</span>": <span class="hljs-value"><span class="hljs-string">"pending"</span></span>,
+    "<span class="hljs-attribute">shipmentDate</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+    "<span class="hljs-attribute">estimatedArrival</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+    "<span class="hljs-attribute">deliveredDate</span>": <span class="hljs-value"><span class="hljs-string">"2020-01-01T12:00:00Z"</span></span>,
+    "<span class="hljs-attribute">address</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+      "<span class="hljs-attribute">region</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">countryId</span>": <span class="hljs-value"><span class="hljs-number">2794</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Washington"</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Home"</span></span>,
+      "<span class="hljs-attribute">address1</span>": <span class="hljs-value"><span class="hljs-string">"38 Baker Street"</span></span>,
+      "<span class="hljs-attribute">address2</span>": <span class="hljs-value"><span class="hljs-string">"39 Baker Street"</span></span>,
+      "<span class="hljs-attribute">city</span>": <span class="hljs-value"><span class="hljs-string">"Donkeyville"</span></span>,
+      "<span class="hljs-attribute">zip</span>": <span class="hljs-value"><span class="hljs-string">"55555"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">shipmentLineItems</span>": <span class="hljs-value">[
+      {
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">referenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"SR10001"</span></span>,
+        "<span class="hljs-attribute">ShipmentLineItem</span>": <span class="hljs-value"><span class="hljs-string">"Hello, world!"</span>
+      </span>}
+    ]</span>,
+    "<span class="hljs-attribute">trackingNumber</span>": <span class="hljs-value"><span class="hljs-string">"1Z9999999999999999"</span></span>,
+    "<span class="hljs-attribute">shippingPrice</span>": <span class="hljs-value"><span class="hljs-number">399</span>
+  </span>}
+]</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"array"</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></section></div><script>/* eslint-env browser */
+/* eslint quotes: [2, "single"] */
+'use strict';
+
+/*
+  Determine if a string ends with another string.
+*/
+function endsWith(str, suffix) {
+    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+
+/*
+  Get a list of direct child elements by class name.
+*/
+function childrenByClass(element, name) {
+  var filtered = [];
+
+  for (var i = 0; i < element.children.length; i++) {
+    var child = element.children[i];
+    var classNames = child.className.split(' ');
+    if (classNames.indexOf(name) !== -1) {
+      filtered.push(child);
+    }
+  }
+
+  return filtered;
+}
+
+/*
+  Get an array [width, height] of the window.
+*/
+function getWindowDimensions() {
+  var w = window,
+      d = document,
+      e = d.documentElement,
+      g = d.body,
+      x = w.innerWidth || e.clientWidth || g.clientWidth,
+      y = w.innerHeight || e.clientHeight || g.clientHeight;
+
+  return [x, y];
+}
+
+/*
+  Collapse or show a request/response example.
+*/
+function toggleCollapseButton(event) {
+    var button = event.target.parentNode;
+    var content = button.parentNode.nextSibling;
+    var inner = content.children[0];
+
+    if (button.className.indexOf('collapse-button') === -1) {
+      // Clicked without hitting the right element?
+      return;
+    }
+
+    if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+        // Currently showing, so let's hide it
+        button.className = 'collapse-button';
+        content.style.maxHeight = '0px';
+    } else {
+        // Currently hidden, so let's show it
+        button.className = 'collapse-button show';
+        content.style.maxHeight = inner.offsetHeight + 12 + 'px';
+    }
+}
+
+function toggleTabButton(event) {
+    var i, index;
+    var button = event.target;
+
+    // Get index of the current button.
+    var buttons = childrenByClass(button.parentNode, 'tab-button');
+    for (i = 0; i < buttons.length; i++) {
+        if (buttons[i] === button) {
+            index = i;
+            button.className = 'tab-button active';
+        } else {
+            buttons[i].className = 'tab-button';
+        }
+    }
+
+    // Hide other tabs and show this one.
+    var tabs = childrenByClass(button.parentNode.parentNode, 'tab');
+    for (i = 0; i < tabs.length; i++) {
+        if (i === index) {
+            tabs[i].style.display = 'block';
+        } else {
+            tabs[i].style.display = 'none';
+        }
+    }
+}
+
+/*
+  Collapse or show a navigation menu. It will not be hidden unless it
+  is currently selected or `force` has been passed.
+*/
+function toggleCollapseNav(event, force) {
+    var heading = event.target.parentNode;
+    var content = heading.nextSibling;
+    var inner = content.children[0];
+
+    if (heading.className.indexOf('heading') === -1) {
+      // Clicked without hitting the right element?
+      return;
+    }
+
+    if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+      // Currently showing, so let's hide it, but only if this nav item
+      // is already selected. This prevents newly selected items from
+      // collapsing in an annoying fashion.
+      if (force || window.location.hash && endsWith(event.target.href, window.location.hash)) {
+        content.style.maxHeight = '0px';
+      }
+    } else {
+      // Currently hidden, so let's show it
+      content.style.maxHeight = inner.offsetHeight + 12 + 'px';
+    }
+}
+
+/*
+  Refresh the page after a live update from the server. This only
+  works in live preview mode (using the `--server` parameter).
+*/
+function refresh(body) {
+    document.querySelector('body').className = 'preload';
+    document.body.innerHTML = body;
+
+    // Re-initialize the page
+    init();
+    autoCollapse();
+
+    document.querySelector('body').className = '';
+}
+
+/*
+  Determine which navigation items should be auto-collapsed to show as many
+  as possible on the screen, based on the current window height. This also
+  collapses them.
+*/
+function autoCollapse() {
+  var windowHeight = getWindowDimensions()[1];
+  var itemsHeight = 64; /* Account for some padding */
+  var itemsArray = Array.prototype.slice.call(
+    document.querySelectorAll('nav .resource-group .heading'));
+
+  // Get the total height of the navigation items
+  itemsArray.forEach(function (item) {
+    itemsHeight += item.parentNode.offsetHeight;
+  });
+
+  // Should we auto-collapse any nav items? Try to find the smallest item
+  // that can be collapsed to show all items on the screen. If not possible,
+  // then collapse the largest item and do it again. First, sort the items
+  // by height from smallest to largest.
+  var sortedItems = itemsArray.sort(function (a, b) {
+    return a.parentNode.offsetHeight - b.parentNode.offsetHeight;
+  });
+
+  while (sortedItems.length && itemsHeight > windowHeight) {
+    for (var i = 0; i < sortedItems.length; i++) {
+      // Will collapsing this item help?
+      var itemHeight = sortedItems[i].nextSibling.offsetHeight;
+      if ((itemsHeight - itemHeight <= windowHeight) || i === sortedItems.length - 1) {
+        // It will, so let's collapse it, remove its content height from
+        // our total and then remove it from our list of candidates
+        // that can be collapsed.
+        itemsHeight -= itemHeight;
+        toggleCollapseNav({target: sortedItems[i].children[0]}, true);
+        sortedItems.splice(i, 1);
+        break;
+      }
+    }
+  }
+}
+
+/*
+  Initialize the interactive functionality of the page.
+*/
+function init() {
+    var i, j;
+
+    // Make collapse buttons clickable
+    var buttons = document.querySelectorAll('.collapse-button');
+    for (i = 0; i < buttons.length; i++) {
+        buttons[i].onclick = toggleCollapseButton;
+
+        // Show by default? Then toggle now.
+        if (buttons[i].className.indexOf('show') !== -1) {
+            toggleCollapseButton({target: buttons[i].children[0]});
+        }
+    }
+
+    var responseCodes = document.querySelectorAll('.example-names');
+    for (i = 0; i < responseCodes.length; i++) {
+        var tabButtons = childrenByClass(responseCodes[i], 'tab-button');
+        for (j = 0; j < tabButtons.length; j++) {
+            tabButtons[j].onclick = toggleTabButton;
+
+            // Show by default?
+            if (j === 0) {
+                toggleTabButton({target: tabButtons[j]});
+            }
+        }
+    }
+
+    // Make nav items clickable to collapse/expand their content.
+    var navItems = document.querySelectorAll('nav .resource-group .heading');
+    for (i = 0; i < navItems.length; i++) {
+        navItems[i].onclick = toggleCollapseNav;
+
+        // Show all by default
+        toggleCollapseNav({target: navItems[i].children[0]});
+    }
+}
+
+// Initial call to set up buttons
+init();
+
+window.onload = function () {
+    autoCollapse();
+    // Remove the `preload` class to enable animations
+    document.querySelector('body').className = '';
+};
+</script>
