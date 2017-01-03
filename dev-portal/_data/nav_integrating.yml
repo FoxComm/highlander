@@ -1,14 +1,18 @@
 - title: Integrating
   items:
-    - id: integrating-with-netsuite
-      title: Integrating NetSuite with FoxCommerce
-    - id: conferences
-      title: Conferences
-    - id: videos
-      title: Videos
-    - id: complementary-tools
-      title: Complementary Tools
-      href: https://github.com/facebook/react/wiki/Complementary-Tools
-    - id: examples
-      title: Examples
-      href: https://github.com/facebook/react/wiki/Examples
+    - id: integrating-with-erps
+      title: Integrating with ERPs
+      subitems:
+      - id: integrating-with-netsuite
+        title: NetSuite with FoxCommerce
+      - id: integrating-with-oracle
+        title: Oracle with FoxCommerce
+    - id: integrating-with-avalara
+      title: Avalara with FoxCommerce
+    - id: integrating-with-logistics
+      title: Integrating with Logistics
+      subitems:
+      - id: integrating-with-shipwire
+        title: Shipwire with FoxCommerce
+      - id: integrating-with-newgistics
+        title: Newgistics with FoxCommerce

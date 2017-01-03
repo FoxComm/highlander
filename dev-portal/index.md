@@ -25,58 +25,91 @@ id: home
 </section>
 <hr class="home-divider" />
 <section class="home-section">
-  <div id="examples">
-    <div class="example">
-      <h3>A Simple Component</h3>
-      <p>
-        React components implement a `render()` method that takes input data and
-        returns what to display. This example uses an XML-like syntax called
-        JSX. Input data that is passed into the component can be accessed by
-        `render()` via `this.props`.
-      </p>
-      <p>
-        <strong>JSX is optional and not required to use React.</strong> Try
-        clicking on "Compiled JS" to see the raw JavaScript code produced by
-        the JSX compiler.
-      </p>
-      <div id="helloExample"></div>
-    </div>
-    <div class="example">
-      <h3>A Stateful Component</h3>
-      <p>
-        In addition to taking input data (accessed via `this.props`), a
-        component can maintain internal state data (accessed via `this.state`).
-        When a component's state data changes, the rendered markup will be
-        updated by re-invoking `render()`.
-      </p>
-      <div id="timerExample"></div>
-    </div>
-    <div class="example">
-      <h3>An Application</h3>
-      <p>
-        Using `props` and `state`, we can put together a small Todo application.
-        This example uses `state` to track the current list of items as well as
-        the text that the user has entered. Although event handlers appear to be
-        rendered inline, they will be collected and implemented using event
-        delegation.
-      </p>
-      <div id="todoExample"></div>
-    </div>
-    <div class="example">
-      <h3>A Component Using External Plugins</h3>
-      <p>
-        React is flexible and provides hooks that allow you to interface with
-        other libraries and frameworks. This example uses **remarkable**, an
-        external Markdown library, to convert the textarea's value in real time.
-      </p>
-      <div id="markdownExample"></div>
-    </div>
-  </div>
-  <script src="/react/js/remarkable.min.js"></script>
-  <script src="/react/js/examples/hello.js"></script>
-  <script src="/react/js/examples/timer.js"></script>
-  <script src="/react/js/examples/todo.js"></script>
-  <script src="/react/js/examples/markdown.js"></script>
+## Design Documents
+
+* [System Architecture](design/architecture)
+* [Activity Trail](design/activity-trail)
+* [Discounts](design/discounts)
+  * [Discount Algebra](design/discounts/discount_algebra.md)
+* [Inventory](design/inventory)
+* [Product Model](design/product)
+  * [PIM / Merch Object Model](design/objects)
+* [Production](design/production)
+
+## Architecture
+
+#### Customer's Simplified View of FoxCommerce Platform
+
+It's good to keep in mind that our customers will understand a simplified version of what's actually happening at FoxComm. They will mostly be interacting with the Store Admin to manage their catalog and merchandising, and their design & dev teams will be building their public storefront, most likely based on the Firebird starter theme.
+
+```
+                                            ╮
+                    ┌───────────────────┐   │
+┌─────────────┐     │ Public Storefront │   ├ Frontend
+│ Store Admin │     └─────────┬─────────┘   │
+└──────┬──────┘               │             ╯
+       └──────────┬───────────┘
+                  │                         ╮
+         ┌────────┴────────────┐            │
+         │ FoxComm Backend API │            ├ Backend
+         └─────────────────────┘            │
+                                            ╯
+```
+
+
+#### FoxCommerce Platform Architecture
+
+More detail on what's going on behind the scenes.
+
+```
+                                                               ╮
+                            ┌──────────────────────────────┐   │
+┌─────────────────────┐     │ Public Storefront [Firebird] │   ├ Frontend
+│ Store Admin [Ashes] │     └──────────────┬───────────────┘   │
+└─────────┬───────────┘                    │                   ╯
+          └───────────────┬────────────────┘
+                          │
+               ┌──────────┴──────────┐                         ╮
+               │ API Gateway [nginx] │                         │
+               └──────────┬──────────┘                         │
+                          │                                    │
+             ┌────────────┴────────────┐                       │
+      ┌──────┴──────┐         ┌────────┴──────────┐            │
+      │ Phoenix API │         │ ElasticSearch API │            ├ Backend
+      └──────┬──────┘         └──────────┬────────┘            │
+          ╭──┴─╮                         ↑ update indices      │
+          │    │     ┌───────┐     ┌─────┴───────┐             │
+          │ DB ├────→│ Kafka │────→│ Green River │             │
+          │    │     └───────┘     └─────────────┘             │
+          ╰────╯                                               ╯
+```
+
+
+
+## Core FoxCommerce Platform Components
+
+### Frontend UI
+
+See also [customer implementation & theming](customer-implementation/theming.md) and [developing frontend applications](development/setup.md#developing-frontend-applications)
+
+* [Ashes Store Admin UI](https://github.com/FoxComm/Ashes) — React.js based UI for Phoenix
+* [Firebird Demo Storefront](https://github.com/FoxComm/firebird) — Isomorphic node/javascript React web store
+* [API.js library](https://github.com/FoxComm/api-js) — Simple API client for interacting with Phoenix API; framework-agnostic javascript
+
+
+### Backend Services
+
+* [Phoenix core backend API](https://github.com/FoxComm/phoenix-scala) — see also [wiki docs](phoenix/README.md)
+* [Green River](https://github.com/FoxComm/green-river) — Kafka Consumers to capture and act on Phoenix data change events, eg. updating ElasticSearch indices
+
+See [Developing backend services](development/setup.md#developing-backend-applications)
+
+
+### Libraries & Utilities
+
+* [Provisioning all the Shit](https://github.com/FoxComm/prov-shit) — Core provisioning tool
+* [Money](https://github.com/FoxComm/money) — A money abstraction in GoLang
+* [Wings](https://github.com/FoxComm/wings) — Shared UI components & tools
 </section>
 <hr class="home-divider" />
 <section class="home-bottom-section">
