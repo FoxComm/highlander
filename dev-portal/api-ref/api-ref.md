@@ -1,10 +1,10 @@
 ---
 id: api-ref
 title: API Reference
-permalink: apiref/api-ref.html
+permalink: api-ref/api-ref.html
 next: introducing-jsx.html
 redirect_from:
-  - "apiref/index.html"
+  - "api-ref/index.html"
 ---
 
 Welcome to the FoxCommerce API reference!!
