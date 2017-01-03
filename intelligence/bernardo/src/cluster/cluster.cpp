@@ -171,9 +171,6 @@ namespace bernardo::cluster
         ENSURE(_index);
     }
 
-    /**
-     * TODO: USE FLANN HERE
-     */
     find_result group::find_cluster(const feature_vec& features) const
     {
         REQUIRE_GREATER(clusters.size(), 0);
