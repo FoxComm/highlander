@@ -14,7 +14,7 @@ const app = koa();
 app.init = co.wrap(function *(env) {
   if (env) { app.env = env; }
 
-  log4js.configure(path.join(`${__dirname}`, 'log4js.json'));
+  log4js.configure(path.join(`${__dirname}`, '../log4js.json'));
 
   app.config = new Config(app.env);
   app.use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }));
