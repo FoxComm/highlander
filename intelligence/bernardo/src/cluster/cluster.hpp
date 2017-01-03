@@ -9,13 +9,7 @@
 namespace bernardo::cluster 
 {
 
-
     using feature_vec = std::vector<float>;
-
-    struct cluster
-    {
-        feature_vec features; 
-    };
 
     struct query
     {
@@ -25,7 +19,7 @@ namespace bernardo::cluster
 
     namespace trait
     {
-        enum kind { integer, enumeration};
+        enum kind { number, enumeration};
         using enum_values = std::vector<std::string>;
         struct definition
         {
@@ -39,19 +33,34 @@ namespace bernardo::cluster
 
     enum distance_function { euclidean, hamming};
 
-    struct cluster_prototype
+    struct cluster
     {
-        std::string type;
+        feature_vec features; 
+    };
+
+    struct definition
+    {
         trait::definitions traits;
-        distance_function distance;
+        distance_function distance_func;
     };
 
-    struct cluster_group
+    using cluster_vec = std::vector<cluster>;
+
+    struct group
     {
-        std::string type;
+        definition def;
+        cluster_vec clusters;
     };
 
+    using group_map = std::unordered_map<std::string, group>;
 
+    struct all_groups
+    {
+        group_map groups;
+    };
+
+    group_map::const_iterator group_for_query(const all_groups&, const query&);
+    feature_vec compile_query(const query&, const group&);
 }
 
 #endif

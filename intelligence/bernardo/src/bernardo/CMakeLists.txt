@@ -12,16 +12,16 @@ add_executable(
 
 target_link_libraries(
     bernardo
-    bernardo_cluster
     bernardo_service
+    bernardo_cluster
     bernardo_util
     ${Boost_LIBRARIES}
     ${MISC_LIBRARIES})
 
 add_dependencies(
     bernardo 
-    bernardo_cluster
     bernardo_service
+    bernardo_cluster
     bernardo_util)
 
 install(TARGETS bernardo DESTINATION bin)

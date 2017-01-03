@@ -4,6 +4,8 @@
 #include <folly/dynamic.h>
 #include <folly/json.h>
 
+#include <sstream>
+
 
 namespace bernardo::service
 {
@@ -83,15 +85,43 @@ namespace bernardo::service
 
     void query_request_handler::find()
     {
-        INVARIANT(_body);
+        if(!_body) throw std::invalid_argument{"payload expected"};
 
         auto body = _body->moveToFbString();
         auto payload = folly::parseJson(body);
         auto query = to_query(payload);
 
+        cluster::all_groups all;
+        all.groups["poo"] = 
+        cluster::group {
+            {
+                {
+                    {"foo", cluster::trait::kind::number, {}}, 
+                    {"bar", cluster::trait::kind::enumeration, {"a", "b"}}
+                },
+                cluster::distance_function::euclidean
+            },
+            {}
+        };
+
         std::cout << "PAYLOAD: " << payload << std::endl;
         std::cout << "TYPE: " << query.type << std::endl;
         std::cout << "TRAITS: " << query.traits << std::endl;
+
+        auto group = cluster::group_for_query(all, query);
+        if(group == all.groups.end())
+        {
+            std::stringstream s;
+            s << "unable to find group " << query.type;
+            throw std::invalid_argument{s.str()};
+        }
+
+        auto compiled = cluster::compile_query(query, group->second);
+
+        std::cout << "COMPILED: ";
+        for(auto v : compiled) std::cout << v << " ";
+        std::cout << std::endl;
+
 
         proxygen::ResponseBuilder{downstream_}
         .status(200, "OK")
