@@ -2,5 +2,7 @@
   items:
   - id: api-reference
     title: API Reference Overview
+  - id: api-public
+    title: Public API Reference
   - id: api-customers
     title: Customer API Reference

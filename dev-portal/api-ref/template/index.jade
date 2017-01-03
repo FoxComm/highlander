@@ -9,15 +9,8 @@ include mixins.jade
     a.text-muted.back-to-top(href='#top')
         i.fa.fa-toggle-up
         | &nbsp;Back to top
-    div(class=self.fullWidth ? 'container-fluid' : 'container')
-        .row
-            block nav
-                +Nav(false)
-
-            .content
-                block content
-                    +Content('primary', false)
-
+    +Content('primary', false)
+    
 script: include scripts.js
 
 if self.livePreview
