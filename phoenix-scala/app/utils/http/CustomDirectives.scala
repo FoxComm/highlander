@@ -29,6 +29,8 @@ import com.github.levkhomich.akka.tracing._
 import com.github.levkhomich.akka.tracing.http.TracingHeaders._
 import com.typesafe.scalalogging.LazyLogging
 
+import scala.annotation.tailrec
+
 object CustomDirectives extends LazyLogging {
 
   private val DebugFlag = 1L
@@ -73,19 +75,18 @@ object CustomDirectives extends LazyLogging {
       val cr = TracingRequest("client")
       val tr = TracingRequest(request.uri.path.toString())
 
-      extractSpan(headers, requireTraceId = false) match {
-        case Right(maybeSpan) ⇒
-          maybeSpan.foreach { span ⇒
-            trace.importMetadata(cr, span, "client")
-            trace.createChild(tr, cr).foreach { md ⇒
-              trace.importMetadata(tr, md, service)
-            }
+      extractSpan(headers) match {
+        case Some(span) ⇒
+          logger.info(s"Child trace. ${tr.spanName}")
+          trace.importMetadata(cr, span, "client")
+          trace.createChild(tr, cr).foreach { md ⇒
+            trace.importMetadata(tr, md, service)
+            trace.record(tr, TracingAnnotations.ServerReceived.text)
           }
-        case Left(malformedHeaderName) ⇒
-          reject(MalformedHeaderRejection(malformedHeaderName, "invalid value"))
+        case None ⇒
+          logger.info(s"New trace. ${tr.spanName}")
+          trace.sample(tr, service, true)
       }
-
-      trace.record(tr, TracingAnnotations.ServerReceived.text)
 
       trace.recordKeyValue(tr, "request.uri", request.uri.toString())
       trace.recordKeyValue(tr, "request.path", request.uri.path.toString())
@@ -105,37 +106,31 @@ object CustomDirectives extends LazyLogging {
     t
   }
 
-  private def idFromString(x: String): Long = {
-    if (x == null || x.length == 0) {
-      throw new NumberFormatException("Empty span id")
-    } else if (x.length > 32) {
-      throw new NumberFormatException("Span id is too long: " + x)
-    } else if (x.length > 16) {
-      idFromString(x.takeRight(16))
-    } else {
-      val s =
-        if (x.length % 2 == 0) x
-        else "0" + x
-      val bytes = new Array[Byte](8)
-      val start = 7 - (s.length + 1) / 2
-      (s.length until 0 by -2).foreach { i ⇒
-        val x = Integer.parseInt(s.substring(i - 2, i), 16).toByte
-        bytes.update(start + i / 2, x)
+  @tailrec
+  private def idFromString(x: String): Option[Long] = {
+    x match {
+      case x if x == null || x.length == 0 || x.length > 32 ⇒ None
+      case x if x.length > 16                               ⇒ idFromString(x.takeRight(16))
+      case x ⇒ {
+        val s = x match {
+          case x if x.length % 2 == 0 ⇒ x
+          case x ⇒ "0" + x
+        }
+        val bytes = new Array[Byte](8)
+        val start = 7 - (s.length + 1) / 2
+        (s.length until 0 by -2).foreach { i ⇒
+          val x = Integer.parseInt(s.substring(i - 2, i), 16).toByte
+          bytes.update(start + i / 2, x)
+        }
+        Some(new DataInputStream(new ByteArrayInputStream(bytes)).readLong)
       }
-      new DataInputStream(new ByteArrayInputStream(bytes)).readLong
     }
   }
 
-  private def extractSpan(headers: String ⇒ Option[String],
-                          requireTraceId: Boolean): Either[String, Option[SpanMetadata]] = {
-    def headerLongValue(name: String): Either[String, Option[Long]] =
-      Try(headers(name).map(idFromString)) match {
-        case Failure(e) ⇒
-          Left(name)
-        case Success(v) ⇒
-          Right(v)
-      }
-    def spanId: Long = headerLongValue(SpanId).right.toOption.flatten.getOrElse(Random.nextLong)
+  private def extractSpan(headers: String ⇒ Option[String]): Option[SpanMetadata] = {
+    def headerLongValue(name: String): Option[Long] = headers(name).flatMap(idFromString)
+
+    def spanId: Long = headerLongValue(SpanId).getOrElse(Random.nextLong)
 
     // debug flag forces sampling (see http://git.io/hdEVug)
     val maybeForceSampling = headers(Sampled).map(_.toLowerCase) match {
@@ -150,22 +145,16 @@ object CustomDirectives extends LazyLogging {
     }
 
     maybeForceSampling match {
-      case Some(false) ⇒
-        Right(None)
+      case Some(false) ⇒ None
       case _ ⇒
         val forceSampling = maybeForceSampling.getOrElse(false)
-        headerLongValue(TraceId).right
-          .map({
-            case Some(traceId) ⇒
-              headerLongValue(ParentSpanId).right.map { parentId ⇒
-                Some(SpanMetadata(traceId, spanId, parentId, forceSampling))
-              }
-            case _ if requireTraceId ⇒
-              Right(None)
-            case _ ⇒
-              Right(Some(SpanMetadata(Random.nextLong, spanId, None, forceSampling)))
-          })
-          .joinRight
+        headerLongValue(TraceId) match {
+          case Some(traceId) ⇒
+            val parentId = headerLongValue(ParentSpanId)
+            Some(SpanMetadata(traceId, spanId, parentId, forceSampling))
+          case _ ⇒
+            None
+        }
     }
   }
 
