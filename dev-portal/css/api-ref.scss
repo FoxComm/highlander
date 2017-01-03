@@ -587,42 +587,6 @@ nav {
     width: 220px;
 }
 
-.container {
-    max-width: 940px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.container .row .content {
-    margin-left: 244px;
-    width: 696px;
-}
-
-.container .row:after {
-    content: '';
-    display: block;
-    clear: both;
-}
-
-.container-fluid nav {
-    width: 22%;
-}
-
-.container-fluid .row .content {
-    margin-left: 24%;
-}
-
-.container-fluid.triple nav {
-    width: 16.5%;
-    padding-right: 1px;
-}
-
-.container-fluid.triple .row .content {
-    position: relative;
-    margin-left: 16.5%;
-    padding-left: 24px;
-}
-
 .middle:before,
 .middle:after {
     content: '';
