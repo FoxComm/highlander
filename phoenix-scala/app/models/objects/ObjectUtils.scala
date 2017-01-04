@@ -27,7 +27,6 @@ object ObjectUtils {
   def get(attr: String, form: ObjectForm, shadow: ObjectShadow): Json =
     IlluminateAlgorithm.get(attr, form.attributes, shadow.attributes)
 
-  private val Sha1MessageDigest = java.security.MessageDigest.getInstance("SHA-1")
   val KeyLength                 = 5
 
   /**
@@ -37,7 +36,7 @@ object ObjectUtils {
     * Collisions are handled below in the findKey function.
     */
   private def hash(content: Json): String =
-    Sha1MessageDigest
+    java.security.MessageDigest.getInstance("SHA-1") // shared instance would not be thread-safe
       .digest(compact(render(content)).getBytes)
       .slice(0, KeyLength)
       .map("%02x".format(_))
