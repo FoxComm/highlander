@@ -18,7 +18,9 @@ import models.cord.lineitems._
 import models.inventory.Skus
 import models.location.Addresses
 import models.objects.ObjectContext
-import models.payment.creditcard.{CreditCard, CreditCards}
+import models.payment.InStorePaymentStates
+import models.payment.creditcard.CreditCardCharge.FullCapture
+import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.product.Mvp
@@ -227,6 +229,12 @@ trait OrderGenerator extends ShipmentSeeds {
       cc            ← * <~ getCc(accountId) // TODO: auth
       op ← * <~ OrderPayments.create(
               OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
+      ccc ← * <~ CreditCardCharges.create(
+               CreditCardCharge(creditCardId = cc.id,
+                                orderPaymentId = op.id,
+                                chargeId = s"${cc.id}_${op.id}",
+                                state = FullCapture,
+                                amount = op.amount.getOrElse(0)))
       addr ← * <~ getDefaultAddress(accountId)
       shipA ← * <~ OrderShippingAddresses.create(
                  OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
@@ -255,10 +263,12 @@ trait OrderGenerator extends ShipmentSeeds {
       gc            ← * <~ GiftCards.mustFindById404(giftCard.id)
       totals        ← * <~ total(skuIds)
       deductFromGc = deductAmount(gc.availableBalance, totals)
-      cc         ← * <~ getCc(accountId) // TODO: auth
-      _          ← * <~ generateOrderPayments(cart, order, cc, gc, deductFromGc)
+      cc            ← * <~ getCc(accountId) // TODO: auth
+      orderPayments ← * <~ generateOrderPayments(cart, order, cc, gc, deductFromGc)
+      (gcPayment, ccPayment) = orderPayments
       gcPayments ← * <~ OrderPayments.findAllGiftCardsByCordRef(cart.refNum).result
       _          ← * <~ authGiftCard(gcPayments)
+      _          ← * <~ generateCharges(Seq((cc, ccPayment)), gcPayment.toList.map(p ⇒ (gc, p)))
       addr       ← * <~ getDefaultAddress(accountId)
       shipA ← * <~ OrderShippingAddresses.create(
                  OrderShippingAddress.buildFromAddress(addr).copy(cordRef = cart.refNum))
@@ -310,22 +320,49 @@ trait OrderGenerator extends ShipmentSeeds {
       t      ← * <~ prices.sum
     } yield t
 
-  private def generateOrderPayments(cart: Cart,
-                                    order: Order,
-                                    cc: CreditCard,
-                                    gc: GiftCard,
-                                    deductFromGc: Int): DbResultT[Unit] = {
+  def generateCharges(ccs: Seq[(CreditCard, OrderPayment)], gcs: Seq[(GiftCard, OrderPayment)])
+    : DbResultT[(Seq[CreditCardCharge], Seq[GiftCardAdjustment])] =
+    for {
+      ccr ← * <~ ccs.map {
+             case (cc, op) ⇒
+               CreditCardCharges.create(
+                   CreditCardCharge(creditCardId = cc.id,
+                                    orderPaymentId = op.id,
+                                    chargeId = s"${cc.id}_${op.id}",
+                                    state = FullCapture,
+                                    amount = op.amount.getOrElse(0)))
+           }
+      gcr ← * <~ gcs.map {
+             case (gc, op) ⇒
+               val amount = op.amount.getOrElse(0)
+               GiftCardAdjustments.create(
+                   GiftCardAdjustment(giftCardId = gc.id,
+                                      orderPaymentId = op.id.some,
+                                      credit = amount,
+                                      debit = 0,
+                                      availableBalance = gc.availableBalance - amount,
+                                      state = InStorePaymentStates.Capture))
+           }
+    } yield (ccr, gcr)
+
+  private def generateOrderPayments(
+      cart: Cart,
+      order: Order,
+      cc: CreditCard,
+      gc: GiftCard,
+      deductFromGc: Int): DbResultT[(Option[OrderPayment], OrderPayment)] = {
     if (gc.availableBalance > 0)
       for {
         op1 ← * <~ OrderPayments.create(
                  OrderPayment.build(gc).copy(cordRef = cart.refNum, amount = deductFromGc.some))
         op2 ← * <~ OrderPayments.create(
                  OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
-      } yield {} else
+      } yield (op1.some, op2)
+    else
       for {
         op ← * <~ OrderPayments.create(
                 OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
-      } yield {}
+      } yield (None, op)
   }
 
   private def generateCartPayments(cart: Cart,

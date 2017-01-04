@@ -1,0 +1,33 @@
+
+.root {
+  & :global(.fc-typeahead__items) {
+    width: 600px;
+    overflow-y: auto;
+
+    & > li {
+      padding: 0;
+    }
+
+    & :global(.fc-typeahead__item-not-found) {
+      padding: 0 20px;
+    }
+  }
+
+  & :global(.fc-typeahead__menu) {
+    box-shadow: 0 2px 4px 0 @color-decor51;
+  }
+
+  & :global(.fc-pilled-input__input-container) {
+    width: 600px;
+
+    :global(.fc-pilled-input__input-field) {
+      width: 100%;
+      padding-right: 0;
+    }
+  }
+}
+
+
+.label {
+  margin-bottom: 15px;
+}
