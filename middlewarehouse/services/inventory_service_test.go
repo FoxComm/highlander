@@ -156,7 +156,7 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_SingleSKU() {
 	err = suite.service.HoldItems(refNum, skus)
 
 	var units []models.StockItemUnit
-	suite.db.Where("ref_num = ?", refNum).Find(&units)
+	suite.db.Where("order_ref_num = ?", refNum).Find(&units)
 
 	suite.Nil(err)
 	suite.Equal(1, len(units))
@@ -186,11 +186,11 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_MultipleSKUs() {
 	suite.Nil(suite.service.HoldItems(refNum, skus))
 
 	var units []models.StockItemUnit
-	suite.Nil(suite.db.Where("ref_num = ?", refNum).Where("stock_item_id = ?", stockItem1.ID).Find(&units).Error)
+	suite.Nil(suite.db.Where("order_ref_num = ?", refNum).Where("stock_item_id = ?", stockItem1.ID).Find(&units).Error)
 
 	suite.Equal(5, len(units))
 
-	suite.Nil(suite.db.Where("ref_num = ?", refNum).Where("stock_item_id = ?", stockItem2.ID).Find(&units).Error)
+	suite.Nil(suite.db.Where("order_ref_num = ?", refNum).Where("stock_item_id = ?", stockItem2.ID).Find(&units).Error)
 
 	suite.Equal(skus[sku1], len(units))
 }
@@ -230,13 +230,13 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Single() {
 	err = suite.service.HoldItems(refNum, skus)
 
 	onHoldUnitsCount := 0
-	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", refNum, models.StatusOnHold).Count(&onHoldUnitsCount)
+	suite.db.Model(&models.StockItemUnit{}).Where("order_ref_num = ? AND status = ?", refNum, models.StatusOnHold).Count(&onHoldUnitsCount)
 	suite.Equal(1, onHoldUnitsCount, "There should be one unit in onHold status")
 
 	// send release request and check if it was processed successfully
 	err = suite.service.ReleaseItems(refNum)
 	suite.Nil(err, "Reservation should be successfully removed")
 
-	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", refNum, models.StatusOnHold).Count(&onHoldUnitsCount)
+	suite.db.Model(&models.StockItemUnit{}).Where("order_ref_num = ? AND status = ?", refNum, models.StatusOnHold).Count(&onHoldUnitsCount)
 	suite.Equal(0, onHoldUnitsCount, "There should not be units in onHold status")
 }

@@ -11,7 +11,7 @@ type StockItemUnit struct {
 	StockItemID uint
 	StockItem   StockItem
 	Type        UnitType
-	RefNum      sql.NullString
+	OrderRefNum sql.NullString
 	UnitCost    int
 	Status      UnitStatus
 }

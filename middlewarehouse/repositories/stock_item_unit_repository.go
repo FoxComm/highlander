@@ -6,8 +6,8 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
-	"github.com/jinzhu/gorm"
 	"github.com/FoxComm/highlander/middlewarehouse/common/transaction"
+	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -92,7 +92,7 @@ func (repository *stockItemUnitRepository) GetUnitsInOrder(refNum string) ([]*mo
 	var units []*models.StockItemUnit
 	err := repository.db.
 		Preload("StockItem").
-		Where("stock_item_units.ref_num = ?", refNum).
+		Where("stock_item_units.order_ref_num = ?", refNum).
 		Find(&units).
 		Error
 
@@ -108,7 +108,7 @@ func (repository *stockItemUnitRepository) GetUnitForLineItem(refNum string, sku
 	err := repository.db.
 		Joins("JOIN stock_items ON stock_items.id = stock_item_units.stock_item_id").
 		Where("stock_items.sku = ?", sku).
-		Where("stock_item_units.ref_num = ?", refNum).
+		Where("stock_item_units.order_ref_num = ?", refNum).
 		Where("stock_item_units.status = ?", "onHold").
 		First(unit).
 		Error
@@ -118,8 +118,8 @@ func (repository *stockItemUnitRepository) GetUnitForLineItem(refNum string, sku
 
 func (repository *stockItemUnitRepository) HoldUnitsInOrder(refNum string, ids []uint) (int, error) {
 	updateWith := models.StockItemUnit{
-		RefNum: sql.NullString{String: refNum, Valid: true},
-		Status: models.StatusOnHold,
+		OrderRefNum: sql.NullString{String: refNum, Valid: true},
+		Status:      models.StatusOnHold,
 	}
 
 	result := repository.db.Model(&models.StockItemUnit{}).Where("id in (?)", ids).Updates(updateWith)
@@ -132,7 +132,7 @@ func (repository *stockItemUnitRepository) ReserveUnitsInOrder(refNum string) (i
 		Status: models.StatusReserved,
 	}
 
-	result := repository.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)
+	result := repository.db.Model(&models.StockItemUnit{}).Where("order_ref_num = ?", refNum).Updates(updateWith)
 
 	return int(result.RowsAffected), result.Error
 }
@@ -142,7 +142,7 @@ func (repository *stockItemUnitRepository) ShipUnitsInOrder(refNum string) (int,
 		"status": models.StatusShipped,
 	}
 
-	result := repository.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)
+	result := repository.db.Model(&models.StockItemUnit{}).Where("order_ref_num = ?", refNum).Updates(updateWith)
 
 	return int(result.RowsAffected), result.Error
 }
@@ -150,17 +150,17 @@ func (repository *stockItemUnitRepository) ShipUnitsInOrder(refNum string) (int,
 func (repository *stockItemUnitRepository) UnsetUnitsInOrder(refNum string) (int, error) {
 	// gorm does not update empty fields when updating with struct, so use map here
 	updateWith := map[string]interface{}{
-		"ref_num": sql.NullString{String: "", Valid: false},
-		"status":  models.StatusOnHand,
+		"order_ref_num": sql.NullString{String: "", Valid: false},
+		"status":        models.StatusOnHand,
 	}
 
-	result := repository.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)
+	result := repository.db.Model(&models.StockItemUnit{}).Where("order_ref_num = ?", refNum).Updates(updateWith)
 
 	return int(result.RowsAffected), result.Error
 }
 
 func (repository *stockItemUnitRepository) DeleteUnitsInOrder(refNum string) (int, error) {
-	result := repository.db.Delete(models.StockItemUnit{}, "ref_num = ?", refNum)
+	result := repository.db.Delete(models.StockItemUnit{}, "order_ref_num = ?", refNum)
 
 	return int(result.RowsAffected), result.Error
 }
@@ -171,7 +171,7 @@ func (repository *stockItemUnitRepository) GetQtyForOrder(refNum string) ([]*mod
 	err := repository.db.Table("stock_item_units u").
 		Select("u.stock_item_id, sum(1) as qty").
 		Joins("left join stock_items si on si.id = u.stock_item_id").
-		Where("u.ref_num = ?", refNum).
+		Where("u.order_ref_num = ?", refNum).
 		Group("u.stock_item_id").
 		Find(&res).
 		Error
