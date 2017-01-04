@@ -106,10 +106,10 @@ class ProductIntegrationTest
           val slugClue = s"slug: $slug"
 
           val productResponse = doQuery(productPayload.copy(slug = slug))
-          productResponse.slug must === (slug).withClue(slugClue)
+          productResponse.slug must === (slug.toLowerCase).withClue(slugClue)
 
           val getProductResponse = productsApi(slug).get().as[Root]
-          getProductResponse.slug must === (slug).withClue(slugClue)
+          getProductResponse.slug must === (slug.toLowerCase).withClue(slugClue)
           getProductResponse.id must === (productResponse.id).withClue(slugClue)
         }
       }
@@ -412,7 +412,7 @@ class ProductIntegrationTest
                                          options = None,
                                          albums = None)
 
-      doQuery(product.formId, payload).slug must === (slug)
+      doQuery(product.formId, payload).slug must === (slug.toLowerCase)
     }
 
     "Updates the variants on a product successfully" in new Fixture {

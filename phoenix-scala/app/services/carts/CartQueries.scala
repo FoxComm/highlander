@@ -5,12 +5,8 @@ import failures.NotFoundFailure404
 import models.account._
 import models.cord._
 import models.objects.ObjectContext
-import models.payment.creditcard.CreditCardCharge.{Auth ⇒ ccAuth}
-import models.payment.giftcard.GiftCardAdjustment.{Auth ⇒ gcAuth}
-import models.payment.storecredit.StoreCreditAdjustment.{Auth ⇒ scAuth}
 import responses.TheResponse
 import responses.cord.CartResponse
-import services.Authenticator.UserAuthenticator
 import services.{CartValidator, CordQueries, LogActivity}
 import utils.aliases._
 import utils.db._

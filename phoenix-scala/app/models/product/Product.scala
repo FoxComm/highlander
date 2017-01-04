@@ -69,6 +69,8 @@ case class Product(id: Int = 0,
     } yield {}
 
   def reference: ProductReference = ProductId(formId)
+
+  override def sanitize: Product = super.sanitize.copy(slug = slug.toLowerCase)
 }
 
 class Products(tag: Tag) extends ObjectHeads[Product](tag, "products") {
