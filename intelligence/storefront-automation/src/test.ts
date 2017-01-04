@@ -1,42 +1,58 @@
 // this is for testing stuff before putting it other files
-import webdriver = require('selenium-webdriver')
-import { firstBinom } from './randomUtils'
+import webdriver = require('selenium-webdriver');
+import { firstBinom } from './randomUtils';
 
-const HOME_URL = 'http://hal.foxcommerce.com'
-const PAGE_PATH = 'sunglasses'
-const PRODUCTS_LIST = '//*[@id="app"]/div/div/div[2]/section/div'
-const LOGIN_EMAIL = '//*[@id="app"]/div/div[1]/div/div/form/div[1]/input'
-const LOGIN_PASS = '//*[@id="app"]/div/div[1]/div/div/form/div[2]/div/input'
-const LOGIN_SUBMIT = '//*[@id="app"]/div/div[1]/div/div/form/button'
+const BROWSER = 'firefox';
+const DRIVER_URL = 'http://localhost';
+const DRIVER_PORT = '4444';
+
+const HOME_URL = 'http://hal.foxcommerce.com';
+// const HOME_URL = 'http://localhost:5045'
+const CATEGORY = 'all';
+
+// element ids
+const PRODUCTS_LIST = 'products-list';
+const PRODUCT = 'product';
+const LOGIN_EMAIL = 'login-email';
+const LOGIN_PASS = 'login-password';
+const LOGIN_SUBMIT = 'login-submit';
+const ADD_TO_CART = 'add-to-cart';
 
 const driver = new webdriver.Builder()
-  .forBrowser('firefox')
-  .usingServer('http://localhost:4444/wd/hub')
-  .build()
+  .forBrowser(BROWSER)
+  .usingServer(`${DRIVER_URL}:${DRIVER_PORT}/wd/hub`)
+  .build();
 
-const By = webdriver.By
-type WebElement = webdriver.WebElement
+const By = webdriver.By;
+const until = webdriver.until;
+type WebElement = webdriver.WebElement;
 
 function pickProduct(products: Array<WebElement>) {
-  let n: number = products.length
-  let idx: number = firstBinom(0.3, n)
-  if(idx > n){
-    console.log('not clicking a product')
+  let n: number = products.length;
+  let idx: number = firstBinom(0.3, n);
+  if(idx < n){
+    console.log(`clicking product ${idx}`);
+    return products[idx].click();
   } else {
-    console.log(`clicking product ${idx}`)
-    return products[idx].click()
+    console.log('not clicking a product');
+    return driver.quit();
   }
 }
 
 // login
-driver.navigate().to(`${HOME_URL}/${PAGE_PATH}?auth=login`)
-  .then(() => driver.findElement(By.xpath(LOGIN_EMAIL)).sendKeys('robot01@robot.com'))
-  .then(() => driver.findElement(By.xpath(LOGIN_PASS)).sendKeys('password'))
-  .then(() => driver.findElement(By.xpath(LOGIN_SUBMIT)).click())
+driver.navigate().to(`${HOME_URL}/${CATEGORY}?auth=login`);
+driver.findElement(By.id(LOGIN_EMAIL)).sendKeys('robot01@robot.com');
+driver.findElement(By.id(LOGIN_PASS)).sendKeys('password');
+driver.findElement(By.id(LOGIN_SUBMIT)).click()
+  .then(() => driver.sleep(1000));
 
 // find a product
-driver.navigate().to(`${HOME_URL}/${PAGE_PATH}`)
-  .then(() => driver.findElement(By.xpath(PRODUCTS_LIST)))
-  .then(list => list.findElements(By.tagName('img')))
-  .then((products) => pickProduct(products))
-  .then(() => driver.quit())
+driver.findElement(By.id(PRODUCTS_LIST))
+  .findElements(By.id(PRODUCT))
+  .then((products) => pickProduct(products));
+
+// add to cart
+driver.wait(until.elementLocated(By.id(ADD_TO_CART)), 5000,
+  'PDP should load within 5 seconds');
+driver.findElement(By.id(ADD_TO_CART)).click();
+driver.quit();
