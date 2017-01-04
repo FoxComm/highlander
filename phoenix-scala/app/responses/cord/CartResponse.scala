@@ -62,7 +62,7 @@ object CartResponse {
           promotion = promo.map { case (promotion, _) ⇒ promotion },
           coupon = promo.map { case (_, coupon)       ⇒ coupon },
           totals = CartResponseTotals
-            .build(cart, decreaseChargeBy = appliedGiftCardAmount + appliedStoreCreditAmount),
+            .build(cart, inStorePayment = appliedGiftCardAmount + appliedStoreCreditAmount),
           customer = for {
             c  ← customer
             cu ← customerData
