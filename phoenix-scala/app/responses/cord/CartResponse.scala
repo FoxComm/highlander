@@ -54,8 +54,11 @@ object CartResponse {
       paymentState ← * <~ CartQueries.getCordPaymentState(cart.refNum)
       lockedBy     ← * <~ currentLock(cart)
       orderPayments = OrderPayments.findAllByCordRef(cart.refNum)
-      inStorePayments ← * <~ (orderPayments.giftCards ++ orderPayments.storeCredits).result
-      inStorePaymentsSum = inStorePayments.flatMap(_.amount.toList).sum
+      inStorePayment ← * <~ (orderPayments.giftCards ++ orderPayments.storeCredits)
+                        .map(_.amount.getOrElse(0))
+                        .sum
+                        .getOrElse(0)
+                        .result
     } yield
       CartResponse(
           referenceNumber = cart.refNum,
@@ -63,7 +66,7 @@ object CartResponse {
           lineItemAdjustments = lineItemAdj,
           promotion = promo.map { case (promotion, _) ⇒ promotion },
           coupon = promo.map { case (_, coupon)       ⇒ coupon },
-          totals = CartResponseTotals.build(cart, inStorePayment = inStorePaymentsSum),
+          totals = CartResponseTotals.build(cart, inStorePayment = inStorePayment),
           customer = for {
             c  ← customer
             cu ← customerData
