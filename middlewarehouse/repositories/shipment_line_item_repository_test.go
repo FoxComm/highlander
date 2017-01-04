@@ -60,10 +60,12 @@ func (suite *ShipmentLineItemRepositoryTestSuite) SetupSuite() {
 
 	suite.stockItemUnit1 = fixtures.GetStockItemUnit(stockItem)
 	suite.stockItemUnit1.OrderRefNum = sql.NullString{"BR1001", true}
+	suite.stockItemUnit1.OrderLineItemRefNum = sql.NullString{"LI1001", true}
 	suite.Nil(suite.db.Create(suite.stockItemUnit1).Error)
 
 	suite.stockItemUnit2 = fixtures.GetStockItemUnit(stockItem)
 	suite.stockItemUnit2.OrderRefNum = sql.NullString{"BR1001", true}
+	suite.stockItemUnit2.OrderLineItemRefNum = sql.NullString{"LI1002", true}
 	suite.Nil(suite.db.Create(suite.stockItemUnit2).Error)
 
 	suite.shipment1 = fixtures.GetShipment(0, "BR1001", shippingMethod.Code, shippingMethod, address.ID, address, nil)
