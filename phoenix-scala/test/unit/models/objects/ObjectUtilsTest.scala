@@ -33,25 +33,41 @@ class ObjectUtilsTest extends TestBase with GeneratorDrivenPropertyChecks {
 
     ".createForm" - {
       "creates new forms from scratch" in forAll { (kv: List[(String, String)]) ⇒
-        val jobject = JObject(kv.map {
-          case (k, v) ⇒ k → JString(v)
-        })
-        val (keyMap, form) = ObjectUtils.createForm(jobject)
+        val (keyMap, form) = ObjectUtils.createForm(toJObject(kv))
 
-        keyMap must === (
-            kv.map {
-              case (k, v) ⇒ k → ObjectUtils.key(JString(v), JNothing)
-            }.toMap
-        )
+        keyMap must === (toKeyMap(kv))
+        form.asInstanceOf[JObject].obj.toMap must === (toForm(kv))
+      }
+    }
 
-        form must === (
-            JObject(kv.map {
-              case (k, v) ⇒ ObjectUtils.key(JString(v), JNothing) → JString(v)
-            })
-        )
+    ".updateForm" - {
+      "updates forms correctly" in forAll {
+        (oldHumanForm: List[(String, String)], humanFormUpdate: List[(String, String)]) ⇒
+          val (_, oldForm) = ObjectUtils.createForm(toJObject(oldHumanForm))
+          val (updatedKeymap, updatedForm) =
+            ObjectUtils.updateForm(oldForm, toJObject(humanFormUpdate))
+
+          updatedForm.asInstanceOf[JObject].obj.toMap must === (
+              toForm(oldHumanForm) ++ toForm(humanFormUpdate))
+          updatedKeymap must === (toKeyMap(humanFormUpdate))
       }
     }
 
   }
+
+  private def toJObject(kv: List[(String, String)]) =
+    JObject(kv.map {
+      case (k, v) ⇒ k → JString(v)
+    })
+
+  private def toKeyMap(humanForm: List[(String, String)]): Map[String, String] =
+    humanForm.map {
+      case (k, v) ⇒ k → ObjectUtils.key(JString(v), JNothing)
+    }.toMap
+
+  private def toForm(humanForm: List[(String, String)]): Map[String, JString] =
+    humanForm.map {
+      case (k, v) ⇒ ObjectUtils.key(JString(v), JNothing) → JString(v)
+    }.toMap
 
 }

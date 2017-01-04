@@ -27,7 +27,7 @@ object ObjectUtils {
   def get(attr: String, form: ObjectForm, shadow: ObjectShadow): Json =
     IlluminateAlgorithm.get(attr, form.attributes, shadow.attributes)
 
-  val KeyLength                 = 5
+  val KeyLength = 5
 
   /**
     * We compute a SHA-1 hash of the json content and return the first
@@ -36,7 +36,8 @@ object ObjectUtils {
     * Collisions are handled below in the findKey function.
     */
   private def hash(content: Json): String =
-    java.security.MessageDigest.getInstance("SHA-1") // shared instance would not be thread-safe
+    java.security.MessageDigest
+      .getInstance("SHA-1") // shared instance would not be thread-safe
       .digest(compact(render(content)).getBytes)
       .slice(0, KeyLength)
       .map("%02x".format(_))
@@ -65,10 +66,10 @@ object ObjectUtils {
   }
 
   type KeyMap = Map[String, String]
-  def createForm(form: Json, existingForm: Json = JNothing): (KeyMap, Json) = {
-    form match {
+  def createForm(humanReadableForm: Json, existingForm: Json = JNothing): (KeyMap, Json) = {
+    humanReadableForm match {
       case JObject(o) ⇒
-        val zeroAccumObj = existingForm.merge(form)
+        val zeroAccumObj = existingForm.merge(humanReadableForm)
         val (_, keyMap, newForm) =
           o.obj.foldLeft((zeroAccumObj, Map.empty: KeyMap, Nil: List[(String, JValue)])) {
             case ((accumObj, keyMap, newForm), (attr, value)) ⇒
@@ -83,8 +84,8 @@ object ObjectUtils {
     }
   }
 
-  private[objects] def updateForm(oldForm: Json, updatedForm: Json): (KeyMap, Json) = {
-    val (keyMap, newForm) = createForm(updatedForm, oldForm)
+  private[objects] def updateForm(oldForm: Json, humanReadableUpdatedForm: Json): (KeyMap, Json) = {
+    val (keyMap, newForm) = createForm(humanReadableUpdatedForm, oldForm)
     (keyMap, oldForm.merge(newForm))
   }
 
