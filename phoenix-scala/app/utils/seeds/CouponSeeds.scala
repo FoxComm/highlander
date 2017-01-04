@@ -2,6 +2,10 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import eu.timepit.refined._
+import eu.timepit.refined.api.Refined
+import eu.timepit.refined.collection.NonEmpty
+import eu.timepit.refined.numeric.Positive
 import models.coupon._
 import models.account._
 import models.objects._
@@ -21,9 +25,9 @@ object CouponSeeds {
 
 trait CouponSeeds {
 
-  val codePrefix = "BASE"
-  val codeLength = 15
-  val codesQty   = 10
+  val codePrefix = refineMV[NonEmpty]("BASE")
+  val codeLength = refineMV[Positive](15)
+  val codesQty   = refineMV[Positive](10)
 
   import CouponSeeds._
 

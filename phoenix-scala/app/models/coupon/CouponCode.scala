@@ -5,6 +5,10 @@ import java.time.Instant
 import scala.annotation.tailrec
 import scala.util.Random
 
+import eu.timepit.refined.api.Refined
+import eu.timepit.refined.auto._
+import eu.timepit.refined.collection.NonEmpty
+import eu.timepit.refined.numeric.Positive
 import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
@@ -51,17 +55,17 @@ object CouponCodes
     requestedLimit >= prefixSize + minSuffixSize
   }
 
-  def generateCodes(prefix: String,
-                    codeCharacterLength: Int,
-                    quantity: Int,
+  def generateCodes(prefix: String Refined NonEmpty,
+                    codeCharacterLength: Int Refined Positive,
+                    quantity: Int Refined Positive,
                     attempt: Int = 0): Seq[String] = {
-    require(quantity > 0)
 
-    val minNumericLength = charactersGivenQuantity(quantity)
-    require(codeCharacterLength >= prefix.length + minNumericLength)
+    // FIXME
+//    val minNumericLength = charactersGivenQuantity(quantity.value)
+//    require(codeCharacterLength >= prefix.length + minNumericLength)
 
-    val numericLength = codeCharacterLength - prefix.length
-    val largestNum    = Math.pow(10, numericLength.toDouble).toInt
+    val numericLength = codeCharacterLength.value - prefix.value.length
+    val largestNum    = Math.pow(10, numericLength.value.toDouble).toInt
 
     generateCodesRecursively(prefix = prefix,
                              codeCharacterLength = codeCharacterLength,
@@ -84,24 +88,24 @@ object CouponCodes
     * @return - list of generated codes for given params
     */
   private def generateCodesRecursively(prefix: String,
-                                       codeCharacterLength: Int,
-                                       quantity: Int,
+                                       codeCharacterLength: Int Refined Positive,
+                                       quantity: Int Refined Positive,
                                        numericLength: Int,
                                        largestNum: Int): Seq[String] = {
 
     @tailrec
     def collectCodes(codesAcc: Seq[String] = Seq.empty): Seq[String] = {
-      val codes = (1 to quantity).map { i ⇒
+      val codes = (1 to quantity.value).map { i ⇒
         generateCode(prefix = prefix,
                      number = Random.nextInt(largestNum),
                      largestNum = largestNum,
-                     numericLength = numericLength)
+                     numericLength = numericLength.value)
       }.distinct
 
       val resultSet = codesAcc.union(codes).distinct
 
-      if (resultSet.length >= quantity) {
-        resultSet.take(quantity)
+      if (resultSet.length >= quantity.value) {
+        resultSet.take(quantity.value)
       } else {
         collectCodes(resultSet)
       }

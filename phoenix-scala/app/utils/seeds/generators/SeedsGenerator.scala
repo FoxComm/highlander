@@ -4,6 +4,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
 import cats.implicits._
+import eu.timepit.refined.collection.NonEmpty
+import eu.timepit.refined.numeric.Positive
+import eu.timepit.refined.refineMV
 import faker.Faker
 import models.account._
 import models.cord._
@@ -56,7 +59,10 @@ object SeedsGenerator
 
   def makeCouponCodes(promotions: Seq[SimpleCoupon]) =
     promotions.flatMap { c ⇒
-      CouponCodes.generateCodes("CP", 12, 1 + Random.nextInt(5)).map { d ⇒
+      val prefix     = refineMV[NonEmpty]("CP")
+      val codeLength = refineMV[Positive](12)
+      val quantity   = refineMV[Positive](3)
+      CouponCodes.generateCodes(prefix, codeLength, quantity).map { d ⇒
         CouponCode(couponFormId = c.formId, code = d)
       }
     }.toList

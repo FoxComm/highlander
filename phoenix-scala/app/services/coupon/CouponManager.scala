@@ -156,12 +156,13 @@ object CouponManager {
   private def validateCouponCodePayload(p: GenerateCouponCodes)(implicit ec: EC) = {
     ObjectUtils.failIfErrors(
         Seq(
-            if (p.quantity <= 0) Seq(CouponCodeQuanityMustBeGreaterThanZero)
-            else Seq.empty,
-            if (p.prefix.isEmpty) Seq(CouponCodePrefixNotSet) else Seq.empty,
-            if (CouponCodes.isCharacterLimitValid(p.prefix.length, p.quantity, p.length))
+//            if (p.quantity <= 0) Seq(CouponCodeQuanityMustBeGreaterThanZero)
+//            else Seq.empty,
+//            if (p.prefix.isEmpty) Seq(CouponCodePrefixNotSet) else Seq.empty,
+            if (CouponCodes
+                  .isCharacterLimitValid(p.prefix.value.length, p.quantity.value, p.length.value))
               Seq.empty
-            else Seq(CouponCodeLengthIsTooSmall(p.prefix, p.quantity))
+            else Seq(CouponCodeLengthIsTooSmall(p.prefix.value, p.quantity.value))
         ).flatten)
   }
 
