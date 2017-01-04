@@ -4,6 +4,7 @@ import cats.implicits._
 import models.account.{User, _}
 import models.cord._
 import models.cord.lineitems.CartLineItems
+import models.cord.OrderPayments.scope._
 import models.customer.{CustomerData, CustomersData}
 import responses.PromotionResponses.PromotionResponse
 import responses._
@@ -50,10 +51,11 @@ object CartResponse {
                          .fold(_ ⇒ None, good ⇒ good.some)
       paymentMethods ← * <~ (if (isGuest) DBIO.successful(Seq())
                              else CordResponsePayments.fetchAll(cart.refNum))
-      paymentState             ← * <~ CartQueries.getCordPaymentState(cart.refNum)
-      lockedBy                 ← * <~ currentLock(cart)
-      appliedGiftCardAmount    ← * <~ (??? : DBIO[Int])
-      appliedStoreCreditAmount ← * <~ (??? : DBIO[Int])
+      paymentState ← * <~ CartQueries.getCordPaymentState(cart.refNum)
+      lockedBy     ← * <~ currentLock(cart)
+      orderPayments = OrderPayments.findAllByCordRef(cart.refNum)
+      inStorePayments ← * <~ (orderPayments.giftCards ++ orderPayments.storeCredits).result
+      inStorePaymentsSum = inStorePayments.flatMap(_.amount.toList).sum
     } yield
       CartResponse(
           referenceNumber = cart.refNum,
@@ -61,8 +63,7 @@ object CartResponse {
           lineItemAdjustments = lineItemAdj,
           promotion = promo.map { case (promotion, _) ⇒ promotion },
           coupon = promo.map { case (_, coupon)       ⇒ coupon },
-          totals = CartResponseTotals
-            .build(cart, inStorePayment = appliedGiftCardAmount + appliedStoreCreditAmount),
+          totals = CartResponseTotals.build(cart, inStorePayment = inStorePaymentsSum),
           customer = for {
             c  ← customer
             cu ← customerData

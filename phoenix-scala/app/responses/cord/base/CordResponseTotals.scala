@@ -1,6 +1,6 @@
 package responses.cord.base
 
-import models.cord.{Cart, CordBase, Order}
+import models.cord.{Cart, Order}
 import responses.ResponseItem
 
 case class OrderResponseTotals(subTotal: Int,
