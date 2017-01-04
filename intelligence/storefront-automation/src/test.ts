@@ -17,6 +17,7 @@ const LOGIN_EMAIL = 'login-email';
 const LOGIN_PASS = 'login-password';
 const LOGIN_SUBMIT = 'login-submit';
 const ADD_TO_CART = 'add-to-cart';
+const CART_CHECKOUT = 'cart-checkout';
 
 const driver = new webdriver.Builder()
   .forBrowser(BROWSER)
@@ -55,4 +56,10 @@ driver.findElement(By.id(PRODUCTS_LIST))
 driver.wait(until.elementLocated(By.id(ADD_TO_CART)), 5000,
   'PDP should load within 5 seconds');
 driver.findElement(By.id(ADD_TO_CART)).click();
+
+// checkout
+driver.wait(until.elementLocated(By.id(CART_CHECKOUT)), 5000,
+  'cart should load within 5 seconds');
+driver.sleep(1000)
+driver.findElement(By.id(CART_CHECKOUT)).click();
 driver.quit();
