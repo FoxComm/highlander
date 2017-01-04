@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/common/async"
 	commonErrors "github.com/FoxComm/highlander/middlewarehouse/common/errors"
 	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
@@ -105,6 +106,11 @@ func (service *inventoryService) DecrementStockItemUnits(stockItemID uint, unitT
 	}
 
 	return service.updateSummary(map[uint]int{stockItemID: -qty}, unitType, models.StatusChange{To: models.StatusOnHand})
+}
+
+func (service *inventoryService) Hold(payload payloads.Hold) error {
+	// Query for all of the available
+	return nil
 }
 
 func (service *inventoryService) HoldItems(refNum string, skus map[string]int) error {
