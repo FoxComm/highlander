@@ -63,12 +63,16 @@ this case we can have "euclidean" and "hamming" for example.
 
 #Performance
 
-The service will use a kNN library called (FLANN)[http://www.cs.ubc.ca/research/flann/] do index
+The service will use a kNN library called [FLANN](http://www.cs.ubc.ca/research/flann/) do index
 and compare feature vectors.
 
 Eventually we may want to run this on a GPU machine given FLANN's support for CUDA and the eventual
 situation where we have many clusters to match against.
 
-
+#Directories
  
+| Directories                            | Description                                                                                                  |
+|:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
+| [sql](sql)                             | flyway migration scripts|
+| [src](src)                             | Source Code |
 
