@@ -59,7 +59,7 @@ const ConfirmationDialog = (props: Props): Element => {
           <a id="modal-close-btn_footer" tabIndex="2" className='fc-modal-close' onClick={() => props.onCancel()}>
             {props.cancel}
           </a>
-          <PrimaryButton id="confirm-deletion-btn"
+          <PrimaryButton id="modal-confirm-btn"
                          tabIndex="1" autoFocus={true}
                          isLoading={_.get(props.asyncState, 'inProgress', false)}
                          onClick={() => props.confirmAction()}>
