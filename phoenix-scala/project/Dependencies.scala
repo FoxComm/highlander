@@ -15,6 +15,9 @@ object Versions {
   val dispatch  = "0.11.3"
   val fasterxml = "2.8.2"
 
+  // For now, we have to use a 1.12.× branch, that’s still compatible with ScalaTest.
+  // cf. https://github.com/rickynils/scalacheck/issues/217#issuecomment-210070553
+  val scalacheck = "1.12.6"
 }
 
 object Dependencies {
@@ -73,7 +76,7 @@ object Dependencies {
 
   val test = Seq(
     "org.scalatest"     %% "scalatest"           % Versions.scalatest,
-    "org.scalacheck"    %% "scalacheck"          % "1.13.1",
+    "org.scalacheck"    %% "scalacheck"          % Versions.scalacheck,
     "org.mockito"       % "mockito-core"         % "2.1.0-beta.125",
     "com.typesafe.akka" %% "akka-testkit"        % Versions.akka,
     "com.typesafe.akka" %% "akka-stream-testkit" % Versions.akka
