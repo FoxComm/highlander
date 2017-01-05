@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "lodash": "^4.17.4",
     "selenium-webdriver": "3.0.0-beta-2"
   }
 }
