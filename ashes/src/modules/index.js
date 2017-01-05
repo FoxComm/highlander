@@ -1,7 +1,7 @@
 import { routerReducer } from 'react-router-redux';
 import { combineReducers } from 'redux';
 
-import { reducer as asyncReducer } from './async-utils';
+import { reducer as asyncReducer } from '@foxcomm/wings/lib/redux/async-utils';
 import giftCards from './gift-cards';
 import customers from './customers';
 import customerGroups from './customer-groups';

@@ -77,11 +77,6 @@ export default class GiftCard extends React.Component {
     this.props.changeGiftCardStatus(this.props.card.code, value);
   }
 
-  @autobind
-  resendGiftCard() {
-    console.log('Resend');
-  }
-
   get subNav() {
     const params = { giftCard: this.props.card.code };
 
@@ -89,7 +84,13 @@ export default class GiftCard extends React.Component {
       return null;
     }
 
-    const content = React.cloneElement(this.props.children, { entity: this.props.card });
+    const content = React.cloneElement(this.props.children, {
+      entity: {
+        ...this.props.card,
+        entityType: 'gift-card',
+        entityId: params.giftCard,
+      }
+    });
 
     return (
       <div>
@@ -212,9 +213,7 @@ export default class GiftCard extends React.Component {
 
     return (
       <div className="fc-gift-card">
-        <PageTitle title="Gift Card" subtitle={<GiftCardCode value={card.code} />}>
-          <PrimaryButton onClick={this.resendGiftCard}>Resend Gift Card</PrimaryButton>
-        </PageTitle>
+        <PageTitle title="Gift Card" subtitle={<GiftCardCode value={card.code} />}/>
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-3">
             <Panel title="Available Balance" featured={true}>
@@ -252,7 +251,11 @@ export default class GiftCard extends React.Component {
 
                 <p><strong>Recipient Email</strong><br />{card.recipientEmail ? `${card.recipientEmail}` : 'None'}</p>
 
-                <p><strong>Recipient Cell (Optional)</strong><br />{card.recipientCell ? `${card.recipientCell}` : 'None'}</p>
+                <p>
+                  <strong>Recipient Cell (Optional)</strong>
+                  <br />
+                  {card.recipientCell ? `${card.recipientCell}` : 'None'}
+                  </p>
               </div>
               <div className="fc-col-md-2-3">
                 <p><strong>Message (optional)</strong></p>

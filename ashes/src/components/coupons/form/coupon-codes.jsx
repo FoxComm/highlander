@@ -186,12 +186,6 @@ class CouponCodes extends Component {
             Excludes prefix
           </div>
         </div>
-        <div styleName="form-group">
-          <Checkbox id="downloadCSVCheckbox">Download a CSV file of the coupon codes</Checkbox>
-        </div>
-        <div styleName="form-group">
-          <Checkbox id="emailCSVCheckbox">Email a CSV file of the coupon codes to other users</Checkbox>
-        </div>
         <PrimaryButton
           type="button"
           disabled={this.generateCodesDisabled}
@@ -242,4 +236,11 @@ class CouponCodes extends Component {
   }
 }
 
-export default connect(null, actions)(CouponCodes);
+const mergeProps = (stateProps, dispatchProps, ownProps) => {
+  return {
+    ...dispatchProps,
+    ...ownProps
+  };
+};
+
+export default connect(null, actions, mergeProps)(CouponCodes);

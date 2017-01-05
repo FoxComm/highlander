@@ -2,19 +2,19 @@
 
 - name: Kill Elasticsearch if it is Running
   shell: systemctl stop elasticsearch || true
-  sudo: true
+  
 
 - name: Purge Elasticsearch data
   file: path={{es_path}}/data state=absent
-  sudo: true
+  
 
 - name: Create Elasticsearch subdirectories
   file: path={{es_path}}/data owner=elasticsearch state=directory mode="u=rwx,g=rwx,o=r"
-  sudo: true
+  
 
 - name: Setup Service
   service: name=elasticsearch state=restarted enabled=yes
-  sudo: true
+  
 
 - name: Sleep
   shell: sleep 20

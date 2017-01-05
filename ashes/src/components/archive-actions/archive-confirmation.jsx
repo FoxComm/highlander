@@ -14,7 +14,7 @@ type Props = {
   type: string,
   archive: Function,
   closeConfirmation: Function,
-  archiveState: AsyncStatus,
+  archiveState: AsyncState,
 };
 
 const ArchiveConfirmation = (props: Props): Element => {

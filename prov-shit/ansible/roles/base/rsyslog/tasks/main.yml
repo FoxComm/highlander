@@ -65,7 +65,7 @@
     mode=0644
 
 - name: Reload Systemd for Rsyslog
-  sudo: yes
+  
   command: systemctl daemon-reload
 
 - name: Restart Rsyslog

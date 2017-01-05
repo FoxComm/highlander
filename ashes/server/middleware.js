@@ -32,8 +32,6 @@ module.exports = function(app) {
     }
   });
 
-  const publicKey = loadPublicKey(config);
-
   function getToken(ctx) {
     const jwtToken = ctx.cookies.get(config.api.auth.cookieName);
     if (!jwtToken) {
@@ -46,7 +44,7 @@ module.exports = function(app) {
         console.info('DEV_SKIP_JWT_VERIFY is enabled, JWT is not verified');
         token = jwt.decode(jwtToken);
       } else {
-        token = jwt.verify(jwtToken, publicKey, {
+        token = jwt.verify(jwtToken, loadPublicKey(config), {
           issuer: 'FC',
           audience: 'user',
           algorithms: ['RS256', 'RS384', 'RS512']

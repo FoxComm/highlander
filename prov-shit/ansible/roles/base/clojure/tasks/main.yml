@@ -8,8 +8,8 @@
 
 - name: Copy to Binaries Directory
   command: mv lein /usr/local/bin
-  sudo: yes
+  
 
 - name: Trigger Installation Process
   command: lein -v
-  sudo: yes
+  

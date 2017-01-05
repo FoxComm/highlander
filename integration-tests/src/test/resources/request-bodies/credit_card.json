@@ -1,8 +1,0 @@
-{
-  "holderName": "${ccHolderName}",
-  "cardNumber": "${ccNumber}",
-  "cvv": "${ccCvv}",
-  "expMonth": ${ccExpMonth},
-  "expYear": ${ccExpYear},
-  "addressId": ${customerAddressId}
-}

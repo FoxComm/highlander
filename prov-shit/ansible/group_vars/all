@@ -1,4 +1,3 @@
-
 # Common variables
 home: /home/{{ user }}
 self_host: 127.0.0.1
@@ -153,7 +152,6 @@ capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
 shipstation_api_key: ""
 shipstation_api_secret: ""
 shipstation_topic: "activities"
-shipstation_partition: 1
 shipstation_interval: "10s"
 
 # Ashes
@@ -213,8 +211,6 @@ packing: false
 # Should we upload Phoenix / Green River JAR?
 # Should be seed DB, seed via Gatling?
 upload_phoenix_jar: true
-with_seeder: false
-with_gatling_seeder: true
 
 # Deploy marketplace?
 with_marketplace: false

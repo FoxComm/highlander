@@ -1,25 +1,24 @@
-
 ---
 
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
-  sudo: true
+  
 
 - name: Copy Stock Items Consumer Marathon JSON
   template: src=stock-items-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  sudo: true
+  
 
 - name: Copy Shipments Consumer Marathon JSON
   template: src=shipments-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  sudo: true
+  
 
 - name: Copy Capture Consumer Marathon JSON
   template: src=capture-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  sudo: true
+  
 
 - name: Copy Gift Card Consumer Marathon JSON
   template: src=gift-card-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  sudo: true
+  
 
 - name: Update Stock Items Consumer in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/stock-items-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/stock-items-consumer'

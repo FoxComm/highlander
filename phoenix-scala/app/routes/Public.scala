@@ -1,8 +1,7 @@
 package routes
 
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.directives.CookieDirectives.{setCookie ⇒ _, _}
-import akka.http.scaladsl.server.directives.RespondWithDirectives.{respondWithHeader ⇒ _, _}
+
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.Reason.reasonTypeRegex
 import payloads.CustomerPayloads.CreateCustomerPayload
@@ -12,11 +11,12 @@ import services.customers.CustomerManager
 import services.giftcards.GiftCardService
 import services.product.ProductManager
 import services.{ReasonService, StoreCreditService}
-import utils.http.CustomDirectives._
 import utils.aliases._
+import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object Public {
+
   def routes(customerCreateContext: AccountCreateContext)(implicit ec: EC, db: DB, es: ES) = {
 
     activityContext() { implicit ac ⇒
@@ -30,7 +30,7 @@ object Public {
         } ~
         pathPrefix("products") {
           determineObjectContext(db, ec) { implicit productContext ⇒
-            pathPrefix(IntNumber) { productId ⇒
+            pathPrefix(ProductRef) { productId ⇒
               (get & pathEnd) {
                 getOrFailures {
                   ProductManager.getProduct(productId)

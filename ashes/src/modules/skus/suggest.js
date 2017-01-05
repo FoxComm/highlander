@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { post } from 'lib/search';
 import * as dsl from 'elastic/dsl';
-import createAsyncActions from 'modules/async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 
 const resetSuggestedSkus = createAction('PRODUCTS_RESET_SUGGESTED_SKUS');
 

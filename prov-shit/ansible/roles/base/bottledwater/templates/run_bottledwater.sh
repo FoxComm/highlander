@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 /usr/local/bin/bottledwater \
         --allow-unkeyed \

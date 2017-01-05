@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -ue
 
@@ -26,7 +26,7 @@ db_exists() {
 	psql $1 -c '\q' > /dev/null 2>&1
 }
 
-if [ $# -ne 2 ]; then 
+if [ $# -ne 2 ]; then
 	usage
 	_exit 1
 fi

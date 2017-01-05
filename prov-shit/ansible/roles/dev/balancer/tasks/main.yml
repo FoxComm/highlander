@@ -34,10 +34,10 @@
   file: path=/certs state=directory mode="600"
 
 - name: Copy Cert
-  copyv: src="{{role_path}}/../../base/secret_keys/files/certs/{{cert_path}}/frontend/domain.crt" dest=/certs/domain.crt mode="600"
+  copy: src="{{role_path}}/../../base/secret_keys/files/certs/{{cert_path}}/frontend/domain.crt" dest=/certs/domain.crt mode="600"
 
 - name: Copy Key
-  copyv: src="{{role_path}}/../../base/secret_keys/files/certs/{{cert_path}}/frontend/domain.key" dest=/certs/domain.key mode="600"
+  copy: src="{{role_path}}/../../base/secret_keys/files/certs/{{cert_path}}/frontend/domain.key" dest=/certs/domain.key mode="600"
 
 - name: Make Sure Nginx Restarts After Failure
   lineinfile: dest=/etc/systemd/system/multi-user.target.wants/nginx.service line="Restart=always" insertafter="^KillMode" state=present

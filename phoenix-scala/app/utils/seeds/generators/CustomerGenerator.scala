@@ -1,8 +1,6 @@
 package utils.seeds.generators
 
 import models.account.User
-import GeneratorUtils.randomString
-import utils.Passwords.hashPassword
 
 import cats.implicits._
 import faker._

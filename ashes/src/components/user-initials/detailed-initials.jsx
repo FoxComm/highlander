@@ -1,19 +1,16 @@
-/** Libs */
+// libs
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 
-/** Components */
+// components
 import UserInitials from './initials';
 
-export default class DetailedUserInitials extends React.Component {
+export default class DetailedUserInitials extends Component {
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      tooltipShown: false
-    };
-  }
+  state = {
+    tooltipShown: false,
+  };
 
   static propTypes = {
     firstName: PropTypes.string,
