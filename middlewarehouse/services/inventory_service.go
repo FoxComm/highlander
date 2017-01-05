@@ -1,13 +1,11 @@
 package services
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/common/async"
 	commonErrors "github.com/FoxComm/highlander/middlewarehouse/common/errors"
-	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/jinzhu/gorm"
@@ -177,39 +175,11 @@ func (service *inventoryService) DeleteItems(refNum string) error {
 	}, service.txn)
 }
 
-func (service *inventoryService) getStockItemsBySKUs(skusList []string) ([]*models.StockItem, error) {
-	// get stock items associated with SKUs
-	items, err := service.stockItemRepo.GetStockItemsBySKUs(skusList)
-	if err != nil {
-		return nil, err
-	}
-
-	// grab found SKU list from repo
-	skusListRepo := []string{}
-	for _, item := range items {
-		skusListRepo = append(skusListRepo, item.SKU)
-	}
-
-	// compare expectations with reality
-	aggregateErr := commonErrors.AggregateError{}
-	diff := utils.DiffSlices(skusList, skusListRepo)
-	if len(diff) > 0 {
-		for _, sku := range diff {
-			msg := fmt.Sprintf("Can't hold items for %s - no stock items found", sku)
-			aggregateErr.Add(errors.New(msg))
-		}
-
-		return nil, aggregateErr
-	}
-
-	return items, nil
-}
-
-func (service *inventoryService) getUnitsForOrder(items []*models.StockItem, skus map[string]int) ([]uint, error) {
+func (service *inventoryService) getUnitsForOrder(items []*models.StockItem, skus map[uint]int) ([]uint, error) {
 	aggregateErr := commonErrors.AggregateError{}
 	unitsIds := []uint{}
 	for _, si := range items {
-		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
+		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SkuID])
 		if err != nil {
 			aggregateErr.Add(err)
 		}

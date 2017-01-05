@@ -5,9 +5,10 @@ declare
     stockLocationId integer;
     stockLocationName generic_string;
 begin
-    select si.id, si.sku
+    select si.id, s.code
     into stockItemId, skuCode
     from stock_items si
+    join skus s on s.id = si.sku_id
     where si.id = new.stock_item_id;
 
     select sl.id, sl.name

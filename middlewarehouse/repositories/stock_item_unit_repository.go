@@ -119,20 +119,25 @@ func (repository *stockItemUnitRepository) GetUnitForLineItem(refNum string, sku
 }
 
 func (repository *stockItemUnitRepository) HoldUnitForLineItem(skuID uint, orderRefNum, lineItemRefNum string) (*models.StockItemUnit, error) {
+	unit := new(models.StockItemUnit)
+	err := repository.db.
+		Set("gorm:query_option", "FOR UPDATE").
+		Joins("JOIN stock_items ON stock_items.id = stock_item_units.stock_item_id").
+		Where("stock_items.sku_id = ?", skuID).
+		Where("stock_item_units.status = ?", "onHand").
+		First(unit).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
 	updateMap := map[string]interface{}{
 		"order_ref_num":     orderRefNum,
 		"line_item_ref_num": lineItemRefNum,
 	}
 
-	unit := new(models.StockItemUnit)
-	err := repository.db.
-		Model(unit).
-		Joins("JOIN stock_items ON stock_items.id = stock_item_units.stock_item_id").
-		Where("stock_items.sku_id = ?", skuID).
-		Where("stock_item_units.status = ?", "onHand").
-		Updates(updateMap).
-		Error
-
+	err = repository.db.Model(unit).Updates(updateMap).Error
 	return unit, err
 }
 

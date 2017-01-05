@@ -5,13 +5,13 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
-	"github.com/jinzhu/gorm"
 	"github.com/FoxComm/highlander/middlewarehouse/common/transaction"
+	"github.com/jinzhu/gorm"
 )
 
 const (
 	ErrorSummaryNotFound              = "Summary with id=%d not found"
-	ErrorSummaryForSKUNotFound        = "Summary for sku=%s not found"
+	ErrorSummaryForSKUNotFound        = "Summary for sku=%d not found"
 	ErrorSummaryForItemByTypeNotFound = "Summary for stock item with id=%d and type=%s not found"
 )
 
@@ -23,7 +23,7 @@ type ISummaryRepository interface {
 	WithTransaction(txn *gorm.DB) ISummaryRepository
 
 	GetSummary() ([]*models.StockItemSummary, error)
-	GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error)
+	GetSummaryBySkuID(skuID uint) ([]*models.StockItemSummary, error)
 
 	GetSummaryItemByType(stockItemId uint, unitType models.UnitType) (*models.StockItemSummary, error)
 
@@ -58,19 +58,19 @@ func (repository *summaryRepository) GetSummary() ([]*models.StockItemSummary, e
 	return summary, err
 }
 
-func (repository *summaryRepository) GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error) {
+func (repository *summaryRepository) GetSummaryBySkuID(skuID uint) ([]*models.StockItemSummary, error) {
 	summary := []*models.StockItemSummary{}
 	err := repository.db.
 		Preload("StockItem").
 		Preload("StockItem.StockLocation").
 		Joins("left join stock_items si ON stock_item_summaries.stock_item_id=si.id").
-		Where("si.sku = ?", sku).
+		Where("si.sku_id = ?", skuID).
 		Order("created_at").
 		Find(&summary).
 		Error
 
 	if len(summary) == 0 {
-		return nil, fmt.Errorf(ErrorSummaryForSKUNotFound, sku)
+		return nil, fmt.Errorf(ErrorSummaryForSKUNotFound, skuID)
 	}
 
 	return summary, err

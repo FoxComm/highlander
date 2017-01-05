@@ -4,10 +4,11 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
-	"github.com/jinzhu/gorm"
 	"log"
 	"reflect"
 	"strings"
+
+	"github.com/jinzhu/gorm"
 )
 
 type summaryService struct {
@@ -25,7 +26,7 @@ type ISummaryService interface {
 	CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) error
 
 	GetSummary() ([]*models.StockItemSummary, error)
-	GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error)
+	GetSummaryBySkuID(skuID uint) ([]*models.StockItemSummary, error)
 }
 
 func NewSummaryService(summaryRepo repositories.ISummaryRepository, stockItemRepo repositories.IStockItemRepository) ISummaryService {
@@ -44,8 +45,8 @@ func (service *summaryService) GetSummary() ([]*models.StockItemSummary, error) 
 	return service.summaryRepo.GetSummary()
 }
 
-func (service *summaryService) GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error) {
-	return service.summaryRepo.GetSummaryBySKU(sku)
+func (service *summaryService) GetSummaryBySkuID(skuID uint) ([]*models.StockItemSummary, error) {
+	return service.summaryRepo.GetSummaryBySkuID(skuID)
 }
 
 func (service *summaryService) CreateStockItemSummary(stockItemId uint) error {

@@ -17,7 +17,7 @@ func NewSummaryController(service services.ISummaryService) IController {
 
 func (controller *summaryController) SetUp(router gin.IRouter) {
 	router.GET("", controller.GetSummary())
-	router.GET(":code", controller.GetSummaryBySKU())
+	router.GET(":id", controller.GetSummaryBySkuID())
 }
 
 func (controller *summaryController) GetSummary() gin.HandlerFunc {
@@ -34,10 +34,14 @@ func (controller *summaryController) GetSummary() gin.HandlerFunc {
 	}
 }
 
-func (controller *summaryController) GetSummaryBySKU() gin.HandlerFunc {
+func (controller *summaryController) GetSummaryBySkuID() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		skuCode := context.Params.ByName("code")
-		summary, err := controller.service.GetSummaryBySKU(skuCode)
+		id, failure := paramUint(context, "id")
+		if failure != nil {
+			return
+		}
+
+		summary, err := controller.service.GetSummaryBySkuID(id)
 		if err != nil {
 			handleServiceError(context, err)
 			return
