@@ -114,7 +114,7 @@ export class CartLineItem extends Component {
       <tr className={classNames('line-item', className)}>
         <td><img src={item.imagePath} /></td>
         <td>{item.name}</td>
-        <td><Link to="sku-details" params={{ skuCode: item.sku }}>{item.sku}</Link></td>
+        <td><Link to="product-variant-details" params={{ productVariantId: item.id || 'stub' }}>{item.sku}</Link></td>
         <td><Currency value={item.price} /></td>
         <td>
           <Counter

@@ -16,7 +16,11 @@ export const defaultColumns = [
   {
     field: 'sku',
     text: 'SKU',
-    render: (code: string) => <Link to="sku-details" params={{ skuCode: code }}>{code}</Link>
+    render: (code: string, item: Object) => {
+      return (
+        <Link to="product-variant-details" params={{ productVariantId: item.id || 'stub' }}>{code}</Link>
+      );
+    }
   },
   { field: 'price', text: 'Price', type: 'currency' },
   { field: 'quantity', text: 'Qty' },
