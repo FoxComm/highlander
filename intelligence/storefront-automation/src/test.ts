@@ -7,7 +7,7 @@ const DRIVER_URL = 'http://localhost';
 const DRIVER_PORT = '4444';
 
 const HOME_URL = 'http://hal.foxcommerce.com';
-// const HOME_URL = 'http://localhost:5045'
+// const HOME_URL = 'http://localhost:5045';
 const CATEGORY = 'all';
 
 // element ids
@@ -18,6 +18,9 @@ const LOGIN_PASS = 'login-password';
 const LOGIN_SUBMIT = 'login-submit';
 const ADD_TO_CART = 'add-to-cart';
 const CART_CHECKOUT = 'cart-checkout';
+const STANDARD_SHIPPING = 'delivery2';
+const SHIPPING_SUBMIT = 'delivery-method-submit';
+const BILLING_SUBMIT = 'payment-method-submit';
 
 const driver = new webdriver.Builder()
   .forBrowser(BROWSER)
@@ -40,12 +43,21 @@ function pickProduct(products: Array<WebElement>) {
   }
 }
 
+function waitAndClickId(id: string) {
+  return driver
+    .wait(until.elementLocated(By.id(id)), 5000, `${id} was not located after 5 seconds`)
+    .then((elmt) => {
+      console.log(`I think I've found ${id}. I'll try clicking it now.`);
+      elmt.click();
+    });
+}
+
 // login
 driver.navigate().to(`${HOME_URL}/${CATEGORY}?auth=login`);
 driver.findElement(By.id(LOGIN_EMAIL)).sendKeys('robot01@robot.com');
 driver.findElement(By.id(LOGIN_PASS)).sendKeys('password');
 driver.findElement(By.id(LOGIN_SUBMIT)).click()
-  .then(() => driver.sleep(1000));
+  .then(() => driver.sleep(2000));
 
 // find a product
 driver.findElement(By.id(PRODUCTS_LIST))
@@ -53,13 +65,11 @@ driver.findElement(By.id(PRODUCTS_LIST))
   .then((products) => pickProduct(products));
 
 // add to cart
-driver.wait(until.elementLocated(By.id(ADD_TO_CART)), 5000,
-  'PDP should load within 5 seconds');
-driver.findElement(By.id(ADD_TO_CART)).click();
+waitAndClickId(ADD_TO_CART);
 
 // checkout
-driver.wait(until.elementLocated(By.id(CART_CHECKOUT)), 5000,
-  'cart should load within 5 seconds');
-driver.sleep(1000)
-driver.findElement(By.id(CART_CHECKOUT)).click();
+waitAndClickId(CART_CHECKOUT);
+waitAndClickId(STANDARD_SHIPPING);
+waitAndClickId(SHIPPING_SUBMIT);
+waitAndClickId(BILLING_SUBMIT);
 driver.quit();
