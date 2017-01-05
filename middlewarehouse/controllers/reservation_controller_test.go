@@ -1,91 +1,79 @@
 package controllers
 
-import (
-	"net/http"
-	"testing"
+// type reservationControllerTestSuite struct {
+// 	GeneralControllerTestSuite
+// 	service *mocks.InventoryServiceMock
+// }
 
-	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
+// func TestReservationControllerSuite(t *testing.T) {
+// 	suite.Run(t, new(reservationControllerTestSuite))
+// }
 
-	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/suite"
-)
+// func (suite *reservationControllerTestSuite) SetupSuite() {
+// 	// set up test env once
+// 	suite.service = new(mocks.InventoryServiceMock)
+// 	suite.router = gin.Default()
 
-type reservationControllerTestSuite struct {
-	GeneralControllerTestSuite
-	service *mocks.InventoryServiceMock
-}
+// 	controller := NewReservationController(suite.service)
+// 	controller.SetUp(suite.router.Group("/reservations"))
+// }
 
-func TestReservationControllerSuite(t *testing.T) {
-	suite.Run(t, new(reservationControllerTestSuite))
-}
+// func (suite *reservationControllerTestSuite) TearDownTest() {
+// 	// clear service mock calls expectations after each test
+// 	suite.service.ExpectedCalls = []*mock.Call{}
+// 	suite.service.Calls = []mock.Call{}
+// }
 
-func (suite *reservationControllerTestSuite) SetupSuite() {
-	// set up test env once
-	suite.service = new(mocks.InventoryServiceMock)
-	suite.router = gin.Default()
+// func (suite *reservationControllerTestSuite) Test_ReserveItems() {
+// 	suite.service.On("HoldItems", "BR10001", map[string]int{"SKU": 2}).Return(nil).Once()
 
-	controller := NewReservationController(suite.service)
-	controller.SetUp(suite.router.Group("/reservations"))
-}
+// 	jsonStr := `{"refNum":"BR10001","items":[{ "sku": "SKU", "qty": 2 }]}`
 
-func (suite *reservationControllerTestSuite) TearDownTest() {
-	// clear service mock calls expectations after each test
-	suite.service.ExpectedCalls = []*mock.Call{}
-	suite.service.Calls = []mock.Call{}
-}
+// 	res := suite.Post("/reservations/hold", jsonStr)
 
-func (suite *reservationControllerTestSuite) Test_ReserveItems() {
-	suite.service.On("HoldItems", "BR10001", map[string]int{"SKU": 2}).Return(nil).Once()
+// 	suite.Equal(http.StatusNoContent, res.Code)
+// 	suite.service.AssertExpectations(suite.T())
+// }
 
-	jsonStr := `{"refNum":"BR10001","items":[{ "sku": "SKU", "qty": 2 }]}`
+// func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {
+// 	suite.service.On("HoldItems", "BR10001", map[string]int{"SKU": 2}).Return(gorm.ErrRecordNotFound).Once()
 
-	res := suite.Post("/reservations/hold", jsonStr)
+// 	jsonStr := `{"refNum": "BR10001","items": [{ "sku": "SKU", "qty": 2 }]}`
 
-	suite.Equal(http.StatusNoContent, res.Code)
-	suite.service.AssertExpectations(suite.T())
-}
+// 	res := suite.Post("/reservations/hold", jsonStr)
 
-func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {
-	suite.service.On("HoldItems", "BR10001", map[string]int{"SKU": 2}).Return(gorm.ErrRecordNotFound).Once()
+// 	suite.Equal(http.StatusNotFound, res.Code)
+// 	suite.Contains(res.Body.String(), "errors")
 
-	jsonStr := `{"refNum": "BR10001","items": [{ "sku": "SKU", "qty": 2 }]}`
+// 	suite.service.AssertExpectations(suite.T())
+// }
 
-	res := suite.Post("/reservations/hold", jsonStr)
+// func (suite *reservationControllerTestSuite) Test_ReserveItems_EmptySKUsList() {
+// 	jsonStr := `{"refNum": "BR10001","items": []}`
 
-	suite.Equal(http.StatusNotFound, res.Code)
-	suite.Contains(res.Body.String(), "errors")
+// 	res := suite.Post("/reservations/hold", jsonStr)
 
-	suite.service.AssertExpectations(suite.T())
-}
+// 	suite.Equal(http.StatusBadRequest, res.Code)
+// 	suite.Contains(res.Body.String(), "errors")
+// 	suite.Contains(res.Body.String(), "Reservation must have at least one SKU")
+// }
 
-func (suite *reservationControllerTestSuite) Test_ReserveItems_EmptySKUsList() {
-	jsonStr := `{"refNum": "BR10001","items": []}`
+// func (suite *reservationControllerTestSuite) Test_ReleaseItems() {
+// 	suite.service.On("ReleaseItems", "BR10001").Return(nil).Once()
 
-	res := suite.Post("/reservations/hold", jsonStr)
+// 	res := suite.Delete("/reservations/hold/BR10001")
 
-	suite.Equal(http.StatusBadRequest, res.Code)
-	suite.Contains(res.Body.String(), "errors")
-	suite.Contains(res.Body.String(), "Reservation must have at least one SKU")
-}
+// 	suite.Equal(http.StatusNoContent, res.Code)
+// 	suite.service.AssertExpectations(suite.T())
+// }
 
-func (suite *reservationControllerTestSuite) Test_ReleaseItems() {
-	suite.service.On("ReleaseItems", "BR10001").Return(nil).Once()
+// func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongRefNum() {
+// 	suite.service.On("ReleaseItems", "BR10001").Return(gorm.ErrRecordNotFound).Once()
 
-	res := suite.Delete("/reservations/hold/BR10001")
+// 	res := suite.Delete("/reservations/hold/BR10001")
 
-	suite.Equal(http.StatusNoContent, res.Code)
-	suite.service.AssertExpectations(suite.T())
-}
+// 	suite.Equal(http.StatusNotFound, res.Code)
+// 	suite.Contains(res.Body.String(), "errors")
 
-func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongRefNum() {
-	suite.service.On("ReleaseItems", "BR10001").Return(gorm.ErrRecordNotFound).Once()
-
-	res := suite.Delete("/reservations/hold/BR10001")
-
-	suite.Equal(http.StatusNotFound, res.Code)
-	suite.Contains(res.Body.String(), "errors")
-
-	suite.service.AssertExpectations(suite.T())
-}
+// 	suite.service.AssertExpectations(suite.T())
+// }

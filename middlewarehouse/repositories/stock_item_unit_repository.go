@@ -33,6 +33,8 @@ type IStockItemUnitRepository interface {
 
 	CreateUnits(units []*models.StockItemUnit) error
 	DeleteUnits(ids []uint) error
+
+	HoldUnitForLineItem(skuID uint, orderRefNum, lineItemRefNum string) (*models.StockItemUnit, error)
 }
 
 func NewStockItemUnitRepository(db *gorm.DB) IStockItemUnitRepository {
@@ -111,6 +113,24 @@ func (repository *stockItemUnitRepository) GetUnitForLineItem(refNum string, sku
 		Where("stock_item_units.order_ref_num = ?", refNum).
 		Where("stock_item_units.status = ?", "onHold").
 		First(unit).
+		Error
+
+	return unit, err
+}
+
+func (repository *stockItemUnitRepository) HoldUnitForLineItem(skuID uint, orderRefNum, lineItemRefNum string) (*models.StockItemUnit, error) {
+	updateMap := map[string]interface{}{
+		"order_ref_num":     orderRefNum,
+		"line_item_ref_num": lineItemRefNum,
+	}
+
+	unit := new(models.StockItemUnit)
+	err := repository.db.
+		Model(unit).
+		Joins("JOIN stock_items ON stock_items.id = stock_item_units.stock_item_id").
+		Where("stock_items.sku_id = ?", skuID).
+		Where("stock_item_units.status = ?", "onHand").
+		Updates(updateMap).
 		Error
 
 	return unit, err

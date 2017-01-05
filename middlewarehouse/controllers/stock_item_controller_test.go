@@ -1,201 +1,185 @@
 package controllers
 
-import (
-	"net/http"
-	"testing"
+// type stockItemControllerTestSuite struct {
+// 	GeneralControllerTestSuite
+// 	service *mocks.InventoryServiceMock
+// }
 
-	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
-	"github.com/FoxComm/highlander/middlewarehouse/models"
-	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
+// func TestStockItemControllerSuite(t *testing.T) {
+// 	suite.Run(t, new(stockItemControllerTestSuite))
+// }
 
-	"errors"
+// func (suite *stockItemControllerTestSuite) SetupSuite() {
+// 	// set up test env once
+// 	suite.service = new(mocks.InventoryServiceMock)
+// 	suite.router = gin.Default()
 
-	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/suite"
-)
+// 	controller := NewStockItemController(suite.service)
+// 	controller.SetUp(suite.router.Group("/stock-items"))
+// }
 
-type stockItemControllerTestSuite struct {
-	GeneralControllerTestSuite
-	service *mocks.InventoryServiceMock
-}
+// func (suite *stockItemControllerTestSuite) TearDownTest() {
+// 	// clear service mock calls expectations after each test
+// 	suite.service.ExpectedCalls = []*mock.Call{}
+// 	suite.service.Calls = []mock.Call{}
+// }
 
-func TestStockItemControllerSuite(t *testing.T) {
-	suite.Run(t, new(stockItemControllerTestSuite))
-}
+// func (suite *stockItemControllerTestSuite) Test_GetStockItems() {
+// 	suite.service.On("GetStockItems").Return([]*models.StockItem{
+// 		{
+// 			SKU:             "SKU",
+// 			StockLocationID: 1,
+// 		},
+// 	}, nil).Once()
 
-func (suite *stockItemControllerTestSuite) SetupSuite() {
-	// set up test env once
-	suite.service = new(mocks.InventoryServiceMock)
-	suite.router = gin.Default()
+// 	res := suite.Get("/stock-items")
 
-	controller := NewStockItemController(suite.service)
-	controller.SetUp(suite.router.Group("/stock-items"))
-}
+// 	suite.Equal(http.StatusOK, res.Code)
+// 	suite.Contains(res.Body.String(), `"sku":"SKU"`)
+// 	suite.service.AssertExpectations(suite.T())
+// }
 
-func (suite *stockItemControllerTestSuite) TearDownTest() {
-	// clear service mock calls expectations after each test
-	suite.service.ExpectedCalls = []*mock.Call{}
-	suite.service.Calls = []mock.Call{}
-}
+// func (suite *stockItemControllerTestSuite) Test_GetStockItems_Error() {
+// 	errText := "Some error"
+// 	suite.service.On("GetStockItems").Return(nil, errors.New(errText)).Once()
 
-func (suite *stockItemControllerTestSuite) Test_GetStockItems() {
-	suite.service.On("GetStockItems").Return([]*models.StockItem{
-		{
-			SKU:             "SKU",
-			StockLocationID: 1,
-		},
-	}, nil).Once()
+// 	res := suite.Get("/stock-items")
 
-	res := suite.Get("/stock-items")
+// 	suite.Equal(http.StatusInternalServerError, res.Code)
+// 	suite.Contains(res.Body.String(), "errors")
+// 	suite.Contains(res.Body.String(), errText)
+// 	suite.service.AssertExpectations(suite.T())
+// }
 
-	suite.Equal(http.StatusOK, res.Code)
-	suite.Contains(res.Body.String(), `"sku":"SKU"`)
-	suite.service.AssertExpectations(suite.T())
-}
+// func (suite *stockItemControllerTestSuite) Test_GetStockItemById() {
+// 	suite.service.On("GetStockItemById", uint(1)).Return(&models.StockItem{
+// 		SKU:             "SKU",
+// 		StockLocationID: 1,
+// 	}, nil).Once()
 
-func (suite *stockItemControllerTestSuite) Test_GetStockItems_Error() {
-	errText := "Some error"
-	suite.service.On("GetStockItems").Return(nil, errors.New(errText)).Once()
+// 	res := suite.Get("/stock-items/1")
 
-	res := suite.Get("/stock-items")
+// 	suite.Equal(http.StatusOK, res.Code)
+// 	suite.Contains(res.Body.String(), `"sku":"SKU"`)
+// 	suite.service.AssertExpectations(suite.T())
+// }
 
-	suite.Equal(http.StatusInternalServerError, res.Code)
-	suite.Contains(res.Body.String(), "errors")
-	suite.Contains(res.Body.String(), errText)
-	suite.service.AssertExpectations(suite.T())
-}
+// func (suite *stockItemControllerTestSuite) Test_GetStockItemById_NotFound() {
+// 	suite.service.On("GetStockItemById", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
 
-func (suite *stockItemControllerTestSuite) Test_GetStockItemById() {
-	suite.service.On("GetStockItemById", uint(1)).Return(&models.StockItem{
-		SKU:             "SKU",
-		StockLocationID: 1,
-	}, nil).Once()
+// 	res := suite.Get("/stock-items/1")
 
-	res := suite.Get("/stock-items/1")
+// 	suite.Equal(http.StatusNotFound, res.Code)
+// 	suite.Contains(res.Body.String(), "errors")
+// 	suite.service.AssertExpectations(suite.T())
+// }
 
-	suite.Equal(http.StatusOK, res.Code)
-	suite.Contains(res.Body.String(), `"sku":"SKU"`)
-	suite.service.AssertExpectations(suite.T())
-}
+// func (suite *stockItemControllerTestSuite) Test_GetStockItemById_WrongId() {
+// 	res := suite.Get("/stock-items/abs")
 
-func (suite *stockItemControllerTestSuite) Test_GetStockItemById_NotFound() {
-	suite.service.On("GetStockItemById", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
+// 	suite.Equal(http.StatusBadRequest, res.Code)
+// 	suite.Contains(res.Body.String(), "errors")
+// }
 
-	res := suite.Get("/stock-items/1")
+// func (suite *stockItemControllerTestSuite) Test_CreateStockItem() {
+// 	stockItem := fixtures.GetStockItem(1, "SKU")
 
-	suite.Equal(http.StatusNotFound, res.Code)
-	suite.Contains(res.Body.String(), "errors")
-	suite.service.AssertExpectations(suite.T())
-}
+// 	suite.service.On("CreateStockItem", stockItem).Return(stockItem, nil).Once()
 
-func (suite *stockItemControllerTestSuite) Test_GetStockItemById_WrongId() {
-	res := suite.Get("/stock-items/abs")
+// 	var result models.StockItem
+// 	jsonStr := `{"sku":"SKU","stockLocationID":1,"defaultUnitCost":5000}`
+// 	res := suite.Post("/stock-items", jsonStr, &result)
 
-	suite.Equal(http.StatusBadRequest, res.Code)
-	suite.Contains(res.Body.String(), "errors")
-}
+// 	suite.Equal(http.StatusCreated, res.Code)
+// 	suite.Equal(stockItem.StockLocationID, result.StockLocationID)
+// 	suite.service.AssertExpectations(suite.T())
+// }
 
-func (suite *stockItemControllerTestSuite) Test_CreateStockItem() {
-	stockItem := fixtures.GetStockItem(1, "SKU")
+// func (suite *stockItemControllerTestSuite) Test_CreateStockItem_Error() {
+// 	stockItem := fixtures.GetStockItem(1, "SKU")
 
-	suite.service.On("CreateStockItem", stockItem).Return(stockItem, nil).Once()
+// 	suite.service.On("CreateStockItem", stockItem).Return(nil, gorm.ErrInvalidTransaction).Once()
 
-	var result models.StockItem
-	jsonStr := `{"sku":"SKU","stockLocationID":1,"defaultUnitCost":5000}`
-	res := suite.Post("/stock-items", jsonStr, &result)
+// 	jsonStr := `{"sku":"SKU","stockLocationID":1,"defaultUnitCost":5000}`
+// 	res := suite.Post("/stock-items", jsonStr)
 
-	suite.Equal(http.StatusCreated, res.Code)
-	suite.Equal(stockItem.StockLocationID, result.StockLocationID)
-	suite.service.AssertExpectations(suite.T())
-}
+// 	suite.Equal(http.StatusBadRequest, res.Code)
+// 	suite.service.AssertExpectations(suite.T())
+// }
 
-func (suite *stockItemControllerTestSuite) Test_CreateStockItem_Error() {
-	stockItem := fixtures.GetStockItem(1, "SKU")
+// func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits() {
+// 	// couldn't find the way to set array of models to mock args expectation
+// 	suite.service.On("IncrementStockItemUnits", uint(1), models.Sellable, mock.AnythingOfType("[]*models.StockItemUnit")).Return(nil).Once()
 
-	suite.service.On("CreateStockItem", stockItem).Return(nil, gorm.ErrInvalidTransaction).Once()
+// 	jsonStr := `{"stockLocationId":1,"qty":1,"unit_cost":12000,"type":"Sellable","status":"onHand"}`
+// 	res := suite.Patch("/stock-items/1/increment", jsonStr)
 
-	jsonStr := `{"sku":"SKU","stockLocationID":1,"defaultUnitCost":5000}`
-	res := suite.Post("/stock-items", jsonStr)
+// 	suite.Equal(http.StatusNoContent, res.Code)
+// 	suite.service.AssertExpectations(suite.T())
+// }
 
-	suite.Equal(http.StatusBadRequest, res.Code)
-	suite.service.AssertExpectations(suite.T())
-}
+// func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits_WrongId() {
+// 	jsonStr := `{"stockLocationId":1,"qty": 1,"unit_cost": 12000,"type":"Sellable","status": "onHand"}`
+// 	res := suite.Patch("/stock-items/asdasd/increment", jsonStr)
 
-func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits() {
-	// couldn't find the way to set array of models to mock args expectation
-	suite.service.On("IncrementStockItemUnits", uint(1), models.Sellable, mock.AnythingOfType("[]*models.StockItemUnit")).Return(nil).Once()
+// 	suite.Equal(http.StatusBadRequest, res.Code)
+// }
 
-	jsonStr := `{"stockLocationId":1,"qty":1,"unit_cost":12000,"type":"Sellable","status":"onHand"}`
-	res := suite.Patch("/stock-items/1/increment", jsonStr)
+// func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits_WrongQty() {
+// 	jsonStr := `{"stockLocationId":1,"qty": -1,"unit_cost": 12000,"type":"Sellable","status": "onHand"}`
+// 	res := suite.Patch("/stock-items/1/increment", jsonStr)
 
-	suite.Equal(http.StatusNoContent, res.Code)
-	suite.service.AssertExpectations(suite.T())
-}
+// 	suite.Equal(http.StatusBadRequest, res.Code)
+// }
 
-func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits_WrongId() {
-	jsonStr := `{"stockLocationId":1,"qty": 1,"unit_cost": 12000,"type":"Sellable","status": "onHand"}`
-	res := suite.Patch("/stock-items/asdasd/increment", jsonStr)
+// func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits() {
+// 	suite.service.On("DecrementStockItemUnits", uint(1), models.Sellable, 1).Return(nil).Once()
 
-	suite.Equal(http.StatusBadRequest, res.Code)
-}
+// 	jsonStr := `{"stockLocationId":1,"qty": 1,"type":"Sellable"}`
+// 	res := suite.Patch("/stock-items/1/decrement", jsonStr)
 
-func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits_WrongQty() {
-	jsonStr := `{"stockLocationId":1,"qty": -1,"unit_cost": 12000,"type":"Sellable","status": "onHand"}`
-	res := suite.Patch("/stock-items/1/increment", jsonStr)
+// 	suite.Equal(http.StatusNoContent, res.Code)
+// 	suite.service.AssertExpectations(suite.T())
+// }
 
-	suite.Equal(http.StatusBadRequest, res.Code)
-}
+// func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits_WrongId() {
+// 	jsonStr := `{"stockLocationId":1,"qty": 1,"type":"Sellable"}`
+// 	res := suite.Patch("/stock-items/asdasd/decrement", jsonStr)
 
-func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits() {
-	suite.service.On("DecrementStockItemUnits", uint(1), models.Sellable, 1).Return(nil).Once()
+// 	suite.Equal(http.StatusBadRequest, res.Code)
+// }
 
-	jsonStr := `{"stockLocationId":1,"qty": 1,"type":"Sellable"}`
-	res := suite.Patch("/stock-items/1/decrement", jsonStr)
+// func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits_WrongQty() {
+// 	jsonStr := `{"stockLocationId":1,"qty": -1,"type":"Sellable"}`
+// 	res := suite.Patch("/stock-items/1/decrement", jsonStr)
 
-	suite.Equal(http.StatusNoContent, res.Code)
-	suite.service.AssertExpectations(suite.T())
-}
+// 	suite.Equal(http.StatusBadRequest, res.Code)
+// }
 
-func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits_WrongId() {
-	jsonStr := `{"stockLocationId":1,"qty": 1,"type":"Sellable"}`
-	res := suite.Patch("/stock-items/asdasd/decrement", jsonStr)
+// func (suite *stockItemControllerTestSuite) Test_GetAFS_ById() {
+// 	suite.service.On("GetAFSByID", uint(1), models.Sellable).Return(&models.AFS{
+// 		StockItemID: 1,
+// 		SKU:         "SKU",
+// 		AFS:         10,
+// 	}, nil).Once()
 
-	suite.Equal(http.StatusBadRequest, res.Code)
-}
+// 	res := suite.Get("/stock-items/1/afs/Sellable")
 
-func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits_WrongQty() {
-	jsonStr := `{"stockLocationId":1,"qty": -1,"type":"Sellable"}`
-	res := suite.Patch("/stock-items/1/decrement", jsonStr)
+// 	suite.Equal(http.StatusOK, res.Code)
+// 	suite.Contains(res.Body.String(), `"sku":"SKU"`)
+// 	suite.service.AssertExpectations(suite.T())
+// }
 
-	suite.Equal(http.StatusBadRequest, res.Code)
-}
+// func (suite *stockItemControllerTestSuite) Test_GetAFS_BySKU() {
+// 	suite.service.On("GetAFSBySKU", "SKU", models.Sellable).Return(&models.AFS{
+// 		StockItemID: 1,
+// 		SKU:         "SKU",
+// 		AFS:         10,
+// 	}, nil).Once()
 
-func (suite *stockItemControllerTestSuite) Test_GetAFS_ById() {
-	suite.service.On("GetAFSByID", uint(1), models.Sellable).Return(&models.AFS{
-		StockItemID: 1,
-		SKU:         "SKU",
-		AFS:         10,
-	}, nil).Once()
+// 	res := suite.Get("/stock-items/SKU/afs/Sellable")
 
-	res := suite.Get("/stock-items/1/afs/Sellable")
-
-	suite.Equal(http.StatusOK, res.Code)
-	suite.Contains(res.Body.String(), `"sku":"SKU"`)
-	suite.service.AssertExpectations(suite.T())
-}
-
-func (suite *stockItemControllerTestSuite) Test_GetAFS_BySKU() {
-	suite.service.On("GetAFSBySKU", "SKU", models.Sellable).Return(&models.AFS{
-		StockItemID: 1,
-		SKU:         "SKU",
-		AFS:         10,
-	}, nil).Once()
-
-	res := suite.Get("/stock-items/SKU/afs/Sellable")
-
-	suite.Equal(http.StatusOK, res.Code)
-	suite.Contains(res.Body.String(), `"sku":"SKU"`)
-	suite.service.AssertExpectations(suite.T())
-}
+// 	suite.Equal(http.StatusOK, res.Code)
+// 	suite.Contains(res.Body.String(), `"sku":"SKU"`)
+// 	suite.service.AssertExpectations(suite.T())
+// }

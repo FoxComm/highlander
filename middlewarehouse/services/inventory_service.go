@@ -17,9 +17,11 @@ type inventoryService struct {
 	stockItemRepo  repositories.IStockItemRepository
 	unitRepo       repositories.IStockItemUnitRepository
 	summaryService ISummaryService
+	db             *gorm.DB
 	txn            *gorm.DB
 }
 
+// IInventoryService is a service that manages inventory levels in the system.
 type IInventoryService interface {
 	WithTransaction(txn *gorm.DB) IInventoryService
 	GetStockItems() ([]*models.StockItem, error)
@@ -31,7 +33,7 @@ type IInventoryService interface {
 	IncrementStockItemUnits(id uint, unitType models.UnitType, units []*models.StockItemUnit) error
 	DecrementStockItemUnits(id uint, unitType models.UnitType, qty int) error
 
-	HoldItems(refNum string, skus map[string]int) error
+	HoldItems(payload *payloads.Hold) error
 	ReserveItems(refNum string) error
 	ReleaseItems(refNum string) error
 	ShipItems(refNum string) error
@@ -41,12 +43,18 @@ type IInventoryService interface {
 type updateItemsStatusFunc func() (int, error)
 
 func NewInventoryService(
+	db *gorm.DB,
 	stockItemRepo repositories.IStockItemRepository,
 	unitRepo repositories.IStockItemUnitRepository,
 	summaryService ISummaryService,
 ) IInventoryService {
-
-	return &inventoryService{stockItemRepo, unitRepo, summaryService, nil}
+	return &inventoryService{
+		stockItemRepo:  stockItemRepo,
+		unitRepo:       unitRepo,
+		summaryService: summaryService,
+		db:             db,
+		txn:            nil,
+	}
 }
 
 func (service *inventoryService) WithTransaction(txn *gorm.DB) IInventoryService {
@@ -108,45 +116,30 @@ func (service *inventoryService) DecrementStockItemUnits(stockItemID uint, unitT
 	return service.updateSummary(map[uint]int{stockItemID: -qty}, unitType, models.StatusChange{To: models.StatusOnHand})
 }
 
-func (service *inventoryService) Hold(payload payloads.Hold) error {
-	// Query for all of the available
-	return nil
-}
+func (service *inventoryService) HoldItems(payload *payloads.Hold) error {
+	service.txn = service.db.Begin()
 
-func (service *inventoryService) HoldItems(refNum string, skus map[string]int) error {
-	// map [sku]qty to list of SKUs
-	skusList := []string{}
-	for code := range skus {
-		skusList = append(skusList, code)
-	}
+	// Iterate through all of the items in the hold payload and allocate units
+	// to each one.
+	unitRepo := service.getUnitRepo()
 
-	// get stock items associated with SKUs
-	items, err := service.getStockItemsBySKUs(skusList)
-	if err != nil {
-		return err
-	}
-
-	// get available units for each stock item
-	unitsIds, err := service.getUnitsForOrder(items, skus)
-	if err != nil {
-		return err
-	}
-
-	// updated units with refNum and appropriate status
-	count, err := service.getUnitRepo().HoldUnitsInOrder(refNum, unitsIds)
-	if err != nil {
-		return err
-	}
-
-	if count == 0 {
-		return fmt.Errorf(`No stock item units associated with "%s"`, refNum)
-	}
-
-	// update summary
 	stockItemsMap := make(map[uint]int)
-	for _, si := range items {
-		stockItemsMap[si.ID] = skus[si.SKU]
+	for _, item := range payload.Items {
+		unit, err := unitRepo.HoldUnitForLineItem(item.SkuID, payload.OrderRefNum, item.LineItemRefNum)
+		if err != nil {
+			service.txn.Rollback()
+			return err
+		}
+
+		qty := 1
+		stockItemQty, ok := stockItemsMap[unit.StockItemID]
+		if ok {
+			qty = qty + stockItemQty
+		} else {
+			qty = stockItemQty
+		}
 	}
+
 	statusShift := models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold}
 
 	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)
