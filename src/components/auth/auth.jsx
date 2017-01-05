@@ -28,6 +28,7 @@ class Auth extends Component {
     const authProps = {
       getPath: this.getPath,
       path: this.props.path,
+      mergeGuestCart: true,
     };
 
     switch (this.props.authBlockType) {
