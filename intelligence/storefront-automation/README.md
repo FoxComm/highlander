@@ -1,6 +1,6 @@
 # Storefront Automation
 ## Setup the server
-To download the selenium standalone server, run `make configure`.
+To download the selenium standalone server, run `make configure-server`.
 To start the server, run `make run-server`.
 This will allow selenium tests to be run at `http://localhost:4444/wd/hub`.
 
