@@ -14,9 +14,8 @@ import styles from './home-page.css';
 const mainBlocks = [
   {
     imageUrl: '/images/home-page/Home_Page_Holidays_NEW_2x.jpg',
-    description: 'We’ve got you covered',
-    title: 'Entertaining for the holidays?',
-    action: { title: 'Shop holiday picks', link: '/holiday' },
+    title: 'Make Every Day A Reason to Celebrate',
+    action: { title: 'Shop Entrées', link: '/ENTRÉES' },
   },
   {
     imageUrl: '/images/home-page/Home_Page_Favorites_2x.jpg',
