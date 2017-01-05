@@ -112,7 +112,7 @@ export default class Tags extends Component {
           <div styleName="text">
             Tags
           </div>
-          <button styleName="icon" onClick={this.handleTagToggle}>
+          <button id="tag-toggle-btn" styleName="icon" onClick={this.handleTagToggle}>
             <i className="icon-add" />
           </button>
         </div>

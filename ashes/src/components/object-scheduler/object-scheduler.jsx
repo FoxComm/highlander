@@ -203,6 +203,7 @@ export default class ObjectScheduler extends Component {
 
     return (
       <Dropdown
+        id="product-state-dd"
         className="fc-product-state__active-state"
         disabled={isDisabled}
         value={activeState}

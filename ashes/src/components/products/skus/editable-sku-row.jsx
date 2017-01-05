@@ -187,6 +187,7 @@ class EditableSkuRow extends Component {
   get menuEmptyContent(): Element {
     return (
       <li
+        id="create-new-sku-item"
         styleName="sku-item"
         className="_new"
         onMouseDown={() => this.closeSkusMenu() }>
@@ -202,6 +203,7 @@ class EditableSkuRow extends Component {
     return items.map((sku: SearchViewSku) => {
       return (
         <li
+          id={`search-view-${sku.skuCode}`}
           styleName="sku-item"
           onMouseDown={() => { this.handleSelectSku(sku); }}
           key={`item-${sku.id}`}>
