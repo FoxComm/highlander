@@ -3,6 +3,7 @@ package utils
 import java.io.File
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
 
 import com.stripe.model.DeletedCard
 import org.mockito.ArgumentMatcher
@@ -79,7 +80,7 @@ trait MockedApis extends MockitoSugar {
     val mocked = mock[MiddlewarehouseApi]
     when(mocked.hold(any[OrderInventoryHold])(any[EC], any[AU])).thenReturn(Result.unit)
     when(mocked.cancelHold(any[String])(any[EC], any[AU])).thenReturn(Result.unit)
-    when(mocked.createSku(any[CreateSku])(any[EC], any[AU])).thenReturn(Result.unit)
+    when(mocked.createSku(any[CreateSku])(any[EC], any[AU])).thenReturn(Result.good(1))
     mocked
   }
 

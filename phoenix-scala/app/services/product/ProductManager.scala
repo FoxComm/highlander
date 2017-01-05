@@ -372,8 +372,10 @@ object ProductManager {
                                                        else Seq.empty)
               } yield newSku
             }
-        albums ← * <~ ImageManager.getAlbumsForVariantInner(up.form.id)
-      } yield ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, up), albums)
+        albums   ← * <~ ImageManager.getAlbumsForVariantInner(up.form.id)
+        mwhSkuId ← * <~ ProductVariantMwhSkuIds.mustFindMwhSkuId(up.form.id)
+      } yield
+        ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, up), albums, mwhSkuId)
     }
 
   private def findOrCreateOptionsForProduct(product: Product, payload: Seq[ProductOptionPayload])(
