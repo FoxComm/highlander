@@ -26,19 +26,19 @@ case class CartResponseTotals(subTotal: Int,
                               shipping: Int,
                               adjustments: Int,
                               total: Int,
-                              creditCardCharge: Int)
+                              customersExpenses: Int)
     extends ResponseItem
 
 object CartResponseTotals {
 
   def empty: CartResponseTotals = CartResponseTotals(0, 0, 0, 0, 0, 0)
 
-  def build(cart: Cart, inStorePayment: Int): CartResponseTotals =
+  def build(cart: Cart, coveredByInStoreMethods: Int): CartResponseTotals =
     CartResponseTotals(subTotal = cart.subTotal,
                        shipping = cart.shippingTotal,
                        adjustments = cart.adjustmentsTotal,
                        taxes = cart.taxesTotal,
                        total = cart.grandTotal,
-                       creditCardCharge = cart.grandTotal - inStorePayment)
+                       customersExpenses = cart.grandTotal - coveredByInStoreMethods)
 
 }

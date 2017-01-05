@@ -53,12 +53,13 @@ object CartResponse {
                              else CordResponsePayments.fetchAll(cart.refNum))
       paymentState ← * <~ CartQueries.getCordPaymentState(cart.refNum)
       lockedBy     ← * <~ currentLock(cart)
-      orderPayments = OrderPayments.findAllByCordRef(cart.refNum)
-      inStorePayment ← * <~ (orderPayments.giftCards ++ orderPayments.storeCredits)
-                        .map(_.amount.getOrElse(0))
-                        .sum
-                        .getOrElse(0)
-                        .result
+      coveredByInStoreMethods ← * <~ OrderPayments
+                                 .findAllByCordRef(cart.refNum)
+                                 .inStoreMethods
+                                 .map(_.amount.getOrElse(0))
+                                 .sum
+                                 .getOrElse(0)
+                                 .result
     } yield
       CartResponse(
           referenceNumber = cart.refNum,
@@ -66,7 +67,8 @@ object CartResponse {
           lineItemAdjustments = lineItemAdj,
           promotion = promo.map { case (promotion, _) ⇒ promotion },
           coupon = promo.map { case (_, coupon)       ⇒ coupon },
-          totals = CartResponseTotals.build(cart, inStorePayment = inStorePayment),
+          totals =
+            CartResponseTotals.build(cart, coveredByInStoreMethods = coveredByInStoreMethods),
           customer = for {
             c  ← customer
             cu ← customerData
