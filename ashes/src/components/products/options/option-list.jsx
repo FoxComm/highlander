@@ -6,8 +6,8 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { assoc, dissoc } from 'sprout-data';
-import { autoAssignVariants } from 'paragons/variants';
-import { skuId } from 'paragons/product';
+import { autoAssignOptions } from 'paragons/variants';
+import { productVariantId } from 'paragons/product';
 
 // components
 import ContentBox from 'components/content-box/content-box';
@@ -20,11 +20,11 @@ import styles from './option-list.css';
 
 // types
 import type { Option, OptionValue, Product } from 'paragons/product';
-import type { Sku } from 'modules/skus/details';
+import type { ProductVariant } from 'modules/product-variants/details';
 
 type Props = {
-  variants: Array<Option>,
-  updateVariants: Function,
+  options: Array<Option>,
+  updateOptions: Function,
   product: Product,
 };
 
@@ -35,7 +35,7 @@ type EditOption = {
 
 type DeletingContext = {
   id: number,
-  affectedSkus: Array<Sku>,
+  affectedSkus: Array<ProductVariant>,
   deletingValueContext?: {
     option: Option,
     value: OptionValue
@@ -73,7 +73,7 @@ class OptionList extends Component {
 
   @autobind
   startEditOption(id: any): void {
-    const option = (id !== 'new') ? this.props.variants[id] : {
+    const option = (id !== 'new') ? this.props.options[id] : {
       attributes: {
         name: {
           t: 'string',
@@ -94,17 +94,17 @@ class OptionList extends Component {
     });
   }
 
-  getVariantsWithoutOption(id: number): Array<Option> {
-    const { variants } = this.props;
+  getOptionsWithoutValue(id: number): Array<Option> {
+    const { options } = this.props;
 
-    const newVariants = variants.slice();
-    newVariants.splice(id, 1);
+    const newOptions = options.slice();
+    newOptions.splice(id, 1);
 
-    return newVariants;
+    return newOptions;
   }
 
   deleteOption(id: number): void {
-    this.props.updateVariants(this.getVariantsWithoutOption(id));
+    this.props.updateOptions(this.getOptionsWithoutValue(id));
   }
 
   @autobind
@@ -113,8 +113,8 @@ class OptionList extends Component {
     let affectedSkus = [];
 
     if (deletingValue) {
-      const newVariants = assoc(this.props.variants, id, option);
-      affectedSkus = this.getRemovedSkusByNewVariants(newVariants);
+      const newOptions = assoc(this.props.options, id, option);
+      affectedSkus = this.getRemovedSkusByNewOptions(newOptions);
       needConfirmation = affectedSkus.length > 0;
     }
 
@@ -137,8 +137,8 @@ class OptionList extends Component {
 
   @autobind
   handleDeleteClick(id: number) {
-    const newVariants = this.getVariantsWithoutOption(id);
-    const affectedSkus = this.getRemovedSkusByNewVariants(newVariants);
+    const newVariants = this.getOptionsWithoutValue(id);
+    const affectedSkus = this.getRemovedSkusByNewOptions(newVariants);
     if (affectedSkus.length > 0) {
       this.setState({
         deletingContext: {
@@ -154,13 +154,13 @@ class OptionList extends Component {
 
   @autobind
   updateOption(id: string|number, option: Option): void {
-    const { variants } = this.props;
+    const { options } = this.props;
 
-    const newVariants = id == 'new' ? [...variants, option] : assoc(variants, id, option);
+    const newOptions = id == 'new' ? [...options, option] : assoc(options, id, option);
 
     this.setState({
       editOption: null,
-    }, () => this.props.updateVariants(newVariants));
+    }, () => this.props.updateOptions(newOptions));
   }
 
   @autobind
@@ -176,8 +176,8 @@ class OptionList extends Component {
     });
   }
 
-  renderOptions(variants: Array<Option>): Array<Element> {
-    return _.map(variants, (option, index) => {
+  renderOptions(options: Array<Option>): Array<Element> {
+    return _.map(options, (option, index) => {
       const key = _.get(option.attributes, 'name.v', index);
       return (
         <OptionEntry
@@ -192,13 +192,13 @@ class OptionList extends Component {
     });
   }
 
-  getRemovedSkusByNewVariants(newVariants: Array<Option>): Array<Sku> {
-    const newProduct = autoAssignVariants(this.props.product, newVariants);
-    const newSkus = _.keyBy(newProduct.skus, skuId);
+  getRemovedSkusByNewOptions(newOptions: Array<Option>): Array<ProductVariant> {
+    const newProduct = autoAssignOptions(this.props.product, newOptions);
+    const newVariants = _.keyBy(newProduct.variants, productVariantId);
 
-    return _.filter(this.props.product.skus, sku => {
-      const hasRealCode = !!_.get(sku.attributes, 'code.v');
-      return hasRealCode && !(skuId(sku) in newSkus);
+    return _.filter(this.props.product.variants, variant => {
+      const hasRealCode = !!_.get(variant.attributes, 'code.v');
+      return hasRealCode && !(productVariantId(variant) in newVariants);
     });
   }
 
@@ -226,7 +226,7 @@ class OptionList extends Component {
     let removeTarget;
     let removeTargetTitle;
     if (!deletingValueContext) {
-      const deletingOption = this.props.variants[id];
+      const deletingOption = this.props.options[id];
       const optionName = _.get(deletingOption, 'attributes.name.v');
       removeTargetTitle = 'option';
       removeTarget = `option ${optionName}`;
@@ -260,8 +260,8 @@ class OptionList extends Component {
   }
 
   render(): Element {
-    const variants = this.renderOptions(this.props.variants);
-    const content = _.isEmpty(variants) ? this.emptyContent : variants;
+    const options = this.renderOptions(this.props.options);
+    const content = _.isEmpty(options) ? this.emptyContent : options;
 
     const optionDialog = this.state.editOption && (
       <OptionEditDialog

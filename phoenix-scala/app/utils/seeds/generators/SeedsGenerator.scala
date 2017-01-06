@@ -70,8 +70,8 @@ object SeedsGenerator
     for {
       context     ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       shipMethods ← * <~ getShipmentRules
-      skus        ← * <~ Skus.filter(_.contextId === context.id).result
-      skuIds             = skus.map(_.id)
+      variants    ← * <~ ProductVariants.filter(_.contextId === context.id).result
+      variantIds         = variants.map(_.id)
       generatedCustomers = generateCustomers(customersCount)
       accountIds ← * <~ Accounts.createAllReturningIds(generatedCustomers.map { _ ⇒
                     Account()
@@ -100,7 +100,7 @@ object SeedsGenerator
       unsavedCodes   ← * <~ makeCouponCodes(coupons)
       _              ← * <~ CouponCodes.createAll(unsavedCodes)
       _ ← * <~ randomSubset(customerIds, customerIds.length).map { id ⇒
-           generateOrders(id, context, skuIds, pickOne(giftCards))
+           generateOrders(id, context, variantIds, pickOne(giftCards))
          }
     } yield {}
   }

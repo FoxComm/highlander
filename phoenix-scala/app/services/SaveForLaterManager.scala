@@ -6,7 +6,7 @@ import models.account.{User, Users}
 import models.objects.ObjectContext
 import models.{SaveForLater, SaveForLaters}
 import responses.{SaveForLaterResponse, TheResponse}
-import services.inventory.SkuManager
+import services.inventory.ProductVariantManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -26,11 +26,13 @@ object SaveForLaterManager {
       ec: EC): DbResultT[SavedForLater] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      sku      ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, skuCode)
+      variant  ← * <~ ProductVariantManager.mustFindByContextAndCode(context.id, skuCode)
       _ ← * <~ SaveForLaters
-           .find(accountId = customer.accountId, skuId = sku.id)
-           .mustNotFindOneOr(AlreadySavedForLater(accountId = customer.accountId, skuId = sku.id))
-      _        ← * <~ SaveForLaters.create(SaveForLater(accountId = customer.accountId, skuId = sku.id))
+           .find(accountId = customer.accountId, productVariantId = variant.id)
+           .mustNotFindOneOr(
+               AlreadySavedForLater(accountId = customer.accountId, variantId = variant.id))
+      _ ← * <~ SaveForLaters.create(
+             SaveForLater(accountId = customer.accountId, productVariantId = variant.id))
       response ← * <~ findAllDbio(customer, context.id)
     } yield response
 
@@ -41,8 +43,8 @@ object SaveForLaterManager {
                                                           db: DB): DBIO[SavedForLater] =
     for {
       sfls ← SaveForLaters.filter(_.accountId === customer.accountId).result
-      xors ← DBIO.sequence(
-                sfls.map(sfl ⇒ SaveForLaterResponse.forSkuId(sfl.skuId, contextId).value))
+      xors ← DBIO.sequence(sfls.map(sfl ⇒
+                      SaveForLaterResponse.forSkuId(sfl.productVariantId, contextId).value))
 
       fails = xors.collect { case Xor.Left(f)  ⇒ f }.flatMap(_.toList)
       roots = xors.collect { case Xor.Right(r) ⇒ r }

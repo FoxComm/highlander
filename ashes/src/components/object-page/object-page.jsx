@@ -31,9 +31,10 @@ import { supressTV } from 'paragons/object';
 // modules
 import * as SchemaActions from 'modules/object-schema';
 
-export function connectPage(namespace, actions) {
+export function connectPage(namespace, actions, options = {}) {
   const capitalized = _.upperFirst(namespace);
   const plural = `${namespace}s`;
+  const schemaName = options.schemaName || namespace;
   const actionNames = {
     new: `${namespace}New`, // promotionNew
     fetch: `fetch${capitalized}`, // fetchPromotion
@@ -49,9 +50,10 @@ export function connectPage(namespace, actions) {
     return {
       namespace,
       plural,
+      schemaName,
       capitalized,
       requiredActions,
-      schema: _.get(state.objectSchemas, namespace),
+      schema: _.get(state.objectSchemas, schemaName),
       details: state[plural].details,
       originalObject: _.get(state, [plural, 'details', namespace], {}),
       isFetching: _.get(state.asyncActions, `${actionNames.fetch}.inProgress`, null),
@@ -167,7 +169,7 @@ export class ObjectPage extends Component {
 
   componentDidMount() {
     this.props.actions.clearFetchErrors();
-    this.props.actions.fetchSchema(this.props.namespace);
+    this.props.actions.fetchSchema(this.props.schemaName);
     if (this.isNew) {
       this.props.actions.newEntity();
     } else {
@@ -187,7 +189,8 @@ export class ObjectPage extends Component {
   }
 
   transitionTo(id, props = {}) {
-    transitionTo(`${this.props.namespace}-details`, {
+    const linkTo = _.kebabCase(this.props.namespace);
+    transitionTo(`${linkTo}-details`, {
       ...this.detailsRouteProps(),
       ...props,
       [this.entityIdName]: id

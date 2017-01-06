@@ -40,7 +40,7 @@ lazy val phoenixScala = (project in file("."))
     (mainClass in Compile) := Some("server.Main"),
     initialCommands in console := fromFile("project/console_init").getLines.mkString("\n"),
     initialCommands in (Compile, consoleQuick) := "",
-    writeVersion <<= sh.toTask(fromFile("project/write_version").getLines.mkString).triggeredBy(compile in Compile),
+    writeVersion <<= sh.toTask(fromFile("project/write_version").getLines.mkString),
     unmanagedResources in Compile += file("version"),
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC", "-Dphoenix.env=test"),
@@ -54,7 +54,7 @@ lazy val phoenixScala = (project in file("."))
     logBuffered in IT   := false,
     logBuffered in ET   := false,
     test in assembly := {},
-    addCommandAlias("assembly", "gatling/assembly"),
+    addCommandAlias("assembly", "fullAssembly"),
     addCommandAlias("all", "; clean; gatling/clean; it:compile; gatling/compile; test; gatling/assembly"),
     scalafmtConfig := Some(file(".scalafmt")),
     reformatOnCompileWithItSettings // scalafmt
@@ -85,6 +85,8 @@ lazy val gatling = (project in file("gatling"))
         (assemblyMergeStrategy in assembly).value.apply(x)
     }
   )
+
+fullAssembly <<= Def.task().dependsOn(writeVersion in phoenixScala, assembly in gatling)
 
 // Injected seeds
 seed := (runMain in Compile in phoenixScala).partialInput(" utils.seeds.Seeds seed --seedAdmins --seedDemo 1").evaluated

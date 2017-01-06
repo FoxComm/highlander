@@ -3,11 +3,10 @@ package responses.cord
 import java.time.Instant
 
 import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
+import models.account._
 import models.cord._
 import models.customer.CustomersData
-import models.account._
 import models.objects._
-import models.payment.creditcard._
 import responses.PromotionResponses.PromotionResponse
 import responses._
 import responses.cord.base._
@@ -16,7 +15,7 @@ import utils.aliases._
 import utils.db._
 
 case class OrderResponse(referenceNumber: String,
-                         paymentState: CreditCardCharge.State,
+                         paymentState: CordPaymentState.State,
                          lineItems: CordResponseLineItems,
                          lineItemAdjustments: Seq[CordResponseLineItemAdjustment] = Seq.empty,
                          promotion: Option[PromotionResponse.Root] = None,
@@ -49,7 +48,7 @@ object OrderResponse {
                                                 ec: EC): DbResultT[OrderResponse] =
     for {
       context      ← * <~ ObjectContexts.mustFindById400(order.contextId)
-      payState     ← * <~ OrderQueries.getPaymentState(order.refNum)
+      payState     ← * <~ OrderQueries.getCordPaymentState(order.refNum)
       lineItemAdj  ← * <~ CordResponseLineItemAdjustments.fetch(order.refNum)
       lineItems    ← * <~ CordResponseLineItems.fetch(order.refNum, lineItemAdj, grouped)
       promo        ← * <~ CordResponsePromotions.fetch(order.refNum)(db, ec, context)

@@ -1,7 +1,7 @@
 import { routerReducer } from 'react-router-redux';
 import { combineReducers } from 'redux';
 
-import { reducer as asyncReducer } from './async-utils';
+import { reducer as asyncReducer } from '@foxcomm/wings/lib/redux/async-utils';
 import giftCards from './gift-cards';
 import customers from './customers';
 import customerGroups from './customer-groups';
@@ -19,7 +19,7 @@ import activityTrail from './activity-trail';
 import siteMenu from './site-menu';
 import inventory from './inventory';
 import products from './products';
-import skus from './skus';
+import productVariants from './product-variants';
 import user from './user';
 import usermenu from './usermenu';
 import promotions from './promotions';
@@ -52,7 +52,7 @@ const rootReducer = combineReducers({
   siteMenu,
   inventory,
   products,
-  skus,
+  productVariants,
   promotions,
   coupons,
   users,

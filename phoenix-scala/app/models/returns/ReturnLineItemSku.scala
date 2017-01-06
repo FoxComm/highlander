@@ -2,7 +2,7 @@ package models.returns
 
 import java.time.Instant
 
-import models.inventory.{Sku, Skus}
+import models.inventory.{ProductVariant, ProductVariants}
 import models.objects._
 import shapeless._
 import utils.db.ExPostgresDriver.api._
@@ -27,7 +27,7 @@ class ReturnLineItemSkus(tag: Tag)
 
   def * =
     (id, returnId, skuId, skuShadowId, createdAt) <> ((ReturnLineItemSku.apply _).tupled, ReturnLineItemSku.unapply)
-  def sku    = foreignKey(Skus.tableName, skuId, Skus)(_.id)
+  def sku    = foreignKey(ProductVariants.tableName, skuId, ProductVariants)(_.id)
   def shadow = foreignKey(ObjectShadows.tableName, skuShadowId, ObjectShadows)(_.id)
 }
 
@@ -40,9 +40,10 @@ object ReturnLineItemSkus
   def findByRmaId(returnId: Rep[Int]): QuerySeq =
     filter(_.returnId === returnId)
 
-  def findLineItemsByRma(rma: Return): Query[(Skus, ObjectForms, ObjectShadows, ReturnLineItems),
-                                             (Sku, ObjectForm, ObjectShadow, ReturnLineItem),
-                                             Seq] =
+  def findLineItemsByRma(
+      rma: Return): Query[(ProductVariants, ObjectForms, ObjectShadows, ReturnLineItems),
+                          (ProductVariant, ObjectForm, ObjectShadow, ReturnLineItem),
+                          Seq] =
     for {
       li     ← ReturnLineItems.filter(_.returnId === rma.id)
       liSku  ← li.skuLineItems

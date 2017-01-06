@@ -79,6 +79,7 @@ trait MockedApis extends MockitoSugar {
     val mocked = mock[MiddlewarehouseApi]
     when(mocked.hold(any[OrderInventoryHold])(any[EC], any[AU])).thenReturn(Result.unit)
     when(mocked.cancelHold(any[String])(any[EC], any[AU])).thenReturn(Result.unit)
+    when(mocked.createSku(any[CreateSku])(any[EC], any[AU])).thenReturn(Result.unit)
     mocked
   }
 

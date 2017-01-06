@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
 import { createEmptyProduct, configureProduct, duplicateProduct } from 'paragons/product';
-import createAsyncActions from '../async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 import { dissoc, assoc, update, merge } from 'sprout-data';
 
 // types
@@ -71,7 +71,7 @@ const _createProduct = createAsyncActions(
 function cleanProductPayload(product) {
   // get rid of temp. skus
   const feCodes = {};
-  const skus = _.reduce(product.skus, (acc, sku) => {
+  const variants = _.reduce(product.variants, (acc, sku) => {
     const code = _.get(sku, 'attributes.code.v');
     if (sku.feCode) {
       feCodes[sku.feCode] = code || '';
@@ -82,13 +82,13 @@ function cleanProductPayload(product) {
     return acc;
   }, []);
 
-  const variants = _.cloneDeep(product.variants);
+  const options = _.cloneDeep(product.options);
 
   // Wow, this is super-duper ugly.
-  for (let i = 0; i < variants.length; i++) {
-    const variant = variants[i];
-    for (let j = 0; j < variant.values.length; j++) {
-      const value = variant.values[j];
+  for (let i = 0; i < options.length; i++) {
+    const option = options[i];
+    for (let j = 0; j < option.values.length; j++) {
+      const value = option.values[j];
       value.skuCodes = _.reduce(value.skuCodes, (acc, code) => {
         if (code) {
           const value = _.get(feCodes, code, code);
@@ -102,8 +102,8 @@ function cleanProductPayload(product) {
   }
 
   return assoc(product,
-    'skus', skus,
-    'variants', variants
+    'variants', variants,
+    'options', options
   );
 }
 

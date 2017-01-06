@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import Currency from '../common/currency';
 
-import type { Sku } from 'modules/skus/list';
+import type { Sku } from 'modules/product-variants/list';
 
 type Props = {
   model: Sku,

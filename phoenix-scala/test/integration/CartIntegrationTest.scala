@@ -22,6 +22,7 @@ import payloads.UpdateShippingMethod
 import responses.cord.CartResponse
 import responses.cord.base.CordResponseLineItem
 import responses.{CustomerResponse, TheResponse}
+import models.cord.CordPaymentState
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import testutils._
@@ -44,14 +45,14 @@ class CartIntegrationTest
 
       "displays 'cart' payment state" in new Fixture {
         val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
-        fullCart.paymentState must === (CreditCardCharge.Cart)
+        fullCart.paymentState must === (CordPaymentState.Cart)
       }
 
       "displays 'auth' payment state" in new PaymentStateFixture {
         CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).gimme
 
         val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
-        fullCart.paymentState must === (CreditCardCharge.Auth)
+        fullCart.paymentState must === (CordPaymentState.Auth)
       }
     }
 
@@ -70,7 +71,8 @@ class CartIntegrationTest
       val imgUrl = "testImgUrl";
       (for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
-        _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+        _ ← * <~ CartLineItems.create(
+               CartLineItem(cordRef = cart.refNum, productVariantId = product.skuId))
       } yield {}).gimme
 
       val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
@@ -107,15 +109,15 @@ class CartIntegrationTest
         .mustFailWith400(SkuWithNoProductAdded(cart.refNum, simpleSku.code))
     }
 
-    "adding a SKU that's associated through a variant should succeed" in new ProductAndVariants_Baked
+    "adding a SKU that's associated through a productOption should succeed" in new ProductAndVariants_Baked
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val (_, _, skus) = productWithVariants
-      val code         = skus.head.code
+      val (_, _, variants) = productWithVariants
+      val code             = variants.head.code
 
       val testPayload = Seq(UpdateLineItemsPayload(code, 1))
       val root        = cartsApi(cart.refNum).lineItems.add(testPayload).asTheResult[CartResponse]
-      val liSkus      = root.lineItems.skus
-      liSkus must have size 1
+      val litems      = root.lineItems.skus
+      litems must have size 1
     }
 
     "should respond with 404 if cart is not found" in {
@@ -220,7 +222,7 @@ class CartIntegrationTest
       cartsApi("NOPE").lineItems.add(addPayload).mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
     }
 
-    "should add line items if productId and skuId are different" in new OrderShippingMethodFixture
+    "should add line items if productId and variantId are different" in new OrderShippingMethodFixture
     with ProductAndSkus_Baked {
       val addPayload = Seq(UpdateLineItemsPayload("TEST", 1))
       val skus: Seq[CordResponseLineItem] = cartsApi(cart.refNum).lineItems
@@ -486,8 +488,10 @@ class CartIntegrationTest
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = ({
       for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
-        _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
-        _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+        _ ← * <~ CartLineItems.create(
+               CartLineItem(cordRef = cart.refNum, productVariantId = product.skuId))
+        _ ← * <~ CartLineItems.create(
+               CartLineItem(cordRef = cart.refNum, productVariantId = product.skuId))
 
         lowShippingMethod ← * <~ ShippingMethods.create(lowSm)
         inactiveShippingMethod ← * <~ ShippingMethods.create(

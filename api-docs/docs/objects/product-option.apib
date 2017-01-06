@@ -1,0 +1,14 @@
+# Data structures
+
+### ProductOptionPayload
++ id: 1 (optional, number) - Unique identifier.
++ attributes ProductValuePayload (optional, object) - Custom attributes.
++ values (optional, array[ProductValuePayload]) - Values to create with the variant.
+
+### ProductValuePayload
++ id: 1 (optional, number) - Unique identifier.
++ name: `Color` (optional, string) - Name of the value that's used in the UI.
++ swatch: `FF0000` (optional, string) - Hex code used to represent a color.
+
+### ProductOptionResponse
++ id: 1 (required, number) - Unique identifier.

@@ -2,15 +2,15 @@ package services
 
 import cats.data._
 import cats.implicits._
-import failures.ProductFailures.NoProductFoundForSku
+import failures.ProductFailures.NoProductFoundForVariant
 import models.cord.lineitems._
 import models.image.{AlbumImageLinks, Albums, Images}
-import models.inventory.Sku
+import models.inventory.ProductVariant
 import models.objects._
 import models.product._
 import org.json4s.JsonAST.JString
 import services.image.ImageManager
-import services.inventory.SkuManager
+import services.inventory.ProductVariantManager
 import services.objects.ObjectManager
 import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
@@ -35,13 +35,13 @@ object LineItemManager {
 
   private def getCartLineItem(cartLineItem: CartLineItem)(implicit ec: EC, db: DB) =
     for {
-      sku     ← * <~ SkuManager.mustFindFullSkuById(cartLineItem.skuId)
-      product ← * <~ getProductForSku(sku.model)
-      image   ← * <~ getLineItemImage(sku.model, product.model)
+      variant ← * <~ ProductVariantManager.mustFindFullById(cartLineItem.productVariantId)
+      product ← * <~ getProductForVariant(variant.model)
+      image   ← * <~ getLineItemImage(variant.model, product.model)
     } yield
-      CartLineItemProductData(sku = sku.model,
-                              skuForm = sku.form,
-                              skuShadow = sku.shadow,
+      CartLineItemProductData(productVariant = variant.model,
+                              productVariantForm = variant.form,
+                              productVariantShadow = variant.shadow,
                               productForm = product.form,
                               productShadow = product.shadow,
                               image = image,
@@ -50,44 +50,46 @@ object LineItemManager {
 
   private def getOrderLineItem(orderLineItem: OrderLineItem)(implicit ec: EC, db: DB) =
     for {
-      sku ← * <~ SkuManager.mustFindFullSkuByIdAndShadowId(orderLineItem.skuId,
-                                                           orderLineItem.skuShadowId)
-      product ← * <~ getProductForSku(sku.model)
-      image   ← * <~ getLineItemImage(sku.model, product.model)
+      variant ← * <~ ProductVariantManager.mustFindFullByIdAndShadowId(
+                   orderLineItem.productVariantId,
+                   orderLineItem.productVariantShadowId)
+      product ← * <~ getProductForVariant(variant.model)
+      image   ← * <~ getLineItemImage(variant.model, product.model)
     } yield
-      OrderLineItemProductData(sku = sku.model,
-                               skuForm = sku.form,
-                               skuShadow = sku.shadow,
+      OrderLineItemProductData(productVariant = variant.model,
+                               productVariantForm = variant.form,
+                               productVariantShadow = variant.shadow,
                                productForm = product.form,
                                productShadow = product.shadow,
                                image = image,
                                lineItem = orderLineItem,
                                attributes = orderLineItem.attributes)
 
-  private def getProductForSku(sku: Sku)(implicit ec: EC, db: DB) =
+  private def getProductForVariant(variant: ProductVariant)(implicit ec: EC, db: DB) =
     for {
-      productId ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
+      productId ← * <~ ProductVariantLinks.filter(_.rightId === variant.id).one.dbresult.flatMap {
                    case Some(productLink) ⇒
                      DbResultT.good(productLink.leftId)
                    case None ⇒
                      for {
-                       valueLink ← * <~ VariantValueSkuLinks
-                                    .filter(_.rightId === sku.id)
-                                    .mustFindOneOr(NoProductFoundForSku(sku.id))
-                       variantLink ← * <~ VariantValueLinks
+                       valueLink ← * <~ ProductValueVariantLinks
+                                    .filter(_.rightId === variant.id)
+                                    .mustFindOneOr(NoProductFoundForVariant(variant.id))
+                       variantLink ← * <~ ProductOptionValueLinks
                                       .filter(_.rightId === valueLink.leftId)
-                                      .mustFindOneOr(NoProductFoundForSku(sku.id))
-                       productLink ← * <~ ProductVariantLinks
+                                      .mustFindOneOr(NoProductFoundForVariant(variant.id))
+                       productLink ← * <~ ProductOptionLinks
                                       .filter(_.rightId === variantLink.leftId)
-                                      .mustFindOneOr(NoProductFoundForSku(sku.id))
+                                      .mustFindOneOr(NoProductFoundForVariant(variant.id))
                      } yield productLink.leftId
                  }
       product ← * <~ ProductManager.mustFindFullProductById(productId)
     } yield product
 
-  private def getLineItemImage(sku: Sku, product: Product)(implicit ec: EC, db: DB) =
+  private def getLineItemImage(variant: ProductVariant, product: Product)(implicit ec: EC,
+                                                                          db: DB) =
     for {
-      image ← * <~ getLineItemAlbumId(sku, product).flatMap {
+      image ← * <~ getLineItemAlbumId(variant, product).flatMap {
                case Some(albumId) ⇒
                  for {
                    album ← * <~ Albums.mustFindById404(albumId)
@@ -99,9 +101,10 @@ object LineItemManager {
              }
     } yield image
 
-  private def getLineItemAlbumId(sku: Sku, product: Product)(implicit ec: EC, db: DB) =
+  private def getLineItemAlbumId(variant: ProductVariant, product: Product)(implicit ec: EC,
+                                                                            db: DB) =
     for {
-      albumId ← * <~ SkuAlbumLinks.filterLeft(sku).one.dbresult.flatMap {
+      albumId ← * <~ VariantAlbumLinks.filterLeft(variant).one.dbresult.flatMap {
                  case Some(albumLink) ⇒
                    DbResultT.good(albumLink.rightId.some)
                  case None ⇒

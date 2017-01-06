@@ -18,7 +18,7 @@ type Props = {
 };
 
 const productClaims = readAction(frn.pim.product);
-const skuClaims = readAction(frn.pim.sku);
+const productVariantClaims = readAction(frn.pim.sku);
 const inventoryClaims = readAction(frn.mdl.summary);
 
 export default class CatalogEntry extends Component {
@@ -26,7 +26,7 @@ export default class CatalogEntry extends Component {
 
   render(): Element {
     const { claims, collapsed, routes, status, toggleMenuItem } = this.props;
-    const allClaims = { ...productClaims, ...skuClaims, ...inventoryClaims };
+    const allClaims = { ...productClaims, ...productVariantClaims, ...inventoryClaims };
 
     if (!anyPermitted(allClaims, claims)) {
       return <div></div>;
@@ -52,11 +52,11 @@ export default class CatalogEntry extends Component {
             Products
           </IndexLink>
           <IndexLink
-            to="skus"
+            to="variants"
             className="fc-navigation-item__sublink"
             actualClaims={claims}
-            expectedClaims={skuClaims}>
-            SKUs
+            expectedClaims={productVariantClaims}>
+            Product Variants
           </IndexLink>
           <IndexLink
             to="inventory"

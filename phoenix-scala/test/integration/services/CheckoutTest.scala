@@ -6,8 +6,9 @@ import faker.Lorem
 import models.Reasons
 import models.account.Scope
 import models.cord._
-import models.inventory.Skus
+import models.inventory.ProductVariants
 import models.objects.ObjectContexts
+import models.payment.InStorePaymentStates
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.product.{Mvp, SimpleContext}
@@ -82,7 +83,8 @@ class CheckoutTest
 
         import GiftCardAdjustment._
 
-        adjustments.map(_.state).toSet must === (Set[State](Auth))
+        adjustments.map(_.state).toSet must === (
+            Set[InStorePaymentStates.State](InStorePaymentStates.Auth))
         adjustments.map(_.debit) must === (List(gcAmount, cart.grandTotal - gcAmount))
       }
 
@@ -101,7 +103,8 @@ class CheckoutTest
 
         import StoreCreditAdjustment._
 
-        adjustments.map(_.state).toSet must === (Set[State](Auth))
+        adjustments.map(_.state).toSet must === (
+            Set[InStorePaymentStates.State](InStorePaymentStates.Auth))
         adjustments.map(_.debit) must === (List(scAmount, cart.grandTotal - scAmount))
       }
     }
@@ -206,7 +209,7 @@ class CheckoutTest
         product ← * <~ Mvp.insertProduct(
                      productCtx.id,
                      Factories.products.head.copy(price = cost, code = Lorem.letterify("?????")))
-        sku ← * <~ Skus.mustFindById404(product.skuId)
+        sku ← * <~ ProductVariants.mustFindById404(product.skuId)
       } yield sku).gimme
       Seq(UpdateLineItemsPayload(sku.code, 1))
     }

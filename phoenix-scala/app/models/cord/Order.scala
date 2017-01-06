@@ -5,7 +5,7 @@ import java.time.Instant
 import failures.{Failures, GeneralFailure}
 import models.cord.lineitems.{OrderLineItem, OrderLineItems, CartLineItems}
 import models.account._
-import models.inventory.Skus
+import models.inventory.ProductVariants
 import utils.Money.Currency
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
@@ -167,24 +167,25 @@ object Orders
   def prepareOrderLineItemsFromCart(cart: Cart, contextId: Int)(
       implicit ec: EC,
       db: DB): DbResultT[Seq[OrderLineItem]] = {
-    val uniqueSkuIdsInCart = CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.skuId).map {
-      case (skuId, q) ⇒ skuId
-    }
+    val uniqueVariantIdsInCart =
+      CartLineItems.byCordRef(cart.referenceNumber).groupBy(_.productVariantId).map {
+        case (variantId, _) ⇒ variantId
+      }
 
-    val skusInCart = for {
-      skuId ← uniqueSkuIdsInCart
-      sku   ← Skus if sku.id === skuId
-    } yield (skuId, sku)
+    val variantsInCart = for {
+      variantId ← uniqueVariantIdsInCart
+      variant   ← ProductVariants if variant.id === variantId
+    } yield (variantId, variant)
 
     for {
-      skus      ← * <~ skusInCart.result
-      skuMaps   ← * <~ skus.toMap
-      lineItems ← * <~ CartLineItems.byCordRef(cart.referenceNumber).result
+      variants    ← * <~ variantsInCart.result
+      variantMaps ← * <~ variants.toMap
+      lineItems   ← * <~ CartLineItems.byCordRef(cart.referenceNumber).result
       orderLineItems ← * <~ lineItems.map { cli ⇒
-                        val sku = skuMaps.get(cli.skuId).get
+                        val variant = variantMaps(cli.productVariantId)
                         OrderLineItem(cordRef = cart.referenceNumber,
-                                      skuId = sku.id,
-                                      skuShadowId = sku.shadowId,
+                                      productVariantId = variant.id,
+                                      productVariantShadowId = variant.shadowId,
                                       state = OrderLineItem.Pending,
                                       attributes = cli.attributes)
                       }

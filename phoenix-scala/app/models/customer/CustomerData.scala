@@ -12,7 +12,6 @@ import models.payment.creditcard.CreditCards
 import payloads.CustomerPayloads.CreateCustomerPayload
 import shapeless._
 import utils.db.ExPostgresDriver.api._
-import utils.Passwords._
 import utils.Validation
 import utils.aliases._
 import utils.db._

@@ -3,7 +3,7 @@ import { dissoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
 import { createEmptyPromotion } from 'paragons/promotion';
-import createAsyncActions from '../async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 import Api from 'lib/api';
 
 export const promotionNew = createAction('PROMOTIONS_NEW');

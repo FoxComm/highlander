@@ -16,7 +16,7 @@ import InputMask from 'react-input-mask';
 
 import { renderFormField } from 'components/object-form/object-form-inner';
 
-import { autoAssignVariants, deleteVariantCombination, addSkusForVariants } from 'paragons/variants';
+import { autoAssignOptions, deleteVariantCombination, addSkusForVariants } from 'paragons/variants';
 
 import styles from './form.css';
 
@@ -47,17 +47,17 @@ export default class ProductForm extends ObjectDetails {
         updateFields={props.onSetSkuProperties}
         onDeleteSku={this.handleDeleteSku}
         onAddNewVariants={this.handleAddVariants}
-        variants={props.object.variants}
+        options={props.object.options}
       />
     );
   }
 
   @autobind
-  updateVariants(newVariants: Array<Option>): void {
+  updateOptions(newOptions: Array<Option>): void {
     // here we have new variants, but
     // we don't have empty skus in order user be able to edit them
     // also we need skuCodes for them in variant.values
-    const newProduct = autoAssignVariants(this.props.object, newVariants);
+    const newProduct = autoAssignOptions(this.props.object, newOptions);
     this.props.onUpdateObject(newProduct);
   }
 
@@ -67,8 +67,8 @@ export default class ProductForm extends ObjectDetails {
     // * Active To
     // * Active From
     const newObject = super.updateAttributes(attributes);
-    let skus = this.props.object.skus;
-    if (skus.length) {
+    let variants = this.props.object.variants;
+    if (variants.length) {
       const syncFields = ['activeTo', 'activeFrom'];
       const updateArgs =_.flatMap(syncFields, field => {
         const originalValue = _.get(this.props.object, ['attributes', field]);
@@ -77,11 +77,11 @@ export default class ProductForm extends ObjectDetails {
         ];
       });
 
-      skus = _.map(skus, sku => assoc(sku, ...updateArgs));
+      variants = _.map(variants, variant => assoc(variant, ...updateArgs));
     }
 
     return assoc(newObject,
-      ['skus'], skus
+      ['variants'], variants
     );
   }
 
@@ -90,8 +90,8 @@ export default class ProductForm extends ObjectDetails {
       <OptionList
         // $FlowFixMe: WTF?
         product={this.props.object}
-        variants={this.props.object.variants}
-        updateVariants={this.updateVariants}
+        options={this.props.object.options}
+        updateOptions={this.updateOptions}
       />
     );
   }

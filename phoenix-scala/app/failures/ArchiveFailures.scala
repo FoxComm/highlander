@@ -3,12 +3,12 @@ import utils.friendlyClassName
 
 object ArchiveFailures {
 
-  case class LinkArchivedSkuFailure(description: String) extends Failure
+  case class LinkArchivedVariantFailure(description: String) extends Failure
 
-  object LinkArchivedSkuFailure {
-    def apply[T](target: T, targetId: Any, code: String): LinkArchivedSkuFailure = {
-      LinkArchivedSkuFailure(
-          s"Cannot attach archived sku with code $code to ${friendlyClassName(target)} with id $targetId")
+  object LinkArchivedVariantFailure {
+    def apply[T](target: T, targetId: Any, code: String): LinkArchivedVariantFailure = {
+      LinkArchivedVariantFailure(
+          s"Cannot attach archived variant with code $code to ${friendlyClassName(target)} with id $targetId")
     }
   }
 
@@ -21,8 +21,8 @@ object ArchiveFailures {
       s"Can't archive product with formId=$formId because it's present in carts"
   }
 
-  case class SkuIsPresentInCarts(code: String) extends Failure {
+  case class VariantIsPresentInCarts(code: String) extends Failure {
     override def description: String =
-      s"Can't archive SKU with code=$code because it's present in carts"
+      s"Can't archive Variant with code=$code because it's present in carts"
   }
 }

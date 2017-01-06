@@ -6,7 +6,7 @@ import akka.http.scaladsl.server._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import models.cord.Cord.cordRefNumRegex
-import models.inventory.Sku.skuCodeRegex
+import models.inventory.ProductVariant.skuCodeRegex
 import models.payment.giftcard.GiftCard
 import models.product.ProductReference
 import org.json4s.jackson.Serialization.{write ⇒ json}

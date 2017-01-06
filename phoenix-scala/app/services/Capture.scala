@@ -1,17 +1,11 @@
 package services
 
 import cats.implicits._
-import failures.CouponFailures.CouponWithCodeCannotBeFound
-import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
-import failures.GeneralFailure
 import failures.CaptureFailures
-import failures.PromotionFailures.PromotionNotFoundForContext
+import failures.ShippingMethodFailures.ShippingMethodNotFoundInOrder
 import models.account.{User, Users}
 import models.cord._
 import models.cord.lineitems._
-import models.coupon._
-import models.inventory.{Sku, Skus}
-import models.objects._
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
@@ -50,7 +44,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       //The function returns a tuple so we will convert it to a case class for
       //convenience.
       order    ← * <~ Orders.mustFindByRefNum(payload.order)
-      payState ← * <~ OrderQueries.getPaymentState(order.refNum)
+      payState ← * <~ OrderQueries.getCordPaymentState(order.refNum)
       _        ← * <~ validateOrder(order, payState)
 
       customer     ← * <~ Users.mustFindByAccountId(order.accountId)
@@ -60,7 +54,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       //support split capture yet.
       _ ← * <~ validatePayload(payload, lineItemData)
 
-      //get prices for line items using historical version of sku and adjust
+      //get prices for line items using historical version of variant and adjust
       //the prices based on line item adjustments. Line item adjustments use
       //line item reference number to match the adjustment with the line item.
       //some line items will not have adjustments. Then finally aggregate to
@@ -284,31 +278,34 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
     })
 
   private def getPrice(item: OrderLineItemProductData): DbResultT[LineItemPrice] =
-    Mvp.price(item.skuForm, item.skuShadow) match {
+    Mvp.price(item.productVariantForm, item.productVariantShadow) match {
       case Some((price, currency)) ⇒
         DbResultT.pure(
-            LineItemPrice(item.lineItem.referenceNumber, item.sku.code, price, currency))
-      case None ⇒ DbResultT.failure(CaptureFailures.SkuMissingPrice(item.sku.code))
+            LineItemPrice(item.lineItem.referenceNumber,
+                          item.productVariant.code,
+                          price,
+                          currency))
+      case None ⇒ DbResultT.failure(CaptureFailures.VariantMissingPrice(item.productVariant.code))
     }
 
   private def validatePayload(payload: CapturePayloads.Capture,
                               orderSkus: Seq[OrderLineItemProductData]): DbResultT[Unit] =
     for {
-      codes ← * <~ orderSkus.map { _.sku.code }
+      codes ← * <~ orderSkus.map { _.productVariant.code }
       _     ← * <~ mustHaveCodes(payload.items, codes, payload.order)
       _     ← * <~ mustHaveSameLineItems(payload.items.length, orderSkus.length, payload.order)
       _     ← * <~ mustHavePositiveShippingCost(payload.shipping)
     } yield Unit
 
-  private def validateOrder(order: Order, paymentState: CreditCardCharge.State): DbResultT[Unit] =
+  private def validateOrder(order: Order, paymentState: CordPaymentState.State): DbResultT[Unit] =
     for {
       _ ← * <~ paymentStateMustBeInAuth(order, paymentState)
       //Future validation goes here.
     } yield Unit
 
   private def paymentStateMustBeInAuth(order: Order,
-                                       paymentState: CreditCardCharge.State): DbResultT[Unit] =
-    if (paymentState != CreditCardCharge.Auth)
+                                       paymentState: CordPaymentState.State): DbResultT[Unit] =
+    if (paymentState != CordPaymentState.Auth)
       DbResultT.failure(CaptureFailures.OrderMustBeInAuthState(order.refNum))
     else DbResultT.pure(Unit)
 
@@ -329,7 +326,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
                            codes: Seq[String],
                            orderRef: String): DbResultT[Unit] =
     if (codes.contains(item.sku)) DbResultT.pure(Unit)
-    else DbResultT.failure(CaptureFailures.SkuNotFoundInOrder(item.sku, orderRef))
+    else DbResultT.failure(CaptureFailures.VariantNotFoundInOrder(item.sku, orderRef))
 
   private def mustHaveSameLineItems(lOne: Int, lTwo: Int, orderRef: String): DbResultT[Unit] =
     if (lOne == lTwo) DbResultT.pure(Unit)

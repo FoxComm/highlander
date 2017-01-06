@@ -10,7 +10,7 @@ import TabView from '../tabs/tab';
 import { Link, IndexLink } from '../link';
 
 const InventoryItemDetailsBase = (props, context) => {
-  const transactionsTabActive = context.router.isActive({name: 'sku-inventory-transactions', params: props.params});
+  const transactionsTabActive = context.router.isActive({name: 'product-variant-inventory-transactions', params: props.params});
 
   return (
     <div className="fc-inventory-item-details">
@@ -24,14 +24,14 @@ const InventoryItemDetailsBase = (props, context) => {
           <div className="fc-col-md-1-1">
             <TabListView>
               <TabView draggable={false} selected={!transactionsTabActive}>
-                <IndexLink to="sku-inventory-details"
+                <IndexLink to="product-variant-inventory-details"
                            params={props.params}
                            className="fc-inventory-item-details__tab-link">
                   Inventory
                 </IndexLink>
               </TabView>
               <TabView draggable={false} selected={transactionsTabActive}>
-                <Link to="sku-inventory-transactions"
+                <Link to="product-variant-inventory-transactions"
                       params={props.params}
                       className="fc-inventory-item-details__tab-link">
                   Transactions

@@ -118,7 +118,7 @@ object CordResponseLineItems {
   private def groupKey(data: LineItemProductData[_],
                        adjMap: Map[String, CordResponseLineItemAdjustment],
                        attributes: Option[LineItemAttributes] = None): String = {
-    val prefix = data.sku.id + getAttributesHash(attributes)
+    val prefix = data.productVariant.id + getAttributesHash(attributes)
     val suffix =
       if (adjMap.contains(data.lineItemReferenceNumber)) data.lineItemReferenceNumber
       else NOT_ADJUSTED
@@ -150,12 +150,12 @@ object CordResponseLineItems {
     val title = Mvp.title(data.productForm, data.productShadow)
     val image = data.image.getOrElse(NO_IMAGE)
 
-    val price          = Mvp.priceAsInt(data.skuForm, data.skuShadow)
-    val externalId     = Mvp.externalId(data.skuForm, data.skuShadow)
-    val trackInventory = Mvp.trackInventory(data.skuForm, data.skuShadow)
+    val price          = Mvp.priceAsInt(data.productVariantForm, data.productVariantShadow)
+    val externalId     = Mvp.externalId(data.productVariantForm, data.productVariantShadow)
+    val trackInventory = Mvp.trackInventory(data.productVariantForm, data.productVariantShadow)
 
     CordResponseLineItem(imagePath = image,
-                         sku = data.sku.code,
+                         sku = data.productVariant.code,
                          referenceNumbers = Seq(data.lineItemReferenceNumber),
                          state = data.lineItemState,
                          name = title,

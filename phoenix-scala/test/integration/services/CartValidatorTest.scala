@@ -5,7 +5,7 @@ import failures.CartFailures._
 import models.Reasons
 import models.cord._
 import models.cord.lineitems._
-import models.inventory.Skus
+import models.inventory.ProductVariants
 import models.objects._
 import models.payment.creditcard.CreditCards
 import models.payment.giftcard._
@@ -149,11 +149,12 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
       product       ← * <~ Products.mustFindById404(productData.productId)
       productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
       productShadow ← * <~ ObjectShadows.mustFindById404(product.shadowId)
-      sku           ← * <~ Skus.mustFindById404(productData.skuId)
+      sku           ← * <~ ProductVariants.mustFindById404(productData.skuId)
       skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      items         ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = sku.id))
-      _             ← * <~ CartTotaler.saveTotals(cart)
+      items ← * <~ CartLineItems.create(
+                 CartLineItem(cordRef = cart.refNum, productVariantId = sku.id))
+      _ ← * <~ CartTotaler.saveTotals(cart)
     } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme
 
     val grandTotal = refresh(cart).grandTotal
@@ -165,11 +166,12 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
       product       ← * <~ Products.mustFindById404(productData.productId)
       productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
       productShadow ← * <~ ObjectShadows.mustFindById404(product.shadowId)
-      sku           ← * <~ Skus.mustFindById404(productData.skuId)
+      sku           ← * <~ ProductVariants.mustFindById404(productData.skuId)
       skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      items         ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = sku.id))
-      _             ← * <~ CartTotaler.saveTotals(cart)
+      items ← * <~ CartLineItems.create(
+                 CartLineItem(cordRef = cart.refNum, productVariantId = sku.id))
+      _ ← * <~ CartTotaler.saveTotals(cart)
     } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme
 
     val grandTotal = refresh(cart).grandTotal

@@ -4,13 +4,13 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.control.NonFatal
 
-import consumer.JsonProcessor
-import consumer.PassthroughSource
+import consumer.{ErrorTryAgainLater, JsonProcessor, PassthroughSource}
 import consumer.elastic.mappings._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import com.sksamuel.elastic4s.ElasticDsl._
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.client.transport.NoNodeAvailableException
+import org.elasticsearch.index.IndexNotFoundException
 import org.elasticsearch.transport.RemoteTransportException
 import org.json4s.JsonAST._
 import org.json4s.jackson.JsonMethods.parse
@@ -98,6 +98,12 @@ class ScopedIndexer(uri: String,
     Console.out.println(s"Scoped Indexing $topic into $scopedIndexName")
     val req = client.execute {
       index into scopedIndexName / topic id documentId doc PassthroughSource(document)
+    }.map { _ ⇒
+      ()
+    }.recover {
+      case e: RemoteTransportException if e.getCause.isInstanceOf[IndexNotFoundException] ⇒
+        Console.out.println(s"Index $scopedIndexName not found, let's try later")
+        throw ErrorTryAgainLater(s"Index $scopedIndexName not found")
     }
 
     req onFailure {

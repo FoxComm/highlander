@@ -3,7 +3,7 @@
 import _ from 'lodash';
 import { get, assoc } from 'sprout-data';
 import { createReducer, createAction } from 'redux-act';
-import createAsyncActions from './async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 import Api from '../lib/api';
 
 type Module = {
@@ -46,7 +46,8 @@ const initialState: State = {
 };
 
 function actionPath(entity: string, action: string) {
-  return `${entity}${_.upperFirst(action)}`;
+  const sanitizedEntity = _.camelCase(entity);
+  return `${sanitizedEntity}${_.upperFirst(action)}`;
 }
 
 /**
@@ -57,6 +58,7 @@ function actionPath(entity: string, action: string) {
  * @returns {{reducer: (), actions: {}}}
  */
 export default function createImagesModule(entity: string): Module {
+  const stateNamespace = _.camelCase(entity);
 
   /** Internal actions */
 
@@ -208,7 +210,7 @@ export default function createImagesModule(entity: string): Module {
    * @param {ImageFile} image Updated image object
    */
   const editImage = (context: string, albumId: number, idx: number, image: ImageFile) => (dispatch, getState) => {
-    let album = get(getState(), [entity, 'images', 'albums']).find((album: Album) => album.id === albumId);
+    let album = get(getState(), [stateNamespace, 'images', 'albums']).find((album: Album) => album.id === albumId);
 
     album = assoc(album, ['images', idx], image);
 
@@ -225,7 +227,7 @@ export default function createImagesModule(entity: string): Module {
    * @param {Number} idx Image index to delete
    */
   const deleteImage = (context: string, albumId: number, idx: number) => (dispatch, getState) => {
-    let album = get(getState(), [entity, 'images', 'albums']).find((album: Album) => album.id === albumId);
+    let album = get(getState(), [stateNamespace, 'images', 'albums']).find((album: Album) => album.id === albumId);
 
     album = assoc(album, ['images'], [...album.images.slice(0, idx), ...album.images.slice(idx + 1)]);
 

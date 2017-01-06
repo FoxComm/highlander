@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "aglio-theme-olio": "1.6.3",
-    "aglio": "2.3.0"
+    "aglio": "2.3.0",
+    "graceful-fs": "4.1.11"
   }
 }
