@@ -45,6 +45,7 @@ const SaveCancel = props => {
         </Link>
     ) : (
       <a
+        id="modal-cancel-btn"
         onClick={onCancel}
         className={classNames('fc-btn-link', cancelClassName)}
         href="javascript:void(0)"
@@ -57,6 +58,7 @@ const SaveCancel = props => {
   const saveControl = onSave
     ? (
       <PrimaryButton
+        id="modal-confirm-btn"
         onClick={onSave}
         className={saveClassName}
         tabIndex={cancelTabIndex}
@@ -84,6 +86,7 @@ const SaveCancel = props => {
 };
 
 SaveCancel.propTypes = {
+  id: PropTypes.string,
   className: PropTypes.string,
   cancelTabIndex: PropTypes.string,
   cancelTo: PropTypes.string,

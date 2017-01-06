@@ -56,7 +56,7 @@ const ConfirmationDialog = (props: Props): Element => {
           {props.body}
         </div>
         <div className='fc-modal-footer'>
-          <a id="modal-close-btn_footer" tabIndex="2" className='fc-modal-close' onClick={() => props.onCancel()}>
+          <a id="modal-cancel-btn" tabIndex="2" className='fc-modal-close' onClick={() => props.onCancel()}>
             {props.cancel}
           </a>
           <PrimaryButton id="modal-confirm-btn"
