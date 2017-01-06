@@ -17,11 +17,11 @@ defmodule Solomon.Router do
     post "/scopes/:id/admin_role", ScopeController, :create_admin_role
     resources "/systems", SystemController
     resources "/permissions", PermissionController
-    resources "/accounts", AccountController do 
+    resources "/accounts", AccountController do
       resources "/granted_roles", AccountRoleController
     end
     post "/sign_in", UserController, :sign_in
     resources "/users", UserController
-    get "/ping", Ping, :ping
+    get "/ping", PingController, :ping
   end
 end
