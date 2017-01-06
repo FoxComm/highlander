@@ -10,7 +10,10 @@ import TabView from '../tabs/tab';
 import { Link, IndexLink } from '../link';
 
 const InventoryItemDetailsBase = (props, context) => {
-  const transactionsTabActive = context.router.isActive({name: 'product-variant-inventory-transactions', params: props.params});
+  const transactionsTabActive = context.router.isActive({
+    name: 'product-variant-inventory-transactions',
+    params: props.params,
+  });
 
   return (
     <div className="fc-inventory-item-details">
