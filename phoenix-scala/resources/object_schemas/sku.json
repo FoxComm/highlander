@@ -123,7 +123,7 @@
           "units": ["in", "cm"]
         },
         "requiresInventoryTracking": {
-          "type": "bool",
+          "type": "boolean",
           "widget": "booleanOptions",
           "title": "Item requires inventory tracking"
         },
@@ -131,7 +131,7 @@
           "type": "object",
           "properties": {
             "isEnabled": {
-              "type": "bool"
+              "type": "boolean"
             },
             "level": {
               "type": "number"
@@ -142,7 +142,7 @@
           "type": "object",
           "properties": {
             "isEnabled": {
-              "type": "bool"
+              "type": "boolean"
             },
             "level": {
               "type": "number"
@@ -153,7 +153,7 @@
           "type": "object",
           "properties": {
             "isEnabled": {
-              "type": "bool"
+              "type": "boolean"
             },
             "level": {
               "type": "number"
@@ -161,17 +161,17 @@
           }
         },
         "allowBackorder": {
-          "type": "bool",
+          "type": "boolean",
           "widget": "booleanOptions",
           "title": "Allow Backorder"
         },
         "allowPreorder": {
-          "type": "bool",
+          "type": "boolean",
           "widget": "booleanOptions",
           "title": "Allow Preorder"
         },
         "requiresLotTracking": {
-          "type": "bool",
+          "type": "boolean",
           "widget": "booleanOptions",
           "title": "Item requires lot tracking"
         },
