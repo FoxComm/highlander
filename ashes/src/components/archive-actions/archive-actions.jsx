@@ -9,6 +9,7 @@ import { Button } from '../common/buttons';
 import ArchiveConfirmation from './archive-confirmation';
 
 type Props = {
+  id:string,
   title: string,
   type: string,
   archive: Function,
@@ -56,6 +57,7 @@ class ArchiveActions extends Component {
     return (
       <div className="fc-archive-actions">
         <Button
+          id="archive-btn"
           type="button"
           onClick={this.showArchiveConfirmation}>
           Archive {this.props.type}
