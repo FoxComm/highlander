@@ -278,13 +278,8 @@ export default class ObjectFormInner extends Component {
       });
     }
 
-    const onInputChange = v => this.handleChange(name, 'unitInput', {
-      ...assoc(value, 'value', v)
-    });
-
-    const onUnitChange = v => this.handleChange(name, 'unitInput', {
-      ...assoc(value, 'units', v)
-    });
+    const onInputChange = v => this.handleChange(name, 'unitInput', assoc(value, 'value', v));
+    const onUnitChange = v => this.handleChange(name, 'unitInput', assoc(value, 'units', v));
 
     const input = (
       <input
