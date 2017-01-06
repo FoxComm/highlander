@@ -14,6 +14,7 @@ import styles from './home-page.css';
 const mainBlocks = [
   {
     imageUrl: '/images/home-page/Home_Page_Holidays_NEW_2x.jpg',
+    description: '',
     title: 'Make Every Day A Reason to Celebrate',
     action: { title: 'Shop Entrées', link: '/ENTRÉES' },
   },
