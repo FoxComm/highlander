@@ -73,16 +73,17 @@ func (service *inventoryService) GetStockItemById(id uint) (*models.StockItem, e
 }
 
 func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error) {
-	if err := service.stockItemRepo.UpsertStockItem(stockItem); err != nil {
-		return nil, err
-	}
-
-	err := service.summaryService.CreateStockItemSummary(stockItem.ID)
+	item, err := service.stockItemRepo.CreateStockItem(stockItem)
 	if err != nil {
 		return nil, err
 	}
 
-	return stockItem, nil
+	err = service.summaryService.CreateStockItemSummary(item.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return item, nil
 }
 
 func (service *inventoryService) GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error) {

@@ -19,7 +19,6 @@ type stockItemRepository struct {
 type IStockItemRepository interface {
 	GetStockItems() ([]*models.StockItem, error)
 	GetStockItemById(id uint) (*models.StockItem, error)
-	GetStockItemsBySKUs(skus []string) ([]*models.StockItem, error)
 	GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error)
 	GetAFSBySKU(sku string, unitType models.UnitType) (*models.AFS, error)
 
@@ -52,13 +51,6 @@ func (repository *stockItemRepository) GetStockItemById(id uint) (*models.StockI
 	}
 
 	return si, nil
-}
-
-func (repository *stockItemRepository) GetStockItemsBySKUs(skus []string) ([]*models.StockItem, error) {
-	items := []*models.StockItem{}
-	err := repository.db.Where("sku in (?)", skus).Find(&items).Error
-
-	return items, err
 }
 
 func (repository *stockItemRepository) GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error) {
@@ -108,6 +100,7 @@ func (repository *stockItemRepository) DeleteStockItem(stockItemId uint) error {
 }
 
 func (repository *stockItemRepository) UpsertStockItem(item *models.StockItem) error {
+	fmt.Printf("To upsert: %v\n", item)
 	onConflict := fmt.Sprintf(
 		"ON CONFLICT (sku_id, stock_location_id) DO UPDATE SET default_unit_cost = '%d'",
 		item.DefaultUnitCost,
