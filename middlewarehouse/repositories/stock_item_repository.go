@@ -109,7 +109,7 @@ func (repository *stockItemRepository) DeleteStockItem(stockItemId uint) error {
 
 func (repository *stockItemRepository) UpsertStockItem(item *models.StockItem) error {
 	onConflict := fmt.Sprintf(
-		"ON CONFLICT (sku, stock_location_id) DO UPDATE SET default_unit_cost = '%d'",
+		"ON CONFLICT (sku_id, stock_location_id) DO UPDATE SET default_unit_cost = '%d'",
 		item.DefaultUnitCost,
 	)
 
@@ -123,7 +123,7 @@ func (repository *stockItemRepository) UpsertStockItem(item *models.StockItem) e
 func (repository *stockItemRepository) getAFSQuery(unitType models.UnitType) *gorm.DB {
 	return repository.db.
 		Table("stock_items si").
-		Select("si.id as stock_item_id, si.sku, s.afs").
+		Select("si.id as stock_item_id, si.sku_id, s.afs").
 		Joins("left join stock_item_summaries s ON s.stock_item_id=si.id").
 		Where("s.type = ?", unitType)
 }

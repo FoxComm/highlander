@@ -4,7 +4,7 @@ import "time"
 
 type StockItemTransaction struct {
 	ID             uint
-	StockItemId    uint
+	StockItemID    uint
 	Type           UnitType
 	Status         UnitStatus
 	QuantityNew    uint

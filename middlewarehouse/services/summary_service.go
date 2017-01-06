@@ -109,7 +109,7 @@ func (service *summaryService) CreateStockItemTransaction(summary *models.StockI
 	}
 
 	transaction := &models.StockItemTransaction{
-		StockItemId:    summary.StockItemID,
+		StockItemID:    summary.StockItemID,
 		Type:           summary.Type,
 		Status:         status,
 		QuantityNew:    getStatusAmountChange(summary, status),

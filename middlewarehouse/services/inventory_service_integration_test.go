@@ -30,6 +30,7 @@ func (suite *InventoryServiceIntegrationTestSuite) SetupSuite() {
 	suite.db = config.TestConnection()
 
 	tasks.TruncateTables(suite.db, []string{
+		"skus",
 		"stock_locations",
 	})
 
@@ -45,14 +46,12 @@ func (suite *InventoryServiceIntegrationTestSuite) SetupSuite() {
 
 	suite.sl, _ = stockLocationService.CreateLocation(fixtures.GetStockLocation())
 
-	sku := fixtures.GetSKU()
-	suite.db.Create(sku)
-	suite.sku = sku
+	suite.sku = fixtures.GetSKU()
+	suite.Nil(suite.db.Create(suite.sku).Error)
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) SetupTest() {
 	tasks.TruncateTables(suite.db, []string{
-		"skus",
 		"stock_items",
 		"stock_item_units",
 		"stock_item_summaries",
@@ -70,7 +69,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_CreateStockItem_SummaryC
 	_, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku.ID))
 	suite.Nil(err)
 
-	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku.Code)
+	summary, err := suite.summaryService.GetSummaryBySkuID(suite.sku.ID)
 
 	suite.Nil(err)
 	suite.Equal(4, len(summary))
@@ -81,7 +80,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_IncrementStockItemUnits_
 	suite.Nil(err)
 	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5)))
 
-	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku.Code)
+	summary, err := suite.summaryService.GetSummaryBySkuID(suite.sku.ID)
 
 	suite.Nil(err)
 	suite.Equal(5, summary[0].OnHand)
@@ -95,7 +94,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_IncrementStockItemUnits_
 	suite.Nil(suite.service.WithTransaction(txn).IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5)))
 	txn.Commit()
 
-	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku.Code)
+	summary, err := suite.summaryService.GetSummaryBySkuID(suite.sku.ID)
 
 	suite.Nil(err)
 	suite.Equal(5, summary[0].OnHand)
@@ -111,7 +110,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_DecrementStockItemUnits_
 	err = suite.service.DecrementStockItemUnits(stockItem.ID, models.Sellable, 7)
 	suite.Nil(err)
 
-	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku.Code)
+	summary, err := suite.summaryService.GetSummaryBySkuID(suite.sku.ID)
 
 	suite.Nil(err)
 	suite.Equal(3, summary[0].OnHand)
@@ -155,10 +154,10 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_MultipleSKU
 
 	suite.Nil(suite.service.HoldItems(holdPayload))
 
-	summary1, err := suite.summaryService.GetSummaryBySKU(sku1.Code)
+	summary1, err := suite.summaryService.GetSummaryBySkuID(sku1.ID)
 	suite.Nil(err)
 
-	summary2, err := suite.summaryService.GetSummaryBySKU(sku2.Code)
+	summary2, err := suite.summaryService.GetSummaryBySkuID(sku2.ID)
 	suite.Nil(err)
 
 	suite.Equal(2, summary1[0].OnHold)
@@ -191,7 +190,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_SubsequentS
 
 	suite.Nil(suite.service.HoldItems(holdPayload))
 
-	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku.Code)
+	summary, err := suite.summaryService.GetSummaryBySkuID(suite.sku.ID)
 	suite.Nil(err)
 
 	suite.Equal(3, summary[0].OnHold)
@@ -224,7 +223,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_SubsequentS
 
 	suite.Nil(suite.service.HoldItems(holdPayload2))
 
-	summary, err = suite.summaryService.GetSummaryBySKU(suite.sku.Code)
+	summary, err = suite.summaryService.GetSummaryBySkuID(suite.sku.ID)
 	suite.Nil(err)
 
 	suite.Equal(8, summary[0].OnHold)
@@ -248,7 +247,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_Summary() {
 
 	suite.Nil(suite.service.ReleaseItems(holdPayload.OrderRefNum))
 
-	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku.Code)
+	summary, err := suite.summaryService.GetSummaryBySkuID(suite.sku.ID)
 	suite.Nil(err)
 
 	suite.Equal(0, summary[0].OnHold, "No stock item units should be onHold")
@@ -264,7 +263,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_Summary() {
 // 	suite.Nil(suite.service.ReserveItems(refNum))
 // 	suite.Nil(suite.service.ShipItems(refNum))
 
-// 	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku)
+// 	summary, err := suite.summaryService.GetSummaryBySkuID(suite.sID
 // 	suite.Nil(err)
 
 // 	suite.Equal(0, summary[0].OnHand, "No stock item units should be onHand")
