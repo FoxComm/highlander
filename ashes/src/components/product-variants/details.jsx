@@ -71,7 +71,7 @@ export default class SkuDetails extends ObjectDetails {
   @autobind
   handleChange(value: any, field: string|Array<string>, ref: string) {
     const attributes = assoc(this.props.object.attributes, field, value);
-    const sku = assoc(this.props.object, "attributes", attributes);
+    const sku = assoc(this.props.object, 'attributes', attributes);
 
     this.props.onUpdateObject(sku);
     this.refs[ref].validate();
@@ -144,7 +144,9 @@ export default class SkuDetails extends ObjectDetails {
             id="inventoryWarningLevel"
             name="inventoryWarningLevel"
             value={level}
-            onChange={({target}) => this.handleChange(target.value, ['inventoryWarningLevel', 'level'], 'inventoryWarningField')}
+            onChange={({target}) => {
+              this.handleChange(target.value, ['inventoryWarningLevel', 'level'], 'inventoryWarningField');
+            }}
             disabled={!isEnabled}
           />
           <label htmlFor="inventoryWarningLevel">AFS</label>

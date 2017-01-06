@@ -8,7 +8,7 @@ import { createAction, createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 import _ from 'lodash';
 
-import { createEmptyProductVariant } from 'paragons/product-variant';
+import { createEmptyProductVariant, configureProductVariant } from 'paragons/product-variant';
 
 import { pushStockItemChanges } from '../inventory/warehouses';
 
@@ -93,7 +93,7 @@ const initialState: ProductVariantState = {
 function updateProductVariantInState(state: ProductVariantState, productVariant: ProductVariant) {
   return {
     ...state,
-    productVariant,
+    productVariant: configureProductVariant(productVariant),
   };
 }
 

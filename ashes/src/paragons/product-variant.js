@@ -66,6 +66,12 @@ export const productVariantEmptyAttributes = {
   }
 };
 
+export function configureProductVariant(productVariant: ProductVariant): ProductVariant {
+  _.defaults(productVariant.attributes, productVariantEmptyAttributes);
+
+  return productVariant;
+}
+
 // HACK
 function isMerchant(): boolean {
   const jwt = getJWT();
