@@ -16,13 +16,14 @@ type Props = {
   increaseAction: Function,
   className: string,
   disabled: boolean,
+  counterId: string,
 };
 
 const Counter = (props: Props) => {
   const { decreaseAction, increaseAction, disabled, value, min, max, ...rest } = props;
 
   return (
-    <div className="fc-input-group fc-counter">
+    <div id={props.counterId} className="fc-input-group fc-counter">
       <div className="fc-input-prepend">
         <DecrementButton
           type="button"

@@ -49,6 +49,7 @@ export default class PromotionForm extends ObjectDetails {
       >
         <div>
           <Dropdown
+            id="apply-type-dd"
             placeholder="- Select -"
             value={promotion.applyType}
             onChange={this.handleApplyTypeChange}
