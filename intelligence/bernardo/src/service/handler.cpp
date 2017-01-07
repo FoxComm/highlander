@@ -4,6 +4,8 @@
 #include <folly/dynamic.h>
 #include <folly/json.h>
 
+#include <boost/lexical_cast.hpp>
+
 #include <sstream>
 
 
@@ -128,17 +130,21 @@ namespace bernardo::service
                 ("ref", result.cluster->reference)
                 ("traits", result.cluster->traits)
                 ("dist", result.distance);
+
+            proxygen::ResponseBuilder{downstream_}
+            .body(folly::toJson(response))
+                .status(200, "OK")
+                .sendWithEOM();
         }
         else
         {
-            response = folly::dynamic::object
-                ("id", result.cluster->id);
-        }
+            auto id = result.cluster->id;
 
-        proxygen::ResponseBuilder{downstream_}
-        .body(folly::toJson(response))
-        .status(200, "OK")
-            .sendWithEOM();
+            proxygen::ResponseBuilder{downstream_}
+            .body(boost::lexical_cast<std::string>(id))
+                .status(200, "OK")
+                .sendWithEOM();
+        }
     }
 
 
