@@ -134,14 +134,23 @@ func (service *inventoryService) HoldItems(payload *payloads.Hold) error {
 		stockItemQty, ok := stockItemsMap[unit.StockItemID]
 		if ok {
 			qty = qty + stockItemQty
-		} else {
-			qty = stockItemQty
 		}
+		stockItemsMap[unit.StockItemID] = qty
 	}
 
 	statusShift := models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold}
 
-	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)
+	if err := service.updateSummary(stockItemsMap, models.Sellable, statusShift); err != nil {
+		service.txn.Rollback()
+		return err
+	}
+
+	if err := service.txn.Commit().Error; err != nil {
+		return err
+	}
+
+	service.txn = nil
+	return nil
 }
 
 func (service *inventoryService) ReserveItems(refNum string) error {

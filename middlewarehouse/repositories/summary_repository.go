@@ -5,6 +5,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/logging"
 	"github.com/FoxComm/highlander/middlewarehouse/common/transaction"
 	"github.com/jinzhu/gorm"
 )
@@ -59,21 +60,24 @@ func (repository *summaryRepository) GetSummary() ([]*models.StockItemSummary, e
 }
 
 func (repository *summaryRepository) GetSummaryBySkuID(skuID uint) ([]*models.StockItemSummary, error) {
-	summary := []*models.StockItemSummary{}
+	summaries := []*models.StockItemSummary{}
 	err := repository.db.
 		Preload("StockItem").
 		Preload("StockItem.StockLocation").
 		Joins("left join stock_items si ON stock_item_summaries.stock_item_id=si.id").
 		Where("si.sku_id = ?", skuID).
 		Order("created_at").
-		Find(&summary).
+		Find(&summaries).
 		Error
 
-	if len(summary) == 0 {
+	if len(summaries) == 0 {
 		return nil, fmt.Errorf(ErrorSummaryForSKUNotFound, skuID)
 	}
 
-	return summary, err
+	for _, summary := range summaries {
+		logSummary(summary, "GetSummaryBySkuID: Retrieved summary")
+	}
+	return summaries, err
 }
 
 func (repository *summaryRepository) GetSummaryItemByType(stockItemId uint, unitType models.UnitType) (*models.StockItemSummary, error) {
@@ -112,15 +116,29 @@ func (repository *summaryRepository) CreateStockItemSummary(summary []*models.St
 }
 
 func (repository *summaryRepository) UpdateStockItemSummary(summary *models.StockItemSummary) error {
+	logSummary(summary, "UpdatingStockItemSummary: Before updating the summary")
 	err := repository.db.Save(summary).Error
 
 	if err == gorm.ErrRecordNotFound {
 		return fmt.Errorf(ErrorSummaryNotFound, summary.ID)
 	}
 
+	logSummary(summary, "UpdatingStockItemSummary: After updating the summary")
 	return err
 }
 
 func (repository *summaryRepository) CreateStockItemTransaction(transaction *models.StockItemTransaction) error {
 	return repository.db.Create(transaction).Error
+	// return nil
+}
+
+func logSummary(summary *models.StockItemSummary, message string) {
+	logging.Log.Debugf(message, logging.M{
+		"ID":       summary.ID,
+		"Type":     summary.Type,
+		"OnHand":   summary.OnHand,
+		"OnHold":   summary.OnHold,
+		"Reserved": summary.Reserved,
+		"Shipped":  summary.Shipped,
+	})
 }

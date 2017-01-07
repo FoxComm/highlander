@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/FoxComm/highlander/middlewarehouse/common/logging"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
@@ -89,6 +90,15 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 
 	summary = updateAfs(summary, status, qty)
 	summary = updateAfsCost(summary, stockItem)
+
+	logging.Log.Debugf("Updating the summary", logging.M{
+		"stockItemID": stockItemId,
+		"Type":        summary.Type,
+		"OnHand":      summary.OnHand,
+		"OnHold":      summary.OnHold,
+		"Reserved":    summary.Reserved,
+		"Shipped":     summary.Shipped,
+	})
 
 	// update stock item summary values
 	if err := service.getSummaryRepo().UpdateStockItemSummary(summary); err != nil {

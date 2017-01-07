@@ -133,8 +133,8 @@ func (repository *stockItemUnitRepository) HoldUnitForLineItem(skuID uint, order
 	}
 
 	updateMap := map[string]interface{}{
-		"order_ref_num":     orderRefNum,
-		"line_item_ref_num": lineItemRefNum,
+		"order_ref_num":           orderRefNum,
+		"order_line_item_ref_num": lineItemRefNum,
 	}
 
 	err = repository.db.Model(unit).Updates(updateMap).Error
