@@ -29,7 +29,7 @@ namespace bernardo::service
             void onError(proxygen::ProxygenError err) noexcept override; 
 
         private:
-            void find();
+            void find(const bool detailed_response);
             void ping();
             void is404();
 

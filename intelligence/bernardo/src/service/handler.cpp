@@ -25,8 +25,10 @@ namespace bernardo::service
         {
             if(!_msg) return;
 
-            if(_msg->getPath() == "/find") 
-                find();
+            if(_msg->getPath() == "/sfind")  //returns simple response
+                find(false);
+            else if(_msg->getPath() == "/find")  //returns detailed response
+                find(true);
             else if(_msg->getPath() == "/ping") 
                 ping();
             else
@@ -91,7 +93,7 @@ namespace bernardo::service
         return q;
     }
 
-    void query_request_handler::find()
+    void query_request_handler::find(const bool detailed_response)
     {
         if(!_body) throw std::invalid_argument{"payload expected"};
 
@@ -117,16 +119,28 @@ namespace bernardo::service
             throw std::invalid_argument{s.str()};
         }
 
-        folly::dynamic response = folly::dynamic::object
-            ("ref", result.cluster->reference)
-            ("traits", result.cluster->traits)
-            ("dist", result.distance);
+        folly::dynamic response;
+
+        if(detailed_response)
+        {
+            response = folly::dynamic::object
+                ("id", result.cluster->id)
+                ("ref", result.cluster->reference)
+                ("traits", result.cluster->traits)
+                ("dist", result.distance);
+        }
+        else
+        {
+            response = folly::dynamic::object
+                ("id", result.cluster->id);
+        }
 
         proxygen::ResponseBuilder{downstream_}
         .body(folly::toJson(response))
         .status(200, "OK")
             .sendWithEOM();
     }
+
 
     void query_request_handler::ping()
     {
