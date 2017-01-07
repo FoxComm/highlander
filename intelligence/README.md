@@ -7,4 +7,5 @@ The projects are detailed below.
 | Project                                | Description                                                                                                  |
 |:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
 | [bernardo](bernardo)                   | Bernardo is maps objects to clusters. Clusters contain sets of context sets for objects in the object store.|
+| [river-rock](river-rock)               | Contains Kafka consumers that process various topics. |
 | [consumers](consumers)                 | Contains Kafka consumers that process various topics. |
