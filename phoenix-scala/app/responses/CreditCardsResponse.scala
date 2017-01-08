@@ -33,8 +33,6 @@ object CreditCardsResponse {
          expMonth = cc.expMonth,
          expYear = cc.expYear,
          isDefault = cc.isDefault,
-         address1Check = cc.address1Check,
-         zipCheck = cc.zipCheck,
          inWallet = cc.inWallet,
          brand = cc.brand,
          address = AddressResponse.buildFromCreditCard(cc, region))
@@ -61,8 +59,6 @@ object CreditCardsResponse {
                expMonth = cc.expMonth,
                expYear = cc.expYear,
                isDefault = cc.isDefault,
-               address1Check = cc.address1Check,
-               zipCheck = cc.zipCheck,
                inWallet = cc.inWallet,
                brand = cc.brand)
 }
