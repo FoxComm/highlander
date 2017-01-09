@@ -19,11 +19,11 @@ node {
     }
 
     stage('Build Docker Images') {
-      sh 'make docker'
+      sh "DOCKER_BRANCH=${env.BRANCH} make docker"
     }
 
     stage('Push Docker Images') {
-      sh 'make docker-push'
+      sh "DOCKER_BRANCH=${env.BRANCH} make docker-push"
     }
   } catch (e) {
     currentBuild.result = "FAILED"
