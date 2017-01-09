@@ -1,10 +1,17 @@
 // libs
-import { get } from 'sprout-data';
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { LineChart} from 'rd3';
-import * as d3 from 'd3';
+import {
+  VictoryScatter,
+  VictoryLine,
+  VictoryChart,
+  VictoryAxis,
+  VictoryLabel,
+  VictoryTooltip,
+  VictoryGroup,
+} from 'victory';
+import moment from 'moment';
 
 // components
 import ErrorAlerts from '../alerts/error-alerts';
@@ -17,12 +24,13 @@ import * as InsightActions from '../../modules/insights';
 
 const verbs = {
   product: {
-  list: 'Shown in Category',
-  pdp: 'Viewed Pdp'
+    list: 'Shown in Category',
+    pdp: 'Viewed Pdp',
+    cart: 'Added To Cart',
   }
 }; 
 
-const colors = ["#2ca02c", "#ff7f0e"];
+const colors = ["#2ca02c", "#ff7f0e", "#662ca0"];
 
 @connect((state, props) => ({insights: state.insights}), InsightActions)
 export default class Insights extends React.Component {
@@ -69,6 +77,82 @@ export default class Insights extends React.Component {
     this.props.fetchInsights(keys, from, to, sizeSec, stepSec);
   }
 
+  @autobind
+  legend(label, color, x, y) {
+    return (
+      <VictoryLabel
+        x={x}
+        y={y}
+        style={{fontSize: 8, fill: `${color}`}}
+        text={label}
+      />
+    );
+  }
+
+  @autobind
+  newChart(allData) {
+    const title = { x: 25, y: 12, size: 12, text: "Last 60 Minutes" };
+    return (
+      <VictoryChart
+        domainPadding={20}>
+        <VictoryLabel
+          x={title.x}
+          y={title.y}
+          style={{fontSize: title.size}}
+          text={title.text}
+        />
+        {_.map(allData, (dataSet, i) => {
+          return this.legend(dataSet.name, colors[i], title.x, title.y + (i + 1) * 8)
+        })}
+        <VictoryAxis
+          label="Time"
+          scale="time"
+          tickFormat={(unixTimestamp) => {
+            return moment(unixTimestamp).format('h:mm A');
+          }}/>
+        <VictoryAxis
+          dependentAxis
+          label="Count"
+          tickFormat={(count) => (count)}/>
+        {
+          _.map(allData, (dataSet, i) => {
+            const values = dataSet.values;
+            const color = colors[i];
+
+            _.map(values, (value) => {
+              value.label = value.y;
+            });
+
+            return (
+              <VictoryGroup
+                data={values}>
+                <VictoryScatter
+                  labelComponent={
+                    <VictoryTooltip
+                      cornerRadius={0}
+                      pointerLength={0}
+                      style={{fill: color}}
+                      flyoutStyle={{stroke: color}}
+                      labels={(value) => (value.y)}
+                    />
+                  }
+                  style={{
+                    data: { fill: color, opacity: (value) => value.y == 0 ? 0 : 1 }
+                  }}
+                  x="x"
+                  y="y"/>
+                <VictoryLine
+                  style={{
+                    data: { stroke: color }
+                  }}/>
+              </VictoryGroup>
+            );
+          })
+        }
+      </VictoryChart>
+    );
+  }
+
   get content() {
     const { insights } = this.props;
 
@@ -76,7 +160,7 @@ export default class Insights extends React.Component {
       if (!insights.err) {
 
         const data = _.map(insights.values, (rawValues, k) => {
-          const values = rawValues.map((v) => {
+          let values = rawValues.map((v) => {
             return {
               x: new Date(v.x * 1000),
               y: v.y
@@ -93,23 +177,7 @@ export default class Insights extends React.Component {
           };
         });
 
-        return <LineChart
-          legend={true}
-          data={data}
-          colors={(idx) => colors[idx]}
-          width='100%'
-          height={400}
-          legendOffset={200}
-          viewBoxObject={{
-              x: 0,
-              y: 0,
-              width: 800,
-              height: 400
-          }}
-          title="Last 60 Minutes"
-          xAxisLabel="Time"
-          yAxisLabel="Count"
-          />;
+        return this.newChart(data);
       } else {
         return <ErrorAlerts error={insights.err} />;
       }
