@@ -5,7 +5,6 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
-	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
@@ -14,8 +13,7 @@ import (
 
 type StockLocationServiceTestSuite struct {
 	GeneralServiceTestSuite
-	repository *mocks.StockLocationRepositoryMock
-	service    IStockLocationService
+	service IStockLocationService
 }
 
 func TestStockLocationServiceSuite(t *testing.T) {
