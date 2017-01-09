@@ -38,6 +38,7 @@
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
+    - { role: dev/ic }
     - { role: dev/balancer }
     - { role: demo/balancer }
     - { role: dev/consumers }
