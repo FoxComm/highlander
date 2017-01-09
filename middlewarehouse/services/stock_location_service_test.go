@@ -43,87 +43,79 @@ func (suite *StockLocationServiceTestSuite) Test_GetLocations() {
 	locations, err := suite.service.GetLocations()
 
 	suite.Nil(err)
-	suite.Equal(models, locations)
-	suite.repository.AssertExpectations(suite.T())
+	suite.Equal(models[0].Name, locations[0].Name)
+	suite.Equal(models[0].Type, locations[0].Type)
+	suite.Equal(models[1].Name, locations[1].Name)
+	suite.Equal(models[1].Type, locations[1].Type)
 }
 
-// func (suite *StockLocationServiceTestSuite) Test_GetLocationByID() {
-// 	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
-// 	suite.repository.On("GetLocationByID", uint(1)).Return(model, nil).Once()
+func (suite *StockLocationServiceTestSuite) Test_GetLocationByID() {
+	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
+	suite.Nil(suite.db.Create(model).Error)
 
-// 	location, err := suite.service.GetLocationByID(1)
+	location, err := suite.service.GetLocationByID(1)
 
-// 	suite.Nil(err)
-// 	suite.Equal(model, location)
-// 	suite.repository.AssertExpectations(suite.T())
-// }
+	suite.Nil(err)
+	suite.Equal(model.Name, location.Name)
+	suite.Equal(model.Type, location.Type)
+}
 
-// func (suite *StockLocationServiceTestSuite) Test_GetLocationByID_NotFound() {
-// 	suite.repository.On("GetLocationByID", uint(1)).Return(nil, errors.New("Error")).Once()
+func (suite *StockLocationServiceTestSuite) Test_GetLocationByID_NotFound() {
+	location, err := suite.service.GetLocationByID(1)
 
-// 	location, err := suite.service.GetLocationByID(1)
+	suite.NotNil(err)
+	suite.Nil(location)
+}
 
-// 	suite.NotNil(err)
-// 	suite.Nil(location)
-// 	suite.repository.AssertExpectations(suite.T())
-// }
+func (suite *StockLocationServiceTestSuite) Test_CreateLocation() {
+	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
 
-// func (suite *StockLocationServiceTestSuite) Test_CreateLocation() {
-// 	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
-// 	suite.repository.On("CreateLocation", model).Return(model, nil).Once()
+	location, err := suite.service.CreateLocation(model)
 
-// 	location, err := suite.service.CreateLocation(model)
+	suite.Nil(err)
+	suite.Equal(model.Name, location.Name)
+	suite.Equal(model.Type, location.Type)
+}
 
-// 	suite.Nil(err)
-// 	suite.Equal(model, location)
-// 	suite.repository.AssertExpectations(suite.T())
-// }
+func (suite *StockLocationServiceTestSuite) Test_CreateLocation_Error() {
+	model := &models.StockLocation{Name: "Location Name 1", Type: "Wherehouse"}
 
-// func (suite *StockLocationServiceTestSuite) Test_CreateLocation_Error() {
-// 	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
-// 	suite.repository.On("CreateLocation", model).Return(nil, errors.New("Error")).Once()
+	location, err := suite.service.CreateLocation(model)
 
-// 	location, err := suite.service.CreateLocation(model)
+	suite.NotNil(err)
+	suite.Nil(location)
+}
 
-// 	suite.NotNil(err)
-// 	suite.Nil(location)
-// 	suite.repository.AssertExpectations(suite.T())
-// }
+func (suite *StockLocationServiceTestSuite) Test_UpdateLocation() {
+	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
+	suite.Nil(suite.db.Create(model).Error)
+	model.Name = "New Location Name"
 
-// func (suite *StockLocationServiceTestSuite) Test_UpdateLocation() {
-// 	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
-// 	suite.repository.On("UpdateLocation", model).Return(model, nil).Once()
+	location, err := suite.service.UpdateLocation(model)
 
-// 	location, err := suite.service.UpdateLocation(model)
+	suite.Nil(err)
+	suite.Equal(model.Name, location.Name)
+	suite.Equal(model.Type, location.Type)
+}
 
-// 	suite.Nil(err)
-// 	suite.Equal(model, location)
-// 	suite.repository.AssertExpectations(suite.T())
-// }
+func (suite *StockLocationServiceTestSuite) Test_UpdateLocation_Error() {
+	model := &models.StockLocation{Name: "Location Name 1", Type: "Wherehouse"}
 
-// func (suite *StockLocationServiceTestSuite) Test_UpdateLocation_Error() {
-// 	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
-// 	suite.repository.On("CreateLocation", model).Return(nil, errors.New("Error")).Once()
+	location, err := suite.service.CreateLocation(model)
 
-// 	location, err := suite.service.CreateLocation(model)
+	suite.NotNil(err)
+	suite.Nil(location)
+}
 
-// 	suite.NotNil(err)
-// 	suite.Nil(location)
-// 	suite.repository.AssertExpectations(suite.T())
-// }
+func (suite *StockLocationServiceTestSuite) Test_DeleteLocation() {
+	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
+	suite.Nil(suite.db.Create(model).Error)
 
-// func (suite *StockLocationServiceTestSuite) Test_DeleteLocation() {
-// 	suite.repository.On("DeleteLocation", uint(1)).Return(nil).Once()
+	err := suite.service.DeleteLocation(model.ID)
 
-// 	err := suite.service.DeleteLocation(1)
+	suite.Nil(err)
+}
 
-// 	suite.Nil(err)
-// }
-
-// func (suite *StockLocationServiceTestSuite) Test_DeleteLocation_Error() {
-// 	suite.repository.On("DeleteLocation", uint(1)).Return(errors.New("Error")).Once()
-
-// 	err := suite.service.DeleteLocation(1)
-
-// 	suite.NotNil(err)
-// }
+func (suite *StockLocationServiceTestSuite) Test_DeleteLocation_Error() {
+	suite.NotNil(suite.service.DeleteLocation(1))
+}
