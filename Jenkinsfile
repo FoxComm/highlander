@@ -1,3 +1,5 @@
+def branchName = env.JOB_NAME.replaceFirst('.+/', '')
+
 node {
   try {
     notifyBuild()
@@ -19,11 +21,11 @@ node {
     }
 
     stage('Build Docker Images') {
-      sh "DOCKER_BRANCH=${env.BRANCH} make docker"
+      sh "DOCKER_BRANCH=${branchName} make docker"
     }
 
     stage('Push Docker Images') {
-      sh "DOCKER_BRANCH=${env.BRANCH} make docker-push"
+      sh "DOCKER_BRANCH=${branchName} make docker-push"
     }
   } catch (e) {
     currentBuild.result = "FAILED"
