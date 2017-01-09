@@ -21,11 +21,11 @@ node {
     }
 
     stage('Build Docker Images') {
-      sh "DOCKER_BRANCH=${branchName} make docker"
+      sh "export DOCKER_BRANCH=${branchName} && make docker"
     }
 
     stage('Push Docker Images') {
-      sh "DOCKER_BRANCH=${branchName} make docker-push"
+      sh "export DOCKER_BRANCH=${branchName} && make docker-push"
     }
   } catch (e) {
     currentBuild.result = "FAILED"
