@@ -2,8 +2,9 @@ package main
 
 import (
     "log"
+    "errors"
 	//"net/http"
-    //"encoding/json"
+    "encoding/json"
     "net/http"
     "net/http/httputil"
     "net/url"
@@ -33,6 +34,27 @@ func getRefs(db* sql.DB, clusterId int, res string) (string, error) {
     return refs, nil
 }
 
+func selectRefFromArray(clusterId int, refs []interface{}, encodedRefs string) (string, error) {
+    return "", nil
+
+}
+
+func selectRef(clusterId int, encodedRefs string) (string, error) { 
+    var refs interface{}
+    refBytes := []byte(encodedRefs)
+    if err := json.Unmarshal(refBytes, &refs); err != nil {
+        log.Print(err)
+        return "", err
+    }
+
+    switch refs.(type) {
+        case string:  
+            return refs.(string), nil
+        case []interface{}: 
+            return selectRefFromArray(clusterId, refs.([]interface{}), encodedRefs)
+    }
+    return "", errors.New("unable to map refs json to a valid type: " + encodedRefs) 
+}
 
 func main() {
    	db, err := sql.Open("postgres", "user=ic dbname=ic sslmode=disable")
@@ -56,11 +78,20 @@ func main() {
         refs, err := getRefs(db, clusterId, path)
 
         proxy := httputil.NewSingleHostReverseProxy(fallback)
+
         if err != nil {
             log.Print(err)
             proxy.ServeHTTP(res, req)
         } else {
             log.Print("REFS: " + refs)
+
+            ref, err := selectRef(clusterId, refs)
+            if err != nil {
+                log.Print(err)
+            } else {
+                req.URL.Path = ref
+            }
+
             proxy.ServeHTTP(res, req)
         }
 
