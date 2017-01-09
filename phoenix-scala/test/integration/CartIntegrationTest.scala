@@ -1,11 +1,11 @@
 import akka.http.scaladsl.model.StatusCodes
-
 import cats.implicits._
 import failures.CartFailures._
 import failures.LockFailures._
 import failures.ShippingMethodFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
 import faker.Lorem
+import models.Reasons
 import models.cord._
 import models.cord.lineitems._
 import models.location._
@@ -23,6 +23,7 @@ import responses.cord.CartResponse
 import responses.cord.base.CordResponseLineItem
 import responses.{CustomerResponse, TheResponse}
 import models.cord.CordPaymentState
+import models.payment.giftcard.{GiftCard, GiftCardManual, GiftCardManuals, GiftCards}
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import testutils._
@@ -68,7 +69,7 @@ class CartIntegrationTest
     }
 
     "returns correct image path" in new Fixture {
-      val imgUrl = "testImgUrl";
+      val imgUrl = "testImgUrl"
       (for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
         _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
@@ -79,12 +80,37 @@ class CartIntegrationTest
       fullCart.lineItems.skus.head.imagePath must === (imgUrl)
     }
 
-    "empty paymenth methods having a guest customer" in new Fixture {
+    "empty payment methods having a guest customer" in new Fixture {
       val guestCustomer = customersApi
         .create(CreateCustomerPayload(email = "foo@bar.com", isGuest = Some(true)))
         .as[CustomerResponse.Root]
       val fullCart = customersApi(guestCustomer.id).cart().as[CartResponse]
       fullCart.paymentMethods.size must === (0)
+    }
+
+    "calculates customer’s expenses considering in-store payments" in new Fixture
+    with ProductSku_ApiFixture {
+      cartsApi(cart.refNum).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
+
+      val giftCardAmount = 2500
+
+      (for {
+        reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
+        origin ← * <~ GiftCardManuals.create(
+                    GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+        giftCard ← * <~ GiftCards.create(
+                      Factories.giftCard.copy(originId = origin.id,
+                                              state = GiftCard.Active,
+                                              originalBalance = giftCardAmount))
+        payment ← * <~ OrderPayments.create(
+                     Factories.giftCardPayment.copy(cordRef = cart.refNum,
+                                                    amount = giftCardAmount.some,
+                                                    paymentMethodId = giftCard.id))
+      } yield ()).gimme
+
+      val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
+
+      fullCart.totals.customersExpenses must === (fullCart.totals.total - giftCardAmount)
     }
   }
 
@@ -484,7 +510,7 @@ class CartIntegrationTest
     val highSm: ShippingMethod = Factories.shippingMethods.head
       .copy(adminDisplayName = "High", conditions = highConditions.some, code = "LOW")
 
-    val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = ({
+    val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = {
       for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
         _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
@@ -497,7 +523,7 @@ class CartIntegrationTest
 
         _ ← * <~ CartTotaler.saveTotals(cart)
       } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)
-    }).gimme
+    }.gimme
   }
 
   trait OrderShippingMethodFixture extends ShippingMethodFixture {
