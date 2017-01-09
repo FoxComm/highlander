@@ -19,7 +19,7 @@ type InventoryServiceIntegrationTestSuite struct {
 	GeneralServiceTestSuite
 	itemResp       *models.StockItem
 	service        IInventoryService
-	summaryService ISummaryService
+	summaryService SummaryService
 	sl             *models.StockLocation
 	sku            string
 }
@@ -35,14 +35,13 @@ func (suite *InventoryServiceIntegrationTestSuite) SetupSuite() {
 		"stock_locations",
 	})
 
-	summaryRepository := repositories.NewSummaryRepository(suite.db)
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
 	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
 	stockLocationRepository := repositories.NewStockLocationRepository(suite.db)
 
 	stockLocationService := NewStockLocationService(stockLocationRepository)
 
-	suite.summaryService = NewSummaryService(summaryRepository, stockItemRepository)
+	suite.summaryService = NewSummaryService(suite.db)
 	suite.service = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, nil}
 
 	suite.sl, _ = stockLocationService.CreateLocation(fixtures.GetStockLocation())

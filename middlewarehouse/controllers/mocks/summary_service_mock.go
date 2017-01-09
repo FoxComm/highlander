@@ -2,16 +2,16 @@ package mocks
 
 import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
-	"github.com/stretchr/testify/mock"
-	"github.com/jinzhu/gorm"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
+	"github.com/jinzhu/gorm"
+	"github.com/stretchr/testify/mock"
 )
 
 type SummaryServiceMock struct {
 	mock.Mock
 }
 
-func (m *SummaryServiceMock) WithTransaction(txn *gorm.DB) services.ISummaryService {
+func (m *SummaryServiceMock) WithTransaction(txn *gorm.DB) services.SummaryService {
 	return m
 }
 

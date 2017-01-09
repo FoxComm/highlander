@@ -18,7 +18,7 @@ type ShipmentServiceTestSuite struct {
 	GeneralServiceTestSuite
 	service          IShipmentService
 	inventoryService IInventoryService
-	summaryService   ISummaryService
+	summaryService   SummaryService
 }
 
 func TestShipmentServiceSuite(t *testing.T) {
@@ -28,12 +28,11 @@ func TestShipmentServiceSuite(t *testing.T) {
 func (suite *ShipmentServiceTestSuite) SetupSuite() {
 	suite.db = config.TestConnection()
 
-	summaryRepository := repositories.NewSummaryRepository(suite.db)
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
 	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
 	shipmentRepository := repositories.NewShipmentRepository(suite.db)
 
-	suite.summaryService = NewSummaryService(summaryRepository, stockItemRepository)
+	suite.summaryService = NewSummaryService(suite.db)
 	suite.inventoryService = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, nil}
 	logger := &dummyLogger{}
 

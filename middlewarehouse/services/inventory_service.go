@@ -15,7 +15,7 @@ import (
 type inventoryService struct {
 	stockItemRepo  repositories.IStockItemRepository
 	unitRepo       repositories.IStockItemUnitRepository
-	summaryService ISummaryService
+	summaryService SummaryService
 	txn            *gorm.DB
 }
 
@@ -42,7 +42,7 @@ type updateItemsStatusFunc func() (int, error)
 func NewInventoryService(
 	stockItemRepo repositories.IStockItemRepository,
 	unitRepo repositories.IStockItemUnitRepository,
-	summaryService ISummaryService,
+	summaryService SummaryService,
 ) IInventoryService {
 
 	return &inventoryService{stockItemRepo, unitRepo, summaryService, nil}
@@ -298,7 +298,7 @@ func (service *inventoryService) getUnitRepo() repositories.IStockItemUnitReposi
 	return service.unitRepo.WithTransaction(service.txn)
 }
 
-func (service *inventoryService) getSummaryService() ISummaryService {
+func (service *inventoryService) getSummaryService() SummaryService {
 	if service.txn == nil {
 		return service.summaryService
 	}

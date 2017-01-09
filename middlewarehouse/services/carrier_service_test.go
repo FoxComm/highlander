@@ -14,7 +14,7 @@ import (
 
 type CarrierServiceTestSuite struct {
 	GeneralServiceTestSuite
-	service ICarrierService
+	service CarrierService
 }
 
 func TestCarrierServiceSuite(t *testing.T) {
@@ -23,8 +23,7 @@ func TestCarrierServiceSuite(t *testing.T) {
 
 func (suite *CarrierServiceTestSuite) SetupSuite() {
 	suite.db = config.TestConnection()
-	repository := repositories.NewCarrierRepository(suite.db)
-	suite.service = NewCarrierService(repository)
+	suite.service = NewCarrierService(suite.db)
 }
 
 func (suite *CarrierServiceTestSuite) SetupTest() {
