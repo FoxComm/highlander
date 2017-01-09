@@ -3,24 +3,10 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
-
-	"fmt"
+	"strings"
 
 	"github.com/labstack/echo"
 )
-
-func getTest(c echo.Context) error {
-	res, _ := http.Get("https://httpbin.org/get")
-	var body struct {
-		// httpbin.org sends back key/value pairs, no map[string][]string
-		Headers map[string]string `json:"headers"`
-		Origin  string            `json:"origin"`
-	}
-	json.NewDecoder(res.Body).Decode(&body)
-	fmt.Println(body)
-	return c.String(http.StatusOK, body.Origin)
-}
 
 // productFunnel.go
 ///////////////////
@@ -34,7 +20,7 @@ func getProductFunnel(c echo.Context) error {
 }
 
 func henhouseProductFunnel(id string) (string, error) {
-	var pf henhouseResponse
+	var pf HenhouseResponse
 	// var key = "track_product_" + id + "_list"
 	var key = ""
 	steps := [...]string{"list", "pdp", "cart", "checkout"}
@@ -51,16 +37,49 @@ func henhouseProductFunnel(id string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var output = ""
+
+	return buildResponse(pf), nil
+}
+
+func buildResponse(pf HenhouseResponse) string {
+	searchViews := getSum("list", pf)
+	pdpViews := getSum("pdp", pf)
+	cartClicks := getSum("cart", pf)
+	checkoutClicks := getSum("checkout", pf)
+	resp := ProductFunnelResponse{
+		SearchViews:    searchViews,
+		PdpViews:       pdpViews,
+		CartClicks:     cartClicks,
+		CheckoutClicks: checkoutClicks,
+		SearchToPdp:    float32(pdpViews) / float32(searchViews),
+		PdpToCart:      float32(cartClicks) / float32(pdpViews),
+		CartToCheckout: float32(checkoutClicks) / float32(cartClicks)}
+	out, _ := json.Marshal(&resp)
+	return string(out)
+}
+
+func getSum(step string, pf HenhouseResponse) int {
 	for i := range pf {
-		output += pf[i].Key + " has sum = " + strconv.Itoa(pf[i].Stats.Sum) + "\n"
+		if strings.Contains(pf[i].Key, step) {
+			return pf[i].Stats.Sum
+		}
 	}
-	return output, nil
+	return 0
+}
+
+type ProductFunnelResponse struct {
+	SearchViews    int
+	PdpViews       int
+	CartClicks     int
+	CheckoutClicks int
+	SearchToPdp    float32
+	PdpToCart      float32
+	CartToCheckout float32
 }
 
 // henhouseResponse.go
 //////////////////////
-type henhouseStats struct {
+type HenhouseStats struct {
 	Variance   float32 `json:"variance"`
 	Mean       float32 `json:"mean"`
 	From       int     `json:"from"`
@@ -70,22 +89,15 @@ type henhouseStats struct {
 	Sum        int     `json:"sum"`
 }
 
-type henhouseResponse []struct {
+type HenhouseResponse []struct {
 	Key   string        `json:"key"`
-	Stats henhouseStats `json:"stats"`
+	Stats HenhouseStats `json:"stats"`
 }
 
 // server.go
 ////////////
 func main() {
 	e := echo.New()
-	/*
-		e.GET("/", func(c echo.Context) error {
-			return c.String(http.StatusOK, "Hello, world!")
-		})
-	*/
-	e.GET("/", getTest)
-
 	e.GET("/productFunnel/:id", getProductFunnel)
 	e.Logger.Fatal(e.Start(":1323"))
 }
