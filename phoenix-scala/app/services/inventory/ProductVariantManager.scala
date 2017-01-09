@@ -140,9 +140,7 @@ object ProductVariantManager {
                                   formId = ins.form.id,
                                   shadowId = ins.shadow.id,
                                   commitId = ins.commit.id))
-      mwhSkuId ← * <~ DbResultT(DBIO.from(apis.middlwarehouse.createSku(CreateSku(code))))
-      _ ← * <~ ProductVariantMwhSkuIds.create(
-             ProductVariantMwhSkuId(variantFormId = variant.formId, mwhSkuId = mwhSkuId))
+      _ ← * <~ apis.middlwarehouse.createSku(ins.form.id, CreateSku(code))
     } yield FullObject(variant, ins.form, ins.shadow)
   }
 

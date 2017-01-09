@@ -39,7 +39,7 @@ import org.json4s.JsonDSL._
 import services.LogActivity
 import services.taxonomy.TaxonomyManager
 import services.image.ImageManager.FullAlbumWithImages
-import utils.apis.Apis
+import utils.apis.{Apis, CreateSku}
 
 object ProductManager {
 
@@ -364,13 +364,16 @@ object ProductManager {
               }
             }.getOrElse {
               for {
-                newSku ← * <~ ProductVariantManager.createInner(oc, payload)
-                _ ← * <~ ProductVariantManager.findOrCreateAlbumsForVariant(newSku.model,
+                newVariant ← * <~ ProductVariantManager.createInner(oc, payload)
+                _ ← * <~ ProductVariantManager.findOrCreateAlbumsForVariant(newVariant.model,
                                                                             albumPayloads)
                 _ ← * <~ ProductVariantLinks.syncLinks(product,
-                                                       if (createLinks) Seq(newSku.model)
+                                                       if (createLinks) Seq(newVariant.model)
                                                        else Seq.empty)
-              } yield newSku
+                // TODO: tax class?
+                _ ← * <~ apis.middlwarehouse.createSku(newVariant.form.id,
+                                                       CreateSku(newVariant.model.code))
+              } yield newVariant
             }
         albums   ← * <~ ImageManager.getAlbumsForVariantInner(up.form.id)
         mwhSkuId ← * <~ ProductVariantMwhSkuIds.mustFindMwhSkuId(up.form.id)
