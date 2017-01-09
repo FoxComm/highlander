@@ -3,6 +3,7 @@ package services
 import scala.util.Random
 import cats.data.Xor
 import cats.implicits._
+import com.github.levkhomich.akka.tracing.TracingExtensionImpl
 import com.github.tminglei.slickpg.LTree
 import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.GeneralFailure
@@ -26,6 +27,7 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis._
 import utils.db._
+import utils.http.CustomDirectives.TracingRequest
 
 object PaymentHelper {
 
@@ -69,7 +71,9 @@ object Checkout {
                                apis: Apis,
                                ac: AC,
                                ctx: OC,
-                               au: AU): DbResultT[OrderResponse] =
+                               au: AU,
+                               tr: TR,
+                               trace: TEI): DbResultT[OrderResponse] =
     for {
       cart  ← * <~ Carts.mustFindByRefNum(refNum)
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
@@ -80,7 +84,9 @@ object Checkout {
                                   apis: Apis,
                                   ac: AC,
                                   ctx: OC,
-                                  au: AU): DbResultT[OrderResponse] =
+                                  au: AU,
+                                  tr: TR,
+                                  trace: TEI): DbResultT[OrderResponse] =
     for {
       result ← * <~ Carts
                 .findByAccountId(customer.accountId)
@@ -97,9 +103,14 @@ class ExternalCalls {
   var middleWarehouseSuccess: Boolean = false
 }
 
-case class Checkout(
-    cart: Cart,
-    cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC, au: AU) {
+case class Checkout(cart: Cart, cartValidator: CartValidation)(implicit ec: EC,
+                                                               db: DB,
+                                                               apis: Apis,
+                                                               ac: AC,
+                                                               ctx: OC,
+                                                               au: AU,
+                                                               tr: TR,
+                                                               trace: TEI) {
 
   var externalCalls = new ExternalCalls()
 
@@ -132,7 +143,7 @@ case class Checkout(
 
   private case class InventoryTrackedSku(isInventoryTracked: Boolean, code: String, qty: Int)
 
-  private def holdInMiddleWarehouse(implicit ctx: OC): DbResultT[Unit] =
+  private def holdInMiddleWarehouse(implicit ctx: OC, tr: TR, trace: TEI): DbResultT[Unit] =
     for {
       liSkus               ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       inventoryTrackedSkus ← * <~ filterInventoryTrackingSkus(liSkus)

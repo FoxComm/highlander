@@ -1,5 +1,7 @@
 package utils
 
+import com.github.levkhomich.akka.tracing.TracingExtensionImpl
+
 object aliases {
   type AC           = models.activity.ActivityContext
   type EC           = scala.concurrent.ExecutionContext
@@ -12,6 +14,8 @@ object aliases {
   type Json         = org.json4s.JsonAST.JValue
   type ActivityType = String
   type AU           = services.Authenticator.AuthData[models.account.User]
+  type TR           = utils.http.CustomDirectives.TracingRequest
+  type TEI          = TracingExtensionImpl
 
   object stripe {
     import com.stripe.model._

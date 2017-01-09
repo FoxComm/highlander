@@ -1,5 +1,7 @@
 package utils.apis
 
+import com.github.levkhomich.akka.tracing.TracingExtensionImpl
+import com.github.levkhomich.akka.tracing.http.TracingHeaders._
 import com.ning.http.client
 import com.typesafe.scalalogging.LazyLogging
 import dispatch._
@@ -11,6 +13,7 @@ import services.Result
 import utils.JsonFormatters
 import payloads.AuthPayload
 import utils.aliases._
+import utils.http.CustomDirectives.{TracingRequest}
 
 case class SkuInventoryHold(sku: String, qty: Int)
 case class OrderInventoryHold(refNum: String, items: Seq[SkuInventoryHold])
@@ -19,7 +22,8 @@ trait MiddlewarehouseApi {
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def hold(reservation: OrderInventoryHold)(implicit ec: EC, au: AU): Result[Unit]
+  def hold(
+      reservation: OrderInventoryHold)(implicit ec: EC, au: AU, tr: TR, trace: TEI): Result[Unit]
   def cancelHold(orderRefNum: String)(implicit ec: EC, au: AU): Result[Unit]
 
 }
@@ -33,12 +37,29 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
       .getOrElse(MiddlewarehouseError(message).single)
   }
 
-  override def hold(reservation: OrderInventoryHold)(implicit ec: EC, au: AU): Result[Unit] = {
+  override def hold(reservation: OrderInventoryHold)(implicit ec: EC,
+                                                     au: AU,
+                                                     tr: TracingRequest,
+                                                     trace: TracingExtensionImpl): Result[Unit] = {
+
+    val span = trace.exportMetadata(tr)
 
     val reqUrl = dispatch.url(s"$url/v1/private/reservations/hold")
     val body   = compact(Extraction.decompose(reservation))
     val jwt    = AuthPayload.jwt(au.token)
-    val req    = reqUrl.setContentType("application/json", "UTF-8") <:< Map("JWT" → jwt) << body
+
+    val headers = span
+        .map(span ⇒ {
+        logger.info(s"Extracted traceId: ${span.traceId.toHexString}")
+        logger.info(s"Extracted spanId: ${span.spanId.toHexString}")
+
+        Map(TraceId → span.traceId.toHexString, SpanId → span.spanId.toHexString, Sampled → "1")
+      })
+        .getOrElse(Map()) ++ Map("JWT" → jwt)
+
+    val req = reqUrl.setContentType("application/json", "UTF-8") <:< headers << body
+
+    logger.info(s"MWH request: ${req.toRequest.toString}")
     logger.info(s"middlewarehouse hold: $body")
 
     Http(req.POST > AsMwhResponse).either.flatMap {
