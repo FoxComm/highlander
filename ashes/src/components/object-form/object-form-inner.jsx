@@ -312,8 +312,8 @@ export default class ObjectFormInner extends Component {
     let fieldOptions = this.props.fieldsOptions && this.props.fieldsOptions[name];
     if (fieldOptions == null) {
       const items = _.get(this.props.schema, ['properties', name, 'fieldsOptions'], []);
-      fieldOptions = _.map(items, item => {
-        return [item, item, false];
+      fieldOptions = _.map(items, ([value, label]) => {
+        return [value, label, false];
       });
     }
 

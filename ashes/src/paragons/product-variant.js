@@ -14,56 +14,8 @@ export function generateSkuCode(): string {
 export const productVariantEmptyAttributes = {
   code: t.string(''),
   title: t.string(''),
-  upc: t.string(''),
-  unitCost: t.price({ currency: 'USD', value: 0 }),
-  taxClass: t.string('default'),
-  requiresShipping: t.bool(true),
-  shippingClass: t.string('default'),
-  isReturnable: t.bool(true),
-  returnWindow: {
-    'value': 30,
-    'units': 'days'
-  },
-  height: {
-    'value': 0,
-    'units': 'in'
-  },
-  weight: {
-    'value': 0,
-    'units': 'lbs'
-  },
-  length: {
-    'value': 0,
-    'units': 'in'
-  },
-  width: {
-    'value': 0,
-    'units': 'in'
-  },
-  requiresInventoryTracking: t.bool(true),
-  inventoryWarningLevel: {
-    'isEnabled': false,
-    'level': 0
-  },
-  maximumQuantityInCart: {
-    'isEnabled': false,
-    'level': 10
-  },
-  minimumQuantityInCart: {
-    'isEnabled': false,
-    'level': 1
-  },
-  allowBackorder: t.bool(false),
-  allowPreorder: t.bool(false),
-  requiresLotTracking: t.bool(true),
-  lotExpirationThreshold: {
-    'value': 0,
-    'units': 'months'
-  },
-  lotExpirationWarningThreshold: {
-    'value': 0,
-    'units': 'days'
-  }
+  salePrice: t.price({ currency: 'USD', value: 0 }),
+  retailPrice: t.price({ currency: 'USD', value: 0 }),
 };
 
 export function configureProductVariant(productVariant: ProductVariant): ProductVariant {

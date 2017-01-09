@@ -1,12 +1,15 @@
 {
   "main": [
     {
+      "type": "inventoryAndTransactons"
+    },
+    {
       "type": "group",
       "title": "General",
       "fields": {
         "canAddProperty": false,
         "value": [
-          "title",
+          "code",
           "upc"
         ]
       }
@@ -18,11 +21,9 @@
         {
           "type": "fields",
           "value": [
-            "unitCost"
+            "unitCost",
+            "taxClass"
           ]
-        },
-        {
-          "type": "taxClass"
         }
       ]
     },
@@ -35,9 +36,6 @@
           "value": [
             "requiresShipping"
           ]
-        },
-        {
-          "type": "shippingClass"
         },
         {
           "type": "fields",
@@ -84,7 +82,5 @@
       ]
     }
   ],
-  "aside": [
-
-  ]
+  "aside": null
 }

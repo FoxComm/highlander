@@ -6,14 +6,14 @@ import { get, isString, capitalize } from 'lodash';
 import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as dsl from '../../elastic/dsl';
+import * as dsl from 'elastic/dsl';
 
 /** Components */
-import SearchList from '../list-page/search-list';
-import InventoryItemTransactionsRow from './item-transactions-row';
+import SearchList from 'components/list-page/search-list';
+import InventoryItemTransactionsRow from './sku-transactions-row';
 
 /** Redux */
-import { actions } from '../../modules/inventory/transactions';
+import { actions } from 'modules/inventory/transactions';
 
 type Actions = {
   setExtraFilters: Function,

@@ -7,7 +7,7 @@ import { transitionTo } from 'browserHistory';
 import { ListPageContainer, makeTotalCounter } from '../list-page';
 
 // redux
-import { actions as inventoryActions } from '../../modules/inventory/list';
+import { actions as inventoryActions } from 'modules/inventory/list';
 
 const InventoryListPage = (props, context) => {
   const TotalCounter = makeTotalCounter(state => state.inventory.list, inventoryActions);

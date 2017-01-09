@@ -5,11 +5,11 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
 // components
-import Table from '../table/table';
-import Drawer from '../table/drawer';
-import TableRow from '../table/row';
-import AdjustQuantity from '../forms/adjust-quantity';
-import Currency from '../common/currency';
+import Table from 'components/table/table';
+import Drawer from 'components/table/drawer';
+import TableRow from 'components/table/row';
+import AdjustQuantity from 'components/forms/adjust-quantity';
+import Currency from 'components/common/currency';
 
 import * as WarehousesActions from 'modules/inventory/warehouses';
 

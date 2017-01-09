@@ -13,7 +13,7 @@ import LocalNav from '../local-nav/local-nav';
 import { connectPage, ObjectPage } from '../object-page/object-page';
 
 // actions
-import * as SkuActions from 'modules/product-variants/details';
+import * as ProductVariantActions from 'modules/product-variants/details';
 
 // types
 import type { ProductVariant } from 'modules/product-variants/details';
@@ -87,4 +87,4 @@ class ProductVariantPage extends ObjectPage {
   }
 }
 
-export default connectPage('productVariant', SkuActions, {schemaName: 'product-variant'})(ProductVariantPage);
+export default connectPage('productVariant', ProductVariantActions, {schemaName: 'product-variant'})(ProductVariantPage);

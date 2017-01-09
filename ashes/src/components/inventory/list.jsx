@@ -8,7 +8,7 @@ import { SelectableSearchList } from '../list-page';
 import InventoryListRow from './inventory-list-row';
 
 // redux
-import { actions } from '../../modules/inventory/list';
+import { actions } from 'modules/inventory/list';
 
 const getState = state => ({ list: state.inventory.list });
 
@@ -41,7 +41,8 @@ const InventoryList = props => {
       list={props.list}
       renderRow={renderRow}
       tableColumns={tableColumns}
-      searchActions={props.actions} />
+      searchActions={props.actions}
+    />
   );
 };
 

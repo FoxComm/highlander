@@ -2,14 +2,13 @@
 
 import _ from 'lodash';
 import React, { Component } from 'react';
-import { haveType } from '../../modules/state-helpers';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
 // components
 import ExpandableTable from '../table/expandable-table';
-import InventoryWarehouseRow from './inventory-warehouse-row';
-import WarehouseDrawer from './inventory-warehouse-drawer';
+import InventoryWarehouseRow from './sku-inventory-row';
+import WarehouseDrawer from './sku-inventory-drawer';
 
 // redux
 import * as WarehousesActions from 'modules/inventory/warehouses';
@@ -22,8 +21,9 @@ const mapStateToProps = (state, props) => ({
 });
 
 type Props = {
-  inventoryDetails: WarehouseInventoryMap,
   params: Object,
+  // connected
+  inventoryDetails: WarehouseInventoryMap,
   fetchSummary: (id: number) => Promise,
   fetchState: {
     inProgress?: boolean,
@@ -119,21 +119,17 @@ class InventoryItemDetails extends Component {
     const failed = !!this.props.fetchState.err;
 
     return (
-      <div className="fc-grid">
-        <div className="fc-col-md-1-1">
-          <ExpandableTable
-            columns={this.tableColumns}
-            data={this.summaryData}
-            renderRow={this.renderRow}
-            renderDrawer={this.renderDrawer}
-            idField="stockLocation.id"
-            isLoading={isFetching}
-            failed={failed}
-            emptyMessage="No warehouse data found."
-            className="fc-inventory-item-details__warehouses-table"
-          />
-        </div>
-      </div>
+      <ExpandableTable
+        columns={this.tableColumns}
+        data={this.summaryData}
+        renderRow={this.renderRow}
+        renderDrawer={this.renderDrawer}
+        idField="stockLocation.id"
+        isLoading={isFetching}
+        failed={failed}
+        emptyMessage="No warehouse data found."
+        className="fc-inventory-item-details__warehouses-table"
+      />
     );
   }
 }

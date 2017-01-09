@@ -54,8 +54,9 @@ export type WarehouseInventoryMap = {
 
 const _fetchSummary = createAsyncActions(
   'inventory-summary',
-  (skuCode) => Api.get(`/inventory/summary/${skuCode}`),
-  (...args) => [...args]
+  (skuCode) => {
+    return Api.get(`/inventory/summary/${skuCode}`).then(response => [response, skuCode]);
+  },
 );
 export const fetchSummary = _fetchSummary.perform;
 
