@@ -3,8 +3,10 @@ package main
 import (
     "log"
     "errors"
+    "strconv"
 	//"net/http"
     "encoding/json"
+    "math/rand"
     "net/http"
     "net/http/httputil"
     "net/url"
@@ -34,9 +36,29 @@ func getRefs(db* sql.DB, clusterId int, res string) (string, error) {
     return refs, nil
 }
 
-func selectRefFromArray(clusterId int, refs []interface{}, encodedRefs string) (string, error) {
-    return "", nil
+func parseRefN(refs []interface{}, selected int) (string, error) {
 
+    ref:= refs[selected]
+
+    switch ref.(type) {
+        case string:
+            return ref.(string), nil
+    }
+
+    return "", errors.New("unable to parse ref: " + strconv.Itoa(selected))
+}
+
+func selectRefFromArray(clusterId int, refs []interface{}) (string, error) {
+    sz := len(refs)
+    if sz == 0 {
+        return "", errors.New("Refs array should not be empty")
+    }
+
+    //TODO: Implement Octo Fox multi armed bandit selection function 
+
+    selected := rand.Intn(sz)
+
+    return parseRefN(refs, selected)
 }
 
 func selectRef(clusterId int, encodedRefs string) (string, error) { 
@@ -51,7 +73,7 @@ func selectRef(clusterId int, encodedRefs string) (string, error) {
         case string:  
             return refs.(string), nil
         case []interface{}: 
-            return selectRefFromArray(clusterId, refs.([]interface{}), encodedRefs)
+            return selectRefFromArray(clusterId, refs.([]interface{}))
     }
     return "", errors.New("unable to map refs json to a valid type: " + encodedRefs) 
 }
@@ -62,7 +84,8 @@ func main() {
        log.Fatal(err)
     }
 
-    fallback, err := url.Parse("http://localhost:1323/raw")
+    upstreamHost := "http://localhost:1323/raw"
+    upstream, err := url.Parse(upstreamHost)
     if err != nil {
        log.Fatal(err)
     }
@@ -74,23 +97,27 @@ func main() {
         res := c.Response()
 
         path := req.URL.Path    
+
+        //TODO: Take request and consult bernardo about the cluster
         clusterId := 1
+
         refs, err := getRefs(db, clusterId, path)
 
-        proxy := httputil.NewSingleHostReverseProxy(fallback)
+        proxy := httputil.NewSingleHostReverseProxy(upstream)
 
         if err != nil {
             log.Print(err)
+            log.Print("PASS: " + path + " => " + upstreamHost + path)
             proxy.ServeHTTP(res, req)
         } else {
-            log.Print("REFS: " + refs)
-
             ref, err := selectRef(clusterId, refs)
             if err != nil {
                 log.Print(err)
             } else {
                 req.URL.Path = ref
             }
+
+            log.Print("MAP: " + path + " => " + upstreamHost + ref)
 
             proxy.ServeHTTP(res, req)
         }
