@@ -47,7 +47,7 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 	// Iterate through each shipment line item and attempt to reserve a stock
 	// item unit for each line item. As that's happening, maintain a mapping of
 	// what is being updated so that summaries and transactions can be updated.
-	txnUpdates := models.TransactionUpdates{}
+	txnUpdates := models.NewTransactionUpdates()
 
 	for i, lineItem := range shipment.ShipmentLineItems {
 		siu, err := service.unitRepo.WithTransaction(txn).ReserveUnit(shipment.OrderRefNum, lineItem.SKU)
@@ -91,6 +91,11 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 	// 	txn.Rollback()
 	// 	return nil, err
 	// }
+	summaryRepo := repositories.NewSummaryRepository(txn)
+	txns := txnUpdates.StockItemTransactions()
+	if err := summaryRepo.UpdateSummariesFromTransactions(txns); err != nil {
+		return nil, err
+	}
 
 	if err := service.activityLogger.Log(activity); err != nil {
 		txn.Rollback()

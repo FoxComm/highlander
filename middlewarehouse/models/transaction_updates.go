@@ -8,13 +8,19 @@ type TransactionUpdates struct {
 	stockItems map[uint]*transactionUpdate
 }
 
+func NewTransactionUpdates() *TransactionUpdates {
+	return &TransactionUpdates{
+		stockItems: map[uint]*transactionUpdate{},
+	}
+}
+
 // AddUpdate adds a single StockItemTransaction to the list of updates. If an
 // update to the specified stock item, unit type, and unit status is already
 // specified, this update will get merged in. Otherwise, a new one will be created.
 func (t *TransactionUpdates) AddUpdate(stockItemID uint, txn *StockItemTransaction) error {
 	txnUpdate, ok := t.stockItems[stockItemID]
 	if !ok {
-		txnUpdate = &transactionUpdate{}
+		txnUpdate = newTransactionUpdate()
 	}
 
 	if err := txnUpdate.UpdateTransaction(txn); err != nil {
@@ -40,6 +46,15 @@ type transactionUpdate struct {
 	NonSellable map[UnitStatus]*StockItemTransaction
 	Backorder   map[UnitStatus]*StockItemTransaction
 	Preorder    map[UnitStatus]*StockItemTransaction
+}
+
+func newTransactionUpdate() *transactionUpdate {
+	return &transactionUpdate{
+		Sellable:    map[UnitStatus]*StockItemTransaction{},
+		NonSellable: map[UnitStatus]*StockItemTransaction{},
+		Backorder:   map[UnitStatus]*StockItemTransaction{},
+		Preorder:    map[UnitStatus]*StockItemTransaction{},
+	}
 }
 
 func (t *transactionUpdate) UpdateTransaction(txn *StockItemTransaction) error {
