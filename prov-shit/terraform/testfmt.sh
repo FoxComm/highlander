@@ -4,10 +4,13 @@ set -ue
 unformatted_files=$(terraform fmt)
 
 if [[ $? != 0 ]]; then
-    echo "`terraform fmt` command failed."
+    echo "Terraform format command failed."
     exit 1;
-else if [[ $unformatted_files ]]; then
+elif [[ $unformatted_files ]]; then
     echo "Unformatted Terraform files found.";
-    echo "Please run \`terraform fmt\`";
+    echo "Please run Terraform format";
     exit 1;
+else
+    echo "Terraform formatting check passed";
+    exit 0;
 fi
