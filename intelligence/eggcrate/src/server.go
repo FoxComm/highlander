@@ -26,22 +26,36 @@ func getTest(c echo.Context) error {
 ///////////////////
 func getProductFunnel(c echo.Context) error {
 	id := c.Param("id")
-	return c.String(http.StatusOK, henhouseProductFunnel(id))
+	resp, err := henhouseProductFunnel(id)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	return c.String(http.StatusOK, resp)
 }
 
-func henhouseProductFunnel(id string) string {
+func henhouseProductFunnel(id string) (string, error) {
 	var pf henhouseResponse
-	var key = "track_product_" + id + "_list"
-	resp, reqErr := http.Get("http://hal.foxcommerce.com:31468/summary?keys=" + key)
+	// var key = "track_product_" + id + "_list"
+	var key = ""
+	steps := [...]string{"list", "pdp", "cart", "checkout"}
+	for _, step := range steps {
+		key += "track_product_" + id + "_" + step + ","
+	}
+
+	resp, reqErr := http.Get("http://hal.foxcommerce.com:31526/summary?keys=" + key)
 	if reqErr != nil {
-		fmt.Println("there was an error")
+		return "", reqErr
 	}
 
 	err := json.NewDecoder(resp.Body).Decode(&pf)
 	if err != nil {
-		fmt.Println("there was an error")
+		return "", err
 	}
-	return "Product " + id + " has sum = " + strconv.Itoa(pf[0].Stats.Sum)
+	var output = ""
+	for i := range pf {
+		output += pf[i].Key + " has sum = " + strconv.Itoa(pf[i].Stats.Sum) + "\n"
+	}
+	return output, nil
 }
 
 // henhouseResponse.go
