@@ -220,6 +220,7 @@ class AddressList extends Component {
       <CheckoutForm
         submit={() => this.finishEditingAddress(id)}
         title={title}
+        buttonLabel="Save Address"
         action={action}
         error={this.state.error}
       >

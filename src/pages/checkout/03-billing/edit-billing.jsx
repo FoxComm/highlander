@@ -437,7 +437,7 @@ class EditBilling extends Component {
           submit={this.updateCreditCard}
           title={title}
           error={props.updateCreditCardError}
-          buttonLabel="SAVE & CONTINUE"
+          buttonLabel="Save Card"
           action={action}
           inProgress={props.updateCreditCardInProgress}
         >
