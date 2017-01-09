@@ -2,7 +2,11 @@
 It brings you the delicious statistic eggs from the henhouse.
 
 ## usage
-`go run src/server.go`
+Add this directory to your `GOPATH`. 
+```export GOPATH=$GOPATH:`pwd` ```
+Copy the contents of `.env.sample` into another file with the correct url and port of the `henhouse` service, and source this new file.
+Run the server.
+```go run src/server.go```
 
 ### productFunnel
 `GET /productFunnel/:id` to get a representation of the conversion funnel for product with id `:id`.
