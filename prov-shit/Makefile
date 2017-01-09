@@ -4,6 +4,8 @@ header = $(call baseheader, $(1), prov-shit)
 GO ?= go
 GOPATH := $(CURDIR)/_vendor:$(GOPATH)
 
+DOCKER_BRANCH ?= master
+
 # Main commands
 all: build
 
@@ -39,10 +41,12 @@ run-gatling: deploy-gatling
 
 docker:
 	$(call header, Dockerizing)
+	$(call header, $(DOCKER_BRANCH))
 	true
 
 docker-push:
 	$(call header, Registering)
+	$(call header, $(DOCKER_BRANCH))
 	true
 
 .PHONY: all build lint test docker docker-push
