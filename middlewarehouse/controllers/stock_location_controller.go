@@ -12,10 +12,10 @@ import (
 )
 
 type stockLocationController struct {
-	service services.IStockLocationService
+	service services.StockLocationService
 }
 
-func NewStockLocationController(service services.IStockLocationService) IController {
+func NewStockLocationController(service services.StockLocationService) IController {
 	return &stockLocationController{service}
 }
 

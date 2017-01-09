@@ -7,13 +7,12 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
-	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/stretchr/testify/suite"
 )
 
 type StockLocationServiceTestSuite struct {
 	GeneralServiceTestSuite
-	service IStockLocationService
+	service StockLocationService
 }
 
 func TestStockLocationServiceSuite(t *testing.T) {
@@ -22,8 +21,7 @@ func TestStockLocationServiceSuite(t *testing.T) {
 
 func (suite *StockLocationServiceTestSuite) SetupSuite() {
 	suite.db = config.TestConnection()
-	repository := repositories.NewStockLocationRepository(suite.db)
-	suite.service = NewStockLocationService(repository)
+	suite.service = NewStockLocationService(suite.db)
 }
 
 func (suite *StockLocationServiceTestSuite) SetupTest() {

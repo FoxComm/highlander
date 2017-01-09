@@ -11,10 +11,10 @@ import (
 )
 
 type shippingMethodController struct {
-	service services.IShippingMethodService
+	service services.ShippingMethodService
 }
 
-func NewShippingMethodController(service services.IShippingMethodService) IController {
+func NewShippingMethodController(service services.ShippingMethodService) IController {
 	return &shippingMethodController{service}
 }
 

@@ -31,10 +31,9 @@ func (suite *InventoryServiceTestSuite) SetupSuite() {
 
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
 	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
-	stockLocationRepository := repositories.NewStockLocationRepository(suite.db)
 
 	summaryService := NewSummaryService(suite.db)
-	stockLocationService := NewStockLocationService(stockLocationRepository)
+	stockLocationService := NewStockLocationService(suite.db)
 	suite.service = &inventoryService{stockItemRepository, unitRepository, summaryService, nil}
 
 	suite.sl, _ = stockLocationService.CreateLocation(fixtures.GetStockLocation())

@@ -15,7 +15,7 @@ import (
 
 type ShippingMethodServiceTestSuite struct {
 	GeneralServiceTestSuite
-	service IShippingMethodService
+	service ShippingMethodService
 	carrier *models.Carrier
 }
 
@@ -25,8 +25,7 @@ func TestShippingMethodServiceSuite(t *testing.T) {
 
 func (suite *ShippingMethodServiceTestSuite) SetupSuite() {
 	suite.db = config.TestConnection()
-	repository := repositories.NewShippingMethodRepository(suite.db)
-	suite.service = NewShippingMethodService(repository)
+	suite.service = NewShippingMethodService(suite.db)
 }
 
 func (suite *ShippingMethodServiceTestSuite) SetupTest() {
