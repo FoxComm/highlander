@@ -1,4 +1,4 @@
-def branchName = env.JOB_NAME.replaceFirst('.+/', '')
+def branchName = env.JOB_NAME.replaceFirst('.+/', '').replaceAll('%2F', '_')
 
 node {
   try {
