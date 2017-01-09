@@ -38,7 +38,7 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 	carrierService := services.NewCarrierService(carrierRepository)
 	stockLocationService := services.NewStockLocationService(stockLocationRepository)
 	shippingMethodService := services.NewShippingMethodService(shippingMethodRepository)
-	shipmentService := services.NewShipmentService(db, inventoryService, shipmentRepository, unitRepository, activityLogger)
+	shipmentService := services.NewShipmentService(db, inventoryService, summaryService, shipmentRepository, unitRepository, activityLogger)
 
 	return map[string]controllers.IController{
 		"v1/public/ping":             controllers.NewPingController(),
