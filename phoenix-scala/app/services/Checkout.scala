@@ -73,7 +73,7 @@ object Checkout {
                                ctx: OC,
                                au: AU,
                                tr: TR,
-                               trace: TEI): DbResultT[OrderResponse] =
+                               tracer: TEI): DbResultT[OrderResponse] =
     for {
       cart  ← * <~ Carts.mustFindByRefNum(refNum)
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
@@ -86,7 +86,7 @@ object Checkout {
                                   ctx: OC,
                                   au: AU,
                                   tr: TR,
-                                  trace: TEI): DbResultT[OrderResponse] =
+                                  tracer: TEI): DbResultT[OrderResponse] =
     for {
       result ← * <~ Carts
                 .findByAccountId(customer.accountId)
@@ -110,7 +110,7 @@ case class Checkout(cart: Cart, cartValidator: CartValidation)(implicit ec: EC,
                                                                ctx: OC,
                                                                au: AU,
                                                                tr: TR,
-                                                               trace: TEI) {
+                                                               tracer: TEI) {
 
   var externalCalls = new ExternalCalls()
 
@@ -143,7 +143,7 @@ case class Checkout(cart: Cart, cartValidator: CartValidation)(implicit ec: EC,
 
   private case class InventoryTrackedSku(isInventoryTracked: Boolean, code: String, qty: Int)
 
-  private def holdInMiddleWarehouse(implicit ctx: OC, tr: TR, trace: TEI): DbResultT[Unit] =
+  private def holdInMiddleWarehouse(implicit ctx: OC, tr: TR, tracer: TEI): DbResultT[Unit] =
     for {
       liSkus               ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       inventoryTrackedSkus ← * <~ filterInventoryTrackingSkus(liSkus)

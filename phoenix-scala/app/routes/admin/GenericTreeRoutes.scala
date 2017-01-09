@@ -7,19 +7,13 @@ import models.account.User
 import payloads.GenericTreePayloads._
 import services.tree.TreeManager
 import services.Authenticator.AuthData
-import utils.aliases.{DB, EC}
+import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
-import com.github.levkhomich.akka.tracing.TracingExtensionImpl
-
 object GenericTreeRoutes {
 
-  def routes(implicit ec: EC,
-             db: DB,
-             auth: AuthData[User],
-             tr: TracingRequest,
-             trace: TracingExtensionImpl) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], tr: TR, tracer: TEI) = {
 
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("tree" / Segment / Segment) { (context, name) ⇒

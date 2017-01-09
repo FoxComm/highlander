@@ -15,8 +15,8 @@ object MigrationRoutes {
   def routes(customerCreateContext: AccountCreateContext)(implicit ec: EC,
                                                           db: DB,
                                                           es: ES,
-                                                          tr: TracingRequest,
-                                                          trace: TracingExtensionImpl) = {
+                                                          tr: TR,
+                                                          tracer: TEI) = {
 
     activityContext() { implicit ac ⇒
       pathPrefix("migration") {

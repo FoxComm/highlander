@@ -15,15 +15,9 @@ import utils.db.DbResultT
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
-import com.github.levkhomich.akka.tracing.TracingExtensionImpl
-
 object GiftCardRoutes {
 
-  def routes(implicit ec: EC,
-             db: DB,
-             auth: AuthData[User],
-             tr: TracingRequest,
-             trace: TracingExtensionImpl): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], tr: TR, tracer: TEI): Route = {
 
     activityContext(auth.model) { implicit ac ⇒
       path("customer-gift-cards") {

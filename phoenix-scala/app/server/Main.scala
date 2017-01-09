@@ -74,7 +74,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
     ActorSystem.create("Orders", config)
   }
 
-  implicit val trace = TracingExtension(system)
+  implicit val tracer = TracingExtension(system)
 
   val threadPool                = java.util.concurrent.Executors.newCachedThreadPool()
   implicit val executionContext = ExecutionContext.fromExecutor(threadPool)
@@ -99,7 +99,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
   implicit val userAuth: UserAuthenticator = Authenticator.forUser(customerCreateContext)
 
   val defaultRoutes = {
-    traceStart("phoenix", trace) { implicit tr ⇒
+    traceStart("phoenix", tracer) { implicit tr ⇒
       pathPrefix("v1") {
         routes.AuthRoutes.routes ~
         routes.Public.routes(customerCreateContext) ~
@@ -135,7 +135,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
   }
 
   lazy val devRoutes = {
-    traceStart("phoenix", trace) { implicit tr ⇒
+    traceStart("phoenix", tracer) { implicit tr ⇒
       pathPrefix("v1") {
         requireAdminAuth(userAuth) { implicit auth ⇒
           routes.admin.DevRoutes.routes

@@ -20,16 +20,9 @@ import utils.http.CustomDirectives._
 import utils.http.Http._
 import utils.FoxConfig._
 
-import com.github.levkhomich.akka.tracing.TracingExtensionImpl
-
 object CustomerRoutes {
 
-  def routes(implicit ec: EC,
-             db: DB,
-             auth: AuthData[User],
-             apis: Apis,
-             tr: TracingRequest,
-             trace: TracingExtensionImpl) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis, tr: TR, tracer: TEI) = {
 
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("customers") {

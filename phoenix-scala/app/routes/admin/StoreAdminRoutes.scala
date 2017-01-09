@@ -11,15 +11,9 @@ import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
-import com.github.levkhomich.akka.tracing.TracingExtensionImpl
-
 object StoreAdminRoutes {
 
-  def routes(implicit ec: EC,
-             db: DB,
-             auth: AuthData[User],
-             tr: TracingRequest,
-             trace: TracingExtensionImpl) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], tr: TR, tracer: TEI) = {
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("store-admins") {
         (post & pathEnd & entity(as[CreateStoreAdminPayload])) { payload ⇒

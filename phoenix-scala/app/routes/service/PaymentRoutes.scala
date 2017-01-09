@@ -23,8 +23,8 @@ object PaymentRoutes {
              db: DB,
              auth: AuthData[User],
              apis: Apis,
-             tr: TracingRequest,
-             trace: TracingExtensionImpl) = {
+             tr: TR,
+             tracer: TEI) = {
 
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("service") {

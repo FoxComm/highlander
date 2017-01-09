@@ -68,7 +68,7 @@ object CustomDirectives extends LazyLogging {
     }
   }
 
-  def traceStart(service: String, trace: TracingExtensionImpl): Directive1[TracingRequest] = {
+  def traceStart(service: String, tracer: TEI): Directive1[TR] = {
     extractRequest.map { request ⇒
       def headers(name: String): Option[String] = request.headers.find(_.name == name).map(_.value)
 
@@ -78,29 +78,29 @@ object CustomDirectives extends LazyLogging {
       extractSpan(headers) match {
         case Some(span) ⇒
           logger.info(s"Child trace. ${tr.spanName}")
-          trace.importMetadata(cr, span, "client")
-          trace.createChild(tr, cr).foreach { md ⇒
-            trace.importMetadata(tr, md, service)
-            trace.record(tr, TracingAnnotations.ServerReceived.text)
+          tracer.importMetadata(cr, span, "client")
+          tracer.createChild(tr, cr).foreach { md ⇒
+            tracer.importMetadata(tr, md, service)
+            tracer.record(tr, TracingAnnotations.ServerReceived.text)
           }
         case None ⇒
           logger.info(s"New trace. ${tr.spanName}")
-          trace.sample(tr, service, true)
+          tracer.sample(tr, service, true)
       }
 
-      trace.recordKeyValue(tr, "request.uri", request.uri.toString())
-      trace.recordKeyValue(tr, "request.path", request.uri.path.toString())
-      trace.recordKeyValue(tr, "request.method", request.method.value)
+      tracer.recordKeyValue(tr, "request.uri", request.uri.toString())
+      tracer.recordKeyValue(tr, "request.path", request.uri.path.toString())
+      tracer.recordKeyValue(tr, "request.method", request.method.value)
       request.uri.query().toMultiMap.foreach {
         case (key, values) ⇒
-          values.foreach(trace.recordKeyValue(tr, "request.query." + key, _))
+          values.foreach(tracer.recordKeyValue(tr, "request.query." + key, _))
       }
       tr
     }
   }
 
-  def traceEnd[T <: AnyRef](t: T)(implicit tr: TracingRequest, trace: TracingExtensionImpl): T = {
-    trace.record(tr, TracingAnnotations.ServerSend.text)
+  def traceEnd[T <: AnyRef](t: T)(implicit tr: TR, tracer: TEI): T = {
+    tracer.record(tr, TracingAnnotations.ServerSend.text)
     logger.info(s"In traceEnd. ${TracingAnnotations.ServerSend}")
 
     t
@@ -204,40 +204,29 @@ object CustomDirectives extends LazyLogging {
       case None ⇒ getContextByName(DefaultContextName)
     }
 
-  def good[A <: AnyRef](a: Future[A])(implicit ec: EC,
-                                      tr: TracingRequest,
-                                      trace: TracingExtensionImpl): StandardRoute =
+  def good[A <: AnyRef](a: Future[A])(implicit ec: EC, tr: TR, tracer: TEI): StandardRoute =
     complete(traceEnd(a.map(render(_))))
 
-  def good[A <: AnyRef](a: A)(implicit tr: TracingRequest,
-                              trace: TracingExtensionImpl): StandardRoute =
+  def good[A <: AnyRef](a: A)(implicit tr: TR, tracer: TEI): StandardRoute =
     complete(traceEnd(render(a)))
 
   private def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G): HttpResponse =
     or.fold(renderFailure(_), render(_))
 
-  def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: EC,
-                                                tr: TracingRequest,
-                                                trace: TracingExtensionImpl): StandardRoute =
+  def goodOrFailures[A <: AnyRef](
+      a: Result[A])(implicit ec: EC, tr: TR, tracer: TEI): StandardRoute =
     complete(traceEnd(a.map(renderGoodOrFailures)))
 
-  def getOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC,
-                                                  db: DB,
-                                                  tr: TracingRequest,
-                                                  trace: TracingExtensionImpl): StandardRoute =
+  def getOrFailures[A <: AnyRef](
+      a: DbResultT[A])(implicit ec: EC, db: DB, tr: TR, tracer: TEI): StandardRoute =
     complete(traceEnd(a.run().map(renderGoodOrFailures)))
 
-  def mutateOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC,
-                                                     db: DB,
-                                                     tr: TracingRequest,
-                                                     trace: TracingExtensionImpl): StandardRoute =
+  def mutateOrFailures[A <: AnyRef](
+      a: DbResultT[A])(implicit ec: EC, db: DB, tr: TR, tracer: TEI): StandardRoute =
     complete(traceEnd(a.runTxn().map(renderGoodOrFailures)))
 
-  def mutateWithNewTokenOrFailures[A <: AnyRef](a: DbResultT[(A, AuthPayload)])(
-      implicit ec: EC,
-      db: DB,
-      tr: TracingRequest,
-      trace: TracingExtensionImpl): Route = {
+  def mutateWithNewTokenOrFailures[A <: AnyRef](
+      a: DbResultT[(A, AuthPayload)])(implicit ec: EC, db: DB, tr: TR, tracer: TEI): Route = {
     onSuccess(a.runTxn()) { result ⇒
       result.fold({ f ⇒
         complete(renderFailure(f))
@@ -254,22 +243,15 @@ object CustomDirectives extends LazyLogging {
       })
     }
   }
-
-  def deleteOrFailures(a: DbResultT[_])(implicit ec: EC,
-                                        db: DB,
-                                        tr: TracingRequest,
-                                        trace: TracingExtensionImpl): StandardRoute =
+  def deleteOrFailures(
+      a: DbResultT[_])(implicit ec: EC, db: DB, tr: TR, tracer: TEI): StandardRoute =
     complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
 
-  def doOrFailures(a: DbResultT[_])(implicit ec: EC,
-                                    db: DB,
-                                    tr: TracingRequest,
-                                    trace: TracingExtensionImpl): StandardRoute =
+  def doOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB, tr: TR, tracer: TEI): StandardRoute =
     complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
 
-  def entityOr[T](um: FromRequestUnmarshaller[T], failure: failures.Failure)(
-      implicit tr: TracingRequest,
-      trace: TracingExtensionImpl): Directive1[T] =
+  def entityOr[T](um: FromRequestUnmarshaller[T],
+                  failure: failures.Failure)(implicit tr: TR, tracer: TEI): Directive1[T] =
     extractRequestContext.flatMap[Tuple1[T]] { ctx ⇒
       import ctx.{executionContext, materializer}
       onComplete(um(ctx.request)).flatMap {
