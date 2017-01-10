@@ -2,7 +2,6 @@ package responses.cord.base
 
 import models.cord.lineitems._
 import models.product.Mvp
-import org.json4s.JsonAST.JNull
 import responses.ResponseItem
 import services.LineItemManager
 import slick.driver.PostgresDriver.api._
@@ -73,13 +72,6 @@ object CordResponseLineItems {
                 }
                 .toSeq
     } yield result
-
-  private def isJsNull(attributes: Option[Json]): Boolean = {
-    attributes match {
-      case Some(a: JNull.type) ⇒ return true
-      case _                   ⇒ false
-    }
-  }
 
   def cordLineItemsFromOrderGrouped(cordRef: String, adjustmentMap: AdjustmentMap)(
       implicit ec: EC,
