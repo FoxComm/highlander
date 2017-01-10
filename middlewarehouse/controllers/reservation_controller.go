@@ -18,10 +18,10 @@ const (
 )
 
 type reservationController struct {
-	service services.IInventoryService
+	service services.InventoryService
 }
 
-func NewReservationController(service services.IInventoryService) IController {
+func NewReservationController(service services.InventoryService) IController {
 	return &reservationController{service}
 }
 

@@ -7,7 +7,6 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
-	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +16,7 @@ import (
 type summaryServiceTestSuite struct {
 	suite.Suite
 	service          SummaryService
-	inventoryService IInventoryService
+	inventoryService InventoryService
 	si               *models.StockItem
 	unitCost         int
 	onHand           int
@@ -38,12 +37,9 @@ func (suite *summaryServiceTestSuite) SetupSuite() {
 		"inventory_search_view",
 	})
 
-	stockItemRepository := repositories.NewStockItemRepository(suite.db)
-	stockItemUnitRepository := repositories.NewStockItemUnitRepository(suite.db)
-
 	suite.service = NewSummaryService(suite.db)
 
-	inventoryService := NewInventoryService(stockItemRepository, stockItemUnitRepository, suite.service)
+	inventoryService := NewInventoryService(suite.db, suite.service)
 	stockLocationService := NewStockLocationService(suite.db)
 
 	sl, _ := stockLocationService.CreateLocation(fixtures.GetStockLocation())

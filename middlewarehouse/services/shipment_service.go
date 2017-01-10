@@ -12,7 +12,7 @@ import (
 
 type shipmentService struct {
 	db                 *gorm.DB
-	inventoryService   IInventoryService
+	inventoryService   InventoryService
 	summaryService     SummaryService
 	shipmentRepo       repositories.IShipmentRepository
 	unitRepo           repositories.IStockItemUnitRepository
@@ -28,7 +28,7 @@ type IShipmentService interface {
 }
 
 func NewShipmentService(db *gorm.DB,
-	inventoryService IInventoryService,
+	inventoryService InventoryService,
 	summaryService SummaryService,
 	shipmentRepo repositories.IShipmentRepository,
 	unitRepository repositories.IStockItemUnitRepository,

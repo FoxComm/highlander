@@ -14,10 +14,10 @@ import (
 )
 
 type stockItemController struct {
-	service services.IInventoryService
+	service services.InventoryService
 }
 
-func NewStockItemController(service services.IInventoryService) IController {
+func NewStockItemController(service services.InventoryService) IController {
 	return &stockItemController{service}
 }
 

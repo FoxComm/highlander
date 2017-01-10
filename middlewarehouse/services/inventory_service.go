@@ -19,8 +19,8 @@ type inventoryService struct {
 	txn            *gorm.DB
 }
 
-type IInventoryService interface {
-	WithTransaction(txn *gorm.DB) IInventoryService
+type InventoryService interface {
+	WithTransaction(txn *gorm.DB) InventoryService
 	GetStockItems() ([]*models.StockItem, error)
 	GetStockItemById(id uint) (*models.StockItem, error)
 	CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error)
@@ -39,16 +39,13 @@ type IInventoryService interface {
 
 type updateItemsStatusFunc func() (int, error)
 
-func NewInventoryService(
-	stockItemRepo repositories.IStockItemRepository,
-	unitRepo repositories.IStockItemUnitRepository,
-	summaryService SummaryService,
-) IInventoryService {
-
+func NewInventoryService(db *gorm.DB, summaryService SummaryService) InventoryService {
+	stockItemRepo := repositories.NewStockItemRepository(db)
+	unitRepo := repositories.NewStockItemUnitRepository(db)
 	return &inventoryService{stockItemRepo, unitRepo, summaryService, nil}
 }
 
-func (service *inventoryService) WithTransaction(txn *gorm.DB) IInventoryService {
+func (service *inventoryService) WithTransaction(txn *gorm.DB) InventoryService {
 	return &inventoryService{
 		stockItemRepo:  service.stockItemRepo,
 		unitRepo:       service.unitRepo,

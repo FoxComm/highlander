@@ -17,7 +17,7 @@ import (
 type ShipmentServiceTestSuite struct {
 	GeneralServiceTestSuite
 	service          IShipmentService
-	inventoryService IInventoryService
+	inventoryService InventoryService
 	summaryService   SummaryService
 }
 

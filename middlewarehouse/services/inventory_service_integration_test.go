@@ -18,7 +18,7 @@ import (
 type InventoryServiceIntegrationTestSuite struct {
 	GeneralServiceTestSuite
 	itemResp       *models.StockItem
-	service        IInventoryService
+	service        InventoryService
 	summaryService SummaryService
 	sl             *models.StockLocation
 	sku            string

@@ -15,7 +15,7 @@ import (
 type InventoryServiceTestSuite struct {
 	GeneralServiceTestSuite
 	sl      *models.StockLocation
-	service IInventoryService
+	service InventoryService
 }
 
 func TestInventoryServiceSuite(t *testing.T) {

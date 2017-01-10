@@ -11,7 +11,7 @@ type InventoryServiceMock struct {
 	mock.Mock
 }
 
-func (m *InventoryServiceMock) WithTransaction(txn *gorm.DB) services.IInventoryService {
+func (m *InventoryServiceMock) WithTransaction(txn *gorm.DB) services.InventoryService {
 	return m
 }
 
