@@ -20,7 +20,7 @@ type shipmentService struct {
 	updateSummaryAsync bool
 }
 
-type IShipmentService interface {
+type ShipmentService interface {
 	GetShipmentsByOrder(orderRefNum string) ([]*models.Shipment, error)
 	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
@@ -30,11 +30,11 @@ type IShipmentService interface {
 func NewShipmentService(db *gorm.DB,
 	inventoryService InventoryService,
 	summaryService SummaryService,
-	shipmentRepo repositories.IShipmentRepository,
-	unitRepository repositories.IStockItemUnitRepository,
 	activityLogger IActivityLogger,
-) IShipmentService {
-	return &shipmentService{db, inventoryService, summaryService, shipmentRepo, unitRepository, activityLogger, true}
+) ShipmentService {
+	shipmentRepo := repositories.NewShipmentRepository(db)
+	unitRepo := repositories.NewStockItemUnitRepository(db)
+	return &shipmentService{db, inventoryService, summaryService, shipmentRepo, unitRepo, activityLogger, true}
 }
 
 func (service *shipmentService) GetShipmentsByOrder(referenceNumber string) ([]*models.Shipment, error) {

@@ -5,7 +5,6 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/config"
 	"github.com/FoxComm/highlander/middlewarehouse/controllers"
-	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 	"github.com/FoxComm/metamorphosis"
 
@@ -22,10 +21,6 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 		log.Panicf("Unable to initialize Kafka producer with error %s", err.Error())
 	}
 
-	//repositories
-	unitRepository := repositories.NewStockItemUnitRepository(db)
-	shipmentRepository := repositories.NewShipmentRepository(db)
-
 	//services
 	activityLogger := services.NewActivityLogger(producer)
 	summaryService := services.NewSummaryService(db)
@@ -33,7 +28,7 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 	carrierService := services.NewCarrierService(db)
 	stockLocationService := services.NewStockLocationService(db)
 	shippingMethodService := services.NewShippingMethodService(db)
-	shipmentService := services.NewShipmentService(db, inventoryService, summaryService, shipmentRepository, unitRepository, activityLogger)
+	shipmentService := services.NewShipmentService(db, inventoryService, summaryService, activityLogger)
 
 	return map[string]controllers.IController{
 		"v1/public/ping":             controllers.NewPingController(),

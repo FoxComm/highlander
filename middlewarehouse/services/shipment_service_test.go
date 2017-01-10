@@ -16,7 +16,7 @@ import (
 
 type ShipmentServiceTestSuite struct {
 	GeneralServiceTestSuite
-	service          IShipmentService
+	service          ShipmentService
 	inventoryService InventoryService
 	summaryService   SummaryService
 }
@@ -30,7 +30,6 @@ func (suite *ShipmentServiceTestSuite) SetupSuite() {
 
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
 	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
-	shipmentRepository := repositories.NewShipmentRepository(suite.db)
 
 	suite.summaryService = NewSummaryService(suite.db)
 	suite.inventoryService = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, nil}
@@ -40,8 +39,6 @@ func (suite *ShipmentServiceTestSuite) SetupSuite() {
 		suite.db,
 		suite.inventoryService,
 		suite.summaryService,
-		shipmentRepository,
-		unitRepository,
 		logger,
 	)
 }
