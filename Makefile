@@ -3,11 +3,10 @@ DOCKER_TAG ?= tpg-storefront
 DOCKER_BRANCH ?= master
 
 dev d:
-	source .env && npm run dev
+	source .env && yarn dev
 
-setup:
-	rm -rf ./node_modules
-	npm install
+setup: clean
+	yarn --pure-lockfile
 
 build: setup
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
@@ -22,7 +21,7 @@ docker-push:
 clean:
 	rm -rf ./node_modules
 
-test:
-	npm test
+test: setup
+	yarn test
 
 .PHONY: dev d setup build docker docker-push clean test
