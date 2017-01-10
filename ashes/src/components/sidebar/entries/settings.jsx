@@ -84,6 +84,13 @@ export default class SettingsEntry extends Component {
             expectedClaims={applicationClaims}>
             Applications
           </Link>
+          <Link
+            to="search"
+            className="fc-navigation-item__sublink"
+            actualClaims={claims}
+            expectedClaims={applicationClaims}>
+            Search
+          </Link>
         </NavigationItem>
       </li>
     );

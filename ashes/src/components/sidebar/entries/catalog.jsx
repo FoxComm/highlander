@@ -29,7 +29,7 @@ export default class CatalogEntry extends Component {
     const allClaims = { ...productClaims, ...skuClaims, ...inventoryClaims };
 
     if (!anyPermitted(allClaims, claims)) {
-      return <div></div>;
+      return <div />;
     }
 
     return (

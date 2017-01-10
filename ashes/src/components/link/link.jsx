@@ -34,7 +34,7 @@ export default class Link extends React.Component {
     };
 
     if (!isPermitted(expectedClaims, actualClaims)) {
-      return <div></div>;
+      return <div />;
     }
 
     return (

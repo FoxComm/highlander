@@ -30,7 +30,7 @@ export default class MarketingEntry extends Component {
     const allClaims = { ...giftCardClaims, ...promotionClaims, ...couponClaims };
 
     if (!anyPermitted(allClaims, claims)) {
-      return <div></div>;
+      return <div />;
     }
 
     return (

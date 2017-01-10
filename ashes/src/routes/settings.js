@@ -20,6 +20,8 @@ import MerchantApplicationDetails from 'components/merchant-applications/details
 import MerchantApplicationsList from 'components/merchant-applications/list';
 
 import IntegrationDetails from 'components/origin-integrations/details';
+import SearchListPage from 'components/search/search-list';
+import Search from 'components/search/search';
 
 import type { JWT } from 'lib/claims';
 
@@ -58,12 +60,26 @@ const getRoutes = (jwt: JWT) => {
       router.read('integrations', { component: IntegrationDetails, isIndex: true }),
     ]);
 
+  const searchRoutes =
+    router.read('search-base', { path: 'search' }, [
+      router.read('search-list-page', { component: SearchListPage }, [
+        router.read('search', { component: Search, isIndex: true }),
+
+        // @todo components for following routes:
+        router.read('queries', { path: 'queries', component: Search }),
+        router.read('stop-words', { path: 'stop-words', component: Search }),
+        router.read('synonyms', { path: 'synonyms', component: Search }),
+        router.read('activity-trail', { path: 'activity-trail', component: Search }),
+      ]),
+    ]);
+
   return (
     <div>
       {userRoutes}
       {pluginRoutes}
       {applicationsRoutes}
       {integrationRoutes}
+      {searchRoutes}
     </div>
   );
 };

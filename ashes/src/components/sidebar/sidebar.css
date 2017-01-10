@@ -1,0 +1,7 @@
+.root {
+  color: #9ba3a7;
+  background-color: #3a4350;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: flex 250ms ease-in-out;
+}
