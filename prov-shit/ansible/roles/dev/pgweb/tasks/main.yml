@@ -3,11 +3,11 @@
 # - name: Download Pgweb Release
 #   unarchive: src="{{pgweb_download_url}}" dest=/usr/local/bin/ remote_src=yes mode=0750
 
-- name: Copy Execution File
-  template: src=run_pgweb.sh dest=/usr/local/bin mode=0750
+# - name: Copy Execution File
+#   template: src=run_pgweb.sh dest=/usr/local/bin mode=0750
 
-- name: Copy Service
-  template: src=pgweb.service dest="{{dest_services}}/pgweb.service"
+# - name: Copy Service
+#   template: src=pgweb.service dest="{{dest_services}}/pgweb.service"
 
 - name: Create Bookmarks Directory
   file: path="{{home}}/.pgweb/bookmarks" state=directory
