@@ -10,3 +10,10 @@ This is a proxy which smooths over stones.
 
 The "intelligently" part refers to the multi armed bandit algorithm and potentially others
 in the future.
+
+
+| Directory                              | Description                                                                                                  |
+|:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
+| [proxy](proxy)                         | Main source for the proxy which implements the HTTP interface|
+| [clustering](clustering)               | Code to talk to bernardo and assign a request a cluster id|
+| [selection](selection)                 | Implementation of the resource map and resource selection algorithm |
