@@ -40,8 +40,8 @@ func NewAppConfig() (*AppConfig, error) {
 		return nil, fmt.Errorf(ErrorEnvironmentVariableNotFound, SCHEMA_REGISTRY_URL)
 	}
 
-	zipkinHttpEndpoint := os.Getenv(ZIPKIN_SERVER_URL)
-	if zipkinHttpEndpoint == "" {
+	zipkinServerURL := os.Getenv(ZIPKIN_SERVER_URL)
+	if zipkinServerURL == "" {
 		return nil, fmt.Errorf(ErrorEnvironmentVariableNotFound, ZIPKIN_SERVER_URL)
 	}
 
@@ -49,14 +49,14 @@ func NewAppConfig() (*AppConfig, error) {
 }
 
 type TracerConfig struct {
-	ZipkinHttpEndpoint string
+	ZipkinServerURL string
 }
 
 func NewTracerConfig() (*TracerConfig, error) {
-	zipkinHttpEndpoint := os.Getenv(ZIPKIN_SERVER_URL)
-	if zipkinHttpEndpoint == "" {
+	zipkinServerURL := os.Getenv(ZIPKIN_SERVER_URL)
+	if zipkinServerURL == "" {
 		return nil, fmt.Errorf(ErrorEnvironmentVariableNotFound, ZIPKIN_SERVER_URL)
 	}
 
-	return &TracerConfig{zipkinHttpEndpoint}, nil
+	return &TracerConfig{zipkinServerURL}, nil
 }
