@@ -242,7 +242,7 @@ marketplace_db_user: marketplace
 marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_host}}/{{marketplace_db_name}}"
 
 # Set this to true for first run deployments
-first_run: false
+first_run: true
 
 # BuildKite Settings
 buildkite_env: gce

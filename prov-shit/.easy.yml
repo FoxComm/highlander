@@ -72,6 +72,9 @@ shortcuts:
   - name: Provision TPG Test
     alias: tpg_test.yml
     target: ansible/tpg_test.yml
+  - name: Provision TGT Test
+    alias: tgt_test.yml
+    target: ansible/tgt_test.yml
 
   # Migration
   - name: Migrate Phoenix DB
