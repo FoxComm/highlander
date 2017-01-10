@@ -11,8 +11,8 @@ import (
 	"github.com/labstack/echo"
 )
 
-var url = os.Getenv("URL")
-var port = os.Getenv("PORT")
+var url = os.Getenv("API_URL")
+var port = os.Getenv("HENHOUSE_PORT")
 
 func GetProductFunnel(c echo.Context) error {
 	id := c.Param("id")
@@ -31,7 +31,6 @@ func henhouseProductFunnel(id string) (string, error) {
 		key += "track_product_" + id + "_" + step + ","
 	}
 
-	// resp, reqErr := http.Get("http://hal.foxcommerce.com:31526/summary?keys=" + key)
 	resp, reqErr := http.Get(url + ":" + port + "/summary?keys=" + key)
 	if reqErr != nil {
 		return "", reqErr
