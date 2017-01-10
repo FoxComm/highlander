@@ -786,7 +786,7 @@ class ProductIntegrationTest
     val allSkus: Seq[String] =
       Seq(skuRedSmallCode, skuRedLargeCode, skuGreenSmallCode, skuGreenLargeCode)
 
-    val simpleSkus = Seq(
+    val simpleVariants = Seq(
         SimpleVariant(skuRedSmallCode, "A small, red item", 9999, Currency.USD),
         SimpleVariant(skuRedLargeCode, "A large, red item", 9999, Currency.USD),
         SimpleVariant(skuGreenSmallCode, "A small, green item", 9999, Currency.USD),
@@ -810,7 +810,7 @@ class ProductIntegrationTest
 
       for {
         // Create the SKUs.
-        skus ← * <~ Mvp.insertVariants(scope, ctx.id, simpleSkus)
+        skus ← * <~ Mvp.insertVariants(scope, ctx.id, simpleVariants)
 
         // Create the product.
         product ← * <~ Mvp.insertProductWithExistingSkus(scope, ctx.id, simpleProd, skus)
