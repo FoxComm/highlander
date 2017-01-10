@@ -10,6 +10,10 @@ type internalError struct {
 	err error
 }
 
+func (failure internalError) Error() string {
+	return failure.err.Error()
+}
+
 func (failure internalError) Status() int {
 	return http.StatusInternalServerError
 }

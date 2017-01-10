@@ -10,6 +10,10 @@ type badRequest struct {
 	err error
 }
 
+func (failure badRequest) Error() string {
+	return failure.err.Error()
+}
+
 func (failure badRequest) Status() int {
 	return http.StatusBadRequest
 }

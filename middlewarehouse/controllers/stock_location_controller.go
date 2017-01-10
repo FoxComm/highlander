@@ -30,10 +30,8 @@ func (controller *stockLocationController) SetUp(router gin.IRouter) {
 
 func (controller *stockLocationController) GetLocations() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		locations, err := controller.service.GetLocations()
-		if err != nil {
-			fail := failures.NewInternalError(err)
-			failures.Abort(context, fail)
+		locations, fail := controller.service.GetLocations()
+		if failures.HandleFailuresHTTP(context, fail) {
 			return
 		}
 
@@ -48,9 +46,8 @@ func (controller *stockLocationController) GetLocationByID() gin.HandlerFunc {
 			return
 		}
 
-		location, err := controller.service.GetLocationByID(id)
-		if err != nil {
-			handleServiceError(context, err)
+		location, fail := controller.service.GetLocationByID(id)
+		if failures.HandleFailuresHTTP(context, fail) {
 			return
 		}
 
@@ -70,9 +67,8 @@ func (controller *stockLocationController) CreateLocation() gin.HandlerFunc {
 		}
 
 		model := payload.Model()
-		location, err := controller.service.CreateLocation(model)
-		if err != nil {
-			handleServiceError(context, err)
+		location, fail := controller.service.CreateLocation(model)
+		if failures.HandleFailuresHTTP(context, fail) {
 			return
 		}
 
@@ -95,9 +91,8 @@ func (controller *stockLocationController) UpdateLocation() gin.HandlerFunc {
 		model := payload.Model()
 		model.ID = id
 
-		location, err := controller.service.UpdateLocation(model)
-		if err != nil {
-			handleServiceError(context, err)
+		location, fail := controller.service.UpdateLocation(model)
+		if failures.HandleFailuresHTTP(context, fail) {
 			return
 		}
 
@@ -112,8 +107,8 @@ func (controller *stockLocationController) DeleteLocation() gin.HandlerFunc {
 			return
 		}
 
-		if err := controller.service.DeleteLocation(id); err != nil {
-			handleServiceError(context, err)
+		fail := controller.service.DeleteLocation(id)
+		if failures.HandleFailuresHTTP(context, fail) {
 			return
 		}
 

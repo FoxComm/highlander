@@ -76,10 +76,9 @@ func (suite *StockLocationServiceTestSuite) Test_CreateLocation() {
 func (suite *StockLocationServiceTestSuite) Test_CreateLocation_Error() {
 	model := &models.StockLocation{Name: "Location Name 1", Type: "Wherehouse"}
 
-	location, err := suite.service.CreateLocation(model)
+	_, err := suite.service.CreateLocation(model)
 
 	suite.NotNil(err)
-	suite.Nil(location)
 }
 
 func (suite *StockLocationServiceTestSuite) Test_UpdateLocation() {
@@ -97,10 +96,9 @@ func (suite *StockLocationServiceTestSuite) Test_UpdateLocation() {
 func (suite *StockLocationServiceTestSuite) Test_UpdateLocation_Error() {
 	model := &models.StockLocation{Name: "Location Name 1", Type: "Wherehouse"}
 
-	location, err := suite.service.CreateLocation(model)
+	_, err := suite.service.CreateLocation(model)
 
 	suite.NotNil(err)
-	suite.Nil(location)
 }
 
 func (suite *StockLocationServiceTestSuite) Test_DeleteLocation() {

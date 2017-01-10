@@ -5,6 +5,7 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
@@ -29,10 +30,8 @@ func (controller *carrierController) SetUp(router gin.IRouter) {
 
 func (controller *carrierController) getCarriers() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		carriers, err := controller.service.GetCarriers()
-		//ensure fetched successfully
-		if err != nil {
-			context.AbortWithError(http.StatusInternalServerError, err)
+		carriers, fail := controller.service.GetCarriers()
+		if failures.HandleFailuresHTTP(context, fail) {
 			return
 		}
 
@@ -54,12 +53,12 @@ func (controller *carrierController) getCarrierByID() gin.HandlerFunc {
 		}
 
 		//get carrier by id
-		carrier, err := controller.service.GetCarrierByID(id)
-		if err == nil {
-			context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
-		} else {
-			handleServiceError(context, err)
+		carrier, fail := controller.service.GetCarrierByID(id)
+		if failures.HandleFailuresHTTP(context, fail) {
+			return
 		}
+
+		context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
 	}
 }
 
@@ -76,12 +75,12 @@ func (controller *carrierController) createCarrier() gin.HandlerFunc {
 		}
 
 		//try create
-		carrier, err := controller.service.CreateCarrier(payload.Model())
-		if err == nil {
-			context.JSON(http.StatusCreated, responses.NewCarrierFromModel(carrier))
-		} else {
-			handleServiceError(context, err)
+		carrier, fail := controller.service.CreateCarrier(payload.Model())
+		if failures.HandleFailuresHTTP(context, fail) {
+			return
 		}
+
+		context.JSON(http.StatusCreated, responses.NewCarrierFromModel(carrier))
 	}
 }
 
@@ -102,13 +101,13 @@ func (controller *carrierController) updateCarrier() gin.HandlerFunc {
 		//try update
 		model := payload.Model()
 		model.ID = id
-		carrier, err := controller.service.UpdateCarrier(model)
+		carrier, fail := controller.service.UpdateCarrier(model)
 
-		if err == nil {
-			context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
-		} else {
-			handleServiceError(context, err)
+		if failures.HandleFailuresHTTP(context, fail) {
+			return
 		}
+
+		context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
 	}
 }
 
@@ -119,10 +118,11 @@ func (controller *carrierController) deleteCarrier() gin.HandlerFunc {
 			return
 		}
 
-		if err := controller.service.DeleteCarrier(id); err == nil {
-			context.Status(http.StatusNoContent)
-		} else {
-			handleServiceError(context, err)
+		fail := controller.service.DeleteCarrier(id)
+		if failures.HandleFailuresHTTP(context, fail) {
+			return
 		}
+
+		context.Status(http.StatusNoContent)
 	}
 }

@@ -63,19 +63,18 @@ func (suite *stockLocationRepositoryTestSuite) Test_GetLocationById_NotFound() {
 	location, err := suite.repository.GetLocationByID(suite.location.ID + 1)
 
 	suite.Nil(location)
-	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, suite.location.ID+1), err)
+	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, suite.location.ID+1).Error(), err.Error())
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_CreateLocation() {
-	model := &models.StockLocation{
+	location := &models.StockLocation{
 		Name:    "Some Name",
 		Type:    "Warehouse",
 		Address: &models.Address{Name: "Warehouse Address"},
 	}
 
-	location, err := suite.repository.CreateLocation(model)
+	err := suite.repository.CreateLocation(location)
 
-	suite.NotNil(location)
 	suite.Nil(err)
 	suite.NotNil(location.ID)
 }
@@ -84,12 +83,11 @@ func (suite *stockLocationRepositoryTestSuite) Test_UpdateLocation() {
 	model := *suite.location
 	model.Name = "Updated Name"
 
-	location, err := suite.repository.UpdateLocation(&model)
+	err := suite.repository.UpdateLocation(&model)
 
-	suite.NotNil(location)
 	suite.Nil(err)
-	suite.Equal(model.Name, location.Name)
-	suite.NotEqual(suite.location.Name, location.Name)
+	suite.Equal("Updated Name", model.Name)
+	suite.NotEqual(suite.location.Name, model.Name)
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_UpdateLocation_NotFound() {
@@ -100,10 +98,9 @@ func (suite *stockLocationRepositoryTestSuite) Test_UpdateLocation_NotFound() {
 	}
 	model.ID = 100
 
-	location, err := suite.repository.UpdateLocation(model)
+	err := suite.repository.UpdateLocation(model)
 
-	suite.Nil(location)
-	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, 100), err)
+	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, 100).Error(), err.Error())
 }
 
 func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation() {
@@ -115,5 +112,5 @@ func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation() {
 func (suite *stockLocationRepositoryTestSuite) Test_DeleteLocation_NotFound() {
 	err := suite.repository.DeleteLocation(100)
 
-	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, 100), err)
+	suite.Equal(fmt.Errorf(ErrorStockLocationNotFound, 100).Error(), err.Error())
 }

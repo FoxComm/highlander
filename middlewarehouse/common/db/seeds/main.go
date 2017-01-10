@@ -40,12 +40,11 @@ func createShippingMethods(db *gorm.DB) error {
 		},
 	}
 
-	var err error
 	for idx, carrier := range carriers {
-		carriers[idx], err = carrierRepo.CreateCarrier(carrier)
-		if err != nil {
+		if err := carrierRepo.CreateCarrier(carrier); err != nil {
 			return err
 		}
+		carriers[idx] = carrier
 	}
 
 	log.Printf("Seeding shipping methods...")
@@ -87,7 +86,7 @@ func createShippingMethods(db *gorm.DB) error {
 	}
 
 	for _, shippingMethod := range shippingMethods {
-		if _, err = shippingRepo.CreateShippingMethod(shippingMethod); err != nil {
+		if _, err := shippingRepo.CreateShippingMethod(shippingMethod); err != nil {
 			return err
 		}
 	}

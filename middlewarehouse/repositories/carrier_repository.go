@@ -1,8 +1,7 @@
 package repositories
 
 import (
-	"fmt"
-
+	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/jinzhu/gorm"
@@ -17,72 +16,70 @@ type carrierRepository struct {
 }
 
 type ICarrierRepository interface {
-	GetCarriers() ([]*models.Carrier, error)
-	GetCarrierByID(id uint) (*models.Carrier, error)
-	CreateCarrier(carrier *models.Carrier) (*models.Carrier, error)
-	UpdateCarrier(carrier *models.Carrier) (*models.Carrier, error)
-	DeleteCarrier(id uint) error
+	GetCarriers() ([]*models.Carrier, failures.Failure)
+	GetCarrierByID(id uint) (*models.Carrier, failures.Failure)
+	CreateCarrier(carrier *models.Carrier) failures.Failure
+	UpdateCarrier(carrier *models.Carrier) failures.Failure
+	DeleteCarrier(id uint) failures.Failure
 }
 
 func NewCarrierRepository(db *gorm.DB) ICarrierRepository {
 	return &carrierRepository{db}
 }
 
-func (repository *carrierRepository) GetCarriers() ([]*models.Carrier, error) {
+func (repository *carrierRepository) GetCarriers() ([]*models.Carrier, failures.Failure) {
 	var carriers []*models.Carrier
 
 	err := repository.db.Find(&carriers).Error
 
-	return carriers, err
+	return carriers, failures.NewFailure(err)
 }
 
-func (repository *carrierRepository) GetCarrierByID(id uint) (*models.Carrier, error) {
+func (repository *carrierRepository) GetCarrierByID(id uint) (*models.Carrier, failures.Failure) {
 	carrier := &models.Carrier{}
 
 	if err := repository.db.First(carrier, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, fmt.Errorf(ErrorCarrierNotFound, id)
+			return nil, failures.NewNotFound("Carrier", id)
 		}
 
-		return nil, err
+		return nil, failures.NewFailure(err)
 	}
 
 	return carrier, nil
 }
 
-func (repository *carrierRepository) CreateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
-	err := repository.db.Create(carrier).Error
-
-	if err != nil {
-		return nil, err
+func (repository *carrierRepository) CreateCarrier(carrier *models.Carrier) failures.Failure {
+	if err := repository.db.Create(carrier).Error; err != nil {
+		return failures.NewFailure(err)
 	}
 
-	return repository.GetCarrierByID(carrier.ID)
+	return nil
 }
 
-func (repository *carrierRepository) UpdateCarrier(carrier *models.Carrier) (*models.Carrier, error) {
+func (repository *carrierRepository) UpdateCarrier(carrier *models.Carrier) failures.Failure {
 	result := repository.db.Model(&carrier).Updates(carrier)
 
 	if result.Error != nil {
-		return nil, result.Error
+		return failures.NewFailure(result.Error)
 	}
 
 	if result.RowsAffected == 0 {
-		return nil, fmt.Errorf(ErrorCarrierNotFound, carrier.ID)
+		return failures.NewNotFound("Carrier", carrier.ID)
 	}
 
-	return repository.GetCarrierByID(carrier.ID)
+	return nil
 }
 
-func (repository *carrierRepository) DeleteCarrier(id uint) error {
+func (repository *carrierRepository) DeleteCarrier(id uint) failures.Failure {
 	res := repository.db.Delete(&models.Carrier{}, id)
 
 	if res.Error != nil {
-		return res.Error
+		return failures.NewFailure(res.Error)
 	}
 
 	if res.RowsAffected == 0 {
-		return fmt.Errorf(ErrorCarrierNotFound, id)
+		return failures.NewNotFound("Carrier", id)
 	}
 
 	return nil

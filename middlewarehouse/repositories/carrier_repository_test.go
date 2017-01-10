@@ -59,7 +59,7 @@ func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_NotFound_ReturnsNot
 	_, err := suite.repository.GetCarrierByID(1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, 1), err)
+	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, 1).Error(), err.Error())
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_GetCarrierByID_Found_ReturnsCarrierModel() {
@@ -80,7 +80,8 @@ func (suite *CarrierRepositoryTestSuite) Test_CreateCarrier_ReturnsCreatedRecord
 	carrier1 := fixtures.GetCarrier(1)
 
 	//act
-	carrier, err := suite.repository.CreateCarrier(fixtures.GetCarrier(0))
+	carrier := fixtures.GetCarrier(0)
+	err := suite.repository.CreateCarrier(carrier)
 
 	//assert
 	suite.Nil(err)
@@ -92,23 +93,24 @@ func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_NotFound_ReturnsNotF
 	carrier1 := fixtures.GetCarrier(1)
 
 	//act
-	_, err := suite.repository.UpdateCarrier(carrier1)
+	err := suite.repository.UpdateCarrier(carrier1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, carrier1.ID), err)
+	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, carrier1.ID).Error(), err.Error())
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_UpdateCarrier_Found_ReturnsUpdatedRecord() {
 	//arrange
-	carrier1 := fixtures.GetCarrier(1)
-	suite.Nil(suite.db.Create(carrier1).Error)
+	carrier := fixtures.GetCarrier(1)
+	suite.Nil(suite.db.Create(carrier).Error)
 
 	//act
-	carrier, err := suite.repository.UpdateCarrier(carrier1)
+	carrier.Name = "UPDATED"
+	err := suite.repository.UpdateCarrier(carrier)
 
 	//assert
 	suite.Nil(err)
-	suite.Equal(carrier1, carrier)
+	suite.Equal("UPDATED", carrier.Name)
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotFoundError() {
@@ -116,7 +118,7 @@ func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_NotFound_ReturnsNotF
 	err := suite.repository.DeleteCarrier(1)
 
 	//assert
-	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, 1), err)
+	suite.Equal(fmt.Errorf(ErrorCarrierNotFound, 1).Error(), err.Error())
 }
 
 func (suite *CarrierRepositoryTestSuite) Test_DeleteCarrier_Found_ReturnsNoError() {

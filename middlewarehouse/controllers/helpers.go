@@ -12,7 +12,6 @@ import (
 
 	"github.com/SermoDigital/jose/jwt"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 func parse(context *gin.Context, model interface{}) failures.Failure {
@@ -61,9 +60,10 @@ func handleServiceError(context *gin.Context, err error) {
 }
 
 func getFailure(err error) failures.Failure {
-	if err == gorm.ErrRecordNotFound {
-		return failures.NewNotFound(err)
-	}
+	fmt.Printf("The error: %v\n", err)
+	// if err == gorm.ErrRecordNotFound {
+	// 	return failures.NewNotFound(err)
+	// }
 
 	return failures.NewBadRequest(err)
 }

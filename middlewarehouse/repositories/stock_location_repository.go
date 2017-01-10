@@ -1,8 +1,7 @@
 package repositories
 
 import (
-	"fmt"
-
+	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/jinzhu/gorm"
@@ -17,71 +16,70 @@ type stockLocationRepository struct {
 }
 
 type IStockLocationRepository interface {
-	GetLocations() ([]*models.StockLocation, error)
-	GetLocationByID(id uint) (*models.StockLocation, error)
-	CreateLocation(location *models.StockLocation) (*models.StockLocation, error)
-	UpdateLocation(location *models.StockLocation) (*models.StockLocation, error)
-	DeleteLocation(id uint) error
+	GetLocations() ([]*models.StockLocation, failures.Failure)
+	GetLocationByID(id uint) (*models.StockLocation, failures.Failure)
+	CreateLocation(location *models.StockLocation) failures.Failure
+	UpdateLocation(location *models.StockLocation) failures.Failure
+	DeleteLocation(id uint) failures.Failure
 }
 
 func NewStockLocationRepository(db *gorm.DB) IStockLocationRepository {
 	return &stockLocationRepository{db}
 }
 
-func (repository *stockLocationRepository) GetLocations() ([]*models.StockLocation, error) {
+func (repository *stockLocationRepository) GetLocations() ([]*models.StockLocation, failures.Failure) {
 	locations := []*models.StockLocation{}
 
 	err := repository.db.Find(&locations).Error
 
-	return locations, err
+	return locations, failures.NewFailure(err)
 }
 
-func (repository *stockLocationRepository) GetLocationByID(id uint) (*models.StockLocation, error) {
+func (repository *stockLocationRepository) GetLocationByID(id uint) (*models.StockLocation, failures.Failure) {
 	location := &models.StockLocation{}
 
 	if err := repository.db.First(location, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, fmt.Errorf(ErrorStockLocationNotFound, id)
+			return nil, failures.NewNotFound("Stock location", id)
 		}
-		return nil, err
+
+		return nil, failures.NewFailure(err)
 	}
 
 	return location, nil
 }
 
-func (repository *stockLocationRepository) CreateLocation(location *models.StockLocation) (*models.StockLocation, error) {
-	err := repository.db.Create(location).Error
-
-	if err != nil {
-		return nil, err
+func (repository *stockLocationRepository) CreateLocation(location *models.StockLocation) failures.Failure {
+	if err := repository.db.Create(location).Error; err != nil {
+		return failures.NewFailure(err)
 	}
 
-	return repository.GetLocationByID(location.ID)
+	return nil
 }
 
-func (repository *stockLocationRepository) UpdateLocation(location *models.StockLocation) (*models.StockLocation, error) {
+func (repository *stockLocationRepository) UpdateLocation(location *models.StockLocation) failures.Failure {
 	res := repository.db.Model(&location).Updates(location)
 
 	if res.Error != nil {
-		return nil, res.Error
+		return failures.NewFailure(res.Error)
 	}
 
 	if res.RowsAffected == 0 {
-		return nil, fmt.Errorf(ErrorStockLocationNotFound, location.ID)
+		return failures.NewNotFound("Stock location", location.ID)
 	}
 
-	return repository.GetLocationByID(location.ID)
+	return nil
 }
 
-func (repository *stockLocationRepository) DeleteLocation(id uint) error {
+func (repository *stockLocationRepository) DeleteLocation(id uint) failures.Failure {
 	res := repository.db.Delete(&models.StockLocation{}, id)
 
 	if res.Error != nil {
-		return res.Error
+		return failures.NewFailure(res.Error)
 	}
 
 	if res.RowsAffected == 0 {
-		return fmt.Errorf(ErrorStockLocationNotFound, id)
+		return failures.NewNotFound("Stock location", id)
 	}
 
 	return nil
