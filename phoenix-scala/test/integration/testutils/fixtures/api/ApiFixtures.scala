@@ -22,26 +22,28 @@ import utils.aliases.Json
 
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { self: FoxSuite ⇒
 
-  trait ProductSku_ApiFixture {
-    private val productCode = s"testprod_${Lorem.numerify("####")}"
-    val skuCode             = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
-    def skuPrice: Int = Random.nextInt(20000) + 100
+  trait ProductVariant_ApiFixture {
+    val productCode: String        = s"testprod_${Lorem.numerify("####")}"
+    val productVariantCode: String = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
 
-    private val skuPayload = ProductVariantPayload(
-        attributes = Map("code"        → tv(skuCode),
-                         "title"       → tv(skuCode.capitalize),
-                         "salePrice"   → tv(("currency" → "USD") ~ ("value" → skuPrice), "price"),
-                         "retailPrice" → tv(("currency" → "USD") ~ ("value" → skuPrice), "price")))
+    def productVariantPrice: Int = Random.nextInt(20000) + 100
 
-    val productPayload =
+    private val variantPayload = ProductVariantPayload(
+        attributes =
+          Map("code"        → tv(productVariantCode),
+              "title"       → tv(productVariantCode.capitalize),
+              "salePrice"   → tv(("currency" → "USD") ~ ("value" → productVariantPrice), "price"),
+              "retailPrice" → tv(("currency" → "USD") ~ ("value" → productVariantPrice), "price")))
+
+    val productPayload: CreateProductPayload =
       CreateProductPayload(
           attributes =
             Map("name" → tv(productCode.capitalize), "title" → tv(productCode.capitalize)),
           slug = productCode.toLowerCase,
-          variants = Seq(skuPayload),
+          variants = Seq(variantPayload),
           options = None)
 
-    val product = productsApi.create(productPayload).as[ProductRoot]
+    val product: ProductRoot = productsApi.create(productPayload).as[ProductRoot]
   }
 
   trait Coupon_TotalQualifier_PercentOff extends CouponFixtureBase {

@@ -58,14 +58,14 @@ class ProductIntegrationTest
   import ProductTestExtensions._
 
   "GET v1/products/:context" - {
-    "returns assigned taxonomies" in new StoreAdmin_Seed with ProductSku_ApiFixture
+    "returns assigned taxonomies" in new StoreAdmin_Seed with ProductVariant_ApiFixture
     with FlatTaxons_Baked {
       taxonApi(taxons.head.formId).assignProduct(product.id).mustBeOk()
       val updatedProduct = productsApi(product.id).get().as[ProductResponse.Root]
       updatedProduct.taxons.map(_.taxon.id) must contain(taxons.head.formId)
     }
 
-    "queries product by slug" in new ProductSku_ApiFixture {
+    "queries product by slug" in new ProductVariant_ApiFixture {
       val slug          = "simple-product"
       val simpleProduct = Products.mustFindById404(product.id).gimme
 
@@ -82,7 +82,7 @@ class ProductIntegrationTest
       productsApi(slug).get().as[ProductResponse.Root].id must === (updated.formId)
     }
 
-    "queries product by slug ignoring case" in new ProductSku_ApiFixture {
+    "queries product by slug ignoring case" in new ProductVariant_ApiFixture {
       val slug          = "Simple-Product"
       val simpleProduct = Products.mustFindById404(product.id).gimme
       val updated       = simpleProduct.copy(slug = slug.toLowerCase)
