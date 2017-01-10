@@ -596,7 +596,7 @@ class ProductIntegrationTest
         val silverValuePayload =
           ProductOptionValuePayload(name = Some("Silver"), swatch = None, skuCodes = Seq.empty)
         val metalVariantPayload =
-          makeVariantPayload("Metal", Seq(goldValuePayload, silverValuePayload))
+          productOptionPayload("Metal", Seq(goldValuePayload, silverValuePayload))
 
         val payload = UpdateProductPayload(attributes = Map.empty,
                                            variants = Some(Seq(newSkuPayload)),
@@ -847,7 +847,7 @@ class ProductIntegrationTest
   }
 
   trait VariantFixture extends Fixture {
-    def makeVariantPayload(name: String, values: Seq[ProductOptionValuePayload]) =
+    def productOptionPayload(name: String, values: Seq[ProductOptionValuePayload]) =
       ProductOptionPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → name))),
                            values = Some(values))
 
@@ -862,7 +862,7 @@ class ProductIntegrationTest
                                                       swatch = Some("00ff00"),
                                                       skuCodes = Seq.empty)
 
-    val justColorVariantPayload = makeVariantPayload(
+    val justColorVariantPayload = productOptionPayload(
         "Color",
         Seq(redValuePayload.copy(skuCodes = Seq(skuRedSmallCode)),
             greenValuePayload.copy(skuCodes = Seq(skuGreenSmallCode))))
@@ -873,17 +873,17 @@ class ProductIntegrationTest
     val largeValuePayload =
       ProductOptionValuePayload(name = Some("Large"), swatch = None, skuCodes = Seq.empty)
 
-    val justSizeVariantPayload = makeVariantPayload(
+    val justSizeVariantPayload = productOptionPayload(
         "Size",
         Seq(smallValuePayload.copy(skuCodes = Seq(skuRedSmallCode)),
             largeValuePayload.copy(skuCodes = Seq(skuRedLargeCode))))
 
-    private val colorVariantPayload = makeVariantPayload(
+    private val colorVariantPayload = productOptionPayload(
         "Color",
         Seq(redValuePayload.copy(skuCodes = redSkus),
             greenValuePayload.copy(skuCodes = greenSkus)))
 
-    private val sizeVariantPayload = makeVariantPayload(
+    private val sizeVariantPayload = productOptionPayload(
         "Size",
         Seq(smallValuePayload.copy(skuCodes = smallSkus),
             largeValuePayload.copy(skuCodes = largeSkus)))
@@ -911,12 +911,12 @@ class ProductIntegrationTest
   trait RemovingSkusFixture extends VariantFixture {
 
     val twoSkuVariantPayload: Seq[ProductOptionPayload] = Seq(
-        makeVariantPayload("Size",
-                           Seq(redValuePayload.copy(skuCodes = Seq(skuRedLargeCode)),
-                               greenValuePayload.copy(skuCodes = Seq(skuGreenSmallCode)))),
-        makeVariantPayload("Color",
-                           Seq(smallValuePayload.copy(skuCodes = Seq(skuGreenSmallCode)),
-                               largeValuePayload.copy(skuCodes = Seq(skuRedLargeCode)))))
+        productOptionPayload("Size",
+                             Seq(redValuePayload.copy(skuCodes = Seq(skuRedLargeCode)),
+                                 greenValuePayload.copy(skuCodes = Seq(skuGreenSmallCode)))),
+        productOptionPayload("Color",
+                             Seq(smallValuePayload.copy(skuCodes = Seq(skuGreenSmallCode)),
+                                 largeValuePayload.copy(skuCodes = Seq(skuRedLargeCode)))))
 
     val twoSkuPayload: Seq[ProductVariantPayload] = Seq(
         makeVariantPayload(skuRedLargeCode, "A large, red item", None),
