@@ -367,7 +367,7 @@ class EditBilling extends Component {
         >
           {t('Billing address is same as shipping')}
         </Checkbox>
-        {this.renderBillingAddress(withoutDefaultCheckbox)}
+        {this.renderBillingAddress(true)}
       </div>
     );
   }
