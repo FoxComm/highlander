@@ -10,7 +10,6 @@
     "volumes": [],
     "docker": {
       "image": "{{docker_registry}}:5000/bernardo:{{docker_branch}}",
-      "image": "docker-stage.foxcommerce.com:5000/bernardo:master",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
