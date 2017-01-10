@@ -62,7 +62,10 @@ shortcuts:
     alias: sinopia.yml
     target: ansible/bootstrap_sinopia.yml
 
-  # Production
+  # Test Machines
+  - name: Provision Stage
+    alias: stage.yml
+    target: ansible/stage.yml
   - name: Provision TD Test
     alias: td_test.yml
     target: ansible/td_test.yml
