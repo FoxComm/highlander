@@ -3,3 +3,7 @@ type HttpError = {
   statusText?: string,
   messages: Array<string>,
 };
+
+type AbortablePromise = Promise & {
+  abort?: () => void,
+}

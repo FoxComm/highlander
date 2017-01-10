@@ -152,7 +152,6 @@ capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
 shipstation_api_key: ""
 shipstation_api_secret: ""
 shipstation_topic: "activities"
-shipstation_partition: 1
 shipstation_interval: "10s"
 
 # Ashes

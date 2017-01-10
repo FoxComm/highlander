@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ELASTIC_ROOT=$1
 unset ES_HEAP_SIZE

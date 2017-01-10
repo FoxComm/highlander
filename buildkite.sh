@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # A script executed on BuildKite to test developer appliance provisioning on GCE
 
 export VAGRANT_DEFAULT_PROVIDER=google
-export eval `cat ./.env.local`
+export eval $(cat ./.env.local)
 
 echo -e "--- Executing \033[33mvagrant up\033[0m"
 vagrant up --provider=google appliance

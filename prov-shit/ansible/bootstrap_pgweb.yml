@@ -1,0 +1,19 @@
+---
+
+- name: Bootstrap Pgweb
+  hosts: '{{hostname}}'
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    with_marketplace: false
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname where to install Pgweb"
+      default: "foxcomm-stage-backend"
+      private: no
+
+  roles:
+    - { role: dev/pgweb }
+
+  handlers:
+    - include: roles/base/consul_agent/handlers/main.yml

@@ -70,6 +70,14 @@ class User extends Component {
     return <div className="fc-user__empty-messages">An error occurred. Try again later.</div>;
   }
 
+  get activityEntity() {
+    return {
+      // TODO change this to 'user'
+      entityType: 'account',
+      entityId: this.props.params.userId,
+    };
+  }
+
   @autobind
   handleFormChange(user) {
     this.setState({ user });
@@ -85,6 +93,7 @@ class User extends Component {
       user: this.state.user,
       onChange: this.handleFormChange,
       isNew: this.isNew,
+      entity: this.activityEntity,
     });
   }
 

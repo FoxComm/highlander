@@ -5,7 +5,7 @@ import { createAction, createReducer } from 'redux-act';
 import { post } from 'lib/search';
 import { getBillingAddress } from 'lib/credit-card-utils';
 import { toQuery } from '../../elastic/common';
-import createAsyncActions from '../async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 
 import { selectCreditCard } from './details';
 
