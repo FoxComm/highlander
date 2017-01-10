@@ -1,0 +1,47 @@
+{
+  "id": "/henhouse",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 500,
+  "disk": 0,
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "/hendata",
+        "hostPath": "/hendata",
+        "mode": "RW"
+      }
+    ],
+    "docker": {
+      "image": "{{docker_registry}}:5000/henhouse:{{docker_branch}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "env": {
+    "DATA": "/hendata"
+  },
+  "healthChecks": [
+    {
+      "path": "/summary?keys=ping",
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false
+    }
+  ],
+  "portDefinitions": [
+    {
+      "port": 9999,
+      "protocol": "tcp",
+      "labels": {}
+    }
+  ]
+}

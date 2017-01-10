@@ -148,6 +148,10 @@ shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
 capture_consumer_src: "{{middlewarehouse_src}}/consumers/capture"
 capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
 
+#Bernardo
+bernardo_db_name: ic
+bernardo_db_user: ic
+
 # Shipstation consumer
 shipstation_api_key: ""
 shipstation_api_secret: ""
