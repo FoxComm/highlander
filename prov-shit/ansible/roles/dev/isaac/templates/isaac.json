@@ -29,9 +29,9 @@
   },
   "env": {
     "PUBLIC_KEY": "/certs/public_key.pem",
-    "DB_HOST": "172.17.0.1",
-    "DB_NAME": "phoenix_development",
-    "DB_USER": "phoenix"
+    "DB_HOST": "{{docker_db_host}}",
+    "DB_NAME": "{{phoenix_db_name}}",
+    "DB_USER": "{{db_user}}"
   },
   "healthChecks": [
     {
