@@ -1,0 +1,51 @@
+{
+  "id": "/bernardo",
+  "cmd": null,
+  "cpus": 0.25,
+  "mem": 64,
+  "disk": 0,
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "{{docker_registry}}:5000/bernardo:{{docker_branch}}",
+      "image": "docker-stage.foxcommerce.com:5000/bernardo:master",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "env": {
+    "DB_HOST": "172.17.0.1",
+    "DB_NAME": "ic",
+    "DB_USER": "ic"
+  },
+  "healthChecks": [
+    {
+      "path": "/ping",
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 30,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false
+    }
+  ],
+  "portDefinitions": [
+      {
+          "port": 10000,
+          "protocol": "tcp",
+          "name": "http",
+          "labels": {}
+      },
+      {
+          "port": 10010,
+          "protocol": "tcp",
+          "name": "http2",
+          "labels": {}
+      }
+  ]
+}
