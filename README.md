@@ -4,6 +4,20 @@
 
 Highlander is the brand-spanking-new FoxCommerce mono-repo.
 
+## The Projects
+
+| Project                                | Description                                                                                                  |
+|:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
+| [phoenix-scala](phoenix-scala)         | Our main API that handles the business logic for the customer, merchandising, and order management systems.  |
+| [green-river](green-river)             | An event-sourcing system based on Kafka and [bottledwater](https://github.com/confluentinc/bottledwater-pg). |
+| [middlewarehouse](middlewarehouse)     | A lightweight and fast shipping and inventory management service written in Go.                              |
+| [isaac](isaac)                         | Our C++ authentication service.                                                                              |
+| [ashes](ashes)                         | The Admin UI, written in React.js.                                                                           |
+| [api-js](api-js)                       | A JavaScript library for interacting with the FoxCommerce API.                                               |
+| [firebrand](firebrand)                 | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
+| [prov-shit](prov-shit)                 | All of our DevOps tools for deploying the application to both development and production.                    |
+| [api-docs](api-docs)                   | Our API documentation in API Blueprint format and Postman query collections.                                 |
+
 ## Development Environment
 
 The simplest way to get started is to use Vagrant to build out a virtual
@@ -75,16 +89,12 @@ Get the private IP address
 
 Edit your hosts file so that `local.foxcommerce.com` points to the new box using the private IP address you just retrieved.
 
-## The Projects
+### Git hooks
 
-| Project                                | Description                                                                                                  |
-|:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
-| [phoenix-scala](phoenix-scala)         | Our main API that handles the business logic for the customer, merchandising, and order management systems.  |
-| [green-river](green-river)             | An event-sourcing system based on Kafka and [bottledwater](https://github.com/confluentinc/bottledwater-pg). |
-| [middlewarehouse](middlewarehouse)     | A lightweight and fast shipping and inventory management service written in Go.                              |
-| [isaac](isaac)                         | Our C++ authentication service.                                                                              |
-| [ashes](ashes)                         | The Admin UI, written in React.js.                                                                           |
-| [api-js](api-js)                       | A JavaScript library for interacting with the FoxCommerce API.                                               |
-| [firebrand](firebrand)                 | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
-| [prov-shit](prov-shit)                 | All of our DevOps tools for deploying the application to both development and production.                    |
-| [api-docs](api-docs)                   | Our API documentation in API Blueprint format and Postman query collections.                                 |
+During development, you might also want to use our Git hooks:
+
+    $ cd highlander/
+    $ cd .git ; rm -r hooks ; ln -s ../git-hooks hooks
+
+Currently, there’s only one that by default adds `[skip ci]` to preformatted commit messages. This means it will only be added if you edit your commit messages with an external editor, `git commit -m <msg>` won’t be affected.  If you’re finishing your work on some branch and want to build it, simply remove the line.
+

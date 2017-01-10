@@ -47,6 +47,9 @@ shortcuts:
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
+  - name: Bootstrap Pgweb
+    alias: pgweb.yml
+    target: ansible/bootstrap_pgweb.yml
   - name: Bootstrap Store Admin User
     alias: store_admin.yml
     target: ansible/bootstrap_store_admin.yml

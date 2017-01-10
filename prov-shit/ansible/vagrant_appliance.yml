@@ -27,6 +27,7 @@
     - { role: dev/elasticsearch }
     - { role: dev/kibana }
     - { role: dev/db }
+    - { role: dev/pgweb }
     - { role: dev/isaac }
     - { role: dev/phoenix }
     - { role: dev/solomon }

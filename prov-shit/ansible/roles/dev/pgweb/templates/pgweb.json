@@ -1,0 +1,15 @@
+{
+    "service" : {
+        "name": "pgweb",
+        "tags": ["pgweb"],
+        "port": {{pgweb_port}},
+        "checks": [
+            {
+                "name": "HTTP API on port {{pgweb_port}}",
+                "http": "http://localhost:{{pgweb_port}}/api/info",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}
