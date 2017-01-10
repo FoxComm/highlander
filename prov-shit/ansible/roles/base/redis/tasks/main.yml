@@ -8,7 +8,7 @@
     apt: name=redis-server state=latest update_cache=true
 
   - name: update Redis conf
-    lineinfile: "dest=/etc/redis/redis.conf regexp='^bind' line='bind {{ ansible_default_ipv4['address'] }}'"
+    lineinfile: dest=/etc/redis/redis.conf regexp='^bind' line="'bind {{ ansible_default_ipv4['address'] }}'"
     notify: restart redis
 
   - name: start redis
