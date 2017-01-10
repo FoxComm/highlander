@@ -1,0 +1,5 @@
+pgweb_filename: pgweb_linux_amd64.zip
+pgweb_version: v0.9.6
+pgweb_repo: https://github.com/sosedoff/pgweb
+pgweb_download_url: "{{pgweb_repo}}/releases/download/{{pgweb_version}}/{{pgweb_filename}}"
+pgweb_port: 8082
