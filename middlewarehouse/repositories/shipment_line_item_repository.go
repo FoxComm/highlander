@@ -36,6 +36,8 @@ func (repository *shipmentLineItemRepository) GetShipmentLineItemsByShipmentID(i
 }
 
 func (repository *shipmentLineItemRepository) CreateShipmentLineItem(shipmentLineItem *models.ShipmentLineItem) (*models.ShipmentLineItem, error) {
+	fmt.Printf("The shipment line item is:\n%v\n", shipmentLineItem)
+	fmt.Printf("StockItemUnitID: %d\n", shipmentLineItem.StockItemUnitID)
 	err := repository.db.Create(shipmentLineItem).Error
 
 	if err != nil {

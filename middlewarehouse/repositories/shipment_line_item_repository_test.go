@@ -20,6 +20,7 @@ type ShipmentLineItemRepositoryTestSuite struct {
 	stockItemUnit1 *models.StockItemUnit
 	stockItemUnit2 *models.StockItemUnit
 	shipment1      *models.Shipment
+	sku            *models.SKU
 }
 
 func TestShipmentLineItemRepositorySuite(t *testing.T) {
@@ -35,11 +36,15 @@ func (suite *ShipmentLineItemRepositoryTestSuite) SetupSuite() {
 		"carriers",
 		"shipping_methods",
 		"addresses",
+		"skus",
 		"stock_locations",
 		"stock_items",
 		"stock_item_units",
 		"shipments",
 	})
+
+	suite.sku = fixtures.GetSKU()
+	suite.Nil(suite.db.Create(suite.sku).Error)
 
 	carrier := fixtures.GetCarrier(1)
 	suite.Nil(suite.db.Create(carrier).Error)
@@ -55,15 +60,18 @@ func (suite *ShipmentLineItemRepositoryTestSuite) SetupSuite() {
 	stockLocation := fixtures.GetStockLocation()
 	suite.Nil(suite.db.Create(stockLocation).Error)
 
-	stockItem := fixtures.GetStockItem(stockLocation.ID, "SKU-TEST")
+	stockItem := fixtures.GetStockItem(stockLocation.ID, suite.sku.ID)
+	stockItem.SkuID = suite.sku.ID
 	suite.Nil(suite.db.Create(stockItem).Error)
 
 	suite.stockItemUnit1 = fixtures.GetStockItemUnit(stockItem)
-	suite.stockItemUnit1.RefNum = sql.NullString{"BR1001", true}
+	suite.stockItemUnit1.OrderRefNum = sql.NullString{"BR1001", true}
+	suite.stockItemUnit1.OrderLineItemRefNum = sql.NullString{"LI1001", true}
 	suite.Nil(suite.db.Create(suite.stockItemUnit1).Error)
 
 	suite.stockItemUnit2 = fixtures.GetStockItemUnit(stockItem)
-	suite.stockItemUnit2.RefNum = sql.NullString{"BR1001", true}
+	suite.stockItemUnit2.OrderRefNum = sql.NullString{"BR1001", true}
+	suite.stockItemUnit2.OrderLineItemRefNum = sql.NullString{"LI1002", true}
 	suite.Nil(suite.db.Create(suite.stockItemUnit2).Error)
 
 	suite.shipment1 = fixtures.GetShipment(0, "BR1001", shippingMethod.Code, shippingMethod, address.ID, address, nil)
@@ -99,6 +107,7 @@ func (suite *ShipmentLineItemRepositoryTestSuite) Test_GetShipmentLineItemsByShi
 }
 
 func (suite *ShipmentLineItemRepositoryTestSuite) Test_CreateShipmentLineItem_ReturnsCreatedRecord() {
+	fmt.Printf("The stock item's ID is: %d\n", suite.stockItemUnit1.ID)
 	//arrange
 	shipmentLineItem1 := fixtures.GetShipmentLineItem(1, suite.shipment1.ID, suite.stockItemUnit1.ID)
 

@@ -38,7 +38,7 @@ func NewSummaryFromModel(summaries []*models.StockItemSummary) *StockItemSummary
 
 func summaryFromModel(summary *models.StockItemSummary) stockItemSummary {
 	return stockItemSummary{
-		SKU:           summary.StockItem.SKU,
+		SKU:           summary.StockItem.SKU.Code,
 		StockItem:     NewStockItemFromModel(&summary.StockItem),
 		StockLocation: NewStockLocationFromModel(&summary.StockItem.StockLocation),
 		Type:          string(summary.Type),

@@ -1,12 +1,11 @@
 package services
 
 import (
-	"errors"
 	"fmt"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/common/async"
 	commonErrors "github.com/FoxComm/highlander/middlewarehouse/common/errors"
-	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/jinzhu/gorm"
@@ -16,9 +15,11 @@ type inventoryService struct {
 	stockItemRepo  repositories.IStockItemRepository
 	unitRepo       repositories.IStockItemUnitRepository
 	summaryService ISummaryService
+	db             *gorm.DB
 	txn            *gorm.DB
 }
 
+// IInventoryService is a service that manages inventory levels in the system.
 type IInventoryService interface {
 	WithTransaction(txn *gorm.DB) IInventoryService
 	GetStockItems() ([]*models.StockItem, error)
@@ -30,7 +31,7 @@ type IInventoryService interface {
 	IncrementStockItemUnits(id uint, unitType models.UnitType, units []*models.StockItemUnit) error
 	DecrementStockItemUnits(id uint, unitType models.UnitType, qty int) error
 
-	HoldItems(refNum string, skus map[string]int) error
+	HoldItems(payload *payloads.Hold) error
 	ReserveItems(refNum string) error
 	ReleaseItems(refNum string) error
 	ShipItems(refNum string) error
@@ -40,12 +41,18 @@ type IInventoryService interface {
 type updateItemsStatusFunc func() (int, error)
 
 func NewInventoryService(
+	db *gorm.DB,
 	stockItemRepo repositories.IStockItemRepository,
 	unitRepo repositories.IStockItemUnitRepository,
 	summaryService ISummaryService,
 ) IInventoryService {
-
-	return &inventoryService{stockItemRepo, unitRepo, summaryService, nil}
+	return &inventoryService{
+		stockItemRepo:  stockItemRepo,
+		unitRepo:       unitRepo,
+		summaryService: summaryService,
+		db:             db,
+		txn:            nil,
+	}
 }
 
 func (service *inventoryService) WithTransaction(txn *gorm.DB) IInventoryService {
@@ -66,16 +73,17 @@ func (service *inventoryService) GetStockItemById(id uint) (*models.StockItem, e
 }
 
 func (service *inventoryService) CreateStockItem(stockItem *models.StockItem) (*models.StockItem, error) {
-	if err := service.stockItemRepo.UpsertStockItem(stockItem); err != nil {
-		return nil, err
-	}
-
-	err := service.summaryService.CreateStockItemSummary(stockItem.ID)
+	item, err := service.stockItemRepo.CreateStockItem(stockItem)
 	if err != nil {
 		return nil, err
 	}
 
-	return stockItem, nil
+	err = service.summaryService.CreateStockItemSummary(item.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return item, nil
 }
 
 func (service *inventoryService) GetAFSByID(id uint, unitType models.UnitType) (*models.AFS, error) {
@@ -107,43 +115,42 @@ func (service *inventoryService) DecrementStockItemUnits(stockItemID uint, unitT
 	return service.updateSummary(map[uint]int{stockItemID: -qty}, unitType, models.StatusChange{To: models.StatusOnHand})
 }
 
-func (service *inventoryService) HoldItems(refNum string, skus map[string]int) error {
-	// map [sku]qty to list of SKUs
-	skusList := []string{}
-	for code := range skus {
-		skusList = append(skusList, code)
-	}
+func (service *inventoryService) HoldItems(payload *payloads.Hold) error {
+	service.txn = service.db.Begin()
 
-	// get stock items associated with SKUs
-	items, err := service.getStockItemsBySKUs(skusList)
-	if err != nil {
-		return err
-	}
+	// Iterate through all of the items in the hold payload and allocate units
+	// to each one.
+	unitRepo := service.getUnitRepo()
 
-	// get available units for each stock item
-	unitsIds, err := service.getUnitsForOrder(items, skus)
-	if err != nil {
-		return err
-	}
-
-	// updated units with refNum and appropriate status
-	count, err := service.getUnitRepo().HoldUnitsInOrder(refNum, unitsIds)
-	if err != nil {
-		return err
-	}
-
-	if count == 0 {
-		return fmt.Errorf(`No stock item units associated with "%s"`, refNum)
-	}
-
-	// update summary
 	stockItemsMap := make(map[uint]int)
-	for _, si := range items {
-		stockItemsMap[si.ID] = skus[si.SKU]
+	for _, item := range payload.Items {
+		unit, err := unitRepo.HoldUnitForLineItem(item.SkuID, payload.OrderRefNum, item.LineItemRefNum)
+		if err != nil {
+			service.txn.Rollback()
+			return err
+		}
+
+		qty := 1
+		stockItemQty, ok := stockItemsMap[unit.StockItemID]
+		if ok {
+			qty = qty + stockItemQty
+		}
+		stockItemsMap[unit.StockItemID] = qty
 	}
+
 	statusShift := models.StatusChange{From: models.StatusOnHand, To: models.StatusOnHold}
 
-	return service.updateSummary(stockItemsMap, models.Sellable, statusShift)
+	if err := service.updateSummary(stockItemsMap, models.Sellable, statusShift); err != nil {
+		service.txn.Rollback()
+		return err
+	}
+
+	if err := service.txn.Commit().Error; err != nil {
+		return err
+	}
+
+	service.txn = nil
+	return nil
 }
 
 func (service *inventoryService) ReserveItems(refNum string) error {
@@ -178,39 +185,11 @@ func (service *inventoryService) DeleteItems(refNum string) error {
 	}, service.txn)
 }
 
-func (service *inventoryService) getStockItemsBySKUs(skusList []string) ([]*models.StockItem, error) {
-	// get stock items associated with SKUs
-	items, err := service.stockItemRepo.GetStockItemsBySKUs(skusList)
-	if err != nil {
-		return nil, err
-	}
-
-	// grab found SKU list from repo
-	skusListRepo := []string{}
-	for _, item := range items {
-		skusListRepo = append(skusListRepo, item.SKU)
-	}
-
-	// compare expectations with reality
-	aggregateErr := commonErrors.AggregateError{}
-	diff := utils.DiffSlices(skusList, skusListRepo)
-	if len(diff) > 0 {
-		for _, sku := range diff {
-			msg := fmt.Sprintf("Can't hold items for %s - no stock items found", sku)
-			aggregateErr.Add(errors.New(msg))
-		}
-
-		return nil, aggregateErr
-	}
-
-	return items, nil
-}
-
-func (service *inventoryService) getUnitsForOrder(items []*models.StockItem, skus map[string]int) ([]uint, error) {
+func (service *inventoryService) getUnitsForOrder(items []*models.StockItem, skus map[uint]int) ([]uint, error) {
 	aggregateErr := commonErrors.AggregateError{}
 	unitsIds := []uint{}
 	for _, si := range items {
-		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SKU])
+		ids, err := service.unitRepo.GetStockItemUnitIDs(si.ID, models.StatusOnHand, models.Sellable, skus[si.SkuID])
 		if err != nil {
 			aggregateErr.Add(err)
 		}

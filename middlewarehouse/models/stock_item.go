@@ -4,7 +4,8 @@ import "github.com/FoxComm/highlander/middlewarehouse/common/gormfox"
 
 type StockItem struct {
 	gormfox.Base
-	SKU             string
+	SKU             SKU
+	SkuID           uint
 	StockLocation   StockLocation
 	StockLocationID uint
 	DefaultUnitCost int

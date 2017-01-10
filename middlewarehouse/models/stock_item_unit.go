@@ -8,12 +8,13 @@ import (
 
 type StockItemUnit struct {
 	gormfox.Base
-	StockItemID uint
-	StockItem   StockItem
-	Type        UnitType
-	RefNum      sql.NullString
-	UnitCost    int
-	Status      UnitStatus
+	StockItemID         uint
+	StockItem           StockItem
+	Type                UnitType
+	OrderRefNum         sql.NullString
+	OrderLineItemRefNum sql.NullString
+	UnitCost            int
+	Status              UnitStatus
 }
 
 func (siu StockItemUnit) Identifier() uint {

@@ -12,7 +12,7 @@ type StockItem struct {
 func NewStockItemFromModel(si *models.StockItem) *StockItem {
 	return &StockItem{
 		ID:              si.ID,
-		SKU:             si.SKU,
+		SKU:             si.SKU.Code,
 		StockLocationID: si.StockLocationID,
 		DefaultUnitCost: si.DefaultUnitCost,
 	}

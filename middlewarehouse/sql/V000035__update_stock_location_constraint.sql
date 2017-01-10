@@ -1,0 +1,1 @@
+alter table stock_items add constraint sku_location_constraint unique (sku_id, stock_location_id);

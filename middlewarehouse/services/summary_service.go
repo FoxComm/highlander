@@ -1,13 +1,15 @@
 package services
 
 import (
+	"github.com/FoxComm/highlander/middlewarehouse/common/logging"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
-	"github.com/jinzhu/gorm"
 	"log"
 	"reflect"
 	"strings"
+
+	"github.com/jinzhu/gorm"
 )
 
 type summaryService struct {
@@ -25,7 +27,7 @@ type ISummaryService interface {
 	CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) error
 
 	GetSummary() ([]*models.StockItemSummary, error)
-	GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error)
+	GetSummaryBySkuID(skuID uint) ([]*models.StockItemSummary, error)
 }
 
 func NewSummaryService(summaryRepo repositories.ISummaryRepository, stockItemRepo repositories.IStockItemRepository) ISummaryService {
@@ -44,8 +46,8 @@ func (service *summaryService) GetSummary() ([]*models.StockItemSummary, error) 
 	return service.summaryRepo.GetSummary()
 }
 
-func (service *summaryService) GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error) {
-	return service.summaryRepo.GetSummaryBySKU(sku)
+func (service *summaryService) GetSummaryBySkuID(skuID uint) ([]*models.StockItemSummary, error) {
+	return service.summaryRepo.GetSummaryBySkuID(skuID)
 }
 
 func (service *summaryService) CreateStockItemSummary(stockItemId uint) error {
@@ -89,6 +91,15 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 	summary = updateAfs(summary, status, qty)
 	summary = updateAfsCost(summary, stockItem)
 
+	logging.Log.Debugf("Updating the summary", logging.M{
+		"stockItemID": stockItemId,
+		"Type":        summary.Type,
+		"OnHand":      summary.OnHand,
+		"OnHold":      summary.OnHold,
+		"Reserved":    summary.Reserved,
+		"Shipped":     summary.Shipped,
+	})
+
 	// update stock item summary values
 	if err := service.getSummaryRepo().UpdateStockItemSummary(summary); err != nil {
 		log.Printf("Error updating stock_item_summaries with error: %s", err.Error())
@@ -108,7 +119,7 @@ func (service *summaryService) CreateStockItemTransaction(summary *models.StockI
 	}
 
 	transaction := &models.StockItemTransaction{
-		StockItemId:    summary.StockItemID,
+		StockItemID:    summary.StockItemID,
 		Type:           summary.Type,
 		Status:         status,
 		QuantityNew:    getStatusAmountChange(summary, status),
