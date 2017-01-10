@@ -21,9 +21,11 @@ import payloads.OrderPayloads.CreateCart
 import payloads.UpdateShippingMethod
 import responses.cord.CartResponse
 import responses.cord.base.CordResponseLineItem
-import responses.{CustomerResponse, TheResponse}
+import responses.{CustomerResponse, GiftCardResponse, TheResponse}
 import models.cord.CordPaymentState
 import models.payment.giftcard.{GiftCard, GiftCardManual, GiftCardManuals, GiftCards}
+import payloads.GiftCardPayloads.GiftCardCreateByCsr
+import payloads.PaymentPayloads.{GiftCardPayment, StoreCreditPayment}
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import testutils._
@@ -88,29 +90,36 @@ class CartIntegrationTest
       fullCart.paymentMethods.size must === (0)
     }
 
-    "calculates customer’s expenses considering in-store payments" in new Fixture
-    with ProductSku_ApiFixture {
-      cartsApi(cart.refNum).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
+    "calculates customer’s expenses considering in-store payments" in new StoreAdmin_Seed
+    with Customer_Seed with ProductSku_ApiFixture {
+      val refNum = cartsApi
+        .create(CreateCart(customerId = customer.id.some)) // faker.Internet.email.some))
+        .as[CartResponse]
+        .referenceNumber
 
-      val giftCardAmount = 2500
+      cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
 
-      (for {
-        reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
-        origin ← * <~ GiftCardManuals.create(
-                    GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
-        giftCard ← * <~ GiftCards.create(
-                      Factories.giftCard.copy(originId = origin.id,
-                                              state = GiftCard.Active,
-                                              originalBalance = giftCardAmount))
-        payment ← * <~ OrderPayments.create(
-                     Factories.giftCardPayment.copy(cordRef = cart.refNum,
-                                                    amount = giftCardAmount.some,
-                                                    paymentMethodId = giftCard.id))
-      } yield ()).gimme
+      val giftCardAmount    = 2500 // ¢
+      val storeCreditAmount = 500  // ¢
 
-      val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
+      // FIXME: Use API?
+      val reason = (* <~ Reasons.create(Factories.reason(storeAdmin.accountId))).gimme
 
-      fullCart.totals.customersExpenses must === (fullCart.totals.total - giftCardAmount)
+      val giftCard = giftCardsApi
+        .create(GiftCardCreateByCsr(giftCardAmount, reasonId = reason.id))
+        .as[GiftCardResponse.Root]
+
+      cartsApi(refNum).payments.giftCard
+        .add(GiftCardPayment(giftCard.code, giftCardAmount.some))
+        .asTheResult[CartResponse]
+
+      val afterCredit = cartsApi(refNum).payments.storeCredit.add(StoreCreditPayment(storeCreditAmount))
+      info(s"afterCredit = $afterCredit")
+
+      val fullCart = cartsApi(refNum).get().asTheResult[CartResponse]
+
+      fullCart.totals.customersExpenses must === (
+          fullCart.totals.total - giftCardAmount - storeCreditAmount)
     }
   }
 
