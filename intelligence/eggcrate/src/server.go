@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"os"
 
+	"net/http"
+	"os"
+
 	"github.com/labstack/echo"
 )
 
@@ -26,5 +29,6 @@ func main() {
 	e.GET("/productSum/cart/:id", services.GetProductSum("cart"))
 	e.GET("/productSum/checkout/:id", services.GetProductSum("checkout"))
 	e.GET("/productStats/:channel/:id", services.GetProductStats)
+	e.GET("/productFunnel/:id", services.GetProductFunnel)
 	e.Logger.Fatal(e.Start(PORT))
 }
