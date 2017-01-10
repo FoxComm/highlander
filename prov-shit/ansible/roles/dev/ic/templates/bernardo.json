@@ -18,9 +18,9 @@
     }
   },
   "env": {
-    "DB_HOST": "172.17.0.1",
-    "DB_NAME": "ic",
-    "DB_USER": "ic"
+    "DB_HOST": "{{docker_db_host}}",
+    "DB_NAME": "{{bernardo_db_name}}",
+    "DB_USER": "{{bernardo_db_user}}"
   },
   "healthChecks": [
     {
