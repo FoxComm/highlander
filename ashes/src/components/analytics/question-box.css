@@ -1,0 +1,27 @@
+.question-box-container {
+  width: 225px;
+  max-width: 225px;
+  height: 179px;
+  max-height: 179px;
+  background-color: #FFFFFF;
+  border: 1px solid #9BA3A7;
+}
+
+.question-box-title {
+  margin-top: 30px;
+  margin-right: auto;
+  margin-left: auto;
+  width: 50%;
+  font-size: 13px;
+  text-align: center;
+}
+
+.question-box-content {
+  font-size: 30px;
+  line-height: 41px;
+  width: 50%;
+  margin-top: 17px;
+  margin-left: 44px;
+  margin-right: 44px;
+  color: #363636;
+}

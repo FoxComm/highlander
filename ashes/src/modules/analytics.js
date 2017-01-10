@@ -1,16 +1,15 @@
 
 import _ from 'lodash';
 import {createAction, createReducer} from 'redux-act';
-import { update, assoc } from 'sprout-data';
-import { updateItems } from './state-helpers';
+import { assoc } from 'sprout-data';
 import Api from '../lib/api';
 
-const startFetching = createAction('INSIGHTS_START_FETCHING');
-const receivedValues = createAction('INSIGHTS_RECEIVED',(keys, values, from, to, sizeSec, stepSec) => [keys, values, from, to, sizeSec, stepSec]);
-const fetchFailed = createAction('INSIGHTS_FETCH_FAILED');
-export const resetInsights = createAction('INSIGHTS_RESET');
+const startFetching = createAction('ANALYTICS_START_FETCHING');
+const receivedValues = createAction('ANALYTICS_RECEIVED',(keys, values, from, to, sizeSec, stepSec) => [keys, values, from, to, sizeSec, stepSec]);
+const fetchFailed = createAction('ANALYTICS_FETCH_FAILED');
+export const resetAnalytics = createAction('ANALYTICS_RESET');
 
-export function fetchInsights(keys, from, to, sizeSec, stepSec) {
+export function fetchAnalytics(keys, from, to, sizeSec, stepSec) {
   return dispatch => {
     dispatch(startFetching());
 
@@ -46,7 +45,7 @@ const reducer = createReducer({
       ['err'], null
     );
   },
-  [resetInsights]: () => {
+  [resetAnalytics]: () => {
     return initialState;
   },
   [receivedValues]: (state, [keys, values, from, to, sizeSec, stepSec]) => {

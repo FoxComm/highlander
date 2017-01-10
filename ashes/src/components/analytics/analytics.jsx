@@ -12,15 +12,17 @@ import {
   VictoryGroup,
 } from 'victory';
 import moment from 'moment';
+import _ from 'lodash';
+import formatCurrency from '../../lib/format-currency';
 
 // components
 import ErrorAlerts from '../alerts/error-alerts';
 import WaitAnimation from '../common/wait-animation';
-import { SectionTitle } from '../section-title';
-import _ from 'lodash';
+import QuestionBox from './question-box';
+import Currency from '../common/currency';
 
 // redux
-import * as InsightActions from '../../modules/insights';
+import * as AnalyticsActions from '../../modules/analytics';
 
 const verbs = {
   product: {
@@ -32,8 +34,8 @@ const verbs = {
 
 const colors = ["#2ca02c", "#ff7f0e", "#662ca0"];
 
-@connect((state, props) => ({insights: state.insights}), InsightActions)
-export default class Insights extends React.Component {
+@connect((state, props) => ({analytics: state.analytics}), AnalyticsActions)
+export default class Analytics extends React.Component {
 
   static propTypes = {
     entity: PropTypes.shape({
@@ -43,8 +45,8 @@ export default class Insights extends React.Component {
       ]),
       entityType: PropTypes.string,
     }),
-    insights: PropTypes.shape({
-        insightKey: PropTypes.string,
+    analytics: PropTypes.shape({
+        analyticsKey: PropTypes.string,
         values: PropTypes.object,
         from: PropTypes.number,
         to: PropTypes.number,
@@ -56,13 +58,15 @@ export default class Insights extends React.Component {
             action: PropTypes.string,
             idKey: PropTypes.string,
     })}),
-    fetchInsights: PropTypes.func.isRequired
+    fetchAnalytics: PropTypes.func.isRequired
   };
 
   componentDidMount() {
     const channel = 1;
-    const keys = _.map(verbs[this.props.entity.entityType], (title, verb) => { 
-      const key = `track.${channel}.${this.props.entity.entityType}.${this.props.entity.entityId}.${verb}`;
+    const { entityType, entityId } = this.props.entity;
+
+    const keys = _.map(verbs[entityType], (title, verb) => {
+      const key = `track.${channel}.${entityType}.${entityId}.${verb}`;
       return { 
           key: key,
           title: title,
@@ -74,7 +78,7 @@ export default class Insights extends React.Component {
     const from = to - (300*20);
     const sizeSec = 60;
     const stepSec = 60;
-    this.props.fetchInsights(keys, from, to, sizeSec, stepSec);
+    this.props.fetchAnalytics(keys, from, to, sizeSec, stepSec);
   }
 
   @autobind
@@ -102,7 +106,7 @@ export default class Insights extends React.Component {
           text={title.text}
         />
         {_.map(allData, (dataSet, i) => {
-          return this.legend(dataSet.name, colors[i], title.x, title.y + (i + 1) * 8)
+          return this.legend(dataSet.name, colors[i], title.x, title.y + (i + 1) * 8);
         })}
         <VictoryAxis
           label="Time"
@@ -154,20 +158,20 @@ export default class Insights extends React.Component {
   }
 
   get content() {
-    const { insights } = this.props;
+    const { analytics } = this.props;
 
-    if (insights.isFetching === false) {
-      if (!insights.err) {
+    if (analytics.isFetching === false) {
+      if (!analytics.err) {
 
-        const data = _.map(insights.values, (rawValues, k) => {
-          let values = rawValues.map((v) => {
+        const data = _.map(analytics.values, (rawValues, k) => {
+          let values = _.map(rawValues, (v) => {
             return {
               x: new Date(v.x * 1000),
               y: v.y
             };
           });
 
-          const verb = _.find(insights.keys, {'key': k});
+          const verb = _.find(analytics.keys, {'key': k});
 
           return {
             name: verb.title,
@@ -179,7 +183,7 @@ export default class Insights extends React.Component {
 
         return this.newChart(data);
       } else {
-        return <ErrorAlerts error={insights.err} />;
+        return <ErrorAlerts error={analytics.err} />;
       }
     } else {
       return <WaitAnimation />;
@@ -188,8 +192,13 @@ export default class Insights extends React.Component {
 
   render() {
     return (
-      <div className="fc-insights-page">
-        <SectionTitle title="Insights" />
+      <div className="fc-analytics-page">
+        <QuestionBox
+          title="Total Revenue"
+          content={<Currency value="578657"/>}
+          trendDisplay={null}
+          onClick={null}
+        />
         {this.content}
       </div>
     );
