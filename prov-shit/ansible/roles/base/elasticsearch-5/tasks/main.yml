@@ -3,8 +3,6 @@
 - name: Get ElasticSearch 5.0
   get_url: url=https://artifacts.elastic.co/downloads/elasticsearch/{{es_zip}} dest={{home}}/{{es_zip}}
 
-# ^^^ should be merged with block below in https://github.com/FoxComm/highlander/pull/569
-
 - name: Unzip ElasticSearch
   unarchive: src={{home}}/{{es_zip}} dest={{usr_local}} copy=no
 
@@ -39,10 +37,6 @@
 
 - name: Set the maximum number of open files
   lineinfile: dest=/etc/security/limits.conf insertbefore='^# End of file' line='elasticsearch - nofile {{es_max_file_descriptors}}'
-
-# Temp. Only for current version of Vagrant appliance base image
-- name: Increase default VM for ES
-  shell: sysctl -w vm.max_map_count=262144
 
 - name: Reload Systemd for Elastic Search
   command: systemctl daemon-reload
