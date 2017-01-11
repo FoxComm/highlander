@@ -28,7 +28,8 @@ isaac_port: 9190
 isaac_server: "{{isaac_host}}:{{isaac_port}}"
 
 search_host: "elasticsearch.{{consul_suffix}}"
-log_host: "{{search_host}}"
+es_logs_port: 9201
+log_host: "{{search_host}}:{{es_logs_port}}"
 search_server_http: "{{search_host}}:9200"
 search_server: "{{search_host}}:9300"
 
@@ -235,6 +236,8 @@ docker_branch: master
 docker_frontend_branch: master
 docker_registry: docker-stage.foxcommerce.com
 docker_registry_provider: gce
+docker_logs_dir: /logs
+docker_logs_host_dir: /var/log/docker
 
 # Marketplace
 marketplace_db_name: marketplace_development

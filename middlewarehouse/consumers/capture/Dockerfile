@@ -7,4 +7,4 @@ RUN mkdir -p /capture-consumer
 WORKDIR /capture-consumer
 COPY capture-consumer /capture-consumer
 
-CMD ["/capture-consumer/capture-consumer"] 
+CMD /capture-consumer/capture-consumer 2>&1 | tee /logs/capture-consumer.log
