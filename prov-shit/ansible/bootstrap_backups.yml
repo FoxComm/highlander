@@ -19,4 +19,4 @@
       private: no
 
   roles:
-      - { role: dev/db_backup }
+      - { role: dev/backups }
