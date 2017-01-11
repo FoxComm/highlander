@@ -14,4 +14,3 @@
 
 - name: Copy Consul Service Files
   template: src=zipkin.json dest=/etc/consul.d/
-

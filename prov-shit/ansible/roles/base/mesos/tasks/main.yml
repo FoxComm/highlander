@@ -11,4 +11,3 @@
 
 - name: Install Mesos Package
   apt: name=mesos state=latest force=yes
-

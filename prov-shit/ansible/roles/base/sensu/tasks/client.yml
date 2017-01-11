@@ -1,8 +1,8 @@
 ---
 
-  - name: create client config
-    template: src=client.json dest={{ sensu_config_path }}
-    notify: restart sensu-client
+- name: create client config
+  template: src=client.json dest={{ sensu_config_path }}
+  notify: restart sensu-client
 
-  - name: start client
-    service: name=sensu-client state=started enabled=yes
+- name: start client
+  service: name=sensu-client state=started enabled=yes

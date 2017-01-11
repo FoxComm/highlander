@@ -1,29 +1,29 @@
 ---
 
-  - name: add sensu core repo key
-    apt_key: url={{ sensu_core_repo_key }} state=present
+- name: add sensu core repo key
+  apt_key: url={{ sensu_core_repo_key }} state=present
 
-  - name: add sensu core repo
-    apt_repository: repo={{ sensu_core_repo }} state=present update_cache=true
+- name: add sensu core repo
+  apt_repository: repo={{ sensu_core_repo }} state=present update_cache=true
 
-  - name: install censu core
-    apt: name=sensu state=latest
+- name: install censu core
+  apt: name=sensu state=latest
 
-  - name: create redis config
-    template: src=redis.json dest={{ sensu_config_path }}
+- name: create redis config
+  template: src=redis.json dest={{ sensu_config_path }}
 
-  - name: create transport config
-    template: src=transport.json dest={{ sensu_config_path }}
+- name: create transport config
+  template: src=transport.json dest={{ sensu_config_path }}
 
-  - include: server.yml
-    tags: server
-    when: sensu_master
+- include: server.yml
+  tags: server
+  when: sensu_master
 
-  - include: client.yml
-    tags: client
+- include: client.yml
+  tags: client
 
-  - name: install plugins
-    shell: sensu-install -p {{ item }}
-    with_items: "{{ sensu_plugins }}"
-    changed_when: false
-    when: sensu_plugins > 0
+- name: install plugins
+  shell: sensu-install -p {{ item }}
+  with_items: "{{ sensu_plugins }}"
+  changed_when: false
+  when: sensu_plugins > 0
