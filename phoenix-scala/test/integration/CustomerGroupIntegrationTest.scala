@@ -1,3 +1,4 @@
+import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import models.customer.{CustomerDynamicGroup, CustomerDynamicGroups}
 import org.json4s.JObject
@@ -71,7 +72,8 @@ class CustomerGroupIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed {
-    val group =
-      CustomerDynamicGroups.create(Factories.group.copy(createdBy = storeAdmin.accountId)).gimme
+    val group = CustomerDynamicGroups
+      .create(Factories.group(LTree("1")).copy(createdBy = storeAdmin.accountId))
+      .gimme
   }
 }
